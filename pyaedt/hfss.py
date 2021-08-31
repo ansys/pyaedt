@@ -96,21 +96,43 @@ class Hfss(FieldAnalysis3D, object):
 
     def __repr__(self):
         try:
-            return "HFSS {} {}. ProjectName:{} DesignName:{} ".format(self._aedt_version, self.solution_type,
-                                                                      self.project_name, self.design_name)
+            return "HFSS {} {}. ProjectName:{} DesignName:{} ".format(
+                self._aedt_version, self.solution_type, self.project_name, self.design_name
+            )
         except:
             return "HFSS Module"
 
-    def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
-                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):
-        FieldAnalysis3D.__init__(self, "HFSS", projectname, designname, solution_type, setup_name,
-                                 specified_version, NG, AlwaysNew, release_on_exit, student_version)
+    def __init__(
+        self,
+        projectname=None,
+        designname=None,
+        solution_type=None,
+        setup_name=None,
+        specified_version=None,
+        NG=False,
+        AlwaysNew=False,
+        release_on_exit=False,
+        student_version=False,
+    ):
+        FieldAnalysis3D.__init__(
+            self,
+            "HFSS",
+            projectname,
+            designname,
+            solution_type,
+            setup_name,
+            specified_version,
+            NG,
+            AlwaysNew,
+            release_on_exit,
+            student_version,
+        )
 
     def __enter__(self):
         return self
 
     def __exit__(self, ex_type, ex_value, ex_traceback):
-        """ Push exit up to the parent object ``Design``. """
+        """Push exit up to the parent object ``Design``."""
         if ex_type:
             exception_to_desktop(self, ex_value, ex_traceback)
 
@@ -128,8 +150,8 @@ class Hfss(FieldAnalysis3D, object):
         LumpedRLC :
         FiniteCond :
         """
-        (PerfectE, PerfectH, Aperture, Radiation, Impedance,
-         LayeredImp, LumpedRLC, FiniteCond) = range(0, 8)
+
+        (PerfectE, PerfectH, Aperture, Radiation, Impedance, LayeredImp, LumpedRLC, FiniteCond) = range(0, 8)
 
     @aedt_exception_handler
     def _create_boundary(self, name, props, boundary_type):
@@ -159,18 +181,35 @@ class Hfss(FieldAnalysis3D, object):
         return result
 
     @aedt_exception_handler
-    def _create_lumped_driven(self, objectname, int_line_start, int_line_stop, impedance, portname, renorm, deemb):
+    def _create_lumped_driven(
+        self, objectname, int_line_start, int_line_stop, impedance, portname, renorm, deemb
+    ):
         start = [str(i) + self.modeler.primitives.model_units for i in int_line_start]
         stop = [str(i) + self.modeler.primitives.model_units for i in int_line_stop]
-        props = OrderedDict({"Objects": [objectname], "DoDeembed": deemb, "RenormalizeAllTerminals": renorm,
-                             "Modes": OrderedDict({"Mode1": OrderedDict({"ModeNum": 1, "UseIntLine": True,
-                                                                         "IntLine": OrderedDict(
-                                                                             {"Start": start, "End": stop}),
-                                                                         "AlignmentGroup": 0, "CharImp": "Zpi",
-                                                                         "RenormImp": str(impedance) + "ohm"})}),
-                             "ShowReporterFilter": False,
-                             "ReporterFilter": [True],
-                             "Impedance": str(impedance) + "ohm"})
+        props = OrderedDict(
+            {
+                "Objects": [objectname],
+                "DoDeembed": deemb,
+                "RenormalizeAllTerminals": renorm,
+                "Modes": OrderedDict(
+                    {
+                        "Mode1": OrderedDict(
+                            {
+                                "ModeNum": 1,
+                                "UseIntLine": True,
+                                "IntLine": OrderedDict({"Start": start, "End": stop}),
+                                "AlignmentGroup": 0,
+                                "CharImp": "Zpi",
+                                "RenormImp": str(impedance) + "ohm",
+                            }
+                        )
+                    }
+                ),
+                "ShowReporterFilter": False,
+                "ReporterFilter": [True],
+                "Impedance": str(impedance) + "ohm",
+            }
+        )
         return self._create_boundary(portname, props, "LumpedPort")
 
     @aedt_exception_handler
@@ -186,26 +225,41 @@ class Hfss(FieldAnalysis3D, object):
     @aedt_exception_handler
     def _create_circuit_port(self, edgelist, impedance, name, renorm, deemb, renorm_impedance=""):
         edgelist = self.modeler._convert_list_to_ids(edgelist, False)
-        props = OrderedDict({"Edges": edgelist, "Impedance": str(impedance) + "ohm", "DoDeembed": deemb,
-                             "RenormalizeAllTerminals": renorm})
+        props = OrderedDict(
+            {
+                "Edges": edgelist,
+                "Impedance": str(impedance) + "ohm",
+                "DoDeembed": deemb,
+                "RenormalizeAllTerminals": renorm,
+            }
+        )
 
         if self.solution_type == "DrivenModal":
 
             if renorm:
-                if type(renorm_impedance) is int or type(renorm_impedance) is float or 'i' not in renorm_impedance:
-                    renorm_imp = str(renorm_impedance) + 'ohm'
+                if type(renorm_impedance) is int or type(renorm_impedance) is float or "i" not in renorm_impedance:
+                    renorm_imp = str(renorm_impedance) + "ohm"
                 else:
-                    renorm_imp = '(' + renorm_impedance + ') ohm'
+                    renorm_imp = "(" + renorm_impedance + ") ohm"
             else:
-                renorm_imp = '0ohm'
+                renorm_imp = "0ohm"
             props["RenormImp"] = renorm_imp
         else:
             props["TerminalIDList"] = []
         return self._create_boundary(name, props, "CircuitPort")
 
     @aedt_exception_handler
-    def _create_waveport_driven(self, objectname, int_line_start=None, int_line_stop=None, impedance=50, portname="",
-                                renorm=True, nummodes=1, deemb_distance=0):
+    def _create_waveport_driven(
+        self,
+        objectname,
+        int_line_start=None,
+        int_line_stop=None,
+        impedance=50,
+        portname="",
+        renorm=True,
+        nummodes=1,
+        deemb_distance=0,
+    ):
         start = None
         stop = None
         if int_line_start and int_line_stop:
@@ -261,10 +315,23 @@ class Hfss(FieldAnalysis3D, object):
         return self._create_boundary(portname, props, "WavePort")
 
     @aedt_exception_handler
-    def assigncoating(self, obj, mat=None,
-                      cond=58000000, perm=1, usethickness=False, thickness="0.1mm", roughness="0um",
-                      isinfgnd=False, istwoside=False, isInternal=True, issheelElement=False, usehuray=False,
-                      radius="0.5um", ratio="2.9"):
+    def assigncoating(
+        self,
+        obj,
+        mat=None,
+        cond=58000000,
+        perm=1,
+        usethickness=False,
+        thickness="0.1mm",
+        roughness="0um",
+        isinfgnd=False,
+        istwoside=False,
+        isInternal=True,
+        issheelElement=False,
+        usehuray=False,
+        radius="0.5um",
+        ratio="2.9",
+    ):
         """Assign finite conductivity to one or more objects of a given material.
 
         Parameters
@@ -323,40 +390,49 @@ class Hfss(FieldAnalysis3D, object):
             if mat in self.materials.material_keys:
                 Mat = self.materials.material_keys[mat]
                 Mat.update()
-                props['UseMaterial'] = True
-                props['Material'] = mat
+                props["UseMaterial"] = True
+                props["Material"] = mat
                 self.materials._aedmattolibrary(mat)
             elif self.materials.checkifmaterialexists(mat):
-                props['UseMaterial'] = True
-                props['Material'] = mat
+                props["UseMaterial"] = True
+                props["Material"] = mat
             else:
                 return False
         else:
-            props['UseMaterial'] = False
-            props['Conductivity'] = str(cond)
-            props['Permeability'] = str(str(perm))
-        props['UseThickness'] = usethickness
+            props["UseMaterial"] = False
+            props["Conductivity"] = str(cond)
+            props["Permeability"] = str(str(perm))
+        props["UseThickness"] = usethickness
         if usethickness:
-            props['Thickness'] = thickness
+            props["Thickness"] = thickness
         if usehuray:
-            props['Radius'] = str(radius)
-            props['Ratio'] = str(ratio)
-            props['InfGroundPlane'] = False
+            props["Radius"] = str(radius)
+            props["Ratio"] = str(ratio)
+            props["InfGroundPlane"] = False
         else:
-            props['Roughness'] = roughness
-            props['InfGroundPlane'] = isinfgnd
-        props['IsTwoSided'] = istwoside
+            props["Roughness"] = roughness
+            props["InfGroundPlane"] = isinfgnd
+        props["IsTwoSided"] = istwoside
 
         if istwoside:
-            props['IsShellElement'] = issheelElement
+            props["IsShellElement"] = issheelElement
         else:
-            props['IsInternal'] = isInternal
+            props["IsInternal"] = isInternal
         return self._create_boundary("Coating_" + listobjname[:32], props, "FiniteCond")
 
     @aedt_exception_handler
-    def create_frequency_sweep(self, setupname, unit="GHz", freqstart=1e-3, freqstop=10, sweepname=None,
-                               num_of_freq_points=451, sweeptype="Interpolating",
-                               interpolation_tol=0.5, interpolation_max_solutions=250):
+    def create_frequency_sweep(
+        self,
+        setupname,
+        unit="GHz",
+        freqstart=1e-3,
+        freqstop=10,
+        sweepname=None,
+        num_of_freq_points=451,
+        sweeptype="Interpolating",
+        interpolation_tol=0.5,
+        interpolation_max_solutions=250,
+    ):
         """Create a frequency sweep.
 
         Parameters
@@ -417,7 +493,8 @@ class Hfss(FieldAnalysis3D, object):
                 for sw in setupdata.sweeps:
                     if sweepname == sw.name:
                         self._messenger.add_warning_message(
-                            "Sweep {} is already present. Rename and retry.".format(sweepname))
+                            "Sweep {} is already present. Rename and retry.".format(sweepname)
+                        )
                         return False
                 sweepdata = setupdata.add_sweep(sweepname, sweeptype)
                 sweepdata.props["RangeStart"] = str(freqstart) + unit
@@ -436,8 +513,17 @@ class Hfss(FieldAnalysis3D, object):
         return False
 
     @aedt_exception_handler
-    def create_linear_count_sweep(self, setupname, unit, freqstart, freqstop, num_of_freq_points,
-                                  sweepname=None, save_fields=True, save_rad_fields=False):
+    def create_linear_count_sweep(
+        self,
+        setupname,
+        unit,
+        freqstart,
+        freqstop,
+        num_of_freq_points,
+        sweepname=None,
+        save_fields=True,
+        save_rad_fields=False,
+    ):
         """Create a discrete sweep with the specified number of points.
 
         Parameters
@@ -491,12 +577,13 @@ class Hfss(FieldAnalysis3D, object):
                 for sw in setupdata.sweeps:
                     if sweepname == sw.name:
                         self._messenger.add_warning_message(
-                            "Sweep {} is already present. Rename and retry.".format(sweepname))
+                            "Sweep {} is already present. Rename and retry.".format(sweepname)
+                        )
                         return False
                 sweepdata = setupdata.add_sweep(sweepname, "Discrete")
-                sweepdata.props["RangeStart"] = str(freqstart) + unit,
-                sweepdata.props["RangeEnd"] = str(freqstop) + unit,
-                sweepdata.props["RangeCount"] = num_of_freq_points,
+                sweepdata.props["RangeStart"] = (str(freqstart) + unit,)
+                sweepdata.props["RangeEnd"] = (str(freqstop) + unit,)
+                sweepdata.props["RangeCount"] = (num_of_freq_points,)
                 sweepdata.props["SaveFields"] = save_fields
                 sweepdata.props["SaveRadFields"] = save_rad_fields
                 sweepdata.props["Type"] = "Discrete"
@@ -507,8 +594,9 @@ class Hfss(FieldAnalysis3D, object):
         return False
 
     @aedt_exception_handler
-    def create_linear_step_sweep(self, setupname, unit, freqstart, freqstop, step_size,
-                                 sweepname=None, save_fields=True, save_rad_fields=False):
+    def create_linear_step_sweep(
+        self, setupname, unit, freqstart, freqstop, step_size, sweepname=None, save_fields=True, save_rad_fields=False
+    ):
         """Create a discrete sweep with a specified number of points.
 
         Parameters
@@ -562,7 +650,8 @@ class Hfss(FieldAnalysis3D, object):
                 for sw in setupdata.sweeps:
                     if sweepname == sw.name:
                         self._messenger.add_warning_message(
-                            "Sweep {} is already present. Rename and retry.".format(sweepname))
+                            "Sweep {} is already present. Rename and retry.".format(sweepname)
+                        )
                         return False
                 sweepdata = setupdata.add_sweep(sweepname, "Discrete")
                 sweepdata.props["RangeStart"] = str(freqstart) + unit
@@ -578,9 +667,18 @@ class Hfss(FieldAnalysis3D, object):
         return False
 
     @aedt_exception_handler
-    def create_sbr_linked_antenna(self, source_object, target_cs="Global", solution=None, fieldtype="nearfield",
-                                  use_composite_ports=False, use_global_current=True, current_conformance="Disable",
-                                  thin_sources=True, power_fraction="0.95"):
+    def create_sbr_linked_antenna(
+        self,
+        source_object,
+        target_cs="Global",
+        solution=None,
+        fieldtype="nearfield",
+        use_composite_ports=False,
+        use_global_current=True,
+        current_conformance="Disable",
+        thin_sources=True,
+        power_fraction="0.95",
+    ):
         """Create a linked antenna.
 
         Parameters
@@ -627,8 +725,7 @@ class Hfss(FieldAnalysis3D, object):
         if source_object.project_name == self.project_name:
             project_name = "This Project*"
         else:
-            project_name = os.path.join(source_object.project_path,
-                                        source_object.project_name + ".aedt")
+            project_name = os.path.join(source_object.project_path, source_object.project_name + ".aedt")
         design_name = source_object.design_name
         if not solution:
             solution = source_object.nominal_adaptive
@@ -636,93 +733,233 @@ class Hfss(FieldAnalysis3D, object):
         pars = source_object.available_variations.nominal_w_values_dict
         for el in pars:
             params[el] = pars[el]
-        native_props = OrderedDict({"Type": "Linked Antenna",
-                        "Unit": self.modeler.model_units, "Is Parametric Array": False, "Project": project_name,
-                        "Product": "HFSS", "Design": design_name, "Soln": solution, "Params": params,
-                        "ForceSourceToSolve": True, "PreservePartnerSoln": True, "PathRelativeTo":
-                        "TargetProject", "FieldType": fieldtype, "UseCompositePort": use_composite_ports,
-                        "SourceBlockageStructure": OrderedDict({"NonModelObject": []})})
+        native_props = OrderedDict(
+            {
+                "Type": "Linked Antenna",
+                "Unit": self.modeler.model_units,
+                "Is Parametric Array": False,
+                "Project": project_name,
+                "Product": "HFSS",
+                "Design": design_name,
+                "Soln": solution,
+                "Params": params,
+                "ForceSourceToSolve": True,
+                "PreservePartnerSoln": True,
+                "PathRelativeTo": "TargetProject",
+                "FieldType": fieldtype,
+                "UseCompositePort": use_composite_ports,
+                "SourceBlockageStructure": OrderedDict({"NonModelObject": []}),
+            }
+        )
         if fieldtype == "nearfield":
             native_props["UseGlobalCurrentSrcOption"] = use_global_current
-            native_props["Current Source Conformance"]= current_conformance
+            native_props["Current Source Conformance"] = current_conformance
             native_props["Thin Sources"] = thin_sources
-            native_props[ "Power Fraction"] = power_fraction
-        return self._create_native_component("Linked Antenna", target_cs, self.modeler.model_units, native_props, uniquename )
+            native_props["Power Fraction"] = power_fraction
+        return self._create_native_component(
+            "Linked Antenna", target_cs, self.modeler.model_units, native_props, uniquename
+        )
 
     @aedt_exception_handler
-    def _create_native_component(self, antenna_type, target_cs=None, model_units=None, parameters_dict=None,
-                                 antenna_name=None):
+    def _create_native_component(
+        self, antenna_type, target_cs=None, model_units=None, parameters_dict=None, antenna_name=None
+    ):
         if antenna_name is None:
-            antenna_name = generate_unique_name(antenna_type.replace(" ", "").replace("-",""))
+            antenna_name = generate_unique_name(antenna_type.replace(" ", "").replace("-", ""))
         if not model_units:
             model_units = self.modeler.model_units
 
-        native_props = OrderedDict({"NativeComponentDefinitionProvider": OrderedDict({"Type": antenna_type,
-                                                                                      "Unit": model_units})})
+        native_props = OrderedDict(
+            {"NativeComponentDefinitionProvider": OrderedDict({"Type": antenna_type, "Unit": model_units})}
+        )
         native_props["TargetCS"] = target_cs
         if isinstance(parameters_dict, dict):
             for el in parameters_dict:
-                if el not in ["antenna_type", "offset", "rotation", "rotation_axis", "mode"] and parameters_dict[el] is not None:
-                    native_props["NativeComponentDefinitionProvider"][el.replace(
-                        "_", " ").title()] = parameters_dict[el]
-        native = NativeComponentObject(self, antenna_type,antenna_name, native_props)
+                if (
+                    el not in ["antenna_type", "offset", "rotation", "rotation_axis", "mode"]
+                    and parameters_dict[el] is not None
+                ):
+                    native_props["NativeComponentDefinitionProvider"][el.replace("_", " ").title()] = parameters_dict[
+                        el
+                    ]
+        native = NativeComponentObject(self, antenna_type, antenna_name, native_props)
         if native.create():
             self.native_components.append(native)
             return native
         return None
 
     class SbrAntennas:
-        (ConicalHorn, CrossDipole, HalfWaveDipole, HorizontalDipole, ParametricBeam, ParametricSlot, PyramidalHorn,
-         QuarterWaveMonopole, ShortDipole, SmallLoop, WireDipole, WireMonopole) = (
-            "Conical Horn", "Cross Dipole", "Half-Wave Dipole", "Horizontal Dipole", "Parametric Beam", "Parametric Slot",
-            "Pyramidal Horn", "Quarter-Wave Monopole", "Short Dipole", "Small Loop", "Wire Dipole", "Wire Monopole")
+        (
+            ConicalHorn,
+            CrossDipole,
+            HalfWaveDipole,
+            HorizontalDipole,
+            ParametricBeam,
+            ParametricSlot,
+            PyramidalHorn,
+            QuarterWaveMonopole,
+            ShortDipole,
+            SmallLoop,
+            WireDipole,
+            WireMonopole,
+        ) = (
+            "Conical Horn",
+            "Cross Dipole",
+            "Half-Wave Dipole",
+            "Horizontal Dipole",
+            "Parametric Beam",
+            "Parametric Slot",
+            "Pyramidal Horn",
+            "Quarter-Wave Monopole",
+            "Short Dipole",
+            "Small Loop",
+            "Wire Dipole",
+            "Wire Monopole",
+        )
 
     class SBRAntennaDefaults:
         _conical = OrderedDict(
-            {"Is Parametric Array": False, "MatchedPortImpedance": "50ohm", "Polarization": "Vertical",
-             "Representation": "Far Field", "Mouth Diameter": "0.3meter", "Flare Half Angle": "20deg"})
+            {
+                "Is Parametric Array": False,
+                "MatchedPortImpedance": "50ohm",
+                "Polarization": "Vertical",
+                "Representation": "Far Field",
+                "Mouth Diameter": "0.3meter",
+                "Flare Half Angle": "20deg",
+            }
+        )
         _cross = OrderedDict(
-            {"Is Parametric Array": False, "MatchedPortImpedance": "50ohm", "Polarization": "RHCP",
-             "Representation": "Current Source", "Density": "1", "UseGlobalCurrentSrcOption": True,
-             "Resonant Frequency": "0.3GHz", "Wire Length": "499.654096666667mm", "Mode": 0})
+            {
+                "Is Parametric Array": False,
+                "MatchedPortImpedance": "50ohm",
+                "Polarization": "RHCP",
+                "Representation": "Current Source",
+                "Density": "1",
+                "UseGlobalCurrentSrcOption": True,
+                "Resonant Frequency": "0.3GHz",
+                "Wire Length": "499.654096666667mm",
+                "Mode": 0,
+            }
+        )
         _horizontal = OrderedDict(
-            {"Is Parametric Array": False, "MatchedPortImpedance": "50ohm", "Polarization": "Vertical",
-             "Representation": "Current Source", "Density": "1", "UseGlobalCurrentSrcOption": False,
-             "Resonant Frequency": "0.3GHz", "Wire Length": "499.654096666667mm",
-             "Height Over Ground Plane": "249.827048333333mm", "Use Default Height": True})
+            {
+                "Is Parametric Array": False,
+                "MatchedPortImpedance": "50ohm",
+                "Polarization": "Vertical",
+                "Representation": "Current Source",
+                "Density": "1",
+                "UseGlobalCurrentSrcOption": False,
+                "Resonant Frequency": "0.3GHz",
+                "Wire Length": "499.654096666667mm",
+                "Height Over Ground Plane": "249.827048333333mm",
+                "Use Default Height": True,
+            }
+        )
         _parametricbeam = OrderedDict(
-            {"Is Parametric Array": False, "Size": "0.1mm", "MatchedPortImpedance": "50ohm", "Polarization": "Vertical",
-             "Representation": "Far Field", "Vertical BeamWidth": "30deg", "Horizontal BeamWidth": "60deg"})
+            {
+                "Is Parametric Array": False,
+                "Size": "0.1mm",
+                "MatchedPortImpedance": "50ohm",
+                "Polarization": "Vertical",
+                "Representation": "Far Field",
+                "Vertical BeamWidth": "30deg",
+                "Horizontal BeamWidth": "60deg",
+            }
+        )
         _slot = OrderedDict(
-            {"Is Parametric Array": False, "MatchedPortImpedance": "50ohm", "Representation": "Far Field",
-             "Resonant Frequency": "0.3GHz", "Slot Length": "499.654096666667mm"})
+            {
+                "Is Parametric Array": False,
+                "MatchedPortImpedance": "50ohm",
+                "Representation": "Far Field",
+                "Resonant Frequency": "0.3GHz",
+                "Slot Length": "499.654096666667mm",
+            }
+        )
         _horn = OrderedDict(
-            {"Is Parametric Array": False, "MatchedPortImpedance": "50ohm", "Representation": "Far Field",
-             "Mouth Width": "0.3meter", "Mouth Height": "0.5meter", "Waveguide Width": "0.15meter",
-             "Width Flare Half Angle": "20deg", "Height Flare Half Angle": "35deg"})
+            {
+                "Is Parametric Array": False,
+                "MatchedPortImpedance": "50ohm",
+                "Representation": "Far Field",
+                "Mouth Width": "0.3meter",
+                "Mouth Height": "0.5meter",
+                "Waveguide Width": "0.15meter",
+                "Width Flare Half Angle": "20deg",
+                "Height Flare Half Angle": "35deg",
+            }
+        )
         _dipole = OrderedDict(
-            {"Is Parametric Array": False, "Size": "1mm", "MatchedPortImpedance": "50ohm",
-             "Representation": "Far Field"})
+            {
+                "Is Parametric Array": False,
+                "Size": "1mm",
+                "MatchedPortImpedance": "50ohm",
+                "Representation": "Far Field",
+            }
+        )
         _smallloop = OrderedDict(
-            {"Is Parametric Array": False, "MatchedPortImpedance": "50ohm", "Polarization": "Vertical",
-             "Representation": "Current Source", "Density": "1", "UseGlobalCurrentSrcOption": False,
-             "Current Source Conformance": "Disable", "Thin Sources": True, "Power Fraction": "0.95",
-             "Mouth Diameter": "0.3meter", "Flare Half Angle": "20deg"})
+            {
+                "Is Parametric Array": False,
+                "MatchedPortImpedance": "50ohm",
+                "Polarization": "Vertical",
+                "Representation": "Current Source",
+                "Density": "1",
+                "UseGlobalCurrentSrcOption": False,
+                "Current Source Conformance": "Disable",
+                "Thin Sources": True,
+                "Power Fraction": "0.95",
+                "Mouth Diameter": "0.3meter",
+                "Flare Half Angle": "20deg",
+            }
+        )
         _wiredipole = OrderedDict(
-            {"Is Parametric Array": False, "MatchedPortImpedance": "50ohm", "Representation": "Far Field",
-             "Resonant Frequency": "0.3GHz", "Wire Length": "499.654096666667mm"})
-        parameters = {"Conical Horn": _conical, "Cross Dipole": _cross, "Half-Wave Dipole": _dipole,
-                      "Horizontal Dipole": _horizontal, "Parametric Beam": _parametricbeam, "Parametric Slot": _slot,
-                      "Pyramidal Horn": _horn, "Quarter-Wave Monopole": _dipole, "Short Dipole": _dipole,
-                      "Small Loop": _dipole, "Wire Dipole": _wiredipole, "Wire Monopole": _wiredipole}
-        default_type_id = {"Conical Horn": 11, "Cross Dipole": 12, "Half-Wave Dipole": 3,
-                      "Horizontal Dipole": 13, "Parametric Beam": 0, "Parametric Slot": 7,
-                      "Pyramidal Horn": _horn, "Quarter-Wave Monopole": 4, "Short Dipole": 1,
-                      "Small Loop": 2, "Wire Dipole": 5, "Wire Monopole": 6, "File Based Antenna": 8}
+            {
+                "Is Parametric Array": False,
+                "MatchedPortImpedance": "50ohm",
+                "Representation": "Far Field",
+                "Resonant Frequency": "0.3GHz",
+                "Wire Length": "499.654096666667mm",
+            }
+        )
+        parameters = {
+            "Conical Horn": _conical,
+            "Cross Dipole": _cross,
+            "Half-Wave Dipole": _dipole,
+            "Horizontal Dipole": _horizontal,
+            "Parametric Beam": _parametricbeam,
+            "Parametric Slot": _slot,
+            "Pyramidal Horn": _horn,
+            "Quarter-Wave Monopole": _dipole,
+            "Short Dipole": _dipole,
+            "Small Loop": _dipole,
+            "Wire Dipole": _wiredipole,
+            "Wire Monopole": _wiredipole,
+        }
+        default_type_id = {
+            "Conical Horn": 11,
+            "Cross Dipole": 12,
+            "Half-Wave Dipole": 3,
+            "Horizontal Dipole": 13,
+            "Parametric Beam": 0,
+            "Parametric Slot": 7,
+            "Pyramidal Horn": _horn,
+            "Quarter-Wave Monopole": 4,
+            "Short Dipole": 1,
+            "Small Loop": 2,
+            "Wire Dipole": 5,
+            "Wire Monopole": 6,
+            "File Based Antenna": 8,
+        }
 
     @aedt_exception_handler
-    def create_sbr_antenna(self, antenna_type=SbrAntennas.ConicalHorn, target_cs=None, model_units=None,
-                           parameters_dict=None, use_current_source_representation=False, is_array=False, antenna_name=None):
+    def create_sbr_antenna(
+        self,
+        antenna_type=SbrAntennas.ConicalHorn,
+        target_cs=None,
+        model_units=None,
+        parameters_dict=None,
+        use_current_source_representation=False,
+        is_array=False,
+        antenna_name=None,
+    ):
         """Create a Parametric Beam antenna in SBR+.
 
         Parameters
@@ -761,47 +998,52 @@ class Hfss(FieldAnalysis3D, object):
         if target_cs is None:
             target_cs = self.modeler.oeditor.GetActiveCoordinateSystem()
         parameters_defaults = self.SBRAntennaDefaults.parameters[antenna_type].copy()
-        if use_current_source_representation and antenna_type in ["Conical Horn", "Horizontal Dipole",
-                                                                  "Parametric Slot", "Pyramidal Horn", "Wire Dipole",
-                                                                  "Wire Monopole"]:
+        if use_current_source_representation and antenna_type in [
+            "Conical Horn",
+            "Horizontal Dipole",
+            "Parametric Slot",
+            "Pyramidal Horn",
+            "Wire Dipole",
+            "Wire Monopole",
+        ]:
             parameters_defaults["Representation"] = "Current Source"
             parameters_defaults["Density"] = "1"
-            parameters_defaults["UseGlobalCurrentSrcOption"] =  False
-            parameters_defaults["Current Source Conformance"] =  "Disable"
+            parameters_defaults["UseGlobalCurrentSrcOption"] = False
+            parameters_defaults["Current Source Conformance"] = "Disable"
             parameters_defaults["Thin Sources"] = False
             parameters_defaults["Power Fraction"] = "0.95"
         if is_array:
             parameters_defaults["Is Parametric Array"] = True
-            parameters_defaults["Array Element Type"]= self.SBRAntennaDefaults.default_type_id[antenna_type]
-            parameters_defaults["Array Element Angle Phi"]= "0deg",
-            parameters_defaults["Array Element Angle Theta"]= "0deg",
-            parameters_defaults["Array Element Offset X"]= "0meter"
-            parameters_defaults["Array Element Offset Y"]= "0meter"
-            parameters_defaults["Array Element Offset Z"]= "0meter"
-            parameters_defaults["Array Element Conformance Type"]= 0
-            parameters_defaults["Array Element Conformance Type"]= 0
-            parameters_defaults["Array Element Conformance Type"]= 0
-            parameters_defaults["Array Element Conform Orientation"]= False
-            parameters_defaults["Array Design Frequency"]= "1GHz"
-            parameters_defaults["Array Layout Type"]= 1
-            parameters_defaults["Array Specify Design In Wavelength"]= True
-            parameters_defaults["Array Element Num"]= 5
-            parameters_defaults["Array Length"]= "1meter"
-            parameters_defaults["Array Width"]= "1meter"
-            parameters_defaults["Array Length Spacing"]= "0.1meter"
-            parameters_defaults["Array Width Spacing"]= "0.1meter"
-            parameters_defaults["Array Length In Wavelength"]= "3"
-            parameters_defaults["Array Width In Wavelength"]= "4"
-            parameters_defaults["Array Length Spacing In Wavelength"]= "0.5"
-            parameters_defaults["Array Stagger Type"]= 0
-            parameters_defaults["Array Stagger Angle"]= "0deg"
-            parameters_defaults["Array Symmetry Type"]= 0
-            parameters_defaults["Array Weight Type"]= 3
-            parameters_defaults["Array Beam Angle Theta"]= "0deg"
-            parameters_defaults["Array Weight Edge TaperX"]= -200
-            parameters_defaults["Array Weight Edge TaperY"]= -200
-            parameters_defaults["Array Weight Cosine Exp"]= 1
-            parameters_defaults["Array Differential Pattern Type"]= 0
+            parameters_defaults["Array Element Type"] = self.SBRAntennaDefaults.default_type_id[antenna_type]
+            parameters_defaults["Array Element Angle Phi"] = ("0deg",)
+            parameters_defaults["Array Element Angle Theta"] = ("0deg",)
+            parameters_defaults["Array Element Offset X"] = "0meter"
+            parameters_defaults["Array Element Offset Y"] = "0meter"
+            parameters_defaults["Array Element Offset Z"] = "0meter"
+            parameters_defaults["Array Element Conformance Type"] = 0
+            parameters_defaults["Array Element Conformance Type"] = 0
+            parameters_defaults["Array Element Conformance Type"] = 0
+            parameters_defaults["Array Element Conform Orientation"] = False
+            parameters_defaults["Array Design Frequency"] = "1GHz"
+            parameters_defaults["Array Layout Type"] = 1
+            parameters_defaults["Array Specify Design In Wavelength"] = True
+            parameters_defaults["Array Element Num"] = 5
+            parameters_defaults["Array Length"] = "1meter"
+            parameters_defaults["Array Width"] = "1meter"
+            parameters_defaults["Array Length Spacing"] = "0.1meter"
+            parameters_defaults["Array Width Spacing"] = "0.1meter"
+            parameters_defaults["Array Length In Wavelength"] = "3"
+            parameters_defaults["Array Width In Wavelength"] = "4"
+            parameters_defaults["Array Length Spacing In Wavelength"] = "0.5"
+            parameters_defaults["Array Stagger Type"] = 0
+            parameters_defaults["Array Stagger Angle"] = "0deg"
+            parameters_defaults["Array Symmetry Type"] = 0
+            parameters_defaults["Array Weight Type"] = 3
+            parameters_defaults["Array Beam Angle Theta"] = "0deg"
+            parameters_defaults["Array Weight Edge TaperX"] = -200
+            parameters_defaults["Array Weight Edge TaperY"] = -200
+            parameters_defaults["Array Weight Cosine Exp"] = 1
+            parameters_defaults["Array Differential Pattern Type"] = 0
             if is_array:
                 antenna_name = generate_unique_name("pAntArray")
         if parameters_dict:
@@ -810,9 +1052,16 @@ class Hfss(FieldAnalysis3D, object):
         return self._create_native_component(antenna_type, target_cs, model_units, parameters_defaults, antenna_name)
 
     @aedt_exception_handler
-    def create_sbr_file_based_antenna(self, ffd_full_path, antenna_size="1mm", antenna_impedance="50ohm",
-                                      representation_type="Far Field", target_cs=None, model_units=None,
-                                      antenna_name=None):
+    def create_sbr_file_based_antenna(
+        self,
+        ffd_full_path,
+        antenna_size="1mm",
+        antenna_impedance="50ohm",
+        representation_type="Far Field",
+        target_cs=None,
+        model_units=None,
+        antenna_name=None,
+    ):
         """Create a linked antenna.
 
         Parameters
@@ -854,8 +1103,13 @@ class Hfss(FieldAnalysis3D, object):
             target_cs = self.modeler.oeditor.GetActiveCoordinateSystem()
 
         par_dicts = OrderedDict(
-            {"Size": antenna_size, "MatchedPortImpedance": antenna_impedance, "Representation": representation_type,
-             "ExternalFile": ffd_full_path})
+            {
+                "Size": antenna_size,
+                "MatchedPortImpedance": antenna_impedance,
+                "Representation": representation_type,
+                "ExternalFile": ffd_full_path,
+            }
+        )
         if not antenna_name:
             antenna_name = generate_unique_name(os.path.basename(ffd_full_path).split(".")[0])
 
@@ -882,16 +1136,16 @@ class Hfss(FieldAnalysis3D, object):
             self.add_error_message("This Boundary only applies to SBR+ Solution")
             return False
         id = 0
-        props=OrderedDict({})
+        props = OrderedDict({})
         for el, val in txrx_settings.items():
-            props["Tx/Rx List " + \
-                str(id)] = OrderedDict({"Tx Antenna": el, "Rx Antennas": txrx_settings[el]})
+            props["Tx/Rx List " + str(id)] = OrderedDict({"Tx Antenna": el, "Rx Antennas": txrx_settings[el]})
             id += 1
         return self._create_boundary("SBRTxRxSettings", props, "SBRTxRxSettings")
 
     @aedt_exception_handler
-    def create_discrete_sweep(self, setupname, sweepname="SinglePoint", freq="1GHz", save_field=True,
-                              save_radiating_field=False):
+    def create_discrete_sweep(
+        self, setupname, sweepname="SinglePoint", freq="1GHz", save_field=True, save_radiating_field=False
+    ):
         """Create a discrete sweep with a single frequency value.
 
         Parameters
@@ -936,7 +1190,8 @@ class Hfss(FieldAnalysis3D, object):
                 for sw in setupdata.sweeps:
                     if sweepname == sw.name:
                         self._messenger.add_warning_message(
-                            "Sweep {} is already present. Rename and retry.".format(sweepname))
+                            "Sweep {} is already present. Rename and retry.".format(sweepname)
+                        )
                         return False
                 sweepdata = setupdata.add_sweep(sweepname, "Discrete")
                 sweepdata.props["RangeStart"] = freq
@@ -953,8 +1208,17 @@ class Hfss(FieldAnalysis3D, object):
         return False
 
     @aedt_exception_handler
-    def create_circuit_port_between_objects(self, startobj, endobject, axisdir="XYNeg", impedance=50, portname=None,
-                                            renorm=True, renorm_impedance=50, deemb=False):
+    def create_circuit_port_between_objects(
+        self,
+        startobj,
+        endobject,
+        axisdir="XYNeg",
+        impedance=50,
+        portname=None,
+        renorm=True,
+        renorm_impedance=50,
+        deemb=False,
+    ):
         """Create a circuit port taking the closest edges of two objects.
 
         Parameters
@@ -1001,7 +1265,8 @@ class Hfss(FieldAnalysis3D, object):
         """
 
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
-                endobject):
+            endobject
+        ):
             self._messenger.add_error_message("One or both objects doesn't exists. Check and retry")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
@@ -1016,8 +1281,9 @@ class Hfss(FieldAnalysis3D, object):
         return False
 
     @aedt_exception_handler
-    def create_lumped_port_between_objects(self, startobj, endobject, axisdir=0, impedance=50, portname=None,
-                                           renorm=True, deemb=False, port_on_plane=True):
+    def create_lumped_port_between_objects(
+        self, startobj, endobject, axisdir=0, impedance=50, portname=None, renorm=True, deemb=False, port_on_plane=True
+    ):
         """Create a lumped port taking the closest edges of two objects.
 
         Parameters
@@ -1065,21 +1331,22 @@ class Hfss(FieldAnalysis3D, object):
         """
 
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
-                endobject):
+            endobject
+        ):
             self._messenger.add_error_message("One or both objects do not exist. Check and retry.")
             return False
 
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
-            sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(startobj, endobject,
-                                                                                             axisdir, port_on_plane)
+            sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(
+                startobj, endobject, axisdir, port_on_plane
+            )
 
             if not portname:
                 portname = generate_unique_name("Port")
             elif portname + ":1" in self.modeler.get_excitations_name():
                 portname = generate_unique_name(portname)
             if self.solution_type == "DrivenModal":
-                self._create_lumped_driven(sheet_name, point0, point1,
-                                           impedance, portname, renorm, deemb)
+                self._create_lumped_driven(sheet_name, point0, point1, impedance, portname, renorm, deemb)
             else:
                 faces = self.modeler.primitives.get_object_faces(sheet_name)
                 self._create_port_terminal(faces[0], endobject, portname, iswaveport=False)
@@ -1129,18 +1396,19 @@ class Hfss(FieldAnalysis3D, object):
         """
 
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
-                endobject):
+            endobject
+        ):
             self._messenger.add_error_message("One or both objects doesn't exists. Check and retry")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
-            sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(startobj, endobject,
-                                                                                             axisdir, source_on_plane)
+            sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(
+                startobj, endobject, axisdir, source_on_plane
+            )
             if not sourcename:
                 sourcename = generate_unique_name("Voltage")
             elif sourcename + ":1" in self.modeler.get_excitations_name():
                 sourcename = generate_unique_name(sourcename)
-            status = self.create_source_excitation(
-                sheet_name, point0, point1, sourcename, sourcetype="Voltage")
+            status = self.create_source_excitation(sheet_name, point0, point1, sourcename, sourcetype="Voltage")
             if status:
                 return sourcename
             else:
@@ -1189,18 +1457,19 @@ class Hfss(FieldAnalysis3D, object):
         """
 
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
-                endobject):
+            endobject
+        ):
             self._messenger.add_error_message("One or both objects do not exist. Check and retry.")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
-            sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(startobj, endobject,
-                                                                                             axisdir, source_on_plane)
+            sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(
+                startobj, endobject, axisdir, source_on_plane
+            )
             if not sourcename:
                 sourcename = generate_unique_name("Current")
             elif sourcename + ":1" in self.modeler.get_excitations_name():
                 sourcename = generate_unique_name(sourcename)
-            status = self.create_source_excitation(
-                sheet_name, point0, point1, sourcename, sourcetype="Current")
+            status = self.create_source_excitation(sheet_name, point0, point1, sourcename, sourcetype="Current")
             if status:
                 return sourcename
             else:
@@ -1232,13 +1501,23 @@ class Hfss(FieldAnalysis3D, object):
 
         """
 
-        props = OrderedDict({"Objects": [sheet_name],
-                             "Direction": OrderedDict({"Start": point1, "End": point2})})
+        props = OrderedDict({"Objects": [sheet_name], "Direction": OrderedDict({"Start": point1, "End": point2})})
         return self._create_boundary(sourcename, props, sourcetype)
 
     @aedt_exception_handler
-    def create_wave_port_between_objects(self, startobj, endobject, axisdir=0, impedance=50, nummodes=1, portname=None,
-                                         renorm=True, deembed_dist=0, port_on_plane=True, add_pec_cap=False):
+    def create_wave_port_between_objects(
+        self,
+        startobj,
+        endobject,
+        axisdir=0,
+        impedance=50,
+        nummodes=1,
+        portname=None,
+        renorm=True,
+        deembed_dist=0,
+        port_on_plane=True,
+        add_pec_cap=False,
+    ):
         """Create a waveport taking the closest edges of two objects.
 
         Parameters
@@ -1290,12 +1569,14 @@ class Hfss(FieldAnalysis3D, object):
         """
 
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
-                endobject):
+            endobject
+        ):
             self._messenger.add_error_message("One or both objects do not exist. Check and retry.")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
-            sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(startobj, endobject,
-                                                                                             axisdir, port_on_plane)
+            sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(
+                startobj, endobject, axisdir, port_on_plane
+            )
             if add_pec_cap:
                 dist = GeometryOperators.points_distance(point0, point1)
                 self._create_pec_cap(sheet_name, startobj, dist / 10)
@@ -1304,8 +1585,9 @@ class Hfss(FieldAnalysis3D, object):
             elif portname + ":1" in self.modeler.get_excitations_name():
                 portname = generate_unique_name(portname)
             if self.solution_type == "DrivenModal":
-                return self._create_waveport_driven(sheet_name, point0, point1, impedance, portname, renorm, nummodes,
-                                                    deembed_dist)
+                return self._create_waveport_driven(
+                    sheet_name, point0, point1, impedance, portname, renorm, nummodes, deembed_dist
+                )
             else:
                 faces = self.modeler.primitives.get_object_faces(sheet_name)
                 return self._create_port_terminal(faces[0], endobject, portname, iswaveport=True)
@@ -1313,18 +1595,18 @@ class Hfss(FieldAnalysis3D, object):
 
     def _create_pec_cap(self, sheet_name, obj_name, pecthick):
         # TODO check method
-        obj= self.modeler.primitives[sheet_name].clone()
+        obj = self.modeler.primitives[sheet_name].clone()
         out_obj = self.modeler.thicken_sheet(obj, pecthick, False)
         bounding2 = out_obj.bounding_box
         bounding1 = self.modeler.primitives[obj_name].bounding_box
         tol = 1e-9
-        i=0
-        internal=False
-        for a, b in zip(bounding1,bounding2):
-            if i<3:
-                if (b-a)>tol:
-                    internal=True
-            elif (b-a)<tol:
+        i = 0
+        internal = False
+        for a, b in zip(bounding1, bounding2):
+            if i < 3:
+                if (b - a) > tol:
+                    internal = True
+            elif (b - a) < tol:
                 internal = True
             i += 1
         if internal:
@@ -1336,9 +1618,19 @@ class Hfss(FieldAnalysis3D, object):
         return True
 
     @aedt_exception_handler
-    def create_wave_port_microstrip_between_objects(self, startobj, endobject, axisdir=0, impedance=50, nummodes=1,
-                                                    portname=None,
-                                                    renorm=True, deembed_dist=0, vfactor=3, hfactor=5):
+    def create_wave_port_microstrip_between_objects(
+        self,
+        startobj,
+        endobject,
+        axisdir=0,
+        impedance=50,
+        nummodes=1,
+        portname=None,
+        renorm=True,
+        deembed_dist=0,
+        vfactor=3,
+        hfactor=5,
+    ):
         """Create a waveport taking the closest edges of two objects.
 
         Parameters
@@ -1391,15 +1683,14 @@ class Hfss(FieldAnalysis3D, object):
 
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
-                endobject):
+            endobject
+        ):
             self._messenger.add_error_message("One or both objects do not exist. Check and retry.")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
-            sheet_name, point0, point1 = self.modeler._create_microstrip_sheet_from_object_closest_edge(startobj,
-                                                                                                        endobject,
-                                                                                                        axisdir,
-                                                                                                        vfactor,
-                                                                                                        hfactor)
+            sheet_name, point0, point1 = self.modeler._create_microstrip_sheet_from_object_closest_edge(
+                startobj, endobject, axisdir, vfactor, hfactor
+            )
             dist = GeometryOperators.points_distance(point0, point1)
             self._create_pec_cap(sheet_name, startobj, dist / 10)
             if not portname:
@@ -1407,16 +1698,18 @@ class Hfss(FieldAnalysis3D, object):
             elif portname + ":1" in self.modeler.get_excitations_name():
                 portname = generate_unique_name(portname)
             if self.solution_type == "DrivenModal":
-                return self._create_waveport_driven(sheet_name, point0, point1, impedance, portname, renorm, nummodes,
-                                                    deembed_dist)
+                return self._create_waveport_driven(
+                    sheet_name, point0, point1, impedance, portname, renorm, nummodes, deembed_dist
+                )
             else:
                 faces = self.modeler.primitives.get_object_faces(sheet_name)
                 return self._create_port_terminal(faces[0], endobject, portname, iswaveport=True)
         return False
 
     @aedt_exception_handler
-    def create_perfecte_from_objects(self, startobj, endobject, axisdir=0, sourcename=None, is_infinite_gnd=False,
-                                     bound_on_plane=True):
+    def create_perfecte_from_objects(
+        self, startobj, endobject, axisdir=0, sourcename=None, is_infinite_gnd=False, bound_on_plane=True
+    ):
         """Create a Perfect E taking the closest edges of two objects.
 
         Parameters
@@ -1459,12 +1752,14 @@ class Hfss(FieldAnalysis3D, object):
         """
 
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
-                endobject):
+            endobject
+        ):
             self._messenger.add_error_message("One or both objects do not exist. Check and retry.")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
-            sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(startobj, endobject,
-                                                                                             axisdir, bound_on_plane)
+            sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(
+                startobj, endobject, axisdir, bound_on_plane
+            )
 
             if not sourcename:
                 sourcename = generate_unique_name("PerfE")
@@ -1515,12 +1810,14 @@ class Hfss(FieldAnalysis3D, object):
         """
 
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
-                endobject):
+            endobject
+        ):
             self._messenger.add_error_message("One or both objects do not exist. Check and retry.")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
-            sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(startobj, endobject,
-                                                                                             axisdir, bound_on_plane)
+            sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(
+                startobj, endobject, axisdir, bound_on_plane
+            )
 
             if not sourcename:
                 sourcename = generate_unique_name("PerfH")
@@ -1552,8 +1849,7 @@ class Hfss(FieldAnalysis3D, object):
             SARSetup object.
 
         """
-        self.odesign.SARSetup(TissueMass, MaterialDensity,
-                              Tissue_object_List_ID, voxel_size, Average_SAR_method)
+        self.odesign.SARSetup(TissueMass, MaterialDensity, Tissue_object_List_ID, voxel_size, Average_SAR_method)
         return True
 
     @aedt_exception_handler
@@ -1577,12 +1873,7 @@ class Hfss(FieldAnalysis3D, object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        vars = [
-            "NAME:Settings",
-            "OpFreq:=", Frequency,
-            "Boundary:=", Boundary,
-            "ApplyInfiniteGP:=", ApplyInfiniteGP
-        ]
+        vars = ["NAME:Settings", "OpFreq:=", Frequency, "Boundary:=", Boundary, "ApplyInfiniteGP:=", ApplyInfiniteGP]
         if ApplyInfiniteGP:
             vars.append("Direction:=")
             vars.append(GPAXis)
@@ -1591,8 +1882,18 @@ class Hfss(FieldAnalysis3D, object):
         return True
 
     @aedt_exception_handler
-    def create_lumped_rlc_between_objects(self, startobj, endobject, axisdir=0, sourcename=None, rlctype="Parallel",
-                                          Rvalue=None, Lvalue=None, Cvalue=None, bound_on_plane=True):
+    def create_lumped_rlc_between_objects(
+        self,
+        startobj,
+        endobject,
+        axisdir=0,
+        sourcename=None,
+        rlctype="Parallel",
+        Rvalue=None,
+        Lvalue=None,
+        Cvalue=None,
+        bound_on_plane=True,
+    ):
         """Creates a lumped RLC taking the closest edges of two objects.
 
         Parameters
@@ -1646,13 +1947,16 @@ class Hfss(FieldAnalysis3D, object):
         """
 
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
-                endobject):
+            endobject
+        ):
             self._messenger.add_error_message("One or both objects do not exist. Check and retry.")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"] and (
-                Rvalue or Lvalue or Cvalue):
-            sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(startobj, endobject,
-                                                                                             axisdir, bound_on_plane)
+            Rvalue or Lvalue or Cvalue
+        ):
+            sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(
+                startobj, endobject, axisdir, bound_on_plane
+            )
 
             if not sourcename:
                 sourcename = generate_unique_name("Lump")
@@ -1679,8 +1983,17 @@ class Hfss(FieldAnalysis3D, object):
         return False
 
     @aedt_exception_handler
-    def create_impedance_between_objects(self, startobj, endobject, axisdir=0, sourcename=None, resistance=50,
-                                         reactance=0, is_infground=False, bound_on_plane=True):
+    def create_impedance_between_objects(
+        self,
+        startobj,
+        endobject,
+        axisdir=0,
+        sourcename=None,
+        resistance=50,
+        reactance=0,
+        is_infground=False,
+        bound_on_plane=True,
+    ):
         """Create an impedance taking the closest edges of two objects.
 
         Parameters
@@ -1730,25 +2043,34 @@ class Hfss(FieldAnalysis3D, object):
         """
 
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
-                endobject):
+            endobject
+        ):
             self._messenger.add_error_message("One or both objects do not exist. Check and retry.")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
-            sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(startobj, endobject,
-                                                                                             axisdir, bound_on_plane)
+            sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(
+                startobj, endobject, axisdir, bound_on_plane
+            )
 
             if not sourcename:
                 sourcename = generate_unique_name("Imped")
             elif sourcename in self.modeler.get_boundaries_name():
                 sourcename = generate_unique_name(sourcename)
-            props = OrderedDict({"Objects": [sheet_name], "Resistance": str(resistance), "Reactance": str(reactance),
-                                 "InfGroundPlane": is_infground})
+            props = OrderedDict(
+                {
+                    "Objects": [sheet_name],
+                    "Resistance": str(resistance),
+                    "Reactance": str(reactance),
+                    "InfGroundPlane": is_infground,
+                }
+            )
             return self._create_boundary(sourcename, props, "Impedance")
         return False
 
     @aedt_exception_handler
-    def create_boundary(self, boundary_type=BoundaryType.PerfectE, sheet_name=None, boundary_name="",
-                        is_infinite_gnd=False):
+    def create_boundary(
+        self, boundary_type=BoundaryType.PerfectE, sheet_name=None, boundary_name="", is_infinite_gnd=False
+    ):
         """Create a boundary given specific inputs.
 
         Parameters
@@ -1780,15 +2102,15 @@ class Hfss(FieldAnalysis3D, object):
                 props["Faces"] = sheet_name
 
         if boundary_type == self.BoundaryType.PerfectE:
-            props['InfGroundPlane'] = is_infinite_gnd
+            props["InfGroundPlane"] = is_infinite_gnd
             boundary_type = "PerfectE"
         elif boundary_type == self.BoundaryType.PerfectH:
             boundary_type = "PerfectH"
         elif boundary_type == self.BoundaryType.Aperture:
             boundary_type = "Aperture"
         elif boundary_type == self.BoundaryType.Radiation:
-            props['IsFssReference'] = False
-            props['IsForPML'] = False
+            props["IsFssReference"] = False
+            props["IsForPML"] = False
             boundary_type = "Radiation"
         else:
             return None
@@ -1831,8 +2153,9 @@ class Hfss(FieldAnalysis3D, object):
         return refid, int_start, int_stop
 
     @aedt_exception_handler
-    def create_wave_port_from_sheet(self, sheet, deemb=0, axisdir=0, impedance=50, nummodes=1, portname=None,
-                                    renorm=True):
+    def create_wave_port_from_sheet(
+        self, sheet, deemb=0, axisdir=0, impedance=50, nummodes=1, portname=None, renorm=True
+    ):
         """Create a waveport on sheet objects created starting from sheets.
 
         Parameters
@@ -1889,8 +2212,7 @@ class Hfss(FieldAnalysis3D, object):
             elif portname + ":1" in self.modeler.get_excitations_name():
                 portname = generate_unique_name(portname)
             if self.solution_type == "DrivenModal":
-                b = self._create_waveport_driven(
-                    obj, int_start, int_stop, impedance, portname, renorm, nummodes, deemb)
+                b = self._create_waveport_driven(obj, int_start, int_stop, impedance, portname, renorm, nummodes, deemb)
                 if b:
                     portnames.append(b)
             else:
@@ -1905,8 +2227,9 @@ class Hfss(FieldAnalysis3D, object):
         return portnames
 
     @aedt_exception_handler
-    def create_lumped_port_to_sheet(self, sheet_name, axisdir=0, impedance=50, portname=None,
-                                    renorm=True, deemb=False, reference_object_list=[]):
+    def create_lumped_port_to_sheet(
+        self, sheet_name, axisdir=0, impedance=50, portname=None, renorm=True, deemb=False, reference_object_list=[]
+    ):
         """Create a lumped port taking one sheet.
 
         Parameters
@@ -1963,8 +2286,7 @@ class Hfss(FieldAnalysis3D, object):
             elif portname + ":1" in self.modeler.get_excitations_name():
                 portname = generate_unique_name(portname)
             if self.solution_type == "DrivenModal":
-                self._create_lumped_driven(sheet_name, point0, point1,
-                                           impedance, portname, renorm, deemb)
+                self._create_lumped_driven(sheet_name, point0, point1, impedance, portname, renorm, deemb)
             else:
                 if not reference_object_list:
                     cond = self.get_all_conductors_names()
@@ -1974,8 +2296,7 @@ class Hfss(FieldAnalysis3D, object):
                         if el in cond:
                             reference_object_list.append(el)
                 faces = self.modeler.primitives.get_object_faces(sheet_name)
-                self._create_port_terminal(
-                    faces[0], reference_object_list, portname, iswaveport=False)
+                self._create_port_terminal(faces[0], reference_object_list, portname, iswaveport=False)
             return portname
         return False
 
@@ -1988,8 +2309,10 @@ class Hfss(FieldAnalysis3D, object):
 
         """
 
-        warnings.warn('`assig_voltage_source_to_sheet is deprecated`. Use `assign_voltage_source_to_sheet` instead.',
-                      DeprecationWarning)
+        warnings.warn(
+            "`assig_voltage_source_to_sheet is deprecated`. Use `assign_voltage_source_to_sheet` instead.",
+            DeprecationWarning,
+        )
         self.assign_voltage_source_to_sheet(sheet_name, axisdir=0, sourcename=None)
 
     @aedt_exception_handler
@@ -2031,8 +2354,7 @@ class Hfss(FieldAnalysis3D, object):
                 sourcename = generate_unique_name("Voltage")
             elif sourcename + ":1" in self.modeler.get_excitations_name():
                 sourcename = generate_unique_name(sourcename)
-            status = self.create_source_excitation(
-                sheet_name, point0, point1, sourcename, sourcetype="Voltage")
+            status = self.create_source_excitation(sheet_name, point0, point1, sourcename, sourcetype="Voltage")
             if status:
                 return sourcename
         return False
@@ -2075,8 +2397,7 @@ class Hfss(FieldAnalysis3D, object):
                 sourcename = generate_unique_name("Current")
             elif sourcename + ":1" in self.modeler.get_excitations_name():
                 sourcename = generate_unique_name(sourcename)
-            status = self.create_source_excitation(
-                sheet_name, point0, point1, sourcename, sourcetype="Current")
+            status = self.create_source_excitation(sheet_name, point0, point1, sourcename, sourcetype="Current")
             if status:
                 return sourcename
         return False
@@ -2159,8 +2480,9 @@ class Hfss(FieldAnalysis3D, object):
         return None
 
     @aedt_exception_handler
-    def assign_lumped_rlc_to_sheet(self, sheet_name, axisdir=0, sourcename=None, rlctype="Parallel",
-                                   Rvalue=None, Lvalue=None, Cvalue=None):
+    def assign_lumped_rlc_to_sheet(
+        self, sheet_name, axisdir=0, sourcename=None, rlctype="Parallel", Rvalue=None, Lvalue=None, Cvalue=None
+    ):
         """Create a lumped RLC taking one sheet.
 
         Parameters
@@ -2207,7 +2529,8 @@ class Hfss(FieldAnalysis3D, object):
         """
 
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network", "SBR+"] and (
-                Rvalue or Lvalue or Cvalue):
+            Rvalue or Lvalue or Cvalue
+        ):
             point0, point1 = self.modeler.primitives.get_mid_points_on_dir(sheet_name, axisdir)
 
             if not sourcename:
@@ -2276,16 +2599,28 @@ class Hfss(FieldAnalysis3D, object):
                 sourcename = generate_unique_name("Imped")
             elif sourcename in self.modeler.get_boundaries_name():
                 sourcename = generate_unique_name(sourcename)
-            props = OrderedDict({"Objects": [sheet_name], "Resistance": str(resistance), "Reactance": str(reactance),
-                                 "InfGroundPlane": is_infground})
+            props = OrderedDict(
+                {
+                    "Objects": [sheet_name],
+                    "Resistance": str(resistance),
+                    "Reactance": str(reactance),
+                    "InfGroundPlane": is_infground,
+                }
+            )
             return self._create_boundary(sourcename, props, "Impedance")
         return False
 
     @aedt_exception_handler
-    def create_circuit_port_from_edges(self, edge_signal, edge_gnd, port_name="",
-                                       port_impedance="50",
-                                       renormalize=False, renorm_impedance="50",
-                                       deembed=False):
+    def create_circuit_port_from_edges(
+        self,
+        edge_signal,
+        edge_gnd,
+        port_name="",
+        port_impedance="50",
+        renormalize=False,
+        renorm_impedance="50",
+        deembed=False,
+    ):
         """Create a circuit port from two edges.
 
         The integration line is from edge 2 to edge 1.
@@ -2345,8 +2680,9 @@ class Hfss(FieldAnalysis3D, object):
         elif port_name + ":1" in self.modeler.get_excitations_name():
             port_name = generate_unique_name(port_name)
 
-        result = self._create_circuit_port(edge_list, port_impedance, port_name, renormalize,
-                                           deembed, renorm_impedance=renorm_impedance)
+        result = self._create_circuit_port(
+            edge_list, port_impedance, port_name, renormalize, deembed, renorm_impedance=renorm_impedance
+        )
         if result:
             return port_name
         return False
@@ -2389,11 +2725,16 @@ class Hfss(FieldAnalysis3D, object):
 
         self._messenger.add_info_message("Setting up power to Eigenmode " + powerin)
         if self.solution_type != "Eigenmode":
-            self.osolution.EditSources([["IncludePortPostProcessing:=", True, "SpecifySystemPower:=", False],
-                                        ["Name:=", portandmode, "Magnitude:=", powerin, "Phase:=", phase]])
+            self.osolution.EditSources(
+                [
+                    ["IncludePortPostProcessing:=", True, "SpecifySystemPower:=", False],
+                    ["Name:=", portandmode, "Magnitude:=", powerin, "Phase:=", phase],
+                ]
+            )
         else:
             self.osolution.EditSources(
-                [["FieldType:=", "EigenStoredEnergy"], ["Name:=", "Modes", "Magnitudes:=", [powerin]]])
+                [["FieldType:=", "EigenStoredEnergy"], ["Name:=", "Modes", "Magnitudes:=", [powerin]]]
+            )
         return True
 
     @aedt_exception_handler
@@ -2446,16 +2787,9 @@ class Hfss(FieldAnalysis3D, object):
             l = 10
             while not directionfound:
                 self.modeler.oeditor.ThickenSheet(
-                    [
-                        "NAME:Selections",
-                        "Selections:=", el,
-                        "NewPartsModelFlag:=", "Model"
-                    ],
-                    [
-                        "NAME:SheetThickenParameters",
-                        "Thickness:=", str(l) + "mm",
-                        "BothSides:=", False
-                    ])
+                    ["NAME:Selections", "Selections:=", el, "NewPartsModelFlag:=", "Model"],
+                    ["NAME:SheetThickenParameters", "Thickness:=", str(l) + "mm", "BothSides:=", False],
+                )
                 # aedt_bounding_box2 = self._oeditor.GetModelBoundingBox()
                 aedt_bounding_box2 = self.modeler.primitives.get_model_bounding_box()
                 self._odesign.Undo()
@@ -2463,16 +2797,9 @@ class Hfss(FieldAnalysis3D, object):
                     directions[el] = "External"
                     directionfound = True
                 self.modeler.oeditor.ThickenSheet(
-                    [
-                        "NAME:Selections",
-                        "Selections:=", el,
-                        "NewPartsModelFlag:=", "Model"
-                    ],
-                    [
-                        "NAME:SheetThickenParameters",
-                        "Thickness:=", "-" + str(l) + "mm",
-                        "BothSides:=", False
-                    ])
+                    ["NAME:Selections", "Selections:=", el, "NewPartsModelFlag:=", "Model"],
+                    ["NAME:SheetThickenParameters", "Thickness:=", "-" + str(l) + "mm", "BothSides:=", False],
+                )
                 # aedt_bounding_box2 = self._oeditor.GetModelBoundingBox()
                 aedt_bounding_box2 = self.modeler.primitives.get_model_bounding_box()
 
@@ -2493,28 +2820,14 @@ class Hfss(FieldAnalysis3D, object):
                     faceCenter = self.modeler.oeditor.GetFaceCenter(int(f))
             if directions[el] == "Internal":
                 self.modeler.oeditor.ThickenSheet(
-                    [
-                        "NAME:Selections",
-                        "Selections:=", el,
-                        "NewPartsModelFlag:=", "Model"
-                    ],
-                    [
-                        "NAME:SheetThickenParameters",
-                        "Thickness:=", "-" + str(value) + "mm",
-                        "BothSides:=", False
-                    ])
+                    ["NAME:Selections", "Selections:=", el, "NewPartsModelFlag:=", "Model"],
+                    ["NAME:SheetThickenParameters", "Thickness:=", "-" + str(value) + "mm", "BothSides:=", False],
+                )
             else:
                 self.modeler.oeditor.ThickenSheet(
-                    [
-                        "NAME:Selections",
-                        "Selections:=", el,
-                        "NewPartsModelFlag:=", "Model"
-                    ],
-                    [
-                        "NAME:SheetThickenParameters",
-                        "Thickness:=", str(value) + "mm",
-                        "BothSides:=", False
-                    ])
+                    ["NAME:Selections", "Selections:=", el, "NewPartsModelFlag:=", "Model"],
+                    ["NAME:SheetThickenParameters", "Thickness:=", str(value) + "mm", "BothSides:=", False],
+                )
             if "Vacuum" in el:
                 newfaces = self.modeler.oeditor.GetFaceIDs(el)
                 for f in newfaces:
@@ -2524,8 +2837,11 @@ class Hfss(FieldAnalysis3D, object):
                         fa2 = self.modeler.primitives.get_face_area(int(f))
                         faceoriginal = [float(i) for i in faceCenter]
                         # dist = mat.sqrt(sum([(a*a-b*b) for a,b in zip(faceCenter, fc2)]))
-                        if abs(fa2 - maxarea) < tol ** 2 and (abs(faceoriginal[2] - fc2[2]) > tol or abs(
-                                faceoriginal[1] - fc2[1]) > tol or abs(faceoriginal[0] - fc2[0]) > tol):
+                        if abs(fa2 - maxarea) < tol ** 2 and (
+                            abs(faceoriginal[2] - fc2[2]) > tol
+                            or abs(faceoriginal[1] - fc2[1]) > tol
+                            or abs(faceoriginal[0] - fc2[0]) > tol
+                        ):
                             ports_ID[el] = int(f)
 
                         # if (abs(faceoriginal[0] - fc2[0]) < tol and abs(faceoriginal[1] - fc2[1]) < tol and abs(
@@ -2544,23 +2860,26 @@ class Hfss(FieldAnalysis3D, object):
                         faceCenter2 = self.modeler.oeditor.GetFaceCenter(int(fid))
                         if faceCenter2 == faceCenter:
                             self.modeler.oeditor.MoveFaces(
-                                [
-                                    "NAME:Selections",
-                                    "Selections:=", el,
-                                    "NewPartsModelFlag:=", "Model"
-                                ],
+                                ["NAME:Selections", "Selections:=", el, "NewPartsModelFlag:=", "Model"],
                                 [
                                     "NAME:Parameters",
                                     [
                                         "NAME:MoveFacesParameters",
-                                        "MoveAlongNormalFlag:=", True,
-                                        "OffsetDistance:=", str(internalvalue) + "mm",
-                                        "MoveVectorX:=", "0mm",
-                                        "MoveVectorY:=", "0mm",
-                                        "MoveVectorZ:=", "0mm",
-                                        "FacesToMove:=", [int(fid)]
-                                    ]
-                                ])
+                                        "MoveAlongNormalFlag:=",
+                                        True,
+                                        "OffsetDistance:=",
+                                        str(internalvalue) + "mm",
+                                        "MoveVectorX:=",
+                                        "0mm",
+                                        "MoveVectorY:=",
+                                        "0mm",
+                                        "MoveVectorZ:=",
+                                        "0mm",
+                                        "FacesToMove:=",
+                                        [int(fid)],
+                                    ],
+                                ],
+                            )
                     except:
                         self._messenger.add_debug_message("done")
                         # self.modeler_oproject.ClearMessages()
@@ -2616,12 +2935,11 @@ class Hfss(FieldAnalysis3D, object):
         val_list.append(msg)
         temp_msg = list(self._desktop.GetMessages(pname, dname, 0))
         if temp_msg:
-            temp2_msg = [i.strip('Project: ' + pname + ', Design: ' + \
-                                 dname + ', ').strip('\r\n') for i in temp_msg]
+            temp2_msg = [i.strip("Project: " + pname + ", Design: " + dname + ", ").strip("\r\n") for i in temp_msg]
             val_list.extend(temp2_msg)
 
         # Run design validation and write out the lines to the log.
-        temp_val_file = os.path.join(os.environ['TEMP'], "\\val_temp.log")
+        temp_val_file = os.path.join(os.environ["TEMP"], "\\val_temp.log")
         simple_val_return = self.validate_simple(temp_val_file)
         if simple_val_return == 1:
             msg = "Design validation check PASSED."
@@ -2632,7 +2950,7 @@ class Hfss(FieldAnalysis3D, object):
         msg = "Design Validation Messages:"
         val_list.append(msg)
         if os.path.isfile(temp_val_file):
-            with open(temp_val_file, 'r') as df:
+            with open(temp_val_file, "r") as df:
                 temp = df.read().splitlines()
                 val_list.extend(temp)
             os.remove(temp_val_file)
@@ -2646,10 +2964,10 @@ class Hfss(FieldAnalysis3D, object):
         # Find the excitations and check or list them out
         msg = "Excitations Check:"
         val_list.append(msg)
-        if self.solution_type != 'Eigenmode':
+        if self.solution_type != "Eigenmode":
             detected_excitations = self.modeler.get_excitations_name()
             if ports:
-                if self.solution_type == 'DrivenTerminal':
+                if self.solution_type == "DrivenTerminal":
                     # For each port, there is terminal and reference excitations.
                     ports_t = ports * 2
                 else:
@@ -2683,14 +3001,14 @@ class Hfss(FieldAnalysis3D, object):
             for setup in setups:
                 msg = str(setup)
                 val_list.append(msg)
-                if self.solution_type != 'EigenMode':
+                if self.solution_type != "EigenMode":
                     sweepsname = self.oanalysis.GetSweeps(setup)
                     if sweepsname:
                         for sw in sweepsname:
-                            msg = ' |__ ' + sw
+                            msg = " |__ " + sw
                             val_list.append(msg)
         else:
-            msg = 'No setup is detected.'
+            msg = "No setup is detected."
             val_list.append(msg)
 
         with open(validation_log_file, "w") as f:
@@ -2699,8 +3017,9 @@ class Hfss(FieldAnalysis3D, object):
         return val_list, validation_ok  # Return all the information in a list for later use.
 
     @aedt_exception_handler
-    def create_scattering(self, plot_name="S Parameter Plot Nominal", sweep_name=None, port_names=None, port_excited=None,
-                          variations=None):
+    def create_scattering(
+        self, plot_name="S Parameter Plot Nominal", sweep_name=None, port_names=None, port_excited=None, variations=None
+    ):
         """Create a scattering report.
 
         Parameters
@@ -2740,8 +3059,7 @@ class Hfss(FieldAnalysis3D, object):
         if not sweep_name:
             sweep_name = self.existing_analysis_sweeps[1]
         elif sweep_name not in self.existing_analysis_sweeps:
-            self._messenger.add_error_message(
-                "Setup {} doesn't exist in the Setup list.".format(sweep_name))
+            self._messenger.add_error_message("Setup {} doesn't exist in the Setup list.".format(sweep_name))
             return False
         if not port_names:
             port_names = self.modeler.get_excitations_name()
@@ -2771,14 +3089,8 @@ class Hfss(FieldAnalysis3D, object):
             # run CreateReport function
 
             self.post.oreportsetup.CreateReport(
-                plot_name,
-                solution_data,
-                "Rectangular Plot",
-                sweep_name,
-                ["Domain:=", "Sweep"],
-                Families,
-                Trace,
-                [])
+                plot_name, solution_data, "Rectangular Plot", sweep_name, ["Domain:=", "Sweep"], Families, Trace, []
+            )
             return True
         return False
 
@@ -2811,8 +3123,9 @@ class Hfss(FieldAnalysis3D, object):
         args = [Xaxis + ":=", ["All"]]
         args2 = ["X Component:=", Xaxis, "Y Component:=", outputlist]
 
-        self.post.post_oreport_setup.CreateReport(plotname, "Eigenmode Parameters", "Rectangular Plot",
-                                                  setupname + " : LastAdaptive", [], args, args2, [])
+        self.post.post_oreport_setup.CreateReport(
+            plotname, "Eigenmode Parameters", "Rectangular Plot", setupname + " : LastAdaptive", [], args, args2, []
+        )
         return True
 
     @aedt_exception_handler
@@ -2844,18 +3157,16 @@ class Hfss(FieldAnalysis3D, object):
         if not filename:
             appendix = ""
             for v, vv in zip(variation, variations_value):
-                appendix += "_" + v + vv.replace("\'", "")
+                appendix += "_" + v + vv.replace("'", "")
             ext = ".S" + str(self.oboundary.GetNumExcitations()) + "p"
-            filename = os.path.join(self.project_path, solutionname + \
-                                    "_" + sweepname + appendix + ext)
+            filename = os.path.join(self.project_path, solutionname + "_" + sweepname + appendix + ext)
         else:
             filename = filename.replace("//", "/").replace("\\", "/")
         print("Exporting Touchstone " + filename)
         DesignVariations = ""
         i = 0
         for el in variation:
-            DesignVariations += str(variation[i]) + "=\'" + \
-                                    str(variations_value[i].replace("\'", "")) + "\' "
+            DesignVariations += str(variation[i]) + "='" + str(variations_value[i].replace("'", "")) + "' "
             i += 1
             # DesignVariations = "$AmbientTemp=\'22cel\' $PowerIn=\'100\'"
         # array containing "SetupName:SolutionName" pairs (note that setup and solution are separated by a colon)
@@ -2875,10 +3186,22 @@ class Hfss(FieldAnalysis3D, object):
         IncludeGammaImpedance = True  # Include Gamma and Impedance in comments
         NonStandardExtensions = False  # Support for non-standard Touchstone extensions
 
-        self.osolution.ExportNetworkData(DesignVariations, SolutionSelectionArray, FileFormat,
-                                         OutFile, FreqsArray, DoRenorm, RenormImped, DataType, Pass,
-                                         ComplexFormat, DigitsPrecision, False, IncludeGammaImpedance,
-                                         NonStandardExtensions)
+        self.osolution.ExportNetworkData(
+            DesignVariations,
+            SolutionSelectionArray,
+            FileFormat,
+            OutFile,
+            FreqsArray,
+            DoRenorm,
+            RenormImped,
+            DataType,
+            Pass,
+            ComplexFormat,
+            DigitsPrecision,
+            False,
+            IncludeGammaImpedance,
+            NonStandardExtensions,
+        )
         return True
 
     @aedt_exception_handler

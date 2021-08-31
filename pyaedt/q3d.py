@@ -23,6 +23,7 @@ class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
 
 
     """
+
     @property
     def odefinition_manager(self):
         """Definition manager."""
@@ -46,14 +47,47 @@ class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
         design_file = os.path.join(self.working_directory, "design_data.json")
         return design_file
 
-    def __init__(self, Q3DType, projectname=None, designname=None, solution_type=None, setup_name=None,
-                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):
+    def __init__(
+        self,
+        Q3DType,
+        projectname=None,
+        designname=None,
+        solution_type=None,
+        setup_name=None,
+        specified_version=None,
+        NG=False,
+        AlwaysNew=False,
+        release_on_exit=False,
+        student_version=False,
+    ):
         if Q3DType == "Q3D Extractor":
-            FieldAnalysis3D.__init__(self, "Q3D Extractor", projectname, designname, solution_type, setup_name,
-                                     specified_version, NG, AlwaysNew, release_on_exit, student_version)
+            FieldAnalysis3D.__init__(
+                self,
+                "Q3D Extractor",
+                projectname,
+                designname,
+                solution_type,
+                setup_name,
+                specified_version,
+                NG,
+                AlwaysNew,
+                release_on_exit,
+                student_version,
+            )
         else:
-            FieldAnalysis2D.__init__(self, "2D Extractor", projectname, designname, solution_type, setup_name,
-                                     specified_version, NG, AlwaysNew, release_on_exit, student_version)
+            FieldAnalysis2D.__init__(
+                self,
+                "2D Extractor",
+                projectname,
+                designname,
+                solution_type,
+                setup_name,
+                specified_version,
+                NG,
+                AlwaysNew,
+                release_on_exit,
+                student_version,
+            )
 
     def __enter__(self):
         return self
@@ -113,10 +147,31 @@ class Q3d(QExtractor, object):
 
     """
 
-    def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
-                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=True):
-        QExtractor.__init__(self, "Q3D Extractor", projectname, designname, solution_type, setup_name,
-                            specified_version, NG, AlwaysNew, release_on_exit, student_version)
+    def __init__(
+        self,
+        projectname=None,
+        designname=None,
+        solution_type=None,
+        setup_name=None,
+        specified_version=None,
+        NG=False,
+        AlwaysNew=False,
+        release_on_exit=False,
+        student_version=True,
+    ):
+        QExtractor.__init__(
+            self,
+            "Q3D Extractor",
+            projectname,
+            designname,
+            solution_type,
+            setup_name,
+            specified_version,
+            NG,
+            AlwaysNew,
+            release_on_exit,
+            student_version,
+        )
 
     @aedt_exception_handler
     def auto_identify_nets(self):
@@ -160,10 +215,11 @@ class Q3d(QExtractor, object):
         if not source_name:
             source_name = generate_unique_name("Source")
         if not net_name:
-            net_name =object_name
+            net_name = object_name
         if a:
             props = OrderedDict(
-                {"Faces": [a], "ParentBndID": object_name, "TerminalType": "ConstantVoltage", "Net": net_name})
+                {"Faces": [a], "ParentBndID": object_name, "TerminalType": "ConstantVoltage", "Net": net_name}
+            )
             bound = BoundaryObject(self, source_name, props, "Source")
             if bound.create():
                 self.boundaries.append(bound)
@@ -200,8 +256,7 @@ class Q3d(QExtractor, object):
         props["TerminalType"] = "ConstantVoltage"
         if netname:
             props["Net"] = netname
-        props = OrderedDict(
-            {"Objects": sheetname, "TerminalType": "ConstantVoltage", "Net": netname})
+        props = OrderedDict({"Objects": sheetname, "TerminalType": "ConstantVoltage", "Net": netname})
         bound = BoundaryObject(self, sourcename, props, "Source")
         if bound.create():
             self.boundaries.append(bound)
@@ -240,7 +295,8 @@ class Q3d(QExtractor, object):
             net_name = object_name
         if a:
             props = OrderedDict(
-                {"Faces": [a], "ParentBndID": object_name, "TerminalType": "ConstantVoltage", "Net": net_name})
+                {"Faces": [a], "ParentBndID": object_name, "TerminalType": "ConstantVoltage", "Net": net_name}
+            )
             bound = BoundaryObject(self, sink_name, props, "Sink")
             if bound.create():
                 self.boundaries.append(bound)
@@ -278,8 +334,7 @@ class Q3d(QExtractor, object):
         if netname:
             props["Net"] = netname
 
-        props = OrderedDict(
-            {"Objects": sheetname, "TerminalType": "ConstantVoltage", "Net": netname})
+        props = OrderedDict({"Objects": sheetname, "TerminalType": "ConstantVoltage", "Net": netname})
         bound = BoundaryObject(self, sinkname, props, "Sink")
         if bound.create():
             self.boundaries.append(bound)
@@ -322,14 +377,15 @@ class Q3d(QExtractor, object):
                 for sw in setupdata.sweeps:
                     if sweepname == sw.name:
                         self._messenger.add_warning_message(
-                            "Sweep {} is already present. Rename and retry.".format(sweepname))
+                            "Sweep {} is already present. Rename and retry.".format(sweepname)
+                        )
                         return False
                 sweepdata = setupdata.add_sweep(sweepname, "Discrete")
                 sweepdata.props["RangeStart"] = str(freqstart) + "GHz"
                 if not freqstop:
                     freqstop = freqstart
                 if not freqstep:
-                    freqstep = (freqstop-freqstart)/11
+                    freqstep = (freqstop - freqstart) / 11
                     if freqstep == 0:
                         freqstep = freqstart
                 sweepdata.props["RangeEnd"] = str(freqstop) + "GHz"
@@ -343,7 +399,9 @@ class Q3d(QExtractor, object):
         return False
 
     @aedt_exception_handler
-    def create_discrete_sweep(self, setupname, freqstart, freqstop=None, freqstep=None, units="GHz", sweepname=None, savefields=False):
+    def create_discrete_sweep(
+        self, setupname, freqstart, freqstop=None, freqstep=None, units="GHz", sweepname=None, savefields=False
+    ):
         """Create a discrete sweep with a single frequency value.
 
         Parameters
@@ -382,18 +440,19 @@ class Q3d(QExtractor, object):
                 for sw in setupdata.sweeps:
                     if sweepname == sw.name:
                         self._messenger.add_warning_message(
-                            "Sweep {} already present. Please rename and retry".format(sweepname))
+                            "Sweep {} already present. Please rename and retry".format(sweepname)
+                        )
                         return False
                 sweepdata = setupdata.add_sweep(sweepname, "Discrete")
-                sweepdata.props["RangeStart"] = str(freqstart)+"GHz"
+                sweepdata.props["RangeStart"] = str(freqstart) + "GHz"
                 if not freqstop:
                     freqstop = freqstart
                 if not freqstep:
                     freqstep = (freqstop - freqstart) / 11
                     if freqstep == 0:
                         freqstep = freqstart
-                sweepdata.props["RangeEnd"] = str(freqstop)+"GHz"
-                sweepdata.props["RangeStep"] = str(freqstep)+"GHz"
+                sweepdata.props["RangeEnd"] = str(freqstop) + "GHz"
+                sweepdata.props["RangeStep"] = str(freqstep) + "GHz"
                 sweepdata.props["SaveFields"] = savefields
                 sweepdata.props["SaveRadFields"] = False
                 sweepdata.props["Type"] = "Discrete"
@@ -462,12 +521,34 @@ class Q2d(QExtractor, object):
     >>> app = Q2d("myfile.aedt")
 
     """
-    @property   # for legacy purposes
+
+    @property  # for legacy purposes
     def dim(self):
         """Dimension."""
         return self.modeler.dimension
 
-    def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
-                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):
-        QExtractor.__init__(self, "2D Extractor", projectname, designname, solution_type, setup_name,
-                            specified_version, NG, AlwaysNew, release_on_exit, student_version)
+    def __init__(
+        self,
+        projectname=None,
+        designname=None,
+        solution_type=None,
+        setup_name=None,
+        specified_version=None,
+        NG=False,
+        AlwaysNew=False,
+        release_on_exit=False,
+        student_version=False,
+    ):
+        QExtractor.__init__(
+            self,
+            "2D Extractor",
+            projectname,
+            designname,
+            solution_type,
+            setup_name,
+            specified_version,
+            NG,
+            AlwaysNew,
+            release_on_exit,
+            student_version,
+        )
