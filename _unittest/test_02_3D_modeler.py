@@ -30,7 +30,8 @@ class TestClass(BasisTest):
         udp1 = [0, 0, 0]
         udp2 = [5, 0, 0]
         udp3 = [5, 5, 0]
-        self.aedtapp.modeler.primitives.create_polyline([udp1, udp2, udp3], name="Poly1", xsection_type="Rectangle")
+        self.aedtapp.modeler.primitives.create_polyline(
+            [udp1, udp2, udp3], name="Poly1", xsection_type="Rectangle")
 
         self.aedtapp.modeler.subtract(outer, core)
         self.aedtapp.modeler.subtract(core, inner)
@@ -59,7 +60,8 @@ class TestClass(BasisTest):
 
     @pyaedt_unittest_check_desktop_error
     def test_05_split(self):
-        box1 = self.aedtapp.modeler.primitives.create_box([-10, -10, -10], [20, 20, 20], "box_to_split")
+        box1 = self.aedtapp.modeler.primitives.create_box(
+            [-10, -10, -10], [20, 20, 20], "box_to_split")
         assert self.aedtapp.modeler.split("box_to_split", 1)
 
     @pyaedt_unittest_check_desktop_error
@@ -157,7 +159,8 @@ class TestClass(BasisTest):
 
     def test_21_connect(self):
         udp = [0, 0, 0]
-        id1 = self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.CoordinateSystemPlane.XYPlane, udp, [5, 10])
+        id1 = self.aedtapp.modeler.primitives.create_rectangle(
+            self.aedtapp.CoordinateSystemPlane.XYPlane, udp, [5, 10])
         udp = self.aedtapp.modeler.Position(0, 0, 10)
         id2 = self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.CoordinateSystemPlane.XYPlane, udp,
                                                                [-3, 10])
@@ -165,8 +168,10 @@ class TestClass(BasisTest):
 
     def test_22_translate(self):
         udp = [0, 0, 0]
-        id1 = self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.CoordinateSystemPlane.XYPlane, udp, [5, 10])
-        id2 = self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.CoordinateSystemPlane.XYPlane, udp, [3, 12])
+        id1 = self.aedtapp.modeler.primitives.create_rectangle(
+            self.aedtapp.CoordinateSystemPlane.XYPlane, udp, [5, 10])
+        id2 = self.aedtapp.modeler.primitives.create_rectangle(
+            self.aedtapp.CoordinateSystemPlane.XYPlane, udp, [3, 12])
         udp2 = self.aedtapp.modeler.Position(0, 20, 5)
         assert self.aedtapp.modeler.translate([id1, id2], udp2)
 
@@ -208,7 +213,8 @@ class TestClass(BasisTest):
 
     def test_30_create_waveguide(self):
         position = self.aedtapp.modeler.Position(0, 0, 0)
-        wg1 = self.aedtapp.modeler.create_waveguide(position, self.aedtapp.CoordinateSystemAxis.XAxis, wg_length=2000)
+        wg1 = self.aedtapp.modeler.create_waveguide(
+            position, self.aedtapp.CoordinateSystemAxis.XAxis, wg_length=2000)
         assert isinstance(wg1, tuple)
         position = self.aedtapp.modeler.Position(0, 0, 0)
         wg9 = self.aedtapp.modeler.create_waveguide(position, self.aedtapp.CoordinateSystemAxis.ZAxis, wgmodel="WG9",
@@ -254,11 +260,13 @@ class TestClass(BasisTest):
     def test_38_activate_variable_for_statistical(self):
 
         assert self.aedtapp.activate_variable_statistical("test_opti")
-        assert self.aedtapp.activate_variable_statistical("$test_opti1", "1mm", "10mm", "3%", mean="2mm")
+        assert self.aedtapp.activate_variable_statistical(
+            "$test_opti1", "1mm", "10mm", "3%", mean="2mm")
         assert self.aedtapp.deactivate_variable_statistical("test_opti")
 
     def test_39_create_coaxial(self):
-        coax = self.aedtapp.modeler.create_coaxial([0, 0, 0], self.aedtapp.CoordinateSystemAxis.XAxis)
+        coax = self.aedtapp.modeler.create_coaxial(
+            [0, 0, 0], self.aedtapp.CoordinateSystemAxis.XAxis)
         assert isinstance(coax[0].id, int)
         assert isinstance(coax[1].id, int)
         assert isinstance(coax[2].id, int)
@@ -321,22 +329,26 @@ class TestClass(BasisTest):
         self.aedtapp.modeler.set_working_coordinate_system("new1")
 
     def test_44_sweep_around_axis(self):
-        box1 = self.aedtapp.modeler.primitives.create_box([-10, -10, -10], [20, 20, 20], "box_to_split")
+        box1 = self.aedtapp.modeler.primitives.create_box(
+            [-10, -10, -10], [20, 20, 20], "box_to_split")
         box1.sweep_around_axis("Z", sweep_angle=360, draft_angle=0)
 
     def test_45_sweep_along_path(self):
         udp1 = [0, 0, 0]
         udp2 = [5, 0, 0]
         path = self.aedtapp.modeler.primitives.create_polyline([udp1, udp2], name="Poly1")
-        box1 = self.aedtapp.modeler.primitives.create_box([-10, -10, -10], [20, 20, 20], "box_to_split")
+        box1 = self.aedtapp.modeler.primitives.create_box(
+            [-10, -10, -10], [20, 20, 20], "box_to_split")
         box1.sweep_along_path(path)
 
     def test_46_section_object(self):
-        box1 = self.aedtapp.modeler.primitives.create_box([-10, -10, -10], [20, 20, 20], "box_to_split")
+        box1 = self.aedtapp.modeler.primitives.create_box(
+            [-10, -10, -10], [20, 20, 20], "box_to_split")
         self.aedtapp.modeler.section(box1, 0, create_new=True, section_cross_object=False)
         pass
 
     def test_47_sweep_along_vector(self):
         sweep_vector = [5, 0, 0]
-        box1 = self.aedtapp.modeler.primitives.create_box([-10, -10, -10], [20, 20, 20], "box_to_split")
+        box1 = self.aedtapp.modeler.primitives.create_box(
+            [-10, -10, -10], [20, 20, 20], "box_to_split")
         box1.sweep_along_vector(sweep_vector)

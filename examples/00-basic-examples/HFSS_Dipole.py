@@ -92,7 +92,8 @@ variations = hfss.available_variations.nominal_w_values_dict
 variations["Freq"] = ["1GHz"]
 variations["Theta"] = ["All"]
 variations["Phi"] = ["All"]
-hfss.post.create_rectangular_plot("db(GainTotal)",hfss.nominal_adaptive, variations, "Theta", "3D",plottype="Far Fields")
+hfss.post.create_rectangular_plot("db(GainTotal)",hfss.nominal_adaptive,
+                                  variations, "Theta", "3D",plottype="Far Fields")
 
 ###############################################################################
 # Close AEDT

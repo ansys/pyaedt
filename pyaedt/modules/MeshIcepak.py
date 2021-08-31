@@ -6,6 +6,7 @@ from .Mesh import meshers, MeshOperation
 
 class IcepakMesh(object):
     """Manages Icepak meshes."""
+
     def __init__(self, parent):
         self._parent = parent
         self.id = 0
@@ -19,6 +20,7 @@ class IcepakMesh(object):
     class MeshRegion(object):
         """Manages Icepak mesh region settings.
         """
+
         def __init__(self, meshmodule, dimension, units):
             self.name = "Settings"
             self.meshmodule = meshmodule

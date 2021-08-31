@@ -311,7 +311,6 @@ class SolutionData(object):
 
         return [10*math.log10(i) for i in self.data_magnitude(expression,convert_to_SI)]
 
-
     def data_real(self, expression=None, convert_to_SI=False):
         """Retrieve the real part of the data for an expression.
 
@@ -395,7 +394,6 @@ class SolutionData(object):
         return sol
 
 
-
 class FieldPlot:
     """Creates and edits field plots.
 
@@ -413,6 +411,7 @@ class FieldPlot:
         Name of the intrinsic dictionary. The default is ``{}``.
 
     """
+
     def __init__(self, oField, objlist, solutionName, quantityName, intrinsincList={}):
         self.oField = oField
         self.faceIndexes = objlist
@@ -455,7 +454,6 @@ class FieldPlot:
         self.oField.CreateFieldPlot(self.surfacePlotInstruction, "Field")
         return True
 
-
     @aedt_exception_handler
     def update(self):
         """Update the field plot.
@@ -466,8 +464,6 @@ class FieldPlot:
             ``True`` when successful, ``False`` when failed.
         """
         self.oField.ModifyFieldPlot(self.name, self.surfacePlotInstruction)
-
-
 
     @aedt_exception_handler
     def modify_folder(self):
@@ -663,7 +659,6 @@ class PostProcessorCommon(object):
     def oeditor(self):
         """Editor."""
         return self.modeler.oeditor
-
 
     @property
     def post_solution_type(self):
@@ -1010,6 +1005,7 @@ class PostProcessor(PostProcessorCommon, object):
         `_modeler`, `_desktop`, `_odesign`, and `_messenger`.
 
     """
+
     def __init__(self, parent):
         self._parent = parent
         self.FieldsPlot = {}
@@ -1243,13 +1239,11 @@ class PostProcessor(PostProcessorCommon, object):
                 else:
                     variation_dict.append("0deg")
 
-
         self.ofieldsreporter.ExportOnGrid(filename, grid_start_wu,
                                           grid_stop_wu, grid_step_wu,
                                           solution,
                                           variation_dict, True, gridtype, grid_center, False)
         return os.path.exists(filename)
-
 
     @aedt_exception_handler
     def export_field_file(self, quantity_name, solution=None, variation_dict=None, filename=None,
@@ -1305,7 +1299,6 @@ class PostProcessor(PostProcessorCommon, object):
         self.ofieldsreporter.CalcStack("clear")
         self.ofieldsreporter.EnterQty(quantity_name)
 
-
         if not variation_dict:
             if not sample_points_file and not sample_points_lists:
                 if obj_type == "Vol":
@@ -1349,7 +1342,6 @@ class PostProcessor(PostProcessorCommon, object):
             self.ofieldsreporter.ExportToFile(filename, sample_points_file, solution, variation_dict, export_with_sample_points)
 
         return os.path.exists(filename)
-
 
     @aedt_exception_handler
     def export_field_plot(self, plotname, filepath, filename=""):
@@ -1681,7 +1673,6 @@ class PostProcessor(PostProcessorCommon, object):
         return solution_data
 
 
-
 class CircuitPostProcessor(PostProcessorCommon, object):
     """Manages the main AEDT Nexxim postprocessing functions.
 
@@ -1762,7 +1753,6 @@ class CircuitPostProcessor(PostProcessorCommon, object):
                                                                                      "-1", "SID", False, "0"]],
                                        variations, ["X Component:=", "__InitialTime", "Y Component:=", ycomponents])
         return plotname
-
 
     def create_ami_statistical_eye_plot(self, setupname, ami_name, variation_list_w_value, ami_plot_type="InitialEye", plotname=None):
         """Create an AMI statistical eye plot.

@@ -34,7 +34,8 @@ edb = Edb(edbpath=aedb_path, edbversion="2021.1")
 #
 if edb:
     edb.core_stackup.stackup_layers.add_layer("GND")
-    edb.core_stackup.stackup_layers.add_layer("Diel","GND", layerType=1, thickness="0.1mm", material="FR4_epoxy")
+    edb.core_stackup.stackup_layers.add_layer(
+        "Diel","GND", layerType=1, thickness="0.1mm", material="FR4_epoxy")
     edb.core_stackup.stackup_layers.add_layer("TOP","Diel", thickness="0.05mm")
 
 ###############################################################################

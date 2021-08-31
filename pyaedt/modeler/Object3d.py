@@ -20,7 +20,6 @@ from .GeometryOperators import GeometryOperators
 from ..generic.general_methods import time_fn
 
 
-
 clamp = lambda n, minn, maxn: max(min(maxn, n), minn)
 
 rgb_color_codes = {
@@ -241,6 +240,7 @@ class VertexPrimitive(EdgeTypePrimitive, object):
         Object ID as determined by the parent object.
 
     """
+
     def __init__(self, parent, id):
         self.id = id
         self._parent = parent
@@ -264,7 +264,6 @@ class VertexPrimitive(EdgeTypePrimitive, object):
         except Exception as e:
             return None
 
-
     def __repr__(self):
         return "Vertex "+str(self.id)
 
@@ -283,6 +282,7 @@ class EdgePrimitive(EdgeTypePrimitive, object):
         Object ID as determined by the parent object.
 
     """
+
     def __init__(self, parent, edge_id):
         self.id = edge_id
         self._parent = parent
@@ -392,7 +392,6 @@ class FacePrimitive(object):
             return GeometryOperators.get_polygon_centroid([pos.position for pos in self.vertices])
         else:
             return self.vertices[0].position
-
 
     @property
     def area(self):
@@ -535,6 +534,7 @@ class Object3d(object):
     >>> part = prim[id]
 
     """
+
     def __init__(self, parent, name=None):
         if name:
             self._m_name = name
@@ -580,7 +580,6 @@ class Object3d(object):
         if not modeled:
             self.odesign.Undo()
         return bounding
-
 
     @property
     def odesign(self):
@@ -738,7 +737,6 @@ class Object3d(object):
         else:
             self._messenger.add_warning_message("Material {} does not exist.".format(mat))
 
-
     @surface_material_name.setter
     def surface_material_name(self, mat):
         try:
@@ -748,7 +746,6 @@ class Object3d(object):
             self._surface_material = mat
         except:
             self._messenger.add_warning_message("Material {} does not exist".format(mat))
-
 
     @property
     def id(self):
@@ -1266,7 +1263,6 @@ class Object3d(object):
         #self._parent._refresh_object_types()
         self._parent.cleanup_objects()
 
-
     def __str__(self):
         return """
          {}
@@ -1296,6 +1292,7 @@ class Padstack(object):
         The default is ``mm``.
 
     """
+
     def __init__(self, name="Padstack", padstackmanager=None, units="mm"):
         self.name = name
         self.padstackmgr = padstackmanager
@@ -1330,6 +1327,7 @@ class Padstack(object):
             Rotation in degrees. The default is ``"0deg"``.
 
         """
+
         def __init__(self, holetype="Cir", sizes=["1mm"], xpos="0mm", ypos="0mm", rot="0deg"):
             self.shape = holetype
             self.sizes = sizes
@@ -1413,6 +1411,7 @@ class Padstack(object):
                 Rotation in degrees. The default is ``"0deg"``.
 
             """
+
             def __init__(self, holetype="Cir", sizes=["1mm"], xpos="0mm", ypos="0mm", rot="0deg"):
                 self.shape = holetype
                 self.sizes = sizes
@@ -1735,7 +1734,6 @@ class CircuitComponent(object):
         self.change_property(vMaterial)
         return True
 
-
     @aedt_exception_handler
     def set_color(self, R=255, G=128, B=0):
         """Set symbol color.
@@ -1852,6 +1850,7 @@ class Objec3DLayout(object):
     parent :
 
     """
+
     def __init__(self, parent):
         self._parent = parent
         self._n = 10
@@ -1928,6 +1927,7 @@ class Components3DLayout(Objec3DLayout, object):
         The default is ``""``.
 
     """
+
     def __init__(self, parent, name=""):
         Objec3DLayout.__init__(self, parent)
         self.name = name
@@ -2004,6 +2004,7 @@ class Nets3DLayout(Objec3DLayout, object):
         The default is ``""``.
 
     """
+
     def __init__(self, parent, name=""):
         Objec3DLayout.__init__(self, parent)
         self.name = name
@@ -2024,6 +2025,7 @@ class Pins3DLayout(Objec3DLayout, object):
         The default is ``""``.
 
     """
+
     def __init__(self, parent, componentname="", pinname="", name=""):
         Objec3DLayout.__init__(self, parent)
         self.componentname = componentname
@@ -2105,6 +2107,7 @@ class Geometries3DLayout(Objec3DLayout, object):
         The default is ``0``.
 
     """
+
     def __init__(self, parent, name, id=0):
         Objec3DLayout.__init__(self, parent)
         self.name = name

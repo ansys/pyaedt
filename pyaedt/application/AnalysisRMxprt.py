@@ -6,7 +6,7 @@ from ..modeler.Model2D import ModelerRMxprt
 
 class FieldAnalysisRMxprt(Analysis):
     """Manages RMXprt field analysis setup. (To be implemented.)
-        
+
     This class is automatically initialized by an application call (like HFSS,
     Q3D...). Refer to the application function for inputs definition.
 
@@ -46,7 +46,7 @@ class FieldAnalysisRMxprt(Analysis):
     @property
     def modeler(self):
         """Modeler.
-        
+
         Returns
         -------
         :class:`pyaedt.modules.Modeler`
@@ -72,7 +72,6 @@ class FieldAnalysisRMxprt(Analysis):
         self._design_type = "RMxprtSolution"
         self.solution_type = solution_type
         return True
-
 
     @aedt_exception_handler
     def enable_modelcreation(self, solution_type = None):

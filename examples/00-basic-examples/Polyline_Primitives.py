@@ -19,7 +19,8 @@ from pyaedt.modeler.Primitives import Polyline, PolylineSegment
 # This example creates a :class:`pyaedt.Maxwell3d` object and sets the unit
 # type to ``"mm"``.
 
-M3D = Maxwell3d(solution_type="Transient", designname="test_polyline_3D", specified_version="2021.1")
+M3D = Maxwell3d(solution_type="Transient", designname="test_polyline_3D",
+                specified_version="2021.1")
 M3D.modeler.model_units = "mm"
 prim3D = M3D.modeler.primitives
 
@@ -109,7 +110,8 @@ P = prim3D.create_polyline(position_list=test_points, segment_type=PolylineSegme
 start_point = [100, 100, 0]
 center_point = [0, 0, 0]
 P = prim3D.create_polyline(position_list=[start_point],
-                           segment_type=PolylineSegment("AngularArc", arc_center=center_point, arc_angle="30deg"),
+                           segment_type=PolylineSegment(
+                               "AngularArc", arc_center=center_point, arc_angle="30deg"),
                            name="PL04_center_point_arc")
 
 ###############################################################################
@@ -121,10 +123,12 @@ P = prim3D.create_polyline(position_list=[start_point],
 start_point = [100, 0, 0]
 center_point = [0, 0, 0]
 P = prim3D.create_polyline(position_list=[start_point],
-                           segment_type=PolylineSegment("AngularArc", arc_center=center_point, arc_angle="30deg", arc_plane="XY"),
+                           segment_type=PolylineSegment(
+                               "AngularArc", arc_center=center_point, arc_angle="30deg", arc_plane="XY"),
                            name="PL04_center_point_arc_rot_XY")
 P = prim3D.create_polyline(position_list=[start_point],
-                           segment_type=PolylineSegment("AngularArc", arc_center=center_point, arc_angle="30deg", arc_plane="ZX"),
+                           segment_type=PolylineSegment(
+                               "AngularArc", arc_center=center_point, arc_angle="30deg", arc_plane="ZX"),
                            name="PL04_center_point_arc_rot_ZX")
 
 ###############################################################################
@@ -143,7 +147,8 @@ P = prim3D.create_polyline(position_list=test_points, name="PL06_segmented_compo
 # In this case, you must specify that the four input points in ``position_list``
 # are to be connected as a ``"Line"`` segment followed by a 3-point ``"Arc"`` segment.
 
-P = prim3D.create_polyline(position_list=test_points, segment_type=["Line", "Arc"], name="PL05_compound_line_arc")
+P = prim3D.create_polyline(position_list=test_points, segment_type=[
+                           "Line", "Arc"], name="PL05_compound_line_arc")
 
 ###############################################################################
 # The parameter ``close_surface`` ensures that the polyline starting point and

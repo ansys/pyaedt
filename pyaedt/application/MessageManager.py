@@ -43,6 +43,7 @@ class MessageList:
         List of strings representing the message content for the specified design within the specified project
 
     """
+
     def __init__(self, msg_list, project_name, design_name):
         self.global_level = []
         self.project_level = []
@@ -101,19 +102,22 @@ class AEDTMessageManager(object):
     >>> hfss._messenger.add_error_message("This is a project error message", "Project")
 
     """
+
     def __init__(self, parent=None):
         self._parent = parent
         if not parent:
             if 'oDesktop' in dir(sys.modules['__main__']):
                 self.MainModule = sys.modules['__main__']
                 self._desktop = self.MainModule.oDesktop
-                self._log_on_desktop = os.getenv('PYAEDT_DESKTOP_LOGS', 'True').lower() in ('true', '1', 't', 'yes', 'y')
+                self._log_on_desktop = os.getenv(
+                    'PYAEDT_DESKTOP_LOGS', 'True').lower() in ('true', '1', 't', 'yes', 'y')
             else:
                 self._log_on_desktop = False
                 self._desktop = None
         else:
             self._desktop = self._parent._desktop
-            self._log_on_desktop = os.getenv('PYAEDT_DESKTOP_LOGS', 'True').lower() in ('true', '1', 't')
+            self._log_on_desktop = os.getenv(
+                'PYAEDT_DESKTOP_LOGS', 'True').lower() in ('true', '1', 't')
         self._log_on_file = os.getenv('PYAEDT_FILE_LOGS', 'True').lower() in ('true', '1', 't')
         self._log_on_screen = os.getenv('PYAEDT_SCREEN_LOGS', 'True').lower() in ('true', '1', 't')
 
@@ -389,7 +393,7 @@ class EDBMessageManager(object):
                     project_dir = "C:\\Temp"
             if not self.logger.handlers:
                 logging.basicConfig(
-                    filename=os.path.join(project_dir, "EDBTLib.log"),
+                    filename=os.path.join(project_dir, "pyaedt_edb.log"),
                     level=logging.DEBUG,
                     format='%(asctime)s:%(name)s:%(levelname)-8s:%(message)s',
                     datefmt='%Y/%m/%d %H.%M.%S')
@@ -410,7 +414,6 @@ class EDBMessageManager(object):
             self.logger.error(message_text)
         if self._log_on_screen:
             print(message_text)
-
 
     def add_warning_message(self, message_text):
         """Add a "Warning" message to the logger.

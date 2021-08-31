@@ -263,7 +263,6 @@ def force_close_desktop():
             return successfully_closed
 
 
-
 class Desktop:
     """Initializes AEDT based on the inputs provided.
 
@@ -483,21 +482,25 @@ class Desktop:
                     self._main.isoutsideDesktop = True
                 elif version_key>="2021.1":
                     self._main.close_on_exit = True
-                    module_logger.debug("Info: {} Started with Process ID {}".format(version, proc[0]))
+                    module_logger.debug(
+                        "Info: {} Started with Process ID {}".format(version, proc[0]))
                     context = pythoncom.CreateBindCtx(0)
                     running_coms = pythoncom.GetRunningObjectTable()
                     monikiers = running_coms.EnumRunning()
                     for monikier in monikiers:
-                        m = re.search(version[10:]+r"\.\d:"+str(proc[0]), monikier.GetDisplayName(context, monikier))
+                        m = re.search(version[10:]+r"\.\d:"+str(proc[0]),
+                                      monikier.GetDisplayName(context, monikier))
                         if m:
                             obj = running_coms.GetObject(monikier)
                             self._main.isoutsideDesktop = True
                             # self._main.oDesktop = win32com.client.gencache.EnsureDispatch(
                             #     obj.QueryInterface(pythoncom.IID_IDispatch))
-                            self._main.oDesktop = win32com.client.Dispatch(obj.QueryInterface(pythoncom.IID_IDispatch))
+                            self._main.oDesktop = win32com.client.Dispatch(
+                                obj.QueryInterface(pythoncom.IID_IDispatch))
                             break
                 else:
-                    module_logger.warning("PyAEDT is not supported in AEDT versions older than 2021.1.")
+                    module_logger.warning(
+                        "PyAEDT is not supported in AEDT versions older than 2021.1.")
                     oAnsoftApp = win32com.client.Dispatch(version)
                     self._main.oDesktop = oAnsoftApp.GetAppDesktop()
                     self._main.isoutsideDesktop = True
@@ -557,7 +560,8 @@ class Desktop:
         if ex_type:
             err = self._exception(ex_value, ex_traceback)
         if self.release:
-            self.release_desktop(close_projects=self._main.close_on_exit, close_on_exit=self._main.close_on_exit)
+            self.release_desktop(close_projects=self._main.close_on_exit,
+                                 close_on_exit=self._main.close_on_exit)
 
     def _exception(self, ex_value, tb_data):
         """Write the trace stack to the desktop when a Python error occurs.

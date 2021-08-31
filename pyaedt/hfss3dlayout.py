@@ -77,6 +77,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
     >>> aedtapp = Hfss3dLayout(specified_version="2021.1", projectname="myfile.aedt")
 
     """
+
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
                  specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):
         FieldAnalysis3DLayout.__init__(self, "HFSS 3D Layout Design", projectname, designname, solution_type,
@@ -209,7 +210,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 ],
                 "ReferencedPadstack:="	, "Padstacks:NoPad SMT East",
                 "vposition:=",
-                ["x:=", str(xpos) + self.modeler.model_units, "y:=", str(ypos) + self.modeler.model_units],
+                ["x:=", str(xpos) + self.modeler.model_units, "y:=",
+                            str(ypos) + self.modeler.model_units],
                 "vrotation:="		, [str(rotation) + "deg"],
                 "overrides hole:="	, False,
                 "hole diameter:="	, ["0mm"],
@@ -388,7 +390,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             port_names = self.get_excitations_name
         if not port_excited:
             port_excited= port_names
-        Trace = ["X Component:=", "Freq", "Y Component:=", ["dB(S(" + p + "," + q + "))" for p,q in zip(list(port_names), list(port_excited))]]
+        Trace = ["X Component:=", "Freq", "Y Component:=", [
+            "dB(S(" + p + "," + q + "))" for p,q in zip(list(port_names), list(port_excited))]]
         solution_data = ""
         if self.solution_type == "DrivenModal":
             solution_data = "Modal Solution Data"
@@ -440,7 +443,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             for v, vv in zip(variation, variations_value):
                 appendix += "_" + v + vv.replace("\'", "")
             ext = ".S" + str(len(self.port_list)) + "p"
-            filename = os.path.join(self.project_path, solutionname + "_" + sweepname + appendix + ext)
+            filename = os.path.join(self.project_path, solutionname + \
+                                    "_" + sweepname + appendix + ext)
         else:
             filename = filename.replace("//", "/").replace("\\", "/")
         print("Exporting Touchstone " + filename)
@@ -450,7 +454,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         # 7=Matlab (.m), 8=Terminal Z0 spreadsheet
         FileFormat = 3
         OutFile = filename  # full path of output file
-        FreqsArray = ["all"]  # array containin the frequencies to export, use ["all"] for all frequencies
+        # array containin the frequencies to export, use ["all"] for all frequencies
+        FreqsArray = ["all"]
         DoRenorm = True  # perform renormalization before export
         RenormImped = 50  # Real impedance value in ohm, for renormalization
         DataType = "S"  # Type: "S", "Y", or "Z" matrix to export
@@ -600,7 +605,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             old_name = project_name
             project_name = generate_unique_name(project_name)
             aedb_path = gds_path.replace(old_name + '.gds', project_name + '.aedb')
-            self._messenger.add_warning_message("aedb_exists. Renaming it to {}".format(project_name))
+            self._messenger.add_warning_message(
+                "aedb_exists. Renaming it to {}".format(project_name))
 
         oTool = self.odesktop.GetTool("ImportExport")
         oTool.ImportGDSII(gds_path, aedb_path, "", "")

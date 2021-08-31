@@ -18,7 +18,7 @@ from ..application.DataHandlers import tuple2dict, dict2arg
 
 class Setup(object):
     """Initializes, creates, and updates a 3D setup.
-    
+
     Parameters
     ----------
     parent: str
@@ -30,7 +30,7 @@ class Setup(object):
     isnewsetup: bool, optional
         Whether to create the setup from a template. The default is ``True``.
         If ``False``, access is to the existing setup.
-     
+
     """
 
     @property
@@ -51,7 +51,7 @@ class Setup(object):
         return "SetupName " + self.name + " with " + str(len(self.sweeps)) + " Sweeps"
 
     def __init__(self, parent, solutiontype, setupname="MySetupAuto", isnewsetup=True):
-        
+
         self._parent = None
         self.parent = parent
         if isinstance(solutiontype, int):
@@ -94,7 +94,7 @@ class Setup(object):
     @aedt_exception_handler
     def create(self):
         """Add a new setup based on class settings in AEDT.
-              
+
         Returns
         -------
         dict
@@ -148,9 +148,9 @@ class Setup(object):
             List of Boolean values indicating whether the expressions are in
             the convergence criteria.
         isrelativeconvergence : bool
-            
+
         conv_criteria:
-        
+
         Returns
         -------
         list
@@ -243,7 +243,7 @@ class Setup(object):
             The default is ``True``.
         conv_criteria :
             The default is ``1``.
-                
+
         Returns
         -------
         bool
@@ -293,7 +293,7 @@ class Setup(object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-            
+
         """
         if not setup_name:
             setup_name = self.name
@@ -320,7 +320,7 @@ class Setup(object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-            
+
         """
         if not setup_name:
             setup_name = self.name
@@ -409,7 +409,7 @@ class Setup(object):
 
 class SetupCircuit(object):
     """Initializes, creates, and updates a circuit setup.
-    
+
     Parameters
     ----------
     parent: str
@@ -501,7 +501,7 @@ class SetupCircuit(object):
     @aedt_exception_handler
     def create(self):
         """Add a new setup based on class settings in AEDT.
-        
+
         Returns
         -------
         dict
@@ -522,9 +522,9 @@ class SetupCircuit(object):
         ----------
         soltype : str
             Type of the solution.
-            
+
         arg :
-            
+
         newsetup : bool, optional
             Whether this is a new setup. The default is ``True``.
 
@@ -608,14 +608,14 @@ class SetupCircuit(object):
             List of Boolean values indicating whether the expressions are in
             the convergence criteria.
         isrelativeconvergence :
-            
+
         conv_criteria:
-        
+
         Returns
         -------
         list
             List of the data.
-        
+
         """
 
         if isrelativeconvergence:
@@ -704,7 +704,7 @@ class SetupCircuit(object):
             The default is ``True``.
         conv_criteria
             The default is ``1``.
-                
+
         Returns
         -------
         bool
@@ -754,7 +754,7 @@ class SetupCircuit(object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-            
+
         """
         if not setup_name:
             setup_name = self.name
@@ -774,7 +774,7 @@ class SetupCircuit(object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-            
+
         """
         if not setup_name:
             setup_name = self.name
@@ -784,7 +784,7 @@ class SetupCircuit(object):
 
 class Setup3DLayout(object):
     """Initializes, creates, and updates a 3D Layout setup.
-    
+
     Parameters
     ----------
     parent: str
@@ -796,13 +796,13 @@ class Setup3DLayout(object):
     isnewsetup: bool, optional
         Whether to create the setup from a template. The default is ``True.``
         If ``False``, access is to the existing setup.
-    
+
     """
 
     @property
     def omodule(self):
         """Analysis module.
-      
+
         Returns
         -------
         type
@@ -847,13 +847,13 @@ class Setup3DLayout(object):
     @property
     def setup_type(self):
         """Setup type.
-        
+
         Returns
         -------
         type
             Setup type.
         """
-        
+
         if 'SolveSetupType' in self.props:
             return self.props['SolveSetupType']
         else:
@@ -862,7 +862,7 @@ class Setup3DLayout(object):
     @aedt_exception_handler
     def create(self):
         """Add a new setup based on class settings in AEDT.
-        
+
         Returns
         -------
         bool
@@ -954,7 +954,6 @@ class Setup3DLayout(object):
         file_fullname = os.path.splitext(file_fullname)[0] + '.aedt'
         self.omodule.ExportToHfss(self.name, file_fullname)
         return True
-
 
     @aedt_exception_handler
     def add_sweep(self, sweepname=None, sweeptype="Interpolating"):

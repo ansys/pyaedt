@@ -28,7 +28,8 @@ elif os.name == 'nt':
         import win32com.client
         _com = 'pywin32'
     else:
-        raise Exception("Error. No win32com.client or Python.NET modules found. They need to be installed.")
+        raise Exception(
+            "Error. No win32com.client or Python.NET modules found. They need to be installed.")
 
 
 # if _pythonver == 3:
@@ -105,7 +106,8 @@ class Siwave:
                 del self._main.oSiwave
 
             if _com == 'pythonnet':
-                self._main.oSiwave = System.Activator.CreateInstance(System.Type.GetTypeFromProgID(version))
+                self._main.oSiwave = System.Activator.CreateInstance(
+                    System.Type.GetTypeFromProgID(version))
 
             elif _com == 'pythonnet_v3': #TODO check if possible to use pythonnet. at the moment the tool open AEDt but doesn't return the wrapper of oApp
                 print("Launching AEDT with Module win32com")
@@ -136,8 +138,6 @@ class Siwave:
         # self._main.oMessenger.add_info_messge(info_msg2, 'Global')
         # self._main.oMessenger.add_info_message(info_msg3, 'Global')
 
-
-
     @property
     def project_name(self):
         """Project name.
@@ -149,7 +149,6 @@ class Siwave:
 
         """
         return self._oproject.GetName()
-
 
     @property
     def project_path(self):
@@ -198,7 +197,6 @@ class Siwave:
         """
         return os.path.join(self.project_path, self.project_name + '.siwresults')
 
-
     @property
     def src_dir(self):
         """Source directory.
@@ -220,7 +218,6 @@ class Siwave:
             Full absolute path to the ``pyaedt`` directory.
         """
         return os.path.realpath(os.path.join(self.src_dir, '..'))
-
 
     @property
     def oproject(self):
@@ -245,7 +242,6 @@ class Siwave:
             self.oSiwave.OpenProject(proj_path)
             self._oproject = self.oSiwave.GetActiveProject()
 
-
     @aedt_exception_handler
     def save_project(self, projectpath=None, projectName=None):
         """Save the project.
@@ -268,7 +264,6 @@ class Siwave:
         else:
             self.oproject.Save()
         return True
-
 
     @aedt_exception_handler
     def quit_application(self):

@@ -146,7 +146,6 @@ def pyaedt_unittest_check_desktop_error(func):
     return inner_function
 
 
-
 #
 # def pyaedt_unittest_same_design(func):
 #     @wraps(func)

@@ -52,6 +52,7 @@ class FieldAnalysisIcepak(Analysis, object):
         is ``False``.
 
     """
+
     def __init__(self, application, projectname, designname, solutiontype, setup_name=None,
                  specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):
         Analysis.__init__(self, application, projectname, designname, solutiontype, setup_name,
@@ -159,7 +160,8 @@ class FieldAnalysisIcepak(Analysis, object):
         excitation = {"HFSS": "HfssTab", "Icepak": "Icepak", "Q3D": "Q3D", "Maxwell3D": "Maxwell3D"}
         setup = {"HFSS": "HfssTab", "Icepak": "Icepak", "Q3D": "General", "Maxwell3D": "General"}
         mesh = {"HFSS": "MeshSetupTab", "Icepak": "Icepak", "Q3D": "Q3D", "Maxwell3D": "Maxwell3D"}
-        all = {"HFSS": ["HfssTab", "MeshSetupTab"], "Icepak": ["Icepak"], "Q3D": ["Q3D", "General"], "Maxwell3D" : ["Maxwell3D", "General"]}
+        all = {"HFSS": ["HfssTab", "MeshSetupTab"], "Icepak": ["Icepak"],
+            "Q3D": ["Q3D", "General"], "Maxwell3D" : ["Maxwell3D", "General"]}
         if type == "Boundary":
             propserv = boundary[self._design_type]
             val = self.odesign.GetPropertyValue(propserv, objectname, property)
@@ -343,7 +345,8 @@ class FieldAnalysisIcepak(Analysis, object):
         nominal_val = float(mat_temp[nominal_id-1][0])
         ds_name= generate_unique_name(property_name)
         self.create_dataset(ds_name,
-                            [float(i[1].replace("C", "").replace("K", "").replace("F", "")) for i in mat_temp],
+                            [float(i[1].replace("C", "").replace("K", "").replace("F", ""))
+                                   for i in mat_temp],
                             [float(i[0]) / nominal_val for i in mat_temp])
         return nominal_val, "$" + ds_name
 
@@ -410,7 +413,8 @@ class FieldAnalysisIcepak(Analysis, object):
                         nominal_val, dataset_name = self._create_dataset_from_sherlock(mat, material_data[
                             "Thermal Conductivity"][i], "Thermal_Conductivity")
                         newmat.thermal_conductivity = nominal_val
-                        newmat.thermal_conductivity.thermalmodifier = "pwl({}, Temp)".format(dataset_name)
+                        newmat.thermal_conductivity.thermalmodifier = "pwl({}, Temp)".format(
+                            dataset_name)
                     else:
                         value = material_data["Thermal Conductivity"][i]
                         newmat.thermal_conductivity = value
@@ -419,7 +423,8 @@ class FieldAnalysisIcepak(Analysis, object):
                         nominal_val, dataset_name = self._create_dataset_from_sherlock(mat, material_data[
                             "Material CTE"][i], "CTE")
                         newmat.thermal_expansion_coefficient = nominal_val
-                        newmat.thermal_expansion_coefficient.thermalmodifier = "pwl({}, Temp)".format(dataset_name)
+                        newmat.thermal_expansion_coefficient.thermalmodifier = "pwl({}, Temp)".format(
+                            dataset_name)
                     else:
                         value = material_data["Material CTE"][i]
                         newmat.thermal_expansion_coefficient = value

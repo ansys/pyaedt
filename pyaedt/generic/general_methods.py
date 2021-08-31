@@ -36,13 +36,13 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
     Parameters
     ----------
     ex_info :
-        
+
     func :
-        
+
     args :
-        
+
     kwargs :
-        
+
     message :
          (Default value = "Type Error")
 
@@ -52,17 +52,22 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
     """
     if  os.getenv('PYAEDT_SCREEN_LOGS','True').lower() in ('true', '1', 't'):
         _write_mes("**************************************************************")
-        _write_mes("pyaedt Error on Method {}:  {}. Please Check again".format(func.__name__, message), True)
+        _write_mes("pyaedt Error on Method {}:  {}. Please Check again".format(
+            func.__name__, message), True)
         _write_mes("Arguments Provided: ")
 
         try:
 
             if int(sys.version[0]) > 2:
-                args_name = list(OrderedDict.fromkeys(inspect.getfullargspec(func)[0] + list(kwargs.keys())))
-                args_dict = OrderedDict(list(itertools.zip_longest(args_name, args)) + list(kwargs.items()))
+                args_name = list(OrderedDict.fromkeys(
+                    inspect.getfullargspec(func)[0] + list(kwargs.keys())))
+                args_dict = OrderedDict(list(itertools.zip_longest(
+                    args_name, args)) + list(kwargs.items()))
             else:
-                args_name = list(OrderedDict.fromkeys(inspect.getargspec(func)[0] + list(kwargs.keys())))
-                args_dict = OrderedDict(list(itertools.izip(args_name, args)) + list(kwargs.iteritems()))
+                args_name = list(OrderedDict.fromkeys(
+                    inspect.getargspec(func)[0] + list(kwargs.keys())))
+                args_dict = OrderedDict(
+                    list(itertools.izip(args_name, args)) + list(kwargs.iteritems()))
 
             for el in args_dict:
                 if el != "self":
@@ -142,7 +147,8 @@ def aedt_exception_handler(func):
                 message = "This Method is not supported in current AEDT Design Type."
                 if os.getenv('PYAEDT_SCREEN_LOGS', 'True').lower() in ('true', '1', 't'):
                     print("**************************************************************")
-                    print("pyaedt Error on Method {}:  {}. Please Check again".format(func.__name__, message))
+                    print("pyaedt Error on Method {}:  {}. Please Check again".format(
+                        func.__name__, message))
                     print("**************************************************************")
                     print("")
                 if os.getenv('PYAEDT_FILE_LOGS', 'True').lower() in ('true', '1', 't'):
@@ -161,7 +167,7 @@ def env_path(input_version):
     Parameters
     ----------
     input_version :
-        
+
 
     Returns
     -------
@@ -267,7 +273,7 @@ def get_filename_without_extension(path):
     Parameters
     ----------
     path :
-        
+
 
     Returns
     -------
@@ -307,13 +313,13 @@ def retry_ntimes(n, function, *args, **kwargs):
     Parameters
     ----------
     n :
-        
+
     function :
-        
+
     *args :
-        
+
     **kwargs :
-        
+
 
     Returns
     -------

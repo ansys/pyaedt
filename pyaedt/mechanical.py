@@ -82,6 +82,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         FieldAnalysis3D.__init__(self, "Mechanical", projectname, designname, solution_type, setup_name,
                                  specified_version, NG, AlwaysNew, release_on_exit, student_version)
+
     def __enter__(self):
         return self
 
@@ -226,7 +227,8 @@ class Mechanical(FieldAnalysis3D, object):
         bound = BoundaryObject(self, name, props, "ThermalCondition")
         if bound.create():
             self.boundaries.append(bound)
-            self._messenger.add_info_message('Thermal conditions are mapped from design {}.'.format(designname))
+            self._messenger.add_info_message(
+                'Thermal conditions are mapped from design {}.'.format(designname))
             return bound
 
         return True
@@ -321,7 +323,6 @@ class Mechanical(FieldAnalysis3D, object):
             return bound
         return False
 
-
     @aedt_exception_handler
     def assign_frictionless_support(self, objects_list,  boundary_name=""):
         """Assign a Mechanical frictionless support.
@@ -344,7 +345,8 @@ class Mechanical(FieldAnalysis3D, object):
         """
 
         if not (self.solution_type == "Structural" or self.solution_type == "Modal"):
-            self._messenger.add_error_message("This method works only in Mechanical Structural Solution")
+            self._messenger.add_error_message(
+                "This method works only in Mechanical Structural Solution")
             return False
         props = {}
         objects_list = self.modeler._convert_list_to_ids(objects_list)
@@ -354,7 +356,6 @@ class Mechanical(FieldAnalysis3D, object):
                 props["Objects"] = objects_list
             else:
                 props["Faces"] = objects_list
-
 
         if not boundary_name:
             boundary_name = generate_unique_name("Temp")
@@ -385,14 +386,14 @@ class Mechanical(FieldAnalysis3D, object):
 
         """
         if not (self.solution_type == "Structural" or self.solution_type == "Modal"):
-            self._messenger.add_error_message("This method works only in a Mechanical structural solution.")
+            self._messenger.add_error_message(
+                "This method works only in a Mechanical structural solution.")
             return False
         props = {}
         objects_list = self.modeler._convert_list_to_ids(objects_list)
 
         if type(objects_list) is list:
             props["Faces"] = objects_list
-
 
         if not boundary_name:
             boundary_name = generate_unique_name("Temp")

@@ -380,7 +380,8 @@ class Maxwell(object):
             name = generate_unique_name("VoltageDrop")
         face_list = self.modeler._convert_list_to_ids(face_list)
 
-        props = OrderedDict({"Faces": face_list, "Voltage Drop": amplitude, "Point out of terminal": swap_direction})
+        props = OrderedDict({"Faces": face_list, "Voltage Drop": amplitude,
+                            "Point out of terminal": swap_direction})
         bound = BoundaryObject(self, name, props, "VoltageDrop")
         if bound.create():
             self.boundaries.append(bound)
@@ -513,7 +514,8 @@ class Maxwell(object):
                 bound = BoundaryObject(self, name, props2, "CoilTerminal")
 
             else:
-                self._messenger.add_warning_message("Face Selection is not allowed in Maxwell 2D. Provide a 2D object.")
+                self._messenger.add_warning_message(
+                    "Face Selection is not allowed in Maxwell 2D. Provide a 2D object.")
                 return False
         if bound.create():
             self.boundaries.append(bound)
@@ -903,7 +905,8 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
             return obj
         solid_bodies = self.modeler.solid_bodies
         if objectfilter:
-            solid_ids = [i for i,j in self.modeler.primitives.object_id_dict.items() if j.name in objectfilter]
+            solid_ids = [i for i,j in self.modeler.primitives.object_id_dict.items()
+                                                                                   if j.name in objectfilter]
         else:
             solid_ids = [i for i in list(self.modeler.primitives.object_id_dict.keys())]
         model_depth = self.get_model_depth()

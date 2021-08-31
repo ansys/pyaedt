@@ -15,7 +15,8 @@ class TestClass:
         with Scratch(scratch_path) as self.local_scratch:
             try:
                 pass
-                example_project = os.path.join(local_path, 'example_models', test_project_name + '.aedt')
+                example_project = os.path.join(
+                    local_path, 'example_models', test_project_name + '.aedt')
 
                 self.test_project = self.local_scratch.copyfile(example_project)
 
@@ -41,7 +42,6 @@ class TestClass:
         assert comp['L3A1'].get_part()
         assert comp['L3A1'].get_part_type()
         assert comp['L3A1'].set_property_value("Angle", "0deg")
-
 
     def test_get_geometries(self):
         geo = self.aedtapp.modeler.primitives.geometries

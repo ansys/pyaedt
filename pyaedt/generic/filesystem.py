@@ -48,7 +48,8 @@ class Scratch():
         self._volatile = volatile
         self._cleaned = True
         char_set = string.ascii_uppercase + string.digits
-        self._scratch_path = os.path.normpath(os.path.join(local_path, 'scratch' + ''.join(random.sample(char_set, 6))))
+        self._scratch_path = os.path.normpath(os.path.join(
+            local_path, 'scratch' + ''.join(random.sample(char_set, 6))))
         if os.path.exists(self._scratch_path):
             try:
                 self.remove()
@@ -69,14 +70,13 @@ class Scratch():
         except:
             pass
 
-
     def copyfile(self, src_file):
         """
 
         Parameters
         ----------
         src_file :
-            
+
 
         Returns
         -------
@@ -92,9 +92,9 @@ class Scratch():
         Parameters
         ----------
         src_folder :
-            
+
         destfolder :
-            
+
 
         Returns
         -------

@@ -72,12 +72,12 @@ def real(arg):
     Parameters
     ----------
     arg :
-        
+
 
     Returns
     -------
     type
-        
+
 
     """
     return arg.real
@@ -89,12 +89,12 @@ def imag(arg):
     Parameters
     ----------
     arg :
-        
+
 
     Returns
     -------
     type
-        
+
 
     """
     return arg.imag
@@ -106,12 +106,12 @@ def mag(arg):
     Parameters
     ----------
     arg :
-        
+
 
     Returns
     -------
     type
-        
+
 
     """
     return abs(arg)
@@ -123,12 +123,12 @@ def db10(arg):
     Parameters
     ----------
     arg :
-        
+
 
     Returns
     -------
     type
-        
+
 
     """
     return 10.0 * math.log10(mag(arg))
@@ -140,12 +140,12 @@ def db20(arg):
     Parameters
     ----------
     arg :
-        
+
 
     Returns
     -------
     type
-        
+
 
     """
     return 20.0 * math.log10(mag(arg))
@@ -157,12 +157,12 @@ def rad(arg):
     Parameters
     ----------
     arg :
-        
+
 
     Returns
     -------
     type
-        
+
 
     """
     return arg*math.pi/180
@@ -174,12 +174,12 @@ def deg(arg):
     Parameters
     ----------
     arg :
-        
+
 
     Returns
     -------
     type
-        
+
 
     """
     return arg*180/math.pi
@@ -194,6 +194,7 @@ formats = {
 
 class ParseError(Exception):
     """ """
+
     def __init__(self, message):
         self.message = message
 
@@ -228,7 +229,7 @@ class TouchstoneData(object):
         Parameters
         ----------
         matrix :
-            
+
 
         Returns
         -------
@@ -355,7 +356,8 @@ def get_return_losses(excitation_names, excitation_name_prefix=''):
     """
     spar = []
     if excitation_name_prefix:
-        excitation_names = [i for i in excitation_names if excitation_name_prefix.lower() in i.lower()]
+        excitation_names = [
+            i for i in excitation_names if excitation_name_prefix.lower() in i.lower()]
     for i in excitation_names:
         spar.append("S({},{})".format(i, i))
     return spar
@@ -570,7 +572,7 @@ def read_touchstone(file_path, verbose=False):
     Parameters
     ----------
     file_path :
-        
+
     verbose :
          (Default value = False)
 
@@ -619,7 +621,7 @@ def _parse_ports_name(file):
     Parameters
     ----------
     file :
-        
+
 
     Returns
     -------
@@ -641,7 +643,7 @@ def _parse_option_line(file, verbose=False):
     Parameters
     ----------
     file :
-        
+
     verbose :
          (Default value = False)
 
@@ -691,7 +693,6 @@ def _parse_option_line(file, verbose=False):
         print("  Format:         %s" % format)
         print("  Reference R:    %g" % z0)
 
-
     return (frequnit, type, format, z0)
 
 
@@ -702,7 +703,7 @@ def _get_next_line_data(file):
     Parameters
     ----------
     file :
-        
+
 
     Returns
     -------
@@ -728,11 +729,11 @@ def _parse_next_sample(file, ports, format):
     Parameters
     ----------
     file :
-        
+
     ports :
-        
+
     format :
-        
+
 
     Returns
     -------
@@ -749,7 +750,6 @@ def _parse_next_sample(file, ports, format):
 
     port1 = port2 = 1
     list_data = [None for i in range(ports*ports)]
-
 
     while True:
         for i in range(int(len(data) / 2)):
