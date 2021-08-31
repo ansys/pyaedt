@@ -1020,7 +1020,7 @@ class Components(object):
             List of through resistors.
 
         Examples
-        ---------
+        --------
 
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder", "project name", "release version")

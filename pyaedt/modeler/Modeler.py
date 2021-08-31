@@ -708,7 +708,7 @@ class GeometryModeler(Modeler, object):
         """Dimensions.
 
         Returns
-        --------
+        -------
         str
             Dimensionality, which is either ``"2D"`` or ``"3D"``.
 
@@ -742,7 +742,7 @@ class GeometryModeler(Modeler, object):
             Non-model objects are also returned.
 
         Returns
-        --------
+        -------
         list
             List of object IDs with the object name as the key.
 
@@ -763,15 +763,18 @@ class GeometryModeler(Modeler, object):
         Parameters
         ----------
         origin : list
-            List of ``[x, y, z]`` coordinates for the origin of the coordinate system.
-            The default is ``None``, in which case ``[0, 0, 0]`` is used.
+            List of ``[x, y, z]`` coordinates for the origin of the
+            coordinate system.  The default is ``None``, in which case
+            ``[0, 0, 0]`` is used.
         reference_cs : str, optional
-            Name of the reference coordinate system. The default is ``"Global"``.
+            Name of the reference coordinate system. The default is
+            ``"Global"``.
         name : str
             Name of the coordinate system. The default is ``None``.
         mode: str, optional
-            Definition mode. Options are ``"view"``, ``"axis"``, ``"zxz"``, ``"zyz"``,
-            and ``"axisrotation"``. The default is ``"axis"``.
+            Definition mode. Options are ``"view"``, ``"axis"``,
+            ``"zxz"``, ``"zyz"``, and ``"axisrotation"``. The default
+            is ``"axis"``.
 
             * If ``mode="view"``, specify ``view``.
             * If ``mode="axis"``, specify ``x_pointing`` and ``y_pointing``.
@@ -779,17 +782,19 @@ class GeometryModeler(Modeler, object):
             * If ``mode="axisrotation"``, specify ``theta`` and ``u``.
 
             Parameters not needed by the specified mode are ignored.
-            For back compatibility, ``view="rotate"`` is the same as ``mode="axis"``.
-            The default mode, ``"axisrotation"``, is a coordinate system parallel
-            to the global coordinate system centered in the global origin.
+            For back compatibility, ``view="rotate"`` is the same as
+            ``mode="axis"``.  The default mode, ``"axisrotation"``, is
+            a coordinate system parallel to the global coordinate
+            system centered in the global origin.
 
         view : str, optional
-            View for the coordinate system if ``mode="view"``. Options are
-            ``"XY"``, ``"XZ"``, ``"XY"``, ``"iso"``, ``None``, and ``"rotate"``
-            (obsolete). The default is ``"iso"``.
+            View for the coordinate system if ``mode="view"``. Options
+            are ``"XY"``, ``"XZ"``, ``"XY"``, ``"iso"``, ``None``, and
+            ``"rotate"`` (obsolete). The default is ``"iso"``.
 
             .. note::
-               Because the ``"rotate"`` option is obsolete, use ``mode="axis"`` instead.
+               Because the ``"rotate"`` option is obsolete, use
+               ``mode="axis"`` instead.
 
         x_pointing : list, optional
             List of the ``[x, y, z]`` coordinates specifying the X axis
@@ -814,7 +819,7 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Modeler.CoordinateSystem`
+        pyaedt.modeler.Modeler.CoordinateSystem
 
         """
         if name:
@@ -905,8 +910,8 @@ class GeometryModeler(Modeler, object):
         """Assign temperature and deformation objects to a Workbench link.
 
         .. deprecated:: 0.3.1
-           Use :func:`GeometryModeler.set_objects_temperature` and :func:`GeometryModeler.set_objects_deformation`
-           instead.
+           Use :func:`GeometryModeler.set_objects_temperature` and
+           :func:`GeometryModeler.set_objects_deformation` instead.
 
         Parameters
         ----------
@@ -1024,6 +1029,7 @@ class GeometryModeler(Modeler, object):
         portonplane : bool
             Whether edges are to be on the plane orthogonal to the axis
             direction.
+
         Returns
         -------
         str
@@ -1056,11 +1062,13 @@ class GeometryModeler(Modeler, object):
         objectname : str
             Name of the object.
         startposition : list
-            List of the ``[x, y, z]`` coordinates for the starting position of the object.
+            List of the ``[x, y, z]`` coordinates for the starting
+            position of the object.
         offset :
             Offset to apply.
-        plane :
-            Coordinate plane of the arc. Choices are ``"YZ"``, ``"ZX"``, and ``"XY"``.
+        plane : str
+            Coordinate plane of the arc. Choices are ``"YZ"``,
+            ``"ZX"``, and ``"XY"``.
 
 
         Returns

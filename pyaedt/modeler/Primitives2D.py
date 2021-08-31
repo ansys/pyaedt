@@ -24,7 +24,7 @@ class Primitives2D(Primitives, object):
 
         Parameters
         ----------
-        position :
+        position : list
             ApplicationName.modeler.Position(x,y,z) object
         radius : float
             Radius of the object.
@@ -32,16 +32,16 @@ class Primitives2D(Primitives, object):
             Number of sides. The default is ``0``, which is correct for a circle.
         is_covered : bool
             Specify whether the ellipse is a sheet (covered) or a line object
-        name : str, default=None
+        name : str, optional
             Name of the object. The default is ``None``. If ``None`` ,
-            a unique name NewObject_xxxxxx will be assigned)
-        matname : str, default=None
-             Name of the material. The default is ``None``. If ``None``,
+            a unique name ``"NewObject_xxxxxx"`` will be assigned)
+        matname : str, optional
+            Name of the material. The default is ``None``. If ``None``,
             the default material is assigned.
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
+        pyaedt.modeler.Object3d.Object3d
             Object3d
 
         Examples

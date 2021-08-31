@@ -44,6 +44,7 @@ with open(os.path.join(root_path, "pyaedt", "version.txt"), "r") as f:
 # extensions coming with Sphinx_PyAEDT (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    "sphinx.ext.intersphinx",
     'sphinx.ext.autodoc',
     'sphinx.ext.todo',
     "sphinx.ext.viewcode",
@@ -58,19 +59,28 @@ extensions = [
     'numpydoc',
 ]
 
+# Intersphinx mapping
+intersphinx_mapping = {
+    'python': ('https://docs.python.org/dev', None),
+    'scipy': ('https://docs.scipy.org/doc/scipy/reference', None),
+    'numpy': ('https://numpy.org/devdocs', None),
+    'matplotlib': ('https://matplotlib.org/stable', None),
+    'imageio': ('https://imageio.readthedocs.io/en/stable', None),
+    'pandas': ('https://pandas.pydata.org/pandas-docs/stable', None),
+    'pytest': ('https://docs.pytest.org/en/stable', None),
+}
 
+# numpydoc configuration
 numpydoc_use_plots = True
 numpydoc_show_class_members = False
 numpydoc_xref_param_type = True
-
-# see https://github.com/pyvista/pyvista/pull/1612
 numpydoc_validate = True
 numpydoc_validation_checks = set()  # none at the moment
-
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
+# disable generating the sphinx nested documentation
 if 'PYAEDT_CI_NO_AUTODOC' in os.environ:
     templates_path.clear()
 

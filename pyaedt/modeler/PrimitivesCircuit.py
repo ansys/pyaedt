@@ -107,10 +107,12 @@ class CircuitComponents(object):
     @aedt_exception_handler
     def create_wire(self, points_array):
         """Create a wire.
+
         Parameters
         ----------
         points_array : list
-            A nested list of point coordinates. For example, ``[[x1, y1], [x2, y2]....]``.
+            A nested list of point coordinates. For example,
+            ``[[x1, y1], [x2, y2], ...]``.
 
         Returns
         -------

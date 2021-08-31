@@ -637,8 +637,14 @@ class Design(object):
     def design_type(self):
         """Design type.
 
+        Options are ``"Circuit Design"``, ``"Emit"``, ``"HFSS"``,
+        ``"HFSS 3D Layout Design"``, ``"Icepak"``, ``"Maxwell 2D"``,
+        ``"Maxwell 3D"``, ``"Mechanical"``, ``"ModelCreation"``,
+        ``"Q2D Extractor"``, ``"Q3D Extractor"``, ``"RMxprtSolution"``,
+        and ``"Twin Builder"``.
+
         Returns
-        --------
+        -------
         str
             Type of the design. See above for a list of possible return values.
 
@@ -1163,7 +1169,7 @@ class Design(object):
 
         Returns
         -------
-        :class:`pyaedt.application.Variables.VariableManager
+        pyaedt.application.Variables.VariableManager
 
         """
         return self._variable_manager

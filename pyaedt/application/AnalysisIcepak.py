@@ -142,16 +142,17 @@ class FieldAnalysisIcepak(Analysis, object):
         property : str
             Name of the design property.
         type : string, optional
-            Type of the property. Options are ``"boundary"``, ``"excitation"``, ``"setup"``,
-            and ``"mesh"``. The default is ``None``.
+            Type of the property. Options are ``"boundary"``,
+            ``"excitation"``, ``"setup"``, and ``"mesh"``. The default
+            is ``None``.
 
         Returns
         -------
         type
             Value of the property.
 
-        Example
-        -------
+        Examples
+        --------
 
         >>> val = ipk.get_property_value('BoundarySetup:Source1', 'Total Power')
 

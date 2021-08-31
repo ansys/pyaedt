@@ -733,24 +733,25 @@ class VariableManager(object):
         Parameters
         ----------
         variable_name : str
-            Name of the design property or project variable (``$var``). If this variable
-            does not exist, a new one is created and a value is set.
+            Name of the design property or project variable
+            (``$var``). If this variable does not exist, a new one is
+            created and a value is set.
         expression : str
-            Valid string expression within the AEDT design and project structure.
-            For example, ``"3*cos(34deg)"``.
+            Valid string expression within the AEDT design and project
+            structure.  For example, ``"3*cos(34deg)"``.
         readonly : bool, optional
-           Whether to set the design property or project variable to read-only. The
-           default is ``False``.
+            Whether to set the design property or project variable to
+            read-only. The default is ``False``.
         hidden :  bool, optional
             Whether to hide the design property or project variable. The
-           default is ``False``.
+            default is ``False``.
         description : str, optional
-           Text to display for the design property or project variable in the
+            Text to display for the design property or project variable in the
             ``Properties`` window. The default is ``None``.
         overwrite : bool, optional
-            Whether to overwrite an existing value for the design property or
-            project variable. The default is ``False``, in which case this method is
-            ignored.
+            Whether to overwrite an existing value for the design
+            property or project variable. The default is ``False``, in
+            which case this method is ignored.
 
         Returns
         -------
@@ -1532,7 +1533,7 @@ class DataSet(object):
         """Delete the dataset.
 
         Returns
-        ------
+        -------
         bool
             ``True`` when successful, ``False`` when failed.
 

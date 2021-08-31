@@ -79,8 +79,8 @@ class EdbNets(object):
     def signal_nets(self):
         """Signal nets.
 
-        Return
-        ------
+        Returns
+        -------
         dict
             Dictionary of signal nets.
         """
