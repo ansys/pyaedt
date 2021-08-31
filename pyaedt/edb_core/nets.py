@@ -291,5 +291,6 @@ class EdbNets(object):
         if component_name not in self.parent.core_components.components:
             return False
         for net in self.parent.core_components.components[component_name].nets:
-            return net_name == net.GetName():
+            if net_name == net.GetName():
+                return True
         return False

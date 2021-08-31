@@ -235,6 +235,7 @@ class Edb3DLayout(object):
         >>> edbapp = Edb("myaedbfolder", "project name", "release version")
         >>> edbapp.core_hfss.create_circuit_port_on_net("U2A5", "V1P5_S3", "U2A5", "GND", 50, "port_name")
         """
+
         return self.parent.core_siwave.create_circuit_port_on_net(positive_component_name, positive_net_name,
                                                                   negative_component_name, negative_net_name,
                                                                   impedance_value, port_name)
