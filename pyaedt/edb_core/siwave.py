@@ -5,6 +5,7 @@ This module contains these clases: `CircuitPort`, `CurrentSource`, `EdbSiwave`,
 
 import warnings
 import os
+import time
 from .general import *
 from ..generic.general_methods import get_filename_without_extension, generate_unique_name
 
@@ -1079,6 +1080,7 @@ class EdbSiwave(object):
         pos_pingroup_term_name = generate_unique_name(source.name + "_POS")
         neg_pingroup_term_name = generate_unique_name(source.name + "_NEG")
         pos_pingroup_terminal = self._edb.Cell.Terminal.PinGroupTerminal.Create(self._active_layout,pos_node_net,pos_pingroup_term_name , pos_pin_group[1], False)
+        time.sleep(0.5)
         neg_pingroup_terminal = self._edb.Cell.Terminal.PinGroupTerminal.Create(self._active_layout,neg_node_net,neg_pingroup_term_name , neg_pin_group[1], False)
 
         if source.type == SourceType.Port:
