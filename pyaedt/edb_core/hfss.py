@@ -188,7 +188,7 @@ class Edb3DLayout(object):
         Returns
         -------
         str
-            Resistor Name
+            Name of the Resistor.
 
         Examples
         --------
@@ -203,7 +203,9 @@ class Edb3DLayout(object):
     @aedt_exception_handler
     def create_circuit_port_on_net(self, positive_component_name, positive_net_name, negative_component_name=None,
                                    negative_net_name="GND", impedance_value=50, port_name=""):
-        """Create a circuit port on a NET. it groups all Pins belongin to specified nets and then applies port on PinGroups
+        """Create a circuit port on a NET.
+        
+        It groups all pins belonging to the specified net and then applies the port on PinGroups.
 
         Parameters
         ----------
@@ -231,7 +233,7 @@ class Edb3DLayout(object):
 
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder", "project name", "release version")
-        >>> edbapp.core_hfss.create_circuit_port_on_net("U2A5","V1P5_S3","U2A5","GND",50,"port_name")
+        >>> edbapp.core_hfss.create_circuit_port_on_net("U2A5", "V1P5_S3", "U2A5", "GND", 50, "port_name")
         """
         return self.parent.core_siwave.create_circuit_port_on_net(positive_component_name, positive_net_name,
                                                                   negative_component_name, negative_net_name,
@@ -270,7 +272,7 @@ class Edb3DLayout(object):
 
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder", "project name", "release version")
-        >>> edb.core_hfss.create_voltage_source_on_net("U2A5","V1P5_S3","U2A5","GND",3.3,0,"source_name")
+        >>> edb.core_hfss.create_voltage_source_on_net("U2A5", "V1P5_S3", "U2A5", "GND", 3.3, 0, "source_name")
         """
         return self.parent.core_siwave.create_voltage_source_on_net(positive_component_name, positive_net_name,
                                                                     negative_component_name, negative_net_name,
@@ -309,7 +311,7 @@ class Edb3DLayout(object):
 
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder", "project name", "release version")
-        >>> edb.core_hfss.create_current_source_on_net("U2A5","V1P5_S3","U2A5","GND",0.1,0,"source_name")
+        >>> edb.core_hfss.create_current_source_on_net("U2A5", "V1P5_S3", "U2A5", "GND", 0.1, 0, "source_name")
         """
         return self.parent.core_siwave.create_current_source_on_net(positive_component_name, positive_net_name,
                                                                     negative_component_name, negative_net_name,

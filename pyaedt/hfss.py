@@ -485,7 +485,7 @@ class Hfss(FieldAnalysis3D, object):
 
         """
         if sweep_type not in ["Discrete", "Interpolating", "Fast"]:
-            self.add_error_message("Error in Sweep Type. It has to be one of Discrete, Interpolating or Fast")
+            self.add_error_message("Invalid in `sweep_type`. It has to either 'Discrete', 'Interpolating', or 'Fast'")
             return False
         return self.create_frequency_sweep(setupname, unit, freqstart, freqstop, sweepname, num_of_freq_points,
                                            sweep_type, interpolation_tol=0.5, interpolation_max_solutions=250,
@@ -515,7 +515,8 @@ class Hfss(FieldAnalysis3D, object):
         save_rad_fields : bool, optional
             Whether to save the radiating fields. The default is ``False``.
         sweep_type : str, optional
-            Whether to create a ``Discrete``,``Interpolating`` or ``Fast`` sweep. the radiating fields. The default is ``Discrete``.
+            Whether to create a ``"Discrete"``,``"Interpolating"`` or ``"Fast"`` sweep.
+            The default is ``"Discrete"``.
 
         Returns
         -------
@@ -538,7 +539,7 @@ class Hfss(FieldAnalysis3D, object):
 
         """
         if sweep_type not in ["Discrete", "Interpolating", "Fast"]:
-            self.add_error_message("Error in Sweep Type. it has to be Discrete, Interpolating or Fast")
+            self.add_error_message("Invalid in `sweep_type`. It has to either 'Discrete', 'Interpolating', or 'Fast'")
         if sweepname is None:
             sweepname = generate_unique_name("Sweep")
 
@@ -894,8 +895,7 @@ class Hfss(FieldAnalysis3D, object):
         sweepname : str, optional
             Name of the sweep. The default is ``"SinglePoint"``.
         freq_start : str, optional
-            Sweep frequency point with Units. The default is ``1GHz``.
-
+            Sweep frequency point with units. The default is ``"1GHz"``.
         save_field : bool, optional
             Whether to save the field. The default is ``True``.
         save_radiating_field : bool, optional

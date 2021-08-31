@@ -628,24 +628,26 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         Parameters
         ----------
-        simulate_missing_solution : bool, Optional
-            ``True`` if the the solver has to simulate missing solution. ``False`` to Interpolate Missing Solution
+        simulate_missing_solution : bool, optional
+            Set this to ``True`` if the the solver has to simulate missing solution or
+            ``False`` to interpolate the missing solution.
         align_ports : bool, Optional
-            ``True`` if the the solver  has to align microwave ports
-        renormalize_ports : bool, Optional
-            ``True`` if the the Port impedance has to be renormalized.
-        renorm_impedance : float, Optional
-            Renormalization Impedance in Ohm
-        setup_override_name : str, Optional
-            Contains the setup name in case there is a setup override
-        sweep_override_name : str, Optional
-            Contains the sweep name in case there is a sweep override
-        use_interpolating_sweep : bool, Optional
-            ``True`` if the the solver has to use interpolating sweep. ``False`` to use Discrete Sweep.
+            Set this to ``True`` if the the solver has to align microwave ports.
+        renormalize_ports : bool, optional
+            Set this to ``True`` if the the port impedance has to be renormalized.
+        renorm_impedance : float, optional
+            Renormalization impedance in Ohm.
+        setup_override_name : str, optional
+            The setup name if there is a setup override.
+        sweep_override_name : str, optional
+            The sweep name if there is a sweep override.
+        use_interpolating_sweep : bool, optional
+            Set to ``True`` if the the solver has to use an interpolating sweep.
+            Set to ``False`` to use a discrete sweep.
         use_y_matrix : bool, Optional
-            ``True`` if the the interpolation algorithm has to use YMatrix.
-        interpolation_algorithm : str, Optional
-                Defines which interpolation algorithm to use. Default is ``auto``. Options are ``auto``, ``lin``, ``shadH``, ``shadNH``
+            Set to ``True`` if the interpolation algorithm has to use YMatrix.
+        interpolation_algorithm : str, optional
+                Defines which interpolation algorithm to use. Default is ``"auto"``. Options are ``"auto"``, ``"lin"``, ``"shadH"``, ``"shadNH"``
 
         Examples
         --------
@@ -656,7 +658,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         Returns
         -------
         bool
-            ``True`` if it is succeedeed.
+            ``True`` if successful and ``False`` if failed.
         """
         if interpolation_algorithm not in ["auto", "lin", "shadH", "shadNH"]:
             self.add_error_message("Wrong Interpolation Algorithm")
