@@ -506,10 +506,11 @@ class Design(object):
         self.solution_type = self._solution_type
         self.project_datasets = self._get_project_datasets()
         self.design_datasets = self._get_design_datasets()
-        
+
         def __del__(self, key):
             """Implement destructor with array name or index."""
-            del self._variable_manager(key)
+            object_to_delete = self._variable_manager(key)
+            del object_to_delete
 
     @property
     def project_properies(self):
