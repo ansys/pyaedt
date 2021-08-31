@@ -221,13 +221,13 @@ class TestClass:
                                                      sweepname="RFBoardSweep1", sweeptype="interpolating",
                                                      interpolation_tol_percent=0.2, interpolation_max_solutions=111,
                                                      save_fields=False, use_q3d_for_dc=False)
-        assert sweep1.props["Sweeps"]["Data"] == "LINC 1 10 1001"
+        assert sweep1.props["Sweeps"]["Data"] == "LINC 1GHz 10GHz 1001"
         sweep2 = self.aedtapp.create_frequency_sweep(setupname=setup_name,
                                                      unit='GHz', freqstart=1, freqstop=10, num_of_freq_points=12,
                                                      sweepname="RFBoardSweep2", sweeptype="discrete",
                                                      interpolation_tol_percent=0.4, interpolation_max_solutions=255,
                                                      save_fields=True, save_rad_fields_only=True, use_q3d_for_dc=True)
-        assert sweep2.props["Sweeps"]["Data"] == "LINC 1 10 12"
+        assert sweep2.props["Sweeps"]["Data"] == "LINC 1GHz 10GHz 12"
 
     def test_19A_validate(self):
         assert self.aedtapp.validate_full_design()
@@ -307,4 +307,4 @@ class TestClass:
 
     def test_cosim_simulation(self):
         assert self.aedtapp.edit_cosim_options()
-        assert not self.aedtapp.edit_cosim_options(interpolation_alghoritm="auto1")
+        assert not self.aedtapp.edit_cosim_options(interpolation_algorithm"auto1")
