@@ -629,7 +629,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
     def edit_cosim_options(self, simulate_missing_solution=True, align_ports=True, renormalize_ports=True,
                            renorm_impedance=50, setup_override_name=None, sweep_override_name=None,
                            use_interpolating_sweep=False, use_y_matrix=True, interpolation_algorithm="auto"):
-        """Edit Cosimulation Options
+        """Edit Cosimulation Options.
 
         Parameters
         ----------
