@@ -181,7 +181,7 @@ class Simplorer(FieldAnalysisSimplorer, object):
 
     @aedt_exception_handler
     def set_end_time(self, expression):
-        """
+        """Set the end time.
 
         Parameters
         ----------

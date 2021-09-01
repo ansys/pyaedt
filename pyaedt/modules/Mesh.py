@@ -557,7 +557,7 @@ class Mesh(object):
             this parameter is disabled.
         triangulation_max_length : str, optional
             Maximum surface triangulation length with units. The default
-            is ``"0.1mm"`.
+            is ``"0.1mm"``.
         numlayers : str, optional
             Number of layers. The default is ``"2"``.
         meshop_name : str, optional
@@ -565,7 +565,7 @@ class Mesh(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Mesh.MeshOperation`
+        pyaedt.modules.Mesh.MeshOperation
             Mesh operation object.
 
         """
@@ -616,12 +616,12 @@ class Mesh(object):
             List of objects or faces.
         enable : bool, optional
             Whether to apply curvilinear elements. The default is ``True``.
-         meshop_name : str, optional
+        meshop_name : str, optional
             Name of the mesh operation. The default is ``None``.
 
         Returns
         -------
-        :class:`pyaedt.modules.Mesh.MeshOperation`
+        pyaedt.modules.Mesh.MeshOperation
             Mesh operation object.
 
         """

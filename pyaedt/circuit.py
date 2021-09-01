@@ -260,6 +260,7 @@ class Circuit(FieldAnalysisCircuit, object):
 
     @property
     def onetwork_data_explorer(self):
+        """Data explorer."""
         return self._desktop.GetTool("NdExplorer")
 
     def _get_number_from_string(self, stringval):

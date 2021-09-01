@@ -32,26 +32,33 @@ class PolylineSegment():
     Parameters
     ----------
     type : str
-        Type of the object. Choices are ``Line``, ``Arc``, ``Spline``, and ``AngularArc``.
+        Type of the object. Choices are ``"Line"``, ``"Arc"``, ``"Spline"``,
+        and ``"AngularArc"``.
     num_seg: int, optional
-        Number of segments for the types ``Arc``, ``Spline``, and ``AngularArc``.
-        The default is ``0``. For the type ``Line``, this parameter is ignored.
+        Number of segments for the types ``"Arc"``, ``"Spline"``, and
+        ``"AngularArc"``.  The default is ``0``. For the type
+        ``Line``, this parameter is ignored.
     num_points : int, optional
-        Number of control points for the type ``Spline``. For other types, this parameter
+        Number of control points for the type ``Spline``. For other
+        types, this parameter
         is defined automatically.
     arc_angle : float or str, optional
-        Sweep angle in radians or a valid value string. For example, ``"35deg"`` or ``"Specific
+        Sweep angle in radians or a valid value string. For example,
+        ``"35deg"`` or ``"Specific
         to type AngularArc"``.
     arc_center : list or str, optional
-        List of values in model units or a valid value string. For example, a list of
-        ``[x, y, z]`` coordinates or ``"Specific to type AngularArc"``.
+        List of values in model units or a valid value string. For
+        example, a list of ``[x, y, z]`` coordinates or ``"Specific to
+        type AngularArc"``.
     arc_plane : str, optional
-        Plane in which the arc sweep is performed in the active coordinate system ``XY``, ``YZ``
-        or ``ZX``. The default is ``None``, in which case the plane is determined automatically
-        by the first coordinate for which the starting point and center point have the same value.
+        Plane in which the arc sweep is performed in the active
+        coordinate system ``"XY"``, ``"YZ"`` or ``"ZX"``. The default is
+        ``None``, in which case the plane is determined automatically
+        by the first coordinate for which the starting point and
+        center point have the same value.
 
     Examples
-    ----------
+    --------
     See :class:`pyaedt.Primitives.Polyline`.
 
     """
@@ -427,7 +434,7 @@ class Polyline(Object3d):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Primitives.Polyline`
+        pyaedt.modeler.Primitives.Polyline
             Polyline object that was created.
 
         Examples
@@ -651,7 +658,7 @@ class Polyline(Object3d):
             object to define the segment precisely.
 
         Returns
-        ------
+        -------
         bool
             ``True`` when successful, ``False`` when failed.
         """
@@ -774,7 +781,7 @@ class Primitives(object):
 
     @property
     def solid_names(self):
-        """List of the names of all solid objects."``"""
+        """List of the names of all solid objects."""
         self._refresh_solids()
         return self._solids
 
@@ -835,7 +842,7 @@ class Primitives(object):
 
     @property
     def version(self):
-        """Version"""
+        """Version."""
         return self._parent._aedt_version
 
     @property
@@ -1109,30 +1116,37 @@ class Primitives(object):
                         xsection_num_seg=0, xsection_bend_type=None):
         """Draw a polyline object in the 3D modeler.
 
-        This method retrieves the :class:`pyaedt.modeler.Primitives.Polyline` object, which
-        has additional methods for manipulating the polyline. For example, you can use
-        the :funct:``pyaedt.modeler.Primitives.Polyline.insert_segment` method to insert a
-        segment or the :attr:``pyaedt.modeler.Primitives.Polyline.id` property to retrieve
-        the ID of the polyline object.
+        This method retrieves the
+        :class:`pyaedt.modeler.Primitives.Polyline` object, which has
+        additional methods for manipulating the polyline. For example,
+        you can use
+        :func:`pyaedt.modeler.Primitives.Polyline.insert_segment` to
+        insert a segment or
+        :attr:`pyaedt.modeler.Primitives.Polyline.id` to retrieve the
+        ID of the polyline object.
 
         Parameters
         ----------
         position_list : list
-            Array of positions of each point of the polyline.
-            A position is a list of 2D or 3D coordinates. Position coordinate values
-            can be numbers or valid AEDT string expressions. For example, ``[0, 1, 2]``,
-            ``["0mm", "5mm", "1mm"]``, or ``["x1", "y1"]``.
+            Array of positions of each point of the polyline.  A
+            position is a list of 2D or 3D coordinates. Position
+            coordinate values can be numbers or valid AEDT string
+            expressions. For example, ``[0, 1, 2]``, ``["0mm", "5mm",
+            "1mm"]``, or ``["x1", "y1"]``.
         segment_type : str or PolylineSegment or list, optional
-            The default behavior is to connect all points as ``"Line"`` segments. The
-            default is ``None``. For a string, ``"Line"`` or ``"Arc"`` is valid. For a
-            ``"PolylineSegment"``, for ``"Line",`` ``"Arc"``, ``"Spline"``, or
-            ``"AngularArc"``, a list of segment types (str or :class:`pyaedt.modeler.Primitives.PolylineSegment`) is
+            The default behavior is to connect all points as
+            ``"Line"`` segments. The default is ``None``. For a
+            string, ``"Line"`` or ``"Arc"`` is valid. For a
+            ``"PolylineSegment"``, for ``"Line",`` ``"Arc"``,
+            ``"Spline"``, or ``"AngularArc"``, a list of segment types
+            (str or
+            :class:`pyaedt.modeler.Primitives.PolylineSegment`) is
             valid for a compound polyline.
         cover_surface : bool, optional
             The default is ``False``.
         close_surface : bool, optional
-            The default is ``False``, which automatically joins the starting and
-            ending points.
+            The default is ``False``, which automatically joins the
+            starting and ending points.
         name: str, optional
             Name of the polyline. The default is ``None``.
         matname: str, optional
@@ -1159,17 +1173,18 @@ class Primitives(object):
             ``"Rectangle"``, or ``"Isosceles Trapezoid"``. The default is ``0``. The
             value must be ``0`` or greater than ``2``.
         xsection_bend_type : str, optional
-            Type of the bend for the cross-section. The default is ``None``, in which
-            case the bend type is set to ``"Corner"``. For the type ``"Circle"``, the bend type
+            Type of the bend for the cross-section. The default is
+            ``None``, in which case the bend type is set to
+            ``"Corner"``. For the type ``"Circle"``, the bend type
             should be set to ``"Curved"``.
 
         Returns
         -------
-        :class:`pyaedt.modeler.Primitives.Polyline`
+        pyaedt.modeler.Primitives.Polyline
            Polyline object.
 
         Examples
-        -------
+        --------
         Set up the desktop environment.
 
         >>> from pyaedt.desktop import Desktop
@@ -1185,31 +1200,33 @@ class Primitives(object):
         >>> test_points = [["0mm", "0mm", "0mm"], ["100mm", "20mm", "0mm"],
         ...                ["71mm", "71mm", "0mm"], ["0mm", "100mm", "0mm"]]
 
-        The default behavior assumes that all points are to be connected by line segments.
-        Optionally specify the name.
+        The default behavior assumes that all points are to be
+        connected by line segments.  Optionally specify the name.
 
         >>> P1 = primitives.create_polyline(test_points, name="PL_line_segments")
 
-        Specify that the first segment is a line and the last three points define a three-point arc.
+        Specify that the first segment is a line and the last three
+        points define a three-point arc.
 
         >>> P2 = primitives.create_polyline(test_points, segment_type=["Line", "Arc"], name="PL_line_plus_arc")
 
-        Redraw the 3-point arc alone from the last three points and additionally specify five segments
-        using ``PolylineSegment``.
+        Redraw the 3-point arc alone from the last three points and
+        additionally specify five segments using ``PolylineSegment``.
 
         >>> P3 = primitives.create_polyline(test_points[1:],
         ...                               segment_type=PolylineSegment(type="Arc", num_seg=7),
         ...                               name="PL_segmented_arc")
 
-        Specify that the four points form a spline and add a circular cross-section with a
-        diameter of 1 mm.
+        Specify that the four points form a spline and add a circular
+        cross-section with a diameter of 1 mm.
 
         >>> P4 = primitives.create_polyline(test_points, segment_type="Spline", name="PL_spline",
         ...                               xsection_type="Circle", xsection_width="1mm")
 
-        Use the `PolylineSegment` object to specify more detail about the individual segments.
-        Create a center point arc starting from the position ``test_points[1]``, rotating
-        about the center point position ``test_points[0]`` in the XY plane.
+        Use the `PolylineSegment` object to specify more detail about
+        the individual segments.  Create a center point arc starting
+        from the position ``test_points[1]``, rotating about the
+        center point position ``test_points[0]`` in the XY plane.
 
         >>> start_point = test_points[1]
         >>> center_point = test_points[0]
@@ -1446,6 +1463,7 @@ class Primitives(object):
         return list_objs
 
     def refresh(self):
+        """Refresh this object."""
         self._solids = []
         self._sheets = []
         self._lines = []
@@ -1904,7 +1922,7 @@ class Primitives(object):
 
     @aedt_exception_handler
     def get_vertex_position(self, vertex_id):
-        """Retrieves a vector of vertex coordinates.
+        """Retrieve a vector of vertex coordinates.
 
         Parameters
         ----------

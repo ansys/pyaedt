@@ -35,14 +35,14 @@ class FieldAnalysisCircuit(Analysis):
 
         Returns
         -------
-        :class:`pyaedt.modules.PostProcessor.CircuitPostProcessor`
+        pyaedt.modules.PostProcessor.CircuitPostProcessor
             PostProcessor object.
         """
         return self._post
 
     @property
     def solution_type(self):
-        """Solution type. """
+        """Solution type."""
         return self._solution_type
 
     @solution_type.setter

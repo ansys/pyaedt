@@ -1,5 +1,5 @@
 User Guide
----------
+----------
 
 PyAEDT works both inside AEDT and as a standalone application.
 It automatically detects whether it is running in an IronPython or CPython

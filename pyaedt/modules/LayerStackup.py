@@ -196,9 +196,6 @@ class Layer(object):
     def create_stackup_layer(self):
         """Create a stackup layer.
 
-        Parameters
-        ----------
-
         Returns
         -------
         bool

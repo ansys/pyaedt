@@ -108,18 +108,24 @@ class Maxwell(object):
         nothing is used.
     specified_version: str, optional
         Version of AEDT to use. The default is ``None``, in which case
-        the active version or latest installed version is used. This parameter is ignored when Script is launched within AEDT.
+        the active version or latest installed version is used. This
+        parameter is ignored when Script is launched within AEDT.
     NG : bool, optional
         Whether to launch AEDT in the non-graphical mode. The default
-        is ``False``, in which case AEDT is launched in the graphical mode. This parameter is ignored when Script is launched within AEDT.
+        is ``False``, in which case AEDT is launched in the graphical
+        mode. This parameter is ignored when Script is launched within
+        AEDT.
     AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
-        machine. The default is ``True``. This parameter is ignored when Script is launched within AEDT.
+        machine. The default is ``True``. This parameter is ignored
+        when Script is launched within AEDT.
     release_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
     student_version : bool, optional
-        Whether to open the AEDT student version. The default is ``False``. This parameter is ignored when Script is launched within AEDT.
+        Whether to open the AEDT student version. The default is
+        ``False``. This parameter is ignored when Script is launched
+        within AEDT.
 
     """
 
@@ -136,12 +142,10 @@ class Maxwell(object):
         """Material manager."""
         return self.odefinition_manager.GetManager("Material")
 
-    '''
-    @property
-    def oeditor(self):
-        """Editor."""
-        return self.odesign.SetActiveEditor("3D Modeler")
-    '''
+    # @property
+    # def oeditor(self):
+    #     """Editor."""
+    #     return self.odesign.SetActiveEditor("3D Modeler")
 
     @property
     def symmetry_multiplier(self):
@@ -181,7 +185,7 @@ class Maxwell(object):
             Name of the file. The default value is ``None``.
         keep_modifications : bool, optional
             Whether to save the changes. The default value is ``False``.
-        python_interpreter : optional
+        python_interpreter : bool, optional
              The default value is ``None``.
         aedt_lib_dir : str, optional
              Full path to the ``AEDTLib`` directory. The default value is ``None``.
@@ -793,18 +797,24 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         nothing is used.
     specified_version: str, optional
         Version of AEDT to use. The default is ``None``, in which case
-        the active version or latest installed version is used. This parameter is ignored when Script is launched within AEDT.
+        the active version or latest installed version is used. This
+        parameter is ignored when Script is launched within AEDT.
     NG : bool, optional
         Whether to launch AEDT in the non-graphical mode. The default
-        is ``False``, in which case AEDT is launched in the graphical mode. This parameter is ignored when Script is launched within AEDT.
+        is ``False``, in which case AEDT is launched in the graphical
+        mode. This parameter is ignored when Script is launched within
+        AEDT.
     AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
-        machine. The default is ``True``. This parameter is ignored when Script is launched within AEDT.
+        machine. The default is ``True``. This parameter is ignored
+        when Script is launched within AEDT.
     release_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
-     student_version : bool, optional
-        Whether to open the AEDT student version. The default is ``False``. This parameter is ignored when Script is launched within AEDT.
+    student_version : bool, optional
+        Whether to open the AEDT student version. The default is
+        ``False``. This parameter is ignored when Script is launched
+        within AEDT.
 
     Examples
     --------

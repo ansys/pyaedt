@@ -6,7 +6,7 @@ pyvista
 numpy
 Sphinx==4.0.3
 sphinx-autobuild
-sphinxcontrib-napoleon
+https://github.com/numpy/numpydoc/archive/main.zip  # need latest
 sphinxcontrib-websupport
 pytest-sphinx
 sphinx-notfound-page>=0.3.0

@@ -1,7 +1,9 @@
 """
-This module contains these classes: `CoordinateSystem`, `Modeler`, `Position`, and `SweepOptions`.
+This module contains these classes: `CoordinateSystem`, `Modeler`,
+`Position`, and `SweepOptions`.
 
-This modules provides functionalities for the 3D Modeler, 2D Modeler, 3D Layout Modeler, and Circuit Modeler.
+This modules provides functionalities for the 3D Modeler, 2D Modeler,
+3D Layout Modeler, and Circuit Modeler.
 """
 from __future__ import absolute_import
 import sys
@@ -542,7 +544,7 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.MaterialLib.Materials`
+        pyaedt.modules.MaterialLib.Materials
 
         """
         return self._parent.materials
@@ -556,7 +558,7 @@ class GeometryModeler(Modeler, object):
         input_list : list
            List of object IDs.
         convert_objects_ids_to_name : bool, optional
-             Whether to covert the object IDs to object names.
+             Whether to convert the object IDs to object names.
              The default is ``True``.
 
         Returns
@@ -652,7 +654,7 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Model3D.Modeler3D`
+        pyaedt.modeler.Model3D.Modeler3D
 
         """
         return self.odesign.SetActiveEditor("3D Modeler")
@@ -693,7 +695,7 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.MaterialLib.Materials`
+        pyaedt.modules.MaterialLib.Materials
 
         """
         return self._parent._oproject.GetDefinitionManager().GetManager("Material")
@@ -708,7 +710,7 @@ class GeometryModeler(Modeler, object):
         """Dimensions.
 
         Returns
-        --------
+        -------
         str
             Dimensionality, which is either ``"2D"`` or ``"3D"``.
 
@@ -742,7 +744,7 @@ class GeometryModeler(Modeler, object):
             Non-model objects are also returned.
 
         Returns
-        --------
+        -------
         list
             List of object IDs with the object name as the key.
 
@@ -763,15 +765,18 @@ class GeometryModeler(Modeler, object):
         Parameters
         ----------
         origin : list
-            List of ``[x, y, z]`` coordinates for the origin of the coordinate system.
-            The default is ``None``, in which case ``[0, 0, 0]`` is used.
+            List of ``[x, y, z]`` coordinates for the origin of the
+            coordinate system.  The default is ``None``, in which case
+            ``[0, 0, 0]`` is used.
         reference_cs : str, optional
-            Name of the reference coordinate system. The default is ``"Global"``.
+            Name of the reference coordinate system. The default is
+            ``"Global"``.
         name : str
             Name of the coordinate system. The default is ``None``.
         mode: str, optional
-            Definition mode. Options are ``"view"``, ``"axis"``, ``"zxz"``, ``"zyz"``,
-            and ``"axisrotation"``. The default is ``"axis"``.
+            Definition mode. Options are ``"view"``, ``"axis"``,
+            ``"zxz"``, ``"zyz"``, and ``"axisrotation"``. The default
+            is ``"axis"``.
 
             * If ``mode="view"``, specify ``view``.
             * If ``mode="axis"``, specify ``x_pointing`` and ``y_pointing``.
@@ -779,17 +784,19 @@ class GeometryModeler(Modeler, object):
             * If ``mode="axisrotation"``, specify ``theta`` and ``u``.
 
             Parameters not needed by the specified mode are ignored.
-            For back compatibility, ``view="rotate"`` is the same as ``mode="axis"``.
-            The default mode, ``"axisrotation"``, is a coordinate system parallel
-            to the global coordinate system centered in the global origin.
+            For back compatibility, ``view="rotate"`` is the same as
+            ``mode="axis"``.  The default mode, ``"axisrotation"``, is
+            a coordinate system parallel to the global coordinate
+            system centered in the global origin.
 
         view : str, optional
-            View for the coordinate system if ``mode="view"``. Options are
-            ``"XY"``, ``"XZ"``, ``"XY"``, ``"iso"``, ``None``, and ``"rotate"``
-            (obsolete). The default is ``"iso"``.
+            View for the coordinate system if ``mode="view"``. Options
+            are ``"XY"``, ``"XZ"``, ``"XY"``, ``"iso"``, ``None``, and
+            ``"rotate"`` (obsolete). The default is ``"iso"``.
 
             .. note::
-               Because the ``"rotate"`` option is obsolete, use ``mode="axis"`` instead.
+               Because the ``"rotate"`` option is obsolete, use
+               ``mode="axis"`` instead.
 
         x_pointing : list, optional
             List of the ``[x, y, z]`` coordinates specifying the X axis
@@ -814,7 +821,7 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Modeler.CoordinateSystem`
+        pyaedt.modeler.Modeler.CoordinateSystem
 
         """
         if name:
@@ -905,8 +912,8 @@ class GeometryModeler(Modeler, object):
         """Assign temperature and deformation objects to a Workbench link.
 
         .. deprecated:: 0.3.1
-           Use :func:`GeometryModeler.set_objects_temperature` and :func:`GeometryModeler.set_objects_deformation`
-           instead.
+           Use :func:`GeometryModeler.set_objects_temperature` and
+           :func:`GeometryModeler.set_objects_deformation` instead.
 
         Parameters
         ----------
@@ -1024,6 +1031,7 @@ class GeometryModeler(Modeler, object):
         portonplane : bool
             Whether edges are to be on the plane orthogonal to the axis
             direction.
+
         Returns
         -------
         str
@@ -1056,11 +1064,13 @@ class GeometryModeler(Modeler, object):
         objectname : str
             Name of the object.
         startposition : list
-            List of the ``[x, y, z]`` coordinates for the starting position of the object.
+            List of the ``[x, y, z]`` coordinates for the starting
+            position of the object.
         offset :
             Offset to apply.
-        plane :
-            Coordinate plane of the arc. Choices are ``"YZ"``, ``"ZX"``, and ``"XY"``.
+        plane : str
+            Coordinate plane of the arc. Choices are ``"YZ"``,
+            ``"ZX"``, and ``"XY"``.
 
 
         Returns
@@ -1629,7 +1639,7 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
+        pyaedt.modeler.Object3d.Object3d
 
         """
         selections = self.convert_to_selections(objid)
@@ -1657,7 +1667,7 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
+        pyaedt.modeler.Object3d.Object3d
 
         """
         selections = self.convert_to_selections(obj_name)
@@ -2367,6 +2377,11 @@ class GeometryModeler(Modeler, object):
         matdiel : str, optional
             Material for the dielectric. The default is ``"teflon_based"``.
 
+        Returns
+        -------
+        tuple
+            Contains the inner, outer, and dielectric coax as
+            :class:`pyaedt.modeler.Object3d.Object3d` objects.
 
         Examples
         --------
@@ -2377,11 +2392,6 @@ class GeometryModeler(Modeler, object):
         >>> app = Hfss()
         >>> position = [0,0,0]
         >>> coax = app.modeler.create_coaxial(position, app.CoordinateSystemAxis.XAxis, innerradius=0.5, outerradius=0.8, dielradius=0.78, length=50)
-
-        Returns
-        -------
-        tuple
-            Contains the inner, outer, and dielectric coax as :class:`pyaedt.modeler.Object3d.Object3d` objects.
 
         """
         if not (outerradius>dielradius and dielradius>innerradius):
@@ -2402,9 +2412,10 @@ class GeometryModeler(Modeler, object):
                          wg_material="aluminum", parametrize_w=False, parametrize_h=False, create_sheets_on_openings=False, name=None):
         """Create a standard waveguide and optionally parametrize `W` and `H`.
 
-        Available models are WG0.0, WG0, WG1, WG2, WG3, WG4, WG5, WG6, WG7, WG8, WG9, WG9A, WG10, WG11, WG11A, WG12, WG13,
-        WG14, WG15, WR102, WG16, WG17, WG18, WG19, WG20, WG21, WG22, WG24, WG25, WG26, WG27, WG28, WG29, WG29, WG30, WG31,
-        and WG32.
+        Available models are WG0.0, WG0, WG1, WG2, WG3, WG4, WG5, WG6,
+        WG7, WG8, WG9, WG9A, WG10, WG11, WG11A, WG12, WG13, WG14,
+        WG15, WR102, WG16, WG17, WG18, WG19, WG20, WG21, WG22, WG24,
+        WG25, WG26, WG27, WG28, WG29, WG29, WG30, WG31, and WG32.
 
         Parameters
         ----------
@@ -2431,6 +2442,12 @@ class GeometryModeler(Modeler, object):
         name : str, optional
             Name of the waveguide. The default is ``None``.
 
+        Returns
+        -------
+        tuple
+            Tuple of :class:`Object3d <pyaedt.modeler.Object3d.Object3d>`
+            objects created by the waveguide.
+
         Examples
         --------
 
@@ -2439,12 +2456,9 @@ class GeometryModeler(Modeler, object):
         >>> from pyaedt import Hfss
         >>> app = Hfss()
         >>> position = [0, 0, 0]
-        >>> wg1 = app.modeler.create_waveguide(position, app.CoordinateSystemAxis.XAxis, wgmodel="WG9", wg_length=2000)
+        >>> wg1 = app.modeler.create_waveguide(position, app.CoordinateSystemAxis.XAxis,
+        ...                                    wgmodel="WG9", wg_length=2000)
 
-        Returns
-        -------
-        tuple
-            Tuple of :class:`Object3d <pyaedt.modeler.Object3d.Object3d>` objects created of the waveguide created.
 
         """
         p1=-1

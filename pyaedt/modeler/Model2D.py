@@ -61,12 +61,13 @@ class Modeler2D(GeometryModeler):
         object_name : str
             name of the object from which to calculate the radius.
         inner : bool, optional
-             The default is ``False``.
+            The default is ``False``.
 
         Returns
         -------
         float
             Radius value.
+
             .. note::
                 If ``inner=True``, then the maximum is returned; otherwise,
                 the minimum is returned.
