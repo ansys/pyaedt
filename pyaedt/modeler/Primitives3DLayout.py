@@ -200,7 +200,7 @@ class Primitives3DLayout(object):
 
     @property
     def opadstackmanager(self):
-        """Padstack manager. """
+        """Padstack manager."""
         return retry_ntimes(10, self._parent._oproject.GetDefinitionManager().GetManager, "Padstack")
 
     @property
@@ -573,7 +573,7 @@ class Primitives3DLayout(object):
 
     @aedt_exception_handler
     def arg_with_dim(self, Value, sUnits=None):
-        """Retrieve arguments with dimensions.
+        """Format arguments with dimensions.
 
         Parameters
         ----------

@@ -233,12 +233,15 @@ class DesignCache(object):
 
     @property
     def allowed_error_messages(self):
+        """Add this error message to the ignored error messages."""
         return self._allow_errors_global + self._allow_errors_local
 
     def ignore_error_message_local(self, msg):
+        """Add this error message to the ignored local error messages."""
         self._allow_errors_local.append("[error] {}".format(msg))
 
     def ignore_error_message_global(self, msg):
+        """Add this error message to the ignored global error messages."""
         self._allow_errors_global.append("[error] {}".format(msg))
 
     @property
@@ -248,7 +251,8 @@ class DesignCache(object):
         Returns
         --------
         bool
-            ``True`` when the design snapshot is unchanged since the last update, ``False`` otherwise.
+            ``True`` when the design snapshot is unchanged since the
+            last update, ``False`` otherwise.
         """
         return self._no_change
 
@@ -303,8 +307,9 @@ class DesignCache(object):
         Returns
         -------
         bool
-            ``True`` if new messages have appeared since the last update or since the Message Manager was
-            cleared, ``False`` otherwise.
+            ``True`` if new messages have appeared since the last
+            update or since the Message Manager was cleared, ``False``
+            otherwise.
         """
         return not bool(self._delta_messages)
 
@@ -315,7 +320,8 @@ class DesignCache(object):
         Returns
         -------
         bool
-            ``True`` if new error messages have appeared since the last update, ``False`` otherwise.
+            ``True`` if new error messages have appeared since the
+            last update, ``False`` otherwise.
         """
         return not bool(self._new_error_messages)
 
@@ -326,7 +332,8 @@ class DesignCache(object):
         Returns
         -------
         bool
-            ``True`` if new error messages have appeared since the last update, ``False`` otherwise.
+            ``True`` if new error messages have appeared since the
+            last update, ``False`` otherwise.
         """
         return not bool(self._new_warning_messages)
 
@@ -364,8 +371,11 @@ class DesignCache(object):
         self._messages_design_level = []
 
     def update(self):
-        """Retrieve the current state values from the design and perform a delta calculation with the cached values.
-        Then replace the cached values with the current values.
+        """Update the current state.
+
+        Retrieve the current state values from the design and perform
+        a delta calculation with the cached values.  Then replace the
+        cached values with the current values.
 
         .. note::
            The update is done automatically when the property
@@ -800,7 +810,7 @@ class Design(object):
 
     @property
     def syslib(self):
-        """SysLib directory
+        """SysLib directory.
 
         Returns
         -------
@@ -2439,6 +2449,11 @@ class Design(object):
             Variation value for the evaluation. The default is ``None``,
             in which case the nominal variation is used.
 
+        Returns
+        -------
+        float
+            Evaluated value of the design property or project variable in SI units.
+
         Examples
         --------
 
@@ -2447,11 +2462,6 @@ class Design(object):
         >>> M3D["p2"] = "20mm"
         >>> M3D["p3"] = "P1 * p2"
         >>> eval_p3 = M3D.get_evaluated_value("p3")
-
-        Returns
-        -------
-        float
-            Evaluated value of the design property or project variable in SI units.
 
         """
         if not variation:

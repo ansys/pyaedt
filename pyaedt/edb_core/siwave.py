@@ -18,19 +18,22 @@ except ImportError:
 
 
 class SiwaveDCSetupTemplate(object):
-    """Siwave DC Settings Data Class. This class contains all the settings for a Siwave DC Analysis and is used as input
+    """Siwave DC Settings Data Class.
 
-        Examples
-        --------
-        >>> from pyaedt import Edb
-        >>> edb  = Edb("pathtoaedb", edbversion="2021.2")
-        >>> settings = edb.core_siwave.get_siwave_dc_setup_template()
-        >>> settings.accuracy_level = 0
-        >>> settings.use_dc_custom_settings  = True
-        >>> settings.name = "myDCIR_3"
-        >>> settings.pos_term_to_ground = "I1"
-        >>> settings.neg_term_to_ground = "V1"
-        >>> edb.core_siwave.add_siwave_dc_analysis(settings)
+    This class contains all the settings for a Siwave DC Analysis and
+    is used as input
+
+    Examples
+    --------
+    >>> from pyaedt import Edb
+    >>> edb  = Edb("pathtoaedb", edbversion="2021.2")
+    >>> settings = edb.core_siwave.get_siwave_dc_setup_template()
+    >>> settings.accuracy_level = 0
+    >>> settings.use_dc_custom_settings  = True
+    >>> settings.name = "myDCIR_3"
+    >>> settings.pos_term_to_ground = "I1"
+    >>> settings.neg_term_to_ground = "V1"
+    >>> edb.core_siwave.add_siwave_dc_analysis(settings)
     """
 
     def __init__(self):
@@ -61,17 +64,17 @@ class SiwaveDCSetupTemplate(object):
 
     @property
     def pos_term_to_ground(self):
-        return self._pos_term_to_ground
-
-    @pos_term_to_ground.setter
-    def pos_term_to_ground(self, terms):
-        """Set Positive Terminals to ground
+        """Set positive terminals to ground.
 
         Parameters
         ----------
         terms : list, str
-            List of Terminals with Positive nodes to ground
+            List of terminals with positive nodes to ground.
         """
+        return self._pos_term_to_ground
+
+    @pos_term_to_ground.setter
+    def pos_term_to_ground(self, terms):
         if not isinstance(terms, list):
             self._pos_term_to_ground = [terms]
         else:
@@ -79,17 +82,17 @@ class SiwaveDCSetupTemplate(object):
 
     @property
     def neg_term_to_ground(self):
-        return self._neg_term_to_ground
-
-    @neg_term_to_ground.setter
-    def neg_term_to_ground(self, terms):
-        """Set Negative Terminals to ground
+        """Set negative terminals to ground.
 
         Parameters
         ----------
         terms : list, str
-            List of Terminals with Negative nodes to ground
+            List of terminals with negative nodes to ground.
         """
+        return self._neg_term_to_ground
+
+    @neg_term_to_ground.setter
+    def neg_term_to_ground(self, terms):
         if not isinstance(terms, list):
             self._neg_term_to_ground = [terms]
         else:
@@ -97,6 +100,7 @@ class SiwaveDCSetupTemplate(object):
 
     @property
     def source_terms_to_ground(self):
+        """Terminals with positive or negative grounded terminals."""
         a = Dictionary[String, int]()
         for el in self._neg_term_to_ground:
             a[el] = 1
@@ -703,30 +707,37 @@ class EdbSiwave(object):
 
     @aedt_exception_handler
     def get_siwave_dc_setup_template(self):
-        """
+        """Get the siwave dc template.
 
         Returns
         -------
-        :class: `pyaedt.edb_core.siwave.SiwaveDCSetupTemplate``
+        pyaedt.edb_core.siwave.SiwaveDCSetupTemplate
         """
-        settings = SiwaveDCSetupTemplate()
-        return settings
+        return SiwaveDCSetupTemplate()
 
     @aedt_exception_handler
-    def add_siwave_dc_analysis(self,  setup_settings=SiwaveDCSetupTemplate()):
-        """This method creates a Siwave DC Analysis in EDB. If Setup is present it will be deleted and replaced by new actual settings.
+    def add_siwave_dc_analysis(self, setup_settings=SiwaveDCSetupTemplate()):
+        """Create a Siwave DC Analysis in EDB.
+
+        If Setup is present it will be deleted and replaced by new
+        actual settings.
 
         .. note::
            Source Reference to Ground settings works only from 2021.2
 
         Parameters
         ----------
-        setup_settings : ``pyaedt.edb_core.siwave.SiwaveDCSetupTemplate``
+        setup_settings : pyaedt.edb_core.siwave.SiwaveDCSetupTemplate
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         Examples
         --------
         >>> from pyaedt import Edb
-        >>> edb  = Edb("pathtoaedb", edbversion="2021.2")
+        >>> edb = Edb("pathtoaedb", edbversion="2021.2")
         >>> edb.core_siwave.add_siwave_ac_analysis()
         >>> settings = edb.core_siwave.get_siwave_dc_setup_template()
         >>> settings.accuracy_level = 0
@@ -736,10 +747,6 @@ class EdbSiwave(object):
         >>> settings.neg_term_to_ground = "V1"
         >>> edb.core_siwave.add_siwave_dc_analysis2(settings)
 
-        Returns
-        -------
-        bool
-            Command Execution Result.
         """
         sim_setup_info = self.parent.simsetupdata.SimSetupInfo[self.parent.simsetupdata.SIwave.SIWDCIRSimulationSettings]()
         sim_setup_info.Name = setup_settings.name

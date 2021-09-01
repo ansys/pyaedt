@@ -66,7 +66,7 @@ class FieldAnalysisIcepak(Analysis, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Modeler`
+        pyaedt.modules.Modeler
         """
         return self._modeler
 
@@ -76,7 +76,7 @@ class FieldAnalysisIcepak(Analysis, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.MeshIcepak.IcepakMesh`
+        pyaedt.modules.MeshIcepak.IcepakMesh
         """
         return self._mesh
 

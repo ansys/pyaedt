@@ -369,7 +369,7 @@ class Q3d(QExtractor, object):
 
         Returns
         -------
-        SweepQ3D:
+        SweepQ3D
             Sweep option.
         """
         if sweepname is None:

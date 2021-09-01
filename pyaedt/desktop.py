@@ -347,7 +347,7 @@ class Desktop:
 
     @property
     def current_version_student(self):
-        """Current student version of AEDT. """
+        """Current student version of AEDT."""
         for el in self.version_keys:
             if "SV" in el:
                 return el

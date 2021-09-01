@@ -43,7 +43,7 @@ class EdbPadstacks(object):
 
     @property
     def db(self):
-        """ """
+        """Db object."""
         return self.parent.db
 
     @property

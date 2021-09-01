@@ -237,6 +237,7 @@ class EDBLayer(object):
 
     @aedt_exception_handler
     def init_vals(self):
+        """Initialize values."""
         try:
             self._name = self._layer.GetName()
             self._layer_type = self._layer.GetLayerType()
@@ -466,6 +467,7 @@ class EDBLayers(object):
 
     @property
     def layer_collection_mode(self):
+        """Layer collection mode."""
         return self._edb.Cell.LayerCollectionMode
 
     @property

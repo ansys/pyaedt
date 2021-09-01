@@ -564,7 +564,7 @@ class Components(object):
         Returns
         -------
         list
-           List of deleted RLC components.
+            List of deleted RLC components.
 
 
         Examples

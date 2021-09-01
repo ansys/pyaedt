@@ -55,6 +55,7 @@ class EdbLayout(object):
 
     @property
     def db(self):
+        """Db object."""
         return self._parent.db
 
     @property

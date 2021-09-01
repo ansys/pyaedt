@@ -781,7 +781,7 @@ class Primitives(object):
 
     @property
     def solid_names(self):
-        """List of the names of all solid objects."``"""
+        """List of the names of all solid objects."""
         self._refresh_solids()
         return self._solids
 
@@ -842,7 +842,7 @@ class Primitives(object):
 
     @property
     def version(self):
-        """Version"""
+        """Version."""
         return self._parent._aedt_version
 
     @property
@@ -1463,6 +1463,7 @@ class Primitives(object):
         return list_objs
 
     def refresh(self):
+        """Refresh this object."""
         self._solids = []
         self._sheets = []
         self._lines = []
@@ -1921,7 +1922,7 @@ class Primitives(object):
 
     @aedt_exception_handler
     def get_vertex_position(self, vertex_id):
-        """Retrieves a vector of vertex coordinates.
+        """Retrieve a vector of vertex coordinates.
 
         Parameters
         ----------

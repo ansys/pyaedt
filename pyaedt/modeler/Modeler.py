@@ -1,7 +1,9 @@
 """
-This module contains these classes: `CoordinateSystem`, `Modeler`, `Position`, and `SweepOptions`.
+This module contains these classes: `CoordinateSystem`, `Modeler`,
+`Position`, and `SweepOptions`.
 
-This modules provides functionalities for the 3D Modeler, 2D Modeler, 3D Layout Modeler, and Circuit Modeler.
+This modules provides functionalities for the 3D Modeler, 2D Modeler,
+3D Layout Modeler, and Circuit Modeler.
 """
 from __future__ import absolute_import
 import sys
@@ -542,7 +544,7 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.MaterialLib.Materials`
+        pyaedt.modules.MaterialLib.Materials
 
         """
         return self._parent.materials
@@ -556,7 +558,7 @@ class GeometryModeler(Modeler, object):
         input_list : list
            List of object IDs.
         convert_objects_ids_to_name : bool, optional
-             Whether to covert the object IDs to object names.
+             Whether to convert the object IDs to object names.
              The default is ``True``.
 
         Returns
@@ -652,7 +654,7 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Model3D.Modeler3D`
+        pyaedt.modeler.Model3D.Modeler3D
 
         """
         return self.odesign.SetActiveEditor("3D Modeler")
@@ -693,7 +695,7 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.MaterialLib.Materials`
+        pyaedt.modules.MaterialLib.Materials
 
         """
         return self._parent._oproject.GetDefinitionManager().GetManager("Material")
@@ -1637,7 +1639,7 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
+        pyaedt.modeler.Object3d.Object3d
 
         """
         selections = self.convert_to_selections(objid)
@@ -1665,7 +1667,7 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
+        pyaedt.modeler.Object3d.Object3d
 
         """
         selections = self.convert_to_selections(obj_name)
@@ -2375,6 +2377,11 @@ class GeometryModeler(Modeler, object):
         matdiel : str, optional
             Material for the dielectric. The default is ``"teflon_based"``.
 
+        Returns
+        -------
+        tuple
+            Contains the inner, outer, and dielectric coax as
+            :class:`pyaedt.modeler.Object3d.Object3d` objects.
 
         Examples
         --------
@@ -2385,11 +2392,6 @@ class GeometryModeler(Modeler, object):
         >>> app = Hfss()
         >>> position = [0,0,0]
         >>> coax = app.modeler.create_coaxial(position, app.CoordinateSystemAxis.XAxis, innerradius=0.5, outerradius=0.8, dielradius=0.78, length=50)
-
-        Returns
-        -------
-        tuple
-            Contains the inner, outer, and dielectric coax as :class:`pyaedt.modeler.Object3d.Object3d` objects.
 
         """
         if not (outerradius>dielradius and dielradius>innerradius):
@@ -2410,9 +2412,10 @@ class GeometryModeler(Modeler, object):
                          wg_material="aluminum", parametrize_w=False, parametrize_h=False, create_sheets_on_openings=False, name=None):
         """Create a standard waveguide and optionally parametrize `W` and `H`.
 
-        Available models are WG0.0, WG0, WG1, WG2, WG3, WG4, WG5, WG6, WG7, WG8, WG9, WG9A, WG10, WG11, WG11A, WG12, WG13,
-        WG14, WG15, WR102, WG16, WG17, WG18, WG19, WG20, WG21, WG22, WG24, WG25, WG26, WG27, WG28, WG29, WG29, WG30, WG31,
-        and WG32.
+        Available models are WG0.0, WG0, WG1, WG2, WG3, WG4, WG5, WG6,
+        WG7, WG8, WG9, WG9A, WG10, WG11, WG11A, WG12, WG13, WG14,
+        WG15, WR102, WG16, WG17, WG18, WG19, WG20, WG21, WG22, WG24,
+        WG25, WG26, WG27, WG28, WG29, WG29, WG30, WG31, and WG32.
 
         Parameters
         ----------
@@ -2439,6 +2442,13 @@ class GeometryModeler(Modeler, object):
         name : str, optional
             Name of the waveguide. The default is ``None``.
 
+        Returns
+        -------
+        tuple
+            Tuple of :class:`Object3d <pyaedt.modeler.Object3d.Object3d>` 
+            objects created by the waveguide.
+
+
         Examples
         --------
 
@@ -2447,12 +2457,9 @@ class GeometryModeler(Modeler, object):
         >>> from pyaedt import Hfss
         >>> app = Hfss()
         >>> position = [0, 0, 0]
-        >>> wg1 = app.modeler.create_waveguide(position, app.CoordinateSystemAxis.XAxis, wgmodel="WG9", wg_length=2000)
+        >>> wg1 = app.modeler.create_waveguide(position, app.CoordinateSystemAxis.XAxis, 
+        ...                                    wgmodel="WG9", wg_length=2000)
 
-        Returns
-        -------
-        tuple
-            Tuple of :class:`Object3d <pyaedt.modeler.Object3d.Object3d>` objects created of the waveguide created.
 
         """
         p1=-1

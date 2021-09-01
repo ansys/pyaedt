@@ -45,7 +45,7 @@ class EdbNets(object):
 
     @property
     def db(self):
-        """ """
+        """Db object."""
         return self.parent.db
 
     @property
@@ -213,6 +213,7 @@ class EdbNets(object):
 
     @aedt_exception_handler
     def get_net_by_name(self, net_name):
+        """Find a net by name."""
         edb_net = self._edb.Cell.Net.FindByName(self._active_layout, net_name)
         if edb_net is not None:
             return edb_net

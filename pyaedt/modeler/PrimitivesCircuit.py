@@ -781,7 +781,7 @@ class CircuitComponents(object):
 
     @aedt_exception_handler
     def arg_with_dim(self, Value, sUnits=None):
-        """
+        """Format an argument with dimensions.
 
         Parameters
         ----------
