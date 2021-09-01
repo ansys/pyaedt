@@ -1628,7 +1628,7 @@ class CircuitComponent(object):
             return self.name + ";" + str(self.schematic_id)
 
     def __init__(self, editor=None, units="mm", tabname="PassedParameterTab"):
-        self.name = None
+        self.name = ""
         self.m_Editor = editor
         self.modelName = None
         self.status = "Active"
