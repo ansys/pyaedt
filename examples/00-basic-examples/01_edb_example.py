@@ -36,7 +36,7 @@ from pyaedt import Edb
 ###############################################################################
 # Launch EDB
 # ~~~~~~~~~~
-# This example launches the :class:`pyaedt.Edb` class.
+# This example launches the :class: `pyaedt.Edb` class.
 # This example uses EDB 2021.1 and uses SI units.
 
 if os.path.exists(aedt_file): os.remove(aedt_file)
@@ -162,7 +162,7 @@ edb.core_siwave.add_siwave_ac_analysis()
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This example creates a Voltage Source and then setup a DCIR Analysis.
 
-edb.core_siwave.create_voltage_source("U2A5","V1P5_S3","U2A5","GND",3.3,0,"V1")
+edb.core_siwave.create_voltage_source_on_net("U2A5","V1P5_S3","U2A5","GND",3.3,0,"V1")
 settings = edb.core_siwave.get_siwave_dc_setup_template()
 settings.accuracy_level = 0
 settings.use_dc_custom_settings  = True

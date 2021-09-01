@@ -528,7 +528,7 @@ class Object3d(object):
     >>> aedtapp = Hfss()
     >>> prim = aedtapp.modeler.primitives
 
-    Create a part, such as box, to return an :class:`pyaedt.modeler.Object3d.Object3d`.
+    Create a part, such as box, to return an :class: `pyaedt.modeler.Object3d.Object3d`.
 
     >>> id = prim.create_box([0, 0, 0], [10, 10, 5], "Mybox", "Copper")
     >>> part = prim[id]
@@ -592,7 +592,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.FacePrimitive`
+        :class: `pyaedt.modeler.Object3d.FacePrimitive`
 
         """
         faces = []
@@ -607,7 +607,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.FacePrimitive`
+        :class: `pyaedt.modeler.Object3d.FacePrimitive`
 
         """
         result = [(float(face.center[2]), face) for face in self.faces]
@@ -620,7 +620,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.FacePrimitive`
+        :class: `pyaedt.modeler.Object3d.FacePrimitive`
 
         """
         result = [(float(face.center[2]), face) for face in self.faces]
@@ -648,7 +648,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.FacePrimitive`
+        :class: `pyaedt.modeler.Object3d.FacePrimitive`
 
         """
         vertices = []
@@ -1551,7 +1551,7 @@ class Padstack(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d.PDSHole`
+        :class: `pyaedt.modeler.Object3d.Object3d.PDSHole`
             Hole object to be passed to padstack or layer.
 
         """

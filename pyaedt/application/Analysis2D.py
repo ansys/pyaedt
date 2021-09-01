@@ -65,7 +65,7 @@ class FieldAnalysis2D(Analysis):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Model2D.Modeler2D`
+        :class: `pyaedt.modeler.Model2D.Modeler2D`
         """
         return self._modeler
 
@@ -75,7 +75,7 @@ class FieldAnalysis2D(Analysis):
 
         Returns
         -------
-        :class:`pyaedt.modules.Mesh.Mesh`
+        :class: `pyaedt.modules.Mesh.Mesh`
         """
         return self._mesh
 

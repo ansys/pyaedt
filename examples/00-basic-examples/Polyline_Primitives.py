@@ -16,7 +16,7 @@ from pyaedt.modeler.Primitives import Polyline, PolylineSegment
 ###############################################################################
 # Create a Maxwell 3D Object and Set the Unit Type
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This example creates a :class:`pyaedt.Maxwell3d` object and sets the unit
+# This example creates a :class: `pyaedt.Maxwell3d` object and sets the unit
 # type to ``"mm"``.
 
 M3D = Maxwell3d(solution_type="Transient", designname="test_polyline_3D",

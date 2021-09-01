@@ -146,7 +146,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class: `pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
         """
@@ -300,7 +300,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class: `pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
         Examples
@@ -467,7 +467,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or bool
+        :class: `pyaedt.modules.SetupTemplates.SweepHFSS` or bool
             Sweep object if successful. ``False`` if unsuccessful.
 
         Examples
@@ -521,7 +521,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or bool
+        :class: `pyaedt.modules.SetupTemplates.SweepHFSS` or bool
             Sweep object if successful. ``False`` if unsuccessful.
 
         Examples
@@ -904,7 +904,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or bool
+        :class: `pyaedt.modules.SetupTemplates.SweepHFSS` or bool
             Sweep object if successful. ``False`` if unsuccessful.
 
         Examples
@@ -1221,7 +1221,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class: `pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
         """
@@ -1263,7 +1263,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class: `pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
         Examples
@@ -1364,7 +1364,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class: `pyaedt.modules.Boundary.BoundaryObject`
             Port object.
 
         Examples
@@ -1432,7 +1432,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject` or bool
+        :class: `pyaedt.modules.Boundary.BoundaryObject` or bool
             Boundary object if successful. ``False`` if unsuccessful.
 
         Examples
@@ -1488,7 +1488,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject` or bool
+        :class: `pyaedt.modules.Boundary.BoundaryObject` or bool
             Boundary object if successful. ``False`` if unsuccessful.
 
         Examples
@@ -1542,7 +1542,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`pyaedt.hfss.SARSetup`
+        :class: `pyaedt.hfss.SARSetup`
             SARSetup object.
 
         """
@@ -1619,7 +1619,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject` or bool
+        :class: `pyaedt.modules.Boundary.BoundaryObject` or bool
             Boundary object if successful. ``False`` if unsuccessful.
 
         Examples
@@ -1704,7 +1704,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject` or bool
+        :class: `pyaedt.modules.Boundary.BoundaryObject` or bool
             Boundary object if successful. ``False`` if unsuccessful.
 
         Examples
@@ -1760,7 +1760,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class: `pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
         """
@@ -2090,7 +2090,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class: `pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
         Examples
@@ -2127,7 +2127,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class: `pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
         Examples
@@ -2181,7 +2181,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class: `pyaedt.modules.Boundary.BoundaryObject`
             Boundary object if successful. ``False`` if unsuccessful.
 
         Examples
@@ -2247,7 +2247,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class: `pyaedt.modules.Boundary.BoundaryObject`
             Boundary object if successful. ``False`` if unsuccessful.
 
         Examples
@@ -2919,7 +2919,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class: `pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
         Examples
@@ -2955,7 +2955,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class: `pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
         Examples

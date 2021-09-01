@@ -88,7 +88,7 @@ class PostProcessor(Post):
 
        Returns
        -------
-       :class:`IPython.core.display.Image`
+       :class: `IPython.core.display.Image`
            Jupyter notebook image.
 
         """
