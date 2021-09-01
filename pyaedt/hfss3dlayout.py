@@ -654,16 +654,17 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         interpolation_algorithm : str, optional
                 Defines which interpolation algorithm to use. Default is ``"auto"``. Options are ``"auto"``, ``"lin"``, ``"shadH"``, ``"shadNH"``
 
+        Returns
+        -------
+        bool
+            ``True`` if successful and ``False`` if failed.
+
         Examples
         --------
         >>> from pyaedt import Hfss3dLayout
         >>> h3d = Hfss3dLayout()
         >>> h3d.edit_cosim_options(simulate_missing_solution=True, align_ports=True, renormalize_ports=True,renorm_impedance=50, setup_override_name=None, sweep_override_name=None, use_interpolating_sweep=False, use_y_matrix=True, interpolation_algorithm="auto")
 
-        Returns
-        -------
-        bool
-            ``True`` if successful and ``False`` if failed.
         """
         if interpolation_algorithm not in ["auto", "lin", "shadH", "shadNH"]:
             self.add_error_message("Wrong Interpolation Algorithm")
