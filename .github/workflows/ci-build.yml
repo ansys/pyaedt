@@ -29,7 +29,6 @@ jobs:
           pip install -r requirements_docs.txt
 
       - name: Partial Documentation Build
-        if: startsWith(github.event.ref, 'refs/heads/main') != true
         run: |
           make -C doc html
         env:
