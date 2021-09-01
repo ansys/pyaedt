@@ -38,9 +38,9 @@ jobs:
           echo $'Examples\n========' > doc/source/examples/index.rst
           make -C doc html SPHINXOPTS="-W -j auto"
 
-      - name: Upload Documentation
-        uses: actions/upload-artifact@v2
-        with:
-          name: Documentation
-          path: doc/_build/html
-          retention-days: 7
+      # - name: Upload Documentation
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: Documentation
+      #     path: doc/_build/html
+      #     retention-days: 7
