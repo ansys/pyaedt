@@ -33,7 +33,6 @@ class Primitives3D(Primitives, object):
     def create_box(self, position, dimensions_list, name=None, matname=None):
         """Create a box.
 
-
         Parameters
         ----------
         position : list
@@ -50,7 +49,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
+        pyaedt.modeler.Object3d.Object3d
             3D object.
 
         Examples
@@ -404,7 +403,7 @@ class Primitives3D(Primitives, object):
             the positionApplicationName.modeler.Position(x,y,z) object.
         dimension_list : list
             List of ``[width, height]`` dimensions.
-       name : str, optional
+        name : str, optional
             Name of the rectangle. The default is ``None``, in which case
             the default name is assigned.
         matname : str, optional
@@ -415,7 +414,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
+        pyaedt.modeler.Object3d.Object3d
             3D object.
 
         """
@@ -482,9 +481,10 @@ class Primitives3D(Primitives, object):
     @aedt_exception_handler
     def create_ellipse(self, cs_plane, position, major_raidus, ratio, is_covered=True, name=None, matname=None):
         """Create an ellipse.
+
         Parameters
         ----------
-        cs_plane :
+        cs_plane : str
             Coordinate system plane for orienting the ellipse.
         position : list
             List of ``[x, y, z]`` coordinates for the center point of the ellipse.

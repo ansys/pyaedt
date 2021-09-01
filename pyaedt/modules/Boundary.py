@@ -87,7 +87,8 @@ class NativeComponentObject(BoundaryCommon, object):
 
     @property
     def targetcs(self):
-        """
+        """Native Component Coordinate System.
+
         Returns
         -------
         str
@@ -119,7 +120,7 @@ class NativeComponentObject(BoundaryCommon, object):
 
     @aedt_exception_handler
     def create(self):
-        """Create a Native Component in AEDT
+        """Create a Native Component in AEDT.
 
         Returns
         -------

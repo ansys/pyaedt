@@ -600,18 +600,20 @@ class FieldPlot:
 class PostProcessorCommon(object):
     """Manages the main AEDT postprocessing functions.
 
-    The inherited `AEDTConfig` class contains all `_desktop` hierarchical calls
-    needed for the class inititialization data `_desktop` and the design types ``"HFSS"``,
-    ``"Icepak"``, and ``"HFSS3DLayout"``.
+    The inherited `AEDTConfig` class contains all `_desktop`
+    hierarchical calls needed for the class inititialization data
+    `_desktop` and the design types ``"HFSS"``, ``"Icepak"``, and
+    ``"HFSS3DLayout"``.
 
     .. note::
-   Some functionalities are available only when AEDT is running in the graphical mode.
+       Some functionalities are available only when AEDT is running in
+       the graphical mode.
 
     Parameters
     ----------
-    parent:
+    parent
         Inherited parent object. The parent object must provide the members
-        `_modeler`, `_desktop`, `_odesign`, and `_messenger`.
+        ``_modeler``, ``_desktop``, ``_odesign``, and ``_messenger``.
 
     """
 
@@ -664,8 +666,8 @@ class PostProcessorCommon(object):
     def post_solution_type(self):
         """Design solution type.
 
-        Return
-        ------
+        Returns
+        -------
         type
             Design solution type.
         """
@@ -680,7 +682,7 @@ class PostProcessorCommon(object):
 
         Parameters
         ----------
-        PlotName :
+        PlotName : str
             Name of the report.
 
         Returns
@@ -756,7 +758,7 @@ class PostProcessorCommon(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.PostProcessor.SolutionData`
+        pyaedt.modules.PostProcessor.SolutionData
 
         Examples
         --------
@@ -902,7 +904,7 @@ class PostProcessorCommon(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.PostProcessor.SolutionData`
+        pyaedt.modules.PostProcessor.SolutionData
 
         """
         if sweeps is None:
@@ -991,16 +993,18 @@ class PostProcessorCommon(object):
 class PostProcessor(PostProcessorCommon, object):
     """Manages the main AEDT postprocessing functions.
 
-    The inherited `AEDTConfig` class contains all `_desktop` hierarchical calls
-    needed for the class inititialization data `_desktop` and the design types ``"HFSS"``,
-    ``"Icepak"``, and ``"HFSS3DLayout"``.
+    The inherited `AEDTConfig` class contains all `_desktop`
+    hierarchical calls needed for the class inititialization data
+    `_desktop` and the design types ``"HFSS"``, ``"Icepak"``, and
+    ``"HFSS3DLayout"``.
 
     .. note::
-   Some functionalities are available only when AEDT is running in the graphical mode.
+       Some functionalities are available only when AEDT is running in
+       the graphical mode.
 
     Parameters
     ----------
-    parent:
+    parent
         Inherited parent object. The parent object must provide the members
         `_modeler`, `_desktop`, `_odesign`, and `_messenger`.
 
@@ -1017,7 +1021,7 @@ class PostProcessor(PostProcessorCommon, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Primitives`
+        pyaedt.modeler.Primitives
             Primitives object.
 
         """
@@ -1638,10 +1642,11 @@ class PostProcessor(PostProcessorCommon, object):
 
     @aedt_exception_handler
     def get_far_field_data(self, expression="GainTotal", setup_sweep_name='', domain="Infinite Sphere1", families_dict=None):
-        """Generate far field data using the :func:`GetSolutionDataPerVariation` method.
+        """Generate far field data using ``GetSolutionDataPerVariation``.
 
-        This method returns the data ``solData``, ``ThetaVals``, ``PhiVals``, ``ScanPhiVals``,
-        ``ScanThetaVals``, and ``FreqVals``.
+        This method returns the data ``solData``, ``ThetaVals``,
+        ``PhiVals``, ``ScanPhiVals``, ``ScanThetaVals``, and
+        ``FreqVals``.
 
         Parameters
         ----------
@@ -1657,7 +1662,7 @@ class PostProcessor(PostProcessorCommon, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.PostProcessor.SolutionData`
+        pyaedt.modules.PostProcessor.SolutionData
 
         """
         if type(expression) is not list:

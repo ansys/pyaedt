@@ -528,16 +528,21 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         sweepname : str, optional
             Name of the sweep. The default is ``None``.
         sweeptype : str, optional
-            Type of the sweep. Options are ``"Fast"``, ``"Interpolating"``, and ``"Discrete"``.
-            The default is ``"Interpolating"``.
+            Type of the sweep. Options are ``"Fast"``,
+            ``"Interpolating"``, and ``"Discrete"``.  The default is
+            ``"Interpolating"``.
         interpolation_tol_percent : float, optional
-            Error tolerance threshold for the interpolation process. The default is ``0.5``.
+            Error tolerance threshold for the interpolation
+            process. The default is ``0.5``.
         interpolation_max_solutions : int, optional
-            Maximum number of solutions evaluated for the interpolation process. The default is ``250``.
+            Maximum number of solutions evaluated for the
+            interpolation process. The default is ``250``.
         save_fields : bool, optional
-            Whether to save the fields for a discrete sweep only. The default is ``True``.
+            Whether to save the fields for a discrete sweep only. The
+            default is ``True``.
         save_rad_fields_only : bool, optional
-            Whether to save only the radiated fields if ``save_fields=True``. The default is ``False``.
+            Whether to save only the radiated fields if
+            ``save_fields=True``. The default is ``False``.
         use_q3d_for_dc : bool, optional
             Whether to use Q3D to solve the DC point. The default is ``False``.
 

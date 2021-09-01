@@ -234,7 +234,7 @@ class VertexPrimitive(EdgeTypePrimitive, object):
 
     Parameters
     ----------
-    parent : :class:`pyaedt.modeler.Object3d.Object3d`
+    parent : pyaedt.modeler.Object3d.Object3d
         Pointer to the calling object that provides additional functionality.
     id : int
         Object ID as determined by the parent object.
@@ -276,7 +276,7 @@ class EdgePrimitive(EdgeTypePrimitive, object):
 
     Parameters
     ----------
-    parent : :class:`pyaedt.modeler.Object3d.Object3d`
+    parent : pyaedt.modeler.Object3d.Object3d
         Pointer to the calling object that provides additional functionality.
     id : int
         Object ID as determined by the parent object.
@@ -1037,12 +1037,12 @@ class Object3d(object):
 
         Parameters
         ----------
-        object_list : list of str or list of :class:`pyaedt.modeler.Object3d.Object3d`
+        object_list : list of str or list of pyaedt.modeler.Object3d.Object3d
             List of objects.
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
+        pyaedt.modeler.Object3d.Object3d
            Object 3D object.
 
         """
@@ -1101,7 +1101,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
+        pyaedt.modeler.Object3d.Object3d
             3D object.
 
         """
@@ -1148,11 +1148,11 @@ class Object3d(object):
         is_check_face_intersection: bool, optional
            The default is ``False``.
         twist_angle: float, optional
-            Angle at which to twist or rotate in degres. The default is ``0``.
+            Angle at which to twist or rotate in degrees. The default is ``0``.
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
+        pyaedt.modeler.Object3d.Object3d
             Swept object.
 
         """
@@ -1175,7 +1175,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
+        pyaedt.modeler.Object3d.Object3d
             Swept object.
 
         """
@@ -1197,7 +1197,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
+        pyaedt.modeler.Object3d.Object3d
             3D object.
 
         """
@@ -1211,7 +1211,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
+        pyaedt.modeler.Object3d.Object3d
             3D object that was added.
 
         """
@@ -1235,7 +1235,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
+        pyaedt.modeler.Object3d.Object3d
             Modified 3D object following the subtraction.
 
         """
@@ -1244,9 +1244,7 @@ class Object3d(object):
 
     @aedt_exception_handler
     def delete(self):
-        """Delete the object
-
-        """
+        """Delete the object."""
         arg = [
             "NAME:Selections",
             "Selections:="	, self._m_name

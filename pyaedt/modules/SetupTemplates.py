@@ -951,7 +951,7 @@ class SweepHFSS3DLayout(object):
         ----------
         rangetype : str
             Type of the subrange. Options are ``"LinearCount"``,
-           ``"LinearStep"``, and ``"LogScale"``.
+            ``"LinearStep"``, and ``"LogScale"``.
         start : float
             Starting frequency.
         end : float
@@ -1106,7 +1106,7 @@ class SweepQ3D(object):
         ----------
         type : str
             Type of the subrange. Options are ``"LinearCount"``,
-           ``"LinearStep"``, and ``"LogScale"``.
+            ``"LinearStep"``, and ``"LogScale"``.
         start : float
             Starting frequency.
         end : float

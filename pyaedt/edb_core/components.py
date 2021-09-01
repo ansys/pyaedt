@@ -564,7 +564,7 @@ class Components(object):
         Returns
         -------
         list
-           List of deleted RLC components.
+            List of deleted RLC components.
 
 
         Examples
@@ -1020,7 +1020,7 @@ class Components(object):
             List of through resistors.
 
         Examples
-        ---------
+        --------
 
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder", "project name", "release version")

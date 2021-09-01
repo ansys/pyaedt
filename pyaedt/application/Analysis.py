@@ -341,9 +341,7 @@ class Analysis(Design, object):
             List of names of all analysis setups in the design.
 
         """
-        setups = self.oanalysis.GetSetups()
-
-        return setups
+        return self.oanalysis.GetSetups()
 
     @property
     def ooptimetrics(self):
@@ -359,7 +357,7 @@ class Analysis(Design, object):
 
     @property
     def ooutput_variable(self):
-        """Output variable
+        """Output variable.
 
         Returns
         -------
@@ -568,10 +566,7 @@ class Analysis(Design, object):
             List of names of all sweeps for the setup.
 
         """
-        sweeps=[]
-
         sweeps = self.oanalysis.GetSweeps(name)
-
         return list(sweeps)
 
     @aedt_exception_handler

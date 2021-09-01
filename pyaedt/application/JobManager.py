@@ -9,7 +9,10 @@ def get_hpc_info(filename):
 
     Returns
     -------
-    type
+    config_name : str
+        Config name.
+    design_type : str
+        Design name.
 
     """
     config_name = ''
@@ -21,7 +24,6 @@ def get_hpc_info(filename):
             elif 'DesignType=' in line:
                 design_type = line.strip().replace('DesignType=', '').replace("'", '')
     return config_name, design_type
-    pass
 
 
 def update_hpc_option(self, filnename, propertyname, propertyvalue,
@@ -69,10 +71,6 @@ def update_simulation_cores(self, name, nc):
     nc : int or string
         Number of cores.
 
-    Returns
-    -------
-    type
-
     """
     with open(name) as fid:
         for line in fid:
@@ -83,7 +81,7 @@ def update_simulation_cores(self, name, nc):
         new_line = fid.read().replace(old_cores, "NumCores=" + str(nc))
     with open(name, "w") as f:
         f.write(new_line)
-    return
+
 
 def update_simulation_engines(self, name, nc):
     """Update the HPC number of simulaton engines in the configuration file.
@@ -95,10 +93,6 @@ def update_simulation_engines(self, name, nc):
     nc : int or str
         Number of simulaton engines.
 
-    Returns
-    -------
-    type
-
     """
     with open(name) as fid:
         for line in fid:
@@ -109,7 +103,7 @@ def update_simulation_engines(self, name, nc):
         new_line = fid.read().replace(old_cores, "NumEngines=" + str(nc))
     with open(name, "w") as f:
         f.write(new_line)
-    return
+
 
 def update_machine_name(self, name, machinename):
     """Update the machine name.
@@ -121,10 +115,6 @@ def update_machine_name(self, name, machinename):
     machinename : str
         New name of the machine.
 
-    Returns
-    -------
-    type
-
     """
     with open(name) as fid:
         for line in fid:
@@ -135,7 +125,7 @@ def update_machine_name(self, name, machinename):
         new_line = fid.read().replace(old_machine, "MachineName=\'" + str(machinename) + "\'")
     with open(name, "w") as f:
         f.write(new_line)
-    return
+
 
 def update_config_name(self, name, machinename):
     """Update the name of the machine.
@@ -163,7 +153,7 @@ def update_config_name(self, name, machinename):
         new_line = fid.read().replace(old_config, "ConfigName='" + str(machinename) + "'")
     with open(name, "w") as f:
         f.write(new_line)
-    return
+
 
 def update_cluster_cores(self, file_name, param_name, param_val):
     """Update the number of cluster cores in the configuration file.
@@ -177,10 +167,6 @@ def update_cluster_cores(self, file_name, param_name, param_val):
     param_val : int
          New number of cluster cores.
 
-    Returns
-    -------
-    type
-
     """
     with open(file_name) as f:
         for line in f:
@@ -191,23 +177,19 @@ def update_cluster_cores(self, file_name, param_name, param_val):
         new_line = f.read().replace(old_line,  replacement_line)
     with open(file_name, "w") as f:
         f.write(new_line)
-    return
+
 
 def Update_hpc_template(self, file_name, param_name, param_val):
     """Update a paramerter in the HPC template file.
 
-     Parameters
+    Parameters
     ----------
     file_name : str
         Full path and name of the HPC template file.
     param_name : str
         Name of the parameter to update.
     param_val : int
-        Value of the paraemeter.
-
-    Returns
-    -------
-    type
+        Value of the parameter.
 
     """
     with open(file_name) as f:
@@ -220,4 +202,3 @@ def Update_hpc_template(self, file_name, param_name, param_val):
         new_line = f.read().replace(old_line,  replacement_line)
     with open(file_name, "w") as f:
         f.write(new_line)
-    return
