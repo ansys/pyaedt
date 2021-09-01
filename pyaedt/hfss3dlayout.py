@@ -566,7 +566,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         if sweepname in [name.name for name in setup.sweeps]:
             sweepname = generate_unique_name(sweepname)
         sweep = setup.add_sweep(sweepname=sweepname)
-        sweep.change_range("LinearCount", freqstart, freqstop, num_of_freq_points )
+        sweep.change_range("LinearCount", str(freqstart)+unit, str(freqstop)+unit, num_of_freq_points )
         sweep.props["GenerateSurfaceCurrent"] = save_fields
         sweep.props["SaveRadFieldsOnly"] = save_rad_fields_only
         sweep.props["FastSweep"] = interpolation
@@ -623,4 +623,88 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             self.__init__(project_name)
         if close_active_project:
             self.odesktop.CloseProject(active_project)
+        return True
+
+    @aedt_exception_handler
+    def edit_cosim_options(self, simulate_missing_solution=True, align_ports=True, renormalize_ports=True,
+                           renorm_impedance=50, setup_override_name=None, sweep_override_name=None,
+                           use_interpolating_sweep=False, use_y_matrix=True, interpolation_algorithm="auto"):
+        """Edit Cosimulation Options.
+
+        Parameters
+        ----------
+        simulate_missing_solution : bool, optional
+            Set this to ``True`` if the the solver has to simulate missing solution or
+            ``False`` to interpolate the missing solution.
+        align_ports : bool, Optional
+            Set this to ``True`` if the the solver has to align microwave ports.
+        renormalize_ports : bool, optional
+            Set this to ``True`` if the the port impedance has to be renormalized.
+        renorm_impedance : float, optional
+            Renormalization impedance in Ohm.
+        setup_override_name : str, optional
+            The setup name if there is a setup override.
+        sweep_override_name : str, optional
+            The sweep name if there is a sweep override.
+        use_interpolating_sweep : bool, optional
+            Set to ``True`` if the the solver has to use an interpolating sweep.
+            Set to ``False`` to use a discrete sweep.
+        use_y_matrix : bool, Optional
+            Set to ``True`` if the interpolation algorithm has to use YMatrix.
+        interpolation_algorithm : str, optional
+                Defines which interpolation algorithm to use. Default is ``"auto"``. Options are ``"auto"``, ``"lin"``, ``"shadH"``, ``"shadNH"``
+
+        Returns
+        -------
+        bool
+            ``True`` if successful and ``False`` if failed.
+
+        Examples
+        --------
+        >>> from pyaedt import Hfss3dLayout
+        >>> h3d = Hfss3dLayout()
+        >>> h3d.edit_cosim_options(simulate_missing_solution=True, align_ports=True, renormalize_ports=True,renorm_impedance=50, setup_override_name=None, sweep_override_name=None, use_interpolating_sweep=False, use_y_matrix=True, interpolation_algorithm="auto")
+
+        """
+        if interpolation_algorithm not in ["auto", "lin", "shadH", "shadNH"]:
+            self.add_error_message("Wrong Interpolation Algorithm")
+            return False
+        arg = ["NAME:CoSimOptions", "Override:="]
+
+        if setup_override_name:
+            arg.append(True)
+            arg.append("Setup:=")
+            arg.append(setup_override_name)
+        else:
+            arg.append(False)
+            arg.append("Setup:=")
+            arg.append("")
+        arg.append("OverrideSweep:=")
+
+        if sweep_override_name:
+            arg.append(True)
+            arg.append("Sweep:=")
+            arg.append(sweep_override_name)
+        else:
+            arg.append(False)
+            arg.append("Sweep:=")
+            arg.append("")
+        arg.append("SweepType:=")
+        if use_interpolating_sweep:
+            arg.append(6)
+        else:
+            arg.append(4)
+        arg.append("Interpolate:=")
+        arg.append(not simulate_missing_solution)
+        arg.append("YMatrix:=")
+        arg.append(use_y_matrix)
+        arg.append("AutoAlignPorts:=")
+        arg.append(align_ports)
+        arg.append("InterpAlg:=")
+        arg.append(interpolation_algorithm)
+        arg.append("Renormalize:=")
+        arg.append(renormalize_ports)
+        arg.append("RenormImpedance:=")
+        arg.append(renorm_impedance)
+        self.odesign.EditCoSimulationOptions(arg)
         return True

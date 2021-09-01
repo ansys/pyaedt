@@ -146,7 +146,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class: `pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
         """
@@ -300,7 +300,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class: `pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
         Examples
@@ -356,7 +356,7 @@ class Hfss(FieldAnalysis3D, object):
     @aedt_exception_handler
     def create_frequency_sweep(self, setupname, unit="GHz", freqstart=1e-3, freqstop=10, sweepname=None,
                                num_of_freq_points=451, sweeptype="Interpolating",
-                               interpolation_tol=0.5, interpolation_max_solutions=250):
+                               interpolation_tol=0.5, interpolation_max_solutions=250, save_fields=True, save_rad_fields=False):
         """Create a frequency sweep.
 
         Parameters
@@ -381,8 +381,12 @@ class Hfss(FieldAnalysis3D, object):
             Error tolerance threshold for the interpolation
             process. The default is ``0.5``.
         interpolation_max_solutions : int, optional
-            Maximum number of solutions evaluated for the
-            interpolation process. The default is ``250``.
+            Maximum number of solutions evaluated for the interpolation process. The default is
+            ``250``.
+        save_fields : bool, optional
+            Whether to save the fields. The default is ``True``.
+        save_rad_fields : bool, optional
+            Whether to save the radiating fields. The default is ``False``.
 
         Returns
         -------
@@ -430,15 +434,15 @@ class Hfss(FieldAnalysis3D, object):
                     sweepdata.props["InterpMaxSolns"] = interpolation_max_solutions
                     sweepdata.props["InterpMinSolns"] = 0
                     sweepdata.props["InterpMinSubranges"] = 1
-
-                sweepdata.props["RangeStart"] = str(freqstart) + unit
+                sweepdata.props["SaveFields"] = save_fields
+                sweepdata.props["SaveRadFields"] = save_rad_fields
                 sweepdata.update()
                 return sweepdata
         return False
 
     @aedt_exception_handler
     def create_linear_count_sweep(self, setupname, unit, freqstart, freqstop, num_of_freq_points,
-                                  sweepname=None, save_fields=True, save_rad_fields=False):
+                                  sweepname=None, save_fields=True, save_rad_fields=False, sweep_type="Discrete"):
         """Create a discrete sweep with the specified number of points.
 
         Parameters
@@ -459,10 +463,11 @@ class Hfss(FieldAnalysis3D, object):
             Whether to save the fields. The default is ``True``.
         save_rad_fields : bool, optional
             Whether to save the radiating fields. The default is ``False``.
+        sweep_type: str, optional
 
         Returns
         -------
-        :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or bool
+        :class: `pyaedt.modules.SetupTemplates.SweepHFSS` or bool
             Sweep object if successful. ``False`` if unsuccessful.
 
         Examples
@@ -480,37 +485,17 @@ class Hfss(FieldAnalysis3D, object):
         <class 'pyaedt.modules.SetupTemplates.SweepHFSS'>
 
         """
-
-        if sweepname is None:
-            sweepname = generate_unique_name("Sweep")
-
-        if setupname not in self.setup_names:
+        if sweep_type not in ["Discrete", "Interpolating", "Fast"]:
+            self.add_error_message("Invalid in `sweep_type`. It has to either 'Discrete', 'Interpolating', or 'Fast'")
             return False
-        for i in self.setups:
-            if i.name == setupname:
-                setupdata = i
-                for sw in setupdata.sweeps:
-                    if sweepname == sw.name:
-                        self._messenger.add_warning_message(
-                            "Sweep {} is already present. Rename and retry.".format(sweepname))
-                        return False
-                sweepdata = setupdata.add_sweep(sweepname, "Discrete")
-                sweepdata.props["RangeStart"] = str(freqstart) + unit,
-                sweepdata.props["RangeEnd"] = str(freqstop) + unit,
-                sweepdata.props["RangeCount"] = num_of_freq_points,
-                sweepdata.props["SaveFields"] = save_fields
-                sweepdata.props["SaveRadFields"] = save_rad_fields
-                sweepdata.props["Type"] = "Discrete"
-                sweepdata.props["RangeType"] = "LinearCount"
-                sweepdata.props["ExtrapToDC"] = False
-                sweepdata.update()
-                return sweepdata
-        return False
+        return self.create_frequency_sweep(setupname, unit, freqstart, freqstop, sweepname, num_of_freq_points,
+                                           sweep_type, interpolation_tol=0.5, interpolation_max_solutions=250,
+                                           save_fields=save_fields, save_rad_fields=save_rad_fields)
 
     @aedt_exception_handler
     def create_linear_step_sweep(self, setupname, unit, freqstart, freqstop, step_size,
-                                 sweepname=None, save_fields=True, save_rad_fields=False):
-        """Create a discrete sweep with a specified number of points.
+                                 sweepname=None, save_fields=True, save_rad_fields=False, sweep_type="Discrete"):
+        """Create a Sweep with a specified number of points.
 
         Parameters
         ----------
@@ -530,10 +515,13 @@ class Hfss(FieldAnalysis3D, object):
             Whether to save the fields. The default is ``True``.
         save_rad_fields : bool, optional
             Whether to save the radiating fields. The default is ``False``.
+        sweep_type : str, optional
+            Whether to create a ``"Discrete"``,``"Interpolating"`` or ``"Fast"`` sweep.
+            The default is ``"Discrete"``.
 
         Returns
         -------
-        :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or bool
+        :class: `pyaedt.modules.SetupTemplates.SweepHFSS` or bool
             Sweep object if successful. ``False`` if unsuccessful.
 
         Examples
@@ -551,7 +539,8 @@ class Hfss(FieldAnalysis3D, object):
         <class 'pyaedt.modules.SetupTemplates.SweepHFSS'>
 
         """
-
+        if sweep_type not in ["Discrete", "Interpolating", "Fast"]:
+            self.add_error_message("Invalid in `sweep_type`. It has to either 'Discrete', 'Interpolating', or 'Fast'")
         if sweepname is None:
             sweepname = generate_unique_name("Sweep")
 
@@ -565,15 +554,20 @@ class Hfss(FieldAnalysis3D, object):
                         self._messenger.add_warning_message(
                             "Sweep {} is already present. Rename and retry.".format(sweepname))
                         return False
-                sweepdata = setupdata.add_sweep(sweepname, "Discrete")
+                sweepdata = setupdata.add_sweep(sweepname, sweep_type)
                 sweepdata.props["RangeStart"] = str(freqstart) + unit
                 sweepdata.props["RangeEnd"] = str(freqstop) + unit
                 sweepdata.props["RangeStep"] = str(step_size) + unit
                 sweepdata.props["SaveFields"] = save_fields
                 sweepdata.props["SaveRadFields"] = save_rad_fields
                 sweepdata.props["ExtrapToDC"] = False
-                sweepdata.props["Type"] = "Discrete"
+                sweepdata.props["Type"] = sweep_type
                 sweepdata.props["RangeType"] = "LinearStep"
+                if sweep_type == "Interpolating":
+                    sweepdata.props["InterpTolerance"] = 0.5
+                    sweepdata.props["InterpMaxSolns"] = 250
+                    sweepdata.props["InterpMinSolns"] = 0
+                    sweepdata.props["InterpMinSubranges"] = 1
                 sweepdata.update()
                 return sweepdata
         return False
@@ -604,11 +598,6 @@ class Hfss(FieldAnalysis3D, object):
              The default is ``True``.
         power_fraction : str, optional
              The default is ``"0.95"``.
-
-        Returns
-        -------
-        pyaedt.modules.Boundary.NativeComponentObject
-            NativeComponentObject object.
 
         Examples
         --------
@@ -895,7 +884,7 @@ class Hfss(FieldAnalysis3D, object):
         return self._create_boundary("SBRTxRxSettings", props, "SBRTxRxSettings")
 
     @aedt_exception_handler
-    def create_discrete_sweep(self, setupname, sweepname="SinglePoint", freq="1GHz", save_field=True,
+    def create_single_point_sweep(self, setupname, sweepname="SinglePoint", freq_start="1GHz", save_field=True,
                               save_radiating_field=False):
         """Create a discrete sweep with a single frequency value.
 
@@ -905,16 +894,17 @@ class Hfss(FieldAnalysis3D, object):
             Name of the setup.
         sweepname : str, optional
             Name of the sweep. The default is ``"SinglePoint"``.
-        freq : str, optional
-            Sweep frequency with units. The default is ``"1GHz"``.
+        freq_start : str, optional
+            Sweep frequency point with units. The default is ``"1GHz"``.
         save_field : bool, optional
             Whether to save the field. The default is ``True``.
         save_radiating_field : bool, optional
             Whether to save the radiating field. The default is ``False``.
 
+
         Returns
         -------
-        :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or bool
+        :class: `pyaedt.modules.SetupTemplates.SweepHFSS` or bool
             Sweep object if successful. ``False`` if unsuccessful.
 
         Examples
@@ -924,8 +914,8 @@ class Hfss(FieldAnalysis3D, object):
         named ``"DiscreteSweep"``.
 
         >>> setup = hfss.create_setup("DiscreteSweepSetup")
-        >>> discrete_sweep = hfss.create_discrete_sweep(setupname="DiscreteSweepSetup",
-        ...                                             sweepname="DiscreteSweep", freq="2GHz")
+        >>> discrete_sweep = hfss.create_single_point_sweep(setupname="DiscreteSweepSetup",
+        ...                                             sweepname="DiscreteSweep", freq_start="2GHz")
         pyaedt Info: Sweep was created correctly.
 
         """
@@ -944,14 +934,13 @@ class Hfss(FieldAnalysis3D, object):
                             "Sweep {} is already present. Rename and retry.".format(sweepname))
                         return False
                 sweepdata = setupdata.add_sweep(sweepname, "Discrete")
-                sweepdata.props["RangeStart"] = freq
-                sweepdata.props["RangeEnd"] = freq
+                sweepdata.props["RangeStart"] = freq_start
                 sweepdata.props["SaveSingleField"] = save_field
                 sweepdata.props["SaveFields"] = save_field
                 sweepdata.props["SaveRadFields"] = save_radiating_field
                 sweepdata.props["ExtrapToDC"] = False
                 sweepdata.props["Type"] = "Discrete"
-                sweepdata.props["RangeType"] = "SinglePoints"
+                sweepdata.props["RangeType"] = "LinearCount"
                 sweepdata.update()
                 self._messenger.add_info_message("Sweep was created correctly.")
                 return sweepdata
@@ -1232,7 +1221,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class: `pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
         """
@@ -1274,7 +1263,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class: `pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
         Examples
@@ -1375,7 +1364,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class: `pyaedt.modules.Boundary.BoundaryObject`
             Port object.
 
         Examples
@@ -1443,7 +1432,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject` or bool
+        :class: `pyaedt.modules.Boundary.BoundaryObject` or bool
             Boundary object if successful. ``False`` if unsuccessful.
 
         Examples
@@ -1499,7 +1488,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject` or bool
+        :class: `pyaedt.modules.Boundary.BoundaryObject` or bool
             Boundary object if successful. ``False`` if unsuccessful.
 
         Examples
@@ -1553,7 +1542,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`pyaedt.hfss.SARSetup`
+        :class: `pyaedt.hfss.SARSetup`
             SARSetup object.
 
         """
@@ -1630,7 +1619,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject` or bool
+        :class: `pyaedt.modules.Boundary.BoundaryObject` or bool
             Boundary object if successful. ``False`` if unsuccessful.
 
         Examples
@@ -1715,7 +1704,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject` or bool
+        :class: `pyaedt.modules.Boundary.BoundaryObject` or bool
             Boundary object if successful. ``False`` if unsuccessful.
 
         Examples
@@ -1771,7 +1760,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class: `pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
         """
@@ -2101,7 +2090,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class: `pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
         Examples
@@ -2138,7 +2127,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class: `pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
         Examples
@@ -2192,7 +2181,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class: `pyaedt.modules.Boundary.BoundaryObject`
             Boundary object if successful. ``False`` if unsuccessful.
 
         Examples
@@ -2258,7 +2247,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class: `pyaedt.modules.Boundary.BoundaryObject`
             Boundary object if successful. ``False`` if unsuccessful.
 
         Examples
@@ -2930,7 +2919,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class: `pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
         Examples
@@ -2966,7 +2955,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class: `pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
         Examples

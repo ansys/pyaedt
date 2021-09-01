@@ -44,7 +44,7 @@ class Modeler2D(GeometryModeler):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Primitives2D.Primitives2D`
+        :class: `pyaedt.modeler.Primitives2D.Primitives2D`
 
         """
         if self._primitivesDes != self._parent.project_name + self._parent.design_name:

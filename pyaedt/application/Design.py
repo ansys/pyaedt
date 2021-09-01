@@ -1651,7 +1651,7 @@ class Design(object):
 
         Returns
         -------
-        :class:`pyaedt.application.Variables.DataSet`
+        :class: `pyaedt.application.Variables.DataSet`
 
         """
         return self.create_dataset(dsname, xlist,ylist, is_project_dataset=False, xunit=xunit, yunit=yunit)
