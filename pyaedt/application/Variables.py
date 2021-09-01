@@ -655,13 +655,13 @@ class VariableManager(object):
         return self._parent._messenger
 
     def __init__(self, parent):
-
         # Global Desktop Environment
         self._parent = parent
 
-    def __del__(self, key):
+    @aedt_exception_handler
+    def __delitem__(self, key):
         """Implement del with array name or index."""
-        del self.variable[key]
+        self.delete_variable(key)
 
     @aedt_exception_handler
     def __getitem__(self, variable_name):
