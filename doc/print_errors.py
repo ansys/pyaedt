@@ -19,7 +19,6 @@ if os.path.isfile(error_file):
                 errors.add('\n'.join(group))
                 group = []
 
-
     for error in list(errors):
         print(error)
         print()
@@ -28,5 +27,5 @@ if os.path.isfile(error_file):
     print()
     if errors:
         raise Exception(f'Sphinx reported unique {len(errors)} warnings\n\n')
-    
+
 print(f'Sphinx Reported no warnings\n\n')
