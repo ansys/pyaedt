@@ -181,9 +181,7 @@ class Hfss(FieldAnalysis3D, object):
         return result
 
     @aedt_exception_handler
-    def _create_lumped_driven(
-        self, objectname, int_line_start, int_line_stop, impedance, portname, renorm, deemb
-    ):
+    def _create_lumped_driven(self, objectname, int_line_start, int_line_stop, impedance, portname, renorm, deemb):
         start = [str(i) + self.modeler.primitives.model_units for i in int_line_start]
         stop = [str(i) + self.modeler.primitives.model_units for i in int_line_stop]
         props = OrderedDict(
@@ -421,9 +419,20 @@ class Hfss(FieldAnalysis3D, object):
         return self._create_boundary("Coating_" + listobjname[:32], props, "FiniteCond")
 
     @aedt_exception_handler
-    def create_frequency_sweep(self, setupname, unit="GHz", freqstart=1e-3, freqstop=10, sweepname=None,
-                               num_of_freq_points=451, sweeptype="Interpolating",
-                               interpolation_tol=0.5, interpolation_max_solutions=250, save_fields=True, save_rad_fields=False):
+    def create_frequency_sweep(
+        self,
+        setupname,
+        unit="GHz",
+        freqstart=1e-3,
+        freqstop=10,
+        sweepname=None,
+        num_of_freq_points=451,
+        sweeptype="Interpolating",
+        interpolation_tol=0.5,
+        interpolation_max_solutions=250,
+        save_fields=True,
+        save_rad_fields=False,
+    ):
         """Create a frequency sweep.
 
         Parameters
@@ -509,8 +518,18 @@ class Hfss(FieldAnalysis3D, object):
         return False
 
     @aedt_exception_handler
-    def create_linear_count_sweep(self, setupname, unit, freqstart, freqstop, num_of_freq_points,
-                                  sweepname=None, save_fields=True, save_rad_fields=False, sweep_type="Discrete"):
+    def create_linear_count_sweep(
+        self,
+        setupname,
+        unit,
+        freqstart,
+        freqstop,
+        num_of_freq_points,
+        sweepname=None,
+        save_fields=True,
+        save_rad_fields=False,
+        sweep_type="Discrete",
+    ):
         """Create a discrete sweep with the specified number of points.
 
         Parameters
@@ -556,13 +575,33 @@ class Hfss(FieldAnalysis3D, object):
         if sweep_type not in ["Discrete", "Interpolating", "Fast"]:
             self.add_error_message("Invalid in `sweep_type`. It has to either 'Discrete', 'Interpolating', or 'Fast'")
             return False
-        return self.create_frequency_sweep(setupname, unit, freqstart, freqstop, sweepname, num_of_freq_points,
-                                           sweep_type, interpolation_tol=0.5, interpolation_max_solutions=250,
-                                           save_fields=save_fields, save_rad_fields=save_rad_fields)
+        return self.create_frequency_sweep(
+            setupname,
+            unit,
+            freqstart,
+            freqstop,
+            sweepname,
+            num_of_freq_points,
+            sweep_type,
+            interpolation_tol=0.5,
+            interpolation_max_solutions=250,
+            save_fields=save_fields,
+            save_rad_fields=save_rad_fields,
+        )
 
     @aedt_exception_handler
-    def create_linear_step_sweep(self, setupname, unit, freqstart, freqstop, step_size,
-                                 sweepname=None, save_fields=True, save_rad_fields=False, sweep_type="Discrete"):
+    def create_linear_step_sweep(
+        self,
+        setupname,
+        unit,
+        freqstart,
+        freqstop,
+        step_size,
+        sweepname=None,
+        save_fields=True,
+        save_rad_fields=False,
+        sweep_type="Discrete",
+    ):
         """Create a Sweep with a specified number of points.
 
         Parameters
@@ -1117,8 +1156,9 @@ class Hfss(FieldAnalysis3D, object):
         return self._create_boundary("SBRTxRxSettings", props, "SBRTxRxSettings")
 
     @aedt_exception_handler
-    def create_single_point_sweep(self, setupname, sweepname="SinglePoint", freq_start="1GHz", save_field=True,
-                              save_radiating_field=False):
+    def create_single_point_sweep(
+        self, setupname, sweepname="SinglePoint", freq_start="1GHz", save_field=True, save_radiating_field=False
+    ):
         """Create a discrete sweep with a single frequency value.
 
         Parameters
