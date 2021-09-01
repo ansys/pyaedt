@@ -150,7 +150,7 @@ class Icepak(FieldAnalysisIcepak):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class: `pyaedt.modules.Boundary.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         Examples
@@ -309,7 +309,7 @@ class Icepak(FieldAnalysisIcepak):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class: `pyaedt.modules.Boundary.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         Examples
@@ -371,7 +371,7 @@ class Icepak(FieldAnalysisIcepak):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class: `pyaedt.modules.Boundary.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         Examples
@@ -442,7 +442,7 @@ class Icepak(FieldAnalysisIcepak):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class: `pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
         Examples
@@ -1564,7 +1564,7 @@ class Icepak(FieldAnalysisIcepak):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.NativeComponentObject`
+        :class: `pyaedt.modules.Boundary.NativeComponentObject`
             NativeComponentObject object.
 
         """

@@ -34,4 +34,5 @@ cibuild:
 	mkdir source/examples -p
 	echo 'Examples' > source/examples/index.rst
 	echo '========' >> source/examples/index.rst
-	$(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O) -W -j auto
+	$(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O) -j auto -w build_errors.txt -N
+	python print_errors.py

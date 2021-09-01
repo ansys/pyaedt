@@ -206,7 +206,7 @@ class Q3d(QExtractor, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class: `pyaedt.modules.Boundary.BoundaryObject`
             Source object.
 
         """
@@ -243,7 +243,7 @@ class Q3d(QExtractor, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class: `pyaedt.modules.Boundary.BoundaryObject`
             Source object.
 
         """
@@ -283,7 +283,7 @@ class Q3d(QExtractor, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class: `pyaedt.modules.Boundary.BoundaryObject`
             Sink object.
 
         """
@@ -320,7 +320,7 @@ class Q3d(QExtractor, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class: `pyaedt.modules.Boundary.BoundaryObject`
             Source object.
 
         """
