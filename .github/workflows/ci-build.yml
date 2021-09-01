@@ -36,7 +36,12 @@ jobs:
         run: |
           mkdir doc/source/examples -p
           echo $'Examples\n========' > doc/source/examples/index.rst
-          make -C doc html SPHINXOPTS="-W -j auto"
+          make -C doc html SPHINXOPTS="-j auto -w build_errors.txt -N"
+
+      # Verify that sphinx generates no warnings
+      - name: Check for warnings
+        run: |
+          python doc/print_errors.py
 
       - name: Upload Documentation
         uses: actions/upload-artifact@v2
