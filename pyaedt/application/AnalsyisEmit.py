@@ -30,8 +30,6 @@ class FieldAnalysisEmit(Design):
 
     @solution_type.setter
     def solution_type(self, soltype):
-        """ """
-
         if soltype:
             self._solution_type = "EMIT"
         else:
@@ -61,7 +59,7 @@ class FieldAnalysisEmit(Design):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Circuit.ModelerEmit`
+        pyaedt.modeler.Circuit.ModelerEmit
             Design oModeler
         """
         return self._modeler

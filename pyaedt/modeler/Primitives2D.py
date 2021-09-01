@@ -24,7 +24,7 @@ class Primitives2D(Primitives, object):
 
         Parameters
         ----------
-        position :
+        position : list
             ApplicationName.modeler.Position(x,y,z) object
         radius : float
             Radius of the object.
@@ -32,16 +32,16 @@ class Primitives2D(Primitives, object):
             Number of sides. The default is ``0``, which is correct for a circle.
         is_covered : bool
             Specify whether the ellipse is a sheet (covered) or a line object
-        name : str, default=None
+        name : str, optional
             Name of the object. The default is ``None``. If ``None`` ,
-            a unique name NewObject_xxxxxx will be assigned)
-        matname : str, default=None
-             Name of the material. The default is ``None``. If ``None``,
+            a unique name ``"NewObject_xxxxxx"`` will be assigned)
+        matname : str, optional
+            Name of the material. The default is ``None``. If ``None``,
             the default material is assigned.
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
+        pyaedt.modeler.Object3d.Object3d
             Object3d
 
         Examples
@@ -92,7 +92,7 @@ class Primitives2D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
+        pyaedt.modeler.Object3d.Object3d
             Object3d
 
         Examples
@@ -138,7 +138,7 @@ class Primitives2D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
+        pyaedt.modeler.Object3d.Object3d
 
         >>> rect1 = aedtapp.modeler.primitives.create_rectangle([0, -2, -2], [3, 4])
         >>> rect2 = aedtapp.modeler.primitives.create_rectangle(position=[0, -2, -2], dimension_list=[3, 4],
@@ -169,16 +169,16 @@ class Primitives2D(Primitives, object):
 
     @aedt_exception_handler
     def create_regular_polygon(self, position, start_point, num_sides=6, is_covered=True, name=None, matname=None):
-        """Create a rectangle
+        """Create a rectangle.
 
         Parameters
         ----------
         position : list of float
-            Position of the center of the polygon [x, y, z]
+            Position of the center of the polygon in ``[x, y, z]``.
         start_point : list of float
-            Start point for the outer path of the polygon [x, y, z]
+            Start point for the outer path of the polygon in ``[x, y, z]``.
         num_sides : int
-            Number of sides of the polygon. Must be an integer >= 3
+            Number of sides of the polygon. Must be an integer >= 3.
         is_covered : bool
             Specify whether the ellipse is a sheet (covered) or a line object
         name : str, default=None
@@ -190,7 +190,7 @@ class Primitives2D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
+        pyaedt.modeler.Object3d.Object3d
 
         >>> pg1 = aedtapp.modeler.primitives.create_regular_polygon([0, 0, 0], [0, 2, 0])
         >>> pg2 = aedtapp.modeler.primitives.create_regular_polygon(position=[0, 0, 0], start_point=[0, 2, 0],
@@ -226,11 +226,11 @@ class Primitives2D(Primitives, object):
         ----------
         pad_percent : float or list of float, default=300
             If float, use padding in per-cent for all dimensions
-            If list, then interpret as adding for  ["+X", "+Y", "-X", "-Y"]
+            If list, then interpret as adding for  ``["+X", "+Y", "-X", "-Y"]``.
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
+        pyaedt.modeler.Object3d.Object3d
 
         """
         #TODO handle RZ!!

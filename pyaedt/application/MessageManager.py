@@ -240,8 +240,9 @@ class AEDTMessageManager(object):
     @aedt_exception_handler
     def add_debug_message(self, message_text, level=None):
         """Deprecated in favor of :func:`MessageList.add_info_message`.
+
         .. deprecated:: 0.2.0
-           Use the method :func:`MessageList.add_info_message`.
+           Use  :func:`MessageList.add_info_message`.
         """
         self.add_info_message(message_text, level)
 
@@ -254,16 +255,17 @@ class AEDTMessageManager(object):
         type : int
             Type of the message. Options are:
 
-            * 0: Info
-            * 1: Warning
-            * 2: Error
+            * ``0`` : Info
+            * ``1`` : Warning
+            * ``2`` : Error
 
         message_text : str
             Text to display as the message.
         level : str, optional
             Level to add the message to. Options are ``"Global"``,
             ``"Project"``, and ``"Design"``. The default is ``None``,
-            in which case the message gets added to the ``"Design"``level.
+            in which case the message gets added to the
+            ``"Design"`` level.
         proj_name : str, optional
             Name of the project.
         des_name : str, optional

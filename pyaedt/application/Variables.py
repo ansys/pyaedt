@@ -22,6 +22,7 @@ from ..generic.general_methods import is_number
 
 @aedt_exception_handler
 def dB(x, inverse=True):
+    """Convert db to decimal"""
     if inverse:
         return 20*math.log10(x)
     else:
@@ -113,7 +114,7 @@ v2pi = 2.0 * math.pi
 m2in = 0.0254
 m2miles = 1609.344051499
 
-# Value in new units equals value in old units * scaling vactor of new units
+# Value in new units equals value in old units * scaling vector of new units
 # e.g. value_in_deg Variable("1rad") = 1 * rad2deg
 AEDT_units = {
     'AngularSpeed': {'deg_per_hr': hour2sec * deg2rad, 'rad_per_hr': hour2sec, 'deg_per_min': min2sec * deg2rad,
@@ -401,7 +402,7 @@ class CSVDataset:
         return output_string
 
     def next(self):
-        """ """
+        """Yield the next row."""
         return self.__next__()
 
 @aedt_exception_handler
@@ -445,26 +446,30 @@ def decompose_variable_value(variable_value):
 class VariableManager(object):
     """Manages design properties and project variables.
 
-    Design properties are the local variables in a design. Project variables are defined at the project
-    level and start with ``$``.
+    Design properties are the local variables in a design. Project
+    variables are defined at the project level and start with ``$``.
 
-    This class provides access to all variables or a subset of the variables. Manipulation
-    of the numerical or string definitions of variable values is provided in the
+    This class provides access to all variables or a subset of the
+    variables. Manipulation of the numerical or string definitions of
+    variable values is provided in the
     :class:`pyaedt.application.Variables.Variable` class.
 
     Parameters
     ----------
     variables : dict
-        Dictionary of all design properties and project variables in the active design.
+        Dictionary of all design properties and project variables in
+        the active design.
     design_variables : dict
         Dictionary of all design properties in the active design.
     project_variables : dict
-        Dictionary of all project variables available to the active design (key by variable name).
+        Dictionary of all project variables available to the active
+        design (key by variable name).
     dependent_variables : dict
-        Dictionary of all dependent variables available to the active design (key by variable name).
+        Dictionary of all dependent variables available to the active
+        design (key by variable name).
     independent_variables : dict
-       Dictionary of all independent variables (constant numeric values) available to the active
-       design (key by variable name).
+       Dictionary of all independent variables (constant numeric
+       values) available to the active design (key by variable name).
     independent_design_variables : dict
 
     independent_project_variables : dict
@@ -478,12 +483,18 @@ class VariableManager(object):
     dependent_variable_names : str or list
         All dependent variable names within the project.
     independent_variable_names : list of str
-        All independent variable names within the project. These can be sweep variables for optimetrics.
+        All independent variable names within the project. These can
+        be sweep variables for optimetrics.
     independent_project_variable_names : str or list
-        All independent project variable names within the project. These can be sweep variables for optimetrics.
+        All independent project variable names within the
+        project. These can be sweep variables for optimetrics.
     independent_design_variable_names : str or list
-        All independent design properties (local variables) within the project. These can be sweep variables for optimetrics.
+        All independent design properties (local variables) within the
+        project. These can be sweep variables for optimetrics.
 
+    See Also
+    --------
+    pyaedt.application.Variables.Variable
 
     Examples
     --------
@@ -525,10 +536,6 @@ class VariableManager(object):
     {'Var1': <pyaedt.application.Variables.Variable at 0x2661f335d08>,
      'Var2': <pyaedt.application.Variables.Variable at 0x2661f3557c8>}
 
-    See Also
-    --------
-    :class:`pyaedt.application.Variables.Variable` class.
-
     """
 
     @property
@@ -546,7 +553,7 @@ class VariableManager(object):
 
     @property
     def design_variables(self):
-        """Design variables
+        """Design variables.
 
         Returns
         -------
@@ -573,7 +580,8 @@ class VariableManager(object):
         Returns
         -------
         dict
-            Dictionary of the independent variables (constant numeric values) available to the design.
+            Dictionary of the independent variables (constant numeric
+            values) available to the design.
         """
         return self._variable_dict([self.odesign, self.oproject], dependent=False)
 
@@ -595,7 +603,8 @@ class VariableManager(object):
         Returns
         -------
         dict
-            Dictionary of the independent design properties (local variables) available to the design.
+            Dictionary of the independent design properties (local
+            variables) available to the design.
         """
         return self._variable_dict([self.odesign], dependent=False)
 
@@ -606,37 +615,45 @@ class VariableManager(object):
         Returns
         -------
         dict
-            Dictionary of the dependent design properties (local variables) and project variables available to the design.
+            Dictionary of the dependent design properties (local
+            variables) and project variables available to the design.
 
         """
         return self._variable_dict([self.odesign, self.oproject], independent=False)
 
     @property
     def variable_names(self):
+        """List of variables."""
         return [var_name for var_name in self.variables]
 
     @property
     def project_variable_names(self):
+        """List of project variables."""
         return [var_name for var_name in self.project_variables]
 
     @property
     def independent_project_variable_names(self):
+        """List of independent project variables."""
         return [var_name for var_name in self.independent_project_variables]
 
     @property
     def design_variable_names(self):
+        """List of design variables."""
         return [var_name for var_name in self.design_variables]
 
     @property
     def independent_design_variable_names(self):
+        """List of independent design variables."""
         return [var_name for var_name in self.independent_design_variables]
 
     @property
     def independent_variable_names(self):
+        """List of independent variables."""
         return [var_name for var_name in self.independent_variables]
 
     @property
     def dependent_variable_names(self):
+        """List of dependent variables."""
         return [var_name for var_name in self.dependent_variables]
 
     @property
@@ -733,24 +750,25 @@ class VariableManager(object):
         Parameters
         ----------
         variable_name : str
-            Name of the design property or project variable (``$var``). If this variable
-            does not exist, a new one is created and a value is set.
+            Name of the design property or project variable
+            (``$var``). If this variable does not exist, a new one is
+            created and a value is set.
         expression : str
-            Valid string expression within the AEDT design and project structure.
-            For example, ``"3*cos(34deg)"``.
+            Valid string expression within the AEDT design and project
+            structure.  For example, ``"3*cos(34deg)"``.
         readonly : bool, optional
-           Whether to set the design property or project variable to read-only. The
-           default is ``False``.
+            Whether to set the design property or project variable to
+            read-only. The default is ``False``.
         hidden :  bool, optional
             Whether to hide the design property or project variable. The
-           default is ``False``.
+            default is ``False``.
         description : str, optional
-           Text to display for the design property or project variable in the
+            Text to display for the design property or project variable in the
             ``Properties`` window. The default is ``None``.
         overwrite : bool, optional
-            Whether to overwrite an existing value for the design property or
-            project variable. The default is ``False``, in which case this method is
-            ignored.
+            Whether to overwrite an existing value for the design
+            property or project variable. The default is ``False``, in
+            which case this method is ignored.
 
         Returns
         -------
@@ -759,23 +777,25 @@ class VariableManager(object):
 
         Examples
         --------
-        Set the value of design property ``p1`` to ``"10mm"``, creating the property
-        if it does not already eixst.
+        Set the value of design property ``p1`` to ``"10mm"``,
+        creating the property if it does not already eixst.
 
         >>> aedtapp.variable_manager.set_variable("p1", expression="10mm")
 
-        Set the value of design property ``p1`` to ``"20mm"`` only if the property does
-        not already exist.
+        Set the value of design property ``p1`` to ``"20mm"`` only if
+        the property does not already exist.
 
         >>> aedtapp.variable_manager.set_variable("p1", expression="20mm", overwrite=False)
 
-        Set the value of design property ``p2`` to ``"10mm"``, creating the property
-        if it does not already exist. Also make it read-only and hidden and add a description.
+        Set the value of design property ``p2`` to ``"10mm"``,
+        creating the property if it does not already exist. Also make
+        it read-only and hidden and add a description.
 
         >>> aedtapp.variable_manager.set_variable(variable_name="p2", expression="10mm", readonly=True, hidden=True,
         ...                                       description="This is the description of this variable.")
 
-        Set the value of the project variable ``$p1`` to ``"30mm"``, creating the variable if it does not exist.
+        Set the value of the project variable ``$p1`` to ``"30mm"``,
+        creating the variable if it does not exist.
 
         >>> aedtapp.variable_manager.set_variable["$p1"] == "30mm"
 
@@ -1532,7 +1552,7 @@ class DataSet(object):
         """Delete the dataset.
 
         Returns
-        ------
+        -------
         bool
             ``True`` when successful, ``False`` when failed.
 

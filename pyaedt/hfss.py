@@ -378,21 +378,22 @@ class Hfss(FieldAnalysis3D, object):
             Type of the sweep. Options are ``"Fast"``, ``"Interpolating"``,
             and ``"Discrete"``. The default is ``"Interpolating"``.
         interpolation_tol : float, optional
-            Error tolerance threshold for the interpolation process. The default is ``0.5``.
+            Error tolerance threshold for the interpolation
+            process. The default is ``0.5``.
         interpolation_max_solutions : int, optional
-            Maximum number of solutions evaluated for the interpolation process. The default is
-            ``250``.
+            Maximum number of solutions evaluated for the
+            interpolation process. The default is ``250``.
 
         Returns
         -------
-        :class:`pyaedt.modules.SetupTemplates.SweepHFSS`, :class:`pyaedt.modules.SetupTemplates.SweepQ3D`, or bool
+        pyaedt.modules.SetupTemplates.SweepHFSS, pyaedt.modules.SetupTemplates.SweepQ3D, or bool
             Sweep object if successful. ``False`` if unsuccessful.
 
         Examples
         --------
 
-        Create a setup named ``'FrequencySweepSetup'`` and use it in a frequency sweep
-        named ``'MySweepFast'``.
+        Create a setup named ``'FrequencySweepSetup'`` and use it in a
+        frequency sweep named ``'MySweepFast'``.
 
         >>> setup = hfss.create_setup("FrequencySweepSetup")
         >>> setup.props["Frequency"] = "1GHz"
@@ -584,9 +585,9 @@ class Hfss(FieldAnalysis3D, object):
         """Create a linked antenna.
 
         Parameters
-        -------------
-        source_object : ``pyaedt.Hfss``
-
+        ----------
+        source_object : pyaedt.Hfss
+            Source object.
         target_cs : str, optional
             Target coordinate system. The default is ``"Global"``.
         solution : optional
@@ -604,19 +605,22 @@ class Hfss(FieldAnalysis3D, object):
         power_fraction : str, optional
              The default is ``"0.95"``.
 
+        Returns
+        -------
+        pyaedt.modules.Boundary.NativeComponentObject
+            NativeComponentObject object.
+
         Examples
         --------
         >>> from pyaedt import Hfss
         >>> target_project = "my/path/to/targetProject.aedt"
         >>> source_project = "my/path/to/sourceProject.aedt"
-        >>> target = Hfss(projectname=target_project, solution_type="SBR+", specified_version="2021.1", AlwaysNew=False)  # doctest: +SKIP
-        >>> source = Hfss(projectname=source_project, designname="feeder", specified_version="2021.1", AlwaysNew=False)  # doctest: +SKIP
-        >>> target.create_sbr_linked_antenna(source, target_cs="feederPosition", fieldtype="farfield")  # doctest: +SKIP
-
-        Returns
-        -------
-        :class:`pyaedt.modules.Boundary.NativeComponentObject`
-            NativeComponentObject object.
+        >>> target = Hfss(projectname=target_project, solution_type="SBR+",
+        ...               specified_version="2021.1", AlwaysNew=False)  # doctest: +SKIP
+        >>> source = Hfss(projectname=source_project, designname="feeder",
+        ...               specified_version="2021.1", AlwaysNew=False)  # doctest: +SKIP
+        >>> target.create_sbr_linked_antenna(source, target_cs="feederPosition",
+        ...                                  fieldtype="farfield")  # doctest: +SKIP
 
         """
         if self.solution_type != "SBR+":
@@ -739,6 +743,11 @@ class Hfss(FieldAnalysis3D, object):
         antenna_name : str, optional
             3D component name. The default is auto-generated based on the antenna type.
 
+        Returns
+        -------
+        pyaedt.modules.Boundary.NativeComponentObject
+            NativeComponentObject object.
+
         Examples
         --------
         >>> from pyaedt import Hfss
@@ -748,11 +757,6 @@ class Hfss(FieldAnalysis3D, object):
         >>> par_beam = hfss.create_sbr_antenna(hfss.SbrAntennas.ShortDipole,
         ...                                    parameters_dict=parm,
         ...                                    antenna_name="TX1")  # doctest: +SKIP
-
-        Returns
-        -------
-        :class:`pyaedt.modules.Boundary.NativeComponentObject`
-            NativeComponentObject object.
 
         """
         if self.solution_type != "SBR+":
@@ -834,17 +838,17 @@ class Hfss(FieldAnalysis3D, object):
             3D component name. The default is the auto-generated based
             on the antenna type.
 
+        Returns
+        -------
+        pyaedt.modules.Boundary.NativeComponentObject
+            NativeComponentObject object.
+
         Examples
         --------
         >>> from pyaedt import Hfss
         >>> hfss = Hfss(solution_type="SBR+")  # doctest: +SKIP
         >>> ffd_file = "full_path/to/ffdfile.ffd"
         >>> par_beam = hfss.create_sbr_file_based_antenna(ffd_file)  # doctest: +SKIP
-
-        Returns
-        -------
-        :class:`pyaedt.modules.Boundary.NativeComponentObject`
-            NativeComponentObject object.
 
         """
         if self.solution_type != "SBR+":
@@ -863,20 +867,21 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def set_sbr_txrx_settings(self, txrx_settings):
-        """Sets Sbr+ TX RX Antenna Settings
+        """Set Sbr+ TX RX Antenna Settings.
 
         Parameters
         ----------
         txrx_settings : dict
             Dictionary containing the TX as key and RX as values
 
+        Returns
+        -------
+        pyaedt.modules.Boundary.BoundaryObject
+            Boundary object.
+
         Examples
         --------
 
-        Returns
-        -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
-            Boundary object.
         """
         if self.solution_type != "SBR+":
             self.add_error_message("This Boundary only applies to SBR+ Solution")
@@ -1593,7 +1598,7 @@ class Hfss(FieldAnalysis3D, object):
     @aedt_exception_handler
     def create_lumped_rlc_between_objects(self, startobj, endobject, axisdir=0, sourcename=None, rlctype="Parallel",
                                           Rvalue=None, Lvalue=None, Cvalue=None, bound_on_plane=True):
-        """Creates a lumped RLC taking the closest edges of two objects.
+        """Create a lumped RLC taking the closest edges of two objects.
 
         Parameters
         ----------

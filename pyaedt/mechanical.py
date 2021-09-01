@@ -381,7 +381,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`aedt.modules.Boundary.Boundary object
+        aedt.modules.Boundary.Boundary
             Boundary object.
 
         """
