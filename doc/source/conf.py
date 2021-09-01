@@ -90,7 +90,6 @@ numpydoc_validation_checks = {
 
     "RT02", # The first line of the Returns section should contain only the
             # type, unless multiple values are being returned"
-    "RT05",
 
 }
 
