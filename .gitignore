@@ -346,6 +346,7 @@ healthchecksdb
 # sphinx build
 doc/_build/
 doc/source/examples
+doc/build_errors.txt
 _autosummary/
 
 # pip files
