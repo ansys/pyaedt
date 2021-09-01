@@ -27,12 +27,11 @@ jobs:
       - name: Install doc build requirements
         run: |
           pip install -r requirements_docs.txt
+          sudo apt install graphviz
 
-      - name: Partial Documentation Build
+      - name: Documentation Build
         run: |
           make -C doc html
-        env:
-          PYAEDT_CI_NO_AUTODOC: True
 
       - name: Upload Documentation
         uses: actions/upload-artifact@v2.2.3
