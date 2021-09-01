@@ -79,7 +79,7 @@ class Edb3DLayout(object):
 
     @aedt_exception_handler
     def create_circuit_port_on_pin(self, pos_pin, neg_pin, impedance=50, port_name=None):
-        """Create Circuit Port on Pin
+        """Create Circuit Port on Pin.
 
         Parameters
         ----------
