@@ -870,7 +870,7 @@ class EdbSiwave(object):
             Name of the negative component. The default is ``None``, in which case the name of
             the positive net is assigned.
         negative_net_name : str, optional
-            Name of the negative net name. The default is ``None`` which will look for *GND Nets.
+            Name of the negative net name. The default is ``None`` which will look for \*GND Nets.
         rvalue : float, optional
             Resistance value. The default is ``1``.
         resistor_name : str, optional
@@ -883,7 +883,6 @@ class EdbSiwave(object):
 
         Examples
         --------
-
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder", "project name", "release version")
         >>> edb.core_siwave.create_resistor_on_net("U2A5", "V1P5_S3", "U2A5", "GND", 1, "resistor_name")
