@@ -2445,9 +2445,8 @@ class GeometryModeler(Modeler, object):
         Returns
         -------
         tuple
-            Tuple of :class:`Object3d <pyaedt.modeler.Object3d.Object3d>` 
+            Tuple of :class:`Object3d <pyaedt.modeler.Object3d.Object3d>`
             objects created by the waveguide.
-
 
         Examples
         --------
@@ -2457,7 +2456,7 @@ class GeometryModeler(Modeler, object):
         >>> from pyaedt import Hfss
         >>> app = Hfss()
         >>> position = [0, 0, 0]
-        >>> wg1 = app.modeler.create_waveguide(position, app.CoordinateSystemAxis.XAxis, 
+        >>> wg1 = app.modeler.create_waveguide(position, app.CoordinateSystemAxis.XAxis,
         ...                                    wgmodel="WG9", wg_length=2000)
 
 
