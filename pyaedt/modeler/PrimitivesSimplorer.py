@@ -7,15 +7,15 @@ from .PrimitivesCircuit import CircuitComponents
 
 class SimplorerComponents(CircuitComponents):
     """SimplorerComponents class.
-    
+
     This class is for managing all circuit components for Simplorer.
-    
+
     Parameters
     ----------
     parent :
-    
+
     modeler :
-    
+
     """
     @property
     def design_libray(self):
@@ -30,17 +30,17 @@ class SimplorerComponents(CircuitComponents):
     @aedt_exception_handler
     def __getitem__(self, partname):
         """Get object id from a string or integer.
-        
+
         Parameters
         ----------
         partname : int or str
             ID or name of the object.
-        
+
         Returns
         -------
         type
             Part object details.
-        
+
         """
         if type(partname) is int:
             return self.components[partname]
@@ -83,7 +83,7 @@ class SimplorerComponents(CircuitComponents):
             ID of the resistor.
         str
             Name of the resistor.
-        
+
         """
         id, name = self.create_component(compname, component_library="Basic Elements\\Circuit\\Passive Elements",
                                          component_name="R", xpos=xpos, ypos=ypos, angle=angle,
@@ -156,7 +156,6 @@ class SimplorerComponents(CircuitComponents):
                                          component_name="C", xpos=xpos, ypos=ypos, angle=angle,
                                          use_instance_id_netlist=use_instance_id_netlist)
 
-
         self.components[id].set_property("C", value)
         return id, name
 
@@ -185,7 +184,7 @@ class SimplorerComponents(CircuitComponents):
             ID of the diode.
         str
             Name of the diode.
-        
+
         """
         id, name = self.create_component(compname,
                                          component_library="Basic Elements\\Circuit\\Semiconductors System Level",
@@ -218,7 +217,7 @@ class SimplorerComponents(CircuitComponents):
             ID of the NPN transistor.
         str
             Name of the NPN transistor.
-        
+
         """
         id, name = self.create_component(compname,
                                          component_library="Basic Elements\\Circuit\\Semiconductors System Level",

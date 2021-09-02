@@ -1,5 +1,5 @@
 """
-This module contains the `Siwave` class.  
+This module contains the `Siwave` class.
 
 The `Siwave` module can be initialized as standalone before launching an app or automatically initialized by an app to the latest installed AEDT version.
 
@@ -28,7 +28,8 @@ elif os.name == 'nt':
         import win32com.client
         _com = 'pywin32'
     else:
-        raise Exception("Error. No win32com.client or Python.NET modules found. They need to be installed.")
+        raise Exception(
+            "Error. No win32com.client or Python.NET modules found. They need to be installed.")
 
 
 # if _pythonver == 3:
@@ -43,7 +44,7 @@ class Siwave:
     Parameters
     ----------
     specified_version : str, optional
-        Version of AEDT to use. The default is ``None``, in which case 
+        Version of AEDT to use. The default is ``None``, in which case
         the active setup is used or the latest installed version is used.
 
     """
@@ -105,7 +106,8 @@ class Siwave:
                 del self._main.oSiwave
 
             if _com == 'pythonnet':
-                self._main.oSiwave = System.Activator.CreateInstance(System.Type.GetTypeFromProgID(version))
+                self._main.oSiwave = System.Activator.CreateInstance(
+                    System.Type.GetTypeFromProgID(version))
 
             elif _com == 'pythonnet_v3': #TODO check if possible to use pythonnet. at the moment the tool open AEDt but doesn't return the wrapper of oApp
                 print("Launching AEDT with Module win32com")
@@ -136,61 +138,58 @@ class Siwave:
         # self._main.oMessenger.add_info_messge(info_msg2, 'Global')
         # self._main.oMessenger.add_info_message(info_msg3, 'Global')
 
-
-
     @property
     def project_name(self):
         """Project name.
-        
+
         Returns
         -------
         str
             Name of the project.
-        
+
         """
         return self._oproject.GetName()
-
 
     @property
     def project_path(self):
         """Project path.
-        
+
         Returns
         -------
         str
             Full absolute path for the project.
-        
+
         """
         return os.path.normpath(self.oSiwave.GetProjectDirectory())
 
     @property
     def project_file(self):
         """Project file.
-        
+
         Returns
         -------
         str
             Full absolute path and name for the project file.
-        
+
         """
         return os.path.join(self.project_path, self.project_name + '.siw')
 
     @property
     def lock_file(self):
         """Lock file.
-        
+
         Returns
         -------
         str
             Full absolute path and name for the project lock file.
-            
+
         """
         return os.path.join(self.project_path, self.project_name + '.siw.lock')
 
     @property
     def results_directory(self):
         """Results directory.
-        
+
         Returns
         -------
         str
@@ -198,11 +197,10 @@ class Siwave:
         """
         return os.path.join(self.project_path, self.project_name + '.siwresults')
 
-
     @property
     def src_dir(self):
         """Source directory.
-        
+
         Returns
         -------
         str
@@ -213,14 +211,13 @@ class Siwave:
     @property
     def pyaedt_dir(self):
         """PyAEDT directory.
-        
+
         Returns
         -------
         str
             Full absolute path to the ``pyaedt`` directory.
         """
         return os.path.realpath(os.path.join(self.src_dir, '..'))
-
 
     @property
     def oproject(self):
@@ -245,7 +242,6 @@ class Siwave:
             self.oSiwave.OpenProject(proj_path)
             self._oproject = self.oSiwave.GetActiveProject()
 
-
     @aedt_exception_handler
     def save_project(self, projectpath=None, projectName=None):
         """Save the project.
@@ -269,16 +265,15 @@ class Siwave:
             self.oproject.Save()
         return True
 
-
     @aedt_exception_handler
     def quit_application(self):
         """Quit the application.
-        
+
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-        
+
         """
         self._main.oSiwave.Quit()
         return True

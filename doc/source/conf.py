@@ -43,29 +43,64 @@ with open(os.path.join(root_path, "pyaedt", "version.txt"), "r") as f:
 # Add any Sphinx_PyAEDT extension module names here, as strings. They can be
 # extensions coming with Sphinx_PyAEDT (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.autodoc',
-              'sphinx.ext.todo',
-              "sphinx.ext.viewcode",
-              "sphinx.ext.autosummary",
-              #"nbsphinx",
-              "sphinx.ext.intersphinx",
-              'sphinx.ext.napoleon',
-              'sphinx.ext.coverage',
-              "sphinx_copybutton",
-              'recommonmark',
-              'sphinx.ext.graphviz',
-              'sphinx.ext.mathjax',
-              'sphinx.ext.inheritance_diagram'
+extensions = [
+    "sphinx.ext.intersphinx",
+    'sphinx.ext.autodoc',
+    'sphinx.ext.todo',
+    "sphinx.ext.viewcode",
+    "sphinx.ext.autosummary",
+    "sphinx.ext.intersphinx",
+    'sphinx.ext.coverage',
+    "sphinx_copybutton",
+    'recommonmark',
+    'sphinx.ext.graphviz',
+    'sphinx.ext.mathjax',
+    'sphinx.ext.inheritance_diagram',
+    'numpydoc',
 ]
 
+# Intersphinx mapping
+intersphinx_mapping = {
+    'python': ('https://docs.python.org/dev', None),
+    'scipy': ('https://docs.scipy.org/doc/scipy/reference', None),
+    'numpy': ('https://numpy.org/devdocs', None),
+    'matplotlib': ('https://matplotlib.org/stable', None),
+    'imageio': ('https://imageio.readthedocs.io/en/stable', None),
+    'pandas': ('https://pandas.pydata.org/pandas-docs/stable', None),
+    'pytest': ('https://docs.pytest.org/en/stable', None),
+}
 
-# return type inline with the description.
-napoleon_use_rtype = False
+# numpydoc configuration
+numpydoc_use_plots = True
+numpydoc_show_class_members = False
+numpydoc_xref_param_type = True
+numpydoc_validate = True
+numpydoc_validation_checks = {
+    "GL06", # Found unknown section
+    "GL07", # Sections are in the wrong order.
+    "GL08", # The object does not have a docstring
+    "GL09", # Deprecation warning should precede extended summary
+    "GL10", # reST directives {directives} must be followed by two colons
 
+    "SS01", # No summary found
+    "SS02", # Summary does not start with a capital letter
+    "SS03", # Summary does not end with a period
+    "SS04", # Summary contains heading whitespaces
+    "SS05", # Summary must start with infinitive verb, not third person
+
+    "RT02", # The first line of the Returns section should contain only the
+            # type, unless multiple values are being returned"
+
+}
+
+numpydoc_validation_exclude = {  # set of regex
+    r'\.AEDTMessageManager.add_message$',  # bad SS05
+}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
+# disable generating the sphinx nested documentation
 if 'PYAEDT_CI_NO_AUTODOC' in os.environ:
     templates_path.clear()
 
@@ -136,7 +171,7 @@ if not os.path.exists(pyvista.FIGURE_PATH):
     os.makedirs(pyvista.FIGURE_PATH)
 
 # gallery build requires AEDT install
-if os.name != 'posix':
+if os.name != 'posix' and 'PYAEDT_CI_NO_EXAMPLES' not in os.environ:
 
     # suppress annoying matplotlib bug
     warnings.filterwarnings(

@@ -38,7 +38,8 @@ class TestClass:
         # set a scratch directory and the environment / test data
         with Scratch(scratch_path) as self.local_scratch:
             try:
-                example_project = os.path.join(local_path, 'example_models', test_project_name + '.aedt')
+                example_project = os.path.join(
+                    local_path, 'example_models', test_project_name + '.aedt')
 
                 self.test_project = self.local_scratch.copyfile(example_project)
                 self.test_src_project = self.local_scratch.copyfile(source_project)
@@ -59,7 +60,8 @@ class TestClass:
 
     def test_02_ImportPCB(self):
         component_name = "RadioBoard1"
-        assert self.aedtapp.create_ipk_3dcomponent_pcb(component_name, link_data, solution_freq, resolution, custom_x_resolution=400, custom_y_resolution=500)
+        assert self.aedtapp.create_ipk_3dcomponent_pcb(
+            component_name, link_data, solution_freq, resolution, custom_x_resolution=400, custom_y_resolution=500)
         assert len(self.aedtapp.native_components) == 1
 
     def test_02A_find_top(self):
@@ -72,7 +74,8 @@ class TestClass:
         # padding = [0,0,0,0,0,0]
         # self.aedtapp.modeler.edit_region_dimensions(padding)
         self.aedtapp.create_meshregion_component()
-        pcb_mesh_region = self.aedtapp.mesh.MeshRegion(self.aedtapp.mesh.omeshmodule, [1, 1, 1], "mm")
+        pcb_mesh_region = self.aedtapp.mesh.MeshRegion(
+            self.aedtapp.mesh.omeshmodule, [1, 1, 1], "mm")
         pcb_mesh_region.name = "PCB_Region"
         pcb_mesh_region.UserSpecifiedSettings = True
         pcb_mesh_region.MaxElementSizeX = 2
@@ -105,12 +108,14 @@ class TestClass:
                        "Rectangle3_1", "Rectangle3_1_1", "Rectangle3_1_2", "Rectangle3_1_3", "Rectangle4", "Rectangle5",
                        "Rectangle6", "Rectangle7"]
         param_list = []
-        assert self.aedtapp.assign_em_losses("uUSB", "Setup1", "LastAdaptive", "2.5GHz", surface_list, HFSSpath, param_list, object_list)
+        assert self.aedtapp.assign_em_losses(
+            "uUSB", "Setup1", "LastAdaptive", "2.5GHz", surface_list, HFSSpath, param_list, object_list)
 
     def test_07_ExportStepForWB(self):
         file_path = self.local_scratch.path
         file_name = "WBStepModel"
-        assert self.aedtapp.export3DModel(file_name, file_path, ".step", [], ["Region","Component_Region"])
+        assert self.aedtapp.export3DModel(file_name, file_path, ".step", [], [
+                                          "Region","Component_Region"])
 
     def test_08_Setup(self):
         setup_name = "DomSetup"
@@ -172,12 +177,14 @@ class TestClass:
 
     def test_16_create_output_variable(self):
         self.aedtapp["Variable1"] = "0.5"
-        assert self.aedtapp.create_output_variable("OutputVariable1", "abs(Variable1)") # test creation
-        assert self.aedtapp.create_output_variable("OutputVariable1", "asin(Variable1)") # test update
+        assert self.aedtapp.create_output_variable(
+            "OutputVariable1", "abs(Variable1)") # test creation
+        assert self.aedtapp.create_output_variable(
+            "OutputVariable1", "asin(Variable1)") # test update
 
     def test_17_analyze(self):
         self.aedtapp.analyze_nominal()
-    
+
     def test_17_get_output_variable(self):
         value = self.aedtapp.get_output_variable("OutputVariable1")
         assert value == 0.5235987755982988
@@ -187,15 +194,18 @@ class TestClass:
 
     def test_19_eval_htc(self):
         box = [i.id for i in self.aedtapp.modeler.primitives["box"].faces]
-        assert os.path.exists(self.aedtapp.eval_surface_quantity_from_field_summary(box, savedir=scratch_path))
+        assert os.path.exists(
+            self.aedtapp.eval_surface_quantity_from_field_summary(box, savedir=scratch_path))
 
     def test_20_eval_tempc(self):
-        assert os.path.exists(self.aedtapp.eval_volume_quantity_from_field_summary(["box"], "Temperature", savedir=scratch_path))
+        assert os.path.exists(self.aedtapp.eval_volume_quantity_from_field_summary(
+            ["box"], "Temperature", savedir=scratch_path))
 
     def test_21_ExportFLDFil(self):
         object_list = "box"
         fld_file = os.path.join(scratch_path, 'test_fld.fld')
-        self.aedtapp.post.export_field_file("Temp", self.aedtapp.nominal_sweep, [], filename=fld_file, obj_list=object_list)
+        self.aedtapp.post.export_field_file("Temp", self.aedtapp.nominal_sweep, [
+                                            ], filename=fld_file, obj_list=object_list)
         assert os.path.exists(fld_file)
 
     def test_22_create_source_blocks_from_list(self):
@@ -207,18 +217,22 @@ class TestClass:
     def test_23_create_network_blocks(self):
         self.aedtapp.modeler.primitives.create_box([1, 2, 3], [10, 10, 10], "network_box", "copper")
         self.aedtapp.modeler.primitives.create_box([4, 5, 6], [5, 5, 5], "network_box2", "copper")
-        result = self.aedtapp.create_network_blocks([["network_box", 20, 10, 3], ["network_box2", 4, 10, 3]], self.aedtapp.GravityDirection.ZNeg, 1.05918, False)
-        assert len(result[0].props["Nodes"]) == 3 and len(result[1].props["Nodes"]) == 3 # two face nodes plus one internal
+        result = self.aedtapp.create_network_blocks([["network_box", 20, 10, 3], [
+                                                    "network_box2", 4, 10, 3]], self.aedtapp.GravityDirection.ZNeg, 1.05918, False)
+        assert len(result[0].props["Nodes"]) == 3 and len(
+            result[1].props["Nodes"]) == 3 # two face nodes plus one internal
 
     def test_24_get_boundary_property_value(self):
-        assert self.aedtapp.get_property_value("BoundarySetup:box2", "Total Power", "Boundary") == "2W"
+        assert self.aedtapp.get_property_value(
+            "BoundarySetup:box2", "Total Power", "Boundary") == "2W"
 
     def test_25_copy_solid_bodies(self):
         project_name = "IcepakCopiedProject"
         design_name = "IcepakCopiedBodies"
         new_design = Icepak(projectname=project_name, designname=design_name)
         assert new_design.copy_solid_bodies_from(self.aedtapp)
-        assert sorted(new_design.modeler.solid_bodies) == ["Region", "box", "box2", "box3", "network_box", "network_box2"]
+        assert sorted(new_design.modeler.solid_bodies) == [
+                      "Region", "box", "box2", "box3", "network_box", "network_box2"]
         new_design.delete_design(design_name)
         new_design.close_project(project_name)
 
@@ -236,7 +250,8 @@ class TestClass:
 
     def test_33_create_region(self):
         self.aedtapp.modeler.primitives.delete("Region")
-        assert isinstance(self.aedtapp.modeler.primitives.create_region([100,100,100,100,100,100]).id, int)
+        assert isinstance(self.aedtapp.modeler.primitives.create_region(
+            [100,100,100,100,100,100]).id, int)
 
     def test_34_automatic_mesh_pcb(self):
         assert self.aedtapp.mesh.automatic_mesh_pcb()
@@ -247,11 +262,14 @@ class TestClass:
 
     def test_create_source(self):
         self.aedtapp.modeler.primitives.create_box([0,0,0], [20,20,20], name="boxSource")
-        assert self.aedtapp.create_source_power(self.aedtapp.modeler.primitives["boxSource"].top_face.id, input_power="2W")
-        assert self.aedtapp.create_source_power(self.aedtapp.modeler.primitives["boxSource"].bottom_face.id, thermal_condtion="Fixed Temperature", temperature="28cel")
+        assert self.aedtapp.create_source_power(
+            self.aedtapp.modeler.primitives["boxSource"].top_face.id, input_power="2W")
+        assert self.aedtapp.create_source_power(
+            self.aedtapp.modeler.primitives["boxSource"].bottom_face.id, thermal_condtion="Fixed Temperature", temperature="28cel")
 
     def test_surface_monitor(self):
-        self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.CoordinateSystemPlane.XYPlane, [0,0,0], [10,20], name="surf1")
+        self.aedtapp.modeler.primitives.create_rectangle(
+            self.aedtapp.CoordinateSystemPlane.XYPlane, [0,0,0], [10,20], name="surf1")
         assert self.aedtapp.assign_surface_monitor("surf1")
 
     def test_poin_monitor(self):

@@ -45,7 +45,7 @@ class EdbNets(object):
 
     @property
     def db(self):
-        """ """
+        """Db object."""
         return self.parent.db
 
     @property
@@ -66,7 +66,7 @@ class EdbNets(object):
     @property
     def nets(self):
         """Nets.
-        
+
         Returns
         -------
         dict
@@ -78,9 +78,9 @@ class EdbNets(object):
     @property
     def signal_nets(self):
         """Signal nets.
-        
-        Return
-        ------
+
+        Returns
+        -------
         dict
             Dictionary of signal nets.
         """
@@ -90,7 +90,7 @@ class EdbNets(object):
     @property
     def power_nets(self):
         """Power nets.
-        
+
         Returns
         -------
         dict
@@ -118,7 +118,7 @@ class EdbNets(object):
 
     def get_dcconnected_net_list(self, ground_nets=["GND"]):
         """Retrieve the nets connected to DC through inductors.
-        
+
         .. note::
            Only inductors are considered.
 
@@ -130,7 +130,7 @@ class EdbNets(object):
         Returns
         -------
         list
-            List of nets connected to DC through inductors. 
+            List of nets connected to DC through inductors.
         """
         temp_list = []
         for refdes, comp_obj in self.parent.core_components.inductors.items():
@@ -167,7 +167,7 @@ class EdbNets(object):
         power_net_name : str
             Name of the power net.
         ground_nets :
-            
+
 
         Returns
         -------
@@ -213,6 +213,7 @@ class EdbNets(object):
 
     @aedt_exception_handler
     def get_net_by_name(self, net_name):
+        """Find a net by name."""
         edb_net = self._edb.Cell.Net.FindByName(self._active_layout, net_name)
         if edb_net is not None:
             return edb_net
@@ -220,7 +221,7 @@ class EdbNets(object):
     @aedt_exception_handler
     def delete_nets(self, netlist):
         """Delete one or more nets from EDB.
-       
+
         Parameters
         ----------
         netlist : str or list
@@ -233,7 +234,7 @@ class EdbNets(object):
 
         Examples
         --------
-        
+
         >>> deleted_nets = edb_core.core_nets.delete_nets(["Net1","Net2"])
         """
         if type(netlist) is str:
@@ -251,6 +252,7 @@ class EdbNets(object):
 
         return nets_deleted
 
+    @aedt_exception_handler
     def find_or_create_net(self, net_name=''):
         """Find or create the net with the given name in the layout.
 
@@ -269,3 +271,27 @@ class EdbNets(object):
         if net.IsNull():
             net = self._edb.Cell.Net.Create(self._active_layout, net_name)
         return net
+
+    @aedt_exception_handler
+    def is_net_in_component(self, component_name, net_name):
+        """Check if a net belongs to a component.
+
+        Parameters
+        ----------
+        component_name : str
+            Name of the component.
+        net_name : str
+            Name of the net.
+
+        Returns
+        -------
+        bool
+            ``True`` if the net is found in component pins.
+
+        """
+        if component_name not in self.parent.core_components.components:
+            return False
+        for net in self.parent.core_components.components[component_name].nets:
+            if net_name == net.GetName():
+                return True
+        return False

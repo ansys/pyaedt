@@ -12,13 +12,13 @@ import os
 
 class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
     """Extracts a 2D or 3D field analysis.
-    
+
     Parameters
     ----------
     FieldAnalysis3D :
-    
+
     FieldAnalysis2D :
-    
+
     object :
 
 
@@ -86,7 +86,7 @@ class Q3d(QExtractor, object):
         ``None``, in which case the default type is applied.
     setup_name : str, optional
         Name of the setup to use as the nominal. The default is
-        ``None``, in which case the active setup is used or nothing 
+        ``None``, in which case the active setup is used or nothing
         is used.
     specified_version: str, optional
         Version of AEDT to use. The default is ``None``, in which case
@@ -110,8 +110,9 @@ class Q3d(QExtractor, object):
 
     >>> from pyaedt import Q3d
     >>> app = Q3d()
-    
+
     """
+
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
                  specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=True):
         QExtractor.__init__(self, "Q3D Extractor", projectname, designname, solution_type, setup_name,
@@ -125,16 +126,16 @@ class Q3d(QExtractor, object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-        
+
         """
         self.oboundary.AutoIdentifyNets()
         return True
 
     @aedt_exception_handler
     def assign_source_to_objectface(self, object_name, axisdir=0, source_name=None, net_name=None):
-        """Generate a source on a face of an object. 
-        
-        The face ID is selected based on ``axisdir``. It is the face that 
+        """Generate a source on a face of an object.
+
+        The face ID is selected based on ``axisdir``. It is the face that
         has the maximum/minimum in this axis direction.
 
         Parameters
@@ -150,7 +151,7 @@ class Q3d(QExtractor, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class: `pyaedt.modules.Boundary.BoundaryObject`
             Source object.
 
         """
@@ -169,7 +170,6 @@ class Q3d(QExtractor, object):
                 return bound
         return False
 
-
     @aedt_exception_handler
     def assign_source_to_sheet(self, sheetname, objectname=None, netname=None, sourcename=None):
         """Generate a source on a sheet.
@@ -187,7 +187,7 @@ class Q3d(QExtractor, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class: `pyaedt.modules.Boundary.BoundaryObject`
             Source object.
 
         """
@@ -200,7 +200,8 @@ class Q3d(QExtractor, object):
         props["TerminalType"] = "ConstantVoltage"
         if netname:
             props["Net"] = netname
-        props = OrderedDict({"Objects": sheetname, "TerminalType": "ConstantVoltage", "Net": netname})
+        props = OrderedDict(
+            {"Objects": sheetname, "TerminalType": "ConstantVoltage", "Net": netname})
         bound = BoundaryObject(self, sourcename, props, "Source")
         if bound.create():
             self.boundaries.append(bound)
@@ -210,8 +211,8 @@ class Q3d(QExtractor, object):
     @aedt_exception_handler
     def assign_sink_to_objectface(self, object_name, axisdir=0, sink_name=None, net_name=None):
         """Generate a sink on a face of an object.
-        
-        The face ID is selected based on ``axisdir``. It is the face that has 
+
+        The face ID is selected based on ``axisdir``. It is the face that has
         the maximum/minimum in this axis direction.
 
         Parameters
@@ -227,7 +228,7 @@ class Q3d(QExtractor, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class: `pyaedt.modules.Boundary.BoundaryObject`
             Sink object.
 
         """
@@ -248,8 +249,8 @@ class Q3d(QExtractor, object):
 
     @aedt_exception_handler
     def assign_sink_to_sheet(self, sheetname, objectname=None, netname=None, sinkname=None):
-        """Generate a sink on a sheet.  
-        
+        """Generate a sink on a sheet.
+
         Parameters
         ----------
         sheetname :
@@ -263,7 +264,7 @@ class Q3d(QExtractor, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class: `pyaedt.modules.Boundary.BoundaryObject`
             Source object.
 
         """
@@ -277,7 +278,8 @@ class Q3d(QExtractor, object):
         if netname:
             props["Net"] = netname
 
-        props = OrderedDict({"Objects": sheetname, "TerminalType": "ConstantVoltage", "Net": netname})
+        props = OrderedDict(
+            {"Objects": sheetname, "TerminalType": "ConstantVoltage", "Net": netname})
         bound = BoundaryObject(self, sinkname, props, "Sink")
         if bound.create():
             self.boundaries.append(bound)
@@ -293,10 +295,11 @@ class Q3d(QExtractor, object):
         setupname : str
             Name of the setup that is attached to the sweep.
         units : str
-            Unit of the frequency. For example, ``"MHz"`` or ``"GHz"``. The default is ``"GHz"`.
+            Unit of the frequency. For example, ``"MHz"`` or
+            ``"GHz"``. The default is ``"GHz"``.
         freqstart :
             Starting frequency of the sweep.
-        freqstop : 
+        freqstop :
             Stopping frequency of the sweep.
         freqstep : optional
             Frequency step point.
@@ -307,7 +310,7 @@ class Q3d(QExtractor, object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-        
+
         """
         if sweepname is None:
             sweepname = generate_unique_name("Sweep")
@@ -319,7 +322,8 @@ class Q3d(QExtractor, object):
                 setupdata = i
                 for sw in setupdata.sweeps:
                     if sweepname == sw.name:
-                        self._messenger.add_warning_message("Sweep {} is already present. Rename and retry.".format(sweepname))
+                        self._messenger.add_warning_message(
+                            "Sweep {} is already present. Rename and retry.".format(sweepname))
                         return False
                 sweepdata = setupdata.add_sweep(sweepname, "Discrete")
                 sweepdata.props["RangeStart"] = str(freqstart) + "GHz"
@@ -365,7 +369,7 @@ class Q3d(QExtractor, object):
 
         Returns
         -------
-        SweepQ3D:
+        SweepQ3D
             Sweep option.
         """
         if sweepname is None:
@@ -378,7 +382,8 @@ class Q3d(QExtractor, object):
                 setupdata = i
                 for sw in setupdata.sweeps:
                     if sweepname == sw.name:
-                        self._messenger.add_warning_message("Sweep {} already present. Please rename and retry".format(sweepname))
+                        self._messenger.add_warning_message(
+                            "Sweep {} already present. Please rename and retry".format(sweepname))
                         return False
                 sweepdata = setupdata.add_sweep(sweepname, "Discrete")
                 sweepdata.props["RangeStart"] = str(freqstart)+"GHz"
@@ -462,7 +467,6 @@ class Q2d(QExtractor, object):
     def dim(self):
         """Dimension."""
         return self.modeler.dimension
-
 
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
                  specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):

@@ -19,10 +19,10 @@ class FieldAnalysis3DLayout(Analysis):
     projectname : str, optional
         Name of the project to select or the full path to the project
         or AEDTZ archive to open. The default is ``None``, in which
-        case an attempt is made to get an active project. If no 
+        case an attempt is made to get an active project. If no
         projects are present, an empty project is created.
     designname : str, optional
-        Name of the design to select. The default is ``None``, in 
+        Name of the design to select. The default is ``None``, in
         which case an attempt is made to get an active design. If no
         designs are present, an empty design is created.
     solution_type : str, optional
@@ -30,14 +30,14 @@ class FieldAnalysis3DLayout(Analysis):
         ``None``, in which case the default type is applied.
     setup_name : str, optional
         Name of the setup to use as the nominal. The default is
-        ``None``, in which case the active setup is used or 
+        ``None``, in which case the active setup is used or
         nothing is used.
     specified_version: str, optional
         Version of AEDT  to use. The default is ``None``, in which case
         the active version or latest installed version is used.
     NG : bool, optional
-        Whether to run AEDT in the non-graphical mode. The default 
-        is ``False``, in which case AEDT is launched in the graphical mode.  
+        Whether to run AEDT in the non-graphical mode. The default
+        is ``False``, in which case AEDT is launched in the graphical mode.
     AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
@@ -45,10 +45,11 @@ class FieldAnalysis3DLayout(Analysis):
     release_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
     student_version : bool, optional
-        Whether to enable the student version of AEDT. The default 
+        Whether to enable the student version of AEDT. The default
         is ``False``.
-        
+
     """
+
     def __init__(self, application, projectname, designname, solution_type, setup_name=None,
                  specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):
 
@@ -64,12 +65,12 @@ class FieldAnalysis3DLayout(Analysis):
     @property
     def oboundary(self):
         """Boundary.
-        
+
         Returns
         -------
         AEDT object
             Boundaries module object.
-        
+
         """
         return self._odesign.GetModule("Excitations")
 
@@ -79,25 +80,25 @@ class FieldAnalysis3DLayout(Analysis):
 
         Returns
         -------
-        :class:`pyaedt.modules.Mesh3DLayout.Mesh`
+        :class: `pyaedt.modules.Mesh3DLayout.Mesh`
         """
         return self._mesh
 
     @property
     def get_excitations_name(self):
         """Excitation names.
-        
+
         Returns
         -------
         list
             list of all excitation
-        
+
         """
         return list(self.oboundary.GetAllPortsList())
 
     @property
     def get_all_sparameter_list(self, excitation_names=[]):
-        """List of all S parameters for a list of excitations. 
+        """List of all S parameters for a list of excitations.
 
         Parameters
         ----------
@@ -105,13 +106,13 @@ class FieldAnalysis3DLayout(Analysis):
             List of excitations. The default is ``[]``, in which case
             the S parameters for all excitations are to be provided.
             For example, ``["1", "2"]``.
-            
+
         Returns
         -------
         list
-            List of strings representing the S parameters of the excitations. 
+            List of strings representing the S parameters of the excitations.
             For example, ``["S(1, 1)", "S(1, 2)", S(2, 2)]``.
-      
+
         """
         if not excitation_names:
             excitation_names = self.get_excitations_name
@@ -126,13 +127,13 @@ class FieldAnalysis3DLayout(Analysis):
 
     @aedt_exception_handler
     def get_all_return_loss_list(self, excitation_names=[], excitation_name_prefix=''):
-        """Retrieve a list of all return losses for a list of excitations. 
+        """Retrieve a list of all return losses for a list of excitations.
 
         Parameters
         ----------
         excitation_names : list, optional
             List of excitations. The default is ``[]``, in which case
-            the return losses for all excitations are to be provided. 
+            the return losses for all excitations are to be provided.
             For example, ``["1", "2"]``.
         excitation_name_prefix : string, optional
              Prefix to add to the excitation names. The default is ``""``.
@@ -141,13 +142,14 @@ class FieldAnalysis3DLayout(Analysis):
         -------
         list
             List of strings representing the return losses of the excitations.
-            For example, ``["S(1, 1)", "S(2, 2)"]``. 
-       
+            For example, ``["S(1, 1)", "S(2, 2)"]``.
+
         """
         if not excitation_names:
             excitation_names = self.get_excitations_name
         if excitation_name_prefix:
-            excitation_names = [i for i in excitation_names if excitation_name_prefix.lower() in i.lower()]
+            excitation_names = [
+                i for i in excitation_names if excitation_name_prefix.lower() in i.lower()]
         spar = []
         for i in excitation_names:
             spar.append("S({},{})".format(i, i))
@@ -155,14 +157,14 @@ class FieldAnalysis3DLayout(Analysis):
 
     @aedt_exception_handler
     def get_all_insertion_loss_list(self, trlist=[], reclist=[], tx_prefix='', rx_prefix=''):
-        """Retrieve a list of all insertion losses from two lists of excitations (driver and receiver). 
-        
+        """Retrieve a list of all insertion losses from two lists of excitations (driver and receiver).
+
         Parameters
         ----------
         trlist : list, optional
             List of drivers. The default is ``[]``. For example, ``["1"]``.
         reclist : list, optional
-            List of receivers. The default is ``[]``. The number of drivers equals 
+            List of receivers. The default is ``[]``. The number of drivers equals
             the number of receivers. For example, ``["2"]``.
         tx_prefix : str, optional
             Prefix to add to driver names. For example, ``"DIE"``. The default is ``""``.
@@ -191,7 +193,7 @@ class FieldAnalysis3DLayout(Analysis):
     @aedt_exception_handler
     def get_next_xtalk_list(self, trlist=[], tx_prefix=""):
         """Retrieve a list of all the near end XTalks from a list of excitations (driver and receiver).
-        
+
         Parameters
         ----------
         trlist : list, optional
@@ -218,8 +220,8 @@ class FieldAnalysis3DLayout(Analysis):
 
     @aedt_exception_handler
     def get_fext_xtalk_list(self, trlist=[], reclist=[], tx_prefix='', rx_prefix='', skip_same_index_couples=True):
-        """Retrieve a list of all the far end XTalks from two lists of exctitations (driver and receiver).      
-       
+        """Retrieve a list of all the far end XTalks from two lists of exctitations (driver and receiver).
+
         Parameters
         ----------
         trlist : list, optional
@@ -232,16 +234,16 @@ class FieldAnalysis3DLayout(Analysis):
             Prefix to add to the receiver names. For examples, ``"BGA"``. The default is ``""``.
         skip_same_index_couples : bool, optional
             Whether to skip driver and receiver couples with the same index position.
-            The default is ``True``, in which case the drivers and receivers 
-            with the same index position are considered insertion losses and 
+            The default is ``True``, in which case the drivers and receivers
+            with the same index position are considered insertion losses and
             excluded from the list.
 
         Returns
         -------
         list
             List of strings representing the far end XTalks of the excitations.
-            For example, ``["S(1, 4)", "S(2, 3)"]``. 
-        
+            For example, ``["S(1, 4)", "S(2, 3)"]``.
+
         """
         fext = []
         if not trlist:
@@ -290,12 +292,12 @@ class FieldAnalysis3DLayout(Analysis):
     @property
     def existing_analysis_setups(self):
         """Existing analysis setups in the design.
-        
+
         Returns
         -------
         list
             List of names of all analysis setups in the design.
-       
+
         """
         oModule = self.odesign.GetModule("SolveSetups")
         setups = list(oModule.GetSetups())
@@ -317,7 +319,7 @@ class FieldAnalysis3DLayout(Analysis):
 
         Returns
         -------
-        :class:`pyaedt.modules.SolveSetup.Setup3DLayout`
+        :class: `pyaedt.modules.SolveSetup.Setup3DLayout`
 
         """
         if setuptype is None:
@@ -347,7 +349,7 @@ class FieldAnalysis3DLayout(Analysis):
 
         Returns
         -------
-        :class:`pyaedt.modules.SolveSetup.Setup3DLayout`
+        :class: `pyaedt.modules.SolveSetup.Setup3DLayout`
             Setup object.
 
         """

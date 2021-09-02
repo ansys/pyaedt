@@ -12,18 +12,18 @@ from collections import OrderedDict, defaultdict
 
 class Mesh3DOperation(object):
     """Mesh3DOperation class.
-    
+
     Parameters
     ----------
     parent :
-    
+
     hfss_setup_name : str
         Name of the HFSS setup.
     name :
-    
+
     props : dict
-        Dictionary of the properites. 
-    
+        Dictionary of the properites.
+
     """
 
     def __init__(self, parent, hfss_setup_name, name, props):
@@ -46,7 +46,7 @@ class Mesh3DOperation(object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-            
+
         """
         if not props:
             props = self.props
@@ -57,12 +57,12 @@ class Mesh3DOperation(object):
     @aedt_exception_handler
     def create(self):
         """Create a mesh.
-        
+
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-        
+
         """
         self._parent.omeshmodule.AddMeshOperation(self.hfss_setup_name, self._get_args())
         return True
@@ -70,12 +70,12 @@ class Mesh3DOperation(object):
     @aedt_exception_handler
     def update(self):
         """Update the mesh.
-        
+
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-        
+
         """
         self._parent.omeshmodule.EditMeshOperation(self.hfss_setup_name, self.name, self._get_args())
         return True
@@ -83,25 +83,24 @@ class Mesh3DOperation(object):
     @aedt_exception_handler
     def delete(self):
         """Delete the mesh.
-        
+
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-            
+
         """
         self._parent.omeshmodule.DeleteMeshOperation(self.hfss_setup_name, self.name,)
 
         return True
 
 
-
 class Mesh(object):
     """Mesh class.
-    
+
     This class provides the main AEDT mesh functionaility. The inherited class
     `AEDTConfig` contains all `_desktop` hierarchical calls needed by this class.
-   
+
     Parameters
     ----------
     parent :
@@ -113,19 +112,18 @@ class Mesh(object):
         self.id = 0
         self.meshoperations = self._get_design_mesh_operations()
 
-
         pass
 
     @property
     def omeshmodule(self):
         """Mesh module.
-        
+
         Returns
         -------
         type
             Mesh module object.
         """
-        
+
         return self.odesign.GetModule("SolveSetups")
 
     @property
@@ -146,7 +144,7 @@ class Mesh(object):
     @aedt_exception_handler
     def delete_mesh_operations(self, setup_name, mesh_name):
         """Remove mesh operations from a setup.
-       
+
         Parameters
         ----------
         setup_name : str
@@ -158,7 +156,7 @@ class Mesh(object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-            
+
         """
         for el in self.meshoperations:
             if el.hfss_setup_name == setup_name and el.name == mesh_name:
@@ -170,12 +168,12 @@ class Mesh(object):
     @aedt_exception_handler
     def _get_design_mesh_operations(self):
         """Retrieve design mesh operations.
-        
+
         Returns
         -------
         type
             Mesh operations object.
-        
+
         """
         meshops = []
         try:
@@ -197,25 +195,25 @@ class Mesh(object):
         setupname : str
             Name of the HFSS setup to apply.
         layer_name : str
-           Name of the layer.   
+           Name of the layer.
         net_name : str
            Name of the net.
         isinside : bool, optional
             Whether the mesh length is inside the selection. The default is ``True``.
         maxlength : float, optional
-            Maximum length of the element. The default is ``1`` When ``None``, this 
-            parameter is disabled. 
+            Maximum length of the element. The default is ``1`` When ``None``, this
+            parameter is disabled.
         maxel : int, optional
-            Maximum number of elements. The default is ``1000``. When ``None``, this 
-            parameter is disabled. 
+            Maximum number of elements. The default is ``1000``. When ``None``, this
+            parameter is disabled.
         meshop_name : str, optional
             Name of the mesh operation. The default is ``None``.
-            
+
         Returns
         -------
         type
             Mesh operation object.
-        
+
         """
         if meshop_name:
             for el in self.meshoperations:
@@ -257,7 +255,6 @@ class Mesh(object):
         self.meshoperations.append(mop)
         return mop
 
-
     @aedt_exception_handler
     def assign_skin_depth(self, setupname, layer_name, net_name, skindepth=1, maxelements=None, triangulation_max_length=0.1, numlayers="2",
                           meshop_name=None):
@@ -286,7 +283,7 @@ class Mesh(object):
         -------
         type
             Mesh operation object.
-        
+
         """
         if meshop_name:
             for el in self.meshoperations:

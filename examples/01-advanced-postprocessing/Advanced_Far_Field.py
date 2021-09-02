@@ -1,7 +1,7 @@
 """
 Advanced Far Field Postprocessing Example
 -----------------------------------------
-This example shows how to use advanced postprocessing functions to create plots 
+This example shows how to use advanced postprocessing functions to create plots
 using Matplotlib without opening the HFSS user interface.
 This examples runs only on Windows using CPython.
 """
@@ -138,7 +138,8 @@ def ff_calc(x=0, y=0, qty='rETotal', dB=True):
     all_qtys = {}
     all_qtys['rEPhi'] = rEphi_fields
     all_qtys['rETheta'] = rEtheta_fields
-    all_qtys['rETotal'] = np.sqrt(np.power(np.abs(rEphi_fields), 2) + np.power(np.abs(rEtheta_fields), 2))
+    all_qtys['rETotal'] = np.sqrt(np.power(np.abs(rEphi_fields), 2) + \
+                                  np.power(np.abs(rEtheta_fields), 2))
 
     pin = np.sum(w)
     print(str(pin))
@@ -177,11 +178,8 @@ ff_calc()
 #          y=widgets.FloatSlider(value=0, min=-180, max=180, step=1))
 
 
-
 vals = hfss.post.get_far_field_data(setup_sweep_name=hfss.nominal_sweep, expression="RealizedGainTotal",
                                     domain="Elevation")
-
-
 
 
 def Polar_Plot(Phase=0, Freq=76):

@@ -16,7 +16,14 @@ jobs:
         with:
           python-version: 3.8
 
-      - name: Style
+      - name: Install style requirements
         run: |
           pip install -r requirements_style.txt --disable-pip-version-check
-          make
+
+      - name: Codespell
+        run: |
+          make codespell
+
+      - name: flake8
+        run: |
+          make flake8

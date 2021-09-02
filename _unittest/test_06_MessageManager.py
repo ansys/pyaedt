@@ -42,6 +42,7 @@ class TestClass:
 
             self.aedtapp = Hfss()
             msg.clear_messages(level=3)
+
     def teardown_class(self):
 
         assert self.aedtapp.close_project()

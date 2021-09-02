@@ -12,7 +12,8 @@ from pyaedt.generic.general_methods import isclose
 
 class TestClass(BasisTest):
     def setup_class(self):
-        BasisTest.setup_class(self, project_name="test_primitives", design_name="2D_Primitives", application=Maxwell2d)
+        BasisTest.setup_class(self, project_name="test_primitives",
+                              design_name="2D_Primitives", application=Maxwell2d)
 
     def test_01_model_units(self):
         model_units = self.aedtapp.modeler.model_units
@@ -25,9 +26,9 @@ class TestClass(BasisTest):
         assert len(bounding) == 6
 
     def test_03_objects(self):
-            assert self.aedtapp.modeler.oeditor
-            assert self.aedtapp.modeler.odefinition_manager
-            assert self.aedtapp.modeler.omaterial_manager
+        assert self.aedtapp.modeler.oeditor
+        assert self.aedtapp.modeler.odefinition_manager
+        assert self.aedtapp.modeler.omaterial_manager
 
     def test_create_rectangle(self):
         rect1 = self.aedtapp.modeler.primitives.create_rectangle([0, -2, -2], [3, 4])
@@ -84,8 +85,6 @@ class TestClass(BasisTest):
         assert pg2.model
         assert pg2.material_name == "copper"
         assert isclose(pg2.faces[0].area, 5.196152422706631)
-
-
 
 
 '''

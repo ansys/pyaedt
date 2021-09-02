@@ -17,6 +17,7 @@ class Modeler3DLayout(Modeler):
         Inherited parent object.
 
     """
+
     def __init__(self, parent):
         self._parent = parent
         self._messenger.add_info_message("Loading Modeler.")
@@ -48,7 +49,7 @@ class Modeler3DLayout(Modeler):
 
         Returns
         -------
-        :class:`pyaedt.Edb`
+        :class: `pyaedt.Edb`
              EDB.
 
         """
@@ -108,7 +109,6 @@ class Modeler3DLayout(Modeler):
         """Bounding box."""
         return self.oeditor.GetModelBoundingBox()
 
-
     @aedt_exception_handler
     def colinear_heal(self, selection, tolerance=0.1):
         """Remove small edges of one or more primitives.
@@ -142,8 +142,6 @@ class Modeler3DLayout(Modeler):
         self.oeditor.Heal(["NAME:Repair", "Selection:=", selection, "Type:=", "Colinear", "Tol:=",
                            self.primitives.arg_with_dim(tolerance)])
         return True
-
-
 
     @aedt_exception_handler
     def expand(self, object_to_expand,  size=1, expand_type="ROUND", replace_original=False):
@@ -192,7 +190,6 @@ class Modeler3DLayout(Modeler):
             return new_geom_names[0]
         return object_to_expand
 
-
     @aedt_exception_handler
     def import_cadence_brd(self, brd_filename, edb_path=None, edb_name=None):
         """Import a Cadence board.
@@ -239,7 +236,7 @@ class Modeler3DLayout(Modeler):
 
         Parameters
         ----------
-        value :      
+        value :
 
         Returns
         -------

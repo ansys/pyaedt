@@ -24,7 +24,8 @@ class TestClass():
     def setup_class(self):
         with Scratch(scratch_path) as self.local_scratch:
             self.test_project = self.local_scratch.copyfile(example_project)
-            self.aedtapp = Hfss(projectname=self.test_project, specified_version=desktop_version, AlwaysNew=new_thread, NG=non_graphical)
+            self.aedtapp = Hfss(projectname=self.test_project,
+                                specified_version=desktop_version, AlwaysNew=new_thread, NG=non_graphical)
             #self.aedtapp.save_project()
             #self.cache = DesignCache(self.aedtapp)
 
@@ -67,10 +68,8 @@ class TestClass():
     def test_04_projectname(self):
         assert self.aedtapp.project_name == "Coax_HFSS"
 
-
     def test_05_lock(self):
         assert os.path.exists(self.aedtapp.lock_file)
-
 
     def test_05_resultsfolder(self):
         assert os.path.exists(self.aedtapp.results_directory)
@@ -81,7 +80,6 @@ class TestClass():
         assert self.aedtapp.solution_type == "DrivenTerminal"
         self.aedtapp.solution_type = "DrivenModal"
 
-
     def test_06_libs(self):
         assert os.path.exists(self.aedtapp.personallib)
         assert os.path.exists(self.aedtapp.userlib)
@@ -89,7 +87,6 @@ class TestClass():
         assert os.path.exists(self.aedtapp.temp_directory)
         assert os.path.exists(self.aedtapp.toolkit_directory)
         assert os.path.exists(self.aedtapp.working_directory)
-
 
     def test_08_objects(self):
         print(self.aedtapp.oboundary)
@@ -106,7 +103,8 @@ class TestClass():
         ambient_temp = 22
         objects = [o for o in self.aedtapp.modeler.primitives.solid_names
                     if self.aedtapp.modeler.primitives[o].model]
-        assert self.aedtapp.modeler.set_objects_temperature(objects, ambient_temp=ambient_temp, create_project_var=True)
+        assert self.aedtapp.modeler.set_objects_temperature(
+            objects, ambient_temp=ambient_temp, create_project_var=True)
 
     def test_10_change_material_override(self):
         assert self.aedtapp.change_material_override(True)
@@ -114,20 +112,24 @@ class TestClass():
 
     def test_11_change_validation_settings(self):
         assert self.aedtapp.change_validation_settings()
-        assert self.aedtapp.change_validation_settings(ignore_unclassified=True, skip_intersections= True)
+        assert self.aedtapp.change_validation_settings(
+            ignore_unclassified=True, skip_intersections= True)
 
     def test_12_variables(self):
         self.aedtapp["test"] = "1mm"
         val = self.aedtapp["test"]
         assert val == "1.0mm"
+        del self.aedtapp["test"]
+        assert 'test' not in self.aedtapp.variable_manager.variables
 
     def test_13_designs(self):
-        assert self.aedtapp._insert_design("HFSS", design_name="TestTransient", solution_type="Transient Network") == "TestTransient"
+        assert self.aedtapp._insert_design(
+            "HFSS", design_name="TestTransient", solution_type="Transient Network") == "TestTransient"
         self.aedtapp.delete_design("TestTransient")
 
-
     def test_14_get_nominal_variation(self):
-        assert (self.aedtapp.get_nominal_variation() != [] or self.aedtapp.get_nominal_variation() is not None)
+        assert (self.aedtapp.get_nominal_variation() != []
+                or self.aedtapp.get_nominal_variation() is not None)
 
     def test_15a_duplicate_design(self):
         self.aedtapp.duplicate_design("myduplicateddesign")
@@ -150,11 +152,10 @@ class TestClass():
         self.aedtapp.rename_design("mydesign")
         assert self.aedtapp.design_name == "mydesign"
 
-
     def test_17_export_proj_var(self):
-        self.aedtapp.export_variables_to_csv(os.path.join(self.local_scratch.path,"my_variables.csv"))
+        self.aedtapp.export_variables_to_csv(os.path.join(
+            self.local_scratch.path,"my_variables.csv"))
         assert os.path.exists(os.path.join(self.local_scratch.path,"my_variables.csv"))
-
 
     def test_19_create_design_dataset(self):
         x = [1, 100]
@@ -167,7 +168,6 @@ class TestClass():
         assert self.aedtapp.dataset_exists("Test_DataSet", is_project_dataset=False)
         assert not self.aedtapp.dataset_exists("Test_DataSet", is_project_dataset=True)
 
-
     def test_19_create_project_dataset(self):
         x = [1, 100]
         y = [1000, 980]
@@ -177,7 +177,6 @@ class TestClass():
         assert ds2.delete()
         assert not self.aedtapp.dataset_exists("Test_DataSet", is_project_dataset=True)
 
-
     def test_19_create_3dproject_dataset(self):
         x = [1, 100]
         y = [1000, 980]
@@ -186,7 +185,6 @@ class TestClass():
         vunits="cel"
         ds3 = self.aedtapp.create_dataset3d("Test_DataSet3D", x, y, z, v, vunit=vunits)
         assert ds3.name == "$Test_DataSet3D"
-
 
     def test_19_edit_existing_dataset(self):
         ds = self.aedtapp.project_datasets['$AluminumconductivityTH0']
@@ -213,7 +211,6 @@ class TestClass():
         aedtz_proj=os.path.join(self.local_scratch.path,"test.aedtz")
         assert self.aedtapp.archive_project(aedtz_proj)
         assert os.path.exists(aedtz_proj)
-
 
     '''
     def test_01_close_project(self):

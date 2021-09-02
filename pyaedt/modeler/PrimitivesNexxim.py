@@ -4,13 +4,13 @@ from .PrimitivesCircuit import CircuitComponents
 
 class NexximComponents(CircuitComponents):
     """Manages circuit components for Nexxim.
-    
+
     Parameters
     ----------
     parent :
         Inherited parent object.
     modeler :
-    
+
     """
     @property
     def design_libray(self):
@@ -28,8 +28,8 @@ class NexximComponents(CircuitComponents):
         Parameters
         ----------
         partname: int or str
-            Part ID or object name. 
-        
+            Part ID or object name.
+
         Returns
         -------
         type
@@ -88,7 +88,7 @@ class NexximComponents(CircuitComponents):
         model_type: str, optional
             Type of the model. The default is ``"hfss"``.
         posx : float, optional
-            Position on the X axis. The default is ``0``.    
+            Position on the X axis. The default is ``0``.
         posy : float, optional.
             Position on the Y axis. The default is ``1``.
 
@@ -96,7 +96,7 @@ class NexximComponents(CircuitComponents):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-        
+
         """
         id = self.create_unique_id()
         component_name = design_name + "_" + str(id)
@@ -215,13 +215,13 @@ class NexximComponents(CircuitComponents):
         value : float, optional
             Resistance in ohms. The default is ``50``.
         xpos : float, optional
-            Position on the X axis. The default is ``0``.    
+            Position on the X axis. The default is ``0``.
         ypos: float, optional
             Position on the Y axis. The default is ``0``.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
-            Whether to use the instance ID in the net list. 
+            Whether to use the instance ID in the net list.
             The default is ``False``.
 
         Returns
@@ -230,7 +230,7 @@ class NexximComponents(CircuitComponents):
             ID of the resistor.
         str
             Name of the resistor.
-        
+
         """
         cmpid, cmpname = self.create_component(compname, xpos=xpos, ypos=ypos, angle=angle, use_instance_id_netlist=use_instance_id_netlist)
 
@@ -248,13 +248,13 @@ class NexximComponents(CircuitComponents):
         value : float, optional
             Inductance value. The default is ``50``.
         xpos : float, optional
-            Position on the X axis. The default is ``0``.    
+            Position on the X axis. The default is ``0``.
         ypos: float, optional
-            Position on the X axis. The default is ``0``.    
+            Position on the X axis. The default is ``0``.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
-            Whether to use the instance ID in the net list. 
+            Whether to use the instance ID in the net list.
             The default is ``False``.
 
         Returns
@@ -263,7 +263,7 @@ class NexximComponents(CircuitComponents):
             ID of the inductor.
         str
             Name of the inductor.
-        
+
         """
         cmpid, cmpname = self.create_component(compname, component_library="Inductors", component_name="IND_", xpos=xpos, ypos=ypos,
                                          angle=angle, use_instance_id_netlist=use_instance_id_netlist)
@@ -283,22 +283,22 @@ class NexximComponents(CircuitComponents):
         value : float, optional
             Capacitor value. The default is ``50``.
         xpos : float, optional
-            Position on the X axis. The default is ``0``.    
+            Position on the X axis. The default is ``0``.
         ypos: float, optional
             Position on the Y axis. The default is ``0``.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
-            Whether to use the instance ID in the net list. 
+            Whether to use the instance ID in the net list.
             The default is ``False``.
-        
+
         Returns
         -------
         int
             ID of the capacitor.
         str
             Name of the capacitor.
-        
+
         """
         cmpid, cmpname = self.create_component(compname,component_library="Capacitors", component_name="CAP_", xpos=xpos, ypos=ypos,
                                          angle=angle, use_instance_id_netlist=use_instance_id_netlist)
@@ -317,12 +317,12 @@ class NexximComponents(CircuitComponents):
         value : float, optional
             Voltage value. The default is ``50``.
         xpos : float, optional
-            Position on the X axis. The default is ``0``.    
+            Position on the X axis. The default is ``0``.
         ypos: float, optional
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
-            Whether to use the instance ID in the net list. 
+            Whether to use the instance ID in the net list.
             The default is ``False``.
 
         Returns
@@ -331,7 +331,7 @@ class NexximComponents(CircuitComponents):
             ID of the voltage DC source.
         str
             Name of the voltage DC source.
-        
+
         """
         cmpid, cmpname = self.create_component(compname,component_library="Independent Sources", component_name="V_DC", xpos=xpos, ypos=ypos,
                                          angle=angle, use_instance_id_netlist=use_instance_id_netlist)
@@ -350,22 +350,22 @@ class NexximComponents(CircuitComponents):
         value_lists : list, optional
             List of values for the current pulse. The default is ``[]``.
         xpos : float, optional
-            Position on the X axis. The default is ``0``.    
+            Position on the X axis. The default is ``0``.
         ypos: float, optional
             Position on the Y axis. The default is ``0``.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
-            Whether to use the instance ID in the net list. 
+            Whether to use the instance ID in the net list.
             The default is ``False``.
-        
+
         Returns
         -------
         int
             ID of the current pulse.
         str
             Name of the current pulse.
-        
+
         """
         cmpid, cmpname = self.create_component(compname,component_library="Independent Sources", component_name="I_PULSE", xpos=xpos, ypos=ypos,
                                          angle=angle, use_instance_id_netlist=use_instance_id_netlist)
@@ -385,7 +385,6 @@ class NexximComponents(CircuitComponents):
         if len(value_lists) > 6:
             self.components[cmpid].set_property("PER", value_lists[6])
 
-
         return cmpid, cmpname
 
     @aedt_exception_handler
@@ -399,22 +398,22 @@ class NexximComponents(CircuitComponents):
         value_lists : list, optional
             List of values for the voltage pulse. The default is ``[]``.
         xpos : float, optional
-            Position on the X axis. The default is ``0``.    
+            Position on the X axis. The default is ``0``.
         ypos: float, optional
             Position on the Y axis. The default is ``0``.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
-            Whether to use the instance ID in the net list. 
+            Whether to use the instance ID in the net list.
             The default is ``False``.
-        
+
         Returns
         -------
         int
             ID of the voltage pulse.
         str
             Name of the voltage pulse.
-        
+
         """
         cmpid, cmpname = self.create_component(compname,component_library="Independent Sources", component_name="V_PULSE", xpos=xpos, ypos=ypos,
                                          angle=angle, use_instance_id_netlist=use_instance_id_netlist)
@@ -434,9 +433,7 @@ class NexximComponents(CircuitComponents):
         if len(value_lists) > 6:
             self.components[cmpid].set_property("PER", value_lists[6])
 
-
         return cmpid, cmpname
-
 
     @aedt_exception_handler
     def create_current_dc(self, compname=None, value=1, xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
@@ -449,13 +446,13 @@ class NexximComponents(CircuitComponents):
         value : float, optional
             Current value. The default is ``1``.
         xpos : float, optional
-            Position on the X axis. The default is ``0``.    
+            Position on the X axis. The default is ``0``.
         ypos: float, optional
             Position on the Y axis. The default is ``0``.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
-            Whether to use the instance ID in the net list. 
+            Whether to use the instance ID in the net list.
             The default is ``False``.
 
         Returns
@@ -464,7 +461,7 @@ class NexximComponents(CircuitComponents):
             ID of the current DC source.
         str
             Name of the current DC source.
-        
+
         """
         cmpid, cmpname = self.create_component(compname,component_library="Independent Sources", component_name="I_DC", xpos=xpos, ypos=ypos,
                                          angle=angle, use_instance_id_netlist=use_instance_id_netlist)
@@ -486,14 +483,14 @@ class NexximComponents(CircuitComponents):
         value : float, optional
             Value for the coupling inductor. The default is ``1``.
         xpos : float, optional
-            Position on the X axis. The default is ``0``.    
+            Position on the X axis. The default is ``0``.
         ypos: float, optional
             Position on the Y axis. The default is ``0``.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
-            Whether to use the instance ID in the net list. 
-            The default is ``False``.   
+            Whether to use the instance ID in the net list.
+            The default is ``False``.
 
         Returns
         -------
@@ -501,7 +498,7 @@ class NexximComponents(CircuitComponents):
             ID of the coupling inductor.
         str
             Name of the coupling inductor.
-        
+
         """
         cmpid, cmpname = self.create_component(compname,component_library="Inductors", component_name="K_IND", xpos=xpos, ypos=ypos,
                                          angle=angle, use_instance_id_netlist=use_instance_id_netlist)
@@ -522,22 +519,22 @@ class NexximComponents(CircuitComponents):
         model_name : str, optional
             Name of the model. The default is ``"required"``.
         xpos : float, optional
-            Position on the X axis. The default is ``0``.    
+            Position on the X axis. The default is ``0``.
         ypos: float, optional
             Position on the Y axis. The default is ``0``.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
-            Whether to use the instance ID in the net list. 
+            Whether to use the instance ID in the net list.
             The default is ``False``.
-       
+
         Returns
         -------
         int
             ID of the diode.
         str
             Name of the diode.
-        
+
         """
         cmpid, cmpname = self.create_component(compname,component_library="Diodes", component_name="DIODE_Level1", xpos=xpos, ypos=ypos,
                                          angle=angle, use_instance_id_netlist=use_instance_id_netlist)
@@ -556,22 +553,22 @@ class NexximComponents(CircuitComponents):
         value : float, optional
             Value for the NPN transistor. The default is ``None``.
         xpos : float, optional
-            Position on the X axis. The default is ``0``.    
+            Position on the X axis. The default is ``0``.
         ypos: float, optional
             Position on the Y axis. The default is ``0``.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
-            Whether to use the instance ID in the net list. 
+            Whether to use the instance ID in the net list.
             The default is ``False``.
-        
+
         Returns
         -------
         int
             ID of the NPN transistor.
         str
             Name of the NPN transistor.
-        
+
         """
         id, name = self.create_component(compname,component_library="BJTs", component_name="Level01_NPN", xpos=xpos, ypos=ypos,
                                          angle=angle, use_instance_id_netlist=use_instance_id_netlist)
@@ -590,22 +587,22 @@ class NexximComponents(CircuitComponents):
         value : float, optional
             Value for the PNP transistor. The default is ``None``.
         xpos : float, optional
-            Position on the X axis. The default is ``0``.    
+            Position on the X axis. The default is ``0``.
         ypos: float, optional
             Position on the Y axis. The default is ``0``.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
-            Whether to use the instance ID in the net list. 
+            Whether to use the instance ID in the net list.
             The default is ``False``.
-        
+
         Returns
         -------
         int
             ID of the PNP transistor.
         str
             Name of the PNP transistor.
-        
+
         """
         id, name = self.create_component(compname, component_library="BJTs", component_name="Level01_PNP", xpos=xpos, ypos=ypos,
                                          angle=angle, use_instance_id_netlist=use_instance_id_netlist)
@@ -635,7 +632,7 @@ class NexximComponents(CircuitComponents):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-        
+
         """
         arg = ["NAME:" + symbol_name, "Info:=",
                ["Type:=", 0, "NumTerminals:=", len(pin_lists), "DataSource:=", "", "ModifiedOn:=", 1591858313, "Manufacturer:=", "",
@@ -703,9 +700,9 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+        :class: `pyaedt.modeler.Object3d.CircuitComponent`
             Object with properties.
-        
+
         """
         name = o.composed_name
         proparray = self.oeditor.GetProperties("PassedParameterTab", name)
@@ -721,12 +718,12 @@ class NexximComponents(CircuitComponents):
         Parameters
         ----------
         toolNum :
-        
+
         dc :
             The default is ``0``.
         interp :
             The default is ``0``.
-        extrap : 
+        extrap :
             The default is ``1``.
         conv :
             The default is ``0``.
@@ -737,13 +734,13 @@ class NexximComponents(CircuitComponents):
         opt : str, optional
             The default is ``""``.
         data_type : optional
-            Type of the data. The default is ``1``.  
+            Type of the data. The default is ``1``.
 
         Returns
         -------
         list
             List of the custom settings for the resistor.
-        
+
         """
         if toolNum == 1:
             custom = "NAME:DesignerCustomization"
@@ -775,20 +772,20 @@ class NexximComponents(CircuitComponents):
         pin_names: list
             List of the pin names.
         source_project_path : str
-            Path to the source project.      
+            Path to the source project.
         source_project_name: str
             Name  of the source project.
         source_design_name : str
             Name of the design.
         solution_name: str, optional
-            Name of the solution and sweep. The 
+            Name of the solution and sweep. The
             default is ``"Setup1 : Sweep"``.
-        
+
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-        
+
         """
         designer_customization = self.get_comp_custom_settings(1, 0, 0, 1, 0, 0, "False", "", 1)
         nexxim_customization = self.get_comp_custom_settings(2, 3, 1, 3, 0, 0, "False", "", 2)
@@ -834,8 +831,6 @@ class NexximComponents(CircuitComponents):
                 "InfoHelpFile:=", "",	"IconFile:=", "hfss.bmp", "Library:=", "",	"OriginalLocation:=", "Project",
                 "IEEE:=", "", "Author:=", "", "OriginalAuthor:=", "",	"CreationDate:=", 1591855894, "ExampleFile:=", "",
                 "HiddenComponent:=", 0, "CircuitEnv:=", 0, "GroupID:=", 0]
-
-
 
         compInfo2 = ["NAME:"+str(compName),
                      "Info:=", info,
@@ -891,7 +886,7 @@ class NexximComponents(CircuitComponents):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-        
+
         """
         complist = component.split(";")
         complist2 = complist[0].split("@")
@@ -927,7 +922,7 @@ class NexximComponents(CircuitComponents):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-        
+
         """
         complist = component.split(";")
         complist2 = complist[0].split("@")
@@ -956,13 +951,13 @@ class NexximComponents(CircuitComponents):
         ----------
         component_name : str
             Name of the dynamic link.
-            
+
 
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-        
+
         """
         self.o_component_manager.UpdateDynamicLink(component_name)
 
@@ -983,7 +978,7 @@ class NexximComponents(CircuitComponents):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-        
+
         """
         arg = ["NAME:options",
                "CalcThevenin:=", thevenin_calculation,
@@ -1002,9 +997,9 @@ class NexximComponents(CircuitComponents):
             List of circuit ports to assign to the sinusoidal excitation.
         settings : list
             List of parameter values to use in voltage sinusoidal excitation creation.
-            
+
             Values are given in this order:
-        
+
             * 0: AC magnitude for small-signal analysis
             * 1: AC phase for small-signal analysis
             * 2: DC voltage
@@ -1020,7 +1015,7 @@ class NexximComponents(CircuitComponents):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-        
+
         """
         id = self.create_unique_id()
 

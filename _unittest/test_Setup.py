@@ -14,14 +14,15 @@ class TestClass:
     def setup_class(self):
         with Scratch(scratch_path) as self.local_scratch:
             try:
-                example_project = os.path.join(local_path, 'example_models', test_project_name + '.aedt')
+                example_project = os.path.join(
+                    local_path, 'example_models', test_project_name + '.aedt')
                 self.test_project = self.local_scratch.copyfile(example_project)
                 self.local_scratch.copyfolder(os.path.join(local_path, 'example_models', test_project_name + '.aedb'),
                                               os.path.join(self.local_scratch.path, test_project_name + '.aedb'))
-                self.aedtapp = Hfss(os.path.join(self.local_scratch.path, test_project_name + '.aedt'))
+                self.aedtapp = Hfss(os.path.join(
+                    self.local_scratch.path, test_project_name + '.aedt'))
             except:
                 pass
-
 
     def teardown_class(self):
         assert self.aedtapp.close_project(self.aedtapp.project_name)
@@ -29,7 +30,8 @@ class TestClass:
         gc.collect()
 
     def test_01_create_hfss_setup(self):
-        setup1 = self.aedtapp.create_setup("My_HFSS_Setup", self.aedtapp.SimulationSetupTypes.HFSSDrivenDefault)
+        setup1 = self.aedtapp.create_setup(
+            "My_HFSS_Setup", self.aedtapp.SimulationSetupTypes.HFSSDrivenDefault)
         assert setup1.name == "My_HFSS_Setup"
         assert "SaveRadFieldsOnly" in setup1.props
         setup1.props["SaveRadFieldsOnly"] = True

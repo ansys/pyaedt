@@ -14,13 +14,13 @@ class FieldAnalysisEmit(Design):
     It is automatically initialized by an application call (like for HFSS,
     Q3D, and other tools). Refer to the Application function for input definitions.
 
-    
+
     """
 
     @property
     def solution_type(self):
         """Solution type.
-          
+
         Parameters
         ----------
         soltype :
@@ -30,8 +30,6 @@ class FieldAnalysisEmit(Design):
 
     @solution_type.setter
     def solution_type(self, soltype):
-        """ """
-
         if soltype:
             self._solution_type = "EMIT"
         else:
@@ -47,7 +45,6 @@ class FieldAnalysisEmit(Design):
         """Setup names."""
         return []
 
-
     def __init__(self, application, projectname, designname, solution_type, setup_name=None,
                  specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True, student_version=False):
         self.solution_type = solution_type
@@ -59,10 +56,10 @@ class FieldAnalysisEmit(Design):
     @property
     def modeler(self):
         """Modeler.
-        
+
         Returns
         -------
-        :class:`pyaedt.modeler.Circuit.ModelerEmit`
+        pyaedt.modeler.Circuit.ModelerEmit
             Design oModeler
         """
         return self._modeler
@@ -70,7 +67,7 @@ class FieldAnalysisEmit(Design):
     @property
     def oanalysis(self):
         """Analysis object.
-        
+
         Returns
         -------
         int

@@ -29,7 +29,6 @@ from pyaedt import Hfss3dLayout
 from pyaedt import examples
 
 
-
 targetfile=examples.download_aedb()
 print(targetfile)
 aedt_file = targetfile[:-12]+"aedt"
@@ -58,7 +57,7 @@ NewThread = False
 # Initialize AEDT
 # ~~~~~~~~~~~~~~~
 # Launch HFSS 3D Layout.
-# The `h3d` object will contain the :class:`pyaedt.Edb` class query methods.
+# The `h3d` object will contain the :class: `pyaedt.Edb` class query methods.
 
 d = Desktop(desktopVersion, NonGraphical, NewThread)
 if os.path.exists(aedt_file): os.remove(aedt_file)

@@ -60,7 +60,7 @@ class SolutionData(object):
 
     @nominal_variation.setter
     def nominal_variation(self, val):
-        
+
         if 0 <= val <= self.number_of_variations:
             self._nominal_variation = self._original_data[val]
         else:
@@ -69,7 +69,7 @@ class SolutionData(object):
     @property
     def primary_sweep(self):
         """Primary sweep.
-        
+
         Parameters
         ----------
         ps : float
@@ -120,13 +120,13 @@ class SolutionData(object):
     @aedt_exception_handler
     def update_sweeps(self):
         """Update sweeps.
-        
+
         Returns
         -------
         dict
             Updated sweeps.
         """
-      
+
         self._sweeps = OrderedDict({})
         for el in self._sweeps_names:
             self._sweeps[el] = [i for i in self.nominal_variation.GetSweepValues(el, False)]
@@ -140,7 +140,7 @@ class SolutionData(object):
         Parameters
         ----------
         unit :
-            
+
 
         Returns
         -------
@@ -223,15 +223,15 @@ class SolutionData(object):
         return [i*360/(2*math.pi) for i in input_list]
 
     def data_magnitude(self, expression=None, convert_to_SI=False):
-        """Retrieve the data magnitude of an expression. 
-        
+        """Retrieve the data magnitude of an expression.
+
         Parameters
         ----------
         expression : str, optional
             Name of the expression. The default is ``None``, in which case the
             first expression is used.
         convert_to_SI : bool, optional
-            Whether to convert the data to the SI unit system. 
+            Whether to convert the data to the SI unit system.
             The default is ``False``.
 
         Returns
@@ -271,10 +271,10 @@ class SolutionData(object):
         ----------
         datalist : list
            List of data to convert.
-        dataunits : 
-           
+        dataunits :
+
         units :
-            
+
 
         Returns
         -------
@@ -294,10 +294,10 @@ class SolutionData(object):
         Parameters
         ----------
         expression : str, optional
-            Name of the expression. The default is ``None``, 
+            Name of the expression. The default is ``None``,
             in which case the first expression is used.
         convert_to_SI : bool, optional
-            Whether to convert the data to the SI unit system. 
+            Whether to convert the data to the SI unit system.
             The default is ``False``.
 
         Returns
@@ -311,17 +311,16 @@ class SolutionData(object):
 
         return [10*math.log10(i) for i in self.data_magnitude(expression,convert_to_SI)]
 
-
     def data_real(self, expression=None, convert_to_SI=False):
         """Retrieve the real part of the data for an expression.
 
         Parameters
         ----------
         expression : str, None
-            Name of the expression. The default is ``None``, 
+            Name of the expression. The default is ``None``,
             in which case the first expression is used.
         convert_to_SI : bool, optional
-            Whether to convert the data to the SI unit system. 
+            Whether to convert the data to the SI unit system.
             The default is ``False``.
 
         Returns
@@ -359,10 +358,10 @@ class SolutionData(object):
         Parameters
         ----------
         expression : str, optional
-            Name of the expression. The default is ``None``, 
+            Name of the expression. The default is ``None``,
             in which case the first expression is used.
         convert_to_SI : bool, optional
-            Whether to convert the data to the SI unit system. 
+            Whether to convert the data to the SI unit system.
             The default is ``False``.
 
         Returns
@@ -395,14 +394,13 @@ class SolutionData(object):
         return sol
 
 
-
 class FieldPlot:
     """Creates and edits field plots.
-    
+
     Parameters
     ----------
     oField :
-    
+
     objlist : list
         List of objects.
     solutionName : str
@@ -411,8 +409,9 @@ class FieldPlot:
         Name of the plot or the name of the object.
     intrinsicList: dict, optional
         Name of the intrinsic dictionary. The default is ``{}``.
-    
+
     """
+
     def __init__(self, oField, objlist, solutionName, quantityName, intrinsincList={}):
         self.oField = oField
         self.faceIndexes = objlist
@@ -444,22 +443,21 @@ class FieldPlot:
     @aedt_exception_handler
     def create(self):
         """Create a field plot.
-        
+
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-            
+
         """
 
         self.oField.CreateFieldPlot(self.surfacePlotInstruction, "Field")
         return True
 
-
     @aedt_exception_handler
     def update(self):
         """Update the field plot.
-        
+
         Returns
         -------
         bool
@@ -467,12 +465,10 @@ class FieldPlot:
         """
         self.oField.ModifyFieldPlot(self.name, self.surfacePlotInstruction)
 
-
-
     @aedt_exception_handler
     def modify_folder(self):
         """Modify the field plot folder.
-        
+
         Returns
         -------
         bool
@@ -506,7 +502,7 @@ class FieldPlot:
     @property
     def intrinsicVar(self):
         """Intrinsic variable.
-        
+
         Returns
         -------
         list or dict
@@ -530,7 +526,7 @@ class FieldPlot:
     @property
     def plotsettings(self):
         """Plot settings.
-         
+
         Returns
         -------
         list
@@ -578,12 +574,12 @@ class FieldPlot:
     @property
     def surfacePlotInstruction(self):
         """Surface plot settings.
-        
+
         Returns
         -------
         list
             List of surface plot settings.
-            
+
         """
         return [
             "NAME:" + self.name,
@@ -604,18 +600,20 @@ class FieldPlot:
 class PostProcessorCommon(object):
     """Manages the main AEDT postprocessing functions.
 
-    The inherited `AEDTConfig` class contains all `_desktop` hierarchical calls
-    needed for the class inititialization data `_desktop` and the design types ``"HFSS"``,
-    ``"Icepak"``, and ``"HFSS3DLayout"``.
+    The inherited `AEDTConfig` class contains all `_desktop`
+    hierarchical calls needed for the class inititialization data
+    `_desktop` and the design types ``"HFSS"``, ``"Icepak"``, and
+    ``"HFSS3DLayout"``.
 
     .. note::
-   Some functionalities are available only when AEDT is running in the graphical mode.
+       Some functionalities are available only when AEDT is running in
+       the graphical mode.
 
     Parameters
     ----------
-    parent:
+    parent
         Inherited parent object. The parent object must provide the members
-        `_modeler`, `_desktop`, `_odesign`, and `_messenger`.
+        ``_modeler``, ``_desktop``, ``_odesign``, and ``_messenger``.
 
     """
 
@@ -664,13 +662,12 @@ class PostProcessorCommon(object):
         """Editor."""
         return self.modeler.oeditor
 
-
     @property
     def post_solution_type(self):
         """Design solution type.
 
-        Return
-        ------
+        Returns
+        -------
         type
             Design solution type.
         """
@@ -685,7 +682,7 @@ class PostProcessorCommon(object):
 
         Parameters
         ----------
-        PlotName :
+        PlotName : str
             Name of the report.
 
         Returns
@@ -761,7 +758,7 @@ class PostProcessorCommon(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.PostProcessor.SolutionData`
+        pyaedt.modules.PostProcessor.SolutionData
 
         Examples
         --------
@@ -907,7 +904,7 @@ class PostProcessorCommon(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.PostProcessor.SolutionData`
+        pyaedt.modules.PostProcessor.SolutionData
 
         """
         if sweeps is None:
@@ -995,21 +992,24 @@ class PostProcessorCommon(object):
 
 class PostProcessor(PostProcessorCommon, object):
     """Manages the main AEDT postprocessing functions.
-    
-    The inherited `AEDTConfig` class contains all `_desktop` hierarchical calls 
-    needed for the class inititialization data `_desktop` and the design types ``"HFSS"``,
-    ``"Icepak"``, and ``"HFSS3DLayout"``.
-    
+
+    The inherited `AEDTConfig` class contains all `_desktop`
+    hierarchical calls needed for the class inititialization data
+    `_desktop` and the design types ``"HFSS"``, ``"Icepak"``, and
+    ``"HFSS3DLayout"``.
+
     .. note::
-   Some functionalities are available only when AEDT is running in the graphical mode.
+       Some functionalities are available only when AEDT is running in
+       the graphical mode.
 
     Parameters
     ----------
-    parent: 
-        Inherited parent object. The parent object must provide the members 
+    parent
+        Inherited parent object. The parent object must provide the members
         `_modeler`, `_desktop`, `_odesign`, and `_messenger`.
-    
+
     """
+
     def __init__(self, parent):
         self._parent = parent
         self.FieldsPlot = {}
@@ -1018,12 +1018,12 @@ class PostProcessor(PostProcessorCommon, object):
     @property
     def _primitives(self):
         """Primitives.
-        
+
         Returns
         -------
-        :class:`pyaedt.modeler.Primitives`
+        pyaedt.modeler.Primitives
             Primitives object.
-        
+
         """
         return self._parent._modeler.primitives
 
@@ -1056,7 +1056,7 @@ class PostProcessor(PostProcessorCommon, object):
         Returns
         -------
         :attr:`pyaedt.modules.PostProcessor.PostProcessor.ofieldsreporter`
-        
+
         """
         return self.odesign.GetModule("FieldsReporter")
 
@@ -1077,7 +1077,7 @@ class PostProcessor(PostProcessorCommon, object):
         Returns
         -------
         :attr:`pyaedt.modules.PostProcessor.PostProcessor.report_types`
-        
+
         """
         return self.oreportsetup.GetAvailableDisplayTypes(report_type)
 
@@ -1114,7 +1114,7 @@ class PostProcessor(PostProcessorCommon, object):
         plotname : str
             Name of the field plot.
         propertyname : str
-            Name of the property.   
+            Name of the property.
         propertyval :
             Value for the property.
 
@@ -1123,8 +1123,7 @@ class PostProcessor(PostProcessorCommon, object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        self.odesign.ChangeProperty(
-        [
+        self.odesign.ChangeProperty([
             "NAME:AllTabs",
             [
                 "NAME:FieldsPostProcessorTab",
@@ -1158,31 +1157,31 @@ class PostProcessor(PostProcessorCommon, object):
             Dictionary of all variation variables with their values.
             The default is ``None``.
         filename : str, optional
-            Full path and name to save the file to. 
+            Full path and name to save the file to.
             The default is ``None``.
         gridtype : str, optional
             Type of the grid to export. The default is ``"Cartesian"``.
         grid_center : list, optional
-            The ``[x, y, z]`` coordinates for the center of the grid. 
+            The ``[x, y, z]`` coordinates for the center of the grid.
             The default is ``[0, 0, 0]``. This parameter is disabled if ``gridtype=
-            "Cartesian"``. 
+            "Cartesian"``.
         grid_start : list, optional
-            The ``[x, y, z]`` coordinates for the starting point of the grid. 
+            The ``[x, y, z]`` coordinates for the starting point of the grid.
             The default is ``[0, 0, 0]``.
         grid_stop : list, optional
-            The ``[x, y, z]`` coordinates for the stopping point of the grid. 
+            The ``[x, y, z]`` coordinates for the stopping point of the grid.
             The default is ``[0, 0, 0]``.
         grid_step : list, optional
-            The ``[x, y, z]`` coordinates for the step size of the grid. 
+            The ``[x, y, z]`` coordinates for the step size of the grid.
             The default is ``[0, 0, 0]``.
         isvector : bool, optional
-            Whether the quantity is a vector. The  default is ``False``. 
+            Whether the quantity is a vector. The  default is ``False``.
         intrinsics : str, optional
-            This parameter is mandatory for a frequency field 
+            This parameter is mandatory for a frequency field
             calculation. The default is ``None``.
         phase : str, optional
             Field phase. The default is ``None``.
-   
+
         Returns
         -------
         bool
@@ -1244,13 +1243,11 @@ class PostProcessor(PostProcessorCommon, object):
                 else:
                     variation_dict.append("0deg")
 
-
         self.ofieldsreporter.ExportOnGrid(filename, grid_start_wu,
                                           grid_stop_wu, grid_step_wu,
                                           solution,
                                           variation_dict, True, gridtype, grid_center, False)
         return os.path.exists(filename)
-
 
     @aedt_exception_handler
     def export_field_file(self, quantity_name, solution=None, variation_dict=None, filename=None,
@@ -1263,21 +1260,21 @@ class PostProcessor(PostProcessorCommon, object):
         quantity_name :
             Name of the quantity to export. For example, ``"Temp"``.
         solution : str, optional
-            Name of the solution in the format ``"solution: sweep"``. 
+            Name of the solution in the format ``"solution: sweep"``.
             The default is ``None``.
         variation_dict : dict, optional
             Dictionary of all variation variables with their values.
             The default is ``None``.
         filename : str, optional
-            Full path and name to save the file to. 
+            Full path and name to save the file to.
             The default is ``None``.
         obj_list : str, optional
             List of objects to export. The default is ``"AllObjects"``.
         obj_type : str, optional
-            Type of objects to export. Options are ``"Vol"`` for volume and 
+            Type of objects to export. Options are ``"Vol"`` for volume and
             ``"Surf"`` for surface. The default is ``"Vol"``.
         intrinsics : str, optional
-            This parameter is mandatory for a frequency or transient field 
+            This parameter is mandatory for a frequency or transient field
             calculation. The default is ``None``.
         phase : str, optional
             Field phase. The default is ``None``.
@@ -1305,7 +1302,6 @@ class PostProcessor(PostProcessorCommon, object):
             filename = filename.replace("//", "/").replace("\\", "/")
         self.ofieldsreporter.CalcStack("clear")
         self.ofieldsreporter.EnterQty(quantity_name)
-
 
         if not variation_dict:
             if not sample_points_file and not sample_points_lists:
@@ -1351,7 +1347,6 @@ class PostProcessor(PostProcessorCommon, object):
 
         return os.path.exists(filename)
 
-
     @aedt_exception_handler
     def export_field_plot(self, plotname, filepath, filename=""):
         """Export a field plot.
@@ -1360,10 +1355,10 @@ class PostProcessor(PostProcessorCommon, object):
         ----------
         plotname : str
             Name of the plot.
-            
+
         filepath : str
             Path for saving the file.
-            
+
         filename : str, optional
             Name of the file. The default is ``""``.
 
@@ -1384,17 +1379,17 @@ class PostProcessor(PostProcessorCommon, object):
         Parameters
         ----------
         objlist : list
-            List of fields to plot.  
+            List of fields to plot.
         quantityName : str
             Name of the field plot.
         setup_name :
-            Name of the setup in the format ``"setupName : sweepName"``. 
+            Name of the setup in the format ``"setupName : sweepName"``.
         intrinsincList :
-            
+
         objtype :
-            
+
         listtype :
-            
+
 
         Returns
         -------
@@ -1433,10 +1428,10 @@ class PostProcessor(PostProcessorCommon, object):
         quantityName : str
             Name of the quantity to plot.
         setup_name : str, optional
-            Name of the setup in the format ``"setupName : sweepName"``. The default 
+            Name of the setup in the format ``"setupName : sweepName"``. The default
             is ``None``.
         intrinsincDict : dict, optional
-            Dictionary containing all intrinsic variables. The default 
+            Dictionary containing all intrinsic variables. The default
             is ``{}``.
 
         Returns
@@ -1458,11 +1453,11 @@ class PostProcessor(PostProcessorCommon, object):
         quantityName : str
             Name of the quantity to plot.
         setup_name : str, optional
-            Name of the setup in the format 
-            ``"setupName : sweepName"``. The default is ``None``, 
+            Name of the setup in the format
+            ``"setupName : sweepName"``. The default is ``None``,
             in which case ``"nominal, lastadaptive"`` is used.
         intrinsincDict : dict, optional
-            Dictionary containing all intrinsic variables. 
+            Dictionary containing all intrinsic variables.
             The default is ``{}``.
 
         Returns
@@ -1484,13 +1479,13 @@ class PostProcessor(PostProcessorCommon, object):
         quantityName :
             Name of the quantity to plot.
         setup_name : str, optional
-            Name of the setup in the format 
-            ``"setupName : sweepName"``. The default is ``None``, 
+            Name of the setup in the format
+            ``"setupName : sweepName"``. The default is ``None``,
             in which case ``"nominal, lastadaptive"`` is used.
         intrinsincDict : dict, optional
-            Dictionary containing all intrinsic variables. The default 
+            Dictionary containing all intrinsic variables. The default
             is ``{}``.
-        
+
         Returns
         -------
         type
@@ -1524,7 +1519,7 @@ class PostProcessor(PostProcessorCommon, object):
     @aedt_exception_handler
     def export_field_image_with_View(self, plotName, exportFilePath, view="iso", wireframe=True):
         """Export a field plot image with a view.
-        
+
         .. note::
            For AEDT 2019 R3, this method works only on the ISO view due to a bug in the API.
            This method works properly in 2021 R1.
@@ -1536,7 +1531,7 @@ class PostProcessor(PostProcessorCommon, object):
         exportFilePath :
             Path for exporting the image file.
         view : str, optional
-            View to export. Options are ``"iso"``, ``"XZ"``, ``"XY"``, and ``"YZ"``. 
+            View to export. Options are ``"iso"``, ``"XZ"``, ``"XY"``, and ``"YZ"``.
             The default is ``"iso"``.
         wireframe : bool, optional
             Whether to put the objects in the wireframe mode. The default is ``True``.
@@ -1584,15 +1579,15 @@ class PostProcessor(PostProcessorCommon, object):
 
     @aedt_exception_handler
     def export_model_picture(self, dir=None, name=None, picturename=None, show_axis=True, show_grid=True, show_ruler=True):
-        """Export a snapshot of the model to a JPG file. 
-        
+        """Export a snapshot of the model to a JPG file.
+
         .. note::
            This method works only when AEDT is running in the graphical mode.
-        
+
         Parameters
         ----------
         dir : str, optional
-            Path for exporting the JPG file. The default is ``None``, in which case 
+            Path for exporting the JPG file. The default is ``None``, in which case
             an internal volatile scratch in the ``temp`` directory is used.
         name : str, optional
             Name of the project, which is used to compose the directory path.
@@ -1647,27 +1642,28 @@ class PostProcessor(PostProcessorCommon, object):
 
     @aedt_exception_handler
     def get_far_field_data(self, expression="GainTotal", setup_sweep_name='', domain="Infinite Sphere1", families_dict=None):
-        """Generate far field data using the :func:`GetSolutionDataPerVariation` method. 
-        
-        This method returns the data ``solData``, ``ThetaVals``, ``PhiVals``, ``ScanPhiVals,`` 
-        ``ScanThetaVals,`` and ``FreqVals``.
+        """Generate far field data using ``GetSolutionDataPerVariation``.
+
+        This method returns the data ``solData``, ``ThetaVals``,
+        ``PhiVals``, ``ScanPhiVals``, ``ScanThetaVals``, and
+        ``FreqVals``.
 
         Parameters
         ----------
         expression : str or list, optional
             One or more formulas to add to the report. The default is ``"GainTotal"``.
         setup_sweep_name : str, optional
-            Name of the setup for computing the report. The default is ``""``, 
-            in which case the nominal sweep is used. 
+            Name of the setup for computing the report. The default is ``""``,
+            in which case the nominal sweep is used.
         domain : str, optional
             Context type (sweep or time). The default is ``"Infinite Sphere1"``.
         families_dict : dict, optional
             Dictionary of variables and values. The default is ``{"Freq": ["All"]}``.
-        
+
         Returns
         -------
-        :class:`pyaedt.modules.PostProcessor.SolutionData`
-        
+        pyaedt.modules.PostProcessor.SolutionData
+
         """
         if type(expression) is not list:
             expression = [expression]
@@ -1680,7 +1676,6 @@ class PostProcessor(PostProcessorCommon, object):
             print("No Data Available. Check inputs")
             return False
         return solution_data
-
 
 
 class CircuitPostProcessor(PostProcessorCommon, object):
@@ -1701,7 +1696,7 @@ class CircuitPostProcessor(PostProcessorCommon, object):
     def __init__(self, parent):
         PostProcessorCommon.__init__(self, parent)
 
-    def create_ami_initial_response_plot(self, setupname, ami_name, variation_list_w_value, 
+    def create_ami_initial_response_plot(self, setupname, ami_name, variation_list_w_value,
                                          plot_type="Rectangular Plot", plot_initial_response=True,
                                          plot_intermediate_response=False, plot_final_response=False, plotname=None):
         """Create an AMI initial response plot.
@@ -1764,7 +1759,6 @@ class CircuitPostProcessor(PostProcessorCommon, object):
                                        variations, ["X Component:=", "__InitialTime", "Y Component:=", ycomponents])
         return plotname
 
-
     def create_ami_statistical_eye_plot(self, setupname, ami_name, variation_list_w_value, ami_plot_type="InitialEye", plotname=None):
         """Create an AMI statistical eye plot.
 
@@ -1777,7 +1771,7 @@ class CircuitPostProcessor(PostProcessorCommon, object):
         variation_list_w_value : list
             List of variations with relative values.
         plot_type : str, optional
-            String containing the report type. Default is ``"Rectangular Plot"``. It can be ``"Data Table"``, 
+            String containing the report type. Default is ``"Rectangular Plot"``. It can be ``"Data Table"``,
             ``"Rectangular Stacked Plot"``, or any other valid AEDT report types.
         ami_plot_type : str, optional
             String containing the report AMI type. Default is ``"InitialEye"``. It can be ``"EyeAfterSource"``,
