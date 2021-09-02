@@ -16,8 +16,6 @@ from ..application.Variables import Variable
 from collections import OrderedDict
 from pyaedt import is_ironpython
 
-
-
 default_materials = {"Icepak": "air", "HFSS": "vacuum", "Maxwell 3D": "vacuum", "Maxwell 2D": "vacuum",
                      "2D Extractor": "copper", "Q3D Extractor": "copper", "HFSS 3D Layout": "copper", "Mechanical" : "copper"}
 
