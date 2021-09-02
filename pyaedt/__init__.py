@@ -3,9 +3,7 @@ import os
 # https://github.com/pyansys/PyAEDT/pull/243
 import sys
 
-is_ironpython = False
-if "IronPython" in sys.version or ".NETFramework" in sys.version:
-    is_ironpython = True
+is_ironpython = "IronPython" in sys.version or ".NETFramework" in sys.version
 _pythonver = sys.version_info[0]
 try:
     import ScriptEnv

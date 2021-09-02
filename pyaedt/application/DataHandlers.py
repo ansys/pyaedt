@@ -222,7 +222,7 @@ def random_string(length=6, only_digits=False, char_set=None):
 
 
 def unique_string_list(element_list, only_string=True):
-    """
+    """Return a unique list of strings from an element list.
 
     Parameters
     ----------
