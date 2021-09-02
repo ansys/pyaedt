@@ -27,7 +27,6 @@ from ..generic.general_methods import aedt_exception_handler, generate_unique_na
 from pyaedt import is_ironpython
 
 
-
 @aedt_exception_handler
 def convert_netdict_to_pydict(dict):
     """Convert a net dictionary to a Python dictionary.
