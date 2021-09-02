@@ -419,6 +419,12 @@ class CoordinateSystem(object):
 
     @property
     def quaternion(self):
+        """Quaternion computed based on specific axis mode.
+
+        Returns
+        -------
+        list
+        """
         self._parent._parent.variable_manager["temp_var"] = 0
         if self.mode == "axis" or self.mode == "view":
             x1 = self.props['XAxisXvec']
