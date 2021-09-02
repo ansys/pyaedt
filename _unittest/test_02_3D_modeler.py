@@ -352,3 +352,11 @@ class TestClass(BasisTest):
         box1 = self.aedtapp.modeler.primitives.create_box(
             [-10, -10, -10], [20, 20, 20], "box_to_split")
         box1.sweep_along_vector(sweep_vector)
+
+    def test_48_coordinate_systems_parametric(self):
+        self.aedtapp["var1"] = "5mm"
+        self.aedtapp["var2"] = "3mm+var1"
+
+        cs1 = self.aedtapp.modeler.create_coordinate_system(name="CSP1", mode="axis", x_pointing=["var1", "var2", 0])
+        cs2 = self.aedtapp.modeler.create_coordinate_system(name="CSP2", mode="axis", x_pointing=["5mm", "8mm", 0])
+        assert cs1.quaternion == cs2.quaternion

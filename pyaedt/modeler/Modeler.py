@@ -44,7 +44,8 @@ class CoordinateSystem(object):
         self.name = name
         self.props = props
         self.ref_cs = None
-        self.quaternion = None
+        self._quaternion = None
+        self.mode = None
         try:
             if "KernelVersion" in self.props:
                 del self.props["KernelVersion"]
@@ -192,6 +193,7 @@ class CoordinateSystem(object):
                 del self.props['Phi']
                 del self.props['Theta']
                 del self.props['Psi']
+                self.mode = "axis"
                 self.update()
         elif mode_type == 1:  # "Euler Angle ZXZ"
             if self.props and self.props["Mode"] == "Euler Angle ZYZ":
@@ -203,6 +205,7 @@ class CoordinateSystem(object):
                 self.props["Phi"] = "{}deg".format(phi)
                 self.props["Theta"] = "{}deg".format(theta)
                 self.props["Psi"] = "{}deg".format(psi)
+                self.mode = "zxz"
                 self.update()
             elif self.props and self.props["Mode"] == "Axis/Position":
                 self.props["Mode"] = "Euler Angle ZXZ"
@@ -219,6 +222,7 @@ class CoordinateSystem(object):
                 del self.props["YAxisXvec"]
                 del self.props["YAxisYvec"]
                 del self.props["YAxisZvec"]
+                self.mode = "zxz"
                 self.update()
         elif mode_type == 2:  # "Euler Angle ZYZ"
             if self.props and self.props["Mode"] == "Euler Angle ZXZ":
@@ -230,6 +234,7 @@ class CoordinateSystem(object):
                 self.props["Phi"] = "{}deg".format(phi)
                 self.props["Theta"] = "{}deg".format(theta)
                 self.props["Psi"] = "{}deg".format(psi)
+                self.mode = "zyz"
                 self.update()
             elif self.props and self.props["Mode"] == "Axis/Position":
                 self.props["Mode"] = "Euler Angle ZYZ"
@@ -246,6 +251,7 @@ class CoordinateSystem(object):
                 del self.props["YAxisXvec"]
                 del self.props["YAxisYvec"]
                 del self.props["YAxisZvec"]
+                self.mode = "zyz"
                 self.update()
         else:
             raise ValueError('mode_type=0 for "Axis/Position", =1 for "Euler Angle ZXZ", =2 for "Euler Angle ZYZ"')
@@ -336,7 +342,7 @@ class CoordinateSystem(object):
         originY = self._dim_arg(origin[1], self.model_units)
         originZ = self._dim_arg(origin[2], self.model_units)
         orientationParameters = OrderedDict({"OriginX": originX, "OriginY": originY, "OriginZ": originZ})
-
+        self.mode = mode
         if mode == "view":
             orientationParameters["Mode"] = "Axis/Position"
             if view == "YZ":
@@ -369,15 +375,7 @@ class CoordinateSystem(object):
                 orientationParameters["YAxisZvec"] = "0mm"
             else:
                 raise ValueError("With mode = 'view', specify view = 'XY', 'XZ', 'XY', 'iso' ")
-            x1 = GeometryOperators.parse_dim_arg(orientationParameters['XAxisXvec'])
-            x2 = GeometryOperators.parse_dim_arg(orientationParameters['XAxisYvec'])
-            x3 = GeometryOperators.parse_dim_arg(orientationParameters['XAxisZvec'])
-            y1 = GeometryOperators.parse_dim_arg(orientationParameters['YAxisXvec'])
-            y2 = GeometryOperators.parse_dim_arg(orientationParameters['YAxisYvec'])
-            y3 = GeometryOperators.parse_dim_arg(orientationParameters['YAxisZvec'])
-            x, y, z = GeometryOperators.pointing_to_axis([x1, x2, x3], [y1, y2, y3])
-            a, b, g = GeometryOperators.axis_to_euler_zyz(x, y, z)
-            self.quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
+
         elif mode == "axis":
             orientationParameters["Mode"] = "Axis/Position"
             orientationParameters["XAxisXvec"] = self._dim_arg((x_pointing[0]), self.model_units)
@@ -387,27 +385,18 @@ class CoordinateSystem(object):
             orientationParameters["YAxisYvec"] = self._dim_arg((y_pointing[1]), self.model_units)
             orientationParameters["YAxisZvec"] = self._dim_arg((y_pointing[2]), self.model_units)
 
-            x, y, z = GeometryOperators.pointing_to_axis(x_pointing, y_pointing)
-            a, b, g = GeometryOperators.axis_to_euler_zyz(x, y, z)
-            self.quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
         elif mode == "zxz":
             orientationParameters["Mode"] = "Euler Angle ZXZ"
             orientationParameters["Phi"] = self._dim_arg(phi, 'deg')
             orientationParameters["Theta"] = self._dim_arg(theta, 'deg')
             orientationParameters["Psi"] = self._dim_arg(psi, 'deg')
-            a = GeometryOperators.deg2rad(phi)
-            b = GeometryOperators.deg2rad(theta)
-            g = GeometryOperators.deg2rad(psi)
-            self.quaternion = GeometryOperators.euler_zxz_to_quaternion(a, b, g)
+
         elif mode == "zyz":
             orientationParameters["Mode"] = "Euler Angle ZYZ"
             orientationParameters["Phi"] = self._dim_arg(phi, 'deg')
             orientationParameters["Theta"] = self._dim_arg(theta, 'deg')
             orientationParameters["Psi"] = self._dim_arg(psi, 'deg')
-            a = GeometryOperators.deg2rad(phi)
-            b = GeometryOperators.deg2rad(theta)
-            g = GeometryOperators.deg2rad(psi)
-            self.quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
+
         elif mode == "axisrotation":
             th = GeometryOperators.deg2rad(theta)
             q = GeometryOperators.axis_angle_to_quaternion(u, th)
@@ -419,9 +408,6 @@ class CoordinateSystem(object):
             orientationParameters["Phi"] = self._dim_arg(phi, 'deg')
             orientationParameters["Theta"] = self._dim_arg(theta, 'deg')
             orientationParameters["Psi"] = self._dim_arg(psi, 'deg')
-            self.quaternion = q
-        # TODO: Check if there is any way to pass equations to the
-        # x_pointing and y_pointing
         elif mode == "easy":  # Test to create parameterized x_pointing and y_pointing.  All others fail.
             orientationParameters["Mode"] = "Axis/Position"
             orientationParameters["XAxisXvec"] = x_pointing[0] #self._dim_arg((x_pointing[0]), self.model_units)
@@ -439,6 +425,53 @@ class CoordinateSystem(object):
         self.update()
 
         return True
+
+    @property
+    def quaternion(self):
+        self._parent._parent.variable_manager["temp_var"] = 0
+        if self.mode == "axis" or self.mode == "view":
+            x1 = self.props['XAxisXvec']
+            x2 = self.props['XAxisYvec']
+            x3 = self.props['XAxisZvec']
+            y1 = self.props['YAxisXvec']
+            y2 = self.props['YAxisYvec']
+            y3 = self.props['YAxisZvec']
+            self._parent._parent.variable_manager["temp_var"] = x1
+            x_pointing_num=[self._parent._parent.variable_manager["temp_var"].numeric_value]
+            self._parent._parent.variable_manager["temp_var"] = x2
+            x_pointing_num.append(self._parent._parent.variable_manager["temp_var"].numeric_value)
+            self._parent._parent.variable_manager["temp_var"] = x3
+            x_pointing_num.append(self._parent._parent.variable_manager["temp_var"].numeric_value)
+            self._parent._parent.variable_manager["temp_var"] = y1
+            y_pointing_num=[self._parent._parent.variable_manager["temp_var"].numeric_value]
+            self._parent._parent.variable_manager["temp_var"] = y2
+            y_pointing_num.append(self._parent._parent.variable_manager["temp_var"].numeric_value)
+            self._parent._parent.variable_manager["temp_var"] = y3
+            y_pointing_num.append(self._parent._parent.variable_manager["temp_var"].numeric_value)
+            x, y, z = GeometryOperators.pointing_to_axis(x_pointing_num, y_pointing_num)
+            a, b, g = GeometryOperators.axis_to_euler_zyz(x, y, z)
+            self._quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
+            del self._parent._parent.variable_manager["temp_var"]
+        elif self.mode == "zxz":
+            self._parent._parent.variable_manager["temp_var"] = self.props['Phi']
+            a = GeometryOperators.deg2rad(self._parent._parent.variable_manager["temp_var"].numeric_value)
+            self._parent._parent.variable_manager["temp_var"] = self.props['Theta']
+            b = GeometryOperators.deg2rad(self._parent._parent.variable_manager["temp_var"].numeric_value)
+            self._parent._parent.variable_manager["temp_var"] = self.props['Psi']
+            g = GeometryOperators.deg2rad(self._parent._parent.variable_manager["temp_var"].numeric_value)
+            self._quaternion = GeometryOperators.euler_zxz_to_quaternion(a, b, g)
+            del self._parent._parent.variable_manager["temp_var"]
+        elif self.mode == "zyz" or self.mode == "axisrotation":
+            self._parent._parent.variable_manager["temp_var"] = self.props['Phi']
+            a = GeometryOperators.deg2rad(self._parent._parent.variable_manager["temp_var"].numeric_value)
+            self._parent._parent.variable_manager["temp_var"] = self.props['Theta']
+            b = GeometryOperators.deg2rad(self._parent._parent.variable_manager["temp_var"].numeric_value)
+            self._parent._parent.variable_manager["temp_var"] = self.props['Psi']
+            g = GeometryOperators.deg2rad(self._parent._parent.variable_manager["temp_var"].numeric_value)
+            self._quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
+            del self._parent._parent.variable_manager["temp_var"]
+        return  self._quaternion
+
 
     @property
     def orientation(self):
