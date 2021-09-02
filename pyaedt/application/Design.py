@@ -526,6 +526,11 @@ class Design(object):
         self.project_datasets = self._get_project_datasets()
         self.design_datasets = self._get_design_datasets()
 
+    @aedt_exception_handler
+    def __delitem__(self, key):
+        """Implement destructor with array name or index."""
+        del self._variable_manager[key]
+
     @property
     def project_properies(self):
         """Project properties.
