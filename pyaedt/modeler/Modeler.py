@@ -22,7 +22,7 @@ from ..generic.general_methods import generate_unique_name, retry_ntimes, aedt_e
 import math
 from ..application.DataHandlers import dict2arg
 from .Object3d import EdgePrimitive, FacePrimitive, VertexPrimitive, Object3d
-
+from pyaedt import _pythonver
 
 class CoordinateSystem(object):
     """Manages coordinate system data and execution.
@@ -3248,7 +3248,7 @@ class GeometryModeler(Modeler, object):
         -------
 
         """
-        if isinstance(value, str if int(sys.version_info[0]) >= 3 else basestring):
+        if isinstance(value, str if _pythonver >= 3 else basestring):
             return value
         else:
             return str(value) + self.model_units

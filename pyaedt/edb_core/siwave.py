@@ -8,7 +8,7 @@ import os
 import time
 from .general import *
 from ..generic.general_methods import get_filename_without_extension, generate_unique_name
-
+from pyaedt import is_ironpython
 try:
     import clr
     from System import Convert, String
@@ -422,7 +422,7 @@ class EdbSiwave(object):
         pos_pin = source.positive_node.node_pins
         neg_pin = source.negative_node.node_pins
 
-        if "IronPython" in sys.version or ".NETFramework" in sys.version:
+        if is_ironpython:
             res, fromLayer_pos, toLayer_pos = pos_pin.GetLayerRange()
             res, fromLayer_neg, toLayer_neg = neg_pin.GetLayerRange()
         else:

@@ -3,45 +3,32 @@
 This module is implicitily loaded in HFSS 3D Layout when launched.
 
 """
-
 import os
 import sys
 import traceback
 import warnings
 import gc
-
-import pyaedt.edb_core.EDB_Data
 import time
-try:
-    import ScriptEnv
-    ScriptEnv.Initialize("Ansoft.ElectronicsDesktop")
-    inside_desktop = True
-except:
-    inside_desktop = False
 try:
     import clr
     from System.Collections.Generic import List, Dictionary
     from System import Convert, String
     import System
-
     from System import Double, Array
     from System.Collections.Generic import List
-    _ironpython = False
-    if "IronPython" in sys.version or ".NETFramework" in sys.version:
-        _ironpython = True
     edb_initialized = True
 except ImportError:
     warnings.warn(
         "The clr is missing. Install Python.NET or use an IronPython version if you want to use the EDB module.")
     edb_initialized = False
 
+from pyaedt import is_ironpython, inside_desktop
+from pyaedt.application.MessageManager import EDBMessageManager
+from pyaedt.edb_core import *
 
-from .application.MessageManager import EDBMessageManager
-from .edb_core import *
-
-from .generic.general_methods import get_filename_without_extension, generate_unique_name, aedt_exception_handler, \
-    env_path, env_value, env_path_student, env_value_student
-from .generic.process import SiwaveSolve
+from pyaedt.generic.general_methods import env_path, env_value, env_path_student
+from pyaedt.generic.general_methods import generate_unique_name, aedt_exception_handler
+from pyaedt.generic.process import SiwaveSolve
 
 
 class Edb(object):
@@ -85,7 +72,7 @@ class Edb(object):
 
     def __init__(self, edbpath=None, cellname=None, isreadonly=False, edbversion="2021.1", isaedtowned=False, oproject=None, student_version=False):
         self._clean_variables()
-        if _ironpython and inside_desktop:
+        if is_ironpython and inside_desktop:
             self.standalone = False
         else:
             self.standalone = True
@@ -110,13 +97,28 @@ class Edb(object):
             # self._edb.Database.SetRunAsStandAlone(not isaedtowned)
             self.isreadonly = isreadonly
             self.cellname = cellname
+            if not edbpath:
+                if os.name != "posix":
+                    edbpath = os.getenv("USERPROFILE")
+                    if not edbpath:
+                        edbpath = os.path.expanduser("~")
+                    edbpath = os.path.join(edbpath, "Documents", generate_unique_name("layout")+".aedb")
+                else:
+                    edbpath = os.getenv("HOME")
+                    if not edbpath:
+                        edbpath = os.path.expanduser("~")
+                    edbpath = os.path.join(edbpath, generate_unique_name("layout")+".aedb")
+                self._messenger.add_info_message("No Edb Provided. Creating new EDB {}.".format(edbpath))
             self.edbpath = edbpath
             if edbpath[-3:] in ["brd", "gds", "xml", "dxf", "tgz"]:
-                self.edbpath = edbpath[-3:] + ".aedb"
+                self.edbpath = edbpath[:-4] + ".aedb"
                 working_dir = os.path.dirname(edbpath)
                 self.import_layout_pcb(edbpath, working_dir)
+                self._messenger.add_info_message("Edb {} Created Correctly from {} file".format(self.edbpath, edbpath[-2:]))
+
             elif not os.path.exists(os.path.join(self.edbpath, "edb.def")):
                 self.create_edb()
+                self._messenger.add_info_message("Edb {} Created Correctly".format(self.edbpath))
             elif ".aedb" in edbpath:
                 self.edbpath = edbpath
                 if isaedtowned and "isoutsideDesktop" in dir(self._main) and not self._main.isoutsideDesktop:

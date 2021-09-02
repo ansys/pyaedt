@@ -14,10 +14,8 @@ from .Object3d import Object3d, EdgePrimitive, FacePrimitive, VertexPrimitive, _
 from ..generic.general_methods import aedt_exception_handler, retry_ntimes, is_number
 from ..application.Variables import Variable
 from collections import OrderedDict
-if "IronPython" in sys.version or ".NETFramework" in sys.version:
-    _ironpython = True
-else:
-    _ironpython = False
+from pyaedt import is_ironpython
+
 
 
 default_materials = {"Icepak": "air", "HFSS": "vacuum", "Maxwell 3D": "vacuum", "Maxwell 2D": "vacuum",
