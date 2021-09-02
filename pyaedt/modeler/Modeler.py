@@ -141,8 +141,7 @@ class CoordinateSystem(object):
         props.append(["NAME:Origin", "X:=", self._dim_arg(self.props["OriginX"]), "Y:=",
                       self._dim_arg(self.props["OriginY"]), "Z:=", self._dim_arg(self.props["OriginZ"])])
 
-        # Add 'easy' mode here.
-        if self.props["Mode"] == 'Axis/Position' or self.props["Mode"] == 'Easy':
+        if self.props["Mode"] == 'Axis/Position':
             props.append(["NAME:X Axis", "X:=", self._dim_arg(self.props["XAxisXvec"]), "Y:=",
                           self._dim_arg(self.props["XAxisYvec"]), "Z:=", self._dim_arg(self.props["XAxisZvec"])])
             props.append(["NAME:Y Point", "X:=", self._dim_arg(self.props["YAxisXvec"]), "Y:=",
@@ -408,16 +407,8 @@ class CoordinateSystem(object):
             orientationParameters["Phi"] = self._dim_arg(phi, 'deg')
             orientationParameters["Theta"] = self._dim_arg(theta, 'deg')
             orientationParameters["Psi"] = self._dim_arg(psi, 'deg')
-        elif mode == "easy":  # Test to create parameterized x_pointing and y_pointing.  All others fail.
-            orientationParameters["Mode"] = "Axis/Position"
-            orientationParameters["XAxisXvec"] = x_pointing[0] #self._dim_arg((x_pointing[0]), self.model_units)
-            orientationParameters["XAxisYvec"] = x_pointing[1] #self._dim_arg((x_pointing[1]), self.model_units)
-            orientationParameters["XAxisZvec"] = x_pointing[2] # self._dim_arg((x_pointing[2]), self.model_units)
-            orientationParameters["YAxisXvec"] = y_pointing[0] #self._dim_arg((y_pointing[0]), self.model_units)
-            orientationParameters["YAxisYvec"] = y_pointing[1] #self._dim_arg((x_pointing[1]), self.model_units)
-            orientationParameters["YAxisZvec"] = y_pointing[2] #self._dim_arg((y_pointing[2]), self.model_units)
         else:
-            raise ValueError("Specify the mode = 'view', 'axis', 'zxz', 'zyz', 'axisrotation', 'easy' ") # TODO: change name 'easy'
+            raise ValueError("Specify the mode = 'view', 'axis', 'zxz', 'zyz', 'axisrotation' ")
 
         self.props = orientationParameters
         self._parent.oeditor.CreateRelativeCS(self.orientation, self.attributes)
