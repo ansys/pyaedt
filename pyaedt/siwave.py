@@ -11,7 +11,7 @@ import sys
 import pkgutil
 
 from .misc import list_installed_ansysem
-from pyaedt import is_ironpython,_pythonver
+from pyaedt import is_ironpython, _pythonver
 
 if is_ironpython:
     import clr  # IronPython C:\Program Files\AnsysEM\AnsysEM19.4\Win64\common\IronPython\ipy64.exe
