@@ -822,11 +822,17 @@ class Object3d(object):
                 vName.append("NAME:Name")
                 vName.append("Value:=")
                 vName.append(obj_name)
-                self._change_property(vName)
+                vChangedProps = ["NAME:ChangedProps", vName]
+                vPropServers = ["NAME:PropServers"]
+                vPropServers.append(self._m_name)
+                vGeo3d = ["NAME:Geometry3DAttributeTab", vPropServers, vChangedProps]
+                vOut = ["NAME:AllTabs", vGeo3d]
+                retry_ntimes(10, self._parent.oeditor.ChangeProperty, vOut)
+                self._m_name = obj_name
+                self._parent.cleanup_objects()
         else:
             #TODO check for name conflict
             pass
-        self._m_name = obj_name
 
     @property
     def valid_properties(self):
