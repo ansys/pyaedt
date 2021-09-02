@@ -469,7 +469,6 @@ class CoordinateSystem(object):
             del self._parent._parent.variable_manager["temp_var"]
         return  self._quaternion
 
-
     @property
     def orientation(self):
         """Internal named array for orientation of the coordinate system."""
