@@ -48,5 +48,3 @@ class SetupTypes(object):
      NexximOscillator1T, NexximOscillatorNT, NexximHarmonicBalance1T, NexximHarmonicBalanceNT, NexximSystem,
      NexximTVNoise, HSPICE, HFSS3DLayout, Open, Close, MechTerm, MechModal, GRM, TR, TransientTemperatureAndFlow,
      TransientTemperatureOnly, TransientFlowOnly,) = range(0, 39)
-
-

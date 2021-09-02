@@ -8,7 +8,7 @@ This example shows how to use HFSS 3D Layout to create and solve a parametric de
 ###############################################################################
 # # Import the `Hfss3dlayout` Object
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This example imports the `Hfss3dlayout` object and initializes it on version 
+# This example imports the `Hfss3dlayout` object and initializes it on version
 # 2021.1.
 
 from pyaedt import Hfss3dLayout
@@ -87,7 +87,7 @@ h3d.post.create_rectangular_plot(["db(S(Port1,Port1))", "db(S(Port1,Port2))"],
 ###############################################################################
 # Close AEDT
 # ~~~~~~~~~~
-# After the simulaton is completed, you can close AEDT or release it using the 
+# After the simulaton is completed, you can close AEDT or release it using the
 # :func:`pyaedt.Desktop.release_desktop` method.
 # All methods provide for saving the project before exiting.
 

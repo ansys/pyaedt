@@ -58,7 +58,7 @@ class TestClass:
         "object_name, kwargs",
         [
             ("inner", {"mat": "copper"}),
-            ("outer", {"mat": "aluminum", "usethickness": True, "thickness": "0.5mm", "istwoside": True, 
+            ("outer", {"mat": "aluminum", "usethickness": True, "thickness": "0.5mm", "istwoside": True,
                         "issheelElement": True, "usehuray": True, "radius": "0.75um", "ratio": "3"}),
             ("die", {})
         ]

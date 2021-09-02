@@ -35,9 +35,3 @@ class TestClass:
         mysetup = self.aedtapp.create_setup()
         mysetup.props["SaveFields"] = True
         assert mysetup.update()
-
-
-
-
-
-

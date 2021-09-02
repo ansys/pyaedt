@@ -23,7 +23,7 @@ class SourceType(object):
 
 
 class PinGroup(object):
-    """Manages pin groups.""" 
+    """Manages pin groups."""
     def __init__(self):
         self._name = ""
         self._component = ""
