@@ -2462,8 +2462,9 @@ class GeometryModeler(Modeler, object):
         ----------
         origin : list
             List of ``[x, y, z]`` coordinates for the original position.
-        wg_direction_axis :
-            Waveguide axis direction.
+        wg_direction_axis : int
+            Coordinate system axis (integer ``0`` for XAxis, ``1`` for YAxis, ``2`` for ZAxis) or
+            the :class: `Application.CoordinateSystemAxis` enumerator.
         wgmodel : str, optional
             Waveguide model. The default is ``"WG0"``.
         wg_length : float, optional
