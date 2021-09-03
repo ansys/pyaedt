@@ -9,6 +9,7 @@ except ImportError:
 from _unittest.conftest import local_path, scratch_path, config
 
 # Import required modules
+from pyaedt import is_ironpython
 from pyaedt import Hfss
 from pyaedt.generic.filesystem import Scratch
 import gc
@@ -155,7 +156,7 @@ class TestClass:
         assert path
 
     def test_11_get_efields(self):
-        if "IronPython" in sys.version or ".NETFramework" in sys.version:
+        if is_ironpython:
 
             assert True
         else:

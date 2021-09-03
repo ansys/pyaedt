@@ -1,9 +1,11 @@
 import warnings
 import sys
+import time
 from collections import OrderedDict, defaultdict
 from .general import convert_py_list_to_net_list, convert_net_list_to_py_list, convert_pydict_to_netdict, convert_netdict_to_pydict
 from ..generic.general_methods import aedt_exception_handler
-import time
+from pyaedt import is_ironpython
+
 try:
     import clr
     from System import Double, Array
@@ -940,7 +942,7 @@ class EDBPadstack(object):
     @property
     def _hole_params(self):
         viaData = self.edb_padstack.GetData()
-        if "IronPython" in sys.version or ".NETFramework" in sys.version:
+        if is_ironpython:
             out = viaData.GetHoleParametersValue()
         else:
             value0 = self._edb_value("0.0")
@@ -995,7 +997,7 @@ class EDBPadstack(object):
             offsety = self.hole_offset_y
         if not rotation:
             rotation = self.hole_rotation
-        if "IronPython" in sys.version or ".NETFramework" in sys.version:
+        if is_ironpython:
             newPadstackDefinitionData.SetHoleParameters(hole_type, params,
                                                         self._edb_value(offsetx),
                                                         self._edb_value(offsety),

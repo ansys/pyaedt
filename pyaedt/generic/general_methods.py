@@ -16,9 +16,11 @@ modules = [tup[1] for tup in pkgutil.iter_modules()]
 if 'clr' in modules:
     import clr
 
+
 class MethodNotSupportedError(Exception):
     """ """
     pass
+
 
 def _write_mes(mes_text, print_on_desktop=False):
     if os.getenv('PYAEDT_SCREEN_LOGS', 'True').lower() in ('true', '1', 't'):

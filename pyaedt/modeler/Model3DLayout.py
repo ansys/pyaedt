@@ -6,6 +6,7 @@ from ..edb import Edb
 from .Modeler import Modeler
 from .Primitives3DLayout import Primitives3DLayout, Geometries3DLayout
 from ..modules.LayerStackup import Layers
+from pyaedt import _pythonver
 import sys
 
 class Modeler3DLayout(Modeler):
@@ -242,7 +243,7 @@ class Modeler3DLayout(Modeler):
         -------
 
         """
-        if isinstance(value, str if int(sys.version_info[0]) >= 3 else basestring):
+        if isinstance(value, str if _pythonver >= 3 else basestring):
             return value
         else:
             return str(value) + self.model_units
