@@ -15,6 +15,8 @@ try:
 except ImportError:
     warnings.warn('This module requires pythonnet.')
 
+from pyaedt import is_ironpython
+
 
 class Edb3DLayout(object):
     """Manages EDB functionalities for 3D layouts."""
@@ -382,7 +384,7 @@ class Edb3DLayout(object):
             for pinname, pin in self.parent.core_components.components[ref].pins.items():
                 if pin.net in net_list and pin.pin.IsLayoutPin():
                    port_name = "{}_{}_{}".format(ref,pin.net,pin.pin.GetName())
-                   if "IronPython" in sys.version or ".NETFramework" in sys.version:
+                   if is_ironpython:
                        res, fromLayer_pos, toLayer_pos = pin.pin.GetLayerRange()
                    else:
                        res, fromLayer_pos, toLayer_pos = pin.pin.GetLayerRange(None, None)
@@ -407,7 +409,7 @@ class Edb3DLayout(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        if "IronPython" in sys.version or ".NETFramework" in sys.version:
+        if is_ironpython:
             res, fromLayer_pos, toLayer_pos = pinpos.GetLayerRange()
         else:
             res, fromLayer_pos, toLayer_pos = pinpos.GetLayerRange(None, None)

@@ -14,11 +14,7 @@ from .Object3d import Object3d, EdgePrimitive, FacePrimitive, VertexPrimitive, _
 from ..generic.general_methods import aedt_exception_handler, retry_ntimes, is_number
 from ..application.Variables import Variable
 from collections import OrderedDict
-if "IronPython" in sys.version or ".NETFramework" in sys.version:
-    _ironpython = True
-else:
-    _ironpython = False
-
+from pyaedt import is_ironpython
 
 default_materials = {"Icepak": "air", "HFSS": "vacuum", "Maxwell 3D": "vacuum", "Maxwell 2D": "vacuum",
                      "2D Extractor": "copper", "Q3D Extractor": "copper", "HFSS 3D Layout": "copper", "Mechanical" : "copper"}
@@ -904,6 +900,8 @@ class Primitives(object):
         vGeo3d = ["NAME:Geometry3DAttributeTab", vPropServers, vChangedProps]
         vOut = ["NAME:AllTabs", vGeo3d]
         retry_ntimes(10, self.oeditor.ChangeProperty, vOut)
+        if "NAME:Name" in vPropChange:
+            self.cleanup_objects()
         return True
 
     @aedt_exception_handler
@@ -1494,6 +1492,8 @@ class Primitives(object):
         all_objects =self.object_names
         all_unclassified =self.unclassified_objects
         for old_id, obj in self.objects.items():
+            if obj.name == "box2":
+                pass
             if obj.name in all_objects or obj.name in all_unclassified:
                 updated_id = obj.id    # By calling the object property we get the new id
                 new_object_id_dict[obj.name] = updated_id

@@ -17,7 +17,7 @@ import getpass
 import re
 from pyaedt.application.MessageManager import AEDTMessageManager
 from pyaedt.misc import list_installed_ansysem
-
+from pyaedt import is_ironpython, _pythonver
 pathname = os.path.dirname(__file__)
 if os.path.exists(os.path.join(pathname,'version.txt')):
     with open(os.path.join(pathname,'version.txt'), "r") as f:
@@ -28,7 +28,6 @@ elif os.path.exists(os.path.join(pathname, "..", 'version.txt')):
 else:
     pyaedtversion = "X"
 
-_pythonver = sys.version_info[0]
 
 if os.name == 'nt':
     IsWindows = True
@@ -36,7 +35,7 @@ else:
     IsWindows = False
 logger = logging.getLogger(__name__)
 
-if "IronPython" in sys.version or ".NETFramework" in sys.version:
+if is_ironpython:
     import clr  # IronPython C:\Program Files\AnsysEM\AnsysEM19.4\Win64\common\IronPython\ipy64.exe
     _com = 'ironpython'
 elif IsWindows:

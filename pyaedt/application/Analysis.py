@@ -22,8 +22,9 @@ from .Design import Design
 from ..modules.MaterialLib import Materials
 from ..generic.general_methods import aedt_exception_handler
 from ..desktop import _pythonver
+from .. import is_ironpython
 import sys
-if "IronPython" in sys.version or ".NETFramework" in sys.version:
+if is_ironpython:
     from ..modules.PostProcessor import PostProcessor
 else:
     from ..modules.AdvancedPostProcessing import PostProcessor

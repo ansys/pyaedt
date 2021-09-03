@@ -144,7 +144,7 @@ AEDT_units = {
 }
 SI_units = {
     'AngularSpeed':  'rad_per_sec',
-    'Angle': 'deg',
+    'Angle': 'rad',
     'Current': 'A',
     'Flux': 'vs',
     'Freq': 'Hz',
@@ -406,20 +406,38 @@ class CSVDataset:
         return self.__next__()
 
 @aedt_exception_handler
-def decompose_variable_value(variable_value):
+def _find_units_in_dependent_variables(variable_value, full_variables={}):
+    m2 = re.findall('[0-9.]+ *([a-z_A-Z]+)', variable_value)
+    if len(m2) > 0:
+        if len(set(m2)) <= 1:
+            return m2[0]
+        else:
+            if unit_system(m2[0]):
+                return SI_units[unit_system(m2[0])]
+    else:
+        m1 = re.findall('(?<=[/+-/*//^/(/[])([a-z_A-Z]\w*)', variable_value.replace(" ", ""))
+        m2 = re.findall('^([a-z_A-Z]\w*)', variable_value.replace(" ", ""))
+        m = list(set(m1).union(m2))
+        for i,v in full_variables.items():
+            if i in m and _find_units_in_dependent_variables(v):
+                return _find_units_in_dependent_variables(v)
+    return ""
+
+@aedt_exception_handler
+def decompose_variable_value(variable_value, full_variables={}):
     """Decompose a variable value.
 
     Parameters
     ----------
     variable_value : float
-
+    full_variables : dict
     Returns
     -------
 
     """
     # set default return values - then check for valid units
     float_value = variable_value
-    units =''
+    units = ''
 
     if is_number(variable_value):
         float_value = float(variable_value)
@@ -430,6 +448,8 @@ def decompose_variable_value(variable_value):
         except ValueError:
             # search for a valid units string at the end of the variable_value
             loc = re.search('[a-z_A-Z]+$', variable_value)
+            units = _find_units_in_dependent_variables(variable_value, full_variables)
+
             if loc:
                 loc_units = loc.span()[0]
                 extract_units = variable_value[loc_units:]
@@ -709,21 +729,22 @@ class VariableManager(object):
 
         """
         var_dict = {}
+        all_names ={}
         for obj in object_list:
             for variable_name in obj.GetVariables():
                 variable_expression = self.get_expression(variable_name)
+                all_names[variable_name] = variable_expression
                 try:
                     value = Variable(variable_expression)
                     if independent and is_number(value.value):
                         var_dict[variable_name] = value
                     elif dependent and type(value.value) is str:
                         float_value = self._parent.get_evaluated_value(variable_name)
-                        var_dict[variable_name] = Expression(variable_expression, float_value)
+                        var_dict[variable_name] = Expression(variable_expression, float_value, all_names)
                 except:
                     if dependent:
                         float_value = self._parent.get_evaluated_value(variable_name)
-                        var_dict[variable_name] = Expression(variable_expression, float_value)
-
+                        var_dict[variable_name] = Expression(variable_expression, float_value, all_names)
         return var_dict
 
     @aedt_exception_handler
@@ -1362,12 +1383,11 @@ class Expression(Variable, object):
 
     """
 
-    def __init__(self, expression, float_value):
+    def __init__(self, expression, float_value, full_variables={}):
         self._expression = expression
         self._value = float_value
-        # TODO. Try to identify the unit system from the expression.
         try:
-            value, units = decompose_variable_value(expression)
+            value, units = decompose_variable_value(expression, full_variables)
             self._units = units
         except:
             self._units = ''
