@@ -87,7 +87,8 @@ class NativeComponentObject(BoundaryCommon, object):
 
     @property
     def targetcs(self):
-        """
+        """Native Component Coordinate System.
+
         Returns
         -------
         str
@@ -119,7 +120,7 @@ class NativeComponentObject(BoundaryCommon, object):
 
     @aedt_exception_handler
     def create(self):
-        """Create a Native Component in AEDT
+        """Create a Native Component in AEDT.
 
         Returns
         -------
@@ -198,6 +199,7 @@ class BoundaryObject(BoundaryCommon, object):
     >>> inner_id = hfss.modeler.primitives.get_obj_id("inner")
     >>> coat = hfss.assigncoating([inner_id], "copper", usethickness=True, thickness="0.2mm")
     """
+
     def __init__(self, parent, name, props, boundarytype):
         self._parent = parent
         self.name = name

@@ -51,6 +51,7 @@ class FieldAnalysis3D(Analysis, object):
         is ``False``.
 
     """
+
     def __init__(self, application, projectname, designname, solution_type, setup_name=None,
                  specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):
         Analysis.__init__(self, application, projectname, designname, solution_type, setup_name,
@@ -58,14 +59,13 @@ class FieldAnalysis3D(Analysis, object):
         self._modeler = Modeler3D(self)
         self._mesh = Mesh(self)
 
-
     @property
     def modeler(self):
         """Modeler.
 
         Returns
         -------
-        :class:`modeler.Model3D.Modeler3D`
+        :class: `modeler.Model3D.Modeler3D`
         """
         return self._modeler
 
@@ -75,7 +75,7 @@ class FieldAnalysis3D(Analysis, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Mesh.Mesh`
+        :class: `pyaedt.modules.Mesh.Mesh`
         """
         return self._mesh
 
@@ -199,7 +199,8 @@ class FieldAnalysis3D(Analysis, object):
             for propserv in propservs:
                 properties = list(self.odesign.GetProperties(propserv, objectname))
                 if property in properties:
-                    val = retry_ntimes(10, self.odesign.GetPropertyValue, propserv, objectname, property)
+                    val = retry_ntimes(10, self.odesign.GetPropertyValue,
+                                       propserv, objectname, property)
                     return val
         return None
 

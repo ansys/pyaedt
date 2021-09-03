@@ -23,8 +23,8 @@ import shutil
 import json
 import gc
 import sys
-
-if "IronPython" in sys.version or ".NETFramework" in sys.version:
+from pyaedt import is_ironpython
+if is_ironpython:
     import _unittest_ironpython.conf_unittest as pytest
 else:
     import pytest
@@ -144,7 +144,6 @@ def pyaedt_unittest_check_desktop_error(func):
         return ret_val
 
     return inner_function
-
 
 
 #

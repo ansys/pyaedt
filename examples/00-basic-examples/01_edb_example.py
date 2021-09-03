@@ -26,7 +26,7 @@ if os.path.exists(targetfolder):
 shutil.copytree(example_path[:-8], targetfolder)
 targetfile=os.path.join(targetfolder)
 print(targetfile)
-aedt_file = targetfile[:-12] + "aedt"
+aedt_file = targetfile[:-4] + "aedt"
 
 
 ###############################################################################
@@ -36,11 +36,11 @@ from pyaedt import Edb
 ###############################################################################
 # Launch EDB
 # ~~~~~~~~~~
-# This example launches the :class:`pyaedt.Edb` class.
+# This example launches the :class: `pyaedt.Edb` class.
 # This example uses EDB 2021.1 and uses SI units.
 
 if os.path.exists(aedt_file): os.remove(aedt_file)
-edb = Edb(edbpath=targetfile, edbversion="2021.2")
+edb = Edb(edbpath=targetfile, edbversion="2021.1")
 
 ###############################################################################
 # Compute Nets and Components
@@ -97,7 +97,8 @@ print(dc_connected_net_list)
 
 VRM = "U3A1"
 OUTPUT_NET = "BST_V1P0_S0"
-powertree_df, component_list_columns, net_group = edb.core_nets.get_powertree(OUTPUT_NET, GROUND_NETS)
+powertree_df, component_list_columns, net_group = edb.core_nets.get_powertree(
+    OUTPUT_NET, GROUND_NETS)
 for el in powertree_df:
     print(el)
 
@@ -152,7 +153,7 @@ edb.core_stackup.stackup_layers.layers['UNNAMED_002'].material_name = "My_Debye"
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This example creates a circuit port for SIwave simulation.
 
-edb.core_siwave.create_circuit_port("U2A5", "DDR3_DM0")
+edb.core_siwave.create_circuit_port_on_net("U2A5", "DDR3_DM0")
 
 edb.core_siwave.add_siwave_ac_analysis()
 
@@ -161,7 +162,7 @@ edb.core_siwave.add_siwave_ac_analysis()
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This example creates a Voltage Source and then setup a DCIR Analysis.
 
-edb.core_siwave.create_voltage_source("U2A5","V1P5_S3","U2A5","GND",3.3,0,"V1")
+edb.core_siwave.create_voltage_source_on_net("U2A5","V1P5_S3","U2A5","GND",3.3,0,"V1")
 settings = edb.core_siwave.get_siwave_dc_setup_template()
 settings.accuracy_level = 0
 settings.use_dc_custom_settings  = True

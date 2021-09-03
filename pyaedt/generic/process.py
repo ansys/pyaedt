@@ -155,7 +155,6 @@ class SiwaveSolve(object):
         else:
             self._exe = os.path.join(self.installer_path, executable+'.exe')
 
-
     @property
     def siwave_exe(self):
         return self._exe
@@ -211,7 +210,8 @@ class SiwaveSolve(object):
                         f.writelines(str.format('SetNumCpus {}', str(self.nbcores)) + '\n')
                         f.writelines("SaveSiw")
                     else:
-                        fstarts = [i for i in range(len(content)) if content[i].startswith('SetNumCpus')]
+                        fstarts = [i for i in range(len(content))
+                                                    if content[i].startswith('SetNumCpus')]
                         content[fstarts[0]] = str.format('SetNumCpus {}', str(self.nbcores))
                         f.close()
                         os.remove(exec_file)
@@ -257,7 +257,8 @@ class SiwaveSolve(object):
                 f.write("    if allnets[i] != 'DUMMY':\n")
                 f.write("        oDoc.ScrSelectNet(allnets[i], 1)\n")
             f.write("oDoc.ScrSetOptionsFor3DModelExport(exportOptions)\n")
-            f.write("q3d_filename = os.path.join(r'{}', '{}')\n".format(output_folder, format_3d+"_siwave.aedt"))
+            f.write("q3d_filename = os.path.join(r'{}', '{}')\n".format(
+                output_folder, format_3d+"_siwave.aedt"))
             f.write("oDoc.ScrExport3DModel('{}', q3d_filename)\n".format(format_3d))
             f.write("oDoc.ScrCloseProject()\n")
             f.write("oApp.Quit()\n")

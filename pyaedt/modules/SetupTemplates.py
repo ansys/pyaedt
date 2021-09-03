@@ -899,6 +899,7 @@ class SweepHFSS3DLayout(object):
         case the default properties are retrieved.
 
     """
+
     def __init__(self, oanalysis, setupname, sweepname, sweeptype="Interpolating", props=None):
         self.oanalysis = oanalysis
         self.props = {}
@@ -942,7 +943,6 @@ class SweepHFSS3DLayout(object):
             self.props["AllOffDiagEntries"] = False
             self.props["MagMinThreshold"] = 0.01
 
-
     @aedt_exception_handler
     def add_subrange(self, rangetype, start, end, count):
         """Add a subrange to the sweep.
@@ -951,7 +951,7 @@ class SweepHFSS3DLayout(object):
         ----------
         rangetype : str
             Type of the subrange. Options are ``"LinearCount"``,
-           ``"LinearStep"``, and ``"LogScale"``.
+            ``"LinearStep"``, and ``"LogScale"``.
         start : float
             Starting frequency.
         end : float
@@ -1075,6 +1075,7 @@ class SweepQ3D(object):
         the default properties are retrieved.
 
     """
+
     def __init__(self, oanalysis, setupname, sweepname, sweeptype="Interpolating", props=None):
         self.oanalysis = oanalysis
         self.setupname = setupname
@@ -1105,7 +1106,7 @@ class SweepQ3D(object):
         ----------
         type : str
             Type of the subrange. Options are ``"LinearCount"``,
-           ``"LinearStep"``, and ``"LogScale"``.
+            ``"LinearStep"``, and ``"LogScale"``.
         start : float
             Starting frequency.
         end : float

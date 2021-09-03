@@ -20,11 +20,11 @@ import time
 import logging
 from collections import OrderedDict
 from .MessageManager import AEDTMessageManager
-from .Variables import VariableManager, DataSet
+from .Variables import VariableManager, DataSet, AEDT_units, unit_system
 from ..desktop import exception_to_desktop, Desktop, force_close_desktop, release_desktop, get_version_env_variable
 from ..generic.LoadAEDTFile import load_entire_aedt_file
 from ..generic.general_methods import aedt_exception_handler
-from ..generic.list_handling import variation_string_to_dict
+from .DataHandlers import variation_string_to_dict
 from ..modules.Boundary import BoundaryObject
 from ..generic.general_methods import generate_unique_name
 
@@ -223,6 +223,7 @@ class DesignCache(object):
         Name of the parent object.
 
     """
+
     def __init__(self, parent):
         self._parent = parent
         self._allow_errors_local = []
@@ -232,12 +233,15 @@ class DesignCache(object):
 
     @property
     def allowed_error_messages(self):
+        """Add this error message to the ignored error messages."""
         return self._allow_errors_global + self._allow_errors_local
 
     def ignore_error_message_local(self, msg):
+        """Add this error message to the ignored local error messages."""
         self._allow_errors_local.append("[error] {}".format(msg))
 
     def ignore_error_message_global(self, msg):
+        """Add this error message to the ignored global error messages."""
         self._allow_errors_global.append("[error] {}".format(msg))
 
     @property
@@ -247,7 +251,8 @@ class DesignCache(object):
         Returns
         --------
         bool
-            ``True`` when the design snapshot is unchanged since the last update, ``False`` otherwise.
+            ``True`` when the design snapshot is unchanged since the
+            last update, ``False`` otherwise.
         """
         return self._no_change
 
@@ -302,8 +307,9 @@ class DesignCache(object):
         Returns
         -------
         bool
-            ``True`` if new messages have appeared since the last update or since the Message Manager was
-            cleared, ``False`` otherwise.
+            ``True`` if new messages have appeared since the last
+            update or since the Message Manager was cleared, ``False``
+            otherwise.
         """
         return not bool(self._delta_messages)
 
@@ -314,7 +320,8 @@ class DesignCache(object):
         Returns
         -------
         bool
-            ``True`` if new error messages have appeared since the last update, ``False`` otherwise.
+            ``True`` if new error messages have appeared since the
+            last update, ``False`` otherwise.
         """
         return not bool(self._new_error_messages)
 
@@ -325,7 +332,8 @@ class DesignCache(object):
         Returns
         -------
         bool
-            ``True`` if new error messages have appeared since the last update, ``False`` otherwise.
+            ``True`` if new error messages have appeared since the
+            last update, ``False`` otherwise.
         """
         return not bool(self._new_warning_messages)
 
@@ -363,8 +371,11 @@ class DesignCache(object):
         self._messages_design_level = []
 
     def update(self):
-        """Retrieve the current state values from the design and perform a delta calculation with the cached values.
-        Then replace the cached values with the current values.
+        """Update the current state.
+
+        Retrieve the current state values from the design and perform
+        a delta calculation with the cached values.  Then replace the
+        cached values with the current values.
 
         .. note::
            The update is done automatically when the property
@@ -382,10 +393,14 @@ class DesignCache(object):
 
         self._snapshot = new_snapshot
 
-        self._delta_global_messages = list_difference(messages.global_level, self._messages_global_level)
-        self._delta_project_messages = list_difference(messages.project_level, self._messages_project_level)
-        self._delta_design_messages = list_difference(messages.design_level, self._messages_design_level)
-        self._delta_messages_unfiltered = self._delta_global_messages + self._delta_project_messages + self._delta_design_messages
+        self._delta_global_messages = list_difference(
+            messages.global_level, self._messages_global_level)
+        self._delta_project_messages = list_difference(
+            messages.project_level, self._messages_project_level)
+        self._delta_design_messages = list_difference(
+            messages.design_level, self._messages_design_level)
+        self._delta_messages_unfiltered = self._delta_global_messages + \
+            self._delta_project_messages + self._delta_design_messages
 
         # filter out allowed messages
         self._delta_messages = []
@@ -400,7 +415,8 @@ class DesignCache(object):
                 self._delta_messages.append(msg)
 
         self._new_error_messages = [msg for msg in self._delta_messages if msg.find("[error]") == 0]
-        self._new_warning_messages = [msg for msg in self._delta_messages if msg.find("[warning]") == 0]
+        self._new_warning_messages = [
+            msg for msg in self._delta_messages if msg.find("[warning]") == 0]
 
         self._messages_global_level = messages.global_level
         self._messages_project_level = messages.project_level
@@ -453,7 +469,8 @@ class Design(object):
         pyaedt_details += "pyaedt running AEDT Version {} \n".format(self._aedt_version)
         pyaedt_details += "Running {} tool in AEDT\n".format(self.design_type)
         pyaedt_details += "Solution Type: {} \n".format(self.solution_type)
-        pyaedt_details += "Project Name: {}    Design Name{} \n".format(self.project_name, self.design_name)
+        pyaedt_details += "Project Name: {}    Design Name{} \n".format(
+            self.project_name, self.design_name)
         pyaedt_details += "Project Path: \"{}\" \n".format(self.project_path)
         return pyaedt_details
 
@@ -491,11 +508,13 @@ class Design(object):
         self._messenger = AEDTMessageManager(self)
         self.logger = logging.getLogger(__name__)
 
-        assert design_type in design_solutions, "Invalid design type is specified: {}.".format(design_type)
+        assert design_type in design_solutions, "Invalid design type is specified: {}.".format(
+            design_type)
         self._design_type = design_type
         if solution_type:
             assert solution_type in design_solutions[design_type], \
-                "Invalid solution type {0} exists for design type {1}.".format(solution_type, design_type)
+                "Invalid solution type {0} exists for design type {1}.".format(
+                    solution_type, design_type)
         self._solution_type = solution_type
         self._odesign = None
         self._oproject = None
@@ -506,6 +525,11 @@ class Design(object):
         self.solution_type = self._solution_type
         self.project_datasets = self._get_project_datasets()
         self.design_datasets = self._get_design_datasets()
+
+    @aedt_exception_handler
+    def __delitem__(self, key):
+        """Implement destructor with array name or index."""
+        del self._variable_manager[key]
 
     @property
     def project_properies(self):
@@ -554,7 +578,6 @@ class Design(object):
                         return designs
         except:
             return OrderedDict()
-
 
     @property
     def aedt_version_id(self):
@@ -636,14 +659,13 @@ class Design(object):
         and ``"Twin Builder"``.
 
         Returns
-        --------
+        -------
         str
             Type of the design. See above for a list of possible return values.
 
         """
         #return self._odesign.GetDesignType()
         return self. _design_type
-
 
     @property
     def project_name(self):
@@ -752,8 +774,6 @@ class Design(object):
             except:
                 pass
 
-
-
     @property
     def valid_design(self):
         """Valid design.
@@ -795,7 +815,7 @@ class Design(object):
 
     @property
     def syslib(self):
-        """SysLib directory
+        """SysLib directory.
 
         Returns
         -------
@@ -915,7 +935,8 @@ class Design(object):
         activedes = des_name
         if des_name:
             if self._assert_consistent_design_type(des_name) == des_name:
-                self._insert_design(self._design_type, design_name=des_name, solution_type=self._solution_type)
+                self._insert_design(self._design_type, design_name=des_name,
+                                    solution_type=self._solution_type)
         else:
             # self._odesign = self._oproject.GetActiveDesign()
             if self.design_list:
@@ -963,7 +984,6 @@ class Design(object):
         """
         return self._odesign.GetModule("ModelSetup")
 
-
     @property
     def oimportexport(self):
         """Import/Export.
@@ -999,7 +1019,8 @@ class Design(object):
                     name = self._generate_unique_project_name()
 
                     path = os.path.dirname(proj_name)
-                    self._desktop.RestoreProjectArchive(proj_name, os.path.join(path, name), True, True)
+                    self._desktop.RestoreProjectArchive(
+                        proj_name, os.path.join(path, name), True, True)
                     time.sleep(0.5)
                     proj = self._desktop.GetActiveProject()
                 elif ".def" in proj_name:
@@ -1057,7 +1078,6 @@ class Design(object):
 
         """
         return self._desktop_install_dir
-
 
     @aedt_exception_handler
     def add_info_message(self, message_text, message_type=None):
@@ -1164,7 +1184,7 @@ class Design(object):
 
         Returns
         -------
-        :class:`pyaedt.application.Variables.VariableManager
+        pyaedt.application.Variables.VariableManager
 
         """
         return self._variable_manager
@@ -1220,7 +1240,8 @@ class Design(object):
         if mean:
             arg2.append("Mean:=")
             arg2.append(mean)
-        arg3 = [tab, ["NAME:PropServers", propserver], ["NAME:ChangedProps", ["NAME:" + variable_name, arg2]]]
+        arg3 = [tab, ["NAME:PropServers", propserver], [
+            "NAME:ChangedProps", ["NAME:" + variable_name, arg2]]]
         arg.append(arg3)
 
     @aedt_exception_handler
@@ -1249,7 +1270,8 @@ class Design(object):
 
         """
         arg = ["NAME:AllTabs"]
-        self._optimetrics_variable_args(arg, "Statistical", variable_name, min_val, max_val, tolerance, probability, mean)
+        self._optimetrics_variable_args(
+            arg, "Statistical", variable_name, min_val, max_val, tolerance, probability, mean)
         if "$" in variable_name:
             self.oproject.ChangeProperty(arg)
         else:
@@ -1445,7 +1467,6 @@ class Design(object):
                     pass
         return boundaries
 
-
     @aedt_exception_handler
     def _get_ds_data(self, name, datas):
         """
@@ -1478,7 +1499,8 @@ class Design(object):
                     z.append(el['CoordPoint'][2])
                     v.append(el['CoordPoint'][3])
         else:
-            new_list = [datas['Points'][i:i + numcol] for i in range(0, len(datas['Points']), numcol)]
+            new_list = [datas['Points'][i:i + numcol]
+                for i in range(0, len(datas['Points']), numcol)]
             for el in new_list:
                 x.append(el[0])
                 y.append(el[1])
@@ -1501,7 +1523,6 @@ class Design(object):
         except:
             pass
         return datasets
-
 
     @aedt_exception_handler
     def _get_design_datasets(self):
@@ -1586,7 +1607,6 @@ class Design(object):
         except OSError:
             return False
 
-
     @aedt_exception_handler
     def load_project(self, project_file, design_name=None, close_active_proj=False):
         """Open an AEDT project based on a project file and an optional design.
@@ -1617,7 +1637,6 @@ class Design(object):
         else:
             return False
 
-
     @aedt_exception_handler
     def create_dataset1d_design(self, dsname, xlist, ylist, xunit="", yunit=""):
         """Create a design dataset.
@@ -1637,7 +1656,7 @@ class Design(object):
 
         Returns
         -------
-        :class:`pyaedt.application.Variables.DataSet`
+        :class: `pyaedt.application.Variables.DataSet`
 
         """
         return self.create_dataset(dsname, xlist,ylist, is_project_dataset=False, xunit=xunit, yunit=yunit)
@@ -1778,7 +1797,6 @@ class Design(object):
         self._messenger.add_info_message("Dataset {} doesn't exist.".format(name))
         return False
 
-
     @aedt_exception_handler
     def change_automatically_use_causal_materials(self, lossy_dielectric=True):
         """Enable or disable the automatic use of causal materials for lossy dielectrics.
@@ -1878,7 +1896,8 @@ class Design(object):
             name=self.project_name
         if not directory:
             directory = self.results_directory
-        self._messenger.add_info_message("Cleanup folder {} from project {}".format(directory, name))
+        self._messenger.add_info_message(
+            "Cleanup folder {} from project {}".format(directory, name))
         if os.path.exists(directory):
             shutil.rmtree(directory, True)
             if not os.path.exists(directory):
@@ -1959,7 +1978,8 @@ class Design(object):
         else:
             name = self.project_name
             msg_txt = "active "+ self.project_name
-        self._messenger.add_info_message("Closing the {} AEDT Project".format(msg_txt), level="Global")
+        self._messenger.add_info_message(
+            "Closing the {} AEDT Project".format(msg_txt), level="Global")
         if name != self.project_name:
             oproj = self.odesktop.SetActiveProject(name)
         else:
@@ -2003,7 +2023,6 @@ class Design(object):
         else:
             self.odesign = None
         return True
-
 
     @aedt_exception_handler
     def delete_separator(self, separator_name):
@@ -2061,20 +2080,25 @@ class Design(object):
         self.__init__(projectname=self.project_name, designname=design_name)
 
     def _insert_design(self, design_type, design_name=None, solution_type=None):
-        assert design_type in design_solutions, "Invalid design type for insert: {}".format(design_type)
+        assert design_type in design_solutions, "Invalid design type for insert: {}".format(
+            design_type)
         # self.save_project() ## Commented because it saves a Projectxxx.aedt when launched on an empty Desktop
         unique_design_name = self._generate_unique_design_name(design_name)
         if solution_type:
             assert solution_type in design_solutions[self._design_type], \
-                "Solution type {0} is invalid for design type {1}.".format(solution_type, self._design_type)
+                "Solution type {0} is invalid for design type {1}.".format(
+                    solution_type, self._design_type)
         else:
             solution_type = self.default_solution_type
         if design_type == "RMxprtSolution":
-            new_design = self._oproject.InsertDesign("RMxprt", unique_design_name, "Inner-Rotor Induction Machine", "")
+            new_design = self._oproject.InsertDesign(
+                "RMxprt", unique_design_name, "Inner-Rotor Induction Machine", "")
         elif design_type == "ModelCreation":
-            new_design = self._oproject.InsertDesign("RMxprt", unique_design_name, "Model Creation Inner-Rotor Induction Machine", "")
+            new_design = self._oproject.InsertDesign(
+                "RMxprt", unique_design_name, "Model Creation Inner-Rotor Induction Machine", "")
         else:
-            new_design = self._oproject.InsertDesign(design_type, unique_design_name, solution_type, "")
+            new_design = self._oproject.InsertDesign(
+                design_type, unique_design_name, solution_type, "")
         self._messenger.add_info_message("Added design '{0}' of type {1}.".format(unique_design_name, design_type),
                                          level='Project')
         name = new_design.GetName()
@@ -2261,7 +2285,8 @@ class Design(object):
         if export_design:
             desnames = self.odesign.GetProperties("LocalVariableTab", "LocalVariables")
         with open(filename, 'w') as csvfile:
-            filewriter = csv.writer(csvfile, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+            filewriter = csv.writer(csvfile, delimiter=',', quotechar='|',
+                                    quoting=csv.QUOTE_MINIMAL)
             filewriter.writerow(['Name', 'Value'])
             for el in varnames:
                 value = self.oproject.GetVariableValue(el)
@@ -2417,10 +2442,9 @@ class Design(object):
         else:
             return self._odesign.ValidateDesign()
 
-
     @aedt_exception_handler
-    def get_evaluated_value(self, variable_name, variation=None):
-        """Retrieve the evaluated value of a design property or project variable in SI units.
+    def get_evaluated_value(self, variable_name, variation=None, units=None):
+        """Retrieve the evaluated value of a design property or project variable in SI units if no Unit is provided.
 
         Parameters
         ----------
@@ -2429,6 +2453,13 @@ class Design(object):
         variation : float, optional
             Variation value for the evaluation. The default is ``None``,
             in which case the nominal variation is used.
+        units : str
+            Name of the unit to rescale method. SI will be applied by default.
+
+        Returns
+        -------
+        float
+            Evaluated value of the design property or project variable in SI units.
 
         Examples
         --------
@@ -2439,11 +2470,6 @@ class Design(object):
         >>> M3D["p3"] = "P1 * p2"
         >>> eval_p3 = M3D.get_evaluated_value("p3")
 
-        Returns
-        -------
-        float
-            Evaluated value of the design property or project variable in SI units.
-
         """
         if not variation:
             variation_string = self._odesign.GetNominalVariation()
@@ -2451,7 +2477,12 @@ class Design(object):
             variation_string = self.design_variation(variation_string=variation)
 
         si_value = self._odesign.GetVariationVariableValue(variation_string, variable_name)
-
+        if units:
+            scale = AEDT_units[unit_system(units)][units]
+            if isinstance(scale, tuple):
+                return scale[0](si_value, True)
+            else:
+                return si_value / scale
         return si_value
 
     @aedt_exception_handler

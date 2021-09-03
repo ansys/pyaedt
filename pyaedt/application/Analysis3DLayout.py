@@ -49,6 +49,7 @@ class FieldAnalysis3DLayout(Analysis):
         is ``False``.
 
     """
+
     def __init__(self, application, projectname, designname, solution_type, setup_name=None,
                  specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):
 
@@ -79,7 +80,7 @@ class FieldAnalysis3DLayout(Analysis):
 
         Returns
         -------
-        :class:`pyaedt.modules.Mesh3DLayout.Mesh`
+        :class: `pyaedt.modules.Mesh3DLayout.Mesh`
         """
         return self._mesh
 
@@ -147,7 +148,8 @@ class FieldAnalysis3DLayout(Analysis):
         if not excitation_names:
             excitation_names = self.get_excitations_name
         if excitation_name_prefix:
-            excitation_names = [i for i in excitation_names if excitation_name_prefix.lower() in i.lower()]
+            excitation_names = [
+                i for i in excitation_names if excitation_name_prefix.lower() in i.lower()]
         spar = []
         for i in excitation_names:
             spar.append("S({},{})".format(i, i))
@@ -317,7 +319,7 @@ class FieldAnalysis3DLayout(Analysis):
 
         Returns
         -------
-        :class:`pyaedt.modules.SolveSetup.Setup3DLayout`
+        :class: `pyaedt.modules.SolveSetup.Setup3DLayout`
 
         """
         if setuptype is None:
@@ -347,7 +349,7 @@ class FieldAnalysis3DLayout(Analysis):
 
         Returns
         -------
-        :class:`pyaedt.modules.SolveSetup.Setup3DLayout`
+        :class: `pyaedt.modules.SolveSetup.Setup3DLayout`
             Setup object.
 
         """

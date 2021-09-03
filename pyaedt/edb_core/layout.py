@@ -55,6 +55,7 @@ class EdbLayout(object):
 
     @property
     def db(self):
+        """Db object."""
         return self._parent.db
 
     @property
@@ -597,6 +598,7 @@ class EdbLayout(object):
         properties : dict, optional
             Dictionary of properties associated with the shape. The default is ``{}``.
         """
+
         def __init__(self, type='unknown', pointA=None, pointB=None, centerPoint=None, radius=None, points=None,
                          properties={}):
             self.type = type

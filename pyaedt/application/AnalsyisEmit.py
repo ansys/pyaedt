@@ -30,8 +30,6 @@ class FieldAnalysisEmit(Design):
 
     @solution_type.setter
     def solution_type(self, soltype):
-        """ """
-
         if soltype:
             self._solution_type = "EMIT"
         else:
@@ -47,7 +45,6 @@ class FieldAnalysisEmit(Design):
         """Setup names."""
         return []
 
-
     def __init__(self, application, projectname, designname, solution_type, setup_name=None,
                  specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True, student_version=False):
         self.solution_type = solution_type
@@ -62,7 +59,7 @@ class FieldAnalysisEmit(Design):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Circuit.ModelerEmit`
+        pyaedt.modeler.Circuit.ModelerEmit
             Design oModeler
         """
         return self._modeler

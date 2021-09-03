@@ -24,7 +24,7 @@ class MessageList:
     Parameters
     ---------
     msg_list : list
-        List of messages extracted from AEDT by the :class:`AEDTMessageManager` class.
+        List of messages extracted from AEDT by the :class: `AEDTMessageManager` class.
     project_name : str
         Name of the project. The default is the active project.
     design_name : str
@@ -43,6 +43,7 @@ class MessageList:
         List of strings representing the message content for the specified design within the specified project
 
     """
+
     def __init__(self, msg_list, project_name, design_name):
         self.global_level = []
         self.project_level = []
@@ -101,19 +102,22 @@ class AEDTMessageManager(object):
     >>> hfss._messenger.add_error_message("This is a project error message", "Project")
 
     """
+
     def __init__(self, parent=None):
         self._parent = parent
         if not parent:
             if 'oDesktop' in dir(sys.modules['__main__']):
                 self.MainModule = sys.modules['__main__']
                 self._desktop = self.MainModule.oDesktop
-                self._log_on_desktop = os.getenv('PYAEDT_DESKTOP_LOGS', 'True').lower() in ('true', '1', 't', 'yes', 'y')
+                self._log_on_desktop = os.getenv(
+                    'PYAEDT_DESKTOP_LOGS', 'True').lower() in ('true', '1', 't', 'yes', 'y')
             else:
                 self._log_on_desktop = False
                 self._desktop = None
         else:
             self._desktop = self._parent._desktop
-            self._log_on_desktop = os.getenv('PYAEDT_DESKTOP_LOGS', 'True').lower() in ('true', '1', 't')
+            self._log_on_desktop = os.getenv(
+                'PYAEDT_DESKTOP_LOGS', 'True').lower() in ('true', '1', 't')
         self._log_on_file = os.getenv('PYAEDT_FILE_LOGS', 'True').lower() in ('true', '1', 't')
         self._log_on_screen = os.getenv('PYAEDT_SCREEN_LOGS', 'True').lower() in ('true', '1', 't')
 
@@ -236,8 +240,9 @@ class AEDTMessageManager(object):
     @aedt_exception_handler
     def add_debug_message(self, message_text, level=None):
         """Deprecated in favor of :func:`MessageList.add_info_message`.
+
         .. deprecated:: 0.2.0
-           Use the method :func:`MessageList.add_info_message`.
+           Use  :func:`MessageList.add_info_message`.
         """
         self.add_info_message(message_text, level)
 
@@ -250,16 +255,17 @@ class AEDTMessageManager(object):
         type : int
             Type of the message. Options are:
 
-            * 0: Info
-            * 1: Warning
-            * 2: Error
+            * ``0`` : Info
+            * ``1`` : Warning
+            * ``2`` : Error
 
         message_text : str
             Text to display as the message.
         level : str, optional
             Level to add the message to. Options are ``"Global"``,
             ``"Project"``, and ``"Design"``. The default is ``None``,
-            in which case the message gets added to the ``"Design"``level.
+            in which case the message gets added to the
+            ``"Design"`` level.
         proj_name : str, optional
             Name of the project.
         des_name : str, optional
@@ -410,7 +416,6 @@ class EDBMessageManager(object):
             self.logger.error(message_text)
         if self._log_on_screen:
             print(message_text)
-
 
     def add_warning_message(self, message_text):
         """Add a "Warning" message to the logger.

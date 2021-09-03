@@ -194,6 +194,7 @@ formats = {
 
 class ParseError(Exception):
     """ """
+
     def __init__(self, message):
         self.message = message
 
@@ -355,7 +356,8 @@ def get_return_losses(excitation_names, excitation_name_prefix=''):
     """
     spar = []
     if excitation_name_prefix:
-        excitation_names = [i for i in excitation_names if excitation_name_prefix.lower() in i.lower()]
+        excitation_names = [
+            i for i in excitation_names if excitation_name_prefix.lower() in i.lower()]
     for i in excitation_names:
         spar.append("S({},{})".format(i, i))
     return spar
@@ -691,7 +693,6 @@ def _parse_option_line(file, verbose=False):
         print("  Format:         %s" % format)
         print("  Reference R:    %g" % z0)
 
-
     return (frequnit, type, format, z0)
 
 
@@ -749,7 +750,6 @@ def _parse_next_sample(file, ports, format):
 
     port1 = port2 = 1
     list_data = [None for i in range(ports*ports)]
-
 
     while True:
         for i in range(int(len(data) / 2)):

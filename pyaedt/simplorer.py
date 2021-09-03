@@ -79,7 +79,6 @@ class Simplorer(FieldAnalysisSimplorer, object):
         FieldAnalysisSimplorer.__init__(self, "Twin Builder", projectname, designname, solution_type, setup_name,
                                         specified_version, NG, AlwaysNew, release_on_exit,student_version)
 
-
     @aedt_exception_handler
     def create_schematic_from_netlist(self, file_to_import):
         """Create a circuit schematic from an HSpice net list.
@@ -154,10 +153,9 @@ class Simplorer(FieldAnalysisSimplorer, object):
                         ypos = 0
         return True
 
-
     @aedt_exception_handler
     def set_end_time(self, expression):
-        """
+        """Set the end time.
 
         Parameters
         ----------

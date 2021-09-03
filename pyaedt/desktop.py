@@ -17,7 +17,7 @@ import getpass
 import re
 from pyaedt.application.MessageManager import AEDTMessageManager
 from pyaedt.misc import list_installed_ansysem
-
+from pyaedt import is_ironpython, _pythonver
 pathname = os.path.dirname(__file__)
 if os.path.exists(os.path.join(pathname,'version.txt')):
     with open(os.path.join(pathname,'version.txt'), "r") as f:
@@ -28,7 +28,6 @@ elif os.path.exists(os.path.join(pathname, "..", 'version.txt')):
 else:
     pyaedtversion = "X"
 
-_pythonver = sys.version_info[0]
 
 if os.name == 'nt':
     IsWindows = True
@@ -36,7 +35,7 @@ else:
     IsWindows = False
 logger = logging.getLogger(__name__)
 
-if "IronPython" in sys.version or ".NETFramework" in sys.version:
+if is_ironpython:
     import clr  # IronPython C:\Program Files\AnsysEM\AnsysEM19.4\Win64\common\IronPython\ipy64.exe
     _com = 'ironpython'
 elif IsWindows:
@@ -263,7 +262,6 @@ def force_close_desktop():
             return successfully_closed
 
 
-
 class Desktop:
     """Initializes AEDT based on the inputs provided.
 
@@ -348,7 +346,7 @@ class Desktop:
 
     @property
     def current_version_student(self):
-        """Current student version of AEDT. """
+        """Current student version of AEDT."""
         for el in self.version_keys:
             if "SV" in el:
                 return el
@@ -483,21 +481,25 @@ class Desktop:
                     self._main.isoutsideDesktop = True
                 elif version_key>="2021.1":
                     self._main.close_on_exit = True
-                    module_logger.debug("Info: {} Started with Process ID {}".format(version, proc[0]))
+                    module_logger.debug(
+                        "Info: {} Started with Process ID {}".format(version, proc[0]))
                     context = pythoncom.CreateBindCtx(0)
                     running_coms = pythoncom.GetRunningObjectTable()
                     monikiers = running_coms.EnumRunning()
                     for monikier in monikiers:
-                        m = re.search(version[10:]+r"\.\d:"+str(proc[0]), monikier.GetDisplayName(context, monikier))
+                        m = re.search(version[10:]+r"\.\d:"+str(proc[0]),
+                                      monikier.GetDisplayName(context, monikier))
                         if m:
                             obj = running_coms.GetObject(monikier)
                             self._main.isoutsideDesktop = True
                             # self._main.oDesktop = win32com.client.gencache.EnsureDispatch(
                             #     obj.QueryInterface(pythoncom.IID_IDispatch))
-                            self._main.oDesktop = win32com.client.Dispatch(obj.QueryInterface(pythoncom.IID_IDispatch))
+                            self._main.oDesktop = win32com.client.Dispatch(
+                                obj.QueryInterface(pythoncom.IID_IDispatch))
                             break
                 else:
-                    module_logger.warning("PyAEDT is not supported in AEDT versions older than 2021.1.")
+                    module_logger.warning(
+                        "PyAEDT is not supported in AEDT versions older than 2021.1.")
                     oAnsoftApp = win32com.client.Dispatch(version)
                     self._main.oDesktop = oAnsoftApp.GetAppDesktop()
                     self._main.isoutsideDesktop = True
@@ -557,7 +559,8 @@ class Desktop:
         if ex_type:
             err = self._exception(ex_value, ex_traceback)
         if self.release:
-            self.release_desktop(close_projects=self._main.close_on_exit, close_on_exit=self._main.close_on_exit)
+            self.release_desktop(close_projects=self._main.close_on_exit,
+                                 close_on_exit=self._main.close_on_exit)
 
     def _exception(self, ex_value, tb_data):
         """Write the trace stack to the desktop when a Python error occurs.

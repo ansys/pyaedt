@@ -22,8 +22,9 @@ from .Design import Design
 from ..modules.MaterialLib import Materials
 from ..generic.general_methods import aedt_exception_handler
 from ..desktop import _pythonver
+from .. import is_ironpython
 import sys
-if "IronPython" in sys.version or ".NETFramework" in sys.version:
+if is_ironpython:
     from ..modules.PostProcessor import PostProcessor
 else:
     from ..modules.AdvancedPostProcessing import PostProcessor
@@ -86,14 +87,13 @@ class Analysis(Design, object):
         self.opti_statistical = StatisticalSetups(self)
         self.native_components = self._get_native_data()
 
-
     @property
     def materials(self):
         """Manages materials in the project.
 
         Returns
         -------
-        :class:`pyaedt.modules.MaterialLib.Materials`
+        :class: `pyaedt.modules.MaterialLib.Materials`
             Manages materials in the project.
 
         """
@@ -111,14 +111,13 @@ class Analysis(Design, object):
         """
         return self.modeler.Position
 
-
     @property
     def available_variations(self):
         """Available variation object.
 
         Returns
         -------
-        :class:`pyaedt.application.Analysis.Analysis.AvailableVariations`
+        :class: `pyaedt.application.Analysis.Analysis.AvailableVariations`
             Available variation object.
 
         """
@@ -179,7 +178,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Modeler.Modeler`
+        :class: `pyaedt.modeler.Modeler.Modeler`
             Modeler object.
         """
         return self._modeler
@@ -190,7 +189,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Mesh.Mesh`
+        :class: `pyaedt.modules.Mesh.Mesh`
             Mesh object.
         """
         return self._mesh
@@ -201,7 +200,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.PostProcessor.PostProcessor`
+        :class: `pyaedt.modules.PostProcessor.PostProcessor`
             PostProcessor object.
         """
         return self._post
@@ -343,10 +342,7 @@ class Analysis(Design, object):
             List of names of all analysis setups in the design.
 
         """
-        setups = self.oanalysis.GetSetups()
-
-        return setups
-
+        return self.oanalysis.GetSetups()
 
     @property
     def ooptimetrics(self):
@@ -362,7 +358,7 @@ class Analysis(Design, object):
 
     @property
     def ooutput_variable(self):
-        """Output variable
+        """Output variable.
 
         Returns
         -------
@@ -383,7 +379,6 @@ class Analysis(Design, object):
         """
         return SetupTypes()
 
-
     @property
     def SolutionTypes(self):
         """Solution types.
@@ -400,7 +395,8 @@ class Analysis(Design, object):
         """Retrieve Native Components data."""
         boundaries = []
         try:
-            data_vals = self.design_properties['ModelSetup']["GeometryCore"]['GeometryOperations']['SubModelDefinitions']['NativeComponentDefinition']
+            data_vals = self.design_properties['ModelSetup']["GeometryCore"][
+                'GeometryOperations']['SubModelDefinitions']['NativeComponentDefinition']
             if not isinstance(data_vals, list) and  type(data_vals) is OrderedDict:
                 boundaries.append(
                     NativeComponentObject(self, data_vals['NativeComponentDefinitionProvider']['Type'],
@@ -527,8 +523,6 @@ class Analysis(Design, object):
                 families.append(["All"])
             return families
 
-
-
     class AxisDir(object):
         """Contains constants for the axis directions.
         """
@@ -573,10 +567,7 @@ class Analysis(Design, object):
             List of names of all sweeps for the setup.
 
         """
-        sweeps=[]
-
         sweeps = self.oanalysis.GetSweeps(name)
-
         return list(sweeps)
 
     @aedt_exception_handler
@@ -602,7 +593,6 @@ class Analysis(Design, object):
         self.ooptimetrics.ExportParametricResults(sweepname, filename, exportunits)
         return True
 
-
     @aedt_exception_handler
     def analyze_from_initial_mesh(self):
         """Revert the solution to the initial mesh and re-run the solve.
@@ -616,7 +606,6 @@ class Analysis(Design, object):
         self.analyze_nominal()
         return True
 
-
     @aedt_exception_handler
     def analyse_nominal(self):
         """Revert the solution to the initial mesh and re-run the solve.
@@ -627,7 +616,6 @@ class Analysis(Design, object):
         warnings.warn('`analyse_nominal` is deprecated. Use `analyze_nominal` instead.',
                       DeprecationWarning)
         self.analyze_nominal()
-
 
     @aedt_exception_handler
     def analyze_nominal(self):
@@ -640,7 +628,6 @@ class Analysis(Design, object):
         """
         self.odesign.Analyze(self.analysis_setup)
         return True
-
 
     @aedt_exception_handler
     def generate_unique_setup_name(self, setup_name=None):
@@ -681,7 +668,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.SolveSetup.Setup`
+        :class: `pyaedt.modules.SolveSetup.Setup`
 
         """
         if setuptype is None:
@@ -713,7 +700,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.SolveSetup.Setup`
+        :class: `pyaedt.modules.SolveSetup.Setup`
 
         """
         setuptype = SetupKeys.defaultSetups[self.solution_type]
@@ -721,7 +708,6 @@ class Analysis(Design, object):
         setup.update(properties_dict)
         self.analysis_setup = setupname
         return setup
-
 
     @aedt_exception_handler
     def get_setup(self, setupname):
@@ -734,7 +720,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.SolveSetup.Setup`
+        :class: `pyaedt.modules.SolveSetup.Setup`
 
         """
 
@@ -762,9 +748,11 @@ class Analysis(Design, object):
         """
         oModule = self.odesign.GetModule("OutputVariable")
         if variable in self.output_variables:
-            oModule.EditOutputVariable(variable, expression, variable, self.existing_analysis_sweeps[0], self.solution_type, [])
+            oModule.EditOutputVariable(variable, expression, variable,
+                                       self.existing_analysis_sweeps[0], self.solution_type, [])
         else:
-            oModule.CreateOutputVariable(variable, expression, self.existing_analysis_sweeps[0], self.solution_type, [])
+            oModule.CreateOutputVariable(
+                variable, expression, self.existing_analysis_sweeps[0], self.solution_type, [])
         return True
 
     @aedt_exception_handler
@@ -786,10 +774,12 @@ class Analysis(Design, object):
             Value of the output variable.
         """
         oModule = self.odesign.GetModule("OutputVariable")
-        assert variable in self.output_variables, "Output variable {} does not exist.".format(variable)
+        assert variable in self.output_variables, "Output variable {} does not exist.".format(
+            variable)
         nominal_variation = self.odesign.GetNominalVariation()
         sol_type = self.solution_type
-        value = oModule.GetOutputVariableValue(variable, nominal_variation, self.existing_analysis_sweeps[0], self.solution_type, [])
+        value = oModule.GetOutputVariableValue(
+            variable, nominal_variation, self.existing_analysis_sweeps[0], self.solution_type, [])
         return value
 
     @aedt_exception_handler
@@ -833,7 +823,6 @@ class Analysis(Design, object):
                 for prop_name in prop_names:
                     dict[entry][prop_name] = mat_props._props[prop_name]
         return dict
-
 
     @aedt_exception_handler
     def analyze_setup(self, name):
@@ -919,7 +908,6 @@ class Analysis(Design, object):
         print("Batch Job finished")
         return True
 
-
     @aedt_exception_handler
     def submit_job(self, clustername, aedt_full_exe_path=None, numnodes=1, numcores=32, wait_for_license=True, setting_file=None):
         """Submit a job to be solved on a cluster.
@@ -951,15 +939,19 @@ class Analysis(Design, object):
         if not aedt_full_exe_path:
             version = self.odesktop.GetVersion()[2:6]
             if os.path.exists(r"\\"+clustername+r"\AnsysEM\AnsysEM{}\Win64\ansysedt.exe".format(version)):
-                aedt_full_exe_path = r"\\\\\\\\"+clustername+r"\\\\AnsysEM\\\\AnsysEM{}\\\\Win64\\\\ansysedt.exe".format(version)
+                aedt_full_exe_path = r"\\\\\\\\"+clustername+ \
+                    r"\\\\AnsysEM\\\\AnsysEM{}\\\\Win64\\\\ansysedt.exe".format(version)
             elif os.path.exists(r"\\"+clustername+r"\AnsysEM\AnsysEM{}\Linux64\ansysedt".format(version)):
-                aedt_full_exe_path = r"\\\\\\\\"+clustername+r"\\\\AnsysEM\\\\AnsysEM{}\\\\Linux64\\\\ansysedt".format(version)
+                aedt_full_exe_path = r"\\\\\\\\"+clustername+ \
+                    r"\\\\AnsysEM\\\\AnsysEM{}\\\\Linux64\\\\ansysedt".format(version)
             else:
-                self._messenger.add_error_message("Aedt Path doesn't exists. Please provide a full path")
+                self._messenger.add_error_message(
+                    "Aedt Path doesn't exists. Please provide a full path")
                 return False
         else:
             if not os.path.exists(aedt_full_exe_path):
-                self._messenger.add_error_message("Aedt Path doesn't exists. Please provide a full path")
+                self._messenger.add_error_message(
+                    "Aedt Path doesn't exists. Please provide a full path")
                 return False
             aedt_full_exe_path.replace("\\", "\\\\")
 

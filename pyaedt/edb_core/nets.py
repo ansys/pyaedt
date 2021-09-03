@@ -45,7 +45,7 @@ class EdbNets(object):
 
     @property
     def db(self):
-        """ """
+        """Db object."""
         return self.parent.db
 
     @property
@@ -79,8 +79,8 @@ class EdbNets(object):
     def signal_nets(self):
         """Signal nets.
 
-        Return
-        ------
+        Returns
+        -------
         dict
             Dictionary of signal nets.
         """
@@ -213,6 +213,7 @@ class EdbNets(object):
 
     @aedt_exception_handler
     def get_net_by_name(self, net_name):
+        """Find a net by name."""
         edb_net = self._edb.Cell.Net.FindByName(self._active_layout, net_name)
         if edb_net is not None:
             return edb_net
@@ -251,6 +252,7 @@ class EdbNets(object):
 
         return nets_deleted
 
+    @aedt_exception_handler
     def find_or_create_net(self, net_name=''):
         """Find or create the net with the given name in the layout.
 
@@ -269,3 +271,27 @@ class EdbNets(object):
         if net.IsNull():
             net = self._edb.Cell.Net.Create(self._active_layout, net_name)
         return net
+
+    @aedt_exception_handler
+    def is_net_in_component(self, component_name, net_name):
+        """Check if a net belongs to a component.
+
+        Parameters
+        ----------
+        component_name : str
+            Name of the component.
+        net_name : str
+            Name of the net.
+
+        Returns
+        -------
+        bool
+            ``True`` if the net is found in component pins.
+
+        """
+        if component_name not in self.parent.core_components.components:
+            return False
+        for net in self.parent.core_components.components[component_name].nets:
+            if net_name == net.GetName():
+                return True
+        return False

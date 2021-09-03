@@ -196,9 +196,6 @@ class Layer(object):
     def create_stackup_layer(self):
         """Create a stackup layer.
 
-        Parameters
-        ----------
-
         Returns
         -------
         bool
@@ -635,7 +632,7 @@ class Layers(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.LayerStackup.Layer`
+        :class: `pyaedt.modules.LayerStackup.Layer`
             Layer object.
         """
         newlayer = Layer(self.oeditor, layertype, self.LengthUnit, self.lengthUnitRough, isnegative)

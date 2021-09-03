@@ -19,6 +19,7 @@ class FieldAnalysisCircuit(Analysis):
     ----------
 
     """
+
     def __init__(self, application, projectname, designname, solution_type, setup_name=None,
                  specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):
         self.solution_type = solution_type
@@ -28,23 +29,21 @@ class FieldAnalysisCircuit(Analysis):
         self._modeler.primitives.init_padstacks()
         self._post = CircuitPostProcessor(self)
 
-
     @property
     def post(self):
         """PostProcessor.
 
         Returns
         -------
-        :class:`pyaedt.modules.PostProcessor.CircuitPostProcessor`
+        pyaedt.modules.PostProcessor.CircuitPostProcessor
             PostProcessor object.
         """
         return self._post
 
     @property
     def solution_type(self):
-        """Solution type. """
+        """Solution type."""
         return self._solution_type
-
 
     @solution_type.setter
     def solution_type(self, soltype):
@@ -149,7 +148,8 @@ class FieldAnalysisCircuit(Analysis):
         if not excitation_names:
             excitation_names = self.get_excitations_name
         if excitation_name_prefix:
-            excitation_names = [i for i in excitation_names if excitation_name_prefix.lower() in i.lower()]
+            excitation_names = [
+                i for i in excitation_names if excitation_name_prefix.lower() in i.lower()]
         spar = []
         for i in excitation_names:
             spar.append("S({},{})".format(i, i))
@@ -313,7 +313,6 @@ class FieldAnalysisCircuit(Analysis):
         self.analysis_setup = name
         self.setups.append(setup)
         return setup
-
 
     # @property
     # def mesh(self):

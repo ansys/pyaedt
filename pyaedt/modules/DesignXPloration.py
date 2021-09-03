@@ -96,7 +96,7 @@ class CommonOptimetrics(object):
 
         Returns
         -------
-        :class:`Optimetrics`
+        :class: `Optimetrics`
             Optimetrics object.
 
         """
@@ -108,7 +108,6 @@ class CommonOptimetrics(object):
         self.soltype = optimtype
 
         inputd = copy.deepcopy(dictinputs)
-
 
         if optimtype == "OptiParametric":
             self.props = inputd or defaultparametricSetup
@@ -343,6 +342,7 @@ class DXSetups(object):
             Type of the optimization. The default is ``"OptiDesignExplorer"``.
 
         """
+
         def __init__(self, parent, name, dictinputs=None):
             CommonOptimetrics.__init__(self, parent, name, dictinputs=dictinputs, optimtype="OptiDesignExplorer")
 
@@ -421,6 +421,7 @@ class DXSetups(object):
                                   domain=domain, calculation_type=calculation_type, calculation=calculation,
                                   calc_val1=calculation_value, calc_val2=calculation_stop, goal_name=goal_name,
                                   goal_weight=goal_weight, goal_value=goal_value, condition=condition)
+
     @property
     def parent(self):
         """Parent."""
@@ -431,7 +432,7 @@ class DXSetups(object):
         """Optimetrics module.
 
         Returns
-        :class:`Optimetrics`
+        :class: `Optimetrics`
 
         """
         return self.parent.odesign.GetModule("Optimetrics")
@@ -468,7 +469,7 @@ class DXSetups(object):
 
         Returns
         -------
-        :class:`Optimetrics`
+        :class: `Optimetrics`
 
         """
         if not setupname:
@@ -529,6 +530,7 @@ class ParametericsSetups(object):
             Type of the optimization. The default is ``"OptiParametric"``.
 
         """
+
         def __init__(self, parent, name, dictinputs=None):
             CommonOptimetrics.__init__(self, parent, name, dictinputs=dictinputs, optimtype="OptiParametric")
             pass
@@ -603,7 +605,7 @@ class ParametericsSetups(object):
 
         Returns
         -------
-        :class:`Optimetrics`
+        :class: `Optimetrics`
 
         """
         return self.parent.odesign.GetModule("Optimetrics")
@@ -641,7 +643,7 @@ class ParametericsSetups(object):
 
         Returns
         -------
-        :class:`Optimetrics`
+        :class: `Optimetrics`
             Optimetrics object.
 
         """
@@ -687,6 +689,7 @@ class SensitivitySetups(object):
             Type of the optimization. The default is ``"OptiSensitivity"``.
 
         """
+
         def __init__(self, parent, name, dictinputs=None):
             CommonOptimetrics.__init__(self, parent, name, dictinputs=dictinputs, optimtype="OptiSensitivity")
 
@@ -732,7 +735,7 @@ class SensitivitySetups(object):
 
         Returns
         -------
-        :class:`Optimetrics`
+        :class: `Optimetrics`
 
         """
         return self.parent.odesign.GetModule("Optimetrics")
@@ -778,7 +781,7 @@ class SensitivitySetups(object):
 
         Returns
         -------
-        :class:`Sensitivity`
+        :class: `Sensitivity`
 
         """
         if not parametricname:
@@ -823,6 +826,7 @@ class StatisticalSetups(object):
             Type of the optimization. The default is ``"OptiStatistical"``.
 
         """
+
         def __init__(self, parent, name, dictinputs=None):
             CommonOptimetrics.__init__(self, parent, name, dictinputs=dictinputs, optimtype="OptiStatistical")
             pass
@@ -868,7 +872,7 @@ class StatisticalSetups(object):
 
         Returns
         -------
-        :class:`Optimetrics`
+        :class: `Optimetrics`
 
         """
         return self.parent.odesign.GetModule("Optimetrics")
@@ -914,7 +918,7 @@ class StatisticalSetups(object):
 
         Returns
         -------
-        :class:`Statistical`
+        :class: `Statistical`
 
         """
         if not parametricname:
@@ -959,9 +963,11 @@ class DOESetups(object):
             Type of the optimization. The default is ``"OptiDXDOE"``.
 
         """
+
         def __init__(self, parent, name, dictinputs=None):
             CommonOptimetrics.__init__(self, parent, name, dictinputs=dictinputs, optimtype="OptiDXDOE")
             pass
+
         @aedt_exception_handler
         def add_calculation(self, calculation="", calculation_value="", reporttype="Modal Solution Data", solution=None,
                             domain="Sweep", calculation_name=None):
@@ -1051,7 +1057,7 @@ class DOESetups(object):
 
         Returns
         -------
-        :class:`Optimetrics`
+        :class: `Optimetrics`
 
         """
         return self.parent.odesign.GetModule("Optimetrics")
@@ -1219,7 +1225,7 @@ class OptimizationSetups(object):
 
         Returns
         -------
-        :class:`Optimetrics`
+        :class: `Optimetrics`
 
         """
         return self.parent.odesign.GetModule("Optimetrics")
@@ -1235,8 +1241,6 @@ class OptimizationSetups(object):
                         self.setups.append(self.Setup(parent, data, setups_data[data]))
             except:
                 pass
-
-
 
     @aedt_exception_handler
     def add_optimization(self, calculation, calculation_value, calculation_type="Freq",

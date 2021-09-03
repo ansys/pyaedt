@@ -24,9 +24,12 @@ class TestClass:
         with Scratch(scratch_path) as self.local_scratch:
             try:
                 time.sleep(2)
-                example_project = os.path.join(local_path, 'example_models', test_project_name + '.aedt')
-                source_project = os.path.join(local_path, 'example_models', src_project_name + '.aedt')
-                linked_project = os.path.join(local_path, 'example_models', linked_project_name + '.aedt')
+                example_project = os.path.join(
+                    local_path, 'example_models', test_project_name + '.aedt')
+                source_project = os.path.join(
+                    local_path, 'example_models', src_project_name + '.aedt')
+                linked_project = os.path.join(
+                    local_path, 'example_models', linked_project_name + '.aedt')
 
                 self.test_project = self.local_scratch.copyfile(example_project)
                 self.test_src_project = self.local_scratch.copyfile(source_project)
@@ -42,7 +45,8 @@ class TestClass:
                 for line in temp:
                     if not found:
                         if 'Filter_Board.aedt' in line.decode('utf-8'):
-                            line = '\t\t\t\tfilename=\'{}/Filter_Board.aedt\'\n'.format(self.local_scratch.path.replace("\\","/")).encode()
+                            line = '\t\t\t\tfilename=\'{}/Filter_Board.aedt\'\n'.format(
+                                self.local_scratch.path.replace("\\","/")).encode()
                             found = True
                     outf.write(line+b"\n")
                 outf.close()
@@ -67,9 +71,12 @@ class TestClass:
     def test_02_add_subcircuits(self):
         source_project_path = os.path.join(self.local_scratch.path, src_project_name + '.aedt')
         layout_design = "Galileo_G87173_205_cutout3"
-        pin_names = self.aedtapp.get_source_pin_names(src_design_name,src_project_name, source_project_path,  3)
-        hfss3Dlayout_comp_id, hfss3Dlayout_comp = self.aedtapp.modeler.components.create_3dlayout_subcircuit(layout_design)
-        hfss_comp_id, hfss_comp = self.aedtapp.modeler.components.add_subcircuit_hfss_link("uUSB", pin_names, source_project_path, src_project_name, src_design_name)
+        pin_names = self.aedtapp.get_source_pin_names(
+            src_design_name,src_project_name, source_project_path,  3)
+        hfss3Dlayout_comp_id, hfss3Dlayout_comp = self.aedtapp.modeler.components.create_3dlayout_subcircuit(
+            layout_design)
+        hfss_comp_id, hfss_comp = self.aedtapp.modeler.components.add_subcircuit_hfss_link(
+            "uUSB", pin_names, source_project_path, src_project_name, src_design_name)
 
         self.aedtapp.modeler.components.refresh_dynamic_link("uUSB")
         self.aedtapp.modeler.components.set_sim_option_on_hfss_subcircuit(hfss_comp)
@@ -82,15 +89,18 @@ class TestClass:
         hfssComp_pins = self.aedtapp.modeler.components.get_pins(hfss_comp_id)
         hfss_pin2location = { }
         for pin in hfssComp_pins:
-            hfss_pin2location[pin] = self.aedtapp.modeler.components.get_pin_location(hfss_comp_id, pin)
+            hfss_pin2location[pin] = self.aedtapp.modeler.components.get_pin_location(
+                hfss_comp_id, pin)
 
         hfss3DlayoutComp_pins = self.aedtapp.modeler.components.get_pins(hfss3Dlayout_comp_id)
         hfss3Dlayout_pin2location = { }
         for pin in hfss3DlayoutComp_pins:
-            hfss3Dlayout_pin2location[pin] = self.aedtapp.modeler.components.get_pin_location(hfss3Dlayout_comp_id, pin)
+            hfss3Dlayout_pin2location[pin] = self.aedtapp.modeler.components.get_pin_location(
+                hfss3Dlayout_comp_id, pin)
 
         # Link 1 Creation
-        self.aedtapp.modeler.components.create_page_port("Link1", hfss_pin2location["usb_N_conn"][0], hfss_pin2location["usb_N_conn"][1], 180)
+        self.aedtapp.modeler.components.create_page_port(
+            "Link1", hfss_pin2location["usb_N_conn"][0], hfss_pin2location["usb_N_conn"][1], 180)
         self.aedtapp.modeler.components.create_page_port("Link1", hfss3Dlayout_pin2location["J3B2.3.USBH2_DP_CH"][0],
                                                          hfss3Dlayout_pin2location["J3B2.3.USBH2_DP_CH"][1], 180)
 
@@ -101,7 +111,8 @@ class TestClass:
                                                          hfss3Dlayout_pin2location["L3M1.3.USBH2_DN_CH"][1], 180)
 
         # Ports Creation
-        self.aedtapp.modeler.components.create_iport("Excitation_1", hfss_pin2location["USB_VCC_T1"][0], hfss_pin2location["USB_VCC_T1"][1])
+        self.aedtapp.modeler.components.create_iport(
+            "Excitation_1", hfss_pin2location["USB_VCC_T1"][0], hfss_pin2location["USB_VCC_T1"][1])
         self.aedtapp.modeler.components.create_iport("Excitation_2", hfss_pin2location["usb_P_pcb"][0],
                                                      hfss_pin2location["usb_P_pcb"][1])
         self.aedtapp.modeler.components.create_iport("Port_1", hfss3Dlayout_pin2location["L3M1.2.USBH2_DP_CH"][0],

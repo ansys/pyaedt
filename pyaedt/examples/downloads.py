@@ -2,7 +2,8 @@
 import shutil
 import os
 import sys
-if "IronPython" in sys.version or ".NETFramework" in sys.version:
+from pyaedt import is_ironpython
+if is_ironpython:
     import urllib
 else:
     import urllib.request
@@ -17,7 +18,7 @@ EXAMPLES_PATH = os.path.join(tmpfold, "PyAEDTExamples")
 
 
 def delete_downloads():
-    """Delete all downloaded examples to free space or update the files"""
+    """Delete all downloaded examples to free space or update the files."""
     shutil.rmtree(EXAMPLES_PATH, ignore_errors=True)
 
 
@@ -37,7 +38,7 @@ def _retrieve_file(url, filename, directory):
         return local_path_no_zip
 
     # grab the correct url retriever
-    if "IronPython" in sys.version or ".NETFramework" in sys.version:
+    if is_ironpython:
         urlretrieve = urllib.urlretrieve
     else:
         urlretrieve = urllib.request.urlretrieve
@@ -68,12 +69,15 @@ def _download_file(directory, filename):
 
 def download_aedb():
     """Download an example of AEDB File and return the def path.
+
     Examples files are downloaded to a persistent cache to avoid
     re-downloading the same file twice.
+
     Returns
     -------
     str
         Path to the example file.
+
     Examples
     --------
     Download an example result file and return the path of the file
@@ -90,13 +94,16 @@ def download_netlist():
     """Download an example of netlist File and return the def path.
     Examples files are downloaded to a persistent cache to avoid
     re-downloading the same file twice.
+
     Returns
     -------
     str
         Path to the example file.
+
     Examples
     --------
     Download an example result file and return the path of the file
+
     >>> from pyaedt import examples
     >>> path = examples.download_netlist()
     >>> path
@@ -107,15 +114,20 @@ def download_netlist():
 
 def download_antenna_array():
     """Download an example of Antenna Array and return the def path.
+
     Examples files are downloaded to a persistent cache to avoid
     re-downloading the same file twice.
+
     Returns
     -------
     str
         Path to the example file.
+
     Examples
     --------
+
     Download an example result file and return the path of the file
+
     >>> from pyaedt import examples
     >>> path = examples.download_antenna_array()
     >>> path
@@ -126,15 +138,19 @@ def download_antenna_array():
 
 def download_sbr():
     """Download an example of SBR+ Array and return the def path.
+
     Examples files are downloaded to a persistent cache to avoid
     re-downloading the same file twice.
+
     Returns
     -------
     str
         Path to the example file.
+
     Examples
     --------
     Download an example result file and return the path of the file
+
     >>> from pyaedt import examples
     >>> path = examples.download_antenna_array()
     >>> path
@@ -145,12 +161,15 @@ def download_sbr():
 
 def download_touchstone():
     """Download an example of touchstone File and return the def path.
+
     Examples files are downloaded to a persistent cache to avoid
     re-downloading the same file twice.
+
     Returns
     -------
     str
         Path to the example file.
+
     Examples
     --------
     Download an example result file and return the path of the file
@@ -165,15 +184,19 @@ def download_touchstone():
 
 def download_sherlock():
     """Download an example of sherlock needed files and return the def path.
+
     Examples files are downloaded to a persistent cache to avoid
     re-downloading the same file twice.
+
     Returns
     -------
     str
         Path to the example file.
+
     Examples
     --------
     Download an example result file and return the path of the file
+
     >>> from pyaedt import examples
     >>> path = examples.download_sherlock()
     >>> path

@@ -6,6 +6,7 @@ from .Mesh import meshers, MeshOperation
 
 class IcepakMesh(object):
     """Manages Icepak meshes."""
+
     def __init__(self, parent):
         self._parent = parent
         self.id = 0
@@ -19,6 +20,7 @@ class IcepakMesh(object):
     class MeshRegion(object):
         """Manages Icepak mesh region settings.
         """
+
         def __init__(self, meshmodule, dimension, units):
             self.name = "Settings"
             self.meshmodule = meshmodule
@@ -163,7 +165,7 @@ class IcepakMesh(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Modeler`
+        :class: `pyaedt.modules.Modeler`
 
         """
         return self._parent._modeler
@@ -363,7 +365,7 @@ class IcepakMesh(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.MeshIcepak.IcepakMesh.MeshRegion`
+        :class: `pyaedt.modules.MeshIcepak.IcepakMesh.MeshRegion`
 
         """
         if not name:
@@ -418,7 +420,7 @@ class IcepakMesh(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Mesh.MeshOperation`
+        :class: `pyaedt.modules.Mesh.MeshOperation`
 
         """
         if meshop_name:

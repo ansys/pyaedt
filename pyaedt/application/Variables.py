@@ -22,6 +22,7 @@ from ..generic.general_methods import is_number
 
 @aedt_exception_handler
 def dB(x, inverse=True):
+    """Convert db to decimal"""
     if inverse:
         return 20*math.log10(x)
     else:
@@ -113,7 +114,7 @@ v2pi = 2.0 * math.pi
 m2in = 0.0254
 m2miles = 1609.344051499
 
-# Value in new units equals value in old units * scaling vactor of new units
+# Value in new units equals value in old units * scaling vector of new units
 # e.g. value_in_deg Variable("1rad") = 1 * rad2deg
 AEDT_units = {
     'AngularSpeed': {'deg_per_hr': hour2sec * deg2rad, 'rad_per_hr': hour2sec, 'deg_per_min': min2sec * deg2rad,
@@ -143,7 +144,7 @@ AEDT_units = {
 }
 SI_units = {
     'AngularSpeed':  'rad_per_sec',
-    'Angle': 'deg',
+    'Angle': 'rad',
     'Current': 'A',
     'Flux': 'vs',
     'Freq': 'Hz',
@@ -297,7 +298,8 @@ class CSVDataset:
                             for j, value in enumerate(line_data):
                                 var_name = self._header[j]
                                 if var_name in self._unit_dict:
-                                    var_value = Variable(value).rescale_to(self._unit_dict[var_name]).numeric_value
+                                    var_value = Variable(value).rescale_to(
+                                        self._unit_dict[var_name]).numeric_value
                                 else:
                                     var_value = Variable(value).value
                                 self._data[var_name].append(var_value)
@@ -327,7 +329,8 @@ class CSVDataset:
                 if variable in key_string:
                     found_variable = True
                     break
-            assert found_variable, "Input string {} is not a key of the data dictionary.".format(variable)
+            assert found_variable, "Input string {} is not a key of the data dictionary.".format(
+                variable)
             data_out._data[variable] = self._data[key_string]
             data_out._header.append(variable)
         return data_out
@@ -376,7 +379,6 @@ class CSVDataset:
             for value in row_data:
                 self._data[column].append(value)
 
-
         return self
 
     # Called when iteration is initialized
@@ -400,24 +402,42 @@ class CSVDataset:
         return output_string
 
     def next(self):
-        """ """
+        """Yield the next row."""
         return self.__next__()
 
 @aedt_exception_handler
-def decompose_variable_value(variable_value):
+def _find_units_in_dependent_variables(variable_value, full_variables={}):
+    m2 = re.findall(r'[0-9.]+ *([a-z_A-Z]+)', variable_value)
+    if len(m2) > 0:
+        if len(set(m2)) <= 1:
+            return m2[0]
+        else:
+            if unit_system(m2[0]):
+                return SI_units[unit_system(m2[0])]
+    else:
+        m1 = re.findall(r'(?<=[/+-/*//^/(/[])([a-z_A-Z]\w*)', variable_value.replace(" ", ""))
+        m2 = re.findall(r'^([a-z_A-Z]\w*)', variable_value.replace(" ", ""))
+        m = list(set(m1).union(m2))
+        for i,v in full_variables.items():
+            if i in m and _find_units_in_dependent_variables(v):
+                return _find_units_in_dependent_variables(v)
+    return ""
+
+@aedt_exception_handler
+def decompose_variable_value(variable_value, full_variables={}):
     """Decompose a variable value.
 
     Parameters
     ----------
     variable_value : float
-
+    full_variables : dict
     Returns
     -------
 
     """
     # set default return values - then check for valid units
     float_value = variable_value
-    units =''
+    units = ''
 
     if is_number(variable_value):
         float_value = float(variable_value)
@@ -428,6 +448,8 @@ def decompose_variable_value(variable_value):
         except ValueError:
             # search for a valid units string at the end of the variable_value
             loc = re.search('[a-z_A-Z]+$', variable_value)
+            units = _find_units_in_dependent_variables(variable_value, full_variables)
+
             if loc:
                 loc_units = loc.span()[0]
                 extract_units = variable_value[loc_units:]
@@ -444,26 +466,30 @@ def decompose_variable_value(variable_value):
 class VariableManager(object):
     """Manages design properties and project variables.
 
-    Design properties are the local variables in a design. Project variables are defined at the project
-    level and start with ``$``.
+    Design properties are the local variables in a design. Project
+    variables are defined at the project level and start with ``$``.
 
-    This class provides access to all variables or a subset of the variables. Manipulation
-    of the numerical or string definitions of variable values is provided in the
-    :class:`pyaedt.application.Variables.Variable` class.
+    This class provides access to all variables or a subset of the
+    variables. Manipulation of the numerical or string definitions of
+    variable values is provided in the
+    :class: `pyaedt.application.Variables.Variable` class.
 
     Parameters
     ----------
     variables : dict
-        Dictionary of all design properties and project variables in the active design.
+        Dictionary of all design properties and project variables in
+        the active design.
     design_variables : dict
         Dictionary of all design properties in the active design.
     project_variables : dict
-        Dictionary of all project variables available to the active design (key by variable name).
+        Dictionary of all project variables available to the active
+        design (key by variable name).
     dependent_variables : dict
-        Dictionary of all dependent variables available to the active design (key by variable name).
+        Dictionary of all dependent variables available to the active
+        design (key by variable name).
     independent_variables : dict
-       Dictionary of all independent variables (constant numeric values) available to the active
-       design (key by variable name).
+       Dictionary of all independent variables (constant numeric
+       values) available to the active design (key by variable name).
     independent_design_variables : dict
 
     independent_project_variables : dict
@@ -477,12 +503,18 @@ class VariableManager(object):
     dependent_variable_names : str or list
         All dependent variable names within the project.
     independent_variable_names : list of str
-        All independent variable names within the project. These can be sweep variables for optimetrics.
+        All independent variable names within the project. These can
+        be sweep variables for optimetrics.
     independent_project_variable_names : str or list
-        All independent project variable names within the project. These can be sweep variables for optimetrics.
+        All independent project variable names within the
+        project. These can be sweep variables for optimetrics.
     independent_design_variable_names : str or list
-        All independent design properties (local variables) within the project. These can be sweep variables for optimetrics.
+        All independent design properties (local variables) within the
+        project. These can be sweep variables for optimetrics.
 
+    See Also
+    --------
+    pyaedt.application.Variables.Variable
 
     Examples
     --------
@@ -524,10 +556,6 @@ class VariableManager(object):
     {'Var1': <pyaedt.application.Variables.Variable at 0x2661f335d08>,
      'Var2': <pyaedt.application.Variables.Variable at 0x2661f3557c8>}
 
-    See Also
-    --------
-    :class:`pyaedt.application.Variables.Variable` class.
-
     """
 
     @property
@@ -545,7 +573,7 @@ class VariableManager(object):
 
     @property
     def design_variables(self):
-        """Design variables
+        """Design variables.
 
         Returns
         -------
@@ -572,7 +600,8 @@ class VariableManager(object):
         Returns
         -------
         dict
-            Dictionary of the independent variables (constant numeric values) available to the design.
+            Dictionary of the independent variables (constant numeric
+            values) available to the design.
         """
         return self._variable_dict([self.odesign, self.oproject], dependent=False)
 
@@ -594,7 +623,8 @@ class VariableManager(object):
         Returns
         -------
         dict
-            Dictionary of the independent design properties (local variables) available to the design.
+            Dictionary of the independent design properties (local
+            variables) available to the design.
         """
         return self._variable_dict([self.odesign], dependent=False)
 
@@ -605,37 +635,45 @@ class VariableManager(object):
         Returns
         -------
         dict
-            Dictionary of the dependent design properties (local variables) and project variables available to the design.
+            Dictionary of the dependent design properties (local
+            variables) and project variables available to the design.
 
         """
         return self._variable_dict([self.odesign, self.oproject], independent=False)
 
     @property
     def variable_names(self):
+        """List of variables."""
         return [var_name for var_name in self.variables]
 
     @property
     def project_variable_names(self):
+        """List of project variables."""
         return [var_name for var_name in self.project_variables]
 
     @property
     def independent_project_variable_names(self):
+        """List of independent project variables."""
         return [var_name for var_name in self.independent_project_variables]
 
     @property
     def design_variable_names(self):
+        """List of design variables."""
         return [var_name for var_name in self.design_variables]
 
     @property
     def independent_design_variable_names(self):
+        """List of independent design variables."""
         return [var_name for var_name in self.independent_design_variables]
 
     @property
     def independent_variable_names(self):
+        """List of independent variables."""
         return [var_name for var_name in self.independent_variables]
 
     @property
     def dependent_variable_names(self):
+        """List of dependent variables."""
         return [var_name for var_name in self.dependent_variables]
 
     @property
@@ -654,9 +692,13 @@ class VariableManager(object):
         return self._parent._messenger
 
     def __init__(self, parent):
-
         # Global Desktop Environment
         self._parent = parent
+
+    @aedt_exception_handler
+    def __delitem__(self, key):
+        """Implement del with array name or index."""
+        self.delete_variable(key)
 
     @aedt_exception_handler
     def __getitem__(self, variable_name):
@@ -687,21 +729,22 @@ class VariableManager(object):
 
         """
         var_dict = {}
+        all_names ={}
         for obj in object_list:
             for variable_name in obj.GetVariables():
                 variable_expression = self.get_expression(variable_name)
+                all_names[variable_name] = variable_expression
                 try:
                     value = Variable(variable_expression)
                     if independent and is_number(value.value):
                         var_dict[variable_name] = value
                     elif dependent and type(value.value) is str:
                         float_value = self._parent.get_evaluated_value(variable_name)
-                        var_dict[variable_name] = Expression(variable_expression, float_value)
+                        var_dict[variable_name] = Expression(variable_expression, float_value, all_names)
                 except:
                     if dependent:
                         float_value = self._parent.get_evaluated_value(variable_name)
-                        var_dict[variable_name] = Expression(variable_expression, float_value)
-
+                        var_dict[variable_name] = Expression(variable_expression, float_value, all_names)
         return var_dict
 
     @aedt_exception_handler
@@ -732,24 +775,25 @@ class VariableManager(object):
         Parameters
         ----------
         variable_name : str
-            Name of the design property or project variable (``$var``). If this variable
-            does not exist, a new one is created and a value is set.
+            Name of the design property or project variable
+            (``$var``). If this variable does not exist, a new one is
+            created and a value is set.
         expression : str
-            Valid string expression within the AEDT design and project structure.
-            For example, ``"3*cos(34deg)"``.
+            Valid string expression within the AEDT design and project
+            structure.  For example, ``"3*cos(34deg)"``.
         readonly : bool, optional
-           Whether to set the design property or project variable to read-only. The
-           default is ``False``.
+            Whether to set the design property or project variable to
+            read-only. The default is ``False``.
         hidden :  bool, optional
             Whether to hide the design property or project variable. The
-           default is ``False``.
+            default is ``False``.
         description : str, optional
-           Text to display for the design property or project variable in the
+            Text to display for the design property or project variable in the
             ``Properties`` window. The default is ``None``.
         overwrite : bool, optional
-            Whether to overwrite an existing value for the design property or
-            project variable. The default is ``False``, in which case this method is
-            ignored.
+            Whether to overwrite an existing value for the design
+            property or project variable. The default is ``False``, in
+            which case this method is ignored.
 
         Returns
         -------
@@ -758,23 +802,25 @@ class VariableManager(object):
 
         Examples
         --------
-        Set the value of design property ``p1`` to ``"10mm"``, creating the property
-        if it does not already eixst.
+        Set the value of design property ``p1`` to ``"10mm"``,
+        creating the property if it does not already eixst.
 
         >>> aedtapp.variable_manager.set_variable("p1", expression="10mm")
 
-        Set the value of design property ``p1`` to ``"20mm"`` only if the property does
-        not already exist.
+        Set the value of design property ``p1`` to ``"20mm"`` only if
+        the property does not already exist.
 
         >>> aedtapp.variable_manager.set_variable("p1", expression="20mm", overwrite=False)
 
-        Set the value of design property ``p2`` to ``"10mm"``, creating the property
-        if it does not already exist. Also make it read-only and hidden and add a description.
+        Set the value of design property ``p2`` to ``"10mm"``,
+        creating the property if it does not already exist. Also make
+        it read-only and hidden and add a description.
 
         >>> aedtapp.variable_manager.set_variable(variable_name="p2", expression="10mm", readonly=True, hidden=True,
         ...                                       description="This is the description of this variable.")
 
-        Set the value of the project variable ``$p1`` to ``"30mm"``, creating the variable if it does not exist.
+        Set the value of the project variable ``$p1`` to ``"30mm"``,
+        creating the variable if it does not exist.
 
         >>> aedtapp.variable_manager.set_variable["$p1"] == "30mm"
 
@@ -1002,7 +1048,8 @@ class Variable(object):
         # If units have been specified, check for a conflict and otherwise use the specified unit system
         if units:
             assert not self._units, \
-                "The unit specification {} is inconsistent with the identified units {}.".format(specified_units, self._units)
+                "The unit specification {} is inconsistent with the identified units {}.".format(
+                    specified_units, self._units)
             self._units = specified_units
 
         if is_number(self._value):
@@ -1075,7 +1122,6 @@ class Variable(object):
         self._units = units
         return self
 
-
     @aedt_exception_handler
     def format(self, format):
         """Retrieve the string value with the specified numerical formatting.
@@ -1143,7 +1189,8 @@ class Variable(object):
         >>> assert result_3.unit_system == "Power"
 
         """
-        assert is_number(other) or isinstance(other, Variable), "Multiplier must be a scalar quantity or a variable."
+        assert is_number(other) or isinstance(
+            other, Variable), "Multiplier must be a scalar quantity or a variable."
         if is_number(other):
             result_value = self.numeric_value * other
             result_units = self.units
@@ -1156,7 +1203,8 @@ class Variable(object):
                 result_value = self.value * other.value
                 result_units = _resolve_unit_system(self.unit_system, other.unit_system, "multiply")
                 if not result_units:
-                    result_units = _resolve_unit_system(other.unit_system, self.unit_system, "multiply")
+                    result_units = _resolve_unit_system(
+                        other.unit_system, self.unit_system, "multiply")
 
         return Variable("{}{}".format(result_value, result_units))
 
@@ -1227,7 +1275,8 @@ class Variable(object):
         >>> assert result_2.unit_system == "Current"
 
         """
-        assert isinstance(other, Variable), "You can only subtract a variable from another variable."
+        assert isinstance(
+            other, Variable), "You can only subtract a variable from another variable."
         assert self.unit_system == other.unit_system, "Only ``Variable`` objects with the same unit system can be subtracted."
         result_value = self.value - other.value
         result_units = SI_units[self.unit_system]
@@ -1270,7 +1319,8 @@ class Variable(object):
         >>> assert result_1.unit_system == "Current"
 
         """
-        assert is_number(other) or isinstance(other, Variable), "Divisor must be a scalar quantity or a variable."
+        assert is_number(other) or isinstance(
+            other, Variable), "Divisor must be a scalar quantity or a variable."
         if is_number(other):
             result_value = self.numeric_value / other
             result_units = self.units
@@ -1333,12 +1383,11 @@ class Expression(Variable, object):
 
     """
 
-    def __init__(self, expression, float_value):
+    def __init__(self, expression, float_value, full_variables={}):
         self._expression = expression
         self._value = float_value
-        # TODO. Try to identify the unit system from the expression.
         try:
-            value, units = decompose_variable_value(expression)
+            value, units = decompose_variable_value(expression, full_variables)
             self._units = units
         except:
             self._units = ''
@@ -1478,7 +1527,6 @@ class DataSet(object):
         id_to_remove = self.x.index(x)
         return self.remove_point_from_index(id_to_remove)
 
-
     @aedt_exception_handler
     def remove_point_from_index(self, id_to_remove):
         """Remove a point from an index.
@@ -1528,7 +1576,7 @@ class DataSet(object):
         """Delete the dataset.
 
         Returns
-        ------
+        -------
         bool
             ``True`` when successful, ``False`` when failed.
 

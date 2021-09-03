@@ -49,7 +49,7 @@ class FieldAnalysisRMxprt(Analysis):
 
         Returns
         -------
-        :class:`pyaedt.modules.Modeler`
+        :class: `pyaedt.modules.Modeler`
 
         """
         return self._modeler
@@ -72,7 +72,6 @@ class FieldAnalysisRMxprt(Analysis):
         self._design_type = "RMxprtSolution"
         self.solution_type = solution_type
         return True
-
 
     @aedt_exception_handler
     def enable_modelcreation(self, solution_type = None):

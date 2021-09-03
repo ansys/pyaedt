@@ -95,7 +95,6 @@ class Mesh3DOperation(object):
         return True
 
 
-
 class Mesh(object):
     """Mesh class.
 
@@ -112,7 +111,6 @@ class Mesh(object):
         self._parent = parent
         self.id = 0
         self.meshoperations = self._get_design_mesh_operations()
-
 
         pass
 
@@ -256,7 +254,6 @@ class Mesh(object):
         mop.create()
         self.meshoperations.append(mop)
         return mop
-
 
     @aedt_exception_handler
     def assign_skin_depth(self, setupname, layer_name, net_name, skindepth=1, maxelements=None, triangulation_max_length=0.1, numlayers="2",

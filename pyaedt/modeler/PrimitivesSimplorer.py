@@ -156,7 +156,6 @@ class SimplorerComponents(CircuitComponents):
                                          component_name="C", xpos=xpos, ypos=ypos, angle=angle,
                                          use_instance_id_netlist=use_instance_id_netlist)
 
-
         self.components[id].set_property("C", value)
         return id, name
 

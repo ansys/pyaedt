@@ -77,6 +77,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
     >>> aedtapp = Hfss3dLayout(specified_version="2021.1", projectname="myfile.aedt")
 
     """
+
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
                  specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):
         FieldAnalysis3DLayout.__init__(self, "HFSS 3D Layout Design", projectname, designname, solution_type,
@@ -209,7 +210,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 ],
                 "ReferencedPadstack:="	, "Padstacks:NoPad SMT East",
                 "vposition:=",
-                ["x:=", str(xpos) + self.modeler.model_units, "y:=", str(ypos) + self.modeler.model_units],
+                ["x:=", str(xpos) + self.modeler.model_units, "y:=",
+                            str(ypos) + self.modeler.model_units],
                 "vrotation:="		, [str(rotation) + "deg"],
                 "overrides hole:="	, False,
                 "hole diameter:="	, ["0mm"],
@@ -388,7 +390,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             port_names = self.get_excitations_name
         if not port_excited:
             port_excited= port_names
-        Trace = ["X Component:=", "Freq", "Y Component:=", ["dB(S(" + p + "," + q + "))" for p,q in zip(list(port_names), list(port_excited))]]
+        Trace = ["X Component:=", "Freq", "Y Component:=", [
+            "dB(S(" + p + "," + q + "))" for p,q in zip(list(port_names), list(port_excited))]]
         solution_data = ""
         if self.solution_type == "DrivenModal":
             solution_data = "Modal Solution Data"
@@ -440,7 +443,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             for v, vv in zip(variation, variations_value):
                 appendix += "_" + v + vv.replace("\'", "")
             ext = ".S" + str(len(self.port_list)) + "p"
-            filename = os.path.join(self.project_path, solutionname + "_" + sweepname + appendix + ext)
+            filename = os.path.join(self.project_path, solutionname + \
+                                    "_" + sweepname + appendix + ext)
         else:
             filename = filename.replace("//", "/").replace("\\", "/")
         print("Exporting Touchstone " + filename)
@@ -450,7 +454,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         # 7=Matlab (.m), 8=Terminal Z0 spreadsheet
         FileFormat = 3
         OutFile = filename  # full path of output file
-        FreqsArray = ["all"]  # array containin the frequencies to export, use ["all"] for all frequencies
+        # array containin the frequencies to export, use ["all"] for all frequencies
+        FreqsArray = ["all"]
         DoRenorm = True  # perform renormalization before export
         RenormImped = 50  # Real impedance value in ohm, for renormalization
         DataType = "S"  # Type: "S", "Y", or "Z" matrix to export
@@ -523,16 +528,21 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         sweepname : str, optional
             Name of the sweep. The default is ``None``.
         sweeptype : str, optional
-            Type of the sweep. Options are ``"Fast"``, ``"Interpolating"``, and ``"Discrete"``.
-            The default is ``"Interpolating"``.
+            Type of the sweep. Options are ``"Fast"``,
+            ``"Interpolating"``, and ``"Discrete"``.  The default is
+            ``"Interpolating"``.
         interpolation_tol_percent : float, optional
-            Error tolerance threshold for the interpolation process. The default is ``0.5``.
+            Error tolerance threshold for the interpolation
+            process. The default is ``0.5``.
         interpolation_max_solutions : int, optional
-            Maximum number of solutions evaluated for the interpolation process. The default is ``250``.
+            Maximum number of solutions evaluated for the
+            interpolation process. The default is ``250``.
         save_fields : bool, optional
-            Whether to save the fields for a discrete sweep only. The default is ``True``.
+            Whether to save the fields for a discrete sweep only. The
+            default is ``True``.
         save_rad_fields_only : bool, optional
-            Whether to save only the radiated fields if ``save_fields=True``. The default is ``False``.
+            Whether to save only the radiated fields if
+            ``save_fields=True``. The default is ``False``.
         use_q3d_for_dc : bool, optional
             Whether to use Q3D to solve the DC point. The default is ``False``.
 
@@ -556,7 +566,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         if sweepname in [name.name for name in setup.sweeps]:
             sweepname = generate_unique_name(sweepname)
         sweep = setup.add_sweep(sweepname=sweepname)
-        sweep.change_range("LinearCount", freqstart, freqstop, num_of_freq_points )
+        sweep.change_range("LinearCount", str(freqstart)+unit, str(freqstop)+unit, num_of_freq_points )
         sweep.props["GenerateSurfaceCurrent"] = save_fields
         sweep.props["SaveRadFieldsOnly"] = save_rad_fields_only
         sweep.props["FastSweep"] = interpolation
@@ -600,7 +610,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             old_name = project_name
             project_name = generate_unique_name(project_name)
             aedb_path = gds_path.replace(old_name + '.gds', project_name + '.aedb')
-            self._messenger.add_warning_message("aedb_exists. Renaming it to {}".format(project_name))
+            self._messenger.add_warning_message(
+                "aedb_exists. Renaming it to {}".format(project_name))
 
         oTool = self.odesktop.GetTool("ImportExport")
         oTool.ImportGDSII(gds_path, aedb_path, "", "")
@@ -612,4 +623,88 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             self.__init__(project_name)
         if close_active_project:
             self.odesktop.CloseProject(active_project)
+        return True
+
+    @aedt_exception_handler
+    def edit_cosim_options(self, simulate_missing_solution=True, align_ports=True, renormalize_ports=True,
+                           renorm_impedance=50, setup_override_name=None, sweep_override_name=None,
+                           use_interpolating_sweep=False, use_y_matrix=True, interpolation_algorithm="auto"):
+        """Edit Cosimulation Options.
+
+        Parameters
+        ----------
+        simulate_missing_solution : bool, optional
+            Set this to ``True`` if the the solver has to simulate missing solution or
+            ``False`` to interpolate the missing solution.
+        align_ports : bool, Optional
+            Set this to ``True`` if the the solver has to align microwave ports.
+        renormalize_ports : bool, optional
+            Set this to ``True`` if the the port impedance has to be renormalized.
+        renorm_impedance : float, optional
+            Renormalization impedance in Ohm.
+        setup_override_name : str, optional
+            The setup name if there is a setup override.
+        sweep_override_name : str, optional
+            The sweep name if there is a sweep override.
+        use_interpolating_sweep : bool, optional
+            Set to ``True`` if the the solver has to use an interpolating sweep.
+            Set to ``False`` to use a discrete sweep.
+        use_y_matrix : bool, Optional
+            Set to ``True`` if the interpolation algorithm has to use YMatrix.
+        interpolation_algorithm : str, optional
+                Defines which interpolation algorithm to use. Default is ``"auto"``. Options are ``"auto"``, ``"lin"``, ``"shadH"``, ``"shadNH"``
+
+        Returns
+        -------
+        bool
+            ``True`` if successful and ``False`` if failed.
+
+        Examples
+        --------
+        >>> from pyaedt import Hfss3dLayout
+        >>> h3d = Hfss3dLayout()
+        >>> h3d.edit_cosim_options(simulate_missing_solution=True, align_ports=True, renormalize_ports=True,renorm_impedance=50, setup_override_name=None, sweep_override_name=None, use_interpolating_sweep=False, use_y_matrix=True, interpolation_algorithm="auto")
+
+        """
+        if interpolation_algorithm not in ["auto", "lin", "shadH", "shadNH"]:
+            self.add_error_message("Wrong Interpolation Algorithm")
+            return False
+        arg = ["NAME:CoSimOptions", "Override:="]
+
+        if setup_override_name:
+            arg.append(True)
+            arg.append("Setup:=")
+            arg.append(setup_override_name)
+        else:
+            arg.append(False)
+            arg.append("Setup:=")
+            arg.append("")
+        arg.append("OverrideSweep:=")
+
+        if sweep_override_name:
+            arg.append(True)
+            arg.append("Sweep:=")
+            arg.append(sweep_override_name)
+        else:
+            arg.append(False)
+            arg.append("Sweep:=")
+            arg.append("")
+        arg.append("SweepType:=")
+        if use_interpolating_sweep:
+            arg.append(6)
+        else:
+            arg.append(4)
+        arg.append("Interpolate:=")
+        arg.append(not simulate_missing_solution)
+        arg.append("YMatrix:=")
+        arg.append(use_y_matrix)
+        arg.append("AutoAlignPorts:=")
+        arg.append(align_ports)
+        arg.append("InterpAlg:=")
+        arg.append(interpolation_algorithm)
+        arg.append("Renormalize:=")
+        arg.append(renormalize_ports)
+        arg.append("RenormImpedance:=")
+        arg.append(renorm_impedance)
+        self.odesign.EditCoSimulationOptions(arg)
         return True

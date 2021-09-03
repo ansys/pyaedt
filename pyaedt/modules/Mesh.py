@@ -30,6 +30,7 @@ class MeshOperation(object):
     meshoptpe :
 
     """
+
     def __init__(self, parent, name, props, meshoptype):
         self._parent = parent
         self.name = name
@@ -206,7 +207,7 @@ class Mesh(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Mesh.MeshOperation`
+        :class: `pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
 
         """
@@ -250,7 +251,7 @@ class Mesh(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Mesh.MeshOperation`
+        :class: `pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
 
         """
@@ -305,7 +306,7 @@ class Mesh(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Mesh.MeshOperation`
+        :class: `pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
 
         """
@@ -408,7 +409,7 @@ class Mesh(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Mesh.MeshOperation`
+        :class: `pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
 
         """
@@ -418,7 +419,6 @@ class Mesh(object):
         mop.create()
         self.meshoperations.append(mop)
         return mop
-
 
     @aedt_exception_handler
     def generate_mesh(self, name):
@@ -436,7 +436,6 @@ class Mesh(object):
 
         """
         return self.odesign.GenerateMesh(name) == 0
-
 
     @aedt_exception_handler
     def delete_mesh_operations(self, mesh_type=None):
@@ -474,7 +473,6 @@ class Mesh(object):
 
         return True
 
-
     @aedt_exception_handler
     def assign_length_mesh(self, names, isinside=True, maxlength=1, maxel=1000, meshop_name=None):
         """Assign a length for the model resolution.
@@ -496,7 +494,7 @@ class Mesh(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Mesh.MeshOperation`
+        :class: `pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
 
         """
@@ -543,7 +541,6 @@ class Mesh(object):
         self.meshoperations.append(mop)
         return mop
 
-
     @aedt_exception_handler
     def assign_skin_depth(self, names, skindepth, maxelements=None, triangulation_max_length="0.1mm", numlayers="2",
                           meshop_name=None):
@@ -560,7 +557,7 @@ class Mesh(object):
             this parameter is disabled.
         triangulation_max_length : str, optional
             Maximum surface triangulation length with units. The default
-            is ``"0.1mm"`.
+            is ``"0.1mm"``.
         numlayers : str, optional
             Number of layers. The default is ``"2"``.
         meshop_name : str, optional
@@ -568,7 +565,7 @@ class Mesh(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Mesh.MeshOperation`
+        pyaedt.modules.Mesh.MeshOperation
             Mesh operation object.
 
         """
@@ -609,7 +606,6 @@ class Mesh(object):
         self.meshoperations.append(mop)
         return mop
 
-
     @aedt_exception_handler
     def assign_curvilinear_elements(self, names, enable=True, meshop_name=None):
         """Assign curvilinear elements.
@@ -620,12 +616,12 @@ class Mesh(object):
             List of objects or faces.
         enable : bool, optional
             Whether to apply curvilinear elements. The default is ``True``.
-         meshop_name : str, optional
+        meshop_name : str, optional
             Name of the mesh operation. The default is ``None``.
 
         Returns
         -------
-        :class:`pyaedt.modules.Mesh.MeshOperation`
+        pyaedt.modules.Mesh.MeshOperation
             Mesh operation object.
 
         """
@@ -656,7 +652,6 @@ class Mesh(object):
         self.meshoperations.append(mop)
         return mop
 
-
     @aedt_exception_handler
     def assign_curvature_extraction(self, names, disable_for_faceted_surf=True, meshop_name=None):
         """Assign curvature extraction.
@@ -673,7 +668,7 @@ class Mesh(object):
 
         Returns
         -------
-       :class:`pyaedt.modules.Mesh.MeshOperation`
+       :class: `pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
 
         """
@@ -704,7 +699,6 @@ class Mesh(object):
         self.meshoperations.append(mop)
         return mop
 
-
     @aedt_exception_handler
     def assign_rotational_layer(self, names, num_layers=3, total_thickness="1mm", meshop_name=None):
         """Assign a rotational layer mesh.
@@ -723,7 +717,7 @@ class Mesh(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Mesh.MeshOperation`
+        :class: `pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
 
         """
@@ -746,7 +740,6 @@ class Mesh(object):
         self.meshoperations.append(mop)
         return mop
 
-
     @aedt_exception_handler
     def assign_edge_cut(self, names, layer_thickness="1mm", meshop_name=None):
         """Assign an edge cut layer mesh.
@@ -762,7 +755,7 @@ class Mesh(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Mesh.MeshOperation`
+        :class: `pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
 
         """
@@ -783,7 +776,6 @@ class Mesh(object):
         mop.create()
         self.meshoperations.append(mop)
         return mop
-
 
     @aedt_exception_handler
     def assign_density_control(self, names, refine_inside=True, maxelementlength=None, layerNum=None, meshop_name=None):
@@ -806,7 +798,7 @@ class Mesh(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Mesh.MeshOperation`
+        :class: `pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
 
         """

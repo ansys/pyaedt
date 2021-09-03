@@ -22,7 +22,8 @@ class TestClass:
             aedbproject = os.path.join(self.local_scratch.path, test_project_name + '.aedb')
             self.local_scratch.copyfolder(os.path.join(local_path, 'example_models', test_project_name + '.aedb'),
                                           os.path.join(self.local_scratch.path, test_project_name + '.aedb'))
-            self.edbapp = Edb(aedbproject, 'Galileo_G87173_204', edbversion=desktop_version, isreadonly=False)
+            self.edbapp = Edb(aedbproject, 'Galileo_G87173_204',
+                              edbversion=desktop_version, isreadonly=False)
             time.sleep(5)
 
     def teardown_class(self):
@@ -57,15 +58,12 @@ class TestClass:
         assert len(self.edbapp.core_primitives.polygons_by_layer["TOP"])>0
         assert len(self.edbapp.core_primitives.polygons_by_layer["UNNAMED_000"]) == 0
 
-
     def test_04_get_stackup(self):
         stackup = self.edbapp.core_stackup.stackup_layers
         assert (len(stackup.layers)>2)
         assert  self.edbapp.core_stackup.stackup_layers["TOP"]._builder
         assert  self.edbapp.core_stackup.stackup_layers["TOP"].id
         assert  isinstance(self.edbapp.core_stackup.stackup_layers["TOP"].layer_type, int)
-
-
 
     def test_05_get_signal_layers(self):
         signal_layers = self.edbapp.core_stackup.signal_layers
@@ -87,8 +85,10 @@ class TestClass:
         assert (len(powernets) > 2)
 
     def test_09_assign_rlc(self):
-        assert self.edbapp.core_components.set_component_rlc("C3B14", res_value=1e-3, cap_value="10e-6", isparallel=False)
-        assert self.edbapp.core_components.set_component_rlc("L3A1", res_value=1e-3, ind_value="10e-6", isparallel=True)
+        assert self.edbapp.core_components.set_component_rlc(
+            "C3B14", res_value=1e-3, cap_value="10e-6", isparallel=False)
+        assert self.edbapp.core_components.set_component_rlc(
+            "L3A1", res_value=1e-3, ind_value="10e-6", isparallel=True)
 
     def test_10_add_layer(self):
         layers = self.edbapp.core_stackup.stackup_layers
@@ -107,7 +107,8 @@ class TestClass:
         assert diel
 
     def test_14_add_debye(self):
-        diel = self.edbapp.core_stackup.create_debye_material("My_Debye", 3, 2.5, 0.02, 0.04, 1e6, 1e9)
+        diel = self.edbapp.core_stackup.create_debye_material(
+            "My_Debye", 3, 2.5, 0.02, 0.04, 1e6, 1e9)
         assert diel
 
     def test_15_update_layer(self):
@@ -156,11 +157,9 @@ class TestClass:
         assert "R1" in  list(self.edbapp.core_components.resistors.keys())
         assert "C1" not in list(self.edbapp.core_components.resistors.keys())
 
-
     def test_20_capacitors(self):
         assert "C1" in list(self.edbapp.core_components.capacitors.keys())
         assert "R1" not in list(self.edbapp.core_components.capacitors.keys())
-
 
     def test_21_inductors(self):
         assert "L3M1" in list(self.edbapp.core_components.inductors.keys())
@@ -195,7 +194,8 @@ class TestClass:
     def test_29_get_power_tree(self):
         OUTPUT_NET = "BST_V1P0_S0"
         GROUND_NETS = ["GND", "PGND"]
-        component_list, component_list_columns, net_group = self.edbapp.core_nets.get_powertree(OUTPUT_NET, GROUND_NETS)
+        component_list, component_list_columns, net_group = self.edbapp.core_nets.get_powertree(
+            OUTPUT_NET, GROUND_NETS)
         assert component_list
         assert component_list_columns
         assert net_group
@@ -227,14 +227,34 @@ class TestClass:
     def test_36_create_coax_port(self):
         assert self.edbapp.core_hfss.create_coax_port_on_component("U2A5",["RSVD_0", "V1P0_SO"])
 
-    def test_37_create_siwave_circuit_port(self):
-        assert self.edbapp.core_siwave.create_circuit_port("U2A5","V1P5_S3","U2A5","GND",50,"test")
+    def test_37_create_circuit_port(self):
+        time.sleep(1)
+        assert self.edbapp.core_siwave.create_circuit_port_on_net("U2A5","V1P5_S3","U2A5","GND",50,"test") == "test"
+        p2 = self.edbapp.core_siwave.create_circuit_port_on_net("U2A5","V1P5_S3","U2A5","GND",50,"test")
+        assert p2 != "test" and "test" in p2
+        pins = self.edbapp.core_components.get_pin_from_component("U2A5")
+        p3 = self.edbapp.core_siwave.create_circuit_port_on_pin(pins[200],pins[0])
+        assert p3 != ""
+        p4 = self.edbapp.core_hfss.create_circuit_port_on_net("U2A5","V1P5_S3")
+        assert "GND" in p4 and "V1P5_S3" in p4
 
-    def test_38_create_siwave_voltage_source(self):
-        assert self.edbapp.core_siwave.create_voltage_source("U2A5","V1P5_S3","U2A5","GND",3.3,0)
+    def test_38_create_voltage_source(self):
+        time.sleep(1)
+        assert "Vsource_" in self.edbapp.core_siwave.create_voltage_source_on_net("U2A5","V1P5_S3","U2A5","GND",3.3,0)
+        pins = self.edbapp.core_components.get_pin_from_component("U2A5")
+        assert "VSource_" in self.edbapp.core_siwave.create_voltage_source_on_pin(pins[300],pins[10],3.3,0)
 
-    def test_39_create_siwave_current_source(self):
-        assert self.edbapp.core_siwave.create_current_source("U2A5","V1P5_S3","U2A5","GND",0.1,0)
+    def test_39_create_current_source(self):
+        time.sleep(1)
+        assert self.edbapp.core_siwave.create_current_source_on_net("U2A5","V1P5_S3","U2A5","GND",0.1,0) != ""
+        pins = self.edbapp.core_components.get_pin_from_component("U2A5")
+        assert "I22" == self.edbapp.core_siwave.create_current_source_on_pin(pins[300],pins[10],0.1,0, "I22")
+
+    def test_39B_create_resistors(self):
+        time.sleep(1)
+        assert "myRes" in self.edbapp.core_siwave.create_resistor_on_net("U2A5","V1P5_S0","U2A5","GND",50,"myRes")
+        pins = self.edbapp.core_components.get_pin_from_component("U2A5")
+        assert "RST4000" == self.edbapp.core_siwave.create_resistor_on_pin(pins[300],pins[10],40, "RST4000")
 
     def test_40_create_siwave_ac_analsyis(self):
         assert self.edbapp.core_siwave.add_siwave_ac_analysis()
@@ -419,7 +439,8 @@ class TestClass:
 
     @pytest.mark.skipif(config["build_machine"], reason="Not running in non-graphical mode")
     def test_62_export_to_hfss(self):
-        edb = Edb(edbpath=os.path.join(local_path, 'example_models', "simple.aedb"), edbversion="2021.1")
+        edb = Edb(edbpath=os.path.join(local_path, 'example_models',
+                  "simple.aedb"), edbversion="2021.1")
         options_config = {'UNITE_NETS' : 1, 'LAUNCH_Q3D' : 0}
         out = edb.write_export3d_option_config_file(scratch_path, options_config)
         assert os.path.exists(out)
@@ -427,10 +448,10 @@ class TestClass:
         assert os.path.exists(out)
         edb.close_edb()
 
-
     @pytest.mark.skipif(config["build_machine"], reason="Not running in non-graphical mode")
     def test_63_export_to_q3d(self):
-        edb = Edb(edbpath=os.path.join(local_path, 'example_models', "simple.aedb"), edbversion="2021.1")
+        edb = Edb(edbpath=os.path.join(local_path, 'example_models',
+                  "simple.aedb"), edbversion="2021.1")
         options_config = {'UNITE_NETS' : 1, 'LAUNCH_Q3D' : 0}
         out = edb.write_export3d_option_config_file(scratch_path, options_config)
         assert os.path.exists(out)
@@ -440,7 +461,8 @@ class TestClass:
 
     @pytest.mark.skipif(config["build_machine"], reason="Not running in non-graphical mode")
     def test_64_export_to_maxwell(self):
-        edb = Edb(edbpath=os.path.join(local_path, 'example_models', "simple.aedb"), edbversion="2021.1")
+        edb = Edb(edbpath=os.path.join(local_path, 'example_models',
+                  "simple.aedb"), edbversion="2021.1")
         options_config = {'UNITE_NETS' : 1, 'LAUNCH_MAXWELL' : 0}
         out = edb.write_export3d_option_config_file(scratch_path, options_config)
         assert os.path.exists(out)

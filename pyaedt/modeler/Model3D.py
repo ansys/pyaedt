@@ -14,6 +14,7 @@ class Modeler3D(GeometryModeler):
         Whether the model is 3D. The default is ``True``.
 
     """
+
     def __init__(self, application):
         GeometryModeler.__init__(self, application, is3d=True)
         self._primitives = Primitives3D(self._parent, self)
@@ -29,7 +30,7 @@ class Modeler3D(GeometryModeler):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Primitives3D.Primitives3D`
+        :class: `pyaedt.modeler.Primitives3D.Primitives3D`
 
         """
         if self._primitivesDes != self._parent.project_name + self._parent.design_name:

@@ -311,7 +311,6 @@ class SolutionData(object):
 
         return [10*math.log10(i) for i in self.data_magnitude(expression,convert_to_SI)]
 
-
     def data_real(self, expression=None, convert_to_SI=False):
         """Retrieve the real part of the data for an expression.
 
@@ -395,7 +394,6 @@ class SolutionData(object):
         return sol
 
 
-
 class FieldPlot:
     """Creates and edits field plots.
 
@@ -413,6 +411,7 @@ class FieldPlot:
         Name of the intrinsic dictionary. The default is ``{}``.
 
     """
+
     def __init__(self, oField, objlist, solutionName, quantityName, intrinsincList={}):
         self.oField = oField
         self.faceIndexes = objlist
@@ -455,7 +454,6 @@ class FieldPlot:
         self.oField.CreateFieldPlot(self.surfacePlotInstruction, "Field")
         return True
 
-
     @aedt_exception_handler
     def update(self):
         """Update the field plot.
@@ -466,8 +464,6 @@ class FieldPlot:
             ``True`` when successful, ``False`` when failed.
         """
         self.oField.ModifyFieldPlot(self.name, self.surfacePlotInstruction)
-
-
 
     @aedt_exception_handler
     def modify_folder(self):
@@ -604,18 +600,20 @@ class FieldPlot:
 class PostProcessorCommon(object):
     """Manages the main AEDT postprocessing functions.
 
-    The inherited `AEDTConfig` class contains all `_desktop` hierarchical calls
-    needed for the class inititialization data `_desktop` and the design types ``"HFSS"``,
-    ``"Icepak"``, and ``"HFSS3DLayout"``.
+    The inherited `AEDTConfig` class contains all `_desktop`
+    hierarchical calls needed for the class inititialization data
+    `_desktop` and the design types ``"HFSS"``, ``"Icepak"``, and
+    ``"HFSS3DLayout"``.
 
     .. note::
-   Some functionalities are available only when AEDT is running in the graphical mode.
+       Some functionalities are available only when AEDT is running in
+       the graphical mode.
 
     Parameters
     ----------
-    parent:
+    parent
         Inherited parent object. The parent object must provide the members
-        `_modeler`, `_desktop`, `_odesign`, and `_messenger`.
+        ``_modeler``, ``_desktop``, ``_odesign``, and ``_messenger``.
 
     """
 
@@ -664,13 +662,12 @@ class PostProcessorCommon(object):
         """Editor."""
         return self.modeler.oeditor
 
-
     @property
     def post_solution_type(self):
         """Design solution type.
 
-        Return
-        ------
+        Returns
+        -------
         type
             Design solution type.
         """
@@ -685,7 +682,7 @@ class PostProcessorCommon(object):
 
         Parameters
         ----------
-        PlotName :
+        PlotName : str
             Name of the report.
 
         Returns
@@ -761,7 +758,7 @@ class PostProcessorCommon(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.PostProcessor.SolutionData`
+        pyaedt.modules.PostProcessor.SolutionData
 
         Examples
         --------
@@ -907,7 +904,7 @@ class PostProcessorCommon(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.PostProcessor.SolutionData`
+        pyaedt.modules.PostProcessor.SolutionData
 
         """
         if sweeps is None:
@@ -996,20 +993,23 @@ class PostProcessorCommon(object):
 class PostProcessor(PostProcessorCommon, object):
     """Manages the main AEDT postprocessing functions.
 
-    The inherited `AEDTConfig` class contains all `_desktop` hierarchical calls
-    needed for the class inititialization data `_desktop` and the design types ``"HFSS"``,
-    ``"Icepak"``, and ``"HFSS3DLayout"``.
+    The inherited `AEDTConfig` class contains all `_desktop`
+    hierarchical calls needed for the class inititialization data
+    `_desktop` and the design types ``"HFSS"``, ``"Icepak"``, and
+    ``"HFSS3DLayout"``.
 
     .. note::
-   Some functionalities are available only when AEDT is running in the graphical mode.
+       Some functionalities are available only when AEDT is running in
+       the graphical mode.
 
     Parameters
     ----------
-    parent:
+    parent
         Inherited parent object. The parent object must provide the members
         `_modeler`, `_desktop`, `_odesign`, and `_messenger`.
 
     """
+
     def __init__(self, parent):
         self._parent = parent
         self.FieldsPlot = {}
@@ -1021,7 +1021,7 @@ class PostProcessor(PostProcessorCommon, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Primitives`
+        pyaedt.modeler.Primitives
             Primitives object.
 
         """
@@ -1243,13 +1243,11 @@ class PostProcessor(PostProcessorCommon, object):
                 else:
                     variation_dict.append("0deg")
 
-
         self.ofieldsreporter.ExportOnGrid(filename, grid_start_wu,
                                           grid_stop_wu, grid_step_wu,
                                           solution,
                                           variation_dict, True, gridtype, grid_center, False)
         return os.path.exists(filename)
-
 
     @aedt_exception_handler
     def export_field_file(self, quantity_name, solution=None, variation_dict=None, filename=None,
@@ -1305,7 +1303,6 @@ class PostProcessor(PostProcessorCommon, object):
         self.ofieldsreporter.CalcStack("clear")
         self.ofieldsreporter.EnterQty(quantity_name)
 
-
         if not variation_dict:
             if not sample_points_file and not sample_points_lists:
                 if obj_type == "Vol":
@@ -1349,7 +1346,6 @@ class PostProcessor(PostProcessorCommon, object):
             self.ofieldsreporter.ExportToFile(filename, sample_points_file, solution, variation_dict, export_with_sample_points)
 
         return os.path.exists(filename)
-
 
     @aedt_exception_handler
     def export_field_plot(self, plotname, filepath, filename=""):
@@ -1646,10 +1642,11 @@ class PostProcessor(PostProcessorCommon, object):
 
     @aedt_exception_handler
     def get_far_field_data(self, expression="GainTotal", setup_sweep_name='', domain="Infinite Sphere1", families_dict=None):
-        """Generate far field data using the :func:`GetSolutionDataPerVariation` method.
+        """Generate far field data using ``GetSolutionDataPerVariation``.
 
-        This method returns the data ``solData``, ``ThetaVals``, ``PhiVals``, ``ScanPhiVals``,
-        ``ScanThetaVals``, and ``FreqVals``.
+        This method returns the data ``solData``, ``ThetaVals``,
+        ``PhiVals``, ``ScanPhiVals``, ``ScanThetaVals``, and
+        ``FreqVals``.
 
         Parameters
         ----------
@@ -1665,7 +1662,7 @@ class PostProcessor(PostProcessorCommon, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.PostProcessor.SolutionData`
+        pyaedt.modules.PostProcessor.SolutionData
 
         """
         if type(expression) is not list:
@@ -1679,7 +1676,6 @@ class PostProcessor(PostProcessorCommon, object):
             print("No Data Available. Check inputs")
             return False
         return solution_data
-
 
 
 class CircuitPostProcessor(PostProcessorCommon, object):
@@ -1762,7 +1758,6 @@ class CircuitPostProcessor(PostProcessorCommon, object):
                                                                                      "-1", "SID", False, "0"]],
                                        variations, ["X Component:=", "__InitialTime", "Y Component:=", ycomponents])
         return plotname
-
 
     def create_ami_statistical_eye_plot(self, setupname, ami_name, variation_list_w_value, ami_plot_type="InitialEye", plotname=None):
         """Create an AMI statistical eye plot.

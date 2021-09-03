@@ -385,7 +385,6 @@ class NexximComponents(CircuitComponents):
         if len(value_lists) > 6:
             self.components[cmpid].set_property("PER", value_lists[6])
 
-
         return cmpid, cmpname
 
     @aedt_exception_handler
@@ -434,9 +433,7 @@ class NexximComponents(CircuitComponents):
         if len(value_lists) > 6:
             self.components[cmpid].set_property("PER", value_lists[6])
 
-
         return cmpid, cmpname
-
 
     @aedt_exception_handler
     def create_current_dc(self, compname=None, value=1, xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
@@ -703,7 +700,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+        :class: `pyaedt.modeler.Object3d.CircuitComponent`
             Object with properties.
 
         """
@@ -834,8 +831,6 @@ class NexximComponents(CircuitComponents):
                 "InfoHelpFile:=", "",	"IconFile:=", "hfss.bmp", "Library:=", "",	"OriginalLocation:=", "Project",
                 "IEEE:=", "", "Author:=", "", "OriginalAuthor:=", "",	"CreationDate:=", 1591855894, "ExampleFile:=", "",
                 "HiddenComponent:=", 0, "CircuitEnv:=", 0, "GroupID:=", 0]
-
-
 
         compInfo2 = ["NAME:"+str(compName),
                      "Info:=", info,

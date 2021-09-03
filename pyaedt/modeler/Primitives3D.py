@@ -15,6 +15,7 @@ class Primitives3D(Primitives, object):
         Name of the modeler.
 
     """
+
     def __init__(self, parent, modeler):
         Primitives.__init__(self, parent, modeler)
 
@@ -32,7 +33,6 @@ class Primitives3D(Primitives, object):
     def create_box(self, position, dimensions_list, name=None, matname=None):
         """Create a box.
 
-
         Parameters
         ----------
         position : list
@@ -49,7 +49,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
+        :class: `pyaedt.modeler.Object3d.Object3d`
             3D object.
 
         Examples
@@ -104,7 +104,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
+        :class: `pyaedt.modeler.Object3d.Object3d`
             3D object.
 
         Examples
@@ -162,7 +162,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
+        :class: `pyaedt.modeler.Object3d.Object3d`
             3D object.
 
         Examples
@@ -220,7 +220,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
+        :class: `pyaedt.modeler.Object3d.Object3d`
             3D object.
 
         Examples
@@ -270,7 +270,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
+        :class: `pyaedt.modeler.Object3d.Object3d`
             3D object.
 
         Examples
@@ -339,7 +339,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
+        :class: `pyaedt.modeler.Object3d.Object3d`
             3D object.
 
         Examples
@@ -403,7 +403,7 @@ class Primitives3D(Primitives, object):
             the positionApplicationName.modeler.Position(x,y,z) object.
         dimension_list : list
             List of ``[width, height]`` dimensions.
-       name : str, optional
+        name : str, optional
             Name of the rectangle. The default is ``None``, in which case
             the default name is assigned.
         matname : str, optional
@@ -414,7 +414,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
+        pyaedt.modeler.Object3d.Object3d
             3D object.
 
         """
@@ -459,7 +459,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
+        :class: `pyaedt.modeler.Object3d.Object3d`
             3D object.
 
         """
@@ -481,9 +481,10 @@ class Primitives3D(Primitives, object):
     @aedt_exception_handler
     def create_ellipse(self, cs_plane, position, major_raidus, ratio, is_covered=True, name=None, matname=None):
         """Create an ellipse.
+
         Parameters
         ----------
-        cs_plane :
+        cs_plane : str
             Coordinate system plane for orienting the ellipse.
         position : list
             List of ``[x, y, z]`` coordinates for the center point of the ellipse.
@@ -504,7 +505,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
+        :class: `pyaedt.modeler.Object3d.Object3d`
             3D object.
 
         """
@@ -579,7 +580,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
+        :class: `pyaedt.modeler.Object3d.Object3d`
             3D object.
 
         """
@@ -597,7 +598,6 @@ class Primitives3D(Primitives, object):
                  "Version:="		, 1,
                  x_section]
 
-
         vArg2 = self._default_object_attributes(name)
 
         new_name = self.oeditor.CreateEquationCurve(vArg1, vArg2)
@@ -614,7 +614,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
+        :class: `pyaedt.modeler.Object3d.Object3d`
             3D object.
 
         """
@@ -640,7 +640,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
+        :class: `pyaedt.modeler.Object3d.Object3d`
             3D object.
 
         """
@@ -682,7 +682,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
+        :class: `pyaedt.modeler.Object3d.Object3d`
             3D object.
 
         """

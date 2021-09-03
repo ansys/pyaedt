@@ -52,7 +52,8 @@ class TestClass:
 
     def test_07_import_netlist(self):
         self.aedtapp.insert_design("SchematicImport")
-        assert self.aedtapp.create_schematic_from_netlist(os.path.join(self.local_scratch.path, netlist1))
+        assert self.aedtapp.create_schematic_from_netlist(
+            os.path.join(self.local_scratch.path, netlist1))
 
     def test_08_set_hmax(self):
         assert self.aedtapp.set_hmax("5ms")

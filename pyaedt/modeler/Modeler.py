@@ -1,7 +1,9 @@
 """
-This module contains these classes: `CoordinateSystem`, `Modeler`, `Position`, and `SweepOptions`.
+This module contains these classes: `CoordinateSystem`, `Modeler`,
+`Position`, and `SweepOptions`.
 
-This modules provides functionalities for the 3D Modeler, 2D Modeler, 3D Layout Modeler, and Circuit Modeler.
+This modules provides functionalities for the 3D Modeler, 2D Modeler,
+3D Layout Modeler, and Circuit Modeler.
 """
 from __future__ import absolute_import
 import sys
@@ -20,7 +22,7 @@ from ..generic.general_methods import generate_unique_name, retry_ntimes, aedt_e
 import math
 from ..application.DataHandlers import dict2arg
 from .Object3d import EdgePrimitive, FacePrimitive, VertexPrimitive, Object3d
-
+from pyaedt import _pythonver
 
 class CoordinateSystem(object):
     """Manages coordinate system data and execution.
@@ -35,13 +37,15 @@ class CoordinateSystem(object):
         The default is ``None``.
 
     """
+
     def __init__(self, parent, props=None, name=None):
         self._parent = parent
         self.model_units = self._parent.model_units
         self.name = name
         self.props = props
         self.ref_cs = None
-        self.quaternion = None
+        self._quaternion = None
+        self.mode = None
         try:
             if "KernelVersion" in self.props:
                 del self.props["KernelVersion"]
@@ -188,6 +192,7 @@ class CoordinateSystem(object):
                 del self.props['Phi']
                 del self.props['Theta']
                 del self.props['Psi']
+                self.mode = "axis"
                 self.update()
         elif mode_type == 1:  # "Euler Angle ZXZ"
             if self.props and self.props["Mode"] == "Euler Angle ZYZ":
@@ -199,6 +204,7 @@ class CoordinateSystem(object):
                 self.props["Phi"] = "{}deg".format(phi)
                 self.props["Theta"] = "{}deg".format(theta)
                 self.props["Psi"] = "{}deg".format(psi)
+                self.mode = "zxz"
                 self.update()
             elif self.props and self.props["Mode"] == "Axis/Position":
                 self.props["Mode"] = "Euler Angle ZXZ"
@@ -215,6 +221,7 @@ class CoordinateSystem(object):
                 del self.props["YAxisXvec"]
                 del self.props["YAxisYvec"]
                 del self.props["YAxisZvec"]
+                self.mode = "zxz"
                 self.update()
         elif mode_type == 2:  # "Euler Angle ZYZ"
             if self.props and self.props["Mode"] == "Euler Angle ZXZ":
@@ -226,6 +233,7 @@ class CoordinateSystem(object):
                 self.props["Phi"] = "{}deg".format(phi)
                 self.props["Theta"] = "{}deg".format(theta)
                 self.props["Psi"] = "{}deg".format(psi)
+                self.mode = "zyz"
                 self.update()
             elif self.props and self.props["Mode"] == "Axis/Position":
                 self.props["Mode"] = "Euler Angle ZYZ"
@@ -242,6 +250,7 @@ class CoordinateSystem(object):
                 del self.props["YAxisXvec"]
                 del self.props["YAxisYvec"]
                 del self.props["YAxisZvec"]
+                self.mode = "zyz"
                 self.update()
         else:
             raise ValueError('mode_type=0 for "Axis/Position", =1 for "Euler Angle ZXZ", =2 for "Euler Angle ZYZ"')
@@ -308,7 +317,7 @@ class CoordinateSystem(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Modeler.CoordinateSystem`
+        :class: `pyaedt.modeler.Modeler.CoordinateSystem`
 
         """
         if not origin:
@@ -332,7 +341,7 @@ class CoordinateSystem(object):
         originY = self._dim_arg(origin[1], self.model_units)
         originZ = self._dim_arg(origin[2], self.model_units)
         orientationParameters = OrderedDict({"OriginX": originX, "OriginY": originY, "OriginZ": originZ})
-
+        self.mode = mode
         if mode == "view":
             orientationParameters["Mode"] = "Axis/Position"
             if view == "YZ":
@@ -365,44 +374,28 @@ class CoordinateSystem(object):
                 orientationParameters["YAxisZvec"] = "0mm"
             else:
                 raise ValueError("With mode = 'view', specify view = 'XY', 'XZ', 'XY', 'iso' ")
-            x1 = GeometryOperators.parse_dim_arg(orientationParameters['XAxisXvec'])
-            x2 = GeometryOperators.parse_dim_arg(orientationParameters['XAxisYvec'])
-            x3 = GeometryOperators.parse_dim_arg(orientationParameters['XAxisZvec'])
-            y1 = GeometryOperators.parse_dim_arg(orientationParameters['YAxisXvec'])
-            y2 = GeometryOperators.parse_dim_arg(orientationParameters['YAxisYvec'])
-            y3 = GeometryOperators.parse_dim_arg(orientationParameters['YAxisZvec'])
-            x, y, z = GeometryOperators.pointing_to_axis([x1, x2, x3], [y1, y2, y3])
-            a, b, g = GeometryOperators.axis_to_euler_zyz(x, y, z)
-            self.quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
+
         elif mode == "axis":
             orientationParameters["Mode"] = "Axis/Position"
-            orientationParameters["XAxisXvec"] = self._dim_arg((x_pointing[0]), self.model_units) + " - " + self._dim_arg((origin[0]), self.model_units)
-            orientationParameters["XAxisYvec"] = self._dim_arg((x_pointing[1]), self.model_units) + " - " + self._dim_arg((origin[1]), self.model_units)
-            orientationParameters["XAxisZvec"] = self._dim_arg((x_pointing[2]), self.model_units) + " - " + self._dim_arg((origin[2]), self.model_units)
-            orientationParameters["YAxisXvec"] = self._dim_arg((y_pointing[0]), self.model_units) + " - " + self._dim_arg((origin[0]), self.model_units)
-            orientationParameters["YAxisYvec"] = self._dim_arg((y_pointing[1]), self.model_units) + " - " + self._dim_arg((origin[1]), self.model_units)
-            orientationParameters["YAxisZvec"] = self._dim_arg((y_pointing[2]), self.model_units) + " - " + self._dim_arg((origin[2]), self.model_units)
-            x, y, z = GeometryOperators.pointing_to_axis(x_pointing, y_pointing)
-            a, b, g = GeometryOperators.axis_to_euler_zyz(x, y, z)
-            self.quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
+            orientationParameters["XAxisXvec"] = self._dim_arg((x_pointing[0]), self.model_units)
+            orientationParameters["XAxisYvec"] = self._dim_arg((x_pointing[1]), self.model_units)
+            orientationParameters["XAxisZvec"] = self._dim_arg((x_pointing[2]), self.model_units)
+            orientationParameters["YAxisXvec"] = self._dim_arg((y_pointing[0]), self.model_units)
+            orientationParameters["YAxisYvec"] = self._dim_arg((y_pointing[1]), self.model_units)
+            orientationParameters["YAxisZvec"] = self._dim_arg((y_pointing[2]), self.model_units)
+
         elif mode == "zxz":
             orientationParameters["Mode"] = "Euler Angle ZXZ"
             orientationParameters["Phi"] = self._dim_arg(phi, 'deg')
             orientationParameters["Theta"] = self._dim_arg(theta, 'deg')
             orientationParameters["Psi"] = self._dim_arg(psi, 'deg')
-            a = GeometryOperators.deg2rad(phi)
-            b = GeometryOperators.deg2rad(theta)
-            g = GeometryOperators.deg2rad(psi)
-            self.quaternion = GeometryOperators.euler_zxz_to_quaternion(a, b, g)
+
         elif mode == "zyz":
             orientationParameters["Mode"] = "Euler Angle ZYZ"
             orientationParameters["Phi"] = self._dim_arg(phi, 'deg')
             orientationParameters["Theta"] = self._dim_arg(theta, 'deg')
             orientationParameters["Psi"] = self._dim_arg(psi, 'deg')
-            a = GeometryOperators.deg2rad(phi)
-            b = GeometryOperators.deg2rad(theta)
-            g = GeometryOperators.deg2rad(psi)
-            self.quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
+
         elif mode == "axisrotation":
             th = GeometryOperators.deg2rad(theta)
             q = GeometryOperators.axis_angle_to_quaternion(u, th)
@@ -414,7 +407,6 @@ class CoordinateSystem(object):
             orientationParameters["Phi"] = self._dim_arg(phi, 'deg')
             orientationParameters["Theta"] = self._dim_arg(theta, 'deg')
             orientationParameters["Psi"] = self._dim_arg(psi, 'deg')
-            self.quaternion = q
         else:
             raise ValueError("Specify the mode = 'view', 'axis', 'zxz', 'zyz', 'axisrotation' ")
 
@@ -424,6 +416,58 @@ class CoordinateSystem(object):
         self.update()
 
         return True
+
+    @property
+    def quaternion(self):
+        """Quaternion computed based on specific axis mode.
+
+        Returns
+        -------
+        list
+        """
+        self._parent._parent.variable_manager["temp_var"] = 0
+        if self.mode == "axis" or self.mode == "view":
+            x1 = self.props['XAxisXvec']
+            x2 = self.props['XAxisYvec']
+            x3 = self.props['XAxisZvec']
+            y1 = self.props['YAxisXvec']
+            y2 = self.props['YAxisYvec']
+            y3 = self.props['YAxisZvec']
+            self._parent._parent.variable_manager["temp_var"] = x1
+            x_pointing_num=[self._parent._parent.variable_manager["temp_var"].numeric_value]
+            self._parent._parent.variable_manager["temp_var"] = x2
+            x_pointing_num.append(self._parent._parent.variable_manager["temp_var"].numeric_value)
+            self._parent._parent.variable_manager["temp_var"] = x3
+            x_pointing_num.append(self._parent._parent.variable_manager["temp_var"].numeric_value)
+            self._parent._parent.variable_manager["temp_var"] = y1
+            y_pointing_num=[self._parent._parent.variable_manager["temp_var"].numeric_value]
+            self._parent._parent.variable_manager["temp_var"] = y2
+            y_pointing_num.append(self._parent._parent.variable_manager["temp_var"].numeric_value)
+            self._parent._parent.variable_manager["temp_var"] = y3
+            y_pointing_num.append(self._parent._parent.variable_manager["temp_var"].numeric_value)
+            x, y, z = GeometryOperators.pointing_to_axis(x_pointing_num, y_pointing_num)
+            a, b, g = GeometryOperators.axis_to_euler_zyz(x, y, z)
+            self._quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
+            del self._parent._parent.variable_manager["temp_var"]
+        elif self.mode == "zxz":
+            self._parent._parent.variable_manager["temp_var"] = self.props['Phi']
+            a = GeometryOperators.deg2rad(self._parent._parent.variable_manager["temp_var"].numeric_value)
+            self._parent._parent.variable_manager["temp_var"] = self.props['Theta']
+            b = GeometryOperators.deg2rad(self._parent._parent.variable_manager["temp_var"].numeric_value)
+            self._parent._parent.variable_manager["temp_var"] = self.props['Psi']
+            g = GeometryOperators.deg2rad(self._parent._parent.variable_manager["temp_var"].numeric_value)
+            self._quaternion = GeometryOperators.euler_zxz_to_quaternion(a, b, g)
+            del self._parent._parent.variable_manager["temp_var"]
+        elif self.mode == "zyz" or self.mode == "axisrotation":
+            self._parent._parent.variable_manager["temp_var"] = self.props['Phi']
+            a = GeometryOperators.deg2rad(self._parent._parent.variable_manager["temp_var"].numeric_value)
+            self._parent._parent.variable_manager["temp_var"] = self.props['Theta']
+            b = GeometryOperators.deg2rad(self._parent._parent.variable_manager["temp_var"].numeric_value)
+            self._parent._parent.variable_manager["temp_var"] = self.props['Psi']
+            g = GeometryOperators.deg2rad(self._parent._parent.variable_manager["temp_var"].numeric_value)
+            self._quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
+            del self._parent._parent.variable_manager["temp_var"]
+        return  self._quaternion
 
     @property
     def orientation(self):
@@ -527,6 +571,7 @@ class GeometryModeler(Modeler, object):
         ``True`` when successful, ``False`` when failed.
 
     """
+
     def __init__(self, parent, is3d=True):
         self._parent = parent
         Modeler.__init__(self, parent)
@@ -540,11 +585,10 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.MaterialLib.Materials`
+        pyaedt.modules.MaterialLib.Materials
 
         """
         return self._parent.materials
-
 
     @aedt_exception_handler
     def _convert_list_to_ids(self,input_list, convert_objects_ids_to_name=True):
@@ -555,7 +599,7 @@ class GeometryModeler(Modeler, object):
         input_list : list
            List of object IDs.
         convert_objects_ids_to_name : bool, optional
-             Whether to covert the object IDs to object names.
+             Whether to convert the object IDs to object names.
              The default is ``True``.
 
         Returns
@@ -651,7 +695,7 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Model3D.Modeler3D`
+        pyaedt.modeler.Model3D.Modeler3D
 
         """
         return self.odesign.SetActiveEditor("3D Modeler")
@@ -692,7 +736,7 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.MaterialLib.Materials`
+        pyaedt.modules.MaterialLib.Materials
 
         """
         return self._parent._oproject.GetDefinitionManager().GetManager("Material")
@@ -707,7 +751,7 @@ class GeometryModeler(Modeler, object):
         """Dimensions.
 
         Returns
-        --------
+        -------
         str
             Dimensionality, which is either ``"2D"`` or ``"3D"``.
 
@@ -741,7 +785,7 @@ class GeometryModeler(Modeler, object):
             Non-model objects are also returned.
 
         Returns
-        --------
+        -------
         list
             List of object IDs with the object name as the key.
 
@@ -762,15 +806,18 @@ class GeometryModeler(Modeler, object):
         Parameters
         ----------
         origin : list
-            List of ``[x, y, z]`` coordinates for the origin of the coordinate system.
-            The default is ``None``, in which case ``[0, 0, 0]`` is used.
+            List of ``[x, y, z]`` coordinates for the origin of the
+            coordinate system.  The default is ``None``, in which case
+            ``[0, 0, 0]`` is used.
         reference_cs : str, optional
-            Name of the reference coordinate system. The default is ``"Global"``.
+            Name of the reference coordinate system. The default is
+            ``"Global"``.
         name : str
             Name of the coordinate system. The default is ``None``.
         mode: str, optional
-            Definition mode. Options are ``"view"``, ``"axis"``, ``"zxz"``, ``"zyz"``,
-            and ``"axisrotation"``. The default is ``"axis"``.
+            Definition mode. Options are ``"view"``, ``"axis"``,
+            ``"zxz"``, ``"zyz"``, and ``"axisrotation"``. The default
+            is ``"axis"``.
 
             * If ``mode="view"``, specify ``view``.
             * If ``mode="axis"``, specify ``x_pointing`` and ``y_pointing``.
@@ -778,17 +825,19 @@ class GeometryModeler(Modeler, object):
             * If ``mode="axisrotation"``, specify ``theta`` and ``u``.
 
             Parameters not needed by the specified mode are ignored.
-            For back compatibility, ``view="rotate"`` is the same as ``mode="axis"``.
-            The default mode, ``"axisrotation"``, is a coordinate system parallel
-            to the global coordinate system centered in the global origin.
+            For back compatibility, ``view="rotate"`` is the same as
+            ``mode="axis"``.  The default mode, ``"axisrotation"``, is
+            a coordinate system parallel to the global coordinate
+            system centered in the global origin.
 
         view : str, optional
-            View for the coordinate system if ``mode="view"``. Options are
-            ``"XY"``, ``"XZ"``, ``"XY"``, ``"iso"``, ``None``, and ``"rotate"``
-            (obsolete). The default is ``"iso"``.
+            View for the coordinate system if ``mode="view"``. Options
+            are ``"XY"``, ``"XZ"``, ``"XY"``, ``"iso"``, ``None``, and
+            ``"rotate"`` (obsolete). The default is ``"iso"``.
 
             .. note::
-               Because the ``"rotate"`` option is obsolete, use ``mode="axis"`` instead.
+               Because the ``"rotate"`` option is obsolete, use
+               ``mode="axis"`` instead.
 
         x_pointing : list, optional
             List of the ``[x, y, z]`` coordinates specifying the X axis
@@ -813,7 +862,7 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Modeler.CoordinateSystem`
+        pyaedt.modeler.Modeler.CoordinateSystem
 
         """
         if name:
@@ -904,8 +953,8 @@ class GeometryModeler(Modeler, object):
         """Assign temperature and deformation objects to a Workbench link.
 
         .. deprecated:: 0.3.1
-           Use :func:`GeometryModeler.set_objects_temperature` and :func:`GeometryModeler.set_objects_deformation`
-           instead.
+           Use :func:`GeometryModeler.set_objects_temperature` and
+           :func:`GeometryModeler.set_objects_deformation` instead.
 
         Parameters
         ----------
@@ -1023,6 +1072,7 @@ class GeometryModeler(Modeler, object):
         portonplane : bool
             Whether edges are to be on the plane orthogonal to the axis
             direction.
+
         Returns
         -------
         str
@@ -1055,11 +1105,13 @@ class GeometryModeler(Modeler, object):
         objectname : str
             Name of the object.
         startposition : list
-            List of the ``[x, y, z]`` coordinates for the starting position of the object.
+            List of the ``[x, y, z]`` coordinates for the starting
+            position of the object.
         offset :
             Offset to apply.
-        plane :
-            Coordinate plane of the arc. Choices are ``"YZ"``, ``"ZX"``, and ``"XY"``.
+        plane : str
+            Coordinate plane of the arc. Choices are ``"YZ"``,
+            ``"ZX"``, and ``"XY"``.
 
 
         Returns
@@ -1095,7 +1147,6 @@ class GeometryModeler(Modeler, object):
                 else:
                     angle += 90
         return position
-
 
     @aedt_exception_handler
     def create_sheet_to_ground(self, objectname, groundname=None, axisdir=0, sheet_dim=1):
@@ -1255,7 +1306,6 @@ class GeometryModeler(Modeler, object):
         dup_factor = divmod((hfactor + 1), 2)[0]
         coeff = float(hfactor - 1) / 2 / dup_factor
 
-
         if divmod(axisdir, 3)[1] == 0 and abs(vect[1]) < tol:
             duplicate_and_unite(sheet_name, [0, len * coeff, 0],[0, -len * coeff, 0], dup_factor)
         elif divmod(axisdir, 3)[1] == 0 and abs(vect[2]) < tol:
@@ -1268,7 +1318,6 @@ class GeometryModeler(Modeler, object):
             duplicate_and_unite(sheet_name, [len * coeff, 0, 0], [-len * coeff, 0, 0], dup_factor)
         elif divmod(axisdir, 3)[1] == 2 and abs(vect[1]) < tol:
             duplicate_and_unite(sheet_name,  [0, len * coeff, 0], [0, -len * coeff, 0], dup_factor)
-
 
         return sheet_name, point0, point1
 
@@ -1631,7 +1680,7 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
+        pyaedt.modeler.Object3d.Object3d
 
         """
         selections = self.convert_to_selections(objid)
@@ -1659,7 +1708,7 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
+        pyaedt.modeler.Object3d.Object3d
 
         """
         selections = self.convert_to_selections(obj_name)
@@ -1774,7 +1823,6 @@ class GeometryModeler(Modeler, object):
 
         """
         selections = self.convert_to_selections(objid)
-
 
         vArg1 = ['NAME:Selections', 'Selections:=', selections, 'NewPartsModelFlag:=', 'Model']
         vArg2 = ['NAME:AxisSweepParameters', 'DraftAngle:=',
@@ -1900,7 +1948,7 @@ class GeometryModeler(Modeler, object):
         ----------
         blank_list : list of Object3d or list of int
             List of objects to subtract from. The list can be of
-            either :class:`pyaedt.modeler.Object3d.Object3d` objects or object IDs.
+            either :class: `pyaedt.modeler.Object3d.Object3d` objects or object IDs.
         tool_list : list
             List of objects to subtract. The list can be of
             either Object3d objects or object IDs.
@@ -2354,7 +2402,7 @@ class GeometryModeler(Modeler, object):
             List of ``[x, y, z]`` coordinates for the starting position.
         axis : int
             Coordinate system axis (integer ``0`` for XAxis, ``1`` for YAxis, ``2`` for ZAxis) or
-            the :class:`Application.CoordinateSystemAxis` enumerator.
+            the :class: `Application.CoordinateSystemAxis` enumerator.
         innerradius : float, optional
             Inner coax radius. The default is ``1``.
         outerradius : float, optional
@@ -2370,6 +2418,11 @@ class GeometryModeler(Modeler, object):
         matdiel : str, optional
             Material for the dielectric. The default is ``"teflon_based"``.
 
+        Returns
+        -------
+        tuple
+            Contains the inner, outer, and dielectric coax as
+            :class: `pyaedt.modeler.Object3d.Object3d` objects.
 
         Examples
         --------
@@ -2380,11 +2433,6 @@ class GeometryModeler(Modeler, object):
         >>> app = Hfss()
         >>> position = [0,0,0]
         >>> coax = app.modeler.create_coaxial(position, app.CoordinateSystemAxis.XAxis, innerradius=0.5, outerradius=0.8, dielradius=0.78, length=50)
-
-        Returns
-        -------
-        tuple
-            Contains the inner, outer, and dielectric coax as :class:`pyaedt.modeler.Object3d.Object3d` objects.
 
         """
         if not (outerradius>dielradius and dielradius>innerradius):
@@ -2405,9 +2453,10 @@ class GeometryModeler(Modeler, object):
                          wg_material="aluminum", parametrize_w=False, parametrize_h=False, create_sheets_on_openings=False, name=None):
         """Create a standard waveguide and optionally parametrize `W` and `H`.
 
-        Available models are WG0.0, WG0, WG1, WG2, WG3, WG4, WG5, WG6, WG7, WG8, WG9, WG9A, WG10, WG11, WG11A, WG12, WG13,
-        WG14, WG15, WR102, WG16, WG17, WG18, WG19, WG20, WG21, WG22, WG24, WG25, WG26, WG27, WG28, WG29, WG29, WG30, WG31,
-        and WG32.
+        Available models are WG0.0, WG0, WG1, WG2, WG3, WG4, WG5, WG6,
+        WG7, WG8, WG9, WG9A, WG10, WG11, WG11A, WG12, WG13, WG14,
+        WG15, WR102, WG16, WG17, WG18, WG19, WG20, WG21, WG22, WG24,
+        WG25, WG26, WG27, WG28, WG29, WG29, WG30, WG31, and WG32.
 
         Parameters
         ----------
@@ -2415,7 +2464,7 @@ class GeometryModeler(Modeler, object):
             List of ``[x, y, z]`` coordinates for the original position.
         wg_direction_axis : int
             Coordinate system axis (integer ``0`` for XAxis, ``1`` for YAxis, ``2`` for ZAxis) or
-            the :class:`Application.CoordinateSystemAxis` enumerator.
+            the :class: `Application.CoordinateSystemAxis` enumerator.
         wgmodel : str, optional
             Waveguide model. The default is ``"WG0"``.
         wg_length : float, optional
@@ -2434,6 +2483,12 @@ class GeometryModeler(Modeler, object):
         name : str, optional
             Name of the waveguide. The default is ``None``.
 
+        Returns
+        -------
+        tuple
+            Tuple of :class: `Object3d <pyaedt.modeler.Object3d.Object3d>`
+            objects created by the waveguide.
+
         Examples
         --------
 
@@ -2442,12 +2497,9 @@ class GeometryModeler(Modeler, object):
         >>> from pyaedt import Hfss
         >>> app = Hfss()
         >>> position = [0, 0, 0]
-        >>> wg1 = app.modeler.create_waveguide(position, app.CoordinateSystemAxis.XAxis, wgmodel="WG9", wg_length=2000)
+        >>> wg1 = app.modeler.create_waveguide(position, app.CoordinateSystemAxis.XAxis,
+        ...                                    wgmodel="WG9", wg_length=2000)
 
-        Returns
-        -------
-        tuple
-            Tuple of :class:`Object3d <pyaedt.modeler.Object3d.Object3d>` objects created of the waveguide created.
 
         """
         p1=-1
@@ -2496,7 +2548,6 @@ class GeometryModeler(Modeler, object):
 
             elif wg_direction_axis == self._parent.CoordinateSystemAxis.YAxis:
                 airbox = self.primitives.create_box(origin, [w, wg_length, h])
-
 
                 if type(wg_thickness) is str:
                     origin[0] = str(origin[0]) + "-" + wg_thickness
@@ -2636,7 +2687,6 @@ class GeometryModeler(Modeler, object):
         ])
         self.primitives.cleanup_objects()
         return True
-
 
     @aedt_exception_handler
     def create_faceted_bondwire_from_true_surface(self, bondname, bond_direction, min_size = 0.2, numberofsegments=8):
@@ -3077,7 +3127,6 @@ class GeometryModeler(Modeler, object):
         self._messenger.add_info_message("Step file {} imported".format(filename))
         return True
 
-
     @aedt_exception_handler
     def import_spaceclaim_document(self, SCFile):
         """Import a SpaceClaim document.
@@ -3240,7 +3289,7 @@ class GeometryModeler(Modeler, object):
         -------
 
         """
-        if isinstance(value, str if int(sys.version_info[0]) >= 3 else basestring):
+        if isinstance(value, str if _pythonver >= 3 else basestring):
             return value
         else:
             return str(value) + self.model_units
