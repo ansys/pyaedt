@@ -54,7 +54,7 @@ class TestClass:
         pass
 
     def test_02_test_formula(self):
-        self.aedtapp["Var1"] = 3
+        self.aedtapp["Var1"] = "3rad"
         self.aedtapp["Var2"] = "12deg"
         self.aedtapp["Var3"] = "Var1 * Var2"
         self.aedtapp["$PrjVar1"] = "2*pi"
