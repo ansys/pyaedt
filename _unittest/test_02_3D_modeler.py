@@ -355,8 +355,13 @@ class TestClass(BasisTest):
 
     def test_48_coordinate_systems_parametric(self):
         self.aedtapp["var1"] = "5mm"
-        self.aedtapp["var2"] = "3mm+var1"
-
+        self.aedtapp["var2"] = "(3mm+var1)*2"
         cs1 = self.aedtapp.modeler.create_coordinate_system(name="CSP1", mode="axis", x_pointing=["var1", "var2", 0])
-        cs2 = self.aedtapp.modeler.create_coordinate_system(name="CSP2", mode="axis", x_pointing=["5mm", "8mm", 0])
+        cs2 = self.aedtapp.modeler.create_coordinate_system(name="CSP2", mode="axis", x_pointing=["5mm", "16mm", 0])
         assert cs1.quaternion == cs2.quaternion
+
+        self.aedtapp["var3"] = "43deg"
+        self.aedtapp["var4"] = "(20deg+var3)*2"
+        cs3 = self.aedtapp.modeler.create_coordinate_system(name="CSP3", mode="zxz", phi="var3", theta="var4", psi=0)
+        cs4 = self.aedtapp.modeler.create_coordinate_system(name="CSP4", mode="zxz", phi=43, theta="126deg", psi=0)
+        assert cs3.quaternion == cs4.quaternion
