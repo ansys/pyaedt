@@ -742,8 +742,6 @@ class VariableManager(object):
                     if dependent:
                         float_value = self._parent.get_evaluated_value(variable_name)
                         var_dict[variable_name] = Expression(variable_expression, float_value, all_names)
-
-
         return var_dict
 
     @aedt_exception_handler
