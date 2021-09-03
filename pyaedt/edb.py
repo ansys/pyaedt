@@ -431,7 +431,7 @@ class Edb(object):
         return None
 
     @aedt_exception_handler
-    def import_layout_pcb(self, input_file, working_dir, init_dlls=False, use_ppe=False):
+    def import_layout_pcb(self, input_file, working_dir, init_dlls=False, anstranslator_full_path="", use_ppe=False):
         """Import a BRD file and generate an ``edb.def`` file in the working directory.
 
         Parameters
@@ -443,9 +443,10 @@ class Edb(object):
             same as the BRD file name.
         init_dlls : bool
             Whether to initialize DLLs. The default is ``False``.
+        anstranslator_full_path : str, optional
+            Whether to use or not PPE License. The default is ``False``.
         use_ppe : bool
             Whether to use or not PPE License. The default is ``False``.
-
         Returns
         -------
         str
@@ -463,30 +464,21 @@ class Edb(object):
         if init_dlls:
             self._init_dlls()
         aedb_name = os.path.splitext(os.path.basename(input_file))[0] + ".aedb"
-        # if anstranslator_full_path and os.path.exists(anstranslator_full_path):
-        #     command = anstranslator_full_path
-        # else:
-        command = os.path.join(self.base_path, "anstranslator")
-        if os.name != "posix":
-            command += ".exe"
+        if anstranslator_full_path and os.path.exists(anstranslator_full_path):
+            command = anstranslator_full_path
+        else:
+            command = os.path.join(self.base_path, "anstranslator")
+            if os.name != "posix":
+                command += ".exe"
         if not working_dir:
             working_dir = os.path.dirname(input_file)
-        cmd_translator = command + " " + input_file + " " + os.path.join(working_dir,
-                                                                         aedb_name) + " -l=" + os.path.join(working_dir,
-                                                                                                            "Translator.log")
+        cmd_translator = command + " " + input_file + " " + os.path.join(working_dir, aedb_name)
+        cmd_translator += " -l=" + os.path.join(working_dir, "Translator.log")
         if not use_ppe:
             cmd_translator += " -ppe=false"
         p = subprocess.Popen(cmd_translator)
         p.wait()
-        # translatorSetup = self.edbutils.AnsTranslatorRunner(
-        #     input_file,
-        #     os.path.join(working_dir, aedb_name),
-        #     os.path.join(working_dir, "Translator.log"),
-        #     os.path.dirname(input_file),
-        #     True,
-        #     command)
         if not os.path.exists(os.path.join(working_dir,aedb_name)):
-        #if not translatorSetup.Translate():
             self._messenger.add_error_message("Translator failed to translate.")
             return False
         self.edbpath = os.path.join(working_dir,aedb_name)
@@ -715,7 +707,7 @@ class Edb(object):
         return self.edb.Utility.Command.Execute(func)
 
     @aedt_exception_handler
-    def import_cadence_file(self, inputBrd, WorkDir=None, use_ppe=False):
+    def import_cadence_file(self, inputBrd, WorkDir=None, anstranslator_full_path="", use_ppe=False):
         """Import a BRD file and generate an ``edb.def`` file in the working directory.
 
         Parameters
@@ -725,6 +717,8 @@ class Edb(object):
         WorkDir : str
             Directory in which to create the ``aedb`` folder. The AEDB file name will be
             the same as the BRD file name. The default value is ``None``.
+        anstranslator_full_path: str, Optional
+            Optional AnsTranslator full path.
         use_ppe : bool
             Whether to use or not PPE License. The default is ``False``.
         Returns
@@ -733,13 +727,14 @@ class Edb(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        if self.import_layout_pcb(inputBrd, working_dir=WorkDir, use_ppe=use_ppe):
+        if self.import_layout_pcb(inputBrd, working_dir=WorkDir, anstranslator_full_path=anstranslator_full_path,
+                                  use_ppe=use_ppe):
             return True
         else:
             return False
 
     @aedt_exception_handler
-    def import_gds_file(self, inputGDS, WorkDir=None, use_ppe=False):
+    def import_gds_file(self, inputGDS, WorkDir=None, anstranslator_full_path="", use_ppe=False):
         """Import a GDS file and generate an ``edb.def`` file in the working directory.
 
         Parameters
@@ -749,6 +744,8 @@ class Edb(object):
         WorkDir : str
             Directory in which to create the ``aedb`` folder. The AEDB file name will be
             the same as the GDS file name. The default value is ``None``.
+        anstranslator_full_path: str, Optional
+            Optional AnsTranslator full path.
         use_ppe : bool
             Whether to use or not PPE License. The default is ``False``.
         Returns
@@ -757,7 +754,8 @@ class Edb(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        if self.import_layout_pcb(inputGDS, working_dir=WorkDir, use_ppe=use_ppe):
+        if self.import_layout_pcb(inputGDS, working_dir=WorkDir, anstranslator_full_path=anstranslator_full_path,
+                                  use_ppe=use_ppe):
             return True
         else:
             return False
