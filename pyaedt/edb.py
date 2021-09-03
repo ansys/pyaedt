@@ -141,6 +141,8 @@ class Edb(object):
 
     def _clean_variables(self):
         """Initialize internal variables and perform garbage collection."""
+        if is_ironpython == "posix":
+            clr.ClearProfilerData()
         self._components = None
         self._core_primitives = None
         self._stackup = None
