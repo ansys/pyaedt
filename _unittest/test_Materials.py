@@ -107,7 +107,6 @@ class TestClass:
         except ValueError:
             assert True
 
-
     def test_create_thermal_modifier(self):
         assert self.aedtapp.materials["new_copper2"].mass_density.add_thermal_modifier_free_form(
             "if(Temp > 1000cel, 1, if(Temp < -273.15cel, 1, 1))")
