@@ -158,8 +158,6 @@ class Edb(object):
         self.simsetupdata = None
         if os.name == "posix":
             clr.ClearProfilerData()
-            if "EdbLib" in sys.modules:
-                sys.modules.pop("EdbLib")
         gc.collect()
 
     @aedt_exception_handler
