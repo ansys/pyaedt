@@ -54,7 +54,7 @@ class TestClass:
         pass
 
     def test_02_test_formula(self):
-        self.aedtapp["Var1"] = "3rad"
+        self.aedtapp["Var1"] = 3
         self.aedtapp["Var2"] = "12deg"
         self.aedtapp["Var3"] = "Var1 * Var2"
         self.aedtapp["$PrjVar1"] = "2*pi"
@@ -69,7 +69,7 @@ class TestClass:
         c2pi = math.pi * 2.0
         assert v["$PrjVar1"].numeric_value == c2pi
         assert v["$PrjVar3"].numeric_value == math.sqrt(34 * 45.0/ c2pi )
-        assert v["Var3"].numeric_value == 3.0 * 12.0 * math.pi / 180
+        assert v["Var3"].numeric_value == 3.0 * 12.0
         pass
 
     def test_03_test_evaluated_value(self):
