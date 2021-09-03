@@ -70,6 +70,7 @@ class TestClass:
         assert v["$PrjVar1"].numeric_value == c2pi
         assert v["$PrjVar3"].numeric_value == math.sqrt(34 * 45.0/ c2pi )
         assert v["Var3"].numeric_value == 3.0 * 12.0
+        assert v["Var3"].units == "deg"
         pass
 
     def test_03_test_evaluated_value(self):
