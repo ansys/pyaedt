@@ -141,8 +141,6 @@ class Edb(object):
 
     def _clean_variables(self):
         """Initialize internal variables and perform garbage collection."""
-        if is_ironpython == "posix":
-            clr.ClearProfilerData()
         self._components = None
         self._core_primitives = None
         self._stackup = None
@@ -153,6 +151,15 @@ class Edb(object):
         self._db = None
         self._edb = None
         self.builder = None
+        self.edblib = None
+        self.edbutils = None
+        self.simSetup = None
+        self.layout_methods = None
+        self.simsetupdata = None
+        if os.name == "posix":
+            clr.ClearProfilerData()
+            if "EdbLib" in sys.modules:
+                sys.modules.pop("EdbLib")
         gc.collect()
 
     @aedt_exception_handler
