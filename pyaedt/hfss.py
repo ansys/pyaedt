@@ -957,7 +957,7 @@ class Hfss(FieldAnalysis3D, object):
             First (starting) object for the integration line.
         endobject :
             Second (ending) object for the integration line.
-        axisdir : int or :class: `pyaedt.application.Analysis.Analyis.AxisDir`, optional
+        axisdir : int or :class: `pyaedt.application.Analysis.Analysis.AxisDir`, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
             The default is ``Application.AxisDir.XNeg``.
@@ -1020,7 +1020,7 @@ class Hfss(FieldAnalysis3D, object):
             First (starting) object for the integration line.
         endobject :
             Second (ending) object for the integration line.
-        axisdir : int or :class: `pyaedt.application.Analysis.Analyis.AxisDir`, optional
+        axisdir : int or :class: `pyaedt.application.Analysis.Analysis.AxisDir`, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
             The default is ``Application.AxisDir.XNeg``.
@@ -1091,7 +1091,7 @@ class Hfss(FieldAnalysis3D, object):
             First (starting) object for the integration line.
         endobject :
             Second (ending) object for the integration line.
-        axisdir : int or :class: `pyaedt.application.Analysis.Analyis.AxisDir`, optional
+        axisdir : int or :class: `pyaedt.application.Analysis.Analysis.AxisDir`, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
             The default is ``Application.AxisDir.XNeg``.
@@ -1152,7 +1152,7 @@ class Hfss(FieldAnalysis3D, object):
             First (starting) object for the integration line.
         endobject :
             Second (ending) object for the integration line.
-        axisdir : int or :class: `pyaedt.application.Analysis.Analyis.AxisDir`, optional
+        axisdir : int or :class: `pyaedt.application.Analysis.Analysis.AxisDir`, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
             The default is ``Application.AxisDir.XNeg``.
@@ -1243,7 +1243,7 @@ class Hfss(FieldAnalysis3D, object):
             First (starting) object for the integration line.
         endobject :
             Second (ending) object for the integration line.
-        axisdir : int or :class: `pyaedt.application.Analysis.Analyis.AxisDir`, optional
+        axisdir : int or :class: `pyaedt.application.Analysis.Analysis.AxisDir`, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
             The default is ``Application.AxisDir.XNeg``.
@@ -1343,7 +1343,7 @@ class Hfss(FieldAnalysis3D, object):
             First (starting) object for the integration line. This is typically the reference plane.
         endobject :
             Second (ending) object for the integration line.
-        axisdir : int or :class: `pyaedt.application.Analysis.Analyis.AxisDir`, optional
+        axisdir : int or :class: `pyaedt.application.Analysis.Analysis.AxisDir`, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
             The default is ``Application.AxisDir.XNeg``.
@@ -1420,7 +1420,7 @@ class Hfss(FieldAnalysis3D, object):
             First object (starting object for integration line)
         endobject :
             Second object (ending object for integration line)
-        axisdir : int or :class: `pyaedt.application.Analysis.Analyis.AxisDir`, optional
+        axisdir : int or :class: `pyaedt.application.Analysis.Analysis.AxisDir`, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
             The default is ``Application.AxisDir.XNeg``.
@@ -1478,7 +1478,7 @@ class Hfss(FieldAnalysis3D, object):
             First (starting) object for the integration line.
         endobject :
             Second (ending) object for the integration line.
-        axisdir : int or :class: `pyaedt.application.Analysis.Analyis.AxisDir`, optional
+        axisdir : int or :class: `pyaedt.application.Analysis.Analysis.AxisDir`, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
             The default is ``Application.AxisDir.XNeg``.
@@ -1596,7 +1596,7 @@ class Hfss(FieldAnalysis3D, object):
             First (starting) object for the integration line.
         endobject :
             Second (ending) object for the integration line.
-        axisdir : int or :class: `pyaedt.application.Analysis.Analyis.AxisDir`, optional
+        axisdir : int or :class: `pyaedt.application.Analysis.Analysis.AxisDir`, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
             The default is ``Application.AxisDir.XNeg``.
@@ -1684,7 +1684,7 @@ class Hfss(FieldAnalysis3D, object):
             First (starting) object for the integration line.
         endobject :
             Second (ending) object for the integration line.
-        axisdir : int or :class: `pyaedt.application.Analysis.Analyis.AxisDir`, optional
+        axisdir : int or :class: `pyaedt.application.Analysis.Analysis.AxisDir`, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
             The default is ``Application.AxisDir.XNeg``.
@@ -1835,7 +1835,7 @@ class Hfss(FieldAnalysis3D, object):
             List of input sheets to create the waveport from.
         deemb : float, optional
             Deembedding value distance in model units. The default is ``0``.
-        axisdir : int or :class: `pyaedt.application.Analysis.Analyis.AxisDir`, optional
+        axisdir : int or :class: `pyaedt.application.Analysis.Analysis.AxisDir`, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
             The default is ``Application.AxisDir.XNeg``.
@@ -1907,7 +1907,7 @@ class Hfss(FieldAnalysis3D, object):
         ----------
         sheet_name : str
             Name of the sheet.
-        axisdir : int or :class: `pyaedt.application.Analysis.Analyis.AxisDir`, optional
+        axisdir : int or :class: `pyaedt.application.Analysis.Analysis.AxisDir`, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
             The default is ``Application.AxisDir.XNeg``.
@@ -1994,7 +1994,7 @@ class Hfss(FieldAnalysis3D, object):
         ----------
         sheet_name : str
             Name of the sheet to apply the boundary to.
-        axisdir : int or :class: `pyaedt.application.Analysis.Analyis.AxisDir`, optional
+        axisdir : int or :class: `pyaedt.application.Analysis.Analysis.AxisDir`, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
             The default is ``Application.AxisDir.XNeg``.
@@ -2039,7 +2039,7 @@ class Hfss(FieldAnalysis3D, object):
         ----------
         sheet_name : str
             Name of the sheet to apply the boundary to.
-        axisdir : int or :class: `pyaedt.application.Analysis.Analyis.AxisDir`, optional
+        axisdir : int or :class: `pyaedt.application.Analysis.Analysis.AxisDir`, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
             The default is ``Application.AxisDir.XNeg``.
@@ -2161,7 +2161,7 @@ class Hfss(FieldAnalysis3D, object):
         ----------
         sheet_name : str
             Name of the sheet to apply the boundary to.
-        axisdir : int or :class: `pyaedt.application.Analysis.Analyis.AxisDir`, optional
+        axisdir : int or :class: `pyaedt.application.Analysis.Analysis.AxisDir`, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
             The default is ``Application.AxisDir.XNeg``.
