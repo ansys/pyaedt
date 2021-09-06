@@ -1510,7 +1510,7 @@ class GeometryModeler(Modeler, object):
         return True
 
     @aedt_exception_handler
-    def duplicate_and_mirror(self, objid, position, vector):
+    def duplicate_and_mirror(self, objid, position, vector, is_3d_comp=False):
         """Duplicate and mirror a selection.
 
         Parameters
@@ -1523,6 +1523,8 @@ class GeometryModeler(Modeler, object):
         vector : float
             List of the ``[x1, y1, z1]`` coordinates or
             Application.Position object for the vector.
+        is_3d_comp : bool, optional
+            If True, the method will try to return the duplicated list of 3dcomponents. The default is ``False``.
 
         Returns
         -------
@@ -1543,8 +1545,15 @@ class GeometryModeler(Modeler, object):
         vArg2.append('DuplicateMirrorNormalY:='), vArg2.append(Ynorm)
         vArg2.append('DuplicateMirrorNormalZ:='), vArg2.append(Znorm)
         vArg3 = ['NAME:Options', 'DuplicateAssignments:=', False]
+        if is_3d_comp:
+            orig_3d = [i for i in self.primitives.components_3d_names]
         added_objs = self.oeditor.DuplicateMirror(vArg1, vArg2, vArg3)
         self.primitives.add_new_objects()
+        if is_3d_comp:
+            added_3d_comps = [i for i in self.primitives.components_3d_names if i not in orig_3d]
+            if added_3d_comps:
+                self._messenger.add_info_message("Found 3D Components Duplication")
+                return True, added_3d_comps
         return True, added_objs
 
     @aedt_exception_handler
@@ -1586,7 +1595,7 @@ class GeometryModeler(Modeler, object):
         return True
 
     @aedt_exception_handler
-    def duplicate_around_axis(self, objid, cs_axis, angle=90, nclones=2, create_new_objects=True):
+    def duplicate_around_axis(self, objid, cs_axis, angle=90, nclones=2, create_new_objects=True, is_3d_comp=False):
         """Duplicate a selection around an axis.
 
         Parameters
@@ -1602,6 +1611,8 @@ class GeometryModeler(Modeler, object):
         create_new_objects :
             Whether to create the copies as new objects. The
             default is ``True``.
+        is_3d_comp : bool, optional
+            If True, the method will try to return the duplicated list of 3dcomponents. The default is ``False``.
 
         Returns
         -------
@@ -1615,9 +1626,16 @@ class GeometryModeler(Modeler, object):
                  GeometryOperators.cs_axis_str(cs_axis), "AngleStr:=", self.primitives._arg_with_dim(angle, 'deg'), "Numclones:=",
                  str(nclones)]
         vArg3 = ["NAME:Options", "DuplicateBoundaries:=", "true"]
-
+        if is_3d_comp:
+            orig_3d = [i for i in self.primitives.components_3d_names]
         added_objs = self.oeditor.DuplicateAroundAxis(vArg1, vArg2, vArg3)
         self._duplicate_added_objects_tuple()
+        if is_3d_comp:
+            added_3d_comps = [i for i in self.primitives.components_3d_names if i not in orig_3d]
+            if added_3d_comps:
+                self._messenger.add_info_message("Found 3D Components Duplication")
+                return True, added_3d_comps
+
         return True, list(added_objs)
 
     def _duplicate_added_objects_tuple(self):
@@ -1628,7 +1646,7 @@ class GeometryModeler(Modeler, object):
             return False, []
 
     @aedt_exception_handler
-    def duplicate_along_line(self, objid, vector, nclones=2, attachObject=False):
+    def duplicate_along_line(self, objid, vector, nclones=2, attachObject=False, is_3d_comp=False):
         """Duplicate a selection along a line.
 
         Parameters
@@ -1642,7 +1660,8 @@ class GeometryModeler(Modeler, object):
             The default is ``False``.
         nclones : int, optional
             Number of clones. The default is ``2``.
-
+        is_3d_comp : bool, optional
+            If True, the method will try to return the duplicated list of 3dcomponents. The default is ``False``.
         Returns
         -------
         tuple
@@ -1659,9 +1678,15 @@ class GeometryModeler(Modeler, object):
         vArg2.append("ZComponent:="), vArg2.append(Zpos)
         vArg2.append("Numclones:="), vArg2.append(str(nclones))
         vArg3 = ["NAME:Options", "DuplicateBoundaries:=", "true"]
-
+        if is_3d_comp:
+            orig_3d = [i for i in self.primitives.components_3d_names]
         added_objs = self.oeditor.DuplicateAlongLine(vArg1, vArg2, vArg3)
         self._duplicate_added_objects_tuple()
+        if is_3d_comp:
+            added_3d_comps = [i for i in self.primitives.components_3d_names if i not in orig_3d]
+            if added_3d_comps:
+                self._messenger.add_info_message("Found 3D Components Duplication")
+                return True, added_3d_comps
         return True, list(added_objs)
         #return self._duplicate_added_objects_tuple()
 
