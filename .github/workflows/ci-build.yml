@@ -27,16 +27,24 @@ jobs:
       - name: Install doc build requirements
         run: |
           pip install -r requirements_docs.txt
+          sudo apt install graphviz
 
-      - name: Partial Documentation Build
-        if: startsWith(github.event.ref, 'refs/heads/main') != true
+      # run doc build, without creating the examples directory
+      # note that we have to add the examples file here since it won't
+      # be created as gallery is disabled on linux.
+      - name: Documentation Build
         run: |
-          make -C doc html
-        env:
-          PYAEDT_CI_NO_AUTODOC: True
+          mkdir doc/source/examples -p
+          echo $'Examples\n========' > doc/source/examples/index.rst
+          make -C doc html SPHINXOPTS="-j auto -w build_errors.txt -N"
+
+      # Verify that sphinx generates no warnings
+      - name: Check for warnings
+        run: |
+          python doc/print_errors.py
 
       - name: Upload Documentation
-        uses: actions/upload-artifact@v2.2.3
+        uses: actions/upload-artifact@v2
         with:
           name: Documentation
           path: doc/_build/html

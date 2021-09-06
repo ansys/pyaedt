@@ -1,7 +1,7 @@
 """
 Icepack Setup from Sherlock Inputs
 ----------------------------------
-This example shows how to create an Icepak project starting from Sherlock 
+This example shows how to create an Icepak project starting from Sherlock
 # files (STEP and CSV) and an AEDB board.
 """
 # sphinx_gallery_thumbnail_path = 'Resources/sherlock.png'

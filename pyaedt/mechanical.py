@@ -82,6 +82,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         FieldAnalysis3D.__init__(self, "Mechanical", projectname, designname, solution_type, setup_name,
                                  specified_version, NG, AlwaysNew, release_on_exit, student_version)
+
     def __enter__(self):
         return self
 
@@ -105,12 +106,12 @@ class Mechanical(FieldAnalysis3D, object):
             Name of the EM sweep to use for the mapping. The default is ``"LastAdaptive"``.
         map_frequency : str, optional
             Frequency to map. The default is ``None``. The value must be ``None`` for
-	      Eigenmode analysis.
+            Eigenmode analysis.
         surface_objects : list, optional
             List objects in the source that are metals. The default is ``[]``.
         source_project_name : str, optional
             Name of the source project. The default is ``None``, in which case
-	      the source from the same project is used.
+            the source from the same project is used.
         paramlist : list, optional
             List of all parameters in the EM to map. The default is ``[]``.
         object_list : list, optional
@@ -167,15 +168,15 @@ class Mechanical(FieldAnalysis3D, object):
     @aedt_exception_handler
     def assign_thermal_map(self, object_list, designname="IcepakDesign1", setupname="Setup1", sweepname="SteadyState",
                            source_project_name=None, paramlist=[]):
-        """Map thermal losses to a Mechanical design. 
-        
+        """Map thermal losses to a Mechanical design.
+
         .. note::
            This method works in 2021 R2 only when coupled with Icepak.
 
         Parameters
         ----------
         object_list : list
-        
+
         designname : str, optional
             Name of the design with the source mapping. The default is ``"IcepakDesign1"``.
         setupname : str, optional
@@ -184,14 +185,14 @@ class Mechanical(FieldAnalysis3D, object):
             Name of the EM sweep to use for the mapping. The default is ``"SteadyState"``.
         source_project_name : str, optional
             Name of the source project. The default is ``None``, in which case the
-	      source from the same project is used.
+            source from the same project is used.
         paramlist : list, optional
             List of all parameters in the EM to map. The default is ``[]``.
-        
+
         Returns
         -------
-	  :class:`aedt.modules.Boundary.Boundary object`
-	      Boundary object.
+        :class: `aedt.modules.Boundary.Boundary object`
+            Boundary object.
         """
 
         assert self.solution_type == "Structural", "This method works only in a Mechanical structural solution."
@@ -226,7 +227,8 @@ class Mechanical(FieldAnalysis3D, object):
         bound = BoundaryObject(self, name, props, "ThermalCondition")
         if bound.create():
             self.boundaries.append(bound)
-            self._messenger.add_info_message('Thermal conditions are mapped from design {}.'.format(designname))
+            self._messenger.add_info_message(
+                'Thermal conditions are mapped from design {}.'.format(designname))
             return bound
 
         return True
@@ -251,8 +253,8 @@ class Mechanical(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`aedt.modules.Boundary.Boundary object`
-	      Boundary object.
+        :class: `aedt.modules.Boundary.Boundary object`
+            Boundary object.
 
         """
         assert self.solution_type == "Thermal", "This method works only in a Mechanical structural solution."
@@ -281,9 +283,9 @@ class Mechanical(FieldAnalysis3D, object):
     @aedt_exception_handler
     def assign_uniform_temperature(self, objects_list, temperature="AmbientTemp", boundary_name=""):
         """Assign a uniform temperature boundary.
-        
-        .. note::	
-	     This method works only in a Mechanical thermal analysis.
+
+        .. note::
+            This method works only in a Mechanical thermal analysis.
 
         Parameters
         ----------
@@ -296,8 +298,8 @@ class Mechanical(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`aedt.modules.Boundary.Boundary object`
-	      Boundary object.
+        :class: `aedt.modules.Boundary.Boundary object`
+            Boundary object.
 
         """
         assert self.solution_type == "Thermal", "This method works only in a Mechanical structural analysis."
@@ -321,13 +323,12 @@ class Mechanical(FieldAnalysis3D, object):
             return bound
         return False
 
-
     @aedt_exception_handler
     def assign_frictionless_support(self, objects_list,  boundary_name=""):
-        """Assign a Mechanical frictionless support. 
-        
+        """Assign a Mechanical frictionless support.
+
         .. note::
-	     This method works only in a Mechanical structural analysis.
+            This method works only in a Mechanical structural analysis.
 
         Parameters
         ----------
@@ -338,13 +339,14 @@ class Mechanical(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`aedt.modules.Boundary.Boundary object`
-	      Boundary object.
+        :class: `aedt.modules.Boundary.Boundary object`
+            Boundary object.
 
         """
 
         if not (self.solution_type == "Structural" or self.solution_type == "Modal"):
-            self._messenger.add_error_message("This method works only in Mechanical Structural Solution")
+            self._messenger.add_error_message(
+                "This method works only in Mechanical Structural Solution")
             return False
         props = {}
         objects_list = self.modeler._convert_list_to_ids(objects_list)
@@ -354,7 +356,6 @@ class Mechanical(FieldAnalysis3D, object):
                 props["Objects"] = objects_list
             else:
                 props["Faces"] = objects_list
-
 
         if not boundary_name:
             boundary_name = generate_unique_name("Temp")
@@ -366,9 +367,9 @@ class Mechanical(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def assign_fixed_support(self, objects_list,  boundary_name=""):
-        """Assign a Mechanical fixed support. 
-        
-        .. note::	
+        """Assign a Mechanical fixed support.
+
+        .. note::
            This method works only in a Mechanical structural analysis.
 
         Parameters
@@ -380,19 +381,19 @@ class Mechanical(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`aedt.modules.Boundary.Boundary object
-	      Boundary object.
+        aedt.modules.Boundary.Boundary
+            Boundary object.
 
         """
         if not (self.solution_type == "Structural" or self.solution_type == "Modal"):
-            self._messenger.add_error_message("This method works only in a Mechanical structural solution.")
+            self._messenger.add_error_message(
+                "This method works only in a Mechanical structural solution.")
             return False
         props = {}
         objects_list = self.modeler._convert_list_to_ids(objects_list)
 
         if type(objects_list) is list:
-                props["Faces"] = objects_list
-
+            props["Faces"] = objects_list
 
         if not boundary_name:
             boundary_name = generate_unique_name("Temp")
@@ -415,5 +416,5 @@ class Mechanical(FieldAnalysis3D, object):
         setup_list = self.existing_analysis_setups
         sweep_list=[]
         for el in setup_list:
-                sweep_list.append(el + " : Solution")
+            sweep_list.append(el + " : Solution")
         return sweep_list

@@ -1,9 +1,11 @@
 import warnings
 import sys
+import time
 from collections import OrderedDict, defaultdict
 from .general import convert_py_list_to_net_list, convert_net_list_to_py_list, convert_pydict_to_netdict, convert_netdict_to_pydict
 from ..generic.general_methods import aedt_exception_handler
-import time
+from pyaedt import is_ironpython
+
 try:
     import clr
     from System import Double, Array
@@ -14,7 +16,6 @@ except ImportError:
 
 class EDBLayer(object):
     """Manages EDB functionalities for a layer."""
-
 
     def __init__(self, edblayer, parent):
         self._layer = edblayer
@@ -238,6 +239,7 @@ class EDBLayer(object):
 
     @aedt_exception_handler
     def init_vals(self):
+        """Initialize values."""
         try:
             self._name = self._layer.GetName()
             self._layer_type = self._layer.GetLayerType()
@@ -255,26 +257,26 @@ class EDBLayer(object):
     @aedt_exception_handler
     def update_layer_vals(self, layerName, newLayer, etchMap, materialMap, fillMaterialMap, thicknessMap, layerTypeMap):
         """Update layer properties.
-        
+
         Parameters
         ----------
         layerName :
-        
+
         newLayer :
-        
+
         materialMap :
-        
+
         fillMaterialMap :
-        
+
         thicknessMap :
-        
+
         layerTypeMap :
-        
+
         Returns
         -------
         type
             Layer object.
-            
+
         """
         newLayer.SetName(layerName)
 
@@ -321,7 +323,7 @@ class EDBLayer(object):
     @aedt_exception_handler
     def update_layers(self):
         """Update all layers.
-      
+
         Returns
         -------
         bool
@@ -362,12 +364,12 @@ class EDBLayer(object):
 
 class EDBLayers(object):
     """Manages EDB functionalities for all primitive layers.
-    
+
     Parameters
     ----------
-    parent : 
+    parent :
         Inherited AEDT object.
-    
+
     """
 
     def __init__(self, parent):
@@ -375,7 +377,6 @@ class EDBLayers(object):
         self._parent = parent
         self._edb_object = OrderedDict(defaultdict(EDBLayer))
         self._update_edb_objects()
-
 
     def __getitem__(self, layername):
         """Retrieve a layer.
@@ -455,7 +456,6 @@ class EDBLayers(object):
                 self._signal_layers[layer]= edblayer
         return self._signal_layers
 
-
     @property
     def layer_collection(self):
         """Layer collection.
@@ -469,6 +469,7 @@ class EDBLayers(object):
 
     @property
     def layer_collection_mode(self):
+        """Layer collection mode."""
         return self._edb.Cell.LayerCollectionMode
 
     @property
@@ -687,18 +688,18 @@ class EDBLayers(object):
 
 class EDBPadProperties(object):
     """Manages EDB functionalities for pad properties.
-    
+
     Parameters
     ----------
     edb_padstack :
-    
+
     layer_name : str
         Name of the layer.
-    pad_type : 
+    pad_type :
         Type of the pad.
     parent : str
         Inherited AEDT object.
-        
+
     """
 
     def __init__(self, edb_padstack, layer_name, pad_type, parent):
@@ -777,6 +778,7 @@ class EDBPadProperties(object):
     def offset_x(self, offset_value):
 
         self._update_pad_parameters_parameters(offsetx= offset_value)
+
     @property
     def offset_y(self):
         """Offset for the Y axis.
@@ -862,14 +864,14 @@ class EDBPadProperties(object):
 
 class EDBPadstack(object):
     """Manages EDB functionalities for a padstack.
-    
+
     Parameters
     ----------
     edb_padstack :
-    
+
     parent : str
         Inherited AEDT object.
-        
+
     """
 
     def __init__(self, edb_padstack, parent):
@@ -940,7 +942,7 @@ class EDBPadstack(object):
     @property
     def _hole_params(self):
         viaData = self.edb_padstack.GetData()
-        if "IronPython" in sys.version or ".NETFramework" in sys.version:
+        if is_ironpython:
             out = viaData.GetHoleParametersValue()
         else:
             value0 = self._edb_value("0.0")
@@ -995,7 +997,7 @@ class EDBPadstack(object):
             offsety = self.hole_offset_y
         if not rotation:
             rotation = self.hole_rotation
-        if "IronPython" in sys.version or ".NETFramework" in sys.version:
+        if is_ironpython:
             newPadstackDefinitionData.SetHoleParameters(hole_type, params,
                                                         self._edb_value(offsetx),
                                                         self._edb_value(offsety),
@@ -1280,15 +1282,15 @@ class EDBPinInstances(object):
 
 class EDBComponent(object):
     """Manages EDB functionalities for components.
-    
+
     Parameters
     ----------
     parent : str
         Inherited AEDT object.
     component :
-    
-    name : 
-    
+
+    name :
+
     """
 
     def __init__(self, parent, component, name):

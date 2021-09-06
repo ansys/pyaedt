@@ -25,7 +25,6 @@ class TestClass:
         self.local_scratch.remove()
         gc.collect()
 
-
     def create_example_coil(self, name=None):
         if not name:
             name = "test_coil"
@@ -57,7 +56,8 @@ class TestClass:
 
     def create_copper_box_test_performance(self):
         for o in range(10):
-            o = self.aedtapp.modeler.primitives.create_box([0, 0, 0], [10, 10, 5], "MyboxLoop", "Copper")
+            o = self.aedtapp.modeler.primitives.create_box(
+                [0, 0, 0], [10, 10, 5], "MyboxLoop", "Copper")
 
     def create_copper_sphere(self, name=None):
         if not name:
@@ -73,6 +73,7 @@ class TestClass:
             self.aedtapp.modeler.primitives.delete(name)
         return self.aedtapp.modeler.primitives.create_cylinder(cs_axis="Y", position=[0, 0, 0], radius=1, height=20,
                                                             numSides=8, name=name, matname="Copper")
+
     def test_00_uname(self):
         test = _uname()
         assert test.startswith("NewObject")
@@ -106,7 +107,6 @@ class TestClass:
 
         assert len(a.faces) == 7
         assert len(b.faces) == 9
-
 
     def test_02_face_edge_vertex(self):
         o = self.create_copper_box("faces_box")
@@ -149,7 +149,6 @@ class TestClass:
         o_box = self.create_copper_box("Valid2")
         o_box.material_name = "aluminum"
         assert o_box.material_name == "aluminum"
-
 
     def test_05_object3d_properties_transparency(self):
         o = self.create_copper_box("TransparencyBox")
@@ -220,9 +219,11 @@ class TestClass:
         assert len(object_edges) == 12
         test = initial_object.edges[0].chamfer(left_distance=0.2)
         assert test
-        test = initial_object.edges[1].chamfer(left_distance=0.2, right_distance=0.4, angle=34, chamfer_type=2)
+        test = initial_object.edges[1].chamfer(
+            left_distance=0.2, right_distance=0.4, angle=34, chamfer_type=2)
         assert test
-        test = initial_object.edges[2].chamfer(left_distance=0.2, right_distance=0.4, chamfer_type=1)
+        test = initial_object.edges[2].chamfer(
+            left_distance=0.2, right_distance=0.4, chamfer_type=1)
         assert test
         #TODO Angle as string - general refactor !
         test = initial_object.edges[6].chamfer(left_distance=1, angle=45, chamfer_type=3)
@@ -326,5 +327,6 @@ class TestClass:
 
     #TODO: Finish asserts anc check the boolean inputs - they are not present in the GUI ??
     def test_17_section_object(self):
-        o = self.aedtapp.modeler.primitives.create_box([-10, 0, 0], [10, 10, 5], "SectionBox", "Copper")
+        o = self.aedtapp.modeler.primitives.create_box(
+            [-10, 0, 0], [10, 10, 5], "SectionBox", "Copper")
         o.section(plane="YZ", create_new=True, section_cross_object=False)

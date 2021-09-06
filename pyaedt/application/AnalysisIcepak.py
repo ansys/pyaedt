@@ -11,8 +11,8 @@ from ..modules.MeshIcepak import IcepakMesh
 class FieldAnalysisIcepak(Analysis, object):
     """Manages 3D field analysis setup in Icepak.
 
-    This class is automatically initialized by an appliation call from 
-    HFSS, Icepak, Q3D, or Maxwell 3D. See the application function 
+    This class is automatically initialized by an appliation call from
+    HFSS, Icepak, Q3D, or Maxwell 3D. See the application function
     for parameter definitions.
 
     Parameters
@@ -22,10 +22,10 @@ class FieldAnalysisIcepak(Analysis, object):
     projectname : str, optional
         Name of the project to select or the full path to the project
         or AEDTZ archive to open. The default is ``None``, in which
-        case an attempt is made to get an active project. If no 
+        case an attempt is made to get an active project. If no
         projects are present, an empty project is created.
     designname : str, optional
-        Name of the design to select. The default is ``None``, in 
+        Name of the design to select. The default is ``None``, in
         which case an attempt is made to get an active design. If no
         designs are present, an empty design is created.
     solutiontype : str, optional
@@ -33,14 +33,14 @@ class FieldAnalysisIcepak(Analysis, object):
         ``None``, in which case the default type is applied.
     setup_name : str, optional
         Name of the setup to use as the nominal. The default is
-        ``None``, in which case the active setup is used or 
+        ``None``, in which case the active setup is used or
         nothing is used.
     specified_version: str, optional
         Version of AEDT  to use. The default is ``None``, in which case
         the active version or latest installed version is used.
     NG : bool, optional
-        Whether to run AEDT in the non-graphical mode. The default 
-        is ``False``, in which case AEDT launches in the graphical mode.  
+        Whether to run AEDT in the non-graphical mode. The default
+        is ``False``, in which case AEDT launches in the graphical mode.
     AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
@@ -48,10 +48,11 @@ class FieldAnalysisIcepak(Analysis, object):
     release_on_exit : bool, optional
         Whether to release  AEDT on exit. The default is ``False``.
     student_version : bool, optional
-        Whether to enable the student version of AEDT. The default 
+        Whether to enable the student version of AEDT. The default
         is ``False``.
 
     """
+
     def __init__(self, application, projectname, designname, solutiontype, setup_name=None,
                  specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):
         Analysis.__init__(self, application, projectname, designname, solutiontype, setup_name,
@@ -62,10 +63,10 @@ class FieldAnalysisIcepak(Analysis, object):
     @property
     def modeler(self):
         """Modeler.
-        
+
         Returns
         -------
-        :class:`pyaedt.modules.Modeler`
+        pyaedt.modules.Modeler
         """
         return self._modeler
 
@@ -75,7 +76,7 @@ class FieldAnalysisIcepak(Analysis, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.MeshIcepak.IcepakMesh`
+        pyaedt.modules.MeshIcepak.IcepakMesh
         """
         return self._mesh
 
@@ -91,12 +92,12 @@ class FieldAnalysisIcepak(Analysis, object):
         Parameters
         ----------
         ambienttemp : int, optional
-            Ambient temperature, which can be an integer or a parameter already 
+            Ambient temperature, which can be an integer or a parameter already
             created in AEDT. The default is ``20``.
         gravityDir : int, optional
             Gravity direction index in the range ``[0, 5]``. The default is ``5``.
         perform_minimal_val : bool, optional
-            Whether to perform minimal validation. The default is ``True``. 
+            Whether to perform minimal validation. The default is ``True``.
             If ``False``, full validation is performend.
         default_fluid : str, optional
             Default for the type of fluid. The default is ``"Air"``.
@@ -140,18 +141,19 @@ class FieldAnalysisIcepak(Analysis, object):
             Name of the object.
         property : str
             Name of the design property.
-        type : string, optional 
-            Type of the property. Options are ``"boundary"``, ``"excitation"``, ``"setup"``,
-            and ``"mesh"``. The default is ``None``. 
+        type : string, optional
+            Type of the property. Options are ``"boundary"``,
+            ``"excitation"``, ``"setup"``, and ``"mesh"``. The default
+            is ``None``.
 
         Returns
         -------
         type
             Value of the property.
-            
-        Example
-        -------
-            
+
+        Examples
+        --------
+
         >>> val = ipk.get_property_value('BoundarySetup:Source1', 'Total Power')
 
         """
@@ -159,7 +161,8 @@ class FieldAnalysisIcepak(Analysis, object):
         excitation = {"HFSS": "HfssTab", "Icepak": "Icepak", "Q3D": "Q3D", "Maxwell3D": "Maxwell3D"}
         setup = {"HFSS": "HfssTab", "Icepak": "Icepak", "Q3D": "General", "Maxwell3D": "General"}
         mesh = {"HFSS": "MeshSetupTab", "Icepak": "Icepak", "Q3D": "Q3D", "Maxwell3D": "Maxwell3D"}
-        all = {"HFSS": ["HfssTab", "MeshSetupTab"], "Icepak": ["Icepak"], "Q3D": ["Q3D", "General"], "Maxwell3D" : ["Maxwell3D", "General"]}
+        all = {"HFSS": ["HfssTab", "MeshSetupTab"], "Icepak": ["Icepak"],
+            "Q3D": ["Q3D", "General"], "Maxwell3D" : ["Maxwell3D", "General"]}
         if type == "Boundary":
             propserv = boundary[self._design_type]
             val = self.odesign.GetPropertyValue(propserv, objectname, property)
@@ -198,10 +201,10 @@ class FieldAnalysisIcepak(Analysis, object):
         object_list : list, optional
             List of objects to copy. The default is ``None``.
         no_vacuum : bool, optional
-            Whether to include vacuum objects for the copied objects. 
+            Whether to include vacuum objects for the copied objects.
             The default is ``True``.
         no_pec :
-            Whether to include pec objects for the copied objects. The 
+            Whether to include pec objects for the copied objects. The
             default is ``True``.
 
         Returns
@@ -245,14 +248,14 @@ class FieldAnalysisIcepak(Analysis, object):
 
     @aedt_exception_handler
     def assign_material(self, obj, mat):
-        """Assign a material to one or more objects. 
+        """Assign a material to one or more objects.
 
         Parameters
         ----------
         obj : str, list
             One or more objects to assign materials to.
         mat : str
-            Material to assign. If this material is not present it will be 
+            Material to assign. If this material is not present it will be
             created.
 
         Returns
@@ -303,7 +306,7 @@ class FieldAnalysisIcepak(Analysis, object):
         ----------
         newmat : str
             Name of the new material.
-        val : 
+        val :
             Property value to assign.
         property :
            Name of the property.
@@ -343,7 +346,8 @@ class FieldAnalysisIcepak(Analysis, object):
         nominal_val = float(mat_temp[nominal_id-1][0])
         ds_name= generate_unique_name(property_name)
         self.create_dataset(ds_name,
-                            [float(i[1].replace("C", "").replace("K", "").replace("F", "")) for i in mat_temp],
+                            [float(i[1].replace("C", "").replace("K", "").replace("F", ""))
+                                   for i in mat_temp],
                             [float(i[0]) / nominal_val for i in mat_temp])
         return nominal_val, "$" + ds_name
 
@@ -354,7 +358,7 @@ class FieldAnalysisIcepak(Analysis, object):
         Parameters
         ----------
         csv_component :  str
-            Name of the CSV file containing the component properties, including the 
+            Name of the CSV file containing the component properties, including the
             material name.
         csv_material : str
             Name of the CSV file containing the material properties.
@@ -410,7 +414,8 @@ class FieldAnalysisIcepak(Analysis, object):
                         nominal_val, dataset_name = self._create_dataset_from_sherlock(mat, material_data[
                             "Thermal Conductivity"][i], "Thermal_Conductivity")
                         newmat.thermal_conductivity = nominal_val
-                        newmat.thermal_conductivity.thermalmodifier = "pwl({}, Temp)".format(dataset_name)
+                        newmat.thermal_conductivity.thermalmodifier = "pwl({}, Temp)".format(
+                            dataset_name)
                     else:
                         value = material_data["Thermal Conductivity"][i]
                         newmat.thermal_conductivity = value
@@ -419,7 +424,8 @@ class FieldAnalysisIcepak(Analysis, object):
                         nominal_val, dataset_name = self._create_dataset_from_sherlock(mat, material_data[
                             "Material CTE"][i], "CTE")
                         newmat.thermal_expansion_coefficient = nominal_val
-                        newmat.thermal_expansion_coefficient.thermalmodifier = "pwl({}, Temp)".format(dataset_name)
+                        newmat.thermal_expansion_coefficient.thermalmodifier = "pwl({}, Temp)".format(
+                            dataset_name)
                     else:
                         value = material_data["Material CTE"][i]
                         newmat.thermal_expansion_coefficient = value
@@ -452,8 +458,8 @@ class FieldAnalysisIcepak(Analysis, object):
 
     @aedt_exception_handler
     def get_all_conductors_names(self):
-        """Retrieve all conductors in the active design.        
-       
+        """Retrieve all conductors in the active design.
+
         Returns
         -------
         list
@@ -470,7 +476,7 @@ class FieldAnalysisIcepak(Analysis, object):
     @aedt_exception_handler
     def get_all_dielectrics_names(self):
         """Retrieve all dielectrics in the active design.
-                
+
         Returns
         -------
         list

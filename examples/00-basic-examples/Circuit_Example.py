@@ -1,7 +1,7 @@
 """
 Circuit Example Analysis
 ------------------------
-This example shows how you can use PyAEDT to create a Circuit design 
+This example shows how you can use PyAEDT to create a Circuit design
 and run a Nexxim time-domain simulation.
 """
 # sphinx_gallery_thumbnail_path = 'Resources/circuit.png'
@@ -31,7 +31,7 @@ new_thread = True
 ###############################################################################
 # Launch AEDT and Circuit
 # ~~~~~~~~~~~~~~~~~~~~~~~
-# The :class:`pyaedt.Desktop` class initializes AEDT and starts it on a specified version in
+# The :class: `pyaedt.Desktop` class initializes AEDT and starts it on a specified version in
 # a specified graphical mode. The Boolean parameter ``new_thread`` defines whether
 # to create a new instance of AEDT or try to connect to existing instance of it.
 

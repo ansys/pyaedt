@@ -24,11 +24,7 @@ from functools import wraps
 import logging
 logger = logging.getLogger(__name__)
 from ..generic.general_methods import aedt_exception_handler, generate_unique_name
-
-if "IronPython" in sys.version or ".NETFramework" in sys.version:
-    is_ironpython = True
-else:
-    is_ironpython = False
+from pyaedt import is_ironpython
 
 
 @aedt_exception_handler
@@ -39,7 +35,7 @@ def convert_netdict_to_pydict(dict):
     ----------
     dict : dict
         Net dictionary to convert.
-    
+
     Returns
     -------
     dict
@@ -59,7 +55,7 @@ def convert_pydict_to_netdict(dict):
     ----------
     dict : dict
         Python dictionary to convert.
-        
+
 
     Returns
     -------
@@ -77,7 +73,7 @@ def convert_py_list_to_net_list(pylist):
     ----------
     pylist : list
         Python list to convert.
-        
+
     Returns
     -------
     list
@@ -100,7 +96,7 @@ def convert_net_list_to_py_list(netlist):
     ----------
     netlist : list
        Net list to convert.
-        
+
 
     Returns
     -------

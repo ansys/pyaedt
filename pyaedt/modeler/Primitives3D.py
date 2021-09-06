@@ -13,8 +13,9 @@ class Primitives3D(Primitives, object):
         Name of the parent AEDT application.
     modeler : str
         Name of the modeler.
-    
+
     """
+
     def __init__(self, parent, modeler):
         Primitives.__init__(self, parent, modeler)
 
@@ -32,7 +33,6 @@ class Primitives3D(Primitives, object):
     def create_box(self, position, dimensions_list, name=None, matname=None):
         """Create a box.
 
-
         Parameters
         ----------
         position : list
@@ -49,7 +49,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
+        :class: `pyaedt.modeler.Object3d.Object3d`
             3D object.
 
         Examples
@@ -96,7 +96,7 @@ class Primitives3D(Primitives, object):
             Number of sides. The default is ``0``, shich is correct for
             a cylinder.
         name : str, optional
-            Name of the cylinder. The default is ``None``, in which case 
+            Name of the cylinder. The default is ``None``, in which case
             the default name is assigned.
         matname : str, optional
             Name of the material. The default is ''None``, in which case the
@@ -104,7 +104,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
+        :class: `pyaedt.modeler.Object3d.Object3d`
             3D object.
 
         Examples
@@ -154,15 +154,15 @@ class Primitives3D(Primitives, object):
         num_sides : int, optional
             Number of sides of the polyhedron. The default is ``12``.
         name : str, optional
-            Name of the polyhedron. The default is ``None``, in which the 
+            Name of the polyhedron. The default is ``None``, in which the
             default name is assigned.
         matname : str, optional
-            Name of the material. The default is ``None``, in which the 
+            Name of the material. The default is ``None``, in which the
             default material is assigned.
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
+        :class: `pyaedt.modeler.Object3d.Object3d`
             3D object.
 
         Examples
@@ -171,7 +171,7 @@ class Primitives3D(Primitives, object):
         >>> aedtapp = Hfss()
         >>> ret_obj = aedtapp.modeler.primitives.create_polyhedron(cs_axis='X', center_position=[0, 0, 0], start_position=[0,5,0],
         ...                                                        height=0.5, num_sides=8, name="mybox", matname="copper")
-        
+
         """
         test = cs_axis
         cs_axis = GeometryOperators.cs_axis_str(cs_axis)
@@ -203,8 +203,8 @@ class Primitives3D(Primitives, object):
         Axis of rotation of the starting point around the center point.
             The default is ``None``, in which case the Z axis is used.
         center_position : list, optional
-            List of ``[x, y, z]`` coordinates for the center position 
-            of the bottom of the cone. 
+            List of ``[x, y, z]`` coordinates for the center position
+            of the bottom of the cone.
         bottom_radius : float
             Bottom radius of the cone.
         top_radius : float
@@ -212,15 +212,15 @@ class Primitives3D(Primitives, object):
         height : float
             Height of the cone.
         name : str, optional
-            Name of the cone. The default is ``None``, in which case 
+            Name of the cone. The default is ``None``, in which case
             the default name is assigned.
         matname : str, optional
-            Name of the material. The default is ``None``, in which case 
+            Name of the material. The default is ``None``, in which case
             the default material is assigned.
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
+        :class: `pyaedt.modeler.Object3d.Object3d`
             3D object.
 
         Examples
@@ -257,20 +257,20 @@ class Primitives3D(Primitives, object):
         Parameters
         ----------
         position : list
-            List of ``[x, y, z]`` coordinates for the center position 
-            of the sphere. 
+            List of ``[x, y, z]`` coordinates for the center position
+            of the sphere.
         radius : float
             Radius of the sphere.
         name : str, optional
-            Name of the sphere. The default is ``None``, in which case 
+            Name of the sphere. The default is ``None``, in which case
             the default name is assigned.
         matname : str, optional
-            Name of the material. The default is ``None``, in which case 
+            Name of the material. The default is ``None``, in which case
             the default material is assigned.
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
+        :class: `pyaedt.modeler.Object3d.Object3d`
             3D object.
 
         Examples
@@ -339,7 +339,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
+        :class: `pyaedt.modeler.Object3d.Object3d`
             3D object.
 
         Examples
@@ -396,14 +396,14 @@ class Primitives3D(Primitives, object):
 
         Parameters
         ----------
-        cs_plane : 
+        cs_plane :
             Coordinate system plane for orienting the rectangle.
         position : list or Position
-            List of ``[x, y, z]`` coordinates for the center point of the rectangle or 
-            the positionApplicationName.modeler.Position(x,y,z) object. 
+            List of ``[x, y, z]`` coordinates for the center point of the rectangle or
+            the positionApplicationName.modeler.Position(x,y,z) object.
         dimension_list : list
             List of ``[width, height]`` dimensions.
-       name : str, optional
+        name : str, optional
             Name of the rectangle. The default is ``None``, in which case
             the default name is assigned.
         matname : str, optional
@@ -411,12 +411,12 @@ class Primitives3D(Primitives, object):
             the default material is assigned.
         is_covered : bool, optional
             Whether the rectangle is covered. The default is ``True``.
-        
+
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
+        pyaedt.modeler.Object3d.Object3d
             3D object.
-        
+
         """
         szAxis = GeometryOperators.cs_plane_str(csPlane)
         XStart, YStart, ZStart = self._pos_with_arg(position)
@@ -459,7 +459,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
+        :class: `pyaedt.modeler.Object3d.Object3d`
             3D object.
 
         """
@@ -481,9 +481,10 @@ class Primitives3D(Primitives, object):
     @aedt_exception_handler
     def create_ellipse(self, cs_plane, position, major_raidus, ratio, is_covered=True, name=None, matname=None):
         """Create an ellipse.
+
         Parameters
         ----------
-        cs_plane :
+        cs_plane : str
             Coordinate system plane for orienting the ellipse.
         position : list
             List of ``[x, y, z]`` coordinates for the center point of the ellipse.
@@ -504,9 +505,9 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
+        :class: `pyaedt.modeler.Object3d.Object3d`
             3D object.
-        
+
         """
         szAxis = GeometryOperators.cs_plane_str(cs_plane)
         XStart, YStart, ZStart = self._pos_with_arg(position)
@@ -547,7 +548,7 @@ class Primitives3D(Primitives, object):
         t_end : str or float
             Ending value of the parameter ``"_t"``.
         num_points : int, optional
-            Number of vertices on the segmented curve. The default is ``0``, 
+            Number of vertices on the segmented curve. The default is ``0``,
             in which case the curve is non-segmented.
         name : str, optional
             Name of the created curve in the 3D modeler. The default is ``None``,
@@ -573,15 +574,15 @@ class Primitives3D(Primitives, object):
             ``"Rectangle"``, and ``"Isosceles Trapezoid"``. The default is ``0``. The
             value must be ``0`` or greater than ``2``.
         xsection_bend_type : str, optional
-            Type of the bend for the cross-section. The default is ``None``, in which 
-            case the bend type is set to ``"Corner"``. For the type ``"Circle"``, the 
+            Type of the bend for the cross-section. The default is ``None``, in which
+            case the bend type is set to ``"Corner"``. For the type ``"Circle"``, the
             bend type should be set to ``"Curved"``.
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
+        :class: `pyaedt.modeler.Object3d.Object3d`
             3D object.
-        
+
         """
         x_section = self._crosssection_arguments(type=xsection_type, orient=xsection_orient, width=xsection_width,
                                                  topwidth=xsection_topwidth, height=xsection_height, num_seg=xsection_num_seg,
@@ -596,7 +597,6 @@ class Primitives3D(Primitives, object):
                  "NumOfPointsOnCurve:="	, num_points,
                  "Version:="		, 1,
                  x_section]
-
 
         vArg2 = self._default_object_attributes(name)
 
@@ -614,9 +614,9 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
+        :class: `pyaedt.modeler.Object3d.Object3d`
             3D object.
-        
+
         """
         vArg1 = ["NAME:Selections"]
         vArg1.append("Selections:="), vArg1.append(o.name)
@@ -629,8 +629,8 @@ class Primitives3D(Primitives, object):
 
     @aedt_exception_handler
     def convert_segments_to_line(self, object_name):
-        """Convert a CreatePolyline list of segments to lines. 
-        
+        """Convert a CreatePolyline list of segments to lines.
+
         This method applies to splines and 3-point arguments.
 
         Parameters
@@ -640,7 +640,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
+        :class: `pyaedt.modeler.Object3d.Object3d`
             3D object.
 
         """
@@ -682,7 +682,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
+        :class: `pyaedt.modeler.Object3d.Object3d`
             3D object.
 
         """

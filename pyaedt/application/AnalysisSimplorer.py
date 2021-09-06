@@ -22,25 +22,14 @@ class FieldAnalysisSimplorer(Analysis):
     -------
 
     """
+
     @property
     def solution_type(self):
-        """ """
+        """Solution Type."""
         return self._solution_type
-
 
     @solution_type.setter
     def solution_type(self, soltype):
-        """Solution Type
-
-        Parameters
-        ----------
-        soltype :
-            SolutionType object
-
-        Returns
-        -------
-
-        """
         if soltype:
             self._solution_type = solutions_settings[soltype]
         else:
@@ -48,15 +37,14 @@ class FieldAnalysisSimplorer(Analysis):
 
     @property
     def existing_analysis_setups(self):
-        """ """
+        """Existing analysis setups."""
         setups = self.oanalysis.GetAllSolutionSetups()
         return setups
 
     @property
     def setup_names(self):
-        """ """
+        """Setup names."""
         return list(self.oanalysis.GetAllSolutionSetups())
-
 
     def __init__(self, application, projectname, designname, solution_type, setup_name=None,
                  specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):
@@ -68,32 +56,31 @@ class FieldAnalysisSimplorer(Analysis):
 
     @property
     def modeler(self):
-        """:return: Design oModeler"""
+        """Design oModeler."""
         return self._modeler
 
     @property
     def oanalysis(self):
-        """:return: Design Module "SimSetup"
-        """
+        """Design Module ``"SimSetup"``."""
         return self.odesign.GetModule("SimSetup")
 
     @aedt_exception_handler
     def create_setup(self, setupname="MySetupAuto", setuptype=None, props={}):
-        """Create a new Setup.
+        """Create a new setup.
 
         Parameters
         ----------
-        setupname : str
-            optional, name of the new setup (Default value = "MySetupAuto")
+        setupname : str, optional
+            Name of the new setup.  Default is ``"MySetupAuto"``.
         setuptype : str
-            optional, setup type. if None, default type will be applied
+            Setup type. If ``None``, default type will be applied.
         props : dict
-            optional dictionary of properties with values (Default value = {})
+            Dictionary of properties with values.
 
         Returns
         -------
-        :class:`pyaedt.modules.SolveSetup.SetupCircuit`
-            setup object
+        pyaedt.modules.SolveSetup.SetupCircuit
+            Setup object
 
         """
         if setuptype is None:

@@ -12,7 +12,7 @@ def read_info_fromcsv(projdir, name):
     Parameters
     ----------
     projdir : str
-        Full path to the file. 
+        Full path to the file.
     name : str
         Name of the file,
 
@@ -97,7 +97,7 @@ def change_objects_visibility(origfile, solid_list):
         Full path to the project file, which has an ``.aedt``  extension.
     solid_list : list
         List of names for the solid to make visible. All other solides are hidden.
-   
+
     Returns
     -------
     bool
@@ -108,7 +108,6 @@ def change_objects_visibility(origfile, solid_list):
 
     if not os.path.isfile(origfile + ".lock"):  # check if the project is closed
 
-
         with open(origfile, "rb") as f, open(newfile, "wb") as n:
 
             # Reading file content
@@ -118,18 +117,17 @@ def change_objects_visibility(origfile, solid_list):
             pattern = re.compile(r"(\$begin 'EditorWindow'\n.+)(Drawings\[.+\])(.+\n\s*\$end 'EditorWindow')",
                                  re.UNICODE)
             # Replacing string
-            ViewStr = u"Drawings[" + unicode(str(len(solid_list))) + u": " + unicode(str(solid_list).strip("["))
+            ViewStr = u"Drawings[" + unicode(str(len(solid_list))) + \
+                                             u": " + unicode(str(solid_list).strip("["))
             s = pattern.sub(r"\1" + ViewStr + r"\3", content)
 
             # writing file content
             n.write(str(s))
 
-
         # renaming files and deleting temp
 
         os.remove(origfile)
         os.rename(newfile, origfile)
-
 
     else:  # project is locked
         print("change_objects_visibility: Project %s is still locked." % origfile)
@@ -144,7 +142,7 @@ def change_model_orientation(origfile, bottom_dir):
     origfile : str
         Full path to the project file, which has an ``.aedt``  extension.
     bottom_dir : str
-        Bottom direction as specified in the properties file.    
+        Bottom direction as specified in the properties file.
 
     Returns
     -------
@@ -197,11 +195,9 @@ def change_model_orientation(origfile, bottom_dir):
             # writing file content
             n.write(str(s))
 
-
         # renaming files and deleting temp
         os.remove(origfile)
         os.rename(newfile, origfile)
-
 
     else:  # project is locked
         print("change_model_orientation: Project %s is still locked." % origfile)

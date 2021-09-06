@@ -138,7 +138,6 @@ class EdbStackup(object):
             return material_def
         return False
 
-
     @aedt_exception_handler
     def create_conductor(self, name, conductivity=1e6):
         """Create a conductor with simple properties.
@@ -198,7 +197,6 @@ class EdbStackup(object):
         material_def.SetRelativePermitivityAtHighLowFrequency(self._edb_value(relative_permittivity_low),
                                                               self._edb_value(relative_permittivity_high))
         return self._add_dielectric_material_model(name, material_def)
-
 
     @aedt_exception_handler
     def create_djordjevicsarkar_material(self, name, relative_permittivity, loss_tangent, test_frequency):

@@ -5,8 +5,8 @@ from ..generic.general_methods import aedt_exception_handler, retry_ntimes
 from .Object3d import CircuitComponent
 
 class CircuitComponents(object):
-    """CircutComponents class. 
-    
+    """CircutComponents class.
+
      This is the common class for managing all circuit components for Nexxim and Simplorer.
      """
 
@@ -67,8 +67,8 @@ class CircuitComponents(object):
         Parameters
         ----------
         partname : int or str
-           Part ID or part name. 
-        
+           Part ID or part name.
+
         Returns
         -------
         type
@@ -92,12 +92,12 @@ class CircuitComponents(object):
     @aedt_exception_handler
     def create_unique_id(self):
         """Create an unique ID.
-        
+
         Returns
         -------
         int
             Unique ID in the range of ``[1, 65535]``.
-            
+
         """
         id = random.randint(1, 65535)
         while id in self.components:
@@ -107,10 +107,12 @@ class CircuitComponents(object):
     @aedt_exception_handler
     def create_wire(self, points_array):
         """Create a wire.
+
         Parameters
         ----------
         points_array : list
-            A nested list of point coordinates. For example, ``[[x1, y1], [x2, y2]....]``.
+            A nested list of point coordinates. For example,
+            ``[[x1, y1], [x2, y2], ...]``.
 
         Returns
         -------
@@ -220,7 +222,7 @@ class CircuitComponents(object):
             Position on the X axis. The default is ``0.1``.
         posy : float, optional
             Position on the Y axis. The default is ``0.1``.
-       
+
         Returns
         -------
         type
@@ -265,7 +267,7 @@ class CircuitComponents(object):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.     
+            ``True`` when successful, ``False`` when failed.
 
         """
         if not model_name:
@@ -338,7 +340,6 @@ class CircuitComponents(object):
         id = int(id.split(";")[1])
         self.add_id_to_component(id)
         return id, self.components[id].composed_name
-
 
     @aedt_exception_handler
     def create_component(self, inst_name=None, component_library="Resistors",
@@ -780,19 +781,19 @@ class CircuitComponents(object):
 
     @aedt_exception_handler
     def arg_with_dim(self, Value, sUnits=None):
-        """
+        """Format an argument with dimensions.
 
         Parameters
         ----------
         Value : str
-            
+
         sUnits :
             The default is ``None``.
 
         Returns
         -------
         type
-            
+
 
         """
         if type(Value) is str:

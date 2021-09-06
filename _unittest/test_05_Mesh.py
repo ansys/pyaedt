@@ -35,7 +35,6 @@ class TestClass:
         mr2 = self.aedtapp.mesh.assign_model_resolution(o.faces[0], 1e-4,"ModelRes2")
         assert not mr2
 
-
     def test_assign_surface_mesh(self):
         udp = self.aedtapp.modeler.Position(10, 10, 0)
         coax_dimension = 200
@@ -50,7 +49,8 @@ class TestClass:
         coax_dimension = 200
         o = self.aedtapp.modeler.primitives.create_cylinder(self.aedtapp.CoordinateSystemPlane.XYPlane, udp, 3, coax_dimension,
                                                          0, "surface_manual")
-        surface = self.aedtapp.mesh.assign_surface_mesh_manual(o.id, 1e-6, aspect_ratio=3,meshop_name="Surface_Manual")
+        surface = self.aedtapp.mesh.assign_surface_mesh_manual(
+            o.id, 1e-6, aspect_ratio=3,meshop_name="Surface_Manual")
         assert "Surface_Manual" in [i.name for i in  self.aedtapp.mesh.meshoperations]
         assert surface.props["SurfDev"] ==  1e-6
         assert surface.props["AspectRatioChoice"]
@@ -72,4 +72,5 @@ class TestClass:
         o = m3d.modeler.primitives.create_box([0,0,0], [10,10,10], name="Box_Mesh")
         assert m3d.mesh.assign_rotational_layer(o.name, meshop_name="Rotational")
         assert m3d.mesh.assign_edge_cut(o.name, meshop_name="Edge")
-        assert m3d.mesh.assign_density_control(o.name, maxelementlength=10000, meshop_name="Density")
+        assert m3d.mesh.assign_density_control(
+            o.name, maxelementlength=10000, meshop_name="Density")

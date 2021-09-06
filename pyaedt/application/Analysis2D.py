@@ -8,8 +8,8 @@ from ..generic.general_methods import aedt_exception_handler, generate_unique_na
 
 class FieldAnalysis2D(Analysis):
     """Manages 2D field analysis setup in Maxwell2D and Q2D.
-    
-    This class is automatically initialized by an application call from one of 
+
+    This class is automatically initialized by an application call from one of
     the 2D tools. See the application function for parameter definitions.
 
     Parameters
@@ -19,10 +19,10 @@ class FieldAnalysis2D(Analysis):
     projectname : str, optional
         Name of the project to select or the full path to the project
         or AEDTZ archive to open. The default is ``None``, in which
-        case an attempt is made to get an active project. If no 
+        case an attempt is made to get an active project. If no
         projects are present, an empty project is created.
     designname : str, optional
-        Name of the design to select. The default is ``None``, in 
+        Name of the design to select. The default is ``None``, in
         which case an attempt is made to get an active design. If no
         designs are present, an empty design is created.
     solution_type : str, optional
@@ -30,14 +30,14 @@ class FieldAnalysis2D(Analysis):
         ``None``, in which case the default type is applied.
     setup_name : str, optional
         Name of the setup to use as the nominal. The default is
-        ``None``, in which case the active setup is used or 
+        ``None``, in which case the active setup is used or
         nothing is used.
     specified_version: str, optional
         Version of AEDT  to use. The default is ``None``, in which case
         the active version or latest installed version is used.
     NG : bool, optional
-        Whether to run AEDT in the non-graphical mode. The default 
-        is ``False``, which launches AEDT in the graphical mode.  
+        Whether to run AEDT in the non-graphical mode. The default
+        is ``False``, which launches AEDT in the graphical mode.
     AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
@@ -45,13 +45,13 @@ class FieldAnalysis2D(Analysis):
     release_on_exit : bool, optional
         Whether to release  AEDT on exit. The default is ``False``.
     student_version : bool, optional
-        Whether to enable the student version of AEDT. The default 
+        Whether to enable the student version of AEDT. The default
         is ``False``.
 
     """
+
     def __init__(self, application, projectname, designname, solution_type, setup_name=None,
                  specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):
-
 
         Analysis.__init__(self, application, projectname, designname, solution_type, setup_name,
                           specified_version, NG, AlwaysNew, release_on_exit, student_version)
@@ -65,7 +65,7 @@ class FieldAnalysis2D(Analysis):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Model2D.Modeler2D`
+        :class: `pyaedt.modeler.Model2D.Modeler2D`
         """
         return self._modeler
 
@@ -75,7 +75,7 @@ class FieldAnalysis2D(Analysis):
 
         Returns
         -------
-        :class:`pyaedt.modules.Mesh.Mesh`
+        :class: `pyaedt.modules.Mesh.Mesh`
         """
         return self._mesh
 
@@ -98,14 +98,14 @@ class FieldAnalysis2D(Analysis):
 
     @aedt_exception_handler
     def assign_material(self, obj, mat):
-        """Assign a material to one or more objects. 
+        """Assign a material to one or more objects.
 
         Parameters
         ----------
         obj : str or list
             One or more objects to assign materials to.
         mat : str
-            Material to assign. If this material is not present, it will be 
+            Material to assign. If this material is not present, it will be
             created.
 
         Returns
