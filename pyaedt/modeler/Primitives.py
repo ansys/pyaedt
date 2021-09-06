@@ -806,6 +806,18 @@ class Primitives(object):
         return self._all_object_names
 
     @property
+    def components_3d_names(self):
+        """List of the names of all 3d components objects."""
+        obs3d=[]
+        try:
+            comps3d=self.oeditor.Get3DComponentDefinitionNames()
+            for comp3d in comps3d:
+                obs3d += list(self.oeditor.Get3DComponentInstanceNames(comp3d))
+        except Exception as e:
+            obs3d = []
+        return obs3d
+
+    @property
     def oproject(self):
         """Project."""
         return self._parent.oproject
