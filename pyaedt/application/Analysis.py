@@ -664,11 +664,34 @@ class Analysis(Design, object):
             Type of the setup. The default is ``None``, in which case
             the default type is applied.
         props : dict, optional
-            Dictionary of properties with values. The default is ``{}``.
+            Dictionary of analysis properties appropriate for the design and anaalysis.
+            If no values are passed, default values will be used.
 
         Returns
         -------
         :class: `pyaedt.modules.SolveSetup.Setup`
+
+        Examples
+        --------
+        Create a setup for SBR+ setup using advanced Doppler
+        processing for automotive radar.
+        
+        >>> hfss = pyaedt.Hfss(solution_type='SBR+')
+        >>> setup1 = hfss.create_setup(setupname='Setup1')
+        >>> setup1.props["IsSbrRangeDoppler"] = True
+        >>> setup1.props["SbrRangeDopplerTimeVariable"] = "time_var"
+        >>> setup1.props["SbrRangeDopplerCenterFreq"] = "76.5GHz"
+        >>> setup1.props["SbrRangeDopplerRangeResolution"] = "0.15meter"
+        >>> setup1.props["SbrRangeDopplerRangePeriod"] = "100meter"
+        >>> setup1.props["SbrRangeDopplerVelocityResolution"] = "0.2m_per_sec"
+        >>> setup1.props["SbrRangeDopplerVelocityMin"] = "-30m_per_sec"
+        >>> setup1.props["SbrRangeDopplerVelocityMax"] = "30m_per_sec"
+        >>> setup1.props["DopplerRayDensityPerWavelength"] = "0.2"
+        >>> setup1.props["MaxNumberOfBounces"] = "3"
+        >>> setup1.update()
+        ...
+        pyaedt Info: Sweep was created correctly.
+
 
         """
         if setuptype is None:
