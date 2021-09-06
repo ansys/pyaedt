@@ -2,6 +2,7 @@
 from __future__ import absolute_import
 import os
 import warnings
+import math
 from .application.Analysis3D import FieldAnalysis3D
 from .desktop import exception_to_desktop
 from .modeler.GeometryOperators import GeometryOperators
@@ -3228,7 +3229,8 @@ class Hfss(FieldAnalysis3D, object):
                                                ray_density_per_wavelenght=ray_density_per_wavelenght,
                                                max_bounces=max_bounces, setup_name=setup_name)
         if sweep_time_duration > 0:
-            sweeptime = 1e-2
+
+            sweeptime = math.ceil(300000000 / (2 * center_freq * 1000000000 * resolution) * 1000)/1000
             sweep = self._create_sbr_doppler_sweep(setup.name, time_var, 0, sweep_time_duration, sweeptime,
                                                    parametric_name)
             return setup, sweep

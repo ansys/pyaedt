@@ -258,7 +258,7 @@ def cs_xy_pointing_value(yaw, pitch, roll):
     return [x_pointing, y_pointing]
 
 
-class Part:
+class Part(object):
     """
     Class to help manage 3d components. Component placement and definition.
     """
@@ -603,7 +603,7 @@ class Part:
         return aedt_objects
 
 
-class MultiPartComponent:
+class MultiPartComponent(object):
     """
     Class to support multi-part 3d components for Electronics
     Desktop - SBR+.
@@ -966,7 +966,7 @@ class MultiPartComponent:
         return self._insert(app, verbose=verbose, motion=motion)
 
 
-class Environment(MultiPartComponent):
+class Environment(MultiPartComponent, object):
     """
     Environment class is derived from MultiPartComponent.
     The call signature is identical to the parent class except
@@ -974,10 +974,10 @@ class Environment(MultiPartComponent):
     """
 
     def __init__(self, env_folder):
-        super().__init__(env_folder, motion=False)
+        super(Environment, self).__init__(env_folder, motion=False)
 
 
-class Actor(MultiPartComponent):
+class Actor(MultiPartComponent, object):
     """
     One instance of an actor. Derived class from MultiPartComponent
     """
@@ -1001,7 +1001,7 @@ class Actor(MultiPartComponent):
             definition.
         """
 
-        super().__init__(actor_folder, use_relative_cs=True, motion=True)
+        super(Actor, self).__init__(actor_folder, use_relative_cs=True, motion=True)
 
         self._speed_expression = str(speed) + 'm_per_sec'  # TODO: Need error checking here.
 
@@ -1040,7 +1040,7 @@ class Actor(MultiPartComponent):
         self._add_speed(self, app)
 
 
-class Person(Actor):
+class Person(Actor, object):
     """
     One instance of an actor. Derived class from MultiPartComponent
     """
@@ -1067,7 +1067,7 @@ class Person(Actor):
             definition.
         """
 
-        super().__init__(actor_folder, speed=speed)
+        super(Person, self).__init__(actor_folder, speed=speed)
 
         self._stride = stride
 
@@ -1104,7 +1104,7 @@ class Person(Actor):
         self._add_walking(app)
 
 
-class Bird(Actor):
+class Bird(Actor, object):
     """
     One instance of an actor. Derived class from MultiPartComponent
     """
@@ -1122,7 +1122,7 @@ class Bird(Actor):
 
         """
 
-        super().__init__(bird_folder, speed=speed)
+        super(Bird, self).__init__(bird_folder, speed=speed)
         self._flapping_rate = flapping_rate
 
     def _add_flying(self, app):
@@ -1147,7 +1147,7 @@ class Bird(Actor):
         self._add_flying(app)
 
 
-class Vehicle(Actor):
+class Vehicle(Actor, object):
     """
     One instance of an actor. Derived class from MultiPartComponent
     """
@@ -1165,7 +1165,7 @@ class Vehicle(Actor):
 
         """
 
-        super().__init__(car_folder, speed=speed)
+        super(Vehicle, self).__init__(car_folder, speed=speed)
 
     def _add_driving(self, app):
         # Update expressions for wheel motion:
@@ -1221,12 +1221,12 @@ class Vehicle(Actor):
         return mat_dict
 
 
-class Antenna(Part):
+class Antenna(Part, object):
     """
     Antenna class derived from Part
     """
     def __init__(self, root_folder, ant_dict, parent=None, name=None):
-        super().__init__(root_folder, ant_dict, parent=parent, name=name)
+        super(Antenna, self).__init__(root_folder, ant_dict, parent=parent, name=name)
 
     def _antenna_type(self, app):
         if self._compdef['antenna_type'] == 'parametric':
@@ -1277,7 +1277,7 @@ class Antenna(Part):
         return antenna_object
 
 
-class Radar(MultiPartComponent):
+class Radar(MultiPartComponent, object):
     """
     Radar class manages the radar definition and placement in the HFSS design.
 
@@ -1288,7 +1288,7 @@ class Radar(MultiPartComponent):
 
         name = name.split('.')[0] if name else name  # remove suffix if any
         self._component_class = 'radar'
-        super().__init__(radar_folder, name=name,
+        super(Radar, self).__init__(radar_folder, name=name,
                          use_relative_cs=use_relative_cs,
                          motion=motion, offset=offset)
         self.pair = []
