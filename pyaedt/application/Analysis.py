@@ -691,8 +691,6 @@ class Analysis(Design, object):
         >>> setup1.update()
         ...
         pyaedt Info: Sweep was created correctly.
-
-
         """
         if setuptype is None:
             if self.design_type == "Icepak" and self.solution_type=="Transient":

@@ -129,8 +129,13 @@ class NativeComponentObject(BoundaryCommon, object):
 
         """
         self.name = "InsertNativeComponentData"
-
+        names = [i for i in self._parent.modeler.get_excitations_name()]
         self.antennaname = self._parent.modeler.oeditor.InsertNativeComponent(self._get_args())
+        a = [i for i in self._parent.modeler.get_excitations_name() if i not in names]
+        try:
+            self.antennaname = a[0].split(":")[0]
+        except Exception as e:
+            pass
         return True
 
     @aedt_exception_handler

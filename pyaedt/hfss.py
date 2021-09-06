@@ -9,7 +9,7 @@ from .modules.Boundary import BoundaryObject, NativeComponentObject
 from .generic.general_methods import generate_unique_name, aedt_exception_handler
 from collections import OrderedDict
 from .application.DataHandlers import random_string
-
+from .modeler.MultiPartComponent import Radar
 
 class Hfss(FieldAnalysis3D, object):
     """Provides the HFSS application interface.
@@ -2982,3 +2982,283 @@ class Hfss(FieldAnalysis3D, object):
         else:
             rad_name = generate_unique_name("Rad_")
         return self.create_boundary(self.BoundaryType.Radiation, faces_list, rad_name)
+
+    @aedt_exception_handler
+    def _create_sbr_doppler_setup(self, setup_type, time_var, center_freq, resolution, period, velocity_resolution,
+                                  min_velocity, max_velocity, ray_density_per_wavelenght, max_bounces, setup_name,
+                                  include_coupling_effects=False, doppler_ad_sampling_rate=20):
+        setup1 = self.create_setup(setup_name, "SBR+")
+        setup1.props["IsSbrRangeDoppler"] = True
+        del setup1.props["PTDUTDSimulationSettings"]
+        del setup1.props["ComputeFarFields"]
+        del setup1.props["Sweeps"]
+        if setup_type == "ChirpIQ":
+                setup1.props["SbrRangeDopplerWaveformType"] = "ChirpSeqFmcw"
+                setup1.props["ChannelConfiguration"] = "IQChannels"
+        elif setup_type == "ChirpI":
+                setup1.props["SbrRangeDopplerWaveformType"] = "ChirpSeqFmcw"
+                setup1.props["ChannelConfiguration"] = "IChannelOnly"
+        else:
+            setup1.props["SbrRangeDopplerWaveformType"] = setup_type
+        setup1.props["SbrRangeDopplerTimeVariable"] = time_var
+        setup1.props["SbrRangeDopplerCenterFreq"] = self.modeler.primitives._arg_with_dim(center_freq, "GHz")
+        setup1.props["SbrRangeDopplerRangeResolution"] = self.modeler.primitives._arg_with_dim(resolution, "meter")
+        setup1.props["SbrRangeDopplerRangePeriod"] = self.modeler.primitives._arg_with_dim(period, "meter")
+        setup1.props["SbrRangeDopplerVelocityResolution"] = self.modeler.primitives._arg_with_dim(velocity_resolution, "m_per_sec")
+        setup1.props["SbrRangeDopplerVelocityMin"] = self.modeler.primitives._arg_with_dim(min_velocity, "m_per_sec")
+        setup1.props["SbrRangeDopplerVelocityMax"] = self.modeler.primitives._arg_with_dim(max_velocity, "m_per_sec")
+        setup1.props["DopplerRayDensityPerWavelength"] = ray_density_per_wavelenght
+        setup1.props["MaxNumberOfBounces"] = max_bounces
+        if setup_type != "PulseDoppler":
+            setup1.props["IncludeRangeVelocityCouplingEffect"] = include_coupling_effects
+            setup1.props["SbrRangeDopplerA/DSamplingRate"] = self.modeler.primitives._arg_with_dim(
+                doppler_ad_sampling_rate, "MHz")
+        setup1.update()
+        return setup1
+
+    @aedt_exception_handler
+    def _create_sbr_doppler_sweep(self, setupname, time_var, tstart, tstop, tsweep,parametric_name):
+        time_start = self.modeler.primitives._arg_with_dim(tstart, "sec")
+        time_sweep = self.modeler.primitives._arg_with_dim(tsweep, "sec")
+        time_stop = self.modeler.primitives._arg_with_dim(tstop, "sec")
+        sweep_range = "LIN {} {} {}".format(time_start, time_stop, time_sweep)
+        return self.opti_parametric.add_parametric_setup(time_var, sweep_range, setupname,
+                                                         parametricname=parametric_name)
+
+    @aedt_exception_handler
+    def create_sbr_chirp_i_doppler_setup(self, time_var=None, sweep_time_duration=0, center_freq=76.5, resolution=1, period=200,
+                                         velocity_resolution=0.4, min_velocity=-20, max_velocity=20,
+                                         ray_density_per_wavelenght=0.2, max_bounces=5, include_coupling_effects=False,
+                                         doppler_ad_sampling_rate=20, setup_name=None):
+        """Create an SBR+ Chirp IQ Setup.
+
+        Parameters
+        ----------
+        time_var: str, Optional
+            Name of the time variable. Default ``None`` which will search for first Time Variable available.
+        sweep_time_duration: float, Optional
+            Sweep Time Duration. If greater than 0, a parametric sweep will be created. Default ``0``.
+        center_freq: float, Optional
+            Center Frequency in GHz. Default ``76.5``.
+        resolution: float, Optional
+            Doppler Resolution in meter. Default ``1``.
+        period: float, Optional
+            Period of Analysis in meter. Default ``200``.
+        velocity_resolution: float, Optional
+            Doppler Velocity Resolution in m_per_sec. Default ``0.4``.
+        min_velocity: str, Optional
+            Minimum Doppler Velocity in m_per_sec. Default ``-20``.
+        max_velocity: str, Optional
+            Maximum Doppler Velocity in m_per_sec. Default ``20``.
+        ray_density_per_wavelenght: float, Optional
+            Doppler Ray Density per WaveLenght. Default ``0.2``.
+        max_bounces: int, Optional
+            Maximum number of Bounces. Default ``5``.
+        include_coupling_effects: float, Optional
+            Set if Coupling Effects will be included. Default ``False``.
+        doppler_ad_sampling_rate: float, Optional
+            Doppler AD Sampling Rate. It works only if include_coupling_effects is ``True``. Default ``20``.
+        setup_name: str, Optional
+            Name of the Setup. Default ``None``.
+
+        Returns
+        -------
+        (:class: `pyaedt.modules.SolveSetup.Setup`, :class: `pyaedt.modules.DesignXPloration.Optimetrics.ParametericsSetups`)
+
+        """
+        if self.solution_type != "SBR+":
+            self.add_error_message("Method Applies only to SBR+ Solution.")
+            return False, False
+        if not setup_name:
+            setup_name = generate_unique_name("ChirpI")
+            parametric_name = generate_unique_name("PulseSweep")
+        else:
+            parametric_name = generate_unique_name(setup_name)
+
+        if not time_var:
+            for var_name, var  in self.variable_manager.independent_variables.items():
+                if var.unit_system == "Time":
+                    time_var = var_name
+                    break
+            if not time_var:
+                self.add_error_message("No Time Variable Found. Setup or explicitily assign to the method.")
+                return False, False
+        setup = self._create_sbr_doppler_setup("ChirpI", time_var=time_var, center_freq=center_freq,
+                                               resolution=resolution, period=period,
+                                               velocity_resolution=velocity_resolution, min_velocity=min_velocity,
+                                               max_velocity=max_velocity,
+                                               ray_density_per_wavelenght=ray_density_per_wavelenght,
+                                               max_bounces=max_bounces,
+                                               include_coupling_effects=include_coupling_effects,
+                                               doppler_ad_sampling_rate=doppler_ad_sampling_rate, setup_name=setup_name)
+        if sweep_time_duration >0:
+            sweeptime = 1e-2
+            sweep = self._create_sbr_doppler_sweep(setup.name, time_var, 0, sweep_time_duration, sweeptime, parametric_name)
+            return setup, sweep
+        return setup, False
+
+    @aedt_exception_handler
+    def create_sbr_chirp_iq_doppler_setup(self, time_var=None, sweep_time_duration=0, center_freq=76.5, resolution=1, period=200,
+                                          velocity_resolution=0.4, min_velocity=-20, max_velocity=20,
+                                          ray_density_per_wavelenght=0.2, max_bounces=5, include_coupling_effects=False,
+                                          doppler_ad_sampling_rate=20, setup_name=None):
+        """Create an SBR+ Chirp IQ Setup.
+
+        Parameters
+        ----------
+        time_var: str, Optional
+            Name of the time variable. Default ``None`` which will search for first Time Variable available.
+        sweep_time_duration: float, Optional
+            Sweep Time Duration. If greater than 0, a parametric sweep will be created. Default ``0``.
+        center_freq: float, Optional
+            Center Frequency in GHz. Default ``76.5``.
+        resolution: float, Optional
+            Doppler Resolution in meter. Default ``1``.
+        period: float, Optional
+            Period of Analysis in meter. Default ``200``.
+        velocity_resolution: float, Optional
+            Doppler Velocity Resolution in m_per_sec. Default ``0.4``.
+        min_velocity: str, Optional
+            Minimum Doppler Velocity in m_per_sec. Default ``-20``.
+        max_velocity: str, Optional
+            Maximum Doppler Velocity in m_per_sec. Default ``20``.
+        ray_density_per_wavelenght: float, Optional
+            Doppler Ray Density per WaveLenght. Default ``0.2``.
+        max_bounces: int, Optional
+            Maximum number of Bounces. Default ``5``.
+        include_coupling_effects: float, Optional
+            Set if Coupling Effects will be included. Default ``False``.
+        doppler_ad_sampling_rate: float, Optional
+            Doppler AD Sampling Rate. It works only if include_coupling_effects is ``True``. Default ``20``.
+        setup_name: str, Optional
+            Name of the Setup. Default ``None``.
+
+        Returns
+        -------
+        (:class: `pyaedt.modules.SolveSetup.Setup`, :class: `pyaedt.modules.DesignXPloration.Optimetrics.ParametericsSetups`)
+
+        """
+        if self.solution_type != "SBR+":
+            self.add_error_message("Method Applies only to SBR+ Solution.")
+            return False, False
+        if not setup_name:
+            setup_name = generate_unique_name("ChirpIQ")
+            parametric_name = generate_unique_name("PulseSweep")
+        else:
+            parametric_name = generate_unique_name(setup_name)
+        if not time_var:
+            for var_name, var  in self.variable_manager.independent_variables.items():
+                if var.unit_system == "Time":
+                    time_var = var_name
+                    break
+            if not time_var:
+                self.add_error_message("No Time Variable Found. Setup or explicitily assign to the method.")
+                return False, False
+        setup = self._create_sbr_doppler_setup("ChirpIQ", time_var=time_var, center_freq=center_freq,
+                                               resolution=resolution, period=period,
+                                               velocity_resolution=velocity_resolution, min_velocity=min_velocity,
+                                               max_velocity=max_velocity,
+                                               ray_density_per_wavelenght=ray_density_per_wavelenght,
+                                               max_bounces=max_bounces,
+                                               include_coupling_effects=include_coupling_effects,
+                                               doppler_ad_sampling_rate=doppler_ad_sampling_rate, setup_name=setup_name)
+        if sweep_time_duration >0:
+            sweeptime = 1e-2
+            sweep = self._create_sbr_doppler_sweep(setup.name, time_var, 0, sweep_time_duration, sweeptime, parametric_name)
+            return setup, sweep
+        return setup, False
+
+    @aedt_exception_handler
+    def create_sbr_pulse_doppler_setup(self, time_var=None, sweep_time_duration=0, center_freq=76.5, resolution=1, period=200,
+                                       velocity_resolution=0.4, min_velocity=-20, max_velocity=20,
+                                       ray_density_per_wavelenght=0.2, max_bounces=5, setup_name=None):
+        """Create an SBR+ Pulse Doppler Setup
+
+        Parameters
+        ----------
+        time_var: str, Optional
+            Name of the time variable. Default ``None`` which will search for first Time Variable available.
+        sweep_time_duration: float, Optional
+            Sweep Time Duration. If greater than 0, a parametric sweep will be created. Default ``0``.
+        center_freq: float, Optional
+            Center Frequency in GHz. Default ``76.5``.
+        resolution: float, Optional
+            Doppler Resolution in meter. Default ``1``.
+        period: float, Optional
+            Period of Analysis in meter. Default ``200``.
+        velocity_resolution: float, Optional
+            Doppler Velocity Resolution in m_per_sec. Default ``0.4``.
+        min_velocity: str, Optional
+            Minimum Doppler Velocity in m_per_sec. Default ``-20``.
+        max_velocity: str, Optional
+            Maximum Doppler Velocity in m_per_sec. Default ``20``.
+        ray_density_per_wavelenght: float, Optional
+            Doppler Ray Density per WaveLenght. Default ``0.2``.
+        max_bounces: int, Optional
+            Maximum number of Bounces. Default ``5``.
+        setup_name: str, Optional
+            Name of the Setup. Default ``None``.
+
+        Returns
+        -------
+        (:class: `pyaedt.modules.SolveSetup.Setup`, :class: `pyaedt.modules.DesignXPloration.Optimetrics.ParametericsSetups`)
+
+        """
+        if self.solution_type != "SBR+":
+            self.add_error_message("Method Applies only to SBR+ Solution.")
+            return False, False
+        if not setup_name:
+            setup_name = generate_unique_name("PulseSetup")
+            parametric_name = generate_unique_name("PulseSweep")
+        else:
+            parametric_name = generate_unique_name(setup_name)
+
+        if not time_var:
+            for var_name, var  in self.variable_manager.independent_variables.items():
+                if var.unit_system == "Time":
+                    time_var = var_name
+                    break
+            if not time_var:
+                self.add_error_message("No Time Variable Found. Setup or explicitily assign to the method.")
+                return False, False
+        setup = self._create_sbr_doppler_setup("PulseDoppler", time_var=time_var, center_freq=center_freq,
+                                               resolution=resolution, period=period,
+                                               velocity_resolution=velocity_resolution, min_velocity=min_velocity,
+                                               max_velocity=max_velocity,
+                                               ray_density_per_wavelenght=ray_density_per_wavelenght,
+                                               max_bounces=max_bounces, setup_name=setup_name)
+        if sweep_time_duration > 0:
+            sweeptime = 1e-2
+            sweep = self._create_sbr_doppler_sweep(setup.name, time_var, 0, sweep_time_duration, sweeptime,
+                                                   parametric_name)
+            return setup, sweep
+        return setup, False
+
+    @aedt_exception_handler
+    def create_sbr_radar_from_json(self, radar_file, radar_name, use_motion=False, offset=[0, 0, 0],
+                                   use_relative_cs=False):
+        """
+
+        Parameters
+        ----------
+        radar_file: str
+            Path to Radar File Folder
+        radar_name: str
+            Name of the Radar to use
+        use_motion: bool, Optional
+            Set to ``True`` if Motion has to be applied to Radar. Default ``False``.
+        offset: list, Optional
+            Set offset relative to Global Coordinate System.
+        use_relative_cs: bool, Optional
+            Set to ``True`` if Relative Coordinate System has to be used. Default ``False``.
+
+        Returns
+        -------
+        :class: `pyaedt.modeler.MultiPartComponent.Radar`
+        """
+        if self.solution_type != "SBR+":
+            self.add_error_message("Method Applies only to SBR+ Solution.")
+            return False
+        r = Radar(radar_file, name=radar_name, motion=use_motion, offset=offset,use_relative_cs=use_relative_cs)
+        r.insert(self)
+        return r

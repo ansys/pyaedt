@@ -1,8 +1,11 @@
+import os
 from ..generic.general_methods import aedt_exception_handler
 from .Primitives import Primitives
 from .GeometryOperators import GeometryOperators
 from ..application.Analysis import CoordinateSystemAxis
 from .Object3d import Object3d
+from .MultiPartComponent import Person, Bird, Vehicle, Antenna, Radar, Environment
+
 
 class Primitives3D(Primitives, object):
     """Manages primitives in 3D tools.
@@ -18,6 +21,7 @@ class Primitives3D(Primitives, object):
 
     def __init__(self, parent, modeler):
         Primitives.__init__(self, parent, modeler)
+        self.multiparts = []
 
     @aedt_exception_handler
     def is3d(self):
@@ -786,3 +790,157 @@ class Primitives3D(Primitives, object):
             return list(compobj.GetChildNames())
         else:
             return []
+
+
+    @aedt_exception_handler
+    def _check_actor_folder(self, actor_folder):
+        if not os.path.exists(actor_folder):
+            self._messenger.add_error_message("Folder {} does not exist.".format(actor_folder))
+            return False
+        if not any(fname.endswith('.json') for fname in os.listdir(actor_folder)) or not any(fname.endswith('.a3dcomp') for fname in os.listdir(actor_folder)):
+            self._messenger.add_error_message("At least one json and one a3dcomp file is needed.")
+            return False
+        return True
+
+    @aedt_exception_handler
+    def add_person(self, actor_folder, speed=0, global_offset=[0,0,0], yaw=0, pitch=0,roll=0):
+        """
+
+        Parameters
+        ----------
+        actor_folder: str
+            Path to the actor folder. It must contain a json settings file and a 3dcomponent (.a3dcomp)
+        speed:  float, Optional
+            Object movement speed with time
+        global_offset: list, Optional
+            Offset from Global Coordinate System.
+        yaw: float, Optional
+            Yaw Rotation from Global Coordinate System.
+        pitch: float, Optional
+            Pitch Rotation from Global Coordinate System.
+        roll: float, Optional
+            Roll Rotation from Global Coordinate System.
+
+        Returns
+        -------
+        :class: `pyaedt.modeler.MultiPartComponent.Person`
+
+        """
+        if not self._check_actor_folder(actor_folder):
+            return False
+
+        person1 = Person(actor_folder, speed=speed)
+        person1.offset = global_offset
+        person1.yaw = self._arg_with_dim(yaw, "deg")
+        person1.pitch = self._arg_with_dim(pitch, "deg")
+        person1.roll = self._arg_with_dim(roll, "deg")
+        person1.insert(self._parent)
+        self.multiparts.append(person1)
+        return person1
+
+    @aedt_exception_handler
+    def add_vehicle(self, actor_folder, speed=0, global_offset=[0,0,0], yaw=0, pitch=0,roll=0):
+        """
+
+        Parameters
+        ----------
+        actor_folder: str
+            Path to the actor folder. It must contain a json settings file and a 3dcomponent (.a3dcomp)
+        speed:  float, Optional
+            Object movement speed with time
+        global_offset: list, Optional
+            Offset from Global Coordinate System.
+        yaw: float, Optional
+            Yaw Rotation from Global Coordinate System.
+        pitch: float, Optional
+            Pitch Rotation from Global Coordinate System.
+        roll: float, Optional
+            Roll Rotation from Global Coordinate System.
+
+        Returns
+        -------
+        :class: `pyaedt.modeler.MultiPartComponent.Vehicle`
+
+        """
+        if not self._check_actor_folder(actor_folder):
+            return False
+        vehicle = Vehicle(actor_folder, speed=speed)
+        vehicle.offset = global_offset
+        vehicle.yaw = self._arg_with_dim(yaw, "deg")
+        vehicle.pitch = self._arg_with_dim(pitch, "deg")
+        vehicle.roll = self._arg_with_dim(roll, "deg")
+        vehicle.insert(self._parent)
+        self.multiparts.append(vehicle)
+        return vehicle
+
+
+    @aedt_exception_handler
+    def add_bird(self, actor_folder, speed=0, global_offset=[0, 0, 0], yaw=0, pitch=0,
+                 roll=0, flapping_rate=50):
+        """
+
+        Parameters
+        ----------
+        actor_folder: str
+            Path to the actor folder. It must contain a json settings file and a 3dcomponent (.a3dcomp)
+        speed:  float, Optional
+            Object movement speed with time
+        global_offset: list, Optional
+            Offset from Global Coordinate System.
+        yaw: float, Optional
+            Yaw Rotation from Global Coordinate System.
+        pitch: float, Optional
+            Pitch Rotation from Global Coordinate System.
+        roll: float, Optional
+            Roll Rotation from Global Coordinate System.
+        flapping_rate: float, Optional
+            Motion Flapping Rate in Hz.
+        Returns
+        -------
+        :class: `pyaedt.modeler.MultiPartComponent.Bird`
+
+        """
+        if not self._check_actor_folder(actor_folder):
+            return False
+        bird = Bird(actor_folder, speed=speed, flapping_rate=self._arg_with_dim(flapping_rate,"Hz"))
+        bird.offset = global_offset
+        bird.yaw = self._arg_with_dim(yaw, "deg")
+        bird.pitch = self._arg_with_dim(pitch, "deg")
+        bird.roll = self._arg_with_dim(roll, "deg")
+        bird.insert(self._parent)
+        self.multiparts.append(bird)
+        return bird
+
+    @aedt_exception_handler
+    def add_environment(self, env_folder, global_offset=[0, 0, 0], yaw=0, pitch=0, roll=0):
+        """
+
+        Parameters
+        ----------
+        env_folder: str
+            Path to the actor folder. It must contain a json settings file and a 3dcomponent (.a3dcomp)
+        global_offset: list, Optional
+            Offset from Global Coordinate System.
+        yaw: float, Optional
+            Yaw Rotation from Global Coordinate System.
+        pitch: float, Optional
+            Pitch Rotation from Global Coordinate System.
+        roll: float, Optional
+            Roll Rotation from Global Coordinate System.
+
+        Returns
+        -------
+        :class: `pyaedt.modeler.MultiPartComponent.Environment`
+
+        """
+
+        if not self._check_actor_folder(env_folder):
+            return False
+        environment = Environment(env_folder)
+        environment.offset = global_offset
+        environment.yaw = self._arg_with_dim(yaw, "deg")
+        environment.pitch = self._arg_with_dim(pitch, "deg")
+        environment.roll = self._arg_with_dim(roll, "deg")
+        environment.insert(self._parent)
+        self.multiparts.append(environment)
+        return environment
