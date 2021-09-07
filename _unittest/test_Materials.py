@@ -91,12 +91,21 @@ class TestClass:
         assert mat1.material_appearance == [11, 22, 0]
         mat1.material_appearance = ['11', '22', '10']
         assert mat1.material_appearance == [11, 22, 10]
-        with pytest.raises(ValueError):
+        try:
             mat1.material_appearance = [11, 22, 300]
-        with pytest.raises(ValueError):
+            assert False
+        except ValueError:
+            assert True
+        try:
             mat1.material_appearance = [11, -22, 0]
-        with pytest.raises(ValueError):
+            assert False
+        except ValueError:
+            assert True
+        try:
             mat1.material_appearance = [11, 22]
+            assert False
+        except ValueError:
+            assert True
 
     def test_create_thermal_modifier(self):
         assert self.aedtapp.materials["new_copper2"].mass_density.add_thermal_modifier_free_form(

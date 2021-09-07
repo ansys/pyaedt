@@ -1,88 +1,16 @@
 """This module contains these Maxwell classes: `Maxwell`, `Maxwell2d`, and `Maxwell3d`."""
 
 from __future__ import absolute_import
-import math
 import os
 import json
-import re
 import io
 from .application.Analysis2D import FieldAnalysis2D
 from .application.Analysis3D import FieldAnalysis3D
 from .desktop import exception_to_desktop
+from .application.DataHandlers import float_units
 from .generic.general_methods import generate_unique_name, aedt_exception_handler
 from .modules.Boundary import BoundaryObject
 from collections import OrderedDict
-
-unit_val = {
-    "": 1.0,
-    "uV": 1e-6,
-    "mV": 1e-3,
-    "V": 1.0,
-    "kV": 1e3,
-    "MegV": 1e6,
-    "ns": 1e-9,
-    "us": 1e-6,
-    "ms": 1e-3,
-    "s": 1.0,
-    "min": 60,
-    "hour": 3600,
-    "rad": 1.0,
-    "deg": math.pi / 180,
-    "Hz": 1.0,
-    "kHz": 1e3,
-    "MHz": 1e6,
-    "nm": 1e-9,
-    "um": 1e-6,
-    "mm": 1e-3,
-    "cm": 1e-2,
-    "dm": 1e-1,
-    "meter": 1.0,
-    "km": 1e3,
-}
-
-# Utility scripts
-resynch_maxwell2D_control_program_for_design = """
-from pyaedt.Desktop import Desktop
-from pyaedt.Maxwell import Maxwell2D
-design_name = os.getenv('design')
-setup = os.getenv('setup')
-
-with Desktop() as d:
-    mxwl = Maxwell2D(designname=design_name, setup_name=setup)
-    mxwl.setup_ctrlprog(keep_modifications=True )
-    oDesktop.AddMessage( mxwl.project_name, mxwl.design_name, 0, "Successfully updated project definitions")
-    mxwl.save_project()
-"""
-
-
-def float_units(val_str, units=""):
-    """Retrieve units for a value.
-
-    Parameters
-    ----------
-    val_str : str
-        Name of the float value.
-
-    units : str, optional
-         The default is ``""``.
-
-    Returns
-    -------
-
-    """
-    if not units in unit_val:
-        raise Exception("Specified unit string " + units + " not known!")
-
-    loc = re.search("[a-zA-Z]", val_str)
-    try:
-        b = loc.span()[0]
-        var = [float(val_str[0:b]), val_str[b:]]
-        val = var[0] * unit_val[var[1]]
-    except:
-        val = float(val_str)
-
-    val = val / unit_val[units]
-    return val
 
 
 class Maxwell(object):

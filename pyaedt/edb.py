@@ -3,35 +3,26 @@
 This module is implicitily loaded in HFSS 3D Layout when launched.
 
 """
-
 import os
 import sys
 import traceback
 import warnings
 import gc
-
-import pyaedt.edb_core.EDB_Data
 import time
-
-try:
-    import ScriptEnv
-
-    ScriptEnv.Initialize("Ansoft.ElectronicsDesktop")
-    inside_desktop = True
-except:
-    inside_desktop = False
+if os.name == 'posix':
+    try:
+        import subprocessdotnet as subprocess
+    except:
+        warnings.warn("Pythonnet is needed to run pyaedt within Linux")
+else:
+    import subprocess
 try:
     import clr
     from System.Collections.Generic import List, Dictionary
     from System import Convert, String
     import System
-
     from System import Double, Array
     from System.Collections.Generic import List
-
-    _ironpython = False
-    if "IronPython" in sys.version or ".NETFramework" in sys.version:
-        _ironpython = True
     edb_initialized = True
 except ImportError:
     warnings.warn(
@@ -39,20 +30,13 @@ except ImportError:
     )
     edb_initialized = False
 
+from pyaedt import is_ironpython, inside_desktop
+from pyaedt.application.MessageManager import EDBMessageManager
+from pyaedt.edb_core import *
 
-from .application.MessageManager import EDBMessageManager
-from .edb_core import *
-
-from .generic.general_methods import (
-    get_filename_without_extension,
-    generate_unique_name,
-    aedt_exception_handler,
-    env_path,
-    env_value,
-    env_path_student,
-    env_value_student,
-)
-from .generic.process import SiwaveSolve
+from pyaedt.generic.general_methods import env_path, env_value, env_path_student
+from pyaedt.generic.general_methods import generate_unique_name, aedt_exception_handler
+from pyaedt.generic.process import SiwaveSolve
 
 
 class Edb(object):
@@ -94,18 +78,9 @@ class Edb(object):
 
     """
 
-    def __init__(
-        self,
-        edbpath=None,
-        cellname=None,
-        isreadonly=False,
-        edbversion="2021.1",
-        isaedtowned=False,
-        oproject=None,
-        student_version=False,
-    ):
+    def __init__(self, edbpath=None, cellname=None, isreadonly=False, edbversion="2021.1", isaedtowned=False, oproject=None, student_version=False,use_ppe=False):
         self._clean_variables()
-        if _ironpython and inside_desktop:
+        if is_ironpython and inside_desktop:
             self.standalone = False
         else:
             self.standalone = True
@@ -130,13 +105,28 @@ class Edb(object):
             # self._edb.Database.SetRunAsStandAlone(not isaedtowned)
             self.isreadonly = isreadonly
             self.cellname = cellname
+            if not edbpath:
+                if os.name != "posix":
+                    edbpath = os.getenv("USERPROFILE")
+                    if not edbpath:
+                        edbpath = os.path.expanduser("~")
+                    edbpath = os.path.join(edbpath, "Documents", generate_unique_name("layout")+".aedb")
+                else:
+                    edbpath = os.getenv("HOME")
+                    if not edbpath:
+                        edbpath = os.path.expanduser("~")
+                    edbpath = os.path.join(edbpath, generate_unique_name("layout")+".aedb")
+                self._messenger.add_info_message("No Edb Provided. Creating new EDB {}.".format(edbpath))
             self.edbpath = edbpath
             if edbpath[-3:] in ["brd", "gds", "xml", "dxf", "tgz"]:
-                self.edbpath = edbpath[-3:] + ".aedb"
+                self.edbpath = edbpath[:-4] + ".aedb"
                 working_dir = os.path.dirname(edbpath)
-                self.import_layout_pcb(edbpath, working_dir)
+                self.import_layout_pcb(edbpath, working_dir, use_ppe=use_ppe)
+                self._messenger.add_info_message("Edb {} Created Correctly from {} file".format(self.edbpath, edbpath[-2:]))
+
             elif not os.path.exists(os.path.join(self.edbpath, "edb.def")):
                 self.create_edb()
+                self._messenger.add_info_message("Edb {} Created Correctly".format(self.edbpath))
             elif ".aedb" in edbpath:
                 self.edbpath = edbpath
                 if isaedtowned and "isoutsideDesktop" in dir(self._main) and not self._main.isoutsideDesktop:
@@ -162,6 +152,13 @@ class Edb(object):
         self._db = None
         self._edb = None
         self.builder = None
+        self.edblib = None
+        self.edbutils = None
+        self.simSetup = None
+        self.layout_methods = None
+        self.simsetupdata = None
+        if os.name == "posix":
+            clr.ClearProfilerData()
         gc.collect()
 
     @aedt_exception_handler
@@ -448,7 +445,7 @@ class Edb(object):
         return None
 
     @aedt_exception_handler
-    def import_layout_pcb(self, input_file, working_dir, init_dlls=False, anstranslator_full_path=None):
+    def import_layout_pcb(self, input_file, working_dir, init_dlls=False, anstranslator_full_path="", use_ppe=False):
         """Import a BRD file and generate an ``edb.def`` file in the working directory.
 
         Parameters
@@ -460,7 +457,10 @@ class Edb(object):
             same as the BRD file name.
         init_dlls : bool
             Whether to initialize DLLs. The default is ``False``.
-
+        anstranslator_full_path : str, optional
+            Whether to use or not PPE License. The default is ``False``.
+        use_ppe : bool
+            Whether to use or not PPE License. The default is ``False``.
         Returns
         -------
         str
@@ -486,17 +486,13 @@ class Edb(object):
                 command += ".exe"
         if not working_dir:
             working_dir = os.path.dirname(input_file)
-
-        translatorSetup = self.edbutils.AnsTranslatorRunner(
-            input_file,
-            os.path.join(working_dir, aedb_name),
-            os.path.join(working_dir, "Translator.log"),
-            os.path.dirname(input_file),
-            True,
-            command,
-        )
-
-        if not translatorSetup.Translate():
+        cmd_translator = command + " " + input_file + " " + os.path.join(working_dir, aedb_name)
+        cmd_translator += " -l=" + os.path.join(working_dir, "Translator.log")
+        if not use_ppe:
+            cmd_translator += " -ppe=false"
+        p = subprocess.Popen(cmd_translator)
+        p.wait()
+        if not os.path.exists(os.path.join(working_dir,aedb_name)):
             self._messenger.add_error_message("Translator failed to translate.")
             return False
         self.edbpath = os.path.join(working_dir, aedb_name)
@@ -728,7 +724,7 @@ class Edb(object):
         return self.edb.Utility.Command.Execute(func)
 
     @aedt_exception_handler
-    def import_cadence_file(self, inputBrd, WorkDir=None):
+    def import_cadence_file(self, inputBrd, WorkDir=None, anstranslator_full_path="", use_ppe=False):
         """Import a BRD file and generate an ``edb.def`` file in the working directory.
 
         Parameters
@@ -738,20 +734,24 @@ class Edb(object):
         WorkDir : str
             Directory in which to create the ``aedb`` folder. The AEDB file name will be
             the same as the BRD file name. The default value is ``None``.
-
+        anstranslator_full_path: str, Optional
+            Optional AnsTranslator full path.
+        use_ppe : bool
+            Whether to use or not PPE License. The default is ``False``.
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
 
         """
-        if self.import_layout_pcb(inputBrd, working_dir=WorkDir):
+        if self.import_layout_pcb(inputBrd, working_dir=WorkDir, anstranslator_full_path=anstranslator_full_path,
+                                  use_ppe=use_ppe):
             return True
         else:
             return False
 
     @aedt_exception_handler
-    def import_gds_file(self, inputGDS, WorkDir=None):
+    def import_gds_file(self, inputGDS, WorkDir=None, anstranslator_full_path="", use_ppe=False):
         """Import a GDS file and generate an ``edb.def`` file in the working directory.
 
         Parameters
@@ -761,14 +761,18 @@ class Edb(object):
         WorkDir : str
             Directory in which to create the ``aedb`` folder. The AEDB file name will be
             the same as the GDS file name. The default value is ``None``.
-
+        anstranslator_full_path: str, Optional
+            Optional AnsTranslator full path.
+        use_ppe : bool
+            Whether to use or not PPE License. The default is ``False``.
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
 
         """
-        if self.import_layout_pcb(inputGDS, working_dir=WorkDir):
+        if self.import_layout_pcb(inputGDS, working_dir=WorkDir, anstranslator_full_path=anstranslator_full_path,
+                                  use_ppe=use_ppe):
             return True
         else:
             return False

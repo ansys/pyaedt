@@ -4,11 +4,12 @@ from collections import defaultdict
 from ..generic.general_methods import aedt_exception_handler, retry_ntimes
 from .Object3d import Padstack, Components3DLayout, Geometries3DLayout, Pins3DLayout, Nets3DLayout, \
     _uname
-from .Primitives import _ironpython, default_materials
+from .Primitives import default_materials
+from pyaedt import is_ironpython
 from .GeometryOperators import GeometryOperators
 import pkgutil
 modules = [tup[1] for tup in pkgutil.iter_modules()]
-if 'clr' in modules or _ironpython:
+if 'clr' in modules or is_ironpython:
     import clr
     from System import String
     import System
@@ -92,7 +93,7 @@ class Primitives3DLayout(object):
             prims = []
         for el in prims:
 
-            if _ironpython:
+            if is_ironpython:
                 name = clr.Reference[System.String]()
                 response = el.GetProductProperty(0, 1, name)
             else:
@@ -131,7 +132,7 @@ class Primitives3DLayout(object):
         except:
             pins_objs = []
         for el in pins_objs:
-            if _ironpython:
+            if is_ironpython:
                 name = clr.Reference[System.String]()
                 response = el.GetProductProperty(0, 11, name)
             else:

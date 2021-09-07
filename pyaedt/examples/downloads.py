@@ -2,7 +2,8 @@
 import shutil
 import os
 import sys
-if "IronPython" in sys.version or ".NETFramework" in sys.version:
+from pyaedt import is_ironpython
+if is_ironpython:
     import urllib
 else:
     import urllib.request
@@ -37,7 +38,7 @@ def _retrieve_file(url, filename, directory):
         return local_path_no_zip
 
     # grab the correct url retriever
-    if "IronPython" in sys.version or ".NETFramework" in sys.version:
+    if is_ironpython:
         urlretrieve = urllib.urlretrieve
     else:
         urlretrieve = urllib.request.urlretrieve

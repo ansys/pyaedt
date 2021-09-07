@@ -1221,17 +1221,8 @@ class Hfss(FieldAnalysis3D, object):
         return False
 
     @aedt_exception_handler
-    def create_circuit_port_between_objects(
-        self,
-        startobj,
-        endobject,
-        axisdir="XYNeg",
-        impedance=50,
-        portname=None,
-        renorm=True,
-        renorm_impedance=50,
-        deemb=False,
-    ):
+    def create_circuit_port_between_objects(self, startobj, endobject, axisdir=0, impedance=50, portname=None,
+                                            renorm=True, renorm_impedance=50, deemb=False):
         """Create a circuit port taking the closest edges of two objects.
 
         Parameters
@@ -1240,10 +1231,10 @@ class Hfss(FieldAnalysis3D, object):
             First (starting) object for the integration line.
         endobject :
             Second (ending) object for the integration line.
-        axisdir : str, optional
+        axisdir : int or :class: `pyaedt.application.Analysis.Analysis.AxisDir`, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``,
-            which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``.
-            The default is ``"XYNeg"``.
+            which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
+            The default is ``Application.AxisDir.XNeg``.
         impedance : float, optional
             Port impedance. The default is ``50``.
         portname : str, optional
@@ -1305,9 +1296,10 @@ class Hfss(FieldAnalysis3D, object):
             First (starting) object for the integration line.
         endobject :
             Second (ending) object for the integration line.
-        axisdir :
-            Position of the port. It should be one of the values for ``Application.AxisDir``, which are:
-            ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. The default is ``"0"``.
+        axisdir : int or :class: `pyaedt.application.Analysis.Analysis.AxisDir`, optional
+            Position of the port. It should be one of the values for ``Application.AxisDir``,
+            which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
+            The default is ``Application.AxisDir.XNeg``.
         impedance : float, optional
             Port impedance. The default is ``50``.
         portname : str, optional
@@ -1376,10 +1368,10 @@ class Hfss(FieldAnalysis3D, object):
             First (starting) object for the integration line.
         endobject :
             Second (ending) object for the integration line.
-        axisdir : str, optional
+        axisdir : int or :class: `pyaedt.application.Analysis.Analysis.AxisDir`, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``,
-            which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``.
-            The default value is ``"0"``.
+            which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
+            The default is ``Application.AxisDir.XNeg``.
         sourcename : str, optional
             Name of the source. The default is ``None``.
         source_on_plane : bool, optional
@@ -1438,9 +1430,10 @@ class Hfss(FieldAnalysis3D, object):
             First (starting) object for the integration line.
         endobject :
             Second (ending) object for the integration line.
-        axisdir : optional
-            Position of the current source. It should be one of the values for ``Application.AxisDir``, which are:
-            ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. The default is ``"0"``.
+        axisdir : int or :class: `pyaedt.application.Analysis.Analysis.AxisDir`, optional
+            Position of the port. It should be one of the values for ``Application.AxisDir``,
+            which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
+            The default is ``Application.AxisDir.XNeg``.
         sourcename : str, optional
             Name of the source. The default is ``None``.
         source_on_plane : bool, optional
@@ -1539,10 +1532,10 @@ class Hfss(FieldAnalysis3D, object):
             First (starting) object for the integration line.
         endobject :
             Second (ending) object for the integration line.
-        axisdir : str, optional
+        axisdir : int or :class: `pyaedt.application.Analysis.Analysis.AxisDir`, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``,
-            which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``.
-            The default is ``"0"``.
+            which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
+            The default is ``Application.AxisDir.XNeg``.
         impedance : float, optional
             Port impedance. The default is ``50``.
         nummodes : int, optional
@@ -1652,11 +1645,10 @@ class Hfss(FieldAnalysis3D, object):
             First (starting) object for the integration line. This is typically the reference plane.
         endobject :
             Second (ending) object for the integration line.
-        axisdir : int, optional
+        axisdir : int or :class: `pyaedt.application.Analysis.Analysis.AxisDir`, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``,
-            which are: ``0`` for ``"XNeg"``,``1`` for ``"YNeg"``,``2`` for ``"ZNeg"``, ``3`` for``"XPos"``,
-            ``4`` for``"YPos"``, and ``5`` for``"ZPos"``.
-            The default is ``0``.
+            which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
+            The default is ``Application.AxisDir.XNeg``.
         impedance : float, optional
             Port impedance. The default is ``50``.
         nummodes : int, optional
@@ -1731,10 +1723,10 @@ class Hfss(FieldAnalysis3D, object):
             First object (starting object for integration line)
         endobject :
             Second object (ending object for integration line)
-        axisdir : str, optional
+        axisdir : int or :class: `pyaedt.application.Analysis.Analysis.AxisDir`, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``,
-            which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``.
-            The default is ``"0"``.
+            which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
+            The default is ``Application.AxisDir.XNeg``.
         sourcename : str, optional
             Perfect E name. The default is ``None``.
         is_infinite_gnd : bool, optional
@@ -1791,10 +1783,10 @@ class Hfss(FieldAnalysis3D, object):
             First (starting) object for the integration line.
         endobject :
             Second (ending) object for the integration line.
-        axisdir : str, optional
+        axisdir : int or :class: `pyaedt.application.Analysis.Analysis.AxisDir`, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``,
-            which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``.
-            The default is ``"0"``.
+            which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
+            The default is ``Application.AxisDir.XNeg``.
         sourcename : str, optional
             Perfect H name. The default is ``None``.
         bound_on_plane : bool, optional
@@ -1915,10 +1907,10 @@ class Hfss(FieldAnalysis3D, object):
             First (starting) object for the integration line.
         endobject :
             Second (ending) object for the integration line.
-        axisdir : str, optional
+        axisdir : int or :class: `pyaedt.application.Analysis.Analysis.AxisDir`, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``,
-            which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``.
-            The default is ``"0"``.
+            which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
+            The default is ``Application.AxisDir.XNeg``.
         sourcename : str, optional
             Perfect H name. The default is ``None``.
         rlctype : str, optional
@@ -2015,11 +2007,10 @@ class Hfss(FieldAnalysis3D, object):
             First (starting) object for the integration line.
         endobject :
             Second (ending) object for the integration line.
-        axisdir : str, optional
-            Position of the impedance. It should be one of the values
-            for ``Application.AxisDir``, which are: ``"XNeg"``,
-            ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and
-            ``"ZPos"``.  The default is ``"0"``.
+        axisdir : int or :class: `pyaedt.application.Analysis.Analysis.AxisDir`, optional
+            Position of the port. It should be one of the values for ``Application.AxisDir``,
+            which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
+            The default is ``Application.AxisDir.XNeg``.
         sourcename : str, optional
             Name of the impedance. The default is ``None``.
         resistance : float, optional
@@ -2177,10 +2168,10 @@ class Hfss(FieldAnalysis3D, object):
             List of input sheets to create the waveport from.
         deemb : float, optional
             Deembedding value distance in model units. The default is ``0``.
-        axisdir : str, optional
-            Position of the reference object. It should be one of the values for ``Application.AxisDir``,
-            which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``.
-            The default is ``"0"``.
+        axisdir : int or :class: `pyaedt.application.Analysis.Analysis.AxisDir`, optional
+            Position of the port. It should be one of the values for ``Application.AxisDir``,
+            which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
+            The default is ``Application.AxisDir.XNeg``.
         impedance : float, optional
             Port impedance. The default is ``50``.
         nummodes : int, optional
@@ -2249,10 +2240,10 @@ class Hfss(FieldAnalysis3D, object):
         ----------
         sheet_name : str
             Name of the sheet.
-        axisdir : optional
-            Direction of the port. It should be one of the values for ``Application.AxisDir``,
-            which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``.
-            The default is ``"0"``.
+        axisdir : int or :class: `pyaedt.application.Analysis.Analysis.AxisDir`, optional
+            Position of the port. It should be one of the values for ``Application.AxisDir``,
+            which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
+            The default is ``Application.AxisDir.XNeg``.
         impedance : float, optional
             Port impedance. The default is ``50``.
         portname : str, optional
@@ -2336,10 +2327,10 @@ class Hfss(FieldAnalysis3D, object):
         ----------
         sheet_name : str
             Name of the sheet to apply the boundary to.
-        axisdir : str, optional
-            Position of the voltage source. It should be one of the values for ``Application.AxisDir``,
-            which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``.
-            The default is ``"0"``.
+        axisdir : int or :class: `pyaedt.application.Analysis.Analysis.AxisDir`, optional
+            Position of the port. It should be one of the values for ``Application.AxisDir``,
+            which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
+            The default is ``Application.AxisDir.XNeg``.
         sourcename : str, optional
             Name of the source. The default is ``None``.
 
@@ -2380,10 +2371,10 @@ class Hfss(FieldAnalysis3D, object):
         ----------
         sheet_name : str
             Name of the sheet to apply the boundary to.
-        axisdir : str, optional
-            Position of the current source. It should be one of the values for ``Application.AxisDir``,
-            which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``.
-            The default is ``"0"``.
+        axisdir : int or :class: `pyaedt.application.Analysis.Analysis.AxisDir`, optional
+            Position of the port. It should be one of the values for ``Application.AxisDir``,
+            which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
+            The default is ``Application.AxisDir.XNeg``.
         sourcename : str, optional
             Name of the source. The default is ``None``.
 
@@ -2502,10 +2493,10 @@ class Hfss(FieldAnalysis3D, object):
         ----------
         sheet_name : str
             Name of the sheet to apply the boundary to.
-        axisdir : str, optional
+        axisdir : int or :class: `pyaedt.application.Analysis.Analysis.AxisDir`, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``,
-            which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``.
-            The default is ``"0"``.
+            which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
+            The default is ``Application.AxisDir.XNeg``.
         sourcename : str, optional
             Lumped RLC name. The default is ``None``.
         rlctype : str, optional

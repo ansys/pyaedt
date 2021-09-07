@@ -9,7 +9,7 @@ from .EDB_Data import EDBComponent
 
 from .general import *
 from ..generic.general_methods import get_filename_without_extension
-
+from pyaedt import is_ironpython
 try:
     import clr
     clr.AddReference("System")
@@ -849,7 +849,7 @@ class Components(object):
         >>> edbapp.core_components.get_aedt_pin_name(pin)
 
         """
-        if "IronPython" in sys.version or ".NETFramework" in sys.version:
+        if is_ironpython:
             name = clr.Reference[String]()
             response = pin.GetProductProperty(0, 11, name)
         else:

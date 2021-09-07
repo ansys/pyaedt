@@ -20,11 +20,11 @@ import time
 import logging
 from collections import OrderedDict
 from .MessageManager import AEDTMessageManager
-from .Variables import VariableManager, DataSet
+from .Variables import VariableManager, DataSet, AEDT_units, unit_system
 from ..desktop import exception_to_desktop, Desktop, force_close_desktop, release_desktop, get_version_env_variable
 from ..generic.LoadAEDTFile import load_entire_aedt_file
 from ..generic.general_methods import aedt_exception_handler
-from ..generic.list_handling import variation_string_to_dict
+from .DataHandlers import variation_string_to_dict
 from ..modules.Boundary import BoundaryObject
 from ..generic.general_methods import generate_unique_name
 
@@ -525,6 +525,11 @@ class Design(object):
         self.solution_type = self._solution_type
         self.project_datasets = self._get_project_datasets()
         self.design_datasets = self._get_design_datasets()
+
+    @aedt_exception_handler
+    def __delitem__(self, key):
+        """Implement destructor with array name or index."""
+        del self._variable_manager[key]
 
     @property
     def project_properies(self):
@@ -2438,8 +2443,8 @@ class Design(object):
             return self._odesign.ValidateDesign()
 
     @aedt_exception_handler
-    def get_evaluated_value(self, variable_name, variation=None):
-        """Retrieve the evaluated value of a design property or project variable in SI units.
+    def get_evaluated_value(self, variable_name, variation=None, units=None):
+        """Retrieve the evaluated value of a design property or project variable in SI units if no Unit is provided.
 
         Parameters
         ----------
@@ -2448,6 +2453,8 @@ class Design(object):
         variation : float, optional
             Variation value for the evaluation. The default is ``None``,
             in which case the nominal variation is used.
+        units : str
+            Name of the unit to rescale method. SI will be applied by default.
 
         Returns
         -------
@@ -2470,7 +2477,12 @@ class Design(object):
             variation_string = self.design_variation(variation_string=variation)
 
         si_value = self._odesign.GetVariationVariableValue(variation_string, variable_name)
-
+        if units:
+            scale = AEDT_units[unit_system(units)][units]
+            if isinstance(scale, tuple):
+                return scale[0](si_value, True)
+            else:
+                return si_value / scale
         return si_value
 
     @aedt_exception_handler

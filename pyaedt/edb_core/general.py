@@ -24,11 +24,7 @@ from functools import wraps
 import logging
 logger = logging.getLogger(__name__)
 from ..generic.general_methods import aedt_exception_handler, generate_unique_name
-
-if "IronPython" in sys.version or ".NETFramework" in sys.version:
-    is_ironpython = True
-else:
-    is_ironpython = False
+from pyaedt import is_ironpython
 
 
 @aedt_exception_handler

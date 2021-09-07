@@ -119,6 +119,8 @@ class TestClass():
         self.aedtapp["test"] = "1mm"
         val = self.aedtapp["test"]
         assert val == "1.0mm"
+        del self.aedtapp["test"]
+        assert 'test' not in self.aedtapp.variable_manager.variables
 
     def test_13_designs(self):
         assert self.aedtapp._insert_design(

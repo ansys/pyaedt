@@ -11,10 +11,9 @@ import sys
 import pkgutil
 
 from .misc import list_installed_ansysem
+from pyaedt import is_ironpython, _pythonver
 
-_pythonver = sys.version_info[0]
-
-if "IronPython" in sys.version or ".NETFramework" in sys.version:
+if is_ironpython:
     import clr  # IronPython C:\Program Files\AnsysEM\AnsysEM19.4\Win64\common\IronPython\ipy64.exe
 
     _com = "pythonnet"
