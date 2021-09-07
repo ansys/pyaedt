@@ -174,7 +174,7 @@ class Polyline(Object3d):
 
             varg2 = self._parent._default_object_attributes(name=name, matname=matname)
 
-            new_object_name = self.m_Editor.CreatePolyline(varg1, varg2)
+            new_object_name = retry_ntimes(10,self.m_Editor.CreatePolyline, varg1, varg2)
 
             Object3d.__init__(self, parent, name=new_object_name)
             self._parent.objects[self.id] = self
