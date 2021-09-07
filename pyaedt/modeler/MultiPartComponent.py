@@ -874,7 +874,7 @@ class MultiPartComponent(object):
 
     @property
     def offset(self):
-        """Offet for Multipart.
+        """Offset for Multipart.
 
         Returns
         -------
