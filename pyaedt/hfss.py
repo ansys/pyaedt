@@ -3083,7 +3083,7 @@ class Hfss(FieldAnalysis3D, object):
                     break
             if not time_var:
                 self.add_error_message("No Time Variable Found. Setup or explicitly assign to the method.")
-                return False, False
+                raise ValueError("No Time Variable Found")
         setup = self._create_sbr_doppler_setup("ChirpI", time_var=time_var, center_freq=center_freq,
                                                resolution=resolution, period=period,
                                                velocity_resolution=velocity_resolution, min_velocity=min_velocity,
@@ -3153,8 +3153,7 @@ class Hfss(FieldAnalysis3D, object):
                     time_var = var_name
                     break
             if not time_var:
-                self.add_error_message("No Time Variable Found. Setup or explicitly assign to the method.")
-                return False, False
+                raise ValueError("No Time Variable Found")
         setup = self._create_sbr_doppler_setup("ChirpIQ", time_var=time_var, center_freq=center_freq,
                                                resolution=resolution, period=period,
                                                velocity_resolution=velocity_resolution, min_velocity=min_velocity,
@@ -3220,8 +3219,7 @@ class Hfss(FieldAnalysis3D, object):
                     time_var = var_name
                     break
             if not time_var:
-                self.add_error_message("No Time Variable Found. Setup or explicitly assign to the method.")
-                return False, False
+                raise ValueError("No Time Variable Found")
         setup = self._create_sbr_doppler_setup("PulseDoppler", time_var=time_var, center_freq=center_freq,
                                                resolution=resolution, period=period,
                                                velocity_resolution=velocity_resolution, min_velocity=min_velocity,
