@@ -1053,7 +1053,7 @@ class Primitives3D(Primitives, object):
     def add_environment(self, env_folder, global_offset=[0, 0, 0], yaw=0, pitch=0, roll=0):
         """Add an Environment Multipart Component from Json file.
 
-            .. code-block:: json
+         .. code-block:: json
 
             {
                 "name": "open1",
