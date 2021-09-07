@@ -1524,7 +1524,7 @@ class GeometryModeler(Modeler, object):
             List of the ``[x1, y1, z1]`` coordinates or
             Application.Position object for the vector.
         is_3d_comp : bool, optional
-            If True, the method will try to return the duplicated list of 3dcomponents. The default is ``False``.
+            If ``True``, the method will try to return the duplicated list of 3dcomponents. The default is ``False``.
 
         Returns
         -------
@@ -1612,7 +1612,7 @@ class GeometryModeler(Modeler, object):
             Whether to create the copies as new objects. The
             default is ``True``.
         is_3d_comp : bool, optional
-            If True, the method will try to return the duplicated list of 3dcomponents. The default is ``False``.
+            If ``True``, the method will try to return the duplicated list of 3dcomponents. The default is ``False``.
 
         Returns
         -------

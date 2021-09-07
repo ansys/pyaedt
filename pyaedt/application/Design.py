@@ -2343,7 +2343,7 @@ class Design(object):
         msg_text = "Saving {0} Project".format(self.project_name)
         self._messenger.add_info_message(msg_text, level='Global')
         if project_file and not os.path.exists(os.path.dirname(project_file)):
-            os.makedirs(project_file)
+            os.makedirs(os.path.dirname(project_file))
         elif project_file:
             self.oproject.SaveAs(project_file, overwrite)
         else:

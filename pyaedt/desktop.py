@@ -143,8 +143,6 @@ def _delete_objects():
         del module.COMUtil
     if "Hfss" in dir(module):
         del module.Hfss
-    if "Hfss" in dir(module):
-        del module.Hfss
     if "Edb" in dir(module):
         del module.Edb
     if "Q3d" in dir(module):
@@ -218,7 +216,7 @@ def release_desktop(close_projects=True, close_desktop=True):
                 _delete_objects()
                 return True
             except:
-                warnings.warn("something went wrong in Closing AEDT")
+                warnings.warn("Something went wrong in Closing AEDT")
                 return False
     return True
 
