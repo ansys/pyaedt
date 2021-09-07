@@ -260,8 +260,7 @@ class Part(object):
         return self._compdef[key]
 
     def zero_offset(self, kw):  # Returns True if cs at kw is at [0, 0, 0]
-        """
-        Return zero if the coordinate system defined by kw is [0, 0, 0]
+        """Return zero if the coordinate system defined by kw is [0, 0, 0].
 
         Parameters
         ----------
@@ -285,7 +284,7 @@ class Part(object):
 
     @property
     def file_name(self):
-        """
+        """Antenna File Name.
 
         Returns
         -------
@@ -700,7 +699,7 @@ class MultiPartComponent(object):
 
     @property
     def index(self):
-        """Track number of self._name using MultiPartComponent._names
+        """Track number of self._name using MultiPartComponent._names.
 
         Returns
         -------
@@ -992,8 +991,7 @@ class Environment(MultiPartComponent, object):
 
 
 class Actor(MultiPartComponent, object):
-    """
-    One instance of an actor. Derived class from MultiPartComponent
+    """One instance of an actor. Derived class from MultiPartComponent.
     """
 
     def __init__(self, actor_folder, speed="0"):
@@ -1063,11 +1061,9 @@ class Person(Actor, object):
     """
 
     def __init__(self, actor_folder, speed="0", stride="0.8meters"):
-        """
-        Person class
-            Derived from Actor.
-            Note: Motion is always forward in the x-direction of
-            the Person coordinate system.
+        """Person class, derived from Actor.
+
+         .. note::  Motion is always forward in the x-direction of the Person coordinate system.
 
         Properties
         ----------
@@ -1140,8 +1136,7 @@ class Person(Actor, object):
 
 
 class Bird(Actor, object):
-    """
-    One instance of an actor. Derived class from MultiPartComponent
+    """One instance of an actor. Derived class from MultiPartComponent.
     """
 
     def __init__(self, bird_folder, speed="2.0", flapping_rate="50Hz"):
@@ -1190,8 +1185,7 @@ class Bird(Actor, object):
 
 
 class Vehicle(Actor, object):
-    """
-    One instance of an actor. Derived class from MultiPartComponent
+    """One instance of an actor. Derived class from MultiPartComponent.
     """
 
     def __init__(self, car_folder, speed="10.0"):
@@ -1239,8 +1233,7 @@ class Vehicle(Actor, object):
 
 
 class Antenna(Part, object):
-    """
-    Antenna class derived from Part
+    """Antenna class derived from Part.
     """
     def __init__(self, root_folder, ant_dict, parent=None, name=None):
         super(Antenna, self).__init__(root_folder, ant_dict, parent=parent, name=name)
@@ -1251,11 +1244,11 @@ class Antenna(Part, object):
 
     @property
     def params(self):
-        """
+        """Multipart Parameters.
 
         Returns
         -------
-
+        dict
         """
         p = {}
         if self._compdef['antenna_type'] == 'parametric':
@@ -1275,8 +1268,7 @@ class Antenna(Part, object):
         return a
 
     def insert(self, app):
-        """
-        Insert antenna into app
+        """Insert antenna into app.
 
         Parameters
         ----------
@@ -1318,31 +1310,31 @@ class Radar(MultiPartComponent, object):
 
     @property
     def units(self):
-        """
+        """Multipart Units.
 
         Returns
         -------
-
+        str
         """
         return self._local_units
 
     @property
     def speed_name(self):
-        """
+        """Speed Variable Name.
 
         Returns
         -------
-
+        str
         """
         return self.name + '_speed'
 
     @property
     def speed_expression(self):
-        """
+        """Speed Variable Expression.
 
         Returns
         -------
-
+        str
         """
         return self._speed_expression
 
