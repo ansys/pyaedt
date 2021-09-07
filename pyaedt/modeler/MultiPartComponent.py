@@ -1121,11 +1121,6 @@ class Person(Actor, object):
         -------
 
         """
-        """Insert the Person into the AEDT app.
-        
-
-        """
-
         app.add_info_message("Adding Person: " + self.name, "Design")
 
         # Insert the component first, then set variables.
