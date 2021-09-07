@@ -494,7 +494,8 @@ class Circuit(FieldAnalysisCircuit, object):
         source_project_path : str, optional
             Path to the source project if different than the existing path. The default is ``None``.
         port_selector : int, optional
-             Type of the port. Options are ``1``, ``2``, or ``3``, corresponding respectively to ``"Wave Port"``, ``"Terminal"``, or ``"Circuit Port"``.
+             Type of the port. Options are ``1``, ``2``, or ``3``, corresponding respectively to ``"Wave Port"``,
+             ``"Terminal"``, or ``"Circuit Port"``.
              The default is ``3``, which is a circuit port.
 
         Returns
@@ -503,6 +504,12 @@ class Circuit(FieldAnalysisCircuit, object):
             List of pin names.
 
         """
+        if source_project_name and self.project_name != source_project_name and not source_project_path:
+            raise AttributeError("If source project is different than the current one, "
+                                 "``source_project_path`` must be also provided.")
+        if source_project_path and not source_project_name:
+            raise AttributeError("When ``source_project_path`` is specified, "
+                                 "``source_project_name`` must be also provided.")
         if not source_project_name or self.project_name == source_project_name:
             oSrcProject = self._desktop.GetActiveProject()
         else:
