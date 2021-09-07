@@ -1252,4 +1252,3 @@ class NexximComponents(CircuitComponents):
 
         self._parent.odesign.UpdateSources(arg1, arg2)
         return True
-
