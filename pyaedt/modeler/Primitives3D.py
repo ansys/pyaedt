@@ -929,18 +929,19 @@ class Primitives3D(Primitives, object):
 
         Parameters
         ----------
-        actor_folder: str
-            Path to the actor folder. It must contain a json settings file and a 3dcomponent (.a3dcomp)
-        speed:  float, Optional
-            Object movement speed with time
-        global_offset: list, Optional
-            Offset from Global Coordinate System.
-        yaw: float, Optional
-            Yaw Rotation from Global Coordinate System.
-        pitch: float, Optional
-            Pitch Rotation from Global Coordinate System.
-        roll: float, Optional
-            Roll Rotation from Global Coordinate System.
+        actor_folder : str
+            Path to the actor directory. It must contain a json settings file
+            and a 3dcomponent (``.a3dcomp`` file).
+        speed : float, optional
+            Object movement speed with time.
+        global_offset : list, optional
+            Offset from global coordinate system.
+        yaw : float, optional
+            Yaw rotation from global coordinate system.
+        pitch : float, optional
+            Pitch rotation from global coordinate system.
+        roll : float, Optional,
+            Roll rotation from global coordinate system.
 
         Returns
         -------
@@ -1009,20 +1010,22 @@ class Primitives3D(Primitives, object):
 
         Parameters
         ----------
-        actor_folder: str
-            Path to the actor folder. It must contain a json settings file and a 3dcomponent (.a3dcomp)
-        speed:  float, Optional
-            Object movement speed with time
-        global_offset: list, Optional
-            Offset from Global Coordinate System.
-        yaw: float, Optional
-            Yaw Rotation from Global Coordinate System.
-        pitch: float, Optional
-            Pitch Rotation from Global Coordinate System.
-        roll: float, Optional
-            Roll Rotation from Global Coordinate System.
-        flapping_rate: float, Optional
-            Motion Flapping Rate in Hz.
+        actor_folder : str
+            Path to the actor directory. It must contain a json settings file and a
+            3dcomponent (``.a3dcomp`` file)
+        speed :  float, optional
+            Object movement speed with time.
+        global_offset : list, Optional
+            Offset from global coordinate system.
+        yaw : float, optional
+            Yaw rotation from global coordinate system.
+        pitch : float, Optional
+            Pitch rotation from global coordinate system.
+        roll: float, optional
+            Roll Rotation from global coordinate system.
+        flapping_rate : float, optional
+            Motion flapping rate in Hz.
+
         Returns
         -------
         :class:`pyaedt.modeler.MultiPartComponent.Bird`
@@ -1031,8 +1034,8 @@ class Primitives3D(Primitives, object):
         --------
         >>> from pyaedt import Hfss
         >>> app = Hfss()
-        >>> bird_folder = "path/to/bird/folder"
-        >>> bird1 = app.modeler.primitives.add_bird(bird_folder, 1.0, [19, 4, 3], 120,-5, flapping_rate=30)
+        >>> bird_dir = "path/to/bird/directory"
+        >>> bird1 = app.modeler.primitives.add_bird(bird_dir, 1.0, [19, 4, 3], 120, -5, flapping_rate=30)
 
         """
         self._initialize_multipart()
@@ -1075,16 +1078,17 @@ class Primitives3D(Primitives, object):
 
         Parameters
         ----------
-        env_folder: str
-            Path to the actor folder. It must contain a json settings file and a 3dcomponent (.a3dcomp).
-        global_offset: list, Optional
-            Offset from Global Coordinate System.
-        yaw: float, Optional
-            Yaw Rotation from Global Coordinate System.
-        pitch: float, Optional
-            Pitch Rotation from Global Coordinate System.
-        roll: float, Optional
-            Roll Rotation from Global Coordinate System.
+        env_folder : str
+            Path to the actor directory. It must contain a json settings file and a 
+            3dcomponent (``.a3dcomp`` file).
+        global_offset: list, optional
+            Offset from global coordinate system.
+        yaw : float, optional
+            Yaw rotation from global coordinate system.
+        pitch: float, optional
+            Pitch rotation from global coordinate system.
+        roll : float, optional
+            Roll rotation from global coordinate system.
 
         Returns
         -------
