@@ -1,0 +1,749 @@
+$begin 'AnsoftComponentChkSum'
+	ChecksumString='2e734f752f48a661268a7c9932c31f65'
+	ChecksumHistory()
+	VersionHistory()
+	FormatVersion=6
+	Version(2020, 2)
+	ComponentDefinitionType='DesignDerivedComponentDefinition'
+$end 'AnsoftComponentChkSum'
+$begin 'AnsoftComponentHeader'
+	$begin 'Information'
+		$begin 'ComponentInfo'
+			ComponentName='beak'
+			Company=''
+			'Company URL'=''
+			'Model Number'=''
+			'Help URL'=''
+			Version='1.0'
+			Notes=''
+			IconType=''
+			Owner='Arien Sligar'
+			Email='arien.sligar@ansys.com'
+			Date='11:15:30 PM  Mar 11, 2020'
+			HasLabel=false
+			LabelImage=''
+		$end 'ComponentInfo'
+	$end 'Information'
+	$begin 'DesignDataDescriptions'
+		$begin 'DesignSettings'
+			ProductName='HFSS'
+			SolutionType='SBR+'
+			$begin 'DrivenOptions'
+				AutoOpen=false
+			$end 'DrivenOptions'
+		$end 'DesignSettings'
+		$begin 'Component Meshing'
+			Type='SBR+'
+		$end 'Component Meshing'
+	$end 'DesignDataDescriptions'
+	$begin 'Preview'
+		Image='/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE\
+BAQICAQECAQEBAgICAgICAgICAQICAgICAgICAgL/2wBDAQEBAQEBAQEBAQECAQEBAgICAgICAgICAg\
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgL/wAARCADIAMgDASIAAhEBAxEB/\
+8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQR\
+BRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUp\
+TVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5us\
+LDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAA\
+AECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHB\
+CSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ\
+3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4u\
+Pk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD+/iiiigAooooAKKKKACiiigAooooAKKKKACiii\
+gAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACii\
+igAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACi\
+iigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAC\
+iiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKA\
+CiiigAooooAKKKKACiiigAooooAKKKKACvjj4p/tzfBD4Sfth/sufsOa7NrusfHX9rDQ/i34n8F6b4Z\
+k8I6hYeB/DXwj8G6t40u/EPxUs7zxdbax4Z0LXrbw54rsfDV3aaRqVvqmp+DtWtWktl0+5lT7Hr+f39\
+rr/gmV8Hv2kP+C1X7E/7RHxL+KPxyn8UeCvgb8Qfjv4J8L6Lqnwr0nwX4V1b9h39oX9jjV/hd4KsbdP\
+hI+qan4G1XxR+0h8VNW8SjU9Vv9aurvVra30jWtF0uyt9PT9b8GeH/AA94k4lz/BeJGa4nKcowvDnEm\
+Lwc8JRqV6k82wmTYyvl3NCHLzUcPiILG1oSq0YV6eFlhnVi6yT4Mxq4ujRpSwdONSpKtRjLmaSVOVSK\
+nq+rT5Vo2nK9tD+gKiiivyQ7wooooAKKKKACiiigAooooAKKKKACiiigAooooAKK4b4k/E/4afBnwVr\
+XxJ+MHxD8DfCn4deG/wCzv+Ei8ffEnxboHgXwVoP9satYaDpH9teKvFGoWtjpf2rXdU0yytvPnj8+71\
+GC2i3TTRox8Nvif8NPjN4K0X4k/B/4h+Bvit8OvEn9o/8ACO+Pvht4t0Dx14K17+x9Wv8AQdX/ALF8V\
+eF9QurHVPsuu6Xqdlc+RPJ5F3p09tLtmhkRb9nPk9ryP2V+Xms+Xmtflvte2tr3tqX7Kp7P23s5ex5u\
+Xns+Xmtfl5tua2tr3trsdzRRRUEBRRRQAUUV8W/s8/8ABQb9k79qv4w/Fj4JfAP4q6P8Q/Fvwc0TRtc\
+8S3mmPFb6HrUGoeJvFPhXVz4BuNQniufH2laPqHh/RJNT1vSrS58NiD4k+Gnsdavn1Mx2/JXx+BwuIw\
+eExOLp0MVmEpRoU5zjGdaUI881Ti2pT5I6y5U+VNXtdX+gyrhPijPMo4i4gybh7G5rkXCNOhWzTGYfD\
+VquFy6niqyw+Gnja8ISpYdYitenR9rKLqyjPkUlTm4/aVfDPxA/5SW/slf9mM/8FD//AFfv/BMCvuav\
+hn4gf8pLf2Sv+zGf+Ch//q/f+CYFfoXh/pn2P/7EnE3/AKzebHy2L/hQ/wCvtH/09TPuaiivOtM+L/w\
+l1r4keIvg3o3xR+HWrfF7whpNtr3iz4VaZ428NX/xI8L6HeQ6Nc2mteIvA1rqb6nomky2/iPw9JHc3N\
+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\
+AUUUUAFFFFABRRRQAUUUUAFFFFAH//Z'
+	$end 'Preview'
+	ContainsLightweightGeometry=true
+$end 'AnsoftComponentHeader'
+$begin 'ComponentBody'
+	$begin 'HFSSModel'
+		$begin 'Variables'
+		$end 'Variables'
+		$begin 'Datasets'
+		$end 'Datasets'
+		$begin 'DesignData'
+			$begin 'DesignSettings'
+				'Allow Material Override'=false
+				IncludeTemperatureDependence=false
+				EnableFeedback=false
+				Temperatures(6, '22cel', 10, '22cel', 14, '22cel', 18, '22cel', 22, '22cel')
+				ObjsEnabledForDeformation()
+			$end 'DesignSettings'
+			$begin 'DCThickness'
+			$end 'DCThickness'
+			$begin 'Boundaries'
+				$begin 'Layered4'
+					ID=3
+					BoundType='Layered Impedance'
+					IsComponent=false
+					Objects(6)
+					ParentBndID=-1
+					Frequency='0GHz'
+					Roughness='0um'
+					IsTwoSided=false
+					$begin 'Layers'
+						$begin 'Layer1'
+							LayerType=1
+							Thickness='1um'
+							Material='beak'
+						$end 'Layer1'
+					$end 'Layers'
+				$end 'Layered4'
+			$end 'Boundaries'
+			$begin 'IE Regions'
+				$begin 'SBRRegion1'
+					ID=4
+					BoundType='Hybrid Region'
+					IsComponent=false
+					Objects(6, 10, 14, 18, 22)
+					Type='SBR+'
+					IsLinkedRegion=false
+					ConductivityThreshold='20000S_per_m'
+				$end 'SBRRegion1'
+			$end 'IE Regions'
+			$begin 'Circuit Elements'
+			$end 'Circuit Elements'
+			$begin 'PMLGroups'
+			$end 'PMLGroups'
+			$begin 'MeshOperations'
+				$begin 'GlobalSurfApproximation'
+					CurvedSurfaceApproxChoice='UseSlider'
+					SliderMeshSettings=5
+				$end 'GlobalSurfApproximation'
+				$begin 'GlobalCurvilinear'
+					Apply=false
+				$end 'GlobalCurvilinear'
+				$begin 'GlobalModelRes'
+					UseAutoLength=true
+				$end 'GlobalModelRes'
+				MeshMethod='Auto'
+				UseTolerantSBRMesh=true
+				UseDynamicMeshing=true
+				DynamicSurfaceResolution=false
+				UseFlexMeshingForTAUvolumeMesh=false
+			$end 'MeshOperations'
+		$end 'DesignData'
+	$end 'HFSSModel'
+	$begin 'MaterialDefinitions'
+		$begin 'Variables'
+		$end 'Variables'
+		$begin 'Datasets'
+		$end 'Datasets'
+		$begin 'Definitions'
+			$begin 'Materials'
+				$begin 'beak'
+					CoordinateSystemType='Cartesian'
+					BulkOrSurfaceType=1
+					$begin 'PhysicsTypes'
+						set('Electromagnetic')
+					$end 'PhysicsTypes'
+					permittivity='2'
+					dielectric_loss_tangent='0.01'
+					ModTime=1583992761
+					Library=''
+					LibLocation='Project'
+					ModSinceLib=false
+				$end 'beak'
+				$begin 'vacuum'
+					CoordinateSystemType='Cartesian'
+					BulkOrSurfaceType=1
+					$begin 'PhysicsTypes'
+						set('Electromagnetic')
+					$end 'PhysicsTypes'
+					$begin 'AttachedData'
+						$begin 'MatAppearanceData'
+							property_data='appearance_data'
+							Red=230
+							Green=230
+							Blue=230
+							Transparency=0.94999998807907104
+						$end 'MatAppearanceData'
+					$end 'AttachedData'
+					permittivity='1'
+					ModTime=1499970477
+					Library='Materials'
+					LibLocation='SysLibrary'
+					ModSinceLib=false
+				$end 'vacuum'
+			$end 'Materials'
+			$begin 'SurfaceMaterials'
+			$end 'SurfaceMaterials'
+		$end 'Definitions'
+	$end 'MaterialDefinitions'
+	$begin 'GeometryData'
+		$begin 'Variables'
+			$begin 'LocalVariables'
+				VariableProp('scale', 'UD', '', '0.5')
+				VariableProp('pitch', 'UD', '', '50deg')
+				VariableProp('z_offset', 'UD', '', '0.2in')
+			$end 'LocalVariables'
+		$end 'Variables'
+		$begin 'Datasets'
+		$end 'Datasets'
+		$begin 'GeometryCore'
+			BlockVersionID=3
+			DataVersion=12
+			NativeKernel='ACIS'
+			NativeKernelVersionID=13
+			Units='in'
+			InstanceID=-1
+			$begin 'ValidationOptions'
+				EntityCheckLevel='Strict'
+				IgnoreUnclassifiedObjects=false
+				SkipIntersectionChecks=false
+			$end 'ValidationOptions'
+			$begin 'GeometryOperations'
+				BlockVersionID=2
+				$begin 'AnsoftRangedIDServerManager'
+					$begin 'AnsoftRangedIDServer'
+						IDServerObjectTypeID=0
+						IDServerRangeMin=0
+						IDServerRangeMax=2146483647
+						NextUniqueID=62
+						MoveBackwards=false
+					$end 'AnsoftRangedIDServer'
+					$begin 'AnsoftRangedIDServer'
+						IDServerObjectTypeID=1
+						IDServerRangeMin=2146483648
+						IDServerRangeMax=2146485547
+						NextUniqueID=2146483654
+						MoveBackwards=false
+					$end 'AnsoftRangedIDServer'
+				$end 'AnsoftRangedIDServerManager'
+				StartBackGroundFaceID=2146483648
+				$begin 'CoordinateSystems'
+				$end 'CoordinateSystems'
+				$begin 'OperandCSs'
+				$end 'OperandCSs'
+				$begin 'UserDefinedModels'
+				$end 'UserDefinedModels'
+				$begin 'OperandUserDefinedModels'
+				$end 'OperandUserDefinedModels'
+				$begin 'ToplevelParts'
+					$begin 'GeometryPart'
+						$begin 'Attributes'
+							Name='Design1'
+							Flags=''
+							Color='(64 0 64)'
+							Transparency=0
+							PartCoordinateSystem=1
+							UDMId=-1
+							GroupId=8
+							MaterialValue='""'
+							SurfaceMaterialValue='""'
+							SolveInside=false
+							ShellElement=false
+							ShellElementThickness='nan '
+							IsMaterialEditable=true
+							UseMaterialAppearance=false
+							IsLightweight=true
+							IsAlwaysHidden=false
+						$end 'Attributes'
+						$begin 'Operations'
+							$begin 'Operation'
+								OperationType='NativeBody'
+								ID=5
+								ReferenceCoordSystemID=1
+								$begin 'NativeBodyParameters'
+									KernelVersion=13
+									SourceFile='C:\\Users\\asligar\\Documents\\3D CAD Models\\humming-bird\\beak.stl'
+								$end 'NativeBodyParameters'
+								ParentPartID=6
+								ReferenceUDMID=-1
+								IsSuppressed=false
+								$begin 'OperationIdentity'
+									$begin 'Topology'
+										NumLumps=1
+										NumShells=1
+										NumFaces=1
+										NumWires=0
+										NumLoops=0
+										NumCoedges=0
+										NumEdges=0
+										NumVertices=0
+									$end 'Topology'
+									BodyID=-1
+									StartFaceID=-1
+									StartEdgeID=-1
+									StartVertexID=-1
+									NumNewFaces=0
+									NumNewEdges=0
+									NumNewVertices=0
+									FaceNameAndIDMap()
+									EdgeNameAndIDMap()
+									VertexNameAndIDMap()
+								$end 'OperationIdentity'
+								BodyType='HybridBody'
+								$begin 'BodyBlock'
+									BodyFileNamesVec[1: '0000006.HybGeom']
+								$end 'BodyBlock'
+							$end 'Operation'
+							$begin 'Operation'
+								OperationType='Scale'
+								ID=25
+								ReferenceCoordSystemID=1
+								$begin 'ScaleParameters'
+									KernelVersion=13
+									TargetID=6
+									ScaleX='scale'
+									ScaleY='scale'
+									ScaleZ='scale'
+								$end 'ScaleParameters'
+								ParentPartID=6
+								ReferenceUDMID=-1
+								IsSuppressed=false
+								$begin 'OperationIdentity'
+									$begin 'Topology'
+										NumLumps=1
+										NumShells=1
+										NumFaces=1
+										NumWires=0
+										NumLoops=0
+										NumCoedges=0
+										NumEdges=0
+										NumVertices=0
+									$end 'Topology'
+									BodyID=-1
+									StartFaceID=-1
+									StartEdgeID=-1
+									StartVertexID=-1
+									NumNewFaces=0
+									NumNewEdges=0
+									NumNewVertices=0
+									FaceNameAndIDMap()
+									EdgeNameAndIDMap()
+									VertexNameAndIDMap()
+								$end 'OperationIdentity'
+								TranformBaseOperationID=5
+							$end 'Operation'
+							$begin 'Operation'
+								OperationType='Rotate'
+								ID=30
+								ReferenceCoordSystemID=1
+								$begin 'RotateParameters'
+									KernelVersion=13
+									TargetID=6
+									RotateAxis='X'
+									RotateAngle='90deg'
+								$end 'RotateParameters'
+								ParentPartID=6
+								ReferenceUDMID=-1
+								IsSuppressed=false
+								$begin 'OperationIdentity'
+									$begin 'Topology'
+										NumLumps=1
+										NumShells=1
+										NumFaces=1
+										NumWires=0
+										NumLoops=0
+										NumCoedges=0
+										NumEdges=0
+										NumVertices=0
+									$end 'Topology'
+									BodyID=-1
+									StartFaceID=-1
+									StartEdgeID=-1
+									StartVertexID=-1
+									NumNewFaces=0
+									NumNewEdges=0
+									NumNewVertices=0
+									FaceNameAndIDMap()
+									EdgeNameAndIDMap()
+									VertexNameAndIDMap()
+								$end 'OperationIdentity'
+								TranformBaseOperationID=25
+							$end 'Operation'
+							$begin 'Operation'
+								OperationType='Rotate'
+								ID=40
+								ReferenceCoordSystemID=1
+								$begin 'RotateParameters'
+									KernelVersion=13
+									TargetID=6
+									RotateAxis='Z'
+									RotateAngle='180deg'
+								$end 'RotateParameters'
+								ParentPartID=6
+								ReferenceUDMID=-1
+								IsSuppressed=false
+								$begin 'OperationIdentity'
+									$begin 'Topology'
+										NumLumps=1
+										NumShells=1
+										NumFaces=1
+										NumWires=0
+										NumLoops=0
+										NumCoedges=0
+										NumEdges=0
+										NumVertices=0
+									$end 'Topology'
+									BodyID=-1
+									StartFaceID=-1
+									StartEdgeID=-1
+									StartVertexID=-1
+									NumNewFaces=0
+									NumNewEdges=0
+									NumNewVertices=0
+									FaceNameAndIDMap()
+									EdgeNameAndIDMap()
+									VertexNameAndIDMap()
+								$end 'OperationIdentity'
+								TranformBaseOperationID=30
+							$end 'Operation'
+							$begin 'Operation'
+								OperationType='Rotate'
+								ID=45
+								ReferenceCoordSystemID=1
+								$begin 'RotateParameters'
+									KernelVersion=13
+									TargetID=6
+									RotateAxis='Y'
+									RotateAngle='pitch'
+								$end 'RotateParameters'
+								ParentPartID=6
+								ReferenceUDMID=-1
+								IsSuppressed=false
+								$begin 'OperationIdentity'
+									$begin 'Topology'
+										NumLumps=1
+										NumShells=1
+										NumFaces=1
+										NumWires=0
+										NumLoops=0
+										NumCoedges=0
+										NumEdges=0
+										NumVertices=0
+									$end 'Topology'
+									BodyID=-1
+									StartFaceID=-1
+									StartEdgeID=-1
+									StartVertexID=-1
+									NumNewFaces=0
+									NumNewEdges=0
+									NumNewVertices=0
+									FaceNameAndIDMap()
+									EdgeNameAndIDMap()
+									VertexNameAndIDMap()
+								$end 'OperationIdentity'
+								TranformBaseOperationID=40
+							$end 'Operation'
+							$begin 'Operation'
+								OperationType='Move'
+								ID=55
+								ReferenceCoordSystemID=1
+								$begin 'TranslateParameters'
+									KernelVersion=13
+									TargetID=6
+									TranslateVectorX='0in'
+									TranslateVectorY='0in'
+									TranslateVectorZ='z_offset'
+								$end 'TranslateParameters'
+								ParentPartID=6
+								ReferenceUDMID=-1
+								IsSuppressed=false
+								$begin 'OperationIdentity'
+									$begin 'Topology'
+										NumLumps=1
+										NumShells=1
+										NumFaces=1
+										NumWires=0
+										NumLoops=0
+										NumCoedges=0
+										NumEdges=0
+										NumVertices=0
+									$end 'Topology'
+									BodyID=-1
+									StartFaceID=-1
+									StartEdgeID=-1
+									StartVertexID=-1
+									NumNewFaces=0
+									NumNewEdges=0
+									NumNewVertices=0
+									FaceNameAndIDMap()
+									EdgeNameAndIDMap()
+									VertexNameAndIDMap()
+								$end 'OperationIdentity'
+								TranformBaseOperationID=45
+							$end 'Operation'
+						$end 'Operations'
+					$end 'GeometryPart'
+				$end 'ToplevelParts'
+				$begin 'OperandParts'
+				$end 'OperandParts'
+				$begin 'Planes'
+				$end 'Planes'
+				$begin 'Points'
+				$end 'Points'
+				$begin 'GeometryEntityLists'
+				$end 'GeometryEntityLists'
+				$begin 'CachedNames'
+					$begin 'allobjects'
+						allobjects(-1)
+					$end 'allobjects'
+					$begin 'beak'
+						beak(-1)
+					$end 'beak'
+					$begin 'body'
+						body(-1)
+					$end 'body'
+					$begin 'design'
+						design(1)
+					$end 'design'
+					$begin 'design1_'
+						design1_(1, 2, 3, 4)
+					$end 'design1_'
+					$begin 'global'
+						global(-1)
+					$end 'global'
+					$begin 'left_wing'
+						left_wing(-1)
+					$end 'left_wing'
+					$begin 'model'
+						model(-1)
+					$end 'model'
+					$begin 'right_wing'
+						right_wing(-1)
+					$end 'right_wing'
+					$begin 'tail'
+						tail(-1)
+					$end 'tail'
+				$end 'CachedNames'
+			$end 'GeometryOperations'
+			$begin 'GeometryDependencies'
+				$begin 'DependencyInformation'
+					NumParents=1
+					DependencyObject('GeometryBodyOperation', 5)
+					DependencyObject('CoordinateSystem', 1)
+				$end 'DependencyInformation'
+				$begin 'DependencyInformation'
+					NumParents=2
+					DependencyObject('GeometryBodyOperation', 25)
+					DependencyObject('CoordinateSystem', 1)
+					DependencyObject('GeometryBodyOperation', 5)
+				$end 'DependencyInformation'
+				$begin 'DependencyInformation'
+					NumParents=2
+					DependencyObject('GeometryBodyOperation', 30)
+					DependencyObject('CoordinateSystem', 1)
+					DependencyObject('GeometryBodyOperation', 25)
+				$end 'DependencyInformation'
+				$begin 'DependencyInformation'
+					NumParents=2
+					DependencyObject('GeometryBodyOperation', 40)
+					DependencyObject('CoordinateSystem', 1)
+					DependencyObject('GeometryBodyOperation', 30)
+				$end 'DependencyInformation'
+				$begin 'DependencyInformation'
+					NumParents=2
+					DependencyObject('GeometryBodyOperation', 45)
+					DependencyObject('CoordinateSystem', 1)
+					DependencyObject('GeometryBodyOperation', 40)
+				$end 'DependencyInformation'
+				$begin 'DependencyInformation'
+					NumParents=2
+					DependencyObject('GeometryBodyOperation', 55)
+					DependencyObject('CoordinateSystem', 1)
+					DependencyObject('GeometryBodyOperation', 45)
+				$end 'DependencyInformation'
+			$end 'GeometryDependencies'
+		$end 'GeometryCore'
+		$begin 'Settings'
+			IncludedParts[1: 6]
+			HiddenParts[0:]
+			IncludedCS[0:]
+			ReferenceCS=1
+			IncludedParameters('pitch', 'scale', 'z_offset')
+			IncludedDependentParameters()
+			ParameterDescription(pitch='', scale='', z_offset='')
+		$end 'Settings'
+	$end 'GeometryData'
+$end 'ComponentBody'
+$begin 'AllReferencedFilesForComponent'
+$begin 'NativeGeometryFiles'
+NumFiles= 1
+$begin 'HybGeom'
+NativeGeometryFiles/0000006.HybGeom
+BIN000000029864
+DCBA                              L                  l            Ll      DCBA      ¦     ÃápØÔÇÀ‰D²°±@ƒÁ ¦S?    ®àƒZäŞÃ?J6XT`™ä¿ìqg¸§úç?   @ ˜¥iÀ£Ñh$\Û@h4QAS?    z´^øAOÅ?Œ0äÕıßæ¿ÿ=Õ»å¿   µZ­IUÀ(
+ªÛ@b±XT1i?    F(‚ö¬?	oëB¾Ó¿¨·à«bî?   Åb±°UÀ~¿ß¯Íá@.—ËE1/[¿    X<*—ö%Ê?úbï¤R½î¿peC´È?   V«ÕUÀƒRâ@H$Q m7¿    ÿ!ó%Ê?…uÇÌL½î¿l²—0	È?   T*•zÓPÀ¿ßïÏ,æ@ñx<V…`¿    ¡MââŞÃ?=“jÒb™ä¿ÈÁ§¥úç?   p8>C,ÀÉd2™ÄÌ@»İnÏ¾Ş?    CßÓ§Ğl?Å,\n%ã?ÍDhÄcŸé¿   ^¯×u)À<WñŞ@jµZ¶?    àä[=©¼?n“Ê¬À¿3ªˆ=†ï¿   Ûív;üıÀ`0\…è@˜8’¿    ÿÎ»Á?ÖŸŒÛ*ä¿‡kH Œ}è?   §ÓéD½âÀ>ŸÏ‡£@¿ßï§¼~?    ŸÿŸ:§ö¬?y:uU¾Ó¿®7à¹¨bî?   L&“a^âÀëõz­ê@¡P(L„Œk¿    ©¥$ó%Ê?zûvÓF½î¿ØÀ™ƒÈ?   ét:MeâÀƒÁ€ó@×ëõºÚâH¿    Y¿¯P^ß–?âï*#G¿¿Bm7‘Àï¿   Z­VË^ÜÀ@(İ@­V«ıj…g?    ’<Ü»GOÅ?©€»àæ¿ÓVn…Ë»å¿   `0DÒÙÀñx<Æ¨@ñx<²¬³p¿    mS²A<¬À?÷6r—]Õâ¿”îiˆé?   "‘Hd­×À·ÛífP»@Z­V6Œi¿    Ğm+4¤?ğ1ı&ã?êVùØÖšé?   ³ÙlVâ¶À·Ûí–kÊ@P(²Úi“?    Šb02«Õ˜?
+»ŠÍmã?!‹!‘¼jé¿   Ç£±À€@ €Øç@jµZıÓŸ?    Ï 4¥ì—?¾şÉ÷ã?œmÉ"Ğşè¿   <+‹Àáp8$2@FË?    W”ÙÂN¬»?Ì‚P
+X É¿\ÂC1ï¿   
+…¢1pÀT*•òœ/@8÷(ı>    Õ°HZß–?©]l©G¿¿(4£+‘Àï¿   @`­oÀz½^•C@f³ÙœrS¿    hâ¯Tß–?ª£¹{G¿¿U!6=‘Àï¿   ‹Åş¢oÀÓétÒB@­V«5¹Àt¿    £çÒY¼Î ?4lHÍ¿JAñrV%ï¿   ñx<æĞbÀŸÏçã$O@­V«¥Ö$y¿    ®|_¢xñ¼?÷8Ñ\Îà¿ıòx[wıê?   ×ëõvç`Àßï÷“IÇ@8§z¾„¿    Q,¦à,¯Í¿QBŠ}ê?	ó-ŠXà?   ív»9:WÀÕjµ¨î@¯×ë±šğ¢¿    5§…ì’¿Á¿Û†ez%ì?±Ï¾v İ?   4şOÀ`0,^X@ãñxd$µr?    &±(7ÉÂ?í4sh’ç¿{6åìA å¿   .—Ëõ‡0À`04ŸÉ@l6›ÑKeƒ?    5§…ì’¿Á¿Û†ez%ì?±Ï¾v İ?   »İno À
+…Bq;Ï@N§Ó!J4•?    VŒc€Ó¿gU¢íwfî?Â+ÚA‰¸?   îÀét:¥hÔ@™L&s°µš?    »WÏ®ˆÕ¿qo©î?nÙRO«Á­?   <“9ÀP(Jœı@L&“Éàr¦?    §I&gÛº?8şå³¯¸Ğ¿Á6:´î¿   ƒÁØ¥ıÀjµZ]–Y@ñx<¦S÷>    ½ƒJòIß–?ñ¥­¶G¿¿\'2:‘Àï¿   •J¥šõüÀt:v6t@áp8ÜwY¿    Åáµ
+¸?’Ù¾XEï¿ø£§l—bÈ?   d2™tçüÀ»İn÷$r@€@ €2»{¿    ø¬œ‡ßÅÀ?üĞ,¯"ï¿6ùQ†›TÈ?   ‡Ã½ÏõÀN§€×@Ûív{v!?    ógBi«¯˜?„H8Nå?»¡¾¯ç¿   2™L¾ğÀz½^¼C@ ˜äA¢?    å48LNº?¦"RpÔ¿ÙF‹`Pî¿   Ùl6»bâÀp8nB@X,[W©¿    ã³‹“Ÿö©?dkÚKD$î?&Ê×ñ>Õ?   Z­V«/ÈÀûı~¥‚@’Édª¶l?    [<pºéÀ?qCä¯*àé¿,q÷;Xâ¿   D"‘t¤¦Àét:EÑ@V«ÕJÇ¶†?     ûst.„¹?¹'®”‰î?AüPÒ?   Ç/¸ŸÀ‡ÃÙGb@›Íf§£¿    âÂ¸›•’¿šç	º&iï¿?Iq`°XÈ?   Ñ‹’À±X,¶Ê@Ïçó))“¬?    ĞŠvf©b½?"2Öm%ıÔ¿tA±X™î¿   L&“ÙïÀív»âß@ƒ)ÃÊ¡?    ¼ŒÄí“¿¾şEôœÜî?ÙJæ &ßĞ¿   ÷ûı‹ÀƒÁ ƒ@ív»1½~ñ>    g4m(ß–?—ªØ¢áF¿¿à™ !’Àï¿   `0ô•ŠÀ§Óéä‡—@©T*å6S¿    £o—Ğ ß–?ÊÙä\ÒF¿¿±­^’Àï¿   µZ­::…À•J¥j	ã@×ëõÆ¨£¿    äób¨¡¿=´_‚ìÅã?Y5;2#é?   h4Ù¨qÀ[åÌ@F£Ñ°g¿    µçv´¿j<Õ³™ï?‚ll•9ŒÁ¿   <‹gÀ­V«·j@Íf³!ª·¦?    ‰„Æõ÷+Â?Iv"‚½xê¿lA;Seá¿   {½^ÃïMÀï÷ûuÍØ@:NŸ½ˆ“?    ¯u•cS†¡¿Î7ä£9ï?CK’ı¦Ë¿   ™L&£ñGÀï÷û½}Š@Õjµ H¢¿    ¬ºô5`aÂ?ZÈ±.@ì¿øƒ7+İ?   >ŸÏkGAÀ—Ëåòì¬@ãñxd$µb?    òı,FÁ?rá%„—ë¿øi’rà¿   {½^O@Àı~¿Ÿh1@B¡P ½€°¿    bV;H¬ú¼?m!®Ëß¿D§DÔ&Àë?   Çãñt4;À0ÍÛ@¥R©:¯œ¿    Ÿ ¿¾Ì{Œ#¹ï?ú½Üù_À?   h4%½4Àı~¿§”ä@³Ùl"‰l£?    ^ ½s’	‚¿QÀ
+ûí?Oo!s8^Ö¿   §ÓéXÀ‡‰­@N§Ó±§Sç>    :5$$£ö¬?°@Ş”O¾Ó¿«­$²©bî?   y<ƒpÀÇãñ(ğä@t:ªn£?    èà–íùSƒ¿çkÔƒÍí?ì×Ø][L×¿   n·Û96À^¯×+Ùº@áp8ÜwI¿    êòÔGgÀ?­¸%Õ^ì¿1ô6uÜ?   •J¥¾Àét:½Š!@“Éd5Ó±?    àäS’ƒ?“’p}S@ç?Á:hFÖûå¿   õz½vM
+Àù|>ÄÓ@§Óéœ‚ü?    XdØ•O§¿İàÑkÌï?%{î5º?   {½^?iêÀF£Ñ¸¹—@ëõze §¿    sSl¼æ×º?¬¬´>Ş¿rÎ˜ÅB ì?   d2™¤{éÀZ­V+6ã@ş~¿¼¡¿    6é^çHİ­?œç>” æ?Ê¯²‘
+ç?   ÓétÊ8âÀ•J¥¢Êä@,‹ÑÖĞ¡?    XX>Ü”¿;fMÀCï?0ß)}£ãÎ¿   "‘H8ğàÀF£é@õz½>#¥ª?    ú¢QRjÁ?¬hi\ë¿¶æ	à¿   t:â3ÔÀ³ÙlÎë@t:pÚ¥?    ì¶!ãj?ÏÚïn
+Üé?åôYDÙâ¿   ñx<r€ÄÀp8Ş–å@ív»Á{¡?    e.mi¥¿È£Ç0yàï?@¿,¸³¿   FwW»Àt:3+@\.—#Ş½³¿    Z·mÒÀ?¼u³™İ¿ó›vìì?   "‘H,_ºÀ­V«}4×@ãñxd$µR?    ‡Ï5ÎB°À?Ìê­òŸ‹ë¿oMº™q|ß¿   V«Õ¢¦À2™Lv‚×@Ù©S×>    h¼egß–?ĞZŞAG¿¿´J©šÀï¿   }>ŸÖ¥À‹År*Ş@áp8Üw9¿    pÇá{Á?nØ~HÊ#ì¿”
+óQ1İ?   üı~P•À™L&‹ÏÜ@8GmŠ¿    ù!a¯t!¢¿lWQ›¥îï?ÎAæğ«¿   ±X,*$À„B¡8Û4@f³ÙtÖ#µ?    ıŠ¸ßn«?ôÑ¥õÑæ?¾ÛH¼ø^æ¿   ‰D"ı*„À4^³@$‰©Nª¿    ú˜hSéÙÃ?”˜¼¥rmß¿M8Ğ&Hnë?   ÃápŒªsÀãñx©ñ@x<WH¨?    Kšú—?;6­ğÆ¿ê?áô¿¶7Œá¿   ÕjµNßaÀÏçó	†V@¯×ëe‘.¶¿    y†×™-.½?¦_LêŠŞ¿\çKi$âë?   {½^ûŒ[À›ÍfÛeë@Ãáp Š¥¿    GQX‘8 ?ë¿Jw¥ßë?¶²³Hô^ß?   ‹Åb]PXÀ€@  ç­@ÿÿÿ×¨›¯?    ‘ÿiÀ?´¡œe‡ë¿ÊˆV{”ß¿   ©T*¹>DÀ«Õj%Æ@ƒÁ`˜2â²?    }I‹,İ·?ÓãuÅ(æ?0Í–~äæ¿   &“É4;Àñx<F`ò@ûı~Ç˜L¨?    §7&¬²Ñ¥¿Ír†¾rµï?H{Õ¡ÒWÀ¿   H$Ùv3ÀH$á{@n·Û‰Q·±=     £:IÁ¼?5×26Zòë¿©]Sñ»_Ş?   8ƒÿ)Àï÷ûÕqµ@‡Ãá`ô°¿    Sº¯(Vy³?_fhàÛ¿ôñçì?   ÏçóI!À
+…j3ø@|>Ÿï=¶ª?    ½şr¥ŒH—¿ó\(àï?´òC).Éµ¿   ‰D"}ÂÀ:NŸ®4@ÇãñˆÇz·¿    .Íp|‘Ÿ¿=Éø`LŠë?-|ğCà?   ¯×ë…l÷Àãñx4%0@
+…BÉ)’·?    ÍS­ƒp÷ ¿HM‘1¬ì?Uâ™Í:¥Ş¿   ƒÁ`(àâÀƒ¡)ì@L&“‰Tì¿    ´mv¿ó-}4së? fƒ—$rà?   ™L&Ÿ3ÔÀûqÇ@İn·#‹²?    ÓÄ´ÜÎÖ»?ç$Ê! ì¿$m*ïÏİ¿   0¾FÄÀx<—ÂÊ@P(~´²¿    -&­C³À?bómì¿%—¥İ?   0Nâ»Àår¹¤R@‹Åbá£äæ>    Tµ8¹–/½?\}ğmeòì¿?®ãÒIÚ?   l6›am¬ÀªBA@ı~¿“ë¹¿    66ciƒ˜¿ÿw©Æ>ê?„ÍĞ3ÉJâ?   áp8ä1™Àz½^çiñ@ÿÿÿ‡é^›?    »p Yé¿ç–aşï?æÚI~´†?   H$]rÀ÷ûıÆd$@×ëõâº¸?    \ÂÂ”Üîœ¿†œ)q'/î?ÙfD1×,Õ¿   Åb±‰_ÀJ¥R‘ı@ŠÅbÙNˆ«¿    µbÌH ¿Ö0Dn/òï?ÏoïÂ¬İ¨?   "‘Hs\Àİn·ó3ú@Õjµv|§°¿    .ôŸõ%V»?ÿ1Šarí¿QÀ(ÀØ?   h4	 TÀp8ªá@N§ûp´?    óœ¨~dß»?Í—ã·Îì¿f\hûÚ¿   ‡Ãå~DÀ6›Í /@‚Á`íßö>    =ur¹?´=Rœ@í¿&ŞiÈn'Ù¿   *•JEª;Àÿÿÿ‡~s@P(ÒN¼¿    OÆJ–æñ¶?ÄÙ€]*¥Ü¿\ñÙğÀxì?   òx<F®Àù|>Şõ@&“Écq?    jÑÒÚ©ÏÌ?^sYFÎë?ÚØîÆ½ß?   ûı~ß~öÀ‚Á` p@@­V«%ËÅ¼?    áJwğ½Á?¾‘à„Ô¿š—%"Zî¿   ‚Á`Ø–ÇÀ„B¡¨1i@&“Éô§(½¿    BWCª?-¹<©`¾å?»–Ï¤kç?   Åb±ˆ‰¶À&“É¸ı@ûı~Ÿ·Sµ¿    9aì%®À?ÀÕùkÏíÛ¿4Jy}ì?   Åb±všÀËåriçE@Á`0XB%?    áºôw9·¶?ZŒqå¸í¿Áà¨«×¿   d2™|ùÀN§ÓQg@r¹\¦¨€´?    lµs»îÀ?s\uÿˆØ¿rº@í¿   T*•Ò&YÀÇãñÀv@Çã²£?    §*º¸Ó§¿D¢rÀ¨æï?æ@lNÉ6°?   ¡P(Dô*À$‰Ô@_Y”³¿    \¯g( ¥¿¬k9äï?HEî^bI²?   ù|>WÀ­V«¥iW@™L&ï©À?    ä/…=À?ê*S®hØ¿¢çÏZí¿   0V×µÀ
+…r¿•@ƒÁ`4…ÖÁ¿    óQê'­¯?l:(ˆÃôæ??ØV¯4æ?   T*•ZÅ°À2™L6¬3@‡Ã­}²¿    OÿWáÜ¶?/å6=0î¿úIÉÁqÔ?   Çã‘Û¬ÀÅb±0˜\@£ÑhüßÔ?    y‰Ä|Ào·?×œı¤¯î¿&HÔÔ.Ñ?   Ëår¹|ÀŸÏç›o@Çãá´ëš?    `H(5ïš¿´¹Ò¸/ñï?¹Ÿ‡¬«?   ÇãQk{ÀT*•J1@¯×ë}@»?    åNÉ:ùS¿?)³aÃëì¿mú*á‘?Ú¿   ×ëõ*÷UÀ:NgPa@ív»	úñÀ?    æE©ñlíŒ¿è	²º±–ì?l›²”9½Ü¿   R©TDDÀ³Ùl®¤@‰DZ¼õ´¿    ECFÓ7‰¿sÇ†wÜï?FÓ‰¯Ä›·?   r¹\&š¿ÀÙl6[@s@ÃápÀ\‚?    q #Hy’¸?¢Rù@î¿¶J ZíÓ?   ƒÁàh¾À@ @«@Åb± :»¿    Í­ö®	«À?“©˜ü-á¿üàÂŠƒ¬ê?   @€º¦À±X,n&H@Ùl6›Â<´?    õ-yŞò¸?C3Zr
+î¿ö1?&Õ¿   Ãáp9˜Àëõzuí@8ï¸š±?    ²N€=j¥?ieú7ë?¨$Îl’Çà¿   J¥RÁ"’ÀãñxÄÇ@\.—Çb^£¿    c1rÓ´ ¿0­We¾øï?£×¯×´5›?   Ïçó¹w|À‡ÃIÿq@Åb±ÀùÎÃ¿    ,>çä9z?FÃ8wí?>8qZõØ?   ƒÁ¨RbÀ‡Ãé•š@*•JM»Ä?    $<“šØ`¸?5Ë»ıRä¿6ÃSö'Áè¿   €@ ¸EÓÀÍf³Ò‰@år¹?    ÎÇ¹½?˜)£ƒªJî¿È‚‹PÓ¿   >ŸÏŸ#ÌÀï÷ûİk@
+…BY@IÄ¿    —ëK÷‰¥¿ûuLºàì?{¯üsÛ?   l6›5ÃÆÀßï÷›Ì'@ŸÏç+Ò¶¿    4ÃåÊ¡¿êH½í?û;Ä”Ú?   v»İ~ŒÄÀ¹\.Rù@V«Õş@Â¿    À9Ï|Õ$À?ÿã[û?Øİ¿Ìı²¹ì?   Ç»¨ÃÀŸÏç+P1@^¯×£Z"»?    Áï•Ù¿rÿ:oÊ«ï?pò~ÓÓğÁ¿   ù|>WîÂÀår¹ä$@áp8Œü‰?    ª’&¸µ ¿ÌY_¨aøï?°~ÔäÜœ¿   x<OÓÀÀ:šg@H$Å‡³¿    cê¢Òğõµ?…@†EÒ_î¿iÈÎ}`Ó?   Çûñ¼ÀÉd2ñÔ0@çóù¿½?     /Àİ5¹?×¢šHHã¿=ôìÄWé¿   ”J¥#NÀ\.—³|@ét:äÕ®?    jqıÆ§Êº?>S¬Õí¿úÏXé&Ö¿   ‡»-À¥R©tº™@P(Òõ!Æ?    1“ÀĞÚ@°¿=5.uÄìÙ?Aô¼¹/í¿   0Á À†Ãáb•@X,Ó²[Æ¿    §))”?d¡'§üì?óÉ6
+Û?   jµZehıÀçóù<%!@|>ŸŸËø§¿     9ƒ4?k¿™•¿ùï?@ÖÀù9?   Ûív“KïÀD"‘XT'@H$qç¡²?    tÔ ¿’4—¸\Üï?­Ï‹,s¶¿   @00çÀ‹Åb¡] @L&“I>è?    µè³ö¶¹·?tàë!v.î¿~Î(æzlÔ?   jµZ…Ë»ÀR©T.@©T*í;JÁ¿    ç!3BWº?åú«Ø¬ë¿zn*wß?   ‚Á`ğ¬±À4›Y@­V«e™»?    1él5¶#À?/9PN³9å¿„à<Hêšç¿   *•J58DÀ¡P(´3@>ŸÏgõ‹¸¿    lüÑÿ“z³?ö9#DOî?zDCõ_Ò?   t:F”$Àù|>wÎ"@—Ì%“?    Ìo±w£¿şQÇqCôï?Y>ëÖ¯G£¿   ‡ÃÙŞÀ }Š@,‹Í§­Ç¿    ô<'Fš‘È?ßœÓ¯uë?ºPoØzŞ?   Ñh4Â–ÀL&“ùO@P(B İÂ?    Õ)®,úºÑ?¬ÚW×0Tî?H+¶×9Ä¿   Éd2iñÀ‰D" å@B¡P êÇ?    1“ÀĞÚ@°¿=5.uÄìÙ?Aô¼¹/í¿   ñx<6aı
+ÀH$I…@D"‘¸³¶¿    /W~,ºÓ?R|\8İœê¿¼7©È©ùİ?   óù|Æ|û
+Àûı~Ïß¶@çóù”9º?    Ì%OŸûÖ?İÎUşÀÕì¿£dMª=Ï?   ›ÍfÓ„Õ
+ÀB¡Ppõ|@@ èŸ0»?    ç¸XkC¾?å.\UD1ç¿k¸å¿   Åb±ˆ‰Ô
+ÀX,Ë-@r¹\nÆÅ¿    ÊaÙQÑ?l™@h×¿Ï3Ûx@‡ì?   ù|>WÂ‚
+ÀX,<)@0G9Â¿    å›oFÛ?FLa Œì?`TÒÅ8Ã?   ûı~¯î\
+ÀÉd2)¥÷@ÓétÚûª¿    ÀŠ,1'Ú?UğSê6í?:G‰öÂµ?   :NÇùE
+Àßï÷«=ò@¯×ëEw­?    –=gÆÚ?èÁÉ³{Èì?Ÿ–V—ñ&À¿   2™L¦D
+À•J¥ª©‰@&“ÉŒ_¬Ì?    ØgÖGæĞ?;}Kç?ªÊ¤¿?ä¿   Óétêı0
+Àù|>Ï@±X,®Â*Í¿    WºÓ?˜Åbn§dé?+?S­şà?   $‰ÜO.
+À‰Dbah@ÿÿÿOónÆ?    £ÿI™ñ’É?©|®8°Ú¿.ÈZ_ì¿   ÓétÊ\)
+ÀÇãSê@Z­VC6â­¿    ³hMeW±Ô? â/6-Jì¿¤õö©™Õ?   ^¯×Ğ&
+Àl6›5şé@×ëõ
+ØÙ¯?    Z)¬ò7¶Õ?%µ¶)4ë¿ÿE×.wØ¿   F£Ñ$
+ÀÑh4Šry@Åb±ÈÌÅ¿    â_ı !Üä?6í’İ±ß¿«\pÔ£¨â?   õz½Ö³ğ	Àßï÷[Íø@F£ÑhÛnÄ?    ­³)ã?!Ú	ïå¢ç?«8SÏÓ¿   Íf³)·	ÀH$LÈ@ZFÂ¿    ßÙrù>Ü?RBåù7ì?#‹»#BÅ?   Çãñˆã“	Àív»…E¿@f³Ù$‹Ò?    Ôøß˜â?ºïO;JÚÁ?wê§é¿   v»İ~­’	À¥R©œÇğ@‹Í@Ò¿    - )äOå?SJÚ‡uÊ¿\Ì´í³æ?   ÿÿÿ÷’	Àáp8TÉ­@N§—®Ò¿    oWËÊz5ã?,¬9Â?'özí9/é?   ív»eF‘	À‰Dzx%@0†]™Ñ?    k)D”Êìä?^ƒh‘Ö¿¢LXX†kå¿   	…B!		À
+…BIÀ*@N§Ó™	’Ñ¿    F²’ !-æ?<ÉƒÚ]ğÕ¿18ô~Kä?   ƒÁm‹	À`0˜k@¹\.']jÒ¿    öMÿã?òâ6äĞ?u[‚9Mè?   @8‹	À0®‹‚@ëõz=gpÏ?    Ò)Kß>nã?8Öd’Söà¿m> ´ğâ¿   Ãáp(ÛŠ	À,‹#o@Éd29AMĞ¿    ï°şàş‚ä?7OÈAÆŞ¿ŞAä«ï$ã?   |>ŸÏ¤‰	ÀjµZåmc@t:ş"ZÒ?    l? â?ç)Â•¼¦Ş?(EºK4å¿   2™LnW†	ÀZ­Vëw²@:N0ñÌ¿    zCxüBã?zÁïØÜâ¿ÙŒÛ/7=á?   ÇÓ–„	À•J¥rCÛ@×ëõ*ÄºÉ?    hÆ«Úâ?Ô
+§Ìä¿n…½ç&»Ş¿   t:}‚	Àƒ¹İz@ dÅ^›¿    wÇ¯å]&ß?©(­ªíë?,BíLh£?   8Wk‚	ÀT*•‚Rí@n·Û½éÈ¿    «wEˆã?	­·:å¿O'ITnÚÜ?   Ñh4
+æ	À"‘HŒ§4@Ç#ĞËÑ¿    ô+?t®â?Ÿô5d ;Ş?ä2V’!å?   ï÷ûío	ÀÍf³²$	@©T*µ§yÂ?    –¨ÎsCã?÷³Bíğæ¿PËÏu0×¿   ûå~	Àİn·£-	@¡P(XÂ¿    ‹øüë?ã?Më[!ç¿¦-Ğ˜UÖ?   ¹\.'r{	À2™LŞAO	@•J¥Âı¸?    Ò(±Şiâ?çW…¬ é¿ãm¹÷Ğ¿   
+…zqz	À0Î±Y	@ÿÿÿŸ?tµ¿    ÿøÑ5â?J}‹ké¿D
+Ğh7Ë?   l6›E0z	ÀL&“Yu€@ÇãñhóHµ?    …vVêçã?ŞO)á+®è?,òOZDÁ¿   áp84wx	À¹\.×—i	@|>ŸO{M¨?    06~yÎMâ?m/ˆ„òé¿2ÊgÊS³¿¿   t:>	x	Àóù|ïk	@p8®¢¤¿    "`Á¸`â?Us÷+€ê¿ƒ­½ñes¸?   ¿ßï†w	ÀL&“ÑUp	@öz½-›¾    é¯ÌÜíâ?N‚ÅØÌé¿g]Xæx¿   p8çq	À2/	@jµZ•™÷Ğ?    A0´8]nã?¯#bŒ~Ğå?}›}#³Ú¿   ÃápØég	À@ €üï@F£™ƒĞ¿    ­™¥Ajæä?>ö^İ­¼å?Âxs«)kÕ?   ¡P(„‘:	À‹Åbi—–@Ïçó¹ÅË?    “ó,Ëã?ˆÔZãÜå?8âîÅÖØ¿   	…B‰ê7	À`0‘@z½^×á÷Ë¿    ²“gÀå?}‚Æõ
+å?z}]à%ÌÔ?   Ûív+‹	À|>Ÿ¿ÚM@
+…BÈÆ?    ¥àfÒ~-å?Oõb×Ìæ?%P¡rh×Í¿   ßï÷[é	ÀÁ`0(ÖC@z½^oÕÆ¿    ·pzÉ\`å?×¡íA°òå?oEf¬yÒ?   8?	Àh4MÂ!@İn·#¤Ã¿    –r\gìnå?<NùÂmpæ?‚asDÏ?   J¥R	ØøÀı~¿g @N§ÓMgÂÀ?    Ë˜È¦òLç?Ls å?–R<™Ç¿   ßï÷ÃbôÀÕjµBs@~¿ß7jª¿¿    —äÀz«æ?ğò
+Üæ?Ù­ˆsÂ?   "‘H¬øéÀÛív»íé@‘H$
+û¶?    «Ëòúç?»¢3Û»å?	ô4Á¿   áp8”VéÀÇãÕç@¥R©„S·¿    Ü˜ı|ç?G7–'¨yå?<}TÙ‰¬º?   år¹dYâÀn·ÛMšÓ@€@ @{’¨?    Fş0wç?g2Q‹Şªå?¶í$¿‹¯¿   ^¯×+ÑßÀ‡ÃQîÌ@ËårÁ»Ñ>    Ï~ie¥Mç?¼Í¡1:íå?0§‘)õïŠ?   ~¿ß™ßÀÇãñÀºÓ@‹Å*»¹¦¿    +³I 1ç?¿àñ¢æ?ªûFà¯?   ûı~¯î\
+ÀÉd2)¥÷@ÓétÚûª¿    ¨'ºÉ	AÄ?5`@/Èî?X§9á³„Ì?   ù|>WÂ‚
+ÀX,<)@0G9Â¿    ¨'ºÉ	AÄ?5`@/Èî?X§9á³„Ì?   Íf³)·	ÀH$LÈ@ZFÂ¿    Á¾MmYfå?Vm{9f¢å?‘Ä(ˆšÌÓ?   t:}‚	Àƒ¹İz@ dÅ^›¿    üNŞ5HÖç?$JÍÜÀää?ÌéJÁ?   t:F”$Àù|>wÎ"@—Ì%“?    ñÆy4Ë?’†šÑDï?™[Ç«›]?   :NÇùE
+Àßï÷«=ò@¯×ëEw­?    ñÆy4Ë?’†šÑDï?™[Ç«›]?   l6›E0z	ÀL&“Yu€@ÇãñhóHµ?    5	¬2¸¹ç?š“>¼Vmå?¨¶›B …¦¿   ù|>WÂ‚
+ÀX,<)@0G9Â¿    ‘iKHI=×?p6è?2Ğ6:fá?   Íf³)·	ÀH$LÈ@ZFÂ¿    ‘iKHI=×?p6è?2Ğ6:fá?   jµZehıÀçóù<%!@|>ŸŸËø§¿    
+êÎ´u¿?×d¨.8í?¬ıBZpáØ?   Óétêı0
+Àù|>Ï@±X,®Â*Í¿    ş’˜]Æâ?¸¨e,ÖhØ?¦Gc]
+ç?   0Á À†Ãáb•@X,Ó²[Æ¿    ­ÚQh=>Ã¿Vß°–Y«ì?t	 :«ÀÚ?   jµZehıÀçóù<%!@|>ŸŸËø§¿    ­ÚQh=>Ã¿Vß°–Y«ì?t	 :«ÀÚ?   *•J58DÀ¡P(´3@>ŸÏgõ‹¸¿    Ëf ê˜OÑ?'ç|¡Áë?(ÛÉ¶“¡İ?   õz½Ö³ğ	Àßï÷[Íø@F£ÑhÛnÄ?    J2G%VÒ?ìEj-Lî?EsF_ÃÂ¿   Ñh4Â–ÀL&“ùO@P(B İÂ?    ¿à™=Î$±¿ Ï €ï?æty*FÕÄ¿   õz½Ö³ğ	Àßï÷[Íø@F£ÑhÛnÄ?    ØgÖGæĞ?;}Kç?ªÊ¤¿?ä¿   Ñh4Â–ÀL&“ùO@P(B İÂ?    ØgÖGæĞ?;}Kç?ªÊ¤¿?ä¿   ÿÿÿ÷’	Àáp8TÉ­@N§—®Ò¿    ƒÑ-ÕÃä?ej8¦Ñ§À¿Ÿ£&7ıç?   Óétêı0
+Àù|>Ï@±X,®Â*Í¿    ƒÑ-ÕÃä?ej8¦Ñ§À¿Ÿ£&7ıç?   R©TDDÀ³Ùl®¤@‰DZ¼õ´¿    Ft"G‘¿À¿æı<`‘í?s-L` ×?   J¥RÁ"’ÀãñxÄÇ@\.—Çb^£¿    Ft"G‘¿À¿æı<`‘í?s-L` ×?   ¡P(Dô*À$‰Ô@_Y”³¿    ˆ=ŒÂ*†™?û»¾şo!æ?™İ™ïŠç?   ƒÁ`(àâÀƒ¡)ì@L&“‰Tì¿    @6ãæ
+®¿œ,øİAîï?ÕšıJr?   2™L¦D
+À•J¥ª©‰@&“ÉŒ_¬Ì?    Ï²08-Ûâ?=ôš¬–zæ?nû$Ù´‹Ù¿   Ïçó¹w|À‡ÃIÿq@Åb±ÀùÎÃ¿    bæ¤/ûÉ?ÇdUBüÛ¿7f²U5	ì?   Ñh4Â–ÀL&“ùO@P(B İÂ?    1“ÀĞÚ@°¿=5.uÄìÙ?Aô¼¹/í¿   ‡ÃÙŞÀ }Š@,‹Í§­Ç¿    ÓœÕÉÔ?§¯W>Ö¿œêĞGì?   Óétêı0
+Àù|>Ï@±X,®Â*Í¿    ÓœÕÉÔ?§¯W>Ö¿œêĞGì?   ‡»-À¥R©tº™@P(Òõ!Æ?    .>Ä0`¦?İœ[_/ã¿”f¸ş¯’é¿   2™L¦D
+À•J¥ª©‰@&“ÉŒ_¬Ì?    X”dN‰~ß?;îçŸ‹æÕ?ô0œdé¿   Ñh4Â–ÀL&“ùO@P(B İÂ?    X”dN‰~ß?;îçŸ‹æÕ?ô0œdé¿   Éd2iñÀ‰D" å@B¡P êÇ?    X”dN‰~ß?;îçŸ‹æÕ?ô0œdé¿   p8çq	À2/	@jµZ•™÷Ğ?    l? â?ç)Â•¼¦Ş?(EºK4å¿   áp8ä1™Àz½^çiñ@ÿÿÿ‡é^›?    ¯\AK§?&ßµ3Ö°í?“¹ê‹Z°×¿   Åb±ˆ‰Ô
+ÀX,Ë-@r¹\nÆÅ¿    bu<ÏtdÙ?6Àë˜_%ç¿X¦şÊÆâ?   F£Ñ$
+ÀÑh4Šry@Åb±ÈÌÅ¿    bu<ÏtdÙ?6Àë˜_%ç¿X¦şÊÆâ?   ív»9:WÀÕjµ¨î@¯×ë±šğ¢¿    - ¦0 À?õ!‘­à¿­ÍŒUôıê?   Ç£±À€@ €Øç@jµZıÓŸ?    ¨üO=©¼?³ÕÑåÈ¬À¿BJ	—=†ï¿   `0DÒÙÀñx<Æ¨@ñx<²¬³p¿    ¾÷\ÆÎ ?…ndÍ¿E~|ÇU%ï¿   ñx<æĞbÀŸÏçã$O@­V«¥Ö$y¿    ¾÷\ÆÎ ?…ndÍ¿E~|ÇU%ï¿   <+‹Àáp8$2@FË?    t„HOÅ?ø&æ¤àæ¿S
+MÆ»å¿   |>ŸÏ¤‰	ÀjµZåmc@t:ş"ZÒ?    Ôøß˜â?ºïO;JÚÁ?wê§é¿   Åb±ˆ‰Ô
+ÀX,Ë-@r¹\nÆÅ¿    Va?¡×Ë¸?oÊB£Šcê¿­?RKÕá?   ñx<6aı
+ÀH$I…@D"‘¸³¶¿    Va?¡×Ë¸?oÊB£Šcê¿­?RKÕá?   {½^?iêÀF£Ñ¸¹—@ëõze §¿    2’ù(½?ç¡{jÊaì¿F„Hî¥Ü?   2™L¾ğÀz½^¼C@ ˜äA¢?    ­*gıÖ0¾?8[(é¿	âè£iã¿   •J¥šõüÀt:v6t@áp8ÜwY¿     n56Qß–?`€{'G¿¿÷	63‘Àï¿   2™L¦D
+À•J¥ª©‰@&“ÉŒ_¬Ì?    Ğæ*^€ä?Nq·“¸ÍÏ¿ïÂQÎƒ?ç¿   Çãñˆã“	Àív»…E¿@f³Ù$‹Ò?    Ğæ*^€ä?Nq·“¸ÍÏ¿ïÂQÎƒ?ç¿   ÓétÊ\)
+ÀÇãSê@Z­VC6â­¿    ~É¶¯áWâ?‘_ß1¸è¿ñC×G}Ñ?   ƒÁàh¾À@ @«@Åb± :»¿    ¡1Â‡ßÆ?*0üô/í¿û…x¶×?   ‰D"ı*„À4^³@$‰©Nª¿    “ˆÅæÁ]¸?ÛãÂÂ=šë¿õõi
+Íß?   8ƒÿ)Àï÷ûÕqµ@‡Ãá`ô°¿    “ˆÅæÁ]¸?ÛãÂÂ=šë¿õõi
+Íß?   H$Ùv3ÀH$á{@n·Û‰Q·±=    ãµ‰…Ë¿?7Æ@µ$ë¿ãÖ(é
+»ß¿   ñx<6aı
+ÀH$I…@D"‘¸³¶¿    Ì%OŸûÖ?İÎUşÀÕì¿£dMª=Ï?   r¹\&š¿ÀÙl6[@s@ÃápÀ\‚?    ÃÛdnq·?!yÛ8­î¿6vñFù>Ñ¿   2™L¦D
+À•J¥ª©‰@&“ÉŒ_¬Ì?    £ÿI™ñ’É?©|®8°Ú¿.ÈZ_ì¿   Éd2iñÀ‰D" å@B¡P êÇ?    £ÿI™ñ’É?©|®8°Ú¿.ÈZ_ì¿   $‰ÜO.
+À‰Dbah@ÿÿÿOónÆ?    B:ü“‡Òå?vd²ÿT¢Ö¿]Ö¨H|ä¿   Éd2iñÀ‰D" å@B¡P êÇ?    ç¸XkC¾?å.\UD1ç¿k¸å¿   $‰ÜO.
+À‰Dbah@ÿÿÿOónÆ?    Óıí€?ØØ?)®tošLç¿„Šâ¿   Éd2iñÀ‰D" å@B¡P êÇ?    Óıí€?ØØ?)®tošLç¿„Šâ¿   ›ÍfÓ„Õ
+ÀB¡Ppõ|@@ èŸ0»?    Óıí€?ØØ?)®tošLç¿„Šâ¿   óù|Æ|û
+Àûı~Ïß¶@çóù”9º?    $¾m*ãØ?3œfMÅßë¿çaù3Ó¿   ›ÍfÓ„Õ
+ÀB¡Ppõ|@@ èŸ0»?    $¾m*ãØ?3œfMÅßë¿çaù3Ó¿   ^¯×Ğ&
+Àl6›5şé@×ëõ
+ØÙ¯?    ©±–I/Î?ò{içï¿Ê˜[Ä¢n¿   óù|Æ|û
+Àûı~Ïß¶@çóù”9º?    ©±–I/Î?ò{içï¿Ê˜[Ä¢n¿   ÓétÊ\)
+ÀÇãSê@Z­VC6â­¿    ©±–I/Î?ò{içï¿Ê˜[Ä¢n¿   ^¯×Ğ&
+Àl6›5şé@×ëõ
+ØÙ¯?    ’LÌö²ã?|öMoEæ¿æ±²½½¨×¿   $‰ÜO.
+À‰Dbah@ÿÿÿOónÆ?    ’LÌö²ã?|öMoEæ¿æ±²½½¨×¿   ^¯×Ğ&
+Àl6›5şé@×ëõ
+ØÙ¯?    §†„2±â?¤ÿè8ìé¿8PÅ9Ş©¿   ÓétÊ\)
+ÀÇãSê@Z­VC6â­¿    ×ƒ’“[ã?YEàßØzé¿ÌŸ·<ö}¿   ‚Á`ğ¬±À4›Y@­V«e™»?    ¿@.©”Ã?¥l$yUî¿$DgàÑ¿   Çã‘Û¬ÀÅb±0˜\@£ÑhüßÔ?    ÈQ±–?q·?eÈËœ9­î¿lŞgá÷>Ñ¿   Çûñ¼ÀÉd2ñÔ0@çóù¿½?    n‚)B*º?æ“'Ğ¡ë¿|ST³Ñœß¿   0Nâ»Àår¹¤R@‹Åbá£äæ>    Y4;†O,¶?‰Mµ´í¿m¦ƒkoÚ¿   d2™|ùÀN§ÓQg@r¹\¦¨€´?    ?ÅiÁ~¬?Wm¥tHí¿UìÊ#‘Ù¿   €@ ¸EÓÀÍf³Ò‰@år¹?    —ÙK¼;¯·?–®Pï¿ÚÆ’Z„QÍ?   @€º¦À±X,n&H@Ùl6›Â<´?    Æù•‹cÅ?&—íM2ä¿M?ú¶=è¿   h4	 TÀp8ªá@N§ûp´?    ä'†ÚJ»Æ?ÌçdëÉ¿<{­IÑî¿   H$]rÀ÷ûıÆd$@×ëõâº¸?    ä'†ÚJ»Æ?ÌçdëÉ¿<{­IÑî¿   "‘H,_ºÀ­V«}4×@ãñxd$µR?    jÎ¶”»ö¬?ÉZ¾Ó¿à´+æ§bî?   >ŸÏkGAÀ—Ëåòì¬@ãñxd$µb?    jÎ¶”»ö¬?ÉZ¾Ó¿à´+æ§bî?   ™L&Ÿ3ÔÀûqÇ@İn·#‹²?    \‚²ej³?>Ö8Ùğ+Æ¿3ZEÀ6lï¿   "‘Hs\Àİn·ó3ú@Õjµv|§°¿    º¥UÉ÷¡À?‡§·`Uà¿±ı4Ó3ë?   ‹Åb]PXÀ€@  ç­@ÿÿÿ×¨›¯?    Š—O›<•»?:¶{ŒSÓ¿!u¤Y†Oî¿   ¯×ë…l÷Àãñx4%0@
+…BÉ)’·?    Š—O›<•»?:¶{ŒSÓ¿!u¤Y†Oî¿   Åb±všÀËåriçE@Á`0XB%?    ¡hÆÎo·?
+¿¯î¿¯†¦Ô.Ñ?   Z­V«/ÈÀûı~¥‚@’Édª¶l?    d73Â¹ö¬?ß1·Èn¾Ó¿iD‹¤bî?   4şOÀ`0,^X@ãñxd$µr?    d73Â¹ö¬?ß1·Èn¾Ó¿iD‹¤bî?   ƒÁØ¥ıÀjµZ]–Y@ñx<¦S÷>    d73Â¹ö¬?ß1·Èn¾Ó¿iD‹¤bî?   Z­VË^ÜÀ@(İ@­V«ıj…g?    ØE®¡ö¬?]@ÂU¾Ó¿û,RÏ¨bî?   §ÓéD½âÀ>ŸÏ‡£@¿ßï§¼~?    ÄÑr²cß–?;£“°(G¿¿"7}şÀï¿   ‹Åş¢oÀÓétÒB@­V«5¹Àt¿    ‘Îğ%Ê?ğGÊA½î¿‚Ğ6§úÈ?   @`­oÀz½^•C@f³ÙœrS¿    ‘Îğ%Ê?ğGÊA½î¿‚Ğ6§úÈ?   0¾FÄÀx<—ÂÊ@P(~´²¿    ­­?©ì·‰ÇAá¿¶öåòâê?   ^¯×u)À<WñŞ@jµZ¶?    /ÏR¥?OÅ?W.Mè àæ¿"Õ%Ò»å¿   •J¥¾Àét:½Š!@“Éd5Ó±?    Ò¿!ÚXÁ?æ^;½Õ¿–ìé±…Èí¿   <‹gÀ­V«·j@Íf³!ª·¦?    Ò¿!ÚXÁ?æ^;½Õ¿–ìé±…Èí¿   L&“a^âÀëõz­ê@¡P(L„Œk¿    ¼M–•°Î ?OTvùÍ¿‘ˆW%ï¿   ƒÁ¨RbÀ‡Ãé•š@*•JM»Ä?    L#yEt«³¿
+lLşUê?•N@©â¿   v»İ~ŒÄÀ¹\.Rù@V«Õş@Â¿    õ‹¿?Ìë@ÿè¿¨ùbéş˜ã?   x<OÓÀÀ:šg@H$Å‡³¿    õ‹¿?Ìë@ÿè¿¨ùbéş˜ã?   ‚Á`Ø–ÇÀ„B¡¨1i@&“Éô§(½¿    S
+Á'ñÍ?±ŞÔë¢Ù¿Èw,SYì?   0V×µÀ
+…r¿•@ƒÁ`4…ÖÁ¿    S
+Á'ñÍ?±ŞÔë¢Ù¿Èw,SYì?   .—Ëõ‡0À`04ŸÉ@l6›ÑKeƒ?    Ñ‡.‚2Q¿tíYóï?Š%ª›o¬¿   ×ëõvç`Àßï÷“IÇ@8§z¾„¿    Ñ‡.‚2Q¿tíYóï?Š%ª›o¬¿   ³ÙlVâ¶À·Ûí–kÊ@P(²Úi“?    Ñ‡.‚2Q¿tíYóï?Š%ª›o¬¿   <“9ÀP(Jœı@L&“Éàr¦?    ‘Øó>/–?N&®€7å?Ú„ä¿'è¿   Ûív;üıÀ`0\…è@˜8’¿    ²< A´!?jdÚ*]¸á? m²CO¥ê?   ÃápØÔÇÀ‰D²°±@ƒÁ ¦S?    ²< A´!?jdÚ*]¸á? m²CO¥ê?   Ç/¸ŸÀ‡ÃÙGb@›Íf§£¿    ¤*r½ ô¸?“|ÜR-á¿~W}ê®Ñê?   ™L&£ñGÀï÷û½}Š@Õjµ H¢¿    ¤*r½ ô¸?“|ÜR-á¿~W}ê®Ñê?   ív»9:WÀÕjµ¨î@¯×ë±šğ¢¿    {¼„
+´?ã?»sä?ÓSŞô?rè?   FwW»Àt:3+@\.—#Ş½³¿    Ø§Ø¤º}µ?]3û¼ˆç?¦Ğo 'ùå?   {½^O@Àı~¿Ÿh1@B¡P ½€°¿    Ø§Ø¤º}µ?]3û¼ˆç?¦Ğo 'ùå?   d2™tçüÀ»İn÷$r@€@ €2»{¿    ,»ŠwY ¸?ÏÄ&ßíà¿ÎíEéúê?   Çãñt4;À0ÍÛ@¥R©:¯œ¿    !‡àfª ?íÀ@¡Gå?‚¹¡ è?   Ùl6»bâÀp8nB@X,[W©¿    ÚÃµ‘Â?BÀœÚ¿œÁïõºì?   Ïçó¹w|À‡ÃIÿq@Åb±ÀùÎÃ¿    AÒ»•’>Ã?EßÌÒ)è?	UWe’kä?   R©TDDÀ³Ùl®¤@‰DZ¼õ´¿    AÒ»•’>Ã?EßÌÒ)è?	UWe’kä?   p8>C,ÀÉd2™ÄÌ@»İnÏ¾Ş?    aAhÚs«˜¿†˜,®ë? Âö¥œ	à¿   "‘Hd­×À·ÛífP»@Z­V6Œi¿    aAhÚs«˜¿†˜,®ë? Âö¥œ	à¿   ÃápØÔÇÀ‰D²°±@ƒÁ ¦S?    aAhÚs«˜¿†˜,®ë? Âö¥œ	à¿   d2™¤{éÀZ­V+6ã@ş~¿¼¡¿    õOÄ¿ffíB…ï?“ÏÛsJ±?   Ãáp9˜Àëõzuí@8ï¸š±?    M§V²¿ºø“ïiåï?ÅöåÍ¤¿   ¡P(Dô*À$‰Ô@_Y”³¿    jÑÒÚ©ÏÌ?^sYFÎë?ÚØîÆ½ß?   ‚Á`Ø–ÇÀ„B¡¨1i@&“Éô§(½¿    jÑÒÚ©ÏÌ?^sYFÎë?ÚØîÆ½ß?   l6›5ÃÆÀßï÷›Ì'@ŸÏç+Ò¶¿    uCm¿1ß~:sâï?_¶ŒK~´µ?   Åb±‰_ÀJ¥R‘ı@ŠÅbÙNˆ«¿    ˜ƒ¨qôVÌ¿mL§í?é“zÜñ–Ö?   òx<F®Àù|>Şõ@&“Écq?    ˜ƒ¨qôVÌ¿mL§í?é“zÜñ–Ö?   ‚Á`Ø–ÇÀ„B¡¨1i@&“Éô§(½¿    ˜ƒ¨qôVÌ¿mL§í?é“zÜñ–Ö?   ÕjµNßaÀÏçó	†V@¯×ëe‘.¶¿    É/;s³¿Gg/ÛœÈä?dLÔ6è?   {½^ûŒ[À›ÍfÛeë@Ãáp Š¥¿    É/;s³¿Gg/ÛœÈä?dLÔ6è?   {½^ûŒ[À›ÍfÛeë@Ãáp Š¥¿    .fDUY¿¿ş	Xq6Âï?f(p&œ@w?   ñx<r€ÄÀp8Ş–å@ív»Á{¡?    †±¶¸š˜¿~“ô—šJï??~V+"Ê¿   õz½vM
+Àù|>ÄÓ@§Óéœ‚ü?    †±¶¸š˜¿~“ô—šJï??~V+"Ê¿   ív»9:WÀÕjµ¨î@¯×ë±šğ¢¿    Àá\éÊ¿˜|ÇOï?˜Q?×äÒŸ¿   "‘Hd­×À·ÛífP»@Z­V6Œi¿    Àá\éÊ¿˜|ÇOï?˜Q?×äÒŸ¿   Ùl6»bâÀp8nB@X,[W©¿    »WÏ®ˆÕ¿qo©î?nÙRO«Á­?   ‰D"}ÂÀ:NŸ®4@ÇãñˆÇz·¿    ‚dµ†—”¿`Ú†ˆ‡Ø¿š@Ğõ¸Œí?   d2™¤{éÀZ­V+6ã@ş~¿¼¡¿    ¢•æ©7ü½¿Ú÷[vRê?w~™¦Îá?   üı~P•À™L&‹ÏÜ@8GmŠ¿    ¢•æ©7ü½¿Ú÷[vRê?w~™¦Îá?   h4%½4Àı~¿§”ä@³Ùl"‰l£?    ÄŒqU…?bòºê•$ç?Â´Ióæ¿   ¯×ë…l÷Àãñx4%0@
+…BÉ)’·?    Êİ!£Î¹®?´jr<ã?[Xmœ€é¿   Ëår¹|ÀŸÏç›o@Çãá´ëš?    ËÎåÒw ²?$Ş9qßKí?ĞeÆ÷nRÙ¿   ‡»-À¥R©tº™@P(Òõ!Æ?    à½&3¬²?ÈÁ$è?ş/`?áä¿   Ç»¨ÃÀŸÏç+P1@^¯×£Z"»?    à½&3¬²?ÈÁ$è?ş/`?áä¿   îÀét:¥hÔ@™L&s°µš?    1Œ ¼K®?¦òî?G²ºòé[Õ?   ³ÙlVâ¶À·Ûí–kÊ@P(²Úi“?    ÀÈ,Í?mj×[5è? aF*ÇÉã?   ×ëõvç`Àßï÷“IÇ@8§z¾„¿    ÀÈ,Í?mj×[5è? aF*ÇÉã?   ÇãQk{ÀT*•J1@¯×ë}@»?    YâÊ{³£?çI×ÀÑ>Ô¿Á…n“Uî¿   ×ëõ*÷UÀ:NgPa@ív»	úñÀ?    YâÊ{³£?çI×ÀÑ>Ô¿Á…n“Uî¿   òx<F®Àù|>Şõ@&“Écq?    ^0ºnT±¿knñ‘Qî?øÖ&rEÔ¿   ûı~ß~öÀ‚Á` p@@­V«%ËÅ¼?    D$?%¶°¿D¤Ş´`î?(Å¡u/¶Ó¿   T*•ZÅ°À2™L6¬3@‡Ã­}²¿    Õ®"“³°Ã?]»/ä‡å¿[.—~#ˆç?   0V×µÀ
+…r¿•@ƒÁ`4…ÖÁ¿    Õ®"“³°Ã?]»/ä‡å¿[.—~#ˆç?   0Á À†Ãáb•@X,Ó²[Æ¿    ØŠ¦SÊ¨?Œ÷ •©€ß¿g* ÒÏë?   jµZ…Ë»ÀR©T.@©T*í;JÁ¿    ØŠ¦SÊ¨?Œ÷ •©€ß¿g* ÒÏë?   ƒÁàh¾À@ @«@Åb± :»¿    s!™…ŞÀ³?­@k[òé¿K„ÄôLµã?   Åb±°UÀ~¿ß¯Íá@.—ËE1/[¿    '“TmÎ ?äıâ+³Í¿jÁ[%ï¿   ÃápØÔÇÀ‰D²°±@ƒÁ ¦S?    '“TmÎ ?äıâ+³Í¿jÁ[%ï¿   T*•zÓPÀ¿ßïÏ,æ@ñx<V…`¿    '“TmÎ ?äıâ+³Í¿jÁ[%ï¿   ù|>WÀ­V«¥iW@™L&ï©À?    ¿<¸Ówå®¿drt©Zí?}Èı´2Ù¿   T*•Ò&YÀÇãñÀv@Çã²£?    ¿<¸Ówå®¿drt©Zí?}Èı´2Ù¿   d2™tçüÀ»İn÷$r@€@ €2»{¿    œ)…è½Î ?„XvUÍ¿k®ÅV%ï¿   ét:MeâÀƒÁ€ó@×ëõºÚâH¿    !P=4ù%Ê?7LÜ€@½î¿Ø9ñÎıÈ?   µZ­IUÀ(
+ªÛ@b±XT1i?    ¢s»[ß–?wŒ(G¿¿)³z ‘Àï¿   V«ÕUÀƒRâ@H$Q m7¿    ¢s»[ß–?wŒ(G¿¿)³z ‘Àï¿   "‘H8ğàÀF£é@õz½>#¥ª?    ûè'S™¿?‰£·òÏÙ¿8ãß[Øí¿   ±X,*$À„B¡8Û4@f³ÙtÖ#µ?    ûè'S™¿?‰£·òÏÙ¿8ãß[Øí¿   p8>C,ÀÉd2™ÄÌ@»İnÏ¾Ş?    ğ˜a=©¼?,ĞjË¬À¿*~=†ï¿   n·Û96À^¯×+Ùº@áp8ÜwI¿    Ôºõ!&ß–?ŞîF¿¿=xğ‘Àï¿   §ÓéXÀ‡‰­@N§Ó±§Sç>    Ôºõ!&ß–?ŞîF¿¿=xğ‘Àï¿   ÷ûı‹ÀƒÁ ƒ@ív»1½~ñ>    ¨°0Ïºö¬?¥2MÑb¾Ó¿ Ã¤{¦bî?   ñx<6aı
+ÀH$I…@D"‘¸³¶¿    ìÀÒz·?•Á¹½î¿µ×ıÇĞ?   óù|Æ|û
+Àûı~Ïß¶@çóù”9º?    ìÀÒz·?•Á¹½î¿µ×ıÇĞ?   V«Õ¢¦À2™Lv‚×@Ù©S×>    6bÀrö¬?m·.5¾Ó¿Á®«/®bî?   H$Ùv3ÀH$á{@n·Û‰Q·±=    6bÀrö¬?m·.5¾Ó¿Á®«/®bî?   Åb±ˆ‰¶À&“É¸ı@ûı~Ÿ·Sµ¿    İá}¡?°? Â
+1.Gå¿÷ääîsĞç?   ‡Ãå~DÀ6›Í /@‚Á`íßö>    hÍRË|‹¶?IÅ§`”…í¿3â|Ø?   Åb±ˆ‰¶À&“É¸ı@ûı~Ÿ·Sµ¿    hÍRË|‹¶?IÅ§`”…í¿3â|Ø?   ÇãQk{ÀT*•J1@¯×ë}@»?    Äèä;úB¡?Y8áá¦lå¿æ†¿¾ç¿   Ñh4Â–ÀL&“ùO@P(B İÂ?    ÊXXùÁÙÃ?­>#i8ì?ã÷`l•~Ü¿   Ûív“KïÀD"‘XT'@H$qç¡²?    ÊXXùÁÙÃ?­>#i8ì?ã÷`l•~Ü¿   @00çÀ‹Åb¡] @L&“I>è?    ±ƒÕ3ı¶?7Ø™Ñî¿Çİ}ŠÂÕ¿   óù|Æ|û
+Àûı~Ïß¶@çóù”9º?    ±ƒÕ3ı¶?7Ø™Ñî¿Çİ}ŠÂÕ¿   ƒÁ¨RbÀ‡Ãé•š@*•JM»Ä?    ­gÃ@DĞ?Éc†Bö¥Ğ¿Îc÷WÏí¿   F£Ñ$
+ÀÑh4Šry@Åb±ÈÌÅ¿    Y¤«)Ùüã?é/ —‹?æ¿òIó¨ÂÖ?   `0ô•ŠÀ§Óéä‡—@©T*å6S¿    °(öu6uÀ?›mû+…ë¿awşX¢à?   •J¥šõüÀt:v6t@áp8ÜwY¿    °(öu6uÀ?›mû+…ë¿awşX¢à?   Ç/¸ŸÀ‡ÃÙGb@›Íf§£¿    °(öu6uÀ?›mû+…ë¿awşX¢à?   
+…¢1pÀT*•òœ/@8÷(ı>    XDEˆºö¬?E±Sf¾Ó¿4e‰ö¥bî?   ÏçóI!À
+…j3ø@|>Ÿï=¶ª?    ßĞâ&¸¢~¿17Œí‹ì?1NõMƒêÜ¿   ©T*¹>DÀ«Õj%Æ@ƒÁ`˜2â²?    ßĞâ&¸¢~¿17Œí‹ì?1NõMƒêÜ¿   >ŸÏŸ#ÌÀï÷ûİk@
+…BY@IÄ¿    g_‚ª;™Î?´UÚ¤ÒIÍ¿íªL¬z2î?   0Á À†Ãáb•@X,Ó²[Æ¿    g_‚ª;™Î?´UÚ¤ÒIÍ¿íªL¬z2î?   v»İ~ŒÄÀ¹\.Rù@V«Õş@Â¿    g_‚ª;™Î?´UÚ¤ÒIÍ¿íªL¬z2î?   ‡ÃÙŞÀ }Š@,‹Í§­Ç¿    ùvêÇ©?É]«Œß¿™:7ê¶Ëë?   F£Ñ$
+ÀÑh4Šry@Åb±ÈÌÅ¿    HYÜ9ùÍ?–ÿ®/Û¿¿¤À|Æûë?   L&“ÙïÀív»âß@ƒ)ÃÊ¡?    +÷”9½Å‰?KØR¶ü„ç?…p¯½é±å¿   Ñ‹’À±X,¶Ê@Ïçó))“¬?    +÷”9½Å‰?KØR¶ü„ç?…p¯½é±å¿   îÀét:¥hÔ@™L&s°µš?    9éµµ«pu¿ÚºVZıë?é®¯Ğ÷ß¿   ³ÙlVâ¶À·Ûí–kÊ@P(²Úi“?    9éµµ«pu¿ÚºVZıë?é®¯Ğ÷ß¿   ‡Ã½ÏõÀN§€×@Ûív{v!?    9éµµ«pu¿ÚºVZıë?é®¯Ğ÷ß¿   jµZ…Ë»ÀR©T.@©T*í;JÁ¿    ¿^Æ3Ô2Ğ?ZY/­Ô¿«t!›P.í?   Ùl6»bâÀp8nB@X,[W©¿    ­!ª{i_¿rNMf¡â?ZÆpê?   òx<F®Àù|>Şõ@&“Écq?    @‰Yt¿Ua€Míï?Çû P¬=±?   l6›am¬ÀªBA@ı~¿“ë¹¿    hü°‚¨½?a¯ö hÖ¿ßÆÕ‹Ÿ¾í?   Åb±‰_ÀJ¥R‘ı@ŠÅbÙNˆ«¿    i˜»H§?ı™¢Á6ë?|B|ı×Åà?   Ûív“KïÀD"‘XT'@H$qç¡²?    ê2¨ã·¿¿ck^Fç4ë? Ó„ƒ_à¿   ÃápØég	À@ €üï@F£™ƒĞ¿    wD}–â?ºuSèßØá?slZAùâ?   *•J58DÀ¡P(´3@>ŸÏgõ‹¸¿    T]şÖÎ?c²0íİï?Ã®¬³£¢?   Óétêı0
+Àù|>Ï@±X,®Â*Í¿     (æ¨µ¦ã?üÚú¡øæ?NÕè¢ıÔ?   *•JEª;Àÿÿÿ‡~s@P(ÒN¼¿    ?’>[D¼¿øc,ÿe%ç?AŠTïÏå?   D"‘t¤¦Àét:EÑ@V«ÕJÇ¶†?    n?]¡áÕ ¿gÑcÛî?7ø¼DpÔĞ¿   h4Ù¨qÀ[åÌ@F£Ñ°g¿    n?]¡áÕ ¿gÑcÛî?7ø¼DpÔĞ¿   }>ŸÖ¥À‹År*Ş@áp8Üw9¿    »Ç	ß–?F-ËÒkG¿¿õ
+„îÀï¿   H$Ùv3ÀH$á{@n·Û‰Q·±=    »Ç	ß–?F-ËÒkG¿¿õ
+„îÀï¿   @ ˜¥iÀ£Ñh$\Û@h4QAS?    ÿg£Ğrö¬?şN…5¾Ó¿6\Ä-®bî?   ÃápØÔÇÀ‰D²°±@ƒÁ ¦S?    ÿg£Ğrö¬?şN…5¾Ó¿6\Ä-®bî?   ÃápØÔÇÀ‰D²°±@ƒÁ ¦S?    
+4Õú%Ê?<ÁÍlR½î¿ex“È?   »İno À
+…Bq;Ï@N§Ó!J4•?    9¿ºŒŠ¿äĞĞ7ï?:ªún-Ì¿   &“É4;Àñx<F`ò@ûı~Ç˜L¨?    fæwV½|u¿à V8şë?CñÇ>Xß¿   .—Ëõ‡0À`04ŸÉ@l6›ÑKeƒ?    áÏß^qĞ¿İy¿_¡î?%ğ¬1Á?   µZ­::…À•J¥j	ã@×ëõÆ¨£¿    É Š3˜_Á?¥|!bŒî?Ø:ÅñøĞ?   üı~P•À™L&‹ÏÜ@8GmŠ¿    wÕÁWN¾?ô~=¿Û9ì?¾½N^/İ?   FwW»Àt:3+@\.—#Ş½³¿    wÕÁWN¾?ô~=¿Û9ì?¾½N^/İ?   {½^ÃïMÀï÷ûuÍØ@:NŸ½ˆ“?    3$ZPIª?>åt:êï?"qé1ª?   ‰D"}ÂÀ:NŸ®4@ÇãñˆÇz·¿    Üâ­ğ5¸Æ?¢O£˜{å?[ó°Ö‘lç?   Ïçó¹w|À‡ÃIÿq@Åb±ÀùÎÃ¿    z^Éä¡?²DPKªÄÌ¿2çFv¼)ï?   h4Ù¨qÀ[åÌ@F£Ñ°g¿    ×f$ı-º?ö°¢Ò$Øî?Š&µ]eÏ?   ÃápØÔÇÀ‰D²°±@ƒÁ ¦S?    Ğ2jKDOÅ?;ÄzÃúßæ¿€PTØ»å¿   Åb±‰_ÀJ¥R‘ı@ŠÅbÙNˆ«¿    :¯×WŞ³?Ã&D'Vå?Õº ¸ç?      R  Œ      –      ¢   –   ƒ   »   ¼   °   ½   ²   ½   °   ®   ƒ   ~   „   ¢         ·   µ   ¾   ³   ½   µ   ©   ¢      ¿   À   »   ¸   ¾   Á   ·   ¾   º   ½   ³   ²      Â   Ã   ƒ   }   Ä   ©      •   ±   ´   Á   ¹   ¾   ¸   ¾   µ   ½   Å   ¤   œ   Æ   u   Ç   ©   •   ±   ©   ´   ¶   ¾   ¹   º   È   Â   …   „   ~      ¯   ±   •   ©   ¶   ¸   k   c   h      †   É   „      Ê   ™   Å   œ   h   p   k   Ë   Ì      •   ­   ¯   Í   ˜   Î   Ï   Ğ   q   ^   Ñ   e   T   N   P   W   Ò   U   Ó   ­   •   v   m   Ô            J   M   Ò   ‡   Õ   |   ˜   ›   Î   Ö   ×   ‹   D   F   L   >   8   0             ”   ›      Î   ›   ”            Ø   z   ‚   Ù   Ú   Û   Ü   Ù   Ÿ   O   V   İ          ”   Ş   ß   ˆ      à            á   â   ã      !               ä   Ù   —   å      æ   ç   £   ”       .   è   5   #   é      ’   ˆ   ß   %            ê      é   ä      ë   š   ì   í   ¦   ¨   î   y   l   ï   ğ   K   Q   H   ñ   ?   ;   /   ‰   ò   ’   X   S   R   d   ]   a   ;   ,   /   ó   s   n   ô   õ   ‘   ë   ö   š   «   í   ¨   l   g   f   ÷   ‚   Š   ø   ù   ú      š   ö      ø   ¡   û   “   ü   ı   ş   ÿ   ø   ú   “   í   «   ¬      ¥     ¡   ø   ¥   ª     ¬       ¬   §   ¥      §      ª     û   ü   n     ó       {     Z   Y       i   l   y   	  `       {     s   Q   ñ     
+  z   r     ]         3   ?   ñ   H         ï   A   è     [   _   €   y            (      ê   ğ   R   K   g     f            	                      [     é   #   ,           6   C   <     &        
+           â   j      o             !     "  #  $  _   %  &  '         (     )  *  +  0   ,     x   w   I   E   C   M   U   Ò      -  )  .  /  9   à   0     D   8   >   1   +   -         "   1  9   /  2  0   +  3  e   4  5  6  7  7   =   8  h   9  p   x   p   9  G   P   N   \   :  ;  x   ~   <  t   q   u   p   x   <  h   c   b   x      ~   =  >  ?  @  .  A  B   J   B  x   9  w   B  J   Ò   q   Ğ   u   Ô   m   $  C  D  -   '  E  F  G        2   -   '   F   H  L   0   8   ,  .  I  J  4   -   2   <   K  6   I   C   L  j   o   M     N  O  "   P  $   Q  R  -  S  T  d   i     n   U  İ   V   V   V  U  W  X  m   v   Y  Z  !  "  [           \  ]  ^  o      O  _  M  `  _  j   M     ã   a    b  
+      
+   b  c  ]  d     á        e  f       ä   g  ]     !     &   ,   #   /   H    L   +  0  2                                 d  A   5   è   )   h  i  @   i  h  j  3       f  e  k  l  €           f    ?   H   ;   m  n    o  X  W    p  q  
+  r   r  €   	  y   Z     Y   N  s  t  n   s     S   X   p    Y   Q   u  v      {   u    a   ]   q  p  X   l   f   î   T  S  w  R   S   K   x  ¦   í   ˆ   €      y  z  {  .   y  {  |          b  £   ¦   x  â     ^        à   }  E   ~    €    ‚  Z  Y  ‹   ×   ƒ  Ø   ‚   ÷   Ø   r   z   „      …  †  ‡  ˆ  Ö   ‹   ‰  …   Â      Š  *   /  2  0  à   W   U   ‹    H  Œ  T   P       O  N  b   c   ‹  ¿   †      4  e   Ñ   ƒ   …   }   Å     ¤     ¿      ½   ®   ‘    Œ  [   ’  T     4   J   :   “  '   ”  |      y  .   5   )   i  (   u  {   s   m    3   •  –  @       j  (   ê   )   •  @   h  A   ï   K     j    g     á   5  ‡  6     !   &   (  …      —  ˜     c  d    _  `  V  d   a   S        ™  \  ^    U  V  `  “  †  ˆ  š  %  '  }  ~  O   <   ›  4   <   E   ›  :   -   4      G  œ  C  -   :   $     "     G   Ÿ  7   1      @  A  ¡  F   D   >   t   u   }       ¢  £    $   1   7   8  1  /  *     £  1   -   +   '   #  _   [       e  6   K  …    	   |    q  f   `     Z   =   J   B   =   B   8  =   :   J   —            ¤  †  š  ‡  “  ˆ  '   ’  ¥  ^   „  …  K  }  O   İ   }  ›  E   <   4   2   <   C   E                 ACIS BinaryFileT             SpatialACIS 29.0.1 NTWed Mar 11 23:15:41 2020      ğ?íµ ÷Æ°>»½×Ùß|Û=
+ME_2YJ7MZGRG4BKJG5P2GNFR_A87V99NQDBSBNPQ5BC94F6P7BB9CF27UXAGMK6QH7ATBKZ7U6DCVF	body%      ÿÿÿÿÿÿÿÿÿÿÿÿ       ÿÿÿÿ   properties%   ansoft%   attrib%   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ    ¥îÛ Design1           ¯€	lump%   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ       transform%   ÿÿÿÿÿÿÿÿ      ğ?                              ğ?                              ğ?                              ğ?
+shell%   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ   ÿÿÿÿ   	face%      ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ   ÿÿÿÿ   id%	   %   %   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ   ¥îÛ    sphere%
+   surface%   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ   @Î%À   `9ÿ@    €‚æ¾™ÁñÒ{@      ğ?                                      ğ?End-of-ACIS-data
+
+# Ansoft project setting data. Non-Ansoft programs
+# should not read the rest of this file.
+B_SETNGS 1.03
+ACIS BinaryFileT             SpatialACIS 29.0.1 NTWed Mar 11 23:15:41 2020      ğ?íµ ÷Æ°>»½×Ùß|Û=
+MZGGCVMKZSV3E5UAQYVYK2G68V7VV3KPCWCFVMPQBUCNBKCNC7AKCREQEFBMUKE5XTCSKRGP5FARCNtransform%      ÿÿÿÿ      ğ?                              ğ?                              ğ?                              ğ?
+point%      ÿÿÿÿÿÿÿÿÿÿÿÿ                        	flag%   ansoft%   attrib%   ÿÿÿÿÿÿÿÿ   ÿÿÿÿ    ¥îÛ     
+color%   %   %   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ   ¥îÛ ÿ ÿ€
+units%   %   %   ÿÿÿÿÿÿÿÿ          ¥îÛ inchesìõz½^¯C@%   %   %   ÿÿÿÿÿÿÿÿÿÿÿÿ       ¥îÛ ÀÀÀ€End-of-ACIS-data
+E_SETNGS 
+
+B_SYMTAB 
+E_SYMTAB 
+ANSOFT OFFSET: 868 
+                                                                                                                                                                                                                                                                                                                                                                $end 'HybGeom'
+$end 'NativeGeometryFiles'
+$end 'AllReferencedFilesForComponent'

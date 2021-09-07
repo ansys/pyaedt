@@ -106,7 +106,7 @@ def arg2dict(arg, dict_out):
         dict_in = OrderedDict()
         i = 1
         while i < len(arg):
-            if (type(arg[i]) is list or type(arg[i]) is tuple) and arg[i][0][:5] == 'NAME:':
+            if (type(arg[i]) is list or type(arg[i]) is tuple or type(arg[i] is List)) and arg[i][0][:5] == 'NAME:':
                 arg2dict(arg[i], dict_in)
                 i += 1
             elif arg[i][-2:] == ':=':

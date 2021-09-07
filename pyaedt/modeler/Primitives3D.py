@@ -4,7 +4,7 @@ from .Primitives import Primitives
 from .GeometryOperators import GeometryOperators
 from ..application.Analysis import CoordinateSystemAxis
 from .Object3d import Object3d
-from .MultiPartComponent import Person, Bird, Vehicle, Antenna, Radar, Environment
+from .MultiPartComponent import Person, Bird, Vehicle, Antenna, Radar, Environment, MultiPartComponent
 
 
 class Primitives3D(Primitives, object):
@@ -803,8 +803,61 @@ class Primitives3D(Primitives, object):
         return True
 
     @aedt_exception_handler
-    def add_person(self, actor_folder, speed=0, global_offset=[0,0,0], yaw=0, pitch=0,roll=0):
-        """
+    def _initialize_multipart(self):
+        if MultiPartComponent._t in self._parent._variable_manager.independent_variable_names:
+            return True
+        else:
+            return MultiPartComponent.start(self._parent)
+
+    @aedt_exception_handler
+    def add_person(self, actor_folder, speed=0, global_offset=[0, 0, 0], yaw=0, pitch=0, roll=0):
+        """Add a Walking Person Multipart from 3D Components. It requires a json file in the folder containing infos.
+         .. code-block:: json
+            {
+                "name": "person3",
+                "version": 1,
+                "class":"person",
+                "stride":"0.76meter",
+                "xlim":["-.43",".43"],
+                "ylim":["-.25",".25"],
+                "parts": {
+                    "arm_left": {
+                        "comp_name": "arm_left.a3dcomp",
+                        "rotation_cs":["-.04","0","1.37"],
+                        "rotation":"-30deg",
+                        "compensation_angle":"-15deg",
+                        "rotation_axis":"Y"
+                        },
+                    "arm_right": {
+                        "comp_name": "arm_right.a3dcomp",
+                        "rotation_cs":["0","0","1.37"],
+                        "rotation":"30deg",
+                        "compensation_angle":"30deg",
+                        "rotation_axis":"Y"
+                        },
+                    "leg_left": {
+                        "comp_name": "leg_left.a3dcomp",
+                        "rotation_cs":["0","0",".9"],
+                        "rotation":"20deg",
+                        "compensation_angle":"22.5deg",
+                        "rotation_axis":"Y"
+                        },
+                    "leg_right": {
+                        "comp_name": "leg_right.a3dcomp",
+                        "rotation_cs":["-.04","0",".9375"],
+                        "rotation":"-20deg",
+                        "compensation_angle":"-22.5deg",
+                        "rotation_axis":"Y"
+                        },
+                    "torso": {
+                        "comp_name": "torso.a3dcomp",
+                        "rotation_cs":null,
+                        "rotation":null,
+                        "compensation_angle":null,
+                        "rotation_axis":null
+                        }
+                }
+            }
 
         Parameters
         ----------
@@ -826,6 +879,7 @@ class Primitives3D(Primitives, object):
         :class: `pyaedt.modeler.MultiPartComponent.Person`
 
         """
+        self._initialize_multipart()
         if not self._check_actor_folder(actor_folder):
             return False
 
@@ -840,7 +894,36 @@ class Primitives3D(Primitives, object):
 
     @aedt_exception_handler
     def add_vehicle(self, actor_folder, speed=0, global_offset=[0,0,0], yaw=0, pitch=0,roll=0):
-        """
+        """Add a Moving Vehicle Multipart from 3D Components. It requires a json file in the folder containing vehicle infos.
+         .. code-block:: json
+            {
+                "name": "vehicle3",
+                "version": 1,
+                "type":"mustang",
+                "class":"vehicle",
+                "xlim":["-1.94","2.8"],
+                "ylim":["-.91",".91"],
+                "parts": {
+                    "wheels_front": {
+                        "comp_name": "wheels_front.a3dcomp",
+                        "rotation_cs":["1.8970271810532" ,"0" ,"0.34809664860487"],
+                        "tire_radius":"0.349",
+                        "rotation_axis":"Y"
+                        },
+                    "wheels_rear": {
+                        "comp_name": "wheels_rear.a3dcomp",
+                        "rotation_cs":["-0.82228746728897" ,"0","0.34809664860487"],
+                        "tire_radius":"0.349",
+                        "rotation_axis":"Y"
+                        },
+                    "body": {
+                        "comp_name": "body.a3dcomp",
+                        "rotation_cs":null,
+                        "tire_radius":null,
+                        "rotation_axis":null
+                        }
+                }
+            }
 
         Parameters
         ----------
@@ -862,6 +945,8 @@ class Primitives3D(Primitives, object):
         :class: `pyaedt.modeler.MultiPartComponent.Vehicle`
 
         """
+        self._initialize_multipart()
+
         if not self._check_actor_folder(actor_folder):
             return False
         vehicle = Vehicle(actor_folder, speed=speed)
@@ -877,7 +962,47 @@ class Primitives3D(Primitives, object):
     @aedt_exception_handler
     def add_bird(self, actor_folder, speed=0, global_offset=[0, 0, 0], yaw=0, pitch=0,
                  roll=0, flapping_rate=50):
-        """
+        """Add a Bird Multipart from 3D Components. It requires a json file in the folder containing bird infos.
+         .. code-block:: json
+            {
+                "name": "bird1",
+                "version": 1,
+                "class":"bird",
+                "xlim":["-.7","2.75"],
+                "ylim":["-1.2","1.2"],
+                "parts": {
+                    "body": {
+                        "comp_name": "body.a3dcomp",
+                        "rotation_cs":null,
+                        "rotation":null,
+                        "rotation_axis":null
+                    },
+                        "wing_right": {
+                        "comp_name": "wing_left.a3dcomp",
+                        "rotation_cs":[".001778" ,".00508" ,".00762"],
+                        "rotation":"-45deg",
+                        "rotation_axis":"X"
+                    },
+                        "wing_left": {
+                        "comp_name": "wing_right.a3dcomp",
+                        "rotation_cs":[".001778" ,"-.00508" ,".00762"],
+                        "rotation":"45deg",
+                        "rotation_axis":"X"
+                    },
+                        "tail": {
+                        "comp_name": "tail.a3dcomp",
+                        "rotation_cs":null,
+                        "rotation":null,
+                        "rotation_axis":null
+                    },
+                        "beak": {
+                        "comp_name": "beak.a3dcomp",
+                        "rotation_cs":null,
+                        "rotation":null,
+                        "rotation_axis":null
+                    }
+                }
+            }
 
         Parameters
         ----------
@@ -899,7 +1024,16 @@ class Primitives3D(Primitives, object):
         -------
         :class: `pyaedt.modeler.MultiPartComponent.Bird`
 
+        Examples
+        --------
+        >>> from pyaedt import Hfss
+        >>> app = Hfss()
+        >>> bird_folder = "path/to/bird/folder"
+        >>> bird1 = app.modeler.primitives.add_bird(bird_folder, 1.0, [19, 4, 3], 120,-5, flapping_rate=30)
+
         """
+        self._initialize_multipart()
+
         if not self._check_actor_folder(actor_folder):
             return False
         bird = Bird(actor_folder, speed=speed, flapping_rate=self._arg_with_dim(flapping_rate,"Hz"))
@@ -933,7 +1067,7 @@ class Primitives3D(Primitives, object):
         :class: `pyaedt.modeler.MultiPartComponent.Environment`
 
         """
-
+        self._initialize_multipart()
         if not self._check_actor_folder(env_folder):
             return False
         environment = Environment(env_folder)

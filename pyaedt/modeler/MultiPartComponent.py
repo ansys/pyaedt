@@ -18,47 +18,6 @@ def get_numeric(s):  # TODO: add validation
     else:
         return float(s)
 
-
-def get_suffix(s):
-    return ''.join(c for c in s if not (c.isdigit() or c == '.'))
-
-def get_duplicated_object_names(start_name, n):
-    """
-    This function is a workaround for the duplicate_along_line method in hfss.modeler
-    which returns only the names of objects (and sheets) inside the 3D component after
-    duplication. There is no way to get the names of the objects in the group.
-
-    Parameters
-    ----------
-    start_name : str, required
-        Name of the object. Should end with a numeric index.
-    n : int , required
-        Number of repetitions.
-
-    Returns
-    -------
-    list of object names
-    """
-    suffix = ''
-    base_name_reverse = ''
-    done = False
-    for c in start_name[::-1]:
-        if c.isdigit() and not done:
-            suffix = c + suffix
-        elif not c.isdigit() and not done:
-            done = True
-            base_name_reverse += c
-        else:
-            base_name_reverse += c
-    base_name = base_name_reverse[::-1]
-    names = []
-    if len(suffix) > 0:
-        d = int(suffix)  # Need to again reverse order
-        for m in range(n-1):
-            names.append(base_name + str(m+d+1))
-    return names
-
-
 def is_small(s):
     """
     Return True if the number represented by s is zero (i.e very small).
@@ -105,8 +64,6 @@ def json_to_dict(fn):
         except Exception as e:
             print("Error: ", e.__class__)
             raise e
-
-        # Print the type of data variable
     return data
 
 
@@ -146,27 +103,6 @@ def get_json_files(start_folder):
     return [y for x in os.walk(start_folder) for y in glob(os.path.join(x[0], '*.json'))]
 
 
-def read_environment_lib(env_lib):
-    """
-    Read an environment library.
-
-    Parameters
-    ----------
-    env_lib : str, required
-        Full name of the environment library path.
-    """
-    try:
-        env_files = get_json_files(env_lib)  # Get all json files in the library and read
-        # data into a dict()
-        environments = {}  # List of environment objects
-        for fn in env_files:
-            e = Environment(fn)
-            environments[e.instance_name] = e
-    except FileNotFoundError as fn_error:
-        raise fn_error
-    return environments
-
-
 def cs_xy_pointing_expression(yaw, pitch, roll):
     """
     return x_pointing and y_pointing vectors as expressions from
@@ -198,58 +134,6 @@ def cs_xy_pointing_expression(yaw, pitch, roll):
     yy += "cos(" + roll + ")*cos(" + yaw + ")"
 
     yz = "sin(" + roll + " + pi)*cos(" + pitch + ")"  # use pi to avoid negative sign.
-
-    # x, y pointing vectors for CS
-    x_pointing = [xx, xy, xz]
-    y_pointing = [yx, yy, yz]
-
-    return [x_pointing, y_pointing]
-
-
-def cs_xy_pointing_value(yaw, pitch, roll):
-    """
-    return x_pointing and y_pointing vectors as expressions from
-    the yaw, ptich, and roll input (as strings).
-
-    Parameters
-    ----------
-    yaw : str or float, required
-        String expression for the yaw angle (rotation about Z-axis)
-    pitch : str or float, required
-        String expression for the pitch angle (rotation about Y-axis)
-    roll : str or float, required
-        String expression for the roll angle (rotation about X-axis)
-
-    Returns
-    -------
-    [x_pointing, y_pointing] vector expressions.
-    """
-    ang = [yaw, pitch, roll]
-    angles = []
-
-    # TODO: This needs improved input validation.
-    # Convert angle values to float:
-    for v in ang:
-        if type(v) == str:
-            if v.strip().endswith("deg"):
-                angles.append(float(v.strip().strip("deg")) * math.pi / 180.0)
-            else:
-                angles.append(float(v))
-        else:
-            angles.append(float(v))
-    [yaw, pitch, roll] = angles
-
-    # X-Pointing
-    xx = math.cos(yaw) * math.cos(pitch)
-    xy = math.sin(yaw) * math.cos(pitch)
-    xz = math.sin(pitch)
-
-    # Y-Pointing
-    yx = math.sin(roll) * math.sin(pitch) * math.cos(yaw) - math.sin(yaw) * math.cos(roll)
-
-    yy = math.sin(roll) * math.sin(yaw) * math.sin(pitch) + math.cos(roll) * math.cos(yaw)
-
-    yz = -math.sin(roll) * math.cos(pitch)
 
     # x, y pointing vectors for CS
     x_pointing = [xx, xy, xz]
@@ -310,27 +194,16 @@ class Part(object):
         # Extract the 3d component name and part folder
         # from the file name.
         # Use this as the default value for comp_name.  Ensure that the correct extension is used.
-        # self._compdef['comp_name'] = part_dict['comp_name'].split('.')[0] + '.a3dcomp'
         self._compdef['part_folder'] = part_folder
         for k in Part.allowed_keys:
             if k in part_dict:
                 self._compdef[k] = part_dict[k]
             else:
                 self._compdef[k] = Part.allowed_keys[k]
-        #self._compdef['rotation_cs'] = None
-        #self._compdef['rotation'] = 0.0
-        #self._compdef['rotation_axis'] = "Z"
-        #self._compdef['offset'] = None
-        #self._compdef['compensation_angle'] = None
-        #self._compdef['tire_radius'] = None
-        #self._compdef['duplicate_number'] = None
-        #self._compdef['duplicate_vector'] = None
-        #self._compdef['aedt_name'] = None
 
+        self._motion = False
         if parent:  # Inherit _motion directly from parent.
             self._motion = self._parent.motion
-        else:
-            self._motion = False  # Default is static part.
 
         # make sure self._name is unique if it is not passed as an argument.
         if name:
@@ -409,8 +282,7 @@ class Part(object):
                 return all(s)
             else:
                 return True
-        else:
-            return False
+        return False
 
     @property
     def file_name(self):
@@ -561,7 +433,7 @@ class Part(object):
 
         return True
 
-    def insert(self, app, verbose=False):
+    def insert(self, app):
         """
         Insert 3D Component into app
         Parameters
@@ -578,26 +450,20 @@ class Part(object):
         # TODO: Why the inconsistent syntax for cs commands?
         if self._do_offset:
             self.set_relative_cs(app)  # Create coordinate system, if needed.
-            aedt_objects.append(app.modeler.primitives.insert_3d_component(self.file_name,
-                                                                     targetCS=self.cs_name))
+            aedt_objects.append(app.modeler.primitives.insert_3d_component(self.file_name, targetCS=self.cs_name))
         else:
-            aedt_objects.append(app.modeler.primitives.insert_3d_component(self.file_name,
-                                                                     targetCS=self._parent.cs_name))
+            aedt_objects.append(
+                app.modeler.primitives.insert_3d_component(self.file_name, targetCS=self._parent.cs_name))
         if self._do_rotate:
             self.do_rotate(app, aedt_objects[0])
 
         # Duplication occurs in parent coordinate system.
         app.modeler.set_working_coordinate_system(self._parent.cs_name)
-        if self['duplicate_vector']:  # TODO: There is a bug in oeditor.DuplicateAlongLine. Doesn't return correct values.
+        if self['duplicate_vector']:
             d_vect = [float(i) for i in self['duplicate_vector']]
-            duplicate_result = app.modeler.duplicate_along_line(aedt_objects[0],
-                                                           d_vect,
-                                                           nclones=int(self['duplicate_number']), is_3d_comp=True)
+            duplicate_result = app.modeler.duplicate_along_line(aedt_objects[0], d_vect,
+                                                                nclones=int(self['duplicate_number']), is_3d_comp=True)
             if duplicate_result[0]:
-                # dup_objects = duplicate_result[1]
-                # dup_objects = get_duplicated_object_names(aedt_objects[0], int(self['duplicate_number']))
-                # for d in dup_objects:
-                #     aedt_objects.append(d)
                 for d in duplicate_result[1]:
                     aedt_objects.append(d)
         return aedt_objects
@@ -884,7 +750,6 @@ class MultiPartComponent(object):
         -------
         Coordinate system.
         """
-        # Set x,y,z offset variables in app
         if self.motion:
             xyz = ['x', 'y', 'z']
             for m in range(3):
@@ -894,9 +759,6 @@ class MultiPartComponent(object):
                     expression=self.offset[m],
                     description=self.name + ' ' + xyz[m] + "-position")
 
-            #            app[self.yaw_name] = self.yaw  # TODO: Need an app Variable class in pyaedt to simplify syntax.
-            #            app[self.pitch_name] = self.pitch
-            #            app[self.roll_name] = self.roll
             app.variable_manager.set_variable(
                 variable_name=self.yaw_name,
                 expression=self.yaw,
@@ -924,16 +786,13 @@ class MultiPartComponent(object):
                                                         mode="axis",
                                                         name=self.cs_name)
 
-    def _insert(self, app, verbose=False, motion=False):
+    def _insert(self, app,  motion=False):
         """
         Insert the multipart 3d component
         Parameters
         ----------
         app : pyaedt.hfss.Hfss, required
             Application where Mutipart3DComponent will be inserted.
-        verbose : Bool, optional
-            Placeholder variable to turn on verbose message
-            reporting. Default False
         motion : Bool, optional
             Set to true if variables should be created in the
             app to set position, yaw, pitch, roll
@@ -948,22 +807,17 @@ class MultiPartComponent(object):
             app.modeler.set_working_coordinate_system("Global")
         else:
             self.position_in_app(app)
-            # TODO: fix create_coordinate_system as it does not allow expressions.
-            # cs = app.modeler.create_coordinate_system(origin=self.offset_names,
-            #                                          x_pointing=[1, 0, 0],
-            #                                          y_pointing=[0, 1, 0],
-            #                                          name=self.cs_name + '_good')
 
         for p in self.parts:
-            inserted = self.parts[p].insert(app, verbose=verbose)  # index ensures unique CS names.
+            inserted = self.parts[p].insert(app)  # index ensures unique CS names.
             if len(inserted) > 0:
                 for i in inserted:
                     self.aedt_components.append(i)
         app.modeler.create_group(components=self.aedt_components,
                                  group_name=self.name)
 
-    def insert(self, app, verbose=False, motion=False):
-        return self._insert(app, verbose=verbose, motion=motion)
+    def insert(self, app, motion=False):
+        return self._insert(app, motion=motion)
 
 
 class Environment(MultiPartComponent, object):
@@ -1030,15 +884,6 @@ class Actor(MultiPartComponent, object):
                                     + self.speed_name + ' * ' + MultiPartComponent._t \
                                     + '* sin(' + self.yaw_name + ')'
 
-    def insert(self, app):
-        """
-        Insert the Bike into the AEDT app.
-
-        """
-        app.add_info_message("Adding Bike: " + self.name, "Design")
-        self._insert(app, motion=True)  # Place the Person in the app.
-        self._add_speed(self, app)
-
 
 class Person(Actor, object):
     """
@@ -1090,7 +935,7 @@ class Person(Actor, object):
                                            + "*" + MultiPartComponent._t + ") + " + \
                                            "(" + p['compensation_angle'] + ")rad"
 
-    def insert(self, app):
+    def insert(self, app, motion=True):
         """
         Insert the Person into the AEDT app.
 
@@ -1100,8 +945,9 @@ class Person(Actor, object):
 
         # Insert the component first, then set variables.
         self._insert(app)  # Place the Person in the app.
-        self._add_speed(app)
-        self._add_walking(app)
+        if motion:
+            self._add_speed(app)
+            self._add_walking(app)
 
 
 class Bird(Actor, object):
@@ -1134,7 +980,7 @@ class Bird(Actor, object):
                     app[p.roll_name] = p['rotation'] + '* sin(2*pi*' + str(self._flapping_rate) + '*' \
                                         + MultiPartComponent._t + ")"
 
-    def insert(self, app):
+    def insert(self, app, motion=True):
         """
         Insert the Vehicle into the AEDT app.
 
@@ -1143,8 +989,9 @@ class Bird(Actor, object):
         app.add_info_message("Adding Vehicle: " + self.name, "Design")
 
         self._insert(app)  # Place the multipart component in the app.
-        self._add_speed(app)
-        self._add_flying(app)
+        if motion:
+            self._add_speed(app)
+            self._add_flying(app)
 
 
 class Vehicle(Actor, object):
@@ -1176,7 +1023,7 @@ class Vehicle(Actor, object):
                                         self.speed_name + "/" + p['tire_radius'] \
                                         + "meter)*(180/pi)*1deg"
 
-    def insert(self, app):
+    def insert(self, app, motion=True):
         """
         Insert the Vehicle into the AEDT app.
 
@@ -1185,40 +1032,9 @@ class Vehicle(Actor, object):
         app.add_info_message("Adding Vehicle: " + self.name, "Design")
 
         self._insert(app)  # Place the multipart component in the app.
-        self._add_speed(app)
-        self._add_driving(app)
-
-        # Update Modeler line 137 to accept numerical values for the CS.
-
-    def materials_dict(self):
-        """
-        all user defined material should be defined as dictionaries
-        here. any material that is defined in the enviroment
-        should be created here, otherwise PEC will be used by default
-        """
-        mat_dict = {}
-        mat_dict['human_77GHz'] = {
-            'er': 30,
-            'tand': 0.01,
-            'cond': 0
-        }
-        mat_dict['concrete'] = {
-            'er': 2.5,
-            'tand': 0.01,
-            'cond': 0
-        }
-        mat_dict['earth'] = {
-            'er': 4.5,
-            'tand': 0.09,
-            'cond': 0
-        }
-        mat_dict['steel'] = {
-            'er': 1,
-            'tand': 0,
-            'cond': 6e8
-        }
-
-        return mat_dict
+        if motion:
+            self._add_speed(app)
+            self._add_driving(app)
 
 
 class Antenna(Part, object):
@@ -1240,6 +1056,7 @@ class Antenna(Part, object):
             p['Horizontal BeamWidth'] = self._compdef['beamwidth_azimuth']
             p['Polarization'] = self._compdef['polarization']
         return p
+
 
     def _insert(self, app, target_cs=None):
         if not target_cs:
@@ -1284,46 +1101,72 @@ class Radar(MultiPartComponent, object):
     """
 
     def __init__(self, radar_folder, name=None, motion=False,
-                 use_relative_cs=False, offset=("0", "0", "0")):
+                 use_relative_cs=False, offset=("0", "0", "0"), speed=0):
 
         name = name.split('.')[0] if name else name  # remove suffix if any
         self._component_class = 'radar'
-        super(Radar, self).__init__(radar_folder, name=name,
-                         use_relative_cs=use_relative_cs,
-                         motion=motion, offset=offset)
+        super(Radar, self).__init__(radar_folder, name=name, use_relative_cs=use_relative_cs, motion=motion,
+                                    offset=offset)
+        self._speed_expression = str(speed) + 'm_per_sec'
         self.pair = []
 
     @property
     def units(self):
         return self._local_units
 
-    def insert(self, app, verbose=False):
+    @property
+    def speed_name(self):
+        return self.name + '_speed'
+
+    @property
+    def speed_expression(self):
+        return self._speed_expression
+
+    @speed_expression.setter
+    def speed_expression(self, s):
+        self._speed_expression = s
+
+    def _add_speed(self, app):
+        app.variable_manager.set_variable(variable_name=self.speed_name,
+                                          expression=self.speed_expression,
+                                          description="radar speed")
+        # Update expressions for x and y position in app:
+        app[self.offset_names[0]] = str(self.offset[0]) + '+' \
+                                    + self.speed_name + ' * ' + MultiPartComponent._t \
+                                    + '* cos(' + self.yaw_name + ')'
+
+        app[self.offset_names[1]] = str(self.offset[1]) + '+' \
+                                    + self.speed_name + ' * ' + MultiPartComponent._t \
+                                    + '* sin(' + self.yaw_name + ')'
+
+    def insert(self, app, motion=False):
         """
         Insert radar into app (app is the HFSS application instance)
         Parameters
         ----------
-        app, pyaedt.Hfss
+        app: class: `pyaedt.Hfss`
 
         Returns
         -------
-
+        list
+            list of Antenna Placed.
         """
-        if verbose:
-            app.add_info_message("Adding Radar Module:  " + self.name, "Design")
-
+        app.add_info_message("Adding Radar Module:  " + self.name)
+        if self.use_global_cs:
+            app.modeler.set_working_coordinate_system("Global")
+        else:
+            self.position_in_app(app)
         tx_names = []
         rx_names = []
         for p in self.parts:
             antenna_object = self.parts[p].insert(app)
-            self.aedt_components.append(antenna_object.antennaname)
+            self.aedt_components.append(antenna_object.excitation_name)
             if p.startswith('tx'):
-                tx_names.append(antenna_object.antennaname + '_p1')
-                tx_names.append(antenna_object.antennaname + '_p1')
+                tx_names.append(antenna_object.excitation_name)
             elif p.startswith('rx'):
-                rx_names.append(antenna_object.antennaname + '_p1')
+                rx_names.append(antenna_object.excitation_name)
 
         # Define tx/rx pairs:
-        # TODO: How to get the name of the antenna? Always with '_p1' suffix??
         self.pair = {}
         for tx in tx_names:
             rx_string = ''
@@ -1335,5 +1178,8 @@ class Radar(MultiPartComponent, object):
 
         app.modeler.create_group(components=self.aedt_components,
                                  group_name=self.name)
-
+        app.add_info_message("Group Created:  " + self.name)
+        if motion:
+            self._add_speed(app)
+        return self.aedt_components
 

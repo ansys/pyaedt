@@ -499,7 +499,7 @@ class Design(object):
         self.design_datasets = {}
         main_module = sys.modules['__main__']
         if "pyaedt_initialized" not in dir(main_module):
-            Desktop(specified_version, NG, AlwaysNew, release_on_exit, student_version)
+            self._desktop_class = Desktop(specified_version, NG, AlwaysNew, release_on_exit, student_version)
         self._project_dictionary = {}
         self._mttime = None
         self._desktop = main_module.oDesktop
@@ -1567,6 +1567,15 @@ class Design(object):
 
         """
         release_desktop(close_projects, close_desktop)
+        props = [a for a in dir(self) if not a.startswith('__')]
+        for a in props:
+            try:
+                del self.__dict__[a]
+            except Exception as e:
+                pass
+
+        import gc
+        gc.collect()
         return True
 
     @aedt_exception_handler

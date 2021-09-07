@@ -97,7 +97,7 @@ class CoordinateSystem(object):
 
         """
         arguments = ["NAME:AllTabs", ["NAME:Geometry3DCSTab", ["NAME:PropServers", name], arg]]
-        self._parent.oeditor.ChangeProperty(arguments)
+        retry_ntimes(10, self._parent.oeditor.ChangeProperty, arguments)
 
     @aedt_exception_handler
     def rename(self, newname):

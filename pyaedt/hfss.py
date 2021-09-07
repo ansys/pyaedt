@@ -3237,9 +3237,40 @@ class Hfss(FieldAnalysis3D, object):
         return setup, False
 
     @aedt_exception_handler
-    def create_sbr_radar_from_json(self, radar_file, radar_name, use_motion=False, offset=[0, 0, 0],
+    def create_sbr_radar_from_json(self, radar_file, radar_name, offset=[0, 0, 0], speed=0.0,
                                    use_relative_cs=False):
-        """
+        """Create a SBR+ Radar from Json File.
+          .. code-block:: json
+
+            {
+                "name": "Example_1Tx_1Rx",
+                "version": 1,
+                "number_tx":"1",
+                "number_rx":"1",
+                "units":"mm",
+                "antennas": {
+                    "tx1": {
+                        "antenna_type":"parametric",
+                        "mode":"tx",
+                        "offset":["0" ,"0" ,"0"],
+                        "rotation_axis":null,
+                        "rotation":null,
+                        "beamwidth_elevation":"10deg",
+                        "beamwidth_azimuth":"60deg",
+                        "polarization":"Vertical"
+                        },
+                    "rx1": {
+                        "antenna_type":"parametric",
+                        "mode":"rx",
+                        "offset":["0" ,"1.8" ,"0"],
+                        "rotation_axis":null,
+                        "rotation":null,
+                        "beamwidth_elevation":"10deg",
+                        "beamwidth_azimuth":"60deg",
+                        "polarization":"Vertical"
+                        }
+                }
+            }
 
         Parameters
         ----------
@@ -3247,10 +3278,10 @@ class Hfss(FieldAnalysis3D, object):
             Path to Radar File Folder
         radar_name: str
             Name of the Radar to use
-        use_motion: bool, Optional
-            Set to ``True`` if Motion has to be applied to Radar. Default ``False``.
         offset: list, Optional
             Set offset relative to Global Coordinate System.
+        speed: float, Optional
+            Set Radar Movement Speed relative to Global Coordinate System if greater than ``0``
         use_relative_cs: bool, Optional
             Set to ``True`` if Relative Coordinate System has to be used. Default ``False``.
 
@@ -3258,9 +3289,12 @@ class Hfss(FieldAnalysis3D, object):
         -------
         :class: `pyaedt.modeler.MultiPartComponent.Radar`
         """
+        self.modeler.primitives._initialize_multipart()
         if self.solution_type != "SBR+":
             self.add_error_message("Method Applies only to SBR+ Solution.")
             return False
-        r = Radar(radar_file, name=radar_name, motion=use_motion, offset=offset,use_relative_cs=use_relative_cs)
-        r.insert(self)
+        use_motion = abs(speed) > 0.0
+        r = Radar(radar_file, name=radar_name, motion=use_motion, offset=offset, speed=speed,
+                  use_relative_cs=(use_relative_cs or use_motion))
+        r.insert(self, abs(speed) >0)
         return r
