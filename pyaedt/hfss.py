@@ -3093,7 +3093,7 @@ class Hfss(FieldAnalysis3D, object):
                                                include_coupling_effects=include_coupling_effects,
                                                doppler_ad_sampling_rate=doppler_ad_sampling_rate, setup_name=setup_name)
         if sweep_time_duration >0:
-            sweeptime = 1e-2
+            sweeptime = math.ceil(300000000 / (2 * center_freq * 1000000000 * velocity_resolution) * 1000) / 1000
             sweep = self._create_sbr_doppler_sweep(setup.name, time_var, 0, sweep_time_duration, sweeptime, parametric_name)
             return setup, sweep
         return setup, False
@@ -3164,7 +3164,7 @@ class Hfss(FieldAnalysis3D, object):
                                                include_coupling_effects=include_coupling_effects,
                                                doppler_ad_sampling_rate=doppler_ad_sampling_rate, setup_name=setup_name)
         if sweep_time_duration >0:
-            sweeptime = 1e-2
+            sweeptime = math.ceil(300000000 / (2 * center_freq * 1000000000 * velocity_resolution) * 1000) / 1000
             sweep = self._create_sbr_doppler_sweep(setup.name, time_var, 0, sweep_time_duration, sweeptime, parametric_name)
             return setup, sweep
         return setup, False
@@ -3229,8 +3229,7 @@ class Hfss(FieldAnalysis3D, object):
                                                ray_density_per_wavelenght=ray_density_per_wavelenght,
                                                max_bounces=max_bounces, setup_name=setup_name)
         if sweep_time_duration > 0:
-
-            sweeptime = math.ceil(300000000 / (2 * center_freq * 1000000000 * resolution) * 1000)/1000
+            sweeptime = math.ceil(300000000 / (2 * center_freq * 1000000000 * velocity_resolution) * 1000)/1000
             sweep = self._create_sbr_doppler_sweep(setup.name, time_var, 0, sweep_time_duration, sweeptime,
                                                    parametric_name)
             return setup, sweep
