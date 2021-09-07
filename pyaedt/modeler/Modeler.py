@@ -317,7 +317,7 @@ class CoordinateSystem(object):
 
         Returns
         -------
-        :class: `pyaedt.modeler.Modeler.CoordinateSystem`
+        :class:`pyaedt.modeler.Modeler.CoordinateSystem`
 
         """
         if not origin:
@@ -1973,7 +1973,7 @@ class GeometryModeler(Modeler, object):
         ----------
         blank_list : list of Object3d or list of int
             List of objects to subtract from. The list can be of
-            either :class: `pyaedt.modeler.Object3d.Object3d` objects or object IDs.
+            either :class:`pyaedt.modeler.Object3d.Object3d` objects or object IDs.
         tool_list : list
             List of objects to subtract. The list can be of
             either Object3d objects or object IDs.
@@ -2427,7 +2427,7 @@ class GeometryModeler(Modeler, object):
             List of ``[x, y, z]`` coordinates for the starting position.
         axis : int
             Coordinate system axis (integer ``0`` for XAxis, ``1`` for YAxis, ``2`` for ZAxis) or
-            the :class: `Application.CoordinateSystemAxis` enumerator.
+            the :class:`Application.CoordinateSystemAxis` enumerator.
         innerradius : float, optional
             Inner coax radius. The default is ``1``.
         outerradius : float, optional
@@ -2447,7 +2447,7 @@ class GeometryModeler(Modeler, object):
         -------
         tuple
             Contains the inner, outer, and dielectric coax as
-            :class: `pyaedt.modeler.Object3d.Object3d` objects.
+            :class:`pyaedt.modeler.Object3d.Object3d` objects.
 
         Examples
         --------
@@ -2489,7 +2489,7 @@ class GeometryModeler(Modeler, object):
             List of ``[x, y, z]`` coordinates for the original position.
         wg_direction_axis : int
             Coordinate system axis (integer ``0`` for XAxis, ``1`` for YAxis, ``2`` for ZAxis) or
-            the :class: `Application.CoordinateSystemAxis` enumerator.
+            the :class:`Application.CoordinateSystemAxis` enumerator.
         wgmodel : str, optional
             Waveguide model. The default is ``"WG0"``.
         wg_length : float, optional
@@ -2511,7 +2511,7 @@ class GeometryModeler(Modeler, object):
         Returns
         -------
         tuple
-            Tuple of :class: `Object3d <pyaedt.modeler.Object3d.Object3d>`
+            Tuple of :class:`Object3d <pyaedt.modeler.Object3d.Object3d>`
             objects created by the waveguide.
 
         Examples

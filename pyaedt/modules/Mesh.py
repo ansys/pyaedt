@@ -207,7 +207,7 @@ class Mesh(object):
 
         Returns
         -------
-        :class: `pyaedt.modules.Mesh.MeshOperation`
+        :class:`pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
 
         """
@@ -251,7 +251,7 @@ class Mesh(object):
 
         Returns
         -------
-        :class: `pyaedt.modules.Mesh.MeshOperation`
+        :class:`pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
 
         """
@@ -306,7 +306,7 @@ class Mesh(object):
 
         Returns
         -------
-        :class: `pyaedt.modules.Mesh.MeshOperation`
+        :class:`pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
 
         """
@@ -409,7 +409,7 @@ class Mesh(object):
 
         Returns
         -------
-        :class: `pyaedt.modules.Mesh.MeshOperation`
+        :class:`pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
 
         """
@@ -494,7 +494,7 @@ class Mesh(object):
 
         Returns
         -------
-        :class: `pyaedt.modules.Mesh.MeshOperation`
+        :class:`pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
 
         """
@@ -668,7 +668,7 @@ class Mesh(object):
 
         Returns
         -------
-       :class: `pyaedt.modules.Mesh.MeshOperation`
+       :class:`pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
 
         """
@@ -717,7 +717,7 @@ class Mesh(object):
 
         Returns
         -------
-        :class: `pyaedt.modules.Mesh.MeshOperation`
+        :class:`pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
 
         """
@@ -755,7 +755,7 @@ class Mesh(object):
 
         Returns
         -------
-        :class: `pyaedt.modules.Mesh.MeshOperation`
+        :class:`pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
 
         """
@@ -798,7 +798,7 @@ class Mesh(object):
 
         Returns
         -------
-        :class: `pyaedt.modules.Mesh.MeshOperation`
+        :class:`pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
 
         """

@@ -160,7 +160,7 @@ class Materials(object):
 
         Returns
         -------
-        :class: `pyaedt.modules.Material.Material`
+        :class:`pyaedt.modules.Material.Material`
 
         Examples
         --------
@@ -200,7 +200,7 @@ class Materials(object):
 
         Returns
         -------
-        :class: `pyaedt.modules.SurfaceMaterial`
+        :class:`pyaedt.modules.SurfaceMaterial`
 
         Examples
         --------
@@ -316,7 +316,7 @@ class Materials(object):
 
         Returns
         -------
-        :class: `pyaedt.modules.Material.Material`
+        :class:`pyaedt.modules.Material.Material`
 
         Examples
         --------
@@ -348,7 +348,7 @@ class Materials(object):
 
         Returns
         -------
-        :class: `pyaedt.modules.SurfaceMaterial`
+        :class:`pyaedt.modules.SurfaceMaterial`
 
         Examples
         --------

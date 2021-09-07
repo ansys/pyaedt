@@ -53,7 +53,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class: `pyaedt.modeler.Object3d.Object3d`
+        :class:`pyaedt.modeler.Object3d.Object3d`
             3D object.
 
         Examples
@@ -108,7 +108,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class: `pyaedt.modeler.Object3d.Object3d`
+        :class:`pyaedt.modeler.Object3d.Object3d`
             3D object.
 
         Examples
@@ -166,7 +166,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class: `pyaedt.modeler.Object3d.Object3d`
+        :class:`pyaedt.modeler.Object3d.Object3d`
             3D object.
 
         Examples
@@ -224,7 +224,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class: `pyaedt.modeler.Object3d.Object3d`
+        :class:`pyaedt.modeler.Object3d.Object3d`
             3D object.
 
         Examples
@@ -274,7 +274,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class: `pyaedt.modeler.Object3d.Object3d`
+        :class:`pyaedt.modeler.Object3d.Object3d`
             3D object.
 
         Examples
@@ -343,7 +343,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class: `pyaedt.modeler.Object3d.Object3d`
+        :class:`pyaedt.modeler.Object3d.Object3d`
             3D object.
 
         Examples
@@ -463,7 +463,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class: `pyaedt.modeler.Object3d.Object3d`
+        :class:`pyaedt.modeler.Object3d.Object3d`
             3D object.
 
         """
@@ -509,7 +509,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class: `pyaedt.modeler.Object3d.Object3d`
+        :class:`pyaedt.modeler.Object3d.Object3d`
             3D object.
 
         """
@@ -584,7 +584,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class: `pyaedt.modeler.Object3d.Object3d`
+        :class:`pyaedt.modeler.Object3d.Object3d`
             3D object.
 
         """
@@ -618,7 +618,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class: `pyaedt.modeler.Object3d.Object3d`
+        :class:`pyaedt.modeler.Object3d.Object3d`
             3D object.
 
         """
@@ -644,7 +644,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class: `pyaedt.modeler.Object3d.Object3d`
+        :class:`pyaedt.modeler.Object3d.Object3d`
             3D object.
 
         """
@@ -686,7 +686,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class: `pyaedt.modeler.Object3d.Object3d`
+        :class:`pyaedt.modeler.Object3d.Object3d`
             3D object.
 
         """
@@ -877,8 +877,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class: `pyaedt.modeler.MultiPartComponent.Person`
-
+        :class:`pyaedt.modeler.MultiPartComponent.Person`
         """
         self._initialize_multipart()
         if not self._check_actor_folder(actor_folder):
@@ -945,7 +944,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class: `pyaedt.modeler.MultiPartComponent.Vehicle`
+        :class:`pyaedt.modeler.MultiPartComponent.Vehicle`
 
         """
         self._initialize_multipart()
@@ -1026,7 +1025,7 @@ class Primitives3D(Primitives, object):
             Motion Flapping Rate in Hz.
         Returns
         -------
-        :class: `pyaedt.modeler.MultiPartComponent.Bird`
+        :class:`pyaedt.modeler.MultiPartComponent.Bird`
 
         Examples
         --------
@@ -1089,7 +1088,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class: `pyaedt.modeler.MultiPartComponent.Environment`
+        :class:`pyaedt.modeler.MultiPartComponent.Environment`
 
         """
         self._initialize_multipart()

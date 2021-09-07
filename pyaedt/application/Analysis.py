@@ -93,7 +93,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-        :class: `pyaedt.modules.MaterialLib.Materials`
+        :class:`pyaedt.modules.MaterialLib.Materials`
             Manages materials in the project.
 
         """
@@ -117,7 +117,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-        :class: `pyaedt.application.Analysis.Analysis.AvailableVariations`
+        :class:`pyaedt.application.Analysis.Analysis.AvailableVariations`
             Available variation object.
 
         """
@@ -178,7 +178,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-        :class: `pyaedt.modeler.Modeler.Modeler`
+        :class:`pyaedt.modeler.Modeler.Modeler`
             Modeler object.
         """
         return self._modeler
@@ -189,7 +189,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-        :class: `pyaedt.modules.Mesh.Mesh`
+        :class:`pyaedt.modules.Mesh.Mesh`
             Mesh object.
         """
         return self._mesh
@@ -200,7 +200,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-        :class: `pyaedt.modules.PostProcessor.PostProcessor`
+        :class:`pyaedt.modules.PostProcessor.PostProcessor`
             PostProcessor object.
         """
         return self._post
@@ -669,7 +669,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-        :class: `pyaedt.modules.SolveSetup.Setup`
+        :class:`pyaedt.modules.SolveSetup.Setup`
 
         Examples
         --------
@@ -722,7 +722,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-        :class: `pyaedt.modules.SolveSetup.Setup`
+        :class:`pyaedt.modules.SolveSetup.Setup`
 
         """
         setuptype = SetupKeys.defaultSetups[self.solution_type]
@@ -742,7 +742,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-        :class: `pyaedt.modules.SolveSetup.Setup`
+        :class:`pyaedt.modules.SolveSetup.Setup`
 
         """
 

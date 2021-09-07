@@ -165,7 +165,7 @@ class IcepakMesh(object):
 
         Returns
         -------
-        :class: `pyaedt.modules.Modeler`
+        :class:`pyaedt.modules.Modeler`
 
         """
         return self._parent._modeler
@@ -365,7 +365,7 @@ class IcepakMesh(object):
 
         Returns
         -------
-        :class: `pyaedt.modules.MeshIcepak.IcepakMesh.MeshRegion`
+        :class:`pyaedt.modules.MeshIcepak.IcepakMesh.MeshRegion`
 
         """
         if not name:
@@ -420,7 +420,7 @@ class IcepakMesh(object):
 
         Returns
         -------
-        :class: `pyaedt.modules.Mesh.MeshOperation`
+        :class:`pyaedt.modules.Mesh.MeshOperation`
 
         """
         if meshop_name:

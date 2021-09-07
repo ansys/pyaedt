@@ -969,7 +969,7 @@ class Setup3DLayout(object):
 
         Returns
         -------
-        :class: `pyaedt.modules.SetupTemplates.SweepHFSS3DLayout`
+        :class:`pyaedt.modules.SetupTemplates.SweepHFSS3DLayout`
             Sweep object.
 
         """

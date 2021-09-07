@@ -773,7 +773,7 @@ class Circuit(FieldAnalysisCircuit, object):
 
         Returns
         -------
-        :class: `pyaedt.modules.PostProcessor.SolutionData`
+        :class:`pyaedt.modules.PostProcessor.SolutionData`
            Class containing all Requested Data
 
         """
