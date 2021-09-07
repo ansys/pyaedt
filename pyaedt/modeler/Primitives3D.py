@@ -812,6 +812,7 @@ class Primitives3D(Primitives, object):
     @aedt_exception_handler
     def add_person(self, actor_folder, speed=0, global_offset=[0, 0, 0], yaw=0, pitch=0, roll=0):
         """Add a Walking Person Multipart from 3D Components. It requires a json file in the folder containing infos.
+
          .. code-block:: json
             {
                 "name": "person3",
@@ -895,6 +896,7 @@ class Primitives3D(Primitives, object):
     @aedt_exception_handler
     def add_vehicle(self, actor_folder, speed=0, global_offset=[0,0,0], yaw=0, pitch=0,roll=0):
         """Add a Moving Vehicle Multipart from 3D Components. It requires a json file in the folder containing vehicle infos.
+
          .. code-block:: json
             {
                 "name": "vehicle3",
@@ -963,6 +965,7 @@ class Primitives3D(Primitives, object):
     def add_bird(self, actor_folder, speed=0, global_offset=[0, 0, 0], yaw=0, pitch=0,
                  roll=0, flapping_rate=50):
         """Add a Bird Multipart from 3D Components. It requires a json file in the folder containing bird infos.
+
          .. code-block:: json
             {
                 "name": "bird1",
@@ -1047,7 +1050,27 @@ class Primitives3D(Primitives, object):
 
     @aedt_exception_handler
     def add_environment(self, env_folder, global_offset=[0, 0, 0], yaw=0, pitch=0, roll=0):
-        """
+        """Add an Environment Multipart Component from Json file.
+
+        .. code-block:: json
+        {
+            "name": "open1",
+            "version": 1,
+            "class":"environment",
+            "xlim":["-5","95"],
+            "ylim":["-60","60"],
+            "parts": {
+                "open_area": {
+                    "comp_name": "open1.a3dcomp",
+                    "offset":null,
+                    "rotation_cs":null,
+                    "rotation":null,
+                    "rotation_axis":null,
+                    "duplicate_number":null,
+                    "duplicate_vector":null
+                    }
+            }
+        }
 
         Parameters
         ----------

@@ -3052,7 +3052,7 @@ class Hfss(FieldAnalysis3D, object):
         max_velocity: str, Optional
             Maximum Doppler Velocity in m_per_sec. Default ``20``.
         ray_density_per_wavelenght: float, Optional
-            Doppler Ray Density per WaveLenght. Default ``0.2``.
+            Doppler Ray Density per wavelength. Default ``0.2``.
         max_bounces: int, Optional
             Maximum number of Bounces. Default ``5``.
         include_coupling_effects: float, Optional
@@ -3064,7 +3064,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        (:class: `pyaedt.modules.SolveSetup.Setup`, :class: `pyaedt.modules.DesignXPloration.Optimetrics.ParametericsSetups`)
+        (:class:`pyaedt.modules.SolveSetup.Setup`, :class:`pyaedt.modules.DesignXPloration.Optimetrics.ParametericsSetups`)
 
         """
         if self.solution_type != "SBR+":
@@ -3082,7 +3082,7 @@ class Hfss(FieldAnalysis3D, object):
                     time_var = var_name
                     break
             if not time_var:
-                self.add_error_message("No Time Variable Found. Setup or explicitily assign to the method.")
+                self.add_error_message("No Time Variable Found. Setup or explicitly assign to the method.")
                 return False, False
         setup = self._create_sbr_doppler_setup("ChirpI", time_var=time_var, center_freq=center_freq,
                                                resolution=resolution, period=period,
@@ -3124,7 +3124,7 @@ class Hfss(FieldAnalysis3D, object):
         max_velocity: str, Optional
             Maximum Doppler Velocity in m_per_sec. Default ``20``.
         ray_density_per_wavelenght: float, Optional
-            Doppler Ray Density per WaveLenght. Default ``0.2``.
+            Doppler Ray Density per wavelength. Default ``0.2``.
         max_bounces: int, Optional
             Maximum number of Bounces. Default ``5``.
         include_coupling_effects: float, Optional
@@ -3153,7 +3153,7 @@ class Hfss(FieldAnalysis3D, object):
                     time_var = var_name
                     break
             if not time_var:
-                self.add_error_message("No Time Variable Found. Setup or explicitily assign to the method.")
+                self.add_error_message("No Time Variable Found. Setup or explicitly assign to the method.")
                 return False, False
         setup = self._create_sbr_doppler_setup("ChirpIQ", time_var=time_var, center_freq=center_freq,
                                                resolution=resolution, period=period,
@@ -3194,7 +3194,7 @@ class Hfss(FieldAnalysis3D, object):
         max_velocity: str, Optional
             Maximum Doppler Velocity in m_per_sec. Default ``20``.
         ray_density_per_wavelenght: float, Optional
-            Doppler Ray Density per WaveLenght. Default ``0.2``.
+            Doppler Ray Density per wavelength. Default ``0.2``.
         max_bounces: int, Optional
             Maximum number of Bounces. Default ``5``.
         setup_name: str, Optional
@@ -3220,7 +3220,7 @@ class Hfss(FieldAnalysis3D, object):
                     time_var = var_name
                     break
             if not time_var:
-                self.add_error_message("No Time Variable Found. Setup or explicitily assign to the method.")
+                self.add_error_message("No Time Variable Found. Setup or explicitly assign to the method.")
                 return False, False
         setup = self._create_sbr_doppler_setup("PulseDoppler", time_var=time_var, center_freq=center_freq,
                                                resolution=resolution, period=period,
