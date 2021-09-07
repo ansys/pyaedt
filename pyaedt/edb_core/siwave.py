@@ -430,12 +430,9 @@ class EdbSiwave(object):
             res, fromLayer_neg, toLayer_neg = source.negative_node.node_pins.GetLayerRange(None, None)
         pos_pingroup_terminal = retry_ntimes(10,self._edb.Cell.Terminal.PadstackInstanceTerminal.Create,self._active_layout, pos_pin.GetNet(),
                                                                            pos_pin.GetName(), pos_pin, toLayer_pos)
+        time.sleep(0.5)
         neg_pingroup_terminal = retry_ntimes(10,self._edb.Cell.Terminal.PadstackInstanceTerminal.Create,self._active_layout, neg_pin.GetNet(),
                                                                            neg_pin.GetName(), neg_pin, toLayer_neg)
-        # pos_pingroup_terminal = self._edb.Cell.Terminal.PadstackInstanceTerminal.Create(self._active_layout, pos_pin.GetNet(),
-        #                                                                    pos_pin.GetName(), pos_pin, toLayer_pos)
-        # neg_pingroup_terminal = self._edb.Cell.Terminal.PadstackInstanceTerminal.Create(self._active_layout, neg_pin.GetNet(),
-        #                                                                    neg_pin.GetName(), neg_pin, toLayer_neg)
         if source.type == SourceType.Port:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
             neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
