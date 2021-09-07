@@ -71,12 +71,15 @@ class Setup(object):
                 setups_data = self.parent.design_properties["AnalysisSetup"]["SolveSetups"]
                 if setupname in setups_data:
                     setup_data = setups_data[setupname]
-                    if "Sweeps" in setup_data and self.setuptype not in [0,7]:   #0 and 7 represent setup HFSSDrivenAuto
+                    if "Sweeps" in setup_data and self.setuptype not in [
+                        0,
+                        7,
+                    ]:  # 0 and 7 represent setup HFSSDrivenAuto
                         if self.setuptype <= 4:
                             app = setup_data["Sweeps"]
-                            app.pop('NextUniqueID', None)
-                            app.pop('MoveBackForward', None)
-                            app.pop('MoveBackwards', None)
+                            app.pop("NextUniqueID", None)
+                            app.pop("MoveBackForward", None)
+                            app.pop("MoveBackwards", None)
                             for el in app:
                                 if type(app[el]) is OrderedDict:
                                     self.sweeps.append(SweepHFSS(self.omodule, setupname, el, props=app[el]))
@@ -86,7 +89,7 @@ class Setup(object):
                             for el in app:
                                 if type(app[el]) is OrderedDict:
                                     self.sweeps.append(SweepQ3D(self.omodule, setupname, el, props=app[el]))
-                        setup_data.pop('Sweeps', None)
+                        setup_data.pop("Sweeps", None)
                     self.props = OrderedDict(setup_data)
             except:
                 self.props = OrderedDict()
@@ -124,7 +127,7 @@ class Setup(object):
         """
         if update_dictionary:
             for el in update_dictionary:
-                self.props[el]=update_dictionary[el]
+                self.props[el] = update_dictionary[el]
         arg = ["NAME:" + self.name]
         dict2arg(self.props, arg)
 
@@ -132,8 +135,15 @@ class Setup(object):
         return True
 
     @aedt_exception_handler
-    def _expression_cache(self, expression_list, report_type_list, intrinsics_list, isconvergence_list,
-                          isrelativeconvergence, conv_criteria):
+    def _expression_cache(
+        self,
+        expression_list,
+        report_type_list,
+        intrinsics_list,
+        isconvergence_list,
+        isrelativeconvergence,
+        conv_criteria,
+    ):
         """Retrieve data from the expression setup cache.
 
         Parameters
@@ -164,9 +174,9 @@ class Setup(object):
 
         list_data = ["NAME:ExpressionCache"]
         if type(expression_list) is list:
-            i=0
+            i = 0
             while i < len(expression_list):
-                expression=expression_list[i]
+                expression = expression_list[i]
                 name = expression.replace("(", "_") + "1"
                 name = name.replace(")", "_")
                 name = name.replace(" ", "_")
@@ -182,47 +192,70 @@ class Setup(object):
                     intrinsics = intrinsics_list[i]
                 else:
                     intrinsics = intrinsics_list
-                list_data.append([
-                    "NAME:CacheItem",
-                    "Title:=", name,
-                    "Expression:=", expression,
-                    "Intrinsics:=", intrinsics,
-                    "IsConvergence:=", isconvergence,
-                    "UseRelativeConvergence:=", 1,
-                    "MaxConvergenceDelta:=", 1,
-                    "MaxConvergeValue:=", "0.01",
-                    "ReportType:=", report_type,
+                list_data.append(
                     [
-                        "NAME:ExpressionContext"
+                        "NAME:CacheItem",
+                        "Title:=",
+                        name,
+                        "Expression:=",
+                        expression,
+                        "Intrinsics:=",
+                        intrinsics,
+                        "IsConvergence:=",
+                        isconvergence,
+                        "UseRelativeConvergence:=",
+                        1,
+                        "MaxConvergenceDelta:=",
+                        1,
+                        "MaxConvergeValue:=",
+                        "0.01",
+                        "ReportType:=",
+                        report_type,
+                        ["NAME:ExpressionContext"],
                     ]
-                ])
-                i+=1
+                )
+                i += 1
 
         else:
             name = expression_list.replace("(", "") + "1"
             name = name.replace(")", "")
             name = name.replace(" ", "")
             name = name.replace(",", "_")
-            list_data.append([
-                "NAME:CacheItem",
-                "Title:=", name,
-                "Expression:=", expression_list,
-                "Intrinsics:=", intrinsics_list,
-                "IsConvergence:=", isconvergence_list,
-                "UseRelativeConvergence:=", userelative,
-                "MaxConvergenceDelta:=", conv_criteria,
-                "MaxConvergeValue:=", str(conv_criteria),
-                "ReportType:=", report_type_list,
+            list_data.append(
                 [
-                    "NAME:ExpressionContext"
+                    "NAME:CacheItem",
+                    "Title:=",
+                    name,
+                    "Expression:=",
+                    expression_list,
+                    "Intrinsics:=",
+                    intrinsics_list,
+                    "IsConvergence:=",
+                    isconvergence_list,
+                    "UseRelativeConvergence:=",
+                    userelative,
+                    "MaxConvergenceDelta:=",
+                    conv_criteria,
+                    "MaxConvergeValue:=",
+                    str(conv_criteria),
+                    "ReportType:=",
+                    report_type_list,
+                    ["NAME:ExpressionContext"],
                 ]
-            ])
+            )
 
         return list_data
 
     @aedt_exception_handler
-    def enable_expression_cache(self, expressions, report_type="Fields", intrinsics='', isconvergence=True,
-                                isrelativeconvergence=True, conv_criteria=1):
+    def enable_expression_cache(
+        self,
+        expressions,
+        report_type="Fields",
+        intrinsics="",
+        isconvergence=True,
+        isrelativeconvergence=True,
+        conv_criteria=1,
+    ):
         """Enable an expression cache.
 
         Parameters
@@ -252,8 +285,9 @@ class Setup(object):
         """
         arg = ["NAME:" + self.name]
         dict2arg(self.props, arg)
-        expression_cache = self._expression_cache(expressions, report_type, intrinsics, isconvergence,
-                                                  isrelativeconvergence, conv_criteria)
+        expression_cache = self._expression_cache(
+            expressions, report_type, intrinsics, isconvergence, isrelativeconvergence, conv_criteria
+        )
         arg.append(expression_cache)
         self.omodule.EditSetup(self.name, arg)
         return True
@@ -298,13 +332,7 @@ class Setup(object):
         if not setup_name:
             setup_name = self.name
 
-        self.omodule.EditSetup(
-            setup_name,
-            [
-                "NAME:" + setup_name,
-                "IsEnabled:=", True
-            ]
-        )
+        self.omodule.EditSetup(setup_name, ["NAME:" + setup_name, "IsEnabled:=", True])
         return True
 
     @aedt_exception_handler
@@ -325,17 +353,11 @@ class Setup(object):
         if not setup_name:
             setup_name = self.name
 
-        self.omodule.EditSetup(
-            setup_name,
-            [
-                "NAME:" + setup_name,
-                "IsEnabled:", False
-            ]
-        )
+        self.omodule.EditSetup(setup_name, ["NAME:" + setup_name, "IsEnabled:", False])
         return True
 
     @aedt_exception_handler
-    def add_sweep(self, sweepname=None, sweeptype= "Interpolating"):
+    def add_sweep(self, sweepname=None, sweeptype="Interpolating"):
         """Add a sweep to the project.
 
         Parameters
@@ -407,6 +429,7 @@ class Setup(object):
         self.update()
         return True
 
+
 class SetupCircuit(object):
     """Initializes, creates, and updates a circuit setup.
 
@@ -423,6 +446,7 @@ class SetupCircuit(object):
       If ``False``, access is to the existing setup.
 
     """
+
     @property
     def name(self):
         """Name."""
@@ -488,11 +512,11 @@ class SetupCircuit(object):
             try:
                 setups_data = self.parent.design_properties["SimSetups"]["SimSetup"]
                 if type(setups_data) is not list:
-                    setups_data=[setups_data]
+                    setups_data = [setups_data]
                 for setup in setups_data:
                     if setupname == setup["Name"]:
                         setup_data = setup
-                        setup_data.pop('Sweeps', None)
+                        setup_data.pop("Sweeps", None)
                         self.props = setup_data
             except:
                 self.props = {}
@@ -557,11 +581,11 @@ class SetupCircuit(object):
             elif soltype == "NexximTransient":
                 self.omodule.EditTransient(self.name, arg)
             elif soltype == "NexximQuickEye":
-                self.omodule.EditQuickEyeAnalysis(self.name,arg)
+                self.omodule.EditQuickEyeAnalysis(self.name, arg)
             elif soltype == "NexximVerifEye":
-                self.omodule.EditVerifEyeAnalysis(self.name,arg)
+                self.omodule.EditVerifEyeAnalysis(self.name, arg)
             elif soltype == "NexximAMI":
-                self.omodule.EditAMIAnalysis(self.name,arg)
+                self.omodule.EditAMIAnalysis(self.name, arg)
 
             else:
                 raise NotImplementedError("Solution type '{}' is not implemented yet".format(soltype))
@@ -584,7 +608,7 @@ class SetupCircuit(object):
         """
         if update_dictionary:
             for el in update_dictionary:
-                self.props[el]=update_dictionary[el]
+                self.props[el] = update_dictionary[el]
         arg = ["NAME:SimSetup"]
         soltype = SetupKeys.SetupNames[self.setuptype]
         dict2arg(self.props, arg)
@@ -592,8 +616,15 @@ class SetupCircuit(object):
         return True
 
     @aedt_exception_handler
-    def _expression_cache(self, expression_list, report_type_list, intrinsics_list, isconvergence_list,
-                          isrelativeconvergence, conv_criteria):
+    def _expression_cache(
+        self,
+        expression_list,
+        report_type_list,
+        intrinsics_list,
+        isconvergence_list,
+        isrelativeconvergence,
+        conv_criteria,
+    ):
         """Retrieve data from the expression setup cache.
 
         Parameters
@@ -625,9 +656,9 @@ class SetupCircuit(object):
 
         list_data = ["NAME:ExpressionCache"]
         if type(expression_list) is list:
-            i=0
+            i = 0
             while i < len(expression_list):
-                expression=expression_list[i]
+                expression = expression_list[i]
                 name = expression.replace("(", "_") + "1"
                 name = name.replace(")", "_")
                 name = name.replace(" ", "_")
@@ -643,47 +674,70 @@ class SetupCircuit(object):
                     intrinsics = intrinsics_list[i]
                 else:
                     intrinsics = intrinsics_list
-                list_data.append([
-                    "NAME:CacheItem",
-                    "Title:=", name,
-                    "Expression:=", expression,
-                    "Intrinsics:=", intrinsics,
-                    "IsConvergence:=", isconvergence,
-                    "UseRelativeConvergence:=", 1,
-                    "MaxConvergenceDelta:=", 1,
-                    "MaxConvergeValue:=", "0.01",
-                    "ReportType:=", report_type,
+                list_data.append(
                     [
-                        "NAME:ExpressionContext"
+                        "NAME:CacheItem",
+                        "Title:=",
+                        name,
+                        "Expression:=",
+                        expression,
+                        "Intrinsics:=",
+                        intrinsics,
+                        "IsConvergence:=",
+                        isconvergence,
+                        "UseRelativeConvergence:=",
+                        1,
+                        "MaxConvergenceDelta:=",
+                        1,
+                        "MaxConvergeValue:=",
+                        "0.01",
+                        "ReportType:=",
+                        report_type,
+                        ["NAME:ExpressionContext"],
                     ]
-                ])
-                i+=1
+                )
+                i += 1
 
         else:
             name = expression_list.replace("(", "") + "1"
             name = name.replace(")", "")
             name = name.replace(" ", "")
             name = name.replace(",", "_")
-            list_data.append([
-                "NAME:CacheItem",
-                "Title:=", name,
-                "Expression:=", expression_list,
-                "Intrinsics:=", intrinsics_list,
-                "IsConvergence:=", isconvergence_list,
-                "UseRelativeConvergence:=", userelative,
-                "MaxConvergenceDelta:=", conv_criteria,
-                "MaxConvergeValue:=", str(conv_criteria),
-                "ReportType:=", report_type_list,
+            list_data.append(
                 [
-                    "NAME:ExpressionContext"
+                    "NAME:CacheItem",
+                    "Title:=",
+                    name,
+                    "Expression:=",
+                    expression_list,
+                    "Intrinsics:=",
+                    intrinsics_list,
+                    "IsConvergence:=",
+                    isconvergence_list,
+                    "UseRelativeConvergence:=",
+                    userelative,
+                    "MaxConvergenceDelta:=",
+                    conv_criteria,
+                    "MaxConvergeValue:=",
+                    str(conv_criteria),
+                    "ReportType:=",
+                    report_type_list,
+                    ["NAME:ExpressionContext"],
                 ]
-            ])
+            )
 
         return list_data
 
     @aedt_exception_handler
-    def enable_expression_cache(self, expressions, report_type="Fields", intrinsics='', isconvergence=True,
-                                isrelativeconvergence=True, conv_criteria=1):
+    def enable_expression_cache(
+        self,
+        expressions,
+        report_type="Fields",
+        intrinsics="",
+        isconvergence=True,
+        isrelativeconvergence=True,
+        conv_criteria=1,
+    ):
         """Enable a setup expression cache.
 
         Parameters
@@ -713,8 +767,9 @@ class SetupCircuit(object):
         """
         arg = ["Name:SimSetup"]
         dict2arg(self.props, arg)
-        expression_cache = self._expression_cache(expressions, report_type, intrinsics, isconvergence,
-                                                  isrelativeconvergence, conv_criteria)
+        expression_cache = self._expression_cache(
+            expressions, report_type, intrinsics, isconvergence, isrelativeconvergence, conv_criteria
+        )
         arg.append(expression_cache)
         self.omodule.EditSetup(self.name, arg)
         return True
@@ -816,7 +871,7 @@ class Setup3DLayout(object):
         if isinstance(solutiontype, int):
             self._solutiontype = solutiontype
         else:
-            self._solutiontype =SetupKeys.defaultSetups[self._solutiontype]
+            self._solutiontype = SetupKeys.defaultSetups[self._solutiontype]
         self.name = setupname
         self.props = OrderedDict()
         self.sweeps = []
@@ -829,7 +884,7 @@ class Setup3DLayout(object):
                 setups_data = self.parent.design_properties["Setup"]["Data"]
                 if setupname in setups_data:
                     setup_data = setups_data[setupname]
-                    if "Data" in setup_data:   #0 and 7 represent setup HFSSDrivenAuto
+                    if "Data" in setup_data:  # 0 and 7 represent setup HFSSDrivenAuto
                         app = setup_data["Data"]
                         for el in app:
                             if type(app[el]) is OrderedDict:
@@ -854,8 +909,8 @@ class Setup3DLayout(object):
             Setup type.
         """
 
-        if 'SolveSetupType' in self.props:
-            return self.props['SolveSetupType']
+        if "SolveSetupType" in self.props:
+            return self.props["SolveSetupType"]
         else:
             return None
 
@@ -909,7 +964,7 @@ class Setup3DLayout(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self.props['Properties']['Enable'] = "true"
+        self.props["Properties"]["Enable"] = "true"
         self.update()
         return True
 
@@ -928,7 +983,7 @@ class Setup3DLayout(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self.props['Properties']['Enable'] = "false"
+        self.props["Properties"]["Enable"] = "false"
         self.update()
         return True
 
@@ -951,7 +1006,7 @@ class Setup3DLayout(object):
         file_fullname = os.path.normpath(file_fullname)
         if not os.path.isdir(os.path.dirname(file_fullname)):
             return False
-        file_fullname = os.path.splitext(file_fullname)[0] + '.aedt'
+        file_fullname = os.path.splitext(file_fullname)[0] + ".aedt"
         self.omodule.ExportToHfss(self.name, file_fullname)
         return True
 
