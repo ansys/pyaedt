@@ -186,7 +186,6 @@ class Part(object):
             name of the 3d comp file without extension.
 
         """
-        # TODO: Add exception handling
         # Default values:
         self._compdef = dict()
         self._parent = parent
@@ -298,6 +297,12 @@ class Part(object):
     # Create a unique coordinate system name for the part.
     @property
     def cs_name(self):
+        """Coordinate System Name.
+
+        Returns
+        -------
+        str
+        """
         if self._motion or not self.zero_offset('offset') or not self.zero_offset('rotation_cs'):
             return self.name + '_cs'
         else:
@@ -306,19 +311,43 @@ class Part(object):
     # Define the variable names for angles in the app:
     @property
     def yaw_name(self):
+        """Yaw Name.
+
+        Returns
+        -------
+        str
+        """
         return self.name + '_yaw'
 
     @property
     def pitch_name(self):
+        """Pitch Name.
+
+        Returns
+        -------
+        str
+        """
         return self.name + '_pitch'
 
     @property
     def roll_name(self):
+        """Roll Name.
+
+        Returns
+        -------
+        str
+        """
         return self.name + '_roll'
 
     # Always return the local origin as a list:
     @property
     def local_origin(self):
+        """Local Part Offset.
+
+        Returns
+        -------
+        list
+        """
         if self['offset']:
             if self.zero_offset('offset') or self['offset'] == 'Global':
                 return [0, 0, 0]
@@ -329,6 +358,12 @@ class Part(object):
 
     @property
     def rotate_origin(self):
+        """Origin Rotation Liste.
+
+        Returns
+        -------
+        list
+        """
         if self['rotation_cs']:
             if self.zero_offset('rotation_cs') or self['rotation_cs'] == 'Global':
                 return self.local_origin()
@@ -350,6 +385,12 @@ class Part(object):
     # or numerical value.
     @property
     def yaw(self):
+        """Yaw Value.
+
+        Returns
+        -------
+        str
+        """
         return self._yaw
 
     @yaw.setter
@@ -358,6 +399,12 @@ class Part(object):
 
     @property
     def pitch(self):
+        """Pitch Value.
+
+        Returns
+        -------
+        str
+        """
         return self._pitch
 
     @pitch.setter
@@ -366,6 +413,12 @@ class Part(object):
 
     @property
     def roll(self):
+        """Roll Value.
+
+        Returns
+        -------
+        str
+        """
         return self._roll
 
     @roll.setter
@@ -374,10 +427,21 @@ class Part(object):
 
     @property
     def name(self):
+        """Part Name.
+
+        Returns
+        -------
+        str
+        """
         return self._parent.name + '_' + self._name
 
     def set_relative_cs(self, app):
+        """Create a new, parametric Coordinate System.
 
+        Returns
+        -------
+        bool
+        """
         # Set x,y,z offset variables in app. But check first to see if the CS
         # has already been defined.
         if self.cs_name not in app.modeler.oeditor.GetCoordinateSystems() and self.cs_name != "Global":
@@ -393,10 +457,15 @@ class Part(object):
 
     @property
     def rot_cs_name(self):
+        """Rotation Coordinate System Name.
+
+        Returns
+        -------
+        str
+        """
         return self.name + '_rot_cs'
 
     def do_rotate(self, app, aedt_object):
-
         """
         Set the rotation coordinate system relative to the parent CS.
         This function should only be called if
@@ -495,26 +564,26 @@ class MultiPartComponent(object):
     modeler_units = "meter"
 
     @staticmethod
-    # @aedt_exception_handler #  TODO: Get help catching errors.
     def start(app):
-        """
-        Initialize app for SBR+ Simulation
+        """Initialize app for SBR+ Simulation.
+
         Parameters
         ----------
-        app : pyaedt.Hfss, required
+        app : class:`pyaedt.Hfss`
             Application instance.
 
         Returns
         -------
-        True on success
+        bool
+            True on success
         """
         app[MultiPartComponent._t] = MultiPartComponent._t_value
         app.modeler.model_units = "meter"  # Set units.
 
         return True
 
-    def __init__(self, comp_folder, name=None, use_relative_cs=False, motion=False,
-                  offset=("0", "0", "0"), yaw="0deg", pitch="0deg", roll="0deg"):
+    def __init__(self, comp_folder, name=None, use_relative_cs=False, motion=False, offset=("0", "0", "0"), yaw="0deg",
+                 pitch="0deg", roll="0deg"):
         """
         MultiPartComponent class. Forward motion is in the x-direction (if motion is set)
 
@@ -618,51 +687,93 @@ class MultiPartComponent(object):
 
     @property
     def cs_name(self):
+        """Coordinate System Name.
+
+        Returns
+        -------
+        str
+        """
         if self.use_global_cs:
             return "Global"
         else:
             return self.name + '_cs'  # name is uniquely indexed so cs will be unique
 
     @property
-    def index(self):  # Track number of self._name using MultiPartComponent._names
+    def index(self):
+        """Track number of self._name using MultiPartComponent._names
+
+        Returns
+        -------
+        int
+        """
         if self._index is None:  # Only increment one time.
             self._index = MultiPartComponent._names.count(self._name)
             MultiPartComponent._names.append(self._name)
         return self._index
-
-#    @index.setter
-#    def index(self, i):
-#        self._index = i
-#        MultiPartComponent._count[self._component_class] += 1  # Increment class index
 
     # The following read-only properties are used to
     # set the x,y,z offset variable name for this
     # multi-part 3d component instance in the app.
     @property
     def offset_x_name(self):
+        """X Axis Offset Name.
+
+        Returns
+        -------
+        str
+        """
         return self._offset_var_names[0]
 
     @property
     def offset_y_name(self):
+        """Y Axis Offset Name.
+
+        Returns
+        -------
+        str
+        """
         return self._offset_var_names[1]
 
     @property
     def offset_z_name(self):
+        """Z Axis Offset Name.
+
+        Returns
+        -------
+        str
+        """
         return self._offset_var_names[2]
 
     @property
     def offset_names(self):
+        """X, Y, Z Axis Offset Name.
+
+        Returns
+        -------
+        list
+        """
         return [self.offset_x_name,
                 self.offset_y_name,
                 self.offset_z_name]
 
     @property
-    # This is the name of the variable for yaw in the app.
     def yaw_name(self):
+        """Yaw variable name.
+
+        Returns
+        -------
+        str
+        """
         return self.name + '_yaw'
 
     @property
     def yaw(self):
+        """Yaw variable value.
+
+        Returns
+        -------
+        str
+        """
         return self._yaw
 
     @yaw.setter
@@ -675,10 +786,22 @@ class MultiPartComponent(object):
     @property
     # This is the name of the variable for pitch in the app.
     def pitch_name(self):
+        """Pitch variable name.
+
+        Returns
+        -------
+        str
+        """
         return self.name + '_pitch'
 
     @property
     def pitch(self):
+        """Pitch variable value.
+
+        Returns
+        -------
+        str
+        """
         return self._pitch
 
     @pitch.setter
@@ -691,10 +814,22 @@ class MultiPartComponent(object):
     @property
     # This is the name of the variable for roll in the app.
     def roll_name(self):
+        """Roll variable name.
+
+        Returns
+        -------
+        str
+        """
         return self.name + '_roll'
 
     @property
     def roll(self):
+        """Roll variable value.
+
+        Returns
+        -------
+        str
+        """
         return self._roll
 
     @roll.setter
@@ -719,15 +854,33 @@ class MultiPartComponent(object):
 
     @property
     def name(self):
+        """Unique instance name.
+
+        Returns
+        -------
+        str
+        """
         suffix = '_' + str(self.index)
         return self._name + suffix  # unique instance name
 
     @property
     def use_global_cs(self):
+        """Use Global CS.
+
+        Returns
+        -------
+        bool
+        """
         return self._use_global_cs
 
     @property
     def offset(self):
+        """Offet for Multipart.
+
+        Returns
+        -------
+        list
+        """
         return self._offset_values
 
     @offset.setter
@@ -787,11 +940,11 @@ class MultiPartComponent(object):
                                                         name=self.cs_name)
 
     def _insert(self, app,  motion=False):
-        """
-        Insert the multipart 3d component
+        """Insert the multipart 3d component.
+
         Parameters
         ----------
-        app : pyaedt.hfss.Hfss, required
+        app : :class:`pyaedt.hfss.Hfss`
             Application where Mutipart3DComponent will be inserted.
         motion : Bool, optional
             Set to true if variables should be created in the
@@ -799,7 +952,7 @@ class MultiPartComponent(object):
 
         Returns
         -------
-
+        bool
         """
         self.motion = True if motion else self.motion
 
@@ -815,8 +968,15 @@ class MultiPartComponent(object):
                     self.aedt_components.append(i)
         app.modeler.create_group(components=self.aedt_components,
                                  group_name=self.name)
+        return True
 
     def insert(self, app, motion=False):
+        """Insert object into App.
+
+        Returns
+        -------
+        bool
+        """
         return self._insert(app, motion=motion)
 
 
@@ -861,10 +1021,22 @@ class Actor(MultiPartComponent, object):
 
     @property
     def speed_name(self):
+        """Speed Name.
+
+        Returns
+        -------
+        str
+        """
         return self.name + '_speed'
 
     @property
     def speed_expression(self):
+        """Speed Expression.
+
+        Returns
+        -------
+        str
+        """
         return self._speed_expression
 
     @speed_expression.setter
@@ -918,6 +1090,12 @@ class Person(Actor, object):
 
     @property
     def stride(self):
+        """Stride in m_per_sec.
+
+        Returns
+        -------
+        str
+        """
         return self._stride
 
     @stride.setter
@@ -936,8 +1114,19 @@ class Person(Actor, object):
                                            "(" + p['compensation_angle'] + ")rad"
 
     def insert(self, app, motion=True):
+        """Insert the Person into the AEDT app.
+
+        Parameters
+        ----------
+        app : :class:`pyaedt.hfss.Hfss`
+        motion : bool
+
+        Returns
+        -------
+
         """
-        Insert the Person into the AEDT app.
+        """Insert the Person into the AEDT app.
+        
 
         """
 
@@ -981,11 +1170,17 @@ class Bird(Actor, object):
                                         + MultiPartComponent._t + ")"
 
     def insert(self, app, motion=True):
-        """
-        Insert the Vehicle into the AEDT app.
+        """Insert the Bird into the AEDT app.
+
+        Parameters
+        ----------
+        app : :class:`pyaedt.hfss.Hfss`
+        motion : bool
+
+        Returns
+        -------
 
         """
-
         app.add_info_message("Adding Vehicle: " + self.name, "Design")
 
         self._insert(app)  # Place the multipart component in the app.
@@ -1024,11 +1219,17 @@ class Vehicle(Actor, object):
                                         + "meter)*(180/pi)*1deg"
 
     def insert(self, app, motion=True):
-        """
-        Insert the Vehicle into the AEDT app.
+        """Insert the Vehicle into the AEDT app.
+
+        Parameters
+        ----------
+        app : :class:`pyaedt.hfss.Hfss`
+        motion : bool
+
+        Returns
+        -------
 
         """
-
         app.add_info_message("Adding Vehicle: " + self.name, "Design")
 
         self._insert(app)  # Place the multipart component in the app.
@@ -1050,6 +1251,12 @@ class Antenna(Part, object):
 
     @property
     def params(self):
+        """
+
+        Returns
+        -------
+
+        """
         p = {}
         if self._compdef['antenna_type'] == 'parametric':
             p['Vertical BeamWidth'] = self._compdef['beamwidth_elevation']
@@ -1068,12 +1275,12 @@ class Antenna(Part, object):
         return a
 
     def insert(self, app):
-
         """
         Insert antenna into app
+
         Parameters
         ----------
-        app : pyaedt.Hfss, required
+        app : :class:`pyaedt.hfss.Hfss`, required
             HFSS application instance.
 
         Returns
@@ -1111,14 +1318,32 @@ class Radar(MultiPartComponent, object):
 
     @property
     def units(self):
+        """
+
+        Returns
+        -------
+
+        """
         return self._local_units
 
     @property
     def speed_name(self):
+        """
+
+        Returns
+        -------
+
+        """
         return self.name + '_speed'
 
     @property
     def speed_expression(self):
+        """
+
+        Returns
+        -------
+
+        """
         return self._speed_expression
 
     @speed_expression.setter
@@ -1143,7 +1368,7 @@ class Radar(MultiPartComponent, object):
         Insert radar into app (app is the HFSS application instance)
         Parameters
         ----------
-        app: class: `pyaedt.Hfss`
+        app: class: `pyaedt.hfss.Hfss`
 
         Returns
         -------

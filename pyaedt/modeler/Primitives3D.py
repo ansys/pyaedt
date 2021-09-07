@@ -1079,8 +1079,7 @@ class Primitives3D(Primitives, object):
         Parameters
         ----------
         env_folder : str
-            Path to the actor directory. It must contain a json settings file and a 
-            3dcomponent (``.a3dcomp`` file).
+            Path to the actor directory. It must contain a json settings file and a 3dcomponent (``.a3dcomp`` file).
         global_offset: list, optional
             Offset from global coordinate system.
         yaw : float, optional
