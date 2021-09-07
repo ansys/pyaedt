@@ -1086,12 +1086,11 @@ class EdbSiwave(object):
         neg_node_net = self.parent.core_nets.get_net_by_name(source.negative_node.net)
         pos_pingroup_term_name = generate_unique_name(source.name + "_POS")
         neg_pingroup_term_name = generate_unique_name(source.name + "_NEG")
-        pos_pingroup_terminal = retry_ntimes(10,self._edb.Cell.Terminal.PinGroupTerminal.Create,self._active_layout,pos_node_net,pos_pingroup_term_name , pos_pin_group[1], False)
+        pos_pingroup_terminal = retry_ntimes(10, self._edb.Cell.Terminal.PinGroupTerminal.Create, self._active_layout,
+                                             pos_node_net, pos_pingroup_term_name, pos_pin_group[1], False)
         time.sleep(0.5)
-        neg_pingroup_terminal = retry_ntimes(10,self._edb.Cell.Terminal.PinGroupTerminal.Create, self._active_layout,neg_node_net,neg_pingroup_term_name , neg_pin_group[1], False)
-
-        #pos_pingroup_terminal = self._edb.Cell.Terminal.PinGroupTerminal.Create(self._active_layout,pos_node_net,pos_pingroup_term_name , pos_pin_group[1], False)
-        #neg_pingroup_terminal = self._edb.Cell.Terminal.PinGroupTerminal.Create(self._active_layout,neg_node_net,neg_pingroup_term_name , neg_pin_group[1], False)
+        neg_pingroup_terminal = retry_ntimes(10, self._edb.Cell.Terminal.PinGroupTerminal.Create, self._active_layout,
+                                             neg_node_net, neg_pingroup_term_name, neg_pin_group[1], False)
 
         if source.type == SourceType.Port:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
