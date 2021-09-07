@@ -126,18 +126,19 @@ class TestClass:
         output = self.aedtapp.export_fullwave_spice(os.path.join(self.local_scratch.path, touchstone),
                                                     is_solution_file=True)
         assert output
-        pass
 
     def test_12_connect_components(self):
 
         myindid, myind = self.aedtapp.modeler.components.create_inductor("L100", 1e-9, 0, 0)
         myresid, myres = self.aedtapp.modeler.components.create_resistor("R100", 50, 0.0254, 0)
         mycapid, mycap = self.aedtapp.modeler.components.create_capacitor("C100", 1e-12, 0.0400, 0)
-        self.aedtapp.modeler.components.create_iport("Port1", 0.2, 0.2)
+        portobj, portname = self.aedtapp.modeler.components.create_interface_port("Port1", 0.2, 0.2)
+        assert "Port1" in portname
 
         assert self.aedtapp.modeler.connect_schematic_components(myresid, myindid, pinnum_second=2)
         assert self.aedtapp.modeler.connect_schematic_components(myresid, mycapid, pinnum_first=1)
 
+        # create_interface_port
         L1_pins = self.aedtapp.modeler.components.get_pins(myindid)
         L1_pin2location = {}
         for pin in L1_pins:
@@ -148,13 +149,22 @@ class TestClass:
         for pin in C1_pins:
             C1_pin2location[pin] = self.aedtapp.modeler.components.get_pin_location(mycapid, pin)
 
-        self.aedtapp.modeler.components.create_iport("P1_1", L1_pin2location["n1"][0],
-                                                     L1_pin2location["n1"][1])
-        self.aedtapp.modeler.components.create_iport("P2_2", C1_pin2location["negative"][0],
-                                                     C1_pin2location["negative"][1])
+        portobj, portname = self.aedtapp.modeler.components.create_interface_port("P1_1", L1_pin2location["n1"][0],
+                                                                                  L1_pin2location["n1"][1])
+        assert "P1_1" in portname
+        portobj, portname = self.aedtapp.modeler.components.create_interface_port("P2_2", C1_pin2location["negative"][0],
+                                                                                  C1_pin2location["negative"][1])
+        assert "P2_2" in portname
+
+        # create_page_port
+        portid, portname = self.aedtapp.modeler.components.create_page_port("Link_1", L1_pin2location["n2"][0],
+                                                                            L1_pin2location["n2"][1])
+        assert "Link_1" in portname
+        portid, portname = self.aedtapp.modeler.components.create_page_port("Link_2", C1_pin2location["positive"][0],
+                                                                            C1_pin2location["positive"][1], 180)
+        assert "Link_2" in portname
 
     def test_13_properties(self):
-        #assert self.aedtapp.modeler.edb
         assert self.aedtapp.modeler.model_units
 
     def test_14_move(self):
@@ -210,3 +220,18 @@ class TestClass:
         assert self.aedtapp.post.create_statistical_eye_plot("Dom_Verify", "b_input_15.int_ami_rx.eye_probe",
                                                                   self.aedtapp.available_variations.nominal,
                                                                   plotname="MyReportV") == "MyReportV"
+
+    def test_21_assign_voltage_sinusoidal_excitation_to_ports(self):
+        settings = ["123 V", "10deg", "", "", "0V", "15GHz", "0s", "0", "0deg", ""]
+        ports_list = ["P1_1", "P2_2"]
+        assert self.aedtapp.assign_voltage_sinusoidal_excitation_to_ports(ports_list, settings)
+
+    def test_22_assign_current_sinusoidal_excitation_to_ports(self):
+        settings = ["", "", "20A", "50A", "4A", "", "0s", "0", "0deg", "1", "20Hz"]
+        ports_list = ["P1_1"]
+        assert self.aedtapp.assign_current_sinusoidal_excitation_to_ports(ports_list, settings)
+
+    def test_23_assign_power_sinusoidal_excitation_to_ports(self):
+        settings = ["", "", "", "", "20W", "14GHz", "0s", "0", "0deg", "0Hz"]
+        ports_list = ["P2_2"]
+        assert self.aedtapp.assign_power_sinusoidal_excitation_to_ports(ports_list, settings)

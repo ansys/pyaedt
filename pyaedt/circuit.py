@@ -3,12 +3,14 @@
 
 from __future__ import absolute_import
 import math
+import warnings
+import re
+import os
+
 from .application.AnalysisNexxim import FieldAnalysisCircuit
 from .desktop import exception_to_desktop
 from .application.DataHandlers import from_rkm_to_aedt
 from .generic.general_methods import aedt_exception_handler
-import re
-import os
 
 
 class Circuit(FieldAnalysisCircuit, object):
@@ -494,7 +496,8 @@ class Circuit(FieldAnalysisCircuit, object):
         source_project_path : str, optional
             Path to the source project if different than the existing path. The default is ``None``.
         port_selector : int, optional
-             Type of the port. Options are ``1``, ``2``, or ``3``, corresponding respectively to ``"Wave Port"``, ``"Terminal"``, or ``"Circuit Port"``.
+             Type of the port. Options are ``1``, ``2``, or ``3``, corresponding respectively to ``"Wave Port"``,
+             ``"Terminal"``, or ``"Circuit Port"``.
              The default is ``3``, which is a circuit port.
 
         Returns
@@ -503,6 +506,12 @@ class Circuit(FieldAnalysisCircuit, object):
             List of pin names.
 
         """
+        if source_project_name and self.project_name != source_project_name and not source_project_path:
+            raise AttributeError("If source project is different than the current one, "
+                                 "``source_project_path`` must be also provided.")
+        if source_project_path and not source_project_name:
+            raise AttributeError("When ``source_project_path`` is specified, "
+                                 "``source_project_name`` must be also provided.")
         if not source_project_name or self.project_name == source_project_name:
             oSrcProject = self._desktop.GetActiveProject()
         else:
@@ -786,3 +795,274 @@ class Circuit(FieldAnalysisCircuit, object):
         ctxt = ["NAME:Context", "SimValueContext:=", [
             3, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0]]
         return self.post.get_solution_data_per_variation("Standard", solution_name, ctxt, variations, curvenames)
+
+    @aedt_exception_handler
+    def push_excitations(self, instance_name, thevenin_calculation=False, setup_name="LinearFrequency"):
+        """Push excitations.
+
+        Parameters
+        ----------
+        instance_name : str
+            Name of the instance.
+        thevenin_calculation : bool, optional
+            Whether to perform the Thevenin equivalent calculation. The default is ``False``.
+        setup_name : str
+            Name of the solution setup to push.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        arg = ["NAME:options",
+               "CalcThevenin:=", thevenin_calculation,
+               "Sol:=", setup_name]
+
+        self.oeditor.PushExcitations(instance_name, arg)
+        return True
+
+    @aedt_exception_handler
+    def assign_voltage_sinusoidal_excitation_to_ports(self, ports, settings):
+        """Assign a voltage sinusoidal excitation to circuit ports.
+
+        Parameters
+        ----------
+        ports : list
+            List of circuit ports to assign to the sinusoidal excitation.
+        settings : list
+            List of parameter values to use in voltage sinusoidal excitation creation.
+            All settings must be provided as strings.
+            An empty string (``""``) sets the parameter to its default.
+
+            Values are given in this order:
+
+            * 0: AC magnitude for small-signal analysis. For example ``"33V"``. Default = "nan V".
+            * 1: AC phase for small-signal analysis. For example ``"44deg"``. Default = "0deg".
+            * 2: DC voltage. For example ``"1V"``. Default = "0V"
+            * 3: Voltage offset from zero. For example ``"1V"``. Default = "0V".
+            * 4: Voltage amplitude. For example ``"3V"``. Default = "0V".
+            * 5: Frequency. For example ``"15GHz"``. Default = "1GHz".
+            * 6: Delay to start of sine wave. For example ``"16s"``. Default = "0s".
+            * 7: Damping factor (1/seconds). For example ``"2"``. Default = "0".
+            * 8: Phase delay. For example ``"18deg"``. Default = "0deg".
+            * 9: Frequency to use for harmonic balance analysis. For example ``"20Hz"``. Default = "0Hz".
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        # setting the defaults if no value is provided
+        defaults = ["nan V", "0deg", "0V", "0V", "0V", "1GHz", "0s", "0", "0deg", "0Hz"]
+        for i in range(len(settings)):
+            if settings[i] == "":
+                settings[i] = defaults[i]
+
+        id = self.modeler.components.create_unique_id()
+
+        arg1 = ["NAME:NexximSources",
+                ["NAME:NexximSources",
+                 ["NAME:Data",
+                  ["NAME:VoltageSinusoidal"+str(id),
+                   "DataId:=", "Source"+str(id),
+                   "Type:=", 1,
+                   "Output:=", 0,
+                   "NumPins:=", 2,
+                   "Netlist:=", "V@ID %0 %1 *DC(DC=@DC) SIN(?VO(@VO) ?VA(@VA) ?FREQ(@FREQ) ?TD(@TD) ?ALPHA(@ALPHA) ?THETA(@THETA)) *TONE(TONE=@TONE) *ACMAG(AC @ACMAG @ACPHASE)",
+                   "CompName:=", "Nexxim Circuit Elements\\Independent Sources:V_SIN",
+                   "FDSFileName:=", "",
+                   ["NAME:Properties",
+                    "TextProp:=", ["LabelID","HD","Property string for netlist ID","V@ID"],
+                    "ValueProp:=", ["ACMAG","OD","AC magnitude for small-signal analysis (Volts)",settings[0],0],
+                    "ValuePropNU:=", ["ACPHASE","OD","AC phase for small-signal analysis",settings[1],0,"deg"],
+                    "ValueProp:=", ["DC","OD","DC voltage (Volts)",settings[2],0],
+                    "ValueProp:=", ["VO","OD","Voltage offset from zero (Volts)",settings[3],0],
+                    "ValueProp:=", ["VA","OD","Voltage amplitude (Volts)",settings[4],0],
+                    "ValueProp:=", ["FREQ","OD","Frequency (Hz)",settings[5],0],
+                    "ValueProp:=", ["TD","OD","Delay to start of sine wave (seconds)",settings[6],0],
+                    "ValueProp:=", ["ALPHA","OD","Damping factor (1/seconds)",settings[7],0],
+                    "ValuePropNU:=", ["THETA","OD","Phase delay",settings[8],0,"deg"],
+                    "ValueProp:=", ["TONE","OD","Frequency (Hz) to use for harmonic balance analysis, should be a submultiple of (or equal to) the driving frequency and should also be included in the HB analysis setup",settings[9],0],
+                    "TextProp:=", ["ModelName","SHD","","V_SIN"],
+                    "MenuProp:=", ["CoSimulator","D","","DefaultNetlist",0],
+                    "ButtonProp:=", ["CosimDefinition","D","","","Edit",40501, "ButtonPropClientData:=", []]
+                    ]
+                   ]
+                  ]
+                 ]
+                ]
+
+        arg2 = ["NAME:ComponentConfigurationData"]
+
+        arg3 = ["NAME:ComponentConfigurationData", ["NAME:EnabledPorts", "VoltageSinusoidal"+str(id)+":=", ports]]
+
+        arg2.append(arg3)
+
+        self.odesign.UpdateSources(arg1, arg2)
+        return True
+
+    @aedt_exception_handler
+    def assign_current_sinusoidal_excitation_to_ports(self, ports, settings):
+        """Assign a current sinusoidal excitation to circuit ports.
+
+        Parameters
+        ----------
+        ports : list
+            List of circuit ports to assign to the sinusoidal excitation.
+        settings : list
+            List of parameter values to use in voltage sinusoidal excitation creation.
+            All settings must be provided as strings.
+            An empty string (``""``) sets the parameter to its default.
+
+            Values are given in this order:
+
+            * 0: AC magnitude for small-signal analysis. For example ``"33A"``. Default = "nan A".
+            * 1: AC phase for small-signal analysis. For example ``"44deg"``. Default = "0deg".
+            * 2: DC voltage. For example ``"1A"``. Default = "0A"
+            * 3: Current offset from zero. For example ``"1A"``. Default = "0A".
+            * 4: Current amplitude. For example ``"3A"``. Default = "0A".
+            * 5: Frequency. For example ``"15GHz"``. Default = "1GHz".
+            * 6: Delay to start of sine wave. For example ``"16s"``. Default = "0s".
+            * 7: Damping factor (1/seconds). For example ``"2"``. Default = "0".
+            * 8: Phase delay. For example ``"18deg"``. Default = "0deg".
+            * 9: Multiplier for simulating multiple parallel current sources. For example ``"4"``. Default = "1".
+            * 10: Frequency to use for harmonic balance analysis. For example ``"20Hz"``. Default = "0Hz".
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        # setting the defaults if no value is provided
+        defaults = ["nan A", "0deg", "0A", "0A", "0A", "1GHz", "0s", "0", "0deg", "1", "0Hz"]
+        for i in range(len(settings)):
+            if settings[i] == "":
+                settings[i] = defaults[i]
+
+        id = self.modeler.components.create_unique_id()
+
+        arg1 = ["NAME:NexximSources",
+                ["NAME:NexximSources",
+                 ["NAME:Data",
+                  ["NAME:CurrentSinusoidal"+str(id),
+                   "DataId:=", "Source"+str(id),
+                   "Type:=", 1,
+                   "Output:=", 1,
+                   "NumPins:=", 2,
+                   "Netlist:=", "I@ID %0 %1 *DC(DC=@DC) SIN(?VO(@VO) ?VA(@VA) ?FREQ(@FREQ) ?TD(@TD) ?ALPHA(@ALPHA) ?THETA(@THETA) *M(M=@M)) *TONE(TONE=@TONE) *ACMAG(AC @ACMAG @ACPHASE)",
+                   "CompName:=", "Nexxim Circuit Elements\\Independent Sources:I_SIN",
+                   "FDSFileName:=", "",
+                   ["NAME:Properties",
+                    "TextProp:=", ["LabelID","HD","Property string for netlist ID","I@ID"],
+                    "ValueProp:=", ["ACMAG","OD","AC magnitude for small-signal analysis (Amps)",settings[0],0],
+                    "ValuePropNU:=", ["ACPHASE","OD","AC phase for small-signal analysis",settings[1],0,"deg"],
+                    "ValueProp:=", ["DC","OD","DC current (Amps)",settings[2],0],
+                    "ValueProp:=", ["VO","OD","Current offset (Amps)",settings[3],0],
+                    "ValueProp:=", ["VA","OD","Current amplitude (Amps)",settings[4],0],
+                    "ValueProp:=", ["FREQ","OD","Frequency (Hz)",settings[5],0],
+                    "ValueProp:=", ["TD","OD","Delay to start of sine wave (seconds)",settings[6],0],
+                    "ValueProp:=", ["ALPHA","OD","Damping factor (1/seconds)",settings[7],0],
+                    "ValuePropNU:=", ["THETA","OD","Phase delay",settings[8],0,"deg"],
+                    "ValueProp:=", ["M","OD","Multiplier for simulating multiple parallel current sources",settings[9],0],
+                    "ValueProp:=", ["TONE","OD","Frequency (Hz) to use for harmonic balance analysis, should be a submultiple of (or equal to) the driving frequency and should also be included in the HB analysis setup",settings[10],0],
+                    "TextProp:=", ["ModelName","SHD","","I_SIN"],
+                    "MenuProp:=", ["CoSimulator","D","","DefaultNetlist",0],
+                    "ButtonProp:=", ["CosimDefinition","D","","","Edit",40501,"ButtonPropClientData:=", []]
+                    ]
+                   ]
+                  ]
+                 ]
+                ]
+
+        arg2 = ["NAME:ComponentConfigurationData"]
+
+        arg3 = ["NAME:ComponentConfigurationData", ["NAME:EnabledPorts", "CurrentSinusoidal"+str(id)+":=", ports]]
+
+        arg2.append(arg3)
+
+        self.odesign.UpdateSources(arg1, arg2)
+        return True
+
+    @aedt_exception_handler
+    def assign_power_sinusoidal_excitation_to_ports(self, ports, settings):
+        """Assign a power sinusoidal excitation to circuit ports.
+
+        Parameters
+        ----------
+        ports : list
+            List of circuit ports to assign to the sinusoidal excitation.
+        settings : list
+            List of parameter values to use in power sinusoidal excitation creation.
+            All settings must be provided as strings.
+            An empty string (``""``) sets the parameter to its default.
+
+            Values are given in this order:
+
+            * 0: AC magnitude for small-signal analysis. For example ``"33V"``. Default = "nan V".
+            * 1: AC phase for small-signal analysis. For example ``"44deg"``. Default = "0deg".
+            * 2: DC voltage. For example ``"1V"``. Default = "0V"
+            * 3: Power offset from zero watts. For example ``"1W"``. Default = "0W".
+            * 4: Available power of the source above VO. For example ``"3W"``. Default = "0W".
+            * 5: Frequency. For example ``"15GHz"``. Default = "1GHz".
+            * 6: Delay to start of sine wave. For example ``"16s"``. Default = "0s".
+            * 7: Damping factor (1/seconds). For example ``"2"``. Default = "0".
+            * 8: Phase delay. For example ``"18deg"``. Default = "0deg".
+            * 9: Frequency to use for harmonic balance analysis. For example ``"20Hz"``. Default = "0Hz".
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        # setting the defaults if no value is provided
+        defaults = ["nan V", "0deg", "0V", "0W", "0W", "1GHz", "0s", "0", "0deg", "0Hz"]
+        for i in range(len(settings)):
+            if settings[i] == "":
+                settings[i] = defaults[i]
+
+        id = self.modeler.components.create_unique_id()
+
+        arg1 = ["NAME:NexximSources",
+                ["NAME:NexximSources",
+                 ["NAME:Data",
+                  ["NAME:PowerSinusoidal"+str(id),
+                   "DataId:=", "Source"+str(id),
+                   "Type:=", 1,
+                   "Output:=", 2,
+                   "NumPins:=", 2,
+                   "Netlist:=", "V@ID %0 %1 *DC(DC=@DC) POWER SIN(?VO(@VO) ?POWER(@POWER) ?FREQ(@FREQ) ?TD(@TD) ?ALPHA(@ALPHA) ?THETA(@THETA)) *TONE(TONE=@TONE) *ACMAG(AC @ACMAG @ACPHASE)",
+                   "CompName:=", "Nexxim Circuit Elements\\Independent Sources:P_SIN",
+                   "FDSFileName:=", "",
+                   ["NAME:Properties",
+                    "TextProp:=", ["LabelID","HD","Property string for netlist ID","V@ID"],
+                    "ValueProp:=", ["ACMAG","OD","AC magnitude for small-signal analysis (Volts)",settings[0],0],
+                    "ValuePropNU:=", ["ACPHASE","OD","AC phase for small-signal analysis",settings[1],0,"deg"],
+                    "ValueProp:=", ["DC","OD","DC voltage (Volts)",settings[2],0],
+                    "ValuePropNU:=", ["VO","OD","Power offset from zero watts",settings[3],0,"W"],
+                    "ValueProp:=", ["POWER","OD","Available power of the source above VO",settings[4],0],
+                    "ValueProp:=", ["FREQ","OD","Frequency (Hz)",settings[5],0],
+                    "ValueProp:=", ["TD","OD","Delay to start of sine wave (seconds)",settings[6],0],
+                    "ValueProp:=", ["ALPHA","OD","Damping factor (1/seconds)",settings[7],0],
+                    "ValuePropNU:=", ["THETA","OD","Phase delay",settings[8],0,"deg"],
+                    "ValueProp:=", ["TONE","OD","Frequency (Hz) to use for harmonic balance analysis, should be a submultiple of (or equal to) the driving frequency and should also be included in the HB analysis setup",settings[9],0],
+                    "TextProp:=", ["ModelName","SHD","","P_SIN"],
+                    "ButtonProp:=", ["CosimDefinition","D","","Edit","Edit",40501,"ButtonPropClientData:=",[]],
+                    "MenuProp:=", ["CoSimulator","D","","DefaultNetlist",0]
+                    ]
+                   ]
+                  ]
+                 ]
+                ]
+
+        arg2 = ["NAME:ComponentConfigurationData"]
+
+        arg3 = ["NAME:ComponentConfigurationData", ["NAME:EnabledPorts", "PowerSinusoidal"+str(id)+":=", ports]]
+
+        arg2.append(arg3)
+
+        self.odesign.UpdateSources(arg1, arg2)
+        return True
