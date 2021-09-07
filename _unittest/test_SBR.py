@@ -121,5 +121,3 @@ class TestClass:
         setup, sweep = self.aedtapp.create_sbr_chirp_iq_doppler_setup(sweep_time_duration=10)
         assert setup
         assert sweep
-
-

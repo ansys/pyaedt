@@ -791,7 +791,6 @@ class Primitives3D(Primitives, object):
         else:
             return []
 
-
     @aedt_exception_handler
     def _check_actor_folder(self, actor_folder):
         if not os.path.exists(actor_folder):
@@ -814,6 +813,7 @@ class Primitives3D(Primitives, object):
         """Add a Walking Person Multipart from 3D Components. It requires a json file in the folder containing infos.
 
          .. code-block:: json
+
             {
                 "name": "person3",
                 "version": 1,
@@ -898,6 +898,7 @@ class Primitives3D(Primitives, object):
         """Add a Moving Vehicle Multipart from 3D Components. It requires a json file in the folder containing vehicle infos.
 
          .. code-block:: json
+
             {
                 "name": "vehicle3",
                 "version": 1,
@@ -960,13 +961,13 @@ class Primitives3D(Primitives, object):
         self.multiparts.append(vehicle)
         return vehicle
 
-
     @aedt_exception_handler
     def add_bird(self, actor_folder, speed=0, global_offset=[0, 0, 0], yaw=0, pitch=0,
                  roll=0, flapping_rate=50):
         """Add a Bird Multipart from 3D Components. It requires a json file in the folder containing bird infos.
 
          .. code-block:: json
+
             {
                 "name": "bird1",
                 "version": 1,
@@ -1053,6 +1054,7 @@ class Primitives3D(Primitives, object):
         """Add an Environment Multipart Component from Json file.
 
         .. code-block:: json
+
         {
             "name": "open1",
             "version": 1,

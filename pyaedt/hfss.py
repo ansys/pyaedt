@@ -2994,11 +2994,11 @@ class Hfss(FieldAnalysis3D, object):
         del setup1.props["ComputeFarFields"]
         del setup1.props["Sweeps"]
         if setup_type == "ChirpIQ":
-                setup1.props["SbrRangeDopplerWaveformType"] = "ChirpSeqFmcw"
-                setup1.props["ChannelConfiguration"] = "IQChannels"
+            setup1.props["SbrRangeDopplerWaveformType"] = "ChirpSeqFmcw"
+            setup1.props["ChannelConfiguration"] = "IQChannels"
         elif setup_type == "ChirpI":
-                setup1.props["SbrRangeDopplerWaveformType"] = "ChirpSeqFmcw"
-                setup1.props["ChannelConfiguration"] = "IChannelOnly"
+            setup1.props["SbrRangeDopplerWaveformType"] = "ChirpSeqFmcw"
+            setup1.props["ChannelConfiguration"] = "IChannelOnly"
         else:
             setup1.props["SbrRangeDopplerWaveformType"] = setup_type
         setup1.props["SbrRangeDopplerTimeVariable"] = time_var
@@ -3240,6 +3240,7 @@ class Hfss(FieldAnalysis3D, object):
     def create_sbr_radar_from_json(self, radar_file, radar_name, offset=[0, 0, 0], speed=0.0,
                                    use_relative_cs=False):
         """Create a SBR+ Radar from Json File.
+
           .. code-block:: json
 
             {

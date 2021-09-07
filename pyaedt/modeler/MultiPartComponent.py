@@ -1057,7 +1057,6 @@ class Antenna(Part, object):
             p['Polarization'] = self._compdef['polarization']
         return p
 
-
     def _insert(self, app, target_cs=None):
         if not target_cs:
             target_cs = self._parent.cs_name
@@ -1182,4 +1181,3 @@ class Radar(MultiPartComponent, object):
         if motion:
             self._add_speed(app)
         return self.aedt_components
-

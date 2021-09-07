@@ -675,7 +675,8 @@ class Analysis(Design, object):
         --------
         Create a setup for SBR+ setup using advanced Doppler
         processing for automotive radar.
-        
+
+        >>> import pyaedt
         >>> hfss = pyaedt.Hfss(solution_type='SBR+')
         >>> setup1 = hfss.create_setup(setupname='Setup1')
         >>> setup1.props["IsSbrRangeDoppler"] = True
