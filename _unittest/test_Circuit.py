@@ -165,7 +165,6 @@ class TestClass:
         assert "Link_2" in portname
 
     def test_13_properties(self):
-        #assert self.aedtapp.modeler.edb
         assert self.aedtapp.modeler.model_units
 
     def test_14_move(self):
@@ -221,3 +220,18 @@ class TestClass:
         assert self.aedtapp.post.create_statistical_eye_plot("Dom_Verify", "b_input_15.int_ami_rx.eye_probe",
                                                                   self.aedtapp.available_variations.nominal,
                                                                   plotname="MyReportV") == "MyReportV"
+
+    def test_21_assign_voltage_sinusoidal_excitation_to_ports(self):
+        settings = ["123 V", "10deg", "", "", "0V", "15GHz", "0s", "0", "0deg", ""]
+        ports_list = ["P1_1", "P2_2"]
+        assert self.aedtapp.assign_voltage_sinusoidal_excitation_to_ports(ports_list, settings)
+
+    def test_22_assign_current_sinusoidal_excitation_to_ports(self):
+        settings = ["", "", "20A", "50A", "4A", "", "0s", "0", "0deg", "1", "20Hz"]
+        ports_list = ["P1_1"]
+        assert self.aedtapp.assign_current_sinusoidal_excitation_to_ports(ports_list, settings)
+
+    def test_23_assign_power_sinusoidal_excitation_to_ports(self):
+        settings = ["", "", "", "", "20W", "14GHz", "0s", "0", "0deg", "0Hz"]
+        ports_list = ["P2_2"]
+        assert self.aedtapp.assign_power_sinusoidal_excitation_to_ports(ports_list, settings)

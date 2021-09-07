@@ -76,7 +76,7 @@ class TestClass:
         assert hfss3Dlayout_comp
 
     @pytest.mark.skipif(config.get("skip_circuits", False), reason="Skipped because Desktop is crashing")
-    def test_02_add_subcircuits_hfss_link(self):
+    def test_03_add_subcircuits_hfss_link(self):
         source_project_path = os.path.join(self.local_scratch.path, src_project_name + '.aedt')
         pin_names = self.aedtapp.get_source_pin_names(src_design_name, src_project_name, source_project_path, 2)
 
@@ -89,23 +89,23 @@ class TestClass:
         assert hfss_comp == 'CompInst@uUSB;87;3'
 
     @pytest.mark.skipif(config.get("skip_circuits", False), reason="Skipped because Desktop is crashing")
-    def test_02_refresh_dynamic_link(self):
+    def test_04_refresh_dynamic_link(self):
         assert self.aedtapp.modeler.components.refresh_dynamic_link("uUSB")
 
     @pytest.mark.skipif(config.get("skip_circuits", False), reason="Skipped because Desktop is crashing")
-    def test_02_set_sim_option_on_hfss_subcircuit(self):
+    def test_05_set_sim_option_on_hfss_subcircuit(self):
         hfss_comp = 'CompInst@uUSB;87;3'
         assert self.aedtapp.modeler.components.set_sim_option_on_hfss_subcircuit(hfss_comp)
         assert self.aedtapp.modeler.components.set_sim_option_on_hfss_subcircuit(hfss_comp, option="interpolate")
         assert not self.aedtapp.modeler.components.set_sim_option_on_hfss_subcircuit(hfss_comp, option="not_good")
 
     @pytest.mark.skipif(config.get("skip_circuits", False), reason="Skipped because Desktop is crashing")
-    def test_02_set_sim_solution_on_hfss_subcircuit(self):
+    def test_06_set_sim_solution_on_hfss_subcircuit(self):
         hfss_comp = 'CompInst@uUSB;87;3'
         assert self.aedtapp.modeler.components.set_sim_solution_on_hfss_subcircuit(hfss_comp)
 
     @pytest.mark.skipif(config.get("skip_circuits", False), reason="Skipped because Desktop is crashing")
-    def test_02_create_page_port_and_interface_port(self):
+    def test_07_create_page_port_and_interface_port(self):
         hfss_comp_id = 87
         hfss3Dlayout_comp_id = 86
         hfssComp_pins = self.aedtapp.modeler.components.get_pins(hfss_comp_id)
@@ -155,31 +155,13 @@ class TestClass:
         assert "Port_2" in portname
 
     @pytest.mark.skipif(config.get("skip_circuits", False), reason="Skipped because Desktop is crashing")
-    def test_03_assign_excitations(self):
+    def test_08_assign_excitations(self):
         excitation_settings = ["1 V", "0deg", "0V", "25V", "1V", "2.5GHz", "0s", "0", "0deg", "0Hz"]
         ports_list = ["Excitation_1", "Excitation_2"]
         assert self.aedtapp.modeler.components.assign_sin_excitation2ports(ports_list, excitation_settings)
 
     @pytest.mark.skipif(config.get("skip_circuits", False), reason="Skipped because Desktop is crashing")
-    def test_04_assign_voltage_sinusoidal_excitation_to_ports(self):
-        settings = ["123 V", "10deg", "", "", "0V", "15GHz", "0s", "0", "0deg", ""]
-        ports_list = ["Port_1", "Excitation_2"]
-        assert self.aedtapp.modeler.components.assign_voltage_sinusoidal_excitation_to_ports(ports_list, settings)
-
-    @pytest.mark.skipif(config.get("skip_circuits", False), reason="Skipped because Desktop is crashing")
-    def test_05_assign_current_sinusoidal_excitation_to_ports(self):
-        settings = ["", "", "20A", "50A", "4A", "", "0s", "0", "0deg", "1", "20Hz"]
-        ports_list = ["Port_2"]
-        assert self.aedtapp.modeler.components.assign_current_sinusoidal_excitation_to_ports(ports_list, settings)
-
-    @pytest.mark.skipif(config.get("skip_circuits", False), reason="Skipped because Desktop is crashing")
-    def test_06_assign_power_sinusoidal_excitation_to_ports(self):
-        settings = ["", "", "", "", "20W", "14GHz", "0s", "0", "0deg", "0Hz"]
-        ports_list = ["Excitation_1", "Port_2"]
-        assert self.aedtapp.modeler.components.assign_power_sinusoidal_excitation_to_ports(ports_list, settings)
-
-    @pytest.mark.skipif(config.get("skip_circuits", False), reason="Skipped because Desktop is crashing")
-    def test_04_setup(self):
+    def test_09_setup(self):
         setup_name = "Dom_LNA"
         LNA_setup = self.aedtapp.create_setup(setup_name)
         sweep_list = ["LINC", "1GHz", "2GHz", "1001"]
