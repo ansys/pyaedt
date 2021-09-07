@@ -1221,8 +1221,9 @@ class Hfss(FieldAnalysis3D, object):
         return False
 
     @aedt_exception_handler
-    def create_circuit_port_between_objects(self, startobj, endobject, axisdir=0, impedance=50, portname=None,
-                                            renorm=True, renorm_impedance=50, deemb=False):
+    def create_circuit_port_between_objects(
+        self, startobj, endobject, axisdir=0, impedance=50, portname=None, renorm=True, renorm_impedance=50, deemb=False
+    ):
         """Create a circuit port taking the closest edges of two objects.
 
         Parameters

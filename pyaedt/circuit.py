@@ -122,13 +122,7 @@ class Circuit(FieldAnalysisCircuit, object):
         return self._desktop.GetTool("NdExplorer")
 
     def _get_number_from_string(self, stringval):
-        value = (
-            stringval[stringval.find("=") + 1 :]
-            .strip()
-            .replace("{", "")
-            .replace("}", "")
-            .replace(",", ".")
-        )
+        value = stringval[stringval.find("=") + 1 :].strip().replace("{", "").replace("}", "").replace(",", ".")
         try:
             float(value)
             return value
@@ -480,11 +474,7 @@ class Circuit(FieldAnalysisCircuit, object):
                             fullnetname = net[2]
                             netnames = fullnetname.split("/")
                             netname = (
-                                netnames[len(netnames) - 1]
-                                .replace(",", "_")
-                                .replace("'", "")
-                                .replace("$", "")
-                                .strip()
+                                netnames[len(netnames) - 1].replace(",", "_").replace("'", "").replace("$", "").strip()
                             )
                     if not netname:
                         prop = props[name]
@@ -508,9 +498,7 @@ class Circuit(FieldAnalysisCircuit, object):
             if "GND" in netname.upper():
                 self.modeler.components.create_gnd(xpos, ypos)
                 page_pos = ypos + 0.00254
-                id, name = self.modeler.components.create_page_port(
-                    netname, xpos, ypos, 6.28318530717959
-                )
+                id, name = self.modeler.components.create_page_port(netname, xpos, ypos, 6.28318530717959)
                 mod1 = self.modeler.components[id]
                 mod1.set_location(str(xpos) + "meter", str(page_pos) + "meter")
                 ypos += delta

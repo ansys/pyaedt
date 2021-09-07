@@ -9,7 +9,8 @@ import traceback
 import warnings
 import gc
 import time
-if os.name == 'posix':
+
+if os.name == "posix":
     try:
         import subprocessdotnet as subprocess
     except:
@@ -23,6 +24,7 @@ try:
     import System
     from System import Double, Array
     from System.Collections.Generic import List
+
     edb_initialized = True
 except ImportError:
     warnings.warn(
@@ -78,7 +80,17 @@ class Edb(object):
 
     """
 
-    def __init__(self, edbpath=None, cellname=None, isreadonly=False, edbversion="2021.1", isaedtowned=False, oproject=None, student_version=False,use_ppe=False):
+    def __init__(
+        self,
+        edbpath=None,
+        cellname=None,
+        isreadonly=False,
+        edbversion="2021.1",
+        isaedtowned=False,
+        oproject=None,
+        student_version=False,
+        use_ppe=False,
+    ):
         self._clean_variables()
         if is_ironpython and inside_desktop:
             self.standalone = False
@@ -110,19 +122,21 @@ class Edb(object):
                     edbpath = os.getenv("USERPROFILE")
                     if not edbpath:
                         edbpath = os.path.expanduser("~")
-                    edbpath = os.path.join(edbpath, "Documents", generate_unique_name("layout")+".aedb")
+                    edbpath = os.path.join(edbpath, "Documents", generate_unique_name("layout") + ".aedb")
                 else:
                     edbpath = os.getenv("HOME")
                     if not edbpath:
                         edbpath = os.path.expanduser("~")
-                    edbpath = os.path.join(edbpath, generate_unique_name("layout")+".aedb")
+                    edbpath = os.path.join(edbpath, generate_unique_name("layout") + ".aedb")
                 self._messenger.add_info_message("No Edb Provided. Creating new EDB {}.".format(edbpath))
             self.edbpath = edbpath
             if edbpath[-3:] in ["brd", "gds", "xml", "dxf", "tgz"]:
                 self.edbpath = edbpath[:-4] + ".aedb"
                 working_dir = os.path.dirname(edbpath)
                 self.import_layout_pcb(edbpath, working_dir, use_ppe=use_ppe)
-                self._messenger.add_info_message("Edb {} Created Correctly from {} file".format(self.edbpath, edbpath[-2:]))
+                self._messenger.add_info_message(
+                    "Edb {} Created Correctly from {} file".format(self.edbpath, edbpath[-2:])
+                )
 
             elif not os.path.exists(os.path.join(self.edbpath, "edb.def")):
                 self.create_edb()
@@ -336,9 +350,7 @@ class Edb(object):
 
         if self._db and self._active_cell:
             time.sleep(1)
-            dllpath = os.path.join(
-                os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib", "DataModel.dll"
-            )
+            dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib", "DataModel.dll")
             self._messenger.add_info_message(dllpath)
             self.layout_methods.LoadDataModel(dllpath)
             self.builder = self.layout_methods.GetBuilder(
@@ -385,9 +397,7 @@ class Edb(object):
             )
             if self._active_cell is None:
                 self._active_cell = list(self._db.TopCircuitCells)[0]
-            dllpath = os.path.join(
-                os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib", "DataModel.dll"
-            )
+            dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib", "DataModel.dll")
             if self._db and self._active_cell:
                 self.layout_methods.LoadDataModel(dllpath)
                 self.builder = self.layout_methods.GetBuilder(
@@ -430,9 +440,7 @@ class Edb(object):
         self._db = db
         if not self.cellname:
             self.cellname = generate_unique_name("Cell")
-        self._active_cell = self.edb.Cell.Cell.Create(
-            self._db, self.edb.Cell.CellType.CircuitCell, self.cellname
-        )
+        self._active_cell = self.edb.Cell.Cell.Create(self._db, self.edb.Cell.CellType.CircuitCell, self.cellname)
         dllpath = os.path.join(os.path.dirname(__file__), "dlls", "EDBLib", "DataModel.dll")
         if self._db and self._active_cell:
             self.layout_methods.LoadDataModel(dllpath)
@@ -492,7 +500,7 @@ class Edb(object):
             cmd_translator += " -ppe=false"
         p = subprocess.Popen(cmd_translator)
         p.wait()
-        if not os.path.exists(os.path.join(working_dir,aedb_name)):
+        if not os.path.exists(os.path.join(working_dir, aedb_name)):
             self._messenger.add_error_message("Translator failed to translate.")
             return False
         self.edbpath = os.path.join(working_dir, aedb_name)
@@ -744,8 +752,9 @@ class Edb(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        if self.import_layout_pcb(inputBrd, working_dir=WorkDir, anstranslator_full_path=anstranslator_full_path,
-                                  use_ppe=use_ppe):
+        if self.import_layout_pcb(
+            inputBrd, working_dir=WorkDir, anstranslator_full_path=anstranslator_full_path, use_ppe=use_ppe
+        ):
             return True
         else:
             return False
@@ -771,8 +780,9 @@ class Edb(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        if self.import_layout_pcb(inputGDS, working_dir=WorkDir, anstranslator_full_path=anstranslator_full_path,
-                                  use_ppe=use_ppe):
+        if self.import_layout_pcb(
+            inputGDS, working_dir=WorkDir, anstranslator_full_path=anstranslator_full_path, use_ppe=use_ppe
+        ):
             return True
         else:
             return False
