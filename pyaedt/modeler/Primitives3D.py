@@ -1053,31 +1053,31 @@ class Primitives3D(Primitives, object):
     def add_environment(self, env_folder, global_offset=[0, 0, 0], yaw=0, pitch=0, roll=0):
         """Add an Environment Multipart Component from Json file.
 
-        .. code-block:: json
+            .. code-block:: json
 
-        {
-            "name": "open1",
-            "version": 1,
-            "class":"environment",
-            "xlim":["-5","95"],
-            "ylim":["-60","60"],
-            "parts": {
-                "open_area": {
-                    "comp_name": "open1.a3dcomp",
-                    "offset":null,
-                    "rotation_cs":null,
-                    "rotation":null,
-                    "rotation_axis":null,
-                    "duplicate_number":null,
-                    "duplicate_vector":null
-                    }
+            {
+                "name": "open1",
+                "version": 1,
+                "class":"environment",
+                "xlim":["-5","95"],
+                "ylim":["-60","60"],
+                "parts": {
+                    "open_area": {
+                        "comp_name": "open1.a3dcomp",
+                        "offset":null,
+                        "rotation_cs":null,
+                        "rotation":null,
+                        "rotation_axis":null,
+                        "duplicate_number":null,
+                        "duplicate_vector":null
+                        }
+                }
             }
-        }
 
         Parameters
         ----------
         env_folder: str
-            Path to the actor folder. It must contain a json settings file and a 3dcomponent (.a3dcomp)
+            Path to the actor folder. It must contain a json settings file and a 3dcomponent (.a3dcomp).
         global_offset: list, Optional
             Offset from Global Coordinate System.
         yaw: float, Optional

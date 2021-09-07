@@ -3173,7 +3173,7 @@ class Hfss(FieldAnalysis3D, object):
     def create_sbr_pulse_doppler_setup(self, time_var=None, sweep_time_duration=0, center_freq=76.5, resolution=1, period=200,
                                        velocity_resolution=0.4, min_velocity=-20, max_velocity=20,
                                        ray_density_per_wavelenght=0.2, max_bounces=5, setup_name=None):
-        """Create an SBR+ Pulse Doppler Setup
+        """Create an SBR+ Pulse Doppler Setup.
 
         Parameters
         ----------
