@@ -3035,32 +3035,35 @@ class Hfss(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        time_var: str, Optional
-            Name of the time variable. Default ``None`` which will search for first Time Variable available.
-        sweep_time_duration: float, Optional
-            Sweep Time Duration. If greater than 0, a parametric sweep will be created. Default ``0``.
-        center_freq: float, Optional
-            Center Frequency in GHz. Default ``76.5``.
-        resolution: float, Optional
-            Doppler Resolution in meter. Default ``1``.
-        period: float, Optional
-            Period of Analysis in meter. Default ``200``.
-        velocity_resolution: float, Optional
-            Doppler Velocity Resolution in m_per_sec. Default ``0.4``.
-        min_velocity: str, Optional
-            Minimum Doppler Velocity in m_per_sec. Default ``-20``.
-        max_velocity: str, Optional
-            Maximum Doppler Velocity in m_per_sec. Default ``20``.
-        ray_density_per_wavelenght: float, Optional
-            Doppler Ray Density per wavelength. Default ``0.2``.
-        max_bounces: int, Optional
+        time_var : str, optional
+            Name of the time variable. Default ``None`` which will search for first
+            time variable available.
+        sweep_time_duration : float, optional
+            Sweep Time Duration. If greater than 0, a parametric sweep will be
+            created. Default ``0``.
+        center_freq : float, optional
+            Center frequency in GHz. Default ``76.5``.
+        resolution : float, optional
+            Doppler resolution in meter. Default ``1``.
+        period : float, optional
+            Period of analysis in meter. Default ``200``.
+        velocity_resolution : float, optional
+            Doppler velocity resolution in meters per second. Default ``0.4``.
+        min_velocity : str, optional
+            Minimum doppler velocity in meters per second. Default ``-20``.
+        max_velocity : str, optional
+            Maximum doppler velocity in meters per second. Default ``20``.
+        ray_density_per_wavelenght : float, optional
+            Doppler ray density per wavelength. Default ``0.2``.
+        max_bounces : int, optional
             Maximum number of Bounces. Default ``5``.
-        include_coupling_effects: float, Optional
-            Set if Coupling Effects will be included. Default ``False``.
-        doppler_ad_sampling_rate: float, Optional
-            Doppler AD Sampling Rate. It works only if include_coupling_effects is ``True``. Default ``20``.
-        setup_name: str, Optional
-            Name of the Setup. Default ``None``.
+        include_coupling_effects : float, optional
+            Set if coupling effects will be included. Default ``False``.
+        doppler_ad_sampling_rate : float, optional
+            Doppler AD sampling rate. It works only if ``include_coupling_effects``
+            is ``True``. Default ``20``.
+        setup_name : str, optional
+            Name of the setup. Default ``None``.
 
         Returns
         -------
@@ -3107,31 +3110,34 @@ class Hfss(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        time_var: str, Optional
-            Name of the time variable. Default ``None`` which will search for first Time Variable available.
-        sweep_time_duration: float, Optional
-            Sweep Time Duration. If greater than 0, a parametric sweep will be created. Default ``0``.
-        center_freq: float, Optional
+        time_var : str, optional
+            Name of the time variable. Default ``None`` which will search for first
+            time variable available.
+        sweep_time_duration : float, optional
+            Sweep Time Duration. If greater than 0, a parametric sweep will be
+            created. Default ``0``.
+        center_freq : float, optional
             Center Frequency in GHz. Default ``76.5``.
-        resolution: float, Optional
+        resolution : float, optional
             Doppler Resolution in meter. Default ``1``.
-        period: float, Optional
+        period : float, optional
             Period of Analysis in meter. Default ``200``.
-        velocity_resolution: float, Optional
-            Doppler Velocity Resolution in m_per_sec. Default ``0.4``.
-        min_velocity: str, Optional
-            Minimum Doppler Velocity in m_per_sec. Default ``-20``.
-        max_velocity: str, Optional
-            Maximum Doppler Velocity in m_per_sec. Default ``20``.
-        ray_density_per_wavelenght: float, Optional
+        velocity_resolution : float, optional
+            Doppler Velocity Resolution in meters per second. Default ``0.4``.
+        min_velocity : str, optional
+            Minimum Doppler Velocity in meters per second. Default ``-20``.
+        max_velocity : str, optional
+            Maximum Doppler Velocity in meters per second. Default ``20``.
+        ray_density_per_wavelenght : float, optional
             Doppler Ray Density per wavelength. Default ``0.2``.
-        max_bounces: int, Optional
+        max_bounces : int, optional
             Maximum number of Bounces. Default ``5``.
-        include_coupling_effects: float, Optional
+        include_coupling_effects : float, optional
             Set if Coupling Effects will be included. Default ``False``.
-        doppler_ad_sampling_rate: float, Optional
-            Doppler AD Sampling Rate. It works only if include_coupling_effects is ``True``. Default ``20``.
-        setup_name: str, Optional
+        doppler_ad_sampling_rate : float, optional
+            Doppler AD Sampling Rate. It works only if ``include_coupling_effects`` is
+            ``True``. Default ``20``.
+        setup_name : str, optional
             Name of the Setup. Default ``None``.
 
         Returns
@@ -3176,27 +3182,29 @@ class Hfss(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        time_var: str, Optional
-            Name of the time variable. Default ``None`` which will search for first Time Variable available.
-        sweep_time_duration: float, Optional
-            Sweep Time Duration. If greater than 0, a parametric sweep will be created. Default ``0``.
-        center_freq: float, Optional
+        time_var : str, optional
+            Name of the time variable. Default ``None`` which will search for
+            first Time Variable available.
+        sweep_time_duration : float, optional
+            Sweep Time Duration. If greater than 0, a parametric sweep will be
+            created. Default ``0``.
+        center_freq : float, optional
             Center Frequency in GHz. Default ``76.5``.
-        resolution: float, Optional
+        resolution : float, optional
             Doppler Resolution in meter. Default ``1``.
-        period: float, Optional
+        period : float, optional
             Period of Analysis in meter. Default ``200``.
-        velocity_resolution: float, Optional
+        velocity_resolution : float, optional
             Doppler Velocity Resolution in m_per_sec. Default ``0.4``.
-        min_velocity: str, Optional
-            Minimum Doppler Velocity in m_per_sec. Default ``-20``.
-        max_velocity: str, Optional
-            Maximum Doppler Velocity in m_per_sec. Default ``20``.
-        ray_density_per_wavelenght: float, Optional
+        min_velocity : str, optional
+            Minimum Doppler Velocity in meters per second. Default ``-20``.
+        max_velocity : str, optional
+            Maximum Doppler Velocity in meters per second. Default ``20``.
+        ray_density_per_wavelenght : float, optional
             Doppler Ray Density per wavelength. Default ``0.2``.
-        max_bounces: int, Optional
+        max_bounces : int, optional
             Maximum number of Bounces. Default ``5``.
-        setup_name: str, Optional
+        setup_name : str, optional
             Name of the Setup. Default ``None``.
 
         Returns
@@ -3272,16 +3280,16 @@ class Hfss(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        radar_file: str
-            Path to Radar File Folder
-        radar_name: str
-            Name of the Radar to use
-        offset: list, Optional
-            Set offset relative to Global Coordinate System.
-        speed: float, Optional
-            Set Radar Movement Speed relative to Global Coordinate System if greater than ``0``
-        use_relative_cs: bool, Optional
-            Set to ``True`` if Relative Coordinate System has to be used. Default ``False``.
+        radar_file : str
+            Path to radar file directory
+        radar_name : str
+            Name of the radar to use.
+        offset : list, optional
+            Set offset relative to global coordinate system.
+        speed : float, optional
+            Set the radar movement speed relative to global coordinate system if greater than ``0``.
+        use_relative_cs : bool, optional
+            Set to ``True`` if relative coordinate system has to be used. Default ``False``.
 
         Returns
         -------
