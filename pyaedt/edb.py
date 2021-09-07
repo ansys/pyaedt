@@ -662,6 +662,14 @@ class Edb(object):
         self._db.Close()
 
         self._clean_variables()
+        props = [a for a in dir(self) if not a.startswith('__')]
+
+        for a in props:
+            try:
+                del self.__dict__[a]
+            except Exception as e:
+                pass
+        gc.collect()
         return True
 
     @aedt_exception_handler

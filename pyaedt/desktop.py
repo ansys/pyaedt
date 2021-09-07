@@ -633,7 +633,6 @@ class Desktop:
             except Exception as e:
                 pass
 
-        import gc
         gc.collect()
 
     def force_close_desktop(self):

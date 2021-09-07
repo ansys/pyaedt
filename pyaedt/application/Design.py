@@ -18,6 +18,7 @@ import string
 import random
 import time
 import logging
+import gc
 from collections import OrderedDict
 from .MessageManager import AEDTMessageManager
 from .Variables import VariableManager, DataSet, AEDT_units, unit_system
@@ -1574,7 +1575,6 @@ class Design(object):
             except Exception as e:
                 pass
 
-        import gc
         gc.collect()
         return True
 

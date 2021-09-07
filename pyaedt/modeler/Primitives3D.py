@@ -5,7 +5,7 @@ from .GeometryOperators import GeometryOperators
 from ..application.Analysis import CoordinateSystemAxis
 from .Object3d import Object3d
 from .MultiPartComponent import Person, Bird, Vehicle, Antenna, Radar, Environment, MultiPartComponent
-
+from ..generic.general_methods import retry_ntimes
 
 class Primitives3D(Primitives, object):
     """Manages primitives in 3D tools.
@@ -79,7 +79,7 @@ class Primitives3D(Primitives, object):
         vArg1.append("YSize:="), vArg1.append(YSize)
         vArg1.append("ZSize:="), vArg1.append(ZSize)
         vArg2 = self._default_object_attributes(name=name, matname=matname)
-        new_object_name = self.oeditor.CreateBox(vArg1, vArg2)
+        new_object_name = retry_ntimes(10, self.oeditor.CreateBox, vArg1, vArg2)
         return self._create_object(new_object_name)
 
     @aedt_exception_handler
