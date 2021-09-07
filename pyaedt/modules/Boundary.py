@@ -310,7 +310,7 @@ class BoundaryObject(BoundaryCommon, object):
             self._parent.oboundary.AssignThinConductor(self._get_args())
         elif self.type == "Stationary Wall":
             self._parent.oboundary.AssignStationaryWallBoundary(self._get_args())
-        elif self.type == "Simmetry Wall":
+        elif self.type == "Symmetry Wall":
             self._parent.oboundary.AssignSymmetryWallBoundary(self._get_args())
         elif self.type == "Resistance":
             self._parent.oboundary.AssignResistanceBoundary(self._get_args())
@@ -440,7 +440,7 @@ class BoundaryObject(BoundaryCommon, object):
             self._parent.oboundary.EditThinConductor(self.name, self._get_args())
         elif self.type == "Stationary Wall":
             self._parent.oboundary.EditStationaryWallBoundary(self.name, self._get_args())
-        elif self.type == "Simmetry Wall":
+        elif self.type == "Symmetry Wall":
             self._parent.oboundary.EditSymmetryWallBoundary(self.name, self._get_args())
         elif self.type == "Resistance":
             self._parent.oboundary.EditResistanceBoundary(self.name, self._get_args())
