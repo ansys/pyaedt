@@ -1,6 +1,6 @@
 from collections import OrderedDict
 from ..generic.general_methods import aedt_exception_handler, generate_unique_name
-from pyaedt.generic.DataHandlers import dict2arg, arg2dict
+from ..generic.DataHandlers import dict2arg, arg2dict
 import copy
 
 defaultparametricSetup = OrderedDict({"IsEnabled": True, "ProdOptiSetupDataV2":

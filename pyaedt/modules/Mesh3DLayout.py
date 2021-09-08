@@ -7,7 +7,7 @@ This module provides all functionalities for creating and editing the mesh in th
 from __future__ import absolute_import
 
 from ..generic.general_methods import aedt_exception_handler, generate_unique_name
-from pyaedt.generic.DataHandlers import dict2arg
+from ..generic.DataHandlers import dict2arg
 from collections import OrderedDict
 
 

@@ -1,10 +1,10 @@
 import os
 import math
 import sys
-from pyaedt.generic.DataHandlers import json_to_dict
-from pyaedt.generic.filesystem import get_json_files
-from pyaedt.modeler.GeometryOperators import GeometryOperators
-from pyaedt.generic.general_methods import aedt_exception_handler
+from ..generic.DataHandlers import json_to_dict
+from ..generic.filesystem import get_json_files
+from .GeometryOperators import GeometryOperators
+from ..generic.general_methods import aedt_exception_handler
 
 
 def read_actors(fn, actor_lib):
@@ -979,7 +979,7 @@ class Person(Actor, object):
 
     @property
     def stride(self):
-        """Stride in m_per_sec.
+        """Stride in meters.
 
         Returns
         -------

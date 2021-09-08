@@ -14,7 +14,7 @@ This module contains these data classes for creating a material library:
 """
 from collections import OrderedDict
 from ..generic.general_methods import aedt_exception_handler
-from pyaedt.generic.DataHandlers import dict2arg
+from ..generic.DataHandlers import dict2arg
 
 
 class MatProperties(object):

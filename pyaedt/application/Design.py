@@ -24,7 +24,7 @@ from .Variables import VariableManager, DataSet, AEDT_units, unit_system
 from ..desktop import exception_to_desktop, Desktop, force_close_desktop, release_desktop, get_version_env_variable
 from ..generic.LoadAEDTFile import load_entire_aedt_file
 from ..generic.general_methods import aedt_exception_handler
-from pyaedt.generic.DataHandlers import variation_string_to_dict
+from ..generic.DataHandlers import variation_string_to_dict
 from ..modules.Boundary import BoundaryObject
 from ..generic.general_methods import generate_unique_name
 

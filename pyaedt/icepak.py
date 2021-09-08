@@ -5,12 +5,12 @@ import csv
 import math
 import os
 import re
-from  collections import OrderedDict
+from collections import OrderedDict
 
 from .application.AnalysisIcepak import FieldAnalysisIcepak
 from .desktop import exception_to_desktop
 from .generic.general_methods import generate_unique_name, aedt_exception_handler
-from pyaedt.generic.DataHandlers import arg2dict
+from .generic.DataHandlers import arg2dict
 from .modules.Boundary import BoundaryObject, NativeComponentObject
 
 
