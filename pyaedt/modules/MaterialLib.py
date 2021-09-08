@@ -6,6 +6,7 @@ import os
 import xml.etree.ElementTree as ET
 from .Material import *
 from ..generic.general_methods import aedt_exception_handler, retry_ntimes
+from ..generic.DataHandlers import arg2dict
 import json
 
 class Materials(object):

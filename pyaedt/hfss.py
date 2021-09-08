@@ -3242,7 +3242,7 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def create_sbr_radar_from_json(self, radar_file, radar_name, offset=[0, 0, 0], speed=0.0,
-                                   use_relative_cs=False):
+                                   use_relative_cs=False, relative_cs_name=None):
         """Create a SBR+ Radar from Json File.
 
           .. code-block:: json
@@ -3289,7 +3289,8 @@ class Hfss(FieldAnalysis3D, object):
             Set the radar movement speed relative to global coordinate system if greater than ``0``.
         use_relative_cs : bool, optional
             Set to ``True`` if relative coordinate system has to be used. Default ``False``.
-
+        relative_cs_name : str
+            Relative CS Name to which Link the Radar. ``None`` for Global CS.
         Returns
         -------
         :class:`pyaedt.modeler.MultiPartComponent.Radar`
@@ -3300,6 +3301,6 @@ class Hfss(FieldAnalysis3D, object):
             return False
         use_motion = abs(speed) > 0.0
         r = Radar(radar_file, name=radar_name, motion=use_motion, offset=offset, speed=speed,
-                  use_relative_cs=(use_relative_cs or use_motion))
+                  use_relative_cs=(use_relative_cs or use_motion), relative_cs_name=relative_cs_name)
         r.insert(self, abs(speed) >0)
         return r

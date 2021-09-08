@@ -7,6 +7,7 @@ from .Object3d import Object3d
 from .MultiPartComponent import Person, Bird, Vehicle, Antenna, Radar, Environment, MultiPartComponent
 from ..generic.general_methods import retry_ntimes
 
+
 class Primitives3D(Primitives, object):
     """Manages primitives in 3D tools.
 
@@ -809,7 +810,7 @@ class Primitives3D(Primitives, object):
             return MultiPartComponent.start(self._parent)
 
     @aedt_exception_handler
-    def add_person(self, actor_folder, speed=0, global_offset=[0, 0, 0], yaw=0, pitch=0, roll=0):
+    def add_person(self, actor_folder, speed=0, global_offset=[0, 0, 0], yaw=0, pitch=0, roll=0, relative_cs_name=None):
         """Add a Walking Person Multipart from 3D Components.
 
         It requires a json file in the folder containing person infos. An example json file is showed here.
@@ -876,6 +877,8 @@ class Primitives3D(Primitives, object):
             Pitch Rotation from Global Coordinate System in deg.
         roll: float, Optional
             Roll Rotation from Global Coordinate System in deg.
+        relative_cs_name : str
+            Relative CS Name of the actor. ``None`` for Global CS.
 
         Returns
         -------
@@ -885,7 +888,7 @@ class Primitives3D(Primitives, object):
         if not self._check_actor_folder(actor_folder):
             return False
 
-        person1 = Person(actor_folder, speed=speed)
+        person1 = Person(actor_folder, speed=speed, relative_cs_name=relative_cs_name)
         person1.offset = global_offset
         person1.yaw = self._arg_with_dim(yaw, "deg")
         person1.pitch = self._arg_with_dim(pitch, "deg")
@@ -895,7 +898,7 @@ class Primitives3D(Primitives, object):
         return person1
 
     @aedt_exception_handler
-    def add_vehicle(self, actor_folder, speed=0, global_offset=[0,0,0], yaw=0, pitch=0,roll=0):
+    def add_vehicle(self, actor_folder, speed=0, global_offset=[0,0,0], yaw=0, pitch=0,roll=0, relative_cs_name=None):
         """Add a Moving Vehicle Multipart from 3D Components.
 
         It requires a json file in the folder containing vehicle infos. An example json file is showed here.
@@ -947,6 +950,8 @@ class Primitives3D(Primitives, object):
             Pitch Rotation from Global Coordinate System in deg.
         roll: float, Optional
             Roll Rotation from Global Coordinate System in deg.
+        relative_cs_name : str
+            Relative CS Name of the actor. ``None`` for Global CS.
 
         Returns
         -------
@@ -957,7 +962,7 @@ class Primitives3D(Primitives, object):
 
         if not self._check_actor_folder(actor_folder):
             return False
-        vehicle = Vehicle(actor_folder, speed=speed)
+        vehicle = Vehicle(actor_folder, speed=speed, relative_cs_name=relative_cs_name)
         vehicle.offset = global_offset
         vehicle.yaw = self._arg_with_dim(yaw, "deg")
         vehicle.pitch = self._arg_with_dim(pitch, "deg")
@@ -968,7 +973,7 @@ class Primitives3D(Primitives, object):
 
     @aedt_exception_handler
     def add_bird(self, actor_folder, speed=0, global_offset=[0, 0, 0], yaw=0, pitch=0,
-                 roll=0, flapping_rate=50):
+                 roll=0, flapping_rate=50, relative_cs_name=None):
         """Add a Bird Multipart from 3D Components.
 
         It requires a json file in the folder containing bird infos. An example json file is showed here.
@@ -1032,6 +1037,8 @@ class Primitives3D(Primitives, object):
             Roll Rotation from Global Coordinate System in deg.
         flapping_rate : float, optional
             Motion flapping rate in Hz.
+        relative_cs_name : str
+            Relative CS Name of the actor. ``None`` for Global CS.
 
         Returns
         -------
@@ -1049,7 +1056,7 @@ class Primitives3D(Primitives, object):
 
         if not self._check_actor_folder(actor_folder):
             return False
-        bird = Bird(actor_folder, speed=speed, flapping_rate=self._arg_with_dim(flapping_rate,"Hz"))
+        bird = Bird(actor_folder, speed=speed, flapping_rate=self._arg_with_dim(flapping_rate,"Hz"), relative_cs_name=relative_cs_name)
         bird.offset = global_offset
         bird.yaw = self._arg_with_dim(yaw, "deg")
         bird.pitch = self._arg_with_dim(pitch, "deg")
@@ -1059,7 +1066,7 @@ class Primitives3D(Primitives, object):
         return bird
 
     @aedt_exception_handler
-    def add_environment(self, env_folder, global_offset=[0, 0, 0], yaw=0, pitch=0, roll=0):
+    def add_environment(self, env_folder, global_offset=[0, 0, 0], yaw=0, pitch=0, roll=0, relative_cs_name=None):
         """Add an Environment Multipart Component from Json file.
 
          .. code-block:: json
@@ -1095,7 +1102,8 @@ class Primitives3D(Primitives, object):
             Pitch Rotation from Global Coordinate System in deg.
         roll: float, Optional
             Roll Rotation from Global Coordinate System in deg.
-
+        relative_cs_name : str
+            Relative CS Name of the actor. ``None`` for Global CS.
         Returns
         -------
         :class:`pyaedt.modeler.MultiPartComponent.Environment`
@@ -1104,7 +1112,7 @@ class Primitives3D(Primitives, object):
         self._initialize_multipart()
         if not self._check_actor_folder(env_folder):
             return False
-        environment = Environment(env_folder)
+        environment = Environment(env_folder, relative_cs_name=relative_cs_name)
         environment.offset = global_offset
         environment.yaw = self._arg_with_dim(yaw, "deg")
         environment.pitch = self._arg_with_dim(pitch, "deg")

@@ -472,7 +472,7 @@ class MultiPartComponent(object):
 
         return True
 
-    def __init__(self, comp_folder, name=None, use_relative_cs=False, motion=False, offset=("0", "0", "0"), yaw="0deg",
+    def __init__(self, comp_folder, name=None, use_relative_cs=False, relative_cs_name=None, motion=False, offset=("0", "0", "0"), yaw="0deg",
                  pitch="0deg", roll="0deg"):
         """
         MultiPartComponent class. Forward motion is in the x-direction (if motion is set)
@@ -490,6 +490,9 @@ class MultiPartComponent(object):
             a relative Coordinate System. This is
             necessary if the component moves relative to the global
             CS. Set to False if the multi-part component doesn't move.
+        relative_cs_name : str, optional
+            Default: None
+            Set to a specific name on which the multipart relative system will be connected.
         motion : Bool, optional
             Set to true if expressions should be used to define the
             position and orientation of the MultiPartComponent.
@@ -517,7 +520,7 @@ class MultiPartComponent(object):
         self._yaw = yaw  # Yaw is the rotation about the z-axis
         self._pitch = pitch  # Pitch is tilt toward the sky (i.e. rotation about y)
         self._roll = roll  # Roll is rotation about the x-axis (x is the direction of movement)
-
+        self._relative_cs_name = relative_cs_name
         # If the component moves, then expressions must be used for position and orientation
         self.motion = motion
 
@@ -582,9 +585,10 @@ class MultiPartComponent(object):
         str
         """
         if self.use_global_cs:
-            return "Global"
-        else:
-            return self.name + '_cs'  # name is uniquely indexed so cs will be unique
+            self._relative_cs_name = "Global"
+        elif not self._relative_cs_name:
+            self._relative_cs_name = self.name + '_cs'
+        return  self._relative_cs_name
 
     @property
     def index(self):
@@ -819,8 +823,8 @@ class MultiPartComponent(object):
             cs_origin = self.offset_names
         else:
             cs_origin = self.offset
-        if self.use_global_cs:
-            return app.modeler.set_working_coordinate_system("Global")
+        if self.use_global_cs or self.cs_name in app.modeler.oeditor.GetCoordinateSystems():
+            return app.modeler.set_working_coordinate_system(self.cs_name)
         else:
             return app.modeler.create_coordinate_system(origin=cs_origin,
                                                         x_pointing=self._cs_pointing[0],
@@ -846,8 +850,8 @@ class MultiPartComponent(object):
         """
         self.motion = True if motion else self.motion
 
-        if self.use_global_cs:
-            app.modeler.set_working_coordinate_system("Global")
+        if self.use_global_cs or self.cs_name in app.modeler.oeditor.GetCoordinateSystems():
+            return app.modeler.set_working_coordinate_system(self.cs_name)
         else:
             self.position_in_app(app)
 
@@ -878,24 +882,19 @@ class Environment(MultiPartComponent, object):
     motion is always False.
     """
 
-    def __init__(self, env_folder):
-        super(Environment, self).__init__(env_folder, motion=False)
+    def __init__(self, env_folder, relative_cs_name=None):
+        super(Environment, self).__init__(env_folder, motion=False, relative_cs_name=relative_cs_name)
 
 
 class Actor(MultiPartComponent, object):
     """One instance of an actor. Derived class from MultiPartComponent.
     """
 
-    def __init__(self, actor_folder, speed="0"):
+    def __init__(self, actor_folder, speed="0", relative_cs_name=None):
         """
         Actor class
             Derived from MultiPartComponent.
             Note: Forward motion is always forward in the +x-direction.
-
-        Properties
-        ----------
-        speed : float or str
-            Speed of the person in the x-direction.
 
         Parameters
         ----------
@@ -903,9 +902,13 @@ class Actor(MultiPartComponent, object):
             Folder pointing to the folder containing the definition
             of the Person.  This can be changed later in the Person class
             definition.
+        speed : float or str
+            Speed of the person in the x-direction.
+        relative_cs_name : str
+            Relative CS Name of the actor. ``None`` for Global CS.
         """
 
-        super(Actor, self).__init__(actor_folder, use_relative_cs=True, motion=True)
+        super(Actor, self).__init__(actor_folder, use_relative_cs=True, motion=True, relative_cs_name=relative_cs_name)
 
         self._speed_expression = str(speed) + 'm_per_sec'  # TODO: Need error checking here.
 
@@ -953,17 +956,10 @@ class Person(Actor, object):
     One instance of an actor. Derived class from MultiPartComponent.
     """
 
-    def __init__(self, actor_folder, speed="0", stride="0.8meters"):
+    def __init__(self, actor_folder, speed="0", stride="0.8meters", relative_cs_name=None):
         """Person class, derived from Actor.
 
          .. note::  Motion is always forward in the x-direction of the Person coordinate system.
-
-        Properties
-        ----------
-        speed : float or str
-            Speed of the person in the x-direction.
-        stride: float or str
-            Stride length of the person. Default = "0.8meters"
 
         Parameters
         ----------
@@ -971,9 +967,16 @@ class Person(Actor, object):
             Folder pointing to the folder containing the definition
             of the Person.  This can be changed later in the Person class
             definition.
+                speed : float or str
+            Speed of the person in the x-direction.
+        stride: float or str
+            Stride length of the person. Default = "0.8meters"
+        relative_cs_name : str
+            Relative CS Name of the actor. ``None`` for Global CS.
+
         """
 
-        super(Person, self).__init__(actor_folder, speed=speed)
+        super(Person, self).__init__(actor_folder, speed=speed, relative_cs_name=relative_cs_name)
 
         self._stride = stride
 
@@ -1029,20 +1032,22 @@ class Bird(Actor, object):
     """One instance of an actor. Derived class from MultiPartComponent.
     """
 
-    def __init__(self, bird_folder, speed="2.0", flapping_rate="50Hz"):
+    def __init__(self, bird_folder, speed="2.0", flapping_rate="50Hz", relative_cs_name=None):
         """
         Bike class
             Derived from MultiPartComponent.
             Note: Motion is always forward in the x-direction.
 
-        Properties
+        Parameters
         ----------
         speed : float or str
             Speed of the vehicle.
+        relative_cs_name : str
+            Relative CS Name of the actor. ``None`` for Global CS.
 
         """
 
-        super(Bird, self).__init__(bird_folder, speed=speed)
+        super(Bird, self).__init__(bird_folder, speed=speed, relative_cs_name=relative_cs_name)
         self._flapping_rate = flapping_rate
 
     def _add_flying(self, app):
@@ -1079,7 +1084,7 @@ class Vehicle(Actor, object):
     """One instance of an actor. Derived class from MultiPartComponent.
     """
 
-    def __init__(self, car_folder, speed="10.0"):
+    def __init__(self, car_folder, speed=10.0, relative_cs_name=None):
         """
         Vehicle class
             Derived from MultiPartComponent.
@@ -1089,10 +1094,11 @@ class Vehicle(Actor, object):
         ----------
         speed : float or str
             Speed of the vehicle.
-
+        relative_cs_name : str
+            Relative CS Name of the actor. ``None`` for Global CS.
         """
 
-        super(Vehicle, self).__init__(car_folder, speed=speed)
+        super(Vehicle, self).__init__(car_folder, speed=speed, relative_cs_name=relative_cs_name)
 
     @aedt_exception_handler
     def _add_driving(self, app):
@@ -1194,12 +1200,12 @@ class Radar(MultiPartComponent, object):
     """
 
     def __init__(self, radar_folder, name=None, motion=False,
-                 use_relative_cs=False, offset=("0", "0", "0"), speed=0):
+                 use_relative_cs=False, offset=("0", "0", "0"), speed=0, relative_cs_name=None):
 
         name = name.split('.')[0] if name else name  # remove suffix if any
         self._component_class = 'radar'
         super(Radar, self).__init__(radar_folder, name=name, use_relative_cs=use_relative_cs, motion=motion,
-                                    offset=offset)
+                                    offset=offset, relative_cs_name=relative_cs_name)
         self._speed_expression = str(speed) + 'm_per_sec'
         self.pair = []
 
@@ -1266,8 +1272,8 @@ class Radar(MultiPartComponent, object):
             list of Antenna Placed.
         """
         app.add_info_message("Adding Radar Module:  " + self.name)
-        if self.use_global_cs:
-            app.modeler.set_working_coordinate_system("Global")
+        if self.use_global_cs or self.cs_name in app.modeler.oeditor.GetCoordinateSystems():
+            app.modeler.set_working_coordinate_system(self.cs_name)
         else:
             self.position_in_app(app)
         tx_names = []

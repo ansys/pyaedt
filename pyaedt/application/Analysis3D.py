@@ -65,7 +65,7 @@ class FieldAnalysis3D(Analysis, object):
 
         Returns
         -------
-        :class:`modeler.Model3D.Modeler3D`
+        :class:`pyaedt.modeler.Model3D.Modeler3D`
         """
         return self._modeler
 
