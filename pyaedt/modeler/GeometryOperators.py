@@ -1321,4 +1321,3 @@ class GeometryOperators(object):
                 return [GeometryOperators.get_numeric(s) if type(s) is str else s for s in cs_in]
             else:
                 return [0, 0, 0]
-

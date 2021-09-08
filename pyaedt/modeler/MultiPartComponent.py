@@ -550,8 +550,6 @@ class MultiPartComponent(object):
         else:
             self._local_units = None  # Default to global units.
 
-        #self.index = MultiPartComponent._count[self._component_class]
-
         # Used to offset the multipart component.
         # These are the variable names in HFSS.
         # self.name is a unique name (see the @property definition for name)
