@@ -1,6 +1,7 @@
 # Import required modules
 from pyaedt import Hfss, Maxwell2d, Maxwell3d, Q2d, Q3d, Simplorer, Hfss3dLayout, Icepak, Circuit, Mechanical
 
+
 def run_desktop_tests():
     aedtapp = Mechanical(specified_version="2021.1")
     assert aedtapp.design_type == "Mechanical"

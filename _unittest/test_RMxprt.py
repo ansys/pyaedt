@@ -1,7 +1,9 @@
 import os
+
 # Setup paths for module imports
 from _unittest.conftest import scratch_path
 import gc
+
 # Import required modules
 from pyaedt import Rmxprt
 from pyaedt.generic.filesystem import Scratch

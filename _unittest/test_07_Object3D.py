@@ -12,10 +12,11 @@ from pyaedt.modeler.Object3d import _to_boolean, FacePrimitive, EdgeTypePrimitiv
 
 import gc
 
+
 class TestClass:
     def setup_class(self):
         with Scratch(scratch_path) as self.local_scratch:
-            test_projectfile = os.path.join(self.local_scratch.path, 'test_object3d' + '.aedt')
+            test_projectfile = os.path.join(self.local_scratch.path, "test_object3d" + ".aedt")
             self.aedtapp = Hfss(AlwaysNew=False)
             self.aedtapp.save_project(project_file=test_projectfile)
             self.prim = self.aedtapp.modeler.primitives
@@ -34,13 +35,18 @@ class TestClass:
         N = 1.5
         tetarad = 4 * math.pi / 180
 
-        pointsList1 = [[RI*math.cos(tetarad),-RI*math.sin(tetarad),HT/2-N],
-                       [(RI+N)*math.cos(tetarad),-(RI+N)*math.sin(tetarad),HT/2],
-                       [RO-N,0,HT/2],[RO,0,HT/2-N],[RO,0,-HT/2+N],
-                       [RO-N,0,-HT/2],[(RI+N)*math.cos(tetarad),(RI+N)*math.sin(tetarad),-HT/2],
-                       [RI*math.cos(tetarad),RI*math.sin(tetarad),-HT/2+N],
-                       [RI*math.cos(tetarad),RI*math.sin(tetarad),HT/2-N],
-                       [(RI+N)*math.cos(tetarad),(RI+N)*math.sin(tetarad),HT/2]]
+        pointsList1 = [
+            [RI * math.cos(tetarad), -RI * math.sin(tetarad), HT / 2 - N],
+            [(RI + N) * math.cos(tetarad), -(RI + N) * math.sin(tetarad), HT / 2],
+            [RO - N, 0, HT / 2],
+            [RO, 0, HT / 2 - N],
+            [RO, 0, -HT / 2 + N],
+            [RO - N, 0, -HT / 2],
+            [(RI + N) * math.cos(tetarad), (RI + N) * math.sin(tetarad), -HT / 2],
+            [RI * math.cos(tetarad), RI * math.sin(tetarad), -HT / 2 + N],
+            [RI * math.cos(tetarad), RI * math.sin(tetarad), HT / 2 - N],
+            [(RI + N) * math.cos(tetarad), (RI + N) * math.sin(tetarad), HT / 2],
+        ]
 
         if self.aedtapp.modeler.primitives[name]:
             self.aedtapp.modeler.primitives.delete(name)
@@ -56,8 +62,7 @@ class TestClass:
 
     def create_copper_box_test_performance(self):
         for o in range(10):
-            o = self.aedtapp.modeler.primitives.create_box(
-                [0, 0, 0], [10, 10, 5], "MyboxLoop", "Copper")
+            o = self.aedtapp.modeler.primitives.create_box([0, 0, 0], [10, 10, 5], "MyboxLoop", "Copper")
 
     def create_copper_sphere(self, name=None):
         if not name:
@@ -71,8 +76,9 @@ class TestClass:
             name = "MyCyl"
         if self.aedtapp.modeler.primitives[name]:
             self.aedtapp.modeler.primitives.delete(name)
-        return self.aedtapp.modeler.primitives.create_cylinder(cs_axis="Y", position=[0, 0, 0], radius=1, height=20,
-                                                            numSides=8, name=name, matname="Copper")
+        return self.aedtapp.modeler.primitives.create_cylinder(
+            cs_axis="Y", position=[0, 0, 0], radius=1, height=20, numSides=8, name=name, matname="Copper"
+        )
 
     def test_00_uname(self):
         test = _uname()
@@ -219,13 +225,11 @@ class TestClass:
         assert len(object_edges) == 12
         test = initial_object.edges[0].chamfer(left_distance=0.2)
         assert test
-        test = initial_object.edges[1].chamfer(
-            left_distance=0.2, right_distance=0.4, angle=34, chamfer_type=2)
+        test = initial_object.edges[1].chamfer(left_distance=0.2, right_distance=0.4, angle=34, chamfer_type=2)
         assert test
-        test = initial_object.edges[2].chamfer(
-            left_distance=0.2, right_distance=0.4, chamfer_type=1)
+        test = initial_object.edges[2].chamfer(left_distance=0.2, right_distance=0.4, chamfer_type=1)
         assert test
-        #TODO Angle as string - general refactor !
+        # TODO Angle as string - general refactor !
         test = initial_object.edges[6].chamfer(left_distance=1, angle=45, chamfer_type=3)
         assert test
         test = initial_object.edges[4].chamfer(chamfer_type=4)
@@ -251,8 +255,8 @@ class TestClass:
         start_point = initial_object.edges[0].vertices[0]
         end_point = initial_object.edges[0].vertices[1]
         sum_sq = 0
-        for i in range(0,3):
-            sum_sq += (end_point.position[i] - start_point.position[i])**2
+        for i in range(0, 3):
+            sum_sq += (end_point.position[i] - start_point.position[i]) ** 2
         assert isclose(math.sqrt(sum_sq), test_edge.length)
         self.aedtapp.modeler.primitives.delete(initial_object)
 
@@ -266,16 +270,16 @@ class TestClass:
         assert initial_object.color == (0, 0, 255)
         initial_object.color = (255, 0, 0)
         assert initial_object.color == (255, 0, 0)
-        initial_object.color = '(255 0 0)'
+        initial_object.color = "(255 0 0)"
         assert initial_object.color == (255, 0, 0)
 
-        initial_object.color = '(300 0 0)'
+        initial_object.color = "(300 0 0)"
         assert initial_object.color == (255, 0, 0)
 
-        initial_object.color = '(123 0 0 55)'
+        initial_object.color = "(123 0 0 55)"
         assert initial_object.color == (255, 0, 0)
 
-        initial_object.color = 'InvalidString'
+        initial_object.color = "InvalidString"
         assert initial_object.color == (255, 0, 0)
 
         initial_object.color = (255, "Invalid", 0)
@@ -287,12 +291,12 @@ class TestClass:
         o = self.create_copper_box()
         assert o.name in o.__str__()
         test_face = o.faces[0]
-        assert 'FaceId' in test_face.__repr__()
-        assert 'FaceId' in test_face.__str__()
-        test_edge=test_face.edges[0]
-        assert 'EdgeId' in test_edge.__repr__()
-        assert 'EdgeId' in test_edge.__str__()
-        test_vertex=test_face.vertices[0]
+        assert "FaceId" in test_face.__repr__()
+        assert "FaceId" in test_face.__str__()
+        test_edge = test_face.edges[0]
+        assert "EdgeId" in test_edge.__repr__()
+        assert "EdgeId" in test_edge.__str__()
+        test_vertex = test_face.vertices[0]
         assert "Vertex" in test_vertex.__repr__()
         assert "Vertex" in test_vertex.__str__()
 
@@ -325,8 +329,7 @@ class TestClass:
         assert len(added_objects) == 2
         assert "single_turn" in self.aedtapp.modeler.primitives.line_names
 
-    #TODO: Finish asserts anc check the boolean inputs - they are not present in the GUI ??
+    # TODO: Finish asserts anc check the boolean inputs - they are not present in the GUI ??
     def test_17_section_object(self):
-        o = self.aedtapp.modeler.primitives.create_box(
-            [-10, 0, 0], [10, 10, 5], "SectionBox", "Copper")
+        o = self.aedtapp.modeler.primitives.create_box([-10, 0, 0], [10, 10, 5], "SectionBox", "Copper")
         o.section(plane="YZ", create_new=True, section_cross_object=False)

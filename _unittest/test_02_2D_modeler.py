@@ -1,5 +1,6 @@
 # standard imports
 import math
+
 try:
     import pytest
 except ImportError:
@@ -10,10 +11,10 @@ from _unittest.conftest import local_path, scratch_path, BasisTest, pyaedt_unitt
 from pyaedt.maxwell import Maxwell2d
 from pyaedt.generic.general_methods import isclose
 
+
 class TestClass(BasisTest):
     def setup_class(self):
-        BasisTest.setup_class(self, project_name="test_primitives",
-                              design_name="2D_Primitives", application=Maxwell2d)
+        BasisTest.setup_class(self, project_name="test_primitives", design_name="2D_Primitives", application=Maxwell2d)
 
     def test_01_model_units(self):
         model_units = self.aedtapp.modeler.model_units
@@ -32,8 +33,9 @@ class TestClass(BasisTest):
 
     def test_create_rectangle(self):
         rect1 = self.aedtapp.modeler.primitives.create_rectangle([0, -2, -2], [3, 4])
-        rect2 = self.aedtapp.modeler.primitives.create_rectangle(position=[0, -2, -2], dimension_list=[3, 4],
-                                                                 name="MyRectangle", matname="Copper")
+        rect2 = self.aedtapp.modeler.primitives.create_rectangle(
+            position=[0, -2, -2], dimension_list=[3, 4], name="MyRectangle", matname="Copper"
+        )
         assert rect1.solve_inside
         assert rect1.model
         assert rect1.material_name == "vacuum"
@@ -46,8 +48,9 @@ class TestClass(BasisTest):
 
     def test_create_circle(self):
         circle1 = self.aedtapp.modeler.primitives.create_circle([0, -2, 0], 3)
-        circle2 = self.aedtapp.modeler.primitives.create_circle(position=[0, -2, -2], radius=3, num_sides=6,
-                                                 name="MyCircle", matname="Copper")
+        circle2 = self.aedtapp.modeler.primitives.create_circle(
+            position=[0, -2, -2], radius=3, num_sides=6, name="MyCircle", matname="Copper"
+        )
         assert circle1.solve_inside
         assert circle1.model
         assert circle1.material_name == "vacuum"
@@ -60,8 +63,9 @@ class TestClass(BasisTest):
 
     def test_create_ellipse(self):
         ellipse1 = self.aedtapp.modeler.primitives.create_ellipse([0, -2, 0], 4.0, 0.2)
-        ellipse2 = self.aedtapp.modeler.primitives.create_ellipse(position=[0, -2, 0], major_radius=4.0, ratio=0.2,
-                                                                  name="MyEllipse", matname="Copper")
+        ellipse2 = self.aedtapp.modeler.primitives.create_ellipse(
+            position=[0, -2, 0], major_radius=4.0, ratio=0.2, name="MyEllipse", matname="Copper"
+        )
         assert ellipse1.solve_inside
         assert ellipse1.model
         assert ellipse1.material_name == "vacuum"
@@ -74,8 +78,9 @@ class TestClass(BasisTest):
 
     def test_create_regular_polygon(self):
         pg1 = self.aedtapp.modeler.primitives.create_regular_polygon([0, 0, 0], [0, 2, 0])
-        pg2 = self.aedtapp.modeler.primitives.create_regular_polygon(position=[0, 0, 0], start_point=[0, 2, 0],
-                                                                     num_sides=3, name="MyPolygon", matname="Copper")
+        pg2 = self.aedtapp.modeler.primitives.create_regular_polygon(
+            position=[0, 0, 0], start_point=[0, 2, 0], num_sides=3, name="MyPolygon", matname="Copper"
+        )
         assert pg1.solve_inside
         assert pg1.model
         assert pg1.material_name == "vacuum"
@@ -87,7 +92,7 @@ class TestClass(BasisTest):
         assert isclose(pg2.faces[0].area, 5.196152422706631)
 
 
-'''
+"""
     def test_05_split(self):
         box1 = self.aedtapp.modeler.primitives.create_rectangle([-10, -10, -10], [20, 20, 20], "box_to_split")
         assert self.aedtapp.modeler.split("box_to_split", 1)
@@ -350,4 +355,4 @@ class TestClass(BasisTest):
         assert p3.object_type == "Sheet"
         assert self.aedtapp.modeler.sweep_around_axis(p1, self.aedtapp.CoordinateSystemAxis.ZAxis)
         assert p1.object_type == "Solid"
-'''
+"""
