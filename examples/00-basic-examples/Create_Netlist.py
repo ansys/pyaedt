@@ -15,6 +15,7 @@ import os
 # Set the local path to the path for AEDTLib.
 
 from pyaedt import examples
+
 netlist = examples.download_netlist()
 from pyaedt import generate_unique_name
 
@@ -24,7 +25,8 @@ else:
     tmpfold = os.environ["TEMP"]
 
 temp_folder = os.path.join(tmpfold, generate_unique_name("Example"))
-if not os.path.exists(temp_folder): os.makedirs(temp_folder)
+if not os.path.exists(temp_folder):
+    os.makedirs(temp_folder)
 myfile = os.path.join(netlist)
 print(temp_folder)
 
@@ -76,7 +78,7 @@ aedtapp.save_project(os.path.join(temp_folder, "my_firt_netlist.aedt"))
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Using a ``$`` prefix creates a project variable.
 
-aedtapp["Voltage"]="5"
+aedtapp["Voltage"] = "5"
 
 ###############################################################################
 # Create a Schematic from a Netlist File
