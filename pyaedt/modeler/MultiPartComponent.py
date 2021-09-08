@@ -1157,18 +1157,20 @@ class Antenna(Part, object):
         return p
 
     @aedt_exception_handler
-    def _insert(self, app, target_cs=None):
+    def _insert(self, app, target_cs=None, units=None):
         if not target_cs:
             target_cs = self._parent.cs_name
+        if not units:
+            units = self._parent.units
         a = app.create_sbr_antenna(self._antenna_type(app),
-                                   model_units=self._parent.units,
+                                   model_units=units,
                                    parameters_dict=self.params,
                                    target_cs=target_cs,
                                    antenna_name=self.name)
         return a
 
     @aedt_exception_handler
-    def insert(self, app):
+    def insert(self, app, units=None):
         """Insert antenna into app.
 
         Parameters
@@ -1184,9 +1186,9 @@ class Antenna(Part, object):
 
         if self._do_offset:
             self.set_relative_cs(app)
-            antenna_object = self._insert(app)  # Create coordinate system, if needed.
+            antenna_object = self._insert(app, units=units)  # Create coordinate system, if needed.
         else:
-            antenna_object = self._insert(app, target_cs=self._parent.cs_name)
+            antenna_object = self._insert(app, target_cs=self._parent.cs_name, units=units)
         if self._do_rotate:
             self.do_rotate(app, antenna_object.name)
 
@@ -1280,7 +1282,7 @@ class Radar(MultiPartComponent, object):
         tx_names = []
         rx_names = []
         for p in self.parts:
-            antenna_object = self.parts[p].insert(app)
+            antenna_object = self.parts[p].insert(app, units=self.modeler_units)
             self.aedt_components.append(antenna_object.antennaname)
             self.aedt_antenna_names.append(antenna_object.excitation_name)
             if p.startswith('tx'):

@@ -684,7 +684,7 @@ class Hfss(FieldAnalysis3D, object):
              "Resonant Frequency": "0.3GHz", "Wire Length": "499.654096666667mm",
              "Height Over Ground Plane": "249.827048333333mm", "Use Default Height": True})
         _parametricbeam = OrderedDict(
-            {"Is Parametric Array": False, "Size": "0.1mm", "MatchedPortImpedance": "50ohm", "Polarization": "Vertical",
+            {"Is Parametric Array": False, "Size": "0.1meter", "MatchedPortImpedance": "50ohm", "Polarization": "Vertical",
              "Representation": "Far Field", "Vertical BeamWidth": "30deg", "Horizontal BeamWidth": "60deg"})
         _slot = OrderedDict(
             {"Is Parametric Array": False, "MatchedPortImpedance": "50ohm", "Representation": "Far Field",
@@ -3018,9 +3018,9 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def _create_sbr_doppler_sweep(self, setupname, time_var, tstart, tstop, tsweep,parametric_name):
-        time_start = self.modeler.primitives._arg_with_dim(tstart, "sec")
-        time_sweep = self.modeler.primitives._arg_with_dim(tsweep, "sec")
-        time_stop = self.modeler.primitives._arg_with_dim(tstop, "sec")
+        time_start = self.modeler.primitives._arg_with_dim(tstart, "s")
+        time_sweep = self.modeler.primitives._arg_with_dim(tsweep, "s")
+        time_stop = self.modeler.primitives._arg_with_dim(tstop, "s")
         sweep_range = "LIN {} {} {}".format(time_start, time_stop, time_sweep)
         return self.opti_parametric.add_parametric_setup(time_var, sweep_range, setupname,
                                                          parametricname=parametric_name)
@@ -3304,3 +3304,35 @@ class Hfss(FieldAnalysis3D, object):
                   use_relative_cs=(use_relative_cs or use_motion), relative_cs_name=relative_cs_name)
         r.insert(self, abs(speed) >0)
         return r
+
+    @aedt_exception_handler
+    def set_sbr_current_sources_options(self, conformance=False, thin_sources=False, power_fraction=0.95):
+        """Set Current Sources SBR+ Setup Options
+
+        Parameters
+        ----------
+        conformance : bool
+            ``True`` to Enable current source conformance. Default is ``False``
+        thin_sources : bool
+            ``True`` to Enable current Thin Sources. Default is ``False``
+        power_fraction : float or str
+            if thin_sources is enabled then sets the power fraction. Default is ``0.95``
+
+        Returns
+        -------
+        bool
+        """
+        if self.solution_type != "SBR+":
+            self.add_error_message("Method Applies only to SBR+ Solution.")
+            return False
+        current_conformance = "Disable"
+        if conformance:
+            current_conformance = "Enable"
+        arg = ["NAME:CurrentSourceOption", "Current Source Conformance:=", current_conformance, "Thin Sources:=",
+               thin_sources]
+        if thin_sources:
+            arg.append("Power Fraction:=")
+            arg.append(str(power_fraction))
+        self.oboundary.EditGlobalCurrentSourcesOption(arg)
+        return True
+
