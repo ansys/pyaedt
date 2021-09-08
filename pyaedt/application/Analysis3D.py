@@ -147,18 +147,18 @@ class FieldAnalysis3D(Analysis, object):
                         vars[line_list[1]] = line_list[len(line_list) - 2]
                 return vars
             return False
-        with open(self.components3d[component3dname], 'r') as aedt_fh:
+        with open(self.components3d[component3dname], 'rb') as aedt_fh:
             temp = aedt_fh.read().splitlines()
-            _all_lines = []
-            for line in temp:
-                try:
-                    _all_lines.append(line.decode("utf-8").lstrip('\t'))
-                except UnicodeDecodeError:
-                    break
-            for line in _all_lines:
-                if "VariableProp(" in line:
-                    line_list = line.split("'")
-                    vars[line_list[1]] = line_list[len(line_list) - 2]
+        _all_lines = []
+        for line in temp:
+            try:
+                _all_lines.append(line.decode("utf-8").lstrip('\t'))
+            except UnicodeDecodeError:
+                break
+        for line in _all_lines:
+            if "VariableProp(" in line:
+                line_list = line.split("'")
+                vars[line_list[1]] = line_list[len(line_list) - 2]
         return vars
 
     @aedt_exception_handler
