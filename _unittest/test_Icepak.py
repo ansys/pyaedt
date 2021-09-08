@@ -263,9 +263,9 @@ class TestClass:
     def test_create_source(self):
         self.aedtapp.modeler.primitives.create_box([0,0,0], [20,20,20], name="boxSource")
         assert self.aedtapp.create_source_power(
-            self.aedtapp.modeler.primitives["boxSource"].top_face.id, input_power="2W")
+            self.aedtapp.modeler.primitives["boxSource"].top_face_z.id, input_power="2W")
         assert self.aedtapp.create_source_power(
-            self.aedtapp.modeler.primitives["boxSource"].bottom_face.id, thermal_condtion="Fixed Temperature", temperature="28cel")
+            self.aedtapp.modeler.primitives["boxSource"].bottom_face_z.id, thermal_condtion="Fixed Temperature", temperature="28cel")
 
     def test_surface_monitor(self):
         self.aedtapp.modeler.primitives.create_rectangle(

@@ -565,7 +565,7 @@ class Mesh(object):
 
         Returns
         -------
-        pyaedt.modules.Mesh.MeshOperation
+        :class:`pyaedt.modules.Mesh.MeshOperationÓ
             Mesh operation object.
 
         """
@@ -621,7 +621,7 @@ class Mesh(object):
 
         Returns
         -------
-        pyaedt.modules.Mesh.MeshOperation
+        :class:`pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
 
         """

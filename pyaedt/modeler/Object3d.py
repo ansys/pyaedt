@@ -602,7 +602,7 @@ class Object3d(object):
         return faces
 
     @property
-    def top_face(self):
+    def top_face_z(self):
         """Top face in the Z direction of the object.
 
         Returns
@@ -615,7 +615,7 @@ class Object3d(object):
         return result[-1][1]
 
     @property
-    def bottom_face(self):
+    def bottom_face_z(self):
         """Bottom face in the Z direction of the object.
 
         Returns
@@ -627,6 +627,57 @@ class Object3d(object):
         result = sorted(result, key=lambda tup: tup[0])
         return result[0][1]
 
+    @property
+    def top_face_x(self):
+        """Top face in the X direction of the object.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.FacePrimitive`
+
+        """
+        result = [(float(face.center[0]), face) for face in self.faces]
+        result = sorted(result, key=lambda tup: tup[0])
+        return result[-1][1]
+
+    @property
+    def bottom_face_x(self):
+        """Bottom face in the X direction of the object.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.FacePrimitive`
+
+        """
+        result = [(float(face.center[0]), face) for face in self.faces]
+        result = sorted(result, key=lambda tup: tup[0])
+        return result[0][1]
+
+    @property
+    def top_face_y(self):
+        """Top face in the Y direction of the object.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.FacePrimitive`
+
+        """
+        result = [(float(face.center[1]), face) for face in self.faces]
+        result = sorted(result, key=lambda tup: tup[0])
+        return result[-1][1]
+
+    @property
+    def bottom_face_y(self):
+        """Bottom face in the X direction of the object.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.FacePrimitive`
+
+        """
+        result = [(float(face.center[1]), face) for face in self.faces]
+        result = sorted(result, key=lambda tup: tup[0])
+        return result[0][1]
     @property
     def edges(self):
         """Information for each edge in the given part.

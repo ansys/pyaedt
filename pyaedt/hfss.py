@@ -390,7 +390,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        pyaedt.modules.SetupTemplates.SweepHFSS, pyaedt.modules.SetupTemplates.SweepQ3D, or bool
+        :class:`pyaedt.modules.SetupTemplates.SweepHFSS`, :class:`pyaedt.modules.SetupTemplates.SweepQ3D`, or bool
             Sweep object if successful. ``False`` if unsuccessful.
 
         Examples
@@ -734,7 +734,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        pyaedt.modules.Boundary.NativeComponentObject
+        :class:`pyaedt.modules.Boundary.NativeComponentObject`
             NativeComponentObject object.
 
         Examples
@@ -829,7 +829,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        pyaedt.modules.Boundary.NativeComponentObject
+        :class:`pyaedt.modules.Boundary.NativeComponentObject`
             NativeComponentObject object.
 
         Examples
@@ -865,7 +865,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        pyaedt.modules.Boundary.BoundaryObject
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
         Examples

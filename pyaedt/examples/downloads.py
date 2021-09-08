@@ -159,6 +159,29 @@ def download_sbr():
 
     return _download_file('sbr', 'Cassegrain.aedt')
 
+def download_icepak():
+    """Download an example of Icepak Array and return the def path.
+
+    Examples files are downloaded to a persistent cache to avoid
+    re-downloading the same file twice.
+
+    Returns
+    -------
+    str
+        Path to the example file.
+
+    Examples
+    --------
+    Download an example result file and return the path of the file
+
+    >>> from pyaedt import examples
+    >>> path = examples.download_icepak()
+    >>> path
+    'C:/Users/user/AppData/local/temp/pyaedtexamples/Graphic_Card.aedt'
+    """
+
+    return _download_file('icepak', 'Graphic_card.aedt')
+
 def download_touchstone():
     """Download an example of touchstone File and return the def path.
 

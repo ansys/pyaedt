@@ -1662,7 +1662,7 @@ class PostProcessor(PostProcessorCommon, object):
 
         Returns
         -------
-        pyaedt.modules.PostProcessor.SolutionData
+        :class:`pyaedt.modules.PostProcessor.SolutionData`
 
         """
         if type(expression) is not list:

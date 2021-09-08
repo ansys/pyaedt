@@ -579,7 +579,7 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        pyaedt.modules.MaterialLib.Materials
+        :class:`pyaedt.modules.MaterialLib.Materials`
 
         """
         return self._parent.materials
@@ -730,7 +730,7 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        pyaedt.modules.MaterialLib.Materials
+        :class:`pyaedt.modules.MaterialLib.Materials`
 
         """
         return self._parent._oproject.GetDefinitionManager().GetManager("Material")
