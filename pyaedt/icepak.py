@@ -135,9 +135,9 @@ class Icepak(FieldAnalysisIcepak):
              ``0`` for ``"Perforated Thin Vent"``, ``1`` for ``"Circular Metal Wire Screen"``,
               `2`` for ``"Two-Plane Screen Cyl. Bars"``.
         external_temp : str
-             External Temperature. Defaul ``AmbientTemp``.
+             External Temperature. Default ``AmbientTemp``.
         expternal_pressure : str
-             External Pressure. Defaul ``AmbientPressure``.
+             External Pressure. Default ``AmbientPressure``.
         x_curve : list
              X Curve List in m_per_sec.
         y_curve : list

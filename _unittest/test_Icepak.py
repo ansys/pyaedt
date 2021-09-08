@@ -150,7 +150,9 @@ class TestClass:
         test = self.aedtapp.mesh.assign_mesh_level_to_group(mesh_level_Filter, group_name)
         assert test
         #assert self.aedtapp.mesh.assignMeshLevel2Component(mesh_level_RadioPCB, component_name)
-        test = self.aedtapp.mesh.assign_mesh_region(component_name, mesh_level_RadioPCB)
+        test = self.aedtapp.mesh.assign_mesh_region(component_name, mesh_level_RadioPCB, is_submodel=True)
+        assert test
+        test = self.aedtapp.mesh.assign_mesh_region(["USB_ID"], mesh_level_RadioPCB)
         assert test
 
     def test_13_assign_openings(self):

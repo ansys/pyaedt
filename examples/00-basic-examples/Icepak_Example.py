@@ -13,6 +13,12 @@ This example shows how you can use PyAEDT to create an Graphic Card setup in Ice
 import os
 from pyaedt import examples, generate_unique_name
 from pyaedt import Icepak
+
+###############################################################################
+# Open Project
+# ~~~~~~~~~~~~
+# Download Project, opens it and save to TEMP Folder.
+
 project_full_name = examples.download_icepak()
 
 if os.name == "posix":
@@ -24,7 +30,7 @@ temp_folder = os.path.join(tmpfold, generate_unique_name("Example"))
 if not os.path.exists(temp_folder): os.makedirs(temp_folder)
 
 ipk = Icepak(project_full_name, specified_version="2021.1")
-ipk.save_project(temp_folder, "Graphic_card.aedt")
+ipk.save_project(temp_folder, "Graphics_card.aedt")
 ipk._desktop_class.disable_autosave()
 ipk.create_source_block("CPU","25W")
 ipk.create_source_block(["MEMORY1", "MEMORY1_1"],"5W")

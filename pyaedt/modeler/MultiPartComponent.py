@@ -177,7 +177,6 @@ class Part(object):
         -------
         str
             full file name for *.a3dcomp file.
-
         """
         return os.path.join(self._compdef['part_folder'], self['comp_name'])
 
@@ -393,17 +392,16 @@ class Part(object):
 
     @aedt_exception_handler
     def insert(self, app):
-        """
-        Insert 3D Component into app
+        """Insert 3D Component into app.
+
         Parameters
         ----------
-        app : pyaedt.Hfss, required
+        app : class:`pyaedt.hfss.Hfss`
             HFSS application instance.
 
         Returns
         -------
         name of inserted object.
-
         """
         aedt_objects = []
         # TODO: Why the inconsistent syntax for cs commands?
@@ -1017,7 +1015,7 @@ class Person(Actor, object):
 
         Returns
         -------
-
+        bool
         """
         app.add_info_message("Adding Person: " + self.name, "Design")
 
@@ -1070,7 +1068,7 @@ class Bird(Actor, object):
 
         Returns
         -------
-
+        bool
         """
         app.add_info_message("Adding Vehicle: " + self.name, "Design")
 
@@ -1121,7 +1119,7 @@ class Vehicle(Actor, object):
 
         Returns
         -------
-
+        bool
         """
         app.add_info_message("Adding Vehicle: " + self.name, "Design")
 
@@ -1129,6 +1127,7 @@ class Vehicle(Actor, object):
         if motion:
             self._add_speed(app)
             self._add_driving(app)
+        return True
 
 
 class Antenna(Part, object):
@@ -1175,13 +1174,11 @@ class Antenna(Part, object):
 
         Parameters
         ----------
-        app : :class:`pyaedt.hfss.Hfss`, required
-            HFSS application instance.
+        app : :class:`pyaedt.hfss.Hfss`, required HFSS application instance.
 
         Returns
         -------
         name of inserted object.
-
         """
 
         if self._do_offset:
@@ -1262,8 +1259,7 @@ class Radar(MultiPartComponent, object):
 
     @aedt_exception_handler
     def insert(self, app, motion=False):
-        """
-        Insert radar into app (app is the HFSS application instance).
+        """Insert radar into app (app is the HFSS application instance).
 
         Parameters
         ----------

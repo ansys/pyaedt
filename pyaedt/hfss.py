@@ -3307,7 +3307,7 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def set_sbr_current_sources_options(self, conformance=False, thin_sources=False, power_fraction=0.95):
-        """Set Current Sources SBR+ Setup Options
+        """Set Current Sources SBR+ Setup Options.
 
         Parameters
         ----------

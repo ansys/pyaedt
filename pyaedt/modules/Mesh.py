@@ -553,11 +553,9 @@ class Mesh(object):
         skindepth : bool
             Whether the length mesh is inside the selection. The default is ``True``.
         maxelements : int, optional
-            Maximum number of elements. The default is ``None``, which means
-            this parameter is disabled.
+            Maximum number of elements. The default is ``None``, which means this parameter is disabled.
         triangulation_max_length : str, optional
-            Maximum surface triangulation length with units. The default
-            is ``"0.1mm"``.
+            Maximum surface triangulation length with units. The default is ``"0.1mm"``.
         numlayers : str, optional
             Number of layers. The default is ``"2"``.
         meshop_name : str, optional
@@ -565,7 +563,7 @@ class Mesh(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Mesh.MeshOperationÓ
+        :class:`pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
 
         """

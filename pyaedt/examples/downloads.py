@@ -180,7 +180,7 @@ def download_icepak():
     'C:/Users/user/AppData/local/temp/pyaedtexamples/Graphic_Card.aedt'
     """
 
-    return _download_file('icepak', 'Graphic_card.aedt')
+    return _download_file('icepak', 'Graphics_card.aedt')
 
 def download_touchstone():
     """Download an example of touchstone File and return the def path.
