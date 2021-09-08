@@ -72,7 +72,7 @@ resistor_component = aedt_app.modeler.components[resistor]
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 # These methods create a port and a ground, which are needed for a circuit anlaysis.
 
-port_id, port_name = aedt_app.modeler.components.create_iport("myport", -0.0254, 0)
+port_id, port_name = aedt_app.modeler.components.create_interface_port("myport", -0.0254, 0)
 gnd_id, gnd_name = aedt_app.modeler.components.create_gnd(0.0508, -0.00254)
 ###############################################################################
 # Connect Components

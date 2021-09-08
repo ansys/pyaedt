@@ -1,3 +1,5 @@
+import warnings
+
 from ..generic.general_methods import aedt_exception_handler, retry_ntimes
 from .PrimitivesCircuit import CircuitComponents
 
@@ -52,7 +54,18 @@ class NexximComponents(CircuitComponents):
 
     @aedt_exception_handler
     def create_3dlayout_subcircuit(self, sourcename):
-        """Create a subcircuit.
+        """Add a subcircuit from a HFSS 3DLayout.
+
+        .. deprecated:: 0.4.0
+           Use :func:`Circuit.modeler.components.add_subcircuit_3dlayout` instead.
+        """
+        warnings.warn('`create_3dlayout_subcircuit` is deprecated. Use `add_subcircuit_3dlayout` instead.',
+                      DeprecationWarning)
+        return self.add_subcircuit_3dlayout(sourcename)
+
+    @aedt_exception_handler
+    def add_subcircuit_3dlayout(self, sourcename):
+        """Add a subcircuit from a HFSS 3DLayout.
 
         Parameters
         ----------
@@ -762,12 +775,13 @@ class NexximComponents(CircuitComponents):
         return res
 
     @aedt_exception_handler
-    def add_subcircuit_hfss_link(self, compName, pin_names, source_project_path, source_project_name, source_design_name, solution_name = "Setup1 : Sweep"):
+    def add_subcircuit_hfss_link(self, comp_name, pin_names, source_project_path, source_project_name,
+                                 source_design_name, solution_name="Setup1 : Sweep"):
         """Add a subcircuit HFSS link.
 
         Parameters
         ----------
-        compName : str
+        comp_name : str
             Name of the subcircuit HFSS link.
         pin_names: list
             List of the pin names.
@@ -791,8 +805,8 @@ class NexximComponents(CircuitComponents):
         nexxim_customization = self.get_comp_custom_settings(2, 3, 1, 3, 0, 0, "False", "", 2)
         hspice_customization = self.get_comp_custom_settings(3, 1, 2, 3, 0, 0, "False", "", 3)
 
-        compInfo = ["NAME:"+str(compName),
-                    "Name:=", compName,
+        compInfo = ["NAME:" + str(comp_name),
+                    "Name:=", comp_name,
                     "ModTime:=", 1591855779,
                     "Library:=", "",
                     "LibLocation:=", "Project",
@@ -832,7 +846,7 @@ class NexximComponents(CircuitComponents):
                 "IEEE:=", "", "Author:=", "", "OriginalAuthor:=", "",	"CreationDate:=", 1591855894, "ExampleFile:=", "",
                 "HiddenComponent:=", 0, "CircuitEnv:=", 0, "GroupID:=", 0]
 
-        compInfo2 = ["NAME:"+str(compName),
+        compInfo2 = ["NAME:"+str(comp_name),
                      "Info:=", info,
                      "CircuitEnv:=", 0,
                      "Refbase:=", "S",
@@ -858,29 +872,32 @@ class NexximComponents(CircuitComponents):
                            "CosimDefName:=", "Default",
                            "IsDefinition:=", True,
                            "Connect:=", True,
-                           "ModelDefinitionName:=", compName,
+                           "ModelDefinitionName:=", comp_name,
                            "ShowRefPin2:=", 2,
                            "LenPropName:=", ""],
                           "DefaultCosim:=", "Default"])
 
         self.o_component_manager.Add(compInfo2)
-        self._parent.odesign.AddCompInstance(compName)
+        self._parent.odesign.AddCompInstance(comp_name)
         self.refresh_all_ids()
         for el in self.components:
-            item = compName
+            item = comp_name
             item2 = self.components[el].composed_name
-            if compName in self.components[el].composed_name:
+            if comp_name in self.components[el].composed_name:
                 return el, self.components[el].composed_name
         return False
 
     @aedt_exception_handler
-    def set_sim_option_on_hfss_subcircuit(self, component):
+    def set_sim_option_on_hfss_subcircuit(self, component, option="simulate"):
         """Set the simulation option on the HFSS subscircuit.
 
         Parameters
         ----------
         component : str
             Address of the component instance. For example, ``"Inst@Galileo_cutout3;87;1"``.
+        option : str
+            Set the simulation strategy. Options are ``"simulate"`` and ``"interpolate"``. The default
+            is ``"simulate"``.
 
         Returns
         -------
@@ -888,24 +905,14 @@ class NexximComponents(CircuitComponents):
             ``True`` when successful, ``False`` when failed.
 
         """
-        complist = component.split(";")
-        complist2 = complist[0].split("@")
-        arg = ["NAME:AllTabs"]
-        arg1 = ["NAME:Model"]
-        arg2 = ["NAME:PropServers", "Component@"+str(complist2[1])]
-        arg3 = ["NAME:ChangedProps",["NAME:Simulation option", "Value:=", "Simulate missing solutions"]]
-
-        arg1.append(arg2)
-        arg1.append(arg3)
-        arg.append(arg1)
-
-        self._parent._oproject.ChangeProperty(arg)
-
-        argo = ["NAME:AllTabs", ["NAME:Component", ["NAME:PropServers", str(component)]]]
-
-        self.oeditor.ChangeProperty(argo)
-
-        pass
+        if option == "simulate":
+            setting = "Simulate missing solutions"
+        elif option == "interpolate":
+            setting = "Interpolate existing solutions"
+        else:
+            return False
+        arg = ["NAME:Simulation option", "Value:=", setting]
+        return self._edit_link_definition_hfss_subcircuit(component, arg)
 
     @aedt_exception_handler
     def set_sim_solution_on_hfss_subcircuit(self, component, solution_name="Setup1 : Sweep"):
@@ -924,23 +931,24 @@ class NexximComponents(CircuitComponents):
             ``True`` when successful, ``False`` when failed.
 
         """
+        arg = ["NAME:Solution", "Value:=", solution_name]
+        return self._edit_link_definition_hfss_subcircuit(component, arg)
+
+    @aedt_exception_handler
+    def _edit_link_definition_hfss_subcircuit(self, component, edited_prop):
+        """Generic function to set the link definition for an hfss subcircuit."""
         complist = component.split(";")
         complist2 = complist[0].split("@")
         arg = ["NAME:AllTabs"]
         arg1 = ["NAME:Model"]
         arg2 = ["NAME:PropServers", "Component@" + str(complist2[1])]
-        arg3 = ["NAME:ChangedProps", ["NAME:Solution", "Value:=", solution_name]]
+        arg3 = ["NAME:ChangedProps", edited_prop]
 
         arg1.append(arg2)
         arg1.append(arg3)
         arg.append(arg1)
 
         self._parent._oproject.ChangeProperty(arg)
-
-        argo = ["NAME:AllTabs", ["NAME:Component", ["NAME:PropServers", str(component)]]]
-
-        self.oeditor.ChangeProperty(argo)
-
         return True
 
     @aedt_exception_handler
@@ -960,104 +968,28 @@ class NexximComponents(CircuitComponents):
 
         """
         self.o_component_manager.UpdateDynamicLink(component_name)
+        return True
 
     @aedt_exception_handler
     def push_excitations(self, instance_name, thevenin_calculation=False, setup_name="LinearFrequency"):
         """Push excitations.
 
-        Parameters
-        ----------
-        instance_name : str
-            Name of the instance.
-        thevenin_calculation : bool, optional
-            Whether to perform the Thevenin equivalent calculation. The default is ``False``.
-        setup_name : str
-            Name of the solution setup to push.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
+        .. deprecated:: 0.4.0
+           Use :func:`Circuit.push_excitations` instead.
         """
-        arg = ["NAME:options",
-               "CalcThevenin:=", thevenin_calculation,
-               "Sol:=", setup_name]
-
-        self.oeditor.PushExcitations(instance_name, arg)
-        pass
+        warnings.warn('`circuit.modeler.components.push_excitation` is deprecated. '
+                      'Use `circuit.push_excitation` instead.',
+                      DeprecationWarning)
+        return self._parent._parent.push_excitations(instance_name, thevenin_calculation, setup_name)
 
     @aedt_exception_handler
     def assign_sin_excitation2ports(self, ports, settings):
-        """Assign a sinusoidal excitation to circuit ports.
+        """Assign a voltage sinusoidal excitation to circuit ports.
 
-        Parameters
-        ----------
-        ports : list
-            List of circuit ports to assign to the sinusoidal excitation.
-        settings : list
-            List of parameter values to use in voltage sinusoidal excitation creation.
-
-            Values are given in this order:
-
-            * 0: AC magnitude for small-signal analysis
-            * 1: AC phase for small-signal analysis
-            * 2: DC voltage
-            * 3: Voltage offset from zero
-            * 4: Voltage amplitude
-            * 5: Frequency
-            * 6: Delay to start of sine wave
-            * 7: Damping factor
-            * 8: Phase delay
-            * 9: Frequency to use for harmonic balance analysis
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
+        .. deprecated:: 0.4.0
+           Use :func:`Circuit.modeler.components.assign_voltage_sinusoidal_excitation_to_ports` instead.
         """
-        id = self.create_unique_id()
-
-        arg1 = ["NAME:NexximSources",
-                ["NAME:NexximSources",
-                 ["NAME:Data",
-                  ["NAME:VoltageSinusoidal"+str(id),
-                   "DataId:=", "Source"+str(id),
-                   "Type:=", 1,
-                   "Output:=", 0,
-                   "NumPins:=", 2,
-                   "Netlist:=", "V@ID %0 %1 *DC(DC=@DC) SIN(?VO(@VO) ?VA(@VA) ?FREQ(@FREQ) ?TD(@TD) ?ALPHA(@ALPHA) ?THETA(@THETA)) *TONE(TONE=@TONE) *ACMAG(AC @ACMAG @ACPHASE)",
-                   "CompName:=", "Nexxim Circuit Elements\\Independent Sources:V_SIN",
-                   "FDSFileName:=", "",
-                   ["NAME:Properties",
-                    "TextProp:=", ["LabelID","HD","Property string for netlist ID","V@ID"],
-                    "ValueProp:=", ["ACMAG","OD","AC magnitude for small-signal analysis (Volts)",settings[0],0],
-                    "ValuePropNU:=", ["ACPHASE","OD","AC phase for small-signal analysis",settings[1],0,"deg"],
-                    "ValueProp:=", ["DC","OD","DC voltage (Volts)",settings[2],0],
-                    "ValueProp:=", ["VO","OD","Voltage offset from zero (Volts)",settings[3],0],
-                    "ValueProp:=", ["VA","OD","Voltage amplitude (Volts)",settings[4],0],
-                    "ValueProp:=", ["FREQ","OD","Frequency (Hz)",settings[5],0],
-                    "ValueProp:=", ["TD","OD","Delay to start of sine wave (seconds)",settings[6],0],
-                    "ValueProp:=", ["ALPHA","OD","Damping factor (1/seconds)",settings[7],0],
-                    "ValuePropNU:=", ["THETA","OD","Phase delay",settings[8],0,"deg"],
-                    "ValueProp:=", ["TONE","OD","Frequency (Hz) to use for harmonic balance analysis, should be a submultiple of (or equal to) the driving frequency and should also be included in the HB analysis setup",settings[9],0],
-                    "TextProp:=", ["ModelName","SHD","","V_SIN"],
-                    "MenuProp:=", ["CoSimulator","D","","DefaultNetlist",0],
-                    "ButtonProp:=", ["CosimDefinition","D","","","Edit",40501, "ButtonPropClientData:=", [] ] ] ] ] ] ]
-
-        arg2 = ["NAME:ComponentConfigurationData"]
-
-        arg3 = ["NAME:ComponentConfigurationData", ["NAME:EnabledPorts", "VoltageSinusoidal"+str(id)+":=", ports],
-                ["NAME:EnabledMultipleComponents", "VoltageSinusoidal"+str(id)+":=", [] ] ]
-
-        for prt in ports:
-            arg_temp = []
-            arg_temp = ["NAME:EnabledAnalyses", ["NAME:"+str(prt), str(prt)+":=", [] ], ["NAME:VoltageSinusoidal"+str(id), str(prt)+":=", [] ] ]
-            arg3.append(arg_temp)
-
-        arg2.append(arg3)
-
-        self._parent.odesign.UpdateSources(arg1,arg2)
-
-        pass
+        warnings.warn('`assign_sin_excitation2ports` is deprecated. '
+                      'Use `assign_voltage_sinusoidal_excitation_to_ports` instead.',
+                      DeprecationWarning)
+        return self._parent.assign_voltage_sinusoidal_excitation_to_ports(ports, settings)
