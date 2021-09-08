@@ -94,6 +94,12 @@ class TestClass:
                                                                                "usb_P_pcb"])
         assert type(my_model) is int
 
+    def test_07a_push_excitation(self):
+        setup_name = "LNA"
+        LNA_setup = self.aedtapp.create_setup(setup_name)
+        assert self.aedtapp.push_excitations(instance_name='U1', setup_name='LNA', thevenin_calculation=False)
+        assert self.aedtapp.push_excitations(instance_name='U1', setup_name='LNA', thevenin_calculation=True)
+
     def test_08_import_mentor_netlist(self):
         self.aedtapp.insert_design("MentorSchematicImport")
         assert self.aedtapp.create_schematic_from_mentor_netlist(
