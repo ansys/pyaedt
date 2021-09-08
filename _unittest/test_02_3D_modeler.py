@@ -1,11 +1,6 @@
-# standard imports
-try:
-    import pytest
-except ImportError:
-    import _unittest_ironpython.conf_unittest as pytest
-
 # Setup paths for module imports
 from _unittest.conftest import BasisTest, pyaedt_unittest_check_desktop_error
+
 
 class TestClass(BasisTest):
     def setup_class(self):

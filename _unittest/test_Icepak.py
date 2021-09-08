@@ -1,17 +1,14 @@
 # standard imports
+import gc
 import os
 import time
-# Setup paths for module imports
-from _unittest.conftest import local_path, scratch_path, config
 
 # Import required modules
 from pyaedt import Icepak
 from pyaedt.generic.filesystem import Scratch
-import gc
-try:
-    import pytest
-except ImportError:
-    import _unittest_ironpython.conf_unittest as pytest
+
+# Setup paths for module imports
+from _unittest.conftest import local_path, scratch_path
 
 # Access the desktop
 

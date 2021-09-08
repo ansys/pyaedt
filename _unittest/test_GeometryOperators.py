@@ -1,15 +1,14 @@
-try:
-    import pytest
-except ImportError:
-    import _unittest_ironpython.conf_unittest as pytest
 import math
-from pyaedt.modeler.GeometryOperators import GeometryOperators as go
-import clr
-clr.AddReference("System.Collections")
-from System.Collections.Generic import List
-from System import Double
-from pyaedt.modeler.modeler_constants import CoordinateSystemPlane, CoordinateSystemAxis, SweepDraftType
 
+import clr
+from pyaedt.modeler.GeometryOperators import GeometryOperators as go
+
+clr.AddReference("System.Collections")
+from pyaedt.modeler.modeler_constants import (CoordinateSystemAxis,
+                                              CoordinateSystemPlane,
+                                              SweepDraftType)
+from System import Double
+from System.Collections.Generic import List
 
 tol = 1e-12
 

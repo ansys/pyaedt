@@ -1,15 +1,10 @@
-import os
-try:
-    import pytest
-except ImportError:
-    import _unittest_ironpython.conf_unittest as pytest
-
-# Setup paths for module imports
-from _unittest.conftest import scratch_path
 import gc
+
 # Import required modules
 from pyaedt import Hfss, Maxwell3d
 from pyaedt.generic.filesystem import Scratch
+
+from _unittest.conftest import scratch_path
 
 test_project_name = "coax_HFSS"
 

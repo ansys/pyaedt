@@ -1,12 +1,9 @@
 # standard imports
-import os
-# Setup paths for module imports
-from _unittest.conftest import local_path, scratch_path
+import gc
 
 # Import required modules
 from pyaedt.examples import downloads
-from pyaedt.generic.filesystem import Scratch
-import gc
+
 
 class TestClass:
     def setup_class(self):

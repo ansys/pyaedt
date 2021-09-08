@@ -1,21 +1,18 @@
+# Setup paths for module imports
+import gc
+import logging
+
 try:
     import pytest
 except ImportError:
     import _unittest_ironpython.conf_unittest as pytest
 
-# Setup paths for module imports
-import gc
-import math
-import os
+from pyaedt.application.MessageManager import AEDTMessageManager
+from pyaedt.generic.filesystem import Scratch
+from pyaedt.hfss import Hfss
 
 # Import required modules
-from _unittest.conftest import local_path, scratch_path, config
-from pyaedt.hfss import Hfss
-from pyaedt.application.MessageManager import AEDTMessageManager
-from pyaedt.application.Variables import Variable
-from pyaedt.generic.filesystem import Scratch
-
-import logging
+from _unittest.conftest import config, scratch_path
 
 LOGGER = logging.getLogger(__name__)
 
