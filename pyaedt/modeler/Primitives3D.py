@@ -755,18 +755,29 @@ class Primitives3D(Primitives, object):
         """
         vArg1 = ["NAME:InsertComponentData"]
         sz_geo_params = ""
+        if not geoParams:
+            geometryparams = self._parent.get_components3d_vars(compFile)
+            if geometryparams:
+                geoParams = geometryparams
+
         if geoParams:
             sz_geo_params = "".join(["{0}='{1}' ".format(par, val) for par, val in geoParams.items()])
-        vArg1.append("GeometryParameters:=")
-        vArg1.append(sz_geo_params)
-        vArg1.append("MaterialParameters:=")
-        vArg1.append(szMatParams)
-        vArg1.append("DesignParameters:=")
-        vArg1.append(szDesignParams)
         vArg1.append("TargetCS:=")
         vArg1.append(targetCS)
         vArg1.append("ComponentFile:=")
         vArg1.append(compFile)
+        vArg1.append("IsLocal:=")
+        vArg1.append(False)
+        vArg1.append("UniqueIdentifier:=")
+        vArg1.append("")
+        varg2= ["NAME:InstanceParameters"]
+        varg2.append("GeometryParameters:=")
+        varg2.append(sz_geo_params)
+        varg2.append("MaterialParameters:=")
+        varg2.append(szMatParams)
+        varg2.append("DesignParameters:=")
+        varg2.append(szDesignParams)
+        vArg1.append(varg2)
         new_object_name = self.oeditor.Insert3DComponent(vArg1)
         #TODO return an object
         return new_object_name

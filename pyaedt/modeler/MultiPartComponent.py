@@ -1202,6 +1202,7 @@ class Radar(MultiPartComponent, object):
     def __init__(self, radar_folder, name=None, motion=False,
                  use_relative_cs=False, offset=("0", "0", "0"), speed=0, relative_cs_name=None):
 
+        self.aedt_antenna_names = []  # List of Antenna Names
         name = name.split('.')[0] if name else name  # remove suffix if any
         self._component_class = 'radar'
         super(Radar, self).__init__(radar_folder, name=name, use_relative_cs=use_relative_cs, motion=motion,
@@ -1280,7 +1281,8 @@ class Radar(MultiPartComponent, object):
         rx_names = []
         for p in self.parts:
             antenna_object = self.parts[p].insert(app)
-            self.aedt_components.append(antenna_object.excitation_name)
+            self.aedt_components.append(antenna_object.antennaname)
+            self.aedt_antenna_names.append(antenna_object.excitation_name)
             if p.startswith('tx'):
                 tx_names.append(antenna_object.excitation_name)
             elif p.startswith('rx'):
@@ -1301,4 +1303,4 @@ class Radar(MultiPartComponent, object):
         app.add_info_message("Group Created:  " + self.name)
         if motion:
             self._add_speed(app)
-        return self.aedt_components
+        return self.aedt_antenna_names
