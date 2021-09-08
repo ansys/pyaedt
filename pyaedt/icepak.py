@@ -370,6 +370,7 @@ class Icepak(FieldAnalysisIcepak):
         bound = BoundaryObject(self, boundary_name, props, 'Block')
         if bound.create():
             self.boundaries.append(bound)
+            self._messenger.add_info_message("Block on {} with {} Power, created correctly.".format(object_name, input_power))
             return bound
         return None
 

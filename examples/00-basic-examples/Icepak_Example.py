@@ -30,7 +30,7 @@ temp_folder = os.path.join(tmpfold, generate_unique_name("Example"))
 if not os.path.exists(temp_folder): os.makedirs(temp_folder)
 
 ipk = Icepak(project_full_name, specified_version="2021.1")
-ipk.save_project(temp_folder, "Graphics_card.aedt")
+ipk.save_project(os.path.join(temp_folder, "Graphics_card.aedt"))
 ipk._desktop_class.disable_autosave()
 ###############################################################################
 # Create Source Blocks
