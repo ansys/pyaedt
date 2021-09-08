@@ -819,7 +819,7 @@ class Circuit(FieldAnalysisCircuit, object):
                "CalcThevenin:=", thevenin_calculation,
                "Sol:=", setup_name]
 
-        self.oeditor.PushExcitations(instance_name, arg)
+        self.modeler.oeditor.PushExcitations(instance_name, arg)
         return True
 
     @aedt_exception_handler
