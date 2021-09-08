@@ -24,6 +24,7 @@ from ..application.DataHandlers import dict2arg
 from .Object3d import EdgePrimitive, FacePrimitive, VertexPrimitive, Object3d
 from pyaedt import _pythonver
 
+
 class CoordinateSystem(object):
     """Manages coordinate system data and execution.
 
@@ -134,24 +135,54 @@ class CoordinateSystem(object):
             self._change_property(self.name, ["NAME:ChangedProps", ["NAME:Mode", "Value:=", self.props["Mode"]]])
         except:
             raise ValueError(
-                "Mode must be 'Axis/Position', 'Euler Angle ZYZ' or 'Euler Angle ZXZ', not {}.".format(self.props["Mode"]))
+                "Mode must be 'Axis/Position', 'Euler Angle ZYZ' or 'Euler Angle ZXZ', not {}.".format(
+                    self.props["Mode"]
+                )
+            )
 
         props = ["NAME:ChangedProps"]
 
-        props.append(["NAME:Origin", "X:=", self._dim_arg(self.props["OriginX"]), "Y:=",
-                      self._dim_arg(self.props["OriginY"]), "Z:=", self._dim_arg(self.props["OriginZ"])])
+        props.append(
+            [
+                "NAME:Origin",
+                "X:=",
+                self._dim_arg(self.props["OriginX"]),
+                "Y:=",
+                self._dim_arg(self.props["OriginY"]),
+                "Z:=",
+                self._dim_arg(self.props["OriginZ"]),
+            ]
+        )
 
-        if self.props["Mode"] == 'Axis/Position':
-            props.append(["NAME:X Axis", "X:=", self._dim_arg(self.props["XAxisXvec"]), "Y:=",
-                          self._dim_arg(self.props["XAxisYvec"]), "Z:=", self._dim_arg(self.props["XAxisZvec"])])
-            props.append(["NAME:Y Point", "X:=", self._dim_arg(self.props["YAxisXvec"]), "Y:=",
-                          self._dim_arg(self.props["YAxisYvec"]), "Z:=", self._dim_arg(self.props["YAxisZvec"])])
+        if self.props["Mode"] == "Axis/Position":
+            props.append(
+                [
+                    "NAME:X Axis",
+                    "X:=",
+                    self._dim_arg(self.props["XAxisXvec"]),
+                    "Y:=",
+                    self._dim_arg(self.props["XAxisYvec"]),
+                    "Z:=",
+                    self._dim_arg(self.props["XAxisZvec"]),
+                ]
+            )
+            props.append(
+                [
+                    "NAME:Y Point",
+                    "X:=",
+                    self._dim_arg(self.props["YAxisXvec"]),
+                    "Y:=",
+                    self._dim_arg(self.props["YAxisYvec"]),
+                    "Z:=",
+                    self._dim_arg(self.props["YAxisZvec"]),
+                ]
+            )
         else:
-            props.append(["NAME:Phi", "Value:=", self._dim_arg(self.props["Phi"],"deg")])
+            props.append(["NAME:Phi", "Value:=", self._dim_arg(self.props["Phi"], "deg")])
 
-            props.append(["NAME:Theta", "Value:=", self._dim_arg(self.props["Theta"],"deg")])
+            props.append(["NAME:Theta", "Value:=", self._dim_arg(self.props["Theta"], "deg")])
 
-            props.append(["NAME:Psi", "Value:=", self._dim_arg(self.props["Psi"],"deg")])
+            props.append(["NAME:Psi", "Value:=", self._dim_arg(self.props["Psi"], "deg")])
 
         self._change_property(self.name, props)
         return True
@@ -189,9 +220,9 @@ class CoordinateSystem(object):
                 self.props["YAxisXvec"] = ypoint[0]
                 self.props["YAxisYvec"] = ypoint[1]
                 self.props["YAxisZvec"] = ypoint[2]
-                del self.props['Phi']
-                del self.props['Theta']
-                del self.props['Psi']
+                del self.props["Phi"]
+                del self.props["Theta"]
+                del self.props["Psi"]
                 self.mode = "axis"
                 self.update()
         elif mode_type == 1:  # "Euler Angle ZXZ"
@@ -257,10 +288,20 @@ class CoordinateSystem(object):
         return True
 
     @aedt_exception_handler
-    def create(self, origin=None, reference_cs='Global', name=None,
-               mode='axis', view='iso',
-               x_pointing=None, y_pointing=None,
-               phi=0, theta=0, psi=0, u=None):
+    def create(
+        self,
+        origin=None,
+        reference_cs="Global",
+        name=None,
+        mode="axis",
+        view="iso",
+        x_pointing=None,
+        y_pointing=None,
+        phi=0,
+        theta=0,
+        psi=0,
+        u=None,
+    ):
         """Create a coordinate system.
 
         Parameters
@@ -386,15 +427,15 @@ class CoordinateSystem(object):
 
         elif mode == "zxz":
             orientationParameters["Mode"] = "Euler Angle ZXZ"
-            orientationParameters["Phi"] = self._dim_arg(phi, 'deg')
-            orientationParameters["Theta"] = self._dim_arg(theta, 'deg')
-            orientationParameters["Psi"] = self._dim_arg(psi, 'deg')
+            orientationParameters["Phi"] = self._dim_arg(phi, "deg")
+            orientationParameters["Theta"] = self._dim_arg(theta, "deg")
+            orientationParameters["Psi"] = self._dim_arg(psi, "deg")
 
         elif mode == "zyz":
             orientationParameters["Mode"] = "Euler Angle ZYZ"
-            orientationParameters["Phi"] = self._dim_arg(phi, 'deg')
-            orientationParameters["Theta"] = self._dim_arg(theta, 'deg')
-            orientationParameters["Psi"] = self._dim_arg(psi, 'deg')
+            orientationParameters["Phi"] = self._dim_arg(phi, "deg")
+            orientationParameters["Theta"] = self._dim_arg(theta, "deg")
+            orientationParameters["Psi"] = self._dim_arg(psi, "deg")
 
         elif mode == "axisrotation":
             th = GeometryOperators.deg2rad(theta)
@@ -404,9 +445,9 @@ class CoordinateSystem(object):
             theta = GeometryOperators.rad2deg(b)
             psi = GeometryOperators.rad2deg(c)
             orientationParameters["Mode"] = "Euler Angle ZYZ"
-            orientationParameters["Phi"] = self._dim_arg(phi, 'deg')
-            orientationParameters["Theta"] = self._dim_arg(theta, 'deg')
-            orientationParameters["Psi"] = self._dim_arg(psi, 'deg')
+            orientationParameters["Phi"] = self._dim_arg(phi, "deg")
+            orientationParameters["Theta"] = self._dim_arg(theta, "deg")
+            orientationParameters["Psi"] = self._dim_arg(psi, "deg")
         else:
             raise ValueError("Specify the mode = 'view', 'axis', 'zxz', 'zyz', 'axisrotation' ")
 
@@ -427,20 +468,20 @@ class CoordinateSystem(object):
         """
         self._parent._parent.variable_manager["temp_var"] = 0
         if self.mode == "axis" or self.mode == "view":
-            x1 = self.props['XAxisXvec']
-            x2 = self.props['XAxisYvec']
-            x3 = self.props['XAxisZvec']
-            y1 = self.props['YAxisXvec']
-            y2 = self.props['YAxisYvec']
-            y3 = self.props['YAxisZvec']
+            x1 = self.props["XAxisXvec"]
+            x2 = self.props["XAxisYvec"]
+            x3 = self.props["XAxisZvec"]
+            y1 = self.props["YAxisXvec"]
+            y2 = self.props["YAxisYvec"]
+            y3 = self.props["YAxisZvec"]
             self._parent._parent.variable_manager["temp_var"] = x1
-            x_pointing_num=[self._parent._parent.variable_manager["temp_var"].numeric_value]
+            x_pointing_num = [self._parent._parent.variable_manager["temp_var"].numeric_value]
             self._parent._parent.variable_manager["temp_var"] = x2
             x_pointing_num.append(self._parent._parent.variable_manager["temp_var"].numeric_value)
             self._parent._parent.variable_manager["temp_var"] = x3
             x_pointing_num.append(self._parent._parent.variable_manager["temp_var"].numeric_value)
             self._parent._parent.variable_manager["temp_var"] = y1
-            y_pointing_num=[self._parent._parent.variable_manager["temp_var"].numeric_value]
+            y_pointing_num = [self._parent._parent.variable_manager["temp_var"].numeric_value]
             self._parent._parent.variable_manager["temp_var"] = y2
             y_pointing_num.append(self._parent._parent.variable_manager["temp_var"].numeric_value)
             self._parent._parent.variable_manager["temp_var"] = y3
@@ -450,24 +491,24 @@ class CoordinateSystem(object):
             self._quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
             del self._parent._parent.variable_manager["temp_var"]
         elif self.mode == "zxz":
-            self._parent._parent.variable_manager["temp_var"] = self.props['Phi']
+            self._parent._parent.variable_manager["temp_var"] = self.props["Phi"]
             a = GeometryOperators.deg2rad(self._parent._parent.variable_manager["temp_var"].numeric_value)
-            self._parent._parent.variable_manager["temp_var"] = self.props['Theta']
+            self._parent._parent.variable_manager["temp_var"] = self.props["Theta"]
             b = GeometryOperators.deg2rad(self._parent._parent.variable_manager["temp_var"].numeric_value)
-            self._parent._parent.variable_manager["temp_var"] = self.props['Psi']
+            self._parent._parent.variable_manager["temp_var"] = self.props["Psi"]
             g = GeometryOperators.deg2rad(self._parent._parent.variable_manager["temp_var"].numeric_value)
             self._quaternion = GeometryOperators.euler_zxz_to_quaternion(a, b, g)
             del self._parent._parent.variable_manager["temp_var"]
         elif self.mode == "zyz" or self.mode == "axisrotation":
-            self._parent._parent.variable_manager["temp_var"] = self.props['Phi']
+            self._parent._parent.variable_manager["temp_var"] = self.props["Phi"]
             a = GeometryOperators.deg2rad(self._parent._parent.variable_manager["temp_var"].numeric_value)
-            self._parent._parent.variable_manager["temp_var"] = self.props['Theta']
+            self._parent._parent.variable_manager["temp_var"] = self.props["Theta"]
             b = GeometryOperators.deg2rad(self._parent._parent.variable_manager["temp_var"].numeric_value)
-            self._parent._parent.variable_manager["temp_var"] = self.props['Psi']
+            self._parent._parent.variable_manager["temp_var"] = self.props["Psi"]
             g = GeometryOperators.deg2rad(self._parent._parent.variable_manager["temp_var"].numeric_value)
             self._quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
             del self._parent._parent.variable_manager["temp_var"]
-        return  self._quaternion
+        return self._quaternion
 
     @property
     def orientation(self):
@@ -492,9 +533,7 @@ class CoordinateSystem(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self._parent.oeditor.Delete([
-            "NAME:Selections",
-            "Selections:=", self.name])
+        self._parent.oeditor.Delete(["NAME:Selections", "Selections:=", self.name])
         self._parent.coordinate_systems.remove(self)
         return True
 
@@ -508,10 +547,9 @@ class CoordinateSystem(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self._parent.oeditor.SetWCS([
-            "NAME:SetWCS Parameter",
-            "Working Coordinate System:=", self.name,
-            "RegionDepCSOk:=", False])
+        self._parent.oeditor.SetWCS(
+            ["NAME:SetWCS Parameter", "Working Coordinate System:=", self.name, "RegionDepCSOk:=", False]
+        )
         return True
 
 
@@ -575,7 +613,7 @@ class GeometryModeler(Modeler, object):
     def __init__(self, parent, is3d=True):
         self._parent = parent
         Modeler.__init__(self, parent)
-        #TODO Refactor this as a dictionary with names as key
+        # TODO Refactor this as a dictionary with names as key
         self.coordinate_systems = self._get_coordinates_data()
         self._is3d = is3d
 
@@ -591,7 +629,7 @@ class GeometryModeler(Modeler, object):
         return self._parent.materials
 
     @aedt_exception_handler
-    def _convert_list_to_ids(self,input_list, convert_objects_ids_to_name=True):
+    def _convert_list_to_ids(self, input_list, convert_objects_ids_to_name=True):
         """Convert a list to IDs.
 
         Parameters
@@ -635,51 +673,51 @@ class GeometryModeler(Modeler, object):
 
         """
         coord = []
-        id2name = {1: 'Global'}
+        id2name = {1: "Global"}
         name2refid = {}
-        if self._parent.design_properties and 'ModelSetup' in self._parent.design_properties:
-            cs = self._parent.design_properties['ModelSetup']["GeometryCore"]["GeometryOperations"]["CoordinateSystems"]
+        if self._parent.design_properties and "ModelSetup" in self._parent.design_properties:
+            cs = self._parent.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"]["CoordinateSystems"]
             for ds in cs:
                 try:
                     if type(cs[ds]) is OrderedDict:
-                        props = cs[ds]['RelativeCSParameters']
+                        props = cs[ds]["RelativeCSParameters"]
                         name = cs[ds]["Attributes"]["Name"]
                         cs_id = cs[ds]["ID"]
                         id2name[cs_id] = name
-                        name2refid[name] = cs[ds]['ReferenceCoordSystemID']
+                        name2refid[name] = cs[ds]["ReferenceCoordSystemID"]
                         coord.append(CoordinateSystem(self, props, name))
                     elif type(cs[ds]) is list:
                         for el in cs[ds]:
-                            props = el['RelativeCSParameters']
+                            props = el["RelativeCSParameters"]
                             name = el["Attributes"]["Name"]
                             cs_id = el["ID"]
                             id2name[cs_id] = name
-                            name2refid[name] = el['ReferenceCoordSystemID']
+                            name2refid[name] = el["ReferenceCoordSystemID"]
                             coord.append(CoordinateSystem(self, props, name))
                 except:
                     pass
             for cs in coord:
                 try:
                     cs.ref_cs = id2name[name2refid[cs.name]]
-                    if cs.props['Mode'] == 'Axis/Position':
-                        x1 = GeometryOperators.parse_dim_arg(cs.props['XAxisXvec'])
-                        x2 = GeometryOperators.parse_dim_arg(cs.props['XAxisYvec'])
-                        x3 = GeometryOperators.parse_dim_arg(cs.props['XAxisZvec'])
-                        y1 = GeometryOperators.parse_dim_arg(cs.props['YAxisXvec'])
-                        y2 = GeometryOperators.parse_dim_arg(cs.props['YAxisYvec'])
-                        y3 = GeometryOperators.parse_dim_arg(cs.props['YAxisZvec'])
+                    if cs.props["Mode"] == "Axis/Position":
+                        x1 = GeometryOperators.parse_dim_arg(cs.props["XAxisXvec"])
+                        x2 = GeometryOperators.parse_dim_arg(cs.props["XAxisYvec"])
+                        x3 = GeometryOperators.parse_dim_arg(cs.props["XAxisZvec"])
+                        y1 = GeometryOperators.parse_dim_arg(cs.props["YAxisXvec"])
+                        y2 = GeometryOperators.parse_dim_arg(cs.props["YAxisYvec"])
+                        y3 = GeometryOperators.parse_dim_arg(cs.props["YAxisZvec"])
                         x, y, z = GeometryOperators.pointing_to_axis([x1, x2, x3], [y1, y2, y3])
                         a, b, g = GeometryOperators.axis_to_euler_zyz(x, y, z)
                         cs.quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
-                    elif cs.props['Mode'] == 'Euler Angle ZXZ':
-                        a = GeometryOperators.parse_dim_arg(cs.props['Phi'])
-                        b = GeometryOperators.parse_dim_arg(cs.props['Theta'])
-                        g = GeometryOperators.parse_dim_arg(cs.props['Psi'])
+                    elif cs.props["Mode"] == "Euler Angle ZXZ":
+                        a = GeometryOperators.parse_dim_arg(cs.props["Phi"])
+                        b = GeometryOperators.parse_dim_arg(cs.props["Theta"])
+                        g = GeometryOperators.parse_dim_arg(cs.props["Psi"])
                         cs.quaternion = GeometryOperators.euler_zxz_to_quaternion(a, b, g)
-                    elif cs.props['Mode'] == 'Euler Angle ZYZ':
-                        a = GeometryOperators.parse_dim_arg(cs.props['Phi'])
-                        b = GeometryOperators.parse_dim_arg(cs.props['Theta'])
-                        g = GeometryOperators.parse_dim_arg(cs.props['Psi'])
+                    elif cs.props["Mode"] == "Euler Angle ZYZ":
+                        a = GeometryOperators.parse_dim_arg(cs.props["Phi"])
+                        b = GeometryOperators.parse_dim_arg(cs.props["Theta"])
+                        g = GeometryOperators.parse_dim_arg(cs.props["Psi"])
                         cs.quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
                 except:
                     pass
@@ -708,12 +746,7 @@ class GeometryModeler(Modeler, object):
     @model_units.setter
     def model_units(self, units):
         assert units in AEDT_units["Length"], "Invalid units string {0}.".format(units)
-        self.oeditor.SetModelUnits(
-            [
-                "NAME:Units Parameter",
-                "Units:=", units,
-                "Rescale:=", False
-            ])
+        self.oeditor.SetModelUnits(["NAME:Units Parameter", "Units:=", units, "Rescale:=", False])
 
     @property
     def selections(self):
@@ -758,14 +791,14 @@ class GeometryModeler(Modeler, object):
         """
         try:
             if self.odesign.Is2D():
-                return '2D'
+                return "2D"
             else:
-                return '3D'
+                return "3D"
         except Exception:
             if self.design_type == "2D Extractor":
-                return '2D'
+                return "2D"
             else:
-                return '3D'
+                return "3D"
 
     @property
     def design_type(self):
@@ -790,17 +823,27 @@ class GeometryModeler(Modeler, object):
             List of object IDs with the object name as the key.
 
         """
-        if self.dimension == '3D':
+        if self.dimension == "3D":
             objects = self.oeditor.GetObjectsInGroup("Solids")
         else:
             objects = self.oeditor.GetObjectsInGroup("Sheets")
         return list(objects)
 
     @aedt_exception_handler
-    def create_coordinate_system(self, origin=None, reference_cs='Global', name=None,
-                                 mode='axis', view='iso',
-                                 x_pointing=None, y_pointing=None,
-                                 psi=0, theta=0, phi=0, u=None):
+    def create_coordinate_system(
+        self,
+        origin=None,
+        reference_cs="Global",
+        name=None,
+        mode="axis",
+        view="iso",
+        x_pointing=None,
+        y_pointing=None,
+        psi=0,
+        theta=0,
+        phi=0,
+        u=None,
+    ):
         """Create a coordinate system.
 
         Parameters
@@ -868,14 +911,23 @@ class GeometryModeler(Modeler, object):
         if name:
             cs_names = [i.name for i in self.coordinate_systems]
             if name in cs_names:
-                raise AttributeError('A coordinate system with the specified name already exists!')
+                raise AttributeError("A coordinate system with the specified name already exists!")
 
         cs = CoordinateSystem(self)
         if cs:
-            result = cs.create(origin=origin, reference_cs=reference_cs, name=name,
-                               mode=mode, view=view,
-                               x_pointing=x_pointing, y_pointing=y_pointing,
-                               phi=phi, theta=theta, psi=psi, u=u)
+            result = cs.create(
+                origin=origin,
+                reference_cs=reference_cs,
+                name=name,
+                mode=mode,
+                view=view,
+                x_pointing=x_pointing,
+                y_pointing=y_pointing,
+                phi=phi,
+                theta=theta,
+                psi=psi,
+                u=u,
+            )
             if result:
                 self.coordinate_systems.append(cs)
                 return cs
@@ -899,26 +951,26 @@ class GeometryModeler(Modeler, object):
 
         """
         if type(point) is not list or len(point) != 3:
-            raise AttributeError('Point must be in format [x, y, z].')
+            raise AttributeError("Point must be in format [x, y, z].")
         try:
             point = [float(i) for i in point]
         except:
-            raise AttributeError('Point must be in format [x, y, z].')
-        if ref_cs == 'Global':
+            raise AttributeError("Point must be in format [x, y, z].")
+        if ref_cs == "Global":
             return point
         cs_names = [i.name for i in self.coordinate_systems]
         if ref_cs not in cs_names:
-            raise AttributeError('Specified coordinate system does not exist in the design.')
+            raise AttributeError("Specified coordinate system does not exist in the design.")
 
         def get_total_transformation(p, cs):
             idx = cs_names.index(cs)
             q = self.coordinate_systems[idx].quaternion
-            ox = GeometryOperators.parse_dim_arg(self.coordinate_systems[idx].props['OriginX'], self.model_units)
-            oy = GeometryOperators.parse_dim_arg(self.coordinate_systems[idx].props['OriginY'], self.model_units)
-            oz = GeometryOperators.parse_dim_arg(self.coordinate_systems[idx].props['OriginZ'], self.model_units)
+            ox = GeometryOperators.parse_dim_arg(self.coordinate_systems[idx].props["OriginX"], self.model_units)
+            oy = GeometryOperators.parse_dim_arg(self.coordinate_systems[idx].props["OriginY"], self.model_units)
+            oz = GeometryOperators.parse_dim_arg(self.coordinate_systems[idx].props["OriginZ"], self.model_units)
             o = [ox, oy, oz]
             refcs = self.coordinate_systems[idx].ref_cs
-            if refcs == 'Global':
+            if refcs == "Global":
                 p1 = p
             else:
                 p1 = get_total_transformation(p, refcs)
@@ -942,10 +994,7 @@ class GeometryModeler(Modeler, object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self.oeditor.SetWCS([
-            "NAME:SetWCS Parameter",
-            "Working Coordinate System:=", name,
-            "RegionDepCSOk:=", False])
+        self.oeditor.SetWCS(["NAME:SetWCS Parameter", "Working Coordinate System:=", name, "RegionDepCSOk:=", False])
         return True
 
     @aedt_exception_handler
@@ -974,9 +1023,10 @@ class GeometryModeler(Modeler, object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        warnings.warn('add_workbench_link is deprecated. '
-                      'Use set_objects_temperature and set_objects_deformation instead.',
-                      DeprecationWarning)
+        warnings.warn(
+            "add_workbench_link is deprecated. " "Use set_objects_temperature and set_objects_deformation instead.",
+            DeprecationWarning,
+        )
         self.set_objects_temperature(objects, ambient_temp, create_project_var)
         if enable_deformation:
             self.set_objects_deformation(objects)
@@ -1035,8 +1085,14 @@ class GeometryModeler(Modeler, object):
             var = "$AmbientTemp"
         else:
             var = str(ambient_temp) + "cel"
-        vargs1 = ["NAME:TemperatureSettings", "IncludeTemperatureDependence:=", True, "EnableFeedback:=", True,
-                  "Temperatures:="]
+        vargs1 = [
+            "NAME:TemperatureSettings",
+            "IncludeTemperatureDependence:=",
+            True,
+            "EnableFeedback:=",
+            True,
+            "Temperatures:=",
+        ]
         vargs2 = []
         for obj in objects:
             mat = self.primitives[obj].material_name
@@ -1122,26 +1178,26 @@ class GeometryModeler(Modeler, object):
         """
         position = [0, 0, 0]
         angle = 0
-        if plane==0:
-            while angle<=360:
-                position[0] =  startposition[0] + offset*math.cos(math.pi*angle/180)
-                position[1] =  startposition[1] + offset*math.sin(math.pi*angle/180)
+        if plane == 0:
+            while angle <= 360:
+                position[0] = startposition[0] + offset * math.cos(math.pi * angle / 180)
+                position[1] = startposition[1] + offset * math.sin(math.pi * angle / 180)
                 if objectname in self.primitives.get_bodynames_from_position(startposition):
                     angle = 400
                 else:
                     angle += 90
-        elif plane==1:
-            while angle<=360:
-                position[1] = startposition[1] + offset*math.cos(math.pi*angle/180)
-                position[2] = startposition[2] + offset*math.sin(math.pi*angle/180)
+        elif plane == 1:
+            while angle <= 360:
+                position[1] = startposition[1] + offset * math.cos(math.pi * angle / 180)
+                position[2] = startposition[2] + offset * math.sin(math.pi * angle / 180)
                 if objectname in self.primitives.get_bodynames_from_position(startposition):
                     angle = 400
                 else:
                     angle += 90
         elif plane == 2:
-            while angle<=360:
-                position[0] = startposition[0] + offset*math.cos(math.pi*angle/180)
-                position[2] = startposition[2] + offset*math.sin(math.pi*angle/180)
+            while angle <= 360:
+                position[0] = startposition[0] + offset * math.cos(math.pi * angle / 180)
+                position[2] = startposition[2] + offset * math.sin(math.pi * angle / 180)
                 if objectname in self.primitives.get_bodynames_from_position(startposition):
                     angle = 400
                 else:
@@ -1173,18 +1229,18 @@ class GeometryModeler(Modeler, object):
             ID of the sheet created.
 
         """
-        if axisdir>2:
-            obj_cent=[-1e6,-1e6,-1e6]
+        if axisdir > 2:
+            obj_cent = [-1e6, -1e6, -1e6]
         else:
-            obj_cent=[1e6,1e6,1e6]
-        face_ob=None
+            obj_cent = [1e6, 1e6, 1e6]
+        face_ob = None
         for face in self.primitives[objectname].faces:
             center = face.center
             if not center:
                 continue
-            if axisdir > 2 and center[axisdir-3] > obj_cent[axisdir-3]:
+            if axisdir > 2 and center[axisdir - 3] > obj_cent[axisdir - 3]:
                 obj_cent = center
-                face_ob=face
+                face_ob = face
             elif axisdir <= 2 and center[axisdir] < obj_cent[axisdir]:
                 obj_cent = center
                 face_ob = face
@@ -1194,7 +1250,7 @@ class GeometryModeler(Modeler, object):
         if not groundname:
             gnd_cent = []
             bounding = self.primitives.get_model_bounding_box()
-            if axisdir<3:
+            if axisdir < 3:
                 for i in bounding[0:3]:
                     gnd_cent.append(float(i))
             else:
@@ -1211,22 +1267,22 @@ class GeometryModeler(Modeler, object):
                 center = face.center
                 if not center:
                     continue
-                if axisdir > 2 and center[axisdir-3] < gnd_cent[axisdir-3]:
+                if axisdir > 2 and center[axisdir - 3] < gnd_cent[axisdir - 3]:
                     gnd_cent = center
                 elif axisdir <= 2 and center[axisdir] > gnd_cent[axisdir]:
                     gnd_cent = center
 
-        axisdist = obj_cent[divmod(axisdir,3)[1]]-gnd_cent[divmod(axisdir,3)[1]]
-        if axisdir<3:
+        axisdist = obj_cent[divmod(axisdir, 3)[1]] - gnd_cent[divmod(axisdir, 3)[1]]
+        if axisdir < 3:
             axisdist = -axisdist
 
-        if divmod(axisdir,3)[1] == 0:
+        if divmod(axisdir, 3)[1] == 0:
             cs = self._parent.CoordinateSystemPlane.YZPlane
             vector = [axisdist, 0, 0]
-        elif divmod(axisdir,3)[1]== 1:
+        elif divmod(axisdir, 3)[1] == 1:
             cs = self._parent.CoordinateSystemPlane.ZXPlane
             vector = [0, axisdist, 0]
-        elif divmod(axisdir,3)[1] == 2:
+        elif divmod(axisdir, 3)[1] == 2:
             cs = self._parent.CoordinateSystemPlane.XYPlane
             vector = [0, 0, axisdist]
 
@@ -1307,7 +1363,7 @@ class GeometryModeler(Modeler, object):
         coeff = float(hfactor - 1) / 2 / dup_factor
 
         if divmod(axisdir, 3)[1] == 0 and abs(vect[1]) < tol:
-            duplicate_and_unite(sheet_name, [0, len * coeff, 0],[0, -len * coeff, 0], dup_factor)
+            duplicate_and_unite(sheet_name, [0, len * coeff, 0], [0, -len * coeff, 0], dup_factor)
         elif divmod(axisdir, 3)[1] == 0 and abs(vect[2]) < tol:
             duplicate_and_unite(sheet_name, [0, 0, len * coeff], [0, 0, -len * coeff], dup_factor)
         elif divmod(axisdir, 3)[1] == 1 and abs(vect[0]) < tol:
@@ -1317,7 +1373,7 @@ class GeometryModeler(Modeler, object):
         elif divmod(axisdir, 3)[1] == 2 and abs(vect[0]) < tol:
             duplicate_and_unite(sheet_name, [len * coeff, 0, 0], [-len * coeff, 0, 0], dup_factor)
         elif divmod(axisdir, 3)[1] == 2 and abs(vect[1]) < tol:
-            duplicate_and_unite(sheet_name,  [0, len * coeff, 0], [0, -len * coeff, 0], dup_factor)
+            duplicate_and_unite(sheet_name, [0, len * coeff, 0], [0, -len * coeff, 0], dup_factor)
 
         return sheet_name, point0, point1
 
@@ -1390,7 +1446,7 @@ class GeometryModeler(Modeler, object):
 
         """
         if type(group) is not str:
-            raise ValueError('Group name must be a string')
+            raise ValueError("Group name must be a string")
         group_objs = list(self.oeditor.GetObjectsInGroup(group))
         if not group_objs:
             return None
@@ -1412,7 +1468,7 @@ class GeometryModeler(Modeler, object):
 
         """
         if type(group) is not str:
-            raise ValueError('Group name must be a string')
+            raise ValueError("Group name must be a string")
         group_objs = list(self.oeditor.GetObjectsInGroup(group))
         if not group_objs:
             return None
@@ -1492,20 +1548,23 @@ class GeometryModeler(Modeler, object):
         planes = {0: "XY", 1: "YZ", 2: "ZX"}
         selections = self.convert_to_selections(objects)
         self.oeditor.Split(
-            [
-                "NAME:Selections",
-                "Selections:=", selections,
-                "NewPartsModelFlag:=", "Model"
-            ],
+            ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"],
             [
                 "NAME:SplitToParameters",
-                "SplitPlane:=", planes[plane],
-                "WhichSide:=", sides,
-                "ToolType:=", "PlaneTool",
-                "ToolEntityID:=", -1,
-                "SplitCrossingObjectsOnly:=", False,
-                "DeleteInvalidObjects:=", True
-            ])
+                "SplitPlane:=",
+                planes[plane],
+                "WhichSide:=",
+                sides,
+                "ToolType:=",
+                "PlaneTool",
+                "ToolEntityID:=",
+                -1,
+                "SplitCrossingObjectsOnly:=",
+                False,
+                "DeleteInvalidObjects:=",
+                True,
+            ],
+        )
         self.primitives.refresh_all_ids()
         return True
 
@@ -1534,15 +1593,15 @@ class GeometryModeler(Modeler, object):
         Xpos, Ypos, Zpos = self.primitives._pos_with_arg(position)
         Xnorm, Ynorm, Znorm = self.primitives._pos_with_arg(vector)
 
-        vArg1 = ['NAME:Selections', 'Selections:=', selections, 'NewPartsModelFlag:=', 'Model']
-        vArg2 = ['NAME:DuplicateToMirrorParameters']
-        vArg2.append('DuplicateMirrorBaseX:='), vArg2.append(Xpos)
-        vArg2.append('DuplicateMirrorBaseY:='), vArg2.append(Ypos)
-        vArg2.append('DuplicateMirrorBaseZ:='), vArg2.append(Zpos)
-        vArg2.append('DuplicateMirrorNormalX:='), vArg2.append(Xnorm)
-        vArg2.append('DuplicateMirrorNormalY:='), vArg2.append(Ynorm)
-        vArg2.append('DuplicateMirrorNormalZ:='), vArg2.append(Znorm)
-        vArg3 = ['NAME:Options', 'DuplicateAssignments:=', False]
+        vArg1 = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
+        vArg2 = ["NAME:DuplicateToMirrorParameters"]
+        vArg2.append("DuplicateMirrorBaseX:="), vArg2.append(Xpos)
+        vArg2.append("DuplicateMirrorBaseY:="), vArg2.append(Ypos)
+        vArg2.append("DuplicateMirrorBaseZ:="), vArg2.append(Zpos)
+        vArg2.append("DuplicateMirrorNormalX:="), vArg2.append(Xnorm)
+        vArg2.append("DuplicateMirrorNormalY:="), vArg2.append(Ynorm)
+        vArg2.append("DuplicateMirrorNormalZ:="), vArg2.append(Znorm)
+        vArg3 = ["NAME:Options", "DuplicateAssignments:=", False]
         added_objs = self.oeditor.DuplicateMirror(vArg1, vArg2, vArg3)
         self.primitives.add_new_objects()
         return True, added_objs
@@ -1572,14 +1631,14 @@ class GeometryModeler(Modeler, object):
         Xpos, Ypos, Zpos = self.primitives._pos_with_arg(position)
         Xnorm, Ynorm, Znorm = self.primitives._pos_with_arg(vector)
 
-        vArg1 = ['NAME:Selections', 'Selections:=', selections, 'NewPartsModelFlag:=', 'Model']
-        vArg2 = ['NAME:MirrorParameters']
-        vArg2.append('MirrorBaseX:='), vArg2.append(Xpos)
-        vArg2.append('MirrorBaseY:='), vArg2.append(Ypos)
-        vArg2.append('MirrorBaseZ:='), vArg2.append(Zpos)
-        vArg2.append('MirrorNormalX:='), vArg2.append(Xnorm)
-        vArg2.append('MirrorNormalY:='), vArg2.append(Ynorm)
-        vArg2.append('MirrorNormalZ:='), vArg2.append(Znorm)
+        vArg1 = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
+        vArg2 = ["NAME:MirrorParameters"]
+        vArg2.append("MirrorBaseX:="), vArg2.append(Xpos)
+        vArg2.append("MirrorBaseY:="), vArg2.append(Ypos)
+        vArg2.append("MirrorBaseZ:="), vArg2.append(Zpos)
+        vArg2.append("MirrorNormalX:="), vArg2.append(Xnorm)
+        vArg2.append("MirrorNormalY:="), vArg2.append(Ynorm)
+        vArg2.append("MirrorNormalZ:="), vArg2.append(Znorm)
 
         self.oeditor.Mirror(vArg1, vArg2)
 
@@ -1610,10 +1669,18 @@ class GeometryModeler(Modeler, object):
         """
         selections = self.convert_to_selections(objid)
 
-        vArg1 = ['NAME:Selections', 'Selections:=', selections, 'NewPartsModelFlag:=', 'Model']
-        vArg2 = ["NAME:DuplicateAroundAxisParameters", "CreateNewObjects:=", create_new_objects, "WhichAxis:=",
-                 GeometryOperators.cs_axis_str(cs_axis), "AngleStr:=", self.primitives._arg_with_dim(angle, 'deg'), "Numclones:=",
-                 str(nclones)]
+        vArg1 = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
+        vArg2 = [
+            "NAME:DuplicateAroundAxisParameters",
+            "CreateNewObjects:=",
+            create_new_objects,
+            "WhichAxis:=",
+            GeometryOperators.cs_axis_str(cs_axis),
+            "AngleStr:=",
+            self.primitives._arg_with_dim(angle, "deg"),
+            "Numclones:=",
+            str(nclones),
+        ]
         vArg3 = ["NAME:Options", "DuplicateBoundaries:=", "true"]
 
         added_objs = self.oeditor.DuplicateAroundAxis(vArg1, vArg2, vArg3)
@@ -1651,7 +1718,7 @@ class GeometryModeler(Modeler, object):
         selections = self.convert_to_selections(objid)
         Xpos, Ypos, Zpos = self.primitives._pos_with_arg(vector)
 
-        vArg1 = ['NAME:Selections', 'Selections:=', selections, 'NewPartsModelFlag:=', 'Model']
+        vArg1 = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
         vArg2 = ["NAME:DuplicateToAlongLineParameters"]
         vArg2.append("CreateNewObjects:="), vArg2.append(not attachObject)
         vArg2.append("XComponent:="), vArg2.append(Xpos)
@@ -1663,7 +1730,7 @@ class GeometryModeler(Modeler, object):
         added_objs = self.oeditor.DuplicateAlongLine(vArg1, vArg2, vArg3)
         self._duplicate_added_objects_tuple()
         return True, list(added_objs)
-        #return self._duplicate_added_objects_tuple()
+        # return self._duplicate_added_objects_tuple()
 
     @aedt_exception_handler
     def thicken_sheet(self, objid, thickness, bBothSides=False):
@@ -1685,10 +1752,10 @@ class GeometryModeler(Modeler, object):
         """
         selections = self.convert_to_selections(objid)
 
-        vArg1 = ['NAME:Selections', 'Selections:=', selections, 'NewPartsModelFlag:=', 'Model']
+        vArg1 = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
         vArg2 = ["NAME:SheetThickenParameters"]
-        vArg2.append('Thickness:='), vArg2.append(self.primitives._arg_with_dim(thickness))
-        vArg2.append('BothSides:='), vArg2.append(bBothSides)
+        vArg2.append("Thickness:="), vArg2.append(self.primitives._arg_with_dim(thickness))
+        vArg2.append("BothSides:="), vArg2.append(bBothSides)
 
         self.oeditor.ThickenSheet(vArg1, vArg2)
         return self.primitives.update_object(objid)
@@ -1712,10 +1779,17 @@ class GeometryModeler(Modeler, object):
 
         """
         selections = self.convert_to_selections(obj_name)
-        vArg1 = ['NAME:Selections', 'Selections:=', selections, 'NewPartsModelFlag:=', 'Model']
+        vArg1 = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
         vArg2 = ["NAME:Parameters"]
-        vArg2.append(["NAME:SweepFaceAlongNormalToParameters", "FacesToDetach:=", [face_id], "LengthOfSweep:=",
-                      self.primitives._arg_with_dim(sweep_value)])
+        vArg2.append(
+            [
+                "NAME:SweepFaceAlongNormalToParameters",
+                "FacesToDetach:=",
+                [face_id],
+                "LengthOfSweep:=",
+                self.primitives._arg_with_dim(sweep_value),
+            ]
+        )
 
         objs = self.primitives._all_object_names
         self.oeditor.SweepFacesAlongNormal(vArg1, vArg2)
@@ -1753,20 +1827,22 @@ class GeometryModeler(Modeler, object):
         """
         selections = self.convert_to_selections(objid)
         vectorx, vectory, vectorz = self.primitives._pos_with_arg(sweep_vector)
-        vArg1 = ['NAME:Selections', 'Selections:=', selections, 'NewPartsModelFlag:=', 'Model']
+        vArg1 = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
         vArg2 = ["NAME:VectorSweepParameters"]
-        vArg2.append('DraftAngle:='), vArg2.append(self.primitives._arg_with_dim(draft_angle, 'deg'))
-        vArg2.append('DraftType:='), vArg2.append(GeometryOperators.draft_type_str(draft_type))
-        vArg2.append('SweepVectorX:='), vArg2.append(vectorx)
-        vArg2.append('SweepVectorY:='), vArg2.append(vectory)
-        vArg2.append('SweepVectorZ:='), vArg2.append(vectorz)
+        vArg2.append("DraftAngle:="), vArg2.append(self.primitives._arg_with_dim(draft_angle, "deg"))
+        vArg2.append("DraftType:="), vArg2.append(GeometryOperators.draft_type_str(draft_type))
+        vArg2.append("SweepVectorX:="), vArg2.append(vectorx)
+        vArg2.append("SweepVectorY:="), vArg2.append(vectory)
+        vArg2.append("SweepVectorZ:="), vArg2.append(vectorz)
 
         self.oeditor.SweepAlongVector(vArg1, vArg2)
 
         return self.primitives.update_object(objid)
 
     @aedt_exception_handler
-    def sweep_along_path(self, objid, sweep_object, draft_angle=0, draft_type="Round", is_check_face_intersection=False, twist_angle=0):
+    def sweep_along_path(
+        self, objid, sweep_object, draft_angle=0, draft_type="Round", is_check_face_intersection=False, twist_angle=0
+    ):
         """Sweep the selection along a path.
 
         Parameters
@@ -1792,12 +1868,12 @@ class GeometryModeler(Modeler, object):
 
         """
         selections = self.convert_to_selections(objid) + "," + self.convert_to_selections(sweep_object)
-        vArg1 = ['NAME:Selections', 'Selections:=', selections, 'NewPartsModelFlag:=', 'Model']
+        vArg1 = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
         vArg2 = ["NAME:PathSweepParameters"]
-        vArg2.append('DraftAngle:='), vArg2.append(self.primitives._arg_with_dim(draft_angle, 'deg'))
-        vArg2.append('DraftType:='), vArg2.append(GeometryOperators.draft_type_str(draft_type))
-        vArg2.append('CheckFaceFaceIntersection:='), vArg2.append(is_check_face_intersection)
-        vArg2.append('TwistAngle:='), vArg2.append(str(twist_angle) + 'deg')
+        vArg2.append("DraftAngle:="), vArg2.append(self.primitives._arg_with_dim(draft_angle, "deg"))
+        vArg2.append("DraftType:="), vArg2.append(GeometryOperators.draft_type_str(draft_type))
+        vArg2.append("CheckFaceFaceIntersection:="), vArg2.append(is_check_face_intersection)
+        vArg2.append("TwistAngle:="), vArg2.append(str(twist_angle) + "deg")
 
         self.oeditor.SweepAlongPath(vArg1, vArg2)
 
@@ -1824,11 +1900,22 @@ class GeometryModeler(Modeler, object):
         """
         selections = self.convert_to_selections(objid)
 
-        vArg1 = ['NAME:Selections', 'Selections:=', selections, 'NewPartsModelFlag:=', 'Model']
-        vArg2 = ['NAME:AxisSweepParameters', 'DraftAngle:=',
-                 self.primitives._arg_with_dim(draft_angle, 'deg'),
-                 'DraftType:=', 'Round', 'CheckFaceFaceIntersection:=', False, 'SweepAxis:=', GeometryOperators.cs_axis_str(cs_axis),
-                 'SweepAngle:=', self.primitives._arg_with_dim(sweep_angle, 'deg'), 'NumOfSegments:=', '0']
+        vArg1 = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
+        vArg2 = [
+            "NAME:AxisSweepParameters",
+            "DraftAngle:=",
+            self.primitives._arg_with_dim(draft_angle, "deg"),
+            "DraftType:=",
+            "Round",
+            "CheckFaceFaceIntersection:=",
+            False,
+            "SweepAxis:=",
+            GeometryOperators.cs_axis_str(cs_axis),
+            "SweepAngle:=",
+            self.primitives._arg_with_dim(sweep_angle, "deg"),
+            "NumOfSegments:=",
+            "0",
+        ]
 
         self.oeditor.SweepAroundAxis(vArg1, vArg2)
 
@@ -1868,17 +1955,17 @@ class GeometryModeler(Modeler, object):
         selections = self.convert_to_selections(object_list)
 
         self.oeditor.Section(
-            [
-                "NAME:Selections",
-                "Selections:=", selections,
-                "NewPartsModelFlag:=", "Model"
-            ],
+            ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"],
             [
                 "NAME:SectionToParameters",
-                "CreateNewObjects:=", create_new,
-                "SectionPlane:=", section_plane,
-                "SectionCrossObject:=", section_cross_object
-            ])
+                "CreateNewObjects:=",
+                create_new,
+                "SectionPlane:=",
+                section_plane,
+                "SectionCrossObject:=",
+                section_cross_object,
+            ],
+        )
         self.primitives.refresh_all_ids()
         return True
 
@@ -1900,13 +1987,15 @@ class GeometryModeler(Modeler, object):
 
         """
         selections = self.convert_to_selections(object_list)
-        self.oeditor.SeparateBody(["NAME:Selections", "Selections:=", selections,
-                                   "NewPartsModelFlag:=", "Model"], ["CreateGroupsForNewObjects:=", create_group])
+        self.oeditor.SeparateBody(
+            ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"],
+            ["CreateGroupsForNewObjects:=", create_group],
+        )
         self.primitives.refresh_all_ids()
         return True
 
     @aedt_exception_handler
-    def rotate(self, objid, cs_axis, angle=90.0, unit='deg'):
+    def rotate(self, objid, cs_axis, angle=90.0, unit="deg"):
         """Rotate the selection.
 
         Parameters
@@ -1930,10 +2019,10 @@ class GeometryModeler(Modeler, object):
 
         """
         selections = self.convert_to_selections(objid)
-        vArg1 = ['NAME:Selections', 'Selections:=', selections, 'NewPartsModelFlag:=', 'Model']
+        vArg1 = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
         vArg2 = ["NAME:RotateParameters"]
-        vArg2.append('RotateAxis:='), vArg2.append(GeometryOperators.cs_axis_str(cs_axis))
-        vArg2.append('RotateAngle:='), vArg2.append(self.primitives._arg_with_dim(angle, unit))
+        vArg2.append("RotateAxis:="), vArg2.append(GeometryOperators.cs_axis_str(cs_axis))
+        vArg2.append("RotateAngle:="), vArg2.append(self.primitives._arg_with_dim(angle, unit))
 
         if self.oeditor is not None:
             self.oeditor.Rotate(vArg1, vArg2)
@@ -1964,8 +2053,8 @@ class GeometryModeler(Modeler, object):
         szList = self.convert_to_selections(blank_list)
         szList1 = self.convert_to_selections(tool_list)
 
-        vArg1 = ['NAME:Selections', 'Blank Parts:=', szList, 'Tool Parts:=', szList1]
-        vArg2 = ['NAME:SubtractParameters', 'KeepOriginals:=', keepOriginals]
+        vArg1 = ["NAME:Selections", "Blank Parts:=", szList, "Tool Parts:=", szList1]
+        vArg2 = ["NAME:SubtractParameters", "KeepOriginals:=", keepOriginals]
 
         self.oeditor.Subtract(vArg1, vArg2)
         if not keepOriginals:
@@ -2027,8 +2116,8 @@ class GeometryModeler(Modeler, object):
         """
         szSelections = self.convert_to_selections(theList)
 
-        vArg1 = ['NAME:Selections', 'Selections:=', szSelections]
-        vArg2 = ['NAME:UniteParameters', 'KeepOriginals:=', False]
+        vArg1 = ["NAME:Selections", "Selections:=", szSelections]
+        vArg2 = ["NAME:UniteParameters", "KeepOriginals:=", False]
         self.oeditor.Unite(vArg1, vArg2)
         self.primitives.cleanup_objects()
         return True
@@ -2052,7 +2141,7 @@ class GeometryModeler(Modeler, object):
         """
 
         szSelections = self.convert_to_selections(objid)
-        vArg1 = ['NAME:Selections', 'Selections:=', szSelections]
+        vArg1 = ["NAME:Selections", "Selections:=", szSelections]
 
         self.oeditor.Copy(vArg1)
         self.oeditor.Paste()
@@ -2079,7 +2168,7 @@ class GeometryModeler(Modeler, object):
         unclassified = list(self.oeditor.GetObjectsInGroup("Unclassified"))
         szSelections = self.convert_to_selections(theList)
 
-        vArg1 = ['NAME:Selections', 'Selections:=', szSelections]
+        vArg1 = ["NAME:Selections", "Selections:=", szSelections]
         vArg2 = ["NAME:IntersectParameters", "KeepOriginals:=", keeporiginal]
 
         self.oeditor.Intersect(vArg1, vArg2)
@@ -2110,7 +2199,7 @@ class GeometryModeler(Modeler, object):
         unclassified_before = list(self.primitives.unclassified_names)
         szSelections = self.convert_to_selections(theList)
 
-        vArg1 = ['NAME:Selections', 'Selections:=', szSelections]
+        vArg1 = ["NAME:Selections", "Selections:=", szSelections]
 
         self.oeditor.Connect(vArg1)
         if unclassified_before != self.primitives.unclassified_names:
@@ -2143,11 +2232,11 @@ class GeometryModeler(Modeler, object):
         Xvec, Yvec, Zvec = self.primitives._pos_with_arg(vector)
         szSelections = self.convert_to_selections(objid)
 
-        vArg1 = ['NAME:Selections', 'Selections:=', szSelections, 'NewPartsModelFlag:=', 'Model']
-        vArg2 = ['NAME:TranslateParameters']
-        vArg2.append('TranslateVectorX:='), vArg2.append(Xvec)
-        vArg2.append('TranslateVectorY:='), vArg2.append(Yvec)
-        vArg2.append('TranslateVectorZ:='), vArg2.append(Zvec)
+        vArg1 = ["NAME:Selections", "Selections:=", szSelections, "NewPartsModelFlag:=", "Model"]
+        vArg2 = ["NAME:TranslateParameters"]
+        vArg2.append("TranslateVectorX:="), vArg2.append(Xvec)
+        vArg2.append("TranslateVectorY:="), vArg2.append(Yvec)
+        vArg2.append("TranslateVectorZ:="), vArg2.append(Zvec)
 
         if self.oeditor is not None:
             self.oeditor.Move(vArg1, vArg2)
@@ -2170,9 +2259,9 @@ class GeometryModeler(Modeler, object):
         blank_part = chassis_part
         # in main code this object will need to be determined automatically eg by name such as chassis or sheer size
         self._messenger.add_info_message("Blank Part in Subtraction = " + str(blank_part))
-        '''
+        """
         check if blank part exists, if not, skip subtraction
-        '''
+        """
         tool_parts = list(self.oeditor.GetObjectsInGroup("Solids"))
         tool_parts.remove(blank_part)
         for mat in mat_names:
@@ -2185,8 +2274,9 @@ class GeometryModeler(Modeler, object):
         num_obj_end = self.oeditor.GetNumObjects()
         self.subtract(blank_part, tool_parts, True)
 
-        self._messenger.add_info_message \
-            ("Subtraction Objs - Initial: " + str(num_obj_start) + "  ,  Final: " + str(num_obj_end))
+        self._messenger.add_info_message(
+            "Subtraction Objs - Initial: " + str(num_obj_start) + "  ,  Final: " + str(num_obj_end)
+        )
 
     @aedt_exception_handler
     def _offset_on_plane(self, i, offset):
@@ -2254,11 +2344,11 @@ class GeometryModeler(Modeler, object):
         i = 0
         while not found:
             off1, off2, off3 = self._offset_on_plane(i, offset)
-            vArg1 = ['NAME:FaceParameters']
-            vArg1.append('BodyName:='), vArg1.append(obj)
-            vArg1.append('XPosition:='), vArg1.append(Xvec + "+" + self.primitives._arg_with_dim(off1))
-            vArg1.append('YPosition:='), vArg1.append(Yvec + "+" + self.primitives._arg_with_dim(off2))
-            vArg1.append('ZPosition:='), vArg1.append(Zvec + "+" + self.primitives._arg_with_dim(off3))
+            vArg1 = ["NAME:FaceParameters"]
+            vArg1.append("BodyName:="), vArg1.append(obj)
+            vArg1.append("XPosition:="), vArg1.append(Xvec + "+" + self.primitives._arg_with_dim(off1))
+            vArg1.append("YPosition:="), vArg1.append(Yvec + "+" + self.primitives._arg_with_dim(off2))
+            vArg1.append("ZPosition:="), vArg1.append(Zvec + "+" + self.primitives._arg_with_dim(off3))
             try:
                 face_id = self.oeditor.GetFaceByPosition(vArg1)
                 if i < 4:
@@ -2317,7 +2407,7 @@ class GeometryModeler(Modeler, object):
             RenameArgs = {}
             RenameArgs["NAME"] = "Rename Data"
             RenameArgs["Old Name"] = name
-            RenameArgs["New Name"] = name.replace(CADSuffix, '')
+            RenameArgs["New Name"] = name.replace(CADSuffix, "")
             self.oeditor.RenamePart(RenameArgs)
         return True
 
@@ -2392,8 +2482,18 @@ class GeometryModeler(Modeler, object):
         return self.primitives.create_region([x_pos, y_pos, z_pos, x_neg, y_neg, z_neg])
 
     @aedt_exception_handler
-    def create_coaxial(self, startingposition, axis, innerradius=1, outerradius=2, dielradius=1.8, length=10,
-                       matinner="copper", matouter="copper", matdiel="teflon_based"):
+    def create_coaxial(
+        self,
+        startingposition,
+        axis,
+        innerradius=1,
+        outerradius=2,
+        dielradius=1.8,
+        length=10,
+        matinner="copper",
+        matouter="copper",
+        matdiel="teflon_based",
+    ):
         """Create a coaxial.
 
         Parameters
@@ -2435,7 +2535,7 @@ class GeometryModeler(Modeler, object):
         >>> coax = app.modeler.create_coaxial(position, app.CoordinateSystemAxis.XAxis, innerradius=0.5, outerradius=0.8, dielradius=0.78, length=50)
 
         """
-        if not (outerradius>dielradius and dielradius>innerradius):
+        if not (outerradius > dielradius and dielradius > innerradius):
             raise ValueError("Error in coaxial radius.")
         inner = self.primitives.create_cylinder(axis, startingposition, innerradius, length, 0)
         outer = self.primitives.create_cylinder(axis, startingposition, outerradius, length, 0)
@@ -2449,8 +2549,19 @@ class GeometryModeler(Modeler, object):
         return inner, outer, diel
 
     @aedt_exception_handler
-    def create_waveguide(self, origin, wg_direction_axis, wgmodel="WG0", wg_length=100, wg_thickness=None,
-                         wg_material="aluminum", parametrize_w=False, parametrize_h=False, create_sheets_on_openings=False, name=None):
+    def create_waveguide(
+        self,
+        origin,
+        wg_direction_axis,
+        wgmodel="WG0",
+        wg_length=100,
+        wg_thickness=None,
+        wg_material="aluminum",
+        parametrize_w=False,
+        parametrize_h=False,
+        create_sheets_on_openings=False,
+        name=None,
+    ):
         """Create a standard waveguide and optionally parametrize `W` and `H`.
 
         Available models are WG0.0, WG0, WG1, WG2, WG3, WG4, WG5, WG6,
@@ -2502,19 +2613,47 @@ class GeometryModeler(Modeler, object):
 
 
         """
-        p1=-1
-        p2=-1
-        WG = {"WG0.0": [584.2, 292.1], "WG0": [533.4, 266.7], "WG1": [457.2, 228.6], "WG2": [381, 190.5],
-              "WG3": [292.1, 146.05], "WG4": [247.65, 123.825], "WG5": [195.58, 97.79],
-              "WG6": [165.1, 82.55], "WG7": [129.54, 64.77], "WG8": [109.22, 54.61], "WG9": [88.9, 44.45],
-              "WG9A": [86.36, 43.18], "WG10": [72.136, 34.036], "WG11": [60.2488, 28.4988],
-              "WG11A": [58.166, 29.083], "WG12": [47.5488, 22.1488], "WG13": [40.386, 20.193],
-              "WG14": [34.8488, 15.7988], "WG15": [28.4988, 12.6238], "WR102": [25.908, 12.954],
-              "WG16": [22.86, 10.16], "WG17": [19.05, 9.525], "WG18": [15.7988, 7.8994], "WG19": [12.954, 6.477],
-              "WG20": [0.668, 4.318], "WG21": [8.636, 4.318], "WG22": [7.112, 3.556],
-              "WG23": [5.6896, 2.8448], "WG24": [4.7752, 2.3876], "WG25": [3.7592, 1.8796], "WG26": [3.0988, 1.5494],
-              "WG27": [2.54, 1.27], "WG28": [2.032, 1.016], "WG29": [1.651, 0.8255],
-              "WG30": [1.2954, 0.6477], "WG31": [1.0922, 0.5461], "WG32": [0.8636, 0.4318]}
+        p1 = -1
+        p2 = -1
+        WG = {
+            "WG0.0": [584.2, 292.1],
+            "WG0": [533.4, 266.7],
+            "WG1": [457.2, 228.6],
+            "WG2": [381, 190.5],
+            "WG3": [292.1, 146.05],
+            "WG4": [247.65, 123.825],
+            "WG5": [195.58, 97.79],
+            "WG6": [165.1, 82.55],
+            "WG7": [129.54, 64.77],
+            "WG8": [109.22, 54.61],
+            "WG9": [88.9, 44.45],
+            "WG9A": [86.36, 43.18],
+            "WG10": [72.136, 34.036],
+            "WG11": [60.2488, 28.4988],
+            "WG11A": [58.166, 29.083],
+            "WG12": [47.5488, 22.1488],
+            "WG13": [40.386, 20.193],
+            "WG14": [34.8488, 15.7988],
+            "WG15": [28.4988, 12.6238],
+            "WR102": [25.908, 12.954],
+            "WG16": [22.86, 10.16],
+            "WG17": [19.05, 9.525],
+            "WG18": [15.7988, 7.8994],
+            "WG19": [12.954, 6.477],
+            "WG20": [0.668, 4.318],
+            "WG21": [8.636, 4.318],
+            "WG22": [7.112, 3.556],
+            "WG23": [5.6896, 2.8448],
+            "WG24": [4.7752, 2.3876],
+            "WG25": [3.7592, 1.8796],
+            "WG26": [3.0988, 1.5494],
+            "WG27": [2.54, 1.27],
+            "WG28": [2.032, 1.016],
+            "WG29": [1.651, 0.8255],
+            "WG30": [1.2954, 0.6477],
+            "WG31": [1.0922, 0.5461],
+            "WG32": [0.8636, 0.4318],
+        }
 
         if wgmodel in WG:
             wgwidth = WG[wgmodel][0]
@@ -2564,7 +2703,7 @@ class GeometryModeler(Modeler, object):
                 else:
                     origin[2] -= wg_thickness
                     origin[1] -= wg_thickness
-            centers=[f.center for f in airbox.faces]
+            centers = [f.center for f in airbox.faces]
             posx = [i[wg_direction_axis] for i in centers]
             mini = posx.index(min(posx))
             maxi = posx.index(max(posx))
@@ -2574,8 +2713,7 @@ class GeometryModeler(Modeler, object):
             if not name:
                 name = generate_unique_name(wgmodel)
             if wg_direction_axis == self._parent.CoordinateSystemAxis.ZAxis:
-                wgbox = self.primitives.create_box(origin, [wb, hb, wg_length],
-                                                   name=name)
+                wgbox = self.primitives.create_box(origin, [wb, hb, wg_length], name=name)
             elif wg_direction_axis == self._parent.CoordinateSystemAxis.YAxis:
                 wgbox = self.primitives.create_box(origin, [wb, wg_length, hb], name=name)
             else:
@@ -2636,8 +2774,10 @@ class GeometryModeler(Modeler, object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self.oeditor.CreateEntityList(["NAME:GeometryEntityListParameters", "EntityType:=", "Face",
-                                       "EntityList:=", fl], ["NAME:Attributes", "Name:=", name])
+        self.oeditor.CreateEntityList(
+            ["NAME:GeometryEntityListParameters", "EntityType:=", "Face", "EntityList:=", fl],
+            ["NAME:Attributes", "Name:=", name],
+        )
         self._messenger.add_info_message("Face List " + name + " created")
         return True
 
@@ -2659,8 +2799,10 @@ class GeometryModeler(Modeler, object):
 
         """
         listf = ",".join(fl)
-        self.oeditor.CreateEntityList(["NAME:GeometryEntityListParameters", "EntityType:=", "Object",
-                                       "EntityList:=", listf], ["NAME:Attributes", "Name:=", name])
+        self.oeditor.CreateEntityList(
+            ["NAME:GeometryEntityListParameters", "EntityType:=", "Object", "EntityList:=", listf],
+            ["NAME:Attributes", "Name:=", name],
+        )
         self._messenger.add_info_message("Object List " + name + " created")
 
         return self.get_entitylist_id(name)
@@ -2681,15 +2823,14 @@ class GeometryModeler(Modeler, object):
 
         """
         objectname = self.convert_to_selections(objectname)
-        self.oeditor.GenerateHistory([
-            "NAME:Selections", "Selections:=", objectname, "NewPartsModelFlag:=", "Model",
-            "UseCurrentCS:=", True
-        ])
+        self.oeditor.GenerateHistory(
+            ["NAME:Selections", "Selections:=", objectname, "NewPartsModelFlag:=", "Model", "UseCurrentCS:=", True]
+        )
         self.primitives.cleanup_objects()
         return True
 
     @aedt_exception_handler
-    def create_faceted_bondwire_from_true_surface(self, bondname, bond_direction, min_size = 0.2, numberofsegments=8):
+    def create_faceted_bondwire_from_true_surface(self, bondname, bond_direction, min_size=0.2, numberofsegments=8):
         """Create a faceted bondwire from an existing true surface bondwire.
 
         Parameters
@@ -2800,10 +2941,11 @@ class GeometryModeler(Modeler, object):
         if edge_to_delete:
             P.remove_edges(edge_to_delete)
 
-        angle = math.pi * (180 -360/numberofsegments)/360
+        angle = math.pi * (180 - 360 / numberofsegments) / 360
 
-        status = P.set_crosssection_properties(type="Circle", num_seg=numberofsegments,
-                                               width=(rad*(2-math.sin(angle))) * 2)
+        status = P.set_crosssection_properties(
+            type="Circle", num_seg=numberofsegments, width=(rad * (2 - math.sin(angle))) * 2
+        )
         if status:
             self.translate(new_edges[0], move_vector)
             old_bondwire.model = False
@@ -2848,7 +2990,7 @@ class GeometryModeler(Modeler, object):
         """
         list2 = self.select_allfaces_fromobjects(externalobjects)  # find ALL faces of outer objects
         self.create_face_list(list2, name)
-        self._messenger.add_info_message('Extfaces of thermal model = ' + str(len(list2)))
+        self._messenger.add_info_message("Extfaces of thermal model = " + str(len(list2)))
         return True
 
     @aedt_exception_handler
@@ -2919,11 +3061,7 @@ class GeometryModeler(Modeler, object):
         faces = []
         id = 1
         for obj in objs:
-            self.oeditor.Copy(
-                [
-                    "NAME:Selections",
-                    "Selections:=", obj
-                ])
+            self.oeditor.Copy(["NAME:Selections", "Selections:=", obj])
             originals = self.primitives.object_names
             self.oeditor.Paste()
             self.primitives.refresh_all_ids()
@@ -2968,7 +3106,7 @@ class GeometryModeler(Modeler, object):
             try:
                 line_ids[line_object] = str(self.oeditor.GetObjectIDByName(line_object))
             except:
-                self._messenger.add_warning_message('Line {} has an invalid ID!'.format(line_object))
+                self._messenger.add_warning_message("Line {} has an invalid ID!".format(line_object))
         return line_ids
 
     @aedt_exception_handler
@@ -3074,7 +3212,7 @@ class GeometryModeler(Modeler, object):
 
         for x in vertices_on_line:
             pos = self.oeditor.GetVertexPosition(x)
-            if self.design_type == 'Maxwell 2D':
+            if self.design_type == "Maxwell 2D":
                 if self.geometry_mode == "XY":
                     position_list.append([float(pos[0]), float(pos[1])])
                 else:
@@ -3116,7 +3254,7 @@ class GeometryModeler(Modeler, object):
         vArg1.append("CreateGroup:="), vArg1.append(True)
         vArg1.append("STLFileUnit:="), vArg1.append(self.model_units)
         vArg1.append("MergeFacesAngle:="), vArg1.append(-1)
-        vArg1.append("PointCoincidenceTol:="), vArg1.append(1E-06)
+        vArg1.append("PointCoincidenceTol:="), vArg1.append(1e-06)
         vArg1.append("CreateLightweightPart:="), vArg1.append(False)
         vArg1.append("ImportMaterialNames:="), vArg1.append(False)
         vArg1.append("SeparateDisjointLumps:="), vArg1.append(False)
@@ -3159,120 +3297,188 @@ class GeometryModeler(Modeler, object):
                     "NAME:Definition",
                     [
                         "NAME:UDMParam",
-                        "Name:=", "GeometryFilePath",
-                        "Value:=", "\"" + SCFile + "\"",
-                        "DataType:=", "String",
-                        "PropType2:=", 0,
-                        "PropFlag2:=", 1
+                        "Name:=",
+                        "GeometryFilePath",
+                        "Value:=",
+                        '"' + SCFile + '"',
+                        "DataType:=",
+                        "String",
+                        "PropType2:=",
+                        0,
+                        "PropFlag2:=",
+                        1,
                     ],
                     [
                         "NAME:UDMParam",
-                        "Name:=", "IsSpaceClaimLinkUDM",
-                        "Value:=", "1",
-                        "DataType:=", "Int",
-                        "PropType2:=", 5,
-                        "PropFlag2:=", 8
-                    ]
+                        "Name:=",
+                        "IsSpaceClaimLinkUDM",
+                        "Value:=",
+                        "1",
+                        "DataType:=",
+                        "Int",
+                        "PropType2:=",
+                        5,
+                        "PropFlag2:=",
+                        8,
+                    ],
                 ],
                 [
                     "NAME:Options",
                     [
                         "NAME:UDMParam",
-                        "Name:=", "Solid Bodies",
-                        "Value:=", "1",
-                        "DataType:=", "Int",
-                        "PropType2:=", 5,
-                        "PropFlag2:=", 0
+                        "Name:=",
+                        "Solid Bodies",
+                        "Value:=",
+                        "1",
+                        "DataType:=",
+                        "Int",
+                        "PropType2:=",
+                        5,
+                        "PropFlag2:=",
+                        0,
                     ],
                     [
                         "NAME:UDMParam",
-                        "Name:=", "Surface Bodies",
-                        "Value:=", "1",
-                        "DataType:=", "Int",
-                        "PropType2:=", 5,
-                        "PropFlag2:=", 0
+                        "Name:=",
+                        "Surface Bodies",
+                        "Value:=",
+                        "1",
+                        "DataType:=",
+                        "Int",
+                        "PropType2:=",
+                        5,
+                        "PropFlag2:=",
+                        0,
                     ],
                     [
                         "NAME:UDMParam",
-                        "Name:=", "Parameters",
-                        "Value:=", "1",
-                        "DataType:=", "Int",
-                        "PropType2:=", 5,
-                        "PropFlag2:=", 0
+                        "Name:=",
+                        "Parameters",
+                        "Value:=",
+                        "1",
+                        "DataType:=",
+                        "Int",
+                        "PropType2:=",
+                        5,
+                        "PropFlag2:=",
+                        0,
                     ],
                     [
                         "NAME:UDMParam",
-                        "Name:=", "Parameter Key",
-                        "Value:=", "\"\"",
-                        "DataType:=", "String",
-                        "PropType2:=", 0,
-                        "PropFlag2:=", 0
+                        "Name:=",
+                        "Parameter Key",
+                        "Value:=",
+                        '""',
+                        "DataType:=",
+                        "String",
+                        "PropType2:=",
+                        0,
+                        "PropFlag2:=",
+                        0,
                     ],
                     [
                         "NAME:UDMParam",
-                        "Name:=", "Named Selections",
-                        "Value:=", "1",
-                        "DataType:=", "Int",
-                        "PropType2:=", 5,
-                        "PropFlag2:=", 8
+                        "Name:=",
+                        "Named Selections",
+                        "Value:=",
+                        "1",
+                        "DataType:=",
+                        "Int",
+                        "PropType2:=",
+                        5,
+                        "PropFlag2:=",
+                        8,
                     ],
                     [
                         "NAME:UDMParam",
-                        "Name:=", "Rendering Attributes",
-                        "Value:=", "1",
-                        "DataType:=", "Int",
-                        "PropType2:=", 5,
-                        "PropFlag2:=", 0
+                        "Name:=",
+                        "Rendering Attributes",
+                        "Value:=",
+                        "1",
+                        "DataType:=",
+                        "Int",
+                        "PropType2:=",
+                        5,
+                        "PropFlag2:=",
+                        0,
                     ],
                     [
                         "NAME:UDMParam",
-                        "Name:=", "Material Assignment",
-                        "Value:=", "1",
-                        "DataType:=", "Int",
-                        "PropType2:=", 5,
-                        "PropFlag2:=", 0
+                        "Name:=",
+                        "Material Assignment",
+                        "Value:=",
+                        "1",
+                        "DataType:=",
+                        "Int",
+                        "PropType2:=",
+                        5,
+                        "PropFlag2:=",
+                        0,
                     ],
                     [
                         "NAME:UDMParam",
-                        "Name:=", "Import suppressed for physics objects",
-                        "Value:=", "0",
-                        "DataType:=", "Int",
-                        "PropType2:=", 5,
-                        "PropFlag2:=", 0
+                        "Name:=",
+                        "Import suppressed for physics objects",
+                        "Value:=",
+                        "0",
+                        "DataType:=",
+                        "Int",
+                        "PropType2:=",
+                        5,
+                        "PropFlag2:=",
+                        0,
                     ],
                     [
                         "NAME:UDMParam",
-                        "Name:=", "Explode Multi-Body Parts",
-                        "Value:=", "1",
-                        "DataType:=", "Int",
-                        "PropType2:=", 5,
-                        "PropFlag2:=", 8
+                        "Name:=",
+                        "Explode Multi-Body Parts",
+                        "Value:=",
+                        "1",
+                        "DataType:=",
+                        "Int",
+                        "PropType2:=",
+                        5,
+                        "PropFlag2:=",
+                        8,
                     ],
                     [
                         "NAME:UDMParam",
-                        "Name:=", "SpaceClaim Installation Path",
-                        "Value:=", "\"" + scdm_path + "\"",
-                        "DataType:=", "String",
-                        "PropType2:=", 0,
-                        "PropFlag2:=", 8
+                        "Name:=",
+                        "SpaceClaim Installation Path",
+                        "Value:=",
+                        '"' + scdm_path + '"',
+                        "DataType:=",
+                        "String",
+                        "PropType2:=",
+                        0,
+                        "PropFlag2:=",
+                        8,
                     ],
                     [
                         "NAME:UDMParam",
-                        "Name:=", "Smart CAD Update",
-                        "Value:=", "1",
-                        "DataType:=", "Int",
-                        "PropType2:=", 5,
-                        "PropFlag2:=", 8
-                    ]
+                        "Name:=",
+                        "Smart CAD Update",
+                        "Value:=",
+                        "1",
+                        "DataType:=",
+                        "Int",
+                        "PropType2:=",
+                        5,
+                        "PropFlag2:=",
+                        8,
+                    ],
                 ],
-                [
-                    "NAME:GeometryParams"
-                ],
-                "DllName:=", "SCIntegUDM",
-                "Library:=", "installLib",
-                "Version:=", "2.0",
-                "ConnectionID:=", ""
-            ])
+                ["NAME:GeometryParams"],
+                "DllName:=",
+                "SCIntegUDM",
+                "Library:=",
+                "installLib",
+                "Version:=",
+                "2.0",
+                "ConnectionID:=",
+                "",
+            ]
+        )
         self.primitives.refresh_all_ids()
         return True
 
@@ -3367,7 +3573,7 @@ class GeometryModeler(Modeler, object):
 
         sel = []
         if type(mats) is str:
-            mats=[mats]
+            mats = [mats]
         for mat in mats:
             objs = list(self.oeditor.GetObjectsByMaterial(mat))
             objs.extend(list(self.oeditor.GetObjectsByMaterial(mat.lower())))
@@ -3458,32 +3664,18 @@ class GeometryModeler(Modeler, object):
             l = 10
             while not directionfound:
                 self.oeditor.ThickenSheet(
-                    [
-                        "NAME:Selections",
-                        "Selections:=", el,
-                        "NewPartsModelFlag:=", "Model"
-                    ],
-                    [
-                        "NAME:SheetThickenParameters",
-                        "Thickness:=", str(l) + "mm",
-                        "BothSides:=", False
-                    ])
+                    ["NAME:Selections", "Selections:=", el, "NewPartsModelFlag:=", "Model"],
+                    ["NAME:SheetThickenParameters", "Thickness:=", str(l) + "mm", "BothSides:=", False],
+                )
                 aedt_bounding_box2 = self.get_model_bounding_box()
                 self.odesign.Undo()
                 if aedt_bounding_box != aedt_bounding_box2:
                     directions[el] = "External"
                     directionfound = True
                 self.oeditor.ThickenSheet(
-                    [
-                        "NAME:Selections",
-                        "Selections:=", el,
-                        "NewPartsModelFlag:=", "Model"
-                    ],
-                    [
-                        "NAME:SheetThickenParameters",
-                        "Thickness:=", "-" + str(l) + "mm",
-                        "BothSides:=", False
-                    ])
+                    ["NAME:Selections", "Selections:=", el, "NewPartsModelFlag:=", "Model"],
+                    ["NAME:SheetThickenParameters", "Thickness:=", "-" + str(l) + "mm", "BothSides:=", False],
+                )
                 aedt_bounding_box2 = self.get_model_bounding_box()
 
                 self.odesign.Undo()
@@ -3498,28 +3690,14 @@ class GeometryModeler(Modeler, object):
             faceCenter = self.oeditor.GetFaceCenter(int(objID[0]))
             if directions[el] == "Internal":
                 self.oeditor.ThickenSheet(
-                    [
-                        "NAME:Selections",
-                        "Selections:=", el,
-                        "NewPartsModelFlag:=", "Model"
-                    ],
-                    [
-                        "NAME:SheetThickenParameters",
-                        "Thickness:=", "-" + str(value) + "mm",
-                        "BothSides:=", False
-                    ])
+                    ["NAME:Selections", "Selections:=", el, "NewPartsModelFlag:=", "Model"],
+                    ["NAME:SheetThickenParameters", "Thickness:=", "-" + str(value) + "mm", "BothSides:=", False],
+                )
             else:
                 self.oeditor.ThickenSheet(
-                    [
-                        "NAME:Selections",
-                        "Selections:=", el,
-                        "NewPartsModelFlag:=", "Model"
-                    ],
-                    [
-                        "NAME:SheetThickenParameters",
-                        "Thickness:=", str(value) + "mm",
-                        "BothSides:=", False
-                    ])
+                    ["NAME:Selections", "Selections:=", el, "NewPartsModelFlag:=", "Model"],
+                    ["NAME:SheetThickenParameters", "Thickness:=", str(value) + "mm", "BothSides:=", False],
+                )
             if internalExtr:
                 objID2 = self.oeditor.GetFaceIDs(el)
                 for fid in objID2:
@@ -3527,23 +3705,26 @@ class GeometryModeler(Modeler, object):
                         faceCenter2 = self.oeditor.GetFaceCenter(int(fid))
                         if faceCenter2 == faceCenter:
                             self.oeditor.MoveFaces(
-                                [
-                                    "NAME:Selections",
-                                    "Selections:=", el,
-                                    "NewPartsModelFlag:=", "Model"
-                                ],
+                                ["NAME:Selections", "Selections:=", el, "NewPartsModelFlag:=", "Model"],
                                 [
                                     "NAME:Parameters",
                                     [
                                         "NAME:MoveFacesParameters",
-                                        "MoveAlongNormalFlag:=", True,
-                                        "OffsetDistance:=", str(internalvalue) + "mm",
-                                        "MoveVectorX:=", "0mm",
-                                        "MoveVectorY:=", "0mm",
-                                        "MoveVectorZ:=", "0mm",
-                                        "FacesToMove:=", [int(fid)]
-                                    ]
-                                ])
+                                        "MoveAlongNormalFlag:=",
+                                        True,
+                                        "OffsetDistance:=",
+                                        str(internalvalue) + "mm",
+                                        "MoveVectorX:=",
+                                        "0mm",
+                                        "MoveVectorY:=",
+                                        "0mm",
+                                        "MoveVectorZ:=",
+                                        "0mm",
+                                        "FacesToMove:=",
+                                        [int(fid)],
+                                    ],
+                                ],
+                            )
                     except:
                         self._messenger.add_info_message("done")
                         # self.modeler_oproject.ClearMessages()
@@ -3564,6 +3745,7 @@ class GeometryModeler(Modeler, object):
             are specified, ``0`` is applied.
 
         """
+
         @aedt_exception_handler
         def __getitem__(self, item):
             if item == 0:
@@ -3630,6 +3812,7 @@ class GeometryModeler(Modeler, object):
             Twist angle with units. The default is ``"0deg"``.
 
         """
+
         @aedt_exception_handler
         def __init__(self, draftType="Round", draftAngle="0deg", twistAngle="0deg"):
             self.DraftType = draftType
@@ -3679,22 +3862,27 @@ class GeometryModeler(Modeler, object):
 
         arg = [
             "NAME:GroupParameter",
-            "ParentGroupID:=", "Model",
-            "Parts:=", object_selection,
-            "SubmodelInstances:=", component_selection,
-            "Groups:=", group_selection
+            "ParentGroupID:=",
+            "Model",
+            "Parts:=",
+            object_selection,
+            "SubmodelInstances:=",
+            component_selection,
+            "Groups:=",
+            group_selection,
         ]
         assigned_name = self.oeditor.CreateGroup(arg)
         if group_name and group_name not in all_objects:
             self.oeditor.ChangeProperty(
-                ["NAME:AllTabs",
-                 ["NAME:Attributes",
-                  ["NAME:PropServers", assigned_name],
-                  ["NAME:ChangedProps",
-                   ["NAME:Name", "Value:=", group_name]
-                   ]
-                  ]
-                 ])
+                [
+                    "NAME:AllTabs",
+                    [
+                        "NAME:Attributes",
+                        ["NAME:PropServers", assigned_name],
+                        ["NAME:ChangedProps", ["NAME:Name", "Value:=", group_name]],
+                    ],
+                ]
+            )
             return group_name
         else:
             return assigned_name
@@ -3729,8 +3917,5 @@ class GeometryModeler(Modeler, object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self.oeditor.FlattenGroup(
-            [
-                "Groups:=", ["Model"]
-            ])
+        self.oeditor.FlattenGroup(["Groups:=", ["Model"]])
         return True
