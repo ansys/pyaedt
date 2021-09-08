@@ -678,6 +678,7 @@ class Object3d(object):
         result = [(float(face.center[1]), face) for face in self.faces]
         result = sorted(result, key=lambda tup: tup[0])
         return result[0][1]
+
     @property
     def edges(self):
         """Information for each edge in the given part.
