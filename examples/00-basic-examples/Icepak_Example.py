@@ -32,11 +32,27 @@ if not os.path.exists(temp_folder): os.makedirs(temp_folder)
 ipk = Icepak(project_full_name, specified_version="2021.1")
 ipk.save_project(temp_folder, "Graphics_card.aedt")
 ipk._desktop_class.disable_autosave()
+###############################################################################
+# Create Source Blocks
+# ~~~~~~~~~~~~~~~~~~~~
+# Create Source block on CPU and MEMORIES
+
 ipk.create_source_block("CPU","25W")
 ipk.create_source_block(["MEMORY1", "MEMORY1_1"],"5W")
+
+###############################################################################
+# Assign Boundaries
+# ~~~~~~~~~~~~~~~~~
+# Assign Opening and Grille
+
 region = ipk.modeler.primitives["Region"]
 ipk.assign_openings(region.bottom_face_x.id)
 ipk.assign_grille(region.top_face_x.id, free_area_ratio=0.8)
+
+###############################################################################
+# Mesh Operations
+# ~~~~~~~~~~~~~~~
+# Assign Mesh Region to HeatSink and CPU
 
 mesh_region=ipk.mesh.assign_mesh_region(["HEAT_SINK","CPU"])
 mesh_region.UserSpecifiedSettings = True
@@ -45,6 +61,12 @@ mesh_region.MaxElementSizeY = "1.75mm"
 mesh_region.MaxElementSizeZ = "2.65mm"
 mesh_region.MaxLevels = "2"
 mesh_region.update()
+
+###############################################################################
+# Setup
+# ~~~~~
+# Create Point Monitor and Setup
+
 ipk.assign_point_monitor(["-35mm", "3.6mm", "-86mm"])
 ipk.assign_point_monitor(["80mm", "14.243mm", "-55mm"],"Speed")
 setup1 = ipk.create_setup()
@@ -54,6 +76,12 @@ setup1.props["Linear Solver Type - Pressure"] = "flex"
 setup1.props["Linear Solver Type - Temperature"] = "flex"
 setup1.update()
 ipk.save_project(r"C:\temp\Graphic_card.aedt")
+
+###############################################################################
+# Solve and PostProcess
+# ~~~~~~~~~~~~~~~~~~~~~
+# Solve Project and plot Temperatures
+
 quantity_name = "SurfTemperature"
 surflist = [i.id for i in ipk.modeler.primitives["CPU"].faces]
 surflist += [i.id for i in ipk.modeler.primitives["MEMORY1"].faces]

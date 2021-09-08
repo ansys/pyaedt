@@ -156,8 +156,19 @@ class TestClass:
         assert test
 
     def test_13_assign_openings(self):
-        airfaces = [self.aedtapp.modeler.primitives["Region"].faces[0].id]
+        airfaces = [self.aedtapp.modeler.primitives["Region"].top_face_x.id]
         assert self.aedtapp.assign_openings(airfaces)
+
+    def test_1b_assign_grille(self):
+        airfaces = [self.aedtapp.modeler.primitives["Region"].top_face_y.id]
+        grille = self.aedtapp.assign_grille(airfaces)
+        grille.props["Free Area Ratio"] = 0.7
+        assert grille.update()
+        airfaces = [self.aedtapp.modeler.primitives["Region"].bottom_face_x.id]
+        grille2 = self.aedtapp.assign_grille(airfaces, free_loss_coeff=False, x_curve=["0", "3", "5"],
+                                             y_curve=["0", "2", "3"])
+        assert grille2.props["X"] == ["0", "3", "5"]
+        assert grille2.props["Y"] == ["0", "2", "3"]
 
     def test_14_edit_design_settings(self):
         assert self.aedtapp.edit_design_settings(gravityDir=1)
