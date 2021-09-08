@@ -5,7 +5,7 @@ from __future__ import absolute_import
 import math
 from .application.AnalysisNexxim import FieldAnalysisCircuit
 from .desktop import exception_to_desktop
-from .application.DataHandlers import from_rkm_to_aedt
+from pyaedt.generic.DataHandlers import from_rkm_to_aedt
 from .generic.general_methods import aedt_exception_handler
 import re
 import os

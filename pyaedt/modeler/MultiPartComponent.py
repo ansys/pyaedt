@@ -1,70 +1,10 @@
-import json
-from glob import glob
 import os
 import math
 import sys
+from pyaedt.generic.DataHandlers import json_to_dict
+from pyaedt.generic.filesystem import get_json_files
+from pyaedt.modeler.GeometryOperators import GeometryOperators
 from pyaedt.generic.general_methods import aedt_exception_handler
-
-
-def get_numeric(s):  # TODO: add validation
-    """ Convert a string to a numeric value. Discard the suffix."""
-    if type(s) == str:
-        if s == 'Global':
-            return 0.0
-        else:
-            return float(''.join(c for c in s if c.isdigit() or c == '.'))
-    elif s is None:
-        return 0.0
-    else:
-        return float(s)
-
-def is_small(s):
-    """
-    Return True if the number represented by s is zero (i.e very small).
-
-    Parameters
-    ----------
-    s, numeric or str
-        Variable value.
-
-    Returns
-    -------
-
-    """
-    n = get_numeric(s)
-    return True if math.fabs(n) < 2.0 * abs(sys.float_info.epsilon) else False
-
-
-def numeric_cs(cs_in):
-    """
-    Return a list of [x,y,z] numeric values
-    given a coordinate system as input:
-
-    cs_in could be a list of strings, ["x", "y", "z"]
-    or "Global"
-    """
-
-    # TODO: Improve error handling and conversion robustness.
-    if type(cs_in) is str:
-        if cs_in == "Global":
-            return [0.0, 0.0, 0.0]
-        else:
-            return None
-    elif type(cs_in) is list:
-        if len(cs_in) == 3:
-            return [get_numeric(s) if type(s) is str else s for s in cs_in]
-        else:
-            return [0, 0, 0]
-
-
-def json_to_dict(fn):
-    with open(fn) as json_file:
-        try:
-            data = json.load(json_file)
-        except Exception as e:
-            print("Error: ", e.__class__)
-            raise e
-    return data
 
 
 def read_actors(fn, actor_lib):
@@ -86,60 +26,6 @@ def read_actors(fn, actor_lib):
     for name in actor_dict:
         a[name] = Actor(actor_dict[name], actor_lib, name)
     return a
-
-
-def get_json_files(start_folder):
-    """
-    Get the absolute path to all *.json files in start_folder.
-
-    Parameters
-    ----------
-    start_folder, str
-        Path to the folder where the json files are located.
-
-    Returns
-    -------
-    """
-    return [y for x in os.walk(start_folder) for y in glob(os.path.join(x[0], '*.json'))]
-
-
-def cs_xy_pointing_expression(yaw, pitch, roll):
-    """
-    return x_pointing and y_pointing vectors as expressions from
-    the yaw, ptich, and roll input (as strings).
-
-    Parameters
-    ----------
-    yaw : str, required
-        String expression for the yaw angle (rotation about Z-axis)
-    pitch : str
-        String expression for the pitch angle (rotation about Y-axis)
-    roll : str
-        String expression for the roll angle (rotation about X-axis)
-
-    Returns
-    -------
-    [x_pointing, y_pointing] vector expressions.
-    """
-    # X-Pointing
-    xx = "cos(" + yaw + ")*cos(" + pitch + ")"
-    xy = "sin(" + yaw + ")*cos(" + pitch + ")"
-    xz = "sin(" + pitch + ")"
-
-    # Y-Pointing
-    yx = "sin(" + roll + ")*sin(" + pitch + ")*cos(" + yaw + ") - "
-    yx += "sin(" + yaw + ")*cos(" + roll + ")"
-
-    yy = "sin(" + roll + ")*sin(" + yaw + ")*sin(" + pitch + ") + "
-    yy += "cos(" + roll + ")*cos(" + yaw + ")"
-
-    yz = "sin(" + roll + " + pi)*cos(" + pitch + ")"  # use pi to avoid negative sign.
-
-    # x, y pointing vectors for CS
-    x_pointing = [xx, xy, xz]
-    y_pointing = [yx, yy, yz]
-
-    return [x_pointing, y_pointing]
 
 
 class Part(object):
@@ -259,6 +145,7 @@ class Part(object):
                 self._compdef[key] = [str(i) if not i is str else i for i in cs]
         return self._compdef[key]
 
+    @aedt_exception_handler
     def zero_offset(self, kw):  # Returns True if cs at kw is at [0, 0, 0]
         """Return zero if the coordinate system defined by kw is [0, 0, 0].
 
@@ -275,7 +162,7 @@ class Part(object):
         if kw in ['offset', 'rotation_cs']:
             s = []
             if self[kw]:
-                s = [is_small(c) for c in self[kw]]
+                s = [GeometryOperators.is_small(c) for c in self[kw]]
             if len(s) > 0:
                 return all(s)
             else:
@@ -288,7 +175,8 @@ class Part(object):
 
         Returns
         -------
-        str, full file name for *.a3dcomp file.
+        str
+            full file name for *.a3dcomp file.
 
         """
         return os.path.join(self._compdef['part_folder'], self['comp_name'])
@@ -374,11 +262,11 @@ class Part(object):
     @property
     def _do_rotate(self):  # True if any rotation angles are non-zero or 'rotation_cs' is defined.
         return any(self.rot_axis)
-        # return any(numeric_cs([self._yaw, self._pitch, self._roll])) or not self.zero_offset('rotation_cs')
+        # return any(GeometryOperators.numeric_cs([self._yaw, self._pitch, self._roll])) or not self.zero_offset('rotation_cs')
 
     @property
     def _do_offset(self):  # True if any rotation angles are non-zero.
-        return any(numeric_cs(self.local_origin))
+        return any(GeometryOperators.numeric_cs(self.local_origin))
 
     # Allow expressions should be valid angle as either string
     # or numerical value.
@@ -434,6 +322,7 @@ class Part(object):
         """
         return self._parent.name + '_' + self._name
 
+    @aedt_exception_handler
     def set_relative_cs(self, app):
         """Create a new, parametric Coordinate System.
 
@@ -464,6 +353,7 @@ class Part(object):
         """
         return self.name + '_rot_cs'
 
+    @aedt_exception_handler
     def do_rotate(self, app, aedt_object):
         """
         Set the rotation coordinate system relative to the parent CS.
@@ -501,6 +391,7 @@ class Part(object):
 
         return True
 
+    @aedt_exception_handler
     def insert(self, app):
         """
         Insert 3D Component into app
@@ -849,7 +740,7 @@ class MultiPartComponent(object):
             pitch_str = self.pitch
             roll_str = self.roll
 
-        return cs_xy_pointing_expression(yaw_str, pitch_str, roll_str)
+        return GeometryOperators.cs_xy_pointing_expression(yaw_str, pitch_str, roll_str)
 
     @property
     def name(self):
@@ -888,6 +779,7 @@ class MultiPartComponent(object):
         self._use_global_cs = False
         self._offset_values = o  # Expect tuple or list of strings
 
+    @aedt_exception_handler
     def position_in_app(self, app):
         """
         Set up design variables and values to enable motion for
@@ -938,6 +830,7 @@ class MultiPartComponent(object):
                                                         mode="axis",
                                                         name=self.cs_name)
 
+    @aedt_exception_handler
     def _insert(self, app,  motion=False):
         """Insert the multipart 3d component.
 
@@ -969,6 +862,7 @@ class MultiPartComponent(object):
                                  group_name=self.name)
         return True
 
+    @aedt_exception_handler
     def insert(self, app, motion=False):
         """Insert object into App.
 
@@ -1041,6 +935,7 @@ class Actor(MultiPartComponent, object):
     def speed_expression(self, s):  # TODO: Add validation of the expression.
         self._speed_expression = s
 
+    @aedt_exception_handler
     def _add_speed(self, app):
         app.variable_manager.set_variable(variable_name=self.speed_name,
                                           expression=self.speed_expression,
@@ -1057,7 +952,7 @@ class Actor(MultiPartComponent, object):
 
 class Person(Actor, object):
     """
-    One instance of an actor. Derived class from MultiPartComponent
+    One instance of an actor. Derived class from MultiPartComponent.
     """
 
     def __init__(self, actor_folder, speed="0", stride="0.8meters"):
@@ -1098,6 +993,7 @@ class Person(Actor, object):
     def stride(self, s):
         self._stride = s  # TODO: Add validation to allow expressions.
 
+    @aedt_exception_handler
     def _add_walking(self, app):
         # Update expressions for oscillation of limbs. At this point
         # we could parse p.name to handle motion (arm, leg, ...).
@@ -1109,6 +1005,7 @@ class Person(Actor, object):
                                            + "*" + MultiPartComponent._t + ") + " + \
                                            "(" + p['compensation_angle'] + ")rad"
 
+    @aedt_exception_handler
     def insert(self, app, motion=True):
         """Insert the Person into the AEDT app.
 
@@ -1159,6 +1056,7 @@ class Bird(Actor, object):
                     app[p.roll_name] = p['rotation'] + '* sin(2*pi*' + str(self._flapping_rate) + '*' \
                                         + MultiPartComponent._t + ")"
 
+    @aedt_exception_handler
     def insert(self, app, motion=True):
         """Insert the Bird into the AEDT app.
 
@@ -1198,6 +1096,7 @@ class Vehicle(Actor, object):
 
         super(Vehicle, self).__init__(car_folder, speed=speed)
 
+    @aedt_exception_handler
     def _add_driving(self, app):
         # Update expressions for wheel motion:
         for k, p in self.parts.items():
@@ -1207,6 +1106,7 @@ class Vehicle(Actor, object):
                                         self.speed_name + "/" + p['tire_radius'] \
                                         + "meter)*(180/pi)*1deg"
 
+    @aedt_exception_handler
     def insert(self, app, motion=True):
         """Insert the Vehicle into the AEDT app.
 
@@ -1252,6 +1152,7 @@ class Antenna(Part, object):
             p['Polarization'] = self._compdef['polarization']
         return p
 
+    @aedt_exception_handler
     def _insert(self, app, target_cs=None):
         if not target_cs:
             target_cs = self._parent.cs_name
@@ -1262,6 +1163,7 @@ class Antenna(Part, object):
                                    antenna_name=self.name)
         return a
 
+    @aedt_exception_handler
     def insert(self, app):
         """Insert antenna into app.
 
@@ -1337,6 +1239,7 @@ class Radar(MultiPartComponent, object):
     def speed_expression(self, s):
         self._speed_expression = s
 
+    @aedt_exception_handler
     def _add_speed(self, app):
         app.variable_manager.set_variable(variable_name=self.speed_name,
                                           expression=self.speed_expression,
@@ -1350,9 +1253,11 @@ class Radar(MultiPartComponent, object):
                                     + self.speed_name + ' * ' + MultiPartComponent._t \
                                     + '* sin(' + self.yaw_name + ')'
 
+    @aedt_exception_handler
     def insert(self, app, motion=False):
         """
-        Insert radar into app (app is the HFSS application instance)
+        Insert radar into app (app is the HFSS application instance).
+
         Parameters
         ----------
         app: class: `pyaedt.hfss.Hfss`

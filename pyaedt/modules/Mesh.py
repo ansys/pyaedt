@@ -5,7 +5,7 @@ This module contains the `Mesh` class.
 from __future__ import absolute_import
 from ..generic.general_methods import aedt_exception_handler, generate_unique_name, MethodNotSupportedError
 
-from ..application.DataHandlers import dict2arg
+from pyaedt.generic.DataHandlers import dict2arg
 from collections import OrderedDict
 
 meshers = {"HFSS": "MeshSetup",

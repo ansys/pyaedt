@@ -3,9 +3,9 @@ This module contains these classes: `BoundaryCommon` and `BoundaryObject`.
 """
 from collections import OrderedDict
 from ..generic.general_methods import aedt_exception_handler
-from ..application.DataHandlers import dict2arg
+from pyaedt.generic.DataHandlers import dict2arg
 from ..modeler.Object3d import EdgePrimitive, FacePrimitive, VertexPrimitive
-from ..application.DataHandlers import random_string
+from pyaedt.generic.DataHandlers import random_string
 
 class BoundaryCommon(object):
     """ """

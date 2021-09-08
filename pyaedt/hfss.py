@@ -9,7 +9,6 @@ from .modeler.GeometryOperators import GeometryOperators
 from .modules.Boundary import BoundaryObject, NativeComponentObject
 from .generic.general_methods import generate_unique_name, aedt_exception_handler
 from collections import OrderedDict
-from .application.DataHandlers import random_string
 from .modeler.MultiPartComponent import Radar
 
 class Hfss(FieldAnalysis3D, object):

@@ -810,7 +810,9 @@ class Primitives3D(Primitives, object):
 
     @aedt_exception_handler
     def add_person(self, actor_folder, speed=0, global_offset=[0, 0, 0], yaw=0, pitch=0, roll=0):
-        """Add a Walking Person Multipart from 3D Components. It requires a json file in the folder containing infos.
+        """Add a Walking Person Multipart from 3D Components.
+
+        It requires a json file in the folder containing person infos. An example json file is showed here.
 
          .. code-block:: json
 
@@ -894,7 +896,10 @@ class Primitives3D(Primitives, object):
 
     @aedt_exception_handler
     def add_vehicle(self, actor_folder, speed=0, global_offset=[0,0,0], yaw=0, pitch=0,roll=0):
-        """Add a Moving Vehicle Multipart from 3D Components. It requires a json file in the folder containing vehicle infos.
+        """Add a Moving Vehicle Multipart from 3D Components.
+
+        It requires a json file in the folder containing vehicle infos. An example json file is showed here.
+
 
          .. code-block:: json
 
@@ -964,7 +969,9 @@ class Primitives3D(Primitives, object):
     @aedt_exception_handler
     def add_bird(self, actor_folder, speed=0, global_offset=[0, 0, 0], yaw=0, pitch=0,
                  roll=0, flapping_rate=50):
-        """Add a Bird Multipart from 3D Components. It requires a json file in the folder containing bird infos.
+        """Add a Bird Multipart from 3D Components.
+
+        It requires a json file in the folder containing bird infos. An example json file is showed here.
 
          .. code-block:: json
 

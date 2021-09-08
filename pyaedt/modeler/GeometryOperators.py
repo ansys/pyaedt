@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-from ..generic.general_methods import aedt_exception_handler
-from .modeler_constants import CoordinateSystemPlane, CoordinateSystemAxis, SweepDraftType
 import math
 import re
-
+import sys
+from ..generic.general_methods import aedt_exception_handler
+from .modeler_constants import CoordinateSystemPlane, CoordinateSystemAxis, SweepDraftType
 
 class GeometryOperators(object):
     """Manages geometry operators."""
@@ -1229,3 +1229,96 @@ class GeometryOperators(object):
         zc = sz / sl2
 
         return [xc, yc, zc]
+
+    @staticmethod
+    @aedt_exception_handler
+    def cs_xy_pointing_expression(yaw, pitch, roll):
+        """Return x_pointing and y_pointing vectors as expressions from
+        the yaw, ptich, and roll input (as strings).
+
+        Parameters
+        ----------
+        yaw : str, required
+            String expression for the yaw angle (rotation about Z-axis)
+        pitch : str
+            String expression for the pitch angle (rotation about Y-axis)
+        roll : str
+            String expression for the roll angle (rotation about X-axis)
+
+        Returns
+        -------
+        [x_pointing, y_pointing] vector expressions.
+        """
+        # X-Pointing
+        xx = "cos(" + yaw + ")*cos(" + pitch + ")"
+        xy = "sin(" + yaw + ")*cos(" + pitch + ")"
+        xz = "sin(" + pitch + ")"
+
+        # Y-Pointing
+        yx = "sin(" + roll + ")*sin(" + pitch + ")*cos(" + yaw + ") - "
+        yx += "sin(" + yaw + ")*cos(" + roll + ")"
+
+        yy = "sin(" + roll + ")*sin(" + yaw + ")*sin(" + pitch + ") + "
+        yy += "cos(" + roll + ")*cos(" + yaw + ")"
+
+        yz = "sin(" + roll + " + pi)*cos(" + pitch + ")"  # use pi to avoid negative sign.
+
+        # x, y pointing vectors for CS
+        x_pointing = [xx, xy, xz]
+        y_pointing = [yx, yy, yz]
+
+        return [x_pointing, y_pointing]
+
+    @staticmethod
+    @aedt_exception_handler
+    def get_numeric(s):
+        """ Convert a string to a numeric value. Discard the suffix."""
+        if type(s) == str:
+            if s == 'Global':
+                return 0.0
+            else:
+                return float(''.join(c for c in s if c.isdigit() or c == '.'))
+        elif s is None:
+            return 0.0
+        else:
+            return float(s)
+
+    @staticmethod
+    @aedt_exception_handler
+    def is_small(s):
+        """
+        Return True if the number represented by s is zero (i.e very small).
+
+        Parameters
+        ----------
+        s, numeric or str
+            Variable value.
+
+        Returns
+        -------
+
+        """
+        n = GeometryOperators.get_numeric(s)
+        return True if math.fabs(n) < 2.0 * abs(sys.float_info.epsilon) else False
+
+    @staticmethod
+    @aedt_exception_handler
+    def numeric_cs(cs_in):
+        """
+        Return a list of [x,y,z] numeric values
+        given a coordinate system as input:
+
+        cs_in could be a list of strings, ["x", "y", "z"]
+        or "Global"
+        """
+        if type(cs_in) is str:
+            if cs_in == "Global":
+                return [0.0, 0.0, 0.0]
+            else:
+                return None
+        elif type(cs_in) is list:
+            if len(cs_in) == 3:
+                return [GeometryOperators.get_numeric(s) if type(s) is str else s for s in cs_in]
+            else:
+                return [0, 0, 0]
+

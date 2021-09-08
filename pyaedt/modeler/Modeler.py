@@ -6,21 +6,15 @@ This modules provides functionalities for the 3D Modeler, 2D Modeler,
 3D Layout Modeler, and Circuit Modeler.
 """
 from __future__ import absolute_import
-import sys
 import os
-import string
-import random
 import warnings
 
 from collections import OrderedDict
-from .Primitives2D import Primitives2D
-from .Primitives3D import Primitives3D
-from .Primitives import Polyline, PolylineSegment
 from .GeometryOperators import GeometryOperators
 from ..application.Variables import AEDT_units
 from ..generic.general_methods import generate_unique_name, retry_ntimes, aedt_exception_handler
 import math
-from ..application.DataHandlers import dict2arg
+from pyaedt.generic.DataHandlers import dict2arg
 from .Object3d import EdgePrimitive, FacePrimitive, VertexPrimitive, Object3d
 from pyaedt import _pythonver
 

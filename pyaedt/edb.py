@@ -665,10 +665,7 @@ class Edb(object):
         props = [a for a in dir(self) if not a.startswith('__')]
 
         for a in props:
-            try:
-                del self.__dict__[a]
-            except Exception as e:
-                pass
+            self.__dict__.pop(a, None)
         gc.collect()
         return True
 
