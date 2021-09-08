@@ -359,7 +359,6 @@ class Icepak(FieldAnalysisIcepak):
             object_name = [object_name]
         props["Objects"] = object_name
 
-
         props["Block Type"] = "Solid"
         props["Use External Conditions"] = False
         props["Total Power"] = input_power
