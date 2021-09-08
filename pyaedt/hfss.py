@@ -3335,4 +3335,3 @@ class Hfss(FieldAnalysis3D, object):
             arg.append(str(power_fraction))
         self.oboundary.EditGlobalCurrentSourcesOption(arg)
         return True
-
