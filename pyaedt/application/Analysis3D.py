@@ -153,10 +153,8 @@ class FieldAnalysis3D(Analysis, object):
             for line in temp:
                 try:
                     _all_lines.append(line.decode("utf-8").lstrip('\t'))
-                except AttributeError:
-                    _all_lines.append(line.lstrip('\t'))
                 except UnicodeDecodeError:
-                    pass
+                    break
             for line in _all_lines:
                 if "VariableProp(" in line:
                     line_list = line.split("'")
