@@ -705,6 +705,7 @@ class Analysis(Design, object):
             for el in props:
                 setup.props[el] = props[el]
             setup.update()
+
         self.analysis_setup = name
         self.setups.append(setup)
         return setup

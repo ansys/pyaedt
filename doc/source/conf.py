@@ -74,7 +74,7 @@ intersphinx_mapping = {
 numpydoc_use_plots = True
 numpydoc_show_class_members = False
 numpydoc_xref_param_type = True
-numpydoc_validate = False
+numpydoc_validate = True
 numpydoc_validation_checks = {
     "GL06", # Found unknown section
     "GL07", # Sections are in the wrong order.
