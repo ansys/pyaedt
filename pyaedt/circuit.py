@@ -564,11 +564,13 @@ class Circuit(FieldAnalysisCircuit, object):
 
         """
         if source_project_name and self.project_name != source_project_name and not source_project_path:
-            raise AttributeError("If source project is different than the current one, "
-                                 "``source_project_path`` must be also provided.")
+            raise AttributeError(
+                "If source project is different than the current one, " "``source_project_path`` must be also provided."
+            )
         if source_project_path and not source_project_name:
-            raise AttributeError("When ``source_project_path`` is specified, "
-                                 "``source_project_name`` must be also provided.")
+            raise AttributeError(
+                "When ``source_project_path`` is specified, " "``source_project_name`` must be also provided."
+            )
         if not source_project_name or self.project_name == source_project_name:
             oSrcProject = self._desktop.GetActiveProject()
         else:
@@ -996,9 +998,7 @@ class Circuit(FieldAnalysisCircuit, object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        arg = ["NAME:options",
-               "CalcThevenin:=", thevenin_calculation,
-               "Sol:=", setup_name]
+        arg = ["NAME:options", "CalcThevenin:=", thevenin_calculation, "Sol:=", setup_name]
 
         self.modeler.oeditor.PushExcitations(instance_name, arg)
         return True
@@ -1043,41 +1043,73 @@ class Circuit(FieldAnalysisCircuit, object):
 
         id = self.modeler.components.create_unique_id()
 
-        arg1 = ["NAME:NexximSources",
-                ["NAME:NexximSources",
-                 ["NAME:Data",
-                  ["NAME:VoltageSinusoidal"+str(id),
-                   "DataId:=", "Source"+str(id),
-                   "Type:=", 1,
-                   "Output:=", 0,
-                   "NumPins:=", 2,
-                   "Netlist:=", "V@ID %0 %1 *DC(DC=@DC) SIN(?VO(@VO) ?VA(@VA) ?FREQ(@FREQ) ?TD(@TD) ?ALPHA(@ALPHA) ?THETA(@THETA)) *TONE(TONE=@TONE) *ACMAG(AC @ACMAG @ACPHASE)",
-                   "CompName:=", "Nexxim Circuit Elements\\Independent Sources:V_SIN",
-                   "FDSFileName:=", "",
-                   ["NAME:Properties",
-                    "TextProp:=", ["LabelID","HD","Property string for netlist ID","V@ID"],
-                    "ValueProp:=", ["ACMAG","OD","AC magnitude for small-signal analysis (Volts)",settings[0],0],
-                    "ValuePropNU:=", ["ACPHASE","OD","AC phase for small-signal analysis",settings[1],0,"deg"],
-                    "ValueProp:=", ["DC","OD","DC voltage (Volts)",settings[2],0],
-                    "ValueProp:=", ["VO","OD","Voltage offset from zero (Volts)",settings[3],0],
-                    "ValueProp:=", ["VA","OD","Voltage amplitude (Volts)",settings[4],0],
-                    "ValueProp:=", ["FREQ","OD","Frequency (Hz)",settings[5],0],
-                    "ValueProp:=", ["TD","OD","Delay to start of sine wave (seconds)",settings[6],0],
-                    "ValueProp:=", ["ALPHA","OD","Damping factor (1/seconds)",settings[7],0],
-                    "ValuePropNU:=", ["THETA","OD","Phase delay",settings[8],0,"deg"],
-                    "ValueProp:=", ["TONE","OD","Frequency (Hz) to use for harmonic balance analysis, should be a submultiple of (or equal to) the driving frequency and should also be included in the HB analysis setup",settings[9],0],
-                    "TextProp:=", ["ModelName","SHD","","V_SIN"],
-                    "MenuProp:=", ["CoSimulator","D","","DefaultNetlist",0],
-                    "ButtonProp:=", ["CosimDefinition","D","","","Edit",40501, "ButtonPropClientData:=", []]
-                    ]
-                   ]
-                  ]
-                 ]
-                ]
+        arg1 = [
+            "NAME:NexximSources",
+            [
+                "NAME:NexximSources",
+                [
+                    "NAME:Data",
+                    [
+                        "NAME:VoltageSinusoidal" + str(id),
+                        "DataId:=",
+                        "Source" + str(id),
+                        "Type:=",
+                        1,
+                        "Output:=",
+                        0,
+                        "NumPins:=",
+                        2,
+                        "Netlist:=",
+                        "V@ID %0 %1 *DC(DC=@DC) SIN(?VO(@VO) ?VA(@VA) ?FREQ(@FREQ) ?TD(@TD) ?ALPHA(@ALPHA) ?THETA(@THETA)) *TONE(TONE=@TONE) *ACMAG(AC @ACMAG @ACPHASE)",
+                        "CompName:=",
+                        "Nexxim Circuit Elements\\Independent Sources:V_SIN",
+                        "FDSFileName:=",
+                        "",
+                        [
+                            "NAME:Properties",
+                            "TextProp:=",
+                            ["LabelID", "HD", "Property string for netlist ID", "V@ID"],
+                            "ValueProp:=",
+                            ["ACMAG", "OD", "AC magnitude for small-signal analysis (Volts)", settings[0], 0],
+                            "ValuePropNU:=",
+                            ["ACPHASE", "OD", "AC phase for small-signal analysis", settings[1], 0, "deg"],
+                            "ValueProp:=",
+                            ["DC", "OD", "DC voltage (Volts)", settings[2], 0],
+                            "ValueProp:=",
+                            ["VO", "OD", "Voltage offset from zero (Volts)", settings[3], 0],
+                            "ValueProp:=",
+                            ["VA", "OD", "Voltage amplitude (Volts)", settings[4], 0],
+                            "ValueProp:=",
+                            ["FREQ", "OD", "Frequency (Hz)", settings[5], 0],
+                            "ValueProp:=",
+                            ["TD", "OD", "Delay to start of sine wave (seconds)", settings[6], 0],
+                            "ValueProp:=",
+                            ["ALPHA", "OD", "Damping factor (1/seconds)", settings[7], 0],
+                            "ValuePropNU:=",
+                            ["THETA", "OD", "Phase delay", settings[8], 0, "deg"],
+                            "ValueProp:=",
+                            [
+                                "TONE",
+                                "OD",
+                                "Frequency (Hz) to use for harmonic balance analysis, should be a submultiple of (or equal to) the driving frequency and should also be included in the HB analysis setup",
+                                settings[9],
+                                0,
+                            ],
+                            "TextProp:=",
+                            ["ModelName", "SHD", "", "V_SIN"],
+                            "MenuProp:=",
+                            ["CoSimulator", "D", "", "DefaultNetlist", 0],
+                            "ButtonProp:=",
+                            ["CosimDefinition", "D", "", "", "Edit", 40501, "ButtonPropClientData:=", []],
+                        ],
+                    ],
+                ],
+            ],
+        ]
 
         arg2 = ["NAME:ComponentConfigurationData"]
 
-        arg3 = ["NAME:ComponentConfigurationData", ["NAME:EnabledPorts", "VoltageSinusoidal"+str(id)+":=", ports]]
+        arg3 = ["NAME:ComponentConfigurationData", ["NAME:EnabledPorts", "VoltageSinusoidal" + str(id) + ":=", ports]]
 
         arg2.append(arg3)
 
@@ -1125,42 +1157,75 @@ class Circuit(FieldAnalysisCircuit, object):
 
         id = self.modeler.components.create_unique_id()
 
-        arg1 = ["NAME:NexximSources",
-                ["NAME:NexximSources",
-                 ["NAME:Data",
-                  ["NAME:CurrentSinusoidal"+str(id),
-                   "DataId:=", "Source"+str(id),
-                   "Type:=", 1,
-                   "Output:=", 1,
-                   "NumPins:=", 2,
-                   "Netlist:=", "I@ID %0 %1 *DC(DC=@DC) SIN(?VO(@VO) ?VA(@VA) ?FREQ(@FREQ) ?TD(@TD) ?ALPHA(@ALPHA) ?THETA(@THETA) *M(M=@M)) *TONE(TONE=@TONE) *ACMAG(AC @ACMAG @ACPHASE)",
-                   "CompName:=", "Nexxim Circuit Elements\\Independent Sources:I_SIN",
-                   "FDSFileName:=", "",
-                   ["NAME:Properties",
-                    "TextProp:=", ["LabelID","HD","Property string for netlist ID","I@ID"],
-                    "ValueProp:=", ["ACMAG","OD","AC magnitude for small-signal analysis (Amps)",settings[0],0],
-                    "ValuePropNU:=", ["ACPHASE","OD","AC phase for small-signal analysis",settings[1],0,"deg"],
-                    "ValueProp:=", ["DC","OD","DC current (Amps)",settings[2],0],
-                    "ValueProp:=", ["VO","OD","Current offset (Amps)",settings[3],0],
-                    "ValueProp:=", ["VA","OD","Current amplitude (Amps)",settings[4],0],
-                    "ValueProp:=", ["FREQ","OD","Frequency (Hz)",settings[5],0],
-                    "ValueProp:=", ["TD","OD","Delay to start of sine wave (seconds)",settings[6],0],
-                    "ValueProp:=", ["ALPHA","OD","Damping factor (1/seconds)",settings[7],0],
-                    "ValuePropNU:=", ["THETA","OD","Phase delay",settings[8],0,"deg"],
-                    "ValueProp:=", ["M","OD","Multiplier for simulating multiple parallel current sources",settings[9],0],
-                    "ValueProp:=", ["TONE","OD","Frequency (Hz) to use for harmonic balance analysis, should be a submultiple of (or equal to) the driving frequency and should also be included in the HB analysis setup",settings[10],0],
-                    "TextProp:=", ["ModelName","SHD","","I_SIN"],
-                    "MenuProp:=", ["CoSimulator","D","","DefaultNetlist",0],
-                    "ButtonProp:=", ["CosimDefinition","D","","","Edit",40501,"ButtonPropClientData:=", []]
-                    ]
-                   ]
-                  ]
-                 ]
-                ]
+        arg1 = [
+            "NAME:NexximSources",
+            [
+                "NAME:NexximSources",
+                [
+                    "NAME:Data",
+                    [
+                        "NAME:CurrentSinusoidal" + str(id),
+                        "DataId:=",
+                        "Source" + str(id),
+                        "Type:=",
+                        1,
+                        "Output:=",
+                        1,
+                        "NumPins:=",
+                        2,
+                        "Netlist:=",
+                        "I@ID %0 %1 *DC(DC=@DC) SIN(?VO(@VO) ?VA(@VA) ?FREQ(@FREQ) ?TD(@TD) ?ALPHA(@ALPHA) ?THETA(@THETA) *M(M=@M)) *TONE(TONE=@TONE) *ACMAG(AC @ACMAG @ACPHASE)",
+                        "CompName:=",
+                        "Nexxim Circuit Elements\\Independent Sources:I_SIN",
+                        "FDSFileName:=",
+                        "",
+                        [
+                            "NAME:Properties",
+                            "TextProp:=",
+                            ["LabelID", "HD", "Property string for netlist ID", "I@ID"],
+                            "ValueProp:=",
+                            ["ACMAG", "OD", "AC magnitude for small-signal analysis (Amps)", settings[0], 0],
+                            "ValuePropNU:=",
+                            ["ACPHASE", "OD", "AC phase for small-signal analysis", settings[1], 0, "deg"],
+                            "ValueProp:=",
+                            ["DC", "OD", "DC current (Amps)", settings[2], 0],
+                            "ValueProp:=",
+                            ["VO", "OD", "Current offset (Amps)", settings[3], 0],
+                            "ValueProp:=",
+                            ["VA", "OD", "Current amplitude (Amps)", settings[4], 0],
+                            "ValueProp:=",
+                            ["FREQ", "OD", "Frequency (Hz)", settings[5], 0],
+                            "ValueProp:=",
+                            ["TD", "OD", "Delay to start of sine wave (seconds)", settings[6], 0],
+                            "ValueProp:=",
+                            ["ALPHA", "OD", "Damping factor (1/seconds)", settings[7], 0],
+                            "ValuePropNU:=",
+                            ["THETA", "OD", "Phase delay", settings[8], 0, "deg"],
+                            "ValueProp:=",
+                            ["M", "OD", "Multiplier for simulating multiple parallel current sources", settings[9], 0],
+                            "ValueProp:=",
+                            [
+                                "TONE",
+                                "OD",
+                                "Frequency (Hz) to use for harmonic balance analysis, should be a submultiple of (or equal to) the driving frequency and should also be included in the HB analysis setup",
+                                settings[10],
+                                0,
+                            ],
+                            "TextProp:=",
+                            ["ModelName", "SHD", "", "I_SIN"],
+                            "MenuProp:=",
+                            ["CoSimulator", "D", "", "DefaultNetlist", 0],
+                            "ButtonProp:=",
+                            ["CosimDefinition", "D", "", "", "Edit", 40501, "ButtonPropClientData:=", []],
+                        ],
+                    ],
+                ],
+            ],
+        ]
 
         arg2 = ["NAME:ComponentConfigurationData"]
 
-        arg3 = ["NAME:ComponentConfigurationData", ["NAME:EnabledPorts", "CurrentSinusoidal"+str(id)+":=", ports]]
+        arg3 = ["NAME:ComponentConfigurationData", ["NAME:EnabledPorts", "CurrentSinusoidal" + str(id) + ":=", ports]]
 
         arg2.append(arg3)
 
@@ -1207,41 +1272,73 @@ class Circuit(FieldAnalysisCircuit, object):
 
         id = self.modeler.components.create_unique_id()
 
-        arg1 = ["NAME:NexximSources",
-                ["NAME:NexximSources",
-                 ["NAME:Data",
-                  ["NAME:PowerSinusoidal"+str(id),
-                   "DataId:=", "Source"+str(id),
-                   "Type:=", 1,
-                   "Output:=", 2,
-                   "NumPins:=", 2,
-                   "Netlist:=", "V@ID %0 %1 *DC(DC=@DC) POWER SIN(?VO(@VO) ?POWER(@POWER) ?FREQ(@FREQ) ?TD(@TD) ?ALPHA(@ALPHA) ?THETA(@THETA)) *TONE(TONE=@TONE) *ACMAG(AC @ACMAG @ACPHASE)",
-                   "CompName:=", "Nexxim Circuit Elements\\Independent Sources:P_SIN",
-                   "FDSFileName:=", "",
-                   ["NAME:Properties",
-                    "TextProp:=", ["LabelID","HD","Property string for netlist ID","V@ID"],
-                    "ValueProp:=", ["ACMAG","OD","AC magnitude for small-signal analysis (Volts)",settings[0],0],
-                    "ValuePropNU:=", ["ACPHASE","OD","AC phase for small-signal analysis",settings[1],0,"deg"],
-                    "ValueProp:=", ["DC","OD","DC voltage (Volts)",settings[2],0],
-                    "ValuePropNU:=", ["VO","OD","Power offset from zero watts",settings[3],0,"W"],
-                    "ValueProp:=", ["POWER","OD","Available power of the source above VO",settings[4],0],
-                    "ValueProp:=", ["FREQ","OD","Frequency (Hz)",settings[5],0],
-                    "ValueProp:=", ["TD","OD","Delay to start of sine wave (seconds)",settings[6],0],
-                    "ValueProp:=", ["ALPHA","OD","Damping factor (1/seconds)",settings[7],0],
-                    "ValuePropNU:=", ["THETA","OD","Phase delay",settings[8],0,"deg"],
-                    "ValueProp:=", ["TONE","OD","Frequency (Hz) to use for harmonic balance analysis, should be a submultiple of (or equal to) the driving frequency and should also be included in the HB analysis setup",settings[9],0],
-                    "TextProp:=", ["ModelName","SHD","","P_SIN"],
-                    "ButtonProp:=", ["CosimDefinition","D","","Edit","Edit",40501,"ButtonPropClientData:=",[]],
-                    "MenuProp:=", ["CoSimulator","D","","DefaultNetlist",0]
-                    ]
-                   ]
-                  ]
-                 ]
-                ]
+        arg1 = [
+            "NAME:NexximSources",
+            [
+                "NAME:NexximSources",
+                [
+                    "NAME:Data",
+                    [
+                        "NAME:PowerSinusoidal" + str(id),
+                        "DataId:=",
+                        "Source" + str(id),
+                        "Type:=",
+                        1,
+                        "Output:=",
+                        2,
+                        "NumPins:=",
+                        2,
+                        "Netlist:=",
+                        "V@ID %0 %1 *DC(DC=@DC) POWER SIN(?VO(@VO) ?POWER(@POWER) ?FREQ(@FREQ) ?TD(@TD) ?ALPHA(@ALPHA) ?THETA(@THETA)) *TONE(TONE=@TONE) *ACMAG(AC @ACMAG @ACPHASE)",
+                        "CompName:=",
+                        "Nexxim Circuit Elements\\Independent Sources:P_SIN",
+                        "FDSFileName:=",
+                        "",
+                        [
+                            "NAME:Properties",
+                            "TextProp:=",
+                            ["LabelID", "HD", "Property string for netlist ID", "V@ID"],
+                            "ValueProp:=",
+                            ["ACMAG", "OD", "AC magnitude for small-signal analysis (Volts)", settings[0], 0],
+                            "ValuePropNU:=",
+                            ["ACPHASE", "OD", "AC phase for small-signal analysis", settings[1], 0, "deg"],
+                            "ValueProp:=",
+                            ["DC", "OD", "DC voltage (Volts)", settings[2], 0],
+                            "ValuePropNU:=",
+                            ["VO", "OD", "Power offset from zero watts", settings[3], 0, "W"],
+                            "ValueProp:=",
+                            ["POWER", "OD", "Available power of the source above VO", settings[4], 0],
+                            "ValueProp:=",
+                            ["FREQ", "OD", "Frequency (Hz)", settings[5], 0],
+                            "ValueProp:=",
+                            ["TD", "OD", "Delay to start of sine wave (seconds)", settings[6], 0],
+                            "ValueProp:=",
+                            ["ALPHA", "OD", "Damping factor (1/seconds)", settings[7], 0],
+                            "ValuePropNU:=",
+                            ["THETA", "OD", "Phase delay", settings[8], 0, "deg"],
+                            "ValueProp:=",
+                            [
+                                "TONE",
+                                "OD",
+                                "Frequency (Hz) to use for harmonic balance analysis, should be a submultiple of (or equal to) the driving frequency and should also be included in the HB analysis setup",
+                                settings[9],
+                                0,
+                            ],
+                            "TextProp:=",
+                            ["ModelName", "SHD", "", "P_SIN"],
+                            "ButtonProp:=",
+                            ["CosimDefinition", "D", "", "Edit", "Edit", 40501, "ButtonPropClientData:=", []],
+                            "MenuProp:=",
+                            ["CoSimulator", "D", "", "DefaultNetlist", 0],
+                        ],
+                    ],
+                ],
+            ],
+        ]
 
         arg2 = ["NAME:ComponentConfigurationData"]
 
-        arg3 = ["NAME:ComponentConfigurationData", ["NAME:EnabledPorts", "PowerSinusoidal"+str(id)+":=", ports]]
+        arg3 = ["NAME:ComponentConfigurationData", ["NAME:EnabledPorts", "PowerSinusoidal" + str(id) + ":=", ports]]
 
         arg2.append(arg3)
 
