@@ -22,6 +22,7 @@ def start_aedt():
     yield desktop
     desktop.force_close_desktop()
 
+
 @pytest.fixture(autouse=True, scope="session")
 def get_root_directory(doctest_namespace):
     """Set up paths to the root and project directories.

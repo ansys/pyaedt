@@ -528,7 +528,7 @@ class Object3d(object):
     >>> aedtapp = Hfss()
     >>> prim = aedtapp.modeler.primitives
 
-    Create a part, such as box, to return an :class: `pyaedt.modeler.Object3d.Object3d`.
+    Create a part, such as box, to return an :class:`pyaedt.modeler.Object3d.Object3d`.
 
     >>> id = prim.create_box([0, 0, 0], [10, 10, 5], "Mybox", "Copper")
     >>> part = prim[id]
@@ -592,7 +592,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class: `pyaedt.modeler.Object3d.FacePrimitive`
+        :class:`pyaedt.modeler.Object3d.FacePrimitive`
 
         """
         faces = []
@@ -602,12 +602,12 @@ class Object3d(object):
         return faces
 
     @property
-    def top_face(self):
+    def top_face_z(self):
         """Top face in the Z direction of the object.
 
         Returns
         -------
-        :class: `pyaedt.modeler.Object3d.FacePrimitive`
+        :class:`pyaedt.modeler.Object3d.FacePrimitive`
 
         """
         result = [(float(face.center[2]), face) for face in self.faces]
@@ -615,15 +615,67 @@ class Object3d(object):
         return result[-1][1]
 
     @property
-    def bottom_face(self):
+    def bottom_face_z(self):
         """Bottom face in the Z direction of the object.
 
         Returns
         -------
-        :class: `pyaedt.modeler.Object3d.FacePrimitive`
+        :class:`pyaedt.modeler.Object3d.FacePrimitive`
 
         """
         result = [(float(face.center[2]), face) for face in self.faces]
+        result = sorted(result, key=lambda tup: tup[0])
+        return result[0][1]
+
+    @property
+    def top_face_x(self):
+        """Top face in the X direction of the object.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.FacePrimitive`
+
+        """
+        result = [(float(face.center[0]), face) for face in self.faces]
+        result = sorted(result, key=lambda tup: tup[0])
+        return result[-1][1]
+
+    @property
+    def bottom_face_x(self):
+        """Bottom face in the X direction of the object.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.FacePrimitive`
+
+        """
+        result = [(float(face.center[0]), face) for face in self.faces]
+        result = sorted(result, key=lambda tup: tup[0])
+        return result[0][1]
+
+    @property
+    def top_face_y(self):
+        """Top face in the Y direction of the object.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.FacePrimitive`
+
+        """
+        result = [(float(face.center[1]), face) for face in self.faces]
+        result = sorted(result, key=lambda tup: tup[0])
+        return result[-1][1]
+
+    @property
+    def bottom_face_y(self):
+        """Bottom face in the X direction of the object.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.FacePrimitive`
+
+        """
+        result = [(float(face.center[1]), face) for face in self.faces]
         result = sorted(result, key=lambda tup: tup[0])
         return result[0][1]
 
@@ -648,7 +700,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class: `pyaedt.modeler.Object3d.FacePrimitive`
+        :class:`pyaedt.modeler.Object3d.FacePrimitive`
 
         """
         vertices = []
@@ -1557,7 +1609,7 @@ class Padstack(object):
 
         Returns
         -------
-        :class: `pyaedt.modeler.Object3d.Object3d.PDSHole`
+        :class:`pyaedt.modeler.Object3d.Object3d.PDSHole`
             Hole object to be passed to padstack or layer.
 
         """
@@ -1634,7 +1686,7 @@ class CircuitComponent(object):
             return self.name + ";" + str(self.schematic_id)
 
     def __init__(self, editor=None, units="mm", tabname="PassedParameterTab"):
-        self.name = None
+        self.name = ""
         self.m_Editor = editor
         self.modelName = None
         self.status = "Active"
