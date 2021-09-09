@@ -430,11 +430,25 @@ class EdbSiwave(object):
         else:
             res, fromLayer_pos, toLayer_pos = source.positive_node.node_pins.GetLayerRange(None, None)
             res, fromLayer_neg, toLayer_neg = source.negative_node.node_pins.GetLayerRange(None, None)
-        pos_pingroup_terminal = retry_ntimes(10,self._edb.Cell.Terminal.PadstackInstanceTerminal.Create,self._active_layout, pos_pin.GetNet(),
-                                                                           pos_pin.GetName(), pos_pin, toLayer_pos)
+        pos_pingroup_terminal = retry_ntimes(
+            10,
+            self._edb.Cell.Terminal.PadstackInstanceTerminal.Create,
+            self._active_layout,
+            pos_pin.GetNet(),
+            pos_pin.GetName(),
+            pos_pin,
+            toLayer_pos,
+        )
         time.sleep(0.5)
-        neg_pingroup_terminal = retry_ntimes(10,self._edb.Cell.Terminal.PadstackInstanceTerminal.Create,self._active_layout, neg_pin.GetNet(),
-                                                                           neg_pin.GetName(), neg_pin, toLayer_neg)
+        neg_pingroup_terminal = retry_ntimes(
+            10,
+            self._edb.Cell.Terminal.PadstackInstanceTerminal.Create,
+            self._active_layout,
+            neg_pin.GetNet(),
+            neg_pin.GetName(),
+            neg_pin,
+            toLayer_neg,
+        )
         if source.type == SourceType.Port:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
             neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
@@ -1181,11 +1195,25 @@ class EdbSiwave(object):
         neg_node_net = self.parent.core_nets.get_net_by_name(source.negative_node.net)
         pos_pingroup_term_name = generate_unique_name(source.name + "_POS")
         neg_pingroup_term_name = generate_unique_name(source.name + "_NEG")
-        pos_pingroup_terminal = retry_ntimes(10, self._edb.Cell.Terminal.PinGroupTerminal.Create, self._active_layout,
-                                             pos_node_net, pos_pingroup_term_name, pos_pin_group[1], False)
+        pos_pingroup_terminal = retry_ntimes(
+            10,
+            self._edb.Cell.Terminal.PinGroupTerminal.Create,
+            self._active_layout,
+            pos_node_net,
+            pos_pingroup_term_name,
+            pos_pin_group[1],
+            False,
+        )
         time.sleep(0.5)
-        neg_pingroup_terminal = retry_ntimes(10, self._edb.Cell.Terminal.PinGroupTerminal.Create, self._active_layout,
-                                             neg_node_net, neg_pingroup_term_name, neg_pin_group[1], False)
+        neg_pingroup_terminal = retry_ntimes(
+            10,
+            self._edb.Cell.Terminal.PinGroupTerminal.Create,
+            self._active_layout,
+            neg_node_net,
+            neg_pingroup_term_name,
+            neg_pin_group[1],
+            False,
+        )
 
         if source.type == SourceType.Port:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
