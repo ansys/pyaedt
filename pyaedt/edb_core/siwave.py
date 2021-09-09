@@ -430,28 +430,11 @@ class EdbSiwave(object):
         else:
             res, fromLayer_pos, toLayer_pos = source.positive_node.node_pins.GetLayerRange(None, None)
             res, fromLayer_neg, toLayer_neg = source.negative_node.node_pins.GetLayerRange(None, None)
-        pos_pingroup_terminal = retry_ntimes(
-            10,
-            self._edb.Cell.Terminal.PadstackInstanceTerminal.Create,
-            self._active_layout,
-            pos_pin.GetNet(),
-            pos_pin.GetName(),
-            pos_pin,
-            toLayer_pos,
-        )
-        neg_pingroup_terminal = retry_ntimes(
-            10,
-            self._edb.Cell.Terminal.PadstackInstanceTerminal.Create,
-            self._active_layout,
-            neg_pin.GetNet(),
-            neg_pin.GetName(),
-            neg_pin,
-            toLayer_neg,
-        )
-        # pos_pingroup_terminal = self._edb.Cell.Terminal.PadstackInstanceTerminal.Create(self._active_layout, pos_pin.GetNet(),
-        #                                                                    pos_pin.GetName(), pos_pin, toLayer_pos)
-        # neg_pingroup_terminal = self._edb.Cell.Terminal.PadstackInstanceTerminal.Create(self._active_layout, neg_pin.GetNet(),
-        #                                                                    neg_pin.GetName(), neg_pin, toLayer_neg)
+        pos_pingroup_terminal = retry_ntimes(10,self._edb.Cell.Terminal.PadstackInstanceTerminal.Create,self._active_layout, pos_pin.GetNet(),
+                                                                           pos_pin.GetName(), pos_pin, toLayer_pos)
+        time.sleep(0.5)
+        neg_pingroup_terminal = retry_ntimes(10,self._edb.Cell.Terminal.PadstackInstanceTerminal.Create,self._active_layout, neg_pin.GetNet(),
+                                                                           neg_pin.GetName(), neg_pin, toLayer_neg)
         if source.type == SourceType.Port:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
             neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
@@ -741,7 +724,7 @@ class EdbSiwave(object):
             Name of the negative component. The default is ``None``, in which case the name of
             the positive net is assigned.
         negative_net_name : str, optional
-            Name of the negative net name. The default is ``None`` which will look for \*GND Nets.
+            Name of the negative net name. The default is ``None`` which will look for GND Nets.
         impedance_value : float, optional
             Port impedance value. The default is ``50``.
         port_name: str, optional
@@ -805,7 +788,7 @@ class EdbSiwave(object):
             Name of the negative component. The default is ``None``, in which case the name of
             the positive net is assigned.
         negative_net_name : str, optional
-            Name of the negative net name. The default is ``None`` which will look for \*GND Nets.
+            Name of the negative net name. The default is ``None`` which will look for GND Nets.
         voltage_value : float, optional
             Value for the voltage. The default is ``3.3``.
         phase_value : optional
@@ -873,7 +856,7 @@ class EdbSiwave(object):
             Name of the negative component. The default is ``None``, in which case the name of
             the positive net is assigned.
         negative_net_name : str, optional
-            Name of the negative net name. The default is ``None`` which will look for \*GND Nets.
+            Name of the negative net name. The default is ``None`` which will look for GND Nets.
         current_value : float, optional
             Value for the current. The default is ``0.1``.
         phase_value: optional
@@ -940,7 +923,7 @@ class EdbSiwave(object):
             Name of the negative component. The default is ``None``, in which case the name of
             the positive net is assigned.
         negative_net_name : str, optional
-            Name of the negative net name. The default is ``None`` which will look for \*GND Nets.
+            Name of the negative net name. The default is ``None`` which will look for GND Nets.
         rvalue : float, optional
             Resistance value. The default is ``1``.
         resistor_name : str, optional
@@ -1198,27 +1181,11 @@ class EdbSiwave(object):
         neg_node_net = self.parent.core_nets.get_net_by_name(source.negative_node.net)
         pos_pingroup_term_name = generate_unique_name(source.name + "_POS")
         neg_pingroup_term_name = generate_unique_name(source.name + "_NEG")
-        pos_pingroup_terminal = retry_ntimes(
-            10,
-            self._edb.Cell.Terminal.PinGroupTerminal.Create,
-            self._active_layout,
-            pos_node_net,
-            pos_pingroup_term_name,
-            pos_pin_group[1],
-            False,
-        )
-        neg_pingroup_terminal = retry_ntimes(
-            10,
-            self._edb.Cell.Terminal.PinGroupTerminal.Create,
-            self._active_layout,
-            neg_node_net,
-            neg_pingroup_term_name,
-            neg_pin_group[1],
-            False,
-        )
-
-        # pos_pingroup_terminal = self._edb.Cell.Terminal.PinGroupTerminal.Create(self._active_layout,pos_node_net,pos_pingroup_term_name , pos_pin_group[1], False)
-        # neg_pingroup_terminal = self._edb.Cell.Terminal.PinGroupTerminal.Create(self._active_layout,neg_node_net,neg_pingroup_term_name , neg_pin_group[1], False)
+        pos_pingroup_terminal = retry_ntimes(10, self._edb.Cell.Terminal.PinGroupTerminal.Create, self._active_layout,
+                                             pos_node_net, pos_pingroup_term_name, pos_pin_group[1], False)
+        time.sleep(0.5)
+        neg_pingroup_terminal = retry_ntimes(10, self._edb.Cell.Terminal.PinGroupTerminal.Create, self._active_layout,
+                                             neg_node_net, neg_pingroup_term_name, neg_pin_group[1], False)
 
         if source.type == SourceType.Port:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)

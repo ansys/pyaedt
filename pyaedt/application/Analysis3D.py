@@ -65,7 +65,7 @@ class FieldAnalysis3D(Analysis, object):
 
         Returns
         -------
-        :class: `modeler.Model3D.Modeler3D`
+        :class:`pyaedt.modeler.Model3D.Modeler3D`
         """
         return self._modeler
 
@@ -75,7 +75,7 @@ class FieldAnalysis3D(Analysis, object):
 
         Returns
         -------
-        :class: `pyaedt.modules.Mesh.Mesh`
+        :class:`pyaedt.modules.Mesh.Mesh`
         """
         return self._mesh
 
@@ -133,20 +133,32 @@ class FieldAnalysis3D(Analysis, object):
         vars = {}
         if component3dname not in self.components3d:
             if os.path.exists(component3dname):
-                with open(component3dname, 'r', errors='ignore') as f:
-                    lines = f.readlines()
-                    for line in lines:
-                        if "VariableProp(" in line:
-                            line_list = line.split("'")
-                            vars[line_list[1]] = line_list[len(line_list) - 2]
+                with open(component3dname, 'rb') as aedt_fh:
+                    temp = aedt_fh.read().splitlines()
+                _all_lines = []
+                for line in temp:
+                    try:
+                        _all_lines.append(line.decode("utf-8").lstrip('\t'))
+                    except UnicodeDecodeError:
+                        break
+                for line in _all_lines:
+                    if "VariableProp(" in line:
+                        line_list = line.split("'")
+                        vars[line_list[1]] = line_list[len(line_list) - 2]
                 return vars
             return False
-        with open(self.components3d[component3dname], 'r') as f:
-            lines = f.readlines()
-            for line in lines:
-                if "VariableProp(" in line:
-                    line_list = line.split("'")
-                    vars[line_list[1]] = line_list[len(line_list) - 2]
+        with open(self.components3d[component3dname], 'rb') as aedt_fh:
+            temp = aedt_fh.read().splitlines()
+        _all_lines = []
+        for line in temp:
+            try:
+                _all_lines.append(line.decode("utf-8").lstrip('\t'))
+            except UnicodeDecodeError:
+                break
+        for line in _all_lines:
+            if "VariableProp(" in line:
+                line_list = line.split("'")
+                vars[line_list[1]] = line_list[len(line_list) - 2]
         return vars
 
     @aedt_exception_handler

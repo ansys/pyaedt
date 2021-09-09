@@ -5,12 +5,12 @@ import csv
 import math
 import os
 import re
-from  collections import OrderedDict
+from collections import OrderedDict
 
 from .application.AnalysisIcepak import FieldAnalysisIcepak
 from .desktop import exception_to_desktop
-from .generic.general_methods import generate_unique_name, aedt_exception_handler
-from .application.DataHandlers import arg2dict
+from .generic.general_methods import generate_unique_name, aedt_exception_handler, retry_ntimes
+from .generic.DataHandlers import arg2dict
 from .modules.Boundary import BoundaryObject, NativeComponentObject
 
 
@@ -119,6 +119,64 @@ class Icepak(FieldAnalysisIcepak):
         return sweep_list
 
     @aedt_exception_handler
+    def assign_grille(self, air_faces, free_loss_coeff=True, free_area_ratio=0.8, resistance_type=0,
+                     external_temp="AmbientTemp", expternal_pressure="AmbientPressure", x_curve=["0","1","2"], y_curve=["0","1","2"]):
+        """Assign grille to a face or list of faces.
+
+        Parameters
+        ----------
+        air_faces : str, list
+            List of face names.
+        free_loss_coeff : bool
+            ``True`` to Enable Free Loss Coefficient. ``False`` to switch to Free Loss Curve
+        free_area_ratio : float, str
+            Free Loss Coefficient Value.
+        resistance_type : int
+             ``0`` for ``"Perforated Thin Vent"``, ``1`` for ``"Circular Metal Wire Screen"``,
+              `2`` for ``"Two-Plane Screen Cyl. Bars"``.
+        external_temp : str
+             External Temperature. Default ``AmbientTemp``.
+        expternal_pressure : str
+             External Pressure. Default ``AmbientPressure``.
+        x_curve : list
+             X Curve List in m_per_sec.
+        y_curve : list
+             Y Curve List in n_per_meter_q.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object when successful or ``None`` when failed.
+
+        """
+        boundary_name = generate_unique_name("Grille")
+
+        self.modeler.create_face_list(air_faces, "boundary_faces")
+        props = {}
+        air_faces = self.modeler._convert_list_to_ids(air_faces)
+
+        props["Faces"] = air_faces
+        if free_loss_coeff:
+            props["Pressure Loss Type"] = "Coeff"
+            props["Free Area Ratio"] = str(free_area_ratio)
+            props["External Rad. Temperature"] = external_temp
+            props["External Total Pressure"] = expternal_pressure
+
+        else:
+            props["Pressure Loss Type"] = "Curve"
+            props["External Rad. Temperature"] = external_temp
+            props["External Total Pressure"] = expternal_pressure
+
+        props["X"] = x_curve
+        props["Y"] = y_curve
+        bound = BoundaryObject(self, boundary_name, props, 'Grille')
+        if bound.create():
+            self.boundaries.append(bound)
+            self._messenger.add_info_message("Grille Assigned")
+            return bound
+        return None
+
+    @aedt_exception_handler
     def assign_openings(self, air_faces):
         """Assign openings to a list of faces.
 
@@ -129,7 +187,7 @@ class Icepak(FieldAnalysisIcepak):
 
         Returns
         -------
-        :class: `pyaedt.modules.Boundary.BoundaryObject`
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         Examples
@@ -260,12 +318,13 @@ class Icepak(FieldAnalysisIcepak):
         return listmcad
 
     @aedt_exception_handler
-    def create_source_block(self, object_name, input_power, assign_material=True, material_name="Ceramic_material", use_object_for_name=True):
+    def create_source_block(self, object_name, input_power, assign_material=True, material_name="Ceramic_material",
+                            use_object_for_name=True):
         """Create a source block for an object.
 
         Parameters
         ----------
-        object_name : str
+        object_name : str, list
             Name of the object.
         input_power : str or var
             Input power.
@@ -278,7 +337,7 @@ class Icepak(FieldAnalysisIcepak):
 
         Returns
         -------
-        :class: `pyaedt.modules.Boundary.BoundaryObject`
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         Examples
@@ -291,20 +350,29 @@ class Icepak(FieldAnalysisIcepak):
 
         """
         if assign_material:
-            self.modeler.primitives[object_name].material_name = material_name
-        props={}
-        props["Objects"] = [object_name]
+            if isinstance(object_name, list):
+                for el in object_name:
+                    self.modeler.primitives[el].material_name = material_name
+            else:
+                self.modeler.primitives[object_name].material_name = material_name
+        props = {}
+        if not isinstance(object_name, list):
+            object_name = [object_name]
+        props["Objects"] = object_name
+
         props["Block Type"] = "Solid"
         props["Use External Conditions"] = False
         props["Total Power"] = input_power
         if use_object_for_name:
-            boundary_name = object_name
+            boundary_name = object_name[0]
         else:
             boundary_name = generate_unique_name("Block")
 
         bound = BoundaryObject(self, boundary_name, props, 'Block')
         if bound.create():
             self.boundaries.append(bound)
+            self._messenger.add_info_message(
+                "Block on {} with {} Power, created correctly.".format(object_name, input_power))
             return bound
         return None
 
@@ -333,7 +401,7 @@ class Icepak(FieldAnalysisIcepak):
 
         Returns
         -------
-        :class: `pyaedt.modules.Boundary.BoundaryObject`
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         Examples
@@ -342,10 +410,10 @@ class Icepak(FieldAnalysisIcepak):
         Create two source boundaries from one box, one on the top face and one on the bottom face.
 
         >>> box = icepak.modeler.primitives.create_box([0, 0, 0], [20, 20, 20], name="SourceBox")
-        >>> source1 = icepak.create_source_power(box.top_face.id, input_power="2W")
+        >>> source1 = icepak.create_source_power(box.top_face_z.id, input_power="2W")
         >>> source1.props["Total Power"]
         '2W'
-        >>> source2 = icepak.create_source_power(box.bottom_face.id,
+        >>> source2 = icepak.create_source_power(box.bottom_face_z.id,
         ...                                      thermal_condtion="Fixed Temperature",
         ...                                      temperature="28cel")
         >>> source2.props["Temperature"]
@@ -394,7 +462,7 @@ class Icepak(FieldAnalysisIcepak):
 
         Returns
         -------
-        :class: `pyaedt.modules.Boundary.BoundaryObject`
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
         Examples
@@ -1095,13 +1163,9 @@ class Icepak(FieldAnalysisIcepak):
         for el in parameter_dict_with_values:
             string += el + "=\'" + parameter_dict_with_values[el] + "\' "
         filename = os.path.join(savedir, filename + ".csv")
-        self.osolution.ExportFieldsSummary(
-                [
-                    "SolutionName:=", sweep_name,
-                    "DesignVariationKey:=", string,
-                    "ExportFileName:=", filename,
-                    "IntrinsicValue:=", ""
-                ])
+        arg = ["SolutionName:=", sweep_name, "DesignVariationKey:=", string, "ExportFileName:=", filename,
+               "IntrinsicValue:=", ""]
+        retry_ntimes(10, self.osolution.ExportFieldsSummary, arg)
         return filename
 
     @aedt_exception_handler
@@ -1334,7 +1398,7 @@ class Icepak(FieldAnalysisIcepak):
 
         Returns
         -------
-        :class: `pyaedt.modules.Boundary.NativeComponentObject`
+        :class:`pyaedt.modules.Boundary.NativeComponentObject`
             NativeComponentObject object.
 
         """

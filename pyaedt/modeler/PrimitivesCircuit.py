@@ -1,4 +1,5 @@
 import random
+import warnings
 from collections import defaultdict
 
 from ..generic.general_methods import aedt_exception_handler, retry_ntimes
@@ -136,7 +137,18 @@ class CircuitComponents(object):
 
     @aedt_exception_handler
     def create_iport(self, name, posx=0.1, posy=0.1, angle=0):
-        """Create a port.
+        """Create an interface port.
+
+        .. deprecated:: 0.4.0
+           Use :func:`Circuit.modeler.components.create_interface_port` instead.
+        """
+        warnings.warn('`create_iport` is deprecated. Use `create_interface_port` instead.',
+                      DeprecationWarning)
+        return self.create_interface_port(name, posx, posy, angle)
+
+    @aedt_exception_handler
+    def create_interface_port(self, name, posx=0.1, posy=0.1, angle=0):
+        """Create an interface port.
 
         Parameters
         ----------
@@ -154,7 +166,7 @@ class CircuitComponents(object):
         type
             Port object.
         str
-           Port name.
+            Port name.
 
         """
         id = self.create_unique_id()
@@ -334,9 +346,9 @@ class CircuitComponents(object):
 
         """
         id = self.create_unique_id()
-        id = self.oeditor.CreateComponent(["NAME:ComponentProps", "Name:=", modelname, "Id:=", str(id)],
-                                ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=",
-                                 False])
+        arg1 = ["NAME:ComponentProps", "Name:=", modelname, "Id:=", str(id)]
+        arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
+        id = retry_ntimes(10, self.oeditor.CreateComponent, arg1, arg2)
         id = int(id.split(";")[1])
         self.add_id_to_component(id)
         return id, self.components[id].composed_name
@@ -380,20 +392,9 @@ class CircuitComponents(object):
             name = self.design_libray + "\\" + component_library + ":" + component_name
         else:
             name = component_name
-        id = self.oeditor.CreateComponent(
-            [
-                "NAME:ComponentProps",
-                "Name:=", name,
-                "Id:=", str(id)
-            ],
-            [
-                "NAME:Attributes",
-                "Page:=", 1,
-                "X:=", xpos,
-                "Y:=", ypos,
-                "Angle:=", angle,
-                "Flip:=", False
-            ])
+        arg1 = ["NAME:ComponentProps", "Name:=", name, "Id:=", str(id)]
+        arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
+        id = retry_ntimes(10, self.oeditor.CreateComponent, arg1, arg2)
         id = int(id.split(";")[1])
         # self.refresh_all_ids()
         self.add_id_to_component(id)

@@ -3,6 +3,8 @@ import shutil
 from distutils.dir_util import copy_tree
 import random
 import string
+from glob import glob
+
 
 def my_location():
     """ """
@@ -109,3 +111,18 @@ class Scratch():
     def __exit__(self, ex_type, ex_value, ex_traceback):
         if ex_type or self._volatile:
             self.remove()
+
+
+def get_json_files(start_folder):
+    """
+    Get the absolute path to all *.json files in start_folder.
+
+    Parameters
+    ----------
+    start_folder, str
+        Path to the folder where the json files are located.
+
+    Returns
+    -------
+    """
+    return [y for x in os.walk(start_folder) for y in glob(os.path.join(x[0], '*.json'))]
