@@ -346,9 +346,9 @@ class CircuitComponents(object):
 
         """
         id = self.create_unique_id()
-        id = self.oeditor.CreateComponent(["NAME:ComponentProps", "Name:=", modelname, "Id:=", str(id)],
-                                ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=",
-                                 False])
+        arg1 = ["NAME:ComponentProps", "Name:=", modelname, "Id:=", str(id)]
+        arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
+        id = retry_ntimes(10, self.oeditor.CreateComponent, arg1, arg2)
         id = int(id.split(";")[1])
         self.add_id_to_component(id)
         return id, self.components[id].composed_name
@@ -392,20 +392,9 @@ class CircuitComponents(object):
             name = self.design_libray + "\\" + component_library + ":" + component_name
         else:
             name = component_name
-        id = self.oeditor.CreateComponent(
-            [
-                "NAME:ComponentProps",
-                "Name:=", name,
-                "Id:=", str(id)
-            ],
-            [
-                "NAME:Attributes",
-                "Page:=", 1,
-                "X:=", xpos,
-                "Y:=", ypos,
-                "Angle:=", angle,
-                "Flip:=", False
-            ])
+        arg1 = ["NAME:ComponentProps", "Name:=", name, "Id:=", str(id)]
+        arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
+        id = retry_ntimes(10, self.oeditor.CreateComponent, arg1, arg2)
         id = int(id.split(";")[1])
         # self.refresh_all_ids()
         self.add_id_to_component(id)

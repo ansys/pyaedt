@@ -46,11 +46,33 @@ class FieldAnalysisSimplorer(Analysis):
         """Setup names."""
         return list(self.oanalysis.GetAllSolutionSetups())
 
-    def __init__(self, application, projectname, designname, solution_type, setup_name=None,
-                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):
+    def __init__(
+        self,
+        application,
+        projectname,
+        designname,
+        solution_type,
+        setup_name=None,
+        specified_version=None,
+        NG=False,
+        AlwaysNew=False,
+        release_on_exit=False,
+        student_version=False,
+    ):
         self.solution_type = solution_type
-        Analysis.__init__(self, application, projectname, designname, solution_type, setup_name,
-                          specified_version, NG, AlwaysNew, release_on_exit, student_version)
+        Analysis.__init__(
+            self,
+            application,
+            projectname,
+            designname,
+            solution_type,
+            setup_name,
+            specified_version,
+            NG,
+            AlwaysNew,
+            release_on_exit,
+            student_version,
+        )
         self._modeler = ModelerSimplorer(self)
         self._post = PostProcessor(self)
 

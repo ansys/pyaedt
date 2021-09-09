@@ -2,6 +2,8 @@
 import shutil
 import os
 import sys
+import zipfile,os.path
+
 from pyaedt import is_ironpython
 
 if is_ironpython:
@@ -167,6 +169,29 @@ def download_sbr():
     return _download_file("sbr", "Cassegrain.aedt")
 
 
+def download_icepak():
+    """Download an example of Icepak Array and return the def path.
+
+    Examples files are downloaded to a persistent cache to avoid
+    re-downloading the same file twice.
+
+    Returns
+    -------
+    str
+        Path to the example file.
+
+    Examples
+    --------
+    Download an example result file and return the path of the file
+
+    >>> from pyaedt import examples
+    >>> path = examples.download_icepak()
+    >>> path
+    'C:/Users/user/AppData/local/temp/pyaedtexamples/Graphic_Card.aedt'
+    """
+
+    return _download_file('icepak', 'Graphics_card.aedt')
+
 def download_touchstone():
     """Download an example of touchstone File and return the def path.
 
@@ -217,3 +242,47 @@ def download_sherlock():
     _download_file("sherlock/SherlockTutorial.aedb", "edb.def")
 
     return os.path.join(EXAMPLES_PATH, "sherlock")
+
+def download_multiparts():
+    """Download an example of 3DComponents Multiparts.
+
+    Examples files are downloaded to a persistent cache to avoid
+    re-downloading the same file twice.
+
+    Returns
+    -------
+    str
+        Path to the example file.
+
+    Examples
+    --------
+    Download an example result file and return the path of the file
+
+    >>> from pyaedt import examples
+    >>> path = examples.download_multiparts()
+    >>> path
+    'C:/Users/user/AppData/local/temp/multiparts/library'
+    """
+    _download_file('multiparts', 'library.zip')
+    dest_folder = os.path.join(EXAMPLES_PATH, "multiparts")
+    unzip(os.path.join(EXAMPLES_PATH, "multiparts", 'library.zip'), dest_folder)
+    return os.path.join(dest_folder,"library")
+
+def unzip(source_filename, dest_dir):
+    with zipfile.ZipFile(source_filename) as zf:
+        zf.extractall(dest_dir)
+        # for member in zf.infolist():
+        #     # Path traversal defense copied from
+        #     # http://hg.python.org/cpython/file/tip/Lib/http/server.py#l789
+        #     words = member.filename.split('/')
+        #     path = dest_dir
+        #     for word in words[:-1]:
+        #         while True:
+        #             drive, word = os.path.splitdrive(word)
+        #             head, word = os.path.split(word)
+        #             if not drive:
+        #                 break
+        #         if word in (os.curdir, os.pardir, ''):
+        #             continue
+        #         path = os.path.join(path, word)
+        #     zf.extract(member, path)

@@ -38,7 +38,7 @@ from pyaedt import Edb
 ###############################################################################
 # Launch EDB
 # ~~~~~~~~~~
-# This example launches the :class: `pyaedt.Edb` class.
+# This example launches the :class:`pyaedt.Edb` class.
 # This example uses EDB 2021.1 and uses SI units.
 
 if os.path.exists(aedt_file):
