@@ -821,7 +821,8 @@ class Primitives3D(Primitives, object):
             return MultiPartComponent.start(self._parent)
 
     @aedt_exception_handler
-    def add_person(self, actor_folder, speed=0.0, global_offset=[0, 0, 0], yaw=0, pitch=0, roll=0, relative_cs_name=None):
+    def add_person(self, actor_folder, speed=0.0, global_offset=[0, 0, 0], yaw=0, pitch=0, roll=0,
+                   relative_cs_name=None, actor_name=None):
         """Add a Walking Person Multipart from 3D Components.
 
         It requires a json file in the folder containing person infos. An example json file is showed here.
@@ -890,7 +891,8 @@ class Primitives3D(Primitives, object):
             Roll Rotation from Global Coordinate System in deg.
         relative_cs_name : str
             Relative CS Name of the actor. ``None`` for Global CS.
-
+        actor_name : str
+            If provided, it overrides the actor name in the Json
         Returns
         -------
         :class:`pyaedt.modeler.MultiPartComponent.Person`
@@ -899,6 +901,8 @@ class Primitives3D(Primitives, object):
         if not self._check_actor_folder(actor_folder):
             return False
         person1 = Person(actor_folder, speed=speed, relative_cs_name=relative_cs_name)
+        if actor_name:
+            person1._name = actor_name
         person1.offset = global_offset
         person1.yaw = self._arg_with_dim(yaw, "deg")
         person1.pitch = self._arg_with_dim(pitch, "deg")
@@ -908,7 +912,7 @@ class Primitives3D(Primitives, object):
         return person1
 
     @aedt_exception_handler
-    def add_vehicle(self, actor_folder, speed=0, global_offset=[0,0,0], yaw=0, pitch=0,roll=0, relative_cs_name=None):
+    def add_vehicle(self, actor_folder, speed=0, global_offset=[0,0,0], yaw=0, pitch=0,roll=0, relative_cs_name=None, actor_name=None):
         """Add a Moving Vehicle Multipart from 3D Components.
 
         It requires a json file in the folder containing vehicle infos. An example json file is showed here.
@@ -973,6 +977,8 @@ class Primitives3D(Primitives, object):
         if not self._check_actor_folder(actor_folder):
             return False
         vehicle = Vehicle(actor_folder, speed=speed, relative_cs_name=relative_cs_name)
+        if actor_name:
+            vehicle._name = actor_name
         vehicle.offset = global_offset
         vehicle.yaw = self._arg_with_dim(yaw, "deg")
         vehicle.pitch = self._arg_with_dim(pitch, "deg")
@@ -983,7 +989,7 @@ class Primitives3D(Primitives, object):
 
     @aedt_exception_handler
     def add_bird(self, actor_folder, speed=0, global_offset=[0, 0, 0], yaw=0, pitch=0,
-                 roll=0, flapping_rate=50, relative_cs_name=None):
+                 roll=0, flapping_rate=50, relative_cs_name=None, actor_name=None):
         """Add a Bird Multipart from 3D Components.
 
         It requires a json file in the folder containing bird infos. An example json file is showed here.
@@ -1067,6 +1073,8 @@ class Primitives3D(Primitives, object):
         if not self._check_actor_folder(actor_folder):
             return False
         bird = Bird(actor_folder, speed=speed, flapping_rate=self._arg_with_dim(flapping_rate,"Hz"), relative_cs_name=relative_cs_name)
+        if actor_name:
+            bird._name = actor_name
         bird.offset = global_offset
         bird.yaw = self._arg_with_dim(yaw, "deg")
         bird.pitch = self._arg_with_dim(pitch, "deg")
@@ -1076,7 +1084,7 @@ class Primitives3D(Primitives, object):
         return bird
 
     @aedt_exception_handler
-    def add_environment(self, env_folder, global_offset=[0, 0, 0], yaw=0, pitch=0, roll=0, relative_cs_name=None):
+    def add_environment(self, env_folder, global_offset=[0, 0, 0], yaw=0, pitch=0, roll=0, relative_cs_name=None, environment_name=None):
         """Add an Environment Multipart Component from Json file.
 
          .. code-block:: json
@@ -1123,6 +1131,8 @@ class Primitives3D(Primitives, object):
         if not self._check_actor_folder(env_folder):
             return False
         environment = Environment(env_folder, relative_cs_name=relative_cs_name)
+        if environment_name:
+            environment._name=environment_name
         environment.offset = global_offset
         environment.yaw = self._arg_with_dim(yaw, "deg")
         environment.pitch = self._arg_with_dim(pitch, "deg")
