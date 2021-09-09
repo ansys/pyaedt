@@ -80,7 +80,7 @@ class FieldAnalysis3DLayout(Analysis):
 
         Returns
         -------
-        :class: `pyaedt.modules.Mesh3DLayout.Mesh`
+        :class:`pyaedt.modules.Mesh3DLayout.Mesh`
         """
         return self._mesh
 
@@ -319,7 +319,7 @@ class FieldAnalysis3DLayout(Analysis):
 
         Returns
         -------
-        :class: `pyaedt.modules.SolveSetup.Setup3DLayout`
+        :class:`pyaedt.modules.SolveSetup.Setup3DLayout`
 
         """
         if setuptype is None:
@@ -349,7 +349,7 @@ class FieldAnalysis3DLayout(Analysis):
 
         Returns
         -------
-        :class: `pyaedt.modules.SolveSetup.Setup3DLayout`
+        :class:`pyaedt.modules.SolveSetup.Setup3DLayout`
             Setup object.
 
         """

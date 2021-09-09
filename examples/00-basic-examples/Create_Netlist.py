@@ -29,7 +29,7 @@ myfile = os.path.join(netlist)
 print(temp_folder)
 
 ###############################################################################
-# Import the main classes needed: :class: `pyaedt.Desktop` and :class: `pyaedt.Circuit`.
+# Import the main classes needed: :class:`pyaedt.Desktop` and :class:`pyaedt.Circuit`.
 
 from pyaedt import Circuit
 from pyaedt import Desktop
@@ -56,7 +56,7 @@ NewThread = True
 ###############################################################################
 # Launch AEDT and Circuit
 # ~~~~~~~~~~~~~~~~~~~~~~~
-# The :class: `pyaedt.Desktop` class initializes AEDT and starts it on a specified version in
+# The :class:`pyaedt.Desktop` class initializes AEDT and starts it on a specified version in
 # a specified graphical mode. The Boolean parameter ``NewThread`` defines whether
 # to create a new instance of AEDT or try to connect to existing instance of it.
 

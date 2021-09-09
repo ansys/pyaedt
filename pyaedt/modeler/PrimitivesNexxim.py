@@ -713,7 +713,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class: `pyaedt.modeler.Object3d.CircuitComponent`
+        :class:`pyaedt.modeler.Object3d.CircuitComponent`
             Object with properties.
 
         """

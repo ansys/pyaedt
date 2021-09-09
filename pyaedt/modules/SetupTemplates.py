@@ -1,5 +1,5 @@
-from ..generic.general_methods import aedt_exception_handler, generate_unique_name
-from ..application.DataHandlers import dict2arg
+from ..generic.general_methods import aedt_exception_handler
+from ..generic.DataHandlers import dict2arg
 from collections import OrderedDict
 
 meshlink = [("ImportMesh", False)]
