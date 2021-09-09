@@ -9,10 +9,11 @@ import os
 from pyaedt import Hfss
 from pyaedt import Desktop
 from pyaedt import generate_unique_name
+
 if os.name == "posix":
-    tmpfold= os.environ["TMPDIR"]
+    tmpfold = os.environ["TMPDIR"]
 else:
-    tmpfold= os.environ["TEMP"]
+    tmpfold = os.environ["TEMP"]
 
 temp_folder = os.path.join(tmpfold, generate_unique_name("Example"))
 if not os.path.exists(temp_folder):
@@ -65,7 +66,7 @@ cs1.update()
 # ----------------------------
 # This command renames the coordinate system.
 
-cs1.rename('newCS')
+cs1.rename("newCS")
 
 ###############################################################################
 # Change the Coordinate System Mode
@@ -95,20 +96,16 @@ cs1.delete()
 # All coordinate system properties can be specified at the creation.
 # Here the axes are specified.
 
-cs2 = hfss.modeler.create_coordinate_system(name='CS2',
-                                            origin=[1, 2, 3.5],
-                                            mode='axis',
-                                            x_pointing=[1, 0, 1], y_pointing=[0, -1, 0])
+cs2 = hfss.modeler.create_coordinate_system(
+    name="CS2", origin=[1, 2, 3.5], mode="axis", x_pointing=[1, 0, 1], y_pointing=[0, -1, 0]
+)
 
 ###############################################################################
 # Create a Coordinate System by Defining Euler Angles
 # ---------------------------------------------------
 # Here Euler angles are specified.
 
-cs3 = hfss.modeler.create_coordinate_system(name='CS3',
-                                            origin=[2, 2, 2],
-                                            mode='zyz',
-                                            phi=10, theta=20, psi=30)
+cs3 = hfss.modeler.create_coordinate_system(name="CS3", origin=[2, 2, 2], mode="zyz", phi=10, theta=20, psi=30)
 
 ###############################################################################
 # Create a Coordinate System by Defining the View
@@ -117,11 +114,7 @@ cs3 = hfss.modeler.create_coordinate_system(name='CS3',
 # Here the ``"iso"`` view is specified.
 # The axes are set automatically.
 
-cs4 = hfss.modeler.create_coordinate_system(name='CS4',
-                                            origin=[1, 0, 0],
-                                            reference_cs='CS3',
-                                            mode='view',
-                                            view='iso')
+cs4 = hfss.modeler.create_coordinate_system(name="CS4", origin=[1, 0, 0], reference_cs="CS3", mode="view", view="iso")
 
 ###############################################################################
 # Create a Coordinate System by Defining the Axis and Angle Rotation
@@ -129,9 +122,7 @@ cs4 = hfss.modeler.create_coordinate_system(name='CS4',
 # When the axis and angle rotation are specified, this data is automatically
 # translated to Euler angles.
 
-cs5 = hfss.modeler.create_coordinate_system(name='CS5',
-                                            mode='axisrotation',
-                                            u=[1, 0, 0], theta=123)
+cs5 = hfss.modeler.create_coordinate_system(name="CS5", mode="axisrotation", u=[1, 0, 0], theta=123)
 
 ###############################################################################
 # Get All Coordinate Systems
@@ -157,10 +148,10 @@ cs_selected.delete()
 # A point coordinate can be translated in respect to any coordinate system.
 
 hfss.modeler.primitives.create_box([-10, -10, -10], [20, 20, 20], "Box1")
-p = hfss.modeler.primitives['Box1'].faces[0].vertices[0].position
-print('Global: ', p)
-p2 = hfss.modeler.global_to_cs(p, 'CS5')
-print('CS5 :', p2)
+p = hfss.modeler.primitives["Box1"].faces[0].vertices[0].position
+print("Global: ", p)
+p2 = hfss.modeler.global_to_cs(p, "CS5")
+print("CS5 :", p2)
 
 ###############################################################################
 # Close AEDT

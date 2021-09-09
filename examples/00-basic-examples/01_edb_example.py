@@ -10,6 +10,7 @@ import shutil
 import os
 import time
 from pyaedt import generate_unique_name, examples
+
 try:
     if os.name == "posix":
         tmpfold = os.environ["TMPDIR"]
@@ -18,13 +19,14 @@ try:
 except:
     tmpfold = os.environ["TEMP"]
 temp_folder = os.path.join(tmpfold, generate_unique_name("Example"))
-if not os.path.exists(temp_folder): os.makedirs(temp_folder)
+if not os.path.exists(temp_folder):
+    os.makedirs(temp_folder)
 example_path = examples.download_aedb()
-targetfolder = os.path.join(temp_folder,'Galileo.aedb')
+targetfolder = os.path.join(temp_folder, "Galileo.aedb")
 if os.path.exists(targetfolder):
     shutil.rmtree(targetfolder)
 shutil.copytree(example_path[:-8], targetfolder)
-targetfile=os.path.join(targetfolder)
+targetfile = os.path.join(targetfolder)
 print(targetfile)
 aedt_file = targetfile[:-4] + "aedt"
 
@@ -39,7 +41,8 @@ from pyaedt import Edb
 # This example launches the :class:`pyaedt.Edb` class.
 # This example uses EDB 2021.1 and uses SI units.
 
-if os.path.exists(aedt_file): os.remove(aedt_file)
+if os.path.exists(aedt_file):
+    os.remove(aedt_file)
 edb = Edb(edbpath=targetfile, edbversion="2021.1")
 
 ###############################################################################
@@ -97,8 +100,7 @@ print(dc_connected_net_list)
 
 VRM = "U3A1"
 OUTPUT_NET = "BST_V1P0_S0"
-powertree_df, component_list_columns, net_group = edb.core_nets.get_powertree(
-    OUTPUT_NET, GROUND_NETS)
+powertree_df, component_list_columns, net_group = edb.core_nets.get_powertree(OUTPUT_NET, GROUND_NETS)
 for el in powertree_df:
     print(el)
 
@@ -144,9 +146,9 @@ edb.core_hfss.create_coax_port_on_component("U2A5", "V1P0_S0")
 # THis example edits the stackup and the material. You can change stackup
 # properties with assignment. Materials can be created and assigned to layers.
 
-edb.core_stackup.stackup_layers.layers['TOP'].thickness = "75um"
+edb.core_stackup.stackup_layers.layers["TOP"].thickness = "75um"
 edb.core_stackup.create_debye_material("My_Debye", 5, 3, 0.02, 0.05, 1e5, 1e9)
-edb.core_stackup.stackup_layers.layers['UNNAMED_002'].material_name = "My_Debye"
+edb.core_stackup.stackup_layers.layers["UNNAMED_002"].material_name = "My_Debye"
 
 ###############################################################################
 # Create a Circuit Port for SIwave Simulation
@@ -162,10 +164,10 @@ edb.core_siwave.add_siwave_ac_analysis()
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This example creates a Voltage Source and then setup a DCIR Analysis.
 
-edb.core_siwave.create_voltage_source_on_net("U2A5","V1P5_S3","U2A5","GND",3.3,0,"V1")
+edb.core_siwave.create_voltage_source_on_net("U2A5", "V1P5_S3", "U2A5", "GND", 3.3, 0, "V1")
 settings = edb.core_siwave.get_siwave_dc_setup_template()
 settings.accuracy_level = 0
-settings.use_dc_custom_settings  = True
+settings.use_dc_custom_settings = True
 settings.name = "myDCIR_4"
 # settings.pos_term_to_ground = "I1"
 settings.neg_term_to_ground = "V1"

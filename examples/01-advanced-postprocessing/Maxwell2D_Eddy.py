@@ -29,8 +29,7 @@ M3D.modeler.model_units = "mm"
 # ~~~~~~~~~~~~~~~~
 # This example creates a box that is to be used in the simulation.
 
-plate = M3D.modeler.primitives.create_box(
-    [0, 0, 0], [294, 294, 19], name="Plate", matname="aluminum")
+plate = M3D.modeler.primitives.create_box([0, 0, 0], [294, 294, 19], name="Plate", matname="aluminum")
 hole = M3D.modeler.primitives.create_box([18, 18, 0], [108, 108, 19], name="Hole")
 
 ###############################################################################
@@ -46,7 +45,7 @@ adaptive_frequency = "200Hz"
 p_plate = M3D.post.volumetric_loss("Plate")
 
 project_dir = M3D.generate_temp_project_directory("Example")
-project_name = os.path.join(project_dir, 'test.aedt')
+project_name = os.path.join(project_dir, "test.aedt")
 # Unable to save file by passing the file name or directory as an argument.
 M3D.save_project(project_name)
 
@@ -58,9 +57,9 @@ M3D.save_project(project_name)
 center_hole = M3D.modeler.Position(119, 25, 49)
 center_coil = M3D.modeler.Position(94, 0, 49)
 coil_hole = M3D.modeler.primitives.create_box(
-    center_hole, [150, 150, 100], name="Coil_Hole")  # All positions in model units
-coil = M3D.modeler.primitives.create_box(
-    center_coil, [200, 200, 100], name="Coil")  # All positions in model units
+    center_hole, [150, 150, 100], name="Coil_Hole"
+)  # All positions in model units
+coil = M3D.modeler.primitives.create_box(center_coil, [200, 200, 100], name="Coil")  # All positions in model units
 M3D.modeler.subtract([coil], [coil_hole])
 coil.material_name = "copper"
 coil.solve_inside = True
@@ -95,7 +94,7 @@ M3D.modeler.create_air_region(*[300] * 6)
 # ~~~~~~~~~~~~~~~~
 # This command sets the eddy effects.
 
-M3D.eddy_effects_on(['Plate'])
+M3D.eddy_effects_on(["Plate"])
 
 ###############################################################################
 # Add an Eddy Current Setup
@@ -114,7 +113,7 @@ Setup.props["StopValue"] = "1e-06GHz"
 Setup.props["StepSize"] = "1e-07GHz"
 
 Setup.update()
-Setup.enable_expression_cache([p_plate, p_coil], "Fields", "Phase=\'0deg\' ", True)
+Setup.enable_expression_cache([p_plate, p_coil], "Fields", "Phase='0deg' ", True)
 
 ###############################################################################
 # Solve the Project
@@ -139,7 +138,7 @@ M3D.post.report_types
 
 fig, ax = plt.subplots(figsize=(20, 10))
 
-ax.set(xlabel='Frequency (Hz)', ylabel='Solid Losses (W)', title='Losses Chart')
+ax.set(xlabel="Frequency (Hz)", ylabel="Solid Losses (W)", title="Losses Chart")
 ax.grid()
 mag_data = np.array(val.data_magnitude())
 freq_data = np.array([i * 1e9 for i in val.sweeps["Freq"]])

@@ -7,7 +7,7 @@ sys.tracebacklimit = 0
 my_path = pathlib.Path(__file__).parent.resolve()
 
 errors = set()
-error_file = os.path.join(my_path, 'build_errors.txt')
+error_file = os.path.join(my_path, "build_errors.txt")
 if os.path.isfile(error_file):
     with open(error_file) as fid:
         group = []
@@ -16,7 +16,7 @@ if os.path.isfile(error_file):
             if line:
                 group.append(line)
             else:
-                errors.add('\n'.join(group))
+                errors.add("\n".join(group))
                 group = []
 
     for error in list(errors):
@@ -26,6 +26,6 @@ if os.path.isfile(error_file):
     # There should be no errors here since sphinx will have exited
     print()
     if errors:
-        raise Exception(f'Sphinx reported unique {len(errors)} warnings\n\n')
+        raise Exception(f"Sphinx reported unique {len(errors)} warnings\n\n")
 
-print(f'Sphinx Reported no warnings\n\n')
+print(f"Sphinx Reported no warnings\n\n")
