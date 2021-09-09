@@ -1326,8 +1326,10 @@ class GeometryModeler(Modeler, object):
             excitation for each mode.
 
         """
-        list_names = list(self._parent.oboundary.GetExcitations())
-        del list_names[1::2]
+        list_names = []
+        if "GetExcitations" in dir(self._parent.oboundary):
+            list_names = list(self._parent.oboundary.GetExcitations())
+            del list_names[1::2]
         return list_names
 
     @aedt_exception_handler
