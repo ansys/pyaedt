@@ -9,7 +9,8 @@ from .modeler.GeometryOperators import GeometryOperators
 from .modules.Boundary import BoundaryObject, NativeComponentObject
 from .generic.general_methods import generate_unique_name, aedt_exception_handler
 from collections import OrderedDict
-from .modeler.MultiPartComponent import Radar
+from .modeler.Actors import Radar
+
 
 class Hfss(FieldAnalysis3D, object):
     """Provides the HFSS application interface.
@@ -3293,7 +3294,7 @@ class Hfss(FieldAnalysis3D, object):
             Relative CS Name to which Link the Radar. ``None`` for Global CS.
         Returns
         -------
-        :class:`pyaedt.modeler.MultiPartComponent.Radar`
+        :class:`pyaedt.modeler.Actors.Radar`
         """
         self.modeler.primitives._initialize_multipart()
         if self.solution_type != "SBR+":

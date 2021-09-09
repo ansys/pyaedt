@@ -109,4 +109,4 @@ app.validate_simple()
 
 #app.analyze_setup(sweep.name)
 app.save_project()
-app.release_desktop(True, True)
+app.release_desktop(close_projects=True, close_desktop=True)
