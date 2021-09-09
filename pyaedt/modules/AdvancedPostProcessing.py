@@ -766,7 +766,12 @@ class PostProcessor(Post):
                 #         pass
                 #     p.add_mesh(mesh, show_scalar_bar=False, opacity=opacity, cmap=[model_color], name="3D Model",
                 #                show_edges=False, edge_color=model_color)
-                # p.add_slider_widget(create_object_mesh, [0,1], style='modern', value=0.75,pointa=[0.81,0.98], pointb=[0.95,0.98],title="Opacity")
+                # p.add_slider_widget(
+                #   create_object_mesh,
+                #   [0,1], style='modern',
+                #   value=0.75,pointa=[0.81,0.98],
+                #   pointb=[0.95,0.98],title="Opacity"
+                # )
         filename = os.path.splitext(aedtplt_files[0])[0]
         print(filename)
         surfs = []
@@ -1220,7 +1225,8 @@ class PostProcessor(Post):
          .. note::
             The PyVista module rebuilds the mesh and the overlap fields on the mesh.
 
-        This method creates the plot and exports it. It is an alternative to the method :func:`animate_fields_from_aedtplt`,
+        This method creates the plot and exports it.
+        It is an alternative to the method :func:`animate_fields_from_aedtplt`,
         which uses an existing plot.
 
         Parameters

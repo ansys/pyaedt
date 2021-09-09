@@ -685,7 +685,9 @@ class Components(object):
 
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder")
-        >>> edbapp.core_components.set_component_rlc("R1", res_value=50, ind_value=1e-9, cap_value=1e-12, isparallel=False)
+        >>> edbapp.core_components.set_component_rlc(
+        ...     "R1", res_value=50, ind_value=1e-9, cap_value=1e-12, isparallel=False
+        ... )
 
         """
         edbComponent = self.get_component_by_name(componentname)
@@ -719,7 +721,8 @@ class Components(object):
                 return False
         else:
             self._messenger.add_warning_message(
-                "Component {} has not been assigned because either it is not present in the layout or it contains a number of pins not equal to 2".format(
+                "Component {} has not been assigned because either it is not present in the layout "
+                "or it contains a number of pins not equal to 2".format(
                     componentname
                 )
             )

@@ -36,10 +36,12 @@ class Circuit(FieldAnalysisCircuit, object):
         nothing is used.
     specified_version: str, optional
         Version of AEDT to use. The default is ``None``, in which case
-        the active version or latest installed version is  used. This parameter is ignored when Script is launched within AEDT.
+        the active version or latest installed version is  used.
+        This parameter is ignored when Script is launched within AEDT.
     NG : bool, optional
         Whether to run AEDT in the non-graphical mode. The default
-        is``False``, in which case AEDT is launched in the graphical mode. This parameter is ignored when Script is launched within AEDT.
+        is``False``, in which case AEDT is launched in the graphical mode.
+        This parameter is ignored when Script is launched within AEDT.
     AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
@@ -47,7 +49,8 @@ class Circuit(FieldAnalysisCircuit, object):
     release_on_exit : bool, optional
         Whether to release AEDT on exit.
     student_version : bool, optional
-        Whether to open the AEDT student version. The default is ``False``. This parameter is ignored when Script is launched within AEDT.
+        Whether to open the AEDT student version. The default is ``False``.
+        This parameter is ignored when Script is launched within AEDT.
 
     Examples
     --------
@@ -1060,7 +1063,10 @@ class Circuit(FieldAnalysisCircuit, object):
                         "NumPins:=",
                         2,
                         "Netlist:=",
-                        "V@ID %0 %1 *DC(DC=@DC) SIN(?VO(@VO) ?VA(@VA) ?FREQ(@FREQ) ?TD(@TD) ?ALPHA(@ALPHA) ?THETA(@THETA)) *TONE(TONE=@TONE) *ACMAG(AC @ACMAG @ACPHASE)",
+                        (
+                            "V@ID %0 %1 *DC(DC=@DC) SIN(?VO(@VO) ?VA(@VA) ?FREQ(@FREQ) ?TD(@TD) ?ALPHA(@ALPHA) "
+                            "?THETA(@THETA)) *TONE(TONE=@TONE) *ACMAG(AC @ACMAG @ACPHASE)"
+                        ),
                         "CompName:=",
                         "Nexxim Circuit Elements\\Independent Sources:V_SIN",
                         "FDSFileName:=",
@@ -1091,7 +1097,11 @@ class Circuit(FieldAnalysisCircuit, object):
                             [
                                 "TONE",
                                 "OD",
-                                "Frequency (Hz) to use for harmonic balance analysis, should be a submultiple of (or equal to) the driving frequency and should also be included in the HB analysis setup",
+                                (
+                                    "Frequency (Hz) to use for harmonic balance analysis, should be a submultiple of "
+                                    "(or equal to) the driving frequency and should also be included in the "
+                                    "HB analysis setup"
+                                ),
                                 settings[9],
                                 0,
                             ],
@@ -1174,7 +1184,10 @@ class Circuit(FieldAnalysisCircuit, object):
                         "NumPins:=",
                         2,
                         "Netlist:=",
-                        "I@ID %0 %1 *DC(DC=@DC) SIN(?VO(@VO) ?VA(@VA) ?FREQ(@FREQ) ?TD(@TD) ?ALPHA(@ALPHA) ?THETA(@THETA) *M(M=@M)) *TONE(TONE=@TONE) *ACMAG(AC @ACMAG @ACPHASE)",
+                        (
+                            "I@ID %0 %1 *DC(DC=@DC) SIN(?VO(@VO) ?VA(@VA) ?FREQ(@FREQ) ?TD(@TD) ?ALPHA(@ALPHA) "
+                            "?THETA(@THETA) *M(M=@M)) *TONE(TONE=@TONE) *ACMAG(AC @ACMAG @ACPHASE)"
+                        ),
                         "CompName:=",
                         "Nexxim Circuit Elements\\Independent Sources:I_SIN",
                         "FDSFileName:=",
@@ -1207,7 +1220,9 @@ class Circuit(FieldAnalysisCircuit, object):
                             [
                                 "TONE",
                                 "OD",
-                                "Frequency (Hz) to use for harmonic balance analysis, should be a submultiple of (or equal to) the driving frequency and should also be included in the HB analysis setup",
+                                "Frequency (Hz) to use for harmonic balance analysis, should be a submultiple of "
+                                "(or equal to) the driving frequency and should also be included in the "
+                                "HB analysis setup",
                                 settings[10],
                                 0,
                             ],
@@ -1289,7 +1304,10 @@ class Circuit(FieldAnalysisCircuit, object):
                         "NumPins:=",
                         2,
                         "Netlist:=",
-                        "V@ID %0 %1 *DC(DC=@DC) POWER SIN(?VO(@VO) ?POWER(@POWER) ?FREQ(@FREQ) ?TD(@TD) ?ALPHA(@ALPHA) ?THETA(@THETA)) *TONE(TONE=@TONE) *ACMAG(AC @ACMAG @ACPHASE)",
+                        (
+                            "V@ID %0 %1 *DC(DC=@DC) POWER SIN(?VO(@VO) ?POWER(@POWER) ?FREQ(@FREQ) ?TD(@TD) "
+                            "?ALPHA(@ALPHA) ?THETA(@THETA)) *TONE(TONE=@TONE) *ACMAG(AC @ACMAG @ACPHASE)"
+                        ),
                         "CompName:=",
                         "Nexxim Circuit Elements\\Independent Sources:P_SIN",
                         "FDSFileName:=",
@@ -1320,7 +1338,11 @@ class Circuit(FieldAnalysisCircuit, object):
                             [
                                 "TONE",
                                 "OD",
-                                "Frequency (Hz) to use for harmonic balance analysis, should be a submultiple of (or equal to) the driving frequency and should also be included in the HB analysis setup",
+                                (
+                                    "Frequency (Hz) to use for harmonic balance analysis, should be a submultiple of "
+                                    "(or equal to) the driving frequency and should also be included in the "
+                                    "HB analysis setup"
+                                ),
                                 settings[9],
                                 0,
                             ],

@@ -2,7 +2,7 @@
 import shutil
 import os
 import sys
-import zipfile,os.path
+import zipfile, os.path
 
 from pyaedt import is_ironpython
 
@@ -190,7 +190,8 @@ def download_icepak():
     'C:/Users/user/AppData/local/temp/pyaedtexamples/Graphic_Card.aedt'
     """
 
-    return _download_file('icepak', 'Graphics_card.aedt')
+    return _download_file("icepak", "Graphics_card.aedt")
+
 
 def download_touchstone():
     """Download an example of touchstone File and return the def path.
@@ -243,6 +244,7 @@ def download_sherlock():
 
     return os.path.join(EXAMPLES_PATH, "sherlock")
 
+
 def download_multiparts():
     """Download an example of 3DComponents Multiparts.
 
@@ -263,10 +265,11 @@ def download_multiparts():
     >>> path
     'C:/Users/user/AppData/local/temp/multiparts/library'
     """
-    _download_file('multiparts', 'library.zip')
+    _download_file("multiparts", "library.zip")
     dest_folder = os.path.join(EXAMPLES_PATH, "multiparts")
-    unzip(os.path.join(EXAMPLES_PATH, "multiparts", 'library.zip'), dest_folder)
-    return os.path.join(dest_folder,"library")
+    unzip(os.path.join(EXAMPLES_PATH, "multiparts", "library.zip"), dest_folder)
+    return os.path.join(dest_folder, "library")
+
 
 def unzip(source_filename, dest_dir):
     with zipfile.ZipFile(source_filename) as zf:

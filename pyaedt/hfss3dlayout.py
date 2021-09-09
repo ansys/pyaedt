@@ -738,7 +738,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         use_y_matrix : bool, Optional
             Set to ``True`` if the interpolation algorithm has to use YMatrix.
         interpolation_algorithm : str, optional
-                Defines which interpolation algorithm to use. Default is ``"auto"``. Options are ``"auto"``, ``"lin"``, ``"shadH"``, ``"shadNH"``
+                Defines which interpolation algorithm to use. Default is ``"auto"``.
+                Options are ``"auto"``, ``"lin"``, ``"shadH"``, ``"shadNH"``
 
         Returns
         -------
@@ -749,7 +750,17 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         --------
         >>> from pyaedt import Hfss3dLayout
         >>> h3d = Hfss3dLayout()
-        >>> h3d.edit_cosim_options(simulate_missing_solution=True, align_ports=True, renormalize_ports=True,renorm_impedance=50, setup_override_name=None, sweep_override_name=None, use_interpolating_sweep=False, use_y_matrix=True, interpolation_algorithm="auto")
+        >>> h3d.edit_cosim_options(
+        ...     simulate_missing_solution=True,
+        ...     align_ports=True,
+        ...     renormalize_ports=True,
+        ...     renorm_impedance=50,
+        ...     setup_override_name=None,
+        ...     sweep_override_name=None,
+        ...     use_interpolating_sweep=False,
+        ...     use_y_matrix=True,
+        ...     interpolation_algorithm="auto"
+        ... )
 
         """
         if interpolation_algorithm not in ["auto", "lin", "shadH", "shadNH"]:

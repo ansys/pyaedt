@@ -680,7 +680,7 @@ class Edb(object):
         self._db.Close()
 
         self._clean_variables()
-        props = [a for a in dir(self) if not a.startswith('__')]
+        props = [a for a in dir(self) if not a.startswith("__")]
 
         for a in props:
             self.__dict__.pop(a, None)
@@ -860,7 +860,8 @@ class Edb(object):
         # Create new cutout cell/design
         _cutout = self.active_cell.CutOut(net_signals, _netsClip, _poly)
 
-        # The analysis setup(s) do not come over with the clipped design copy, so add the analysis setup(s) from the original here
+        # The analysis setup(s) do not come over with the clipped design copy,
+        # so add the analysis setup(s) from the original here
         for _setup in self.active_cell.SimulationSetups:
             # Empty string '' if coming from setup copy and don't set explicitly.
             _setup_name = _setup.GetName()
@@ -879,9 +880,9 @@ class Edb(object):
             _dbCells.append(self.active_cell)
 
         if output_aedb_path:
-            db2 = self.edb.Database.Create(
-                output_aedb_path
-            )  # Function input is the name of a .aedb folder inside which the edb.def will be created. Ex: 'D:/backedup/EDB/TEST PROJECTS/CUTOUT/N1.aedb'
+            db2 = self.edb.Database.Create(output_aedb_path)
+            # Function input is the name of a .aedb folder inside which the edb.def will be created.
+            # Ex: 'D:/backedup/EDB/TEST PROJECTS/CUTOUT/N1.aedb'
             _dbCells = convert_py_list_to_net_list(_dbCells)
             db2.CopyCells(_dbCells)  # Copies cutout cell/design to db2 project
             _success = db2.Save()

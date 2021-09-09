@@ -5,6 +5,7 @@ import sys
 from ..generic.general_methods import aedt_exception_handler
 from .modeler_constants import CoordinateSystemPlane, CoordinateSystemAxis, SweepDraftType
 
+
 class GeometryOperators(object):
     """Manages geometry operators."""
 
@@ -687,7 +688,8 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def pointing_to_axis(x_pointing, y_pointing):
-        """Retrieve the axes from the HFSS X axis and Y pointing axis as per the definition of the AEDT interface coordinate system.
+        """Retrieve the axes from the HFSS X axis and Y pointing axis as per
+        the definition of the AEDT interface coordinate system.
 
         Parameters
         ----------
@@ -1266,12 +1268,12 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def get_numeric(s):
-        """ Convert a string to a numeric value. Discard the suffix."""
+        """Convert a string to a numeric value. Discard the suffix."""
         if type(s) == str:
-            if s == 'Global':
+            if s == "Global":
                 return 0.0
             else:
-                return float(''.join(c for c in s if c.isdigit() or c == '.'))
+                return float("".join(c for c in s if c.isdigit() or c == "."))
         elif s is None:
             return 0.0
         else:

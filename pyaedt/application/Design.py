@@ -2652,9 +2652,10 @@ class Design(object):
         string taking into account all existing design properties and project variables, including
         dependent (non-sweep) properties.
 
-        This is needed because the standard method COM function ``GetVariationVariableValue`` does not work for obtaining
-        values of dependent (non-sweep variables). Using the new beta feature object-oriented
-        scripting model could make this redundant in future releases.
+        This is needed because the standard method COM function ``GetVariationVariableValue``
+        does not work for obtaining values of dependent (non-sweep variables).
+        Using the new beta feature object-oriented scripting model could make this redundant in
+        future releases.
 
         Parameters
         ----------

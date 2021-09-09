@@ -8,6 +8,7 @@ is_ironpython = "IronPython" in sys.version or ".NETFramework" in sys.version
 _pythonver = sys.version_info[0]
 try:
     import ScriptEnv
+
     ScriptEnv.Initialize("Ansoft.ElectronicsDesktop")
     inside_desktop = True
 except:

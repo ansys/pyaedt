@@ -462,7 +462,8 @@ class Desktop:
                         [os.path.join(base_path, "ansysedtsv.exe")], creationflags=DETACHED_PROCESS
                     ).pid
                 if NG or AlwaysNew or not processID:
-                    # Force new object if no non-graphical instance is running or if there is not an already existing process.
+                    # Force new object if no non-graphical instance is running or if there is not an
+                    # already existing process.
                     App = StandalonePyScriptWrapper.CreateObjectNew(NG)
                 else:
                     App = StandalonePyScriptWrapper.CreateObject(version)
@@ -549,7 +550,10 @@ class Desktop:
         logger.info(info_msg4)
 
         if _com == "pywin32" and (AlwaysNew or NG):
-            info_msg5 = "The ``AlwaysNew`` or ``NG`` option is not available for a pywin32 connection only. Install Python.NET to support these options."
+            info_msg5 = (
+                "The ``AlwaysNew`` or ``NG`` option is not available for a pywin32 connection only."
+                " Install Python.NET to support these options."
+            )
             self._main.oMessenger.add_info_message(info_msg5, "Global")
         elif _com == "ironpython":
             dll_path = os.path.join(base_path, "common", "IronPython", "dlls")

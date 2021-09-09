@@ -1,7 +1,8 @@
 """
 This module contains the `Siwave` class.
 
-The `Siwave` module can be initialized as standalone before launching an app or automatically initialized by an app to the latest installed AEDT version.
+The `Siwave` module can be initialized as standalone before launching an app or
+automatically initialized by an app to the latest installed AEDT version.
 
 """
 from __future__ import absolute_import
@@ -110,9 +111,9 @@ class Siwave:
             if _com == "pythonnet":
                 self._main.oSiwave = System.Activator.CreateInstance(System.Type.GetTypeFromProgID(version))
 
-            elif (
-                _com == "pythonnet_v3"
-            ):  # TODO check if possible to use pythonnet. at the moment the tool open AEDt but doesn't return the wrapper of oApp
+            elif (_com == "pythonnet_v3"):
+                # TODO check if possible to use pythonnet. at the moment the tool open AEDt
+                # but doesn't return the wrapper of oApp
                 print("Launching AEDT with Module win32com")
 
                 self._main.oSiwave = win32com.client.Dispatch("Siwave.Application.2021.1")

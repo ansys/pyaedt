@@ -40,10 +40,12 @@ class Icepak(FieldAnalysisIcepak):
         nothing is used.
     specified_version: str, optional
         Version of AEDT to use. The default is ``None``, in which case
-        the active version or latest installed version is  used. This parameter is ignored when Script is launched within AEDT.
+        the active version or latest installed version is  used.
+        This parameter is ignored when Script is launched within AEDT.
     NG : bool, optional
         Whether to launch AEDT in the non-graphical mode. The default
-        is ``False``, in which case AEDT is launched in the graphical mode.   This parameter is ignored when Script is launched within AEDT.
+        is ``False``, in which case AEDT is launched in the graphical mode.
+        This parameter is ignored when Script is launched within AEDT.
     AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
@@ -51,7 +53,8 @@ class Icepak(FieldAnalysisIcepak):
     release_on_exit : bool, optional
         Whether to release AEDT on exit.
     student_version : bool, optional
-        Whether to open the AEDT student version. The default is ``False``. This parameter is ignored when Script is launched within AEDT.
+        Whether to open the AEDT student version. The default is ``False``.
+        This parameter is ignored when Script is launched within AEDT.
 
     Examples
     --------
@@ -958,7 +961,6 @@ class Icepak(FieldAnalysisIcepak):
         # ipk['HeightDirection'] = 'Z'
         self["Tolerance"] = self.modeler.primitives._arg_with_dim(tolerance)
 
-        # self.modeler.primitives.create_box([0, 0, '-HSBaseThick'], ['HSWidth', 'HSHeight', 'FinHeight+HSBaseThick'], "Outline")
         self.modeler.primitives.create_box(
             ["-HSWidth/200", "-HSHeight/200", "-HSBaseThick"],
             ["HSWidth*1.01", "HSHeight*1.01", "HSBaseThick+Tolerance"],
@@ -1267,7 +1269,8 @@ class Icepak(FieldAnalysisIcepak):
         filename : str, optional
             Name of the CSV file. The default is ``None``.
         sweep_name : str, optional
-            Name of the setup and name of the sweep. For example: ``"IcepakSetup1 : SteatyState"``. The default is ``None``.
+            Name of the setup and name of the sweep. For example: ``"IcepakSetup1 : SteatyState"``.
+            The default is ``None``.
         parameter_dict_with_values : dict, optional
             Dictionary of parameters defined for the specific setup with values. The default is ``{}``.
 
@@ -1333,7 +1336,8 @@ class Icepak(FieldAnalysisIcepak):
         filename :  str, optional
             Name of the CSV file. The default is ``None``.
         sweep_name :
-            Name of the setup and name of the sweep. For example: ``"IcepakSetup1 : SteatyState"``. The default is ``None``.
+            Name of the setup and name of the sweep. For example: ``"IcepakSetup1 : SteatyState"``.
+            The default is ``None``.
         parameter_dict_with_values : dict, optional
             Dictionary of parameters defined for the specific setup with values. The default is ``{}``
 
