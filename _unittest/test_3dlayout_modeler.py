@@ -121,7 +121,7 @@ class TestClass:
         s1.update_stackup_layer()
 
     def test_03_create_circle(self):
-        n1 = self.aedtapp.modeler.primitives.create_circle("Top", 0, 5, 80, "mycircle")
+        n1 = self.aedtapp.modeler.primitives.create_circle("Top", 0, 5, 40, "mycircle")
         assert n1 == "mycircle"
 
     def test_04_create_create_rectangle(self):
@@ -209,8 +209,8 @@ class TestClass:
         assert setup3.enable()
         sweep = setup3.add_sweep()
         assert sweep
-        assert sweep.change_range("LinearStep", "1Hz", "10GHz", "100MHz")
-        assert sweep.add_subrange("LinearCount", "11GHz", "20GHz", 201)
+        assert sweep.change_range("LinearStep", "1Hz", "1GHz", "100MHz")
+        assert sweep.add_subrange("LinearCount", "1GHz", "1.5GHz", 21)
 
     def test_17_get_setup(self):
         setup4 = self.aedtapp.get_setup(self.aedtapp.existing_analysis_setups[0])

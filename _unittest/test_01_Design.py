@@ -209,8 +209,6 @@ class TestClass:
         assert self.aedtapp.archive_project(aedtz_proj)
         assert os.path.exists(aedtz_proj)
 
-    """
-    def test_01_close_project(self):
-        self.aedtapp.close_project()
-        pass
-    """
+    def test_23_autosave(self):
+        assert self.aedtapp.autosave_enable()
+        assert self.aedtapp.autosave_disable()

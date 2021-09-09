@@ -77,11 +77,32 @@ class Mechanical(FieldAnalysis3D, object):
 
     """
 
-    def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
-                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):
+    def __init__(
+        self,
+        projectname=None,
+        designname=None,
+        solution_type=None,
+        setup_name=None,
+        specified_version=None,
+        NG=False,
+        AlwaysNew=False,
+        release_on_exit=False,
+        student_version=False,
+    ):
 
-        FieldAnalysis3D.__init__(self, "Mechanical", projectname, designname, solution_type, setup_name,
-                                 specified_version, NG, AlwaysNew, release_on_exit, student_version)
+        FieldAnalysis3D.__init__(
+            self,
+            "Mechanical",
+            projectname,
+            designname,
+            solution_type,
+            setup_name,
+            specified_version,
+            NG,
+            AlwaysNew,
+            release_on_exit,
+            student_version,
+        )
 
     def __enter__(self):
         return self
@@ -92,8 +113,17 @@ class Mechanical(FieldAnalysis3D, object):
             exception_to_desktop(self, ex_value, ex_traceback)
 
     @aedt_exception_handler
-    def assign_em_losses(self, designname="HFSSDesign1", setupname="Setup1", sweepname="LastAdaptive", map_frequency=None,
-                         surface_objects=[], source_project_name=None, paramlist=[], object_list=[]):
+    def assign_em_losses(
+        self,
+        designname="HFSSDesign1",
+        setupname="Setup1",
+        sweepname="LastAdaptive",
+        map_frequency=None,
+        surface_objects=[],
+        source_project_name=None,
+        paramlist=[],
+        object_list=[],
+    ):
         """Map EM losses to a Mechanical design.
 
         Parameters
@@ -147,27 +177,44 @@ class Mechanical(FieldAnalysis3D, object):
             argparam[el] = self.available_variations.nominal_w_values_dict[el]
 
         for el in paramlist:
-            argparam[el]=el
+            argparam[el] = el
 
         props = OrderedDict(
-            {"Objects": allObjects, "allObjects": False, "Project": projname, "projname": "ElectronicsDesktop",
-             "Design": designname, "Soln": setupname + " : " + sweepname, "Params": argparam,
-             "ForceSourceToSolve": True, "PreservePartnerSoln": True, "PathRelativeTo": "TargetProject"})
+            {
+                "Objects": allObjects,
+                "allObjects": False,
+                "Project": projname,
+                "projname": "ElectronicsDesktop",
+                "Design": designname,
+                "Soln": setupname + " : " + sweepname,
+                "Params": argparam,
+                "ForceSourceToSolve": True,
+                "PreservePartnerSoln": True,
+                "PathRelativeTo": "TargetProject",
+            }
+        )
         if intr:
-            props["Intrinsics"]= intr
-            props["SurfaceOnly"]= surfaces
+            props["Intrinsics"] = intr
+            props["SurfaceOnly"] = surfaces
 
         name = generate_unique_name("EMLoss")
         bound = BoundaryObject(self, name, props, "EMLoss")
         if bound.create():
             self.boundaries.append(bound)
-            self._messenger.add_info_message('EM losses mapped from design {}.'.format(designname))
+            self._messenger.add_info_message("EM losses mapped from design {}.".format(designname))
             return bound
         return False
 
     @aedt_exception_handler
-    def assign_thermal_map(self, object_list, designname="IcepakDesign1", setupname="Setup1", sweepname="SteadyState",
-                           source_project_name=None, paramlist=[]):
+    def assign_thermal_map(
+        self,
+        object_list,
+        designname="IcepakDesign1",
+        setupname="Setup1",
+        sweepname="SteadyState",
+        source_project_name=None,
+        paramlist=[],
+    ):
         """Map thermal losses to a Mechanical design.
 
         .. note::
@@ -191,7 +238,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class: `aedt.modules.Boundary.Boundary object`
+        :class:`aedt.modules.Boundary.Boundary object`
             Boundary object.
         """
 
@@ -219,23 +266,33 @@ class Mechanical(FieldAnalysis3D, object):
             argparam[el] = el
 
         props = OrderedDict(
-            {"Objects": allObjects, "Uniform": False, "Project": projname, "Product": "ElectronicsDesktop",
-             "Design": designname, "Soln": setupname + " : " + sweepname, "Params": argparam,
-             "ForceSourceToSolve": True, "PreservePartnerSoln": True, "PathRelativeTo": "TargetProject"})
+            {
+                "Objects": allObjects,
+                "Uniform": False,
+                "Project": projname,
+                "Product": "ElectronicsDesktop",
+                "Design": designname,
+                "Soln": setupname + " : " + sweepname,
+                "Params": argparam,
+                "ForceSourceToSolve": True,
+                "PreservePartnerSoln": True,
+                "PathRelativeTo": "TargetProject",
+            }
+        )
 
         name = generate_unique_name("ThermalLink")
         bound = BoundaryObject(self, name, props, "ThermalCondition")
         if bound.create():
             self.boundaries.append(bound)
-            self._messenger.add_info_message(
-                'Thermal conditions are mapped from design {}.'.format(designname))
+            self._messenger.add_info_message("Thermal conditions are mapped from design {}.".format(designname))
             return bound
 
         return True
 
     @aedt_exception_handler
-    def assign_uniform_convection(self, objects_list, convection_value, convection_unit="w_per_m2kel",
-                                  temperature="AmbientTemp", boundary_name=""):
+    def assign_uniform_convection(
+        self, objects_list, convection_value, convection_unit="w_per_m2kel", temperature="AmbientTemp", boundary_name=""
+    ):
         """Assign a uniform convection to the face list.
 
         Parameters
@@ -253,7 +310,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class: `aedt.modules.Boundary.Boundary object`
+        :class:`aedt.modules.Boundary.Boundary object`
             Boundary object.
 
         """
@@ -274,7 +331,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         if not boundary_name:
             boundary_name = generate_unique_name("Convection")
-        bound = BoundaryObject(self, boundary_name, props, 'Convection')
+        bound = BoundaryObject(self, boundary_name, props, "Convection")
         if bound.create():
             self.boundaries.append(bound)
             return bound
@@ -298,7 +355,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class: `aedt.modules.Boundary.Boundary object`
+        :class:`aedt.modules.Boundary.Boundary object`
             Boundary object.
 
         """
@@ -317,14 +374,14 @@ class Mechanical(FieldAnalysis3D, object):
 
         if not boundary_name:
             boundary_name = generate_unique_name("Temp")
-        bound = BoundaryObject(self, boundary_name, props, 'Temperature')
+        bound = BoundaryObject(self, boundary_name, props, "Temperature")
         if bound.create():
             self.boundaries.append(bound)
             return bound
         return False
 
     @aedt_exception_handler
-    def assign_frictionless_support(self, objects_list,  boundary_name=""):
+    def assign_frictionless_support(self, objects_list, boundary_name=""):
         """Assign a Mechanical frictionless support.
 
         .. note::
@@ -339,14 +396,13 @@ class Mechanical(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class: `aedt.modules.Boundary.Boundary object`
+        :class:`aedt.modules.Boundary.Boundary object`
             Boundary object.
 
         """
 
         if not (self.solution_type == "Structural" or self.solution_type == "Modal"):
-            self._messenger.add_error_message(
-                "This method works only in Mechanical Structural Solution")
+            self._messenger.add_error_message("This method works only in Mechanical Structural Solution")
             return False
         props = {}
         objects_list = self.modeler._convert_list_to_ids(objects_list)
@@ -359,14 +415,14 @@ class Mechanical(FieldAnalysis3D, object):
 
         if not boundary_name:
             boundary_name = generate_unique_name("Temp")
-        bound = BoundaryObject(self, boundary_name, props, 'Frictionless')
+        bound = BoundaryObject(self, boundary_name, props, "Frictionless")
         if bound.create():
             self.boundaries.append(bound)
             return bound
         return False
 
     @aedt_exception_handler
-    def assign_fixed_support(self, objects_list,  boundary_name=""):
+    def assign_fixed_support(self, objects_list, boundary_name=""):
         """Assign a Mechanical fixed support.
 
         .. note::
@@ -386,8 +442,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         """
         if not (self.solution_type == "Structural" or self.solution_type == "Modal"):
-            self._messenger.add_error_message(
-                "This method works only in a Mechanical structural solution.")
+            self._messenger.add_error_message("This method works only in a Mechanical structural solution.")
             return False
         props = {}
         objects_list = self.modeler._convert_list_to_ids(objects_list)
@@ -397,7 +452,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         if not boundary_name:
             boundary_name = generate_unique_name("Temp")
-        bound = BoundaryObject(self, boundary_name, props, 'FixedSupport')
+        bound = BoundaryObject(self, boundary_name, props, "FixedSupport")
         if bound.create():
             self.boundaries.append(bound)
             return bound
@@ -414,7 +469,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         """
         setup_list = self.existing_analysis_setups
-        sweep_list=[]
+        sweep_list = []
         for el in setup_list:
             sweep_list.append(el + " : Solution")
         return sweep_list

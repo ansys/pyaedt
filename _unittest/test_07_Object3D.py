@@ -206,11 +206,15 @@ class TestClass:
 
     def test_top_face(self):
         o = self.create_copper_box()
-        assert isinstance(o.top_face, FacePrimitive)
+        assert isinstance(o.top_face_x, FacePrimitive)
+        assert isinstance(o.top_face_y, FacePrimitive)
+        assert isinstance(o.top_face_z, FacePrimitive)
 
     def test_bottom_face(self):
         o = self.create_copper_box()
-        assert isinstance(o.bottom_face, FacePrimitive)
+        assert isinstance(o.bottom_face_x, FacePrimitive)
+        assert isinstance(o.bottom_face_y, FacePrimitive)
+        assert isinstance(o.bottom_face_z, FacePrimitive)
 
     def test_09_to_boolean(self):
         assert _to_boolean(True)
