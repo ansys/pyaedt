@@ -724,20 +724,20 @@ class Mesh(object):
     def assign_curvature_extraction(self, names, disable_for_faceted_surf=True, meshop_name=None):
         """Assign curvature extraction.
 
-        Parameters
-        ----------
-        names : list
-            List of objects or faces.
-        disable_for_faceted_surf : bool, optional
-            Whether curvature extraction is enabled for faceted surfaces.
-            The default is ``True``.
-        meshop_name : str, optional
-            Name of the mesh operation. The default is ``None``.
+         Parameters
+         ----------
+         names : list
+             List of objects or faces.
+         disable_for_faceted_surf : bool, optional
+             Whether curvature extraction is enabled for faceted surfaces.
+             The default is ``True``.
+         meshop_name : str, optional
+             Name of the mesh operation. The default is ``None``.
 
-        Returns
-        -------
-       :class:`pyaedt.modules.Mesh.MeshOperation`
-            Mesh operation object.
+         Returns
+         -------
+        :class:`pyaedt.modules.Mesh.MeshOperation`
+             Mesh operation object.
 
         """
         names = self.modeler.convert_to_selections(names, True)

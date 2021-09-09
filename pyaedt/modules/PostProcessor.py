@@ -1441,18 +1441,32 @@ class PostProcessor(PostProcessorCommon, object):
                     variation_dict.append("0deg")
         if not sample_points_file and not sample_points_lists:
 
-            retry_ntimes(10, self.ofieldsreporter.CalculatorWrite, filename, ["Solution:=",solution], variation_dict)
+            retry_ntimes(10, self.ofieldsreporter.CalculatorWrite, filename, ["Solution:=", solution], variation_dict)
         elif sample_points_file:
 
-            retry_ntimes(10, self.ofieldsreporter.ExportToFile, filename, sample_points_file, solution, variation_dict,
-                         export_with_sample_points)
+            retry_ntimes(
+                10,
+                self.ofieldsreporter.ExportToFile,
+                filename,
+                sample_points_file,
+                solution,
+                variation_dict,
+                export_with_sample_points,
+            )
         else:
             sample_points_file = os.path.join(self._parent.project_path, "temp_points.pts")
             with open(sample_points_file, "w") as f:
                 for point in sample_points_lists:
-                    f.write(" ".join([str(i) for i in point])+"\n")
-            retry_ntimes(10, self.ofieldsreporter.ExportToFile, filename, sample_points_file, solution, variation_dict,
-                         export_with_sample_points)
+                    f.write(" ".join([str(i) for i in point]) + "\n")
+            retry_ntimes(
+                10,
+                self.ofieldsreporter.ExportToFile,
+                filename,
+                sample_points_file,
+                solution,
+                variation_dict,
+                export_with_sample_points,
+            )
 
         return os.path.exists(filename)
 

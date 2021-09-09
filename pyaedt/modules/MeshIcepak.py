@@ -63,10 +63,22 @@ class IcepakMesh(object):
         @property
         def autosettings(self):
             """Automatic mesh settings."""
-            arg = ["MeshMethod:=", "MesherHD", "UserSpecifiedSettings:=", self.UserSpecifiedSettings, "ComputeGap:=",
-                   self.ComputeGap, "MeshRegionResolution:=", self.Level, "MinGapX:=",
-                   self._dim_arg(self.MinGapX), "MinGapY:=",
-                   self._dim_arg(self.MinGapY) , "MinGapZ:=", self._dim_arg(self.MinGapZ)]
+            arg = [
+                "MeshMethod:=",
+                "MesherHD",
+                "UserSpecifiedSettings:=",
+                self.UserSpecifiedSettings,
+                "ComputeGap:=",
+                self.ComputeGap,
+                "MeshRegionResolution:=",
+                self.Level,
+                "MinGapX:=",
+                self._dim_arg(self.MinGapX),
+                "MinGapY:=",
+                self._dim_arg(self.MinGapY),
+                "MinGapZ:=",
+                self._dim_arg(self.MinGapZ),
+            ]
             if self.SubModels:
                 arg.append("SubModels:=")
                 arg.append(self.SubModels)
@@ -79,19 +91,48 @@ class IcepakMesh(object):
         def manualsettings(self):
             """Manual mesh settings."""
 
-            arg = ["MeshMethod:=", "MesherHD", "UserSpecifiedSettings:=", self.UserSpecifiedSettings, "ComputeGap:=",
-                   self.ComputeGap, "MaxElementSizeX:=", self._dim_arg(self.MaxElementSizeX),
-                   "MaxElementSizeY:=",
-                   self._dim_arg(self.MaxElementSizeY) , "MaxElementSizeZ:=",
-                   self._dim_arg(self.MaxElementSizeZ), "MinElementsInGap:=",
-                   self.MinElementsInGap,
-                   "MinElementsOnEdge:=", self.MinElementsOnEdge, "MaxSizeRatio:=",
-                   self.MaxSizeRatio, "NoOGrids:=", self.NoOGrids, "EnableMLM:=", self.EnableMLM, "EnforeMLMType:=",
-                   self.EnforeMLMType, "MaxLevels:=", self.MaxLevels, "BufferLayers:=", self.BufferLayers,
-                   "UniformMeshParametersType:=", self.UniformMeshParametersType, "StairStepMeshing:=",
-                   self.StairStepMeshing, "2DMLMType:=", self.DMLMType, "MinGapX:=",
-                   self._dim_arg(self.MinGapX) , "MinGapY:=", self._dim_arg(self.MinGapY),
-                   "MinGapZ:=", self._dim_arg(self.MinGapZ)]
+            arg = [
+                "MeshMethod:=",
+                "MesherHD",
+                "UserSpecifiedSettings:=",
+                self.UserSpecifiedSettings,
+                "ComputeGap:=",
+                self.ComputeGap,
+                "MaxElementSizeX:=",
+                self._dim_arg(self.MaxElementSizeX),
+                "MaxElementSizeY:=",
+                self._dim_arg(self.MaxElementSizeY),
+                "MaxElementSizeZ:=",
+                self._dim_arg(self.MaxElementSizeZ),
+                "MinElementsInGap:=",
+                self.MinElementsInGap,
+                "MinElementsOnEdge:=",
+                self.MinElementsOnEdge,
+                "MaxSizeRatio:=",
+                self.MaxSizeRatio,
+                "NoOGrids:=",
+                self.NoOGrids,
+                "EnableMLM:=",
+                self.EnableMLM,
+                "EnforeMLMType:=",
+                self.EnforeMLMType,
+                "MaxLevels:=",
+                self.MaxLevels,
+                "BufferLayers:=",
+                self.BufferLayers,
+                "UniformMeshParametersType:=",
+                self.UniformMeshParametersType,
+                "StairStepMeshing:=",
+                self.StairStepMeshing,
+                "2DMLMType:=",
+                self.DMLMType,
+                "MinGapX:=",
+                self._dim_arg(self.MinGapX),
+                "MinGapY:=",
+                self._dim_arg(self.MinGapY),
+                "MinGapZ:=",
+                self._dim_arg(self.MinGapZ),
+            ]
             if self.SubModels:
                 arg.append("SubModels:=")
                 arg.append(self.SubModels)
