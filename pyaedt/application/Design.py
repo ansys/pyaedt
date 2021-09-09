@@ -7,7 +7,6 @@ These classes are inherited in the main tool class.
 """
 from __future__ import absolute_import
 
-import warnings
 import os
 import re
 import csv
@@ -18,13 +17,14 @@ import string
 import random
 import time
 import logging
+import gc
 from collections import OrderedDict
 from .MessageManager import AEDTMessageManager
 from .Variables import VariableManager, DataSet, AEDT_units, unit_system
 from ..desktop import exception_to_desktop, Desktop, force_close_desktop, release_desktop, get_version_env_variable
 from ..generic.LoadAEDTFile import load_entire_aedt_file
 from ..generic.general_methods import aedt_exception_handler
-from .DataHandlers import variation_string_to_dict
+from ..generic.DataHandlers import variation_string_to_dict
 from ..modules.Boundary import BoundaryObject
 from ..generic.general_methods import generate_unique_name
 
@@ -1615,6 +1615,30 @@ class Design(object):
         return True
 
     @aedt_exception_handler
+    def autosave_disable(self):
+        """Disable the Desktop Autosave.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        self.odesktop.EnableAutoSave(False)
+        return True
+
+    @aedt_exception_handler
+    def autosave_enable(self):
+        """Enable the Desktop Autosave.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        self.odesktop.EnableAutoSave(True)
+        return True
+
+    @aedt_exception_handler
     def release_desktop(self, close_projects=True, close_desktop=True):
         """Release the desktop.
 
@@ -1632,6 +1656,10 @@ class Design(object):
 
         """
         release_desktop(close_projects, close_desktop)
+        props = [a for a in dir(self) if not a.startswith('__')]
+        for a in props:
+            self.__dict__.pop(a, None)
+        gc.collect()
         return True
 
     @aedt_exception_handler
@@ -1722,7 +1750,7 @@ class Design(object):
 
         Returns
         -------
-        :class: `pyaedt.application.Variables.DataSet`
+        :class:`pyaedt.application.Variables.DataSet`
 
         """
         return self.create_dataset(dsname, xlist, ylist, is_project_dataset=False, xunit=xunit, yunit=yunit)
@@ -2420,8 +2448,10 @@ class Design(object):
 
         """
         msg_text = "Saving {0} Project".format(self.project_name)
-        self._messenger.add_info_message(msg_text, level="Global")
-        if project_file:
+        self._messenger.add_info_message(msg_text, level='Global')
+        if project_file and not os.path.exists(os.path.dirname(project_file)):
+            os.makedirs(os.path.dirname(project_file))
+        elif project_file:
             self.oproject.SaveAs(project_file, overwrite)
         else:
             self.oproject.Save()

@@ -24,7 +24,7 @@ class MessageList:
     Parameters
     ---------
     msg_list : list
-        List of messages extracted from AEDT by the :class: `AEDTMessageManager` class.
+        List of messages extracted from AEDT by the :class:`AEDTMessageManager` class.
     project_name : str
         Name of the project. The default is the active project.
     design_name : str

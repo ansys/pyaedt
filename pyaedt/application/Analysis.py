@@ -122,7 +122,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-        :class: `pyaedt.modules.MaterialLib.Materials`
+        :class:`pyaedt.modules.MaterialLib.Materials`
             Manages materials in the project.
 
         """
@@ -146,7 +146,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-        :class: `pyaedt.application.Analysis.Analysis.AvailableVariations`
+        :class:`pyaedt.application.Analysis.Analysis.AvailableVariations`
             Available variation object.
 
         """
@@ -207,7 +207,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-        :class: `pyaedt.modeler.Modeler.Modeler`
+        :class:`pyaedt.modeler.Modeler.Modeler`
             Modeler object.
         """
         return self._modeler
@@ -218,7 +218,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-        :class: `pyaedt.modules.Mesh.Mesh`
+        :class:`pyaedt.modules.Mesh.Mesh`
             Mesh object.
         """
         return self._mesh
@@ -229,7 +229,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-        :class: `pyaedt.modules.PostProcessor.PostProcessor`
+        :class:`pyaedt.modules.PostProcessor.PostProcessor`
             PostProcessor object.
         """
         return self._post
@@ -701,12 +701,34 @@ class Analysis(Design, object):
             Type of the setup. The default is ``None``, in which case
             the default type is applied.
         props : dict, optional
-            Dictionary of properties with values. The default is ``{}``.
+            Dictionary of analysis properties appropriate for the design and analysis.
+            If no values are passed, default values will be used.
 
         Returns
         -------
-        :class: `pyaedt.modules.SolveSetup.Setup`
+        :class:`pyaedt.modules.SolveSetup.Setup`
 
+        Examples
+        --------
+        Create a setup for SBR+ setup using advanced Doppler
+        processing for automotive radar.
+
+        >>> import pyaedt
+        >>> hfss = pyaedt.Hfss(solution_type='SBR+')
+        >>> setup1 = hfss.create_setup(setupname='Setup1')
+        >>> setup1.props["IsSbrRangeDoppler"] = True
+        >>> setup1.props["SbrRangeDopplerTimeVariable"] = "time_var"
+        >>> setup1.props["SbrRangeDopplerCenterFreq"] = "76.5GHz"
+        >>> setup1.props["SbrRangeDopplerRangeResolution"] = "0.15meter"
+        >>> setup1.props["SbrRangeDopplerRangePeriod"] = "100meter"
+        >>> setup1.props["SbrRangeDopplerVelocityResolution"] = "0.2m_per_sec"
+        >>> setup1.props["SbrRangeDopplerVelocityMin"] = "-30m_per_sec"
+        >>> setup1.props["SbrRangeDopplerVelocityMax"] = "30m_per_sec"
+        >>> setup1.props["DopplerRayDensityPerWavelength"] = "0.2"
+        >>> setup1.props["MaxNumberOfBounces"] = "3"
+        >>> setup1.update()
+        ...
+        pyaedt Info: Sweep was created correctly.
         """
         if setuptype is None:
             if self.design_type == "Icepak" and self.solution_type == "Transient":
@@ -720,6 +742,7 @@ class Analysis(Design, object):
             for el in props:
                 setup.props[el] = props[el]
             setup.update()
+
         self.analysis_setup = name
         self.setups.append(setup)
         return setup
@@ -737,7 +760,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-        :class: `pyaedt.modules.SolveSetup.Setup`
+        :class:`pyaedt.modules.SolveSetup.Setup`
 
         """
         setuptype = SetupKeys.defaultSetups[self.solution_type]
@@ -757,7 +780,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-        :class: `pyaedt.modules.SolveSetup.Setup`
+        :class:`pyaedt.modules.SolveSetup.Setup`
 
         """
 

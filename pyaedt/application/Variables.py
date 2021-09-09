@@ -579,7 +579,7 @@ class VariableManager(object):
     This class provides access to all variables or a subset of the
     variables. Manipulation of the numerical or string definitions of
     variable values is provided in the
-    :class: `pyaedt.application.Variables.Variable` class.
+    :class:`pyaedt.application.Variables.Variable` class.
 
     Parameters
     ----------

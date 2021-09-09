@@ -30,7 +30,7 @@ class Modeler3D(GeometryModeler):
 
         Returns
         -------
-        :class: `pyaedt.modeler.Primitives3D.Primitives3D`
+        :class:`pyaedt.modeler.Primitives3D.Primitives3D`
 
         """
         if self._primitivesDes != self._parent.project_name + self._parent.design_name:

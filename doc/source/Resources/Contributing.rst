@@ -219,13 +219,14 @@ Minor releases are feature and bug releases that improve the functionality and s
 
 4. After building the documentation, open the local build and examine the examples gallery for any obvious issues.
 
-5. Update the version numbers in ``pyaedt/version.txt``and commit this file. Push the branch to GitHub and create a new PR for this release that merges it to ``main``. While effort is focused on the release, development to ``main`` should be limited.
+5. Update the version numbers in ``pyaedt/version.txt`` and commit this file. Push the branch to GitHub and create a new PR for this release that merges it to ``main``. While effort is focused on the release, development to ``main`` should be limited.
 
 6. Wait for the PyAEDT community and developers to functionally test the new release. 
 
-Testers should locally install this branch and use it in production. Any bugs that they  identify should have their hotfixes pushed to this release branch.
+   Testers should locally install this branch and use it in production. Any bugs that they  identify should have their hotfixes pushed to this release branch.
 
-When the branch is deemed as stable for public release, the PR will be merged to ``main`` and the ``main`` branch will be tagged with a MAJOR.MINOR.0 release. The release branch will not be deleted. 
+   When the branch is deemed as stable for public release, the PR will be merged to ``main`` and the ``main`` branch will be tagged with a MAJOR.MINOR.0 release. The release
+   branch will not be deleted. 
 
 7. Tag the release with:
 
