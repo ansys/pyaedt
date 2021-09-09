@@ -1,6 +1,6 @@
 from collections import OrderedDict
 from ..generic.general_methods import aedt_exception_handler, generate_unique_name
-from ..application.DataHandlers import dict2arg, arg2dict
+from ..generic.DataHandlers import dict2arg, arg2dict
 import copy
 
 defaultparametricSetup = OrderedDict(
@@ -153,7 +153,7 @@ class CommonOptimetrics(object):
 
         Returns
         -------
-        :class: `Optimetrics`
+        :class:`Optimetrics`
             Optimetrics object.
 
         """
@@ -563,7 +563,7 @@ class DXSetups(object):
         """Optimetrics module.
 
         Returns
-        :class: `Optimetrics`
+        :class:`Optimetrics`
 
         """
         return self.parent.odesign.GetModule("Optimetrics")
@@ -603,7 +603,7 @@ class DXSetups(object):
 
         Returns
         -------
-        :class: `Optimetrics`
+        :class:`Optimetrics`
 
         """
         if not setupname:
@@ -754,7 +754,7 @@ class ParametericsSetups(object):
 
         Returns
         -------
-        :class: `Optimetrics`
+        :class:`Optimetrics`
 
         """
         return self.parent.odesign.GetModule("Optimetrics")
@@ -792,7 +792,7 @@ class ParametericsSetups(object):
 
         Returns
         -------
-        :class: `Optimetrics`
+        :class:`pyaedt.modules.DesignXPloration.ParametericsSetups.Optimetrics`
             Optimetrics object.
 
         """
@@ -899,7 +899,7 @@ class SensitivitySetups(object):
 
         Returns
         -------
-        :class: `Optimetrics`
+        :class:`Optimetrics`
 
         """
         return self.parent.odesign.GetModule("Optimetrics")
@@ -953,7 +953,7 @@ class SensitivitySetups(object):
 
         Returns
         -------
-        :class: `Sensitivity`
+        :class:`Sensitivity`
 
         """
         if not parametricname:
@@ -1061,7 +1061,7 @@ class StatisticalSetups(object):
 
         Returns
         -------
-        :class: `Optimetrics`
+        :class:`Optimetrics`
 
         """
         return self.parent.odesign.GetModule("Optimetrics")
@@ -1115,7 +1115,7 @@ class StatisticalSetups(object):
 
         Returns
         -------
-        :class: `Statistical`
+        :class:`Statistical`
 
         """
         if not parametricname:
@@ -1292,7 +1292,7 @@ class DOESetups(object):
 
         Returns
         -------
-        :class: `Optimetrics`
+        :class:`Optimetrics`
 
         """
         return self.parent.odesign.GetModule("Optimetrics")
@@ -1495,7 +1495,7 @@ class OptimizationSetups(object):
 
         Returns
         -------
-        :class: `Optimetrics`
+        :class:`Optimetrics`
 
         """
         return self.parent.odesign.GetModule("Optimetrics")

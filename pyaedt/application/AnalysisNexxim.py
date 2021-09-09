@@ -35,7 +35,7 @@ class FieldAnalysisCircuit(Analysis):
 
         Returns
         -------
-        pyaedt.modules.PostProcessor.CircuitPostProcessor
+        :class:`pyaedt.modules.PostProcessor.CircuitPostProcessor`
             PostProcessor object.
         """
         return self._post

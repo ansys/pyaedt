@@ -5,7 +5,7 @@ This module contains the `Mesh` class.
 from __future__ import absolute_import
 from ..generic.general_methods import aedt_exception_handler, generate_unique_name, MethodNotSupportedError
 
-from ..application.DataHandlers import dict2arg
+from ..generic.DataHandlers import dict2arg
 from collections import OrderedDict
 
 meshers = {
@@ -213,7 +213,7 @@ class Mesh(object):
 
         Returns
         -------
-        :class: `pyaedt.modules.Mesh.MeshOperation`
+        :class:`pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
 
         """
@@ -263,7 +263,7 @@ class Mesh(object):
 
         Returns
         -------
-        :class: `pyaedt.modules.Mesh.MeshOperation`
+        :class:`pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
 
         """
@@ -326,7 +326,7 @@ class Mesh(object):
 
         Returns
         -------
-        :class: `pyaedt.modules.Mesh.MeshOperation`
+        :class:`pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
 
         """
@@ -461,7 +461,7 @@ class Mesh(object):
 
         Returns
         -------
-        :class: `pyaedt.modules.Mesh.MeshOperation`
+        :class:`pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
 
         """
@@ -545,7 +545,7 @@ class Mesh(object):
 
         Returns
         -------
-        :class: `pyaedt.modules.Mesh.MeshOperation`
+        :class:`pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
 
         """
@@ -614,11 +614,9 @@ class Mesh(object):
         skindepth : bool
             Whether the length mesh is inside the selection. The default is ``True``.
         maxelements : int, optional
-            Maximum number of elements. The default is ``None``, which means
-            this parameter is disabled.
+            Maximum number of elements. The default is ``None``, which means this parameter is disabled.
         triangulation_max_length : str, optional
-            Maximum surface triangulation length with units. The default
-            is ``"0.1mm"``.
+            Maximum surface triangulation length with units. The default is ``"0.1mm"``.
         numlayers : str, optional
             Number of layers. The default is ``"2"``.
         meshop_name : str, optional
@@ -626,7 +624,7 @@ class Mesh(object):
 
         Returns
         -------
-        pyaedt.modules.Mesh.MeshOperation
+        :class:`pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
 
         """
@@ -691,7 +689,7 @@ class Mesh(object):
 
         Returns
         -------
-        pyaedt.modules.Mesh.MeshOperation
+        :class:`pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
 
         """
@@ -726,20 +724,20 @@ class Mesh(object):
     def assign_curvature_extraction(self, names, disable_for_faceted_surf=True, meshop_name=None):
         """Assign curvature extraction.
 
-         Parameters
-         ----------
-         names : list
-             List of objects or faces.
-         disable_for_faceted_surf : bool, optional
-             Whether curvature extraction is enabled for faceted surfaces.
-             The default is ``True``.
-         meshop_name : str, optional
-             Name of the mesh operation. The default is ``None``.
+        Parameters
+        ----------
+        names : list
+            List of objects or faces.
+        disable_for_faceted_surf : bool, optional
+            Whether curvature extraction is enabled for faceted surfaces.
+            The default is ``True``.
+        meshop_name : str, optional
+            Name of the mesh operation. The default is ``None``.
 
-         Returns
-         -------
-        :class: `pyaedt.modules.Mesh.MeshOperation`
-             Mesh operation object.
+        Returns
+        -------
+       :class:`pyaedt.modules.Mesh.MeshOperation`
+            Mesh operation object.
 
         """
         names = self.modeler.convert_to_selections(names, True)
@@ -788,7 +786,7 @@ class Mesh(object):
 
         Returns
         -------
-        :class: `pyaedt.modules.Mesh.MeshOperation`
+        :class:`pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
 
         """
@@ -832,7 +830,7 @@ class Mesh(object):
 
         Returns
         -------
-        :class: `pyaedt.modules.Mesh.MeshOperation`
+        :class:`pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
 
         """
@@ -875,7 +873,7 @@ class Mesh(object):
 
         Returns
         -------
-        :class: `pyaedt.modules.Mesh.MeshOperation`
+        :class:`pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
 
         """

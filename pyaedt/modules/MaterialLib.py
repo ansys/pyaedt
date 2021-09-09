@@ -5,7 +5,8 @@ from __future__ import absolute_import
 import os
 import xml.etree.ElementTree as ET
 from .Material import *
-from ..generic.general_methods import aedt_exception_handler
+from ..generic.general_methods import aedt_exception_handler, retry_ntimes
+from ..generic.DataHandlers import arg2dict
 import json
 
 
@@ -167,7 +168,7 @@ class Materials(object):
 
         Returns
         -------
-        :class: `pyaedt.modules.Material.Material`
+        :class:`pyaedt.modules.Material.Material`
 
         Examples
         --------
@@ -208,7 +209,7 @@ class Materials(object):
 
         Returns
         -------
-        :class: `pyaedt.modules.SurfaceMaterial`
+        :class:`pyaedt.modules.SurfaceMaterial`
 
         Examples
         --------
@@ -325,7 +326,7 @@ class Materials(object):
 
         Returns
         -------
-        :class: `pyaedt.modules.Material.Material`
+        :class:`pyaedt.modules.Material.Material`
 
         Examples
         --------
@@ -357,7 +358,7 @@ class Materials(object):
 
         Returns
         -------
-        :class: `pyaedt.modules.SurfaceMaterial`
+        :class:`pyaedt.modules.SurfaceMaterial`
 
         Examples
         --------
@@ -455,7 +456,7 @@ class Materials(object):
     def _aedmattolibrary(self, matname):
         matname = matname.lower()
         props = {}
-        arg2dict(list(self.omaterial_manager.GetData(matname)), props)
+        arg2dict(list(retry_ntimes(10, self.omaterial_manager.GetData, matname)), props)
         values_view = props.values()
         value_iterator = iter(values_view)
         first_value = next(value_iterator)

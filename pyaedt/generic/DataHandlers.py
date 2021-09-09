@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+import json
 import math
 import re
 import warnings
@@ -7,8 +7,8 @@ import random
 import string
 from collections import OrderedDict
 from decimal import Decimal
-from ..generic.general_methods import aedt_exception_handler, generate_unique_name
-from ..modeler.Object3d import EdgePrimitive, FacePrimitive, VertexPrimitive
+from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name
+from pyaedt.modeler.Object3d import EdgePrimitive, FacePrimitive, VertexPrimitive
 try:
     import clr
     clr.AddReference("System.Collections")
@@ -106,7 +106,7 @@ def arg2dict(arg, dict_out):
         dict_in = OrderedDict()
         i = 1
         while i < len(arg):
-            if (type(arg[i]) is list or type(arg[i]) is tuple) and arg[i][0][:5] == 'NAME:':
+            if (type(arg[i]) is list or type(arg[i]) is tuple or str(type(arg[i])) == r"<type 'List'>") and arg[i][0][:5] == 'NAME:':
                 arg2dict(arg[i], dict_in)
                 i += 1
             elif arg[i][-2:] == ':=':
@@ -523,3 +523,24 @@ def float_units(val_str, units=""):
 
     val = val / unit_val[units]
     return val
+
+
+def json_to_dict(fn):
+    """Load Json File to a dictionary.
+
+    Parameters
+    ----------
+    fn : str
+        json file full path.
+
+    Returns
+    -------
+    dict
+    """
+    json_data = {}
+    with open(fn) as json_file:
+        try:
+            json_data = json.load(json_file)
+        except Exception as e:
+            warnings.warn("Error: ", e.__class__)
+    return json_data

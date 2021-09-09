@@ -150,12 +150,25 @@ class TestClass:
         test = self.aedtapp.mesh.assign_mesh_level_to_group(mesh_level_Filter, group_name)
         assert test
         #assert self.aedtapp.mesh.assignMeshLevel2Component(mesh_level_RadioPCB, component_name)
-        test = self.aedtapp.mesh.assign_mesh_region(component_name, mesh_level_RadioPCB)
+        test = self.aedtapp.mesh.assign_mesh_region(component_name, mesh_level_RadioPCB, is_submodel=True)
+        assert test
+        test = self.aedtapp.mesh.assign_mesh_region(["USB_ID"], mesh_level_RadioPCB)
         assert test
 
     def test_13_assign_openings(self):
-        airfaces = [self.aedtapp.modeler.primitives["Region"].faces[0].id]
+        airfaces = [self.aedtapp.modeler.primitives["Region"].top_face_x.id]
         assert self.aedtapp.assign_openings(airfaces)
+
+    def test_1b_assign_grille(self):
+        airfaces = [self.aedtapp.modeler.primitives["Region"].top_face_y.id]
+        grille = self.aedtapp.assign_grille(airfaces)
+        grille.props["Free Area Ratio"] = 0.7
+        assert grille.update()
+        airfaces = [self.aedtapp.modeler.primitives["Region"].bottom_face_x.id]
+        grille2 = self.aedtapp.assign_grille(airfaces, free_loss_coeff=False, x_curve=["0", "3", "5"],
+                                             y_curve=["0", "2", "3"])
+        assert grille2.props["X"] == ["0", "3", "5"]
+        assert grille2.props["Y"] == ["0", "2", "3"]
 
     def test_14_edit_design_settings(self):
         assert self.aedtapp.edit_design_settings(gravityDir=1)
@@ -263,9 +276,9 @@ class TestClass:
     def test_create_source(self):
         self.aedtapp.modeler.primitives.create_box([0,0,0], [20,20,20], name="boxSource")
         assert self.aedtapp.create_source_power(
-            self.aedtapp.modeler.primitives["boxSource"].top_face.id, input_power="2W")
+            self.aedtapp.modeler.primitives["boxSource"].top_face_z.id, input_power="2W")
         assert self.aedtapp.create_source_power(
-            self.aedtapp.modeler.primitives["boxSource"].bottom_face.id, thermal_condtion="Fixed Temperature", temperature="28cel")
+            self.aedtapp.modeler.primitives["boxSource"].bottom_face_z.id, thermal_condtion="Fixed Temperature", temperature="28cel")
 
     def test_surface_monitor(self):
         self.aedtapp.modeler.primitives.create_rectangle(

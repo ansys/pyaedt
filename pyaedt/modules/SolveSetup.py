@@ -13,7 +13,7 @@ import os.path
 from ..generic.general_methods import aedt_exception_handler, generate_unique_name
 
 from .SetupTemplates import SweepHFSS, SweepQ3D, SetupKeys, SweepHFSS3DLayout
-from ..application.DataHandlers import tuple2dict, dict2arg
+from ..generic.DataHandlers import tuple2dict, dict2arg
 
 
 class Setup(object):
@@ -1024,7 +1024,7 @@ class Setup3DLayout(object):
 
         Returns
         -------
-        :class: `pyaedt.modules.SetupTemplates.SweepHFSS3DLayout`
+        :class:`pyaedt.modules.SetupTemplates.SweepHFSS3DLayout`
             Sweep object.
 
         """

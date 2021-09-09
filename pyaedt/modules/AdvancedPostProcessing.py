@@ -88,19 +88,19 @@ class PostProcessor(Post):
          .. note::
             Jupyter Notebook is not supported by IronPython.
 
-         Parameters
-         ----------
-         show_axis : bool, optional
-             Whether to show the axes. The default is ``True``.
-         show_grid : bool, optional
-             Whether to show the grid. The default is ``True``.
-         show_ruler : bool, optional
-             Whether to show the ruler. The default is ``True``.
+        Parameters
+        ----------
+        show_axis : bool, optional
+            Whether to show the axes. The default is ``True``.
+        show_grid : bool, optional
+            Whether to show the grid. The default is ``True``.
+        show_ruler : bool, optional
+            Whether to show the ruler. The default is ``True``.
 
-        Returns
-        -------
-        :class: `IPython.core.display.Image`
-            Jupyter notebook image.
+       Returns
+       -------
+       :class:`IPython.core.display.Image`
+           Jupyter notebook image.
 
         """
         file_name = self.export_model_picture(show_axis=show_axis, show_grid=show_grid, show_ruler=show_ruler)

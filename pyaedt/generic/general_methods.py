@@ -338,7 +338,7 @@ def retry_ntimes(n, function, *args, **kwargs):
                 ret_val = True
         except:
             retry += 1
-            time.sleep(0.05)
+            time.sleep(0.1)
         else:
             break
     return ret_val

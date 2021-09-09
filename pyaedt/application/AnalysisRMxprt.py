@@ -49,7 +49,7 @@ class FieldAnalysisRMxprt(Analysis):
 
         Returns
         -------
-        :class: `pyaedt.modules.Modeler`
+        :class:`pyaedt.modules.Modeler`
 
         """
         return self._modeler
