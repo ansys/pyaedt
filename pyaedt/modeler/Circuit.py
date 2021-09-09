@@ -1,5 +1,3 @@
-
-
 import os
 
 from ..generic.general_methods import generate_unique_name, aedt_exception_handler, retry_ntimes
@@ -11,6 +9,7 @@ from .PrimitivesNexxim import NexximComponents
 from .Primitives3DLayout import Primitives3DLayout
 from ..modules.LayerStackup import Layers
 import sys
+
 
 class ModelerCircuit(Modeler):
     """ModelerCircuit class.
@@ -139,7 +138,7 @@ class ModelerNexxim(ModelerCircuit):
             edb_core object if it exists.
 
         """
-        #TODO Check while it crashes when multiple circuits are created
+        # TODO Check while it crashes when multiple circuits are created
         return None
         # if self._parent.design_type == "Twin Builder":
         #     return
@@ -190,13 +189,8 @@ class ModelerNexxim(ModelerCircuit):
     @model_units.setter
     def model_units(self, units):
         assert units in AEDT_units["Length"], "Invalid units string {0}".format(units)
-        ''' Set the model units as a string e.g. "mm" '''
-        self.oeditor.SetActivelUnits(
-            [
-                "NAME:Units Parameter",
-                "Units:=", units,
-                "Rescale:=", False
-            ])
+        """ Set the model units as a string e.g. "mm" """
+        self.oeditor.SetActivelUnits(["NAME:Units Parameter", "Units:=", units, "Rescale:=", False])
 
     @aedt_exception_handler
     def move(self, selections, posx, posy):
@@ -226,17 +220,9 @@ class ModelerNexxim(ModelerCircuit):
                     sels.append(self.components.components[el.id].composed_name)
 
         self.oeditor.Move(
-            [
-                "NAME:Selections",
-                "Selections:=", sels
-            ],
-            [
-                "NAME:MoveParameters",
-                "xdelta:=", posx,
-                "ydelta:=", posy,
-                "Disconnect:=", False,
-                "Rubberband:=", False
-            ])
+            ["NAME:Selections", "Selections:=", sels],
+            ["NAME:MoveParameters", "xdelta:=", posx, "ydelta:=", posy, "Disconnect:=", False, "Rubberband:=", False],
+        )
         return True
 
     @aedt_exception_handler
@@ -262,16 +248,9 @@ class ModelerNexxim(ModelerCircuit):
                 if sel == el.InstanceName:
                     sels.append(self.components.components[el.id].composed_name)
         self.oeditor.Rotate(
-            [
-                "NAME:Selections",
-                "Selections:=", sels
-            ],
-            [
-                "NAME:RotateParameters",
-                "Degrees:=", degrees,
-                "Disconnect:=", False,
-                "Rubberband:=", False
-            ])
+            ["NAME:Selections", "Selections:=", sels],
+            ["NAME:RotateParameters", "Degrees:=", degrees, "Disconnect:=", False, "Rubberband:=", False],
+        )
         return True
 
 
@@ -288,6 +267,7 @@ class ModelerSimplorer(ModelerCircuit):
         self._parent = parent
         ModelerCircuit.__init__(self, parent)
         self.components = SimplorerComponents(parent, self)
+
 
 class ModelerEmit(ModelerCircuit):
     """ModelerEmit class.

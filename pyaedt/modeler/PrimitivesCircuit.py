@@ -5,11 +5,12 @@ from collections import defaultdict
 from ..generic.general_methods import aedt_exception_handler, retry_ntimes
 from .Object3d import CircuitComponent
 
+
 class CircuitComponents(object):
     """CircutComponents class.
 
-     This is the common class for managing all circuit components for Nexxim and Simplorer.
-     """
+    This is the common class for managing all circuit components for Nexxim and Simplorer.
+    """
 
     @property
     def oeditor(self):
@@ -123,16 +124,9 @@ class CircuitComponents(object):
         """
         pointlist = [str(tuple(i)) for i in points_array]
         self.oeditor.CreateWire(
-            [
-                "NAME:WireData",
-                "Name:=", "",
-                "Id:=", random.randint(20000, 23000),
-                "Points:=", pointlist
-            ],
-            [
-                "NAME:Attributes",
-                "Page:=", 1
-            ])
+            ["NAME:WireData", "Name:=", "", "Id:=", random.randint(20000, 23000), "Points:=", pointlist],
+            ["NAME:Attributes", "Page:=", 1],
+        )
         return True
 
     @aedt_exception_handler
@@ -142,8 +136,7 @@ class CircuitComponents(object):
         .. deprecated:: 0.4.0
            Use :func:`Circuit.modeler.components.create_interface_port` instead.
         """
-        warnings.warn('`create_iport` is deprecated. Use `create_interface_port` instead.',
-                      DeprecationWarning)
+        warnings.warn("`create_iport` is deprecated. Use `create_interface_port` instead.", DeprecationWarning)
         return self.create_interface_port(name, posx, posy, angle)
 
     @aedt_exception_handler
@@ -206,19 +199,9 @@ class CircuitComponents(object):
         """
         id = self.create_unique_id()
         id = self.oeditor.CreatePagePort(
-            [
-                "NAME:PagePortProps",
-                "Name:=", name,
-                "Id:=", id
-            ],
-            [
-                "NAME:Attributes",
-                "Page:=", 1,
-                "X:=", posx,
-                "Y:=", posy,
-                "Angle:=", angle,
-                "Flip:=", False
-            ])
+            ["NAME:PagePortProps", "Name:=", name, "Id:=", id],
+            ["NAME:Attributes", "Page:=", 1, "X:=", posx, "Y:=", posy, "Angle:=", angle, "Flip:=", False],
+        )
         id = int(id.split(";")[1])
         # self.refresh_all_ids()
         self.add_id_to_component(id)
@@ -246,18 +229,9 @@ class CircuitComponents(object):
         id = self.create_unique_id()
 
         name = self.oeditor.CreateGround(
-            [
-                "NAME:GroundProps",
-                "Id:=", id
-            ],
-            [
-                "NAME:Attributes",
-                "Page:=", 1,
-                "X:=", posx,
-                "Y:=", posy,
-                "Angle:=", 0,
-                "Flip:=", False
-            ])
+            ["NAME:GroundProps", "Id:=", id],
+            ["NAME:Attributes", "Page:=", 1, "X:=", posx, "Y:=", posy, "Angle:=", 0, "Flip:=", False],
+        )
         id = int(name.split(";")[1])
         self.add_id_to_component(id)
         # return id, self.components[id].composed_name
@@ -286,46 +260,216 @@ class CircuitComponents(object):
             model_name = os.path.splitext(os.path.basename(touchstone_full_path))[0]
 
         num_terminal = int(touchstone_full_path[-2:-1])
-        arg = ["NAME:" + model_name, "Name:=", model_name, "ModTime:=", 0, "Library:=", "", "LibLocation:=", "Project",
-               "ModelType:=", "nport", "Description:=", "", "ImageFile:=", "", "SymbolPinConfiguration:=", 0,
-               ["NAME:PortInfoBlk"], ["NAME:PortOrderBlk"], "filename:=", touchstone_full_path, "numberofports:=",
-               num_terminal, "sssfilename:=", "", "sssmodel:=", False, "PortNames:=",
-               ["Port" + str(i + 1) for i in range(num_terminal)], "domain:=", "frequency", "datamode:=",
-               "Link", "devicename:=", "", "SolutionName:=", "", "displayformat:=", "MagnitudePhase", "datatype:=",
-               "SMatrix", ["NAME:DesignerCustomization", "DCOption:=", 0, "InterpOption:=", 0, "ExtrapOption:=", 1,
-                           "Convolution:=", 0, "Passivity:=", 0, "Reciprocal:=", False, "ModelOption:=", "",
-                           "DataType:=", 1],
-               ["NAME:NexximCustomization", "DCOption:=", 3, "InterpOption:=", 1, "ExtrapOption:=", 3, "Convolution:=",
-                0, "Passivity:=", 0, "Reciprocal:=", False, "ModelOption:=", "", "DataType:=", 2],
-               ["NAME:HSpiceCustomization", "DCOption:=", 1, "InterpOption:=", 2, "ExtrapOption:=", 3, "Convolution:=",
-                0, "Passivity:=", 0, "Reciprocal:=", False, "ModelOption:=", "", "DataType:=", 3], "NoiseModelOption:=",
-               "External"]
+        arg = [
+            "NAME:" + model_name,
+            "Name:=",
+            model_name,
+            "ModTime:=",
+            0,
+            "Library:=",
+            "",
+            "LibLocation:=",
+            "Project",
+            "ModelType:=",
+            "nport",
+            "Description:=",
+            "",
+            "ImageFile:=",
+            "",
+            "SymbolPinConfiguration:=",
+            0,
+            ["NAME:PortInfoBlk"],
+            ["NAME:PortOrderBlk"],
+            "filename:=",
+            touchstone_full_path,
+            "numberofports:=",
+            num_terminal,
+            "sssfilename:=",
+            "",
+            "sssmodel:=",
+            False,
+            "PortNames:=",
+            ["Port" + str(i + 1) for i in range(num_terminal)],
+            "domain:=",
+            "frequency",
+            "datamode:=",
+            "Link",
+            "devicename:=",
+            "",
+            "SolutionName:=",
+            "",
+            "displayformat:=",
+            "MagnitudePhase",
+            "datatype:=",
+            "SMatrix",
+            [
+                "NAME:DesignerCustomization",
+                "DCOption:=",
+                0,
+                "InterpOption:=",
+                0,
+                "ExtrapOption:=",
+                1,
+                "Convolution:=",
+                0,
+                "Passivity:=",
+                0,
+                "Reciprocal:=",
+                False,
+                "ModelOption:=",
+                "",
+                "DataType:=",
+                1,
+            ],
+            [
+                "NAME:NexximCustomization",
+                "DCOption:=",
+                3,
+                "InterpOption:=",
+                1,
+                "ExtrapOption:=",
+                3,
+                "Convolution:=",
+                0,
+                "Passivity:=",
+                0,
+                "Reciprocal:=",
+                False,
+                "ModelOption:=",
+                "",
+                "DataType:=",
+                2,
+            ],
+            [
+                "NAME:HSpiceCustomization",
+                "DCOption:=",
+                1,
+                "InterpOption:=",
+                2,
+                "ExtrapOption:=",
+                3,
+                "Convolution:=",
+                0,
+                "Passivity:=",
+                0,
+                "Reciprocal:=",
+                False,
+                "ModelOption:=",
+                "",
+                "DataType:=",
+                3,
+            ],
+            "NoiseModelOption:=",
+            "External",
+        ]
         self.o_model_manager.Add(arg)
-        arg = ["NAME:" + model_name, "Info:=",
-               ["Type:=", 10, "NumTerminals:=", num_terminal, "DataSource:=", "", "ModifiedOn:=", 1618569625,
+        arg = [
+            "NAME:" + model_name,
+            "Info:=",
+            [
+                "Type:=",
+                10,
+                "NumTerminals:=",
+                num_terminal,
+                "DataSource:=",
+                "",
+                "ModifiedOn:=",
+                1618569625,
                 "Manufacturer:=",
-                "", "Symbol:=", "", "ModelNames:=", "", "Footprint:=", "", "Description:=", "", "InfoTopic:=", "",
-                "InfoHelpFile:=", "", "IconFile:=", "nport.bmp", "Library:=", "", "OriginalLocation:=", "Project",
-                "IEEE:=", "", "Author:=", "", "OriginalAuthor:=", "", "CreationDate:=", 1618569625, "ExampleFile:=",
-                "", "HiddenComponent:=", 0, "CircuitEnv:=", 0, "GroupID:=", 0],
-               "CircuitEnv:=", 0, "Refbase:=", "S", "NumParts:=", 1,
-               "ModSinceLib:=", False]
+                "",
+                "Symbol:=",
+                "",
+                "ModelNames:=",
+                "",
+                "Footprint:=",
+                "",
+                "Description:=",
+                "",
+                "InfoTopic:=",
+                "",
+                "InfoHelpFile:=",
+                "",
+                "IconFile:=",
+                "nport.bmp",
+                "Library:=",
+                "",
+                "OriginalLocation:=",
+                "Project",
+                "IEEE:=",
+                "",
+                "Author:=",
+                "",
+                "OriginalAuthor:=",
+                "",
+                "CreationDate:=",
+                1618569625,
+                "ExampleFile:=",
+                "",
+                "HiddenComponent:=",
+                0,
+                "CircuitEnv:=",
+                0,
+                "GroupID:=",
+                0,
+            ],
+            "CircuitEnv:=",
+            0,
+            "Refbase:=",
+            "S",
+            "NumParts:=",
+            1,
+            "ModSinceLib:=",
+            False,
+        ]
         for i in range(num_terminal):
             arg.append("Terminal:=")
             arg.append(["Port" + str(i + 1), "Port" + str(i + 1), "A", False, i + 6, 1, "", "Electrical", "0"])
         arg.append("CompExtID:=")
         arg.append(num_terminal)
-        arg.append(["NAME:Parameters", "MenuProp:=", ["CoSimulator", "SD", "", "Default", 0], "ButtonProp:=",
-                    ["CosimDefinition", "SD", "", "Edit", "Edit", 40501, "ButtonPropClientData:=", []]])
-        arg.append(["NAME:CosimDefinitions",
-                    ["NAME:CosimDefinition", "CosimulatorType:=", 102, "CosimDefName:=", "Default", "IsDefinition:=",
-                     True, "Connect:=", True, "ModelDefinitionName:=", model_name, "ShowRefPin2:=", 2, "LenPropName:=",
-                     ""], "DefaultCosim:=", "Default"])
+        arg.append(
+            [
+                "NAME:Parameters",
+                "MenuProp:=",
+                ["CoSimulator", "SD", "", "Default", 0],
+                "ButtonProp:=",
+                ["CosimDefinition", "SD", "", "Edit", "Edit", 40501, "ButtonPropClientData:=", []],
+            ]
+        )
+        arg.append(
+            [
+                "NAME:CosimDefinitions",
+                [
+                    "NAME:CosimDefinition",
+                    "CosimulatorType:=",
+                    102,
+                    "CosimDefName:=",
+                    "Default",
+                    "IsDefinition:=",
+                    True,
+                    "Connect:=",
+                    True,
+                    "ModelDefinitionName:=",
+                    model_name,
+                    "ShowRefPin2:=",
+                    2,
+                    "LenPropName:=",
+                    "",
+                ],
+                "DefaultCosim:=",
+                "Default",
+            ]
+        )
 
         self.o_component_manager.Add(arg)
 
     @aedt_exception_handler
-    def create_component_from_touchstonmodel(self, modelname,xpos=0.1, ypos=0.1, angle=0,):
+    def create_component_from_touchstonmodel(
+        self,
+        modelname,
+        xpos=0.1,
+        ypos=0.1,
+        angle=0,
+    ):
         """Create a component from a Touchstone model.
 
         Parameters
@@ -354,9 +498,17 @@ class CircuitComponents(object):
         return id, self.components[id].composed_name
 
     @aedt_exception_handler
-    def create_component(self, inst_name=None, component_library="Resistors",
-                         component_name="RES_", xpos=0.1, ypos=0.1, angle=0, use_instance_id_netlist=False,
-                         global_netlist_list=[]):
+    def create_component(
+        self,
+        inst_name=None,
+        component_library="Resistors",
+        component_name="RES_",
+        xpos=0.1,
+        ypos=0.1,
+        angle=0,
+        use_instance_id_netlist=False,
+        global_netlist_list=[],
+    ):
         """Create a component from a library.
 
         Parameters
@@ -431,8 +583,9 @@ class CircuitComponents(object):
                     nexxim_data = list(nexxim[nexxim.index(el) + 1])
                     nexxim_data[1] = ""
                     nexxim[nexxim.index(el) + 1] = nexxim_data
-        self.o_component_manager.Edit(name, ["Name:" + component_name,
-                                             ["NAME:CosimDefinitions", nexxim, "DefaultCosim:=", "DefaultNetlist"]])
+        self.o_component_manager.Edit(
+            name, ["Name:" + component_name, ["NAME:CosimDefinitions", nexxim, "DefaultCosim:=", "DefaultNetlist"]]
+        )
         return True
 
     @aedt_exception_handler
@@ -462,8 +615,12 @@ class CircuitComponents(object):
                     nexxim_data = list(nexxim[nexxim.index(el) + 1])
                     nexxim_data[1] = "\n".join(global_netlist_list).replace("\\", "/")
                     nexxim[nexxim.index(el) + 1] = nexxim_data
-        retry_ntimes(10, self.o_component_manager.Edit, name, ["Name:" + component_name,
-                                             ["NAME:CosimDefinitions", nexxim, "DefaultCosim:=", "DefaultNetlist"]])
+        retry_ntimes(
+            10,
+            self.o_component_manager.Edit,
+            name,
+            ["Name:" + component_name, ["NAME:CosimDefinitions", nexxim, "DefaultCosim:=", "DefaultNetlist"]],
+        )
         return True
 
     @aedt_exception_handler
@@ -494,24 +651,83 @@ class CircuitComponents(object):
         yp = 0.00254 * (h + 2)
         angle = 0
         self.o_symbol_manager.Add(
-            ["NAME:" + symbol_name, "ModTime:=", 1591858230, "Library:=", "", "ModSinceLib:=", False, "LibLocation:=",
-             "Project", "HighestLevel:=", 1, "Normalize:=", True, "InitialLevels:=", [0, 1], ["NAME:Graphics"]])
-        arg = ["NAME:" + symbol_name, "ModTime:=", 1591858265, "Library:=", "", "ModSinceLib:=", False, "LibLocation:=",
-               "Project", "HighestLevel:=", 1, "Normalize:=", False, "InitialLevels:=", [0, 1]]
+            [
+                "NAME:" + symbol_name,
+                "ModTime:=",
+                1591858230,
+                "Library:=",
+                "",
+                "ModSinceLib:=",
+                False,
+                "LibLocation:=",
+                "Project",
+                "HighestLevel:=",
+                1,
+                "Normalize:=",
+                True,
+                "InitialLevels:=",
+                [0, 1],
+                ["NAME:Graphics"],
+            ]
+        )
+        arg = [
+            "NAME:" + symbol_name,
+            "ModTime:=",
+            1591858265,
+            "Library:=",
+            "",
+            "ModSinceLib:=",
+            False,
+            "LibLocation:=",
+            "Project",
+            "HighestLevel:=",
+            1,
+            "Normalize:=",
+            False,
+            "InitialLevels:=",
+            [0, 1],
+        ]
         oDefinitionEditor = self._parent._oproject.SetActiveDefinitionEditor("SymbolEditor", symbol_name)
         id = 2
-        oDefinitionEditor.CreateRectangle(["NAME:RectData", "X1:=", x1, "Y1:=", y1, "X2:=", x2, "Y2:=", y2,
-                                           "LineWidth:=", 0, "BorderColor:=", 0, "Fill:=", 0, "Color:=", 0, "Id:=", id],
-                                          ["NAME:Attributes", "Page:=", 1])
+        oDefinitionEditor.CreateRectangle(
+            [
+                "NAME:RectData",
+                "X1:=",
+                x1,
+                "Y1:=",
+                y1,
+                "X2:=",
+                x2,
+                "Y2:=",
+                y2,
+                "LineWidth:=",
+                0,
+                "BorderColor:=",
+                0,
+                "Fill:=",
+                0,
+                "Color:=",
+                0,
+                "Id:=",
+                id,
+            ],
+            ["NAME:Attributes", "Page:=", 1],
+        )
         i = 1
         id += 2
         r = numpins - (h * 2)
         for pin in pin_lists:
-            oDefinitionEditor.CreatePin(["NAME:PinData", "Name:=", pin, "Id:=", id],
-                                        ["NAME:PinParams", "X:=", xp, "Y:=", yp, "Angle:=", angle, "Flip:=", False])
-            arg.append(["NAME:PinDef", "Pin:=",
-                        [pin, xp, yp, angle, "N", 0, 0.00254, False, 0, True, "", False, False, pin,
-                         True]])
+            oDefinitionEditor.CreatePin(
+                ["NAME:PinData", "Name:=", pin, "Id:=", id],
+                ["NAME:PinParams", "X:=", xp, "Y:=", yp, "Angle:=", angle, "Flip:=", False],
+            )
+            arg.append(
+                [
+                    "NAME:PinDef",
+                    "Pin:=",
+                    [pin, xp, yp, angle, "N", 0, 0.00254, False, 0, True, "", False, False, pin, True],
+                ]
+            )
             if i == (h + r):
                 yp = 0.00254 * (h + 2)
                 xp = 0.00762
@@ -521,15 +737,20 @@ class CircuitComponents(object):
             id += 2
             i += 1
 
-        arg.append(["NAME:Graphics",
-                    ["NAME:1", "Rect:=", [0, 0, 0, 0, (x1 + x2) / 2, (y1 + y2) / 2, x2 - x1, y1 - y2, 0, 0, 8192]]])
+        arg.append(
+            [
+                "NAME:Graphics",
+                ["NAME:1", "Rect:=", [0, 0, 0, 0, (x1 + x2) / 2, (y1 + y2) / 2, x2 - x1, y1 - y2, 0, 0, 8192]],
+            ]
+        )
         self.o_symbol_manager.EditWithComps(symbol_name, arg, [])
         oDefinitionEditor.CloseEditor()
         return True
 
     @aedt_exception_handler
-    def create_new_component_from_symbol(self, symbol_name, pin_lists, Refbase="U", parameter_list=[],
-                                         parameter_value=[]):
+    def create_new_component_from_symbol(
+        self, symbol_name, pin_lists, Refbase="U", parameter_list=[], parameter_value=[]
+    ):
         """Create a component from a symbol.
 
         Parameters
@@ -550,13 +771,64 @@ class CircuitComponents(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        arg = ["NAME:" + symbol_name, "Info:=",
-               ["Type:=", 0, "NumTerminals:=", 5, "DataSource:=", "", "ModifiedOn:=", 1591858313, "Manufacturer:=", "",
-                "Symbol:=", symbol_name, "ModelNames:=", "", "Footprint:=", "",
-                "Description:=", "", "InfoTopic:=", "", "InfoHelpFile:=", "", "IconFile:=", "", "Library:=", "",
-                "OriginalLocation:=", "Project", "IEEE:=", "", "Author:=", "", "OriginalAuthor:=", "",
-                "CreationDate:=", 1591858278, "ExampleFile:=", "", "HiddenComponent:=", 0, "CircuitEnv:=", 0,
-                "GroupID:=", 0], "CircuitEnv:=", 0, "Refbase:=", Refbase, "NumParts:=", 1, "ModSinceLib:=", True]
+        arg = [
+            "NAME:" + symbol_name,
+            "Info:=",
+            [
+                "Type:=",
+                0,
+                "NumTerminals:=",
+                5,
+                "DataSource:=",
+                "",
+                "ModifiedOn:=",
+                1591858313,
+                "Manufacturer:=",
+                "",
+                "Symbol:=",
+                symbol_name,
+                "ModelNames:=",
+                "",
+                "Footprint:=",
+                "",
+                "Description:=",
+                "",
+                "InfoTopic:=",
+                "",
+                "InfoHelpFile:=",
+                "",
+                "IconFile:=",
+                "",
+                "Library:=",
+                "",
+                "OriginalLocation:=",
+                "Project",
+                "IEEE:=",
+                "",
+                "Author:=",
+                "",
+                "OriginalAuthor:=",
+                "",
+                "CreationDate:=",
+                1591858278,
+                "ExampleFile:=",
+                "",
+                "HiddenComponent:=",
+                0,
+                "CircuitEnv:=",
+                0,
+                "GroupID:=",
+                0,
+            ],
+            "CircuitEnv:=",
+            0,
+            "Refbase:=",
+            Refbase,
+            "NumParts:=",
+            1,
+            "ModSinceLib:=",
+            True,
+        ]
 
         for pin in pin_lists:
             arg.append("Terminal:=")
@@ -589,22 +861,28 @@ class CircuitComponents(object):
             "NAME:CosimDefinitions",
             [
                 "NAME:CosimDefinition",
-                "CosimulatorType:=", 4,
-                "CosimDefName:=", "DefaultNetlist",
-                "IsDefinition:=", True,
-                "Connect:=", True,
-                "Data:=", ["Nexxim Circuit:=", spicesintax],
-                "GRef:=", ["Nexxim Circuit:=", ""]
+                "CosimulatorType:=",
+                4,
+                "CosimDefName:=",
+                "DefaultNetlist",
+                "IsDefinition:=",
+                True,
+                "Connect:=",
+                True,
+                "Data:=",
+                ["Nexxim Circuit:=", spicesintax],
+                "GRef:=",
+                ["Nexxim Circuit:=", ""],
             ],
-            "DefaultCosim:=", "DefaultNetlist"
+            "DefaultCosim:=",
+            "DefaultNetlist",
         ]
         arg.append(arg3)
         self.o_component_manager.Add(arg)
         return True
 
     @aedt_exception_handler
-    def enable_use_instance_name(self, component_library="Resistors",
-                                 component_name="RES_"):
+    def enable_use_instance_name(self, component_library="Resistors", component_name="RES_"):
         """Enable the use of the instance name.
 
         Parameters
@@ -638,8 +916,12 @@ class CircuitComponents(object):
                 elif el == "GRef:=":
                     nexxim_data = list(nexxim[nexxim.index(el) + 1])
                     nexxim[nexxim.index(el) + 1] = nexxim_data
-        retry_ntimes(10, self.o_component_manager.Edit, name, ["Name:" + component_name,
-                                             ["NAME:CosimDefinitions", nexxim, "DefaultCosim:=", "DefaultNetlist"]])
+        retry_ntimes(
+            10,
+            self.o_component_manager.Edit,
+            name,
+            ["Name:" + component_name, ["NAME:CosimDefinitions", nexxim, "DefaultCosim:=", "DefaultNetlist"]],
+        )
         return True
 
     @aedt_exception_handler
@@ -749,10 +1031,10 @@ class CircuitComponents(object):
         """
         if type(partid) is str:
             pins = retry_ntimes(10, self.oeditor.GetComponentPins, partid)
-            #pins = self.oeditor.GetComponentPins(partid)
+            # pins = self.oeditor.GetComponentPins(partid)
         else:
             pins = retry_ntimes(10, self.oeditor.GetComponentPins, self.components[partid].composed_name)
-            #pins = self.oeditor.GetComponentPins(self.components[partid].composed_name)
+            # pins = self.oeditor.GetComponentPins(self.components[partid].composed_name)
         return list(pins)
 
     @aedt_exception_handler
@@ -776,8 +1058,12 @@ class CircuitComponents(object):
             x = retry_ntimes(30, self.oeditor.GetComponentPinLocation, partid, pinname, True)
             y = retry_ntimes(30, self.oeditor.GetComponentPinLocation, partid, pinname, False)
         else:
-            x = retry_ntimes(30, self.oeditor.GetComponentPinLocation, self.components[partid].composed_name, pinname, True)
-            y = retry_ntimes(30, self.oeditor.GetComponentPinLocation, self.components[partid].composed_name, pinname, False)
+            x = retry_ntimes(
+                30, self.oeditor.GetComponentPinLocation, self.components[partid].composed_name, pinname, True
+            )
+            y = retry_ntimes(
+                30, self.oeditor.GetComponentPinLocation, self.components[partid].composed_name, pinname, False
+            )
         return [x, y]
 
     @aedt_exception_handler

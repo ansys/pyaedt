@@ -1,7 +1,8 @@
 from __future__ import absolute_import
 from ..generic.general_methods import aedt_exception_handler
 from .Modeler import GeometryModeler
-from  .Primitives3D import Primitives3D
+from .Primitives3D import Primitives3D
+
 
 class Modeler3D(GeometryModeler):
     """Provides the Modeler 3D application interface.
@@ -60,17 +61,54 @@ class Modeler3D(GeometryModeler):
 
         """
         if self._parent.design_type == "Icepak":
-            exclude_region =True
+            exclude_region = True
         if not component_name:
             component_name = self._parent.design_name
-        arg = ["NAME:CreateData", "ComponentName:=", component_name, "Company:=", "",
-               "Company URL:=", "", "Model Number:=", "", "Help URL:=", "",
-               "Version:=", "1.0", "Notes:=", "", "IconType:=", "",
-               "Owner:=", "pyaedt", "Email:=", "", "Date:=", "9:44:15 AM  Mar 03, 2021",
-               "HasLabel:=", False, "IsEncrypted:=", False, "AllowEdit:=", False,
-               "SecurityMessage:=", "", "Password:=", "", "EditPassword:=", "",
-               "PasswordType:=", "UnknownPassword", "HideContents:=", True,
-               "ReplaceNames:=", True, "ComponentOutline:=", "None"]
+        arg = [
+            "NAME:CreateData",
+            "ComponentName:=",
+            component_name,
+            "Company:=",
+            "",
+            "Company URL:=",
+            "",
+            "Model Number:=",
+            "",
+            "Help URL:=",
+            "",
+            "Version:=",
+            "1.0",
+            "Notes:=",
+            "",
+            "IconType:=",
+            "",
+            "Owner:=",
+            "pyaedt",
+            "Email:=",
+            "",
+            "Date:=",
+            "9:44:15 AM  Mar 03, 2021",
+            "HasLabel:=",
+            False,
+            "IsEncrypted:=",
+            False,
+            "AllowEdit:=",
+            False,
+            "SecurityMessage:=",
+            "",
+            "Password:=",
+            "",
+            "EditPassword:=",
+            "",
+            "PasswordType:=",
+            "UnknownPassword",
+            "HideContents:=",
+            True,
+            "ReplaceNames:=",
+            True,
+            "ComponentOutline:=",
+            "None",
+        ]
         objs = self.primitives.object_names
         for el in objs:
             if "Region" in el and exclude_region:
@@ -81,7 +119,7 @@ class Modeler3D(GeometryModeler):
         allcs = self.oeditor.GetCoordinateSystems()
         arg.append("IncludedCS:="), arg.append(allcs)
         arg.append("ReferenceCS:="), arg.append(activecs)
-        variables =variables_to_include
+        variables = variables_to_include
         arg.append("IncludedParameters:="), arg.append(variables)
         variables = self._parent._variable_manager.dependent_variable_names
         par_description = []
@@ -99,7 +137,7 @@ class Modeler3D(GeometryModeler):
         arg.append("PublicKeyFile:="), arg.append("")
         arg2 = ["NAME:DesignData"]
         boundaries = self.get_boundaries_name()
-        arg2.append("Boundaries:="),arg2.append(boundaries)
+        arg2.append("Boundaries:="), arg2.append(boundaries)
         if self._parent.design_type == "Icepak":
             meshregions = [name for name in self._parent.mesh.meshregions.name]
             try:

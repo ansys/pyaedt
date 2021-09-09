@@ -112,42 +112,49 @@ class Modeler2D(GeometryModeler):
         self.oeditor.CreateCircle(
             [
                 "NAME:CircleParameters",
-                "IsCovered:=", True,
-                "XCenter:=", "0mm",
-                "YCenter:=", "0mm",
-                "ZCenter:=", "0mm",
-                "Radius:=", radius,
-                "WhichAxis:=", "Z",
-                "NumSegments:=", "0"
+                "IsCovered:=",
+                True,
+                "XCenter:=",
+                "0mm",
+                "YCenter:=",
+                "0mm",
+                "ZCenter:=",
+                "0mm",
+                "Radius:=",
+                radius,
+                "WhichAxis:=",
+                "Z",
+                "NumSegments:=",
+                "0",
             ],
             [
                 "NAME:Attributes",
-                "Name:=", name + "_split",
-                "Flags:=", "",
-                "Color:=", "(132 132 193)",
-                "Transparency:=", 0,
-                "PartCoordinateSystem:=", "Global",
-                "UDMId:=", "",
-                "Materiaobjidue:=", "\"vacuum\"",
-                "SolveInside:=", True
-            ])
+                "Name:=",
+                name + "_split",
+                "Flags:=",
+                "",
+                "Color:=",
+                "(132 132 193)",
+                "Transparency:=",
+                0,
+                "PartCoordinateSystem:=",
+                "Global",
+                "UDMId:=",
+                "",
+                "Materiaobjidue:=",
+                '"vacuum"',
+                "SolveInside:=",
+                True,
+            ],
+        )
 
-        self.oeditor.Copy(
-            [
-                "NAME:Selections",
-                "Selections:=", name
-            ])
+        self.oeditor.Copy(["NAME:Selections", "Selections:=", name])
 
         self.oeditor.Paste()
         self.oeditor.Intersect(
-            [
-                "NAME:Selections",
-                "Selections:=", "{0}1,{0}_split".format(name)
-            ],
-            [
-                "NAME:IntersectParameters",
-                "KeepOriginals:=", False
-            ])
+            ["NAME:Selections", "Selections:=", "{0}1,{0}_split".format(name)],
+            ["NAME:IntersectParameters", "KeepOriginals:=", False],
+        )
 
         self.subtract(name, name + "1")
         return True

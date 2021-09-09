@@ -33,7 +33,8 @@ class Primitives3D(Primitives, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
-    """
+        """
+
     @aedt_exception_handler
     def create_box(self, position, dimensions_list, name=None, matname=None):
         """Create a box.
@@ -133,14 +134,22 @@ class Primitives3D(Primitives, object):
         vArg1.append("Radius:="), vArg1.append(Radius)
         vArg1.append("Height:="), vArg1.append(Height)
         vArg1.append("WhichAxis:="), vArg1.append(szAxis)
-        vArg1.append("NumSides:="), vArg1.append('{}'.format(numSides))
+        vArg1.append("NumSides:="), vArg1.append("{}".format(numSides))
         vArg2 = self._default_object_attributes(name=name, matname=matname)
         new_object_name = self.oeditor.CreateCylinder(vArg1, vArg2)
         return self._create_object(new_object_name)
 
     @aedt_exception_handler
-    def create_polyhedron(self, cs_axis=None, center_position=(0.0, 0.0, 0.0), start_position=(0.0, 1.0, 0.0),
-                          height=1.0, num_sides=12, name=None, matname=None):
+    def create_polyhedron(
+        self,
+        cs_axis=None,
+        center_position=(0.0, 0.0, 0.0),
+        start_position=(0.0, 1.0, 0.0),
+        height=1.0,
+        num_sides=12,
+        name=None,
+        matname=None,
+    ):
         """Create a regular polyhedron.
 
         Parameters
@@ -300,8 +309,20 @@ class Primitives3D(Primitives, object):
         return self._create_object(new_object_name)
 
     @aedt_exception_handler
-    def create_bondwire(self, start_position, end_position, h1=0.2, h2=0, alpha=80, beta=5, bond_type=0,
-                        diameter=0.025, facets=6, name=None, matname=None):
+    def create_bondwire(
+        self,
+        start_position,
+        end_position,
+        h1=0.2,
+        h2=0,
+        alpha=80,
+        beta=5,
+        bond_type=0,
+        diameter=0.025,
+        facets=6,
+        name=None,
+        matname=None,
+    ):
         """Create a bondwire.
 
         Parameters
@@ -363,12 +384,12 @@ class Primitives3D(Primitives, object):
         XSize, YSize, ZSize = self._pos_with_arg(end_position)
         if XSize is None or YSize is None or YSize is None:
             raise AttributeError("Dimension Argument must be a valid 3 Element List")
-        if bond_type==0:
+        if bond_type == 0:
             bondwire = "JEDEC_5Points"
-        elif bond_type==1:
+        elif bond_type == 1:
             bondwire = "JEDEC_4Points"
 
-        elif bond_type==2:
+        elif bond_type == 2:
             bondwire = "LOW"
         else:
             self._messenger.add_error_message("Wrong Profile Type")
@@ -384,7 +405,8 @@ class Primitives3D(Primitives, object):
         vArg1.append("YDir:="), vArg1.append(YSize)
         vArg1.append("ZDir:="), vArg1.append(ZSize)
         vArg1.append("Distance:="), vArg1.append(
-            self._arg_with_dim(GeometryOperators.points_distance(start_position, end_position)))
+            self._arg_with_dim(GeometryOperators.points_distance(start_position, end_position))
+        )
         vArg1.append("h1:="), vArg1.append(self._arg_with_dim(h1))
         vArg1.append("h2:="), vArg1.append(self._arg_with_dim(h2))
         vArg1.append("alpha:="), vArg1.append(self._arg_with_dim(alpha, "deg"))
@@ -396,7 +418,7 @@ class Primitives3D(Primitives, object):
         return self._create_object(new_object_name)
 
     @aedt_exception_handler
-    def create_rectangle(self, csPlane, position, dimension_list,  name=None, matname=None, is_covered=True):
+    def create_rectangle(self, csPlane, position, dimension_list, name=None, matname=None, is_covered=True):
         """Create a rectangle.
 
         Parameters
@@ -478,7 +500,7 @@ class Primitives3D(Primitives, object):
         vArg1.append("ZCenter:="), vArg1.append(ZCenter)
         vArg1.append("Radius:="), vArg1.append(Radius)
         vArg1.append("WhichAxis:="), vArg1.append(szAxis)
-        vArg1.append("NumSegments:="), vArg1.append('{}'.format(numSides))
+        vArg1.append("NumSegments:="), vArg1.append("{}".format(numSides))
         vArg2 = self._default_object_attributes(name=name, matname=matname)
         new_object_name = self.oeditor.CreateCircle(vArg1, vArg2)
         return self._create_object(new_object_name)
@@ -533,10 +555,23 @@ class Primitives3D(Primitives, object):
         return self._create_object(new_object_name)
 
     @aedt_exception_handler
-    def create_equationbased_curve(self, x_t=0, y_t=0, z_t=0, t_start=0, t_end=1, num_points = 0,
-                                   name=None, xsection_type=None, xsection_orient=None,
-                                   xsection_width=1, xsection_topwidth=1, xsection_height=1, xsection_num_seg=0,
-                                   xsection_bend_type=None):
+    def create_equationbased_curve(
+        self,
+        x_t=0,
+        y_t=0,
+        z_t=0,
+        t_start=0,
+        t_end=1,
+        num_points=0,
+        name=None,
+        xsection_type=None,
+        xsection_orient=None,
+        xsection_width=1,
+        xsection_topwidth=1,
+        xsection_height=1,
+        xsection_num_seg=0,
+        xsection_bend_type=None,
+    ):
         """Create an equation-based curve.
 
         Parameters
@@ -589,19 +624,34 @@ class Primitives3D(Primitives, object):
             3D object.
 
         """
-        x_section = self._crosssection_arguments(type=xsection_type, orient=xsection_orient, width=xsection_width,
-                                                 topwidth=xsection_topwidth, height=xsection_height, num_seg=xsection_num_seg,
-                                                 bend_type=xsection_bend_type)
+        x_section = self._crosssection_arguments(
+            type=xsection_type,
+            orient=xsection_orient,
+            width=xsection_width,
+            topwidth=xsection_topwidth,
+            height=xsection_height,
+            num_seg=xsection_num_seg,
+            bend_type=xsection_bend_type,
+        )
 
-        vArg1 = ["NAME:EquationBasedCurveParameters",
-                 "XtFunction:=", str(x_t),
-                 "YtFunction:=", str(y_t),
-                 "ZtFunction:=", str(z_t),
-                 "tStart:=", str(t_start),
-                 "tEnd:=", str(t_end),
-                 "NumOfPointsOnCurve:="	, num_points,
-                 "Version:="		, 1,
-                 x_section]
+        vArg1 = [
+            "NAME:EquationBasedCurveParameters",
+            "XtFunction:=",
+            str(x_t),
+            "YtFunction:=",
+            str(y_t),
+            "ZtFunction:=",
+            str(z_t),
+            "tStart:=",
+            str(t_start),
+            "tEnd:=",
+            str(t_end),
+            "NumOfPointsOnCurve:=",
+            num_points,
+            "Version:=",
+            1,
+            x_section,
+        ]
 
         vArg2 = self._default_object_attributes(name)
 
@@ -625,7 +675,7 @@ class Primitives3D(Primitives, object):
         """
         vArg1 = ["NAME:Selections"]
         vArg1.append("Selections:="), vArg1.append(o.name)
-        vArg1.append("NewPartsModelFlag:="), vArg1.append('Model')
+        vArg1.append("NewPartsModelFlag:="), vArg1.append("Model")
 
         vArg2 = udphelixdefinition.toScript(self.model_units)
 
@@ -657,23 +707,15 @@ class Primitives3D(Primitives, object):
                     "NAME:AllTabs",
                     [
                         "NAME:Geometry3DPolylineTab",
-                        [
-                            "NAME:PropServers",
-                            this_object.name + ":CreatePolyline:1:Segment" + str(i)
-                        ],
-                        [
-                            "NAME:ChangedProps",
-                            [
-                                "NAME:Segment Type",
-                                "Value:=", "Line"
-                            ]
-                        ]
-                    ]
-                ])
+                        ["NAME:PropServers", this_object.name + ":CreatePolyline:1:Segment" + str(i)],
+                        ["NAME:ChangedProps", ["NAME:Segment Type", "Value:=", "Line"]],
+                    ],
+                ]
+            )
         return True
 
     @aedt_exception_handler
-    def create_udm(self, udmfullname, udm_params_list, udm_library='syslib'):
+    def create_udm(self, udmfullname, udm_params_list, udm_library="syslib"):
         """Create a user-defined model.
 
         Parameters
@@ -691,7 +733,7 @@ class Primitives3D(Primitives, object):
             3D object.
 
         """
-        vArg1 = ["NAME:UserDefinedModelParameters",["NAME:Definition"], ["NAME:Options"]]
+        vArg1 = ["NAME:UserDefinedModelParameters", ["NAME:Definition"], ["NAME:Options"]]
         vArgParamVector = ["NAME:GeometryParams"]
 
         for pair in udm_params_list:
@@ -703,14 +745,28 @@ class Primitives3D(Primitives, object):
                 val = pair.Value
             if type(val) is int:
                 vArgParamVector.append(
-                    ["NAME:UDMParam", "Name:=", name, "Value:=", str(val), "PropType2:=", 3, "PropFlag2:=", 2])
-            elif str(val)[0] in '0123456789':
+                    ["NAME:UDMParam", "Name:=", name, "Value:=", str(val), "PropType2:=", 3, "PropFlag2:=", 2]
+                )
+            elif str(val)[0] in "0123456789":
                 vArgParamVector.append(
-                    ["NAME:UDMParam", "Name:=", name, "Value:=", str(val), "PropType2:=", 3, "PropFlag2:=", 4])
+                    ["NAME:UDMParam", "Name:=", name, "Value:=", str(val), "PropType2:=", 3, "PropFlag2:=", 4]
+                )
             else:
                 vArgParamVector.append(
-                    ["NAME:UDMParam", "Name:=", name, "Value:=", str(val), "DataType:=", "String", "PropType2:=", 1,
-                     "PropFlag2:=", 0])
+                    [
+                        "NAME:UDMParam",
+                        "Name:=",
+                        name,
+                        "Value:=",
+                        str(val),
+                        "DataType:=",
+                        "String",
+                        "PropType2:=",
+                        1,
+                        "PropFlag2:=",
+                        0,
+                    ]
+                )
 
         vArg1.append(vArgParamVector)
         vArg1.append("DllName:=")
@@ -731,7 +787,7 @@ class Primitives3D(Primitives, object):
             return False
 
     @aedt_exception_handler
-    def insert_3d_component(self, compFile, geoParams=None, szMatParams='', szDesignParams='', targetCS='Global'):
+    def insert_3d_component(self, compFile, geoParams=None, szMatParams="", szDesignParams="", targetCS="Global"):
         """Insert a new 3D component.
 
         Parameters
@@ -770,7 +826,7 @@ class Primitives3D(Primitives, object):
         vArg1.append(False)
         vArg1.append("UniqueIdentifier:=")
         vArg1.append("")
-        varg2= ["NAME:InstanceParameters"]
+        varg2 = ["NAME:InstanceParameters"]
         varg2.append("GeometryParameters:=")
         varg2.append(sz_geo_params)
         varg2.append("MaterialParameters:=")
@@ -779,7 +835,7 @@ class Primitives3D(Primitives, object):
         varg2.append(szDesignParams)
         vArg1.append(varg2)
         new_object_name = self.oeditor.Insert3DComponent(vArg1)
-        #TODO return an object
+        # TODO return an object
         return new_object_name
 
     @aedt_exception_handler
@@ -808,7 +864,9 @@ class Primitives3D(Primitives, object):
         if not os.path.exists(actor_folder):
             self._messenger.add_error_message("Folder {} does not exist.".format(actor_folder))
             return False
-        if not any(fname.endswith('.json') for fname in os.listdir(actor_folder)) or not any(fname.endswith('.a3dcomp') for fname in os.listdir(actor_folder)):
+        if not any(fname.endswith(".json") for fname in os.listdir(actor_folder)) or not any(
+            fname.endswith(".a3dcomp") for fname in os.listdir(actor_folder)
+        ):
             self._messenger.add_error_message("At least one json and one a3dcomp file is needed.")
             return False
         return True
@@ -821,7 +879,9 @@ class Primitives3D(Primitives, object):
             return MultiPartComponent.start(self._parent)
 
     @aedt_exception_handler
-    def add_person(self, actor_folder, speed=0.0, global_offset=[0, 0, 0], yaw=0, pitch=0, roll=0, relative_cs_name=None):
+    def add_person(
+        self, actor_folder, speed=0.0, global_offset=[0, 0, 0], yaw=0, pitch=0, roll=0, relative_cs_name=None
+    ):
         """Add a Walking Person Multipart from 3D Components.
 
         It requires a json file in the folder containing person infos. An example json file is showed here.
@@ -908,7 +968,9 @@ class Primitives3D(Primitives, object):
         return person1
 
     @aedt_exception_handler
-    def add_vehicle(self, actor_folder, speed=0, global_offset=[0,0,0], yaw=0, pitch=0,roll=0, relative_cs_name=None):
+    def add_vehicle(
+        self, actor_folder, speed=0, global_offset=[0, 0, 0], yaw=0, pitch=0, roll=0, relative_cs_name=None
+    ):
         """Add a Moving Vehicle Multipart from 3D Components.
 
         It requires a json file in the folder containing vehicle infos. An example json file is showed here.
@@ -982,8 +1044,17 @@ class Primitives3D(Primitives, object):
         return vehicle
 
     @aedt_exception_handler
-    def add_bird(self, actor_folder, speed=0, global_offset=[0, 0, 0], yaw=0, pitch=0,
-                 roll=0, flapping_rate=50, relative_cs_name=None):
+    def add_bird(
+        self,
+        actor_folder,
+        speed=0,
+        global_offset=[0, 0, 0],
+        yaw=0,
+        pitch=0,
+        roll=0,
+        flapping_rate=50,
+        relative_cs_name=None,
+    ):
         """Add a Bird Multipart from 3D Components.
 
         It requires a json file in the folder containing bird infos. An example json file is showed here.
@@ -1066,7 +1137,12 @@ class Primitives3D(Primitives, object):
 
         if not self._check_actor_folder(actor_folder):
             return False
-        bird = Bird(actor_folder, speed=speed, flapping_rate=self._arg_with_dim(flapping_rate,"Hz"), relative_cs_name=relative_cs_name)
+        bird = Bird(
+            actor_folder,
+            speed=speed,
+            flapping_rate=self._arg_with_dim(flapping_rate, "Hz"),
+            relative_cs_name=relative_cs_name,
+        )
         bird.offset = global_offset
         bird.yaw = self._arg_with_dim(yaw, "deg")
         bird.pitch = self._arg_with_dim(pitch, "deg")

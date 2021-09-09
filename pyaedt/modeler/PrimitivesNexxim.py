@@ -14,6 +14,7 @@ class NexximComponents(CircuitComponents):
     modeler :
 
     """
+
     @property
     def design_libray(self):
         """Design library."""
@@ -59,8 +60,9 @@ class NexximComponents(CircuitComponents):
         .. deprecated:: 0.4.0
            Use :func:`Circuit.modeler.components.add_subcircuit_3dlayout` instead.
         """
-        warnings.warn('`create_3dlayout_subcircuit` is deprecated. Use `add_subcircuit_3dlayout` instead.',
-                      DeprecationWarning)
+        warnings.warn(
+            "`create_3dlayout_subcircuit` is deprecated. Use `add_subcircuit_3dlayout` instead.", DeprecationWarning
+        )
         return self.add_subcircuit_3dlayout(sourcename)
 
     @aedt_exception_handler
@@ -113,101 +115,221 @@ class NexximComponents(CircuitComponents):
         """
         id = self.create_unique_id()
         component_name = design_name + "_" + str(id)
-        arg = ["NAME: " +component_name ,"Name:="	, component_name,
-               "ModTime:="		, 1589868932,
-               "Library:="		, "",
-               "LibLocation:="		, "Project",
-               "ModelType:="		, model_type,
-               "Description:="		, "",
-               "ImageFile:="		, "",
-               "SymbolPinConfiguration:=", 0,
-               [
-                   "NAME:PortInfoBlk"
-               ],
-               [
-                   "NAME:PortOrderBlk"
-               ],
-               "DesignName:="		, design_name,
-               "SolutionName:="	, solution_name,
-               "NewToOldMap:="		, [],
-               "OldToNewMap:="		, [],
-               "PinNames:="		, pin_names,
-               [
-                   "NAME:DesignerCustomization",
-                   "DCOption:="		, 0,
-                   "InterpOption:="	, 0,
-                   "ExtrapOption:="	, 1,
-                   "Convolution:="		, 0,
-                   "Passivity:="		, 0,
-                   "Reciprocal:="		, False,
-                   "ModelOption:="		, "",
-                   "DataType:="		, 1
-               ],
-               [
-                   "NAME:NexximCustomization",
-                   "DCOption:="		, 3,
-                   "InterpOption:="	, 1,
-                   "ExtrapOption:="	, 3,
-                   "Convolution:="		, 0,
-                   "Passivity:="		, 0,
-                   "Reciprocal:="		, False,
-                   "ModelOption:="		, "",
-                   "DataType:="		, 2
-               ],
-               [
-                   "NAME:HSpiceCustomization",
-                   "DCOption:="		, 1,
-                   "InterpOption:="	, 2,
-                   "ExtrapOption:="	, 3,
-                   "Convolution:="		, 0,
-                   "Passivity:="		, 0,
-                   "Reciprocal:="		, False,
-                   "ModelOption:="		, "",
-                   "DataType:="		, 3
-               ],
-               "NoiseModelOption:="	, "External",
-               "WB_SystemID:="		, design_name,
-               "IsWBModel:="		, False,
-               "filename:="		, "",
-               "numberofports:="	, len(pin_names),
-               "Simulate:="		, False,
-               "CloseProject:="	, False,
-               "SaveProject:="		, True,
-               "InterpY:="		, True,
-               "InterpAlg:="		, "auto",
-               "IgnoreDepVars:="	, False,
-               "Renormalize:="		, False,
-               "RenormImpedance:="	, 50
-               ]
+        arg = [
+            "NAME: " + component_name,
+            "Name:=",
+            component_name,
+            "ModTime:=",
+            1589868932,
+            "Library:=",
+            "",
+            "LibLocation:=",
+            "Project",
+            "ModelType:=",
+            model_type,
+            "Description:=",
+            "",
+            "ImageFile:=",
+            "",
+            "SymbolPinConfiguration:=",
+            0,
+            ["NAME:PortInfoBlk"],
+            ["NAME:PortOrderBlk"],
+            "DesignName:=",
+            design_name,
+            "SolutionName:=",
+            solution_name,
+            "NewToOldMap:=",
+            [],
+            "OldToNewMap:=",
+            [],
+            "PinNames:=",
+            pin_names,
+            [
+                "NAME:DesignerCustomization",
+                "DCOption:=",
+                0,
+                "InterpOption:=",
+                0,
+                "ExtrapOption:=",
+                1,
+                "Convolution:=",
+                0,
+                "Passivity:=",
+                0,
+                "Reciprocal:=",
+                False,
+                "ModelOption:=",
+                "",
+                "DataType:=",
+                1,
+            ],
+            [
+                "NAME:NexximCustomization",
+                "DCOption:=",
+                3,
+                "InterpOption:=",
+                1,
+                "ExtrapOption:=",
+                3,
+                "Convolution:=",
+                0,
+                "Passivity:=",
+                0,
+                "Reciprocal:=",
+                False,
+                "ModelOption:=",
+                "",
+                "DataType:=",
+                2,
+            ],
+            [
+                "NAME:HSpiceCustomization",
+                "DCOption:=",
+                1,
+                "InterpOption:=",
+                2,
+                "ExtrapOption:=",
+                3,
+                "Convolution:=",
+                0,
+                "Passivity:=",
+                0,
+                "Reciprocal:=",
+                False,
+                "ModelOption:=",
+                "",
+                "DataType:=",
+                3,
+            ],
+            "NoiseModelOption:=",
+            "External",
+            "WB_SystemID:=",
+            design_name,
+            "IsWBModel:=",
+            False,
+            "filename:=",
+            "",
+            "numberofports:=",
+            len(pin_names),
+            "Simulate:=",
+            False,
+            "CloseProject:=",
+            False,
+            "SaveProject:=",
+            True,
+            "InterpY:=",
+            True,
+            "InterpAlg:=",
+            "auto",
+            "IgnoreDepVars:=",
+            False,
+            "Renormalize:=",
+            False,
+            "RenormImpedance:=",
+            50,
+        ]
         self.o_model_manager.Add(arg)
         arg = [
             "NAME:" + component_name,
             "Info:=",
-            ["Type:=", 8, "NumTerminals:=", len(pin_names), "DataSource:=", "", "ModifiedOn:=", 1589868933,
-             "Manufacturer:=", "",
-             "Symbol:=", "", "ModelNames:=", "", "Footprint:=", "", "Description:=", "", "InfoTopic:=", "",
-             "InfoHelpFile:=", "", "IconFile:=", "", "Library:=", "", "OriginalLocation:=", "Project",
-             "IEEE:=", "", "Author:=", "", "OriginalAuthor:=", "", "CreationDate:=", 1589868933, "ExampleFile:=",
-             "", "HiddenComponent:=", 0, "CircuitEnv:=", 0, "GroupID:=", 0],
-            "CircuitEnv:="	, 0,
-            "Refbase:="		, "S",
-            "NumParts:="		, 1,
-            "ModSinceLib:="		, False]
+            [
+                "Type:=",
+                8,
+                "NumTerminals:=",
+                len(pin_names),
+                "DataSource:=",
+                "",
+                "ModifiedOn:=",
+                1589868933,
+                "Manufacturer:=",
+                "",
+                "Symbol:=",
+                "",
+                "ModelNames:=",
+                "",
+                "Footprint:=",
+                "",
+                "Description:=",
+                "",
+                "InfoTopic:=",
+                "",
+                "InfoHelpFile:=",
+                "",
+                "IconFile:=",
+                "",
+                "Library:=",
+                "",
+                "OriginalLocation:=",
+                "Project",
+                "IEEE:=",
+                "",
+                "Author:=",
+                "",
+                "OriginalAuthor:=",
+                "",
+                "CreationDate:=",
+                1589868933,
+                "ExampleFile:=",
+                "",
+                "HiddenComponent:=",
+                0,
+                "CircuitEnv:=",
+                0,
+                "GroupID:=",
+                0,
+            ],
+            "CircuitEnv:=",
+            0,
+            "Refbase:=",
+            "S",
+            "NumParts:=",
+            1,
+            "ModSinceLib:=",
+            False,
+        ]
         id = 2
         for pn in pin_names:
             arg.append("Terminal:=")
-            arg.append([pn ,pn, "A", False, id, 1, "", "Electrical", "0"])
+            arg.append([pn, pn, "A", False, id, 1, "", "Electrical", "0"])
             id += 1
         arg.append(["NAME:Properties", "TextProp:=", ["Owner", "RD", "", model_type.upper()]])
         arg.append("CompExtID:="), arg.append(5)
-        arg.append(["NAME:Parameters", "TextProp:="	, ["ModelName" ,"RD", "", "FieldSolver"],
-                    "MenuProp:=", ["CoSimulator", "SD", "", "Default", 0],
-                    "ButtonProp:=", ["CosimDefinition", "SD", "", "Edit", "Edit", 40501, "ButtonPropClientData:=", []]])
-        arg.append(["NAME:CosimDefinitions",
-                    ["NAME:CosimDefinition", "CosimulatorType:=", 103, "CosimDefName:=", "Default", "IsDefinition:=",
-                     True, "Connect:=", True,
-                     "ModelDefinitionName:=", component_name, "ShowRefPin2:=", 2, "LenPropName:=", ""],
-                    "DefaultCosim:=", "Default"])
+        arg.append(
+            [
+                "NAME:Parameters",
+                "TextProp:=",
+                ["ModelName", "RD", "", "FieldSolver"],
+                "MenuProp:=",
+                ["CoSimulator", "SD", "", "Default", 0],
+                "ButtonProp:=",
+                ["CosimDefinition", "SD", "", "Edit", "Edit", 40501, "ButtonPropClientData:=", []],
+            ]
+        )
+        arg.append(
+            [
+                "NAME:CosimDefinitions",
+                [
+                    "NAME:CosimDefinition",
+                    "CosimulatorType:=",
+                    103,
+                    "CosimDefName:=",
+                    "Default",
+                    "IsDefinition:=",
+                    True,
+                    "Connect:=",
+                    True,
+                    "ModelDefinitionName:=",
+                    component_name,
+                    "ShowRefPin2:=",
+                    2,
+                    "LenPropName:=",
+                    "",
+                ],
+                "DefaultCosim:=",
+                "Default",
+            ]
+        )
 
         self.o_component_manager.Add(arg)
         self._parent.odesign.AddCompInstance(component_name)
@@ -218,7 +340,7 @@ class NexximComponents(CircuitComponents):
         return False
 
     @aedt_exception_handler
-    def create_resistor(self, compname=None, value=50, xpos=0, ypos=0,angle=0, use_instance_id_netlist=False):
+    def create_resistor(self, compname=None, value=50, xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
         """Create a resistor.
 
         Parameters
@@ -245,13 +367,15 @@ class NexximComponents(CircuitComponents):
             Name of the resistor.
 
         """
-        cmpid, cmpname = self.create_component(compname, xpos=xpos, ypos=ypos, angle=angle, use_instance_id_netlist=use_instance_id_netlist)
+        cmpid, cmpname = self.create_component(
+            compname, xpos=xpos, ypos=ypos, angle=angle, use_instance_id_netlist=use_instance_id_netlist
+        )
 
         self.components[cmpid].set_property("R", value)
         return cmpid, cmpname
 
     @aedt_exception_handler
-    def create_inductor(self, compname=None,value=50, xpos=0, ypos=0,angle=0, use_instance_id_netlist=False):
+    def create_inductor(self, compname=None, value=50, xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
         """Create an inductor.
 
         Parameters
@@ -278,15 +402,22 @@ class NexximComponents(CircuitComponents):
             Name of the inductor.
 
         """
-        cmpid, cmpname = self.create_component(compname, component_library="Inductors", component_name="IND_", xpos=xpos, ypos=ypos,
-                                         angle=angle, use_instance_id_netlist=use_instance_id_netlist)
+        cmpid, cmpname = self.create_component(
+            compname,
+            component_library="Inductors",
+            component_name="IND_",
+            xpos=xpos,
+            ypos=ypos,
+            angle=angle,
+            use_instance_id_netlist=use_instance_id_netlist,
+        )
 
         self.components[cmpid].set_property("L", value)
 
         return cmpid, cmpname
 
     @aedt_exception_handler
-    def create_capacitor(self, compname=None,value=50, xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
+    def create_capacitor(self, compname=None, value=50, xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
         """Create a capacitor.
 
         Parameters
@@ -313,8 +444,15 @@ class NexximComponents(CircuitComponents):
             Name of the capacitor.
 
         """
-        cmpid, cmpname = self.create_component(compname,component_library="Capacitors", component_name="CAP_", xpos=xpos, ypos=ypos,
-                                         angle=angle, use_instance_id_netlist=use_instance_id_netlist)
+        cmpid, cmpname = self.create_component(
+            compname,
+            component_library="Capacitors",
+            component_name="CAP_",
+            xpos=xpos,
+            ypos=ypos,
+            angle=angle,
+            use_instance_id_netlist=use_instance_id_netlist,
+        )
 
         self.components[cmpid].set_property("C", value)
         return cmpid, cmpname
@@ -346,14 +484,23 @@ class NexximComponents(CircuitComponents):
             Name of the voltage DC source.
 
         """
-        cmpid, cmpname = self.create_component(compname,component_library="Independent Sources", component_name="V_DC", xpos=xpos, ypos=ypos,
-                                         angle=angle, use_instance_id_netlist=use_instance_id_netlist)
+        cmpid, cmpname = self.create_component(
+            compname,
+            component_library="Independent Sources",
+            component_name="V_DC",
+            xpos=xpos,
+            ypos=ypos,
+            angle=angle,
+            use_instance_id_netlist=use_instance_id_netlist,
+        )
 
         self.components[cmpid].set_property("DC", value)
         return cmpid, cmpname
 
     @aedt_exception_handler
-    def create_current_pulse(self, compname=None, value_lists=[], xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
+    def create_current_pulse(
+        self, compname=None, value_lists=[], xpos=0, ypos=0, angle=0, use_instance_id_netlist=False
+    ):
         """Create a current pulse.
 
         Parameters
@@ -380,8 +527,15 @@ class NexximComponents(CircuitComponents):
             Name of the current pulse.
 
         """
-        cmpid, cmpname = self.create_component(compname,component_library="Independent Sources", component_name="I_PULSE", xpos=xpos, ypos=ypos,
-                                         angle=angle, use_instance_id_netlist=use_instance_id_netlist)
+        cmpid, cmpname = self.create_component(
+            compname,
+            component_library="Independent Sources",
+            component_name="I_PULSE",
+            xpos=xpos,
+            ypos=ypos,
+            angle=angle,
+            use_instance_id_netlist=use_instance_id_netlist,
+        )
 
         if len(value_lists) > 0:
             self.components[cmpid].set_property("I1", value_lists[0])
@@ -401,7 +555,9 @@ class NexximComponents(CircuitComponents):
         return cmpid, cmpname
 
     @aedt_exception_handler
-    def create_voltage_pulse(self, compname=None, value_lists=[], xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
+    def create_voltage_pulse(
+        self, compname=None, value_lists=[], xpos=0, ypos=0, angle=0, use_instance_id_netlist=False
+    ):
         """Create a voltage pulse.
 
         Parameters
@@ -428,8 +584,15 @@ class NexximComponents(CircuitComponents):
             Name of the voltage pulse.
 
         """
-        cmpid, cmpname = self.create_component(compname,component_library="Independent Sources", component_name="V_PULSE", xpos=xpos, ypos=ypos,
-                                         angle=angle, use_instance_id_netlist=use_instance_id_netlist)
+        cmpid, cmpname = self.create_component(
+            compname,
+            component_library="Independent Sources",
+            component_name="V_PULSE",
+            xpos=xpos,
+            ypos=ypos,
+            angle=angle,
+            use_instance_id_netlist=use_instance_id_netlist,
+        )
 
         if len(value_lists) > 0:
             self.components[cmpid].set_property("V1", value_lists[0])
@@ -476,13 +639,22 @@ class NexximComponents(CircuitComponents):
             Name of the current DC source.
 
         """
-        cmpid, cmpname = self.create_component(compname,component_library="Independent Sources", component_name="I_DC", xpos=xpos, ypos=ypos,
-                                         angle=angle, use_instance_id_netlist=use_instance_id_netlist)
+        cmpid, cmpname = self.create_component(
+            compname,
+            component_library="Independent Sources",
+            component_name="I_DC",
+            xpos=xpos,
+            ypos=ypos,
+            angle=angle,
+            use_instance_id_netlist=use_instance_id_netlist,
+        )
 
         self.components[cmpid].set_property("DC", value)
         return cmpid, cmpname
 
-    def create_coupling_inductors(self, compname, l1, l2, value=1, xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
+    def create_coupling_inductors(
+        self, compname, l1, l2, value=1, xpos=0, ypos=0, angle=0, use_instance_id_netlist=False
+    ):
         """Create a coupling inductor.
 
         Parameters
@@ -513,8 +685,15 @@ class NexximComponents(CircuitComponents):
             Name of the coupling inductor.
 
         """
-        cmpid, cmpname = self.create_component(compname,component_library="Inductors", component_name="K_IND", xpos=xpos, ypos=ypos,
-                                         angle=angle, use_instance_id_netlist=use_instance_id_netlist)
+        cmpid, cmpname = self.create_component(
+            compname,
+            component_library="Inductors",
+            component_name="K_IND",
+            xpos=xpos,
+            ypos=ypos,
+            angle=angle,
+            use_instance_id_netlist=use_instance_id_netlist,
+        )
 
         self.components[cmpid].set_property("Inductor1", l1)
         self.components[cmpid].set_property("Inductor2", l2)
@@ -522,7 +701,9 @@ class NexximComponents(CircuitComponents):
         return cmpid, cmpname
 
     @aedt_exception_handler
-    def create_diode(self, compname=None,model_name="required", xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
+    def create_diode(
+        self, compname=None, model_name="required", xpos=0, ypos=0, angle=0, use_instance_id_netlist=False
+    ):
         """Create a diode.
 
         Parameters
@@ -549,8 +730,15 @@ class NexximComponents(CircuitComponents):
             Name of the diode.
 
         """
-        cmpid, cmpname = self.create_component(compname,component_library="Diodes", component_name="DIODE_Level1", xpos=xpos, ypos=ypos,
-                                         angle=angle, use_instance_id_netlist=use_instance_id_netlist)
+        cmpid, cmpname = self.create_component(
+            compname,
+            component_library="Diodes",
+            component_name="DIODE_Level1",
+            xpos=xpos,
+            ypos=ypos,
+            angle=angle,
+            use_instance_id_netlist=use_instance_id_netlist,
+        )
 
         self.components[cmpid].set_property("MOD", model_name)
         return cmpid, cmpname
@@ -583,14 +771,21 @@ class NexximComponents(CircuitComponents):
             Name of the NPN transistor.
 
         """
-        id, name = self.create_component(compname,component_library="BJTs", component_name="Level01_NPN", xpos=xpos, ypos=ypos,
-                                         angle=angle, use_instance_id_netlist=use_instance_id_netlist)
+        id, name = self.create_component(
+            compname,
+            component_library="BJTs",
+            component_name="Level01_NPN",
+            xpos=xpos,
+            ypos=ypos,
+            angle=angle,
+            use_instance_id_netlist=use_instance_id_netlist,
+        )
         if value:
             self.components[id].set_property("MOD", value)
         return id, name
 
     @aedt_exception_handler
-    def create_pnp(self, compname=None,value=50, xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
+    def create_pnp(self, compname=None, value=50, xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
         """Create a PNP transistor.
 
         Parameters
@@ -617,15 +812,24 @@ class NexximComponents(CircuitComponents):
             Name of the PNP transistor.
 
         """
-        id, name = self.create_component(compname, component_library="BJTs", component_name="Level01_PNP", xpos=xpos, ypos=ypos,
-                                         angle=angle, use_instance_id_netlist=use_instance_id_netlist)
+        id, name = self.create_component(
+            compname,
+            component_library="BJTs",
+            component_name="Level01_PNP",
+            xpos=xpos,
+            ypos=ypos,
+            angle=angle,
+            use_instance_id_netlist=use_instance_id_netlist,
+        )
         if value:
-            self.components[id].set_property( "MOD", value)
+            self.components[id].set_property("MOD", value)
 
         return id, name
 
     @aedt_exception_handler
-    def create_new_component_from_symbol(self,symbol_name, pin_lists, Refbase = "U", parameter_list=[], parameter_value=[]):
+    def create_new_component_from_symbol(
+        self, symbol_name, pin_lists, Refbase="U", parameter_list=[], parameter_value=[]
+    ):
         """Create a component from a symbol.
 
         Parameters
@@ -647,13 +851,64 @@ class NexximComponents(CircuitComponents):
             ``True`` when successful, ``False`` when failed.
 
         """
-        arg = ["NAME:" + symbol_name, "Info:=",
-               ["Type:=", 0, "NumTerminals:=", len(pin_lists), "DataSource:=", "", "ModifiedOn:=", 1591858313, "Manufacturer:=", "",
-                "Symbol:=", symbol_name, "ModelNames:=", "", "Footprint:=", "",
-                "Description:=", "", "InfoTopic:=", "", "InfoHelpFile:=", "", "IconFile:=", "", "Library:=", "",
-                "OriginalLocation:=", "Project", "IEEE:=", "", "Author:=", "", "OriginalAuthor:=", "",
-                "CreationDate:=", 1591858278, "ExampleFile:=", "", "HiddenComponent:=", 0, "CircuitEnv:=", 0,
-                "GroupID:=", 0], "CircuitEnv:=", 0, "Refbase:=", Refbase, "NumParts:=", 1, "ModSinceLib:=", True]
+        arg = [
+            "NAME:" + symbol_name,
+            "Info:=",
+            [
+                "Type:=",
+                0,
+                "NumTerminals:=",
+                len(pin_lists),
+                "DataSource:=",
+                "",
+                "ModifiedOn:=",
+                1591858313,
+                "Manufacturer:=",
+                "",
+                "Symbol:=",
+                symbol_name,
+                "ModelNames:=",
+                "",
+                "Footprint:=",
+                "",
+                "Description:=",
+                "",
+                "InfoTopic:=",
+                "",
+                "InfoHelpFile:=",
+                "",
+                "IconFile:=",
+                "",
+                "Library:=",
+                "",
+                "OriginalLocation:=",
+                "Project",
+                "IEEE:=",
+                "",
+                "Author:=",
+                "",
+                "OriginalAuthor:=",
+                "",
+                "CreationDate:=",
+                1591858278,
+                "ExampleFile:=",
+                "",
+                "HiddenComponent:=",
+                0,
+                "CircuitEnv:=",
+                0,
+                "GroupID:=",
+                0,
+            ],
+            "CircuitEnv:=",
+            0,
+            "Refbase:=",
+            Refbase,
+            "NumParts:=",
+            1,
+            "ModSinceLib:=",
+            True,
+        ]
 
         for pin in pin_lists:
             arg.append("Terminal:=")
@@ -683,20 +938,27 @@ class NexximComponents(CircuitComponents):
             if "MOD" in el:
                 spicesintax += "@{} ".format(el)
             else:
-                spicesintax += "{}=@{} ".format(el,val)
+                spicesintax += "{}=@{} ".format(el, val)
 
         arg3 = [
             "NAME:CosimDefinitions",
             [
                 "NAME:CosimDefinition",
-                "CosimulatorType:=", 4,
-                "CosimDefName:=", "DefaultNetlist",
-                "IsDefinition:=", True,
-                "Connect:="	, True,
-                "Data:="		, [					"Nexxim Circuit:="	, spicesintax],
-                "GRef:="		, [					"Nexxim Circuit:="	, ""]
+                "CosimulatorType:=",
+                4,
+                "CosimDefName:=",
+                "DefaultNetlist",
+                "IsDefinition:=",
+                True,
+                "Connect:=",
+                True,
+                "Data:=",
+                ["Nexxim Circuit:=", spicesintax],
+                "GRef:=",
+                ["Nexxim Circuit:=", ""],
             ],
-            "DefaultCosim:="	, "DefaultNetlist"
+            "DefaultCosim:=",
+            "DefaultNetlist",
         ]
         arg.append(arg3)
         self.o_component_manager.Add(arg)
@@ -720,12 +982,14 @@ class NexximComponents(CircuitComponents):
         name = o.composed_name
         proparray = self.oeditor.GetProperties("PassedParameterTab", name)
         for j in proparray:
-            propval = retry_ntimes(10, self.oeditor.GetPropertyValue,"PassedParameterTab", name, j)
+            propval = retry_ntimes(10, self.oeditor.GetPropertyValue, "PassedParameterTab", name, j)
             o._add_property(j, propval)
         return o
 
     @aedt_exception_handler
-    def get_comp_custom_settings(self, toolNum ,dc = 0, interp=0, extrap=1, conv=0, passivity=0, reciprocal="False", opt="", data_type=1):
+    def get_comp_custom_settings(
+        self, toolNum, dc=0, interp=0, extrap=1, conv=0, passivity=0, reciprocal="False", opt="", data_type=1
+    ):
         """Retrieve custom settings for a resistor.
 
         Parameters
@@ -762,21 +1026,38 @@ class NexximComponents(CircuitComponents):
         else:
             custom = "NAME:HSpiceCustomization"
 
-        res = [custom,
-               "DCOption:="		, dc,
-               "InterpOption:="	, interp,
-               "ExtrapOption:="	, extrap,
-               "Convolution:="		, conv,
-               "Passivity:="		, passivity,
-               "Reciprocal:="		, reciprocal,
-               "ModelOption:="		, opt,
-               "DataType:="		, data_type]
+        res = [
+            custom,
+            "DCOption:=",
+            dc,
+            "InterpOption:=",
+            interp,
+            "ExtrapOption:=",
+            extrap,
+            "Convolution:=",
+            conv,
+            "Passivity:=",
+            passivity,
+            "Reciprocal:=",
+            reciprocal,
+            "ModelOption:=",
+            opt,
+            "DataType:=",
+            data_type,
+        ]
 
         return res
 
     @aedt_exception_handler
-    def add_subcircuit_hfss_link(self, comp_name, pin_names, source_project_path, source_project_name,
-                                 source_design_name, solution_name="Setup1 : Sweep"):
+    def add_subcircuit_hfss_link(
+        self,
+        comp_name,
+        pin_names,
+        source_project_path,
+        source_project_name,
+        source_design_name,
+        solution_name="Setup1 : Sweep",
+    ):
         """Add a subcircuit HFSS link.
 
         Parameters
@@ -805,77 +1086,174 @@ class NexximComponents(CircuitComponents):
         nexxim_customization = self.get_comp_custom_settings(2, 3, 1, 3, 0, 0, "False", "", 2)
         hspice_customization = self.get_comp_custom_settings(3, 1, 2, 3, 0, 0, "False", "", 3)
 
-        compInfo = ["NAME:" + str(comp_name),
-                    "Name:=", comp_name,
-                    "ModTime:=", 1591855779,
-                    "Library:=", "",
-                    "LibLocation:=", "Project",
-                    "ModelType:=", "hfss",
-                    "Description:=", "",
-                    "ImageFile:=", "",
-                    "SymbolPinConfiguration:=", 0,
-                    ["NAME:PortInfoBlk"],
-                    ["NAME:PortOrderBlk"],
-                    "DesignName:=", source_design_name,
-                    "SolutionName:=", solution_name,
-                    "NewToOldMap:=", [],
-                    "OldToNewMap:=", [],
-                    "PinNames:=", pin_names,
-                    designer_customization,
-                    nexxim_customization,
-                    hspice_customization,
-                    "NoiseModelOption:=", "External",
-                    "WB_SystemID:=", "",
-                    "IsWBModel:=", False,
-                    "filename:=", source_project_path,
-                    "numberofports:=", len(pin_names),
-                    "Simulate:=", False,
-                    "CloseProject:=", False,
-                    "SaveProject:=", True,
-                    "InterpY:=", True,
-                    "InterpAlg:=", "auto",
-                    "IgnoreDepVars:=", False,
-                    "Renormalize:=", False,
-                    "RenormImpedance:=", 50]
+        compInfo = [
+            "NAME:" + str(comp_name),
+            "Name:=",
+            comp_name,
+            "ModTime:=",
+            1591855779,
+            "Library:=",
+            "",
+            "LibLocation:=",
+            "Project",
+            "ModelType:=",
+            "hfss",
+            "Description:=",
+            "",
+            "ImageFile:=",
+            "",
+            "SymbolPinConfiguration:=",
+            0,
+            ["NAME:PortInfoBlk"],
+            ["NAME:PortOrderBlk"],
+            "DesignName:=",
+            source_design_name,
+            "SolutionName:=",
+            solution_name,
+            "NewToOldMap:=",
+            [],
+            "OldToNewMap:=",
+            [],
+            "PinNames:=",
+            pin_names,
+            designer_customization,
+            nexxim_customization,
+            hspice_customization,
+            "NoiseModelOption:=",
+            "External",
+            "WB_SystemID:=",
+            "",
+            "IsWBModel:=",
+            False,
+            "filename:=",
+            source_project_path,
+            "numberofports:=",
+            len(pin_names),
+            "Simulate:=",
+            False,
+            "CloseProject:=",
+            False,
+            "SaveProject:=",
+            True,
+            "InterpY:=",
+            True,
+            "InterpAlg:=",
+            "auto",
+            "IgnoreDepVars:=",
+            False,
+            "Renormalize:=",
+            False,
+            "RenormImpedance:=",
+            50,
+        ]
 
         self.o_model_manager.Add(compInfo)
 
-        info = ["Type:=", 8, "NumTerminals:=", len(pin_names), "DataSource:=", "", "ModifiedOn:=", 1591855894, "Manufacturer:=", "",
-                "Symbol:=", "", "ModelNames:=", "", "Footprint:=", "", "Description:=", "", "InfoTopic:=", "",
-                "InfoHelpFile:=", "",	"IconFile:=", "hfss.bmp", "Library:=", "",	"OriginalLocation:=", "Project",
-                "IEEE:=", "", "Author:=", "", "OriginalAuthor:=", "",	"CreationDate:=", 1591855894, "ExampleFile:=", "",
-                "HiddenComponent:=", 0, "CircuitEnv:=", 0, "GroupID:=", 0]
+        info = [
+            "Type:=",
+            8,
+            "NumTerminals:=",
+            len(pin_names),
+            "DataSource:=",
+            "",
+            "ModifiedOn:=",
+            1591855894,
+            "Manufacturer:=",
+            "",
+            "Symbol:=",
+            "",
+            "ModelNames:=",
+            "",
+            "Footprint:=",
+            "",
+            "Description:=",
+            "",
+            "InfoTopic:=",
+            "",
+            "InfoHelpFile:=",
+            "",
+            "IconFile:=",
+            "hfss.bmp",
+            "Library:=",
+            "",
+            "OriginalLocation:=",
+            "Project",
+            "IEEE:=",
+            "",
+            "Author:=",
+            "",
+            "OriginalAuthor:=",
+            "",
+            "CreationDate:=",
+            1591855894,
+            "ExampleFile:=",
+            "",
+            "HiddenComponent:=",
+            0,
+            "CircuitEnv:=",
+            0,
+            "GroupID:=",
+            0,
+        ]
 
-        compInfo2 = ["NAME:"+str(comp_name),
-                     "Info:=", info,
-                     "CircuitEnv:=", 0,
-                     "Refbase:=", "S",
-                     "NumParts:=", 1,
-                     "ModSinceLib:=", False]
+        compInfo2 = [
+            "NAME:" + str(comp_name),
+            "Info:=",
+            info,
+            "CircuitEnv:=",
+            0,
+            "Refbase:=",
+            "S",
+            "NumParts:=",
+            1,
+            "ModSinceLib:=",
+            False,
+        ]
 
         id = 0
         for pin in pin_names:
             compInfo2.append("Terminal:=")
-            compInfo2.append([pin ,pin, "A", False, id, 1, "", "Electrical", "0"])
+            compInfo2.append([pin, pin, "A", False, id, 1, "", "Electrical", "0"])
             id += 1
 
-        compInfo2.append(["NAME:Properties","TextProp:=", ["Owner" ,"RD" ,"" ,"HFSS"]])
+        compInfo2.append(["NAME:Properties", "TextProp:=", ["Owner", "RD", "", "HFSS"]])
         compInfo2.append("CompExtID:=")
         compInfo2.append(5)
-        compInfo2.append(["NAME:Parameters",
-                          "TextProp:=", ["ModelName" ,"RD" ,"" ,"FieldSolver"],
-                          "MenuProp:=", ["CoSimulator" ,"SD" ,"" ,"Default" ,0],
-                          "ButtonProp:=", ["CosimDefinition" ,"SD" ,"" ,"Edit" ,"Edit" ,40501, "ButtonPropClientData:=", []]])
-        compInfo2.append(["NAME:CosimDefinitions",
-                          ["NAME:CosimDefinition",
-                           "CosimulatorType:=", 103,
-                           "CosimDefName:=", "Default",
-                           "IsDefinition:=", True,
-                           "Connect:=", True,
-                           "ModelDefinitionName:=", comp_name,
-                           "ShowRefPin2:=", 2,
-                           "LenPropName:=", ""],
-                          "DefaultCosim:=", "Default"])
+        compInfo2.append(
+            [
+                "NAME:Parameters",
+                "TextProp:=",
+                ["ModelName", "RD", "", "FieldSolver"],
+                "MenuProp:=",
+                ["CoSimulator", "SD", "", "Default", 0],
+                "ButtonProp:=",
+                ["CosimDefinition", "SD", "", "Edit", "Edit", 40501, "ButtonPropClientData:=", []],
+            ]
+        )
+        compInfo2.append(
+            [
+                "NAME:CosimDefinitions",
+                [
+                    "NAME:CosimDefinition",
+                    "CosimulatorType:=",
+                    103,
+                    "CosimDefName:=",
+                    "Default",
+                    "IsDefinition:=",
+                    True,
+                    "Connect:=",
+                    True,
+                    "ModelDefinitionName:=",
+                    comp_name,
+                    "ShowRefPin2:=",
+                    2,
+                    "LenPropName:=",
+                    "",
+                ],
+                "DefaultCosim:=",
+                "Default",
+            ]
+        )
 
         self.o_component_manager.Add(compInfo2)
         self._parent.odesign.AddCompInstance(comp_name)
@@ -977,9 +1355,10 @@ class NexximComponents(CircuitComponents):
         .. deprecated:: 0.4.0
            Use :func:`Circuit.push_excitations` instead.
         """
-        warnings.warn('`circuit.modeler.components.push_excitation` is deprecated. '
-                      'Use `circuit.push_excitation` instead.',
-                      DeprecationWarning)
+        warnings.warn(
+            "`circuit.modeler.components.push_excitation` is deprecated. " "Use `circuit.push_excitation` instead.",
+            DeprecationWarning,
+        )
         return self._parent._parent.push_excitations(instance_name, thevenin_calculation, setup_name)
 
     @aedt_exception_handler
@@ -989,7 +1368,9 @@ class NexximComponents(CircuitComponents):
         .. deprecated:: 0.4.0
            Use :func:`Circuit.modeler.components.assign_voltage_sinusoidal_excitation_to_ports` instead.
         """
-        warnings.warn('`assign_sin_excitation2ports` is deprecated. '
-                      'Use `assign_voltage_sinusoidal_excitation_to_ports` instead.',
-                      DeprecationWarning)
+        warnings.warn(
+            "`assign_sin_excitation2ports` is deprecated. "
+            "Use `assign_voltage_sinusoidal_excitation_to_ports` instead.",
+            DeprecationWarning,
+        )
         return self._parent.assign_voltage_sinusoidal_excitation_to_ports(ports, settings)

@@ -2,14 +2,14 @@ import sys
 from collections import defaultdict
 
 from ..generic.general_methods import aedt_exception_handler, retry_ntimes
-from .Object3d import Padstack, Components3DLayout, Geometries3DLayout, Pins3DLayout, Nets3DLayout, \
-    _uname
+from .Object3d import Padstack, Components3DLayout, Geometries3DLayout, Pins3DLayout, Nets3DLayout, _uname
 from .Primitives import default_materials
 from pyaedt import is_ironpython
 from .GeometryOperators import GeometryOperators
 import pkgutil
+
 modules = [tup[1] for tup in pkgutil.iter_modules()]
-if 'clr' in modules or is_ironpython:
+if "clr" in modules or is_ironpython:
     import clr
     from System import String
     import System
@@ -26,6 +26,7 @@ class Primitives3DLayout(object):
         Name of the modeler.
 
     """
+
     @aedt_exception_handler
     def __getitem__(self, partname):
         """Retrieve a part.
@@ -55,7 +56,7 @@ class Primitives3DLayout(object):
         self._geometries = defaultdict(Geometries3DLayout)
         self._pins = defaultdict(Pins3DLayout)
         self._nets = defaultdict(Nets3DLayout)
-        self._main = sys.modules['__main__']
+        self._main = sys.modules["__main__"]
         self.isoutsideDesktop = self._main.isoutsideDesktop
         pass
 
@@ -72,7 +73,7 @@ class Primitives3DLayout(object):
         try:
             comps = list(self.modeler.edb.core_components.components.keys())
         except:
-            comps=[]
+            comps = []
         for el in comps:
             self._components[el] = Components3DLayout(self, el)
         return self._components
@@ -86,7 +87,7 @@ class Primitives3DLayout(object):
         list
             List of geometries from EDB. If EDB is not present, ``None`` is returned.
 
-           """
+        """
         try:
             prims = self.modeler.edb.core_primitives.primitives
         except:
@@ -114,7 +115,7 @@ class Primitives3DLayout(object):
                     name = "bondwire_" + str(elid)
                 else:
                     continue
-            self._geometries[name] = Geometries3DLayout(self, name,  elid)
+            self._geometries[name] = Geometries3DLayout(self, name, elid)
         return self._geometries
 
     @property
@@ -253,7 +254,7 @@ class Primitives3DLayout(object):
             props = []
             for p in props_all:
                 try:
-                    if p[0] == 'NAME:psd':
+                    if p[0] == "NAME:psd":
                         props = p
                 except:
                     pass
@@ -262,7 +263,7 @@ class Primitives3DLayout(object):
             for prop in props:
                 if type(prop) is str:
                     if prop == "mat:=":
-                        self.padstacks[name].mat = props[props.index(prop)+1]
+                        self.padstacks[name].mat = props[props.index(prop) + 1]
                     elif prop == "plt:=":
                         self.padstacks[name].plating = props[props.index(prop) + 1]
                     elif prop == "hRg:=":
@@ -284,23 +285,29 @@ class Primitives3DLayout(object):
                         self.padstacks[name].hole.y = props[props.index(prop) + 1][7]
                         self.padstacks[name].hole.rot = props[props.index(prop) + 1][9]
                 try:
-                    if prop[0] == 'NAME:pds':
-                        layers_num = len(prop)-1
-                        i=1
-                        while i<=layers_num:
+                    if prop[0] == "NAME:pds":
+                        layers_num = len(prop) - 1
+                        i = 1
+                        while i <= layers_num:
                             lay = prop[i]
                             lay_name = lay[2]
                             lay_id = int(lay[4])
-                            if i!= 1:
+                            if i != 1:
                                 self.padstacks[name].add_layer(lay_name)
                             self.padstacks[name].layers[lay_name].layername = lay_name
-                            self.padstacks[name].layers[lay_name].pad = self.padstacks[name].add_hole(lay[6][1],list(lay[6][3]),lay[6][5],lay[6][7],lay[6][9])
-                            self.padstacks[name].layers[lay_name].antipad = self.padstacks[name].add_hole(lay[8][1],list(lay[8][3]),lay[8][5],lay[8][7],lay[8][9])
-                            self.padstacks[name].layers[lay_name].thermal = self.padstacks[name].add_hole(lay[10][1],list(lay[10][3]),lay[10][5],lay[10][7],lay[10][9])
+                            self.padstacks[name].layers[lay_name].pad = self.padstacks[name].add_hole(
+                                lay[6][1], list(lay[6][3]), lay[6][5], lay[6][7], lay[6][9]
+                            )
+                            self.padstacks[name].layers[lay_name].antipad = self.padstacks[name].add_hole(
+                                lay[8][1], list(lay[8][3]), lay[8][5], lay[8][7], lay[8][9]
+                            )
+                            self.padstacks[name].layers[lay_name].thermal = self.padstacks[name].add_hole(
+                                lay[10][1], list(lay[10][3]), lay[10][5], lay[10][7], lay[10][9]
+                            )
                             self.padstacks[name].layers[lay_name].connectionx = lay[12]
                             self.padstacks[name].layers[lay_name].connectiony = lay[14]
                             self.padstacks[name].layers[lay_name].connectiondir = lay[16]
-                            i +=1
+                            i += 1
                         pass
                 except:
                     pass
@@ -340,8 +347,18 @@ class Primitives3DLayout(object):
         return True
 
     @aedt_exception_handler
-    def create_via(self, padstack="PlanarEMVia", x=0, y=0, rotation=0, hole_diam=None, top_layer=None, bot_layer=None,
-                   name=None, netname=None):
+    def create_via(
+        self,
+        padstack="PlanarEMVia",
+        x=0,
+        y=0,
+        rotation=0,
+        hole_diam=None,
+        top_layer=None,
+        bot_layer=None,
+        name=None,
+        netname=None,
+    ):
         """Create a via based on an existing padstack.
 
         Parameters
@@ -378,7 +395,7 @@ class Primitives3DLayout(object):
         if not top_layer:
             top_layer = layers[0]
         if not bot_layer:
-            bot_layer = layers[len(layers)-1]
+            bot_layer = layers[len(layers) - 1]
         if not name:
             name = _uname()
         else:
@@ -386,8 +403,8 @@ class Primitives3DLayout(object):
             if listnames:
                 name = _uname(name)
         arg = ["NAME:Contents"]
-        arg.append("name:="),  arg.append(name)
-        arg.append("ReferencedPadstack:=")	, arg.append(padstack),
+        arg.append("name:="), arg.append(name)
+        arg.append("ReferencedPadstack:="), arg.append(padstack),
         arg.append("vposition:="),
         arg.append(["x:=", self.arg_with_dim(x), "y:=", self.arg_with_dim(y)])
         arg.append("vrotation:="), arg.append([str(rotation) + "deg"])
@@ -557,8 +574,22 @@ class Primitives3DLayout(object):
             if listnames:
                 name = _uname(name)
         arg = ["NAME:Contents", "lineGeometry:="]
-        arg2 = ["Name:=", name, "LayerName:=", layername, "lw:=", self.arg_with_dim(lw), "endstyle:=", end_style,
-                "StartCap:=", start_style, "n:=", len(center_line_list), "U:=", self.model_units]
+        arg2 = [
+            "Name:=",
+            name,
+            "LayerName:=",
+            layername,
+            "lw:=",
+            self.arg_with_dim(lw),
+            "endstyle:=",
+            end_style,
+            "StartCap:=",
+            start_style,
+            "n:=",
+            len(center_line_list),
+            "U:=",
+            self.model_units,
+        ]
         for a in center_line_list:
             arg2.append("x:=")
             arg2.append(a[0])
