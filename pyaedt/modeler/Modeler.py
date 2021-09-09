@@ -6,21 +6,15 @@ This modules provides functionalities for the 3D Modeler, 2D Modeler,
 3D Layout Modeler, and Circuit Modeler.
 """
 from __future__ import absolute_import
-import sys
 import os
-import string
-import random
 import warnings
 
 from collections import OrderedDict
-from .Primitives2D import Primitives2D
-from .Primitives3D import Primitives3D
-from .Primitives import Polyline, PolylineSegment
 from .GeometryOperators import GeometryOperators
 from ..application.Variables import AEDT_units
 from ..generic.general_methods import generate_unique_name, retry_ntimes, aedt_exception_handler
 import math
-from ..application.DataHandlers import dict2arg
+from ..generic.DataHandlers import dict2arg
 from .Object3d import EdgePrimitive, FacePrimitive, VertexPrimitive, Object3d
 from pyaedt import _pythonver
 
@@ -98,7 +92,7 @@ class CoordinateSystem(object):
 
         """
         arguments = ["NAME:AllTabs", ["NAME:Geometry3DCSTab", ["NAME:PropServers", name], arg]]
-        self._parent.oeditor.ChangeProperty(arguments)
+        retry_ntimes(10, self._parent.oeditor.ChangeProperty, arguments)
 
     @aedt_exception_handler
     def rename(self, newname):
@@ -358,7 +352,7 @@ class CoordinateSystem(object):
 
         Returns
         -------
-        :class: `pyaedt.modeler.Modeler.CoordinateSystem`
+        :class:`pyaedt.modeler.Modeler.CoordinateSystem`
 
         """
         if not origin:
@@ -623,7 +617,7 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        pyaedt.modules.MaterialLib.Materials
+        :class:`pyaedt.modules.MaterialLib.Materials`
 
         """
         return self._parent.materials
@@ -769,7 +763,7 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        pyaedt.modules.MaterialLib.Materials
+        :class:`pyaedt.modules.MaterialLib.Materials`
 
         """
         return self._parent._oproject.GetDefinitionManager().GetManager("Material")
@@ -1388,8 +1382,10 @@ class GeometryModeler(Modeler, object):
             excitation for each mode.
 
         """
-        list_names = list(self._parent.oboundary.GetExcitations())
-        del list_names[1::2]
+        list_names = []
+        if "GetExcitations" in dir(self._parent.oboundary):
+            list_names = list(self._parent.oboundary.GetExcitations())
+            del list_names[1::2]
         return list_names
 
     @aedt_exception_handler
@@ -1569,7 +1565,7 @@ class GeometryModeler(Modeler, object):
         return True
 
     @aedt_exception_handler
-    def duplicate_and_mirror(self, objid, position, vector):
+    def duplicate_and_mirror(self, objid, position, vector, is_3d_comp=False):
         """Duplicate and mirror a selection.
 
         Parameters
@@ -1582,6 +1578,8 @@ class GeometryModeler(Modeler, object):
         vector : float
             List of the ``[x1, y1, z1]`` coordinates or
             Application.Position object for the vector.
+        is_3d_comp : bool, optional
+            If ``True``, the method will try to return the duplicated list of 3dcomponents. The default is ``False``.
 
         Returns
         -------
@@ -1593,17 +1591,24 @@ class GeometryModeler(Modeler, object):
         Xpos, Ypos, Zpos = self.primitives._pos_with_arg(position)
         Xnorm, Ynorm, Znorm = self.primitives._pos_with_arg(vector)
 
-        vArg1 = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
-        vArg2 = ["NAME:DuplicateToMirrorParameters"]
-        vArg2.append("DuplicateMirrorBaseX:="), vArg2.append(Xpos)
-        vArg2.append("DuplicateMirrorBaseY:="), vArg2.append(Ypos)
-        vArg2.append("DuplicateMirrorBaseZ:="), vArg2.append(Zpos)
-        vArg2.append("DuplicateMirrorNormalX:="), vArg2.append(Xnorm)
-        vArg2.append("DuplicateMirrorNormalY:="), vArg2.append(Ynorm)
-        vArg2.append("DuplicateMirrorNormalZ:="), vArg2.append(Znorm)
-        vArg3 = ["NAME:Options", "DuplicateAssignments:=", False]
+        vArg1 = ['NAME:Selections', 'Selections:=', selections, 'NewPartsModelFlag:=', 'Model']
+        vArg2 = ['NAME:DuplicateToMirrorParameters']
+        vArg2.append('DuplicateMirrorBaseX:='), vArg2.append(Xpos)
+        vArg2.append('DuplicateMirrorBaseY:='), vArg2.append(Ypos)
+        vArg2.append('DuplicateMirrorBaseZ:='), vArg2.append(Zpos)
+        vArg2.append('DuplicateMirrorNormalX:='), vArg2.append(Xnorm)
+        vArg2.append('DuplicateMirrorNormalY:='), vArg2.append(Ynorm)
+        vArg2.append('DuplicateMirrorNormalZ:='), vArg2.append(Znorm)
+        vArg3 = ['NAME:Options', 'DuplicateAssignments:=', False]
+        if is_3d_comp:
+            orig_3d = [i for i in self.primitives.components_3d_names]
         added_objs = self.oeditor.DuplicateMirror(vArg1, vArg2, vArg3)
         self.primitives.add_new_objects()
+        if is_3d_comp:
+            added_3d_comps = [i for i in self.primitives.components_3d_names if i not in orig_3d]
+            if added_3d_comps:
+                self._messenger.add_info_message("Found 3D Components Duplication")
+                return True, added_3d_comps
         return True, added_objs
 
     @aedt_exception_handler
@@ -1645,7 +1650,7 @@ class GeometryModeler(Modeler, object):
         return True
 
     @aedt_exception_handler
-    def duplicate_around_axis(self, objid, cs_axis, angle=90, nclones=2, create_new_objects=True):
+    def duplicate_around_axis(self, objid, cs_axis, angle=90, nclones=2, create_new_objects=True, is_3d_comp=False):
         """Duplicate a selection around an axis.
 
         Parameters
@@ -1661,6 +1666,8 @@ class GeometryModeler(Modeler, object):
         create_new_objects :
             Whether to create the copies as new objects. The
             default is ``True``.
+        is_3d_comp : bool, optional
+            If ``True``, the method will try to return the duplicated list of 3dcomponents. The default is ``False``.
 
         Returns
         -------
@@ -1682,9 +1689,16 @@ class GeometryModeler(Modeler, object):
             str(nclones),
         ]
         vArg3 = ["NAME:Options", "DuplicateBoundaries:=", "true"]
-
+        if is_3d_comp:
+            orig_3d = [i for i in self.primitives.components_3d_names]
         added_objs = self.oeditor.DuplicateAroundAxis(vArg1, vArg2, vArg3)
         self._duplicate_added_objects_tuple()
+        if is_3d_comp:
+            added_3d_comps = [i for i in self.primitives.components_3d_names if i not in orig_3d]
+            if added_3d_comps:
+                self._messenger.add_info_message("Found 3D Components Duplication")
+                return True, added_3d_comps
+
         return True, list(added_objs)
 
     def _duplicate_added_objects_tuple(self):
@@ -1695,7 +1709,7 @@ class GeometryModeler(Modeler, object):
             return False, []
 
     @aedt_exception_handler
-    def duplicate_along_line(self, objid, vector, nclones=2, attachObject=False):
+    def duplicate_along_line(self, objid, vector, nclones=2, attachObject=False, is_3d_comp=False):
         """Duplicate a selection along a line.
 
         Parameters
@@ -1709,7 +1723,8 @@ class GeometryModeler(Modeler, object):
             The default is ``False``.
         nclones : int, optional
             Number of clones. The default is ``2``.
-
+        is_3d_comp : bool, optional
+            If True, the method will try to return the duplicated list of 3dcomponents. The default is ``False``.
         Returns
         -------
         tuple
@@ -1726,9 +1741,15 @@ class GeometryModeler(Modeler, object):
         vArg2.append("ZComponent:="), vArg2.append(Zpos)
         vArg2.append("Numclones:="), vArg2.append(str(nclones))
         vArg3 = ["NAME:Options", "DuplicateBoundaries:=", "true"]
-
+        if is_3d_comp:
+            orig_3d = [i for i in self.primitives.components_3d_names]
         added_objs = self.oeditor.DuplicateAlongLine(vArg1, vArg2, vArg3)
         self._duplicate_added_objects_tuple()
+        if is_3d_comp:
+            added_3d_comps = [i for i in self.primitives.components_3d_names if i not in orig_3d]
+            if added_3d_comps:
+                self._messenger.add_info_message("Found 3D Components Duplication")
+                return True, added_3d_comps
         return True, list(added_objs)
         # return self._duplicate_added_objects_tuple()
 
@@ -2037,7 +2058,7 @@ class GeometryModeler(Modeler, object):
         ----------
         blank_list : list of Object3d or list of int
             List of objects to subtract from. The list can be of
-            either :class: `pyaedt.modeler.Object3d.Object3d` objects or object IDs.
+            either :class:`pyaedt.modeler.Object3d.Object3d` objects or object IDs.
         tool_list : list
             List of objects to subtract. The list can be of
             either Object3d objects or object IDs.
@@ -2502,7 +2523,7 @@ class GeometryModeler(Modeler, object):
             List of ``[x, y, z]`` coordinates for the starting position.
         axis : int
             Coordinate system axis (integer ``0`` for XAxis, ``1`` for YAxis, ``2`` for ZAxis) or
-            the :class: `Application.CoordinateSystemAxis` enumerator.
+            the :class:`Application.CoordinateSystemAxis` enumerator.
         innerradius : float, optional
             Inner coax radius. The default is ``1``.
         outerradius : float, optional
@@ -2522,7 +2543,7 @@ class GeometryModeler(Modeler, object):
         -------
         tuple
             Contains the inner, outer, and dielectric coax as
-            :class: `pyaedt.modeler.Object3d.Object3d` objects.
+            :class:`pyaedt.modeler.Object3d.Object3d` objects.
 
         Examples
         --------
@@ -2575,7 +2596,7 @@ class GeometryModeler(Modeler, object):
             List of ``[x, y, z]`` coordinates for the original position.
         wg_direction_axis : int
             Coordinate system axis (integer ``0`` for XAxis, ``1`` for YAxis, ``2`` for ZAxis) or
-            the :class: `Application.CoordinateSystemAxis` enumerator.
+            the :class:`Application.CoordinateSystemAxis` enumerator.
         wgmodel : str, optional
             Waveguide model. The default is ``"WG0"``.
         wg_length : float, optional
@@ -2597,7 +2618,7 @@ class GeometryModeler(Modeler, object):
         Returns
         -------
         tuple
-            Tuple of :class: `Object3d <pyaedt.modeler.Object3d.Object3d>`
+            Tuple of :class:`Object3d <pyaedt.modeler.Object3d.Object3d>`
             objects created by the waveguide.
 
         Examples

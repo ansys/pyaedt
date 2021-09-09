@@ -57,7 +57,7 @@ class Modeler3DLayout(Modeler):
 
         Returns
         -------
-        :class: `pyaedt.Edb`
+        :class:`pyaedt.Edb`
              EDB.
 
         """

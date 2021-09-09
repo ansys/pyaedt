@@ -1,8 +1,12 @@
+import os
 from ..generic.general_methods import aedt_exception_handler
 from .Primitives import Primitives
 from .GeometryOperators import GeometryOperators
 from ..application.Analysis import CoordinateSystemAxis
 from .Object3d import Object3d
+from .MultiPartComponent import Person, Bird, Vehicle, Antenna, Radar, Environment, MultiPartComponent
+from ..generic.general_methods import retry_ntimes
+
 
 
 class Primitives3D(Primitives, object):
@@ -19,6 +23,7 @@ class Primitives3D(Primitives, object):
 
     def __init__(self, parent, modeler):
         Primitives.__init__(self, parent, modeler)
+        self.multiparts = []
 
     @aedt_exception_handler
     def is3d(self):
@@ -51,7 +56,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class: `pyaedt.modeler.Object3d.Object3d`
+        :class:`pyaedt.modeler.Object3d.Object3d`
             3D object.
 
         Examples
@@ -77,7 +82,7 @@ class Primitives3D(Primitives, object):
         vArg1.append("YSize:="), vArg1.append(YSize)
         vArg1.append("ZSize:="), vArg1.append(ZSize)
         vArg2 = self._default_object_attributes(name=name, matname=matname)
-        new_object_name = self.oeditor.CreateBox(vArg1, vArg2)
+        new_object_name = retry_ntimes(10, self.oeditor.CreateBox, vArg1, vArg2)
         return self._create_object(new_object_name)
 
     @aedt_exception_handler
@@ -106,7 +111,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class: `pyaedt.modeler.Object3d.Object3d`
+        :class:`pyaedt.modeler.Object3d.Object3d`
             3D object.
 
         Examples
@@ -172,7 +177,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class: `pyaedt.modeler.Object3d.Object3d`
+        :class:`pyaedt.modeler.Object3d.Object3d`
             3D object.
 
         Examples
@@ -230,7 +235,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class: `pyaedt.modeler.Object3d.Object3d`
+        :class:`pyaedt.modeler.Object3d.Object3d`
             3D object.
 
         Examples
@@ -280,7 +285,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class: `pyaedt.modeler.Object3d.Object3d`
+        :class:`pyaedt.modeler.Object3d.Object3d`
             3D object.
 
         Examples
@@ -361,7 +366,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class: `pyaedt.modeler.Object3d.Object3d`
+        :class:`pyaedt.modeler.Object3d.Object3d`
             3D object.
 
         Examples
@@ -482,7 +487,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class: `pyaedt.modeler.Object3d.Object3d`
+        :class:`pyaedt.modeler.Object3d.Object3d`
             3D object.
 
         """
@@ -528,7 +533,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class: `pyaedt.modeler.Object3d.Object3d`
+        :class:`pyaedt.modeler.Object3d.Object3d`
             3D object.
 
         """
@@ -616,7 +621,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class: `pyaedt.modeler.Object3d.Object3d`
+        :class:`pyaedt.modeler.Object3d.Object3d`
             3D object.
 
         """
@@ -665,7 +670,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class: `pyaedt.modeler.Object3d.Object3d`
+        :class:`pyaedt.modeler.Object3d.Object3d`
             3D object.
 
         """
@@ -691,7 +696,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class: `pyaedt.modeler.Object3d.Object3d`
+        :class:`pyaedt.modeler.Object3d.Object3d`
             3D object.
 
         """
@@ -725,7 +730,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class: `pyaedt.modeler.Object3d.Object3d`
+        :class:`pyaedt.modeler.Object3d.Object3d`
             3D object.
 
         """
@@ -807,18 +812,29 @@ class Primitives3D(Primitives, object):
         """
         vArg1 = ["NAME:InsertComponentData"]
         sz_geo_params = ""
+        if not geoParams:
+            geometryparams = self._parent.get_components3d_vars(compFile)
+            if geometryparams:
+                geoParams = geometryparams
+
         if geoParams:
             sz_geo_params = "".join(["{0}='{1}' ".format(par, val) for par, val in geoParams.items()])
-        vArg1.append("GeometryParameters:=")
-        vArg1.append(sz_geo_params)
-        vArg1.append("MaterialParameters:=")
-        vArg1.append(szMatParams)
-        vArg1.append("DesignParameters:=")
-        vArg1.append(szDesignParams)
         vArg1.append("TargetCS:=")
         vArg1.append(targetCS)
         vArg1.append("ComponentFile:=")
         vArg1.append(compFile)
+        vArg1.append("IsLocal:=")
+        vArg1.append(False)
+        vArg1.append("UniqueIdentifier:=")
+        vArg1.append("")
+        varg2= ["NAME:InstanceParameters"]
+        varg2.append("GeometryParameters:=")
+        varg2.append(sz_geo_params)
+        varg2.append("MaterialParameters:=")
+        varg2.append(szMatParams)
+        varg2.append("DesignParameters:=")
+        varg2.append(szDesignParams)
+        vArg1.append(varg2)
         new_object_name = self.oeditor.Insert3DComponent(vArg1)
         # TODO return an object
         return new_object_name
@@ -843,3 +859,331 @@ class Primitives3D(Primitives, object):
             return list(compobj.GetChildNames())
         else:
             return []
+
+    @aedt_exception_handler
+    def _check_actor_folder(self, actor_folder):
+        if not os.path.exists(actor_folder):
+            self._messenger.add_error_message("Folder {} does not exist.".format(actor_folder))
+            return False
+        if not any(fname.endswith('.json') for fname in os.listdir(actor_folder)) or not any(fname.endswith('.a3dcomp') for fname in os.listdir(actor_folder)):
+            self._messenger.add_error_message("At least one json and one a3dcomp file is needed.")
+            return False
+        return True
+
+    @aedt_exception_handler
+    def _initialize_multipart(self):
+        if MultiPartComponent._t in self._parent._variable_manager.independent_variable_names:
+            return True
+        else:
+            return MultiPartComponent.start(self._parent)
+
+    @aedt_exception_handler
+    def add_person(self, actor_folder, speed=0.0, global_offset=[0, 0, 0], yaw=0, pitch=0, roll=0, relative_cs_name=None):
+        """Add a Walking Person Multipart from 3D Components.
+
+        It requires a json file in the folder containing person infos. An example json file is showed here.
+
+         .. code-block:: json
+
+            {
+                "name": "person3",
+                "version": 1,
+                "class":"person",
+                "stride":"0.76meter",
+                "xlim":["-.43",".43"],
+                "ylim":["-.25",".25"],
+                "parts": {
+                    "arm_left": {
+                        "comp_name": "arm_left.a3dcomp",
+                        "rotation_cs":["-.04","0","1.37"],
+                        "rotation":"-30deg",
+                        "compensation_angle":"-15deg",
+                        "rotation_axis":"Y"
+                        },
+                    "arm_right": {
+                        "comp_name": "arm_right.a3dcomp",
+                        "rotation_cs":["0","0","1.37"],
+                        "rotation":"30deg",
+                        "compensation_angle":"30deg",
+                        "rotation_axis":"Y"
+                        },
+                    "leg_left": {
+                        "comp_name": "leg_left.a3dcomp",
+                        "rotation_cs":["0","0",".9"],
+                        "rotation":"20deg",
+                        "compensation_angle":"22.5deg",
+                        "rotation_axis":"Y"
+                        },
+                    "leg_right": {
+                        "comp_name": "leg_right.a3dcomp",
+                        "rotation_cs":["-.04","0",".9375"],
+                        "rotation":"-20deg",
+                        "compensation_angle":"-22.5deg",
+                        "rotation_axis":"Y"
+                        },
+                    "torso": {
+                        "comp_name": "torso.a3dcomp",
+                        "rotation_cs":null,
+                        "rotation":null,
+                        "compensation_angle":null,
+                        "rotation_axis":null
+                        }
+                }
+            }
+
+        Parameters
+        ----------
+        actor_folder: str
+            Path to the actor folder. It must contain a json settings file and a 3dcomponent (.a3dcomp).
+        speed:  float, Optional
+            Object movement speed with time (m_per_sec).
+        global_offset: list, Optional
+            Offset from Global Coordinate System [x,y,z] in meters.
+        yaw: float, Optional
+            Yaw Rotation from Global Coordinate System in deg.
+        pitch: float, Optional
+            Pitch Rotation from Global Coordinate System in deg.
+        roll: float, Optional
+            Roll Rotation from Global Coordinate System in deg.
+        relative_cs_name : str
+            Relative CS Name of the actor. ``None`` for Global CS.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.MultiPartComponent.Person`
+        """
+        self._initialize_multipart()
+        if not self._check_actor_folder(actor_folder):
+            return False
+        person1 = Person(actor_folder, speed=speed, relative_cs_name=relative_cs_name)
+        person1.offset = global_offset
+        person1.yaw = self._arg_with_dim(yaw, "deg")
+        person1.pitch = self._arg_with_dim(pitch, "deg")
+        person1.roll = self._arg_with_dim(roll, "deg")
+        person1.insert(self._parent)
+        self.multiparts.append(person1)
+        return person1
+
+    @aedt_exception_handler
+    def add_vehicle(self, actor_folder, speed=0, global_offset=[0,0,0], yaw=0, pitch=0,roll=0, relative_cs_name=None):
+        """Add a Moving Vehicle Multipart from 3D Components.
+
+        It requires a json file in the folder containing vehicle infos. An example json file is showed here.
+
+
+         .. code-block:: json
+
+            {
+                "name": "vehicle3",
+                "version": 1,
+                "type":"mustang",
+                "class":"vehicle",
+                "xlim":["-1.94","2.8"],
+                "ylim":["-.91",".91"],
+                "parts": {
+                    "wheels_front": {
+                        "comp_name": "wheels_front.a3dcomp",
+                        "rotation_cs":["1.8970271810532" ,"0" ,"0.34809664860487"],
+                        "tire_radius":"0.349",
+                        "rotation_axis":"Y"
+                        },
+                    "wheels_rear": {
+                        "comp_name": "wheels_rear.a3dcomp",
+                        "rotation_cs":["-0.82228746728897" ,"0","0.34809664860487"],
+                        "tire_radius":"0.349",
+                        "rotation_axis":"Y"
+                        },
+                    "body": {
+                        "comp_name": "body.a3dcomp",
+                        "rotation_cs":null,
+                        "tire_radius":null,
+                        "rotation_axis":null
+                        }
+                }
+            }
+
+        Parameters
+        ----------
+        actor_folder : str
+            Path to the actor directory. It must contain a json settings file
+            and a 3dcomponent (``.a3dcomp`` file).
+        speed:  float, Optional
+            Object movement speed with time (m_per_sec).
+        global_offset: list, Optional
+            Offset from Global Coordinate System [x,y,z] in meters.
+        yaw: float, Optional
+            Yaw Rotation from Global Coordinate System in deg.
+        pitch: float, Optional
+            Pitch Rotation from Global Coordinate System in deg.
+        roll: float, Optional
+            Roll Rotation from Global Coordinate System in deg.
+        relative_cs_name : str
+            Relative CS Name of the actor. ``None`` for Global CS.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.MultiPartComponent.Vehicle`
+
+        """
+        self._initialize_multipart()
+
+        if not self._check_actor_folder(actor_folder):
+            return False
+        vehicle = Vehicle(actor_folder, speed=speed, relative_cs_name=relative_cs_name)
+        vehicle.offset = global_offset
+        vehicle.yaw = self._arg_with_dim(yaw, "deg")
+        vehicle.pitch = self._arg_with_dim(pitch, "deg")
+        vehicle.roll = self._arg_with_dim(roll, "deg")
+        vehicle.insert(self._parent)
+        self.multiparts.append(vehicle)
+        return vehicle
+
+    @aedt_exception_handler
+    def add_bird(self, actor_folder, speed=0, global_offset=[0, 0, 0], yaw=0, pitch=0,
+                 roll=0, flapping_rate=50, relative_cs_name=None):
+        """Add a Bird Multipart from 3D Components.
+
+        It requires a json file in the folder containing bird infos. An example json file is showed here.
+
+         .. code-block:: json
+
+            {
+                "name": "bird1",
+                "version": 1,
+                "class":"bird",
+                "xlim":["-.7","2.75"],
+                "ylim":["-1.2","1.2"],
+                "parts": {
+                    "body": {
+                        "comp_name": "body.a3dcomp",
+                        "rotation_cs":null,
+                        "rotation":null,
+                        "rotation_axis":null
+                    },
+                        "wing_right": {
+                        "comp_name": "wing_left.a3dcomp",
+                        "rotation_cs":[".001778" ,".00508" ,".00762"],
+                        "rotation":"-45deg",
+                        "rotation_axis":"X"
+                    },
+                        "wing_left": {
+                        "comp_name": "wing_right.a3dcomp",
+                        "rotation_cs":[".001778" ,"-.00508" ,".00762"],
+                        "rotation":"45deg",
+                        "rotation_axis":"X"
+                    },
+                        "tail": {
+                        "comp_name": "tail.a3dcomp",
+                        "rotation_cs":null,
+                        "rotation":null,
+                        "rotation_axis":null
+                    },
+                        "beak": {
+                        "comp_name": "beak.a3dcomp",
+                        "rotation_cs":null,
+                        "rotation":null,
+                        "rotation_axis":null
+                    }
+                }
+            }
+
+        Parameters
+        ----------
+        actor_folder : str
+            Path to the actor directory. It must contain a json settings file and a
+            3dcomponent (``.a3dcomp`` file)
+        speed:  float, Optional
+            Object movement speed with time (m_per_sec).
+        global_offset: list, Optional
+            Offset from Global Coordinate System [x,y,z] in meters.
+        yaw: float, Optional
+            Yaw Rotation from Global Coordinate System in deg.
+        pitch: float, Optional
+            Pitch Rotation from Global Coordinate System in deg.
+        roll: float, Optional
+            Roll Rotation from Global Coordinate System in deg.
+        flapping_rate : float, optional
+            Motion flapping rate in Hz.
+        relative_cs_name : str
+            Relative CS Name of the actor. ``None`` for Global CS.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.MultiPartComponent.Bird`
+
+        Examples
+        --------
+        >>> from pyaedt import Hfss
+        >>> app = Hfss()
+        >>> bird_dir = "path/to/bird/directory"
+        >>> bird1 = app.modeler.primitives.add_bird(bird_dir, 1.0, [19, 4, 3], 120, -5, flapping_rate=30)
+
+        """
+        self._initialize_multipart()
+
+        if not self._check_actor_folder(actor_folder):
+            return False
+        bird = Bird(actor_folder, speed=speed, flapping_rate=self._arg_with_dim(flapping_rate,"Hz"), relative_cs_name=relative_cs_name)
+        bird.offset = global_offset
+        bird.yaw = self._arg_with_dim(yaw, "deg")
+        bird.pitch = self._arg_with_dim(pitch, "deg")
+        bird.roll = self._arg_with_dim(roll, "deg")
+        bird.insert(self._parent)
+        self.multiparts.append(bird)
+        return bird
+
+    @aedt_exception_handler
+    def add_environment(self, env_folder, global_offset=[0, 0, 0], yaw=0, pitch=0, roll=0, relative_cs_name=None):
+        """Add an Environment Multipart Component from Json file.
+
+         .. code-block:: json
+
+            {
+                "name": "open1",
+                "version": 1,
+                "class":"environment",
+                "xlim":["-5","95"],
+                "ylim":["-60","60"],
+                "parts": {
+                    "open_area": {
+                        "comp_name": "open1.a3dcomp",
+                        "offset":null,
+                        "rotation_cs":null,
+                        "rotation":null,
+                        "rotation_axis":null,
+                        "duplicate_number":null,
+                        "duplicate_vector":null
+                        }
+                }
+            }
+
+        Parameters
+        ----------
+        env_folder : str
+            Path to the actor directory. It must contain a json settings file and a 3dcomponent (``.a3dcomp`` file).
+        global_offset: list, Optional
+            Offset from Global Coordinate System [x,y,z] in meters.
+        yaw: float, Optional
+            Yaw Rotation from Global Coordinate System in deg.
+        pitch: float, Optional
+            Pitch Rotation from Global Coordinate System in deg.
+        roll: float, Optional
+            Roll Rotation from Global Coordinate System in deg.
+        relative_cs_name : str
+            Relative CS Name of the actor. ``None`` for Global CS.
+        Returns
+        -------
+        :class:`pyaedt.modeler.MultiPartComponent.Environment`
+
+        """
+        self._initialize_multipart()
+        if not self._check_actor_folder(env_folder):
+            return False
+        environment = Environment(env_folder, relative_cs_name=relative_cs_name)
+        environment.offset = global_offset
+        environment.yaw = self._arg_with_dim(yaw, "deg")
+        environment.pitch = self._arg_with_dim(pitch, "deg")
+        environment.roll = self._arg_with_dim(roll, "deg")
+        environment.insert(self._parent)
+        self.multiparts.append(environment)
+        return environment

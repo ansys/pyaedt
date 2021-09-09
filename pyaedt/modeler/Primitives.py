@@ -63,7 +63,7 @@ class PolylineSegment:
 
     Examples
     --------
-    See :class: `pyaedt.Primitives.Polyline`.
+    See :class:`pyaedt.Primitives.Polyline`.
 
     """
 
@@ -101,7 +101,7 @@ class Polyline(Object3d):
 
     Parameters
     ----------
-    parent : :class: `pyaedt.modeler.Primitives.Primitives`
+    parent : :class:`pyaedt.modeler.Primitives.Primitives`
         Pointer to the parent Primitives object.
     src_object : optional
         The default is ``None``.
@@ -204,7 +204,7 @@ class Polyline(Object3d):
 
             varg2 = self._parent._default_object_attributes(name=name, matname=matname)
 
-            new_object_name = self.m_Editor.CreatePolyline(varg1, varg2)
+            new_object_name = retry_ntimes(10,self.m_Editor.CreatePolyline, varg1, varg2)
 
             Object3d.__init__(self, parent, name=new_object_name)
             self._parent.objects[self.id] = self
@@ -268,7 +268,7 @@ class Polyline(Object3d):
 
     def _point_segment_string_array(self):
         """Retrieve the parameter arrays for specifying the points and segments of a polyline
-        used in the :class: `pyaedt.modeler.Primitives.Polyline` constructor.
+        used in the :class:`pyaedt.modeler.Primitives.Polyline` constructor.
 
         Returns
         -------
@@ -366,24 +366,24 @@ class Polyline(Object3d):
 
     def _segment_array(self, segment_data, start_index=0, start_point=None):
         """Retrieve a property array for a polyline segment for use in the
-        :class: `pyaedt.modeler.Primitives.Polyline` constructor.
+       :class:`pyaedt.modeler.Primitives.Polyline` constructor.
 
-         Parameters
-         ----------
-         segment_data : :class: `pyaedt.modeler.Primitives.PolylineSegment` or str
-             Pointer to the calling object that provides additional functionality
-             or a string with the segment type ``Line`` or ``Arc``.
-         start_index : int, string
-             Starting vertex index of the segment within a compound polyline. The
-             default is ``0``.
-         start_point : list, optional
-             Position of the first point for type ``AngularArc``. The default is
-             ``None``. Float values are considered in model units.
+        Parameters
+        ----------
+        segment_data : :class:`pyaedt.modeler.Primitives.PolylineSegment` or str
+            Pointer to the calling object that provides additional functionality
+            or a string with the segment type ``Line`` or ``Arc``.
+        start_index : int, string
+            Starting vertex index of the segment within a compound polyline. The
+            default is ``0``.
+        start_point : list, optional
+            Position of the first point for type ``AngularArc``. The default is
+            ``None``. Float values are considered in model units.
 
-         Returns
-         ------
-         list
-             List of properties defining a polyline segment.
+        Returns
+        ------
+        list
+            List of properties defining a polyline segment.
 
         """
         if isinstance(segment_data, str):
@@ -700,10 +700,10 @@ class Polyline(Object3d):
             List of positions of the points that define the segment to insert.
             Either the starting point or ending point of the segment list must
             match one of the vertices of the existing polyline.
-        segment: str or :class: `pyaedt.modeler.Primitives.PolylineSegment`
+        segment: str or :class:`pyaedt.modeler.Primitives.PolylineSegment`
             Definition of the segment to insert. For the types ``"Line"`` and ``"Arc"``,
             use their string values ``"Line"`` and ``"Arc"``. For the types ``"AngularArc"``
-            and ``"Spline"``, use the :class: `pyaedt.modeler.Primitives.PolylineSegment`
+            and ``"Spline"``, use the :class:`pyaedt.modeler.Primitives.PolylineSegment`
             object to define the segment precisely.
 
         Returns
@@ -789,7 +789,7 @@ class Primitives(object):
     ----------
     parent :
         Pointer to the parent object.
-    modeler : :class: `pyaedt.modeler.Modeler`
+    modeler : :class:`pyaedt.modeler.Modeler`
         Pointer to the Modeler object.
 
     """
@@ -860,6 +860,18 @@ class Primitives(object):
         return self._all_object_names
 
     @property
+    def components_3d_names(self):
+        """List of the names of all 3d components objects."""
+        obs3d=[]
+        try:
+            comps3d=self.oeditor.Get3DComponentDefinitionNames()
+            for comp3d in comps3d:
+                obs3d += list(self.oeditor.Get3DComponentInstanceNames(comp3d))
+        except Exception as e:
+            obs3d = []
+        return obs3d
+
+    @property
     def oproject(self):
         """Project."""
         return self._parent.oproject
@@ -875,7 +887,7 @@ class Primitives(object):
 
         Returns
         -------
-        :class: `pyaedt.modules.MaterialLib.Materials`
+        :class:`pyaedt.modules.MaterialLib.Materials`
             Material Manager that is used to manage materials in the project.
         """
         return self._parent.materials
@@ -957,17 +969,17 @@ class Primitives(object):
 
     @aedt_exception_handler
     def update_object(self, obj):
-        """Update any :class: `pyaedt.modeler.Object3d.Object3d` derivatives
+        """Update any :class:`pyaedt.modeler.Object3d.Object3d` derivatives
         that have potentially been modified by a modeler operation.
 
         Parameters
         ----------
-        obj : int, str, or :class: `pyaedt.modeler.Object3d.Object3d`
+        obj : int, str, or :class:`pyaedt.modeler.Object3d.Object3d`
             Object to be updated after a modeler operation.
 
         Returns
         -------
-        :class: `pyaedt.modeler.Object3d.Object3d`
+        :class:`pyaedt.modeler.Object3d.Object3d`
            Updated 3D object.
 
         """
@@ -1058,7 +1070,7 @@ class Primitives(object):
 
         Returns
         -------
-        :class: `pyaedt.modeler.Object3d.Object3d`
+        :class:`pyaedt.modeler.Object3d.Object3d`
             Region object.
 
         """
@@ -1111,16 +1123,16 @@ class Primitives(object):
     @aedt_exception_handler
     def create_object_from_edge(self, edge):
         """Create a line object from an edge ID or from an
-        :class: `pyaedt.modeler.Object3d.EdgePrimitive` object.
+        :class:`pyaedt.modeler.Object3d.EdgePrimitive` object.
 
         Parameters
         ----------
-        edge: int or :class: `pyaedt.modeler.Object3d.EdgePrimitive`
-            Edge ID or :class: `pyaedt.modeler.Object3d.EdgePrimitive` object.
+        edge: int or :class:`pyaedt.modeler.Object3d.EdgePrimitive`
+            Edge ID or :class:`pyaedt.modeler.Object3d.EdgePrimitive` object.
 
         Returns
         -------
-        :class: `pyaedt.modeler.Object3d.Object3d`
+        :class:`pyaedt.modeler.Object3d.Object3d`
             3D object.
 
         """
@@ -1149,12 +1161,12 @@ class Primitives(object):
 
         Parameters
         ----------
-        face : int or :class: `pyaedt.modeler.Object3d.FacePrimitive`
-            Face ID or :class: `pyaedt.modeler.Object3d.FacePrimitive` object.
+        face : int or :class:`pyaedt.modeler.Object3d.FacePrimitive`
+            Face ID or :class:`pyaedt.modeler.Object3d.FacePrimitive` object.
 
         Returns
         -------
-        :class: `pyaedt.modeler.Object3d.Object3d`
+        :class:`pyaedt.modeler.Object3d.Object3d`
             3D object.
 
         """
@@ -1193,7 +1205,7 @@ class Primitives(object):
         """Draw a polyline object in the 3D modeler.
 
         This method retrieves the
-        :class: `pyaedt.modeler.Primitives.Polyline` object, which has
+        :class:`pyaedt.modeler.Primitives.Polyline` object, which has
         additional methods for manipulating the polyline. For example,
         you can use
         :func:`pyaedt.modeler.Primitives.Polyline.insert_segment` to
@@ -1216,7 +1228,7 @@ class Primitives(object):
             ``"PolylineSegment"``, for ``"Line",`` ``"Arc"``,
             ``"Spline"``, or ``"AngularArc"``, a list of segment types
             (str or
-            :class: `pyaedt.modeler.Primitives.PolylineSegment`) is
+            :class:`pyaedt.modeler.Primitives.PolylineSegment`) is
             valid for a compound polyline.
         cover_surface : bool, optional
             The default is ``False``.
@@ -1334,7 +1346,7 @@ class Primitives(object):
 
         Parameters
         ----------
-        src_object : :class: `pyaedt.modeler.Object3d.Object3d`
+        src_object : :class:`pyaedt.modeler.Object3d.Object3d`
             An existing polyline object in the 3D Modeler.
 
         Returns
@@ -1362,7 +1374,7 @@ class Primitives(object):
 
         Returns
         -------
-        :class: `pyaedt.modeler.Object3d.Object3d`
+        :class:`pyaedt.modeler.Object3d.Object3d`
             UDP object created.
 
         """
@@ -1516,7 +1528,7 @@ class Primitives(object):
 
         Returns
         -------
-        :class: `pyaedt.modeler.Object3d.Object3d`
+        :class:`pyaedt.modeler.Object3d.Object3d`
             3D object returned.
 
         """
@@ -3035,7 +3047,7 @@ class Primitives(object):
 
         Returns
         -------
-        :class: `pyaedt.modeler.Object3d.Object3d`
+        :class:`pyaedt.modeler.Object3d.Object3d`
             Returns None if the part ID or the object name is not found.
 
         """

@@ -134,7 +134,7 @@ class ModelerNexxim(ModelerCircuit):
 
         Returns
         -------
-        :class: `pyaedt.Edb`
+        :class:`pyaedt.Edb`
             edb_core object if it exists.
 
         """
@@ -176,7 +176,7 @@ class ModelerNexxim(ModelerCircuit):
 
         Returns
         -------
-        :class: `pyaedt.modeler.Primitives3DLayout.Primitives3DLayout`
+        :class:`pyaedt.modeler.Primitives3DLayout.Primitives3DLayout`
 
         """
         if self._parent.design_type == "Twin Builder":
