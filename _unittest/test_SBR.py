@@ -65,9 +65,11 @@ class TestClass:
             self.aedtapp.SbrAntennas.ShortDipole, use_current_source_representation=True
         )
         assert self.aedtapp.create_sbr_antenna(
-            self.aedtapp.SbrAntennas.SmallLoop, use_current_source_representation=True)
+            self.aedtapp.SbrAntennas.SmallLoop, use_current_source_representation=True
+        )
         toberemoved = self.aedtapp.create_sbr_antenna(
-            self.aedtapp.SbrAntennas.WireDipole, use_current_source_representation=True)
+            self.aedtapp.SbrAntennas.WireDipole, use_current_source_representation=True
+        )
         l = len(self.aedtapp.native_components)
         toberemoved.delete()
         assert len(self.aedtapp.native_components) == l - 1
@@ -79,17 +81,18 @@ class TestClass:
 
     def test_03_add_ffd_antenna(self):
         assert self.aedtapp.create_sbr_file_based_antenna(
-            ffd_full_path=os.path.join(local_path, 'example_models', 'test.ffd'))
+            ffd_full_path=os.path.join(local_path, "example_models", "test.ffd")
+        )
 
     def test_04_add_environment(self):
         self.aedtapp.insert_design("Environment_test")
         self.aedtapp.solution_type = "SBR+"
-        env_folder = os.path.join(local_path, "example_models", "library", 'environment_library', 'tunnel1')
+        env_folder = os.path.join(local_path, "example_models", "library", "environment_library", "tunnel1")
         road1 = self.aedtapp.modeler.primitives.add_environment(env_folder)
         assert road1.name
 
     def test_05_add_person(self):
-        person_folder = os.path.join(local_path, "example_models", "library", 'actor_library', 'person3')
+        person_folder = os.path.join(local_path, "example_models", "library", "actor_library", "person3")
         person1 = self.aedtapp.modeler.primitives.add_person(person_folder, 1.0, [25, 1.5, 0], 180)
         assert person1.offset == [25, 1.5, 0]
         assert person1.yaw == "180deg"
@@ -97,7 +100,7 @@ class TestClass:
         assert person1.roll == "0deg"
 
     def test_06_add_car(self):
-        car_folder = os.path.join(local_path, "example_models", "library", 'actor_library', 'vehicle1')
+        car_folder = os.path.join(local_path, "example_models", "library", "actor_library", "vehicle1")
         car1 = self.aedtapp.modeler.primitives.add_vehicle(car_folder, 1.0, [3, -2.5, 0])
         assert car1.offset == [3, -2.5, 0]
         assert car1.yaw == "0deg"
@@ -105,18 +108,23 @@ class TestClass:
         assert car1.roll == "0deg"
 
     def test_07_add_bird(self):
-        bird_folder = os.path.join(local_path, "example_models", "library", 'actor_library', 'bird1')
-        bird1 = self.aedtapp.modeler.primitives.add_bird(bird_folder, 1.0, [19, 4, 3], 120,-5, flapping_rate=30)
+        bird_folder = os.path.join(local_path, "example_models", "library", "actor_library", "bird1")
+        bird1 = self.aedtapp.modeler.primitives.add_bird(bird_folder, 1.0, [19, 4, 3], 120, -5, flapping_rate=30)
         assert bird1.offset == [19, 4, 3]
         assert bird1.yaw == "120deg"
-        assert bird1.pitch =="-5deg"
+        assert bird1.pitch == "-5deg"
         assert bird1.roll == "0deg"
         assert bird1._flapping_rate == "30Hz"
 
     def test_08_add_radar(self):
-        radar_lib = os.path.join(local_path, "example_models", "library", 'radar_modules',)
-        assert self.aedtapp.create_sbr_radar_from_json(radar_lib, radar_name='Example_1Tx_1Rx',speed=3)
-        assert self.aedtapp.create_sbr_radar_from_json(radar_lib, radar_name='Example_1Tx_4Rx')
+        radar_lib = os.path.join(
+            local_path,
+            "example_models",
+            "library",
+            "radar_modules",
+        )
+        assert self.aedtapp.create_sbr_radar_from_json(radar_lib, radar_name="Example_1Tx_1Rx", speed=3)
+        assert self.aedtapp.create_sbr_radar_from_json(radar_lib, radar_name="Example_1Tx_4Rx")
 
     def test_09_add_doppler_sweep(self):
         setup, sweep = self.aedtapp.create_sbr_pulse_doppler_setup(sweep_time_duration=30)
