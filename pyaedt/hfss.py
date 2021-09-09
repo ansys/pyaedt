@@ -11,6 +11,7 @@ from .generic.general_methods import generate_unique_name, aedt_exception_handle
 from collections import OrderedDict
 from .modeler.MultiPartComponent import Radar
 
+
 class Hfss(FieldAnalysis3D, object):
     """Provides the HFSS application interface.
 
@@ -868,8 +869,16 @@ class Hfss(FieldAnalysis3D, object):
             }
         )
         _parametricbeam = OrderedDict(
-            {"Is Parametric Array": False, "Size": "0.1meter", "MatchedPortImpedance": "50ohm", "Polarization": "Vertical",
-             "Representation": "Far Field", "Vertical BeamWidth": "30deg", "Horizontal BeamWidth": "60deg"})
+            {
+                "Is Parametric Array": False,
+                "Size": "0.1meter",
+                "MatchedPortImpedance": "50ohm",
+                "Polarization": "Vertical",
+                "Representation": "Far Field",
+                "Vertical BeamWidth": "30deg",
+                "Horizontal BeamWidth": "60deg",
+            }
+        )
         _slot = OrderedDict(
             {
                 "Is Parametric Array": False,
@@ -3310,9 +3319,22 @@ class Hfss(FieldAnalysis3D, object):
         return self.create_boundary(self.BoundaryType.Radiation, faces_list, rad_name)
 
     @aedt_exception_handler
-    def _create_sbr_doppler_setup(self, setup_type, time_var, center_freq, resolution, period, velocity_resolution,
-                                  min_velocity, max_velocity, ray_density_per_wavelenght, max_bounces, setup_name,
-                                  include_coupling_effects=False, doppler_ad_sampling_rate=20):
+    def _create_sbr_doppler_setup(
+        self,
+        setup_type,
+        time_var,
+        center_freq,
+        resolution,
+        period,
+        velocity_resolution,
+        min_velocity,
+        max_velocity,
+        ray_density_per_wavelenght,
+        max_bounces,
+        setup_name,
+        include_coupling_effects=False,
+        doppler_ad_sampling_rate=20,
+    ):
         setup1 = self.create_setup(setup_name, "SBR+")
         setup1.props["IsSbrRangeDoppler"] = True
         del setup1.props["PTDUTDSimulationSettings"]
@@ -3330,7 +3352,9 @@ class Hfss(FieldAnalysis3D, object):
         setup1.props["SbrRangeDopplerCenterFreq"] = self.modeler.primitives._arg_with_dim(center_freq, "GHz")
         setup1.props["SbrRangeDopplerRangeResolution"] = self.modeler.primitives._arg_with_dim(resolution, "meter")
         setup1.props["SbrRangeDopplerRangePeriod"] = self.modeler.primitives._arg_with_dim(period, "meter")
-        setup1.props["SbrRangeDopplerVelocityResolution"] = self.modeler.primitives._arg_with_dim(velocity_resolution, "m_per_sec")
+        setup1.props["SbrRangeDopplerVelocityResolution"] = self.modeler.primitives._arg_with_dim(
+            velocity_resolution, "m_per_sec"
+        )
         setup1.props["SbrRangeDopplerVelocityMin"] = self.modeler.primitives._arg_with_dim(min_velocity, "m_per_sec")
         setup1.props["SbrRangeDopplerVelocityMax"] = self.modeler.primitives._arg_with_dim(max_velocity, "m_per_sec")
         setup1.props["DopplerRayDensityPerWavelength"] = ray_density_per_wavelenght
@@ -3338,24 +3362,38 @@ class Hfss(FieldAnalysis3D, object):
         if setup_type != "PulseDoppler":
             setup1.props["IncludeRangeVelocityCouplingEffect"] = include_coupling_effects
             setup1.props["SbrRangeDopplerA/DSamplingRate"] = self.modeler.primitives._arg_with_dim(
-                doppler_ad_sampling_rate, "MHz")
+                doppler_ad_sampling_rate, "MHz"
+            )
         setup1.update()
         return setup1
 
     @aedt_exception_handler
-    def _create_sbr_doppler_sweep(self, setupname, time_var, tstart, tstop, tsweep,parametric_name):
+    def _create_sbr_doppler_sweep(self, setupname, time_var, tstart, tstop, tsweep, parametric_name):
         time_start = self.modeler.primitives._arg_with_dim(tstart, "s")
         time_sweep = self.modeler.primitives._arg_with_dim(tsweep, "s")
         time_stop = self.modeler.primitives._arg_with_dim(tstop, "s")
         sweep_range = "LIN {} {} {}".format(time_start, time_stop, time_sweep)
-        return self.opti_parametric.add_parametric_setup(time_var, sweep_range, setupname,
-                                                         parametricname=parametric_name)
+        return self.opti_parametric.add_parametric_setup(
+            time_var, sweep_range, setupname, parametricname=parametric_name
+        )
 
     @aedt_exception_handler
-    def create_sbr_chirp_i_doppler_setup(self, time_var=None, sweep_time_duration=0, center_freq=76.5, resolution=1, period=200,
-                                         velocity_resolution=0.4, min_velocity=-20, max_velocity=20,
-                                         ray_density_per_wavelenght=0.2, max_bounces=5, include_coupling_effects=False,
-                                         doppler_ad_sampling_rate=20, setup_name=None):
+    def create_sbr_chirp_i_doppler_setup(
+        self,
+        time_var=None,
+        sweep_time_duration=0,
+        center_freq=76.5,
+        resolution=1,
+        period=200,
+        velocity_resolution=0.4,
+        min_velocity=-20,
+        max_velocity=20,
+        ray_density_per_wavelenght=0.2,
+        max_bounces=5,
+        include_coupling_effects=False,
+        doppler_ad_sampling_rate=20,
+        setup_name=None,
+    ):
         """Create an SBR+ Chirp IQ Setup.
 
         Parameters
@@ -3405,32 +3443,53 @@ class Hfss(FieldAnalysis3D, object):
             parametric_name = generate_unique_name(setup_name)
 
         if not time_var:
-            for var_name, var  in self.variable_manager.independent_variables.items():
+            for var_name, var in self.variable_manager.independent_variables.items():
                 if var.unit_system == "Time":
                     time_var = var_name
                     break
             if not time_var:
                 self.add_error_message("No Time Variable Found. Setup or explicitly assign to the method.")
                 raise ValueError("No Time Variable Found")
-        setup = self._create_sbr_doppler_setup("ChirpI", time_var=time_var, center_freq=center_freq,
-                                               resolution=resolution, period=period,
-                                               velocity_resolution=velocity_resolution, min_velocity=min_velocity,
-                                               max_velocity=max_velocity,
-                                               ray_density_per_wavelenght=ray_density_per_wavelenght,
-                                               max_bounces=max_bounces,
-                                               include_coupling_effects=include_coupling_effects,
-                                               doppler_ad_sampling_rate=doppler_ad_sampling_rate, setup_name=setup_name)
-        if sweep_time_duration >0:
+        setup = self._create_sbr_doppler_setup(
+            "ChirpI",
+            time_var=time_var,
+            center_freq=center_freq,
+            resolution=resolution,
+            period=period,
+            velocity_resolution=velocity_resolution,
+            min_velocity=min_velocity,
+            max_velocity=max_velocity,
+            ray_density_per_wavelenght=ray_density_per_wavelenght,
+            max_bounces=max_bounces,
+            include_coupling_effects=include_coupling_effects,
+            doppler_ad_sampling_rate=doppler_ad_sampling_rate,
+            setup_name=setup_name,
+        )
+        if sweep_time_duration > 0:
             sweeptime = math.ceil(300000000 / (2 * center_freq * 1000000000 * velocity_resolution) * 1000) / 1000
-            sweep = self._create_sbr_doppler_sweep(setup.name, time_var, 0, sweep_time_duration, sweeptime, parametric_name)
+            sweep = self._create_sbr_doppler_sweep(
+                setup.name, time_var, 0, sweep_time_duration, sweeptime, parametric_name
+            )
             return setup, sweep
         return setup, False
 
     @aedt_exception_handler
-    def create_sbr_chirp_iq_doppler_setup(self, time_var=None, sweep_time_duration=0, center_freq=76.5, resolution=1, period=200,
-                                          velocity_resolution=0.4, min_velocity=-20, max_velocity=20,
-                                          ray_density_per_wavelenght=0.2, max_bounces=5, include_coupling_effects=False,
-                                          doppler_ad_sampling_rate=20, setup_name=None):
+    def create_sbr_chirp_iq_doppler_setup(
+        self,
+        time_var=None,
+        sweep_time_duration=0,
+        center_freq=76.5,
+        resolution=1,
+        period=200,
+        velocity_resolution=0.4,
+        min_velocity=-20,
+        max_velocity=20,
+        ray_density_per_wavelenght=0.2,
+        max_bounces=5,
+        include_coupling_effects=False,
+        doppler_ad_sampling_rate=20,
+        setup_name=None,
+    ):
         """Create an SBR+ Chirp IQ Setup.
 
         Parameters
@@ -3479,30 +3538,50 @@ class Hfss(FieldAnalysis3D, object):
         else:
             parametric_name = generate_unique_name(setup_name)
         if not time_var:
-            for var_name, var  in self.variable_manager.independent_variables.items():
+            for var_name, var in self.variable_manager.independent_variables.items():
                 if var.unit_system == "Time":
                     time_var = var_name
                     break
             if not time_var:
                 raise ValueError("No Time Variable Found")
-        setup = self._create_sbr_doppler_setup("ChirpIQ", time_var=time_var, center_freq=center_freq,
-                                               resolution=resolution, period=period,
-                                               velocity_resolution=velocity_resolution, min_velocity=min_velocity,
-                                               max_velocity=max_velocity,
-                                               ray_density_per_wavelenght=ray_density_per_wavelenght,
-                                               max_bounces=max_bounces,
-                                               include_coupling_effects=include_coupling_effects,
-                                               doppler_ad_sampling_rate=doppler_ad_sampling_rate, setup_name=setup_name)
-        if sweep_time_duration >0:
+        setup = self._create_sbr_doppler_setup(
+            "ChirpIQ",
+            time_var=time_var,
+            center_freq=center_freq,
+            resolution=resolution,
+            period=period,
+            velocity_resolution=velocity_resolution,
+            min_velocity=min_velocity,
+            max_velocity=max_velocity,
+            ray_density_per_wavelenght=ray_density_per_wavelenght,
+            max_bounces=max_bounces,
+            include_coupling_effects=include_coupling_effects,
+            doppler_ad_sampling_rate=doppler_ad_sampling_rate,
+            setup_name=setup_name,
+        )
+        if sweep_time_duration > 0:
             sweeptime = math.ceil(300000000 / (2 * center_freq * 1000000000 * velocity_resolution) * 1000) / 1000
-            sweep = self._create_sbr_doppler_sweep(setup.name, time_var, 0, sweep_time_duration, sweeptime, parametric_name)
+            sweep = self._create_sbr_doppler_sweep(
+                setup.name, time_var, 0, sweep_time_duration, sweeptime, parametric_name
+            )
             return setup, sweep
         return setup, False
 
     @aedt_exception_handler
-    def create_sbr_pulse_doppler_setup(self, time_var=None, sweep_time_duration=0, center_freq=76.5, resolution=1, period=200,
-                                       velocity_resolution=0.4, min_velocity=-20, max_velocity=20,
-                                       ray_density_per_wavelenght=0.2, max_bounces=5, setup_name=None):
+    def create_sbr_pulse_doppler_setup(
+        self,
+        time_var=None,
+        sweep_time_duration=0,
+        center_freq=76.5,
+        resolution=1,
+        period=200,
+        velocity_resolution=0.4,
+        min_velocity=-20,
+        max_velocity=20,
+        ray_density_per_wavelenght=0.2,
+        max_bounces=5,
+        setup_name=None,
+    ):
         """Create an SBR+ Pulse Doppler Setup.
 
         Parameters
@@ -3547,28 +3626,37 @@ class Hfss(FieldAnalysis3D, object):
             parametric_name = generate_unique_name(setup_name)
 
         if not time_var:
-            for var_name, var  in self.variable_manager.independent_variables.items():
+            for var_name, var in self.variable_manager.independent_variables.items():
                 if var.unit_system == "Time":
                     time_var = var_name
                     break
             if not time_var:
                 raise ValueError("No Time Variable Found")
-        setup = self._create_sbr_doppler_setup("PulseDoppler", time_var=time_var, center_freq=center_freq,
-                                               resolution=resolution, period=period,
-                                               velocity_resolution=velocity_resolution, min_velocity=min_velocity,
-                                               max_velocity=max_velocity,
-                                               ray_density_per_wavelenght=ray_density_per_wavelenght,
-                                               max_bounces=max_bounces, setup_name=setup_name)
+        setup = self._create_sbr_doppler_setup(
+            "PulseDoppler",
+            time_var=time_var,
+            center_freq=center_freq,
+            resolution=resolution,
+            period=period,
+            velocity_resolution=velocity_resolution,
+            min_velocity=min_velocity,
+            max_velocity=max_velocity,
+            ray_density_per_wavelenght=ray_density_per_wavelenght,
+            max_bounces=max_bounces,
+            setup_name=setup_name,
+        )
         if sweep_time_duration > 0:
-            sweeptime = math.ceil(300000000 / (2 * center_freq * 1000000000 * velocity_resolution) * 1000)/1000
-            sweep = self._create_sbr_doppler_sweep(setup.name, time_var, 0, sweep_time_duration, sweeptime,
-                                                   parametric_name)
+            sweeptime = math.ceil(300000000 / (2 * center_freq * 1000000000 * velocity_resolution) * 1000) / 1000
+            sweep = self._create_sbr_doppler_sweep(
+                setup.name, time_var, 0, sweep_time_duration, sweeptime, parametric_name
+            )
             return setup, sweep
         return setup, False
 
     @aedt_exception_handler
-    def create_sbr_radar_from_json(self, radar_file, radar_name, offset=[0, 0, 0], speed=0.0,
-                                   use_relative_cs=False, relative_cs_name=None):
+    def create_sbr_radar_from_json(
+        self, radar_file, radar_name, offset=[0, 0, 0], speed=0.0, use_relative_cs=False, relative_cs_name=None
+    ):
         """Create a SBR+ Radar from Json File.
 
           .. code-block:: json
@@ -3626,9 +3714,16 @@ class Hfss(FieldAnalysis3D, object):
             self.add_error_message("Method Applies only to SBR+ Solution.")
             return False
         use_motion = abs(speed) > 0.0
-        r = Radar(radar_file, name=radar_name, motion=use_motion, offset=offset, speed=speed,
-                  use_relative_cs=(use_relative_cs or use_motion), relative_cs_name=relative_cs_name)
-        r.insert(self, abs(speed) >0)
+        r = Radar(
+            radar_file,
+            name=radar_name,
+            motion=use_motion,
+            offset=offset,
+            speed=speed,
+            use_relative_cs=(use_relative_cs or use_motion),
+            relative_cs_name=relative_cs_name,
+        )
+        r.insert(self, abs(speed) > 0)
         return r
 
     @aedt_exception_handler
@@ -3654,8 +3749,13 @@ class Hfss(FieldAnalysis3D, object):
         current_conformance = "Disable"
         if conformance:
             current_conformance = "Enable"
-        arg = ["NAME:CurrentSourceOption", "Current Source Conformance:=", current_conformance, "Thin Sources:=",
-               thin_sources]
+        arg = [
+            "NAME:CurrentSourceOption",
+            "Current Source Conformance:=",
+            current_conformance,
+            "Thin Sources:=",
+            thin_sources,
+        ]
         if thin_sources:
             arg.append("Power Fraction:=")
             arg.append(str(power_fraction))

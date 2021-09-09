@@ -20,6 +20,7 @@ import gc
 from pyaedt.application.MessageManager import AEDTMessageManager
 from pyaedt.misc import list_installed_ansysem
 from pyaedt import is_ironpython, _pythonver, inside_desktop
+
 pathname = os.path.dirname(__file__)
 if os.path.exists(os.path.join(pathname, "version.txt")):
     with open(os.path.join(pathname, "version.txt"), "r") as f:
@@ -142,8 +143,9 @@ def update_aedt_registry(key, value, desktop_version="211"):
 
     subprocess.call([command])
 
+
 def _delete_objects():
-    module = sys.modules['__main__']
+    module = sys.modules["__main__"]
     if "COMUtil" in dir(module):
         del module.COMUtil
     if "Hfss" in dir(module):
@@ -196,7 +198,7 @@ def release_desktop(close_projects=True, close_desktop=True):
 
     """
 
-    Module = sys.modules['__main__']
+    Module = sys.modules["__main__"]
     if "oDesktop" not in dir(Module):
         _delete_objects()
         return False
@@ -630,7 +632,7 @@ class Desktop:
 
         """
         release_desktop(close_projects, close_on_exit)
-        props = [a for a in dir(self) if not a.startswith('__')]
+        props = [a for a in dir(self) if not a.startswith("__")]
         for a in props:
             self.__dict__.pop(a, None)
         gc.collect()

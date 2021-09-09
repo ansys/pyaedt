@@ -140,8 +140,17 @@ class Icepak(FieldAnalysisIcepak):
         return sweep_list
 
     @aedt_exception_handler
-    def assign_grille(self, air_faces, free_loss_coeff=True, free_area_ratio=0.8, resistance_type=0,
-                     external_temp="AmbientTemp", expternal_pressure="AmbientPressure", x_curve=["0","1","2"], y_curve=["0","1","2"]):
+    def assign_grille(
+        self,
+        air_faces,
+        free_loss_coeff=True,
+        free_area_ratio=0.8,
+        resistance_type=0,
+        external_temp="AmbientTemp",
+        expternal_pressure="AmbientPressure",
+        x_curve=["0", "1", "2"],
+        y_curve=["0", "1", "2"],
+    ):
         """Assign grille to a face or list of faces.
 
         Parameters
@@ -190,7 +199,7 @@ class Icepak(FieldAnalysisIcepak):
 
         props["X"] = x_curve
         props["Y"] = y_curve
-        bound = BoundaryObject(self, boundary_name, props, 'Grille')
+        bound = BoundaryObject(self, boundary_name, props, "Grille")
         if bound.create():
             self.boundaries.append(bound)
             self._messenger.add_info_message("Grille Assigned")
@@ -347,8 +356,9 @@ class Icepak(FieldAnalysisIcepak):
         return listmcad
 
     @aedt_exception_handler
-    def create_source_block(self, object_name, input_power, assign_material=True, material_name="Ceramic_material",
-                            use_object_for_name=True):
+    def create_source_block(
+        self, object_name, input_power, assign_material=True, material_name="Ceramic_material", use_object_for_name=True
+    ):
         """Create a source block for an object.
 
         Parameters
@@ -401,7 +411,8 @@ class Icepak(FieldAnalysisIcepak):
         if bound.create():
             self.boundaries.append(bound)
             self._messenger.add_info_message(
-                "Block on {} with {} Power, created correctly.".format(object_name, input_power))
+                "Block on {} with {} Power, created correctly.".format(object_name, input_power)
+            )
             return bound
         return None
 
@@ -1348,8 +1359,16 @@ class Icepak(FieldAnalysisIcepak):
         for el in parameter_dict_with_values:
             string += el + "='" + parameter_dict_with_values[el] + "' "
         filename = os.path.join(savedir, filename + ".csv")
-        arg = ["SolutionName:=", sweep_name, "DesignVariationKey:=", string, "ExportFileName:=", filename,
-               "IntrinsicValue:=", ""]
+        arg = [
+            "SolutionName:=",
+            sweep_name,
+            "DesignVariationKey:=",
+            string,
+            "ExportFileName:=",
+            filename,
+            "IntrinsicValue:=",
+            "",
+        ]
         retry_ntimes(10, self.osolution.ExportFieldsSummary, arg)
         return filename
 
