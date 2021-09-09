@@ -24,20 +24,24 @@ import json
 import gc
 import sys
 from pyaedt import is_ironpython
+
 if is_ironpython:
     import _unittest_ironpython.conf_unittest as pytest
 else:
     import pytest
+
     if "UNITTEST_CURRENT_TEST" in os.environ:
         os.environ.pop("UNITTEST_CURRENT_TEST")
 
 local_path = os.path.dirname(os.path.realpath(__file__))
 
 from pyaedt import Desktop
+
 # Import required modules
 from pyaedt import Hfss
 from pyaedt.application.Design import DesignCache
 from pyaedt.generic.filesystem import Scratch
+
 test_project_name = "test_primitives"
 
 local_path = os.path.dirname(os.path.realpath(__file__))
@@ -64,18 +68,17 @@ else:
         "skip_space_claim": False,
         "skip_circuits": False,
         "skip_edb": False,
-        "skip_debug": False
+        "skip_debug": False,
     }
     config["local"] = False
 
 
 class BasisTest:
-
     def setup_class(self, project_name=None, design_name=None, solution_type=None, application=None):
 
         with Scratch(scratch_path) as self.local_scratch:
             if project_name:
-                example_project = os.path.join(local_path, 'example_models', project_name + '.aedt')
+                example_project = os.path.join(local_path, "example_models", project_name + ".aedt")
                 if os.path.exists(example_project):
                     self.test_project = self.local_scratch.copyfile(example_project)
                 else:
@@ -85,10 +88,15 @@ class BasisTest:
             if not application:
                 application = Hfss
 
-            self.aedtapp = application(projectname=self.test_project, designname=design_name,
-                                           solution_type=solution_type, specified_version=desktop_version,
-                                           AlwaysNew=new_thread, NG=non_graphical)
-            #TODO do we need this ?
+            self.aedtapp = application(
+                projectname=self.test_project,
+                designname=design_name,
+                solution_type=solution_type,
+                specified_version=desktop_version,
+                AlwaysNew=new_thread,
+                NG=non_graphical,
+            )
+            # TODO do we need this ?
             if project_name:
                 if design_name:
                     self.aedtapp.design_name = design_name
@@ -100,12 +108,14 @@ class BasisTest:
         self.local_scratch.remove()
         gc.collect()
 
+
 # Define desktopVersion explicitly since this is imported by other modules
 desktop_version = config["desktopVersion"]
 new_thread = config["NewThread"]
 non_graphical = config["NonGraphical"]
 
-@pytest.fixture(scope='session', autouse=True)
+
+@pytest.fixture(scope="session", autouse=True)
 def desktop_init():
     desktop = Desktop(desktop_version, non_graphical, new_thread)
     desktop.disable_autosave()
@@ -116,7 +126,7 @@ def desktop_init():
     if new_thread:
         desktop.force_close_desktop()
     p = [x[0] for x in os.walk(scratch_path) if "scratch" in x[0]]
-    #p = pathlib.Path(scratch_path).glob('**/scratch*')
+    # p = pathlib.Path(scratch_path).glob('**/scratch*')
     for folder in p:
         shutil.rmtree(folder, ignore_errors=True)
 
@@ -126,10 +136,11 @@ def desktop_init():
 
 from functools import wraps
 
+
 def pyaedt_unittest_check_desktop_error(func):
     @wraps(func)
     def inner_function(*args, **kwargs):
-        #args[0].aedtapp._messenger("Test Function Here")
+        # args[0].aedtapp._messenger("Test Function Here")
         args[0].cache.update()
         ret_val = func(*args, **kwargs)
         try:
@@ -137,9 +148,9 @@ def pyaedt_unittest_check_desktop_error(func):
         except Exception as e:
             pytest.exit("Desktop Crashed - Aborting the test!")
         args[0].cache.update()
-        #model_report = args[0].aedtapp.modeler.primitives.model_consistency_report
-        #assert not model_report["Missing Objects"]
-        #assert not model_report["Non-Existent Objects"]
+        # model_report = args[0].aedtapp.modeler.primitives.model_consistency_report
+        # assert not model_report["Missing Objects"]
+        # assert not model_report["Non-Existent Objects"]
         assert args[0].cache.no_new_errors
         return ret_val
 
