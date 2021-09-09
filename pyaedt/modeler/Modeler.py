@@ -1591,15 +1591,15 @@ class GeometryModeler(Modeler, object):
         Xpos, Ypos, Zpos = self.primitives._pos_with_arg(position)
         Xnorm, Ynorm, Znorm = self.primitives._pos_with_arg(vector)
 
-        vArg1 = ['NAME:Selections', 'Selections:=', selections, 'NewPartsModelFlag:=', 'Model']
-        vArg2 = ['NAME:DuplicateToMirrorParameters']
-        vArg2.append('DuplicateMirrorBaseX:='), vArg2.append(Xpos)
-        vArg2.append('DuplicateMirrorBaseY:='), vArg2.append(Ypos)
-        vArg2.append('DuplicateMirrorBaseZ:='), vArg2.append(Zpos)
-        vArg2.append('DuplicateMirrorNormalX:='), vArg2.append(Xnorm)
-        vArg2.append('DuplicateMirrorNormalY:='), vArg2.append(Ynorm)
-        vArg2.append('DuplicateMirrorNormalZ:='), vArg2.append(Znorm)
-        vArg3 = ['NAME:Options', 'DuplicateAssignments:=', False]
+        vArg1 = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
+        vArg2 = ["NAME:DuplicateToMirrorParameters"]
+        vArg2.append("DuplicateMirrorBaseX:="), vArg2.append(Xpos)
+        vArg2.append("DuplicateMirrorBaseY:="), vArg2.append(Ypos)
+        vArg2.append("DuplicateMirrorBaseZ:="), vArg2.append(Zpos)
+        vArg2.append("DuplicateMirrorNormalX:="), vArg2.append(Xnorm)
+        vArg2.append("DuplicateMirrorNormalY:="), vArg2.append(Ynorm)
+        vArg2.append("DuplicateMirrorNormalZ:="), vArg2.append(Znorm)
+        vArg3 = ["NAME:Options", "DuplicateAssignments:=", False]
         if is_3d_comp:
             orig_3d = [i for i in self.primitives.components_3d_names]
         added_objs = self.oeditor.DuplicateMirror(vArg1, vArg2, vArg3)

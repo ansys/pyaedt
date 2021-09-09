@@ -8,7 +8,6 @@ from .MultiPartComponent import Person, Bird, Vehicle, Antenna, Radar, Environme
 from ..generic.general_methods import retry_ntimes
 
 
-
 class Primitives3D(Primitives, object):
     """Manages primitives in 3D tools.
 
@@ -827,7 +826,7 @@ class Primitives3D(Primitives, object):
         vArg1.append(False)
         vArg1.append("UniqueIdentifier:=")
         vArg1.append("")
-        varg2= ["NAME:InstanceParameters"]
+        varg2 = ["NAME:InstanceParameters"]
         varg2.append("GeometryParameters:=")
         varg2.append(sz_geo_params)
         varg2.append("MaterialParameters:=")
@@ -865,7 +864,9 @@ class Primitives3D(Primitives, object):
         if not os.path.exists(actor_folder):
             self._messenger.add_error_message("Folder {} does not exist.".format(actor_folder))
             return False
-        if not any(fname.endswith('.json') for fname in os.listdir(actor_folder)) or not any(fname.endswith('.a3dcomp') for fname in os.listdir(actor_folder)):
+        if not any(fname.endswith(".json") for fname in os.listdir(actor_folder)) or not any(
+            fname.endswith(".a3dcomp") for fname in os.listdir(actor_folder)
+        ):
             self._messenger.add_error_message("At least one json and one a3dcomp file is needed.")
             return False
         return True
@@ -878,7 +879,9 @@ class Primitives3D(Primitives, object):
             return MultiPartComponent.start(self._parent)
 
     @aedt_exception_handler
-    def add_person(self, actor_folder, speed=0.0, global_offset=[0, 0, 0], yaw=0, pitch=0, roll=0, relative_cs_name=None):
+    def add_person(
+        self, actor_folder, speed=0.0, global_offset=[0, 0, 0], yaw=0, pitch=0, roll=0, relative_cs_name=None
+    ):
         """Add a Walking Person Multipart from 3D Components.
 
         It requires a json file in the folder containing person infos. An example json file is showed here.
@@ -965,7 +968,9 @@ class Primitives3D(Primitives, object):
         return person1
 
     @aedt_exception_handler
-    def add_vehicle(self, actor_folder, speed=0, global_offset=[0,0,0], yaw=0, pitch=0,roll=0, relative_cs_name=None):
+    def add_vehicle(
+        self, actor_folder, speed=0, global_offset=[0, 0, 0], yaw=0, pitch=0, roll=0, relative_cs_name=None
+    ):
         """Add a Moving Vehicle Multipart from 3D Components.
 
         It requires a json file in the folder containing vehicle infos. An example json file is showed here.
@@ -1039,8 +1044,17 @@ class Primitives3D(Primitives, object):
         return vehicle
 
     @aedt_exception_handler
-    def add_bird(self, actor_folder, speed=0, global_offset=[0, 0, 0], yaw=0, pitch=0,
-                 roll=0, flapping_rate=50, relative_cs_name=None):
+    def add_bird(
+        self,
+        actor_folder,
+        speed=0,
+        global_offset=[0, 0, 0],
+        yaw=0,
+        pitch=0,
+        roll=0,
+        flapping_rate=50,
+        relative_cs_name=None,
+    ):
         """Add a Bird Multipart from 3D Components.
 
         It requires a json file in the folder containing bird infos. An example json file is showed here.
@@ -1123,7 +1137,12 @@ class Primitives3D(Primitives, object):
 
         if not self._check_actor_folder(actor_folder):
             return False
-        bird = Bird(actor_folder, speed=speed, flapping_rate=self._arg_with_dim(flapping_rate,"Hz"), relative_cs_name=relative_cs_name)
+        bird = Bird(
+            actor_folder,
+            speed=speed,
+            flapping_rate=self._arg_with_dim(flapping_rate, "Hz"),
+            relative_cs_name=relative_cs_name,
+        )
         bird.offset = global_offset
         bird.yaw = self._arg_with_dim(yaw, "deg")
         bird.pitch = self._arg_with_dim(pitch, "deg")
