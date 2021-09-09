@@ -9,7 +9,7 @@ import os
 
 from .application.AnalysisNexxim import FieldAnalysisCircuit
 from .desktop import exception_to_desktop
-from .application.DataHandlers import from_rkm_to_aedt
+from .generic.DataHandlers import from_rkm_to_aedt
 from .generic.general_methods import aedt_exception_handler
 
 
@@ -966,7 +966,7 @@ class Circuit(FieldAnalysisCircuit, object):
 
         Returns
         -------
-        :class: `pyaedt.modules.PostProcessor.SolutionData`
+        :class:`pyaedt.modules.PostProcessor.SolutionData`
            Class containing all Requested Data
 
         """

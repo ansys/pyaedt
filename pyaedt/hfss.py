@@ -2,14 +2,14 @@
 from __future__ import absolute_import
 import os
 import warnings
+import math
 from .application.Analysis3D import FieldAnalysis3D
 from .desktop import exception_to_desktop
 from .modeler.GeometryOperators import GeometryOperators
 from .modules.Boundary import BoundaryObject, NativeComponentObject
 from .generic.general_methods import generate_unique_name, aedt_exception_handler
 from collections import OrderedDict
-from .application.DataHandlers import random_string
-
+from .modeler.MultiPartComponent import Radar
 
 class Hfss(FieldAnalysis3D, object):
     """Provides the HFSS application interface.
@@ -168,7 +168,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class: `pyaedt.modules.Boundary.BoundaryObject`
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
         """
@@ -365,7 +365,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class: `pyaedt.modules.Boundary.BoundaryObject`
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
         Examples
@@ -466,7 +466,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        pyaedt.modules.SetupTemplates.SweepHFSS, pyaedt.modules.SetupTemplates.SweepQ3D, or bool
+        :class:`pyaedt.modules.SetupTemplates.SweepHFSS`, :class:`pyaedt.modules.SetupTemplates.SweepQ3D`, or bool
             Sweep object if successful. ``False`` if unsuccessful.
 
         Examples
@@ -554,7 +554,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class: `pyaedt.modules.SetupTemplates.SweepHFSS` or bool
+        :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or bool
             Sweep object if successful. ``False`` if unsuccessful.
 
         Examples
@@ -628,7 +628,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class: `pyaedt.modules.SetupTemplates.SweepHFSS` or bool
+        :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or bool
             Sweep object if successful. ``False`` if unsuccessful.
 
         Examples
@@ -868,16 +868,8 @@ class Hfss(FieldAnalysis3D, object):
             }
         )
         _parametricbeam = OrderedDict(
-            {
-                "Is Parametric Array": False,
-                "Size": "0.1mm",
-                "MatchedPortImpedance": "50ohm",
-                "Polarization": "Vertical",
-                "Representation": "Far Field",
-                "Vertical BeamWidth": "30deg",
-                "Horizontal BeamWidth": "60deg",
-            }
-        )
+            {"Is Parametric Array": False, "Size": "0.1meter", "MatchedPortImpedance": "50ohm", "Polarization": "Vertical",
+             "Representation": "Far Field", "Vertical BeamWidth": "30deg", "Horizontal BeamWidth": "60deg"})
         _slot = OrderedDict(
             {
                 "Is Parametric Array": False,
@@ -990,7 +982,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        pyaedt.modules.Boundary.NativeComponentObject
+        :class:`pyaedt.modules.Boundary.NativeComponentObject`
             NativeComponentObject object.
 
         Examples
@@ -1097,7 +1089,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        pyaedt.modules.Boundary.NativeComponentObject
+        :class:`pyaedt.modules.Boundary.NativeComponentObject`
             NativeComponentObject object.
 
         Examples
@@ -1138,7 +1130,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        pyaedt.modules.Boundary.BoundaryObject
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
         Examples
@@ -1177,7 +1169,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class: `pyaedt.modules.SetupTemplates.SweepHFSS` or bool
+        :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or bool
             Sweep object if successful. ``False`` if unsuccessful.
 
         Examples
@@ -1232,7 +1224,7 @@ class Hfss(FieldAnalysis3D, object):
             First (starting) object for the integration line.
         endobject :
             Second (ending) object for the integration line.
-        axisdir : int or :class: `pyaedt.application.Analysis.Analysis.AxisDir`, optional
+        axisdir : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
             The default is ``Application.AxisDir.XNeg``.
@@ -1297,7 +1289,7 @@ class Hfss(FieldAnalysis3D, object):
             First (starting) object for the integration line.
         endobject :
             Second (ending) object for the integration line.
-        axisdir : int or :class: `pyaedt.application.Analysis.Analysis.AxisDir`, optional
+        axisdir : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
             The default is ``Application.AxisDir.XNeg``.
@@ -1369,7 +1361,7 @@ class Hfss(FieldAnalysis3D, object):
             First (starting) object for the integration line.
         endobject :
             Second (ending) object for the integration line.
-        axisdir : int or :class: `pyaedt.application.Analysis.Analysis.AxisDir`, optional
+        axisdir : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
             The default is ``Application.AxisDir.XNeg``.
@@ -1431,7 +1423,7 @@ class Hfss(FieldAnalysis3D, object):
             First (starting) object for the integration line.
         endobject :
             Second (ending) object for the integration line.
-        axisdir : int or :class: `pyaedt.application.Analysis.Analysis.AxisDir`, optional
+        axisdir : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
             The default is ``Application.AxisDir.XNeg``.
@@ -1503,7 +1495,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class: `pyaedt.modules.Boundary.BoundaryObject`
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
         """
@@ -1533,7 +1525,7 @@ class Hfss(FieldAnalysis3D, object):
             First (starting) object for the integration line.
         endobject :
             Second (ending) object for the integration line.
-        axisdir : int or :class: `pyaedt.application.Analysis.Analysis.AxisDir`, optional
+        axisdir : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
             The default is ``Application.AxisDir.XNeg``.
@@ -1555,7 +1547,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class: `pyaedt.modules.Boundary.BoundaryObject`
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
         Examples
@@ -1646,7 +1638,7 @@ class Hfss(FieldAnalysis3D, object):
             First (starting) object for the integration line. This is typically the reference plane.
         endobject :
             Second (ending) object for the integration line.
-        axisdir : int or :class: `pyaedt.application.Analysis.Analysis.AxisDir`, optional
+        axisdir : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
             The default is ``Application.AxisDir.XNeg``.
@@ -1668,7 +1660,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class: `pyaedt.modules.Boundary.BoundaryObject`
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
             Port object.
 
         Examples
@@ -1724,7 +1716,7 @@ class Hfss(FieldAnalysis3D, object):
             First object (starting object for integration line)
         endobject :
             Second object (ending object for integration line)
-        axisdir : int or :class: `pyaedt.application.Analysis.Analysis.AxisDir`, optional
+        axisdir : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
             The default is ``Application.AxisDir.XNeg``.
@@ -1737,7 +1729,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class: `pyaedt.modules.Boundary.BoundaryObject` or bool
+        :class:`pyaedt.modules.Boundary.BoundaryObject` or bool
             Boundary object if successful. ``False`` if unsuccessful.
 
         Examples
@@ -1784,7 +1776,7 @@ class Hfss(FieldAnalysis3D, object):
             First (starting) object for the integration line.
         endobject :
             Second (ending) object for the integration line.
-        axisdir : int or :class: `pyaedt.application.Analysis.Analysis.AxisDir`, optional
+        axisdir : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
             The default is ``Application.AxisDir.XNeg``.
@@ -1795,7 +1787,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class: `pyaedt.modules.Boundary.BoundaryObject` or bool
+        :class:`pyaedt.modules.Boundary.BoundaryObject` or bool
             Boundary object if successful. ``False`` if unsuccessful.
 
         Examples
@@ -1851,7 +1843,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class: `pyaedt.hfss.SARSetup`
+        :class:`pyaedt.hfss.SARSetup`
             SARSetup object.
 
         """
@@ -1908,7 +1900,7 @@ class Hfss(FieldAnalysis3D, object):
             First (starting) object for the integration line.
         endobject :
             Second (ending) object for the integration line.
-        axisdir : int or :class: `pyaedt.application.Analysis.Analysis.AxisDir`, optional
+        axisdir : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
             The default is ``Application.AxisDir.XNeg``.
@@ -1932,7 +1924,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class: `pyaedt.modules.Boundary.BoundaryObject` or bool
+        :class:`pyaedt.modules.Boundary.BoundaryObject` or bool
             Boundary object if successful. ``False`` if unsuccessful.
 
         Examples
@@ -2008,7 +2000,7 @@ class Hfss(FieldAnalysis3D, object):
             First (starting) object for the integration line.
         endobject :
             Second (ending) object for the integration line.
-        axisdir : int or :class: `pyaedt.application.Analysis.Analysis.AxisDir`, optional
+        axisdir : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
             The default is ``Application.AxisDir.XNeg``.
@@ -2028,7 +2020,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class: `pyaedt.modules.Boundary.BoundaryObject` or bool
+        :class:`pyaedt.modules.Boundary.BoundaryObject` or bool
             Boundary object if successful. ``False`` if unsuccessful.
 
         Examples
@@ -2093,7 +2085,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class: `pyaedt.modules.Boundary.BoundaryObject`
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
         """
@@ -2169,7 +2161,7 @@ class Hfss(FieldAnalysis3D, object):
             List of input sheets to create the waveport from.
         deemb : float, optional
             Deembedding value distance in model units. The default is ``0``.
-        axisdir : int or :class: `pyaedt.application.Analysis.Analysis.AxisDir`, optional
+        axisdir : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
             The default is ``Application.AxisDir.XNeg``.
@@ -2241,7 +2233,7 @@ class Hfss(FieldAnalysis3D, object):
         ----------
         sheet_name : str
             Name of the sheet.
-        axisdir : int or :class: `pyaedt.application.Analysis.Analysis.AxisDir`, optional
+        axisdir : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
             The default is ``Application.AxisDir.XNeg``.
@@ -2328,7 +2320,7 @@ class Hfss(FieldAnalysis3D, object):
         ----------
         sheet_name : str
             Name of the sheet to apply the boundary to.
-        axisdir : int or :class: `pyaedt.application.Analysis.Analysis.AxisDir`, optional
+        axisdir : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
             The default is ``Application.AxisDir.XNeg``.
@@ -2372,7 +2364,7 @@ class Hfss(FieldAnalysis3D, object):
         ----------
         sheet_name : str
             Name of the sheet to apply the boundary to.
-        axisdir : int or :class: `pyaedt.application.Analysis.Analysis.AxisDir`, optional
+        axisdir : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
             The default is ``Application.AxisDir.XNeg``.
@@ -2422,7 +2414,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class: `pyaedt.modules.Boundary.BoundaryObject`
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
         Examples
@@ -2459,7 +2451,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class: `pyaedt.modules.Boundary.BoundaryObject`
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
         Examples
@@ -2494,7 +2486,7 @@ class Hfss(FieldAnalysis3D, object):
         ----------
         sheet_name : str
             Name of the sheet to apply the boundary to.
-        axisdir : int or :class: `pyaedt.application.Analysis.Analysis.AxisDir`, optional
+        axisdir : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
             The default is ``Application.AxisDir.XNeg``.
@@ -2514,7 +2506,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class: `pyaedt.modules.Boundary.BoundaryObject`
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object if successful. ``False`` if unsuccessful.
 
         Examples
@@ -2581,7 +2573,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class: `pyaedt.modules.Boundary.BoundaryObject`
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object if successful. ``False`` if unsuccessful.
 
         Examples
@@ -3253,7 +3245,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class: `pyaedt.modules.Boundary.BoundaryObject`
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
         Examples
@@ -3289,7 +3281,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class: `pyaedt.modules.Boundary.BoundaryObject`
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
         Examples
@@ -3316,3 +3308,356 @@ class Hfss(FieldAnalysis3D, object):
         else:
             rad_name = generate_unique_name("Rad_")
         return self.create_boundary(self.BoundaryType.Radiation, faces_list, rad_name)
+
+    @aedt_exception_handler
+    def _create_sbr_doppler_setup(self, setup_type, time_var, center_freq, resolution, period, velocity_resolution,
+                                  min_velocity, max_velocity, ray_density_per_wavelenght, max_bounces, setup_name,
+                                  include_coupling_effects=False, doppler_ad_sampling_rate=20):
+        setup1 = self.create_setup(setup_name, "SBR+")
+        setup1.props["IsSbrRangeDoppler"] = True
+        del setup1.props["PTDUTDSimulationSettings"]
+        del setup1.props["ComputeFarFields"]
+        del setup1.props["Sweeps"]
+        if setup_type == "ChirpIQ":
+            setup1.props["SbrRangeDopplerWaveformType"] = "ChirpSeqFmcw"
+            setup1.props["ChannelConfiguration"] = "IQChannels"
+        elif setup_type == "ChirpI":
+            setup1.props["SbrRangeDopplerWaveformType"] = "ChirpSeqFmcw"
+            setup1.props["ChannelConfiguration"] = "IChannelOnly"
+        else:
+            setup1.props["SbrRangeDopplerWaveformType"] = setup_type
+        setup1.props["SbrRangeDopplerTimeVariable"] = time_var
+        setup1.props["SbrRangeDopplerCenterFreq"] = self.modeler.primitives._arg_with_dim(center_freq, "GHz")
+        setup1.props["SbrRangeDopplerRangeResolution"] = self.modeler.primitives._arg_with_dim(resolution, "meter")
+        setup1.props["SbrRangeDopplerRangePeriod"] = self.modeler.primitives._arg_with_dim(period, "meter")
+        setup1.props["SbrRangeDopplerVelocityResolution"] = self.modeler.primitives._arg_with_dim(velocity_resolution, "m_per_sec")
+        setup1.props["SbrRangeDopplerVelocityMin"] = self.modeler.primitives._arg_with_dim(min_velocity, "m_per_sec")
+        setup1.props["SbrRangeDopplerVelocityMax"] = self.modeler.primitives._arg_with_dim(max_velocity, "m_per_sec")
+        setup1.props["DopplerRayDensityPerWavelength"] = ray_density_per_wavelenght
+        setup1.props["MaxNumberOfBounces"] = max_bounces
+        if setup_type != "PulseDoppler":
+            setup1.props["IncludeRangeVelocityCouplingEffect"] = include_coupling_effects
+            setup1.props["SbrRangeDopplerA/DSamplingRate"] = self.modeler.primitives._arg_with_dim(
+                doppler_ad_sampling_rate, "MHz")
+        setup1.update()
+        return setup1
+
+    @aedt_exception_handler
+    def _create_sbr_doppler_sweep(self, setupname, time_var, tstart, tstop, tsweep,parametric_name):
+        time_start = self.modeler.primitives._arg_with_dim(tstart, "s")
+        time_sweep = self.modeler.primitives._arg_with_dim(tsweep, "s")
+        time_stop = self.modeler.primitives._arg_with_dim(tstop, "s")
+        sweep_range = "LIN {} {} {}".format(time_start, time_stop, time_sweep)
+        return self.opti_parametric.add_parametric_setup(time_var, sweep_range, setupname,
+                                                         parametricname=parametric_name)
+
+    @aedt_exception_handler
+    def create_sbr_chirp_i_doppler_setup(self, time_var=None, sweep_time_duration=0, center_freq=76.5, resolution=1, period=200,
+                                         velocity_resolution=0.4, min_velocity=-20, max_velocity=20,
+                                         ray_density_per_wavelenght=0.2, max_bounces=5, include_coupling_effects=False,
+                                         doppler_ad_sampling_rate=20, setup_name=None):
+        """Create an SBR+ Chirp IQ Setup.
+
+        Parameters
+        ----------
+        time_var : str, optional
+            Name of the time variable. Default ``None`` which will search for first
+            time variable available.
+        sweep_time_duration : float, optional
+            Sweep Time Duration. If greater than 0, a parametric sweep will be
+            created. Default ``0``.
+        center_freq : float, optional
+            Center frequency in GHz. Default ``76.5``.
+        resolution : float, optional
+            Doppler resolution in meter. Default ``1``.
+        period : float, optional
+            Period of analysis in meter. Default ``200``.
+        velocity_resolution : float, optional
+            Doppler velocity resolution in meters per second. Default ``0.4``.
+        min_velocity : str, optional
+            Minimum doppler velocity in meters per second. Default ``-20``.
+        max_velocity : str, optional
+            Maximum doppler velocity in meters per second. Default ``20``.
+        ray_density_per_wavelenght : float, optional
+            Doppler ray density per wavelength. Default ``0.2``.
+        max_bounces : int, optional
+            Maximum number of Bounces. Default ``5``.
+        include_coupling_effects : float, optional
+            Set if coupling effects will be included. Default ``False``.
+        doppler_ad_sampling_rate : float, optional
+            Doppler AD sampling rate. It works only if ``include_coupling_effects``
+            is ``True``. Default ``20``.
+        setup_name : str, optional
+            Name of the setup. Default ``None``.
+
+        Returns
+        -------
+        (:class:`pyaedt.modules.SolveSetup.Setup`, :class:`pyaedt.modules.DesignXPloration.ParametericsSetups.Optimetrics`)
+
+        """
+        if self.solution_type != "SBR+":
+            self.add_error_message("Method Applies only to SBR+ Solution.")
+            return False, False
+        if not setup_name:
+            setup_name = generate_unique_name("ChirpI")
+            parametric_name = generate_unique_name("PulseSweep")
+        else:
+            parametric_name = generate_unique_name(setup_name)
+
+        if not time_var:
+            for var_name, var  in self.variable_manager.independent_variables.items():
+                if var.unit_system == "Time":
+                    time_var = var_name
+                    break
+            if not time_var:
+                self.add_error_message("No Time Variable Found. Setup or explicitly assign to the method.")
+                raise ValueError("No Time Variable Found")
+        setup = self._create_sbr_doppler_setup("ChirpI", time_var=time_var, center_freq=center_freq,
+                                               resolution=resolution, period=period,
+                                               velocity_resolution=velocity_resolution, min_velocity=min_velocity,
+                                               max_velocity=max_velocity,
+                                               ray_density_per_wavelenght=ray_density_per_wavelenght,
+                                               max_bounces=max_bounces,
+                                               include_coupling_effects=include_coupling_effects,
+                                               doppler_ad_sampling_rate=doppler_ad_sampling_rate, setup_name=setup_name)
+        if sweep_time_duration >0:
+            sweeptime = math.ceil(300000000 / (2 * center_freq * 1000000000 * velocity_resolution) * 1000) / 1000
+            sweep = self._create_sbr_doppler_sweep(setup.name, time_var, 0, sweep_time_duration, sweeptime, parametric_name)
+            return setup, sweep
+        return setup, False
+
+    @aedt_exception_handler
+    def create_sbr_chirp_iq_doppler_setup(self, time_var=None, sweep_time_duration=0, center_freq=76.5, resolution=1, period=200,
+                                          velocity_resolution=0.4, min_velocity=-20, max_velocity=20,
+                                          ray_density_per_wavelenght=0.2, max_bounces=5, include_coupling_effects=False,
+                                          doppler_ad_sampling_rate=20, setup_name=None):
+        """Create an SBR+ Chirp IQ Setup.
+
+        Parameters
+        ----------
+        time_var : str, optional
+            Name of the time variable. Default ``None`` which will search for first
+            time variable available.
+        sweep_time_duration : float, optional
+            Sweep Time Duration. If greater than 0, a parametric sweep will be
+            created. Default ``0``.
+        center_freq : float, optional
+            Center Frequency in GHz. Default ``76.5``.
+        resolution : float, optional
+            Doppler Resolution in meter. Default ``1``.
+        period : float, optional
+            Period of Analysis in meter. Default ``200``.
+        velocity_resolution : float, optional
+            Doppler Velocity Resolution in meters per second. Default ``0.4``.
+        min_velocity : str, optional
+            Minimum Doppler Velocity in meters per second. Default ``-20``.
+        max_velocity : str, optional
+            Maximum Doppler Velocity in meters per second. Default ``20``.
+        ray_density_per_wavelenght : float, optional
+            Doppler Ray Density per wavelength. Default ``0.2``.
+        max_bounces : int, optional
+            Maximum number of Bounces. Default ``5``.
+        include_coupling_effects : float, optional
+            Set if Coupling Effects will be included. Default ``False``.
+        doppler_ad_sampling_rate : float, optional
+            Doppler AD Sampling Rate. It works only if ``include_coupling_effects`` is
+            ``True``. Default ``20``.
+        setup_name : str, optional
+            Name of the Setup. Default ``None``.
+
+        Returns
+        -------
+        (:class:`pyaedt.modules.SolveSetup.Setup`, :class:`pyaedt.modules.DesignXPloration.ParametericsSetups.Optimetrics`)
+
+        """
+        if self.solution_type != "SBR+":
+            self.add_error_message("Method Applies only to SBR+ Solution.")
+            return False, False
+        if not setup_name:
+            setup_name = generate_unique_name("ChirpIQ")
+            parametric_name = generate_unique_name("PulseSweep")
+        else:
+            parametric_name = generate_unique_name(setup_name)
+        if not time_var:
+            for var_name, var  in self.variable_manager.independent_variables.items():
+                if var.unit_system == "Time":
+                    time_var = var_name
+                    break
+            if not time_var:
+                raise ValueError("No Time Variable Found")
+        setup = self._create_sbr_doppler_setup("ChirpIQ", time_var=time_var, center_freq=center_freq,
+                                               resolution=resolution, period=period,
+                                               velocity_resolution=velocity_resolution, min_velocity=min_velocity,
+                                               max_velocity=max_velocity,
+                                               ray_density_per_wavelenght=ray_density_per_wavelenght,
+                                               max_bounces=max_bounces,
+                                               include_coupling_effects=include_coupling_effects,
+                                               doppler_ad_sampling_rate=doppler_ad_sampling_rate, setup_name=setup_name)
+        if sweep_time_duration >0:
+            sweeptime = math.ceil(300000000 / (2 * center_freq * 1000000000 * velocity_resolution) * 1000) / 1000
+            sweep = self._create_sbr_doppler_sweep(setup.name, time_var, 0, sweep_time_duration, sweeptime, parametric_name)
+            return setup, sweep
+        return setup, False
+
+    @aedt_exception_handler
+    def create_sbr_pulse_doppler_setup(self, time_var=None, sweep_time_duration=0, center_freq=76.5, resolution=1, period=200,
+                                       velocity_resolution=0.4, min_velocity=-20, max_velocity=20,
+                                       ray_density_per_wavelenght=0.2, max_bounces=5, setup_name=None):
+        """Create an SBR+ Pulse Doppler Setup.
+
+        Parameters
+        ----------
+        time_var : str, optional
+            Name of the time variable. Default ``None`` which will search for
+            first Time Variable available.
+        sweep_time_duration : float, optional
+            Sweep Time Duration. If greater than 0, a parametric sweep will be
+            created. Default ``0``.
+        center_freq : float, optional
+            Center Frequency in GHz. Default ``76.5``.
+        resolution : float, optional
+            Doppler Resolution in meter. Default ``1``.
+        period : float, optional
+            Period of Analysis in meter. Default ``200``.
+        velocity_resolution : float, optional
+            Doppler Velocity Resolution in m_per_sec. Default ``0.4``.
+        min_velocity : str, optional
+            Minimum Doppler Velocity in meters per second. Default ``-20``.
+        max_velocity : str, optional
+            Maximum Doppler Velocity in meters per second. Default ``20``.
+        ray_density_per_wavelenght : float, optional
+            Doppler Ray Density per wavelength. Default ``0.2``.
+        max_bounces : int, optional
+            Maximum number of Bounces. Default ``5``.
+        setup_name : str, optional
+            Name of the Setup. Default ``None``.
+
+        Returns
+        -------
+        (:class:`pyaedt.modules.SolveSetup.Setup`, :class:`pyaedt.modules.DesignXPloration.ParametericsSetups.Optimetrics`)
+
+        """
+        if self.solution_type != "SBR+":
+            self.add_error_message("Method Applies only to SBR+ Solution.")
+            return False, False
+        if not setup_name:
+            setup_name = generate_unique_name("PulseSetup")
+            parametric_name = generate_unique_name("PulseSweep")
+        else:
+            parametric_name = generate_unique_name(setup_name)
+
+        if not time_var:
+            for var_name, var  in self.variable_manager.independent_variables.items():
+                if var.unit_system == "Time":
+                    time_var = var_name
+                    break
+            if not time_var:
+                raise ValueError("No Time Variable Found")
+        setup = self._create_sbr_doppler_setup("PulseDoppler", time_var=time_var, center_freq=center_freq,
+                                               resolution=resolution, period=period,
+                                               velocity_resolution=velocity_resolution, min_velocity=min_velocity,
+                                               max_velocity=max_velocity,
+                                               ray_density_per_wavelenght=ray_density_per_wavelenght,
+                                               max_bounces=max_bounces, setup_name=setup_name)
+        if sweep_time_duration > 0:
+            sweeptime = math.ceil(300000000 / (2 * center_freq * 1000000000 * velocity_resolution) * 1000)/1000
+            sweep = self._create_sbr_doppler_sweep(setup.name, time_var, 0, sweep_time_duration, sweeptime,
+                                                   parametric_name)
+            return setup, sweep
+        return setup, False
+
+    @aedt_exception_handler
+    def create_sbr_radar_from_json(self, radar_file, radar_name, offset=[0, 0, 0], speed=0.0,
+                                   use_relative_cs=False, relative_cs_name=None):
+        """Create a SBR+ Radar from Json File.
+
+          .. code-block:: json
+
+            {
+                "name": "Example_1Tx_1Rx",
+                "version": 1,
+                "number_tx":"1",
+                "number_rx":"1",
+                "units":"mm",
+                "antennas": {
+                    "tx1": {
+                        "antenna_type":"parametric",
+                        "mode":"tx",
+                        "offset":["0" ,"0" ,"0"],
+                        "rotation_axis":null,
+                        "rotation":null,
+                        "beamwidth_elevation":"10deg",
+                        "beamwidth_azimuth":"60deg",
+                        "polarization":"Vertical"
+                        },
+                    "rx1": {
+                        "antenna_type":"parametric",
+                        "mode":"rx",
+                        "offset":["0" ,"1.8" ,"0"],
+                        "rotation_axis":null,
+                        "rotation":null,
+                        "beamwidth_elevation":"10deg",
+                        "beamwidth_azimuth":"60deg",
+                        "polarization":"Vertical"
+                        }
+                }
+            }
+
+        Parameters
+        ----------
+        radar_file : str
+            Path to radar file directory
+        radar_name : str
+            Name of the radar to use.
+        offset : list, optional
+            Set offset relative to global coordinate system.
+        speed : float, optional
+            Set the radar movement speed relative to global coordinate system if greater than ``0``.
+        use_relative_cs : bool, optional
+            Set to ``True`` if relative coordinate system has to be used. Default ``False``.
+        relative_cs_name : str
+            Relative CS Name to which Link the Radar. ``None`` for Global CS.
+        Returns
+        -------
+        :class:`pyaedt.modeler.MultiPartComponent.Radar`
+        """
+        self.modeler.primitives._initialize_multipart()
+        if self.solution_type != "SBR+":
+            self.add_error_message("Method Applies only to SBR+ Solution.")
+            return False
+        use_motion = abs(speed) > 0.0
+        r = Radar(radar_file, name=radar_name, motion=use_motion, offset=offset, speed=speed,
+                  use_relative_cs=(use_relative_cs or use_motion), relative_cs_name=relative_cs_name)
+        r.insert(self, abs(speed) >0)
+        return r
+
+    @aedt_exception_handler
+    def set_sbr_current_sources_options(self, conformance=False, thin_sources=False, power_fraction=0.95):
+        """Set Current Sources SBR+ Setup Options.
+
+        Parameters
+        ----------
+        conformance : bool
+            ``True`` to Enable current source conformance. Default is ``False``
+        thin_sources : bool
+            ``True`` to Enable current Thin Sources. Default is ``False``
+        power_fraction : float or str
+            if thin_sources is enabled then sets the power fraction. Default is ``0.95``
+
+        Returns
+        -------
+        bool
+        """
+        if self.solution_type != "SBR+":
+            self.add_error_message("Method Applies only to SBR+ Solution.")
+            return False
+        current_conformance = "Disable"
+        if conformance:
+            current_conformance = "Enable"
+        arg = ["NAME:CurrentSourceOption", "Current Source Conformance:=", current_conformance, "Thin Sources:=",
+               thin_sources]
+        if thin_sources:
+            arg.append("Power Fraction:=")
+            arg.append(str(power_fraction))
+        self.oboundary.EditGlobalCurrentSourcesOption(arg)
+        return True

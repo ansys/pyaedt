@@ -238,7 +238,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class: `aedt.modules.Boundary.Boundary object`
+        :class:`aedt.modules.Boundary.Boundary object`
             Boundary object.
         """
 
@@ -310,7 +310,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class: `aedt.modules.Boundary.Boundary object`
+        :class:`aedt.modules.Boundary.Boundary object`
             Boundary object.
 
         """
@@ -355,7 +355,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class: `aedt.modules.Boundary.Boundary object`
+        :class:`aedt.modules.Boundary.Boundary object`
             Boundary object.
 
         """
@@ -396,7 +396,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class: `aedt.modules.Boundary.Boundary object`
+        :class:`aedt.modules.Boundary.Boundary object`
             Boundary object.
 
         """

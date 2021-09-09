@@ -3,9 +3,9 @@ This module contains these classes: `BoundaryCommon` and `BoundaryObject`.
 """
 from collections import OrderedDict
 from ..generic.general_methods import aedt_exception_handler
-from ..application.DataHandlers import dict2arg
+from ..generic.DataHandlers import dict2arg
 from ..modeler.Object3d import EdgePrimitive, FacePrimitive, VertexPrimitive
-from ..application.DataHandlers import random_string
+from ..generic.DataHandlers import random_string
 
 class BoundaryCommon(object):
     """ """
@@ -129,8 +129,16 @@ class NativeComponentObject(BoundaryCommon, object):
 
         """
         self.name = "InsertNativeComponentData"
-
+        try:
+            names = [i for i in self._parent.modeler.get_excitations_name()]
+        except Exception as e:
+            names = []
         self.antennaname = self._parent.modeler.oeditor.InsertNativeComponent(self._get_args())
+        try:
+            a = [i for i in self._parent.modeler.get_excitations_name() if i not in names]
+            self.excitation_name = a[0].split(":")[0]
+        except Exception as e:
+            self.excitation_name = self.antennaname
         return True
 
     @aedt_exception_handler

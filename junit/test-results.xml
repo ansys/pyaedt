@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite name="pytest" errors="1" failures="0" skipped="0" tests="1" time="6.050" timestamp="2021-07-14T13:14:03.387561" hostname="MLNMCFERRO"><testcase classname="" name="" time="0.000"><error message="collection failure">..\..\..\.conda\envs\pyaedt\lib\site-packages\py\_path\local.py:347: in join
+    actual_sep = "" if strpath.endswith(sep) else sep
+E   KeyboardInterrupt</error></testcase></testsuite></testsuites>

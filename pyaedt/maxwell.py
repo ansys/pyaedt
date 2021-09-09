@@ -7,7 +7,7 @@ import io
 from .application.Analysis2D import FieldAnalysis2D
 from .application.Analysis3D import FieldAnalysis3D
 from .desktop import exception_to_desktop
-from .application.DataHandlers import float_units
+from .generic.DataHandlers import float_units
 from .generic.general_methods import generate_unique_name, aedt_exception_handler
 from .modules.Boundary import BoundaryObject
 from collections import OrderedDict
@@ -222,7 +222,7 @@ class Maxwell(object):
 
         Returns
         -------
-        :class: `pyaedt.modules.Boundary.BoundaryObject`
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
         """
@@ -280,7 +280,7 @@ class Maxwell(object):
 
         Returns
         -------
-        :class: `pyaedt.modules.Boundary.BoundaryObject`
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
         """
@@ -317,7 +317,7 @@ class Maxwell(object):
 
         Returns
         -------
-        :class: `pyaedt.modules.Boundary.BoundaryObject`
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
         """
 
@@ -374,7 +374,7 @@ class Maxwell(object):
 
         Returns
         -------
-        :class: `pyaedt.modules.Boundary.BoundaryObject`
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
             Bounding object for the winding, otherwise only the bounding object.
 
         """
@@ -992,7 +992,7 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
 
         Returns
         -------
-        :class: `pyaedt.modules.Boundary.BoundaryObject`
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
         """
@@ -1024,7 +1024,7 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
 
         Returns
         -------
-        :class: `pyaedt.modules.Boundary.BoundaryObject`
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
             Vector Potential Object
 
         """

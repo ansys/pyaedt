@@ -15,9 +15,11 @@ import logging
 import pkgutil
 import getpass
 import re
+import warnings
+import gc
 from pyaedt.application.MessageManager import AEDTMessageManager
 from pyaedt.misc import list_installed_ansysem
-from pyaedt import is_ironpython, _pythonver
+from pyaedt import is_ironpython, _pythonver, inside_desktop
 pathname = os.path.dirname(__file__)
 if os.path.exists(os.path.join(pathname, "version.txt")):
     with open(os.path.join(pathname, "version.txt"), "r") as f:
@@ -140,6 +142,42 @@ def update_aedt_registry(key, value, desktop_version="211"):
 
     subprocess.call([command])
 
+def _delete_objects():
+    module = sys.modules['__main__']
+    if "COMUtil" in dir(module):
+        del module.COMUtil
+    if "Hfss" in dir(module):
+        del module.Hfss
+    if "Edb" in dir(module):
+        del module.Edb
+    if "Q3d" in dir(module):
+        del module.Q3d
+    if "Q2d" in dir(module):
+        del module.Q2d
+    if "Maxwell3d" in dir(module):
+        del module.Maxwell3d
+    if "Maxwell2d" in dir(module):
+        del module.Maxwell2d
+    if "Icepak" in dir(module):
+        del module.Icepak
+    if "Mechanical" in dir(module):
+        del module.Mechanical
+    if "Emit" in dir(module):
+        del module.Emit
+    if "Circuit" in dir(module):
+        del module.Circuit
+    if "Simplorer" in dir(module):
+        del module.Simplorer
+    if "Hfss3dLayout" in dir(module):
+        del module.Hfss3dLayout
+    if "oMessenger" in dir(module):
+        del module.oMessenger
+    if "oDesktop" in dir(module):
+        del module.oDesktop
+    if "pyaedt_initialized" in dir(module):
+        del module.pyaedt_initialized
+    gc.collect()
+
 
 def release_desktop(close_projects=True, close_desktop=True):
     """Release the AEDT API.
@@ -157,69 +195,35 @@ def release_desktop(close_projects=True, close_desktop=True):
         ``True`` when successful, ``False`` when failed.
 
     """
-    Module = sys.modules["__main__"]
-    if sys.modules["__main__"].interpreter == "ironpython":
-        desktop = Module.oDesktop
-        scopeID = desktop.ScopeID
-        i = 0
-        if close_projects:
-            proj_list = desktop.GetProjectList()
-            for prj in proj_list:
-                desktop.CloseProject(prj)
-        if "COMUtil" in dir(Module):
-            while i <= scopeID:
-                Module.COMUtil.ReleaseCOMObjectScope(Module.COMUtil.PInvokeProxyAPI, i)
-                i += 1
-            try:
-                del Module.oDesktop
-                return True
-            except:
-                Module.oMessenger.add_info_message("Attributes not present")
-                return False
-        else:
-            pid = Module.oDesktop.GetProcessID()
-            try:
-                os.kill(pid, 9)
-                return True
-            except:
-                Module.oMessenger.add_error_message("something went wrong in Closing AEDT")
-                return False
+
+    Module = sys.modules['__main__']
+    if "oDesktop" not in dir(Module):
+        _delete_objects()
+        return False
     else:
         desktop = Module.oDesktop
-        i = 0
         if close_projects:
             proj_list = desktop.GetProjectList()
             for prj in proj_list:
                 desktop.CloseProject(prj)
-
-        if close_desktop:
-            scopeID = 5
-            while i <= scopeID:
-                Module.COMUtil.ReleaseCOMObjectScope(Module.COMUtil.PInvokeProxyAPI, 0)
-                i += 1
-            Module = sys.modules["__main__"]
-            pid = Module.oDesktop.GetProcessID()
-            try:
-                os.kill(pid, 9)
-                del Module.oDesktop
-                return True
-            except:
-                Module.oMessenger.add_error_message("something went wrong in Closing AEDT")
-                return False
-        else:
+        pid = Module.oDesktop.GetProcessID()
+        if not (is_ironpython and inside_desktop):
+            i = 0
             scopeID = 5
             while i <= scopeID:
                 Module.COMUtil.ReleaseCOMObjectScope(Module.COMUtil.PInvokeProxyAPI, i)
                 i += 1
+            _delete_objects()
+
+        if close_desktop:
             try:
-                del Module.oDesktop
-            except:
-                Module.oMessenger.add_info_message("Attributes not present")
-            try:
-                del Module.pyaedt_initialized
+                os.kill(pid, 9)
+                _delete_objects()
                 return True
             except:
+                warnings.warn("Something went wrong in Closing AEDT")
                 return False
+    return True
 
 
 def force_close_desktop():
@@ -626,6 +630,10 @@ class Desktop:
 
         """
         release_desktop(close_projects, close_on_exit)
+        props = [a for a in dir(self) if not a.startswith('__')]
+        for a in props:
+            self.__dict__.pop(a, None)
+        gc.collect()
 
     def force_close_desktop(self):
         """Forcibly close all AEDT projects and shut down AEDT.
