@@ -11,7 +11,6 @@ from ..generic.DataHandlers import dict2arg
 from collections import OrderedDict
 
 
-
 class Mesh3DOperation(object):
     """Mesh3DOperation class.
 

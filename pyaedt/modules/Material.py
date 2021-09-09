@@ -17,7 +17,6 @@ from ..generic.general_methods import aedt_exception_handler
 from ..generic.DataHandlers import dict2arg
 
 
-
 class MatProperties(object):
     """Contains a list of constant names for all materials with
     mappings to their internal XML names.

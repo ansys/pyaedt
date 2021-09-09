@@ -6,7 +6,6 @@ import string
 from glob import glob
 
 
-
 def my_location():
     """ """
     return os.path.normpath(os.path.dirname(__file__))
@@ -126,4 +125,4 @@ def get_json_files(start_folder):
     Returns
     -------
     """
-    return [y for x in os.walk(start_folder) for y in glob(os.path.join(x[0], '*.json'))]
+    return [y for x in os.walk(start_folder) for y in glob(os.path.join(x[0], "*.json"))]
