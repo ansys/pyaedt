@@ -12,9 +12,10 @@ This module contains these data classes for creating a material library:
 * `SufaceMaterial`
 
 """
-from collections import defaultdict, OrderedDict
-from ..generic.general_methods import aedt_exception_handler, generate_unique_name
-from ..application.DataHandlers import dict2arg, arg2dict
+from collections import OrderedDict
+from ..generic.general_methods import aedt_exception_handler
+from ..generic.DataHandlers import dict2arg
+
 
 class MatProperties(object):
     """Contains a list of constant names for all materials with

@@ -46,6 +46,7 @@ class IcepakMesh(object):
             self.MinGapY = "1"
             self.MinGapZ = "1"
             self.Objects = ["Region"]
+            self.SubModels = False
             self.Enable = True
 
         @aedt_exception_handler
@@ -66,13 +67,19 @@ class IcepakMesh(object):
             arg = ["MeshMethod:=", "MesherHD", "UserSpecifiedSettings:=", self.UserSpecifiedSettings, "ComputeGap:=",
                    self.ComputeGap, "MeshRegionResolution:=", self.Level, "MinGapX:=",
                    self._dim_arg(self.MinGapX), "MinGapY:=",
-                   self._dim_arg(self.MinGapY) , "MinGapZ:=", self._dim_arg(self.MinGapZ), "Objects:=",
-                   self.Objects]
+                   self._dim_arg(self.MinGapY) , "MinGapZ:=", self._dim_arg(self.MinGapZ)]
+            if self.SubModels:
+                arg.append("SubModels:=")
+                arg.append(self.SubModels)
+            else:
+                arg.append("Objects:=")
+                arg.append(self.Objects)
             return arg
 
         @property
         def manualsettings(self):
             """Manual mesh settings."""
+
             arg = ["MeshMethod:=", "MesherHD", "UserSpecifiedSettings:=", self.UserSpecifiedSettings, "ComputeGap:=",
                    self.ComputeGap, "MaxElementSizeX:=", self._dim_arg(self.MaxElementSizeX),
                    "MaxElementSizeY:=",
@@ -85,7 +92,13 @@ class IcepakMesh(object):
                    "UniformMeshParametersType:=", self.UniformMeshParametersType, "StairStepMeshing:=",
                    self.StairStepMeshing, "2DMLMType:=", self.DMLMType, "MinGapX:=",
                    self._dim_arg(self.MinGapX) , "MinGapY:=", self._dim_arg(self.MinGapY),
-                   "MinGapZ:=", self._dim_arg(self.MinGapZ), "Objects:=", self.Objects]
+                   "MinGapZ:=", self._dim_arg(self.MinGapZ)]
+            if self.SubModels:
+                arg.append("SubModels:=")
+                arg.append(self.SubModels)
+            else:
+                arg.append("Objects:=")
+                arg.append(self.Objects)
             return arg
 
         @property
@@ -131,7 +144,6 @@ class IcepakMesh(object):
                 args += self.manualsettings
             else:
                 args += self.autosettings
-
             self.meshmodule.AssignMeshRegion(args)
             return True
 
@@ -165,7 +177,7 @@ class IcepakMesh(object):
 
         Returns
         -------
-        :class: `pyaedt.modules.Modeler`
+        :class:`pyaedt.modules.Modeler`
 
         """
         return self._parent._modeler
@@ -349,7 +361,7 @@ class IcepakMesh(object):
         return True
 
     @aedt_exception_handler
-    def assign_mesh_region(self, objectlist=[], level=5, name=None):
+    def assign_mesh_region(self, objectlist=[], level=5, is_submodel=False, name=None):
         """Assign a predefined surface mesh level to an object.
 
         Parameters
@@ -360,12 +372,14 @@ class IcepakMesh(object):
         level : int, optional
             Level of the surface mesh. Options are ``1`` through ``5``. The default
             is ``5``.
+        is_submodel : bool
+            Define if the object list is made by component models
         name : str, optional
             Name of the mesh region. The default is ``"MeshRegion1"``.
 
         Returns
         -------
-        :class: `pyaedt.modules.MeshIcepak.IcepakMesh.MeshRegion`
+        :class:`pyaedt.modules.MeshIcepak.IcepakMesh.MeshRegion`
 
         """
         if not name:
@@ -375,12 +389,17 @@ class IcepakMesh(object):
         meshregion.Level = level
         meshregion.name = name
         if not objectlist:
-            objectlist = self.modeler.primitives.object_names
-        all_objs = self.modeler.primitives.object_names
+            objectlist = [i for i in self.modeler.primitives.object_names]
+        if is_submodel:
+            meshregion.SubModels = objectlist
+        else:
+            meshregion.Objects = objectlist
+        all_objs = [i for i in self.modeler.primitives.object_names]
         meshregion.create()
         objectlist2 = self.modeler.primitives.object_names
         added_obj = [i for i in objectlist2 if i not in all_objs]
         meshregion.Objects = added_obj
+        meshregion.SubModels = None
         self.meshregions.append(meshregion)
         return meshregion
 
@@ -420,7 +439,7 @@ class IcepakMesh(object):
 
         Returns
         -------
-        :class: `pyaedt.modules.Mesh.MeshOperation`
+        :class:`pyaedt.modules.Mesh.MeshOperation`
 
         """
         if meshop_name:

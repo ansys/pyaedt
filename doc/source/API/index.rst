@@ -19,4 +19,5 @@ documentation.
    Post
    SetupTemplates
    Boundaries
+   MultiPartComponent
 

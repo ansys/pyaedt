@@ -276,3 +276,30 @@ class Siwave:
         """
         self._main.oSiwave.Quit()
         return True
+
+    @aedt_exception_handler
+    def export_element_data(self, simulation_name, file_path, data_type="Vias"):
+        """Quit the application.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        self.oproject.ScrExportElementData(simulation_name, file_path, data_type)
+        return True
+
+    @aedt_exception_handler
+    def export_siwave_report(self, simulation_name, file_path, bkground_color="White"):
+        """Quit the application.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        self.oproject.ScrExportDcSimReportScaling("All", "All", -1, -1, False)
+        self.oproject.ScrExportDcSimReport(simulation_name, bkground_color, file_path)
+        return True

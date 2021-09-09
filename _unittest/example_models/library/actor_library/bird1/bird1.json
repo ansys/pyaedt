@@ -1,0 +1,39 @@
+{
+	"name": "bird1",
+	"version": 1,
+	"class":"bird",
+	"xlim":["-.7","2.75"],
+	"ylim":["-1.2","1.2"],
+	"parts": {
+		"body": {
+			"comp_name": "body.a3dcomp",
+			"rotation_cs":null,
+			"rotation":null,
+			"rotation_axis":null
+			},
+		"wing_right": {
+			"comp_name": "wing_left.a3dcomp",
+			"rotation_cs":[".001778" ,".00508" ,".00762"],
+			"rotation":"-45deg",
+			"rotation_axis":"X"
+			},
+		"wing_left": {
+			"comp_name": "wing_right.a3dcomp",
+			"rotation_cs":[".001778" ,"-.00508" ,".00762"],
+			"rotation":"45deg",
+			"rotation_axis":"X"
+			},
+		"tail": {
+			"comp_name": "tail.a3dcomp",
+			"rotation_cs":null,
+			"rotation":null,
+			"rotation_axis":null
+			},
+		"beak": {
+			"comp_name": "beak.a3dcomp",
+			"rotation_cs":null,
+			"rotation":null,
+			"rotation_axis":null
+			}						
+	}	
+}
