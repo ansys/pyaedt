@@ -1,4 +1,5 @@
 import random
+import warnings
 from collections import defaultdict
 
 from ..generic.general_methods import aedt_exception_handler, retry_ntimes
@@ -136,7 +137,18 @@ class CircuitComponents(object):
 
     @aedt_exception_handler
     def create_iport(self, name, posx=0.1, posy=0.1, angle=0):
-        """Create a port.
+        """Create an interface port.
+
+        .. deprecated:: 0.4.0
+           Use :func:`Circuit.modeler.components.create_interface_port` instead.
+        """
+        warnings.warn('`create_iport` is deprecated. Use `create_interface_port` instead.',
+                      DeprecationWarning)
+        return self.create_interface_port(name, posx, posy, angle)
+
+    @aedt_exception_handler
+    def create_interface_port(self, name, posx=0.1, posy=0.1, angle=0):
+        """Create an interface port.
 
         Parameters
         ----------
@@ -154,7 +166,7 @@ class CircuitComponents(object):
         type
             Port object.
         str
-           Port name.
+            Port name.
 
         """
         id = self.create_unique_id()
