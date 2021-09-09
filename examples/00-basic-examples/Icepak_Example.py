@@ -2,6 +2,7 @@
 Icepak Example
 ----------------------
 This example shows how you can use PyAEDT to create an Graphic Card setup in Icepak and postprocess results.
+The example file is an Icepak Project with a model already created and with materials assigned.
 """
 # sphinx_gallery_thumbnail_path = 'Resources/Icepak.png'
 
@@ -32,6 +33,7 @@ if not os.path.exists(temp_folder): os.makedirs(temp_folder)
 ipk = Icepak(project_full_name, specified_version="2021.1")
 ipk.save_project(os.path.join(temp_folder, "Graphics_card.aedt"))
 ipk._desktop_class.disable_autosave()
+
 ###############################################################################
 # Create Source Blocks
 # ~~~~~~~~~~~~~~~~~~~~

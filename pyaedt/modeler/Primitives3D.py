@@ -821,7 +821,7 @@ class Primitives3D(Primitives, object):
             return MultiPartComponent.start(self._parent)
 
     @aedt_exception_handler
-    def add_person(self, actor_folder, speed=0, global_offset=[0, 0, 0], yaw=0, pitch=0, roll=0, relative_cs_name=None):
+    def add_person(self, actor_folder, speed=0.0, global_offset=[0, 0, 0], yaw=0, pitch=0, roll=0, relative_cs_name=None):
         """Add a Walking Person Multipart from 3D Components.
 
         It requires a json file in the folder containing person infos. An example json file is showed here.
@@ -898,7 +898,6 @@ class Primitives3D(Primitives, object):
         self._initialize_multipart()
         if not self._check_actor_folder(actor_folder):
             return False
-
         person1 = Person(actor_folder, speed=speed, relative_cs_name=relative_cs_name)
         person1.offset = global_offset
         person1.yaw = self._arg_with_dim(yaw, "deg")

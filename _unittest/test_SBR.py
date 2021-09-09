@@ -113,11 +113,17 @@ class TestClass:
         setup, sweep = self.aedtapp.create_sbr_pulse_doppler_setup(sweep_time_duration=30)
         assert "PulseSetup" in setup.name
         assert "PulseSweep" in sweep.name
+        assert setup.props["SbrRangeDopplerWaveformType"] == "PulseDoppler"
+        assert sweep.props["Sim. Setups"] == [setup.name]
+        assert sweep.props["Sim. Setups"] == [setup.name]
+
 
     def test_10_add_chirp_sweep(self):
         setup, sweep = self.aedtapp.create_sbr_chirp_i_doppler_setup(sweep_time_duration=20)
-        assert setup
-        assert sweep
+        assert setup.props["SbrRangeDopplerWaveformType"] == "ChirpSeqFmcw"
+        assert setup.props["ChannelConfiguration"] == "IChannelOnly"
+        assert sweep.props["Sim. Setups"] == [setup.name]
         setup, sweep = self.aedtapp.create_sbr_chirp_iq_doppler_setup(sweep_time_duration=10)
-        assert setup
-        assert sweep
+        assert setup.props["SbrRangeDopplerWaveformType"] == "ChirpSeqFmcw"
+        assert setup.props["ChannelConfiguration"] == "IQChannels"
+        assert sweep.props["Sim. Setups"] == [setup.name]

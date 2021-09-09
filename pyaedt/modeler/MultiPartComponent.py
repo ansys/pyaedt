@@ -238,7 +238,13 @@ class Part(object):
             if self.zero_offset('offset') or self['offset'] == 'Global':
                 return [0, 0, 0]
             else:
-                return self['offset']
+                if self._parent._local_units:
+                    units = self._parent._local_units
+                else:
+                    units = self._parent.modeler_units
+                offset = [str(i)+units for i in self['offset']]
+
+                return offset
         else:
             return [0, 0, 0]
 
@@ -519,6 +525,11 @@ class MultiPartComponent(object):
         self._pitch = pitch  # Pitch is tilt toward the sky (i.e. rotation about y)
         self._roll = roll  # Roll is rotation about the x-axis (x is the direction of movement)
         self._relative_cs_name = relative_cs_name
+        if relative_cs_name:
+            self._reference_cs_name = relative_cs_name
+        else:
+            self._reference_cs_name = "Global"
+
         # If the component moves, then expressions must be used for position and orientation
         self.motion = motion
 
@@ -566,6 +577,7 @@ class MultiPartComponent(object):
             for a, a_def in compdef['antennas'].items():
                 self.parts[a] = Antenna(self.comp_folder, a_def, parent=self, name=a)
 
+        self.use_relative_cs = use_relative_cs
         if use_relative_cs:
             self._use_global_cs = False
             self._offset_values = list(offset)
@@ -586,7 +598,7 @@ class MultiPartComponent(object):
             self._relative_cs_name = "Global"
         elif not self._relative_cs_name:
             self._relative_cs_name = self.name + '_cs'
-        return  self._relative_cs_name
+        return self._relative_cs_name
 
     @property
     def index(self):
@@ -821,10 +833,8 @@ class MultiPartComponent(object):
             cs_origin = self.offset_names
         else:
             cs_origin = self.offset
-        if self.use_global_cs or self.cs_name in app.modeler.oeditor.GetCoordinateSystems():
-            return app.modeler.set_working_coordinate_system(self.cs_name)
-        else:
-            return app.modeler.create_coordinate_system(origin=cs_origin,
+        if self.use_relative_cs:
+            return app.modeler.create_coordinate_system(origin=cs_origin, reference_cs=self._reference_cs_name,
                                                         x_pointing=self._cs_pointing[0],
                                                         y_pointing=self._cs_pointing[1],
                                                         mode="axis",
@@ -849,9 +859,10 @@ class MultiPartComponent(object):
         self.motion = True if motion else self.motion
 
         if self.use_global_cs or self.cs_name in app.modeler.oeditor.GetCoordinateSystems():
-            return app.modeler.set_working_coordinate_system(self.cs_name)
-        else:
-            self.position_in_app(app)
+            app.modeler.set_working_coordinate_system(self.cs_name)
+            if self.use_relative_cs:
+                self._relative_cs_name = self.name + '_cs'
+        self.position_in_app(app)
 
         for p in self.parts:
             inserted = self.parts[p].insert(app)  # index ensures unique CS names.
@@ -881,7 +892,77 @@ class Environment(MultiPartComponent, object):
     """
 
     def __init__(self, env_folder, relative_cs_name=None):
-        super(Environment, self).__init__(env_folder, motion=False, relative_cs_name=relative_cs_name)
+        super(Environment, self).__init__(env_folder, motion=False)
+
+    @property
+    def cs_name(self):
+        """Coordinate System Name.
+
+        Returns
+        -------
+        str
+        """
+        return "Global"
+
+    @property
+    def yaw(self):
+        """Yaw variable value.
+
+        Returns
+        -------
+        str
+        """
+        return self._yaw
+
+    @yaw.setter
+    def yaw(self, yaw_str):
+        # TODO: Need variable checking for yaw angle.
+        self._yaw = yaw_str
+
+
+    @property
+    def pitch(self):
+        """Pitch variable value.
+
+        Returns
+        -------
+        str
+        """
+        return self._pitch
+
+    @pitch.setter
+    def pitch(self, pitch_str):
+        self._pitch = pitch_str
+
+    @property
+    def roll(self):
+        """Roll variable value.
+
+        Returns
+        -------
+        str
+        """
+        return self._roll
+
+    @roll.setter
+    def roll(self, roll_str):
+        # TODO: Need variable checking for pitch angle.
+        # roll is the rotation about the object x-axis.
+        self._roll = roll_str
+
+    @property
+    def offset(self):
+        """Offset for Multipart.
+
+        Returns
+        -------
+        list
+        """
+        return self._offset_values
+
+    @offset.setter
+    def offset(self, o):
+        self._offset_values = o  # Expect tuple or list of strings
 
 
 class Actor(MultiPartComponent, object):
@@ -1160,7 +1241,10 @@ class Antenna(Part, object):
         if not target_cs:
             target_cs = self._parent.cs_name
         if not units:
-            units = self._parent.units
+            if self._parent._local_units:
+                units = self._parent._local_units
+            else:
+                units = self._parent.units
         a = app.create_sbr_antenna(self._antenna_type(app),
                                    model_units=units,
                                    parameters_dict=self.params,
@@ -1273,12 +1357,13 @@ class Radar(MultiPartComponent, object):
         app.add_info_message("Adding Radar Module:  " + self.name)
         if self.use_global_cs or self.cs_name in app.modeler.oeditor.GetCoordinateSystems():
             app.modeler.set_working_coordinate_system(self.cs_name)
-        else:
-            self.position_in_app(app)
+            if self.use_relative_cs:
+                self._relative_cs_name = self.name + '_cs'
+        self.position_in_app(app)
         tx_names = []
         rx_names = []
         for p in self.parts:
-            antenna_object = self.parts[p].insert(app, units=self.modeler_units)
+            antenna_object = self.parts[p].insert(app, units=self._local_units)
             self.aedt_components.append(antenna_object.antennaname)
             self.aedt_antenna_names.append(antenna_object.excitation_name)
             if p.startswith('tx'):

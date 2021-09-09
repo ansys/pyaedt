@@ -3066,7 +3066,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        (:class:`pyaedt.modules.SolveSetup.Setup`, :class:`pyaedt.modules.DesignXPloration.Optimetrics.ParametericsSetups`)
+        (:class:`pyaedt.modules.SolveSetup.Setup`, :class:`pyaedt.modules.DesignXPloration.ParametericsSetups.Optimetrics`)
 
         """
         if self.solution_type != "SBR+":
@@ -3141,7 +3141,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        (:class:`pyaedt.modules.SolveSetup.Setup`, :class:`pyaedt.modules.DesignXPloration.Optimetrics.ParametericsSetups`)
+        (:class:`pyaedt.modules.SolveSetup.Setup`, :class:`pyaedt.modules.DesignXPloration.ParametericsSetups.Optimetrics`)
 
         """
         if self.solution_type != "SBR+":
@@ -3208,7 +3208,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        (:class:`pyaedt.modules.SolveSetup.Setup`, :class:`pyaedt.modules.DesignXPloration.Optimetrics.ParametericsSetups`)
+        (:class:`pyaedt.modules.SolveSetup.Setup`, :class:`pyaedt.modules.DesignXPloration.ParametericsSetups.Optimetrics`)
 
         """
         if self.solution_type != "SBR+":

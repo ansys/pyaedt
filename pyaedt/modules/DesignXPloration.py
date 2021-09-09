@@ -643,7 +643,7 @@ class ParametericsSetups(object):
 
         Returns
         -------
-        :class:`Optimetrics`
+        :class:`pyaedt.modules.DesignXPloration.ParametericsSetups.Optimetrics`
             Optimetrics object.
 
         """

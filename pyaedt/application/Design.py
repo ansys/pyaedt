@@ -1550,6 +1550,30 @@ class Design(object):
         return True
 
     @aedt_exception_handler
+    def autosave_disable(self):
+        """Disable the Desktop Autosave.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        self._desktop_class.disable_autosave()
+        return True
+
+    @aedt_exception_handler
+    def autosave_enable(self):
+        """Enable the Desktop Autosave.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        self._desktop_class.enable_autosave()
+        return True
+
+    @aedt_exception_handler
     def release_desktop(self, close_projects=True, close_desktop=True):
         """Release the desktop.
 

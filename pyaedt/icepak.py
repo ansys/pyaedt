@@ -318,7 +318,8 @@ class Icepak(FieldAnalysisIcepak):
         return listmcad
 
     @aedt_exception_handler
-    def create_source_block(self, object_name, input_power, assign_material=True, material_name="Ceramic_material", use_object_for_name=True):
+    def create_source_block(self, object_name, input_power, assign_material=True, material_name="Ceramic_material",
+                            use_object_for_name=True):
         """Create a source block for an object.
 
         Parameters
@@ -354,7 +355,7 @@ class Icepak(FieldAnalysisIcepak):
                     self.modeler.primitives[el].material_name = material_name
             else:
                 self.modeler.primitives[object_name].material_name = material_name
-        props={}
+        props = {}
         if not isinstance(object_name, list):
             object_name = [object_name]
         props["Objects"] = object_name
@@ -370,7 +371,8 @@ class Icepak(FieldAnalysisIcepak):
         bound = BoundaryObject(self, boundary_name, props, 'Block')
         if bound.create():
             self.boundaries.append(bound)
-            self._messenger.add_info_message("Block on {} with {} Power, created correctly.".format(object_name, input_power))
+            self._messenger.add_info_message(
+                "Block on {} with {} Power, created correctly.".format(object_name, input_power))
             return bound
         return None
 
