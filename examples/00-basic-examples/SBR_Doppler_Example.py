@@ -68,7 +68,7 @@ bird_folder = os.path.join(actor_lib, 'bird1')
 # ~~~~~~~~~~~~~~
 # Define background environment
 
-road1 = app.modeler.primitives.add_environment(env_folder)
+road1 = app.modeler.primitives.add_environment(env_folder=env_folder)
 prim = app.modeler.primitives
 
 ###############################################################################
@@ -76,19 +76,20 @@ prim = app.modeler.primitives
 # ~~~~~~~~~~~~~~~~~~~~~
 # Put Actors in environment. This example has persons, birds, bikes and cars.
 
-person1 = app.modeler.primitives.add_person(person_folder, 1.0,[25, 1.5, 0], 180)
-person2 = app.modeler.primitives.add_person(person_folder, 1.0,[25, 2.5, 0], 180)
-car1 = app.modeler.primitives.add_vehicle(car_folder, 8.7,[3, -2.5, 0])
-bike1 = app.modeler.primitives.add_vehicle(bike_folder, 2.1, [24, 3.6, 0], 180)
-bird1 = app.modeler.primitives.add_bird(bird_folder, 1.0, [19, 4, 3], 120,-5, flapping_rate=30)
-bird2 = app.modeler.primitives.add_bird(bird_folder, 1.0,[6, 2, 3], -60,10)
+person1 = app.modeler.primitives.add_person(actor_folder=person_folder, speed=1.0, global_offset=[25, 1.5, 0], yaw=180)
+person2 = app.modeler.primitives.add_person(actor_folder=person_folder, speed=1.0, global_offset=[25, 2.5, 0], yaw=180)
+car1 = app.modeler.primitives.add_vehicle(actor_folder=car_folder, speed=8.7, global_offset=[3, -2.5, 0])
+bike1 = app.modeler.primitives.add_vehicle(actor_folder=bike_folder, speed=2.1, global_offset=[24, 3.6, 0], yaw=180)
+bird1 = app.modeler.primitives.add_bird(actor_folder=bird_folder, speed=1.0, global_offset=[19, 4, 3], yaw=120,
+                                        pitch=-5, flapping_rate=30)
+bird2 = app.modeler.primitives.add_bird(actor_folder=bird_folder, speed=1.0, global_offset=[6, 2, 3], yaw=-60, pitch=10)
 
 ###############################################################################
 # Radar
 # ~~~~~~~~~~~~~~~~~~~~~
 # Put Radar on car. The radar will be created relatively to the car coordinate system.
 
-radar1 = app.create_sbr_radar_from_json(radar_lib, radar_name='Example_1Tx_1Rx', offset=[2.57, 0, 0.54],
+radar1 = app.create_sbr_radar_from_json(radar_file=radar_lib, radar_name='Example_1Tx_1Rx', offset=[2.57, 0, 0.54],
                                         use_relative_cs=True, relative_cs_name=car1.cs_name)
 
 ###############################################################################
