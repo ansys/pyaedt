@@ -183,8 +183,15 @@ class Primitives3D(Primitives, object):
         --------
         >>> from pyaedt import Hfss
         >>> aedtapp = Hfss()
-        >>> ret_obj = aedtapp.modeler.primitives.create_polyhedron(cs_axis='X', center_position=[0, 0, 0], start_position=[0,5,0],
-        ...                                                        height=0.5, num_sides=8, name="mybox", matname="copper")
+        >>> ret_obj = aedtapp.modeler.primitives.create_polyhedron(
+        ...    cs_axis='X',
+        ...    center_position=[0, 0, 0],
+        ...    start_position=[0,5,0],
+        ...    height=0.5,
+        ...    num_sides=8,
+        ...    name="mybox",
+        ...    matname="copper"
+        ... )
 
         """
         test = cs_axis
@@ -375,7 +382,17 @@ class Primitives3D(Primitives, object):
         >>> origin = [0,0,0]
         >>> endpos = [10,5,20]
         >>> #Material and name are not mandatory fields
-        >>> object_id = hfss.modeler.primivites.create_bondwire(origin, endpos,h1=0.5, h2=0.1, alpha=75, beta=4,bond_type=0, name="mybox", matname="copper")
+        >>> object_id = hfss.modeler.primivites.create_bondwire(
+        ...     origin,
+        ...     endpos,
+        ...     h1=0.5,
+        ...     h2=0.1,
+        ...     alpha=75,
+        ...     beta=4,
+        ...     bond_type=0,
+        ...     name="mybox",
+        ...     matname="copper"
+        ... )
 
         """
         XPosition, YPosition, ZPosition = self._pos_with_arg(start_position)

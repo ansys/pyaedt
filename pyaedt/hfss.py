@@ -39,10 +39,12 @@ class Hfss(FieldAnalysis3D, object):
         nothing is used.
     specified_version: str, optional
         Version of AEDT to use. The default is ``None``, in which case
-        the active version or latest installed version is used. This parameter is ignored when Script is launched within AEDT.
+        the active version or latest installed version is used.
+        This parameter is ignored when Script is launched within AEDT.
     NG : bool, optional
         Whether to run AEDT in the non-graphical mode. The default
-        is ``False``, in which case AEDT is launched in the graphical mode. This parameter is ignored when Script is launched within AEDT.
+        is ``False``, in which case AEDT is launched in the graphical mode.
+        This parameter is ignored when Script is launched within AEDT.
     AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
@@ -375,7 +377,9 @@ class Hfss(FieldAnalysis3D, object):
         Create a cylinder at the XY working plane and assign a copper coating of 0.2 mm to it.
 
         >>> origin = hfss.modeler.Position(0, 0, 0)
-        >>> inner = hfss.modeler.primitives.create_cylinder(hfss.CoordinateSystemPlane.XYPlane, origin, 3, 200, 0, "inner")
+        >>> inner = hfss.modeler.primitives.create_cylinder(
+        ...     hfss.CoordinateSystemPlane.XYPlane, origin, 3, 200, 0, "inner"
+        ... )
         >>> inner_id = hfss.modeler.primitives.get_obj_id("inner")
         >>> coat = hfss.assigncoating([inner_id], "copper", usethickness=True, thickness="0.2mm")
 
@@ -3430,7 +3434,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        (:class:`pyaedt.modules.SolveSetup.Setup`, :class:`pyaedt.modules.DesignXPloration.ParametericsSetups.Optimetrics`)
+        (:class:`pyaedt.modules.SolveSetup.Setup`,
+            :class:`pyaedt.modules.DesignXPloration.ParametericsSetups.Optimetrics`)
 
         """
         if self.solution_type != "SBR+":
@@ -3526,7 +3531,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        (:class:`pyaedt.modules.SolveSetup.Setup`, :class:`pyaedt.modules.DesignXPloration.ParametericsSetups.Optimetrics`)
+        (:class:`pyaedt.modules.SolveSetup.Setup`,
+            :class:`pyaedt.modules.DesignXPloration.ParametericsSetups.Optimetrics`)
 
         """
         if self.solution_type != "SBR+":
@@ -3613,7 +3619,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        (:class:`pyaedt.modules.SolveSetup.Setup`, :class:`pyaedt.modules.DesignXPloration.ParametericsSetups.Optimetrics`)
+        (:class:`pyaedt.modules.SolveSetup.Setup`,
+            :class:`pyaedt.modules.DesignXPloration.ParametericsSetups.Optimetrics`)
 
         """
         if self.solution_type != "SBR+":

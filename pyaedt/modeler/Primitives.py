@@ -204,7 +204,7 @@ class Polyline(Object3d):
 
             varg2 = self._parent._default_object_attributes(name=name, matname=matname)
 
-            new_object_name = retry_ntimes(10,self.m_Editor.CreatePolyline, varg1, varg2)
+            new_object_name = retry_ntimes(10, self.m_Editor.CreatePolyline, varg1, varg2)
 
             Object3d.__init__(self, parent, name=new_object_name)
             self._parent.objects[self.id] = self
@@ -366,24 +366,24 @@ class Polyline(Object3d):
 
     def _segment_array(self, segment_data, start_index=0, start_point=None):
         """Retrieve a property array for a polyline segment for use in the
-       :class:`pyaedt.modeler.Primitives.Polyline` constructor.
+        :class:`pyaedt.modeler.Primitives.Polyline` constructor.
 
-        Parameters
-        ----------
-        segment_data : :class:`pyaedt.modeler.Primitives.PolylineSegment` or str
-            Pointer to the calling object that provides additional functionality
-            or a string with the segment type ``Line`` or ``Arc``.
-        start_index : int, string
-            Starting vertex index of the segment within a compound polyline. The
-            default is ``0``.
-        start_point : list, optional
-            Position of the first point for type ``AngularArc``. The default is
-            ``None``. Float values are considered in model units.
+         Parameters
+         ----------
+         segment_data : :class:`pyaedt.modeler.Primitives.PolylineSegment` or str
+             Pointer to the calling object that provides additional functionality
+             or a string with the segment type ``Line`` or ``Arc``.
+         start_index : int, string
+             Starting vertex index of the segment within a compound polyline. The
+             default is ``0``.
+         start_point : list, optional
+             Position of the first point for type ``AngularArc``. The default is
+             ``None``. Float values are considered in model units.
 
-        Returns
-        ------
-        list
-            List of properties defining a polyline segment.
+         Returns
+         ------
+         list
+             List of properties defining a polyline segment.
 
         """
         if isinstance(segment_data, str):
@@ -862,9 +862,9 @@ class Primitives(object):
     @property
     def components_3d_names(self):
         """List of the names of all 3d components objects."""
-        obs3d=[]
+        obs3d = []
         try:
-            comps3d=self.oeditor.Get3DComponentDefinitionNames()
+            comps3d = self.oeditor.Get3DComponentDefinitionNames()
             for comp3d in comps3d:
                 obs3d += list(self.oeditor.Get3DComponentInstanceNames(comp3d))
         except Exception as e:
@@ -1770,11 +1770,7 @@ class Primitives(object):
                         vertex1_j, vertex2_j, vertex1_i, vertex2_i
                     ):
                         continue
-                # if GeometryOperators.is_between_points(end_midpoint, vertex1_i,
-                #                                        vertex1_j) or GeometryOperators.is_between_points(start_midpoint,
-                #                                                                                          vertex2_i,
-                #                                                                                          vertex2_j):
-                #     continue
+
                 if actual_point is None:
                     edge_list = [el, el1]
                     is_parallel = parallel_edges

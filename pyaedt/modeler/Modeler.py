@@ -83,7 +83,8 @@ class CoordinateSystem(object):
         name : str
             Name of the coordinate system.
         arg : list
-            List of the properties to update. For example, ``["NAME:ChangedProps", ["NAME:Mode", "Value:=", "Axis/Position"]]``.
+            List of the properties to update. For example,
+            ``["NAME:ChangedProps", ["NAME:Mode", "Value:=", "Axis/Position"]]``.
 
         Returns
         -------
@@ -1460,7 +1461,8 @@ class GeometryModeler(Modeler, object):
         Returns
         -------
         list
-            List of six float values representing the bounding box in the form ``[min_x, min_y, min_z, max_x, max_y, max_z]``.
+            List of six float values representing the bounding box
+            in the form ``[min_x, min_y, min_z, max_x, max_y, max_z]``.
 
         """
         if type(group) is not str:
@@ -2113,7 +2115,8 @@ class GeometryModeler(Modeler, object):
         Returns
         -------
         list
-            List of six float values representing the bounding box in the form ``[min_x, min_y, min_z, max_x, max_y, max_z]``.
+            List of six float values representing the bounding box
+            in the form ``[min_x, min_y, min_z, max_x, max_y, max_z]``.
 
         """
         bb = list(self.oeditor.GetModelBoundingBox())
@@ -2553,7 +2556,9 @@ class GeometryModeler(Modeler, object):
         >>> from pyaedt import Hfss
         >>> app = Hfss()
         >>> position = [0,0,0]
-        >>> coax = app.modeler.create_coaxial(position, app.CoordinateSystemAxis.XAxis, innerradius=0.5, outerradius=0.8, dielradius=0.78, length=50)
+        >>> coax = app.modeler.create_coaxial(
+        ...    position, app.CoordinateSystemAxis.XAxis, innerradius=0.5, outerradius=0.8, dielradius=0.78, length=50
+        ... )
 
         """
         if not (outerradius > dielradius and dielradius > innerradius):
@@ -3137,7 +3142,8 @@ class GeometryModeler(Modeler, object):
         Returns
         -------
         list
-            List of six float values representing the bounding box in the form ``[min_x, min_y, min_z, max_x, max_y, max_z]``.
+            List of six float values representing the bounding box
+            in the form ``[min_x, min_y, min_z, max_x, max_y, max_z]``.
 
         """
         oBoundingBox = list(self.oeditor.GetModelBoundingBox())
@@ -3842,7 +3848,9 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def create_group(self, objects=None, components=None, groups=None, group_name=None):
-        """Group objects or groups into one group. At least one between ``objects``, ``components``, ``groups`` has to be defined.
+        """Group objects or groups into one group.
+
+        At least one between ``objects``, ``components``, ``groups`` has to be defined.
 
         Parameters
         ----------

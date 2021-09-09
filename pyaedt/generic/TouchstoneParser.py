@@ -309,7 +309,9 @@ class TouchstoneData(object):
         return list(self.solutions_data_real[expression])
 
     def data_imag(self, expression=None):
-        """Return the imaginary part of data  of the given expression. if no expression is provided, first expression is provided
+        """Return the imaginary part of data  of the given expression.
+
+        If no expression is provided, first expression is provided
 
         Parameters
         ----------
@@ -329,7 +331,9 @@ class TouchstoneData(object):
 
 @aedt_exception_handler
 def get_return_losses(excitation_names, excitation_name_prefix=""):
-    """Get the list of all the Returnloss from a list of exctitations. If no excitation is provided it will provide a full list of return Losses
+    """Get the list of all the Returnloss from a list of exctitations.
+
+    If no excitation is provided it will provide a full list of return Losses
     Example: excitation_names ["1","2"] is_touchstone_expression=False output ["S(1,1)",, S(2,2)]
     Example: excitation_names ["S(1,1)","S(1,2)", S(2,2)] is_touchstone_expression=True output ["S(1,1)",, S(2,2)]
 
@@ -450,7 +454,9 @@ def get_next_xtalk(expressions, tx_prefix=""):
 
 @aedt_exception_handler
 def get_fext_xtalk_from_list(trlist, reclist, skip_same_index_couples=True):
-    """Get the list of all the Far End XTalk from 2 lists of exctitations.  If skip_same_index_couples is true, the tx and rx with same index
+    """Get the list of all the Far End XTalk from 2 lists of exctitations.
+
+    If skip_same_index_couples is true, the tx and rx with same index
     position will be considered insertion losses and excluded from the list
     Example: excitation_names ["1", "2"] ["3","4"] output ["S(1,4)", "S(2,3)"]
 

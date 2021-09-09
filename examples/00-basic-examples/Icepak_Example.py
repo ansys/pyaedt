@@ -28,7 +28,8 @@ else:
     tmpfold = os.environ["TEMP"]
 
 temp_folder = os.path.join(tmpfold, generate_unique_name("Example"))
-if not os.path.exists(temp_folder): os.makedirs(temp_folder)
+if not os.path.exists(temp_folder):
+    os.makedirs(temp_folder)
 
 ipk = Icepak(project_full_name, specified_version="2021.1")
 ipk.save_project(os.path.join(temp_folder, "Graphics_card.aedt"))
@@ -39,8 +40,8 @@ ipk.autosave_disable()
 # ~~~~~~~~~~~~~~~~~~~~
 # Create Source block on CPU and MEMORIES
 
-ipk.create_source_block("CPU","25W")
-ipk.create_source_block(["MEMORY1", "MEMORY1_1"],"5W")
+ipk.create_source_block("CPU", "25W")
+ipk.create_source_block(["MEMORY1", "MEMORY1_1"], "5W")
 
 ###############################################################################
 # Assign Boundaries
@@ -56,7 +57,7 @@ ipk.assign_grille(region.top_face_x.id, free_area_ratio=0.8)
 # ~~~~~~~~~~~~~~~
 # Assign Mesh Region to HeatSink and CPU
 
-mesh_region=ipk.mesh.assign_mesh_region(["HEAT_SINK","CPU"])
+mesh_region = ipk.mesh.assign_mesh_region(["HEAT_SINK", "CPU"])
 mesh_region.UserSpecifiedSettings = True
 mesh_region.MaxElementSizeX = "3.35mm"
 mesh_region.MaxElementSizeY = "1.75mm"
@@ -70,7 +71,7 @@ mesh_region.update()
 # Create Point Monitor and Setup
 
 ipk.assign_point_monitor(["-35mm", "3.6mm", "-86mm"])
-ipk.assign_point_monitor(["80mm", "14.243mm", "-55mm"],"Speed")
+ipk.assign_point_monitor(["80mm", "14.243mm", "-55mm"], "Speed")
 setup1 = ipk.create_setup()
 setup1.props["Flow Regime"] = "Turbulent"
 setup1.props["Convergence Criteria - Max Iterations"] = 5
