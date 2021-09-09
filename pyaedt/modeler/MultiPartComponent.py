@@ -919,7 +919,6 @@ class Environment(MultiPartComponent, object):
         # TODO: Need variable checking for yaw angle.
         self._yaw = yaw_str
 
-
     @property
     def pitch(self):
         """Pitch variable value.

@@ -499,7 +499,7 @@ class Design(object):
         self.design_datasets = {}
         main_module = sys.modules['__main__']
         if "pyaedt_initialized" not in dir(main_module):
-            self._desktop_class = Desktop(specified_version, NG, AlwaysNew, release_on_exit, student_version)
+            Desktop(specified_version, NG, AlwaysNew, release_on_exit, student_version)
         self._project_dictionary = {}
         self._mttime = None
         self._desktop = main_module.oDesktop
@@ -1558,7 +1558,7 @@ class Design(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        self._desktop_class.disable_autosave()
+        self.odesktop.EnableAutoSave(False)
         return True
 
     @aedt_exception_handler
@@ -1570,7 +1570,7 @@ class Design(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        self._desktop_class.enable_autosave()
+        self.odesktop.EnableAutoSave(True)
         return True
 
     @aedt_exception_handler
