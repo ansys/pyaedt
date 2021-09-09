@@ -9,7 +9,7 @@ from collections import OrderedDict
 
 from .application.AnalysisIcepak import FieldAnalysisIcepak
 from .desktop import exception_to_desktop
-from .generic.general_methods import generate_unique_name, aedt_exception_handler
+from .generic.general_methods import generate_unique_name, aedt_exception_handler, retry_ntimes
 from .generic.DataHandlers import arg2dict
 from .modules.Boundary import BoundaryObject, NativeComponentObject
 
@@ -1163,13 +1163,9 @@ class Icepak(FieldAnalysisIcepak):
         for el in parameter_dict_with_values:
             string += el + "=\'" + parameter_dict_with_values[el] + "\' "
         filename = os.path.join(savedir, filename + ".csv")
-        self.osolution.ExportFieldsSummary(
-                [
-                    "SolutionName:=", sweep_name,
-                    "DesignVariationKey:=", string,
-                    "ExportFileName:=", filename,
-                    "IntrinsicValue:=", ""
-                ])
+        arg = ["SolutionName:=", sweep_name, "DesignVariationKey:=", string, "ExportFileName:=", filename,
+               "IntrinsicValue:=", ""]
+        retry_ntimes(10, self.osolution.ExportFieldsSummary, arg)
         return filename
 
     @aedt_exception_handler
