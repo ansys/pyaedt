@@ -11,8 +11,7 @@ This example shows how you can use PyAEDT to create a Multipart Scenario in SBR+
 # This examples launches AEDT 2021.1 in graphical mode.
 import os
 import pyaedt
-import sys
-from pyaedt import examples, generate_unique_name, Hfss
+from pyaedt import examples, generate_unique_name
 
 # Start Electronics Desktop
 aedt_version = "2021.1"

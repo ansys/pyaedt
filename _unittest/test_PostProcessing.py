@@ -1,29 +1,28 @@
 # standard imports
+import gc
 import os
-import sys
+
+# Import required modules
+from pyaedt import Hfss, is_ironpython
+from pyaedt.generic.filesystem import Scratch
+
+# Setup paths for module imports
+from _unittest.conftest import config, local_path, scratch_path
 
 try:
     import pytest
 except ImportError:
     import _unittest_ironpython.conf_unittest as pytest
-# Setup paths for module imports
-from _unittest.conftest import local_path, scratch_path, config
-
-# Import required modules
-from pyaedt import is_ironpython
-from pyaedt import Hfss
-from pyaedt.generic.filesystem import Scratch
-import gc
-
-test_project_name = "coax_setup_solved"
-test_field_name = "Potter_Horn"
 
 try:
-    from IPython.display import Image, display
+    from IPython.display import Image
 
     ipython_available = True
 except ImportError:
     ipython_available = False
+
+test_project_name = "coax_setup_solved"
+test_field_name = "Potter_Horn"
 
 
 class TestClass:
