@@ -1,8 +1,9 @@
 import csv
-import re
 import os
+import re
 import shutil
-from ..generic.general_methods import aedt_exception_handler, generate_unique_name
+
+from ..generic.general_methods import aedt_exception_handler
 
 
 @aedt_exception_handler

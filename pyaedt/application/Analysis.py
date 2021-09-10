@@ -5,32 +5,30 @@ It includes common classes for file management and messaging and all
 calls to AEDT modules like the modeler, mesh, postprocessing, and setup.
 """
 from __future__ import absolute_import
+
 import os
-import itertools
-import threading
 import shutil
+import threading
 import warnings
 from collections import OrderedDict
 
-from ..modeler.modeler_constants import CoordinateSystemPlane, CoordinateSystemAxis, GravityDirection, Plane
-from ..modules.SolveSetup import Setup
-from ..modules.SolutionType import SolutionType, SetupTypes
-from ..modules.SetupTemplates import SetupKeys
+from .. import is_ironpython
+from ..generic.general_methods import aedt_exception_handler
+from ..modeler.modeler_constants import CoordinateSystemAxis, CoordinateSystemPlane, GravityDirection, Plane
 from ..modules.Boundary import NativeComponentObject
 from ..modules.DesignXPloration import (
     DOESetups,
     DXSetups,
+    OptimizationSetups,
     ParametericsSetups,
     SensitivitySetups,
     StatisticalSetups,
-    OptimizationSetups,
 )
-from .Design import Design
 from ..modules.MaterialLib import Materials
-from ..generic.general_methods import aedt_exception_handler
-from ..desktop import _pythonver
-from .. import is_ironpython
-import sys
+from ..modules.SetupTemplates import SetupKeys
+from ..modules.SolutionType import SetupTypes, SolutionType
+from ..modules.SolveSetup import Setup
+from .Design import Design
 
 if is_ironpython:
     from ..modules.PostProcessor import PostProcessor

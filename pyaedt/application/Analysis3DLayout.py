@@ -1,9 +1,9 @@
-from ..generic.general_methods import aedt_exception_handler, generate_unique_name
-from .Analysis import Analysis
+from ..generic.general_methods import aedt_exception_handler
 from ..modeler.Model3DLayout import Modeler3DLayout
+from ..modules.Mesh3DLayout import Mesh
 from ..modules.SetupTemplates import SetupKeys
 from ..modules.SolveSetup import Setup3DLayout
-from ..modules.Mesh3DLayout import Mesh
+from .Analysis import Analysis
 
 
 class FieldAnalysis3DLayout(Analysis):

@@ -3,18 +3,18 @@ This module contains these clases: `CircuitPort`, `CurrentSource`, `EdbSiwave`,
 `PinGroup`, `ResistorSource`, `Source`, `SourceType`, and `VoltageSource`.
 """
 
-import warnings
 import os
 import time
-from .general import *
-from ..generic.general_methods import get_filename_without_extension, generate_unique_name, retry_ntimes
+import warnings
+
 from pyaedt import is_ironpython
 
+from ..generic.general_methods import generate_unique_name, retry_ntimes
+from .general import *
+
 try:
-    import clr
-    from System import Convert, String
-    from System import Double, Array
-    from System.Collections.Generic import List, Dictionary
+    from System import String
+    from System.Collections.Generic import Dictionary
 except ImportError:
     warnings.warn("This module requires pythonnet.")
 

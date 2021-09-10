@@ -2,16 +2,13 @@
 This module contains these classes: `EdbLayout` and `Shape`.
 """
 
-import warnings
-from .general import *
-from ..generic.general_methods import get_filename_without_extension, generate_unique_name
 import math
+import warnings
+
+from .general import *
 
 try:
-    import clr
-    from System import Convert, String, Tuple
-    from System import Double, Array
-    from System.Collections.Generic import List
+    from System import Tuple
 except ImportError:
     warnings.warn('This module requires the "pythonnet" package.')
 

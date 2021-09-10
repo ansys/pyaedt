@@ -1,11 +1,11 @@
-import os
 import ntpath
+import os
 import warnings
 
-from ..generic.general_methods import aedt_exception_handler, generate_unique_name, retry_ntimes
-from .Analysis import Analysis
+from ..generic.general_methods import aedt_exception_handler, retry_ntimes
 from ..modeler.Model3D import Modeler3D
 from ..modules.Mesh import Mesh
+from .Analysis import Analysis
 
 
 class FieldAnalysis3D(Analysis, object):

@@ -2,12 +2,12 @@
 This module contains the `Materials` class.
 """
 from __future__ import absolute_import
-import os
-import xml.etree.ElementTree as ET
-from .Material import *
-from ..generic.general_methods import aedt_exception_handler, retry_ntimes
-from ..generic.DataHandlers import arg2dict
+
 import json
+
+from ..generic.DataHandlers import arg2dict
+from ..generic.general_methods import aedt_exception_handler, retry_ntimes
+from .Material import *
 
 
 class Materials(object):

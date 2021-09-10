@@ -1,10 +1,8 @@
-import time
-from threading import Thread
-
 import os
-import warnings
 import os.path
+import warnings
 
+from .general_methods import env_path
 
 if os.name == "posix":
     try:
@@ -13,13 +11,6 @@ if os.name == "posix":
         warnings.warn("Pythonnet is needed to run pyaedt within Linux")
 else:
     import subprocess
-
-try:
-    import clr
-except ImportError:
-    warnings.warn("Pythonnet is needed to run pyaedt")
-
-from .general_methods import env_path, env_value
 
 
 class AedtSolve(object):

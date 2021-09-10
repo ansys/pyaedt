@@ -1,26 +1,22 @@
 """This module contains the `Components` class.
 
 """
-import re
 import random
+import re
 
-import pyaedt.edb_core.EDB_Data
-from .EDB_Data import EDBComponent
-
-from .general import *
-from ..generic.general_methods import get_filename_without_extension
 from pyaedt import is_ironpython
+
+from ..generic.general_methods import get_filename_without_extension
+from .EDB_Data import EDBComponent
+from .general import *
 
 try:
     import clr
 
     clr.AddReference("System")
-    from System import Convert, String
-    from System import Double, Array
-    from System.Collections.Generic import List
+    from System import String
 except ImportError:
     warnings.warn("This module requires PythonNet.")
-from collections import defaultdict
 
 
 def resistor_value_parser(RValue):
@@ -722,9 +718,7 @@ class Components(object):
         else:
             self._messenger.add_warning_message(
                 "Component {} has not been assigned because either it is not present in the layout "
-                "or it contains a number of pins not equal to 2".format(
-                    componentname
-                )
+                "or it contains a number of pins not equal to 2".format(componentname)
             )
             return False
         self._messenger.add_warning_message("RLC properties for Component {} has been assigned.".format(componentname))

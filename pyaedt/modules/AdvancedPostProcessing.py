@@ -4,13 +4,14 @@ This module contains the `PostProcessor` class.
 It contains all advanced postprocessing functionalities that require Python 3.x packages like NumPy and Matplotlib.
 """
 from __future__ import absolute_import
-import os
 
-from .PostProcessor import PostProcessor as Post
-from ..generic.general_methods import aedt_exception_handler
-import time
 import math
+import os
+import time
 import warnings
+
+from ..generic.general_methods import aedt_exception_handler
+from .PostProcessor import PostProcessor as Post
 
 try:
     import numpy as np
@@ -31,7 +32,7 @@ except ImportError:
     )
 
 try:
-    from IPython.display import Image, display
+    from IPython.display import Image
 
     ipython_available = True
 except ImportError:

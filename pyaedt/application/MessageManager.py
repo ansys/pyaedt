@@ -6,10 +6,11 @@ This module provides all functionalities for logging errors and messages
 in both AEDT and the log file.
 """
 
-import sys
 import logging
 import os
-from ..generic.general_methods import aedt_exception_handler, generate_unique_name
+import sys
+
+from ..generic.general_methods import aedt_exception_handler
 
 message_levels = {"Global": 0, "Project": 1, "Design": 2}
 

@@ -1,19 +1,14 @@
-import warnings
-import sys
 import time
+import warnings
 from collections import OrderedDict, defaultdict
-from .general import (
-    convert_py_list_to_net_list,
-    convert_net_list_to_py_list,
-    convert_pydict_to_netdict,
-    convert_netdict_to_pydict,
-)
-from ..generic.general_methods import aedt_exception_handler
+
 from pyaedt import is_ironpython
 
+from ..generic.general_methods import aedt_exception_handler
+from .general import convert_py_list_to_net_list
+
 try:
-    import clr
-    from System import Double, Array
+    from System import Array
     from System.Collections.Generic import List
 except ImportError:
     warnings.warn(

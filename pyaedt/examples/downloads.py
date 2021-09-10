@@ -1,8 +1,8 @@
 """Download example datasets from https://github.com/pyansys/example-data"""
-import shutil
 import os
-import sys
-import zipfile, os.path
+import os.path
+import shutil
+import zipfile
 
 from pyaedt import is_ironpython
 
@@ -10,14 +10,13 @@ if is_ironpython:
     import urllib
 else:
     import urllib.request
-from pyaedt.generic.general_methods import generate_unique_name
 
-EXAMPLE_REPO = "https://github.com/pyansys/example-data/raw/master/pyaedt/"
 if os.name == "posix":
     tmpfold = os.environ["TMPDIR"]
 else:
     tmpfold = os.environ["TEMP"]
 
+EXAMPLE_REPO = "https://github.com/pyansys/example-data/raw/master/pyaedt/"
 EXAMPLES_PATH = os.path.join(tmpfold, "PyAEDTExamples")
 
 
