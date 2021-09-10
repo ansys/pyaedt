@@ -20,6 +20,7 @@ class Part(object):
                      'duplicate_number': None,
                      'duplicate_vector': None,
                      'antenna_type': None,  # Antenna only
+                     'ffd_name': None,  # Antenna only
                      'mode': None,  # Antenna only
                      'aedt_name': None,
                      'beamwidth_elevation': None,  # Antenna only
@@ -87,20 +88,23 @@ class Part(object):
         # using .yaw, .pitch, .roll properties?
         self.rot_axis = [False, False, False]  # [X, Y, Z] rotation Boolean
         if self._compdef['rotation_axis']:
-            a = self._compdef['rotation']
-            if self._compdef['rotation_axis'].lower() == 'x':  # roll
-                [y, p, r] = ["0", "0", a]
-                self.rot_axis[2] = True
-            elif self._compdef['rotation_axis'].lower() == 'y':  # pitch
-                [y, p, r] = ["0", a, "0"]
-                self.rot_axis[1] = True
-            elif self._compdef['rotation_axis'].lower() == 'z':  # yaw
-                [y, p, r] = [a, "0", "0"]
-                self.rot_axis[0] = True
-            else:
-                [y, p, r] = ["0", "0", "0"]  # Exception? invalid value for 'rotation_axis'.
-            if not self._compdef['rotation']:  # rotation may be None. Catch this:
-                self._compdef['rotation'] = ["0", "0", "0"]
+            rotations_axis = self._compdef['rotation_axis'].split(',')
+            rotations = self._compdef['rotation'].split(',')
+            y = "0"
+            p = "0"
+            r = "0"
+            for a in rotations:
+            #a = self._compdef['rotation']
+                if rotations_axis[rotations.index(a)].lower() == 'x':  # roll
+                    r = a
+                    self.rot_axis[2] = True
+                elif rotations_axis[rotations.index(a)].lower() == 'y':  # pitch
+                    p = a
+                    self.rot_axis[1] = True
+                elif rotations_axis[rotations.index(a)].lower() == 'z':  # yaw
+                    y = a
+                    self.rot_axis[0] = True
+
             self._yaw = y
             self._pitch = p
             self._roll = r
@@ -234,7 +238,7 @@ class Part(object):
         """
         if self['rotation_cs']:
             if self.zero_offset('rotation_cs') or self['rotation_cs'] == 'Global':
-                return self.local_origin()
+                return self.local_origin
             else:
                 return self['rotation_cs']
         else:
@@ -417,7 +421,8 @@ class Antenna(Part, object):
     def _antenna_type(self, app):
         if self._compdef['antenna_type'] == 'parametric':
             return app.SbrAntennas.ParametricBeam
-
+        if self._compdef['antenna_type'] == 'ffd':
+            return 'file'
     @property
     def params(self):
         """Multipart Parameters.
@@ -442,11 +447,17 @@ class Antenna(Part, object):
                 units = self._parent._local_units
             else:
                 units = self._parent.units
-        a = app.create_sbr_antenna(self._antenna_type(app),
-                                   model_units=units,
-                                   parameters_dict=self.params,
-                                   target_cs=target_cs,
-                                   antenna_name=self.name)
+        if self._compdef['ffd_name']:
+            ffd = os.path.join(self._compdef['part_folder'], self._parent._name + ".ffd", self._compdef['ffd_name'])
+            a = app.create_sbr_file_based_antenna(ffd_full_path=ffd, model_units=units,
+                                       target_cs=target_cs,
+                                       antenna_name=self.name)
+        else:
+            a = app.create_sbr_antenna(self._antenna_type(app),
+                                       model_units=units,
+                                       parameters_dict=self.params,
+                                       target_cs=target_cs,
+                                       antenna_name=self.name)
         return a
 
     @aedt_exception_handler
@@ -467,7 +478,7 @@ class Antenna(Part, object):
             antenna_object = self._insert(app, units=units)  # Create coordinate system, if needed.
         else:
             antenna_object = self._insert(app, target_cs=self._parent.cs_name, units=units)
-        if self._do_rotate:
-            self.do_rotate(app, antenna_object.name)
+        if self._do_rotate and antenna_object:
+            self.do_rotate(app, antenna_object.antennaname)
 
         return antenna_object

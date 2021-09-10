@@ -17,6 +17,7 @@ import getpass
 import re
 import warnings
 import gc
+import time
 from pyaedt.application.MessageManager import AEDTMessageManager
 from pyaedt.misc import list_installed_ansysem
 from pyaedt import is_ironpython, _pythonver, inside_desktop
@@ -451,6 +452,7 @@ class Desktop:
                     DETACHED_PROCESS = 0x00000008
                     pid = subprocess.Popen([os.path.join(base_path, "ansysedtsv.exe")],
                                            creationflags=DETACHED_PROCESS).pid
+                    time.sleep(5)
                 if NG or AlwaysNew or not processID:
                     # Force new object if no non-graphical instance is running or if there is not an already existing process.
                     App = StandalonePyScriptWrapper.CreateObjectNew(NG)
