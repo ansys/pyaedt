@@ -6,6 +6,8 @@ from __future__ import absolute_import
 
 import warnings
 
+from pyaedt import is_ironpython
+
 from .EDB_Data import EDBLayers
 from .general import *
 
