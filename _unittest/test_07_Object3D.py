@@ -12,7 +12,6 @@ from pyaedt.modeler.Object3d import FacePrimitive, _to_boolean, _uname
 from _unittest.conftest import scratch_path
 
 
-
 class TestClass:
     def setup_class(self):
         with Scratch(scratch_path) as self.local_scratch:

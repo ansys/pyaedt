@@ -8,7 +8,6 @@ from pyaedt.maxwell import Maxwell2d
 from _unittest.conftest import BasisTest
 
 
-
 class TestClass(BasisTest):
     def setup_class(self):
         BasisTest.setup_class(self, project_name="test_primitives", design_name="2D_Primitives", application=Maxwell2d)

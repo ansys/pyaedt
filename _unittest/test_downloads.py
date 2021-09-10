@@ -5,7 +5,6 @@ import gc
 from pyaedt.examples import downloads
 
 
-
 class TestClass:
     def setup_class(self):
         # set a scratch directory and the environment / test data

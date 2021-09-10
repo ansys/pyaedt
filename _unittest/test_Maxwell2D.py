@@ -7,7 +7,6 @@ from pyaedt import Maxwell2d
 from _unittest.conftest import BasisTest, pyaedt_unittest_check_desktop_error
 
 
-
 class TestClass(BasisTest):
     def setup_class(self):
         BasisTest.setup_class(
