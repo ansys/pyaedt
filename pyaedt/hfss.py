@@ -3292,6 +3292,7 @@ class Hfss(FieldAnalysis3D, object):
             Set to ``True`` if relative coordinate system has to be used. Default ``False``.
         relative_cs_name : str
             Relative CS Name to which Link the Radar. ``None`` for Global CS.
+
         Returns
         -------
         :class:`pyaedt.modeler.Actors.Radar`

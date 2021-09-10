@@ -5,6 +5,8 @@ import sys
 import zipfile,os.path
 
 from pyaedt import is_ironpython
+from pyaedt.misc import list_installed_ansysem
+
 if is_ironpython:
     import urllib
 else:
@@ -55,6 +57,23 @@ def _retrieve_file(url, filename, directory):
     if os.name == "posix":
         command = "wget {} -O {}".format(url, local_path)
         os.system(command)
+    elif is_ironpython:
+        versions = list_installed_ansysem()
+        if versions:
+            cpython = os.listdir(os.path.join(os.getenv(versions[0]), "commonfiles", "CPython"))
+            command = "\"" + os.path.join(os.getenv(versions[0]), "commonfiles", "CPython", cpython[0], "winx64",
+                                          "Release", "python", "python.exe") + "\""
+            commandargs = os.path.join(os.path.dirname(local_path), "download.py")
+            command += " \"" + commandargs + "\""
+            with open(os.path.join(os.path.dirname(local_path), "download.py"), "w") as f:
+                f.write("import urllib.request\n")
+                f.write("urlretrieve = urllib.request.urlretrieve\n")
+                f.write("import urllib.request\n")
+                f.write("url = r\"{}\"\n".format(url))
+                f.write("local_path = r\"{}\"\n".format(local_path))
+                f.write("urlretrieve(url, local_path)\n")
+            print(command)
+            os.system(command)
     else:
         _, resp = urlretrieve(url, local_path)
     return local_path
