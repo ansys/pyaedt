@@ -361,14 +361,12 @@ class Desktop:
         """Initialize desktop."""
         self._main = sys.modules['__main__']
         self._main.interpreter = _com
-
         self._main.close_on_exit = False
         self._main.isoutsideDesktop = False
         self._main.pyaedt_version = pyaedtversion
         self.release = release_on_exit
         self.logfile = None
         module_logger = logging.getLogger(__name__)
-
         if "oDesktop" in dir(self._main) and self._main.oDesktop is not None:
             self._main.AEDTVersion = self._main.oDesktop.GetVersion()[0:6]
             self._main.oDesktop.RestoreWindow()
@@ -453,7 +451,7 @@ class Desktop:
                     pid = subprocess.Popen([os.path.join(base_path, "ansysedtsv.exe")],
                                            creationflags=DETACHED_PROCESS).pid
                     time.sleep(5)
-                if NG or AlwaysNew or not processID:
+                elif NG or AlwaysNew or not processID:
                     # Force new object if no non-graphical instance is running or if there is not an already existing process.
                     App = StandalonePyScriptWrapper.CreateObjectNew(NG)
                 else:
@@ -477,7 +475,7 @@ class Desktop:
                             processID2.append(m.group(1))
 
                 proc = [i for i in processID2 if i not in processID]
-                if not proc:
+                if not proc and len(processID2)>1:
                     if NG:
                         self._main.close_on_exit = False
                     else:
@@ -486,6 +484,8 @@ class Desktop:
                     self._main.oDesktop = oAnsoftApp.GetAppDesktop()
                     self._main.isoutsideDesktop = True
                 elif version_key>="2021.1":
+                    if not proc:
+                        proc = processID2
                     self._main.close_on_exit = True
                     module_logger.debug(
                         "Info: {} Started with Process ID {}".format(version, proc[0]))
