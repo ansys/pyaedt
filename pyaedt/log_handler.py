@@ -9,9 +9,9 @@ class _LogHandler(logging.Handler):
     aedt_app_messenger : str
         AEDT app log manager.
     log_destination: str
-        AEDT has 3 different logs: 'Global', 'Desktop', 'Project'.
+        AEDT has 3 different logs: `'Global'`, `'Desktop'`, `'Project'`.
     level : int, optional
-        Threshold for this handler.
+        Threshold for this handler.  For example ``logging.DEBUG``
         """
 
     def __init__(self, aedt_app_messenger, log_destination, level=logging.INFO):
