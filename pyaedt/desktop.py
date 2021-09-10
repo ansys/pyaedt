@@ -15,9 +15,13 @@ import logging
 import pkgutil
 import getpass
 import re
+
 from pyaedt.application.MessageManager import AEDTMessageManager
 from pyaedt.misc import list_installed_ansysem
 from pyaedt import is_ironpython, _pythonver
+from .import log_handler
+
+
 pathname = os.path.dirname(__file__)
 if os.path.exists(os.path.join(pathname,'version.txt')):
     with open(os.path.join(pathname,'version.txt'), "r") as f:
@@ -354,6 +358,7 @@ class Desktop:
 
     def __init__(self, specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True, student_version=False):
         """Initialize desktop."""
+
         self._main = sys.modules['__main__']
         self._main.interpreter = _com
 
@@ -362,12 +367,15 @@ class Desktop:
         self._main.pyaedt_version = pyaedtversion
         self.release = release_on_exit
         self.logfile = None
+        logger_for_global = logging.getLogger("global")
+        logger_for_global.setLevel(logging.DEBUG)
         module_logger = logging.getLogger(__name__)
 
         if "oDesktop" in dir(self._main) and self._main.oDesktop is not None:
             self._main.AEDTVersion = self._main.oDesktop.GetVersion()[0:6]
             self._main.oDesktop.RestoreWindow()
             self._main.oMessenger = AEDTMessageManager()
+            logger_for_global.addHandler(log_handler._LogHandler(self._main.oMessenger, 'Global'))
             base_path = self._main.oDesktop.GetExeDir()
             self._main.sDesktopinstallDirectory = base_path
             self.release = False
@@ -512,6 +520,8 @@ class Desktop:
             self._main.AEDTVersion = version_key
             self._main.oDesktop.RestoreWindow()
             self._main.oMessenger = AEDTMessageManager()
+            logger_for_global.addHandler(log_handler._LogHandler(self._main.oMessenger, 'Global', logging.DEBUG))
+
         self._main.pyaedt_initialized = True
         # Set up the log file in the AEDT project directory
         self.logger = logging.getLogger(__name__)
@@ -525,24 +535,30 @@ class Desktop:
                 datefmt='%Y/%m/%d %H.%M.%S',
                 filemode='w')
 
-        info_msg1 = 'pyaedt v{}'.format(pyaedtversion.strip())
-        info_msg2 = 'Python version {}'.format(sys.version)
-        self._main.oMessenger.add_info_message(info_msg1, 'Global')
-        self._main.oMessenger.add_info_message(info_msg2, 'Global')
+        info_msg1 = f'pyaedt v{pyaedtversion.strip()}'
+        info_msg2 = f'Python version {sys.version}'
 
-        info_msg3 = 'Started external COM connection with module {}'.format(_com)
-        info_msg4 = 'Exe path: {}'.format(sys.executable)
+        logger_for_global.info(info_msg1)
+        self._main.oMessenger.add_info_message(info_msg2, 'Global')
+        logger_for_global.info(info_msg2)
+
+        info_msg3 = f'Started external COM connection with module {_com}'
+        info_msg4 = f'Exe path: {sys.executable}'
         logger.info(info_msg3)
+        logger_for_global.info(info_msg3)
         logger.info(info_msg4)
+        logger_for_global.info(info_msg4)
 
         if _com == 'pywin32' and (AlwaysNew or NG):
             info_msg5 = 'The ``AlwaysNew`` or ``NG`` option is not available for a pywin32 connection only. Install Python.NET to support these options.'
             self._main.oMessenger.add_info_message(info_msg5, 'Global')
+            logger_for_global.info(info_msg5)
         elif _com == 'ironpython':
             dll_path = os.path.join(base_path,"common","IronPython", "dlls")
             sys.path.append(dll_path)
-            info_msg5 = 'Adding IronPython common dlls to the sys.path: {0}'.format(dll_path)
+            info_msg5 = f'Adding IronPython common dlls to the sys.path: {dll_path}'
             self._main.oMessenger.add_info_message(info_msg5, 'Global')
+            logger_for_global.info(info_msg5)
 
     @property
     def install_path(self):

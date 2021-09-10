@@ -14,7 +14,7 @@ class _LogHandler(logging.Handler):
         Threshold for this handler.
         """
 
-    def __init__(self, aedt_app_messenger, log_destination, level=logging.DEBUG):
+    def __init__(self, aedt_app_messenger, log_destination, level=logging.INFO):
         # base class's constructor must be called to set level and filters.
         super().__init__(level)
         self.destination = log_destination
