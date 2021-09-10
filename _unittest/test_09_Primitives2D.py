@@ -8,7 +8,6 @@ from pyaedt.modeler.Primitives import Polyline
 from _unittest.conftest import BasisTest, pyaedt_unittest_check_desktop_error
 
 
-
 class TestClass(BasisTest):
     def setup_class(self):
         BasisTest.setup_class(self, design_name="2D_Primitives", solution_type="TransientXY", application=Maxwell2d)
