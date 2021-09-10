@@ -20,7 +20,7 @@ class TestClass:
 
     def teardown_class(self):
         assert self.aedtapp.close_project(self.aedtapp.project_name)
-        #self.local_scratch.remove()
+        # self.local_scratch.remove()
         gc.collect()
 
     def test_01_creatematerial(self):
@@ -34,15 +34,16 @@ class TestClass:
         assert len(self.aedtapp.materials.material_keys) == 3
 
     def test_02_stackup(self):
-        s1 = self.aedtapp.modeler.layers.add_layer(layername="Bottom", layertype="signal",
-                                                   thickness="0.035mm", elevation="0mm", material="iron")
+        s1 = self.aedtapp.modeler.layers.add_layer(
+            layername="Bottom", layertype="signal", thickness="0.035mm", elevation="0mm", material="iron"
+        )
         assert s1.thickness == "0.035mm"
         assert s1.material == "iron"
         assert s1.useetch is False
         assert s1.user is False
         assert s1.usp is False
-        s1.material = 'copper'
-        s1.fillmaterial = 'glass'
+        s1.material = "copper"
+        s1.fillmaterial = "glass"
         s1.update_stackup_layer()
         assert s1.material == "copper"
         assert s1.fillmaterial == "glass"
@@ -59,19 +60,25 @@ class TestClass:
         assert s1.usp is True
         assert s1.hfssSp["dt"] == 1
         assert s1.planaremSp["ifg"] is True
-        d1 = self.aedtapp.modeler.layers.add_layer(layername="Diel3", layertype="dielectric",
-                                                   thickness="1.0mm", elevation="0.035mm", material="plexiglass")
-        assert d1.material == 'plexiglass'
+        d1 = self.aedtapp.modeler.layers.add_layer(
+            layername="Diel3", layertype="dielectric", thickness="1.0mm", elevation="0.035mm", material="plexiglass"
+        )
+        assert d1.material == "plexiglass"
         assert d1.thickness == "1.0mm"
         assert d1.transparency == 60
-        d1.material = 'FR4_epoxy'
+        d1.material = "FR4_epoxy"
         d1.transparency = 23
         d1.update_stackup_layer()
-        assert d1.material == 'FR4_epoxy'
+        assert d1.material == "FR4_epoxy"
         assert d1.transparency == 23
-        s2 = self.aedtapp.modeler.layers.add_layer(layername="Top", layertype="signal",
-                                                   thickness=3.5e-5, elevation="1.035mm", material="copper",
-                                                   isnegative=True)
+        s2 = self.aedtapp.modeler.layers.add_layer(
+            layername="Top",
+            layertype="signal",
+            thickness=3.5e-5,
+            elevation="1.035mm",
+            material="copper",
+            isnegative=True,
+        )
         assert s2.name == "Top"
         assert s2.type == "signal"
         assert s2.material == "copper"
@@ -93,7 +100,7 @@ class TestClass:
         assert s1.hfssSp["dt"] == 1
         assert s1.planaremSp["ifg"] is True
         d1 = self.aedtapp.modeler.layers.layers[self.aedtapp.modeler.layers.layer_id("Diel3")]
-        assert d1.material == 'FR4_epoxy'
+        assert d1.material == "FR4_epoxy"
         assert d1.thickness == "1.0mm" or d1.thickness == 1e-3
         assert d1.transparency == 23
         s2 = self.aedtapp.modeler.layers.layers[self.aedtapp.modeler.layers.layer_id("Top")]
@@ -109,12 +116,11 @@ class TestClass:
         s1.update_stackup_layer()
 
     def test_03_create_circle(self):
-        n1 = self.aedtapp.modeler.primitives.create_circle("Top", 0, 5, 80, "mycircle")
+        n1 = self.aedtapp.modeler.primitives.create_circle("Top", 0, 5, 40, "mycircle")
         assert n1 == "mycircle"
 
     def test_04_create_create_rectangle(self):
-        n2 = self.aedtapp.modeler.primitives.create_rectangle(
-            "Top", [0, 0], [6, 8], 3, 2, "myrectangle")
+        n2 = self.aedtapp.modeler.primitives.create_rectangle("Top", [0, 0], [6, 8], 3, 2, "myrectangle")
         assert n2 == "myrectangle"
 
     def test_05_subtract(self):
@@ -122,14 +128,12 @@ class TestClass:
 
     def test_06_unite(self):
         n1 = self.aedtapp.modeler.primitives.create_circle("Top", 0, 5, 8, "mycircle2")
-        n2 = self.aedtapp.modeler.primitives.create_rectangle(
-            "Top", [0, 0], [6, 8], 3, 2, "myrectangle2")
+        n2 = self.aedtapp.modeler.primitives.create_rectangle("Top", [0, 0], [6, 8], 3, 2, "myrectangle2")
         assert self.aedtapp.modeler.unite([n1, n2])
 
     def test_07_intersect(self):
         n1 = self.aedtapp.modeler.primitives.create_circle("Top", 0, 5, 8, "mycircle3")
-        n2 = self.aedtapp.modeler.primitives.create_rectangle(
-            "Top", [0, 0], [6, 8], 3, 2, "myrectangle3")
+        n2 = self.aedtapp.modeler.primitives.create_rectangle("Top", [0, 0], [6, 8], 3, 2, "myrectangle3")
         assert self.aedtapp.modeler.intersect([n1, n2])
 
     def test_08_objectlist(self):
@@ -142,7 +146,7 @@ class TestClass:
         pad_0.plating = 55
         pad_0.update()
         self.aedtapp.modeler.primitives.init_padstacks()
-        assert self.aedtapp.modeler.primitives.padstacks["PlanarEMVia"].plating == '55'
+        assert self.aedtapp.modeler.primitives.padstacks["PlanarEMVia"].plating == "55"
 
     def test_10_create_padstack(self):
         pad1 = self.aedtapp.modeler.primitives.new_padstack("My_padstack2")
@@ -151,20 +155,20 @@ class TestClass:
         hole2 = pad1.add_hole(holetype="Rct", sizes=[0.5, 0.8])
         pad1.add_layer("Default", pad_hole=hole2, thermal_hole=hole2)
         pad1.add_layer("Stop", pad_hole=hole1, thermal_hole=hole1)
-        pad1.hole.sizes = ['0.8mm']
+        pad1.hole.sizes = ["0.8mm"]
         pad1.plating = 70
         assert pad1.create()
 
     def test_11_create_via(self):
         via = self.aedtapp.modeler.primitives.create_via("My_padstack2", x=0, y=0)
         assert type(via) is str
-        via = self.aedtapp.modeler.primitives.create_via(
-            "My_padstack2", x=10, y=10, name="Via123", netname="VCC")
+        via = self.aedtapp.modeler.primitives.create_via("My_padstack2", x=10, y=10, name="Via123", netname="VCC")
         assert via == "Via123"
 
     def test_12_create_line(self):
         line = self.aedtapp.modeler.primitives.create_line(
-            "Bottom",[[0,0],[10,30],[20,30]],lw=1,name="line1", netname="VCC")
+            "Bottom", [[0, 0], [10, 30], [20, 30]], lw=1, name="line1", netname="VCC"
+        )
         assert line == "line1"
 
     def test_13a_create_edge_port(self):
@@ -183,46 +187,64 @@ class TestClass:
     def test_15_edit_setup(self):
         setup_name = "RFBoardSetup2"
         setup2 = self.aedtapp.create_setup(setupname=setup_name)
-        setup2.props['AdaptiveSettings']['SingleFrequencyDataList']['AdaptiveFrequencyData'][
-            'AdaptiveFrequency'] = "1GHz"
-        setup2.props['AdaptiveSettings']['SingleFrequencyDataList']['AdaptiveFrequencyData']['MaxPasses'] = 23
-        setup2.props['AdvancedSettings']['OrderBasis'] = 2
-        setup2.props['PercentRefinementPerPass'] = 17
+        setup2.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"][
+            "AdaptiveFrequency"
+        ] = "1GHz"
+        setup2.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["MaxPasses"] = 23
+        setup2.props["AdvancedSettings"]["OrderBasis"] = 2
+        setup2.props["PercentRefinementPerPass"] = 17
         assert setup2.update()
 
     def test_16_disable_enable_setup(self):
         setup_name = "RFBoardSetup3"
         setup3 = self.aedtapp.create_setup(setupname=setup_name)
-        setup3.props['AdaptiveSettings']['SingleFrequencyDataList']['AdaptiveFrequencyData']['MaxPasses'] = 1
+        setup3.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["MaxPasses"] = 1
         assert setup3.update()
         assert setup3.disable()
         assert setup3.enable()
         sweep = setup3.add_sweep()
         assert sweep
-        assert sweep.change_range("LinearStep", "1Hz", "10GHz", "100MHz")
-        assert sweep.add_subrange("LinearCount", "11GHz", "20GHz", 201)
+        assert sweep.change_range("LinearStep", "1Hz", "1GHz", "100MHz")
+        assert sweep.add_subrange("LinearCount", "1GHz", "1.5GHz", 21)
 
     def test_17_get_setup(self):
         setup4 = self.aedtapp.get_setup(self.aedtapp.existing_analysis_setups[0])
-        setup4.props['PercentRefinementPerPass'] = 37
-        setup4.props['AdaptiveSettings']['SingleFrequencyDataList']['AdaptiveFrequencyData']['MaxPasses'] = 44
+        setup4.props["PercentRefinementPerPass"] = 37
+        setup4.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["MaxPasses"] = 44
         assert setup4.update()
         assert setup4.disable()
         assert setup4.enable()
 
     def test_18_add_sweep(self):
         setup_name = "RFBoardSetup"
-        sweep1 = self.aedtapp.create_frequency_sweep(setupname=setup_name,
-                                                     unit='GHz', freqstart=1, freqstop=10, num_of_freq_points=1001,
-                                                     sweepname="RFBoardSweep1", sweeptype="interpolating",
-                                                     interpolation_tol_percent=0.2, interpolation_max_solutions=111,
-                                                     save_fields=False, use_q3d_for_dc=False)
+        sweep1 = self.aedtapp.create_frequency_sweep(
+            setupname=setup_name,
+            unit="GHz",
+            freqstart=1,
+            freqstop=10,
+            num_of_freq_points=1001,
+            sweepname="RFBoardSweep1",
+            sweeptype="interpolating",
+            interpolation_tol_percent=0.2,
+            interpolation_max_solutions=111,
+            save_fields=False,
+            use_q3d_for_dc=False,
+        )
         assert sweep1.props["Sweeps"]["Data"] == "LINC 1GHz 10GHz 1001"
-        sweep2 = self.aedtapp.create_frequency_sweep(setupname=setup_name,
-                                                     unit='GHz', freqstart=1, freqstop=10, num_of_freq_points=12,
-                                                     sweepname="RFBoardSweep2", sweeptype="discrete",
-                                                     interpolation_tol_percent=0.4, interpolation_max_solutions=255,
-                                                     save_fields=True, save_rad_fields_only=True, use_q3d_for_dc=True)
+        sweep2 = self.aedtapp.create_frequency_sweep(
+            setupname=setup_name,
+            unit="GHz",
+            freqstart=1,
+            freqstop=10,
+            num_of_freq_points=12,
+            sweepname="RFBoardSweep2",
+            sweeptype="discrete",
+            interpolation_tol_percent=0.4,
+            interpolation_max_solutions=255,
+            save_fields=True,
+            save_rad_fields_only=True,
+            use_q3d_for_dc=True,
+        )
         assert sweep2.props["Sweeps"]["Data"] == "LINC 1GHz 10GHz 12"
 
     def test_19A_validate(self):
@@ -234,14 +256,13 @@ class TestClass:
         assert self.aedtapp.analyze_setup("RFBoardSetup3")
 
     def test_19C_export_touchsthone(self):
-        filename = os.path.join(scratch_path, 'touchstone.s2p')
-        assert self.aedtapp.export_touchstone("RFBoardSetup3", "Last Adaptive",
-                                              filename, [], [])
+        filename = os.path.join(scratch_path, "touchstone.s2p")
+        assert self.aedtapp.export_touchstone("RFBoardSetup3", "Last Adaptive", filename, [], [])
         assert os.path.exists(filename)
 
     def test_19D_export_to_hfss(self):
         with Scratch(scratch_path) as local_scratch:
-            filename = 'export_to_hfss_test'
+            filename = "export_to_hfss_test"
             file_fullname = os.path.join(local_scratch.path, filename)
             setup = self.aedtapp.get_setup(self.aedtapp.existing_analysis_setups[0])
             assert setup.export_to_hfss(file_fullname=file_fullname)
@@ -256,8 +277,7 @@ class TestClass:
         assert isinstance(self.aedtapp.available_variations.nominal_w_values, list)
 
     def test_21_get_all_sparameter_list(self):
-        assert self.aedtapp.get_all_sparameter_list == [
-            "S(Port1,Port1)", "S(Port1,Port2)", "S(Port2,Port2)"]
+        assert self.aedtapp.get_all_sparameter_list == ["S(Port1,Port1)", "S(Port1,Port2)", "S(Port2,Port2)"]
 
     def test_22_get_all_return_loss_list(self):
         assert self.aedtapp.get_all_return_loss_list() == ["S(Port1,Port1)", "S(Port2,Port2)"]
@@ -272,7 +292,7 @@ class TestClass:
         assert self.aedtapp.get_fext_xtalk_list() == ["S(Port1,Port2)", "S(Port2,Port1)"]
 
     def test_duplicate(self):
-        assert self.aedtapp.modeler.duplicate("myrectangle",2, [1,1])
+        assert self.aedtapp.modeler.duplicate("myrectangle", 2, [1, 1])
 
     def test_create_pin_port(self):
         assert self.aedtapp.create_pin_port("PinPort1")
@@ -286,18 +306,14 @@ class TestClass:
         assert new_material.name == "secondmaterial"
 
     def test_expand(self):
-        self.aedtapp.modeler.primitives.create_rectangle(
-            "Bottom", [20, 20], [50, 50], name="rect_1")
+        self.aedtapp.modeler.primitives.create_rectangle("Bottom", [20, 20], [50, 50], name="rect_1")
         self.aedtapp.modeler.primitives.create_line("Bottom", [[25, 25], [40, 40]], name="line_3")
-        out1 = self.aedtapp.modeler.expand(
-            "line_3",size=1, expand_type="ROUND", replace_original=False)
+        out1 = self.aedtapp.modeler.expand("line_3", size=1, expand_type="ROUND", replace_original=False)
         assert isinstance(out1, str)
 
     def test_heal(self):
-        l1 = self.aedtapp.modeler.primitives.create_line(
-            "Bottom", [[0, 0], [100, 0]], 0.5, name="poly_1111")
-        l2 = self.aedtapp.modeler.primitives.create_line(
-            "Bottom", [[100, 0], [120, -35]], 0.5, name="poly_2222")
+        l1 = self.aedtapp.modeler.primitives.create_line("Bottom", [[0, 0], [100, 0]], 0.5, name="poly_1111")
+        l2 = self.aedtapp.modeler.primitives.create_line("Bottom", [[100, 0], [120, -35]], 0.5, name="poly_2222")
         self.aedtapp.modeler.unite([l1, l2])
         assert self.aedtapp.modeler.colinear_heal("poly_2222", tolerance=0.25)
 

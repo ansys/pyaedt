@@ -1,4 +1,5 @@
 import os
+
 # Import exception handling here due to:
 # https://github.com/pyansys/PyAEDT/pull/243
 import sys
@@ -7,6 +8,7 @@ is_ironpython = "IronPython" in sys.version or ".NETFramework" in sys.version
 _pythonver = sys.version_info[0]
 try:
     import ScriptEnv
+
     ScriptEnv.Initialize("Ansoft.ElectronicsDesktop")
     inside_desktop = True
 except:

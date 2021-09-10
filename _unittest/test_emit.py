@@ -8,7 +8,6 @@ from _unittest.conftest import scratch_path
 
 
 class TestClass:
-
     def setup_class(self):
         # set a scratch directory and the environment / test data
         with Scratch(scratch_path) as self.local_scratch:

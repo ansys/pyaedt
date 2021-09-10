@@ -1,7 +1,9 @@
 import os
+
 # Setup paths for module imports
 from _unittest.conftest import scratch_path
 import gc
+
 # Import required modules
 from pyaedt import Q2d
 from pyaedt.generic.filesystem import Scratch
@@ -27,7 +29,7 @@ class TestClass:
 
     def test_02_create_primitive(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
-        o = self.aedtapp.modeler.primitives.create_rectangle(udp,[5,3],name="Rectangle1")
+        o = self.aedtapp.modeler.primitives.create_rectangle(udp, [5, 3], name="Rectangle1")
         assert isinstance(o.id, int)
 
     def test_06a_create_setup(self):
