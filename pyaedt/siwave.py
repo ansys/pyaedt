@@ -22,7 +22,7 @@ if is_ironpython:
 elif os.name == "nt":
     modules = [tup[1] for tup in pkgutil.iter_modules()]
     if "clr" in modules:
-        import clr # noqa: F401
+        import clr  # noqa: F401
         import win32com.client
 
         _com = "pythonnet_v3"
@@ -111,7 +111,7 @@ class Siwave:
             if _com == "pythonnet":
                 self._main.oSiwave = System.Activator.CreateInstance(System.Type.GetTypeFromProgID(version))
 
-            elif (_com == "pythonnet_v3"):
+            elif _com == "pythonnet_v3":
                 # TODO check if possible to use pythonnet. at the moment the tool open AEDt
                 # but doesn't return the wrapper of oApp
                 print("Launching AEDT with Module win32com")

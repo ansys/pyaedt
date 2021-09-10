@@ -9,8 +9,7 @@ from collections import OrderedDict
 from decimal import Decimal
 
 from pyaedt.generic.general_methods import aedt_exception_handler
-from pyaedt.modeler.Object3d import (EdgePrimitive, FacePrimitive,
-                                     VertexPrimitive)
+from pyaedt.modeler.Object3d import EdgePrimitive, FacePrimitive, VertexPrimitive
 
 try:
     import clr
