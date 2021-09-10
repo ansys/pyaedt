@@ -1,14 +1,10 @@
-import os
-
-from ..generic.general_methods import generate_unique_name, aedt_exception_handler, retry_ntimes
 from ..application.Variables import AEDT_units
-from ..edb import Edb
-from .Modeler import Modeler
-from .PrimitivesSimplorer import SimplorerComponents
-from .PrimitivesNexxim import NexximComponents
-from .Primitives3DLayout import Primitives3DLayout
+from ..generic.general_methods import aedt_exception_handler, retry_ntimes
 from ..modules.LayerStackup import Layers
-import sys
+from .Modeler import Modeler
+from .Primitives3DLayout import Primitives3DLayout
+from .PrimitivesNexxim import NexximComponents
+from .PrimitivesSimplorer import SimplorerComponents
 
 
 class ModelerCircuit(Modeler):

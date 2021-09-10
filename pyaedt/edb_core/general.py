@@ -3,30 +3,21 @@ This module contains EDB general methods and related methods.
 
 """
 from __future__ import absolute_import
+
+import logging
 import warnings
 
+from ..generic.general_methods import aedt_exception_handler
 
 try:
     import clr
 
     clr.AddReference("System.Collections")
     from System.Collections.Generic import List
-    from System import Int32
 except ImportError:
     warnings.warn("This module requires pythonnet.")
 
-
-import inspect
-import itertools
-import sys
-import traceback
-from collections import OrderedDict
-from functools import wraps
-import logging
-
 logger = logging.getLogger(__name__)
-from ..generic.general_methods import aedt_exception_handler, generate_unique_name
-from pyaedt import is_ironpython
 
 
 @aedt_exception_handler

@@ -3,15 +3,13 @@ This module contains the `EdbPadstacks` class.
 """
 
 import warnings
-from .general import *
-from ..generic.general_methods import get_filename_without_extension, generate_unique_name
+
+from ..generic.general_methods import generate_unique_name
 from .EDB_Data import EDBPadstack
+from .general import *
 
 try:
-    import clr
-    from System import Convert, String
-    from System import Double, Array
-    from System.Collections.Generic import List
+    from System import Array
 except ImportError:
     warnings.warn('This module requires the "pythonnet" package.')
 

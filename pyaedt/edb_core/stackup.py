@@ -3,17 +3,16 @@ This module contains the `EdbStackup` class.
 
 """
 from __future__ import absolute_import
+
 import warnings
+
+from .EDB_Data import EDBLayers
 from .general import *
 
 try:
     from System import Double
-    from System.Collections.Generic import List
 except ImportError:
     warnings.warn('This module requires the "pythonnet" package.')
-
-
-from .EDB_Data import EDBLayers, EDBLayer
 
 
 class EdbStackup(object):

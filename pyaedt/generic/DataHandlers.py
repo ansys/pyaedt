@@ -1,14 +1,16 @@
 # -*- coding: utf-8 -*-
 import json
 import math
-import re
-import warnings
 import random
+import re
 import string
+import warnings
 from collections import OrderedDict
 from decimal import Decimal
-from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name
-from pyaedt.modeler.Object3d import EdgePrimitive, FacePrimitive, VertexPrimitive
+
+from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.modeler.Object3d import (EdgePrimitive, FacePrimitive,
+                                     VertexPrimitive)
 
 try:
     import clr
@@ -17,7 +19,7 @@ try:
     from System.Collections.Generic import List
 
     clr.AddReference("System")
-    from System import Double, Array
+    from System import Double
 except ImportError:
     warnings.warn("Pythonnet is needed to run pyaedt")
 

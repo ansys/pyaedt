@@ -1,10 +1,9 @@
 import os
-import math
-import sys
+
 from ..generic.DataHandlers import json_to_dict
 from ..generic.filesystem import get_json_files
-from .GeometryOperators import GeometryOperators
 from ..generic.general_methods import aedt_exception_handler
+from .GeometryOperators import GeometryOperators
 
 
 def read_actors(fn, actor_lib):

@@ -1,21 +1,10 @@
 """
 This module contains the `Edb3DLayout` class.
 """
-
-import warnings
-import os
-from .general import *
-from ..generic.general_methods import get_filename_without_extension, generate_unique_name
-
-try:
-    import clr
-    from System import Convert, String
-    from System import Double, Array
-    from System.Collections.Generic import List
-except ImportError:
-    warnings.warn("This module requires pythonnet.")
-
 from pyaedt import is_ironpython
+
+from ..generic.general_methods import generate_unique_name
+from .general import *
 
 
 class Edb3DLayout(object):

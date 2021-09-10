@@ -2,19 +2,17 @@
 This module contains these Primitives classes: `Polyline` and `Primitives`.
 """
 from __future__ import absolute_import
-import sys
-from collections import defaultdict
+
 import math
-import time
-import numbers
 import os
+import time
+from collections import OrderedDict, defaultdict
 from copy import copy
-from .GeometryOperators import GeometryOperators
-from .Object3d import Object3d, EdgePrimitive, FacePrimitive, VertexPrimitive, _dim_arg, _uname
-from ..generic.general_methods import aedt_exception_handler, retry_ntimes, is_number
+
 from ..application.Variables import Variable
-from collections import OrderedDict
-from pyaedt import is_ironpython
+from ..generic.general_methods import aedt_exception_handler, is_number, retry_ntimes
+from .GeometryOperators import GeometryOperators
+from .Object3d import EdgePrimitive, FacePrimitive, Object3d, _dim_arg, _uname
 
 default_materials = {
     "Icepak": "air",

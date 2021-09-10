@@ -1,10 +1,9 @@
-from ..generic.general_methods import aedt_exception_handler, generate_unique_name
-from .Analysis import Analysis
-from .Design import solutions_settings
+from ..generic.general_methods import aedt_exception_handler
 from ..modeler.Circuit import ModelerSimplorer
 from ..modules.PostProcessor import PostProcessor
-from ..modules.SetupTemplates import SetupKeys
 from ..modules.SolveSetup import SetupCircuit
+from .Analysis import Analysis
+from .Design import solutions_settings
 
 
 class FieldAnalysisSimplorer(Analysis):

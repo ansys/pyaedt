@@ -15,10 +15,9 @@ from __future__ import absolute_import
 import random
 import string
 from collections import defaultdict
-from .. import generate_unique_name, retry_ntimes, aedt_exception_handler
-from .GeometryOperators import GeometryOperators
-from ..generic.general_methods import time_fn
 
+from .. import aedt_exception_handler, retry_ntimes
+from .GeometryOperators import GeometryOperators
 
 clamp = lambda n, minn, maxn: max(min(maxn, n), minn)
 

@@ -1,11 +1,9 @@
 import os
-from ..generic.general_methods import aedt_exception_handler
-from .Primitives import Primitives
+
+from ..generic.general_methods import aedt_exception_handler, retry_ntimes
 from .GeometryOperators import GeometryOperators
-from ..application.Analysis import CoordinateSystemAxis
-from .Object3d import Object3d
-from .MultiPartComponent import Person, Bird, Vehicle, Antenna, Radar, Environment, MultiPartComponent
-from ..generic.general_methods import retry_ntimes
+from .MultiPartComponent import Bird, Environment, MultiPartComponent, Person, Vehicle
+from .Primitives import Primitives
 
 
 class Primitives3D(Primitives, object):

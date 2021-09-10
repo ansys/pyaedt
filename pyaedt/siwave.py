@@ -6,7 +6,7 @@ automatically initialized by an app to the latest installed AEDT version.
 
 """
 from __future__ import absolute_import
-from .generic.general_methods import aedt_exception_handler, generate_unique_name
+from .generic.general_methods import aedt_exception_handler
 import os
 import sys
 import pkgutil
@@ -22,7 +22,7 @@ if is_ironpython:
 elif os.name == "nt":
     modules = [tup[1] for tup in pkgutil.iter_modules()]
     if "clr" in modules:
-        import clr
+        import clr # noqa: F401
         import win32com.client
 
         _com = "pythonnet_v3"

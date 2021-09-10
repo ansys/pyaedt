@@ -3,12 +3,24 @@
 This module is implicitily loaded in HFSS 3D Layout when launched.
 
 """
+import gc
 import os
 import sys
+import time
 import traceback
 import warnings
-import gc
-import time
+
+from pyaedt import inside_desktop, is_ironpython
+from pyaedt.application.MessageManager import EDBMessageManager
+from pyaedt.edb_core import *
+from pyaedt.generic.general_methods import (
+    aedt_exception_handler,
+    env_path,
+    env_path_student,
+    env_value,
+    generate_unique_name,
+)
+from pyaedt.generic.process import SiwaveSolve
 
 if os.name == "posix":
     try:
@@ -19,11 +31,7 @@ else:
     import subprocess
 try:
     import clr
-    from System.Collections.Generic import List, Dictionary
-    from System import Convert, String
-    import System
-    from System import Double, Array
-    from System.Collections.Generic import List
+    from System import Convert
 
     edb_initialized = True
 except ImportError:
@@ -31,14 +39,6 @@ except ImportError:
         "The clr is missing. Install Python.NET or use an IronPython version if you want to use the EDB module."
     )
     edb_initialized = False
-
-from pyaedt import is_ironpython, inside_desktop
-from pyaedt.application.MessageManager import EDBMessageManager
-from pyaedt.edb_core import *
-
-from pyaedt.generic.general_methods import env_path, env_value, env_path_student
-from pyaedt.generic.general_methods import generate_unique_name, aedt_exception_handler
-from pyaedt.generic.process import SiwaveSolve
 
 
 class Edb(object):

@@ -13,10 +13,11 @@ Examples
 
 """
 from __future__ import absolute_import
+
 import math
-import re
-import numbers
 import os
+import re
+
 from .. import aedt_exception_handler
 from ..generic.general_methods import is_number
 

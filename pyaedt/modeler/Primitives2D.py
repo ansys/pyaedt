@@ -1,6 +1,5 @@
 from ..generic.general_methods import aedt_exception_handler, is_number
 from .Primitives import Primitives
-import numbers
 
 
 class Primitives2D(Primitives, object):

@@ -1,13 +1,13 @@
 import os
 
-from ..generic.general_methods import retry_ntimes, aedt_exception_handler
+from pyaedt import _pythonver
+
 from ..application.Variables import AEDT_units
 from ..edb import Edb
-from .Modeler import Modeler
-from .Primitives3DLayout import Primitives3DLayout, Geometries3DLayout
+from ..generic.general_methods import aedt_exception_handler, retry_ntimes
 from ..modules.LayerStackup import Layers
-from pyaedt import _pythonver
-import sys
+from .Modeler import Modeler
+from .Primitives3DLayout import Geometries3DLayout, Primitives3DLayout
 
 
 class Modeler3DLayout(Modeler):

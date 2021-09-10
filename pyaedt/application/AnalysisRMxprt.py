@@ -1,7 +1,7 @@
-from ..generic.general_methods import aedt_exception_handler, generate_unique_name
+from ..generic.general_methods import aedt_exception_handler
+from ..modeler.Model2D import ModelerRMxprt
 from .Analysis import Analysis
 from .Design import design_solutions
-from ..modeler.Model2D import ModelerRMxprt
 
 
 class FieldAnalysisRMxprt(Analysis):
