@@ -12,7 +12,7 @@ class _LogHandler(logging.Handler):
         AEDT has 3 different logs: `'Global'`, `'Desktop'`, `'Project'`.
     level : int, optional
         Threshold for this handler.  For example ``logging.DEBUG``
-        """
+    """
 
     def __init__(self, aedt_app_messenger, log_destination, level=logging.INFO):
         # base class's constructor must be called to set level and filters.
