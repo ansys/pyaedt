@@ -13,8 +13,6 @@ from _unittest.conftest import (desktop_version, local_path, new_thread,
 
 
 class TestClass:
-
-class TestClass:
     def setup_class(self):
         with Scratch(scratch_path) as self.local_scratch:
             self.aedtapp = Hfss(specified_version=desktop_version, AlwaysNew=new_thread, NG=non_graphical)
