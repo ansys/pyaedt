@@ -1089,7 +1089,7 @@ class Design(object):
                         proj_name + ".lock"
                     ), "Project is locked. Close or remove the lock before proceeding."
                     proj = self._desktop.OpenProject(proj_name)
-                    self.add_info_message("Project {} has been opened.".format(proj_name))
+                    self.add_info_message("Project {} has been opened.".format(proj.GetName()))
                     time.sleep(0.5)
                 self._oproject = proj
             else:
@@ -1098,7 +1098,7 @@ class Design(object):
                     self._oproject.Rename(proj_name, True)
                 else:
                     self._oproject.Rename(os.path.join(self.project_path, proj_name + ".aedt"), True)
-                self.add_info_message("Project {} has been created.".format(proj_name))
+                self.add_info_message("Project {} has been created.".format(self._oproject.GetName()))
         if not self._oproject:
             self._oproject = self._desktop.NewProject()
             self.add_info_message("Project {} has been created.".format(self._oproject.GetName()))
