@@ -4,7 +4,7 @@ import re
 import sys
 from ..generic.general_methods import aedt_exception_handler
 from .modeler_constants import CoordinateSystemPlane, CoordinateSystemAxis, SweepDraftType
-
+from ..application.Variables import VariableManager
 
 class GeometryOperators(object):
     """Manages geometry operators."""
@@ -37,7 +37,7 @@ class GeometryOperators(object):
 
     @staticmethod
     @aedt_exception_handler
-    def parse_dim_arg(string, scale_to_unit=None):
+    def parse_dim_arg(string, scale_to_unit=None, variable_manager=None):
         """Convert a number and unit to a float.
 
         Angles are converted in radians.
@@ -48,7 +48,8 @@ class GeometryOperators(object):
             String to convert. For example, ``"2mm"``.
         scale_to_unit : str
             Units for the value to convert. For example, ``"mm"``.
-
+        variable_manager : `pyaedt.application.Variables.VariableManager`, optional
+            Try to parse formula and returns numeric value.
         Returns
         -------
         float
@@ -109,9 +110,16 @@ class GeometryOperators(object):
 
         pattern = r"(?P<number>[-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?)\s*(?P<unit>[a-zA-Z]*)"
         m = re.search(pattern, string)
-
         if m:
-            if not m.group("unit"):
+            if m.group(0) != string:
+                if variable_manager:
+                    variable_manager["temp_var"] = string
+                    value = variable_manager["temp_var"].numeric_value
+                    del variable_manager["temp_var"]
+                    return value
+                else:
+                    return string
+            elif not m.group("unit"):
                 return float(m.group("number"))
             elif m.group("unit") == "deg":
                 return GeometryOperators.deg2rad(float(m.group("number")))
