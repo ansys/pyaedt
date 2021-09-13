@@ -1045,3 +1045,51 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
             self.boundaries.append(bound)
             return bound
         return False
+
+    @aedt_exception_handler
+    def assign_master_slave(self, master_edge, slave_edge, reverse_master =False, reverse_slave=False, same_as_master=True, bound_name=None):
+        """Assign Master/Slave Boundary Conditions to 2 edges of the same object.
+
+        Parameters
+        ----------
+        master_edge : int
+            Master edge id.
+        slave_edge : int
+            Slave edge id.
+        reverse_master : bool, optional
+            Set to ``True`` to reverse V direction.
+        reverse_slave : bool, optional
+            Set to ``True`` to reverse U direction.
+        same_as_master : bool, optional
+            Set to ``False`` to reverse Master/Slave Relation.
+        bound_name : str, optional
+            Master Boundary Name. Slave name will have a ``_dep`` suffix.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`, :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Master/Slave Object
+
+        """
+        master_edge = self.modeler._convert_list_to_ids(master_edge)
+        slave_edge = self.modeler._convert_list_to_ids(slave_edge)
+        if not bound_name:
+            bound_name_m = generate_unique_name("Independent")
+            bound_name_s = generate_unique_name("Dependent")
+        else:
+            bound_name_m = bound_name
+            bound_name_s = bound_name + "_dep"
+        props2 = OrderedDict({"Edges": [master_edge], "ReverseV": reverse_master})
+        bound = BoundaryObject(self, bound_name_m, props2, "Independent")
+        if bound.create():
+            self.boundaries.append(bound)
+
+            props2 = OrderedDict({"Edges": [slave_edge], "ReverseU": reverse_slave, "Independent": bound_name_m,
+                                  "SameAsMaster": same_as_master})
+            bound2 = BoundaryObject(self, bound_name_s, props2, "Independent")
+            if bound2.create():
+                self.boundaries.append(bound2)
+                return bound, bound2
+            else:
+                return bound, False
+        return False, False

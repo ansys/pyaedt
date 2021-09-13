@@ -71,7 +71,9 @@ class Hfss(FieldAnalysis3D, object):
     this name.
 
     >>> hfss = Hfss("HfssProject")
-    pyaedt Info: Added design 'HFSS_...' of type HFSS.
+    pyaedt Info: Project HfssProject has been created.
+    pyaedt Info: No design present - inserting a new design
+    pyaedt Info: Added design...
 
     Create an instance of HFSS and link to a design named
     ``HfssDesign1`` in a project named ``HfssProject``.
