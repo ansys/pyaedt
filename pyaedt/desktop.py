@@ -26,10 +26,10 @@ from pyaedt import is_ironpython, _pythonver, inside_desktop
 pathname = os.path.dirname(__file__)
 if os.path.exists(os.path.join(pathname, "version.txt")):
     with open(os.path.join(pathname, "version.txt"), "r") as f:
-        pyaedtversion = f.readline()
+        pyaedtversion = f.readline().strip()
 elif os.path.exists(os.path.join(pathname, "..", "version.txt")):
     with open(os.path.join(pathname, "..", "version.txt"), "r") as f:
-        pyaedtversion = f.readline()
+        pyaedtversion = f.readline().strip()
 else:
     pyaedtversion = "X"
 
@@ -550,8 +550,8 @@ class Desktop:
             self._main.AEDTVersion = version_key
         self._init_logger()
         self._init_desktop()
-        self._main.oMessenger.add_info_message("pyaedt {}".format(self._main.pyaedt_version))
-        self._main.oMessenger.add_info_message("Python version {}".format(_pythonver))
+        self._main.oMessenger.add_info_message("pyaedt v{}".format(self._main.pyaedt_version))
+        self._main.oMessenger.add_info_message("Python version {}".format(sys.version))
 
     @property
     def install_path(self):
