@@ -45,3 +45,28 @@ jobs:
           folder: doc/_build/html/
           token: ${{ secrets.PYANSYS_CI_BOT_TOKEN }}
           clean: true
+
+      - name: 'Create virtual env'
+        run: |
+          python -m venv testenv
+          testenv\Scripts\Activate.ps1
+          python -m pip install pip -U
+          python -m pip install wheel setuptools -U
+          python -c "import sys; print(sys.executable)"
+
+      - name: 'Install pyaedt'
+        run: |
+          testenv\Scripts\Activate.ps1
+          pip install . --use-feature=in-tree-build
+          pip install -r requirements_test.txt
+          pip install pytest-azurepipelines
+          mkdir tmp
+          cd tmp
+          python -c "import pyaedt; print('Imported pyaedt')"
+
+      - name: Docstring testing
+        run: |
+          testenv\Scripts\Activate.ps1
+          pip install pytest
+          pytest -v pyaedt/desktop.py pyaedt/icepak.py
+          pytest -v pyaedt/desktop.py pyaedt/hfss.py
