@@ -89,7 +89,10 @@ class Part(object):
         self.rot_axis = [False, False, False]  # [X, Y, Z] rotation Boolean
         if self._compdef['rotation_axis']:
             rotations_axis = self._compdef['rotation_axis'].split(',')
-            rotations = self._compdef['rotation'].split(',')
+            if self._compdef['rotation']:
+                rotations = self._compdef['rotation'].split(',')
+            else:
+                rotations = []
             y = "0"
             p = "0"
             r = "0"
