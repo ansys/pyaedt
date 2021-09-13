@@ -996,15 +996,15 @@ class Design(object):
                             count_consistent_designs += 1
                             activedes = des
                     if count_consistent_designs != 1:
-                        warning_msg = "No consistent unique design present - inserting a new design"
+                        warning_msg = "No consistent unique design is present. Inserting a new design."
                     else:
                         self._odesign = self.oproject.SetActiveDesign(activedes)
                         self.add_info_message("Active Design set to {}".format(activedes))
                 else:
                     self._odesign = self._oproject.SetActiveDesign(self.design_list[0])
-                    self.add_info_message("Active Design set to {}".format(self.design_list[0]))
+                    self.add_info_message("Active design is set to {}".format(self.design_list[0]).)
             else:
-                warning_msg = "No design present - inserting a new design"
+                warning_msg = "No design is present. Inserting a new design."
 
             if warning_msg:
                 self.add_info_message(warning_msg)
@@ -1064,7 +1064,7 @@ class Design(object):
             self._oproject = self._desktop.GetActiveProject()
             if self._oproject:
                 self.add_info_message(
-                    "No Project defined. Project {} is existing and has been read.".format(self._oproject.GetName()),
+                    "No project is defined. Project {} exists and has been read.".format(self._oproject.GetName()),
                     "Global")
         else:
             if proj_name in self._desktop.GetProjectList():
@@ -1085,7 +1085,7 @@ class Design(object):
                     proj = self._desktop.GetActiveProject()
                     proj.Save()
                     self.add_info_message(
-                        "EDB Folder {} has been imported to project {}".format(proj_name, proj.GetName()), "Global")
+                        "EDB folder {} has been imported to project {}".format(proj_name, proj.GetName()), "Global")
                 else:
                     assert not os.path.exists(
                         proj_name + ".lock"

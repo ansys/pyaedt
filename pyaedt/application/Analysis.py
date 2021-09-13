@@ -967,7 +967,7 @@ class Analysis(Design, object):
             x.start()
         else:
             os.system(batch_run)
-        self.add_info_message("Batch Job finished")
+        self.add_info_message("Batch job finished.")
         return True
 
     @aedt_exception_handler

@@ -1049,27 +1049,27 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
     @aedt_exception_handler
     def assign_master_slave(self, master_edge, slave_edge, reverse_master=False, reverse_slave=False,
                             same_as_master=True, bound_name=None):
-        """Assign Master/Slave Boundary Conditions to 2 edges of the same object.
+        """Assign master and slave boundary conditions to two edges of the same object.
 
         Parameters
         ----------
         master_edge : int
-            Master edge id.
+            ID of the master edge.
         slave_edge : int
-            Slave edge id.
+            ID of the slave edge.
         reverse_master : bool, optional
-            Set to ``True`` to reverse V direction.
+            Whether to reverse the master edge to the V direction. The default is ``False``. 
         reverse_slave : bool, optional
-            Set to ``True`` to reverse U direction.
+            Whether to reverse the master edge to the U direction. The default is ``False``. 
         same_as_master : bool, optional
             Set to ``False`` to reverse Master/Slave Relation.
         bound_name : str, optional
-            Master Boundary Name. Slave name will have a ``_dep`` suffix.
+            Name of the master boundary. The name of the slave boundary will have a ``_dep`` suffix.
 
         Returns
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`, :class:`pyaedt.modules.Boundary.BoundaryObject`
-            Master/Slave Object
+            Master and slave objects.
 
         """
         master_edge = self.modeler._convert_list_to_ids(master_edge)

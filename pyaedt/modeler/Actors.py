@@ -5,17 +5,17 @@ from pyaedt.modeler.MultiParts import MultiPartComponent, Actor
 
 def read_actors(fn, actor_lib):
     """
-    Read and map actors in fn to a list of actor objects.
+    Read and map actors in a JSON file to a list of actor objects.
 
     Parameters
     ----------
-    fn: str, required
+    fn: str
         JSON file describing actors
-    actor_lib: str, required
-        Full path to the library containing the actors definitions.
+    actor_lib: str
+        Full path to the library containing the definitions for the actors.
 
     :return: list of Actor
-        List of actor objects
+        List of actor objects.
     """
     a = {}
     actor_dict = json_to_dict(fn)
@@ -26,7 +26,9 @@ def read_actors(fn, actor_lib):
 
 class Generic(Actor, object):
     """
-    One instance of an actor. Derived class from MultiPartComponent.
+    Provides an instance of an actor. 
+    
+    This class is derived from :class:`MultiPartComponent`.
     """
 
     def __init__(self, actor_folder, speed="0", relative_cs_name=None):
@@ -36,7 +38,7 @@ class Generic(Actor, object):
 
         Parameters
         ----------
-        actor_folder : str, required
+        actor_folder : str
             Folder pointing to the folder containing the definition
             of the Person.  This can be changed later in the Person class
             definition.

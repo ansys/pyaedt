@@ -64,8 +64,8 @@ class Icepak(FieldAnalysisIcepak):
 
     >>> from pyaedt import Icepak
     >>> icepak = Icepak()
-    pyaedt Info: No Project defined. Project ...
-    pyaedt Info: Active Design set to ...
+    pyaedt Info: No project is defined. Project ...
+    pyaedt Info: Active design is set to ...
 
     Create an instance of Icepak and link to a project named
     ``IcepakProject``. If this project does not exist, create one with
@@ -85,8 +85,8 @@ class Icepak(FieldAnalysisIcepak):
     which is ``myipk.aedt``.
 
     >>> icepak = Icepak("myipk.aedt")
-    pyaedt Info: Project myipk has been created.
-    pyaedt Info: No design present - inserting a new design
+    pyaedt Info: Project 'myipk' has been created.
+    pyaedt Info: No design is present. Inserting a new design.
     pyaedt Info: Added design ...
 
     Create an instance of Icepak using the 2021 R1 release and
@@ -94,7 +94,7 @@ class Icepak(FieldAnalysisIcepak):
 
     >>> icepak = Icepak(specified_version="2021.1", projectname="myipk2.aedt")
     pyaedt Info: Project...
-    pyaedt Info: No design present - inserting a new design
+    pyaedt Info: No design is present. Inserting a new design.
     pyaedt Info: Added design...
     """
 

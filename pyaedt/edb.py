@@ -333,7 +333,7 @@ class Edb(object):
             db = self.edb.Database.Open(self.edbpath, self.isreadonly)
         except Exception as e:
             db = None
-            self._messenger.add_error_message("Builder Not Initialized")
+            self._messenger.add_error_message("Builder is not Initialized.")
         if not db:
             self._messenger.add_warning_message("Error Opening db")
             self._db = None

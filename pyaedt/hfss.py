@@ -63,16 +63,16 @@ class Hfss(FieldAnalysis3D, object):
 
     >>> from pyaedt import Hfss
     >>> hfss = Hfss()
-    pyaedt Info: No Project defined...
-    pyaedt Info: Active Design set to...
+    pyaedt Info: No project is defined...
+    pyaedt Info: Active design is set to...
 
     Create an instance of HFSS and link to a project named
     ``HfssProject``. If this project does not exist, create one with
     this name.
 
     >>> hfss = Hfss("HfssProject")
-    pyaedt Info: Project HfssProject has been created.
-    pyaedt Info: No design present - inserting a new design
+    pyaedt Info: Project 'HfssProject' has been created.
+    pyaedt Info: No design is present. Inserting a new design.
     pyaedt Info: Added design...
 
     Create an instance of HFSS and link to a design named
@@ -85,24 +85,24 @@ class Hfss(FieldAnalysis3D, object):
     which is named ``"myfile.aedt"``.
 
     >>> hfss = Hfss("myfile.aedt")
-    pyaedt Info: Project myfile has been created.
-    pyaedt Info: No design present - inserting a new design
+    pyaedt Info: Project 'myfile' has been created.
+    pyaedt Info: No design is present. Inserting a new design.
     pyaedt Info: Added design...
 
     Create an instance of HFSS using the 2021 R1 release and open
     the specified project, which is named ``"myfile2.aedt"``.
 
     >>> hfss = Hfss(specified_version="2021.1", projectname="myfile2.aedt")
-    pyaedt Info: Project myfile2 has been created.
-    pyaedt Info: No design present - inserting a new design
+    pyaedt Info: Project 'myfile2' has been created.
+    pyaedt Info: No design is present. Inserting a new design.
     pyaedt Info: Added design...
 
     Create an instance of HFSS using the 2021 R2 student version and open
     the specified project, which is named ``"myfile3.aedt"``.
 
     >>> hfss = Hfss(specified_version="2021.2", projectname="myfile3.aedt", student_version=True)
-    pyaedt Info: Project myfile3 has been created.
-    pyaedt Info: No design present - inserting a new design
+    pyaedt Info: Project 'myfile3' has been created.
+    pyaedt Info: No design is present. Inserting a new design.
     pyaedt Info: Added design...
 
     """
@@ -3719,9 +3719,10 @@ class Hfss(FieldAnalysis3D, object):
         speed : float, optional
             Set the radar movement speed relative to global coordinate system if greater than ``0``.
         use_relative_cs : bool, optional
-            Set to ``True`` if relative coordinate system has to be used. Default ``False``.
+            Whether the relative coordinate system must be used. The default is ``False``.
         relative_cs_name : str
-            Relative CS Name to which Link the Radar. ``None`` for Global CS.
+            Name of the relative coordinate system to link the radar to. 
+            The default is ``None``, in which case the for coordinate system is used.
 
         Returns
         -------

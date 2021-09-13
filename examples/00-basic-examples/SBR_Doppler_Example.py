@@ -94,7 +94,7 @@ bird2 = app.modeler.primitives.add_bird(actor_folder=bird_folder, speed=1.0, glo
 ###############################################################################
 # Radar
 # ~~~~~~~~~~~~~~~~~~~~~
-# Put Radar on car. The radar will be created relatively to the car coordinate system.
+# Put radar on car. The radar will be created relative to the car coordinate system.
 
 radar1 = app.create_sbr_radar_from_json(radar_file=radar_lib, radar_name="Example_1Tx_1Rx", offset=[2.57, 0, 0.54],
                                         use_relative_cs=True, relative_cs_name=car1.cs_name)
