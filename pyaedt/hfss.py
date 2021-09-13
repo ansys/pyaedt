@@ -484,7 +484,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         :class:`pyaedt.modules.SetupTemplates.SweepHFSS`, :class:`pyaedt.modules.SetupTemplates.SweepQ3D`, or bool
-            Sweep object if successful. ``False`` if unsuccessful.
+            Sweep object if successful, ``False`` otherwise.
 
         Examples
         --------
@@ -572,7 +572,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or bool
-            Sweep object if successful. ``False`` if unsuccessful.
+            Sweep object if successful, ``False`` otherwise.
 
         Examples
         --------
@@ -646,7 +646,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or bool
-            Sweep object if successful. ``False`` if unsuccessful.
+            Sweep object if successful, ``False`` otherwise.
 
         Examples
         --------
@@ -1203,7 +1203,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or bool
-            Sweep object if successful. ``False`` if unsuccessful.
+            Sweep object if successful, ``False`` otherwise.
 
         Examples
         --------
@@ -1483,8 +1483,7 @@ class Hfss(FieldAnalysis3D, object):
         >>> hfss.create_current_source_from_objects("BoxCurrent1", "BoxCurrent2",
         ...                                         hfss.AxisDir.XPos,
         ...                                         "CurrentSource")
-        pyaedt Info: Connection Correctly created
-        'CurrentSource'
+        pyaedt Info: Connection created 'CurrentSource' correctly.
 
         """
 
@@ -1757,13 +1756,13 @@ class Hfss(FieldAnalysis3D, object):
             Perfect E name. The default is ``None``.
         is_infinite_gnd : bool, optional
             Whether the Perfect E is an infinite ground. The default is ``False``.
-        bound_on_plane : bool, optional
+        bound_on_plane: bool, optional
             Whether to create the Perfect E on the plane orthogonal to ``AxisDir``. The default is ``True``.
 
         Returns
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject` or bool
-            Boundary object if successful. ``False`` if unsuccessful.
+            Boundary object if successful, ``False`` otherwise.
 
         Examples
         --------
@@ -1821,7 +1820,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject` or bool
-            Boundary object if successful. ``False`` if unsuccessful.
+            Boundary object if successful, ``False`` otherwise.
 
         Examples
         --------
@@ -1958,7 +1957,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject` or bool
-            Boundary object if successful. ``False`` if unsuccessful.
+            Boundary object if successful, ``False`` otherwise.
 
         Examples
         --------
@@ -2054,7 +2053,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject` or bool
-            Boundary object if successful. ``False`` if unsuccessful.
+            Boundary object if successful, ``False`` otherwise.
 
         Examples
         --------
@@ -2540,7 +2539,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`
-            Boundary object if successful. ``False`` if unsuccessful.
+            Boundary object if successful, ``False`` otherwise
 
         Examples
         --------
@@ -2607,7 +2606,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`
-            Boundary object if successful. ``False`` if unsuccessful.
+            Boundary object if successful, ``False`` otherwise.
 
         Examples
         --------
