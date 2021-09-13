@@ -5,32 +5,49 @@ This module provides all functionalities for creating and editing plots in the 3
 
 """
 from __future__ import absolute_import
+
+import itertools
+import math
 import os
-import shutil
 import random
 import string
 import time
-import math
-import itertools
-from collections import OrderedDict
-from ..modeler.Modeler import CoordinateSystem
-from ..generic.general_methods import aedt_exception_handler, generate_unique_name, retry_ntimes
-from ..generic.filesystem import Scratch
-from ..application.Variables import AEDT_units
 import warnings
-report_type = {"DrivenModal": "Modal Solution Data", "DrivenTerminal": "Terminal Solution Data",
-               "Eigenmode": "EigenMode Parameters",
-               "Transient Network": "Terminal Solution Data", "SBR+": "Modal Solution Data", "Transient": "Transient",
-               "EddyCurrent": "EddyCurrent",
-               "SteadyTemperatureAndFlow": "Monitor", "SteadyTemperatureOnly": "Monitor", "SteadyFlowOnly": "Monitor",
-               "SteadyState": "Monitor", "NexximLNA": "Standard", "NexximDC": "Standard",
-               "Magnetostatic": "Magnetostatic", "Electrostatic": "Electrostatic", "Circuit Design":"Standard",
-               "NexximTransient": "Standard", "HFSS3DLayout": "Terminal Solution Data", "Matrix": "Matrix",
-               "HFSS 3D Layout Design": "Standard", "Q3D Extractor": "Matrix", "2D Extractor": "Matrix"}
+from collections import OrderedDict
+
+from ..application.Variables import AEDT_units
+from ..generic.filesystem import Scratch
+from ..generic.general_methods import aedt_exception_handler, generate_unique_name, retry_ntimes
+
+report_type = {
+    "DrivenModal": "Modal Solution Data",
+    "DrivenTerminal": "Terminal Solution Data",
+    "Eigenmode": "EigenMode Parameters",
+    "Transient Network": "Terminal Solution Data",
+    "SBR+": "Modal Solution Data",
+    "Transient": "Transient",
+    "EddyCurrent": "EddyCurrent",
+    "SteadyTemperatureAndFlow": "Monitor",
+    "SteadyTemperatureOnly": "Monitor",
+    "SteadyFlowOnly": "Monitor",
+    "SteadyState": "Monitor",
+    "NexximLNA": "Standard",
+    "NexximDC": "Standard",
+    "Magnetostatic": "Magnetostatic",
+    "Electrostatic": "Electrostatic",
+    "Circuit Design": "Standard",
+    "NexximTransient": "Standard",
+    "HFSS3DLayout": "Terminal Solution Data",
+    "Matrix": "Matrix",
+    "HFSS 3D Layout Design": "Standard",
+    "Q3D Extractor": "Matrix",
+    "2D Extractor": "Matrix",
+}
 
 
 class SolutionData(object):
     """Contains information from the :func:`GetSolutionDataPerVariation` method."""
+
     @property
     def sweeps(self):
         """Sweeps."""
@@ -41,7 +58,9 @@ class SolutionData(object):
         """SI units for the sweep."""
         data = {}
         for el in self._sweeps:
-            data[el] = self._convert_list_to_SI(self._sweeps[el], self._quantity(self.units_sweeps[el]), self.units_sweeps[el])
+            data[el] = self._convert_list_to_SI(
+                self._sweeps[el], self._quantity(self.units_sweeps[el]), self.units_sweeps[el]
+            )
         return data
 
     @property
@@ -115,7 +134,8 @@ class SolutionData(object):
             self.units_data[expr] = self.nominal_variation.GetDataUnits(expr)
             for i in self.solutions_data_real[expr]:
                 self.solutions_data_mag[expr][i] = abs(
-                    complex(self.solutions_data_real[expr][i], self.solutions_data_imag[expr][i]))
+                    complex(self.solutions_data_real[expr][i], self.solutions_data_imag[expr][i])
+                )
 
     @aedt_exception_handler
     def update_sweeps(self):
@@ -157,7 +177,7 @@ class SolutionData(object):
         """ """
         sols_data = {}
         for expression in self.expressions:
-            solution = list(self.nominal_variation.GetRealDataValues(expression,False))
+            solution = list(self.nominal_variation.GetRealDataValues(expression, False))
             values = []
             for el in reversed(self._sweeps_names):
                 values.append(self.sweeps[el])
@@ -174,7 +194,7 @@ class SolutionData(object):
         sols_data = {}
         for expression in self.expressions:
             try:
-                solution = list(self.nominal_variation.GetImagDataValues(expression,False))
+                solution = list(self.nominal_variation.GetImagDataValues(expression, False))
             except:
                 solution = [0 for i in range(len(self.solutions_data_real[expression]))]
             values = []
@@ -203,7 +223,7 @@ class SolutionData(object):
             List of inputs in degrees.
 
         """
-        return [i*2*math.pi/360 for i in input_list]
+        return [i * 2 * math.pi / 360 for i in input_list]
 
     @aedt_exception_handler
     def to_radians(self, input_list):
@@ -220,7 +240,7 @@ class SolutionData(object):
             List of inputs in radians.
 
         """
-        return [i*360/(2*math.pi) for i in input_list]
+        return [i * 360 / (2 * math.pi) for i in input_list]
 
     def data_magnitude(self, expression=None, convert_to_SI=False):
         """Retrieve the data magnitude of an expression.
@@ -251,16 +271,18 @@ class SolutionData(object):
             sol = []
             position = list(reversed(self._sweeps_names)).index(self.primary_sweep)
             for el in self.sweeps[self.primary_sweep]:
-                temp[position]=el
+                temp[position] = el
                 sol.append(solution_Data[tuple(temp)])
         except:
             sol = []
             position = list(reversed(self._sweeps_names)).index(self.primary_sweep)
             for el in self.sweeps[self.primary_sweep]:
-                temp[position]=el
+                temp[position] = el
                 sol.append(0)
         if convert_to_SI and self._quantity(self.units_data[expression]):
-            sol = self._convert_list_to_SI(sol, self._quantity(self.units_data[expression]), self.units_data[expression])
+            sol = self._convert_list_to_SI(
+                sol, self._quantity(self.units_data[expression]), self.units_data[expression]
+            )
         return sol
 
     @aedt_exception_handler
@@ -309,7 +331,7 @@ class SolutionData(object):
         if not expression:
             expression = self.expressions[0]
 
-        return [10*math.log10(i) for i in self.data_magnitude(expression,convert_to_SI)]
+        return [10 * math.log10(i) for i in self.data_magnitude(expression, convert_to_SI)]
 
     def data_real(self, expression=None, convert_to_SI=False):
         """Retrieve the real part of the data for an expression.
@@ -340,16 +362,18 @@ class SolutionData(object):
             sol = []
             position = list(reversed(self._sweeps_names)).index(self.primary_sweep)
             for el in self.sweeps[self.primary_sweep]:
-                temp[position]=el
+                temp[position] = el
                 sol.append(solution_Data[tuple(temp)])
         except:
             sol = []
             position = list(reversed(self._sweeps_names)).index(self.primary_sweep)
             for el in self.sweeps[self.primary_sweep]:
-                temp[position]=el
+                temp[position] = el
                 sol.append(0)
         if convert_to_SI and self._quantity(self.units_data[expression]):
-            sol = self._convert_list_to_SI(sol, self._quantity(self.units_data[expression]), self.units_data[expression])
+            sol = self._convert_list_to_SI(
+                sol, self._quantity(self.units_data[expression]), self.units_data[expression]
+            )
         return sol
 
     def data_imag(self, expression=None, convert_to_SI=False):
@@ -381,16 +405,18 @@ class SolutionData(object):
             sol = []
             position = list(reversed(self._sweeps_names)).index(self.primary_sweep)
             for el in self.sweeps[self.primary_sweep]:
-                temp[position]=el
+                temp[position] = el
                 sol.append(solution_Data[tuple(temp)])
         except:
             sol = []
             position = list(reversed(self._sweeps_names)).index(self.primary_sweep)
             for el in self.sweeps[self.primary_sweep]:
-                temp[position]=el
+                temp[position] = el
                 sol.append(0)
         if convert_to_SI and self._quantity(self.units_data[expression]):
-            sol = self._convert_list_to_SI(sol, self._quantity(self.units_data[expression]), self.units_data[expression])
+            sol = self._convert_list_to_SI(
+                sol, self._quantity(self.units_data[expression]), self.units_data[expression]
+            )
         return sol
 
 
@@ -474,10 +500,7 @@ class FieldPlot:
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        self.oField.SetFieldPlotSettings(self.plotFolder,
-                                         [
-                                             "NAME:FieldsPlotItemSettings",
-                                             self.plotsettings])
+        self.oField.SetFieldPlotSettings(self.plotFolder, ["NAME:FieldsPlotItemSettings", self.plotsettings])
         return True
 
     @aedt_exception_handler
@@ -513,14 +536,14 @@ class FieldPlot:
             l = 0
             while l < len(self.intrinsincList):
                 val = self.intrinsincList[l + 1]
-                if ":=" in self.intrinsincList[l] and type(self.intrinsincList[l+1]) is list:
+                if ":=" in self.intrinsincList[l] and type(self.intrinsincList[l + 1]) is list:
                     val = self.intrinsincList[l + 1][0]
-                ll=self.intrinsincList[l].split(":=")
-                var += ll[0] + "=\'" + str(val) + "\' "
+                ll = self.intrinsincList[l].split(":=")
+                var += ll[0] + "='" + str(val) + "' "
                 l += 2
         else:
             for a in self.intrinsincList:
-                var += a + "=\'" + str(self.intrinsincList[a]) + "\' "
+                var += a + "='" + str(self.intrinsincList[a]) + "' "
         return var
 
     @property
@@ -535,39 +558,62 @@ class FieldPlot:
         if self.objtype == "Surface":
             arg = [
                 "NAME:PlotOnSurfaceSettings",
-                "Filled:=", self.Filled,
-                "IsoValType:=", self.IsoVal,
-                "SmoothShade:=", self.SmoothShade,
-                "AddGrid:=", self.AddGrid,
-                "MapTransparency:=", self.MapTransparency,
-                "Refinement:=", self.Refinement,
-                "Transparency:=", self.Transparency,
-                "SmoothingLevel:=", self.SmoothingLevel,
+                "Filled:=",
+                self.Filled,
+                "IsoValType:=",
+                self.IsoVal,
+                "SmoothShade:=",
+                self.SmoothShade,
+                "AddGrid:=",
+                self.AddGrid,
+                "MapTransparency:=",
+                self.MapTransparency,
+                "Refinement:=",
+                self.Refinement,
+                "Transparency:=",
+                self.Transparency,
+                "SmoothingLevel:=",
+                self.SmoothingLevel,
                 [
                     "NAME:Arrow3DSpacingSettings",
-                    "ArrowUniform:=", self.ArrowUniform,
-                    "ArrowSpacing:=", self.ArrowSpacing,
-                    "MinArrowSpacing:=", self.MinArrowSpacing,
-                    "MaxArrowSpacing:=", self.MaxArrowSpacing
+                    "ArrowUniform:=",
+                    self.ArrowUniform,
+                    "ArrowSpacing:=",
+                    self.ArrowSpacing,
+                    "MinArrowSpacing:=",
+                    self.MinArrowSpacing,
+                    "MaxArrowSpacing:=",
+                    self.MaxArrowSpacing,
                 ],
-                "GridColor:=", self.GridColor
+                "GridColor:=",
+                self.GridColor,
             ]
         else:
             arg = [
                 "NAME:PlotOnVolumeSettings",
-                "PlotIsoSurface:=", self.PlotIsoSurface,
-                "PointSize:=", self.PointSize,
-                "Refinement:=", self.Refinement,
-                "CloudSpacing:=", self.CloudSpacing,
-                "CloudMinSpacing:=", self.CloudMinSpacing,
-                "CloudMaxSpacing:=", self.CloudMaxSpacing,
+                "PlotIsoSurface:=",
+                self.PlotIsoSurface,
+                "PointSize:=",
+                self.PointSize,
+                "Refinement:=",
+                self.Refinement,
+                "CloudSpacing:=",
+                self.CloudSpacing,
+                "CloudMinSpacing:=",
+                self.CloudMinSpacing,
+                "CloudMaxSpacing:=",
+                self.CloudMaxSpacing,
                 [
                     "NAME:Arrow3DSpacingSettings",
-                    "ArrowUniform:=", self.ArrowUniform,
-                    "ArrowSpacing:=", self.ArrowSpacing,
-                    "MinArrowSpacing:=", self.MinArrowSpacing,
-                    "MaxArrowSpacing:=", self.MaxArrowSpacing
-                ]
+                    "ArrowUniform:=",
+                    self.ArrowUniform,
+                    "ArrowSpacing:=",
+                    self.ArrowSpacing,
+                    "MinArrowSpacing:=",
+                    self.MinArrowSpacing,
+                    "MaxArrowSpacing:=",
+                    self.MaxArrowSpacing,
+                ],
             ]
         return arg
 
@@ -583,18 +629,32 @@ class FieldPlot:
         """
         return [
             "NAME:" + self.name,
-            "SolutionName:=", self.solutionName,
-            "QuantityName:=", self.quantityName,
-            "PlotFolder:=", self.plotFolder,
-            "UserSpecifyName:=", 0,
-            "UserSpecifyFolder:=", 0,
-            "StreamlinePlot:=", False,
-            "AdjacentSidePlot:=", False,
-            "FullModelPlot:=", False,
-            "IntrinsicVar:=", self.intrinsicVar,
-            "PlotGeomInfo:=", self.plotGeomInfo,
-            "FilterBoxes:=", [0],
-            self.plotsettings, "EnableGaussianSmoothing:=", False]
+            "SolutionName:=",
+            self.solutionName,
+            "QuantityName:=",
+            self.quantityName,
+            "PlotFolder:=",
+            self.plotFolder,
+            "UserSpecifyName:=",
+            0,
+            "UserSpecifyFolder:=",
+            0,
+            "StreamlinePlot:=",
+            False,
+            "AdjacentSidePlot:=",
+            False,
+            "FullModelPlot:=",
+            False,
+            "IntrinsicVar:=",
+            self.intrinsicVar,
+            "PlotGeomInfo:=",
+            self.plotGeomInfo,
+            "FilterBoxes:=",
+            [0],
+            self.plotsettings,
+            "EnableGaussianSmoothing:=",
+            False,
+        ]
 
 
 class PostProcessorCommon(object):
@@ -731,8 +791,9 @@ class PostProcessorCommon(object):
         return True
 
     @aedt_exception_handler
-    def get_report_data(self, expression="dB(S(1,1))", setup_sweep_name='', domain='Sweep', families_dict=None,
-                        report_input_type=None):
+    def get_report_data(
+        self, expression="dB(S(1,1))", setup_sweep_name="", domain="Sweep", families_dict=None, report_input_type=None
+    ):
         """Generate report data.
 
         This method returns the data object and the arrays ``solData`` and
@@ -777,8 +838,11 @@ class PostProcessorCommon(object):
                 did = 3
             else:
                 did = 1
-            ctxt = ["NAME:Context", "SimValueContext:=",
-                    [did, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "IDIID", False, "1"]]
+            ctxt = [
+                "NAME:Context",
+                "SimValueContext:=",
+                [did, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "IDIID", False, "1"],
+            ]
         elif isinstance(domain, list):
             ctxt = domain
         else:
@@ -795,8 +859,9 @@ class PostProcessorCommon(object):
         if families_dict is None:
             families_dict = {"Freq": ["All"]}
 
-        solution_data = self.get_solution_data_per_variation(report_input_type, setup_sweep_name, ctxt, families_dict,
-                                                             expression)
+        solution_data = self.get_solution_data_per_variation(
+            report_input_type, setup_sweep_name, ctxt, families_dict, expression
+        )
 
         if not solution_data:
             warnings.warn("No Data Available. Check inputs")
@@ -804,8 +869,16 @@ class PostProcessorCommon(object):
         return solution_data
 
     @aedt_exception_handler
-    def create_rectangular_plot(self, expression="dB(S(1,1))", setup_sweep_name='', families_dict={"Freq": ["All"]},
-                                primary_sweep_variable="Freq", context=None, plotname=None, plottype=None):
+    def create_rectangular_plot(
+        self,
+        expression="dB(S(1,1))",
+        setup_sweep_name="",
+        families_dict={"Freq": ["All"]},
+        primary_sweep_variable="Freq",
+        context=None,
+        plotname=None,
+        plottype=None,
+    ):
         """Create a 2D rectangular plot in AEDT.
 
         Parameters
@@ -836,8 +909,11 @@ class PostProcessorCommon(object):
                 did = 3
             else:
                 did = 1
-            ctxt = ["NAME:Context", "SimValueContext:=",
-                    [did, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "IDIID", False, "1"]]
+            ctxt = [
+                "NAME:Context",
+                "SimValueContext:=",
+                [did, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "IDIID", False, "1"],
+            ]
         elif context:
             if type(context) is list:
                 ctxt = context
@@ -874,15 +950,22 @@ class PostProcessorCommon(object):
             else:
                 families_input.append([families_dict[el]])
 
-        self.oreportsetup.CreateReport(plotname, modal_data, "Rectangular Plot", setup_sweep_name, ctxt, families_input,
-                                       ["X Component:=", primary_sweep_variable, "Y Component:=",
-                                        expression])
+        self.oreportsetup.CreateReport(
+            plotname,
+            modal_data,
+            "Rectangular Plot",
+            setup_sweep_name,
+            ctxt,
+            families_input,
+            ["X Component:=", primary_sweep_variable, "Y Component:=", expression],
+        )
 
         return True
 
     @aedt_exception_handler
-    def get_solution_data_per_variation(self, soltype='Far Fields', setup_sweep_name='', ctxt=None,
-                                        sweeps=None, expression=''):
+    def get_solution_data_per_variation(
+        self, soltype="Far Fields", setup_sweep_name="", ctxt=None, sweeps=None, expression=""
+    ):
         """Retrieve solution data for each variation.
 
         Parameters
@@ -908,7 +991,7 @@ class PostProcessorCommon(object):
 
         """
         if sweeps is None:
-            sweeps = {'Theta': 'All', 'Phi': 'All', 'Freq': 'All'}
+            sweeps = {"Theta": "All", "Phi": "All", "Freq": "All"}
         if not ctxt:
             ctxt = []
         if not isinstance(expression, list):
@@ -1106,7 +1189,7 @@ class PostProcessor(PostProcessorCommon, object):
         return name
 
     @aedt_exception_handler
-    def change_field_property(self,plotname, propertyname, propertyval):
+    def change_field_property(self, plotname, propertyname, propertyval):
         """Modify a field plot property.
 
         Parameters
@@ -1123,28 +1206,33 @@ class PostProcessor(PostProcessorCommon, object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        self.odesign.ChangeProperty([
-            "NAME:AllTabs",
+        self.odesign.ChangeProperty(
             [
-                "NAME:FieldsPostProcessorTab",
+                "NAME:AllTabs",
                 [
-                    "NAME:PropServers",
-                    "FieldsReporter:"+plotname
+                    "NAME:FieldsPostProcessorTab",
+                    ["NAME:PropServers", "FieldsReporter:" + plotname],
+                    ["NAME:ChangedProps", ["NAME:" + propertyname, "Value:=", propertyval]],
                 ],
-                [
-                    "NAME:ChangedProps",
-                    [
-                        "NAME:"+propertyname,
-                        "Value:="	, propertyval
-                    ]
-                ]
             ]
-        ])
+        )
 
     @aedt_exception_handler
-    def export_field_file_on_grid(self, quantity_name, solution=None, variation_dict=None, filename=None,
-                                  gridtype="Cartesian", grid_center=[0, 0, 0],
-                                  grid_start=[0, 0, 0], grid_stop=[0, 0, 0], grid_step=[0, 0, 0], isvector = False, intrinsics=None, phase=None):
+    def export_field_file_on_grid(
+        self,
+        quantity_name,
+        solution=None,
+        variation_dict=None,
+        filename=None,
+        gridtype="Cartesian",
+        grid_center=[0, 0, 0],
+        grid_start=[0, 0, 0],
+        grid_stop=[0, 0, 0],
+        grid_step=[0, 0, 0],
+        isvector=False,
+        intrinsics=None,
+        phase=None,
+    ):
         """Use the field calculator to create a field file on a grid based on a solution and variation.
 
         Parameters
@@ -1208,23 +1296,23 @@ class PostProcessor(PostProcessorCommon, object):
         obj_list = "AllObjects"
         self.ofieldsreporter.EnterVol(obj_list)
         self.ofieldsreporter.CalcOp("Mean")
-        units=self.modeler.model_units
-        ang_units="deg"
+        units = self.modeler.model_units
+        ang_units = "deg"
         if gridtype == "Cartesian":
-            grid_center =["0mm", "0mm", "0mm"]
-            grid_start_wu = [str(i)+units for i in grid_start]
-            grid_stop_wu = [str(i)+units for i in grid_stop]
-            grid_step_wu = [str(i)+units for i in grid_step]
+            grid_center = ["0mm", "0mm", "0mm"]
+            grid_start_wu = [str(i) + units for i in grid_start]
+            grid_stop_wu = [str(i) + units for i in grid_stop]
+            grid_step_wu = [str(i) + units for i in grid_step]
         elif gridtype == "Cylinidrical":
-            grid_center = [str(i)+units for i in grid_center]
-            grid_start_wu = [str(grid_start[0])+units, str(grid_start[1])+ang_units, str(grid_start[2])+units]
-            grid_stop_wu = [str(grid_stop[0])+units, str(grid_stop[1])+ang_units, str(grid_stop[2])+units]
-            grid_step_wu = [str(grid_step[0])+units, str(grid_step[1])+ang_units, str(grid_step[2])+units]
+            grid_center = [str(i) + units for i in grid_center]
+            grid_start_wu = [str(grid_start[0]) + units, str(grid_start[1]) + ang_units, str(grid_start[2]) + units]
+            grid_stop_wu = [str(grid_stop[0]) + units, str(grid_stop[1]) + ang_units, str(grid_stop[2]) + units]
+            grid_step_wu = [str(grid_step[0]) + units, str(grid_step[1]) + ang_units, str(grid_step[2]) + units]
         elif gridtype == "Spherical":
-            grid_center = [str(i)+units for i in grid_center]
-            grid_start_wu = [str(grid_start[0])+units, str(grid_start[1])+ang_units, str(grid_start[2])+ang_units]
-            grid_stop_wu = [str(grid_stop[0])+units, str(grid_stop[1])+ang_units, str(grid_stop[2])+ang_units]
-            grid_step_wu = [str(grid_step[0])+units, str(grid_step[1])+ang_units, str(grid_step[2])+ang_units]
+            grid_center = [str(i) + units for i in grid_center]
+            grid_start_wu = [str(grid_start[0]) + units, str(grid_start[1]) + ang_units, str(grid_start[2]) + ang_units]
+            grid_stop_wu = [str(grid_stop[0]) + units, str(grid_stop[1]) + ang_units, str(grid_stop[2]) + ang_units]
+            grid_step_wu = [str(grid_step[0]) + units, str(grid_step[1]) + ang_units, str(grid_step[2]) + ang_units]
         else:
             self._parent._messenger.add_error_message("Error in the type of the grid.")
             return False
@@ -1243,16 +1331,35 @@ class PostProcessor(PostProcessorCommon, object):
                 else:
                     variation_dict.append("0deg")
 
-        self.ofieldsreporter.ExportOnGrid(filename, grid_start_wu,
-                                          grid_stop_wu, grid_step_wu,
-                                          solution,
-                                          variation_dict, True, gridtype, grid_center, False)
+        self.ofieldsreporter.ExportOnGrid(
+            filename,
+            grid_start_wu,
+            grid_stop_wu,
+            grid_step_wu,
+            solution,
+            variation_dict,
+            True,
+            gridtype,
+            grid_center,
+            False,
+        )
         return os.path.exists(filename)
 
     @aedt_exception_handler
-    def export_field_file(self, quantity_name, solution=None, variation_dict=None, filename=None,
-                          obj_list="AllObjects", obj_type="Vol", intrinsics=None, phase=None,
-                          sample_points_file=None, sample_points_lists=None, export_with_sample_points=True):
+    def export_field_file(
+        self,
+        quantity_name,
+        solution=None,
+        variation_dict=None,
+        filename=None,
+        obj_list="AllObjects",
+        obj_type="Vol",
+        intrinsics=None,
+        phase=None,
+        sample_points_file=None,
+        sample_points_lists=None,
+        export_with_sample_points=True,
+    ):
         """Use the field calculator to create a field file based on a solution and variation.
 
         Parameters
@@ -1297,7 +1404,7 @@ class PostProcessor(PostProcessorCommon, object):
         if not filename:
             appendix = ""
             ext = ".fld"
-            filename = os.path.join(self._parent.project_path, solution.replace(" : ","_") + appendix + ext)
+            filename = os.path.join(self._parent.project_path, solution.replace(" : ", "_") + appendix + ext)
         else:
             filename = filename.replace("//", "/").replace("\\", "/")
         self.ofieldsreporter.CalcStack("clear")
@@ -1318,7 +1425,7 @@ class PostProcessor(PostProcessorCommon, object):
                 variations = self._parent.available_variations.nominal_w_values_dict
                 variation_dict = []
                 for el, value in variations.items():
-                    variation_dict.append(el+":=")
+                    variation_dict.append(el + ":=")
                     variation_dict.append(value)
         if intrinsics:
             if "Transient" in solution:
@@ -1334,18 +1441,32 @@ class PostProcessor(PostProcessorCommon, object):
                     variation_dict.append("0deg")
         if not sample_points_file and not sample_points_lists:
 
-            retry_ntimes(10, self.ofieldsreporter.CalculatorWrite, filename, ["Solution:=",solution], variation_dict)
+            retry_ntimes(10, self.ofieldsreporter.CalculatorWrite, filename, ["Solution:=", solution], variation_dict)
         elif sample_points_file:
 
-            retry_ntimes(10, self.ofieldsreporter.ExportToFile, filename, sample_points_file, solution, variation_dict,
-                         export_with_sample_points)
+            retry_ntimes(
+                10,
+                self.ofieldsreporter.ExportToFile,
+                filename,
+                sample_points_file,
+                solution,
+                variation_dict,
+                export_with_sample_points,
+            )
         else:
             sample_points_file = os.path.join(self._parent.project_path, "temp_points.pts")
             with open(sample_points_file, "w") as f:
                 for point in sample_points_lists:
-                    f.write(" ".join([str(i) for i in point])+"\n")
-            retry_ntimes(10, self.ofieldsreporter.ExportToFile, filename, sample_points_file, solution, variation_dict,
-                         export_with_sample_points)
+                    f.write(" ".join([str(i) for i in point]) + "\n")
+            retry_ntimes(
+                10,
+                self.ofieldsreporter.ExportToFile,
+                filename,
+                sample_points_file,
+                solution,
+                variation_dict,
+                export_with_sample_points,
+            )
 
         return os.path.exists(filename)
 
@@ -1372,7 +1493,7 @@ class PostProcessor(PostProcessorCommon, object):
         if not filename:
             filename = plotname
         self.ofieldsreporter.ExportFieldPlot(plotname, False, os.path.join(filepath, filename + ".aedtplt"))
-        return os.path.join(filepath, filename+".aedtplt")
+        return os.path.join(filepath, filename + ".aedtplt")
 
     @aedt_exception_handler
     def _create_fieldplot(self, objlist, quantityName, setup_name, intrinsincList, objtype, listtype):
@@ -1407,7 +1528,7 @@ class PostProcessor(PostProcessorCommon, object):
         except:
             self.oeditor.ZoomToFit()
         char_set = string.ascii_uppercase + string.digits
-        uName = quantityName + '_' + ''.join(random.sample(char_set, 6))
+        uName = quantityName + "_" + "".join(random.sample(char_set, 6))
         plot = FieldPlot(self.ofieldsreporter, objlist, setup_name, quantityName, intrinsincList)
         plot.name = uName
         plot.objtype = objtype
@@ -1544,10 +1665,12 @@ class PostProcessor(PostProcessorCommon, object):
             ``True`` when successful, ``False`` when failed.
         """
         bound = self.modeler.get_model_bounding_box()
-        center = [(float(bound[0]) + float(bound[3])) / 2,
-                  (float(bound[1]) + float(bound[4])) / 2,
-                  (float(bound[2]) + float(bound[5])) / 2]
-        coordinateSystemForExportPlot = self.modeler.create_coordinate_system(origin=center, mode='view', view=view)
+        center = [
+            (float(bound[0]) + float(bound[3])) / 2,
+            (float(bound[1]) + float(bound[4])) / 2,
+            (float(bound[2]) + float(bound[5])) / 2,
+        ]
+        coordinateSystemForExportPlot = self.modeler.create_coordinate_system(origin=center, mode="view", view=view)
         wireframes = []
         if wireframe:
             names = self._primitives.object_names
@@ -1580,7 +1703,9 @@ class PostProcessor(PostProcessorCommon, object):
         return True
 
     @aedt_exception_handler
-    def export_model_picture(self, dir=None, name=None, picturename=None, show_axis=True, show_grid=True, show_ruler=True):
+    def export_model_picture(
+        self, dir=None, name=None, picturename=None, show_axis=True, show_grid=True, show_ruler=True
+    ):
         """Export a snapshot of the model to a JPG file.
 
         .. note::
@@ -1636,14 +1761,27 @@ class PostProcessor(PostProcessorCommon, object):
         self.steal_focus_oneditor()
         self.oeditor.FitAll()
         # export the image
-        arg = ["NAME:SaveImageParams", "ShowAxis:=", show_axis, "ShowGrid:=", show_grid, "ShowRuler:=", show_ruler,
-               "ShowRegion:=", "Default", "Selections:=", ""]
+        arg = [
+            "NAME:SaveImageParams",
+            "ShowAxis:=",
+            show_axis,
+            "ShowGrid:=",
+            show_grid,
+            "ShowRuler:=",
+            show_ruler,
+            "ShowRegion:=",
+            "Default",
+            "Selections:=",
+            "",
+        ]
         file_name = os.path.join(file_path, picturename + ".jpg")
         self.oeditor.ExportModelImageToFile(file_name, 0, 0, arg)
         return file_name
 
     @aedt_exception_handler
-    def get_far_field_data(self, expression="GainTotal", setup_sweep_name='', domain="Infinite Sphere1", families_dict=None):
+    def get_far_field_data(
+        self, expression="GainTotal", setup_sweep_name="", domain="Infinite Sphere1", families_dict=None
+    ):
         """Generate far field data using ``GetSolutionDataPerVariation``.
 
         This method returns the data ``solData``, ``ThetaVals``,
@@ -1673,7 +1811,9 @@ class PostProcessor(PostProcessorCommon, object):
             setup_sweep_name = self._parent.nominal_adaptive
         if families_dict is None:
             families_dict = {"Theta": ["All"], "Phi": ["All"], "Freq": ["All"]}
-        solution_data = self.get_solution_data_per_variation("Far Fields", setup_sweep_name, ['Context:=', domain], families_dict, expression)
+        solution_data = self.get_solution_data_per_variation(
+            "Far Fields", setup_sweep_name, ["Context:=", domain], families_dict, expression
+        )
         if not solution_data:
             print("No Data Available. Check inputs")
             return False
@@ -1698,9 +1838,17 @@ class CircuitPostProcessor(PostProcessorCommon, object):
     def __init__(self, parent):
         PostProcessorCommon.__init__(self, parent)
 
-    def create_ami_initial_response_plot(self, setupname, ami_name, variation_list_w_value,
-                                         plot_type="Rectangular Plot", plot_initial_response=True,
-                                         plot_intermediate_response=False, plot_final_response=False, plotname=None):
+    def create_ami_initial_response_plot(
+        self,
+        setupname,
+        ami_name,
+        variation_list_w_value,
+        plot_type="Rectangular Plot",
+        plot_initial_response=True,
+        plot_intermediate_response=False,
+        plot_final_response=False,
+        plotname=None,
+    ):
         """Create an AMI initial response plot.
 
 
@@ -1731,7 +1879,7 @@ class CircuitPostProcessor(PostProcessorCommon, object):
         """
         if not plotname:
             plotname = generate_unique_name("AMIAnalysis")
-        variations = [ "__InitialTime:=", ["All"]]
+        variations = ["__InitialTime:=", ["All"]]
         i = 0
         for a in variation_list_w_value:
             if (i % 2) == 0:
@@ -1752,16 +1900,54 @@ class CircuitPostProcessor(PostProcessorCommon, object):
             ycomponents.append("IntermediateImpulseResponse<{}.int_ami_rx>".format(ami_name))
         if plot_final_response:
             ycomponents.append("FinalImpulseResponse<{}.int_ami_rx>".format(ami_name))
-        self.oreportsetup.CreateReport(plotname, "Standard", plot_type, setupname, ["NAME:Context", "SimValueContext:=",
-                                                                                    [55824, 0, 2, 0, False, False, -1,
-                                                                                     1, 0, 1, 1, "", 0, 0, "NUMLEVELS",
-                                                                                     False, "1", "PCID", False, "-1",
-                                                                                     "PID", False, "1", "SCID", False,
-                                                                                     "-1", "SID", False, "0"]],
-                                       variations, ["X Component:=", "__InitialTime", "Y Component:=", ycomponents])
+        self.oreportsetup.CreateReport(
+            plotname,
+            "Standard",
+            plot_type,
+            setupname,
+            [
+                "NAME:Context",
+                "SimValueContext:=",
+                [
+                    55824,
+                    0,
+                    2,
+                    0,
+                    False,
+                    False,
+                    -1,
+                    1,
+                    0,
+                    1,
+                    1,
+                    "",
+                    0,
+                    0,
+                    "NUMLEVELS",
+                    False,
+                    "1",
+                    "PCID",
+                    False,
+                    "-1",
+                    "PID",
+                    False,
+                    "1",
+                    "SCID",
+                    False,
+                    "-1",
+                    "SID",
+                    False,
+                    "0",
+                ],
+            ],
+            variations,
+            ["X Component:=", "__InitialTime", "Y Component:=", ycomponents],
+        )
         return plotname
 
-    def create_ami_statistical_eye_plot(self, setupname, ami_name, variation_list_w_value, ami_plot_type="InitialEye", plotname=None):
+    def create_ami_statistical_eye_plot(
+        self, setupname, ami_name, variation_list_w_value, ami_plot_type="InitialEye", plotname=None
+    ):
         """Create an AMI statistical eye plot.
 
         Parameters
@@ -1788,7 +1974,12 @@ class CircuitPostProcessor(PostProcessorCommon, object):
         """
         if not plotname:
             plotname = generate_unique_name("AMYAanalysis")
-        variations = ["__UnitInterval:=", ["All"],"__Amplitude:="	, ["All"],]
+        variations = [
+            "__UnitInterval:=",
+            ["All"],
+            "__Amplitude:=",
+            ["All"],
+        ]
         i = 0
         for a in variation_list_w_value:
             if (i % 2) == 0:
@@ -1816,22 +2007,51 @@ class CircuitPostProcessor(PostProcessorCommon, object):
             ami_id = "2"
         elif ami_plot_type == "EyeAfterProbe":
             ami_id = "3"
-        self.oreportsetup.CreateReport(plotname, "Statistical Eye", "Statistical Eye Plot", setupname,
-                             [
-                                 "NAME:Context",
-                                 "SimValueContext:=",
-                                 [55819, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "NUMLEVELS", False, "1",
-                                  "QTID", False, ami_id, "SCID", False, "-1", "SID", False, "0"]
-                             ],
-                             variations,
-                             [
-                                 "X Component:="		, "__UnitInterval",
-                                 "Y Component:="		, "__Amplitude",
-                                 "Eye Diagram Component:=", ycomponents
-                             ])
+        self.oreportsetup.CreateReport(
+            plotname,
+            "Statistical Eye",
+            "Statistical Eye Plot",
+            setupname,
+            [
+                "NAME:Context",
+                "SimValueContext:=",
+                [
+                    55819,
+                    0,
+                    2,
+                    0,
+                    False,
+                    False,
+                    -1,
+                    1,
+                    0,
+                    1,
+                    1,
+                    "",
+                    0,
+                    0,
+                    "NUMLEVELS",
+                    False,
+                    "1",
+                    "QTID",
+                    False,
+                    ami_id,
+                    "SCID",
+                    False,
+                    "-1",
+                    "SID",
+                    False,
+                    "0",
+                ],
+            ],
+            variations,
+            ["X Component:=", "__UnitInterval", "Y Component:=", "__Amplitude", "Eye Diagram Component:=", ycomponents],
+        )
         return plotname
 
-    def create_statistical_eye_plot(self, setupname, probe_names, variation_list_w_value, ami_plot_type="InitialEye", plotname=None):
+    def create_statistical_eye_plot(
+        self, setupname, probe_names, variation_list_w_value, ami_plot_type="InitialEye", plotname=None
+    ):
         """Create a statistical QuickEye, VerifEye, and/or Statistical Eye plot.
 
         Parameters
@@ -1852,7 +2072,12 @@ class CircuitPostProcessor(PostProcessorCommon, object):
         """
         if not plotname:
             plotname = generate_unique_name("AMIAanalysis")
-        variations = ["__UnitInterval:=", ["All"],"__Amplitude:="	, ["All"],]
+        variations = [
+            "__UnitInterval:=",
+            ["All"],
+            "__Amplitude:=",
+            ["All"],
+        ]
         i = 0
         for a in variation_list_w_value:
             if (i % 2) == 0:
@@ -1871,17 +2096,44 @@ class CircuitPostProcessor(PostProcessorCommon, object):
         else:
             ycomponents = [probe_names]
 
-        self.oreportsetup.CreateReport(plotname, "Statistical Eye", "Statistical Eye Plot", setupname,
-                             [
-                                 "NAME:Context",
-                                 "SimValueContext:=",
-                                 [55819, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "NUMLEVELS", False, "1",
-                                  "QTID", False, "1", "SCID", False, "-1", "SID", False, "0"]
-                             ],
-                             variations,
-                             [
-                                 "X Component:="		, "__UnitInterval",
-                                 "Y Component:="		, "__Amplitude",
-                                 "Eye Diagram Component:=", ycomponents
-                             ])
+        self.oreportsetup.CreateReport(
+            plotname,
+            "Statistical Eye",
+            "Statistical Eye Plot",
+            setupname,
+            [
+                "NAME:Context",
+                "SimValueContext:=",
+                [
+                    55819,
+                    0,
+                    2,
+                    0,
+                    False,
+                    False,
+                    -1,
+                    1,
+                    0,
+                    1,
+                    1,
+                    "",
+                    0,
+                    0,
+                    "NUMLEVELS",
+                    False,
+                    "1",
+                    "QTID",
+                    False,
+                    "1",
+                    "SCID",
+                    False,
+                    "-1",
+                    "SID",
+                    False,
+                    "0",
+                ],
+            ],
+            variations,
+            ["X Component:=", "__UnitInterval", "Y Component:=", "__Amplitude", "Eye Diagram Component:=", ycomponents],
+        )
         return plotname

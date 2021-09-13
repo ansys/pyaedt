@@ -1,8 +1,9 @@
 """This module contains these classes: `RMXprtModule` and `Rmxprt`."""
 from __future__ import absolute_import
-from .application.Design import Design
+
 from .application.AnalysisRMxprt import FieldAnalysisRMxprt
-from .generic.general_methods import aedt_exception_handler, generate_unique_name
+from .application.Design import Design
+from .generic.general_methods import aedt_exception_handler
 
 
 class RMXprtModule(object):
@@ -30,9 +31,9 @@ class RMXprtModule(object):
             if parameter_name in parameter_list:
                 prop_server = key
                 break
-        assert prop_server is not None,\
-            "Unknown parameter name {0} exists in component {1}.".format(
-                prop_server, self.component)
+        assert prop_server is not None, "Unknown parameter name {0} exists in component {1}.".format(
+            prop_server, self.component
+        )
         return prop_server
 
     def __init__(self, oeditor):
@@ -67,38 +68,40 @@ class RMXprtModule(object):
                 "NAME:AllTabs",
                 [
                     "NAME:" + self.component,
-                    [
-                        "NAME:PropServers",
-                        "{0}{1}{2}".format(self.component, separator, prop_server)
-                    ],
-                    [
-                        "NAME:ChangedProps",
-                        [
-                            "NAME:" + parameter_name,
-                            "Value:="		, value
-                        ]
-                    ]
-                ]
-            ])
+                    ["NAME:PropServers", "{0}{1}{2}".format(self.component, separator, prop_server)],
+                    ["NAME:ChangedProps", ["NAME:" + parameter_name, "Value:=", value]],
+                ],
+            ]
+        )
         return True
 
 
 class Stator(RMXprtModule):
     """Stator class."""
+
     component = "Stator"
-    prop_servers = {"":        ["Outer Diameter", "Inner Diameter", "Length", "Stacking Factor"
-                                "Steel Type", "Number of Slots", "Slot Type", "Lamination Sectors",
-                                "Press Board Thickness", "Skew Width"],
-                    "Slot":    ["Hs0", "Hs1", "Hs2", "Bs0", "Bs1", "Bs2"],
-                    "Winding": ["Winding Type", "Parallel Branches"]}
+    prop_servers = {
+        "": [
+            "Outer Diameter",
+            "Inner Diameter",
+            "Length",
+            "Stacking Factor" "Steel Type",
+            "Number of Slots",
+            "Slot Type",
+            "Lamination Sectors",
+            "Press Board Thickness",
+            "Skew Width",
+        ],
+        "Slot": ["Hs0", "Hs1", "Hs2", "Bs0", "Bs1", "Bs2"],
+        "Winding": ["Winding Type", "Parallel Branches"],
+    }
 
 
 class Rotor(RMXprtModule):
     """Rotor class."""
+
     component = "Rotor"
-    prop_servers = {"":        ["Outer Diameter"],
-                    "Slot":    [],
-                    "Winding": []}
+    prop_servers = {"": ["Outer Diameter"], "Slot": [], "Winding": []}
 
 
 class Rmxprt(FieldAnalysisRMxprt):
@@ -165,20 +168,37 @@ class Rmxprt(FieldAnalysisRMxprt):
     >>> app = Rmxprt("myfile.aedt")
     """
 
-    def __init__(self, projectname=None, designname=None, solution_type=None, model_units=None, setup_name=None,
-                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):
-        FieldAnalysisRMxprt.__init__(self, "RMxprtSolution", projectname, designname, solution_type, setup_name,
-                                     specified_version, NG, AlwaysNew, release_on_exit, student_version)
+    def __init__(
+        self,
+        projectname=None,
+        designname=None,
+        solution_type=None,
+        model_units=None,
+        setup_name=None,
+        specified_version=None,
+        NG=False,
+        AlwaysNew=False,
+        release_on_exit=False,
+        student_version=False,
+    ):
+        FieldAnalysisRMxprt.__init__(
+            self,
+            "RMxprtSolution",
+            projectname,
+            designname,
+            solution_type,
+            setup_name,
+            specified_version,
+            NG,
+            AlwaysNew,
+            release_on_exit,
+            student_version,
+        )
         if not model_units or model_units == "mm":
             model_units = "mm"
         else:
             assert model_units == "in", "Invalid model units string {}".format(model_units)
-        self.modeler.oeditor.SetMachineUnits(
-            [
-                "NAME:Units Parameter",
-                "Units:=", model_units,
-                "Rescale:="    	, False
-            ])
+        self.modeler.oeditor.SetMachineUnits(["NAME:Units Parameter", "Units:=", model_units, "Rescale:=", False])
         self.stator = Stator(self.modeler.oeditor)
         self.rotor = Rotor(self.modeler.oeditor)
 

@@ -3,14 +3,13 @@ This module contains the `EdbPadstacks` class.
 """
 
 import warnings
-from .general import *
-from ..generic.general_methods import get_filename_without_extension, generate_unique_name
+
+from ..generic.general_methods import generate_unique_name
 from .EDB_Data import EDBPadstack
+from .general import *
+
 try:
-    import clr
-    from System import Convert, String
-    from System import Double, Array
-    from System.Collections.Generic import List
+    from System import Array
 except ImportError:
     warnings.warn('This module requires the "pythonnet" package.')
 
@@ -79,8 +78,9 @@ class EdbPadstacks(object):
         return viadefList
 
     @aedt_exception_handler
-    def create_circular_padstack(self, padstackname=None, holediam='300um', paddiam='400um', antipaddiam='600um',
-                        startlayer=None, endlayer=None):
+    def create_circular_padstack(
+        self, padstackname=None, holediam="300um", paddiam="400um", antipaddiam="600um", startlayer=None, endlayer=None
+    ):
         """Create a circular padstack.
 
         Parameters
@@ -105,8 +105,9 @@ class EdbPadstacks(object):
         str
             Name of the padstack if the operation is successful.
         """
-        return self._padstack_methods.CreateCircularPadStackDef(self._builder, padstackname, holediam, paddiam,
-                                                               antipaddiam, startlayer, endlayer)
+        return self._padstack_methods.CreateCircularPadStackDef(
+            self._builder, padstackname, holediam, paddiam, antipaddiam, startlayer, endlayer
+        )
 
     @aedt_exception_handler
     def get_pinlist_from_component_and_net(self, refdes=None, netname=None):
@@ -132,8 +133,9 @@ class EdbPadstacks(object):
                 return pinlist.Item2
 
     @aedt_exception_handler
-    def create_padstack(self, padstackname=None, holediam='300um', paddiam='400um', antipaddiam='600um',
-                        startlayer=None, endlayer=None):
+    def create_padstack(
+        self, padstackname=None, holediam="300um", paddiam="400um", antipaddiam="600um", startlayer=None, endlayer=None
+    ):
         """Create a padstack.
 
         Parameters
@@ -170,14 +172,14 @@ class EdbPadstacks(object):
 
         padstackData.SetHolePlatingPercentage(self._edb_value(20.0))
         padstackData.SetHoleRange(self._edb.Definition.PadstackHoleRange.UpperPadToLowerPad)
-        padstackData.SetMaterial('copper')
+        padstackData.SetMaterial("copper")
         if not startlayer:
             layers = list(self.parent.core_stackup.signal_layers.keys())
             startlayer = layers[0]
         if not endlayer:
             layers = list(self.parent.core_stackup.signal_layers.keys())
             endlayer = layers[len(layers) - 1]
-        for layer in [startlayer, 'Default', endlayer]:
+        for layer in [startlayer, "Default", endlayer]:
             padparam_array = Array[type(self._edb_value(paddiam))]([self._edb_value(paddiam)])
             padstackData.SetPadParameters(
                 layer,
@@ -186,7 +188,7 @@ class EdbPadstacks(object):
                 padparam_array,
                 value0,
                 value0,
-                value0
+                value0,
             )
             antipad_array = Array[type(self._edb_value(antipaddiam))]([self._edb_value(antipaddiam)])
 
@@ -197,28 +199,32 @@ class EdbPadstacks(object):
                 antipad_array,
                 value0,
                 value0,
-                value0
+                value0,
             )
         padstackLayerIdMap = {k: v for k, v in zip(padstackData.GetLayerNames(), padstackData.GetLayerIds())}
         padstackLayerMap = self._edb.Utility.LayerMap(self._edb.Utility.UniqueDirection.ForwardUnique)
         for layer, padstackLayerName in zip(
-                self._active_layout.GetLayerCollection().Layers(
-                    self._edb.Cell.LayerTypeSet.SignalLayerSet
-                ),
-                [startlayer, 'Default', endlayer]
+            self._active_layout.GetLayerCollection().Layers(self._edb.Cell.LayerTypeSet.SignalLayerSet),
+            [startlayer, "Default", endlayer],
         ):
-            padstackLayerMap.SetMapping(
-                layer.GetLayerId(),
-                padstackLayerIdMap[padstackLayerName]
-            )
+            padstackLayerMap.SetMapping(layer.GetLayerId(), padstackLayerIdMap[padstackLayerName])
         padstackDefinition = self._edb.Definition.PadstackDef.Create(self.db, padstackname)
         padstackDefinition.SetData(padstackData)
         self._messenger.add_info_message("Padstack {} create correctly".format(padstackname))
         return padstackname
 
     @aedt_exception_handler
-    def place_padstack(self, position, definition_name, net_name='',
-                       via_name="", rotation=0, fromlayer=None, tolayer=None, solderlayer=None):
+    def place_padstack(
+        self,
+        position,
+        definition_name,
+        net_name="",
+        via_name="",
+        rotation=0,
+        fromlayer=None,
+        tolayer=None,
+        solderlayer=None,
+    ):
         """Place the padstack.
 
         Parameters
@@ -265,9 +271,9 @@ class EdbPadstacks(object):
         if solderlayer:
             solderlayer = self.parent.core_stackup.signal_layers[solderlayer]._layer
         if padstack:
-            via = self._edb.Cell.Primitive.PadstackInstance.Create(self._active_layout, net, via_name, padstack,
-                                                                  position, rotation, fromlayer, tolayer, solderlayer,
-                                                                  None)
+            via = self._edb.Cell.Primitive.PadstackInstance.Create(
+                self._active_layout, net, via_name, padstack, position, rotation, fromlayer, tolayer, solderlayer, None
+            )
             return via
         else:
             return False

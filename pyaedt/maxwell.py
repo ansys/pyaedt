@@ -85,7 +85,7 @@ class Maxwell(object):
     def windings(self):
         """Windings."""
         oModule = self.odesign.GetModule("BoundarySetup")
-        windings = oModule.GetExcitationsOfType('Winding Group')
+        windings = oModule.GetExcitationsOfType("Winding Group")
         return list(windings)
 
     @property
@@ -100,7 +100,9 @@ class Maxwell(object):
         return design_file
 
     @aedt_exception_handler
-    def setup_ctrlprog(self, setupname, file_str=None, keep_modifications=False, python_interpreter=None, aedt_lib_dir=None):
+    def setup_ctrlprog(
+        self, setupname, file_str=None, keep_modifications=False, python_interpreter=None, aedt_lib_dir=None
+    ):
         """Configure the transient design setup to run a specific control program.
 
         Parameters
@@ -150,19 +152,26 @@ class Maxwell(object):
                         fo.write(line)
         else:
             if file_str is not None:
-                with io.open(ctl_file, "w", newline='\n') as fo:
+                with io.open(ctl_file, "w", newline="\n") as fo:
                     fo.write(file_str)
                 assert os.path.exists(ctl_file), "Control Program file could not be created."
 
-        self.oanalysis_setup.EditSetup(setupname,
-                          [
-                              "NAME:" + setupname,
-                              "Enabled:=", True,
-                              "UseControlProgram:=", True,
-                              "ControlProgramName:=", ctl_file_compute,
-                              "ControlProgramArg:=", "",
-                              "CallCtrlProgAfterLastStep:=", True
-                          ])
+        self.oanalysis_setup.EditSetup(
+            setupname,
+            [
+                "NAME:" + setupname,
+                "Enabled:=",
+                True,
+                "UseControlProgram:=",
+                True,
+                "ControlProgramName:=",
+                ctl_file_compute,
+                "ControlProgramArg:=",
+                "",
+                "CallCtrlProgAfterLastStep:=",
+                True,
+            ],
+        )
 
         return True
 
@@ -186,19 +195,14 @@ class Maxwell(object):
         """
         EddyVector = ["NAME:EddyEffectVector"]
         for obj in object_list:
-            EddyVector.append([
-                "NAME:Data",
-                "Object Name:=", obj,
-                "Eddy Effect:=", activate
-            ])
+            EddyVector.append(["NAME:Data", "Object Name:=", obj, "Eddy Effect:=", activate])
 
         oModule = self.odesign.GetModule("BoundarySetup")
         oModule.SetEddyEffect(["NAME:Eddy Effect Setting", EddyVector])
         return True
 
     @aedt_exception_handler
-    def assign_current(self, object_list, amplitude=1, phase="0deg", solid=True, swap_direction=False,
-                       name=None):
+    def assign_current(self, object_list, amplitude=1, phase="0deg", solid=True, swap_direction=False, name=None):
         """Assign the source of the current.
 
         Parameters
@@ -231,14 +235,26 @@ class Maxwell(object):
         if self.is3d:
             if type(object_list[0]) is int:
                 props = OrderedDict(
-                    {"Faces": object_list, "Current": amplitude, "IsSolid": solid, "Point out of terminal": swap_direction})
+                    {
+                        "Faces": object_list,
+                        "Current": amplitude,
+                        "IsSolid": solid,
+                        "Point out of terminal": swap_direction,
+                    }
+                )
             else:
                 props = OrderedDict(
-                    {"Objects": object_list, "Current": amplitude,"Phase":phase, "IsSolid": solid, "Point out of terminal": swap_direction})
+                    {
+                        "Objects": object_list,
+                        "Current": amplitude,
+                        "Phase": phase,
+                        "IsSolid": solid,
+                        "Point out of terminal": swap_direction,
+                    }
+                )
         else:
             if type(object_list[0]) is str:
-                props = OrderedDict(
-                    {"Objects": object_list, "Current": amplitude,"IsPositive": swap_direction})
+                props = OrderedDict({"Objects": object_list, "Current": amplitude, "IsPositive": swap_direction})
             else:
                 self._messenger.add_warning_message("Input has to be a 2D Object")
                 return False
@@ -311,8 +327,7 @@ class Maxwell(object):
             name = generate_unique_name("VoltageDrop")
         face_list = self.modeler._convert_list_to_ids(face_list)
 
-        props = OrderedDict({"Faces": face_list, "Voltage Drop": amplitude,
-                            "Point out of terminal": swap_direction})
+        props = OrderedDict({"Faces": face_list, "Voltage Drop": amplitude, "Point out of terminal": swap_direction})
         bound = BoundaryObject(self, name, props, "VoltageDrop")
         if bound.create():
             self.boundaries.append(bound)
@@ -320,8 +335,18 @@ class Maxwell(object):
         return False
 
     @aedt_exception_handler
-    def assign_winding(self, coil_terminals=None, winding_type="Current", is_solid=True, current_value=1, res=0, ind=0, voltage=0,
-                       parallel_branches=1, name=None):
+    def assign_winding(
+        self,
+        coil_terminals=None,
+        winding_type="Current",
+        is_solid=True,
+        current_value=1,
+        res=0,
+        ind=0,
+        voltage=0,
+        parallel_branches=1,
+        name=None,
+    ):
         """Assign a winding to a Maxwell design.
 
         Parameters
@@ -357,17 +382,25 @@ class Maxwell(object):
         if not name:
             name = generate_unique_name("Winding")
 
-        props = OrderedDict({"Type": winding_type, "IsSolid": is_solid, "Current": str(current_value) + "A",
-                             "Resistance": str(res) + "ohm", "Inductance": str(ind) + "H",
-                             "Voltage": str(voltage) + "V", "ParallelBranchesNum": str(parallel_branches)})
+        props = OrderedDict(
+            {
+                "Type": winding_type,
+                "IsSolid": is_solid,
+                "Current": str(current_value) + "A",
+                "Resistance": str(res) + "ohm",
+                "Inductance": str(ind) + "H",
+                "Voltage": str(voltage) + "V",
+                "ParallelBranchesNum": str(parallel_branches),
+            }
+        )
         bound = BoundaryObject(self, name, props, "Winding")
         if bound.create():
             self.boundaries.append(bound)
             if type(coil_terminals) is not list:
                 coil_terminals = [coil_terminals]
-            coil_names=[]
+            coil_names = []
             for coil in coil_terminals:
-                c=self.assign_coil(coil)
+                c = self.assign_coil(coil)
                 if c:
                     coil_names.append(c.name)
 
@@ -432,21 +465,23 @@ class Maxwell(object):
         if type(input_object[0]) is str:
             if self.modeler._is3d:
                 props2 = OrderedDict(
-                    {"Objects": input_object, "Conductor number": str(conductor_number), "Point out of terminal": point})
+                    {"Objects": input_object, "Conductor number": str(conductor_number), "Point out of terminal": point}
+                )
                 bound = BoundaryObject(self, name, props2, "CoilTerminal")
             else:
                 props2 = OrderedDict(
-                    {"Objects": input_object, "Conductor number": str(conductor_number), "PolarityType": polarity})
+                    {"Objects": input_object, "Conductor number": str(conductor_number), "PolarityType": polarity}
+                )
                 bound = BoundaryObject(self, name, props2, "Coil")
         else:
             if self.modeler._is3d:
                 props2 = OrderedDict(
-                    {"Faces": input_object, "Conductor number": str(conductor_number), "Point out of terminal": point})
+                    {"Faces": input_object, "Conductor number": str(conductor_number), "Point out of terminal": point}
+                )
                 bound = BoundaryObject(self, name, props2, "CoilTerminal")
 
             else:
-                self._messenger.add_warning_message(
-                    "Face Selection is not allowed in Maxwell 2D. Provide a 2D object.")
+                self._messenger.add_warning_message("Face Selection is not allowed in Maxwell 2D. Provide a 2D object.")
                 return False
         if bound.create():
             self.boundaries.append(bound)
@@ -480,22 +515,25 @@ class Maxwell(object):
         if self.design_type == "Maxwell 3D":
             self.o_maxwell_parameters.AssignForce(
                 [
-                    "NAME:"+force_name,
-                    "Reference CS:=", reference_cs,
-                    "Is Virtual:="	, is_virtual,
-                    "Objects:="		, input_object
-                ])
+                    "NAME:" + force_name,
+                    "Reference CS:=",
+                    reference_cs,
+                    "Is Virtual:=",
+                    is_virtual,
+                    "Objects:=",
+                    input_object,
+                ]
+            )
         else:
             self.o_maxwell_parameters.AssignForce(
-                [
-                    "NAME:"+force_name,
-                    "Reference CS:=", reference_cs,
-                    "Objects:="		, input_object
-                ])
+                ["NAME:" + force_name, "Reference CS:=", reference_cs, "Objects:=", input_object]
+            )
         return True
 
     @aedt_exception_handler
-    def assign_torque(self, input_object, reference_cs="Global", is_positive=True, is_virtual=True, axis="Z", torque_name=None):
+    def assign_torque(
+        self, input_object, reference_cs="Global", is_positive=True, is_virtual=True, axis="Z", torque_name=None
+    ):
         """Assign a torque to one or more objects.
 
         Parameters
@@ -524,12 +562,32 @@ class Maxwell(object):
             torque_name = generate_unique_name("Torque")
         if self.design_type == "Maxwell 3D":
             self.o_maxwell_parameters.AssignTorque(
-                ["NAME:" + torque_name, "Is Virtual:=", is_virtual, "Coordinate System:=", reference_cs, "Axis:=", axis,
-                 "Is Positive:=", is_positive, "Objects:=", input_object])
+                [
+                    "NAME:" + torque_name,
+                    "Is Virtual:=",
+                    is_virtual,
+                    "Coordinate System:=",
+                    reference_cs,
+                    "Axis:=",
+                    axis,
+                    "Is Positive:=",
+                    is_positive,
+                    "Objects:=",
+                    input_object,
+                ]
+            )
         else:
             self.o_maxwell_parameters.AssignTorque(
-                ["NAME:" + torque_name, "Coordinate System:=", reference_cs,
-                 "Is Positive:=", is_positive, "Objects:=", input_object])
+                [
+                    "NAME:" + torque_name,
+                    "Coordinate System:=",
+                    reference_cs,
+                    "Is Positive:=",
+                    is_positive,
+                    "Objects:=",
+                    input_object,
+                ]
+            )
         return True
 
     @aedt_exception_handler
@@ -559,10 +617,14 @@ class Maxwell(object):
         self.o_maxwell_parameters.AssignForce(
             [
                 "NAME:" + force_name,
-                "Reference CS:=", reference_cs,
-                "Is Virtual:=", is_virtual,
-                "Objects:="	, input_object
-            ])
+                "Reference CS:=",
+                reference_cs,
+                "Is Virtual:=",
+                is_virtual,
+                "Objects:=",
+                input_object,
+            ]
+        )
         return True
 
     @aedt_exception_handler
@@ -621,19 +683,11 @@ class Maxwell(object):
                 "NAME:AllTabs",
                 [
                     "NAME:Maxwell2D",
-                    [
-                        "NAME:PropServers",
-                        "ModelSetup:" + motion_setup
-                    ],
-                    [
-                        "NAME:ChangedProps",
-                        [
-                            "NAME:Initial Position",
-                            "Value:=", val
-                        ]
-                    ]
-                ]
-            ])
+                    ["NAME:PropServers", "ModelSetup:" + motion_setup],
+                    ["NAME:ChangedProps", ["NAME:Initial Position", "Value:=", val]],
+                ],
+            ]
+        )
         return True
 
     def __enter__(self):
@@ -710,16 +764,37 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
     @property  # for legacy purposes
     def dim(self):
         """Dimensions."""
-        return '3D'
+        return "3D"
 
-    def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
-                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False,student_version=False):
+    def __init__(
+        self,
+        projectname=None,
+        designname=None,
+        solution_type=None,
+        setup_name=None,
+        specified_version=None,
+        NG=False,
+        AlwaysNew=False,
+        release_on_exit=False,
+        student_version=False,
+    ):
         """
         Initialize the `Maxwell` class.
         """
         self.is3d = True
-        FieldAnalysis3D.__init__(self, "Maxwell 3D", projectname, designname, solution_type, setup_name,
-                                 specified_version, NG, AlwaysNew, release_on_exit, student_version)
+        FieldAnalysis3D.__init__(
+            self,
+            "Maxwell 3D",
+            projectname,
+            designname,
+            solution_type,
+            setup_name,
+            specified_version,
+            NG,
+            AlwaysNew,
+            release_on_exit,
+            student_version,
+        )
         Maxwell.__init__(self)
 
 
@@ -749,10 +824,12 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
         nothing is used.
     specified_version: str, optional
         Version of AEDT to use. The default is ``None``, in which case
-        the active version or latest installed version is used. This parameter is ignored when Script is launched within AEDT.
+        the active version or latest installed version is used.
+        This parameter is ignored when Script is launched within AEDT.
     NG : bool, optional
         Whether to launch AEDT in the non-graphical mode. The default
-        is ``False``, in which case AEDT is launched in the graphical mode. This parameter is ignored when Script is launched within AEDT.
+        is ``False``, in which case AEDT is launched in the graphical mode.
+        This parameter is ignored when Script is launched within AEDT.
     AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
@@ -760,7 +837,8 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
     release_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
     student_version : bool, optional
-        Whether to open the AEDT student version. The default is ``False``. This parameter is ignored when Script is launched within AEDT.
+        Whether to open the AEDT student version. The default is ``False``.
+        This parameter is ignored when Script is launched within AEDT.
 
     Examples
     --------
@@ -794,18 +872,39 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
         """Geometry mode."""
         return self.odesign.GetGeometryMode()
 
-    def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
-                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):
+    def __init__(
+        self,
+        projectname=None,
+        designname=None,
+        solution_type=None,
+        setup_name=None,
+        specified_version=None,
+        NG=False,
+        AlwaysNew=False,
+        release_on_exit=False,
+        student_version=False,
+    ):
         self.is3d = False
-        FieldAnalysis2D.__init__(self, "Maxwell 2D", projectname, designname, solution_type, setup_name,
-                                 specified_version, NG, AlwaysNew, release_on_exit, student_version)
+        FieldAnalysis2D.__init__(
+            self,
+            "Maxwell 2D",
+            projectname,
+            designname,
+            solution_type,
+            setup_name,
+            specified_version,
+            NG,
+            AlwaysNew,
+            release_on_exit,
+            student_version,
+        )
         Maxwell.__init__(self)
 
     @aedt_exception_handler
     def get_model_depth(self):
         """Get model depth."""
         if "ModelDepth" in self.design_properties:
-            value_str=self.design_properties["ModelDepth"]
+            value_str = self.design_properties["ModelDepth"]
             try:
                 a = float_units(value_str)
             except:
@@ -840,10 +939,10 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
             if isinstance(obj, dict):
                 return {convert(key): convert(value) for key, value in obj.items()}
             return obj
+
         solid_bodies = self.modeler.solid_bodies
         if objectfilter:
-            solid_ids = [i for i,j in self.modeler.primitives.object_id_dict.items()
-                                                                                   if j.name in objectfilter]
+            solid_ids = [i for i, j in self.modeler.primitives.object_id_dict.items() if j.name in objectfilter]
         else:
             solid_ids = [i for i in list(self.modeler.primitives.object_id_dict.keys())]
         model_depth = self.get_model_depth()
@@ -860,11 +959,11 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
             "LineList": self.modeler.vertex_data_of_lines(linefilter),
             "VarList": self.variable_manager.variable_names,
             "Setups": self.existing_analysis_setups,
-            "MaterialProperties": self.get_object_material_properties(solid_bodies)
+            "MaterialProperties": self.get_object_material_properties(solid_bodies),
         }
 
         design_file = os.path.join(self.working_directory, "design_data.json")
-        with open(design_file, 'w') as fps:
+        with open(design_file, "w") as fps:
             json.dump(convert(self.design_data), fps, indent=4)
         return True
 
@@ -879,12 +978,12 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
 
         """
         design_file = os.path.join(self.working_directory, "design_data.json")
-        with open(design_file, 'r') as fps:
+        with open(design_file, "r") as fps:
             design_data = json.load(fps)
         return design_data
 
     @aedt_exception_handler
-    def assign_balloon(self, edge_list, bound_name= None):
+    def assign_balloon(self, edge_list, bound_name=None):
         """Assign a balloon boundary to a list of edges.
 
         Parameters
@@ -905,8 +1004,7 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
         if not bound_name:
             bound_name = generate_unique_name("Balloon")
 
-        props2 = OrderedDict(
-            {"Edges": edge_list})
+        props2 = OrderedDict({"Edges": edge_list})
         bound = BoundaryObject(self, bound_name, props2, "Balloon")
 
         if bound.create():
@@ -936,13 +1034,11 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
         input_edge = self.modeler._convert_list_to_ids(input_edge)
 
         if not bound_name:
-            bound_name=generate_unique_name("Vector")
+            bound_name = generate_unique_name("Vector")
         if type(input_edge[0]) is str:
-            props2 = OrderedDict(
-                {"Objects": input_edge, "Value": str(vectorvalue), "CoordinateSystem": ""})
+            props2 = OrderedDict({"Objects": input_edge, "Value": str(vectorvalue), "CoordinateSystem": ""})
         else:
-            props2 = OrderedDict(
-                {"Edges": input_edge, "Value": str(vectorvalue), "CoordinateSystem": ""})
+            props2 = OrderedDict({"Edges": input_edge, "Value": str(vectorvalue), "CoordinateSystem": ""})
         bound = BoundaryObject(self, bound_name, props2, "VectorPotential")
 
         if bound.create():

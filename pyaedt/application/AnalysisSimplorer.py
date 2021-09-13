@@ -1,10 +1,9 @@
-from ..generic.general_methods import aedt_exception_handler, generate_unique_name
-from .Analysis import Analysis
-from .Design import solutions_settings
+from ..generic.general_methods import aedt_exception_handler
 from ..modeler.Circuit import ModelerSimplorer
 from ..modules.PostProcessor import PostProcessor
-from ..modules.SetupTemplates import SetupKeys
 from ..modules.SolveSetup import SetupCircuit
+from .Analysis import Analysis
+from .Design import solutions_settings
 
 
 class FieldAnalysisSimplorer(Analysis):
@@ -46,11 +45,33 @@ class FieldAnalysisSimplorer(Analysis):
         """Setup names."""
         return list(self.oanalysis.GetAllSolutionSetups())
 
-    def __init__(self, application, projectname, designname, solution_type, setup_name=None,
-                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):
+    def __init__(
+        self,
+        application,
+        projectname,
+        designname,
+        solution_type,
+        setup_name=None,
+        specified_version=None,
+        NG=False,
+        AlwaysNew=False,
+        release_on_exit=False,
+        student_version=False,
+    ):
         self.solution_type = solution_type
-        Analysis.__init__(self, application, projectname, designname, solution_type, setup_name,
-                          specified_version, NG, AlwaysNew, release_on_exit, student_version)
+        Analysis.__init__(
+            self,
+            application,
+            projectname,
+            designname,
+            solution_type,
+            setup_name,
+            specified_version,
+            NG,
+            AlwaysNew,
+            release_on_exit,
+            student_version,
+        )
         self._modeler = ModelerSimplorer(self)
         self._post = PostProcessor(self)
 

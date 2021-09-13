@@ -1,13 +1,14 @@
 import os
 
-from ..generic.general_methods import retry_ntimes, aedt_exception_handler
+from pyaedt import _pythonver
+
 from ..application.Variables import AEDT_units
 from ..edb import Edb
-from .Modeler import Modeler
-from .Primitives3DLayout import Primitives3DLayout, Geometries3DLayout
+from ..generic.general_methods import aedt_exception_handler, retry_ntimes
 from ..modules.LayerStackup import Layers
-from pyaedt import _pythonver
-import sys
+from .Modeler import Modeler
+from .Primitives3DLayout import Geometries3DLayout, Primitives3DLayout
+
 
 class Modeler3DLayout(Modeler):
     """Manages Modeler 3D layouts.
@@ -30,13 +31,19 @@ class Modeler3DLayout(Modeler):
         self._edb = None
         if os.path.exists(edb_file):
             self._mttime = os.path.getmtime(edb_file)
-            self._edb = Edb(edb_folder, self._parent.design_name, True, self._parent._aedt_version, isaedtowned=True,
-                            oproject=self._parent.oproject)
+            self._edb = Edb(
+                edb_folder,
+                self._parent.design_name,
+                True,
+                self._parent._aedt_version,
+                isaedtowned=True,
+                oproject=self._parent.oproject,
+            )
         else:
             self._mttime = 0
         self._messenger.add_info_message("EDB loaded.")
 
-        self.layers = Layers(self._parent,self, roughnessunits="um")
+        self.layers = Layers(self._parent, self, roughnessunits="um")
         self._messenger.add_info_message("Layers loaded.")
         self._primitives = Primitives3DLayout(self._parent, self)
         self._messenger.add_info_message("Primitives loaded.")
@@ -61,8 +68,14 @@ class Modeler3DLayout(Modeler):
             if _mttime != self._mttime:
                 if self._edb:
                     self._edb.close_edb()
-                self._edb = Edb(edb_folder, self._parent.design_name, True, self._parent._aedt_version,
-                                isaedtowned=True, oproject=self._parent.oproject)
+                self._edb = Edb(
+                    edb_folder,
+                    self._parent.design_name,
+                    True,
+                    self._parent._aedt_version,
+                    isaedtowned=True,
+                    oproject=self._parent.oproject,
+                )
                 self._mttime = _mttime
         return self._edb
 
@@ -89,13 +102,8 @@ class Modeler3DLayout(Modeler):
     @model_units.setter
     def model_units(self, units):
         assert units in AEDT_units["Length"], "Invalid units string {0}.".format(units)
-        ''' Set the model units as a string e.g. "mm" '''
-        self.oeditor.SetActivelUnits(
-            [
-                "NAME:Units Parameter",
-                "Units:=", units,
-                "Rescale:=", False
-            ])
+        """ Set the model units as a string e.g. "mm" """
+        self.oeditor.SetActivelUnits(["NAME:Units Parameter", "Units:=", units, "Rescale:=", False])
 
     @property
     def primitives(self):
@@ -140,12 +148,21 @@ class Modeler3DLayout(Modeler):
         """
         if isinstance(selection, str):
             selection = [selection]
-        self.oeditor.Heal(["NAME:Repair", "Selection:=", selection, "Type:=", "Colinear", "Tol:=",
-                           self.primitives.arg_with_dim(tolerance)])
+        self.oeditor.Heal(
+            [
+                "NAME:Repair",
+                "Selection:=",
+                selection,
+                "Type:=",
+                "Colinear",
+                "Tol:=",
+                self.primitives.arg_with_dim(tolerance),
+            ]
+        )
         return True
 
     @aedt_exception_handler
-    def expand(self, object_to_expand,  size=1, expand_type="ROUND", replace_original=False):
+    def expand(self, object_to_expand, size=1, expand_type="ROUND", replace_original=False):
         """Expand the object by a specific size.
 
         Parameters
@@ -178,14 +195,19 @@ class Modeler3DLayout(Modeler):
         line_4
 
         """
-        layer = retry_ntimes(10, self.oeditor.GetPropertyValue, "BaseElementTab", object_to_expand, 'PlacementLayer')
+        layer = retry_ntimes(10, self.oeditor.GetPropertyValue, "BaseElementTab", object_to_expand, "PlacementLayer")
         poly = self.oeditor.GetPolygonDef(object_to_expand).GetPoints()
         pos = [poly[0].GetX(), poly[0].GetY()]
-        geom_names = self.oeditor.FindObjectsByPoint(self.oeditor.Point().Set(pos[0],pos[1]), layer)
-        self.oeditor.Expand(self.primitives.arg_with_dim(size), expand_type, replace_original,
-                            ["NAME:elements", object_to_expand])
+        geom_names = self.oeditor.FindObjectsByPoint(self.oeditor.Point().Set(pos[0], pos[1]), layer)
+        self.oeditor.Expand(
+            self.primitives.arg_with_dim(size), expand_type, replace_original, ["NAME:elements", object_to_expand]
+        )
         if not replace_original:
-            new_geom_names = [i for i in self.oeditor.FindObjectsByPoint(self.oeditor.Point().Set(pos[0],pos[1]), layer) if i not in geom_names]
+            new_geom_names = [
+                i
+                for i in self.oeditor.FindObjectsByPoint(self.oeditor.Point().Set(pos[0], pos[1]), layer)
+                if i not in geom_names
+            ]
             if self.primitives.isoutsideDesktop:
                 self.primitives._geometries[new_geom_names[0]] = Geometries3DLayout(self, new_geom_names[0])
             return new_geom_names[0]
@@ -218,8 +240,9 @@ class Modeler3DLayout(Modeler):
             name = os.path.basename(brd_filename)
             edb_name = os.path.splitext(name)[0]
 
-        self.oimportexport.ImportExtracta(brd_filename, os.path.join(edb_path, edb_name + ".aedb"),
-                                          os.path.join(edb_path, edb_name + ".xml"))
+        self.oimportexport.ImportExtracta(
+            brd_filename, os.path.join(edb_path, edb_name + ".aedb"), os.path.join(edb_path, edb_name + ".xml")
+        )
         self._parent.oproject = self._parent._desktop.GetActiveProject().GetName()
         self._parent.odesign = None
 
@@ -275,8 +298,9 @@ class Modeler3DLayout(Modeler):
             name = os.path.basename(ipc_filename)
             edb_name = os.path.splitext(name)[0]
 
-        self.oimportexport.ImportIPC(ipc_filename, os.path.join(edb_path, edb_name + ".aedb"),
-                                     os.path.join(edb_path, edb_name + ".xml"))
+        self.oimportexport.ImportIPC(
+            ipc_filename, os.path.join(edb_path, edb_name + ".aedb"), os.path.join(edb_path, edb_name + ".xml")
+        )
         self._parent.oproject = self._parent._desktop.GetActiveProject().GetName()
         self._parent.odesign = None
         return True
@@ -298,7 +322,7 @@ class Modeler3DLayout(Modeler):
             ``True`` when successful, ``False`` when failed.
 
         """
-        vArg1 = ['NAME:primitives', blank]
+        vArg1 = ["NAME:primitives", blank]
         if type(tool) is list:
             for el in tool:
                 vArg1.append(el)
@@ -330,7 +354,7 @@ class Modeler3DLayout(Modeler):
             ``True`` when successful, ``False`` when failed.
 
         """
-        vArg1 = ['NAME:primitives']
+        vArg1 = ["NAME:primitives"]
         if len(objectlists) >= 2:
             for el in objectlists:
                 vArg1.append(el)
@@ -359,7 +383,7 @@ class Modeler3DLayout(Modeler):
             ``True`` when successful, ``False`` when failed.
 
         """
-        vArg1 = ['NAME:primitives']
+        vArg1 = ["NAME:primitives"]
         if len(objectlists) >= 2:
             for el in objectlists:
                 vArg1.append(el)
@@ -395,12 +419,6 @@ class Modeler3DLayout(Modeler):
         if isinstance(objectlists, str):
             objectlists = [objectlists]
         self.oeditor.Duplicate(
-            [
-                "NAME:options",
-                "count:="	, count
-            ],
-            [
-                "NAME:elements",
-                ",".join(objectlists)
-            ], direction_vector)
+            ["NAME:options", "count:=", count], ["NAME:elements", ",".join(objectlists)], direction_vector
+        )
         return True

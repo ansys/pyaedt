@@ -1,11 +1,11 @@
-import os
 import ntpath
+import os
 import warnings
 
-from ..generic.general_methods import aedt_exception_handler, generate_unique_name, retry_ntimes
-from .Analysis import Analysis
+from ..generic.general_methods import aedt_exception_handler, retry_ntimes
 from ..modeler.Model3D import Modeler3D
 from ..modules.Mesh import Mesh
+from .Analysis import Analysis
 
 
 class FieldAnalysis3D(Analysis, object):
@@ -52,10 +52,32 @@ class FieldAnalysis3D(Analysis, object):
 
     """
 
-    def __init__(self, application, projectname, designname, solution_type, setup_name=None,
-                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):
-        Analysis.__init__(self, application, projectname, designname, solution_type, setup_name,
-                          specified_version, NG, AlwaysNew, release_on_exit, student_version)
+    def __init__(
+        self,
+        application,
+        projectname,
+        designname,
+        solution_type,
+        setup_name=None,
+        specified_version=None,
+        NG=False,
+        AlwaysNew=False,
+        release_on_exit=False,
+        student_version=False,
+    ):
+        Analysis.__init__(
+            self,
+            application,
+            projectname,
+            designname,
+            solution_type,
+            setup_name,
+            specified_version,
+            NG,
+            AlwaysNew,
+            release_on_exit,
+            student_version,
+        )
         self._modeler = Modeler3D(self)
         self._mesh = Mesh(self)
 
@@ -89,7 +111,7 @@ class FieldAnalysis3D(Analysis, object):
             Dictionary of components with their absolute paths.
 
         """
-        components_dict={}
+        components_dict = {}
         syspath = os.path.join(self.syslib, "3DComponents", self._design_type)
         if os.path.exists(syspath):
             listfiles = []
@@ -97,10 +119,10 @@ class FieldAnalysis3D(Analysis, object):
                 for file in files:
                     if file.endswith(".a3dcomp"):
                         listfiles.append(os.path.join(root, file))
-            #listfiles = glob.glob(syspath + "/**/*.a3dcomp", recursive=True)
+            # listfiles = glob.glob(syspath + "/**/*.a3dcomp", recursive=True)
             for el in listfiles:
                 head, tail = ntpath.split(el)
-                components_dict[tail[:-8]]= el
+                components_dict[tail[:-8]] = el
         userlib = os.path.join(self.userlib, "3DComponents", self._design_type)
         if os.path.exists(userlib):
             listfiles = []
@@ -108,10 +130,10 @@ class FieldAnalysis3D(Analysis, object):
                 for file in files:
                     if file.endswith(".a3dcomp"):
                         listfiles.append(os.path.join(root, file))
-            #listfiles = glob.glob(userlib + "/**/*.a3dcomp", recursive=True)
+            # listfiles = glob.glob(userlib + "/**/*.a3dcomp", recursive=True)
             for el in listfiles:
                 head, tail = ntpath.split(el)
-                components_dict[tail[:-8]]= el
+                components_dict[tail[:-8]] = el
         return components_dict
 
     @aedt_exception_handler
@@ -133,12 +155,12 @@ class FieldAnalysis3D(Analysis, object):
         vars = {}
         if component3dname not in self.components3d:
             if os.path.exists(component3dname):
-                with open(component3dname, 'rb') as aedt_fh:
+                with open(component3dname, "rb") as aedt_fh:
                     temp = aedt_fh.read().splitlines()
                 _all_lines = []
                 for line in temp:
                     try:
-                        _all_lines.append(line.decode("utf-8").lstrip('\t'))
+                        _all_lines.append(line.decode("utf-8").lstrip("\t"))
                     except UnicodeDecodeError:
                         break
                 for line in _all_lines:
@@ -147,12 +169,12 @@ class FieldAnalysis3D(Analysis, object):
                         vars[line_list[1]] = line_list[len(line_list) - 2]
                 return vars
             return False
-        with open(self.components3d[component3dname], 'rb') as aedt_fh:
+        with open(self.components3d[component3dname], "rb") as aedt_fh:
             temp = aedt_fh.read().splitlines()
         _all_lines = []
         for line in temp:
             try:
-                _all_lines.append(line.decode("utf-8").lstrip('\t'))
+                _all_lines.append(line.decode("utf-8").lstrip("\t"))
             except UnicodeDecodeError:
                 break
         for line in _all_lines:
@@ -186,8 +208,12 @@ class FieldAnalysis3D(Analysis, object):
         excitation = {"HFSS": "HfssTab", "Icepak": "Icepak", "Q3D": "Q3D", "Maxwell3D": "Maxwell3D"}
         setup = {"HFSS": "HfssTab", "Icepak": "Icepak", "Q3D": "General", "Maxwell3D": "General"}
         mesh = {"HFSS": "MeshSetupTab", "Icepak": "Icepak", "Q3D": "Q3D", "Maxwell3D": "Maxwell3D"}
-        all = {"HFSS": ["HfssTab", "MeshSetupTab"], "Icepak": ["Icepak"], "Q3D": ["Q3D", "General"],
-               "Maxwell3D": ["Maxwell3D", "General"]}
+        all = {
+            "HFSS": ["HfssTab", "MeshSetupTab"],
+            "Icepak": ["Icepak"],
+            "Q3D": ["Q3D", "General"],
+            "Maxwell3D": ["Maxwell3D", "General"],
+        }
         if type == "Boundary":
             propserv = boundary[self._design_type]
             val = retry_ntimes(10, self.odesign.GetPropertyValue, propserv, objectname, property)
@@ -211,12 +237,11 @@ class FieldAnalysis3D(Analysis, object):
             for propserv in propservs:
                 properties = list(self.odesign.GetProperties(propserv, objectname))
                 if property in properties:
-                    val = retry_ntimes(10, self.odesign.GetPropertyValue,
-                                       propserv, objectname, property)
+                    val = retry_ntimes(10, self.odesign.GetPropertyValue, propserv, objectname, property)
                     return val
         return None
 
-    #TODO Refactor this
+    # TODO Refactor this
     @aedt_exception_handler
     def copy_solid_bodies_from(self, design, object_list=None, no_vacuum=True, no_pec=True, include_sheets=False):
         """Copy a list of objects from one design to the active design.
@@ -255,13 +280,13 @@ class FieldAnalysis3D(Analysis, object):
                     include_object = False
             for key, val in material_properties.items():
                 if val.name == body:
-                    if no_vacuum and val.material_name == 'Vacuum':
+                    if no_vacuum and val.material_name == "Vacuum":
                         include_object = False
-                    if no_pec and val.material_name == 'pec':
+                    if no_pec and val.material_name == "pec":
                         include_object = False
             if include_object:
                 selection_list.append(body)
-        design.modeler.oeditor.Copy(["NAME:Selections", "Selections:=", ','.join(selection_list)])
+        design.modeler.oeditor.Copy(["NAME:Selections", "Selections:=", ",".join(selection_list)])
         self.modeler.oeditor.Paste()
 
         return True
@@ -297,7 +322,7 @@ class FieldAnalysis3D(Analysis, object):
 
         contexts = []
         for i in range(number_of_modes):
-            contexts.append([s + ':' + str(i + 1) for s in sources])  # use one based indexing
+            contexts.append([s + ":" + str(i + 1) for s in sources])  # use one based indexing
         self.osolution.SetSourceContexts(contexts)
         return True
 
@@ -309,8 +334,7 @@ class FieldAnalysis3D(Analysis, object):
            Use :func:`FieldAnalysis3D.assign_material` instead.
 
         """
-        warnings.warn('assignmaterial is deprecated. Use assign_material instead.',
-                      DeprecationWarning)
+        warnings.warn("assignmaterial is deprecated. Use assign_material instead.", DeprecationWarning)
         self.assign_material(obj, mat)
 
     @aedt_exception_handler
@@ -367,7 +391,7 @@ class FieldAnalysis3D(Analysis, object):
             else:
                 arg2.append("SolveInside:="), arg2.append(False)
             self.modeler.oeditor.AssignMaterial(arg1, arg2)
-            self._messenger.add_info_message('Assign Material ' + mat + ' to object ' + selections)
+            self._messenger.add_info_message("Assign Material " + mat + " to object " + selections)
             if type(obj) is list:
                 for el in obj:
                     self.modeler.primitives[el].material_name = mat
@@ -382,7 +406,7 @@ class FieldAnalysis3D(Analysis, object):
             else:
                 arg2.append("SolveInside:="), arg2.append(False)
             self.modeler.oeditor.AssignMaterial(arg1, arg2)
-            self._messenger.add_info_message('Assign Material ' + mat + ' to object ' + selections)
+            self._messenger.add_info_message("Assign Material " + mat + " to object " + selections)
             if type(obj) is list:
                 for el in obj:
                     self.modeler.primitives[el].material_name = mat

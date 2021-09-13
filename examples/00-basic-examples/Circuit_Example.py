@@ -44,8 +44,12 @@ aedt_app = Circuit()
 # This method creates and customizes a Linear Network Analysis (LNA) setup.
 
 setup1 = aedt_app.create_setup("MyLNA")
-setup1.SweepDefinition = [('Variable', 'Freq'), ('Data', 'LINC 0GHz 4GHz 10001'), ('OffsetF1', False),
-                          ('Synchronize', 0)]
+setup1.SweepDefinition = [
+    ("Variable", "Freq"),
+    ("Data", "LINC 0GHz 4GHz 10001"),
+    ("OffsetF1", False),
+    ("Synchronize", 0),
+]
 setup1.update()
 
 ###############################################################################

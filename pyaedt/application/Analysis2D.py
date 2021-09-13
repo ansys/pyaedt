@@ -3,7 +3,7 @@ import warnings
 from .Analysis import Analysis
 from ..modeler.Model2D import Modeler2D
 from ..modules.Mesh import Mesh
-from ..generic.general_methods import aedt_exception_handler, generate_unique_name
+from ..generic.general_methods import aedt_exception_handler
 
 
 class FieldAnalysis2D(Analysis):
@@ -50,11 +50,33 @@ class FieldAnalysis2D(Analysis):
 
     """
 
-    def __init__(self, application, projectname, designname, solution_type, setup_name=None,
-                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):
+    def __init__(
+        self,
+        application,
+        projectname,
+        designname,
+        solution_type,
+        setup_name=None,
+        specified_version=None,
+        NG=False,
+        AlwaysNew=False,
+        release_on_exit=False,
+        student_version=False,
+    ):
 
-        Analysis.__init__(self, application, projectname, designname, solution_type, setup_name,
-                          specified_version, NG, AlwaysNew, release_on_exit, student_version)
+        Analysis.__init__(
+            self,
+            application,
+            projectname,
+            designname,
+            solution_type,
+            setup_name,
+            specified_version,
+            NG,
+            AlwaysNew,
+            release_on_exit,
+            student_version,
+        )
         self._modeler = Modeler2D(self)
         self._mesh = Mesh(self)
         # self._post = PostProcessor(self)
@@ -92,8 +114,7 @@ class FieldAnalysis2D(Analysis):
 
         """
         # raise a DeprecationWarning.  User won't have to change anything
-        warnings.warn('assignmaterial is deprecated. Use assign_material instead.',
-                      DeprecationWarning)
+        warnings.warn("assignmaterial is deprecated. Use assign_material instead.", DeprecationWarning)
         self.assign_material(obj, mat)
 
     @aedt_exception_handler
@@ -128,7 +149,7 @@ class FieldAnalysis2D(Analysis):
             else:
                 arg2.append("SolveInside:="), arg2.append(False)
             self.modeler.oeditor.AssignMaterial(arg1, arg2)
-            self._messenger.add_info_message('Assign Material ' + mat + ' to object ' + selections)
+            self._messenger.add_info_message("Assign Material " + mat + " to object " + selections)
             if type(obj) is list:
                 for el in obj:
                     self.modeler.primitives[el].material_name = mat
@@ -143,7 +164,7 @@ class FieldAnalysis2D(Analysis):
             else:
                 arg2.append("SolveInside:="), arg2.append(False)
             self.modeler.oeditor.AssignMaterial(arg1, arg2)
-            self._messenger.add_info_message('Assign Material ' + mat + ' to object ' + selections)
+            self._messenger.add_info_message("Assign Material " + mat + " to object " + selections)
             if type(obj) is list:
                 for el in obj:
                     self.modeler.primitives[el].material_name = mat

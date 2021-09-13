@@ -5,6 +5,7 @@ import sys
 from ..generic.general_methods import aedt_exception_handler
 from .modeler_constants import CoordinateSystemPlane, CoordinateSystemAxis, SweepDraftType
 
+
 class GeometryOperators(object):
     """Manages geometry operators."""
 
@@ -28,7 +29,7 @@ class GeometryOperators(object):
         """
         output_list = []
         for i in input_list:
-            if 'List' in str(type(i)):
+            if "List" in str(type(i)):
                 output_list.append(GeometryOperators.List2list(list(i)))
             else:
                 output_list.append(i)
@@ -89,7 +90,7 @@ class GeometryOperators(object):
             "kHz": 1e3,
             "MHz": 1e6,
             "GHz": 1e9,
-            "THz": 1e12
+            "THz": 1e12,
         }
 
         if type(string) is not str:
@@ -104,7 +105,7 @@ class GeometryOperators(object):
             except KeyError as e:
                 raise e
         else:
-            sunit = 1.
+            sunit = 1.0
 
         pattern = r"(?P<number>[-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?)\s*(?P<unit>[a-zA-Z]*)"
         m = re.search(pattern, string)
@@ -112,9 +113,9 @@ class GeometryOperators(object):
         if m:
             if not m.group("unit"):
                 return float(m.group("number"))
-            elif m.group("unit") == 'deg':
+            elif m.group("unit") == "deg":
                 return GeometryOperators.deg2rad(float(m.group("number")))
-            elif m.group("unit") == 'rad':
+            elif m.group("unit") == "rad":
                 return float(m.group("number"))
             else:
                 try:
@@ -143,11 +144,11 @@ class GeometryOperators(object):
 
         """
         if val == CoordinateSystemPlane.XYPlane:
-            return 'Z'
+            return "Z"
         elif val == CoordinateSystemPlane.YZPlane:
-            return 'X'
+            return "X"
         else:
-            return 'Y'
+            return "Y"
 
     @staticmethod
     @aedt_exception_handler
@@ -165,12 +166,12 @@ class GeometryOperators(object):
             String for the coordinate system axis.
 
         """
-        if val == CoordinateSystemAxis.XAxis or val == 'X':
-            return 'X'
-        elif val == CoordinateSystemAxis.YAxis  or val == 'Y':
-            return 'Y'
+        if val == CoordinateSystemAxis.XAxis or val == "X":
+            return "X"
+        elif val == CoordinateSystemAxis.YAxis or val == "Y":
+            return "Y"
         else:
-            return 'Z'
+            return "Z"
 
     @staticmethod
     @aedt_exception_handler
@@ -189,11 +190,11 @@ class GeometryOperators(object):
 
         """
         if val == SweepDraftType.ExtendedDraft:
-            return 'Extended'
+            return "Extended"
         elif val == SweepDraftType.RoundDraft:
-            return 'Round'
+            return "Round"
         else:
-            return 'Natural'
+            return "Natural"
 
     @staticmethod
     @aedt_exception_handler
@@ -213,9 +214,9 @@ class GeometryOperators(object):
             List of ``[x, y, z]`` coordinates for the midpoint.
 
         """
-        x = (v1[0] + v2[0]) / 2.
-        y = (v1[1] + v2[1]) / 2.
-        z = (v1[2] + v2[2]) / 2.
+        x = (v1[0] + v2[0]) / 2.0
+        y = (v1[1] + v2[1]) / 2.0
+        z = (v1[2] + v2[2]) / 2.0
         return [x, y, z]
 
     @staticmethod
@@ -263,9 +264,7 @@ class GeometryOperators(object):
             List of ``[x, y, z]`` coordinates for the result vector.
         """
 
-        c = [a[1] * b[2] - a[2] * b[1],
-             a[2] * b[0] - a[0] * b[2],
-             a[0] * b[1] - a[1] * b[0]]
+        c = [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]]
         return c
 
     @staticmethod
@@ -350,9 +349,7 @@ class GeometryOperators(object):
             List of ``[x, y, z]`` coordinates for the result vector.
 
         """
-        c = [a[0] - b[0],
-             a[1] - b[1],
-             a[2] - b[2]]
+        c = [a[0] - b[0], a[1] - b[1], a[2] - b[2]]
         return c
 
     @staticmethod
@@ -373,15 +370,13 @@ class GeometryOperators(object):
             List of ``[x, y, z]`` coordinates for the result vector.
 
         """
-        c = [a[0] + b[0],
-             a[1] + b[1],
-             a[2] + b[2]]
+        c = [a[0] + b[0], a[1] + b[1], a[2] + b[2]]
         return c
 
     @staticmethod
     @aedt_exception_handler
     def v_norm(a):
-        """ Evaluate the Euclidean norm of a geometry vector.
+        """Evaluate the Euclidean norm of a geometry vector.
 
         Parameters
         ----------
@@ -394,7 +389,7 @@ class GeometryOperators(object):
             Evaluated norm in the same unit as the coordinates for the input vector.
 
         """
-        m = (a[0]**2 + a[1]**2 + a[2]**2) ** 0.5
+        m = (a[0] ** 2 + a[1] ** 2 + a[2] ** 2) ** 0.5
         return m
 
     @staticmethod
@@ -415,7 +410,7 @@ class GeometryOperators(object):
         """
         # normalize a vector to its norm
         norm = GeometryOperators.v_norm(v)
-        vn = [i/norm for i in v]
+        vn = [i / norm for i in v]
         return vn
 
     @staticmethod
@@ -485,8 +480,8 @@ class GeometryOperators(object):
         else:
             point = -1e6
             for p in pointlists:
-                if p[direction-3] > point:
-                    point = p[direction-3]
+                if p[direction - 3] > point:
+                    point = p[direction - 3]
         return point
 
     @staticmethod
@@ -546,7 +541,7 @@ class GeometryOperators(object):
         v1 = GeometryOperators.v_points(a, b)
         v2 = GeometryOperators.v_points(a, p)
         if abs(GeometryOperators.v_norm(GeometryOperators.v_cross(v1, v2))) > tol:
-            return False   # not colinear
+            return False  # not colinear
         t1 = GeometryOperators._v_dot(v1, v2)
         t2 = GeometryOperators._v_dot(v1, v1)
         if t1 < 0 or t1 > t2:
@@ -578,7 +573,7 @@ class GeometryOperators(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        if 1. - GeometryOperators.parallel_coeff(a1, a2, b1, b2) < tol*tol:
+        if 1.0 - GeometryOperators.parallel_coeff(a1, a2, b1, b2) < tol * tol:
             return True
         else:
             return False
@@ -664,7 +659,7 @@ class GeometryOperators(object):
         for el in vertlist1:
             for el1 in vertlist2:
                 s += GeometryOperators.points_distance(el, el1)
-        return s/(len(vertlist1)+len(vertlist2))
+        return s / (len(vertlist1) + len(vertlist2))
 
     @staticmethod
     @aedt_exception_handler
@@ -687,13 +682,14 @@ class GeometryOperators(object):
         d = GeometryOperators.v_dot(a, b)
         an = GeometryOperators.v_norm(a)
         bn = GeometryOperators.v_norm(b)
-        theta = math.acos(d / (an*bn))
+        theta = math.acos(d / (an * bn))
         return theta
 
     @staticmethod
     @aedt_exception_handler
     def pointing_to_axis(x_pointing, y_pointing):
-        """Retrieve the axes from the HFSS X axis and Y pointing axis as per the definition of the AEDT interface coordinate system.
+        """Retrieve the axes from the HFSS X axis and Y pointing axis as per
+        the definition of the AEDT interface coordinate system.
 
         Parameters
         ----------
@@ -751,12 +747,12 @@ class GeometryOperators(object):
         z3 = z[2]
         if z == [0, 0, 1]:
             phi = GeometryOperators.atan2(x2, x1)
-            theta = 0.
-            psi = 0.
+            theta = 0.0
+            psi = 0.0
         elif z == [0, 0, -1]:
             phi = GeometryOperators.atan2(x2, x1)
             theta = math.pi
-            psi = 0.
+            psi = 0.0
         else:
             phi = GeometryOperators.atan2(z1, -z2)
             theta = math.acos(z3)
@@ -794,12 +790,12 @@ class GeometryOperators(object):
         z3 = z[2]
         if z == [0, 0, 1]:
             phi = GeometryOperators.atan2(x2, x1)
-            theta = 0.
-            psi = 0.
+            theta = 0.0
+            psi = 0.0
         elif z == [0, 0, -1]:
             phi = GeometryOperators.atan2(x2, x1)
             theta = math.pi
-            psi = 0.
+            psi = 0.0
         else:
             phi = GeometryOperators.atan2(z2, z1)
             theta = math.acos(z3)
@@ -827,17 +823,17 @@ class GeometryOperators(object):
         q3 = q[2]
         q4 = q[3]
 
-        m11 = q1*q1 + q2*q2 - q3*q3 - q4*q4
-        m12 = 2. * (q2*q3 - q1*q4)
-        m13 = 2. * (q2*q4 + q1*q3)
+        m11 = q1 * q1 + q2 * q2 - q3 * q3 - q4 * q4
+        m12 = 2.0 * (q2 * q3 - q1 * q4)
+        m13 = 2.0 * (q2 * q4 + q1 * q3)
 
-        m21 = 2. * (q2*q3 + q1*q4)
-        m22 = q1*q1 - q2*q2 + q3*q3 - q4*q4
-        m23 = 2. * (q3*q4 - q1*q2)
+        m21 = 2.0 * (q2 * q3 + q1 * q4)
+        m22 = q1 * q1 - q2 * q2 + q3 * q3 - q4 * q4
+        m23 = 2.0 * (q3 * q4 - q1 * q2)
 
-        m31 = 2. * (q2*q4 - q1*q3)
-        m32 = 2. * (q3*q4 + q1*q2)
-        m33 = q1*q1 - q2*q2 - q3*q3 + q4*q4
+        m31 = 2.0 * (q2 * q4 - q1 * q3)
+        m32 = 2.0 * (q3 * q4 + q1 * q2)
+        m33 = q1 * q1 - q2 * q2 - q3 * q3 + q4 * q4
 
         x = GeometryOperators.normalize_vector([m11, m21, m31])
         y = GeometryOperators.normalize_vector([m12, m22, m32])
@@ -866,8 +862,8 @@ class GeometryOperators(object):
         q2 = q[1]
         q3 = q[2]
         q4 = q[3]
-        n = (q2*q2 + q3*q3 + q4*q4) ** 0.5
-        u = [q2/n, q3/n, q4/n]
+        n = (q2 * q2 + q3 * q3 + q4 * q4) ** 0.5
+        u = [q2 / n, q3 / n, q4 / n]
         theta = 2.0 * GeometryOperators.atan2(n, q1)
         return u, theta
 
@@ -918,13 +914,13 @@ class GeometryOperators(object):
         q2 = q[1]
         q3 = q[2]
         q4 = q[3]
-        m13 = 2. * (q2*q4 + q1*q3)
-        m23 = 2. * (q3*q4 - q1*q2)
-        m33 = q1*q1 - q2*q2 - q3*q3 + q4*q4
-        m31 = 2. * (q2*q4 - q1*q3)
-        m32 = 2. * (q3*q4 + q1*q2)
+        m13 = 2.0 * (q2 * q4 + q1 * q3)
+        m23 = 2.0 * (q3 * q4 - q1 * q2)
+        m33 = q1 * q1 - q2 * q2 - q3 * q3 + q4 * q4
+        m31 = 2.0 * (q2 * q4 - q1 * q3)
+        m32 = 2.0 * (q3 * q4 + q1 * q2)
         phi = GeometryOperators.atan2(m13, -m23)
-        theta = GeometryOperators.atan2((1.-m33*m33)**0.5, m33)
+        theta = GeometryOperators.atan2((1.0 - m33 * m33) ** 0.5, m33)
         psi = GeometryOperators.atan2(m31, m32)
         return phi, theta, psi
 
@@ -953,10 +949,10 @@ class GeometryOperators(object):
         t3 = psi
         c = math.cos(t2 * 0.5)
         s = math.sin(t2 * 0.5)
-        q1 = c * math.cos((t1+t3) * 0.5)
-        q2 = s * math.cos((t1-t3) * 0.5)
-        q3 = s * math.sin((t1-t3) * 0.5)
-        q4 = c * math.sin((t1+t3) * 0.5)
+        q1 = c * math.cos((t1 + t3) * 0.5)
+        q2 = s * math.cos((t1 - t3) * 0.5)
+        q3 = s * math.sin((t1 - t3) * 0.5)
+        q4 = c * math.sin((t1 + t3) * 0.5)
         return [q1, q2, q3, q4]
 
     @staticmethod
@@ -979,13 +975,13 @@ class GeometryOperators(object):
         q2 = q[1]
         q3 = q[2]
         q4 = q[3]
-        m13 = 2. * (q2*q4 + q1*q3)
-        m23 = 2. * (q3*q4 - q1*q2)
-        m33 = q1*q1 - q2*q2 - q3*q3 + q4*q4
-        m31 = 2. * (q2*q4 - q1*q3)
-        m32 = 2. * (q3*q4 + q1*q2)
+        m13 = 2.0 * (q2 * q4 + q1 * q3)
+        m23 = 2.0 * (q3 * q4 - q1 * q2)
+        m33 = q1 * q1 - q2 * q2 - q3 * q3 + q4 * q4
+        m31 = 2.0 * (q2 * q4 - q1 * q3)
+        m32 = 2.0 * (q3 * q4 + q1 * q2)
         phi = GeometryOperators.atan2(m23, m13)
-        theta = GeometryOperators.atan2((1.-m33*m33)**0.5, m33)
+        theta = GeometryOperators.atan2((1.0 - m33 * m33) ** 0.5, m33)
         psi = GeometryOperators.atan2(m32, -m31)
         return phi, theta, psi
 
@@ -1014,10 +1010,10 @@ class GeometryOperators(object):
         t3 = psi
         c = math.cos(t2 * 0.5)
         s = math.sin(t2 * 0.5)
-        q1 = c * math.cos((t1+t3) * 0.5)
-        q2 = -s * math.sin((t1-t3) * 0.5)
-        q3 = s * math.cos((t1-t3) * 0.5)
-        q4 = c * math.sin((t1+t3) * 0.5)
+        q1 = c * math.cos((t1 + t3) * 0.5)
+        q2 = -s * math.sin((t1 - t3) * 0.5)
+        q3 = s * math.cos((t1 - t3) * 0.5)
+        q4 = c * math.sin((t1 + t3) * 0.5)
         return [q1, q2, q3, q4]
 
     @staticmethod
@@ -1037,7 +1033,7 @@ class GeometryOperators(object):
 
         """
         pi = math.pi
-        return angle / 180. * pi
+        return angle / 180.0 * pi
 
     @staticmethod
     @aedt_exception_handler
@@ -1056,7 +1052,7 @@ class GeometryOperators(object):
 
         """
         pi = math.pi
-        return angle * 180. / pi
+        return angle * 180.0 / pi
 
     @staticmethod
     @aedt_exception_handler
@@ -1082,7 +1078,7 @@ class GeometryOperators(object):
             atan2(y, x)
 
         """
-        eps = 7./3. - 4./3. - 1.
+        eps = 7.0 / 3.0 - 4.0 / 3.0 - 1.0
         if abs(y) < eps:
             y = 0.0
         if abs(x) < eps:
@@ -1156,14 +1152,14 @@ class GeometryOperators(object):
         q0 = q[0]
         qv = q[1:4]
 
-        c1 = q0*q0 - (qv[0]*qv[0] + qv[1]*qv[1] + qv[2]*qv[2])
+        c1 = q0 * q0 - (qv[0] * qv[0] + qv[1] * qv[1] + qv[2] * qv[2])
         t1 = GeometryOperators.v_prod(c1, v)
 
-        c2 = 2. * GeometryOperators.v_dot(qv, v)
+        c2 = 2.0 * GeometryOperators.v_dot(qv, v)
         t2 = GeometryOperators.v_prod(c2, qv)
 
         t3 = GeometryOperators.v_cross(qv, v)
-        t4 = GeometryOperators.v_prod(2. * q0, t3)
+        t4 = GeometryOperators.v_prod(2.0 * q0, t3)
 
         w = GeometryOperators.v_sum(t1, GeometryOperators.v_sum(t2, t4))
 
@@ -1272,12 +1268,12 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def get_numeric(s):
-        """ Convert a string to a numeric value. Discard the suffix."""
+        """Convert a string to a numeric value. Discard the suffix."""
         if type(s) == str:
-            if s == 'Global':
+            if s == "Global":
                 return 0.0
             else:
-                return float(''.join(c for c in s if c.isdigit() or c == '.'))
+                return float("".join(c for c in s if c.isdigit() or c == "."))
         elif s is None:
             return 0.0
         else:

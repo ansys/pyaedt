@@ -2,12 +2,13 @@
 This module contains the `Materials` class.
 """
 from __future__ import absolute_import
-import os
-import xml.etree.ElementTree as ET
-from .Material import *
-from ..generic.general_methods import aedt_exception_handler, retry_ntimes
-from ..generic.DataHandlers import arg2dict
+
 import json
+
+from ..generic.DataHandlers import arg2dict
+from ..generic.general_methods import aedt_exception_handler, retry_ntimes
+from .Material import *
+
 
 class Materials(object):
     """Contains the AEDT materials database and all methods for creating and editing materials.
@@ -18,6 +19,7 @@ class Materials(object):
         Inherited parent object.
 
     """
+
     @property
     def odefinition_manager(self):
         """Definition manager."""
@@ -25,8 +27,7 @@ class Materials(object):
 
     @property
     def omaterial_manager(self):
-        """Material manager.
-        """
+        """Material manager."""
         return self.odefinition_manager.GetManager("Material")
 
     @property
@@ -47,7 +48,7 @@ class Materials(object):
 
     def __init__(self, parent):
         self._parent = parent
-        self._messenger.logger.info('Successfully loaded project materials !')
+        self._messenger.logger.info("Successfully loaded project materials !")
         self.material_keys = self._get_materials()
         self.surface_material_keys = self._get_surface_materials()
         self._load_from_project()
@@ -71,8 +72,10 @@ class Materials(object):
         """Get materials."""
         mats = {}
         try:
-            for ds in self._parent.project_properies['AnsoftProject']['Definitions']['Materials']:
-                mats[ds.lower()] = Material(self, ds.lower(), self._parent.project_properies['AnsoftProject']['Definitions']['Materials'][ds])
+            for ds in self._parent.project_properies["AnsoftProject"]["Definitions"]["Materials"]:
+                mats[ds.lower()] = Material(
+                    self, ds.lower(), self._parent.project_properies["AnsoftProject"]["Definitions"]["Materials"][ds]
+                )
         except:
             pass
         return mats
@@ -81,8 +84,12 @@ class Materials(object):
     def _get_surface_materials(self):
         mats = {}
         try:
-            for ds in self._parent.project_properies['AnsoftProject']['Definitions']['SurfaceMaterials']:
-                mats[ds.lower()] = SurfaceMaterial(self, ds.lower(), self._parent.project_properies['AnsoftProject']['Definitions']['SurfaceMaterials'][ds])
+            for ds in self._parent.project_properies["AnsoftProject"]["Definitions"]["SurfaceMaterials"]:
+                mats[ds.lower()] = SurfaceMaterial(
+                    self,
+                    ds.lower(),
+                    self._parent.project_properies["AnsoftProject"]["Definitions"]["SurfaceMaterials"][ds],
+                )
         except:
             pass
         return mats
@@ -141,7 +148,7 @@ class Materials(object):
         if exists:
             omat = self.material_keys[mat]
             for el in MatProperties.aedtname:
-                if omat.__dict__["_"+el].thermalmodifier:
+                if omat.__dict__["_" + el].thermalmodifier:
                     return True
         return False
 
@@ -173,10 +180,11 @@ class Materials(object):
 
         """
         materialname = materialname.lower()
-        self._messenger.add_info_message('Adding new material to the Project Library: ' + materialname)
+        self._messenger.add_info_message("Adding new material to the Project Library: " + materialname)
         if materialname in self.material_keys:
             self._messenger.add_warning_message(
-                "Warning. The material is already in the database. Change or edit the name.")
+                "Warning. The material is already in the database. Change or edit the name."
+            )
             return self.material_keys[materialname]
         else:
             material = Material(self._parent, materialname, props)
@@ -213,10 +221,11 @@ class Materials(object):
         """
 
         materialname = material_name.lower()
-        self._messenger.add_info_message('Adding a surface material to the project library: ' + materialname)
+        self._messenger.add_info_message("Adding a surface material to the project library: " + materialname)
         if materialname in self.surface_material_keys:
             self._messenger.add_warning_message(
-                "Warning. The material is already in the database. Change the name or edit it.")
+                "Warning. The material is already in the database. Change the name or edit it."
+            )
             return self.surface_material_keys[materialname]
         else:
             material = SurfaceMaterial(self._parent, materialname)
@@ -229,19 +238,19 @@ class Materials(object):
 
     @aedt_exception_handler
     def _create_mat_project_vars(self, matlist):
-        matprop={}
+        matprop = {}
         tol = 1e-12
         for prop in MatProperties.aedtname:
             matprop[prop] = []
             for mat in matlist:
                 try:
-                    matprop[prop].append(float(mat.__dict__["_"+prop].value))
+                    matprop[prop].append(float(mat.__dict__["_" + prop].value))
                 except:
                     self._messenger.add_warning_message("Warning. Wrong parsed property. Reset to 0")
                     matprop[prop].append(0)
             try:
                 a = sum(matprop[prop])
-                if a <tol:
+                if a < tol:
                     del matprop[prop]
             except:
                 pass
@@ -292,13 +301,13 @@ class Materials(object):
         mat_dict = self._create_mat_project_vars(matsweep)
 
         newmat = Material(self._parent, matname)
-        index = "$ID"+matname
+        index = "$ID" + matname
         self._parent[index] = 0
         for el in mat_dict:
             if el in list(mat_dict.keys()):
-                self._parent["$"+matname+el] = mat_dict[el]
-                newmat.__dict__["_"+el].value = "$"+matname+el+"["+ index + "]"
-                newmat._update_props(el, "$"+matname+el+"["+ index + "]", False)
+                self._parent["$" + matname + el] = mat_dict[el]
+                newmat.__dict__["_" + el].value = "$" + matname + el + "[" + index + "]"
+                newmat._update_props(el, "$" + matname + el + "[" + index + "]", False)
 
         newmat.update()
         self.material_keys[matname] = newmat
@@ -441,7 +450,7 @@ class Materials(object):
                 try:
                     self._aedmattolibrary(el)
                 except Exception as e:
-                    self._messenger.add_info_message('aedmattolibrary failed for material {}'.format(el))
+                    self._messenger.add_info_message("aedmattolibrary failed for material {}".format(el))
 
     @aedt_exception_handler
     def _aedmattolibrary(self, matname):
@@ -470,13 +479,15 @@ class Materials(object):
             ``True`` when successful, ``False`` when failed.
 
         """
+
         def find_datasets(d, out_list):
             for k, v in d.items():
                 if isinstance(v, dict):
                     find_datasets(v, out_list)
                 else:
                     if "pwl(" in str(v):
-                        out_list.append(v[v.find("$"):v.find(",")])
+                        out_list.append(v[v.find("$") : v.find(",")])
+
         # Data to be written
         output_dict = OrderedDict()
         for el, val in self.material_keys.items():
@@ -488,18 +499,33 @@ class Materials(object):
             if ds in list(self._parent.project_datasets.keys()):
                 d = self._parent.project_datasets[ds]
                 if d.z:
-                    datasets[ds] = OrderedDict({"Coordinates": OrderedDict({"DimUnits": [d.xunit, d.yunit, d.zunit],
-                                                                            "Points": [val for tup in zip(d.x, d.y, d.z)
-                                                                                       for val in tup]})})
+                    datasets[ds] = OrderedDict(
+                        {
+                            "Coordinates": OrderedDict(
+                                {
+                                    "DimUnits": [d.xunit, d.yunit, d.zunit],
+                                    "Points": [val for tup in zip(d.x, d.y, d.z) for val in tup],
+                                }
+                            )
+                        }
+                    )
                 else:
-                    datasets[ds] = OrderedDict({"Coordinates": OrderedDict(
-                        {"DimUnits": [d.xunit, d.yunit], "Points": [val for tup in zip(d.x, d.y) for val in tup]})})
+                    datasets[ds] = OrderedDict(
+                        {
+                            "Coordinates": OrderedDict(
+                                {
+                                    "DimUnits": [d.xunit, d.yunit],
+                                    "Points": [val for tup in zip(d.x, d.y) for val in tup],
+                                }
+                            )
+                        }
+                    )
         json_dict = {}
         json_dict["materials"] = output_dict
         if datasets:
             json_dict["datasets"] = datasets
 
-        with open(full_json_path, 'w') as fp:
+        with open(full_json_path, "w") as fp:
             json.dump(json_dict, fp, indent=4)
         return True
 
@@ -527,20 +553,23 @@ class Materials(object):
                 yunit = val["Coordinates"]["DimUnits"][1]
                 zunit = ""
 
-                new_list = [val["Coordinates"]['Points'][i:i + numcol]
-                            for i in range(0, len(val["Coordinates"]['Points']), numcol)]
+                new_list = [
+                    val["Coordinates"]["Points"][i : i + numcol]
+                    for i in range(0, len(val["Coordinates"]["Points"]), numcol)
+                ]
                 xval = new_list[0]
                 yval = new_list[1]
                 zval = None
                 if numcol > 2:
                     zunit = val["Coordinates"]["DimUnits"][2]
                     zval = new_list[2]
-                self._parent.create_dataset(el[1:], xunit=xunit, yunit=yunit, zunit=zunit,
-                                            xlist=xval, ylist=yval, zlist=zval)
+                self._parent.create_dataset(
+                    el[1:], xunit=xunit, yunit=yunit, zunit=zunit, xlist=xval, ylist=yval, zlist=zval
+                )
 
         for el, val in data["materials"].items():
             if el.lower() in list(self.material_keys.keys()):
-                newname =generate_unique_name(el)
+                newname = generate_unique_name(el)
                 self._messenger.add_warning_message("Material {} already exists. Renaming to {}".format(el, newname))
             else:
                 newname = el

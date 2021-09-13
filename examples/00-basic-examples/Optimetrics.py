@@ -16,7 +16,7 @@ import os
 # AEDT in graphical mode.
 
 NG = False
-d =Desktop("2021.1", NG=NG)
+d = Desktop("2021.1", NG=NG)
 
 ###############################################################################
 # Initialize the `Hfss` Object and Create the Needed Design Variables
@@ -33,8 +33,14 @@ hfss["w2"] = "100mm"
 # This method creates one of the standard waveguide structures and parametrizes it.
 # You can also create rectangles of waveguide openings and assign ports later.
 
-wg1, p1, p2= hfss.modeler.create_waveguide(
-    [0,0,0],hfss.CoordinateSystemAxis.YAxis,"WG17",wg_thickness="w1",wg_length="w2", create_sheets_on_openings=True)
+wg1, p1, p2 = hfss.modeler.create_waveguide(
+    [0, 0, 0],
+    hfss.CoordinateSystemAxis.YAxis,
+    "WG17",
+    wg_thickness="w1",
+    wg_length="w2",
+    create_sheets_on_openings=True,
+)
 
 ###############################################################################
 # Create Wave Ports on the Sheets
@@ -51,8 +57,9 @@ hfss.create_wave_port_from_sheet(p2, axisdir=hfss.AxisDir.ZPos, portname="2")
 # Optimetrics setups.
 
 setup = hfss.create_setup()
-hfss.create_linear_step_sweep(setupname=setup.name, unit='GHz', freqstart=1, freqstop=5, step_size=0.1,
-                                                   sweepname="Sweep1", save_fields=True)
+hfss.create_linear_step_sweep(
+    setupname=setup.name, unit="GHz", freqstart=1, freqstop=5, step_size=0.1, sweepname="Sweep1", save_fields=True
+)
 
 ###############################################################################
 # Optimetrics Parametrics Setup
@@ -63,10 +70,8 @@ hfss.create_linear_step_sweep(setupname=setup.name, unit='GHz', freqstart=1, fre
 
 sweep = hfss.opti_parametric.add_parametric_setup("w2", "LIN 90mm 200mm 5mm")
 sweep.add_variation("w1", "LIN 0.1mm 2mm 0.1mm")
-sweep.add_calculation(calculation="dB(S(1,1))", calculation_value="2.5GHz",
-                      reporttype="Modal Solution Data")
-sweep.add_calculation(calculation="dB(S(1,1))", calculation_value="2.6GHz",
-                      reporttype="Modal Solution Data")
+sweep.add_calculation(calculation="dB(S(1,1))", calculation_value="2.5GHz", reporttype="Modal Solution Data")
+sweep.add_calculation(calculation="dB(S(1,1))", calculation_value="2.6GHz", reporttype="Modal Solution Data")
 
 ###############################################################################
 # Optimetrics Sensitivity Setup
@@ -85,13 +90,16 @@ sweep2.add_calculation(calculation="dB(S(1,1))", calculation_value="2.6GHz")
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This example creates an optimization based on goals and calculations.
 
-sweep3 = hfss.opti_optimization.add_optimization(
-    calculation="dB(S(1,1))", calculation_value="2.5GHz")
+sweep3 = hfss.opti_optimization.add_optimization(calculation="dB(S(1,1))", calculation_value="2.5GHz")
 sweep3.add_goal(calculation="dB(S(1,1))", calculation_value="2.6GHz")
-sweep3.add_goal(calculation="dB(S(1,1))", calculation_value="2.6GHz",
-                calculation_type="rd", calculation_stop="5GHz")
-sweep3.add_goal(calculation="dB(S(1,1))", calculation_value="2.6GHz",
-                calculation_type="rd", calculation_stop="5GHz", condition="Maximize")
+sweep3.add_goal(calculation="dB(S(1,1))", calculation_value="2.6GHz", calculation_type="rd", calculation_stop="5GHz")
+sweep3.add_goal(
+    calculation="dB(S(1,1))",
+    calculation_value="2.6GHz",
+    calculation_type="rd",
+    calculation_stop="5GHz",
+    condition="Maximize",
+)
 
 ###############################################################################
 # Optimetrics DesignXplorer (DX) Setup

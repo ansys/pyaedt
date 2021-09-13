@@ -3,13 +3,26 @@
 This module is implicitily loaded in HFSS 3D Layout when launched.
 
 """
+import gc
 import os
 import sys
+import time
 import traceback
 import warnings
-import gc
-import time
-if os.name == 'posix':
+
+from pyaedt import inside_desktop, is_ironpython
+from pyaedt.application.MessageManager import EDBMessageManager
+from pyaedt.edb_core import *
+from pyaedt.generic.general_methods import (
+    aedt_exception_handler,
+    env_path,
+    env_path_student,
+    env_value,
+    generate_unique_name,
+)
+from pyaedt.generic.process import SiwaveSolve
+
+if os.name == "posix":
     try:
         import subprocessdotnet as subprocess
     except:
@@ -18,24 +31,14 @@ else:
     import subprocess
 try:
     import clr
-    from System.Collections.Generic import List, Dictionary
-    from System import Convert, String
-    import System
-    from System import Double, Array
-    from System.Collections.Generic import List
+    from System import Convert
+
     edb_initialized = True
 except ImportError:
     warnings.warn(
-        "The clr is missing. Install Python.NET or use an IronPython version if you want to use the EDB module.")
+        "The clr is missing. Install Python.NET or use an IronPython version if you want to use the EDB module."
+    )
     edb_initialized = False
-
-from pyaedt import is_ironpython, inside_desktop
-from pyaedt.application.MessageManager import EDBMessageManager
-from pyaedt.edb_core import *
-
-from pyaedt.generic.general_methods import env_path, env_value, env_path_student
-from pyaedt.generic.general_methods import generate_unique_name, aedt_exception_handler
-from pyaedt.generic.process import SiwaveSolve
 
 
 class Edb(object):
@@ -77,7 +80,17 @@ class Edb(object):
 
     """
 
-    def __init__(self, edbpath=None, cellname=None, isreadonly=False, edbversion="2021.1", isaedtowned=False, oproject=None, student_version=False,use_ppe=False):
+    def __init__(
+        self,
+        edbpath=None,
+        cellname=None,
+        isreadonly=False,
+        edbversion="2021.1",
+        isaedtowned=False,
+        oproject=None,
+        student_version=False,
+        use_ppe=False,
+    ):
         self._clean_variables()
         if is_ironpython and inside_desktop:
             self.standalone = False
@@ -86,7 +99,7 @@ class Edb(object):
         if edb_initialized:
             self.oproject = oproject
             if isaedtowned:
-                self._main = sys.modules['__main__']
+                self._main = sys.modules["__main__"]
                 self._messenger = self._main.oMessenger
             else:
                 if not edbpath or not os.path.exists(edbpath):
@@ -109,19 +122,21 @@ class Edb(object):
                     edbpath = os.getenv("USERPROFILE")
                     if not edbpath:
                         edbpath = os.path.expanduser("~")
-                    edbpath = os.path.join(edbpath, "Documents", generate_unique_name("layout")+".aedb")
+                    edbpath = os.path.join(edbpath, "Documents", generate_unique_name("layout") + ".aedb")
                 else:
                     edbpath = os.getenv("HOME")
                     if not edbpath:
                         edbpath = os.path.expanduser("~")
-                    edbpath = os.path.join(edbpath, generate_unique_name("layout")+".aedb")
+                    edbpath = os.path.join(edbpath, generate_unique_name("layout") + ".aedb")
                 self._messenger.add_info_message("No Edb Provided. Creating new EDB {}.".format(edbpath))
             self.edbpath = edbpath
             if edbpath[-3:] in ["brd", "gds", "xml", "dxf", "tgz"]:
                 self.edbpath = edbpath[:-4] + ".aedb"
                 working_dir = os.path.dirname(edbpath)
                 self.import_layout_pcb(edbpath, working_dir, use_ppe=use_ppe)
-                self._messenger.add_info_message("Edb {} Created Correctly from {} file".format(self.edbpath, edbpath[-2:]))
+                self._messenger.add_info_message(
+                    "Edb {} Created Correctly from {} file".format(self.edbpath, edbpath[-2:])
+                )
 
             elif not os.path.exists(os.path.join(self.edbpath, "edb.def")):
                 self.create_edb()
@@ -254,7 +269,7 @@ class Edb(object):
     def _init_dlls(self):
         """Initialize DLLs."""
         sys.path.append(os.path.join(os.path.dirname(__file__), "dlls", "EDBLib"))
-        if os.name == 'posix':
+        if os.name == "posix":
             if env_value(self.edbversion) in os.environ:
                 self.base_path = env_path(self.edbversion)
                 sys.path.append(self.base_path)
@@ -264,34 +279,33 @@ class Edb(object):
                     self.base_path = main.oDesktop.GetExeDir()
                     sys.path.append(main.oDesktop.GetExeDir())
                     os.environ[env_value(self.edbversion)] = self.base_path
-            clr.AddReferenceToFile('Ansys.Ansoft.Edb.dll')
-            clr.AddReferenceToFile('Ansys.Ansoft.EdbBuilderUtils.dll')
-            clr.AddReferenceToFile('EdbLib.dll')
-            clr.AddReferenceToFile('DataModel.dll')
-            clr.AddReferenceToFileAndPath(os.path.join(
-                self.base_path, 'Ansys.Ansoft.SimSetupData.dll'))
+            clr.AddReferenceToFile("Ansys.Ansoft.Edb.dll")
+            clr.AddReferenceToFile("Ansys.Ansoft.EdbBuilderUtils.dll")
+            clr.AddReferenceToFile("EdbLib.dll")
+            clr.AddReferenceToFile("DataModel.dll")
+            clr.AddReferenceToFileAndPath(os.path.join(self.base_path, "Ansys.Ansoft.SimSetupData.dll"))
         else:
             if self.student_version:
                 self.base_path = env_path_student(self.edbversion)
             else:
-                self.base_path = env_path( self.edbversion)
+                self.base_path = env_path(self.edbversion)
             sys.path.append(self.base_path)
-            clr.AddReference('Ansys.Ansoft.Edb')
-            clr.AddReference('Ansys.Ansoft.EdbBuilderUtils')
-            clr.AddReference('EdbLib')
-            clr.AddReference('DataModel')
-            clr.AddReference('Ansys.Ansoft.SimSetupData')
+            clr.AddReference("Ansys.Ansoft.Edb")
+            clr.AddReference("Ansys.Ansoft.EdbBuilderUtils")
+            clr.AddReference("EdbLib")
+            clr.AddReference("DataModel")
+            clr.AddReference("Ansys.Ansoft.SimSetupData")
         os.environ["ECAD_TRANSLATORS_INSTALL_DIR"] = self.base_path
-        oaDirectory = os.path.join(self.base_path, 'common', 'oa')
-        os.environ['ANSYS_OADIR'] = oaDirectory
-        os.environ['PATH'] = '{};{}'.format(os.environ['PATH'], self.base_path)
-        edb = __import__('Ansys.Ansoft.Edb')
+        oaDirectory = os.path.join(self.base_path, "common", "oa")
+        os.environ["ANSYS_OADIR"] = oaDirectory
+        os.environ["PATH"] = "{};{}".format(os.environ["PATH"], self.base_path)
+        edb = __import__("Ansys.Ansoft.Edb")
 
         self.edb = edb.Ansoft.Edb
-        edbbuilder = __import__('Ansys.Ansoft.EdbBuilderUtils')
-        self.edblib = __import__('EdbLib')
+        edbbuilder = __import__("Ansys.Ansoft.EdbBuilderUtils")
+        self.edblib = __import__("EdbLib")
         self.edbutils = edbbuilder.Ansoft.EdbBuilderUtils
-        self.simSetup = __import__('Ansys.Ansoft.SimSetupData')
+        self.simSetup = __import__("Ansys.Ansoft.SimSetupData")
         self.layout_methods = self.edblib.Layout.LayoutMethods
         self.simsetupdata = self.simSetup.Ansoft.SimSetupData.Data
 
@@ -336,12 +350,12 @@ class Edb(object):
 
         if self._db and self._active_cell:
             time.sleep(1)
-            dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)),
-                                   "dlls", "EDBLib", "DataModel.dll")
+            dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib", "DataModel.dll")
             self._messenger.add_info_message(dllpath)
             self.layout_methods.LoadDataModel(dllpath)
-            self.builder = self.layout_methods.GetBuilder(self._db, self._active_cell, self.edbpath,
-                                                          self.edbversion,  self.standalone)
+            self.builder = self.layout_methods.GetBuilder(
+                self._db, self._active_cell, self.edbpath, self.edbversion, self.standalone
+            )
             self._init_objects()
             self._messenger.add_info_message("Builder Initialized")
 
@@ -379,15 +393,16 @@ class Edb(object):
                 return None
             self._db = db
             self._active_cell = self.edb.Cell.Cell.FindByName(
-                self.db, self.edb.Cell.CellType.CircuitCell, self.cellname)
+                self.db, self.edb.Cell.CellType.CircuitCell, self.cellname
+            )
             if self._active_cell is None:
                 self._active_cell = list(self._db.TopCircuitCells)[0]
-            dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)),
-                                   "dlls", "EDBLib", "DataModel.dll")
+            dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib", "DataModel.dll")
             if self._db and self._active_cell:
                 self.layout_methods.LoadDataModel(dllpath)
-                self.builder = self.layout_methods.GetBuilder(self._db, self._active_cell, self.edbpath,
-                                                              self.edbversion, self.standalone, True)
+                self.builder = self.layout_methods.GetBuilder(
+                    self._db, self._active_cell, self.edbpath, self.edbversion, self.standalone, True
+                )
                 self._init_objects()
                 return self.builder
             else:
@@ -425,13 +440,13 @@ class Edb(object):
         self._db = db
         if not self.cellname:
             self.cellname = generate_unique_name("Cell")
-        self._active_cell = self.edb.Cell.Cell.Create(
-            self._db,  self.edb.Cell.CellType.CircuitCell, self.cellname)
+        self._active_cell = self.edb.Cell.Cell.Create(self._db, self.edb.Cell.CellType.CircuitCell, self.cellname)
         dllpath = os.path.join(os.path.dirname(__file__), "dlls", "EDBLib", "DataModel.dll")
         if self._db and self._active_cell:
             self.layout_methods.LoadDataModel(dllpath)
             self.builder = self.layout_methods.GetBuilder(
-                self._db, self._active_cell, self.edbpath, self.edbversion, self.standalone)
+                self._db, self._active_cell, self.edbpath, self.edbversion, self.standalone
+            )
             self._init_objects()
             return self.builder
         self.builder = None
@@ -485,10 +500,10 @@ class Edb(object):
             cmd_translator += " -ppe=false"
         p = subprocess.Popen(cmd_translator)
         p.wait()
-        if not os.path.exists(os.path.join(working_dir,aedb_name)):
+        if not os.path.exists(os.path.join(working_dir, aedb_name)):
             self._messenger.add_error_message("Translator failed to translate.")
             return False
-        self.edbpath = os.path.join(working_dir,aedb_name)
+        self.edbpath = os.path.join(working_dir, aedb_name)
         return self.open_edb()
 
     def __enter__(self):
@@ -513,7 +528,7 @@ class Edb(object):
 
         """
         tb_trace = traceback.format_tb(tb_data)
-        tblist = tb_trace[0].split('\n')
+        tblist = tb_trace[0].split("\n")
         self._messenger.add_error_message(str(ex_value))
         for el in tblist:
             self._messenger.add_error_message(el)
@@ -598,12 +613,15 @@ class Edb(object):
             List of all pins.
         """
 
-        pins=[]
+        pins = []
         if self.core_components:
             for el in self.core_components.components:
                 comp = self.edb.Cell.Hierarchy.Component.FindByName(self.active_layout, el)
-                temp = [p for p in comp.LayoutObjs if
-                        p.GetObjType() == self.edb.Cell.LayoutObjType.PadstackInstance and p.IsLayoutPin()]
+                temp = [
+                    p
+                    for p in comp.LayoutObjs
+                    if p.GetObjType() == self.edb.Cell.LayoutObjType.PadstackInstance and p.IsLayoutPin()
+                ]
                 pins += temp
         return pins
 
@@ -631,8 +649,8 @@ class Edb(object):
         VoltageProbe :
 
         """
-        (Port, Pec, RLC, CurrentSource, VoltageSource, NexximGround,
-         NexximPort, DcTerminal, VoltageProbe) = range(0, 9)
+
+        (Port, Pec, RLC, CurrentSource, VoltageSource, NexximGround, NexximPort, DcTerminal, VoltageProbe) = range(0, 9)
 
     @aedt_exception_handler
     def edb_value(self, val):
@@ -662,7 +680,7 @@ class Edb(object):
         self._db.Close()
 
         self._clean_variables()
-        props = [a for a in dir(self) if not a.startswith('__')]
+        props = [a for a in dir(self) if not a.startswith("__")]
 
         for a in props:
             self.__dict__.pop(a, None)
@@ -673,12 +691,12 @@ class Edb(object):
     def save_edb(self):
         """Save the EDB file.
 
-       Returns
+        Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
 
-       """
+        """
         self._db.Save()
         return True
 
@@ -739,8 +757,9 @@ class Edb(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        if self.import_layout_pcb(inputBrd, working_dir=WorkDir, anstranslator_full_path=anstranslator_full_path,
-                                  use_ppe=use_ppe):
+        if self.import_layout_pcb(
+            inputBrd, working_dir=WorkDir, anstranslator_full_path=anstranslator_full_path, use_ppe=use_ppe
+        ):
             return True
         else:
             return False
@@ -766,14 +785,23 @@ class Edb(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        if self.import_layout_pcb(inputGDS, working_dir=WorkDir, anstranslator_full_path=anstranslator_full_path,
-                                  use_ppe=use_ppe):
+        if self.import_layout_pcb(
+            inputGDS, working_dir=WorkDir, anstranslator_full_path=anstranslator_full_path, use_ppe=use_ppe
+        ):
             return True
         else:
             return False
 
-    def create_cutout(self, signal_list, reference_list=["GND"], extent_type="Conforming", expansion_size=0.002,
-                      use_round_corner=False, output_aedb_path=None, replace_design_with_cutout=True):
+    def create_cutout(
+        self,
+        signal_list,
+        reference_list=["GND"],
+        extent_type="Conforming",
+        expansion_size=0.002,
+        use_round_corner=False,
+        output_aedb_path=None,
+        replace_design_with_cutout=True,
+    ):
         """Create a cutout and save it to a new AEDB file.
 
         Parameters
@@ -814,36 +842,33 @@ class Edb(object):
             _ref_nets.append(_netobj)
 
         from .edb_core.general import convert_py_list_to_net_list
-        _netsClip = [self.edb.Cell.Net.FindByName(self.active_layout, reference_list[i]) for i, p in
-                     enumerate(reference_list)]
+
+        _netsClip = [
+            self.edb.Cell.Net.FindByName(self.active_layout, reference_list[i]) for i, p in enumerate(reference_list)
+        ]
         _netsClip = convert_py_list_to_net_list(_netsClip)
-        net_signals= convert_py_list_to_net_list(_signal_nets)
+        net_signals = convert_py_list_to_net_list(_signal_nets)
         if extent_type == "Conforming":
-            _poly = self.active_layout.GetExpandedExtentFromNets(net_signals,
-                                                           self.edb.Geometry.ExtentType.Conforming,
-                                                           expansion_size,
-                                                           False,
-                                                           use_round_corner,
-                                                           1)
+            _poly = self.active_layout.GetExpandedExtentFromNets(
+                net_signals, self.edb.Geometry.ExtentType.Conforming, expansion_size, False, use_round_corner, 1
+            )
         else:
-            _poly = self.active_layout.GetExpandedExtentFromNets(net_signals,
-                                                           self.edb.Geometry.ExtentType.BoundingBox,
-                                                           expansion_size,
-                                                           False,
-                                                           use_round_corner,
-                                                           1)
+            _poly = self.active_layout.GetExpandedExtentFromNets(
+                net_signals, self.edb.Geometry.ExtentType.BoundingBox, expansion_size, False, use_round_corner, 1
+            )
 
         # Create new cutout cell/design
         _cutout = self.active_cell.CutOut(net_signals, _netsClip, _poly)
 
-        # The analysis setup(s) do not come over with the clipped design copy, so add the analysis setup(s) from the original here
+        # The analysis setup(s) do not come over with the clipped design copy,
+        # so add the analysis setup(s) from the original here
         for _setup in self.active_cell.SimulationSetups:
             # Empty string '' if coming from setup copy and don't set explicitly.
             _setup_name = _setup.GetName()
             if "GetSimSetupInfo" in dir(_setup):
                 # setup is an Ansys.Ansoft.Edb.Utility.HFSSSimulationSetup object
                 _hfssSimSetupInfo = _setup.GetSimSetupInfo()
-                _hfssSimSetupInfo.Name = 'HFSS Setup 1'  # Set name of analysis setup
+                _hfssSimSetupInfo.Name = "HFSS Setup 1"  # Set name of analysis setup
                 # Write the simulation setup info into the cell/design setup
                 _setup.SetSimSetupInfo(_hfssSimSetupInfo)
                 _cutout.AddSimulationSetup(_setup)  # Add simulation setup to the cutout design
@@ -855,8 +880,9 @@ class Edb(object):
             _dbCells.append(self.active_cell)
 
         if output_aedb_path:
-            db2 = self.edb.Database.Create(
-                output_aedb_path)  # Function input is the name of a .aedb folder inside which the edb.def will be created. Ex: 'D:/backedup/EDB/TEST PROJECTS/CUTOUT/N1.aedb'
+            db2 = self.edb.Database.Create(output_aedb_path)
+            # Function input is the name of a .aedb folder inside which the edb.def will be created.
+            # Ex: 'D:/backedup/EDB/TEST PROJECTS/CUTOUT/N1.aedb'
             _dbCells = convert_py_list_to_net_list(_dbCells)
             db2.CopyCells(_dbCells)  # Copies cutout cell/design to db2 project
             _success = db2.Save()
@@ -889,14 +915,17 @@ class Edb(object):
             "SOLVE_DC_RESISTANCE": 0,
             "SOLVE_DC_INDUCTANCE_RESISTANCE": 1,
             "SOLVE_AC_INDUCTANCE_RESISTANCE": 0,
-            "CreateSources": 0, "CreateSinks": 0,
-            "LAUNCH_Q3D": 0, "LAUNCH_HFSS": 0}
+            "CreateSources": 0,
+            "CreateSinks": 0,
+            "LAUNCH_Q3D": 0,
+            "LAUNCH_HFSS": 0,
+        }
         if config_dictionaries:
             for el, val in config_dictionaries.items():
-                option_config[el]=val
+                option_config[el] = val
         with open(os.path.join(path_to_output, "options.config"), "w") as f:
             for el, val in option_config.items():
-                f.write(el+" "+str(val)+"\n")
+                f.write(el + " " + str(val) + "\n")
         return os.path.join(path_to_output, "options.config")
 
     @aedt_exception_handler
@@ -930,7 +959,7 @@ class Edb(object):
 
         """
         siwave_s = SiwaveSolve(self.edbpath, aedt_installer_path=self.base_path)
-        return siwave_s.export_3d_cad("HFSS", path_to_output,net_list)
+        return siwave_s.export_3d_cad("HFSS", path_to_output, net_list)
 
     @aedt_exception_handler
     def export_q3d(self, path_to_output, net_list=None):

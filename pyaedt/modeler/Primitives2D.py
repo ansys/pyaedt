@@ -1,6 +1,5 @@
 from ..generic.general_methods import aedt_exception_handler, is_number
 from .Primitives import Primitives
-import numbers
 
 
 class Primitives2D(Primitives, object):
@@ -11,7 +10,7 @@ class Primitives2D(Primitives, object):
         """Create a 2D plane."""
         plane = "Z"
         if self._parent.design_type == "Maxwell 2D":
-            if self._parent.odesign.GetGeometryMode()=="about Z":
+            if self._parent.odesign.GetGeometryMode() == "about Z":
                 plane = "Y"
         return plane
 
@@ -63,14 +62,14 @@ class Primitives2D(Primitives, object):
         vArg1.append("ZCenter:="), vArg1.append(ZCenter)
         vArg1.append("Radius:="), vArg1.append(Radius)
         vArg1.append("WhichAxis:="), vArg1.append(szAxis)
-        vArg1.append("NumSegments:="), vArg1.append('{}'.format(num_sides))
+        vArg1.append("NumSegments:="), vArg1.append("{}".format(num_sides))
 
         vArg2 = self._default_object_attributes(name=name, matname=matname)
         new_object_name = self.oeditor.CreateCircle(vArg1, vArg2)
         return self._create_object(new_object_name)
 
     @aedt_exception_handler
-    def create_ellipse(self,position, major_radius, ratio, is_covered=True, name=None, matname=None):
+    def create_ellipse(self, position, major_radius, ratio, is_covered=True, name=None, matname=None):
         """Create an ellipse.
 
         Parameters
@@ -148,7 +147,7 @@ class Primitives2D(Primitives, object):
         szAxis = self.plane2d
         XStart, YStart, ZStart = self._pos_with_arg(position)
         if self.plane2d == "Z":
-            Height  = self._arg_with_dim(dimension_list[0])
+            Height = self._arg_with_dim(dimension_list[0])
             Width = self._arg_with_dim(dimension_list[1])
         else:
             Width = self._arg_with_dim(dimension_list[0])
@@ -233,7 +232,7 @@ class Primitives2D(Primitives, object):
         pyaedt.modeler.Object3d.Object3d
 
         """
-        #TODO handle RZ!!
+        # TODO handle RZ!!
         if is_number(pad_percent):
             pad_percent = [pad_percent, pad_percent, 0, pad_percent, pad_percent, 0]
         else:

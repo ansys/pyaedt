@@ -3,75 +3,132 @@ from ..generic.general_methods import aedt_exception_handler, generate_unique_na
 from ..generic.DataHandlers import dict2arg, arg2dict
 import copy
 
-defaultparametricSetup = OrderedDict({"IsEnabled": True, "ProdOptiSetupDataV2":
-            OrderedDict({"SaveFields": False, "CopyMesh": False, "SolveWithCopiedMeshOnly": True}),
-                                                "StartingPoint": OrderedDict(), "Sim. Setups": [],
-                                                "Sweeps": OrderedDict({"SweepDefinition":
-                                                                           OrderedDict({"Variable": "",
-                                                                                        "Data": "",
-                                                                                        "OffsetF1": False,
-                                                                                        "Synchronize": 0})}),
-                                                "Sweep Operations": OrderedDict(),
-                                                "Goals": OrderedDict()})
+defaultparametricSetup = OrderedDict(
+    {
+        "IsEnabled": True,
+        "ProdOptiSetupDataV2": OrderedDict({"SaveFields": False, "CopyMesh": False, "SolveWithCopiedMeshOnly": True}),
+        "StartingPoint": OrderedDict(),
+        "Sim. Setups": [],
+        "Sweeps": OrderedDict(
+            {"SweepDefinition": OrderedDict({"Variable": "", "Data": "", "OffsetF1": False, "Synchronize": 0})}
+        ),
+        "Sweep Operations": OrderedDict(),
+        "Goals": OrderedDict(),
+    }
+)
 
 
-defaultdxSetup = OrderedDict({"IsEnabled": True, "ProdOptiSetupDataV2":
-            OrderedDict({"SaveFields": False, "CopyMesh": False, "SolveWithCopiedMeshOnly": True}),
-                                                "StartingPoint": OrderedDict(), "Sim. Setups": [],
-                                                "Sweeps": OrderedDict({"SweepDefinition":
-                                                                           OrderedDict({"Variable": "",
-                                                                                        "Data": "",
-                                                                                        "OffsetF1": False,
-                                                                                        "Synchronize": 0})}),
-                              "Sweep Operations": OrderedDict(), "CostFunctionName": "Cost", "CostFuncNormType": "L2",
-                               "CostFunctionGoals": OrderedDict(),"EmbeddedParamSetup": -1, "Goals": OrderedDict()})
+defaultdxSetup = OrderedDict(
+    {
+        "IsEnabled": True,
+        "ProdOptiSetupDataV2": OrderedDict({"SaveFields": False, "CopyMesh": False, "SolveWithCopiedMeshOnly": True}),
+        "StartingPoint": OrderedDict(),
+        "Sim. Setups": [],
+        "Sweeps": OrderedDict(
+            {"SweepDefinition": OrderedDict({"Variable": "", "Data": "", "OffsetF1": False, "Synchronize": 0})}
+        ),
+        "Sweep Operations": OrderedDict(),
+        "CostFunctionName": "Cost",
+        "CostFuncNormType": "L2",
+        "CostFunctionGoals": OrderedDict(),
+        "EmbeddedParamSetup": -1,
+        "Goals": OrderedDict(),
+    }
+)
 
-defaultoptiSetup = OrderedDict({"IsEnabled": True, "ProdOptiSetupDataV2":
-    OrderedDict({"SaveFields": False, "CopyMesh": False, "SolveWithCopiedMeshOnly": True}),
-                                "StartingPoint": OrderedDict(), "Optimizer": "Quasi Newton",
-                                "AnalysisStopOptions": OrderedDict({"StopForNumIteration": True,
-                                                                    "StopForElapsTime": False,
-                                                                    "StopForSlowImprovement": False,
-                                                                    "StopForGrdTolerance": False,
-                                                                    "MaxNumIteration": 1000,
-                                                                    "MaxSolTimeInSec": 3600,
-                                                                    "RelGradientTolerance": 0,
-                                                                    "MinNumIteration": 10
-                                                                    }),
-                                "CostFuncNormType": "L2", "PriorPSetup": "", "PreSolvePSetup": True,
-                                "Variables": OrderedDict(), "LCS": OrderedDict(), "Goals": OrderedDict(),
-                                "Acceptable_Cost": 0, "Noise": 0.0001, "UpdateDesign": False, "UpdateIteration": 5,
-                                "KeepReportAxis": True, "UpdateDesignWhenDone": True})
+defaultoptiSetup = OrderedDict(
+    {
+        "IsEnabled": True,
+        "ProdOptiSetupDataV2": OrderedDict({"SaveFields": False, "CopyMesh": False, "SolveWithCopiedMeshOnly": True}),
+        "StartingPoint": OrderedDict(),
+        "Optimizer": "Quasi Newton",
+        "AnalysisStopOptions": OrderedDict(
+            {
+                "StopForNumIteration": True,
+                "StopForElapsTime": False,
+                "StopForSlowImprovement": False,
+                "StopForGrdTolerance": False,
+                "MaxNumIteration": 1000,
+                "MaxSolTimeInSec": 3600,
+                "RelGradientTolerance": 0,
+                "MinNumIteration": 10,
+            }
+        ),
+        "CostFuncNormType": "L2",
+        "PriorPSetup": "",
+        "PreSolvePSetup": True,
+        "Variables": OrderedDict(),
+        "LCS": OrderedDict(),
+        "Goals": OrderedDict(),
+        "Acceptable_Cost": 0,
+        "Noise": 0.0001,
+        "UpdateDesign": False,
+        "UpdateIteration": 5,
+        "KeepReportAxis": True,
+        "UpdateDesignWhenDone": True,
+    }
+)
 
-defaultsensitivitySetup = OrderedDict({"IsEnabled": True, "ProdOptiSetupDataV2":
-    OrderedDict({"SaveFields": False, "CopyMesh": False, "SolveWithCopiedMeshOnly": True}),
-                                       "StartingPoint": OrderedDict(), "MaxIterations": 10,
-                                       "PriorPSetup": "", "PreSolvePSetup": True, "Variables": OrderedDict(),
-                                       "LCS": OrderedDict(), "Goals": OrderedDict(), "Primary Goal": 0,
-                                       "PrimaryError": 0.0001, "Perform Worst Case Analysis": False})
+defaultsensitivitySetup = OrderedDict(
+    {
+        "IsEnabled": True,
+        "ProdOptiSetupDataV2": OrderedDict({"SaveFields": False, "CopyMesh": False, "SolveWithCopiedMeshOnly": True}),
+        "StartingPoint": OrderedDict(),
+        "MaxIterations": 10,
+        "PriorPSetup": "",
+        "PreSolvePSetup": True,
+        "Variables": OrderedDict(),
+        "LCS": OrderedDict(),
+        "Goals": OrderedDict(),
+        "Primary Goal": 0,
+        "PrimaryError": 0.0001,
+        "Perform Worst Case Analysis": False,
+    }
+)
 
-defaultstatisticalSetup = OrderedDict({"IsEnabled": True, "ProdOptiSetupDataV2":
-    OrderedDict({"SaveFields": False, "CopyMesh": False, "SolveWithCopiedMeshOnly": True}),
-                                       "StartingPoint": OrderedDict(), "MaxIterations": 50,
-                                       "SeedValue": 0, "PriorPSetup": "", "Variables": OrderedDict(),
-                                       "Goals": OrderedDict()})
+defaultstatisticalSetup = OrderedDict(
+    {
+        "IsEnabled": True,
+        "ProdOptiSetupDataV2": OrderedDict({"SaveFields": False, "CopyMesh": False, "SolveWithCopiedMeshOnly": True}),
+        "StartingPoint": OrderedDict(),
+        "MaxIterations": 50,
+        "SeedValue": 0,
+        "PriorPSetup": "",
+        "Variables": OrderedDict(),
+        "Goals": OrderedDict(),
+    }
+)
 
-defaultdoeSetup = OrderedDict({"IsEnabled": True, "ProdOptiSetupDataV2":
-            OrderedDict({"SaveFields": False, "CopyMesh": False, "SolveWithCopiedMeshOnly": True}),
-                                                "StartingPoint": OrderedDict(), "Sim. Setups": [],
-                                                "CostFunctionName": "Cost",
-                               "CostFuncNormType": "L2", "CostFunctionGoals": OrderedDict(), "Variables": OrderedDict(),
-                               "Goals": OrderedDict(),
-                               "DesignExprData": OrderedDict({"Type": "kOSF", "CCDDeignType": "kFaceCentered",
-                                                              "CCDTemplateType": "kStandard",
-                                                              "LHSSampleType": "kCCDSample",
-                                                              "RamdomSeed": 0, "NumofSamples": 10,
-                                                              "OSFDeignType": "kOSFD_MAXIMINDIST",
-                                                              "MaxCydes": 10}),
-                               "RespSurfaceSetupData": OrderedDict({"Type": "kGenAggr", "RefineType": "kManual"}),
-                               "ResponsePoints": OrderedDict({"NumOfStrs": 0}),
-                               "ManualRefinePoints": OrderedDict({"NumOfStrs": 0}),
-                               "CustomVerifyPoints": OrderedDict({"NumOfStrs": 0}), "Tolerances": []})
+defaultdoeSetup = OrderedDict(
+    {
+        "IsEnabled": True,
+        "ProdOptiSetupDataV2": OrderedDict({"SaveFields": False, "CopyMesh": False, "SolveWithCopiedMeshOnly": True}),
+        "StartingPoint": OrderedDict(),
+        "Sim. Setups": [],
+        "CostFunctionName": "Cost",
+        "CostFuncNormType": "L2",
+        "CostFunctionGoals": OrderedDict(),
+        "Variables": OrderedDict(),
+        "Goals": OrderedDict(),
+        "DesignExprData": OrderedDict(
+            {
+                "Type": "kOSF",
+                "CCDDeignType": "kFaceCentered",
+                "CCDTemplateType": "kStandard",
+                "LHSSampleType": "kCCDSample",
+                "RamdomSeed": 0,
+                "NumofSamples": 10,
+                "OSFDeignType": "kOSFD_MAXIMINDIST",
+                "MaxCydes": 10,
+            }
+        ),
+        "RespSurfaceSetupData": OrderedDict({"Type": "kGenAggr", "RefineType": "kManual"}),
+        "ResponsePoints": OrderedDict({"NumOfStrs": 0}),
+        "ManualRefinePoints": OrderedDict({"NumOfStrs": 0}),
+        "CustomVerifyPoints": OrderedDict({"NumOfStrs": 0}),
+        "Tolerances": [],
+    }
+)
 
 
 class CommonOptimetrics(object):
@@ -123,23 +180,25 @@ class CommonOptimetrics(object):
             self.props = inputd or defaultdoeSetup
 
         if inputd:
-            self.props.pop('ID', None)
-            self.props.pop('NextUniqueID', None)
-            self.props.pop('MoveBackwards', None)
-            self.props.pop('GoalSetupVersion', None)
-            self.props.pop('Version', None)
-            self.props.pop('SetupType', None)
+            self.props.pop("ID", None)
+            self.props.pop("NextUniqueID", None)
+            self.props.pop("MoveBackwards", None)
+            self.props.pop("GoalSetupVersion", None)
+            self.props.pop("Version", None)
+            self.props.pop("SetupType", None)
             if inputd.get("Sim. Setups"):
                 setups = inputd["Sim. Setups"]
                 for el in setups:
-                    if type(self._parent.design_properties["SolutionManager"]['ID Map']['Setup']) is list:
-                        for setup in self._parent.design_properties["SolutionManager"]['ID Map']['Setup']:
-                            if setup['I'] == el:
-                                setups[setups.index(el)]= setup['I']
+                    if type(self._parent.design_properties["SolutionManager"]["ID Map"]["Setup"]) is list:
+                        for setup in self._parent.design_properties["SolutionManager"]["ID Map"]["Setup"]:
+                            if setup["I"] == el:
+                                setups[setups.index(el)] = setup["I"]
                                 break
                     else:
-                        if self._parent.design_properties["SolutionManager"]['ID Map']['Setup']['I'] == el:
-                            setups[setups.index(el)] = self._parent.design_properties["SolutionManager"]['ID Map']['Setup']['N']
+                        if self._parent.design_properties["SolutionManager"]["ID Map"]["Setup"]["I"] == el:
+                            setups[setups.index(el)] = self._parent.design_properties["SolutionManager"]["ID Map"][
+                                "Setup"
+                            ]["N"]
                             break
             if inputd.get("Goals", None):
                 oparams = self.omodule.GetChildObject(self.name).GetCalculationInfo()
@@ -148,7 +207,7 @@ class CommonOptimetrics(object):
                 calculation.extend(oparam)
                 arg1 = OrderedDict()
                 arg2dict(calculation, arg1)
-                self.props['Goals'] = arg1
+                self.props["Goals"] = arg1
 
     @aedt_exception_handler
     def update(self, update_dictionary=None):
@@ -167,7 +226,7 @@ class CommonOptimetrics(object):
         """
         if update_dictionary:
             for el in update_dictionary:
-                self.props[el]=update_dictionary[el]
+                self.props[el] = update_dictionary[el]
 
         arg = ["NAME:" + self.name]
         dict2arg(self.props, arg)
@@ -191,8 +250,16 @@ class CommonOptimetrics(object):
         return True
 
     @aedt_exception_handler
-    def _add_calculation(self, reporttype, solution=None, domain="Sweep", calculation="", calculation_type="d",
-                         calculation_value="", calculation_name=None):
+    def _add_calculation(
+        self,
+        reporttype,
+        solution=None,
+        domain="Sweep",
+        calculation="",
+        calculation_type="d",
+        calculation_value="",
+        calculation_name=None,
+    ):
         """Add a calculation to the setup.
 
         Parameters
@@ -231,9 +298,10 @@ class CommonOptimetrics(object):
         if domain == "Sweep":
             var = "Freq"
         else:
-            var ="Time"
+            var = "Time"
         sweepdefinition["Ranges"] = OrderedDict(
-            {"Range": ["Var:=", var, "Type:=", calculation_type, "DiscreteValues:=", calculation_value]})
+            {"Range": ["Var:=", var, "Type:=", calculation_type, "DiscreteValues:=", calculation_value]}
+        )
         if "Goal" in self.props["Goals"]:
             if type(self.props["Goals"]["Goal"]) is not list:
                 self.props["Goals"]["Goal"] = [self.props["Goals"]["Goal"], sweepdefinition]
@@ -245,8 +313,21 @@ class CommonOptimetrics(object):
         return self.update()
 
     @aedt_exception_handler
-    def _add_goal(self, optigoalname, reporttype, solution=None, domain="Sweep", calculation="", calculation_type="discrete",
-                  calc_val1="", calc_val2="", condition="==", goal_value=1, goal_weight=1, goal_name=None):
+    def _add_goal(
+        self,
+        optigoalname,
+        reporttype,
+        solution=None,
+        domain="Sweep",
+        calculation="",
+        calculation_type="discrete",
+        calc_val1="",
+        calc_val2="",
+        condition="==",
+        goal_value=1,
+        goal_weight=1,
+        goal_name=None,
+    ):
         """Add an optimization goal to the setup.
 
         Parameters
@@ -294,21 +375,34 @@ class CommonOptimetrics(object):
         if domain == "Sweep":
             var = "Freq"
         else:
-            var ="Time"
-        if calculation_type =="discrete":
+            var = "Time"
+        if calculation_type == "discrete":
             if type(calc_val1) is list:
                 dr = ",".join(calc_val1)
             else:
                 dr = calc_val1
-            sweepdefinition["Ranges"] = OrderedDict(
-                {"Range": ["Var:=", var, "Type:=", "d", "DiscreteValues:=", dr]})
+            sweepdefinition["Ranges"] = OrderedDict({"Range": ["Var:=", var, "Type:=", "d", "DiscreteValues:=", dr]})
         else:
-            sweepdefinition["Ranges"] = OrderedDict({"Range": ["Var:=", var, "Type:=", calculation_type,
-                                                               "Start:=", calc_val1, "Stop:=", calc_val2,
-                                                               "DiscreteValues:=", ""]})
+            sweepdefinition["Ranges"] = OrderedDict(
+                {
+                    "Range": [
+                        "Var:=",
+                        var,
+                        "Type:=",
+                        calculation_type,
+                        "Start:=",
+                        calc_val1,
+                        "Stop:=",
+                        calc_val2,
+                        "DiscreteValues:=",
+                        "",
+                    ]
+                }
+            )
         sweepdefinition["Condition"] = condition
         sweepdefinition["GoalValue"] = OrderedDict(
-            {"GoalValueType": "Independent", "Format": "Real/Imag", "bG": ["v:=", "[{};]".format(goal_value)]})
+            {"GoalValueType": "Independent", "Format": "Real/Imag", "bG": ["v:=", "[{};]".format(goal_value)]}
+        )
         sweepdefinition["Weight"] = "[{};]".format(goal_weight)
         if "Goal" in self.props[optigoalname]:
             if type(self.props[optigoalname]["Goal"]) is not list:
@@ -347,7 +441,15 @@ class DXSetups(object):
             CommonOptimetrics.__init__(self, parent, name, dictinputs=dictinputs, optimtype="OptiDesignExplorer")
 
         @aedt_exception_handler
-        def add_calculation(self, calculation="", calculation_value="", reporttype="Modal Solution Data", solution=None, domain="Sweep",  calculation_name=None):
+        def add_calculation(
+            self,
+            calculation="",
+            calculation_value="",
+            reporttype="Modal Solution Data",
+            solution=None,
+            domain="Sweep",
+            calculation_name=None,
+        ):
             """Add a calculation to the setup.
 
             Parameters
@@ -372,12 +474,31 @@ class DXSetups(object):
             bool
                 ``True`` when successful, ``False`` when failed.
             """
-            return self._add_calculation(reporttype=reporttype, solution=solution, domain=domain, calculation_type="d",
-                                         calculation=calculation, calculation_value=calculation_value, calculation_name=calculation_name)
+            return self._add_calculation(
+                reporttype=reporttype,
+                solution=solution,
+                domain=domain,
+                calculation_type="d",
+                calculation=calculation,
+                calculation_value=calculation_value,
+                calculation_name=calculation_name,
+            )
 
         @aedt_exception_handler
-        def add_goal(self, calculation="", calculation_value="", calculation_type="discrete", calculation_stop="",
-                     reporttype="Modal Solution Data", solution=None, domain="Sweep", goal_name=None, goal_value=1, goal_weight=1, condition="=="):
+        def add_goal(
+            self,
+            calculation="",
+            calculation_value="",
+            calculation_type="discrete",
+            calculation_stop="",
+            reporttype="Modal Solution Data",
+            solution=None,
+            domain="Sweep",
+            goal_name=None,
+            goal_value=1,
+            goal_weight=1,
+            condition="==",
+        ):
             """Add a goal to the setup.
 
             Parameters
@@ -417,10 +538,20 @@ class DXSetups(object):
                 ``True`` when successful, ``False`` when failed.
 
             """
-            return self._add_goal(optigoalname="CostFunctionGoals", reporttype=reporttype, solution=solution,
-                                  domain=domain, calculation_type=calculation_type, calculation=calculation,
-                                  calc_val1=calculation_value, calc_val2=calculation_stop, goal_name=goal_name,
-                                  goal_weight=goal_weight, goal_value=goal_value, condition=condition)
+            return self._add_goal(
+                optigoalname="CostFunctionGoals",
+                reporttype=reporttype,
+                solution=solution,
+                domain=domain,
+                calculation_type=calculation_type,
+                calculation=calculation,
+                calc_val1=calculation_value,
+                calc_val2=calculation_stop,
+                goal_name=goal_name,
+                goal_weight=goal_weight,
+                goal_value=goal_value,
+                condition=condition,
+            )
 
     @property
     def parent(self):
@@ -444,13 +575,16 @@ class DXSetups(object):
             try:
                 setups_data = self._parent.design_properties["Optimetrics"]["OptimetricsSetups"]
                 for data in setups_data:
-                    if type(setups_data[data]) is OrderedDict and setups_data[data]['SetupType'] == "OptiDesignExplorer":
+                    if (
+                        type(setups_data[data]) is OrderedDict
+                        and setups_data[data]["SetupType"] == "OptiDesignExplorer"
+                    ):
                         self.setups.append(self.Setup(parent, data, setups_data[data]))
             except:
                 pass
 
     @aedt_exception_handler
-    def add_dx_setup(self,variables_to_include, defaults_var_values=None, setupname=None, parametricname=None):
+    def add_dx_setup(self, variables_to_include, defaults_var_values=None, setupname=None, parametricname=None):
         """Add a basic parametric setup in DesignXplorer.
 
         You can customize all DesignXplorer options after the setup is added.
@@ -480,7 +614,7 @@ class DXSetups(object):
             parametricname = generate_unique_name("DesignXplorer")
         setup = self.Setup(self._parent, parametricname)
         setup.props["Sim. Setups"] = setupname
-        setup.props['Sweeps'] = []
+        setup.props["Sweeps"] = []
         if not defaults_var_values:
             for v in variables_to_include:
                 sweepdefinition = OrderedDict()
@@ -492,13 +626,13 @@ class DXSetups(object):
                 sweepdefinition["OffsetF1"] = False
                 sweepdefinition["Synchronize"] = 0
         else:
-            for v,vv in zip(variables_to_include, defaults_var_values):
+            for v, vv in zip(variables_to_include, defaults_var_values):
                 sweepdefinition = OrderedDict()
                 sweepdefinition["Variable"] = v
                 sweepdefinition["Data"] = vv
                 sweepdefinition["OffsetF1"] = False
                 sweepdefinition["Synchronize"] = 0
-                setup.props['Sweeps'].append(sweepdefinition)
+                setup.props["Sweeps"].append(sweepdefinition)
                 setup.props["StartingPoint"][v] = vv
         setup.create()
         self.setups.append(setup)
@@ -513,6 +647,7 @@ class ParametericsSetups(object):
     parent :
 
     """
+
     class Setup(CommonOptimetrics, object):
 
         """Sets up a parametric analysis in optiSLang.
@@ -564,8 +699,15 @@ class ParametericsSetups(object):
             return True
 
         @aedt_exception_handler
-        def add_calculation(self, calculation="", calculation_value="", reporttype="Modal Solution Data", solution=None,
-                            domain="Sweep", calculation_name=None):
+        def add_calculation(
+            self,
+            calculation="",
+            calculation_value="",
+            reporttype="Modal Solution Data",
+            solution=None,
+            domain="Sweep",
+            calculation_name=None,
+        ):
             """Add a calculation to the parametric setup.
 
             Parameters
@@ -591,8 +733,15 @@ class ParametericsSetups(object):
                 ``True`` when successful, ``False`` when failed.
 
             """
-            return self._add_calculation(reporttype=reporttype, solution=solution, domain=domain, calculation_type="d",
-                                         calculation=calculation, calculation_value=calculation_value, calculation_name=calculation_name)
+            return self._add_calculation(
+                reporttype=reporttype,
+                solution=solution,
+                domain=domain,
+                calculation_type="d",
+                calculation=calculation,
+                calculation_value=calculation_value,
+                calculation_name=calculation_name,
+            )
 
     @property
     def parent(self):
@@ -618,7 +767,7 @@ class ParametericsSetups(object):
                 setups_data = self._parent.design_properties["Optimetrics"]["OptimetricsSetups"]
 
                 for data in setups_data:
-                    if type(setups_data[data]) is OrderedDict and setups_data[data]['SetupType'] == "OptiParametric":
+                    if type(setups_data[data]) is OrderedDict and setups_data[data]["SetupType"] == "OptiParametric":
                         self.setups.append(self.Setup(parent, data, setups_data[data]))
             except:
                 pass
@@ -674,6 +823,7 @@ class SensitivitySetups(object):
     parent :
 
     """
+
     class Setup(CommonOptimetrics, object):
         """Sets up a sensitivity analysis in optiSLang.
 
@@ -694,8 +844,15 @@ class SensitivitySetups(object):
             CommonOptimetrics.__init__(self, parent, name, dictinputs=dictinputs, optimtype="OptiSensitivity")
 
         @aedt_exception_handler
-        def add_calculation(self, calculation="", calculation_value="", reporttype="Modal Solution Data", solution=None,
-                            domain="Sweep", calculation_name=None):
+        def add_calculation(
+            self,
+            calculation="",
+            calculation_value="",
+            reporttype="Modal Solution Data",
+            solution=None,
+            domain="Sweep",
+            calculation_name=None,
+        ):
             """Add a calculation to the sensitivity analysis.
 
             Parameters
@@ -721,8 +878,15 @@ class SensitivitySetups(object):
                 ``True`` when successful, ``False`` when failed.
 
             """
-            return self._add_calculation(reporttype=reporttype, solution=solution, domain=domain, calculation_type="d",
-                                         calculation=calculation, calculation_value=calculation_value, calculation_name=calculation_name)
+            return self._add_calculation(
+                reporttype=reporttype,
+                solution=solution,
+                domain=domain,
+                calculation_type="d",
+                calculation=calculation,
+                calculation_value=calculation_value,
+                calculation_name=calculation_name,
+            )
 
     @property
     def parent(self):
@@ -747,14 +911,22 @@ class SensitivitySetups(object):
             try:
                 setups_data = self._parent.design_properties["Optimetrics"]["OptimetricsSetups"]
                 for data in setups_data:
-                    if type(setups_data[data]) is OrderedDict and setups_data[data]['SetupType'] == "OptiSensitivity":
+                    if type(setups_data[data]) is OrderedDict and setups_data[data]["SetupType"] == "OptiSensitivity":
                         self.setups.append(self.Setup(parent, data, setups_data[data]))
             except:
                 pass
 
     @aedt_exception_handler
-    def add_sensitivity(self, calculation, calculation_value, calculation_type="Freq",
-                        reporttype="Modal Solution Data", domain="Sweep", solution=None, parametricname=None):
+    def add_sensitivity(
+        self,
+        calculation,
+        calculation_value,
+        calculation_type="Freq",
+        reporttype="Modal Solution Data",
+        domain="Sweep",
+        solution=None,
+        parametricname=None,
+    ):
         """Add a basic sensitivity analysis.
 
         You can customize all options after the analysis is added.
@@ -796,7 +968,8 @@ class SensitivitySetups(object):
         sweepdefinition["Calculation"] = calculation
         sweepdefinition["Name"] = calculation
         sweepdefinition["Ranges"] = OrderedDict(
-            {"Range": ["Var:=", calculation_type, "Type:=", "d", "DiscreteValues:=", calculation_value]})
+            {"Range": ["Var:=", calculation_type, "Type:=", "d", "DiscreteValues:=", calculation_value]}
+        )
         setup.props["Goals"]["Goal"] = sweepdefinition
         setup.create()
         self.setups.append(setup)
@@ -811,6 +984,7 @@ class StatisticalSetups(object):
     parent :
 
     """
+
     class Setup(CommonOptimetrics, object):
         """Sets up a statistical analysis in optiSLang.
 
@@ -832,7 +1006,15 @@ class StatisticalSetups(object):
             pass
 
         @aedt_exception_handler
-        def add_calculation(self, calculation="", calculation_value="", reporttype="Modal Solution Data", solution=None, domain="Sweep",  calculation_name=None):
+        def add_calculation(
+            self,
+            calculation="",
+            calculation_value="",
+            reporttype="Modal Solution Data",
+            solution=None,
+            domain="Sweep",
+            calculation_name=None,
+        ):
             """Add a calculation to the statistical analysis.
 
             Parameters
@@ -858,8 +1040,15 @@ class StatisticalSetups(object):
                 ``True`` when successful, ``False`` when failed.
 
             """
-            return self._add_calculation(reporttype=reporttype, solution=solution, domain=domain, calculation_type="d",
-                                         calculation=calculation, calculation_value=calculation_value, calculation_name=calculation_name)
+            return self._add_calculation(
+                reporttype=reporttype,
+                solution=solution,
+                domain=domain,
+                calculation_type="d",
+                calculation=calculation,
+                calculation_value=calculation_value,
+                calculation_name=calculation_name,
+            )
 
     @property
     def parent(self):
@@ -884,14 +1073,22 @@ class StatisticalSetups(object):
             try:
                 setups_data = self._parent.design_properties["Optimetrics"]["OptimetricsSetups"]
                 for data in setups_data:
-                    if type(setups_data[data]) is OrderedDict and setups_data[data]['SetupType'] == "OptiStatistical":
+                    if type(setups_data[data]) is OrderedDict and setups_data[data]["SetupType"] == "OptiStatistical":
                         self.setups.append(self.Setup(parent, data, setups_data[data]))
             except:
                 pass
 
     @aedt_exception_handler
-    def add_statistical(self, calculation_name, calc_variation_value, calculation_type="Freq",
-                        reporttype="Modal Solution Data", domain="Sweep", solution=None, parametricname=None):
+    def add_statistical(
+        self,
+        calculation_name,
+        calc_variation_value,
+        calculation_type="Freq",
+        reporttype="Modal Solution Data",
+        domain="Sweep",
+        solution=None,
+        parametricname=None,
+    ):
         """Add a basic statistical analysis.
 
         You can customize all options after the analysis is added.
@@ -933,7 +1130,9 @@ class StatisticalSetups(object):
         sweepdefinition["SimValueContext"] = OrderedDict({"Domain": domain})
         sweepdefinition["Calculation"] = calculation_name
         sweepdefinition["Name"] = calculation_name
-        sweepdefinition["Ranges"] = OrderedDict({"Range": ["Var:=", calculation_type,	"Type:=", "d", "DiscreteValues:=", calc_variation_value]})
+        sweepdefinition["Ranges"] = OrderedDict(
+            {"Range": ["Var:=", calculation_type, "Type:=", "d", "DiscreteValues:=", calc_variation_value]}
+        )
         setup.props["Goals"]["Goal"] = sweepdefinition
         setup.create()
         self.setups.append(setup)
@@ -948,6 +1147,7 @@ class DOESetups(object):
     parent :
 
     """
+
     class Setup(CommonOptimetrics, object):
         """Sets up a DOE (Design of Experiments) in optiSLang.
 
@@ -969,8 +1169,15 @@ class DOESetups(object):
             pass
 
         @aedt_exception_handler
-        def add_calculation(self, calculation="", calculation_value="", reporttype="Modal Solution Data", solution=None,
-                            domain="Sweep", calculation_name=None):
+        def add_calculation(
+            self,
+            calculation="",
+            calculation_value="",
+            reporttype="Modal Solution Data",
+            solution=None,
+            domain="Sweep",
+            calculation_name=None,
+        ):
             """Add a calculation to the DOE (Design of Experiments).
 
             Parameters
@@ -996,12 +1203,31 @@ class DOESetups(object):
                 ``True`` when successful, ``False`` when failed.
 
             """
-            return self._add_calculation(reporttype=reporttype, solution=solution, domain=domain, calculation_type="d",
-                                         calculation=calculation, calculation_value=calculation_value, calculation_name=calculation_name)
+            return self._add_calculation(
+                reporttype=reporttype,
+                solution=solution,
+                domain=domain,
+                calculation_type="d",
+                calculation=calculation,
+                calculation_value=calculation_value,
+                calculation_name=calculation_name,
+            )
 
         @aedt_exception_handler
-        def add_goal(self, calculation="", calculation_value="", calculation_type="discrete",
-                     calculation_stop="", reporttype="Modal Solution Data", solution=None, domain="Sweep", goal_name=None, goal_value=1, goal_weight=1, condition="=="):
+        def add_goal(
+            self,
+            calculation="",
+            calculation_value="",
+            calculation_type="discrete",
+            calculation_stop="",
+            reporttype="Modal Solution Data",
+            solution=None,
+            domain="Sweep",
+            goal_name=None,
+            goal_value=1,
+            goal_weight=1,
+            condition="==",
+        ):
             """Add a goal to the DOE (Design of Experiments).
 
             Parameters
@@ -1040,11 +1266,20 @@ class DOESetups(object):
                 ``True`` when successful, ``False`` when failed.
 
             """
-            return self._add_goal(optigoalname="CostFunctionGoals", reporttype=reporttype, solution=solution,
-                                  domain=domain, calculation_type=calculation_type, calculation=calculation,
-                                  calc_val1=calculation_value, calc_val2=calculation_stop, goal_name=goal_name,
-                                  goal_weight=goal_weight,
-                                  goal_value=goal_value, condition=condition)
+            return self._add_goal(
+                optigoalname="CostFunctionGoals",
+                reporttype=reporttype,
+                solution=solution,
+                domain=domain,
+                calculation_type=calculation_type,
+                calculation=calculation,
+                calc_val1=calculation_value,
+                calc_val2=calculation_stop,
+                goal_name=goal_name,
+                goal_weight=goal_weight,
+                goal_value=goal_value,
+                condition=condition,
+            )
 
     @property
     def parent(self):
@@ -1069,14 +1304,25 @@ class DOESetups(object):
             try:
                 setups_data = self._parent.design_properties["Optimetrics"]["OptimetricsSetups"]
                 for data in setups_data:
-                    if type(setups_data[data]) is OrderedDict and setups_data[data]['SetupType'] == "OptiDXDOE":
+                    if type(setups_data[data]) is OrderedDict and setups_data[data]["SetupType"] == "OptiDXDOE":
                         self.setups.append(self.Setup(parent, data, setups_data[data]))
             except:
                 pass
 
     @aedt_exception_handler
-    def add_doe(self, calculation, calculation_value, calculation_type="Freq", reporttype="Modal Solution Data",
-                domain="Sweep", condition="<=", goal_value=1, goal_weight=1, solution=None, parametricname=None):
+    def add_doe(
+        self,
+        calculation,
+        calculation_value,
+        calculation_type="Freq",
+        reporttype="Modal Solution Data",
+        domain="Sweep",
+        condition="<=",
+        goal_value=1,
+        goal_weight=1,
+        solution=None,
+        parametricname=None,
+    ):
         """Add a basic DesignXplorer DOE (Design of Experiments).
 
         You can customize all options after the DOE is added.
@@ -1130,10 +1376,12 @@ class DOESetups(object):
         sweepdefinition["Calculation"] = calculation
         sweepdefinition["Name"] = calculation
         sweepdefinition["Ranges"] = OrderedDict(
-            {"Range": ["Var:=", calculation_type, "Type:=", "d", "DiscreteValues:=", calculation_value]})
+            {"Range": ["Var:=", calculation_type, "Type:=", "d", "DiscreteValues:=", calculation_value]}
+        )
         sweepdefinition["Condition"] = condition
         sweepdefinition["GoalValue"] = OrderedDict(
-            {"GoalValueType": "Independent", "Format": "Real/Imag", "bG": ["v:=", "[{};]".format(goal_value)]})
+            {"GoalValueType": "Independent", "Format": "Real/Imag", "bG": ["v:=", "[{};]".format(goal_value)]}
+        )
         sweepdefinition["Weight"] = "[{};]".format(goal_weight)
         setup.props["CostFunctionGoals"]["Goal"] = sweepdefinition
         setup.create()
@@ -1169,9 +1417,20 @@ class OptimizationSetups(object):
             pass
 
         @aedt_exception_handler
-        def add_goal(self, calculation="", calculation_value="", calculation_type="discrete", calculation_stop="",
-                     reporttype="Modal Solution Data", solution=None, domain="Sweep", goal_name=None, goal_value=1,
-                     goal_weight=1, condition="=="):
+        def add_goal(
+            self,
+            calculation="",
+            calculation_value="",
+            calculation_type="discrete",
+            calculation_stop="",
+            reporttype="Modal Solution Data",
+            solution=None,
+            domain="Sweep",
+            goal_name=None,
+            goal_value=1,
+            goal_weight=1,
+            condition="==",
+        ):
             """Add a calculation to the analysis.
 
             Parameters
@@ -1210,9 +1469,20 @@ class OptimizationSetups(object):
                 ``True`` when successful, ``False`` when failed.
 
             """
-            return self._add_goal(optigoalname="Goals", reporttype=reporttype, solution=solution, domain=domain,
-                                  calculation_type=calculation_type, calculation=calculation,
-                                  calc_val1=calculation_value, calc_val2=calculation_stop, goal_name=goal_name, goal_value=goal_value, goal_weight=goal_weight, condition=condition)
+            return self._add_goal(
+                optigoalname="Goals",
+                reporttype=reporttype,
+                solution=solution,
+                domain=domain,
+                calculation_type=calculation_type,
+                calculation=calculation,
+                calc_val1=calculation_value,
+                calc_val2=calculation_stop,
+                goal_name=goal_name,
+                goal_value=goal_value,
+                goal_weight=goal_weight,
+                condition=condition,
+            )
 
     @property
     def parent(self):
@@ -1237,15 +1507,25 @@ class OptimizationSetups(object):
             try:
                 setups_data = self._parent.design_properties["Optimetrics"]["OptimetricsSetups"]
                 for data in setups_data:
-                    if type(setups_data[data]) is OrderedDict and setups_data[data]['SetupType'] == "OptiOptimization":
+                    if type(setups_data[data]) is OrderedDict and setups_data[data]["SetupType"] == "OptiOptimization":
                         self.setups.append(self.Setup(parent, data, setups_data[data]))
             except:
                 pass
 
     @aedt_exception_handler
-    def add_optimization(self, calculation, calculation_value, calculation_type="Freq",
-                         reporttype="Modal Solution Data", domain="Sweep", condition="<=", goal_value=1, goal_weight=1,
-                         solution=None, parametricname=None):
+    def add_optimization(
+        self,
+        calculation,
+        calculation_value,
+        calculation_type="Freq",
+        reporttype="Modal Solution Data",
+        domain="Sweep",
+        condition="<=",
+        goal_value=1,
+        goal_weight=1,
+        solution=None,
+        parametricname=None,
+    ):
         """Add a basic optimization analysis.
 
         You can customize all options after the analysis is added.
@@ -1293,10 +1573,13 @@ class OptimizationSetups(object):
         sweepdefinition["SimValueContext"] = OrderedDict({"Domain": domain})
         sweepdefinition["Calculation"] = calculation
         sweepdefinition["Name"] = calculation
-        sweepdefinition["Ranges"] = OrderedDict({"Range": ["Var:=", calculation_type,	"Type:=", "d", "DiscreteValues:=", calculation_value]})
+        sweepdefinition["Ranges"] = OrderedDict(
+            {"Range": ["Var:=", calculation_type, "Type:=", "d", "DiscreteValues:=", calculation_value]}
+        )
         sweepdefinition["Condition"] = condition
         sweepdefinition["GoalValue"] = OrderedDict(
-            {"GoalValueType": "Independent", "Format": "Real/Imag", "bG": ["v:=", "[{};]".format(goal_value)]})
+            {"GoalValueType": "Independent", "Format": "Real/Imag", "bG": ["v:=", "[{};]".format(goal_value)]}
+        )
         sweepdefinition["Weight"] = "[{};]".format(goal_weight)
 
         setup.props["Goals"]["Goal"] = sweepdefinition

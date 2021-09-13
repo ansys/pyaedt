@@ -22,18 +22,19 @@ import datetime
 from pyaedt.application.MessageManager import AEDTMessageManager
 from pyaedt.misc import list_installed_ansysem
 from pyaedt import is_ironpython, _pythonver, inside_desktop
+
 pathname = os.path.dirname(__file__)
-if os.path.exists(os.path.join(pathname,'version.txt')):
-    with open(os.path.join(pathname,'version.txt'), "r") as f:
+if os.path.exists(os.path.join(pathname, "version.txt")):
+    with open(os.path.join(pathname, "version.txt"), "r") as f:
         pyaedtversion = f.readline()
-elif os.path.exists(os.path.join(pathname, "..", 'version.txt')):
-    with open(os.path.join(pathname, "..", 'version.txt'), "r") as f:
+elif os.path.exists(os.path.join(pathname, "..", "version.txt")):
+    with open(os.path.join(pathname, "..", "version.txt"), "r") as f:
         pyaedtversion = f.readline()
 else:
     pyaedtversion = "X"
 
 
-if os.name == 'nt':
+if os.name == "nt":
     IsWindows = True
 else:
     IsWindows = False
@@ -41,17 +42,21 @@ logger = logging.getLogger(__name__)
 
 if is_ironpython:
     import clr  # IronPython C:\Program Files\AnsysEM\AnsysEM19.4\Win64\common\IronPython\ipy64.exe
-    _com = 'ironpython'
+
+    _com = "ironpython"
 elif IsWindows:
     import pythoncom
+
     modules = [tup[1] for tup in pkgutil.iter_modules()]
-    if 'clr' in modules:
+    if "clr" in modules:
         import clr
         import win32com.client
-        _com = 'pythonnet_v3'
-    elif 'win32com' in modules:
+
+        _com = "pythonnet_v3"
+    elif "win32com" in modules:
         import win32com.client
-        _com = 'pywin32'
+
+        _com = "pywin32"
     else:
         raise Exception("Error. No win32com.client or Pythonnet modules found. Please install them")
 
@@ -69,7 +74,7 @@ def exception_to_desktop(self, ex_value, tb_data):
         Traceback information.
 
     """
-    desktop = sys.modules['__main__'].oDesktop
+    desktop = sys.modules["__main__"].oDesktop
     try:
         oproject = desktop.GetActiveProject()
         proj_name = oproject.GetName()
@@ -78,12 +83,12 @@ def exception_to_desktop(self, ex_value, tb_data):
             if ";" in des_name:
                 des_name = des_name.split(";")[1]
         except:
-            des_name = ''
+            des_name = ""
     except:
-        proj_name = ''
-        des_name = ''
+        proj_name = ""
+        des_name = ""
     tb_trace = traceback.format_tb(tb_data)
-    tblist = tb_trace[0].split('\n')
+    tblist = tb_trace[0].split("\n")
     desktop.AddMessage(proj_name, des_name, 2, str(ex_value))
     for el in tblist:
         desktop.AddMessage(proj_name, des_name, 2, el)
@@ -124,7 +129,7 @@ def update_aedt_registry(key, value, desktop_version="211"):
     >>> update_aedt_registry("HFSS/MPIVendor", "Intel") # doctest: +SKIP
 
     """
-    if os.name == 'posix':
+    if os.name == "posix":
         import subprocessdotnet as subprocess
     else:
         import subprocess
@@ -133,14 +138,16 @@ def update_aedt_registry(key, value, desktop_version="211"):
     with open(os.path.join(desktop_install_dir, "config", "ProductList.txt")) as file:
         product_version = next(file).rstrip()  # get first line
 
-    options = '-set -ProductName {} + product_version -RegistryKey "{}" -RegistryValue "{}"'.format(product_version,
-                                                                                                    key, value)
+    options = '-set -ProductName {} + product_version -RegistryKey "{}" -RegistryValue "{}"'.format(
+        product_version, key, value
+    )
     command = '"{}/UpdateRegistry" {}'.format(desktop_install_dir, options)
 
     subprocess.call([command])
 
+
 def _delete_objects():
-    module = sys.modules['__main__']
+    module = sys.modules["__main__"]
     if "COMUtil" in dir(module):
         del module.COMUtil
     if "Hfss" in dir(module):
@@ -193,7 +200,7 @@ def release_desktop(close_projects=True, close_desktop=True):
 
     """
 
-    Module = sys.modules['__main__']
+    Module = sys.modules["__main__"]
     if "oDesktop" not in dir(Module):
         _delete_objects()
         return False
@@ -208,7 +215,7 @@ def release_desktop(close_projects=True, close_desktop=True):
             i = 0
             scopeID = 5
             while i <= scopeID:
-                Module.COMUtil.ReleaseCOMObjectScope(Module.COMUtil.PInvokeProxyAPI,i)
+                Module.COMUtil.ReleaseCOMObjectScope(Module.COMUtil.PInvokeProxyAPI, i)
                 i += 1
             _delete_objects()
 
@@ -232,7 +239,7 @@ def force_close_desktop():
         ``True`` when successful, ``False`` when failed.
 
     """
-    Module = sys.modules['__main__']
+    Module = sys.modules["__main__"]
     pid = Module.oDesktop.GetProcessID()
     if pid > 0:
         try:
@@ -322,10 +329,10 @@ class Desktop:
         version_list = list_installed_ansysem()
         for version_env_var in version_list:
             if "ANSYSEMSV_ROOT" in version_env_var:
-                current_version_id = version_env_var.replace("ANSYSEMSV_ROOT", '')
-                student=True
+                current_version_id = version_env_var.replace("ANSYSEMSV_ROOT", "")
+                student = True
             else:
-                current_version_id = version_env_var.replace("ANSYSEM_ROOT", '')
+                current_version_id = version_env_var.replace("ANSYSEM_ROOT", "")
                 student = False
             version = int(current_version_id[0:2])
             release = int(current_version_id[2])
@@ -559,8 +566,7 @@ class Desktop:
         if ex_type:
             err = self._exception(ex_value, ex_traceback)
         if self.release:
-            self.release_desktop(close_projects=self._main.close_on_exit,
-                                 close_on_exit=self._main.close_on_exit)
+            self.release_desktop(close_projects=self._main.close_on_exit, close_on_exit=self._main.close_on_exit)
 
     def _exception(self, ex_value, tb_data):
         """Write the trace stack to the desktop when a Python error occurs.
@@ -586,15 +592,15 @@ class Desktop:
                 if ";" in des_name:
                     des_name = des_name.split(";")[1]
             except:
-                des_name = ''
+                des_name = ""
         except:
-            proj_name = ''
-            des_name = ''
+            proj_name = ""
+            des_name = ""
         tb_trace = traceback.format_tb(tb_data)
-        tblist = tb_trace[0].split('\n')
-        self._main.oMessenger.add_error_message(str(ex_value), 'Global')
+        tblist = tb_trace[0].split("\n")
+        self._main.oMessenger.add_error_message(str(ex_value), "Global")
         for el in tblist:
-            self._main.oMessenger.add_error_message(el, 'Global')
+            self._main.oMessenger.add_error_message(el, "Global")
 
         return str(ex_value)
 
@@ -620,7 +626,7 @@ class Desktop:
 
         """
         release_desktop(close_projects, close_on_exit)
-        props = [a for a in dir(self) if not a.startswith('__')]
+        props = [a for a in dir(self) if not a.startswith("__")]
         for a in props:
             self.__dict__.pop(a, None)
         gc.collect()
@@ -703,7 +709,7 @@ def get_version_env_variable(version_id):
 
     """
     version_env_var = "ANSYSEM_ROOT"
-    values = version_id.split('.')
+    values = version_id.split(".")
     version = int(values[0][2:])
     release = int(values[1])
     if version < 20:

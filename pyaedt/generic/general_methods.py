@@ -10,25 +10,26 @@ from functools import wraps
 from collections import OrderedDict
 import inspect
 import itertools
+
 logger = logging.getLogger(__name__)
-import pkgutil
-modules = [tup[1] for tup in pkgutil.iter_modules()]
-if 'clr' in modules:
-    import clr
 
 
 class MethodNotSupportedError(Exception):
     """ """
+
     pass
 
 
 def _write_mes(mes_text, print_on_desktop=False):
-    if os.getenv('PYAEDT_SCREEN_LOGS', 'True').lower() in ('true', '1', 't'):
+    if os.getenv("PYAEDT_SCREEN_LOGS", "True").lower() in ("true", "1", "t"):
         print(mes_text)
-    if logger and os.getenv('PYAEDT_FILE_LOGS', 'True').lower() in ('true', '1', 't'):
+    if logger and os.getenv("PYAEDT_FILE_LOGS", "True").lower() in ("true", "1", "t"):
         logger.error(str(mes_text))
-    if print_on_desktop and os.getenv('PYAEDT_DESKTOP_LOGS', 'True').lower() in ('true', '1', 't') and "oDesktop" in dir(
-            sys.modules["__main__"]):
+    if (
+        print_on_desktop
+        and os.getenv("PYAEDT_DESKTOP_LOGS", "True").lower() in ("true", "1", "t")
+        and "oDesktop" in dir(sys.modules["__main__"])
+    ):
         sys.modules["__main__"].oDesktop.AddMessage("", "", 2, (str(mes_text)))
 
 
@@ -52,24 +53,19 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
     -------
 
     """
-    if  os.getenv('PYAEDT_SCREEN_LOGS','True').lower() in ('true', '1', 't'):
+    if os.getenv("PYAEDT_SCREEN_LOGS", "True").lower() in ("true", "1", "t"):
         _write_mes("**************************************************************")
-        _write_mes("pyaedt Error on Method {}:  {}. Please Check again".format(
-            func.__name__, message), True)
+        _write_mes("pyaedt Error on Method {}:  {}. Please Check again".format(func.__name__, message), True)
         _write_mes("Arguments Provided: ")
 
         try:
 
             if int(sys.version[0]) > 2:
-                args_name = list(OrderedDict.fromkeys(
-                    inspect.getfullargspec(func)[0] + list(kwargs.keys())))
-                args_dict = OrderedDict(list(itertools.zip_longest(
-                    args_name, args)) + list(kwargs.items()))
+                args_name = list(OrderedDict.fromkeys(inspect.getfullargspec(func)[0] + list(kwargs.keys())))
+                args_dict = OrderedDict(list(itertools.zip_longest(args_name, args)) + list(kwargs.items()))
             else:
-                args_name = list(OrderedDict.fromkeys(
-                    inspect.getargspec(func)[0] + list(kwargs.keys())))
-                args_dict = OrderedDict(
-                    list(itertools.izip(args_name, args)) + list(kwargs.iteritems()))
+                args_name = list(OrderedDict.fromkeys(inspect.getargspec(func)[0] + list(kwargs.keys())))
+                args_dict = OrderedDict(list(itertools.izip(args_name, args)) + list(kwargs.iteritems()))
 
             for el in args_dict:
                 if el != "self":
@@ -83,9 +79,9 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
     tb_data = ex_info[2]
     tb_trace = traceback.format_tb(tb_data)
     if len(tb_trace) > 1:
-        tblist = tb_trace[1].split('\n')
+        tblist = tb_trace[1].split("\n")
     else:
-        tblist = tb_trace[0].split('\n')
+        tblist = tb_trace[0].split("\n")
     _write_mes(str(ex_value), True)
     for el in tblist:
         # self._main.oDesktop.AddMessage(proj_name, des_name, 2, el)
@@ -113,6 +109,7 @@ def aedt_exception_handler(func):
         function return if correctly executed otherwise it will return False and errors will be plotted
 
     """
+
     @wraps(func)
     def inner_function(*args, **kwargs):
         if "PYTEST_CURRENT_TEST" in os.environ or "UNITTEST_CURRENT_TEST" in os.environ:
@@ -147,18 +144,18 @@ def aedt_exception_handler(func):
                 return False
             except MethodNotSupportedError:
                 message = "This Method is not supported in current AEDT Design Type."
-                if os.getenv('PYAEDT_SCREEN_LOGS', 'True').lower() in ('true', '1', 't'):
+                if os.getenv("PYAEDT_SCREEN_LOGS", "True").lower() in ("true", "1", "t"):
                     print("**************************************************************")
-                    print("pyaedt Error on Method {}:  {}. Please Check again".format(
-                        func.__name__, message))
+                    print("pyaedt Error on Method {}:  {}. Please Check again".format(func.__name__, message))
                     print("**************************************************************")
                     print("")
-                if os.getenv('PYAEDT_FILE_LOGS', 'True').lower() in ('true', '1', 't'):
+                if os.getenv("PYAEDT_FILE_LOGS", "True").lower() in ("true", "1", "t"):
                     logger.error(message)
                 return False
             except BaseException:
                 _exception(sys.exc_info(), func, args, kwargs, "General or AEDT Error")
                 return False
+
     return inner_function
 
 
@@ -285,7 +282,7 @@ def get_filename_without_extension(path):
 
 
 @aedt_exception_handler
-def generate_unique_name(rootname, suffix='', n=6):
+def generate_unique_name(rootname, suffix="", n=6):
     """Generate a new Random name given a rootname and, optionally a suffix
 
     Parameters
@@ -302,7 +299,7 @@ def generate_unique_name(rootname, suffix='', n=6):
 
     """
     char_set = string.ascii_uppercase + string.digits
-    uName = ''.join(random.choice(char_set) for _ in range(n))
+    uName = "".join(random.choice(char_set) for _ in range(n))
     unique_name = rootname + "_" + uName
     if suffix:
         unique_name += "_" + suffix
@@ -341,17 +338,19 @@ def retry_ntimes(n, function, *args, **kwargs):
             break
     return ret_val
 
-def time_fn( fn, *args, **kwargs ):
+
+def time_fn(fn, *args, **kwargs):
     start = datetime.datetime.now()
-    results = fn( *args, **kwargs )
+    results = fn(*args, **kwargs)
     end = datetime.datetime.now()
     fn_name = fn.__module__ + "." + fn.__name__
     delta = (end - start).microseconds * 1e-6
     print(fn_name + ": " + str(delta) + "s")
     return results
 
+
 def isclose(a, b, rel_tol=1e-9, abs_tol=0.0):
-    return abs(a-b) <= max( rel_tol * max(abs(a), abs(b)), abs_tol )
+    return abs(a - b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
 
 
 def is_number(a):
@@ -365,4 +364,4 @@ def is_number(a):
             return False
     else:
         return False
-    #return str(a).replace(".", "").replace("+", "").replace("-", "").replace("e","").replace("E","").isnumeric()
+    # return str(a).replace(".", "").replace("+", "").replace("-", "").replace("e","").replace("E","").isnumeric()

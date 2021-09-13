@@ -91,7 +91,10 @@ class Mesh3DOperation(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self._parent.omeshmodule.DeleteMeshOperation(self.hfss_setup_name, self.name,)
+        self._parent.omeshmodule.DeleteMeshOperation(
+            self.hfss_setup_name,
+            self.name,
+        )
 
         return True
 
@@ -178,17 +181,19 @@ class Mesh(object):
         """
         meshops = []
         try:
-            for ds in self._parent.design_properties['Setup']['Data']:
-                if 'MeshOps' in self._parent.design_properties['Setup']['Data'][ds]:
-                    for ops in self._parent.design_properties['Setup']['Data'][ds]['MeshOps']:
-                        props = self._parent.design_properties['Setup']['Data'][ds]['MeshOps'][ops]
+            for ds in self._parent.design_properties["Setup"]["Data"]:
+                if "MeshOps" in self._parent.design_properties["Setup"]["Data"][ds]:
+                    for ops in self._parent.design_properties["Setup"]["Data"][ds]["MeshOps"]:
+                        props = self._parent.design_properties["Setup"]["Data"][ds]["MeshOps"][ops]
                         meshops.append(Mesh3DOperation(self, ds, ops, props))
         except:
             pass
         return meshops
 
     @aedt_exception_handler
-    def assign_length_mesh(self, setupname, layer_name, net_name, isinside=True, maxlength=1, maxel=1000, meshop_name=None):
+    def assign_length_mesh(
+        self, setupname, layer_name, net_name, isinside=True, maxlength=1, maxel=1000, meshop_name=None
+    ):
         """Assign mesh length.
 
         Parameters
@@ -239,26 +244,52 @@ class Mesh(object):
             self._messenger.add_error_message("mesh not assigned due to incorrect settings")
             return
         if type(layer_name) is list and type(net_name) is list:
-            assignment = OrderedDict({"MeshEntityInfo":[]})
-            for l, n in zip(layer_name,net_name):
+            assignment = OrderedDict({"MeshEntityInfo": []})
+            for l, n in zip(layer_name, net_name):
                 meshbody = OrderedDict({"Id": -1, "Nam": "", "Layer": l, "Net": n, "OrigNet": n})
-                assignment["MeshEntityInfo"].append(OrderedDict({"IsFcSel": False, "EntID": -1, "FcIDs": [], "MeshBody": meshbody, "BBox": []}))
+                assignment["MeshEntityInfo"].append(
+                    OrderedDict({"IsFcSel": False, "EntID": -1, "FcIDs": [], "MeshBody": meshbody, "BBox": []})
+                )
         else:
             meshbody = OrderedDict({"Id": -1, "Nam": "", "Layer": layer_name, "Net": net_name, "OrigNet": net_name})
-            assignment = OrderedDict({"MeshEntityInfo": OrderedDict(
-                {"IsFcSel": False, "EntID": -1, "FcIDs": [], "MeshBody": meshbody, "BBox": []})})
-        props = OrderedDict({"Type": "LengthBased", "RefineInside": isinside, "Enabled": True, "Assignment": assignment,
-                             "Region":"", "RestrictElem": restrictel, "NumMaxElem": numel, "RestrictLength": restrictlength,
-                             "MaxLength": length})
+            assignment = OrderedDict(
+                {
+                    "MeshEntityInfo": OrderedDict(
+                        {"IsFcSel": False, "EntID": -1, "FcIDs": [], "MeshBody": meshbody, "BBox": []}
+                    )
+                }
+            )
+        props = OrderedDict(
+            {
+                "Type": "LengthBased",
+                "RefineInside": isinside,
+                "Enabled": True,
+                "Assignment": assignment,
+                "Region": "",
+                "RestrictElem": restrictel,
+                "NumMaxElem": numel,
+                "RestrictLength": restrictlength,
+                "MaxLength": length,
+            }
+        )
 
-        mop = Mesh3DOperation(self,setupname,meshop_name, props)
+        mop = Mesh3DOperation(self, setupname, meshop_name, props)
         mop.create()
         self.meshoperations.append(mop)
         return mop
 
     @aedt_exception_handler
-    def assign_skin_depth(self, setupname, layer_name, net_name, skindepth=1, maxelements=None, triangulation_max_length=0.1, numlayers="2",
-                          meshop_name=None):
+    def assign_skin_depth(
+        self,
+        setupname,
+        layer_name,
+        net_name,
+        skindepth=1,
+        maxelements=None,
+        triangulation_max_length=0.1,
+        numlayers="2",
+        meshop_name=None,
+    ):
         """Assign skin depth to the mesh.
 
         Parameters
@@ -299,12 +330,28 @@ class Mesh(object):
         else:
             restrictlength = True
         skindepth = self.modeler.modeler_variable(skindepth)
-        triangulation_max_length= self.modeler.modeler_variable(triangulation_max_length)
-        meshbody = OrderedDict({"Id": -1, "Nam": "", "Layer": layer_name,  "Net": net_name, "OrigNet": net_name})
-        assignment = OrderedDict({"MeshEntityInfo": OrderedDict({"IsFcSel": False, "EntID": -1, "FcIDs": [], "MeshBody": meshbody, "BBox": []})})
-        props = OrderedDict({"Type": "SkinDepthLengthBased", "Enabled": True, "Assignment": assignment,
-                             "Region":"", "SkinDepth": skindepth, "SurfTriMaxLength": triangulation_max_length, "NumLayers": numlayers,
-                             "RestrictElem": restrictlength, "NumMaxElem": maxelements})
+        triangulation_max_length = self.modeler.modeler_variable(triangulation_max_length)
+        meshbody = OrderedDict({"Id": -1, "Nam": "", "Layer": layer_name, "Net": net_name, "OrigNet": net_name})
+        assignment = OrderedDict(
+            {
+                "MeshEntityInfo": OrderedDict(
+                    {"IsFcSel": False, "EntID": -1, "FcIDs": [], "MeshBody": meshbody, "BBox": []}
+                )
+            }
+        )
+        props = OrderedDict(
+            {
+                "Type": "SkinDepthLengthBased",
+                "Enabled": True,
+                "Assignment": assignment,
+                "Region": "",
+                "SkinDepth": skindepth,
+                "SurfTriMaxLength": triangulation_max_length,
+                "NumLayers": numlayers,
+                "RestrictElem": restrictlength,
+                "NumMaxElem": maxelements,
+            }
+        )
 
         mop = Mesh3DOperation(self, setupname, meshop_name, props)
         mop.create()

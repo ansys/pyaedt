@@ -1,9 +1,9 @@
-from ..generic.general_methods import aedt_exception_handler, generate_unique_name
-from .Analysis import Analysis
+from ..generic.general_methods import aedt_exception_handler
 from ..modeler.Model3DLayout import Modeler3DLayout
+from ..modules.Mesh3DLayout import Mesh
 from ..modules.SetupTemplates import SetupKeys
 from ..modules.SolveSetup import Setup3DLayout
-from ..modules.Mesh3DLayout import Mesh
+from .Analysis import Analysis
 
 
 class FieldAnalysis3DLayout(Analysis):
@@ -50,17 +50,39 @@ class FieldAnalysis3DLayout(Analysis):
 
     """
 
-    def __init__(self, application, projectname, designname, solution_type, setup_name=None,
-                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):
+    def __init__(
+        self,
+        application,
+        projectname,
+        designname,
+        solution_type,
+        setup_name=None,
+        specified_version=None,
+        NG=False,
+        AlwaysNew=False,
+        release_on_exit=False,
+        student_version=False,
+    ):
 
-        Analysis.__init__(self, application, projectname, designname, solution_type, setup_name,
-                          specified_version, NG, AlwaysNew, release_on_exit, student_version)
+        Analysis.__init__(
+            self,
+            application,
+            projectname,
+            designname,
+            solution_type,
+            setup_name,
+            specified_version,
+            NG,
+            AlwaysNew,
+            release_on_exit,
+            student_version,
+        )
         self._messenger.add_info_message("Analysis Loaded")
         self._modeler = Modeler3DLayout(self)
         self._modeler.primitives.init_padstacks()
         self._messenger.add_info_message("Modeler Loaded")
         self._mesh = Mesh(self)
-        #self._post = PostProcessor(self)
+        # self._post = PostProcessor(self)
 
     @property
     def oboundary(self):
@@ -126,7 +148,7 @@ class FieldAnalysis3DLayout(Analysis):
         return spar
 
     @aedt_exception_handler
-    def get_all_return_loss_list(self, excitation_names=[], excitation_name_prefix=''):
+    def get_all_return_loss_list(self, excitation_names=[], excitation_name_prefix=""):
         """Retrieve a list of all return losses for a list of excitations.
 
         Parameters
@@ -148,15 +170,14 @@ class FieldAnalysis3DLayout(Analysis):
         if not excitation_names:
             excitation_names = self.get_excitations_name
         if excitation_name_prefix:
-            excitation_names = [
-                i for i in excitation_names if excitation_name_prefix.lower() in i.lower()]
+            excitation_names = [i for i in excitation_names if excitation_name_prefix.lower() in i.lower()]
         spar = []
         for i in excitation_names:
             spar.append("S({},{})".format(i, i))
         return spar
 
     @aedt_exception_handler
-    def get_all_insertion_loss_list(self, trlist=[], reclist=[], tx_prefix='', rx_prefix=''):
+    def get_all_insertion_loss_list(self, trlist=[], reclist=[], tx_prefix="", rx_prefix=""):
         """Retrieve a list of all insertion losses from two lists of excitations (driver and receiver).
 
         Parameters
@@ -183,7 +204,7 @@ class FieldAnalysis3DLayout(Analysis):
             trlist = [i for i in self.get_excitations_name if tx_prefix in i]
         if not reclist:
             reclist = [i for i in self.get_excitations_name if rx_prefix in i]
-        if len(trlist)!= len(reclist):
+        if len(trlist) != len(reclist):
             self._messenger.add_error_message("TX and RX should be same length lists")
             return False
         for i, j in zip(trlist, reclist):
@@ -212,14 +233,14 @@ class FieldAnalysis3DLayout(Analysis):
         if not trlist:
             trlist = [i for i in self.get_excitations_name if tx_prefix in i]
         for i in trlist:
-            k = trlist.index(i)+1
+            k = trlist.index(i) + 1
             while k < len(trlist):
                 next.append("S({},{})".format(i, trlist[k]))
                 k += 1
         return next
 
     @aedt_exception_handler
-    def get_fext_xtalk_list(self, trlist=[], reclist=[], tx_prefix='', rx_prefix='', skip_same_index_couples=True):
+    def get_fext_xtalk_list(self, trlist=[], reclist=[], tx_prefix="", rx_prefix="", skip_same_index_couples=True):
         """Retrieve a list of all the far end XTalks from two lists of exctitations (driver and receiver).
 
         Parameters
@@ -252,7 +273,7 @@ class FieldAnalysis3DLayout(Analysis):
             reclist = [i for i in self.get_excitations_name if rx_prefix in i]
         for i in trlist:
             for k in reclist:
-                if not skip_same_index_couples or reclist.index(k)!= trlist.index(i):
+                if not skip_same_index_couples or reclist.index(k) != trlist.index(i):
                     fext.append("S({},{})".format(i, k))
         return fext
 

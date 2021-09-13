@@ -15,9 +15,9 @@ import sys
 from pyaedt import examples, generate_unique_name, Hfss
 
 # Start Electronics Desktop
-aedt_version = '2021.1'
-projectname = 'MicroDoppler_with_ADP'
-designname = 'doppler'
+aedt_version = "2021.1"
+projectname = "MicroDoppler_with_ADP"
+designname = "doppler"
 library_path = examples.download_multiparts()
 
 ###############################################################################
@@ -31,11 +31,13 @@ else:
     tmpfold = os.environ["TEMP"]
 
 temp_folder = os.path.join(tmpfold, generate_unique_name("Example"))
-if not os.path.exists(temp_folder): os.makedirs(temp_folder)
+if not os.path.exists(temp_folder):
+    os.makedirs(temp_folder)
 
 # Instantiate the application.
-app = pyaedt.Hfss(specified_version=aedt_version, solution_type='SBR+', AlwaysNew=True, projectname=projectname,
-                  release_on_exit=True)
+app = pyaedt.Hfss(
+    specified_version=aedt_version, solution_type="SBR+", AlwaysNew=True, projectname=projectname, release_on_exit=True
+)
 
 
 app.autosave_disable()
@@ -45,7 +47,7 @@ app.autosave_disable()
 # ~~~~~~~~~~~~~
 # Save project and rename design
 
-app.save_project(project_file=os.path.join(temp_folder, projectname + '.aedt'))
+app.save_project(project_file=os.path.join(temp_folder, projectname + ".aedt"))
 app.rename_design(designname)
 
 
@@ -54,14 +56,14 @@ app.rename_design(designname)
 # ~~~~~~~~~~~~~~~
 # Setup Library Path to 3d Components
 
-actor_lib = os.path.join(library_path, 'actor_library')
-env_lib = os.path.join(library_path, 'environment_library')
-radar_lib = os.path.join(library_path,  'radar_modules')
-env_folder = os.path.join(env_lib, 'road1')
-person_folder = os.path.join(actor_lib, 'person3')
-car_folder = os.path.join(actor_lib, 'vehicle1')
-bike_folder = os.path.join(actor_lib, 'bike1')
-bird_folder = os.path.join(actor_lib, 'bird1')
+actor_lib = os.path.join(library_path, "actor_library")
+env_lib = os.path.join(library_path, "environment_library")
+radar_lib = os.path.join(library_path, "radar_modules")
+env_folder = os.path.join(env_lib, "road1")
+person_folder = os.path.join(actor_lib, "person3")
+car_folder = os.path.join(actor_lib, "vehicle1")
+bike_folder = os.path.join(actor_lib, "bike1")
+bird_folder = os.path.join(actor_lib, "bird1")
 
 ###############################################################################
 # Environment
@@ -94,8 +96,9 @@ bird2 = app.modeler.primitives.add_bird(actor_folder=bird_folder, speed=1.0, glo
 # ~~~~~~~~~~~~~~~~~~~~~
 # Put Radar on car. The radar will be created relatively to the car coordinate system.
 
-radar1 = app.create_sbr_radar_from_json(radar_file=radar_lib, radar_name='Example_1Tx_1Rx', offset=[2.57, 0, 0.54],
-                                        use_relative_cs=True, relative_cs_name=car1.cs_name)
+radar1 = app.create_sbr_radar_from_json(
+    radar_file=radar_lib, radar_name="Example_1Tx_1Rx", offset=[2.57, 0, 0.54], use_relative_cs=True, relative_cs_name=car1.cs_name
+)
 
 ###############################################################################
 # Setup and validation
@@ -112,6 +115,6 @@ app.validate_simple()
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Solves problem and close it. Uncomment the next command to activate the simulation
 
-#app.analyze_setup(sweep.name)
+# app.analyze_setup(sweep.name)
 app.save_project()
 app.release_desktop(close_projects=True, close_desktop=True)

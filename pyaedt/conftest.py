@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 
 from pyaedt import Desktop
-from pyaedt.doctest_fixtures import *
+from pyaedt.doctest_fixtures import *  # noqa: F401
 
 # Import fixtures from other files
 pytest_plugins = [
@@ -21,6 +21,7 @@ def start_aedt():
     # Wait to run doctest on docstrings
     yield desktop
     desktop.force_close_desktop()
+
 
 @pytest.fixture(autouse=True, scope="session")
 def get_root_directory(doctest_namespace):

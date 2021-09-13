@@ -1,6 +1,18 @@
 from distutils.core import setup
 
-from _setup_common import name, version, author, maintainer, maintainer_email, description, long_description, packages, data_files, license, classifiers
+from _setup_common import (
+    name,
+    version,
+    author,
+    maintainer,
+    maintainer_email,
+    description,
+    long_description,
+    packages,
+    data_files,
+    license,
+    classifiers,
+)
 
 setup(
     name=name,

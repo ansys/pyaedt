@@ -40,10 +40,12 @@ class Icepak(FieldAnalysisIcepak):
         nothing is used.
     specified_version: str, optional
         Version of AEDT to use. The default is ``None``, in which case
-        the active version or latest installed version is  used. This parameter is ignored when Script is launched within AEDT.
+        the active version or latest installed version is  used.
+        This parameter is ignored when Script is launched within AEDT.
     NG : bool, optional
         Whether to launch AEDT in the non-graphical mode. The default
-        is ``False``, in which case AEDT is launched in the graphical mode.   This parameter is ignored when Script is launched within AEDT.
+        is ``False``, in which case AEDT is launched in the graphical mode.
+        This parameter is ignored when Script is launched within AEDT.
     AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
@@ -51,7 +53,8 @@ class Icepak(FieldAnalysisIcepak):
     release_on_exit : bool, optional
         Whether to release AEDT on exit.
     student_version : bool, optional
-        Whether to open the AEDT student version. The default is ``False``. This parameter is ignored when Script is launched within AEDT.
+        Whether to open the AEDT student version. The default is ``False``.
+        This parameter is ignored when Script is launched within AEDT.
 
     Examples
     --------
@@ -88,10 +91,31 @@ class Icepak(FieldAnalysisIcepak):
     pyaedt Info: Added design ...
     """
 
-    def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
-                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):
-        FieldAnalysisIcepak.__init__(self, "Icepak", projectname, designname, solution_type, setup_name,
-                                     specified_version, NG, AlwaysNew, release_on_exit, student_version)
+    def __init__(
+        self,
+        projectname=None,
+        designname=None,
+        solution_type=None,
+        setup_name=None,
+        specified_version=None,
+        NG=False,
+        AlwaysNew=False,
+        release_on_exit=False,
+        student_version=False,
+    ):
+        FieldAnalysisIcepak.__init__(
+            self,
+            "Icepak",
+            projectname,
+            designname,
+            solution_type,
+            setup_name,
+            specified_version,
+            NG,
+            AlwaysNew,
+            release_on_exit,
+            student_version,
+        )
 
     def __enter__(self):
         return self
@@ -112,15 +136,24 @@ class Icepak(FieldAnalysisIcepak):
 
         """
         setup_list = self.existing_analysis_setups
-        sweep_list=[]
+        sweep_list = []
         s_type = self.solution_type
         for el in setup_list:
-            sweep_list.append(el + " : " +s_type)
+            sweep_list.append(el + " : " + s_type)
         return sweep_list
 
     @aedt_exception_handler
-    def assign_grille(self, air_faces, free_loss_coeff=True, free_area_ratio=0.8, resistance_type=0,
-                     external_temp="AmbientTemp", expternal_pressure="AmbientPressure", x_curve=["0","1","2"], y_curve=["0","1","2"]):
+    def assign_grille(
+        self,
+        air_faces,
+        free_loss_coeff=True,
+        free_area_ratio=0.8,
+        resistance_type=0,
+        external_temp="AmbientTemp",
+        expternal_pressure="AmbientPressure",
+        x_curve=["0", "1", "2"],
+        y_curve=["0", "1", "2"],
+    ):
         """Assign grille to a face or list of faces.
 
         Parameters
@@ -169,7 +202,7 @@ class Icepak(FieldAnalysisIcepak):
 
         props["X"] = x_curve
         props["Y"] = y_curve
-        bound = BoundaryObject(self, boundary_name, props, 'Grille')
+        bound = BoundaryObject(self, boundary_name, props, "Grille")
         if bound.create():
             self.boundaries.append(bound)
             self._messenger.add_info_message("Grille Assigned")
@@ -212,7 +245,7 @@ class Icepak(FieldAnalysisIcepak):
         props["External Rad. Temperature"] = "AmbientRadTemp"
         props["Inlet Type"] = "Pressure"
         props["Total Pressure"] = "AmbientPressure"
-        bound = BoundaryObject(self, boundary_name, props, 'Opening')
+        bound = BoundaryObject(self, boundary_name, props, "Opening")
         if bound.create():
             self.boundaries.append(bound)
             self._messenger.add_info_message("Opening Assigned")
@@ -220,7 +253,9 @@ class Icepak(FieldAnalysisIcepak):
         return None
 
     @aedt_exception_handler
-    def assign_2way_coupling(self,setup_name=None, number_of_iterations=2, continue_ipk_iterations=True, ipk_iterations_per_coupling=20):
+    def assign_2way_coupling(
+        self, setup_name=None, number_of_iterations=2, continue_ipk_iterations=True, ipk_iterations_per_coupling=20
+    ):
         """Assign two-way coupling to a setup.
 
         Parameters
@@ -248,14 +283,22 @@ class Icepak(FieldAnalysisIcepak):
         """
         if not setup_name:
             if self.setups:
-                setup_name =self.setups[0].name
+                setup_name = self.setups[0].name
             else:
                 self._messenger.add_error_message("No setup is defined.")
                 return False
-        self.oanalysis_setup.AddTwoWayCoupling(setup_name, ["NAME:Options", "NumCouplingIters:=", number_of_iterations,
-                                                            "ContinueIcepakIterations:=", continue_ipk_iterations,
-                                                            "IcepakIterationsPerCoupling:=",
-                                                            ipk_iterations_per_coupling])
+        self.oanalysis_setup.AddTwoWayCoupling(
+            setup_name,
+            [
+                "NAME:Options",
+                "NumCouplingIters:=",
+                number_of_iterations,
+                "ContinueIcepakIterations:=",
+                continue_ipk_iterations,
+                "IcepakIterationsPerCoupling:=",
+                ipk_iterations_per_coupling,
+            ],
+        )
         return True
 
     @aedt_exception_handler
@@ -300,26 +343,25 @@ class Icepak(FieldAnalysisIcepak):
         num_power = None
         for row in list_powers:
             if not num_power:
-                num_power = len(row)-1
+                num_power = len(row) - 1
                 self["P_index"] = 0
             if row[0] in oObjects:
                 listmcad.append(row)
-                if num_power>1:
-                    self[row[0]+"_P"] = str(row[1:])
-                    out = self.create_source_block(
-                        row[0], row[0]+"_P[P_index]", assign_material, default_material)
+                if num_power > 1:
+                    self[row[0] + "_P"] = str(row[1:])
+                    out = self.create_source_block(row[0], row[0] + "_P[P_index]", assign_material, default_material)
 
                 else:
-                    out = self.create_source_block(row[0], str(
-                        row[1]) + "W", assign_material, default_material)
+                    out = self.create_source_block(row[0], str(row[1]) + "W", assign_material, default_material)
                 if out:
                     listmcad.append(out)
 
         return listmcad
 
     @aedt_exception_handler
-    def create_source_block(self, object_name, input_power, assign_material=True, material_name="Ceramic_material",
-                            use_object_for_name=True):
+    def create_source_block(
+        self, object_name, input_power, assign_material=True, material_name="Ceramic_material", use_object_for_name=True
+    ):
         """Create a source block for an object.
 
         Parameters
@@ -368,18 +410,26 @@ class Icepak(FieldAnalysisIcepak):
         else:
             boundary_name = generate_unique_name("Block")
 
-        bound = BoundaryObject(self, boundary_name, props, 'Block')
+        bound = BoundaryObject(self, boundary_name, props, "Block")
         if bound.create():
             self.boundaries.append(bound)
             self._messenger.add_info_message(
-                "Block on {} with {} Power, created correctly.".format(object_name, input_power))
+                "Block on {} with {} Power, created correctly.".format(object_name, input_power)
+            )
             return bound
         return None
 
     @aedt_exception_handler
-    def create_source_power(self, face_id, input_power="0W", thermal_condtion="Total Power",
-                            surface_heat="0irrad_W_per_m2", temperature="AmbientTemp",
-                            radiate=False, source_name=None):
+    def create_source_power(
+        self,
+        face_id,
+        input_power="0W",
+        thermal_condtion="Total Power",
+        surface_heat="0irrad_W_per_m2",
+        temperature="AmbientTemp",
+        radiate=False,
+        source_name=None,
+    ):
         """Create a source power for a face.
 
         Parameters
@@ -422,21 +472,31 @@ class Icepak(FieldAnalysisIcepak):
         """
         if not source_name:
             source_name = generate_unique_name("Source")
-        props={}
+        props = {}
         props["Faces"] = [face_id]
         props["Thermal Condition"] = thermal_condtion
         props["Total Power"] = input_power
         props["Surface Heat"] = surface_heat
         props["Temperature"] = temperature
-        props["Radiation"] = OrderedDict({"Radiate" : radiate})
-        bound = BoundaryObject(self, source_name, props, 'SourceIcepak')
+        props["Radiation"] = OrderedDict({"Radiate": radiate})
+        bound = BoundaryObject(self, source_name, props, "SourceIcepak")
         if bound.create():
             self.boundaries.append(bound)
             return bound
 
     @aedt_exception_handler
-    def create_network_block(self, object_name, power, rjc, rjb, gravity_dir, top, assign_material=True,
-                             default_material="Ceramic_material", use_object_for_name=True):
+    def create_network_block(
+        self,
+        object_name,
+        power,
+        rjc,
+        rjb,
+        gravity_dir,
+        top,
+        assign_material=True,
+        default_material="Ceramic_material",
+        use_object_for_name=True,
+    ):
         """Create a network block.
 
         Parameters
@@ -506,12 +566,21 @@ class Icepak(FieldAnalysisIcepak):
             else:
                 boundary_name = generate_unique_name("Block")
             props["Faces"] = [fcrjc, fcrjb]
-            props["Nodes"] = OrderedDict({"Face" + str(fcrjc): [fcrjc, "NoResistance"],
-                              "Face" + str(fcrjb): [fcrjb, "NoResistance"], "Internal": [power]})
-            props["Links"] = OrderedDict({"Link1": ["Face" + str(fcrjc), "Internal", "R", str(rjc) + "cel_per_w"],
-                              "Link2": ["Face" + str(fcrjb), "Internal", "R", str(rjb) + "cel_per_w"]})
+            props["Nodes"] = OrderedDict(
+                {
+                    "Face" + str(fcrjc): [fcrjc, "NoResistance"],
+                    "Face" + str(fcrjb): [fcrjb, "NoResistance"],
+                    "Internal": [power],
+                }
+            )
+            props["Links"] = OrderedDict(
+                {
+                    "Link1": ["Face" + str(fcrjc), "Internal", "R", str(rjc) + "cel_per_w"],
+                    "Link2": ["Face" + str(fcrjb), "Internal", "R", str(rjb) + "cel_per_w"],
+                }
+            )
             props["SchematicData"] = OrderedDict({})
-            bound = BoundaryObject(self, boundary_name, props, 'Network')
+            bound = BoundaryObject(self, boundary_name, props, "Network")
             if bound.create():
                 self.boundaries.append(bound)
                 self.modeler.primitives[object_name].solve_inside = False
@@ -519,8 +588,9 @@ class Icepak(FieldAnalysisIcepak):
             return None
 
     @aedt_exception_handler
-    def create_network_blocks(self, input_list, gravity_dir, top, assign_material=True,
-                             default_material="Ceramic_material"):
+    def create_network_blocks(
+        self, input_list, gravity_dir, top, assign_material=True, default_material="Ceramic_material"
+    ):
         """Create network blocks from CSV files.
 
         Parameters
@@ -556,22 +626,31 @@ class Icepak(FieldAnalysisIcepak):
 
         """
         objs = self.modeler.primitives.solid_names
-        countpow = len(input_list[0])-3
+        countpow = len(input_list[0]) - 3
         networks = []
         for row in input_list:
             if row[0] in objs:
-                if countpow>1:
+                if countpow > 1:
                     self[row[0] + "_P"] = str(row[3:])
                     self["P_index"] = 0
-                    out = self.create_network_block(row[0], row[0] + "_P[P_index]", row[1], row[2], gravity_dir, top,
-                                                    assign_material, default_material)
+                    out = self.create_network_block(
+                        row[0],
+                        row[0] + "_P[P_index]",
+                        row[1],
+                        row[2],
+                        gravity_dir,
+                        top,
+                        assign_material,
+                        default_material,
+                    )
                 else:
                     if not row[3]:
-                        pow="0W"
+                        pow = "0W"
                     else:
-                        pow=str(row[3])+"W"
-                    out = self.create_network_block(row[0], pow, row[1], row[2], gravity_dir,
-                                                    top, assign_material, default_material)
+                        pow = str(row[3]) + "W"
+                    out = self.create_network_block(
+                        row[0], pow, row[1], row[2], gravity_dir, top, assign_material, default_material
+                    )
                 if out:
                     networks.append(out)
         return networks
@@ -609,8 +688,7 @@ class Icepak(FieldAnalysisIcepak):
         if not monitor_name:
             monitor_name = generate_unique_name("Monitor")
         oModule = self.odesign.GetModule("Monitor")
-        oModule.AssignFaceMonitor(["NAME:" + monitor_name, "Quantities:=",
-                                  [monitor_type], "Objects:=", [face_name]])
+        oModule.AssignFaceMonitor(["NAME:" + monitor_name, "Quantities:=", [monitor_type], "Objects:=", [face_name]])
         return True
 
     @aedt_exception_handler
@@ -643,15 +721,21 @@ class Icepak(FieldAnalysisIcepak):
         """
         point_name = generate_unique_name("Point")
         self.modeler.oeditor.CreatePoint(
-            ["NAME:PointParameters", "PointX:=", self.modeler.primitives._arg_with_dim(point_position[0]), "PointY:=",
-             self.modeler.primitives._arg_with_dim(point_position[1]), "PointZ:=",
-             self.modeler.primitives._arg_with_dim(point_position[2])],
-            ["NAME:Attributes", "Name:=", point_name, "Color:=", "(143 175 143)"])
+            [
+                "NAME:PointParameters",
+                "PointX:=",
+                self.modeler.primitives._arg_with_dim(point_position[0]),
+                "PointY:=",
+                self.modeler.primitives._arg_with_dim(point_position[1]),
+                "PointZ:=",
+                self.modeler.primitives._arg_with_dim(point_position[2]),
+            ],
+            ["NAME:Attributes", "Name:=", point_name, "Color:=", "(143 175 143)"],
+        )
         if not monitor_name:
             monitor_name = generate_unique_name("Monitor")
         oModule = self.odesign.GetModule("Monitor")
-        oModule.AssignPointMonitor(["NAME:" + monitor_name, "Quantities:=",
-                                   [monitor_type], "Points:=", [point_name]])
+        oModule.AssignPointMonitor(["NAME:" + monitor_name, "Quantities:=", [monitor_type], "Points:=", [point_name]])
         return True
 
     @aedt_exception_handler
@@ -679,34 +763,37 @@ class Icepak(FieldAnalysisIcepak):
                 component_data[el] = [i[k] for i in data]
                 k += 1
         total_power = 0
-        i=0
+        i = 0
         all_objects = self.modeler.primitives.object_names
         for power in component_data["Applied Power (W)"]:
             try:
                 float(power)
                 if "COMP_" + component_data["Ref Des"][i] in all_objects:
                     status = self.create_source_block(
-                        "COMP_" + component_data["Ref Des"][i], str(power)+"W",assign_material=False)
+                        "COMP_" + component_data["Ref Des"][i], str(power) + "W", assign_material=False
+                    )
                     if not status:
                         self._messenger.add_warning_message(
-                            "Warning. Block {} skipped with {}W power.".format(component_data["Ref Des"][i], power))
+                            "Warning. Block {} skipped with {}W power.".format(component_data["Ref Des"][i], power)
+                        )
                     else:
                         total_power += float(power)
                         # print("Block {} created with {}W power".format(component_data["Ref Des"][i], power))
                 elif component_data["Ref Des"][i] in all_objects:
                     status = self.create_source_block(
-                        component_data["Ref Des"][i], str(power)+"W",assign_material=False)
+                        component_data["Ref Des"][i], str(power) + "W", assign_material=False
+                    )
                     if not status:
                         self._messenger.add_warning_message(
-                            "Warning. Block {} skipped with {}W power.".format(component_data["Ref Des"][i], power))
+                            "Warning. Block {} skipped with {}W power.".format(component_data["Ref Des"][i], power)
+                        )
                     else:
                         total_power += float(power)
                         # print("Block {} created with {}W power".format(component_data["Ref Des"][i], power))
             except:
                 pass
             i += 1
-        self._messenger.add_info_message(
-            "Blocks inserted with total power {}W.".format(total_power))
+        self._messenger.add_info_message("Blocks inserted with total power {}W.".format(total_power))
         return total_power
 
     @aedt_exception_handler
@@ -732,13 +819,13 @@ class Icepak(FieldAnalysisIcepak):
         i = 2
         if validate == 0:
             priority_list = []
-            with open(temp_log, 'r') as f:
+            with open(temp_log, "r") as f:
                 lines = f.readlines()
                 for line in lines:
-                    if '[error]' in line and component_prefix in line and "intersect" in line:
+                    if "[error]" in line and component_prefix in line and "intersect" in line:
                         id1 = line.find(component_prefix)
-                        id2 = line[id1:].find("\"")
-                        name = line[id1:id1 + id2]
+                        id2 = line[id1:].find('"')
+                        name = line[id1 : id1 + id2]
                         if name not in priority_list:
                             priority_list.append(name)
             print("{} Intersections have been found. Applying Priorities".format(len(priority_list)))
@@ -765,8 +852,14 @@ class Icepak(FieldAnalysisIcepak):
         dirs = ["-X", "+X", "-Y", "+Y", "-Z", "+Z"]
         for dir in dirs:
             argsval = ["NAME:" + dir + " Padding Data", "Value:=", "0"]
-            args = ["NAME:AllTabs", ["NAME:Geometry3DCmdTab", ["NAME:PropServers", "Region:CreateRegion:1"],
-                                     ["NAME:ChangedProps", argsval]]]
+            args = [
+                "NAME:AllTabs",
+                [
+                    "NAME:Geometry3DCmdTab",
+                    ["NAME:PropServers", "Region:CreateRegion:1"],
+                    ["NAME:ChangedProps", argsval],
+                ],
+            ]
             self.modeler.oeditor.ChangeProperty(args)
         oBoundingBox = self.modeler.get_model_bounding_box()
         if gravityDir < 3:
@@ -775,10 +868,28 @@ class Icepak(FieldAnalysisIcepak):
             return oBoundingBox[gravityDir - 3]
 
     @aedt_exception_handler
-    def create_parametric_fin_heat_sink(self, hs_height=100, hs_width=100, hs_basethick=10, pitch=20, thick=10, length=40, height=40,
-                                        draftangle=0, patternangle=10, separation=5, symmetric=True, symmetric_separation=20,
-                                        numcolumn_perside=2, vertical_separation=10, matname="Al-Extruded", center = [0,0,0],
-                                        plane_enum=0, rotation=0, tolerance=1e-3):
+    def create_parametric_fin_heat_sink(
+        self,
+        hs_height=100,
+        hs_width=100,
+        hs_basethick=10,
+        pitch=20,
+        thick=10,
+        length=40,
+        height=40,
+        draftangle=0,
+        patternangle=10,
+        separation=5,
+        symmetric=True,
+        symmetric_separation=20,
+        numcolumn_perside=2,
+        vertical_separation=10,
+        matname="Al-Extruded",
+        center=[0, 0, 0],
+        plane_enum=0,
+        rotation=0,
+        tolerance=1e-3,
+    ):
         """Create a parametric heat sink.
 
         Parameters
@@ -830,105 +941,121 @@ class Icepak(FieldAnalysisIcepak):
 
         """
         all_objs = self.modeler.primitives.object_names
-        self['FinPitch'] = self.modeler.primitives._arg_with_dim(pitch)
-        self['FinThickness'] = self.modeler.primitives._arg_with_dim(thick)
-        self['FinLength'] = self.modeler.primitives._arg_with_dim(length)
-        self['FinHeight'] = self.modeler.primitives._arg_with_dim(height)
-        self['DraftAngle'] = draftangle
-        self['PatternAngle'] = patternangle
-        self['FinSeparation'] = self.modeler.primitives._arg_with_dim(separation)
-        self['VerticalSeparation'] = self.modeler.primitives._arg_with_dim(vertical_separation)
-        self['HSHeight'] = self.modeler.primitives._arg_with_dim(hs_height)
-        self['HSWidth'] = self.modeler.primitives._arg_with_dim(hs_width)
-        self['HSBaseThick'] = self.modeler.primitives._arg_with_dim(hs_basethick)
-        if numcolumn_perside>1:
-            self['NumColumnsPerSide'] = numcolumn_perside
+        self["FinPitch"] = self.modeler.primitives._arg_with_dim(pitch)
+        self["FinThickness"] = self.modeler.primitives._arg_with_dim(thick)
+        self["FinLength"] = self.modeler.primitives._arg_with_dim(length)
+        self["FinHeight"] = self.modeler.primitives._arg_with_dim(height)
+        self["DraftAngle"] = draftangle
+        self["PatternAngle"] = patternangle
+        self["FinSeparation"] = self.modeler.primitives._arg_with_dim(separation)
+        self["VerticalSeparation"] = self.modeler.primitives._arg_with_dim(vertical_separation)
+        self["HSHeight"] = self.modeler.primitives._arg_with_dim(hs_height)
+        self["HSWidth"] = self.modeler.primitives._arg_with_dim(hs_width)
+        self["HSBaseThick"] = self.modeler.primitives._arg_with_dim(hs_basethick)
+        if numcolumn_perside > 1:
+            self["NumColumnsPerSide"] = numcolumn_perside
         if symmetric:
-            self['SymSeparation'] = self.modeler.primitives._arg_with_dim(symmetric_separation)
+            self["SymSeparation"] = self.modeler.primitives._arg_with_dim(symmetric_separation)
         # ipk['PatternDirection'] = 'Y'
         # ipk['LengthDirection'] = 'X'
         # ipk['HeightDirection'] = 'Z'
-        self['Tolerance'] = self.modeler.primitives._arg_with_dim(tolerance)
+        self["Tolerance"] = self.modeler.primitives._arg_with_dim(tolerance)
 
-        #self.modeler.primitives.create_box([0, 0, '-HSBaseThick'], ['HSWidth', 'HSHeight', 'FinHeight+HSBaseThick'], "Outline")
-        self.modeler.primitives.create_box(['-HSWidth/200', '-HSHeight/200', '-HSBaseThick'], [
-                                           'HSWidth*1.01', 'HSHeight*1.01', 'HSBaseThick+Tolerance'], "HSBase", matname)
+        self.modeler.primitives.create_box(
+            ["-HSWidth/200", "-HSHeight/200", "-HSBaseThick"],
+            ["HSWidth*1.01", "HSHeight*1.01", "HSBaseThick+Tolerance"],
+            "HSBase",
+            matname,
+        )
         Fin_Line = []
         Fin_Line.append(self.Position(0, 0, 0))
-        Fin_Line.append(self.Position(0, 'FinThickness', 0))
-        Fin_Line.append(self.Position(
-            'FinLength', 'FinThickness + FinLength*sin(PatternAngle*3.14/180)', 0))
-        Fin_Line.append(self.Position('FinLength', 'FinLength*sin(PatternAngle*3.14/180)', 0))
+        Fin_Line.append(self.Position(0, "FinThickness", 0))
+        Fin_Line.append(self.Position("FinLength", "FinThickness + FinLength*sin(PatternAngle*3.14/180)", 0))
+        Fin_Line.append(self.Position("FinLength", "FinLength*sin(PatternAngle*3.14/180)", 0))
         Fin_Line.append(self.Position(0, 0, 0))
         self.modeler.primitives.create_polyline(Fin_Line, cover_surface=True, name="Fin")
         Fin_Line2 = []
-        Fin_Line2.append(self.Position(0, 'sin(DraftAngle*3.14/180)*FinThickness', 'FinHeight'))
-        Fin_Line2.append(self.Position(
-            0, 'FinThickness-sin(DraftAngle*3.14/180)*FinThickness', 'FinHeight'))
+        Fin_Line2.append(self.Position(0, "sin(DraftAngle*3.14/180)*FinThickness", "FinHeight"))
+        Fin_Line2.append(self.Position(0, "FinThickness-sin(DraftAngle*3.14/180)*FinThickness", "FinHeight"))
         Fin_Line2.append(
-            self.Position('FinLength', 'FinThickness + FinLength*sin(PatternAngle*3.14/180)-sin(DraftAngle*3.14/180)*FinThickness',
-                         'FinHeight'))
+            self.Position(
+                "FinLength",
+                "FinThickness + FinLength*sin(PatternAngle*3.14/180)-sin(DraftAngle*3.14/180)*FinThickness",
+                "FinHeight",
+            )
+        )
         Fin_Line2.append(
-            self.Position('FinLength', 'FinLength*sin(PatternAngle*3.14/180)+sin(DraftAngle*3.14/180)*FinThickness', 'FinHeight'))
-        Fin_Line2.append(self.Position(0, 'sin(DraftAngle*3.14/180)*FinThickness', 'FinHeight'))
+            self.Position(
+                "FinLength", "FinLength*sin(PatternAngle*3.14/180)+sin(DraftAngle*3.14/180)*FinThickness", "FinHeight"
+            )
+        )
+        Fin_Line2.append(self.Position(0, "sin(DraftAngle*3.14/180)*FinThickness", "FinHeight"))
         self.modeler.primitives.create_polyline(Fin_Line2, cover_surface=True, name="Fin_top")
         self.modeler.connect(["Fin", "Fin_top"])
         self.modeler.primitives["Fin"].material_name = matname
         # self.modeler.thicken_sheet("Fin",'-FinHeight')
-        num = int((hs_width / (separation+thick))/(max(1-math.sin(patternangle*3.14/180),0.1)))
-        self.modeler.duplicate_along_line("Fin", self.Position(
-            0, 'FinSeparation+FinThickness', 0), num,True)
-        self.modeler.duplicate_along_line("Fin", self.Position(
-            0, '-FinSeparation-FinThickness', 0), num/4, True)
+        num = int((hs_width / (separation + thick)) / (max(1 - math.sin(patternangle * 3.14 / 180), 0.1)))
+        self.modeler.duplicate_along_line("Fin", self.Position(0, "FinSeparation+FinThickness", 0), num, True)
+        self.modeler.duplicate_along_line("Fin", self.Position(0, "-FinSeparation-FinThickness", 0), num / 4, True)
 
         all_names = self.modeler.primitives.object_names
         list = [i for i in all_names if "Fin" in i]
-        if numcolumn_perside>0:
-            self.modeler.duplicate_along_line(list,
-                                             self.Position('FinLength+VerticalSeparation', 'FinLength*sin(PatternAngle*3.14/180)',
-                                                          0),
-                                             'NumColumnsPerSide', True)
+        if numcolumn_perside > 0:
+            self.modeler.duplicate_along_line(
+                list,
+                self.Position("FinLength+VerticalSeparation", "FinLength*sin(PatternAngle*3.14/180)", 0),
+                "NumColumnsPerSide",
+                True,
+            )
 
         all_names = self.modeler.primitives.object_names
         list = [i for i in all_names if "Fin" in i]
         self.modeler.split(list, self.CoordinateSystemPlane.ZXPlane, "PositiveOnly")
         all_names = self.modeler.primitives.object_names
         list = [i for i in all_names if "Fin" in i]
-        self.modeler.create_coordinate_system(self.Position(
-            0, 'HSHeight', 0), mode="view", view="XY", name="TopRight")
+        self.modeler.create_coordinate_system(self.Position(0, "HSHeight", 0), mode="view", view="XY", name="TopRight")
 
         self.modeler.split(list, self.CoordinateSystemPlane.ZXPlane, "NegativeOnly")
 
         if symmetric:
 
-            self.modeler.create_coordinate_system(self.Position('(HSWidth-SymSeparation)/2', 0, 0), mode="view",
-                                                  view="XY", name="CenterRightSep",reference_cs="TopRight")
+            self.modeler.create_coordinate_system(
+                self.Position("(HSWidth-SymSeparation)/2", 0, 0),
+                mode="view",
+                view="XY",
+                name="CenterRightSep",
+                reference_cs="TopRight",
+            )
 
             self.modeler.split(list, self.CoordinateSystemPlane.YZPlane, "NegativeOnly")
-            self.modeler.create_coordinate_system(self.Position('SymSeparation/2', 0, 0),
-                                                  mode="view", view="XY", name="CenterRight",reference_cs="CenterRightSep")
+            self.modeler.create_coordinate_system(
+                self.Position("SymSeparation/2", 0, 0),
+                mode="view",
+                view="XY",
+                name="CenterRight",
+                reference_cs="CenterRightSep",
+            )
             self.modeler.duplicate_and_mirror(list, self.Position(0, 0, 0), self.Position(1, 0, 0))
             Center_Line = []
-            Center_Line.append(self.Position('-SymSeparation', 'Tolerance','-Tolerance'))
-            Center_Line.append(self.Position('SymSeparation', 'Tolerance', '-Tolerance'))
-            Center_Line.append(self.Position('VerticalSeparation',
-                               '-HSHeight-Tolerance', '-Tolerance'))
-            Center_Line.append(self.Position('-VerticalSeparation',
-                               '-HSHeight-Tolerance', '-Tolerance'))
-            Center_Line.append(self.Position('-SymSeparation', 'Tolerance', '-Tolerance'))
+            Center_Line.append(self.Position("-SymSeparation", "Tolerance", "-Tolerance"))
+            Center_Line.append(self.Position("SymSeparation", "Tolerance", "-Tolerance"))
+            Center_Line.append(self.Position("VerticalSeparation", "-HSHeight-Tolerance", "-Tolerance"))
+            Center_Line.append(self.Position("-VerticalSeparation", "-HSHeight-Tolerance", "-Tolerance"))
+            Center_Line.append(self.Position("-SymSeparation", "Tolerance", "-Tolerance"))
             self.modeler.primitives.create_polyline(Center_Line, cover_surface=True, name="Center")
-            self.modeler.thicken_sheet("Center", '-FinHeight-2*Tolerance')
+            self.modeler.thicken_sheet("Center", "-FinHeight-2*Tolerance")
             all_names = self.modeler.primitives.object_names
             list = [i for i in all_names if "Fin" in i]
             self.modeler.subtract(list, "Center", False)
         else:
-            self.modeler.create_coordinate_system(self.Position('HSWidth', 0, 0), mode="view", view="XY",
-                                                  name="BottomRight",reference_cs="TopRight")
+            self.modeler.create_coordinate_system(
+                self.Position("HSWidth", 0, 0), mode="view", view="XY", name="BottomRight", reference_cs="TopRight"
+            )
             self.modeler.split(list, self.CoordinateSystemPlane.YZPlane, "NegativeOnly")
         all_objs2 = self.modeler.primitives.object_names
-        list_to_move=[i for i in all_objs2 if i not in all_objs]
-        center[0] -= hs_width/2
-        center[1] -= hs_height/2
+        list_to_move = [i for i in all_objs2 if i not in all_objs]
+        center[0] -= hs_width / 2
+        center[1] -= hs_height / 2
         center[2] += hs_basethick
         self.modeler.set_working_coordinate_system("Global")
         self.modeler.translate(list_to_move, center)
@@ -945,8 +1072,15 @@ class Icepak(FieldAnalysisIcepak):
         return True
 
     @aedt_exception_handler
-    def edit_design_settings(self, gravityDir=0, ambtemp=22, performvalidation=False, CheckLevel="None",
-                             defaultfluid="air", defaultsolid="Al-Extruded"):
+    def edit_design_settings(
+        self,
+        gravityDir=0,
+        ambtemp=22,
+        performvalidation=False,
+        CheckLevel="None",
+        defaultfluid="air",
+        defaultsolid="Al-Extruded",
+    ):
         """Update the main settings of the design.
 
         Parameters
@@ -972,7 +1106,7 @@ class Icepak(FieldAnalysisIcepak):
             ``True`` when successful, ``False`` when failed.
 
         """
-        AmbientTemp = str(ambtemp)+"cel"
+        AmbientTemp = str(ambtemp) + "cel"
         #
         # Configure design settings for gravity etc
         IceGravity = ["X", "Y", "Z"]
@@ -981,19 +1115,53 @@ class Icepak(FieldAnalysisIcepak):
             GVPos = True
         GVA = IceGravity[int(gravityDir) - 3]
         self._odesign.SetDesignSettings(
-            ["NAME:Design Settings Data", "Perform Minimal validation:=", performvalidation, "Default Fluid Material:=",
-             defaultfluid, "Default Solid Material:=", defaultsolid, "Default Surface Material:=",
-             "Steel-oxidised-surface",
-             "AmbientTemperature:=", AmbientTemp, "AmbientPressure:=", "0n_per_meter_sq",
-             "AmbientRadiationTemperature:=", AmbientTemp,
-             "Gravity Vector CS ID:=", 1, "Gravity Vector Axis:=", GVA, "Positive:=", GVPos],
-            ["NAME:Model Validation Settings",
-             "EntityCheckLevel:=", CheckLevel, "IgnoreUnclassifiedObjects:=", False, "SkipIntersectionChecks:=", False])
+            [
+                "NAME:Design Settings Data",
+                "Perform Minimal validation:=",
+                performvalidation,
+                "Default Fluid Material:=",
+                defaultfluid,
+                "Default Solid Material:=",
+                defaultsolid,
+                "Default Surface Material:=",
+                "Steel-oxidised-surface",
+                "AmbientTemperature:=",
+                AmbientTemp,
+                "AmbientPressure:=",
+                "0n_per_meter_sq",
+                "AmbientRadiationTemperature:=",
+                AmbientTemp,
+                "Gravity Vector CS ID:=",
+                1,
+                "Gravity Vector Axis:=",
+                GVA,
+                "Positive:=",
+                GVPos,
+            ],
+            [
+                "NAME:Model Validation Settings",
+                "EntityCheckLevel:=",
+                CheckLevel,
+                "IgnoreUnclassifiedObjects:=",
+                False,
+                "SkipIntersectionChecks:=",
+                False,
+            ],
+        )
         return True
 
     @aedt_exception_handler
-    def assign_em_losses(self, designname="HFSSDesign1", setupname="Setup1", sweepname="LastAdaptive", map_frequency=None,
-                         surface_objects=[], source_project_name=None, paramlist=[], object_list=[]):
+    def assign_em_losses(
+        self,
+        designname="HFSSDesign1",
+        setupname="Setup1",
+        sweepname="LastAdaptive",
+        map_frequency=None,
+        surface_objects=[],
+        source_project_name=None,
+        paramlist=[],
+        object_list=[],
+    ):
         """Map EM losses to an Icepak design.
 
         Parameters
@@ -1050,26 +1218,42 @@ class Icepak(FieldAnalysisIcepak):
             argparam[el] = self.available_variations.nominal_w_values_dict[el]
 
         for el in paramlist:
-            argparam[el]=el
+            argparam[el] = el
 
         props = OrderedDict(
-            {"Objects": allObjects, "Project": projname, "Product": "ElectronicsDesktop",
-             "Design": designname, "Soln": setupname + " : " + sweepname, "Params": argparam,
-             "ForceSourceToSolve": True, "PreservePartnerSoln": True, "PathRelativeTo": "TargetProject"})
-        props["Intrinsics"]= intr
-        props["SurfaceOnly"]= surfaces
+            {
+                "Objects": allObjects,
+                "Project": projname,
+                "Product": "ElectronicsDesktop",
+                "Design": designname,
+                "Soln": setupname + " : " + sweepname,
+                "Params": argparam,
+                "ForceSourceToSolve": True,
+                "PreservePartnerSoln": True,
+                "PathRelativeTo": "TargetProject",
+            }
+        )
+        props["Intrinsics"] = intr
+        props["SurfaceOnly"] = surfaces
 
         name = generate_unique_name("EMLoss")
         bound = BoundaryObject(self, name, props, "EMLoss")
         if bound.create():
             self.boundaries.append(bound)
-            self._messenger.add_info_message('EM losses mapped from design {}.'.format(designname))
+            self._messenger.add_info_message("EM losses mapped from design {}.".format(designname))
             return bound
         return False
 
     @aedt_exception_handler
-    def eval_surface_quantity_from_field_summary(self, faces_list, quantity_name="HeatTransCoeff", savedir=None,
-                                                 filename=None, sweep_name=None, parameter_dict_with_values={}):
+    def eval_surface_quantity_from_field_summary(
+        self,
+        faces_list,
+        quantity_name="HeatTransCoeff",
+        savedir=None,
+        filename=None,
+        sweep_name=None,
+        parameter_dict_with_values={},
+    ):
         """Export the field surface output.
 
         This method exports one CSV file for the specified variation.
@@ -1085,7 +1269,8 @@ class Icepak(FieldAnalysisIcepak):
         filename : str, optional
             Name of the CSV file. The default is ``None``.
         sweep_name : str, optional
-            Name of the setup and name of the sweep. For example: ``"IcepakSetup1 : SteatyState"``. The default is ``None``.
+            Name of the setup and name of the sweep. For example: ``"IcepakSetup1 : SteatyState"``.
+            The default is ``None``.
         parameter_dict_with_values : dict, optional
             Dictionary of parameters defined for the specific setup with values. The default is ``{}``.
 
@@ -1095,34 +1280,47 @@ class Icepak(FieldAnalysisIcepak):
             Name of the file.
 
         """
-        name=generate_unique_name(quantity_name)
-        self.modeler.create_face_list(faces_list,name )
+        name = generate_unique_name(quantity_name)
+        self.modeler.create_face_list(faces_list, name)
         if not savedir:
             savedir = self.project_path
         if not filename:
-            filename = generate_unique_name(self.project_name+quantity_name)
+            filename = generate_unique_name(self.project_name + quantity_name)
         if not sweep_name:
-            sweep_name=self.nominal_sweep
+            sweep_name = self.nominal_sweep
         self.osolution.EditFieldsSummarySetting(
             [
-                "Calculation:=", ["Object", "Surface", name,
-                    quantity_name, "", "Default", "AmbientTemp"],
-            ])
+                "Calculation:=",
+                ["Object", "Surface", name, quantity_name, "", "Default", "AmbientTemp"],
+            ]
+        )
         string = ""
         for el in parameter_dict_with_values:
-            string += el + "=\'" + parameter_dict_with_values[el] + "\' "
+            string += el + "='" + parameter_dict_with_values[el] + "' "
         filename = os.path.join(savedir, filename + ".csv")
         self.osolution.ExportFieldsSummary(
-                [
-                    "SolutionName:=", sweep_name,
-                    "DesignVariationKey:=", string,
-                    "ExportFileName:=", filename,
-                    "IntrinsicValue:=", ""
-                ])
+            [
+                "SolutionName:=",
+                sweep_name,
+                "DesignVariationKey:=",
+                string,
+                "ExportFileName:=",
+                filename,
+                "IntrinsicValue:=",
+                "",
+            ]
+        )
         return filename
 
-    def eval_volume_quantity_from_field_summary(self, object_list, quantity_name="HeatTransCoeff",  savedir=None,
-                                                 filename=None, sweep_name=None, parameter_dict_with_values={}):
+    def eval_volume_quantity_from_field_summary(
+        self,
+        object_list,
+        quantity_name="HeatTransCoeff",
+        savedir=None,
+        filename=None,
+        sweep_name=None,
+        parameter_dict_with_values={},
+    ):
         """Export the field volume output.
 
         This method exports one CSV file for the specified variation.
@@ -1138,7 +1336,8 @@ class Icepak(FieldAnalysisIcepak):
         filename :  str, optional
             Name of the CSV file. The default is ``None``.
         sweep_name :
-            Name of the setup and name of the sweep. For example: ``"IcepakSetup1 : SteatyState"``. The default is ``None``.
+            Name of the setup and name of the sweep. For example: ``"IcepakSetup1 : SteatyState"``.
+            The default is ``None``.
         parameter_dict_with_values : dict, optional
             Dictionary of parameters defined for the specific setup with values. The default is ``{}``
 
@@ -1151,20 +1350,29 @@ class Icepak(FieldAnalysisIcepak):
         if not savedir:
             savedir = self.project_path
         if not filename:
-            filename = generate_unique_name(self.project_name+quantity_name)
+            filename = generate_unique_name(self.project_name + quantity_name)
         if not sweep_name:
-            sweep_name=self.nominal_sweep
+            sweep_name = self.nominal_sweep
         self.osolution.EditFieldsSummarySetting(
             [
-                "Calculation:=", ["Object", "Volume", ",".join(
-                    object_list), quantity_name, "", "Default", "AmbientTemp"],
-            ])
+                "Calculation:=",
+                ["Object", "Volume", ",".join(object_list), quantity_name, "", "Default", "AmbientTemp"],
+            ]
+        )
         string = ""
         for el in parameter_dict_with_values:
-            string += el + "=\'" + parameter_dict_with_values[el] + "\' "
+            string += el + "='" + parameter_dict_with_values[el] + "' "
         filename = os.path.join(savedir, filename + ".csv")
-        arg = ["SolutionName:=", sweep_name, "DesignVariationKey:=", string, "ExportFileName:=", filename,
-               "IntrinsicValue:=", ""]
+        arg = [
+            "SolutionName:=",
+            sweep_name,
+            "DesignVariationKey:=",
+            string,
+            "ExportFileName:=",
+            filename,
+            "IntrinsicValue:=",
+            "",
+        ]
         retry_ntimes(10, self.osolution.ExportFieldsSummary, arg)
         return filename
 
@@ -1194,7 +1402,7 @@ class Icepak(FieldAnalysisIcepak):
         filename = os.path.join(savedir, proj_icepak + "_HTCAndTemp_var" + str(i) + ".csv")
         # iterate the variations
         while os.path.exists(filename):
-            with open(filename, 'r') as f:
+            with open(filename, "r") as f:
                 lines = f.readlines()
                 variation = lines[1]
                 # Searching file content for temp and power
@@ -1209,23 +1417,31 @@ class Icepak(FieldAnalysisIcepak):
                     headerwriten = True
 
                 # add the new lines
-                newfilelines.append(temp + ',' + power + ',' + lines[5])
-                newfilelines.append(temp + ',' + power + ',' + lines[6])
+                newfilelines.append(temp + "," + power + "," + lines[5])
+                newfilelines.append(temp + "," + power + "," + lines[6])
 
             # search for next variation
             filetoremove.append(filename)
             i += 1
             filename = os.path.join(savedir, proj_icepak + "_HTCAndTemp_var" + str(i) + ".csv")
         # write the new file
-        with open(newfilename, 'w') as f:
+        with open(newfilename, "w") as f:
             f.writelines(newfilelines)
         # remove the single files variation
         for fr in filetoremove:
             os.remove(fr)
         return True
 
-    def export_summary(self, output_dir=None, solution_name=None, type="Object", geometryType="Volume", quantity="Temperature",
-                       variation="", variationlist=[]):
+    def export_summary(
+        self,
+        output_dir=None,
+        solution_name=None,
+        type="Object",
+        geometryType="Volume",
+        quantity="Temperature",
+        variation="",
+        variationlist=[],
+    ):
         """Export a fields summary of all objects.
 
         Parameters
@@ -1259,7 +1475,8 @@ class Icepak(FieldAnalysisIcepak):
         for el in all_objs_model:
             try:
                 self.osolution.EditFieldsSummarySetting(
-                    ["Calculation:=", [type, geometryType, el, quantity, "", "Default"]])
+                    ["Calculation:=", [type, geometryType, el, quantity, "", "Default"]]
+                )
                 arg.append("Calculation:=")
                 arg.append([type, geometryType, el, quantity, "", "Default"])
             except Exception as e:
@@ -1274,18 +1491,27 @@ class Icepak(FieldAnalysisIcepak):
             solution_name = self.nominal_sweep
         if variation:
             for l in variationlist:
-                self.osolution.ExportFieldsSummary(["SolutionName:=",solution_name ,
-                                                          "DesignVariationKey:=", variation + \
-                                                              "=\'" + str(l) + "\'",
-                                                          "ExportFileName:=",
-                                                         os.path.join(output_dir,
-                                                                      "IPKsummaryReport" + quantity + "_" + str(
-                                                                          l) + ".csv")])
+                self.osolution.ExportFieldsSummary(
+                    [
+                        "SolutionName:=",
+                        solution_name,
+                        "DesignVariationKey:=",
+                        variation + "='" + str(l) + "'",
+                        "ExportFileName:=",
+                        os.path.join(output_dir, "IPKsummaryReport" + quantity + "_" + str(l) + ".csv"),
+                    ]
+                )
         else:
-            self.osolution.ExportFieldsSummary(["SolutionName:=", solution_name,
-                                                      "DesignVariationKey:=", "",
-                                                      "ExportFileName:=",
-                                                      os.path.join(output_dir, "IPKsummaryReport" + quantity + ".csv")])
+            self.osolution.ExportFieldsSummary(
+                [
+                    "SolutionName:=",
+                    solution_name,
+                    "DesignVariationKey:=",
+                    "",
+                    "ExportFileName:=",
+                    os.path.join(output_dir, "IPKsummaryReport" + quantity + ".csv"),
+                ]
+            )
         return True
 
     @aedt_exception_handler
@@ -1344,29 +1570,49 @@ class Icepak(FieldAnalysisIcepak):
         if linkData[0] is None:
             project_name = "This Project*"
         else:
-            project_name = linkData[0].replace("\\","/")
+            project_name = linkData[0].replace("\\", "/")
 
         designName = linkData[1]
         hfssSolutionName = linkData[2]
         forceSourceSimEnabler = linkData[3]
         preserveSrcResEnabler = linkData[4]
 
-        arg = ["NAME:DefnLink",
-            "Project:="	, project_name,
-            "Product:="		, "ElectronicsDesktop",
-            "Design:="		, designName,
-            "Soln:="		, hfssSolutionName,
+        arg = [
+            "NAME:DefnLink",
+            "Project:=",
+            project_name,
+            "Product:=",
+            "ElectronicsDesktop",
+            "Design:=",
+            designName,
+            "Soln:=",
+            hfssSolutionName,
             ["NAME:Params"],
-            "ForceSourceToSolve:="	, forceSourceSimEnabler,
-            "PreservePartnerSoln:="	, preserveSrcResEnabler,
-            "PathRelativeTo:="	, "TargetProject"]
+            "ForceSourceToSolve:=",
+            forceSourceSimEnabler,
+            "PreservePartnerSoln:=",
+            preserveSrcResEnabler,
+            "PathRelativeTo:=",
+            "TargetProject",
+        ]
 
         return arg
 
     @aedt_exception_handler
-    def create_ipk_3dcomponent_pcb(self, compName, setupLinkInfo, solutionFreq, resolution, PCB_CS="Global",
-                                   rad="Nothing", extenttype="Bounding Box", outlinepolygon="", powerin="0W",
-                                   custom_x_resolution=None, custom_y_resolution=None):
+    def create_ipk_3dcomponent_pcb(
+        self,
+        compName,
+        setupLinkInfo,
+        solutionFreq,
+        resolution,
+        PCB_CS="Global",
+        rad="Nothing",
+        extenttype="Bounding Box",
+        outlinepolygon="",
+        powerin="0W",
+        custom_x_resolution=None,
+        custom_y_resolution=None,
+    ):
         """Create a PCB component in Icepak that is linked to an HFSS 3D Layout object.
 
         Parameters
@@ -1406,12 +1652,27 @@ class Icepak(FieldAnalysisIcepak):
         hfssLinkInfo = OrderedDict({})
         arg2dict(self.get_link_data(setupLinkInfo), hfssLinkInfo)
 
-        native_props = OrderedDict({"NativeComponentDefinitionProvider": OrderedDict(
-            {"Type": "PCB", "Unit": self.modeler.model_units, "MovePlane": "XY", "Use3DLayoutExtents": False,
-             "ExtentsType": extenttype, "OutlinePolygon": outlinepolygon, "CreateDevices": False,
-             "CreateTopSolderballs": False, "CreateBottomSolderballs": False, "Resolution": int(resolution),
-             "LowSide": OrderedDict({"Radiate": lowRad}), "HighSide": OrderedDict({"Radiate": highRad})})})
-        native_props["BasicComponentInfo"] = OrderedDict({"IconType":"PCB"})
+        native_props = OrderedDict(
+            {
+                "NativeComponentDefinitionProvider": OrderedDict(
+                    {
+                        "Type": "PCB",
+                        "Unit": self.modeler.model_units,
+                        "MovePlane": "XY",
+                        "Use3DLayoutExtents": False,
+                        "ExtentsType": extenttype,
+                        "OutlinePolygon": outlinepolygon,
+                        "CreateDevices": False,
+                        "CreateTopSolderballs": False,
+                        "CreateBottomSolderballs": False,
+                        "Resolution": int(resolution),
+                        "LowSide": OrderedDict({"Radiate": lowRad}),
+                        "HighSide": OrderedDict({"Radiate": highRad}),
+                    }
+                )
+            }
+        )
+        native_props["BasicComponentInfo"] = OrderedDict({"IconType": "PCB"})
 
         if custom_x_resolution and custom_y_resolution:
             native_props["NativeComponentDefinitionProvider"]["UseThermalLink"] = solutionFreq != ""
@@ -1429,11 +1690,11 @@ class Icepak(FieldAnalysisIcepak):
         if solutionFreq:
             native_props["NativeComponentDefinitionProvider"]["Frequency"] = solutionFreq
             native_props["NativeComponentDefinitionProvider"]["DefnLink"] = hfssLinkInfo["DefnLink"]
-            #compDefinition += ["Frequency:=", solutionFreq, hfssLinkInfo]
+            # compDefinition += ["Frequency:=", solutionFreq, hfssLinkInfo]
         else:
             native_props["NativeComponentDefinitionProvider"]["Power"] = powerin
             native_props["NativeComponentDefinitionProvider"]["DefnLink"] = hfssLinkInfo["DefnLink"]
-            #compDefinition += ["Power:=", powerin, hfssLinkInfo]
+            # compDefinition += ["Power:=", powerin, hfssLinkInfo]
 
         native_props["TargetCS"] = PCB_CS
         native = NativeComponentObject(self, "PCB", compName, native_props)
@@ -1445,9 +1706,18 @@ class Icepak(FieldAnalysisIcepak):
         return False
 
     @aedt_exception_handler
-    def create_pcb_from_3dlayout(self, component_name, project_name, design_name, resolution=2,
-                                 extenttype="Bounding Box", outlinepolygon="", close_linked_project_after_import=True,
-                                 custom_x_resolution=None, custom_y_resolution=None):
+    def create_pcb_from_3dlayout(
+        self,
+        component_name,
+        project_name,
+        design_name,
+        resolution=2,
+        extenttype="Bounding Box",
+        outlinepolygon="",
+        close_linked_project_after_import=True,
+        custom_x_resolution=None,
+        custom_y_resolution=None,
+    ):
         """Create a PCB component in Icepak that is linked to an HFSS 3D Layout object linking only to the geometry file.
 
         .. note::
@@ -1482,10 +1752,17 @@ class Icepak(FieldAnalysisIcepak):
         """
         if project_name == self.project_name:
             project_name = "This Project*"
-        link_data = [project_name, design_name,  "<--EDB Layout Data-->", False, False]
-        status = self.create_ipk_3dcomponent_pcb(component_name, link_data, "", resolution, extenttype=extenttype,
-                                                 outlinepolygon=outlinepolygon, custom_x_resolution=custom_x_resolution,
-                                                 custom_y_resolution=custom_y_resolution)
+        link_data = [project_name, design_name, "<--EDB Layout Data-->", False, False]
+        status = self.create_ipk_3dcomponent_pcb(
+            component_name,
+            link_data,
+            "",
+            resolution,
+            extenttype=extenttype,
+            outlinepolygon=outlinepolygon,
+            custom_x_resolution=custom_x_resolution,
+            custom_y_resolution=custom_y_resolution,
+        )
 
         if close_linked_project_after_import and ".aedt" in project_name:
             prjname = os.path.splitext(os.path.basename(project_name))[0]
@@ -1494,7 +1771,7 @@ class Icepak(FieldAnalysisIcepak):
         return status
 
     @aedt_exception_handler
-    def copyGroupFrom(self, groupName, sourceDesign, sourceProject = None, sourceProjectPath = None):
+    def copyGroupFrom(self, groupName, sourceDesign, sourceProject=None, sourceProjectPath=None):
         """Copy a group from another design.
 
         Parameters
@@ -1531,7 +1808,7 @@ class Icepak(FieldAnalysisIcepak):
         return True
 
     @aedt_exception_handler
-    def export3DModel(self, fileName, filePath, fileFormat = ".step", object_list = [], removed_objects = []):
+    def export3DModel(self, fileName, filePath, fileFormat=".step", object_list=[], removed_objects=[]):
         """Export the 3D model.
 
         Parameters
@@ -1566,21 +1843,38 @@ class Icepak(FieldAnalysisIcepak):
 
         print(allObjects)
 
-        stringa = ','.join(allObjects)
-        arg = ["NAME:ExportParameters",
-               "AllowRegionDependentPartSelectionForPMLCreation:=", True,
-               "AllowRegionSelectionForPMLCreation:=", True,
-               "Selections:=", stringa,
-               "File Name:=", str(filePath)+"/"+str(fileName)+str(fileFormat),
-               "Major Version:=", -1,
-               "Minor Version:=", -1]
+        stringa = ",".join(allObjects)
+        arg = [
+            "NAME:ExportParameters",
+            "AllowRegionDependentPartSelectionForPMLCreation:=",
+            True,
+            "AllowRegionSelectionForPMLCreation:=",
+            True,
+            "Selections:=",
+            stringa,
+            "File Name:=",
+            str(filePath) + "/" + str(fileName) + str(fileFormat),
+            "Major Version:=",
+            -1,
+            "Minor Version:=",
+            -1,
+        ]
 
         self.modeler.oeditor.Export(arg)
         return True
 
     @aedt_exception_handler
-    def globalMeshSettings(self, meshtype, gap_min_elements="1", noOgrids=False, MLM_en=True, MLM_Type="3D",
-                           stairStep_en=False, edge_min_elements="1", object="Region"):
+    def globalMeshSettings(
+        self,
+        meshtype,
+        gap_min_elements="1",
+        noOgrids=False,
+        MLM_en=True,
+        MLM_Type="3D",
+        stairStep_en=False,
+        edge_min_elements="1",
+        object="Region",
+    ):
         """Create a custom mesh tailored on a PCB design.
 
         Parameters
@@ -1615,37 +1909,59 @@ class Icepak(FieldAnalysisIcepak):
         xsize = abs(float(oBoundingBox[0]) - float(oBoundingBox[3])) / (15 * meshtype * meshtype)
         ysize = abs(float(oBoundingBox[1]) - float(oBoundingBox[4])) / (15 * meshtype * meshtype)
         zsize = abs(float(oBoundingBox[2]) - float(oBoundingBox[5])) / (10 * meshtype)
-        MaxSizeRatio = (1 + (meshtype / 2))
+        MaxSizeRatio = 1 + (meshtype / 2)
 
         oModule.EditGlobalMeshRegion(
             [
                 "NAME:Settings",
-                "MeshMethod:="	, "MesherHD",
-                "UserSpecifiedSettings:=", True,
-                "ComputeGap:="		, True,
-                "MaxElementSizeX:="	, str(xsize) + self.modeler.model_units,
-                "MaxElementSizeY:="	, str(ysize) + self.modeler.model_units,
-                "MaxElementSizeZ:="	, str(zsize) + self.modeler.model_units,
-                "MinElementsInGap:="	, gap_min_elements,
-                "MinElementsOnEdge:="	, edge_min_elements,
-                "MaxSizeRatio:="	, str(MaxSizeRatio),
-                "NoOGrids:="		, noOgrids,
-                "EnableMLM:="		, MLM_en,
-                "EnforeMLMType:="	, MLM_Type,
-                "MaxLevels:="		, "0",
-                "BufferLayers:="	, "0",
-                "UniformMeshParametersType:=", "Average",
-                "StairStepMeshing:="	, stairStep_en,
-                "MinGapX:="		, str(xsize / 10) + self.modeler.model_units,
-                "MinGapY:="		, str(xsize / 10) + self.modeler.model_units,
-                "MinGapZ:="		, str(xsize / 10) + self.modeler.model_units,
-                "Objects:="		, [object]
-            ])
+                "MeshMethod:=",
+                "MesherHD",
+                "UserSpecifiedSettings:=",
+                True,
+                "ComputeGap:=",
+                True,
+                "MaxElementSizeX:=",
+                str(xsize) + self.modeler.model_units,
+                "MaxElementSizeY:=",
+                str(ysize) + self.modeler.model_units,
+                "MaxElementSizeZ:=",
+                str(zsize) + self.modeler.model_units,
+                "MinElementsInGap:=",
+                gap_min_elements,
+                "MinElementsOnEdge:=",
+                edge_min_elements,
+                "MaxSizeRatio:=",
+                str(MaxSizeRatio),
+                "NoOGrids:=",
+                noOgrids,
+                "EnableMLM:=",
+                MLM_en,
+                "EnforeMLMType:=",
+                MLM_Type,
+                "MaxLevels:=",
+                "0",
+                "BufferLayers:=",
+                "0",
+                "UniformMeshParametersType:=",
+                "Average",
+                "StairStepMeshing:=",
+                stairStep_en,
+                "MinGapX:=",
+                str(xsize / 10) + self.modeler.model_units,
+                "MinGapY:=",
+                str(xsize / 10) + self.modeler.model_units,
+                "MinGapZ:=",
+                str(xsize / 10) + self.modeler.model_units,
+                "Objects:=",
+                [object],
+            ]
+        )
         return True
 
     @aedt_exception_handler
-    def create_meshregion_component(self, scale_factor=1.0, name="Component_Region",
-                                          restore_padding_values=[50, 50, 50, 50, 50, 50]):
+    def create_meshregion_component(
+        self, scale_factor=1.0, name="Component_Region", restore_padding_values=[50, 50, 50, 50, 50, 50]
+    ):
         """Create a bounding box to be used as a mesh region in Icepak.
 
         Parameters
@@ -1679,24 +1995,23 @@ class Icepak(FieldAnalysisIcepak):
 
         scale_factor = scale_factor - 1
         delta_x = (float(max(x_values)) - float(min(x_values))) * scale_factor
-        x_max = float(max(x_values)) + delta_x / 2.
-        x_min = float(min(x_values)) - delta_x / 2.
+        x_max = float(max(x_values)) + delta_x / 2.0
+        x_min = float(min(x_values)) - delta_x / 2.0
 
         delta_y = (float(max(y_values)) - float(min(y_values))) * scale_factor
-        y_max = float(max(y_values)) + delta_y / 2.
-        y_min = float(min(y_values)) - delta_y / 2.
+        y_max = float(max(y_values)) + delta_y / 2.0
+        y_min = float(min(y_values)) - delta_y / 2.0
 
         delta_z = (float(max(z_values)) - float(min(z_values))) * scale_factor
-        z_max = float(max(z_values)) + delta_z / 2.
-        z_min = float(min(z_values)) - delta_z / 2.
+        z_max = float(max(z_values)) + delta_z / 2.0
+        z_min = float(min(z_values)) - delta_z / 2.0
 
         dis_x = str(float(x_max) - float(x_min))
         dis_y = str(float(y_max) - float(y_min))
         dis_z = str(float(z_max) - float(z_min))
 
-        min_position = self.modeler.Position(str(x_min)+"mm", str(y_min)+"mm", str(z_min)+"mm")
-        mesh_box = self.modeler.primitives.create_box(min_position, [dis_x+"mm", dis_y+"mm", dis_z+"mm"],
-                                                      name)
+        min_position = self.modeler.Position(str(x_min) + "mm", str(y_min) + "mm", str(z_min) + "mm")
+        mesh_box = self.modeler.primitives.create_box(min_position, [dis_x + "mm", dis_y + "mm", dis_z + "mm"], name)
 
         self.modeler.primitives[name].model = False
 
@@ -1721,21 +2036,22 @@ class Icepak(FieldAnalysisIcepak):
              ``True`` when successful, ``False`` when failed.
 
         """
-        arg1 = ["NAME:PointParameters",
-               "PointX:="		, point_coord[0],
-               "PointY:="		, point_coord[1],
-               "PointZ:="		, point_coord[2]]
+        arg1 = [
+            "NAME:PointParameters",
+            "PointX:=",
+            point_coord[0],
+            "PointY:=",
+            point_coord[1],
+            "PointZ:=",
+            point_coord[2],
+        ]
 
-        arg2 = ["NAME:Attributes",
-                "Name:="		, point_name,
-                "Color:="		, "(143 175 143)"]
+        arg2 = ["NAME:Attributes", "Name:=", point_name, "Color:=", "(143 175 143)"]
 
         self.modeler.oeditor.CreatePoint(arg1, arg2)
         monitor = self._odesign.GetModule("Monitor")
 
-        arg = ["NAME:"+str(point_name),
-               "Quantities:="		, ["Temperature"],
-               "Points:="		, [str(point_name)]]
+        arg = ["NAME:" + str(point_name), "Quantities:=", ["Temperature"], "Points:=", [str(point_name)]]
 
         monitor.AssignPointMonitor(arg)
         return True
@@ -1773,8 +2089,7 @@ class Icepak(FieldAnalysisIcepak):
             ``True`` when successful, ``False`` when failed.
 
         """
-        arg = ["NAME:Selections",
-               "Selections:="		, comp_name]
+        arg = ["NAME:Selections", "Selections:=", comp_name]
 
         self.modeler.oeditor.Delete(arg)
         return True
