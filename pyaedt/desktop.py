@@ -386,12 +386,11 @@ class Desktop:
             version = "Ansoft.ElectronicsDesktop." + version_key[:-2]
         else:
             version = "Ansoft.ElectronicsDesktop." + version_key
-        base_path = os.getenv(self._version_ids[version_key])
         self._main.sDesktopinstallDirectory = os.getenv(self._version_ids[version_key])
         self._main.AEDTVersion = version_key
         return version_student, version_key, version
 
-    def _init_ironpython(self, NG, AlwaysNew, version):
+    def _init_ironpython(self, non_graphical, new_aedt_session, version):
         base_path = self._main.sDesktopinstallDirectory
         sys.path.append(base_path)
         sys.path.append(os.path.join(base_path, 'PythonFiles', 'DesktopPlugin'))
@@ -400,12 +399,12 @@ class Desktop:
         self.COMUtil = AnsoftCOMUtil.Ansoft.CoreCOMScripting.Util.COMUtil
         self._main.COMUtil = self.COMUtil
         StandalonePyScriptWrapper = AnsoftCOMUtil.Ansoft.CoreCOMScripting.COM.StandalonePyScriptWrapper
-        if NG or AlwaysNew:
+        if non_graphical or new_aedt_session:
             # forcing new thread to start in non-graphical
-            oAnsoftApp = StandalonePyScriptWrapper.CreateObjectNew(NG)
+            oAnsoftApp = StandalonePyScriptWrapper.CreateObjectNew(non_graphical)
         else:
             oAnsoftApp = StandalonePyScriptWrapper.CreateObject(version)
-        if NG:
+        if non_graphical:
             os.environ['PYAEDT_DESKTOP_LOGS'] = 'False'
         self._main.oDesktop = oAnsoftApp.GetAppDesktop()
         self._main.isoutsideDesktop = True
@@ -428,19 +427,18 @@ class Desktop:
         return processID2
 
     def _run_student(self):
-        base_path = self._main.sDesktopinstallDirectory
         import subprocess
         DETACHED_PROCESS = 0x00000008
-        pid = subprocess.Popen([os.path.join(base_path, "ansysedtsv.exe")],
+        pid = subprocess.Popen([os.path.join(self._main.sDesktopinstallDirectory, "ansysedtsv.exe")],
                                creationflags=DETACHED_PROCESS).pid
         time.sleep(5)
 
     def _dispatch_win32(self,version):
-        oAnsoftApp = win32com.client.Dispatch(version)
-        self._main.oDesktop = oAnsoftApp.GetAppDesktop()
+        o_ansoft_app = win32com.client.Dispatch(version)
+        self._main.oDesktop = o_ansoft_app.GetAppDesktop()
         self._main.isoutsideDesktop = True
 
-    def _init_cpython(self, NG, AlwaysNew, version, student_version, version_key):
+    def _init_cpython(self, non_graphical, new_aedt_session, version, student_version, version_key):
         base_path = self._main.sDesktopinstallDirectory
         sys.path.append(base_path)
         sys.path.append(os.path.join(base_path, 'PythonFiles', 'DesktopPlugin'))
@@ -458,12 +456,12 @@ class Desktop:
            processID = self._get_tasks_list_windows(student_version)
         if student_version and not processID:
             self._run_student()
-        elif NG or AlwaysNew or not processID:
+        elif non_graphical or new_aedt_session or not processID:
             # Force new object if no non-graphical instance is running or if there is not an already existing process.
-            StandalonePyScriptWrapper.CreateObjectNew(NG)
+            StandalonePyScriptWrapper.CreateObjectNew(non_graphical)
         else:
             StandalonePyScriptWrapper.CreateObject(version)
-        if NG:
+        if non_graphical:
             os.environ['PYAEDT_DESKTOP_LOGS'] = 'False'
         processID2 = []
         if IsWindows:
@@ -472,7 +470,7 @@ class Desktop:
         if not proc:
             proc = processID2
         if len(processID2) > 1:
-            if NG:
+            if non_graphical:
                 self._main.close_on_exit = False
             else:
                 self._main.close_on_exit = False
@@ -509,12 +507,8 @@ class Desktop:
                 else:
                     project_dir = os.environ["TEMP"]
             self.logfile = os.path.join(project_dir, "pyaedt{}.log".format(datetime.datetime.now().strftime("%Y%m%d_%H%M%S")))
-            logging.basicConfig(
-                filename=self.logfile,
-                level=logging.DEBUG,
-                format='%(asctime)s:%(name)s:%(levelname)-8s:%(message)s',
-                datefmt='%Y/%m/%d %H.%M.%S',
-                filemode='w')
+            logging.basicConfig(filename=self.logfile, format='%(asctime)s:%(name)s:%(levelname)-8s:%(message)s',
+                                level=logging.DEBUG, datefmt='%Y/%m/%d %H.%M.%S', filemode='w')
         return True
 
     def __init__(self, specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True, student_version=False):
