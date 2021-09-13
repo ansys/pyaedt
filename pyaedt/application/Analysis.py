@@ -1,5 +1,5 @@
 """
-This module contains the `analysis` class.
+This module contains the ``analysis`` class.
 
 It includes common classes for file management and messaging and all
 calls to AEDT modules like the modeler, mesh, postprocessing, and setup.
@@ -644,7 +644,7 @@ class Analysis(Design, object):
 
     @aedt_exception_handler
     def analyse_nominal(self):
-        """Revert the solution to the initial mesh and re-run the solve.
+        """Solve the nominal design.
 
         .. deprecated:: 0.4.0
            Use :func:`Analysis.analyze_nominal` instead.
@@ -654,7 +654,7 @@ class Analysis(Design, object):
 
     @aedt_exception_handler
     def analyze_nominal(self):
-        """Revert the solution to the initial mesh and re-run the solve.
+        """Solve the nominal design.
 
         Returns
         -------
