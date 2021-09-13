@@ -70,7 +70,7 @@ bird_folder = os.path.join(actor_lib, "bird1")
 # ~~~~~~~~~~~~~~
 # Define background environment
 
-road1 = app.modeler.primitives.add_environment(env_folder=env_folder,environment_name="Bari")
+road1 = app.modeler.primitives.add_environment(env_folder=env_folder, environment_name="Bari")
 prim = app.modeler.primitives
 
 ###############################################################################

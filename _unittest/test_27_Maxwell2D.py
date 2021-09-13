@@ -85,4 +85,3 @@ class TestClass(BasisTest):
                                                       self.aedtapp.modeler.primitives["Rectangle2"].edges[2].id)
         assert "Independent" in mas.name
         assert "Dependent" in slave.name
-        pass
