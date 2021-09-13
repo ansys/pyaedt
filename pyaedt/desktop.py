@@ -458,7 +458,7 @@ class Desktop:
         self.COMUtil = AnsoftCOMUtil.Ansoft.CoreCOMScripting.Util.COMUtil
         self._main.COMUtil = self.COMUtil
         StandalonePyScriptWrapper = AnsoftCOMUtil.Ansoft.CoreCOMScripting.COM.StandalonePyScriptWrapper
-        print("Launching AEDT with Module Pythonnet")
+        print("Launching AEDT with module Pythonnet.")
         processID = []
         if IsWindows:
            processID = self._get_tasks_list_windows(student_version)
@@ -486,9 +486,9 @@ class Desktop:
         elif version_key >= "2021.1":
             self._main.close_on_exit = True
             if student_version:
-                print("Info: {} Student Started with Process ID {}".format(version, proc[0]))
+                print("Info: {} Student version started with process ID {}.".format(version, proc[0]))
             else:
-                print("Info: {} Started with Process ID {}".format(version, proc[0]))
+                print("Info: {} Started with process ID {}.".format(version, proc[0]))
             context = pythoncom.CreateBindCtx(0)
             running_coms = pythoncom.GetRunningObjectTable()
             monikiers = running_coms.EnumRunning()
@@ -523,7 +523,7 @@ class Desktop:
 
     def __init__(self, specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True, student_version=False):
         """Initialize desktop."""
-        self._main = sys.modules['__main__']
+        self._main = sys.modules["__main__"]
         self._main.interpreter = _com
         self._main.close_on_exit = False
         self._main.isoutsideDesktop = False
@@ -544,7 +544,7 @@ class Desktop:
                 print("Launching PyAEDT outside Electronics Desktop with CPython and Pythonnet")
                 self._init_cpython(NG, AlwaysNew, version, student_version, version_key)
             else:
-                print("Launching PyAEDT outside Electronics Desktop with CPython and PyWin32")
+                self.add_info_message("Launching PyAEDT outside AEDT with CPython and PyWin32.")
                 oAnsoftApp = win32com.client.Dispatch(version)
                 self._main.oDesktop = oAnsoftApp.GetAppDesktop()
                 self._main.isoutsideDesktop = True
