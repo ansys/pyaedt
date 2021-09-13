@@ -1047,7 +1047,8 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
         return False
 
     @aedt_exception_handler
-    def assign_master_slave(self, master_edge, slave_edge, reverse_master =False, reverse_slave=False, same_as_master=True, bound_name=None):
+    def assign_master_slave(self, master_edge, slave_edge, reverse_master=False, reverse_slave=False,
+                            same_as_master=True, bound_name=None):
         """Assign Master/Slave Boundary Conditions to 2 edges of the same object.
 
         Parameters

@@ -85,19 +85,25 @@ class Hfss(FieldAnalysis3D, object):
     which is named ``"myfile.aedt"``.
 
     >>> hfss = Hfss("myfile.aedt")
-    pyaedt Info: Added design 'HFSS_...' of type HFSS.
+    pyaedt Info: Project myfile has been created.
+    pyaedt Info: No design present - inserting a new design
+    pyaedt Info: Added design...
 
     Create an instance of HFSS using the 2021 R1 release and open
     the specified project, which is named ``"myfile2.aedt"``.
 
     >>> hfss = Hfss(specified_version="2021.1", projectname="myfile2.aedt")
-    pyaedt Info: Added design 'HFSS_...' of type HFSS.
+    pyaedt Info: Project myfile2 has been created.
+    pyaedt Info: No design present - inserting a new design
+    pyaedt Info: Added design...
 
     Create an instance of HFSS using the 2021 R2 student version and open
     the specified project, which is named ``"myfile3.aedt"``.
 
     >>> hfss = Hfss(specified_version="2021.2", projectname="myfile3.aedt", student_version=True)
-    pyaedt Info: Added design 'HFSS_...' of type HFSS.
+    pyaedt Info: Project myfile3 has been created.
+    pyaedt Info: No design present - inserting a new design
+    pyaedt Info: Added design...
 
     """
 
