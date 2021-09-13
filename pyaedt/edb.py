@@ -12,7 +12,7 @@ import warnings
 
 from pyaedt import inside_desktop, is_ironpython
 from pyaedt.application.MessageManager import EDBMessageManager
-from pyaedt.edb_core import *
+from pyaedt.edb_core import Components, Edb3DLayout, EdbLayout, EdbNets, EdbPadstacks, EdbSiwave, EdbStackup
 from pyaedt.generic.general_methods import (
     aedt_exception_handler,
     env_path,

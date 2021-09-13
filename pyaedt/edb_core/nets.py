@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
-from .general import *
+from pyaedt.edb_core.general import convert_netdict_to_pydict
+from pyaedt.generic.general_methods import aedt_exception_handler
 
 
 class EdbNets(object):

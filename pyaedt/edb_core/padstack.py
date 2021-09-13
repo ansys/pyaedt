@@ -6,7 +6,7 @@ import warnings
 
 from ..generic.general_methods import generate_unique_name
 from .EDB_Data import EDBPadstack
-from .general import *
+from pyaedt.generic.general_methods import aedt_exception_handler
 
 try:
     from System import Array

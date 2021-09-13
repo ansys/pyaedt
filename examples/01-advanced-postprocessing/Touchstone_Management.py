@@ -30,7 +30,14 @@ example_path = examples.download_touchstone()
 
 import matplotlib.pyplot as plt
 import numpy as np
-from pyaedt.generic.TouchstoneParser import *
+from pyaedt.generic.TouchstoneParser import (
+    read_touchstone,
+    get_return_losses,
+    get_insertion_losses_from_prefix,
+    get_fext_xtalk_from_prefix,
+    get_next_xtalk,
+    get_worst_curve_from_solution_data,
+)
 
 ###############################################################################
 

@@ -5,10 +5,10 @@ import random
 import re
 
 from pyaedt import is_ironpython
+from pyaedt.edb_core.general import convert_py_list_to_net_list
+from pyaedt.generic.general_methods import aedt_exception_handler, get_filename_without_extension
 
-from ..generic.general_methods import get_filename_without_extension
 from .EDB_Data import EDBComponent
-from .general import *
 
 try:
     import clr
