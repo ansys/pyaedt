@@ -8,9 +8,43 @@ from ..generic.general_methods import aedt_exception_handler
 
 
 class MultiPartComponent(object):
-    """
-    Class to support multi-part 3d components for Electronics
-    Desktop - SBR+.
+    """Supports multi-part 3D components for AEDT SBR+.
+    
+    .. note::
+           Forward motion is in the X-direction if motion is set.
+
+    Parameters
+    ----------
+    comp_folder: str
+        Full path to the folder with the JSON file containing the component definition.
+        This JSON file must have the same name as the folder.
+    name: str, optional
+        Name of the multipart component. If this value is set, the
+        component is selected from the corresponding JSON file in
+        ``comp_folder``. The default is ``None``, in which case the
+        name of the first JSON file in the folder is used.
+    use_relative_cs: bool, optional
+        Whether to use the relative coordinate system. The default is ``False``.
+        Set to ``False`` if the multi-part component doesn't move. Set to ``True``
+        if the multi-part component moves relative to the global coordinate system. 
+    relative_cs_name : str, optional
+        Name of the coordinate system to connect the multipart relative system to
+        when ``use_relative_cs=True``.
+    motion: bool, optional
+        Whether expressions should be used to define the position and orientation of
+        the multi-part component. The default is ``False``.
+    offset: list, optional
+        List of ``[x, y, z]`` coordinate values defining the component offset.
+        The default is ``["0", "0", "0"]``.
+    yaw : str or float, optional
+        Yaw angle, indicating the rotation about the component Z-axis. The default
+        is ``"0deg"``.
+    pitch: str or float, optional
+        Pitch angle, indicating the rotation about the component Y-axis The default
+        is ``"0deg"``.
+    roll: str or float, optional
+        Roll angle, indicating the rotation about the component X-axis. The default
+        is ``"0deg"``.
     """
     _component_classes = ['environment',
                           'rcs_standard',
@@ -20,7 +54,7 @@ class MultiPartComponent(object):
                           'bird',
                           'radar']
 
-    # Keep track of all assigned names to the class.  Use the
+    # Keep track of all assigned names to the class. Use the
     # properties '.name' and '.index' to ensure unique instance names.
     _names = []
     # for c in _component_classes:
@@ -34,17 +68,17 @@ class MultiPartComponent(object):
 
     @staticmethod
     def start(app):
-        """Initialize app for SBR+ Simulation.
+        """Initialize app for SBR+ simulation.
 
         Parameters
         ----------
-        app : class:`pyaedt.Hfss`
-            Application instance.
+        app: class:`pyaedt.Hfss`
+            HFSS application instance.
 
         Returns
         -------
         bool
-            True on success
+            ``True`` when successful, ``False`` when failed.
         """
         app[MultiPartComponent._t] = MultiPartComponent._t_value
         app.modeler.model_units = "meter"  # Set units.
@@ -53,45 +87,7 @@ class MultiPartComponent(object):
 
     def __init__(self, comp_folder, name=None, use_relative_cs=False, relative_cs_name=None, motion=False,
                  offset=("0", "0", "0"), yaw="0deg", pitch="0deg", roll="0deg"):
-        """
-        MultiPartComponent class. Forward motion is in the x-direction (if motion is set)
-
-        Parameters
-        ----------
-        comp_folder : str, required
-            Folder where the component definition resides.
-            This folder must contain a *.json file with the
-            same name as the folder.
-        use_relative_cs : Bool, optional
-            Default: False
-            Set to True if this component should use
-            a relative Coordinate System. This is
-            necessary if the component moves relative to the global
-            CS. Set to False if the multi-part component doesn't move.
-        relative_cs_name : str, optional
-            Default: None
-            Set to a specific name on which the multipart relative system will be connected.
-        motion : Bool, optional
-            Set to true if expressions should be used to define the
-            position and orientation of the MultiPartComponent.
-            Default value is False
-        name : str, optional
-            Name of the multipart component. If this value is set, the
-            component will be selected from the corresponding json file in
-            comp_folder. Default=None (read name from the first .json file
-            found in comp_folder.
-        offset : list, optional
-            List of [x,y,z] defining the component offset.
-            Default is ["0", "0", "0"]
-        yaw : str or float, optional
-            Yaw angle. Rotation about the component z-axis
-        pitch: str or float, optional
-            Pitch angle. Rotation about the component y-axis
-        roll: str or float, optional
-            Roll angle. Rotation about the component x-axis.
-
-        """
-
+       
         self.comp_folder = comp_folder  # Folder where the component is defined.
         # self._name = os.path.split(comp_folder)[-1]  # Base name of multipart component.
         self._index = None  # Counter used to assign unique name.
@@ -162,11 +158,12 @@ class MultiPartComponent(object):
 
     @property
     def cs_name(self):
-        """Coordinate System Name.
+        """Coordinate system name.
 
         Returns
         -------
         str
+            Name of the coordinate system.
         """
         if self.use_global_cs:
             self._relative_cs_name = "Global"
@@ -181,6 +178,7 @@ class MultiPartComponent(object):
         Returns
         -------
         int
+           Number of multi-part components.
         """
         if self._index is None:  # Only increment one time.
             self._index = MultiPartComponent._names.count(self._name)
@@ -192,41 +190,45 @@ class MultiPartComponent(object):
     # multi-part 3d component instance in the app.
     @property
     def offset_x_name(self):
-        """X Axis Offset Name.
+        """X-axis offset name.
 
         Returns
         -------
         str
+            Name of the X-axis offset.
         """
         return self._offset_var_names[0]
 
     @property
     def offset_y_name(self):
-        """Y Axis Offset Name.
+        """Y-axis offset name.
 
         Returns
         -------
         str
+            Name of the Y-axis offset.
         """
         return self._offset_var_names[1]
 
     @property
     def offset_z_name(self):
-        """Z Axis Offset Name.
+        """Z-axis offset name.
 
         Returns
         -------
         str
+            Name of the Z-axis offset.
         """
         return self._offset_var_names[2]
 
     @property
     def offset_names(self):
-        """X, Y, Z Axis Offset Name.
+        """X-, Y-, and Z-axis offset names.
 
         Returns
         -------
         list
+            List of the offeset names for the X-, Y-, and Z-axes.
         """
         return [self.offset_x_name,
                 self.offset_y_name,
@@ -234,11 +236,12 @@ class MultiPartComponent(object):
 
     @property
     def yaw_name(self):
-        """Yaw variable name.
+        """Yaw variable name. Yaw is the rotation about the object's Z-axis.
 
         Returns
         -------
         str
+            Name of the Yaw variable.
         """
         return self.name + '_yaw'
 
@@ -249,6 +252,7 @@ class MultiPartComponent(object):
         Returns
         -------
         str
+            Value for the Yaw variable.
         """
         return self._yaw
 
@@ -262,11 +266,12 @@ class MultiPartComponent(object):
     @property
     # This is the name of the variable for pitch in the app.
     def pitch_name(self):
-        """Pitch variable name.
+        """Pitch variable name. Pitch is the rotation about the object's Y-axis.
 
         Returns
         -------
         str
+            Name of the pitch variable.
         """
         return self.name + '_pitch'
 
@@ -277,6 +282,7 @@ class MultiPartComponent(object):
         Returns
         -------
         str
+            Value of the pitch variable.
         """
         return self._pitch
 
@@ -290,11 +296,12 @@ class MultiPartComponent(object):
     @property
     # This is the name of the variable for roll in the app.
     def roll_name(self):
-        """Roll variable name.
+        """Roll variable name. Roll is the rotation about the object's X-axis.
 
         Returns
         -------
         str
+            Name of the roll variable.
         """
         return self.name + '_roll'
 
@@ -305,6 +312,7 @@ class MultiPartComponent(object):
         Returns
         -------
         str
+            Value of the roll variable.
         """
         return self._roll
 
@@ -335,27 +343,30 @@ class MultiPartComponent(object):
         Returns
         -------
         str
+           Name of the unique instance.
         """
         suffix = '_' + str(self.index)
         return self._name + suffix  # unique instance name
 
     @property
     def use_global_cs(self):
-        """Use Global CS.
+        """Use global coordinate system.
 
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
         """
         return self._use_global_cs
 
     @property
     def offset(self):
-        """Offset for Multipart.
+        """Offset for mulit-part component.
 
         Returns
         -------
         list
+            List of offset values.
         """
         return self._offset_values
 
@@ -367,14 +378,12 @@ class MultiPartComponent(object):
 
     @aedt_exception_handler
     def position_in_app(self, app):
-        """
-        Set up design variables and values to enable motion for
-        the multi-part 3d component in the application.
+        """Set up design variables and values to enable motion for the multi-part 3D component in the application.
 
         Parameters
         ----------
         app : pyaedt.Hfss, required
-            Application instance.
+            HFSS pplication instance.
 
         Returns
         -------
@@ -416,19 +425,19 @@ class MultiPartComponent(object):
 
     @aedt_exception_handler
     def _insert(self, app,  motion=False):
-        """Insert the multipart 3d component.
+        """Insert the multi-part 3D component.
 
         Parameters
         ----------
-        app : :class:`pyaedt.hfss.Hfss`
-            Application where Mutipart3DComponent will be inserted.
-        motion : Bool, optional
-            Set to true if variables should be created in the
-            app to set position, yaw, pitch, roll
+        app: :class:`pyaedt.hfss.Hfss`
+            HFSS application where multi-part component is to be inserted.
+        motion : bool, optional
+            Whether variables (yaw, pitch, and roll) should be created in the app to set position. 
 
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
         """
         self.motion = True if motion else self.motion
 
@@ -449,7 +458,7 @@ class MultiPartComponent(object):
 
     @aedt_exception_handler
     def insert(self, app, motion=False):
-        """Insert object into App.
+        """Insert the object into the app.
 
         Returns
         -------
@@ -459,10 +468,19 @@ class MultiPartComponent(object):
 
 
 class Environment(MultiPartComponent, object):
-    """
-    Environment class is derived from MultiPartComponent.
-    The call signature is identical to the parent class except
-    motion is always False.
+    """Supports multi-part 3D components without motion for AEDT SBR+.
+   
+    This class is derived from :class:`MultiPartComponent`. Its
+    call signature is identical to the parent class except
+    motion is always set to ``False``.
+        
+    Parameters
+    ----------
+    env_folder: str
+        Full path to the folder with the JSON file containing the component definition.
+    relative_cs_name : str, optional
+        Name of the coordinate system to connect the multi-part relative system to.
+        The default is ``None``.
     """
 
     def __init__(self, env_folder, relative_cs_name=None):
@@ -470,21 +488,23 @@ class Environment(MultiPartComponent, object):
 
     @property
     def cs_name(self):
-        """Coordinate System Name.
+        """Coordinate system name.
 
         Returns
         -------
         str
+            Name of the coordinate system.
         """
         return "Global"
 
     @property
     def yaw(self):
-        """Yaw variable value. Yaw is the rotation about the object z-axis.
+        """Yaw variable value. Yaw is the rotation about the object's Z-axis.
 
         Returns
         -------
         str
+            Value for the yaw variable.
         """
         return self._yaw
 
@@ -494,11 +514,12 @@ class Environment(MultiPartComponent, object):
 
     @property
     def pitch(self):
-        """Pitch variable value. Pitch is the rotation about the object y-axis.
+        """Pitch variable value. Pitch is the rotation about the object's Y-axis.
 
         Returns
         -------
         str
+            Value for the pitch variable.
         """
         return self._pitch
 
@@ -508,11 +529,12 @@ class Environment(MultiPartComponent, object):
 
     @property
     def roll(self):
-        """Roll variable value. Roll is the rotation about the object x-axis.
+        """Roll variable value. Roll is the rotation about the object's X-axis.
 
         Returns
         -------
         str
+            Value for the roll variable.
         """
         return self._roll
 
@@ -522,7 +544,7 @@ class Environment(MultiPartComponent, object):
 
     @property
     def offset(self):
-        """Offset for Multipart.
+        """Offset for the multi-part component.
 
         Returns
         -------
@@ -537,48 +559,49 @@ class Environment(MultiPartComponent, object):
 
 
 class Actor(MultiPartComponent, object):
-    """One instance of an actor. Derived class from MultiPartComponent.
+    """Provides an instance of an actor.
+    
+    This class is derived from :class:`MultiPartComponent`.
+    
+    .. note::  Motion is always forward in the X-direction.
+    
+    Parameters
+    ----------
+    actor_folder: str
+        Full path to the folder containing the definition of the person.
+        This can be changed later in the :class:`Person` class definition.
+    speed: float or str
+        Speed of the person in the X-direction. The default is ``0```.
+    relative_cs_name: str
+        Name of the relative coordinate system of the actor. The default is ``None``,
+        in which case the global coordinate system is used.
     """
 
     def __init__(self, actor_folder, speed="0", relative_cs_name=None):
-        """
-        Actor class
-            Derived from MultiPartComponent.
-            Note: Forward motion is always forward in the +x-direction.
-
-        Parameters
-        ----------
-        actor_folder : str, required
-            Folder pointing to the folder containing the definition
-            of the Person.  This can be changed later in the Person class
-            definition.
-        speed : float or str
-            Speed of the person in the x-direction.
-        relative_cs_name : str
-            Relative CS Name of the actor. ``None`` for Global CS.
-        """
-
+      
         super(Actor, self).__init__(actor_folder, use_relative_cs=True, motion=True, relative_cs_name=relative_cs_name)
 
         self._speed_expression = str(speed) + 'm_per_sec'  # TODO: Need error checking here.
 
     @property
     def speed_name(self):
-        """Speed Name.
+        """Speed variable name.
 
         Returns
         -------
         str
+            Name of the speed variable.
         """
         return self.name + '_speed'
 
     @property
     def speed_expression(self):
-        """Speed Expression.
+        """Speed variable expression.
 
         Returns
         -------
         str
+            Expression for the speed variable.
         """
         return self._speed_expression
 
