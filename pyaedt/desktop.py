@@ -531,7 +531,6 @@ class Desktop:
         self.release = release_on_exit
         self.logfile = None
         if "oDesktop" in dir(self._main) and self._main.oDesktop is not None:
-            print("Launching PyAEDT within Electronics Desktop with IronPython")
             self.release = False
         else:
             if "oDesktop" in dir(self._main):
@@ -549,8 +548,10 @@ class Desktop:
                 self._main.oDesktop = oAnsoftApp.GetAppDesktop()
                 self._main.isoutsideDesktop = True
             self._main.AEDTVersion = version_key
-        self._init_desktop()
         self._init_logger()
+        self._init_desktop()
+        self._main.oMessenger.add_info_message("pyaedt {}".format(self._main.pyaedt_version))
+        self._main.oMessenger.add_info_message("Python version {}".format(_pythonver))
 
     @property
     def install_path(self):
