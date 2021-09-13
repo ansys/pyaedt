@@ -1001,6 +1001,7 @@ class Design(object):
                         self._odesign = self.oproject.SetActiveDesign(activedes)
                         self.add_info_message("Active Design set to {}".format(activedes))
                 else:
+                    self._odesign = self._oproject.SetActiveDesign(self.design_list[0])
                     self.add_info_message("Active Design set to {}".format(self.design_list[0]))
             else:
                 warning_msg = "No design present - inserting a new design"
