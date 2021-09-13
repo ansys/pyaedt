@@ -328,7 +328,11 @@ class Edb(object):
         self._messenger.add_info_message("EDB Version {}".format(self.edbversion))
         self.edb.Database.SetRunAsStandAlone(self.standalone)
         self._messenger.add_info_message("EDB Standalone {}".format(self.standalone))
-        db = self.edb.Database.Open(self.edbpath, self.isreadonly)
+        try:
+            db = self.edb.Database.Open(self.edbpath, self.isreadonly)
+        except Exception as e:
+            db = None
+            self._messenger.add_error_message("Builder Not Initialized")
         if not db:
             self._messenger.add_warning_message("Error Opening db")
             self._db = None
@@ -353,12 +357,10 @@ class Edb(object):
             dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib", "DataModel.dll")
             self._messenger.add_info_message(dllpath)
             self.layout_methods.LoadDataModel(dllpath)
-            self.builder = self.layout_methods.GetBuilder(
-                self._db, self._active_cell, self.edbpath, self.edbversion, self.standalone
-            )
+            self.builder = self.layout_methods.GetBuilder(self._db, self._active_cell, self.edbpath, self.edbversion,
+                                                          self.standalone)
             self._init_objects()
             self._messenger.add_info_message("Builder Initialized")
-
         else:
             self.builder = None
             self._messenger.add_error_message("Builder Not Initialized")

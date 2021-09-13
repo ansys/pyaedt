@@ -1193,8 +1193,8 @@ class EdbSiwave(object):
         neg_pin_group = self.parent.core_components.create_pingroup_from_pins(source.negative_node.node_pins)
         pos_node_net = self.parent.core_nets.get_net_by_name(source.positive_node.net)
         neg_node_net = self.parent.core_nets.get_net_by_name(source.negative_node.net)
-        pos_pingroup_term_name = generate_unique_name(source.name + "_POS")
-        neg_pingroup_term_name = generate_unique_name(source.name + "_NEG")
+        pos_pingroup_term_name = generate_unique_name(source.name + "_P_", 3)
+        neg_pingroup_term_name = generate_unique_name(source.name + "_N_", 3)
         pos_pingroup_terminal = retry_ntimes(
             10,
             self._edb.Cell.Terminal.PinGroupTerminal.Create,

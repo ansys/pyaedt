@@ -1063,7 +1063,8 @@ class Design(object):
             self._oproject = self._desktop.GetActiveProject()
             if self._oproject:
                 self.add_info_message(
-                    "No Project defined. Project {} is existing and has been read.".format(self._oproject.GetName()), "Global")
+                    "No Project defined. Project {} is existing and has been read.".format(self._oproject.GetName()),
+                    "Global")
         else:
             if proj_name in self._desktop.GetProjectList():
                 self._oproject = self._desktop.SetActiveProject(proj_name)
