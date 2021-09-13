@@ -623,7 +623,7 @@ class Circuit(FieldAnalysisCircuit, object):
                                     "_" + sweepname + appendix + ext)
         else:
             filename = filename.replace("//", "/").replace("\\", "/")
-        print("Exporting Touchstone " + filename)
+        self.add_info_message("Exporting Touchstone " + filename)
         DesignVariations = ""
         i = 0
         for el in variation:

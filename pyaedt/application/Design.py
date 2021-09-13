@@ -952,11 +952,14 @@ class Design(object):
                         warning_msg = "No consistent unique design present - inserting a new design"
                     else:
                         self._odesign = self.oproject.SetActiveDesign(activedes)
+                        self.add_info_message("Active Design set to {}".format(activedes))
+                else:
+                    self.add_info_message("Active Design set to {}".format(self.design_list[0]))
             else:
                 warning_msg = "No design present - inserting a new design"
 
             if warning_msg:
-                self.logger.debug(warning_msg)
+                self.add_info_message(warning_msg)
                 self._insert_design(self._design_type, solution_type=self._solution_type)
         self.boundaries = self._get_boundaries_data()
 
@@ -1011,6 +1014,9 @@ class Design(object):
     def oproject(self, proj_name=None):
         if not proj_name:
             self._oproject = self._desktop.GetActiveProject()
+            if self._oproject:
+                self.add_info_message(
+                    "No Project defined. Project {} is existing and has been read.".format(self._oproject.GetName()))
         else:
             if proj_name in self._desktop.GetProjectList():
                 self._oproject = self._desktop.SetActiveProject(proj_name)
@@ -1023,15 +1029,18 @@ class Design(object):
                         proj_name, os.path.join(path, name), True, True)
                     time.sleep(0.5)
                     proj = self._desktop.GetActiveProject()
+                    self.add_info_message("Archive {} has been restored to project {}".format(proj_name, proj.GetName()))
                 elif ".def" in proj_name:
                     oTool = self._desktop.GetTool("ImportExport")
                     oTool.ImportEDB(proj_name)
                     proj = self._desktop.GetActiveProject()
                     proj.Save()
+                    self.add_info_message("EDB Folder {} has been imported to project {}".format(proj_name, proj.GetName()))
                 else:
                     assert not os.path.exists(
                         proj_name + ".lock"), "Project is locked. Close or remove the lock before proceeding."
                     proj = self._desktop.OpenProject(proj_name)
+                    self.add_info_message("Project {} has been opened.".format(proj_name))
                     time.sleep(0.5)
                 self._oproject = proj
             else:
@@ -1040,8 +1049,10 @@ class Design(object):
                     self._oproject.Rename(proj_name, True)
                 else:
                     self._oproject.Rename(os.path.join(self.project_path, proj_name+".aedt"), True)
+                self.add_info_message("Project {} has been created.".format(proj_name))
         if not self._oproject:
             self._oproject = self._desktop.NewProject()
+            self.add_info_message("Project {} has been created.".format(self._oproject.GetName()))
 
     @property
     def oanalysis_setup(self):
