@@ -1,18 +1,19 @@
-try:
-    import pytest
-except ImportError:
-    import _unittest_ironpython.conf_unittest as pytest
-
 # Setup paths for module imports
 import gc
 import math
 
-# Import required modules
-from _unittest.conftest import local_path, scratch_path
-from pyaedt.hfss import Hfss
 from pyaedt.application.Variables import Variable
 from pyaedt.generic.filesystem import Scratch
 from pyaedt.generic.general_methods import isclose
+from pyaedt.hfss import Hfss
+
+# Import required modules
+from _unittest.conftest import scratch_path
+
+try:
+    import pytest  # noqa: F401
+except ImportError:
+    import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
 
 class TestClass:

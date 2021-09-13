@@ -36,8 +36,6 @@ from pyaedt import Hfss
 import numpy as np
 import matplotlib.pyplot as plt
 import math
-import ipywidgets as widgets
-from ipywidgets import interact, interact_manual
 
 ###############################################################################
 # Launch AEDT in Non-Graphical Mode

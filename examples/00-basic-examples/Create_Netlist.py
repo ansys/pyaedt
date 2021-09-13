@@ -6,7 +6,6 @@ Netlist Example Analysis
 # partially, Mentor.
 """
 
-import sys
 import os
 
 ###############################################################################

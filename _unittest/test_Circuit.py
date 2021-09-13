@@ -1,19 +1,19 @@
-import os
-
-# Setup paths for module imports
-from _unittest.conftest import local_path, scratch_path, config
 import gc
-
-try:
-    import pytest
-except ImportError:
-    import _unittest_ironpython.conf_unittest as pytest
+import os
 import time
 
 # Import required modules
 from pyaedt import Circuit
 from pyaedt.generic.filesystem import Scratch
-from pyaedt.generic.TouchstoneParser import read_touchstone
+
+# Setup paths for module imports
+from _unittest.conftest import local_path, scratch_path
+
+try:
+    import pytest  # noqa: F401
+except ImportError:
+    import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
+
 
 test_project_name = "Galileo"
 netlist1 = "netlist_small.cir"

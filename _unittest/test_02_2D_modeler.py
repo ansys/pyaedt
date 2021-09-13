@@ -1,15 +1,16 @@
 # standard imports
 import math
 
-try:
-    import pytest
-except ImportError:
-    import _unittest_ironpython.conf_unittest as pytest
+from pyaedt.generic.general_methods import isclose
+from pyaedt.maxwell import Maxwell2d
 
 # Setup paths for module imports
-from _unittest.conftest import local_path, scratch_path, BasisTest, pyaedt_unittest_check_desktop_error
-from pyaedt.maxwell import Maxwell2d
-from pyaedt.generic.general_methods import isclose
+from _unittest.conftest import BasisTest
+
+try:
+    import pytest  # noqa: F401
+except ImportError:
+    import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
 
 class TestClass(BasisTest):

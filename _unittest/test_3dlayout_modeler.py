@@ -1,18 +1,18 @@
+import gc
 import os
 import time
-
-try:
-    import pytest
-except ImportError:
-    import _unittest_ironpython.conf_unittest as pytest
-
-# Setup paths for module imports
-from _unittest.conftest import scratch_path
-import gc
 
 # Import required modules
 from pyaedt import Hfss3dLayout
 from pyaedt.generic.filesystem import Scratch
+
+# Setup paths for module imports
+from _unittest.conftest import scratch_path
+
+try:
+    import pytest  # noqa: F401
+except ImportError:
+    import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
 # Input Data and version for the test
 

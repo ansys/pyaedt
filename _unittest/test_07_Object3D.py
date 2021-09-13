@@ -1,16 +1,15 @@
 # standard imports
-import os
+import gc
 import math
-
-from _unittest.conftest import local_path, scratch_path
+import os
 
 # Import required modules
 from pyaedt import Hfss
 from pyaedt.generic.filesystem import Scratch
-from pyaedt.generic.general_methods import time_fn, isclose
-from pyaedt.modeler.Object3d import _to_boolean, FacePrimitive, EdgeTypePrimitive, Object3d, _uname
+from pyaedt.generic.general_methods import isclose, time_fn
+from pyaedt.modeler.Object3d import FacePrimitive, _to_boolean, _uname
 
-import gc
+from _unittest.conftest import scratch_path
 
 
 class TestClass:
