@@ -85,6 +85,8 @@ class Icepak(FieldAnalysisIcepak):
     which is ``myipk.aedt``.
 
     >>> icepak = Icepak("myipk.aedt")
+    pyaedt Info: Project myipk has been created.
+    pyaedt Info: No design present - inserting a new design
     pyaedt Info: Added design ...
 
     Create an instance of Icepak using the 2021 R1 release and
