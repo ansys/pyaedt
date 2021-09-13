@@ -4,15 +4,14 @@ from pyaedt.modeler.multiparts import MultiPartComponent, Actor
 
 
 def read_actors(fn, actor_lib):
-    """
-    Read and map actors in a JSON file to a list of actor objects.
+    """Read and map actors in a JSON file to a list of actor objects.
 
     Parameters
     ----------
     fn: str
-        JSON file describing actors
+        Name of the JSON file describing the actors.
     actor_lib: str
-        Full path to the library containing the definitions for the actors.
+        Full path to the library containing the actor definitions.
 
     :return: list of Actor
         List of actor objects.
@@ -25,28 +24,31 @@ def read_actors(fn, actor_lib):
 
 
 class Generic(Actor, object):
-    """
-    Provides an instance of an actor.
+    """Provides an instance of an actor.
+    
     This class is derived from :class:`MultiPartComponent`.
     """
 
     def __init__(self, actor_folder, speed="0", relative_cs_name=None):
-        """Generic class, derived from Actor.
+        """Generic class.
+        
+        This class is derived from :class:`Actor`.
 
-         .. note::  Motion is always forward in the x-direction of the Person coordinate system.
+        .. note::  Motion is always forward in the X-direction of the person coordinate system.
 
         Parameters
         ----------
-        actor_folder : str
-            Folder pointing to the folder containing the definition
-            of the Person.  This can be changed later in the Person class
-            definition.
-                speed : float or str
-            Speed of the person in the x-direction.
+        actor_folder: str
+            Full path to the folder containing the definition of the person.
+            This can be changed later in the :class:`Person` class definition.
+        speed: float or str
+            Speed of the person in the X-direction.
         stride: float or str
-            Stride length of the person. Default = "0.8meters"
-        relative_cs_name : str
-            Relative CS Name of the actor. ``None`` for Global CS.
+            Stride length of the person. The default is "0". An example of
+            entering a string, which includes units, is ``"0.8meters"``.
+        relative_cs_name: str
+            Name of the relative coordinate system of the actor. The default is ``None``,
+            in which case the global coordinate system is used.
 
         """
         super(Generic, self).__init__(actor_folder, speed=speed, relative_cs_name=relative_cs_name)
@@ -54,26 +56,32 @@ class Generic(Actor, object):
 
 class Person(Actor, object):
     """
-    One instance of an actor. Derived class from MultiPartComponent.
+    Provides an instance of an actor.
+    
+    This class is derived from :class:`MultiPartComponent`.
     """
 
     def __init__(self, actor_folder, speed="0", stride="0.8meters", relative_cs_name=None):
-        """Person class, derived from Actor.
+        """Person class.
+        
+        This class is derived from :class:`Actor`.
 
-         .. note::  Motion is always forward in the x-direction of the Person coordinate system.
+        .. note::  
+           Motion is always forward in the X-direction of the person coordinate system.
 
         Parameters
         ----------
-        actor_folder : str, required
-            Folder pointing to the folder containing the definition
-            of the Person.  This can be changed later in the Person class
-            definition.
-                speed : float or str
-            Speed of the person in the x-direction.
+        actor_folder: str, required
+            Full path to the folder containing the definition of the person.
+            This can be changed later in the :class:`Person` class definition.
+        speed: float or str
+            Speed of the person in the X-direction.
         stride: float or str
-            Stride length of the person. Default = "0.8meters"
-        relative_cs_name : str
-            Relative CS Name of the actor. ``None`` for Global CS.
+            Stride length of the person. The default is "0". An example of
+            entering a string, which includes units, is ``"0.8meters"``.
+        relative_cs_name: str
+            Name of the relative coordinate system of the actor. The default is ``None``,
+            in which case the global coordinate system is used.
 
         """
 
@@ -109,42 +117,49 @@ class Person(Actor, object):
 
     @aedt_exception_handler
     def insert(self, app, motion=True):
-        """Insert the Person into the AEDT app.
+        """Insert the person in AEDT.
 
         Parameters
         ----------
-        app : :class:`pyaedt.hfss.Hfss`
-        motion : bool
+        app: :class:`pyaedt.hfss.Hfss`
+        motion : bool, optional
+            The default is ``True``.
 
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
         """
-        app.add_info_message("Adding Person: " + self.name, "Design")
+        app.add_info_message("Adding person: " + self.name, "Design")
 
         # Insert the component first, then set variables.
-        self._insert(app)  # Place the Person in the app.
+        self._insert(app)  # Place the person in the app.
         if motion:
             self._add_speed(app)
             self._add_walking(app)
 
 
 class Bird(Actor, object):
-    """One instance of an actor. Derived class from MultiPartComponent.
+    """Provides an instance of an actor.
+    
+    This class is derived from :class:`MultiPartComponent`.
     """
 
     def __init__(self, bird_folder, speed="2.0", flapping_rate="50Hz", relative_cs_name=None):
-        """
-        Bike class
-            Derived from MultiPartComponent.
-            Note: Motion is always forward in the x-direction.
+        """Bike class.
+            
+         This class is derived from the :class:`MultiPartComponent`.
+         
+         .. note::  
+            Motion is always forward in the X-direction.
 
         Parameters
         ----------
-        speed : float or str
+        speed: float or str
             Speed of the vehicle.
         relative_cs_name : str
-            Relative CS Name of the actor. ``None`` for Global CS.
+            Name of the relative coordiante system of the actor. The default is``None``,
+            in which case the global coordiante system is used..
 
         """
 
@@ -162,16 +177,18 @@ class Bird(Actor, object):
 
     @aedt_exception_handler
     def insert(self, app, motion=True):
-        """Insert the Bird into the AEDT app.
+        """Insert the bird in AEDT.
 
         Parameters
         ----------
-        app : :class:`pyaedt.hfss.Hfss`
-        motion : bool
+        app: :class:`pyaedt.hfss.Hfss`
+        motion: bool
+            The default is ``True``.
 
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
         """
         app.add_info_message("Adding Vehicle: " + self.name, "Design")
 
@@ -182,21 +199,25 @@ class Bird(Actor, object):
 
 
 class Vehicle(Actor, object):
-    """One instance of an actor. Derived class from MultiPartComponent.
-    """
+    """Provides an instance of an actor. 
+    
+    This class is derived from :class:`MultiPartComponent`."""
 
     def __init__(self, car_folder, speed=10.0, relative_cs_name=None):
-        """
-        Vehicle class
-            Derived from MultiPartComponent.
-            Note: Motion is always forward in the x-direction.
+        """Vehicle class.
+        
+        This class is derived from :class:`MultiPartComponent`.
+        
+        .. note::  
+            Motion is always forward in the X-direction.
 
         Properties
         ----------
-        speed : float or str
+        speed: float or str
             Speed of the vehicle.
         relative_cs_name : str
-            Relative CS Name of the actor. ``None`` for Global CS.
+            Name of the relative coordinate system of the actor. The default is ``None``,
+            in which case the global coordinate system is used.
         """
 
         super(Vehicle, self).__init__(car_folder, speed=speed, relative_cs_name=relative_cs_name)
@@ -213,18 +234,20 @@ class Vehicle(Actor, object):
 
     @aedt_exception_handler
     def insert(self, app, motion=True):
-        """Insert the Vehicle into the AEDT app.
+        """Insert the vehicle in AEDT.
 
         Parameters
         ----------
-        app : :class:`pyaedt.hfss.Hfss`
-        motion : bool
+        app: :class:`pyaedt.hfss.Hfss`
+        motion: bool, optional
+            The default is ``True``.
 
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
         """
-        app.add_info_message("Adding Vehicle: " + self.name, "Design")
+        app.add_info_message("Adding vehicle: " + self.name, "Design")
 
         self._insert(app)  # Place the multipart component in the app.
         if motion:
@@ -234,8 +257,16 @@ class Vehicle(Actor, object):
 
 
 class Radar(MultiPartComponent, object):
-    """
-    Radar class manages the radar definition and placement in the HFSS design.
+    """Manages the radar definition and placement in the HFSS design.
+    
+    Parameters
+    ----------
+    radar_folder: str
+        Full path to the folder containing the radar file.
+    name: str, optional
+        Name of the radar file. The default is ``None``.
+    motion: bool, optional
+        The default is ``False``.
 
     """
 
@@ -252,31 +283,34 @@ class Radar(MultiPartComponent, object):
 
     @property
     def units(self):
-        """Multipart Units.
+        """Multipart units.
 
         Returns
         -------
         str
+            Multipart units.
         """
         return self._local_units
 
     @property
     def speed_name(self):
-        """Speed Variable Name.
+        """Speed variable name.
 
         Returns
         -------
         str
+            Name of the speed variable.
         """
         return self.name + '_speed'
 
     @property
     def speed_expression(self):
-        """Speed Variable Expression.
+        """Speed variable expression.
 
         Returns
         -------
         str
+            Expression for the speed variable.
         """
         return self._speed_expression
 
@@ -300,18 +334,20 @@ class Radar(MultiPartComponent, object):
 
     @aedt_exception_handler
     def insert(self, app, motion=False):
-        """Insert radar into app (app is the HFSS application instance).
+        """Insert radar in the HFSS application instance.
 
         Parameters
         ----------
         app: class: `pyaedt.hfss.Hfss`
+        motion: bool, optional
+            The default is ``False``.
 
         Returns
         -------
         list
-            list of Antenna Placed.
+            List of antenna placed.
         """
-        app.add_info_message("Adding Radar Module:  " + self.name)
+        app.add_info_message("Adding radar module:  " + self.name)
         if self.use_global_cs or self.cs_name in app.modeler.oeditor.GetCoordinateSystems():
             app.modeler.set_working_coordinate_system(self.cs_name)
             if self.use_relative_cs:
