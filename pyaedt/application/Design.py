@@ -1063,7 +1063,7 @@ class Design(object):
             self._oproject = self._desktop.GetActiveProject()
             if self._oproject:
                 self.add_info_message(
-                    "No Project defined. Project {} is existing and has been read.".format(self._oproject.GetName()))
+                    "No Project defined. Project {} is existing and has been read.".format(self._oproject.GetName()), "Global")
         else:
             if proj_name in self._desktop.GetProjectList():
                 self._oproject = self._desktop.SetActiveProject(proj_name)
@@ -1076,20 +1076,20 @@ class Design(object):
                     time.sleep(0.5)
                     proj = self._desktop.GetActiveProject()
                     self.add_info_message(
-                        "Archive {} has been restored to project {}".format(proj_name, proj.GetName()))
+                        "Archive {} has been restored to project {}".format(proj_name, proj.GetName()), "Global")
                 elif ".def" in proj_name:
                     oTool = self._desktop.GetTool("ImportExport")
                     oTool.ImportEDB(proj_name)
                     proj = self._desktop.GetActiveProject()
                     proj.Save()
                     self.add_info_message(
-                        "EDB Folder {} has been imported to project {}".format(proj_name, proj.GetName()))
+                        "EDB Folder {} has been imported to project {}".format(proj_name, proj.GetName()), "Global")
                 else:
                     assert not os.path.exists(
                         proj_name + ".lock"
                     ), "Project is locked. Close or remove the lock before proceeding."
                     proj = self._desktop.OpenProject(proj_name)
-                    self.add_info_message("Project {} has been opened.".format(proj.GetName()))
+                    self.add_info_message("Project {} has been opened.".format(proj.GetName()), "Global")
                     time.sleep(0.5)
                 self._oproject = proj
             else:
@@ -1098,10 +1098,10 @@ class Design(object):
                     self._oproject.Rename(proj_name, True)
                 else:
                     self._oproject.Rename(os.path.join(self.project_path, proj_name + ".aedt"), True)
-                self.add_info_message("Project {} has been created.".format(self._oproject.GetName()))
+                self.add_info_message("Project {} has been created.".format(self._oproject.GetName()), "Global")
         if not self._oproject:
             self._oproject = self._desktop.NewProject()
-            self.add_info_message("Project {} has been created.".format(self._oproject.GetName()))
+            self.add_info_message("Project {} has been created.".format(self._oproject.GetName()), "Global")
 
     @property
     def oanalysis_setup(self):
