@@ -1,6 +1,6 @@
 from pyaedt import aedt_exception_handler
 from pyaedt.generic.DataHandlers import json_to_dict
-from pyaedt.modeler.MultiParts import MultiPartComponent, Actor
+from pyaedt.modeler.multiparts import MultiPartComponent, Actor
 
 
 def read_actors(fn, actor_lib):

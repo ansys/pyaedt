@@ -9,7 +9,7 @@ from .modeler.GeometryOperators import GeometryOperators
 from .modules.Boundary import BoundaryObject, NativeComponentObject
 from .generic.general_methods import generate_unique_name, aedt_exception_handler
 from collections import OrderedDict
-from .modeler.Actors import Radar
+from .modeler.actors import Radar
 
 
 class Hfss(FieldAnalysis3D, object):
@@ -3726,7 +3726,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Actors.Radar`
+        :class:`pyaedt.modeler.actors.Radar`
         """
         self.modeler.primitives._initialize_multipart()
         if self.solution_type != "SBR+":

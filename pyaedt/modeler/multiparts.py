@@ -1,6 +1,6 @@
 import os
 
-from .Parts import Part, Antenna
+from .parts import Part, Antenna
 from ..generic.DataHandlers import json_to_dict
 from ..generic.filesystem import get_json_files
 from .GeometryOperators import GeometryOperators

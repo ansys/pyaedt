@@ -4,9 +4,9 @@ from .Primitives import Primitives
 from .GeometryOperators import GeometryOperators
 from ..application.Analysis import CoordinateSystemAxis
 from .Object3d import Object3d
-from .MultiParts import MultiPartComponent, Environment
-from .Actors import Person, Bird, Vehicle, Radar
-from .Parts import Antenna
+from .multiparts import MultiPartComponent, Environment
+from .actors import Person, Bird, Vehicle, Radar
+from .parts import Antenna
 from ..generic.general_methods import retry_ntimes
 
 
@@ -901,7 +901,7 @@ class Primitives3D(Primitives, object):
             If provided, it overrides the actor name in the Json
         Returns
         -------
-        :class:`pyaedt.modeler.Actors.Person`
+        :class:`pyaedt.modeler.actors.Person`
         """
         self._initialize_multipart()
         if not self._check_actor_folder(actor_folder):
@@ -976,7 +976,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Actors.Vehicle`
+        :class:`pyaedt.modeler.actors.Vehicle`
 
         """
         self._initialize_multipart()
@@ -1065,7 +1065,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Actors.Bird`
+        :class:`pyaedt.modeler.actors.Bird`
 
         Examples
         --------
@@ -1133,7 +1133,7 @@ class Primitives3D(Primitives, object):
             Relative CS Name of the actor. ``None`` for Global CS.
         Returns
         -------
-        :class:`pyaedt.modeler.MultiParts.Environment`
+        :class:`pyaedt.modeler.multiparts.Environment`
 
         """
         self._initialize_multipart()
