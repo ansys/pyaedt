@@ -358,8 +358,8 @@ class Edb(object):
             self._messenger.add_info_message(dllpath)
             self.layout_methods.LoadDataModel(dllpath)
             time.sleep(1)
-            self.builder = retry_ntimes(10, self.layout_methods.GetBuilder(self._db, self._active_cell, self.edbpath,
-                                                                           self.edbversion, self.standalone))
+            self.builder = retry_ntimes(10, self.layout_methods.GetBuilder,self._db, self._active_cell, self.edbpath,
+                                                                           self.edbversion, self.standalone)
             self._init_objects()
             self._messenger.add_info_message("Builder Initialized")
         else:
