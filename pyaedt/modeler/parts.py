@@ -5,9 +5,27 @@ from pyaedt.modeler.GeometryOperators import GeometryOperators
 
 
 class Part(object):
-    """
-    Class to help manage 3d components. Component placement and definition.
-    """
+    """Helps manage 3D component placement and definition.
+    Parameters
+    ----------
+    part_folder: str
+        Path to the folder with the A3DCOMP files.
+    part_dict: dict
+        Defines relevant properties of the class with the following keywords:
+        
+        * 'comp_name': str, Name of the A3DCOMP file.
+        * 'offset': list or str, Offset coordinate system definition relative to the parent.
+        * 'rotation_cs': list or str, Rotation coordinate system relative to the parent.
+        * 'rotation': str or numeric, Rotation angle.
+        * 'compensation_angle': str or numeric, Initial angle.
+        * 'rotation_axis': str, Rotation axis (``"X"``, ``"Y"``, or ``"Z"``).
+        * 'duplicate_number': str or int, Number of instances for linear duplication.
+        * 'duplicate_vector': list, Vector for duplication relative to the parent coordinate system.
+     parent, str
+         The default is ``None``.
+     name : str, optional
+            Name of the A3DCOMP file without the extension. The default is``None``.
+     """
 
     # List of known keys for a Part and default values:
     allowed_keys = {'comp_name': None,  # *.a3dcomp file name
@@ -28,27 +46,7 @@ class Part(object):
                      'polarization': None}  # Antenna only
 
     def __init__(self, part_folder, part_dict, parent=None, name=None):
-        """
-
-        Parameters
-        ----------
-        part_folder : str, required
-            Folder where *.a3dcomp files is located
-        part_dict : dict, required
-             Defines relevant properties of the class with the following keywords:
-             'comp_name': str,  *.a3dcomp file name
-             'offset': list or str, Offset coordinate system definition relative to parent.
-             'rotation_cs': list or str, Rotation coordinate system relative to parent.
-             'rotation': str or numeric, Rotation angle
-             'compensation_angle': str or numeric, initial angle
-             'rotation_axis': char, "X", "Y" or "Z. Rotation axis
-             'duplicate_number': str or int, Number of instances for linear duplication.
-             'duplicate_vector': list, Vector for duplication relative to parent CS
-
-        name : str, required
-            name of the 3d comp file without extension.
-
-        """
+        
         # Default values:
         self._compdef = dict()
         self._parent = parent
@@ -133,12 +131,12 @@ class Part(object):
 
         Parameters
         ----------
-        kw : str, required
+        kw : str
              'offset' or 'rotation_cs'
 
         Returns
         -------
-        True if the coordinate system is [0, 0, 0] or None
+        ``True`` when the coordinate system is ``[0, 0, 0]``, ``None`` otherwise.
 
         """
         if kw in ['offset', 'rotation_cs']:
@@ -153,23 +151,24 @@ class Part(object):
 
     @property
     def file_name(self):
-        """Antenna File Name.
+        """Antenna file name.
 
         Returns
         -------
         str
-            full file name for *.a3dcomp file.
+            Full name of the A3DCOMP file.
         """
         return os.path.join(self._compdef['part_folder'], self['comp_name'])
 
     # Create a unique coordinate system name for the part.
     @property
     def cs_name(self):
-        """Coordinate System Name.
+        """Coordinate system name.
 
         Returns
         -------
         str
+            Name of the coordinat system.
         """
         if self._motion or not self.zero_offset('offset') or not self.zero_offset('rotation_cs'):
             return self.name + '_cs'
@@ -179,42 +178,47 @@ class Part(object):
     # Define the variable names for angles in the app:
     @property
     def yaw_name(self):
-        """Yaw Name.
+        """Yaw variable name. Yaw is the rotation about the object's Z-axis.
 
         Returns
         -------
         str
+            ame of the yaw variable.
+        
         """
         return self.name + '_yaw'
 
     @property
     def pitch_name(self):
-        """Pitch Name.
+        """Pitch variable name. Pitch is the rotation about the object's Y-axis.
 
         Returns
         -------
         str
+            Name of the pitch variable.
         """
         return self.name + '_pitch'
 
     @property
     def roll_name(self):
-        """Roll Name.
+        """Roll variable name. Roll is the rotation about the object's X-axis.
 
         Returns
         -------
         str
+             Name of the roll variable.
         """
         return self.name + '_roll'
 
     # Always return the local origin as a list:
     @property
     def local_origin(self):
-        """Local Part Offset.
+        """Local part offset.
 
         Returns
         -------
         list
+            List of offset values for the local part.
         """
         if self['offset']:
             if self.zero_offset('offset') or self['offset'] == 'Global':
@@ -232,11 +236,12 @@ class Part(object):
 
     @property
     def rotate_origin(self):
-        """Origin Rotation Liste.
+        """Origin rotation list.
 
         Returns
         -------
         list
+            List of offset values for the rotation.
         """
         if self['rotation_cs']:
             if self.zero_offset('rotation_cs') or self['rotation_cs'] == 'Global':
@@ -258,11 +263,12 @@ class Part(object):
     # or numerical value.
     @property
     def yaw(self):
-        """Yaw Value.
+        """Yaw variable value.
 
         Returns
         -------
         str
+            Value for the yaw variable.
         """
         return self._yaw
 
@@ -272,11 +278,12 @@ class Part(object):
 
     @property
     def pitch(self):
-        """Pitch Value.
+        """Pitch variable value.
 
         Returns
         -------
         str
+            Value of the pitch variable.
         """
         return self._pitch
 
@@ -286,11 +293,12 @@ class Part(object):
 
     @property
     def roll(self):
-        """Roll Value.
+        """Roll variable value.
 
         Returns
         -------
         str
+            Value of the roll variable.
         """
         return self._roll
 
@@ -300,11 +308,12 @@ class Part(object):
 
     @property
     def name(self):
-        """Part Name.
+        """Part name.
 
         Returns
         -------
         str
+            Name of the part.
         """
         return self._parent.name + '_' + self._name
 
@@ -315,6 +324,7 @@ class Part(object):
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
         """
         # Set x,y,z offset variables in app. But check first to see if the CS
         # has already been defined.
@@ -331,30 +341,28 @@ class Part(object):
 
     @property
     def rot_cs_name(self):
-        """Rotation Coordinate System Name.
+        """Rotation coordinate system name.
 
         Returns
         -------
         str
+            Name of the rotation coordinate system.
         """
         return self.name + '_rot_cs'
 
     @aedt_exception_handler
     def do_rotate(self, app, aedt_object):
-        """
-        Set the rotation coordinate system relative to the parent CS.
-        This function should only be called if
-        there is rotation in the component. The rotation cs is offset from
-        the parent CS.
+        """Set the rotation coordinate system relative to the parent coordinate system.
+        
+        This method should only be called if there is rotation in the component. 
+        The rotation coordinate system is offset from the parent coordinate system.
 
         Parameters
         ----------
-        app : pyaedt.Hfss
-            Instance of the Ansys AEDT application.
-
+        app: pyaedt.Hfss
+            HFSS instance of AEDT.
         aedt_object : str
             Name of the design in AEDT.
-
         """
 
         x_pointing = [1, 0, 0]
@@ -379,16 +387,17 @@ class Part(object):
 
     @aedt_exception_handler
     def insert(self, app):
-        """Insert 3D Component into app.
+        """Insert 3D component in AEDT.
 
         Parameters
         ----------
-        app : class:`pyaedt.hfss.Hfss`
+        app: class:`pyaedt.hfss.Hfss`
             HFSS application instance.
 
         Returns
         -------
-        name of inserted object.
+        str
+            Name of inserted object.
         """
         aedt_objects = []
         # TODO: Why the inconsistent syntax for cs commands?
@@ -414,7 +423,21 @@ class Part(object):
 
 
 class Antenna(Part, object):
-    """Antenna class derived from Part.
+    """Manages antennas.
+    
+    This class is derived from :class:`Part`.
+    
+    Parameters
+    ----------
+    root_folder:
+    
+    ant_dict: 
+    
+    parent: str, optional
+        The default is ``None``.
+    name: str, optional
+        The default is ``None``.
+    
     """
     def __init__(self, root_folder, ant_dict, parent=None, name=None):
         super(Antenna, self).__init__(root_folder, ant_dict, parent=parent, name=name)
@@ -427,11 +450,12 @@ class Antenna(Part, object):
 
     @property
     def params(self):
-        """Multipart Parameters.
+        """Multi-part parameters.
 
         Returns
         -------
         dict
+            Dictionary of parameters for a multi-part.
         """
         p = {}
         if self._compdef['antenna_type'] == 'parametric':
@@ -464,15 +488,16 @@ class Antenna(Part, object):
 
     @aedt_exception_handler
     def insert(self, app, units=None):
-        """Insert antenna into app.
+        """Insert antenna in the app.
 
         Parameters
         ----------
-        app : :class:`pyaedt.hfss.Hfss`, required HFSS application instance.
+        app: :class:`pyaedt.hfss.Hfss`, required HFSS application instance.
 
         Returns
         -------
-        name of inserted object.
+        str
+            Name of the inserted object.
         """
 
         if self._do_offset:
