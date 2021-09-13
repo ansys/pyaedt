@@ -63,6 +63,8 @@ class Hfss(FieldAnalysis3D, object):
 
     >>> from pyaedt import Hfss
     >>> hfss = Hfss()
+    pyaedt Info: No Project defined...
+    pyaedt Info: Active Design set to...
 
     Create an instance of HFSS and link to a project named
     ``HfssProject``. If this project does not exist, create one with
