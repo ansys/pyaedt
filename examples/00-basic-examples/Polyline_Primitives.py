@@ -11,7 +11,7 @@ This example shows how you can use PyAEDT to create and manipulate polylines.
 
 import os
 from pyaedt.maxwell import Maxwell3d
-from pyaedt.modeler.Primitives import Polyline, PolylineSegment
+from pyaedt.modeler.Primitives import PolylineSegment
 
 ###############################################################################
 # Create a Maxwell 3D Object and Set the Unit Type

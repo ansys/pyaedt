@@ -1,19 +1,19 @@
 # standard imports
+import gc
 import os
 import time
-
-# Setup paths for module imports
-from _unittest.conftest import local_path, scratch_path, config
 
 # Import required modules
 from pyaedt import Icepak
 from pyaedt.generic.filesystem import Scratch
-import gc
+
+# Setup paths for module imports
+from _unittest.conftest import local_path, scratch_path
 
 try:
-    import pytest
+    import pytest  # noqa: F401
 except ImportError:
-    import _unittest_ironpython.conf_unittest as pytest
+    import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
 # Access the desktop
 

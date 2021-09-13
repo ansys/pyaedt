@@ -1,17 +1,17 @@
-import os
-
-# Setup paths for module imports
-from _unittest.conftest import scratch_path, local_path
 import gc
+import os
 
 # Import required modules
 from pyaedt import Hfss
 from pyaedt.generic.filesystem import Scratch
 
+# Setup paths for module imports
+from _unittest.conftest import local_path, scratch_path
+
 try:
-    import pytest
+    import pytest  # noqa: F401
 except ImportError:
-    import _unittest_ironpython.conf_unittest as pytest
+    import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
 test_project_name = "Cassegrain"
 

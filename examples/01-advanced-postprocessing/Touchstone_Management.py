@@ -9,11 +9,9 @@ must be installed on the machine.
 This example runs only on Windows using CPython.
 """
 
-import sys
 import os
 import pathlib
-import shutil
-import time
+import sys
 
 local_path = os.path.abspath("")
 module_path = pathlib.Path(local_path)
@@ -30,9 +28,9 @@ example_path = examples.download_touchstone()
 
 ###############################################################################
 
-from pyaedt.generic.TouchstoneParser import *
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+from pyaedt.generic.TouchstoneParser import *
 
 ###############################################################################
 
