@@ -97,7 +97,6 @@ class Part(object):
             p = "0"
             r = "0"
             for a in rotations:
-            #a = self._compdef['rotation']
                 if rotations_axis[rotations.index(a)].lower() == 'x':  # roll
                     r = a
                     self.rot_axis[2] = True
@@ -250,7 +249,6 @@ class Part(object):
     @property
     def _do_rotate(self):  # True if any rotation angles are non-zero or 'rotation_cs' is defined.
         return any(self.rot_axis)
-        # return any(GeometryOperators.numeric_cs([self._yaw, self._pitch, self._roll])) or not self.zero_offset('rotation_cs')
 
     @property
     def _do_offset(self):  # True if any rotation angles are non-zero.
@@ -426,6 +424,7 @@ class Antenna(Part, object):
             return app.SbrAntennas.ParametricBeam
         if self._compdef['antenna_type'] == 'ffd':
             return 'file'
+
     @property
     def params(self):
         """Multipart Parameters.

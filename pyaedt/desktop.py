@@ -499,7 +499,8 @@ class Desktop:
                     self._main.oDesktop = win32com.client.Dispatch(obj.QueryInterface(pythoncom.IID_IDispatch))
                     break
         else:
-            warnings.warn("PyAEDT is not supported in AEDT versions older than 2021.1. Trying to launch it with PyWin32.")
+            warnings.warn(
+                "PyAEDT is not supported in AEDT versions older than 2021.1. Trying to launch it with PyWin32.")
             self._dispatch_win32(version)
 
     def _init_logger(self):
@@ -513,7 +514,8 @@ class Desktop:
                     project_dir = os.environ["TMPDIR"]
                 else:
                     project_dir = os.environ["TEMP"]
-            self.logfile = os.path.join(project_dir, "pyaedt{}.log".format(datetime.datetime.now().strftime("%Y%m%d_%H%M%S")))
+            self.logfile = os.path.join(project_dir,
+                                        "pyaedt{}.log".format(datetime.datetime.now().strftime("%Y%m%d_%H%M%S")))
             logging.basicConfig(filename=self.logfile, format='%(asctime)s:%(name)s:%(levelname)-8s:%(message)s',
                                 level=logging.DEBUG, datefmt='%Y/%m/%d %H.%M.%S', filemode='w')
         return True
@@ -549,7 +551,6 @@ class Desktop:
             self._main.AEDTVersion = version_key
         self._init_desktop()
         self._init_logger()
-
 
     @property
     def install_path(self):

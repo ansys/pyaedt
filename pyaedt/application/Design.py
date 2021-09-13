@@ -1075,13 +1075,15 @@ class Design(object):
                     self._desktop.RestoreProjectArchive(proj_name, os.path.join(path, name), True, True)
                     time.sleep(0.5)
                     proj = self._desktop.GetActiveProject()
-                    self.add_info_message("Archive {} has been restored to project {}".format(proj_name, proj.GetName()))
+                    self.add_info_message(
+                        "Archive {} has been restored to project {}".format(proj_name, proj.GetName()))
                 elif ".def" in proj_name:
                     oTool = self._desktop.GetTool("ImportExport")
                     oTool.ImportEDB(proj_name)
                     proj = self._desktop.GetActiveProject()
                     proj.Save()
-                    self.add_info_message("EDB Folder {} has been imported to project {}".format(proj_name, proj.GetName()))
+                    self.add_info_message(
+                        "EDB Folder {} has been imported to project {}".format(proj_name, proj.GetName()))
                 else:
                     assert not os.path.exists(
                         proj_name + ".lock"

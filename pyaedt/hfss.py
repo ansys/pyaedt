@@ -12,7 +12,6 @@ from collections import OrderedDict
 from .modeler.Actors import Radar
 
 
-
 class Hfss(FieldAnalysis3D, object):
     """Provides the HFSS application interface.
 
