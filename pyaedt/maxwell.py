@@ -1062,7 +1062,7 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
         reverse_slave : bool, optional
             Whether to reverse the master edge to the U direction. The default is ``False``. 
         same_as_master : bool, optional
-            Set to ``False`` to reverse Master/Slave Relation.
+            Whether the B-Field of the slave edge and master edge are the same. The default is ``True``.
         bound_name : str, optional
             Name of the master boundary. The name of the slave boundary will have a ``_dep`` suffix.
 
