@@ -1,4 +1,4 @@
-"""This module contains these classes: `Hfss` and 'BoundaryType`."""
+"""This module contains these classes: ``Hfss`` and ``BoundaryType``."""
 from __future__ import absolute_import
 import os
 import warnings
@@ -21,39 +21,41 @@ class Hfss(FieldAnalysis3D, object):
 
     Parameters
     ----------
-    projectname : str, optional
+    projectname: str, optional
         Name of the project to select or the full path to the project
         or AEDTZ archive to open. The default is ``None``, in which
         case an attempt is made to get an active project. If no
         projects are present, an empty project is created.
-    designname : str, optional
+    designname: str, optional
         Name of the design to select. The default is ``None``, in
         which case an attempt is made to get an active design. If no
         designs are present, an empty design is created.
-    solution_type : str, optional
+    solution_type: str, optional
         Solution type to apply to the design. The default is
         ``None``, in which case the default type is applied.
-    setup_name : str, optional
+    setup_name: str, optional
         Name of the setup to use as the nominal. The default is
         ``None``, in which case the active setup is used or
         nothing is used.
     specified_version: str, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
-        This parameter is ignored when Script is launched within AEDT.
-    NG : bool, optional
+        This parameter is ignored when script is launched within AEDT.
+    NG: bool, optional
         Whether to run AEDT in the non-graphical mode. The default
         is ``False``, in which case AEDT is launched in the graphical mode.
-        This parameter is ignored when Script is launched within AEDT.
-    AlwaysNew : bool, optional
+        This parameter is ignored when script is launched within AEDT.
+    AlwaysNew: bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
-        machine. The default is ``True``. This parameter is ignored when Script is launched within AEDT.
-    release_on_exit : bool, optional
+        machine. The default is ``True``. This parameter is ignored when 
+        script is launched within AEDT.
+    release_on_exit: bool, optional
         Whether to release AEDT on exit. The default is ``False``.
-    student_version : bool, optional
+    student_version: bool, optional
         Whether to open the AEDT student version. The default is
-        ``False``. This parameter is ignored when Script is launched within AEDT.
+        ``False``. This parameter is ignored when script is launched 
+        within AEDT.
 
     Examples
     --------
@@ -987,21 +989,28 @@ class Hfss(FieldAnalysis3D, object):
         is_array=False,
         antenna_name=None,
     ):
-        """Create a Parametric Beam antenna in SBR+.
+        """Create a parametric beam antenna in SBR+.
 
         Parameters
         ----------
         antenna_type: str, `SbrAntennas.ConicalHorn`
-            Name of the Antenna type. Enumerator SbrAntennas can also be used.
-        target_cs : str, optional
-            Target coordinate system. The default is the active one.
+            Name of the antenna type. Enumerator SbrAntennas can also be used.
+            The default is ``"Conical Horn"``.
+        target_cs: str, optional
+            Target coordinate system. The default is ``None``, in which case
+            the active coodiantes system is used.
         model_units: str, optional
-            Model units to be applied to the object. Default is
-            ``None`` which is the active modeler units.
-        parameters_dict : dict, optional
-            The default is ``"nearfield"``.
-        antenna_name : str, optional
-            3D component name. The default is auto-generated based on the antenna type.
+            Model units to apply to the object. The default is
+            ``None`` in which case the active modeler units are applied.
+        parameters_dict: dict, optional
+            The default is ``None``.
+        use_current_source_representation: bool, optional
+            The default is ``False``.
+        is_array: bool, optional
+            The default is ``False``.
+        antenna_name: str, optional
+            Name of the 3D component. The default is ``None``, in which case the
+            name is auto-generated based on the antenna type.
 
         Returns
         -------
@@ -1020,7 +1029,7 @@ class Hfss(FieldAnalysis3D, object):
 
         """
         if self.solution_type != "SBR+":
-            self.add_error_message("This Native component only applies to a SBR+ Solution.")
+            self.add_error_message("This native component only applies to a SBR+ solution.")
             return False
         if target_cs is None:
             target_cs = self.modeler.oeditor.GetActiveCoordinateSystem()
@@ -1094,27 +1103,28 @@ class Hfss(FieldAnalysis3D, object):
         Parameters
         ----------
         ffd_full_path: str
-            Full path to the ffd file.
+            Full path to the FFD file.
         antenna_size: str, optional
-            Antenna size with units.
+            Antenna size with units. The default is ``"1mm"``.
         antenna_impedance: str, optional
-            Antenna impedance with units.
+            Antenna impedance with units. The default is ``"50ohm"``.
         representation_type: str, optional
-            Antenna type.  Either ``"Far Field"`` or ``"Near Field"``.
+            Type of the antenna type. Options are ``"Far Field"`` or ``"Near Field"``.
+            The default is ``"Far Field"``.
         target_cs : str, optional
-            Target coordinate system. The default is the active coordinate system.
+            Target coordinate system. The default is ``None``, in wih case the 
+            active coordinate system is used.
         model_units: str, optional
-            Model units to be applied to the object. Default is
-            ``None`` which is the active modeler units.
-        antenna_name : str, optional
-            3D component name. The default is the auto-generated based
-            on the antenna type.
+            Model units to apply to the object. The default is
+            ``None``, in which ase the active modeler units are applied.
+        antenna_name: str, optional
+            Name of the 3D component. The default is ``None``, in which case
+            the name is auto-generated based on the antenna type.
 
         Returns
         -------
         :class:`pyaedt.modules.Boundary.NativeComponentObject`
-            NativeComponentObject object.
-
+            
         Examples
         --------
         >>> from pyaedt import Hfss
@@ -3598,34 +3608,37 @@ class Hfss(FieldAnalysis3D, object):
         max_bounces=5,
         setup_name=None,
     ):
-        """Create an SBR+ Pulse Doppler Setup.
+        """Create an SBR+ pulse doppler setup.
 
         Parameters
         ----------
-        time_var : str, optional
-            Name of the time variable. Default ``None`` which will search for
-            first Time Variable available.
-        sweep_time_duration : float, optional
-            Sweep Time Duration. If greater than 0, a parametric sweep will be
-            created. Default ``0``.
-        center_freq : float, optional
-            Center Frequency in GHz. Default ``76.5``.
-        resolution : float, optional
-            Doppler Resolution in meter. Default ``1``.
-        period : float, optional
-            Period of Analysis in meter. Default ``200``.
-        velocity_resolution : float, optional
-            Doppler Velocity Resolution in m_per_sec. Default ``0.4``.
-        min_velocity : str, optional
-            Minimum Doppler Velocity in meters per second. Default ``-20``.
-        max_velocity : str, optional
-            Maximum Doppler Velocity in meters per second. Default ``20``.
+        time_var: str, optional
+            Name of the time variable. The default is ``None``, in which case
+            the first time variable available is used.
+        sweep_time_duration: float, optional
+            Sweep time duration. If greater than 0, a parametric sweep is
+            created. The default is ``0``.
+        center_freq: float, optional
+            Center frequency in GHz. The default is ``76.5``.
+        resolution: float, optional
+            Doppler resolution in meters. The default is ``1``.
+        period: float, optional
+            Period of analysis in meters. The default is ``200``.
+        velocity_resolution: float, optional
+            Doppler velocity resolution in meters per second. 
+            The default is ``0.4``.
+        min_velocity: str, optional
+            Minimum doppler velocity in meters per second. The default 
+            is ``-20``.
+        max_velocity: str, optional
+            Maximum doppler velocity in meters per second. The default 
+            is ``20``.
         ray_density_per_wavelenght : float, optional
-            Doppler Ray Density per wavelength. Default ``0.2``.
-        max_bounces : int, optional
-            Maximum number of Bounces. Default ``5``.
-        setup_name : str, optional
-            Name of the Setup. Default ``None``.
+            Doppler ray density per wavelength. The default is ``0.2``.
+        max_bounces: int, optional
+            Maximum number of bBounces. The default is ``5``.
+        setup_name: str, optional
+            Name of the setup. The default is ``None``.
 
         Returns
         -------
@@ -3674,7 +3687,27 @@ class Hfss(FieldAnalysis3D, object):
     def create_sbr_radar_from_json(
         self, radar_file, radar_name, offset=[0, 0, 0], speed=0.0, use_relative_cs=False, relative_cs_name=None
     ):
-        """Create a SBR+ Radar from Json File.
+        """Create an SBR+ radar from a JSON file.
+        
+        Parameters
+        ----------
+        radar_file: str
+            Path to the directory with the radar file.
+        radar_name: str
+            Name of the radar file.
+        offset: list, optional
+            Offset relative to the global coordinate system.
+        speed: float, optional
+            Radar movement speed relative to the global coordinate system if greater than ``0``.
+        use_relative_cs: bool, optional
+            Whether the relative coordinate system must be used. The default is ``False``.
+        relative_cs_name: str
+            Name of the relative coordinate system to link the radar to.
+            The default is ``None``, in which case the global coordinate system is used.
+       
+        Examples
+        --------
+        Create an SBR+ radar from a JSON file:
 
           .. code-block:: json
 
@@ -3708,23 +3741,7 @@ class Hfss(FieldAnalysis3D, object):
                 }
             }
 
-        Parameters
-        ----------
-        radar_file : str
-            Path to radar file directory
-        radar_name : str
-            Name of the radar to use.
-        offset : list, optional
-            Set offset relative to global coordinate system.
-        speed : float, optional
-            Set the radar movement speed relative to global coordinate system if greater than ``0``.
-        use_relative_cs : bool, optional
-            Whether the relative coordinate system must be used. The default is ``False``.
-        relative_cs_name : str
-            Name of the relative coordinate system to link the radar to.
-            The default is ``None``, in which case the for coordinate system is used.
-
-        Returns
+       Returns
         -------
         :class:`pyaedt.modeler.actors.Radar`
         """
