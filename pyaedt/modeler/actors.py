@@ -26,8 +26,7 @@ def read_actors(fn, actor_lib):
 
 class Generic(Actor, object):
     """
-    Provides an instance of an actor. 
-    
+    Provides an instance of an actor.
     This class is derived from :class:`MultiPartComponent`.
     """
 

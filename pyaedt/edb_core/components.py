@@ -1,7 +1,6 @@
 """This module contains the `Components` class.
 
 """
-import random
 import re
 
 from pyaedt import is_ironpython, retry_ntimes, generate_unique_name

@@ -1058,9 +1058,9 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
         slave_edge : int
             ID of the slave edge.
         reverse_master : bool, optional
-            Whether to reverse the master edge to the V direction. The default is ``False``. 
+            Whether to reverse the master edge to the V direction. The default is ``False``.
         reverse_slave : bool, optional
-            Whether to reverse the master edge to the U direction. The default is ``False``. 
+            Whether to reverse the master edge to the U direction. The default is ``False``.
         same_as_master : bool, optional
             Whether the B-Field of the slave edge and master edge are the same. The default is ``True``.
         bound_name : str, optional

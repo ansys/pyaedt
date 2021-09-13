@@ -4,7 +4,6 @@ import re
 import sys
 from ..generic.general_methods import aedt_exception_handler
 from .modeler_constants import CoordinateSystemPlane, CoordinateSystemAxis, SweepDraftType
-from ..application.Variables import VariableManager
 
 class GeometryOperators(object):
     """Manages geometry operators."""

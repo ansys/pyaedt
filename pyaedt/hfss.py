@@ -3721,7 +3721,7 @@ class Hfss(FieldAnalysis3D, object):
         use_relative_cs : bool, optional
             Whether the relative coordinate system must be used. The default is ``False``.
         relative_cs_name : str
-            Name of the relative coordinate system to link the radar to. 
+            Name of the relative coordinate system to link the radar to.
             The default is ``None``, in which case the for coordinate system is used.
 
         Returns

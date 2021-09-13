@@ -2,11 +2,8 @@ import os
 from ..generic.general_methods import aedt_exception_handler
 from .Primitives import Primitives
 from .GeometryOperators import GeometryOperators
-from ..application.Analysis import CoordinateSystemAxis
-from .Object3d import Object3d
 from .multiparts import MultiPartComponent, Environment
-from .actors import Person, Bird, Vehicle, Radar
-from .parts import Antenna
+from .actors import Person, Bird, Vehicle
 from ..generic.general_methods import retry_ntimes
 
 
