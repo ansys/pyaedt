@@ -79,13 +79,13 @@ class Icepak(FieldAnalysisIcepak):
     ``IcepakDesign1`` in a project named ``IcepakProject``.
 
     >>> icepak = Icepak("IcepakProject", "IcepakDesign1")
-    pyaedt Info: Added design 'IcepakDesign1' of type Icepak.
+    pyaedt Info: Added design IcepakDesign1 of type Icepak.
 
     Create an instance of `Icepak` and open the specified project,
     which is ``myipk.aedt``.
 
     >>> icepak = Icepak("myipk.aedt")
-    pyaedt Info: Project 'myipk' has been created.
+    pyaedt Info: Project myipk has been created.
     pyaedt Info: No design is present. Inserting a new design.
     pyaedt Info: Added design ...
 
