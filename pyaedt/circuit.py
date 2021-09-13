@@ -2,10 +2,10 @@
 """This module contains the `Circuit` class."""
 
 from __future__ import absolute_import
+
 import math
-import warnings
-import re
 import os
+import re
 
 from .application.AnalysisNexxim import FieldAnalysisCircuit
 from .desktop import exception_to_desktop

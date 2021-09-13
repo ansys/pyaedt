@@ -1,15 +1,6 @@
 from __future__ import absolute_import
-import warnings
-from .general import *
-from ..generic.general_methods import get_filename_without_extension, generate_unique_name
 
-try:
-    import clr
-    from System import Convert, String
-    from System import Double, Array
-    from System.Collections.Generic import List
-except ImportError:
-    warnings.warn("This module requires pythonnet.")
+from .general import *
 
 
 class EdbNets(object):

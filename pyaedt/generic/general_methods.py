@@ -12,11 +12,6 @@ import inspect
 import itertools
 
 logger = logging.getLogger(__name__)
-import pkgutil
-
-modules = [tup[1] for tup in pkgutil.iter_modules()]
-if "clr" in modules:
-    import clr
 
 
 class MethodNotSupportedError(Exception):

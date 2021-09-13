@@ -1,12 +1,12 @@
 """This module contains these classes: `Hfss3dLayout`."""
 
 from __future__ import absolute_import
+
 import os
 
 from .application.Analysis3DLayout import FieldAnalysis3DLayout
 from .desktop import exception_to_desktop
-from .modules.SolveSetup import Setup3DLayout
-from .generic.general_methods import generate_unique_name, aedt_exception_handler
+from .generic.general_methods import aedt_exception_handler, generate_unique_name
 
 
 class Hfss3dLayout(FieldAnalysis3DLayout):

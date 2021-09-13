@@ -1,11 +1,7 @@
 from __future__ import absolute_import
 
-import numbers
-
 from .application.AnalsyisEmit import FieldAnalysisEmit
-from .application.Variables import Variable
 from .desktop import exception_to_desktop
-from .generic.general_methods import aedt_exception_handler, generate_unique_name
 
 
 class Emit(FieldAnalysisEmit, object):

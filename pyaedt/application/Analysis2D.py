@@ -3,7 +3,7 @@ import warnings
 from .Analysis import Analysis
 from ..modeler.Model2D import Modeler2D
 from ..modules.Mesh import Mesh
-from ..generic.general_methods import aedt_exception_handler, generate_unique_name
+from ..generic.general_methods import aedt_exception_handler
 
 
 class FieldAnalysis2D(Analysis):

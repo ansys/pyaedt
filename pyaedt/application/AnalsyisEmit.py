@@ -1,10 +1,6 @@
-from ..generic.general_methods import aedt_exception_handler, generate_unique_name
-from .Analysis import Analysis
-from .Design import solutions_settings, Design
 from ..modeler.Circuit import ModelerEmit
 from ..modules.PostProcessor import PostProcessor
-from ..modules.SetupTemplates import SetupKeys
-from ..modules.SolveSetup import SetupCircuit
+from .Design import Design
 
 
 class FieldAnalysisEmit(Design):

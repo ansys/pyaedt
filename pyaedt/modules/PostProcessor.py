@@ -5,19 +5,19 @@ This module provides all functionalities for creating and editing plots in the 3
 
 """
 from __future__ import absolute_import
+
+import itertools
+import math
 import os
-import shutil
 import random
 import string
 import time
-import math
-import itertools
-from collections import OrderedDict
-from ..modeler.Modeler import CoordinateSystem
-from ..generic.general_methods import aedt_exception_handler, generate_unique_name, retry_ntimes
-from ..generic.filesystem import Scratch
-from ..application.Variables import AEDT_units
 import warnings
+from collections import OrderedDict
+
+from ..application.Variables import AEDT_units
+from ..generic.filesystem import Scratch
+from ..generic.general_methods import aedt_exception_handler, generate_unique_name, retry_ntimes
 
 report_type = {
     "DrivenModal": "Modal Solution Data",

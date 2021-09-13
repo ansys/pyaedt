@@ -1,10 +1,9 @@
-from ..generic.general_methods import aedt_exception_handler, generate_unique_name
+from ..generic.general_methods import aedt_exception_handler
+from ..modeler.Circuit import ModelerNexxim
+from ..modules.PostProcessor import CircuitPostProcessor
+from ..modules.SolveSetup import SetupCircuit
 from .Analysis import Analysis
 from .Design import solutions_settings
-from ..modeler.Circuit import ModelerNexxim
-from ..modules.SetupTemplates import SetupKeys
-from ..modules.SolveSetup import SetupCircuit
-from ..modules.PostProcessor import CircuitPostProcessor
 
 
 class FieldAnalysisCircuit(Analysis):
