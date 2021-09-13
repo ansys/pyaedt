@@ -539,7 +539,7 @@ class Desktop:
             version_student, version_key, version = self._set_version(specified_version, student_version)
             if _com == 'ironpython':
                 print("Launching PyAEDT outside Electronics Desktop with IronPython")
-                self._init_ironpython(NG, AlwaysNew)
+                self._init_ironpython(NG, AlwaysNew, version)
             elif _com == 'pythonnet_v3':
                 print("Launching PyAEDT outside Electronics Desktop with CPython and Pythonnet")
                 self._init_cpython(NG, AlwaysNew, version, student_version, version_key)

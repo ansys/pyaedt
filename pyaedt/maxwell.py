@@ -1080,12 +1080,12 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
         else:
             bound_name_m = bound_name
             bound_name_s = bound_name + "_dep"
-        props2 = OrderedDict({"Edges": [master_edge], "ReverseV": reverse_master})
+        props2 = OrderedDict({"Edges": master_edge, "ReverseV": reverse_master})
         bound = BoundaryObject(self, bound_name_m, props2, "Independent")
         if bound.create():
             self.boundaries.append(bound)
 
-            props2 = OrderedDict({"Edges": [slave_edge], "ReverseU": reverse_slave, "Independent": bound_name_m,
+            props2 = OrderedDict({"Edges": slave_edge, "ReverseU": reverse_slave, "Independent": bound_name_m,
                                   "SameAsMaster": same_as_master})
             bound2 = BoundaryObject(self, bound_name_s, props2, "Independent")
             if bound2.create():
