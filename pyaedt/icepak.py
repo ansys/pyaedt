@@ -72,6 +72,7 @@ class Icepak(FieldAnalysisIcepak):
     this name.
 
     >>> icepak = Icepak("IcepakProject")
+    pyaedt Info: Project ...
     pyaedt Info: Added design ...
 
     Create an instance of Icepak and link to a design named

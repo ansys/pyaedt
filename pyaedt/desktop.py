@@ -318,7 +318,8 @@ class Desktop:
     pyaedt Info: pyaedt v...
     pyaedt Info: Python version ...
     >>> hfss = pyaedt.Hfss(designname="HFSSDesign1")
-
+    pyaedt Info: Project...
+    pyaedt Info: Added design 'HFSSDesign1' of type HFSS.
     """
 
     @property
