@@ -228,7 +228,7 @@ class MultiPartComponent(object):
         Returns
         -------
         list
-            List of the offeset names for the X-, Y-, and Z-axes.
+            List of the offset names for the X-, Y-, and Z-axes.
         """
         return [self.offset_x_name,
                 self.offset_y_name,
@@ -361,7 +361,7 @@ class MultiPartComponent(object):
 
     @property
     def offset(self):
-        """Offset for mulit-part component.
+        """Offset for multi-part component.
 
         Returns
         -------
