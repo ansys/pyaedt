@@ -241,7 +241,7 @@ class MultiPartComponent(object):
         Returns
         -------
         str
-            Name of the Yaw variable.
+            Name of the yaw variable.
         """
         return self.name + '_yaw'
 
@@ -252,7 +252,7 @@ class MultiPartComponent(object):
         Returns
         -------
         str
-            Value for the Yaw variable.
+            Value for the yaw variable.
         """
         return self._yaw
 
