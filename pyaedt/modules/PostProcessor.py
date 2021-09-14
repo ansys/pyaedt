@@ -877,7 +877,8 @@ class PostProcessorCommon(object):
         primary_sweep_variable="Freq",
         context=None,
         plotname=None,
-        plottype=None,
+        report_category=None,
+        plot_type="Rectangular Plot",
     ):
         """Create a 2D rectangular plot in AEDT.
 
@@ -895,7 +896,10 @@ class PostProcessorCommon(object):
             The default is ``None``.
         plotname : str, optional
             Name of the plot. The default is ``None``.
-
+        report_category : str, optional
+            Type of the Report to be created. If `None` default data Report will be used
+        plot_type : str, optional
+            The format of Data Visualization. Default is ``Rectangular Plot``
         Returns
         -------
         bool
@@ -927,10 +931,10 @@ class PostProcessorCommon(object):
         if self.post_solution_type not in report_type:
             print("Solution not supported")
             return False
-        if not plottype:
+        if not report_category:
             modal_data = report_type[self.post_solution_type]
         else:
-            modal_data = plottype
+            modal_data = report_category
         if not plotname:
             plotname = generate_unique_name("Plot")
         families_input = []
@@ -953,7 +957,7 @@ class PostProcessorCommon(object):
         self.oreportsetup.CreateReport(
             plotname,
             modal_data,
-            "Rectangular Plot",
+            plot_type,
             setup_sweep_name,
             ctxt,
             families_input,
@@ -1027,15 +1031,15 @@ class PostProcessorCommon(object):
 
     @aedt_exception_handler
     def export_report_to_csv(self, project_dir, plot_name):
-        """Export the SParameter plot data to a CSV file.
+        """Export the 2D Plot data to a CSV file.
 
         This method leaves the data in the plot (as data) as a reference
-        for the Sparameters plot after the loops.
+        for the Plot after the loops.
 
         Parameters
         ----------
         project_dir : str
-            Path to the project directory.
+            Path to the project directory. The csv file wil be plot_name.csv
         plot_name : str
             Name of the plot to export.
 

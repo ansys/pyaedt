@@ -459,7 +459,7 @@ class Desktop:
         self.COMUtil = AnsoftCOMUtil.Ansoft.CoreCOMScripting.Util.COMUtil
         self._main.COMUtil = self.COMUtil
         StandalonePyScriptWrapper = AnsoftCOMUtil.Ansoft.CoreCOMScripting.COM.StandalonePyScriptWrapper
-        print("Launching AEDT with module Pythonnet.")
+        print("PyAEDT Info: Launching AEDT with module Pythonnet.")
         processID = []
         if IsWindows:
            processID = self._get_tasks_list_windows(student_version)
@@ -478,18 +478,18 @@ class Desktop:
         proc = [i for i in processID2 if i not in processID]
         if not proc:
             proc = processID2
-        if len(processID2) > 1:
+        if proc == processID2 and len(processID2) > 1:
             if non_graphical:
-                self._main.close_on_exit = False
+                self._main.close_on_exit = True
             else:
                 self._main.close_on_exit = False
-                self._dispatch_win32(version)
+            self._dispatch_win32(version)
         elif version_key >= "2021.1":
             self._main.close_on_exit = True
             if student_version:
-                print("Info: {} Student version started with process ID {}.".format(version, proc[0]))
+                print("PyAEDT Info:: {} Student version started with process ID {}.".format(version, proc[0]))
             else:
-                print("Info: {} Started with process ID {}.".format(version, proc[0]))
+                print("PyAEDT Info:: {} Started with process ID {}.".format(version, proc[0]))
             context = pythoncom.CreateBindCtx(0)
             running_coms = pythoncom.GetRunningObjectTable()
             monikiers = running_coms.EnumRunning()
