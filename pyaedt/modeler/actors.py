@@ -13,7 +13,9 @@ def read_actors(fn, actor_lib):
     actor_lib: str
         Full path to the library containing the actor definitions.
 
-    :return: list of Actor
+    Returns
+    -------
+    list
         List of actor objects.
     """
     a = {}
@@ -25,65 +27,62 @@ def read_actors(fn, actor_lib):
 
 class Generic(Actor, object):
     """Provides an instance of an actor.
-    
+
     This class is derived from :class:`MultiPartComponent`.
+
+    .. note::
+       Motion is always forward in the X-direction of the person
+       coordinate system.
+
+    Parameters
+    ----------
+    actor_folder: str
+        Full path to the directory containing the definition of the person.
+        This can be changed later in the :class:`Person` class definition.
+    speed: float or str
+        Speed of the person in the X-direction.
+    relative_cs_name: str
+        Name of the relative coordinate system of the actor. The default is ``None``,
+        in which case the global coordinate system is used.
+
     """
 
     def __init__(self, actor_folder, speed="0", relative_cs_name=None):
         """Generic class.
-        
-        This class is derived from :class:`Actor`.
 
-        .. note::  Motion is always forward in the X-direction of the person coordinate system.
-
-        Parameters
-        ----------
-        actor_folder: str
-            Full path to the folder containing the definition of the person.
-            This can be changed later in the :class:`Person` class definition.
-        speed: float or str
-            Speed of the person in the X-direction.
-        stride: float or str
-            Stride length of the person. The default is "0". An example of
-            entering a string, which includes units, is ``"0.8meters"``.
-        relative_cs_name: str
-            Name of the relative coordinate system of the actor. The default is ``None``,
-            in which case the global coordinate system is used.
 
         """
         super(Generic, self).__init__(actor_folder, speed=speed, relative_cs_name=relative_cs_name)
 
 
 class Person(Actor, object):
-    """
-    Provides an instance of an actor.
-    
+    """Provides an instance of an actor.
+
     This class is derived from :class:`MultiPartComponent`.
+
+    .. note::
+       Motion is always forward in the X-direction of the person coordinate system.
+
+    Parameters
+    ----------
+    actor_folder: str, required
+        Full path to the folder containing the definition of the
+        person.  This can be changed later in the :class:`Person`
+        class definition.
+    speed: float or str
+        Speed of the person in the X-direction.
+    stride: float or str
+        Stride length of the person. The default is "0". An example of
+        entering a string, which includes units, is ``"0.8meters"``.
+    relative_cs_name: str
+        Name of the relative coordinate system of the actor. The
+        default is ``None``, in which case the global coordinate
+        system is used.
+
     """
 
     def __init__(self, actor_folder, speed="0", stride="0.8meters", relative_cs_name=None):
-        """Person class.
-        
-        This class is derived from :class:`Actor`.
-
-        .. note::  
-           Motion is always forward in the X-direction of the person coordinate system.
-
-        Parameters
-        ----------
-        actor_folder: str, required
-            Full path to the folder containing the definition of the person.
-            This can be changed later in the :class:`Person` class definition.
-        speed: float or str
-            Speed of the person in the X-direction.
-        stride: float or str
-            Stride length of the person. The default is "0". An example of
-            entering a string, which includes units, is ``"0.8meters"``.
-        relative_cs_name: str
-            Name of the relative coordinate system of the actor. The default is ``None``,
-            in which case the global coordinate system is used.
-
-        """
+        """Initialize person actor."""
 
         super(Person, self).__init__(actor_folder, speed=speed, relative_cs_name=relative_cs_name)
 
@@ -122,6 +121,7 @@ class Person(Actor, object):
         Parameters
         ----------
         app: :class:`pyaedt.hfss.Hfss`
+            HFSS application.
         motion : bool, optional
             The default is ``True``.
 
@@ -141,25 +141,30 @@ class Person(Actor, object):
 
 class Bird(Actor, object):
     """Provides an instance of an actor.
-    
+
     This class is derived from :class:`MultiPartComponent`.
+
+    .. note::
+       Motion is always forward in the X-direction.
+
+    Parameters
+    ----------
+    bird_folder : str, required
+        Full path to the directory containing the definition of the
+        bird.  This can be changed later.
+    speed : float or str
+        Speed of the bird.
+    flapping_rate : float or str
+        Flapping rate.
+    relative_cs_name : str
+        Name of the relative coordinate system of the actor. The
+        default is``None``, in which case the global coordinate system
+        is used.
+
     """
 
     def __init__(self, bird_folder, speed="2.0", flapping_rate="50Hz", relative_cs_name=None):
         """Bike class.
-            
-         This class is derived from the :class:`MultiPartComponent`.
-         
-         .. note::  
-            Motion is always forward in the X-direction.
-
-        Parameters
-        ----------
-        speed: float or str
-            Speed of the vehicle.
-        relative_cs_name : str
-            Name of the relative coordiante system of the actor. The default is``None``,
-            in which case the global coordiante system is used..
 
         """
 
@@ -199,26 +204,31 @@ class Bird(Actor, object):
 
 
 class Vehicle(Actor, object):
-    """Provides an instance of an actor. 
-    
-    This class is derived from :class:`MultiPartComponent`."""
+    """Provides an instance of an actor.
+
+    This class is derived from :class:`MultiPartComponent`.
+
+   This class is derived from :class:`MultiPartComponent`.
+
+    .. note::
+        Motion is always forward in the X-direction.
+
+    Properties
+    ----------
+    car_folder : str, required
+        Full path to the folder containing the definition of the
+        vehicle.  This can be changed later.
+    speed : float or str
+        Speed of the vehicle.
+    relative_cs_name : str
+        Name of the relative coordinate system of the actor. The
+        default is ``None``, in which case the global coordinate
+        system is used.
+
+    """
 
     def __init__(self, car_folder, speed=10.0, relative_cs_name=None):
-        """Vehicle class.
-        
-        This class is derived from :class:`MultiPartComponent`.
-        
-        .. note::  
-            Motion is always forward in the X-direction.
-
-        Properties
-        ----------
-        speed: float or str
-            Speed of the vehicle.
-        relative_cs_name : str
-            Name of the relative coordinate system of the actor. The default is ``None``,
-            in which case the global coordinate system is used.
-        """
+        """Vehicle class."""
 
         super(Vehicle, self).__init__(car_folder, speed=speed, relative_cs_name=relative_cs_name)
 
@@ -258,7 +268,7 @@ class Vehicle(Actor, object):
 
 class Radar(MultiPartComponent, object):
     """Manages the radar definition and placement in the HFSS design.
-    
+
     Parameters
     ----------
     radar_folder: str
