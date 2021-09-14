@@ -372,8 +372,7 @@ class Desktop:
         self._main.AEDTVersion = self._main.oDesktop.GetVersion()[0:6]
         self._main.oDesktop.RestoreWindow()
         self._main.oMessenger = AEDTMessageManager()
-        base_path = self._main.oDesktop.GetExeDir()
-        self._main.sDesktopinstallDirectory = base_path
+        self._main.sDesktopinstallDirectory = self._main.oDesktop.GetExeDir()
         self._main.pyaedt_initialized = True
 
     def _set_version(self, specified_version, student_version):
