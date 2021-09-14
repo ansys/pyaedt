@@ -2116,7 +2116,6 @@ class Design(object):
             oproj = self.odesktop.SetActiveProject(name)
             oproj.Save()
         self.odesktop.CloseProject(name)
-
         return True
 
     @aedt_exception_handler
