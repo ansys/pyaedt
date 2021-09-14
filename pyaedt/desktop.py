@@ -591,7 +591,6 @@ class Desktop:
         """
         try:
             oproject = self._main.oDesktop.GetActiveProject()
-            project_name = oproject.GetName()
             try:
                 design_name = oproject.GetActiveDesign().GetName()
                 if ";" in design_name:
@@ -599,7 +598,6 @@ class Desktop:
             except:
                 design_name = ""
         except:
-            project_name = ""
             design_name = ""
         tb_trace = traceback.format_tb(tb_data)
         tblist = tb_trace[0].split("\n")
