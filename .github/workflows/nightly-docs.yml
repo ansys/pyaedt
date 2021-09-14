@@ -4,6 +4,7 @@ on:
   workflow_dispatch:
   schedule:  # UTC at 0400
     - cron:  '0 4 * * *'
+  pull_request:
 
 jobs:
   docs_build:
