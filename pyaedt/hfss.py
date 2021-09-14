@@ -1112,11 +1112,11 @@ class Hfss(FieldAnalysis3D, object):
             Type of the antenna type. Options are ``"Far Field"`` or ``"Near Field"``.
             The default is ``"Far Field"``.
         target_cs : str, optional
-            Target coordinate system. The default is ``None``, in wih case the 
+            Target coordinate system. The default is ``None``, in which case the 
             active coordinate system is used.
         model_units: str, optional
             Model units to apply to the object. The default is
-            ``None``, in which ase the active modeler units are applied.
+            ``None``, in which case the active modeler units are applied.
         antenna_name: str, optional
             Name of the 3D component. The default is ``None``, in which case
             the name is auto-generated based on the antenna type.
@@ -1198,7 +1198,6 @@ class Hfss(FieldAnalysis3D, object):
             Whether to save the field. The default is ``True``.
         save_radiating_field : bool, optional
             Whether to save the radiating field. The default is ``False``.
-
 
         Returns
         -------
@@ -1395,13 +1394,15 @@ class Hfss(FieldAnalysis3D, object):
         endobject :
             Second (ending) object for the integration line.
         axisdir : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
-            Position of the port. It should be one of the values for ``Application.AxisDir``,
-            which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
-            The default is ``Application.AxisDir.XNeg``.
+            Position of the port. It should be one of the values for
+            ``Application.AxisDir``, which are: ``XNeg``, ``YNeg``,
+            ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.  The default
+            is ``Application.AxisDir.XNeg``.
         sourcename : str, optional
             Name of the source. The default is ``None``.
         source_on_plane : bool, optional
-            Whether to create the source on the plane orthogonal to ``AxisDir``. The default is ``True``.
+            Whether to create the source on the plane orthogonal to
+            ``AxisDir``. The default is ``True``.
 
         Returns
         -------
