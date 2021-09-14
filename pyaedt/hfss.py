@@ -698,6 +698,81 @@ class Hfss(FieldAnalysis3D, object):
         return False
 
     @aedt_exception_handler
+    def create_single_point_sweep(
+        self,
+        setupname,
+        unit,
+        freq,
+        sweepname=None,
+        save_single_field=True,
+        save_fields=True,
+        save_rad_fields=False,
+    ):
+        """Create a Sweep with a single frequency point.
+
+        Parameters
+        ----------
+        setupname : str
+            Name of the setup.
+        unit : str
+            Unit of the frequency. For example, ``"MHz`` or ``"GHz"``. The default is ``"GHz"``.
+        freq : float
+            Frequency of the single point.
+        sweepname : str, optional
+            Name of the sweep. The default is ``None``.
+        save_single_field : bool, optional
+            Whether to save the fields of the single point. The default is ``True``.
+        save_fields : bool, optional
+            Whether to save the fields for all points and subranges defined in the sweep. The default is ``True``.
+        save_rad_fields : bool, optional
+            Whether to save only the radiating fields. The default is ``False``.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or bool
+            Sweep object if successful, ``False`` otherwise.
+
+        Examples
+        --------
+
+        Create a setup named ``"LinearStepSetup"`` and use it in a single point sweep
+        named ``"SinglePointSweep"``.
+
+        >>> setup = hfss.create_setup("LinearStepSetup")
+        >>> single_point_sweep = hfss.create_single_point_sweep(setupname="LinearStepSetup",
+        ...                                                   sweepname="SinglePointSweep",
+        ...                                                   unit="MHz", freq=1.1e3)
+        >>> type(single_point_sweep)
+        <class 'pyaedt.modules.SetupTemplates.SweepHFSS'>
+
+        """
+        if sweepname is None:
+            sweepname = generate_unique_name("SinglePoint")
+
+        if setupname not in self.setup_names:
+            return False
+        for i in self.setups:
+            if i.name == setupname:
+                setupdata = i
+                for sw in setupdata.sweeps:
+                    if sweepname == sw.name:
+                        self._messenger.add_warning_message(
+                            "Sweep {} is already present. Rename and retry.".format(sweepname)
+                        )
+                        return False
+                sweepdata = setupdata.add_sweep(sweepname, "Discrete")
+                sweepdata.props["RangeType"] = "SinglePoints"
+                sweepdata.props["RangeStart"] = str(freq) + unit
+                sweepdata.props["RangeEnd"] = str(freq) + unit
+                sweepdata.props["SaveSingleField"] = save_single_field
+                sweepdata.props["SaveFields"] = save_fields
+                sweepdata.props["SaveRadFields"] = save_rad_fields
+                sweepdata.props["SMatrixOnlySolveMode"] = "Auto"
+                sweepdata.update()
+                return sweepdata
+        return False
+
+    @aedt_exception_handler
     def create_sbr_linked_antenna(
         self,
         source_object,
@@ -1180,69 +1255,69 @@ class Hfss(FieldAnalysis3D, object):
             id += 1
         return self._create_boundary("SBRTxRxSettings", props, "SBRTxRxSettings")
 
-    @aedt_exception_handler
-    def create_single_point_sweep(
-        self, setupname, sweepname="SinglePoint", freq_start="1GHz", save_field=True, save_radiating_field=False
-    ):
-        """Create a discrete sweep with a single frequency value.
-
-        Parameters
-        ----------
-        setupname : str
-            Name of the setup.
-        sweepname : str, optional
-            Name of the sweep. The default is ``"SinglePoint"``.
-        freq_start : str, optional
-            Sweep frequency point with units. The default is ``"1GHz"``.
-        save_field : bool, optional
-            Whether to save the field. The default is ``True``.
-        save_radiating_field : bool, optional
-            Whether to save the radiating field. The default is ``False``.
-
-        Returns
-        -------
-        :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or bool
-            Sweep object if successful, ``False`` otherwise.
-
-        Examples
-        --------
-
-        Create a setup named ``"DiscreteSweepSetup"`` and use it in a discrete sweep
-        named ``"DiscreteSweep"``.
-
-        >>> setup = hfss.create_setup("DiscreteSweepSetup")
-        >>> discrete_sweep = hfss.create_single_point_sweep(setupname="DiscreteSweepSetup",
-        ...                                             sweepname="DiscreteSweep", freq_start="2GHz")
-        pyaedt Info: Sweep was created correctly.
-
-        """
-
-        if sweepname is None:
-            sweepname = generate_unique_name("Sweep")
-
-        if setupname not in self.setup_names:
-            return False
-        for i in self.setups:
-            if i.name == setupname:
-                setupdata = i
-                for sw in setupdata.sweeps:
-                    if sweepname == sw.name:
-                        self._messenger.add_warning_message(
-                            "Sweep {} is already present. Rename and retry.".format(sweepname)
-                        )
-                        return False
-                sweepdata = setupdata.add_sweep(sweepname, "Discrete")
-                sweepdata.props["RangeStart"] = freq_start
-                sweepdata.props["SaveSingleField"] = save_field
-                sweepdata.props["SaveFields"] = save_field
-                sweepdata.props["SaveRadFields"] = save_radiating_field
-                sweepdata.props["ExtrapToDC"] = False
-                sweepdata.props["Type"] = "Discrete"
-                sweepdata.props["RangeType"] = "LinearCount"
-                sweepdata.update()
-                self._messenger.add_info_message("Sweep was created correctly.")
-                return sweepdata
-        return False
+    # @aedt_exception_handler
+    # def create_single_point_sweep(
+    #     self, setupname, sweepname="SinglePoint", freq_start="1GHz", save_field=True, save_radiating_field=False
+    # ):
+    #     """Create a discrete sweep with a single frequency value.
+    #
+    #     Parameters
+    #     ----------
+    #     setupname : str
+    #         Name of the setup.
+    #     sweepname : str, optional
+    #         Name of the sweep. The default is ``"SinglePoint"``.
+    #     freq_start : str, optional
+    #         Sweep frequency point with units. The default is ``"1GHz"``.
+    #     save_field : bool, optional
+    #         Whether to save the field. The default is ``True``.
+    #     save_radiating_field : bool, optional
+    #         Whether to save the radiating field. The default is ``False``.
+    #
+    #     Returns
+    #     -------
+    #     :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or bool
+    #         Sweep object if successful, ``False`` otherwise.
+    #
+    #     Examples
+    #     --------
+    #
+    #     Create a setup named ``"DiscreteSweepSetup"`` and use it in a discrete sweep
+    #     named ``"DiscreteSweep"``.
+    #
+    #     >>> setup = hfss.create_setup("DiscreteSweepSetup")
+    #     >>> discrete_sweep = hfss.create_single_point_sweep(setupname="DiscreteSweepSetup",
+    #     ...                                             sweepname="DiscreteSweep", freq_start="2GHz")
+    #     pyaedt Info: Sweep was created correctly.
+    #
+    #     """
+    #
+    #     if sweepname is None:
+    #         sweepname = generate_unique_name("Sweep")
+    #
+    #     if setupname not in self.setup_names:
+    #         return False
+    #     for i in self.setups:
+    #         if i.name == setupname:
+    #             setupdata = i
+    #             for sw in setupdata.sweeps:
+    #                 if sweepname == sw.name:
+    #                     self._messenger.add_warning_message(
+    #                         "Sweep {} is already present. Rename and retry.".format(sweepname)
+    #                     )
+    #                     return False
+    #             sweepdata = setupdata.add_sweep(sweepname, "Discrete")
+    #             sweepdata.props["RangeStart"] = freq_start
+    #             sweepdata.props["SaveSingleField"] = save_field
+    #             sweepdata.props["SaveFields"] = save_field
+    #             sweepdata.props["SaveRadFields"] = save_radiating_field
+    #             sweepdata.props["ExtrapToDC"] = False
+    #             sweepdata.props["Type"] = "Discrete"
+    #             sweepdata.props["RangeType"] = "LinearCount"
+    #             sweepdata.update()
+    #             self._messenger.add_info_message("Sweep was created correctly.")
+    #             return sweepdata
+    #     return False
 
     @aedt_exception_handler
     def create_circuit_port_between_objects(
