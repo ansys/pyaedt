@@ -2912,7 +2912,7 @@ class Hfss(FieldAnalysis3D, object):
                                 ],
                             )
                     except:
-                        self._messenger.add_debug_message("done")
+                        self._messenger.add_info_message("done")
                         # self.modeler_oproject.ClearMessages()
         return ports_ID
 
@@ -2951,7 +2951,7 @@ class Hfss(FieldAnalysis3D, object):
 
         """
 
-        self._messenger.add_debug_message("Design Validation Checks")
+        self._messenger.add_info_message("Design Validation Checks")
         validation_ok = True
         val_list = []
         if not dname:
@@ -2988,7 +2988,7 @@ class Hfss(FieldAnalysis3D, object):
             os.remove(temp_val_file)
         else:
             msg = "** No design validation file is found. **"
-            self._messenger.add_debug_message(msg)
+            self._messenger.add_info_message(msg)
             val_list.append(msg)
         msg = "** End of design validation messages. **"
         val_list.append(msg)
@@ -3020,7 +3020,7 @@ class Hfss(FieldAnalysis3D, object):
                     val_list.append(msg4)
         else:
             msg = "Eigen model is detected. No excitatons are defined."
-            self._messenger.add_debug_message(msg)
+            self._messenger.add_info_message(msg)
             val_list.append(msg)
 
         # Find the number of analysis setups and output the info.
