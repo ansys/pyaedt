@@ -139,7 +139,7 @@ class TestClass:
             num_of_freq_points=1234,
             sweeptype="Fast",
         )
-        assert self.aedtapp.create_single_point_sweep("MySetup")
+        assert self.aedtapp.create_single_point_sweep(setupname="MySetup", freq=1, unit='GHz')
 
     def test_06B_setup_exists(self):
         assert self.aedtapp.analysis_setup is not None
