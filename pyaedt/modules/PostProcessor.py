@@ -1039,7 +1039,7 @@ class PostProcessorCommon(object):
         Parameters
         ----------
         project_dir : str
-            Path to the project directory. The csv file wil be plot_name.csv
+            Path to the project directory. The csv file will be plot_name.csv.
         plot_name : str
             Name of the plot to export.
 
