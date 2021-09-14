@@ -13,7 +13,10 @@ else:
     import urllib.request
 
 if os.name == "posix":
-    tmpfold = os.environ["TMPDIR"]
+    if "TMPDIR" in os.environ.keys():
+        tmpfold = os.environ["TMPDIR"]
+    else:
+        tmpfold = "/tmp"
 else:
     tmpfold = os.environ["TEMP"]
 

@@ -21,7 +21,9 @@ test_project_name = "Coax_HFSS"
 
 class TestClass:
     def setup_class(self):
-        self.aedtapp = Hfss3dLayout()
+        with Scratch(scratch_path) as self.local_scratch:
+            self.test_project = os.path.join(self.local_scratch.path, "Test_RadioBoard.aedt")
+            self.aedtapp = Hfss3dLayout(self.test_project)
 
     def teardown_class(self):
         assert self.aedtapp.close_project(self.aedtapp.project_name)
