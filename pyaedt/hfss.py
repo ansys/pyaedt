@@ -48,13 +48,13 @@ class Hfss(FieldAnalysis3D, object):
     AlwaysNew: bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
-        machine. The default is ``True``. This parameter is ignored when 
+        machine. The default is ``True``. This parameter is ignored when
         script is launched within AEDT.
     release_on_exit: bool, optional
         Whether to release AEDT on exit. The default is ``False``.
     student_version: bool, optional
         Whether to open the AEDT student version. The default is
-        ``False``. This parameter is ignored when script is launched 
+        ``False``. This parameter is ignored when script is launched
         within AEDT.
 
     Examples
@@ -1112,7 +1112,7 @@ class Hfss(FieldAnalysis3D, object):
             Type of the antenna type. Options are ``"Far Field"`` or ``"Near Field"``.
             The default is ``"Far Field"``.
         target_cs : str, optional
-            Target coordinate system. The default is ``None``, in which case the 
+            Target coordinate system. The default is ``None``, in which case the
             active coordinate system is used.
         model_units: str, optional
             Model units to apply to the object. The default is
@@ -1124,7 +1124,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         :class:`pyaedt.modules.Boundary.NativeComponentObject`
-            
+
         Examples
         --------
         >>> from pyaedt import Hfss
@@ -3625,13 +3625,13 @@ class Hfss(FieldAnalysis3D, object):
         period: float, optional
             Period of analysis in meters. The default is ``200``.
         velocity_resolution: float, optional
-            Doppler velocity resolution in meters per second. 
+            Doppler velocity resolution in meters per second.
             The default is ``0.4``.
         min_velocity: str, optional
-            Minimum doppler velocity in meters per second. The default 
+            Minimum doppler velocity in meters per second. The default
             is ``-20``.
         max_velocity: str, optional
-            Maximum doppler velocity in meters per second. The default 
+            Maximum doppler velocity in meters per second. The default
             is ``20``.
         ray_density_per_wavelenght : float, optional
             Doppler ray density per wavelength. The default is ``0.2``.
@@ -3688,7 +3688,7 @@ class Hfss(FieldAnalysis3D, object):
         self, radar_file, radar_name, offset=[0, 0, 0], speed=0.0, use_relative_cs=False, relative_cs_name=None
     ):
         """Create an SBR+ radar from a JSON file.
-        
+
         Parameters
         ----------
         radar_file: str
@@ -3704,7 +3704,7 @@ class Hfss(FieldAnalysis3D, object):
         relative_cs_name: str
             Name of the relative coordinate system to link the radar to.
             The default is ``None``, in which case the global coordinate system is used.
-       
+
         Examples
         --------
         Create an SBR+ radar from a JSON file:

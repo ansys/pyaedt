@@ -12,7 +12,7 @@ class Part(object):
         Path to the folder with the A3DCOMP files.
     part_dict: dict
         Defines relevant properties of the class with the following keywords:
-        
+
         * 'comp_name': str, Name of the A3DCOMP file.
         * 'offset': list or str, Offset coordinate system definition relative to the parent.
         * 'rotation_cs': list or str, Rotation coordinate system relative to the parent.
@@ -46,7 +46,7 @@ class Part(object):
                      'polarization': None}  # Antenna only
 
     def __init__(self, part_folder, part_dict, parent=None, name=None):
-        
+
         # Default values:
         self._compdef = dict()
         self._parent = parent
@@ -184,7 +184,7 @@ class Part(object):
         -------
         str
             ame of the yaw variable.
-        
+
         """
         return self.name + '_yaw'
 
@@ -353,8 +353,8 @@ class Part(object):
     @aedt_exception_handler
     def do_rotate(self, app, aedt_object):
         """Set the rotation coordinate system relative to the parent coordinate system.
-        
-        This method should only be called if there is rotation in the component. 
+
+        This method should only be called if there is rotation in the component.
         The rotation coordinate system is offset from the parent coordinate system.
 
         Parameters
@@ -424,20 +424,20 @@ class Part(object):
 
 class Antenna(Part, object):
     """Manages antennas.
-    
+
     This class is derived from :class:`Part`.
-    
+
     Parameters
     ----------
     root_folder:
-    
-    ant_dict: 
-    
+
+    ant_dict:
+
     parent: str, optional
         The default is ``None``.
     name: str, optional
         The default is ``None``.
-    
+
     """
     def __init__(self, root_folder, ant_dict, parent=None, name=None):
         super(Antenna, self).__init__(root_folder, ant_dict, parent=parent, name=name)

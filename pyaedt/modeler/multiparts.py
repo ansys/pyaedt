@@ -9,7 +9,7 @@ from ..generic.general_methods import aedt_exception_handler
 
 class MultiPartComponent(object):
     """Supports multi-part 3D components for AEDT SBR+.
-    
+
     .. note::
            Forward motion is in the X-direction if motion is set.
 
@@ -26,7 +26,7 @@ class MultiPartComponent(object):
     use_relative_cs: bool, optional
         Whether to use the relative coordinate system. The default is ``False``.
         Set to ``False`` if the multi-part component doesn't move. Set to ``True``
-        if the multi-part component moves relative to the global coordinate system. 
+        if the multi-part component moves relative to the global coordinate system.
     relative_cs_name : str, optional
         Name of the coordinate system to connect the multipart relative system to
         when ``use_relative_cs=True``.
@@ -87,7 +87,7 @@ class MultiPartComponent(object):
 
     def __init__(self, comp_folder, name=None, use_relative_cs=False, relative_cs_name=None, motion=False,
                  offset=("0", "0", "0"), yaw="0deg", pitch="0deg", roll="0deg"):
-       
+
         self.comp_folder = comp_folder  # Folder where the component is defined.
         # self._name = os.path.split(comp_folder)[-1]  # Base name of multipart component.
         self._index = None  # Counter used to assign unique name.
@@ -432,7 +432,7 @@ class MultiPartComponent(object):
         app: :class:`pyaedt.hfss.Hfss`
             HFSS application where multi-part component is to be inserted.
         motion : bool, optional
-            Whether variables (yaw, pitch, and roll) should be created in the app to set position. 
+            Whether variables (yaw, pitch, and roll) should be created in the app to set position.
 
         Returns
         -------
@@ -469,11 +469,11 @@ class MultiPartComponent(object):
 
 class Environment(MultiPartComponent, object):
     """Supports multi-part 3D components without motion for AEDT SBR+.
-   
+
     This class is derived from :class:`MultiPartComponent`. Its
     call signature is identical to the parent class except
     motion is always set to ``False``.
-        
+
     Parameters
     ----------
     env_folder: str
@@ -560,11 +560,11 @@ class Environment(MultiPartComponent, object):
 
 class Actor(MultiPartComponent, object):
     """Provides an instance of an actor.
-    
+
     This class is derived from :class:`MultiPartComponent`.
-    
+
     .. note::  Motion is always forward in the X-direction.
-    
+
     Parameters
     ----------
     actor_folder: str
@@ -578,7 +578,7 @@ class Actor(MultiPartComponent, object):
     """
 
     def __init__(self, actor_folder, speed="0", relative_cs_name=None):
-      
+
         super(Actor, self).__init__(actor_folder, use_relative_cs=True, motion=True, relative_cs_name=relative_cs_name)
 
         self._speed_expression = str(speed) + 'm_per_sec'  # TODO: Need error checking here.
