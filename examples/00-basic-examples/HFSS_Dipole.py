@@ -32,14 +32,14 @@ d = Desktop("2021.1", NG=nongraphical)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This examples launches HFSS 2021.1 in graphical mode.
 
-hfss=Hfss()
+hfss = Hfss()
 
 ###############################################################################
 # Define a Dipole Length Variable
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This command defines a dipole length variable.
 
-hfss['l_dipole'] = "13.5cm"
+hfss["l_dipole"] = "13.5cm"
 
 ###############################################################################
 # Get a 3D Component from the `syslib` Directory
@@ -48,9 +48,9 @@ hfss['l_dipole'] = "13.5cm"
 # 3D component or, in case of an encrypted 3D component, create a dictionary
 # of the parameters.
 
-compfile = hfss.components3d['Dipole_Antenna_DM']
-geometryparams = hfss.get_components3d_vars('Dipole_Antenna_DM')
-geometryparams['dipole_length'] = "l_dipole"
+compfile = hfss.components3d["Dipole_Antenna_DM"]
+geometryparams = hfss.get_components3d_vars("Dipole_Antenna_DM")
+geometryparams["dipole_length"] = "l_dipole"
 hfss.modeler.primitives.insert_3d_component(compfile, geometryparams)
 
 ###############################################################################
@@ -67,11 +67,11 @@ hfss.create_open_region(Frequency="1GHz")
 
 setup = hfss.create_setup("MySetup", hfss.SimulationSetupTypes.HFSSDrivenAuto)
 setup.props["Type"] = "Interpolating"
-setup.props["Sweeps"]['Sweep']['RangeType'] = 'LinearCount'
-setup.props["Sweeps"]['Sweep']['RangeStart'] = '0.5GHz'
-setup.props["Sweeps"]['Sweep']['RangeEnd'] = '1.5GHz'
-setup.props["Sweeps"]['Sweep']['RangeCount'] = 401
-setup.props["Sweeps"]['Sweep']['AutoSolverSetting'] = "Higher Speed"
+setup.props["Sweeps"]["Sweep"]["RangeType"] = "LinearCount"
+setup.props["Sweeps"]["Sweep"]["RangeStart"] = "0.5GHz"
+setup.props["Sweeps"]["Sweep"]["RangeEnd"] = "1.5GHz"
+setup.props["Sweeps"]["Sweep"]["RangeCount"] = 401
+setup.props["Sweeps"]["Sweep"]["AutoSolverSetting"] = "Higher Speed"
 setup.update()
 
 ###############################################################################
@@ -92,8 +92,9 @@ variations = hfss.available_variations.nominal_w_values_dict
 variations["Freq"] = ["1GHz"]
 variations["Theta"] = ["All"]
 variations["Phi"] = ["All"]
-hfss.post.create_rectangular_plot("db(GainTotal)",hfss.nominal_adaptive,
-                                  variations, "Theta", "3D",plottype="Far Fields")
+hfss.post.create_rectangular_plot(
+    "db(GainTotal)", hfss.nominal_adaptive, variations, "Theta", "3D", plottype="Far Fields"
+)
 
 ###############################################################################
 # Close AEDT

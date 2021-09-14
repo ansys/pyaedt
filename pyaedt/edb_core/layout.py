@@ -2,15 +2,13 @@
 This module contains these classes: `EdbLayout` and `Shape`.
 """
 
-import warnings
-from .general import *
-from ..generic.general_methods import get_filename_without_extension, generate_unique_name
 import math
+import warnings
+
+from .general import *
+
 try:
-    import clr
-    from System import Convert, String, Tuple
-    from System import Double, Array
-    from System.Collections.Generic import List
+    from System import Tuple
 except ImportError:
     warnings.warn('This module requires the "pythonnet" package.')
 
@@ -22,7 +20,7 @@ class EdbLayout(object):
         self._prims = []
         self._parent = parent
         self._primitives_by_layer = {}
-        #self.update_primitives()
+        # self.update_primitives()
 
     @property
     def _edb(self):
@@ -207,7 +205,7 @@ class EdbLayout(object):
         list
             List of primitive objects.
         """
-        objinst=[]
+        objinst = []
         for el in self.polygons:
             if el.GetLayer().GetName() == layer_name:
                 if net_list and el.GetNet().GetName() in net_list:
@@ -238,7 +236,12 @@ class EdbLayout(object):
         bounding = []
         try:
             bbox = polygon.GetPolygonData().GetBBox()
-            bounding =[bbox.Item1.X.ToDouble(), bbox.Item1.Y.ToDouble(), bbox.Item2.X.ToDouble(), bbox.Item2.Y.ToDouble()]
+            bounding = [
+                bbox.Item1.X.ToDouble(),
+                bbox.Item1.Y.ToDouble(),
+                bbox.Item2.X.ToDouble(),
+                bbox.Item2.Y.ToDouble(),
+            ]
         except:
             pass
         return bounding
@@ -268,7 +271,7 @@ class EdbLayout(object):
 
         """
         points = []
-        i=0
+        i = 0
         continue_iterate = True
         prev_point = None
         while continue_iterate:
@@ -288,7 +291,7 @@ class EdbLayout(object):
         return points
 
     @aedt_exception_handler
-    def parametrize_polygon(self, polygon,selection_polygon, offset_name="offsetx", origin=None):
+    def parametrize_polygon(self, polygon, selection_polygon, offset_name="offsetx", origin=None):
         """Parametrize pieces of a polygon based on another polygon.
 
         Parameters
@@ -310,6 +313,7 @@ class EdbLayout(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
+
         def calc_slope(point, origin):
             if point[0] - origin[0] != 0:
                 slope = math.atan((point[1] - origin[1]) / (point[0] - origin[0]))
@@ -346,10 +350,10 @@ class EdbLayout(object):
         # center2 = [(bounding2[0] + bounding2[2]) / 2, (bounding2[1] + bounding2[3]) / 2]
 
         if not origin:
-            origin = [center[0] + float(x1)*10000, center[1] + float(y1)*10000]
+            origin = [center[0] + float(x1) * 10000, center[1] + float(y1) * 10000]
 
         var_server = self._cell.GetVariableServer()
-        var_server.AddVariable(offset_name,self._edb_value(0.0), True)
+        var_server.AddVariable(offset_name, self._edb_value(0.0), True)
         i = 0
         continue_iterate = True
         prev_point = None
@@ -362,8 +366,13 @@ class EdbLayout(object):
                         xcoeff, ycoeff = calc_slope([point.X.ToDouble(), point.X.ToDouble()], origin)
 
                         new_points = self._edb.Geometry.PointData(
-                            self._edb.Utility.Value(point.X.ToString() + '{}*{}'.format(xcoeff, offset_name), var_server),
-                            self._edb.Utility.Value(point.Y.ToString() + '{}*{}'.format(ycoeff, offset_name), var_server))
+                            self._edb.Utility.Value(
+                                point.X.ToString() + "{}*{}".format(xcoeff, offset_name), var_server
+                            ),
+                            self._edb.Utility.Value(
+                                point.Y.ToString() + "{}*{}".format(ycoeff, offset_name), var_server
+                            ),
+                        )
                         poligon_data.SetPoint(i, new_points)
                     prev_point = point
                     i += 1
@@ -375,8 +384,16 @@ class EdbLayout(object):
         return True
 
     @aedt_exception_handler
-    def create_path(self, path_list, layer_name, width=1, net_name="", start_cap_style="Round", end_cap_style="Round",
-                    corner_style="Round"):
+    def create_path(
+        self,
+        path_list,
+        layer_name,
+        width=1,
+        net_name="",
+        start_cap_style="Round",
+        end_cap_style="Round",
+        corner_style="Round",
+    ):
         """
         Create a path based on a list of points.
 
@@ -424,8 +441,10 @@ class EdbLayout(object):
             corner_style = 0
         else:
             corner_style = 1
-        pointlists = [self._edb.Geometry.PointData(self._edb_value(i[0]), self._edb_value(i[1])) for i in path_list.points]
-        polygonData =  self._edb.Geometry.PolygonData(convert_py_list_to_net_list(pointlists), False)
+        pointlists = [
+            self._edb.Geometry.PointData(self._edb_value(i[0]), self._edb_value(i[1])) for i in path_list.points
+        ]
+        polygonData = self._edb.Geometry.PolygonData(convert_py_list_to_net_list(pointlists), False)
         polygon = self._edb.Cell.Primitive.Path.Create(
             self._active_layout,
             layer_name,
@@ -434,16 +453,17 @@ class EdbLayout(object):
             start_cap_style,
             end_cap_style,
             corner_style,
-            polygonData)
+            polygonData,
+        )
         if polygon.IsNull():
-            self._messenger.add_error_message('Null path created')
+            self._messenger.add_error_message("Null path created")
             return False
         else:
             self.update_primitives()
             return True
 
     @aedt_exception_handler
-    def create_polygon(self, main_shape,  layer_name, voids=[], net_name=""):
+    def create_polygon(self, main_shape, layer_name, voids=[], net_name=""):
         """Create a polygon based on a list of points and voids.
 
         Parameters
@@ -465,21 +485,17 @@ class EdbLayout(object):
         net = self._parent.core_nets.find_or_create_net(net_name)
         polygonData = self.shape_to_polygon_data(main_shape)
         if polygonData is None or polygonData.IsNull():
-            self._messenger.add_error_message('Failed to create main shape polygon data')
+            self._messenger.add_error_message("Failed to create main shape polygon data")
             return False
         for void in voids:
             voidPolygonData = self.shape_to_polygon_data(void)
             if voidPolygonData is None or voidPolygonData.IsNull():
-                self._messenger.add_error_message('Failed to create void polygon data')
+                self._messenger.add_error_message("Failed to create void polygon data")
                 return False
             polygonData.AddHole(voidPolygonData)
-        polygon = self._edb.Cell.Primitive.Polygon.Create(
-            self._active_layout,
-            layer_name,
-            net,
-            polygonData)
+        polygon = self._edb.Cell.Primitive.Polygon.Create(self._active_layout, layer_name, net, polygonData)
         if polygon.IsNull():
-            self._messenger.add_error_message('Null polygon created')
+            self._messenger.add_error_message("Null polygon created")
             return False
         else:
             self.update_primitives()
@@ -493,18 +509,20 @@ class EdbLayout(object):
         shape : str
             Type of the shape to convert. Options are ``"rectangle"`` and ``"polygon"``.
         """
-        if shape.type == 'polygon':
+        if shape.type == "polygon":
             return self._createPolygonDataFromPolygon(shape)
-        elif shape.type == 'rectangle':
+        elif shape.type == "rectangle":
             return self._createPolygonDataFromRectangle(shape)
         else:
-            self._messenger.add_error_message('Unsupported shape type {} when creating a polygon primitive.'.format(shape.type))
+            self._messenger.add_error_message(
+                "Unsupported shape type {} when creating a polygon primitive.".format(shape.type)
+            )
             return None
 
     def _createPolygonDataFromPolygon(self, shape):
         points = shape.points
         if not self._validatePoint(points[0]):
-            self._messenger.add_error_message('Error validating point.')
+            self._messenger.add_error_message("Error validating point.")
             return None
         arcs = []
         for i in range(1, len(points)):
@@ -517,62 +535,66 @@ class EdbLayout(object):
             if len(endPoint) == 2:
                 arc = self._edb.Geometry.ArcData(
                     self._edb.Geometry.PointData(startPoint[0], startPoint[1]),
-                    self._edb.Geometry.PointData(endPoint[0], endPoint[1]))
+                    self._edb.Geometry.PointData(endPoint[0], endPoint[1]),
+                )
                 arcs.append(arc)
             elif len(endPoint) == 5:
                 rotationDirection = self._edb.Geometry.RotationDirection.Colinear
-                if endPoint[2].ToString() == 'cw':
+                if endPoint[2].ToString() == "cw":
                     rotationDirection = self._edb.Geometry.RotationDirection.CW
-                elif endPoint[2].ToString() == 'ccw':
+                elif endPoint[2].ToString() == "ccw":
                     rotationDirection = self._edb.Geometry.RotationDirection.CCW
                 else:
-                    self._messenger.add_error_message('Invalid rotation direction {} is specified.'.format(endPoint[2]))
+                    self._messenger.add_error_message("Invalid rotation direction {} is specified.".format(endPoint[2]))
                     return None
                 arc = self._edb.Geometry.ArcData(
                     self._edb.Geometry.PointData(startPoint[0], startPoint[1]),
                     self._edb.Geometry.PointData(endPoint[0], endPoint[1]),
                     rotationDirection,
-                    self._edb.Geometry.PointData(endPoint[3], endPoint[4]))
+                    self._edb.Geometry.PointData(endPoint[3], endPoint[4]),
+                )
                 arcs.append(arc)
         return self._edb.Geometry.PolygonData.CreateFromArcs(convert_py_list_to_net_list(arcs), True)
 
     def _validatePoint(self, point, allowArcs=True):
         if len(point) == 2:
-            if not isinstance(point[0], (int,float)):
-                self._messenger.add_error_message('Point X value must be a float.')
+            if not isinstance(point[0], (int, float)):
+                self._messenger.add_error_message("Point X value must be a float.")
                 return False
-            if not isinstance(point[1], (int,float)):
-                self._messenger.add_error_message('Point Y value must be a float.')
+            if not isinstance(point[1], (int, float)):
+                self._messenger.add_error_message("Point Y value must be a float.")
                 return False
             return True
         elif len(point) == 5:
             if not allowArcs:
-                self._messenger.add_error_message('Arc found but arcs are not allowed in _validatePoint.')
+                self._messenger.add_error_message("Arc found but arcs are not allowed in _validatePoint.")
                 return False
-            if not isinstance(point[0], (int,float)):
-                self._messenger.add_error_message('Point X value must be a float.')
+            if not isinstance(point[0], (int, float)):
+                self._messenger.add_error_message("Point X value must be a float.")
                 return False
-            if not isinstance(point[1], (int,float)):
-                self._messenger.add_error_message('Point Y value must be a float.')
+            if not isinstance(point[1], (int, float)):
+                self._messenger.add_error_message("Point Y value must be a float.")
                 return False
-            if not isinstance(point[2], str) or point[2] not in ['cw', 'ccw']:
-                self._messenger.add_error_message('Invalid rotation direction {} is specified.')
+            if not isinstance(point[2], str) or point[2] not in ["cw", "ccw"]:
+                self._messenger.add_error_message("Invalid rotation direction {} is specified.")
                 return False
-            if not isinstance(point[3], (int,float)):
-                self._messenger.add_error_message('Arc center point X value must be a float.')
+            if not isinstance(point[3], (int, float)):
+                self._messenger.add_error_message("Arc center point X value must be a float.")
                 return False
-            if not isinstance(point[4], (int,float)):
-                self._messenger.add_error_message('Arc center point Y value must be a float.')
+            if not isinstance(point[4], (int, float)):
+                self._messenger.add_error_message("Arc center point Y value must be a float.")
                 return False
             return True
         else:
-            self._messenger.add_error_message('Arc point descriptor has incorrect number of elements ({})'.format(len(point)))
+            self._messenger.add_error_message(
+                "Arc point descriptor has incorrect number of elements ({})".format(len(point))
+            )
             return False
 
     def _createPolygonDataFromRectangle(self, shape):
         if not self._validatePoint(shape.pointA, False) or not self._validatePoint(shape.pointB, False):
             return None
-        pointA = self._edb.Geometry.PointData(self._edb_value(shape.pointA[0]),self._edb_value(shape.pointA[1]))
+        pointA = self._edb.Geometry.PointData(self._edb_value(shape.pointA[0]), self._edb_value(shape.pointA[1]))
         pointB = self._edb.Geometry.PointData(self._edb_value(shape.pointB[0]), self._edb_value(shape.pointB[1]))
         points = Tuple[self._edb.Geometry.PointData, self._edb.Geometry.PointData](pointA, pointB)
         return self._edb.Geometry.PolygonData.CreateFromBBox(points)
@@ -599,8 +621,9 @@ class EdbLayout(object):
             Dictionary of properties associated with the shape. The default is ``{}``.
         """
 
-        def __init__(self, type='unknown', pointA=None, pointB=None, centerPoint=None, radius=None, points=None,
-                         properties={}):
+        def __init__(
+            self, type="unknown", pointA=None, pointB=None, centerPoint=None, radius=None, points=None, properties={}
+        ):
             self.type = type
             self.pointA = pointA
             self.pointB = pointB

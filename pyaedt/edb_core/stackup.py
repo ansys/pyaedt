@@ -3,17 +3,18 @@ This module contains the `EdbStackup` class.
 
 """
 from __future__ import absolute_import
+
 import warnings
+
+from pyaedt import is_ironpython
+
+from .EDB_Data import EDBLayers
 from .general import *
 
 try:
     from System import Double
-    from System.Collections.Generic import List
 except ImportError:
     warnings.warn('This module requires the "pythonnet" package.')
-
-
-from .EDB_Data import EDBLayers, EDBLayer
 
 
 class EdbStackup(object):
@@ -131,10 +132,13 @@ class EdbStackup(object):
             Material definition.
         """
         if self._edb.Definition.MaterialDef.FindByName(self._db, name).IsNull():
-            material_def = self._edb.Definition.MaterialDef.Create(self._db,name)
-            material_def.SetProperty(self._edb.Definition.MaterialPropertyId.Permittivity,
-                                                self._edb_value(permittivity))
-            material_def.SetProperty(self._edb.Definition.MaterialPropertyId.DielectricLossTangent,self._edb_value(loss_tangent))
+            material_def = self._edb.Definition.MaterialDef.Create(self._db, name)
+            material_def.SetProperty(
+                self._edb.Definition.MaterialPropertyId.Permittivity, self._edb_value(permittivity)
+            )
+            material_def.SetProperty(
+                self._edb.Definition.MaterialPropertyId.DielectricLossTangent, self._edb_value(loss_tangent)
+            )
             return material_def
         return False
 
@@ -156,13 +160,23 @@ class EdbStackup(object):
         """
         if self._edb.Definition.MaterialDef.FindByName(self._db, name).IsNull():
             material_def = self._edb.Definition.MaterialDef.Create(self._db, name)
-            material_def.SetProperty(self._edb.Definition.MaterialPropertyId.Conductivity,
-                                     self._edb_value(conductivity))
+            material_def.SetProperty(
+                self._edb.Definition.MaterialPropertyId.Conductivity, self._edb_value(conductivity)
+            )
             return material_def
         return False
 
     @aedt_exception_handler
-    def create_debye_material(self, name, relative_permittivity_low, relative_permittivity_high, loss_tangent_low, loss_tangent_high, lower_freqency, higher_frequency):
+    def create_debye_material(
+        self,
+        name,
+        relative_permittivity_low,
+        relative_permittivity_high,
+        loss_tangent_low,
+        loss_tangent_high,
+        lower_freqency,
+        higher_frequency,
+    ):
         """Create a dielectric with the Debye model.
 
         Parameters
@@ -194,8 +208,9 @@ class EdbStackup(object):
         material_def = self._edb.Definition.DebyeModel()
         material_def.SetFrequencyRange(lower_freqency, higher_frequency)
         material_def.SetLossTangentAtHighLowFrequency(loss_tangent_low, loss_tangent_high)
-        material_def.SetRelativePermitivityAtHighLowFrequency(self._edb_value(relative_permittivity_low),
-                                                              self._edb_value(relative_permittivity_high))
+        material_def.SetRelativePermitivityAtHighLowFrequency(
+            self._edb_value(relative_permittivity_low), self._edb_value(relative_permittivity_high)
+        )
         return self._add_dielectric_material_model(name, material_def)
 
     @aedt_exception_handler
@@ -257,9 +272,11 @@ class EdbStackup(object):
             res, topl, topz, bottoml, bottomz = stackup.GetTopBottomStackupLayers(input_layers)
         else:
             topl = None
-            topz = Double(0.)
+            topz = Double(0.0)
             bottoml = None
-            bottomz = Double(0.)
-            res, topl, topz, bottoml, bottomz = stackup.GetTopBottomStackupLayers(input_layers, topl, topz, bottoml, bottomz)
+            bottomz = Double(0.0)
+            res, topl, topz, bottoml, bottomz = stackup.GetTopBottomStackupLayers(
+                input_layers, topl, topz, bottoml, bottomz
+            )
         h_stackup = abs(float(topz) - float(bottomz))
         return topl.GetName(), topz, bottoml.GetName(), bottomz

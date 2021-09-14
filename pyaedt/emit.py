@@ -1,11 +1,7 @@
 from __future__ import absolute_import
 
-import numbers
-
 from .application.AnalsyisEmit import FieldAnalysisEmit
-from .application.Variables import Variable
 from .desktop import exception_to_desktop
-from .generic.general_methods import aedt_exception_handler, generate_unique_name
 
 
 class Emit(FieldAnalysisEmit, object):
@@ -77,16 +73,37 @@ class Emit(FieldAnalysisEmit, object):
 
     """
 
-    def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
-                 specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True, student_version=False):
+    def __init__(
+        self,
+        projectname=None,
+        designname=None,
+        solution_type=None,
+        setup_name=None,
+        specified_version=None,
+        NG=False,
+        AlwaysNew=True,
+        release_on_exit=True,
+        student_version=False,
+    ):
         """Constructor."""
-        FieldAnalysisEmit.__init__(self, "EMIT", projectname, designname, solution_type, setup_name,
-                                        specified_version, NG, AlwaysNew, release_on_exit, student_version)
+        FieldAnalysisEmit.__init__(
+            self,
+            "EMIT",
+            projectname,
+            designname,
+            solution_type,
+            setup_name,
+            specified_version,
+            NG,
+            AlwaysNew,
+            release_on_exit,
+            student_version,
+        )
 
     def __enter__(self):
         return self
 
     def __exit__(self, ex_type, ex_value, ex_traceback):
-        """Push exit up to parent object Design """
+        """Push exit up to parent object Design"""
         if ex_type:
             exception_to_desktop(self, ex_value, ex_traceback)

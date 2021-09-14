@@ -1,15 +1,6 @@
 from __future__ import absolute_import
-import warnings
-from .general import *
-from ..generic.general_methods import get_filename_without_extension, generate_unique_name
 
-try:
-    import clr
-    from System import Convert, String
-    from System import Double, Array
-    from System.Collections.Generic import List
-except ImportError:
-    warnings.warn('This module requires pythonnet.')
+from .general import *
 
 
 class EdbNets(object):
@@ -188,11 +179,11 @@ class EdbNets(object):
         rats = self.parent.core_components.get_rats()
         for net in net_group:
             for el in rats:
-                if net in el['net_name']:
+                if net in el["net_name"]:
                     i = 0
-                    for n in el['net_name']:
+                    for n in el["net_name"]:
                         if n == net:
-                            df = [el['refdes'][i], el['pin_name'][i],net ]
+                            df = [el["refdes"][i], el["pin_name"][i], net]
                             component_list.append(df)
                         i += 1
 
@@ -238,8 +229,8 @@ class EdbNets(object):
         >>> deleted_nets = edb_core.core_nets.delete_nets(["Net1","Net2"])
         """
         if type(netlist) is str:
-            netlist=[netlist]
-        nets_deleted =[]
+            netlist = [netlist]
+        nets_deleted = []
         for net in netlist:
             try:
                 edb_net = self._edb.Cell.Net.FindByName(self._active_layout, net)
@@ -253,7 +244,7 @@ class EdbNets(object):
         return nets_deleted
 
     @aedt_exception_handler
-    def find_or_create_net(self, net_name=''):
+    def find_or_create_net(self, net_name=""):
         """Find or create the net with the given name in the layout.
 
         Parameters

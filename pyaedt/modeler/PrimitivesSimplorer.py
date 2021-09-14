@@ -17,6 +17,7 @@ class SimplorerComponents(CircuitComponents):
     modeler :
 
     """
+
     @property
     def design_libray(self):
         """Design Library."""
@@ -59,7 +60,7 @@ class SimplorerComponents(CircuitComponents):
         pass
 
     @aedt_exception_handler
-    def create_resistor(self, compname=None, value=50, xpos=0, ypos=0,angle=0, use_instance_id_netlist=False):
+    def create_resistor(self, compname=None, value=50, xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
         """Create a resistor.
 
         Parameters
@@ -85,16 +86,22 @@ class SimplorerComponents(CircuitComponents):
             Name of the resistor.
 
         """
-        id, name = self.create_component(compname, component_library="Basic Elements\\Circuit\\Passive Elements",
-                                         component_name="R", xpos=xpos, ypos=ypos, angle=angle,
-                                         use_instance_id_netlist=use_instance_id_netlist)
+        id, name = self.create_component(
+            compname,
+            component_library="Basic Elements\\Circuit\\Passive Elements",
+            component_name="R",
+            xpos=xpos,
+            ypos=ypos,
+            angle=angle,
+            use_instance_id_netlist=use_instance_id_netlist,
+        )
 
         self.components[id].set_property("R", value)
 
         return id, name
 
     @aedt_exception_handler
-    def create_inductor(self, compname=None,value=50, xpos=0, ypos=0,angle=0, use_instance_id_netlist=False):
+    def create_inductor(self, compname=None, value=50, xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
         """Create an inductor.
 
         Parameters
@@ -119,15 +126,21 @@ class SimplorerComponents(CircuitComponents):
         str
             Name of the inductor.
         """
-        id, name = self.create_component(compname, component_library="Basic Elements\\Circuit\\Passive Elements",
-                                         component_name="L", xpos=xpos, ypos=ypos, angle=angle,
-                                         use_instance_id_netlist=use_instance_id_netlist)
+        id, name = self.create_component(
+            compname,
+            component_library="Basic Elements\\Circuit\\Passive Elements",
+            component_name="L",
+            xpos=xpos,
+            ypos=ypos,
+            angle=angle,
+            use_instance_id_netlist=use_instance_id_netlist,
+        )
 
         self.components[id].set_property("L", value)
         return id, name
 
     @aedt_exception_handler
-    def create_capacitor(self, compname=None,value=50, xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
+    def create_capacitor(self, compname=None, value=50, xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
         """Create a capacitor.
 
         Parameters
@@ -152,15 +165,23 @@ class SimplorerComponents(CircuitComponents):
         str
             Name of the capacitor.
         """
-        id, name = self.create_component(compname, component_library="Basic Elements\\Circuit\\Passive Elements",
-                                         component_name="C", xpos=xpos, ypos=ypos, angle=angle,
-                                         use_instance_id_netlist=use_instance_id_netlist)
+        id, name = self.create_component(
+            compname,
+            component_library="Basic Elements\\Circuit\\Passive Elements",
+            component_name="C",
+            xpos=xpos,
+            ypos=ypos,
+            angle=angle,
+            use_instance_id_netlist=use_instance_id_netlist,
+        )
 
         self.components[id].set_property("C", value)
         return id, name
 
     @aedt_exception_handler
-    def create_diode(self, compname=None, model_name="required", xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
+    def create_diode(
+        self, compname=None, model_name="required", xpos=0, ypos=0, angle=0, use_instance_id_netlist=False
+    ):
         """Create a diode.
 
         Parameters
@@ -186,10 +207,15 @@ class SimplorerComponents(CircuitComponents):
             Name of the diode.
 
         """
-        id, name = self.create_component(compname,
-                                         component_library="Basic Elements\\Circuit\\Semiconductors System Level",
-                                         component_name="D", xpos=xpos, ypos=ypos, angle=angle,
-                                         use_instance_id_netlist=use_instance_id_netlist)
+        id, name = self.create_component(
+            compname,
+            component_library="Basic Elements\\Circuit\\Semiconductors System Level",
+            component_name="D",
+            xpos=xpos,
+            ypos=ypos,
+            angle=angle,
+            use_instance_id_netlist=use_instance_id_netlist,
+        )
         return id, name
 
     @aedt_exception_handler
@@ -219,14 +245,19 @@ class SimplorerComponents(CircuitComponents):
             Name of the NPN transistor.
 
         """
-        id, name = self.create_component(compname,
-                                         component_library="Basic Elements\\Circuit\\Semiconductors System Level",
-                                         component_name="BJT", xpos=xpos, ypos=ypos, angle=angle,
-                                         use_instance_id_netlist=use_instance_id_netlist)
+        id, name = self.create_component(
+            compname,
+            component_library="Basic Elements\\Circuit\\Semiconductors System Level",
+            component_name="BJT",
+            xpos=xpos,
+            ypos=ypos,
+            angle=angle,
+            use_instance_id_netlist=use_instance_id_netlist,
+        )
         return id, name
 
     @aedt_exception_handler
-    def create_pnp(self, compname=None,value=50, xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
+    def create_pnp(self, compname=None, value=50, xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
         """Create a PNP transistor.
 
         Parameters
@@ -252,9 +283,14 @@ class SimplorerComponents(CircuitComponents):
             Name of the PNP transistor.
 
         """
-        id, name = self.create_component(compname,
-                                         component_library="Basic Elements\\Circuit\\Semiconductors System Level",
-                                         component_name="BJT", xpos=xpos, ypos=ypos, angle=angle,
-                                         use_instance_id_netlist=use_instance_id_netlist)
+        id, name = self.create_component(
+            compname,
+            component_library="Basic Elements\\Circuit\\Semiconductors System Level",
+            component_name="BJT",
+            xpos=xpos,
+            ypos=ypos,
+            angle=angle,
+            use_instance_id_netlist=use_instance_id_netlist,
+        )
 
         return id, name

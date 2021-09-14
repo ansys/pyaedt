@@ -1,8 +1,9 @@
 import csv
-import re
 import os
+import re
 import shutil
-from ..generic.general_methods import aedt_exception_handler, generate_unique_name
+
+from ..generic.general_methods import aedt_exception_handler
 
 
 @aedt_exception_handler
@@ -24,8 +25,8 @@ def read_info_fromcsv(projdir, name):
 
     filename = projdir + "//" + name
     listmcad = []
-    with open(filename, 'rb') as csvfile:
-        reader = csv.reader(csvfile, delimiter=',')
+    with open(filename, "rb") as csvfile:
+        reader = csv.reader(csvfile, delimiter=",")
         for row in reader:
             listmcad.append(row)
     return listmcad
@@ -114,11 +115,11 @@ def change_objects_visibility(origfile, solid_list):
             content = f.read()
 
             # Searching file content for pattern
-            pattern = re.compile(r"(\$begin 'EditorWindow'\n.+)(Drawings\[.+\])(.+\n\s*\$end 'EditorWindow')",
-                                 re.UNICODE)
+            pattern = re.compile(
+                r"(\$begin 'EditorWindow'\n.+)(Drawings\[.+\])(.+\n\s*\$end 'EditorWindow')", re.UNICODE
+            )
             # Replacing string
-            ViewStr = u"Drawings[" + unicode(str(len(solid_list))) + \
-                                             u": " + unicode(str(solid_list).strip("["))
+            ViewStr = u"Drawings[" + unicode(str(len(solid_list))) + u": " + unicode(str(solid_list).strip("["))
             s = pattern.sub(r"\1" + ViewStr + r"\3", content)
 
             # writing file content
@@ -154,24 +155,24 @@ def change_model_orientation(origfile, bottom_dir):
 
     # directory of u, v vectors for view orientation
     orientation = {
-        '+X': 'OrientationMatrix(0, -0.816496610641479, -0.577350318431854, 0, 0.70710676908493, -0.40824830532074, '
-              '0.577350318431854, 0, -0.70710676908493, -0.40824830532074, 0.577350318431854, 0, 0, 0, 0, 1, 0, -100, '
-              '100, -100, 100, -100, 100)',
-        '+Y': 'OrientationMatrix(-0.70710688829422, -0.408248245716095, 0.577350199222565, 0, 1.04308128356934e-07, '
-              '-0.816496670246124, -0.577350199222565, 0, 0.707106709480286, -0.408248245716095, 0.577350437641144, '
-              '0, 0, 0, 0, 1, 0, -100, 100, -100, 100, -100, 100)',
-        '+Z': 'OrientationMatrix(0.70710676908493, -0.408248394727707, 0.577350199222565, 0, -0.70710676908493, '
-              '-0.408248394727707, 0.577350199222565, 0, 0, -0.81649649143219, -0.577350437641144, 0, 0, 0, 0, 1, 0, '
-              '-100, 100, -100, 100, -100, 100)',
-        '-X': 'OrientationMatrix(0, 0.816496610641479, 0.577350318431854, 0, -0.70710676908493, -0.40824830532074, '
-              '0.577350318431854, 0, 0.70710676908493, -0.40824830532074, 0.577350318431854, 0, 0, 0, -0, 1, 0, -100, '
-              '100, -100, 100, -100, 100)',
-        '-Y': 'OrientationMatrix(0.70710688829422, -0.408248245716095, 0.577350199222565, 0, 1.04308128356934e-07, '
-              '0.816496670246124, 0.577350199222565, 0, -0.707106709480286, -0.408248245716095, 0.577350437641144, 0, '
-              '0, 0, -0, 1, 0, -100, 100, -100, 100, -100, 100)',
-        '-Z': 'OrientationMatrix(-0.70710676908493, -0.408248394727707, 0.577350199222565, 0, 0.70710676908493, '
-              '-0.408248394727707, 0.577350199222565, 0, 0, 0.81649649143219, 0.577350437641144, 0, 0, 0, -0, 1, 0, '
-              '-100, 100, -100, 100, -100, 100) '
+        "+X": "OrientationMatrix(0, -0.816496610641479, -0.577350318431854, 0, 0.70710676908493, -0.40824830532074, "
+        "0.577350318431854, 0, -0.70710676908493, -0.40824830532074, 0.577350318431854, 0, 0, 0, 0, 1, 0, -100, "
+        "100, -100, 100, -100, 100)",
+        "+Y": "OrientationMatrix(-0.70710688829422, -0.408248245716095, 0.577350199222565, 0, 1.04308128356934e-07, "
+        "-0.816496670246124, -0.577350199222565, 0, 0.707106709480286, -0.408248245716095, 0.577350437641144, "
+        "0, 0, 0, 0, 1, 0, -100, 100, -100, 100, -100, 100)",
+        "+Z": "OrientationMatrix(0.70710676908493, -0.408248394727707, 0.577350199222565, 0, -0.70710676908493, "
+        "-0.408248394727707, 0.577350199222565, 0, 0, -0.81649649143219, -0.577350437641144, 0, 0, 0, 0, 1, 0, "
+        "-100, 100, -100, 100, -100, 100)",
+        "-X": "OrientationMatrix(0, 0.816496610641479, 0.577350318431854, 0, -0.70710676908493, -0.40824830532074, "
+        "0.577350318431854, 0, 0.70710676908493, -0.40824830532074, 0.577350318431854, 0, 0, 0, -0, 1, 0, -100, "
+        "100, -100, 100, -100, 100)",
+        "-Y": "OrientationMatrix(0.70710688829422, -0.408248245716095, 0.577350199222565, 0, 1.04308128356934e-07, "
+        "0.816496670246124, 0.577350199222565, 0, -0.707106709480286, -0.408248245716095, 0.577350437641144, 0, "
+        "0, 0, -0, 1, 0, -100, 100, -100, 100, -100, 100)",
+        "-Z": "OrientationMatrix(-0.70710676908493, -0.408248394727707, 0.577350199222565, 0, 0.70710676908493, "
+        "-0.408248394727707, 0.577350199222565, 0, 0, 0.81649649143219, 0.577350437641144, 0, 0, 0, -0, 1, 0, "
+        "-100, 100, -100, 100, -100, 100) ",
     }
 
     if not os.path.isfile(origfile + ".lock"):  # check if the project is closed
@@ -184,8 +185,8 @@ def change_model_orientation(origfile, bottom_dir):
 
             # Searching file content for pattern
             pattern = re.compile(
-                r"(\$begin 'EditorWindow'\n.+?)(OrientationMatrix\(.+?\))(.+\n\s*\$end 'EditorWindow')",
-                re.UNICODE)
+                r"(\$begin 'EditorWindow'\n.+?)(OrientationMatrix\(.+?\))(.+\n\s*\$end 'EditorWindow')", re.UNICODE
+            )
             # Replacing string
             OrientStr = unicode(orientation[bottom_dir])
             # ViewStr = u"Drawings[" + unicode(str(len(SolidList))) +

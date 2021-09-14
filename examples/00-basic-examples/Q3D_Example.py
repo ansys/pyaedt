@@ -28,23 +28,41 @@ NonGraphical = True
 
 d = Desktop("2021.1", NonGraphical, False)
 
-q=Q3d()
+q = Q3d()
 
 ###############################################################################
 # Create Primitives
 # ~~~~~~~~~~~~~~~~~
 # Create polylines for three busbars and a box for the substrate.
 
-q.modeler.primitives.create_polyline([[0, 0, 0], [-100, 0, 0]], name="Bar1", matname="copper", xsection_type="Rectangle",
-                                     xsection_width="5mm", xsection_height="1mm")
+q.modeler.primitives.create_polyline(
+    [[0, 0, 0], [-100, 0, 0]],
+    name="Bar1",
+    matname="copper",
+    xsection_type="Rectangle",
+    xsection_width="5mm",
+    xsection_height="1mm",
+)
 
-q.modeler.primitives.create_polyline([[0, -15, 0], [-150, -15, 0]], name="Bar2", matname="aluminum",
-                                     xsection_type="Rectangle", xsection_width="5mm", xsection_height="1mm")
+q.modeler.primitives.create_polyline(
+    [[0, -15, 0], [-150, -15, 0]],
+    name="Bar2",
+    matname="aluminum",
+    xsection_type="Rectangle",
+    xsection_width="5mm",
+    xsection_height="1mm",
+)
 
-q.modeler.primitives.create_polyline([[0, -30, 0], [-175, -30, 0], [-175, -10, 0]], name="Bar3", matname="copper",
-                                     xsection_type="Rectangle", xsection_width="5mm", xsection_height="1mm")
+q.modeler.primitives.create_polyline(
+    [[0, -30, 0], [-175, -30, 0], [-175, -10, 0]],
+    name="Bar3",
+    matname="copper",
+    xsection_type="Rectangle",
+    xsection_width="5mm",
+    xsection_height="1mm",
+)
 
-q.modeler.primitives.create_box([50,30,-0.5], [-250,-100,-3], name="substrate", matname="FR4_epoxy")
+q.modeler.primitives.create_box([50, 30, -0.5], [-250, -100, -3], name="substrate", matname="FR4_epoxy")
 
 ###############################################################################
 # Set Up Boundaries
@@ -54,14 +72,14 @@ q.modeler.primitives.create_box([50,30,-0.5], [-250,-100,-3], name="substrate", 
 
 q.auto_identify_nets()
 
-q.assign_source_to_objectface("Bar1",axisdir=q.AxisDir.XPos, source_name="Source1")
+q.assign_source_to_objectface("Bar1", axisdir=q.AxisDir.XPos, source_name="Source1")
 
-q.assign_sink_to_objectface("Bar1",axisdir=q.AxisDir.XNeg, sink_name="Sink1")
+q.assign_sink_to_objectface("Bar1", axisdir=q.AxisDir.XNeg, sink_name="Sink1")
 
-q.assign_source_to_objectface("Bar2",axisdir=q.AxisDir.XPos, source_name="Source2")
-q.assign_sink_to_objectface("Bar2",axisdir=q.AxisDir.XNeg, sink_name="Sink2")
-q.assign_source_to_objectface("Bar3",axisdir=q.AxisDir.XPos, source_name="Source3")
-q.assign_sink_to_objectface("Bar3",axisdir=q.AxisDir.YPos, sink_name="Sink3")
+q.assign_source_to_objectface("Bar2", axisdir=q.AxisDir.XPos, source_name="Source2")
+q.assign_sink_to_objectface("Bar2", axisdir=q.AxisDir.XNeg, sink_name="Sink2")
+q.assign_source_to_objectface("Bar3", axisdir=q.AxisDir.XPos, source_name="Source3")
+q.assign_sink_to_objectface("Bar3", axisdir=q.AxisDir.YPos, sink_name="Sink3")
 
 
 ###############################################################################
@@ -70,14 +88,14 @@ q.assign_sink_to_objectface("Bar3",axisdir=q.AxisDir.YPos, sink_name="Sink3")
 # This command adds a setup to the project and defines the adaptive frequency
 # value.
 
-q.create_setup(props={"AdaptiveFreq":"100MHz"})
+q.create_setup(props={"AdaptiveFreq": "100MHz"})
 
 ###############################################################################
 # Create a Rectangular Plot
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
 # This command creates a rectangular plot.
 
-q.post.create_rectangular_plot("C(Bar1,Bar1)",context="Original")
+q.post.create_rectangular_plot("C(Bar1,Bar1)", context="Original")
 
 ###############################################################################
 # Solve the Setup

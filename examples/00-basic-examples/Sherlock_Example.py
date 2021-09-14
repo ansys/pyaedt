@@ -11,6 +11,7 @@ import os
 import datetime
 
 from pyaedt import examples, generate_unique_name
+
 input_dir = examples.download_sherlock()
 if os.name == "posix":
     tmpfold = os.environ["TMPDIR"]
@@ -18,7 +19,8 @@ else:
     tmpfold = os.environ["TEMP"]
 
 temp_folder = os.path.join(tmpfold, generate_unique_name("Example"))
-if not os.path.exists(temp_folder): os.makedirs(temp_folder)
+if not os.path.exists(temp_folder):
+    os.makedirs(temp_folder)
 print(temp_folder)
 
 ###############################################################################
@@ -26,10 +28,10 @@ print(temp_folder)
 # ~~~~~~~~~~~~~~~
 # This example creates all input variables needed to run the example.
 
-material_name = 'MaterialExport.csv'
-component_properties =  'TutorialBoardPartsList.csv'
-component_step = 'TutorialBoard.stp'
-aedt_odb_project = 'SherlockTutorial.aedt'
+material_name = "MaterialExport.csv"
+component_properties = "TutorialBoardPartsList.csv"
+component_step = "TutorialBoard.stp"
+aedt_odb_project = "SherlockTutorial.aedt"
 aedt_odb_design_name = "PCB"
 stackup_thickness = 2.11836
 outline_polygon_name = "poly_14188"
@@ -50,7 +52,7 @@ from pyaedt import Desktop
 
 NonGraphical = False
 
-d=Desktop("2021.1", NG=NonGraphical)
+d = Desktop("2021.1", NG=NonGraphical)
 
 start = time.time()
 material_list = os.path.join(input_dir, material_name)
@@ -81,8 +83,9 @@ component_name = "from_ODB"
 # This example imports a PCB from an AEDB file.
 
 odb_path = os.path.join(input_dir, aedt_odb_project)
-ipk.create_pcb_from_3dlayout(component_name, odb_path, aedt_odb_design_name, extenttype="Polygon",
-                               outlinepolygon=outline_polygon_name)
+ipk.create_pcb_from_3dlayout(
+    component_name, odb_path, aedt_odb_design_name, extenttype="Polygon", outlinepolygon=outline_polygon_name
+)
 
 ###############################################################################
 # Create an Offset Ccoordinate System
@@ -90,7 +93,7 @@ ipk.create_pcb_from_3dlayout(component_name, odb_path, aedt_odb_design_name, ext
 # This command create an offset coordinate system to match odb++ with the
 # Sherlock STEP file.
 
-ipk.modeler.create_coordinate_system([0, 0, stackup_thickness/2], mode="view", view="XY")
+ipk.modeler.create_coordinate_system([0, 0, stackup_thickness / 2], mode="view", view="XY")
 
 ###############################################################################
 # Import a CAD File
@@ -119,7 +122,7 @@ ipk.modeler.primitives.delete_objects_containing("pcb", False)
 # ~~~~~~~~~~~~~~~
 # This command creates an air region.
 
-ipk.modeler.create_air_region(*[20,20,300,20,20,300])
+ipk.modeler.create_air_region(*[20, 20, 300, 20, 20, 300])
 
 ###############################################################################
 # Assign Materials
@@ -159,10 +162,10 @@ total_power = ipk.assign_block_from_sherlock_file(component_list)
 ipk.mesh.automatic_mesh_pcb(4)
 
 setup1 = ipk.create_setup()
-setup1.props["Solution Initialization - Y Velocity"] =  "1m_per_sec"
-setup1.props["Radiation Model"] ="Discrete Ordinates Model"
-setup1.props["Include Gravity"] =True
-setup1.props["Secondary Gradient"] =True
+setup1.props["Solution Initialization - Y Velocity"] = "1m_per_sec"
+setup1.props["Radiation Model"] = "Discrete Ordinates Model"
+setup1.props["Include Gravity"] = True
+setup1.props["Secondary Gradient"] = True
 setup1.update()
 ipk.assign_openings(ipk.modeler.primitives.get_object_faces("Region"))
 
@@ -182,7 +185,7 @@ ipk.assign_priority_on_intersections()
 ipk.save_project()
 
 
-end = time.time()-start
+end = time.time() - start
 if os.name != "posix":
     ipk.close_desktop()
 print("Elapsed time: {}".format(datetime.timedelta(seconds=end)))

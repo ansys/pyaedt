@@ -1,8 +1,7 @@
 [flake8]
-exclude = venv, __init__.py
-select = W191, W291, W293, W391, E115, E117, E122, E124, E125, E301, E303
+exclude = venv, __init__.py, doc/_build
+select = W191, W291, W293, W391, E115, E117, E122, E124, E125, E301, E303, E501, F401
 count = True
-show-source = True
 max-complexity = 10
-max-line-length = 100
+max-line-length = 120
 statistics = True
