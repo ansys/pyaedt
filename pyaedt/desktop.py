@@ -266,7 +266,7 @@ def force_close_desktop():
             del Module.oDesktop
             successfully_closed = True
         except:
-            Module.oMessenger.add_error_message("something went wrong in Closing AEDT")
+            Module.oMessenger.add_error_message("Something went wrong in Closing AEDT.")
             successfully_closed = False
         finally:
             log = logging.getLogger(__name__)
