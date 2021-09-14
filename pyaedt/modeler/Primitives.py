@@ -1697,9 +1697,42 @@ class Primitives(object):
         """
         start_obj = self._resolve_object(start_obj)
         end_obj = self._resolve_object(end_obj)
-
-        edge_start_list = start_obj.edges
-        edge_stop_list = end_obj.edges
+        edge_start_list = None
+        edge_stop_list = None
+        if port_direction == 0:
+            if start_obj.bottom_face_x:
+                edge_start_list =  start_obj.bottom_face_x.edges
+            if end_obj.bottom_face_x:
+                edge_stop_list = end_obj.bottom_face_x.edges
+        elif port_direction == 3:
+            if start_obj.top_face_x:
+                edge_start_list =  start_obj.top_face_x.edges
+            if end_obj.top_face_x:
+                edge_stop_list = end_obj.top_face_x.edges
+        elif port_direction == 1:
+            if start_obj.bottom_face_y:
+                edge_start_list =  start_obj.bottom_face_y.edges
+            if end_obj.bottom_face_y:
+                edge_stop_list = end_obj.bottom_face_y.edges
+        elif port_direction == 4:
+            if start_obj.top_face_y:
+                edge_start_list =  start_obj.top_face_y.edges
+            if end_obj.top_face_y:
+                edge_stop_list = end_obj.top_face_y.edges
+        elif port_direction == 2:
+            if start_obj.bottom_face_z:
+                edge_start_list =  start_obj.bottom_face_z.edges
+            if end_obj.bottom_face_z:
+                edge_stop_list = end_obj.bottom_face_z.edges
+        elif port_direction == 5:
+            if start_obj.top_face_z:
+                edge_start_list = start_obj.top_face_z.edges
+            if end_obj.top_face_z:
+                edge_stop_list = end_obj.top_face_z.edges
+        if not edge_start_list:
+            edge_start_list = start_obj.edges
+        if not edge_stop_list:
+            edge_stop_list = end_obj.edges
         mindist = 1e6
         tol = 1e-12
         pos_tol = 1e-6

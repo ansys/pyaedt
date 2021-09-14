@@ -38,18 +38,15 @@ class TestClass:
     def setup_class(self):
         # set a scratch directory and the environment / test data
         with Scratch(scratch_path) as self.local_scratch:
-            try:
-                example_project = os.path.join(local_path, "example_models", test_project_name + ".aedt")
+            example_project = os.path.join(local_path, "example_models", test_project_name + ".aedt")
 
-                self.test_project = self.local_scratch.copyfile(example_project)
-                self.test_src_project = self.local_scratch.copyfile(source_project)
-                self.local_scratch.copyfolder(
-                    os.path.join(local_path, "example_models", test_project_name + ".aedb"),
-                    os.path.join(self.local_scratch.path, test_project_name + ".aedb"),
-                )
-                self.aedtapp = Icepak(self.test_project)
-            except:
-                pass
+            self.test_project = self.local_scratch.copyfile(example_project)
+            self.test_src_project = self.local_scratch.copyfile(source_project)
+            self.local_scratch.copyfolder(
+                os.path.join(local_path, "example_models", test_project_name + ".aedb"),
+                os.path.join(self.local_scratch.path, test_project_name + ".aedb"),
+            )
+            self.aedtapp = Icepak(self.test_project)
 
     def teardown_class(self):
         self.aedtapp.close_project(self.aedtapp.project_name)

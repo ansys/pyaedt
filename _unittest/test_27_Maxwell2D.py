@@ -72,3 +72,10 @@ class TestClass(BasisTest):
         )
         assert self.aedtapp.assign_current([coil])
         assert not self.aedtapp.assign_current([coil.faces[0].id])
+
+    @pyaedt_unittest_check_desktop_error
+    def test_13_assign_master_slave(self):
+        mas, slave = self.aedtapp.assign_master_slave(self.aedtapp.modeler.primitives["Rectangle2"].edges[0].id,
+                                                      self.aedtapp.modeler.primitives["Rectangle2"].edges[2].id)
+        assert "Independent" in mas.name
+        assert "Dependent" in slave.name

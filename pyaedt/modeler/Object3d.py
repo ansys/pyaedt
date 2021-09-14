@@ -643,9 +643,12 @@ class Object3d(object):
         :class:`pyaedt.modeler.Object3d.FacePrimitive`
 
         """
-        result = [(float(face.center[2]), face) for face in self.faces]
-        result = sorted(result, key=lambda tup: tup[0])
-        return result[-1][1]
+        try:
+            result = [(float(face.center[2]), face) for face in self.faces]
+            result = sorted(result, key=lambda tup: tup[0])
+            return result[-1][1]
+        except:
+            return None
 
     @property
     def bottom_face_z(self):
@@ -656,9 +659,12 @@ class Object3d(object):
         :class:`pyaedt.modeler.Object3d.FacePrimitive`
 
         """
-        result = [(float(face.center[2]), face) for face in self.faces]
-        result = sorted(result, key=lambda tup: tup[0])
-        return result[0][1]
+        try:
+            result = [(float(face.center[2]), face) for face in self.faces]
+            result = sorted(result, key=lambda tup: tup[0])
+            return result[0][1]
+        except:
+            return None
 
     @property
     def top_face_x(self):
@@ -669,9 +675,12 @@ class Object3d(object):
         :class:`pyaedt.modeler.Object3d.FacePrimitive`
 
         """
-        result = [(float(face.center[0]), face) for face in self.faces]
-        result = sorted(result, key=lambda tup: tup[0])
-        return result[-1][1]
+        try:
+            result = [(float(face.center[0]), face) for face in self.faces]
+            result = sorted(result, key=lambda tup: tup[0])
+            return result[-1][1]
+        except:
+            return None
 
     @property
     def bottom_face_x(self):
@@ -682,9 +691,12 @@ class Object3d(object):
         :class:`pyaedt.modeler.Object3d.FacePrimitive`
 
         """
-        result = [(float(face.center[0]), face) for face in self.faces]
-        result = sorted(result, key=lambda tup: tup[0])
-        return result[0][1]
+        try:
+            result = [(float(face.center[0]), face) for face in self.faces]
+            result = sorted(result, key=lambda tup: tup[0])
+            return result[0][1]
+        except:
+            return None
 
     @property
     def top_face_y(self):
@@ -695,9 +707,12 @@ class Object3d(object):
         :class:`pyaedt.modeler.Object3d.FacePrimitive`
 
         """
-        result = [(float(face.center[1]), face) for face in self.faces]
-        result = sorted(result, key=lambda tup: tup[0])
-        return result[-1][1]
+        try:
+            result = [(float(face.center[1]), face) for face in self.faces]
+            result = sorted(result, key=lambda tup: tup[0])
+            return result[-1][1]
+        except:
+            return None
 
     @property
     def bottom_face_y(self):
@@ -708,9 +723,12 @@ class Object3d(object):
         :class:`pyaedt.modeler.Object3d.FacePrimitive`
 
         """
-        result = [(float(face.center[1]), face) for face in self.faces]
-        result = sorted(result, key=lambda tup: tup[0])
-        return result[0][1]
+        try:
+            result = [(float(face.center[1]), face) for face in self.faces]
+            result = sorted(result, key=lambda tup: tup[0])
+            return result[0][1]
+        except:
+            return None
 
     @property
     def edges(self):

@@ -1,10 +1,9 @@
 """This module contains the `Components` class.
 
 """
-import random
 import re
 
-from pyaedt import is_ironpython
+from pyaedt import is_ironpython, retry_ntimes, generate_unique_name
 
 from ..generic.general_methods import get_filename_without_extension
 from .EDB_Data import EDBComponent
@@ -548,10 +547,9 @@ class Components(object):
         if group_name is None:
             cmp_name = pins[0].GetComponent().GetName()
             net_name = pins[0].GetNet().GetName()
-            group_name = "{}_{}_{}".format(cmp_name, net_name, random.randint(0, 100))
-        pingroup = self._edb.Cell.Hierarchy.PinGroup.Create(
-            self._active_layout, group_name, convert_py_list_to_net_list(pins)
-        )
+            group_name = generate_unique_name("{}_{}_".format(cmp_name, net_name), n=3)
+        pingroup = retry_ntimes(10, self._edb.Cell.Hierarchy.PinGroup.Create, self._active_layout, group_name,
+                                convert_py_list_to_net_list(pins))
         if pingroup.IsNull():
             return (False, None)
         else:

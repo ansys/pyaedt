@@ -179,7 +179,7 @@ class TestClass:
     def test_08_assign_excitations(self):
         excitation_settings = ["1 V", "0deg", "0V", "25V", "1V", "2.5GHz", "0s", "0", "0deg", "0Hz"]
         ports_list = ["Excitation_1", "Excitation_2"]
-        assert self.aedtapp.modeler.components.assign_sin_excitation2ports(ports_list, excitation_settings)
+        assert self.aedtapp.assign_voltage_sinusoidal_excitation_to_ports(ports_list, excitation_settings)
 
     @pytest.mark.skipif(config.get("skip_circuits", False), reason="Skipped because Desktop is crashing")
     def test_09_setup(self):

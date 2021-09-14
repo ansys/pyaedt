@@ -49,15 +49,15 @@ ipk.create_source_block(["MEMORY1", "MEMORY1_1"], "5W")
 # Assign Opening and Grille
 
 region = ipk.modeler.primitives["Region"]
-ipk.assign_openings(region.bottom_face_x.id)
-ipk.assign_grille(region.top_face_x.id, free_area_ratio=0.8)
+ipk.assign_openings(air_faces=region.bottom_face_x.id)
+ipk.assign_grille(air_faces=region.top_face_x.id, free_area_ratio=0.8)
 
 ###############################################################################
 # Mesh Operations
 # ~~~~~~~~~~~~~~~
 # Assign Mesh Region to HeatSink and CPU
 
-mesh_region = ipk.mesh.assign_mesh_region(["HEAT_SINK", "CPU"])
+mesh_region = ipk.mesh.assign_mesh_region(objectlist=["HEAT_SINK", "CPU"])
 mesh_region.UserSpecifiedSettings = True
 mesh_region.MaxElementSizeX = "3.35mm"
 mesh_region.MaxElementSizeY = "1.75mm"
@@ -70,8 +70,8 @@ mesh_region.update()
 # ~~~~~
 # Create Point Monitor and Setup
 
-ipk.assign_point_monitor(["-35mm", "3.6mm", "-86mm"])
-ipk.assign_point_monitor(["80mm", "14.243mm", "-55mm"], "Speed")
+ipk.assign_point_monitor(point_position=["-35mm", "3.6mm", "-86mm"],monitor_name="TemperatureMonitor1")
+ipk.assign_point_monitor(point_position=["80mm", "14.243mm", "-55mm"], monitor_type="Speed")
 setup1 = ipk.create_setup()
 setup1.props["Flow Regime"] = "Turbulent"
 setup1.props["Convergence Criteria - Max Iterations"] = 5
