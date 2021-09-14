@@ -10,15 +10,13 @@ in Q3D and run a simulation.
 # This example sets up the local path to the path for the ``AEDTLib`` directory.
 
 import os
-
+import tempfile
 from pyaedt import examples, generate_unique_name
 
 project_full_name = examples.download_sbr()
 project_name = os.path.basename(project_full_name)[:-5]
-if os.name == "posix":
-    tmpfold = os.environ["TMPDIR"]
-else:
-    tmpfold = os.environ["TEMP"]
+tmpfold = tempfile.gettempdir()
+
 
 temp_folder = os.path.join(tmpfold, generate_unique_name("SBR"))
 if not os.path.exists(temp_folder):

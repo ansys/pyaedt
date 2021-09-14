@@ -19,6 +19,7 @@ import warnings
 import gc
 import time
 import datetime
+import tempfile
 from pyaedt.application.MessageManager import AEDTMessageManager
 from pyaedt.misc import list_installed_ansysem
 from pyaedt import is_ironpython, _pythonver, inside_desktop
@@ -511,10 +512,7 @@ class Desktop:
             if "oDesktop" in dir(self._main):
                 project_dir = self._main.oDesktop.GetProjectDirectory()
             else:
-                if os.name == "posix":
-                    project_dir = os.environ["TMPDIR"]
-                else:
-                    project_dir = os.environ["TEMP"]
+                project_dir = tempfile.gettempdir()
             self.logfile = os.path.join(project_dir,
                                         "pyaedt{}.log".format(datetime.datetime.now().strftime("%Y%m%d_%H%M%S")))
             logging.basicConfig(filename=self.logfile, format='%(asctime)s:%(name)s:%(levelname)-8s:%(message)s',

@@ -6,14 +6,12 @@ This example shows how you can use PyAEDT to create an antenna setup in HFSS and
 # sphinx_gallery_thumbnail_path = 'Resources/Dipole.png'
 
 import os
+import tempfile
 from pyaedt import Hfss
 from pyaedt import Desktop
 from pyaedt import generate_unique_name
 
-if os.name == "posix":
-    tmpfold = os.environ["TMPDIR"]
-else:
-    tmpfold = os.environ["TEMP"]
+tmpfold = tempfile.gettempdir()
 
 temp_folder = os.path.join(tmpfold, generate_unique_name("Example"))
 if not os.path.exists(temp_folder):
