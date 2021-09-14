@@ -1,2 +1,1 @@
-set ANSYSEM_FEATURE_SF6694_NON_GRAPHICAL_COMMAND_EXECUTION_ENABLE=1
-/apps/AnsysEM/AnsysEM21.2/Linux64/ansysedt -RunScriptAndExit _unittest_ironpython/run_unittests.py
+/apps/AnsysEM/AnsysEM21.2/Linux64/ansysedt -iconic -features=SF6694_NON_GRAPHICAL_COMMAND_EXECUTION -RunScriptAndExit _unittest_ironpython/run_unittests.py
