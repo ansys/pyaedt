@@ -25,8 +25,8 @@ from .import log_handler
 pathname = os.path.dirname(__file__)
 if os.path.exists(os.path.join(pathname,'version.txt')):
     with open(os.path.join(pathname,'version.txt'), "r") as f:
-        pyaedtversion = f.readline()
 elif os.path.exists(os.path.join(pathname, "..", 'version.txt')):
+        pyaedtversion = f.readline()
     with open(os.path.join(pathname, "..", 'version.txt'), "r") as f:
         pyaedtversion = f.readline()
 else:
@@ -53,7 +53,7 @@ elif IsWindows:
         import win32com.client
         _com = 'pywin32'
     else:
-        raise Exception("Error. No win32com.client or Pythonnet modules found. Please install them")
+        raise Exception("Error. No win32com.client or Pythonnet modules found. Please install them.")
 
 
 def exception_to_desktop(self, ex_value, tb_data):
@@ -72,21 +72,20 @@ def exception_to_desktop(self, ex_value, tb_data):
     desktop = sys.modules['__main__'].oDesktop
     try:
         oproject = desktop.GetActiveProject()
-        proj_name = oproject.GetName()
+        project_name = oproject.GetName()
         try:
-            des_name = oproject.GetActiveDesign().GetName()
-            if ";" in des_name:
-                des_name = des_name.split(";")[1]
+            design_name = oproject.GetActiveDesign().GetName()
+            if ";" in design_name:
+                design_name = design_name.split(";")[1]
         except:
-            des_name = ''
+            design_name = ''
     except:
-        proj_name = ''
-        des_name = ''
-    tb_trace = traceback.format_tb(tb_data)
-    tblist = tb_trace[0].split('\n')
-    desktop.AddMessage(proj_name, des_name, 2, str(ex_value))
+        project_name = ''
+        design_name = ''
+    tblist = traceback.format_tb(tb_data)[0].split('\n')
+    desktop.AddMessage(project_name, design_name, 2, str(ex_value))
     for el in tblist:
-        desktop.AddMessage(proj_name, des_name, 2, el)
+        desktop.AddMessage(project_name, design_name, 2, el)
 
 
 def update_aedt_registry(key, value, desktop_version="211"):
@@ -361,21 +360,27 @@ class Desktop:
 
         self._main = sys.modules['__main__']
         self._main.interpreter = _com
+        breakpoint()
 
         self._main.close_on_exit = False
         self._main.isoutsideDesktop = False
         self._main.pyaedt_version = pyaedtversion
         self.release = release_on_exit
         self.logfile = None
-        logger_for_global = logging.getLogger("global")
-        logger_for_global.setLevel(logging.DEBUG)
-        module_logger = logging.getLogger(__name__)
+        self._global_log = logging.getLogger("global")
+        self._global_log.setLevel(logging.DEBUG)
+        self._project_log = logging.getLogger(self._main.oDesktop.GetProjectDirectory())
+        self._project_log.setLevel(logging.DEBUG)
+        self._design_log = logging.getLogger(self._main.oDesktop.GetActiveProject().GetActiveDesign().GetName())
+        self._design_log.setLevel(logging.DEBUG)
+        self.logger = logging.getLogger(__name__)
 
         if "oDesktop" in dir(self._main) and self._main.oDesktop is not None:
             self._main.AEDTVersion = self._main.oDesktop.GetVersion()[0:6]
             self._main.oDesktop.RestoreWindow()
             self._main.oMessenger = AEDTMessageManager()
-            logger_for_global.addHandler(log_handler._LogHandler(self._main.oMessenger, 'Global'))
+            self.messenger = self._main.oMessenger
+            self._global_log.addHandler(log_handler._LogHandler(self._main.oMessenger, 'Global'))
             base_path = self._main.oDesktop.GetExeDir()
             self._main.sDesktopinstallDirectory = base_path
             self.release = False
@@ -435,7 +440,7 @@ class Desktop:
                 self._main.COMUtil = self.COMUtil
                 StandalonePyScriptWrapper = AnsoftCOMUtil.Ansoft.CoreCOMScripting.COM.StandalonePyScriptWrapper
 
-                module_logger.debug("Launching AEDT with Module Pythonnet")
+                self.logger.debug("Launching AEDT with Module Pythonnet")
                 processID = []
                 if IsWindows:
                     username = getpass.getuser()
@@ -464,7 +469,7 @@ class Desktop:
                     os.environ['PYAEDT_DESKTOP_LOGS'] = 'False'
                 processID2 = []
                 if IsWindows:
-                    module_logger.debug("Info: Using Windows TaskManager to Load processes")
+                    self.logger.debug("Info: Using Windows TaskManager to Load processes")
                     username = getpass.getuser()
                     if student_version:
                         process = "ansysedtsv.exe"
@@ -489,7 +494,7 @@ class Desktop:
                     self._main.isoutsideDesktop = True
                 elif version_key>="2021.1":
                     self._main.close_on_exit = True
-                    module_logger.debug(
+                    self.logger.debug(
                         "Info: {} Started with Process ID {}".format(version, proc[0]))
                     context = pythoncom.CreateBindCtx(0)
                     running_coms = pythoncom.GetRunningObjectTable()
@@ -506,13 +511,13 @@ class Desktop:
                                 obj.QueryInterface(pythoncom.IID_IDispatch))
                             break
                 else:
-                    module_logger.warning(
+                    self.logger.warning(
                         "PyAEDT is not supported in AEDT versions older than 2021.1.")
                     oAnsoftApp = win32com.client.Dispatch(version)
                     self._main.oDesktop = oAnsoftApp.GetAppDesktop()
                     self._main.isoutsideDesktop = True
             else:
-                module_logger.debug("Launching AEDT with Module win32com.client")
+                self.logger.debug("Launching AEDT with Module win32com.client")
                 oAnsoftApp = win32com.client.Dispatch(version)
                 self._main.oDesktop = oAnsoftApp.GetAppDesktop()
                 self._main.isoutsideDesktop = True
@@ -520,11 +525,10 @@ class Desktop:
             self._main.AEDTVersion = version_key
             self._main.oDesktop.RestoreWindow()
             self._main.oMessenger = AEDTMessageManager()
-            logger_for_global.addHandler(log_handler._LogHandler(self._main.oMessenger, 'Global', logging.DEBUG))
+            self._global_log.addHandler(log_handler._LogHandler(self._main.oMessenger, 'Global', logging.DEBUG))
 
         self._main.pyaedt_initialized = True
         # Set up the log file in the AEDT project directory
-        self.logger = logging.getLogger(__name__)
         if not self.logger.handlers:
             project_dir = self._main.oDesktop.GetProjectDirectory()
             self.logfile = os.path.join(project_dir, "pyaedt.log")
@@ -535,30 +539,24 @@ class Desktop:
                 datefmt='%Y/%m/%d %H.%M.%S',
                 filemode='w')
 
-        info_msg1 = f'pyaedt v{pyaedtversion.strip()}'
-        info_msg2 = f'Python version {sys.version}'
+        self._global_log.info("pyaedt v%s", pyaedtversion.strip())
+        self._global_log.info("Python version %s", sys.version)
 
-        logger_for_global.info(info_msg1)
-        self._main.oMessenger.add_info_message(info_msg2, 'Global')
-        logger_for_global.info(info_msg2)
-
-        info_msg3 = f'Started external COM connection with module {_com}'
-        info_msg4 = f'Exe path: {sys.executable}'
-        logger.info(info_msg3)
-        logger_for_global.info(info_msg3)
-        logger.info(info_msg4)
-        logger_for_global.info(info_msg4)
+        logger.info("Started external COM connection with module %s}", _com)
+        logger.info("Exe path: %s", sys.executable)
+        self._global_log.info("Exe path: %s", sys.executable)
 
         if _com == 'pywin32' and (AlwaysNew or NG):
-            info_msg5 = 'The ``AlwaysNew`` or ``NG`` option is not available for a pywin32 connection only. Install Python.NET to support these options.'
-            self._main.oMessenger.add_info_message(info_msg5, 'Global')
-            logger_for_global.info(info_msg5)
+            self._global_log.info("""The ``AlwaysNew`` or ``NG`` option is not available for a pywin32 connection only. Install Python.NET to support these options.""")
         elif _com == 'ironpython':
             dll_path = os.path.join(base_path,"common","IronPython", "dlls")
             sys.path.append(dll_path)
-            info_msg5 = f'Adding IronPython common dlls to the sys.path: {dll_path}'
-            self._main.oMessenger.add_info_message(info_msg5, 'Global')
-            logger_for_global.info(info_msg5)
+            self._global_log.info("Adding IronPython common dlls to the sys.path: %s", dll_path)
+
+    @property
+    def messenger(self):
+        """Messenger manager for AEDT Log."""
+        return self.messenger
 
     @property
     def install_path(self):
@@ -596,21 +594,18 @@ class Desktop:
         """
         try:
             oproject = self._main.oDesktop.GetActiveProject()
-            proj_name = oproject.GetName()
             try:
-                des_name = oproject.GetActiveDesign().GetName()
-                if ";" in des_name:
-                    des_name = des_name.split(";")[1]
+                design_name = oproject.GetActiveDesign().GetName()
+                if ";" in design_name:
+                    design_name = design_name.split(";")[1]
             except:
-                des_name = ''
+                design_name = ''
         except:
-            proj_name = ''
-            des_name = ''
-        tb_trace = traceback.format_tb(tb_data)
-        tblist = tb_trace[0].split('\n')
-        self._main.oMessenger.add_error_message(str(ex_value), 'Global')
+            design_name = ''
+        tblist = traceback.format_tb(tb_data)[0].split('\n')
+        self._global_log.error(str(ex_value))
         for el in tblist:
-            self._main.oMessenger.add_error_message(el, 'Global')
+            self._global_log.error(el)
 
         return str(ex_value)
 
