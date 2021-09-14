@@ -7,7 +7,6 @@ if os.name != "posix":
     mymodule = __import__("_unittest." + test_name, fromlist=["TestClass"])
     test_obj = mymodule.TestClass()
 
-
     class TestSequenceFunctionsGenerate(PytestMockup):
         @classmethod
         def setUpClass(cls):
@@ -16,7 +15,6 @@ if os.name != "posix":
         @classmethod
         def tearDownClass(cls):
             test_obj.teardown_class()
-
 
     test_names = [name for name in dir(test_obj) if name.startswith(test_filter)]
     for test_name in test_names:

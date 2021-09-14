@@ -1,13 +1,13 @@
 # This is a basic workflow to help you get started with Actions
 
-name: CI_Ironpython_LINUX
+name: Linux_Ironpython_UnitTests
 
 
 # Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the main branch
-  pull_request:
-    branches: [ main ]
+  workflow_dispatch:
+  schedule:  # UTC at 0400
+    - cron:  '0 4 * * *'
    
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
