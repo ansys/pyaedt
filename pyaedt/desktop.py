@@ -250,6 +250,7 @@ def force_close_desktop():
         except:
             logger.warning("No Projects. Closing Desktop Connection")
         try:
+            i = 0
             scopeID = 5
             while i <= scopeID:
                 Module.COMUtil.ReleaseCOMObjectScope(Module.COMUtil.PInvokeProxyAPI, 0)
