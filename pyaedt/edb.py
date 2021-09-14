@@ -9,7 +9,6 @@ import sys
 import time
 import traceback
 import warnings
-import tempfile
 from pyaedt import inside_desktop, is_ironpython
 from pyaedt.application.MessageManager import EDBMessageManager
 from pyaedt.edb_core import *
