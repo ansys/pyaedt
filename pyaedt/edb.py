@@ -1034,7 +1034,16 @@ class Edb(object):
 
     @aedt_exception_handler
     def solve_siwave(self):
+        """Close Edb and Solves it with Siwave
+
+        Returns
+        -------
+        bool
+        """
         process = SiwaveSolve(self.edbpath, aedt_version=self.edbversion)
-        self._db.Close()
+        try:
+            self._db.Close()
+        except:
+            pass
         process.solve()
         return True
