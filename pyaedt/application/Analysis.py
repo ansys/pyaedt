@@ -1,5 +1,5 @@
 """
-This module contains the `analysis` class.
+This module contains the ``analysis`` class.
 
 It includes common classes for file management and messaging and all
 calls to AEDT modules like the modeler, mesh, postprocessing, and setup.
@@ -644,7 +644,7 @@ class Analysis(Design, object):
 
     @aedt_exception_handler
     def analyse_nominal(self):
-        """Revert the solution to the initial mesh and re-run the solve.
+        """Solve the nominal design.
 
         .. deprecated:: 0.4.0
            Use :func:`Analysis.analyze_nominal` instead.
@@ -654,7 +654,7 @@ class Analysis(Design, object):
 
     @aedt_exception_handler
     def analyze_nominal(self):
-        """Revert the solution to the initial mesh and re-run the solve.
+        """Solve the nominal design.
 
         Returns
         -------
@@ -940,7 +940,7 @@ class Analysis(Design, object):
         else:
             options = " -ng -distribute -machinelist list=" + machine + " -Batchsolve "
 
-        print("Batch Solve Options: " + options)
+        self.add_info_message("Batch Solve Options: " + options)
         if os.name == "posix":
             batch_run = os.path.join(
                 self.desktop_install_dir + "/ansysedt" + chr(34) + options + chr(34) + filename + chr(34)
@@ -955,8 +955,8 @@ class Analysis(Design, object):
         dont have old .asol files etc
         """
 
-        print("Solving model in batch mode on " + machine)
-        print("Batch Job command:" + batch_run)
+        self.add_info_message("Solving model in batch mode on " + machine)
+        self.add_info_message("Batch Job command:" + batch_run)
         if run_in_thread:
 
             def thread_run():
@@ -967,7 +967,7 @@ class Analysis(Design, object):
             x.start()
         else:
             os.system(batch_run)
-        print("Batch Job finished")
+        self.add_info_message("Batch job finished.")
         return True
 
     @aedt_exception_handler

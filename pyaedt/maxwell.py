@@ -1045,3 +1045,52 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
             self.boundaries.append(bound)
             return bound
         return False
+
+    @aedt_exception_handler
+    def assign_master_slave(self, master_edge, slave_edge, reverse_master=False, reverse_slave=False,
+                            same_as_master=True, bound_name=None):
+        """Assign master and slave boundary conditions to two edges of the same object.
+
+        Parameters
+        ----------
+        master_edge : int
+            ID of the master edge.
+        slave_edge : int
+            ID of the slave edge.
+        reverse_master : bool, optional
+            Whether to reverse the master edge to the V direction. The default is ``False``.
+        reverse_slave : bool, optional
+            Whether to reverse the master edge to the U direction. The default is ``False``.
+        same_as_master : bool, optional
+            Whether the B-Field of the slave edge and master edge are the same. The default is ``True``.
+        bound_name : str, optional
+            Name of the master boundary. The name of the slave boundary will have a ``_dep`` suffix.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`, :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Master and slave objects.
+
+        """
+        master_edge = self.modeler._convert_list_to_ids(master_edge)
+        slave_edge = self.modeler._convert_list_to_ids(slave_edge)
+        if not bound_name:
+            bound_name_m = generate_unique_name("Independent")
+            bound_name_s = generate_unique_name("Dependent")
+        else:
+            bound_name_m = bound_name
+            bound_name_s = bound_name + "_dep"
+        props2 = OrderedDict({"Edges": master_edge, "ReverseV": reverse_master})
+        bound = BoundaryObject(self, bound_name_m, props2, "Independent")
+        if bound.create():
+            self.boundaries.append(bound)
+
+            props2 = OrderedDict({"Edges": slave_edge, "ReverseU": reverse_slave, "Independent": bound_name_m,
+                                  "SameAsMaster": same_as_master})
+            bound2 = BoundaryObject(self, bound_name_s, props2, "Independent")
+            if bound2.create():
+                self.boundaries.append(bound2)
+                return bound, bound2
+            else:
+                return bound, False
+        return False, False

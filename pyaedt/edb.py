@@ -10,7 +10,7 @@ import time
 import traceback
 import warnings
 
-from pyaedt import inside_desktop, is_ironpython
+from pyaedt import inside_desktop, is_ironpython, retry_ntimes
 from pyaedt.application.MessageManager import EDBMessageManager
 from pyaedt.edb_core import Components, Edb3DLayout, EdbLayout, EdbNets, EdbPadstacks, EdbSiwave, EdbStackup
 from pyaedt.generic.general_methods import (
@@ -328,7 +328,11 @@ class Edb(object):
         self._messenger.add_info_message("EDB Version {}".format(self.edbversion))
         self.edb.Database.SetRunAsStandAlone(self.standalone)
         self._messenger.add_info_message("EDB Standalone {}".format(self.standalone))
-        db = self.edb.Database.Open(self.edbpath, self.isreadonly)
+        try:
+            db = self.edb.Database.Open(self.edbpath, self.isreadonly)
+        except Exception as e:
+            db = None
+            self._messenger.add_error_message("Builder is not Initialized.")
         if not db:
             self._messenger.add_warning_message("Error Opening db")
             self._db = None
@@ -349,16 +353,21 @@ class Edb(object):
         self._messenger.add_info_message("Cell {} Opened".format(self._active_cell.GetName()))
 
         if self._db and self._active_cell:
-            time.sleep(1)
             dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib", "DataModel.dll")
             self._messenger.add_info_message(dllpath)
             self.layout_methods.LoadDataModel(dllpath)
-            self.builder = self.layout_methods.GetBuilder(
-                self._db, self._active_cell, self.edbpath, self.edbversion, self.standalone
+            time.sleep(1)
+            self.builder = retry_ntimes(
+                10,
+                self.layout_methods.GetBuilder,
+                self._db,
+                self._active_cell,
+                self.edbpath,
+                self.edbversion,
+                self.standalone,
             )
             self._init_objects()
             self._messenger.add_info_message("Builder Initialized")
-
         else:
             self.builder = None
             self._messenger.add_error_message("Builder Not Initialized")

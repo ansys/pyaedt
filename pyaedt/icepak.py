@@ -64,12 +64,15 @@ class Icepak(FieldAnalysisIcepak):
 
     >>> from pyaedt import Icepak
     >>> icepak = Icepak()
+    pyaedt Info: No project is defined. Project ...
+    pyaedt Info: Active design is set to ...
 
     Create an instance of Icepak and link to a project named
     ``IcepakProject``. If this project does not exist, create one with
     this name.
 
     >>> icepak = Icepak("IcepakProject")
+    pyaedt Info: Project ...
     pyaedt Info: Added design ...
 
     Create an instance of Icepak and link to a design named
@@ -82,13 +85,17 @@ class Icepak(FieldAnalysisIcepak):
     which is ``myipk.aedt``.
 
     >>> icepak = Icepak("myipk.aedt")
+    pyaedt Info: Project myipk has been created.
+    pyaedt Info: No design is present. Inserting a new design.
     pyaedt Info: Added design ...
 
     Create an instance of Icepak using the 2021 R1 release and
     open the specified project, which is ``myipk2.aedt``.
 
     >>> icepak = Icepak(specified_version="2021.1", projectname="myipk2.aedt")
-    pyaedt Info: Added design ...
+    pyaedt Info: Project...
+    pyaedt Info: No design is present. Inserting a new design.
+    pyaedt Info: Added design...
     """
 
     def __init__(
@@ -332,6 +339,7 @@ class Icepak(FieldAnalysisIcepak):
         >>> box1 = icepak.modeler.primitives.create_box([1, 1, 1], [3, 3, 3], "BlockBox1", "copper")
         >>> box2 = icepak.modeler.primitives.create_box([2, 2, 2], [4, 4, 4], "BlockBox2", "copper")
         >>> blocks = icepak.create_source_blocks_from_list([["BlockBox1", 2], ["BlockBox2", 4]])
+        pyaedt Info: Block on ...
         >>> blocks[1].props
         {'Objects': ['BlockBox1'], 'Block Type': 'Solid', 'Use External Conditions': False, 'Total Power': '2W'}
         >>> blocks[3].props
@@ -387,6 +395,7 @@ class Icepak(FieldAnalysisIcepak):
 
         >>> box = icepak.modeler.primitives.create_box([5, 5, 5], [1, 2, 3], "BlockBox3", "copper")
         >>> block = icepak.create_source_block("BlockBox3", "1W", False)
+        pyaedt Info: Block on ...
         >>> block.props
         {'Objects': ['BlockBox3'], 'Block Type': 'Solid', 'Use External Conditions': False, 'Total Power': '1W'}
 
