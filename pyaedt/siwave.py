@@ -61,7 +61,6 @@ class Siwave:
         version_list = list_installed_ansysem()
         for version_env_var in version_list:
             current_version_id = version_env_var.replace("ANSYSEM_ROOT", "").replace("ANSYSEMSV_ROOT", "")
-            print(current_version_id)
             version = int(current_version_id[0:2])
             release = int(current_version_id[2])
             if version < 20:
@@ -115,7 +114,7 @@ class Siwave:
             elif _com == "pythonnet_v3":
                 # TODO check if possible to use pythonnet. at the moment the tool open AEDt
                 # but doesn't return the wrapper of oApp
-                print("Launching AEDT with Module win32com")
+                print("Launching Siwave with Module win32com")
 
                 self._main.oSiwave = win32com.client.Dispatch("Siwave.Application.2021.1")
 
