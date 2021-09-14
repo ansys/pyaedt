@@ -70,7 +70,7 @@ mesh_region.update()
 # ~~~~~
 # Create Point Monitor and Setup
 
-ipk.assign_point_monitor(point_position=["-35mm", "3.6mm", "-86mm"],monitor_name="TemperatureMonitor1")
+ipk.assign_point_monitor(point_position=["-35mm", "3.6mm", "-86mm"], monitor_name="TemperatureMonitor1")
 ipk.assign_point_monitor(point_position=["80mm", "14.243mm", "-55mm"], monitor_type="Speed")
 setup1 = ipk.create_setup()
 setup1.props["Flow Regime"] = "Turbulent"
