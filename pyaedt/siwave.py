@@ -60,7 +60,8 @@ class Siwave:
 
         version_list = list_installed_ansysem()
         for version_env_var in version_list:
-            current_version_id = version_env_var.replace("ANSYSEM_ROOT", "")
+            current_version_id = version_env_var.replace("ANSYSEM_ROOT", "").replace("ANSYSEMSV_ROOT", "")
+            print(current_version_id)
             version = int(current_version_id[0:2])
             release = int(current_version_id[2])
             if version < 20:

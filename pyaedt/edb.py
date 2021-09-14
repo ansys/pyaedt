@@ -1031,3 +1031,10 @@ class Edb(object):
         """
         siwave_s = SiwaveSolve(self.edbpath, aedt_installer_path=self.base_path)
         return siwave_s.export_3d_cad("Maxwell", path_to_output, net_list)
+
+    @aedt_exception_handler
+    def solve_siwave(self):
+        process = SiwaveSolve(self.edbpath, aedt_version=self.edbversion)
+        self._db.Close()
+        process.solve()
+        return True
