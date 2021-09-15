@@ -211,8 +211,13 @@ class TestClass:
         assert setup3.enable()
         sweep = setup3.add_sweep()
         assert sweep
-        assert sweep.change_range("LinearStep", "1Hz", "1GHz", "100MHz")
-        assert sweep.add_subrange("LinearCount", "1GHz", "1.5GHz", 21)
+        assert sweep.change_range("LinearStep", 1.1, 2.1, 0.4, "GHz")
+        assert sweep.add_subrange("LinearCount", 1, 1.5, 3, "MHz")
+        assert sweep.change_type("Discrete")
+        assert sweep.add_subrange("SinglePoint", 10.1e-1, "GHz")
+        assert sweep.add_subrange("SinglePoint", 10.2e-1, "GHz")
+        assert sweep.set_save_fields(True, True)
+        assert sweep.set_save_fields(False, False)
 
     def test_17_get_setup(self):
         setup4 = self.aedtapp.get_setup(self.aedtapp.existing_analysis_setups[0])
@@ -222,30 +227,30 @@ class TestClass:
         assert setup4.disable()
         assert setup4.enable()
 
-    def test_18_add_sweep(self):
+    def test_18a_create_linear_count_sweep(self):
         setup_name = "RFBoardSetup"
-        sweep1 = self.aedtapp.create_frequency_sweep(
+        sweep1 = self.aedtapp.create_linear_count_sweep(
             setupname=setup_name,
             unit="GHz",
             freqstart=1,
             freqstop=10,
             num_of_freq_points=1001,
             sweepname="RFBoardSweep1",
-            sweeptype="interpolating",
+            sweep_type="Interpolating",
             interpolation_tol_percent=0.2,
             interpolation_max_solutions=111,
             save_fields=False,
             use_q3d_for_dc=False,
         )
         assert sweep1.props["Sweeps"]["Data"] == "LINC 1GHz 10GHz 1001"
-        sweep2 = self.aedtapp.create_frequency_sweep(
+        sweep2 = self.aedtapp.create_linear_count_sweep(
             setupname=setup_name,
             unit="GHz",
             freqstart=1,
             freqstop=10,
             num_of_freq_points=12,
             sweepname="RFBoardSweep2",
-            sweeptype="discrete",
+            sweep_type="Discrete",
             interpolation_tol_percent=0.4,
             interpolation_max_solutions=255,
             save_fields=True,
@@ -253,6 +258,54 @@ class TestClass:
             use_q3d_for_dc=True,
         )
         assert sweep2.props["Sweeps"]["Data"] == "LINC 1GHz 10GHz 12"
+
+    def test_18b_create_linear_step_sweep(self):
+        setup_name = "RFBoardSetup"
+        sweep3 = self.aedtapp.create_linear_step_sweep(
+            setupname=setup_name,
+            unit="GHz",
+            freqstart=1,
+            freqstop=10,
+            step_size=0.2,
+            sweepname="RFBoardSweep3",
+            sweep_type="Interpolating",
+            interpolation_tol_percent=0.4,
+            interpolation_max_solutions=255,
+            save_fields=True,
+            save_rad_fields_only=True,
+            use_q3d_for_dc=True,
+        )
+        assert sweep3.props["Sweeps"]["Data"] == "LIN 1GHz 10GHz 0.2GHz"
+        sweep4 = self.aedtapp.create_linear_step_sweep(
+            setupname=setup_name,
+            unit="GHz",
+            freqstart=1,
+            freqstop=10,
+            step_size=0.12,
+            sweepname="RFBoardSweep4",
+            sweep_type="Discrete",
+            save_fields=True,
+        )
+        assert sweep4.props["Sweeps"]["Data"] == "LIN 1GHz 10GHz 0.12GHz"
+
+    def test_18c_create_single_point_sweep(self):
+        setup_name = "RFBoardSetup"
+        sweep5 = self.aedtapp.create_single_point_sweep(
+            setupname=setup_name,
+            unit="GHz",
+            freq=1.23,
+            sweepname="RFBoardSingle",
+            save_fields=True,
+        )
+        assert sweep5.props["Sweeps"]["Data"] == "1.23GHz"
+        sweep6 = self.aedtapp.create_single_point_sweep(
+            setupname=setup_name,
+            unit="GHz",
+            freq=[1, 2, 3, 4],
+            sweepname="RFBoardSingle",
+            save_fields=False,
+        )
+        assert sweep6.props["Sweeps"]["Data"] == '1GHz 2GHz 3GHz 4GHz'
 
     def test_19A_validate(self):
         assert self.aedtapp.validate_full_design()

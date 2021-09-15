@@ -30,8 +30,7 @@ if is_ironpython:
 else:
     import pytest
 
-    if "UNITTEST_CURRENT_TEST" in os.environ:
-        os.environ.pop("UNITTEST_CURRENT_TEST")
+os.environ["PYAEDT_ERROR_HANDLER"] = "False"
 
 local_path = os.path.dirname(os.path.realpath(__file__))
 
