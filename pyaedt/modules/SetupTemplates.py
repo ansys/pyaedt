@@ -1112,7 +1112,7 @@ class SweepHFSS(object):
             self.props["SweepRanges"] = {"Subrange": []}
 
     @aedt_exception_handler
-    def add_subrange(self, rangetype, start, unit, end=None, count=None, save_single_fields=False):
+    def add_subrange(self, rangetype, start, end=None, count=None, unit="GHz", save_single_fields=False):
         """Add a subrange to the sweep.
 
         Parameters
@@ -1122,12 +1122,12 @@ class SweepHFSS(object):
             ``"LinearStep"``, ``"LogScale"``, and ``"SinglePoints"``.
         start : float
             Starting frequency.
-        unit : str
-            Unit of the frequency. For example, ``"MHz`` or ``"GHz"``. The default is ``"GHz"``.
         end : float, optional
             Stopping frequency. Required for ``rangetype="LinearCount"|"LinearStep"|"LogScale"``.
         count : int or float, optional
             Frequency count or frequency step. Required for ``rangetype="LinearCount"|"LinearStep"|"LogScale"``.
+        unit : str, optional
+            Unit of the frequency. For example, ``"MHz`` or ``"GHz"``. The default is ``"GHz"``.
         save_single_fields : bool, optional
             Whether to save the fields of the single point. The default is ``False``.
             Used only for ``rangetype="SinglePoints"``.
@@ -1140,7 +1140,7 @@ class SweepHFSS(object):
         """
         if rangetype == "LinearCount" or rangetype == "LinearStep" or rangetype == "LogScale":
             if not end or not count:
-                raise AttributeError("Parameters end and count must be present.")
+                raise AttributeError("Parameters 'end' and 'count' must be present.")
         range = {}
         range["RangeType"] = rangetype
         range["RangeStart"] = str(start) + unit
@@ -1220,15 +1220,24 @@ class SweepHFSS3DLayout(object):
     sweepname : str
         Name of the sweep.
     sweeptype : str, optional
-        Type of the sweep. Options are ``"Fast"``, ``"Interpolating"``,
-        and ``"Discrete"``. The default is ``"Interpolating"``.
+        Type of the sweep. Options are ``"Interpolating"`` and ``"Discrete"``. The default is ``"Interpolating"``.
+    save_fields : bool, optional
+        Whether to save the fields. The default is ``True``.
     props : dict, optional
         Dictionary of the properties. The default is ``None``, in which
         case the default properties are retrieved.
 
     """
 
-    def __init__(self, oanalysis, setupname, sweepname, sweeptype="Interpolating", props=None):
+    def __init__(
+            self,
+            oanalysis,
+            setupname,
+            sweepname,
+            sweeptype="Interpolating",
+            save_fields=True,
+            props=None,
+    ):
         self.oanalysis = oanalysis
         self.props = {}
         self.setupname = setupname
@@ -1243,14 +1252,15 @@ class SweepHFSS3DLayout(object):
             self.props["Sweeps"] = OrderedDict(
                 {"Variable": "Sweep 1", "Data": "LIN 1Hz 20GHz 0.05GHz", "OffsetF1": False, "Synchronize": 0}
             )
-            self.props["GenerateSurfaceCurrent"] = False
+            self.props["GenerateSurfaceCurrent"] = save_fields
             self.props["SaveRadFieldsOnly"] = False
             if sweeptype == "Interpolating":
                 self.props["FastSweep"] = True
-            else:
+            elif sweeptype == "Discrete":
                 self.props["FastSweep"] = False
-
-            self.props["SaveSingleField"] = False
+            else:
+                raise AttributeError("Allowed sweeptype options are 'Interpolating' and 'Discrete'.")
+            # self.props["SaveSingleField"] = False
             self.props["ZoSelected"] = False
             self.props["SAbsError"] = 0.005
             self.props["ZoPercentError"] = 1
@@ -1273,52 +1283,111 @@ class SweepHFSS3DLayout(object):
             self.props["MagMinThreshold"] = 0.01
 
     @aedt_exception_handler
-    def add_subrange(self, rangetype, start, end, count):
+    def change_type(self, sweeptype):
+        """Change the type of the sweep.
+
+        Parameters
+        ----------
+        sweeptype : str
+            Type of the sweep. Options are ``"Interpolating"`` and ``"Discrete"``.
+            The default is ``"Interpolating"``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if sweeptype == "Interpolating":
+            self.props["FastSweep"] = True
+        elif sweeptype == "Discrete":
+            self.props["FastSweep"] = False
+        else:
+            raise AttributeError("Allowed sweeptype options are 'Interpolating' and 'Discrete'.")
+        return self.update()
+
+    @aedt_exception_handler
+    def set_save_fields(self, save_fields, save_rad_fields=False):
+        """Choose whether the fields are saved.
+
+        Parameters
+        ----------
+        save_fields : bool
+            Whether to save the fields.
+        save_rad_fields : bool, optional
+            Whether to save the radiating fields. The default is ``False``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        self.props["GenerateSurfaceCurrent"] = save_fields
+        self.props["SaveRadFieldsOnly"] = save_rad_fields
+        return self.update()
+
+    @aedt_exception_handler
+    def add_subrange(self, rangetype, start, end=None, count=None, unit="GHz"):
         """Add a subrange to the sweep.
 
         Parameters
         ----------
         rangetype : str
-            Type of the subrange. Options are ``"LinearCount"``,
+            Type of the subrange. Options are ``"LinearCount"``, ``"SinglePoint"``,
             ``"LinearStep"``, and ``"LogScale"``.
         start : float
             Starting frequency.
-        end : float
+        end : float, optional
             Stopping frequency.
-        count : int or float
+            Mandatory for ``"LinearCount"``, ``"LinearStep"``, and ``"LogScale"``.
+        count : int or float, optional
             Frequency count or frequency step.
+            Mandatory for ``"LinearCount"``, ``"LinearStep"``, and ``"LogScale"``.
+        unit : str
+            Unit of the frequency. For example, ``"MHz`` or ``"GHz"``. The default is ``"GHz"``.
 
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        range = ""
+        if rangetype == "SinglePoint" and self.props["FastSweep"]:
+            raise AttributeError("'SinglePoint is allowed only when sweeptype is 'Discrete'.'")
+        if rangetype == "LinearCount" or rangetype == "LinearStep" or rangetype == "LogScale":
+            if not end or not count:
+                raise AttributeError("Parameters 'end' and 'count' must be present.")
+
         if rangetype == "LinearCount":
-            range = " LINC " + str(start) + " " + str(end) + " " + str(count)
+            sweep_range = " LINC " + str(start)+unit + " " + str(end)+unit + " " + str(count)
         elif rangetype == "LinearStep":
-            range = " LIN " + str(start) + " " + str(end) + " " + str(count)
+            sweep_range = " LIN " + str(start)+unit + " " + str(end)+unit + " " + str(count)+unit
         elif rangetype == "LogScale":
-            range = " DEC " + str(start) + " " + str(end) + " " + str(count)
-        self.props["Sweeps"]["Data"] += range
+            sweep_range = " DEC " + str(start)+unit + " " + str(end)+unit + " " + str(count)+unit
+        elif rangetype == "SinglePoint":
+            sweep_range = " " + str(start)+unit
+        else:
+            raise AttributeError('Allowed rangetype are "LinearCount", "SinglePoint", "LinearStep", and "LogScale".')
+        self.props["Sweeps"]["Data"] += sweep_range
         return self.update()
 
     @aedt_exception_handler
-    def change_range(self, rangetype, start, end, count):
-        """Update the range of the sweep.
+    def change_range(self, rangetype, start, end=None, count=None, unit="GHz"):
+        """Change the range of the sweep.
 
         Parameters
         ----------
         rangetype : str
-            rangetype : str
-            Type of the subrange. Options are ``"LinearCount"``,
+            Type of the subrange. Options are ``"LinearCount"``, ``"SinglePoint"``,
             ``"LinearStep"``, and ``"LogScale"``.
         start : float
             Starting frequency.
-        end : float
+        end : float, optional
             Stopping frequency.
-        count : int or float
+            Mandatory for ``"LinearCount"``, ``"LinearStep"``, and ``"LogScale"``.
+        count : int or float, optional
             Frequency count or frequency step.
+            Mandatory for ``"LinearCount"``, ``"LinearStep"``, and ``"LogScale"``.
+        unit : str, optional
+            Unit of the frequency. For example, ``"MHz`` or ``"GHz"``. The default is ``"GHz"``.
 
         Returns
         -------
@@ -1326,14 +1395,17 @@ class SweepHFSS3DLayout(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        range = ""
         if rangetype == "LinearCount":
-            range = "LINC " + str(start) + " " + str(end) + " " + str(count)
+            sweep_range = "LINC " + str(start)+unit + " " + str(end)+unit + " " + str(count)
         elif rangetype == "LinearStep":
-            range = "LIN " + str(start) + " " + str(end) + " " + str(count)
+            sweep_range = "LIN " + str(start)+unit + " " + str(end)+unit + " " + str(count)+unit
         elif rangetype == "LogScale":
-            range = "DEC " + str(start) + " " + str(end) + " " + str(count)
-        self.props["Sweeps"]["Data"] = range
+            sweep_range = "DEC " + str(start)+unit + " " + str(end)+unit + " " + str(count)+unit
+        elif rangetype == "SinglePoint":
+            sweep_range = str(start)+unit
+        else:
+            raise AttributeError('Allowed rangetype are "LinearCount", "SinglePoint", "LinearStep", and "LogScale".')
+        self.props["Sweeps"]["Data"] = sweep_range
         return self.update()
 
     @aedt_exception_handler

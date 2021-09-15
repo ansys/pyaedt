@@ -132,6 +132,15 @@ class TestClass:
         )
         assert self.aedtapp.create_linear_count_sweep(
             setupname="MySetup",
+            sweepname="MySweep",
+            unit="MHz",
+            freqstart=1.1e3,
+            freqstop=1200.1,
+            num_of_freq_points=1234,
+            sweep_type="Interpolating",
+        )
+        assert self.aedtapp.create_linear_count_sweep(
+            setupname="MySetup",
             sweepname="MySweepFast",
             unit="MHz",
             freqstart=1.1e3,
@@ -219,13 +228,15 @@ class TestClass:
             freq=[1.1e1, 1.2e1, 1.3e1],
             save_single_field=[True, False, True]
         )
-        with pytest.raises(AttributeError):
-            self.aedtapp.create_single_point_sweep(
+
+        os.environ["PYAEDT_ERROR_HANDLER"] = "True"
+        assert not self.aedtapp.create_single_point_sweep(
                 setupname="MySetup",
                 unit='GHz',
                 freq=[1, 2e2, 3.4],
                 save_single_field=[True, False]
             )
+        os.environ["PYAEDT_ERROR_HANDLER"] = "False"
 
     def test_06z_validate_setup(self):
         list, ok = self.aedtapp.validate_full_design(ports=5)
