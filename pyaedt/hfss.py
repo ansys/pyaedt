@@ -2970,8 +2970,8 @@ class Hfss(FieldAnalysis3D, object):
             val_list.extend(temp2_msg)
 
         # Run design validation and write out the lines to the log.
-        temp_fld = tempfile.gettempdir()
-        temp_val_file = os.path.join(temp_fld, "val_temp.log")
+        temp_dir = tempfile.gettempdir()
+        temp_val_file = os.path.join(temp_dir, "val_temp.log")
         simple_val_return = self.validate_simple(temp_val_file)
         if simple_val_return == 1:
             msg = "Design validation check PASSED."
