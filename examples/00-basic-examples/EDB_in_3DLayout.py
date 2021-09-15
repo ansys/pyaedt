@@ -7,16 +7,13 @@ This example shows how to use HFSS 3D Layout combined with EDB to interact with 
 
 
 import os
-
+import tempfile
 from pyaedt import generate_unique_name
 
-if os.name == "posix":
-    tmpfold = os.environ["TMPDIR"]
-else:
-    tmpfold = os.environ["TEMP"]
-
+tmpfold = tempfile.gettempdir()
 temp_folder = os.path.join(tmpfold, generate_unique_name("Example"))
-if not os.path.exists(temp_folder): os.makedirs(temp_folder)
+if not os.path.exists(temp_folder):
+    os.makedirs(temp_folder)
 print(temp_folder)
 
 ###############################################################################
@@ -29,9 +26,9 @@ from pyaedt import Hfss3dLayout
 from pyaedt import examples
 
 
-targetfile=examples.download_aedb()
+targetfile = examples.download_aedb()
 print(targetfile)
-aedt_file = targetfile[:-12]+"aedt"
+aedt_file = targetfile[:-12] + "aedt"
 
 
 ###############################################################################
@@ -60,9 +57,10 @@ NewThread = False
 # The `h3d` object will contain the :class:`pyaedt.Edb` class query methods.
 
 d = Desktop(desktopVersion, NonGraphical, NewThread)
-if os.path.exists(aedt_file): os.remove(aedt_file)
+if os.path.exists(aedt_file):
+    os.remove(aedt_file)
 h3d = Hfss3dLayout(targetfile)
-h3d.save_project(os.path.join(temp_folder,"edb_demo.aedt"))
+h3d.save_project(os.path.join(temp_folder, "edb_demo.aedt"))
 
 ###############################################################################
 # Print Setups
@@ -107,7 +105,7 @@ for lay in layers:
 # This examples changes the layer color.
 
 layer = h3d.modeler.layers.layers[h3d.modeler.layers.layer_id("TOP")]
-layer.set_layer_color(0,255,0)
+layer.set_layer_color(0, 255, 0)
 h3d.modeler.fit_all()
 
 ###############################################################################

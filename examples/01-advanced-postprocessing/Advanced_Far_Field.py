@@ -13,10 +13,11 @@ This examples runs only on Windows using CPython.
 import os
 import pathlib
 
-local_path = os.path.abspath('')
+local_path = os.path.abspath("")
 module_path = pathlib.Path(local_path)
 aedt_lib_path = module_path.parent.parent.parent
 from pyaedt import examples
+
 project_name = examples.download_antenna_array()
 
 
@@ -35,8 +36,6 @@ from pyaedt import Hfss
 import numpy as np
 import matplotlib.pyplot as plt
 import math
-import ipywidgets as widgets
-from ipywidgets import interact, interact_manual
 
 ###############################################################################
 # Launch AEDT in Non-Graphical Mode
@@ -83,14 +82,15 @@ print("Post Processing Time", end)
 # This example generates the plot using Matplotlib by reading the solution
 # generated in ``ff_data`` and processing the field based on Phi and Theta.
 
-def ff_calc(x=0, y=0, qty='rETotal', dB=True):
+
+def ff_calc(x=0, y=0, qty="rETotal", dB=True):
     array_size = [4, 4]
     loc_offset = 2  # if array index is not starting at [1,1]
     xphase = float(y)
     yphase = float(x)
     array_shape = (array_size[0], array_size[1])
     weight = np.zeros(array_shape, dtype=complex)
-    mag = np.ones(array_shape, dtype='object')
+    mag = np.ones(array_shape, dtype="object")
     port_names_arranged = np.chararray(array_shape)
     all_ports = ff_data.keys()
     w_dict = {}
@@ -100,7 +100,7 @@ def ff_calc(x=0, y=0, qty='rETotal', dB=True):
             mag_val = mag[m][n]
             ang = np.radians(xphase * m) + np.radians(yphase * n)
             weight[m][n] = np.sqrt(mag_val) * np.exp(1j * ang)
-            current_index_str = '[' + str(m + 1 + loc_offset) + ',' + str(n + 1 + loc_offset) + ']'
+            current_index_str = "[" + str(m + 1 + loc_offset) + "," + str(n + 1 + loc_offset) + "]"
             port_name = [y for y in all_ports if current_index_str in y]
             w_dict[port_name[0]] = weight[m][n]
 
@@ -136,32 +136,31 @@ def ff_calc(x=0, y=0, qty='rETotal', dB=True):
     rEphi_fields = np.reshape(rEphi_fields, (Ntheta, Nphi))
 
     all_qtys = {}
-    all_qtys['rEPhi'] = rEphi_fields
-    all_qtys['rETheta'] = rEtheta_fields
-    all_qtys['rETotal'] = np.sqrt(np.power(np.abs(rEphi_fields), 2) + \
-                                  np.power(np.abs(rEtheta_fields), 2))
+    all_qtys["rEPhi"] = rEphi_fields
+    all_qtys["rETheta"] = rEtheta_fields
+    all_qtys["rETotal"] = np.sqrt(np.power(np.abs(rEphi_fields), 2) + np.power(np.abs(rEtheta_fields), 2))
 
     pin = np.sum(w)
     print(str(pin))
-    real_gain = 2 * np.pi * np.abs(np.power(all_qtys['rETotal'], 2)) / pin / 377
-    all_qtys['RealizedGain'] = real_gain
+    real_gain = 2 * np.pi * np.abs(np.power(all_qtys["rETotal"], 2)) / pin / 377
+    all_qtys["RealizedGain"] = real_gain
 
     if dB:
-        if 'Gain' in qty:
+        if "Gain" in qty:
             qty_to_plot = 10 * np.log10(np.abs(all_qtys[qty]))
         else:
             qty_to_plot = 20 * np.log10(np.abs(all_qtys[qty]))
-        qty_str = qty + ' (dB)'
+        qty_str = qty + " (dB)"
     else:
         qty_to_plot = np.abs(all_qtys[qty])
-        qty_str = qty + ' (mag)'
+        qty_str = qty + " (mag)"
 
     plt.figure(figsize=(25, 15))
     plt.title(qty_str)
-    plt.xlabel('Theta (degree)')
-    plt.ylabel('Phi (degree)')
+    plt.xlabel("Theta (degree)")
+    plt.ylabel("Phi (degree)")
 
-    plt.imshow(qty_to_plot, cmap='jet')
+    plt.imshow(qty_to_plot, cmap="jet")
     plt.colorbar()
 
     np.max(qty_to_plot)
@@ -178,15 +177,16 @@ ff_calc()
 #          y=widgets.FloatSlider(value=0, min=-180, max=180, step=1))
 
 
-vals = hfss.post.get_far_field_data(setup_sweep_name=hfss.nominal_sweep, expression="RealizedGainTotal",
-                                    domain="Elevation")
+vals = hfss.post.get_far_field_data(
+    setup_sweep_name=hfss.nominal_sweep, expression="RealizedGainTotal", domain="Elevation"
+)
 
 
 def Polar_Plot(Phase=0, Freq=76):
     """
     id=0
     """
-    ax = plt.subplot(111, projection='polar')
+    ax = plt.subplot(111, projection="polar")
     legend = []
     Phase = int(Phase)
     Freq = int(Freq)
@@ -207,11 +207,13 @@ def Polar_Plot(Phase=0, Freq=76):
             ax.set_theta_zero_location("N")
             ax.set_theta_direction(-1)
             legend.append(
-                "Phi:" + str(vals.nominal_sweeps["Phi"]) + " Freq:" + str(round(vals.nominal_sweeps["Freq"])) + "GHz")
+                "Phi:" + str(vals.nominal_sweeps["Phi"]) + " Freq:" + str(round(vals.nominal_sweeps["Freq"])) + "GHz"
+            )
     ax.legend(legend)
-    ax.set_title("Realized Gain Total", va='bottom')
+    ax.set_title("Realized Gain Total", va="bottom")
     fig = plt.gcf()
     fig.set_size_inches(22.5, 22.5)
+
 
 Polar_Plot()
 
@@ -223,8 +225,9 @@ Polar_Plot()
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This example generates the plot using Phi as the primary sweep.
 
-vals3d = hfss.post.get_far_field_data(setup_sweep_name=hfss.nominal_sweep, expression="RealizedGainTotal",
-                                      domain="Infinite Sphere1")
+vals3d = hfss.post.get_far_field_data(
+    setup_sweep_name=hfss.nominal_sweep, expression="RealizedGainTotal", domain="Infinite Sphere1"
+)
 
 legend = []
 Freq = 76
@@ -249,10 +252,10 @@ Y = R * np.sin(THETA) * np.sin(PHI)
 
 Z = R * np.cos(THETA)
 fig1 = plt.figure()
-ax1 = fig1.add_subplot(1, 1, 1, projection='3d')
+ax1 = fig1.add_subplot(1, 1, 1, projection="3d")
 plot = ax1.plot_surface(
-    X, Y, Z, rstride=1, cstride=1, cmap=plt.get_cmap('jet'),
-    linewidth=0, antialiased=True, alpha=0.5)
+    X, Y, Z, rstride=1, cstride=1, cmap=plt.get_cmap("jet"), linewidth=0, antialiased=True, alpha=0.5
+)
 fig1.set_size_inches(22.5, 22.5)
 
 #######################################

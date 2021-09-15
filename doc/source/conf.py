@@ -19,9 +19,9 @@ sys.path.append(os.path.abspath(os.path.join(local_path)))
 sys.path.append(os.path.join(root_path))
 
 sys.path.append(os.path.join(root_path))
-project = 'PyAEDT'
-copyright = '(c) 2021 ANSYS, Inc. All rights reserved'
-author = 'Ansys Inc.'
+project = "PyAEDT"
+copyright = "(c) 2021 ANSYS, Inc. All rights reserved"
+author = "Ansys Inc."
 
 # Check for the local config file, otherwise use default desktop configuration
 local_config_file = os.path.join(local_path, "local_config.json")
@@ -29,9 +29,7 @@ if os.path.exists(local_config_file):
     with open(local_config_file) as f:
         config = json.load(f)
 else:
-    config = {
-        "run_examples": True
-    }
+    config = {"run_examples": True}
 
 # read in version from file
 with open(os.path.join(root_path, "pyaedt", "version.txt"), "r") as f:
@@ -45,29 +43,29 @@ with open(os.path.join(root_path, "pyaedt", "version.txt"), "r") as f:
 # ones.
 extensions = [
     "sphinx.ext.intersphinx",
-    'sphinx.ext.autodoc',
-    'sphinx.ext.todo',
+    "sphinx.ext.autodoc",
+    "sphinx.ext.todo",
     "sphinx.ext.viewcode",
     "sphinx.ext.autosummary",
     "sphinx.ext.intersphinx",
-    'sphinx.ext.coverage',
+    "sphinx.ext.coverage",
     "sphinx_copybutton",
-    'recommonmark',
-    'sphinx.ext.graphviz',
-    'sphinx.ext.mathjax',
-    'sphinx.ext.inheritance_diagram',
-    'numpydoc',
+    "recommonmark",
+    "sphinx.ext.graphviz",
+    "sphinx.ext.mathjax",
+    "sphinx.ext.inheritance_diagram",
+    "numpydoc",
 ]
 
 # Intersphinx mapping
 intersphinx_mapping = {
-    'python': ('https://docs.python.org/dev', None),
-    'scipy': ('https://docs.scipy.org/doc/scipy/reference', None),
-    'numpy': ('https://numpy.org/devdocs', None),
-    'matplotlib': ('https://matplotlib.org/stable', None),
-    'imageio': ('https://imageio.readthedocs.io/en/stable', None),
-    'pandas': ('https://pandas.pydata.org/pandas-docs/stable', None),
-    'pytest': ('https://docs.pytest.org/en/stable', None),
+    "python": ("https://docs.python.org/dev", None),
+    "scipy": ("https://docs.scipy.org/doc/scipy/reference", None),
+    "numpy": ("https://numpy.org/devdocs", None),
+    "matplotlib": ("https://matplotlib.org/stable", None),
+    "imageio": ("https://imageio.readthedocs.io/en/stable", None),
+    "pandas": ("https://pandas.pydata.org/pandas-docs/stable", None),
+    "pytest": ("https://docs.pytest.org/en/stable", None),
 }
 
 # numpydoc configuration
@@ -76,36 +74,33 @@ numpydoc_show_class_members = False
 numpydoc_xref_param_type = True
 numpydoc_validate = True
 numpydoc_validation_checks = {
-    "GL06", # Found unknown section
-    "GL07", # Sections are in the wrong order.
-    "GL08", # The object does not have a docstring
-    "GL09", # Deprecation warning should precede extended summary
-    "GL10", # reST directives {directives} must be followed by two colons
-
-    "SS01", # No summary found
-    "SS02", # Summary does not start with a capital letter
-    "SS03", # Summary does not end with a period
-    "SS04", # Summary contains heading whitespaces
-    "SS05", # Summary must start with infinitive verb, not third person
-
-
+    "GL06",  # Found unknown section
+    "GL07",  # Sections are in the wrong order.
+    "GL08",  # The object does not have a docstring
+    "GL09",  # Deprecation warning should precede extended summary
+    "GL10",  # reST directives {directives} must be followed by two colons
+    "SS01",  # No summary found
+    "SS02",  # Summary does not start with a capital letter
+    "SS03",  # Summary does not end with a period
+    "SS04",  # Summary contains heading whitespaces
+    "SS05",  # Summary must start with infinitive verb, not third person
 }
 
 numpydoc_validation_exclude = {  # set of regex
-    r'\.AEDTMessageManager.add_message$',  # bad SS05
+    r"\.AEDTMessageManager.add_message$",  # bad SS05
 }
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # disable generating the sphinx nested documentation
-if 'PYAEDT_CI_NO_AUTODOC' in os.environ:
+if "PYAEDT_CI_NO_AUTODOC" in os.environ:
     templates_path.clear()
 
 
 # Copy button customization ---------------------------------------------------
 # exclude traditional Python prompts from the copied code
-copybutton_prompt_text = r'>>> ?|\.\.\. '
+copybutton_prompt_text = r">>> ?|\.\.\. "
 copybutton_prompt_is_regexp = True
 
 
@@ -114,17 +109,15 @@ copybutton_prompt_is_regexp = True
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = 'Python'
+language = "Python"
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ['_build', "sphinx_boogergreen_theme_1", 'Thumbs.db', '.DS_Store', '*.txt']
+exclude_patterns = ["_build", "sphinx_boogergreen_theme_1", "Thumbs.db", ".DS_Store", "*.txt"]
 
-inheritance_graph_attrs = dict(rankdir="RL", size='"8.0, 10.0"',
-                               fontsize=14, ratio='compress')
-inheritance_node_attrs = dict(shape='ellipse', fontsize=14, height=0.75,
-                              color='dodgerblue1', style='filled')
+inheritance_graph_attrs = dict(rankdir="RL", size='"8.0, 10.0"', fontsize=14, ratio="compress")
+inheritance_node_attrs = dict(shape="ellipse", fontsize=14, height=0.75, color="dodgerblue1", style="filled")
 
 
 # -- Options for HTML output -------------------------------------------------
@@ -132,27 +125,24 @@ inheritance_node_attrs = dict(shape='ellipse', fontsize=14, height=0.75,
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-#html_theme = 'alabaster'
+# html_theme = 'alabaster'
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-#html_static_path = ['_static']
+# html_static_path = ['_static']
 
-source_suffix = {
-    '.rst': 'restructuredtext',
-    '.md': 'markdown'
-}
+source_suffix = {".rst": "restructuredtext", ".md": "markdown"}
 
 # The master toctree document.
-master_doc = 'index'
+master_doc = "index"
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
+pygments_style = "sphinx"
 
 
 # Manage errors
-pyvista.set_error_output_file('errors.txt')
+pyvista.set_error_output_file("errors.txt")
 
 # Ensure that offscreen rendering is used for docs generation
 pyvista.OFF_SCREEN = True
@@ -161,32 +151,32 @@ pyvista.OFF_SCREEN = True
 # pyvista.set_plot_theme('document')
 
 # must be less than or equal to the XVFB window size
-pyvista.rcParams['window_size'] = np.array([1024, 768])
+pyvista.rcParams["window_size"] = np.array([1024, 768])
 
 # Save figures in specified directory
-pyvista.FIGURE_PATH = os.path.join(os.path.abspath('./images/'), 'auto-generated/')
+pyvista.FIGURE_PATH = os.path.join(os.path.abspath("./images/"), "auto-generated/")
 if not os.path.exists(pyvista.FIGURE_PATH):
     os.makedirs(pyvista.FIGURE_PATH)
 
 # gallery build requires AEDT install
-if os.name != 'posix' and 'PYAEDT_CI_NO_EXAMPLES' not in os.environ:
+if os.name != "posix" and "PYAEDT_CI_NO_EXAMPLES" not in os.environ:
 
     # suppress annoying matplotlib bug
     warnings.filterwarnings(
         "ignore",
         category=UserWarning,
-        message='Matplotlib is currently using agg, which is a non-GUI backend, so cannot show the figure.',
+        message="Matplotlib is currently using agg, which is a non-GUI backend, so cannot show the figure.",
     )
 
     # necessary for pyvista when building the sphinx gallery
     pyvista.BUILDING_GALLERY = True
 
     if config["run_examples"]:
-        extensions.append('sphinx_gallery.gen_gallery')
+        extensions.append("sphinx_gallery.gen_gallery")
 
         sphinx_gallery_conf = {
             # convert rst to md for ipynb
-            'pypandoc': True,
+            "pypandoc": True,
             # path to your examples scripts
             "examples_dirs": ["../../examples/"],
             # path where to save gallery generated examples
@@ -201,8 +191,8 @@ if os.name != 'posix' and 'PYAEDT_CI_NO_EXAMPLES' not in os.environ:
             "backreferences_dir": None,
             # Modules for which function level galleries are created.  In
             "doc_module": "ansys-mapdl-core",
-            "image_scrapers": ('pyvista', 'matplotlib'),
-            'ignore_pattern': 'flycheck*',
+            "image_scrapers": ("pyvista", "matplotlib"),
+            "ignore_pattern": "flycheck*",
             "thumbnail_size": (350, 350),
             # 'first_notebook_cell': ("%matplotlib inline\n"
             #                         "from pyvista import set_plot_theme\n"
@@ -212,17 +202,14 @@ if os.name != 'posix' and 'PYAEDT_CI_NO_EXAMPLES' not in os.environ:
 
 # -- Options for HTML output -------------------------------------------------
 html_show_sourcelink = True
-html_theme = 'pyansys_sphinx_theme'
-html_logo = 'https://docs.pyansys.com/_static/pyansys-logo-black-cropped.png'
+html_theme = "pyansys_sphinx_theme"
+html_logo = "https://docs.pyansys.com/_static/pyansys-logo-black-cropped.png"
 
-html_theme_options = {
-    "github_url": "https://github.com/pyansys/PyAEDT",
-    "show_prev_next": False
-}
+html_theme_options = {"github_url": "https://github.com/pyansys/PyAEDT", "show_prev_next": False}
 
-html_static_path = ['_static']
+html_static_path = ["_static"]
 
 # -- Options for HTMLHelp output ---------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'pyaedtdoc'
+htmlhelp_basename = "pyaedtdoc"

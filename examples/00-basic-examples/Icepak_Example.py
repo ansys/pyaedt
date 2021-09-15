@@ -12,6 +12,8 @@ The example file is an Icepak Project with a model already created and with mate
 # This examples launches AEDT 2021.1 in graphical mode.
 
 import os
+import tempfile
+import shutil
 from pyaedt import examples, generate_unique_name
 from pyaedt import Icepak
 
@@ -22,15 +24,16 @@ from pyaedt import Icepak
 
 project_full_name = examples.download_icepak()
 
-if os.name == "posix":
-    tmpfold = os.environ["TMPDIR"]
-else:
-    tmpfold = os.environ["TEMP"]
+tmpfold = tempfile.gettempdir()
+
 
 temp_folder = os.path.join(tmpfold, generate_unique_name("Example"))
-if not os.path.exists(temp_folder): os.makedirs(temp_folder)
+project_temp_name = os.path.join(temp_folder, "Graphic_Card.aedt")
+if not os.path.exists(temp_folder):
+    os.makedirs(temp_folder)
+shutil.copy2(project_full_name, project_temp_name)
 
-ipk = Icepak(project_full_name, specified_version="2021.1")
+ipk = Icepak(project_temp_name, specified_version="2021.1")
 ipk.save_project(os.path.join(temp_folder, "Graphics_card.aedt"))
 ipk.autosave_disable()
 
@@ -39,8 +42,8 @@ ipk.autosave_disable()
 # ~~~~~~~~~~~~~~~~~~~~
 # Create Source block on CPU and MEMORIES
 
-ipk.create_source_block("CPU","25W")
-ipk.create_source_block(["MEMORY1", "MEMORY1_1"],"5W")
+ipk.create_source_block("CPU", "25W")
+ipk.create_source_block(["MEMORY1", "MEMORY1_1"], "5W")
 
 ###############################################################################
 # Assign Boundaries
@@ -48,15 +51,15 @@ ipk.create_source_block(["MEMORY1", "MEMORY1_1"],"5W")
 # Assign Opening and Grille
 
 region = ipk.modeler.primitives["Region"]
-ipk.assign_openings(region.bottom_face_x.id)
-ipk.assign_grille(region.top_face_x.id, free_area_ratio=0.8)
+ipk.assign_openings(air_faces=region.bottom_face_x.id)
+ipk.assign_grille(air_faces=region.top_face_x.id, free_area_ratio=0.8)
 
 ###############################################################################
 # Mesh Operations
 # ~~~~~~~~~~~~~~~
 # Assign Mesh Region to HeatSink and CPU
 
-mesh_region=ipk.mesh.assign_mesh_region(["HEAT_SINK","CPU"])
+mesh_region = ipk.mesh.assign_mesh_region(objectlist=["HEAT_SINK", "CPU"])
 mesh_region.UserSpecifiedSettings = True
 mesh_region.MaxElementSizeX = "3.35mm"
 mesh_region.MaxElementSizeY = "1.75mm"
@@ -69,8 +72,8 @@ mesh_region.update()
 # ~~~~~
 # Create Point Monitor and Setup
 
-ipk.assign_point_monitor(["-35mm", "3.6mm", "-86mm"])
-ipk.assign_point_monitor(["80mm", "14.243mm", "-55mm"],"Speed")
+ipk.assign_point_monitor(point_position=["-35mm", "3.6mm", "-86mm"], monitor_name="TemperatureMonitor1")
+ipk.assign_point_monitor(point_position=["80mm", "14.243mm", "-55mm"], monitor_type="Speed")
 setup1 = ipk.create_setup()
 setup1.props["Flow Regime"] = "Turbulent"
 setup1.props["Convergence Criteria - Max Iterations"] = 5

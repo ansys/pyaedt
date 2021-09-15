@@ -6,15 +6,16 @@ This module provides all functionalities for logging errors and messages
 in both AEDT and the log file.
 """
 
-import sys
 import logging
 import os
-from ..generic.general_methods import aedt_exception_handler, generate_unique_name
-message_levels = {'Global': 0,
-                  'Project': 1,
-                  'Design': 2}
+import sys
 
-class Msg():
+from ..generic.general_methods import aedt_exception_handler
+
+message_levels = {"Global": 0, "Project": 1, "Design": 2}
+
+
+class Msg:
     (INFO, WARNING, ERROR, FATAL) = range(4)
 
 
@@ -53,7 +54,7 @@ class MessageList:
         design_label = "Project: {}, Design: {} (".format(project_name, design_name)
         for line in msg_list:
             # Find the first instance of '[' to get the message context
-            loc = line.find('[')
+            loc = line.find("[")
             if loc < 0:
                 # Format is not clear - append to global
                 self.global_level.append(line)
@@ -106,20 +107,24 @@ class AEDTMessageManager(object):
     def __init__(self, parent=None):
         self._parent = parent
         if not parent:
-            if 'oDesktop' in dir(sys.modules['__main__']):
-                self.MainModule = sys.modules['__main__']
+            if "oDesktop" in dir(sys.modules["__main__"]):
+                self.MainModule = sys.modules["__main__"]
                 self._desktop = self.MainModule.oDesktop
-                self._log_on_desktop = os.getenv(
-                    'PYAEDT_DESKTOP_LOGS', 'True').lower() in ('true', '1', 't', 'yes', 'y')
+                self._log_on_desktop = os.getenv("PYAEDT_DESKTOP_LOGS", "True").lower() in (
+                    "true",
+                    "1",
+                    "t",
+                    "yes",
+                    "y",
+                )
             else:
                 self._log_on_desktop = False
                 self._desktop = None
         else:
             self._desktop = self._parent._desktop
-            self._log_on_desktop = os.getenv(
-                'PYAEDT_DESKTOP_LOGS', 'True').lower() in ('true', '1', 't')
-        self._log_on_file = os.getenv('PYAEDT_FILE_LOGS', 'True').lower() in ('true', '1', 't')
-        self._log_on_screen = os.getenv('PYAEDT_SCREEN_LOGS', 'True').lower() in ('true', '1', 't')
+            self._log_on_desktop = os.getenv("PYAEDT_DESKTOP_LOGS", "True").lower() in ("true", "1", "t")
+        self._log_on_file = os.getenv("PYAEDT_FILE_LOGS", "True").lower() in ("true", "1", "t")
+        self._log_on_screen = os.getenv("PYAEDT_SCREEN_LOGS", "True").lower() in ("true", "1", "t")
 
         if self._log_on_file:
             self.logger = logging.getLogger(__name__)
@@ -238,15 +243,6 @@ class AEDTMessageManager(object):
         self.add_message(0, message_text, level)
 
     @aedt_exception_handler
-    def add_debug_message(self, message_text, level=None):
-        """Deprecated in favor of :func:`MessageList.add_info_message`.
-
-        .. deprecated:: 0.2.0
-           Use  :func:`MessageList.add_info_message`.
-        """
-        self.add_info_message(message_text, level)
-
-    @aedt_exception_handler
     def add_message(self, type, message_text, level=None, proj_name=None, des_name=None):
         """Pass a parameterized message to the Message Manager to specify the type and project or design level.
 
@@ -279,7 +275,7 @@ class AEDTMessageManager(object):
             des_name = ""
 
         if not level:
-            level = 'Design'
+            level = "Design"
 
         assert level in message_levels, "Message level must be `Design', 'Project', or 'Global'."
 
@@ -289,7 +285,7 @@ class AEDTMessageManager(object):
             if not des_name and message_levels[level] > 1:
                 des_name = self._design_name
             if des_name and ";" in des_name:
-                des_name = des_name[des_name.find(";")+1:]
+                des_name = des_name[des_name.find(";") + 1 :]
             self._desktop.AddMessage(proj_name, des_name, type, message_text)
 
         if len(message_text) > 250:
@@ -299,14 +295,14 @@ class AEDTMessageManager(object):
 
         if self._log_on_screen:
             if type == 0:
-                print("pyaedt Info: {}".format(message_text))
+                print("PyAEDT Info: {}".format(message_text))
             elif type == 1:
-                print("pyaedt Warning: {}".format(message_text))
+                print("PyAEDT Warning: {}".format(message_text))
             elif type == 2:
-                print("pyaedt Error: {}".format(message_text))
+                print("PyAEDT Error: {}".format(message_text))
         if self._log_on_file:
             if type == 0 and self.logger:
-                self.logger.info(message_text)
+                self.logger.debug(message_text)
             elif type == 1 and self.logger:
                 self.logger.warning(message_text)
             elif type == 2 and self.logger:
@@ -353,11 +349,13 @@ class AEDTMessageManager(object):
 
     @property
     def _oproject(self):
-        return self._desktop.GetActiveProject()
+        if self._desktop:
+            return self._desktop.GetActiveProject()
 
     @property
     def _odesign(self):
-        return self._oproject.GetActiveDesign()
+        if self._oproject:
+            return self._oproject.GetActiveDesign()
 
     @property
     def _design_name(self):
@@ -384,8 +382,8 @@ class EDBMessageManager(object):
     """
 
     def __init__(self, project_dir=None):
-        self._log_on_file = os.getenv('PYAEDT_FILE_LOGS', 'True').lower() in ('true', '1', 't')
-        self._log_on_screen = os.getenv('PYAEDT_SCREEN_LOGS', 'True').lower() in ('true', '1', 't')
+        self._log_on_file = os.getenv("PYAEDT_FILE_LOGS", "True").lower() in ("true", "1", "t")
+        self._log_on_screen = os.getenv("PYAEDT_SCREEN_LOGS", "True").lower() in ("true", "1", "t")
         if self._log_on_file:
             self.logger = logging.getLogger(__name__)
             if not project_dir:
@@ -397,8 +395,9 @@ class EDBMessageManager(object):
                 logging.basicConfig(
                     filename=os.path.join(project_dir, "pyaedt_edb.log"),
                     level=logging.DEBUG,
-                    format='%(asctime)s:%(name)s:%(levelname)-8s:%(message)s',
-                    datefmt='%Y/%m/%d %H.%M.%S')
+                    format="%(asctime)s:%(name)s:%(levelname)-8s:%(message)s",
+                    datefmt="%Y/%m/%d %H.%M.%S",
+                )
                 self.logger = logging.getLogger(__name__)
         else:
             self.logger = None

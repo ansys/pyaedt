@@ -1,22 +1,27 @@
 # -*- coding: utf-8 -*-
 import json
 import math
-import re
-import warnings
 import random
+import re
 import string
+import warnings
 from collections import OrderedDict
 from decimal import Decimal
-from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name
+
+from pyaedt.generic.general_methods import aedt_exception_handler
 from pyaedt.modeler.Object3d import EdgePrimitive, FacePrimitive, VertexPrimitive
+
 try:
     import clr
+
     clr.AddReference("System.Collections")
     from System.Collections.Generic import List
+
     clr.AddReference("System")
-    from System import Double, Array
+    from System import Double
 except ImportError:
     warnings.warn("Pythonnet is needed to run pyaedt")
+
 
 @aedt_exception_handler
 def tuple2dict(t, d):
@@ -39,8 +44,9 @@ def tuple2dict(t, d):
         d[k] = v
     elif type(v) is list and len(t) == 2 and not v:
         d[k] = None
-    elif type(v) is list and type(v[0]) is tuple and len(
-            t) == 2:  # len check is to avoid expanding the list with a 3rd element=None
+    elif (
+        type(v) is list and type(v[0]) is tuple and len(t) == 2
+    ):  # len check is to avoid expanding the list with a 3rd element=None
         d[k] = OrderedDict()
         for tt in v:
             tuple2dict(tt, d[k])
@@ -70,7 +76,7 @@ def dict2arg(d, arg_out):
             arg_out.append(arg)
         elif v is None:
             arg_out.append(["NAME:" + k])
-        elif type(v) is list and len(v)>0 and (type(v[0]) is OrderedDict or type(v[0]) is dict):
+        elif type(v) is list and len(v) > 0 and (type(v[0]) is OrderedDict or type(v[0]) is dict):
             for el in v:
                 arg = ["NAME:" + k]
                 dict2arg(el, arg)
@@ -101,23 +107,25 @@ def arg2dict(arg, dict_out):
     """
     if arg[0] == "NAME:DimUnits" or "NAME:Point" in arg[0]:
         dict_out[arg[0][5:]] = list(arg[1:])
-    elif arg[0][:5] == 'NAME:':
+    elif arg[0][:5] == "NAME:":
         top_key = arg[0][5:]
         dict_in = OrderedDict()
         i = 1
         while i < len(arg):
-            if (type(arg[i]) is list or type(arg[i]) is tuple or str(type(arg[i])) == r"<type 'List'>") and arg[i][0][:5] == 'NAME:':
+            if (type(arg[i]) is list or type(arg[i]) is tuple or str(type(arg[i])) == r"<type 'List'>") and arg[i][0][
+                :5
+            ] == "NAME:":
                 arg2dict(arg[i], dict_in)
                 i += 1
-            elif arg[i][-2:] == ':=':
+            elif arg[i][-2:] == ":=":
                 dict_in[arg[i][:-2]] = arg[i + 1]
 
                 i += 2
             else:
-                raise ValueError('Incorrect data argument format')
+                raise ValueError("Incorrect data argument format")
         dict_out[top_key] = dict_in
     else:
-        raise ValueError('Incorrect data argument format')
+        raise ValueError("Incorrect data argument format")
 
 
 @aedt_exception_handler
@@ -136,9 +144,9 @@ def create_list_for_csharp(input_list, return_strings=False):
 
     """
     if return_strings:
-        col=List[str]()
+        col = List[str]()
     else:
-        col=List[Double]()
+        col = List[Double]()
 
     for el in input_list:
         if return_strings:
@@ -165,7 +173,7 @@ def create_table_for_csharp(input_list_of_list, return_strings=True):
     """
     new_table = List[List[str]]()
     for col in input_list_of_list:
-        newcol=create_list_for_csharp(col, return_strings)
+        newcol = create_list_for_csharp(col, return_strings)
         new_table.Add(newcol)
     return new_table
 
@@ -217,7 +225,7 @@ def random_string(length=6, only_digits=False, char_set=None):
             char_set = string.digits
         else:
             char_set = string.ascii_uppercase + string.digits
-    random_str = ''.join(random.choice(char_set) for _ in range(int(length)))
+    random_str = "".join(random.choice(char_set) for _ in range(int(length)))
     return random_str
 
 
@@ -241,17 +249,16 @@ def unique_string_list(element_list, only_string=True):
         elif isinstance(element_list, str):
             element_list = [element_list]
         else:
-            error_message = 'Invalid list data'
+            error_message = "Invalid list data"
             try:
-                error_message += ' {}'.format(element_list)
+                error_message += " {}".format(element_list)
             except:
                 pass
             raise Exception(error_message)
 
         if only_string:
             non_string_entries = [x for x in element_list if type(x) is not str]
-            assert not non_string_entries, "Invalid list entries {} are not a string!".format(
-                non_string_entries)
+            assert not non_string_entries, "Invalid list entries {} are not a string!".format(non_string_entries)
 
     return element_list
 
@@ -271,7 +278,7 @@ def string_list(element_list):
     if isinstance(element_list, str):
         element_list = [element_list]
     else:
-        assert isinstance(element_list, str), 'Input must be a list or a string'
+        assert isinstance(element_list, str), "Input must be a list or a string"
     return element_list
 
 
@@ -304,54 +311,52 @@ def variation_string_to_dict(variation_string, separator="="):
     for var in var_data:
         pos_eq = var.find("=")
         var_name = var[0:pos_eq]
-        var_value = var[pos_eq+1:].replace('\'', '')
+        var_value = var[pos_eq + 1 :].replace("'", "")
         variation_dict[var_name] = var_value
     return variation_dict
 
 
 RKM_MAPS = {
     # Resistors
-    'L': 'm',
-    'R': '',
-    'E': '',
-    'k': 'k',
-    'K': 'k',
-    'M': 'M',
-    'G': 'G',
-    'T': 'T',
-    'f': 'f',
+    "L": "m",
+    "R": "",
+    "E": "",
+    "k": "k",
+    "K": "k",
+    "M": "M",
+    "G": "G",
+    "T": "T",
+    "f": "f",
     # Capacitors/Inductors
-    'F': '',
-    'H': '',
-    'h': '',
-    'm': 'm',
-    'u': 'μ',
-    'μ': 'μ',
-    'U': 'μ',
-    'n': 'n',
-    'N': 'n',
-    'p': 'p',
-    'P': 'p',
-    'mF': 'm',
-    'uF': 'μ',
-    'μF': 'μ',
-    'UF': 'μ',
-    'nF': 'n',
-    'NF': 'n',
-    'pF': 'p',
-    'PF': 'p',
-    'mH': 'm',
-    'uH': 'μ',
-    'μH': 'μ',
-    'UH': 'μ',
-    'nH': 'n',
-    'NH': 'n',
-    'pH': 'p',
-    'PH': 'p',
+    "F": "",
+    "H": "",
+    "h": "",
+    "m": "m",
+    "u": "μ",
+    "μ": "μ",
+    "U": "μ",
+    "n": "n",
+    "N": "n",
+    "p": "p",
+    "P": "p",
+    "mF": "m",
+    "uF": "μ",
+    "μF": "μ",
+    "UF": "μ",
+    "nF": "n",
+    "NF": "n",
+    "pF": "p",
+    "PF": "p",
+    "mH": "m",
+    "uH": "μ",
+    "μH": "μ",
+    "UH": "μ",
+    "nH": "n",
+    "NH": "n",
+    "pH": "p",
+    "PH": "p",
 }
-AEDT_MAPS = {
-    'μ': 'u'
-}
+AEDT_MAPS = {"μ": "u"}
 
 
 def from_rkm(code):
@@ -398,10 +403,12 @@ def from_rkm(code):
 
     # Matches RKM codes that start with a digit.
     # fd_pattern = r'([0-9]+)([LREkKMGTFmuµUnNpP]+)([0-9]*)'
-    fd_pattern = r'([0-9]+)([{}]+)([0-9]*)'.format(''.join(RKM_MAPS.keys()), )
+    fd_pattern = r"([0-9]+)([{}]+)([0-9]*)".format(
+        "".join(RKM_MAPS.keys()),
+    )
     # matches rkm codes that end with a digit
     # ld_pattern = r'([0-9]*)([LREkKMGTFmuµUnNpP]+)([0-9]+)'
-    ld_pattern = r'([0-9]*)([{}]+)([0-9]+)'.format(''.join(RKM_MAPS.keys()))
+    ld_pattern = r"([0-9]*)([{}]+)([0-9]+)".format("".join(RKM_MAPS.keys()))
 
     fd_regex = re.compile(fd_pattern, re.I)
     ld_regex = re.compile(ld_pattern, re.I)
@@ -413,9 +420,9 @@ def from_rkm(code):
             ps = RKM_MAPS[base]
 
             if ld:
-                return_str = ''.join([fd, '.', ld, ps])
+                return_str = "".join([fd, ".", ld, ps])
             else:
-                return_str = ''.join([fd, ps])
+                return_str = "".join([fd, ps])
             return return_str
     return code
 
@@ -432,7 +439,7 @@ def to_aedt(code):
     str
 
     """
-    pattern = r'([{}]{})'.format(''.join(AEDT_MAPS.keys()), '{1}')
+    pattern = r"([{}]{})".format("".join(AEDT_MAPS.keys()), "{1}")
     regex = re.compile(pattern, re.I)
     return_code = regex.sub(lambda m: AEDT_MAPS.get(m.group(), m.group()), code)
     return return_code
@@ -478,10 +485,9 @@ unit_val = {
     "cm": 1e-2,
     "dm": 1e-1,
     "meter": 1.0,
-    "km": 1e3
-
+    "km": 1e3,
 }
-resynch_maxwell2D_control_program_for_design = '''
+resynch_maxwell2D_control_program_for_design = """
 from pyaedt.Desktop import Desktop
 from pyaedt.Maxwell import Maxwell2D
 design_name = os.getenv('design')
@@ -492,7 +498,7 @@ with Desktop() as d:
     mxwl.setup_ctrlprog(keep_modifications=True )
     oDesktop.AddMessage( mxwl.project_name, mxwl.design_name, 0, "Successfully updated project definitions")
     mxwl.save_project()
-'''
+"""
 
 
 def float_units(val_str, units=""):
@@ -513,7 +519,7 @@ def float_units(val_str, units=""):
     if not units in unit_val:
         raise Exception("Specified unit string " + units + " not known!")
 
-    loc = re.search('[a-zA-Z]', val_str)
+    loc = re.search("[a-zA-Z]", val_str)
     try:
         b = loc.span()[0]
         var = [float(val_str[0:b]), val_str[b:]]

@@ -2,6 +2,7 @@
 import os
 import sys
 import time
+
 try:
     import pytest
 except:
@@ -21,17 +22,18 @@ test = sys.modules.keys()
 scdoc = "input.scdoc"
 step = "input.stp"
 
+
 class TestClass(BasisTest):
     def setup_class(self):
         BasisTest.setup_class(self, project_name="test_primitives", design_name="3D_Primitives")
         with Scratch(scratch_path) as self.local_scratch:
-            scdoc_file = os.path.join(local_path, 'example_models', scdoc)
+            scdoc_file = os.path.join(local_path, "example_models", scdoc)
             self.local_scratch.copyfile(scdoc_file)
-            step_file = os.path.join(local_path, 'example_models', step)
+            step_file = os.path.join(local_path, "example_models", step)
             self.local_scratch.copyfile(step_file)
-            test_98_project = os.path.join(local_path, 'example_models', 'assembly2' + '.aedt')
+            test_98_project = os.path.join(local_path, "example_models", "assembly2" + ".aedt")
             self.test_98_project = self.local_scratch.copyfile(test_98_project)
-            test_99_project = os.path.join(local_path, 'example_models', 'assembly' + '.aedt')
+            test_99_project = os.path.join(local_path, "example_models", "assembly" + ".aedt")
             self.test_99_project = self.local_scratch.copyfile(test_99_project)
 
     def create_copper_box(self, name=None):
@@ -41,8 +43,7 @@ class TestClass(BasisTest):
             self.aedtapp.modeler.primitives.delete(name)
         else:
             pass
-        new_object = self.aedtapp.modeler.primitives.create_box(
-            [0, 0, 0], [10, 10, 5], name, "Copper")
+        new_object = self.aedtapp.modeler.primitives.create_box([0, 0, 0], [10, 10, 5], name, "Copper")
         return new_object
 
     def create_copper_sphere(self, name=None):
@@ -57,8 +58,9 @@ class TestClass(BasisTest):
             name = "MyCyl"
         if self.aedtapp.modeler.primitives[name]:
             self.aedtapp.modeler.primitives.delete(name)
-        return self.aedtapp.modeler.primitives.create_cylinder(cs_axis="Y", position=[20, 20, 0], radius=5, height=20,
-                                                               numSides=8, name=name, matname="Copper")
+        return self.aedtapp.modeler.primitives.create_cylinder(
+            cs_axis="Y", position=[20, 20, 0], radius=5, height=20, numSides=8, name=name, matname="Copper"
+        )
 
     def create_rectangle(self, name=None):
         if not name:
@@ -72,28 +74,23 @@ class TestClass(BasisTest):
         if not name:
             name = "Poly_"
 
-        test_points = [[0, 100, 0],
-                       [-100, 0, 0],
-                       [-50, -50, 0],
-                       [0, 0, 0]]
+        test_points = [[0, 100, 0], [-100, 0, 0], [-50, -50, 0], [0, 0, 0]]
 
-        if self.aedtapp.modeler.primitives[name+"segmented"]:
-            self.aedtapp.modeler.primitives.delete(name+"segmented")
+        if self.aedtapp.modeler.primitives[name + "segmented"]:
+            self.aedtapp.modeler.primitives.delete(name + "segmented")
 
-        if self.aedtapp.modeler.primitives[name+"compound"]:
-            self.aedtapp.modeler.primitives.delete(name+"compound")
+        if self.aedtapp.modeler.primitives[name + "compound"]:
+            self.aedtapp.modeler.primitives.delete(name + "compound")
 
-        p1 = self.aedtapp.modeler.primitives.create_polyline(position_list=test_points,
-                                                                 name=name+"segmented")
-        p2 = self.aedtapp.modeler.primitives.create_polyline(position_list=test_points,
-                                                                 segment_type=["Line", "Arc"],
-                                                                 name=name+"compound")
+        p1 = self.aedtapp.modeler.primitives.create_polyline(position_list=test_points, name=name + "segmented")
+        p2 = self.aedtapp.modeler.primitives.create_polyline(
+            position_list=test_points, segment_type=["Line", "Arc"], name=name + "compound"
+        )
         return p1, p2, test_points
 
     @pyaedt_unittest_check_desktop_error
     def test_01_resolve_object(self):
-        o = self.aedtapp.modeler.primitives.create_box(
-            [0, 0, 0], [10, 10, 5], "MyCreatedBox", "Copper")
+        o = self.aedtapp.modeler.primitives.create_box([0, 0, 0], [10, 10, 5], "MyCreatedBox", "Copper")
         o1 = self.aedtapp.modeler.primitives._resolve_object(o)
         o2 = self.aedtapp.modeler.primitives._resolve_object(o.id)
         o3 = self.aedtapp.modeler.primitives._resolve_object(o.name)
@@ -112,23 +109,20 @@ class TestClass(BasisTest):
 
     @pyaedt_unittest_check_desktop_error
     def test_02_create_box(self):
-        o = self.aedtapp.modeler.primitives.create_box(
-            [0, 0, 0], [10, 10, 5], "MyCreatedBox_11", "Copper")
+        o = self.aedtapp.modeler.primitives.create_box([0, 0, 0], [10, 10, 5], "MyCreatedBox_11", "Copper")
         assert o.id > 0
         assert o.name.startswith("MyCreatedBox_11")
         assert o.object_type == "Solid"
         assert o.is3d == True
         assert o.material_name == "copper"
         assert "MyCreatedBox_11" in self.aedtapp.modeler.primitives.solid_names
-        assert len(self.aedtapp.modeler.primitives.object_names) == len(
-            self.aedtapp.modeler.primitives.objects)
+        assert len(self.aedtapp.modeler.primitives.object_names) == len(self.aedtapp.modeler.primitives.objects)
 
     @pyaedt_unittest_check_desktop_error
     def test_03_create_box_assertions(self):
         try:
             invalid_entry = "Frank"
-            self.aedtapp.modeler.primitives.create_box(
-                [0, 0, 0], invalid_entry, "MyCreatedBox", "Copper")
+            self.aedtapp.modeler.primitives.create_box([0, 0, 0], invalid_entry, "MyCreatedBox", "Copper")
             assert False
         except AssertionError:
             pass
@@ -136,36 +130,39 @@ class TestClass(BasisTest):
     @pyaedt_unittest_check_desktop_error
     def test_04_create_polyhedron(self):
 
-       o1 = self.aedtapp.modeler.primitives.create_polyhedron()
-       assert o1.id > 0
-       assert o1.name.startswith("New")
-       assert o1.object_type == "Solid"
-       assert o1.is3d == True
-       assert o1.material_name == "vacuum"
-       assert o1.solve_inside
+        o1 = self.aedtapp.modeler.primitives.create_polyhedron()
+        assert o1.id > 0
+        assert o1.name.startswith("New")
+        assert o1.object_type == "Solid"
+        assert o1.is3d == True
+        assert o1.material_name == "vacuum"
+        assert o1.solve_inside
 
-       o2 = self.aedtapp.modeler.primitives.create_polyhedron(cs_axis=CoordinateSystemAxis.ZAxis,
-                                                              center_position=[0, 0, 0], start_position=[0, 1, 0],
-                                                              height=2.0, num_sides=5, name="MyPolyhedron",
-                                                              matname="Aluminum")
-       assert o2.id > 0
-       assert o2.object_type == "Solid"
-       assert o2.is3d == True
-       assert o2.material_name == "aluminum"
-       assert o2.solve_inside == False
+        o2 = self.aedtapp.modeler.primitives.create_polyhedron(
+            cs_axis=CoordinateSystemAxis.ZAxis,
+            center_position=[0, 0, 0],
+            start_position=[0, 1, 0],
+            height=2.0,
+            num_sides=5,
+            name="MyPolyhedron",
+            matname="Aluminum",
+        )
+        assert o2.id > 0
+        assert o2.object_type == "Solid"
+        assert o2.is3d == True
+        assert o2.material_name == "aluminum"
+        assert o2.solve_inside == False
 
-       assert o1.name in self.aedtapp.modeler.primitives.solid_names
-       assert o2.name in self.aedtapp.modeler.primitives.solid_names
-       assert len(self.aedtapp.modeler.primitives.object_names) == len(
-           self.aedtapp.modeler.primitives.objects)
-       pass
+        assert o1.name in self.aedtapp.modeler.primitives.solid_names
+        assert o2.name in self.aedtapp.modeler.primitives.solid_names
+        assert len(self.aedtapp.modeler.primitives.object_names) == len(self.aedtapp.modeler.primitives.objects)
+        pass
 
     @pyaedt_unittest_check_desktop_error
     def test_05_center_and_centroid(self):
         o = self.create_copper_box()
         tol = 1e-9
-        assert GeometryOperators.v_norm(o.faces[0].center) - \
-                                        GeometryOperators.v_norm(o.faces[0].centroid) < tol
+        assert GeometryOperators.v_norm(o.faces[0].center) - GeometryOperators.v_norm(o.faces[0].centroid) < tol
 
     @pyaedt_unittest_check_desktop_error
     def test_11_get_object_name_from_edge(self):
@@ -194,20 +191,20 @@ class TestClass(BasisTest):
         assert isinstance(f.center, list) and len(f.center) == 3
         assert isinstance(f.area, float) and f.area > 0
         assert o.faces[0].move_with_offset(0.1)
-        assert o.faces[0].move_with_vector([0,0,0.01])
+        assert o.faces[0].move_with_vector([0, 0, 0.01])
         assert type(f.normal) is list
 
     @pyaedt_unittest_check_desktop_error
     def test_11c_check_object_edges(self):
-        o = self.create_copper_box(name = "MyBox")
+        o = self.create_copper_box(name="MyBox")
         e = o.edges[1]
         assert isinstance(e.midpoint, list) and len(e.midpoint) == 3
-        assert isinstance(e.length, float) and e.length> 0
+        assert isinstance(e.length, float) and e.length > 0
 
     @pyaedt_unittest_check_desktop_error
     def test_11d_check_object_vertices(self):
-        o = self.create_copper_box(name = "MyBox")
-        assert len(o.vertices)==8
+        o = self.create_copper_box(name="MyBox")
+        assert len(o.vertices) == 8
         v = o.vertices[0]
         assert isinstance(v.position, list) and len(v.position) == 3
 
@@ -220,8 +217,7 @@ class TestClass(BasisTest):
     def test_13_create_circle(self):
         udp = self.aedtapp.modeler.Position(5, 3, 8)
         plane = self.aedtapp.CoordinateSystemPlane.XYPlane
-        o = self.aedtapp.modeler.primitives.create_circle(
-            plane, udp, 2, name="MyCircle", matname="Copper")
+        o = self.aedtapp.modeler.primitives.create_circle(plane, udp, 2, name="MyCircle", matname="Copper")
         assert o.id > 0
         assert o.name.startswith("MyCircle")
         assert o.object_type == "Sheet"
@@ -230,7 +226,7 @@ class TestClass(BasisTest):
 
     @pyaedt_unittest_check_desktop_error
     def test_14_create_sphere(self):
-        udp = self.aedtapp.modeler.Position(20,20, 0)
+        udp = self.aedtapp.modeler.Position(20, 20, 0)
         radius = 5
         o = self.aedtapp.modeler.primitives.create_sphere(udp, radius, "MySphere", "Copper")
         assert o.id > 0
@@ -240,12 +236,11 @@ class TestClass(BasisTest):
 
     @pyaedt_unittest_check_desktop_error
     def test_15_create_cylinder(self):
-        udp = self.aedtapp.modeler.Position(20,20, 0)
+        udp = self.aedtapp.modeler.Position(20, 20, 0)
         axis = self.aedtapp.CoordinateSystemAxis.YAxis
         radius = 5
         height = 50
-        o = self.aedtapp.modeler.primitives.create_cylinder(
-            axis, udp, radius, height, 8, "MyCyl", "Copper")
+        o = self.aedtapp.modeler.primitives.create_cylinder(axis, udp, radius, height, 8, "MyCyl", "Copper")
         assert o.id > 0
         assert o.name.startswith("MyCyl")
         assert o.object_type == "Solid"
@@ -257,7 +252,8 @@ class TestClass(BasisTest):
         udp = self.aedtapp.modeler.Position(5, 3, 8)
         plane = self.aedtapp.CoordinateSystemPlane.XYPlane
         o1 = self.aedtapp.modeler.primitives.create_ellipse(
-            plane, udp, 5, 1.5, True, name="MyEllpise01", matname="Copper")
+            plane, udp, 5, 1.5, True, name="MyEllpise01", matname="Copper"
+        )
         assert o1.id > 0
         assert o1.name.startswith("MyEllpise01")
         assert o1.object_type == "Sheet"
@@ -265,15 +261,15 @@ class TestClass(BasisTest):
         assert not o1.solve_inside
 
         o2 = self.aedtapp.modeler.primitives.create_ellipse(
-            plane, udp, 5, 1.5, True, name="MyEllpise01", matname="Vacuum")
+            plane, udp, 5, 1.5, True, name="MyEllpise01", matname="Vacuum"
+        )
         assert o2.id > 0
         assert o2.name.startswith("MyEllpise01")
         assert o2.object_type == "Sheet"
         assert o2.is3d is False
         assert not o2.solve_inside
 
-        o3 = self.aedtapp.modeler.primitives.create_ellipse(
-            plane, udp, 5, 1.5, False, name="MyEllpise02")
+        o3 = self.aedtapp.modeler.primitives.create_ellipse(plane, udp, 5, 1.5, False, name="MyEllpise02")
         assert o3.id > 0
         assert o3.name.startswith("MyEllpise02")
         assert o3.object_type == "Line"
@@ -308,7 +304,8 @@ class TestClass(BasisTest):
         udp4 = [2, 5, 3]
         arrofpos = [udp1, udp4, udp2, udp3, udp1]
         P = self.aedtapp.modeler.primitives.create_polyline(
-            arrofpos, cover_surface=True, name="Poly1", matname="Copper")
+            arrofpos, cover_surface=True, name="Poly1", matname="Copper"
+        )
         assert isinstance(P, Polyline)
         assert isinstance(P, Object3d)
         assert P.object_type == "Sheet"
@@ -324,8 +321,7 @@ class TestClass(BasisTest):
         udp3 = [5, 5, 0]
         udp4 = [2, 5, 3]
         arrofpos = [udp1, udp2, udp3]
-        P = self.aedtapp.modeler.primitives.create_polyline(
-            arrofpos, name="Poly_xsection", xsection_type="Rectangle")
+        P = self.aedtapp.modeler.primitives.create_polyline(arrofpos, name="Poly_xsection", xsection_type="Rectangle")
         assert isinstance(P, Polyline)
         assert self.aedtapp.modeler.primitives[P.id].object_type == "Solid"
         assert self.aedtapp.modeler.primitives[P.id].is3d == True
@@ -343,24 +339,25 @@ class TestClass(BasisTest):
         assert my_name in self.aedtapp.modeler.primitives.object_names
         assert isinstance(self.aedtapp.modeler.get_vertices_of_line(my_name), list)
         rect = self.aedtapp.modeler.primitives.create_rectangle(
-            self.aedtapp.CoordinateSystemPlane.YZPlane, [0,-2,-2],[4,3], name="rect_1")
-        swept = self.aedtapp.modeler.sweep_along_path(rect, path )
+            self.aedtapp.CoordinateSystemPlane.YZPlane, [0, -2, -2], [4, 3], name="rect_1"
+        )
+        swept = self.aedtapp.modeler.sweep_along_path(rect, path)
         assert swept
         assert rect.name in self.aedtapp.modeler.primitives.solid_names
 
     @pyaedt_unittest_check_desktop_error
     def test_22_sweep_along_vector(self):
         rect2 = self.aedtapp.modeler.primitives.create_rectangle(
-            self.aedtapp.CoordinateSystemPlane.YZPlane, [0,-2,-2],[4,3], name="rect_2")
-        assert self.aedtapp.modeler.sweep_along_vector(rect2, [10,20,20] )
+            self.aedtapp.CoordinateSystemPlane.YZPlane, [0, -2, -2], [4, 3], name="rect_2"
+        )
+        assert self.aedtapp.modeler.sweep_along_vector(rect2, [10, 20, 20])
         assert rect2.name in self.aedtapp.modeler.primitives.solid_names
 
     @pyaedt_unittest_check_desktop_error
     def test_23_create_rectangle(self):
         udp = self.aedtapp.modeler.Position(5, 3, 8)
         plane = self.aedtapp.CoordinateSystemPlane.XYPlane
-        o = self.aedtapp.modeler.primitives.create_rectangle(
-            plane, udp, [4, 5], name="MyRectangle", matname="Copper")
+        o = self.aedtapp.modeler.primitives.create_rectangle(plane, udp, [4, 5], name="MyRectangle", matname="Copper")
         assert o.id > 0
         assert o.name.startswith("MyRectangle")
         assert o.object_type == "Sheet"
@@ -370,8 +367,7 @@ class TestClass(BasisTest):
     def test_24_create_cone(self):
         udp = self.aedtapp.modeler.Position(5, 3, 8)
         axis = self.aedtapp.CoordinateSystemAxis.ZAxis
-        o = self.aedtapp.modeler.primitives.create_cone(
-            axis, udp, 20, 10 ,5 , name="MyCone", matname="Copper")
+        o = self.aedtapp.modeler.primitives.create_cone(axis, udp, 20, 10, 5, name="MyCone", matname="Copper")
         assert o.id > 0
         assert o.name.startswith("MyCone")
         assert o.object_type == "Solid"
@@ -381,8 +377,7 @@ class TestClass(BasisTest):
     def test_25_get_object_id(self):
         udp = self.aedtapp.modeler.Position(5, 3, 8)
         plane = self.aedtapp.CoordinateSystemPlane.XYPlane
-        o = self.aedtapp.modeler.primitives.create_rectangle(
-            plane, udp, [4, 5], name="MyRectangle5")
+        o = self.aedtapp.modeler.primitives.create_rectangle(plane, udp, [4, 5], name="MyRectangle5")
         assert self.aedtapp.modeler.primitives.get_obj_id(o.name) == o.id
 
     @pyaedt_unittest_check_desktop_error
@@ -453,8 +448,7 @@ class TestClass(BasisTest):
 
     @pyaedt_unittest_check_desktop_error
     def test_29_get_edges_from_position(self):
-        self.cache.ignore_error_message_local(
-            "Script macro error: Can't find face by name and position.")
+        self.cache.ignore_error_message_local("Script macro error: Can't find face by name and position.")
         o = self.create_rectangle(name="MyRectangle_for_primitives")
         udp = self.aedtapp.modeler.Position(5, 3, 8)
         edge_id = self.aedtapp.modeler.primitives.get_edgeid_from_position(udp, o.name)
@@ -464,12 +458,10 @@ class TestClass(BasisTest):
 
     @pyaedt_unittest_check_desktop_error
     def test_30_get_faces_from_position(self):
-        self.cache.ignore_error_message_local(
-            "Script macro error: Can't find face by name and position.")
+        self.cache.ignore_error_message_local("Script macro error: Can't find face by name and position.")
         o = self.create_rectangle("New_Rectangle1")
-        edge_id = self.aedtapp.modeler.primitives.get_faceid_from_position(
-            [5, 3, 8], "New_Rectangle1")
-        assert edge_id>0
+        edge_id = self.aedtapp.modeler.primitives.get_faceid_from_position([5, 3, 8], "New_Rectangle1")
+        assert edge_id > 0
         udp = self.aedtapp.modeler.Position(100, 100, 100)
         edge_id = self.aedtapp.modeler.primitives.get_faceid_from_position(udp)
         assert not edge_id
@@ -485,8 +477,7 @@ class TestClass(BasisTest):
     @pyaedt_unittest_check_desktop_error
     def test_32_get_face_vertices(self):
         plane = self.aedtapp.CoordinateSystemPlane.XYPlane
-        rectid = self.aedtapp.modeler.primitives.create_rectangle(
-            plane, [1, 2, 3], [7, 13], name="rect_for_get")
+        rectid = self.aedtapp.modeler.primitives.create_rectangle(plane, [1, 2, 3], [7, 13], name="rect_for_get")
         listfaces = self.aedtapp.modeler.primitives.get_object_faces("rect_for_get")
         vertices = self.aedtapp.modeler.primitives.get_face_vertices(listfaces[0])
         assert len(vertices) == 4
@@ -505,14 +496,14 @@ class TestClass(BasisTest):
         assert len(pos1) == 3
         pos2 = self.aedtapp.modeler.primitives.get_vertex_position(vertices[1])
         assert len(pos2) == 3
-        edge_length = ( (pos1[0]-pos2[0])**2 + (pos1[1]-pos2[1])**2 + (pos1[2]-pos2[2])**2 )**0.5
+        edge_length = ((pos1[0] - pos2[0]) ** 2 + (pos1[1] - pos2[1]) ** 2 + (pos1[2] - pos2[2]) ** 2) ** 0.5
         assert edge_length == 7
 
     @pyaedt_unittest_check_desktop_error
     def test_35_get_face_area(self):
         listfaces = self.aedtapp.modeler.primitives.get_object_faces("rect_for_get")
         area = self.aedtapp.modeler.primitives.get_face_area(listfaces[0])
-        assert area == 7*13
+        assert area == 7 * 13
 
     @pyaedt_unittest_check_desktop_error
     def test_36_get_face_center(self):
@@ -535,10 +526,8 @@ class TestClass(BasisTest):
         assert "fred" in spherename
 
         plane = self.aedtapp.CoordinateSystemPlane.XYPlane
-        rectid = self.aedtapp.modeler.primitives.create_rectangle(
-            plane, [-50, -50, -50], [2, 2], name="bob")
-        rectname = self.aedtapp.modeler.primitives.get_bodynames_from_position(
-            [-49.0, -49.0, -50.0])
+        rectid = self.aedtapp.modeler.primitives.create_rectangle(plane, [-50, -50, -50], [2, 2], name="bob")
+        rectname = self.aedtapp.modeler.primitives.get_bodynames_from_position([-49.0, -49.0, -50.0])
         assert "bob" in rectname
 
         udp1 = self.aedtapp.modeler.Position(-23, -23, 13)
@@ -546,8 +535,7 @@ class TestClass(BasisTest):
         udp3 = self.aedtapp.modeler.Position(-31, -31, 7)
         udp4 = self.aedtapp.modeler.Position(2, 5, 3)
         arrofpos = [udp1, udp2, udp3, udp4]
-        P = self.aedtapp.modeler.primitives.create_polyline(
-            arrofpos, cover_surface=False, name="bill")
+        P = self.aedtapp.modeler.primitives.create_polyline(arrofpos, cover_surface=False, name="bill")
         polyname = self.aedtapp.modeler.primitives.get_bodynames_from_position([-27, -27, 11])
         assert "bill" in polyname
 
@@ -580,26 +568,25 @@ class TestClass(BasisTest):
     def test_41b_create_rect_sheet_to_groundplane(self):
         rect = self.create_rectangle()
         box = self.create_copper_box()
-        plane = self.aedtapp.modeler.create_sheet_to_ground(
-            box.name, rect.name, self.aedtapp.AxisDir.ZNeg)
+        plane = self.aedtapp.modeler.create_sheet_to_ground(box.name, rect.name, self.aedtapp.AxisDir.ZNeg)
         assert isinstance(plane, Object3d)
 
     @pyaedt_unittest_check_desktop_error
     def test_41b_get_edges_for_circuit_port(self):
         udp = self.aedtapp.modeler.Position(0, 0, 8)
         plane = self.aedtapp.CoordinateSystemPlane.XYPlane
-        o = self.aedtapp.modeler.primitives.create_rectangle(
-            plane, udp, [3, 10], name="MyGND", matname="Copper")
+        o = self.aedtapp.modeler.primitives.create_rectangle(plane, udp, [3, 10], name="MyGND", matname="Copper")
         face_id = o.faces[0].id
-        edges1 = self.aedtapp.modeler.primitives.get_edges_for_circuit_port(face_id, XY_plane=True, YZ_plane=False, XZ_plane=False,
-                                                      allow_perpendicular=True, tol=1e-6)
-        edges2 = self.aedtapp.modeler.primitives.get_edges_for_circuit_port_from_sheet("MyGND", XY_plane=True, YZ_plane=False, XZ_plane=False,
-                                                      allow_perpendicular=True, tol=1e-6)
+        edges1 = self.aedtapp.modeler.primitives.get_edges_for_circuit_port(
+            face_id, XY_plane=True, YZ_plane=False, XZ_plane=False, allow_perpendicular=True, tol=1e-6
+        )
+        edges2 = self.aedtapp.modeler.primitives.get_edges_for_circuit_port_from_sheet(
+            "MyGND", XY_plane=True, YZ_plane=False, XZ_plane=False, allow_perpendicular=True, tol=1e-6
+        )
 
     @pyaedt_unittest_check_desktop_error
     def test_42_chamfer(self):
-        self.cache.ignore_error_message_local(
-            "Wrong Type Entered. Type must be integer from 0 to 3")
+        self.cache.ignore_error_message_local("Wrong Type Entered. Type must be integer from 0 to 3")
         o = self.create_copper_box(name="MyBox")
         assert o.edges[0].chamfer()
         self.aedtapp.odesign.Undo()
@@ -623,80 +610,70 @@ class TestClass(BasisTest):
         prim3D = self.aedtapp.modeler.primitives
         self.aedtapp["p1"] = "100mm"
         self.aedtapp["p2"] = "71mm"
-        test_points = [["0mm",     "p1",     "0mm"],
-                       ["-p1",     "0mm",    "0mm"],
-                       ["-p1/2",   "-p1/2",  "0mm"],
-                       ["0mm",     "0mm",    "0mm"]]
+        test_points = [["0mm", "p1", "0mm"], ["-p1", "0mm", "0mm"], ["-p1/2", "-p1/2", "0mm"], ["0mm", "0mm", "0mm"]]
 
-        p1 =  prim3D.create_polyline(position_list=test_points[0:2], name="PL01_line")
+        p1 = prim3D.create_polyline(position_list=test_points[0:2], name="PL01_line")
         assert len(p1.start_point) == 3
         assert len(p1.end_point) == 3
-        assert prim3D.create_polyline(
-            position_list=test_points[0:3], segment_type="Arc", name="PL02_arc")
+        assert prim3D.create_polyline(position_list=test_points[0:3], segment_type="Arc", name="PL02_arc")
 
-        assert prim3D.create_polyline(position_list=test_points,
-                                      segment_type=PolylineSegment("Spline", num_points=4),
-                                      name="PL03_spline_4pt")
-        assert prim3D.create_polyline(position_list=test_points,
-                                      segment_type=PolylineSegment("Spline", num_points=3),
-                                      name="PL03_spline_3pt")
-        assert prim3D.create_polyline(position_list=test_points[0:3],
-                                      segment_type="Spline",
-                                      name="PL03_spline_str_3pt")
-        assert prim3D.create_polyline(position_list=test_points[0:2],
-                                      segment_type="Spline",
-                                      name="PL03_spline_str_2pt")
-        assert prim3D.create_polyline(position_list=[[100, 100, 0]],
-                                      segment_type=PolylineSegment("AngularArc", arc_center=[
-                                                                   0, 0, 0], arc_angle="30deg"),
-                                      name="PL04_center_point_arc")
-        assert prim3D.create_polyline(position_list=[[100, 100, 0]],
-                                      segment_type=PolylineSegment("AngularArc", arc_angle="30deg"),
-                                      name="PL04_center_point_arc")
+        assert prim3D.create_polyline(
+            position_list=test_points, segment_type=PolylineSegment("Spline", num_points=4), name="PL03_spline_4pt"
+        )
+        assert prim3D.create_polyline(
+            position_list=test_points, segment_type=PolylineSegment("Spline", num_points=3), name="PL03_spline_3pt"
+        )
+        assert prim3D.create_polyline(position_list=test_points[0:3], segment_type="Spline", name="PL03_spline_str_3pt")
+        assert prim3D.create_polyline(position_list=test_points[0:2], segment_type="Spline", name="PL03_spline_str_2pt")
+        assert prim3D.create_polyline(
+            position_list=[[100, 100, 0]],
+            segment_type=PolylineSegment("AngularArc", arc_center=[0, 0, 0], arc_angle="30deg"),
+            name="PL04_center_point_arc",
+        )
+        assert prim3D.create_polyline(
+            position_list=[[100, 100, 0]],
+            segment_type=PolylineSegment("AngularArc", arc_angle="30deg"),
+            name="PL04_center_point_arc",
+        )
 
     @pyaedt_unittest_check_desktop_error
     def test_45_create_circle_from_2_arc_segments(self):
         prim3D = self.aedtapp.modeler.primitives
-        assert prim3D.create_polyline(position_list=[[34.1004, 14.1248, 0],
-                                                     [27.646, 16.7984, 0],
-                                                     [24.9725, 10.3439, 0],
-                                                     [31.4269, 7.6704, 0]],
-                                      segment_type=["Arc", "Arc"],
-                                      cover_surface=True, close_surface=True,
-                                      name="Rotor_Subtract_25_0", matname="vacuum")
+        assert prim3D.create_polyline(
+            position_list=[[34.1004, 14.1248, 0], [27.646, 16.7984, 0], [24.9725, 10.3439, 0], [31.4269, 7.6704, 0]],
+            segment_type=["Arc", "Arc"],
+            cover_surface=True,
+            close_surface=True,
+            name="Rotor_Subtract_25_0",
+            matname="vacuum",
+        )
 
     @pyaedt_unittest_check_desktop_error
     def test_46_compound_polylines_segments(self):
         prim3D = self.aedtapp.modeler.primitives
         self.aedtapp["p1"] = "100mm"
         self.aedtapp["p2"] = "71mm"
-        test_points = [["0mm",     "p1",     "0mm"],
-                       ["-p1",     "0mm",    "0mm"],
-                       ["-p1/2",   "-p1/2",  "0mm"],
-                       ["0mm",     "0mm",    "0mm"]]
+        test_points = [["0mm", "p1", "0mm"], ["-p1", "0mm", "0mm"], ["-p1/2", "-p1/2", "0mm"], ["0mm", "0mm", "0mm"]]
 
-        assert prim3D.create_polyline(position_list=test_points,
-                                      name="PL06_segmented_compound_line")
-        assert prim3D.create_polyline(position_list=test_points, segment_type=["Line", "Arc"],
-                                      name="PL05_compound_line_arc")
-        assert prim3D.create_polyline(position_list=test_points,
-                                      close_surface=True,
-                                      name="PL07_segmented_compound_line_closed")
-        assert prim3D.create_polyline(position_list=test_points,
-                                      cover_surface=True,
-                                      name="SPL01_segmented_compound_line")
+        assert prim3D.create_polyline(position_list=test_points, name="PL06_segmented_compound_line")
+        assert prim3D.create_polyline(
+            position_list=test_points, segment_type=["Line", "Arc"], name="PL05_compound_line_arc"
+        )
+        assert prim3D.create_polyline(
+            position_list=test_points, close_surface=True, name="PL07_segmented_compound_line_closed"
+        )
+        assert prim3D.create_polyline(
+            position_list=test_points, cover_surface=True, name="SPL01_segmented_compound_line"
+        )
 
     @pyaedt_unittest_check_desktop_error
     def test_47_insert_polylines_segments_test1(self):
         self.aedtapp["p1"] = "100mm"
         self.aedtapp["p2"] = "71mm"
-        test_points = [["0mm",     "p1",     "0mm"],
-                       ["-p1",     "0mm",    "0mm"],
-                       ["-p1/2",   "-p1/2",  "0mm"],
-                       ["0mm",     "0mm",    "0mm"]]
-        P = self.aedtapp.modeler.primitives.create_polyline(position_list=test_points,
-                                   close_surface=True,
-                                   name="PL08_segmented_compound_insert_segment")
+        test_points = [["0mm", "p1", "0mm"], ["-p1", "0mm", "0mm"], ["-p1/2", "-p1/2", "0mm"], ["0mm", "0mm", "0mm"]]
+        P = self.aedtapp.modeler.primitives.create_polyline(
+            position_list=test_points, close_surface=True, name="PL08_segmented_compound_insert_segment"
+        )
         assert P
         start_point = P.start_point
         insert_point = ["90mm", "20mm", "0mm"]
@@ -707,14 +684,11 @@ class TestClass(BasisTest):
         prim3D = self.aedtapp.modeler.primitives
         self.aedtapp["p1"] = "100mm"
         self.aedtapp["p2"] = "71mm"
-        test_points = [["0mm",     "p1",     "0mm"],
-                       ["-p1",     "0mm",    "0mm"],
-                       ["-p1/2",   "-p1/2",  "0mm"],
-                       ["0mm",     "0mm",    "0mm"]]
+        test_points = [["0mm", "p1", "0mm"], ["-p1", "0mm", "0mm"], ["-p1/2", "-p1/2", "0mm"], ["0mm", "0mm", "0mm"]]
 
-        P = prim3D.create_polyline(position_list=test_points,
-                                   close_surface=False,
-                                   name="PL08_segmented_compound_insert_arc")
+        P = prim3D.create_polyline(
+            position_list=test_points, close_surface=False, name="PL08_segmented_compound_insert_arc"
+        )
         start_point = P.vertex_positions[1]
         insert_point1 = ["90mm", "20mm", "0mm"]
         insert_point2 = [40, 40, 0]
@@ -724,11 +698,11 @@ class TestClass(BasisTest):
     @pyaedt_unittest_check_desktop_error
     def test_49_modify_crossection(self):
 
-        P = self.aedtapp.modeler.primitives.create_polyline(position_list=[[34.1004, 14.1248, 0],
-                                                                           [27.646, 16.7984, 0],
-                                                                           [24.9725, 10.3439, 0]],
-                                                            name="Rotor_Subtract_25_0",
-                                                            matname="copper")
+        P = self.aedtapp.modeler.primitives.create_polyline(
+            position_list=[[34.1004, 14.1248, 0], [27.646, 16.7984, 0], [24.9725, 10.3439, 0]],
+            name="Rotor_Subtract_25_0",
+            matname="copper",
+        )
         P1 = P.clone()
         P2 = P.clone()
         P3 = P.clone()
@@ -739,8 +713,7 @@ class TestClass(BasisTest):
 
         P2.set_crosssection_properties(type="Circle", width="1mm", num_seg=5)
         P3.set_crosssection_properties(type="Rectangle", width="1mm", height="1mm")
-        P4.set_crosssection_properties(type="Isosceles Trapezoid",
-                                       width="1mm", height="1mm", topwidth="4mm")
+        P4.set_crosssection_properties(type="Isosceles Trapezoid", width="1mm", height="1mm", topwidth="4mm")
 
         assert P.object_type == "Line"
         assert P1.object_type == "Sheet"
@@ -793,7 +766,7 @@ class TestClass(BasisTest):
 
     @pyaedt_unittest_check_desktop_error
     def test_53_duplicate_polyline_and_manipulate(self):
-        #TODO Figure this one out !
+        # TODO Figure this one out !
         self.cache.ignore_error_message_local("Body could not be created for part NewObject_")
         P1 = self.aedtapp.modeler.primitives.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
         P2 = P1.clone()
@@ -803,21 +776,25 @@ class TestClass(BasisTest):
     def test_54_create_bond_wires(self):
         self.cache.ignore_error_message_local("Wrong Profile Type")
         b1 = self.aedtapp.modeler.primitives.create_bondwire(
-            [0,0,0], [10,10,2], h1=0.15, h2=0, diameter=0.034, facets=8, matname="copper", name="jedec51")
+            [0, 0, 0], [10, 10, 2], h1=0.15, h2=0, diameter=0.034, facets=8, matname="copper", name="jedec51"
+        )
         assert b1
         b2 = self.aedtapp.modeler.primitives.create_bondwire(
-            [0,0,0], [10,10,2], h1=0.15, h2=0, diameter=0.034, bond_type=1,  matname="copper", name="jedec41")
+            [0, 0, 0], [10, 10, 2], h1=0.15, h2=0, diameter=0.034, bond_type=1, matname="copper", name="jedec41"
+        )
         assert b2
         b2 = self.aedtapp.modeler.primitives.create_bondwire(
-            [0,0,0], [10,10,2], h1=0.15, h2=0, diameter=0.034, bond_type=2,  matname="copper", name="jedec41")
+            [0, 0, 0], [10, 10, 2], h1=0.15, h2=0, diameter=0.034, bond_type=2, matname="copper", name="jedec41"
+        )
         assert b2
         b2 = self.aedtapp.modeler.primitives.create_bondwire(
-            [0,0,0], [10,10,2], h1=0.15, h2=0, diameter=0.034, bond_type=3,  matname="copper", name="jedec41")
+            [0, 0, 0], [10, 10, 2], h1=0.15, h2=0, diameter=0.034, bond_type=3, matname="copper", name="jedec41"
+        )
         assert not b2
 
     @pyaedt_unittest_check_desktop_error
     def test_56_create_group(self):
-        assert self.aedtapp.modeler.create_group(["jedec51","jedec41"],"mygroup")
+        assert self.aedtapp.modeler.create_group(["jedec51", "jedec41"], "mygroup")
         assert self.aedtapp.modeler.ungroup("mygroup")
 
     @pyaedt_unittest_check_desktop_error
@@ -839,23 +816,24 @@ class TestClass(BasisTest):
         self.aedtapp.close_project(name=self.aedtapp.project_name, saveproject=False)
         self.aedtapp.load_project(self.test_99_project)
         edges = self.aedtapp.modeler.primitives.get_edges_on_bounding_box(
-            ['Port1', 'Port2'], return_colinear=True, tol=1e-6)
+            ["Port1", "Port2"], return_colinear=True, tol=1e-6
+        )
         assert len(edges) == 2
         edges = self.aedtapp.modeler.primitives.get_edges_on_bounding_box(
-            ['Port1', 'Port2'], return_colinear=False, tol=1e-6)
+            ["Port1", "Port2"], return_colinear=False, tol=1e-6
+        )
         assert len(edges) == 4
 
     @pyaedt_unittest_check_desktop_error
     def test_61_get_closest_edge_to_position(self):
         self.create_copper_box()
-        self.aedtapp.modeler.primitives.get_closest_edgeid_to_position([0.2,0,0])
+        self.aedtapp.modeler.primitives.get_closest_edgeid_to_position([0.2, 0, 0])
 
     @pytest.mark.skipif(config["build_machine"], reason="Not running in non-graphical mode")
     @pyaedt_unittest_check_desktop_error
     def test_62_import_space_claim(self):
         self.aedtapp.insert_design("SCImport")
-        assert self.aedtapp.modeler.import_spaceclaim_document(
-            os.path.join(self.local_scratch.path, scdoc))
+        assert self.aedtapp.modeler.import_spaceclaim_document(os.path.join(self.local_scratch.path, scdoc))
         assert len(self.aedtapp.modeler.primitives.objects) == 1
 
     @pyaedt_unittest_check_desktop_error
@@ -868,45 +846,41 @@ class TestClass(BasisTest):
     @pyaedt_unittest_check_desktop_error
     def test_64_create_equationbased_curve(self):
 
-        eq_line = self.aedtapp.modeler.primitives.create_equationbased_curve(
-            x_t="_t", y_t="_t*2", num_points = 0)
+        eq_line = self.aedtapp.modeler.primitives.create_equationbased_curve(x_t="_t", y_t="_t*2", num_points=0)
         assert len(eq_line.edges) == 1
-        eq_segmented = self.aedtapp.modeler.primitives.create_equationbased_curve(
-            x_t="_t", y_t="_t*2", num_points = 5)
+        eq_segmented = self.aedtapp.modeler.primitives.create_equationbased_curve(x_t="_t", y_t="_t*2", num_points=5)
         assert len(eq_segmented.edges) == 4
 
         eq_xsection = self.aedtapp.modeler.primitives.create_equationbased_curve(
-            x_t="_t", y_t="_t*2", xsection_type="Circle")
+            x_t="_t", y_t="_t*2", xsection_type="Circle"
+        )
         assert eq_xsection.name in self.aedtapp.modeler.primitives.solid_names
 
     def test_65_create_3dcomponent(self):
-        self.aedtapp['l_dipole'] = "13.5cm"
+        self.aedtapp["l_dipole"] = "13.5cm"
 
-        compfile = self.aedtapp.components3d['Dipole_Antenna_DM']
-        geometryparams = self.aedtapp.get_components3d_vars('Dipole_Antenna_DM')
-        geometryparams['dipole_length'] = "l_dipole"
+        compfile = self.aedtapp.components3d["Dipole_Antenna_DM"]
+        geometryparams = self.aedtapp.get_components3d_vars("Dipole_Antenna_DM")
+        geometryparams["dipole_length"] = "l_dipole"
         name = self.aedtapp.modeler.primitives.insert_3d_component(compfile, geometryparams)
         assert isinstance(name, str)
 
     def test_65b_group_components(self):
-        self.aedtapp['l_dipole'] = "13.5cm"
+        self.aedtapp["l_dipole"] = "13.5cm"
 
-        compfile = self.aedtapp.components3d['Dipole_Antenna_DM']
-        geometryparams = self.aedtapp.get_components3d_vars('Dipole_Antenna_DM')
-        geometryparams['dipole_length'] = "l_dipole"
+        compfile = self.aedtapp.components3d["Dipole_Antenna_DM"]
+        geometryparams = self.aedtapp.get_components3d_vars("Dipole_Antenna_DM")
+        geometryparams["dipole_length"] = "l_dipole"
         name = self.aedtapp.modeler.primitives.insert_3d_component(compfile, geometryparams)
         name2 = self.aedtapp.modeler.primitives.insert_3d_component(compfile, geometryparams)
-        assert self.aedtapp.modeler.create_group(
-            components=[name, name2], group_name="test_group") == "test_group"
+        assert self.aedtapp.modeler.create_group(components=[name, name2], group_name="test_group") == "test_group"
 
     @pyaedt_unittest_check_desktop_error
     def test_66_assign_material(self):
         box1 = self.aedtapp.modeler.primitives.create_box([60, 60, 60], [4, 5, 5])
         box2 = self.aedtapp.modeler.primitives.create_box([50, 50, 50], [2, 3, 4])
-        cyl1 = self.aedtapp.modeler.primitives.create_cylinder(
-            cs_axis="X", position=[50, 0, 0], radius=1, height=20)
-        cyl2 = self.aedtapp.modeler.primitives.create_cylinder(
-            cs_axis="Z", position=[0, 0, 50], radius=1, height=10)
+        cyl1 = self.aedtapp.modeler.primitives.create_cylinder(cs_axis="X", position=[50, 0, 0], radius=1, height=20)
+        cyl2 = self.aedtapp.modeler.primitives.create_cylinder(cs_axis="Z", position=[0, 0, 50], radius=1, height=10)
 
         objects_list = [box1, box2, cyl1, cyl2]
         self.aedtapp.assign_material(objects_list, "copper")

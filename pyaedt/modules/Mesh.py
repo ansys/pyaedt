@@ -8,12 +8,14 @@ from ..generic.general_methods import aedt_exception_handler, generate_unique_na
 from ..generic.DataHandlers import dict2arg
 from collections import OrderedDict
 
-meshers = {"HFSS": "MeshSetup",
-           "Icepak": "MeshRegion",
-           "HFSS3DLayout": "MeshSetup",
-           "Maxwell 2D": "MeshSetup",
-           "Maxwell 3D": "MeshSetup",
-           "Q3D Extractor": "MeshSetup"}
+meshers = {
+    "HFSS": "MeshSetup",
+    "Icepak": "MeshRegion",
+    "HFSS3DLayout": "MeshSetup",
+    "Maxwell 2D": "MeshSetup",
+    "Maxwell 3D": "MeshSetup",
+    "Q3D Extractor": "MeshSetup",
+}
 
 
 class MeshOperation(object):
@@ -173,7 +175,7 @@ class Mesh(object):
     def _get_design_global_mesh(self):
         """ """
         try:
-            return self._parent.design_properties['MeshSetup']['MeshSettings']
+            return self._parent.design_properties["MeshSetup"]["MeshSettings"]
         except:
             return OrderedDict()
 
@@ -182,12 +184,16 @@ class Mesh(object):
         """ """
         meshops = []
         try:
-            for ds in self._parent.design_properties['MeshSetup']['MeshOperations']:
-                if type(self._parent.design_properties['MeshSetup']['MeshOperations'][ds]) is OrderedDict:
-                    meshops.append(MeshOperation(self, ds,
-                                                self._parent.design_properties['MeshSetup']['MeshOperations'][ds],
-                                                self._parent.design_properties['MeshSetup']['MeshOperations'][ds][
-                                                    'Type']))
+            for ds in self._parent.design_properties["MeshSetup"]["MeshOperations"]:
+                if type(self._parent.design_properties["MeshSetup"]["MeshOperations"][ds]) is OrderedDict:
+                    meshops.append(
+                        MeshOperation(
+                            self,
+                            ds,
+                            self._parent.design_properties["MeshSetup"]["MeshOperations"][ds],
+                            self._parent.design_properties["MeshSetup"]["MeshOperations"][ds]["Type"],
+                        )
+                    )
         except:
             pass
         return meshops
@@ -225,8 +231,14 @@ class Mesh(object):
             seltype = "Faces"
         else:
             seltype = "Objects"
-        props = OrderedDict({"Type": "SurfApproxBased", "CurvedSurfaceApproxChoice": "UseSlider", seltype: names,
-                             "SliderMeshSettings": level})
+        props = OrderedDict(
+            {
+                "Type": "SurfApproxBased",
+                "CurvedSurfaceApproxChoice": "UseSlider",
+                seltype: names,
+                "SliderMeshSettings": level,
+            }
+        )
         mop = MeshOperation(self, meshop_name, props, "SurfApproxBased")
         mop.create()
         self.meshoperations.append(mop)
@@ -279,11 +291,19 @@ class Mesh(object):
             aspect_ratio_enable = 1
             aspect_ratio = "10"
 
-        props = OrderedDict({"Type": "SurfApproxBased", "Objects": names, "CurvedSurfaceApproxChoice": "ManualSettings",
-                             "SurfDevChoice": surf_dev_enable, "SurfDev": surf_dev,
-                             "NormalDevChoice": normal_dev_enable,
-                             "NormalDev": normal_dev, "AspectRatioChoice": aspect_ratio_enable,
-                             "AspectRatio": aspect_ratio})
+        props = OrderedDict(
+            {
+                "Type": "SurfApproxBased",
+                "Objects": names,
+                "CurvedSurfaceApproxChoice": "ManualSettings",
+                "SurfDevChoice": surf_dev_enable,
+                "SurfDev": surf_dev,
+                "NormalDevChoice": normal_dev_enable,
+                "NormalDev": normal_dev,
+                "AspectRatioChoice": aspect_ratio_enable,
+                "AspectRatio": aspect_ratio,
+            }
+        )
 
         mop = MeshOperation(self, meshop_name, props, "SurfApproxBased")
         mop.create()
@@ -324,8 +344,14 @@ class Mesh(object):
         if defeature_length is None:
             props = OrderedDict({"Objects": names, "UseAutoLength": True})
         else:
-            props = OrderedDict({"Type": "DefeatureBased", "Objects": names, "UseAutoLength": False,
-                                 "DefeatureLength": str(defeature_length) + "mm"})
+            props = OrderedDict(
+                {
+                    "Type": "DefeatureBased",
+                    "Objects": names,
+                    "UseAutoLength": False,
+                    "DefeatureLength": str(defeature_length) + "mm",
+                }
+            )
 
         mop = MeshOperation(self, meshop_name, props, "DefeatureBased")
 
@@ -334,8 +360,18 @@ class Mesh(object):
         return mop
 
     @aedt_exception_handler
-    def assign_initial_mesh_from_slider(self, level=5, method='Auto', usedynamicsurface=True, useflexmesh=False,
-                                        applycurvilinear=False, usefallback=True, usephi=True, automodelresolution=True, modelresolutionlength="0.0001mm"):
+    def assign_initial_mesh_from_slider(
+        self,
+        level=5,
+        method="Auto",
+        usedynamicsurface=True,
+        useflexmesh=False,
+        applycurvilinear=False,
+        usefallback=True,
+        usephi=True,
+        automodelresolution=True,
+        modelresolutionlength="0.0001mm",
+    ):
         """Assign a surface mesh level to an object.
 
         Parameters
@@ -379,14 +415,30 @@ class Mesh(object):
         if not automodelresolution:
             modelres.append("DefeatureLength:=")
             modelres.append(modelresolutionlength)
-        surface_appr = ["NAME:GlobalSurfApproximation", "CurvedSurfaceApproxChoice:=", "UseSlider",
-                        "SliderMeshSettings:=", level]
+        surface_appr = [
+            "NAME:GlobalSurfApproximation",
+            "CurvedSurfaceApproxChoice:=",
+            "UseSlider",
+            "SliderMeshSettings:=",
+            level,
+        ]
         if self._parent.design_type == "2D Extractor" or self._parent.design_type == "Maxwell 2D":
             args = ["NAME:MeshSettings", surface_appr, modelres, "MeshMethod:=", method]
         else:
-            args = ["NAME:MeshSettings",surface_appr, ["NAME:GlobalCurvilinear", "Apply:=", applycurvilinear],
-                    modelres, "MeshMethod:=", method, "UseLegacyFaceterForTauVolumeMesh:=", False,
-                    "DynamicSurfaceResolution:=", usedynamicsurface, "UseFlexMeshingForTAUvolumeMesh:=", useflexmesh]
+            args = [
+                "NAME:MeshSettings",
+                surface_appr,
+                ["NAME:GlobalCurvilinear", "Apply:=", applycurvilinear],
+                modelres,
+                "MeshMethod:=",
+                method,
+                "UseLegacyFaceterForTauVolumeMesh:=",
+                False,
+                "DynamicSurfaceResolution:=",
+                usedynamicsurface,
+                "UseFlexMeshingForTAUvolumeMesh:=",
+                useflexmesh,
+            ]
         if self._parent.design_type == "HFSS":
             args.append("UseAlternativeMeshMethodsAsFallBack:=")
             args.append(usefallback)
@@ -456,8 +508,7 @@ class Mesh(object):
         # Type "Area Based" not included since the delete command causes
         # desktop to crash
         # https://tfs.ansys.com:8443/tfs/ANSYS_Development/Portfolio/ACE%20Team/_queries?id=150923
-        mesh_op_types = ["Length Based",
-                         "Surface Approximation Based"]
+        mesh_op_types = ["Length Based", "Surface Approximation Based"]
 
         if mesh_type:
             if mesh_type in mesh_op_types:
@@ -532,9 +583,18 @@ class Mesh(object):
         if seltype is None:
             self._messenger.add_error_message("Error in Assignment")
             return
-        props = OrderedDict({"Type": "LengthBased", "RefineInside": isinside, "Enabled": True, seltype: names,
-                             "RestrictElem": restrictel, "NumMaxElem": numel, "RestrictLength": restrictlength,
-                             "MaxLength": length})
+        props = OrderedDict(
+            {
+                "Type": "LengthBased",
+                "RefineInside": isinside,
+                "Enabled": True,
+                seltype: names,
+                "RestrictElem": restrictel,
+                "NumMaxElem": numel,
+                "RestrictLength": restrictlength,
+                "MaxLength": length,
+            }
+        )
 
         mop = MeshOperation(self, meshop_name, props, "LengthBased")
         mop.create()
@@ -542,8 +602,9 @@ class Mesh(object):
         return mop
 
     @aedt_exception_handler
-    def assign_skin_depth(self, names, skindepth, maxelements=None, triangulation_max_length="0.1mm", numlayers="2",
-                          meshop_name=None):
+    def assign_skin_depth(
+        self, names, skindepth, maxelements=None, triangulation_max_length="0.1mm", numlayers="2", meshop_name=None
+    ):
         """Assign a skin depth for the mesh refinement.
 
         Parameters
@@ -595,9 +656,18 @@ class Mesh(object):
             self._messenger.add_error_message("Error in Assignment")
             return
 
-        props = OrderedDict({"Type": "SkinDepthBased", "Enabled": True, seltype: names,
-                             "RestrictElem": restrictlength, "NumMaxElem": str(maxelements), "SkinDepth": skindepth,
-                             "SurfTriMaxLength": triangulation_max_length, "NumLayers": numlayers})
+        props = OrderedDict(
+            {
+                "Type": "SkinDepthBased",
+                "Enabled": True,
+                seltype: names,
+                "RestrictElem": restrictlength,
+                "NumMaxElem": str(maxelements),
+                "SkinDepth": skindepth,
+                "SurfTriMaxLength": triangulation_max_length,
+                "NumLayers": numlayers,
+            }
+        )
 
         mop = MeshOperation(self, meshop_name, props, "SkinDepthBased")
         mop.create()
@@ -654,20 +724,20 @@ class Mesh(object):
     def assign_curvature_extraction(self, names, disable_for_faceted_surf=True, meshop_name=None):
         """Assign curvature extraction.
 
-        Parameters
-        ----------
-        names : list
-            List of objects or faces.
-        disable_for_faceted_surf : bool, optional
-            Whether curvature extraction is enabled for faceted surfaces.
-            The default is ``True``.
-        meshop_name : str, optional
-            Name of the mesh operation. The default is ``None``.
+         Parameters
+         ----------
+         names : list
+             List of objects or faces.
+         disable_for_faceted_surf : bool, optional
+             Whether curvature extraction is enabled for faceted surfaces.
+             The default is ``True``.
+         meshop_name : str, optional
+             Name of the mesh operation. The default is ``None``.
 
-        Returns
-        -------
-       :class:`pyaedt.modules.Mesh.MeshOperation`
-            Mesh operation object.
+         Returns
+         -------
+        :class:`pyaedt.modules.Mesh.MeshOperation`
+             Mesh operation object.
 
         """
         names = self.modeler.convert_to_selections(names, True)
@@ -691,7 +761,8 @@ class Mesh(object):
             self._messenger.add_error_message("Error in Assignment")
             return
         props = OrderedDict(
-            {"Type": "CurvatureExtraction", seltype: names, "DisableForFacetedSurfaces": disable_for_faceted_surf})
+            {"Type": "CurvatureExtraction", seltype: names, "DisableForFacetedSurfaces": disable_for_faceted_surf}
+        )
         mop = MeshOperation(self, meshop_name, props, "CurvatureExtraction")
         mop.create()
         self.meshoperations.append(mop)
@@ -730,8 +801,14 @@ class Mesh(object):
         else:
             meshop_name = generate_unique_name("RotationalLayer")
         seltype = "Objects"
-        props = OrderedDict({"Type": "RotationalLayerMesh", seltype: names, "Number of Layers": str(num_layers),
-                             "Total Layer Thickenss": total_thickness})
+        props = OrderedDict(
+            {
+                "Type": "RotationalLayerMesh",
+                seltype: names,
+                "Number of Layers": str(num_layers),
+                "Total Layer Thickenss": total_thickness,
+            }
+        )
 
         mop = MeshOperation(self, meshop_name, props, "RotationalLayerMesh")
         mop.create()
@@ -824,9 +901,16 @@ class Mesh(object):
             restrlay = True
             restrlaynum = str(layerNum)
         props = OrderedDict(
-            {"Type": "DensityControlBased", "RefineInside": refine_inside, seltype: names,
-             "RestrictMaxElemLength": restr, "MaxElemLength": restrval,
-             "RestrictLayersNum": restrlay, "LayersNum": restrlaynum})
+            {
+                "Type": "DensityControlBased",
+                "RefineInside": refine_inside,
+                seltype: names,
+                "RestrictMaxElemLength": restr,
+                "MaxElemLength": restrval,
+                "RestrictLayersNum": restrlay,
+                "LayersNum": restrlaynum,
+            }
+        )
         mop = MeshOperation(self, meshop_name, props, "DensityControlBased")
         mop.create()
 

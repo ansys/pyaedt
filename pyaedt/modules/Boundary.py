@@ -7,8 +7,10 @@ from ..generic.DataHandlers import dict2arg
 from ..modeler.Object3d import EdgePrimitive, FacePrimitive, VertexPrimitive
 from ..generic.DataHandlers import random_string
 
+
 class BoundaryCommon(object):
     """ """
+
     @aedt_exception_handler
     def _get_args(self, props=None):
         """Retrieve boundary properties.
@@ -62,27 +64,50 @@ class NativeComponentObject(BoundaryCommon, object):
     >>> par_beam.delete()
     """
 
-    def __init__(self, parent,component_type, component_name, props):
+    def __init__(self, parent, component_type, component_name, props):
         self._parent = parent
         self.name = "InsertNativeComponentData"
         self.component_name = component_name
         self.props = OrderedDict(
-            {"TargetCS": "Global", "SubmodelDefinitionName": self.component_name, "ComponentPriorityLists": OrderedDict({}),
-             "NextUniqueID": 0, "MoveBackwards": False, "DatasetType": "ComponentDatasetType",
-             "DatasetDefinitions": OrderedDict({}), "BasicComponentInfo": OrderedDict(
-                {"ComponentName": self.component_name, "Company": "", "Company URL": "", "Model Number": "", "Help URL": "",
-                 "Version": "1.0", "Notes": "", "IconType": ""}),
-             "GeometryDefinitionParameters": OrderedDict({"VariableOrders": OrderedDict({})}),
-             "DesignDefinitionParameters": OrderedDict({"VariableOrders": OrderedDict({})}),
-             "MaterialDefinitionParameters": OrderedDict({"VariableOrders": OrderedDict({})}),
-             "MapInstanceParameters": "DesignVariable",
-             "UniqueDefinitionIdentifier": "89d26167-fb77-480e-a7ab-"+random_string(12,char_set='abcdef0123456789'), "OriginFilePath": "",
-             "IsLocal": False, "ChecksumString": "", "ChecksumHistory": [], "VersionHistory": [],
-             "NativeComponentDefinitionProvider": OrderedDict({"Type": component_type}),
-             "InstanceParameters": OrderedDict(
-                 {"GeometryParameters": "", "MaterialParameters": "", "DesignParameters": ""})})
+            {
+                "TargetCS": "Global",
+                "SubmodelDefinitionName": self.component_name,
+                "ComponentPriorityLists": OrderedDict({}),
+                "NextUniqueID": 0,
+                "MoveBackwards": False,
+                "DatasetType": "ComponentDatasetType",
+                "DatasetDefinitions": OrderedDict({}),
+                "BasicComponentInfo": OrderedDict(
+                    {
+                        "ComponentName": self.component_name,
+                        "Company": "",
+                        "Company URL": "",
+                        "Model Number": "",
+                        "Help URL": "",
+                        "Version": "1.0",
+                        "Notes": "",
+                        "IconType": "",
+                    }
+                ),
+                "GeometryDefinitionParameters": OrderedDict({"VariableOrders": OrderedDict({})}),
+                "DesignDefinitionParameters": OrderedDict({"VariableOrders": OrderedDict({})}),
+                "MaterialDefinitionParameters": OrderedDict({"VariableOrders": OrderedDict({})}),
+                "MapInstanceParameters": "DesignVariable",
+                "UniqueDefinitionIdentifier": "89d26167-fb77-480e-a7ab-"
+                + random_string(12, char_set="abcdef0123456789"),
+                "OriginFilePath": "",
+                "IsLocal": False,
+                "ChecksumString": "",
+                "ChecksumHistory": [],
+                "VersionHistory": [],
+                "NativeComponentDefinitionProvider": OrderedDict({"Type": component_type}),
+                "InstanceParameters": OrderedDict(
+                    {"GeometryParameters": "", "MaterialParameters": "", "DesignParameters": ""}
+                ),
+            }
+        )
         if props:
-            self._update_props(self.props,props)
+            self._update_props(self.props, props)
         self.native_properties = self.props["NativeComponentDefinitionProvider"]
 
     @property
@@ -100,7 +125,7 @@ class NativeComponentObject(BoundaryCommon, object):
     def targetcs(self, cs):
         self.props["TargetCS"] = cs
 
-    def _update_props(self,d, u):
+    def _update_props(self, d, u):
         for k, v in u.items():
             if isinstance(v, dict) or type(v) is OrderedDict:
                 if k not in d:
@@ -275,55 +300,55 @@ class BoundaryObject(BoundaryCommon, object):
             self._parent.oboundary.AssignFresnel(self._get_args())
         elif self.type == "Symmetry":
             self._parent.oboundary.AssignSymmetry(self._get_args())
-        elif self.type == 'Zero Tangential H Field':
+        elif self.type == "Zero Tangential H Field":
             self._parent.oboundary.AssignZeroTangentialHField(self._get_args())
-        elif self.type == 'Zero Integrated Tangential H Field':
+        elif self.type == "Zero Integrated Tangential H Field":
             self._parent.oboundary.AssignIntegratedZeroTangentialHField(self._get_args())
-        elif self.type == 'Tangential H Field':
+        elif self.type == "Tangential H Field":
             self._parent.oboundary.AssignTangentialHField(self._get_args())
-        elif self.type == 'Insulating':
+        elif self.type == "Insulating":
             self._parent.oboundary.AssignInsulating(self._get_args())
-        elif self.type == 'Independent':
+        elif self.type == "Independent":
             self._parent.oboundary.AssignIndependent(self._get_args())
-        elif self.type == 'Dependent':
+        elif self.type == "Dependent":
             self._parent.oboundary.AssignDependent(self._get_args())
-        elif self.type == 'InfiniteGround':
+        elif self.type == "InfiniteGround":
             self._parent.oboundary.AssignInfiniteGround(self._get_args())
-        elif self.type == 'ThinConductor':
+        elif self.type == "ThinConductor":
             self._parent.oboundary.AssignThinConductor(self._get_args())
-        elif self.type == 'Stationary Wall':
+        elif self.type == "Stationary Wall":
             self._parent.oboundary.AssignStationaryWallBoundary(self._get_args())
-        elif self.type == 'Simmetry Wall':
+        elif self.type == "Symmetry Wall":
             self._parent.oboundary.AssignSymmetryWallBoundary(self._get_args())
-        elif self.type == 'Resistance':
+        elif self.type == "Resistance":
             self._parent.oboundary.AssignResistanceBoundary(self._get_args())
-        elif self.type == 'Conducting Plate':
+        elif self.type == "Conducting Plate":
             self._parent.oboundary.AssignConductingPlateBoundary(self._get_args())
-        elif self.type == 'Adiabatic Plate':
+        elif self.type == "Adiabatic Plate":
             self._parent.oboundary.AssignAdiabaticPlateBoundary(self._get_args())
-        elif self.type == 'Network':
+        elif self.type == "Network":
             self._parent.oboundary.AssignNetworkBoundary(self._get_args())
-        elif self.type == 'Grille':
+        elif self.type == "Grille":
             self._parent.oboundary.AssignGrilleBoundary(self._get_args())
-        elif self.type == 'Block':
+        elif self.type == "Block":
             self._parent.oboundary.AssignBlockBoundary(self._get_args())
-        elif self.type == 'SourceIcepak':
+        elif self.type == "SourceIcepak":
             self._parent.oboundary.AssignSourceBoundary(self._get_args())
-        elif self.type == 'Opening':
+        elif self.type == "Opening":
             self._parent.oboundary.AssignOpeningBoundary(self._get_args())
-        elif self.type == 'EMLoss':
+        elif self.type == "EMLoss":
             self._parent.oboundary.AssignEMLoss(self._get_args())
-        elif self.type == 'ThermalCondition':
+        elif self.type == "ThermalCondition":
             self._parent.oboundary.AssignThermalCondition(self._get_args())
-        elif self.type == 'Convection':
+        elif self.type == "Convection":
             self._parent.oboundary.AssignConvection(self._get_args())
-        elif self.type == 'Temperature':
+        elif self.type == "Temperature":
             self._parent.oboundary.AssignTemperature(self._get_args())
-        elif self.type == 'RotatingFluid':
+        elif self.type == "RotatingFluid":
             self._parent.oboundary.AssignRotatingFluid(self._get_args())
-        elif self.type == 'Frictionless':
+        elif self.type == "Frictionless":
             self._parent.oboundary.AssignFrictionlessSupport(self._get_args())
-        elif self.type == 'FixedSupport':
+        elif self.type == "FixedSupport":
             self._parent.oboundary.AssignFixedSupport(self._get_args())
         elif self.type == "Voltage":
             self._parent.oboundary.AssignVoltage(self._get_args())
@@ -331,7 +356,7 @@ class BoundaryObject(BoundaryCommon, object):
             self._parent.oboundary.AssignVoltageDrop(self._get_args())
         elif self.type == "Current":
             self._parent.oboundary.AssignCurrent(self._get_args())
-        elif self.type == 'Balloon':
+        elif self.type == "Balloon":
             self._parent.oboundary.AssignBalloon(self._get_args())
         elif self.type == "Winding" or self.type == "Winding Group":
             self._parent.oboundary.AssignWindingGroup(self._get_args())
@@ -341,21 +366,25 @@ class BoundaryObject(BoundaryCommon, object):
             self._parent.oboundary.AssignCoilTerminal(self._get_args())
         elif self.type == "Coil":
             self._parent.oboundary.AssignCoil(self._get_args())
-        elif self.type == 'Source':
+        elif self.type == "Source":
             self._parent.oboundary.AssignSource(self._get_args())
-        elif self.type == 'Sink':
+        elif self.type == "Sink":
             self._parent.oboundary.AssignSink(self._get_args())
-        elif self.type == 'CircuitPort':
+        elif self.type == "CircuitPort":
             self._parent.oboundary.AssignCircuitPort(self._get_args())
-        elif self.type == 'LumpedPort':
+        elif self.type == "LumpedPort":
             self._parent.oboundary.AssignLumpedPort(self._get_args())
-        elif self.type == 'WavePort':
+        elif self.type == "WavePort":
             self._parent.oboundary.AssignWavePort(self._get_args())
-        elif self.type == 'AutoIdentify':
-            self._parent.oboundary.AutoIdentifyPorts(["NAME:Faces", self.props["Faces"]],self.props["IsWavePort"],
-                   ["NAME:ReferenceConductors", self.props["ReferenceConductors"]], self.name,
-                   self.props["RenormalizeModes"])
-        elif self.type == 'SBRTxRxSettings':
+        elif self.type == "AutoIdentify":
+            self._parent.oboundary.AutoIdentifyPorts(
+                ["NAME:Faces", self.props["Faces"]],
+                self.props["IsWavePort"],
+                ["NAME:ReferenceConductors", self.props["ReferenceConductors"]],
+                self.name,
+                self.props["RenormalizeModes"],
+            )
+        elif self.type == "SBRTxRxSettings":
             self._parent.oboundary.SetSBRTxRxSettings(self._get_args())
         else:
             return False
@@ -401,43 +430,43 @@ class BoundaryObject(BoundaryCommon, object):
             self._parent.oboundary.EditFresnel(self.name, self._get_args())
         elif self.type == "Symmetry":
             self._parent.oboundary.EditSymmetry(self.name, self._get_args())
-        elif self.type == 'Zero Tangential H Field':
+        elif self.type == "Zero Tangential H Field":
             self._parent.oboundary.EditZeroTangentialHField(self.name, self._get_args())
-        elif self.type == 'Zero Integrated Tangential H Field':
+        elif self.type == "Zero Integrated Tangential H Field":
             self._parent.oboundary.EditIntegratedZeroTangentialHField(self.name, self._get_args())
-        elif self.type == 'Tangential H Field':
+        elif self.type == "Tangential H Field":
             self._parent.oboundary.EditTangentialHField(self.name, self._get_args())
-        elif self.type == 'Insulating':
+        elif self.type == "Insulating":
             self._parent.oboundary.EditInsulating(self.name, self._get_args())
-        elif self.type == 'Independent':
+        elif self.type == "Independent":
             self._parent.oboundary.EditIndependent(self.name, self._get_args())
-        elif self.type == 'Dependent':
+        elif self.type == "Dependent":
             self._parent.oboundary.EditDependent(self.name, self._get_args())
-        elif self.type == 'InfiniteGround':
+        elif self.type == "InfiniteGround":
             self._parent.oboundary.EditInfiniteGround(self.name, self._get_args())
-        elif self.type == 'ThinConductor':
+        elif self.type == "ThinConductor":
             self._parent.oboundary.EditThinConductor(self.name, self._get_args())
-        elif self.type == 'Stationary Wall':
+        elif self.type == "Stationary Wall":
             self._parent.oboundary.EditStationaryWallBoundary(self.name, self._get_args())
-        elif self.type == 'Simmetry Wall':
+        elif self.type == "Symmetry Wall":
             self._parent.oboundary.EditSymmetryWallBoundary(self.name, self._get_args())
-        elif self.type == 'Resistance':
+        elif self.type == "Resistance":
             self._parent.oboundary.EditResistanceBoundary(self.name, self._get_args())
-        elif self.type == 'Conducting Plate':
+        elif self.type == "Conducting Plate":
             self._parent.oboundary.EditConductingPlateBoundary(self.name, self._get_args())
-        elif self.type == 'Adiabatic Plate':
+        elif self.type == "Adiabatic Plate":
             self._parent.oboundary.EditAdiabaticPlateBoundary(self.name, self._get_args())
-        elif self.type == 'Network':
+        elif self.type == "Network":
             self._parent.oboundary.EditNetworkBoundary(self.name, self._get_args())
-        elif self.type == 'Grille':
+        elif self.type == "Grille":
             self._parent.oboundary.EditGrilleBoundary(self.name, self._get_args())
-        elif self.type == 'Opening':
+        elif self.type == "Opening":
             self._parent.oboundary.EditOpeningBoundary(self.name, self._get_args())
-        elif self.type == 'EMLoss':
+        elif self.type == "EMLoss":
             self._parent.oboundary.EditEMLoss(self.name, self._get_args())
-        elif self.type == 'Block':
-            self._parent.oboundary.EditBlockBoundary(self.name,self._get_args())
-        elif self.type == 'SourceIcepak':
+        elif self.type == "Block":
+            self._parent.oboundary.EditBlockBoundary(self.name, self._get_args())
+        elif self.type == "SourceIcepak":
             self._parent.oboundary.EditSourceBoundary(self._get_args())
         elif self.type == "Voltage":
             self._parent.oboundary.EditVoltage(self.name, self._get_args())
@@ -453,17 +482,17 @@ class BoundaryObject(BoundaryCommon, object):
             self._parent.oboundary.EditCoilTerminal(self.name, self._get_args())
         elif self.type == "Coil":
             self._parent.oboundary.EditCoil(self.name, self._get_args())
-        elif self.type == 'Source':
+        elif self.type == "Source":
             self._parent.oboundary.EditSource(self.name, self._get_args())
-        elif self.type == 'Sink':
+        elif self.type == "Sink":
             self._parent.oboundary.EditSink(self.name, self._get_args())
-        elif self.type == 'CircuitPort':
+        elif self.type == "CircuitPort":
             self._parent.oboundary.EditCircuitPort(self.name, self._get_args())
-        elif self.type == 'LumpedPort':
+        elif self.type == "LumpedPort":
             self._parent.oboundary.EditLumpedPort(self.name, self._get_args())
-        elif self.type == 'WavePort':
+        elif self.type == "WavePort":
             self._parent.oboundary.EditWavePort(self.name, self._get_args())
-        elif self.type == 'SetSBRTxRxSettings':
+        elif self.type == "SetSBRTxRxSettings":
             self._parent.oboundary.SetSBRTxRxSettings(self._get_args())
         else:
             return False
@@ -489,10 +518,10 @@ class BoundaryObject(BoundaryCommon, object):
                     faces_out.append(f.id)
                 else:
                     faces_out.append(f)
-            self._parent.oboundary.ReassignBoundary(["Name:"+self.name, "Faces:=", faces_out])
+            self._parent.oboundary.ReassignBoundary(["Name:" + self.name, "Faces:=", faces_out])
         elif "Objects" in self.props:
 
-            self._parent.oboundary.ReassignBoundary(["Name:"+self.name, "Objects:=", self.props["Objects"]])
+            self._parent.oboundary.ReassignBoundary(["Name:" + self.name, "Objects:=", self.props["Objects"]])
         else:
             return False
         return True

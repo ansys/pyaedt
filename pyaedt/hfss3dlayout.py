@@ -1,12 +1,12 @@
 """This module contains these classes: `Hfss3dLayout`."""
 
 from __future__ import absolute_import
+
 import os
+import warnings
 
 from .application.Analysis3DLayout import FieldAnalysis3DLayout
-from .desktop import exception_to_desktop
-from .modules.SolveSetup import Setup3DLayout
-from .generic.general_methods import generate_unique_name, aedt_exception_handler
+from .generic.general_methods import aedt_exception_handler, generate_unique_name
 
 
 class Hfss3dLayout(FieldAnalysis3DLayout):
@@ -39,11 +39,11 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
     NG : bool, optional
         Whether to launch AEDT in the non-graphical mode. The default
         is``False``, in which case AEDT is launched in the graphical mode.
-    AlwaysNew : bool, optional
+    new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
         machine. The default is ``True``.
-    release_on_exit : bool, optional
+    close_on_exit : bool, optional
         Whether to release AEDT on exit.
     student_version : bool, optional
         Whether to open the AEDT student version. The default is ``False``.
@@ -78,18 +78,34 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
     """
 
-    def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
-                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):
-        FieldAnalysis3DLayout.__init__(self, "HFSS 3D Layout Design", projectname, designname, solution_type,
-                                       setup_name, specified_version, NG, AlwaysNew, release_on_exit, student_version)
+    def __init__(
+        self,
+        projectname=None,
+        designname=None,
+        solution_type=None,
+        setup_name=None,
+        specified_version=None,
+        non_graphical=False,
+        new_desktop_session=False,
+        close_on_exit=False,
+        student_version=False,
+    ):
+        FieldAnalysis3DLayout.__init__(
+            self,
+            "HFSS 3D Layout Design",
+            projectname,
+            designname,
+            solution_type,
+            setup_name,
+            specified_version,
+            non_graphical,
+            new_desktop_session,
+            close_on_exit,
+            student_version,
+        )
 
     def __enter__(self):
         return self
-
-    def __exit__(self, ex_type, ex_value, ex_traceback):
-        """Push exit up to parent object Design."""
-        if ex_type:
-            exception_to_desktop(self, ex_value, ex_traceback)
 
     @aedt_exception_handler
     def create_edge_port(self, primivitivename, edgenumber, iscircuit=True):
@@ -112,8 +128,16 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         """
         listp = self.port_list
         self.modeler.oeditor.CreateEdgePort(
-            ["NAME:Contents", "edge:=", ["et:=", "pe", "prim:=", primivitivename, "edge:=", edgenumber], "circuit:=",
-             iscircuit, "btype:=", 0])
+            [
+                "NAME:Contents",
+                "edge:=",
+                ["et:=", "pe", "prim:=", primivitivename, "edge:=", edgenumber],
+                "circuit:=",
+                iscircuit,
+                "btype:=",
+                0,
+            ]
+        )
         listnew = self.port_list
         a = [i for i in listnew if i not in listp]
         if len(a) > 0:
@@ -122,7 +146,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             return False
 
     @aedt_exception_handler
-    def create_coax_port(self, vianame, layer, xstart, xend,ystart, yend, archeight=0, arcrad=0, isexternal=True):
+    def create_coax_port(self, vianame, layer, xstart, xend, ystart, yend, archeight=0, arcrad=0, isexternal=True):
         """Create a new coax port.
 
         Parameters
@@ -157,19 +181,43 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             layerid = self.modeler.layers.layer_id(layer)
         else:
             layerid = layer
-        self.modeler.oeditor.CreateEdgePort(["NAME:Contents", "edge:=",
-                                             ["et:=", "pse", "sel:=", vianame, "layer:=", layerid, "sx:=", xstart, "sy:=",
-                                              ystart, "ex:=", xend, "ey:=", yend, "h:=", archeight, "rad:=", arcrad],
-                                             "external:=", isexternal])
+        self.modeler.oeditor.CreateEdgePort(
+            [
+                "NAME:Contents",
+                "edge:=",
+                [
+                    "et:=",
+                    "pse",
+                    "sel:=",
+                    vianame,
+                    "layer:=",
+                    layerid,
+                    "sx:=",
+                    xstart,
+                    "sy:=",
+                    ystart,
+                    "ex:=",
+                    xend,
+                    "ey:=",
+                    yend,
+                    "h:=",
+                    archeight,
+                    "rad:=",
+                    arcrad,
+                ],
+                "external:=",
+                isexternal,
+            ]
+        )
         listnew = self.port_list
-        a=[i for i in listnew if i not in listp]
-        if len(a)>0:
+        a = [i for i in listnew if i not in listp]
+        if len(a) > 0:
             return a[0]
         else:
             return False
 
     @aedt_exception_handler
-    def create_pin_port(self,name,xpos=0, ypos=0, rotation=0, top_layer=None, bot_layer=None):
+    def create_pin_port(self, name, xpos=0, ypos=0, rotation=0, top_layer=None, bot_layer=None):
         """Create a pin port.
 
         Parameters
@@ -200,25 +248,29 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         if not top_layer:
             top_layer = layers[0]
         if not bot_layer:
-            bot_layer = layers[len(layers)-1]
+            bot_layer = layers[len(layers) - 1]
         self.modeler.oeditor.CreatePin(
             [
                 "NAME:Contents",
-                [
-                    "NAME:Port",
-                    "Name:="	, name
-                ],
-                "ReferencedPadstack:="	, "Padstacks:NoPad SMT East",
+                ["NAME:Port", "Name:=", name],
+                "ReferencedPadstack:=",
+                "Padstacks:NoPad SMT East",
                 "vposition:=",
-                ["x:=", str(xpos) + self.modeler.model_units, "y:=",
-                            str(ypos) + self.modeler.model_units],
-                "vrotation:="		, [str(rotation) + "deg"],
-                "overrides hole:="	, False,
-                "hole diameter:="	, ["0mm"],
-                "Pin:="			, True,
-                "highest_layer:="	, top_layer,
-                "lowest_layer:="	, bot_layer
-            ])
+                ["x:=", str(xpos) + self.modeler.model_units, "y:=", str(ypos) + self.modeler.model_units],
+                "vrotation:=",
+                [str(rotation) + "deg"],
+                "overrides hole:=",
+                False,
+                "hole diameter:=",
+                ["0mm"],
+                "Pin:=",
+                True,
+                "highest_layer:=",
+                top_layer,
+                "lowest_layer:=",
+                bot_layer,
+            ]
+        )
         return True
 
     @aedt_exception_handler
@@ -280,7 +332,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         """
         if name is None:
-            name= self.design_name
+            name = self.design_name
         if outputdir is None:
             outputdir = self.project_path
 
@@ -308,7 +360,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             for msg in msgs:
                 self._messenger.add_info_message(msg)
                 # msg = msg.replace('"','')
-                msg = msg.rstrip('\r\n')
+                msg = msg.rstrip("\r\n")
                 val_list.append(msg)
                 validation.writelines(msg + "\n")
 
@@ -357,7 +409,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         return val_list, validation_ok  # return all the info in a list for use later
 
     @aedt_exception_handler
-    def create_scattering(self, plot_name="S Parameter Plot Nominal", sweep_name=None, port_names=None, port_excited=None, variations=None):
+    def create_scattering(
+        self, plot_name="S Parameter Plot Nominal", sweep_name=None, port_names=None, port_excited=None, variations=None
+    ):
         """Create a scattering report.
 
         Parameters
@@ -381,7 +435,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         """
         Families = ["Freq:=", ["All"]]
         if variations:
-            Families +=variations
+            Families += variations
         else:
             Families += self.get_nominal_variation()
         if not sweep_name:
@@ -389,9 +443,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         if not port_names:
             port_names = self.get_excitations_name
         if not port_excited:
-            port_excited= port_names
-        Trace = ["X Component:=", "Freq", "Y Component:=", [
-            "dB(S(" + p + "," + q + "))" for p,q in zip(list(port_names), list(port_excited))]]
+            port_excited = port_names
+        Trace = [
+            "X Component:=",
+            "Freq",
+            "Y Component:=",
+            ["dB(S(" + p + "," + q + "))" for p, q in zip(list(port_names), list(port_excited))],
+        ]
         solution_data = ""
         if self.solution_type == "DrivenModal":
             solution_data = "Modal Solution Data"
@@ -402,14 +460,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         if solution_data != "":
             # run CreateReport function
             self.post.oreportsetup.CreateReport(
-                plot_name,
-                solution_data,
-                "Rectangular Plot",
-                sweep_name,
-                ["Domain:=", "Sweep"],
-                Families,
-                Trace,
-                [])
+                plot_name, solution_data, "Rectangular Plot", sweep_name, ["Domain:=", "Sweep"], Families, Trace, []
+            )
             return True
         else:
             return False
@@ -441,10 +493,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         if not filename:
             appendix = ""
             for v, vv in zip(variation, variations_value):
-                appendix += "_" + v + vv.replace("\'", "")
+                appendix += "_" + v + vv.replace("'", "")
             ext = ".S" + str(len(self.port_list)) + "p"
-            filename = os.path.join(self.project_path, solutionname + \
-                                    "_" + sweepname + appendix + ext)
+            filename = os.path.join(self.project_path, solutionname + "_" + sweepname + appendix + ext)
         else:
             filename = filename.replace("//", "/").replace("\\", "/")
         print("Exporting Touchstone " + filename)
@@ -468,10 +519,22 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         for v, vv in zip(variation, variations_value):
             variation_str += v + "=" + vv + " "
 
-        self.odesign.ExportNetworkData(variation_str, SolutionSelectionArray, FileFormat,
-                                       OutFile, FreqsArray, DoRenorm, RenormImped, DataType, Pass, ComplexFormat,
-                                       DigitsPrecision, IncludeGammaImpedance, IncludeGammaImpedance,
-                                       NonStandardExtensions)
+        self.odesign.ExportNetworkData(
+            variation_str,
+            SolutionSelectionArray,
+            FileFormat,
+            OutFile,
+            FreqsArray,
+            DoRenorm,
+            RenormImped,
+            DataType,
+            Pass,
+            ComplexFormat,
+            DigitsPrecision,
+            IncludeGammaImpedance,
+            IncludeGammaImpedance,
+            NonStandardExtensions,
+        )
         return True
 
     @aedt_exception_handler
@@ -506,12 +569,71 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         return True
 
     @aedt_exception_handler
-    def create_frequency_sweep(self, setupname, unit, freqstart, freqstop, num_of_freq_points,
-                               sweepname=None, sweeptype="interpolating",
-                               interpolation_tol_percent=0.5, interpolation_max_solutions=250,
-                               save_fields=True, save_rad_fields_only=False,
-                               use_q3d_for_dc=False):
+    def create_frequency_sweep(
+        self,
+        setupname,
+        unit,
+        freqstart,
+        freqstop,
+        num_of_freq_points,
+        sweepname=None,
+        sweeptype="interpolating",
+        interpolation_tol_percent=0.5,
+        interpolation_max_solutions=250,
+        save_fields=True,
+        save_rad_fields_only=False,
+        use_q3d_for_dc=False,
+    ):
         """Create a frequency sweep.
+
+        .. deprecated:: 0.4.0
+           Use :func:`Hfss3dLayout.create_linear_count_sweep` instead.
+
+        """
+
+        warnings.warn(
+            "`create_frequency_sweep` is deprecated. Use `create_linear_count_sweep` instead.",
+            DeprecationWarning,
+        )
+        if sweeptype == "interpolating":
+            sweeptype = "Interpolating"
+        elif sweeptype == 'discrete':
+            sweeptype = "Discrete"
+        elif sweeptype == 'fast':
+            sweeptype = "Fast"
+
+        return self.create_linear_count_sweep(
+                setupname=setupname,
+                unit=unit,
+                freqstart=freqstart,
+                freqstop=freqstop,
+                num_of_freq_points=num_of_freq_points,
+                sweepname=sweepname,
+                save_fields=save_fields,
+                save_rad_fields_only=save_rad_fields_only,
+                sweep_type=sweeptype,
+                interpolation_tol_percent=interpolation_tol_percent,
+                interpolation_max_solutions=interpolation_max_solutions,
+                use_q3d_for_dc=use_q3d_for_dc,
+        )
+
+    @aedt_exception_handler
+    def create_linear_count_sweep(
+        self,
+        setupname,
+        unit,
+        freqstart,
+        freqstop,
+        num_of_freq_points,
+        sweepname=None,
+        save_fields=True,
+        save_rad_fields_only=False,
+        sweep_type="Interpolating",
+        interpolation_tol_percent=0.5,
+        interpolation_max_solutions=250,
+        use_q3d_for_dc=False,
+    ):
+        """Create a sweep with the specified number of points.
 
         Parameters
         ----------
@@ -527,7 +649,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             Number of frequency points in the range.
         sweepname : str, optional
             Name of the sweep. The default is ``None``.
-        sweeptype : str, optional
+        save_fields : bool, optional
+            Whether to save the fields for a discrete sweep only. The
+            default is ``True``.
+        save_rad_fields_only : bool, optional
+            Whether to save only the radiated fields if
+            ``save_fields=True``. The default is ``False``.
+        sweep_type : str, optional
             Type of the sweep. Options are ``"Fast"``,
             ``"Interpolating"``, and ``"Discrete"``.  The default is
             ``"Interpolating"``.
@@ -537,46 +665,215 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         interpolation_max_solutions : int, optional
             Maximum number of solutions evaluated for the
             interpolation process. The default is ``250``.
+        use_q3d_for_dc : bool, optional
+            Whether to use Q3D to solve the DC point. The default is ``False``.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.SetupTemplates.SweepHFSS3DLayout` or bool
+            Sweep object if successful, ``False`` otherwise.
+
+        """
+        if sweep_type not in ["Discrete", "Interpolating", "Fast"]:
+            raise AttributeError("Invalid in `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'")
+        if sweepname is None:
+            sweepname = generate_unique_name("Sweep")
+
+        interpolation = False
+        if sweep_type == "Interpolating":
+            interpolation = True
+            save_fields = False
+
+        if not save_fields:
+            save_rad_fields_only = False
+
+        interpolation_tol = interpolation_tol_percent / 100.0
+
+        for s in self.setups:
+            if s.name == setupname:
+                setupdata = s
+                if sweepname in [sweep.name for sweep in setupdata.sweeps]:
+                    oldname = sweepname
+                    sweepname = generate_unique_name(oldname)
+                    self._messenger.add_warning_message(
+                        "Sweep {} is already present. Sweep has been renamed in {}.".format(oldname, sweepname)
+                    )
+                sweep = setupdata.add_sweep(sweepname=sweepname)
+                sweep.change_range("LinearCount", freqstart, freqstop, num_of_freq_points, unit)
+                sweep.props["GenerateSurfaceCurrent"] = save_fields
+                sweep.props["SaveRadFieldsOnly"] = save_rad_fields_only
+                sweep.props["FastSweep"] = interpolation
+                sweep.props["SAbsError"] = interpolation_tol
+                sweep.props["EnforcePassivity"] = interpolation
+                sweep.props["UseQ3DForDC"] = use_q3d_for_dc
+                sweep.props["MaxSolutions"] = interpolation_max_solutions
+                sweep.update()
+                self.add_info_message("Linear count sweep {} has been correctly created".format(sweepname))
+                return sweep
+        return False
+
+    @aedt_exception_handler
+    def create_linear_step_sweep(
+        self,
+        setupname,
+        unit,
+        freqstart,
+        freqstop,
+        step_size,
+        sweepname=None,
+        save_fields=True,
+        save_rad_fields_only=False,
+        sweep_type="Interpolating",
+        interpolation_tol_percent=0.5,
+        interpolation_max_solutions=250,
+        use_q3d_for_dc=False,
+    ):
+        """Create a sweep with the specified frequency step.
+
+        Parameters
+        ----------
+        setupname : str
+            Name of the setup to attach to the sweep.
+        unit : str
+            Unit of the frequency, such as ``"MHz"`` or ``"GHz"``.
+        freqstart : float
+            Starting frequency of the sweep.
+        freqstop : float
+            Stopping frequency of the sweep.
+        step_size : float
+            Frequency size of the step.
+        sweepname : str, optional
+            Name of the sweep. The default is ``None``.
         save_fields : bool, optional
             Whether to save the fields for a discrete sweep only. The
             default is ``True``.
         save_rad_fields_only : bool, optional
             Whether to save only the radiated fields if
             ``save_fields=True``. The default is ``False``.
+        sweep_type : str, optional
+            Type of the sweep. Options are ``"Fast"``,
+            ``"Interpolating"``, and ``"Discrete"``.  The default is
+            ``"Interpolating"``.
+        interpolation_tol_percent : float, optional
+            Error tolerance threshold for the interpolation
+            process. The default is ``0.5``.
+        interpolation_max_solutions : int, optional
+            Maximum number of solutions evaluated for the
+            interpolation process. The default is ``250``.
         use_q3d_for_dc : bool, optional
             Whether to use Q3D to solve the DC point. The default is ``False``.
 
         Returns
         -------
-        str
-            Name of the setup when successful, ``False`` otherwise.
+        :class:`pyaedt.modules.SetupTemplates.SweepHFSS3DLayout` or bool
+            Sweep object if successful, ``False`` otherwise.
 
         """
+        if sweep_type not in ["Discrete", "Interpolating", "Fast"]:
+            raise AttributeError("Invalid in `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'")
         if sweepname is None:
             sweepname = generate_unique_name("Sweep")
+
         interpolation = False
-        if sweeptype == "interpolating":
+        if sweep_type == "Interpolating":
             interpolation = True
             save_fields = False
 
         if not save_fields:
             save_rad_fields_only = False
-        interpolation_tol = interpolation_tol_percent / 100.
-        setup = self.get_setup(setupname)
-        if sweepname in [name.name for name in setup.sweeps]:
-            sweepname = generate_unique_name(sweepname)
-        sweep = setup.add_sweep(sweepname=sweepname)
-        sweep.change_range("LinearCount", str(freqstart)+unit, str(freqstop)+unit, num_of_freq_points )
-        sweep.props["GenerateSurfaceCurrent"] = save_fields
-        sweep.props["SaveRadFieldsOnly"] = save_rad_fields_only
-        sweep.props["FastSweep"] = interpolation
-        sweep.props["SAbsError"] = interpolation_tol
-        sweep.props["EnforcePassivity"] = interpolation
-        sweep.props["UseQ3DForDC"] = use_q3d_for_dc
-        sweep.props["MaxSolutions"] = interpolation_max_solutions
-        sweep.update()
 
-        return sweep
+        interpolation_tol = interpolation_tol_percent / 100.0
+
+        for s in self.setups:
+            if s.name == setupname:
+                setupdata = s
+                if sweepname in [sweep.name for sweep in setupdata.sweeps]:
+                    oldname = sweepname
+                    sweepname = generate_unique_name(oldname)
+                    self._messenger.add_warning_message(
+                        "Sweep {} is already present. Sweep has been renamed in {}.".format(oldname, sweepname)
+                    )
+                sweep = setupdata.add_sweep(sweepname=sweepname)
+                sweep.change_range("LinearStep", freqstart, freqstop, step_size, unit)
+                sweep.props["GenerateSurfaceCurrent"] = save_fields
+                sweep.props["SaveRadFieldsOnly"] = save_rad_fields_only
+                sweep.props["FastSweep"] = interpolation
+                sweep.props["SAbsError"] = interpolation_tol
+                sweep.props["EnforcePassivity"] = interpolation
+                sweep.props["UseQ3DForDC"] = use_q3d_for_dc
+                sweep.props["MaxSolutions"] = interpolation_max_solutions
+                sweep.update()
+                self.add_info_message("Linear step sweep {} has been correctly created".format(sweepname))
+                return sweep
+        return False
+
+    @aedt_exception_handler
+    def create_single_point_sweep(
+        self,
+        setupname,
+        unit,
+        freq,
+        sweepname=None,
+        save_fields=False,
+        save_rad_fields_only=False,
+    ):
+        """Create a Sweep with a single frequency point.
+
+        Parameters
+        ----------
+        setupname : str
+            Name of the setup.
+        unit : str
+            Unit of the frequency. For example, ``"MHz`` or ``"GHz"``.
+        freq : float, list
+            Frequency of the single point or list of frequencies to create distinct single points.
+        sweepname : str, optional
+            Name of the sweep. The default is ``None``.
+        save_fields : bool, optional
+            Whether to save the fields for all points and subranges defined in the sweep. The default is ``False``.
+        save_rad_fields_only : bool, optional
+            Whether to save only the radiating fields. The default is ``False``.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or bool
+            Sweep object if successful, ``False`` otherwise.
+        """
+        if sweepname is None:
+            sweepname = generate_unique_name("SinglePoint")
+
+        add_subranges = False
+        if isinstance(freq, list):
+            if not freq:
+                raise AttributeError("Frequency list is empty! Specify at least one frequency point.")
+            freq0 = freq.pop(0)
+            if freq:
+                add_subranges = True
+        else:
+            freq0 = freq
+
+        if setupname not in self.setup_names:
+            return False
+        for s in self.setups:
+            if s.name == setupname:
+                setupdata = s
+                if sweepname in [sweep.name for sweep in setupdata.sweeps]:
+                    oldname = sweepname
+                    sweepname = generate_unique_name(oldname)
+                    self._messenger.add_warning_message(
+                        "Sweep {} is already present. Sweep has been renamed in {}.".format(oldname, sweepname)
+                    )
+                sweepdata = setupdata.add_sweep(sweepname, "Discrete")
+                sweepdata.change_range("SinglePoint", freq0, unit)
+                sweepdata.props["GenerateSurfaceCurrent"] = save_fields
+                sweepdata.props["SaveRadFieldsOnly"] = save_rad_fields_only
+                sweepdata.update()
+                if add_subranges:
+                    for f in freq:
+                        sweepdata.add_subrange(rangetype="SinglePoint", start=f, unit=unit)
+                self.add_info_message("Single point sweep {} has been correctly created".format(sweepname))
+                return sweepdata
+        return False
 
     @aedt_exception_handler
     def import_gds(self, gds_path, aedb_path=None, xml_path=None, set_as_active=True, close_active_project=False):
@@ -605,13 +902,12 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         active_project = self.project_name
         project_name = os.path.basename(gds_path)[:-4]
         if not aedb_path:
-            aedb_path = gds_path.replace('.gds', '.aedb')
+            aedb_path = gds_path.replace(".gds", ".aedb")
         if os.path.exists(aedb_path):
             old_name = project_name
             project_name = generate_unique_name(project_name)
-            aedb_path = gds_path.replace(old_name + '.gds', project_name + '.aedb')
-            self._messenger.add_warning_message(
-                "aedb_exists. Renaming it to {}".format(project_name))
+            aedb_path = gds_path.replace(old_name + ".gds", project_name + ".aedb")
+            self._messenger.add_warning_message("aedb_exists. Renaming it to {}".format(project_name))
 
         oTool = self.odesktop.GetTool("ImportExport")
         oTool.ImportGDSII(gds_path, aedb_path, "", "")
@@ -626,9 +922,18 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         return True
 
     @aedt_exception_handler
-    def edit_cosim_options(self, simulate_missing_solution=True, align_ports=True, renormalize_ports=True,
-                           renorm_impedance=50, setup_override_name=None, sweep_override_name=None,
-                           use_interpolating_sweep=False, use_y_matrix=True, interpolation_algorithm="auto"):
+    def edit_cosim_options(
+        self,
+        simulate_missing_solution=True,
+        align_ports=True,
+        renormalize_ports=True,
+        renorm_impedance=50,
+        setup_override_name=None,
+        sweep_override_name=None,
+        use_interpolating_sweep=False,
+        use_y_matrix=True,
+        interpolation_algorithm="auto",
+    ):
         """Edit Cosimulation Options.
 
         Parameters
@@ -652,7 +957,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         use_y_matrix : bool, Optional
             Set to ``True`` if the interpolation algorithm has to use YMatrix.
         interpolation_algorithm : str, optional
-                Defines which interpolation algorithm to use. Default is ``"auto"``. Options are ``"auto"``, ``"lin"``, ``"shadH"``, ``"shadNH"``
+                Defines which interpolation algorithm to use. Default is ``"auto"``.
+                Options are ``"auto"``, ``"lin"``, ``"shadH"``, ``"shadNH"``
 
         Returns
         -------
@@ -663,7 +969,17 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         --------
         >>> from pyaedt import Hfss3dLayout
         >>> h3d = Hfss3dLayout()
-        >>> h3d.edit_cosim_options(simulate_missing_solution=True, align_ports=True, renormalize_ports=True,renorm_impedance=50, setup_override_name=None, sweep_override_name=None, use_interpolating_sweep=False, use_y_matrix=True, interpolation_algorithm="auto")
+        >>> h3d.edit_cosim_options(
+        ...     simulate_missing_solution=True,
+        ...     align_ports=True,
+        ...     renormalize_ports=True,
+        ...     renorm_impedance=50,
+        ...     setup_override_name=None,
+        ...     sweep_override_name=None,
+        ...     use_interpolating_sweep=False,
+        ...     use_y_matrix=True,
+        ...     interpolation_algorithm="auto"
+        ... )
 
         """
         if interpolation_algorithm not in ["auto", "lin", "shadH", "shadNH"]:

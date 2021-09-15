@@ -1,11 +1,11 @@
-# standard imports
-try:
-    import pytest
-except ImportError:
-    import _unittest_ironpython.conf_unittest as pytest
-
 # Setup paths for module imports
 from _unittest.conftest import BasisTest, pyaedt_unittest_check_desktop_error
+
+try:
+    import pytest  # noqa: F401
+except ImportError:
+    import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
+
 
 class TestClass(BasisTest):
     def setup_class(self):
@@ -14,24 +14,26 @@ class TestClass(BasisTest):
     def restore_model(self):
         for name in self.aedtapp.modeler.get_matched_object_name("outer*"):
             self.aedtapp.modeler.primitives.delete(name)
-        outer = self.aedtapp.modeler.primitives.create_cylinder(cs_axis="X", position=[0, 0, 0], radius=1, height=20,
-                                                                name="outer", matname="Aluminum")
+        outer = self.aedtapp.modeler.primitives.create_cylinder(
+            cs_axis="X", position=[0, 0, 0], radius=1, height=20, name="outer", matname="Aluminum"
+        )
         for name in self.aedtapp.modeler.get_matched_object_name("Core*"):
             self.aedtapp.modeler.primitives.delete(name)
-        core = self.aedtapp.modeler.primitives.create_cylinder(cs_axis="X", position=[0, 0, 0], radius=0.8, height=20,
-                                                                name="Core", matname="teflon_based")
+        core = self.aedtapp.modeler.primitives.create_cylinder(
+            cs_axis="X", position=[0, 0, 0], radius=0.8, height=20, name="Core", matname="teflon_based"
+        )
         for name in self.aedtapp.modeler.get_matched_object_name("inner*"):
             self.aedtapp.modeler.primitives.delete(name)
-        inner = self.aedtapp.modeler.primitives.create_cylinder(cs_axis="X", position=[0, 0, 0], radius=0.3, height=20,
-                                                                name="inner", matname="Aluminum")
+        inner = self.aedtapp.modeler.primitives.create_cylinder(
+            cs_axis="X", position=[0, 0, 0], radius=0.3, height=20, name="inner", matname="Aluminum"
+        )
 
         for name in self.aedtapp.modeler.get_matched_object_name("Poly1*"):
             self.aedtapp.modeler.primitives.delete(name)
         udp1 = [0, 0, 0]
         udp2 = [5, 0, 0]
         udp3 = [5, 5, 0]
-        self.aedtapp.modeler.primitives.create_polyline(
-            [udp1, udp2, udp3], name="Poly1", xsection_type="Rectangle")
+        self.aedtapp.modeler.primitives.create_polyline([udp1, udp2, udp3], name="Poly1", xsection_type="Rectangle")
 
         self.aedtapp.modeler.subtract(outer, core)
         self.aedtapp.modeler.subtract(core, inner)
@@ -60,8 +62,7 @@ class TestClass(BasisTest):
 
     @pyaedt_unittest_check_desktop_error
     def test_05_split(self):
-        box1 = self.aedtapp.modeler.primitives.create_box(
-            [-10, -10, -10], [20, 20, 20], "box_to_split")
+        box1 = self.aedtapp.modeler.primitives.create_box([-10, -10, -10], [20, 20, 20], "box_to_split")
         assert self.aedtapp.modeler.split("box_to_split", 1)
 
     @pyaedt_unittest_check_desktop_error
@@ -71,7 +72,7 @@ class TestClass(BasisTest):
         udp2 = self.aedtapp.modeler.Position(30, 40, 40)
         out = self.aedtapp.modeler.duplicate_and_mirror("outer", udp, udp2)
         assert out[0]
-        assert len(out[1])>0
+        assert len(out[1]) > 0
 
     @pyaedt_unittest_check_desktop_error
     def test_07_mirror(self):
@@ -87,7 +88,7 @@ class TestClass(BasisTest):
         status, mirror = self.aedtapp.modeler.duplicate_around_axis("outer", udp, 45, num_clones)
         assert status
         assert type(mirror) is list
-        assert len(mirror) == num_clones-1
+        assert len(mirror) == num_clones - 1
 
     @pyaedt_unittest_check_desktop_error
     def test_08_duplicate_along_line(self):
@@ -96,16 +97,18 @@ class TestClass(BasisTest):
         status, mirror = self.aedtapp.modeler.duplicate_along_line("outer", udp, num_clones)
         assert status
         assert type(mirror) is list
-        assert len(mirror) == num_clones-1
+        assert len(mirror) == num_clones - 1
 
     @pyaedt_unittest_check_desktop_error
     def test_09_thicken_sheet(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
-        id5 = self.aedtapp.modeler.primitives.create_circle(self.aedtapp.CoordinateSystemPlane.XYPlane, udp, 10,
-                                                            name="sheet1")
+        id5 = self.aedtapp.modeler.primitives.create_circle(
+            self.aedtapp.CoordinateSystemPlane.XYPlane, udp, 10, name="sheet1"
+        )
         udp = self.aedtapp.modeler.Position(100, 100, 100)
-        id6 = self.aedtapp.modeler.primitives.create_circle(self.aedtapp.CoordinateSystemPlane.XYPlane, udp, 10,
-                                                            name="sheet2")
+        id6 = self.aedtapp.modeler.primitives.create_circle(
+            self.aedtapp.CoordinateSystemPlane.XYPlane, udp, 10, name="sheet2"
+        )
         status = self.aedtapp.modeler.thicken_sheet(id5, 3)
         assert status
         status = self.aedtapp.modeler.automatic_thicken_sheets(id6, 3, False)
@@ -114,7 +117,10 @@ class TestClass(BasisTest):
     @pyaedt_unittest_check_desktop_error
     def test_11_split(self):
         self.restore_model()
-        assert self.aedtapp.modeler.split("Poly1", self.aedtapp.CoordinateSystemPlane.XYPlane, )
+        assert self.aedtapp.modeler.split(
+            "Poly1",
+            self.aedtapp.CoordinateSystemPlane.XYPlane,
+        )
 
     def test_12_separate_Bodies(self):
         assert self.aedtapp.modeler.separate_bodies("Poly1")
@@ -151,27 +157,27 @@ class TestClass(BasisTest):
 
     def test_20_intersect(self):
         udp = [0, 0, 0]
-        o1 = self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.CoordinateSystemPlane.XYPlane, udp, [5, 10],
-                                                               name="Rect1")
-        o2 = self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.CoordinateSystemPlane.XYPlane, udp, [3, 12],
-                                                               name="Rect2")
+        o1 = self.aedtapp.modeler.primitives.create_rectangle(
+            self.aedtapp.CoordinateSystemPlane.XYPlane, udp, [5, 10], name="Rect1"
+        )
+        o2 = self.aedtapp.modeler.primitives.create_rectangle(
+            self.aedtapp.CoordinateSystemPlane.XYPlane, udp, [3, 12], name="Rect2"
+        )
         assert self.aedtapp.modeler.intersect([o1, o2])
 
     def test_21_connect(self):
         udp = [0, 0, 0]
-        id1 = self.aedtapp.modeler.primitives.create_rectangle(
-            self.aedtapp.CoordinateSystemPlane.XYPlane, udp, [5, 10])
+        id1 = self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.CoordinateSystemPlane.XYPlane, udp, [5, 10])
         udp = self.aedtapp.modeler.Position(0, 0, 10)
-        id2 = self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.CoordinateSystemPlane.XYPlane, udp,
-                                                               [-3, 10])
+        id2 = self.aedtapp.modeler.primitives.create_rectangle(
+            self.aedtapp.CoordinateSystemPlane.XYPlane, udp, [-3, 10]
+        )
         assert self.aedtapp.modeler.connect([id1, id2])
 
     def test_22_translate(self):
         udp = [0, 0, 0]
-        id1 = self.aedtapp.modeler.primitives.create_rectangle(
-            self.aedtapp.CoordinateSystemPlane.XYPlane, udp, [5, 10])
-        id2 = self.aedtapp.modeler.primitives.create_rectangle(
-            self.aedtapp.CoordinateSystemPlane.XYPlane, udp, [3, 12])
+        id1 = self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.CoordinateSystemPlane.XYPlane, udp, [5, 10])
+        id2 = self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.CoordinateSystemPlane.XYPlane, udp, [3, 12])
         udp2 = self.aedtapp.modeler.Position(0, 20, 5)
         assert self.aedtapp.modeler.translate([id1, id2], udp2)
 
@@ -213,18 +219,23 @@ class TestClass(BasisTest):
 
     def test_30_create_waveguide(self):
         position = self.aedtapp.modeler.Position(0, 0, 0)
-        wg1 = self.aedtapp.modeler.create_waveguide(
-            position, self.aedtapp.CoordinateSystemAxis.XAxis, wg_length=2000)
+        wg1 = self.aedtapp.modeler.create_waveguide(position, self.aedtapp.CoordinateSystemAxis.XAxis, wg_length=2000)
         assert isinstance(wg1, tuple)
         position = self.aedtapp.modeler.Position(0, 0, 0)
-        wg9 = self.aedtapp.modeler.create_waveguide(position, self.aedtapp.CoordinateSystemAxis.ZAxis, wgmodel="WG9",
-                                                    wg_length=1500, parametrize_h=True, create_sheets_on_openings=True)
+        wg9 = self.aedtapp.modeler.create_waveguide(
+            position,
+            self.aedtapp.CoordinateSystemAxis.ZAxis,
+            wgmodel="WG9",
+            wg_length=1500,
+            parametrize_h=True,
+            create_sheets_on_openings=True,
+        )
         assert wg9[0].id > 0
         assert wg9[1].id > 0
         assert wg9[2].id > 0
-        wgfail = self.aedtapp.modeler.create_waveguide(position, self.aedtapp.CoordinateSystemAxis.ZAxis,
-                                                       wgmodel="MYMODEL",
-                                                       wg_length=2000, parametrize_h=True)
+        wgfail = self.aedtapp.modeler.create_waveguide(
+            position, self.aedtapp.CoordinateSystemAxis.ZAxis, wgmodel="MYMODEL", wg_length=2000, parametrize_h=True
+        )
         assert not wgfail
         pass
 
@@ -234,14 +245,15 @@ class TestClass(BasisTest):
     def test_33_duplicate_around_axis(self):
         id1 = self.aedtapp.modeler.primitives.create_box([10, 10, 10], [4, 5, 5])
         axis = self.aedtapp.CoordinateSystemAxis.XAxis
-        _, obj_list = self.aedtapp.modeler.duplicate_around_axis(id1, cs_axis=axis, angle="180deg", nclones=2,
-                                                                 create_new_objects=False)
+        _, obj_list = self.aedtapp.modeler.duplicate_around_axis(
+            id1, cs_axis=axis, angle="180deg", nclones=2, create_new_objects=False
+        )
         # if create_new_objects is set to False, there should be no new objects
         assert not obj_list
 
     def test_35_activate_variable_for_tuning(self):
-        self.aedtapp["test_opti"]="10mm"
-        self.aedtapp["$test_opti1"]="10mm"
+        self.aedtapp["test_opti"] = "10mm"
+        self.aedtapp["$test_opti1"] = "10mm"
         assert self.aedtapp.activate_variable_tuning("test_opti")
         assert self.aedtapp.activate_variable_tuning("$test_opti1", "1mm", "10mm")
         assert self.aedtapp.deactivate_variable_tuning("test_opti")
@@ -260,13 +272,11 @@ class TestClass(BasisTest):
     def test_38_activate_variable_for_statistical(self):
 
         assert self.aedtapp.activate_variable_statistical("test_opti")
-        assert self.aedtapp.activate_variable_statistical(
-            "$test_opti1", "1mm", "10mm", "3%", mean="2mm")
+        assert self.aedtapp.activate_variable_statistical("$test_opti1", "1mm", "10mm", "3%", mean="2mm")
         assert self.aedtapp.deactivate_variable_statistical("test_opti")
 
     def test_39_create_coaxial(self):
-        coax = self.aedtapp.modeler.create_coaxial(
-            [0, 0, 0], self.aedtapp.CoordinateSystemAxis.XAxis)
+        coax = self.aedtapp.modeler.create_coaxial([0, 0, 0], self.aedtapp.CoordinateSystemAxis.XAxis)
         assert isinstance(coax[0].id, int)
         assert isinstance(coax[1].id, int)
         assert isinstance(coax[2].id, int)
@@ -288,10 +298,10 @@ class TestClass(BasisTest):
         assert cs.delete()
 
     def test_41_rename_coordinate(self):
-        cs = self.aedtapp.modeler.create_coordinate_system(name='oldname')
-        assert cs.name == 'oldname'
-        assert cs.rename('newname')
-        assert cs.name == 'newname'
+        cs = self.aedtapp.modeler.create_coordinate_system(name="oldname")
+        assert cs.name == "oldname"
+        assert cs.rename("newname")
+        assert cs.name == "newname"
         assert cs.delete()
 
     def test_42_update_coordinate_system(self):
@@ -311,7 +321,7 @@ class TestClass(BasisTest):
         assert cs2.update()
         cs2.ref_cs = "Global"
         cs2.update()
-        assert self.aedtapp.modeler.oeditor.GetCoordinateSystems() == ('Global', 'CS1', 'CS2')
+        assert self.aedtapp.modeler.oeditor.GetCoordinateSystems() == ("Global", "CS1", "CS2")
         assert len(self.aedtapp.modeler.coordinate_systems) == 2
         assert cs2.delete()
 
@@ -329,28 +339,24 @@ class TestClass(BasisTest):
         self.aedtapp.modeler.set_working_coordinate_system("new1")
 
     def test_44_sweep_around_axis(self):
-        box1 = self.aedtapp.modeler.primitives.create_box(
-            [-10, -10, -10], [20, 20, 20], "box_to_split")
+        box1 = self.aedtapp.modeler.primitives.create_box([-10, -10, -10], [20, 20, 20], "box_to_split")
         box1.sweep_around_axis("Z", sweep_angle=360, draft_angle=0)
 
     def test_45_sweep_along_path(self):
         udp1 = [0, 0, 0]
         udp2 = [5, 0, 0]
         path = self.aedtapp.modeler.primitives.create_polyline([udp1, udp2], name="Poly1")
-        box1 = self.aedtapp.modeler.primitives.create_box(
-            [-10, -10, -10], [20, 20, 20], "box_to_split")
+        box1 = self.aedtapp.modeler.primitives.create_box([-10, -10, -10], [20, 20, 20], "box_to_split")
         box1.sweep_along_path(path)
 
     def test_46_section_object(self):
-        box1 = self.aedtapp.modeler.primitives.create_box(
-            [-10, -10, -10], [20, 20, 20], "box_to_split")
+        box1 = self.aedtapp.modeler.primitives.create_box([-10, -10, -10], [20, 20, 20], "box_to_split")
         self.aedtapp.modeler.section(box1, 0, create_new=True, section_cross_object=False)
         pass
 
     def test_47_sweep_along_vector(self):
         sweep_vector = [5, 0, 0]
-        box1 = self.aedtapp.modeler.primitives.create_box(
-            [-10, -10, -10], [20, 20, 20], "box_to_split")
+        box1 = self.aedtapp.modeler.primitives.create_box([-10, -10, -10], [20, 20, 20], "box_to_split")
         box1.sweep_along_vector(sweep_vector)
 
     def test_48_coordinate_systems_parametric(self):

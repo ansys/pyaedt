@@ -1,29 +1,35 @@
 """
-This module contains the `analysis` class.
+This module contains the ``analysis`` class.
 
 It includes common classes for file management and messaging and all
 calls to AEDT modules like the modeler, mesh, postprocessing, and setup.
 """
 from __future__ import absolute_import
+
 import os
-import itertools
-import threading
 import shutil
+import threading
 import warnings
 from collections import OrderedDict
 
-from ..modeler.modeler_constants import CoordinateSystemPlane, CoordinateSystemAxis, GravityDirection, Plane
-from ..modules.SolveSetup import Setup
-from ..modules.SolutionType import SolutionType, SetupTypes
-from ..modules.SetupTemplates import SetupKeys
-from ..modules.Boundary import NativeComponentObject
-from ..modules.DesignXPloration import DOESetups, DXSetups, ParametericsSetups, SensitivitySetups, StatisticalSetups, OptimizationSetups
-from .Design import Design
-from ..modules.MaterialLib import Materials
-from ..generic.general_methods import aedt_exception_handler
-from ..desktop import _pythonver
 from .. import is_ironpython
-import sys
+from ..generic.general_methods import aedt_exception_handler
+from ..modeler.modeler_constants import CoordinateSystemAxis, CoordinateSystemPlane, GravityDirection, Plane
+from ..modules.Boundary import NativeComponentObject
+from ..modules.DesignXPloration import (
+    DOESetups,
+    DXSetups,
+    OptimizationSetups,
+    ParametericsSetups,
+    SensitivitySetups,
+    StatisticalSetups,
+)
+from ..modules.MaterialLib import Materials
+from ..modules.SetupTemplates import SetupKeys
+from ..modules.SolutionType import SetupTypes, SolutionType
+from ..modules.SolveSetup import Setup
+from .Design import Design
+
 if is_ironpython:
     from ..modules.PostProcessor import PostProcessor
 else:
@@ -32,6 +38,9 @@ else:
 
 class Analysis(Design, object):
     """Contains all common analysis functions.
+
+    This class is inherited in the caller application and is accessible through it ( eg. ``hfss.method_name``).
+
 
     It is automatically initialized by a call from an application, such as HFSS or Q3D.
     See the application function for its parameter descriptions.
@@ -53,22 +62,43 @@ class Analysis(Design, object):
         Version of AEDT  to use.
     NG : bool
         Whether to run AEDT in the non-graphical mode.
-    AlwaysNew : bool
+    new_desktop_session : bool
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
         machine.
-    release_on_exit : bool
+    close_on_exit : bool
         Whether to release  AEDT on exit.
     student_version : bool
         Whether to enable the student version of AEDT.
 
     """
 
-    def __init__(self, application, projectname, designname, solution_type, setup_name,
-                 specified_version, NG, AlwaysNew, release_on_exit, student_version):
+    def __init__(
+        self,
+        application,
+        projectname,
+        designname,
+        solution_type,
+        setup_name,
+        specified_version,
+        non_graphical,
+        new_desktop_session,
+        close_on_exit,
+        student_version,
+    ):
         self.setups = []
-        Design.__init__(self, application, projectname, designname, solution_type,
-                        specified_version, NG, AlwaysNew, release_on_exit, student_version)
+        Design.__init__(
+            self,
+            application,
+            projectname,
+            designname,
+            solution_type,
+            specified_version,
+            non_graphical,
+            new_desktop_session,
+            close_on_exit,
+            student_version,
+        )
         self.logger.info("Design Loaded")
         self._setup = None
         if setup_name:
@@ -248,7 +278,7 @@ class Analysis(Design, object):
             self._setup = setup_name
         else:
             self._setup = setup_list[0]
-        #return self._setup
+        # return self._setup
 
     @property
     def existing_analysis_sweeps(self):
@@ -261,7 +291,7 @@ class Analysis(Design, object):
 
         """
         setup_list = self.existing_analysis_setups
-        sweep_list=[]
+        sweep_list = []
         for el in setup_list:
             if self.solution_type in SetupKeys.defaultAdaptive.keys():
                 setuptype = SetupKeys.defaultAdaptive[self.solution_type]
@@ -285,7 +315,7 @@ class Analysis(Design, object):
             Name of the nominal adaptive sweep.
 
         """
-        if len(self.existing_analysis_sweeps)>0:
+        if len(self.existing_analysis_sweeps) > 0:
             return self.existing_analysis_sweeps[0]
         else:
             return ""
@@ -301,7 +331,7 @@ class Analysis(Design, object):
             the name of the nominal adaptive sweep if present.
         """
 
-        if len(self.existing_analysis_sweeps)>1:
+        if len(self.existing_analysis_sweeps) > 1:
             return self.existing_analysis_sweeps[1]
         else:
             return self.nominal_adaptive
@@ -395,19 +425,29 @@ class Analysis(Design, object):
         """Retrieve Native Components data."""
         boundaries = []
         try:
-            data_vals = self.design_properties['ModelSetup']["GeometryCore"][
-                'GeometryOperations']['SubModelDefinitions']['NativeComponentDefinition']
-            if not isinstance(data_vals, list) and  type(data_vals) is OrderedDict:
+            data_vals = self.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"][
+                "SubModelDefinitions"
+            ]["NativeComponentDefinition"]
+            if not isinstance(data_vals, list) and type(data_vals) is OrderedDict:
                 boundaries.append(
-                    NativeComponentObject(self, data_vals['NativeComponentDefinitionProvider']['Type'],
-                                          data_vals['BasicComponentInfo']['ComponentName'],
-                                          data_vals))
+                    NativeComponentObject(
+                        self,
+                        data_vals["NativeComponentDefinitionProvider"]["Type"],
+                        data_vals["BasicComponentInfo"]["ComponentName"],
+                        data_vals,
+                    )
+                )
             for ds in data_vals:
                 try:
                     if type(ds) is OrderedDict:
-                        boundaries.append(NativeComponentObject(self, ds['NativeComponentDefinitionProvider']['Type'],
-                                                        ds['BasicComponentInfo']['ComponentName'],
-                                                        ds))
+                        boundaries.append(
+                            NativeComponentObject(
+                                self,
+                                ds["NativeComponentDefinitionProvider"]["Type"],
+                                ds["BasicComponentInfo"]["ComponentName"],
+                                ds,
+                            )
+                        )
                 except:
                     pass
         except:
@@ -415,7 +455,6 @@ class Analysis(Design, object):
         return boundaries
 
     class AvailableVariations(object):
-
         def __init__(self, parent):
             """Contains available variations.
 
@@ -461,16 +500,16 @@ class Analysis(Design, object):
             if not setup_sweep:
                 setup_sweep = self._parent.existing_analysis_sweeps[0]
             vs = self._parent.osolution.GetAvailableVariations(setup_sweep)
-            families=[]
+            families = []
             for v in vs:
                 variations = v.split(" ")
-                family=[]
+                family = []
                 for el in self.variables:
                     family.append(el + ":=")
-                    i=0
-                    while i<len(variations):
-                        if variations[i][0:len(el)] == el:
-                            family.append([variations[i][len(el)+2:-1]])
+                    i = 0
+                    while i < len(variations):
+                        if variations[i][0 : len(el)] == el:
+                            family.append([variations[i][len(el) + 2 : -1]])
                         i += 1
                 families.append(family)
             return families
@@ -480,7 +519,7 @@ class Analysis(Design, object):
             """Nominal."""
             families = []
             for el in self.variables:
-                families.append(el+":=")
+                families.append(el + ":=")
                 families.append(["Nominal"])
             return families
 
@@ -491,12 +530,12 @@ class Analysis(Design, object):
             if self._parent.design_type == "HFSS 3D Layout Design":
                 listvar = list(self._parent.odesign.GetVariables())
                 for el in listvar:
-                    families.append(el+":=")
+                    families.append(el + ":=")
                     families.append([self._parent.odesign.GetVariableValue(el)])
             else:
                 variation = self._parent.odesign.GetNominalVariation()
                 for el in self.variables:
-                    families.append(el+":=")
+                    families.append(el + ":=")
                     families.append([self._parent.odesign.GetVariationVariableValue(variation, el)])
             return families
 
@@ -517,15 +556,15 @@ class Analysis(Design, object):
         @property
         def all(self):
             """All."""
-            families=[]
+            families = []
             for el in self.variables:
-                families.append(el+":=")
+                families.append(el + ":=")
                 families.append(["All"])
             return families
 
     class AxisDir(object):
-        """Contains constants for the axis directions.
-        """
+        """Contains constants for the axis directions."""
+
         (XNeg, YNeg, ZNeg, XPos, YPos, ZPos) = range(0, 6)
 
     @aedt_exception_handler
@@ -608,18 +647,17 @@ class Analysis(Design, object):
 
     @aedt_exception_handler
     def analyse_nominal(self):
-        """Revert the solution to the initial mesh and re-run the solve.
+        """Solve the nominal design.
 
         .. deprecated:: 0.4.0
            Use :func:`Analysis.analyze_nominal` instead.
         """
-        warnings.warn('`analyse_nominal` is deprecated. Use `analyze_nominal` instead.',
-                      DeprecationWarning)
+        warnings.warn("`analyse_nominal` is deprecated. Use `analyze_nominal` instead.", DeprecationWarning)
         self.analyze_nominal()
 
     @aedt_exception_handler
     def analyze_nominal(self):
-        """Revert the solution to the initial mesh and re-run the solve.
+        """Solve the nominal design.
 
         Returns
         -------
@@ -694,7 +732,7 @@ class Analysis(Design, object):
         pyaedt Info: Sweep was created correctly.
         """
         if setuptype is None:
-            if self.design_type == "Icepak" and self.solution_type=="Transient":
+            if self.design_type == "Icepak" and self.solution_type == "Transient":
                 setuptype = SetupKeys.defaultSetups["TransientTemperatureAndFlow"]
             else:
                 setuptype = SetupKeys.defaultSetups[self.solution_type]
@@ -771,11 +809,11 @@ class Analysis(Design, object):
         """
         oModule = self.odesign.GetModule("OutputVariable")
         if variable in self.output_variables:
-            oModule.EditOutputVariable(variable, expression, variable,
-                                       self.existing_analysis_sweeps[0], self.solution_type, [])
+            oModule.EditOutputVariable(
+                variable, expression, variable, self.existing_analysis_sweeps[0], self.solution_type, []
+            )
         else:
-            oModule.CreateOutputVariable(
-                variable, expression, self.existing_analysis_sweeps[0], self.solution_type, [])
+            oModule.CreateOutputVariable(variable, expression, self.existing_analysis_sweeps[0], self.solution_type, [])
         return True
 
     @aedt_exception_handler
@@ -797,12 +835,12 @@ class Analysis(Design, object):
             Value of the output variable.
         """
         oModule = self.odesign.GetModule("OutputVariable")
-        assert variable in self.output_variables, "Output variable {} does not exist.".format(
-            variable)
+        assert variable in self.output_variables, "Output variable {} does not exist.".format(variable)
         nominal_variation = self.odesign.GetNominalVariation()
         sol_type = self.solution_type
         value = oModule.GetOutputVariableValue(
-            variable, nominal_variation, self.existing_analysis_sweeps[0], self.solution_type, [])
+            variable, nominal_variation, self.existing_analysis_sweeps[0], self.solution_type, []
+        )
         return value
 
     @aedt_exception_handler
@@ -905,34 +943,40 @@ class Analysis(Design, object):
         else:
             options = " -ng -distribute -machinelist list=" + machine + " -Batchsolve "
 
-        print("Batch Solve Options: " + options)
-        if os.name == 'posix':
-            batch_run = os.path.join(self.desktop_install_dir + "/ansysedt" + chr(34) + options + chr(
-                34) + filename + chr(34))
+        self.add_info_message("Batch Solve Options: " + options)
+        if os.name == "posix":
+            batch_run = os.path.join(
+                self.desktop_install_dir + "/ansysedt" + chr(34) + options + chr(34) + filename + chr(34)
+            )
         else:
-            batch_run = chr(34) + self.desktop_install_dir + "/ansysedt.exe" + chr(34) + options + chr(
-                34) + filename + chr(34)
+            batch_run = (
+                chr(34) + self.desktop_install_dir + "/ansysedt.exe" + chr(34) + options + chr(34) + filename + chr(34)
+            )
 
-        '''
+        """
         check for existing solution directory and delete if present so we
         dont have old .asol files etc
-        '''
+        """
 
-        print("Solving model in batch mode on " + machine)
-        print("Batch Job command:" + batch_run)
+        self.add_info_message("Solving model in batch mode on " + machine)
+        self.add_info_message("Batch Job command:" + batch_run)
         if run_in_thread:
+
             def thread_run():
                 """ """
                 os.system(batch_run)
+
             x = threading.Thread(target=thread_run)
             x.start()
         else:
             os.system(batch_run)
-        print("Batch Job finished")
+        self.add_info_message("Batch job finished.")
         return True
 
     @aedt_exception_handler
-    def submit_job(self, clustername, aedt_full_exe_path=None, numnodes=1, numcores=32, wait_for_license=True, setting_file=None):
+    def submit_job(
+        self, clustername, aedt_full_exe_path=None, numnodes=1, numcores=32, wait_for_license=True, setting_file=None
+    ):
         """Submit a job to be solved on a cluster.
 
         Parameters
@@ -957,24 +1001,24 @@ class Analysis(Design, object):
             ID of the job.
 
         """
-        project_file=self.project_file
+        project_file = self.project_file
         project_path = self.project_path
         if not aedt_full_exe_path:
             version = self.odesktop.GetVersion()[2:6]
-            if os.path.exists(r"\\"+clustername+r"\AnsysEM\AnsysEM{}\Win64\ansysedt.exe".format(version)):
-                aedt_full_exe_path = r"\\\\\\\\"+clustername+ \
-                    r"\\\\AnsysEM\\\\AnsysEM{}\\\\Win64\\\\ansysedt.exe".format(version)
-            elif os.path.exists(r"\\"+clustername+r"\AnsysEM\AnsysEM{}\Linux64\ansysedt".format(version)):
-                aedt_full_exe_path = r"\\\\\\\\"+clustername+ \
-                    r"\\\\AnsysEM\\\\AnsysEM{}\\\\Linux64\\\\ansysedt".format(version)
+            if os.path.exists(r"\\" + clustername + r"\AnsysEM\AnsysEM{}\Win64\ansysedt.exe".format(version)):
+                aedt_full_exe_path = (
+                    r"\\\\\\\\" + clustername + r"\\\\AnsysEM\\\\AnsysEM{}\\\\Win64\\\\ansysedt.exe".format(version)
+                )
+            elif os.path.exists(r"\\" + clustername + r"\AnsysEM\AnsysEM{}\Linux64\ansysedt".format(version)):
+                aedt_full_exe_path = (
+                    r"\\\\\\\\" + clustername + r"\\\\AnsysEM\\\\AnsysEM{}\\\\Linux64\\\\ansysedt".format(version)
+                )
             else:
-                self._messenger.add_error_message(
-                    "Aedt Path doesn't exists. Please provide a full path")
+                self._messenger.add_error_message("Aedt Path doesn't exists. Please provide a full path")
                 return False
         else:
             if not os.path.exists(aedt_full_exe_path):
-                self._messenger.add_error_message(
-                    "Aedt Path doesn't exists. Please provide a full path")
+                self._messenger.add_error_message("Aedt Path doesn't exists. Please provide a full path")
                 return False
             aedt_full_exe_path.replace("\\", "\\\\")
 
@@ -982,10 +1026,10 @@ class Analysis(Design, object):
         path_file = os.path.dirname(__file__)
         destination_reg = os.path.join(project_path, "Job_settings.areg")
         if not setting_file:
-            setting_file = os.path.join(path_file, "..", "misc","Job_Settings.areg")
+            setting_file = os.path.join(path_file, "..", "misc", "Job_Settings.areg")
         shutil.copy(setting_file, destination_reg)
 
-        f1 = open(destination_reg, 'w')
+        f1 = open(destination_reg, "w")
         with open(setting_file) as f:
             lines = f.readlines()
             for line in lines:

@@ -1,16 +1,11 @@
-
-
-import os
-
-from ..generic.general_methods import generate_unique_name, aedt_exception_handler, retry_ntimes
 from ..application.Variables import AEDT_units
-from ..edb import Edb
-from .Modeler import Modeler
-from .PrimitivesSimplorer import SimplorerComponents
-from .PrimitivesNexxim import NexximComponents
-from .Primitives3DLayout import Primitives3DLayout
+from ..generic.general_methods import aedt_exception_handler, retry_ntimes
 from ..modules.LayerStackup import Layers
-import sys
+from .Modeler import Modeler
+from .Primitives3DLayout import Primitives3DLayout
+from .PrimitivesNexxim import NexximComponents
+from .PrimitivesSimplorer import SimplorerComponents
+
 
 class ModelerCircuit(Modeler):
     """ModelerCircuit class.
@@ -113,21 +108,6 @@ class ModelerNexxim(ModelerCircuit):
         self.layers = Layers(parent, self, roughnessunits="um")
         self._primitives = Primitives3DLayout(self._parent, self)
         self._primitivesDes = self._parent.project_name + self._parent.design_name
-        # edb_folder = os.path.join(self._parent.project_path, self._parent.project_name + ".aedb")
-        # edb_file = os.path.join(edb_folder, "edb.def")
-        # if os.path.exists(edb_file):
-        #     self._mttime = os.path.getmtime(edb_file)
-        #     _main = sys.modules['__main__']
-        #     if "isoutsideDesktop" in dir(_main) and not _main.isoutsideDesktop and self._parent.oproject.GetEDBHandle():
-        #         try:
-        #             self._edb = Edb(edb_folder, self._parent.design_name, True, self._parent._aedt_version, isaedtowned=True,
-        #                             oproject=self._parent.oproject)
-        #         except:
-        #             self._edb = None
-        #     else:
-        #         self._edb = None
-        # else:
-        #     self._mttime = 0
 
     @property
     def edb(self):
@@ -139,7 +119,7 @@ class ModelerNexxim(ModelerCircuit):
             edb_core object if it exists.
 
         """
-        #TODO Check while it crashes when multiple circuits are created
+        # TODO Check while it crashes when multiple circuits are created
         return None
         # if self._parent.design_type == "Twin Builder":
         #     return
@@ -190,13 +170,8 @@ class ModelerNexxim(ModelerCircuit):
     @model_units.setter
     def model_units(self, units):
         assert units in AEDT_units["Length"], "Invalid units string {0}".format(units)
-        ''' Set the model units as a string e.g. "mm" '''
-        self.oeditor.SetActivelUnits(
-            [
-                "NAME:Units Parameter",
-                "Units:=", units,
-                "Rescale:=", False
-            ])
+        """ Set the model units as a string e.g. "mm" """
+        self.oeditor.SetActivelUnits(["NAME:Units Parameter", "Units:=", units, "Rescale:=", False])
 
     @aedt_exception_handler
     def move(self, selections, posx, posy):
@@ -226,17 +201,9 @@ class ModelerNexxim(ModelerCircuit):
                     sels.append(self.components.components[el.id].composed_name)
 
         self.oeditor.Move(
-            [
-                "NAME:Selections",
-                "Selections:=", sels
-            ],
-            [
-                "NAME:MoveParameters",
-                "xdelta:=", posx,
-                "ydelta:=", posy,
-                "Disconnect:=", False,
-                "Rubberband:=", False
-            ])
+            ["NAME:Selections", "Selections:=", sels],
+            ["NAME:MoveParameters", "xdelta:=", posx, "ydelta:=", posy, "Disconnect:=", False, "Rubberband:=", False],
+        )
         return True
 
     @aedt_exception_handler
@@ -262,16 +229,9 @@ class ModelerNexxim(ModelerCircuit):
                 if sel == el.InstanceName:
                     sels.append(self.components.components[el.id].composed_name)
         self.oeditor.Rotate(
-            [
-                "NAME:Selections",
-                "Selections:=", sels
-            ],
-            [
-                "NAME:RotateParameters",
-                "Degrees:=", degrees,
-                "Disconnect:=", False,
-                "Rubberband:=", False
-            ])
+            ["NAME:Selections", "Selections:=", sels],
+            ["NAME:RotateParameters", "Degrees:=", degrees, "Disconnect:=", False, "Rubberband:=", False],
+        )
         return True
 
 
@@ -288,6 +248,7 @@ class ModelerSimplorer(ModelerCircuit):
         self._parent = parent
         ModelerCircuit.__init__(self, parent)
         self.components = SimplorerComponents(parent, self)
+
 
 class ModelerEmit(ModelerCircuit):
     """ModelerEmit class.

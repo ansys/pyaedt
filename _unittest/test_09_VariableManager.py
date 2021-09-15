@@ -1,20 +1,22 @@
-try:
-    import pytest
-except ImportError:
-    import _unittest_ironpython.conf_unittest as pytest
-
 # Setup paths for module imports
 import gc
 import math
 
-# Import required modules
-from _unittest.conftest import local_path, scratch_path
-from pyaedt.hfss import Hfss
 from pyaedt.application.Variables import Variable
 from pyaedt.generic.filesystem import Scratch
 from pyaedt.generic.general_methods import isclose
-class TestClass:
+from pyaedt.hfss import Hfss
 
+# Import required modules
+from _unittest.conftest import scratch_path
+
+try:
+    import pytest  # noqa: F401
+except ImportError:
+    import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
+
+
+class TestClass:
     def setup_class(self):
 
         with Scratch(scratch_path) as self.local_scratch:
@@ -30,27 +32,27 @@ class TestClass:
 
     def test_01_set_globals(self):
         var = self.aedtapp.variable_manager
-        self.aedtapp['$Test_Global1'] = "5rad"
-        self.aedtapp['$Test_Global2'] = -1.0
-        self.aedtapp['$Test_Global3'] = "0"
-        self.aedtapp['$Test_Global4'] = "$Test_Global2*$Test_Global1"
+        self.aedtapp["$Test_Global1"] = "5rad"
+        self.aedtapp["$Test_Global2"] = -1.0
+        self.aedtapp["$Test_Global3"] = "0"
+        self.aedtapp["$Test_Global4"] = "$Test_Global2*$Test_Global1"
         independent = self.aedtapp._variable_manager.independent_variable_names
         dependent = self.aedtapp._variable_manager.dependent_variable_names
-        val = var['$Test_Global4']
+        val = var["$Test_Global4"]
         assert val.numeric_value == -5.0
-        assert '$Test_Global1' in independent
-        assert '$Test_Global2' in independent
-        assert '$Test_Global3' in independent
-        assert '$Test_Global4' in dependent
+        assert "$Test_Global1" in independent
+        assert "$Test_Global2" in independent
+        assert "$Test_Global3" in independent
+        assert "$Test_Global4" in dependent
         pass
 
     def test_01_set_var_simple(self):
         var = self.aedtapp.variable_manager
-        self.aedtapp['Var1'] = '1rpm'
-        var_1 = self.aedtapp['Var1']
-        var_2 = var['Var1'].string_value
+        self.aedtapp["Var1"] = "1rpm"
+        var_1 = self.aedtapp["Var1"]
+        var_2 = var["Var1"].string_value
         assert var_1 == var_2
-        assert var['Var1'].numeric_value == 1.0
+        assert var["Var1"].numeric_value == 1.0
         pass
 
     def test_02_test_formula(self):
@@ -68,7 +70,7 @@ class TestClass:
 
         c2pi = math.pi * 2.0
         assert v["$PrjVar1"].numeric_value == c2pi
-        assert v["$PrjVar3"].numeric_value == math.sqrt(34 * 45.0/ c2pi )
+        assert v["$PrjVar3"].numeric_value == math.sqrt(34 * 45.0 / c2pi)
         assert v["Var3"].numeric_value == 3.0 * 12.0
         assert v["Var3"].units == "deg"
         pass
@@ -81,7 +83,7 @@ class TestClass:
         v = self.aedtapp.variable_manager
 
         eval_p3_nom = v._parent.get_evaluated_value("p3")
-        eval_p3_var = v._parent.get_evaluated_value("p3", variation="p1=100mm p2=20mm" )
+        eval_p3_var = v._parent.get_evaluated_value("p3", variation="p1=100mm p2=20mm")
         assert eval_p3_nom == 0.0002
         assert eval_p3_var == 0.002
 
@@ -93,8 +95,13 @@ class TestClass:
         assert self.aedtapp["p1"] == "10.0mm"
         assert self.aedtapp.variable_manager.set_variable("p1", expression="30mm")
         assert self.aedtapp["p1"] == "30.0mm"
-        assert self.aedtapp.variable_manager.set_variable(variable_name="p2", expression="10mm", readonly=True, hidden=True,
-                                                          description="This is a description of this variable")
+        assert self.aedtapp.variable_manager.set_variable(
+            variable_name="p2",
+            expression="10mm",
+            readonly=True,
+            hidden=True,
+            description="This is a description of this variable",
+        )
         assert self.aedtapp.variable_manager.set_variable("$p1", expression="10mm")
 
     def test_05_variable_class(self):
@@ -239,26 +246,26 @@ class TestClass:
         assert isclose(angle.numeric_value, 57.29577951308232 * 3600.0)
 
         # Convert 200Hz to Angular speed numerically
-        omega = Variable(200 * math.pi*2, "rad_per_sec")
-        assert omega.unit_system == 'AngularSpeed'
+        omega = Variable(200 * math.pi * 2, "rad_per_sec")
+        assert omega.unit_system == "AngularSpeed"
         assert isclose(omega.value, 1256.6370614359173)
-        omega.rescale_to('rpm')
+        omega.rescale_to("rpm")
         assert isclose(omega.numeric_value, 12000.0)
-        omega.rescale_to('rev_per_sec')
+        omega.rescale_to("rev_per_sec")
         assert isclose(omega.numeric_value, 200.0)
 
         # test speed times time equals diestance
         v = Variable("100m_per_sec")
         assert v.unit_system == "Speed"
-        v.rescale_to('feet_per_sec')
+        v.rescale_to("feet_per_sec")
         assert isclose(v.numeric_value, 328.08398950131)
-        v.rescale_to('feet_per_min')
+        v.rescale_to("feet_per_min")
         assert isclose(v.numeric_value, 328.08398950131 * 60)
-        v.rescale_to('miles_per_sec')
+        v.rescale_to("miles_per_sec")
         assert isclose(v.numeric_value, 0.06213711723534)
-        v.rescale_to('miles_per_minute')
+        v.rescale_to("miles_per_minute")
         assert isclose(v.numeric_value, 3.72822703412)
-        v.rescale_to('miles_per_hour')
+        v.rescale_to("miles_per_hour")
         assert isclose(v.numeric_value, 223.69362204724)
 
         t = Variable("20s")
@@ -269,22 +276,22 @@ class TestClass:
         assert isclose(distance.numeric_value, 2000 / 0.0254)
 
     def test_10_division(self):
-        '''
-            'Power_divide_Voltage': 'Current',
-            'Power_divide_Current': 'Voltage',
-            'Power_divide_AngularSpeed': 'Torque',
-            'Power_divide_Torque': 'Angular_Speed',
-            'Angle_divide_AngularSpeed': 'Time',
-            'Angle_divide_Time': 'AngularSpeed',
-            'Voltage_divide_Current': 'Resistance',
-            'Voltage_divide_Resistance': 'Current',
-            'Resistance_divide_AngularSpeed': 'Inductance',
-            'Resistance_divide_Inductance': 'AngularSpeed',
-            'None_divide_Freq': 'Time',
-            'None_divide_Time': 'Freq',
-            'Length_divide_Time': 'Speed',
-            'Length_divide_Speed': 'Time'
-        '''
+        """
+        'Power_divide_Voltage': 'Current',
+        'Power_divide_Current': 'Voltage',
+        'Power_divide_AngularSpeed': 'Torque',
+        'Power_divide_Torque': 'Angular_Speed',
+        'Angle_divide_AngularSpeed': 'Time',
+        'Angle_divide_Time': 'AngularSpeed',
+        'Voltage_divide_Current': 'Resistance',
+        'Voltage_divide_Resistance': 'Current',
+        'Resistance_divide_AngularSpeed': 'Inductance',
+        'Resistance_divide_Inductance': 'AngularSpeed',
+        'None_divide_Freq': 'Time',
+        'None_divide_Time': 'Freq',
+        'Length_divide_Time': 'Speed',
+        'Length_divide_Speed': 'Time'
+        """
 
         v1 = Variable("10W")
         v2 = Variable("40V")

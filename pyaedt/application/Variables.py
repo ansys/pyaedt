@@ -13,20 +13,22 @@ Examples
 
 """
 from __future__ import absolute_import
+
 import math
-import re
-import numbers
 import os
+import re
+
 from .. import aedt_exception_handler
 from ..generic.general_methods import is_number
+
 
 @aedt_exception_handler
 def dB(x, inverse=True):
     """Convert db to decimal"""
     if inverse:
-        return 20*math.log10(x)
+        return 20 * math.log10(x)
     else:
-        return math.pow(10, x/20.0)
+        return math.pow(10, x / 20.0)
 
 
 @aedt_exception_handler
@@ -102,14 +104,15 @@ def unit_system(units):
             return unit_type
     return False
 
-#TODO Add additional units
+
+# TODO Add additional units
 rad2deg = 180.0 / math.pi
 deg2rad = math.pi / 180
 hour2sec = 3600.0
 min2sec = 60.0
 sec2min = 1 / 60.0
 sec2hour = 1 / 3600.0
-inv2pi = 0.5/math.pi
+inv2pi = 0.5 / math.pi
 v2pi = 2.0 * math.pi
 m2in = 0.0254
 m2miles = 1609.344051499
@@ -117,73 +120,168 @@ m2miles = 1609.344051499
 # Value in new units equals value in old units * scaling vector of new units
 # e.g. value_in_deg Variable("1rad") = 1 * rad2deg
 AEDT_units = {
-    'AngularSpeed': {'deg_per_hr': hour2sec * deg2rad, 'rad_per_hr': hour2sec, 'deg_per_min': min2sec * deg2rad,
-                     'rad_per_min': min2sec, 'deg_per_sec': deg2rad, 'rad_per_sec': 1.0, 'rev_per_sec': v2pi,
-                     'per_sec': v2pi, 'rpm': sec2min * v2pi},
-    'Angle': {'deg': deg2rad, 'rad': 1.0, 'degmin': deg2rad * sec2min, 'degsec': deg2rad * sec2hour},
-    'Current': {'fA': 1e-15, 'pA': 1e-12, 'nA': 1e-9, 'uA': 1e-6, 'mA': 1e-3, 'A': 1.0, 'kA': 1e3, 'MegA': 1e6,
-                'gA': 1e9, 'dBA': (dB,)},
-    'Flux': {'Wb': 1.0, 'mx': 1e-8, 'vh': 3600, 'vs': 1.0},
-    'Freq': {'Hz': 1.0, 'kHz': 1e3, 'MHz': 1e6, 'GHz': 1e9, 'THz': 1e12, 'rps': 1.0, 'per_sec': 1.0},
-    'Inductance': {'fH': 1e-15, 'pH': 1e-12, 'nH': 1e-9, 'uH': 1e-6, 'mH': 1e-3, 'H': 1.0},
-    'Length': {'fm': 1e-15, 'pm': 1e-12, 'nm': 1e-9, 'um': 1e-6, 'mm': 1e-3, 'cm': 1e-2, 'dm': 1e-1, 'meter': 1.0,
-               'km': 1e3, 'uin': m2in * 1e-6, 'mil': m2in * 1e-3, 'in': m2in, 'ft': m2in * 12, 'yd': m2in * 144},
-    'Mass': {'ug': 1e-9, 'mg': 1e-6, 'g': 1e-3, 'kg': 1.0, 'ton': 1000, 'oz': 0.0283495, 'lb': 0.453592 },
-    'None': {'f': 1e-15, 'p': 1e-12, 'n': 1e-9, 'u': 1e-6, 'm': 1e-3, '': 1.0, 'k': 1e3, 'meg': 1e6, 'g': 1e9, 't': 1e12},
-    'Resistance': {'uOhm': 1e-6, 'mOhm': 1e-3, 'ohm': 1.0, 'kOhm': 1e3, 'megohm': 1e6, 'GOhm': 1e9 },
-    'Speed': {'mm_per_sec': 1e-3, 'cm_per_sec': 1e-2, 'm_per_sec': 1.0, 'km_per_sec': 1e3, 'inches_per_sec': m2in,
-              'feet_per_sec': m2in * 12, 'feet_per_min': m2in * 12 * sec2min, 'km_per_min': 60e3, 'm_per_h': 3600,
-              'miles_per_hour': m2miles * sec2hour, 'miles_per_minute': m2miles * sec2min, 'miles_per_sec': m2miles},
-    'Time': {'fs': 1e-15, 'ps': 1e-12, 'ns': 1e-9, 'us': 1e-6, 'ms': 1e-3, 's': 1, 'min': 60, 'hour': 3600, 'day': 3600*12},
-    'Torque': {'fNewtonMeter': 1e-15, 'pNewtonMeter': 1e-12, 'nNewtonMeter': 1e-9, 'uNewtonMeter': 1e-6, 'mNewtonMeter': 1e-3,
-               'cNewtonMeter': 1e-2, 'NewtonMeter': 1, 'kNewtonMeter': 1e3, 'megNewtonMeter': 1e6, 'gNewtonMeter': 1e9},
-    'Voltage': {'fV': 1e-15, 'pV': 1e-12, 'nV': 1e-9, 'uV': 1e-6, 'mV': 1e-3, 'V': 1.0, 'kV': 1e3, 'MegV': 1e6,
-                'gV': 1e9, 'dBV': (dB,)},
-    'Temperature': {'kel': 1.0, 'cel': (cel2kel,), 'fah': (fah2kel,)},
-    'Power': {'fW': 1e-15, 'pW': 1e-12, 'nW': 1e-9, 'uW': 1e-6, 'mW': 1e-3, 'W': 1.0, 'kW': 1e3, 'megW': 1e6, 'gW': 1e9}
+    "AngularSpeed": {
+        "deg_per_hr": hour2sec * deg2rad,
+        "rad_per_hr": hour2sec,
+        "deg_per_min": min2sec * deg2rad,
+        "rad_per_min": min2sec,
+        "deg_per_sec": deg2rad,
+        "rad_per_sec": 1.0,
+        "rev_per_sec": v2pi,
+        "per_sec": v2pi,
+        "rpm": sec2min * v2pi,
+    },
+    "Angle": {"deg": deg2rad, "rad": 1.0, "degmin": deg2rad * sec2min, "degsec": deg2rad * sec2hour},
+    "Current": {
+        "fA": 1e-15,
+        "pA": 1e-12,
+        "nA": 1e-9,
+        "uA": 1e-6,
+        "mA": 1e-3,
+        "A": 1.0,
+        "kA": 1e3,
+        "MegA": 1e6,
+        "gA": 1e9,
+        "dBA": (dB,),
+    },
+    "Flux": {"Wb": 1.0, "mx": 1e-8, "vh": 3600, "vs": 1.0},
+    "Freq": {"Hz": 1.0, "kHz": 1e3, "MHz": 1e6, "GHz": 1e9, "THz": 1e12, "rps": 1.0, "per_sec": 1.0},
+    "Inductance": {"fH": 1e-15, "pH": 1e-12, "nH": 1e-9, "uH": 1e-6, "mH": 1e-3, "H": 1.0},
+    "Length": {
+        "fm": 1e-15,
+        "pm": 1e-12,
+        "nm": 1e-9,
+        "um": 1e-6,
+        "mm": 1e-3,
+        "cm": 1e-2,
+        "dm": 1e-1,
+        "meter": 1.0,
+        "km": 1e3,
+        "uin": m2in * 1e-6,
+        "mil": m2in * 1e-3,
+        "in": m2in,
+        "ft": m2in * 12,
+        "yd": m2in * 144,
+    },
+    "Mass": {"ug": 1e-9, "mg": 1e-6, "g": 1e-3, "kg": 1.0, "ton": 1000, "oz": 0.0283495, "lb": 0.453592},
+    "None": {
+        "f": 1e-15,
+        "p": 1e-12,
+        "n": 1e-9,
+        "u": 1e-6,
+        "m": 1e-3,
+        "": 1.0,
+        "k": 1e3,
+        "meg": 1e6,
+        "g": 1e9,
+        "t": 1e12,
+    },
+    "Resistance": {"uOhm": 1e-6, "mOhm": 1e-3, "ohm": 1.0, "kOhm": 1e3, "megohm": 1e6, "GOhm": 1e9},
+    "Speed": {
+        "mm_per_sec": 1e-3,
+        "cm_per_sec": 1e-2,
+        "m_per_sec": 1.0,
+        "km_per_sec": 1e3,
+        "inches_per_sec": m2in,
+        "feet_per_sec": m2in * 12,
+        "feet_per_min": m2in * 12 * sec2min,
+        "km_per_min": 60e3,
+        "m_per_h": 3600,
+        "miles_per_hour": m2miles * sec2hour,
+        "miles_per_minute": m2miles * sec2min,
+        "miles_per_sec": m2miles,
+    },
+    "Time": {
+        "fs": 1e-15,
+        "ps": 1e-12,
+        "ns": 1e-9,
+        "us": 1e-6,
+        "ms": 1e-3,
+        "s": 1,
+        "min": 60,
+        "hour": 3600,
+        "day": 3600 * 12,
+    },
+    "Torque": {
+        "fNewtonMeter": 1e-15,
+        "pNewtonMeter": 1e-12,
+        "nNewtonMeter": 1e-9,
+        "uNewtonMeter": 1e-6,
+        "mNewtonMeter": 1e-3,
+        "cNewtonMeter": 1e-2,
+        "NewtonMeter": 1,
+        "kNewtonMeter": 1e3,
+        "megNewtonMeter": 1e6,
+        "gNewtonMeter": 1e9,
+    },
+    "Voltage": {
+        "fV": 1e-15,
+        "pV": 1e-12,
+        "nV": 1e-9,
+        "uV": 1e-6,
+        "mV": 1e-3,
+        "V": 1.0,
+        "kV": 1e3,
+        "MegV": 1e6,
+        "gV": 1e9,
+        "dBV": (dB,),
+    },
+    "Temperature": {"kel": 1.0, "cel": (cel2kel,), "fah": (fah2kel,)},
+    "Power": {
+        "fW": 1e-15,
+        "pW": 1e-12,
+        "nW": 1e-9,
+        "uW": 1e-6,
+        "mW": 1e-3,
+        "W": 1.0,
+        "kW": 1e3,
+        "megW": 1e6,
+        "gW": 1e9,
+    },
 }
 SI_units = {
-    'AngularSpeed':  'rad_per_sec',
-    'Angle': 'rad',
-    'Current': 'A',
-    'Flux': 'vs',
-    'Freq': 'Hz',
-    'Inductance': 'H',
-    'Length': 'meter',
-    'Mass': 'kg',
-    'None': '',
-    'Resistance': 'ohm',
-    'Time':  's',
-    'Torque': 'NewtonMeter',
-    'Voltage': 'V',
-    'Temperature': 'kel',
-    'Power': 'W'}
+    "AngularSpeed": "rad_per_sec",
+    "Angle": "rad",
+    "Current": "A",
+    "Flux": "vs",
+    "Freq": "Hz",
+    "Inductance": "H",
+    "Length": "meter",
+    "Mass": "kg",
+    "None": "",
+    "Resistance": "ohm",
+    "Time": "s",
+    "Torque": "NewtonMeter",
+    "Voltage": "V",
+    "Temperature": "kel",
+    "Power": "W",
+}
 
 unit_system_operations = {
     # Multiplication of physical domains
-    'Voltage_multiply_Current': 'Power',
-    'Torque_multiply_AngularSpeed': 'Power',
-    'AngularSpeed_multiply_Time': 'Angle',
-    'Current_multiply_Resistance': 'Voltage',
-    'AngularSpeed_multiply_Inductance': 'Resistance',
-    'Speed_multiply_Time': 'Length',
-
+    "Voltage_multiply_Current": "Power",
+    "Torque_multiply_AngularSpeed": "Power",
+    "AngularSpeed_multiply_Time": "Angle",
+    "Current_multiply_Resistance": "Voltage",
+    "AngularSpeed_multiply_Inductance": "Resistance",
+    "Speed_multiply_Time": "Length",
     # Division of Physical Domains
-    'Power_divide_Voltage': 'Current',
-    'Power_divide_Current': 'Voltage',
-    'Power_divide_AngularSpeed': 'Torque',
-    'Power_divide_Torque': 'AngularSpeed',
-    'Angle_divide_AngularSpeed': 'Time',
-    'Angle_divide_Time': 'AngularSpeed',
-    'Voltage_divide_Current': 'Resistance',
-    'Voltage_divide_Resistance': 'Current',
-    'Resistance_divide_AngularSpeed': 'Inductance',
-    'Resistance_divide_Inductance': 'AngularSpeed',
-    'None_divide_Freq': 'Time',
-    'None_divide_Time': 'Freq',
-    'Length_divide_Time': 'Speed',
-    'Length_divide_Speed': 'Time'
+    "Power_divide_Voltage": "Current",
+    "Power_divide_Current": "Voltage",
+    "Power_divide_AngularSpeed": "Torque",
+    "Power_divide_Torque": "AngularSpeed",
+    "Angle_divide_AngularSpeed": "Time",
+    "Angle_divide_Time": "AngularSpeed",
+    "Voltage_divide_Current": "Resistance",
+    "Voltage_divide_Resistance": "Current",
+    "Resistance_divide_AngularSpeed": "Inductance",
+    "Resistance_divide_Inductance": "AngularSpeed",
+    "None_divide_Freq": "Time",
+    "None_divide_Time": "Freq",
+    "Length_divide_Time": "Speed",
+    "Length_divide_Speed": "Time",
 }
+
 
 def _resolve_unit_system(unit_system_1, unit_system_2, operation):
     """Retrieve the unit string of an arithmetic operation on ``Variable`` objects. If no resulting unit system
@@ -211,6 +309,7 @@ def _resolve_unit_system(unit_system_1, unit_system_2, operation):
     except KeyError:
         return ""
 
+
 class CSVDataset:
     """Reads in a CSV file and extracts data, which can be augmented with constant values.
 
@@ -236,6 +335,7 @@ class CSVDataset:
         The default is ``False``.
 
     """
+
     @property
     def number_of_rows(self):
         """Number of rows."""
@@ -265,7 +365,15 @@ class CSVDataset:
         """Path."""
         return os.path.dirname(os.path.realpath(self._csv_file))
 
-    def __init__(self, csv_file=None, separator=None, units_dict=None, append_dict=None, valid_solutions=True, invalid_solutions=False):
+    def __init__(
+        self,
+        csv_file=None,
+        separator=None,
+        units_dict=None,
+        append_dict=None,
+        valid_solutions=True,
+        invalid_solutions=False,
+    ):
 
         self._header = []
         self._data = {}
@@ -288,18 +396,17 @@ class CSVDataset:
 
         self._csv_file = csv_file
         if csv_file:
-            with open(csv_file, 'r') as fi:
+            with open(csv_file, "r") as fi:
                 file_data = fi.readlines()
                 for line in file_data:
                     if self._header:
                         line_data = line.strip().split(self._separator)
                         # Check for invalid data in the line (fields with 'nan')
-                        if not 'nan' in line_data:
+                        if not "nan" in line_data:
                             for j, value in enumerate(line_data):
                                 var_name = self._header[j]
                                 if var_name in self._unit_dict:
-                                    var_value = Variable(value).rescale_to(
-                                        self._unit_dict[var_name]).numeric_value
+                                    var_value = Variable(value).rescale_to(self._unit_dict[var_name]).numeric_value
                                 else:
                                     var_value = Variable(value).value
                                 self._data[var_name].append(var_value)
@@ -321,7 +428,7 @@ class CSVDataset:
 
     @aedt_exception_handler
     def __getitem__(self, item):
-        variable_list = item.split(',')
+        variable_list = item.split(",")
         data_out = CSVDataset()
         for variable in variable_list:
             found_variable = False
@@ -329,8 +436,7 @@ class CSVDataset:
                 if variable in key_string:
                     found_variable = True
                     break
-            assert found_variable, "Input string {} is not a key of the data dictionary.".format(
-                variable)
+            assert found_variable, "Input string {} is not a key of the data dictionary.".format(variable)
             data_out._data[variable] = self._data[key_string]
             data_out._header.append(variable)
         return data_out
@@ -364,7 +470,7 @@ class CSVDataset:
            or that one of the datasets is empty. No checking is done for
            equivalency of units or variable names.
 
-         """
+        """
 
         # Handle the case of an empty data set and create empty lists for the column data
         if self.number_of_columns == 0:
@@ -389,7 +495,7 @@ class CSVDataset:
 
     # Create an iterator to yield the row data as a string as we loop through the object
     def __next__(self):
-        if self._index < (self.number_of_rows-1):
+        if self._index < (self.number_of_rows - 1):
             output = []
             for column in self._header:
                 string_value = str(self._data[column][self._index])
@@ -405,9 +511,10 @@ class CSVDataset:
         """Yield the next row."""
         return self.__next__()
 
+
 @aedt_exception_handler
 def _find_units_in_dependent_variables(variable_value, full_variables={}):
-    m2 = re.findall(r'[0-9.]+ *([a-z_A-Z]+)', variable_value)
+    m2 = re.findall(r"[0-9.]+ *([a-z_A-Z]+)", variable_value)
     if len(m2) > 0:
         if len(set(m2)) <= 1:
             return m2[0]
@@ -415,13 +522,14 @@ def _find_units_in_dependent_variables(variable_value, full_variables={}):
             if unit_system(m2[0]):
                 return SI_units[unit_system(m2[0])]
     else:
-        m1 = re.findall(r'(?<=[/+-/*//^/(/[])([a-z_A-Z]\w*)', variable_value.replace(" ", ""))
-        m2 = re.findall(r'^([a-z_A-Z]\w*)', variable_value.replace(" ", ""))
+        m1 = re.findall(r"(?<=[/+-/*//^/(/[])([a-z_A-Z]\w*)", variable_value.replace(" ", ""))
+        m2 = re.findall(r"^([a-z_A-Z]\w*)", variable_value.replace(" ", ""))
         m = list(set(m1).union(m2))
-        for i,v in full_variables.items():
+        for i, v in full_variables.items():
             if i in m and _find_units_in_dependent_variables(v):
                 return _find_units_in_dependent_variables(v)
     return ""
+
 
 @aedt_exception_handler
 def decompose_variable_value(variable_value, full_variables={}):
@@ -437,17 +545,17 @@ def decompose_variable_value(variable_value, full_variables={}):
     """
     # set default return values - then check for valid units
     float_value = variable_value
-    units = ''
+    units = ""
 
     if is_number(variable_value):
         float_value = float(variable_value)
-    elif isinstance(variable_value, str) and variable_value != 'nan':
+    elif isinstance(variable_value, str) and variable_value != "nan":
         try:
             # Handle a numerical value in string form
             float_value = float(variable_value)
         except ValueError:
             # search for a valid units string at the end of the variable_value
-            loc = re.search('[a-z_A-Z]+$', variable_value)
+            loc = re.search("[a-z_A-Z]+$", variable_value)
             units = _find_units_in_dependent_variables(variable_value, full_variables)
 
             if loc:
@@ -729,7 +837,7 @@ class VariableManager(object):
 
         """
         var_dict = {}
-        all_names ={}
+        all_names = {}
         for obj in object_list:
             for variable_name in obj.GetVariables():
                 variable_expression = self.get_expression(variable_name)
@@ -768,8 +876,9 @@ class VariableManager(object):
             return self.odesign
 
     @aedt_exception_handler
-    def set_variable(self, variable_name, expression=None, readonly=False, hidden=False,
-                     description=None, overwrite=True):
+    def set_variable(
+        self, variable_name, expression=None, readonly=False, hidden=False, description=None, overwrite=True
+    ):
         """Set the value of a design property or project variable.
 
         Parameters
@@ -833,7 +942,7 @@ class VariableManager(object):
         proj_name = self.oproject.GetName()
         var_type = "Project" if test == proj_name else "Local"
 
-        prop_type="VariableProp"
+        prop_type = "VariableProp"
 
         if isinstance(expression, str):
             # Handle string type variable (including arbitrary expression)# Handle input type variable
@@ -874,46 +983,52 @@ class VariableManager(object):
                     "NAME:AllTabs",
                     [
                         "NAME:{0}VariableTab".format(var_type),
-                        [
-                            "NAME:PropServers",
-                            "{0}Variables".format(var_type)
-                        ],
+                        ["NAME:PropServers", "{0}Variables".format(var_type)],
                         [
                             "NAME:NewProps",
                             [
                                 "NAME:" + variable_name,
-                                "PropType:=", prop_type,
-                                "UserDef:=", True,
-                                "Value:=", variable,
-                                "Description:=", description,
-                                "ReadOnly:=", readonly,
-                                "Hidden:=", hidden
-                            ]
-                        ]
-                    ]
-                ])
+                                "PropType:=",
+                                prop_type,
+                                "UserDef:=",
+                                True,
+                                "Value:=",
+                                variable,
+                                "Description:=",
+                                description,
+                                "ReadOnly:=",
+                                readonly,
+                                "Hidden:=",
+                                hidden,
+                            ],
+                        ],
+                    ],
+                ]
+            )
         elif overwrite:
             desktop_object.ChangeProperty(
                 [
                     "NAME:AllTabs",
                     [
                         "NAME:{}VariableTab".format(var_type),
-                        [
-                            "NAME:PropServers",
-                            "{}Variables".format(var_type)
-                        ],
+                        ["NAME:PropServers", "{}Variables".format(var_type)],
                         [
                             "NAME:ChangedProps",
                             [
                                 "NAME:" + variable_name,
-                                "Value:="		, variable,
-                                "Description:="		, description,
-                                "ReadOnly:="		, readonly,
-                                "Hidden:="		, hidden
-                            ]
-                        ]
-                    ]
-                ])
+                                "Value:=",
+                                variable,
+                                "Description:=",
+                                description,
+                                "ReadOnly:=",
+                                readonly,
+                                "Hidden:=",
+                                hidden,
+                            ],
+                        ],
+                    ],
+                ]
+            )
 
         return True
 
@@ -932,8 +1047,7 @@ class VariableManager(object):
             ``True`` when the separator exists and can be deleted, ``False`` otherwise.
 
         """
-        object_list = [ (self.odesign, "Local"),
-                        (self.oproject, "Project")]
+        object_list = [(self.odesign, "Local"), (self.oproject, "Project")]
 
         for object_tuple in object_list:
             desktop_object = object_tuple[0]
@@ -944,16 +1058,11 @@ class VariableManager(object):
                         "NAME:AllTabs",
                         [
                             "NAME:{0}VariableTab".format(var_type),
-                            [
-                                "NAME:PropServers",
-                                "{0}Variables".format(var_type)
-                            ],
-                            [
-                                "NAME:DeletedProps",
-                                separator_name
-                            ]
-                        ]
-                    ])
+                            ["NAME:PropServers", "{0}Variables".format(var_type)],
+                            ["NAME:DeletedProps", separator_name],
+                        ],
+                    ]
+                )
                 return True
             except:
                 pass
@@ -988,16 +1097,11 @@ class VariableManager(object):
                         "NAME:AllTabs",
                         [
                             "NAME:{0}VariableTab".format(var_type),
-                            [
-                                "NAME:PropServers",
-                                "{0}Variables".format(var_type)
-                            ],
-                            [
-                                "NAME:DeletedProps",
-                                sVarName
-                            ]
-                        ]
-                    ])
+                            ["NAME:PropServers", "{0}Variables".format(var_type)],
+                            ["NAME:DeletedProps", sVarName],
+                        ],
+                    ]
+                )
                 return True
             except:
                 pass
@@ -1047,9 +1151,9 @@ class Variable(object):
 
         # If units have been specified, check for a conflict and otherwise use the specified unit system
         if units:
-            assert not self._units, \
-                "The unit specification {} is inconsistent with the identified units {}.".format(
-                    specified_units, self._units)
+            assert not self._units, "The unit specification {} is inconsistent with the identified units {}.".format(
+                specified_units, self._units
+            )
             self._units = specified_units
 
         if is_number(self._value):
@@ -1057,7 +1161,7 @@ class Variable(object):
             if isinstance(scale, tuple):
                 self._value = scale[0](self._value, inverse=False)
             else:
-                self._value =  self._value * scale
+                self._value = self._value * scale
 
     @property
     def unit_system(self):
@@ -1093,7 +1197,7 @@ class Variable(object):
         modeler and see ``10.0mm`` returned as the string value.
 
         """
-        return ('{}{}').format(self.numeric_value, self._units)
+        return ("{}{}").format(self.numeric_value, self._units)
 
     @aedt_exception_handler
     def rescale_to(self, units):
@@ -1117,8 +1221,9 @@ class Variable(object):
 
         """
         new_unit_system = unit_system(units)
-        assert new_unit_system == self.unit_system, \
-            "New unit system {0} is inconsistent with the current unit system {1}."
+        assert (
+            new_unit_system == self.unit_system
+        ), "New unit system {0} is inconsistent with the current unit system {1}."
         self._units = units
         return self
 
@@ -1147,7 +1252,7 @@ class Variable(object):
         >>> assert v.format("6.2f") == ' 10.00W'
 
         """
-        return ('{0:' + format + '}{1}').format(self.numeric_value, self._units)
+        return ("{0:" + format + "}{1}").format(self.numeric_value, self._units)
 
     @aedt_exception_handler
     def __mul__(self, other):
@@ -1189,8 +1294,7 @@ class Variable(object):
         >>> assert result_3.unit_system == "Power"
 
         """
-        assert is_number(other) or isinstance(
-            other, Variable), "Multiplier must be a scalar quantity or a variable."
+        assert is_number(other) or isinstance(other, Variable), "Multiplier must be a scalar quantity or a variable."
         if is_number(other):
             result_value = self.numeric_value * other
             result_units = self.units
@@ -1203,8 +1307,7 @@ class Variable(object):
                 result_value = self.value * other.value
                 result_units = _resolve_unit_system(self.unit_system, other.unit_system, "multiply")
                 if not result_units:
-                    result_units = _resolve_unit_system(
-                        other.unit_system, self.unit_system, "multiply")
+                    result_units = _resolve_unit_system(other.unit_system, self.unit_system, "multiply")
 
         return Variable("{}{}".format(result_value, result_units))
 
@@ -1237,7 +1340,9 @@ class Variable(object):
 
         """
         assert isinstance(other, Variable), "You can only add a variable with another variable."
-        assert self.unit_system == other.unit_system, "Only ``Variable`` objects with the same unit system can be added."
+        assert (
+            self.unit_system == other.unit_system
+        ), "Only ``Variable`` objects with the same unit system can be added."
         result_value = self.value + other.value
         result_units = SI_units[self.unit_system]
         # If the units of the two operands are different, return SI-Units
@@ -1275,9 +1380,10 @@ class Variable(object):
         >>> assert result_2.unit_system == "Current"
 
         """
-        assert isinstance(
-            other, Variable), "You can only subtract a variable from another variable."
-        assert self.unit_system == other.unit_system, "Only ``Variable`` objects with the same unit system can be subtracted."
+        assert isinstance(other, Variable), "You can only subtract a variable from another variable."
+        assert (
+            self.unit_system == other.unit_system
+        ), "Only ``Variable`` objects with the same unit system can be subtracted."
         result_value = self.value - other.value
         result_units = SI_units[self.unit_system]
         # If the units of the two operands are different, return SI-Units
@@ -1319,8 +1425,7 @@ class Variable(object):
         >>> assert result_1.unit_system == "Current"
 
         """
-        assert is_number(other) or isinstance(
-            other, Variable), "Divisor must be a scalar quantity or a variable."
+        assert is_number(other) or isinstance(other, Variable), "Divisor must be a scalar quantity or a variable."
         if is_number(other):
             result_value = self.numeric_value / other
             result_units = self.units
@@ -1372,6 +1477,7 @@ class Variable(object):
     def __div__(self, other):
         return self.__rtruediv__(other)
 
+
 class Expression(Variable, object):
     """Provides a framework for manipulating variable expressions.
 
@@ -1390,7 +1496,7 @@ class Expression(Variable, object):
             value, units = decompose_variable_value(expression, full_variables)
             self._units = units
         except:
-            self._units = ''
+            self._units = ""
 
     @property
     def expression(self):
@@ -1422,7 +1528,7 @@ class DataSet(object):
 
     """
 
-    def __init__(self, parent, name, x, y, z=None, v=None, xunit='', yunit='', zunit='', vunit=''):
+    def __init__(self, parent, name, x, y, z=None, v=None, xunit="", yunit="", zunit="", vunit=""):
         self._parent = parent
         self.name = name
         self.x = x
@@ -1606,7 +1712,7 @@ class DataSet(object):
 
         """
         if not dataset_path:
-            dataset_path = os.path.join(self._parent.project_path, self.name +".tab")
+            dataset_path = os.path.join(self._parent.project_path, self.name + ".tab")
         if self.name[0] == "$":
             self._parent._oproject.ExportDataset(self.name, dataset_path)
         else:

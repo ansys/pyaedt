@@ -13,25 +13,25 @@ This examples runs only on Windows using CPython.
 
 import os
 import sys
+import tempfile
 import pathlib
 
 
-local_path = os.path.abspath('')
+local_path = os.path.abspath("")
 module_path = pathlib.Path(local_path)
 aedt_lib_path = module_path.parent.parent.parent
-pdf_path1 =  os.path.join(aedt_lib_path, "pyaedt", "core", "Dlls", "PDFReport")
+pdf_path1 = os.path.join(aedt_lib_path, "pyaedt", "core", "Dlls", "PDFReport")
 sys.path.append(os.path.join(module_path))
 sys.path.append(os.path.join(aedt_lib_path))
 sys.path.append(os.path.join(pdf_path1))
 from pyaedt import generate_unique_name
 
-if os.name == "posix":
-    tmpfold = os.environ["TMPDIR"]
-else:
-    tmpfold = os.environ["TEMP"]
+tmpfold = tempfile.gettempdir()
+
 
 project_dir = os.path.join(tmpfold, generate_unique_name("Example"))
-if not os.path.exists(project_dir): os.makedirs(project_dir)
+if not os.path.exists(project_dir):
+    os.makedirs(project_dir)
 print(project_dir)
 
 
@@ -67,7 +67,7 @@ project_file = os.path.join(project_dir, project_name + ".aedt")
 # If there is an active HFSS design, ``aedtapp`` is linked to it. Otherwise, a
 # new design is created.
 
-aedtapp = Hfss(specified_version=desktopVersion, NG=NonGraphical, AlwaysNew=NewThread)
+aedtapp = Hfss(specified_version=desktopVersion, non_graphical=NonGraphical, new_desktop_session=NewThread)
 
 ###############################################################################
 # Intitialize Variable Settings
@@ -88,13 +88,16 @@ aedtapp["inner"] = "3mm"
 # A material can be assigned directly to the object creation action.
 # Alternatively, the material can be assigned using the :func:`assign_material` function.
 
-#TODO: How does this work when two truesurfaces are defined?
-o1 = aedtapp.modeler.primitives.create_cylinder(aedtapp.CoordinateSystemPlane.XYPlane, udp, "inner", "$coax_dimension",
-                                                 numSides=0, name="inner")
-o2 = aedtapp.modeler.primitives.create_cylinder(aedtapp.CoordinateSystemPlane.XYPlane, udp, 8, "$coax_dimension",
-                                                 numSides=0, matname="teflon_based")
-o3 = aedtapp.modeler.primitives.create_cylinder(aedtapp.CoordinateSystemPlane.XYPlane, udp, 10, "$coax_dimension",
-                                                 numSides=0, name="outer")
+# TODO: How does this work when two truesurfaces are defined?
+o1 = aedtapp.modeler.primitives.create_cylinder(
+    aedtapp.CoordinateSystemPlane.XYPlane, udp, "inner", "$coax_dimension", numSides=0, name="inner"
+)
+o2 = aedtapp.modeler.primitives.create_cylinder(
+    aedtapp.CoordinateSystemPlane.XYPlane, udp, 8, "$coax_dimension", numSides=0, matname="teflon_based"
+)
+o3 = aedtapp.modeler.primitives.create_cylinder(
+    aedtapp.CoordinateSystemPlane.XYPlane, udp, 10, "$coax_dimension", numSides=0, name="outer"
+)
 
 ###############################################################################
 # Assign a Material
@@ -132,10 +135,8 @@ aedtapp.mesh.assign_length_mesh(o2.faces, False, 1, 2000)
 # and then creates a sheet to cover the faces and assigns a port to this face.
 # If selected, a PEC cap is also created.
 
-aedtapp.create_wave_port_between_objects(
-    "inner", "outer",axisdir=0, add_pec_cap=True, portname="P1")
-aedtapp.create_wave_port_between_objects(
-    "inner", "outer",axisdir=3, add_pec_cap=True, portname="P2")
+aedtapp.create_wave_port_between_objects("inner", "outer", axisdir=0, add_pec_cap=True, portname="P1")
+aedtapp.create_wave_port_between_objects("inner", "outer", axisdir=3, add_pec_cap=True, portname="P2")
 
 portnames = aedtapp.get_all_sources()
 aedtapp.modeler.fit_all()
@@ -159,7 +160,7 @@ setup.update()
 # ~~~~~~~~~~~~~~~~
 # A sweep is created with default values.
 
-sweepname = aedtapp.create_frequency_sweep("MySetup", "GHz", 0.8, 1.2)
+sweepname = aedtapp.create_linear_count_sweep("MySetup", "GHz", 0.8, 1.2, 401)
 
 ################################################################################
 # Create an Icepak Model
@@ -176,8 +177,9 @@ ipkapp.copy_solid_bodies_from(aedtapp)
 # After the model is imported, you must link sources to EM Losses.
 
 surfaceobj = ["inner", "outer"]
-ipkapp.assign_em_losses(aedtapp.design_name, "MySetup", "LastAdaptive",
-                        "1GHz", surfaceobj, paramlist=["$coax_dimension","inner"])
+ipkapp.assign_em_losses(
+    aedtapp.design_name, "MySetup", "LastAdaptive", "1GHz", surfaceobj, paramlist=["$coax_dimension", "inner"]
+)
 
 #################################################################################
 # The gravity setting is important for a fluid analysis.
@@ -249,12 +251,20 @@ intrinsic = {"Freq": "1GHz", "Phase": "0deg"}
 surflist = aedtapp.modeler.primitives.get_object_faces("outer")
 plot1 = aedtapp.post.create_fieldplot_surface(surflist, quantity_name2, setup_name, intrinsic)
 
-results_folder = os.path.join(aedtapp.project_path,"Coaxial_Results_NG")
+results_folder = os.path.join(aedtapp.project_path, "Coaxial_Results_NG")
 if not os.path.exists(results_folder):
     os.mkdir(results_folder)
 
-aedtapp.post.plot_field_from_fieldplot(plot1.name, project_path=results_folder, meshplot=False, setup_name=setup_name,
-                                       intrinsic_dict=intrinsic, imageformat="jpg", view="iso", off_screen=True)
+aedtapp.post.plot_field_from_fieldplot(
+    plot1.name,
+    project_path=results_folder,
+    meshplot=False,
+    setup_name=setup_name,
+    intrinsic_dict=intrinsic,
+    imageformat="jpg",
+    view="iso",
+    off_screen=True,
+)
 
 ################################################################################
 # Generate Animation from Field Plots
@@ -262,11 +272,23 @@ aedtapp.post.plot_field_from_fieldplot(plot1.name, project_path=results_folder, 
 # This example generates field plot animation using PyVista.
 
 import time
+
 start = time.time()
 cutlist = ["Global:XY"]
-phases=[str(i*5)+"deg" for i in range(18)]
-aedtapp.post.animate_fields_from_aedtplt_2(quantityname="Mag_E",object_list=cutlist,plottype="CutPlane",meshplot=False, setup_name=aedtapp.nominal_adaptive,intrinsic_dict={
-                                           "Freq":"1GHz", "Phase":"0deg"},project_path=results_folder, variation_variable="Phase",variation_list=phases, off_screen=True,export_gif=True)
+phases = [str(i * 5) + "deg" for i in range(18)]
+aedtapp.post.animate_fields_from_aedtplt_2(
+    quantityname="Mag_E",
+    object_list=cutlist,
+    plottype="CutPlane",
+    meshplot=False,
+    setup_name=aedtapp.nominal_adaptive,
+    intrinsic_dict={"Freq": "1GHz", "Phase": "0deg"},
+    project_path=results_folder,
+    variation_variable="Phase",
+    variation_list=phases,
+    off_screen=True,
+    export_gif=True,
+)
 endtime = time.time() - start
 print("Total Time", endtime)
 
@@ -282,8 +304,15 @@ intrinsic = ""
 surflist = ipkapp.modeler.primitives.get_object_faces("inner")
 plot5 = ipkapp.post.create_fieldplot_surface(surflist, "SurfTemperature")
 
-ipkapp.post.plot_field_from_fieldplot(plot5.name, project_path=results_folder,
-                                      meshplot=False, setup_name=setup_name, imageformat="jpg", view="iso", off_screen=True)
+ipkapp.post.plot_field_from_fieldplot(
+    plot5.name,
+    project_path=results_folder,
+    meshplot=False,
+    setup_name=setup_name,
+    imageformat="jpg",
+    view="iso",
+    off_screen=True,
+)
 
 aedtapp.save_project()
 
@@ -295,22 +324,22 @@ aedtapp.save_project()
 trace_names = []
 for el in portnames:
     for el2 in portnames:
-        trace_names.append('S(' + el + ',' + el2 + ')')
-cxt = ['Domain:=', 'Sweep']
-families = ['Freq:=', ['All']]
+        trace_names.append("S(" + el + "," + el2 + ")")
+cxt = ["Domain:=", "Sweep"]
+families = ["Freq:=", ["All"]]
 my_data = aedtapp.post.get_report_data(expression=trace_names)
 freq_data = np.array(my_data.sweeps["Freq"])
 
 comp = []
 fig, ax = plt.subplots(figsize=(20, 10))
 
-ax.set(xlabel='Frequency (Ghz)', ylabel='SParameters(dB)', title='Scattering Chart')
+ax.set(xlabel="Frequency (Ghz)", ylabel="SParameters(dB)", title="Scattering Chart")
 ax.grid()
 for el in trace_names:
     mag_data = np.array(my_data.data_db(el))
     ax.plot(freq_data, mag_data)
-plt.savefig(os.path.join(results_folder,project_name+".svg"))
-plt.savefig(os.path.join(results_folder,project_name+".jpg"))
+plt.savefig(os.path.join(results_folder, project_name + ".svg"))
+plt.savefig(os.path.join(results_folder, project_name + ".jpg"))
 plt.show()
 
 ################################################################################

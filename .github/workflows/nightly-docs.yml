@@ -1,6 +1,7 @@
 name: Nightly Documentation Build
 
 on:
+  workflow_dispatch:
   schedule:  # UTC at 0400
     - cron:  '0 4 * * *'
 
@@ -45,3 +46,41 @@ jobs:
           folder: doc/_build/html/
           token: ${{ secrets.PYANSYS_CI_BOT_TOKEN }}
           clean: true
+
+  docstring_testing:
+    runs-on: Windows
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
+      - name: 'Create virtual env'
+        run: |
+          python -m venv testenv
+          testenv\Scripts\Activate.ps1
+          python -m pip install pip -U
+          python -m pip install wheel setuptools -U
+          python -c "import sys; print(sys.executable)"
+
+      - name: 'Install pyaedt'
+        run: |
+          testenv\Scripts\Activate.ps1
+          pip install . --use-feature=in-tree-build
+          cd _unittest
+          python -c "import pyaedt; print('Imported pyaedt')"
+
+      - name: Install testing requirements
+        run: |
+          testenv\Scripts\Activate.ps1
+          pip install -r requirements_test.txt
+          pip install pytest-azurepipelines
+
+      - name: Docstring testing
+        run: |
+          testenv\Scripts\Activate.ps1
+          pytest -v pyaedt/desktop.py pyaedt/icepak.py
+          pytest -v pyaedt/desktop.py pyaedt/hfss.py

@@ -10,7 +10,8 @@ def my_location():
     """ """
     return os.path.normpath(os.path.dirname(__file__))
 
-def files_in_directory(path='.',ext=''):
+
+def files_in_directory(path=".", ext=""):
     """
 
     Parameters
@@ -33,7 +34,7 @@ def files_in_directory(path='.',ext=''):
     return result
 
 
-class Scratch():
+class Scratch:
     """ """
 
     @property
@@ -50,8 +51,7 @@ class Scratch():
         self._volatile = volatile
         self._cleaned = True
         char_set = string.ascii_uppercase + string.digits
-        self._scratch_path = os.path.normpath(os.path.join(
-            local_path, 'scratch' + ''.join(random.sample(char_set, 6))))
+        self._scratch_path = os.path.normpath(os.path.join(local_path, "scratch" + "".join(random.sample(char_set, 6))))
         if os.path.exists(self._scratch_path):
             try:
                 self.remove()
@@ -112,7 +112,6 @@ class Scratch():
         if ex_type or self._volatile:
             self.remove()
 
-
 def get_json_files(start_folder):
     """
     Get the absolute path to all *.json files in start_folder.
@@ -125,4 +124,4 @@ def get_json_files(start_folder):
     Returns
     -------
     """
-    return [y for x in os.walk(start_folder) for y in glob(os.path.join(x[0], '*.json'))]
+    return [y for x in os.walk(start_folder) for y in glob(os.path.join(x[0], "*.json"))]

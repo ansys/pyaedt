@@ -17,21 +17,26 @@ import getpass
 import re
 import warnings
 import gc
+import time
+import datetime
+import tempfile
 from pyaedt.application.MessageManager import AEDTMessageManager
 from pyaedt.misc import list_installed_ansysem
 from pyaedt import is_ironpython, _pythonver, inside_desktop
+
+
 pathname = os.path.dirname(__file__)
-if os.path.exists(os.path.join(pathname,'version.txt')):
-    with open(os.path.join(pathname,'version.txt'), "r") as f:
-        pyaedtversion = f.readline()
-elif os.path.exists(os.path.join(pathname, "..", 'version.txt')):
-    with open(os.path.join(pathname, "..", 'version.txt'), "r") as f:
-        pyaedtversion = f.readline()
+if os.path.exists(os.path.join(pathname, "version.txt")):
+    with open(os.path.join(pathname, "version.txt"), "r") as f:
+        pyaedtversion = f.readline().strip()
+elif os.path.exists(os.path.join(pathname, "..", "version.txt")):
+    with open(os.path.join(pathname, "..", "version.txt"), "r") as f:
+        pyaedtversion = f.readline().strip()
 else:
     pyaedtversion = "X"
 
 
-if os.name == 'nt':
+if os.name == "nt":
     IsWindows = True
 else:
     IsWindows = False
@@ -39,17 +44,21 @@ logger = logging.getLogger(__name__)
 
 if is_ironpython:
     import clr  # IronPython C:\Program Files\AnsysEM\AnsysEM19.4\Win64\common\IronPython\ipy64.exe
-    _com = 'ironpython'
+
+    _com = "ironpython"
 elif IsWindows:
     import pythoncom
+
     modules = [tup[1] for tup in pkgutil.iter_modules()]
-    if 'clr' in modules:
+    if "clr" in modules:
         import clr
         import win32com.client
-        _com = 'pythonnet_v3'
-    elif 'win32com' in modules:
+
+        _com = "pythonnet_v3"
+    elif "win32com" in modules:
         import win32com.client
-        _com = 'pywin32'
+
+        _com = "pywin32"
     else:
         raise Exception("Error. No win32com.client or Pythonnet modules found. Please install them")
 
@@ -67,24 +76,24 @@ def exception_to_desktop(self, ex_value, tb_data):
         Traceback information.
 
     """
-    desktop = sys.modules['__main__'].oDesktop
+    desktop = sys.modules["__main__"].oDesktop
     try:
         oproject = desktop.GetActiveProject()
-        proj_name = oproject.GetName()
+        project_name = oproject.GetName()
         try:
-            des_name = oproject.GetActiveDesign().GetName()
-            if ";" in des_name:
-                des_name = des_name.split(";")[1]
+            design_name = oproject.GetActiveDesign().GetName()
+            if ";" in design_name:
+                design_name = design_name.split(";")[1]
         except:
-            des_name = ''
+            design_name = ""
     except:
-        proj_name = ''
-        des_name = ''
+        project_name = ""
+        design_name = ""
     tb_trace = traceback.format_tb(tb_data)
-    tblist = tb_trace[0].split('\n')
-    desktop.AddMessage(proj_name, des_name, 2, str(ex_value))
+    tblist = tb_trace[0].split("\n")
+    desktop.AddMessage(project_name, design_name, 2, str(ex_value))
     for el in tblist:
-        desktop.AddMessage(proj_name, des_name, 2, el)
+        desktop.AddMessage(project_name, design_name, 2, el)
 
 
 def update_aedt_registry(key, value, desktop_version="211"):
@@ -122,7 +131,7 @@ def update_aedt_registry(key, value, desktop_version="211"):
     >>> update_aedt_registry("HFSS/MPIVendor", "Intel") # doctest: +SKIP
 
     """
-    if os.name == 'posix':
+    if os.name == "posix":
         import subprocessdotnet as subprocess
     else:
         import subprocess
@@ -131,14 +140,16 @@ def update_aedt_registry(key, value, desktop_version="211"):
     with open(os.path.join(desktop_install_dir, "config", "ProductList.txt")) as file:
         product_version = next(file).rstrip()  # get first line
 
-    options = '-set -ProductName {} + product_version -RegistryKey "{}" -RegistryValue "{}"'.format(product_version,
-                                                                                                    key, value)
+    options = '-set -ProductName {} + product_version -RegistryKey "{}" -RegistryValue "{}"'.format(
+        product_version, key, value
+    )
     command = '"{}/UpdateRegistry" {}'.format(desktop_install_dir, options)
 
     subprocess.call([command])
 
+
 def _delete_objects():
-    module = sys.modules['__main__']
+    module = sys.modules["__main__"]
     if "COMUtil" in dir(module):
         del module.COMUtil
     if "Hfss" in dir(module):
@@ -191,22 +202,22 @@ def release_desktop(close_projects=True, close_desktop=True):
 
     """
 
-    Module = sys.modules['__main__']
+    Module = sys.modules["__main__"]
     if "oDesktop" not in dir(Module):
         _delete_objects()
         return False
     else:
         desktop = Module.oDesktop
         if close_projects:
-            proj_list = desktop.GetProjectList()
-            for prj in proj_list:
-                desktop.CloseProject(prj)
+            projects = desktop.GetProjectList()
+            for project in projects:
+                desktop.CloseProject(project)
         pid = Module.oDesktop.GetProcessID()
         if not (is_ironpython and inside_desktop):
             i = 0
             scopeID = 5
             while i <= scopeID:
-                Module.COMUtil.ReleaseCOMObjectScope(Module.COMUtil.PInvokeProxyAPI,i)
+                Module.COMUtil.ReleaseCOMObjectScope(Module.COMUtil.PInvokeProxyAPI, i)
                 i += 1
             _delete_objects()
 
@@ -230,16 +241,17 @@ def force_close_desktop():
         ``True`` when successful, ``False`` when failed.
 
     """
-    Module = sys.modules['__main__']
+    Module = sys.modules["__main__"]
     pid = Module.oDesktop.GetProcessID()
     if pid > 0:
         try:
-            plist = Module.oDesktop.GetProjectList()
-            for el in plist:
-                Module.oDesktop.CloseProject(el)
+            projects = Module.oDesktop.GetProjectList()
+            for project in projects:
+                Module.oDesktop.CloseProject(project)
         except:
             logger.warning("No Projects. Closing Desktop Connection")
         try:
+            i = 0
             scopeID = 5
             while i <= scopeID:
                 Module.COMUtil.ReleaseCOMObjectScope(Module.COMUtil.PInvokeProxyAPI, 0)
@@ -255,7 +267,7 @@ def force_close_desktop():
             del Module.oDesktop
             successfully_closed = True
         except:
-            Module.oMessenger.add_error_message("something went wrong in Closing AEDT")
+            Module.oMessenger.add_error_message("Something went wrong in Closing AEDT.")
             successfully_closed = False
         finally:
             log = logging.getLogger(__name__)
@@ -278,15 +290,15 @@ class Desktop:
     specified_version : str, optional
         Version of AEDT to use. The default is ``None``, in which case the
         active setup or latest installed version is used.
-    NG: bool, optional
+    non_graphical: bool, optional
         Whether to launch AEDT in the non-graphical mode. The default
         is ``False``, in which case AEDT is launched in the graphical mode.
-    AlwaysNew : bool, optional
+    new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the machine.
         The default is ``True``.
-    release_on_exit : bool, optional
-        Whether to release AEDT on exit. The default is ``True``.
+    close_on_exit : bool, optional
+        Whether to close AEDT on exit. The default is ``True``.
     student_version : bool, optional
         Whether to open the AEDT student version. The default is
         ``False``.
@@ -296,10 +308,11 @@ class Desktop:
     Launch AEDT 2021 R1 in non-graphical mode and initialize HFSS.
 
     >>> import pyaedt
-    >>> desktop = pyaedt.Desktop("2021.1", NG=True)
+    >>> desktop = pyaedt.Desktop("2021.1", non_graphical=True)
     pyaedt Info: pyaedt v...
     pyaedt Info: Python version ...
     >>> hfss = pyaedt.Hfss(designname="HFSSDesign1")
+    pyaedt Info: Project...
     pyaedt Info: Added design 'HFSSDesign1' of type HFSS.
 
     Launch AEDT 2021 R1 in graphical mode and initialize HFSS.
@@ -308,8 +321,59 @@ class Desktop:
     pyaedt Info: pyaedt v...
     pyaedt Info: Python version ...
     >>> hfss = pyaedt.Hfss(designname="HFSSDesign1")
-
+    pyaedt Info: No project is defined. Project...
     """
+
+    def __init__(self, specified_version=None, non_graphical=False, new_desktop_session=True, close_on_exit=True,
+                 student_version=False):
+        """Initialize desktop."""
+        self._main = sys.modules["__main__"]
+        self._main.interpreter = _com
+        self.close_on_exit = close_on_exit
+        self._main.isoutsideDesktop = False
+        self._main.pyaedt_version = pyaedtversion
+        self._main.interpreter_ver = _pythonver
+        self.releae_on_exit = True
+        self.logfile = None
+        if "oDesktop" in dir(self._main) and self._main.oDesktop is not None:
+            self.releae_on_exit = False
+        else:
+            if "oDesktop" in dir(self._main):
+                del self._main.oDesktop
+            version_student, version_key, version = self._set_version(specified_version, student_version)
+            if _com == 'ironpython':
+                print("Launching PyAEDT outside Electronics Desktop with IronPython")
+                self._init_ironpython(non_graphical, new_desktop_session, version)
+            elif _com == 'pythonnet_v3':
+                print("Launching PyAEDT outside Electronics Desktop with CPython and Pythonnet")
+                self._init_cpython(non_graphical, new_desktop_session, version, student_version, version_key)
+            else:
+                self.add_info_message("Launching PyAEDT outside AEDT with CPython and PyWin32.")
+                oAnsoftApp = win32com.client.Dispatch(version)
+                self._main.oDesktop = oAnsoftApp.GetAppDesktop()
+                self._main.isoutsideDesktop = True
+            self._main.AEDTVersion = version_key
+        self._init_logger()
+        self._init_desktop()
+        self._main.oMessenger.add_info_message("pyaedt v{}".format(self._main.pyaedt_version))
+        self._main.oMessenger.add_info_message("Python version {}".format(sys.version))
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, ex_type, ex_value, ex_traceback):
+        # Write the trace stack to the log file if an exception occurred in the main script.
+        if ex_type:
+            err = self._exception(ex_value, ex_traceback)
+        if self.releae_on_exit:
+            self.release_desktop(close_projects=self.close_on_exit, close_on_exit=self.close_on_exit)
+
+    @property
+    def install_path(self):
+        """Installation path for AEDT."""
+        version_key = self._main.AEDTVersion
+        root = self._version_ids[version_key]
+        return os.environ[root]
 
     @property
     def version_keys(self):
@@ -320,10 +384,10 @@ class Desktop:
         version_list = list_installed_ansysem()
         for version_env_var in version_list:
             if "ANSYSEMSV_ROOT" in version_env_var:
-                current_version_id = version_env_var.replace("ANSYSEMSV_ROOT", '')
-                student=True
+                current_version_id = version_env_var.replace("ANSYSEMSV_ROOT", "")
+                student = True
             else:
-                current_version_id = version_env_var.replace("ANSYSEM_ROOT", '')
+                current_version_id = version_env_var.replace("ANSYSEM_ROOT", "")
                 student = False
             version = int(current_version_id[0:2])
             release = int(current_version_id[2])
@@ -351,220 +415,164 @@ class Desktop:
     @property
     def current_version_student(self):
         """Current student version of AEDT."""
-        for el in self.version_keys:
-            if "SV" in el:
-                return el
+        for version_key in self.version_keys:
+            if "SV" in version_key:
+                return version_key
         return None
 
-    def __init__(self, specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True, student_version=False):
-        """Initialize desktop."""
-        self._main = sys.modules['__main__']
-        self._main.interpreter = _com
-
-        self._main.close_on_exit = False
-        self._main.isoutsideDesktop = False
-        self._main.pyaedt_version = pyaedtversion
-        self.release = release_on_exit
-        self.logfile = None
-        module_logger = logging.getLogger(__name__)
-
-        if "oDesktop" in dir(self._main) and self._main.oDesktop is not None:
-            self._main.AEDTVersion = self._main.oDesktop.GetVersion()[0:6]
-            self._main.oDesktop.RestoreWindow()
-            self._main.oMessenger = AEDTMessageManager()
-            base_path = self._main.oDesktop.GetExeDir()
-            self._main.sDesktopinstallDirectory = base_path
-            self.release = False
-        else:
-            version_student = False
-            if specified_version:
-                if student_version:
-                    specified_version += "SV"
-                    version_student = True
-                assert specified_version in self.version_keys, \
-                    "Specified version {} not known.".format(specified_version)
-                version_key = specified_version
-            else:
-                if student_version and self.current_version_student:
-                    version_key = self.current_version_student
-                    version_student = True
-                else:
-                    version_key = self.current_version
-                    version_student = False
-            base_path = os.getenv(self._version_ids[version_key])
-            self._main = sys.modules['__main__']
-            self._main.sDesktopinstallDirectory = base_path
-            if student_version and version_student:
-                version = "Ansoft.ElectronicsDesktop." + version_key[:-2]
-            else:
-                version = "Ansoft.ElectronicsDesktop." + version_key
-            self._main.AEDTVersion = version_key
-            self._main.interpreter_ver = _pythonver
-            if "oDesktop" in dir(self._main):
-                del self._main.oDesktop
-            if _com == 'ironpython':
-                sys.path.append(base_path)
-                sys.path.append(os.path.join(base_path, 'PythonFiles', 'DesktopPlugin'))
-                clr.AddReference("Ansys.Ansoft.CoreCOMScripting")
-                AnsoftCOMUtil = __import__("Ansys.Ansoft.CoreCOMScripting")
-                self.COMUtil = AnsoftCOMUtil.Ansoft.CoreCOMScripting.Util.COMUtil
-                self._main.COMUtil = self.COMUtil
-                StandalonePyScriptWrapper = AnsoftCOMUtil.Ansoft.CoreCOMScripting.COM.StandalonePyScriptWrapper
-                if NG or AlwaysNew:
-                    # forcing new thread to start in non-graphical
-                    oAnsoftApp = StandalonePyScriptWrapper.CreateObjectNew(NG)
-                else:
-                    oAnsoftApp = StandalonePyScriptWrapper.CreateObject(version)
-                if NG:
-                    os.environ['PYAEDT_DESKTOP_LOGS'] = 'False'
-                self._main.oDesktop = oAnsoftApp.GetAppDesktop()
-                self._main.isoutsideDesktop = True
-            elif _com == 'pythonnet_v3':
-                sys.path.append(base_path)
-                sys.path.append(os.path.join(base_path, 'PythonFiles', 'DesktopPlugin'))
-                launch_msg = "Launching AEDT installation {}".format(base_path)
-                print(launch_msg)
-                print("===================================================================================")
-                clr.AddReference("Ansys.Ansoft.CoreCOMScripting")
-                AnsoftCOMUtil = __import__("Ansys.Ansoft.CoreCOMScripting")
-                self.COMUtil = AnsoftCOMUtil.Ansoft.CoreCOMScripting.Util.COMUtil
-                self._main.COMUtil = self.COMUtil
-                StandalonePyScriptWrapper = AnsoftCOMUtil.Ansoft.CoreCOMScripting.COM.StandalonePyScriptWrapper
-
-                module_logger.debug("Launching AEDT with Module Pythonnet")
-                processID = []
-                if IsWindows:
-                    username = getpass.getuser()
-                    if student_version:
-                        process = "ansysedtsv.exe"
-                    else:
-                        process = "ansysedt.exe"
-                    with os.popen('tasklist /FI "IMAGENAME eq {}" /v'.format(process)) as tasks_list:
-                        output = tasks_list.readlines()
-                    pattern = r'(?i)^(?:{})\s+?(\d+)\s+.+[\s|\\](?:{})\s+'.format(process, username)
-                    for l in output:
-                        m = re.search(pattern, l)
-                        if m:
-                            processID.append(m.group(1))
-                if student_version and not processID:
-                    import subprocess
-                    DETACHED_PROCESS = 0x00000008
-                    pid = subprocess.Popen([os.path.join(base_path, "ansysedtsv.exe")],
-                                           creationflags=DETACHED_PROCESS).pid
-                if NG or AlwaysNew or not processID:
-                    # Force new object if no non-graphical instance is running or if there is not an already existing process.
-                    App = StandalonePyScriptWrapper.CreateObjectNew(NG)
-                else:
-                    App = StandalonePyScriptWrapper.CreateObject(version)
-                if NG:
-                    os.environ['PYAEDT_DESKTOP_LOGS'] = 'False'
-                processID2 = []
-                if IsWindows:
-                    module_logger.debug("Info: Using Windows TaskManager to Load processes")
-                    username = getpass.getuser()
-                    if student_version:
-                        process = "ansysedtsv.exe"
-                    else:
-                        process = "ansysedt.exe"
-                    with os.popen('tasklist /FI "IMAGENAME eq {}" /v'.format(process)) as tasks_list:
-                        output = tasks_list.readlines()
-                    pattern = r'(?i)^(?:{})\s+?(\d+)\s+.+[\s|\\](?:{})\s+'.format(process, username)
-                    for l in output:
-                        m = re.search(pattern, l)
-                        if m:
-                            processID2.append(m.group(1))
-
-                proc = [i for i in processID2 if i not in processID]
-                if not proc:
-                    if NG:
-                        self._main.close_on_exit = False
-                    else:
-                        self._main.close_on_exit = False
-                    oAnsoftApp = win32com.client.Dispatch(version)
-                    self._main.oDesktop = oAnsoftApp.GetAppDesktop()
-                    self._main.isoutsideDesktop = True
-                elif version_key>="2021.1":
-                    self._main.close_on_exit = True
-                    module_logger.debug(
-                        "Info: {} Started with Process ID {}".format(version, proc[0]))
-                    context = pythoncom.CreateBindCtx(0)
-                    running_coms = pythoncom.GetRunningObjectTable()
-                    monikiers = running_coms.EnumRunning()
-                    for monikier in monikiers:
-                        m = re.search(version[10:]+r"\.\d:"+str(proc[0]),
-                                      monikier.GetDisplayName(context, monikier))
-                        if m:
-                            obj = running_coms.GetObject(monikier)
-                            self._main.isoutsideDesktop = True
-                            # self._main.oDesktop = win32com.client.gencache.EnsureDispatch(
-                            #     obj.QueryInterface(pythoncom.IID_IDispatch))
-                            self._main.oDesktop = win32com.client.Dispatch(
-                                obj.QueryInterface(pythoncom.IID_IDispatch))
-                            break
-                else:
-                    module_logger.warning(
-                        "PyAEDT is not supported in AEDT versions older than 2021.1.")
-                    oAnsoftApp = win32com.client.Dispatch(version)
-                    self._main.oDesktop = oAnsoftApp.GetAppDesktop()
-                    self._main.isoutsideDesktop = True
-            else:
-                module_logger.debug("Launching AEDT with Module win32com.client")
-                oAnsoftApp = win32com.client.Dispatch(version)
-                self._main.oDesktop = oAnsoftApp.GetAppDesktop()
-                self._main.isoutsideDesktop = True
-
-            self._main.AEDTVersion = version_key
-            self._main.oDesktop.RestoreWindow()
-            self._main.oMessenger = AEDTMessageManager()
+    def _init_desktop(self):
+        self._main.AEDTVersion = self._main.oDesktop.GetVersion()[0:6]
+        self._main.oDesktop.RestoreWindow()
+        self._main.oMessenger = AEDTMessageManager()
+        self._main.sDesktopinstallDirectory = self._main.oDesktop.GetExeDir()
         self._main.pyaedt_initialized = True
+
+    def _set_version(self, specified_version, student_version):
+        version_student = False
+        if specified_version:
+            if student_version:
+                specified_version += "SV"
+                version_student = True
+            assert specified_version in self.version_keys, "Specified version {} not known.".format(specified_version)
+            version_key = specified_version
+        else:
+            if student_version and self.current_version_student:
+                version_key = self.current_version_student
+                version_student = True
+            else:
+                version_key = self.current_version
+                version_student = False
+        if student_version and version_student:
+            version = "Ansoft.ElectronicsDesktop." + version_key[:-2]
+        else:
+            version = "Ansoft.ElectronicsDesktop." + version_key
+        self._main.sDesktopinstallDirectory = os.getenv(self._version_ids[version_key])
+        self._main.AEDTVersion = version_key
+        return version_student, version_key, version
+
+    def _init_ironpython(self, non_graphical, new_aedt_session, version):
+        base_path = self._main.sDesktopinstallDirectory
+        sys.path.append(base_path)
+        sys.path.append(os.path.join(base_path, "PythonFiles", "DesktopPlugin"))
+        clr.AddReference("Ansys.Ansoft.CoreCOMScripting")
+        AnsoftCOMUtil = __import__("Ansys.Ansoft.CoreCOMScripting")
+        self.COMUtil = AnsoftCOMUtil.Ansoft.CoreCOMScripting.Util.COMUtil
+        self._main.COMUtil = self.COMUtil
+        StandalonePyScriptWrapper = AnsoftCOMUtil.Ansoft.CoreCOMScripting.COM.StandalonePyScriptWrapper
+        if non_graphical or new_aedt_session:
+            # forcing new thread to start in non-graphical
+            oAnsoftApp = StandalonePyScriptWrapper.CreateObjectNew(non_graphical)
+        else:
+            oAnsoftApp = StandalonePyScriptWrapper.CreateObject(version)
+        if non_graphical:
+            os.environ["PYAEDT_DESKTOP_LOGS"] = "False"
+        self._main.oDesktop = oAnsoftApp.GetAppDesktop()
+        self._main.isoutsideDesktop = True
+        return True
+
+    def _get_tasks_list_windows(self, student_version):
+        processID2 = []
+        username = getpass.getuser()
+        if student_version:
+            process = "ansysedtsv.exe"
+        else:
+            process = "ansysedt.exe"
+        with os.popen('tasklist /FI "IMAGENAME eq {}" /v'.format(process)) as tasks_list:
+            output = tasks_list.readlines()
+        pattern = r"(?i)^(?:{})\s+?(\d+)\s+.+[\s|\\](?:{})\s+".format(process, username)
+        for l in output:
+            m = re.search(pattern, l)
+            if m:
+                processID2.append(m.group(1))
+        return processID2
+
+    def _run_student(self):
+        import subprocess
+
+        DETACHED_PROCESS = 0x00000008
+        pid = subprocess.Popen(
+            [os.path.join(self._main.sDesktopinstallDirectory, "ansysedtsv.exe")], creationflags=DETACHED_PROCESS
+        ).pid
+        time.sleep(5)
+
+    def _dispatch_win32(self, version):
+        o_ansoft_app = win32com.client.Dispatch(version)
+        self._main.oDesktop = o_ansoft_app.GetAppDesktop()
+        self._main.isoutsideDesktop = True
+
+    def _init_cpython(self, non_graphical, new_aedt_session, version, student_version, version_key):
+        base_path = self._main.sDesktopinstallDirectory
+        sys.path.append(base_path)
+        sys.path.append(os.path.join(base_path, "PythonFiles", "DesktopPlugin"))
+        launch_msg = "Launching AEDT installation {}".format(base_path)
+        print(launch_msg)
+        print("===================================================================================")
+        clr.AddReference("Ansys.Ansoft.CoreCOMScripting")
+        AnsoftCOMUtil = __import__("Ansys.Ansoft.CoreCOMScripting")
+        self.COMUtil = AnsoftCOMUtil.Ansoft.CoreCOMScripting.Util.COMUtil
+        self._main.COMUtil = self.COMUtil
+        StandalonePyScriptWrapper = AnsoftCOMUtil.Ansoft.CoreCOMScripting.COM.StandalonePyScriptWrapper
+        print("PyAEDT Info: Launching AEDT with module Pythonnet.")
+        processID = []
+        if IsWindows:
+            processID = self._get_tasks_list_windows(student_version)
+        if student_version and not processID:
+            self._run_student()
+        elif non_graphical or new_aedt_session or not processID:
+            # Force new object if no non-graphical instance is running or if there is not an already existing process.
+            StandalonePyScriptWrapper.CreateObjectNew(non_graphical)
+        else:
+            StandalonePyScriptWrapper.CreateObject(version)
+        if non_graphical:
+            os.environ["PYAEDT_DESKTOP_LOGS"] = "False"
+        processID2 = []
+        if IsWindows:
+            processID2 = self._get_tasks_list_windows(student_version)
+        proc = [i for i in processID2 if i not in processID]
+        if not proc:
+            proc = processID2
+        if proc == processID2 and len(processID2) > 1:
+            self._dispatch_win32(version)
+        elif version_key >= "2021.1":
+            if student_version:
+                print("PyAEDT Info:: {} Student version started with process ID {}.".format(version, proc[0]))
+            else:
+                print("PyAEDT Info:: {} Started with process ID {}.".format(version, proc[0]))
+            context = pythoncom.CreateBindCtx(0)
+            running_coms = pythoncom.GetRunningObjectTable()
+            monikiers = running_coms.EnumRunning()
+            for monikier in monikiers:
+                m = re.search(version[10:] + r"\.\d:" + str(proc[0]), monikier.GetDisplayName(context, monikier))
+                if m:
+                    obj = running_coms.GetObject(monikier)
+                    self._main.isoutsideDesktop = True
+                    self._main.oDesktop = win32com.client.Dispatch(obj.QueryInterface(pythoncom.IID_IDispatch))
+                    break
+        else:
+            warnings.warn(
+                "PyAEDT is not supported in AEDT versions older than 2021.1. Trying to launch it with PyWin32."
+            )
+            self._dispatch_win32(version)
+
+    def _init_logger(self):
         # Set up the log file in the AEDT project directory
         self.logger = logging.getLogger(__name__)
         if not self.logger.handlers:
-            project_dir = self._main.oDesktop.GetProjectDirectory()
-            self.logfile = os.path.join(project_dir, "pyaedt.log")
+            if "oDesktop" in dir(self._main):
+                project_dir = self._main.oDesktop.GetProjectDirectory()
+            else:
+                project_dir = tempfile.gettempdir()
+            self.logfile = os.path.join(
+                project_dir, "pyaedt{}.log".format(datetime.datetime.now().strftime("%Y%m%d_%H%M%S"))
+            )
             logging.basicConfig(
                 filename=self.logfile,
+                format="%(asctime)s:%(name)s:%(levelname)-8s:%(message)s",
                 level=logging.DEBUG,
-                format='%(asctime)s:%(name)s:%(levelname)-8s:%(message)s',
-                datefmt='%Y/%m/%d %H.%M.%S',
-                filemode='w')
-
-        info_msg1 = 'pyaedt v{}'.format(pyaedtversion.strip())
-        info_msg2 = 'Python version {}'.format(sys.version)
-        self._main.oMessenger.add_info_message(info_msg1, 'Global')
-        self._main.oMessenger.add_info_message(info_msg2, 'Global')
-
-        info_msg3 = 'Started external COM connection with module {}'.format(_com)
-        info_msg4 = 'Exe path: {}'.format(sys.executable)
-        logger.info(info_msg3)
-        logger.info(info_msg4)
-
-        if _com == 'pywin32' and (AlwaysNew or NG):
-            info_msg5 = 'The ``AlwaysNew`` or ``NG`` option is not available for a pywin32 connection only. Install Python.NET to support these options.'
-            self._main.oMessenger.add_info_message(info_msg5, 'Global')
-        elif _com == 'ironpython':
-            dll_path = os.path.join(base_path,"common","IronPython", "dlls")
-            sys.path.append(dll_path)
-            info_msg5 = 'Adding IronPython common dlls to the sys.path: {0}'.format(dll_path)
-            self._main.oMessenger.add_info_message(info_msg5, 'Global')
-
-    @property
-    def install_path(self):
-        """Installation path for AEDT."""
-        version_key = self._main.AEDTVersion
-        root = self._version_ids[version_key]
-        return os.environ[root]
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, ex_type, ex_value, ex_traceback):
-        # Write the trace stack to the log file if an exception occurred in the main script.
-        if ex_type:
-            err = self._exception(ex_value, ex_traceback)
-        if self.release:
-            self.release_desktop(close_projects=self._main.close_on_exit,
-                                 close_on_exit=self._main.close_on_exit)
+                datefmt="%Y/%m/%d %H.%M.%S",
+                filemode="w",
+            )
+        return True
 
     def _exception(self, ex_value, tb_data):
         """Write the trace stack to the desktop when a Python error occurs.
@@ -584,21 +592,19 @@ class Desktop:
         """
         try:
             oproject = self._main.oDesktop.GetActiveProject()
-            proj_name = oproject.GetName()
             try:
-                des_name = oproject.GetActiveDesign().GetName()
-                if ";" in des_name:
-                    des_name = des_name.split(";")[1]
+                design_name = oproject.GetActiveDesign().GetName()
+                if ";" in design_name:
+                    design_name = design_name.split(";")[1]
             except:
-                des_name = ''
+                design_name = ""
         except:
-            proj_name = ''
-            des_name = ''
+            design_name = ""
         tb_trace = traceback.format_tb(tb_data)
-        tblist = tb_trace[0].split('\n')
-        self._main.oMessenger.add_error_message(str(ex_value), 'Global')
+        tblist = tb_trace[0].split("\n")
+        self._main.oMessenger.add_error_message(str(ex_value), "Global")
         for el in tblist:
-            self._main.oMessenger.add_error_message(el, 'Global')
+            self._main.oMessenger.add_error_message(el, "Global")
 
         return str(ex_value)
 
@@ -624,7 +630,7 @@ class Desktop:
 
         """
         release_desktop(close_projects, close_on_exit)
-        props = [a for a in dir(self) if not a.startswith('__')]
+        props = [a for a in dir(self) if not a.startswith("__")]
         for a in props:
             self.__dict__.pop(a, None)
         gc.collect()
@@ -707,7 +713,7 @@ def get_version_env_variable(version_id):
 
     """
     version_env_var = "ANSYSEM_ROOT"
-    values = version_id.split('.')
+    values = version_id.split(".")
     version = int(values[0][2:])
     release = int(values[1])
     if version < 20:

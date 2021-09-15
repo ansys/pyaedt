@@ -18,8 +18,7 @@ class IcepakMesh(object):
         self._priorities_args = []
 
     class MeshRegion(object):
-        """Manages Icepak mesh region settings.
-        """
+        """Manages Icepak mesh region settings."""
 
         def __init__(self, meshmodule, dimension, units):
             self.name = "Settings"
@@ -54,20 +53,32 @@ class IcepakMesh(object):
             if type(value) is str:
                 try:
                     float(value)
-                    val = "{0}{1}".format(value,  self.model_units)
+                    val = "{0}{1}".format(value, self.model_units)
                 except:
                     val = value
             else:
-                val = "{0}{1}".format(value,  self.model_units)
+                val = "{0}{1}".format(value, self.model_units)
             return val
 
         @property
         def autosettings(self):
             """Automatic mesh settings."""
-            arg = ["MeshMethod:=", "MesherHD", "UserSpecifiedSettings:=", self.UserSpecifiedSettings, "ComputeGap:=",
-                   self.ComputeGap, "MeshRegionResolution:=", self.Level, "MinGapX:=",
-                   self._dim_arg(self.MinGapX), "MinGapY:=",
-                   self._dim_arg(self.MinGapY) , "MinGapZ:=", self._dim_arg(self.MinGapZ)]
+            arg = [
+                "MeshMethod:=",
+                "MesherHD",
+                "UserSpecifiedSettings:=",
+                self.UserSpecifiedSettings,
+                "ComputeGap:=",
+                self.ComputeGap,
+                "MeshRegionResolution:=",
+                self.Level,
+                "MinGapX:=",
+                self._dim_arg(self.MinGapX),
+                "MinGapY:=",
+                self._dim_arg(self.MinGapY),
+                "MinGapZ:=",
+                self._dim_arg(self.MinGapZ),
+            ]
             if self.SubModels:
                 arg.append("SubModels:=")
                 arg.append(self.SubModels)
@@ -80,19 +91,48 @@ class IcepakMesh(object):
         def manualsettings(self):
             """Manual mesh settings."""
 
-            arg = ["MeshMethod:=", "MesherHD", "UserSpecifiedSettings:=", self.UserSpecifiedSettings, "ComputeGap:=",
-                   self.ComputeGap, "MaxElementSizeX:=", self._dim_arg(self.MaxElementSizeX),
-                   "MaxElementSizeY:=",
-                   self._dim_arg(self.MaxElementSizeY) , "MaxElementSizeZ:=",
-                   self._dim_arg(self.MaxElementSizeZ), "MinElementsInGap:=",
-                   self.MinElementsInGap,
-                   "MinElementsOnEdge:=", self.MinElementsOnEdge, "MaxSizeRatio:=",
-                   self.MaxSizeRatio, "NoOGrids:=", self.NoOGrids, "EnableMLM:=", self.EnableMLM, "EnforeMLMType:=",
-                   self.EnforeMLMType, "MaxLevels:=", self.MaxLevels, "BufferLayers:=", self.BufferLayers,
-                   "UniformMeshParametersType:=", self.UniformMeshParametersType, "StairStepMeshing:=",
-                   self.StairStepMeshing, "2DMLMType:=", self.DMLMType, "MinGapX:=",
-                   self._dim_arg(self.MinGapX) , "MinGapY:=", self._dim_arg(self.MinGapY),
-                   "MinGapZ:=", self._dim_arg(self.MinGapZ)]
+            arg = [
+                "MeshMethod:=",
+                "MesherHD",
+                "UserSpecifiedSettings:=",
+                self.UserSpecifiedSettings,
+                "ComputeGap:=",
+                self.ComputeGap,
+                "MaxElementSizeX:=",
+                self._dim_arg(self.MaxElementSizeX),
+                "MaxElementSizeY:=",
+                self._dim_arg(self.MaxElementSizeY),
+                "MaxElementSizeZ:=",
+                self._dim_arg(self.MaxElementSizeZ),
+                "MinElementsInGap:=",
+                self.MinElementsInGap,
+                "MinElementsOnEdge:=",
+                self.MinElementsOnEdge,
+                "MaxSizeRatio:=",
+                self.MaxSizeRatio,
+                "NoOGrids:=",
+                self.NoOGrids,
+                "EnableMLM:=",
+                self.EnableMLM,
+                "EnforeMLMType:=",
+                self.EnforeMLMType,
+                "MaxLevels:=",
+                self.MaxLevels,
+                "BufferLayers:=",
+                self.BufferLayers,
+                "UniformMeshParametersType:=",
+                self.UniformMeshParametersType,
+                "StairStepMeshing:=",
+                self.StairStepMeshing,
+                "2DMLMType:=",
+                self.DMLMType,
+                "MinGapX:=",
+                self._dim_arg(self.MinGapX),
+                "MinGapY:=",
+                self._dim_arg(self.MinGapY),
+                "MinGapZ:=",
+                self._dim_arg(self.MinGapZ),
+            ]
             if self.SubModels:
                 arg.append("SubModels:=")
                 arg.append(self.SubModels)
@@ -187,10 +227,16 @@ class IcepakMesh(object):
         """Retrieve design mesh operations."""
         meshops = []
         try:
-            for ds in self._parent.design_properties['MeshRegion']['MeshSetup']['MeshOperations']:
-                if type(self._parent.design_properties['MeshRegion']['MeshSetup']['MeshOperations'][ds]) is OrderedDict:
-                    meshops.append(MeshOperation(self, ds, self._parent.design_properties['MeshRegion']['MeshSetup'][
-                        'MeshOperations'][ds], "Icepak"))
+            for ds in self._parent.design_properties["MeshRegion"]["MeshSetup"]["MeshOperations"]:
+                if type(self._parent.design_properties["MeshRegion"]["MeshSetup"]["MeshOperations"][ds]) is OrderedDict:
+                    meshops.append(
+                        MeshOperation(
+                            self,
+                            ds,
+                            self._parent.design_properties["MeshRegion"]["MeshSetup"]["MeshOperations"][ds],
+                            "Icepak",
+                        )
+                    )
         except:
             pass
         return meshops
@@ -200,10 +246,10 @@ class IcepakMesh(object):
         """Retrieve design mesh regions."""
         meshops = []
         try:
-            for ds in self._parent.design_properties['MeshRegion']['MeshSetup']['MeshRegions']:
-                if type(self._parent.design_properties['MeshRegion']['MeshSetup']['MeshRegions'][ds]) is OrderedDict:
+            for ds in self._parent.design_properties["MeshRegion"]["MeshSetup"]["MeshRegions"]:
+                if type(self._parent.design_properties["MeshRegion"]["MeshSetup"]["MeshRegions"][ds]) is OrderedDict:
                     meshop = self.MeshRegion(self.omeshmodule, self.boundingdimension, self.modeler.model_units)
-                    dict_prop = self._parent.design_properties['MeshRegion']['MeshSetup']['MeshRegions'][ds]
+                    dict_prop = self._parent.design_properties["MeshRegion"]["MeshSetup"]["MeshRegions"][ds]
                     self.name = ds
                     for el in dict_prop:
                         if el in meshop.__dict__:
@@ -235,7 +281,7 @@ class IcepakMesh(object):
             if mesh_order[obj] not in level_order.keys():
                 level_order[mesh_order[obj]] = []
             level_order[mesh_order[obj]].append(obj)
-        list_meshops=[]
+        list_meshops = []
         for level in level_order:
             if meshop_name:
                 meshop_name = generate_unique_name(meshop_name, "L_" + str(level))
@@ -266,7 +312,7 @@ class IcepakMesh(object):
         xsize = self.boundingdimension[0] / (15 * accuracy * accuracy)
         ysize = self.boundingdimension[1] / (15 * accuracy * accuracy)
         zsize = self.boundingdimension[2] / (10 * accuracy)
-        MaxSizeRatio = (1 + (accuracy / 2))
+        MaxSizeRatio = 1 + (accuracy / 2)
         self.global_mesh_region.MaxElementSizeX = xsize
         self.global_mesh_region.MaxElementSizeY = ysize
         self.global_mesh_region.MaxElementSizeZ = zsize
@@ -338,21 +384,31 @@ class IcepakMesh(object):
         objects = ", ".join(obj_list)
         args = ["NAME:UpdatePriorityListData"]
         if entity_type == 1:
-            prio = ["NAME:PriorityListParameters",
-                         "EntityType:=", "Object",
-                         "EntityList:=", objects,
-                         "PriorityNumber:=", i,
-                         "PriorityListType:=", "3D"]
+            prio = [
+                "NAME:PriorityListParameters",
+                "EntityType:=",
+                "Object",
+                "EntityList:=",
+                objects,
+                "PriorityNumber:=",
+                i,
+                "PriorityListType:=",
+                "3D",
+            ]
             self._priorities_args.append(prio)
             args += self._priorities_args
         elif entity_type == 2:
             pcblist = self.modeler.oeditor.Get3DComponentInstanceNames(comp_name)
             prio = [
                 "NAME:PriorityListParameters",
-                "EntityType:=", "Component",
-                "EntityList:=", pcblist[0],
-                "PriorityNumber:=", i,
-                "PriorityListType:=", "3D"
+                "EntityType:=",
+                "Component",
+                "EntityList:=",
+                pcblist[0],
+                "PriorityNumber:=",
+                i,
+                "PriorityListType:=",
+                "3D",
             ]
             self._priorities_args.append(prio)
             args += self._priorities_args
@@ -420,8 +476,14 @@ class IcepakMesh(object):
         return self.odesign.GenerateMesh(name) == 0
 
     @aedt_exception_handler
-    def assign_mesh_level_to_group(self, mesh_level, groupName, localMeshParamEn=False,
-                                   localMeshParameters="No local mesh parameters", meshop_name=None):
+    def assign_mesh_level_to_group(
+        self,
+        mesh_level,
+        groupName,
+        localMeshParamEn=False,
+        localMeshParameters="No local mesh parameters",
+        meshop_name=None,
+    ):
         """Assign a mesh level to a group.
 
         Parameters
@@ -448,8 +510,15 @@ class IcepakMesh(object):
                     meshop_name = generate_unique_name(meshop_name)
         else:
             meshop_name = generate_unique_name("MeshLevel")
-        props = OrderedDict({"Enable": True, "Level": mesh_level, "Local Mesh Parameters Enabled": localMeshParamEn,
-                             "Groups": [str(groupName)], "Local Mesh Parameters Type": localMeshParameters})
+        props = OrderedDict(
+            {
+                "Enable": True,
+                "Level": mesh_level,
+                "Local Mesh Parameters Enabled": localMeshParamEn,
+                "Groups": [str(groupName)],
+                "Local Mesh Parameters Type": localMeshParameters,
+            }
+        )
         mop = MeshOperation(self, meshop_name, props, "Icepak")
         mop.create()
         self.meshoperations.append(mop)

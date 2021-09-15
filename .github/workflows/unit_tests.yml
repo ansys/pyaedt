@@ -15,7 +15,7 @@ on:
      - v*
   pull_request:
     branches: [ main ]
-   
+
 
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
@@ -23,7 +23,7 @@ jobs:
   # This workflow contains a single job called "build"
   build:
     # The type of runner that the job will run on
-    runs-on: self-hosted
+    runs-on: Windows
     strategy:
       matrix:
         python-version: [3.8]
@@ -54,22 +54,15 @@ jobs:
           python -c "import pyaedt; print('Imported pyaedt')"
 
       - name: 'Unit testing'
-        run: | 
-          testenv\Scripts\Activate.ps1
-          pytest -v --cov=pyaedt --cov=_unittest --cov-config=.coveragerc -cov-report=xml --junitxml=junit/test-results.xml _unittest -p no:faulthandler
-
-      - name: Docstring testing
         run: |
           testenv\Scripts\Activate.ps1
-          pip install pytest
-          pytest -v pyaedt/desktop.py pyaedt/icepak.py
-          pytest -v pyaedt/desktop.py pyaedt/hfss.py
+          pytest -v --cov=pyaedt --cov=_unittest --cov-config=.coveragerc -cov-report=xml --junitxml=junit/test-results.xml _unittest -p no:faulthandler
 
       - name: 'Coverage'
         run: |
           testenv\Scripts\Activate.ps1
           coverage xml
-          
+
       - name: Upload pytest test results
         uses: actions/upload-artifact@v2
         with:
@@ -77,28 +70,28 @@ jobs:
           path: junit/test-results.xml
         # Use always() to always run this step to publish test results when there are test failures
         if: ${{ always() }}
-        
+
       - name: Upload pytest coverage results
         uses: actions/upload-artifact@v2
         with:
           name: coverage-results
           path: coverage.xml
         # Use always() to always run this step to publish test results when there are test failures
-        if: ${{ always() }}        
-        
+        if: ${{ always() }}
+
       #- name: Publish Unit Test Results
       #  uses: EnricoMi/publish-unit-test-result-action@v1.19
       #  if: always()
       #  with:
       #    files: junit/test-results.xml
-        
+
       - name: 'Build and validate source distribution'
         run: |
           testenv\Scripts\Activate.ps1
           python setup.py sdist
           python -m pip install twine
-          python -m twine check dist/*        
-    
+          python -m twine check dist/*
+
       - name: "Builds and uploads to PyPI"
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
         run: |
