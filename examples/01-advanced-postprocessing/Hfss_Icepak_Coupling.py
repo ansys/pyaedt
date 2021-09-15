@@ -161,7 +161,7 @@ setup.update()
 # ~~~~~~~~~~~~~~~~
 # A sweep is created with default values.
 
-sweepname = aedtapp.create_frequency_sweep("MySetup", "GHz", 0.8, 1.2)
+sweepname = aedtapp.create_linear_count_sweep("MySetup", "GHz", 0.8, 1.2, 401)
 
 ################################################################################
 # Create an Icepak Model

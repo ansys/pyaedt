@@ -1082,7 +1082,7 @@ class SweepHFSS(object):
             self.setupname = setupname
             self.name = sweepname
             self.props["Type"] = sweeptype
-            self.props["isenabled"] = True
+            self.props["IsEnabled"] = True
             self.props["RangeType"] = "LinearCount"
             self.props["RangeStart"] = "2.5GHz"
             self.props["RangeEnd"] = "7.5GHz"
@@ -1109,23 +1109,28 @@ class SweepHFSS(object):
             self.props["UseQ3DForDCSolve"] = False
             self.props["SMatrixOnlySolveMode"] = "Auto"
             self.props["SMatrixOnlySolveAbove"] = "1MHz"
-            self.props["SweepRanges"] = []
+            self.props["SweepRanges"] = {"Subrange": []}
 
     @aedt_exception_handler
-    def add_subrange(self, rangetype, start, end, count):
+    def add_subrange(self, rangetype, start, unit, end=None, count=None, save_single_fields=False):
         """Add a subrange to the sweep.
 
         Parameters
         ----------
         rangetype : str
             Type of the subrange. Options are ``"LinearCount"``,
-            ``"LinearStep"``, and ``"LogScale"``.
+            ``"LinearStep"``, ``"LogScale"``, and ``"SinglePoints"``.
         start : float
             Starting frequency.
-        end : float
-            Stopping frequency.
-        count : int or float
-            Frequency count or frequency step.
+        unit : str
+            Unit of the frequency. For example, ``"MHz`` or ``"GHz"``. The default is ``"GHz"``.
+        end : float, optional
+            Stopping frequency. Required for ``rangetype="LinearCount"|"LinearStep"|"LogScale"``.
+        count : int or float, optional
+            Frequency count or frequency step. Required for ``rangetype="LinearCount"|"LinearStep"|"LogScale"``.
+        save_single_fields : bool, optional
+            Whether to save the fields of the single point. The default is ``False``.
+            Used only for ``rangetype="SinglePoints"``.
 
         Returns
         -------
@@ -1133,20 +1138,26 @@ class SweepHFSS(object):
             ``True`` when successful, ``False`` when failed.
 
         """
+        if rangetype == "LinearCount" or rangetype == "LinearStep" or rangetype == "LogScale":
+            if not end or not count:
+                raise AttributeError("Parameters end and count must be present.")
         range = {}
         range["RangeType"] = rangetype
-        range["RangeStart"] = start
-        range["RangeEnd"] = end
+        range["RangeStart"] = str(start) + unit
         if rangetype == "LinearCount":
+            range["RangeEnd"] = str(end) + unit
             range["RangeCount"] = count
         elif rangetype == "LinearStep":
-            range["RangeStep"] = count
+            range["RangeEnd"] = str(end) + unit
+            range["RangeStep"] = str(count) + unit
         elif rangetype == "LogScale":
+            range["RangeEnd"] = end
             range["RangeCount"] = self.props["RangeCount"]
             range["RangeSamples"] = count
         elif rangetype == "SinglePoints":
-            range["SaveSingleField"] = False
-        self.props["SweepRanges"].append(range)
+            range["RangeEnd"] = str(start) + unit
+            range["SaveSingleField"] = save_single_fields
+        self.props["SweepRanges"]["Subrange"].append(range)
 
     @aedt_exception_handler
     def create(self):
