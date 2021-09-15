@@ -813,7 +813,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 return sweep
         return False
 
-
     @aedt_exception_handler
     def create_single_point_sweep(
         self,
