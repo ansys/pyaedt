@@ -3,7 +3,6 @@ from __future__ import absolute_import
 
 from .application.Analysis2D import FieldAnalysis2D
 from .application.Analysis3D import FieldAnalysis3D
-from .desktop import exception_to_desktop
 from .generic.general_methods import aedt_exception_handler, generate_unique_name
 from collections import OrderedDict
 from .modules.Boundary import BoundaryObject

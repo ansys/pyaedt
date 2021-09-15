@@ -1,7 +1,6 @@
 from __future__ import absolute_import
 
 from .application.AnalsyisEmit import FieldAnalysisEmit
-from .desktop import exception_to_desktop
 
 
 class Emit(FieldAnalysisEmit, object):

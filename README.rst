@@ -57,7 +57,8 @@ Student Version
 ---------------
 
 PyAEDT now supports supports also AEDT Student version 2021 R2. Visit
-`https://www.ansys.com/academic/students/ansys-electronics-desktop-student`_
+`Student Version page <https://www.ansys.com/academic/students/ansys-e
+lectronics-desktop-student>`_
 for more info.
 
 

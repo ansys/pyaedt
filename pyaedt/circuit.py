@@ -8,7 +8,6 @@ import os
 import re
 
 from .application.AnalysisNexxim import FieldAnalysisCircuit
-from .desktop import exception_to_desktop
 from .generic.DataHandlers import from_rkm_to_aedt
 from .generic.general_methods import aedt_exception_handler
 

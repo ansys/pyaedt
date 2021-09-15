@@ -22,7 +22,7 @@ if os.path.exists(targetfolder):
     shutil.rmtree(targetfolder)
 shutil.copytree(example_path[:-8], targetfolder)
 targetfile = os.path.join(targetfolder)
-siwave_file = os.path.join(temp_folder,'Galileo.siw')
+siwave_file = os.path.join(temp_folder, 'Galileo.siw')
 print(targetfile)
 aedt_file = targetfile[:-4] + "aedt"
 
@@ -155,11 +155,11 @@ edb.core_stackup.stackup_layers.remove_layer("Signal1")
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This example creates a Voltage Source and then setup a DCIR Analysis.
 
-edb.core_siwave.create_voltage_source_on_net("U2A5","V1P5_S3","U2A5","GND",3.3,0,"V1")
-edb.core_siwave.create_current_source_on_net("U1B5","V1P5_S3","U1B5","GND",1.0,0,"I1")
+edb.core_siwave.create_voltage_source_on_net("U2A5", "V1P5_S3", "U2A5", "GND", 3.3, 0, "V1")
+edb.core_siwave.create_current_source_on_net("U1B5", "V1P5_S3", "U1B5", "GND", 1.0, 0, "I1")
 settings = edb.core_siwave.get_siwave_dc_setup_template()
 settings.accuracy_level = 0
-settings.use_dc_custom_settings  = True
+settings.use_dc_custom_settings = True
 settings.name = "myDCIR_4"
 # settings.pos_term_to_ground = "I1"
 settings.neg_term_to_ground = "V1"

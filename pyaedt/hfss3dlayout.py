@@ -5,7 +5,6 @@ from __future__ import absolute_import
 import os
 
 from .application.Analysis3DLayout import FieldAnalysis3DLayout
-from .desktop import exception_to_desktop
 from .generic.general_methods import aedt_exception_handler, generate_unique_name
 
 

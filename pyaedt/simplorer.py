@@ -4,7 +4,6 @@ from __future__ import absolute_import
 
 from .application.AnalysisSimplorer import FieldAnalysisSimplorer
 from .application.Variables import Variable
-from .desktop import exception_to_desktop
 from .generic.general_methods import aedt_exception_handler, is_number
 
 

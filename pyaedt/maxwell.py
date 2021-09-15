@@ -6,7 +6,6 @@ import json
 import io
 from .application.Analysis2D import FieldAnalysis2D
 from .application.Analysis3D import FieldAnalysis3D
-from .desktop import exception_to_desktop
 from .generic.DataHandlers import float_units
 from .generic.general_methods import generate_unique_name, aedt_exception_handler
 from .modules.Boundary import BoundaryObject

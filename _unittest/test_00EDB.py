@@ -2,7 +2,6 @@ import os
 
 # Setup paths for module imports
 import gc
-import time
 
 # Import required modules
 from pyaedt import Edb

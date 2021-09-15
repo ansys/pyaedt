@@ -3,7 +3,6 @@ import os
 # Setup paths for module imports
 from _unittest.conftest import local_path, scratch_path
 import gc
-import time
 
 # Import required modules
 from pyaedt import Hfss3dLayout

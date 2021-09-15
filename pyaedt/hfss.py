@@ -5,7 +5,6 @@ import warnings
 import math
 import tempfile
 from .application.Analysis3D import FieldAnalysis3D
-from .desktop import exception_to_desktop
 from .modeler.GeometryOperators import GeometryOperators
 from .modules.Boundary import BoundaryObject, NativeComponentObject
 from .generic.general_methods import generate_unique_name, aedt_exception_handler
