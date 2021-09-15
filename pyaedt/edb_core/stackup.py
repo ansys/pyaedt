@@ -9,7 +9,7 @@ import warnings
 from pyaedt import is_ironpython
 
 from .EDB_Data import EDBLayers
-from .general import *
+from pyaedt.generic.general_methods import aedt_exception_handler
 
 try:
     from System import Double

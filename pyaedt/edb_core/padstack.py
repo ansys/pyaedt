@@ -4,9 +4,9 @@ This module contains the `EdbPadstacks` class.
 
 import warnings
 
-from ..generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name
+
 from .EDB_Data import EDBPadstack
-from .general import *
 
 try:
     from System import Array
