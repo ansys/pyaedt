@@ -2116,7 +2116,7 @@ class Design(object):
             msg_txt = "active " + self.project_name
         self._messenger.add_info_message("Closing the {} AEDT Project".format(msg_txt), level="Global")
         oproj = self.odesktop.SetActiveProject(name)
-        proj_path=self.odesktop.GetProjectDirectory()
+        proj_path = self.odesktop.GetProjectDirectory()
         if saveproject:
             oproj.Save()
         self.odesktop.CloseProject(name)
