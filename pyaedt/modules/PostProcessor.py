@@ -660,10 +660,8 @@ class FieldPlot:
 class PostProcessorCommon(object):
     """Manages the main AEDT postprocessing functions.
 
-    The inherited `AEDTConfig` class contains all `_desktop`
-    hierarchical calls needed for the class inititialization data
-    `_desktop` and the design types ``"HFSS"``, ``"Icepak"``, and
-    ``"HFSS3DLayout"``.
+    This class is inherited in the caller application and is accessible through the post variable( eg. ``hfss.post`` or
+    ``q3d.post``).
 
     .. note::
        Some functionalities are available only when AEDT is running in
@@ -675,6 +673,11 @@ class PostProcessorCommon(object):
         Inherited parent object. The parent object must provide the members
         ``_modeler``, ``_desktop``, ``_odesign``, and ``_messenger``.
 
+    Examples
+    --------
+    >>> from pyaedt import Q3d
+    >>> q3d = Q3d()
+    >>> q3d = q.post.get_report_data(expression="C(Bar1,Bar1)", domain=["Context:=", "Original"])
     """
 
     def __init__(self, parent):
@@ -1639,7 +1642,6 @@ class PostProcessor(PostProcessorCommon, object):
             ``True`` when successful, ``False`` when failed.
         """
         time.sleep(2)
-
         self.ofieldsreporter.ExportPlotImageToFile(fileName, "", plotName, coordinateSystemName)
         return True
 

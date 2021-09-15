@@ -349,11 +349,13 @@ class AEDTMessageManager(object):
 
     @property
     def _oproject(self):
-        return self._desktop.GetActiveProject()
+        if self._desktop:
+            return self._desktop.GetActiveProject()
 
     @property
     def _odesign(self):
-        return self._oproject.GetActiveDesign()
+        if self._oproject:
+            return self._oproject.GetActiveDesign()
 
     @property
     def _design_name(self):

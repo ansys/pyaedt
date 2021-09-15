@@ -232,11 +232,11 @@ class SiwaveSolve(object):
             path to aedt file
         """
         if not output_folder:
-            output_folder = os.path.dirname(self.project_path)
+            output_folder = os.path.dirname(self.projectpath)
         scriptname = os.path.join(output_folder, "export_cad.py")
         with open(scriptname, "w") as f:
             f.write("import os\n")
-            f.write("edbpath = r'{}'\n".format(self.project_path))
+            f.write("edbpath = r'{}'\n".format(self.projectpath))
             f.write("exportOptions = os.path.join(r'{}', 'options.config')\n".format(output_folder))
             f.write("oDoc.ScrImportEDB(edbpath)\n")
             f.write("oDoc.ScrSaveProjectAs(os.path.join(r'{}','{}'))\n".format(output_folder, "test.siw"))

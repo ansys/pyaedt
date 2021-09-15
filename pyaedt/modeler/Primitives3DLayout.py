@@ -18,6 +18,9 @@ if "clr" in modules or is_ironpython:
 class Primitives3DLayout(object):
     """Manages primitives in HFSS 3D Layout.
 
+    This class is inherited in the caller application and is accessible through the primitives variable part
+    of modeler object( eg. ``hfss3dlayout.modeler.primitives``).
+
     Parameters
     ----------
     parent : str

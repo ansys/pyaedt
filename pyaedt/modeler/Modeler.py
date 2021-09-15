@@ -551,6 +551,9 @@ class CoordinateSystem(object):
 class Modeler(object):
     """Provides the `Modeler` application class that other `Modeler` classes inherit.
 
+    This class is inherited in the caller application and is accessible through the modeler variable
+    object( eg. ``hfss.modeler``).
+
     Parameters
     ----------
     parent :
