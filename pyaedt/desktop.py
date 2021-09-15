@@ -308,7 +308,7 @@ class Desktop:
     Launch AEDT 2021 R1 in non-graphical mode and initialize HFSS.
 
     >>> import pyaedt
-    >>> desktop = pyaedt.Desktop("2021.1", non_graphicalTrue)
+    >>> desktop = pyaedt.Desktop("2021.1", non_graphical=True)
     pyaedt Info: pyaedt v...
     pyaedt Info: Python version ...
     >>> hfss = pyaedt.Hfss(designname="HFSSDesign1")
