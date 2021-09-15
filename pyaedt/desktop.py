@@ -23,6 +23,8 @@ from pyaedt.application.MessageManager import AEDTMessageManager
 from pyaedt.misc import list_installed_ansysem
 from pyaedt import is_ironpython, _pythonver, inside_desktop
 
+from .import log_handler
+
 
 pathname = os.path.dirname(__file__)
 if os.path.exists(os.path.join(pathname, "version.txt")):
@@ -508,6 +510,7 @@ class Desktop:
     def _init_logger(self):
         # Set up the log file in the AEDT project directory
         self.logger = logging.getLogger(__name__)
+        self._global_log.addHandler(log_handler._LogHandler(self._main.oMessenger, 'Global', logging.DEBUG))
         if not self.logger.handlers:
             if "oDesktop" in dir(self._main):
                 project_dir = self._main.oDesktop.GetProjectDirectory()
@@ -567,10 +570,6 @@ class Desktop:
     def messenger(self):
         """Messenger manager for AEDT Log."""
         return self.messenger
-        self._init_logger()
-        self._init_desktop()
-        self._main.oMessenger.add_info_message("pyaedt v{}".format(self._main.pyaedt_version))
-        self._main.oMessenger.add_info_message("Python version {}".format(sys.version))
 
     @property
     def install_path(self):
