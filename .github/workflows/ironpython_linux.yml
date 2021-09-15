@@ -14,7 +14,7 @@ on:
 jobs:
   # This workflow contains a single job called "build"
   linux_iron_python:
-  - name IronPython Unit Tests
+  - name: IronPython Unit Tests
     runs-on: Linux
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
