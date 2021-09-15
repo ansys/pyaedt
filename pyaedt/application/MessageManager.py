@@ -243,15 +243,6 @@ class AEDTMessageManager(object):
         self.add_message(0, message_text, level)
 
     @aedt_exception_handler
-    def add_debug_message(self, message_text, level=None):
-        """Deprecated in favor of :func:`MessageList.add_info_message`.
-
-        .. deprecated:: 0.2.0
-           Use  :func:`MessageList.add_info_message`.
-        """
-        self.add_info_message(message_text, level)
-
-    @aedt_exception_handler
     def add_message(self, type, message_text, level=None, proj_name=None, des_name=None):
         """Pass a parameterized message to the Message Manager to specify the type and project or design level.
 
@@ -304,14 +295,14 @@ class AEDTMessageManager(object):
 
         if self._log_on_screen:
             if type == 0:
-                print("pyaedt Info: {}".format(message_text))
+                print("PyAEDT Info: {}".format(message_text))
             elif type == 1:
-                print("pyaedt Warning: {}".format(message_text))
+                print("PyAEDT Warning: {}".format(message_text))
             elif type == 2:
-                print("pyaedt Error: {}".format(message_text))
+                print("PyAEDT Error: {}".format(message_text))
         if self._log_on_file:
             if type == 0 and self.logger:
-                self.logger.info(message_text)
+                self.logger.debug(message_text)
             elif type == 1 and self.logger:
                 self.logger.warning(message_text)
             elif type == 2 and self.logger:
@@ -358,11 +349,13 @@ class AEDTMessageManager(object):
 
     @property
     def _oproject(self):
-        return self._desktop.GetActiveProject()
+        if self._desktop:
+            return self._desktop.GetActiveProject()
 
     @property
     def _odesign(self):
-        return self._oproject.GetActiveDesign()
+        if self._oproject:
+            return self._oproject.GetActiveDesign()
 
     @property
     def _design_name(self):

@@ -9,7 +9,6 @@ import sys
 import time
 import traceback
 import warnings
-
 from pyaedt import inside_desktop, is_ironpython
 from pyaedt.application.MessageManager import EDBMessageManager
 from pyaedt.edb_core import *
@@ -403,6 +402,8 @@ class Edb(object):
             dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib", "DataModel.dll")
             if self._db and self._active_cell:
                 self.layout_methods.LoadDataModel(dllpath)
+                if not os.path.exists(self.edbpath):
+                    os.makedirs(self.edbpath)
                 self.builder = self.layout_methods.GetBuilder(
                     self._db, self._active_cell, self.edbpath, self.edbversion, self.standalone, True
                 )
@@ -1030,3 +1031,19 @@ class Edb(object):
         """
         siwave_s = SiwaveSolve(self.edbpath, aedt_installer_path=self.base_path)
         return siwave_s.export_3d_cad("Maxwell", path_to_output, net_list)
+
+    @aedt_exception_handler
+    def solve_siwave(self):
+        """Close Edb and Solves it with Siwave.
+
+        Returns
+        -------
+        bool
+        """
+        process = SiwaveSolve(self.edbpath, aedt_version=self.edbversion)
+        try:
+            self._db.Close()
+        except:
+            pass
+        process.solve()
+        return True

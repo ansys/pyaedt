@@ -19,6 +19,7 @@ import warnings
 import gc
 import time
 import datetime
+import tempfile
 from pyaedt.application.MessageManager import AEDTMessageManager
 from pyaedt.misc import list_installed_ansysem
 from pyaedt import is_ironpython, _pythonver, inside_desktop
@@ -459,7 +460,7 @@ class Desktop:
         self.COMUtil = AnsoftCOMUtil.Ansoft.CoreCOMScripting.Util.COMUtil
         self._main.COMUtil = self.COMUtil
         StandalonePyScriptWrapper = AnsoftCOMUtil.Ansoft.CoreCOMScripting.COM.StandalonePyScriptWrapper
-        print("Launching AEDT with module Pythonnet.")
+        print("PyAEDT Info: Launching AEDT with module Pythonnet.")
         processID = []
         if IsWindows:
            processID = self._get_tasks_list_windows(student_version)
@@ -478,18 +479,18 @@ class Desktop:
         proc = [i for i in processID2 if i not in processID]
         if not proc:
             proc = processID2
-        if len(processID2) > 1:
+        if proc == processID2 and len(processID2) > 1:
             if non_graphical:
-                self._main.close_on_exit = False
+                self._main.close_on_exit = True
             else:
                 self._main.close_on_exit = False
-                self._dispatch_win32(version)
+            self._dispatch_win32(version)
         elif version_key >= "2021.1":
             self._main.close_on_exit = True
             if student_version:
-                print("Info: {} Student version started with process ID {}.".format(version, proc[0]))
+                print("PyAEDT Info:: {} Student version started with process ID {}.".format(version, proc[0]))
             else:
-                print("Info: {} Started with process ID {}.".format(version, proc[0]))
+                print("PyAEDT Info:: {} Started with process ID {}.".format(version, proc[0]))
             context = pythoncom.CreateBindCtx(0)
             running_coms = pythoncom.GetRunningObjectTable()
             monikiers = running_coms.EnumRunning()
@@ -512,10 +513,7 @@ class Desktop:
             if "oDesktop" in dir(self._main):
                 project_dir = self._main.oDesktop.GetProjectDirectory()
             else:
-                if os.name == "posix":
-                    project_dir = os.environ["TMPDIR"]
-                else:
-                    project_dir = os.environ["TEMP"]
+                project_dir = tempfile.gettempdir()
             self.logfile = os.path.join(project_dir,
                                         "pyaedt{}.log".format(datetime.datetime.now().strftime("%Y%m%d_%H%M%S")))
             logging.basicConfig(filename=self.logfile, format='%(asctime)s:%(name)s:%(levelname)-8s:%(message)s',

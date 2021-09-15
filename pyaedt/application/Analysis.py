@@ -39,6 +39,9 @@ else:
 class Analysis(Design, object):
     """Contains all common analysis functions.
 
+    This class is inherited in the caller application and is accessible through it ( eg. ``hfss.method_name``).
+
+
     It is automatically initialized by a call from an application, such as HFSS or Q3D.
     See the application function for its parameter descriptions.
 
