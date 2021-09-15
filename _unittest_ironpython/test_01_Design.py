@@ -1,6 +1,5 @@
 from conf_unittest import test_generator, PytestMockup
 import os
-import time
 
 test_filter = "test_"
 
