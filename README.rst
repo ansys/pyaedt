@@ -56,8 +56,9 @@ PyAEDT supports AEDT versions prior to and including 2021 R2.
 Student Version
 ---------------
 
-PyAEDT now supports supports also AEDT Student version 2021 R2.
-Visit `https://www.ansys.com/academic/students/ansys-electronics-desktop-student`_ for more info.
+PyAEDT now supports supports also AEDT Student version 2021 R2. Visit
+`https://www.ansys.com/academic/students/ansys-electronics-desktop-student`_
+for more info.
 
 
 Why PyAEDT?
@@ -106,8 +107,9 @@ Explicit Desktop Declaration and Error Management
     Launch AEDT 2021 R1 in Non-Graphical mode
 
     from pyaedt import Desktop, Circuit
-    with Desktop(specified_version="2021.1", non_graphical=False, new_desktop_session=True, close_on_exit=True,
-                 student_version=False):
+    with Desktop(specified_version="2021.1",
+                 non_graphical=False, new_desktop_session=True,
+                 close_on_exit=True, student_version=False):
         circuit = Circuit()
         ...
         # Any error here will be caught by Desktop.
@@ -124,7 +126,8 @@ Implicit Desktop Declaration and Error Management
     Launch the latest installed version of AEDT in graphical mode
 
     from pyaedt import Circuit    
-    with Circuit(specified_version="2021.2", non_graphical=False) as circuit:
+    with Circuit(specified_version="2021.2",
+                 non_graphical=False) as circuit:
         ...
         # Any error here will be caught by Desktop.
         ...
