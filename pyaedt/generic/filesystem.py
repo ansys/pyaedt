@@ -108,10 +108,6 @@ class Scratch:
     def __enter__(self):
         return self
 
-    def __exit__(self, ex_type, ex_value, ex_traceback):
-        if ex_type or self._volatile:
-            self.remove()
-
 
 def get_json_files(start_folder):
     """

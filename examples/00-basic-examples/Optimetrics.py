@@ -16,7 +16,7 @@ import os
 # AEDT in graphical mode.
 
 NG = False
-d = Desktop("2021.1", NG=NG)
+d = Desktop("2021.1", non_graphical=NG)
 
 ###############################################################################
 # Initialize the `Hfss` Object and Create the Needed Design Variables

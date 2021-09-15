@@ -17,7 +17,6 @@ class TestSequenceFunctionsGenerate(PytestMockup):
     @classmethod
     def tearDownClass(cls):
         test_obj.teardown_class()
-        time.sleep(5)
 
 
 test_names = [name for name in dir(test_obj) if name.startswith(test_filter)]

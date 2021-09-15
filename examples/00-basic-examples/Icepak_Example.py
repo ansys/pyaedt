@@ -13,6 +13,7 @@ The example file is an Icepak Project with a model already created and with mate
 
 import os
 import tempfile
+import shutil
 from pyaedt import examples, generate_unique_name
 from pyaedt import Icepak
 
@@ -27,10 +28,12 @@ tmpfold = tempfile.gettempdir()
 
 
 temp_folder = os.path.join(tmpfold, generate_unique_name("Example"))
+project_temp_name = os.path.join(temp_folder,"Graphic_Card.aedt")
 if not os.path.exists(temp_folder):
     os.makedirs(temp_folder)
+shutil.copy2(project_full_name, project_temp_name)
 
-ipk = Icepak(project_full_name, specified_version="2021.1")
+ipk = Icepak(project_temp_name, specified_version="2021.1")
 ipk.save_project(os.path.join(temp_folder, "Graphics_card.aedt"))
 ipk.autosave_disable()
 

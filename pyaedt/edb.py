@@ -111,7 +111,6 @@ class Edb(object):
             self._messenger.add_info_message("Messenger Initialized in EDB")
             self.edbversion = edbversion
             self.isaedtowned = isaedtowned
-
             self._init_dlls()
             self._db = None
             # self._edb.Database.SetRunAsStandAlone(not isaedtowned)
@@ -137,7 +136,6 @@ class Edb(object):
                 self._messenger.add_info_message(
                     "Edb {} Created Correctly from {} file".format(self.edbpath, edbpath[-2:])
                 )
-
             elif not os.path.exists(os.path.join(self.edbpath, "edb.def")):
                 self.create_edb()
                 self._messenger.add_info_message("Edb {} Created Correctly".format(self.edbpath))
@@ -177,6 +175,7 @@ class Edb(object):
 
     @aedt_exception_handler
     def _init_objects(self):
+        time.sleep(2)
         self._components = Components(self)
         self._stackup = EdbStackup(self)
         self._padstack = EdbPadstacks(self)
@@ -356,7 +355,7 @@ class Edb(object):
             dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib", "DataModel.dll")
             self._messenger.add_info_message(dllpath)
             self.layout_methods.LoadDataModel(dllpath)
-            time.sleep(1)
+            time.sleep(2)
             self.builder = retry_ntimes(10, self.layout_methods.GetBuilder, self._db, self._active_cell, self.edbpath,
                                         self.edbversion, self.standalone)
             self._init_objects()
@@ -512,10 +511,6 @@ class Edb(object):
 
     def __enter__(self):
         return self
-
-    def __exit__(self, ex_type, ex_value, ex_traceback):
-        if ex_type:
-            self.edb_exception(ex_value, ex_traceback)
 
     def edb_exception(self, ex_value, tb_data):
         """Write the trace stack to AEDT when a Python error occurs.

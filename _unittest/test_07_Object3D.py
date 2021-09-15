@@ -16,7 +16,7 @@ class TestClass:
     def setup_class(self):
         with Scratch(scratch_path) as self.local_scratch:
             test_projectfile = os.path.join(self.local_scratch.path, "test_object3d" + ".aedt")
-            self.aedtapp = Hfss(AlwaysNew=False)
+            self.aedtapp = Hfss(new_desktop_session=False)
             self.aedtapp.save_project(project_file=test_projectfile)
             self.prim = self.aedtapp.modeler.primitives
 

@@ -494,11 +494,11 @@ class Design(object):
     NG : bool, optional
         Whether to run AEDT in the non-graphical mode. The default
         is ``False``, in which case AEDT launches in the graphical mode.
-    AlwaysNew : bool, optional
+    new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
         machine. The default is ``True``.
-    release_on_exit : bool, optional
+    close_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
     student_version : bool, optional
         Whether to enable the student version of AEDT. The default
@@ -518,6 +518,8 @@ class Design(object):
     def __exit__(self, ex_type, ex_value, ex_traceback):
         if ex_type:
             exception_to_desktop(self, ex_value, ex_traceback)
+        if self.release_on_exit:
+            self.release_desktop(self.close_on_exit, self.close_on_exit)
 
     def __enter__(self):
         pass
@@ -538,9 +540,9 @@ class Design(object):
         design_name=None,
         solution_type=None,
         specified_version=None,
-        NG=False,
-        AlwaysNew=False,
-        release_on_exit=False,
+        non_graphical=False,
+        new_desktop_session=False,
+        close_on_exit=False,
         student_version=False,
     ):
         # Get Desktop from global Desktop Environment
@@ -549,8 +551,14 @@ class Design(object):
         self.project_datasets = {}
         self.design_datasets = {}
         main_module = sys.modules["__main__"]
+        self.close_on_exit = close_on_exit
+
         if "pyaedt_initialized" not in dir(main_module):
-            Desktop(specified_version, NG, AlwaysNew, release_on_exit, student_version)
+            Desktop(specified_version, non_graphical, new_desktop_session, close_on_exit, student_version)
+            self.release_on_exit = True
+        else:
+            self.release_on_exit = False
+
         self._project_dictionary = {}
         self._mttime = None
         self._desktop = main_module.oDesktop

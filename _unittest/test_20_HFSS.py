@@ -19,7 +19,7 @@ class TestClass:
     def setup_class(self):
         # set a scratch directory and the environment / test data
         with Scratch(scratch_path) as self.local_scratch:
-            self.aedtapp = Hfss(AlwaysNew=True)
+            self.aedtapp = Hfss(new_desktop_session=True)
 
     def teardown_class(self):
         assert self.aedtapp.close_project(self.aedtapp.project_name)

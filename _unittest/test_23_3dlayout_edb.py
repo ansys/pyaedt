@@ -31,7 +31,6 @@ class TestClass:
         gc.collect()
 
     def test_get_components(self):
-        time.sleep(3)
         comp = self.aedtapp.modeler.primitives.components
         assert len(comp) > 0
         assert comp["L3A1"].object_units == "mm"
