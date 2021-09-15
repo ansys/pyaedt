@@ -155,7 +155,6 @@ def aedt_exception_handler(func):
         else:
             return func(*args, **kwargs)
 
-
     return inner_function
 
 
