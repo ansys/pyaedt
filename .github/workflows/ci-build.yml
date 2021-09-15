@@ -18,6 +18,9 @@ jobs:
         run: |
           pip install .
 
+      - name: Verify pyaedt can be imported
+        run: python -c "import pyaedt"
+
       - name: Install doc build requirements
         run: |
           pip install -r requirements_docs.txt

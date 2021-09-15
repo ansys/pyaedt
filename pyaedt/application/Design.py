@@ -470,6 +470,8 @@ class DesignCache(object):
 class Design(object):
     """Contains all functions and objects connected to the active project and design.
 
+    This class is inherited in the caller application and is accessible through it ( eg. ``hfss.method_name``).
+
     Parameters
     ----------
     design_type : str
@@ -2105,6 +2107,7 @@ class Design(object):
 
         """
         msg_txt = ""
+        legacy_name = self.project_name
         if name:
             assert name in self.project_list, "Invalid project name {}.".format(name)
             msg_txt = "specified " + name
@@ -2112,14 +2115,27 @@ class Design(object):
             name = self.project_name
             msg_txt = "active " + self.project_name
         self._messenger.add_info_message("Closing the {} AEDT Project".format(msg_txt), level="Global")
-        if name != self.project_name:
-            oproj = self.odesktop.SetActiveProject(name)
-        else:
-            oproj = self.oproject
+        oproj = self.odesktop.SetActiveProject(name)
+        proj_path = self.odesktop.GetProjectDirectory()
         if saveproject:
             oproj.Save()
         self.odesktop.CloseProject(name)
-
+        i = 0
+        timeout = 10
+        locked = True
+        if name == legacy_name:
+            self._oproject = None
+            self._odesign = None
+        while locked:
+            if not os.path.exists(os.path.join(proj_path, name + ".aedt.lock")):
+                self._messenger.add_info_message("Project Closed Correctly", "Global")
+                locked = False
+            elif i > timeout:
+                self._messenger.add_warning_message("Lock File still exists.", "Global")
+                locked = False
+            else:
+                i += 0.2
+                time.sleep(0.2)
         return True
 
     @aedt_exception_handler
@@ -2210,7 +2226,10 @@ class Design(object):
         if self.design_type == "Circuit Design" or self.design_type == "HFSS 3D Layout Design":
             if self.modeler.edb:
                 self.modeler.edb.close_edb()
-        self.__init__(projectname=self.project_name, designname=design_name)
+        if self.project_name:
+            self.__init__(projectname=self.project_name, designname=design_name)
+        else:
+            self.__init__(projectname=generate_unique_name("Project"), designname=design_name)
 
     def _insert_design(self, design_type, design_name=None, solution_type=None):
         assert design_type in design_solutions, "Invalid design type for insert: {}".format(design_type)
@@ -2529,7 +2548,7 @@ class Design(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        assert self.project_name != project_name, "You cannot delete the active design."
+        assert self.project_name != project_name, "You cannot delete the active project."
         self._desktop.DeleteProject(project_name)
         return True
 

@@ -10,6 +10,7 @@ This example shows how you can use PyAEDT to create a Multipart Scenario in SBR+
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This examples launches AEDT 2021.1 in graphical mode.
 import os
+import tempfile
 import pyaedt
 from pyaedt import examples, generate_unique_name
 
@@ -24,10 +25,8 @@ library_path = examples.download_multiparts()
 # ~~~~~~~~~~~~
 # Download Project, opens it and save to TEMP Folder.
 
-if os.name == "posix":
-    tmpfold = os.environ["TMPDIR"]
-else:
-    tmpfold = os.environ["TEMP"]
+tmpfold = tempfile.gettempdir()
+
 
 temp_folder = os.path.join(tmpfold, generate_unique_name("Example"))
 if not os.path.exists(temp_folder):

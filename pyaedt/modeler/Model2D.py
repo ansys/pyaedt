@@ -6,7 +6,12 @@ from .Primitives2D import Primitives2D
 
 
 class ModelerRMxprt(Modeler):
-    """Provides the Modeler RMxprt application interface."""
+    """Provides the Modeler RMxprt application interface.
+
+    This class is inherited in the caller application and is accessible through the modeler variable
+    object( eg. ``rmxprt.modeler``).
+
+    """
 
     def __init__(self, parent):
         Modeler.__init__(self, parent)
@@ -19,6 +24,9 @@ class ModelerRMxprt(Modeler):
 
 class Modeler2D(GeometryModeler):
     """Provides the Modeler 2D application interface.
+
+    This class is inherited in the caller application and is accessible through the modeler variable
+    object( eg. ``maxwell2d.modeler``).
 
     Parameters
     ----------

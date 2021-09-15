@@ -12,18 +12,13 @@ This example shows how to use EDB to create a layout.
 
 import time
 import os
+import tempfile
 from pyaedt import Edb
 from pyaedt.generic.general_methods import generate_unique_name
 
 start = time.time()
-try:
-    if os.name == "posix":
-        tmpfold = os.environ["TMPDIR"]
-    else:
-        tmpfold = os.environ["TEMP"]
-except:
-    tmpfold = os.environ["TEMP"]
 
+tmpfold = tempfile.gettempdir()
 aedb_path = os.path.join(tmpfold, generate_unique_name("pcb") + ".aedb")
 print(aedb_path)
 edb = Edb(edbpath=aedb_path, edbversion="2021.1")

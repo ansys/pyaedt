@@ -2,12 +2,13 @@
 
 """
 import re
+import warnings
 
-from pyaedt import is_ironpython, retry_ntimes, generate_unique_name
+from pyaedt import generate_unique_name, is_ironpython, retry_ntimes
+from pyaedt.edb_core.general import convert_py_list_to_net_list
+from pyaedt.generic.general_methods import aedt_exception_handler, get_filename_without_extension
 
-from ..generic.general_methods import get_filename_without_extension
 from .EDB_Data import EDBComponent
-from .general import *
 
 try:
     import clr
@@ -548,8 +549,13 @@ class Components(object):
             cmp_name = pins[0].GetComponent().GetName()
             net_name = pins[0].GetNet().GetName()
             group_name = generate_unique_name("{}_{}_".format(cmp_name, net_name), n=3)
-        pingroup = retry_ntimes(10, self._edb.Cell.Hierarchy.PinGroup.Create, self._active_layout, group_name,
-                                convert_py_list_to_net_list(pins))
+        pingroup = retry_ntimes(
+            10,
+            self._edb.Cell.Hierarchy.PinGroup.Create,
+            self._active_layout,
+            group_name,
+            convert_py_list_to_net_list(pins),
+        )
         if pingroup.IsNull():
             return (False, None)
         else:
