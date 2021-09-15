@@ -19,7 +19,8 @@ except ImportError:
 class TestClass:
     def setup_class(self):
         with Scratch(scratch_path) as self.local_scratch:
-            self.aedtapp = Hfss(specified_version=desktop_version, AlwaysNew=new_thread, NG=non_graphical)
+            self.aedtapp = Hfss(specified_version=desktop_version, new_desktop_session=new_thread,
+                                non_graphical=non_graphical)
 
     def teardown_class(self):
         assert self.aedtapp.close_project(self.aedtapp.project_name)

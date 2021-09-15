@@ -84,8 +84,8 @@ class BasisTest:
                 designname=design_name,
                 solution_type=solution_type,
                 specified_version=desktop_version,
-                AlwaysNew=new_thread,
-                NG=non_graphical,
+                new_desktop_session=new_thread,
+                non_graphical=non_graphical,
             )
             # TODO do we need this ?
             if project_name:

@@ -28,9 +28,9 @@ class FieldAnalysisCircuit(Analysis):
         solution_type,
         setup_name=None,
         specified_version=None,
-        NG=False,
-        AlwaysNew=False,
-        release_on_exit=False,
+        non_graphical=False,
+        new_desktop_session=False,
+        close_on_exit=False,
         student_version=False,
     ):
         self.solution_type = solution_type
@@ -42,9 +42,9 @@ class FieldAnalysisCircuit(Analysis):
             solution_type,
             setup_name,
             specified_version,
-            NG,
-            AlwaysNew,
-            release_on_exit,
+            non_graphical,
+            new_desktop_session,
+            close_on_exit,
             student_version,
         )
         self._modeler = ModelerNexxim(self)

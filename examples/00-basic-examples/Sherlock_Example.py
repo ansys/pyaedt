@@ -51,7 +51,7 @@ from pyaedt import Desktop
 
 NonGraphical = False
 
-d = Desktop("2021.1", NG=NonGraphical)
+d = Desktop("2021.1", non_graphical=NonGraphical)
 
 start = time.time()
 material_list = os.path.join(input_dir, material_name)

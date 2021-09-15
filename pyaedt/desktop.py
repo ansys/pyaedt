@@ -290,15 +290,15 @@ class Desktop:
     specified_version : str, optional
         Version of AEDT to use. The default is ``None``, in which case the
         active setup or latest installed version is used.
-    NG: bool, optional
+    non_graphical: bool, optional
         Whether to launch AEDT in the non-graphical mode. The default
         is ``False``, in which case AEDT is launched in the graphical mode.
-    AlwaysNew : bool, optional
+    new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the machine.
         The default is ``True``.
-    release_on_exit : bool, optional
-        Whether to release AEDT on exit. The default is ``True``.
+    close_on_exit : bool, optional
+        Whether to close AEDT on exit. The default is ``True``.
     student_version : bool, optional
         Whether to open the AEDT student version. The default is
         ``False``.
@@ -308,7 +308,7 @@ class Desktop:
     Launch AEDT 2021 R1 in non-graphical mode and initialize HFSS.
 
     >>> import pyaedt
-    >>> desktop = pyaedt.Desktop("2021.1", NG=True)
+    >>> desktop = pyaedt.Desktop("2021.1", non_graphical=True)
     pyaedt Info: pyaedt v...
     pyaedt Info: Python version ...
     >>> hfss = pyaedt.Hfss(designname="HFSSDesign1")
@@ -323,6 +323,57 @@ class Desktop:
     >>> hfss = pyaedt.Hfss(designname="HFSSDesign1")
     pyaedt Info: No project is defined. Project...
     """
+
+    def __init__(self, specified_version=None, non_graphical=False, new_desktop_session=True, close_on_exit=True,
+                 student_version=False):
+        """Initialize desktop."""
+        self._main = sys.modules["__main__"]
+        self._main.interpreter = _com
+        self.close_on_exit = close_on_exit
+        self._main.isoutsideDesktop = False
+        self._main.pyaedt_version = pyaedtversion
+        self._main.interpreter_ver = _pythonver
+        self.releae_on_exit = True
+        self.logfile = None
+        if "oDesktop" in dir(self._main) and self._main.oDesktop is not None:
+            self.releae_on_exit = False
+        else:
+            if "oDesktop" in dir(self._main):
+                del self._main.oDesktop
+            version_student, version_key, version = self._set_version(specified_version, student_version)
+            if _com == 'ironpython':
+                print("Launching PyAEDT outside Electronics Desktop with IronPython")
+                self._init_ironpython(non_graphical, new_desktop_session, version)
+            elif _com == 'pythonnet_v3':
+                print("Launching PyAEDT outside Electronics Desktop with CPython and Pythonnet")
+                self._init_cpython(non_graphical, new_desktop_session, version, student_version, version_key)
+            else:
+                self.add_info_message("Launching PyAEDT outside AEDT with CPython and PyWin32.")
+                oAnsoftApp = win32com.client.Dispatch(version)
+                self._main.oDesktop = oAnsoftApp.GetAppDesktop()
+                self._main.isoutsideDesktop = True
+            self._main.AEDTVersion = version_key
+        self._init_logger()
+        self._init_desktop()
+        self._main.oMessenger.add_info_message("pyaedt v{}".format(self._main.pyaedt_version))
+        self._main.oMessenger.add_info_message("Python version {}".format(sys.version))
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, ex_type, ex_value, ex_traceback):
+        # Write the trace stack to the log file if an exception occurred in the main script.
+        if ex_type:
+            err = self._exception(ex_value, ex_traceback)
+        if self.releae_on_exit:
+            self.release_desktop(close_projects=self.close_on_exit, close_on_exit=self.close_on_exit)
+
+    @property
+    def install_path(self):
+        """Installation path for AEDT."""
+        version_key = self._main.AEDTVersion
+        root = self._version_ids[version_key]
+        return os.environ[root]
 
     @property
     def version_keys(self):
@@ -481,13 +532,8 @@ class Desktop:
         if not proc:
             proc = processID2
         if proc == processID2 and len(processID2) > 1:
-            if non_graphical:
-                self._main.close_on_exit = True
-            else:
-                self._main.close_on_exit = False
             self._dispatch_win32(version)
         elif version_key >= "2021.1":
-            self._main.close_on_exit = True
             if student_version:
                 print("PyAEDT Info:: {} Student version started with process ID {}.".format(version, proc[0]))
             else:
@@ -527,56 +573,6 @@ class Desktop:
                 filemode="w",
             )
         return True
-
-    def __init__(self, specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True, student_version=False):
-        """Initialize desktop."""
-        self._main = sys.modules["__main__"]
-        self._main.interpreter = _com
-        self._main.close_on_exit = False
-        self._main.isoutsideDesktop = False
-        self._main.pyaedt_version = pyaedtversion
-        self._main.interpreter_ver = _pythonver
-        self.release = release_on_exit
-        self.logfile = None
-        if "oDesktop" in dir(self._main) and self._main.oDesktop is not None:
-            self.release = False
-        else:
-            if "oDesktop" in dir(self._main):
-                del self._main.oDesktop
-            version_student, version_key, version = self._set_version(specified_version, student_version)
-            if _com == "ironpython":
-                print("Launching PyAEDT outside Electronics Desktop with IronPython")
-                self._init_ironpython(NG, AlwaysNew, version)
-            elif _com == "pythonnet_v3":
-                print("Launching PyAEDT outside Electronics Desktop with CPython and Pythonnet")
-                self._init_cpython(NG, AlwaysNew, version, student_version, version_key)
-            else:
-                self.add_info_message("Launching PyAEDT outside AEDT with CPython and PyWin32.")
-                oAnsoftApp = win32com.client.Dispatch(version)
-                self._main.oDesktop = oAnsoftApp.GetAppDesktop()
-                self._main.isoutsideDesktop = True
-            self._main.AEDTVersion = version_key
-        self._init_logger()
-        self._init_desktop()
-        self._main.oMessenger.add_info_message("pyaedt v{}".format(self._main.pyaedt_version))
-        self._main.oMessenger.add_info_message("Python version {}".format(sys.version))
-
-    @property
-    def install_path(self):
-        """Installation path for AEDT."""
-        version_key = self._main.AEDTVersion
-        root = self._version_ids[version_key]
-        return os.environ[root]
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, ex_type, ex_value, ex_traceback):
-        # Write the trace stack to the log file if an exception occurred in the main script.
-        if ex_type:
-            err = self._exception(ex_value, ex_traceback)
-        if self.release:
-            self.release_desktop(close_projects=self._main.close_on_exit, close_on_exit=self._main.close_on_exit)
 
     def _exception(self, ex_value, tb_data):
         """Write the trace stack to the desktop when a Python error occurs.

@@ -21,7 +21,7 @@ from pyaedt import Maxwell3d
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This example inserts a Maxwell 3D design.
 
-M3D = Maxwell3d(solution_type="EddyCurrent", specified_version="2021.1", NG=False, AlwaysNew=True)
+M3D = Maxwell3d(solution_type="EddyCurrent", specified_version="2021.1", non_graphical=False, new_desktop_session=True)
 M3D.modeler.model_units = "mm"
 
 ###############################################################################

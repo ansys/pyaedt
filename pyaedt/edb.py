@@ -10,9 +10,10 @@ import time
 import traceback
 import warnings
 
-from pyaedt import inside_desktop, is_ironpython, retry_ntimes
+from pyaedt import inside_desktop, is_ironpython
 from pyaedt.application.MessageManager import EDBMessageManager
-from pyaedt.edb_core import Components, Edb3DLayout, EdbLayout, EdbNets, EdbPadstacks, EdbSiwave, EdbStackup
+from pyaedt.edb_core import Components, EdbNets, EdbPadstacks, EdbLayout, Edb3DLayout, EdbSiwave, EdbStackup
+from pyaedt import retry_ntimes
 from pyaedt.generic.general_methods import (
     aedt_exception_handler,
     env_path,
@@ -111,7 +112,6 @@ class Edb(object):
             self._messenger.add_info_message("Messenger Initialized in EDB")
             self.edbversion = edbversion
             self.isaedtowned = isaedtowned
-
             self._init_dlls()
             self._db = None
             # self._edb.Database.SetRunAsStandAlone(not isaedtowned)
@@ -137,7 +137,6 @@ class Edb(object):
                 self._messenger.add_info_message(
                     "Edb {} Created Correctly from {} file".format(self.edbpath, edbpath[-2:])
                 )
-
             elif not os.path.exists(os.path.join(self.edbpath, "edb.def")):
                 self.create_edb()
                 self._messenger.add_info_message("Edb {} Created Correctly".format(self.edbpath))
@@ -177,6 +176,7 @@ class Edb(object):
 
     @aedt_exception_handler
     def _init_objects(self):
+        time.sleep(2)
         self._components = Components(self)
         self._stackup = EdbStackup(self)
         self._padstack = EdbPadstacks(self)
@@ -356,7 +356,7 @@ class Edb(object):
             dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib", "DataModel.dll")
             self._messenger.add_info_message(dllpath)
             self.layout_methods.LoadDataModel(dllpath)
-            time.sleep(1)
+            time.sleep(2)
             self.builder = retry_ntimes(
                 10,
                 self.layout_methods.GetBuilder,

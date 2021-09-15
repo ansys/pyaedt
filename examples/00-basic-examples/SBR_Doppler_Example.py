@@ -34,7 +34,8 @@ if not os.path.exists(temp_folder):
 
 # Instantiate the application.
 app = pyaedt.Hfss(
-    specified_version=aedt_version, solution_type="SBR+", AlwaysNew=True, projectname=projectname, release_on_exit=True
+    specified_version=aedt_version, solution_type="SBR+", new_desktop_session=True, projectname=projectname,
+    close_on_exit=True
 )
 
 

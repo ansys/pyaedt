@@ -62,11 +62,11 @@ class Analysis(Design, object):
         Version of AEDT  to use.
     NG : bool
         Whether to run AEDT in the non-graphical mode.
-    AlwaysNew : bool
+    new_desktop_session : bool
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
         machine.
-    release_on_exit : bool
+    close_on_exit : bool
         Whether to release  AEDT on exit.
     student_version : bool
         Whether to enable the student version of AEDT.
@@ -81,9 +81,9 @@ class Analysis(Design, object):
         solution_type,
         setup_name,
         specified_version,
-        NG,
-        AlwaysNew,
-        release_on_exit,
+        non_graphical,
+        new_desktop_session,
+        close_on_exit,
         student_version,
     ):
         self.setups = []
@@ -94,9 +94,9 @@ class Analysis(Design, object):
             designname,
             solution_type,
             specified_version,
-            NG,
-            AlwaysNew,
-            release_on_exit,
+            non_graphical,
+            new_desktop_session,
+            close_on_exit,
             student_version,
         )
         self.logger.info("Design Loaded")

@@ -23,7 +23,7 @@ if not os.path.exists(temp_folder):
 # This examples launches AEDT 2021.1 in graphical mode.
 
 nongraphical = False
-d = Desktop("2021.1", NG=nongraphical)
+d = Desktop("2021.1", non_graphical=nongraphical)
 
 ###############################################################################
 # Launch HFSS in Graphical Mode

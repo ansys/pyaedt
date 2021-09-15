@@ -67,7 +67,7 @@ project_file = os.path.join(project_dir, project_name + ".aedt")
 # If there is an active HFSS design, ``aedtapp`` is linked to it. Otherwise, a
 # new design is created.
 
-aedtapp = Hfss(specified_version=desktopVersion, NG=NonGraphical, AlwaysNew=NewThread)
+aedtapp = Hfss(specified_version=desktopVersion, non_graphical=NonGraphical, new_desktop_session=NewThread)
 
 ###############################################################################
 # Intitialize Variable Settings

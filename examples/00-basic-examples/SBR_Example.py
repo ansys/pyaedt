@@ -34,10 +34,10 @@ target = Hfss(
     designname="Cassegrain_",
     solution_type="SBR+",
     specified_version="2021.1",
-    AlwaysNew=False,
+    new_desktop_session=False,
 )
 target.save_project(os.path.join(temp_folder, project_name + ".aedt"))
-source = Hfss(projectname=project_name, designname="feeder", specified_version="2021.1", AlwaysNew=False)
+source = Hfss(projectname=project_name, designname="feeder", specified_version="2021.1", new_desktop_session=False)
 
 ###############################################################################
 # Define a Linked Antenna

@@ -8,7 +8,6 @@ import re
 from collections import OrderedDict
 
 from .application.AnalysisIcepak import FieldAnalysisIcepak
-from .desktop import exception_to_desktop
 from .generic.general_methods import generate_unique_name, aedt_exception_handler, retry_ntimes
 from .generic.DataHandlers import arg2dict
 from .modules.Boundary import BoundaryObject, NativeComponentObject
@@ -46,11 +45,11 @@ class Icepak(FieldAnalysisIcepak):
         Whether to launch AEDT in the non-graphical mode. The default
         is ``False``, in which case AEDT is launched in the graphical mode.
         This parameter is ignored when Script is launched within AEDT.
-    AlwaysNew : bool, optional
+    new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
         machine.  The default is ``True``. This parameter is ignored when Script is launched within AEDT.
-    release_on_exit : bool, optional
+    close_on_exit : bool, optional
         Whether to release AEDT on exit.
     student_version : bool, optional
         Whether to open the AEDT student version. The default is ``False``.
@@ -105,9 +104,9 @@ class Icepak(FieldAnalysisIcepak):
         solution_type=None,
         setup_name=None,
         specified_version=None,
-        NG=False,
-        AlwaysNew=False,
-        release_on_exit=False,
+        non_graphical=False,
+        new_desktop_session=False,
+        close_on_exit=False,
         student_version=False,
     ):
         FieldAnalysisIcepak.__init__(
@@ -118,19 +117,14 @@ class Icepak(FieldAnalysisIcepak):
             solution_type,
             setup_name,
             specified_version,
-            NG,
-            AlwaysNew,
-            release_on_exit,
+            non_graphical,
+            new_desktop_session,
+            close_on_exit,
             student_version,
         )
 
     def __enter__(self):
         return self
-
-    def __exit__(self, ex_type, ex_value, ex_traceback):
-        """Push exit up to parent object Design."""
-        if ex_type:
-            exception_to_desktop(self, ex_value, ex_traceback)
 
     @property
     def existing_analysis_sweeps(self):

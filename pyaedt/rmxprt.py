@@ -2,7 +2,6 @@
 from __future__ import absolute_import
 
 from .application.AnalysisRMxprt import FieldAnalysisRMxprt
-from .application.Design import Design
 from .generic.general_methods import aedt_exception_handler
 
 
@@ -134,11 +133,11 @@ class Rmxprt(FieldAnalysisRMxprt):
     NG : bool, optional
         Whether to launch AEDT in the non-graphical mode. The default
         is ``False``, in which case AEDT is launched in the graphical mode.
-    AlwaysNew : bool, optional
+    new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
         machine.  The default is ``True``.
-    release_on_exit : bool, optional
+    close_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``True``.
     student_version : bool, optional
         Whether to open the AEDT student version. The default is ``False``.
@@ -176,9 +175,9 @@ class Rmxprt(FieldAnalysisRMxprt):
         model_units=None,
         setup_name=None,
         specified_version=None,
-        NG=False,
-        AlwaysNew=False,
-        release_on_exit=False,
+        non_graphical=False,
+        new_desktop_session=False,
+        close_on_exit=False,
         student_version=False,
     ):
         FieldAnalysisRMxprt.__init__(
@@ -189,9 +188,9 @@ class Rmxprt(FieldAnalysisRMxprt):
             solution_type,
             setup_name,
             specified_version,
-            NG,
-            AlwaysNew,
-            release_on_exit,
+            non_graphical,
+            new_desktop_session,
+            close_on_exit,
             student_version,
         )
         if not model_units or model_units == "mm":
@@ -201,10 +200,6 @@ class Rmxprt(FieldAnalysisRMxprt):
         self.modeler.oeditor.SetMachineUnits(["NAME:Units Parameter", "Units:=", model_units, "Rescale:=", False])
         self.stator = Stator(self.modeler.oeditor)
         self.rotor = Rotor(self.modeler.oeditor)
-
-    def __exit__(self, ex_type, ex_value, ex_traceback):
-        """Push exit up to parent object Design."""
-        Design.__exit__(self, ex_type, ex_value, ex_traceback)
 
     def __enter__(self):
         return self

@@ -10,6 +10,7 @@ from .generic.general_methods import aedt_exception_handler
 import os
 import sys
 import pkgutil
+import time
 
 from .misc import list_installed_ansysem
 from pyaedt import is_ironpython, _pythonver
@@ -270,6 +271,27 @@ class Siwave:
         return True
 
     @aedt_exception_handler
+    def close_project(self, save_project=False):
+        """Close the project.
+
+        Parameters
+        ----------
+        save_project : bool, optional
+            whether to save or not the current project before close it.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        if save_project:
+            self.save_project()
+        self.oproject.ScrCloseProject()
+        self._oproject = None
+        return True
+
+    @aedt_exception_handler
     def quit_application(self):
         """Quit the application.
 
@@ -307,4 +329,6 @@ class Siwave:
         """
         self.oproject.ScrExportDcSimReportScaling("All", "All", -1, -1, False)
         self.oproject.ScrExportDcSimReport(simulation_name, bkground_color, file_path)
+        while not os.path.exists(file_path):
+            time.sleep(0.1)
         return True

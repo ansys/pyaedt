@@ -6,13 +6,13 @@ from pyaedt.modeler.GeometryOperators import GeometryOperators
 
 class Part(object):
     """Helps manage 3D component placement and definition.
+
     Parameters
     ----------
-    part_folder: str
+    part_folder : str
         Path to the folder with the A3DCOMP files.
-    part_dict: dict
+    part_dict : dict
         Defines relevant properties of the class with the following keywords:
-
         * 'comp_name': str, Name of the A3DCOMP file.
         * 'offset': list or str, Offset coordinate system definition relative to the parent.
         * 'rotation_cs': list or str, Rotation coordinate system relative to the parent.
@@ -21,10 +21,10 @@ class Part(object):
         * 'rotation_axis': str, Rotation axis (``"X"``, ``"Y"``, or ``"Z"``).
         * 'duplicate_number': str or int, Number of instances for linear duplication.
         * 'duplicate_vector': list, Vector for duplication relative to the parent coordinate system.
-     parent, str
+     parent :  str
          The default is ``None``.
      name : str, optional
-            Name of the A3DCOMP file without the extension. The default is``None``.
+            Name of the A3DCOMP file without the extension. The default is ``None``.
      """
 
     # List of known keys for a Part and default values:
