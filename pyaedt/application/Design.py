@@ -2115,7 +2115,7 @@ class Design(object):
 
         """
         msg_txt = ""
-        legacy_name=self.project_name
+        legacy_name = self.project_name
         if name:
             assert name in self.project_list, "Invalid project name {}.".format(name)
             msg_txt = "specified " + name

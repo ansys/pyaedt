@@ -2,9 +2,8 @@
 This module contains the `Edb3DLayout` class.
 """
 from pyaedt import is_ironpython
-
-from ..generic.general_methods import generate_unique_name
-from .general import *
+from pyaedt.edb_core.general import convert_netdict_to_pydict
+from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name
 
 
 class Edb3DLayout(object):

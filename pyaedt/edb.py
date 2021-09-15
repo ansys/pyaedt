@@ -9,7 +9,8 @@ import sys
 import time
 import traceback
 import warnings
-from pyaedt import inside_desktop, is_ironpython
+
+from pyaedt import inside_desktop, is_ironpython, retry_ntimes
 from pyaedt.application.MessageManager import EDBMessageManager
 from pyaedt.edb_core import *
 from pyaedt import retry_ntimes
@@ -356,8 +357,15 @@ class Edb(object):
             self._messenger.add_info_message(dllpath)
             self.layout_methods.LoadDataModel(dllpath)
             time.sleep(2)
-            self.builder = retry_ntimes(10, self.layout_methods.GetBuilder, self._db, self._active_cell, self.edbpath,
-                                        self.edbversion, self.standalone)
+            self.builder = retry_ntimes(
+                10,
+                self.layout_methods.GetBuilder,
+                self._db,
+                self._active_cell,
+                self.edbpath,
+                self.edbversion,
+                self.standalone,
+            )
             self._init_objects()
             self._messenger.add_info_message("Builder Initialized")
         else:
@@ -511,6 +519,10 @@ class Edb(object):
 
     def __enter__(self):
         return self
+
+    def __exit__(self, ex_type, ex_value, ex_traceback):
+        if ex_type:
+            self.edb_exception(ex_value, ex_traceback)
 
     def edb_exception(self, ex_value, tb_data):
         """Write the trace stack to AEDT when a Python error occurs.
