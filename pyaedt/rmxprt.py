@@ -2,7 +2,6 @@
 from __future__ import absolute_import
 
 from .application.AnalysisRMxprt import FieldAnalysisRMxprt
-from .application.Design import Design
 from .generic.general_methods import aedt_exception_handler
 
 

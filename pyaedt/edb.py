@@ -10,9 +10,9 @@ import time
 import traceback
 import warnings
 
-from pyaedt import inside_desktop, is_ironpython, retry_ntimes
+from pyaedt import inside_desktop, is_ironpython
 from pyaedt.application.MessageManager import EDBMessageManager
-from pyaedt.edb_core import *
+from pyaedt.edb_core import Components, EdbNets, EdbPadstacks, EdbLayout, Edb3DLayout, EdbSiwave, EdbStackup
 from pyaedt import retry_ntimes
 from pyaedt.generic.general_methods import (
     aedt_exception_handler,

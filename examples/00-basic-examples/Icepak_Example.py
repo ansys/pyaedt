@@ -28,7 +28,7 @@ tmpfold = tempfile.gettempdir()
 
 
 temp_folder = os.path.join(tmpfold, generate_unique_name("Example"))
-project_temp_name = os.path.join(temp_folder,"Graphic_Card.aedt")
+project_temp_name = os.path.join(temp_folder, "Graphic_Card.aedt")
 if not os.path.exists(temp_folder):
     os.makedirs(temp_folder)
 shutil.copy2(project_full_name, project_temp_name)
