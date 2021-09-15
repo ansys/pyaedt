@@ -19,9 +19,11 @@ import warnings
 import gc
 import time
 import datetime
+import tempfile
 from pyaedt.application.MessageManager import AEDTMessageManager
 from pyaedt.misc import list_installed_ansysem
 from pyaedt import is_ironpython, _pythonver, inside_desktop
+
 
 pathname = os.path.dirname(__file__)
 if os.path.exists(os.path.join(pathname, "version.txt")):
@@ -77,21 +79,21 @@ def exception_to_desktop(self, ex_value, tb_data):
     desktop = sys.modules["__main__"].oDesktop
     try:
         oproject = desktop.GetActiveProject()
-        proj_name = oproject.GetName()
+        project_name = oproject.GetName()
         try:
-            des_name = oproject.GetActiveDesign().GetName()
-            if ";" in des_name:
-                des_name = des_name.split(";")[1]
+            design_name = oproject.GetActiveDesign().GetName()
+            if ";" in design_name:
+                design_name = design_name.split(";")[1]
         except:
-            des_name = ""
+            design_name = ""
     except:
-        proj_name = ""
-        des_name = ""
+        project_name = ""
+        design_name = ""
     tb_trace = traceback.format_tb(tb_data)
     tblist = tb_trace[0].split("\n")
-    desktop.AddMessage(proj_name, des_name, 2, str(ex_value))
+    desktop.AddMessage(project_name, design_name, 2, str(ex_value))
     for el in tblist:
-        desktop.AddMessage(proj_name, des_name, 2, el)
+        desktop.AddMessage(project_name, design_name, 2, el)
 
 
 def update_aedt_registry(key, value, desktop_version="211"):
@@ -207,9 +209,9 @@ def release_desktop(close_projects=True, close_desktop=True):
     else:
         desktop = Module.oDesktop
         if close_projects:
-            proj_list = desktop.GetProjectList()
-            for prj in proj_list:
-                desktop.CloseProject(prj)
+            projects = desktop.GetProjectList()
+            for project in projects:
+                desktop.CloseProject(project)
         pid = Module.oDesktop.GetProcessID()
         if not (is_ironpython and inside_desktop):
             i = 0
@@ -243,12 +245,13 @@ def force_close_desktop():
     pid = Module.oDesktop.GetProcessID()
     if pid > 0:
         try:
-            plist = Module.oDesktop.GetProjectList()
-            for el in plist:
-                Module.oDesktop.CloseProject(el)
+            projects = Module.oDesktop.GetProjectList()
+            for project in projects:
+                Module.oDesktop.CloseProject(project)
         except:
             logger.warning("No Projects. Closing Desktop Connection")
         try:
+            i = 0
             scopeID = 5
             while i <= scopeID:
                 Module.COMUtil.ReleaseCOMObjectScope(Module.COMUtil.PInvokeProxyAPI, 0)
@@ -264,7 +267,7 @@ def force_close_desktop():
             del Module.oDesktop
             successfully_closed = True
         except:
-            Module.oMessenger.add_error_message("something went wrong in Closing AEDT")
+            Module.oMessenger.add_error_message("Something went wrong in Closing AEDT.")
             successfully_closed = False
         finally:
             log = logging.getLogger(__name__)
@@ -361,17 +364,16 @@ class Desktop:
     @property
     def current_version_student(self):
         """Current student version of AEDT."""
-        for el in self.version_keys:
-            if "SV" in el:
-                return el
+        for version_key in self.version_keys:
+            if "SV" in version_key:
+                return version_key
         return None
 
     def _init_desktop(self):
         self._main.AEDTVersion = self._main.oDesktop.GetVersion()[0:6]
         self._main.oDesktop.RestoreWindow()
         self._main.oMessenger = AEDTMessageManager()
-        base_path = self._main.oDesktop.GetExeDir()
-        self._main.sDesktopinstallDirectory = base_path
+        self._main.sDesktopinstallDirectory = self._main.oDesktop.GetExeDir()
         self._main.pyaedt_initialized = True
 
     def _set_version(self, specified_version, student_version):
@@ -459,7 +461,7 @@ class Desktop:
         self.COMUtil = AnsoftCOMUtil.Ansoft.CoreCOMScripting.Util.COMUtil
         self._main.COMUtil = self.COMUtil
         StandalonePyScriptWrapper = AnsoftCOMUtil.Ansoft.CoreCOMScripting.COM.StandalonePyScriptWrapper
-        print("Launching AEDT with module Pythonnet.")
+        print("PyAEDT Info: Launching AEDT with module Pythonnet.")
         processID = []
         if IsWindows:
             processID = self._get_tasks_list_windows(student_version)
@@ -478,18 +480,18 @@ class Desktop:
         proc = [i for i in processID2 if i not in processID]
         if not proc:
             proc = processID2
-        if len(processID2) > 1:
+        if proc == processID2 and len(processID2) > 1:
             if non_graphical:
-                self._main.close_on_exit = False
+                self._main.close_on_exit = True
             else:
                 self._main.close_on_exit = False
-                self._dispatch_win32(version)
+            self._dispatch_win32(version)
         elif version_key >= "2021.1":
             self._main.close_on_exit = True
             if student_version:
-                print("Info: {} Student version started with process ID {}.".format(version, proc[0]))
+                print("PyAEDT Info:: {} Student version started with process ID {}.".format(version, proc[0]))
             else:
-                print("Info: {} Started with process ID {}.".format(version, proc[0]))
+                print("PyAEDT Info:: {} Started with process ID {}.".format(version, proc[0]))
             context = pythoncom.CreateBindCtx(0)
             running_coms = pythoncom.GetRunningObjectTable()
             monikiers = running_coms.EnumRunning()
@@ -513,10 +515,7 @@ class Desktop:
             if "oDesktop" in dir(self._main):
                 project_dir = self._main.oDesktop.GetProjectDirectory()
             else:
-                if os.name == "posix":
-                    project_dir = os.environ["TMPDIR"]
-                else:
-                    project_dir = os.environ["TEMP"]
+                project_dir = tempfile.gettempdir()
             self.logfile = os.path.join(
                 project_dir, "pyaedt{}.log".format(datetime.datetime.now().strftime("%Y%m%d_%H%M%S"))
             )
@@ -597,16 +596,14 @@ class Desktop:
         """
         try:
             oproject = self._main.oDesktop.GetActiveProject()
-            proj_name = oproject.GetName()
             try:
-                des_name = oproject.GetActiveDesign().GetName()
-                if ";" in des_name:
-                    des_name = des_name.split(";")[1]
+                design_name = oproject.GetActiveDesign().GetName()
+                if ";" in design_name:
+                    design_name = design_name.split(";")[1]
             except:
-                des_name = ""
+                design_name = ""
         except:
-            proj_name = ""
-            des_name = ""
+            design_name = ""
         tb_trace = traceback.format_tb(tb_data)
         tblist = tb_trace[0].split("\n")
         self._main.oMessenger.add_error_message(str(ex_value), "Global")

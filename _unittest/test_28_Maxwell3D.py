@@ -1,10 +1,14 @@
 # Setup paths for module imports
 from _unittest.conftest import scratch_path
-
+import os
 # Import required modules
 from pyaedt import Maxwell3d
 from pyaedt.generic.filesystem import Scratch
 import gc
+try:
+    import pytest
+except ImportError:
+    import _unittest_ironpython.conf_unittest as pytest
 
 test_project_name = "eddy"
 
@@ -153,6 +157,7 @@ class TestClass:
         )
         assert udp
 
+    @pytest.mark.skipif(os.name == "posix", reason="Feature not supported in Linux")
     def test_27_create_udm(self):
         my_udmPairs = []
         mypair = ["ILD Thickness (ILD)", "0.006mm"]

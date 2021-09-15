@@ -3,6 +3,7 @@ from __future__ import absolute_import
 import os
 import warnings
 import math
+import tempfile
 from .application.Analysis3D import FieldAnalysis3D
 from .desktop import exception_to_desktop
 from .modeler.GeometryOperators import GeometryOperators
@@ -2911,7 +2912,7 @@ class Hfss(FieldAnalysis3D, object):
                                 ],
                             )
                     except:
-                        self._messenger.add_debug_message("done")
+                        self._messenger.add_info_message("done")
                         # self.modeler_oproject.ClearMessages()
         return ports_ID
 
@@ -2950,7 +2951,7 @@ class Hfss(FieldAnalysis3D, object):
 
         """
 
-        self._messenger.add_debug_message("Design Validation Checks")
+        self._messenger.add_info_message("Design Validation Checks")
         validation_ok = True
         val_list = []
         if not dname:
@@ -2969,7 +2970,8 @@ class Hfss(FieldAnalysis3D, object):
             val_list.extend(temp2_msg)
 
         # Run design validation and write out the lines to the log.
-        temp_val_file = os.path.join(os.environ["TEMP"], "\\val_temp.log")
+        temp_dir = tempfile.gettempdir()
+        temp_val_file = os.path.join(temp_dir, "val_temp.log")
         simple_val_return = self.validate_simple(temp_val_file)
         if simple_val_return == 1:
             msg = "Design validation check PASSED."
@@ -2986,7 +2988,7 @@ class Hfss(FieldAnalysis3D, object):
             os.remove(temp_val_file)
         else:
             msg = "** No design validation file is found. **"
-            self._messenger.add_debug_message(msg)
+            self._messenger.add_info_message(msg)
             val_list.append(msg)
         msg = "** End of design validation messages. **"
         val_list.append(msg)
@@ -3018,7 +3020,7 @@ class Hfss(FieldAnalysis3D, object):
                     val_list.append(msg4)
         else:
             msg = "Eigen model is detected. No excitatons are defined."
-            self._messenger.add_debug_message(msg)
+            self._messenger.add_info_message(msg)
             val_list.append(msg)
 
         # Find the number of analysis setups and output the info.

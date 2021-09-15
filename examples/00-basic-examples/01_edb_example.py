@@ -9,15 +9,10 @@ import shutil
 
 import os
 import time
+import tempfile
 from pyaedt import generate_unique_name, examples
 
-try:
-    if os.name == "posix":
-        tmpfold = os.environ["TMPDIR"]
-    else:
-        tmpfold = os.environ["TEMP"]
-except:
-    tmpfold = os.environ["TEMP"]
+tmpfold = tempfile.gettempdir()
 temp_folder = os.path.join(tmpfold, generate_unique_name("Example"))
 if not os.path.exists(temp_folder):
     os.makedirs(temp_folder)

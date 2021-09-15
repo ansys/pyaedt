@@ -127,7 +127,7 @@ class AedtSolve(object):
 
 class SiwaveSolve(object):
     def __init__(self, project_path, aedt_version="2021.1", aedt_installer_path=None):
-        self.project_path = project_path
+        self._project_path = project_path
         self._exec_path = ""
         self._nbcores = 4
         self._ng = True
@@ -212,7 +212,7 @@ class SiwaveSolve(object):
             command.append(self._project_path)
             command.append(exec_file)
             command.append("-formatOutput -useSubdir")
-            p = subprocess.Popen(command)
+            p = subprocess.Popen(" ".join(command))
             p.wait()
 
     def export_3d_cad(self, format_3d="Q3D", output_folder=None, net_list=None):
@@ -232,11 +232,11 @@ class SiwaveSolve(object):
             path to aedt file
         """
         if not output_folder:
-            output_folder = os.path.dirname(self.project_path)
+            output_folder = os.path.dirname(self.projectpath)
         scriptname = os.path.join(output_folder, "export_cad.py")
         with open(scriptname, "w") as f:
             f.write("import os\n")
-            f.write("edbpath = r'{}'\n".format(self.project_path))
+            f.write("edbpath = r'{}'\n".format(self.projectpath))
             f.write("exportOptions = os.path.join(r'{}', 'options.config')\n".format(output_folder))
             f.write("oDoc.ScrImportEDB(edbpath)\n")
             f.write("oDoc.ScrSaveProjectAs(os.path.join(r'{}','{}'))\n".format(output_folder, "test.siw"))

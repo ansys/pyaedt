@@ -77,9 +77,9 @@ class TestClass:
         msg.add_error_message("Test Error at Design Level")
         msg.add_error_message("Test Error at Project Level", "Project")
         msg.add_error_message("Test Error at Global Level", "Global")
-        msg.add_debug_message("Test Debug")
-        msg.add_debug_message("Test Debug", "Project")
-        msg.add_debug_message("Test Debug", "Global")
+        msg.add_info_message("Test Debug")
+        msg.add_info_message("Test Debug", "Project")
+        msg.add_info_message("Test Debug", "Global")
         assert len(msg.messages.global_level) >= 5
         assert len(msg.messages.project_level) >= 6
         assert len(msg.messages.design_level) >= 4

@@ -13,6 +13,9 @@ from .Primitives3DLayout import Geometries3DLayout, Primitives3DLayout
 class Modeler3DLayout(Modeler):
     """Manages Modeler 3D layouts.
 
+    This class is inherited in the caller application and is accessible through the modeler variable
+    object( eg. ``hfss3dlayout.modeler``).
+
     Parameters
     ----------
     parent :
