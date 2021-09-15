@@ -277,7 +277,7 @@ class Siwave:
         Parameters
         ----------
         save_project : bool, optional
-            Wether to save or not the current project before close it.
+            whether to save or not the current project before close it.
 
         Returns
         -------
