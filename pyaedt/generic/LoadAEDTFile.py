@@ -287,8 +287,8 @@ def _read_aedt_file(filename):
             continue
     ascii_content = "\n".join(ascii_lines)
 
-    #combine subsequent lines when the line ends in \
-    _all_lines = ascii_content.replace('\\\n','').splitlines()
+    # combine subsequent lines when the line ends in \
+    _all_lines = ascii_content.replace("\\\n", "").splitlines()
     _len_all_lines = len(_all_lines)
     _count = 0
 
