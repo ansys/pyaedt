@@ -7,14 +7,19 @@ from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 import base64
 import filecmp
 import os
+import sys
 
 
 def _write_jpg(design_info, scratch):
     """writes the jpg Image64 property of the design info
     to a temporary file and returns the filename"""
-    filename = os.path.join(scratch, f"{design_info['DesignName']}.jpg")
+    filename = os.path.join(scratch, design_info['DesignName'] + ".jpg")
+    image_data_str = design_info["Image64"]
     with open(filename, "wb") as f:
-        bytes = base64.decodebytes(design_info["Image64"].encode("ascii"))
+        if sys.version_info.major == 2:
+            bytes = bytes(image_data_str).decode('base64')
+        else:
+            bytes = base64.decodebytes(image_data_str.encode("ascii"))
         f.write(bytes)
     return filename
 
