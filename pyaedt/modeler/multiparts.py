@@ -364,7 +364,7 @@ class MultiPartComponent(object):
 
     @property
     def offset(self):
-        """Offset for multi-part component.
+        """Offset values for the multi-part component.
 
         Returns
         -------
