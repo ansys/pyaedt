@@ -27,7 +27,7 @@ class MultiPartComponent(object):
         Whether to use the relative coordinate system. The default is ``False``.
         Set to ``False`` if the multi-part component doesn't move. Set to ``True``
         if the multi-part component moves relative to the global coordinate system.
-    relative_cs_name : str, optional
+    relative_cs_name: str, optional
         Name of the coordinate system to connect the multipart relative system to
         when ``use_relative_cs=True``.
     motion: bool, optional
@@ -36,7 +36,7 @@ class MultiPartComponent(object):
     offset: list, optional
         List of ``[x, y, z]`` coordinate values defining the component offset.
         The default is ``["0", "0", "0"]``.
-    yaw : str or float, optional
+    yaw: str or float, optional
         Yaw angle, indicating the rotation about the component Z-axis. The default
         is ``"0deg"``.
     pitch: str or float, optional
@@ -67,7 +67,7 @@ class MultiPartComponent(object):
 
         Parameters
         ----------
-        app: class:`pyaedt.Hfss`
+        app: pyaedt.Hfss
             HFSS application instance.
 
         Returns
@@ -178,7 +178,7 @@ class MultiPartComponent(object):
 
     @property
     def index(self):
-        """Track number of self._name using MultiPartComponent._names.
+        """Number of multi-part components.
 
         Returns
         -------
@@ -353,7 +353,7 @@ class MultiPartComponent(object):
 
     @property
     def use_global_cs(self):
-        """Use global coordinate system.
+        """Global coordinate system.
 
         Returns
         -------
@@ -381,16 +381,17 @@ class MultiPartComponent(object):
 
     @aedt_exception_handler
     def position_in_app(self, app):
-        """Set up design variables and values to enable motion for the multi-part 3D component in the application.
+        """Set up design variables and values to enable motion for the multi-part 3D component.
 
         Parameters
         ----------
-        app : pyaedt.Hfss, required
-            HFSS pplication instance.
+        app: pyaedt.Hfss
+            HFSS application instance.
 
         Returns
         -------
-        Coordinate system.
+        str
+            Name of the coordinate system.
         """
         if self.motion:
             xyz = ["x", "y", "z"]
@@ -434,9 +435,9 @@ class MultiPartComponent(object):
         Parameters
         ----------
         app: :class:`pyaedt.hfss.Hfss`
-            HFSS application where multi-part component is to be inserted.
-        motion : bool, optional
-            Whether variables (yaw, pitch, and roll) should be created in the app to set position.
+            HFSS application where the multi-part component is to be inserted.
+        motion: bool, optional
+            Whether variables (yaw, pitch, and roll) should be created for setting the position.
 
         Returns
         -------
@@ -461,7 +462,7 @@ class MultiPartComponent(object):
 
     @aedt_exception_handler
     def insert(self, app, motion=False):
-        """Insert the object into the app.
+        """Insert the object in HFSS SBR+.
 
         Returns
         -------
