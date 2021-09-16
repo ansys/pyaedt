@@ -499,15 +499,14 @@ class Antenna(Part, object):
         Parameters
         ----------
         app: pyaedt.Hfss
-        units: 
+        units:
             The default is ``None``.
-
+        
         Returns
         -------
         str
             Name of the inserted object.
         """
-
         if self._do_offset:
             self.set_relative_cs(app)
             antenna_object = self._insert(app, units=units)  # Create coordinate system, if needed.
