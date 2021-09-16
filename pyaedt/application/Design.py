@@ -1342,7 +1342,7 @@ class Design(object):
 
     @aedt_exception_handler
     def set_registry_from_file(self, registry_file, make_active=True):
-        """Applies desktop Registry settings from acf file. A way to get an editable ACF file is to export a
+        """Apply desktop Registry settings from acf file. A way to get an editable ACF file is to export a
         configuration from Desktop UI, edit and reuse it.
 
         Parameters

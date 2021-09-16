@@ -218,4 +218,4 @@ class TestClass:
         assert self.aedtapp.set_license_type("Pool")
 
     def test_25_change_registry_from_file(self):
-        assert self.aedtapp.set_registry_from_file(os.path.join(local_path, "example_models", "Test.acf"))
+        assert self.aedtapp.set_registry_from_file(os.path.join(local_path, "example_modls", "Test.acf"))
