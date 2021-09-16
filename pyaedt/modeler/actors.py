@@ -119,10 +119,10 @@ class Person(Actor, object):
 
         Parameters
         ----------
-        app: :class:`pyaedt.Hfss`
-            HFSS application.
+        app: pyaedt.Hfss
+            HFSS application instance.
         motion: bool, optional
-            Whether the actor is in motion. The default is ``True``.
+            Whether the person is in motion. The default is ``True``.
 
         Returns
         -------
@@ -148,14 +148,14 @@ class Bird(Actor, object):
 
     Parameters
     ----------
-    bird_folder: str, required
+    bird_folder: str
         Full path to the directory containing the definition of the
         bird. This can be changed later.
-    speed: float or str
-        Speed of the bird.
-    flapping_rate: float or str
-        Flapping rate.
-    relative_cs_name: str
+    speed: float or str, optional
+        Speed of the bird. The default is ``"2.0".
+    flapping_rate: float or str, optional
+        Flapping rate. The default is ``"50Hz"``.
+    relative_cs_name: str, optional
         Name of the relative coordinate system of the actor. The
         default is``None``, in which case the global coordinate system
         is used.
@@ -183,9 +183,9 @@ class Bird(Actor, object):
 
         Parameters
         ----------
-        app: :class:`pyaedt.hfss.Hfss`
+        app: pyaedt.Hfss
         motion: bool
-            The default is ``True``.
+            Whether the bird is in motion. The default is ``True``.
 
         Returns
         -------
@@ -243,9 +243,9 @@ class Vehicle(Actor, object):
 
         Parameters
         ----------
-        app: :class:`pyaedt.hfss.Hfss`
+        app: pyaedt.Hfss
         motion: bool, optional
-            The default is ``True``.
+            Whether the vehicle is in motion. The default is ``True``.
 
         Returns
         -------
@@ -271,11 +271,11 @@ class Radar(MultiPartComponent, object):
     name: str, optional
         Name of the radar file. The default is ``None``.
     motion: bool, optional
-        The default is ``False``.
+        Whether the actor is in motion. The default is ``False``.
     use_relative_cs: bool, optional
         Whether to use the relative coordinate system. The default is ``False``.
     offset: list, optional
-        List of offset coordinates. The default is ``("0", "0", "0")``,
+        List of offset values. The default is ``("0", "0", "0")``.
     speed: float or str, optional
         Speed of the vehicle. The default is ``0``.
     relative_cs_name: str, optional
@@ -298,7 +298,7 @@ class Radar(MultiPartComponent, object):
 
     @property
     def units(self):
-        """Multipart units.
+        """Multi-part units.
 
         Returns
         -------
@@ -353,14 +353,14 @@ class Radar(MultiPartComponent, object):
 
         Parameters
         ----------
-        app: class: `pyaedt.hfss.Hfss`
+        app: pyaedt.Hfss
         motion: bool, optional
-            The default is ``False``.
+            Whether the actor is in motion. The default is ``False``.
 
         Returns
         -------
         list
-            List of antenna placed.
+            List of antenna that have been placed.
         """
         app.add_info_message("Adding radar module:  " + self.name)
         if self.use_global_cs or self.cs_name in app.modeler.oeditor.GetCoordinateSystems():
