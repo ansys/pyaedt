@@ -574,7 +574,7 @@ Duplicated Code
 Follow the DRY principle, which states that "Every piece of knowledge
 must have a single, unambiguous, authoritative representation within a
 system."  Attempt to follow this unless it overly complicates the code.
-For instance, the following example converts Fahrenheit to Celsius
+For instance, the following example converts Fahrenheit to Kelvin
 twice, which now requires the developer to maintain two separate lines
 that do the same thing.
 
@@ -586,7 +586,7 @@ that do the same thing.
    temp2 = 46
    new_temp_k = ((temp2 - 32) * (5 / 9)) + 273.15
 
-Instead, write a simple method that converts Fahrenheit to Celsius:
+Instead, write a simple method that converts Fahrenheit to Kelvin:
 
 .. code:: python
 
