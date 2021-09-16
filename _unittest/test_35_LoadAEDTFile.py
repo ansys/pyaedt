@@ -7,10 +7,9 @@ from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 import base64
 import filecmp
 import os
-from typing import Dict
 
 
-def _write_jpg(design_info: Dict, scratch: str) -> str:
+def _write_jpg(design_info, scratch):
     """writes the jpg Image64 property of the design info
     to a temporary file and returns the filename"""
     filename = os.path.join(scratch, f"{design_info['DesignName']}.jpg")
