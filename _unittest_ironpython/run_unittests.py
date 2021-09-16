@@ -33,3 +33,10 @@ discover_and_run(run_dir, pattern="test_*.py")
 success_file = os.path.join(run_dir, "tests_succeeded.log")
 with open(success_file, "w") as f:
     f.write("ok")
+if os.name == "posix" and "oDesktop" in dir(sys.modules["__main__"]):
+    pid = sys.modules["__main__"].oDesktop.GetProcessID()
+    if pid > 0:
+        try:
+            os.kill(pid, 9)
+        except:
+            successfully_closed = False
