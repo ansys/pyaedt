@@ -239,7 +239,7 @@ class EdbNets(object):
                     edb_net.Delete()
                     nets_deleted.append(net)
                     self._messenger.add_info_message("Net {} Deleted".format(net))
-            except:
+            except Exception as e:
                 pass
 
         return nets_deleted
