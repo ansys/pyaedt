@@ -352,32 +352,50 @@ class TestClass:
     def test_25_get_fext_xtalk_list(self):
         assert self.aedtapp.get_fext_xtalk_list() == ["S(Port1,Port2)", "S(Port2,Port1)"]
 
-    def test_duplicate(self):
+    def test26_duplicate(self):
         assert self.aedtapp.modeler.duplicate("myrectangle", 2, [1, 1])
 
-    def test_create_pin_port(self):
+    def test27_create_pin_port(self):
         assert self.aedtapp.create_pin_port("PinPort1")
 
-    def test_create_scattering(self):
+    def test28_create_scattering(self):
         assert self.aedtapp.create_scattering()
 
-    def test_duplicate_material(self):
+    def test29_duplicate_material(self):
         material = self.aedtapp.materials.add_material("FirstMaterial")
         new_material = self.aedtapp.materials.duplicate_material("FirstMaterial", "SecondMaterial")
         assert new_material.name == "secondmaterial"
 
-    def test_expand(self):
+    def test30_expand(self):
         self.aedtapp.modeler.primitives.create_rectangle("Bottom", [20, 20], [50, 50], name="rect_1")
         self.aedtapp.modeler.primitives.create_line("Bottom", [[25, 25], [40, 40]], name="line_3")
         out1 = self.aedtapp.modeler.expand("line_3", size=1, expand_type="ROUND", replace_original=False)
         assert isinstance(out1, str)
 
-    def test_heal(self):
+    def test31_heal(self):
         l1 = self.aedtapp.modeler.primitives.create_line("Bottom", [[0, 0], [100, 0]], 0.5, name="poly_1111")
         l2 = self.aedtapp.modeler.primitives.create_line("Bottom", [[100, 0], [120, -35]], 0.5, name="poly_2222")
         self.aedtapp.modeler.unite([l1, l2])
         assert self.aedtapp.modeler.colinear_heal("poly_2222", tolerance=0.25)
 
-    def test_cosim_simulation(self):
+    def test32_cosim_simulation(self):
         assert self.aedtapp.edit_cosim_options()
         assert not self.aedtapp.edit_cosim_options(interpolation_algorithm="auto1")
+
+    def test33_set_temperature_dependence(self):
+        assert self.aedtapp.modeler.set_temperature_dependence(
+            include_temperature_dependence=True,
+            enable_feedback=True,
+            ambient_temp=23,
+            create_project_var=False,
+        )
+        assert self.aedtapp.modeler.set_temperature_dependence(
+            include_temperature_dependence=False,
+        )
+        assert self.aedtapp.modeler.set_temperature_dependence(
+            include_temperature_dependence=True,
+            enable_feedback=True,
+            ambient_temp=27,
+            create_project_var=True,
+        )
+        pass
