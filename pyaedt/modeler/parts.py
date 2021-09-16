@@ -12,7 +12,7 @@ class Part(object):
     part_folder: str
         Path to the folder with the A3DCOMP files.
     part_dict: dict
-        Defines relevant properties of the class with the following keywords:
+        Name of the dictionary defining relevant properties of the class using these keywords:
         
         * ``comp_name``: str, Name of the A3DCOMP file.
         * ``offset``: list or str, Offset coordinate system definition relative to the parent.
@@ -22,10 +22,10 @@ class Part(object):
         * ``rotation_axis``: str, Rotation axis (``"X"``, ``"Y"``, or ``"Z"``).
         * ``duplicate_number``: str or int, Number of instances for linear duplication.
         * ``duplicate_vector``: list, Vector for duplication relative to the parent coordinate system.
-     parent:  str
-         The default is ``None``.
+     parent: str
+         Name of the parent object. The default is ``None``.
      name: str, optional
-            Name of the A3DCOMP file without the extension. The default is ``None``.
+         Name of the A3DCOMP file without the extension. The default is ``None``.
      """
 
     # List of known keys for a part and default values:
@@ -137,7 +137,8 @@ class Part(object):
 
         Returns
         -------
-        ``True`` when the coordinate system is ``[0, 0, 0]``, ``None`` otherwise.
+        bool
+            ``True`` when the coordinate system is ``[0, 0, 0]``, ``None`` otherwise.
 
         """
         if kw in ['offset', 'rotation_cs']:
@@ -214,7 +215,7 @@ class Part(object):
     # Always return the local origin as a list:
     @property
     def local_origin(self):
-        """Local part offset.
+        """Local part offset values.
 
         Returns
         -------
@@ -320,8 +321,12 @@ class Part(object):
 
     @aedt_exception_handler
     def set_relative_cs(self, app):
-        """Create a new, parametric Coordinate System.
+        """Create a parametric coordinate system.
 
+        Parameters
+        ----------
+        app: pyaedt.Hfss
+        
         Returns
         -------
         bool
@@ -361,9 +366,9 @@ class Part(object):
         Parameters
         ----------
         app: pyaedt.Hfss
-            HFSS instance of AEDT.
+            HFSS application instance.
         aedt_object: str
-            Name of the design in AEDT.
+            Name of the HFSS design.
         """
 
         x_pointing = [1, 0, 0]
@@ -392,7 +397,7 @@ class Part(object):
 
         Parameters
         ----------
-        app: class:`pyaedt.hfss.Hfss`
+        app: pyaedt.Hfss
             HFSS application instance.
 
         Returns
@@ -451,12 +456,12 @@ class Antenna(Part, object):
 
     @property
     def params(self):
-        """Multi-part parameters.
+        """Multi-part component parameters.
 
         Returns
         -------
         dict
-            Dictionary of parameters for a multi-part.
+            Dictionary of parameters for a multi-part component.
         """
         p = {}
         if self._compdef['antenna_type'] == 'parametric':
@@ -493,7 +498,9 @@ class Antenna(Part, object):
 
         Parameters
         ----------
-        app: :class:`pyaedt.hfss.Hfss`, required HFSS application instance.
+        app: pyaedt.Hfss
+        units: 
+            The default is ``None``.
 
         Returns
         -------
