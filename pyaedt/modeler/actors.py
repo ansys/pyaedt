@@ -116,13 +116,13 @@ class Person(Actor, object):
 
     @aedt_exception_handler
     def insert(self, app, motion=True):
-        """Insert the person in AEDT.
+        """Insert the person in HFSS SBR+.
 
         Parameters
         ----------
         app: :class:`pyaedt.hfss.Hfss`
             HFSS application.
-        motion : bool, optional
+        motion: bool, optional
             The default is ``True``.
 
         Returns
@@ -149,14 +149,14 @@ class Bird(Actor, object):
 
     Parameters
     ----------
-    bird_folder : str, required
+    bird_folder: str, required
         Full path to the directory containing the definition of the
-        bird.  This can be changed later.
-    speed : float or str
+        bird. This can be changed later.
+    speed: float or str
         Speed of the bird.
-    flapping_rate : float or str
+    flapping_rate: float or str
         Flapping rate.
-    relative_cs_name : str
+    relative_cs_name: str
         Name of the relative coordinate system of the actor. The
         default is``None``, in which case the global coordinate system
         is used.
@@ -164,9 +164,7 @@ class Bird(Actor, object):
     """
 
     def __init__(self, bird_folder, speed="2.0", flapping_rate="50Hz", relative_cs_name=None):
-        """Bike class.
-
-        """
+        """Bike class."""
 
         super(Bird, self).__init__(bird_folder, speed=speed, relative_cs_name=relative_cs_name)
         self._flapping_rate = flapping_rate
@@ -182,7 +180,7 @@ class Bird(Actor, object):
 
     @aedt_exception_handler
     def insert(self, app, motion=True):
-        """Insert the bird in AEDT.
+        """Insert the bird in HFSS SBR+.
 
         Parameters
         ----------
@@ -208,19 +206,17 @@ class Vehicle(Actor, object):
 
     This class is derived from :class:`MultiPartComponent`.
 
-   This class is derived from :class:`MultiPartComponent`.
-
     .. note::
         Motion is always forward in the X-axis direction.
 
     Properties
     ----------
-    car_folder : str, required
+    car_folder: str, required
         Full path to the folder containing the definition of the
         vehicle.  This can be changed later.
-    speed : float or str
+    speed: float or str
         Speed of the vehicle.
-    relative_cs_name : str
+    relative_cs_name: str
         Name of the relative coordinate system of the actor. The
         default is ``None``, in which case the global coordinate
         system is used.
@@ -244,7 +240,7 @@ class Vehicle(Actor, object):
 
     @aedt_exception_handler
     def insert(self, app, motion=True):
-        """Insert the vehicle in AEDT.
+        """Insert the vehicle in HFSS SBR+.
 
         Parameters
         ----------
