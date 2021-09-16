@@ -72,7 +72,7 @@ class Person(Actor, object):
     speed: float or str, optional
         Speed of the person in the X-axis direction. The default is ``"0"``.
     stride: float or str, optional
-        Stride length of the person. The default is "0.8meters". 
+        Stride length of the person. The default is "0.8meters".
     relative_cs_name: str, optional
         Name of the relative coordinate system of the actor. The
         default is ``None``, in which case the global coordinate
