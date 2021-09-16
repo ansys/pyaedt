@@ -940,7 +940,7 @@ class Edb(object):
         return os.path.join(path_to_output, "options.config")
 
     @aedt_exception_handler
-    def export_hfss(self, path_to_output, net_list=None):
+    def export_hfss(self, path_to_output, net_list=None, num_cores=None):
         """Export EDB to HFSS.
 
         Parameters
@@ -950,6 +950,8 @@ class Edb(object):
         net_list : list, optional
             List of nets to export if only certain ones are to be
             included.
+        num_cores : int, optional
+            Define number of cores to use during export
 
         Returns
         -------
@@ -970,10 +972,10 @@ class Edb(object):
 
         """
         siwave_s = SiwaveSolve(self.edbpath, aedt_installer_path=self.base_path)
-        return siwave_s.export_3d_cad("HFSS", path_to_output, net_list)
+        return siwave_s.export_3d_cad("HFSS", path_to_output, net_list, num_cores)
 
     @aedt_exception_handler
-    def export_q3d(self, path_to_output, net_list=None):
+    def export_q3d(self, path_to_output, net_list=None, num_cores=None):
         """Export EDB to Q3D.
 
         Parameters
@@ -983,6 +985,8 @@ class Edb(object):
         net_list : list, optional
             List of nets only if certain ones are to be
             exported.
+        num_cores : int, optional
+            Define number of cores to use during export
 
         Returns
         -------
@@ -1004,10 +1008,10 @@ class Edb(object):
         """
 
         siwave_s = SiwaveSolve(self.edbpath, aedt_installer_path=self.base_path)
-        return siwave_s.export_3d_cad("Q3D", path_to_output, net_list)
+        return siwave_s.export_3d_cad("Q3D", path_to_output, net_list, num_cores=num_cores)
 
     @aedt_exception_handler
-    def export_maxwell(self, path_to_output, net_list=None):
+    def export_maxwell(self, path_to_output, net_list=None, num_cores=None):
         """Export EDB to Maxwell 3D.
 
         Parameters
@@ -1017,6 +1021,8 @@ class Edb(object):
         net_list : list, optional
             List of nets only if certain ones are to be
             exported.
+        num_cores : int, optional
+            Define number of cores to use during export
 
         Returns
         -------
@@ -1037,7 +1043,7 @@ class Edb(object):
 
         """
         siwave_s = SiwaveSolve(self.edbpath, aedt_installer_path=self.base_path)
-        return siwave_s.export_3d_cad("Maxwell", path_to_output, net_list)
+        return siwave_s.export_3d_cad("Maxwell", path_to_output, net_list, num_cores=num_cores)
 
     @aedt_exception_handler
     def solve_siwave(self):
@@ -1054,3 +1060,29 @@ class Edb(object):
             pass
         process.solve()
         return True
+
+    @aedt_exception_handler
+    def add_design_variable(self, variable_name, variable_value):
+        """Add a Design Variable.
+
+        Parameters
+        ----------
+        variable_name : str
+            Name of the variable
+        variable_value : str, float
+            Value of the variable with units.
+
+        Returns
+        -------
+        tuple
+            tuple containing AddVariable Result and variableserver.
+        """
+        var_server = self.active_cell.GetVariableServer()
+        variables = var_server.GetAllVariableNames()
+        if variable_name in list(variables):
+            self._messenger.add_warning_message("Parameter {} exists. Using it.".format(variable_name))
+            return False, var_server
+        else:
+            self._messenger.add_info_message("Creating Parameter {}.".format(variable_name))
+            var_server.AddVariable(variable_name, self.edb_value(variable_value), True)
+            return True, var_server

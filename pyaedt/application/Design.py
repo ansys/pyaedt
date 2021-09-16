@@ -517,7 +517,7 @@ class Design(object):
 
     def __exit__(self, ex_type, ex_value, ex_traceback):
         if ex_type:
-            exception_to_desktop(self, ex_value, ex_traceback)
+            exception_to_desktop(ex_value, ex_traceback)
         if self.release_on_exit:
             self.release_desktop(self.close_on_exit, self.close_on_exit)
 
@@ -1260,6 +1260,118 @@ class Design(object):
 
         """
         return self._variable_manager
+
+    @aedt_exception_handler
+    def set_license_type(self, license_type="Pool"):
+        """Change the License Type between ``Pack`` and ``Pool``.
+
+        ..note: The command returns True even if the Key is wrong due to API limitation.
+
+        Parameters
+        ----------
+        license_type : str, optional
+            Set License Type between ``Pack`` and ``Pool``.
+
+        Returns
+        -------
+        bool
+        """
+        try:
+            self.odesktop.SetRegistryString("Desktop/Settings/ProjectOptions/HPCLicenseType", license_type)
+            return True
+        except:
+            return False
+
+    @aedt_exception_handler
+    def set_registry_key(self, key_full_name, key_value):
+        """Change a specific registry key to new value.
+
+        Parameters
+        ----------
+        key_full_name : str
+            Desktop Registry Key full name.
+        key_value : str, int
+            Desktop Registry Key value.
+        Returns
+        -------
+        bool
+        """
+        if isinstance(key_value, str):
+            try:
+                self.odesktop.SetRegistryString(key_full_name, key_value)
+                self._messenger.add_info_message("Key {} correctly changed.".format(key_full_name))
+                return True
+            except:
+                self._messenger.add_warning_message("Error setting up Key {}.".format(key_full_name))
+                return False
+        elif isinstance(key_value, int):
+            try:
+                self.odesktop.SetRegistryInt(key_full_name, key_value)
+                self._messenger.add_info_message("Key {} correctly changed.".format(key_full_name))
+                return True
+            except:
+                self._messenger.add_warning_message("Error setting up Key {}.".format(key_full_name))
+                return False
+        else:
+            self._messenger.add_warning_message("Key Value must be an int or str.")
+            return False
+
+    @aedt_exception_handler
+    def set_active_dso_config_name(self, product_name="HFSS", config_name="Local"):
+        """Change a specific registry key to new value.
+
+        Parameters
+        ----------
+        product_name : str
+            Name of the tool to which apply the active Configuration.
+        config_name : str
+            Name of configuration to apply.
+        Returns
+        -------
+        bool
+        """
+        try:
+            self.set_registry_key("Desktop/ActiveDSOConfigurations/{}".format(product_name), config_name)
+            self._messenger.add_info_message(
+                "Configuration Changed correctly to {} for {}.".format(config_name, product_name))
+            return True
+        except:
+            self._messenger.add_warning_message(
+                "Error Setting Up Configuration {} for {}.".format(config_name, product_name))
+            return False
+
+    @aedt_exception_handler
+    def set_registry_from_file(self, registry_file, make_active=True):
+        """Apply desktop Registry settings from acf file. A way to get an editable ACF file is to export a
+        configuration from Desktop UI, edit and reuse it.
+
+        Parameters
+        ----------
+        registry_file : str
+            Full path to acf file.
+        make_active : bool, optional
+            Set imported Configuration as active.
+
+        Returns
+        -------
+        bool
+        """
+        try:
+            self.odesktop.SetRegistryFromFile(registry_file)
+            if make_active:
+                with open(registry_file, 'r') as f:
+                    for line in f:
+                        stripped_line = line.strip()
+                        if "ConfigName" in stripped_line:
+                            config_name = stripped_line.split("=")
+                        elif "DesignType" in stripped_line:
+                            design_type = stripped_line.split("=")
+                            break
+                    if design_type and config_name:
+                        self.set_active_dso_config_name(design_type[1], config_name[1])
+            return True
+        except:
+            return False
 
     @aedt_exception_handler
     def _optimetrics_variable_args(
@@ -2573,19 +2685,6 @@ class Design(object):
         self.oproject.SetActiveDesign(name)
         self.odesign = name
         self.__init__(self.project_name, self.design_name)
-        return True
-
-    @aedt_exception_handler
-    def update_registry_from_file(self, filename):
-        """Update HPC options from a configuration file.
-
-        Parameters
-        ----------
-        filename : str
-            Full path and name of the configuration file, which can be an ACF or TXT file.
-
-        """
-        self._desktop.SetRegistryFromFile(r"%s" % os.path.abspath(filename))
         return True
 
     @aedt_exception_handler

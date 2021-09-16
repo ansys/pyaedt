@@ -63,7 +63,7 @@ elif IsWindows:
         raise Exception("Error. No win32com.client or Pythonnet modules found. Please install them")
 
 
-def exception_to_desktop(self, ex_value, tb_data):
+def exception_to_desktop(ex_value, tb_data):
     """Writes the trace stack to the desktop when a Python error occurs.
 
     The message is added to the AEDT global Message Manager and to the log file (if present).
@@ -76,76 +76,19 @@ def exception_to_desktop(self, ex_value, tb_data):
         Traceback information.
 
     """
-    desktop = sys.modules["__main__"].oDesktop
-    try:
-        oproject = desktop.GetActiveProject()
-        project_name = oproject.GetName()
-        try:
-            design_name = oproject.GetActiveDesign().GetName()
-            if ";" in design_name:
-                design_name = design_name.split(";")[1]
-        except:
-            design_name = ""
-    except:
-        project_name = ""
-        design_name = ""
-    tb_trace = traceback.format_tb(tb_data)
-    tblist = tb_trace[0].split("\n")
-    desktop.AddMessage(project_name, design_name, 2, str(ex_value))
-    for el in tblist:
-        desktop.AddMessage(project_name, design_name, 2, el)
-
-
-def update_aedt_registry(key, value, desktop_version="211"):
-    """Update the AEDT registry key.
-
-    .. note::
-       This method is only supported on Windows.
-
-    Parameters
-    ----------
-    key : str
-        Registry key.
-    value : str
-        Value for the registry key. The value includes "" if needed.
-    desktop_version : str, optional
-        Version of AEDT to use. The default is ``"211"``
-        to use 2021 R1.
-
-    Examples
-    --------
-    Update the HPC license type for HFSS in the AEDT registry.
-
-    >>> update_aedt_registry("HFSS/HPCLicenseType", "12") # doctest: +SKIP
-
-    Update the HPC license type for Icepak in the AEDT registry.
-
-    >>> update_aedt_registry("Icepak/HPCLicenseType", "8") # doctest: +SKIP
-
-    Update the legacy HPC license type for HFSS in the AEDT registry.
-
-    >>> update_aedt_registry("HFSS/UseLegacyElectronicsHPC", "0") # doctest: +SKIP
-
-    Update the MPI vendor for HFSS in the AEDT registry.
-
-    >>> update_aedt_registry("HFSS/MPIVendor", "Intel") # doctest: +SKIP
-
-    """
-    if os.name == "posix":
-        import subprocessdotnet as subprocess
+    if "oMessenger" in dir(sys.modules["__main__"]):
+        messenger = sys.modules["__main__"].oMessenger
+        tb_trace = traceback.format_tb(tb_data)
+        tblist = tb_trace[0].split("\n")
+        messenger.add_error_message(str(ex_value), "Global")
+        for el in tblist:
+            messenger.add_error_message(el, "Global")
     else:
-        import subprocess
-    desktop_install_dir = os.environ["ANSYSEM_ROOT" + str(desktop_version)]
-
-    with open(os.path.join(desktop_install_dir, "config", "ProductList.txt")) as file:
-        product_version = next(file).rstrip()  # get first line
-
-    options = '-set -ProductName {} + product_version -RegistryKey "{}" -RegistryValue "{}"'.format(
-        product_version, key, value
-    )
-    command = '"{}/UpdateRegistry" {}'.format(desktop_install_dir, options)
-
-    subprocess.call([command])
+        tb_trace = traceback.format_tb(tb_data)
+        tblist = tb_trace[0].split("\n")
+        warnings.warn(str(ex_value))
+        for el in tblist:
+            warnings.warn(el)
 
 
 def _delete_objects():
@@ -590,16 +533,6 @@ class Desktop:
             Type of the exception.
 
         """
-        try:
-            oproject = self._main.oDesktop.GetActiveProject()
-            try:
-                design_name = oproject.GetActiveDesign().GetName()
-                if ";" in design_name:
-                    design_name = design_name.split(";")[1]
-            except:
-                design_name = ""
-        except:
-            design_name = ""
         tb_trace = traceback.format_tb(tb_data)
         tblist = tb_trace[0].split("\n")
         self._main.oMessenger.add_error_message(str(ex_value), "Global")
@@ -691,6 +624,115 @@ class Desktop:
         """
         self._main.oDesktop.EnableAutoSave(False)
 
+    def change_license_type(self, license_type="Pool"):
+        """Change the License Type between ``Pack`` and ``Pool``.
+
+        .. note::
+           The command returns ``True`` even if the Key is wrong due to API limitation.
+
+        Parameters
+        ----------
+        license_type : str, optional
+            Set license type.  Must be either ``"Pack"`` or ``"Pool"``.
+
+        Returns
+        -------
+        bool
+           ``True`` when successful, ``False`` when failed.
+        """
+        try:
+            self._main.oDesktop.SetRegistryString("Desktop/Settings/ProjectOptions/HPCLicenseType", license_type)
+            return True
+        except:
+            return False
+
+    def change_registry_key(self, key_full_name, key_value):
+        """Change a specific registry key to new value.
+
+        Parameters
+        ----------
+        key_full_name : str
+            Desktop Registry Key full name.
+        key_value : str, int
+            Desktop Registry Key value.
+        Returns
+        -------
+        bool
+        """
+        if isinstance(key_value, str):
+            try:
+                self._main.oDesktop.SetRegistryString(key_full_name, key_value)
+                self._main.oMessenger.add_info_message("Key {} correctly changed.".format(key_full_name), "Global")
+                return True
+            except:
+                self._main.oMessenger.add_warning_message("Error setting up Key {}.".format(key_full_name), "Global")
+                return False
+        elif isinstance(key_value, int):
+            try:
+                self._main.oDesktop.SetRegistryInt(key_full_name, key_value)
+                self._main.oMessenger.add_info_message("Key {} correctly changed.".format(key_full_name), "Global")
+                return True
+            except:
+                self._main.oMessenger.add_warning_message("Error setting up Key {}.".format(key_full_name), "Global")
+                return False
+        else:
+            self._main.oMessenger.add_warning_message("Key Value must be an int or str.")
+            return False
+
+    def change_active_dso_config_name(self, product_name="HFSS", config_name="Local"):
+        """Change a specific registry key to new value.
+
+        Parameters
+        ----------
+        product_name : str
+            Name of the tool to which apply the active Configuration.
+        config_name : str
+            Name of configuration to apply.
+        Returns
+        -------
+        bool
+        """
+        try:
+            self.change_registry_key("Desktop/ActiveDSOConfigurations/{}".format(product_name), config_name)
+            self._main.oMessenger.add_info_message(
+                "Configuration Changed correctly to {} for {}.".format(config_name, product_name))
+            return True
+        except:
+            self._main.oMessenger.add_warning_message(
+                "Error Setting Up Configuration {} for {}.".format(config_name, product_name))
+            return False
+
+    def change_registry_from_file(self, registry_file, make_active=True):
+        """Apply desktop Registry settings from acf file. A way to get an editable ACF file is to export a
+        configuration from Desktop UI, edit and reuse it.
+
+        Parameters
+        ----------
+        registry_file : str
+            Full path to acf file.
+        make_active : bool, optional
+            Set imported Configuration as active.
+
+        Returns
+        -------
+        bool
+        """
+        try:
+            self._main.oDesktop.SetRegistryFromFile(registry_file)
+            if make_active:
+                with open(registry_file, 'r') as f:
+                    for line in f:
+                        stripped_line = line.strip()
+                        if "ConfigName" in stripped_line:
+                            config_name = stripped_line.split("=")
+                        elif "DesignType" in stripped_line:
+                            design_type = stripped_line.split("=")
+                            break
+                    if design_type and config_name:
+                        self.change_registry_key(design_type[1], config_name[1])
+            return True
+        except:
+            return False
 
 def get_version_env_variable(version_id):
     """Retrieve the environment variable for the AEDT version.
