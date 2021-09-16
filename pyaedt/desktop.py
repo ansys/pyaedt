@@ -627,16 +627,18 @@ class Desktop:
     def change_license_type(self, license_type="Pool"):
         """Change the License Type between ``Pack`` and ``Pool``.
 
-        ..note: The command returns True even if the Key is wrong due to API limitation.
+        .. note::
+           The command returns ``True`` even if the Key is wrong due to API limitation.
 
         Parameters
         ----------
         license_type : str, optional
-            Set License Type between ``Pack`` and ``Pool``.
+            Set license type.  Must be either ``"Pack"`` or ``"Pool"``.
 
         Returns
         -------
         bool
+           ``True`` when successful, ``False`` when failed.
         """
         try:
             self._main.oDesktop.SetRegistryString("Desktop/Settings/ProjectOptions/HPCLicenseType", license_type)
