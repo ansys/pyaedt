@@ -214,9 +214,9 @@ class Vehicle(Actor, object):
     car_folder: str, required
         Full path to the folder containing the definition of the
         vehicle.  This can be changed later.
-    speed: float or str
-        Speed of the vehicle.
-    relative_cs_name: str
+    speed: float or str, optional
+        Speed of the vehicle. The default is ``10.0``.
+    relative_cs_name: str, optional
         Name of the relative coordinate system of the actor. The
         default is ``None``, in which case the global coordinate
         system is used.
@@ -273,6 +273,16 @@ class Radar(MultiPartComponent, object):
         Name of the radar file. The default is ``None``.
     motion: bool, optional
         The default is ``False``.
+    use_relative_cs: bool, optional
+        Whether to use the relative coordinate system. The default is ``False``.
+    offset: list, optional
+        List of offset coordinates. The default is ``("0", "0", "0")``,
+    speed: float or str, optional
+        Speed of the vehicle. The default is ``0``.
+    relative_cs_name: str, optional
+        Name of the relative coordinate system of the actor. The
+        default is ``None``, in which case the global coordinate
+        system is used.
 
     """
 
