@@ -1,9 +1,10 @@
 from conf_unittest import test_generator, PytestMockup
 import os
+
 test_filter = "test_"
 
 test_name = os.path.basename(__file__).replace(".py", "")
-fromlist=["TestHFSSProjectFile", "TestProjectFileWithBinaryContent", "TestProjectFileWithMultipleDesigns"]
+fromlist = ["TestHFSSProjectFile", "TestProjectFileWithBinaryContent", "TestProjectFileWithMultipleDesigns"]
 mymodule = __import__("_unittest." + test_name, fromlist=fromlist)
 
 
@@ -16,6 +17,7 @@ def make_test_sequence_functions_generate_class(test_obj):
         @classmethod
         def tearDownClass(cls):
             test_obj.teardown_class()
+
     return TestSequenceFunctionsGenerate
 
 
