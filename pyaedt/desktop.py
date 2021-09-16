@@ -665,7 +665,7 @@ class Desktop:
             except:
                 self._main.oMessenger.add_warning_message("Error setting up Key {}.".format(key_full_name), "Global")
                 return False
-        elif isinstance(key_value,int):
+        elif isinstance(key_value, int):
             try:
                 self._main.oDesktop.SetRegistryInt(key_full_name, key_value)
                 self._main.oMessenger.add_info_message("Key {} correctly changed.".format(key_full_name), "Global")
