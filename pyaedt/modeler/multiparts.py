@@ -8,10 +8,10 @@ from ..generic.general_methods import aedt_exception_handler
 
 
 class MultiPartComponent(object):
-    """Supports multi-part 3D components for AEDT SBR+.
+    """Supports multi-part 3D components for HFSS SBR+.
 
     .. note::
-           Forward motion is in the X-direction if motion is set.
+           Forward motion is in the X-axis direction if motion is set.
 
     Parameters
     ----------
@@ -55,7 +55,7 @@ class MultiPartComponent(object):
     # for c in _component_classes:
     #     _count[c] = 0
 
-    # Initialization variables and values for the app using
+    # Initialize variables and values for the app using
     # the MultiPartComponent
     _t = "time_var"
     _t_value = "0s"
@@ -471,17 +471,17 @@ class MultiPartComponent(object):
 
 
 class Environment(MultiPartComponent, object):
-    """Supports multi-part 3D components without motion for AEDT SBR+.
+    """Supports multi-part 3D components without motion for HFSS SBR+.
 
     This class is derived from :class:`MultiPartComponent`. Its
     call signature is identical to the parent class except
-    motion is always set to ``False``.
+    ``motion`` is always set to ``False``.
 
     Parameters
     ----------
     env_folder: str
         Full path to the folder with the JSON file containing the component definition.
-    relative_cs_name : str, optional
+    relative_cs_name: str, optional
         Name of the coordinate system to connect the multi-part relative system to.
         The default is ``None``.
     """
@@ -566,7 +566,7 @@ class Actor(MultiPartComponent, object):
 
     This class is derived from :class:`MultiPartComponent`.
 
-    .. note::  Motion is always forward in the X-direction.
+    .. note::  Motion is always forward in the X-axis direction.
 
     Parameters
     ----------
@@ -574,7 +574,7 @@ class Actor(MultiPartComponent, object):
         Full path to the folder containing the definition of the person.
         This can be changed later in the :class:`Person` class definition.
     speed: float or str
-        Speed of the person in the X-direction. The default is ``0```.
+        Speed of the person in the X-axis direction. The default is ``0```.
     relative_cs_name: str
         Name of the relative coordinate system of the actor. The default is ``None``,
         in which case the global coordinate system is used.
