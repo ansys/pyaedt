@@ -5,10 +5,10 @@ import sys
 
 class PytestMockup(TestCase):
     def assertRaises(self, excClass, callableObj, *args, **kwargs):
-        try:
-            TestCase.assertRaises(self, excClass, callableObj, *args, **kwargs)
-        except:
-            print("\n    " + repr(sys.exc_info()[1]))
+        #try:
+        TestCase.assertRaises(self, excClass, callableObj, *args, **kwargs)
+        # except:
+        #     print("\n    " + repr(sys.exc_info()[1]))
 
     def assertTrue(self, callableObj, *args, **kwargs):
         #try:
