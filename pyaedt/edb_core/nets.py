@@ -287,3 +287,4 @@ class EdbNets(object):
             if net_name == net:
                 return True
         return False
+
