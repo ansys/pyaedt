@@ -1,6 +1,5 @@
 from functools import wraps
 from unittest import TestCase
-import sys
 
 
 class PytestMockup(TestCase):
