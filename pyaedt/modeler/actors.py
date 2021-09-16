@@ -31,7 +31,7 @@ class Generic(Actor, object):
     This class is derived from :class:`MultiPartComponent`.
 
     .. note::
-       Motion is always forward in the X-direction of the person
+       Motion is always forward in the X-axis direction of the person
        coordinate system.
 
     Parameters
@@ -40,7 +40,7 @@ class Generic(Actor, object):
         Full path to the directory containing the definition of the person.
         This can be changed later in the :class:`Person` class definition.
     speed: float or str
-        Speed of the person in the X-direction.
+        Speed of the person in the X-axis direction.
     relative_cs_name: str
         Name of the relative coordinate system of the actor. The default is ``None``,
         in which case the global coordinate system is used.
@@ -61,7 +61,7 @@ class Person(Actor, object):
     This class is derived from :class:`MultiPartComponent`.
 
     .. note::
-       Motion is always forward in the X-direction of the person coordinate system.
+       Motion is always forward in the X-axis direction of the person coordinate system.
 
     Parameters
     ----------
@@ -70,7 +70,7 @@ class Person(Actor, object):
         person.  This can be changed later in the :class:`Person`
         class definition.
     speed: float or str
-        Speed of the person in the X-direction.
+        Speed of the person in the X-axis direction.
     stride: float or str
         Stride length of the person. The default is "0". An example of
         entering a string, which includes units, is ``"0.8meters"``.
@@ -145,7 +145,7 @@ class Bird(Actor, object):
     This class is derived from :class:`MultiPartComponent`.
 
     .. note::
-       Motion is always forward in the X-direction.
+       Motion is always forward in the X-axis direction.
 
     Parameters
     ----------
@@ -211,7 +211,7 @@ class Vehicle(Actor, object):
    This class is derived from :class:`MultiPartComponent`.
 
     .. note::
-        Motion is always forward in the X-direction.
+        Motion is always forward in the X-axis direction.
 
     Properties
     ----------
