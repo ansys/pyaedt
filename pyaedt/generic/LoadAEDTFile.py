@@ -161,14 +161,16 @@ def _decode_value_and_save(k, v, d):
             d[k] = _parse_value(v)
 
 
-def _decode_key(l: str, d) -> None:
+def _decode_key(l , d) -> None:
     """
 
     Parameters
     ----------
-    l : line
+    l : str
+        Line.
 
-    d : active_dictionary
+    d : dict
+        Active dictionary.
 
     -------
 
@@ -316,7 +318,7 @@ def _load_entire_aedt_file(filename):
         m = _begin_search.search(line)
         if m:
             _walk_through_structure(m.group(1), main_dict)
-        _count = _count + 1
+        _count += 1
     return main_dict
 
 
