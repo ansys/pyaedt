@@ -9,6 +9,7 @@ import filecmp
 import os
 from typing import Dict
 
+
 def _write_jpg(design_info: Dict, scratch: str) -> str:
     """writes the jpg Image64 property of the design info
     to a temporary file and returns the filename"""
@@ -17,6 +18,7 @@ def _write_jpg(design_info: Dict, scratch: str) -> str:
         bytes = base64.decodebytes(design_info["Image64"].encode("ascii"))
         f.write(bytes)
     return filename
+
 
 class TestHFSSProjectFile:
     def setup_class(self):
@@ -32,7 +34,7 @@ class TestHFSSProjectFile:
 
     def test_02_check_design_info(self):
         design_info = self.project_dict["ProjectPreview"]["DesignInfo"]
-        #there is one design in this aedt file, so DesignInfo will be a dict
+        # there is one design in this aedt file, so DesignInfo will be a dict
         assert isinstance(design_info, dict)
         assert design_info["Factory"] == "HFSS"
         assert design_info["DesignName"] == "HFSSDesign"
@@ -44,8 +46,9 @@ class TestHFSSProjectFile:
 class TestProjectFileWithBinaryContent:
     def test_01_check_can_load_aedt_file_with_binary_content(self):
         aedt_file = os.path.join(local_path, "example_models", "assembly.aedt")
-        #implicitly this will test to make sure no exception is thrown by load_entire_aedt_file
+        # implicitly this will test to make sure no exception is thrown by load_entire_aedt_file
         self.project_dict = load_entire_aedt_file(aedt_file)
+
 
 class TestProjectFileWithMultipleDesigns:
     def setup_class(self):
@@ -58,14 +61,13 @@ class TestProjectFileWithMultipleDesigns:
         self.local_scratch.remove()
 
     def test_01_check_design_type(self):
-        #there are multiple designs in this aedt file, so DesignInfo will be a list
+        # there are multiple designs in this aedt file, so DesignInfo will be a list
         assert isinstance(self.design_info, list)
 
     def test_02_check_design_names(self):
         design_names = [design["DesignName"] for design in self.design_info]
-        assert ['Cassegrain_Hybrid', 'feeder', 'Cassegrain_'] == design_names
+        assert ["Cassegrain_Hybrid", "feeder", "Cassegrain_"] == design_names
 
     def test_03_check_first_design_jpg(self):
         jpg_file = _write_jpg(self.design_info[0], self.local_scratch.path)
         assert filecmp.cmp(jpg_file, os.path.join(local_path, "example_models", "Cassegrain_Hybrid.jpg"))
-
