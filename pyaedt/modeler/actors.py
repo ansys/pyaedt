@@ -28,7 +28,7 @@ def read_actors(fn, actor_lib):
 class Generic(Actor, object):
     """Provides an instance of an actor.
 
-    This class is derived from :class:`MultiPartComponent`.
+    This class is derived from :class:`pyaedt.modeler.multiparts.MultiPartComponent`.
 
     .. note::
        Motion is always forward in the X-axis direction of the person
@@ -56,25 +56,24 @@ class Generic(Actor, object):
 
 
 class Person(Actor, object):
-    """Provides an instance of an actor.
+    """Provides an instance of a person.
 
-    This class is derived from :class:`MultiPartComponent`.
+    This class is derived from :class:`pyaedt.modeler.multiparts.MultiPartComponent`.
 
     .. note::
        Motion is always forward in the X-axis direction of the person coordinate system.
 
     Parameters
     ----------
-    actor_folder: str, required
+    actor_folder: str
         Full path to the folder containing the definition of the
-        person.  This can be changed later in the :class:`Person`
+        person. This can be changed later in the :class:`Person`
         class definition.
-    speed: float or str
-        Speed of the person in the X-axis direction.
-    stride: float or str
-        Stride length of the person. The default is "0". An example of
-        entering a string, which includes units, is ``"0.8meters"``.
-    relative_cs_name: str
+    speed: float or str, optional
+        Speed of the person in the X-axis direction. The default is ``"0"``.
+    stride: float or str, optional
+        Stride length of the person. The default is "0.8meters". 
+    relative_cs_name: str, optional
         Name of the relative coordinate system of the actor. The
         default is ``None``, in which case the global coordinate
         system is used.
@@ -120,10 +119,10 @@ class Person(Actor, object):
 
         Parameters
         ----------
-        app: :class:`pyaedt.hfss.Hfss`
+        app: :class:`pyaedt.Hfss`
             HFSS application.
         motion: bool, optional
-            The default is ``True``.
+            Whether the actor is in motion. The default is ``True``.
 
         Returns
         -------
@@ -140,9 +139,9 @@ class Person(Actor, object):
 
 
 class Bird(Actor, object):
-    """Provides an instance of an actor.
+    """Provides an instance of a bird.
 
-    This class is derived from :class:`MultiPartComponent`.
+    This class is derived from :class:`pyaedt.modeler.multiparts.MultiPartComponent`.
 
     .. note::
        Motion is always forward in the X-axis direction.
@@ -202,9 +201,9 @@ class Bird(Actor, object):
 
 
 class Vehicle(Actor, object):
-    """Provides an instance of an actor.
+    """Provides an instance of a vehicle.
 
-    This class is derived from :class:`MultiPartComponent`.
+    This class is derived from :class:`pyaedt.modeler.multiparts.MultiPartComponent`.
 
     .. note::
         Motion is always forward in the X-axis direction.
