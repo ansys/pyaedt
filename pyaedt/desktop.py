@@ -24,6 +24,7 @@ from pyaedt.misc import list_installed_ansysem
 from pyaedt import is_ironpython, _pythonver, inside_desktop
 
 from .import log_handler
+from .import aedt_logger
 
 
 pathname = os.path.dirname(__file__)
@@ -373,7 +374,10 @@ class Desktop:
     def _init_desktop(self):
         self._main.AEDTVersion = self._main.oDesktop.GetVersion()[0:6]
         self._main.oDesktop.RestoreWindow()
+        logfile = os.path.join(self._main.oDesktop.GetProjectDirectory(),
+                                        "pyaedt{}.log".format(datetime.datetime.now().strftime("%Y%m%d_%H%M%S")))
         self._main.oMessenger = AEDTMessageManager()
+        self.aedt_logger = aedt_logger.AedtLogger(self, filename = logfile, level = logging.DEBUG)
         self._main.sDesktopinstallDirectory = self._main.oDesktop.GetExeDir()
         self._main.pyaedt_initialized = True
 
@@ -509,9 +513,8 @@ class Desktop:
 
     def _init_logger(self):
         # Set up the log file in the AEDT project directory
-        self.logger = logging.getLogger(__name__)
-        self._global_log.addHandler(log_handler._LogHandler(self._main.oMessenger, 'Global', logging.DEBUG))
-        if not self.logger.handlers:
+        self.module_logger = logging.getLogger(__name__)
+        if not self.module_logger.handlers:
             if "oDesktop" in dir(self._main):
                 project_dir = self._main.oDesktop.GetProjectDirectory()
             else:
@@ -534,14 +537,13 @@ class Desktop:
         self._main.pyaedt_version = pyaedtversion
         self._main.interpreter_ver = _pythonver
         self.release = release_on_exit
-        self.logfile = None
-        self._global_log = logging.getLogger("global")
-        self._global_log.setLevel(logging.DEBUG)
-        self._project_log = logging.getLogger(self._main.oDesktop.GetProjectDirectory())
-        self._project_log.setLevel(logging.DEBUG)
-        self._design_log = logging.getLogger(self._main.oDesktop.GetActiveProject().GetActiveDesign().GetName())
-        self._design_log.setLevel(logging.DEBUG)
-        self.logger = logging.getLogger(__name__)
+        # self._global_log = logging.getLogger("global")
+        # self._global_log.setLevel(logging.DEBUG)
+        # self._project_log = logging.getLogger(self._main.oDesktop.GetProjectDirectory())
+        # self._project_log.setLevel(logging.DEBUG)
+        # self._design_log = logging.getLogger(self._main.oDesktop.GetActiveProject().GetActiveDesign().GetName())
+        # self._design_log.setLevel(logging.DEBUG)
+        # self.logger = logging.getLogger(__name__)
 
         if "oDesktop" in dir(self._main) and self._main.oDesktop is not None:
             self.release = False
@@ -561,15 +563,15 @@ class Desktop:
                 self._main.oDesktop = oAnsoftApp.GetAppDesktop()
                 self._main.isoutsideDesktop = True
             self._main.AEDTVersion = version_key
-        self._init_logger()
+        # self._init_logger()
         self._init_desktop()
-        self._main.oMessenger.add_info_message("pyaedt v{}".format(self._main.pyaedt_version))
-        self._main.oMessenger.add_info_message("Python version {}".format(sys.version))
+        self.aedt_logger.global_logger.info("pyaedt v%s", self._main.pyaedt_version)
+        self.aedt_logger.global_logger.info("Python version %s", sys.version)
 
     @property
     def messenger(self):
         """Messenger manager for AEDT Log."""
-        return self.messenger
+        return self._main.oMessenger
 
     @property
     def install_path(self):
