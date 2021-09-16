@@ -12,7 +12,7 @@ class PytestMockup(TestCase):
 
     def assertTrue(self, callableObj, *args, **kwargs):
         #try:
-            TestCase.assertTrue(self, callableObj, *args, **kwargs)
+        TestCase.assertTrue(self, callableObj, *args, **kwargs)
         #except:
         #    print("\n    " + repr(sys.exc_info()[1]))
 
