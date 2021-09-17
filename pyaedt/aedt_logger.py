@@ -1,7 +1,5 @@
-import datetime
 import logging
 import weakref
-import os
 
 from .import log_handler
 
