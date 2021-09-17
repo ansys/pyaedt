@@ -32,11 +32,11 @@ class AedtLogger():
         self._global.addHandler(log_handler._LogHandler(self._desktop.messenger, 'Global', level))
         self._global.setLevel(level)
 
-        self._project = logging.getLogger('project')
+        self._project = logging.getLogger(self._main.oDesktop.GetActiveProject().GetName())
         self._project.addHandler(log_handler._LogHandler(self._desktop.messenger, 'Project', level))
         self._project.setLevel(level)
 
-        self._design = logging.getLogger('design')
+        self._design = logging.getLogger(self._main.oDesktop.GetActiveProject().GetActiveDesign().GetName())
         self._design.addHandler(log_handler._LogHandler(self._desktop.messenger, 'Design', level))
         self._design.setLevel(level)
 
