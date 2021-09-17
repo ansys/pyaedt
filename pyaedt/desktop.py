@@ -618,9 +618,9 @@ class Desktop:
             design_name = ""
         tb_trace = traceback.format_tb(tb_data)
         tblist = tb_trace[0].split("\n")
-        self._main.oMessenger.add_error_message(str(ex_value), "Global")
+        self.aedt_logger.global_logger.error(str(ex_value), "Global")
         for el in tblist:
-            self._main.oMessenger.add_error_message(el, "Global")
+            self.aedt_logger.global_logger.error(el, "Global")
 
         return str(ex_value)
 
