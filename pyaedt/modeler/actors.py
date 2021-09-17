@@ -8,9 +8,9 @@ def read_actors(fn, actor_lib):
 
     Parameters
     ----------
-    fn: str
+    fn : str
         Name of the JSON file describing the actors.
-    actor_lib: str
+    actor_lib : str
         Full path to the library containing the actor definitions.
 
     Returns
@@ -36,12 +36,12 @@ class Generic(Actor, object):
 
     Parameters
     ----------
-    actor_folder: str
+    actor_folder : str
         Full path to the directory containing the definition of the person.
         This can be changed later in the :class:`Person` class definition.
-    speed: float or str
+    speed : float or str
         Speed of the person in the X-axis direction.
-    relative_cs_name: str
+    relative_cs_name : str
         Name of the relative coordinate system of the actor. The default is ``None``,
         in which case the global coordinate system is used.
 
@@ -65,15 +65,15 @@ class Person(Actor, object):
 
     Parameters
     ----------
-    actor_folder: str
+    actor_folder : str
         Full path to the folder containing the definition of the
         person. This can be changed later in the :class:`Person`
         class definition.
-    speed: float or str, optional
+    speed : float or str, optional
         Speed of the person in the X-axis direction. The default is ``"0"``.
-    stride: float or str, optional
+    stride : float or str, optional
         Stride length of the person. The default is "0.8meters".
-    relative_cs_name: str, optional
+    relative_cs_name : str, optional
         Name of the relative coordinate system of the actor. The
         default is ``None``, in which case the global coordinate
         system is used.
@@ -183,10 +183,9 @@ class Bird(Actor, object):
 
         Parameters
         ----------
-        app: pyaedt.Hfss
-        motion: bool
+        app : pyaedt.Hfss
+        motion : bool
             Whether the bird is in motion. The default is ``True``.
-
         Returns
         -------
         bool
@@ -243,8 +242,8 @@ class Vehicle(Actor, object):
 
         Parameters
         ----------
-        app: pyaedt.Hfss
-        motion: bool, optional
+        app : pyaedt.Hfss
+        motion : bool, optional
             Whether the vehicle is in motion. The default is ``True``.
 
         Returns
@@ -266,19 +265,19 @@ class Radar(MultiPartComponent, object):
 
     Parameters
     ----------
-    radar_folder: str
+    radar_folder : str
         Full path to the folder containing the radar file.
-    name: str, optional
+    name : str, optional
         Name of the radar file. The default is ``None``.
-    motion: bool, optional
+    motion : bool, optional
         Whether the actor is in motion. The default is ``False``.
-    use_relative_cs: bool, optional
+    use_relative_cs : bool, optional
         Whether to use the relative coordinate system. The default is ``False``.
-    offset: list, optional
+    offset : list, optional
         List of offset values. The default is ``("0", "0", "0")``.
-    speed: float or str, optional
+    speed : float or str, optional
         Speed of the vehicle. The default is ``0``.
-    relative_cs_name: str, optional
+    relative_cs_name : str, optional
         Name of the relative coordinate system of the actor. The
         default is ``None``, in which case the global coordinate
         system is used.
@@ -353,8 +352,8 @@ class Radar(MultiPartComponent, object):
 
         Parameters
         ----------
-        app: pyaedt.Hfss
-        motion: bool, optional
+        app : pyaedt.Hfss
+        motion : bool, optional
             Whether the actor is in motion. The default is ``False``.
 
         Returns

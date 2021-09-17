@@ -161,7 +161,7 @@ def _decode_value_and_save(k, v, d):
             d[k] = _parse_value(v)
 
 
-def _decode_key(l , d) -> None:
+def _decode_key(l , d):
     """
 
     Parameters

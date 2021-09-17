@@ -296,6 +296,15 @@ class TestClass:
             modelname="GRM32ER72A225KA35_25C_0V",
         )
 
+    def test_44a_assign_variable(self):
+        result, var_server = self.edbapp.add_design_variable("myvar", "1mm")
+        assert result
+        assert var_server
+        result, var_server = self.edbapp.add_design_variable("myvar", "1mm")
+        assert not result
+        assert self.edbapp.core_primitives.parametrize_trace_width("A0_N")
+        assert self.edbapp.core_primitives.parametrize_trace_width("A0_N_R")
+
     def test_45_delete_net(self):
         nets_deleted = self.edbapp.core_nets.delete_nets("A0_N")
         assert "A0_N" in nets_deleted
@@ -472,6 +481,6 @@ class TestClass:
         options_config = {"UNITE_NETS": 1, "LAUNCH_MAXWELL": 0}
         out = edb.write_export3d_option_config_file(scratch_path, options_config)
         assert os.path.exists(out)
-        out = edb.export_maxwell(scratch_path)
+        out = edb.export_maxwell(scratch_path, num_cores=6)
         assert os.path.exists(out)
         edb.close_edb()

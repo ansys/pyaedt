@@ -880,7 +880,7 @@ class EDBPadProperties(object):
             Offset value for the X axis. The default is ``None``.
         offsety :  float, optional
             Offset value for the Y axis. The default is ``None``.
-        rotation: float, optional
+        rotation : float, optional
             Rotation value. The default is ``None``.
 
         Returns
@@ -1031,7 +1031,7 @@ class EDBPadstack(object):
             Offset value for the X axis. The default is ``None``.
         offsety :  float, optional
             Offset value for the Y axis. The default is ``None``.
-        rotation: float, optional
+        rotation : float, optional
             Rotation value in degrees. The default is ``None``.
 
         Returns

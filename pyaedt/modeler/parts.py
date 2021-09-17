@@ -11,7 +11,7 @@ class Part(object):
     ----------
     part_folder: str
         Path to the folder with the A3DCOMP files.
-    part_dict: dict
+    part_dict : dict
         Name of the dictionary defining relevant properties of the class using these keywords:
 
         * ``comp_name``: str, Name of the A3DCOMP file.
@@ -22,10 +22,11 @@ class Part(object):
         * ``rotation_axis``: str, Rotation axis (``"X"``, ``"Y"``, or ``"Z"``).
         * ``duplicate_number``: str or int, Number of instances for linear duplication.
         * ``duplicate_vector``: list, Vector for duplication relative to the parent coordinate system.
-     parent: str
+     parent : str
          Name of the parent object. The default is ``None``.
-     name: str, optional
+     name : str, optional
          Name of the A3DCOMP file without the extension. The default is ``None``.
+
      """
 
     # List of known keys for a part and default values:
@@ -365,9 +366,9 @@ class Part(object):
 
         Parameters
         ----------
-        app: pyaedt.Hfss
+        app : pyaedt.Hfss
             HFSS application instance.
-        aedt_object: str
+        aedt_object : str
             Name of the HFSS design.
         """
 
@@ -397,8 +398,7 @@ class Part(object):
 
         Parameters
         ----------
-        app: pyaedt.Hfss
-            HFSS application instance.
+        app : pyaedt.Hfss
 
         Returns
         -------
@@ -435,13 +435,13 @@ class Antenna(Part, object):
 
     Parameters
     ----------
-    root_folder:
-
-    ant_dict:
-
-    parent: str, optional
+    root_folder : str
+        Root directory
+    ant_dict : dict
+        Antenna dictionary
+    parent : str, optional
         The default is ``None``.
-    name: str, optional
+    name : str, optional
         The default is ``None``.
 
     """
