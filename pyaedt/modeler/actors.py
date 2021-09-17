@@ -8,9 +8,9 @@ def read_actors(fn, actor_lib):
 
     Parameters
     ----------
-    fn: str
+    fn : str
         Name of the JSON file describing the actors.
-    actor_lib: str
+    actor_lib : str
         Full path to the library containing the actor definitions.
 
     Returns
@@ -36,12 +36,12 @@ class Generic(Actor, object):
 
     Parameters
     ----------
-    actor_folder: str
+    actor_folder : str
         Full path to the directory containing the definition of the person.
         This can be changed later in the :class:`Person` class definition.
-    speed: float or str
+    speed : float or str
         Speed of the person in the X-direction.
-    relative_cs_name: str
+    relative_cs_name : str
         Name of the relative coordinate system of the actor. The default is ``None``,
         in which case the global coordinate system is used.
 
@@ -65,16 +65,16 @@ class Person(Actor, object):
 
     Parameters
     ----------
-    actor_folder: str, required
+    actor_folder : str, required
         Full path to the folder containing the definition of the
         person.  This can be changed later in the :class:`Person`
         class definition.
-    speed: float or str
+    speed : float or str
         Speed of the person in the X-direction.
-    stride: float or str
+    stride : float or str
         Stride length of the person. The default is "0". An example of
         entering a string, which includes units, is ``"0.8meters"``.
-    relative_cs_name: str
+    relative_cs_name : str
         Name of the relative coordinate system of the actor. The
         default is ``None``, in which case the global coordinate
         system is used.
@@ -187,7 +187,7 @@ class Bird(Actor, object):
         Parameters
         ----------
         app: :class:`pyaedt.hfss.Hfss`
-        motion: bool
+        motion : bool
             The default is ``True``.
 
         Returns
@@ -208,12 +208,10 @@ class Vehicle(Actor, object):
 
     This class is derived from :class:`MultiPartComponent`.
 
-   This class is derived from :class:`MultiPartComponent`.
-
     .. note::
         Motion is always forward in the X-direction.
 
-    Properties
+    Parameters
     ----------
     car_folder : str, required
         Full path to the folder containing the definition of the
@@ -249,7 +247,7 @@ class Vehicle(Actor, object):
         Parameters
         ----------
         app: :class:`pyaedt.hfss.Hfss`
-        motion: bool, optional
+        motion : bool, optional
             The default is ``True``.
 
         Returns
@@ -271,11 +269,11 @@ class Radar(MultiPartComponent, object):
 
     Parameters
     ----------
-    radar_folder: str
+    radar_folder : str
         Full path to the folder containing the radar file.
-    name: str, optional
+    name : str, optional
         Name of the radar file. The default is ``None``.
-    motion: bool, optional
+    motion : bool, optional
         The default is ``False``.
 
     """
@@ -348,8 +346,8 @@ class Radar(MultiPartComponent, object):
 
         Parameters
         ----------
-        app: class: `pyaedt.hfss.Hfss`
-        motion: bool, optional
+        app : class: `pyaedt.hfss.Hfss`
+        motion : bool, optional
             The default is ``False``.
 
         Returns

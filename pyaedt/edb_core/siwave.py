@@ -513,13 +513,13 @@ class EdbSiwave(object):
 
         Parameters
         ----------
-        pos_pin: Object
+        pos_pin : Object
             Edb Pin
-        neg_pin: Object
+        neg_pin : Object
             Edb Pin
-        impedance: float
+        impedance : float
             Port Impedance
-        port_name: str, Optional
+        port_name : str, Optional
             Port Name
 
         >>> from pyaedt import Edb
@@ -739,7 +739,7 @@ class EdbSiwave(object):
             Name of the negative net name. The default is ``None`` which will look for GND Nets.
         impedance_value : float, optional
             Port impedance value. The default is ``50``.
-        port_name: str, optional
+        port_name : str, optional
             Name of the port. The default is ``""``.
 
         Returns
@@ -871,7 +871,7 @@ class EdbSiwave(object):
             Name of the negative net name. The default is ``None`` which will look for GND Nets.
         current_value : float, optional
             Value for the current. The default is ``0.1``.
-        phase_value: optional
+        phase_value : optional
             Value for the phase. The default is ``0``.
         source_name : str, optional
             Name of the source. The default is ``""``.
@@ -1013,7 +1013,7 @@ class EdbSiwave(object):
             Stopping frequency. The default is ``1e9``.
         step_freq : float, optional
             Frequency size of the step. The default is ``1e6``.
-        discrete_sweep: bool, optonal
+        discrete_sweep : bool, optonal
             Whether the sweep is discrete. The default is ``False``.
 
         Returns
@@ -1063,7 +1063,7 @@ class EdbSiwave(object):
             Stopping frequency. The default is ``1e9``.
         step_freq : float, optional
             Frequency size of the step. The default is ``1e6``.
-        discrete_sweep: bool, optonal
+        discrete_sweep : bool, optonal
             Whether the sweep is discrete. The default is ``False``.
 
         Returns

@@ -315,17 +315,17 @@ class CSVDataset:
 
     Parameters
     ----------
-    csv_file: str, optional
+    csv_file : str, optional
         Input file consisting of delimited data with the first line as the header.
         The CSV value includes the header and data, which supports AEDT units information
         such as ``"1.23Wb"``. You can also augment the data with constant values.
-    separator: str, optional
+    separator : str, optional
         Value to use for the delimiter. The default is``None`` in which case a comma is
         assumed.
-    units_dict: dict, optional
+    units_dict : dict, optional
         Dictionary consisting of ``{Variable Name: unit}`` to rescale the data
         if it is not in the desired unit system.
-    append_dict: dict, optional
+    append_dict : dict, optional
         Dictionary consisting of ``{New Variable Name: value}`` to add variables
         with constant values to all data points. This dictionary is used to add
         multiple sweeps to one result file.

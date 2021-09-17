@@ -91,7 +91,7 @@ numpydoc_validation_checks = {
 
     # Parameters
     "PR10",  # Parameter "{param_name}" requires a space before the colon '
-             #separating the parameter name and type",
+             # separating the parameter name and type",
 
 }
 
