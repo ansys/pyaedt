@@ -69,11 +69,6 @@ class Maxwell(object):
         """Material manager."""
         return self.odefinition_manager.GetManager("Material")
 
-    # @property
-    # def oeditor(self):
-    #     """Editor."""
-    #     return self.odesign.SetActiveEditor("3D Modeler")
-
     @property
     def symmetry_multiplier(self):
         """Symmetry multiplier."""

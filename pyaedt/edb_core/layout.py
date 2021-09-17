@@ -345,16 +345,10 @@ class EdbLayout(object):
         center = [bound_center.X.ToDouble(), bound_center.Y.ToDouble()]
         center2 = [bound_center2.X.ToDouble(), bound_center2.Y.ToDouble()]
         x1, y1 = calc_slope(center2, center)
-        # bounding = self.get_polygon_bounding_box(polygon)
-        # bounding2 =self.get_polygon_bounding_box(selection_polygon)
-        # center = [(bounding[0] + bounding[2]) / 2, (bounding[1] + bounding[3]) / 2]
-        # center2 = [(bounding2[0] + bounding2[2]) / 2, (bounding2[1] + bounding2[3]) / 2]
 
         if not origin:
             origin = [center[0] + float(x1) * 10000, center[1] + float(y1) * 10000]
-
-        var_server = self._cell.GetVariableServer()
-        var_server.AddVariable(offset_name, self._edb_value(0.0), True)
+        result, var_server = self._parent.add_design_variable(offset_name, 0.0)
         i = 0
         continue_iterate = True
         prev_point = None
@@ -632,3 +626,45 @@ class EdbLayout(object):
             self.radius = radius
             self.points = points
             self.properties = properties
+
+    @aedt_exception_handler
+    def parametrize_trace_width(self, nets_name, layers_name=None, parameter_name="trace_width", variable_value=None):
+        """Parametrize a Trace on specific layer or all stackup.
+
+        Parameters
+        ----------
+        nets_name : str, list
+            name of the net or list of nets to parametrize.
+        layers_name : str, optional
+            name of the layer or list of layers to which the net to parametrize has to be included.
+        parameter_name : str, optional
+            name of the parameter to create.
+        variable_value : str, float, optional
+            value with units of parameter to create.
+            If None, the first trace width of Net will be used as parameter value.
+
+        Returns
+        -------
+        bool
+        """
+        if isinstance(nets_name, str):
+            nets_name = [nets_name]
+        if isinstance(layers_name, str):
+            layers_name = [layers_name]
+        for net_name in nets_name:
+            var_server = False
+            for p in self.paths:
+                if p.GetNet().GetName() == net_name:
+                    if not layers_name:
+                        if not var_server:
+                            if not variable_value:
+                                variable_value = p.GetWidth()
+                            result, var_server = self._parent.add_design_variable(parameter_name, variable_value)
+                        p.SetWidth(self._edb.Utility.Value(parameter_name, var_server))
+                    elif p.GetLayer().GetName() in layers_name:
+                        if not var_server:
+                            if not variable_value:
+                                variable_value = p.GetWidth()
+                            result, var_server = self._parent.add_design_variable(parameter_name, variable_value)
+                        p.SetWidth(self._edb.Utility.Value(parameter_name, var_server))
+        return True

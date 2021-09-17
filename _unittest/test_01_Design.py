@@ -212,3 +212,10 @@ class TestClass:
     def test_23_autosave(self):
         assert self.aedtapp.autosave_enable()
         assert self.aedtapp.autosave_disable()
+
+    def test_24_change_type(self):
+        assert self.aedtapp.set_license_type("Pack")
+        assert self.aedtapp.set_license_type("Pool")
+
+    def test_25_change_registry_from_file(self):
+        assert self.aedtapp.set_registry_from_file(os.path.join(local_path, "example_models", "Test.acf"))

@@ -425,3 +425,52 @@ class Modeler3DLayout(Modeler):
             ["NAME:options", "count:=", count], ["NAME:elements", ",".join(objectlists)], direction_vector
         )
         return True
+
+    @aedt_exception_handler
+    def set_temperature_dependence(
+            self,
+            include_temperature_dependence=True,
+            enable_feedback=True,
+            ambient_temp=22,
+            create_project_var=False,
+    ):
+        """Set the temperature dependence for the design.
+
+        Parameters
+        ----------
+        include_temperature_dependence : bool, optional
+            Set the temperature setting for the design. The default is ``True``.
+        enable_feedback : bool, optional
+            Enable the feedback. The default is ``True``.
+        ambient_temp : float, optional
+            Ambient temperature. The default is ``22``.
+        create_project_var : bool, optional
+            Whether to create a project variable for the ambient temperature.
+            The default is ``False``. If ``True,`` ``$AmbientTemp`` is created.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        self._messenger.add_info_message("Set the temperature dependence for the design.")
+        if create_project_var:
+            self._parent.variable_manager["$AmbientTemp"] = str(ambient_temp) + "cel"
+            var = "$AmbientTemp"
+        else:
+            var = str(ambient_temp) + "cel"
+        vargs1 = [
+            "NAME:TemperatureSettings",
+            "IncludeTempDependence:=", include_temperature_dependence,
+            "EnableFeedback:=", enable_feedback,
+            "Temperature:=", var,
+        ]
+        try:
+            self.odesign.SetTemperatureSettings(vargs1)
+        except:
+            self._messenger.add_error_message("Failed to enable the temperature dependence.")
+            return False
+        else:
+            self._messenger.add_info_message("Assigned Objects Temperature")
+            return True

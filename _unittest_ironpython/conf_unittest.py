@@ -1,28 +1,27 @@
 from functools import wraps
 from unittest import TestCase
-import sys
 
 
 class PytestMockup(TestCase):
     def assertRaises(self, excClass, callableObj, *args, **kwargs):
-        try:
-            TestCase.assertRaises(self, excClass, callableObj, *args, **kwargs)
-        except:
-            print("\n    " + repr(sys.exc_info()[1]))
+        #try:
+        TestCase.assertRaises(self, excClass, callableObj, *args, **kwargs)
+        # except:
+        #     print("\n    " + repr(sys.exc_info()[1]))
 
     def assertTrue(self, callableObj, *args, **kwargs):
-        try:
-            TestCase.assertTrue(self, callableObj, *args, **kwargs)
-        except:
-            print("\n    " + repr(sys.exc_info()[1]))
+        #try:
+        TestCase.assertTrue(self, callableObj, *args, **kwargs)
+        #except:
+        #    print("\n    " + repr(sys.exc_info()[1]))
 
 
 def test_generator(test_obj, test_function):
     def test(self):
         try:
-            getattr(test_obj, test_function)()
+            return getattr(test_obj, test_function)()
         except AssertionError:
-            self.assertTrue(False)
+            return self.assertTrue(False)
 
     return test
 

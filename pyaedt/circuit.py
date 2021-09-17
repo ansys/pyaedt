@@ -918,8 +918,16 @@ class Circuit(FieldAnalysisCircuit, object):
         return filename
 
     @aedt_exception_handler
-    def create_touchstone_report(self, plot_name, curvenames, solution_name=None, variation_dict=None):
-        """Create a Touchstone plot.
+    def create_touchstone_report(
+        self,
+        plot_name,
+        curvenames,
+        solution_name=None,
+        variation_dict=None,
+        subdesign_id=None,
+    ):
+        """
+        Create a Touchstone plot.
 
         Parameters
         ----------
@@ -931,6 +939,8 @@ class Circuit(FieldAnalysisCircuit, object):
             Name of the solution. The default value is ``None``.
         variation_dict : dict, optional
             Dictionary of variation names. The default value is ``None``.
+        subdesign_id : int, optional
+            Specify a SubDesign ID to export a touchstone of this Subdesign. The default value is ``None``.
 
         Returns
         -------
@@ -945,6 +955,10 @@ class Circuit(FieldAnalysisCircuit, object):
             for el in variation_dict:
                 variations[el] = [variation_dict[el]]
         ctxt = ["NAME:Context", "SimValueContext:=", [3, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0]]
+        if subdesign_id:
+            ctxt_temp = ["NUMLEVELS", False, "0", "SUBDESIGNID", False, str(subdesign_id)]
+            for el in ctxt_temp: ctxt[2].append(el)
+
         return self.post.create_rectangular_plot(
             curvenames, solution_name, variations, plotname=plot_name, context=ctxt
         )

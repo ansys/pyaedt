@@ -203,7 +203,7 @@ This project has a branching model that enables rapid development of features wi
 Minor Release Steps
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Minor releases are feature and bug releases that improve the functionality and stability of PyAEDT. Before crfeating a minor release, do the following:
+Minor releases are feature and bug releases that improve the functionality and stability of PyAEDT. Before creating a minor release, do the following:
 
 1. Create a new branch from the ``main`` branch with name ``release/``MAJOR.MINOR (for example ``release/0.2``).
 
