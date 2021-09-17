@@ -532,13 +532,6 @@ class Desktop:
         self._main.pyaedt_version = pyaedtversion
         self._main.interpreter_ver = _pythonver
         self.release = release_on_exit
-        # self._global_log = logging.getLogger("global")
-        # self._global_log.setLevel(logging.DEBUG)
-        # self._project_log = logging.getLogger(self._main.oDesktop.GetProjectDirectory())
-        # self._project_log.setLevel(logging.DEBUG)
-        # self._design_log = logging.getLogger(self._main.oDesktop.GetActiveProject().GetActiveDesign().GetName())
-        # self._design_log.setLevel(logging.DEBUG)
-        # self.logger = logging.getLogger(__name__)
 
         if "oDesktop" in dir(self._main) and self._main.oDesktop is not None:
             self.release = False
@@ -562,6 +555,7 @@ class Desktop:
         self._init_desktop()
         self.aedt_logger.global_logger.info("pyaedt v%s", self._main.pyaedt_version)
         self.aedt_logger.global_logger.info("Python version %s", sys.version)
+        
 
     @property
     def messenger(self):
@@ -730,21 +724,21 @@ class Desktop:
         if isinstance(key_value, str):
             try:
                 self._main.oDesktop.SetRegistryString(key_full_name, key_value)
-                self._main.oMessenger.add_info_message("Key {} correctly changed.".format(key_full_name), "Global")
+                self.aedt_logger.global_logger.info("Key %s correctly changed.", key_full_name)
                 return True
             except:
-                self._main.oMessenger.add_warning_message("Error setting up Key {}.".format(key_full_name), "Global")
+                self.aedt_logger.global_logger.warning("Error setting up Key %s.", key_full_name)
                 return False
         elif isinstance(key_value, int):
             try:
                 self._main.oDesktop.SetRegistryInt(key_full_name, key_value)
-                self._main.oMessenger.add_info_message("Key {} correctly changed.".format(key_full_name), "Global")
+                self.aedt_logger.global_logger.info("Key %s correctly changed.", key_full_name)
                 return True
             except:
-                self._main.oMessenger.add_warning_message("Error setting up Key {}.".format(key_full_name), "Global")
+                self.aedt_logger.global_logger.warning("Error setting up Key %s.", key_full_name)
                 return False
         else:
-            self._main.oMessenger.add_warning_message("Key Value must be an int or str.")
+            self.aedt_logger.global_logger.warning("Key Value must be an int or str.")
             return False
 
     def change_active_dso_config_name(self, product_name="HFSS", config_name="Local"):
@@ -762,12 +756,12 @@ class Desktop:
         """
         try:
             self.change_registry_key("Desktop/ActiveDSOConfigurations/{}".format(product_name), config_name)
-            self._main.oMessenger.add_info_message(
-                "Configuration Changed correctly to {} for {}.".format(config_name, product_name))
+            self.aedt_logger.global_logger.info(
+                "Configuration Changed correctly to %s for %s.", config_name, product_name)
             return True
         except:
-            self._main.oMessenger.add_warning_message(
-                "Error Setting Up Configuration {} for {}.".format(config_name, product_name))
+            self.aedt_logger.global_logger.warning(
+                "Error Setting Up Configuration %s for %s.", config_name, product_name)
             return False
 
     def change_registry_from_file(self, registry_file, make_active=True):
