@@ -1468,7 +1468,7 @@ class Variable(object):
 
         """
         assert is_number(other), "Dividend must be a numerical quantity!"
-        result_value = other / self.value
+        result_value = other / self.numeric_value
         result_units = _resolve_unit_system("None", self.unit_system, "divide")
         return Variable("{}{}".format(result_value, result_units))
 

@@ -67,13 +67,12 @@ class TestClass:
         for var_name in v.variable_names:
             print("{} = {}".format(var_name, self.aedtapp[var_name]))
         pass
-
+        tol = 1e-9
         c2pi = math.pi * 2.0
-        assert v["$PrjVar1"].numeric_value == c2pi
-        assert v["$PrjVar3"].numeric_value == math.sqrt(34 * 45.0 / c2pi)
-        assert v["Var3"].numeric_value == 3.0 * 12.0
+        assert abs(v["$PrjVar1"].numeric_value - c2pi) < tol
+        assert abs(v["$PrjVar3"].numeric_value - math.sqrt(34 * 45.0 / c2pi)) < tol
+        assert abs(v["Var3"].numeric_value - 3.0 * 12.0) < tol
         assert v["Var3"].units == "deg"
-        pass
 
     def test_03_test_evaluated_value(self):
 

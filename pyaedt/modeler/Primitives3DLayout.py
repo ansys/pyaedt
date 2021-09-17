@@ -105,6 +105,7 @@ class Primitives3DLayout(object):
                 response, name = el.GetProductProperty(0, 1, val)
             elval = el.GetType()
             elid = el.GetId()
+            name = str(name).replace("'", "")
             if not name:
                 if "Rectangle" in elval.ToString():
                     name = "rect_" + str(elid)
