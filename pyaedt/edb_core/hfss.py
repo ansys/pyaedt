@@ -79,7 +79,7 @@ class Edb3DLayout(object):
             Edb Pin
         impedance : float
             Port Impedance
-        port_name : str, Optional
+        port_name : str, optional
             Port Name
 
         >>> from pyaedt import Edb
