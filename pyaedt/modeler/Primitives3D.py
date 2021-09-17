@@ -984,7 +984,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        pyaedt.modeler.actors.Vehicle
+        :class:`pyaedt.modeler.actors.Vehicle`
 
         """
         self._initialize_multipart()
