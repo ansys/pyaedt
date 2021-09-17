@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 
 from pyaedt import Desktop
-from pyaedt.doctest_fixtures import *  # noqa: F401
+from pyaedt.doctest_fixtures import icepak_fixtures, hfss_fixtures  # noqa: F401
 
 # Import fixtures from other files
 pytest_plugins = [
@@ -15,7 +15,7 @@ pytest_plugins = [
 
 @pytest.fixture(autouse=True, scope="session")
 def start_aedt():
-    desktop = Desktop("2021.1", NG=True)
+    desktop = Desktop("2021.1", non_graphical=True)
     desktop.disable_autosave()
 
     # Wait to run doctest on docstrings

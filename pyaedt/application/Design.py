@@ -470,6 +470,8 @@ class DesignCache(object):
 class Design(object):
     """Contains all functions and objects connected to the active project and design.
 
+    This class is inherited in the caller application and is accessible through it ( eg. ``hfss.method_name``).
+
     Parameters
     ----------
     design_type : str
@@ -492,11 +494,11 @@ class Design(object):
     NG : bool, optional
         Whether to run AEDT in the non-graphical mode. The default
         is ``False``, in which case AEDT launches in the graphical mode.
-    AlwaysNew : bool, optional
+    new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
         machine. The default is ``True``.
-    release_on_exit : bool, optional
+    close_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
     student_version : bool, optional
         Whether to enable the student version of AEDT. The default
@@ -515,7 +517,9 @@ class Design(object):
 
     def __exit__(self, ex_type, ex_value, ex_traceback):
         if ex_type:
-            exception_to_desktop(self, ex_value, ex_traceback)
+            exception_to_desktop(ex_value, ex_traceback)
+        if self.release_on_exit:
+            self.release_desktop(self.close_on_exit, self.close_on_exit)
 
     def __enter__(self):
         pass
@@ -536,9 +540,9 @@ class Design(object):
         design_name=None,
         solution_type=None,
         specified_version=None,
-        NG=False,
-        AlwaysNew=False,
-        release_on_exit=False,
+        non_graphical=False,
+        new_desktop_session=False,
+        close_on_exit=False,
         student_version=False,
     ):
         # Get Desktop from global Desktop Environment
@@ -547,8 +551,14 @@ class Design(object):
         self.project_datasets = {}
         self.design_datasets = {}
         main_module = sys.modules["__main__"]
+        self.close_on_exit = close_on_exit
+
         if "pyaedt_initialized" not in dir(main_module):
-            Desktop(specified_version, NG, AlwaysNew, release_on_exit, student_version)
+            Desktop(specified_version, non_graphical, new_desktop_session, close_on_exit, student_version)
+            self.release_on_exit = True
+        else:
+            self.release_on_exit = False
+
         self._project_dictionary = {}
         self._mttime = None
         self._desktop = main_module.oDesktop
@@ -1250,6 +1260,118 @@ class Design(object):
 
         """
         return self._variable_manager
+
+    @aedt_exception_handler
+    def set_license_type(self, license_type="Pool"):
+        """Change the License Type between ``Pack`` and ``Pool``.
+
+        ..note: The command returns True even if the Key is wrong due to API limitation.
+
+        Parameters
+        ----------
+        license_type : str, optional
+            Set License Type between ``Pack`` and ``Pool``.
+
+        Returns
+        -------
+        bool
+        """
+        try:
+            self.odesktop.SetRegistryString("Desktop/Settings/ProjectOptions/HPCLicenseType", license_type)
+            return True
+        except:
+            return False
+
+    @aedt_exception_handler
+    def set_registry_key(self, key_full_name, key_value):
+        """Change a specific registry key to new value.
+
+        Parameters
+        ----------
+        key_full_name : str
+            Desktop Registry Key full name.
+        key_value : str, int
+            Desktop Registry Key value.
+        Returns
+        -------
+        bool
+        """
+        if isinstance(key_value, str):
+            try:
+                self.odesktop.SetRegistryString(key_full_name, key_value)
+                self._messenger.add_info_message("Key {} correctly changed.".format(key_full_name))
+                return True
+            except:
+                self._messenger.add_warning_message("Error setting up Key {}.".format(key_full_name))
+                return False
+        elif isinstance(key_value, int):
+            try:
+                self.odesktop.SetRegistryInt(key_full_name, key_value)
+                self._messenger.add_info_message("Key {} correctly changed.".format(key_full_name))
+                return True
+            except:
+                self._messenger.add_warning_message("Error setting up Key {}.".format(key_full_name))
+                return False
+        else:
+            self._messenger.add_warning_message("Key Value must be an int or str.")
+            return False
+
+    @aedt_exception_handler
+    def set_active_dso_config_name(self, product_name="HFSS", config_name="Local"):
+        """Change a specific registry key to new value.
+
+        Parameters
+        ----------
+        product_name : str
+            Name of the tool to which apply the active Configuration.
+        config_name : str
+            Name of configuration to apply.
+        Returns
+        -------
+        bool
+        """
+        try:
+            self.set_registry_key("Desktop/ActiveDSOConfigurations/{}".format(product_name), config_name)
+            self._messenger.add_info_message(
+                "Configuration Changed correctly to {} for {}.".format(config_name, product_name))
+            return True
+        except:
+            self._messenger.add_warning_message(
+                "Error Setting Up Configuration {} for {}.".format(config_name, product_name))
+            return False
+
+    @aedt_exception_handler
+    def set_registry_from_file(self, registry_file, make_active=True):
+        """Apply desktop Registry settings from acf file. A way to get an editable ACF file is to export a
+        configuration from Desktop UI, edit and reuse it.
+
+        Parameters
+        ----------
+        registry_file : str
+            Full path to acf file.
+        make_active : bool, optional
+            Set imported Configuration as active.
+
+        Returns
+        -------
+        bool
+        """
+        try:
+            self.odesktop.SetRegistryFromFile(registry_file)
+            if make_active:
+                with open(registry_file, 'r') as f:
+                    for line in f:
+                        stripped_line = line.strip()
+                        if "ConfigName" in stripped_line:
+                            config_name = stripped_line.split("=")
+                        elif "DesignType" in stripped_line:
+                            design_type = stripped_line.split("=")
+                            break
+                    if design_type and config_name:
+                        self.set_active_dso_config_name(design_type[1], config_name[1])
+            return True
+        except:
+            return False
 
     @aedt_exception_handler
     def _optimetrics_variable_args(
@@ -2105,6 +2227,7 @@ class Design(object):
 
         """
         msg_txt = ""
+        legacy_name = self.project_name
         if name:
             assert name in self.project_list, "Invalid project name {}.".format(name)
             msg_txt = "specified " + name
@@ -2112,14 +2235,27 @@ class Design(object):
             name = self.project_name
             msg_txt = "active " + self.project_name
         self._messenger.add_info_message("Closing the {} AEDT Project".format(msg_txt), level="Global")
-        if name != self.project_name:
-            oproj = self.odesktop.SetActiveProject(name)
-        else:
-            oproj = self.oproject
+        oproj = self.odesktop.SetActiveProject(name)
+        proj_path = self.odesktop.GetProjectDirectory()
         if saveproject:
             oproj.Save()
         self.odesktop.CloseProject(name)
-
+        i = 0
+        timeout = 10
+        locked = True
+        if name == legacy_name:
+            self._oproject = None
+            self._odesign = None
+        while locked:
+            if not os.path.exists(os.path.join(proj_path, name + ".aedt.lock")):
+                self._messenger.add_info_message("Project Closed Correctly", "Global")
+                locked = False
+            elif i > timeout:
+                self._messenger.add_warning_message("Lock File still exists.", "Global")
+                locked = False
+            else:
+                i += 0.2
+                time.sleep(0.2)
         return True
 
     @aedt_exception_handler
@@ -2210,7 +2346,10 @@ class Design(object):
         if self.design_type == "Circuit Design" or self.design_type == "HFSS 3D Layout Design":
             if self.modeler.edb:
                 self.modeler.edb.close_edb()
-        self.__init__(projectname=self.project_name, designname=design_name)
+        if self.project_name:
+            self.__init__(projectname=self.project_name, designname=design_name)
+        else:
+            self.__init__(projectname=generate_unique_name("Project"), designname=design_name)
 
     def _insert_design(self, design_type, design_name=None, solution_type=None):
         assert design_type in design_solutions, "Invalid design type for insert: {}".format(design_type)
@@ -2529,7 +2668,7 @@ class Design(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        assert self.project_name != project_name, "You cannot delete the active design."
+        assert self.project_name != project_name, "You cannot delete the active project."
         self._desktop.DeleteProject(project_name)
         return True
 
@@ -2546,19 +2685,6 @@ class Design(object):
         self.oproject.SetActiveDesign(name)
         self.odesign = name
         self.__init__(self.project_name, self.design_name)
-        return True
-
-    @aedt_exception_handler
-    def update_registry_from_file(self, filename):
-        """Update HPC options from a configuration file.
-
-        Parameters
-        ----------
-        filename : str
-            Full path and name of the configuration file, which can be an ACF or TXT file.
-
-        """
-        self._desktop.SetRegistryFromFile(r"%s" % os.path.abspath(filename))
         return True
 
     @aedt_exception_handler

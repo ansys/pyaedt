@@ -18,7 +18,6 @@ class TestClass:
         with Scratch(scratch_path) as self.local_scratch:
             netlist_file1 = os.path.join(local_path, "example_models", netlist1)
             self.local_scratch.copyfile(netlist_file1)
-
             self.aedtapp = Simplorer(project_name, design_name)
 
     def teardown_class(self):

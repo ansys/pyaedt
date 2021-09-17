@@ -112,7 +112,6 @@ class Scratch:
         if ex_type or self._volatile:
             self.remove()
 
-
 def get_json_files(start_folder):
     """
     Get the absolute path to all *.json files in start_folder.

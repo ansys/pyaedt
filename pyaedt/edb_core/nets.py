@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
-from .general import *
+from pyaedt.edb_core.general import convert_netdict_to_pydict
+from pyaedt.generic.general_methods import aedt_exception_handler
 
 
 class EdbNets(object):
@@ -283,6 +284,6 @@ class EdbNets(object):
         if component_name not in self.parent.core_components.components:
             return False
         for net in self.parent.core_components.components[component_name].nets:
-            if net_name == net.GetName():
+            if net_name == net:
                 return True
         return False

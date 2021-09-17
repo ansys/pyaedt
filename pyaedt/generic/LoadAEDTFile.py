@@ -161,17 +161,17 @@ def _decode_value_and_save(k, v, d):
             d[k] = _parse_value(v)
 
 
-def _decode_key(l, d):
+def _decode_key(l , d):
     """
 
     Parameters
     ----------
-    l :
+    l : str
+        Line.
 
-    d :
+    d : dict
+        Active dictionary.
 
-
-    Returns
     -------
 
     """
@@ -262,7 +262,7 @@ def _walk_through_structure(keyword, save_dict):
     return _count
 
 
-def _reaf_aedt_file(filename):
+def _read_aedt_file(filename):
     """Read the entire AEDT file discard binary and put ascii line in a list
 
     Parameters
@@ -277,17 +277,22 @@ def _reaf_aedt_file(filename):
     global _all_lines
     global _len_all_lines
     global _count
-    # read the AEDT file and discard the binary part
+
+    # read the AEDT file
     with open(filename, "rb") as aedt_fh:
-        temp = aedt_fh.read().splitlines()
-    _all_lines = []
-    _count = 0
-    for line in temp:
+        raw_lines = aedt_fh.read().splitlines()
+    ascii_lines = []
+    for raw_line in raw_lines:
         try:
-            _all_lines.append(line.decode("utf-8").lstrip("\t"))
+            ascii_lines.append(raw_line.decode("utf-8").lstrip("\t"))
         except UnicodeDecodeError:
-            break
+            continue
+    ascii_content = "\n".join(ascii_lines)
+
+    # combine subsequent lines when the line ends in \
+    _all_lines = ascii_content.replace("\\\n", "").splitlines()
     _len_all_lines = len(_all_lines)
+    _count = 0
 
 
 def _load_entire_aedt_file(filename):
@@ -304,17 +309,16 @@ def _load_entire_aedt_file(filename):
         dictionary containing the decoded AEDT file
 
     """
-    _reaf_aedt_file(filename)
+    global _count
+    _read_aedt_file(filename)
+    main_dict = OrderedDict()
     # load the aedt file
-    begin_key = None
-    for line in _all_lines:
+    while _count < _len_all_lines:
+        line = _all_lines[_count]
         m = _begin_search.search(line)
         if m:
-            begin_key = m.group(1)
-            break
-    main_dict = OrderedDict()
-    if begin_key:
-        _walk_through_structure(begin_key, main_dict)
+            _walk_through_structure(m.group(1), main_dict)
+        _count += 1
     return main_dict
 
 
@@ -334,7 +338,7 @@ def _load_keyword_in_aedt_file(filename, keyword):
         dictionary containing the decoded AEDT file
 
     """
-    _reaf_aedt_file(filename)
+    _read_aedt_file(filename)
     # load the aedt file
     main_dict = OrderedDict()
     _walk_through_structure(keyword, main_dict)

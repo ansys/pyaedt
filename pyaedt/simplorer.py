@@ -4,7 +4,6 @@ from __future__ import absolute_import
 
 from .application.AnalysisSimplorer import FieldAnalysisSimplorer
 from .application.Variables import Variable
-from .desktop import exception_to_desktop
 from .generic.general_methods import aedt_exception_handler, is_number
 
 
@@ -36,11 +35,11 @@ class Simplorer(FieldAnalysisSimplorer, object):
     NG : bool, optional
         Whether to launch AEDT in the non-graphical mode. The default
         is ``False``, in which case AEDT is launched in the graphical mode.
-    AlwaysNew : bool, optional
+    new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
         machine.  The default is ``True``.
-    release_on_exit : bool, optional
+    close_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``True``.
     student_version : bool, optional
         Whether open AEDT Student Version. The default is ``False``.
@@ -78,9 +77,9 @@ class Simplorer(FieldAnalysisSimplorer, object):
         solution_type=None,
         setup_name=None,
         specified_version=None,
-        NG=False,
-        AlwaysNew=False,
-        release_on_exit=False,
+        non_graphical=False,
+        new_desktop_session=False,
+        close_on_exit=False,
         student_version=False,
     ):
         """Constructor."""
@@ -92,9 +91,9 @@ class Simplorer(FieldAnalysisSimplorer, object):
             solution_type,
             setup_name,
             specified_version,
-            NG,
-            AlwaysNew,
-            release_on_exit,
+            non_graphical,
+            new_desktop_session,
+            close_on_exit,
             student_version,
         )
 
@@ -270,8 +269,3 @@ class Simplorer(FieldAnalysisSimplorer, object):
 
     def __enter__(self):
         return self
-
-    def __exit__(self, ex_type, ex_value, ex_traceback):
-        """Push exit up to parent object Design"""
-        if ex_type:
-            exception_to_desktop(self, ex_value, ex_traceback)

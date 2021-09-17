@@ -19,7 +19,7 @@ class TestClass:
     def setup_class(self):
         # set a scratch directory and the environment / test data
         with Scratch(scratch_path) as self.local_scratch:
-            self.aedtapp = Hfss(AlwaysNew=True)
+            self.aedtapp = Hfss(new_desktop_session=True)
 
     def teardown_class(self):
         assert self.aedtapp.close_project(self.aedtapp.project_name)
@@ -113,39 +113,41 @@ class TestClass:
         assert ports[0].name in [i.name for i in self.aedtapp.boundaries]
         pass
 
-    def test_06a_create_sweep(self):
+    def test_06a_create_linear_count_sweep(self):
         setup = self.aedtapp.create_setup("MySetup")
         setup.props["Frequency"] = "1GHz"
         setup.props["BasisOrder"] = 2
         setup.props["MaximumPasses"] = 1
         assert setup.update()
-        assert self.aedtapp.create_frequency_sweep("MySetup", "GHz", 0.8, 1.2)
-        assert self.aedtapp.create_frequency_sweep("MySetup", "GHz", 0.8, 1.2)
-        assert self.aedtapp.create_frequency_sweep(
+        assert self.aedtapp.create_linear_count_sweep("MySetup", "GHz", 0.8, 1.2, 401)
+        assert self.aedtapp.create_linear_count_sweep("MySetup", "GHz", 0.8, 1.2, 401)
+        assert self.aedtapp.create_linear_count_sweep(
             setupname="MySetup",
             sweepname="MySweep",
             unit="MHz",
             freqstart=1.1e3,
             freqstop=1200.1,
             num_of_freq_points=1234,
-            sweeptype="Interpolating",
+            sweep_type="Interpolating",
         )
-        assert self.aedtapp.create_frequency_sweep(
+        assert self.aedtapp.create_linear_count_sweep(
+            setupname="MySetup",
+            sweepname="MySweep",
+            unit="MHz",
+            freqstart=1.1e3,
+            freqstop=1200.1,
+            num_of_freq_points=1234,
+            sweep_type="Interpolating",
+        )
+        assert self.aedtapp.create_linear_count_sweep(
             setupname="MySetup",
             sweepname="MySweepFast",
             unit="MHz",
             freqstart=1.1e3,
             freqstop=1200.1,
             num_of_freq_points=1234,
-            sweeptype="Fast",
+            sweep_type="Fast",
         )
-        assert self.aedtapp.create_single_point_sweep("MySetup")
-
-    def test_06B_setup_exists(self):
-        assert self.aedtapp.analysis_setup is not None
-        assert self.aedtapp.nominal_sweep is not None
-
-    def test_06b_create_linear_count_sweep(self):
         num_points = 1752
         freq_start = 1.1e3
         freq_stop = 1200.1
@@ -161,6 +163,11 @@ class TestClass:
         assert sweep.props["RangeCount"] == num_points
         assert sweep.props["RangeStart"] == str(freq_start) + units
         assert sweep.props["RangeEnd"] == str(freq_stop) + units
+        assert sweep.props["Type"] == "Discrete"
+
+    def test_06b_setup_exists(self):
+        assert self.aedtapp.analysis_setup is not None
+        assert self.aedtapp.nominal_sweep is not None
 
     def test_06c_create_linear_step_sweep(self):
         step_size = 153.8
@@ -178,6 +185,59 @@ class TestClass:
         assert sweep.props["RangeStep"] == str(step_size) + units
         assert sweep.props["RangeStart"] == str(freq_start) + units
         assert sweep.props["RangeEnd"] == str(freq_stop) + units
+        assert sweep.props["Type"] == "Discrete"
+
+        step_size = 53.8
+        freq_start = 1.2e3
+        freq_stop = 1305.1
+        units = "MHz"
+        sweep = self.aedtapp.create_linear_step_sweep(
+            setupname="MySetup",
+            sweepname="StepFast",
+            unit=units,
+            freqstart=freq_start,
+            freqstop=freq_stop,
+            step_size=step_size,
+            sweep_type="Fast"
+        )
+        assert sweep.props["RangeStep"] == str(step_size) + units
+        assert sweep.props["RangeStart"] == str(freq_start) + units
+        assert sweep.props["RangeEnd"] == str(freq_stop) + units
+        assert sweep.props["Type"] == "Fast"
+
+    @pytest.mark.skipif(os.name == "posix", reason="Blocking Build Pipeline")
+    def test_06d_create_single_point_sweep(self):
+        assert self.aedtapp.create_single_point_sweep(
+            setupname="MySetup",
+            unit='MHz',
+            freq=1.2e3,
+        )
+        assert self.aedtapp.create_single_point_sweep(
+            setupname="MySetup",
+            unit='GHz',
+            freq=1.2,
+            save_single_field=False,
+        )
+        assert self.aedtapp.create_single_point_sweep(
+            setupname="MySetup",
+            unit='GHz',
+            freq=[1.1, 1.2, 1.3],
+        )
+        assert self.aedtapp.create_single_point_sweep(
+            setupname="MySetup",
+            unit='GHz',
+            freq=[1.1e1, 1.2e1, 1.3e1],
+            save_single_field=[True, False, True]
+        )
+
+        os.environ["PYAEDT_ERROR_HANDLER"] = "True"
+        assert not self.aedtapp.create_single_point_sweep(
+                setupname="MySetup",
+                unit='GHz',
+                freq=[1, 2e2, 3.4],
+                save_single_field=[True, False]
+            )
+        os.environ["PYAEDT_ERROR_HANDLER"] = "False"
 
     def test_06z_validate_setup(self):
         list, ok = self.aedtapp.validate_full_design(ports=5)

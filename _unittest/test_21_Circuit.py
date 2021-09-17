@@ -201,6 +201,7 @@ class TestClass:
         ]
         assert LNA_setup.update()
 
+    @pytest.mark.skipif(os.name == "posix", reason="To be investigated on linux.")
     def test_18_export_touchstone(self):
         assert self.aedtapp.analyze_nominal()
         assert self.aedtapp.export_touchstone("Dom_LNA", "Dom_LNA", os.path.join(self.local_scratch.path, "new.s2p"))

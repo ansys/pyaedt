@@ -112,10 +112,7 @@ def aedt_exception_handler(func):
 
     @wraps(func)
     def inner_function(*args, **kwargs):
-        if "PYTEST_CURRENT_TEST" in os.environ or "UNITTEST_CURRENT_TEST" in os.environ:
-            # We are running under pytest or unittest, do not use the decorator
-            return func(*args, **kwargs)
-        else:
+        if os.getenv("PYAEDT_ERROR_HANDLER", "True").lower() in ("true", "1", "t"):
             try:
                 return func(*args, **kwargs)
             except TypeError:
@@ -155,6 +152,8 @@ def aedt_exception_handler(func):
             except BaseException:
                 _exception(sys.exc_info(), func, args, kwargs, "General or AEDT Error")
                 return False
+        else:
+            return func(*args, **kwargs)
 
     return inner_function
 

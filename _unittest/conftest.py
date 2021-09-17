@@ -30,8 +30,7 @@ if is_ironpython:
 else:
     import pytest
 
-    if "UNITTEST_CURRENT_TEST" in os.environ:
-        os.environ.pop("UNITTEST_CURRENT_TEST")
+os.environ["PYAEDT_ERROR_HANDLER"] = "False"
 
 local_path = os.path.dirname(os.path.realpath(__file__))
 
@@ -46,7 +45,7 @@ test_project_name = "test_primitives"
 
 local_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(local_path)
-from launch_desktop_tests import run_desktop_tests
+from .launch_desktop_tests import run_desktop_tests
 
 # set scratch path and create it if necessary
 scratch_path = tempfile.gettempdir()
@@ -59,18 +58,9 @@ if os.path.exists(local_config_file):
     with open(local_config_file) as f:
         config = json.load(f)
 else:
-    config = {
-        "desktopVersion": "2021.1",
-        "NonGraphical": False,
-        "NewThread": True,
-        "test_desktops": False,
-        "build_machine": True,
-        "skip_space_claim": False,
-        "skip_circuits": False,
-        "skip_edb": False,
-        "skip_debug": False,
-    }
-    config["local"] = False
+    config = {"desktopVersion": "2021.1", "NonGraphical": False, "NewThread": True, "test_desktops": False,
+              "build_machine": True, "skip_space_claim": False, "skip_circuits": False, "skip_edb": False,
+              "skip_debug": False, "local": False}
 
 
 class BasisTest:
@@ -93,8 +83,8 @@ class BasisTest:
                 designname=design_name,
                 solution_type=solution_type,
                 specified_version=desktop_version,
-                AlwaysNew=new_thread,
-                NG=non_graphical,
+                new_desktop_session=new_thread,
+                non_graphical=non_graphical,
             )
             # TODO do we need this ?
             if project_name:
@@ -123,7 +113,7 @@ def desktop_init():
 
     # If new_thread is set to false by a local_config, then don't close the desktop.
     # Intended for local debugging purposes only
-    if new_thread:
+    if new_thread or os.name == "posix":
         desktop.force_close_desktop()
     p = [x[0] for x in os.walk(scratch_path) if "scratch" in x[0]]
     # p = pathlib.Path(scratch_path).glob('**/scratch*')

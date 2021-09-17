@@ -6,14 +6,12 @@ This example shows how you can use PyAEDT to create an antenna setup in HFSS and
 # sphinx_gallery_thumbnail_path = 'Resources/Dipole.png'
 
 import os
+import tempfile
 from pyaedt import Hfss
 from pyaedt import Desktop
 from pyaedt import generate_unique_name
 
-if os.name == "posix":
-    tmpfold = os.environ["TMPDIR"]
-else:
-    tmpfold = os.environ["TEMP"]
+tmpfold = tempfile.gettempdir()
 
 temp_folder = os.path.join(tmpfold, generate_unique_name("Example"))
 if not os.path.exists(temp_folder):
@@ -25,7 +23,7 @@ if not os.path.exists(temp_folder):
 # This examples launches AEDT 2021.1 in graphical mode.
 
 nongraphical = False
-d = Desktop("2021.1", NG=nongraphical)
+d = Desktop("2021.1", non_graphical=nongraphical)
 
 ###############################################################################
 # Launch HFSS in Graphical Mode
@@ -93,7 +91,7 @@ variations["Freq"] = ["1GHz"]
 variations["Theta"] = ["All"]
 variations["Phi"] = ["All"]
 hfss.post.create_rectangular_plot(
-    "db(GainTotal)", hfss.nominal_adaptive, variations, "Theta", "3D", plottype="Far Fields"
+    "db(GainTotal)", hfss.nominal_adaptive, variations, "Theta", "3D", report_category="Far Fields"
 )
 
 ###############################################################################

@@ -10,6 +10,9 @@ from ..generic.general_methods import retry_ntimes
 class Primitives3D(Primitives, object):
     """Manages primitives in 3D tools.
 
+    This class is inherited in the caller application and is accessible through the primitives variable part
+    of modeler object( eg. ``hfss.modeler.primitives`` or ``icepak.modeler.primitives``).
+
     Parameters
     ----------
     parent : str

@@ -10,15 +10,13 @@ in Q3D and run a simulation.
 # This example sets up the local path to the path for the ``AEDTLib`` directory.
 
 import os
-
+import tempfile
 from pyaedt import examples, generate_unique_name
 
 project_full_name = examples.download_sbr()
 project_name = os.path.basename(project_full_name)[:-5]
-if os.name == "posix":
-    tmpfold = os.environ["TMPDIR"]
-else:
-    tmpfold = os.environ["TEMP"]
+tmpfold = tempfile.gettempdir()
+
 
 temp_folder = os.path.join(tmpfold, generate_unique_name("SBR"))
 if not os.path.exists(temp_folder):
@@ -36,10 +34,10 @@ target = Hfss(
     designname="Cassegrain_",
     solution_type="SBR+",
     specified_version="2021.1",
-    AlwaysNew=False,
+    new_desktop_session=False,
 )
 target.save_project(os.path.join(temp_folder, project_name + ".aedt"))
-source = Hfss(projectname=project_name, designname="feeder", specified_version="2021.1", AlwaysNew=False)
+source = Hfss(projectname=project_name, designname="feeder", specified_version="2021.1", new_desktop_session=False)
 
 ###############################################################################
 # Define a Linked Antenna
@@ -81,7 +79,7 @@ variations["Freq"] = ["10GHz"]
 variations["Theta"] = ["All"]
 variations["Phi"] = ["All"]
 target.post.create_rectangular_plot(
-    "db(GainTotal)", target.nominal_adaptive, variations, "Theta", "ATK_3D", plottype="Far Fields"
+    "db(GainTotal)", target.nominal_adaptive, variations, "Theta", "ATK_3D", report_category="Far Fields"
 )
 if os.name != "posix":
     target.close_desktop()

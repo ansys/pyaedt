@@ -12,6 +12,8 @@ The example file is an Icepak Project with a model already created and with mate
 # This examples launches AEDT 2021.1 in graphical mode.
 
 import os
+import tempfile
+import shutil
 from pyaedt import examples, generate_unique_name
 from pyaedt import Icepak
 
@@ -22,16 +24,16 @@ from pyaedt import Icepak
 
 project_full_name = examples.download_icepak()
 
-if os.name == "posix":
-    tmpfold = os.environ["TMPDIR"]
-else:
-    tmpfold = os.environ["TEMP"]
+tmpfold = tempfile.gettempdir()
+
 
 temp_folder = os.path.join(tmpfold, generate_unique_name("Example"))
+project_temp_name = os.path.join(temp_folder, "Graphic_Card.aedt")
 if not os.path.exists(temp_folder):
     os.makedirs(temp_folder)
+shutil.copy2(project_full_name, project_temp_name)
 
-ipk = Icepak(project_full_name, specified_version="2021.1")
+ipk = Icepak(project_temp_name, specified_version="2021.1")
 ipk.save_project(os.path.join(temp_folder, "Graphics_card.aedt"))
 ipk.autosave_disable()
 
@@ -70,7 +72,7 @@ mesh_region.update()
 # ~~~~~
 # Create Point Monitor and Setup
 
-ipk.assign_point_monitor(point_position=["-35mm", "3.6mm", "-86mm"],monitor_name="TemperatureMonitor1")
+ipk.assign_point_monitor(point_position=["-35mm", "3.6mm", "-86mm"], monitor_name="TemperatureMonitor1")
 ipk.assign_point_monitor(point_position=["80mm", "14.243mm", "-55mm"], monitor_type="Speed")
 setup1 = ipk.create_setup()
 setup1.props["Flow Regime"] = "Turbulent"

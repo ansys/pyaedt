@@ -6,14 +6,13 @@ This example shows how you can use PyAEDT to create and modify coordinate system
 # sphinx_gallery_thumbnail_path = 'Resources/coordinate_system.png'
 
 import os
+import tempfile
+
 from pyaedt import Hfss
 from pyaedt import Desktop
 from pyaedt import generate_unique_name
 
-if os.name == "posix":
-    tmpfold = os.environ["TMPDIR"]
-else:
-    tmpfold = os.environ["TEMP"]
+tmpfold = tempfile.gettempdir()
 
 temp_folder = os.path.join(tmpfold, generate_unique_name("Example"))
 if not os.path.exists(temp_folder):
@@ -25,7 +24,7 @@ if not os.path.exists(temp_folder):
 # This example launches AEDT 2021.1 in graphical mode.
 
 nongraphical = False
-d = Desktop("2021.1", NG=nongraphical)
+d = Desktop("2021.1", non_graphical=nongraphical)
 
 ###############################################################################
 # Insert an HFSS Design

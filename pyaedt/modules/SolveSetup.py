@@ -1019,8 +1019,8 @@ class Setup3DLayout(object):
         sweepname : str, optional
             Name of the sweep. The default is ``None``.
         sweeptype : str, optional
-            Type of the sweep. Options are ``"Fast"``, ``"Interpolating"``, and
-            ``"Discrete"``. The default is ``"Interpolating"``.
+            Type of the sweep. Options are ``"Interpolating"`` and ``"Discrete"``.
+            The default is ``"Interpolating"``.
 
         Returns
         -------

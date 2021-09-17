@@ -3,6 +3,7 @@ import os
 import os.path
 import shutil
 import zipfile
+import tempfile
 
 from pyaedt import is_ironpython
 from pyaedt.misc import list_installed_ansysem
@@ -12,11 +13,7 @@ if is_ironpython:
 else:
     import urllib.request
 
-if os.name == "posix":
-    tmpfold = os.environ["TMPDIR"]
-else:
-    tmpfold = os.environ["TEMP"]
-
+tmpfold = tempfile.gettempdir()
 EXAMPLE_REPO = "https://github.com/pyansys/example-data/raw/master/pyaedt/"
 EXAMPLES_PATH = os.path.join(tmpfold, "PyAEDTExamples")
 

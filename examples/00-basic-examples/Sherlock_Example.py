@@ -8,15 +8,14 @@ This example shows how to create an Icepak project starting from Sherlock
 
 import time
 import os
+import tempfile
 import datetime
 
 from pyaedt import examples, generate_unique_name
 
 input_dir = examples.download_sherlock()
-if os.name == "posix":
-    tmpfold = os.environ["TMPDIR"]
-else:
-    tmpfold = os.environ["TEMP"]
+tmpfold = tempfile.gettempdir()
+
 
 temp_folder = os.path.join(tmpfold, generate_unique_name("Example"))
 if not os.path.exists(temp_folder):
@@ -52,7 +51,7 @@ from pyaedt import Desktop
 
 NonGraphical = False
 
-d = Desktop("2021.1", NG=NonGraphical)
+d = Desktop("2021.1", non_graphical=NonGraphical)
 
 start = time.time()
 material_list = os.path.join(input_dir, material_name)

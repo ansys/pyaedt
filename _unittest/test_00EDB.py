@@ -2,7 +2,6 @@ import os
 
 # Setup paths for module imports
 import gc
-import time
 
 # Import required modules
 from pyaedt import Edb
@@ -30,7 +29,6 @@ class TestClass:
                 os.path.join(self.local_scratch.path, test_project_name + ".aedb"),
             )
             self.edbapp = Edb(aedbproject, "Galileo_G87173_204", edbversion=desktop_version, isreadonly=False)
-            time.sleep(5)
 
     def teardown_class(self):
 
@@ -120,10 +118,8 @@ class TestClass:
         assert "LYR_1" in self.edbapp.core_stackup.stackup_layers.layers.keys()
         self.edbapp.core_stackup.stackup_layers["LYR_1"].name
         self.edbapp.core_stackup.stackup_layers["LYR_1"].thickness_value = "100um"
-        time.sleep(2)
         assert self.edbapp.core_stackup.stackup_layers["LYR_1"].thickness_value == "100um"
         self.edbapp.core_stackup.stackup_layers["LYR_2"].material_name = "MyCond"
-        time.sleep(2)
         assert self.edbapp.core_stackup.stackup_layers["LYR_2"].material_name == "MyCond"
         assert self.edbapp.core_stackup.stackup_layers["LYR_1"].filling_material_name is not None or False
         assert self.edbapp.core_stackup.stackup_layers["LYR_1"].top_bottom_association is not None or False
@@ -240,7 +236,6 @@ class TestClass:
         assert self.edbapp.core_hfss.create_coax_port_on_component("U2A5", ["RSVD_0", "V1P0_SO"])
 
     def test_37_create_circuit_port(self):
-        time.sleep(1)
         assert (
             self.edbapp.core_siwave.create_circuit_port_on_net("U2A5", "V1P5_S3", "U2A5", "GND", 50, "test") == "test"
         )
@@ -253,7 +248,6 @@ class TestClass:
         assert "GND" in p4 and "V1P5_S3" in p4
 
     def test_38_create_voltage_source(self):
-        time.sleep(1)
         assert "Vsource_" in self.edbapp.core_siwave.create_voltage_source_on_net(
             "U2A5", "V1P5_S3", "U2A5", "GND", 3.3, 0
         )
@@ -261,13 +255,11 @@ class TestClass:
         assert "VSource_" in self.edbapp.core_siwave.create_voltage_source_on_pin(pins[300], pins[10], 3.3, 0)
 
     def test_39_create_current_source(self):
-        time.sleep(1)
         assert self.edbapp.core_siwave.create_current_source_on_net("U2A5", "V1P5_S3", "U2A5", "GND", 0.1, 0) != ""
         pins = self.edbapp.core_components.get_pin_from_component("U2A5")
         assert "I22" == self.edbapp.core_siwave.create_current_source_on_pin(pins[300], pins[10], 0.1, 0, "I22")
 
     def test_39B_create_resistors(self):
-        time.sleep(1)
         assert "myRes" in self.edbapp.core_siwave.create_resistor_on_net("U2A5", "V1P5_S0", "U2A5", "GND", 50, "myRes")
         pins = self.edbapp.core_components.get_pin_from_component("U2A5")
         assert "RST4000" == self.edbapp.core_siwave.create_resistor_on_pin(pins[300], pins[10], 40, "RST4000")
@@ -303,6 +295,15 @@ class TestClass:
             modelpath=os.path.join(self.local_scratch.path, test_project_name + ".aedb", "GRM32ER72A225KA35_25C_0V.sp"),
             modelname="GRM32ER72A225KA35_25C_0V",
         )
+
+    def test_44a_assign_variable(self):
+        result, var_server = self.edbapp.add_design_variable("myvar", "1mm")
+        assert result
+        assert var_server
+        result, var_server = self.edbapp.add_design_variable("myvar", "1mm")
+        assert not result
+        assert self.edbapp.core_primitives.parametrize_trace_width("A0_N")
+        assert self.edbapp.core_primitives.parametrize_trace_width("A0_N_R")
 
     def test_45_delete_net(self):
         nets_deleted = self.edbapp.core_nets.delete_nets("A0_N")
@@ -480,6 +481,6 @@ class TestClass:
         options_config = {"UNITE_NETS": 1, "LAUNCH_MAXWELL": 0}
         out = edb.write_export3d_option_config_file(scratch_path, options_config)
         assert os.path.exists(out)
-        out = edb.export_maxwell(scratch_path)
+        out = edb.export_maxwell(scratch_path, num_cores=6)
         assert os.path.exists(out)
         edb.close_edb()

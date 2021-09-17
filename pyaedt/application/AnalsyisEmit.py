@@ -49,9 +49,9 @@ class FieldAnalysisEmit(Design):
         solution_type,
         setup_name=None,
         specified_version=None,
-        NG=False,
-        AlwaysNew=True,
-        release_on_exit=True,
+        non_graphical=False,
+        new_desktop_session=True,
+        close_on_exit=True,
         student_version=False,
     ):
         self.solution_type = solution_type
@@ -62,9 +62,9 @@ class FieldAnalysisEmit(Design):
             designname,
             solution_type,
             specified_version,
-            NG,
-            AlwaysNew,
-            release_on_exit,
+            non_graphical,
+            new_desktop_session,
+            close_on_exit,
             student_version,
         )
         self._modeler = ModelerEmit(self)
