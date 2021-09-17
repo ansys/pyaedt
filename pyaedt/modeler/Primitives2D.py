@@ -3,7 +3,11 @@ from .Primitives import Primitives
 
 
 class Primitives2D(Primitives, object):
-    """Manages primitives in 2D tools."""
+    """Manages primitives in 2D tools.
+
+    This class is inherited in the caller application and is accessible through the primitives variable part
+    of modeler object( eg. ``hfss.modeler.primitives`` or ``icepak.modeler.primitives``).
+    """
 
     @property
     def plane2d(self):

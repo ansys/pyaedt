@@ -46,13 +46,8 @@ class MultiPartComponent(object):
         Roll angle, indicating the rotation about the component X-axis. The default
         is ``"0deg"``.
     """
-    _component_classes = ['environment',
-                          'rcs_standard',
-                          'vehicle',
-                          'person',
-                          'bike',
-                          'bird',
-                          'radar']
+
+    _component_classes = ["environment", "rcs_standard", "vehicle", "person", "bike", "bird", "radar"]
 
     # Keep track of all assigned names to the class. Use the
     # properties '.name' and '.index' to ensure unique instance names.
@@ -85,8 +80,18 @@ class MultiPartComponent(object):
 
         return True
 
-    def __init__(self, comp_folder, name=None, use_relative_cs=False, relative_cs_name=None, motion=False,
-                 offset=("0", "0", "0"), yaw="0deg", pitch="0deg", roll="0deg"):
+    def __init__(
+        self,
+        comp_folder,
+        name=None,
+        use_relative_cs=False,
+        relative_cs_name=None,
+        motion=False,
+        offset=("0", "0", "0"),
+        yaw="0deg",
+        pitch="0deg",
+        roll="0deg",
+    ):
 
         self.comp_folder = comp_folder  # Folder where the component is defined.
         # self._name = os.path.split(comp_folder)[-1]  # Base name of multipart component.
@@ -111,40 +116,40 @@ class MultiPartComponent(object):
             self._name = name  # Define name from the passed parameter.
             f = None
             for fn in json_files:
-                if os.path.split(fn)[1].split('.')[0] == name:
+                if os.path.split(fn)[1].split(".")[0] == name:
                     f = fn
         else:
             f = json_files[0]
-            self._name = os.path.split(f)[1].split('.')[0]  # Define name from the json file name.
+            self._name = os.path.split(f)[1].split(".")[0]  # Define name from the json file name.
 
         compdef = json_to_dict(f)  # dict defining the 3d component
 
-        if 'class' in compdef.keys():
-            self._component_class = compdef['class']
+        if "class" in compdef.keys():
+            self._component_class = compdef["class"]
         elif self._component_class:  # already defined by subclass. Do nothing.
             pass
         else:
             self._component_class = None
 
         #  Allow for different units in the multipart component. For example with radar.
-        if 'units' in compdef.keys():
-            self._local_units = compdef['units']
+        if "units" in compdef.keys():
+            self._local_units = compdef["units"]
         else:
             self._local_units = None  # Default to global units.
 
         # Used to offset the multipart component.
         # These are the variable names in HFSS.
         # self.name is a unique name (see the @property definition for name)
-        xyz = ['x', 'y', 'z']
-        self._offset_var_names = [self.name + '_' + s for s in xyz]
+        xyz = ["x", "y", "z"]
+        self._offset_var_names = [self.name + "_" + s for s in xyz]
 
         # Instantiate parts with the Part class.
         self.parts = {}
-        if 'parts' in compdef.keys():
-            for pn, part_def in compdef['parts'].items():
+        if "parts" in compdef.keys():
+            for pn, part_def in compdef["parts"].items():
                 self.parts[pn] = Part(self.comp_folder, part_def, parent=self, name=pn)
-        if 'antennas' in compdef.keys():
-            for a, a_def in compdef['antennas'].items():
+        if "antennas" in compdef.keys():
+            for a, a_def in compdef["antennas"].items():
                 self.parts[a] = Antenna(self.comp_folder, a_def, parent=self, name=a)
 
         self.use_relative_cs = use_relative_cs
@@ -168,7 +173,7 @@ class MultiPartComponent(object):
         if self.use_global_cs:
             self._relative_cs_name = "Global"
         elif not self._relative_cs_name:
-            self._relative_cs_name = self.name + '_cs'
+            self._relative_cs_name = self.name + "_cs"
         return self._relative_cs_name
 
     @property
@@ -230,9 +235,7 @@ class MultiPartComponent(object):
         list
             List of the offset names for the X-, Y-, and Z-axes.
         """
-        return [self.offset_x_name,
-                self.offset_y_name,
-                self.offset_z_name]
+        return [self.offset_x_name, self.offset_y_name, self.offset_z_name]
 
     @property
     def yaw_name(self):
@@ -243,7 +246,7 @@ class MultiPartComponent(object):
         str
             Name of the yaw variable.
         """
-        return self.name + '_yaw'
+        return self.name + "_yaw"
 
     @property
     def yaw(self):
@@ -273,7 +276,7 @@ class MultiPartComponent(object):
         str
             Name of the pitch variable.
         """
-        return self.name + '_pitch'
+        return self.name + "_pitch"
 
     @property
     def pitch(self):
@@ -303,7 +306,7 @@ class MultiPartComponent(object):
         str
             Name of the roll variable.
         """
-        return self.name + '_roll'
+        return self.name + "_roll"
 
     @property
     def roll(self):
@@ -345,7 +348,7 @@ class MultiPartComponent(object):
         str
            Name of the unique instance.
         """
-        suffix = '_' + str(self.index)
+        suffix = "_" + str(self.index)
         return self._name + suffix  # unique instance name
 
     @property
@@ -390,41 +393,42 @@ class MultiPartComponent(object):
         Coordinate system.
         """
         if self.motion:
-            xyz = ['x', 'y', 'z']
+            xyz = ["x", "y", "z"]
             for m in range(3):
                 # app[self.offset_names[m]] = self.offset[m]
                 app.variable_manager.set_variable(
                     variable_name=self.offset_names[m],
                     expression=self.offset[m],
-                    description=self.name + ' ' + xyz[m] + "-position")
+                    description=self.name + " " + xyz[m] + "-position",
+                )
 
             app.variable_manager.set_variable(
-                variable_name=self.yaw_name,
-                expression=self.yaw,
-                description=self.name + ' yaw')
+                variable_name=self.yaw_name, expression=self.yaw, description=self.name + " yaw"
+            )
 
             app.variable_manager.set_variable(
-                variable_name=self.pitch_name,
-                expression=self.pitch,
-                description=self.name + ' pitch')
+                variable_name=self.pitch_name, expression=self.pitch, description=self.name + " pitch"
+            )
 
             app.variable_manager.set_variable(
-                variable_name=self.roll_name,
-                expression=self.roll,
-                description=self.name + ' roll')
+                variable_name=self.roll_name, expression=self.roll, description=self.name + " roll"
+            )
 
             cs_origin = self.offset_names
         else:
             cs_origin = self.offset
         if self.use_relative_cs:
-            return app.modeler.create_coordinate_system(origin=cs_origin, reference_cs=self._reference_cs_name,
-                                                        x_pointing=self._cs_pointing[0],
-                                                        y_pointing=self._cs_pointing[1],
-                                                        mode="axis",
-                                                        name=self.cs_name)
+            return app.modeler.create_coordinate_system(
+                origin=cs_origin,
+                reference_cs=self._reference_cs_name,
+                x_pointing=self._cs_pointing[0],
+                y_pointing=self._cs_pointing[1],
+                mode="axis",
+                name=self.cs_name,
+            )
 
     @aedt_exception_handler
-    def _insert(self, app,  motion=False):
+    def _insert(self, app, motion=False):
         """Insert the multi-part 3D component.
 
         Parameters
@@ -444,7 +448,7 @@ class MultiPartComponent(object):
         if self.use_global_cs or self.cs_name in app.modeler.oeditor.GetCoordinateSystems():
             app.modeler.set_working_coordinate_system(self.cs_name)
             if self.use_relative_cs:
-                self._relative_cs_name = self.name + '_cs'
+                self._relative_cs_name = self.name + "_cs"
         self.position_in_app(app)
 
         for p in self.parts:
@@ -452,8 +456,7 @@ class MultiPartComponent(object):
             if len(inserted) > 0:
                 for i in inserted:
                     self.aedt_components.append(i)
-        app.modeler.create_group(components=self.aedt_components,
-                                 group_name=self.name)
+        app.modeler.create_group(components=self.aedt_components, group_name=self.name)
         return True
 
     @aedt_exception_handler
@@ -554,7 +557,7 @@ class Environment(MultiPartComponent, object):
 
     @offset.setter
     def offset(self, o):
-        if isinstance(o, list) or isinstance(o, tuple) and len(o)==3:
+        if isinstance(o, list) or isinstance(o, tuple) and len(o) == 3:
             self._offset_values = o
 
 
@@ -581,7 +584,7 @@ class Actor(MultiPartComponent, object):
 
         super(Actor, self).__init__(actor_folder, use_relative_cs=True, motion=True, relative_cs_name=relative_cs_name)
 
-        self._speed_expression = str(speed) + 'm_per_sec'  # TODO: Need error checking here.
+        self._speed_expression = str(speed) + "m_per_sec"  # TODO: Need error checking here.
 
     @property
     def speed_name(self):
@@ -592,7 +595,7 @@ class Actor(MultiPartComponent, object):
         str
             Name of the speed variable.
         """
-        return self.name + '_speed'
+        return self.name + "_speed"
 
     @property
     def speed_expression(self):
@@ -611,14 +614,14 @@ class Actor(MultiPartComponent, object):
 
     @aedt_exception_handler
     def _add_speed(self, app):
-        app.variable_manager.set_variable(variable_name=self.speed_name,
-                                          expression=self.speed_expression,
-                                          description="object speed")
+        app.variable_manager.set_variable(
+            variable_name=self.speed_name, expression=self.speed_expression, description="object speed"
+        )
         # Update expressions for x and y position in app:
-        app[self.offset_names[0]] = str(self.offset[0]) + '+' \
-                                    + self.speed_name + ' * ' + MultiPartComponent._t \
-                                    + '* cos(' + self.yaw_name + ')'
+        app[self.offset_names[0]] = (
+            str(self.offset[0]) + "+" + self.speed_name + " * " + MultiPartComponent._t + "* cos(" + self.yaw_name + ")"
+        )
 
-        app[self.offset_names[1]] = str(self.offset[1]) + '+' \
-                                    + self.speed_name + ' * ' + MultiPartComponent._t \
-                                    + '* sin(' + self.yaw_name + ')'
+        app[self.offset_names[1]] = (
+            str(self.offset[1]) + "+" + self.speed_name + " * " + MultiPartComponent._t + "* sin(" + self.yaw_name + ")"
+        )

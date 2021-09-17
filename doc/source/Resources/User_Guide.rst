@@ -13,13 +13,14 @@ AEDT can be started from Python in the non-graphical mode using AEDT.
     Launch AEDT 2021 R1 in Non-Graphical mode
 
     from pyaedt import Desktop, Circuit
-    with Desktop("2021.1", NG=True):
+    with Desktop(specified_version="2021.1", non_graphical=True, new_desktop_session=True, close_on_exit=True,
+                 student_version=False):
         circuit = Circuit()
         ...
         # Any error here will be caught by Desktop.
         ...
 
-    # Desktop is automatically released here.
+    # Desktop is automatically closed here.
 
 
 The previous command launches AEDT and initializes a new Circuit design.
@@ -36,7 +37,7 @@ The same result can be obtained with the following code:
     # Launch the latest installed version of AEDT in graphical mode.
 
     from pyaedt import Circuit
-    with Circuit(specified_version="2021.1", NG=False) as circuit:
+    with Circuit(specified_version="2021.1", non_graphical=False) as circuit:
         ...
         # Any error here will be caught by Desktop.
         ...

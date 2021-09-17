@@ -14,15 +14,11 @@ import os
 # Set the local path to the path for AEDTLib.
 
 from pyaedt import examples
-
+import tempfile
 netlist = examples.download_netlist()
 from pyaedt import generate_unique_name
 
-if os.name == "posix":
-    tmpfold = os.environ["TMPDIR"]
-else:
-    tmpfold = os.environ["TEMP"]
-
+tmpfold = tempfile.gettempdir()
 temp_folder = os.path.join(tmpfold, generate_unique_name("Example"))
 if not os.path.exists(temp_folder):
     os.makedirs(temp_folder)

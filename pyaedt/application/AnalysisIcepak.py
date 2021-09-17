@@ -41,11 +41,11 @@ class FieldAnalysisIcepak(Analysis, object):
     NG : bool, optional
         Whether to run AEDT in the non-graphical mode. The default
         is ``False``, in which case AEDT launches in the graphical mode.
-    AlwaysNew : bool, optional
+    new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
         machine. The default is ``True``.
-    release_on_exit : bool, optional
+    close_on_exit : bool, optional
         Whether to release  AEDT on exit. The default is ``False``.
     student_version : bool, optional
         Whether to enable the student version of AEDT. The default
@@ -61,9 +61,9 @@ class FieldAnalysisIcepak(Analysis, object):
         solutiontype,
         setup_name=None,
         specified_version=None,
-        NG=False,
-        AlwaysNew=False,
-        release_on_exit=False,
+        non_graphical=False,
+        new_desktop_session=False,
+        close_on_exit=False,
         student_version=False,
     ):
         Analysis.__init__(
@@ -74,9 +74,9 @@ class FieldAnalysisIcepak(Analysis, object):
             solutiontype,
             setup_name,
             specified_version,
-            NG,
-            AlwaysNew,
-            release_on_exit,
+            non_graphical,
+            new_desktop_session,
+            close_on_exit,
             student_version,
         )
         self._modeler = Modeler3D(self)

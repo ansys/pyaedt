@@ -6,8 +6,8 @@ from __future__ import absolute_import
 import json
 
 from ..generic.DataHandlers import arg2dict
-from ..generic.general_methods import aedt_exception_handler, retry_ntimes
-from .Material import *
+from pyaedt.generic.general_methods import aedt_exception_handler, retry_ntimes, generate_unique_name
+from pyaedt.modules.Material import Material, SurfaceMaterial, MatProperties, OrderedDict
 
 
 class Materials(object):

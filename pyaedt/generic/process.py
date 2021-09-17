@@ -127,7 +127,7 @@ class AedtSolve(object):
 
 class SiwaveSolve(object):
     def __init__(self, project_path, aedt_version="2021.1", aedt_installer_path=None):
-        self.project_path = project_path
+        self._project_path = project_path
         self._exec_path = ""
         self._nbcores = 4
         self._ng = True
@@ -212,10 +212,10 @@ class SiwaveSolve(object):
             command.append(self._project_path)
             command.append(exec_file)
             command.append("-formatOutput -useSubdir")
-            p = subprocess.Popen(command)
+            p = subprocess.Popen(" ".join(command))
             p.wait()
 
-    def export_3d_cad(self, format_3d="Q3D", output_folder=None, net_list=None):
+    def export_3d_cad(self, format_3d="Q3D", output_folder=None, net_list=None, num_cores=None):
         """Export edb to Q3D or HFSS
 
         Parameters
@@ -225,6 +225,8 @@ class SiwaveSolve(object):
             Output file folder. If `` then the aedb parent folder is used
         net_list : list, default ``None``
             Define Nets to Export. if None, all nets will be exported
+        num_cores : int, optional
+            Define number of cores to use during export
 
         Returns
         -------
@@ -232,11 +234,11 @@ class SiwaveSolve(object):
             path to aedt file
         """
         if not output_folder:
-            output_folder = os.path.dirname(self.project_path)
+            output_folder = os.path.dirname(self.projectpath)
         scriptname = os.path.join(output_folder, "export_cad.py")
         with open(scriptname, "w") as f:
             f.write("import os\n")
-            f.write("edbpath = r'{}'\n".format(self.project_path))
+            f.write("edbpath = r'{}'\n".format(self.projectpath))
             f.write("exportOptions = os.path.join(r'{}', 'options.config')\n".format(output_folder))
             f.write("oDoc.ScrImportEDB(edbpath)\n")
             f.write("oDoc.ScrSaveProjectAs(os.path.join(r'{}','{}'))\n".format(output_folder, "test.siw"))
@@ -249,6 +251,9 @@ class SiwaveSolve(object):
                 f.write("        oDoc.ScrSelectNet(allnets[i], 1)\n")
             f.write("oDoc.ScrSetOptionsFor3DModelExport(exportOptions)\n")
             f.write("q3d_filename = os.path.join(r'{}', '{}')\n".format(output_folder, format_3d + "_siwave.aedt"))
+            if num_cores:
+                f.write("oDoc.ScrSetNumCpusToUse('{}')\n".format(num_cores))
+                self.nbcores = num_cores
             f.write("oDoc.ScrExport3DModel('{}', q3d_filename)\n".format(format_3d))
             f.write("oDoc.ScrCloseProject()\n")
             f.write("oApp.Quit()\n")

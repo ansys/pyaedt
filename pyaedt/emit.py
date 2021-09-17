@@ -1,7 +1,6 @@
 from __future__ import absolute_import
 
 from .application.AnalsyisEmit import FieldAnalysisEmit
-from .desktop import exception_to_desktop
 
 
 class Emit(FieldAnalysisEmit, object):
@@ -37,11 +36,11 @@ class Emit(FieldAnalysisEmit, object):
     NG : bool, optional
         Whether to launch AEDT in the non-graphical mode. The default
         is ``False``, in which case AEDT is launched in the graphical mode.
-    AlwaysNew : bool, optional
+    new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
         machine.  The default is ``True``.
-    release_on_exit : bool, optional
+    close_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``True``.
     student_version : bool, optional
         Whether to open the AEDT student version. The default is ``False``.
@@ -80,9 +79,9 @@ class Emit(FieldAnalysisEmit, object):
         solution_type=None,
         setup_name=None,
         specified_version=None,
-        NG=False,
-        AlwaysNew=True,
-        release_on_exit=True,
+        non_graphical=False,
+        new_desktop_session=True,
+        close_on_exit=True,
         student_version=False,
     ):
         """Constructor."""
@@ -94,16 +93,11 @@ class Emit(FieldAnalysisEmit, object):
             solution_type,
             setup_name,
             specified_version,
-            NG,
-            AlwaysNew,
-            release_on_exit,
+            non_graphical,
+            new_desktop_session,
+            close_on_exit,
             student_version,
         )
 
     def __enter__(self):
         return self
-
-    def __exit__(self, ex_type, ex_value, ex_traceback):
-        """Push exit up to parent object Design"""
-        if ex_type:
-            exception_to_desktop(self, ex_value, ex_traceback)

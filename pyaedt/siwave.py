@@ -10,6 +10,7 @@ from .generic.general_methods import aedt_exception_handler
 import os
 import sys
 import pkgutil
+import time
 
 from .misc import list_installed_ansysem
 from pyaedt import is_ironpython, _pythonver
@@ -60,7 +61,7 @@ class Siwave:
 
         version_list = list_installed_ansysem()
         for version_env_var in version_list:
-            current_version_id = version_env_var.replace("ANSYSEM_ROOT", "")
+            current_version_id = version_env_var.replace("ANSYSEM_ROOT", "").replace("ANSYSEMSV_ROOT", "")
             version = int(current_version_id[0:2])
             release = int(current_version_id[2])
             if version < 20:
@@ -114,7 +115,7 @@ class Siwave:
             elif _com == "pythonnet_v3":
                 # TODO check if possible to use pythonnet. at the moment the tool open AEDt
                 # but doesn't return the wrapper of oApp
-                print("Launching AEDT with Module win32com")
+                print("Launching Siwave with Module win32com")
 
                 self._main.oSiwave = win32com.client.Dispatch("Siwave.Application.2021.1")
 
@@ -270,6 +271,27 @@ class Siwave:
         return True
 
     @aedt_exception_handler
+    def close_project(self, save_project=False):
+        """Close the project.
+
+        Parameters
+        ----------
+        save_project : bool, optional
+            whether to save or not the current project before close it.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        if save_project:
+            self.save_project()
+        self.oproject.ScrCloseProject()
+        self._oproject = None
+        return True
+
+    @aedt_exception_handler
     def quit_application(self):
         """Quit the application.
 
@@ -307,4 +329,6 @@ class Siwave:
         """
         self.oproject.ScrExportDcSimReportScaling("All", "All", -1, -1, False)
         self.oproject.ScrExportDcSimReport(simulation_name, bkground_color, file_path)
+        while not os.path.exists(file_path):
+            time.sleep(0.1)
         return True

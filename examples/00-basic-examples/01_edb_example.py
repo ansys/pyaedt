@@ -9,15 +9,10 @@ import shutil
 
 import os
 import time
+import tempfile
 from pyaedt import generate_unique_name, examples
 
-try:
-    if os.name == "posix":
-        tmpfold = os.environ["TMPDIR"]
-    else:
-        tmpfold = os.environ["TEMP"]
-except:
-    tmpfold = os.environ["TEMP"]
+tmpfold = tempfile.gettempdir()
 temp_folder = os.path.join(tmpfold, generate_unique_name("Example"))
 if not os.path.exists(temp_folder):
     os.makedirs(temp_folder)
@@ -27,6 +22,7 @@ if os.path.exists(targetfolder):
     shutil.rmtree(targetfolder)
 shutil.copytree(example_path[:-8], targetfolder)
 targetfile = os.path.join(targetfolder)
+siwave_file = os.path.join(temp_folder, 'Galileo.siw')
 print(targetfile)
 aedt_file = targetfile[:-4] + "aedt"
 
@@ -146,18 +142,13 @@ edb.core_hfss.create_coax_port_on_component("U2A5", "V1P0_S0")
 # THis example edits the stackup and the material. You can change stackup
 # properties with assignment. Materials can be created and assigned to layers.
 
-edb.core_stackup.stackup_layers.layers["TOP"].thickness = "75um"
+edb.core_stackup.stackup_layers.layers['TOP'].thickness = "75um"
+edb.core_stackup.stackup_layers.layers['Diel1'].material_name = "Fr4_epoxy"
 edb.core_stackup.create_debye_material("My_Debye", 5, 3, 0.02, 0.05, 1e5, 1e9)
-edb.core_stackup.stackup_layers.layers["UNNAMED_002"].material_name = "My_Debye"
+# edb.core_stackup.stackup_layers.layers['BOTTOM'].material_name = "My_Debye"
+edb.core_stackup.stackup_layers.remove_layer("Signal3")
+edb.core_stackup.stackup_layers.remove_layer("Signal1")
 
-###############################################################################
-# Create a Circuit Port for SIwave Simulation
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This example creates a circuit port for SIwave simulation.
-
-edb.core_siwave.create_circuit_port_on_net("U2A5", "DDR3_DM0")
-
-edb.core_siwave.add_siwave_ac_analysis()
 
 ###############################################################################
 # Create a Voltage Source and Siwave DC IR Simulation
@@ -165,6 +156,7 @@ edb.core_siwave.add_siwave_ac_analysis()
 # This example creates a Voltage Source and then setup a DCIR Analysis.
 
 edb.core_siwave.create_voltage_source_on_net("U2A5", "V1P5_S3", "U2A5", "GND", 3.3, 0, "V1")
+edb.core_siwave.create_current_source_on_net("U1B5", "V1P5_S3", "U1B5", "GND", 1.0, 0, "I1")
 settings = edb.core_siwave.get_siwave_dc_setup_template()
 settings.accuracy_level = 0
 settings.use_dc_custom_settings = True
@@ -179,6 +171,7 @@ edb.core_siwave.add_siwave_dc_analysis(settings)
 # This command saves modifications.
 
 edb.save_edb()
+edb.solve_siwave()
 
 ###############################################################################
 # Close EDB
@@ -187,3 +180,17 @@ edb.save_edb()
 # After EDB is closed, it can be opened by AEDT.
 
 edb.close_edb()
+
+###############################################################################
+# Siwave PostProcessor
+# ~~~~~~~~~~~~~~~~~~~~
+# This command open Siwave and Generate Report. This works on Window Only.
+
+# from pyaedt import Siwave
+# siwave = Siwave("2021.1")
+# siwave.open_project(siwave_file)
+# report_file = os.path.join(temp_folder,'Galileo.htm')
+#
+# siwave.export_siwave_report("myDCIR_4", report_file)
+# siwave.close_project()
+# siwave.quit_application()

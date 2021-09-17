@@ -7,6 +7,9 @@ from .Primitives3D import Primitives3D
 class Modeler3D(GeometryModeler):
     """Provides the Modeler 3D application interface.
 
+    This class is inherited in the caller application and is accessible through the modeler variable
+    object( eg. ``hfss.modeler``).
+
     Parameters
     ----------
     application :

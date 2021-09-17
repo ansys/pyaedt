@@ -551,6 +551,9 @@ class CoordinateSystem(object):
 class Modeler(object):
     """Provides the `Modeler` application class that other `Modeler` classes inherit.
 
+    This class is inherited in the caller application and is accessible through the modeler variable
+    object( eg. ``hfss.modeler``).
+
     Parameters
     ----------
     parent :
@@ -1057,14 +1060,14 @@ class GeometryModeler(Modeler, object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self._messenger.add_debug_message("Enabling deformation feedback")
+        self._messenger.add_info_message("Enabling deformation feedback")
         try:
             self.odesign.SetObjectDeformation(["EnabledObjects:=", objects])
         except:
             self._messenger.add_error_message("Failed to enable the deformation dependence")
             return False
         else:
-            self._messenger.add_debug_message("Successfully enabled deformation feedback")
+            self._messenger.add_info_message("Successfully enabled deformation feedback")
             return True
 
     @aedt_exception_handler
@@ -1089,7 +1092,7 @@ class GeometryModeler(Modeler, object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self._messenger.add_debug_message("Set model temperature and enabling Thermal Feedback")
+        self._messenger.add_info_message("Set model temperature and enabling Thermal Feedback")
         if create_project_var:
             self._parent.variable_manager["$AmbientTemp"] = str(ambient_temp) + "cel"
             var = "$AmbientTemp"
@@ -1120,7 +1123,7 @@ class GeometryModeler(Modeler, object):
             self._messenger.add_error_message("Failed to enable the temperature dependence")
             return False
         else:
-            self._messenger.add_debug_message("Assigned Objects Temperature")
+            self._messenger.add_info_message("Assigned Objects Temperature")
             return True
 
     @aedt_exception_handler
@@ -1398,11 +1401,12 @@ class GeometryModeler(Modeler, object):
             excitation for each mode.
 
         """
-        list_names = []
-        if "GetExcitations" in dir(self._parent.oboundary):
+        try:
             list_names = list(self._parent.oboundary.GetExcitations())
             del list_names[1::2]
-        return list_names
+            return list_names
+        except:
+            return []
 
     @aedt_exception_handler
     def get_boundaries_name(self):

@@ -23,7 +23,8 @@ class TestClass:
         with Scratch(scratch_path) as self.local_scratch:
             self.test_project = self.local_scratch.copyfile(example_project)
             self.aedtapp = Hfss(
-                projectname=self.test_project, specified_version=desktop_version, AlwaysNew=new_thread, NG=non_graphical
+                projectname=self.test_project, specified_version=desktop_version, new_desktop_session=new_thread,
+                non_graphical=non_graphical
             )
             # self.aedtapp.save_project()
             # self.cache = DesignCache(self.aedtapp)
@@ -211,3 +212,10 @@ class TestClass:
     def test_23_autosave(self):
         assert self.aedtapp.autosave_enable()
         assert self.aedtapp.autosave_disable()
+
+    def test_24_change_type(self):
+        assert self.aedtapp.set_license_type("Pack")
+        assert self.aedtapp.set_license_type("Pool")
+
+    def test_25_change_registry_from_file(self):
+        assert self.aedtapp.set_registry_from_file(os.path.join(local_path, "example_models", "Test.acf"))
