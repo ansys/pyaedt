@@ -13,7 +13,7 @@ class Part(object):
         Path to the folder with the A3DCOMP files.
     part_dict: dict
         Name of the dictionary defining relevant properties of the class using these keywords:
-        
+
         * ``comp_name``: str, Name of the A3DCOMP file.
         * ``offset``: list or str, Offset coordinate system definition relative to the parent.
         * ``rotation_cs``: list or str, Rotation coordinate system relative to the parent.
@@ -138,7 +138,7 @@ class Part(object):
         Returns
         -------
         bool
-            ``True`` when the coordinate system is ``[0, 0, 0]``, ``None`` otherwise.
+            ``True`` when successful, ``False`` when failed.
 
         """
         if kw in ['offset', 'rotation_cs']:
@@ -326,7 +326,7 @@ class Part(object):
         Parameters
         ----------
         app: pyaedt.Hfss
-        
+
         Returns
         -------
         bool
@@ -501,7 +501,7 @@ class Antenna(Part, object):
         app: pyaedt.Hfss
         units:
             The default is ``None``.
-        
+
         Returns
         -------
         str

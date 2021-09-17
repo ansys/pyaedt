@@ -40,7 +40,7 @@ class MultiPartComponent(object):
         Yaw angle, indicating the rotation about the component's Z-axis. The default
         is ``"0deg"``.
     pitch: str or float, optional
-        Pitch angle, indicating the rotation about the component's Y-axis The default
+        Pitch angle, indicating the rotation about the component's Y-axis. The default
         is ``"0deg"``.
     roll: str or float, optional
         Roll angle, indicating the rotation about the component's X-axis. The default
@@ -390,8 +390,7 @@ class MultiPartComponent(object):
 
         Returns
         -------
-        str
-            Name of the coordinate system.
+        :class:`pyaedt.modeler.Modeler.CoordinateSystem`
         """
         if self.motion:
             xyz = ["x", "y", "z"]

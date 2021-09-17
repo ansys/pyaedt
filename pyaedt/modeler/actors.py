@@ -152,7 +152,7 @@ class Bird(Actor, object):
         Full path to the directory containing the definition of the
         bird. This can be changed later.
     speed: float or str, optional
-        Speed of the bird. The default is ``"2.0".
+        Speed of the bird. The default is ``"2.0"``.
     flapping_rate: float or str, optional
         Flapping rate. The default is ``"50Hz"``.
     relative_cs_name: str, optional
@@ -208,7 +208,7 @@ class Vehicle(Actor, object):
     .. note::
         Motion is always forward in the X-axis direction.
 
-    Properties
+    Parameters
     ----------
     car_folder: str, required
         Full path to the folder containing the definition of the
@@ -360,7 +360,7 @@ class Radar(MultiPartComponent, object):
         Returns
         -------
         list
-            List of antenna that have been placed.
+            List of antennae that have been placed.
         """
         app.add_info_message("Adding radar module:  " + self.name)
         if self.use_global_cs or self.cs_name in app.modeler.oeditor.GetCoordinateSystems():
