@@ -10,8 +10,9 @@ from ..generic.general_methods import retry_ntimes
 class Primitives3D(Primitives, object):
     """Manages primitives in 3D tools.
 
-    This class is inherited in the caller application and is accessible through the primitives variable part
-    of modeler object( eg. ``hfss.modeler.primitives`` or ``icepak.modeler.primitives``).
+    This class is inherited in the caller application and is
+    accessible through the primitives variable part of modeler object(
+    e.g. ``hfss.modeler.primitives`` or ``icepak.modeler.primitives``).
 
     Parameters
     ----------
@@ -35,7 +36,7 @@ class Primitives3D(Primitives, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
-    """
+        """
 
     @aedt_exception_handler
     def create_box(self, position, dimensions_list, name=None, matname=None):
@@ -304,30 +305,34 @@ class Primitives3D(Primitives, object):
         return self._create_object(new_object_name)
 
     @aedt_exception_handler
-    def create_bondwire(self, start_position, end_position, h1=0.2, h2=0, alpha=80, beta=5, bond_type=0,
-                        diameter=0.025, facets=6, name=None, matname=None):
+    def create_bondwire(self, start_position, end_position, h1=0.2,
+                        h2=0, alpha=80, beta=5, bond_type=0,
+                        diameter=0.025, facets=6, name=None,
+                        matname=None):
         """Create a bondwire.
 
         Parameters
         ----------
         start_position : list
-            List of ``[x, y, z]`` coordinates for the starting position of the bond pad.
+            List of ``[x, y, z]`` coordinates for the starting
+            position of the bond pad.
         end_position :  list
-            List of ``[x, y, z]`` coordinates for the ending position of the bond pad.
-        h1: float, optional
+            List of ``[x, y, z]`` coordinates for the ending position
+            of the bond pad.
+        h1 : float, optional
             Height between the IC  die I/O pad and the top of the bondwire.
             The default is ``0.2``.
-        h2: float, optional
+        h2 : float, optional
             Height of the IC die I/O pad above the lead frame. The default
             is ``0``. A negative value indicates that the I/O pad is below
             the lead frame.
-        alpha: float, optional
+        alpha : float, optional
             Angle in degrees between the xy plane and the wire bond at the
             IC die I/O pad. The default is ``80``.
-        beta: float, optional
+        beta : float, optional
             Angle in degrees between the xy plane and the wire bond at the
             lead frame. The default is ``5``.
-        bond_type: int, optional
+        bond_type : int, optional
             Type of the boundwire, which indicates its shape. Options are:
 
             * ''0'' for JEDEC 5-point
@@ -335,9 +340,9 @@ class Primitives3D(Primitives, object):
             * ''2`` for Low
 
             The default is ''0``.
-        diameter: float, optional
+        diameter : float, optional
             Diameter of the wire. The default is ``0.025``.
-        facets: int, optional
+        facets : int, optional
             Number of wire facets. The default is ``6``.
         name : str, optional
             Name of the bondwire. The default is ``None``, in which case
@@ -831,7 +836,8 @@ class Primitives3D(Primitives, object):
                    relative_cs_name=None, actor_name=None):
         """Add a Walking Person Multipart from 3D Components.
 
-        It requires a json file in the folder containing person infos. An example json file is showed here.
+        It requires a json file in the folder containing person
+        infos. An example json file follows:
 
          .. code-block:: json
 
@@ -883,22 +889,24 @@ class Primitives3D(Primitives, object):
 
         Parameters
         ----------
-        actor_folder: str
-            Path to the actor folder. It must contain a json settings file and a 3dcomponent (.a3dcomp).
-        speed:  float, Optional
+        actor_folder : str
+            Path to the actor folder. It must contain a json settings
+            file and a 3dcomponent (.a3dcomp).
+        speed :  float, optional
             Object movement speed with time (m_per_sec).
-        global_offset: list, Optional
+        global_offset : list, optional
             Offset from Global Coordinate System [x,y,z] in meters.
-        yaw: float, Optional
+        yaw : float, optional
             Yaw Rotation from Global Coordinate System in deg.
-        pitch: float, Optional
+        pitch : float, optional
             Pitch Rotation from Global Coordinate System in deg.
-        roll: float, Optional
+        roll : float, optional
             Roll Rotation from Global Coordinate System in deg.
         relative_cs_name : str
             Relative CS Name of the actor. ``None`` for Global CS.
         actor_name : str
-            If provided, it overrides the actor name in the Json
+            If provided, it overrides the actor name in the JSON.
+
         Returns
         -------
         :class:`pyaedt.modeler.actors.Person`
@@ -922,8 +930,8 @@ class Primitives3D(Primitives, object):
                     actor_name=None):
         """Add a Moving Vehicle Multipart from 3D Components.
 
-        It requires a json file in the folder containing vehicle infos. An example json file is showed here.
-
+        It requires a json file in the folder containing vehicle
+        infos. An example json file follows:
 
          .. code-block:: json
 
@@ -961,15 +969,15 @@ class Primitives3D(Primitives, object):
         actor_folder : str
             Path to the actor directory. It must contain a json settings file
             and a 3dcomponent (``.a3dcomp`` file).
-        speed:  float, Optional
+        speed :  float, optional
             Object movement speed with time (m_per_sec).
-        global_offset: list, Optional
+        global_offset : list, optional
             Offset from Global Coordinate System [x,y,z] in meters.
-        yaw: float, Optional
+        yaw : float, optional
             Yaw Rotation from Global Coordinate System in deg.
-        pitch: float, Optional
+        pitch : float, optional
             Pitch Rotation from Global Coordinate System in deg.
-        roll: float, Optional
+        roll : float, optional
             Roll Rotation from Global Coordinate System in deg.
         relative_cs_name : str
             Relative CS Name of the actor. ``None`` for Global CS.
@@ -1048,15 +1056,15 @@ class Primitives3D(Primitives, object):
         actor_folder : str
             Path to the actor directory. It must contain a json settings file and a
             3dcomponent (``.a3dcomp`` file)
-        speed:  float, Optional
+        speed :  float, optional
             Object movement speed with time (m_per_sec).
-        global_offset: list, Optional
+        global_offset : list, optional
             Offset from Global Coordinate System [x,y,z] in meters.
-        yaw: float, Optional
+        yaw : float, optional
             Yaw Rotation from Global Coordinate System in deg.
-        pitch: float, Optional
+        pitch : float, optional
             Pitch Rotation from Global Coordinate System in deg.
-        roll: float, Optional
+        roll : float, optional
             Roll Rotation from Global Coordinate System in deg.
         flapping_rate : float, optional
             Motion flapping rate in Hz.
@@ -1120,17 +1128,19 @@ class Primitives3D(Primitives, object):
         Parameters
         ----------
         env_folder : str
-            Path to the actor directory. It must contain a json settings file and a 3dcomponent (``.a3dcomp`` file).
-        global_offset: list, Optional
+            Path to the actor directory. It must contain a json
+            settings file and a 3dcomponent (``.a3dcomp`` file).
+        global_offset : list, optional
             Offset from Global Coordinate System [x,y,z] in meters.
-        yaw: float, Optional
+        yaw : float, optional
             Yaw Rotation from Global Coordinate System in deg.
-        pitch: float, Optional
+        pitch : float, optional
             Pitch Rotation from Global Coordinate System in deg.
-        roll: float, Optional
+        roll : float, optional
             Roll Rotation from Global Coordinate System in deg.
         relative_cs_name : str
             Relative CS Name of the actor. ``None`` for Global CS.
+
         Returns
         -------
         :class:`pyaedt.modeler.multiparts.Environment`

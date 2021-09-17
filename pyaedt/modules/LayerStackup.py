@@ -88,9 +88,9 @@ class Layer(object):
         The default is ``"signal"``.
     layerunits : str, optional
         The default is ``"mm"``.
-    roughunit: str, optional
+    roughunit : str, optional
         The default is ``"um"``.
-    negative: bool, optional
+    negative : bool, optional
         Whether the geometry on the layer is cut away
         from the layer. The default is ``False``.
     """

@@ -262,7 +262,7 @@ class DesignCache(object):
 
     Parameters
     ----------
-    parent: str
+    parent : str
         Name of the parent object.
 
     """
@@ -488,7 +488,7 @@ class Design(object):
     solution_type : str, optional
         Solution type to apply to the design. The default is
         ``None``, in which case the default type is applied.
-    specified_version: str, optional
+    specified_version : str, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
     NG : bool, optional
@@ -1265,7 +1265,9 @@ class Design(object):
     def set_license_type(self, license_type="Pool"):
         """Change the License Type between ``Pack`` and ``Pool``.
 
-        ..note: The command returns True even if the Key is wrong due to API limitation.
+        .. note::
+           The command returns ``True`` even if the Key is wrong due
+           to API limitation.
 
         Parameters
         ----------
@@ -1781,9 +1783,9 @@ class Design(object):
 
         Parameters
         ----------
-        close_projects: bool, optional
+        close_projects : bool, optional
             Whether to close all projects. The default is ``True``.
-        close_desktop: bool, optional
+        close_desktop : bool, optional
             Whether to close the desktop after releasing it. The default is ``True``.
 
         Returns

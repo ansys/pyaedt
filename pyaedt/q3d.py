@@ -116,7 +116,7 @@ class Q3d(QExtractor, object):
         Name of the setup to use as the nominal. The default is
         ``None``, in which case the active setup is used or nothing
         is used.
-    specified_version: str, optional
+    specified_version : str, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
         This parameter is ignored when Script is launched within AEDT.
@@ -484,10 +484,10 @@ class Q2d(QExtractor, object):
         Name of the setup to use as the nominal. The default is
         ``None``, in which case the active setup is used or
         nothing is used.
-    specified_version: str, optional
+    specified_version : str, optional
         Version of AEDT to use. The default is ``None``, in which case
-        the active version or latest installed version is used.
-        This parameter is ignored when Script is launched within AEDT.
+        the active version or latest installed version is used.  This
+        parameter is ignored when Script is launched within AEDT.
     NG : bool, optional
         Whether to launch AEDT in the non-graphical mode. The default
         is ``False``, in which case AEDT is launched in the graphical mode.
@@ -495,11 +495,13 @@ class Q2d(QExtractor, object):
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
-        machine. The default is ``True``. This parameter is ignored when Script is launched within AEDT.
+        machine. The default is ``True``. This parameter is ignored
+        when Script is launched within AEDT.
     close_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
     student_version : bool, optional
-        Whether to open the AEDT student version. This parameter is ignored when Script is launched within AEDT.
+        Whether to open the AEDT student version. This parameter is
+        ignored when Script is launched within AEDT.
 
     Examples
     --------
