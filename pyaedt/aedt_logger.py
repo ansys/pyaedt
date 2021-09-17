@@ -39,7 +39,7 @@ class AedtLogger():
     def add_logger(self, destination, level=logging.DEBUG):
         """Add logger for either a project or a design and uniquely identifyit by their name."""
         if destination != 'Project':
-            self._project = logging.getLogger(self._main.oDesktop.GetActiveProject().GetName())
+            self._project = logging.getLogger(self.GetActiveProject().GetName())
             self._project.addHandler(log_handler._LogHandler(self._desktop.messenger, 'Project', level))
             self._project.setLevel(level)
             if self._file_handler:
@@ -47,7 +47,7 @@ class AedtLogger():
             if self._to_stdout:
                 self._project.addHandler(self._std_out_handler)
         elif destination != 'Design':
-            self._design = logging.getLogger(self._main.oDesktop.GetActiveProject().GetActiveDesign().GetName())
+            self._design = logging.getLogger(self._desktop.GetActiveProject().GetActiveDesign().GetName())
             self._design.addHandler(log_handler._LogHandler(self._desktop.messenger, 'Design', level))
             self._design.setLevel(level)
             if self._file_handler:
@@ -61,13 +61,3 @@ class AedtLogger():
     def global_logger(self):
         """Global logger."""
         return self._global
-
-    @property
-    def project_logger(self):
-        """Project logger."""
-        return self._project
-
-    @property
-    def design_logger(self):
-        """Design logger."""
-        return self._design
