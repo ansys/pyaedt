@@ -372,7 +372,7 @@ class Desktop:
         logfile = os.path.join(self._main.oDesktop.GetProjectDirectory(),
                                         "pyaedt{}.log".format(datetime.datetime.now().strftime("%Y%m%d_%H%M%S")))
         self._main.oMessenger = AEDTMessageManager()
-        self.aedt_logger = aedt_logger.AedtLogger(self, filename = logfile, level = logging.DEBUG)
+        self.logger = aedt_logger.AedtLogger(self, filename = logfile, level = logging.DEBUG)
         self._main.sDesktopinstallDirectory = self._main.oDesktop.GetExeDir()
         self._main.pyaedt_initialized = True
 
@@ -553,8 +553,8 @@ class Desktop:
             self._main.AEDTVersion = version_key
         # self._init_logger()
         self._init_desktop()
-        self.aedt_logger.global_logger.info("pyaedt v%s", self._main.pyaedt_version)
-        self.aedt_logger.global_logger.info("Python version %s", sys.version)
+        self.logger.global_logger.info("pyaedt v%s", self._main.pyaedt_version)
+        self.logger.global_logger.info("Python version %s", sys.version)
         
 
     @property
@@ -597,9 +597,9 @@ class Desktop:
         """
         tb_trace = traceback.format_tb(tb_data)
         tblist = tb_trace[0].split("\n")
-        self.aedt_logger.global_logger.error(str(ex_value), "Global")
+        self.logger.global_logger.error(str(ex_value), "Global")
         for el in tblist:
-            self.aedt_logger.global_logger.error(el, "Global")
+            self.logger.global_logger.error(el, "Global")
 
         return str(ex_value)
 
@@ -724,21 +724,21 @@ class Desktop:
         if isinstance(key_value, str):
             try:
                 self._main.oDesktop.SetRegistryString(key_full_name, key_value)
-                self.aedt_logger.global_logger.info("Key %s correctly changed.", key_full_name)
+                self.logger.global_logger.info("Key %s correctly changed.", key_full_name)
                 return True
             except:
-                self.aedt_logger.global_logger.warning("Error setting up Key %s.", key_full_name)
+                self.logger.global_logger.warning("Error setting up Key %s.", key_full_name)
                 return False
         elif isinstance(key_value, int):
             try:
                 self._main.oDesktop.SetRegistryInt(key_full_name, key_value)
-                self.aedt_logger.global_logger.info("Key %s correctly changed.", key_full_name)
+                self.logger.global_logger.info("Key %s correctly changed.", key_full_name)
                 return True
             except:
-                self.aedt_logger.global_logger.warning("Error setting up Key %s.", key_full_name)
+                self.logger.global_logger.warning("Error setting up Key %s.", key_full_name)
                 return False
         else:
-            self.aedt_logger.global_logger.warning("Key Value must be an int or str.")
+            self.logger.global_logger.warning("Key Value must be an int or str.")
             return False
 
     def change_active_dso_config_name(self, product_name="HFSS", config_name="Local"):
@@ -756,11 +756,11 @@ class Desktop:
         """
         try:
             self.change_registry_key("Desktop/ActiveDSOConfigurations/{}".format(product_name), config_name)
-            self.aedt_logger.global_logger.info(
+            self.logger.global_logger.info(
                 "Configuration Changed correctly to %s for %s.", config_name, product_name)
             return True
         except:
-            self.aedt_logger.global_logger.warning(
+            self.logger.global_logger.warning(
                 "Error Setting Up Configuration %s for %s.", config_name, product_name)
             return False
 
