@@ -23,7 +23,10 @@ class TestClass:
     def setup_class(self):
         with Scratch(scratch_path) as self.local_scratch:
             self.test_project = os.path.join(self.local_scratch.path, test_project_name)
-            self.aedtapp = Hfss3dLayout(self.test_project)
+            try:
+                self.aedtapp = Hfss3dLayout(self.test_project)
+            except:
+                self.aedtapp = None
 
     def teardown_class(self):
         for proj in self.aedtapp.project_list:

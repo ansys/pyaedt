@@ -179,7 +179,7 @@ class TestClass:
         pass
 
     def test_12_AssignMeshOperation(self):
-        self.aedtapp.oproject = "Filter_Board"
+        self.aedtapp.oproject = test_project_name
         self.aedtapp.odesign = "IcepakDesign1"
         group_name = "Group1"
         mesh_level_Filter = "2"

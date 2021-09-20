@@ -15,15 +15,20 @@ original_project_name = "Galileo_t23"
 class TestClass:
     def setup_class(self):
         with Scratch(scratch_path) as self.local_scratch:
+
             example_project = os.path.join(local_path, "example_models", original_project_name + ".aedt")
 
-            self.test_project = self.local_scratch.copyfile(example_project, test_project_name + ".aedt")
+            self.test_project = self.local_scratch.copyfile(example_project, os.path.join(self.local_scratch.path,
+                                                                                          test_project_name + ".aedt"))
 
             self.local_scratch.copyfolder(
                 os.path.join(local_path, "example_models", original_project_name + ".aedb"),
                 os.path.join(self.local_scratch.path, test_project_name + ".aedb"),
             )
-            self.aedtapp = Hfss3dLayout(self.test_project)
+            try:
+                self.aedtapp = Hfss3dLayout(self.test_project)
+            except:
+                self.aedtapp = None
 
     def teardown_class(self):
         self.aedtapp.close_project(test_project_name)

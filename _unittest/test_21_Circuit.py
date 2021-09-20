@@ -34,7 +34,9 @@ class TestClass:
                 netlist_file2 = os.path.join(local_path, "example_models", netlist2)
                 touchstone_file = os.path.join(local_path, "example_models", touchstone)
                 touchstone_file2 = os.path.join(local_path, "example_models", touchstone2)
-                self.test_project = self.local_scratch.copyfile(example_project, test_project_name+".aedt")
+                self.test_project = self.local_scratch.copyfile(
+                    example_project, os.path.join(self.local_scratch.path,
+                                                  test_project_name + ".aedt"))
                 self.local_scratch.copyfile(netlist_file1)
                 self.local_scratch.copyfile(netlist_file2)
                 self.local_scratch.copyfile(touchstone_file)
