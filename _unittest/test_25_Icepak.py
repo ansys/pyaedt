@@ -5,10 +5,11 @@ import time
 
 # Import required modules
 from pyaedt import Icepak
+from pyaedt.desktop import force_close_desktop
 from pyaedt.generic.filesystem import Scratch
 
 # Setup paths for module imports
-from _unittest.conftest import local_path, scratch_path
+from _unittest.conftest import local_path, scratch_path, desktop_version
 
 try:
     import pytest  # noqa: F401
@@ -46,7 +47,9 @@ class TestClass:
                 os.path.join(local_path, "example_models", test_project_name + ".aedb"),
                 os.path.join(self.local_scratch.path, test_project_name + ".aedb"),
             )
-            self.aedtapp = Icepak(self.test_project)
+            if os.name == "posix":
+                force_close_desktop()
+            self.aedtapp = Icepak(self.test_project, specified_version=desktop_version)
 
     def teardown_class(self):
         self.aedtapp.close_project(self.aedtapp.project_name)
@@ -73,10 +76,6 @@ class TestClass:
 
     def test_03_AssignPCBRegion(self):
         self.aedtapp.globalMeshSettings(2)
-        # self.aedtapp.mesh.global_mesh_region.EnableMLM =False
-        # self.aedtapp.mesh.global_mesh_region.update()
-        # padding = [0,0,0,0,0,0]
-        # self.aedtapp.modeler.edit_region_dimensions(padding)
         self.aedtapp.create_meshregion_component()
         pcb_mesh_region = self.aedtapp.mesh.MeshRegion(self.aedtapp.mesh.omeshmodule, [1, 1, 1], "mm")
         pcb_mesh_region.name = "PCB_Region"
