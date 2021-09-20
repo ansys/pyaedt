@@ -5,7 +5,6 @@ import time
 
 # Import required modules
 from pyaedt import Icepak
-from pyaedt.desktop import force_close_desktop
 from pyaedt.generic.filesystem import Scratch
 
 # Setup paths for module imports
