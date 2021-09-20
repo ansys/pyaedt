@@ -529,7 +529,7 @@ class Desktop:
 
     @property
     def logger(self):
-        """AEDT logger."""
+        """Logger."""
         return self._logger
 
     @property
