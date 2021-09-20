@@ -9,7 +9,7 @@ from pyaedt import Hfss3dLayout
 from pyaedt.generic.filesystem import Scratch
 
 test_project_name = "Galileo_T23"
-original_project_name = "Galileo"
+original_project_name = "Galileo_T23"
 
 
 class TestClass:
