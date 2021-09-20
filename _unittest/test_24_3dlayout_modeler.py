@@ -292,12 +292,12 @@ class TestClass:
         setup_name = "RFBoardSetup"
         sweep5 = self.aedtapp.create_single_point_sweep(
             setupname=setup_name,
-            unit="GHz",
+            unit="MHz",
             freq=1.23,
             sweepname="RFBoardSingle",
             save_fields=True,
         )
-        assert sweep5.props["Sweeps"]["Data"] == "1.23GHz"
+        assert sweep5.props["Sweeps"]["Data"] == "1.23MHz"
         sweep6 = self.aedtapp.create_single_point_sweep(
             setupname=setup_name,
             unit="GHz",
