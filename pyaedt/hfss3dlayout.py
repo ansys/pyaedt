@@ -864,7 +864,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                         "Sweep {} is already present. Sweep has been renamed in {}.".format(oldname, sweepname)
                     )
                 sweepdata = setupdata.add_sweep(sweepname, "Discrete")
-                sweepdata.change_range("SinglePoint", freq0, unit)
+                sweepdata.change_range("SinglePoint", freq0, unit=unit)
                 sweepdata.props["GenerateSurfaceCurrent"] = save_fields
                 sweepdata.props["SaveRadFieldsOnly"] = save_rad_fields_only
                 sweepdata.update()
