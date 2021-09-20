@@ -1366,17 +1366,9 @@ class Icepak(FieldAnalysisIcepak):
         for el in parameter_dict_with_values:
             string += el + "='" + parameter_dict_with_values[el] + "' "
         filename = os.path.join(savedir, filename + ".csv")
-        arg = [
-            "SolutionName:=",
-            sweep_name,
-            "DesignVariationKey:=",
-            string,
-            "ExportFileName:=",
-            filename,
-            "IntrinsicValue:=",
-            "",
-        ]
-        retry_ntimes(10, self.osolution.ExportFieldsSummary, arg)
+        self.osolution.ExportFieldsSummary(
+            ["SolutionName:=", sweep_name, "DesignVariationKey:=", string, "ExportFileName:=", filename,
+             "IntrinsicValue:=", "", ])
         return filename
 
     @aedt_exception_handler

@@ -304,7 +304,7 @@ class TestClass(BasisTest):
         assert cs.name == "newname"
         assert cs.delete()
 
-    def test_42_update_coordinate_system(self):
+    def test_42A_update_coordinate_system(self):
         for cs in self.aedtapp.modeler.coordinate_systems:
             cs.delete()
         cs1 = self.aedtapp.modeler.create_coordinate_system(name="CS1", view="rotate")
@@ -321,11 +321,11 @@ class TestClass(BasisTest):
         assert cs2.update()
         cs2.ref_cs = "Global"
         cs2.update()
-        assert self.aedtapp.modeler.oeditor.GetCoordinateSystems() == ("Global", "CS1", "CS2")
+        assert tuple(self.aedtapp.modeler.oeditor.GetCoordinateSystems()) == ("Global", "CS1", "CS2")
         assert len(self.aedtapp.modeler.coordinate_systems) == 2
         assert cs2.delete()
 
-    def test_42_set_as_working_cs(self):
+    def test_42B_set_as_working_cs(self):
         for cs in self.aedtapp.modeler.coordinate_systems:
             cs.delete()
         cs1 = self.aedtapp.modeler.create_coordinate_system(name="first")
@@ -339,25 +339,27 @@ class TestClass(BasisTest):
         self.aedtapp.modeler.set_working_coordinate_system("new1")
 
     def test_44_sweep_around_axis(self):
-        box1 = self.aedtapp.modeler.primitives.create_box([-10, -10, -10], [20, 20, 20], "box_to_split")
-        box1.sweep_around_axis("Z", sweep_angle=360, draft_angle=0)
+        rect1 = self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.CoordinateSystemPlane.YZPlane, [0,0,0], [20, 20], "rectangle_to_split")
+        assert rect1.sweep_around_axis("Z", sweep_angle=360, draft_angle=0)
 
     def test_45_sweep_along_path(self):
         udp1 = [0, 0, 0]
         udp2 = [5, 0, 0]
         path = self.aedtapp.modeler.primitives.create_polyline([udp1, udp2], name="Poly1")
-        box1 = self.aedtapp.modeler.primitives.create_box([-10, -10, -10], [20, 20, 20], "box_to_split")
-        box1.sweep_along_path(path)
+        rect1 = self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.CoordinateSystemPlane.YZPlane, [0, 0, 0],
+                                                                 [20, 20], "rectangle_to_sweep")
+        assert rect1.sweep_along_path(path)
 
     def test_46_section_object(self):
         box1 = self.aedtapp.modeler.primitives.create_box([-10, -10, -10], [20, 20, 20], "box_to_split")
-        self.aedtapp.modeler.section(box1, 0, create_new=True, section_cross_object=False)
+        assert self.aedtapp.modeler.section(box1, 0, create_new=True, section_cross_object=False)
         pass
 
     def test_47_sweep_along_vector(self):
         sweep_vector = [5, 0, 0]
-        box1 = self.aedtapp.modeler.primitives.create_box([-10, -10, -10], [20, 20, 20], "box_to_split")
-        box1.sweep_along_vector(sweep_vector)
+        rect1 = self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.CoordinateSystemPlane.YZPlane, [0, 0, 0],
+                                                                 [20, 20], "rectangle_to_vector")
+        assert rect1.sweep_along_vector(sweep_vector)
 
     def test_48_coordinate_systems_parametric(self):
         self.aedtapp["var1"] = "5mm"
@@ -370,4 +372,5 @@ class TestClass(BasisTest):
         self.aedtapp["var4"] = "(20deg+var3)*2"
         cs3 = self.aedtapp.modeler.create_coordinate_system(name="CSP3", mode="zxz", phi="var3", theta="var4", psi=0)
         cs4 = self.aedtapp.modeler.create_coordinate_system(name="CSP4", mode="zxz", phi=43, theta="126deg", psi=0)
-        assert cs3.quaternion == cs4.quaternion
+        tol = 1e-9
+        assert sum([abs(x1 - x2) for (x1, x2) in zip(cs3.quaternion, cs4.quaternion)]) < tol

@@ -192,11 +192,11 @@ class TestClass:
         test = self.aedtapp.mesh.assign_mesh_region(["USB_ID"], mesh_level_RadioPCB)
         assert test
 
-    def test_13_assign_openings(self):
+    def test_13a_assign_openings(self):
         airfaces = [self.aedtapp.modeler.primitives["Region"].top_face_x.id]
         assert self.aedtapp.assign_openings(airfaces)
 
-    def test_1b_assign_grille(self):
+    def test_13b_assign_grille(self):
         airfaces = [self.aedtapp.modeler.primitives["Region"].top_face_y.id]
         grille = self.aedtapp.assign_grille(airfaces)
         grille.props["Free Area Ratio"] = 0.7
@@ -236,7 +236,8 @@ class TestClass:
 
     def test_17_get_output_variable(self):
         value = self.aedtapp.get_output_variable("OutputVariable1")
-        assert value == 0.5235987755982988
+        tol = 1e-9
+        assert abs(value  - 0.5235987755982988) < tol
 
     def test_18_export_summary(self):
         assert self.aedtapp.export_summary()
