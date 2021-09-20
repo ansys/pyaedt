@@ -109,7 +109,7 @@ class Edb(object):
                     self._messenger = EDBMessageManager(os.path.dirname(edbpath))
 
             self.student_version = student_version
-            self._messenger.add_info_message("Messenger Initialized in EDB")
+            self.logger.global_logger.info("Messenger Initialized in EDB")
             self.edbversion = edbversion
             self.isaedtowned = isaedtowned
             self._init_dlls()
@@ -128,18 +128,18 @@ class Edb(object):
                     if not edbpath:
                         edbpath = os.path.expanduser("~")
                     edbpath = os.path.join(edbpath, generate_unique_name("layout") + ".aedb")
-                self._messenger.add_info_message("No Edb Provided. Creating new EDB {}.".format(edbpath))
+                self.logger.global_logger.info("No Edb Provided. Creating new EDB {}.".format(edbpath))
             self.edbpath = edbpath
             if edbpath[-3:] in ["brd", "gds", "xml", "dxf", "tgz"]:
                 self.edbpath = edbpath[:-4] + ".aedb"
                 working_dir = os.path.dirname(edbpath)
                 self.import_layout_pcb(edbpath, working_dir, use_ppe=use_ppe)
-                self._messenger.add_info_message(
+                self.logger.global_logger.info(
                     "Edb {} Created Correctly from {} file".format(self.edbpath, edbpath[-2:])
                 )
             elif not os.path.exists(os.path.join(self.edbpath, "edb.def")):
                 self.create_edb()
-                self._messenger.add_info_message("Edb {} Created Correctly".format(self.edbpath))
+                self.logger.global_logger.info("Edb {} Created Correctly".format(self.edbpath))
             elif ".aedb" in edbpath:
                 self.edbpath = edbpath
                 if isaedtowned and "isoutsideDesktop" in dir(self._main) and not self._main.isoutsideDesktop:
@@ -147,9 +147,9 @@ class Edb(object):
                 else:
                     self.open_edb()
             if self.builder:
-                self._messenger.add_info_message("Edb Initialized")
+                self.logger.global_logger.info("Edb Initialized")
             else:
-                self._messenger.add_info_message("Failed to initialize Dlls")
+                self.logger.global_logger.info("Failed to initialize Dlls")
         else:
             warnings.warn("Failed to initialize Dlls")
 
@@ -184,7 +184,7 @@ class Edb(object):
         self._hfss = Edb3DLayout(self)
         self._nets = EdbNets(self)
         self._core_primitives = EdbLayout(self)
-        self._messenger.add_info_message("Objects Initialized")
+        self.logger.global_logger.info("Objects Initialized")
 
     @aedt_exception_handler
     def add_info_message(self, message_text):
@@ -209,7 +209,7 @@ class Edb(object):
         >>> edb.add_info_message("Design info message")
 
         """
-        self._messenger.add_info_message(message_text)
+        self.logger.global_logger.info(message_text)
         return True
 
     @aedt_exception_handler
@@ -235,7 +235,7 @@ class Edb(object):
         >>> edb.add_warning_message("Design warning message")
 
         """
-        self._messenger.add_warning_message(message_text)
+        self.logger.global_logger.warning(message_text)
         return True
 
     @aedt_exception_handler
@@ -324,23 +324,23 @@ class Edb(object):
         """
         if init_dlls:
             self._init_dlls()
-        self._messenger.add_info_message("EDB Path {}".format(self.edbpath))
-        self._messenger.add_info_message("EDB Version {}".format(self.edbversion))
+        self.logger.global_logger.info("EDB Path {}".format(self.edbpath))
+        self.logger.global_logger.info("EDB Version {}".format(self.edbversion))
         self.edb.Database.SetRunAsStandAlone(self.standalone)
-        self._messenger.add_info_message("EDB Standalone {}".format(self.standalone))
+        self.logger.global_logger.info("EDB Standalone {}".format(self.standalone))
         try:
             db = self.edb.Database.Open(self.edbpath, self.isreadonly)
         except Exception as e:
             db = None
             self._messenger.add_error_message("Builder is not Initialized.")
         if not db:
-            self._messenger.add_warning_message("Error Opening db")
+            self.logger.global_logger.warning("Error Opening db")
             self._db = None
             self._active_cell = None
             self.builder = None
             return None
         self._db = db
-        self._messenger.add_info_message("Database Opened")
+        self.logger.global_logger.info("Database Opened")
 
         self._active_cell = None
         if self.cellname:
@@ -350,11 +350,11 @@ class Edb(object):
         # if self._active_cell is still None, set it to default cell
         if self._active_cell is None:
             self._active_cell = list(self._db.TopCircuitCells)[0]
-        self._messenger.add_info_message("Cell {} Opened".format(self._active_cell.GetName()))
+        self.logger.global_logger.info("Cell {} Opened".format(self._active_cell.GetName()))
 
         if self._db and self._active_cell:
             dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib", "DataModel.dll")
-            self._messenger.add_info_message(dllpath)
+            self.logger.global_logger.info(dllpath)
             self.layout_methods.LoadDataModel(dllpath)
             time.sleep(2)
             self.builder = retry_ntimes(
@@ -367,7 +367,7 @@ class Edb(object):
                 self.standalone,
             )
             self._init_objects()
-            self._messenger.add_info_message("Builder Initialized")
+            self.logger.global_logger.info("Builder Initialized")
         else:
             self.builder = None
             self._messenger.add_error_message("Builder Not Initialized")
@@ -389,13 +389,13 @@ class Edb(object):
         """
         if init_dlls:
             self._init_dlls()
-        self._messenger.add_info_message("Opening EDB from HDL")
+        self.logger.global_logger.info("Opening EDB from HDL")
         self.edb.Database.SetRunAsStandAlone(False)
         if self.oproject.GetEDBHandle():
             hdl = Convert.ToUInt64(self.oproject.GetEDBHandle())
             db = self.edb.Database.Attach(hdl)
             if not db:
-                self._messenger.add_warning_message("Error Getting db")
+                self.logger.global_logger.warning("Error Getting db")
                 self._db = None
                 self._active_cell = None
                 self.builder = None
@@ -443,7 +443,7 @@ class Edb(object):
         self.edb.Database.SetRunAsStandAlone(self.standalone)
         db = self.edb.Database.Create(self.edbpath)
         if not db:
-            self._messenger.add_warning_message("Error Creating db")
+            self.logger.global_logger.warning("Error Creating db")
             self._db = None
             self._active_cell = None
             self.builder = None
@@ -1080,9 +1080,9 @@ class Edb(object):
         var_server = self.active_cell.GetVariableServer()
         variables = var_server.GetAllVariableNames()
         if variable_name in list(variables):
-            self._messenger.add_warning_message("Parameter {} exists. Using it.".format(variable_name))
+            self.logger.global_logger.warning("Parameter {} exists. Using it.".format(variable_name))
             return False, var_server
         else:
-            self._messenger.add_info_message("Creating Parameter {}.".format(variable_name))
+            self.logger.global_logger.info("Creating Parameter {}.".format(variable_name))
             var_server.AddVariable(variable_name, self.edb_value(variable_value), True)
             return True, var_server

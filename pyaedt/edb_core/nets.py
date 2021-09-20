@@ -51,6 +51,11 @@ class EdbNets(object):
         return self.parent._messenger
 
     @property
+    def logger(self):
+        """Logger."""
+        return self._parent.logger
+
+    @property
     def _nets_methods(self):
         """ """
         return self.parent.edblib.Layout.NetsMethods
@@ -238,7 +243,7 @@ class EdbNets(object):
                 if edb_net is not None:
                     edb_net.Delete()
                     nets_deleted.append(net)
-                    self._messenger.add_info_message("Net {} Deleted".format(net))
+                    self.logger.global_logger.info("Net {} Deleted".format(net))
             except:
                 pass
 

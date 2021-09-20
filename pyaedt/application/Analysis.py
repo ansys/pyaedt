@@ -900,11 +900,11 @@ class Analysis(Design, object):
            ``True`` when successful, ``False`` when failed.
         """
         if name in self.existing_analysis_setups:
-            self._messenger.add_info_message("Solving design setup {}".format(name))
+            self.logger.global_logger.info("Solving design setup {}".format(name))
             self.odesign.Analyze(name)
         else:
             try:
-                self._messenger.add_info_message("Solving Optimetrics")
+                self.logger.global_logger.info("Solving Optimetrics")
                 self.ooptimetrics.SolveSetup(name)
             except:
                 self._messenger.add_error_message("Setup Not found {}".format(name))

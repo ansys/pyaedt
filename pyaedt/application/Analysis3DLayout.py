@@ -77,10 +77,10 @@ class FieldAnalysis3DLayout(Analysis):
             close_on_exit,
             student_version,
         )
-        self._messenger.add_info_message("Analysis Loaded")
+        self.logger.global_logger.info("Analysis Loaded")
         self._modeler = Modeler3DLayout(self)
         self._modeler.primitives.init_padstacks()
-        self._messenger.add_info_message("Modeler Loaded")
+        self.logger.global_logger.info("Modeler Loaded")
         self._mesh = Mesh(self)
         # self._post = PostProcessor(self)
 

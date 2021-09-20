@@ -9,19 +9,26 @@ from _unittest.conftest import scratch_path
 import gc
 
 # Import required modules
+from pyaedt import Hfss
+from pyaedt.generic.filesystem import Scratch
+
+test_project_name = "coax_HFSS"
 from pyaedt.desktop import Desktop
 
 
 class TestClass:
     def setup_class(self):
-        self.desktop = Desktop()
+        # set a scratch directory and the environment / test data
+        with Scratch(scratch_path) as self.local_scratch:
+            self.aedtapp = Hfss(new_desktop_session=True)
 
     def teardown_class(self):
-        assert self.desktop.close_desktop()
+        assert self.aedtapp.close_project(self.aedtapp.project_name)
+        self.local_scratch.remove()
         gc.collect()
 
     def test_01_Desktop(self):
-        logger = self.desktop.logger
+        logger = self.aedtapp.logger
         #The default logger level is DEBUGGING.
         logger.global_logger.info("Debug message for testing.")
         logger.global_logger.info("Info message for testing.")

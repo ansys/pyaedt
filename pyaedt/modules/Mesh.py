@@ -162,6 +162,11 @@ class Mesh(object):
         return self._parent._messenger
 
     @property
+    def logger(self):
+        """_messenger."""
+        return self._parent.logger
+
+    @property
     def odesign(self):
         """Design."""
         return self._parent._odesign
@@ -224,7 +229,7 @@ class Mesh(object):
                     meshop_name = generate_unique_name(meshop_name)
         else:
             meshop_name = generate_unique_name("SurfApprox")
-        self._messenger.add_info_message("Assigning Mesh Level " + str(level) + " to " + str(names))
+        self.logger.global_logger.info("Assigning Mesh Level " + str(level) + " to " + str(names))
         names = self._parent._modeler._convert_list_to_ids(names)
 
         if type(names[0]) is int:

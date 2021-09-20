@@ -336,7 +336,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         if outputdir is None:
             outputdir = self.project_path
 
-        self._messenger.add_info_message("#### Design Validation Checks###")
+        self.logger.global_logger.info("#### Design Validation Checks###")
         #
         # Routine outputs to the validation info to a log file in the project directory and also
         # returns the validation info to be used to update properties.xml file
@@ -358,7 +358,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             msgs = self._desktop.GetMessages(name, "HFSSDesign1", 0)
             # need to check if design name is always this default name HFSSDesign1
             for msg in msgs:
-                self._messenger.add_info_message(msg)
+                self.logger.global_logger.info(msg)
                 # msg = msg.replace('"','')
                 msg = msg.rstrip("\r\n")
                 val_list.append(msg)
@@ -375,7 +375,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 self._messenger.add_error_message(msg)
             else:
                 msg = "**** Validation Completed Correctly"
-                self._messenger.add_info_message(msg)
+                self.logger.global_logger.info(msg)
 
             # Find the Excitations and check or list them out
             msg = "Excitation Messages:"
@@ -392,17 +392,17 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             else:
                 msg1 = "Ports Requested: " + str(ports)
                 msg2 = "Ports Defined: " + str(numportsdefined)
-                self._messenger.add_info_message(msg1)
+                self.logger.global_logger.info(msg1)
                 validation.writelines(msg1 + "\n")
                 val_list.append(msg1)
-                self._messenger.add_info_message(msg2)
+                self.logger.global_logger.info(msg2)
                 validation.writelines(msg2 + "\n")
                 val_list.append(msg2)
 
             excitation_names = self.get_excitations_name
             for excitation in excitation_names:
                 msg = "Excitation name: " + str(excitation)
-                self._messenger.add_info_message(msg)
+                self.logger.global_logger.info(msg)
                 validation.writelines(msg + "\n")
                 val_list.append(msg)
         validation.close()
@@ -695,7 +695,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 if sweepname in [sweep.name for sweep in setupdata.sweeps]:
                     oldname = sweepname
                     sweepname = generate_unique_name(oldname)
-                    self._messenger.add_warning_message(
+                    self.logger.global_logger.warning(
                         "Sweep {} is already present. Sweep has been renamed in {}.".format(oldname, sweepname)
                     )
                 sweep = setupdata.add_sweep(sweepname=sweepname)
@@ -790,7 +790,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 if sweepname in [sweep.name for sweep in setupdata.sweeps]:
                     oldname = sweepname
                     sweepname = generate_unique_name(oldname)
-                    self._messenger.add_warning_message(
+                    self.logger.global_logger.warning(
                         "Sweep {} is already present. Sweep has been renamed in {}.".format(oldname, sweepname)
                     )
                 sweep = setupdata.add_sweep(sweepname=sweepname)
@@ -860,7 +860,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 if sweepname in [sweep.name for sweep in setupdata.sweeps]:
                     oldname = sweepname
                     sweepname = generate_unique_name(oldname)
-                    self._messenger.add_warning_message(
+                    self.logger.global_logger.warning(
                         "Sweep {} is already present. Sweep has been renamed in {}.".format(oldname, sweepname)
                     )
                 sweepdata = setupdata.add_sweep(sweepname, "Discrete")
@@ -907,7 +907,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             old_name = project_name
             project_name = generate_unique_name(project_name)
             aedb_path = gds_path.replace(old_name + ".gds", project_name + ".aedb")
-            self._messenger.add_warning_message("aedb_exists. Renaming it to {}".format(project_name))
+            self.logger.global_logger.warning("aedb_exists. Renaming it to {}".format(project_name))
 
         oTool = self.odesktop.GetTool("ImportExport")
         oTool.ImportGDSII(gds_path, aedb_path, "", "")

@@ -49,6 +49,11 @@ class EDBLayer(object):
         return self._parent._messenger
 
     @property
+    def logger(self):
+        """Logger."""
+        return self._parent.logger
+
+    @property
     def name(self):
         """Layer name.
 
@@ -408,6 +413,11 @@ class EDBLayers(object):
         return self._parent._messenger
 
     @property
+    def logger(self):
+        """Logger."""
+        return self._parent.logger
+
+    @property
     def _stackup_methods(self):
         return self._parent._stackup_methods
 
@@ -520,6 +530,11 @@ class EDBLayers(object):
     @property
     def _messenger(self):
         return self._parent._messenger
+
+    @property
+    def logger(self):
+        """Logger."""
+        return self._parent.logger
 
     @aedt_exception_handler
     def _int_to_layer_types(self, val):

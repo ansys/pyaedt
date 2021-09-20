@@ -79,6 +79,11 @@ class Components(object):
         return self.parent._messenger
 
     @property
+    def logger(self):
+        """Logger."""
+        return self._parent.logger
+
+    @property
     def _edb(self):
         return self.parent.edb
 
@@ -152,7 +157,7 @@ class Components(object):
             Default dictionary for the EDB component.
 
         """
-        self._messenger.add_info_message("Refreshing the Components dictionary.")
+        self.logger.global_logger.info("Refreshing the Components dictionary.")
         try:
             cmplist = self.get_component_list()
             self._cmp = {}
@@ -720,12 +725,12 @@ class Components(object):
                 self._messenger.add_error_message("Failed to set RLC model on component")
                 return False
         else:
-            self._messenger.add_warning_message(
+            self.logger.global_logger.warning(
                 "Component {} has not been assigned because either it is not present in the layout "
                 "or it contains a number of pins not equal to 2".format(componentname)
             )
             return False
-        self._messenger.add_warning_message("RLC properties for Component {} has been assigned.".format(componentname))
+        self.logger.global_logger.warning("RLC properties for Component {} has been assigned.".format(componentname))
         return True
 
     @aedt_exception_handler

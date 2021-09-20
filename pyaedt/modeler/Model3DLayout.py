@@ -25,9 +25,9 @@ class Modeler3DLayout(Modeler):
 
     def __init__(self, parent):
         self._parent = parent
-        self._messenger.add_info_message("Loading Modeler.")
+        self.logger.global_logger.info("Loading Modeler.")
         Modeler.__init__(self, parent)
-        self._messenger.add_info_message("Modeler loaded.")
+        self.logger.global_logger.info("Modeler loaded.")
         self._primitivesDes = self._parent.project_name + self._parent.design_name
         edb_folder = os.path.join(self._parent.project_path, self._parent.project_name + ".aedb")
         edb_file = os.path.join(edb_folder, "edb.def")
@@ -44,12 +44,12 @@ class Modeler3DLayout(Modeler):
             )
         else:
             self._mttime = 0
-        self._messenger.add_info_message("EDB loaded.")
+        self.logger.global_logger.info("EDB loaded.")
 
         self.layers = Layers(self._parent, self, roughnessunits="um")
-        self._messenger.add_info_message("Layers loaded.")
+        self.logger.global_logger.info("Layers loaded.")
         self._primitives = Primitives3DLayout(self._parent, self)
-        self._messenger.add_info_message("Primitives loaded.")
+        self.logger.global_logger.info("Primitives loaded.")
         self.layers.refresh_all_layers()
 
         pass
@@ -86,6 +86,11 @@ class Modeler3DLayout(Modeler):
     def _messenger(self):
         """Messenger."""
         return self._parent._messenger
+
+    @property
+    def logger(self):
+        """Logger."""
+        return self._parent.logger
 
     @property
     def oeditor(self):
@@ -454,7 +459,7 @@ class Modeler3DLayout(Modeler):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self._messenger.add_info_message("Set the temperature dependence for the design.")
+        self.logger.global_logger.info("Set the temperature dependence for the design.")
         if create_project_var:
             self._parent.variable_manager["$AmbientTemp"] = str(ambient_temp) + "cel"
             var = "$AmbientTemp"
@@ -472,5 +477,5 @@ class Modeler3DLayout(Modeler):
             self._messenger.add_error_message("Failed to enable the temperature dependence.")
             return False
         else:
-            self._messenger.add_info_message("Assigned Objects Temperature")
+            self.logger.global_logger.info("Assigned Objects Temperature")
             return True

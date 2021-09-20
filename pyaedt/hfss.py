@@ -549,7 +549,7 @@ class Hfss(FieldAnalysis3D, object):
                 if sweepname in [sweep.name for sweep in setupdata.sweeps]:
                     oldname = sweepname
                     sweepname = generate_unique_name(oldname)
-                    self._messenger.add_warning_message(
+                    self.logger.global_logger.warning(
                         "Sweep {} is already present. Sweep has been renamed in {}.".format(oldname, sweepname)
                     )
                 sweepdata = setupdata.add_sweep(sweepname, sweep_type)
@@ -640,7 +640,7 @@ class Hfss(FieldAnalysis3D, object):
                 if sweepname in [sweep.name for sweep in setupdata.sweeps]:
                     oldname = sweepname
                     sweepname = generate_unique_name(oldname)
-                    self._messenger.add_warning_message(
+                    self.logger.global_logger.warning(
                         "Sweep {} is already present. Sweep has been renamed in {}.".format(oldname, sweepname)
                     )
                 sweepdata = setupdata.add_sweep(sweepname, sweep_type)
@@ -744,7 +744,7 @@ class Hfss(FieldAnalysis3D, object):
                 if sweepname in [sweep.name for sweep in setupdata.sweeps]:
                     oldname = sweepname
                     sweepname = generate_unique_name(oldname)
-                    self._messenger.add_warning_message(
+                    self.logger.global_logger.warning(
                         "Sweep {} is already present. Sweep has been renamed in {}.".format(oldname, sweepname)
                     )
                 sweepdata = setupdata.add_sweep(sweepname, "Discrete")
@@ -2755,7 +2755,7 @@ class Hfss(FieldAnalysis3D, object):
 
         """
 
-        self._messenger.add_info_message("Setting up power to Eigenmode " + powerin)
+        self.logger.global_logger.info("Setting up power to Eigenmode " + powerin)
         if self.solution_type != "Eigenmode":
             self.osolution.EditSources(
                 [
@@ -2913,7 +2913,7 @@ class Hfss(FieldAnalysis3D, object):
                                 ],
                             )
                     except:
-                        self._messenger.add_info_message("done")
+                        self.logger.global_logger.info("done")
                         # self.modeler_oproject.ClearMessages()
         return ports_ID
 
@@ -2952,7 +2952,7 @@ class Hfss(FieldAnalysis3D, object):
 
         """
 
-        self._messenger.add_info_message("Design Validation Checks")
+        self.logger.global_logger.info("Design Validation Checks")
         validation_ok = True
         val_list = []
         if not dname:
@@ -2989,7 +2989,7 @@ class Hfss(FieldAnalysis3D, object):
             os.remove(temp_val_file)
         else:
             msg = "** No design validation file is found. **"
-            self._messenger.add_info_message(msg)
+            self.logger.global_logger.info(msg)
             val_list.append(msg)
         msg = "** End of design validation messages. **"
         val_list.append(msg)
@@ -3021,7 +3021,7 @@ class Hfss(FieldAnalysis3D, object):
                     val_list.append(msg4)
         else:
             msg = "Eigen model is detected. No excitatons are defined."
-            self._messenger.add_info_message(msg)
+            self.logger.global_logger.info(msg)
             val_list.append(msg)
 
         # Find the number of analysis setups and output the info.

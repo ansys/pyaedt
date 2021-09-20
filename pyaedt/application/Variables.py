@@ -799,6 +799,11 @@ class VariableManager(object):
         """Messenger."""
         return self._parent._messenger
 
+    @property
+    def logger(self):
+        """Logger."""
+        return self._parent.logger
+
     def __init__(self, parent):
         # Global Desktop Environment
         self._parent = parent

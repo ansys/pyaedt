@@ -136,6 +136,11 @@ class Mesh(object):
         return self._parent._messenger
 
     @property
+    def logger(self):
+        """Logger."""
+        return self._parent.logger
+
+    @property
     def odesign(self):
         """Design."""
         return self._parent._odesign

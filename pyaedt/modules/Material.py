@@ -221,6 +221,11 @@ class MatProperty(object):
         """Messenger."""
         return self._parent._messenger
 
+    @property
+    def logger(self):
+        """Logger."""
+        return self._parent.logger
+
     def __init__(self, parent, name, val=None, thermalmodifier=None):
         self._parent = parent
         self._type = "simple"
@@ -678,6 +683,11 @@ class CommonMaterial(object):
     def _messenger(self):
         """Messenger."""
         return self._parent._messenger
+
+    @property
+    def logger(self):
+        """Logger."""
+        return self._parent.logger
 
     @property
     def oproject(self):

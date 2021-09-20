@@ -24,7 +24,6 @@ from pyaedt.application.MessageManager import AEDTMessageManager
 from pyaedt.misc import list_installed_ansysem
 from pyaedt import is_ironpython, _pythonver, inside_desktop
 
-from .import log_handler
 from .import aedt_logger
 
 
@@ -301,8 +300,8 @@ class Desktop:
             self._main.AEDTVersion = version_key
         #self._init_logger()
         self._init_desktop()
-        self.logger.global_logger.info("pyaedt v%s", self._main.pyaedt_version)
-        self.logger.global_logger.info("Python version %s", sys.version)
+        self._logger.global_logger.info("pyaedt v%s", self._main.pyaedt_version)
+        self._logger.global_logger.info("Python version %s", sys.version)
 
     def __enter__(self):
         return self

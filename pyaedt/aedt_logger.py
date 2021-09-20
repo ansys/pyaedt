@@ -30,7 +30,7 @@ class AedtLogger():
             self._global.addHandler(self._std_out_handler)
 
     def add_logger(self, destination, level=logging.DEBUG):
-        """Add logger for either a project or a design and uniquely identifyit by their name."""
+        """Add logger for either an active project or an active design."""
         if destination == 'Project':
             self._project = logging.getLogger(self.GetActiveProject().GetName())
             self._project.addHandler(log_handler._LogHandler(self._desktop.messenger, 'Project', level))

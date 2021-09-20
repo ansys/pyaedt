@@ -557,6 +557,11 @@ class Layers(object):
         return self._parent._messenger
 
     @property
+    def logger(self):
+        """Logger."""
+        return self._parent.logger
+
+    @property
     def modeler(self):
         """Modeler."""
         return self._modeler

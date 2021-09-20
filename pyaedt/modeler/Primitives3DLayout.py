@@ -182,6 +182,11 @@ class Primitives3DLayout(object):
         return self._parent._messenger
 
     @property
+    def logger(self):
+        """Logger."""
+        return self._parent.logger
+
+    @property
     def version(self):
         """AEDT version.
 

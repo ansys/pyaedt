@@ -23,6 +23,11 @@ class CircuitComponents(object):
         return self._parent._messenger
 
     @property
+    def logger(self):
+        """Logger."""
+        return self._parent.logger
+
+    @property
     def version(self):
         """Version."""
         return self._parent._aedt_version

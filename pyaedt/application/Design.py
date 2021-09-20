@@ -28,6 +28,8 @@ from ..generic.DataHandlers import variation_string_to_dict
 from ..modules.Boundary import BoundaryObject
 from ..generic.general_methods import generate_unique_name
 
+from .import aedt_logger
+
 
 design_solutions = {
     "Maxwell 2D": [
@@ -565,6 +567,7 @@ class Design(object):
         self._aedt_version = main_module.AEDTVersion
         self._desktop_install_dir = main_module.sDesktopinstallDirectory
         self._messenger = AEDTMessageManager(self)
+        self._logger = aedt_logger.AedtLogger(self, filename = None, level = logging.DEBUG)
         self.logger = logging.getLogger(__name__)
 
         assert design_type in design_solutions, "Invalid design type is specified: {}.".format(design_type)
@@ -1181,7 +1184,7 @@ class Design(object):
         >>> hfss.add_info_message("Design info message")
 
         """
-        self._messenger.add_info_message(message_text, message_type)
+        self.logger.global_logger.info(message_text, message_type)
         return True
 
     @aedt_exception_handler
@@ -1214,7 +1217,7 @@ class Design(object):
         >>> hfss.add_warning_message("Design warning message")
 
         """
-        self._messenger.add_warning_message(message_text, message_type)
+        self.logger.global_logger.warning(message_text, message_type)
         return True
 
     @aedt_exception_handler
@@ -1247,7 +1250,7 @@ class Design(object):
         >>> hfss.add_error_message("Design error message")
 
         """
-        self._messenger.add_error_message(message_text, message_type)
+        self.logger.global_logger.error(message_text, message_type)
         return True
 
     @property
@@ -1299,21 +1302,21 @@ class Design(object):
         if isinstance(key_value, str):
             try:
                 self.odesktop.SetRegistryString(key_full_name, key_value)
-                self._messenger.add_info_message("Key {} correctly changed.".format(key_full_name))
+                self.logger.global_logger.info("Key {} correctly changed.".format(key_full_name))
                 return True
             except:
-                self._messenger.add_warning_message("Error setting up Key {}.".format(key_full_name))
+                self.logger.global_logger.warning("Error setting up Key {}.".format(key_full_name))
                 return False
         elif isinstance(key_value, int):
             try:
                 self.odesktop.SetRegistryInt(key_full_name, key_value)
-                self._messenger.add_info_message("Key {} correctly changed.".format(key_full_name))
+                self.logger.global_logger.info("Key {} correctly changed.".format(key_full_name))
                 return True
             except:
-                self._messenger.add_warning_message("Error setting up Key {}.".format(key_full_name))
+                self.logger.global_logger.warning("Error setting up Key {}.".format(key_full_name))
                 return False
         else:
-            self._messenger.add_warning_message("Key Value must be an int or str.")
+            self.logger.global_logger.warning("Key Value must be an int or str.")
             return False
 
     @aedt_exception_handler
@@ -1332,11 +1335,11 @@ class Design(object):
         """
         try:
             self.set_registry_key("Desktop/ActiveDSOConfigurations/{}".format(product_name), config_name)
-            self._messenger.add_info_message(
+            self.logger.global_logger.info(
                 "Configuration Changed correctly to {} for {}.".format(config_name, product_name))
             return True
         except:
-            self._messenger.add_warning_message(
+            self.logger.global_logger.warning(
                 "Error Setting Up Configuration {} for {}.".format(config_name, product_name))
             return False
 
@@ -1827,7 +1830,7 @@ class Design(object):
         base_path = self.temp_directory
 
         if not isinstance(subdir_name, str):
-            self._messenger.add_error_message("Input argument 'subdir' must be a string")
+            self.logger.global_logger.error("Input argument 'subdir' must be a string")
             return False
         dir_name = generate_unique_name(subdir_name)
         project_dir = os.path.join(base_path, dir_name)
@@ -2010,7 +2013,7 @@ class Design(object):
                 dsname = "$" + dsname
             ds = DataSet(self, dsname, xlist, ylist, zlist, vlist, xunit, yunit, zunit, vunit)
         else:
-            self._messenger.add_warning_message("Dataset {} already exists".format(dsname))
+            self.logger.global_logger.warning("Dataset {} already exists".format(dsname))
             return False
         ds.create()
         if is_project_dataset:
@@ -2037,14 +2040,14 @@ class Design(object):
 
         """
         if is_project_dataset and "$" + name in self.project_datasets:
-            self._messenger.add_info_message("Dataset {} exists.".format("$" + name))
+            self.logger.global_logger.info("Dataset {} exists.".format("$" + name))
             return True
             # self.oproject.ExportDataSet("$"+name, os.path.join(self.temp_directory, "ds.tab"))
         elif not is_project_dataset and name in self.design_datasets:
-            self._messenger.add_info_message("Dataset {} exists.".format(name))
+            self.logger.global_logger.info("Dataset {} exists.".format(name))
             return True
             # self.odesign.ExportDataSet(name, os.path.join(self.temp_directory, "ds.tab"))
-        self._messenger.add_info_message("Dataset {} doesn't exist.".format(name))
+        self.logger.global_logger.info("Dataset {} doesn't exist.".format(name))
         return False
 
     @aedt_exception_handler
@@ -2064,9 +2067,9 @@ class Design(object):
 
         """
         if lossy_dielectric:
-            self._messenger.add_info_message("Enabling Automatic use of causal materials")
+            self.logger.global_logger.info("Enabling Automatic use of causal materials")
         else:
-            self._messenger.add_info_message("Disabling Automatic use of causal materials")
+            self.logger.global_logger.info("Disabling Automatic use of causal materials")
         self.odesign.SetDesignSettings(["NAME:Design Settings Data", "Calculate Lossy Dielectrics:=", lossy_dielectric])
         return True
 
@@ -2087,9 +2090,9 @@ class Design(object):
 
         """
         if material_override:
-            self._messenger.add_info_message("Enabling Material Override")
+            self.logger.global_logger.info("Enabling Material Override")
         else:
-            self._messenger.add_info_message("Disabling Material Override")
+            self.logger.global_logger.info("Disabling Material Override")
         self.odesign.SetDesignSettings(["NAME:Design Settings Data", "Allow Material Override:=", material_override])
         return True
 
@@ -2114,7 +2117,7 @@ class Design(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self._messenger.add_info_message("Changing the validation design settings")
+        self.logger.global_logger.info("Changing the validation design settings")
         self.odesign.SetDesignSettings(
             ["NAME:Design Settings Data"],
             [
@@ -2152,12 +2155,12 @@ class Design(object):
             name = self.project_name
         if not directory:
             directory = self.results_directory
-        self._messenger.add_info_message("Cleanup folder {} from project {}".format(directory, name))
+        self.logger.global_logger.info("Cleanup folder {} from project {}".format(directory, name))
         if os.path.exists(directory):
             shutil.rmtree(directory, True)
             if not os.path.exists(directory):
                 os.mkdir(directory)
-        self._messenger.add_info_message("Project Directory cleaned")
+        self.logger.global_logger.info("Project Directory cleaned")
         return True
 
     @aedt_exception_handler
@@ -2180,7 +2183,7 @@ class Design(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self._messenger.add_info_message("Copy AEDT Project ")
+        self.logger.global_logger.info("Copy AEDT Project ")
         self.oproject.Save()
         self.oproject.SaveAs(os.path.join(path, dest + ".aedt"), True)
         return True
@@ -2200,7 +2203,7 @@ class Design(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self._messenger.add_info_message("Creating new Project ")
+        self.logger.global_logger.info("Creating new Project ")
         prj = self._desktop.NewProject(proj_name)
         prj_name = prj.GetName()
         self.oproject = prj_name
@@ -2234,7 +2237,7 @@ class Design(object):
         else:
             name = self.project_name
             msg_txt = "active " + self.project_name
-        self._messenger.add_info_message("Closing the {} AEDT Project".format(msg_txt), level="Global")
+        self.logger.global_logger.info("Closing the {} AEDT Project".format(msg_txt), level="Global")
         oproj = self.odesktop.SetActiveProject(name)
         proj_path = self.odesktop.GetProjectDirectory()
         if saveproject:
@@ -2248,10 +2251,10 @@ class Design(object):
             self._odesign = None
         while locked:
             if not os.path.exists(os.path.join(proj_path, name + ".aedt.lock")):
-                self._messenger.add_info_message("Project Closed Correctly", "Global")
+                self.logger.global_logger.info("Project Closed Correctly", "Global")
                 locked = False
             elif i > timeout:
-                self._messenger.add_warning_message("Lock File still exists.", "Global")
+                self.logger.global_logger.warning("Lock File still exists.", "Global")
                 locked = False
             else:
                 i += 0.2
@@ -2369,7 +2372,7 @@ class Design(object):
             )
         else:
             new_design = self._oproject.InsertDesign(design_type, unique_design_name, solution_type, "")
-        self._messenger.add_info_message(
+        self.logger.global_logger.info(
             "Added design '{0}' of type {1}.".format(unique_design_name, design_type), level="Project"
         )
         name = new_design.GetName()
@@ -2602,7 +2605,7 @@ class Design(object):
 
         """
         msg_text = "Saving {0} Project".format(self.project_name)
-        self._messenger.add_info_message(msg_text, level="Global")
+        self.logger.global_logger.info(msg_text, level="Global")
         if project_file and not os.path.exists(os.path.dirname(project_file)):
             os.makedirs(os.path.dirname(project_file))
         elif project_file:
@@ -2643,7 +2646,7 @@ class Design(object):
 
         """
         msg_text = "Saving {0} Project".format(self.project_name)
-        self._messenger.add_info_message(msg_text, level="Global")
+        self.logger.global_logger.info(msg_text, level="Global")
         if not project_file:
             project_file = os.path.join(self.project_path, self.project_name + ".aedtz")
         self.oproject.Save()
