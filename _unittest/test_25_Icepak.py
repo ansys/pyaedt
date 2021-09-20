@@ -51,6 +51,10 @@ class TestClass:
     def teardown_class(self):
         self.aedtapp.close_project(self.aedtapp.project_name)
         time.sleep(2)
+        try:
+            self.aedtapp.close_project(src_project_name)
+        except:
+            pass
         self.local_scratch.remove()
         gc.collect()
 
