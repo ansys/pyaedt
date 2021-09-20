@@ -170,6 +170,7 @@ class TestClass:
 
     def test_10_DesignSettings(self):
         assert self.aedtapp.apply_icepak_settings()
+        assert self.aedtapp.apply_icepak_settings(ambienttemp=23.5)
         self.aedtapp["amb"] = "25deg"
         assert self.aedtapp.apply_icepak_settings(ambienttemp="amb", perform_minimal_val=False)
 
