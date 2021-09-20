@@ -36,7 +36,7 @@ class Primitives3DLayout(object):
 
         Parameters
         ----------
-        partname: int or str
+        partname : int or str
            Part ID or part name.
 
         Returns

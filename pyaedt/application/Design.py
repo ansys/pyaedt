@@ -262,7 +262,7 @@ class DesignCache(object):
 
     Parameters
     ----------
-    parent: str
+    parent : str
         Name of the parent object.
 
     """
@@ -488,7 +488,7 @@ class Design(object):
     solution_type : str, optional
         Solution type to apply to the design. The default is
         ``None``, in which case the default type is applied.
-    specified_version: str, optional
+    specified_version : str, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
     NG : bool, optional
@@ -1265,7 +1265,9 @@ class Design(object):
     def set_license_type(self, license_type="Pool"):
         """Change the License Type between ``Pack`` and ``Pool``.
 
-        ..note: The command returns True even if the Key is wrong due to API limitation.
+        .. note::
+           The command returns ``True`` even if the Key is wrong due
+           to API limitation.
 
         Parameters
         ----------
@@ -1781,9 +1783,9 @@ class Design(object):
 
         Parameters
         ----------
-        close_projects: bool, optional
+        close_projects : bool, optional
             Whether to close all projects. The default is ``True``.
-        close_desktop: bool, optional
+        close_desktop : bool, optional
             Whether to close the desktop after releasing it. The default is ``True``.
 
         Returns
@@ -1984,9 +1986,9 @@ class Design(object):
             List of X-axis values for the dataset.
         ylist : list
             List of Y-axis values for the dataset.
-        zylist : list, optional
+        zlist : list, optional
             List of Z-axis values for a 3D dataset only. The default is ``None``.
-        vylist : list, optional
+        vlist : list, optional
             List of V-axis values for a 3D dataset only. The default is ``None``.
         is_project_dataset : bool, optional
             Whether it is a project data set. The default is ``True``.
@@ -2017,6 +2019,7 @@ class Design(object):
             self.project_datasets[dsname] = ds
         else:
             self.design_datasets[dsname] = ds
+        self._messenger.add_info_message("Dataset {} created successfully.".format(dsname))
         return ds
 
     @aedt_exception_handler

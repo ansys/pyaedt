@@ -176,11 +176,11 @@ class Modeler3DLayout(Modeler):
 
         Parameters
         ----------
-        object_to_expand: str
+        object_to_expand : str
             Name of the object to expand.
-        size: float, optional
+        size : float, optional
             Size of the expansion. The default is ``1``.
-        expand_type: str, optional
+        expand_type : str, optional
             Type of the expansion. Options are ``"ROUND"``, ``"MITER"``, and
             ``"CORNER"``. The default is ``"ROUND"``.
         replace_original : bool, optional

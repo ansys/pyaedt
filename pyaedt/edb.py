@@ -757,7 +757,7 @@ class Edb(object):
         WorkDir : str
             Directory in which to create the ``aedb`` folder. The AEDB file name will be
             the same as the BRD file name. The default value is ``None``.
-        anstranslator_full_path: str, Optional
+        anstranslator_full_path : str, optional
             Optional AnsTranslator full path.
         use_ppe : bool
             Whether to use or not PPE License. The default is ``False``.
@@ -785,7 +785,7 @@ class Edb(object):
         WorkDir : str
             Directory in which to create the ``aedb`` folder. The AEDB file name will be
             the same as the GDS file name. The default value is ``None``.
-        anstranslator_full_path: str, Optional
+        anstranslator_full_path : str, optional
             Optional AnsTranslator full path.
         use_ppe : bool
             Whether to use or not PPE License. The default is ``False``.

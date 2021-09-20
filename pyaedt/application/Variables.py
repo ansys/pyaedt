@@ -315,17 +315,17 @@ class CSVDataset:
 
     Parameters
     ----------
-    csv_file: str, optional
+    csv_file : str, optional
         Input file consisting of delimited data with the first line as the header.
         The CSV value includes the header and data, which supports AEDT units information
         such as ``"1.23Wb"``. You can also augment the data with constant values.
-    separator: str, optional
+    separator : str, optional
         Value to use for the delimiter. The default is``None`` in which case a comma is
         assumed.
-    units_dict: dict, optional
+    units_dict : dict, optional
         Dictionary consisting of ``{Variable Name: unit}`` to rescale the data
         if it is not in the desired unit system.
-    append_dict: dict, optional
+    append_dict : dict, optional
         Dictionary consisting of ``{New Variable Name: value}`` to add variables
         with constant values to all data points. This dictionary is used to add
         multiple sweeps to one result file.
@@ -1516,20 +1516,22 @@ class DataSet(object):
     ----------
     parent :
     name :
-    x : float
-    y : float
-    z : float, optional
-        The default is ``None``.
-    v : float, optional
-       The default is ``None``.
+    x : list
+        List of X-axis values for the dataset.
+    y : list
+        List of Y-axis values for the dataset.
+    z : list, optional
+        List of Z-axis values for a 3D dataset only. The default is ``None``.
+    v : list, optional
+        List of V-axis values for a 3D dataset only. The default is ``None``.
     xunit : str, optional
-       The default is ``""``.
+        Units for the X axis. The default is ``""``.
     yunit : str, optional
-       The default is ``""``.
+        Units for the Y axis. The default is ``""``.
     zunit : str, optional
-       The default is ``""``.
+        Units for the Z axis for a 3D dataset only. The default is ``""``.
     vunit : str, optional
-       The default is ``""``.
+        Units for the V axis for a 3D dataset only. The default is ``""``.
 
     """
 
@@ -1558,9 +1560,9 @@ class DataSet(object):
         else:
             return False
         if self.z and self.name[0] == "$":
-            x, y, z, v = (list(t) for t in zip(*sorted(zip(self.x, self.y, self.z, self.v))))
+            x, y, z, v = (list(t) for t in zip(*sorted(zip(self.x, self.y, self.z, self.v), key=lambda e: float(e[0]))))
         else:
-            x, y = (list(t) for t in zip(*sorted(zip(self.x, self.y))))
+            x, y = (list(t) for t in zip(*sorted(zip(self.x, self.y), key=lambda e: float(e[0]))))
         for i in range(len(x)):
             arg3 = []
             arg3.append("NAME:Coordinate")

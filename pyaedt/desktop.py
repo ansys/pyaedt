@@ -233,7 +233,7 @@ class Desktop:
     specified_version : str, optional
         Version of AEDT to use. The default is ``None``, in which case the
         active setup or latest installed version is used.
-    non_graphical: bool, optional
+    non_graphical : bool, optional
         Whether to launch AEDT in the non-graphical mode. The default
         is ``False``, in which case AEDT is launched in the graphical mode.
     new_desktop_session : bool, optional
