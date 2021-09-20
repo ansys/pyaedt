@@ -1986,9 +1986,9 @@ class Design(object):
             List of X-axis values for the dataset.
         ylist : list
             List of Y-axis values for the dataset.
-        zylist : list, optional
+        zlist : list, optional
             List of Z-axis values for a 3D dataset only. The default is ``None``.
-        vylist : list, optional
+        vlist : list, optional
             List of V-axis values for a 3D dataset only. The default is ``None``.
         is_project_dataset : bool, optional
             Whether it is a project data set. The default is ``True``.
@@ -2019,6 +2019,7 @@ class Design(object):
             self.project_datasets[dsname] = ds
         else:
             self.design_datasets[dsname] = ds
+        self._messenger.add_info_message("Dataset {} created successfully.".format(dsname))
         return ds
 
     @aedt_exception_handler

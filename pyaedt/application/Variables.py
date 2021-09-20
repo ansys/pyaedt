@@ -1511,20 +1511,22 @@ class DataSet(object):
     ----------
     parent :
     name :
-    x : float
-    y : float
-    z : float, optional
-        The default is ``None``.
-    v : float, optional
-       The default is ``None``.
+    x : list
+        List of X-axis values for the dataset.
+    y : list
+        List of Y-axis values for the dataset.
+    z : list, optional
+        List of Z-axis values for a 3D dataset only. The default is ``None``.
+    v : list, optional
+        List of V-axis values for a 3D dataset only. The default is ``None``.
     xunit : str, optional
-       The default is ``""``.
+        Units for the X axis. The default is ``""``.
     yunit : str, optional
-       The default is ``""``.
+        Units for the Y axis. The default is ``""``.
     zunit : str, optional
-       The default is ``""``.
+        Units for the Z axis for a 3D dataset only. The default is ``""``.
     vunit : str, optional
-       The default is ``""``.
+        Units for the V axis for a 3D dataset only. The default is ``""``.
 
     """
 
@@ -1553,9 +1555,9 @@ class DataSet(object):
         else:
             return False
         if self.z and self.name[0] == "$":
-            x, y, z, v = (list(t) for t in zip(*sorted(zip(self.x, self.y, self.z, self.v))))
+            x, y, z, v = (list(t) for t in zip(*sorted(zip(self.x, self.y, self.z, self.v), key=lambda e: float(e[0]))))
         else:
-            x, y = (list(t) for t in zip(*sorted(zip(self.x, self.y))))
+            x, y = (list(t) for t in zip(*sorted(zip(self.x, self.y), key=lambda e: float(e[0]))))
         for i in range(len(x)):
             arg3 = []
             arg3.append("NAME:Coordinate")
