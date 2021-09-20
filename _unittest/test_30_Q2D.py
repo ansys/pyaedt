@@ -41,3 +41,7 @@ class TestClass:
         mysetup.props["SaveFields"] = True
         assert mysetup.update()
 
+    def test_07_single_signal_line(self):
+        udp = self.aedtapp.modeler.Position(0, 0, 0)
+        o = self.aedtapp.modeler.primitives.create_rectangle(udp, [5, 3], name="Rectangle1")
+        self.aedtapp.assign_single_signal_line(name="signal", target_objects=o, solve_option="SolveOnBoundary")

@@ -581,4 +581,51 @@ class Q2d(QExtractor, object):
         pos = self.modeler.Position(*position, 0)
         return self.modeler.primitives.create_rectangle(pos, dimension_list=dimension_list, name=name, matname=matname)
 
+    def assign_single_signal_line(self, name, target_objects, solve_option="SolveInside", thickness=None, unit="um"):
+        """
+        assign conductor type to sheets
 
+        Parameters
+        ----------
+        name : str
+            name of the condutor
+        target_objects : list
+            list of Object3D
+        solve_option : str
+            Choose among "SolveInside", "SolveOnBoundary" or Automatic. Defualt is SolveInside
+        thickness : float
+            Conductor thickness. When not specified, the default condutor thickness is obtained by dividing the
+            conductor's area by its perimeter (A/p). If multiple condutors are selected, the average condutor thickness
+            is used for the default value.
+        unit : str
+            thickness unit
+        Returns
+        -------
+        None
+
+        """
+        if isinstance(target_objects, list):
+            a = target_objects
+            obj_names = [i.name for i in target_objects]
+        else:
+            a = [target_objects]
+            obj_names = [target_objects.name]
+
+        if not thickness:
+            t_list = []
+            for t_obj in a:
+                perimeter = 0
+                for edge in t_obj.edges:
+                    perimeter = perimeter + edge.length
+                t_list.append(t_obj.faces[0].area / perimeter)
+            thickness = sum(t_list) / len(t_list)
+
+        props = OrderedDict({"Objects": obj_names,
+                             "SolveOption": solve_option,
+                             "Thickness": str(thickness) + unit
+                             }
+                            )
+
+        arg = ["NAME:" + name]
+        dict2arg(props, arg)
+        self.oboundary.AssignSingleSignalLine(arg)
