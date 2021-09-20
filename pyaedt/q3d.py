@@ -6,6 +6,7 @@ from .application.Analysis3D import FieldAnalysis3D
 from .generic.general_methods import aedt_exception_handler, generate_unique_name
 from collections import OrderedDict
 from .modules.Boundary import BoundaryObject
+from .generic.DataHandlers import dict2arg
 import os
 
 
@@ -47,17 +48,17 @@ class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
         return design_file
 
     def __init__(
-        self,
-        Q3DType,
-        projectname=None,
-        designname=None,
-        solution_type=None,
-        setup_name=None,
-        specified_version=None,
-        non_graphical=False,
-        new_desktop_session=False,
-        close_on_exit=False,
-        student_version=False,
+            self,
+            Q3DType,
+            projectname=None,
+            designname=None,
+            solution_type=None,
+            setup_name=None,
+            specified_version=None,
+            non_graphical=False,
+            new_desktop_session=False,
+            close_on_exit=False,
+            student_version=False,
     ):
         if Q3DType == "Q3D Extractor":
             FieldAnalysis3D.__init__(
@@ -145,16 +146,16 @@ class Q3d(QExtractor, object):
     """
 
     def __init__(
-        self,
-        projectname=None,
-        designname=None,
-        solution_type=None,
-        setup_name=None,
-        specified_version=None,
-        non_graphical=False,
-        new_desktop_session=False,
-        close_on_exit=False,
-        student_version=False,
+            self,
+            projectname=None,
+            designname=None,
+            solution_type=None,
+            setup_name=None,
+            specified_version=None,
+            non_graphical=False,
+            new_desktop_session=False,
+            close_on_exit=False,
+            student_version=False,
     ):
         QExtractor.__init__(
             self,
@@ -398,7 +399,7 @@ class Q3d(QExtractor, object):
 
     @aedt_exception_handler
     def create_discrete_sweep(
-        self, setupname, freqstart, freqstop=None, freqstep=None, units="GHz", sweepname=None, savefields=False
+            self, setupname, freqstart, freqstop=None, freqstep=None, units="GHz", sweepname=None, savefields=False
     ):
         """Create a discrete sweep with a single frequency value.
 
@@ -530,16 +531,16 @@ class Q2d(QExtractor, object):
         return self.modeler.dimension
 
     def __init__(
-        self,
-        projectname=None,
-        designname=None,
-        solution_type=None,
-        setup_name=None,
-        specified_version=None,
-        non_graphical=False,
-        new_desktop_session=False,
-        close_on_exit=False,
-        student_version=False,
+            self,
+            projectname=None,
+            designname=None,
+            solution_type=None,
+            setup_name=None,
+            specified_version=None,
+            non_graphical=False,
+            new_desktop_session=False,
+            close_on_exit=False,
+            student_version=False,
     ):
         QExtractor.__init__(
             self,
@@ -554,3 +555,30 @@ class Q2d(QExtractor, object):
             close_on_exit,
             student_version,
         )
+
+    def create_rectangle(self, position, dimension_list, name="", matname=""):
+        """
+        Create a rectangle
+
+        Parameters
+        ----------
+        position : list
+            List of  [x, y] coordinates for the starting point of rectangle
+        dimension_list : list
+            list of [width, height] dimensions
+        name : str, optional
+            Name of the rectangle. The default is ``None``, in which case
+            the default name is assigned.
+        matname : str, optional
+            Name of the material. The default is ``None``, in which case
+            the default material is assigned.
+        Returns
+        -------
+        pyaedt.modeler.Object3d.Object3d
+            3D object.
+
+        """
+        pos = self.modeler.Position(*position, 0)
+        return self.modeler.primitives.create_rectangle(pos, dimension_list=dimension_list, name=name, matname=matname)
+
+
