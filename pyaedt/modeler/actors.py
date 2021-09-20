@@ -209,12 +209,12 @@ class Vehicle(Actor, object):
 
     Parameters
     ----------
-    car_folder: str, required
+    car_folder : str, required
         Full path to the folder containing the definition of the
         vehicle.  This can be changed later.
-    speed: float or str, optional
+    speed : float or str, optional
         Speed of the vehicle. The default is ``10.0``.
-    relative_cs_name: str, optional
+    relative_cs_name : str, optional
         Name of the relative coordinate system of the actor. The
         default is ``None``, in which case the global coordinate
         system is used.
