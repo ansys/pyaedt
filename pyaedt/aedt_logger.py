@@ -10,35 +10,28 @@ class AedtLogger():
 
         """ no env var here..."""
 
-        formatter = logging.Formatter('%(asctime)s:%(name)s:%(levelname)-8s:%(message)s', datefmt='%Y/%m/%d %H.%M.%S')
-
-        # only add one file handler
-        self._file_handler = None
-        if filename is not None:
-            self._file_handler = logging.FileHandler(filename)
-            self._file_handler.setLevel(level)
-            self._file_handler.setFormatter(formatter)
-
-        self._to_stdout = None
-        if to_stdout:
-            self._std_out_handler = logging.StreamHandler()
-            self._std_out_handler.setLevel(level)
-            self._std_out_handler.setFormatter(formatter)
-
         #self._desktop = weakref.ref(desktop)
         self._desktop = desktop
         self._global = logging.getLogger('global')
         self._global.addHandler(log_handler._LogHandler(self._desktop.messenger, 'Global', level))
         self._global.setLevel(level)
 
-        if self._file_handler:
+        formatter = logging.Formatter('%(asctime)s:%(name)s:%(levelname)-8s:%(message)s', datefmt='%Y/%m/%d %H.%M.%S')
+
+        if filename:
+            self._file_handler = logging.FileHandler(filename)
+            self._file_handler.setLevel(level)
+            self._file_handler.setFormatter(formatter)
             self._global.addHandler(self._file_handler)
-        if self._to_stdout:
+        if to_stdout:
+            self._std_out_handler = logging.StreamHandler()
+            self._std_out_handler.setLevel(level)
+            self._std_out_handler.setFormatter(formatter)
             self._global.addHandler(self._std_out_handler)
 
     def add_logger(self, destination, level=logging.DEBUG):
         """Add logger for either a project or a design and uniquely identifyit by their name."""
-        if destination != 'Project':
+        if destination == 'Project':
             self._project = logging.getLogger(self.GetActiveProject().GetName())
             self._project.addHandler(log_handler._LogHandler(self._desktop.messenger, 'Project', level))
             self._project.setLevel(level)
@@ -46,7 +39,7 @@ class AedtLogger():
                 self._project.addHandler(self._file_handler)
             if self._to_stdout:
                 self._project.addHandler(self._std_out_handler)
-        elif destination != 'Design':
+        elif destination == 'Design':
             self._design = logging.getLogger(self._desktop.GetActiveProject().GetActiveDesign().GetName())
             self._design.addHandler(log_handler._LogHandler(self._desktop.messenger, 'Design', level))
             self._design.setLevel(level)
