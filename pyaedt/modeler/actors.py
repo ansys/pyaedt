@@ -148,14 +148,14 @@ class Bird(Actor, object):
 
     Parameters
     ----------
-    bird_folder: str
+    bird_folder : str
         Full path to the directory containing the definition of the
         bird. This can be changed later.
-    speed: float or str, optional
+    speed : float or str, optional
         Speed of the bird. The default is ``"2.0"``.
-    flapping_rate: float or str, optional
+    flapping_rate : float or str, optional
         Flapping rate. The default is ``"50Hz"``.
-    relative_cs_name: str, optional
+    relative_cs_name : str, optional
         Name of the relative coordinate system of the actor. The
         default is``None``, in which case the global coordinate system
         is used.

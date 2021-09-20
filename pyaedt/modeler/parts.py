@@ -9,7 +9,7 @@ class Part(object):
 
     Parameters
     ----------
-    part_folder: str
+    part_folder : str
         Path to the folder with the A3DCOMP files.
     part_dict : dict
         Name of the dictionary defining relevant properties of the class using these keywords:
@@ -133,7 +133,7 @@ class Part(object):
 
         Parameters
         ----------
-        kw: str
+        kw : str
              Coordinate system for kw. Options are ``offset`` and ``rotation_cs``.
 
         Returns
@@ -326,7 +326,7 @@ class Part(object):
 
         Parameters
         ----------
-        app: pyaedt.Hfss
+        app : pyaedt.Hfss
 
         Returns
         -------
@@ -498,8 +498,8 @@ class Antenna(Part, object):
 
         Parameters
         ----------
-        app: pyaedt.Hfss
-        units:
+        app : pyaedt.Hfss
+        units :
             The default is ``None``.
 
         Returns

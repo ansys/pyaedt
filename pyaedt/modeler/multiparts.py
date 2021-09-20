@@ -385,7 +385,7 @@ class MultiPartComponent(object):
 
         Parameters
         ----------
-        app: pyaedt.Hfss
+        app : pyaedt.Hfss
             HFSS application instance.
 
         Returns
@@ -433,7 +433,7 @@ class MultiPartComponent(object):
 
         Parameters
         ----------
-        app: :class:`pyaedt.hfss.Hfss`
+        app : :class:`pyaedt.hfss.Hfss`
             HFSS application where the multi-part component is to be inserted.
         motion: bool, optional
             Whether variables (yaw, pitch, and roll) should be created for setting the position.
