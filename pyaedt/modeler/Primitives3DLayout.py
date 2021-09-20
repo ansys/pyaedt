@@ -147,12 +147,19 @@ class Primitives3DLayout(object):
         for el in pins_objs:
             if is_ironpython:
                 name = clr.Reference[System.String]()
-                response = el.GetProductProperty(0, 11, name)
+                try:
+                    response = el.GetProductProperty(0, 11, name)
+                except:
+                    name = ""
             else:
                 val = String("")
-                response, name = el.GetProductProperty(0, 11, val)
-            name = str(name).strip("'")
-            self._pins[name] = Pins3DLayout(self, el.GetComponent().GetName(), el.GetName(), name)
+                try:
+                    response, name = el.GetProductProperty(0, 11, val)
+                except:
+                    name = ""
+            if str(name):
+                name = str(name).strip("'")
+                self._pins[name] = Pins3DLayout(self, el.GetComponent().GetName(), el.GetName(), name)
         return self._pins
 
     @property
