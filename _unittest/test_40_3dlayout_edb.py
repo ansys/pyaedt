@@ -26,7 +26,6 @@ class TestClass:
             self.aedtapp = Hfss3dLayout(self.test_project)
 
     def teardown_class(self):
-        self.aedtapp.modeler.edb.close_edb()
         for proj in self.aedtapp.project_list:
             try:
                 self.aedtapp.close_project(proj)

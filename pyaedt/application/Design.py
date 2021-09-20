@@ -1859,13 +1859,11 @@ class Design(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        legacy_project = self.project_name
+        if close_active_proj:
+            self.close_project(self.project_name)
         proj = self._desktop.OpenProject(project_file)
-
         if proj:
             self.__init__(projectname=proj.GetName(), designname=design_name)
-            if close_active_proj:
-                self._desktop.CloseProject(legacy_project)
             return True
         else:
             return False
@@ -2229,6 +2227,9 @@ class Design(object):
             ``True`` when successful, ``False`` when failed.
 
         """
+        has_edb = False
+        if self.solution_type == "HFSS3DLayout":
+            has_edb = True
         msg_txt = ""
         legacy_name = self.project_name
         if name:
@@ -2242,6 +2243,11 @@ class Design(object):
         proj_path = self.odesktop.GetProjectDirectory()
         if saveproject:
             oproj.Save()
+        if has_edb and self.modeler.edb:
+            try:
+                self.modeler.edb.close_edb()
+            except:
+                pass
         self.odesktop.CloseProject(name)
         i = 0
         timeout = 10
