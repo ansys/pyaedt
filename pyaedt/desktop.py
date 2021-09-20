@@ -301,8 +301,8 @@ class Desktop:
             self._main.AEDTVersion = version_key
         #self._init_logger()
         self._init_desktop()
-        self._main.oMessenger.add_info_message("pyaedt v{}".format(self._main.pyaedt_version))
-        self._main.oMessenger.add_info_message("Python version {}".format(sys.version))
+        self.logger.global_logger.info("pyaedt v%s", self._main.pyaedt_version)
+        self.logger.global_logger.info("Python version %s", sys.version)
 
     def __enter__(self):
         return self
@@ -522,40 +522,6 @@ class Desktop:
                 filemode="w",
             )
         return True
-
-    def __init__(self, specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True, student_version=False):
-        """Initialize desktop."""
-        self._main = sys.modules["__main__"]
-        self._main.interpreter = _com
-        self._main.close_on_exit = False
-        self._main.isoutsideDesktop = False
-        self._main.pyaedt_version = pyaedtversion
-        self._main.interpreter_ver = _pythonver
-        self.release = release_on_exit
-
-        if "oDesktop" in dir(self._main) and self._main.oDesktop is not None:
-            self.release = False
-        else:
-            if "oDesktop" in dir(self._main):
-                del self._main.oDesktop
-            version_student, version_key, version = self._set_version(specified_version, student_version)
-            if _com == 'ironpython':
-                print("Launching PyAEDT outside Electronics Desktop with IronPython")
-                self._init_ironpython(NG, AlwaysNew, version)
-            elif _com == 'pythonnet_v3':
-                print("Launching PyAEDT outside Electronics Desktop with CPython and Pythonnet")
-                self._init_cpython(NG, AlwaysNew, version, student_version, version_key)
-            else:
-                self.add_info_message("Launching PyAEDT outside AEDT with CPython and PyWin32.")
-                oAnsoftApp = win32com.client.Dispatch(version)
-                self._main.oDesktop = oAnsoftApp.GetAppDesktop()
-                self._main.isoutsideDesktop = True
-            self._main.AEDTVersion = version_key
-        # self._init_logger()
-        self._init_desktop()
-        self.logger.global_logger.info("pyaedt v%s", self._main.pyaedt_version)
-        self.logger.global_logger.info("Python version %s", sys.version)
-
 
     @property
     def messenger(self):
