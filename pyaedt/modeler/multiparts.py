@@ -484,7 +484,7 @@ class Environment(MultiPartComponent, object):
     ----------
     env_folder : str
         Full path to the folder with the JSON file containing the component definition.
-    relative_cs_name: str, optional
+    relative_cs_name : str, optional
         Name of the coordinate system to connect the component's relative system to
         when ``use_relative_cs=True``. The default is ``None``, in which case the
         global coordinate system is used.
