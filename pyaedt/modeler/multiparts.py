@@ -19,28 +19,31 @@ class MultiPartComponent(object):
         Full path to the folder with the JSON file containing the component definition.
         This JSON file must have the same name as the folder.
     name : str, optional
-        Name of the multi-part component. If this value is set, the
+        Name of the multipart component. If this value is set, the
         component is selected from the corresponding JSON file in
         ``comp_folder``. The default is ``None``, in which case the
         name of the first JSON file in the folder is used.
     use_relative_cs : bool, optional
-        Whether to use the relative coordinate system. The default is ``False``,
-        which indicates that the multi-part component doesn't move. Set to ``True``
-        if the component moves relative to the global coordinate system.
+        Whether to use the relative coordinate system. The default is ``False``.
+        Set to ``False`` if the multi-part component doesn't move. Set to ``True``
+        if the multi-part component moves relative to the global coordinate system.
     relative_cs_name : str, optional
-        Name of the coordinate system to connect the component's relative system to
-        when ``use_relative_cs=True``. The default is ``None``, in which case the
-        global coordinate system is used.
+        Name of the coordinate system to connect the multipart relative system to
+        when ``use_relative_cs=True``.
     motion : bool, optional
-        Whether to use expressions to define the position and orientation of
-        the component. The default is ``False``.
+        Whether expressions should be used to define the position and orientation of
+        the multi-part component. The default is ``False``.
     offset : list, optional
-        List of offset values for the component. The default is ``["0", "0", "0"]``.
+        List of ``[x, y, z]`` coordinate values defining the component offset.
+        The default is ``["0", "0", "0"]``.
     yaw : str or float, optional
         Yaw angle, indicating the rotation about the component's Z-axis. The default
         is ``"0deg"``.
     pitch : str or float, optional
-        Pitch angle, indicating the rotation about the component's Y-axis. The default
+        Pitch angle, indicating the rotation about the component Y-axis The default
+        is ``"0deg"``.
+    roll : str or float, optional
+        Roll angle, indicating the rotation about the component X-axis. The default
         is ``"0deg"``.
     roll : str or float, optional
         Roll angle, indicating the rotation about the component's X-axis. The default
@@ -67,7 +70,7 @@ class MultiPartComponent(object):
 
         Parameters
         ----------
-        app : pyaedt.Hfss
+        app : class:`pyaedt.Hfss`
             HFSS application instance.
 
         Returns
@@ -434,9 +437,9 @@ class MultiPartComponent(object):
         Parameters
         ----------
         app : :class:`pyaedt.hfss.Hfss`
-            HFSS application where the multi-part component is to be inserted.
-        motion: bool, optional
-            Whether variables (yaw, pitch, and roll) should be created for setting the position.
+            HFSS application where multi-part component is to be inserted.
+        motion : bool, optional
+            Whether variables (yaw, pitch, and roll) should be created in the app to set position.
 
         Returns
         -------
@@ -575,7 +578,7 @@ class Actor(MultiPartComponent, object):
         Full path to the folder containing the definition of the person.
         This can be changed later in the :class:`Person` class definition.
     speed : float or str
-        Speed of the person in the X-axis direction. The default is ``0```.
+        Speed of the person in the X-direction. The default is ``0```.
     relative_cs_name : str
         Name of the relative coordinate system of the actor. The default is ``None``,
         in which case the global coordinate system is used.
