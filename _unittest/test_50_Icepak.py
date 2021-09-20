@@ -19,9 +19,9 @@ except ImportError:
 # Access the desktop
 
 non_graphical_test = False
-test_project_name = "Filter_Board"
+test_project_name = "Filter_Board_Icepak"
 proj_name = None
-design_name = "Galileo_G87173_205_cutout3"
+design_name = "cutout3"
 solution_name = "HFSS Setup 1 : Last Adaptive"
 en_ForceSimulation = True
 en_PreserveResults = True
