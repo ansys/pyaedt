@@ -299,7 +299,7 @@ class Desktop:
                 self._main.oDesktop = oAnsoftApp.GetAppDesktop()
                 self._main.isoutsideDesktop = True
             self._main.AEDTVersion = version_key
-        self._init_logger()
+        #self._init_logger()
         self._init_desktop()
         self._main.oMessenger.add_info_message("pyaedt v{}".format(self._main.pyaedt_version))
         self._main.oMessenger.add_info_message("Python version {}".format(sys.version))
@@ -372,7 +372,7 @@ class Desktop:
         logfile = os.path.join(self._main.oDesktop.GetProjectDirectory(),
                                         "pyaedt{}.log".format(datetime.datetime.now().strftime("%Y%m%d_%H%M%S")))
         self._main.oMessenger = AEDTMessageManager()
-        self.logger = aedt_logger.AedtLogger(self, filename = logfile, level = logging.DEBUG)
+        self._logger = aedt_logger.AedtLogger(self, filename = None, level = logging.DEBUG)
         self._main.sDesktopinstallDirectory = self._main.oDesktop.GetExeDir()
         self._main.pyaedt_initialized = True
 
@@ -555,12 +555,17 @@ class Desktop:
         self._init_desktop()
         self.logger.global_logger.info("pyaedt v%s", self._main.pyaedt_version)
         self.logger.global_logger.info("Python version %s", sys.version)
-        
+
 
     @property
     def messenger(self):
         """Messenger manager for AEDT Log."""
         return self._main.oMessenger
+
+    @property
+    def logger(self):
+        """AEDT logger."""
+        return self._logger
 
     @property
     def install_path(self):
