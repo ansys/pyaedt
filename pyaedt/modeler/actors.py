@@ -119,9 +119,9 @@ class Person(Actor, object):
 
         Parameters
         ----------
-        app: pyaedt.Hfss
+        app : pyaedt.Hfss
             HFSS application instance.
-        motion: bool, optional
+        motion : bool, optional
             Whether the person is in motion. The default is ``True``.
 
         Returns
