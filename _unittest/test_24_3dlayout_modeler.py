@@ -26,8 +26,11 @@ class TestClass:
             self.aedtapp = Hfss3dLayout(self.test_project)
 
     def teardown_class(self):
-        assert self.aedtapp.close_project(self.aedtapp.project_name)
-        # self.local_scratch.remove()
+        for proj in self.aedtapp.project_list:
+            try:
+                self.aedtapp.close_project(proj)
+            except:
+                pass
         gc.collect()
 
     def test_01_creatematerial(self):
