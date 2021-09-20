@@ -13,6 +13,7 @@ import warnings
 from pyaedt import inside_desktop, is_ironpython
 from pyaedt.application.MessageManager import EDBMessageManager
 from pyaedt.edb_core import Components, EdbNets, EdbPadstacks, EdbLayout, Edb3DLayout, EdbSiwave, EdbStackup
+from pyaedt.edb_core.EDB_Data import EdbBuilder
 from pyaedt import retry_ntimes
 from pyaedt.generic.general_methods import (
     aedt_exception_handler,
@@ -410,9 +411,18 @@ class Edb(object):
                 self.layout_methods.LoadDataModel(dllpath)
                 if not os.path.exists(self.edbpath):
                     os.makedirs(self.edbpath)
-                self.builder = self.layout_methods.GetBuilder(
-                    self._db, self._active_cell, self.edbpath, self.edbversion, self.standalone, True
-                )
+                time.sleep(2)
+                self.builder = EdbBuilder(self.edbutils, self._db, self._active_cell)
+                # self.builder = retry_ntimes(
+                #     10,
+                #     self.layout_methods.GetBuilder,
+                #     self._db,
+                #     self._active_cell,
+                #     self.edbpath,
+                #     self.edbversion,
+                #     self.standalone,
+                #     True
+                # )
                 self._init_objects()
                 return self.builder
             else:
@@ -454,8 +464,15 @@ class Edb(object):
         dllpath = os.path.join(os.path.dirname(__file__), "dlls", "EDBLib", "DataModel.dll")
         if self._db and self._active_cell:
             self.layout_methods.LoadDataModel(dllpath)
-            self.builder = self.layout_methods.GetBuilder(
-                self._db, self._active_cell, self.edbpath, self.edbversion, self.standalone
+            time.sleep(2)
+            self.builder = retry_ntimes(
+                10,
+                self.layout_methods.GetBuilder,
+                self._db,
+                self._active_cell,
+                self.edbpath,
+                self.edbversion,
+                self.standalone
             )
             self._init_objects()
             return self.builder

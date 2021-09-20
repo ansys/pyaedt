@@ -1485,3 +1485,14 @@ class EDBComponent(object):
             * -1 - Undefined
         """
         return int(self.pinlist[0].GetGroup().GetPlacementLayer().GetTopBottomAssociation())
+
+
+class EdbBuilder(object):
+    """Data Class to Overcome EdbLib in Linux.
+
+    """
+    def __init__(self, edbutils, db, cell):
+        self.EdbHandler = edbutils.EdbHandler()
+        self.EdbHandler.dB = db
+        self.EdbHandler.cell = cell
+        self.EdbHandler.layout = cell.GetLayout()
