@@ -1,5 +1,3 @@
-import os
-
 try:
     import pytest
 except ImportError:
@@ -11,9 +9,6 @@ import gc
 # Import required modules
 from pyaedt import Hfss
 from pyaedt.generic.filesystem import Scratch
-
-test_project_name = "coax_HFSS"
-from pyaedt.desktop import Desktop
 
 
 class TestClass:
