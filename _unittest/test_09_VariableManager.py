@@ -1,4 +1,5 @@
 # Setup paths for module imports
+from __future__ import division
 import gc
 import math
 
@@ -298,6 +299,7 @@ class TestClass:
         v4 = Variable("3mA")
         v5 = Variable("100NewtonMeter")
         v6 = Variable("1000rpm")
+        tol = 1e-9
 
         result_1 = v1 / v2
         assert result_1.numeric_value == 0.25
@@ -315,7 +317,7 @@ class TestClass:
         assert result_3.unit_system == "Freq"
 
         result_4 = v3 / 3
-        assert result_4.numeric_value == 0.3333333333333333333333
+        assert abs(result_4.numeric_value - 0.3333333333333333333333) < tol
         assert result_4.units == "s"
         assert result_4.unit_system == "Time"
 
@@ -325,7 +327,7 @@ class TestClass:
         assert result_5.unit_system == "None"
 
         result_6 = v1 / v5 + v6
-        assert isclose(result_6.numeric_value, 104.81975511965)
+        assert abs(result_6.numeric_value- 104.81975511965) < tol
         assert result_6.units == "rad_per_sec"
         assert result_6.unit_system == "AngularSpeed"
 

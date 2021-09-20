@@ -16,9 +16,6 @@ except ImportError:
     )
 
 
-
-
-
 class EDBLayer(object):
     """Manages EDB functionalities for a layer."""
 

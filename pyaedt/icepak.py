@@ -8,7 +8,7 @@ import re
 from collections import OrderedDict
 
 from .application.AnalysisIcepak import FieldAnalysisIcepak
-from .generic.general_methods import generate_unique_name, aedt_exception_handler, retry_ntimes
+from .generic.general_methods import generate_unique_name, aedt_exception_handler
 from .generic.DataHandlers import arg2dict
 from .modules.Boundary import BoundaryObject, NativeComponentObject
 

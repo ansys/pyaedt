@@ -110,7 +110,7 @@ class TestClass:
         for el in self.aedtapp.available_variations.nominal_w_values_dict:
             families[el] = self.aedtapp.available_variations.nominal_w_values_dict[el]
 
-        my_data = self.aedtapp.post.get_report_data(expression=trace_names,families_dict=families)
+        my_data = self.aedtapp.post.get_report_data(expression=trace_names, families_dict=families)
         assert my_data
         assert my_data.sweeps
         assert my_data.expressions

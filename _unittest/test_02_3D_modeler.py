@@ -339,7 +339,8 @@ class TestClass(BasisTest):
         self.aedtapp.modeler.set_working_coordinate_system("new1")
 
     def test_44_sweep_around_axis(self):
-        rect1 = self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.CoordinateSystemPlane.YZPlane, [0,0,0], [20, 20], "rectangle_to_split")
+        rect1 = self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.CoordinateSystemPlane.YZPlane, [0, 0, 0],
+                                                                 [20, 20], "rectangle_to_split")
         assert rect1.sweep_around_axis("Z", sweep_angle=360, draft_angle=0)
 
     def test_45_sweep_along_path(self):
