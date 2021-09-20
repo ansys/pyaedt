@@ -8,8 +8,8 @@ import gc
 from pyaedt import Hfss3dLayout
 from pyaedt.generic.filesystem import Scratch
 
-test_project_name = "Galileo_T23"
-original_project_name = "Galileo_T23"
+test_project_name = "Galileo_t23"
+original_project_name = "Galileo_t23"
 
 
 class TestClass:

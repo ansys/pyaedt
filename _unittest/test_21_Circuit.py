@@ -15,8 +15,8 @@ except ImportError:
     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
 
-original_project_name = "Galileo"
-test_project_name = "Galileo_T21"
+original_project_name = "Galileo_t21"
+test_project_name = "Galileo_t21"
 netlist1 = "netlist_small.cir"
 netlist2 = "Schematic1.qcv"
 touchstone = "SSN_ssn.s6p"
