@@ -42,8 +42,8 @@ def run_desktop_tests():
     pass
 
     aedtapp = Maxwell2d(specified_version="2021.1")
-    aedtapp.design_type == "Maxwell 2D"
-    aedtapp.solution_type == "Magnetostatic"
+    assert aedtapp.design_type == "Maxwell 2D"
+    assert aedtapp.solution_type == "Magnetostatic"
     aedtapp.close_desktop()
 
     aedtapp = Hfss(specified_version="2021.1")
@@ -57,3 +57,7 @@ def run_desktop_tests():
     assert aedtapp.solution_type == "Magnetostatic"
     aedtapp.close_desktop()
     pass
+
+
+if __name__ == '__main__':
+    run_desktop_tests()
