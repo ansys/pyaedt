@@ -220,6 +220,7 @@ class TestClass:
         assert self.aedtapp.create_setup(setup_name, "NexximAMI")
 
     def test_20_create_AMI_plots(self):
+        self.aedtapp.modeler.edb.close_edb()
         self.aedtapp.load_project(self.ami_example_project, close_active_proj=True)
         report_name = "MyReport"
         assert (

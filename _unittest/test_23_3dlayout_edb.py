@@ -17,7 +17,7 @@ class TestClass:
         with Scratch(scratch_path) as self.local_scratch:
             example_project = os.path.join(local_path, "example_models", original_project_name + ".aedt")
 
-            self.test_project = self.local_scratch.copyfile(example_project,test_project_name + ".aedt")
+            self.test_project = self.local_scratch.copyfile(example_project, test_project_name + ".aedt")
 
             self.local_scratch.copyfolder(
                 os.path.join(local_path, "example_models", original_project_name + ".aedb"),
@@ -26,6 +26,7 @@ class TestClass:
             self.aedtapp = Hfss3dLayout(self.test_project)
 
     def teardown_class(self):
+        self.aedtapp.modeler.edb.close_edb()
         for proj in self.aedtapp.project_list:
             try:
                 self.aedtapp.close_project(proj)
