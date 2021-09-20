@@ -3040,10 +3040,9 @@ class Primitives(object):
         if len(objListSolids) > 0:
             objList.extend(objListSolids)
         for obj in objList:
-            edgeIDs = list(retry_ntimes(10, self.oeditor.GetEdgeIDsFromObject, obj))
-            if str(lval) in edgeIDs:
+            val = retry_ntimes(10, self.oeditor.GetEdgeIDsFromObject, obj)
+            if not(isinstance(val, bool)) and str(lval) in list(val):
                 return obj
-
         return None
 
     def _find_object_from_face_id(self, lval):

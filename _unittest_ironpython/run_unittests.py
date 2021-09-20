@@ -29,7 +29,7 @@ def discover_and_run(start_dir, pattern=None):
         result = runner.run(test_suite)
 
 
-discover_and_run(run_dir, pattern="test_23*.py")
+discover_and_run(run_dir, pattern="test_24*.py")
 
 success_file = os.path.join(run_dir, "tests_succeeded.log")
 with open(success_file, "w") as f:

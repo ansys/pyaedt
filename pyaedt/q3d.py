@@ -553,19 +553,3 @@ class Q2d(QExtractor, object):
             student_version,
         )
 
-    def assign_finitecond_boundary_to_edges(self, edge_id, name, model_type="huray"):
-        a = self.modeler._convert_list_to_ids(edge_id)
-
-        """if isinstance(edge_id, list):
-            a = edge_id
-        else:
-            a = [edge_id]"""
-        print(a)
-        props = OrderedDict(
-            {"Edges": a, "Rouhgness": "2um", "UseCoating": True, "LayerThickness": "1.2um", "UseMaterial": True,
-             "Material": "Copper"}
-        )
-        bound = BoundaryObject(self, name, props, "FiniteCond")
-        if bound.create():
-            self.boundaries.append(bound)
-            return bound

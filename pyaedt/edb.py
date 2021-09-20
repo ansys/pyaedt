@@ -130,7 +130,9 @@ class Edb(object):
                     edbpath = os.path.join(edbpath, generate_unique_name("layout") + ".aedb")
                 self._messenger.add_info_message("No Edb Provided. Creating new EDB {}.".format(edbpath))
             self.edbpath = edbpath
-            if edbpath[-3:] in ["brd", "gds", "xml", "dxf", "tgz"]:
+            if isaedtowned and inside_desktop:
+                self.open_edb_inside_aedt()
+            elif edbpath[-3:] in ["brd", "gds", "xml", "dxf", "tgz"]:
                 self.edbpath = edbpath[:-4] + ".aedb"
                 working_dir = os.path.dirname(edbpath)
                 self.import_layout_pcb(edbpath, working_dir, use_ppe=use_ppe)
@@ -142,10 +144,7 @@ class Edb(object):
                 self._messenger.add_info_message("Edb {} Created Correctly".format(self.edbpath))
             elif ".aedb" in edbpath:
                 self.edbpath = edbpath
-                if isaedtowned and "isoutsideDesktop" in dir(self._main) and not self._main.isoutsideDesktop:
-                    self.open_edb_inside_aedt()
-                else:
-                    self.open_edb()
+                self.open_edb()
             if self.builder:
                 self._messenger.add_info_message("Edb Initialized")
             else:

@@ -127,7 +127,7 @@ class TestClass:
         v4 = Variable("40V")
         v5 = Variable("100NewtonMeter")
         v6 = Variable("1000rpm")
-
+        tol = 1e-9
         result_1 = v1 * v2
         result_2 = v2 * v3
         result_3 = v3 * v4
@@ -155,15 +155,15 @@ class TestClass:
         assert result_5.units == "W"
         assert result_5.unit_system == "Power"
 
-        assert isclose(result_6.numeric_value, 10471.975511965977)
+        assert abs(result_6.numeric_value - 10471.975511965977) < tol
         assert result_6.units == "W"
         assert result_6.unit_system == "Power"
 
-        assert isclose(result_7.numeric_value, 10471.975511965977)
+        assert abs(result_7.numeric_value - 10471.975511965977) < tol
         assert result_7.units == "W"
         assert result_7.unit_system == "Power"
 
-        assert isclose(result_8.numeric_value, 10.471975511965977)
+        assert abs(result_8.numeric_value - 10.471975511965977) < tol
         assert result_8.units == "kW"
         assert result_8.unit_system == "Power"
 
@@ -327,7 +327,7 @@ class TestClass:
         assert result_5.unit_system == "None"
 
         result_6 = v1 / v5 + v6
-        assert abs(result_6.numeric_value- 104.81975511965) < tol
+        assert abs(result_6.numeric_value - 104.81975511965) < tol
         assert result_6.units == "rad_per_sec"
         assert result_6.unit_system == "AngularSpeed"
 

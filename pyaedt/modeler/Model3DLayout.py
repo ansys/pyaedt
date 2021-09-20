@@ -1,6 +1,6 @@
 import os
 
-from pyaedt import _pythonver
+from pyaedt import _pythonver, is_ironpython, inside_desktop
 
 from ..application.Variables import AEDT_units
 from ..edb import Edb
@@ -32,8 +32,11 @@ class Modeler3DLayout(Modeler):
         edb_folder = os.path.join(self._parent.project_path, self._parent.project_name + ".aedb")
         edb_file = os.path.join(edb_folder, "edb.def")
         self._edb = None
-        if os.path.exists(edb_file):
-            self._mttime = os.path.getmtime(edb_file)
+        if os.path.exists(edb_file) or (inside_desktop and is_ironpython):
+            if os.path.exists(edb_file):
+                self._mttime = os.path.getmtime(edb_file)
+            else:
+                self._mttime = 0
             self._edb = Edb(
                 edb_folder,
                 self._parent.design_name,
@@ -64,10 +67,13 @@ class Modeler3DLayout(Modeler):
              EDB.
 
         """
-        if os.name != "posix":
+        if not (inside_desktop and is_ironpython):
             edb_folder = os.path.join(self._parent.project_path, self._parent.project_name + ".aedb")
             edb_file = os.path.join(edb_folder, "edb.def")
-            _mttime = os.path.getmtime(edb_file)
+            if os.path.exists(edb_file):
+                _mttime = os.path.getmtime(edb_file)
+            else:
+                _mttime = 0
             if _mttime != self._mttime:
                 if self._edb:
                     self._edb.close_edb()

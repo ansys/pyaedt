@@ -862,6 +862,17 @@ class EDBPadProperties(object):
 
     @aedt_exception_handler
     def int_to_geometry_type(self, val=0):
+        """Convert an integer to an EDB.PadGeometryType.
+
+        Parameters
+        ----------
+        val : int
+
+        Returns
+        -------
+        object
+            EDB.PadGeometryType enumerator value.
+        """
         if val == 0:
             return self._edb.Definition.PadGeometryType.NoGeometry
         elif val == 1:
