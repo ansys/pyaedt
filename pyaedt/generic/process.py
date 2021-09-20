@@ -215,7 +215,7 @@ class SiwaveSolve(object):
             p = subprocess.Popen(" ".join(command))
             p.wait()
 
-    def export_3d_cad(self, format_3d="Q3D", output_folder=None, net_list=None):
+    def export_3d_cad(self, format_3d="Q3D", output_folder=None, net_list=None, num_cores=None):
         """Export edb to Q3D or HFSS
 
         Parameters
@@ -225,6 +225,8 @@ class SiwaveSolve(object):
             Output file folder. If `` then the aedb parent folder is used
         net_list : list, default ``None``
             Define Nets to Export. if None, all nets will be exported
+        num_cores : int, optional
+            Define number of cores to use during export
 
         Returns
         -------
@@ -249,6 +251,9 @@ class SiwaveSolve(object):
                 f.write("        oDoc.ScrSelectNet(allnets[i], 1)\n")
             f.write("oDoc.ScrSetOptionsFor3DModelExport(exportOptions)\n")
             f.write("q3d_filename = os.path.join(r'{}', '{}')\n".format(output_folder, format_3d + "_siwave.aedt"))
+            if num_cores:
+                f.write("oDoc.ScrSetNumCpusToUse('{}')\n".format(num_cores))
+                self.nbcores = num_cores
             f.write("oDoc.ScrExport3DModel('{}', q3d_filename)\n".format(format_3d))
             f.write("oDoc.ScrCloseProject()\n")
             f.write("oApp.Quit()\n")

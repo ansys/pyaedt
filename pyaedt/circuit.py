@@ -33,7 +33,7 @@ class Circuit(FieldAnalysisCircuit, object):
         Name of the setup to use as the nominal. The default is
         ``None``, in which case the active setup is used or
         nothing is used.
-    specified_version: str, optional
+    specified_version : str, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is  used.
         This parameter is ignored when Script is launched within AEDT.
@@ -823,22 +823,22 @@ class Circuit(FieldAnalysisCircuit, object):
             The default is ``None``.
         setupname : str, optional
             Name of the setup if it is a design. The default is ``None``.
-        is_solution_file: bool, optional
+        is_solution_file : bool, optional
             Whether it is an imported solution file. The default is ``False``.
-        filename: str, optional
+        filename : str, optional
             Full path and name for exporting the HSpice file. The default is ``None``.
-        passivity: bool, optional
+        passivity : bool, optional
             Whether to compute the passivity. The default is ``False``.
-        causality: bool, optional
+        causality : bool, optional
             Whether to compute the causality. The default is ``False``.
-        renormalize: bool, optional
+        renormalize : bool, optional
             Whether to renormalize the S-matrix to a specific port impedance.
             The default is ``False``.
-        impedance: float, optional
+        impedance : float, optional
             Impedance value if ``renormalize=True``. The default is ``50``.
-        error: float, optional
+        error : float, optional
             Fitting error. The default is ``0.5``.
-        poles: int, optional
+        poles : int, optional
             Number of fitting poles. The default is ``10000``.
 
         Returns
@@ -918,8 +918,16 @@ class Circuit(FieldAnalysisCircuit, object):
         return filename
 
     @aedt_exception_handler
-    def create_touchstone_report(self, plot_name, curvenames, solution_name=None, variation_dict=None):
-        """Create a Touchstone plot.
+    def create_touchstone_report(
+        self,
+        plot_name,
+        curvenames,
+        solution_name=None,
+        variation_dict=None,
+        subdesign_id=None,
+    ):
+        """
+        Create a Touchstone plot.
 
         Parameters
         ----------
@@ -931,6 +939,8 @@ class Circuit(FieldAnalysisCircuit, object):
             Name of the solution. The default value is ``None``.
         variation_dict : dict, optional
             Dictionary of variation names. The default value is ``None``.
+        subdesign_id : int, optional
+            Specify a SubDesign ID to export a touchstone of this Subdesign. The default value is ``None``.
 
         Returns
         -------
@@ -945,6 +955,10 @@ class Circuit(FieldAnalysisCircuit, object):
             for el in variation_dict:
                 variations[el] = [variation_dict[el]]
         ctxt = ["NAME:Context", "SimValueContext:=", [3, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0]]
+        if subdesign_id:
+            ctxt_temp = ["NUMLEVELS", False, "0", "SUBDESIGNID", False, str(subdesign_id)]
+            for el in ctxt_temp: ctxt[2].append(el)
+
         return self.post.create_rectangular_plot(
             curvenames, solution_name, variations, plotname=plot_name, context=ctxt
         )

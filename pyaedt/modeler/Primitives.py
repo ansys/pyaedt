@@ -36,7 +36,7 @@ class PolylineSegment:
     type : str
         Type of the object. Choices are ``"Line"``, ``"Arc"``, ``"Spline"``,
         and ``"AngularArc"``.
-    num_seg: int, optional
+    num_seg : int, optional
         Number of segments for the types ``"Arc"``, ``"Spline"``, and
         ``"AngularArc"``.  The default is ``0``. For the type
         ``Line``, this parameter is ignored.
@@ -698,7 +698,7 @@ class Polyline(Object3d):
             List of positions of the points that define the segment to insert.
             Either the starting point or ending point of the segment list must
             match one of the vertices of the existing polyline.
-        segment: str or :class:`pyaedt.modeler.Primitives.PolylineSegment`
+        segment : str or :class:`pyaedt.modeler.Primitives.PolylineSegment`
             Definition of the segment to insert. For the types ``"Line"`` and ``"Arc"``,
             use their string values ``"Line"`` and ``"Arc"``. For the types ``"AngularArc"``
             and ``"Spline"``, use the :class:`pyaedt.modeler.Primitives.PolylineSegment`
@@ -1125,7 +1125,7 @@ class Primitives(object):
 
         Parameters
         ----------
-        edge: int or :class:`pyaedt.modeler.Object3d.EdgePrimitive`
+        edge : int or :class:`pyaedt.modeler.Object3d.EdgePrimitive`
             Edge ID or :class:`pyaedt.modeler.Object3d.EdgePrimitive` object.
 
         Returns
@@ -1233,9 +1233,9 @@ class Primitives(object):
         close_surface : bool, optional
             The default is ``False``, which automatically joins the
             starting and ending points.
-        name: str, optional
+        name : str, optional
             Name of the polyline. The default is ``None``.
-        matname: str, optional
+        matname : str, optional
             Name of the material. The default is ``None``, in which case the
             default material is assigned.
         xsection_type : str, optional
