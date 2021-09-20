@@ -47,8 +47,6 @@ class TestClass:
                 os.path.join(local_path, "example_models", test_project_name + ".aedb"),
                 os.path.join(self.local_scratch.path, test_project_name + ".aedb"),
             )
-            if os.name == "posix":
-                force_close_desktop()
             self.aedtapp = Icepak(self.test_project, specified_version=desktop_version)
 
     def teardown_class(self):
