@@ -99,27 +99,35 @@ class Primitives3DLayout(object):
 
             if is_ironpython:
                 name = clr.Reference[System.String]()
-                response = el.GetProductProperty(0, 1, name)
+                try:
+                    response = el.GetProductProperty(0, 1, name)
+                except:
+                    response, name = False, ""
+
             else:
                 val = String("")
-                response, name = el.GetProductProperty(0, 1, val)
-            elval = el.GetType()
-            elid = el.GetId()
-            name = str(name).replace("'", "")
-            if not name:
-                if "Rectangle" in elval.ToString():
-                    name = "rect_" + str(elid)
-                elif "Circle" in elval.ToString():
-                    name = "circle_" + str(elid)
-                elif "Polygon" in elval.ToString():
-                    name = "poly_" + str(elid)
-                elif "Path" in elval.ToString():
-                    name = "line_" + str(elid)
-                elif "Bondwire" in elval.ToString():
-                    name = "bondwire_" + str(elid)
-                else:
-                    continue
-            self._geometries[name] = Geometries3DLayout(self, name, elid)
+                try:
+                    response, name = el.GetProductProperty(0, 1, val)
+                except:
+                    response, name = False, ""
+            if str(name):
+                elval = el.GetType()
+                elid = el.GetId()
+                name = str(name).replace("'", "")
+                if not name:
+                    if "Rectangle" in elval.ToString():
+                        name = "rect_" + str(elid)
+                    elif "Circle" in elval.ToString():
+                        name = "circle_" + str(elid)
+                    elif "Polygon" in elval.ToString():
+                        name = "poly_" + str(elid)
+                    elif "Path" in elval.ToString():
+                        name = "line_" + str(elid)
+                    elif "Bondwire" in elval.ToString():
+                        name = "bondwire_" + str(elid)
+                    else:
+                        continue
+                self._geometries[name] = Geometries3DLayout(self, name, elid)
         return self._geometries
 
     @property

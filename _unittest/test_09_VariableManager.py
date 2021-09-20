@@ -155,15 +155,15 @@ class TestClass:
         assert result_5.units == "W"
         assert result_5.unit_system == "Power"
 
-        assert abs(result_6.numeric_value - 10471.975511965977) < tol
+        assert abs(result_6.numeric_value - 10471.9755) < tol
         assert result_6.units == "W"
         assert result_6.unit_system == "Power"
 
-        assert abs(result_7.numeric_value - 10471.975511965977) < tol
+        assert abs(result_7.numeric_value - 10471.9755) < tol
         assert result_7.units == "W"
         assert result_7.unit_system == "Power"
 
-        assert abs(result_8.numeric_value - 10.471975511965977) < tol
+        assert abs(result_8.numeric_value - 10.4719755) < tol
         assert result_8.units == "kW"
         assert result_8.unit_system == "Power"
 
@@ -296,7 +296,7 @@ class TestClass:
         v1 = Variable("10W")
         v2 = Variable("40V")
         v3 = Variable("1s")
-        v4 = Variable("3mA")
+        v4 = Variable("5mA")
         v5 = Variable("100NewtonMeter")
         v6 = Variable("1000rpm")
         tol = 1e-9
@@ -316,18 +316,18 @@ class TestClass:
         assert result_3.units == "Hz"
         assert result_3.unit_system == "Freq"
 
-        result_4 = v3 / 3
-        assert abs(result_4.numeric_value - 0.3333333333333333333333) < tol
+        result_4 = v3 / 2
+        assert abs(result_4.numeric_value - 0.5) < tol
         assert result_4.units == "s"
         assert result_4.unit_system == "Time"
 
         result_5 = v4 / v5
-        assert result_5.numeric_value == 0.00003
+        assert result_5.numeric_value == 0.00005
         assert result_5.units == ""
         assert result_5.unit_system == "None"
 
         result_6 = v1 / v5 + v6
-        assert abs(result_6.numeric_value - 104.81975511965) < tol
+        assert abs(result_6.numeric_value - 104.8198) < tol
         assert result_6.units == "rad_per_sec"
         assert result_6.unit_system == "AngularSpeed"
 
