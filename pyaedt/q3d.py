@@ -552,4 +552,3 @@ class Q2d(QExtractor, object):
             close_on_exit,
             student_version,
         )
-
