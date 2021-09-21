@@ -33,7 +33,7 @@ class TestClass:
         assert isinstance(o.id, int)
 
     def test_02a_create_rectangle(self):
-        o = self.aedtapp.create_rectangle((0,0), [5,3], name="Rectangle1")
+        o = self.aedtapp.create_rectangle((0, 0), [5, 3], name="Rectangle1")
         assert isinstance(o.id, int)
 
     def test_06a_create_setup(self):
