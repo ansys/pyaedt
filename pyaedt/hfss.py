@@ -1408,8 +1408,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        str
-           Name of source created when successful, ``False`` otherwise.
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
 
         Examples
         --------
@@ -1421,11 +1421,10 @@ class Hfss(FieldAnalysis3D, object):
         ...                                           "BoxVolt1", "copper")
         >>> box2 = hfss.modeler.primitives.create_box([30, 0, 10], [40, 10, 5],
         ...                                           "BoxVolt2", "copper")
-        >>> hfss.create_voltage_source_from_objects("BoxVolt1", "BoxVolt2",
+        >>> v1 = hfss.create_voltage_source_from_objects("BoxVolt1", "BoxVolt2",
         ...                                         hfss.AxisDir.XNeg,
         ...                                         "VoltageSource")
         pyaedt Info: Connection Correctly created
-        'VoltageSource'
 
         """
 
@@ -1442,11 +1441,7 @@ class Hfss(FieldAnalysis3D, object):
                 sourcename = generate_unique_name("Voltage")
             elif sourcename + ":1" in self.modeler.get_excitations_name():
                 sourcename = generate_unique_name(sourcename)
-            status = self.create_source_excitation(sheet_name, point0, point1, sourcename, sourcetype="Voltage")
-            if status:
-                return sourcename
-            else:
-                return False
+            return self.create_source_excitation(sheet_name, point0, point1, sourcename, sourcetype="Voltage")
         return False
 
     @aedt_exception_handler
@@ -1470,8 +1465,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        str
-            Name of the source created when successful, ``False`` otherwise.
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
 
         Examples
         --------
@@ -1483,7 +1478,7 @@ class Hfss(FieldAnalysis3D, object):
         ...                                           "BoxCurrent1", "copper")
         >>> box2 = hfss.modeler.primitives.create_box([30, 0, 30], [40, 10, 5],
         ...                                           "BoxCurrent2", "copper")
-        >>> hfss.create_current_source_from_objects("BoxCurrent1", "BoxCurrent2",
+        >>> i1 = hfss.create_current_source_from_objects("BoxCurrent1", "BoxCurrent2",
         ...                                         hfss.AxisDir.XPos,
         ...                                         "CurrentSource")
         pyaedt Info: Connection created 'CurrentSource' correctly.
@@ -1503,11 +1498,7 @@ class Hfss(FieldAnalysis3D, object):
                 sourcename = generate_unique_name("Current")
             elif sourcename + ":1" in self.modeler.get_excitations_name():
                 sourcename = generate_unique_name(sourcename)
-            status = self.create_source_excitation(sheet_name, point0, point1, sourcename, sourcetype="Current")
-            if status:
-                return sourcename
-            else:
-                return False
+            return self.create_source_excitation(sheet_name, point0, point1, sourcename, sourcetype="Current")
         return False
 
     @aedt_exception_handler
@@ -2287,8 +2278,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        str
-            Name of the port created when successful, ``False`` otherwise.
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
 
         Examples
         --------
@@ -2299,9 +2290,8 @@ class Hfss(FieldAnalysis3D, object):
         >>> rectangle = hfss.modeler.primitives.create_rectangle(hfss.CoordinateSystemPlane.XYPlane,
         ...                                                      [0, 0, 0], [10, 2], name="lump_port",
         ...                                                      matname="copper")
-        >>> hfss.create_lumped_port_to_sheet(rectangle.name, hfss.AxisDir.XNeg, 50,
+        >>> h1 = hfss.create_lumped_port_to_sheet(rectangle.name, hfss.AxisDir.XNeg, 50,
         ...                                  "LumpedPortFromSheet", True, False)
-        'LumpedPortFromSheet'
 
         """
 
@@ -2320,7 +2310,7 @@ class Hfss(FieldAnalysis3D, object):
             elif portname + ":1" in self.modeler.get_excitations_name():
                 portname = generate_unique_name(portname)
             if self.solution_type == "DrivenModal":
-                self._create_lumped_driven(sheet_name, point0, point1, impedance, portname, renorm, deemb)
+                port = self._create_lumped_driven(sheet_name, point0, point1, impedance, portname, renorm, deemb)
             else:
                 if not reference_object_list:
                     cond = self.get_all_conductors_names()
@@ -2330,8 +2320,8 @@ class Hfss(FieldAnalysis3D, object):
                         if el in cond:
                             reference_object_list.append(el)
                 faces = self.modeler.primitives.get_object_faces(sheet_name)
-                self._create_port_terminal(faces[0], reference_object_list, portname, iswaveport=False)
-            return portname
+                port = self._create_port_terminal(faces[0], reference_object_list, portname, iswaveport=False)
+            return port
         return False
 
     @aedt_exception_handler
@@ -2366,8 +2356,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        str
-            Name of the source created when successful, ``False`` otherwise.
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
 
         Examples
         --------
@@ -2377,8 +2367,7 @@ class Hfss(FieldAnalysis3D, object):
         >>> sheet = hfss.modeler.primitives.create_rectangle(hfss.CoordinateSystemPlane.XYPlane,
         ...                                                  [0, 0, -70], [10, 2], name="VoltageSheet",
         ...                                                  matname="copper")
-        >>> hfss.assign_voltage_source_to_sheet(sheet.name, hfss.AxisDir.XNeg, "VoltageSheetExample")
-        'VoltageSheetExample'
+        >>> v1 = hfss.assign_voltage_source_to_sheet(sheet.name, hfss.AxisDir.XNeg, "VoltageSheetExample")
 
         """
 
@@ -2388,9 +2377,7 @@ class Hfss(FieldAnalysis3D, object):
                 sourcename = generate_unique_name("Voltage")
             elif sourcename + ":1" in self.modeler.get_excitations_name():
                 sourcename = generate_unique_name(sourcename)
-            status = self.create_source_excitation(sheet_name, point0, point1, sourcename, sourcetype="Voltage")
-            if status:
-                return sourcename
+            return  self.create_source_excitation(sheet_name, point0, point1, sourcename, sourcetype="Voltage")
         return False
 
     @aedt_exception_handler

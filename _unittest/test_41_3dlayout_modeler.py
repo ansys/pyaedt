@@ -16,18 +16,24 @@ except ImportError:
 
 # Input Data and version for the test
 
-test_project_name = "Coax_HFSS"
+test_project_name = "Test_RadioBoard.aedt"
 
 
 class TestClass:
     def setup_class(self):
         with Scratch(scratch_path) as self.local_scratch:
-            self.test_project = os.path.join(self.local_scratch.path, "Test_RadioBoard.aedt")
-            self.aedtapp = Hfss3dLayout(self.test_project)
+            self.test_project = os.path.join(self.local_scratch.path, test_project_name)
+            try:
+                self.aedtapp = Hfss3dLayout(self.test_project)
+            except:
+                self.aedtapp = None
 
     def teardown_class(self):
-        assert self.aedtapp.close_project(self.aedtapp.project_name)
-        # self.local_scratch.remove()
+        for proj in self.aedtapp.project_list:
+            try:
+                self.aedtapp.close_project(proj)
+            except:
+                pass
         gc.collect()
 
     def test_01_creatematerial(self):

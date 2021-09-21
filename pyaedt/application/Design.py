@@ -1859,13 +1859,11 @@ class Design(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        legacy_project = self.project_name
+        if close_active_proj:
+            self.close_project(self.project_name)
         proj = self._desktop.OpenProject(project_file)
-
         if proj:
             self.__init__(projectname=proj.GetName(), designname=design_name)
-            if close_active_proj:
-                self._desktop.CloseProject(legacy_project)
             return True
         else:
             return False

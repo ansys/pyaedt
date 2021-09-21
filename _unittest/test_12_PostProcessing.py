@@ -106,8 +106,11 @@ class TestClass:
             for el2 in portnames:
                 trace_names.append("S(" + el + "," + el2 + ")")
         cxt = ["Domain:=", "Sweep"]
-        families = ["Freq:=", ["All"]]
-        my_data = self.aedtapp.post.get_report_data(expression=trace_names)
+        families = {"Freq": ["All"]}
+        for el in self.aedtapp.available_variations.nominal_w_values_dict:
+            families[el] = self.aedtapp.available_variations.nominal_w_values_dict[el]
+
+        my_data = self.aedtapp.post.get_report_data(expression=trace_names, families_dict=families)
         assert my_data
         assert my_data.sweeps
         assert my_data.expressions

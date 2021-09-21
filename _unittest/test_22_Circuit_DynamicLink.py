@@ -61,7 +61,7 @@ class TestClass:
     def teardown_class(self):
         for proj in self.aedtapp.project_list:
             try:
-                self.aedtapp.close_project(proj, saveproject=False)
+                self.aedtapp.close_project(proj)
             except:
                 pass
         self.local_scratch.remove()

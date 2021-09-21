@@ -13,6 +13,7 @@ import warnings
 from pyaedt import inside_desktop, is_ironpython
 from pyaedt.application.MessageManager import EDBMessageManager
 from pyaedt.edb_core import Components, EdbNets, EdbPadstacks, EdbLayout, Edb3DLayout, EdbSiwave, EdbStackup
+from pyaedt.edb_core.EDB_Data import EdbBuilder
 from pyaedt import retry_ntimes
 from pyaedt.generic.general_methods import (
     aedt_exception_handler,
@@ -130,7 +131,9 @@ class Edb(object):
                     edbpath = os.path.join(edbpath, generate_unique_name("layout") + ".aedb")
                 self._messenger.add_info_message("No Edb Provided. Creating new EDB {}.".format(edbpath))
             self.edbpath = edbpath
-            if edbpath[-3:] in ["brd", "gds", "xml", "dxf", "tgz"]:
+            if isaedtowned and inside_desktop:
+                self.open_edb_inside_aedt()
+            elif edbpath[-3:] in ["brd", "gds", "xml", "dxf", "tgz"]:
                 self.edbpath = edbpath[:-4] + ".aedb"
                 working_dir = os.path.dirname(edbpath)
                 self.import_layout_pcb(edbpath, working_dir, use_ppe=use_ppe)
@@ -142,10 +145,7 @@ class Edb(object):
                 self._messenger.add_info_message("Edb {} Created Correctly".format(self.edbpath))
             elif ".aedb" in edbpath:
                 self.edbpath = edbpath
-                if isaedtowned and "isoutsideDesktop" in dir(self._main) and not self._main.isoutsideDesktop:
-                    self.open_edb_inside_aedt()
-                else:
-                    self.open_edb()
+                self.open_edb()
             if self.builder:
                 self._messenger.add_info_message("Edb Initialized")
             else:
@@ -356,7 +356,7 @@ class Edb(object):
             dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib", "DataModel.dll")
             self._messenger.add_info_message(dllpath)
             self.layout_methods.LoadDataModel(dllpath)
-            time.sleep(2)
+            time.sleep(3)
             self.builder = retry_ntimes(
                 10,
                 self.layout_methods.GetBuilder,
@@ -411,9 +411,18 @@ class Edb(object):
                 self.layout_methods.LoadDataModel(dllpath)
                 if not os.path.exists(self.edbpath):
                     os.makedirs(self.edbpath)
-                self.builder = self.layout_methods.GetBuilder(
-                    self._db, self._active_cell, self.edbpath, self.edbversion, self.standalone, True
-                )
+                time.sleep(3)
+                self.builder = EdbBuilder(self.edbutils, self._db, self._active_cell)
+                # self.builder = retry_ntimes(
+                #     10,
+                #     self.layout_methods.GetBuilder,
+                #     self._db,
+                #     self._active_cell,
+                #     self.edbpath,
+                #     self.edbversion,
+                #     self.standalone,
+                #     True
+                # )
                 self._init_objects()
                 return self.builder
             else:
@@ -455,8 +464,15 @@ class Edb(object):
         dllpath = os.path.join(os.path.dirname(__file__), "dlls", "EDBLib", "DataModel.dll")
         if self._db and self._active_cell:
             self.layout_methods.LoadDataModel(dllpath)
-            self.builder = self.layout_methods.GetBuilder(
-                self._db, self._active_cell, self.edbpath, self.edbversion, self.standalone
+            time.sleep(3)
+            self.builder = retry_ntimes(
+                10,
+                self.layout_methods.GetBuilder,
+                self._db,
+                self._active_cell,
+                self.edbpath,
+                self.edbversion,
+                self.standalone
             )
             self._init_objects()
             return self.builder
