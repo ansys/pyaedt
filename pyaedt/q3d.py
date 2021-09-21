@@ -558,14 +558,14 @@ class Q2d(QExtractor, object):
 
     def create_rectangle(self, position, dimension_list, name="", matname=""):
         """
-        Create a rectangle
+        Create a rectangle.
 
         Parameters
         ----------
         position : list
             List of  [x, y] coordinates for the starting point of rectangle
         dimension_list : list
-            list of [width, height] dimensions.
+            List of [width, height] dimensions.
         name : str, optional
             Name of the rectangle. The default is ``None``, in which case
             the default name is assigned.
@@ -583,14 +583,14 @@ class Q2d(QExtractor, object):
 
     def assign_single_signal_line(self, name, target_objects, solve_option="SolveInside", thickness=None, unit="um"):
         """
-        assign conductor type to sheets
+        assign conductor type to sheets.
 
         Parameters
         ----------
         name : str
-            name of the conductor.
+            Name of the conductor.
         target_objects : list
-            list of Object3D.
+            List of Object3D.
         solve_option : str
             Choose among "SolveInside", "SolveOnBoundary" or Automatic. Default is SolveInside.
         thickness : float
@@ -598,10 +598,10 @@ class Q2d(QExtractor, object):
             conductor's area by its perimeter (A/p). If multiple conductors are selected, the average conductor
             thickness is used for the default value.
         unit : str
-            thickness unit.
+            Thickness unit.
         Returns
         -------
-        None
+        None.
 
         """
         if isinstance(target_objects, list):
