@@ -653,10 +653,15 @@ class Q2d(QExtractor, object):
         if not name:
             name = generate_unique_name(name)
 
+        if not isinstance(radius, str):
+            ra = str(radius) + unit
+        else:
+            ra = radius
+
         a = self.modeler._convert_list_to_ids(edges, convert_objects_ids_to_name=False)
 
         props = OrderedDict(
-            {"Edges": a, "UseCoating": False, "Radius": str(radius) + unit, "Ratio": str(ratio)}
+            {"Edges": a, "UseCoating": False, "Radius": ra, "Ratio": str(ratio)}
         )
 
         bound = BoundaryObject(self, name, props, "FiniteCond")
