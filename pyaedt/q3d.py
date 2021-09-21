@@ -595,8 +595,8 @@ class Q2d(QExtractor, object):
             Choose among "SolveInside", "SolveOnBoundary" or Automatic. Default is SolveInside.
         thickness : float
             Conductor thickness. When not specified, the default conductor thickness is obtained by dividing the
-            conductor's area by its perimeter (A/p). If multiple conductors are selected, the average conductor thickness
-            is used for the default value.
+            conductor's area by its perimeter (A/p). If multiple conductors are selected, the average conductor
+            thickness is used for the default value.
         unit : str
             thickness unit.
         Returns
