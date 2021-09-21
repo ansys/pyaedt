@@ -44,10 +44,9 @@ class TestClass:
     def test_07_single_signal_line(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         o = self.aedtapp.modeler.primitives.create_rectangle(udp, [5, 3], name="Rectangle1")
-        self.aedtapp.assign_single_signal_line(name="signal", target_objects=o, solve_option="SolveOnBoundary")
+        self.aedtapp.assign_single_signal_line(target_objects=o, solve_option="SolveOnBoundary")
 
     def test_08_assign_huray_finitecond_to_edges(self):
-        udp = self.aedtapp.modeler.Position(0, 0, 0)
-        o = self.aedtapp.modeler.primitives.create_rectangle(udp, [5, 3], name="Rectangle1")
-        self.aedtapp.assign_single_signal_line(name="signal", target_objects=o, solve_option="SolveOnBoundary")
-        assert self.aedtapp.assign_huray_finitecond_to_edges(o.edges, "FiniteCond1", 0.5, 2.9)
+        o = self.aedtapp.create_rectangle([6, 6], [5, 3], name="Rectangle1", matname="Copper")
+        self.aedtapp.assign_single_signal_line(target_objects=o, solve_option="SolveOnBoundary")
+        assert self.aedtapp.assign_huray_finitecond_to_edges(o.edges, radius=0.5, ratio=2.9)

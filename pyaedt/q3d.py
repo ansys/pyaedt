@@ -581,7 +581,7 @@ class Q2d(QExtractor, object):
         pos = self.modeler.Position(*position, 0)
         return self.modeler.primitives.create_rectangle(pos, dimension_list=dimension_list, name=name, matname=matname)
 
-    def assign_single_signal_line(self, name, target_objects, solve_option="SolveInside", thickness=None, unit="um"):
+    def assign_single_signal_line(self, target_objects, name="", solve_option="SolveInside", thickness=None, unit="um"):
         """
         Assign conductor type to sheets.
 
@@ -604,6 +604,9 @@ class Q2d(QExtractor, object):
         None.
 
         """
+        if not name:
+            name = generate_unique_name(name)
+
         if isinstance(target_objects, list):
             a = target_objects
             obj_names = [i.name for i in target_objects]
@@ -630,7 +633,7 @@ class Q2d(QExtractor, object):
         dict2arg(props, arg)
         self.oboundary.AssignSingleSignalLine(arg)
 
-    def assign_huray_finitecond_to_edges(self, edges, name, radius, ratio, unit="um"):
+    def assign_huray_finitecond_to_edges(self, edges, radius, ratio, unit="um", name=""):
         """
         Assign Huray surface roughness model to edges.
 
@@ -647,6 +650,9 @@ class Q2d(QExtractor, object):
         -------
 
         """
+        if not name:
+            name = generate_unique_name(name)
+
         a = self.modeler._convert_list_to_ids(edges, convert_objects_ids_to_name=False)
 
         props = OrderedDict(
