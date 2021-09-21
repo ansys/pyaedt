@@ -1,7 +1,3 @@
-try:
-    import pytest
-except ImportError:
-    import _unittest_ironpython.conf_unittest as pytest
 # Setup paths for module imports
 from _unittest.conftest import scratch_path
 import gc
@@ -33,4 +29,3 @@ class TestClass:
         assert logger.get_messages() == "Warning"
         logger.clear_messages()
         assert logger.get_messages() == ""
-        assert True
