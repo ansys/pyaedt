@@ -21,13 +21,19 @@ class MethodNotSupportedError(Exception):
 
 
 def _write_mes(mes_text):
+    mes_text = str(mes_text)
+    parts = [mes_text[i:i + 80] for i in range(0, len(mes_text), 80)]
+
     if os.getenv("PYAEDT_SCREEN_LOGS", "True").lower() in ("true", "1", "t"):
-        print(mes_text)
+        for el in parts:
+            print(el)
     if logger and os.getenv("PYAEDT_FILE_LOGS", "True").lower() in ("true", "1", "t"):
-        logger.error(str(mes_text))
+        for el in parts:
+            logger.error(el)
     if (os.getenv("PYAEDT_DESKTOP_LOGS", "True").lower() in ("true", "1", "t")
             and "oDesktop" in dir(sys.modules["__main__"])):
-        sys.modules["__main__"].oDesktop.AddMessage("", "", 2, (str(mes_text)))
+        for el in parts:
+            sys.modules["__main__"].oDesktop.AddMessage("", "", 2, el)
 
 
 def _exception(ex_info, func, args, kwargs, message="Type Error"):
