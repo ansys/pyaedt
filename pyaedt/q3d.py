@@ -583,7 +583,7 @@ class Q2d(QExtractor, object):
 
     def assign_single_signal_line(self, name, target_objects, solve_option="SolveInside", thickness=None, unit="um"):
         """
-        assign conductor type to sheets.
+        Assign conductor type to sheets.
 
         Parameters
         ----------
