@@ -64,8 +64,10 @@ class EdbNets(object):
         dict
             Dictionary of nets.
         """
-        if self._builder:
-            return convert_netdict_to_pydict(self._nets_methods.GetNetDict(self._builder))
+        nets = {}
+        for net in self._active_layout.Nets:
+            nets[net.GetName()] = net
+        return nets
 
     @property
     def signal_nets(self):
@@ -76,8 +78,12 @@ class EdbNets(object):
         dict
             Dictionary of signal nets.
         """
-        if self._builder:
-            return convert_netdict_to_pydict(self._nets_methods.GetSignalNetDict(self._builder))
+        nets = {}
+        for net, value in self.nets.items():
+            if not value.IsPowerGround():
+                nets[net] = value
+        return nets
+
 
     @property
     def power_nets(self):
@@ -88,8 +94,11 @@ class EdbNets(object):
         dict
             Dictionary of power nets.
         """
-        if self._builder:
-            return convert_netdict_to_pydict(self._nets_methods.GetPowerNetDict(self._builder))
+        nets = {}
+        for net, value in self.nets.items():
+            if value.IsPowerGround():
+                nets[net] = value
+        return nets
 
     @aedt_exception_handler
     def is_power_gound_net(self, netname_list):
@@ -105,8 +114,14 @@ class EdbNets(object):
         bool
             ``True`` when one of the net names is ``"power"`` or ``"ground"``, ``False`` otherwise.
         """
-        if self._builder:
-            return self._nets_methods.IsPowerGroundNetInList(self._builder, netname_list)
+        if isinstance(netname_list, str):
+            netname_list = [netname_list]
+        power_nets_names = list(self.power_nets.keys())
+        for netname in netname_list:
+            if netname in power_nets_names:
+                return True
+        return False
+
 
     def get_dcconnected_net_list(self, ground_nets=["GND"]):
         """Retrieve the nets connected to DC through inductors.
