@@ -1116,7 +1116,8 @@ class Design(object):
                 self.add_info_message("Project {} has been created.".format(self._oproject.GetName()), "Global")
         if not self._oproject:
             self._oproject = self._desktop.NewProject()
-            self.logger.global_logger.info("Project %s has been created.", self._oproject.GetName())
+            self.logger.add_logger('Project')
+            self.logger.project_logger.info("Project %s has been created.")
 
     @property
     def oanalysis_setup(self):
@@ -1184,7 +1185,7 @@ class Design(object):
         >>> hfss.add_info_message("Design info message")
 
         """
-        self.logger.global_logger.info(message_text, message_type)
+        self._messenger.add_info_message(message_text, message_type)
         return True
 
     @aedt_exception_handler
@@ -1217,7 +1218,7 @@ class Design(object):
         >>> hfss.add_warning_message("Design warning message")
 
         """
-        self.logger.global_logger.warning(message_text, message_type)
+        self._messenger.add_warning_message(message_text, message_type)
         return True
 
     @aedt_exception_handler
@@ -1250,7 +1251,7 @@ class Design(object):
         >>> hfss.add_error_message("Design error message")
 
         """
-        self.logger.global_logger.error(message_text, message_type)
+        self._messenger.add_error_message(message_text, message_type)
         return True
 
     @property
@@ -2240,7 +2241,7 @@ class Design(object):
         else:
             name = self.project_name
             msg_txt = "active " + self.project_name
-        self.logger.global_logger.info("Closing the {} AEDT Project".format(msg_txt), level="Global")
+        self.logger.global_logger.info("Closing the {} AEDT Project".format(msg_txt))
         oproj = self.odesktop.SetActiveProject(name)
         proj_path = self.odesktop.GetProjectDirectory()
         if saveproject:
@@ -2254,10 +2255,10 @@ class Design(object):
             self._odesign = None
         while locked:
             if not os.path.exists(os.path.join(proj_path, name + ".aedt.lock")):
-                self.logger.global_logger.info("Project Closed Correctly", "Global")
+                self.logger.global_logger.info("Project Closed Correctly")
                 locked = False
             elif i > timeout:
-                self.logger.global_logger.warning("Lock File still exists.", "Global")
+                self.logger.global_logger.warning("Lock File still exists.")
                 locked = False
             else:
                 i += 0.2
@@ -2607,7 +2608,7 @@ class Design(object):
 
         """
         msg_text = "Saving {0} Project".format(self.project_name)
-        self.logger.global_logger.info(msg_text, level="Global")
+        self.logger.global_logger.info(msg_text)
         if project_file and not os.path.exists(os.path.dirname(project_file)):
             os.makedirs(os.path.dirname(project_file))
         elif project_file:
@@ -2648,7 +2649,7 @@ class Design(object):
 
         """
         msg_text = "Saving {0} Project".format(self.project_name)
-        self.logger.global_logger.info(msg_text, level="Global")
+        self.logger.global_logger.info(msg_text)
         if not project_file:
             project_file = os.path.join(self.project_path, self.project_name + ".aedtz")
         self.oproject.Save()

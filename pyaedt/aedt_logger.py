@@ -1,5 +1,4 @@
 import logging
-import weakref
 
 from .import log_handler
 

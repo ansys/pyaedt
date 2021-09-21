@@ -173,5 +173,5 @@ class FieldAnalysis2D(Analysis):
 
             return True
         else:
-            self._messenger.add_error_message("Material Does Not Exists")
+            self.logger.global_logger.error("Material Does Not Exists")
             return False
