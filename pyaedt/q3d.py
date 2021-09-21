@@ -629,3 +629,31 @@ class Q2d(QExtractor, object):
         arg = ["NAME:" + name]
         dict2arg(props, arg)
         self.oboundary.AssignSingleSignalLine(arg)
+
+    def assign_huray_finitecond_to_edges(self, edges, name, radius, ratio, unit="um"):
+        """
+        Assign Huray surface roughness model to edges.
+
+        Parameters
+        ----------
+        radius :
+        ratio :
+        unit :
+        edges :
+        name :
+        model_type :
+
+        Returns
+        -------
+
+        """
+        a = self.modeler._convert_list_to_ids(edges, convert_objects_ids_to_name=False)
+
+        props = OrderedDict(
+            {"Edges": a, "UseCoating": False, "Radius": str(radius) + unit, "Ratio": str(ratio)}
+        )
+
+        bound = BoundaryObject(self, name, props, "FiniteCond")
+        if bound.create():
+            self.boundaries.append(bound)
+            return bound
