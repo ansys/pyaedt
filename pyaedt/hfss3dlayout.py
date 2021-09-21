@@ -864,7 +864,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                         "Sweep {} is already present. Sweep has been renamed in {}.".format(oldname, sweepname)
                     )
                 sweepdata = setupdata.add_sweep(sweepname, "Discrete")
-                sweepdata.change_range("SinglePoint", freq0, unit)
+                sweepdata.change_range("SinglePoint", freq0, unit=unit)
                 sweepdata.props["GenerateSurfaceCurrent"] = save_fields
                 sweepdata.props["SaveRadFieldsOnly"] = save_rad_fields_only
                 sweepdata.update()
@@ -941,7 +941,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         simulate_missing_solution : bool, optional
             Set this to ``True`` if the the solver has to simulate missing solution or
             ``False`` to interpolate the missing solution.
-        align_ports : bool, Optional
+        align_ports : bool, optional
             Set this to ``True`` if the the solver has to align microwave ports.
         renormalize_ports : bool, optional
             Set this to ``True`` if the the port impedance has to be renormalized.
@@ -954,7 +954,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         use_interpolating_sweep : bool, optional
             Set to ``True`` if the the solver has to use an interpolating sweep.
             Set to ``False`` to use a discrete sweep.
-        use_y_matrix : bool, Optional
+        use_y_matrix : bool, optional
             Set to ``True`` if the interpolation algorithm has to use YMatrix.
         interpolation_algorithm : str, optional
                 Defines which interpolation algorithm to use. Default is ``"auto"``.

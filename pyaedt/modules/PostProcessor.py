@@ -433,7 +433,7 @@ class FieldPlot:
         Name of the solution.
     quantityName : str
         Name of the plot or the name of the object.
-    intrinsicList: dict, optional
+    intrinsicList : dict, optional
         Name of the intrinsic dictionary. The default is ``{}``.
 
     """
@@ -1865,22 +1865,22 @@ class CircuitPostProcessor(PostProcessorCommon, object):
 
         Parameters
         ----------
-        setupname: str
+        setupname : str
             Name of the setup
-        ami_name: str
+        ami_name : str
             AMI Probe name to use
-        variation_list_w_value: list
+        variation_list_w_value : list
             list of variations with relative values
-        plot_type: str, Default ``"Rectangular Plot"``
+        plot_type : str, Default ``"Rectangular Plot"``
             String containing the report type. Default is ``"Rectangular Plot"``. It can be ``"Data Table"``,
             ``"Rectangular Stacked Plot"``or any of the other valid AEDT Report types.
-        plot_initial_response: bool, optional
+        plot_initial_response : bool, optional
             Set either to plot the initial input response.  Default is ``True``.
-        plot_intermediate_response: bool, optional
+        plot_intermediate_response : bool, optional
             Set whether to plot the intermediate input response.  Default is ``False``.
-        plot_final_response: bool, optional
+        plot_final_response : bool, optional
             Set whether to plot the final input response.  Default is ``False``.
-        plotname: str, optional
+        plotname : str, optional
             The plot name.  Default is a unique name.
 
         Returns
@@ -1975,7 +1975,7 @@ class CircuitPostProcessor(PostProcessorCommon, object):
         ami_plot_type : str, optional
             String containing the report AMI type. Default is ``"InitialEye"``. It can be ``"EyeAfterSource"``,
             ``"EyeAfterChannel"`` or ``"EyeAfterProbe"``.
-        plotname: str, optional
+        plotname : str, optional
             The name of the plot.  Defaults to a unique name starting with ``"Plot"``.
 
         Returns
@@ -2067,13 +2067,13 @@ class CircuitPostProcessor(PostProcessorCommon, object):
 
         Parameters
         ----------
-        setupname: str
+        setupname : str
             Name of the setup
-        probe_names: str or list
+        probe_names : str or list
             Name of the probe to plot in the EYE diagram.
         variation_list_w_value : list
             List of variations with relative values.
-        plotname: str, optional
+        plotname : str, optional
             The name of the plot.
 
         Returns

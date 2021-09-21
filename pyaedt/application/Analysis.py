@@ -58,7 +58,7 @@ class Analysis(Design, object):
         Solution type to apply to the design.
     setup_name : str
         Name of the setup to use as the nominal.
-    specified_version: str
+    specified_version : str
         Version of AEDT  to use.
     NG : bool
         Whether to run AEDT in the non-graphical mode.

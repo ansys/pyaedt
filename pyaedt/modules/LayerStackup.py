@@ -88,9 +88,9 @@ class Layer(object):
         The default is ``"signal"``.
     layerunits : str, optional
         The default is ``"mm"``.
-    roughunit: str, optional
+    roughunit : str, optional
         The default is ``"um"``.
-    negative: bool, optional
+    negative : bool, optional
         Whether the geometry on the layer is cut away
         from the layer. The default is ``False``.
     """
@@ -237,9 +237,9 @@ class Layer(object):
                         "SideRoughness:=",
                         self._arg_with_dim(self.toprounghenss, self.LengthUnitRough),
                         "Material:=",
-                        self._arg_with_dim(self.material),
+                        self.material.lower(),
                         "FillMaterial:=",
-                        self._arg_with_dim(self.fillmaterial),
+                        self.fillmaterial.lower(),
                     ],
                     "Neg:=",
                     self.IsNegative,
@@ -330,7 +330,7 @@ class Layer(object):
                         "SideRoughness:=",
                         0,
                         "Material:=",
-                        self._arg_with_dim(self.material),
+                        self.material.lower(),
                     ],
                 ]
             )
@@ -416,9 +416,9 @@ class Layer(object):
                         "SideRoughness:=",
                         self._arg_with_dim(self.toprounghenss, self.LengthUnitRough),
                         "Material:=",
-                        self.material,
+                        self.material.lower(),
                         "FillMaterial:=",
-                        self.fillmaterial,
+                        self.fillmaterial.lower(),
                     ],
                     "Neg:=",
                     self.IsNegative,
@@ -513,7 +513,7 @@ class Layer(object):
                         "SideRoughness:=",
                         0,
                         "Material:=",
-                        self.material,
+                        self.material.lower(),
                     ],
                 ]
             )

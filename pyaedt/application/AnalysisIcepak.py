@@ -35,7 +35,7 @@ class FieldAnalysisIcepak(Analysis, object):
         Name of the setup to use as the nominal. The default is
         ``None``, in which case the active setup is used or
         nothing is used.
-    specified_version: str, optional
+    specified_version : str, optional
         Version of AEDT  to use. The default is ``None``, in which case
         the active version or latest installed version is used.
     NG : bool, optional
@@ -120,7 +120,7 @@ class FieldAnalysisIcepak(Analysis, object):
 
         Parameters
         ----------
-        ambienttemp : int, optional
+        ambienttemp : float, optional
             Ambient temperature, which can be an integer or a parameter already
             created in AEDT. The default is ``20``.
         gravityDir : int, optional
@@ -141,9 +141,10 @@ class FieldAnalysisIcepak(Analysis, object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        if type(ambienttemp) is int:
-            AmbientTemp = str(ambienttemp) + "cel"
-        else:
+
+        try:
+            AmbientTemp = str(float(ambienttemp)) + "cel"
+        except:
             AmbientTemp = ambienttemp
 
         IceGravity = ["X", "Y", "Z"]

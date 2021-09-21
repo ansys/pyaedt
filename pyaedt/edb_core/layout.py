@@ -201,7 +201,7 @@ class EdbLayout(object):
 
         Parameters
         ----------
-        layer_name: str
+        layer_name : str
             Name of the layer.
         net_list : list, optional
             List of net names.

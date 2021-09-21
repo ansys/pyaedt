@@ -13,18 +13,24 @@ class Part(object):
         Path to the folder with the A3DCOMP files.
     part_dict : dict
         Defines relevant properties of the class with the following keywords:
-        * 'comp_name': str, Name of the A3DCOMP file.
-        * 'offset': list or str, Offset coordinate system definition relative to the parent.
-        * 'rotation_cs': list or str, Rotation coordinate system relative to the parent.
-        * 'rotation': str or numeric, Rotation angle.
-        * 'compensation_angle': str or numeric, Initial angle.
-        * 'rotation_axis': str, Rotation axis (``"X"``, ``"Y"``, or ``"Z"``).
-        * 'duplicate_number': str or int, Number of instances for linear duplication.
-        * 'duplicate_vector': list, Vector for duplication relative to the parent coordinate system.
-     parent :  str
-         The default is ``None``.
+
+        * ``'comp_name'`` : str, Name of the A3DCOMP file.
+        * ``'offset'`` : list or str, Offset coordinate system definition
+          relative to the parent.
+        * ``'rotation_cs'`` : list or str, Rotation coordinate system
+          relative to the parent.
+        * ``'rotation'`` : str or numeric, Rotation angle.
+        * ``'compensation_angle'`` : str or numeric, Initial angle.
+        * ``'rotation_axis'`` : str, Rotation axis (``"X"``, ``"Y"``, or ``"Z"``).
+        * ``'duplicate_number'`` : str or int, Number of instances for
+          linear duplication.
+        * ``'duplicate_vector'`` : list, Vector for duplication relative to
+          the parent coordinate system.
+
+     parent : str
+        The default is ``None``.
      name : str, optional
-            Name of the A3DCOMP file without the extension. The default is ``None``.
+        Name of the A3DCOMP file without the extension. The default is ``None``.
      """
 
     # List of known keys for a Part and default values:
@@ -359,7 +365,7 @@ class Part(object):
 
         Parameters
         ----------
-        app: pyaedt.Hfss
+        app : pyaedt.Hfss
             HFSS instance of AEDT.
         aedt_object : str
             Name of the design in AEDT.
@@ -391,7 +397,7 @@ class Part(object):
 
         Parameters
         ----------
-        app: class:`pyaedt.hfss.Hfss`
+        app : class:`pyaedt.hfss.Hfss`
             HFSS application instance.
 
         Returns
@@ -429,13 +435,13 @@ class Antenna(Part, object):
 
     Parameters
     ----------
-    root_folder:
-
-    ant_dict:
-
-    parent: str, optional
+    root_folder : str
+        Root directory
+    ant_dict : dict
+        Antenna dictionary
+    parent : str, optional
         The default is ``None``.
-    name: str, optional
+    name : str, optional
         The default is ``None``.
 
     """

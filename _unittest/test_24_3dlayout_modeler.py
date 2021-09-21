@@ -73,10 +73,10 @@ class TestClass:
         assert d1.material == "plexiglass"
         assert d1.thickness == "1.0mm"
         assert d1.transparency == 60
-        d1.material = "FR4_epoxy"
+        d1.material = "fr4_epoxy"
         d1.transparency = 23
         d1.update_stackup_layer()
-        assert d1.material == "FR4_epoxy"
+        assert d1.material == "fr4_epoxy"
         assert d1.transparency == 23
         s2 = self.aedtapp.modeler.layers.add_layer(
             layername="Top",
@@ -107,7 +107,7 @@ class TestClass:
         assert s1.hfssSp["dt"] == 1
         assert s1.planaremSp["ifg"] is True
         d1 = self.aedtapp.modeler.layers.layers[self.aedtapp.modeler.layers.layer_id("Diel3")]
-        assert d1.material == "FR4_epoxy"
+        assert d1.material == "fr4_epoxy"
         assert d1.thickness == "1.0mm" or d1.thickness == 1e-3
         assert d1.transparency == 23
         s2 = self.aedtapp.modeler.layers.layers[self.aedtapp.modeler.layers.layer_id("Top")]
@@ -292,12 +292,12 @@ class TestClass:
         setup_name = "RFBoardSetup"
         sweep5 = self.aedtapp.create_single_point_sweep(
             setupname=setup_name,
-            unit="GHz",
+            unit="MHz",
             freq=1.23,
             sweepname="RFBoardSingle",
             save_fields=True,
         )
-        assert sweep5.props["Sweeps"]["Data"] == "1.23GHz"
+        assert sweep5.props["Sweeps"]["Data"] == "1.23MHz"
         sweep6 = self.aedtapp.create_single_point_sweep(
             setupname=setup_name,
             unit="GHz",

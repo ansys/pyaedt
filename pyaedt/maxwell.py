@@ -33,7 +33,7 @@ class Maxwell(object):
         Name of the setup to use as the nominal. The default is
         ``None``, in which case the active setup is used or
         nothing is used.
-    specified_version: str, optional
+    specified_version : str, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used. This
         parameter is ignored when Script is launched within AEDT.
@@ -712,7 +712,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         Name of the setup to use as the nominal. The default is
         ``None``, in which case the active setup is used or
         nothing is used.
-    specified_version: str, optional
+    specified_version : str, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used. This
         parameter is ignored when Script is launched within AEDT.
@@ -811,7 +811,7 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
         Name of the setup to use as the nominal. The default is
         ``None``, in which case the active setup is used or
         nothing is used.
-    specified_version: str, optional
+    specified_version : str, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
         This parameter is ignored when Script is launched within AEDT.
@@ -977,9 +977,9 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
 
         Parameters
         ----------
-        edge_list: list
+        edge_list : list
             List of edges.
-        bound_name: str, optional
+        bound_name : str, optional
             Name of the boundary. The default is ``None``.
 
         Returns

@@ -28,7 +28,7 @@ class CoordinateSystem(object):
         Inherited parent object.
     props : dict, optional
         Dictionary of properties. The default is ``None``.
-    name: optional
+    name : optional
         The default is ``None``.
 
     """
@@ -308,7 +308,7 @@ class CoordinateSystem(object):
             Name of the reference coordinate system. The default is ``"Global"``.
         name : str
             Name of the coordinate system. The default is ``None``.
-        mode: str, optional
+        mode : str, optional
             Definition mode. Options are ``"view"``, ``"axis"``, ``"zxz"``, ``"zyz"``,
             and ``"axisrotation"``. The default is ``"axis"``.
 
@@ -872,7 +872,7 @@ class GeometryModeler(Modeler, object):
             ``"Global"``.
         name : str
             Name of the coordinate system. The default is ``None``.
-        mode: str, optional
+        mode : str, optional
             Definition mode. Options are ``"view"``, ``"axis"``,
             ``"zxz"``, ``"zyz"``, and ``"axisrotation"``. The default
             is ``"axis"``.
@@ -1894,18 +1894,18 @@ class GeometryModeler(Modeler, object):
 
         Parameters
         ----------
-        objid: str, int
+        objid : str, int
             Name or ID of the object.
-        sweep_object: str, int
+        sweep_object : str, int
             Name or ID of the sweep.
         draft_angle : float, optional
             Draft angle in degrees. The default is ``0``.
         draft_type : str
             Type of the draft. Options are ``"Round"``, ``"Natural"``,
             and ``"Extended"``. The default is ``"Round"``.
-        is_check_face_intersection: bool, optional
+        is_check_face_intersection : bool, optional
             The default is ``False``.
-        twist_angle: float, optional
+        twist_angle : float, optional
            Twist angle in degrees. The default is ``0``.
 
         Returns
@@ -2049,12 +2049,11 @@ class GeometryModeler(Modeler, object):
         ----------
         objid : int
              ID of the object.
-        cs_axis:
+        cs_axis
             Coordinate system axis or the Application.CoordinateSystemAxis object.
         angle : float
             Angle of rotation. The units, defined by ``unit``, can be either
             degrees or radians. The default is ``90.0``.
-
         unit : text, optional
              Units for the angle. Options are ``"deg"`` or ``"rad"``.
              The default is ``"deg"``.
@@ -2837,9 +2836,9 @@ class GeometryModeler(Modeler, object):
 
         Parameters
         ----------
-        fl: list
+        fl : list
             List of object names.
-        name: str
+        name : str
             Name of the new object list.
 
         Returns
@@ -3790,7 +3789,7 @@ class GeometryModeler(Modeler, object):
 
         Parameters
         ----------
-        args: list or int
+        args : list or int
             Position of the item as either a list of the ``[x, y, z]`` coordinates
             or three separate values. If no or insufficient arguments
             are specified, ``0`` is applied.
