@@ -56,11 +56,6 @@ class EdbPadstacks(object):
         return self.parent._messenger
 
     @property
-    def logger(self):
-        """Logger."""
-        return self.parent.logger
-
-    @property
     def _layers(self):
         """ """
         return self.parent.core_stackup.stackup_layers
@@ -215,7 +210,7 @@ class EdbPadstacks(object):
             padstackLayerMap.SetMapping(layer.GetLayerId(), padstackLayerIdMap[padstackLayerName])
         padstackDefinition = self._edb.Definition.PadstackDef.Create(self.db, padstackname)
         padstackDefinition.SetData(padstackData)
-        self.logger.global_logger.info("Padstack {} create correctly".format(padstackname))
+        self._messenger.add_info_message("Padstack {} create correctly".format(padstackname))
         return padstackname
 
     @aedt_exception_handler
