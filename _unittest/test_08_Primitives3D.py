@@ -29,8 +29,7 @@ class TestClass(BasisTest):
         with Scratch(scratch_path) as self.local_scratch:
             scdoc_file = os.path.join(local_path, "example_models", scdoc)
             self.local_scratch.copyfile(scdoc_file)
-            step_file = os.path.join(local_path, "example_models", step)
-            self.local_scratch.copyfile(step_file)
+            self.step_file = os.path.join(local_path, "example_models", step)
             test_98_project = os.path.join(local_path, "example_models", "assembly2" + ".aedt")
             self.test_98_project = self.local_scratch.copyfile(test_98_project)
             test_99_project = os.path.join(local_path, "example_models", "assembly" + ".aedt")
@@ -840,7 +839,7 @@ class TestClass(BasisTest):
     @pyaedt_unittest_check_desktop_error
     def test_63_import_step(self):
         self.aedtapp.insert_design("StepImport")
-        assert self.aedtapp.modeler.import_3d_cad(os.path.join(self.local_scratch.path, step))
+        assert self.aedtapp.modeler.import_3d_cad(self.step_file)
         assert len(self.aedtapp.modeler.primitives.objects) == 1
         pass
 

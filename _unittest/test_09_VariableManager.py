@@ -155,15 +155,15 @@ class TestClass:
         assert result_5.units == "W"
         assert result_5.unit_system == "Power"
 
-        assert abs(result_6.numeric_value - 10471.9755) < tol
+        assert abs(result_6.numeric_value - 10471.9755) / result_6.numeric_value < tol
         assert result_6.units == "W"
         assert result_6.unit_system == "Power"
 
-        assert abs(result_7.numeric_value - 10471.9755) < tol
+        assert abs(result_7.numeric_value - 10471.9755) / result_4.numeric_value < tol
         assert result_7.units == "W"
         assert result_7.unit_system == "Power"
 
-        assert abs(result_8.numeric_value - 10.4719755) < tol
+        assert abs(result_8.numeric_value - 10.4719755) / result_8.numeric_value < tol
         assert result_8.units == "kW"
         assert result_8.unit_system == "Power"
 
@@ -322,12 +322,12 @@ class TestClass:
         assert result_4.unit_system == "Time"
 
         result_5 = v4 / v5
-        assert result_5.numeric_value == 0.00005
+        assert abs(result_5.numeric_value - 0.00005) < tol
         assert result_5.units == ""
         assert result_5.unit_system == "None"
 
         result_6 = v1 / v5 + v6
-        assert abs(result_6.numeric_value - 104.8198) < tol
+        assert abs(result_6.numeric_value - 104.8198) / result_6.numeric_value < tol
         assert result_6.units == "rad_per_sec"
         assert result_6.unit_system == "AngularSpeed"
 
