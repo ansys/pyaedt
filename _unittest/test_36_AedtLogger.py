@@ -26,6 +26,10 @@ class TestClass:
         logger.global_logger.warning("Warning message for testing.")
         logger.global_logger.error("Error message for testing.")
         logger.global_logger.info("Critical message for testing.")
-        assert logger.get_messages() == "Warning"
+
+        assert len(logger._messenger.messages.global_level) == 18
+        assert len(logger._messenger.messages.project_level) == 3
+        assert len(logger._messenger.messages.design_level) == 0
+        breakpoint()
         logger.clear_messages()
-        assert logger.get_messages() == ""
+        # TODO check the content of the log.
