@@ -83,7 +83,6 @@ class EdbNets(object):
                 nets[net] = value
         return nets
 
-
     @property
     def power_nets(self):
         """Power nets.
@@ -120,7 +119,6 @@ class EdbNets(object):
             if netname in power_nets_names:
                 return True
         return False
-
 
     def get_dcconnected_net_list(self, ground_nets=["GND"]):
         """Retrieve the nets connected to DC through inductors.
