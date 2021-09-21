@@ -3276,8 +3276,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        obj_names : str or list
-             One or more object names.
+        obj_names : str or list or int
+             One or more object names or ids.
         boundary_name : str, optional
              Name of the boundary. The default is ``""``.
 
