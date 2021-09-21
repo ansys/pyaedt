@@ -28,7 +28,7 @@ from ..generic.DataHandlers import variation_string_to_dict
 from ..modules.Boundary import BoundaryObject
 from ..generic.general_methods import generate_unique_name
 
-from .import aedt_logger
+from ..import aedt_logger
 
 
 design_solutions = {
@@ -567,8 +567,8 @@ class Design(object):
         self._aedt_version = main_module.AEDTVersion
         self._desktop_install_dir = main_module.sDesktopinstallDirectory
         self._messenger = AEDTMessageManager(self)
-        self._logger = aedt_logger.AedtLogger(self, filename = None, level = logging.DEBUG)
-        self.logger = logging.getLogger(__name__)
+        self.logger = aedt_logger.AedtLogger(self._messenger, filename = None, level = logging.DEBUG)
+        #self.logger = logging.getLogger(__name__)
 
         assert design_type in design_solutions, "Invalid design type is specified: {}.".format(design_type)
         self._design_type = design_type
@@ -1020,7 +1020,7 @@ class Design(object):
                 warning_msg = "No design is present. Inserting a new design."
 
             if warning_msg:
-                self.add_info_message(warning_msg)
+                self.logger.global_logger.info(warning_msg)
                 self._insert_design(self._design_type, solution_type=self._solution_type)
         self.boundaries = self._get_boundaries_data()
 
@@ -1116,7 +1116,7 @@ class Design(object):
                 self.add_info_message("Project {} has been created.".format(self._oproject.GetName()), "Global")
         if not self._oproject:
             self._oproject = self._desktop.NewProject()
-            self.add_info_message("Project {} has been created.".format(self._oproject.GetName()), "Global")
+            self.logger.global_logger.info("Project %s has been created.", self._oproject.GetName())
 
     @property
     def oanalysis_setup(self):
@@ -2372,9 +2372,8 @@ class Design(object):
             )
         else:
             new_design = self._oproject.InsertDesign(design_type, unique_design_name, solution_type, "")
-        self.logger.global_logger.info(
-            "Added design '{0}' of type {1}.".format(unique_design_name, design_type), level="Project"
-        )
+        self.logger.add_logger("Project")
+        self.logger.project_logger.info("Added design '%s' of type %s.", unique_design_name, design_type)
         name = new_design.GetName()
         if ";" in name:
             self.odesign = name.split(";")[1]
