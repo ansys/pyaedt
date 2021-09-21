@@ -1,6 +1,6 @@
 import gc
 import os
-
+import time
 # Import required modules
 from pyaedt import Hfss
 from pyaedt.generic.filesystem import Scratch
@@ -23,7 +23,9 @@ class TestClass:
             example_project = os.path.join(local_path, "example_models", test_project_name + ".aedt")
             self.test_project = self.local_scratch.copyfile(example_project)
             self.aedtapp = Hfss(projectname=self.test_project, designname="Cassegrain_", solution_type="SBR+")
+            time.sleep(2)
             self.source = Hfss(projectname=test_project_name, designname="feeder")
+            time.sleep(2)
 
     def teardown_class(self):
         assert self.aedtapp.close_project(self.aedtapp.project_name, saveproject=False)
