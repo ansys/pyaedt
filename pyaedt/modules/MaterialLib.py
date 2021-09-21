@@ -482,7 +482,7 @@ class Materials(object):
 
         def find_datasets(d, out_list):
             for k, v in d.items():
-                if isinstance(v, dict) or isinstance(v, OrderedDict):
+                if isinstance(v, (dict, OrderedDict)):
                     find_datasets(v, out_list)
                 else:
                     a = copy.deepcopy(v)

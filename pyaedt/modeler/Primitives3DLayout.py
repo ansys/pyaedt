@@ -114,16 +114,17 @@ class Primitives3DLayout(object):
                 elval = el.GetType()
                 elid = el.GetId()
                 name = str(name).replace("'", "")
+                el_str = elval.ToString()
                 if not name:
-                    if "Rectangle" in elval.ToString():
+                    if "Rectangle" in el_str:
                         name = "rect_" + str(elid)
-                    elif "Circle" in elval.ToString():
+                    elif "Circle" in el_str:
                         name = "circle_" + str(elid)
-                    elif "Polygon" in elval.ToString():
+                    elif "Polygon" in el_str:
                         name = "poly_" + str(elid)
-                    elif "Path" in elval.ToString():
+                    elif "Path" in el_str:
                         name = "line_" + str(elid)
-                    elif "Bondwire" in elval.ToString():
+                    elif "Bondwire" in el_str:
                         name = "bondwire_" + str(elid)
                     else:
                         continue
