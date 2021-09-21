@@ -228,15 +228,14 @@ class TestClass:
             freq=[1.1e1, 1.2e1, 1.3e1],
             save_single_field=[True, False, True]
         )
-        if os.name != "posix":
-            os.environ["PYAEDT_ERROR_HANDLER"] = "True"
-            assert not self.aedtapp.create_single_point_sweep(
-                    setupname="MySetup",
-                    unit='GHz',
-                    freq=[1, 2e2, 3.4],
-                    save_single_field=[True, False]
-                )
-            os.environ["PYAEDT_ERROR_HANDLER"] = "False"
+        os.environ["PYAEDT_ERROR_HANDLER"] = "True"
+        assert not self.aedtapp.create_single_point_sweep(
+                setupname="MySetup",
+                unit='GHz',
+                freq=[1, 2e2, 3.4],
+                save_single_field=[True, False]
+            )
+        os.environ["PYAEDT_ERROR_HANDLER"] = "False"
 
     def test_06z_validate_setup(self):
         list, ok = self.aedtapp.validate_full_design(ports=5)
