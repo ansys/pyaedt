@@ -2,6 +2,7 @@
 import os
 import sys
 import time
+import gc
 
 try:
     import pytest
@@ -25,6 +26,7 @@ step = "input.stp"
 
 class TestClass(BasisTest):
     def setup_class(self):
+        gc.collect()
         BasisTest.setup_class(self, project_name="test_primitives", design_name="3D_Primitives")
         with Scratch(scratch_path) as self.local_scratch:
             scdoc_file = os.path.join(local_path, "example_models", scdoc)
