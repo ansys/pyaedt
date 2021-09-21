@@ -59,30 +59,29 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
     _write_mes("**************************************************************")
     _write_mes("pyaedt Error on Method {}:  {}. Please Check again".format(func.__name__, message))
     _write_mes("Arguments Provided: ")
-    if os.name != "posix":
-        try:
-            if int(sys.version[0]) > 2:
-                args_name = list(OrderedDict.fromkeys(inspect.getfullargspec(func)[0] + list(kwargs.keys())))
-                args_dict = OrderedDict(list(itertools.zip_longest(args_name, args)) + list(kwargs.items()))
-            else:
-                args_name = list(OrderedDict.fromkeys(inspect.getargspec(func)[0] + list(kwargs.keys())))
-                args_dict = OrderedDict(list(itertools.izip(args_name, args)) + list(kwargs.iteritems()))
-
-            for el in args_dict:
-                if el != "self":
-                    _write_mes("    {} = {} ".format(el, args_dict[el]))
-        except:
-            pass
-        tb_data = ex_info[2]
-        tb_trace = traceback.format_tb(tb_data)
-        if len(tb_trace) > 1:
-            tblist = tb_trace[1].split("\n")
+    try:
+        if int(sys.version[0]) > 2:
+            args_name = list(OrderedDict.fromkeys(inspect.getfullargspec(func)[0] + list(kwargs.keys())))
+            args_dict = OrderedDict(list(itertools.zip_longest(args_name, args)) + list(kwargs.items()))
         else:
-            tblist = tb_trace[0].split("\n")
-        for el in tblist:
-            if func.__name__ in el:
-                _write_mes("Error in : ")
-                _write_mes(el)
+            args_name = list(OrderedDict.fromkeys(inspect.getargspec(func)[0] + list(kwargs.keys())))
+            args_dict = OrderedDict(list(itertools.izip(args_name, args)) + list(kwargs.iteritems()))
+
+        for el in args_dict:
+            if el != "self":
+                _write_mes("    {} = {} ".format(el, args_dict[el]))
+    except:
+        pass
+    tb_data = ex_info[2]
+    tb_trace = traceback.format_tb(tb_data)
+    if len(tb_trace) > 1:
+        tblist = tb_trace[1].split("\n")
+    else:
+        tblist = tb_trace[0].split("\n")
+    for el in tblist:
+        if func.__name__ in el:
+            _write_mes("Error in : ")
+            _write_mes(el)
     _write_mes("")
     _write_mes("")
     _write_mes("Check Online documentation on: ")
