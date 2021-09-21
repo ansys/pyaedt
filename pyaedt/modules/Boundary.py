@@ -486,11 +486,11 @@ class BoundaryObject(BoundaryCommon, object):
             self._parent.oboundary.EditSource(self.name, self._get_args())
         elif self.type == "Sink":
             self._parent.oboundary.EditSink(self.name, self._get_args())
-        elif self.type == "CircuitPort":
+        elif self.type in ["CircuitPort", "Circuit Port"]:
             self._parent.oboundary.EditCircuitPort(self.name, self._get_args())
-        elif self.type == "LumpedPort":
+        elif self.type in ["LumpedPort", "Lumped Port"]:
             self._parent.oboundary.EditLumpedPort(self.name, self._get_args())
-        elif self.type == "WavePort":
+        elif self.type in ["WavePort", "Wave Port"]:
             self._parent.oboundary.EditWavePort(self.name, self._get_args())
         elif self.type == "SetSBRTxRxSettings":
             self._parent.oboundary.SetSBRTxRxSettings(self._get_args())

@@ -1433,8 +1433,6 @@ class Primitives(object):
         if not objects:
             self.logger.global_logger.warning("No objects to delete")
             return False
-        self.logger.global_logger.info("Deleting objects: {}".format(objects))
-
         slice = min(100, len(objects))
         num_objects = len(objects)
         remaining = num_objects
@@ -1454,8 +1452,7 @@ class Primitives(object):
 
         if len(objects) > 0:
             self.cleanup_objects()
-            self.logger.global_logger.info("Deleted {} Objects".format(num_objects))
-
+            self.logger.global_logger.info("Deleted {} Objects".format(num_objects, objects_str))
         return True
 
     @aedt_exception_handler
@@ -3047,10 +3044,9 @@ class Primitives(object):
         if len(objListSolids) > 0:
             objList.extend(objListSolids)
         for obj in objList:
-            edgeIDs = list(self.oeditor.GetEdgeIDsFromObject(obj))
-            if str(lval) in edgeIDs:
+            val = retry_ntimes(10, self.oeditor.GetEdgeIDsFromObject, obj)
+            if not(isinstance(val, bool)) and str(lval) in list(val):
                 return obj
-
         return None
 
     def _find_object_from_face_id(self, lval):

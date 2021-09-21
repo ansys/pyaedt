@@ -1018,7 +1018,8 @@ class PostProcessorCommon(object):
             else:
                 sweep_list.append([sweeps[el]])
 
-        data = self.oreportsetup.GetSolutionDataPerVariation(soltype, setup_sweep_name, ctxt, sweep_list, expression)
+        data = list(
+            self.oreportsetup.GetSolutionDataPerVariation(soltype, setup_sweep_name, ctxt, sweep_list, expression))
         return SolutionData(data)
 
     @aedt_exception_handler
@@ -1629,7 +1630,8 @@ class PostProcessor(PostProcessorCommon, object):
         return self._create_fieldplot(objlist, quantityName, setup_name, intrinsincDict, "Volume", "ObjList")
 
     @aedt_exception_handler
-    def export_field_jpg(self, fileName, plotName, coordinateSystemName):
+    def export_field_jpg(self, fileName, plotName, coordinateSystemName="Global"):
+        #TODO Check the ExportPlotImageWithViewToFile in HFSS 3D Layout
         """Export a field plot and coordinate system to a JPG file.
 
         Parameters
@@ -1647,7 +1649,10 @@ class PostProcessor(PostProcessorCommon, object):
             ``True`` when successful, ``False`` when failed.
         """
         time.sleep(2)
-        self.ofieldsreporter.ExportPlotImageToFile(fileName, "", plotName, coordinateSystemName)
+        if self.post_solution_type == "HFSS3DLayout" or self.post_solution_type == "HFSS 3D Layout Design":
+            self.oeditor.ExportImage(fileName, 1920, 1080)
+        else:
+            self.ofieldsreporter.ExportPlotImageToFile(fileName, "", plotName, coordinateSystemName)
         return True
 
     @aedt_exception_handler
@@ -1675,24 +1680,27 @@ class PostProcessor(PostProcessorCommon, object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        bound = self.modeler.get_model_bounding_box()
-        center = [
-            (float(bound[0]) + float(bound[3])) / 2,
-            (float(bound[1]) + float(bound[4])) / 2,
-            (float(bound[2]) + float(bound[5])) / 2,
-        ]
-        coordinateSystemForExportPlot = self.modeler.create_coordinate_system(origin=center, mode="view", view=view)
-        wireframes = []
-        if wireframe:
-            names = self._primitives.object_names
-            for el in names:
-                if not self._primitives[el].display_wireframe:
-                    wireframes.append(el)
-                    self._primitives[el].display_wireframe = True
-        status = self.export_field_jpg(exportFilePath, plotName, coordinateSystemForExportPlot.name)
-        for solid in wireframes:
-            self._primitives[solid].display_wireframe = False
-        coordinateSystemForExportPlot.delete()
+        if self.post_solution_type == "HFSS3DLayout" or self.post_solution_type == "HFSS 3D Layout Design":
+            status = self.export_field_jpg(exportFilePath, plotName, "")
+        else:
+            bound = self.modeler.get_model_bounding_box()
+            center = [
+                (float(bound[0]) + float(bound[3])) / 2,
+                (float(bound[1]) + float(bound[4])) / 2,
+                (float(bound[2]) + float(bound[5])) / 2,
+            ]
+            coordinateSystemForExportPlot = self.modeler.create_coordinate_system(origin=center, mode="view", view=view)
+            wireframes = []
+            if wireframe:
+                names = self._primitives.object_names
+                for el in names:
+                    if not self._primitives[el].display_wireframe:
+                        wireframes.append(el)
+                        self._primitives[el].display_wireframe = True
+            status = self.export_field_jpg(exportFilePath, plotName, coordinateSystemForExportPlot.name)
+            for solid in wireframes:
+                self._primitives[solid].display_wireframe = False
+            coordinateSystemForExportPlot.delete()
         return status
 
     @aedt_exception_handler

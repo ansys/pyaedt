@@ -67,7 +67,8 @@ class TestClass:
         assert len(stackup.layers) > 2
         assert self.edbapp.core_stackup.stackup_layers["TOP"]._builder
         assert self.edbapp.core_stackup.stackup_layers["TOP"].id
-        assert isinstance(self.edbapp.core_stackup.stackup_layers["TOP"].layer_type, int)
+        assert isinstance(self.edbapp.core_stackup.stackup_layers["TOP"].layer_type, int) or str(
+            type(self.edbapp.core_stackup.stackup_layers["TOP"].layer_type)) == "<type 'LayerType'>"
 
     def test_05_get_signal_layers(self):
         signal_layers = self.edbapp.core_stackup.signal_layers

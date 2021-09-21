@@ -4,7 +4,7 @@ This module contains the `Materials` class.
 from __future__ import absolute_import
 
 import json
-
+import copy
 from ..generic.DataHandlers import arg2dict
 from pyaedt.generic.general_methods import aedt_exception_handler, retry_ntimes, generate_unique_name
 from pyaedt.modules.Material import Material, SurfaceMaterial, MatProperties, OrderedDict
@@ -487,16 +487,20 @@ class Materials(object):
 
         def find_datasets(d, out_list):
             for k, v in d.items():
-                if isinstance(v, dict):
+                if isinstance(v, (dict, OrderedDict)):
                     find_datasets(v, out_list)
                 else:
-                    if "pwl(" in str(v):
-                        out_list.append(v[v.find("$") : v.find(",")])
+                    a = copy.deepcopy(v)
+                    val = a
+                    if str(type(a)) == r"<type 'List'>":
+                        val = list(a)
+                    if "pwl(" in str(val):
+                        out_list.append(a[a.find("$") : a.find(",")])
 
         # Data to be written
-        output_dict = OrderedDict()
+        output_dict = {}
         for el, val in self.material_keys.items():
-            output_dict[el] = val._props
+            output_dict[el] = copy.deepcopy(val._props)
         out_list = []
         find_datasets(output_dict, out_list)
         datasets = OrderedDict()
