@@ -1,6 +1,5 @@
 import gc
 import os
-import time
 # Import required modules
 from pyaedt import Hfss
 from pyaedt.generic.filesystem import Scratch
