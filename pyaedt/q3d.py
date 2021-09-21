@@ -565,7 +565,7 @@ class Q2d(QExtractor, object):
         position : list
             List of  [x, y] coordinates for the starting point of rectangle
         dimension_list : list
-            list of [width, height] dimensions
+            list of [width, height] dimensions.
         name : str, optional
             Name of the rectangle. The default is ``None``, in which case
             the default name is assigned.
@@ -588,17 +588,17 @@ class Q2d(QExtractor, object):
         Parameters
         ----------
         name : str
-            name of the condutor
+            name of the conductor.
         target_objects : list
-            list of Object3D
+            list of Object3D.
         solve_option : str
-            Choose among "SolveInside", "SolveOnBoundary" or Automatic. Defualt is SolveInside
+            Choose among "SolveInside", "SolveOnBoundary" or Automatic. Default is SolveInside.
         thickness : float
-            Conductor thickness. When not specified, the default condutor thickness is obtained by dividing the
-            conductor's area by its perimeter (A/p). If multiple condutors are selected, the average condutor thickness
+            Conductor thickness. When not specified, the default conductor thickness is obtained by dividing the
+            conductor's area by its perimeter (A/p). If multiple conductors are selected, the average conductor thickness
             is used for the default value.
         unit : str
-            thickness unit
+            thickness unit.
         Returns
         -------
         None
