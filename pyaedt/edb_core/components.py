@@ -81,7 +81,7 @@ class Components(object):
     @property
     def logger(self):
         """Logger."""
-        return self._parent.logger
+        return self.parent.logger
 
     @property
     def _edb(self):
