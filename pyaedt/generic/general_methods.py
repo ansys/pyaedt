@@ -331,7 +331,11 @@ def retry_ntimes(n, function, *args, **kwargs):
         else:
             break
     if retry == n:
-        raise AttributeError("Error in Executing Method {}.".format(function.__name__))
+        if "__name__" in dir(function):
+            raise AttributeError("Error in Executing Method {}.".format(function.__name__))
+        else:
+            raise AttributeError("Error in Executing Method.")
+
     return ret_val
 
 

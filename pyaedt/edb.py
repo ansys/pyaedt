@@ -356,7 +356,7 @@ class Edb(object):
             dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib", "DataModel.dll")
             self._messenger.add_info_message(dllpath)
             self.layout_methods.LoadDataModel(dllpath)
-            time.sleep(2)
+            time.sleep(3)
             self.builder = retry_ntimes(
                 10,
                 self.layout_methods.GetBuilder,
@@ -411,7 +411,7 @@ class Edb(object):
                 self.layout_methods.LoadDataModel(dllpath)
                 if not os.path.exists(self.edbpath):
                     os.makedirs(self.edbpath)
-                time.sleep(2)
+                time.sleep(3)
                 self.builder = EdbBuilder(self.edbutils, self._db, self._active_cell)
                 # self.builder = retry_ntimes(
                 #     10,
@@ -464,7 +464,7 @@ class Edb(object):
         dllpath = os.path.join(os.path.dirname(__file__), "dlls", "EDBLib", "DataModel.dll")
         if self._db and self._active_cell:
             self.layout_methods.LoadDataModel(dllpath)
-            time.sleep(2)
+            time.sleep(3)
             self.builder = retry_ntimes(
                 10,
                 self.layout_methods.GetBuilder,
