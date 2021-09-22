@@ -578,8 +578,7 @@ class Q2d(QExtractor, object):
             3D object.
 
         """
-        pos = self.modeler.Position(*position, 0)
-        return self.modeler.primitives.create_rectangle(pos, dimension_list=dimension_list, name=name, matname=matname)
+        return self.modeler.primitives.create_rectangle(position, dimension_list=dimension_list, name=name, matname=matname)
 
     def assign_single_signal_line(self, target_objects, name="", solve_option="SolveInside", thickness=None, unit="um"):
         """
