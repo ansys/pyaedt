@@ -18,7 +18,9 @@ class AedtLogger():
             self._global.addHandler(log_handler._LogHandler(self._messenger, 'Global', level))
             self._global.setLevel(level)
 
-            formatter = logging.Formatter('%(asctime)s:%(name)s:%(levelname)-8s:%(message)s', datefmt='%Y/%m/%d %H.%M.%S')
+            formatter = logging.Formatter(
+                '%(asctime)s:%(name)s:%(levelname)-8s:%(message)s',
+                datefmt='%Y/%m/%d %H.%M.%S')
 
             if filename:
                 self._file_handler = logging.FileHandler(filename)
@@ -56,8 +58,8 @@ class AedtLogger():
     def get_messages(self):
         self._messenger.get_messages(self._messenger._project_name, self._messenger._design_name)
 
-    def clear_messages(self):
-        self._messenger.clear_messages()
+    def clear_messages(self, project_name=None, design_name=None, level=2):
+        self._messenger.clear_messages(project_name, design_name, level)
 
     @property
     def global_logger(self):
