@@ -363,6 +363,10 @@ class Edb(object):
             dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib", "DataModel.dll")
             self._messenger.add_info_message(dllpath)
             self.layout_methods.LoadDataModel(dllpath)
+            dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib",
+                                   "IPC_2581_DataModel.dll")
+            self.layout_methods.LoadDataModel(dllpath)
+
             time.sleep(3)
             self.builder = retry_ntimes(
                 10,
@@ -415,6 +419,9 @@ class Edb(object):
                 self._active_cell = list(self._db.TopCircuitCells)[0]
             dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib", "DataModel.dll")
             if self._db and self._active_cell:
+                self.layout_methods.LoadDataModel(dllpath)
+                dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib",
+                                       "IPC_2581_DataModel.dll")
                 self.layout_methods.LoadDataModel(dllpath)
                 if not os.path.exists(self.edbpath):
                     os.makedirs(self.edbpath)
@@ -470,6 +477,9 @@ class Edb(object):
         self._active_cell = self.edb.Cell.Cell.Create(self._db, self.edb.Cell.CellType.CircuitCell, self.cellname)
         dllpath = os.path.join(os.path.dirname(__file__), "dlls", "EDBLib", "DataModel.dll")
         if self._db and self._active_cell:
+            self.layout_methods.LoadDataModel(dllpath)
+            dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib",
+                                   "IPC_2581_DataModel.dll")
             self.layout_methods.LoadDataModel(dllpath)
             time.sleep(3)
             self.builder = retry_ntimes(
