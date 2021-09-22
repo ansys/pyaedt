@@ -18,7 +18,7 @@ class TestClass:
         self.local_scratch.remove()
         gc.collect()
 
-    def test_01_Desktop(self):
+    def test_01_global(self):
         logger = self.aedtapp.logger
         # The default logger level is DEBUGGING.
         logger.global_logger.debug("Debug message for testing.")
@@ -43,9 +43,35 @@ class TestClass:
         logger.design_logger.error("Error message for testing.")
         logger.design_logger.info("Critical message for testing.")
 
-        assert len(logger._messenger.messages.global_level) >= 18
-        assert len(logger._messenger.messages.project_level) >= 3
-        assert len(logger._messenger.messages.design_level) == 0
-        breakpoint()
-        logger.clear_messages()
-        # TODO check the content of the log.
+        global_messages = logger._messenger.messages.global_level
+        assert len(global_messages) == 11
+        assert global_messages[0] == '[info] pyaedt v0.4.dev0'
+        assert '[info] Python version 3.8.0' in global_messages[1]
+        assert '[info] Project' in global_messages[2]
+        assert '[info] No design is present. Inserting a new design.' in global_messages
+        assert '[info] Design Loaded' in global_messages
+        assert '[info] Materials Loaded' in global_messages
+        assert '[info] Debug message for testing.' in global_messages
+        assert '[info] Info message for testing.' in global_messages
+        assert '[warning] Warning message for testing.' in global_messages
+        assert '[error] Error message for testing.' in global_messages
+        assert '[info] Critical message for testing.' in global_messages
+
+        design_messages = logger._messenger.messages.design_level
+        assert len(design_messages) == 6
+        assert '[info] Successfully loaded project materials !' in design_messages[0]
+        assert '[info] Debug message for testing.' in design_messages[1]
+        assert '[info] Info message for testing.' in design_messages[2]
+        assert '[warning] Warning message for testing.' in design_messages[3]
+        assert '[error] Error message for testing.' in design_messages[4]
+        assert '[info] Critical message for testing.' in design_messages[5]
+
+        project_messages = logger._messenger.messages.project_level
+        assert len(project_messages) == 5
+        assert '[info] Debug message for testing.' in project_messages[0]
+        assert '[info] Info message for testing.' in project_messages[1]
+        assert '[warning] Warning message for testing.' in project_messages[2]
+        assert '[error] Error message for testing.' in project_messages[3]
+        assert '[info] Critical message for testing.' in project_messages[4]
+
+        logger.clear_messages("","", 2)
