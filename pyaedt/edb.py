@@ -153,6 +153,13 @@ class Edb(object):
         else:
             warnings.warn("Failed to initialize Dlls")
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, ex_type, ex_value, ex_traceback):
+        if ex_type:
+            self.edb_exception(ex_value, ex_traceback)
+
     def _clean_variables(self):
         """Initialize internal variables and perform garbage collection."""
         self._components = None
@@ -533,12 +540,20 @@ class Edb(object):
         self.edbpath = os.path.join(working_dir, aedb_name)
         return self.open_edb()
 
-    def __enter__(self):
-        return self
-
-    def __exit__(self, ex_type, ex_value, ex_traceback):
-        if ex_type:
-            self.edb_exception(ex_value, ex_traceback)
+    @aedt_exception_handler
+    def export_to_ipc2581(self, ipc_path=None):
+        if not ipc_path:
+            ipc_path = self.edbpath[:-4]+"xml"
+        self._messenger.add_info_message("Export IPC 2581 is starting. This operation can take a while...")
+        start = time.time()
+        result = self.layout_methods.ExportIPC2581FromBuilder(self.builder, ipc_path)
+        end = time.time() - start
+        if result:
+            self._messenger.add_info_message("Export IPC 2581 completed in {} sec.".format(end))
+            self._messenger.add_info_message("File saved in {}".format(ipc_path))
+            return ipc_path
+        self._messenger.add_info_message("Error Exporting IPC 2581.")
+        return False
 
     def edb_exception(self, ex_value, tb_data):
         """Write the trace stack to AEDT when a Python error occurs.
