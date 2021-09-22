@@ -598,7 +598,7 @@ class Q2d(QExtractor, object):
             conductor's area by its perimeter (A/p). If multiple conductors are selected, the average conductor
             thickness is used.
         unit : str, optional
-            Thickness unit.
+            Thickness unit. The default is ``"um"``.
         Returns
         -------
         None.
