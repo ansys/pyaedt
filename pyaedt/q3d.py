@@ -6,6 +6,7 @@ from .application.Analysis3D import FieldAnalysis3D
 from .generic.general_methods import aedt_exception_handler, generate_unique_name
 from collections import OrderedDict
 from .modules.Boundary import BoundaryObject
+from .generic.DataHandlers import dict2arg
 import os
 
 
@@ -47,17 +48,17 @@ class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
         return design_file
 
     def __init__(
-        self,
-        Q3DType,
-        projectname=None,
-        designname=None,
-        solution_type=None,
-        setup_name=None,
-        specified_version=None,
-        non_graphical=False,
-        new_desktop_session=False,
-        close_on_exit=False,
-        student_version=False,
+            self,
+            Q3DType,
+            projectname=None,
+            designname=None,
+            solution_type=None,
+            setup_name=None,
+            specified_version=None,
+            non_graphical=False,
+            new_desktop_session=False,
+            close_on_exit=False,
+            student_version=False,
     ):
         if Q3DType == "Q3D Extractor":
             FieldAnalysis3D.__init__(
@@ -145,16 +146,16 @@ class Q3d(QExtractor, object):
     """
 
     def __init__(
-        self,
-        projectname=None,
-        designname=None,
-        solution_type=None,
-        setup_name=None,
-        specified_version=None,
-        non_graphical=False,
-        new_desktop_session=False,
-        close_on_exit=False,
-        student_version=False,
+            self,
+            projectname=None,
+            designname=None,
+            solution_type=None,
+            setup_name=None,
+            specified_version=None,
+            non_graphical=False,
+            new_desktop_session=False,
+            close_on_exit=False,
+            student_version=False,
     ):
         QExtractor.__init__(
             self,
@@ -398,7 +399,7 @@ class Q3d(QExtractor, object):
 
     @aedt_exception_handler
     def create_discrete_sweep(
-        self, setupname, freqstart, freqstop=None, freqstep=None, units="GHz", sweepname=None, savefields=False
+            self, setupname, freqstart, freqstop=None, freqstep=None, units="GHz", sweepname=None, savefields=False
     ):
         """Create a discrete sweep with a single frequency value.
 
@@ -530,16 +531,16 @@ class Q2d(QExtractor, object):
         return self.modeler.dimension
 
     def __init__(
-        self,
-        projectname=None,
-        designname=None,
-        solution_type=None,
-        setup_name=None,
-        specified_version=None,
-        non_graphical=False,
-        new_desktop_session=False,
-        close_on_exit=False,
-        student_version=False,
+            self,
+            projectname=None,
+            designname=None,
+            solution_type=None,
+            setup_name=None,
+            specified_version=None,
+            non_graphical=False,
+            new_desktop_session=False,
+            close_on_exit=False,
+            student_version=False,
     ):
         QExtractor.__init__(
             self,
@@ -554,3 +555,117 @@ class Q2d(QExtractor, object):
             close_on_exit,
             student_version,
         )
+
+    def create_rectangle(self, position, dimension_list, name="", matname=""):
+        """
+        Create a rectangle.
+
+        Parameters
+        ----------
+        position : list
+            List of [x, y] coordinates for the starting point of the rectangle.
+        dimension_list : list
+            List of [width, height] dimensions.
+        name : str, optional
+            Name of the rectangle. The default is ``None``, in which case
+            the default name is assigned.
+        matname : str, optional
+            Name of the material. The default is ``None``, in which case
+            the default material is assigned.
+        Returns
+        -------
+        pyaedt.modeler.Object3d.Object3d
+            3D object.
+
+        """
+        return self.modeler.primitives.create_rectangle(position, dimension_list=dimension_list, name=name,
+                                                        matname=matname)
+
+    def assign_single_signal_line(self, target_objects, name="", solve_option="SolveInside", thickness=None, unit="um"):
+        """
+        Assign conductor type to sheets.
+
+        Parameters
+        ----------
+        name : str
+            Name of the conductor.
+        target_objects : list
+            List of Object3D.
+        solve_option : str, optional
+            Method for solving. Options are ``"SolveInside"``, ``"SolveOnBoundary"`` or ``"Automatic"``. The default is
+            ``"SolveInside"``.
+        thickness : float, optional
+            Conductor thickness. The default is ``None``, in which case the conductor thickness is obtained by dividing
+            the conductor's area by its perimeter (A/p). If multiple conductors are selected, the average conductor
+            thickness is used.
+        unit : str, optional
+            Thickness unit. The default is ``"um"``.
+        Returns
+        -------
+        None.
+
+        """
+        if not name:
+            name = generate_unique_name(name)
+
+        if isinstance(target_objects, list):
+            a = target_objects
+            obj_names = [i.name for i in target_objects]
+        else:
+            a = [target_objects]
+            obj_names = [target_objects.name]
+
+        if not thickness:
+            t_list = []
+            for t_obj in a:
+                perimeter = 0
+                for edge in t_obj.edges:
+                    perimeter = perimeter + edge.length
+                t_list.append(t_obj.faces[0].area / perimeter)
+            thickness = sum(t_list) / len(t_list)
+
+        props = OrderedDict({"Objects": obj_names,
+                             "SolveOption": solve_option,
+                             "Thickness": str(thickness) + unit
+                             }
+                            )
+
+        arg = ["NAME:" + name]
+        dict2arg(props, arg)
+        self.oboundary.AssignSingleSignalLine(arg)
+
+    def assign_huray_finitecond_to_edges(self, edges, radius, ratio, unit="um", name=""):
+        """
+        Assign Huray surface roughness model to edges.
+
+        Parameters
+        ----------
+        radius :
+        ratio :
+        unit :
+        edges :
+        name :
+        model_type :
+
+        Returns
+        -------
+
+        """
+        if not name:
+            name = generate_unique_name(name)
+
+        if not isinstance(radius, str):
+            ra = str(radius) + unit
+        else:
+            ra = radius
+
+        a = self.modeler._convert_list_to_ids(edges, convert_objects_ids_to_name=False)
+
+        props = OrderedDict(
+            {"Edges": a, "UseCoating": False, "Radius": ra, "Ratio": str(ratio)}
+        )
+
+        bound = BoundaryObject(self, name, props, "FiniteCond")
+        if bound.create():
+            self.boundaries.append(bound)
+            return bound
