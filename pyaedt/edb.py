@@ -542,6 +542,18 @@ class Edb(object):
 
     @aedt_exception_handler
     def export_to_ipc2581(self, ipc_path=None):
+        """Create an XML IPC2581 File from active Edb.
+
+        Parameters
+        ----------
+        ipc_path : str, optional
+            Path to the xml file
+        Returns
+        -------
+        bool
+            ``True`` if succeeded.
+
+        """
         if not ipc_path:
             ipc_path = self.edbpath[:-4]+"xml"
         self._messenger.add_info_message("Export IPC 2581 is starting. This operation can take a while...")
@@ -920,7 +932,7 @@ class Edb(object):
             self.active_cell.Delete()
         else:
             _dbCells.append(self.active_cell)
-
+        # check why is not working
         if output_aedb_path:
             db2 = self.edb.Database.Create(output_aedb_path)
             # Function input is the name of a .aedb folder inside which the edb.def will be created.
@@ -930,7 +942,17 @@ class Edb(object):
             _success = db2.Save()
             self._db = db2
             self.edbpath = output_aedb_path
-            self._active_cell = _cutout
+            self._active_cell = list(self._db.TopCircuitCells)[0]
+            self.builder = retry_ntimes(
+                10,
+                self.layout_methods.GetBuilder,
+                self._db,
+                self._active_cell,
+                self.edbpath,
+                self.edbversion,
+                self.standalone,
+            )
+            self._init_objects()
         return True
 
     @aedt_exception_handler
