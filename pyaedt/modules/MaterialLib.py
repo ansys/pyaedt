@@ -53,7 +53,7 @@ class Materials(object):
 
     def __init__(self, parent):
         self._parent = parent
-        self._messenger.logger.info("Successfully loaded project materials !")
+        self._messenger.add_info_message("Successfully loaded project materials !")
         self.material_keys = self._get_materials()
         self.surface_material_keys = self._get_surface_materials()
         self._load_from_project()

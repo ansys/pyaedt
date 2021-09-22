@@ -127,7 +127,7 @@ class AEDTMessageManager(object):
         self._log_on_screen = os.getenv("PYAEDT_SCREEN_LOGS", "True").lower() in ("true", "1", "t")
 
         if self._log_on_file:
-            self.logger = logging.getLogger(__name__)
+            self.logger = None
         else:
             self.logger = None
 

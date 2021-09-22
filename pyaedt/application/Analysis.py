@@ -99,7 +99,7 @@ class Analysis(Design, object):
             close_on_exit,
             student_version,
         )
-        self.logger.global_logger.info("Design Loaded")
+        self.global_logger.info("Design Loaded")
         self._setup = None
         if setup_name:
             self.analysis_setup = setup_name

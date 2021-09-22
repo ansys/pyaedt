@@ -20,7 +20,7 @@ class TestClass:
 
     def test_01_Desktop(self):
         logger = self.aedtapp.logger
-        #The default logger level is DEBUGGING.
+        # The default logger level is DEBUGGING.
         logger.global_logger.debug("Debug message for testing.")
         logger.global_logger.info("Info message for testing.")
         logger.global_logger.warning("Warning message for testing.")

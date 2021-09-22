@@ -9,27 +9,28 @@ class AedtLogger():
 
         """ no env var here..."""
 
-        #self._desktop = weakref.ref(desktop)
         self._messenger = messenger
         self._global = logging.getLogger('global')
-        self._global.addHandler(log_handler._LogHandler(self._messenger, 'Global', level))
-        self._global.setLevel(level)
-
-        formatter = logging.Formatter('%(asctime)s:%(name)s:%(levelname)-8s:%(message)s', datefmt='%Y/%m/%d %H.%M.%S')
-
         self._file_handler = None
-        if filename:
-            self._file_handler = logging.FileHandler(filename)
-            self._file_handler.setLevel(level)
-            self._file_handler.setFormatter(formatter)
-            self._global.addHandler(self._file_handler)
-
         self._std_out_handler = None
-        if to_stdout:
-            self._std_out_handler = logging.StreamHandler()
-            self._std_out_handler.setLevel(level)
-            self._std_out_handler.setFormatter(formatter)
-            self._global.addHandler(self._std_out_handler)
+
+        if not self._global.handlers:
+            self._global.addHandler(log_handler._LogHandler(self._messenger, 'Global', level))
+            self._global.setLevel(level)
+
+            formatter = logging.Formatter('%(asctime)s:%(name)s:%(levelname)-8s:%(message)s', datefmt='%Y/%m/%d %H.%M.%S')
+
+            if filename:
+                self._file_handler = logging.FileHandler(filename)
+                self._file_handler.setLevel(level)
+                self._file_handler.setFormatter(formatter)
+                self._global.addHandler(self._file_handler)
+
+            if to_stdout:
+                self._std_out_handler = logging.StreamHandler()
+                self._std_out_handler.setLevel(level)
+                self._std_out_handler.setFormatter(formatter)
+                self._global.addHandler(self._std_out_handler)
 
     def add_logger(self, destination, level=logging.DEBUG):
         """Add logger for either an active project or an active design."""
