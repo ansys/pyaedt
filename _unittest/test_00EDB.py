@@ -37,7 +37,6 @@ class TestClass:
         self.local_scratch.remove()
         gc.collect()
 
-
     def test_00_export_ipc2581(self):
         ipc_path = os.path.join(self.local_scratch.path, "test.xml")
         self.edbapp.export_to_ipc2581(ipc_path)
