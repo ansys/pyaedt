@@ -412,5 +412,3 @@ class FieldAnalysis3DLayout(Analysis):
             self.osolution.Delete(setupname)
             return True
         return False
-
-
