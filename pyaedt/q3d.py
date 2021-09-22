@@ -592,7 +592,7 @@ class Q2d(QExtractor, object):
         target_objects : list
             List of Object3D.
         solve_option : str
-            Choose among "SolveInside", "SolveOnBoundary" or Automatic. Default is SolveInside.
+            Method for solving. Options are ``"SolveInside"``, ``"SolveOnBoundary"`` or ``"Automatic"``. The default is ``"SolveInside"``.
         thickness : float
             Conductor thickness. When not specified, the default conductor thickness is obtained by dividing the
             conductor's area by its perimeter (A/p). If multiple conductors are selected, the average conductor
