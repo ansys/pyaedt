@@ -563,7 +563,7 @@ class Q2d(QExtractor, object):
         Parameters
         ----------
         position : list
-            List of  [x, y] coordinates for the starting point of rectangle
+            List of [x, y] coordinates for the starting point of the rectangle.
         dimension_list : list
             List of [width, height] dimensions.
         name : str, optional
