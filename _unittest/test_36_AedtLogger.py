@@ -21,14 +21,30 @@ class TestClass:
     def test_01_Desktop(self):
         logger = self.aedtapp.logger
         #The default logger level is DEBUGGING.
-        logger.global_logger.info("Debug message for testing.")
+        logger.global_logger.debug("Debug message for testing.")
         logger.global_logger.info("Info message for testing.")
         logger.global_logger.warning("Warning message for testing.")
         logger.global_logger.error("Error message for testing.")
         logger.global_logger.info("Critical message for testing.")
 
-        assert len(logger._messenger.messages.global_level) == 18
-        assert len(logger._messenger.messages.project_level) == 3
+        # Project logger
+        logger.add_logger("Project")
+        logger.project_logger.debug("Debug message for testing.")
+        logger.project_logger.info("Info message for testing.")
+        logger.project_logger.warning("Warning message for testing.")
+        logger.project_logger.error("Error message for testing.")
+        logger.project_logger.info("Critical message for testing.")
+
+        # Current active design logger
+        logger.add_logger("Design")
+        logger.design_logger.debug("Debug message for testing.")
+        logger.design_logger.info("Info message for testing.")
+        logger.design_logger.warning("Warning message for testing.")
+        logger.design_logger.error("Error message for testing.")
+        logger.design_logger.info("Critical message for testing.")
+
+        assert len(logger._messenger.messages.global_level) >= 18
+        assert len(logger._messenger.messages.project_level) >= 3
         assert len(logger._messenger.messages.design_level) == 0
         breakpoint()
         logger.clear_messages()
