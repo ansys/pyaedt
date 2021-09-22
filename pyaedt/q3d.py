@@ -597,7 +597,7 @@ class Q2d(QExtractor, object):
             Conductor thickness. The default is ``None``, in which case the conductor thickness is obtained by dividing the
             conductor's area by its perimeter (A/p). If multiple conductors are selected, the average conductor
             thickness is used.
-        unit : str
+        unit : str, optional
             Thickness unit.
         Returns
         -------
