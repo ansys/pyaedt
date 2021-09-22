@@ -749,6 +749,36 @@ class Analysis(Design, object):
         return setup
 
     @aedt_exception_handler
+    def delete_setup(self, setupname):
+        """Delete a setup.
+
+        Parameters
+        ----------
+        setupname : str
+            Name of the setup.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        Create a setup and then delete it.
+
+        >>> import pyaedt
+        >>> hfss = pyaedt.Hfss()
+        >>> setup1 = hfss.create_setup(setupname='Setup1')
+        >>> hfss.delete_setup(setupname='Setup1')
+        ...
+        pyaedt Info: Sweep was deleted correctly.
+        """
+        if setupname in self.existing_analysis_setups:
+            self.oanalysis.DeleteSetups([setupname])
+            return True
+        return False
+
+    @aedt_exception_handler
     def edit_setup(self, setupname, properties_dict):
         """Modify a setup.
 
