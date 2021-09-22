@@ -12,7 +12,7 @@ Examples
 >>> hfss["postd"] = "1W"
 
 """
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 
 import math
 import os
@@ -1459,7 +1459,7 @@ class Variable(object):
         Divide a number by a variable with units ``"s"`` and automatically determine that
         the result is in ``"Hz"``.
 
-        >>> from pyaedt.application.Core.Variables import Variable
+        >>> from pyaedt.application.Variables import Variable
         >>> v = Variable("1s")
         >>> result = 3.0 / v
         >>> assert result.numeric_value == 3.0
@@ -1467,15 +1467,20 @@ class Variable(object):
         >>> assert result.unit_system == "Freq"
 
         """
-        assert is_number(other), "Dividend must be a numerical quantity!"
-        result_value = other / self.value
-        result_units = _resolve_unit_system("None", self.unit_system, "divide")
+        if is_number(other):
+            result_value = other / self.numeric_value
+            result_units = _resolve_unit_system("None", self.unit_system, "divide")
+
+        else:
+            result_value = other.numeric_value / self.numeric_value
+            result_units = _resolve_unit_system(other.unit_system, self.unit_system, "divide")
+
         return Variable("{}{}".format(result_value, result_units))
 
-    # Python 2.7 version
-    @aedt_exception_handler
-    def __div__(self, other):
-        return self.__rtruediv__(other)
+    # # Python 2.7 version
+    # @aedt_exception_handler
+    # def __div__(self, other):
+    #     return self.__rtruediv__(other)
 
 
 class Expression(Variable, object):

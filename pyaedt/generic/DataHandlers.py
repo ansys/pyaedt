@@ -115,10 +115,13 @@ def arg2dict(arg, dict_out):
             if (type(arg[i]) is list or type(arg[i]) is tuple or str(type(arg[i])) == r"<type 'List'>") and arg[i][0][
                 :5
             ] == "NAME:":
-                arg2dict(arg[i], dict_in)
+                arg2dict(list(arg[i]), dict_in)
                 i += 1
             elif arg[i][-2:] == ":=":
-                dict_in[arg[i][:-2]] = arg[i + 1]
+                if str(type(arg[i+1])) == r"<type 'List'>":
+                    dict_in[arg[i][:-2]] = list(arg[i + 1])
+                else:
+                    dict_in[arg[i][:-2]] = arg[i + 1]
 
                 i += 2
             else:

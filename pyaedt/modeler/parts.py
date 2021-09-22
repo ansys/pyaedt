@@ -5,7 +5,7 @@ from pyaedt.modeler.GeometryOperators import GeometryOperators
 
 
 class Part(object):
-    """Helps manage 3D component placement and definition.
+    """Manages 3D component placement and definition.
 
     Parameters
     ----------
@@ -13,27 +13,21 @@ class Part(object):
         Path to the folder with the A3DCOMP files.
     part_dict : dict
         Defines relevant properties of the class with the following keywords:
-
-        * ``'comp_name'`` : str, Name of the A3DCOMP file.
-        * ``'offset'`` : list or str, Offset coordinate system definition
-          relative to the parent.
-        * ``'rotation_cs'`` : list or str, Rotation coordinate system
-          relative to the parent.
-        * ``'rotation'`` : str or numeric, Rotation angle.
-        * ``'compensation_angle'`` : str or numeric, Initial angle.
-        * ``'rotation_axis'`` : str, Rotation axis (``"X"``, ``"Y"``, or ``"Z"``).
-        * ``'duplicate_number'`` : str or int, Number of instances for
-          linear duplication.
-        * ``'duplicate_vector'`` : list, Vector for duplication relative to
-          the parent coordinate system.
-
-     parent : str
+        * 'comp_name': str, Name of the A3DCOMP file.
+        * 'offset': list or str, Offset coordinate system definition relative to the parent.
+        * 'rotation_cs': list or str, Rotation coordinate system relative to the parent.
+        * 'rotation': str or numeric, Rotation angle.
+        * 'compensation_angle': str or numeric, Initial angle.
+        * 'rotation_axis': str, Rotation axis (``"X"``, ``"Y"``, or ``"Z"``).
+        * 'duplicate_number': str or int, Number of instances for linear duplication.
+        * 'duplicate_vector': list, Vector for duplication relative to the parent coordinate system.
+    parent :  str
         The default is ``None``.
-     name : str, optional
+    name : str, optional
         Name of the A3DCOMP file without the extension. The default is ``None``.
-     """
+    """
 
-    # List of known keys for a Part and default values:
+    # List of known keys for a part and default values:
     allowed_keys = {'comp_name': None,  # *.a3dcomp file name
                      'offset': None,
                      'rotation_cs': None,
@@ -57,7 +51,7 @@ class Part(object):
         self._compdef = dict()
         self._parent = parent
 
-        # Extract the 3d component name and part folder
+        # Extract the 3D component name and part folder
         # from the file name.
         # Use this as the default value for comp_name.  Ensure that the correct extension is used.
         self._compdef['part_folder'] = part_folder
@@ -133,16 +127,17 @@ class Part(object):
 
     @aedt_exception_handler
     def zero_offset(self, kw):  # Returns True if cs at kw is at [0, 0, 0]
-        """Return zero if the coordinate system defined by kw is [0, 0, 0].
+        """Check if the coordinate system defined by kw is [0, 0, 0].
 
         Parameters
         ----------
         kw : str
-             'offset' or 'rotation_cs'
+             Coordinate system for kw. Options are ``offset`` and ``rotation_cs``.
 
         Returns
         -------
-        ``True`` when the coordinate system is ``[0, 0, 0]``, ``None`` otherwise.
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         if kw in ['offset', 'rotation_cs']:
@@ -174,7 +169,7 @@ class Part(object):
         Returns
         -------
         str
-            Name of the coordinat system.
+            Name of the coordinate system.
         """
         if self._motion or not self.zero_offset('offset') or not self.zero_offset('rotation_cs'):
             return self.name + '_cs'
@@ -219,7 +214,7 @@ class Part(object):
     # Always return the local origin as a list:
     @property
     def local_origin(self):
-        """Local part offset.
+        """Local part offset values.
 
         Returns
         -------
@@ -325,14 +320,18 @@ class Part(object):
 
     @aedt_exception_handler
     def set_relative_cs(self, app):
-        """Create a new, parametric Coordinate System.
+        """Create a parametric coordinate system.
+
+        Parameters
+        ----------
+        app : pyaedt.Hfss
 
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        # Set x,y,z offset variables in app. But check first to see if the CS
+        # Set x, y, z offset variables in app. But check first to see if the CS
         # has already been defined.
         if self.cs_name not in app.modeler.oeditor.GetCoordinateSystems() and self.cs_name != "Global":
             x_pointing = [1, 0, 0]
@@ -366,9 +365,9 @@ class Part(object):
         Parameters
         ----------
         app : pyaedt.Hfss
-            HFSS instance of AEDT.
+            HFSS application instance.
         aedt_object : str
-            Name of the design in AEDT.
+            Name of the HFSS design.
         """
 
         x_pointing = [1, 0, 0]
@@ -397,8 +396,7 @@ class Part(object):
 
         Parameters
         ----------
-        app : class:`pyaedt.hfss.Hfss`
-            HFSS application instance.
+        app : pyaedt.Hfss
 
         Returns
         -------
@@ -456,12 +454,12 @@ class Antenna(Part, object):
 
     @property
     def params(self):
-        """Multi-part parameters.
+        """Multi-part component parameters.
 
         Returns
         -------
         dict
-            Dictionary of parameters for a multi-part.
+            Dictionary of parameters for a multi-part component.
         """
         p = {}
         if self._compdef['antenna_type'] == 'parametric':
@@ -494,18 +492,19 @@ class Antenna(Part, object):
 
     @aedt_exception_handler
     def insert(self, app, units=None):
-        """Insert antenna in the app.
+        """Insert antenna in HFSS SBR+.
 
         Parameters
         ----------
-        app: :class:`pyaedt.hfss.Hfss`, required HFSS application instance.
+        app : pyaedt.Hfss
+        units :
+            The default is ``None``.
 
         Returns
         -------
         str
             Name of the inserted object.
         """
-
         if self._do_offset:
             self.set_relative_cs(app)
             antenna_object = self._insert(app, units=units)  # Create coordinate system, if needed.

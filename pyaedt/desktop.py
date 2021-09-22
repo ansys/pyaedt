@@ -553,6 +553,11 @@ class Desktop:
             Whether to close the active AEDT session on exiting AEDT.
             The default is ``True``.
 
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
         Examples
         --------
         >>> import pyaedt
@@ -562,28 +567,35 @@ class Desktop:
         >>> desktop.release_desktop(close_projects=False, close_on_exit=False) # doctest: +SKIP
 
         """
-        release_desktop(close_projects, close_on_exit)
+        result = release_desktop(close_projects, close_on_exit)
         props = [a for a in dir(self) if not a.startswith("__")]
         for a in props:
             self.__dict__.pop(a, None)
         gc.collect()
+        return result
 
     def force_close_desktop(self):
         """Forcibly close all AEDT projects and shut down AEDT.
 
-        Examples
-        --------
-        >>> import pyaedt
-        >>> desktop = pyaedt.Desktop("2021.1")
-        pyaedt Info: pyaedt v...
-        pyaedt Info: Python version ...
-        >>> desktop.force_close_desktop() # doctest: +SKIP
+        .. deprecated:: 0.4.0
+           Use :func:`desktop.close_desktop` instead.
 
         """
+
+        warnings.warn(
+            "`force_close_desktop` is deprecated. Use `close_desktop` instead.",
+            DeprecationWarning,
+        )
+
         force_close_desktop()
 
     def close_desktop(self):
         """Close all AEDT projects and shut down AEDT.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         Examples
         --------
@@ -594,7 +606,7 @@ class Desktop:
         >>> desktop.close_desktop() # doctest: +SKIP
 
         """
-        force_close_desktop()
+        return self.release_desktop(close_projects=True, close_on_exit=True)
 
     def enable_autosave(self):
         """Enable the auto save option.

@@ -794,7 +794,7 @@ class Object3d(object):
             Name of the surface material when successful, ``None`` and a warning message otherwise.
 
         """
-        if "Surface Material" in self.valid_properties:
+        if "Surface Material" in self.valid_properties and self.model:
             self._surface_material = retry_ntimes(
                 10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, "Surface Material"
             )
@@ -826,7 +826,7 @@ class Object3d(object):
             Name of the material when successful, ``None`` and a warning message otherwise.
 
         """
-        if "Material" in self.valid_properties:
+        if "Material" in self.valid_properties and self.model:
             mat = retry_ntimes(10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, "Material")
             self._material_name = ""
             if mat:
@@ -836,6 +836,8 @@ class Object3d(object):
     @material_name.setter
     def material_name(self, mat):
         if self._parent.materials.checkifmaterialexists(mat):
+            if not self.model:
+                self.model = True
             self._material_name = mat
             vMaterial = ["NAME:Material", "Value:=", chr(34) + mat + chr(34)]
             self._change_property(vMaterial)
@@ -846,6 +848,8 @@ class Object3d(object):
     @surface_material_name.setter
     def surface_material_name(self, mat):
         try:
+            if not self.model:
+                self.model = True
             self._surface_material = mat
             vMaterial = ["NAME:Surface Material", "Value:=", '"' + mat + '"']
             self._change_property(vMaterial)
@@ -1073,7 +1077,7 @@ class Object3d(object):
             ``True`` when ``"solve-inside"`` is activated for the part, ``False`` otherwise.
 
         """
-        if "Solve Inside" in self.valid_properties:
+        if "Solve Inside" in self.valid_properties and self.model:
             solveinside = retry_ntimes(
                 10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, "Solve Inside"
             )
@@ -1082,18 +1086,19 @@ class Object3d(object):
             else:
                 self._solve_inside = True
             return self._solve_inside
+        return None
 
     @solve_inside.setter
     def solve_inside(self, S):
+        if not self.model:
+            self.model = True
         vSolveInside = []
         # fS = self._to_boolean(S)
         fs = S
         vSolveInside.append("NAME:Solve Inside")
         vSolveInside.append("Value:=")
         vSolveInside.append(fs)
-
         self._change_property(vSolveInside)
-
         self._solve_inside = fs
 
     @property

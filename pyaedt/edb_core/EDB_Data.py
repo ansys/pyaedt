@@ -174,7 +174,7 @@ class EDBLayer(object):
             * -1 -  Undefined.
         """
         try:
-            self._top_bottom_association = self._layer.GetTopBottomAssociation()
+            self._top_bottom_association = int(self._layer.GetTopBottomAssociation())
         except:
             pass
         return self._top_bottom_association
@@ -786,7 +786,7 @@ class EDBPadProperties(object):
             Type of the geometry.
         """
         padparams = self._padstack_methods.GetPadParametersValue(self._edb_padstack, self.layer_name, self.pad_type)
-        return padparams.Item1
+        return int(padparams.Item1)
 
     @property
     def parameters(self):
@@ -861,6 +861,46 @@ class EDBPadProperties(object):
         self._update_pad_parameters_parameters(rotation=rotation_value)
 
     @aedt_exception_handler
+    def int_to_geometry_type(self, val=0):
+        """Convert an integer to an EDB.PadGeometryType.
+
+        Parameters
+        ----------
+        val : int
+
+        Returns
+        -------
+        object
+            EDB.PadGeometryType enumerator value.
+        """
+        if val == 0:
+            return self._edb.Definition.PadGeometryType.NoGeometry
+        elif val == 1:
+            return self._edb.Definition.PadGeometryType.Circle
+        elif val == 2:
+            return self._edb.Definition.PadGeometryType.Square
+        elif val == 3:
+            return self._edb.Definition.PadGeometryType.Rectangle
+        elif val == 4:
+            return self._edb.Definition.PadGeometryType.Oval
+        elif val == 5:
+            return self._edb.Definition.PadGeometryType.Bullet
+        elif val == 6:
+            return self._edb.Definition.PadGeometryType.NSidedPolygon
+        elif val == 7:
+            return self._edb.Definition.PadGeometryType.Polygon
+        elif val == 8:
+            return self._edb.Definition.PadGeometryType.Round45
+        elif val == 9:
+            return self._edb.Definition.PadGeometryType.Round90
+        elif val == 10:
+            return self._edb.Definition.PadGeometryType.Square45
+        elif val == 11:
+            return self._edb.Definition.PadGeometryType.Square90
+        elif val == 12:
+            return self._edb.Definition.PadGeometryType.InvalidGeometry
+
+    @aedt_exception_handler
     def _update_pad_parameters_parameters(
         self, layer_name=None, pad_type=None, geom_type=None, params=None, offsetx=None, offsety=None, rotation=None
     ):
@@ -904,6 +944,9 @@ class EDBPadProperties(object):
             rotation = self.rotation
         if not layer_name:
             layer_name = self.layer_name
+        if is_ironpython:
+            if isinstance(geom_type, int):
+                geom_type = self.int_to_geometry_type(geom_type)
         newPadstackDefinitionData.SetPadParameters(
             layer_name,
             pad_type,
@@ -1263,10 +1306,13 @@ class EDBPinInstances(object):
             List of ``[x, y]``` coordinates for the pin position.
         """
         self.parent._edb.Geometry.PointData(self.parent._edb_value(0.0), self.parent._edb_value(0.0))
-        out = self.pin.GetPositionAndRotationValue(
-            self.parent._edb.Geometry.PointData(self.parent._edb_value(0.0), self.parent._edb_value(0.0)),
-            self.parent._edb_value(0.0),
-        )
+        if is_ironpython:
+            out = self.pin.GetPositionAndRotationValue()
+        else:
+            out = self.pin.GetPositionAndRotationValue(
+                self.parent._edb.Geometry.PointData(self.parent._edb_value(0.0), self.parent._edb_value(0.0)),
+                self.parent._edb_value(0.0),
+            )
         if out[0]:
             return [out[1].X.ToDouble(), out[1].Y.ToDouble()]
 
@@ -1280,10 +1326,13 @@ class EDBPinInstances(object):
             Rotatation value for the pin.
         """
         self.parent._edb.Geometry.PointData(self.parent._edb_value(0.0), self.parent._edb_value(0.0))
-        out = self.pin.GetPositionAndRotationValue(
-            self.parent._edb.Geometry.PointData(self.parent._edb_value(0.0), self.parent._edb_value(0.0)),
-            self.parent._edb_value(0.0),
-        )
+        if is_ironpython:
+            out = self.pin.GetPositionAndRotationValue()
+        else:
+            out = self.pin.GetPositionAndRotationValue(
+                self.parent._edb.Geometry.PointData(self.parent._edb_value(0.0), self.parent._edb_value(0.0)),
+                self.parent._edb_value(0.0),
+            )
         if out[0]:
             return out[2].ToDouble()
 
@@ -1335,7 +1384,7 @@ class EDBPinInstances(object):
             * 4 Number of top/bottom association type.
             * -1 Undefined.
         """
-        return self.pin.GetGroup().GetPlacementLayer().GetTopBottomAssociation()
+        return int(self.pin.GetGroup().GetPlacementLayer().GetTopBottomAssociation())
 
 
 class EDBComponent(object):
@@ -1435,4 +1484,15 @@ class EDBComponent(object):
             * 4 - Number of top/bottom associations.
             * -1 - Undefined
         """
-        return self.pinlist[0].GetGroup().GetPlacementLayer().GetTopBottomAssociation()
+        return int(self.pinlist[0].GetGroup().GetPlacementLayer().GetTopBottomAssociation())
+
+
+class EdbBuilder(object):
+    """Data Class to Overcome EdbLib in Linux.
+
+    """
+    def __init__(self, edbutils, db, cell):
+        self.EdbHandler = edbutils.EdbHandler()
+        self.EdbHandler.dB = db
+        self.EdbHandler.cell = cell
+        self.EdbHandler.layout = cell.GetLayout()
