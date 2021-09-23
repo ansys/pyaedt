@@ -3020,8 +3020,14 @@ class Primitives(object):
 
     def _pos_with_arg(self, pos, units=None):
         posx = self._arg_with_dim(pos[0], units)
-        posy = self._arg_with_dim(pos[1], units)
-        posz = self._arg_with_dim(pos[2], units)
+        if len(pos) < 2:
+            posy = self._arg_with_dim(0, units)
+        else:
+            posy = self._arg_with_dim(pos[1], units)
+        if len(pos) < 3:
+            posz = self._arg_with_dim(0, units)
+        else:
+            posz = self._arg_with_dim(pos[2], units)
 
         return posx, posy, posz
 
