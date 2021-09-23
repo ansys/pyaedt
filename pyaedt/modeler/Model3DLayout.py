@@ -379,7 +379,7 @@ class Modeler3DLayout(Modeler):
                         self.primitives._geometries.pop(el)
             return True
         else:
-            self._messenger.add_error_message("Input list must contain at least two elements.")
+            self.logger.glb.error("Input list must contain at least two elements.")
             return False
 
     @aedt_exception_handler
@@ -408,7 +408,7 @@ class Modeler3DLayout(Modeler):
                         self.primitives._geometries.pop(el)
             return True
         else:
-            self._messenger.add_error_message("Input list must contain at least two elements.")
+            self.logger.glb.error("Input list must contain at least two elements.")
             return False
 
     @aedt_exception_handler
@@ -480,7 +480,7 @@ class Modeler3DLayout(Modeler):
         try:
             self.odesign.SetTemperatureSettings(vargs1)
         except:
-            self._messenger.add_error_message("Failed to enable the temperature dependence.")
+            self.logger.glb.error("Failed to enable the temperature dependence.")
             return False
         else:
             self.logger.glb.info("Assigned Objects Temperature")

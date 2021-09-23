@@ -286,7 +286,7 @@ class Icepak(FieldAnalysisIcepak):
             if self.setups:
                 setup_name = self.setups[0].name
             else:
-                self._messenger.add_error_message("No setup is defined.")
+                self.logger.glb.error("No setup is defined.")
                 return False
         self.oanalysis_setup.AddTwoWayCoupling(
             setup_name,
@@ -1475,8 +1475,8 @@ class Icepak(FieldAnalysisIcepak):
                 arg.append("Calculation:=")
                 arg.append([type, geometryType, el, quantity, "", "Default"])
             except Exception as e:
-                self._messenger.add_error_message("Object " + el + " not added.")
-                self._messenger.add_error_message(str(e))
+                self.logger.glb.error("Object " + el + " not added.")
+                self.logger.glb.error(str(e))
         if not output_dir:
             output_dir = self.project_path
         self.osolution.EditFieldsSummarySetting(arg)

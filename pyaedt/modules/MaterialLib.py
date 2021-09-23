@@ -343,7 +343,7 @@ class Materials(object):
 
         """
         if material.lower() not in list(self.material_keys.keys()):
-            self._messenger.add_error_message("Material {} is not present".format(material))
+            self.logger.glb.error("Material {} is not present".format(material))
             return False
         newmat = Material(self, new_name.lower(), self.material_keys[material.lower()]._props)
         newmat.update()
@@ -375,7 +375,7 @@ class Materials(object):
 
         """
         if not material.lower() in list(self.surface_material_keys.keys()):
-            self._messenger.add_error_message("Material {} is not present".format(material))
+            self.logger.glb.error("Material {} is not present".format(material))
             return False
         newmat = SurfaceMaterial(self, new_name.lower(), self.surface_material_keys[material.lower()]._props)
         newmat.update()
@@ -410,7 +410,7 @@ class Materials(object):
 
         """
         if material not in list(self.material_keys.keys()):
-            self._messenger.add_error_message("Material {} is not present".format(material))
+            self.logger.glb.error("Material {} is not present".format(material))
             return False
         self.odefinition_manager.RemoveMaterial(material, True, "", library)
         del self.material_keys[material]

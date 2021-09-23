@@ -552,7 +552,7 @@ class MatProperty(object):
         """
 
         if index > len(self._property_value):
-            self._messenger.add_error_message(
+            self.logger.glb.error(
                 "Wrong index number. Index must be 0 for simple or nonlinear properties,"
                 " <=2 for anisotropic materials, <=9 for Tensors"
             )

@@ -1069,7 +1069,7 @@ class GeometryModeler(Modeler, object):
         try:
             self.odesign.SetObjectDeformation(["EnabledObjects:=", objects])
         except:
-            self._messenger.add_error_message("Failed to enable the deformation dependence")
+            self.logger.glb.error("Failed to enable the deformation dependence")
             return False
         else:
             self.logger.glb.info("Successfully enabled deformation feedback")
@@ -1125,7 +1125,7 @@ class GeometryModeler(Modeler, object):
         try:
             self.odesign.SetObjectTemperature(vargs1)
         except:
-            self._messenger.add_error_message("Failed to enable the temperature dependence")
+            self.logger.glb.error("Failed to enable the temperature dependence")
             return False
         else:
             self.logger.glb.info("Assigned Objects Temperature")
@@ -2222,7 +2222,7 @@ class GeometryModeler(Modeler, object):
         unclassified1 = list(self.oeditor.GetObjectsInGroup("Unclassified"))
         if unclassified != unclassified1:
             self.odesign.Undo()
-            self._messenger.add_error_message("Error in intersection. Reverting Operation")
+            self.logger.glb.error("Error in intersection. Reverting Operation")
             return False
         self.primitives.cleanup_objects()
         self.logger.glb.info("Intersection Succeeded")
@@ -2251,7 +2251,7 @@ class GeometryModeler(Modeler, object):
         self.oeditor.Connect(vArg1)
         if unclassified_before != self.primitives.unclassified_names:
             self.odesign.Undo()
-            self._messenger.add_error_message("Error in connection. Reverting Operation")
+            self.logger.glb.error("Error in connection. Reverting Operation")
             return False
 
         self.primitives.cleanup_objects()
@@ -2925,7 +2925,7 @@ class GeometryModeler(Modeler, object):
                 edgelist.append(el)
                 verlist.append([p1, p2])
         if not edgelist:
-            self._messenger.add_error_message("No edges found specified direction. Check again")
+            self.logger.glb.error("No edges found specified direction. Check again")
             return False
         connected = [edgelist[0]]
         tol = 1e-6
@@ -3337,7 +3337,7 @@ class GeometryModeler(Modeler, object):
                 if l > latestversion:
                     latestversion = l
         if not latestversion:
-            self._messenger.add_error_message("SpaceClaim is not found.")
+            self.logger.glb.error("SpaceClaim is not found.")
         else:
             scdm_path = os.path.join(os.environ[latestversion], "scdm")
         self.oeditor.CreateUserDefinedModel(

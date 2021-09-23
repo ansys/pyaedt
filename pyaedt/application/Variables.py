@@ -967,7 +967,7 @@ class VariableManager(object):
             try:
                 if self.delete_separator(variable_name):
                     desktop_object.Undo()
-                    self._messenger.clear_messages()
+                    self.logger.clear_messages()
                     return
             except:
                 pass

@@ -372,7 +372,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             val_list.append(msg)
             if ret == 0:
                 msg = "**** ERRORS Present - please check and confirm"
-                self._messenger.add_error_message(msg)
+                self.logger.glb.error(msg)
             else:
                 msg = "**** Validation Completed Correctly"
                 self.logger.glb.info(msg)
@@ -384,7 +384,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             numportsdefined = int(len(self.get_excitations_name))
             if ports is not None and ports != numportsdefined:
                 msg = "**** Port Number Error! - Please check model"
-                self._messenger.add_error_message(msg)
+                self.logger.glb.error(msg)
                 validation.writelines(msg + "\n")
                 val_list.append(msg)
                 validation_ok = False

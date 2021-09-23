@@ -2996,7 +2996,7 @@ class Hfss(FieldAnalysis3D, object):
                     ports_t = ports
                 if ports_t != len(detected_excitations):
                     msg = "** Port number error. Check the model. **"
-                    self._messenger.add_error_message(msg)
+                    self.logger.glb.error(msg)
                     val_list.append(msg)
                     validation_ok = False
                 else:
@@ -3081,7 +3081,7 @@ class Hfss(FieldAnalysis3D, object):
         if not sweep_name:
             sweep_name = self.existing_analysis_sweeps[1]
         elif sweep_name not in self.existing_analysis_sweeps:
-            self._messenger.add_error_message("Setup {} doesn't exist in the Setup list.".format(sweep_name))
+            self.logger.glb.error("Setup {} doesn't exist in the Setup list.".format(sweep_name))
             return False
         if not port_names:
             port_names = self.modeler.get_excitations_name()
