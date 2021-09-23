@@ -1157,7 +1157,8 @@ class Design(object):
 
     @aedt_exception_handler
     def add_info_message(self, message_text, message_type=None):
-        """Add a type 0 "Info" message to the active design level of the Message Manager tree.
+        """Add a type 0 "Info" message to either global, active project or active design
+        level of the Message Manager tree.
 
         Also add an info message to the logger if the handler is present.
 
@@ -1194,7 +1195,8 @@ class Design(object):
 
     @aedt_exception_handler
     def add_warning_message(self, message_text, message_type=None):
-        """Add a type 0 "Warning" message to the active design level of the Message Manager tree.
+        """Add a type 0 "Warning" message to either global, active project or active design
+        level of the Message Manager tree.
 
         Also add an info message to the logger if the handler is present.
 
@@ -1232,7 +1234,8 @@ class Design(object):
 
     @aedt_exception_handler
     def add_error_message(self, message_text, message_type=None):
-        """Add a type 0 "Error" message to the active design level of the Message Manager tree.
+        """Add a type 0 "Error" message to either global, active project or active design
+        level of the Message Manager tree.
 
         Also add an error message to the logger if the handler is present.
 
