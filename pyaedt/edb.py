@@ -153,6 +153,13 @@ class Edb(object):
         else:
             warnings.warn("Failed to initialize Dlls")
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, ex_type, ex_value, ex_traceback):
+        if ex_type:
+            self.edb_exception(ex_value, ex_traceback)
+
     def _clean_variables(self):
         """Initialize internal variables and perform garbage collection."""
         self._components = None
@@ -356,6 +363,10 @@ class Edb(object):
             dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib", "DataModel.dll")
             self._messenger.add_info_message(dllpath)
             self.layout_methods.LoadDataModel(dllpath)
+            dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib",
+                                   "IPC_2581_DataModel.dll")
+            self.layout_methods.LoadDataModel(dllpath)
+
             time.sleep(3)
             self.builder = retry_ntimes(
                 10,
@@ -408,6 +419,9 @@ class Edb(object):
                 self._active_cell = list(self._db.TopCircuitCells)[0]
             dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib", "DataModel.dll")
             if self._db and self._active_cell:
+                self.layout_methods.LoadDataModel(dllpath)
+                dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib",
+                                       "IPC_2581_DataModel.dll")
                 self.layout_methods.LoadDataModel(dllpath)
                 if not os.path.exists(self.edbpath):
                     os.makedirs(self.edbpath)
@@ -463,6 +477,9 @@ class Edb(object):
         self._active_cell = self.edb.Cell.Cell.Create(self._db, self.edb.Cell.CellType.CircuitCell, self.cellname)
         dllpath = os.path.join(os.path.dirname(__file__), "dlls", "EDBLib", "DataModel.dll")
         if self._db and self._active_cell:
+            self.layout_methods.LoadDataModel(dllpath)
+            dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib",
+                                   "IPC_2581_DataModel.dll")
             self.layout_methods.LoadDataModel(dllpath)
             time.sleep(3)
             self.builder = retry_ntimes(
@@ -533,12 +550,32 @@ class Edb(object):
         self.edbpath = os.path.join(working_dir, aedb_name)
         return self.open_edb()
 
-    def __enter__(self):
-        return self
+    @aedt_exception_handler
+    def export_to_ipc2581(self, ipc_path=None):
+        """Create an XML IPC2581 File from active Edb.
 
-    def __exit__(self, ex_type, ex_value, ex_traceback):
-        if ex_type:
-            self.edb_exception(ex_value, ex_traceback)
+        Parameters
+        ----------
+        ipc_path : str, optional
+            Path to the xml file
+        Returns
+        -------
+        bool
+            ``True`` if succeeded.
+
+        """
+        if not ipc_path:
+            ipc_path = self.edbpath[:-4]+"xml"
+        self._messenger.add_info_message("Export IPC 2581 is starting. This operation can take a while...")
+        start = time.time()
+        result = self.layout_methods.ExportIPC2581FromBuilder(self.builder, ipc_path)
+        end = time.time() - start
+        if result:
+            self._messenger.add_info_message("Export IPC 2581 completed in {} sec.".format(end))
+            self._messenger.add_info_message("File saved in {}".format(ipc_path))
+            return ipc_path
+        self._messenger.add_info_message("Error Exporting IPC 2581.")
+        return False
 
     def edb_exception(self, ex_value, tb_data):
         """Write the trace stack to AEDT when a Python error occurs.
@@ -905,7 +942,7 @@ class Edb(object):
             self.active_cell.Delete()
         else:
             _dbCells.append(self.active_cell)
-
+        # check why is not working
         if output_aedb_path:
             db2 = self.edb.Database.Create(output_aedb_path)
             # Function input is the name of a .aedb folder inside which the edb.def will be created.
@@ -915,7 +952,17 @@ class Edb(object):
             _success = db2.Save()
             self._db = db2
             self.edbpath = output_aedb_path
-            self._active_cell = _cutout
+            self._active_cell = list(self._db.TopCircuitCells)[0]
+            self.builder = retry_ntimes(
+                10,
+                self.layout_methods.GetBuilder,
+                self._db,
+                self._active_cell,
+                self.edbpath,
+                self.edbversion,
+                self.standalone,
+            )
+            self._init_objects()
         return True
 
     @aedt_exception_handler
