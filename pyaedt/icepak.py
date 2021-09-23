@@ -206,7 +206,7 @@ class Icepak(FieldAnalysisIcepak):
         bound = BoundaryObject(self, boundary_name, props, "Grille")
         if bound.create():
             self.boundaries.append(bound)
-            self.logger.global_logger.info("Grille Assigned")
+            self.logger.glb.info("Grille Assigned")
             return bound
         return None
 
@@ -249,7 +249,7 @@ class Icepak(FieldAnalysisIcepak):
         bound = BoundaryObject(self, boundary_name, props, "Opening")
         if bound.create():
             self.boundaries.append(bound)
-            self.logger.global_logger.info("Opening Assigned")
+            self.logger.glb.info("Opening Assigned")
             return bound
         return None
 
@@ -416,7 +416,7 @@ class Icepak(FieldAnalysisIcepak):
         bound = BoundaryObject(self, boundary_name, props, "Block")
         if bound.create():
             self.boundaries.append(bound)
-            self.logger.global_logger.info(
+            self.logger.glb.info(
                 "Block on {} with {} Power, created correctly.".format(object_name, input_power)
             )
             return bound
@@ -776,7 +776,7 @@ class Icepak(FieldAnalysisIcepak):
                         "COMP_" + component_data["Ref Des"][i], str(power) + "W", assign_material=False
                     )
                     if not status:
-                        self.logger.global_logger.warning(
+                        self.logger.glb.warning(
                             "Warning. Block {} skipped with {}W power.".format(component_data["Ref Des"][i], power)
                         )
                     else:
@@ -787,7 +787,7 @@ class Icepak(FieldAnalysisIcepak):
                         component_data["Ref Des"][i], str(power) + "W", assign_material=False
                     )
                     if not status:
-                        self.logger.global_logger.warning(
+                        self.logger.glb.warning(
                             "Warning. Block {} skipped with {}W power.".format(component_data["Ref Des"][i], power)
                         )
                     else:
@@ -796,7 +796,7 @@ class Icepak(FieldAnalysisIcepak):
             except:
                 pass
             i += 1
-        self.logger.global_logger.info("Blocks inserted with total power {}W.".format(total_power))
+        self.logger.glb.info("Blocks inserted with total power {}W.".format(total_power))
         return total_power
 
     @aedt_exception_handler
@@ -1194,7 +1194,7 @@ class Icepak(FieldAnalysisIcepak):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self.logger.global_logger.info("Mapping HFSS EM losses.")
+        self.logger.glb.info("Mapping HFSS EM losses.")
         oName = self.project_name
         if oName == source_project_name or source_project_name is None:
             projname = "This Project*"
@@ -1243,7 +1243,7 @@ class Icepak(FieldAnalysisIcepak):
         bound = BoundaryObject(self, name, props, "EMLoss")
         if bound.create():
             self.boundaries.append(bound)
-            self.logger.global_logger.info("EM losses mapped from design {}.".format(designname))
+            self.logger.glb.info("EM losses mapped from design {}.".format(designname))
             return bound
         return False
 
@@ -1466,7 +1466,7 @@ class Icepak(FieldAnalysisIcepak):
         all_objs_NonModeled = list(self.modeler.oeditor.GetObjectsInGroup("Non Model"))
         all_objs_model = [item for item in all_objs if item not in all_objs_NonModeled]
         arg = []
-        self.logger.global_logger.info("Objects lists " + str(all_objs_model))
+        self.logger.glb.info("Objects lists " + str(all_objs_model))
         for el in all_objs_model:
             try:
                 self.osolution.EditFieldsSummarySetting(
@@ -1762,7 +1762,7 @@ class Icepak(FieldAnalysisIcepak):
         if close_linked_project_after_import and ".aedt" in project_name:
             prjname = os.path.splitext(os.path.basename(project_name))[0]
             self.close_project(prjname, saveproject=False)
-        self.logger.global_logger.info("PCB component correctly created in Icepak.")
+        self.logger.glb.info("PCB component correctly created in Icepak.")
         return status
 
     @aedt_exception_handler

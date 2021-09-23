@@ -150,7 +150,7 @@ class Mechanical(FieldAnalysis3D, object):
         """
         assert self.solution_type == "Thermal", "This Method works only in Mechanical Structural Solution"
 
-        self.logger.global_logger.info("Mapping HFSS EM Lossess")
+        self.logger.glb.info("Mapping HFSS EM Lossess")
         oName = self.project_name
         if oName == source_project_name or source_project_name is None:
             projname = "This Project*"
@@ -198,7 +198,7 @@ class Mechanical(FieldAnalysis3D, object):
         bound = BoundaryObject(self, name, props, "EMLoss")
         if bound.create():
             self.boundaries.append(bound)
-            self.logger.global_logger.info("EM losses mapped from design {}.".format(designname))
+            self.logger.glb.info("EM losses mapped from design {}.".format(designname))
             return bound
         return False
 
@@ -241,7 +241,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         assert self.solution_type == "Structural", "This method works only in a Mechanical structural solution."
 
-        self.logger.global_logger.info("Mapping HFSS EM Lossess")
+        self.logger.glb.info("Mapping HFSS EM Lossess")
         oName = self.project_name
         if oName == source_project_name or source_project_name is None:
             projname = "This Project*"
@@ -281,7 +281,7 @@ class Mechanical(FieldAnalysis3D, object):
         bound = BoundaryObject(self, name, props, "ThermalCondition")
         if bound.create():
             self.boundaries.append(bound)
-            self.logger.global_logger.info("Thermal conditions are mapped from design {}.".format(designname))
+            self.logger.glb.info("Thermal conditions are mapped from design {}.".format(designname))
             return bound
 
         return True

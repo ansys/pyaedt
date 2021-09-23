@@ -185,16 +185,16 @@ class Materials(object):
 
         """
         materialname = materialname.lower()
-        self.logger.global_logger.info("Adding new material to the Project Library: " + materialname)
+        self.logger.glb.info("Adding new material to the Project Library: " + materialname)
         if materialname in self.material_keys:
-            self.logger.global_logger.warning(
+            self.logger.glb.warning(
                 "Warning. The material is already in the database. Change or edit the name."
             )
             return self.material_keys[materialname]
         else:
             material = Material(self._parent, materialname, props)
             material.update()
-            self.logger.global_logger.info("Material has been added. Edit it to update in Desktop.")
+            self.logger.glb.info("Material has been added. Edit it to update in Desktop.")
             self.material_keys[materialname] = material
             return self.material_keys[materialname]
 
@@ -226,9 +226,9 @@ class Materials(object):
         """
 
         materialname = material_name.lower()
-        self.logger.global_logger.info("Adding a surface material to the project library: " + materialname)
+        self.logger.glb.info("Adding a surface material to the project library: " + materialname)
         if materialname in self.surface_material_keys:
-            self.logger.global_logger.warning(
+            self.logger.glb.warning(
                 "Warning. The material is already in the database. Change the name or edit it."
             )
             return self.surface_material_keys[materialname]
@@ -237,7 +237,7 @@ class Materials(object):
             if emissivity:
                 material.emissivity = emissivity
                 material.update()
-            self.logger.global_logger.info("Material has been added. Edit it to update in Desktop.")
+            self.logger.glb.info("Material has been added. Edit it to update in Desktop.")
             self.surface_material_keys[materialname] = material
             return self.surface_material_keys[materialname]
 
@@ -251,7 +251,7 @@ class Materials(object):
                 try:
                     matprop[prop].append(float(mat.__dict__["_" + prop].value))
                 except:
-                    self.logger.global_logger.warning("Warning. Wrong parsed property. Reset to 0")
+                    self.logger.glb.warning("Warning. Wrong parsed property. Reset to 0")
                     matprop[prop].append(0)
             try:
                 a = sum(matprop[prop])
@@ -455,7 +455,7 @@ class Materials(object):
                 try:
                     self._aedmattolibrary(el)
                 except Exception as e:
-                    self.logger.global_logger.info("aedmattolibrary failed for material {}".format(el))
+                    self.logger.glb.info("aedmattolibrary failed for material {}".format(el))
 
     @aedt_exception_handler
     def _aedmattolibrary(self, matname):
@@ -579,7 +579,7 @@ class Materials(object):
         for el, val in data["materials"].items():
             if el.lower() in list(self.material_keys.keys()):
                 newname = generate_unique_name(el)
-                self.logger.global_logger.warning("Material {} already exists. Renaming to {}".format(el, newname))
+                self.logger.glb.warning("Material {} already exists. Renaming to {}".format(el, newname))
             else:
                 newname = el
             newmat = Material(self, newname, val)

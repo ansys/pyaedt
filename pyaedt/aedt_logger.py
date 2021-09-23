@@ -56,22 +56,22 @@ class AedtLogger():
             raise ValueError("The destination must be either 'Project' or 'Design'.")
 
     def get_messages(self):
-        self._messenger.get_messages(self._messenger._project_name, self._messenger._design_name)
+        return self._messenger.get_messages(self._messenger._project_name, self._messenger._design_name)
 
     def clear_messages(self, project_name=None, design_name=None, level=2):
         self._messenger.clear_messages(project_name, design_name, level)
 
     @property
-    def global_logger(self):
+    def glb(self):
         """Global logger."""
         return self._global
 
     @property
-    def project_logger(self):
+    def project(self):
         """Global logger."""
         return self._project
 
     @property
-    def design_logger(self):
+    def design(self):
         """Global logger."""
         return self._design

@@ -25,9 +25,9 @@ class Modeler3DLayout(Modeler):
 
     def __init__(self, parent):
         self._parent = parent
-        self.logger.global_logger.info("Loading Modeler.")
+        self.logger.glb.info("Loading Modeler.")
         Modeler.__init__(self, parent)
-        self.logger.global_logger.info("Modeler loaded.")
+        self.logger.glb.info("Modeler loaded.")
         self._primitivesDes = self._parent.project_name + self._parent.design_name
         edb_folder = os.path.join(self._parent.project_path, self._parent.project_name + ".aedb")
         edb_file = os.path.join(edb_folder, "edb.def")
@@ -47,12 +47,12 @@ class Modeler3DLayout(Modeler):
             )
         else:
             self._mttime = 0
-        self.logger.global_logger.info("EDB loaded.")
+        self.logger.glb.info("EDB loaded.")
 
         self.layers = Layers(self._parent, self, roughnessunits="um")
-        self.logger.global_logger.info("Layers loaded.")
+        self.logger.glb.info("Layers loaded.")
         self._primitives = Primitives3DLayout(self._parent, self)
-        self.logger.global_logger.info("Primitives loaded.")
+        self.logger.glb.info("Primitives loaded.")
         self.layers.refresh_all_layers()
 
         pass
@@ -465,7 +465,7 @@ class Modeler3DLayout(Modeler):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self.logger.global_logger.info("Set the temperature dependence for the design.")
+        self.logger.glb.info("Set the temperature dependence for the design.")
         if create_project_var:
             self._parent.variable_manager["$AmbientTemp"] = str(ambient_temp) + "cel"
             var = "$AmbientTemp"
@@ -483,5 +483,5 @@ class Modeler3DLayout(Modeler):
             self._messenger.add_error_message("Failed to enable the temperature dependence.")
             return False
         else:
-            self.logger.global_logger.info("Assigned Objects Temperature")
+            self.logger.glb.info("Assigned Objects Temperature")
             return True

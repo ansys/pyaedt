@@ -217,7 +217,7 @@ class Circuit(FieldAnalysisCircuit, object):
                         try:
                             float(fields[4])
                         except:
-                            self.logger.global_logger.warning(
+                            self.logger.glb.warning(
                                 "Component {} Not Imported. Check it and manually import".format(name)
                             )
                             continue
@@ -485,7 +485,7 @@ class Circuit(FieldAnalysisCircuit, object):
                     if netname:
                         self.modeler.components.create_page_port(netname, pos[0], pos[1], angle)
                     else:
-                        self.logger.global_logger.info("Page Port Not Created")
+                        self.logger.glb.info("Page Port Not Created")
                     id += 1
                 ypos += delta
                 if ypos > delta * (column_number):

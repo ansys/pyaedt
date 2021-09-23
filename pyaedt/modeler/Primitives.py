@@ -1431,7 +1431,7 @@ class Primitives(object):
             if el not in self.object_names and not list(self.oeditor.GetObjectsInGroup(el)):
                 objects.remove(el)
         if not objects:
-            self.logger.global_logger.warning("No objects to delete")
+            self.logger.glb.warning("No objects to delete")
             return False
         slice = min(100, len(objects))
         num_objects = len(objects)
@@ -1443,7 +1443,7 @@ class Primitives(object):
             try:
                 self.oeditor.Delete(arg)
             except:
-                self.logger.global_logger.warning("Failed to delete {}".format(objects_str))
+                self.logger.glb.warning("Failed to delete {}".format(objects_str))
             remaining -= slice
             if remaining > 0:
                 objects = objects[slice:]
@@ -1452,7 +1452,7 @@ class Primitives(object):
 
         if len(objects) > 0:
             self.cleanup_objects()
-            self.logger.global_logger.info("Deleted {} Objects".format(num_objects, objects_str))
+            self.logger.glb.info("Deleted {} Objects".format(num_objects, objects_str))
         return True
 
     @aedt_exception_handler
@@ -1483,7 +1483,7 @@ class Primitives(object):
                 if contained_string.lower() in el.lower():
                     self.delete(el)
                     num_del += 1
-        self.logger.global_logger.info("Deleted {} objects".format(num_del))
+        self.logger.glb.info("Deleted {} objects".format(num_del))
         return True
 
     @aedt_exception_handler
@@ -2133,7 +2133,7 @@ class Primitives(object):
         try:
             c = self.oeditor.GetFaceCenter(face_id)
         except:
-            self.logger.global_logger.warning("Non Planar Faces doesn't provide any Face Center")
+            self.logger.glb.warning("Non Planar Faces doesn't provide any Face Center")
             return False
         center = [float(i) for i in c]
         return center
@@ -2797,7 +2797,7 @@ class Primitives(object):
                     return matname, True
 
             else:
-                self.logger.global_logger.warning(
+                self.logger.glb.warning(
                     "Material {} doesn not exists. Assigning default material".format(matname)
                 )
         if self._parent._design_type == "HFSS":

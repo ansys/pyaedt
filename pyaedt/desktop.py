@@ -300,8 +300,8 @@ class Desktop:
             self._main.AEDTVersion = version_key
         #self._init_logger()
         self._init_desktop()
-        self._logger.global_logger.info("pyaedt v%s", self._main.pyaedt_version)
-        self._logger.global_logger.info("Python version %s", sys.version)
+        self._logger.glb.info("pyaedt v%s", self._main.pyaedt_version)
+        self._logger.glb.info("Python version %s", sys.version)
 
     def __enter__(self):
         return self
@@ -567,9 +567,9 @@ class Desktop:
         """
         tb_trace = traceback.format_tb(tb_data)
         tblist = tb_trace[0].split("\n")
-        self.logger.global_logger.error(str(ex_value), "Global")
+        self.logger.glb.error(str(ex_value), "Global")
         for el in tblist:
-            self.logger.global_logger.error(el, "Global")
+            self.logger.glb.error(el, "Global")
 
         return str(ex_value)
 
@@ -706,21 +706,21 @@ class Desktop:
         if isinstance(key_value, str):
             try:
                 self._main.oDesktop.SetRegistryString(key_full_name, key_value)
-                self.logger.global_logger.info("Key %s correctly changed.", key_full_name)
+                self.logger.glb.info("Key %s correctly changed.", key_full_name)
                 return True
             except:
-                self.logger.global_logger.warning("Error setting up Key %s.", key_full_name)
+                self.logger.glb.warning("Error setting up Key %s.", key_full_name)
                 return False
         elif isinstance(key_value, int):
             try:
                 self._main.oDesktop.SetRegistryInt(key_full_name, key_value)
-                self.logger.global_logger.info("Key %s correctly changed.", key_full_name)
+                self.logger.glb.info("Key %s correctly changed.", key_full_name)
                 return True
             except:
-                self.logger.global_logger.warning("Error setting up Key %s.", key_full_name)
+                self.logger.glb.warning("Error setting up Key %s.", key_full_name)
                 return False
         else:
-            self.logger.global_logger.warning("Key Value must be an int or str.")
+            self.logger.glb.warning("Key Value must be an int or str.")
             return False
 
     def change_active_dso_config_name(self, product_name="HFSS", config_name="Local"):
@@ -738,11 +738,11 @@ class Desktop:
         """
         try:
             self.change_registry_key("Desktop/ActiveDSOConfigurations/{}".format(product_name), config_name)
-            self.logger.global_logger.info(
+            self.logger.glb.info(
                 "Configuration Changed correctly to %s for %s.", config_name, product_name)
             return True
         except:
-            self.logger.global_logger.warning(
+            self.logger.glb.warning(
                 "Error Setting Up Configuration %s for %s.", config_name, product_name)
             return False
 

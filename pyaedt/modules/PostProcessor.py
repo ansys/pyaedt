@@ -1288,7 +1288,7 @@ class PostProcessor(PostProcessorCommon, object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        self.logger.global_logger.info("Exporting {} field. Be patient".format(quantity_name))
+        self.logger.glb.info("Exporting {} field. Be patient".format(quantity_name))
         if not solution:
             solution = self._parent.existing_analysis_sweeps[0]
         if not filename:
@@ -1411,7 +1411,7 @@ class PostProcessor(PostProcessorCommon, object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        self.logger.global_logger.info("Exporting {} field. Be patient".format(quantity_name))
+        self.logger.glb.info("Exporting {} field. Be patient".format(quantity_name))
         if not solution:
             solution = self._parent.existing_analysis_sweeps[0]
         if not filename:

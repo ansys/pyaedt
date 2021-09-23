@@ -1021,7 +1021,7 @@ class Design(object):
                 warning_msg = "No design is present. Inserting a new design."
 
             if warning_msg:
-                self.logger.global_logger.info(warning_msg)
+                self.logger.glb.info(warning_msg)
                 self._insert_design(self._design_type, solution_type=self._solution_type)
         self.boundaries = self._get_boundaries_data()
 
@@ -1077,7 +1077,7 @@ class Design(object):
         if not proj_name:
             self._oproject = self._desktop.GetActiveProject()
             if self._oproject:
-                self.logger.global_logger.info(
+                self.logger.glb.info(
                     "No project is defined. Project {} exists and has been read.".format(self._oproject.GetName()))
         else:
             if proj_name in self._desktop.GetProjectList():
@@ -1090,21 +1090,21 @@ class Design(object):
                     self._desktop.RestoreProjectArchive(proj_name, os.path.join(path, name), True, True)
                     time.sleep(0.5)
                     proj = self._desktop.GetActiveProject()
-                    self.logger.global_logger.info(
+                    self.logger.glb.info(
                         "Archive {} has been restored to project {}".format(proj_name, proj.GetName()))
                 elif ".def" in proj_name:
                     oTool = self._desktop.GetTool("ImportExport")
                     oTool.ImportEDB(proj_name)
                     proj = self._desktop.GetActiveProject()
                     proj.Save()
-                    self.logger.global_logger.info(
+                    self.logger.glb.info(
                         "EDB folder %s has been imported to project %s", proj_name, proj.GetName())
                 else:
                     assert not os.path.exists(
                         proj_name + ".lock"
                     ), "Project is locked. Close or remove the lock before proceeding."
                     proj = self._desktop.OpenProject(proj_name)
-                    self.logger.global_logger.info("Project %s has been opened.", proj.GetName())
+                    self.logger.glb.info("Project %s has been opened.", proj.GetName())
                     time.sleep(0.5)
                 self._oproject = proj
             else:
@@ -1113,10 +1113,10 @@ class Design(object):
                     self._oproject.Rename(proj_name, True)
                 else:
                     self._oproject.Rename(os.path.join(self.project_path, proj_name + ".aedt"), True)
-                self.logger.global_logger.info("Project %s has been created.", self._oproject.GetName())
+                self.logger.glb.info("Project %s has been created.", self._oproject.GetName())
         if not self._oproject:
             self._oproject = self._desktop.NewProject()
-            self.logger.global_logger.info("Project %s has been created.", self._oproject.GetName())
+            self.logger.glb.info("Project %s has been created.", self._oproject.GetName())
 
     @property
     def oanalysis_setup(self):
@@ -1304,21 +1304,21 @@ class Design(object):
         if isinstance(key_value, str):
             try:
                 self.odesktop.SetRegistryString(key_full_name, key_value)
-                self.logger.global_logger.info("Key {} correctly changed.".format(key_full_name))
+                self.logger.glb.info("Key {} correctly changed.".format(key_full_name))
                 return True
             except:
-                self.logger.global_logger.warning("Error setting up Key {}.".format(key_full_name))
+                self.logger.glb.warning("Error setting up Key {}.".format(key_full_name))
                 return False
         elif isinstance(key_value, int):
             try:
                 self.odesktop.SetRegistryInt(key_full_name, key_value)
-                self.logger.global_logger.info("Key {} correctly changed.".format(key_full_name))
+                self.logger.glb.info("Key {} correctly changed.".format(key_full_name))
                 return True
             except:
-                self.logger.global_logger.warning("Error setting up Key {}.".format(key_full_name))
+                self.logger.glb.warning("Error setting up Key {}.".format(key_full_name))
                 return False
         else:
-            self.logger.global_logger.warning("Key Value must be an int or str.")
+            self.logger.glb.warning("Key Value must be an int or str.")
             return False
 
     @aedt_exception_handler
@@ -1337,11 +1337,11 @@ class Design(object):
         """
         try:
             self.set_registry_key("Desktop/ActiveDSOConfigurations/{}".format(product_name), config_name)
-            self.logger.global_logger.info(
+            self.logger.glb.info(
                 "Configuration Changed correctly to {} for {}.".format(config_name, product_name))
             return True
         except:
-            self.logger.global_logger.warning(
+            self.logger.glb.warning(
                 "Error Setting Up Configuration {} for {}.".format(config_name, product_name))
             return False
 
@@ -1832,7 +1832,7 @@ class Design(object):
         base_path = self.temp_directory
 
         if not isinstance(subdir_name, str):
-            self.logger.global_logger.error("Input argument 'subdir' must be a string")
+            self.logger.glb.error("Input argument 'subdir' must be a string")
             return False
         dir_name = generate_unique_name(subdir_name)
         project_dir = os.path.join(base_path, dir_name)
@@ -2013,14 +2013,14 @@ class Design(object):
                 dsname = "$" + dsname
             ds = DataSet(self, dsname, xlist, ylist, zlist, vlist, xunit, yunit, zunit, vunit)
         else:
-            self.logger.global_logger.warning("Dataset {} already exists".format(dsname))
+            self.logger.glb.warning("Dataset {} already exists".format(dsname))
             return False
         ds.create()
         if is_project_dataset:
             self.project_datasets[dsname] = ds
         else:
             self.design_datasets[dsname] = ds
-        self.logger.global_logger.info("Dataset %s created successfully.", dsname)
+        self.logger.glb.info("Dataset %s created successfully.", dsname)
         return ds
 
     @aedt_exception_handler
@@ -2041,14 +2041,14 @@ class Design(object):
 
         """
         if is_project_dataset and "$" + name in self.project_datasets:
-            self.logger.global_logger.info("Dataset {} exists.".format("$" + name))
+            self.logger.glb.info("Dataset {} exists.".format("$" + name))
             return True
             # self.oproject.ExportDataSet("$"+name, os.path.join(self.temp_directory, "ds.tab"))
         elif not is_project_dataset and name in self.design_datasets:
-            self.logger.global_logger.info("Dataset {} exists.".format(name))
+            self.logger.glb.info("Dataset {} exists.".format(name))
             return True
             # self.odesign.ExportDataSet(name, os.path.join(self.temp_directory, "ds.tab"))
-        self.logger.global_logger.info("Dataset {} doesn't exist.".format(name))
+        self.logger.glb.info("Dataset {} doesn't exist.".format(name))
         return False
 
     @aedt_exception_handler
@@ -2068,9 +2068,9 @@ class Design(object):
 
         """
         if lossy_dielectric:
-            self.logger.global_logger.info("Enabling Automatic use of causal materials")
+            self.logger.glb.info("Enabling Automatic use of causal materials")
         else:
-            self.logger.global_logger.info("Disabling Automatic use of causal materials")
+            self.logger.glb.info("Disabling Automatic use of causal materials")
         self.odesign.SetDesignSettings(["NAME:Design Settings Data", "Calculate Lossy Dielectrics:=", lossy_dielectric])
         return True
 
@@ -2091,9 +2091,9 @@ class Design(object):
 
         """
         if material_override:
-            self.logger.global_logger.info("Enabling Material Override")
+            self.logger.glb.info("Enabling Material Override")
         else:
-            self.logger.global_logger.info("Disabling Material Override")
+            self.logger.glb.info("Disabling Material Override")
         self.odesign.SetDesignSettings(["NAME:Design Settings Data", "Allow Material Override:=", material_override])
         return True
 
@@ -2118,7 +2118,7 @@ class Design(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self.logger.global_logger.info("Changing the validation design settings")
+        self.logger.glb.info("Changing the validation design settings")
         self.odesign.SetDesignSettings(
             ["NAME:Design Settings Data"],
             [
@@ -2156,12 +2156,12 @@ class Design(object):
             name = self.project_name
         if not directory:
             directory = self.results_directory
-        self.logger.global_logger.info("Cleanup folder {} from project {}".format(directory, name))
+        self.logger.glb.info("Cleanup folder {} from project {}".format(directory, name))
         if os.path.exists(directory):
             shutil.rmtree(directory, True)
             if not os.path.exists(directory):
                 os.mkdir(directory)
-        self.logger.global_logger.info("Project Directory cleaned")
+        self.logger.glb.info("Project Directory cleaned")
         return True
 
     @aedt_exception_handler
@@ -2184,7 +2184,7 @@ class Design(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self.logger.global_logger.info("Copy AEDT Project ")
+        self.logger.glb.info("Copy AEDT Project ")
         self.oproject.Save()
         self.oproject.SaveAs(os.path.join(path, dest + ".aedt"), True)
         return True
@@ -2204,7 +2204,7 @@ class Design(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self.logger.global_logger.info("Creating new Project ")
+        self.logger.glb.info("Creating new Project ")
         prj = self._desktop.NewProject(proj_name)
         prj_name = prj.GetName()
         self.oproject = prj_name
@@ -2238,7 +2238,7 @@ class Design(object):
         else:
             name = self.project_name
             msg_txt = "active " + self.project_name
-        self.logger.global_logger.info("Closing the {} AEDT Project".format(msg_txt))
+        self.logger.glb.info("Closing the {} AEDT Project".format(msg_txt))
         oproj = self.odesktop.SetActiveProject(name)
         proj_path = self.odesktop.GetProjectDirectory()
         if saveproject:
@@ -2252,10 +2252,10 @@ class Design(object):
             self._odesign = None
         while locked:
             if not os.path.exists(os.path.join(proj_path, name + ".aedt.lock")):
-                self.logger.global_logger.info("Project Closed Correctly")
+                self.logger.glb.info("Project Closed Correctly")
                 locked = False
             elif i > timeout:
-                self.logger.global_logger.warning("Lock File still exists.")
+                self.logger.glb.warning("Lock File still exists.")
                 locked = False
             else:
                 i += 0.2
@@ -2604,7 +2604,7 @@ class Design(object):
 
         """
         msg_text = "Saving {0} Project".format(self.project_name)
-        self.logger.global_logger.info(msg_text)
+        self.logger.glb.info(msg_text)
         if project_file and not os.path.exists(os.path.dirname(project_file)):
             os.makedirs(os.path.dirname(project_file))
         elif project_file:
@@ -2645,7 +2645,7 @@ class Design(object):
 
         """
         msg_text = "Saving {0} Project".format(self.project_name)
-        self.logger.global_logger.info(msg_text)
+        self.logger.glb.info(msg_text)
         if not project_file:
             project_file = os.path.join(self.project_path, self.project_name + ".aedtz")
         self.oproject.Save()

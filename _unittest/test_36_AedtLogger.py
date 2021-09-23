@@ -21,29 +21,29 @@ class TestClass:
     def test_01_global(self):
         logger = self.aedtapp.logger
         # The default logger level is DEBUGGING.
-        logger.global_logger.debug("Debug message for testing.")
-        logger.global_logger.info("Info message for testing.")
-        logger.global_logger.warning("Warning message for testing.")
-        logger.global_logger.error("Error message for testing.")
-        logger.global_logger.info("Critical message for testing.")
+        logger.glb.debug("Debug message for testing.")
+        logger.glb.info("Info message for testing.")
+        logger.glb.warning("Warning message for testing.")
+        logger.glb.error("Error message for testing.")
+        logger.glb.info("Critical message for testing.")
 
         # Project logger
         logger.add_logger("Project")
-        logger.project_logger.debug("Debug message for testing.")
-        logger.project_logger.info("Info message for testing.")
-        logger.project_logger.warning("Warning message for testing.")
-        logger.project_logger.error("Error message for testing.")
-        logger.project_logger.info("Critical message for testing.")
+        logger.project.debug("Debug message for testing.")
+        logger.project.info("Info message for testing.")
+        logger.project.warning("Warning message for testing.")
+        logger.project.error("Error message for testing.")
+        logger.project.info("Critical message for testing.")
 
         # Current active design logger
         logger.add_logger("Design")
-        logger.design_logger.debug("Debug message for testing.")
-        logger.design_logger.info("Info message for testing.")
-        logger.design_logger.warning("Warning message for testing.")
-        logger.design_logger.error("Error message for testing.")
-        logger.design_logger.info("Critical message for testing.")
+        logger.design.debug("Debug message for testing.")
+        logger.design.info("Info message for testing.")
+        logger.design.warning("Warning message for testing.")
+        logger.design.error("Error message for testing.")
+        logger.design.info("Critical message for testing.")
 
-        global_messages = logger._messenger.messages.global_level
+        global_messages = logger.get_messages().global_level
         assert len(global_messages) == 11
         assert global_messages[0] == '[info] pyaedt v0.4.dev0'
         assert '[info] Python version 3.8.0' in global_messages[1]
@@ -57,7 +57,7 @@ class TestClass:
         assert '[error] Error message for testing.' in global_messages
         assert '[info] Critical message for testing.' in global_messages
 
-        design_messages = logger._messenger.messages.design_level
+        design_messages = logger.get_messages().design_level
         assert len(design_messages) == 6
         assert '[info] Successfully loaded project materials !' in design_messages[0]
         assert '[info] Debug message for testing.' in design_messages[1]
@@ -66,7 +66,7 @@ class TestClass:
         assert '[error] Error message for testing.' in design_messages[4]
         assert '[info] Critical message for testing.' in design_messages[5]
 
-        project_messages = logger._messenger.messages.project_level
+        project_messages = logger.get_messages().project_level
         assert len(project_messages) == 5
         assert '[info] Debug message for testing.' in project_messages[0]
         assert '[info] Info message for testing.' in project_messages[1]
