@@ -75,3 +75,4 @@ class TestClass:
         assert '[info] Critical message for testing.' in project_messages[4]
 
         logger.clear_messages("","", 2)
+        assert not logger.get_messages().global_level

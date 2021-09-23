@@ -18,6 +18,7 @@ import random
 import time
 import logging
 import gc
+import warnings
 from collections import OrderedDict
 from .MessageManager import AEDTMessageManager
 from .Variables import VariableManager, DataSet, AEDT_units, unit_system
@@ -1184,6 +1185,10 @@ class Design(object):
         >>> hfss.add_info_message("Design info message")
 
         """
+        warnings.warn(
+            "`add_info_message` is deprecated. Use `logger.design_logger.info` instead.",
+            DeprecationWarning,
+        )
         self._messenger.add_info_message(message_text, message_type)
         return True
 
@@ -1217,6 +1222,11 @@ class Design(object):
         >>> hfss.add_warning_message("Design warning message")
 
         """
+        warnings.warn(
+            "`add_warning_message` is deprecated. Use `logger.design_logger.warning` instead.",
+            DeprecationWarning,
+        )
+
         self._messenger.add_warning_message(message_text, message_type)
         return True
 
@@ -1250,6 +1260,11 @@ class Design(object):
         >>> hfss.add_error_message("Design error message")
 
         """
+        warnings.warn(
+            "`add_error_message` is deprecated. Use `logger.design_logger.error` instead.",
+            DeprecationWarning,
+        )
+
         self._messenger.add_error_message(message_text, message_type)
         return True
 
