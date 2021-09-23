@@ -368,10 +368,10 @@ class Desktop:
     def _init_desktop(self):
         self._main.AEDTVersion = self._main.oDesktop.GetVersion()[0:6]
         self._main.oDesktop.RestoreWindow()
-        logfile = os.path.join(self._main.oDesktop.GetProjectDirectory(),
-                                        "pyaedt{}.log".format(datetime.datetime.now().strftime("%Y%m%d_%H%M%S")))
+        # logfile = os.path.join(self._main.oDesktop.GetProjectDirectory(),
+        #                                 "pyaedt{}.log".format(datetime.datetime.now().strftime("%Y%m%d_%H%M%S")))
         self._main.oMessenger = AEDTMessageManager()
-        self._logger = aedt_logger.AedtLogger(self._main.oMessenger, filename = logfile, level = logging.DEBUG)
+        self._logger = aedt_logger.AedtLogger(self._main.oMessenger, filename = self.logfile, level = logging.DEBUG)
         self._main.sDesktopinstallDirectory = self._main.oDesktop.GetExeDir()
         self._main.pyaedt_initialized = True
 
@@ -504,22 +504,14 @@ class Desktop:
 
     def _init_logger(self):
         # Set up the log file in the AEDT project directory
-        self.module_logger = logging.getLogger(__name__)
-        if not self.module_logger.handlers:
-            if "oDesktop" in dir(self._main):
-                project_dir = self._main.oDesktop.GetProjectDirectory()
-            else:
-                project_dir = tempfile.gettempdir()
-            self.logfile = os.path.join(
-                project_dir, "pyaedt{}.log".format(datetime.datetime.now().strftime("%Y%m%d_%H%M%S"))
-            )
-            logging.basicConfig(
-                filename=self.logfile,
-                format="%(asctime)s:%(name)s:%(levelname)-8s:%(message)s",
-                level=logging.DEBUG,
-                datefmt="%Y/%m/%d %H.%M.%S",
-                filemode="w",
-            )
+        if "oDesktop" in dir(self._main):
+            project_dir = self._main.oDesktop.GetProjectDirectory()
+        else:
+            project_dir = tempfile.gettempdir()
+        self.logfile = os.path.join(
+            project_dir, "pyaedt{}.log".format(datetime.datetime.now().strftime("%Y%m%d_%H%M%S"))
+        )
+
         return True
 
     @property

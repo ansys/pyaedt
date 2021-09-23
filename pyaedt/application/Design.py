@@ -568,9 +568,7 @@ class Design(object):
         self._aedt_version = main_module.AEDTVersion
         self._desktop_install_dir = main_module.sDesktopinstallDirectory
         self._messenger = AEDTMessageManager(self)
-        #self.logger = logging.getLogger('global')
         self.logger = aedt_logger.AedtLogger(self._messenger, filename = None, level = logging.DEBUG)
-        #self.logger = logging.getLogger(__name__)
 
         assert design_type in design_solutions, "Invalid design type is specified: {}.".format(design_type)
         self._design_type = design_type
