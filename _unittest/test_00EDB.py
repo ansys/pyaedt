@@ -37,6 +37,11 @@ class TestClass:
         self.local_scratch.remove()
         gc.collect()
 
+    def test_00_export_ipc2581(self):
+        ipc_path = os.path.join(self.local_scratch.path, "test.xml")
+        self.edbapp.export_to_ipc2581(ipc_path)
+        assert os.path.exists(ipc_path)
+
     def test_01_find_by_name(self):
         comp = self.edbapp.core_components.get_component_by_name("J1")
         assert comp is not None
@@ -399,7 +404,7 @@ class TestClass:
         pins = self.edbapp.core_components.get_pin_from_component("R13")
         assert self.edbapp.core_components.create_component_from_pins(pins, "newcomp")
 
-    def test_55_create_cutout(self):
+    def test_55b_create_cutout(self):
         output = os.path.join(self.local_scratch.path, "cutout.aedb")
         assert self.edbapp.create_cutout(["A0_N", "A0_P"], ["GND"], output_aedb_path=output)
         assert os.path.exists(os.path.join(output, "edb.def"))

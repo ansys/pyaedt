@@ -404,7 +404,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-        list
+        SetupTypes
             List of all simulation setup types categorized by application.
         """
         return SetupTypes()
@@ -415,7 +415,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-        list
+        SolutionType
             List of all solution type categorized by application.
         """
         return SolutionType()
