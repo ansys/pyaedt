@@ -73,7 +73,6 @@ class TestClass:
         plot1.IsoVal = "Tone"
         assert plot1.change_plot_scale(min_value, "30000")
 
-
     @pytest.mark.skipif(config["build_machine"] == True or is_ironpython, reason="Not running in non-graphical mode")
     def test_01_Animate_plt(self):
         cutlist = ["Global:XY"]
