@@ -382,3 +382,36 @@ class FieldAnalysis3DLayout(Analysis):
         setup = Setup3DLayout(self, setuptype, setupname, isnewsetup=False)
         self.analysis_setup = setupname
         return setup
+
+    @aedt_exception_handler
+    def delete_setup(self, setupname):
+        """Delete a setup.
+
+        Parameters
+        ----------
+        setupname : str
+            Name of the setup.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        Create a setup and then delete it.
+
+        >>> import pyaedt
+        >>> hfss3dlayout = pyaedt.Hfss3dLayout()
+        >>> setup1 = hfss3dlayout.create_setup(setupname='Setup1')
+        >>> hfss3dlayout.delete_setup(setupname='Setup1')
+        ...
+        pyaedt Info: Sweep was deleted correctly.
+        """
+        if setupname in self.existing_analysis_setups:
+            self.osolution.Delete(setupname)
+            for s in self.setups:
+                if s.name == setupname:
+                    self.setups.remove(s)
+            return True
+        return False
