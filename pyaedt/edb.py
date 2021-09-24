@@ -949,7 +949,7 @@ class Edb(object):
             self.active_cell.Delete()
         else:
             _dbCells.append(self.active_cell)
-        # check why is not working
+
         if output_aedb_path:
             db2 = self.edb.Database.Create(output_aedb_path)
             # Function input is the name of a .aedb folder inside which the edb.def will be created.
