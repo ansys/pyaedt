@@ -551,24 +551,31 @@ class Edb(object):
         return self.open_edb()
 
     @aedt_exception_handler
-    def export_to_ipc2581(self, ipc_path=None):
+    def export_to_ipc2581(self, ipc_path=None, units="millimeter"):
         """Create an XML IPC2581 File from active Edb.
 
         Parameters
         ----------
         ipc_path : str, optional
             Path to the xml file
+        units : str, optional
+            Units of IPC2581 file. Default ``millimeter``. It can be ``millimeter``,
+            ``inch``, ``micron``.
         Returns
         -------
         bool
             ``True`` if succeeded.
 
         """
+        if units.lower() not in ["millimeter", "inch", "micron"]:
+            self._messenger.add_warning_message("Wrong unit entered. Setting default to millimiter")
+            units = "millimeter"
+
         if not ipc_path:
             ipc_path = self.edbpath[:-4]+"xml"
         self._messenger.add_info_message("Export IPC 2581 is starting. This operation can take a while...")
         start = time.time()
-        result = self.layout_methods.ExportIPC2581FromBuilder(self.builder, ipc_path)
+        result = self.layout_methods.ExportIPC2581FromBuilder(self.builder, ipc_path, units.lower())
         end = time.time() - start
         if result:
             self._messenger.add_info_message("Export IPC 2581 completed in {} sec.".format(end))
@@ -942,7 +949,7 @@ class Edb(object):
             self.active_cell.Delete()
         else:
             _dbCells.append(self.active_cell)
-        # check why is not working
+
         if output_aedb_path:
             db2 = self.edb.Database.Create(output_aedb_path)
             # Function input is the name of a .aedb folder inside which the edb.def will be created.

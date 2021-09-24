@@ -656,6 +656,33 @@ class FieldPlot:
             False,
         ]
 
+    @aedt_exception_handler
+    def change_plot_scale(self, minimum_value, maximum_value, is_log=False, is_db=False):
+        """Change Field Plot Scale.
+
+        Parameters
+        ----------
+        minimum_value : str, float
+            Minimum value of the scale.
+        maximum_value : str, float
+            Maximum value of the scale.
+        is_log : bool, optional
+            Set to ``True`` if Log Scale is setup.
+        is_db : bool, optional
+            Set to ``True`` if dB Scale is setup.
+
+        Returns
+        -------
+        bool
+            ``True`` if successful.
+        """
+        args = ["NAME:FieldsPlotSettings", "Real Time mode:=", True]
+        args += [["NAME:ColorMaPSettings", "ColorMapType:=", "Spectrum", "SpectrumType:=", "Rainbow", "UniformColor:=",
+                  [127, 255, 255], "RampColor:=", [255, 127, 127]]]
+        args += [["NAME:Scale3DSettings", "minvalue:=", minimum_value, "maxvalue:=", maximum_value, "log:=", not is_log,
+                 "dB:=", is_db, "ScaleType:=", 1]]
+        self.oField.SetPlotFolderSettings(self.name, args)
+        return True
 
 class PostProcessorCommon(object):
     """Manages the main AEDT postprocessing functions.
@@ -1226,6 +1253,88 @@ class PostProcessor(PostProcessorCommon, object):
         )
 
     @aedt_exception_handler
+    def get_scalar_field_value(
+        self,
+        quantity_name,
+        scalar_function = "Maximum",
+        solution=None,
+        variation_dict=None,
+        isvector=False,
+        intrinsics=None,
+        phase=None,
+    ):
+        """Use the field calculator to Compute Scalar of a Field.
+
+        Parameters
+        ----------
+        quantity_name : str
+            Name of the quantity to export. For example, ``"Temp"``.
+        solution : str, optional
+            Name of the solution in the format ``"solution : sweep"``. The default is ``None``.
+        variation_dict : dict, optional
+            Dictionary of all variation variables with their values.
+            The default is ``None``.
+        isvector : bool, optional
+            Whether the quantity is a vector. The  default is ``False``.
+        intrinsics : str, optional
+            This parameter is mandatory for a frequency field
+            calculation. The default is ``None``.
+        phase : str, optional
+            Field phase. The default is ``None``.
+
+        Returns
+        -------
+        float
+            ``True`` when successful, ``False`` when failed.
+        """
+        self._messenger.add_info_message("Exporting {} field. Be patient".format(quantity_name))
+        if not solution:
+            solution = self._parent.existing_analysis_sweeps[0]
+        self.ofieldsreporter.CalcStack("clear")
+        if isvector:
+            try:
+                self.ofieldsreporter.EnterQty(quantity_name)
+            except:
+                self.ofieldsreporter.CopyNamedExprToStack(quantity_name)
+            self.ofieldsreporter.CalcOp("Smooth")
+            self.ofieldsreporter.EnterScalar(0)
+            self.ofieldsreporter.CalcOp("AtPhase")
+            self.ofieldsreporter.CalcOp("Mag")
+        else:
+            try:
+                self.ofieldsreporter.EnterQty(quantity_name)
+            except:
+                self.ofieldsreporter.CopyNamedExprToStack(quantity_name)
+        obj_list = "AllObjects"
+        self.ofieldsreporter.EnterVol(obj_list)
+        self.ofieldsreporter.CalcOp(scalar_function)
+        if not variation_dict:
+            variation_dict = self._parent.available_variations.nominal_w_values
+        if intrinsics:
+            if "Transient" in solution:
+                variation_dict.append("Time:=")
+                variation_dict.append(intrinsics)
+            else:
+                variation_dict.append("Freq:=")
+                variation_dict.append(intrinsics)
+                variation_dict.append("Phase:=")
+                if phase:
+                    variation_dict.append(phase)
+                else:
+                    variation_dict.append("0deg")
+        file_name = os.path.join(self._parent.project_path, generate_unique_name("temp_fld")+".fld")
+        self.ofieldsreporter.CalculatorWrite(file_name, ["Solution:=", solution], variation_dict)
+        value = None
+        if os.path.exists(file_name):
+            with open(file_name, 'r') as f:
+                lines = f.readlines()
+                lines = [line.strip() for line in lines]
+                value = lines[-1]
+            os.remove(file_name)
+        self.ofieldsreporter.CalcStack("clear")
+        return value
+
+    @aedt_exception_handler
     def export_field_file_on_grid(
         self,
         quantity_name,
@@ -1504,6 +1613,36 @@ class PostProcessor(PostProcessorCommon, object):
         return os.path.join(filepath, filename + ".aedtplt")
 
     @aedt_exception_handler
+    def change_field_plot_scale(self, plot_name, minimum_value, maximum_value, is_log=False, is_db=False):
+        """Change Field Plot Scale.
+
+        Parameters
+        ----------
+        plot_name : str
+            Name of the Plot Folder to update.
+        minimum_value : str, float
+            Minimum value of the scale.
+        maximum_value : str, float
+            Maximum value of the scale.
+        is_log : bool, optional
+            Set to ``True`` if Log Scale is setup.
+        is_db : bool, optional
+            Set to ``True`` if dB Scale is setup.
+
+        Returns
+        -------
+        bool
+            ``True`` if successful.
+        """
+        args = ["NAME:FieldsPlotSettings", "Real Time mode:=", True]
+        args += [["NAME:ColorMaPSettings", "ColorMapType:=", "Spectrum", "SpectrumType:=", "Rainbow", "UniformColor:=",
+                  [127, 255, 255], "RampColor:=", [255, 127, 127]]]
+        args += [["NAME:Scale3DSettings", "minvalue:=", minimum_value, "maxvalue:=", maximum_value, "log:=", not is_log,
+                 "dB:=", is_db, "ScaleType:=", 1]]
+        self.ofieldsreporter.SetPlotFolderSettings(plot_name, args)
+        return True
+
+    @aedt_exception_handler
     def _create_fieldplot(self, objlist, quantityName, setup_name, intrinsincList, objtype, listtype):
         """Internal function.
 
@@ -1524,9 +1663,11 @@ class PostProcessor(PostProcessorCommon, object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        :class:``pyaedt.modules.PostProcessor.FieldPlot``
+            Field Plot Object.
         """
+        if isinstance(objlist, (str, int)):
+            objlist = [objlist]
         if not setup_name:
             setup_name = self._parent.existing_analysis_sweeps[0]
         self._desktop.CloseAllWindows()
@@ -1593,7 +1734,7 @@ class PostProcessor(PostProcessorCommon, object):
 
         Returns
         -------
-        type
+        :class:``pyaedt.modules.PostProcessor.FieldPlot``
             Plot object.
 
         """
