@@ -775,6 +775,9 @@ class Analysis(Design, object):
         """
         if setupname in self.existing_analysis_setups:
             self.oanalysis.DeleteSetups([setupname])
+            for s in self.setups:
+                if s.name == setupname:
+                    self.setups.remove(s)
             return True
         return False
 

@@ -410,5 +410,8 @@ class FieldAnalysis3DLayout(Analysis):
         """
         if setupname in self.existing_analysis_setups:
             self.osolution.Delete(setupname)
+            for s in self.setups:
+                if s.name == setupname:
+                    self.setups.remove(s)
             return True
         return False
