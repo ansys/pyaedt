@@ -1223,7 +1223,6 @@ class PostProcessor(PostProcessorCommon, object):
         oModule.AddNamedExpression(name, "Fields")
         return name
 
-
     @aedt_exception_handler
     def change_field_property(self, plotname, propertyname, propertyval):
         """Modify a field plot property.
@@ -1613,7 +1612,6 @@ class PostProcessor(PostProcessorCommon, object):
         self.ofieldsreporter.ExportFieldPlot(plotname, False, os.path.join(filepath, filename + ".aedtplt"))
         return os.path.join(filepath, filename + ".aedtplt")
 
-
     @aedt_exception_handler
     def change_field_plot_scale(self, plot_name, minimum_value, maximum_value, is_log=False, is_db=False):
         """Change Field Plot Scale.
@@ -1643,7 +1641,6 @@ class PostProcessor(PostProcessorCommon, object):
                  "dB:=", is_db, "ScaleType:=", 1]]
         self.ofieldsreporter.SetPlotFolderSettings(plot_name, args)
         return True
-
 
     @aedt_exception_handler
     def _create_fieldplot(self, objlist, quantityName, setup_name, intrinsincList, objtype, listtype):
