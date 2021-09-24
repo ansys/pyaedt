@@ -696,8 +696,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                     oldname = sweepname
                     sweepname = generate_unique_name(oldname)
                     self.logger.glb.warning(
-                        "Sweep {} is already present. Sweep has been renamed in {}.".format(oldname, sweepname)
-                    )
+                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname)
                 sweep = setupdata.add_sweep(sweepname=sweepname)
                 sweep.change_range("LinearCount", freqstart, freqstop, num_of_freq_points, unit)
                 sweep.props["GenerateSurfaceCurrent"] = save_fields
@@ -791,8 +790,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                     oldname = sweepname
                     sweepname = generate_unique_name(oldname)
                     self.logger.glb.warning(
-                        "Sweep {} is already present. Sweep has been renamed in {}.".format(oldname, sweepname)
-                    )
+                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname)
                 sweep = setupdata.add_sweep(sweepname=sweepname)
                 sweep.change_range("LinearStep", freqstart, freqstop, step_size, unit)
                 sweep.props["GenerateSurfaceCurrent"] = save_fields
@@ -803,7 +801,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 sweep.props["UseQ3DForDC"] = use_q3d_for_dc
                 sweep.props["MaxSolutions"] = interpolation_max_solutions
                 sweep.update()
-                self.add_info_message("Linear step sweep {} has been correctly created".format(sweepname))
+                self.add_info_message("Linear step sweep %s has been correctly created", sweepname)
                 return sweep
         return False
 
@@ -861,8 +859,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                     oldname = sweepname
                     sweepname = generate_unique_name(oldname)
                     self.logger.glb.warning(
-                        "Sweep {} is already present. Sweep has been renamed in {}.".format(oldname, sweepname)
-                    )
+                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname)
                 sweepdata = setupdata.add_sweep(sweepname, "Discrete")
                 sweepdata.change_range("SinglePoint", freq0, unit=unit)
                 sweepdata.props["GenerateSurfaceCurrent"] = save_fields
@@ -907,7 +904,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             old_name = project_name
             project_name = generate_unique_name(project_name)
             aedb_path = gds_path.replace(old_name + ".gds", project_name + ".aedb")
-            self.logger.glb.warning("aedb_exists. Renaming it to {}".format(project_name))
+            self.logger.glb.warning("aedb_exists. Renaming it to %s", project_name)
 
         oTool = self.odesktop.GetTool("ImportExport")
         oTool.ImportGDSII(gds_path, aedb_path, "", "")

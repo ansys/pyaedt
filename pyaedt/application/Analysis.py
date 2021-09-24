@@ -900,7 +900,7 @@ class Analysis(Design, object):
            ``True`` when successful, ``False`` when failed.
         """
         if name in self.existing_analysis_setups:
-            self.logger.glb.info("Solving design setup {}".format(name))
+            self.logger.glb.info("Solving design setup %s", name)
             self.odesign.Analyze(name)
         else:
             try:

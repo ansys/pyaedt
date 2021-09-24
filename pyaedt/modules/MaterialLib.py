@@ -455,7 +455,7 @@ class Materials(object):
                 try:
                     self._aedmattolibrary(el)
                 except Exception as e:
-                    self.logger.glb.info("aedmattolibrary failed for material {}".format(el))
+                    self.logger.glb.info("aedmattolibrary failed for material %s", el)
 
     @aedt_exception_handler
     def _aedmattolibrary(self, matname):
@@ -579,7 +579,7 @@ class Materials(object):
         for el, val in data["materials"].items():
             if el.lower() in list(self.material_keys.keys()):
                 newname = generate_unique_name(el)
-                self.logger.glb.warning("Material {} already exists. Renaming to {}".format(el, newname))
+                self.logger.glb.warning("Material %s already exists. Renaming to %s", el, newname)
             else:
                 newname = el
             newmat = Material(self, newname, val)

@@ -777,8 +777,7 @@ class Icepak(FieldAnalysisIcepak):
                     )
                     if not status:
                         self.logger.glb.warning(
-                            "Warning. Block {} skipped with {}W power.".format(component_data["Ref Des"][i], power)
-                        )
+                            "Warning. Block %s skipped with %sW power.", component_data["Ref Des"][i], power)
                     else:
                         total_power += float(power)
                         # print("Block {} created with {}W power".format(component_data["Ref Des"][i], power))
@@ -788,15 +787,14 @@ class Icepak(FieldAnalysisIcepak):
                     )
                     if not status:
                         self.logger.glb.warning(
-                            "Warning. Block {} skipped with {}W power.".format(component_data["Ref Des"][i], power)
-                        )
+                            "Warning. Block %s skipped with %sW power.", component_data["Ref Des"][i], power)
                     else:
                         total_power += float(power)
                         # print("Block {} created with {}W power".format(component_data["Ref Des"][i], power))
             except:
                 pass
             i += 1
-        self.logger.glb.info("Blocks inserted with total power {}W.".format(total_power))
+        self.logger.glb.info("Blocks inserted with total power %sW.", total_power)
         return total_power
 
     @aedt_exception_handler
@@ -1243,7 +1241,7 @@ class Icepak(FieldAnalysisIcepak):
         bound = BoundaryObject(self, name, props, "EMLoss")
         if bound.create():
             self.boundaries.append(bound)
-            self.logger.glb.info("EM losses mapped from design {}.".format(designname))
+            self.logger.glb.info("EM losses mapped from design %s.", designname)
             return bound
         return False
 

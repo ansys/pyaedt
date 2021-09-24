@@ -1483,7 +1483,7 @@ class Primitives(object):
                 if contained_string.lower() in el.lower():
                     self.delete(el)
                     num_del += 1
-        self.logger.glb.info("Deleted {} objects".format(num_del))
+        self.logger.glb.info("Deleted %s objects", num_del)
         return True
 
     @aedt_exception_handler
@@ -2798,8 +2798,7 @@ class Primitives(object):
 
             else:
                 self.logger.glb.warning(
-                    "Material {} doesn not exists. Assigning default material".format(matname)
-                )
+                    "Material %s doesn not exists. Assigning default material", matname)
         if self._parent._design_type == "HFSS":
             return defaultmatname, self._parent.materials.material_keys[defaultmatname].is_dielectric()
         else:

@@ -198,7 +198,7 @@ class Mechanical(FieldAnalysis3D, object):
         bound = BoundaryObject(self, name, props, "EMLoss")
         if bound.create():
             self.boundaries.append(bound)
-            self.logger.glb.info("EM losses mapped from design {}.".format(designname))
+            self.logger.glb.info("EM losses mapped from design %s.", designname)
             return bound
         return False
 
@@ -281,7 +281,7 @@ class Mechanical(FieldAnalysis3D, object):
         bound = BoundaryObject(self, name, props, "ThermalCondition")
         if bound.create():
             self.boundaries.append(bound)
-            self.logger.glb.info("Thermal conditions are mapped from design {}.".format(designname))
+            self.logger.glb.info("Thermal conditions are mapped from design %s.", designname)
             return bound
 
         return True

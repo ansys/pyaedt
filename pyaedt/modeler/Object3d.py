@@ -848,7 +848,7 @@ class Object3d(object):
             self._change_property(vMaterial)
             self._material_name = mat
         else:
-            self.logger.glb.warning("Material {} does not exist.".format(mat))
+            self.logger.glb.warning("Material %s does not exist.", mat)
 
     @surface_material_name.setter
     def surface_material_name(self, mat):
@@ -860,7 +860,7 @@ class Object3d(object):
             self._change_property(vMaterial)
             self._surface_material = mat
         except:
-            self.logger.glb.warning("Material {} does not exist".format(mat))
+            self.logger.glb.warning("Material %s does not exist", mat)
 
     @property
     def id(self):

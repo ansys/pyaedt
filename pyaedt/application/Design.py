@@ -1320,18 +1320,18 @@ class Design(object):
         if isinstance(key_value, str):
             try:
                 self.odesktop.SetRegistryString(key_full_name, key_value)
-                self.logger.glb.info("Key {} correctly changed.".format(key_full_name))
+                self.logger.glb.info("Key %s correctly changed.", key_full_name)
                 return True
             except:
-                self.logger.glb.warning("Error setting up Key {}.".format(key_full_name))
+                self.logger.glb.warning("Error setting up Key %s.", key_full_name)
                 return False
         elif isinstance(key_value, int):
             try:
                 self.odesktop.SetRegistryInt(key_full_name, key_value)
-                self.logger.glb.info("Key {} correctly changed.".format(key_full_name))
+                self.logger.glb.info("Key %s correctly changed.", key_full_name)
                 return True
             except:
-                self.logger.glb.warning("Error setting up Key {}.".format(key_full_name))
+                self.logger.glb.warning("Error setting up Key %s.", key_full_name)
                 return False
         else:
             self.logger.glb.warning("Key Value must be an int or str.")
@@ -1354,11 +1354,11 @@ class Design(object):
         try:
             self.set_registry_key("Desktop/ActiveDSOConfigurations/{}".format(product_name), config_name)
             self.logger.glb.info(
-                "Configuration Changed correctly to {} for {}.".format(config_name, product_name))
+                "Configuration Changed correctly to %s for %s.", config_name, product_name)
             return True
         except:
             self.logger.glb.warning(
-                "Error Setting Up Configuration {} for {}.".format(config_name, product_name))
+                "Error Setting Up Configuration %s for %s.", config_name, product_name)
             return False
 
     @aedt_exception_handler
@@ -2029,7 +2029,7 @@ class Design(object):
                 dsname = "$" + dsname
             ds = DataSet(self, dsname, xlist, ylist, zlist, vlist, xunit, yunit, zunit, vunit)
         else:
-            self.logger.glb.warning("Dataset {} already exists".format(dsname))
+            self.logger.glb.warning("Dataset %s already exists", dsname)
             return False
         ds.create()
         if is_project_dataset:
@@ -2057,14 +2057,14 @@ class Design(object):
 
         """
         if is_project_dataset and "$" + name in self.project_datasets:
-            self.logger.glb.info("Dataset {} exists.".format("$" + name))
+            self.logger.glb.info("Dataset %s$ exists.", name)
             return True
             # self.oproject.ExportDataSet("$"+name, os.path.join(self.temp_directory, "ds.tab"))
         elif not is_project_dataset and name in self.design_datasets:
-            self.logger.glb.info("Dataset {} exists.".format(name))
+            self.logger.glb.info("Dataset %s exists.", name)
             return True
             # self.odesign.ExportDataSet(name, os.path.join(self.temp_directory, "ds.tab"))
-        self.logger.glb.info("Dataset {} doesn't exist.".format(name))
+        self.logger.glb.info("Dataset %s doesn't exist.", name)
         return False
 
     @aedt_exception_handler
@@ -2172,7 +2172,7 @@ class Design(object):
             name = self.project_name
         if not directory:
             directory = self.results_directory
-        self.logger.glb.info("Cleanup folder {} from project {}".format(directory, name))
+        self.logger.glb.info("Cleanup folder %s from project %s", directory, name)
         if os.path.exists(directory):
             shutil.rmtree(directory, True)
             if not os.path.exists(directory):
@@ -2254,7 +2254,7 @@ class Design(object):
         else:
             name = self.project_name
             msg_txt = "active " + self.project_name
-        self.logger.glb.info("Closing the {} AEDT Project".format(msg_txt))
+        self.logger.glb.info("Closing the %s AEDT Project", msg_txt)
         oproj = self.odesktop.SetActiveProject(name)
         proj_path = self.odesktop.GetProjectDirectory()
         if saveproject:

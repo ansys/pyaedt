@@ -550,8 +550,7 @@ class Hfss(FieldAnalysis3D, object):
                     oldname = sweepname
                     sweepname = generate_unique_name(oldname)
                     self.logger.glb.warning(
-                        "Sweep {} is already present. Sweep has been renamed in {}.".format(oldname, sweepname)
-                    )
+                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname)
                 sweepdata = setupdata.add_sweep(sweepname, sweep_type)
                 sweepdata.props["RangeType"] = "LinearCount"
                 sweepdata.props["RangeStart"] = str(freqstart) + unit
@@ -641,8 +640,7 @@ class Hfss(FieldAnalysis3D, object):
                     oldname = sweepname
                     sweepname = generate_unique_name(oldname)
                     self.logger.glb.warning(
-                        "Sweep {} is already present. Sweep has been renamed in {}.".format(oldname, sweepname)
-                    )
+                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname)
                 sweepdata = setupdata.add_sweep(sweepname, sweep_type)
                 sweepdata.props["RangeType"] = "LinearStep"
                 sweepdata.props["RangeStart"] = str(freqstart) + unit
@@ -745,8 +743,7 @@ class Hfss(FieldAnalysis3D, object):
                     oldname = sweepname
                     sweepname = generate_unique_name(oldname)
                     self.logger.glb.warning(
-                        "Sweep {} is already present. Sweep has been renamed in {}.".format(oldname, sweepname)
-                    )
+                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname)
                 sweepdata = setupdata.add_sweep(sweepname, "Discrete")
                 sweepdata.props["RangeType"] = "SinglePoints"
                 sweepdata.props["RangeStart"] = str(freq0) + unit
@@ -1298,7 +1295,7 @@ class Hfss(FieldAnalysis3D, object):
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
             endobject
         ):
-            self._messenger.add_error_message("One or both objects doesn't exists. Check and retry")
+            self.logger.glb.error("One or both objects doesn't exists. Check and retry")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
             out, parallel = self.modeler.primitives.find_closest_edges(startobj, endobject, axisdir)
@@ -1365,7 +1362,7 @@ class Hfss(FieldAnalysis3D, object):
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
             endobject
         ):
-            self._messenger.add_error_message("One or both objects do not exist. Check and retry.")
+            self.logger.glb.error("One or both objects do not exist. Check and retry.")
             return False
 
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
@@ -1431,7 +1428,7 @@ class Hfss(FieldAnalysis3D, object):
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
             endobject
         ):
-            self._messenger.add_error_message("One or both objects doesn't exists. Check and retry")
+            self.logger.glb.error("One or both objects doesn't exists. Check and retry")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
             sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(
@@ -1488,7 +1485,7 @@ class Hfss(FieldAnalysis3D, object):
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
             endobject
         ):
-            self._messenger.add_error_message("One or both objects do not exist. Check and retry.")
+            self.logger.glb.error("One or both objects do not exist. Check and retry.")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
             sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(
@@ -1596,7 +1593,7 @@ class Hfss(FieldAnalysis3D, object):
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
             endobject
         ):
-            self._messenger.add_error_message("One or both objects do not exist. Check and retry.")
+            self.logger.glb.error("One or both objects do not exist. Check and retry.")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
             sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(
@@ -1709,7 +1706,7 @@ class Hfss(FieldAnalysis3D, object):
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
             endobject
         ):
-            self._messenger.add_error_message("One or both objects do not exist. Check and retry.")
+            self.logger.glb.error("One or both objects do not exist. Check and retry.")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
             sheet_name, point0, point1 = self.modeler._create_microstrip_sheet_from_object_closest_edge(
@@ -1780,7 +1777,7 @@ class Hfss(FieldAnalysis3D, object):
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
             endobject
         ):
-            self._messenger.add_error_message("One or both objects do not exist. Check and retry.")
+            self.logger.glb.error("One or both objects do not exist. Check and retry.")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
             sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(
@@ -1838,7 +1835,7 @@ class Hfss(FieldAnalysis3D, object):
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
             endobject
         ):
-            self._messenger.add_error_message("One or both objects do not exist. Check and retry.")
+            self.logger.glb.error("One or both objects do not exist. Check and retry.")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
             sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(
@@ -1975,7 +1972,7 @@ class Hfss(FieldAnalysis3D, object):
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
             endobject
         ):
-            self._messenger.add_error_message("One or both objects do not exist. Check and retry.")
+            self.logger.glb.error("One or both objects do not exist. Check and retry.")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"] and (
             Rvalue or Lvalue or Cvalue
@@ -2070,7 +2067,7 @@ class Hfss(FieldAnalysis3D, object):
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
             endobject
         ):
-            self._messenger.add_error_message("One or both objects do not exist. Check and retry.")
+            self.logger.glb.error("One or both objects do not exist. Check and retry.")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
             sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(
@@ -3081,7 +3078,7 @@ class Hfss(FieldAnalysis3D, object):
         if not sweep_name:
             sweep_name = self.existing_analysis_sweeps[1]
         elif sweep_name not in self.existing_analysis_sweeps:
-            self.logger.glb.error("Setup {} doesn't exist in the Setup list.".format(sweep_name))
+            self.logger.glb.error("Setup %s doesn't exist in the Setup list.", sweep_name)
             return False
         if not port_names:
             port_names = self.modeler.get_excitations_name()
