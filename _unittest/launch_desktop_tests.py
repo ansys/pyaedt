@@ -27,33 +27,32 @@ def run_desktop_tests():
     assert aedtapp.design_type == "Twin Builder"
     assert aedtapp.solution_type == "TR"
     aedtapp.close_desktop()
-    pass
 
     aedtapp = Q2d(specified_version="2021.1")
     assert aedtapp.design_type == "2D Extractor"
     assert aedtapp.solution_type == "Open"
     aedtapp.close_desktop()
-    pass
 
     aedtapp = Q3d(specified_version="2021.1")
     assert aedtapp.design_type == "Q3D Extractor"
     assert aedtapp.solution_type == "Matrix"
     aedtapp.close_desktop()
-    pass
 
     aedtapp = Maxwell2d(specified_version="2021.1")
-    aedtapp.design_type == "Maxwell 2D"
-    aedtapp.solution_type == "Magnetostatic"
+    assert aedtapp.design_type == "Maxwell 2D"
+    assert aedtapp.solution_type == "Magnetostatic"
     aedtapp.close_desktop()
 
     aedtapp = Hfss(specified_version="2021.1")
     assert aedtapp.design_type == "HFSS"
     assert aedtapp.solution_type == "DrivenModal"
     aedtapp.close_desktop()
-    pass
 
     aedtapp = Maxwell3d(specified_version="2021.1")
     assert aedtapp.design_type == "Maxwell 3D"
     assert aedtapp.solution_type == "Magnetostatic"
     aedtapp.close_desktop()
-    pass
+
+
+if __name__ == '__main__':
+    run_desktop_tests()

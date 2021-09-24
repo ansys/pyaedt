@@ -8,7 +8,7 @@ import re
 from collections import OrderedDict
 
 from .application.AnalysisIcepak import FieldAnalysisIcepak
-from .generic.general_methods import generate_unique_name, aedt_exception_handler, retry_ntimes
+from .generic.general_methods import generate_unique_name, aedt_exception_handler
 from .generic.DataHandlers import arg2dict
 from .modules.Boundary import BoundaryObject, NativeComponentObject
 
@@ -37,7 +37,7 @@ class Icepak(FieldAnalysisIcepak):
         Name of the setup to use as the nominal. The default is
         ``None``, in which case the active setup is used or
         nothing is used.
-    specified_version: str, optional
+    specified_version : str, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is  used.
         This parameter is ignored when Script is launched within AEDT.
@@ -807,7 +807,7 @@ class Icepak(FieldAnalysisIcepak):
 
         Parameters
         ----------
-        component_prefix: str, optional
+        component_prefix : str, optional
             Component prefix to search for. The default is ``"COMP_"``.
 
         Returns
@@ -899,15 +899,15 @@ class Icepak(FieldAnalysisIcepak):
         ----------
         hs_height : int, optional
             Height of the heat sink. The default is ``100``.
-        hs_width: int, optional
+        hs_width : int, optional
             Width of the heat sink. The default is ``100``.
         hs_basethick : int, optional
             Thickness of the heat sink base. The default is ``10``.
-        pitch: optional
+        pitch : optional
             Pitch of the heat sink. The default is ``10``.
         thick : optional
             Thickness of the heat sink. The default is ``10``.
-        length: optional
+        length : optional
             The default is ``40``.
         height : optional
             The default is ``40``.
@@ -919,11 +919,11 @@ class Icepak(FieldAnalysisIcepak):
             The default is ``5``.
         symmetric : bool, optional
             Whether the heat sink is symmetric.  The default is ``True``.
-        symmetric_separation: optional
+        symmetric_separation : optional
             The default is ``20``.
         numcolumn_perside : int, optional
             Number of columns per side. The default is ``2``.
-        vertical_separation: optional
+        vertical_separation : optional
             The default is ``10``.
         matname : str, optional
             Name of the material. The default is ``Al-Extruded``.
@@ -1366,17 +1366,9 @@ class Icepak(FieldAnalysisIcepak):
         for el in parameter_dict_with_values:
             string += el + "='" + parameter_dict_with_values[el] + "' "
         filename = os.path.join(savedir, filename + ".csv")
-        arg = [
-            "SolutionName:=",
-            sweep_name,
-            "DesignVariationKey:=",
-            string,
-            "ExportFileName:=",
-            filename,
-            "IntrinsicValue:=",
-            "",
-        ]
-        retry_ntimes(10, self.osolution.ExportFieldsSummary, arg)
+        self.osolution.ExportFieldsSummary(
+            ["SolutionName:=", sweep_name, "DesignVariationKey:=", string, "ExportFileName:=", filename,
+             "IntrinsicValue:=", "", ])
         return filename
 
     @aedt_exception_handler
@@ -1889,13 +1881,13 @@ class Icepak(FieldAnalysisIcepak):
             The default is ``"1"``.
         noOgrids : bool, optional
             The default is ``False``.
-        MLM_en: bool, optional
+        MLM_en : bool, optional
             The default is ``True``.
-        MLM_Type: str, optional
+        MLM_Type : str, optional
             The default is ``"3D"``.
         stairStep_en : bool, optional
             The default is ``False``.
-        edge_min_elements: str, optional
+        edge_min_elements : str, optional
             The default is ``"1"``.
         object : str, optional
             The default is ``"Region"``.

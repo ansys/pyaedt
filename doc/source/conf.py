@@ -74,16 +74,25 @@ numpydoc_show_class_members = False
 numpydoc_xref_param_type = True
 numpydoc_validate = True
 numpydoc_validation_checks = {
+
+    # general
     "GL06",  # Found unknown section
     "GL07",  # Sections are in the wrong order.
     "GL08",  # The object does not have a docstring
     "GL09",  # Deprecation warning should precede extended summary
     "GL10",  # reST directives {directives} must be followed by two colons
+
+    # Summary
     "SS01",  # No summary found
     "SS02",  # Summary does not start with a capital letter
     "SS03",  # Summary does not end with a period
     "SS04",  # Summary contains heading whitespaces
     "SS05",  # Summary must start with infinitive verb, not third person
+
+    # Parameters
+    "PR10",  # Parameter "{param_name}" requires a space before the colon '
+             # separating the parameter name and type",
+
 }
 
 numpydoc_validation_exclude = {  # set of regex

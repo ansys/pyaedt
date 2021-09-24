@@ -30,7 +30,7 @@ class NexximComponents(CircuitComponents):
         """Get the object ID if the part name is an integer or the object name if it is a string.
         Parameters
         ----------
-        partname: int or str
+        partname : int or str
             Part ID or object name.
 
         Returns
@@ -96,11 +96,11 @@ class NexximComponents(CircuitComponents):
         ----------
         design_name : str
             Name of the design.
-        solution_name: str
+        solution_name : str
             Name  of the solution.
         pin_names : list
             List of the pin names.
-        model_type: str, optional
+        model_type : str, optional
             Type of the model. The default is ``"hfss"``.
         posx : float, optional
             Position on the X axis. The default is ``0``.
@@ -351,7 +351,7 @@ class NexximComponents(CircuitComponents):
             Resistance in ohms. The default is ``50``.
         xpos : float, optional
             Position on the X axis. The default is ``0``.
-        ypos: float, optional
+        ypos : float, optional
             Position on the Y axis. The default is ``0``.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
@@ -386,7 +386,7 @@ class NexximComponents(CircuitComponents):
             Inductance value. The default is ``50``.
         xpos : float, optional
             Position on the X axis. The default is ``0``.
-        ypos: float, optional
+        ypos : float, optional
             Position on the X axis. The default is ``0``.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
@@ -428,7 +428,7 @@ class NexximComponents(CircuitComponents):
             Capacitor value. The default is ``50``.
         xpos : float, optional
             Position on the X axis. The default is ``0``.
-        ypos: float, optional
+        ypos : float, optional
             Position on the Y axis. The default is ``0``.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
@@ -469,7 +469,7 @@ class NexximComponents(CircuitComponents):
             Voltage value. The default is ``50``.
         xpos : float, optional
             Position on the X axis. The default is ``0``.
-        ypos: float, optional
+        ypos : float, optional
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
@@ -511,7 +511,7 @@ class NexximComponents(CircuitComponents):
             List of values for the current pulse. The default is ``[]``.
         xpos : float, optional
             Position on the X axis. The default is ``0``.
-        ypos: float, optional
+        ypos : float, optional
             Position on the Y axis. The default is ``0``.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
@@ -568,7 +568,7 @@ class NexximComponents(CircuitComponents):
             List of values for the voltage pulse. The default is ``[]``.
         xpos : float, optional
             Position on the X axis. The default is ``0``.
-        ypos: float, optional
+        ypos : float, optional
             Position on the Y axis. The default is ``0``.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
@@ -623,7 +623,7 @@ class NexximComponents(CircuitComponents):
             Current value. The default is ``1``.
         xpos : float, optional
             Position on the X axis. The default is ``0``.
-        ypos: float, optional
+        ypos : float, optional
             Position on the Y axis. The default is ``0``.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
@@ -669,7 +669,7 @@ class NexximComponents(CircuitComponents):
             Value for the coupling inductor. The default is ``1``.
         xpos : float, optional
             Position on the X axis. The default is ``0``.
-        ypos: float, optional
+        ypos : float, optional
             Position on the Y axis. The default is ``0``.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
@@ -714,7 +714,7 @@ class NexximComponents(CircuitComponents):
             Name of the model. The default is ``"required"``.
         xpos : float, optional
             Position on the X axis. The default is ``0``.
-        ypos: float, optional
+        ypos : float, optional
             Position on the Y axis. The default is ``0``.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
@@ -755,7 +755,7 @@ class NexximComponents(CircuitComponents):
             Value for the NPN transistor. The default is ``None``.
         xpos : float, optional
             Position on the X axis. The default is ``0``.
-        ypos: float, optional
+        ypos : float, optional
             Position on the Y axis. The default is ``0``.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
@@ -796,7 +796,7 @@ class NexximComponents(CircuitComponents):
             Value for the PNP transistor. The default is ``None``.
         xpos : float, optional
             Position on the X axis. The default is ``0``.
-        ypos: float, optional
+        ypos : float, optional
             Position on the Y axis. The default is ``0``.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
@@ -1064,15 +1064,15 @@ class NexximComponents(CircuitComponents):
         ----------
         comp_name : str
             Name of the subcircuit HFSS link.
-        pin_names: list
+        pin_names : list
             List of the pin names.
         source_project_path : str
             Path to the source project.
-        source_project_name: str
+        source_project_name : str
             Name  of the source project.
         source_design_name : str
             Name of the design.
-        solution_name: str, optional
+        solution_name : str, optional
             Name of the solution and sweep. The
             default is ``"Setup1 : Sweep"``.
 
@@ -1300,7 +1300,7 @@ class NexximComponents(CircuitComponents):
         ----------
         component : str
             Address of the component instance. For example, ``"Inst@Galileo_cutout3;87;1"``.
-        solution_name: str, optional
+        solution_name : str, optional
             Name of the solution and sweep. The default is ``"Setup1 : Sweep"``.
 
         Returns

@@ -36,7 +36,7 @@ class Primitives3DLayout(object):
 
         Parameters
         ----------
-        partname: int or str
+        partname : int or str
            Part ID or part name.
 
         Returns
@@ -99,26 +99,36 @@ class Primitives3DLayout(object):
 
             if is_ironpython:
                 name = clr.Reference[System.String]()
-                response = el.GetProductProperty(0, 1, name)
+                try:
+                    response = el.GetProductProperty(0, 1, name)
+                except:
+                    response, name = False, ""
+
             else:
                 val = String("")
-                response, name = el.GetProductProperty(0, 1, val)
-            elval = el.GetType()
-            elid = el.GetId()
-            if not name:
-                if "Rectangle" in elval.ToString():
-                    name = "rect_" + str(elid)
-                elif "Circle" in elval.ToString():
-                    name = "circle_" + str(elid)
-                elif "Polygon" in elval.ToString():
-                    name = "poly_" + str(elid)
-                elif "Path" in elval.ToString():
-                    name = "line_" + str(elid)
-                elif "Bondwire" in elval.ToString():
-                    name = "bondwire_" + str(elid)
-                else:
-                    continue
-            self._geometries[name] = Geometries3DLayout(self, name, elid)
+                try:
+                    response, name = el.GetProductProperty(0, 1, val)
+                except:
+                    response, name = False, ""
+            if str(name):
+                elval = el.GetType()
+                elid = el.GetId()
+                name = str(name).replace("'", "")
+                el_str = elval.ToString()
+                if not name:
+                    if "Rectangle" in el_str:
+                        name = "rect_" + str(elid)
+                    elif "Circle" in el_str:
+                        name = "circle_" + str(elid)
+                    elif "Polygon" in el_str:
+                        name = "poly_" + str(elid)
+                    elif "Path" in el_str:
+                        name = "line_" + str(elid)
+                    elif "Bondwire" in el_str:
+                        name = "bondwire_" + str(elid)
+                    else:
+                        continue
+                self._geometries[name] = Geometries3DLayout(self, name, elid)
         return self._geometries
 
     @property
@@ -138,12 +148,19 @@ class Primitives3DLayout(object):
         for el in pins_objs:
             if is_ironpython:
                 name = clr.Reference[System.String]()
-                response = el.GetProductProperty(0, 11, name)
+                try:
+                    response = el.GetProductProperty(0, 11, name)
+                except:
+                    name = ""
             else:
                 val = String("")
-                response, name = el.GetProductProperty(0, 11, val)
-            name = str(name).strip("'")
-            self._pins[name] = Pins3DLayout(self, el.GetComponent().GetName(), el.GetName(), name)
+                try:
+                    response, name = el.GetProductProperty(0, 11, val)
+                except:
+                    name = ""
+            if str(name):
+                name = str(name).strip("'")
+                self._pins[name] = Pins3DLayout(self, el.GetComponent().GetName(), el.GetName(), name)
         return self._pins
 
     @property

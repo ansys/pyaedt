@@ -81,7 +81,10 @@ class EdbLayout(object):
         layoutInstance = self._active_layout.GetLayoutInstance()
         layoutObjectInstances = layoutInstance.GetAllLayoutObjInstances()
         for el in layoutObjectInstances.Items:
-            self._prims.append(el.GetLayoutObj())
+            try:
+                self._prims.append(el.GetLayoutObj())
+            except:
+                pass
         for lay in self.layers:
             self._primitives_by_layer[lay] = self.get_polygons_by_layer(lay)
         print("Primitives Updated")
@@ -125,8 +128,11 @@ class EdbLayout(object):
         """
         prims = []
         for el in self.primitives:
-            if "Rectangle" in el.ToString():
-                prims.append(el)
+            try:
+                if "Rectangle" in el.ToString():
+                    prims.append(el)
+            except:
+                pass
         return prims
 
     @property
@@ -141,8 +147,11 @@ class EdbLayout(object):
         """
         prims = []
         for el in self.primitives:
-            if "Circle" in el.ToString():
-                prims.append(el)
+            try:
+                if "Circle" in el.ToString():
+                    prims.append(el)
+            except:
+                pass
         return prims
 
     @property
@@ -156,8 +165,11 @@ class EdbLayout(object):
         """
         prims = []
         for el in self.primitives:
-            if "Path" in el.ToString():
-                prims.append(el)
+            try:
+                if "Path" in el.ToString():
+                    prims.append(el)
+            except:
+                pass
         return prims
 
     @property
@@ -171,8 +183,11 @@ class EdbLayout(object):
         """
         prims = []
         for el in self.primitives:
-            if "Bondwire" in el.ToString():
-                prims.append(el)
+            try:
+                if "Bondwire" in el.ToString():
+                    prims.append(el)
+            except:
+                pass
         return prims
 
     @property
@@ -186,8 +201,11 @@ class EdbLayout(object):
         """
         prims = []
         for el in self.primitives:
-            if "Polygon" in el.ToString():
-                prims.append(el)
+            try:
+                if "Polygon" in el.ToString():
+                    prims.append(el)
+            except:
+                pass
         return prims
 
     @aedt_exception_handler
@@ -196,7 +214,7 @@ class EdbLayout(object):
 
         Parameters
         ----------
-        layer_name: str
+        layer_name : str
             Name of the layer.
         net_list : list, optional
             List of net names.

@@ -63,6 +63,16 @@ class TestClass:
         )
         assert os.path.exists(image_file[0])
 
+    def test_01B_Field_Plot(self):
+        cutlist = ["Global:XY", "Global:XZ", "Global:YZ"]
+        setup_name = self.aedtapp.existing_analysis_sweeps[0]
+        quantity_name = "ComplexMag_E"
+        intrinsic = {"Freq": "5GHz", "Phase": "180deg"}
+        min_value = self.aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name, intrinsics="5GHz")
+        plot1 = self.aedtapp.post.create_fieldplot_cutplane(cutlist, quantity_name, setup_name, intrinsic)
+        plot1.IsoVal = "Tone"
+        assert plot1.change_plot_scale(min_value, "30000")
+
     @pytest.mark.skipif(config["build_machine"] == True or is_ironpython, reason="Not running in non-graphical mode")
     def test_01_Animate_plt(self):
         cutlist = ["Global:XY"]
@@ -106,8 +116,11 @@ class TestClass:
             for el2 in portnames:
                 trace_names.append("S(" + el + "," + el2 + ")")
         cxt = ["Domain:=", "Sweep"]
-        families = ["Freq:=", ["All"]]
-        my_data = self.aedtapp.post.get_report_data(expression=trace_names)
+        families = {"Freq": ["All"]}
+        for el in self.aedtapp.available_variations.nominal_w_values_dict:
+            families[el] = self.aedtapp.available_variations.nominal_w_values_dict[el]
+
+        my_data = self.aedtapp.post.get_report_data(expression=trace_names, families_dict=families)
         assert my_data
         assert my_data.sweeps
         assert my_data.expressions

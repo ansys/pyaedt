@@ -794,7 +794,7 @@ class Object3d(object):
             Name of the surface material when successful, ``None`` and a warning message otherwise.
 
         """
-        if "Surface Material" in self.valid_properties:
+        if "Surface Material" in self.valid_properties and self.model:
             self._surface_material = retry_ntimes(
                 10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, "Surface Material"
             )
@@ -826,7 +826,7 @@ class Object3d(object):
             Name of the material when successful, ``None`` and a warning message otherwise.
 
         """
-        if "Material" in self.valid_properties:
+        if "Material" in self.valid_properties and self.model:
             mat = retry_ntimes(10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, "Material")
             self._material_name = ""
             if mat:
@@ -836,6 +836,8 @@ class Object3d(object):
     @material_name.setter
     def material_name(self, mat):
         if self._parent.materials.checkifmaterialexists(mat):
+            if not self.model:
+                self.model = True
             self._material_name = mat
             vMaterial = ["NAME:Material", "Value:=", chr(34) + mat + chr(34)]
             self._change_property(vMaterial)
@@ -846,6 +848,8 @@ class Object3d(object):
     @surface_material_name.setter
     def surface_material_name(self, mat):
         try:
+            if not self.model:
+                self.model = True
             self._surface_material = mat
             vMaterial = ["NAME:Surface Material", "Value:=", '"' + mat + '"']
             self._change_property(vMaterial)
@@ -1073,7 +1077,7 @@ class Object3d(object):
             ``True`` when ``"solve-inside"`` is activated for the part, ``False`` otherwise.
 
         """
-        if "Solve Inside" in self.valid_properties:
+        if "Solve Inside" in self.valid_properties and self.model:
             solveinside = retry_ntimes(
                 10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, "Solve Inside"
             )
@@ -1082,18 +1086,19 @@ class Object3d(object):
             else:
                 self._solve_inside = True
             return self._solve_inside
+        return None
 
     @solve_inside.setter
     def solve_inside(self, S):
+        if not self.model:
+            self.model = True
         vSolveInside = []
         # fS = self._to_boolean(S)
         fs = S
         vSolveInside.append("NAME:Solve Inside")
         vSolveInside.append("Value:=")
         vSolveInside.append(fs)
-
         self._change_property(vSolveInside)
-
         self._solve_inside = fs
 
     @property
@@ -1266,9 +1271,9 @@ class Object3d(object):
         draft_type : str
             Type of the draft. Options are ``"Extended"``, ``"Round"``,
             and ``"Natural"``. The default is ``"Round``.
-        is_check_face_intersection: bool, optional
+        is_check_face_intersection : bool, optional
            The default is ``False``.
-        twist_angle: float, optional
+        twist_angle : float, optional
             Angle at which to twist or rotate in degrees. The default is ``0``.
 
         Returns
@@ -1412,11 +1417,11 @@ class Padstack(object):
 
     Parameters
     ----------
-    name: str, optional
+    name : str, optional
         Name of the padstack. The default is ``"Padstack"``.
     padstackmanager : optional
         The default is ``None``.
-    units: str, optional
+    units : str, optional
         The default is ``mm``.
 
     """
@@ -1443,7 +1448,7 @@ class Padstack(object):
 
         Parameters
         ----------
-        holetype: str, optional
+        holetype : str, optional
             Type of the hole. The default is ``Circular``.
         sizes : str, optional
             Diameter of the hole with units. The default is ``"1mm"``.
@@ -1527,7 +1532,7 @@ class Padstack(object):
 
             Parameters
             ----------
-            holetype: str, optional
+            holetype : str, optional
                 Type of the hole. The default is ``Circular``.
             sizes : str, optional
                 Diameter of the hole with units. The default is ``"1mm"``.

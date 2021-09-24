@@ -1466,7 +1466,7 @@ class SweepQ3D(object):
 
     setupname :str
         Name of the setup.
-    sweepname: str
+    sweepname : str
         Name of the sweep.
     sweeptype : str, optional
         Type of the sweep. Options are ``"Fast"``, ``"Interpolating"``,

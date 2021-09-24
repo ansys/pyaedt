@@ -1,6 +1,5 @@
 import gc
 import os
-
 # Import required modules
 from pyaedt import Hfss
 from pyaedt.generic.filesystem import Scratch
@@ -18,6 +17,7 @@ test_project_name = "Cassegrain"
 
 class TestClass:
     def setup_class(self):
+        gc.collect()
         # set a scratch directory and the environment / test data
         with Scratch(scratch_path) as self.local_scratch:
             example_project = os.path.join(local_path, "example_models", test_project_name + ".aedt")
@@ -30,7 +30,7 @@ class TestClass:
         self.local_scratch.remove()
         gc.collect()
 
-    def test_01A_open_source(self):
+    def test_01_open_source(self):
         assert self.aedtapp.create_sbr_linked_antenna(self.source, target_cs="feederPosition", fieldtype="farfield")
         assert len(self.aedtapp.native_components) == 1
 

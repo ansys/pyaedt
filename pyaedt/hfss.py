@@ -21,38 +21,38 @@ class Hfss(FieldAnalysis3D, object):
 
     Parameters
     ----------
-    projectname: str, optional
+    projectname : str, optional
         Name of the project to select or the full path to the project
         or AEDTZ archive to open. The default is ``None``, in which
         case an attempt is made to get an active project. If no
         projects are present, an empty project is created.
-    designname: str, optional
+    designname : str, optional
         Name of the design to select. The default is ``None``, in
         which case an attempt is made to get an active design. If no
         designs are present, an empty design is created.
-    solution_type: str, optional
+    solution_type : str, optional
         Solution type to apply to the design. The default is
         ``None``, in which case the default type is applied.
-    setup_name: str, optional
+    setup_name : str, optional
         Name of the setup to use as the nominal. The default is
         ``None``, in which case the active setup is used or
         nothing is used.
-    specified_version: str, optional
+    specified_version : str, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
         This parameter is ignored when script is launched within AEDT.
-    NG: bool, optional
+    NG : bool, optional
         Whether to run AEDT in the non-graphical mode. The default
         is ``False``, in which case AEDT is launched in the graphical mode.
         This parameter is ignored when script is launched within AEDT.
-    new_desktop_session: bool, optional
+    new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
         machine. The default is ``True``. This parameter is ignored when
         script is launched within AEDT.
-    close_on_exit: bool, optional
+    close_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
-    student_version: bool, optional
+    student_version : bool, optional
         Whether to open the AEDT student version. The default is
         ``False``. This parameter is ignored when script is launched
         within AEDT.
@@ -1059,22 +1059,22 @@ class Hfss(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        antenna_type: str, `SbrAntennas.ConicalHorn`
+        antenna_type : str, `SbrAntennas.ConicalHorn`
             Name of the antenna type. Enumerator SbrAntennas can also be used.
             The default is ``"Conical Horn"``.
-        target_cs: str, optional
+        target_cs : str, optional
             Target coordinate system. The default is ``None``, in which case
             the active coodiantes system is used.
-        model_units: str, optional
+        model_units : str, optional
             Model units to apply to the object. The default is
             ``None`` in which case the active modeler units are applied.
-        parameters_dict: dict, optional
+        parameters_dict : dict, optional
             The default is ``None``.
-        use_current_source_representation: bool, optional
+        use_current_source_representation : bool, optional
             The default is ``False``.
-        is_array: bool, optional
+        is_array : bool, optional
             The default is ``False``.
-        antenna_name: str, optional
+        antenna_name : str, optional
             Name of the 3D component. The default is ``None``, in which case the
             name is auto-generated based on the antenna type.
 
@@ -1168,22 +1168,22 @@ class Hfss(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        ffd_full_path: str
+        ffd_full_path : str
             Full path to the FFD file.
-        antenna_size: str, optional
+        antenna_size : str, optional
             Antenna size with units. The default is ``"1mm"``.
-        antenna_impedance: str, optional
+        antenna_impedance : str, optional
             Antenna impedance with units. The default is ``"50ohm"``.
-        representation_type: str, optional
+        representation_type : str, optional
             Type of the antenna type. Options are ``"Far Field"`` or ``"Near Field"``.
             The default is ``"Far Field"``.
         target_cs : str, optional
             Target coordinate system. The default is ``None``, in which case the
             active coordinate system is used.
-        model_units: str, optional
+        model_units : str, optional
             Model units to apply to the object. The default is
             ``None``, in which case the active modeler units are applied.
-        antenna_name: str, optional
+        antenna_name : str, optional
             Name of the 3D component. The default is ``None``, in which case
             the name is auto-generated based on the antenna type.
 
@@ -1408,8 +1408,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        str
-           Name of source created when successful, ``False`` otherwise.
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
 
         Examples
         --------
@@ -1421,11 +1421,10 @@ class Hfss(FieldAnalysis3D, object):
         ...                                           "BoxVolt1", "copper")
         >>> box2 = hfss.modeler.primitives.create_box([30, 0, 10], [40, 10, 5],
         ...                                           "BoxVolt2", "copper")
-        >>> hfss.create_voltage_source_from_objects("BoxVolt1", "BoxVolt2",
+        >>> v1 = hfss.create_voltage_source_from_objects("BoxVolt1", "BoxVolt2",
         ...                                         hfss.AxisDir.XNeg,
         ...                                         "VoltageSource")
         pyaedt Info: Connection Correctly created
-        'VoltageSource'
 
         """
 
@@ -1442,11 +1441,7 @@ class Hfss(FieldAnalysis3D, object):
                 sourcename = generate_unique_name("Voltage")
             elif sourcename + ":1" in self.modeler.get_excitations_name():
                 sourcename = generate_unique_name(sourcename)
-            status = self.create_source_excitation(sheet_name, point0, point1, sourcename, sourcetype="Voltage")
-            if status:
-                return sourcename
-            else:
-                return False
+            return self.create_source_excitation(sheet_name, point0, point1, sourcename, sourcetype="Voltage")
         return False
 
     @aedt_exception_handler
@@ -1470,8 +1465,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        str
-            Name of the source created when successful, ``False`` otherwise.
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
 
         Examples
         --------
@@ -1483,7 +1478,7 @@ class Hfss(FieldAnalysis3D, object):
         ...                                           "BoxCurrent1", "copper")
         >>> box2 = hfss.modeler.primitives.create_box([30, 0, 30], [40, 10, 5],
         ...                                           "BoxCurrent2", "copper")
-        >>> hfss.create_current_source_from_objects("BoxCurrent1", "BoxCurrent2",
+        >>> i1 = hfss.create_current_source_from_objects("BoxCurrent1", "BoxCurrent2",
         ...                                         hfss.AxisDir.XPos,
         ...                                         "CurrentSource")
         pyaedt Info: Connection created 'CurrentSource' correctly.
@@ -1503,11 +1498,7 @@ class Hfss(FieldAnalysis3D, object):
                 sourcename = generate_unique_name("Current")
             elif sourcename + ":1" in self.modeler.get_excitations_name():
                 sourcename = generate_unique_name(sourcename)
-            status = self.create_source_excitation(sheet_name, point0, point1, sourcename, sourcetype="Current")
-            if status:
-                return sourcename
-            else:
-                return False
+            return self.create_source_excitation(sheet_name, point0, point1, sourcename, sourcetype="Current")
         return False
 
     @aedt_exception_handler
@@ -1752,15 +1743,17 @@ class Hfss(FieldAnalysis3D, object):
         endobject :
             Second object (ending object for integration line)
         axisdir : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
-            Position of the port. It should be one of the values for ``Application.AxisDir``,
-            which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
-            The default is ``Application.AxisDir.XNeg``.
+            Position of the port. It should be one of the values for
+            ``Application.AxisDir``, which are: ``XNeg``, ``YNeg``,
+            ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.  The default
+            is ``Application.AxisDir.XNeg``.
         sourcename : str, optional
             Perfect E name. The default is ``None``.
         is_infinite_gnd : bool, optional
             Whether the Perfect E is an infinite ground. The default is ``False``.
-        bound_on_plane: bool, optional
-            Whether to create the Perfect E on the plane orthogonal to ``AxisDir``. The default is ``True``.
+        bound_on_plane : bool, optional
+            Whether to create the Perfect E on the plane orthogonal to
+            ``AxisDir``. The default is ``True``.
 
         Returns
         -------
@@ -2285,8 +2278,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        str
-            Name of the port created when successful, ``False`` otherwise.
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
 
         Examples
         --------
@@ -2297,9 +2290,8 @@ class Hfss(FieldAnalysis3D, object):
         >>> rectangle = hfss.modeler.primitives.create_rectangle(hfss.CoordinateSystemPlane.XYPlane,
         ...                                                      [0, 0, 0], [10, 2], name="lump_port",
         ...                                                      matname="copper")
-        >>> hfss.create_lumped_port_to_sheet(rectangle.name, hfss.AxisDir.XNeg, 50,
+        >>> h1 = hfss.create_lumped_port_to_sheet(rectangle.name, hfss.AxisDir.XNeg, 50,
         ...                                  "LumpedPortFromSheet", True, False)
-        'LumpedPortFromSheet'
 
         """
 
@@ -2318,7 +2310,7 @@ class Hfss(FieldAnalysis3D, object):
             elif portname + ":1" in self.modeler.get_excitations_name():
                 portname = generate_unique_name(portname)
             if self.solution_type == "DrivenModal":
-                self._create_lumped_driven(sheet_name, point0, point1, impedance, portname, renorm, deemb)
+                port = self._create_lumped_driven(sheet_name, point0, point1, impedance, portname, renorm, deemb)
             else:
                 if not reference_object_list:
                     cond = self.get_all_conductors_names()
@@ -2328,8 +2320,8 @@ class Hfss(FieldAnalysis3D, object):
                         if el in cond:
                             reference_object_list.append(el)
                 faces = self.modeler.primitives.get_object_faces(sheet_name)
-                self._create_port_terminal(faces[0], reference_object_list, portname, iswaveport=False)
-            return portname
+                port = self._create_port_terminal(faces[0], reference_object_list, portname, iswaveport=False)
+            return port
         return False
 
     @aedt_exception_handler
@@ -2364,8 +2356,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        str
-            Name of the source created when successful, ``False`` otherwise.
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
 
         Examples
         --------
@@ -2375,8 +2367,7 @@ class Hfss(FieldAnalysis3D, object):
         >>> sheet = hfss.modeler.primitives.create_rectangle(hfss.CoordinateSystemPlane.XYPlane,
         ...                                                  [0, 0, -70], [10, 2], name="VoltageSheet",
         ...                                                  matname="copper")
-        >>> hfss.assign_voltage_source_to_sheet(sheet.name, hfss.AxisDir.XNeg, "VoltageSheetExample")
-        'VoltageSheetExample'
+        >>> v1 = hfss.assign_voltage_source_to_sheet(sheet.name, hfss.AxisDir.XNeg, "VoltageSheetExample")
 
         """
 
@@ -2386,9 +2377,7 @@ class Hfss(FieldAnalysis3D, object):
                 sourcename = generate_unique_name("Voltage")
             elif sourcename + ":1" in self.modeler.get_excitations_name():
                 sourcename = generate_unique_name(sourcename)
-            status = self.create_source_excitation(sheet_name, point0, point1, sourcename, sourcetype="Voltage")
-            if status:
-                return sourcename
+            return  self.create_source_excitation(sheet_name, point0, point1, sourcename, sourcetype="Voltage")
         return False
 
     @aedt_exception_handler
@@ -3274,8 +3263,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        obj_names : str or list
-             One or more object names.
+        obj_names : str or list or int
+             One or more object names or IDs.
         boundary_name : str, optional
              Name of the boundary. The default is ``""``.
 
@@ -3615,32 +3604,32 @@ class Hfss(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        time_var: str, optional
+        time_var : str, optional
             Name of the time variable. The default is ``None``, in which case
             the first time variable available is used.
-        sweep_time_duration: float, optional
+        sweep_time_duration : float, optional
             Sweep time duration. If greater than 0, a parametric sweep is
             created. The default is ``0``.
-        center_freq: float, optional
+        center_freq : float, optional
             Center frequency in GHz. The default is ``76.5``.
-        resolution: float, optional
+        resolution : float, optional
             Doppler resolution in meters. The default is ``1``.
-        period: float, optional
+        period : float, optional
             Period of analysis in meters. The default is ``200``.
-        velocity_resolution: float, optional
+        velocity_resolution : float, optional
             Doppler velocity resolution in meters per second.
             The default is ``0.4``.
-        min_velocity: str, optional
+        min_velocity : str, optional
             Minimum doppler velocity in meters per second. The default
             is ``-20``.
-        max_velocity: str, optional
+        max_velocity : str, optional
             Maximum doppler velocity in meters per second. The default
             is ``20``.
         ray_density_per_wavelenght : float, optional
             Doppler ray density per wavelength. The default is ``0.2``.
-        max_bounces: int, optional
+        max_bounces : int, optional
             Maximum number of bBounces. The default is ``5``.
-        setup_name: str, optional
+        setup_name : str, optional
             Name of the setup. The default is ``None``.
 
         Returns
@@ -3694,17 +3683,17 @@ class Hfss(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        radar_file: str
+        radar_file : str
             Path to the directory with the radar file.
-        radar_name: str
+        radar_name : str
             Name of the radar file.
-        offset: list, optional
+        offset : list, optional
             Offset relative to the global coordinate system.
-        speed: float, optional
+        speed : float, optional
             Radar movement speed relative to the global coordinate system if greater than ``0``.
-        use_relative_cs: bool, optional
+        use_relative_cs : bool, optional
             Whether the relative coordinate system must be used. The default is ``False``.
-        relative_cs_name: str
+        relative_cs_name : str
             Name of the relative coordinate system to link the radar to.
             The default is ``None``, in which case the global coordinate system is used.
 

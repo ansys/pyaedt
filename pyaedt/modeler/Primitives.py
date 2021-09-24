@@ -36,7 +36,7 @@ class PolylineSegment:
     type : str
         Type of the object. Choices are ``"Line"``, ``"Arc"``, ``"Spline"``,
         and ``"AngularArc"``.
-    num_seg: int, optional
+    num_seg : int, optional
         Number of segments for the types ``"Arc"``, ``"Spline"``, and
         ``"AngularArc"``.  The default is ``0``. For the type
         ``Line``, this parameter is ignored.
@@ -698,7 +698,7 @@ class Polyline(Object3d):
             List of positions of the points that define the segment to insert.
             Either the starting point or ending point of the segment list must
             match one of the vertices of the existing polyline.
-        segment: str or :class:`pyaedt.modeler.Primitives.PolylineSegment`
+        segment : str or :class:`pyaedt.modeler.Primitives.PolylineSegment`
             Definition of the segment to insert. For the types ``"Line"`` and ``"Arc"``,
             use their string values ``"Line"`` and ``"Arc"``. For the types ``"AngularArc"``
             and ``"Spline"``, use the :class:`pyaedt.modeler.Primitives.PolylineSegment`
@@ -1125,7 +1125,7 @@ class Primitives(object):
 
         Parameters
         ----------
-        edge: int or :class:`pyaedt.modeler.Object3d.EdgePrimitive`
+        edge : int or :class:`pyaedt.modeler.Object3d.EdgePrimitive`
             Edge ID or :class:`pyaedt.modeler.Object3d.EdgePrimitive` object.
 
         Returns
@@ -1233,9 +1233,9 @@ class Primitives(object):
         close_surface : bool, optional
             The default is ``False``, which automatically joins the
             starting and ending points.
-        name: str, optional
+        name : str, optional
             Name of the polyline. The default is ``None``.
-        matname: str, optional
+        matname : str, optional
             Name of the material. The default is ``None``, in which case the
             default material is assigned.
         xsection_type : str, optional
@@ -1428,8 +1428,6 @@ class Primitives(object):
         if not objects:
             self._messenger.add_warning_message("No objects to delete")
             return False
-        self._messenger.add_info_message("Deleting objects: {}".format(objects))
-
         slice = min(100, len(objects))
         num_objects = len(objects)
         remaining = num_objects
@@ -1449,7 +1447,7 @@ class Primitives(object):
 
         if len(objects) > 0:
             self.cleanup_objects()
-            self._messenger.add_info_message("Deleted {} Objects".format(num_objects))
+            self._messenger.add_info_message("Deleted {} Objects : {}".format(num_objects, objects_str))
 
         return True
 
@@ -3018,8 +3016,14 @@ class Primitives(object):
 
     def _pos_with_arg(self, pos, units=None):
         posx = self._arg_with_dim(pos[0], units)
-        posy = self._arg_with_dim(pos[1], units)
-        posz = self._arg_with_dim(pos[2], units)
+        if len(pos) < 2:
+            posy = self._arg_with_dim(0, units)
+        else:
+            posy = self._arg_with_dim(pos[1], units)
+        if len(pos) < 3:
+            posz = self._arg_with_dim(0, units)
+        else:
+            posz = self._arg_with_dim(pos[2], units)
 
         return posx, posy, posz
 
@@ -3042,10 +3046,9 @@ class Primitives(object):
         if len(objListSolids) > 0:
             objList.extend(objListSolids)
         for obj in objList:
-            edgeIDs = list(self.oeditor.GetEdgeIDsFromObject(obj))
-            if str(lval) in edgeIDs:
+            val = retry_ntimes(10, self.oeditor.GetEdgeIDsFromObject, obj)
+            if not(isinstance(val, bool)) and str(lval) in list(val):
                 return obj
-
         return None
 
     def _find_object_from_face_id(self, lval):

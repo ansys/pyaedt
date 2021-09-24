@@ -341,9 +341,9 @@ class AEDTMessageManager(object):
 
         """
         if self._log_on_desktop:
-            if not proj_name:
+            if proj_name is None:
                 proj_name = self._project_name
-            if not des_name:
+            if des_name is None:
                 des_name = self._design_name
             self._desktop.ClearMessages(proj_name, des_name, level)
 

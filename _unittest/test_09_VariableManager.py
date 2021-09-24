@@ -1,4 +1,5 @@
 # Setup paths for module imports
+from __future__ import division
 import gc
 import math
 
@@ -67,13 +68,12 @@ class TestClass:
         for var_name in v.variable_names:
             print("{} = {}".format(var_name, self.aedtapp[var_name]))
         pass
-
+        tol = 1e-9
         c2pi = math.pi * 2.0
-        assert v["$PrjVar1"].numeric_value == c2pi
-        assert v["$PrjVar3"].numeric_value == math.sqrt(34 * 45.0 / c2pi)
-        assert v["Var3"].numeric_value == 3.0 * 12.0
+        assert abs(v["$PrjVar1"].numeric_value - c2pi) < tol
+        assert abs(v["$PrjVar3"].numeric_value - math.sqrt(34 * 45.0 / c2pi)) < tol
+        assert abs(v["Var3"].numeric_value - 3.0 * 12.0) < tol
         assert v["Var3"].units == "deg"
-        pass
 
     def test_03_test_evaluated_value(self):
 
@@ -127,7 +127,7 @@ class TestClass:
         v4 = Variable("40V")
         v5 = Variable("100NewtonMeter")
         v6 = Variable("1000rpm")
-
+        tol = 1e-4
         result_1 = v1 * v2
         result_2 = v2 * v3
         result_3 = v3 * v4
@@ -155,15 +155,15 @@ class TestClass:
         assert result_5.units == "W"
         assert result_5.unit_system == "Power"
 
-        assert isclose(result_6.numeric_value, 10471.975511965977)
+        assert abs(result_6.numeric_value - 10471.9755) / result_6.numeric_value < tol
         assert result_6.units == "W"
         assert result_6.unit_system == "Power"
 
-        assert isclose(result_7.numeric_value, 10471.975511965977)
+        assert abs(result_7.numeric_value - 10471.9755) / result_4.numeric_value < tol
         assert result_7.units == "W"
         assert result_7.unit_system == "Power"
 
-        assert isclose(result_8.numeric_value, 10.471975511965977)
+        assert abs(result_8.numeric_value - 10.4719755) / result_8.numeric_value < tol
         assert result_8.units == "kW"
         assert result_8.unit_system == "Power"
 
@@ -296,9 +296,10 @@ class TestClass:
         v1 = Variable("10W")
         v2 = Variable("40V")
         v3 = Variable("1s")
-        v4 = Variable("3mA")
+        v4 = Variable("5mA")
         v5 = Variable("100NewtonMeter")
         v6 = Variable("1000rpm")
+        tol = 1e-4
 
         result_1 = v1 / v2
         assert result_1.numeric_value == 0.25
@@ -315,18 +316,18 @@ class TestClass:
         assert result_3.units == "Hz"
         assert result_3.unit_system == "Freq"
 
-        result_4 = v3 / 3
-        assert result_4.numeric_value == 0.3333333333333333333333
+        result_4 = v3 / 2
+        assert abs(result_4.numeric_value - 0.5) < tol
         assert result_4.units == "s"
         assert result_4.unit_system == "Time"
 
         result_5 = v4 / v5
-        assert result_5.numeric_value == 0.00003
+        assert abs(result_5.numeric_value - 0.00005) < tol
         assert result_5.units == ""
         assert result_5.unit_system == "None"
 
         result_6 = v1 / v5 + v6
-        assert isclose(result_6.numeric_value, 104.81975511965)
+        assert abs(result_6.numeric_value - 104.8198) / result_6.numeric_value < tol
         assert result_6.units == "rad_per_sec"
         assert result_6.unit_system == "AngularSpeed"
 

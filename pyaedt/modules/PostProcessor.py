@@ -433,7 +433,7 @@ class FieldPlot:
         Name of the solution.
     quantityName : str
         Name of the plot or the name of the object.
-    intrinsicList: dict, optional
+    intrinsicList : dict, optional
         Name of the intrinsic dictionary. The default is ``{}``.
 
     """
@@ -656,6 +656,33 @@ class FieldPlot:
             False,
         ]
 
+    @aedt_exception_handler
+    def change_plot_scale(self, minimum_value, maximum_value, is_log=False, is_db=False):
+        """Change Field Plot Scale.
+
+        Parameters
+        ----------
+        minimum_value : str, float
+            Minimum value of the scale.
+        maximum_value : str, float
+            Maximum value of the scale.
+        is_log : bool, optional
+            Set to ``True`` if Log Scale is setup.
+        is_db : bool, optional
+            Set to ``True`` if dB Scale is setup.
+
+        Returns
+        -------
+        bool
+            ``True`` if successful.
+        """
+        args = ["NAME:FieldsPlotSettings", "Real Time mode:=", True]
+        args += [["NAME:ColorMaPSettings", "ColorMapType:=", "Spectrum", "SpectrumType:=", "Rainbow", "UniformColor:=",
+                  [127, 255, 255], "RampColor:=", [255, 127, 127]]]
+        args += [["NAME:Scale3DSettings", "minvalue:=", minimum_value, "maxvalue:=", maximum_value, "log:=", not is_log,
+                 "dB:=", is_db, "ScaleType:=", 1]]
+        self.oField.SetPlotFolderSettings(self.name, args)
+        return True
 
 class PostProcessorCommon(object):
     """Manages the main AEDT postprocessing functions.
@@ -1013,7 +1040,8 @@ class PostProcessorCommon(object):
             else:
                 sweep_list.append([sweeps[el]])
 
-        data = self.oreportsetup.GetSolutionDataPerVariation(soltype, setup_sweep_name, ctxt, sweep_list, expression)
+        data = list(
+            self.oreportsetup.GetSolutionDataPerVariation(soltype, setup_sweep_name, ctxt, sweep_list, expression))
         return SolutionData(data)
 
     @aedt_exception_handler
@@ -1223,6 +1251,88 @@ class PostProcessor(PostProcessorCommon, object):
                 ],
             ]
         )
+
+    @aedt_exception_handler
+    def get_scalar_field_value(
+        self,
+        quantity_name,
+        scalar_function = "Maximum",
+        solution=None,
+        variation_dict=None,
+        isvector=False,
+        intrinsics=None,
+        phase=None,
+    ):
+        """Use the field calculator to Compute Scalar of a Field.
+
+        Parameters
+        ----------
+        quantity_name : str
+            Name of the quantity to export. For example, ``"Temp"``.
+        solution : str, optional
+            Name of the solution in the format ``"solution : sweep"``. The default is ``None``.
+        variation_dict : dict, optional
+            Dictionary of all variation variables with their values.
+            The default is ``None``.
+        isvector : bool, optional
+            Whether the quantity is a vector. The  default is ``False``.
+        intrinsics : str, optional
+            This parameter is mandatory for a frequency field
+            calculation. The default is ``None``.
+        phase : str, optional
+            Field phase. The default is ``None``.
+
+        Returns
+        -------
+        float
+            ``True`` when successful, ``False`` when failed.
+        """
+        self._messenger.add_info_message("Exporting {} field. Be patient".format(quantity_name))
+        if not solution:
+            solution = self._parent.existing_analysis_sweeps[0]
+        self.ofieldsreporter.CalcStack("clear")
+        if isvector:
+            try:
+                self.ofieldsreporter.EnterQty(quantity_name)
+            except:
+                self.ofieldsreporter.CopyNamedExprToStack(quantity_name)
+            self.ofieldsreporter.CalcOp("Smooth")
+            self.ofieldsreporter.EnterScalar(0)
+            self.ofieldsreporter.CalcOp("AtPhase")
+            self.ofieldsreporter.CalcOp("Mag")
+        else:
+            try:
+                self.ofieldsreporter.EnterQty(quantity_name)
+            except:
+                self.ofieldsreporter.CopyNamedExprToStack(quantity_name)
+        obj_list = "AllObjects"
+        self.ofieldsreporter.EnterVol(obj_list)
+        self.ofieldsreporter.CalcOp(scalar_function)
+        if not variation_dict:
+            variation_dict = self._parent.available_variations.nominal_w_values
+        if intrinsics:
+            if "Transient" in solution:
+                variation_dict.append("Time:=")
+                variation_dict.append(intrinsics)
+            else:
+                variation_dict.append("Freq:=")
+                variation_dict.append(intrinsics)
+                variation_dict.append("Phase:=")
+                if phase:
+                    variation_dict.append(phase)
+                else:
+                    variation_dict.append("0deg")
+        file_name = os.path.join(self._parent.project_path, generate_unique_name("temp_fld")+".fld")
+        self.ofieldsreporter.CalculatorWrite(file_name, ["Solution:=", solution], variation_dict)
+        value = None
+        if os.path.exists(file_name):
+            with open(file_name, 'r') as f:
+                lines = f.readlines()
+                lines = [line.strip() for line in lines]
+                value = lines[-1]
+            os.remove(file_name)
+        self.ofieldsreporter.CalcStack("clear")
+        return value
 
     @aedt_exception_handler
     def export_field_file_on_grid(
@@ -1503,6 +1613,36 @@ class PostProcessor(PostProcessorCommon, object):
         return os.path.join(filepath, filename + ".aedtplt")
 
     @aedt_exception_handler
+    def change_field_plot_scale(self, plot_name, minimum_value, maximum_value, is_log=False, is_db=False):
+        """Change Field Plot Scale.
+
+        Parameters
+        ----------
+        plot_name : str
+            Name of the Plot Folder to update.
+        minimum_value : str, float
+            Minimum value of the scale.
+        maximum_value : str, float
+            Maximum value of the scale.
+        is_log : bool, optional
+            Set to ``True`` if Log Scale is setup.
+        is_db : bool, optional
+            Set to ``True`` if dB Scale is setup.
+
+        Returns
+        -------
+        bool
+            ``True`` if successful.
+        """
+        args = ["NAME:FieldsPlotSettings", "Real Time mode:=", True]
+        args += [["NAME:ColorMaPSettings", "ColorMapType:=", "Spectrum", "SpectrumType:=", "Rainbow", "UniformColor:=",
+                  [127, 255, 255], "RampColor:=", [255, 127, 127]]]
+        args += [["NAME:Scale3DSettings", "minvalue:=", minimum_value, "maxvalue:=", maximum_value, "log:=", not is_log,
+                 "dB:=", is_db, "ScaleType:=", 1]]
+        self.ofieldsreporter.SetPlotFolderSettings(plot_name, args)
+        return True
+
+    @aedt_exception_handler
     def _create_fieldplot(self, objlist, quantityName, setup_name, intrinsincList, objtype, listtype):
         """Internal function.
 
@@ -1523,9 +1663,11 @@ class PostProcessor(PostProcessorCommon, object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        :class:``pyaedt.modules.PostProcessor.FieldPlot``
+            Field Plot Object.
         """
+        if isinstance(objlist, (str, int)):
+            objlist = [objlist]
         if not setup_name:
             setup_name = self._parent.existing_analysis_sweeps[0]
         self._desktop.CloseAllWindows()
@@ -1592,7 +1734,7 @@ class PostProcessor(PostProcessorCommon, object):
 
         Returns
         -------
-        type
+        :class:``pyaedt.modules.PostProcessor.FieldPlot``
             Plot object.
 
         """
@@ -1624,7 +1766,8 @@ class PostProcessor(PostProcessorCommon, object):
         return self._create_fieldplot(objlist, quantityName, setup_name, intrinsincDict, "Volume", "ObjList")
 
     @aedt_exception_handler
-    def export_field_jpg(self, fileName, plotName, coordinateSystemName):
+    def export_field_jpg(self, fileName, plotName, coordinateSystemName="Global"):
+        #TODO Check the ExportPlotImageWithViewToFile in HFSS 3D Layout
         """Export a field plot and coordinate system to a JPG file.
 
         Parameters
@@ -1642,7 +1785,10 @@ class PostProcessor(PostProcessorCommon, object):
             ``True`` when successful, ``False`` when failed.
         """
         time.sleep(2)
-        self.ofieldsreporter.ExportPlotImageToFile(fileName, "", plotName, coordinateSystemName)
+        if self.post_solution_type == "HFSS3DLayout" or self.post_solution_type == "HFSS 3D Layout Design":
+            self.oeditor.ExportImage(fileName, 1920, 1080)
+        else:
+            self.ofieldsreporter.ExportPlotImageToFile(fileName, "", plotName, coordinateSystemName)
         return True
 
     @aedt_exception_handler
@@ -1670,24 +1816,27 @@ class PostProcessor(PostProcessorCommon, object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        bound = self.modeler.get_model_bounding_box()
-        center = [
-            (float(bound[0]) + float(bound[3])) / 2,
-            (float(bound[1]) + float(bound[4])) / 2,
-            (float(bound[2]) + float(bound[5])) / 2,
-        ]
-        coordinateSystemForExportPlot = self.modeler.create_coordinate_system(origin=center, mode="view", view=view)
-        wireframes = []
-        if wireframe:
-            names = self._primitives.object_names
-            for el in names:
-                if not self._primitives[el].display_wireframe:
-                    wireframes.append(el)
-                    self._primitives[el].display_wireframe = True
-        status = self.export_field_jpg(exportFilePath, plotName, coordinateSystemForExportPlot.name)
-        for solid in wireframes:
-            self._primitives[solid].display_wireframe = False
-        coordinateSystemForExportPlot.delete()
+        if self.post_solution_type == "HFSS3DLayout" or self.post_solution_type == "HFSS 3D Layout Design":
+            status = self.export_field_jpg(exportFilePath, plotName, "")
+        else:
+            bound = self.modeler.get_model_bounding_box()
+            center = [
+                (float(bound[0]) + float(bound[3])) / 2,
+                (float(bound[1]) + float(bound[4])) / 2,
+                (float(bound[2]) + float(bound[5])) / 2,
+            ]
+            coordinateSystemForExportPlot = self.modeler.create_coordinate_system(origin=center, mode="view", view=view)
+            wireframes = []
+            if wireframe:
+                names = self._primitives.object_names
+                for el in names:
+                    if not self._primitives[el].display_wireframe:
+                        wireframes.append(el)
+                        self._primitives[el].display_wireframe = True
+            status = self.export_field_jpg(exportFilePath, plotName, coordinateSystemForExportPlot.name)
+            for solid in wireframes:
+                self._primitives[solid].display_wireframe = False
+            coordinateSystemForExportPlot.delete()
         return status
 
     @aedt_exception_handler
@@ -1860,22 +2009,22 @@ class CircuitPostProcessor(PostProcessorCommon, object):
 
         Parameters
         ----------
-        setupname: str
+        setupname : str
             Name of the setup
-        ami_name: str
+        ami_name : str
             AMI Probe name to use
-        variation_list_w_value: list
+        variation_list_w_value : list
             list of variations with relative values
-        plot_type: str, Default ``"Rectangular Plot"``
+        plot_type : str, Default ``"Rectangular Plot"``
             String containing the report type. Default is ``"Rectangular Plot"``. It can be ``"Data Table"``,
             ``"Rectangular Stacked Plot"``or any of the other valid AEDT Report types.
-        plot_initial_response: bool, optional
+        plot_initial_response : bool, optional
             Set either to plot the initial input response.  Default is ``True``.
-        plot_intermediate_response: bool, optional
+        plot_intermediate_response : bool, optional
             Set whether to plot the intermediate input response.  Default is ``False``.
-        plot_final_response: bool, optional
+        plot_final_response : bool, optional
             Set whether to plot the final input response.  Default is ``False``.
-        plotname: str, optional
+        plotname : str, optional
             The plot name.  Default is a unique name.
 
         Returns
@@ -1970,7 +2119,7 @@ class CircuitPostProcessor(PostProcessorCommon, object):
         ami_plot_type : str, optional
             String containing the report AMI type. Default is ``"InitialEye"``. It can be ``"EyeAfterSource"``,
             ``"EyeAfterChannel"`` or ``"EyeAfterProbe"``.
-        plotname: str, optional
+        plotname : str, optional
             The name of the plot.  Defaults to a unique name starting with ``"Plot"``.
 
         Returns
@@ -2062,13 +2211,13 @@ class CircuitPostProcessor(PostProcessorCommon, object):
 
         Parameters
         ----------
-        setupname: str
+        setupname : str
             Name of the setup
-        probe_names: str or list
+        probe_names : str or list
             Name of the probe to plot in the EYE diagram.
         variation_list_w_value : list
             List of variations with relative values.
-        plotname: str, optional
+        plotname : str, optional
             The name of the plot.
 
         Returns

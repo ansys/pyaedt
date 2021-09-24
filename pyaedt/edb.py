@@ -13,6 +13,7 @@ import warnings
 from pyaedt import inside_desktop, is_ironpython
 from pyaedt.application.MessageManager import EDBMessageManager
 from pyaedt.edb_core import Components, EdbNets, EdbPadstacks, EdbLayout, Edb3DLayout, EdbSiwave, EdbStackup
+from pyaedt.edb_core.EDB_Data import EdbBuilder
 from pyaedt import retry_ntimes
 from pyaedt.generic.general_methods import (
     aedt_exception_handler,
@@ -130,7 +131,9 @@ class Edb(object):
                     edbpath = os.path.join(edbpath, generate_unique_name("layout") + ".aedb")
                 self._messenger.add_info_message("No Edb Provided. Creating new EDB {}.".format(edbpath))
             self.edbpath = edbpath
-            if edbpath[-3:] in ["brd", "gds", "xml", "dxf", "tgz"]:
+            if isaedtowned and inside_desktop:
+                self.open_edb_inside_aedt()
+            elif edbpath[-3:] in ["brd", "gds", "xml", "dxf", "tgz"]:
                 self.edbpath = edbpath[:-4] + ".aedb"
                 working_dir = os.path.dirname(edbpath)
                 self.import_layout_pcb(edbpath, working_dir, use_ppe=use_ppe)
@@ -142,16 +145,20 @@ class Edb(object):
                 self._messenger.add_info_message("Edb {} Created Correctly".format(self.edbpath))
             elif ".aedb" in edbpath:
                 self.edbpath = edbpath
-                if isaedtowned and "isoutsideDesktop" in dir(self._main) and not self._main.isoutsideDesktop:
-                    self.open_edb_inside_aedt()
-                else:
-                    self.open_edb()
+                self.open_edb()
             if self.builder:
                 self._messenger.add_info_message("Edb Initialized")
             else:
                 self._messenger.add_info_message("Failed to initialize Dlls")
         else:
             warnings.warn("Failed to initialize Dlls")
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, ex_type, ex_value, ex_traceback):
+        if ex_type:
+            self.edb_exception(ex_value, ex_traceback)
 
     def _clean_variables(self):
         """Initialize internal variables and perform garbage collection."""
@@ -356,7 +363,11 @@ class Edb(object):
             dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib", "DataModel.dll")
             self._messenger.add_info_message(dllpath)
             self.layout_methods.LoadDataModel(dllpath)
-            time.sleep(2)
+            dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib",
+                                   "IPC_2581_DataModel.dll")
+            self.layout_methods.LoadDataModel(dllpath)
+
+            time.sleep(3)
             self.builder = retry_ntimes(
                 10,
                 self.layout_methods.GetBuilder,
@@ -409,11 +420,23 @@ class Edb(object):
             dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib", "DataModel.dll")
             if self._db and self._active_cell:
                 self.layout_methods.LoadDataModel(dllpath)
+                dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib",
+                                       "IPC_2581_DataModel.dll")
+                self.layout_methods.LoadDataModel(dllpath)
                 if not os.path.exists(self.edbpath):
                     os.makedirs(self.edbpath)
-                self.builder = self.layout_methods.GetBuilder(
-                    self._db, self._active_cell, self.edbpath, self.edbversion, self.standalone, True
-                )
+                time.sleep(3)
+                self.builder = EdbBuilder(self.edbutils, self._db, self._active_cell)
+                # self.builder = retry_ntimes(
+                #     10,
+                #     self.layout_methods.GetBuilder,
+                #     self._db,
+                #     self._active_cell,
+                #     self.edbpath,
+                #     self.edbversion,
+                #     self.standalone,
+                #     True
+                # )
                 self._init_objects()
                 return self.builder
             else:
@@ -455,8 +478,18 @@ class Edb(object):
         dllpath = os.path.join(os.path.dirname(__file__), "dlls", "EDBLib", "DataModel.dll")
         if self._db and self._active_cell:
             self.layout_methods.LoadDataModel(dllpath)
-            self.builder = self.layout_methods.GetBuilder(
-                self._db, self._active_cell, self.edbpath, self.edbversion, self.standalone
+            dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib",
+                                   "IPC_2581_DataModel.dll")
+            self.layout_methods.LoadDataModel(dllpath)
+            time.sleep(3)
+            self.builder = retry_ntimes(
+                10,
+                self.layout_methods.GetBuilder,
+                self._db,
+                self._active_cell,
+                self.edbpath,
+                self.edbversion,
+                self.standalone
             )
             self._init_objects()
             return self.builder
@@ -517,12 +550,39 @@ class Edb(object):
         self.edbpath = os.path.join(working_dir, aedb_name)
         return self.open_edb()
 
-    def __enter__(self):
-        return self
+    @aedt_exception_handler
+    def export_to_ipc2581(self, ipc_path=None, units="millimeter"):
+        """Create an XML IPC2581 File from active Edb.
 
-    def __exit__(self, ex_type, ex_value, ex_traceback):
-        if ex_type:
-            self.edb_exception(ex_value, ex_traceback)
+        Parameters
+        ----------
+        ipc_path : str, optional
+            Path to the xml file
+        units : str, optional
+            Units of IPC2581 file. Default ``millimeter``. It can be ``millimeter``,
+            ``inch``, ``micron``.
+        Returns
+        -------
+        bool
+            ``True`` if succeeded.
+
+        """
+        if units.lower() not in ["millimeter", "inch", "micron"]:
+            self._messenger.add_warning_message("Wrong unit entered. Setting default to millimiter")
+            units = "millimeter"
+
+        if not ipc_path:
+            ipc_path = self.edbpath[:-4]+"xml"
+        self._messenger.add_info_message("Export IPC 2581 is starting. This operation can take a while...")
+        start = time.time()
+        result = self.layout_methods.ExportIPC2581FromBuilder(self.builder, ipc_path, units.lower())
+        end = time.time() - start
+        if result:
+            self._messenger.add_info_message("Export IPC 2581 completed in {} sec.".format(end))
+            self._messenger.add_info_message("File saved in {}".format(ipc_path))
+            return ipc_path
+        self._messenger.add_info_message("Error Exporting IPC 2581.")
+        return False
 
     def edb_exception(self, ex_value, tb_data):
         """Write the trace stack to AEDT when a Python error occurs.
@@ -758,7 +818,7 @@ class Edb(object):
         WorkDir : str
             Directory in which to create the ``aedb`` folder. The AEDB file name will be
             the same as the BRD file name. The default value is ``None``.
-        anstranslator_full_path: str, Optional
+        anstranslator_full_path : str, optional
             Optional AnsTranslator full path.
         use_ppe : bool
             Whether to use or not PPE License. The default is ``False``.
@@ -786,7 +846,7 @@ class Edb(object):
         WorkDir : str
             Directory in which to create the ``aedb`` folder. The AEDB file name will be
             the same as the GDS file name. The default value is ``None``.
-        anstranslator_full_path: str, Optional
+        anstranslator_full_path : str, optional
             Optional AnsTranslator full path.
         use_ppe : bool
             Whether to use or not PPE License. The default is ``False``.
@@ -899,7 +959,17 @@ class Edb(object):
             _success = db2.Save()
             self._db = db2
             self.edbpath = output_aedb_path
-            self._active_cell = _cutout
+            self._active_cell = list(self._db.TopCircuitCells)[0]
+            self.builder = retry_ntimes(
+                10,
+                self.layout_methods.GetBuilder,
+                self._db,
+                self._active_cell,
+                self.edbpath,
+                self.edbversion,
+                self.standalone,
+            )
+            self._init_objects()
         return True
 
     @aedt_exception_handler

@@ -8,7 +8,7 @@ from pyaedt import Icepak
 from pyaedt.generic.filesystem import Scratch
 
 # Setup paths for module imports
-from _unittest.conftest import local_path, scratch_path
+from _unittest.conftest import local_path, scratch_path, desktop_version
 
 try:
     import pytest  # noqa: F401
@@ -18,9 +18,9 @@ except ImportError:
 # Access the desktop
 
 non_graphical_test = False
-test_project_name = "Filter_Board"
+test_project_name = "Filter_Board_Icepak"
 proj_name = None
-design_name = "Galileo_G87173_205_cutout3"
+design_name = "cutout3"
 solution_name = "HFSS Setup 1 : Last Adaptive"
 en_ForceSimulation = True
 en_PreserveResults = True
@@ -46,11 +46,15 @@ class TestClass:
                 os.path.join(local_path, "example_models", test_project_name + ".aedb"),
                 os.path.join(self.local_scratch.path, test_project_name + ".aedb"),
             )
-            self.aedtapp = Icepak(self.test_project)
+            self.aedtapp = Icepak(self.test_project, specified_version=desktop_version)
 
     def teardown_class(self):
         self.aedtapp.close_project(self.aedtapp.project_name)
         time.sleep(2)
+        try:
+            self.aedtapp.close_project(src_project_name)
+        except:
+            pass
         self.local_scratch.remove()
         gc.collect()
 
@@ -69,10 +73,6 @@ class TestClass:
 
     def test_03_AssignPCBRegion(self):
         self.aedtapp.globalMeshSettings(2)
-        # self.aedtapp.mesh.global_mesh_region.EnableMLM =False
-        # self.aedtapp.mesh.global_mesh_region.update()
-        # padding = [0,0,0,0,0,0]
-        # self.aedtapp.modeler.edit_region_dimensions(padding)
         self.aedtapp.create_meshregion_component()
         pcb_mesh_region = self.aedtapp.mesh.MeshRegion(self.aedtapp.mesh.omeshmodule, [1, 1, 1], "mm")
         pcb_mesh_region.name = "PCB_Region"
@@ -170,6 +170,7 @@ class TestClass:
 
     def test_10_DesignSettings(self):
         assert self.aedtapp.apply_icepak_settings()
+        assert self.aedtapp.apply_icepak_settings(ambienttemp=23.5)
         self.aedtapp["amb"] = "25deg"
         assert self.aedtapp.apply_icepak_settings(ambienttemp="amb", perform_minimal_val=False)
 
@@ -178,7 +179,7 @@ class TestClass:
         pass
 
     def test_12_AssignMeshOperation(self):
-        self.aedtapp.oproject = "Filter_Board"
+        self.aedtapp.oproject = test_project_name
         self.aedtapp.odesign = "IcepakDesign1"
         group_name = "Group1"
         mesh_level_Filter = "2"
@@ -192,11 +193,11 @@ class TestClass:
         test = self.aedtapp.mesh.assign_mesh_region(["USB_ID"], mesh_level_RadioPCB)
         assert test
 
-    def test_13_assign_openings(self):
+    def test_13a_assign_openings(self):
         airfaces = [self.aedtapp.modeler.primitives["Region"].top_face_x.id]
         assert self.aedtapp.assign_openings(airfaces)
 
-    def test_1b_assign_grille(self):
+    def test_13b_assign_grille(self):
         airfaces = [self.aedtapp.modeler.primitives["Region"].top_face_y.id]
         grille = self.aedtapp.assign_grille(airfaces)
         grille.props["Free Area Ratio"] = 0.7
@@ -236,7 +237,8 @@ class TestClass:
 
     def test_17_get_output_variable(self):
         value = self.aedtapp.get_output_variable("OutputVariable1")
-        assert value == 0.5235987755982988
+        tol = 1e-9
+        assert abs(value  - 0.5235987755982988) < tol
 
     def test_18_export_summary(self):
         assert self.aedtapp.export_summary()
@@ -316,7 +318,7 @@ class TestClass:
         self.aedtapp.set_active_design("IcepakDesign1")
         assert self.aedtapp.mesh.automatic_mesh_3D(accuracy2=1)
 
-    def test_create_source(self):
+    def test_36_create_source(self):
         self.aedtapp.modeler.primitives.create_box([0, 0, 0], [20, 20, 20], name="boxSource")
         assert self.aedtapp.create_source_power(
             self.aedtapp.modeler.primitives["boxSource"].top_face_z.id, input_power="2W"
@@ -327,13 +329,13 @@ class TestClass:
             temperature="28cel",
         )
 
-    def test_surface_monitor(self):
+    def test_37_surface_monitor(self):
         self.aedtapp.modeler.primitives.create_rectangle(
             self.aedtapp.CoordinateSystemPlane.XYPlane, [0, 0, 0], [10, 20], name="surf1"
         )
         assert self.aedtapp.assign_surface_monitor("surf1")
 
-    def test_poin_monitor(self):
+    def test_38_point_monitor(self):
         assert self.aedtapp.assign_point_monitor([0, 0, 0])
 
     def test_88_create_heat_sink(self):

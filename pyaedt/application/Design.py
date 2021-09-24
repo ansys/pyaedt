@@ -262,7 +262,7 @@ class DesignCache(object):
 
     Parameters
     ----------
-    parent: str
+    parent : str
         Name of the parent object.
 
     """
@@ -488,7 +488,7 @@ class Design(object):
     solution_type : str, optional
         Solution type to apply to the design. The default is
         ``None``, in which case the default type is applied.
-    specified_version: str, optional
+    specified_version : str, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
     NG : bool, optional
@@ -1153,7 +1153,8 @@ class Design(object):
 
     @aedt_exception_handler
     def add_info_message(self, message_text, message_type=None):
-        """Add a type 0 "Info" message to the active design level of the Message Manager tree.
+        """Add a type 0 "Info" message to either global, active project or active design
+        level of the Message Manager tree.
 
         Also add an info message to the logger if the handler is present.
 
@@ -1186,7 +1187,8 @@ class Design(object):
 
     @aedt_exception_handler
     def add_warning_message(self, message_text, message_type=None):
-        """Add a type 0 "Warning" message to the active design level of the Message Manager tree.
+        """Add a type 0 "Warning" message to either global, active project or active design
+        level of the Message Manager tree.
 
         Also add an info message to the logger if the handler is present.
 
@@ -1219,7 +1221,8 @@ class Design(object):
 
     @aedt_exception_handler
     def add_error_message(self, message_text, message_type=None):
-        """Add a type 0 "Error" message to the active design level of the Message Manager tree.
+        """Add a type 0 "Error" message to either global, active project or active design
+        level of the Message Manager tree.
 
         Also add an error message to the logger if the handler is present.
 
@@ -1265,7 +1268,9 @@ class Design(object):
     def set_license_type(self, license_type="Pool"):
         """Change the License Type between ``Pack`` and ``Pool``.
 
-        ..note: The command returns True even if the Key is wrong due to API limitation.
+        .. note::
+           The command returns ``True`` even if the Key is wrong due
+           to API limitation.
 
         Parameters
         ----------
@@ -1781,9 +1786,9 @@ class Design(object):
 
         Parameters
         ----------
-        close_projects: bool, optional
+        close_projects : bool, optional
             Whether to close all projects. The default is ``True``.
-        close_desktop: bool, optional
+        close_desktop : bool, optional
             Whether to close the desktop after releasing it. The default is ``True``.
 
         Returns
@@ -1857,13 +1862,11 @@ class Design(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        legacy_project = self.project_name
+        if close_active_proj:
+            self.close_project(self.project_name)
         proj = self._desktop.OpenProject(project_file)
-
         if proj:
             self.__init__(projectname=proj.GetName(), designname=design_name)
-            if close_active_proj:
-                self._desktop.CloseProject(legacy_project)
             return True
         else:
             return False
@@ -1984,9 +1987,9 @@ class Design(object):
             List of X-axis values for the dataset.
         ylist : list
             List of Y-axis values for the dataset.
-        zylist : list, optional
+        zlist : list, optional
             List of Z-axis values for a 3D dataset only. The default is ``None``.
-        vylist : list, optional
+        vlist : list, optional
             List of V-axis values for a 3D dataset only. The default is ``None``.
         is_project_dataset : bool, optional
             Whether it is a project data set. The default is ``True``.
@@ -2017,6 +2020,7 @@ class Design(object):
             self.project_datasets[dsname] = ds
         else:
             self.design_datasets[dsname] = ds
+        self._messenger.add_info_message("Dataset {} created successfully.".format(dsname))
         return ds
 
     @aedt_exception_handler

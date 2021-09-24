@@ -33,7 +33,7 @@ class Circuit(FieldAnalysisCircuit, object):
         Name of the setup to use as the nominal. The default is
         ``None``, in which case the active setup is used or
         nothing is used.
-    specified_version: str, optional
+    specified_version : str, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is  used.
         This parameter is ignored when Script is launched within AEDT.
@@ -823,22 +823,22 @@ class Circuit(FieldAnalysisCircuit, object):
             The default is ``None``.
         setupname : str, optional
             Name of the setup if it is a design. The default is ``None``.
-        is_solution_file: bool, optional
+        is_solution_file : bool, optional
             Whether it is an imported solution file. The default is ``False``.
-        filename: str, optional
+        filename : str, optional
             Full path and name for exporting the HSpice file. The default is ``None``.
-        passivity: bool, optional
+        passivity : bool, optional
             Whether to compute the passivity. The default is ``False``.
-        causality: bool, optional
+        causality : bool, optional
             Whether to compute the causality. The default is ``False``.
-        renormalize: bool, optional
+        renormalize : bool, optional
             Whether to renormalize the S-matrix to a specific port impedance.
             The default is ``False``.
-        impedance: float, optional
+        impedance : float, optional
             Impedance value if ``renormalize=True``. The default is ``50``.
-        error: float, optional
+        error : float, optional
             Fitting error. The default is ``0.5``.
-        poles: int, optional
+        poles : int, optional
             Number of fitting poles. The default is ``10000``.
 
         Returns

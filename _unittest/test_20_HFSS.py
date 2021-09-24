@@ -205,7 +205,6 @@ class TestClass:
         assert sweep.props["RangeEnd"] == str(freq_stop) + units
         assert sweep.props["Type"] == "Fast"
 
-    @pytest.mark.skipif(os.name == "posix", reason="Blocking Build Pipeline")
     def test_06d_create_single_point_sweep(self):
         assert self.aedtapp.create_single_point_sweep(
             setupname="MySetup",
@@ -229,7 +228,6 @@ class TestClass:
             freq=[1.1e1, 1.2e1, 1.3e1],
             save_single_field=[True, False, True]
         )
-
         os.environ["PYAEDT_ERROR_HANDLER"] = "True"
         assert not self.aedtapp.create_single_point_sweep(
                 setupname="MySetup",
@@ -407,11 +405,11 @@ class TestClass:
         port = self.aedtapp.create_voltage_source_from_objects(
             box1.name, "BoxVolt2", self.aedtapp.AxisDir.XNeg, "Volt1"
         )
-        assert port in self.aedtapp.modeler.get_excitations_name()
+        assert port.name in self.aedtapp.modeler.get_excitations_name()
         port = self.aedtapp.create_current_source_from_objects(
             "BoxVolt1", "BoxVolt2", self.aedtapp.AxisDir.XPos, "Curr1"
         )
-        assert port in self.aedtapp.modeler.get_excitations_name()
+        assert port.name in self.aedtapp.modeler.get_excitations_name()
 
     def test_19_create_lumped_on_sheet(self):
         rect = self.aedtapp.modeler.primitives.create_rectangle(
@@ -420,14 +418,14 @@ class TestClass:
         port = self.aedtapp.create_lumped_port_to_sheet(
             rect.name, self.aedtapp.AxisDir.XNeg, 50, "Lump_sheet", True, False
         )
-        assert port + ":1" in self.aedtapp.modeler.get_excitations_name()
+        assert port.name + ":1" in self.aedtapp.modeler.get_excitations_name()
 
     def test_20_create_voltage_on_sheet(self):
         rect = self.aedtapp.modeler.primitives.create_rectangle(
             self.aedtapp.CoordinateSystemPlane.XYPlane, [0, 0, 0], [10, 2], name="lump_volt", matname="Copper"
         )
         port = self.aedtapp.assign_voltage_source_to_sheet(rect.name, self.aedtapp.AxisDir.XNeg, "LumpVolt1")
-        assert port in self.aedtapp.modeler.get_excitations_name()
+        assert port.name in self.aedtapp.modeler.get_excitations_name()
         assert self.aedtapp.get_property_value("BoundarySetup:LumpVolt1", "VoltageMag", "Excitation") == "1V"
 
     def test_21_create_open_region(self):
@@ -508,7 +506,11 @@ class TestClass:
         assert port.update()
 
     def test_32_get_property_value(self):
-        assert self.aedtapp.get_property_value("BoundarySetup:Coating_inner", "Inf Ground Plane", "Boundary") == "false"
+        rect = self.aedtapp.modeler.primitives.create_rectangle(
+            self.aedtapp.CoordinateSystemPlane.XYPlane, [0, 0, 0], [10, 2], name="RectBound", matname="Copper"
+        )
+        pe = self.aedtapp.assign_perfecte_to_sheets(rect.name, "PerfectE_1")
+        assert self.aedtapp.get_property_value("BoundarySetup:PerfectE_1", "Inf Ground Plane", "Boundary") == "false"
         assert self.aedtapp.get_property_value("AnalysisSetup:MySetup", "Solution Freq", "Setup") == "1GHz"
 
     def test_33_copy_solid_bodies(self):

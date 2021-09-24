@@ -720,10 +720,10 @@ class CommonMaterial(object):
     def _get_args(self, props=None):
         """Retrieve the arguments for a property.
 
-        Parameters:
-            prop: str, optoinal
-                Name of the property.
-                The default is ``None``.
+        Parameters
+        ----------
+        prop : str, optoinal
+            Name of the property.  The default is ``None``.
         """
         if not props:
             props = self._props
@@ -736,7 +736,7 @@ class CommonMaterial(object):
 
         Parameters
         ----------
-        propname: str
+        propname : str
             Name of the property.
         provpavlue :
             Value of the property.
