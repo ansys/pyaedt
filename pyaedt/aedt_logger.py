@@ -3,64 +3,73 @@ import logging
 from .import log_handler
 
 FORMATTER = logging.Formatter(
-        "%(asctime)s:%(name)s:%(dest):%(extra):%(levelname)-8s:%(message)s",
+        "%(asctime)s:%(name)s:%(destination)s:%(extra)s:%(levelname)-8s:%(message)s",
         datefmt='%Y/%m/%d %H.%M.%S')
 
-# def make_formatter(destination):
-#     """Create an AEDT specific formatter that include destination.
-    
-#     Parameters
-#     ----------
-#     destination : str
-#     """
-
-#     return logging.Formatter(
-#         "%(asctime)s:%(name)s:" + destination + ":%(levelname)-8s:%(message)s",
-#         datefmt='%Y/%m/%d %H.%M.%S')
-
 class AppFilter(logging.Filter):
+    """This filter will be used to specify the destination of the log
+    global, project and design.
 
-    def __init__(self, dest='global', extra=''):
-        self._dest = dest
+    Parameters
+    ----------
+    destination : str, optional
+        Desktop exposes 3 differents destination: global, project and design.
+        The default is ``global``.
+    extra : str, optional
+        Name of the design or project. The defaut is an empty string.
+    """
+
+    def __init__(self, destination='global', extra=''):
+        self._destination = destination
         self._extra = extra
 
     def filter(self, record):
-        record.dest = self._dest
+        record.dest = self._destination
         record.extra = self._extra
         return True
 
+
 class AedtLogger():
+    """Logger used for each Aedt logger.
+
+    This class allows you to add handler to a file or standard output.
+
+    Parameters
+    ----------
+    filename : str, optional
+        Name of the file where log messages can be written to.
+        The default is ``None``.
+    to_stdout : bool, optional
+        Write log message into the standard output. The defaut is ``False``.
+    """
 
     def __init__(self, messenger, level=logging.DEBUG, filename=None, to_stdout=False):
-
-        """ no env var here..."""
-
         self._messenger = messenger
         self._global = logging.getLogger('global')
         self._file_handler = None
         self._std_out_handler = None
 
-        #3 app filter
-        # ap filter class must redirect to the handler
+        # app filter class must redirect to the handler
 
         if not self._global.handlers:
+            # hand = log_handler._LogHandler(self._messenger, 'Global', level)
+            # hand.setFormatter(FORMATTER)
+            # self._global.addHandler(hand)
             self._global.addHandler(log_handler._LogHandler(self._messenger, 'Global', level))
             self._global.setLevel(level)
-            self._global.setFormatter(FORMATTER)
             self._global.addFilter(AppFilter())
 
+        if filename:
+            self._file_handler = logging.FileHandler(filename)
+            self._file_handler.setLevel(level)
+            self._file_handler.setFormatter(FORMATTER)
+            self._global.addHandler(self._file_handler)
 
-            if filename:
-                self._file_handler = logging.FileHandler(filename)
-                self._file_handler.setLevel(level)
-                self._file_handler.setFormatter(FORMATTER)
-                self._global.addHandler(self._file_handler)
-
-            if to_stdout:
-                self._std_out_handler = logging.StreamHandler()
-                self._std_out_handler.setLevel(level)
-                self._std_out_handler.setFormatter(FORMATTER)
-                self._global.addHandler(self._std_out_handler)
+        if to_stdout:
+            self._std_out_handler = logging.StreamHandler()
+            self._std_out_handler.setLevel(level)
+            self._std_out_handler.setFormatter(FORMATTER)
+            self._global.addHandler(self._std_out_handler)
 
     def add_logger(self, destination, level=logging.DEBUG):
         """Add logger for either an active project or an active design."""
@@ -69,23 +78,25 @@ class AedtLogger():
             self._project = logging.getLogger(project_name)
             self._project.addHandler(log_handler._LogHandler(self._messenger, 'Project', level))
             self._project.setLevel(level)
-            self._project.setFormatter(FORMATTER)
+            #self._project.setFormatter(FORMATTER)
             self._project.addFilter(AppFilter('Project', project_name))
             if self._file_handler is not None:
                 self._project.addHandler(self._file_handler)
             if self._std_out_handler is not None:
                 self._project.addHandler(self._std_out_handler)
+            return self._project
         elif destination == 'Design':
             design_name = self._messenger._design_name
             self._design = logging.getLogger(design_name)
             self._design.addHandler(log_handler._LogHandler(self._messenger, 'Design', level))
             self._design.setLevel(level)
-            self._design.setFormatter(FORMATTER)
+            #self._design.setFormatter(FORMATTER)
             self._design.addFilter(AppFilter('Design', design_name))
             if self._file_handler is not None:
                 self._design.addHandler(self._file_handler)
             if self._std_out_handler is not None:
                 self._design.addHandler(self._std_out_handler)
+            return self._design
         else:
             raise ValueError("The destination must be either 'Project' or 'Design'.")
 
@@ -102,12 +113,15 @@ class AedtLogger():
 
     @property
     def project(self):
-        """Global logger."""
+        """Project logger."""
+        self._project = logging.getLogger(self._messenger._project_name)
+        if not self._project.hasHandlers:
+            self.add_logger("Project")
         return self._project
 
     @property
     def design(self):
-        """Global logger."""
+        """Design logger."""
         self._design = logging.getLogger(self._messenger._design_name)
         if not self._design.hasHandlers:
             self._design.addHandler(log_handler._LogHandler(self._messenger, 'Design', level))

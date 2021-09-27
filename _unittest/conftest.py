@@ -147,18 +147,6 @@ def pyaedt_unittest_check_desktop_error(func):
     return inner_function
 
 
-@pytest.fixture(scope="function")
-def close_projects():
-    # Close all existing projects to start from a clean desktop environment.
-    Module = sys.modules["__main__"]
-    pid = Module.oDesktop.GetProcessID()
-    if pid > 0:
-        projects = Module.oDesktop.GetProjectList()
-        for project in projects:
-            Module.oDesktop.CloseProject(project)
-
-
-#
 # def pyaedt_unittest_same_design(func):
 #     @wraps(func)
 #     def inner_function(*args, **kwargs):
