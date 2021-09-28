@@ -281,7 +281,8 @@ def download_multiparts():
     """
     _download_file("multiparts", "library.zip")
     dest_folder = os.path.join(EXAMPLES_PATH, "multiparts")
-    unzip(os.path.join(EXAMPLES_PATH, "multiparts", "library.zip"), dest_folder)
+    if os.path.exists(os.path.join(EXAMPLES_PATH, "multiparts", "library.zip")):
+        unzip(os.path.join(EXAMPLES_PATH, "multiparts", "library.zip"), dest_folder)
     return os.path.join(dest_folder, "library")
 
 
