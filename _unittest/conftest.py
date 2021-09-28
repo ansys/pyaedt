@@ -109,7 +109,7 @@ non_graphical = config["NonGraphical"]
 def desktop_init():
     desktop = Desktop(desktop_version, non_graphical, new_thread)
     desktop.disable_autosave()
-    yield desktop
+    # yield desktop
 
     # If new_thread is set to false by a local_config, then don't close the desktop.
     # Intended for local debugging purposes only
@@ -122,6 +122,7 @@ def desktop_init():
 
     if config["test_desktops"]:
         run_desktop_tests()
+    return desktop
 
 
 from functools import wraps
