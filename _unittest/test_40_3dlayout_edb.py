@@ -75,3 +75,6 @@ class TestClass:
         setup1.props["Enabled"] = False
         assert setup1.update()
         assert self.aedtapp.mesh.delete_mesh_operations("HFSS", setup1.name)
+
+    def test_05_change_property(self):
+        assert self.aedtapp.modeler.change_property("Excitations:J2B3-2", "Impedance", "49ohm", "EM Design")
