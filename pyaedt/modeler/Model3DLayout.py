@@ -177,7 +177,7 @@ class Modeler3DLayout(Modeler):
         bool
             ``True`` if successful.
         """
-        if isinstance(property_value, list) and  len(property_value)==3:
+        if isinstance(property_value, list) and len(property_value) == 3:
             xpos, ypos, zpos = self._pos_with_arg(property_value)
             self.oeditor.ChangeProperty(
                 ["NAME:AllTabs", ["NAME:" + property_tab, ["NAME:PropServers", property_object], ["NAME:ChangedProps", [
