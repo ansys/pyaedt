@@ -10,7 +10,7 @@ from pyaedt.aedt_logger import AedtLogger
 
 class TestClass:
 
-    def test_01_global(self, hfss):
+    def test_01_global(self, clean_desktop_messages, clean_desktop, hfss):
         logger = hfss.logger
         # The default logger level is DEBUGGING.
         logger.glb.debug("Debug message for testing.")
@@ -36,10 +36,10 @@ class TestClass:
         logger.design.info("Critical message for testing.")
 
         global_messages = logger.get_messages().global_level
-        assert len(global_messages) == 13
+        assert len(global_messages) == 11
         assert global_messages[0] == '[info] pyaedt v0.4.dev0'
-        assert '[info] Python version 3.8.0' in global_messages[3]
-        assert '[info] Project' in global_messages[4]
+        assert '[info] Python version 3.8.0' in global_messages[1]
+        assert '[info] Project' in global_messages[2]
         assert '[info] No design is present. Inserting a new design.' in global_messages
         assert '[info] Design Loaded' in global_messages
         assert '[info] Materials Loaded' in global_messages
@@ -67,7 +67,7 @@ class TestClass:
         assert '[info] Critical message for testing.' in project_messages[4]
 
         logger.clear_messages("", "", 2)
-        # assert not logger.get_messages().global_level
+        assert not logger.get_messages().global_level
 
     def test_02_output_file_with_app_filter(self, hfss):
         content = None

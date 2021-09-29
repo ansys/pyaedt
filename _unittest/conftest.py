@@ -122,14 +122,18 @@ def desktop_init():
 
     if config["test_desktops"]:
         run_desktop_tests()
-    
+
+@pytest.fixture
+def clean_desktop_messages(desktop_init):
+    desktop_init.logger.clear_messages()
+
 @pytest.fixture
 def clean_desktop(desktop_init):
     desktop_init.release_desktop(close_projects=True, close_on_exit=False)
     return desktop_init
 
 @pytest.fixture
-def hfss(clean_desktop):
+def hfss():
     # Be sure that the base class constructor "design" exposes oDesktop.
     hfss = Hfss(new_desktop_session=False)
     yield hfss

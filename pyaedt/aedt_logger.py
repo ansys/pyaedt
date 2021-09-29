@@ -14,10 +14,10 @@ class AppFilter(logging.Filter):
     Parameters
     ----------
     destination : str, optional
-        Desktop exposes 3 differents destination: Global, project and design.
+        Desktop exposes 3 different destinations: Global, project and design.
         The default is ``Global``.
     extra : str, optional
-        Name of the design or project. The defaut is an empty string.
+        Name of the design or project. The default is an empty string.
     """
 
     def __init__(self, destination='Global', extra=''):
@@ -46,7 +46,7 @@ class AedtLogger():
         Name of the file where log messages can be written to.
         The default is ``None``.
     to_stdout : bool, optional
-        Write log message into the standard output. The defaut is ``False``.
+        Write log message into the standard output. The default is ``False``.
     """
 
     def __init__(self, messenger, level=logging.DEBUG, filename=None, to_stdout=False):
