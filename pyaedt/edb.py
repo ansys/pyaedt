@@ -182,6 +182,7 @@ class Edb(object):
         if os.name == "posix":
             clr.ClearProfilerData()
         gc.collect()
+        gc.collect()
 
     @aedt_exception_handler
     def _init_objects(self):
@@ -754,6 +755,7 @@ class Edb(object):
             ``True`` when successful, ``False`` when failed.
 
         """
+        gc.collect()
         self._db.Close()
 
         self._clean_variables()
@@ -762,6 +764,8 @@ class Edb(object):
         for a in props:
             self.__dict__.pop(a, None)
         gc.collect()
+        gc.collect()
+
         return True
 
     @aedt_exception_handler
