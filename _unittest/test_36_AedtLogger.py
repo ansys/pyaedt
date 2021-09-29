@@ -67,7 +67,7 @@ class TestClass:
         assert '[info] Critical message for testing.' in project_messages[4]
 
         logger.clear_messages("", "", 2)
-        #assert not logger.get_messages().global_level
+        # assert not logger.get_messages().global_level
 
     def test_02_output_file_with_app_filter(self, hfss):
         content = None
@@ -118,7 +118,6 @@ class TestClass:
         hfss.logger.glb.handlers.pop()
         hfss.logger.project.handlers.pop()
         hfss.logger.design.handlers.pop()
-
 
     def test_03_stdout_with_app_filter(self, hfss):
         capture = CaptureStdOut()
