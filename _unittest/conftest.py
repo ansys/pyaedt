@@ -109,7 +109,7 @@ non_graphical = config["NonGraphical"]
 def desktop_init():
     desktop = Desktop(desktop_version, non_graphical, new_thread)
     desktop.disable_autosave()
-    # yield desktop
+    yield desktop
 
     # If new_thread is set to false by a local_config, then don't close the desktop.
     # Intended for local debugging purposes only
@@ -122,7 +122,20 @@ def desktop_init():
 
     if config["test_desktops"]:
         run_desktop_tests()
-    return desktop
+    
+
+@pytest.fixture
+def clean_desktop(desktop_init):
+    desktop_init.release_desktop(close_projects=True, close_on_exit=False)
+    return desktop_init
+
+@pytest.fixture
+def hfss(clean_desktop):
+    # Be sure that the base class constructor "design" exposed oDesktop.
+    hfss = Hfss(new_desktop_session=False)
+    yield hfss
+    hfss.close_project(hfss.project_name)
+    gc.collect()
 
 
 from functools import wraps

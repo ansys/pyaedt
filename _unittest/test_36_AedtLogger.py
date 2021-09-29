@@ -1,35 +1,17 @@
 # Setup paths for module imports
-from _unittest.conftest import scratch_path
-from _unittest.conftest import desktop_init
-import gc
 import tempfile
 import os
 import io
 import sys
 
 # Import required modules
-from pyaedt import Hfss
-from pyaedt.generic.filesystem import Scratch
 from pyaedt.aedt_logger import AedtLogger
 
 
 class TestClass:
-    def setup_class(self, close_projects):
-        # set a scratch directory and the environment / test data
-        #desktop.release_desktop(close_projects=True, close_on_exit=False)
-        breakpoint()
-        desktop_init.release_desktop(close_projects=True, close_on_exit=False)
 
-        with Scratch(scratch_path) as self.local_scratch:
-            self.aedtapp = Hfss(new_desktop_session=True)
-
-    def teardown_class(self):
-        assert self.aedtapp.close_project(self.aedtapp.project_name)
-        self.local_scratch.remove()
-        gc.collect()
-
-    def test_01_global(self):
-        logger = self.aedtapp.logger
+    def test_01_global(self, hfss):
+        logger = hfss.logger
         # The default logger level is DEBUGGING.
         logger.glb.debug("Debug message for testing.")
         logger.glb.info("Info message for testing.")
@@ -54,10 +36,10 @@ class TestClass:
         logger.design.info("Critical message for testing.")
 
         global_messages = logger.get_messages().global_level
-        assert len(global_messages) == 11
+        assert len(global_messages) == 13
         assert global_messages[0] == '[info] pyaedt v0.4.dev0'
-        assert '[info] Python version 3.8.0' in global_messages[1]
-        assert '[info] Project' in global_messages[2]
+        assert '[info] Python version 3.8.0' in global_messages[3]
+        assert '[info] Project' in global_messages[4]
         assert '[info] No design is present. Inserting a new design.' in global_messages
         assert '[info] Design Loaded' in global_messages
         assert '[info] Materials Loaded' in global_messages
@@ -87,11 +69,11 @@ class TestClass:
         logger.clear_messages("", "", 2)
         #assert not logger.get_messages().global_level
 
-    def test_02_output_file_with_app_filter(self):
+    def test_02_output_file_with_app_filter(self, hfss):
         content = None
         with tempfile.TemporaryDirectory() as temp_dir:
             path = os.path.join(temp_dir, "test.txt")
-            logger = AedtLogger(self.aedtapp._messenger, filename=path)
+            logger = AedtLogger(hfss._messenger, filename=path)
             logger.glb.info("Info for Global")
             logger.glb.debug("Debug for Global")
             logger.glb.warning("Warning for Global")
@@ -133,15 +115,15 @@ class TestClass:
         assert ":WARNING :Warning for Design" in content[10]
         assert ":ERROR   :Error for Design" in content[11]
 
-        self.aedtapp.logger.glb.handlers.pop()
-        self.aedtapp.logger.project.handlers.pop()
-        self.aedtapp.logger.design.handlers.pop()
+        hfss.logger.glb.handlers.pop()
+        hfss.logger.project.handlers.pop()
+        hfss.logger.design.handlers.pop()
 
 
-    def test_03_stdout_with_app_filter(self):
+    def test_03_stdout_with_app_filter(self, hfss):
         capture = CaptureStdOut()
         with capture:
-            logger = AedtLogger(self.aedtapp._messenger, to_stdout=True)
+            logger = AedtLogger(hfss._messenger, to_stdout=True)
             logger.glb.info("Info for Global")
             logger.glb.debug("Debug for Global")
             logger.glb.warning("Warning for Global")
