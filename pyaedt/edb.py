@@ -171,6 +171,8 @@ class Edb(object):
         self._nets = None
         self._db = None
         self._edb = None
+        if "edbutils" in dir(self):
+            self.edbutils.Logger.Disable = True
         self.builder = None
         self.edblib = None
         self.edbutils = None

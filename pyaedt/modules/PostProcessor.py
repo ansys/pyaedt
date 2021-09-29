@@ -438,8 +438,9 @@ class FieldPlot:
 
     """
 
-    def __init__(self, oField, objlist, solutionName, quantityName, intrinsincList={}):
-        self.oField = oField
+    def __init__(self, parent, objlist, solutionName, quantityName, intrinsincList={}):
+        self._parent = parent
+        self.oField = parent.ofieldsreporter
         self.faceIndexes = objlist
         self.solutionName = solutionName
         self.quantityName = quantityName
@@ -638,7 +639,7 @@ class FieldPlot:
             "UserSpecifyName:=",
             0,
             "UserSpecifyFolder:=",
-            0,
+            1,
             "StreamlinePlot:=",
             False,
             "AdjacentSidePlot:=",
@@ -1332,7 +1333,7 @@ class PostProcessor(PostProcessorCommon, object):
                 value = lines[-1]
             os.remove(file_name)
         self.ofieldsreporter.CalcStack("clear")
-        return value
+        return float(value)
 
     @aedt_exception_handler
     def export_field_file_on_grid(
@@ -1643,29 +1644,7 @@ class PostProcessor(PostProcessorCommon, object):
         return True
 
     @aedt_exception_handler
-    def _create_fieldplot(self, objlist, quantityName, setup_name, intrinsincList, objtype, listtype):
-        """Internal function.
-
-        Parameters
-        ----------
-        objlist : list
-            List of fields to plot.
-        quantityName : str
-            Name of the field plot.
-        setup_name :
-            Name of the setup in the format ``"setupName : sweepName"``.
-        intrinsincList :
-
-        objtype :
-
-        listtype :
-
-
-        Returns
-        -------
-        :class:``pyaedt.modules.PostProcessor.FieldPlot``
-            Field Plot Object.
-        """
+    def _create_fieldplot(self, objlist, quantityName, setup_name, intrinsincList, objtype, listtype, plot_name=None):
         if isinstance(objlist, (str, int)):
             objlist = [objlist]
         if not setup_name:
@@ -1673,24 +1652,26 @@ class PostProcessor(PostProcessorCommon, object):
         self._desktop.CloseAllWindows()
         self.oproject.SetActiveDesign(self._parent.design_name)
         try:
-            self.oeditor.FitAll()
+            self._parent._modeler.fit_all()
         except:
-            self.oeditor.ZoomToFit()
+            pass
         char_set = string.ascii_uppercase + string.digits
-        uName = quantityName + "_" + "".join(random.sample(char_set, 6))
-        plot = FieldPlot(self.ofieldsreporter, objlist, setup_name, quantityName, intrinsincList)
-        plot.name = uName
+        if not plot_name:
+            plot_name = quantityName + "_" + "".join(random.sample(char_set, 6))
+        plot = FieldPlot(self, objlist, setup_name, quantityName, intrinsincList)
+        plot.name = plot_name
+
         plot.objtype = objtype
         plot.listtype = listtype
         plt = plot.create()
         if plt:
-            self.FieldsPlot[uName] = plot
+            self.FieldsPlot[plot_name] = plot
             return plot
         else:
             return False
 
     @aedt_exception_handler
-    def create_fieldplot_surface(self, objlist, quantityName, setup_name=None, intrinsincDict={}):
+    def create_fieldplot_surface(self, objlist, quantityName, setup_name=None, intrinsincDict={}, plot_name=None):
         """Create a field plot of surfaces.
 
         Parameters
@@ -1705,6 +1686,8 @@ class PostProcessor(PostProcessorCommon, object):
         intrinsincDict : dict, optional
             Dictionary containing all intrinsic variables. The default
             is ``{}``.
+        plot_name : str, optional
+            Name of the fieldplot to create.
 
         Returns
         -------
@@ -1712,10 +1695,14 @@ class PostProcessor(PostProcessorCommon, object):
             Plot object.
 
         """
-        return self._create_fieldplot(objlist, quantityName, setup_name, intrinsincDict, "Surface", "FacesList")
+        if plot_name and plot_name in list(self.FieldsPlot.keys()):
+            self._messenger.add_info_message("Plot {} exists. returning the object.".format(plot_name))
+            return self.FieldsPlot[plot_name]
+        return self._create_fieldplot(objlist, quantityName, setup_name, intrinsincDict, "Surface", "FacesList",
+                                      plot_name)
 
     @aedt_exception_handler
-    def create_fieldplot_cutplane(self, objlist, quantityName, setup_name=None, intrinsincDict={}):
+    def create_fieldplot_cutplane(self, objlist, quantityName, setup_name=None, intrinsincDict={}, plot_name=None):
         """Create a field plot of cut planes.
 
         Parameters
@@ -1731,6 +1718,8 @@ class PostProcessor(PostProcessorCommon, object):
         intrinsincDict : dict, optional
             Dictionary containing all intrinsic variables.
             The default is ``{}``.
+        plot_name : str, optional
+            Name of the fieldplot to create.
 
         Returns
         -------
@@ -1738,10 +1727,14 @@ class PostProcessor(PostProcessorCommon, object):
             Plot object.
 
         """
-        return self._create_fieldplot(objlist, quantityName, setup_name, intrinsincDict, "Surface", "CutPlane")
+        if plot_name and plot_name in list(self.FieldsPlot.keys()):
+            self._messenger.add_info_message("Plot {} exists. returning the object.".format(plot_name))
+            return self.FieldsPlot[plot_name]
+        return self._create_fieldplot(objlist, quantityName, setup_name, intrinsincDict, "Surface", "CutPlane",
+                                      plot_name)
 
     @aedt_exception_handler
-    def create_fieldplot_volume(self, objlist, quantityName, setup_name=None, intrinsincDict={}):
+    def create_fieldplot_volume(self, objlist, quantityName, setup_name=None, intrinsincDict={}, plot_name=None):
         """Create a field plot of volumes.
 
         Parameters
@@ -1757,13 +1750,18 @@ class PostProcessor(PostProcessorCommon, object):
         intrinsincDict : dict, optional
             Dictionary containing all intrinsic variables. The default
             is ``{}``.
+        plot_name : str, optional
+            Name of the fieldplot to create.
 
         Returns
         -------
         type
             Plot object
         """
-        return self._create_fieldplot(objlist, quantityName, setup_name, intrinsincDict, "Volume", "ObjList")
+        if plot_name and plot_name in list(self.FieldsPlot.keys()):
+            self._messenger.add_info_message("Plot {} exists. returning the object.".format(plot_name))
+            return self.FieldsPlot[plot_name]
+        return self._create_fieldplot(objlist, quantityName, setup_name, intrinsincDict, "Volume", "ObjList", plot_name)
 
     @aedt_exception_handler
     def export_field_jpg(self, fileName, plotName, coordinateSystemName="Global"):
