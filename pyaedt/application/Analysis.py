@@ -292,17 +292,24 @@ class Analysis(Design, object):
         """
         setup_list = self.existing_analysis_setups
         sweep_list = []
-        for el in setup_list:
-            if self.solution_type in SetupKeys.defaultAdaptive.keys():
-                setuptype = SetupKeys.defaultAdaptive[self.solution_type]
-                if setuptype:
-                    sweep_list.append(el + " : " + setuptype)
-            try:
-                sweeps = list(self.oanalysis.GetSweeps(el))
-            except:
-                sweeps = []
-            for sw in sweeps:
-                sweep_list.append(el + " : " + sw)
+        if self.solution_type == "HFSS3DLayout" or self.solution_type == "HFSS 3D Layout Design":
+            sweep_list = self.oanalysis.GetAllSolutionNames()
+            sweep_list = [i for i in sweep_list if "Adaptive Pass" not in i]
+            sweep_list.reverse()
+        else:
+            for el in setup_list:
+                if self.solution_type == "HFSS3DLayout" or self.solution_type == "HFSS 3D Layout Design":
+                    sweeps = self.oanalysis.GelAllSolutionNames()
+                elif self.solution_type in SetupKeys.defaultAdaptive.keys():
+                    setuptype = SetupKeys.defaultAdaptive[self.solution_type]
+                    if setuptype:
+                        sweep_list.append(el + " : " + setuptype)
+                try:
+                    sweeps = list(self.oanalysis.GetSweeps(el))
+                except:
+                    sweeps = []
+                for sw in sweeps:
+                    sweep_list.append(el + " : " + sw)
         return sweep_list
 
     @property
@@ -747,6 +754,39 @@ class Analysis(Design, object):
         self.analysis_setup = name
         self.setups.append(setup)
         return setup
+
+    @aedt_exception_handler
+    def delete_setup(self, setupname):
+        """Delete a setup.
+
+        Parameters
+        ----------
+        setupname : str
+            Name of the setup.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        Create a setup and then delete it.
+
+        >>> import pyaedt
+        >>> hfss = pyaedt.Hfss()
+        >>> setup1 = hfss.create_setup(setupname='Setup1')
+        >>> hfss.delete_setup(setupname='Setup1')
+        ...
+        pyaedt Info: Sweep was deleted correctly.
+        """
+        if setupname in self.existing_analysis_setups:
+            self.oanalysis.DeleteSetups([setupname])
+            for s in self.setups:
+                if s.name == setupname:
+                    self.setups.remove(s)
+            return True
+        return False
 
     @aedt_exception_handler
     def edit_setup(self, setupname, properties_dict):

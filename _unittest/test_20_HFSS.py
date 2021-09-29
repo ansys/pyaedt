@@ -237,6 +237,13 @@ class TestClass:
             )
         os.environ["PYAEDT_ERROR_HANDLER"] = "False"
 
+    def test_06e_delete_setup(self):
+        setup_name = "SetupToDelete"
+        setuptd = self.aedtapp.create_setup(setupname=setup_name)
+        assert setuptd.name in self.aedtapp.existing_analysis_setups
+        assert self.aedtapp.delete_setup(setup_name)
+        assert setuptd.name not in self.aedtapp.existing_analysis_setups
+
     def test_06z_validate_setup(self):
         list, ok = self.aedtapp.validate_full_design(ports=5)
         assert ok

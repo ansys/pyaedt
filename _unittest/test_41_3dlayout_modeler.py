@@ -313,6 +313,13 @@ class TestClass:
         )
         assert sweep6.props["Sweeps"]["Data"] == '1GHz 2GHz 3GHz 4GHz'
 
+    def test_18d_delete_setup(self):
+        setup_name = "SetupToDelete"
+        setuptd = self.aedtapp.create_setup(setupname=setup_name)
+        assert setuptd.name in self.aedtapp.existing_analysis_setups
+        self.aedtapp.delete_setup(setup_name)
+        assert setuptd.name not in self.aedtapp.existing_analysis_setups
+
     def test_19A_validate(self):
         assert self.aedtapp.validate_full_design()
         self.aedtapp.delete_port("Port3")

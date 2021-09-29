@@ -106,7 +106,11 @@ class Modeler3DLayout(Modeler):
     @aedt_exception_handler
     def fit_all(self):
         """Fit all."""
-        self.oeditor.ZoomToFit()
+        try:
+            self._desktop.RestoreWindow()
+            self.oeditor.ZoomToFit()
+        except:
+            self._desktop.RestoreWindow()
 
     @property
     def model_units(self):
@@ -131,6 +135,86 @@ class Modeler3DLayout(Modeler):
     def obounding_box(self):
         """Bounding box."""
         return self.oeditor.GetModelBoundingBox()
+
+    @aedt_exception_handler
+    def _arg_with_dim(self, value, units=None):
+        if type(value) is str:
+            val = value
+        else:
+            if units is None:
+                units = self.model_units
+            val = "{0}{1}".format(value, units)
+
+        return val
+
+    def _pos_with_arg(self, pos, units=None):
+        posx = self._arg_with_dim(pos[0], units)
+        if len(pos) < 2:
+            posy = self._arg_with_dim(0, units)
+        else:
+            posy = self._arg_with_dim(pos[1], units)
+        if len(pos) < 3:
+            posz = self._arg_with_dim(0, units)
+        else:
+            posz = self._arg_with_dim(pos[2], units)
+
+        return posx, posy, posz
+
+    @aedt_exception_handler
+    def change_property(self, property_object, property_name, property_value, property_tab="BaseElementTab"):
+        """Change an oeditor property.
+
+        Parameters
+        ----------
+        property_object : str
+            Property Obcject name. It can be the name of excitation or field reporter. Eg. ``FieldsReporter:Mag_H``,
+            ``Excitations:Port1``.
+        property_name : str
+            Property name. Eg. ``Rotation Angle``
+        property_value : str, list
+            Property value. It's a string in case of single value. and a list of 3 elements in case of [X,Y,Z]
+        property_tab : str
+            Name of the tab to update. Default ``BaseElementTab``. Other options are ``EM Design``,
+            ``FieldsPostProcessorTab``.
+
+        Returns
+        -------
+        bool
+            ``True`` if successful.
+        """
+        if isinstance(property_value, list) and len(property_value) == 3:
+            xpos, ypos, zpos = self._pos_with_arg(property_value)
+            self.oeditor.ChangeProperty(
+                ["NAME:AllTabs", ["NAME:" + property_tab, ["NAME:PropServers", property_object], ["NAME:ChangedProps", [
+                    "NAME:" + property_name, "X:=", xpos, "Y:=", ypos, "Z:=", zpos]]]])
+        elif isinstance(property_value, (str, float, int)):
+            posx = self._arg_with_dim(property_value, self.model_units)
+            self.oeditor.ChangeProperty(
+                ["NAME:AllTabs", ["NAME:"+property_tab, ["NAME:PropServers", property_object],
+                                  ["NAME:ChangedProps", ["NAME:"+property_name, "Value:=", posx]]]])
+        else:
+            self._messenger.add_error_message("Wrong Property Value")
+            return False
+        self._messenger.add_info_message("Property {} Changed correctly.".format(property_name))
+        return True
+
+    @aedt_exception_handler
+    def change_clip_plane_position(self, clip_name, position):
+        """Change the Clip Plane position.
+
+        Parameters
+        ----------
+        clip_name : str
+            clip plane name.
+        position : list
+            List of [X,Y,Z] position
+
+        Returns
+        -------
+        bool
+            ``True`` if successful.
+        """
+        return self.change_property(clip_name, "Location", position)
 
     @aedt_exception_handler
     def colinear_heal(self, selection, tolerance=0.1):
