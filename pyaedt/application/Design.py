@@ -557,9 +557,11 @@ class Design(object):
         self.close_on_exit = close_on_exit
 
         if "pyaedt_initialized" not in dir(main_module):
-            Desktop(specified_version, non_graphical, new_desktop_session, close_on_exit, student_version)
+            desktop = Desktop(specified_version, non_graphical, new_desktop_session, close_on_exit, student_version)
+            self._logger = desktop.logger
             self.release_on_exit = True
         else:
+            self._logger = main_module.aedt_logger
             self.release_on_exit = False
 
         self._project_dictionary = {}
@@ -568,8 +570,6 @@ class Design(object):
         self._aedt_version = main_module.AEDTVersion
         self._desktop_install_dir = main_module.sDesktopinstallDirectory
         self._messenger = AEDTMessageManager(self)
-        self._logger = aedt_logger.AedtLogger(self._messenger, filename = None, level = logging.DEBUG)
-
         assert design_type in design_solutions, "Invalid design type is specified: {}.".format(design_type)
         self._design_type = design_type
         if solution_type:

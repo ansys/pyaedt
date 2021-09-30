@@ -372,6 +372,7 @@ class Desktop:
         #                                 "pyaedt{}.log".format(datetime.datetime.now().strftime("%Y%m%d_%H%M%S")))
         self._main.oMessenger = AEDTMessageManager()
         self._logger = aedt_logger.AedtLogger(self._main.oMessenger, filename = self.logfile, level = logging.DEBUG)
+        self._main.aedt_logger = self._logger
         self._main.sDesktopinstallDirectory = self._main.oDesktop.GetExeDir()
         self._main.pyaedt_initialized = True
 

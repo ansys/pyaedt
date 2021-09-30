@@ -121,6 +121,9 @@ class AedtLogger():
     @property
     def project(self):
         """Project logger."""
+        self._project = logging.getLogger(self._messenger._project_name)
+        if not self._project.hasHandlers:
+            self.add_logger("Project")
         return self._project
 
     @property
