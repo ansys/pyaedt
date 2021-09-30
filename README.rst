@@ -17,7 +17,7 @@ PyAEDT includes functionality for interacting with the following AEDT tools and 
 - Simplorer
 - EDB Database
 
-What is PyAEDT?
+What is PyAEDT? 
 ---------------
 PyAEDT is a Python library that interacts directly with the AEDT API
 to make scripting simpler for the end user. It uses an architecture
