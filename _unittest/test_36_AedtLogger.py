@@ -41,6 +41,7 @@ class TestClass:
         pyaedt_version = False
         python_version = False
         project = False
+        print(global_messages)
         for message in global_messages:
             if'[info] pyaedt v' in message:
                 pyaedt_version = True
@@ -130,7 +131,7 @@ class TestClass:
 
         hfss.logger.glb.handlers.pop()
         hfss.logger.project.handlers.pop()
-        if len(hfss.logger.design.handlers)>0:
+        if len(hfss.logger.design.handlers) > 0:
             hfss.logger.design.handlers.pop()
 
     def test_03_stdout_with_app_filter(self, hfss):
