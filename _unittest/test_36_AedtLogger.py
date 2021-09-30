@@ -36,7 +36,7 @@ class TestClass:
         logger.design.info("Critical message for testing.")
 
         global_messages = logger.get_messages().global_level
-        assert len(global_messages) == 11
+        assert len(global_messages) >= 11
         assert global_messages[0] == '[info] pyaedt v0.4.dev0'
         assert '[info] Python version 3.8.0' in global_messages[1]
         assert '[info] Project' in global_messages[2]

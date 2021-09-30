@@ -568,7 +568,7 @@ class Design(object):
         self._aedt_version = main_module.AEDTVersion
         self._desktop_install_dir = main_module.sDesktopinstallDirectory
         self._messenger = AEDTMessageManager(self)
-        self.logger = aedt_logger.AedtLogger(self._messenger, filename = None, level = logging.DEBUG)
+        self._logger = aedt_logger.AedtLogger(self._messenger, filename = None, level = logging.DEBUG)
 
         assert design_type in design_solutions, "Invalid design type is specified: {}.".format(design_type)
         self._design_type = design_type
@@ -591,6 +591,11 @@ class Design(object):
     def __delitem__(self, key):
         """Implement destructor with array name or index."""
         del self._variable_manager[key]
+
+    @property
+    def logger(self):
+        "Logger for the Design."
+        return self._logger
 
     @property
     def project_properies(self):

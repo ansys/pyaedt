@@ -118,6 +118,12 @@ class AedtLogger():
         return self._Global
 
     @property
+    def get_logger(self, logger_name=''):
+        if logger_name:
+            raise ValueError("The logger name cannot be an empty string.")
+        return logging.getLogger(logger_name)
+
+    @property
     def project(self):
         """Project logger."""
         self._project = logging.getLogger(self._messenger._project_name)
