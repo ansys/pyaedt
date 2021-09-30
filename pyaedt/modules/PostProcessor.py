@@ -1310,6 +1310,8 @@ class PostProcessor(PostProcessorCommon, object):
             try:
                 self.ofieldsreporter.EnterQty(quantity_name)
             except:
+                self._messenger.add_info_message(
+                    "Quantity {} not present. Trying to get it from Stack".format(quantity_name))
                 self.ofieldsreporter.CopyNamedExprToStack(quantity_name)
         obj_list = "AllObjects"
         self.ofieldsreporter.EnterVol(obj_list)

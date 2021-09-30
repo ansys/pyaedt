@@ -982,34 +982,60 @@ class VariableManager(object):
         lower_case_vars = [var_name.lower() for var_name in var_list]
 
         if variable_name.lower() not in lower_case_vars:
-
-            desktop_object.ChangeProperty(
-                [
-                    "NAME:AllTabs",
+            try:
+                desktop_object.ChangeProperty(
                     [
-                        "NAME:{0}VariableTab".format(var_type),
-                        ["NAME:PropServers", "{0}Variables".format(var_type)],
+                        "NAME:AllTabs",
                         [
-                            "NAME:NewProps",
+                            "NAME:{0}VariableTab".format(var_type),
+                            ["NAME:PropServers", "{0}Variables".format(var_type)],
                             [
-                                "NAME:" + variable_name,
-                                "PropType:=",
-                                prop_type,
-                                "UserDef:=",
-                                True,
-                                "Value:=",
-                                variable,
-                                "Description:=",
-                                description,
-                                "ReadOnly:=",
-                                readonly,
-                                "Hidden:=",
-                                hidden,
+                                "NAME:NewProps",
+                                [
+                                    "NAME:" + variable_name,
+                                    "PropType:=",
+                                    prop_type,
+                                    "UserDef:=",
+                                    True,
+                                    "Value:=",
+                                    variable,
+                                    "Description:=",
+                                    description,
+                                    "ReadOnly:=",
+                                    readonly,
+                                    "Hidden:=",
+                                    hidden,
+                                ],
                             ],
                         ],
-                    ],
-                ]
-            )
+                    ]
+                )
+            except:
+                if ";" in desktop_object.GetName() and prop_type == "PostProcessingVariableProp":
+                    self._messenger.add_info_message("PostProcessing Variable exists already. Changing value.")
+                    desktop_object.ChangeProperty(
+                        [
+                            "NAME:AllTabs",
+                            [
+                                "NAME:{}VariableTab".format(var_type),
+                                ["NAME:PropServers", "{}Variables".format(var_type)],
+                                [
+                                    "NAME:ChangedProps",
+                                    [
+                                        "NAME:" + variable_name,
+                                        "Value:=",
+                                        variable,
+                                        "Description:=",
+                                        description,
+                                        "ReadOnly:=",
+                                        readonly,
+                                        "Hidden:=",
+                                        hidden,
+                                    ],
+                                ],
+                            ],
+                        ]
+                    )
         elif overwrite:
             desktop_object.ChangeProperty(
                 [
