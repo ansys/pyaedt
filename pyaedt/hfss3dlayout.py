@@ -868,7 +868,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 if add_subranges:
                     for f in freq:
                         sweepdata.add_subrange(rangetype="SinglePoint", start=f, unit=unit)
-                self.logger.glb.info("Single point sweep {} has been correctly created".format(sweepname))
+                self.logger.glb.info("Single point sweep %s has been correctly created", sweepname)
                 return sweepdata
         return False
 
