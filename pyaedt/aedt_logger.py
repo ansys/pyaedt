@@ -90,8 +90,9 @@ class AedtLogger():
                 self._project.addHandler(self._std_out_handler)
             return self._project
         elif destination == 'Design':
+            project_name = self._messenger._project_name
             design_name = self._messenger._design_name
-            self._design = logging.getLogger(design_name)
+            self._design = logging.getLogger(project_name + ":" + design_name)
             self._design.addHandler(log_handler._LogHandler(self._messenger, 'Design', level))
             self._design.setLevel(level)
             #self._design.setFormatter(FORMATTER)
@@ -118,17 +119,8 @@ class AedtLogger():
         return self._Global
 
     @property
-    def get_logger(self, logger_name=''):
-        if logger_name:
-            raise ValueError("The logger name cannot be an empty string.")
-        return logging.getLogger(logger_name)
-
-    @property
     def project(self):
         """Project logger."""
-        self._project = logging.getLogger(self._messenger._project_name)
-        if not self._project.hasHandlers:
-            self.add_logger("Project")
         return self._project
 
     @property

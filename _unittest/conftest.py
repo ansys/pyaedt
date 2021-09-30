@@ -126,7 +126,6 @@ def desktop_init():
 @pytest.fixture
 def clean_desktop_messages(desktop_init):
     """Clear all Desktop app messages."""
-    breakpoint()
     desktop_init.logger.clear_messages(level=3)
 
 @pytest.fixture
