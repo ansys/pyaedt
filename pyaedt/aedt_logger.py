@@ -131,10 +131,5 @@ class AedtLogger():
         """Design logger."""
         self._design = logging.getLogger(self._messenger._design_name)
         if not self._design.hasHandlers:
-            self._design.addHandler(log_handler._LogHandler(self._messenger, 'Design', level))
-            self._design.setLevel(level)
-            if self._file_handler is not None:
-                self._design.addHandler(self._file_handler)
-            if self._std_out_handler is not None:
-                self._design.addHandler(self._std_out_handler)
+            self.add_logger("Design")
         return self._design
