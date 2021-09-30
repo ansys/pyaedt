@@ -89,7 +89,7 @@ class TestClass:
             design_logger.warning("Warning for Design")
             design_logger.error("Error for Design")
 
-            # Close every handlers to make sure that the 
+            # Close every handlers to make sure that the
             # file handler on every logger has been released properly.
             # Otherwise, we can't read the content of the log file.
             for handler in logger.glb.handlers:

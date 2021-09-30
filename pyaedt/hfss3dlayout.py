@@ -707,7 +707,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 sweep.props["UseQ3DForDC"] = use_q3d_for_dc
                 sweep.props["MaxSolutions"] = interpolation_max_solutions
                 sweep.update()
-                self.add_info_message("Linear count sweep {} has been correctly created".format(sweepname))
+                self.logger.glb.add_info_message("Linear count sweep {} has been correctly created".format(sweepname))
                 return sweep
         return False
 
@@ -801,7 +801,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 sweep.props["UseQ3DForDC"] = use_q3d_for_dc
                 sweep.props["MaxSolutions"] = interpolation_max_solutions
                 sweep.update()
-                self.add_info_message("Linear step sweep %s has been correctly created", sweepname)
+                self.logger.glb.add_info_message("Linear step sweep %s has been correctly created", sweepname)
                 return sweep
         return False
 
@@ -868,7 +868,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 if add_subranges:
                     for f in freq:
                         sweepdata.add_subrange(rangetype="SinglePoint", start=f, unit=unit)
-                self.add_info_message("Single point sweep {} has been correctly created".format(sweepname))
+                self.logger.glb.add_info_message("Single point sweep {} has been correctly created".format(sweepname))
                 return sweepdata
         return False
 
