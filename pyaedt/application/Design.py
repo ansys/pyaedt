@@ -29,8 +29,6 @@ from ..generic.DataHandlers import variation_string_to_dict
 from ..modules.Boundary import BoundaryObject
 from ..generic.general_methods import generate_unique_name
 
-from ..import aedt_logger
-
 
 design_solutions = {
     "Maxwell 2D": [
