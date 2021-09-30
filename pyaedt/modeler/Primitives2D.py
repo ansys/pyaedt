@@ -151,11 +151,11 @@ class Primitives2D(Primitives, object):
         szAxis = self.plane2d
         XStart, YStart, ZStart = self._pos_with_arg(position)
         if self.plane2d == "Z":
+            Height = self._arg_with_dim(dimension_list[1])
+            Width = self._arg_with_dim(dimension_list[0])
+        else:
             Height = self._arg_with_dim(dimension_list[0])
             Width = self._arg_with_dim(dimension_list[1])
-        else:
-            Width = self._arg_with_dim(dimension_list[0])
-            Height = self._arg_with_dim(dimension_list[1])
 
         vArg1 = ["NAME:RectangleParameters"]
         vArg1.append("IsCovered:="), vArg1.append(is_covered)
