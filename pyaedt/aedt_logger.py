@@ -42,6 +42,9 @@ class AedtLogger():
 
     Parameters
     ----------
+    level : int, optional
+        Logging level to filter the message severity allowed in the logger.
+        The default is ``logging.DEBUG``.
     filename : str, optional
         Name of the file where log messages can be written to.
         The default is ``None``.
@@ -73,7 +76,7 @@ class AedtLogger():
             self._Global.addHandler(self._std_out_handler)
 
     def add_logger(self, destination, level=logging.DEBUG):
-        """Add logger for either an active project or an active design."""
+        """Add a logger for either an active project or an active design."""
         if destination == 'Project':
             project_name = self._messenger._project_name
             self._project = logging.getLogger(project_name)
@@ -102,9 +105,11 @@ class AedtLogger():
             raise ValueError("The destination must be either 'Project' or 'Design'.")
 
     def get_messages(self):
+        """Get messages for the current design of the current project."""
         return self._messenger.get_messages(self._messenger._project_name, self._messenger._design_name)
 
     def clear_messages(self, project_name=None, design_name=None, level=2):
+        """Clear messages for a design and/or a project and/or global."""
         self._messenger.clear_messages(project_name, design_name, level)
 
     @property

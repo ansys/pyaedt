@@ -125,15 +125,18 @@ def desktop_init():
 
 @pytest.fixture
 def clean_desktop_messages(desktop_init):
+    """Clear all Desktop app messages."""
     desktop_init.logger.clear_messages()
 
 @pytest.fixture
 def clean_desktop(desktop_init):
+    """Close all projects, but don't close Desktop app."""
     desktop_init.release_desktop(close_projects=True, close_on_exit=False)
     return desktop_init
 
 @pytest.fixture
 def hfss():
+    """Create a new Hfss project."""
     # Be sure that the base class constructor "design" exposes oDesktop.
     hfss = Hfss(new_desktop_session=False)
     yield hfss
