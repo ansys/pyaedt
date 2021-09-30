@@ -37,9 +37,20 @@ class TestClass:
 
         global_messages = logger.get_messages().global_level
         assert len(global_messages) >= 11
-        assert global_messages[0] == '[info] pyaedt v0.4.dev0'
-        assert '[info] Python version 3.8.0' in global_messages[1]
-        assert '[info] Project' in global_messages[2]
+
+        pyaedt_version = False
+        python_version = False
+        project = False
+        for message in global_messages:
+            if'[info] pyaedt v0.4.dev0' in message:
+                pyaedt_version = True
+            if'[info] Python version 3.8.0' in message:
+                python_version = True
+            if'[info] Project' in message:
+                project = True
+        assert pyaedt_version
+        assert python_version
+        assert project
         assert '[info] No design is present. Inserting a new design.' in global_messages
         assert '[info] Design Loaded' in global_messages
         assert '[info] Materials Loaded' in global_messages
@@ -117,7 +128,8 @@ class TestClass:
 
         hfss.logger.glb.handlers.pop()
         hfss.logger.project.handlers.pop()
-        hfss.logger.design.handlers.pop()
+        if not hfss.logger.design.handlers:
+            hfss.logger.design.handlers.pop()
 
     def test_03_stdout_with_app_filter(self, hfss):
         capture = CaptureStdOut()
