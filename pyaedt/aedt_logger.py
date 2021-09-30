@@ -27,7 +27,7 @@ class AppFilter(logging.Filter):
     def filter(self, record):
         record.destination = self._destination
 
-        # This will avoid to see '::' for Global that does not have any extra info.
+        # This will avoid the extra '::' for Global that does not have any extra info.
         if not self._extra:
             record.extra = self._extra
         else:
@@ -54,26 +54,26 @@ class AedtLogger():
 
     def __init__(self, messenger, level=logging.DEBUG, filename=None, to_stdout=False):
         self._messenger = messenger
-        self._Global = logging.getLogger('Global')
+        self._global = logging.getLogger('Global')
         self._file_handler = None
         self._std_out_handler = None
 
-        if not self._Global.handlers:
-            self._Global.addHandler(log_handler._LogHandler(self._messenger, 'Global', logging.DEBUG))
-            self._Global.setLevel(level)
-            self._Global.addFilter(AppFilter())
+        if not self._global.handlers:
+            self._global.addHandler(log_handler._LogHandler(self._messenger, 'Global', logging.DEBUG))
+            self._global.setLevel(level)
+            self._global.addFilter(AppFilter())
 
         if filename:
             self._file_handler = logging.FileHandler(filename)
             self._file_handler.setLevel(level)
             self._file_handler.setFormatter(FORMATTER)
-            self._Global.addHandler(self._file_handler)
+            self._global.addHandler(self._file_handler)
 
         if to_stdout:
             self._std_out_handler = logging.StreamHandler()
             self._std_out_handler.setLevel(level)
             self._std_out_handler.setFormatter(FORMATTER)
-            self._Global.addHandler(self._std_out_handler)
+            self._global.addHandler(self._std_out_handler)
 
     def add_logger(self, destination, level=logging.DEBUG):
         """Add a logger for either an active project or an active design."""
@@ -116,7 +116,7 @@ class AedtLogger():
     @property
     def glb(self):
         """Global logger."""
-        return self._Global
+        return self._global
 
     @property
     def project(self):

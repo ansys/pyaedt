@@ -50,9 +50,6 @@ class TestClass:
                 continue
             if '[info] Project' in message:
                 project = True
-        # assert pyaedt_version
-        # assert python_version
-        # assert project
         assert '[info] Design Loaded' in global_messages
         assert '[info] Materials Loaded' in global_messages
         assert '[info] Debug message for testing.' in global_messages

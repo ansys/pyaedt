@@ -205,7 +205,7 @@ class FieldAnalysisCircuit(Analysis):
         if not reclist:
             reclist = [i for i in self.get_excitations_name if rx_prefix in i]
         if len(trlist) != len(reclist):
-            self.logger.glb.error("TX and RX should be same length lists")
+            self.logger.glb.error("The TX and RX lists should be the same length.")
             return False
         for i, j in zip(trlist, reclist):
             spar.append("S({},{})".format(i, j))

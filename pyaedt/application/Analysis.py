@@ -1054,7 +1054,7 @@ class Analysis(Design, object):
                     r"\\\\\\\\" + clustername + r"\\\\AnsysEM\\\\AnsysEM{}\\\\Linux64\\\\ansysedt".format(version)
                 )
             else:
-                self.logger.glb.error("Aedt Path doesn't exists. Please provide a full path")
+                self.logger.glb.error("AEDT path does not exist. Please provide a full path.")
                 return False
         else:
             if not os.path.exists(aedt_full_exe_path):

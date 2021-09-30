@@ -123,10 +123,12 @@ def desktop_init():
     if config["test_desktops"]:
         run_desktop_tests()
 
+
 @pytest.fixture
 def clean_desktop_messages(desktop_init):
     """Clear all Desktop app messages."""
     desktop_init.logger.clear_messages(level=3)
+
 
 @pytest.fixture
 def clean_desktop(desktop_init):

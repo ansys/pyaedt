@@ -173,5 +173,5 @@ class FieldAnalysis2D(Analysis):
 
             return True
         else:
-            self.logger.glb.error("Material Does Not Exists")
+            self.logger.glb.error("Material does not exist.")
             return False

@@ -415,7 +415,7 @@ class FieldAnalysis3D(Analysis, object):
 
             return True
         else:
-            self.logger.glb.error("Material Does Not Exists")
+            self.logger.glb.error("Material does not exist.")
             return False
 
     @aedt_exception_handler
