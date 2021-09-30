@@ -10,7 +10,7 @@ from pyaedt.aedt_logger import AedtLogger
 
 class TestClass:
 
-    def test_01_global(self, clean_desktop_messages, clean_desktop, hfss):
+    def test_01_global(self, clean_desktop, hfss):
         logger = hfss.logger
         # The default logger level is DEBUGGING.
         logger.glb.debug("Debug message for testing.")
@@ -41,7 +41,6 @@ class TestClass:
         pyaedt_version = False
         python_version = False
         project = False
-        # print(global_messages)
         for message in global_messages:
             if'[info] pyaedt v' in message:
                 pyaedt_version = True
