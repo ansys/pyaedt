@@ -498,17 +498,17 @@ class EdbLayout(object):
         """
         net = self._parent.core_nets.find_or_create_net(net_name)
         polygonData = self.shape_to_polygon_data(main_shape)
-        if polygonData is None or polygonData.IsNull():
+        if polygonData is None or polygonData.IsNull() or polygonData is False:
             self._messenger.add_error_message("Failed to create main shape polygon data")
             return False
         for void in voids:
             voidPolygonData = self.shape_to_polygon_data(void)
-            if voidPolygonData is None or voidPolygonData.IsNull():
+            if voidPolygonData is None or voidPolygonData.IsNull() or polygonData is False:
                 self._messenger.add_error_message("Failed to create void polygon data")
                 return False
             polygonData.AddHole(voidPolygonData)
         polygon = self._edb.Cell.Primitive.Polygon.Create(self._active_layout, layer_name, net, polygonData)
-        if polygon.IsNull():
+        if polygon.IsNull() or polygonData is False:
             self._messenger.add_error_message("Null polygon created")
             return False
         else:
