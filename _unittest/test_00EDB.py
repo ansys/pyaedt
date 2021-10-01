@@ -493,4 +493,3 @@ class TestClass:
 
     def test_65_flatten_planes(self):
         assert self.edbapp.core_primitives.unite_polygons_on_layer()
-

@@ -1047,13 +1047,8 @@ class Edb(object):
         # validate references in layout
         for _ref in self.core_nets.nets:
             _ref_nets.append(self.core_nets.nets[_ref])
-
-
-
         _netsClip = convert_py_list_to_net_list(_ref_nets)
         net_signals = List[type(_ref_nets[0])]()
-
-
         # Create new cutout cell/design
         _cutout = self.active_cell.CutOut(net_signals, _netsClip, polygonData)
         self._messenger.add_info_message("Cutout {} created correctly".format(_cutout.GetName()))
@@ -1098,7 +1093,6 @@ class Edb(object):
         else:
             self.db.CopyCells(_cutout)
         return True
-
 
     @aedt_exception_handler
     def write_export3d_option_config_file(self, path_to_output, config_dictionaries=None):
@@ -1209,7 +1203,8 @@ class Edb(object):
         """
 
         siwave_s = SiwaveSolve(self.edbpath, aedt_installer_path=self.base_path)
-        return siwave_s.export_3d_cad("Q3D", path_to_output, net_list, num_cores=num_cores, aedt_file_name=aedt_file_name)
+        return siwave_s.export_3d_cad("Q3D", path_to_output, net_list, num_cores=num_cores,
+                                      aedt_file_name=aedt_file_name)
 
     @aedt_exception_handler
     def export_maxwell(self, path_to_output, net_list=None, num_cores=None, aedt_file_name=None):
@@ -1246,7 +1241,8 @@ class Edb(object):
 
         """
         siwave_s = SiwaveSolve(self.edbpath, aedt_installer_path=self.base_path)
-        return siwave_s.export_3d_cad("Maxwell", path_to_output, net_list, num_cores=num_cores, aedt_file_name=aedt_file_name)
+        return siwave_s.export_3d_cad("Maxwell", path_to_output, net_list, num_cores=num_cores,
+                                      aedt_file_name=aedt_file_name)
 
     @aedt_exception_handler
     def solve_siwave(self):

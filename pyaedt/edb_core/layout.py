@@ -10,7 +10,6 @@ from pyaedt.generic.general_methods import aedt_exception_handler
 
 try:
     from System import Tuple
-    from System.Collections.Generic import List
 
 except ImportError:
     warnings.warn('This module requires the "pythonnet" package.')
@@ -726,7 +725,7 @@ class EdbLayout(object):
                 for item in a:
                     for v in all_voids:
                         for void in v:
-                            if item.GetIntersectionType(void.GetPolygonData())==2:
+                            if item.GetIntersectionType(void.GetPolygonData()) == 2:
                                 item.AddHole(void.GetPolygonData())
                     poly = self._edb.Cell.Primitive.Polygon.Create(self._active_layout, lay,
                                                                    self._parent.core_nets.nets[net], item)
@@ -741,5 +740,4 @@ class EdbLayout(object):
                     self._parent.core_padstack.remove_pads_from_padstack(pad)
         self.update_primitives()
         return True
-
 
