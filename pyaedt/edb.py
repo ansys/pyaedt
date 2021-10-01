@@ -10,11 +10,17 @@ import time
 import traceback
 import warnings
 
+try:
+    import clr
+    from System.Collections.Generic import List
+except ImportError:
+    warnings.warn("Pythonnet is needed to run pyaedt")
 from pyaedt import inside_desktop, is_ironpython
 from pyaedt.application.MessageManager import EDBMessageManager
 from pyaedt.edb_core import Components, EdbNets, EdbPadstacks, EdbLayout, Edb3DLayout, EdbSiwave, EdbStackup
 from pyaedt.edb_core.EDB_Data import EdbBuilder
 from pyaedt import retry_ntimes
+from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import (
     aedt_exception_handler,
     env_path,
@@ -83,15 +89,15 @@ class Edb(object):
     """
 
     def __init__(
-        self,
-        edbpath=None,
-        cellname=None,
-        isreadonly=False,
-        edbversion="2021.1",
-        isaedtowned=False,
-        oproject=None,
-        student_version=False,
-        use_ppe=False,
+            self,
+            edbpath=None,
+            cellname=None,
+            isreadonly=False,
+            edbversion="2021.1",
+            isaedtowned=False,
+            oproject=None,
+            student_version=False,
+            use_ppe=False,
     ):
         self._clean_variables()
         if is_ironpython and inside_desktop:
@@ -579,10 +585,11 @@ class Edb(object):
             units = "millimeter"
 
         if not ipc_path:
-            ipc_path = self.edbpath[:-4]+"xml"
+            ipc_path = self.edbpath[:-4] + "xml"
         self._messenger.add_info_message("Export IPC 2581 is starting. This operation can take a while...")
         start = time.time()
         result = self.layout_methods.ExportIPC2581FromBuilder(self.builder, ipc_path, units.lower())
+        # result = self.layout_methods.ExportIPC2581FromLayout(self.db, self._active_cell, ipc_path, units.lower())
         end = time.time() - start
         if result:
             self._messenger.add_info_message("Export IPC 2581 completed in {} sec.".format(end))
@@ -759,10 +766,6 @@ class Edb(object):
         self._db.Close()
 
         self._clean_variables()
-        props = [a for a in dir(self) if not a.startswith("__")]
-
-        for a in props:
-            self.__dict__.pop(a, None)
         gc.collect()
         gc.collect()
 
@@ -839,7 +842,7 @@ class Edb(object):
 
         """
         if self.import_layout_pcb(
-            inputBrd, working_dir=WorkDir, anstranslator_full_path=anstranslator_full_path, use_ppe=use_ppe
+                inputBrd, working_dir=WorkDir, anstranslator_full_path=anstranslator_full_path, use_ppe=use_ppe
         ):
             return True
         else:
@@ -867,21 +870,21 @@ class Edb(object):
 
         """
         if self.import_layout_pcb(
-            inputGDS, working_dir=WorkDir, anstranslator_full_path=anstranslator_full_path, use_ppe=use_ppe
+                inputGDS, working_dir=WorkDir, anstranslator_full_path=anstranslator_full_path, use_ppe=use_ppe
         ):
             return True
         else:
             return False
 
     def create_cutout(
-        self,
-        signal_list,
-        reference_list=["GND"],
-        extent_type="Conforming",
-        expansion_size=0.002,
-        use_round_corner=False,
-        output_aedb_path=None,
-        replace_design_with_cutout=True,
+            self,
+            signal_list,
+            reference_list=["GND"],
+            extent_type="Conforming",
+            expansion_size=0.002,
+            use_round_corner=False,
+            output_aedb_path=None,
+            open_cutout_at_end=True,
     ):
         """Create a cutout and save it to a new AEDB file.
 
@@ -900,8 +903,8 @@ class Edb(object):
             Whether to use round corners. The default is ``False``.
         output_aedb_path : str, optional
             Full path and name for the new AEDB file.
-        replace_design_with_cutout : bool, optional
-            Whether to replace the design with the cutout. The default
+        open_cutout_at_end : bool, optional
+            Whether to open the cutout at the end. The default
             is ``True``.
 
         Returns
@@ -955,10 +958,6 @@ class Edb(object):
                 _cutout.AddSimulationSetup(_setup)  # Add simulation setup to the cutout design
 
         _dbCells = [_cutout]
-        if replace_design_with_cutout == True:
-            self.active_cell.Delete()
-        else:
-            _dbCells.append(self.active_cell)
 
         if output_aedb_path:
             db2 = self.edb.Database.Create(output_aedb_path)
@@ -967,19 +966,133 @@ class Edb(object):
             _dbCells = convert_py_list_to_net_list(_dbCells)
             db2.CopyCells(_dbCells)  # Copies cutout cell/design to db2 project
             _success = db2.Save()
-            self._db = db2
-            self.edbpath = output_aedb_path
-            self._active_cell = list(self._db.TopCircuitCells)[0]
-            self.builder = retry_ntimes(
-                10,
-                self.layout_methods.GetBuilder,
-                self._db,
-                self._active_cell,
-                self.edbpath,
-                self.edbversion,
-                self.standalone,
-            )
-            self._init_objects()
+            if open_cutout_at_end:
+                self._db = db2
+                self.edbpath = output_aedb_path
+                self._active_cell = list(self._db.TopCircuitCells)[0]
+                self.builder = retry_ntimes(
+                    10,
+                    self.layout_methods.GetBuilder,
+                    self._db,
+                    self._active_cell,
+                    self.edbpath,
+                    self.edbversion,
+                    self.standalone,
+                )
+                self._init_objects()
+            else:
+                db2.Close()
+        else:
+            self.db.CopyCells(_cutout)
+        return True
+
+    @aedt_exception_handler
+    def arg_with_dim(self, Value, sUnits):
+        """Format arguments with dimensions.
+
+        Parameters
+        ----------
+        Value :
+
+        sUnits :
+             The default is ``None``.
+
+        Returns
+        -------
+        str
+            String containing the value or value and the units if `sUnits` is not ``None``.
+        """
+        if type(Value) is str:
+            val = Value
+        else:
+            val = "{0}{1}".format(Value, sUnits)
+
+        return val
+
+    @aedt_exception_handler
+    def create_cutout_on_point_list(
+            self,
+            point_list,
+            units="mm",
+            output_aedb_path=None,
+            open_cutout_at_end=True,
+    ):
+        """Create a cutout and save it to a new AEDB file.
+
+        Parameters
+        ----------
+        point_list : list
+            List of points defining the Cutout shape.
+        units : str
+            Units of Point list. Default ``mm``.
+        output_aedb_path : str, optional
+            Full path and name for the new AEDB file.
+        open_cutout_at_end : bool, optional
+            Whether to open the Cutout at the end. The default
+            is ``True``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        if point_list[0] != point_list[-1]:
+            point_list.append(point_list[0])
+        point_list = [[self.arg_with_dim(i[0], units), self.arg_with_dim(i[1], units)] for i in point_list]
+        plane = self.core_primitives.Shape("polygon", points=point_list)
+        polygonData = self.core_primitives.shape_to_polygon_data(plane)
+        _signal_nets = []
+
+        _ref_nets = []
+        # validate references in layout
+        for _ref in self.core_nets.nets:
+            _ref_nets.append(self.core_nets.nets[_ref])
+        _netsClip = convert_py_list_to_net_list(_ref_nets)
+        net_signals = List[type(_ref_nets[0])]()
+        # Create new cutout cell/design
+        _cutout = self.active_cell.CutOut(net_signals, _netsClip, polygonData)
+        self._messenger.add_info_message("Cutout {} created correctly".format(_cutout.GetName()))
+
+        # The analysis setup(s) do not come over with the clipped design copy,
+        # so add the analysis setup(s) from the original here
+        for _setup in self.active_cell.SimulationSetups:
+            # Empty string '' if coming from setup copy and don't set explicitly.
+            _setup_name = _setup.GetName()
+            if "GetSimSetupInfo" in dir(_setup):
+                # setup is an Ansys.Ansoft.Edb.Utility.HFSSSimulationSetup object
+                _hfssSimSetupInfo = _setup.GetSimSetupInfo()
+                _hfssSimSetupInfo.Name = "HFSS Setup 1"  # Set name of analysis setup
+                # Write the simulation setup info into the cell/design setup
+                _setup.SetSimSetupInfo(_hfssSimSetupInfo)
+                _cutout.AddSimulationSetup(_setup)  # Add simulation setup to the cutout design
+
+        _dbCells = [_cutout]
+        if output_aedb_path:
+            db2 = self.edb.Database.Create(output_aedb_path)
+            # Function input is the name of a .aedb folder inside which the edb.def will be created.
+            # Ex: 'D:/backedup/EDB/TEST PROJECTS/CUTOUT/N1.aedb'
+            _dbCells = convert_py_list_to_net_list(_dbCells)
+            db2.CopyCells(_dbCells)  # Copies cutout cell/design to db2 project
+            _success = db2.Save()
+            if open_cutout_at_end:
+                self._db = db2
+                self.edbpath = output_aedb_path
+                self._active_cell = list(self._db.TopCircuitCells)[0]
+                self.builder = retry_ntimes(
+                    10,
+                    self.layout_methods.GetBuilder,
+                    self._db,
+                    self._active_cell,
+                    self.edbpath,
+                    self.edbversion,
+                    self.standalone,
+                )
+                self._init_objects()
+            else:
+                db2.Close()
+        else:
+            self.db.CopyCells(_cutout)
         return True
 
     @aedt_exception_handler
@@ -1020,7 +1133,7 @@ class Edb(object):
         return os.path.join(path_to_output, "options.config")
 
     @aedt_exception_handler
-    def export_hfss(self, path_to_output, net_list=None, num_cores=None):
+    def export_hfss(self, path_to_output, net_list=None, num_cores=None, aedt_file_name=None):
         """Export EDB to HFSS.
 
         Parameters
@@ -1032,7 +1145,8 @@ class Edb(object):
             included.
         num_cores : int, optional
             Define number of cores to use during export
-
+        aedt_file_name : str, optional
+            Output  aedt file name (without .aedt extension). If `` then default naming is used
         Returns
         -------
         str
@@ -1052,10 +1166,10 @@ class Edb(object):
 
         """
         siwave_s = SiwaveSolve(self.edbpath, aedt_installer_path=self.base_path)
-        return siwave_s.export_3d_cad("HFSS", path_to_output, net_list, num_cores)
+        return siwave_s.export_3d_cad("HFSS", path_to_output, net_list, num_cores, aedt_file_name)
 
     @aedt_exception_handler
-    def export_q3d(self, path_to_output, net_list=None, num_cores=None):
+    def export_q3d(self, path_to_output, net_list=None, num_cores=None, aedt_file_name=None):
         """Export EDB to Q3D.
 
         Parameters
@@ -1067,6 +1181,8 @@ class Edb(object):
             exported.
         num_cores : int, optional
             Define number of cores to use during export
+        aedt_file_name : str, optional
+            Output  aedt file name (without .aedt extension). If `` then default naming is used
 
         Returns
         -------
@@ -1088,10 +1204,11 @@ class Edb(object):
         """
 
         siwave_s = SiwaveSolve(self.edbpath, aedt_installer_path=self.base_path)
-        return siwave_s.export_3d_cad("Q3D", path_to_output, net_list, num_cores=num_cores)
+        return siwave_s.export_3d_cad("Q3D", path_to_output, net_list, num_cores=num_cores,
+                                      aedt_file_name=aedt_file_name)
 
     @aedt_exception_handler
-    def export_maxwell(self, path_to_output, net_list=None, num_cores=None):
+    def export_maxwell(self, path_to_output, net_list=None, num_cores=None, aedt_file_name=None):
         """Export EDB to Maxwell 3D.
 
         Parameters
@@ -1103,6 +1220,8 @@ class Edb(object):
             exported.
         num_cores : int, optional
             Define number of cores to use during export
+        aedt_file_name : str, optional
+            Output  aedt file name (without .aedt extension). If `` then default naming is used
 
         Returns
         -------
@@ -1123,7 +1242,8 @@ class Edb(object):
 
         """
         siwave_s = SiwaveSolve(self.edbpath, aedt_installer_path=self.base_path)
-        return siwave_s.export_3d_cad("Maxwell", path_to_output, net_list, num_cores=num_cores)
+        return siwave_s.export_3d_cad("Maxwell", path_to_output, net_list, num_cores=num_cores,
+                                      aedt_file_name=aedt_file_name)
 
     @aedt_exception_handler
     def solve_siwave(self):
@@ -1166,3 +1286,15 @@ class Edb(object):
             self._messenger.add_info_message("Creating Parameter {}.".format(variable_name))
             var_server.AddVariable(variable_name, self.edb_value(variable_value), True)
             return True, var_server
+
+    @aedt_exception_handler
+    def get_bounding_box(self):
+        """Returng the Layout bounding box.
+
+        Returns
+        -------
+        list
+            The bounding box as a [lower-left X, lower-left Y], [upper-right X, upper-right Y]) pair in meter.
+        """
+        bbox = self.edbutils.HfssUtilities.GetBBox(self.active_layout)
+        return [[bbox.Item1.X.ToDouble(), bbox.Item1.Y.ToDouble()], [bbox.Item2.X.ToDouble(), bbox.Item2.Y.ToDouble()]]

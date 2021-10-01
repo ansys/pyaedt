@@ -416,6 +416,7 @@ class TestClass:
         assert self.edbapp.core_stackup.stackup_limits()
 
     def test_58_create_polygon(self):
+        os.environ["PYAEDT_ERROR_HANDLER"] = "True"
         points = [[-0.025, -0.02], [0.025, -0.02], [0.025, 0.02], [-0.025, 0.02], [-0.025, -0.02]]
         plane = self.edbapp.core_primitives.Shape("polygon", points=points)
         points = [
@@ -441,6 +442,7 @@ class TestClass:
         points = [[0.001, -0.001, "ccn", 0.0, -0.0012]]
         plane = self.edbapp.core_primitives.Shape("polygon", points=points)
         assert not self.edbapp.core_primitives.create_polygon(plane, "TOP")
+        os.environ["PYAEDT_ERROR_HANDLER"] = "False"
 
     def test_59_create_path(self):
         points = [
@@ -490,3 +492,6 @@ class TestClass:
         out = edb.export_maxwell(scratch_path, num_cores=6)
         assert os.path.exists(out)
         edb.close_edb()
+
+    def test_65_flatten_planes(self):
+        assert self.edbapp.core_primitives.unite_polygons_on_layer()
