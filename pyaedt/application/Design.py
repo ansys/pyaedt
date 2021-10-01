@@ -2542,7 +2542,7 @@ class Design(object):
 
         Parameters
         ----------
-        filename: str
+        filename : str
             Full path and name for the JPG file
 
         Returns
