@@ -448,9 +448,6 @@ class FieldAnalysis3D(Analysis, object):
         diel = self.materials.dielectrics
         diel = [i.lower() for i in diel]
         obj_names = []
-        for name in self.modeler.primitives.solid_names:
-            id = self.modeler.primitives.object_id_dict[name]
-            obj = self.modeler.primitives.objects[id]
-            if obj.material_name.lower() in diel:
-                obj_names.append(obj.name)
+        for el in diel:
+            obj_names += list(self._modeler.oeditor.GetObjectsByMaterial(el))
         return obj_names
