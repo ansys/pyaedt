@@ -595,7 +595,8 @@ class Edb(object):
             ipc_path = self.edbpath[:-4] + "xml"
         self._messenger.add_info_message("Export IPC 2581 is starting. This operation can take a while...")
         start = time.time()
-        result = self.layout_methods.ExportIPC2581FromLayout(self.active_layout, self.edbversion, ipc_path, units.lower())
+        result = self.layout_methods.ExportIPC2581FromLayout(self.active_layout, self.edbversion, ipc_path,
+                                                             units.lower())
         #result = self.layout_methods.ExportIPC2581FromBuilder(self.builder, ipc_path, units.lower())
         end = time.time() - start
         if result:
