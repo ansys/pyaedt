@@ -294,7 +294,7 @@ class EdgePrimitive(EdgeTypePrimitive, object):
 
     @property
     def vertices(self):
-        """Vertices List
+        """Vertices list.
 
         Returns
         -------
