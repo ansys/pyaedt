@@ -144,7 +144,7 @@ class EdbPadstacks(object):
 
         """
         if self._builder:
-            pinlist = self._padstack_methods.GetPinsFromComponentAndNets(self._builder, refdes, netname)
+            pinlist = self._padstack_methods.GetPinsFromComponentAndNets(refdes, netname)
             if pinlist.Item1:
                 return pinlist.Item2
 

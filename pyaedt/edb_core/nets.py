@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 
-from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name
 
 
 class EdbNets(object):
@@ -270,10 +270,13 @@ class EdbNets(object):
         object
             Net Object
         """
-
-        net = self._edb.Cell.Net.FindByName(self._active_layout, net_name)
-        if net.IsNull():
+        if not net_name:
+            net_name = generate_unique_name("NET_")
             net = self._edb.Cell.Net.Create(self._active_layout, net_name)
+        else:
+            net = self._edb.Cell.Net.FindByName(self._active_layout, net_name)
+            if net.IsNull():
+                net = self._edb.Cell.Net.Create(self._active_layout, net_name)
         return net
 
     @aedt_exception_handler
