@@ -79,6 +79,13 @@ class EdbPadstacks(object):
 
     @aedt_exception_handler
     def update_padstacks(self):
+        """Update Padstack Dictionary.
+
+        Returns
+        -------
+        dict
+            Dictionary of Padstacks.
+        """
         self._padstacks = {}
         for padstackdef in self.db.PadstackDefs:
             PadStackData = padstackdef.GetData()

@@ -294,6 +294,13 @@ class EdgePrimitive(EdgeTypePrimitive, object):
 
     @property
     def vertices(self):
+        """Vertices List
+
+        Returns
+        -------
+        list
+            List of vertices.
+        """
         vertices = []
         for vertex in self._oeditor.GetVertexIDsFromEdge(self.id):
             vertex = int(vertex)
@@ -357,6 +364,13 @@ class FacePrimitive(object):
 
     @property
     def edges(self):
+        """Edges lists.
+
+        Returns
+        -------
+        list
+            List of Edges.
+        """
         edges = []
         for edge in list(self._oeditor.GetEdgeIDsFromFace(self.id)):
             edges.append(EdgePrimitive(self._parent, int(edge)))
@@ -364,6 +378,13 @@ class FacePrimitive(object):
 
     @property
     def vertices(self):
+        """Vertices lists.
+
+        Returns
+        -------
+        list
+            List of Vertices.
+        """
         vertices = []
         for vertex in list(self._oeditor.GetVertexIDsFromFace(self.id)):
             vertex = int(vertex)

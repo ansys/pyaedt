@@ -515,6 +515,7 @@ class EdbLayout(object):
             self.update_primitives()
             return True
 
+    @aedt_exception_handler
     def shape_to_polygon_data(self, shape):
         """Convert a shape to polygon data.
 
@@ -533,6 +534,7 @@ class EdbLayout(object):
             )
             return None
 
+    @aedt_exception_handler
     def _createPolygonDataFromPolygon(self, shape):
         points = shape.points
         if not self._validatePoint(points[0]):
@@ -570,6 +572,7 @@ class EdbLayout(object):
                 arcs.append(arc)
         return self._edb.Geometry.PolygonData.CreateFromArcs(convert_py_list_to_net_list(arcs), True)
 
+    @aedt_exception_handler
     def _validatePoint(self, point, allowArcs=True):
         if len(point) == 2:
             if not isinstance(point[0], (int, float, str)):
