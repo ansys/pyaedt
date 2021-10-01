@@ -372,20 +372,22 @@ class Edb(object):
             dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib", "DataModel.dll")
             self._messenger.add_info_message(dllpath)
             self.layout_methods.LoadDataModel(dllpath)
+            self.layout_methods.InitializeAEDT(self.edbversion)
             dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib",
                                    "IPC_2581_DataModel.dll")
             self.layout_methods.LoadDataModel(dllpath)
-
+            self.layout_methods.InitializeAEDT(self.edbversion)
             time.sleep(3)
-            self.builder = retry_ntimes(
+            retry_ntimes(
                 10,
-                self.layout_methods.GetBuilder,
+                self.layout_methods.InitializeBuilder,
                 self._db,
                 self._active_cell,
                 self.edbpath,
                 self.edbversion,
                 self.standalone,
             )
+            self.builder = EdbBuilder(self.edbutils, self._db, self._active_cell)
             self._init_objects()
             self._messenger.add_info_message("Builder Initialized")
         else:
@@ -429,9 +431,11 @@ class Edb(object):
             dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib", "DataModel.dll")
             if self._db and self._active_cell:
                 self.layout_methods.LoadDataModel(dllpath)
+                self.layout_methods.InitializeAEDT(self.edbversion)
                 dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib",
                                        "IPC_2581_DataModel.dll")
                 self.layout_methods.LoadDataModel(dllpath)
+                self.layout_methods.InitializeAEDT(self.edbversion)
                 if not os.path.exists(self.edbpath):
                     os.makedirs(self.edbpath)
                 time.sleep(3)
@@ -487,19 +491,22 @@ class Edb(object):
         dllpath = os.path.join(os.path.dirname(__file__), "dlls", "EDBLib", "DataModel.dll")
         if self._db and self._active_cell:
             self.layout_methods.LoadDataModel(dllpath)
+            self.layout_methods.InitializeAEDT(self.edbversion)
             dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib",
                                    "IPC_2581_DataModel.dll")
             self.layout_methods.LoadDataModel(dllpath)
+            self.layout_methods.InitializeAEDT(self.edbversion)
             time.sleep(3)
-            self.builder = retry_ntimes(
+            retry_ntimes(
                 10,
-                self.layout_methods.GetBuilder,
+                self.layout_methods.InitializeBuilder,
                 self._db,
                 self._active_cell,
                 self.edbpath,
                 self.edbversion,
                 self.standalone
             )
+            self.builder = EdbBuilder(self.edbutils, self._db, self._active_cell)
             self._init_objects()
             return self.builder
         self.builder = None
@@ -588,8 +595,8 @@ class Edb(object):
             ipc_path = self.edbpath[:-4] + "xml"
         self._messenger.add_info_message("Export IPC 2581 is starting. This operation can take a while...")
         start = time.time()
-        result = self.layout_methods.ExportIPC2581FromBuilder(self.builder, ipc_path, units.lower())
-        # result = self.layout_methods.ExportIPC2581FromLayout(self.db, self._active_cell, ipc_path, units.lower())
+        result = self.layout_methods.ExportIPC2581FromLayout(self.active_layout, self.edbversion, ipc_path, units.lower())
+        #result = self.layout_methods.ExportIPC2581FromBuilder(self.builder, ipc_path, units.lower())
         end = time.time() - start
         if result:
             self._messenger.add_info_message("Export IPC 2581 completed in {} sec.".format(end))
@@ -970,15 +977,16 @@ class Edb(object):
                 self._db = db2
                 self.edbpath = output_aedb_path
                 self._active_cell = list(self._db.TopCircuitCells)[0]
-                self.builder = retry_ntimes(
+                retry_ntimes(
                     10,
-                    self.layout_methods.GetBuilder,
+                    self.layout_methods.InitializeBuilder,
                     self._db,
                     self._active_cell,
                     self.edbpath,
                     self.edbversion,
                     self.standalone,
                 )
+                self.builder = EdbBuilder(self.edbutils, self._db, self._active_cell)
                 self._init_objects()
             else:
                 db2.Close()
@@ -1079,15 +1087,16 @@ class Edb(object):
                 self._db = db2
                 self.edbpath = output_aedb_path
                 self._active_cell = list(self._db.TopCircuitCells)[0]
-                self.builder = retry_ntimes(
+                retry_ntimes(
                     10,
-                    self.layout_methods.GetBuilder,
+                    self.layout_methods.InitializeBuilder,
                     self._db,
                     self._active_cell,
                     self.edbpath,
                     self.edbversion,
                     self.standalone,
                 )
+                self.builder = EdbBuilder(self.edbutils, self._db, self._active_cell)
                 self._init_objects()
             else:
                 db2.Close()
