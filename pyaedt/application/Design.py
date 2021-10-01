@@ -29,6 +29,9 @@ from ..modules.Boundary import BoundaryObject
 from ..generic.general_methods import generate_unique_name
 
 
+if sys.version_info.major > 2:
+    import base64
+
 design_solutions = {
     "Maxwell 2D": [
         "MagnetostaticXY",
@@ -2531,6 +2534,34 @@ class Design(object):
         self.design_name = newname
         self.__init__(self.project_name, self.design_name)
 
+        return True
+
+    @aedt_exception_handler
+    def export_design_preview_to_jpg(self, filename):
+        """Export design preview image to a jpg file.
+
+        Parameters
+        ----------
+        filename : str
+            Full path and name for the JPG file
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        design_info = self.project_properies["ProjectPreview"]["DesignInfo"]
+        if not isinstance(design_info, dict):
+            #there are multiple designs, find the right one
+            #is self.design_name guaranteed to be there?
+            design_info = [design for design in design_info if design["DesignName"] == self.design_name][0]
+        image_data_str = design_info["Image64"]
+        with open(filename, "wb") as f:
+            if sys.version_info.major == 2:
+                bytes = bytes(image_data_str).decode('base64')
+            else:
+                bytes = base64.decodebytes(image_data_str.encode("ascii"))
+            f.write(bytes)
         return True
 
     @aedt_exception_handler

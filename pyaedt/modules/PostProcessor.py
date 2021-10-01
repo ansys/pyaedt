@@ -1652,11 +1652,13 @@ class PostProcessor(PostProcessorCommon, object):
         if not setup_name:
             setup_name = self._parent.existing_analysis_sweeps[0]
         self._desktop.CloseAllWindows()
-        self.oproject.SetActiveDesign(self._parent.design_name)
         try:
             self._parent._modeler.fit_all()
         except:
             pass
+        self._desktop.TileWindows(0)
+        self.oproject.SetActiveDesign(self._parent.design_name)
+
         char_set = string.ascii_uppercase + string.digits
         if not plot_name:
             plot_name = quantityName + "_" + "".join(random.sample(char_set, 6))

@@ -291,10 +291,21 @@ class EdgePrimitive(EdgeTypePrimitive, object):
         self.id = edge_id
         self._parent = parent
         self._oeditor = parent.m_Editor
-        self.vertices = []
-        for vertex in self._oeditor.GetVertexIDsFromEdge(edge_id):
+
+    @property
+    def vertices(self):
+        """Vertices list.
+
+        Returns
+        -------
+        list
+            List of vertices.
+        """
+        vertices = []
+        for vertex in self._oeditor.GetVertexIDsFromEdge(self.id):
             vertex = int(vertex)
-            self.vertices.append(VertexPrimitive(parent, vertex))
+            vertices.append(VertexPrimitive(self._parent, vertex))
+        return vertices
 
     @property
     def midpoint(self):
@@ -350,14 +361,35 @@ class FacePrimitive(object):
         self._id = id
         self._parent = parent
         self._oeditor = self._parent.m_Editor
-        self.edges = []
-        self.vertices = []
-        for edge in self._oeditor.GetEdgeIDsFromFace(self.id):
-            edge = int(edge)
-            self.edges.append(EdgePrimitive(parent, edge))
-        for vertex in self._oeditor.GetVertexIDsFromFace(self.id):
+
+    @property
+    def edges(self):
+        """Edges lists.
+
+        Returns
+        -------
+        list
+            List of Edges.
+        """
+        edges = []
+        for edge in list(self._oeditor.GetEdgeIDsFromFace(self.id)):
+            edges.append(EdgePrimitive(self._parent, int(edge)))
+        return edges
+
+    @property
+    def vertices(self):
+        """Vertices lists.
+
+        Returns
+        -------
+        list
+            List of Vertices.
+        """
+        vertices = []
+        for vertex in list(self._oeditor.GetVertexIDsFromFace(self.id)):
             vertex = int(vertex)
-            self.vertices.append(VertexPrimitive(parent, vertex))
+            vertices.append(VertexPrimitive(self._parent, int(vertex)))
+        return vertices
 
     @property
     def id(self):
@@ -629,7 +661,7 @@ class Object3d(object):
 
         """
         faces = []
-        for face in self.m_Editor.GetFaceIDs(self.name):
+        for face in list(self.m_Editor.GetFaceIDs(self.name)):
             face = int(face)
             faces.append(FacePrimitive(self, face))
         return faces

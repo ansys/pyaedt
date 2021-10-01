@@ -10,6 +10,7 @@ from pyaedt.generic.general_methods import aedt_exception_handler
 
 try:
     from System import Tuple
+
 except ImportError:
     warnings.warn('This module requires the "pythonnet" package.')
 
@@ -497,23 +498,24 @@ class EdbLayout(object):
         """
         net = self._parent.core_nets.find_or_create_net(net_name)
         polygonData = self.shape_to_polygon_data(main_shape)
-        if polygonData is None or polygonData.IsNull():
+        if polygonData is None or polygonData.IsNull() or polygonData is False:
             self._messenger.add_error_message("Failed to create main shape polygon data")
             return False
         for void in voids:
             voidPolygonData = self.shape_to_polygon_data(void)
-            if voidPolygonData is None or voidPolygonData.IsNull():
+            if voidPolygonData is None or voidPolygonData.IsNull() or polygonData is False:
                 self._messenger.add_error_message("Failed to create void polygon data")
                 return False
             polygonData.AddHole(voidPolygonData)
         polygon = self._edb.Cell.Primitive.Polygon.Create(self._active_layout, layer_name, net, polygonData)
-        if polygon.IsNull():
+        if polygon.IsNull() or polygonData is False:
             self._messenger.add_error_message("Null polygon created")
             return False
         else:
             self.update_primitives()
             return True
 
+    @aedt_exception_handler
     def shape_to_polygon_data(self, shape):
         """Convert a shape to polygon data.
 
@@ -532,6 +534,7 @@ class EdbLayout(object):
             )
             return None
 
+    @aedt_exception_handler
     def _createPolygonDataFromPolygon(self, shape):
         points = shape.points
         if not self._validatePoint(points[0]):
@@ -569,33 +572,34 @@ class EdbLayout(object):
                 arcs.append(arc)
         return self._edb.Geometry.PolygonData.CreateFromArcs(convert_py_list_to_net_list(arcs), True)
 
+    @aedt_exception_handler
     def _validatePoint(self, point, allowArcs=True):
         if len(point) == 2:
-            if not isinstance(point[0], (int, float)):
-                self._messenger.add_error_message("Point X value must be a float.")
+            if not isinstance(point[0], (int, float, str)):
+                self._messenger.add_error_message("Point X value must be a number.")
                 return False
-            if not isinstance(point[1], (int, float)):
-                self._messenger.add_error_message("Point Y value must be a float.")
+            if not isinstance(point[1], (int, float, str)):
+                self._messenger.add_error_message("Point Y value must be a number.")
                 return False
             return True
         elif len(point) == 5:
             if not allowArcs:
                 self._messenger.add_error_message("Arc found but arcs are not allowed in _validatePoint.")
                 return False
-            if not isinstance(point[0], (int, float)):
-                self._messenger.add_error_message("Point X value must be a float.")
+            if not isinstance(point[0], (int, float, str)):
+                self._messenger.add_error_message("Point X value must be a number.")
                 return False
-            if not isinstance(point[1], (int, float)):
-                self._messenger.add_error_message("Point Y value must be a float.")
+            if not isinstance(point[1], (int, float, str)):
+                self._messenger.add_error_message("Point Y value must be a number.")
                 return False
             if not isinstance(point[2], str) or point[2] not in ["cw", "ccw"]:
                 self._messenger.add_error_message("Invalid rotation direction {} is specified.")
                 return False
-            if not isinstance(point[3], (int, float)):
-                self._messenger.add_error_message("Arc center point X value must be a float.")
+            if not isinstance(point[3], (int, float, str)):
+                self._messenger.add_error_message("Arc center point X value must be a number.")
                 return False
-            if not isinstance(point[4], (int, float)):
-                self._messenger.add_error_message("Arc center point Y value must be a float.")
+            if not isinstance(point[4], (int, float, str)):
+                self._messenger.add_error_message("Arc center point Y value must be a number.")
                 return False
             return True
         else:
@@ -685,4 +689,57 @@ class EdbLayout(object):
                                 variable_value = p.GetWidth()
                             result, var_server = self._parent.add_design_variable(parameter_name, variable_value)
                         p.SetWidth(self._edb.Utility.Value(parameter_name, var_server))
+        return True
+
+    @aedt_exception_handler
+    def unite_polygons_on_layer(self, layer_name=None, delete_padstack_gemometries=False):
+        """Try to unite all Polygons on specified layer.
+
+        Parameters
+        ----------
+        layer_name : str, optional
+            Layer Name on which unite objects. If ``None``, all layers will be taken.
+        delete_padstack_gemometries : bool, optional
+            ``True`` to delete all padstack geometry.
+
+        Returns
+        -------
+        bool
+            ``True`` is successful.
+        """
+        if isinstance(layer_name, str):
+            layer_name = [layer_name]
+        if not layer_name:
+            layer_name = list(self._parent.core_stackup.signal_layers.keys())
+
+        for lay in layer_name:
+            self._messenger.add_info_message("Uniting Objects on layer {}.".format(lay))
+            poly_by_nets = {}
+            if lay in list(self.polygons_by_layer.keys()):
+                for poly in self.polygons_by_layer[lay]:
+                    if not poly.GetNet().GetName() in list(poly_by_nets.keys()):
+                        poly_by_nets[poly.GetNet().GetName()] = [poly]
+                    else:
+                        poly_by_nets[poly.GetNet().GetName()].append(poly)
+            for net in poly_by_nets:
+                list_polygon_data = [i.GetPolygonData() for i in poly_by_nets[net]]
+                all_voids = [i.Voids for i in poly_by_nets[net]]
+                a = self._edb.Geometry.PolygonData.Unite(convert_py_list_to_net_list(list_polygon_data))
+                for item in a:
+                    for v in all_voids:
+                        for void in v:
+                            if item.GetIntersectionType(void.GetPolygonData()) == 2:
+                                item.AddHole(void.GetPolygonData())
+                    poly = self._edb.Cell.Primitive.Polygon.Create(self._active_layout, lay,
+                                                                   self._parent.core_nets.nets[net], item)
+
+                [i.Delete() for i in poly_by_nets[net]]
+
+        if delete_padstack_gemometries:
+            self._messenger.add_info_message("Deleting Padstack Definitions")
+            for pad in self._parent.core_padstack.padstacks:
+                p1 = self._parent.core_padstack.padstacks[pad].edb_padstack.GetData()
+                if len(p1.GetLayerNames()) > 1:
+                    self._parent.core_padstack.remove_pads_from_padstack(pad)
+        self.update_primitives()
         return True

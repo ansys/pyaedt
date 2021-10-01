@@ -1,9 +1,13 @@
 #!/ekm/software/anaconda3/bin/python
 
+# Standard imports
+import filecmp
+import os
+
 # Import required modules
 from pyaedt import Maxwell2d
 
-from _unittest.conftest import BasisTest, pyaedt_unittest_check_desktop_error
+from _unittest.conftest import BasisTest, local_path, pyaedt_unittest_check_desktop_error
 
 try:
     import pytest  # noqa: F401
@@ -79,3 +83,9 @@ class TestClass(BasisTest):
                                                       self.aedtapp.modeler.primitives["Rectangle2"].edges[2].id)
         assert "Independent" in mas.name
         assert "Dependent" in slave.name
+
+    @pyaedt_unittest_check_desktop_error
+    def test_14_check_design_preview_image(self):
+        jpg_file = os.path.join(self.local_scratch.path, "file.jpg")
+        self.aedtapp.export_design_preview_to_jpg(jpg_file)
+        assert filecmp.cmp(jpg_file, os.path.join(local_path, "example_models", "Motor_EM_R2019R3.jpg"))
