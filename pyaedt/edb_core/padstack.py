@@ -5,6 +5,7 @@ This module contains the `EdbPadstacks` class.
 import warnings
 
 from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name
+from pyaedt.edb_core.general import convert_py_list_to_net_list
 
 from .EDB_Data import EDBPadstack
 
@@ -19,6 +20,7 @@ class EdbPadstacks(object):
 
     def __init__(self, parent):
         self.parent = parent
+        self._padstacks = {}
 
     @property
     def _builder(self):
@@ -70,12 +72,18 @@ class EdbPadstacks(object):
             List of padstacks via padstack definitions.
 
         """
-        viadefList = {}
+        if self._padstacks:
+            return self._padstacks
+        self.update_padstacks()
+        return self._padstacks
+
+    @aedt_exception_handler
+    def update_padstacks(self):
+        self._padstacks = {}
         for padstackdef in self.db.PadstackDefs:
             PadStackData = padstackdef.GetData()
-            if len(PadStackData.GetLayerNames()) > 1:
-                viadefList[padstackdef.GetName()] = EDBPadstack(padstackdef, self)
-        return viadefList
+            if len(PadStackData.GetLayerNames()) >= 1:
+                self._padstacks[padstackdef.GetName()] = EDBPadstack(padstackdef, self)
 
     @aedt_exception_handler
     def create_circular_padstack(
@@ -105,9 +113,10 @@ class EdbPadstacks(object):
         str
             Name of the padstack if the operation is successful.
         """
-        return self._padstack_methods.CreateCircularPadStackDef(
+        pad = self._padstack_methods.CreateCircularPadStackDef(
             self._builder, padstackname, holediam, paddiam, antipaddiam, startlayer, endlayer
         )
+        self.update_padstacks()
 
     @aedt_exception_handler
     def get_pinlist_from_component_and_net(self, refdes=None, netname=None):
@@ -211,6 +220,7 @@ class EdbPadstacks(object):
         padstackDefinition = self._edb.Definition.PadstackDef.Create(self.db, padstackname)
         padstackDefinition.SetData(padstackData)
         self._messenger.add_info_message("Padstack {} create correctly".format(padstackname))
+        self.update_padstacks()
         return padstackname
 
     @aedt_exception_handler
@@ -277,3 +287,37 @@ class EdbPadstacks(object):
             return via
         else:
             return False
+
+    @aedt_exception_handler
+    def remove_pads_from_padstack(self, padstack_name, layer_name=None):
+        """Remove the Pad from a padstack on a specific layer by setting it as a 0 thickness circle.
+
+        Parameters
+        ----------
+        padstack_name : str
+            padstack name
+        layer_name : str, optional
+            Layer name on which remove the PadParameters. If None, all layers will be taken.
+
+        Returns
+        -------
+        bool
+            ``True`` if successful.
+        """
+        pad_type = self._edb.Definition.PadType.RegularPad
+        pad_geo = self._edb.Definition.PadGeometryType.Circle
+        vals = self._edb_value(0)
+        params = convert_py_list_to_net_list([self._edb_value(0)])
+        p1 = self.padstacks[padstack_name].edb_padstack.GetData()
+        newPadstackDefinitionData = self._edb.Definition.PadstackDefData(p1)
+
+        if not layer_name:
+            layer_name = list(self._parent.core_stackup.signal_layers.keys())
+        elif isinstance(layer_name, str):
+            layer_name = [layer_name]
+        for lay in layer_name:
+            newPadstackDefinitionData.SetPadParameters(lay, pad_type, pad_geo, params, vals, vals, vals)
+
+        self.padstacks[padstack_name].edb_padstack.SetData(newPadstackDefinitionData)
+        self.update_padstacks()
+        return True

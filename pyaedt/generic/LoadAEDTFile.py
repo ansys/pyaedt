@@ -286,7 +286,7 @@ def _read_aedt_file(filename):
         try:
             ascii_lines.append(raw_line.decode("utf-8").lstrip("\t"))
         except UnicodeDecodeError:
-            continue
+            break
     ascii_content = "\n".join(ascii_lines)
 
     # combine subsequent lines when the line ends in \

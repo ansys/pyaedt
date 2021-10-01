@@ -490,3 +490,7 @@ class TestClass:
         out = edb.export_maxwell(scratch_path, num_cores=6)
         assert os.path.exists(out)
         edb.close_edb()
+
+    def test_65_flatten_planes(self):
+        assert self.edbapp.core_primitives.unite_polygons_on_layer()
+

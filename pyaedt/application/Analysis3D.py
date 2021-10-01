@@ -431,10 +431,8 @@ class FieldAnalysis3D(Analysis, object):
         cond = self.materials.conductors
         cond = [i.lower() for i in cond]
         obj_names = []
-        for el, obj in self.modeler.primitives.objects.items():
-            if obj.object_type == "Solid":
-                if obj.material_name.lower() in cond:
-                    obj_names.append(obj.name)
+        for el in cond:
+            obj_names += list(self._modeler.oeditor.GetObjectsByMaterial(el))
         return obj_names
 
     @aedt_exception_handler
