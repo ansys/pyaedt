@@ -9,6 +9,7 @@ import sys
 import time
 import traceback
 import warnings
+
 try:
     import clr
     from System.Collections.Generic import List
@@ -88,15 +89,15 @@ class Edb(object):
     """
 
     def __init__(
-        self,
-        edbpath=None,
-        cellname=None,
-        isreadonly=False,
-        edbversion="2021.1",
-        isaedtowned=False,
-        oproject=None,
-        student_version=False,
-        use_ppe=False,
+            self,
+            edbpath=None,
+            cellname=None,
+            isreadonly=False,
+            edbversion="2021.1",
+            isaedtowned=False,
+            oproject=None,
+            student_version=False,
+            use_ppe=False,
     ):
         self._clean_variables()
         if is_ironpython and inside_desktop:
@@ -584,11 +585,11 @@ class Edb(object):
             units = "millimeter"
 
         if not ipc_path:
-            ipc_path = self.edbpath[:-4]+"xml"
+            ipc_path = self.edbpath[:-4] + "xml"
         self._messenger.add_info_message("Export IPC 2581 is starting. This operation can take a while...")
         start = time.time()
         result = self.layout_methods.ExportIPC2581FromBuilder(self.builder, ipc_path, units.lower())
-        #result = self.layout_methods.ExportIPC2581FromLayout(self.db, self._active_cell, ipc_path, units.lower())
+        # result = self.layout_methods.ExportIPC2581FromLayout(self.db, self._active_cell, ipc_path, units.lower())
         end = time.time() - start
         if result:
             self._messenger.add_info_message("Export IPC 2581 completed in {} sec.".format(end))
@@ -841,7 +842,7 @@ class Edb(object):
 
         """
         if self.import_layout_pcb(
-            inputBrd, working_dir=WorkDir, anstranslator_full_path=anstranslator_full_path, use_ppe=use_ppe
+                inputBrd, working_dir=WorkDir, anstranslator_full_path=anstranslator_full_path, use_ppe=use_ppe
         ):
             return True
         else:
@@ -869,21 +870,21 @@ class Edb(object):
 
         """
         if self.import_layout_pcb(
-            inputGDS, working_dir=WorkDir, anstranslator_full_path=anstranslator_full_path, use_ppe=use_ppe
+                inputGDS, working_dir=WorkDir, anstranslator_full_path=anstranslator_full_path, use_ppe=use_ppe
         ):
             return True
         else:
             return False
 
     def create_cutout(
-        self,
-        signal_list,
-        reference_list=["GND"],
-        extent_type="Conforming",
-        expansion_size=0.002,
-        use_round_corner=False,
-        output_aedb_path=None,
-        open_cutout_at_end=True,
+            self,
+            signal_list,
+            reference_list=["GND"],
+            extent_type="Conforming",
+            expansion_size=0.002,
+            use_round_corner=False,
+            output_aedb_path=None,
+            open_cutout_at_end=True,
     ):
         """Create a cutout and save it to a new AEDB file.
 
@@ -1010,11 +1011,11 @@ class Edb(object):
 
     @aedt_exception_handler
     def create_cutout_on_point_list(
-        self,
-        point_list,
-        units="mm",
-        output_aedb_path=None,
-        open_cutout_at_end=True,
+            self,
+            point_list,
+            units="mm",
+            output_aedb_path=None,
+            open_cutout_at_end=True,
     ):
         """Create a cutout and save it to a new AEDB file.
 
@@ -1296,4 +1297,4 @@ class Edb(object):
             The bounding box as a [lower-left X, lower-left Y], [upper-right X, upper-right Y]) pair in meter.
         """
         bbox = self.edbutils.HfssUtilities.GetBBox(self.active_layout)
-        return [[bbox.Item1.X.ToDouble(),bbox.Item1.Y.ToDouble()], [bbox.Item2.X.ToDouble(), bbox.Item2.Y.ToDouble()]]
+        return [[bbox.Item1.X.ToDouble(), bbox.Item1.Y.ToDouble()], [bbox.Item2.X.ToDouble(), bbox.Item2.Y.ToDouble()]]

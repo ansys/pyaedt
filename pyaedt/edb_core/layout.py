@@ -740,4 +740,3 @@ class EdbLayout(object):
                     self._parent.core_padstack.remove_pads_from_padstack(pad)
         self.update_primitives()
         return True
-
