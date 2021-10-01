@@ -444,7 +444,6 @@ class TestClass:
         assert not self.edbapp.core_primitives.create_polygon(plane, "TOP")
         os.environ["PYAEDT_ERROR_HANDLER"] = "False"
 
-
     def test_59_create_path(self):
         points = [
             [-0.025, -0.02],
