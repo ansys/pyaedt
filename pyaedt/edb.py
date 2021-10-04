@@ -106,7 +106,7 @@ class Edb(object):
             self.standalone = True
         if edb_initialized:
             self.oproject = oproject
-            if isaedtowned:
+            if isaedtowned and 'oMessenger' in dir(sys.modules["__main__"]):
                 self._main = sys.modules["__main__"]
                 self._messenger = self._main.oMessenger
             else:

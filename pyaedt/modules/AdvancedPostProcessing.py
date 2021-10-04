@@ -292,12 +292,14 @@ class PostProcessor(Post):
         self,
         aedtplt_files=None,
         imageformat="jpg",
-        view="iso",
+        view="isometric",
         plot_type="Full",
         plot_label="Temperature",
         model_color="#8faf8f",
         show_model_edge=False,
         off_screen=False,
+        scale_min=None,
+        scale_max=None,
     ):
         """Export the 3D field solver mesh, fields, or both mesh and fields as images using Python Plotly.
 
@@ -312,8 +314,9 @@ class PostProcessor(Post):
             Format of the image file. Options are ``"jpg"``, ``"png"``, ``"svg"``, and
             ``"webp"``. The default is ``"jpg"``.
         view : str, optional
-            View to export. Options are ``"iso"``, ``"x"`` , ``"y"``, ``"z"``, and ``"all"``.
-            The default is ``"iso"``. The ``"all"`` option exports all views.
+            View to export. Options are `Options are ``isometric``,
+            ``top``, ``front``, ``left``, ``all``.
+            The ``"all"`` option exports all views.
         plot_type : str, optional
             Type of the plot. The default is ``"Full"``.
         plot_label : str, optional
@@ -325,6 +328,10 @@ class PostProcessor(Post):
             is ``False``.
         off_screen : bool, optional
              The default is ``False``.
+        scale_min : float, optional
+            Fix the Scale Minimum value.
+        scale_max : float, optional
+            Fix the Scale Maximum value.
 
         Returns
         -------
@@ -336,9 +343,9 @@ class PostProcessor(Post):
             aedtplt_files = [aedtplt_files]
 
         plot = pv.Plotter(off_screen=off_screen)
-        if not off_screen:
-            plot.enable_anti_aliasing()
-        plot.enable_fly_to_right_click()
+        # if not off_screen:
+        #     plot.enable_anti_aliasing()
+        # plot.enable_fly_to_right_click()
         lines = []
         for file in aedtplt_files:
             if ".aedtplt" in file:
@@ -466,7 +473,7 @@ class PostProcessor(Post):
                     log = True
                 else:
                     log = False
-                surf.point_arrays[plot_label] = temps
+                surf.point_data[plot_label] = temps
 
             sargs = dict(
                 title_font_size=10,
@@ -518,7 +525,6 @@ class PostProcessor(Post):
                             return
 
                     engine = MyCustomRoutine(surf)
-
                     plot.add_box_widget(
                         surf,
                         show_edges=False,
@@ -530,26 +536,31 @@ class PostProcessor(Post):
                         smooth_shading=True,
                         name="FieldPlot",
                     )
+                    if not off_screen:
+                        plot.add_slider_widget(
+                            callback=lambda value: engine("min_val", value),
+                            rng=[np.min(temps), np.max(temps)],
+                            title="Lower",
+                            style="modern",
+                            value=np.min(temps),
+                            pointa=(0.5, 0.98),
+                            pointb=(0.65, 0.98),
+                        )
 
-                    plot.add_slider_widget(
-                        callback=lambda value: engine("min_val", value),
-                        rng=[np.min(temps), np.max(temps)],
-                        title="Lower",
-                        style="modern",
-                        value=np.min(temps),
-                        pointa=(0.5, 0.98),
-                        pointb=(0.65, 0.98),
-                    )
-
-                    plot.add_slider_widget(
-                        callback=lambda value: engine("max_val", value),
-                        rng=[np.min(temps), np.max(temps)],
-                        title="Upper",
-                        style="modern",
-                        value=np.max(temps),
-                        pointa=(0.66, 0.98),
-                        pointb=(0.8, 0.98),
-                    )
+                        plot.add_slider_widget(
+                            callback=lambda value: engine("max_val", value),
+                            rng=[np.min(temps), np.max(temps)],
+                            title="Upper",
+                            style="modern",
+                            value=np.max(temps),
+                            pointa=(0.66, 0.98),
+                            pointb=(0.8, 0.98),
+                        )
+                    else:
+                        if isinstance(scale_max, float):
+                            engine("max_val", scale_max)
+                        if isinstance(scale_min, float):
+                            engine("min_val", scale_min)
                 else:
                     plot.add_box_widget(
                         surf, show_edges=True, line_width=0.1, color="grey", pickable=True, smooth_shading=True
@@ -557,7 +568,6 @@ class PostProcessor(Post):
             else:
                 plot.add_text("Full Plot", font_size=15)
                 if solution:
-
                     class MyCustomRoutine:
                         """ """
 
@@ -595,7 +605,6 @@ class PostProcessor(Post):
                             return
 
                     engine = MyCustomRoutine(surf)
-
                     plot.add_mesh(
                         surf,
                         show_edges=False,
@@ -607,39 +616,44 @@ class PostProcessor(Post):
                         smooth_shading=True,
                         name="FieldPlot",
                     )
+                    if not off_screen:
+                        plot.add_slider_widget(
+                            callback=lambda value: engine("min_val", value),
+                            rng=[np.min(temps), np.max(temps)],
+                            title="Lower",
+                            style="modern",
+                            value=np.min(temps),
+                            pointa=(0.5, 0.98),
+                            pointb=(0.65, 0.98),
+                        )
 
-                    plot.add_slider_widget(
-                        callback=lambda value: engine("min_val", value),
-                        rng=[np.min(temps), np.max(temps)],
-                        title="Lower",
-                        style="modern",
-                        value=np.min(temps),
-                        pointa=(0.5, 0.98),
-                        pointb=(0.65, 0.98),
-                    )
-
-                    plot.add_slider_widget(
-                        callback=lambda value: engine("max_val", value),
-                        rng=[np.min(temps), np.max(temps)],
-                        title="Upper",
-                        style="modern",
-                        value=np.max(temps),
-                        pointa=(0.66, 0.98),
-                        pointb=(0.8, 0.98),
-                    )
+                        plot.add_slider_widget(
+                            callback=lambda value: engine("max_val", value),
+                            rng=[np.min(temps), np.max(temps)],
+                            title="Upper",
+                            style="modern",
+                            value=np.max(temps),
+                            pointa=(0.66, 0.98),
+                            pointb=(0.8, 0.98),
+                        )
+                    else:
+                        if isinstance(scale_max, (int, float)):
+                            engine("max_val", scale_max)
+                        if isinstance(scale_min, (int, float)):
+                            engine("min_val", scale_min)
                 else:
                     plot.add_mesh(
                         surf, show_edges=True, line_width=0.1, color="grey", pickable=True, smooth_shading=True
                     )
             plot.show_axes()
-            plot.show_grid()
-            if view == "iso":
+            # plot.show_grid()
+            if view == "isometric":
                 plot.view_isometric()
-            elif view == "x":
+            elif view == "top":
                 plot.view_yz()
-            elif view == "y":
+            elif view == "front":
                 plot.view_xz()
-            elif view == "z":
+            elif view == "top":
                 plot.view_xy()
         files_list = []
 
@@ -845,7 +859,7 @@ class PostProcessor(Post):
                 std = np.std(temps)
                 if np.min(temps) <= 0:
                     log = False
-                surf.point_arrays[plot_label] = temps
+                surf.point_data[plot_label] = temps
             if solution:
                 surfs.append(surf)
                 if np.min(temps) < mins:
@@ -922,7 +936,7 @@ class PostProcessor(Post):
                     break
                 i = 0
                 first_loop = False
-            scalars = surfs[i].point_arrays[plot_label]
+            scalars = surfs[i].point_data[plot_label]
             plot.update_scalars(scalars, render=False)
             # p.add_mesh(surfs[i], scalars=plot_label, log_scale=log, scalar_bar_args=sargs, cmap='rainbow',
             #            show_edges=False, pickable=True, smooth_shading=True, name="FieldPlot")
@@ -1052,10 +1066,12 @@ class PostProcessor(Post):
         setup_name=None,
         intrinsic_dict={},
         imageformat="jpg",
-        view="iso",
+        view="isometric",
         plot_label="Temperature",
         plot_folder=None,
         off_screen=False,
+        scale_min=None,
+        scale_max=None,
     ):
         """Export a field plot to an image file (JPG or PNG) using Python Plotly.
 
@@ -1081,8 +1097,8 @@ class PostProcessor(Post):
             ``"png"``, ``"svg"``, and ``"webp"``. The default is
             ``"jpg"``.
         view : str, optional
-            View to export. Options are ``"iso"``, ``"x"`` , ``"y"``,
-            ``"z"``, and ``"all"``. The default is ``"iso"``. If
+            View to export. Options are ``isometric``, ``top``, ``front``,
+             ``left``, ``all``.. The default is ``"iso"``. If
             ``"all"``, all views are exported.
         plot_label : str, optional
             Type of the plot. The default is ``"Temperature"``.
@@ -1090,6 +1106,12 @@ class PostProcessor(Post):
             Plot folder to update before exporting the
             field. The default is ``None``, in which case all plot
             folders are updated.
+        off_screen : bool, optional
+            Export Image without plotting on UI.
+        scale_min : float, optional
+            Fix the Scale Minimum value.
+        scale_max : float, optional
+            Fix the Scale Maximum value.
 
         Returns
         -------
@@ -1119,8 +1141,8 @@ class PostProcessor(Post):
                     if file_to_add:
                         files_to_add.append(file_to_add)
             file_list = self._plot_from_aedtplt(
-                files_to_add, imageformat=imageformat, view=view, plot_label=plot_label, off_screen=off_screen
-            )
+                files_to_add, imageformat=imageformat, view=view, plot_label=plot_label, off_screen=off_screen,
+                scale_min=scale_min, scale_max=scale_max)
             endt = time.time() - start
             print("Field Generation, export and plot time: ", endt)
         return file_list
