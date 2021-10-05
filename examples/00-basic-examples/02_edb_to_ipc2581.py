@@ -29,6 +29,7 @@ if os.path.exists(targetfolder):
 shutil.copytree(example_path[:-8], targetfolder)
 targetfile = os.path.join(targetfolder)
 ipc2581_file = os.path.join(temp_folder, 'Galileo.xml')
+
 print(targetfile)
 
 

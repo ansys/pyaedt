@@ -230,7 +230,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.PostProcessor.PostProcessor`
+        :class:`pyaedt.modules.AdvancedPostProcessing.PostProcessor`
             PostProcessor object.
         """
         return self._post
