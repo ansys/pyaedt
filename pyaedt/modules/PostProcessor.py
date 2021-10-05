@@ -612,6 +612,18 @@ class FieldPlot:
             False,
         ]
 
+    @property
+    def field_plot_settings(self):
+        return ["NAME:FieldsPlotItemSettings",
+                ["NAME:PlotOnSurfaceSettings", "Filled:=", self.Filled, "IsoValType:=", self.IsoVal, "AddGrid:=",
+                 self.AddGrid, "MapTransparency:=", self.MapTransparency, "Refinement:=", self.Refinement,
+                 "Transparency:=",
+                 self.Transparency, "SmoothingLevel:=", self.SmoothingLevel, "ShadingType:=", self.SmoothShade,
+                 ["NAME:Arrow3DSpacingSettings", "ArrowUniform:=", self.ArrowUniform, "ArrowSpacing:=",
+                  self.ArrowSpacing, "MinArrowSpacing:=", self.MinArrowSpacing, "MaxArrowSpacing:=",
+                  self.MaxArrowSpacing], "GridColor:=",
+                 self.GridColor]]
+
     @aedt_exception_handler
     def create(self):
         """Create a field plot.
@@ -687,14 +699,14 @@ class FieldPlot:
         return True
 
     @aedt_exception_handler
-    def export_image(self, full_path=None, width=1920, height=1080, orientation="isometric"):
+    def export_image(self, full_path=None, width=1920, height=1080, orientation="isometric", display_wireframe=True):
         """Exports an image of active Plot.
 
         .. note::
            Works with some limitation on HFSS3DLayout.
 
         full_path : str, optional
-            Path where image will be saved
+            Path where image will be saved. It supports png and gif format.
         width : int, optional
             Plot Width.
         height : int, optional
@@ -702,6 +714,8 @@ class FieldPlot:
         orientation : str, optional
             View of the exported plot. Options are ``isometric``, ``top``, ``bottom``, ``right``, ``left``, ``front``,
             ``back``any custom orientation.
+        display_wireframe : bool, optional
+            Set to ``True`` if the objects has to be put in wireframe mode.
 
         Returns
         -------
@@ -709,10 +723,14 @@ class FieldPlot:
             Full path to exported file if successul.
         """
         self.oField.UpdateQuantityFieldsPlots(self.plotFolder)
+        self.AddGrid = not self.AddGrid
+        self.update_field_plot_settings()
+        self.AddGrid = not self.AddGrid
+        self.update_field_plot_settings()
         if not full_path:
-            full_path = os.path.join(self._parent._parent.project_path, self.name+".jpg")
+            full_path = os.path.join(self._parent._parent.project_path, self.name+".png")
         status = self._parent.export_field_jpg(full_path, self.name, self.plotFolder, orientation=orientation,
-                                               width=width, height=height)
+                                               width=width, height=height, display_wireframe=display_wireframe)
         if status:
             return full_path
         else:
@@ -763,6 +781,11 @@ class FieldPlot:
         else:
             self._parent._messenger.add_info_message("This method wors only on CPython with PyVista")
             return False
+
+    @aedt_exception_handler
+    def update_field_plot_settings(self):
+        self.oField.SetFieldPlotSettings(self.name, self.surfacePlotInstruction)
+        return  True
 
 
 class PostProcessorCommon(object):
@@ -1283,7 +1306,7 @@ class PostProcessor(PostProcessorCommon, object):
     @aedt_exception_handler
     def _get_fields_plot(self):
         plots = {}
-        if "FieldsReporter" in self._parent.design_properties and "FieldsPlotManagerID" in \
+        if self._parent.design_properties and "FieldsReporter" in self._parent.design_properties and "FieldsPlotManagerID" in \
                 self._parent.design_properties["FieldsReporter"]:
             setups_data = self._parent.design_properties["FieldsReporter"]["FieldsPlotManagerID"]
             for setup in setups_data:
@@ -1340,9 +1363,14 @@ class PostProcessor(PostProcessorCommon, object):
 
                         else:
                             plots[plot_name].objtype = "Surface"
-                            plots[plot_name].listtype = "FacesList"
-                            plots[plot_name].faceIndexes = [int(i) for i in list_objs[4:]]
-
+                            faces = [int(i) for i in list_objs[4:]]
+                            if self._parent.solution_type not in ["HFSS3DLayout", "HFSS 3D Layout Design"]:
+                                if self._parent.odesign.SetActiveEditor("3D Modeler").GetObjectNameByFaceID(
+                                        int(faces[0])):
+                                    plots[plot_name].listtype = "FacesList"
+                                else:
+                                    plots[plot_name].listtype = "CutPlane"
+                                plots[plot_name].faceIndexes = [int(i) for i in list_objs[4:]]
                         plots[plot_name].name = setups_data[setup]["PlotName"]
                         plots[plot_name].plotFolder = setups_data[setup]["PlotFolder"]
                         plots[plot_name].Filled = setups_data[setup]["PlotOnSurfaceSettings"]['Filled']
@@ -1941,7 +1969,8 @@ class PostProcessor(PostProcessorCommon, object):
         return self._create_fieldplot(objlist, quantityName, setup_name, intrinsincDict, "Volume", "ObjList", plot_name)
 
     @aedt_exception_handler
-    def export_field_jpg(self, fileName, plotName, foldername, orientation="isometric", width=1920, height=1080):
+    def export_field_jpg(self, fileName, plotName, foldername, orientation="isometric", width=1920, height=1080,
+                         display_wireframe=True):
         """Export a field plot and coordinate system to a JPG file.
 
         Parameters
@@ -1963,12 +1992,20 @@ class PostProcessor(PostProcessorCommon, object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-
-        if self.post_solution_type == "HFSS3DLayout" or self.post_solution_type == "HFSS 3D Layout Design":
-            self.oeditor.ExportImage(fileName, 1920, 1080)
-        else:
+        if self.post_solution_type not in ["HFSS3DLayout", "HFSS 3D Layout Design"]:
+            wireframes = []
+            if display_wireframe:
+                names = self._primitives.object_names
+                for el in names:
+                    if not self._primitives[el].display_wireframe:
+                        wireframes.append(el)
+                        self._primitives[el].display_wireframe = True
             self.ofieldsreporter.ExportPlotImageWithViewToFile(fileName, foldername, plotName, width, height,
                                                                orientation)
+            for solid in wireframes:
+                self._primitives[solid].display_wireframe = False
+        else:
+            self.oeditor.ExportImage(fileName, 1920, 1080)
         return True
 
     @aedt_exception_handler
@@ -1997,9 +2034,8 @@ class PostProcessor(PostProcessorCommon, object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        status = self.export_field_jpg(exportFilePath, plotName, foldername, orientation=view)
-        return status
-
+        return self.export_field_jpg(exportFilePath, plotName, foldername, orientation=view,
+                                     display_wireframe=wireframe)
     @aedt_exception_handler
     def delete_field_plot(self, name):
         """Delete a field plot.

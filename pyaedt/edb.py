@@ -595,7 +595,7 @@ class Edb(object):
             ipc_path = self.edbpath[:-4] + "xml"
         self._messenger.add_info_message("Export IPC 2581 is starting. This operation can take a while...")
         start = time.time()
-        result = self.layout_methods.ExportIPC2581FromLayout(self.active_layout, self.edbversion, ipc_path,
+        result = self.edblib.IPC8521.IPCExporter.ExportIPC2581FromLayout(self.active_layout, self.edbversion, ipc_path,
                                                              units.lower())
         #result = self.layout_methods.ExportIPC2581FromBuilder(self.builder, ipc_path, units.lower())
         end = time.time() - start
@@ -1046,11 +1046,14 @@ class Edb(object):
             ``True`` when successful, ``False`` when failed.
 
         """
+
         if point_list[0] != point_list[-1]:
             point_list.append(point_list[0])
         point_list = [[self.arg_with_dim(i[0], units), self.arg_with_dim(i[1], units)] for i in point_list]
         plane = self.core_primitives.Shape("polygon", points=point_list)
         polygonData = self.core_primitives.shape_to_polygon_data(plane)
+        self.core_primitives.create_polygon(plane, list(self.core_stackup.signal_layers.keys())[0],
+                                            net_name="DUMMY_CUTOUT")
         _signal_nets = []
 
         _ref_nets = []
