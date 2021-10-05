@@ -2558,10 +2558,10 @@ class Design(object):
         image_data_str = design_info["Image64"]
         with open(filename, "wb") as f:
             if sys.version_info.major == 2:
-                bytes = bytes(image_data_str).decode('base64')
+                bytestring = bytes(image_data_str).decode('base64')
             else:
-                bytes = base64.decodebytes(image_data_str.encode("ascii"))
-            f.write(bytes)
+                bytestring = base64.decodebytes(image_data_str.encode("ascii"))
+            f.write(bytestring)
         return True
 
     @aedt_exception_handler
