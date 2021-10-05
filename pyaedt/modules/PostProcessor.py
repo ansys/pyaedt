@@ -654,15 +654,15 @@ class FieldPlot:
         self.oField.ModifyFieldPlot(self.name, self.surfacePlotInstruction)
 
     @aedt_exception_handler
-    def modify_folder(self):
-        """Modify the field plot folder.
+    def update_field_plot_settings(self):
+        """Modify the field plot settings.
 
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        self.oField.SetFieldPlotSettings(self.plotFolder, ["NAME:FieldsPlotItemSettings", self.plotsettings])
+        self.oField.SetFieldPlotSettings(self.name, ["NAME:FieldsPlotItemSettings", self.plotsettings])
         return True
 
     @aedt_exception_handler
@@ -723,10 +723,6 @@ class FieldPlot:
             Full path to exported file if successul.
         """
         self.oField.UpdateQuantityFieldsPlots(self.plotFolder)
-        self.AddGrid = not self.AddGrid
-        self.update_field_plot_settings()
-        self.AddGrid = not self.AddGrid
-        self.update_field_plot_settings()
         if not full_path:
             full_path = os.path.join(self._parent._parent.project_path, self.name+".png")
         status = self._parent.export_field_jpg(full_path, self.name, self.plotFolder, orientation=orientation,
@@ -781,11 +777,6 @@ class FieldPlot:
         else:
             self._parent._messenger.add_info_message("This method wors only on CPython with PyVista")
             return False
-
-    @aedt_exception_handler
-    def update_field_plot_settings(self):
-        self.oField.SetFieldPlotSettings(self.name, self.surfacePlotInstruction)
-        return  True
 
 
 class PostProcessorCommon(object):
@@ -1306,13 +1297,14 @@ class PostProcessor(PostProcessorCommon, object):
     @aedt_exception_handler
     def _get_fields_plot(self):
         plots = {}
-        if self._parent.design_properties and "FieldsReporter" in self._parent.design_properties and "FieldsPlotManagerID" in \
+        if self._parent.design_properties \
+                and "FieldsReporter" in self._parent.design_properties and "FieldsPlotManagerID" in \
                 self._parent.design_properties["FieldsReporter"]:
             setups_data = self._parent.design_properties["FieldsReporter"]["FieldsPlotManagerID"]
             for setup in setups_data:
                 try:
                     if isinstance(setups_data[setup], OrderedDict) and "PlotDefinition" in setup:
-                        plot_name= setups_data[setup]["PlotName"]
+                        plot_name = setups_data[setup]["PlotName"]
                         plots[plot_name] = FieldPlot(self)
                         plots[plot_name].faceIndexes = []
                         base_name = ""
@@ -1346,7 +1338,7 @@ class PostProcessor(PostProcessorCommon, object):
                         if intrinsics:
                             for intr in intrinsics:
                                 if isinstance(intr, list) and len(intr) == 2:
-                                    intr_dict[intr[0]] = intr[1].replace("\\", "").replace("\'","")
+                                    intr_dict[intr[0]] = intr[1].replace("\\", "").replace("\'", "")
                         plots[plot_name].intrinsincList = intr_dict
                         list_objs = setups_data[setup]["FieldPlotGeometry"]
                         if list_objs[1] == 64:
@@ -1370,6 +1362,7 @@ class PostProcessor(PostProcessorCommon, object):
                                     plots[plot_name].listtype = "FacesList"
                                 else:
                                     plots[plot_name].listtype = "CutPlane"
+
                                 plots[plot_name].faceIndexes = [int(i) for i in list_objs[4:]]
                         plots[plot_name].name = setups_data[setup]["PlotName"]
                         plots[plot_name].plotFolder = setups_data[setup]["PlotFolder"]
