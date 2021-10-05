@@ -1295,6 +1295,90 @@ class PostProcessor(PostProcessorCommon, object):
         return self.oreportsetup.GetAvailableDisplayTypes(report_type)
 
     @aedt_exception_handler
+    def _get_base_name(self, setup):
+        setups_data = self._parent.design_properties["FieldsReporter"]["FieldsPlotManagerID"]
+        base_name = ""
+        if 'SimDataExtractors' in self._parent.design_properties["SolutionManager"]:
+            sim_data = self._parent.design_properties["SolutionManager"]['SimDataExtractors']
+        else:
+            sim_data = self._parent.design_properties["SolutionManager"]
+        if 'SimSetup' in sim_data:
+            if isinstance(sim_data["SimSetup"], list):
+                for solution in sim_data["SimSetup"]:
+                    base_name = solution["Name"]
+                    for sol in solution['Solution']:
+                        if sol['ID'] == setups_data[setup]["SolutionId"]:
+                            base_name += " : " + sol['Name']
+                            return base_name
+            else:
+                base_name = sim_data["SimSetup"]["Name"]
+                for sol in sim_data["SimSetup"]['Solution']:
+                    if sol['ID'] == setups_data[setup]["SolutionId"]:
+                        base_name += " : " + sol['Name']
+                        return base_name
+        return ""
+
+    @aedt_exception_handler
+    def _get_intrinsic(self, setup):
+        setups_data = self._parent.design_properties["FieldsReporter"]["FieldsPlotManagerID"]
+        intrinsics = [i.split("=") for i in setups_data[setup]["IntrinsicVar"].split(" ")]
+        intr_dict = {}
+        if intrinsics:
+            for intr in intrinsics:
+                if isinstance(intr, list) and len(intr) == 2:
+                    intr_dict[intr[0]] = intr[1].replace("\\", "").replace("\'", "")
+        return intr_dict
+
+    @aedt_exception_handler
+    def _get_volume_objects(self, list_objs):
+        if self._parent.solution_type not in ["HFSS3DLayout", "HFSS 3D Layout Design"]:
+            obj_list = []
+            for obj in list_objs[4:]:
+                obj_list.append(
+                    self._parent.odesign.SetActiveEditor("3D Modeler").GetObjectNameByID(int(obj)))
+        if obj_list:
+            return obj_list
+        else:
+            return list_objs[4:]
+
+    @aedt_exception_handler
+    def _get_surface_objects(self, list_objs):
+        faces = [int(i) for i in list_objs[4:]]
+        if self._parent.solution_type not in ["HFSS3DLayout", "HFSS 3D Layout Design"]:
+                planes = self._get_cs_plane_ids()
+                objs = []
+                for face in faces:
+                    if face in list(planes.keys()):
+                        objs.append(planes[face])
+                if objs:
+                    return "CutPlane", objs
+        return "FacesList", faces
+
+    @aedt_exception_handler
+    def _get_cs_plane_ids(self):
+        name2refid = {-4: "Global:XY", -3: "Global:YZ",-2: "Global:XZ"}
+        if self._parent.design_properties and "ModelSetup" in self._parent.design_properties:
+            cs = self._parent.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"]["CoordinateSystems"]
+            for ds in cs:
+                try:
+                    if type(cs[ds]) is OrderedDict:
+                        name = cs[ds]["Attributes"]["Name"]
+                        cs_id = cs[ds]["XYPlaneID"]
+                        name2refid[cs_id] = name+":XY"
+                        name2refid[cs_id+1] = name+":YZ"
+                        name2refid[cs_id+2] = name+":XZ"
+                    elif type(cs[ds]) is list:
+                        for el in cs[ds]:
+                            cs_id = el["XYPlaneID"]
+                            name = el["Attributes"]["Name"]
+                            name2refid[cs_id] = name + ":XY"
+                            name2refid[cs_id + 1] = name + ":YZ"
+                            name2refid[cs_id + 2] = name + ":XZ"
+                except:
+                    pass
+        return name2refid
+
+    @aedt_exception_handler
     def _get_fields_plot(self):
         plots = {}
         if self._parent.design_properties \
@@ -1307,88 +1391,36 @@ class PostProcessor(PostProcessorCommon, object):
                         plot_name = setups_data[setup]["PlotName"]
                         plots[plot_name] = FieldPlot(self)
                         plots[plot_name].faceIndexes = []
-                        base_name = ""
-                        if 'SimDataExtractors' in self._parent.design_properties["SolutionManager"]:
-                            sim_data = self._parent.design_properties["SolutionManager"]['SimDataExtractors']
-                        else:
-                            sim_data = self._parent.design_properties["SolutionManager"]
-                        if 'SimSetup' in sim_data:
-                            found = False
-                            if isinstance(sim_data["SimSetup"], list):
-                                for solution in sim_data["SimSetup"]:
-                                    if not found:
-                                        base_name = solution["Name"]
-                                        for sol in solution['Solution']:
-                                            if sol['ID'] == setups_data[setup]["SolutionId"]:
-                                                base_name += " : " + sol['Name']
-                                                found = True
-                                                break
-                            else:
-                                base_name = sim_data["SimSetup"]["Name"]
-                                for sol in sim_data["SimSetup"]['Solution']:
-                                    if sol['ID'] == setups_data[setup]["SolutionId"]:
-                                        base_name += " : " + sol['Name']
-                                        break
-
-                        plots[plot_name].solutionName = base_name
+                        plots[plot_name].solutionName = self._get_base_name(setup)
                         plots[plot_name].quantityName = self.ofieldsreporter.GetFieldPlotQuantityName(
                             setups_data[setup]["PlotName"])
-                        intrinsics = [i.split("=") for i in setups_data[setup]["IntrinsicVar"].split(" ")]
-                        intr_dict = {}
-                        if intrinsics:
-                            for intr in intrinsics:
-                                if isinstance(intr, list) and len(intr) == 2:
-                                    intr_dict[intr[0]] = intr[1].replace("\\", "").replace("\'", "")
-                        plots[plot_name].intrinsincList = intr_dict
+                        plots[plot_name].intrinsincList = self._get_intrinsic(setup)
                         list_objs = setups_data[setup]["FieldPlotGeometry"]
                         if list_objs[1] == 64:
                             plots[plot_name].objtype = "Volume"
                             plots[plot_name].listtype = "ObjList"
-                            if self._parent.solution_type not in ["HFSS3DLayout", "HFSS 3D Layout Design"]:
-                                obj_list = []
-                                for obj in list_objs[4:]:
-                                    obj_list.append(
-                                        self._parent.odesign.SetActiveEditor("3D Modeler").GetObjectNameByID(int(obj)))
-                                plots[plot_name].faceIndexes = obj_list
-                            else:
-                                plots[plot_name].faceIndexes = list_objs[4:]
+                            plots[plot_name].faceIndexes = self._get_volume_objects(list_objs)
 
                         else:
                             plots[plot_name].objtype = "Surface"
-                            faces = [int(i) for i in list_objs[4:]]
-                            if self._parent.solution_type not in ["HFSS3DLayout", "HFSS 3D Layout Design"]:
-                                if self._parent.odesign.SetActiveEditor("3D Modeler").GetObjectNameByFaceID(
-                                        int(faces[0])):
-                                    plots[plot_name].listtype = "FacesList"
-                                else:
-                                    plots[plot_name].listtype = "CutPlane"
-
-                                plots[plot_name].faceIndexes = [int(i) for i in list_objs[4:]]
+                            plots[plot_name].listtype, plots[plot_name].faceIndexes = self._get_surface_objects(
+                                list_objs)
                         plots[plot_name].name = setups_data[setup]["PlotName"]
                         plots[plot_name].plotFolder = setups_data[setup]["PlotFolder"]
-                        plots[plot_name].Filled = setups_data[setup]["PlotOnSurfaceSettings"]['Filled']
-                        plots[plot_name].IsoVal = setups_data[setup]["PlotOnSurfaceSettings"][
-                            'IsoValType']
-                        plots[plot_name].AddGrid = setups_data[setup]["PlotOnSurfaceSettings"][
-                            'AddGrid']
-                        plots[plot_name].MapTransparency = setups_data[setup]["PlotOnSurfaceSettings"][
-                            'MapTransparency']
-                        plots[plot_name].Refinement = setups_data[setup]["PlotOnSurfaceSettings"][
-                            'Refinement']
-                        plots[plot_name].Transparency = setups_data[setup]["PlotOnSurfaceSettings"][
-                            'Transparency']
-                        plots[plot_name].SmoothingLevel = setups_data[setup]["PlotOnSurfaceSettings"][
-                            'SmoothingLevel']
-                        plots[plot_name].ArrowUniform = \
-                            setups_data[setup]["PlotOnSurfaceSettings"]['Arrow3DSpacingSettings']['ArrowUniform']
-                        plots[plot_name].ArrowSpacing = \
-                            setups_data[setup]["PlotOnSurfaceSettings"]['Arrow3DSpacingSettings']['ArrowSpacing']
-                        plots[plot_name].MinArrowSpacing = \
-                            setups_data[setup]["PlotOnSurfaceSettings"]['Arrow3DSpacingSettings']['MinArrowSpacing']
-                        plots[plot_name].MaxArrowSpacing = \
-                            setups_data[setup]["PlotOnSurfaceSettings"]['Arrow3DSpacingSettings']['MaxArrowSpacing']
-                        plots[plot_name].GridColor = setups_data[setup]["PlotOnSurfaceSettings"][
-                            'GridColor']
+                        surf_setts = setups_data[setup]["PlotOnSurfaceSettings"]
+                        plots[plot_name].Filled = surf_setts['Filled']
+                        plots[plot_name].IsoVal = surf_setts['IsoValType']
+                        plots[plot_name].AddGrid = surf_setts['AddGrid']
+                        plots[plot_name].MapTransparency = surf_setts['MapTransparency']
+                        plots[plot_name].Refinement = surf_setts['Refinement']
+                        plots[plot_name].Transparency = surf_setts['Transparency']
+                        plots[plot_name].SmoothingLevel = surf_setts['SmoothingLevel']
+                        arrow_setts = surf_setts['Arrow3DSpacingSettings']
+                        plots[plot_name].ArrowUniform = arrow_setts['ArrowUniform']
+                        plots[plot_name].ArrowSpacing = arrow_setts['ArrowSpacing']
+                        plots[plot_name].MinArrowSpacing = arrow_setts['MinArrowSpacing']
+                        plots[plot_name].MaxArrowSpacing = arrow_setts['MaxArrowSpacing']
+                        plots[plot_name].GridColor = surf_setts['GridColor']
                 except:
                     pass
         return plots
