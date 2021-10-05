@@ -720,7 +720,7 @@ class FieldPlot:
         Returns
         -------
         str
-            Full path to exported file if successul.
+            Full path to exported file if successful.
         """
         self.oField.UpdateQuantityFieldsPlots(self.plotFolder)
         if not full_path:
@@ -756,7 +756,7 @@ class FieldPlot:
         Returns
         -------
         str
-            Full path to exported file if successul.
+            Full path to exported file if successful.
         """
         if not export_path:
             export_path = self._parent._parent.project_path
