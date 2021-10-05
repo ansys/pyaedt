@@ -706,7 +706,7 @@ class FieldPlot:
 
     @aedt_exception_handler
     def export_image(self, full_path=None, width=1920, height=1080, orientation="isometric", display_wireframe=True):
-        """Exports an image of active Plot.
+        """Export an image of active Plot.
 
         .. note::
            Works with some limitation on HFSS3DLayout.
