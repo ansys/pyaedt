@@ -11,7 +11,6 @@ import math
 import os
 import random
 import string
-import time
 import warnings
 import sys
 from collections import OrderedDict
@@ -614,6 +613,13 @@ class FieldPlot:
 
     @property
     def field_plot_settings(self):
+        """Field Plot Settings.
+
+        Returns
+        -------
+        list
+            Field Plot Settings.
+        """
         return ["NAME:FieldsPlotItemSettings",
                 ["NAME:PlotOnSurfaceSettings", "Filled:=", self.Filled, "IsoValType:=", self.IsoVal, "AddGrid:=",
                  self.AddGrid, "MapTransparency:=", self.MapTransparency, "Refinement:=", self.Refinement,
@@ -735,7 +741,7 @@ class FieldPlot:
     @aedt_exception_handler
     def export_image_from_aedtplt(self, export_path=None, view="isometric", plot_mesh=False, scale_min=None,
                                   scale_max=None):
-        """Exports an image of Active Plot using PyVista.
+        """Export an image of Active Plot using PyVista.
 
         .. note::
            Only working in CPython with PyVista Module Installed.
@@ -1345,18 +1351,18 @@ class PostProcessor(PostProcessorCommon, object):
     def _get_surface_objects(self, list_objs):
         faces = [int(i) for i in list_objs[4:]]
         if self._parent.solution_type not in ["HFSS3DLayout", "HFSS 3D Layout Design"]:
-                planes = self._get_cs_plane_ids()
-                objs = []
-                for face in faces:
-                    if face in list(planes.keys()):
-                        objs.append(planes[face])
-                if objs:
-                    return "CutPlane", objs
+            planes = self._get_cs_plane_ids()
+            objs = []
+            for face in faces:
+                if face in list(planes.keys()):
+                    objs.append(planes[face])
+            if objs:
+                return "CutPlane", objs
         return "FacesList", faces
 
     @aedt_exception_handler
     def _get_cs_plane_ids(self):
-        name2refid = {-4: "Global:XY", -3: "Global:YZ",-2: "Global:XZ"}
+        name2refid = {-4: "Global:XY", -3: "Global:YZ", -2: "Global:XZ"}
         if self._parent.design_properties and "ModelSetup" in self._parent.design_properties:
             cs = self._parent.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"]["CoordinateSystems"]
             for ds in cs:
@@ -2061,6 +2067,7 @@ class PostProcessor(PostProcessorCommon, object):
         """
         return self.export_field_jpg(exportFilePath, plotName, foldername, orientation=view,
                                      display_wireframe=wireframe)
+
     @aedt_exception_handler
     def delete_field_plot(self, name):
         """Delete a field plot.
