@@ -32,4 +32,4 @@ if os.path.exists(pers1):
 else:
     os.system('mklink /D "{}" "{}"'.format(pers1, pyaedtpath))
 
-d.force_close_desktop()
+d.close_desktop()

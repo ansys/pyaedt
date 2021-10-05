@@ -51,14 +51,14 @@ class TestClass:
         intrinsic = {"Freq": "5GHz", "Phase": "180deg"}
         plot1 = self.aedtapp.post.create_fieldplot_cutplane(cutlist, quantity_name, setup_name, intrinsic)
         plot1.IsoVal = "Tone"
-        assert plot1.modify_folder()
+        assert plot1.update_field_plot_settings()
         image_file = self.aedtapp.post.plot_field_from_fieldplot(
             plot1.name,
             project_path=self.local_scratch.path,
             meshplot=False,
             setup_name=setup_name,
             imageformat="jpg",
-            view="iso",
+            view="isometric",
             off_screen=True,
         )
         assert os.path.exists(image_file[0])
@@ -99,8 +99,12 @@ class TestClass:
         intrinsic = {"Freq": "5GHz", "Phase": "180deg"}
         vollist = ["NewObject_IJD39Q"]
         plot2 = self.aedtapp.post.create_fieldplot_volume(vollist, quantity_name2, setup_name, intrinsic)
-        self.aedtapp.post.export_field_image_with_View(plot2.name, os.path.join(self.local_scratch.path, "prova2.jpg"))
+
+        self.aedtapp.post.export_field_image_with_view(plot2.name, plot2.plotFolder,
+                                                       os.path.join(self.local_scratch.path, "prova2.jpg"))
         assert os.path.exists(os.path.join(self.local_scratch.path, "prova2.jpg"))
+        assert os.path.exists(plot2.export_image(os.path.join(self.local_scratch.path, "test_x.jpg"),
+                              orientation="top"))
 
     def test_03_create_scattering(self):
         setup_name = "Setup1 : Sweep"

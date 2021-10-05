@@ -20,6 +20,13 @@ import gc
 import time
 import datetime
 import tempfile
+if os.name == "posix":
+    try:
+        import subprocessdotnet as subprocess
+    except:
+        warnings.warn("Pythonnet is needed to run pyaedt within Linux")
+else:
+    import subprocess
 from pyaedt.application.MessageManager import AEDTMessageManager
 from pyaedt.misc import list_installed_ansysem
 from pyaedt import is_ironpython, _pythonver, inside_desktop
@@ -221,6 +228,23 @@ def force_close_desktop():
             return successfully_closed
 
 
+def run_process(command, bufsize=None):
+    """Run Process with subprocess.
+
+    Parameters
+    ----------
+    command : str
+        Command to execute
+    bufsize : int
+        bufsize
+
+    """
+    if bufsize:
+        return subprocess.call(command, bufsize=bufsize)
+    else:
+        return subprocess.call(command)
+
+
 class Desktop:
     """Initializes AEDT based on the inputs provided.
 
@@ -332,22 +356,24 @@ class Desktop:
             else:
                 current_version_id = version_env_var.replace("ANSYSEM_ROOT", "")
                 student = False
-            version = int(current_version_id[0:2])
-            release = int(current_version_id[2])
-            if version < 20:
-                if release < 3:
-                    version -= 1
+            try:
+                version = int(current_version_id[0:2])
+                release = int(current_version_id[2])
+                if version < 20:
+                    if release < 3:
+                        version -= 1
+                    else:
+                        release -= 2
+                if student:
+                    v_key = "20{0}.{1}SV".format(version, release)
+                    self._version_keys.append(v_key)
+                    self._version_ids[v_key] = version_env_var
                 else:
-                    release -= 2
-            if student:
-                v_key = "20{0}.{1}SV".format(version, release)
-                self._version_keys.append(v_key)
-                self._version_ids[v_key] = version_env_var
-            else:
-                v_key = "20{0}.{1}".format(version, release)
-                self._version_keys.append(v_key)
-                self._version_ids[v_key] = version_env_var
-
+                    v_key = "20{0}.{1}".format(version, release)
+                    self._version_keys.append(v_key)
+                    self._version_ids[v_key] = version_env_var
+            except:
+                pass
         return self._version_keys
 
     @property
@@ -430,7 +456,6 @@ class Desktop:
         return processID2
 
     def _run_student(self):
-        import subprocess
 
         DETACHED_PROCESS = 0x00000008
         pid = subprocess.Popen(

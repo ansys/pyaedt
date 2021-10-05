@@ -431,10 +431,8 @@ class FieldAnalysis3D(Analysis, object):
         cond = self.materials.conductors
         cond = [i.lower() for i in cond]
         obj_names = []
-        for el, obj in self.modeler.primitives.objects.items():
-            if obj.object_type == "Solid":
-                if obj.material_name.lower() in cond:
-                    obj_names.append(obj.name)
+        for el in cond:
+            obj_names += list(self._modeler.oeditor.GetObjectsByMaterial(el))
         return obj_names
 
     @aedt_exception_handler
@@ -450,9 +448,6 @@ class FieldAnalysis3D(Analysis, object):
         diel = self.materials.dielectrics
         diel = [i.lower() for i in diel]
         obj_names = []
-        for name in self.modeler.primitives.solid_names:
-            id = self.modeler.primitives.object_id_dict[name]
-            obj = self.modeler.primitives.objects[id]
-            if obj.material_name.lower() in diel:
-                obj_names.append(obj.name)
+        for el in diel:
+            obj_names += list(self._modeler.oeditor.GetObjectsByMaterial(el))
         return obj_names

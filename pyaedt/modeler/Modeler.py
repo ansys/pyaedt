@@ -2156,8 +2156,8 @@ class GeometryModeler(Modeler, object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        szSelections = self.convert_to_selections(theList)
 
+        szSelections = self.convert_to_selections(theList)
         vArg1 = ["NAME:Selections", "Selections:=", szSelections]
         vArg2 = ["NAME:UniteParameters", "KeepOriginals:=", False]
         self.oeditor.Unite(vArg1, vArg2)
