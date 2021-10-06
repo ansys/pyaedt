@@ -1231,7 +1231,7 @@ class PostProcessor(PostProcessorCommon, object):
 
     def __init__(self, parent):
         self._parent = parent
-        self.FieldsPlot = self._get_fields_plot()
+        self.field_plots = self._get_fields_plot()
         PostProcessorCommon.__init__(self, parent)
 
     @property
@@ -1901,7 +1901,7 @@ class PostProcessor(PostProcessorCommon, object):
         plot.listtype = listtype
         plt = plot.create()
         if plt:
-            self.FieldsPlot[plot_name] = plot
+            self.field_plots[plot_name] = plot
             return plot
         else:
             return False
@@ -1931,9 +1931,9 @@ class PostProcessor(PostProcessorCommon, object):
             Plot object.
 
         """
-        if plot_name and plot_name in list(self.FieldsPlot.keys()):
+        if plot_name and plot_name in list(self.field_plots.keys()):
             self._messenger.add_info_message("Plot {} exists. returning the object.".format(plot_name))
-            return self.FieldsPlot[plot_name]
+            return self.field_plots[plot_name]
         return self._create_fieldplot(objlist, quantityName, setup_name, intrinsincDict, "Surface", "FacesList",
                                       plot_name)
 
@@ -1963,9 +1963,9 @@ class PostProcessor(PostProcessorCommon, object):
             Plot object.
 
         """
-        if plot_name and plot_name in list(self.FieldsPlot.keys()):
+        if plot_name and plot_name in list(self.field_plots.keys()):
             self._messenger.add_info_message("Plot {} exists. returning the object.".format(plot_name))
-            return self.FieldsPlot[plot_name]
+            return self.field_plots[plot_name]
         return self._create_fieldplot(objlist, quantityName, setup_name, intrinsincDict, "Surface", "CutPlane",
                                       plot_name)
 
@@ -1994,9 +1994,9 @@ class PostProcessor(PostProcessorCommon, object):
         :class:``pyaedt.modules.PostProcessor.FieldPlot``
             Plot object
         """
-        if plot_name and plot_name in list(self.FieldsPlot.keys()):
+        if plot_name and plot_name in list(self.field_plots.keys()):
             self._messenger.add_info_message("Plot {} exists. returning the object.".format(plot_name))
-            return self.FieldsPlot[plot_name]
+            return self.field_plots[plot_name]
         return self._create_fieldplot(objlist, quantityName, setup_name, intrinsincDict, "Volume", "ObjList", plot_name)
 
     @aedt_exception_handler
@@ -2083,7 +2083,7 @@ class PostProcessor(PostProcessorCommon, object):
             ``True`` when successful, ``False`` when failed.
         """
         self.oreportsetup.DeleteFieldPlot([name])
-        self.FieldsPlot.pop(name, None)
+        self.field_plots.pop(name, None)
         return True
 
     @aedt_exception_handler
