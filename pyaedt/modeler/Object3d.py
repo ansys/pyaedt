@@ -615,6 +615,10 @@ class Object3d(object):
         self._is_updated = False
         self._all_props = None
         self._surface_material = None
+        self._color = None
+        self._wireframe = None
+        self._part_coordinate_system = None
+        self._model = None
 
     @property
     def bounding_box(self):
@@ -826,6 +830,8 @@ class Object3d(object):
             Name of the surface material when successful, ``None`` and a warning message otherwise.
 
         """
+        if self._surface_material is not None:
+            return self._surface_material
         if "Surface Material" in self.valid_properties and self.model:
             self._surface_material = retry_ntimes(
                 10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, "Surface Material"
@@ -842,11 +848,13 @@ class Object3d(object):
             Name of the group.
 
         """
+        if self._m_groupName is not None:
+            return self._m_groupName
         if "Group" in self.valid_properties:
-            self.m_groupName = retry_ntimes(
+            self._m_groupName = retry_ntimes(
                 10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, "Group"
             )
-            return self.m_groupName
+            return self._m_groupName
 
     @property
     def material_name(self):
@@ -858,6 +866,8 @@ class Object3d(object):
             Name of the material when successful, ``None`` and a warning message otherwise.
 
         """
+        if self._material_name is not None:
+            return self._material_name
         if "Material" in self.valid_properties and self.model:
             mat = retry_ntimes(10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, "Material")
             self._material_name = ""
@@ -994,6 +1004,8 @@ class Object3d(object):
         >>> part.color = (255,255,0)
 
         """
+        if self._color is not None:
+            return self._color
         if "Color" in self.valid_properties:
             color = retry_ntimes(10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, "Color")
             if color:
@@ -1047,6 +1059,8 @@ class Object3d(object):
         If the value is outside the range, then apply a limit. If the value is not a valid number, set to ``0.0``.
 
         """
+        if self._transparency is not None:
+            return self._transparency
         if "Transparent" in self.valid_properties:
             transp = retry_ntimes(
                 10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, "Transparent"
@@ -1088,6 +1102,8 @@ class Object3d(object):
             Name of the part coordinate system.
 
         """
+        if self._part_coordinate_system is not None:
+            return self._part_coordinate_system
         if "Orientation" in self.valid_properties:
             self._part_coordinate_system = retry_ntimes(
                 10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, "Orientation"
@@ -1109,6 +1125,8 @@ class Object3d(object):
             ``True`` when ``"solve-inside"`` is activated for the part, ``False`` otherwise.
 
         """
+        if self._solve_inside  is not None:
+            return self._solve_inside
         if "Solve Inside" in self.valid_properties and self.model:
             solveinside = retry_ntimes(
                 10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, "Solve Inside"
@@ -1143,6 +1161,8 @@ class Object3d(object):
             ``True`` when wirefame is activated for the part, ``False`` otherwise.
 
         """
+        if self._wireframe is not None:
+            return self._wireframe
         if "Display Wireframe" in self.valid_properties:
             wireframe = retry_ntimes(
                 10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, "Display Wireframe"
@@ -1171,6 +1191,8 @@ class Object3d(object):
             ``True`` when model, ``False`` otherwise.
 
         """
+        if self._model is not None:
+            return self._model
         if "Model" in self.valid_properties:
             mod = retry_ntimes(10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, "Model")
             if mod == "false" or mod == "False":

@@ -550,7 +550,7 @@ class Design(object):
     ):
         # Get Desktop from global Desktop Environment
         self._project_dictionary = OrderedDict()
-        self.boundaries = OrderedDict()
+        self.boundaries = []
         self.project_datasets = {}
         self.design_datasets = {}
         main_module = sys.modules["__main__"]
@@ -601,11 +601,19 @@ class Design(object):
         dict
             Dictionary of the project properties.
         """
-        if os.path.exists(self.project_file):
-            _mttime = os.path.getmtime(self.project_file)
-            if _mttime != self._mttime:
-                self._project_dictionary = load_entire_aedt_file(self.project_file)
-                self._mttime = _mttime
+        import time
+        start = time.time()
+        if not self._project_dictionary:
+            self._project_dictionary = load_entire_aedt_file(self.project_file)
+            self._messenger.add_info_message("AEDT Load time {}".format(time.time() - start))
+        # import time
+        # start = time.time()
+        # if os.path.exists(self.project_file):
+        #     _mttime = os.path.getmtime(self.project_file)
+        #     if _mttime != self._mttime:
+        #         self._project_dictionary = load_entire_aedt_file(self.project_file)
+        #         self._mttime = _mttime
+        #         self._messenger.add_info_message("AEDT Load time {}".format(time.time()-start))
         return self._project_dictionary
 
     @property
@@ -1658,7 +1666,12 @@ class Design(object):
 
     @aedt_exception_handler
     def _get_boundaries_data(self):
-        """Retrieve boundary data."""
+        """Retrieve boundary data.
+
+        Returns
+        -------
+        [:class:`pyaedt.modules.Boundary.BoundaryObject`]
+        """
         boundaries = []
         if self.design_properties and "BoundarySetup" in self.design_properties:
             for ds in self.design_properties["BoundarySetup"]["Boundaries"]:
