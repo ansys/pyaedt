@@ -1782,7 +1782,7 @@ class GeometryModeler(Modeler, object):
         ----------
         objid :
             Name or ID of the object.
-        thickness : float
+        thickness : float, str
             Amount to thicken the sheet by.
         bBothSides : bool, optional
             Whether to thicken the sheet on both side. The default is ``False``.
