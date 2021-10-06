@@ -880,10 +880,9 @@ class Object3d(object):
         if self._parent.materials.checkifmaterialexists(mat):
             if not self.model:
                 self.model = True
-            self._material_name = mat
             vMaterial = ["NAME:Material", "Value:=", chr(34) + mat + chr(34)]
             self._change_property(vMaterial)
-            self._material_name = mat
+            self._material_name = mat.lower()
         else:
             self._messenger.add_warning_message("Material {} does not exist.".format(mat))
 
