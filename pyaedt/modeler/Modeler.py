@@ -1506,7 +1506,7 @@ class GeometryModeler(Modeler, object):
 
         Parameters
         ----------
-        objtosplit : str, int, or list
+        objtosplit : str, int, list
             One or more objects to convert to selections. A list can contain
             both strings (object names) and integers (object IDs).
         return_list : bool, option
@@ -2156,12 +2156,24 @@ class GeometryModeler(Modeler, object):
             ``True`` when successful, ``False`` when failed.
 
         """
-
-        szSelections = self.convert_to_selections(theList)
-        vArg1 = ["NAME:Selections", "Selections:=", szSelections]
-        vArg2 = ["NAME:UniteParameters", "KeepOriginals:=", False]
-        self.oeditor.Unite(vArg1, vArg2)
+        slice = min(20, len(theList))
+        num_objects = len(theList)
+        remaining = num_objects
+        objs_groups = []
+        while remaining > 0:
+            objs = theList[:slice]
+            szSelections = self.convert_to_selections(objs)
+            vArg1 = ["NAME:Selections", "Selections:=", szSelections]
+            vArg2 = ["NAME:UniteParameters", "KeepOriginals:=", False]
+            self.oeditor.Unite(vArg1, vArg2)
+            objs_groups.append(objs[0])
+            remaining -= slice
+            if remaining > 0:
+                theList = theList[slice:]
         self.primitives.cleanup_objects()
+        if len(objs_groups) > 1:
+            return self.unite(objs_groups)
+        self._messenger.add_info_message("Union of {} objects has been executed.".format(num_objects))
         return True
 
     @aedt_exception_handler

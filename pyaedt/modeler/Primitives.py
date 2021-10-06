@@ -1592,8 +1592,6 @@ class Primitives(object):
         all_objects = self.object_names
         all_unclassified = self.unclassified_objects
         for old_id, obj in self.objects.items():
-            if obj.name == "box2":
-                pass
             if obj.name in all_objects or obj.name in all_unclassified:
                 updated_id = obj.id  # By calling the object property we get the new id
                 new_object_id_dict[obj.name] = updated_id

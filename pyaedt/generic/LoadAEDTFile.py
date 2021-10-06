@@ -232,9 +232,9 @@ def _walk_through_structure(keyword, save_dict):
     found = False
     saved_value = None
     while _count < _len_all_lines:
-        line = _all_lines[_count]
+        line = _all_lines[_count].strip()
         # begin_key is found
-        if begin_key == line.strip():
+        if begin_key == line:
             found = True
             saved_value = save_dict.get(keyword)  # if the keyword is already present
             # makes the value a list, if it's not already
@@ -244,7 +244,7 @@ def _walk_through_structure(keyword, save_dict):
             _count += 1
             continue
         # end_key is found
-        if end_key == line.strip():
+        if end_key == line:
             break
         # between begin_key and end_key
         if found:
