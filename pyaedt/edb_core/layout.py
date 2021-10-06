@@ -475,9 +475,7 @@ class EdbLayout(object):
             self._messenger.add_error_message("Null path created")
             return False
         else:
-            self._prims.append(polygon)
-            self._primitives_by_layer[layer_name].append(polygon)
-            #self.update_primitives()
+            self.update_primitives()
             return True
 
     @aedt_exception_handler
@@ -516,9 +514,7 @@ class EdbLayout(object):
             self._messenger.add_error_message("Null polygon created")
             return False
         else:
-            self._prims.append(polygon)
-            self._primitives_by_layer[layer_name].append(polygon)
-            # self.update_primitives()
+            self.update_primitives()
             return True
 
     @aedt_exception_handler
