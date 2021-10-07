@@ -766,8 +766,11 @@ class Edb(object):
         """
         gc.collect()
         self._db.Close()
-
-        self._clean_variables()
+        # try:
+        #     self._db.Close()
+        # except:
+        #     self._messenger.add_warning_message("Cannot Close dB")
+        # self._clean_variables()
         gc.collect()
         gc.collect()
 
