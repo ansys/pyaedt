@@ -764,7 +764,7 @@ class Edb(object):
         """
         time.sleep(1)
         self._db.Close()
-        self._messenger.add_info_message("Database Closed Corectly")
+        self._messenger.add_info_message("Database successfully closed.")
         # try:
         #     self._db.Close()
         # except:
