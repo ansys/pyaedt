@@ -1124,7 +1124,7 @@ class Object3d(object):
             ``True`` when ``"solve-inside"`` is activated for the part, ``False`` otherwise.
 
         """
-        if self._solve_inside  is not None:
+        if self._solve_inside is not None:
             return self._solve_inside
         if "Solve Inside" in self.valid_properties and self.model:
             solveinside = retry_ntimes(
