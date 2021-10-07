@@ -47,4 +47,3 @@ if is_ironpython and "oDesktop" in dir(sys.modules["__main__"]):
             os.kill(pid, 9)
         except:
             successfully_closed = False
-
