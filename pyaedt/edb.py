@@ -177,8 +177,6 @@ class Edb(object):
         self._nets = None
         self._db = None
         self._edb = None
-        if "edbutils" in dir(self):
-            self.edbutils.Logger.Disable = True
         self.builder = None
         self.edblib = None
         self.edbutils = None
@@ -187,12 +185,12 @@ class Edb(object):
         self.simsetupdata = None
         if os.name == "posix":
             clr.ClearProfilerData()
-        gc.collect()
+        time.sleep(2)
         gc.collect()
 
     @aedt_exception_handler
     def _init_objects(self):
-        time.sleep(2)
+        time.sleep(1)
         self._components = Components(self)
         self._stackup = EdbStackup(self)
         self._padstack = EdbPadstacks(self)
@@ -764,16 +762,17 @@ class Edb(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        gc.collect()
+        time.sleep(1)
         self._db.Close()
+        self._messenger.add_info_message("Database Closed Corectly")
         # try:
         #     self._db.Close()
         # except:
         #     self._messenger.add_warning_message("Cannot Close dB")
-        # self._clean_variables()
+        time.sleep(1)
+        self._clean_variables()
         gc.collect()
-        gc.collect()
-
+        # gc.collect()
         return True
 
     @aedt_exception_handler
