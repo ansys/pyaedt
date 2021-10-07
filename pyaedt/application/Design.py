@@ -562,7 +562,6 @@ class Design(object):
         else:
             self.release_on_exit = False
 
-        self._project_dictionary = {}
         self._mttime = None
         self._desktop = main_module.oDesktop
         self._aedt_version = main_module.AEDTVersion
@@ -1675,7 +1674,7 @@ class Design(object):
         if self.design_properties and "BoundarySetup" in self.design_properties:
             for ds in self.design_properties["BoundarySetup"]["Boundaries"]:
                 try:
-                    if type(self.design_properties["BoundarySetup"]["Boundaries"][ds]) is OrderedDict:
+                    if isinstance(self.design_properties["BoundarySetup"]["Boundaries"][ds], (OrderedDict, dict)):
                         boundaries.append(
                             BoundaryObject(
                                 self,

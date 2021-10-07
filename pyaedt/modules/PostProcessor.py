@@ -45,6 +45,16 @@ report_type = {
 }
 
 
+orientation_to_view = {
+    "isometric": "iso",
+    "top": "XY",
+    "bottom": "XY",
+    "right": "XZ",
+    "left": "XZ",
+    "front": "YZ",
+    "back": "YZ",
+}
+
 class SolutionData(object):
     """Contains information from the :func:`GetSolutionDataPerVariation` method."""
 
@@ -1367,7 +1377,7 @@ class PostProcessor(PostProcessorCommon, object):
             cs = self._parent.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"]["CoordinateSystems"]
             for ds in cs:
                 try:
-                    if type(cs[ds]) is OrderedDict:
+                    if isinstance(cs[ds], (OrderedDict, dict)):
                         name = cs[ds]["Attributes"]["Name"]
                         cs_id = cs[ds]["XYPlaneID"]
                         name2refid[cs_id] = name+":XY"
@@ -1393,7 +1403,7 @@ class PostProcessor(PostProcessorCommon, object):
             setups_data = self._parent.design_properties["FieldsReporter"]["FieldsPlotManagerID"]
             for setup in setups_data:
                 try:
-                    if isinstance(setups_data[setup], OrderedDict) and "PlotDefinition" in setup:
+                    if isinstance(setups_data[setup], (OrderedDict, dict)) and "PlotDefinition" in setup:
                         plot_name = setups_data[setup]["PlotName"]
                         plots[plot_name] = FieldPlot(self)
                         plots[plot_name].faceIndexes = []
@@ -2031,8 +2041,21 @@ class PostProcessor(PostProcessorCommon, object):
                     if not self._primitives[el].display_wireframe:
                         wireframes.append(el)
                         self._primitives[el].display_wireframe = True
-            self.ofieldsreporter.ExportPlotImageWithViewToFile(fileName, foldername, plotName, width, height,
-                                                               orientation)
+            if self._parent._aedt_version < "2021.2":
+                bound = self.modeler.get_model_bounding_box()
+                center = [
+                    (float(bound[0]) + float(bound[3])) / 2,
+                    (float(bound[1]) + float(bound[4])) / 2,
+                    (float(bound[2]) + float(bound[5])) / 2,
+                ]
+                view = orientation_to_view.get(orientation, "iso")
+                cs = self.modeler.create_coordinate_system(origin=center, mode="view", view=view)
+                self.ofieldsreporter.ExportPlotImageToFile(fileName, foldername, plotName, cs.name)
+                cs.delete()
+            else:
+                self.ofieldsreporter.ExportPlotImageWithViewToFile(fileName, foldername, plotName, width, height,
+                                                                   orientation)
+
             for solid in wireframes:
                 self._primitives[solid].display_wireframe = False
         else:

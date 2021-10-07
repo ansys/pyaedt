@@ -82,13 +82,13 @@ class Setup(object):
                             app.pop("MoveBackForward", None)
                             app.pop("MoveBackwards", None)
                             for el in app:
-                                if type(app[el]) is OrderedDict:
+                                if isinstance(app[el], (OrderedDict, dict)):
                                     self.sweeps.append(SweepHFSS(self.omodule, setupname, el, props=app[el]))
 
                         else:
                             app = setup_data["Sweeps"]
                             for el in app:
-                                if type(app[el]) is OrderedDict:
+                                if isinstance(app[el], (OrderedDict, dict)):
                                     self.sweeps.append(SweepQ3D(self.omodule, setupname, el, props=app[el]))
                         setup_data.pop("Sweeps", None)
                     self.props = OrderedDict(setup_data)
@@ -888,7 +888,7 @@ class Setup3DLayout(object):
                     if "Data" in setup_data:  # 0 and 7 represent setup HFSSDrivenAuto
                         app = setup_data["Data"]
                         for el in app:
-                            if type(app[el]) is OrderedDict:
+                            if isinstance(app[el], (OrderedDict, dict)):
                                 self.sweeps.append(SweepHFSS3DLayout(self.omodule, setupname, el, props=app[el]))
 
                     self.props = OrderedDict(setup_data)

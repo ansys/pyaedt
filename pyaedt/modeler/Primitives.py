@@ -2873,7 +2873,7 @@ class Primitives(object):
         for el in self._parent.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"]["ToplevelParts"][
             "GeometryPart"
         ]:
-            if isinstance(el, OrderedDict):
+            if isinstance(el, (OrderedDict, dict)):
                 attribs = el["Attributes"]
             else:
                 attribs = self._parent.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"][

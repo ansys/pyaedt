@@ -677,7 +677,7 @@ class GeometryModeler(Modeler, object):
             cs = self._parent.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"]["CoordinateSystems"]
             for ds in cs:
                 try:
-                    if type(cs[ds]) is OrderedDict:
+                    if isinstance(cs[ds], (OrderedDict, dict)):
                         props = cs[ds]["RelativeCSParameters"]
                         name = cs[ds]["Attributes"]["Name"]
                         cs_id = cs[ds]["ID"]
@@ -915,8 +915,8 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        pyaedt.modeler.Modeler.CoordinateSystem
-
+        :class:`pyaedt.modeler.Modeler.CoordinateSystem`
+            Coordinate System Object.
         """
         if name:
             cs_names = [i.name for i in self.coordinate_systems]
