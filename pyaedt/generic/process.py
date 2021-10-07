@@ -3,7 +3,6 @@ import os.path
 import warnings
 
 from .general_methods import env_path
-import gc
 
 if os.name == "posix":
     try:
