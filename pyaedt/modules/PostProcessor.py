@@ -45,6 +45,16 @@ report_type = {
 }
 
 
+orientation_to_view = {
+    "isometric": "iso",
+    "top": "XY",
+    "bottom": "XY",
+    "right": "XZ",
+    "left": "XZ",
+    "front": "YZ",
+    "back": "YZ",
+}
+
 class SolutionData(object):
     """Contains information from the :func:`GetSolutionDataPerVariation` method."""
 
@@ -1060,7 +1070,7 @@ class PostProcessorCommon(object):
         if not setup_sweep_name:
             setup_sweep_name = self._parent.nominal_sweep
         if self.post_solution_type not in report_type:
-            print("Solution not supported")
+            self._messenger.add_info_message("Solution not supported")
             return False
         if not report_category:
             modal_data = report_type[self.post_solution_type]
@@ -1231,7 +1241,7 @@ class PostProcessor(PostProcessorCommon, object):
 
     def __init__(self, parent):
         self._parent = parent
-        self.FieldsPlot = self._get_fields_plot()
+        self.field_plots = self._get_fields_plot()
         PostProcessorCommon.__init__(self, parent)
 
     @property
@@ -1367,7 +1377,7 @@ class PostProcessor(PostProcessorCommon, object):
             cs = self._parent.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"]["CoordinateSystems"]
             for ds in cs:
                 try:
-                    if type(cs[ds]) is OrderedDict:
+                    if isinstance(cs[ds], (OrderedDict, dict)):
                         name = cs[ds]["Attributes"]["Name"]
                         cs_id = cs[ds]["XYPlaneID"]
                         name2refid[cs_id] = name+":XY"
@@ -1393,7 +1403,7 @@ class PostProcessor(PostProcessorCommon, object):
             setups_data = self._parent.design_properties["FieldsReporter"]["FieldsPlotManagerID"]
             for setup in setups_data:
                 try:
-                    if isinstance(setups_data[setup], OrderedDict) and "PlotDefinition" in setup:
+                    if isinstance(setups_data[setup], (OrderedDict, dict)) and "PlotDefinition" in setup:
                         plot_name = setups_data[setup]["PlotName"]
                         plots[plot_name] = FieldPlot(self)
                         plots[plot_name].faceIndexes = []
@@ -1901,7 +1911,7 @@ class PostProcessor(PostProcessorCommon, object):
         plot.listtype = listtype
         plt = plot.create()
         if plt:
-            self.FieldsPlot[plot_name] = plot
+            self.field_plots[plot_name] = plot
             return plot
         else:
             return False
@@ -1931,9 +1941,9 @@ class PostProcessor(PostProcessorCommon, object):
             Plot object.
 
         """
-        if plot_name and plot_name in list(self.FieldsPlot.keys()):
+        if plot_name and plot_name in list(self.field_plots.keys()):
             self._messenger.add_info_message("Plot {} exists. returning the object.".format(plot_name))
-            return self.FieldsPlot[plot_name]
+            return self.field_plots[plot_name]
         return self._create_fieldplot(objlist, quantityName, setup_name, intrinsincDict, "Surface", "FacesList",
                                       plot_name)
 
@@ -1963,9 +1973,9 @@ class PostProcessor(PostProcessorCommon, object):
             Plot object.
 
         """
-        if plot_name and plot_name in list(self.FieldsPlot.keys()):
+        if plot_name and plot_name in list(self.field_plots.keys()):
             self._messenger.add_info_message("Plot {} exists. returning the object.".format(plot_name))
-            return self.FieldsPlot[plot_name]
+            return self.field_plots[plot_name]
         return self._create_fieldplot(objlist, quantityName, setup_name, intrinsincDict, "Surface", "CutPlane",
                                       plot_name)
 
@@ -1994,9 +2004,9 @@ class PostProcessor(PostProcessorCommon, object):
         :class:``pyaedt.modules.PostProcessor.FieldPlot``
             Plot object
         """
-        if plot_name and plot_name in list(self.FieldsPlot.keys()):
+        if plot_name and plot_name in list(self.field_plots.keys()):
             self._messenger.add_info_message("Plot {} exists. returning the object.".format(plot_name))
-            return self.FieldsPlot[plot_name]
+            return self.field_plots[plot_name]
         return self._create_fieldplot(objlist, quantityName, setup_name, intrinsincDict, "Volume", "ObjList", plot_name)
 
     @aedt_exception_handler
@@ -2031,8 +2041,21 @@ class PostProcessor(PostProcessorCommon, object):
                     if not self._primitives[el].display_wireframe:
                         wireframes.append(el)
                         self._primitives[el].display_wireframe = True
-            self.ofieldsreporter.ExportPlotImageWithViewToFile(fileName, foldername, plotName, width, height,
-                                                               orientation)
+            if self._parent._aedt_version < "2021.2":
+                bound = self.modeler.get_model_bounding_box()
+                center = [
+                    (float(bound[0]) + float(bound[3])) / 2,
+                    (float(bound[1]) + float(bound[4])) / 2,
+                    (float(bound[2]) + float(bound[5])) / 2,
+                ]
+                view = orientation_to_view.get(orientation, "iso")
+                cs = self.modeler.create_coordinate_system(origin=center, mode="view", view=view)
+                self.ofieldsreporter.ExportPlotImageToFile(fileName, foldername, plotName, cs.name)
+                cs.delete()
+            else:
+                self.ofieldsreporter.ExportPlotImageWithViewToFile(fileName, foldername, plotName, width, height,
+                                                                   orientation)
+
             for solid in wireframes:
                 self._primitives[solid].display_wireframe = False
         else:
@@ -2083,7 +2106,7 @@ class PostProcessor(PostProcessorCommon, object):
             ``True`` when successful, ``False`` when failed.
         """
         self.oreportsetup.DeleteFieldPlot([name])
-        self.FieldsPlot.pop(name, None)
+        self.field_plots.pop(name, None)
         return True
 
     @aedt_exception_handler

@@ -1,10 +1,8 @@
+# -*- coding: utf-8 -*-
 import re
-from collections import OrderedDict
-
-
+from pyaedt.generic.general_methods import time_fn
 # --------------------------------------------------------------------
 # public interface
-
 
 def load_entire_aedt_file(filename):
     """Load the entire AEDT file and return the dictionary
@@ -234,17 +232,17 @@ def _walk_through_structure(keyword, save_dict):
     while _count < _len_all_lines:
         line = _all_lines[_count]
         # begin_key is found
-        if begin_key == line.strip():
+        if begin_key == line:
             found = True
             saved_value = save_dict.get(keyword)  # if the keyword is already present
             # makes the value a list, if it's not already
             if saved_value and type(saved_value) is not list:
                 saved_value = [saved_value]
-            save_dict[keyword] = OrderedDict()
+            save_dict[keyword] = {}
             _count += 1
             continue
         # end_key is found
-        if end_key == line.strip():
+        if end_key == line:
             break
         # between begin_key and end_key
         if found:
@@ -284,11 +282,10 @@ def _read_aedt_file(filename):
     ascii_lines = []
     for raw_line in raw_lines:
         try:
-            ascii_lines.append(raw_line.decode("utf-8").lstrip("\t"))
+            ascii_lines.append(raw_line.decode("utf-8").lstrip(" \t"))
         except UnicodeDecodeError:
             continue
     ascii_content = "\n".join(ascii_lines)
-
     # combine subsequent lines when the line ends in \
     _all_lines = ascii_content.replace("\\\n", "").splitlines()
     _len_all_lines = len(_all_lines)
@@ -310,8 +307,8 @@ def _load_entire_aedt_file(filename):
 
     """
     global _count
-    _read_aedt_file(filename)
-    main_dict = OrderedDict()
+    time_fn(_read_aedt_file, filename)
+    main_dict = {}
     # load the aedt file
     while _count < _len_all_lines:
         line = _all_lines[_count]
@@ -340,6 +337,6 @@ def _load_keyword_in_aedt_file(filename, keyword):
     """
     _read_aedt_file(filename)
     # load the aedt file
-    main_dict = OrderedDict()
+    main_dict = {}
     _walk_through_structure(keyword, main_dict)
     return main_dict

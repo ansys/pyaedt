@@ -677,7 +677,7 @@ class GeometryModeler(Modeler, object):
             cs = self._parent.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"]["CoordinateSystems"]
             for ds in cs:
                 try:
-                    if type(cs[ds]) is OrderedDict:
+                    if isinstance(cs[ds], (OrderedDict, dict)):
                         props = cs[ds]["RelativeCSParameters"]
                         name = cs[ds]["Attributes"]["Name"]
                         cs_id = cs[ds]["ID"]
@@ -915,8 +915,8 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        pyaedt.modeler.Modeler.CoordinateSystem
-
+        :class:`pyaedt.modeler.Modeler.CoordinateSystem`
+            Coordinate System Object.
         """
         if name:
             cs_names = [i.name for i in self.coordinate_systems]
@@ -1506,7 +1506,7 @@ class GeometryModeler(Modeler, object):
 
         Parameters
         ----------
-        objtosplit : str, int, or list
+        objtosplit : str, int, list
             One or more objects to convert to selections. A list can contain
             both strings (object names) and integers (object IDs).
         return_list : bool, option
@@ -1782,7 +1782,7 @@ class GeometryModeler(Modeler, object):
         ----------
         objid :
             Name or ID of the object.
-        thickness : float
+        thickness : float, str
             Amount to thicken the sheet by.
         bBothSides : bool, optional
             Whether to thicken the sheet on both side. The default is ``False``.
@@ -2156,12 +2156,24 @@ class GeometryModeler(Modeler, object):
             ``True`` when successful, ``False`` when failed.
 
         """
-
-        szSelections = self.convert_to_selections(theList)
-        vArg1 = ["NAME:Selections", "Selections:=", szSelections]
-        vArg2 = ["NAME:UniteParameters", "KeepOriginals:=", False]
-        self.oeditor.Unite(vArg1, vArg2)
+        slice = min(20, len(theList))
+        num_objects = len(theList)
+        remaining = num_objects
+        objs_groups = []
+        while remaining > 0:
+            objs = theList[:slice]
+            szSelections = self.convert_to_selections(objs)
+            vArg1 = ["NAME:Selections", "Selections:=", szSelections]
+            vArg2 = ["NAME:UniteParameters", "KeepOriginals:=", False]
+            self.oeditor.Unite(vArg1, vArg2)
+            objs_groups.append(objs[0])
+            remaining -= slice
+            if remaining > 0:
+                theList = theList[slice:]
         self.primitives.cleanup_objects()
+        if len(objs_groups) > 1:
+            return self.unite(objs_groups)
+        self._messenger.add_info_message("Union of {} objects has been executed.".format(num_objects))
         return True
 
     @aedt_exception_handler

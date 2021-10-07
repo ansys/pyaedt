@@ -435,7 +435,7 @@ class Analysis(Design, object):
             data_vals = self.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"][
                 "SubModelDefinitions"
             ]["NativeComponentDefinition"]
-            if not isinstance(data_vals, list) and type(data_vals) is OrderedDict:
+            if not isinstance(data_vals, list) and isinstance(data_vals, (OrderedDict, dict)):
                 boundaries.append(
                     NativeComponentObject(
                         self,
@@ -446,7 +446,7 @@ class Analysis(Design, object):
                 )
             for ds in data_vals:
                 try:
-                    if type(ds) is OrderedDict:
+                    if isinstance(ds, (OrderedDict, dict)):
                         boundaries.append(
                             NativeComponentObject(
                                 self,

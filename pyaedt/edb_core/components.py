@@ -148,18 +148,16 @@ class Components(object):
 
         Returns
         -------
-        dict
+
             Default dictionary for the EDB component.
 
         """
+        self._cmp = {}
         self._messenger.add_info_message("Refreshing the Components dictionary.")
-        try:
-            cmplist = self.get_component_list()
-            self._cmp = {}
-            for cmp in cmplist:
-                self._cmp[cmp.RefDes] = EDBComponent(self, cmp, cmp.RefDes)
-        except:
-            pass
+        if self._active_layout:
+            for cmp in self._active_layout.Groups:
+                if cmp.GetType().ToString() == "Ansys.Ansoft.Edb.Cell.Hierarchy.Component":
+                    self._cmp[cmp.GetName()] = EDBComponent(self, cmp)
 
     @property
     def resistors(self):

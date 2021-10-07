@@ -177,8 +177,6 @@ class Edb(object):
         self._nets = None
         self._db = None
         self._edb = None
-        if "edbutils" in dir(self):
-            self.edbutils.Logger.Disable = True
         self.builder = None
         self.edblib = None
         self.edbutils = None
@@ -187,12 +185,12 @@ class Edb(object):
         self.simsetupdata = None
         if os.name == "posix":
             clr.ClearProfilerData()
-        gc.collect()
+        time.sleep(2)
         gc.collect()
 
     @aedt_exception_handler
     def _init_objects(self):
-        time.sleep(2)
+        time.sleep(1)
         self._components = Components(self)
         self._stackup = EdbStackup(self)
         self._padstack = EdbPadstacks(self)
@@ -372,11 +370,9 @@ class Edb(object):
             dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib", "DataModel.dll")
             self._messenger.add_info_message(dllpath)
             self.layout_methods.LoadDataModel(dllpath)
-            self.layout_methods.InitializeAEDT(self.edbversion)
             dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib",
                                    "IPC_2581_DataModel.dll")
             self.layout_methods.LoadDataModel(dllpath)
-            self.layout_methods.InitializeAEDT(self.edbversion)
             time.sleep(3)
             retry_ntimes(
                 10,
@@ -431,11 +427,9 @@ class Edb(object):
             dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib", "DataModel.dll")
             if self._db and self._active_cell:
                 self.layout_methods.LoadDataModel(dllpath)
-                self.layout_methods.InitializeAEDT(self.edbversion)
                 dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib",
                                        "IPC_2581_DataModel.dll")
                 self.layout_methods.LoadDataModel(dllpath)
-                self.layout_methods.InitializeAEDT(self.edbversion)
                 if not os.path.exists(self.edbpath):
                     os.makedirs(self.edbpath)
                 time.sleep(3)
@@ -491,11 +485,9 @@ class Edb(object):
         dllpath = os.path.join(os.path.dirname(__file__), "dlls", "EDBLib", "DataModel.dll")
         if self._db and self._active_cell:
             self.layout_methods.LoadDataModel(dllpath)
-            self.layout_methods.InitializeAEDT(self.edbversion)
             dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib",
                                    "IPC_2581_DataModel.dll")
             self.layout_methods.LoadDataModel(dllpath)
-            self.layout_methods.InitializeAEDT(self.edbversion)
             time.sleep(3)
             retry_ntimes(
                 10,
@@ -770,13 +762,17 @@ class Edb(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        gc.collect()
+        time.sleep(1)
         self._db.Close()
-
+        self._messenger.add_info_message("Database successfully closed.")
+        # try:
+        #     self._db.Close()
+        # except:
+        #     self._messenger.add_warning_message("Cannot Close dB")
+        time.sleep(1)
         self._clean_variables()
         gc.collect()
-        gc.collect()
-
+        # gc.collect()
         return True
 
     @aedt_exception_handler
@@ -1065,7 +1061,6 @@ class Edb(object):
         # Create new cutout cell/design
         _cutout = self.active_cell.CutOut(net_signals, _netsClip, polygonData)
         self._messenger.add_info_message("Cutout {} created correctly".format(_cutout.GetName()))
-
         # The analysis setup(s) do not come over with the clipped design copy,
         # so add the analysis setup(s) from the original here
         for _setup in self.active_cell.SimulationSetups:

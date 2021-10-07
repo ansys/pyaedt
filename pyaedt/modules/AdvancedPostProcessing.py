@@ -405,7 +405,6 @@ class PostProcessor(Post):
                     title="Opacity",
                 )
         filename = os.path.splitext(aedtplt_files[0])[0]
-        print(filename)
         for drawing_lines in lines:
             bounding = []
             elements = []
