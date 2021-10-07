@@ -2263,7 +2263,7 @@ class Primitives(object):
         for obj in object_list:
             vArg1[2] = obj
             try:
-                edgeID = self.oeditor.GetEdgeByPosition(vArg1)
+                edgeID = int(self.oeditor.GetEdgeByPosition(vArg1))
                 return edgeID
             except Exception as e:
                 pass
@@ -2711,7 +2711,7 @@ class Primitives(object):
 
         Returns
         -------
-        type
+        int
             Edge ID of the edge closest to this position.
 
         """
@@ -2732,7 +2732,7 @@ class Primitives(object):
                 midpoint = [i * 1000 for i in midpoint]
             d = GeometryOperators.points_distance(midpoint, [position.X, position.Y, position.Z])
             if d < distance:
-                selected_edge = edge
+                selected_edge = int(edge)
                 distance = d
         return selected_edge
 
