@@ -7,6 +7,7 @@ It is based on templates to allow for easy creation and modification of setup pr
 """
 from __future__ import absolute_import
 
+import warnings
 from collections import OrderedDict
 import os.path
 
@@ -572,7 +573,7 @@ class SetupCircuit(object):
             elif soltype == "NexximAMI":
                 self.omodule.AddAMIAnalysis(arg)
             else:
-                print("Not Implemented Yet")
+                warnings.warn("Solution Not Implemented Yet")
         else:
             if soltype == "NexximLNA":
                 self.omodule.EditLinearNetworkAnalysis(self.name, arg)

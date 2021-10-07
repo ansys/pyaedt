@@ -1060,7 +1060,7 @@ class PostProcessorCommon(object):
         if not setup_sweep_name:
             setup_sweep_name = self._parent.nominal_sweep
         if self.post_solution_type not in report_type:
-            print("Solution not supported")
+            self._messenger.add_info_message("Solution not supported")
             return False
         if not report_category:
             modal_data = report_type[self.post_solution_type]

@@ -781,7 +781,6 @@ class Icepak(FieldAnalysisIcepak):
                         )
                     else:
                         total_power += float(power)
-                        # print("Block {} created with {}W power".format(component_data["Ref Des"][i], power))
                 elif component_data["Ref Des"][i] in all_objects:
                     status = self.create_source_block(
                         component_data["Ref Des"][i], str(power) + "W", assign_material=False
@@ -792,7 +791,6 @@ class Icepak(FieldAnalysisIcepak):
                         )
                     else:
                         total_power += float(power)
-                        # print("Block {} created with {}W power".format(component_data["Ref Des"][i], power))
             except:
                 pass
             i += 1
@@ -831,7 +829,8 @@ class Icepak(FieldAnalysisIcepak):
                         name = line[id1 : id1 + id2]
                         if name not in priority_list:
                             priority_list.append(name)
-            print("{} Intersections have been found. Applying Priorities".format(len(priority_list)))
+            self._messenger.add_info_message(
+                "{} Intersections have been found. Applying Priorities".format(len(priority_list)))
             for objname in priority_list:
                 self.mesh.add_priority(1, [objname], priority=i)
                 i += 1
@@ -1836,7 +1835,7 @@ class Icepak(FieldAnalysisIcepak):
         else:
             allObjects = object_list[:]
 
-        print(allObjects)
+        self.add_info_message("Exporting {} objects".format(len(allObjects)))
 
         stringa = ",".join(allObjects)
         arg = [

@@ -89,7 +89,7 @@ class EdbLayout(object):
                     pass
             for lay in self.layers:
                 self._primitives_by_layer[lay] = self.get_polygons_by_layer(lay)
-            print("Primitives Updated")
+            self._messenger.add_info_message("Primitives Updated")
             return True
         return False
 

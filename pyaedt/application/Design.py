@@ -601,7 +601,6 @@ class Design(object):
         dict
             Dictionary of the project properties.
         """
-        import time
         start = time.time()
         if not self._project_dictionary:
             self._project_dictionary = load_entire_aedt_file(self.project_file)
