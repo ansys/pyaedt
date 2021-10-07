@@ -767,8 +767,8 @@ class ParametericsSetups(object):
                 setups_data = self._parent.design_properties["Optimetrics"]["OptimetricsSetups"]
 
                 for data in setups_data:
-                    if isinstance(setups_data[data], (OrderedDict, dict)) and setups_data[data][
-                        "SetupType"] == "OptiParametric":
+                    if isinstance(setups_data[data], (OrderedDict, dict)) and\
+                            setups_data[data]["SetupType"] == "OptiParametric":
                         self.setups.append(self.Setup(parent, data, setups_data[data]))
             except:
                 pass
@@ -912,8 +912,8 @@ class SensitivitySetups(object):
             try:
                 setups_data = self._parent.design_properties["Optimetrics"]["OptimetricsSetups"]
                 for data in setups_data:
-                    if isinstance(setups_data[data], (OrderedDict, dict)) and setups_data[data][
-                        "SetupType"] == "OptiSensitivity":
+                    if isinstance(setups_data[data], (OrderedDict, dict)) and\
+                            setups_data[data]["SetupType"] == "OptiSensitivity":
                         self.setups.append(self.Setup(parent, data, setups_data[data]))
             except:
                 pass
@@ -1075,8 +1075,8 @@ class StatisticalSetups(object):
             try:
                 setups_data = self._parent.design_properties["Optimetrics"]["OptimetricsSetups"]
                 for data in setups_data:
-                    if isinstance(setups_data[data], (OrderedDict, dict)) and setups_data[data][
-                        "SetupType"] == "OptiStatistical":
+                    if isinstance(setups_data[data], (OrderedDict, dict)) and\
+                            setups_data[data]["SetupType"] == "OptiStatistical":
                         self.setups.append(self.Setup(parent, data, setups_data[data]))
             except:
                 pass
@@ -1307,8 +1307,8 @@ class DOESetups(object):
             try:
                 setups_data = self._parent.design_properties["Optimetrics"]["OptimetricsSetups"]
                 for data in setups_data:
-                    if isinstance(setups_data[data], (OrderedDict, dict)) and setups_data[data][
-                        "SetupType"] == "OptiDXDOE":
+                    if isinstance(setups_data[data], (OrderedDict, dict)) and \
+                            setups_data[data]["SetupType"] == "OptiDXDOE":
                         self.setups.append(self.Setup(parent, data, setups_data[data]))
             except:
                 pass
@@ -1511,8 +1511,8 @@ class OptimizationSetups(object):
             try:
                 setups_data = self._parent.design_properties["Optimetrics"]["OptimetricsSetups"]
                 for data in setups_data:
-                    if isinstance(setups_data[data], (OrderedDict, dict)) and setups_data[data][
-                        "SetupType"] == "OptiOptimization":
+                    if isinstance(setups_data[data], (OrderedDict, dict)) and \
+                            setups_data[data]["SetupType"] == "OptiOptimization":
                         self.setups.append(self.Setup(parent, data, setups_data[data]))
             except:
                 pass

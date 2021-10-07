@@ -159,7 +159,6 @@ class Components(object):
                 if cmp.GetType().ToString() == "Ansys.Ansoft.Edb.Cell.Hierarchy.Component":
                     self._cmp[cmp.GetName()] = EDBComponent(self, cmp)
 
-
     @property
     def resistors(self):
         """Resistors.

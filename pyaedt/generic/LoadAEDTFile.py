@@ -239,8 +239,6 @@ def _walk_through_structure(keyword, save_dict):
             if saved_value and type(saved_value) is not list:
                 saved_value = [saved_value]
             save_dict[keyword] = {}
-
-
             _count += 1
             continue
         # end_key is found

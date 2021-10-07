@@ -1471,7 +1471,6 @@ class EDBComponent(object):
                 return pair.L.ToString()
         return None
 
-
     @property
     def is_parallel_rlc(self):
         """Define if model is Parallel or Series.
@@ -1490,7 +1489,6 @@ class EDBComponent(object):
                 pair = model.GetPinPairRlc(pinpair)
                 return pair.IsParallel
         return None
-
 
     @property
     def pinlist(self):
