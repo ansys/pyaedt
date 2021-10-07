@@ -7,6 +7,7 @@ It is based on templates to allow for easy creation and modification of setup pr
 """
 from __future__ import absolute_import
 
+import warnings
 from collections import OrderedDict
 import os.path
 
@@ -81,13 +82,13 @@ class Setup(object):
                             app.pop("MoveBackForward", None)
                             app.pop("MoveBackwards", None)
                             for el in app:
-                                if type(app[el]) is OrderedDict:
+                                if isinstance(app[el], (OrderedDict, dict)):
                                     self.sweeps.append(SweepHFSS(self.omodule, setupname, el, props=app[el]))
 
                         else:
                             app = setup_data["Sweeps"]
                             for el in app:
-                                if type(app[el]) is OrderedDict:
+                                if isinstance(app[el], (OrderedDict, dict)):
                                     self.sweeps.append(SweepQ3D(self.omodule, setupname, el, props=app[el]))
                         setup_data.pop("Sweeps", None)
                     self.props = OrderedDict(setup_data)
@@ -572,7 +573,7 @@ class SetupCircuit(object):
             elif soltype == "NexximAMI":
                 self.omodule.AddAMIAnalysis(arg)
             else:
-                print("Not Implemented Yet")
+                warnings.warn("Solution Not Implemented Yet")
         else:
             if soltype == "NexximLNA":
                 self.omodule.EditLinearNetworkAnalysis(self.name, arg)
@@ -887,7 +888,7 @@ class Setup3DLayout(object):
                     if "Data" in setup_data:  # 0 and 7 represent setup HFSSDrivenAuto
                         app = setup_data["Data"]
                         for el in app:
-                            if type(app[el]) is OrderedDict:
+                            if isinstance(app[el], (OrderedDict, dict)):
                                 self.sweeps.append(SweepHFSS3DLayout(self.omodule, setupname, el, props=app[el]))
 
                     self.props = OrderedDict(setup_data)

@@ -79,17 +79,19 @@ class EdbLayout(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        layoutInstance = self._active_layout.GetLayoutInstance()
-        layoutObjectInstances = layoutInstance.GetAllLayoutObjInstances()
-        for el in layoutObjectInstances.Items:
-            try:
-                self._prims.append(el.GetLayoutObj())
-            except:
-                pass
-        for lay in self.layers:
-            self._primitives_by_layer[lay] = self.get_polygons_by_layer(lay)
-        print("Primitives Updated")
-        return True
+        if self._active_layout:
+            layoutInstance = self._active_layout.GetLayoutInstance()
+            layoutObjectInstances = layoutInstance.GetAllLayoutObjInstances()
+            for el in layoutObjectInstances.Items:
+                try:
+                    self._prims.append(el.GetLayoutObj())
+                except:
+                    pass
+            for lay in self.layers:
+                self._primitives_by_layer[lay] = self.get_polygons_by_layer(lay)
+            self._messenger.add_info_message("Primitives Updated")
+            return True
+        return False
 
     @property
     def primitives(self):
@@ -473,8 +475,15 @@ class EdbLayout(object):
             self._messenger.add_error_message("Null path created")
             return False
         else:
-            self.update_primitives()
-            return True
+            if not self._prims:
+                self.update_primitives()
+            else:
+                self._prims.append(polygon)
+                if layer_name in self._primitives_by_layer:
+                    self._primitives_by_layer[layer_name].append(polygon)
+                else:
+                    self._primitives_by_layer[layer_name] = [polygon]
+        return True
 
     @aedt_exception_handler
     def create_polygon(self, main_shape, layer_name, voids=[], net_name=""):
@@ -512,7 +521,14 @@ class EdbLayout(object):
             self._messenger.add_error_message("Null polygon created")
             return False
         else:
-            self.update_primitives()
+            if not self._prims:
+                self.update_primitives()
+            else:
+                self._prims.append(polygon)
+                if layer_name in self._primitives_by_layer:
+                    self._primitives_by_layer[layer_name].append(polygon)
+                else:
+                    self._primitives_by_layer[layer_name] = [polygon]
             return True
 
     @aedt_exception_handler

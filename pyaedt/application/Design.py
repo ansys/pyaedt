@@ -550,7 +550,7 @@ class Design(object):
     ):
         # Get Desktop from global Desktop Environment
         self._project_dictionary = OrderedDict()
-        self.boundaries = OrderedDict()
+        self.boundaries = []
         self.project_datasets = {}
         self.design_datasets = {}
         main_module = sys.modules["__main__"]
@@ -562,7 +562,6 @@ class Design(object):
         else:
             self.release_on_exit = False
 
-        self._project_dictionary = {}
         self._mttime = None
         self._desktop = main_module.oDesktop
         self._aedt_version = main_module.AEDTVersion
@@ -601,11 +600,18 @@ class Design(object):
         dict
             Dictionary of the project properties.
         """
-        if os.path.exists(self.project_file):
-            _mttime = os.path.getmtime(self.project_file)
-            if _mttime != self._mttime:
-                self._project_dictionary = load_entire_aedt_file(self.project_file)
-                self._mttime = _mttime
+        start = time.time()
+        if not self._project_dictionary:
+            self._project_dictionary = load_entire_aedt_file(self.project_file)
+            self._messenger.add_info_message("AEDT Load time {}".format(time.time() - start))
+        # import time
+        # start = time.time()
+        # if os.path.exists(self.project_file):
+        #     _mttime = os.path.getmtime(self.project_file)
+        #     if _mttime != self._mttime:
+        #         self._project_dictionary = load_entire_aedt_file(self.project_file)
+        #         self._mttime = _mttime
+        #         self._messenger.add_info_message("AEDT Load time {}".format(time.time()-start))
         return self._project_dictionary
 
     @property
@@ -1658,12 +1664,17 @@ class Design(object):
 
     @aedt_exception_handler
     def _get_boundaries_data(self):
-        """Retrieve boundary data."""
+        """Retrieve boundary data.
+
+        Returns
+        -------
+        [:class:`pyaedt.modules.Boundary.BoundaryObject`]
+        """
         boundaries = []
         if self.design_properties and "BoundarySetup" in self.design_properties:
             for ds in self.design_properties["BoundarySetup"]["Boundaries"]:
                 try:
-                    if type(self.design_properties["BoundarySetup"]["Boundaries"][ds]) is OrderedDict:
+                    if isinstance(self.design_properties["BoundarySetup"]["Boundaries"][ds], (OrderedDict, dict)):
                         boundaries.append(
                             BoundaryObject(
                                 self,
@@ -2558,10 +2569,10 @@ class Design(object):
         image_data_str = design_info["Image64"]
         with open(filename, "wb") as f:
             if sys.version_info.major == 2:
-                bytes = bytes(image_data_str).decode('base64')
+                bytestring = bytes(image_data_str).decode('base64')
             else:
-                bytes = base64.decodebytes(image_data_str.encode("ascii"))
-            f.write(bytes)
+                bytestring = base64.decodebytes(image_data_str.encode("ascii"))
+            f.write(bytestring)
         return True
 
     @aedt_exception_handler

@@ -106,7 +106,7 @@ class Edb(object):
             self.standalone = True
         if edb_initialized:
             self.oproject = oproject
-            if isaedtowned:
+            if isaedtowned and 'oMessenger' in dir(sys.modules["__main__"]):
                 self._main = sys.modules["__main__"]
                 self._messenger = self._main.oMessenger
             else:
@@ -177,8 +177,6 @@ class Edb(object):
         self._nets = None
         self._db = None
         self._edb = None
-        if "edbutils" in dir(self):
-            self.edbutils.Logger.Disable = True
         self.builder = None
         self.edblib = None
         self.edbutils = None
@@ -187,12 +185,12 @@ class Edb(object):
         self.simsetupdata = None
         if os.name == "posix":
             clr.ClearProfilerData()
-        gc.collect()
+        time.sleep(2)
         gc.collect()
 
     @aedt_exception_handler
     def _init_objects(self):
-        time.sleep(2)
+        time.sleep(1)
         self._components = Components(self)
         self._stackup = EdbStackup(self)
         self._padstack = EdbPadstacks(self)
@@ -372,11 +370,9 @@ class Edb(object):
             dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib", "DataModel.dll")
             self._messenger.add_info_message(dllpath)
             self.layout_methods.LoadDataModel(dllpath)
-            self.layout_methods.InitializeAEDT(self.edbversion)
             dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib",
                                    "IPC_2581_DataModel.dll")
             self.layout_methods.LoadDataModel(dllpath)
-            self.layout_methods.InitializeAEDT(self.edbversion)
             time.sleep(3)
             retry_ntimes(
                 10,
@@ -431,11 +427,9 @@ class Edb(object):
             dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib", "DataModel.dll")
             if self._db and self._active_cell:
                 self.layout_methods.LoadDataModel(dllpath)
-                self.layout_methods.InitializeAEDT(self.edbversion)
                 dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib",
                                        "IPC_2581_DataModel.dll")
                 self.layout_methods.LoadDataModel(dllpath)
-                self.layout_methods.InitializeAEDT(self.edbversion)
                 if not os.path.exists(self.edbpath):
                     os.makedirs(self.edbpath)
                 time.sleep(3)
@@ -491,11 +485,9 @@ class Edb(object):
         dllpath = os.path.join(os.path.dirname(__file__), "dlls", "EDBLib", "DataModel.dll")
         if self._db and self._active_cell:
             self.layout_methods.LoadDataModel(dllpath)
-            self.layout_methods.InitializeAEDT(self.edbversion)
             dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib",
                                    "IPC_2581_DataModel.dll")
             self.layout_methods.LoadDataModel(dllpath)
-            self.layout_methods.InitializeAEDT(self.edbversion)
             time.sleep(3)
             retry_ntimes(
                 10,
@@ -595,7 +587,7 @@ class Edb(object):
             ipc_path = self.edbpath[:-4] + "xml"
         self._messenger.add_info_message("Export IPC 2581 is starting. This operation can take a while...")
         start = time.time()
-        result = self.layout_methods.ExportIPC2581FromLayout(self.active_layout, self.edbversion, ipc_path,
+        result = self.edblib.IPC8521.IPCExporter.ExportIPC2581FromLayout(self.active_layout, self.edbversion, ipc_path,
                                                              units.lower())
         #result = self.layout_methods.ExportIPC2581FromBuilder(self.builder, ipc_path, units.lower())
         end = time.time() - start
@@ -770,13 +762,17 @@ class Edb(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        gc.collect()
+        time.sleep(1)
         self._db.Close()
-
+        self._messenger.add_info_message("Database successfully closed.")
+        # try:
+        #     self._db.Close()
+        # except:
+        #     self._messenger.add_warning_message("Cannot Close dB")
+        time.sleep(1)
         self._clean_variables()
         gc.collect()
-        gc.collect()
-
+        # gc.collect()
         return True
 
     @aedt_exception_handler
@@ -1046,11 +1042,14 @@ class Edb(object):
             ``True`` when successful, ``False`` when failed.
 
         """
+
         if point_list[0] != point_list[-1]:
             point_list.append(point_list[0])
         point_list = [[self.arg_with_dim(i[0], units), self.arg_with_dim(i[1], units)] for i in point_list]
         plane = self.core_primitives.Shape("polygon", points=point_list)
         polygonData = self.core_primitives.shape_to_polygon_data(plane)
+        self.core_primitives.create_polygon(plane, list(self.core_stackup.signal_layers.keys())[0],
+                                            net_name="DUMMY_CUTOUT")
         _signal_nets = []
 
         _ref_nets = []
@@ -1062,7 +1061,6 @@ class Edb(object):
         # Create new cutout cell/design
         _cutout = self.active_cell.CutOut(net_signals, _netsClip, polygonData)
         self._messenger.add_info_message("Cutout {} created correctly".format(_cutout.GetName()))
-
         # The analysis setup(s) do not come over with the clipped design copy,
         # so add the analysis setup(s) from the original here
         for _setup in self.active_cell.SimulationSetups:

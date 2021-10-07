@@ -268,6 +268,7 @@ class SiwaveSolve(object):
         command.append("-RunScriptAndExit")
         command.append(scriptname)
         print(command)
-        os.system(" ".join(command))
-
-        return os.path.join(output_folder, format_3d + "_siwave.aedt")
+        #os.system(" ".join(command))
+        p1 = subprocess.call(" ".join(command))
+        #p1.wait()
+        return os.path.join(output_folder, aedt_file_name)
