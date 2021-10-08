@@ -46,10 +46,10 @@ class NexximComponents(CircuitComponents):
 
         return None
 
-    def __init__(self, parent, modeler):
-        CircuitComponents.__init__(self, parent, modeler)
-        self._parent = parent
-        self.modeler = modeler
+    def __init__(self, modeler):
+        CircuitComponents.__init__(self, modeler)
+        self._p_app = modeler._p_app
+        self._p_modeler = modeler
         self._currentId = 0
         pass
 
@@ -80,7 +80,7 @@ class NexximComponents(CircuitComponents):
             el, composed_name if succeeded or False
 
         """
-        self._parent._oproject.CopyDesign(sourcename)
+        self._p_app._oproject.CopyDesign(sourcename)
         self.oeditor.PasteDesign(0, ["NAME:Attributes", "Page:=", 1, "X:=", 0, "Y:=", 0, "Angle:=", 0, "Flip:=", False])
         self.refresh_all_ids()
         for el in self.components:
@@ -332,7 +332,7 @@ class NexximComponents(CircuitComponents):
         )
 
         self.o_component_manager.Add(arg)
-        self._parent.odesign.AddCompInstance(component_name)
+        self._p_app.odesign.AddCompInstance(component_name)
         self.refresh_all_ids()
         for el in self.components:
             if component_name in self.components[el].composed_name:
@@ -1256,7 +1256,7 @@ class NexximComponents(CircuitComponents):
         )
 
         self.o_component_manager.Add(compInfo2)
-        self._parent.odesign.AddCompInstance(comp_name)
+        self._p_app.odesign.AddCompInstance(comp_name)
         self.refresh_all_ids()
         for el in self.components:
             item = comp_name
@@ -1326,7 +1326,7 @@ class NexximComponents(CircuitComponents):
         arg1.append(arg3)
         arg.append(arg1)
 
-        self._parent._oproject.ChangeProperty(arg)
+        self._p_app._oproject.ChangeProperty(arg)
         return True
 
     @aedt_exception_handler
@@ -1359,7 +1359,7 @@ class NexximComponents(CircuitComponents):
             "`circuit.modeler.components.push_excitation` is deprecated. " "Use `circuit.push_excitation` instead.",
             DeprecationWarning,
         )
-        return self._parent._parent.push_excitations(instance_name, thevenin_calculation, setup_name)
+        return self._p_app.push_excitations(instance_name, thevenin_calculation, setup_name)
 
     @aedt_exception_handler
     def assign_sin_excitation2ports(self, ports, settings):
@@ -1373,4 +1373,4 @@ class NexximComponents(CircuitComponents):
             "Use `assign_voltage_sinusoidal_excitation_to_ports` instead.",
             DeprecationWarning,
         )
-        return self._parent.assign_voltage_sinusoidal_excitation_to_ports(ports, settings)
+        return self._p_app.assign_voltage_sinusoidal_excitation_to_ports(ports, settings)

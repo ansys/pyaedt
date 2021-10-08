@@ -435,7 +435,7 @@ class FieldPlot:
 
     Parameters
     ----------
-    oField :
+    postprocessor : :class:`pyaedt.modules.PostProcessor.PostProcessor`
 
     objlist : list
         List of objects.
@@ -443,14 +443,14 @@ class FieldPlot:
         Name of the solution.
     quantityName : str
         Name of the plot or the name of the object.
-    intrinsicList : dict, optional
+    intrinsincList : dict, optional
         Name of the intrinsic dictionary. The default is ``{}``.
 
     """
 
-    def __init__(self, parent, objlist=[], solutionName="", quantityName="", intrinsincList={}):
-        self._parent = parent
-        self.oField = parent.ofieldsreporter
+    def __init__(self, postprocessor, objlist=[], solutionName="", quantityName="", intrinsincList={}):
+        self._p_postprocessor = postprocessor
+        self.oField = postprocessor.ofieldsreporter
         self.faceIndexes = objlist
         self.solutionName = solutionName
         self.quantityName = quantityName
@@ -740,9 +740,9 @@ class FieldPlot:
         """
         self.oField.UpdateQuantityFieldsPlots(self.plotFolder)
         if not full_path:
-            full_path = os.path.join(self._parent._parent.project_path, self.name+".png")
-        status = self._parent.export_field_jpg(full_path, self.name, self.plotFolder, orientation=orientation,
-                                               width=width, height=height, display_wireframe=display_wireframe)
+            full_path = os.path.join(self._p_postprocessor._p_app.project_path, self.name + ".png")
+        status = self._p_postprocessor.export_field_jpg(full_path, self.name, self.plotFolder, orientation=orientation,
+                                                        width=width, height=height, display_wireframe=display_wireframe)
         if status:
             return full_path
         else:
@@ -775,9 +775,9 @@ class FieldPlot:
             Full path to exported file if successful.
         """
         if not export_path:
-            export_path = self._parent._parent.project_path
+            export_path = self._p_postprocessor._p_app.project_path
         if sys.version_info.major > 2:
-            return self._parent.plot_field_from_fieldplot(
+            return self._p_postprocessor.plot_field_from_fieldplot(
                     self.name,
                     project_path=export_path,
                     meshplot=plot_mesh,
@@ -791,7 +791,7 @@ class FieldPlot:
                     scale_max=scale_max,
                     )
         else:
-            self._parent._messenger.add_info_message("This method wors only on CPython with PyVista")
+            self._p_postprocessor._messenger.add_info_message("This method wors only on CPython with PyVista")
             return False
 
 
@@ -807,7 +807,7 @@ class PostProcessorCommon(object):
 
     Parameters
     ----------
-    parent
+    app : :class:`pyaedt.application.Analsis3D.FieldAnalysis3D`
         Inherited parent object. The parent object must provide the members
         ``_modeler``, ``_desktop``, ``_odesign``, and ``_messenger``.
 
@@ -818,9 +818,9 @@ class PostProcessorCommon(object):
     >>> q3d = q.post.get_report_data(expression="C(Bar1,Bar1)", domain=["Context:=", "Original"])
     """
 
-    def __init__(self, parent):
-        self._parent = parent
-        self._scratch = Scratch(self._parent.temp_directory, volatile=True)
+    def __init__(self, app):
+        self._p_app = app
+        self._scratch = Scratch(self._p_app.temp_directory, volatile=True)
 
     @property
     def oreportsetup(self):
@@ -831,32 +831,32 @@ class PostProcessorCommon(object):
         :attr:`pyaedt.modules.PostProcessor.PostProcessor.oreportsetup`
 
         """
-        return self.odesign.GetModule("ReportSetup")
+        return self._odesign.GetModule("ReportSetup")
 
     @property
     def _messenger(self):
         """Messenger."""
-        return self._parent._messenger
+        return self._p_app._messenger
 
     @property
     def _desktop(self):
         """Desktop."""
-        return self._parent._desktop
+        return self._p_app._desktop
 
     @property
-    def odesign(self):
+    def _odesign(self):
         """Design."""
-        return self._parent._odesign
+        return self._p_app._odesign
 
     @property
-    def oproject(self):
+    def _oproject(self):
         """Project."""
-        return self._parent._oproject
+        return self._p_app._oproject
 
     @property
     def modeler(self):
         """Modeler."""
-        return self._parent._modeler
+        return self._p_app._modeler
 
     @property
     def oeditor(self):
@@ -873,9 +873,9 @@ class PostProcessorCommon(object):
             Design solution type.
         """
         try:
-            return self.odesign.GetSolutionType()
+            return self._odesign.GetSolutionType()
         except:
-            return self._parent._design_type
+            return self._p_app._design_type
 
     @aedt_exception_handler
     def copy_report_data(self, PlotName):
@@ -992,7 +992,7 @@ class PostProcessorCommon(object):
         if not isinstance(expression, list):
             expression = [expression]
         if not setup_sweep_name:
-            setup_sweep_name = self._parent.nominal_sweep
+            setup_sweep_name = self._p_app.nominal_sweep
 
         if not report_input_type:
             report_input_type = report_type[self.post_solution_type]
@@ -1048,7 +1048,7 @@ class PostProcessorCommon(object):
         """
         ctxt = []
         if not setup_sweep_name:
-            setup_sweep_name = self._parent.nominal_sweep
+            setup_sweep_name = self._p_app.nominal_sweep
         if self.post_solution_type in ["HFSS 3D Layout Design", "NexximLNA", "NexximTransient"]:
             if "Freq" == primary_sweep_variable or "Freq" in list(families_dict.keys()):
                 did = 3
@@ -1068,7 +1068,7 @@ class PostProcessorCommon(object):
         if not isinstance(expression, list):
             expression = [expression]
         if not setup_sweep_name:
-            setup_sweep_name = self._parent.nominal_sweep
+            setup_sweep_name = self._p_app.nominal_sweep
         if self.post_solution_type not in report_type:
             self._messenger.add_info_message("Solution not supported")
             return False
@@ -1142,7 +1142,7 @@ class PostProcessorCommon(object):
         if not isinstance(expression, list):
             expression = [expression]
         if not setup_sweep_name:
-            setup_sweep_name = self._parent.nominal_adaptive
+            setup_sweep_name = self._p_app.nominal_adaptive
         sweep_list = []
         for el in sweeps:
             sweep_list.append(el + ":=")
@@ -1233,16 +1233,16 @@ class PostProcessor(PostProcessorCommon, object):
 
     Parameters
     ----------
-    parent
+    app : :class:`pyaedt.application.Analsis3D.FieldAnalysis3D`
         Inherited parent object. The parent object must provide the members
         `_modeler`, `_desktop`, `_odesign`, and `_messenger`.
 
     """
 
-    def __init__(self, parent):
-        self._parent = parent
+    def __init__(self, app):
+        self._p_app = app
         self.field_plots = self._get_fields_plot()
-        PostProcessorCommon.__init__(self, parent)
+        PostProcessorCommon.__init__(self, app)
 
     @property
     def _primitives(self):
@@ -1254,7 +1254,7 @@ class PostProcessor(PostProcessorCommon, object):
             Primitives object.
 
         """
-        return self._parent._modeler.primitives
+        return self._p_app._modeler.primitives
 
     @property
     def model_units(self):
@@ -1276,7 +1276,7 @@ class PostProcessor(PostProcessorCommon, object):
         type
             Solution module.
         """
-        return self.odesign.GetModule("Solutions")
+        return self._odesign.GetModule("Solutions")
 
     @property
     def ofieldsreporter(self):
@@ -1287,7 +1287,7 @@ class PostProcessor(PostProcessorCommon, object):
         :attr:`pyaedt.modules.PostProcessor.PostProcessor.ofieldsreporter`
 
         """
-        return self.odesign.GetModule("FieldsReporter")
+        return self._odesign.GetModule("FieldsReporter")
 
     @property
     def report_types(self):
@@ -1312,12 +1312,12 @@ class PostProcessor(PostProcessorCommon, object):
 
     @aedt_exception_handler
     def _get_base_name(self, setup):
-        setups_data = self._parent.design_properties["FieldsReporter"]["FieldsPlotManagerID"]
+        setups_data = self._p_app.design_properties["FieldsReporter"]["FieldsPlotManagerID"]
         base_name = ""
-        if 'SimDataExtractors' in self._parent.design_properties["SolutionManager"]:
-            sim_data = self._parent.design_properties["SolutionManager"]['SimDataExtractors']
+        if 'SimDataExtractors' in self._p_app.design_properties["SolutionManager"]:
+            sim_data = self._p_app.design_properties["SolutionManager"]['SimDataExtractors']
         else:
-            sim_data = self._parent.design_properties["SolutionManager"]
+            sim_data = self._p_app.design_properties["SolutionManager"]
         if 'SimSetup' in sim_data:
             if isinstance(sim_data["SimSetup"], list):
                 for solution in sim_data["SimSetup"]:
@@ -1336,7 +1336,7 @@ class PostProcessor(PostProcessorCommon, object):
 
     @aedt_exception_handler
     def _get_intrinsic(self, setup):
-        setups_data = self._parent.design_properties["FieldsReporter"]["FieldsPlotManagerID"]
+        setups_data = self._p_app.design_properties["FieldsReporter"]["FieldsPlotManagerID"]
         intrinsics = [i.split("=") for i in setups_data[setup]["IntrinsicVar"].split(" ")]
         intr_dict = {}
         if intrinsics:
@@ -1347,11 +1347,11 @@ class PostProcessor(PostProcessorCommon, object):
 
     @aedt_exception_handler
     def _get_volume_objects(self, list_objs):
-        if self._parent.solution_type not in ["HFSS3DLayout", "HFSS 3D Layout Design"]:
+        if self._p_app.solution_type not in ["HFSS3DLayout", "HFSS 3D Layout Design"]:
             obj_list = []
             for obj in list_objs[4:]:
                 obj_list.append(
-                    self._parent.odesign.SetActiveEditor("3D Modeler").GetObjectNameByID(int(obj)))
+                    self._p_app.odesign.SetActiveEditor("3D Modeler").GetObjectNameByID(int(obj)))
         if obj_list:
             return obj_list
         else:
@@ -1360,7 +1360,7 @@ class PostProcessor(PostProcessorCommon, object):
     @aedt_exception_handler
     def _get_surface_objects(self, list_objs):
         faces = [int(i) for i in list_objs[4:]]
-        if self._parent.solution_type not in ["HFSS3DLayout", "HFSS 3D Layout Design"]:
+        if self._p_app.solution_type not in ["HFSS3DLayout", "HFSS 3D Layout Design"]:
             planes = self._get_cs_plane_ids()
             objs = []
             for face in faces:
@@ -1373,8 +1373,8 @@ class PostProcessor(PostProcessorCommon, object):
     @aedt_exception_handler
     def _get_cs_plane_ids(self):
         name2refid = {-4: "Global:XY", -3: "Global:YZ", -2: "Global:XZ"}
-        if self._parent.design_properties and "ModelSetup" in self._parent.design_properties:
-            cs = self._parent.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"]["CoordinateSystems"]
+        if self._p_app.design_properties and "ModelSetup" in self._p_app.design_properties:
+            cs = self._p_app.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"]["CoordinateSystems"]
             for ds in cs:
                 try:
                     if isinstance(cs[ds], (OrderedDict, dict)):
@@ -1397,10 +1397,10 @@ class PostProcessor(PostProcessorCommon, object):
     @aedt_exception_handler
     def _get_fields_plot(self):
         plots = {}
-        if self._parent.design_properties \
-                and "FieldsReporter" in self._parent.design_properties and "FieldsPlotManagerID" in \
-                self._parent.design_properties["FieldsReporter"]:
-            setups_data = self._parent.design_properties["FieldsReporter"]["FieldsPlotManagerID"]
+        if self._p_app.design_properties \
+                and "FieldsReporter" in self._p_app.design_properties and "FieldsPlotManagerID" in \
+                self._p_app.design_properties["FieldsReporter"]:
+            setups_data = self._p_app.design_properties["FieldsReporter"]["FieldsPlotManagerID"]
             for setup in setups_data:
                 try:
                     if isinstance(setups_data[setup], (OrderedDict, dict)) and "PlotDefinition" in setup:
@@ -1483,7 +1483,7 @@ class PostProcessor(PostProcessorCommon, object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        self.odesign.ChangeProperty(
+        self._odesign.ChangeProperty(
             [
                 "NAME:AllTabs",
                 [
@@ -1531,7 +1531,7 @@ class PostProcessor(PostProcessorCommon, object):
         """
         self._messenger.add_info_message("Exporting {} field. Be patient".format(quantity_name))
         if not solution:
-            solution = self._parent.existing_analysis_sweeps[0]
+            solution = self._p_app.existing_analysis_sweeps[0]
         self.ofieldsreporter.CalcStack("clear")
         if isvector:
             try:
@@ -1553,7 +1553,7 @@ class PostProcessor(PostProcessorCommon, object):
         self.ofieldsreporter.EnterVol(obj_list)
         self.ofieldsreporter.CalcOp(scalar_function)
         if not variation_dict:
-            variation_dict = self._parent.available_variations.nominal_w_values
+            variation_dict = self._p_app.available_variations.nominal_w_values
         if intrinsics:
             if "Transient" in solution:
                 variation_dict.append("Time:=")
@@ -1566,7 +1566,7 @@ class PostProcessor(PostProcessorCommon, object):
                     variation_dict.append(phase)
                 else:
                     variation_dict.append("0deg")
-        file_name = os.path.join(self._parent.project_path, generate_unique_name("temp_fld")+".fld")
+        file_name = os.path.join(self._p_app.project_path, generate_unique_name("temp_fld") + ".fld")
         self.ofieldsreporter.CalculatorWrite(file_name, ["Solution:=", solution], variation_dict)
         value = None
         if os.path.exists(file_name):
@@ -1638,11 +1638,11 @@ class PostProcessor(PostProcessorCommon, object):
         """
         self._messenger.add_info_message("Exporting {} field. Be patient".format(quantity_name))
         if not solution:
-            solution = self._parent.existing_analysis_sweeps[0]
+            solution = self._p_app.existing_analysis_sweeps[0]
         if not filename:
             appendix = ""
             ext = ".fld"
-            filename = os.path.join(self._parent.project_path, solution.replace(" : ", "_") + appendix + ext)
+            filename = os.path.join(self._p_app.project_path, solution.replace(" : ", "_") + appendix + ext)
         else:
             filename = filename.replace("//", "/").replace("\\", "/")
         self.ofieldsreporter.CalcStack("clear")
@@ -1675,10 +1675,10 @@ class PostProcessor(PostProcessorCommon, object):
             grid_stop_wu = [str(grid_stop[0]) + units, str(grid_stop[1]) + ang_units, str(grid_stop[2]) + ang_units]
             grid_step_wu = [str(grid_step[0]) + units, str(grid_step[1]) + ang_units, str(grid_step[2]) + ang_units]
         else:
-            self._parent._messenger.add_error_message("Error in the type of the grid.")
+            self._p_app._messenger.add_error_message("Error in the type of the grid.")
             return False
         if not variation_dict:
-            variation_dict = self._parent.available_variations.nominal_w_values
+            variation_dict = self._p_app.available_variations.nominal_w_values
         if intrinsics:
             if "Transient" in solution:
                 variation_dict.append("Time:=")
@@ -1761,11 +1761,11 @@ class PostProcessor(PostProcessorCommon, object):
         """
         self._messenger.add_info_message("Exporting {} field. Be patient".format(quantity_name))
         if not solution:
-            solution = self._parent.existing_analysis_sweeps[0]
+            solution = self._p_app.existing_analysis_sweeps[0]
         if not filename:
             appendix = ""
             ext = ".fld"
-            filename = os.path.join(self._parent.project_path, solution.replace(" : ", "_") + appendix + ext)
+            filename = os.path.join(self._p_app.project_path, solution.replace(" : ", "_") + appendix + ext)
         else:
             filename = filename.replace("//", "/").replace("\\", "/")
         self.ofieldsreporter.CalcStack("clear")
@@ -1781,9 +1781,9 @@ class PostProcessor(PostProcessorCommon, object):
                     self._messenger.add_error_message("No correct choice.")
                     return False
                 self.ofieldsreporter.CalcOp("Value")
-                variation_dict = self._parent.available_variations.nominal_w_values
+                variation_dict = self._p_app.available_variations.nominal_w_values
             else:
-                variations = self._parent.available_variations.nominal_w_values_dict
+                variations = self._p_app.available_variations.nominal_w_values_dict
                 variation_dict = []
                 for el, value in variations.items():
                     variation_dict.append(el + ":=")
@@ -1815,7 +1815,7 @@ class PostProcessor(PostProcessorCommon, object):
                 export_with_sample_points,
             )
         else:
-            sample_points_file = os.path.join(self._parent.project_path, "temp_points.pts")
+            sample_points_file = os.path.join(self._p_app.project_path, "temp_points.pts")
             with open(sample_points_file, "w") as f:
                 for point in sample_points_lists:
                     f.write(" ".join([str(i) for i in point]) + "\n")
@@ -1891,14 +1891,14 @@ class PostProcessor(PostProcessorCommon, object):
         if isinstance(objlist, (str, int)):
             objlist = [objlist]
         if not setup_name:
-            setup_name = self._parent.existing_analysis_sweeps[0]
+            setup_name = self._p_app.existing_analysis_sweeps[0]
         self._desktop.CloseAllWindows()
         try:
-            self._parent._modeler.fit_all()
+            self._p_app._modeler.fit_all()
         except:
             pass
         self._desktop.TileWindows(0)
-        self.oproject.SetActiveDesign(self._parent.design_name)
+        self._oproject.SetActiveDesign(self._p_app.design_name)
 
         char_set = string.ascii_uppercase + string.digits
         if not plot_name:
@@ -2041,7 +2041,7 @@ class PostProcessor(PostProcessorCommon, object):
                     if not self._primitives[el].display_wireframe:
                         wireframes.append(el)
                         self._primitives[el].display_wireframe = True
-            if self._parent._aedt_version < "2021.2":
+            if self._p_app._aedt_version < "2021.2":
                 bound = self.modeler.get_model_bounding_box()
                 center = [
                     (float(bound[0]) + float(bound[3])) / 2,
@@ -2215,7 +2215,7 @@ class PostProcessor(PostProcessorCommon, object):
         if type(expression) is not list:
             expression = [expression]
         if not setup_sweep_name:
-            setup_sweep_name = self._parent.nominal_adaptive
+            setup_sweep_name = self._p_app.nominal_adaptive
         if families_dict is None:
             families_dict = {"Theta": ["All"], "Phi": ["All"], "Freq": ["All"]}
         solution_data = self.get_solution_data_per_variation(
@@ -2236,14 +2236,14 @@ class CircuitPostProcessor(PostProcessorCommon, object):
 
     Parameters
     ----------
-    parent:
+    app : :class:`pyaedt.application.AnalysisNexxim.FieldAnalysisCircuit`
         Inherited parent object. The parent object must provide the members
         `_modeler`, `_desktop`, `_odesign`, and `_messenger`.
 
     """
 
-    def __init__(self, parent):
-        PostProcessorCommon.__init__(self, parent)
+    def __init__(self, app):
+        PostProcessorCommon.__init__(self, app)
 
     def create_ami_initial_response_plot(
         self,

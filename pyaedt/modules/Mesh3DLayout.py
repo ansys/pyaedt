@@ -16,7 +16,7 @@ class Mesh3DOperation(object):
 
     Parameters
     ----------
-    parent :
+    app :
 
     hfss_setup_name : str
         Name of the HFSS setup.
@@ -27,8 +27,8 @@ class Mesh3DOperation(object):
 
     """
 
-    def __init__(self, parent, hfss_setup_name, name, props):
-        self._parent = parent
+    def __init__(self, app, hfss_setup_name, name, props):
+        self._p_mesh3dlayout = app
         self.name = name
         self.props = props
         self.hfss_setup_name = hfss_setup_name
@@ -65,7 +65,7 @@ class Mesh3DOperation(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self._parent.omeshmodule.AddMeshOperation(self.hfss_setup_name, self._get_args())
+        self._p_mesh3dlayout.omeshmodule.AddMeshOperation(self.hfss_setup_name, self._get_args())
         return True
 
     @aedt_exception_handler
@@ -78,7 +78,7 @@ class Mesh3DOperation(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self._parent.omeshmodule.EditMeshOperation(self.hfss_setup_name, self.name, self._get_args())
+        self._p_mesh3dlayout.omeshmodule.EditMeshOperation(self.hfss_setup_name, self.name, self._get_args())
         return True
 
     @aedt_exception_handler
@@ -91,7 +91,7 @@ class Mesh3DOperation(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self._parent.omeshmodule.DeleteMeshOperation(
+        self._p_mesh3dlayout.omeshmodule.DeleteMeshOperation(
             self.hfss_setup_name,
             self.name,
         )
@@ -99,7 +99,7 @@ class Mesh3DOperation(object):
         return True
 
 
-class Mesh(object):
+class Mesh3d(object):
     """Mesh class.
 
     This class provides the main AEDT mesh functionaility. The inherited class
@@ -107,12 +107,12 @@ class Mesh(object):
 
     Parameters
     ----------
-    parent :
+    app : :class:`pyaedt.application.Analysis3DLayout.FieldAnalysis3DLayout`
 
     """
 
-    def __init__(self, parent):
-        self._parent = parent
+    def __init__(self, app):
+        self._p_app = app
         self.id = 0
         self.meshoperations = self._get_design_mesh_operations()
 
@@ -128,22 +128,22 @@ class Mesh(object):
             Mesh module object.
         """
 
-        return self.odesign.GetModule("SolveSetups")
+        return self._odesign.GetModule("SolveSetups")
 
     @property
     def _messenger(self):
         """_messenger."""
-        return self._parent._messenger
+        return self._p_app._messenger
 
     @property
-    def odesign(self):
+    def _odesign(self):
         """Design."""
-        return self._parent._odesign
+        return self._p_app._odesign
 
     @property
     def modeler(self):
         """Modeler."""
-        return self._parent._modeler
+        return self._p_app._modeler
 
     @aedt_exception_handler
     def delete_mesh_operations(self, setup_name, mesh_name):
@@ -181,10 +181,10 @@ class Mesh(object):
         """
         meshops = []
         try:
-            for ds in self._parent.design_properties["Setup"]["Data"]:
-                if "MeshOps" in self._parent.design_properties["Setup"]["Data"][ds]:
-                    for ops in self._parent.design_properties["Setup"]["Data"][ds]["MeshOps"]:
-                        props = self._parent.design_properties["Setup"]["Data"][ds]["MeshOps"][ops]
+            for ds in self._p_app.design_properties["Setup"]["Data"]:
+                if "MeshOps" in self._p_app.design_properties["Setup"]["Data"][ds]:
+                    for ops in self._p_app.design_properties["Setup"]["Data"][ds]["MeshOps"]:
+                        props = self._p_app.design_properties["Setup"]["Data"][ds]["MeshOps"][ops]
                         meshops.append(Mesh3DOperation(self, ds, ops, props))
         except:
             pass

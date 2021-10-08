@@ -20,49 +20,49 @@ except ImportError:
 class EdbStackup(object):
     """Manages EDB functionalities for stackups."""
 
-    def __init__(self, parent):
-        self.parent = parent
+    def __init__(self, edb_class):
+        self._pedb = edb_class
         self._layer_dict = None
 
     @property
     def _builder(self):
         """ """
-        return self.parent.builder
+        return self._pedb.builder
 
     @property
     def _edb_value(self):
         """ """
-        return self.parent.edb_value
+        return self._pedb.edb_value
 
     @property
     def _edb(self):
         """ """
-        return self.parent.edb
+        return self._pedb.edb
 
     @property
     def _active_layout(self):
         """ """
-        return self.parent.active_layout
+        return self._pedb.active_layout
 
     @property
     def _cell(self):
         """ """
-        return self.parent.cell
+        return self._pedb.cell
 
     @property
     def _db(self):
         """ """
-        return self.parent.db
+        return self._pedb.db
 
     @property
     def _stackup_methods(self):
         """ """
-        return self.parent.edblib.Layout.StackupMethods
+        return self._pedb.edblib.Layout.StackupMethods
 
     @property
     def _messenger(self):
         """ """
-        return self.parent._messenger
+        return self._pedb._messenger
 
     @property
     def stackup_layers(self):
@@ -109,7 +109,7 @@ class EdbStackup(object):
             Dictionary of materials.
         """
         mats = {}
-        for el in self.parent.edbutils.MaterialSetupInfo.GetFromLayout(self.parent.active_layout):
+        for el in self._pedb.edbutils.MaterialSetupInfo.GetFromLayout(self._pedb.active_layout):
             mats[el.Name] = el
         return mats
 

@@ -13,13 +13,13 @@ class Primitives2D(Primitives, object):
     def plane2d(self):
         """Create a 2D plane."""
         plane = "Z"
-        if self._parent.design_type == "Maxwell 2D":
-            if self._parent.odesign.GetGeometryMode() == "about Z":
+        if self._p_app.design_type == "Maxwell 2D":
+            if self._p_app.odesign.GetGeometryMode() == "about Z":
                 plane = "Y"
         return plane
 
-    def __init__(self, parent, modeler):
-        Primitives.__init__(self, parent, modeler)
+    def __init__(self, modeler):
+        Primitives.__init__(self, modeler)
 
     @aedt_exception_handler
     def create_circle(self, position, radius, num_sides=0, is_covered=True, name=None, matname=None):

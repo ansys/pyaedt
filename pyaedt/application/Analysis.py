@@ -462,12 +462,12 @@ class Analysis(Design, object):
         return boundaries
 
     class AvailableVariations(object):
-        def __init__(self, parent):
+        def __init__(self, app):
             """Contains available variations.
 
             Parameters
             ----------
-            parent :
+            app :
                 Inherited parent object.
 
             Returns
@@ -476,7 +476,7 @@ class Analysis(Design, object):
                 Parent object.
 
             """
-            self._parent = parent
+            self._p_app = app
 
         @property
         def variables(self):
@@ -487,7 +487,7 @@ class Analysis(Design, object):
             list
                 List of names of independent variables.
             """
-            return [i for i in self._parent.variable_manager.independent_variables]
+            return [i for i in self._p_app.variable_manager.independent_variables]
 
         @aedt_exception_handler
         def variations(self, setup_sweep=None):
@@ -505,8 +505,8 @@ class Analysis(Design, object):
 
             """
             if not setup_sweep:
-                setup_sweep = self._parent.existing_analysis_sweeps[0]
-            vs = self._parent.osolution.GetAvailableVariations(setup_sweep)
+                setup_sweep = self._p_app.existing_analysis_sweeps[0]
+            vs = self._p_app.osolution.GetAvailableVariations(setup_sweep)
             families = []
             for v in vs:
                 variations = v.split(" ")
@@ -534,30 +534,30 @@ class Analysis(Design, object):
         def nominal_w_values(self):
             """Nominal with values."""
             families = []
-            if self._parent.design_type == "HFSS 3D Layout Design":
-                listvar = list(self._parent.odesign.GetVariables())
+            if self._p_app.design_type == "HFSS 3D Layout Design":
+                listvar = list(self._p_app.odesign.GetVariables())
                 for el in listvar:
                     families.append(el + ":=")
-                    families.append([self._parent.odesign.GetVariableValue(el)])
+                    families.append([self._p_app.odesign.GetVariableValue(el)])
             else:
-                variation = self._parent.odesign.GetNominalVariation()
+                variation = self._p_app.odesign.GetNominalVariation()
                 for el in self.variables:
                     families.append(el + ":=")
-                    families.append([self._parent.odesign.GetVariationVariableValue(variation, el)])
+                    families.append([self._p_app.odesign.GetVariationVariableValue(variation, el)])
             return families
 
         @property
         def nominal_w_values_dict(self):
             """Nominal with values in a dictionary."""
             families = {}
-            if self._parent.design_type == "HFSS 3D Layout Design":
-                listvar = list(self._parent.odesign.GetVariables())
+            if self._p_app.design_type == "HFSS 3D Layout Design":
+                listvar = list(self._p_app.odesign.GetVariables())
                 for el in listvar:
-                    families[el] = self._parent.odesign.GetVariableValue(el)
+                    families[el] = self._p_app.odesign.GetVariableValue(el)
             else:
-                variation = self._parent.odesign.GetNominalVariation()
+                variation = self._p_app.odesign.GetNominalVariation()
                 for el in self.variables:
-                    families[el] = self._parent.odesign.GetVariationVariableValue(variation, el)
+                    families[el] = self._p_app.odesign.GetVariationVariableValue(variation, el)
             return families
 
         @property

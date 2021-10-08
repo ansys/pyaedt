@@ -50,7 +50,7 @@ class Components(object):
 
     Parameters
     ----------
-    parent : str
+    edb_class : :class:`pyaedt.edb.Edb`
 
     Examples
     --------
@@ -60,8 +60,8 @@ class Components(object):
 
     """
 
-    def __init__(self, parent):
-        self.parent = parent
+    def __init__(self, edb_class):
+        self._pedb = edb_class
         self._cmp = {}
         self._res = {}
         self._cap = {}
@@ -76,11 +76,11 @@ class Components(object):
     @property
     def _messenger(self):
         """Messenger."""
-        return self.parent._messenger
+        return self._pedb._messenger
 
     @property
     def _edb(self):
-        return self.parent.edb
+        return self._pedb.edb
 
     @aedt_exception_handler
     def _init_parts(self):
@@ -95,31 +95,31 @@ class Components(object):
 
     @property
     def _builder(self):
-        return self.parent.builder
+        return self._pedb.builder
 
     @property
     def _edb_value(self):
-        return self.parent.edb_value
+        return self._pedb.edb_value
 
     @property
     def _edbutils(self):
-        return self.parent.edbutils
+        return self._pedb.edbutils
 
     @property
     def _active_layout(self):
-        return self.parent.active_layout
+        return self._pedb.active_layout
 
     @property
     def _cell(self):
-        return self.parent.cell
+        return self._pedb.cell
 
     @property
     def _db(self):
-        return self.parent.db
+        return self._pedb.db
 
     @property
     def _components_methods(self):
-        return self.parent.edblib.Layout.ComponentsMethods
+        return self._pedb.edblib.Layout.ComponentsMethods
 
     @property
     def components(self):
@@ -585,7 +585,7 @@ class Components(object):
                 if edb_cmp is not None:
                     edb_cmp.Delete()
                     deleted_comps.append(comp)
-                    self.parent._messenger.add_info_message("Component {} deleted".format(comp))
+                    self._pedb._messenger.add_info_message("Component {} deleted".format(comp))
         for el in deleted_comps:
             del self.components[el]
         return deleted_comps

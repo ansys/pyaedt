@@ -270,8 +270,8 @@ class DesignCache(object):
 
     """
 
-    def __init__(self, parent):
-        self._parent = parent
+    def __init__(self, app):
+        self._p_app = app
         self._allow_errors_local = []
         self._allow_errors_global = []
         self.clear()
@@ -403,10 +403,10 @@ class DesignCache(object):
             Snapshot object.
         """
         snapshot = {
-            "Solids:": self._parent.modeler.primitives.solid_names,
-            "Lines:": self._parent.modeler.primitives.line_names,
-            "Sheets": self._parent.modeler.primitives.sheet_names,
-            "DesignName": self._parent.design_name,
+            "Solids:": self._p_app.modeler.primitives.solid_names,
+            "Lines:": self._p_app.modeler.primitives.line_names,
+            "Sheets": self._p_app.modeler.primitives.sheet_names,
+            "DesignName": self._p_app.design_name,
         }
         return snapshot
 
@@ -428,7 +428,7 @@ class DesignCache(object):
            ``'no_change'`` is accessed.
         """
 
-        messages = self._parent._messenger.messages
+        messages = self._p_app._messenger.messages
 
         # Check whether the design snapshot has changed since the last update
         new_snapshot = self.design_snapshot()

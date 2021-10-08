@@ -5,10 +5,15 @@ from .Mesh import meshers, MeshOperation
 
 
 class IcepakMesh(object):
-    """Manages Icepak meshes."""
+    """Manages Icepak meshes.
 
-    def __init__(self, parent):
-        self._parent = parent
+    Parameters
+    ----------
+    application : :class:`pyaedt.application.Analysis3D.FieldAnalysis3D`
+    """
+
+    def __init__(self, app):
+        self._p_app = app
         self.id = 0
         self._oeditor = self.modeler.oeditor
         self._model_units = self.modeler.model_units
@@ -142,9 +147,9 @@ class IcepakMesh(object):
             return arg
 
         @property
-        def odesign(self):
+        def _odesign(self):
             """Instance of a design in a project."""
-            return self._parent._odesign
+            return self._p_app._odesign
 
         @aedt_exception_handler
         def update(self):
@@ -190,9 +195,9 @@ class IcepakMesh(object):
     @property
     def omeshmodule(self):
         """Mesh module."""
-        design_type = self.odesign.GetDesignType()
+        design_type = self._odesign.GetDesignType()
         assert design_type in meshers, "Invalid design type {}".format(design_type)
-        return self.odesign.GetModule(meshers[design_type])
+        return self._odesign.GetModule(meshers[design_type])
 
     @property
     def boundingdimension(self):
@@ -200,7 +205,7 @@ class IcepakMesh(object):
         return self.modeler.get_bounding_dimension()
 
     @property
-    def odesign(self):
+    def _odesign(self):
         """Design.
 
         Returns
@@ -209,7 +214,7 @@ class IcepakMesh(object):
             Design object.
 
         """
-        return self._parent._odesign
+        return self._p_app._odesign
 
     @property
     def modeler(self):
@@ -220,21 +225,21 @@ class IcepakMesh(object):
         :class:`pyaedt.modules.Modeler`
 
         """
-        return self._parent._modeler
+        return self._p_app._modeler
 
     @aedt_exception_handler
     def _get_design_mesh_operations(self):
         """Retrieve design mesh operations."""
         meshops = []
         try:
-            for ds in self._parent.design_properties["MeshRegion"]["MeshSetup"]["MeshOperations"]:
-                if isinstance(self._parent.design_properties["MeshRegion"]["MeshSetup"]["MeshOperations"][
+            for ds in self._p_app.design_properties["MeshRegion"]["MeshSetup"]["MeshOperations"]:
+                if isinstance(self._p_app.design_properties["MeshRegion"]["MeshSetup"]["MeshOperations"][
                                   ds], (OrderedDict, dict)):
                     meshops.append(
                         MeshOperation(
                             self,
                             ds,
-                            self._parent.design_properties["MeshRegion"]["MeshSetup"]["MeshOperations"][ds],
+                            self._p_app.design_properties["MeshRegion"]["MeshSetup"]["MeshOperations"][ds],
                             "Icepak",
                         )
                     )
@@ -247,11 +252,11 @@ class IcepakMesh(object):
         """Retrieve design mesh regions."""
         meshops = []
         try:
-            for ds in self._parent.design_properties["MeshRegion"]["MeshSetup"]["MeshRegions"]:
-                if isinstance(self._parent.design_properties["MeshRegion"]["MeshSetup"]["MeshRegions"][ds],
+            for ds in self._p_app.design_properties["MeshRegion"]["MeshSetup"]["MeshRegions"]:
+                if isinstance(self._p_app.design_properties["MeshRegion"]["MeshSetup"]["MeshRegions"][ds],
                               (OrderedDict, dict)):
                     meshop = self.MeshRegion(self.omeshmodule, self.boundingdimension, self.modeler.model_units)
-                    dict_prop = self._parent.design_properties["MeshRegion"]["MeshSetup"]["MeshRegions"][ds]
+                    dict_prop = self._p_app.design_properties["MeshRegion"]["MeshSetup"]["MeshRegions"][ds]
                     self.name = ds
                     for el in dict_prop:
                         if el in meshop.__dict__:
@@ -475,7 +480,7 @@ class IcepakMesh(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        return self.odesign.GenerateMesh(name) == 0
+        return self._odesign.GenerateMesh(name) == 0
 
     @aedt_exception_handler
     def assign_mesh_level_to_group(

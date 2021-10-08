@@ -82,7 +82,7 @@ class Layer(object):
 
     Parameters
     ----------
-    editor :
+    app : :class:`pyaedt.modules.LayerStackup.Layers`
 
     layertype : string, optional
         The default is ``"signal"``.
@@ -94,34 +94,10 @@ class Layer(object):
         Whether the geometry on the layer is cut away
         from the layer. The default is ``False``.
     """
-
-    @property
-    def visflag(self):
-        """Visibility flag for objects on the layer."""
-        visflag = 0
-        if not self.IsVisible:
-            visflag = 0
-        else:
-            if self.IsMeshBackgroundMaterial:
-                visflag += 64
-            if self.IsMeshOverlay:
-                visflag += 32
-            if self.IsVisibleShape:
-                visflag += 1
-            if self.IsVisiblePath:
-                visflag += 2
-            if self.IsVisiblePad:
-                visflag += 4
-            if self.IsVisibleHole:
-                visflag += 8
-            if self.IsVisibleComponent:
-                visflag += 16
-        return visflag
-
-    def __init__(self, editor, layertype="signal", layerunits="mm", roughunit="um", negative=False):
-        self.LengthUnit = layerunits
-        self.LengthUnitRough = roughunit
-        self.oeditor = editor
+    def __init__(self, app, layertype="signal", negative=False):
+        self.LengthUnit = app.LengthUnit
+        self.LengthUnitRough = app.LengthUnit
+        self._p_layers = app
         self.name = None
         self.type = layertype
         self.id = 0
@@ -168,6 +144,33 @@ class Layer(object):
         self.hfssSp = {"si": True, "dt": 0, "dtv": 0.1}
         self.planaremSp = {"ifg": False, "vly": False}
 
+    @property
+    def _oeditor(self):
+        return self._p_layers._oeditor
+
+    @property
+    def visflag(self):
+        """Visibility flag for objects on the layer."""
+        visflag = 0
+        if not self.IsVisible:
+            visflag = 0
+        else:
+            if self.IsMeshBackgroundMaterial:
+                visflag += 64
+            if self.IsMeshOverlay:
+                visflag += 32
+            if self.IsVisibleShape:
+                visflag += 1
+            if self.IsVisiblePath:
+                visflag += 2
+            if self.IsVisiblePad:
+                visflag += 4
+            if self.IsVisibleHole:
+                visflag += 8
+            if self.IsVisibleComponent:
+                visflag += 16
+        return visflag
+
     @aedt_exception_handler
     def set_layer_color(self, r, g, b):
         """Update the color of the layer.
@@ -203,7 +206,7 @@ class Layer(object):
         """
         self.remove_stackup_layer()
         if self.type == "signal":
-            self.oeditor.AddStackupLayer(
+            self._oeditor.AddStackupLayer(
                 [
                     "NAME:stackup layer",
                     "Name:=",
@@ -296,7 +299,7 @@ class Layer(object):
                 ]
             )
         else:
-            self.oeditor.AddStackupLayer(
+            self._oeditor.AddStackupLayer(
                 [
                     "NAME:stackup layer",
                     "Name:=",
@@ -334,7 +337,7 @@ class Layer(object):
                     ],
                 ]
             )
-        infos = self.oeditor.GetLayerInfo(self.name)
+        infos = self._oeditor.GetLayerInfo(self.name)
         infos = [i.split(": ") for i in infos]
         infosdict = {i[0]: i[1] for i in infos}
         self.id = int(infosdict["LayerId"])
@@ -378,7 +381,7 @@ class Layer(object):
             ``True`` when successful, ``False`` when failed.
         """
         if self.type == "signal":
-            self.oeditor.ChangeLayer(
+            self._oeditor.ChangeLayer(
                 [
                     "NAME:SLayer",
                     "Name:=",
@@ -475,7 +478,7 @@ class Layer(object):
                 ]
             )
         elif self.type == "dielectric":
-            self.oeditor.ChangeLayer(
+            self._oeditor.ChangeLayer(
                 [
                     "NAME:SLayer",
                     "Name:=",
@@ -530,8 +533,8 @@ class Layer(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        if self.name in self.oeditor.GetStackupLayerNames():
-            self.oeditor.RemoveLayer(self.name)
+        if self.name in self._oeditor.GetStackupLayerNames():
+            self._oeditor.RemoveLayer(self.name)
             return True
         return False
 
@@ -541,35 +544,37 @@ class Layers(object):
 
     Parameters
     ----------
-    parent :
-        Inherited AEDT object.
-
-    modeler :
+    modeler : :class:`pyaedt.modeler.Model3DLayout.Modeler3DLayout`
 
     roughnessunits : str, optional
        Units for the roughness of layers. The default is ``"um"``.
 
     """
+    def __init__(self, modeler, roughnessunits="um"):
+        self._p_modeler = modeler
+        self._currentId = 0
+        self.layers = defaultdict(Layer)
+        self.lengthUnitRough = roughnessunits
+
+    @property
+    def _p_app(self):
+        """Messenger."""
+        return self._p_modeler._p_app
 
     @property
     def _messenger(self):
         """Messenger."""
-        return self._parent._messenger
+        return self._p_app._messenger
 
     @property
-    def modeler(self):
-        """Modeler."""
-        return self._modeler
-
-    @property
-    def oeditor(self):
+    def _oeditor(self):
         """Editor."""
-        return self.modeler.oeditor
+        return self._p_modeler._p_app.odesign.SetActiveEditor("Layout")
 
     @property
     def LengthUnit(self):
         """Length units."""
-        return self.modeler.model_units
+        return self._p_modeler.model_units
 
     @property
     def all_layers(self):
@@ -580,7 +585,7 @@ class Layers(object):
         list
            List of stackup layers.
         """
-        return self.oeditor.GetStackupLayerNames()
+        return self._oeditor.GetStackupLayerNames()
 
     @property
     def all_signal_layers(self):
@@ -621,13 +626,6 @@ class Layers(object):
                 die.append(layid)
         return die
 
-    def __init__(self, parent, modeler, roughnessunits="um"):
-        self._modeler = modeler
-        self._parent = parent
-        self._currentId = 0
-        self.layers = defaultdict(Layer)
-        self.lengthUnitRough = roughnessunits
-
     @aedt_exception_handler
     def layer_id(self, name):
         """Retrieve a layer ID.
@@ -656,11 +654,11 @@ class Layers(object):
         int
             Number of layers in the current stackup.
         """
-        layernames = self.oeditor.GetStackupLayerNames()
+        layernames = self._oeditor.GetStackupLayerNames()
         for el in layernames:
-            o = Layer(self.oeditor, "signal", self.LengthUnit, self.lengthUnitRough)
+            o = Layer(self, "signal")
             o.name = el
-            infos = self.oeditor.GetLayerInfo(el)
+            infos = self._oeditor.GetLayerInfo(el)
             infos = [i.split(": ") for i in infos]
             infosdict = {i[0].strip(): i[1].strip() for i in infos}
             if infosdict["Type"] == "metalizedsignal":
@@ -762,7 +760,7 @@ class Layers(object):
         :class:`pyaedt.modules.LayerStackup.Layer`
             Layer object.
         """
-        newlayer = Layer(self.oeditor, layertype, self.LengthUnit, self.lengthUnitRough, isnegative)
+        newlayer = Layer(self, layertype, isnegative)
         newlayer.name = layername
         newlayer.thickness = thickness
         newlayer.lowerelevation = elevation

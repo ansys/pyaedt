@@ -22,8 +22,8 @@ class Setup(object):
 
     Parameters
     ----------
-    parent : str
-        Inherited parent object.
+    app : :class:`pyaedt.application.Analysis3D.FieldAnalysis3D`
+        Inherited app object.
     solutiontype : int, str
         Type of the setup.
     setupname : str, optional
@@ -35,26 +35,26 @@ class Setup(object):
     """
 
     @property
-    def parent(self):
+    def p_app(self):
         """Parent."""
-        return self._parent
+        return self._p_app
 
-    @parent.setter
-    def parent(self, value):
-        self._parent = value
+    @p_app.setter
+    def p_app(self, value):
+        self._p_app = value
 
     @property
     def omodule(self):
         """Analysis module."""
-        return self._parent.oanalysis
+        return self._p_app.oanalysis
 
     def __repr__(self):
         return "SetupName " + self.name + " with " + str(len(self.sweeps)) + " Sweeps"
 
-    def __init__(self, parent, solutiontype, setupname="MySetupAuto", isnewsetup=True):
+    def __init__(self, app, solutiontype, setupname="MySetupAuto", isnewsetup=True):
 
-        self._parent = None
-        self.parent = parent
+        self._p_app = None
+        self.p_app = app
         if isinstance(solutiontype, int):
             self.setuptype = solutiontype
         else:
@@ -69,7 +69,7 @@ class Setup(object):
                 tuple2dict(t, self.props)
         else:
             try:
-                setups_data = self.parent.design_properties["AnalysisSetup"]["SolveSetups"]
+                setups_data = self.p_app.design_properties["AnalysisSetup"]["SolveSetups"]
                 if setupname in setups_data:
                     setup_data = setups_data[setupname]
                     if "Sweeps" in setup_data and self.setuptype not in [
@@ -419,7 +419,7 @@ class Setup(object):
         meshlinks["Soln"] = solution_name
         meshlinks["Params"] = OrderedDict({})
         for el in parameters_dict:
-            if el in list(self._parent.available_variations.nominal_w_values_dict.keys()):
+            if el in list(self._p_app.available_variations.nominal_w_values_dict.keys()):
                 meshlinks["Params"][el] = el
             else:
                 meshlinks["Params"][el] = parameters_dict[el]
@@ -436,8 +436,8 @@ class SetupCircuit(object):
 
     Parameters
     ----------
-    parent : str
-        Inherited parent object.
+    app : :class:`pyaedt.application.AnalysisNexxim.FieldAnalysisCircuit`
+        Inherited app object.
     solutiontype : str, int
         Type of the setup.
     setupname : str, optional
@@ -447,6 +447,32 @@ class SetupCircuit(object):
       If ``False``, access is to the existing setup.
 
     """
+    def __init__(self, app, solutiontype, setupname="MySetupAuto", isnewsetup=True):
+        self._p_app = None
+        self.p_app = app
+        if isinstance(solutiontype, int):
+            self.setuptype = solutiontype
+        else:
+            self.setuptype = SetupKeys.defaultSetups[solutiontype]
+        self._Name = "LinearFrequency"
+        self.props = {}
+        if isnewsetup:
+            setup_template = SetupKeys.SetupTemplates[self.setuptype]
+            for t in setup_template:
+                tuple2dict(t, self.props)
+        else:
+            try:
+                setups_data = self.p_app.design_properties["SimSetups"]["SimSetup"]
+                if type(setups_data) is not list:
+                    setups_data = [setups_data]
+                for setup in setups_data:
+                    if setupname == setup["Name"]:
+                        setup_data = setup
+                        setup_data.pop("Sweeps", None)
+                        self.props = setup_data
+            except:
+                self.props = {}
+        self.name = setupname
 
     @property
     def name(self):
@@ -459,18 +485,18 @@ class SetupCircuit(object):
         self.props["Name"] = name
 
     @property
-    def parent(self):
-        """AEDT parent module for setting up the analysis."""
-        return self._parent
+    def p_app(self):
+        """AEDT app module for setting up the analysis."""
+        return self._p_app
 
-    @parent.setter
-    def parent(self, name):
-        self._parent = name
+    @p_app.setter
+    def p_app(self, name):
+        self._p_app = name
 
     @property
-    def odesign(self):
+    def _odesign(self):
         """Design."""
-        return self._parent.odesign
+        return self._p_app.odesign
 
     @property
     def omodule(self):
@@ -478,8 +504,8 @@ class SetupCircuit(object):
 
         Parameters
         ----------
-        parent : str
-            Inherited parent object.
+        app : str
+            Inherited app object.
         solutiontype : str, int
             Type of the setup.
         setupname : str, optional
@@ -494,34 +520,7 @@ class SetupCircuit(object):
             Name of the setup.
 
         """
-        return self._parent.oanalysis
-
-    def __init__(self, parent, solutiontype, setupname="MySetupAuto", isnewsetup=True):
-        self._parent = None
-        self.parent = parent
-        if isinstance(solutiontype, int):
-            self.setuptype = solutiontype
-        else:
-            self.setuptype = SetupKeys.defaultSetups[solutiontype]
-        self._Name = "LinearFrequency"
-        self.props = {}
-        if isnewsetup:
-            setup_template = SetupKeys.SetupTemplates[self.setuptype]
-            for t in setup_template:
-                tuple2dict(t, self.props)
-        else:
-            try:
-                setups_data = self.parent.design_properties["SimSetups"]["SimSetup"]
-                if type(setups_data) is not list:
-                    setups_data = [setups_data]
-                for setup in setups_data:
-                    if setupname == setup["Name"]:
-                        setup_data = setup
-                        setup_data.pop("Sweeps", None)
-                        self.props = setup_data
-            except:
-                self.props = {}
-        self.name = setupname
+        return self._p_app.oanalysis
 
     @aedt_exception_handler
     def create(self):
@@ -814,7 +813,7 @@ class SetupCircuit(object):
         """
         if not setup_name:
             setup_name = self.name
-        self.odesign.EnableSolutionSetup(setup_name, True)
+        self._odesign.EnableSolutionSetup(setup_name, True)
         return True
 
     @aedt_exception_handler
@@ -834,7 +833,7 @@ class SetupCircuit(object):
         """
         if not setup_name:
             setup_name = self.name
-        self.odesign.EnableSolutionSetup(setup_name, False)
+        self._odesign.EnableSolutionSetup(setup_name, False)
         return True
 
 
@@ -843,8 +842,8 @@ class Setup3DLayout(object):
 
     Parameters
     ----------
-    parent : str
-        Inherited parent object.
+    app : :class:`pyaedt.application.Analysis3DLayout.FieldAnalysis3DLayout`
+        Inherited app object.
     solutiontype : int or str
         Type of the setup.
     setupname : str, optional
@@ -865,10 +864,10 @@ class Setup3DLayout(object):
             Analysis module.
 
         """
-        return self.parent.oanalysis
+        return self._p_app.oanalysis
 
-    def __init__(self, parent, solutiontype, setupname="MySetupAuto", isnewsetup=True):
-        self.parent = parent
+    def __init__(self, app, solutiontype, setupname="MySetupAuto", isnewsetup=True):
+        self._p_app = app
         if isinstance(solutiontype, int):
             self._solutiontype = solutiontype
         else:
@@ -882,7 +881,7 @@ class Setup3DLayout(object):
                 tuple2dict(t, self.props)
         else:
             try:
-                setups_data = self.parent.design_properties["Setup"]["Data"]
+                setups_data = self._p_app.design_properties["Setup"]["Data"]
                 if setupname in setups_data:
                     setup_data = setups_data[setupname]
                     if "Data" in setup_data:  # 0 and 7 represent setup HFSSDrivenAuto

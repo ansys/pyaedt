@@ -206,7 +206,7 @@ class MatProperty(object):
 
     Parameters
     ----------
-    parent :
+    material : :class:`pyaedt.modules.Material.Material`
         Inherited parent object.
     name : str
         Name of the material property.
@@ -215,14 +215,8 @@ class MatProperty(object):
     thermalmodifier
         The default is ``None``.
     """
-
-    @property
-    def _messenger(self):
-        """Messenger."""
-        return self._parent._messenger
-
-    def __init__(self, parent, name, val=None, thermalmodifier=None):
-        self._parent = parent
+    def __init__(self, material, name, val=None, thermalmodifier=None):
+        self._p_material = material
         self._type = "simple"
         self.name = name
         self._property_value = [BasicValue()]
@@ -246,6 +240,11 @@ class MatProperty(object):
                     self._property_value[tm["Index:"]].thermalmodifier.TL = tm["TL"]
                     self._property_value[tm["Index:"]].thermalmodifier.TU = tm["TU"]
                     self._property_value[tm["Index:"]].thermalmodifier.autocalculation = tm["auto_calculation"]
+
+    @property
+    def _messenger(self):
+        """Messenger."""
+        return self._p_material._messenger
 
     @property
     def type(self):
@@ -341,7 +340,7 @@ class MatProperty(object):
         type
 
         """
-        if "ModifierData" not in self._parent._props:
+        if "ModifierData" not in self._p_material._props:
             tm = OrderedDict(
                 {
                     "Property:": self.name,
@@ -351,7 +350,7 @@ class MatProperty(object):
                     "free_form_value": formula,
                 }
             )
-            self._parent._props["ModifierData"] = OrderedDict(
+            self._p_material._props["ModifierData"] = OrderedDict(
                 {
                     "ThermalModifierData": OrderedDict(
                         {
@@ -362,12 +361,12 @@ class MatProperty(object):
                 }
             )
         else:
-            for tmname in self._parent._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"]:
+            for tmname in self._p_material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"]:
                 if isinstance(
-                    self._parent._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname], list
+                    self._p_material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname], list
                 ):
                     found = False
-                    for tm in self._parent._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][
+                    for tm in self._p_material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][
                         tmname
                     ]:
                         if self.name == tm["Property:"] and index == tm["Index:"]:
@@ -389,44 +388,44 @@ class MatProperty(object):
                                 "free_form_value": formula,
                             }
                         )
-                        self._parent._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][
+                        self._p_material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][
                             tmname
                         ].append(tm)
                 elif (
                     self.name
-                    == self._parent._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname][
+                    == self._p_material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname][
                         "Property:"
                     ]
                     and index
-                    == self._parent._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname][
+                    == self._p_material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname][
                         "Index:"
                     ]
                 ):
-                    self._parent._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname][
+                    self._p_material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname][
                         "use_free_form"
                     ] = True
-                    self._parent._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname][
+                    self._p_material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname][
                         "free_form_value"
                     ] = formula
-                    self._parent._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname].pop(
+                    self._p_material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname].pop(
                         "Tref", None
                     )
-                    self._parent._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname].pop(
+                    self._p_material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname].pop(
                         "C1", None
                     )
-                    self._parent._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname].pop(
+                    self._p_material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname].pop(
                         "C2", None
                     )
-                    self._parent._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname].pop(
+                    self._p_material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname].pop(
                         "TL", None
                     )
-                    self._parent._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname].pop(
+                    self._p_material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname].pop(
                         "TU", None
                     )
 
                 else:
-                    self._parent._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname] = [
-                        self._parent._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname]
+                    self._p_material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname] = [
+                        self._p_material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname]
                     ]
                     tm = OrderedDict(
                         {
@@ -437,10 +436,10 @@ class MatProperty(object):
                             "free_form_value": formula,
                         }
                     )
-                    self._parent._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname].append(
+                    self._p_material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname].append(
                         tm
                     )
-        return self._parent.update()
+        return self._p_material.update()
 
     def add_thermal_modifier_free_form(self, formula, index=0):
         """Add a thermal modifier to a material property using a free-form formula.
@@ -594,8 +593,8 @@ class MatProperty(object):
                     "TMU": str(tmu),
                 }
             )
-        if "ModifierData" not in self._parent._props:
-            self._parent._props["ModifierData"] = OrderedDict(
+        if "ModifierData" not in self._p_material._props:
+            self._p_material._props["ModifierData"] = OrderedDict(
                 {
                     "ThermalModifierData": OrderedDict(
                         {
@@ -606,8 +605,8 @@ class MatProperty(object):
                 }
             )
         else:
-            for tmname in self._parent._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"]:
-                tml = self._parent._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname]
+            for tmname in self._p_material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"]:
+                tml = self._p_material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname]
                 if isinstance(tml, list):
                     found = False
                     for tm in tml:
@@ -647,7 +646,7 @@ class MatProperty(object):
                 else:
                     tml = [tml]
                     tml.append(tm_new)
-        return self._parent.update()
+        return self._p_material.update()
 
 
 class CommonMaterial(object):
@@ -655,7 +654,7 @@ class CommonMaterial(object):
 
     Parameters
     ----------
-    parent :
+    materials : :class:`pyaedt.modules.MaterialLib.Materials`
 
     name :
 
@@ -663,34 +662,8 @@ class CommonMaterial(object):
         The default is ``None``.
 
     """
-
-    @property
-    def odefinition_manager(self):
-        """Definition manager."""
-        return self._parent.oproject.GetDefinitionManager()
-
-    @property
-    def _omaterial_manager(self):
-        """Material manager."""
-        return self.odefinition_manager.GetManager("Material")
-
-    @property
-    def _messenger(self):
-        """Messenger."""
-        return self._parent._messenger
-
-    @property
-    def oproject(self):
-        """Project."""
-        return self._parent._oproject
-
-    @property
-    def _desktop(self):
-        """Desktop."""
-        return self._parent._desktop
-
-    def __init__(self, parent, name, props=None):
-        self._parent = parent
+    def __init__(self, materials, name, props=None):
+        self._p_materials = materials
         self.name = name
         self.coordinate_system = ""
         if props:
@@ -715,6 +688,31 @@ class CommonMaterial(object):
         if "ModSinceLib" in self._props:
             self.mod_since_lib = self._props["ModSinceLib"]
             del self._props["ModSinceLib"]
+
+    @property
+    def odefinition_manager(self):
+        """Definition manager."""
+        return self._p_materials._oproject.GetDefinitionManager()
+
+    @property
+    def _omaterial_manager(self):
+        """Material manager."""
+        return self.odefinition_manager.GetManager("Material")
+
+    @property
+    def _messenger(self):
+        """Messenger."""
+        return self._p_materials._messenger
+
+    @property
+    def _oproject(self):
+        """Project."""
+        return self._p_materials._oproject
+
+    @property
+    def _desktop(self):
+        """Desktop."""
+        return self._p_materials._desktop
 
     @aedt_exception_handler
     def _get_args(self, props=None):
@@ -768,7 +766,7 @@ class Material(CommonMaterial, object):
 
     Parameters
     ----------
-    parent :
+    materiallib : :class:`pyaedt.modules.MaterialLib.Materials`
         Inherited parent object.
     name : str
         Name of the material.
@@ -777,8 +775,8 @@ class Material(CommonMaterial, object):
 
     """
 
-    def __init__(self, parent, name, props=None):
-        CommonMaterial.__init__(self, parent, name, props)
+    def __init__(self, materiallib, name, props=None):
+        CommonMaterial.__init__(self, materiallib, name, props)
         self.thermal_material_type = "Solid"
         if "thermal_material_type" in self._props:
             self.thermal_material_type = self._props["thermal_material_type"]["Choice"]
@@ -1241,7 +1239,7 @@ class SurfaceMaterial(CommonMaterial, object):
 
     Parameters
     ----------
-    parent :
+    materiallib : :class:`pyaedt.modules.MaterialLib.Materials`
         Inherited parent object.
     name : str
         Name of the surface material
@@ -1249,8 +1247,8 @@ class SurfaceMaterial(CommonMaterial, object):
         The default is ``None``.
     """
 
-    def __init__(self, parent, name, props=None):
-        CommonMaterial.__init__(self, parent, name, props)
+    def __init__(self, materiallib, name, props=None):
+        CommonMaterial.__init__(self, materiallib, name, props)
         self.surface_clarity_type = "Opaque"
         if "surface_clarity_type" in self._props:
             self.surface_clarity_type = self._props["surface_clarity_type"]["Choice"]

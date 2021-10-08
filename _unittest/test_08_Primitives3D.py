@@ -590,20 +590,20 @@ class TestClass(BasisTest):
         self.cache.ignore_error_message_local("Wrong Type Entered. Type must be integer from 0 to 3")
         o = self.create_copper_box(name="MyBox")
         assert o.edges[0].chamfer()
-        self.aedtapp.odesign.Undo()
+        self.aedtapp._odesign.Undo()
         assert o.edges[0].chamfer(chamfer_type=1)
-        self.aedtapp.odesign.Undo()
+        self.aedtapp._odesign.Undo()
         assert o.edges[0].chamfer(chamfer_type=2)
-        self.aedtapp.odesign.Undo()
+        self.aedtapp._odesign.Undo()
         assert o.edges[0].chamfer(chamfer_type=3)
-        self.aedtapp.odesign.Undo()
+        self.aedtapp._odesign.Undo()
         assert not o.edges[0].chamfer(chamfer_type=4)
 
     @pyaedt_unittest_check_desktop_error
     def test_43_fillet_and_undo(self):
         o = self.create_copper_box(name="MyBox")
         assert o.edges[0].fillet()
-        self.aedtapp.odesign.Undo()
+        self.aedtapp._odesign.Undo()
         assert o.edges[0].fillet()
 
     @pyaedt_unittest_check_desktop_error

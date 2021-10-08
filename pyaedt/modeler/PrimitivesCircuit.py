@@ -15,37 +15,37 @@ class CircuitComponents(object):
     @property
     def oeditor(self):
         """Editor."""
-        return self.modeler.oeditor
+        return self._p_modeler.oeditor
 
     @property
     def _messenger(self):
         """_messenger."""
-        return self._parent._messenger
+        return self._p_app._messenger
 
     @property
     def version(self):
         """Version."""
-        return self._parent._aedt_version
+        return self._p_app._aedt_version
 
     @property
     def design_types(self):
         """Design types."""
-        return self._parent._modeler
+        return self._p_app._modeler
 
     @property
     def model_units(self):
         """Model units."""
-        return self.modeler.model_units
+        return self._p_modeler.model_units
 
     @property
     def o_model_manager(self):
         """Model manager."""
-        return self.modeler.o_model_manager
+        return self._p_modeler.o_model_manager
 
     @property
     def o_definition_manager(self):
         """Definition manager."""
-        return self._parent._oproject.GetDefinitionManager()
+        return self._p_app._oproject.GetDefinitionManager()
 
     @property
     def o_symbol_manager(self):
@@ -60,7 +60,7 @@ class CircuitComponents(object):
     @property
     def design_type(self):
         """Design type."""
-        return self._parent.design_type
+        return self._p_app.design_type
 
     @aedt_exception_handler
     def __getitem__(self, partname):
@@ -84,9 +84,9 @@ class CircuitComponents(object):
 
         return None
 
-    def __init__(self, parent, modeler):
-        self._parent = parent
-        self.modeler = modeler
+    def __init__(self, modeler):
+        self._p_app = modeler._p_app
+        self._p_modeler = modeler
         self._currentId = 0
         self.components = defaultdict(CircuitComponent)
         pass
@@ -687,7 +687,7 @@ class CircuitComponents(object):
             "InitialLevels:=",
             [0, 1],
         ]
-        oDefinitionEditor = self._parent._oproject.SetActiveDefinitionEditor("SymbolEditor", symbol_name)
+        oDefinitionEditor = self._p_app._oproject.SetActiveDefinitionEditor("SymbolEditor", symbol_name)
         id = 2
         oDefinitionEditor.CreateRectangle(
             [

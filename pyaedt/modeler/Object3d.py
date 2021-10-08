@@ -141,22 +141,22 @@ class EdgeTypePrimitive(object):
         if isinstance(self, VertexPrimitive):
             vertex_id_list = [self.id]
         else:
-            if self._parent.is3d:
+            if self._p_object3d.is3d:
                 edge_id_list = [self.id]
             else:
-                self._parent._messenger.add_error_message("Filet is possible only on a vertex in 2D designs.")
+                self._p_object3d._messenger.add_error_message("Filet is possible only on a vertex in 2D designs.")
                 return False
 
-        vArg1 = ["NAME:Selections", "Selections:=", self._parent.name, "NewPartsModelFlag:=", "Model"]
+        vArg1 = ["NAME:Selections", "Selections:=", self._p_object3d.name, "NewPartsModelFlag:=", "Model"]
         vArg2 = ["NAME:FilletParameters"]
         vArg2.append("Edges:="), vArg2.append(edge_id_list)
         vArg2.append("Vertices:="), vArg2.append(vertex_id_list)
-        vArg2.append("Radius:="), vArg2.append(self._parent._parent._arg_with_dim(radius))
-        vArg2.append("Setback:="), vArg2.append(self._parent._parent._arg_with_dim(setback))
-        self._parent.m_Editor.Fillet(vArg1, ["NAME:Parameters", vArg2])
-        if self._parent.name in list(self._parent.m_Editor.GetObjectsInGroup("UnClassified")):
-            self._parent.odesign.Undo()
-            self._parent._messenger.add_error_message(
+        vArg2.append("Radius:="), vArg2.append(self._p_object3d._p_primitives._arg_with_dim(radius))
+        vArg2.append("Setback:="), vArg2.append(self._p_object3d._p_primitives._arg_with_dim(setback))
+        self._p_object3d.m_Editor.Fillet(vArg1, ["NAME:Parameters", vArg2])
+        if self._p_object3d.name in list(self._p_object3d.m_Editor.GetObjectsInGroup("UnClassified")):
+            self._p_object3d._p_primitives._odesign.Undo()
+            self._p_object3d._messenger.add_error_message(
                 "Operation failed, generating an unclassified object. Check and retry."
             )
             return False
@@ -195,38 +195,38 @@ class EdgeTypePrimitive(object):
         if isinstance(self, VertexPrimitive):
             vertex_id_list = [self.id]
         else:
-            if self._parent.is3d:
+            if self._p_object3d.is3d:
                 edge_id_list = [self.id]
             else:
-                self._parent._messenger.add_error_message("chamfer is possible only on Vertex in 2D Designs ")
+                self._p_object3d._messenger.add_error_message("chamfer is possible only on Vertex in 2D Designs ")
                 return False
-        vArg1 = ["NAME:Selections", "Selections:=", self._parent.name, "NewPartsModelFlag:=", "Model"]
+        vArg1 = ["NAME:Selections", "Selections:=", self._p_object3d.name, "NewPartsModelFlag:=", "Model"]
         vArg2 = ["NAME:ChamferParameters"]
         vArg2.append("Edges:="), vArg2.append(edge_id_list)
         vArg2.append("Vertices:="), vArg2.append(vertex_id_list)
-        vArg2.append("LeftDistance:="), vArg2.append(self._parent._parent._arg_with_dim(left_distance))
+        vArg2.append("LeftDistance:="), vArg2.append(self._p_object3d._p_primitives._arg_with_dim(left_distance))
         if not right_distance:
             right_distance = left_distance
         if chamfer_type == 0:
-            vArg2.append("RightDistance:="), vArg2.append(self._parent._parent._arg_with_dim(right_distance))
+            vArg2.append("RightDistance:="), vArg2.append(self._p_object3d._p_primitives._arg_with_dim(right_distance))
             vArg2.append("ChamferType:="), vArg2.append("Symmetric")
         elif chamfer_type == 1:
-            vArg2.append("RightDistance:="), vArg2.append(self._parent._parent._arg_with_dim(right_distance))
+            vArg2.append("RightDistance:="), vArg2.append(self._p_object3d._p_primitives._arg_with_dim(right_distance))
             vArg2.append("ChamferType:="), vArg2.append("Left Distance-Right Distance")
         elif chamfer_type == 2:
             vArg2.append("Angle:="), vArg2.append(str(angle) + "deg")
             vArg2.append("ChamferType:="), vArg2.append("Left Distance-Right Distance")
         elif chamfer_type == 3:
             vArg2.append("LeftDistance:="), vArg2.append(str(angle) + "deg")
-            vArg2.append("RightDistance:="), vArg2.append(self._parent._parent._arg_with_dim(right_distance))
+            vArg2.append("RightDistance:="), vArg2.append(self._p_object3d._p_primitives._arg_with_dim(right_distance))
             vArg2.append("ChamferType:="), vArg2.append("Right Distance-Angle")
         else:
-            self._parent._messenger.add_error_message("Wrong Type Entered. Type must be integer from 0 to 3")
+            self._p_object3d._messenger.add_error_message("Wrong Type Entered. Type must be integer from 0 to 3")
             return False
-        self._parent.m_Editor.Chamfer(vArg1, ["NAME:Parameters", vArg2])
-        if self._parent.name in list(self._parent.m_Editor.GetObjectsInGroup("UnClassified")):
-            self._parent.odesign.Undo()
-            self._parent._messenger.add_error_message(
+        self._p_object3d.m_Editor.Chamfer(vArg1, ["NAME:Parameters", vArg2])
+        if self._p_object3d.name in list(self._p_object3d.m_Editor.GetObjectsInGroup("UnClassified")):
+            self._p_object3d.odesign.Undo()
+            self._p_object3d._messenger.add_error_message(
                 "Operation Failed generating Unclassified object. Check and retry"
             )
             return False
@@ -238,17 +238,16 @@ class VertexPrimitive(EdgeTypePrimitive, object):
 
     Parameters
     ----------
-    parent : pyaedt.modeler.Object3d.Object3d
+    object3d : :class:`pyaedt.modeler.Object3d.Object3d`
         Pointer to the calling object that provides additional functionality.
-    id : int
+    objid : int
         Object ID as determined by the parent object.
 
     """
-
-    def __init__(self, parent, id):
-        self.id = id
-        self._parent = parent
-        self._oeditor = parent.m_Editor
+    def __init__(self, object3d, objid):
+        self.id = objid
+        self._p_object3d = object3d
+        self._oeditor = object3d.m_Editor
 
     @property
     def position(self):
@@ -280,17 +279,17 @@ class EdgePrimitive(EdgeTypePrimitive, object):
 
     Parameters
     ----------
-    parent : pyaedt.modeler.Object3d.Object3d
+    object3d : :class:`pyaedt.modeler.Object3d.Object3d`
         Pointer to the calling object that provides additional functionality.
-    id : int
+    edge_id : int
         Object ID as determined by the parent object.
 
     """
 
-    def __init__(self, parent, edge_id):
+    def __init__(self, object3d, edge_id):
         self.id = edge_id
-        self._parent = parent
-        self._oeditor = parent.m_Editor
+        self._p_object3d = object3d
+        self._oeditor = object3d.m_Editor
 
     @property
     def vertices(self):
@@ -304,7 +303,7 @@ class EdgePrimitive(EdgeTypePrimitive, object):
         vertices = []
         for vertex in self._oeditor.GetVertexIDsFromEdge(self.id):
             vertex = int(vertex)
-            vertices.append(VertexPrimitive(self._parent, vertex))
+            vertices.append(VertexPrimitive(self._p_object3d, vertex))
         return vertices
 
     @property
@@ -357,10 +356,28 @@ class FacePrimitive(object):
     def __str__(self):
         return "FaceId " + str(self.id)
 
-    def __init__(self, parent, id):
-        self._id = id
-        self._parent = parent
-        self._oeditor = self._parent.m_Editor
+    def __init__(self, object3d, obj_id):
+        """
+
+        Parameters
+        ----------
+        object3d : :class:`pyaedt.modeler.Object3d.Object3d`
+        obj_id : int
+        """
+        self._id = obj_id
+        self._p_object3d = object3d
+
+    @property
+    def _oeditor(self):
+        return self._p_object3d.m_Editor
+
+    @property
+    def _messenger(self):
+        return self._p_object3d._messenger
+
+    @property
+    def _units(self):
+        return self._p_object3d.object_units
 
     @property
     def edges(self):
@@ -373,7 +390,7 @@ class FacePrimitive(object):
         """
         edges = []
         for edge in list(self._oeditor.GetEdgeIDsFromFace(self.id)):
-            edges.append(EdgePrimitive(self._parent, int(edge)))
+            edges.append(EdgePrimitive(self._p_object3d, int(edge)))
         return edges
 
     @property
@@ -388,7 +405,7 @@ class FacePrimitive(object):
         vertices = []
         for vertex in list(self._oeditor.GetVertexIDsFromFace(self.id)):
             vertex = int(vertex)
-            vertices.append(VertexPrimitive(self._parent, int(vertex)))
+            vertices.append(VertexPrimitive(self._p_object3d, int(vertex)))
         return vertices
 
     @property
@@ -407,9 +424,9 @@ class FacePrimitive(object):
 
         """
         try:
-            c = self._parent.m_Editor.GetFaceCenter(self.id)
+            c = self._oeditor.GetFaceCenter(self.id)
         except:
-            self._parent._messenger.add_warning_message("Non-planar face does not provide a face center.")
+            self._messenger.add_warning_message("Non-planar face does not provide a face center.")
             return False
         center = [float(i) for i in c]
         return center
@@ -439,7 +456,7 @@ class FacePrimitive(object):
             Face area in model units.
 
         """
-        area = self._parent.m_Editor.GetFaceArea(self.id)
+        area = self._oeditor.GetFaceArea(self.id)
         return area
 
     @aedt_exception_handler
@@ -457,8 +474,8 @@ class FacePrimitive(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self._parent.m_Editor.MoveFaces(
-            ["NAME:Selections", "Selections:=", self._parent.name, "NewPartsModelFlag:=", "Model"],
+        self._oeditor.MoveFaces(
+            ["NAME:Selections", "Selections:=", self._p_object3d.name, "NewPartsModelFlag:=", "Model"],
             [
                 "NAME:Parameters",
                 [
@@ -466,7 +483,7 @@ class FacePrimitive(object):
                     "MoveAlongNormalFlag:=",
                     True,
                     "OffsetDistance:=",
-                    _dim_arg(offset, self._parent.object_units),
+                    _dim_arg(offset, self._p_object3d.object_units),
                     "MoveVectorX:=",
                     "0mm",
                     "MoveVectorY:=",
@@ -495,8 +512,8 @@ class FacePrimitive(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self._parent.m_Editor.MoveFaces(
-            ["NAME:Selections", "Selections:=", self._parent.name, "NewPartsModelFlag:=", "Model"],
+        self._oeditor.MoveFaces(
+            ["NAME:Selections", "Selections:=", self._p_object3d.name, "NewPartsModelFlag:=", "Model"],
             [
                 "NAME:Parameters",
                 [
@@ -506,11 +523,11 @@ class FacePrimitive(object):
                     "OffsetDistance:=",
                     "0mm",
                     "MoveVectorX:=",
-                    _dim_arg(vector[0], self._parent.object_units),
+                    _dim_arg(vector[0], self._p_object3d.object_units),
                     "MoveVectorY:=",
-                    _dim_arg(vector[1], self._parent.object_units),
+                    _dim_arg(vector[1], self._p_object3d.object_units),
                     "MoveVectorZ:=",
-                    _dim_arg(vector[2], self._parent.object_units),
+                    _dim_arg(vector[2], self._p_object3d.object_units),
                     "FacesToMove:=",
                     [self.id],
                 ],
@@ -538,7 +555,7 @@ class FacePrimitive(object):
         """
         vertices_ids = self.vertices
         if len(vertices_ids) < 2 or not self.center:
-            self._parent._messenger.add_warning_message("Not enough vertices or non-planar face")
+            self._p_object3d._messenger.add_warning_message("Not enough vertices or non-planar face")
             return None
         # elif len(vertices_ids)<2:
         #     v1 = vertices_ids[0].position
@@ -567,7 +584,7 @@ class FacePrimitive(object):
         inv_norm = [-i for i in normal]
         mv1 = GeometryOperators.v_sum(fc, normal)
         mv2 = GeometryOperators.v_sum(fc, inv_norm)
-        bb_center = GeometryOperators.get_mid_point(self._parent.bounding_box[0:3], self._parent.bounding_box[3:6])
+        bb_center = GeometryOperators.get_mid_point(self._p_object3d.bounding_box[0:3], self._p_object3d.bounding_box[3:6])
         d1 = GeometryOperators.points_distance(mv1, bb_center)
         d2 = GeometryOperators.points_distance(mv2, bb_center)
         if d1 > d2:
@@ -581,9 +598,9 @@ class Object3d(object):
 
     Parameters
     ----------
-    parent :
+    primitives : :class:`pyaedt.modeler.Primitives3D.Primitives3D`
         Inherited parent object.
-    name :
+    name : str
 
     Examples
     --------
@@ -599,13 +616,19 @@ class Object3d(object):
     >>> part = prim[id]
 
     """
-
-    def __init__(self, parent, name=None):
+    def __init__(self, primitives, name=None):
+        """
+        Parameters
+        ----------
+        primitives : :class:`pyaedt.modeler.Primitives3D.Primitives3D`
+            Inherited parent object.
+        name : str
+        """
         if name:
             self._m_name = name
         else:
             self._m_name = _uname()
-        self._parent = parent
+        self._p_primitives = primitives
         self.flags = ""
         self._part_coordinate_system = "Global"
         self._bounding_box = None
@@ -634,26 +657,26 @@ class Object3d(object):
             Xmin, Ymin, Zmin, Xmax, Ymax, and Zmax values.
 
         """
-        objs_to_unmodel = [val.name for i, val in self._parent.objects.items() if val.model]
+        objs_to_unmodel = [val.name for i, val in self._p_primitives.objects.items() if val.model]
         if objs_to_unmodel:
             vArg1 = ["NAME:Model", "Value:=", False]
-            self._parent._change_geometry_property(vArg1, objs_to_unmodel)
+            self._p_primitives._change_geometry_property(vArg1, objs_to_unmodel)
         modeled = True
         if not self.model:
             vArg1 = ["NAME:Model", "Value:=", True]
-            self._parent._change_geometry_property(vArg1, self.name)
+            self._p_primitives._change_geometry_property(vArg1, self.name)
             modeled = False
-        bounding = self._parent.get_model_bounding_box()
+        bounding = self._p_primitives.get_model_bounding_box()
         if objs_to_unmodel:
-            self.odesign.Undo()
+            self._odesign.Undo()
         if not modeled:
-            self.odesign.Undo()
+            self._odesign.Undo()
         return bounding
 
     @property
-    def odesign(self):
+    def _odesign(self):
         """Design."""
-        return self._parent.odesign
+        return self._p_primitives._p_modeler._p_app.odesign
 
     @property
     def faces(self):
@@ -776,7 +799,7 @@ class Object3d(object):
 
         """
         edges = []
-        for edge in self._parent.get_object_edges(self.name):
+        for edge in self._p_primitives.get_object_edges(self.name):
             edge = int(edge)
             edges.append(EdgePrimitive(self, edge))
         return edges
@@ -791,7 +814,7 @@ class Object3d(object):
 
         """
         vertices = []
-        for vertex in self._parent.get_object_vertices(self.name):
+        for vertex in self._p_primitives.get_object_vertices(self.name):
             vertex = int(vertex)
             vertices.append(VertexPrimitive(self, vertex))
         return vertices
@@ -807,7 +830,7 @@ class Object3d(object):
         oEditor COM Object
 
         """
-        return self._parent.oeditor
+        return self._p_primitives.oeditor
 
     @property
     def _messenger(self):
@@ -818,7 +841,7 @@ class Object3d(object):
         AEDTMessageManager
 
         """
-        return self._parent._messenger
+        return self._p_primitives._messenger
 
     @property
     def surface_material_name(self):
@@ -877,7 +900,7 @@ class Object3d(object):
 
     @material_name.setter
     def material_name(self, mat):
-        if self._parent.materials.checkifmaterialexists(mat):
+        if self._p_primitives._materials.checkifmaterialexists(mat):
             if not self.model:
                 self.model = True
             vMaterial = ["NAME:Material", "Value:=", chr(34) + mat + chr(34)]
@@ -909,7 +932,7 @@ class Object3d(object):
 
         """
         try:
-            get_id = self._parent.oeditor.GetObjectIDByName(self._m_name)
+            get_id = self._p_primitives.oeditor.GetObjectIDByName(self._m_name)
         except Exception as e:
             return None
         return get_id
@@ -929,12 +952,12 @@ class Object3d(object):
             Type of the object.
 
         """
-        if self._m_name in self._parent.solid_names:
+        if self._m_name in self._p_primitives.solid_names:
             self._object_type = "Solid"
         else:
-            if self._m_name in self._parent.sheet_names:
+            if self._m_name in self._p_primitives.sheet_names:
                 self._object_type = "Sheet"
-            elif self._m_name in self._parent.line_names:
+            elif self._m_name in self._p_primitives.line_names:
                 self._object_type = "Line"
         return self._object_type
 
@@ -967,7 +990,7 @@ class Object3d(object):
 
     @name.setter
     def name(self, obj_name):
-        if obj_name not in self._parent.object_names:
+        if obj_name not in self._p_primitives.object_names:
             if obj_name != self._m_name:
                 vName = []
                 vName.append("NAME:Name")
@@ -978,9 +1001,9 @@ class Object3d(object):
                 vPropServers.append(self._m_name)
                 vGeo3d = ["NAME:Geometry3DAttributeTab", vPropServers, vChangedProps]
                 vOut = ["NAME:AllTabs", vGeo3d]
-                retry_ntimes(10, self._parent.oeditor.ChangeProperty, vOut)
+                retry_ntimes(10, self._p_primitives.oeditor.ChangeProperty, vOut)
                 self._m_name = obj_name
-                self._parent.cleanup_objects()
+                self._p_primitives.cleanup_objects()
         else:
             # TODO check for name conflict
             pass
@@ -1049,7 +1072,7 @@ class Object3d(object):
                 color_tuple = None
         else:
             msg_text = "Invalid color input {} for object {}.".format(color_value, self._m_name)
-            self._parent._messenger.add_warning_message(msg_text)
+            self._p_primitives._messenger.add_warning_message(msg_text)
 
     @property
     def transparency(self):
@@ -1089,7 +1112,7 @@ class Object3d(object):
     @property
     def object_units(self):
         """Object units."""
-        return self._parent.model_units
+        return self._p_primitives.model_units
 
     @property
     def part_coordinate_system(self):
@@ -1222,8 +1245,8 @@ class Object3d(object):
            Object 3D object.
 
         """
-        unite_list = [self.name] + self._parent.modeler.convert_to_selections(object_list, return_list=True)
-        self._parent.modeler.unite(unite_list)
+        unite_list = [self.name] + self._p_primitives.modeler.convert_to_selections(object_list, return_list=True)
+        self._p_primitives.modeler.unite(unite_list)
         return self
 
     def duplicate_around_axis(self, cs_axis, angle=90, nclones=2, create_new_objects=True):
@@ -1246,7 +1269,7 @@ class Object3d(object):
             List of names of the newly added objects.
 
         """
-        ret, added_objects = self._parent.modeler.duplicate_around_axis(
+        ret, added_objects = self._p_primitives.modeler.duplicate_around_axis(
             self, cs_axis, angle, nclones, create_new_objects
         )
         return added_objects
@@ -1270,7 +1293,7 @@ class Object3d(object):
             List of names of the newly added objects.
 
         """
-        ret, added_objects = self._parent.modeler.duplicate_along_line(self, vector, nclones, attachObject)
+        ret, added_objects = self._p_primitives.modeler.duplicate_along_line(self, vector, nclones, attachObject)
         return added_objects
 
     @aedt_exception_handler
@@ -1283,7 +1306,7 @@ class Object3d(object):
             3D object.
 
         """
-        self._parent.modeler.translate(self.id, vector)
+        self._p_primitives.modeler.translate(self.id, vector)
         return self
 
     @aedt_exception_handler
@@ -1306,7 +1329,7 @@ class Object3d(object):
             ``True`` when model, ``False`` otherwise.
 
         """
-        self._parent.modeler.sweep_along_vector(self, sweep_vector, draft_angle, draft_type)
+        self._p_primitives.modeler.sweep_along_vector(self, sweep_vector, draft_angle, draft_type)
         return self
 
     @aedt_exception_handler
@@ -1335,7 +1358,7 @@ class Object3d(object):
             Swept object.
 
         """
-        self._parent.modeler.sweep_along_path(
+        self._p_primitives.modeler.sweep_along_path(
             self, sweep_object, draft_angle, draft_type, is_check_face_intersection, twist_angle
         )
         return self
@@ -1359,7 +1382,7 @@ class Object3d(object):
             Swept object.
 
         """
-        self._parent.modeler.sweep_around_axis(self, cs_axis, sweep_angle, draft_angle)
+        self._p_primitives.modeler.sweep_around_axis(self, cs_axis, sweep_angle, draft_angle)
         return self
 
     @aedt_exception_handler
@@ -1382,7 +1405,7 @@ class Object3d(object):
 
         """
         # TODO Refactor plane !
-        self._parent.modeler.section(self, plane, create_new, section_cross_object)
+        self._p_primitives.modeler.section(self, plane, create_new, section_cross_object)
         return self
 
     @aedt_exception_handler
@@ -1395,11 +1418,11 @@ class Object3d(object):
             3D object that was added.
 
         """
-        new_obj_tuple = self._parent.modeler.clone(self.id)
+        new_obj_tuple = self._p_primitives.modeler.clone(self.id)
         success = new_obj_tuple[0]
         assert success, "Could not clone the object {}.".format(self.name)
         new_name = new_obj_tuple[1][0]
-        return self._parent[new_name]
+        return self._p_primitives[new_name]
 
     @aedt_exception_handler
     def subtract(self, tool_list, keep_originals=True):
@@ -1419,7 +1442,7 @@ class Object3d(object):
             Modified 3D object following the subtraction.
 
         """
-        self._parent.modeler.subtract(self.name, tool_list, keep_originals)
+        self._p_primitives.modeler.subtract(self.name, tool_list, keep_originals)
         return self
 
     @aedt_exception_handler
@@ -1427,16 +1450,16 @@ class Object3d(object):
         """Delete the object."""
         arg = ["NAME:Selections", "Selections:=", self._m_name]
         self.m_Editor.Delete(arg)
-        self._parent.cleanup_objects()
+        self._p_primitives.cleanup_objects()
         self.__dict__ = {}
 
     @aedt_exception_handler
     def _change_property(self, vPropChange):
-        return self._parent._change_geometry_property(vPropChange, self._m_name)
+        return self._p_primitives._change_geometry_property(vPropChange, self._m_name)
 
     def _update(self):
-        # self._parent._refresh_object_types()
-        self._parent.cleanup_objects()
+        # self._p_object3d._refresh_object_types()
+        self._p_primitives.cleanup_objects()
 
     def __str__(self):
         return """
@@ -2087,23 +2110,23 @@ class Objec3DLayout(object):
 
     Parameters
     -----------
-    parent :
+    primitives :
 
     """
 
-    def __init__(self, parent):
-        self._parent = parent
+    def __init__(self, primitives):
+        self._p_primitives = primitives
         self._n = 10
 
     @property
     def m_Editor(self):
         """Editor."""
-        return self._parent.oeditor
+        return self._p_primitives.oeditor
 
     @property
     def object_units(self):
         """Object units."""
-        return self._parent.model_units
+        return self._p_primitives.model_units
 
     @aedt_exception_handler
     def change_property(self, vPropChange, names_list=None):
@@ -2168,8 +2191,8 @@ class Components3DLayout(Objec3DLayout, object):
 
     """
 
-    def __init__(self, parent, name=""):
-        Objec3DLayout.__init__(self, parent)
+    def __init__(self, primitives, name=""):
+        Objec3DLayout.__init__(self, primitives)
         self.name = name
 
     @aedt_exception_handler
@@ -2238,15 +2261,15 @@ class Nets3DLayout(Objec3DLayout, object):
 
     Parameters
     ----------
-    parent :
+    primitives :
 
     name : str, optional
         The default is ``""``.
 
     """
 
-    def __init__(self, parent, name=""):
-        Objec3DLayout.__init__(self, parent)
+    def __init__(self, primitives, name=""):
+        Objec3DLayout.__init__(self, primitives)
         self.name = name
 
 
@@ -2266,8 +2289,8 @@ class Pins3DLayout(Objec3DLayout, object):
 
     """
 
-    def __init__(self, parent, componentname="", pinname="", name=""):
-        Objec3DLayout.__init__(self, parent)
+    def __init__(self, primitives, componentname="", pinname="", name=""):
+        Objec3DLayout.__init__(self, primitives)
         self.componentname = componentname
         self.pinname = pinname
         self.name = name
@@ -2348,8 +2371,8 @@ class Geometries3DLayout(Objec3DLayout, object):
 
     """
 
-    def __init__(self, parent, name, id=0):
-        Objec3DLayout.__init__(self, parent)
+    def __init__(self, primitives, name, id=0):
+        Objec3DLayout.__init__(self, primitives)
         self.name = name
         self.id = id
 

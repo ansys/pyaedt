@@ -1,6 +1,6 @@
 from ..generic.general_methods import aedt_exception_handler
 from ..modeler.Model3DLayout import Modeler3DLayout
-from ..modules.Mesh3DLayout import Mesh
+from ..modules.Mesh3DLayout import Mesh3d
 from ..modules.SetupTemplates import SetupKeys
 from ..modules.SolveSetup import Setup3DLayout
 from .Analysis import Analysis
@@ -81,7 +81,7 @@ class FieldAnalysis3DLayout(Analysis):
         self._modeler = Modeler3DLayout(self)
         self._modeler.primitives.init_padstacks()
         self._messenger.add_info_message("Modeler Loaded")
-        self._mesh = Mesh(self)
+        self._mesh = Mesh3d(self)
         # self._post = PostProcessor(self)
 
     @property
@@ -102,7 +102,7 @@ class FieldAnalysis3DLayout(Analysis):
 
         Returns
         -------
-        :class:`pyaedt.modules.Mesh3DLayout.Mesh`
+        :class:`pyaedt.modules.Mesh3DLayout.Mesh3d`
         """
         return self._mesh
 

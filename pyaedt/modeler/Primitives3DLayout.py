@@ -23,9 +23,7 @@ class Primitives3DLayout(object):
 
     Parameters
     ----------
-    parent : str
-        Name of the parent AEDT application.
-    modeler : str
+    modeler : :class:`pyaedt.modeler.Model3DLayout.Modeler3DLayout`
         Name of the modeler.
 
     """
@@ -50,18 +48,22 @@ class Primitives3DLayout(object):
                 return self.geometries[el]
         return None
 
-    def __init__(self, parent, modeler):
-        self._modeler = modeler
-        self._parent = parent
-        self._currentId = 0
+    def __init__(self, modeler):
+        self._p_modeler = modeler
         self.padstacks = defaultdict(Padstack)
         self._components = defaultdict(Components3DLayout)
         self._geometries = defaultdict(Geometries3DLayout)
         self._pins = defaultdict(Pins3DLayout)
         self._nets = defaultdict(Nets3DLayout)
-        self._main = sys.modules["__main__"]
-        self.isoutsideDesktop = self._main.isoutsideDesktop
         pass
+
+    @property
+    def is_outside_desktop(self):
+        return sys.modules["__main__"].isoutsideDesktop
+
+    @property
+    def _p_app(self):
+        return self._p_modeler._p_app
 
     @property
     def components(self):
@@ -191,12 +193,12 @@ class Primitives3DLayout(object):
             List of default materials.
 
         """
-        return default_materials[self._parent._design_type]
+        return default_materials[self._p_app._design_type]
 
     @property
     def _messenger(self):
         """Messenger."""
-        return self._parent._messenger
+        return self._p_app._messenger
 
     @property
     def version(self):
@@ -208,12 +210,12 @@ class Primitives3DLayout(object):
             Version of AEDT.
 
         """
-        return self._parent._aedt_version
+        return self._p_app._aedt_version
 
     @property
     def modeler(self):
         """Modeler."""
-        return self._modeler
+        return self._p_modeler
 
     @property
     def oeditor(self):
@@ -223,7 +225,7 @@ class Primitives3DLayout(object):
     @property
     def opadstackmanager(self):
         """Padstack manager."""
-        return retry_ntimes(10, self._parent._oproject.GetDefinitionManager().GetManager, "Padstack")
+        return retry_ntimes(10, self._p_app._oproject.GetDefinitionManager().GetManager, "Padstack")
 
     @property
     def model_units(self):
@@ -490,7 +492,7 @@ class Primitives3DLayout(object):
         vArg2.append("r:="), vArg2.append(self.arg_with_dim(radius))
         vArg1.append(vArg2)
         self.oeditor.CreateCircle(vArg1)
-        if self.isoutsideDesktop:
+        if self.is_outside_desktop:
             self._geometries[name] = Geometries3DLayout(self, name)
             if netname:
                 self._geometries[name].set_net_name(netname)
@@ -545,7 +547,7 @@ class Primitives3DLayout(object):
         vArg2.append("ang="), vArg2.append(self.arg_with_dim(angle))
         vArg1.append(vArg2)
         self.oeditor.CreateRectangle(vArg1)
-        if self.isoutsideDesktop:
+        if self.is_outside_desktop:
             self._geometries[name] = Geometries3DLayout(self, name)
             if netname:
                 self._geometries[name].set_net_name(netname)
@@ -617,7 +619,7 @@ class Primitives3DLayout(object):
             arg2.append(a[1])
         arg.append(arg2)
         self.oeditor.CreateLine(arg)
-        if self.isoutsideDesktop:
+        if self.is_outside_desktop:
             self._geometries[name] = Geometries3DLayout(self, name)
             if netname:
                 self._geometries[name].set_net_name(netname)

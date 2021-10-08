@@ -12,18 +12,18 @@ class ModelerCircuit(Modeler):
 
     Parameters
     ----------
-    parent :
+    app : :class:`pyaedt.application.AnalysisNexxim.FieldAnalysisCircuit`
 
     """
 
-    def __init__(self, parent):
-        self._parent = parent
-        Modeler.__init__(self, parent)
+    def __init__(self, app):
+        self._p_app = app
+        Modeler.__init__(self, app)
 
     @property
     def oeditor(self):
         """Editor."""
-        return self.odesign.SetActiveEditor("SchematicEditor")
+        return self._odesign.SetActiveEditor("SchematicEditor")
 
     @property
     def obounding_box(self):
@@ -33,7 +33,7 @@ class ModelerCircuit(Modeler):
     @property
     def o_def_manager(self):
         """Definition manager."""
-        return self._parent.oproject.GetDefinitionManager()
+        return self._p_app.oproject.GetDefinitionManager()
 
     @property
     def o_component_manager(self):
@@ -96,18 +96,18 @@ class ModelerNexxim(ModelerCircuit):
 
     Parameters
     ----------
-    parent :
+    app : :class:`pyaedt.application.AnalysisNexxim.FieldAnalysisCircuit`
 
     """
 
-    def __init__(self, parent):
-        self._parent = parent
-        ModelerCircuit.__init__(self, parent)
-        self.components = NexximComponents(parent, self)
+    def __init__(self, app):
+        self._p_app = app
+        ModelerCircuit.__init__(self, app)
+        self.components = NexximComponents(self)
 
-        self.layers = Layers(parent, self, roughnessunits="um")
-        self._primitives = Primitives3DLayout(self._parent, self)
-        self._primitivesDes = self._parent.project_name + self._parent.design_name
+        self.layers = Layers(self, roughnessunits="um")
+        self._primitives = Primitives3DLayout(self)
+        self._primitivesDes = self._p_app.project_name + self._p_app.design_name
 
     @property
     def edb(self):
@@ -121,30 +121,13 @@ class ModelerNexxim(ModelerCircuit):
         """
         # TODO Check while it crashes when multiple circuits are created
         return None
-        # if self._parent.design_type == "Twin Builder":
-        #     return
-        # _main = sys.modules['__main__']
-        # if "isoutsideDesktop" in dir(_main) and not _main.isoutsideDesktop and self._parent.oproject.GetEDBHandle():
-        #     try:
-        #         edb_folder = os.path.join(self._parent.project_path, self._parent.project_name + ".aedb")
-        #         edb_file = os.path.join(edb_folder, "edb.def")
-        #         _mttime = os.path.getmtime(edb_file)
-        #         if _mttime != self._mttime:
-        #             self._edb = Edb(edb_folder, self._parent.design_name, True, self._parent._aedt_version,
-        #                             isaedtowned=True, oproject=self._parent.oproject)
-        #             self._mttime = _mttime
-        #         return self._edb
-        #     except:
-        #         self._edb = None
-        # else:
-        #     self._edb = None
 
     @property
     def layouteditor(self):
         """Layout editor."""
-        if self._parent.design_type == "Twin Builder":
+        if self._p_app.design_type == "Twin Builder":
             return
-        return self.odesign.SetActiveEditor("Layout")
+        return self._odesign.SetActiveEditor("Layout")
 
     @property
     def model_units(self):
@@ -160,11 +143,11 @@ class ModelerNexxim(ModelerCircuit):
         :class:`pyaedt.modeler.Primitives3DLayout.Primitives3DLayout`
 
         """
-        if self._parent.design_type == "Twin Builder":
+        if self._p_app.design_type == "Twin Builder":
             return
-        if self._primitivesDes != self._parent.project_name + self._parent.design_name:
-            self._primitives = Primitives3DLayout(self._parent, self)
-            self._primitivesDes = self._parent.project_name + self._parent.design_name
+        if self._primitivesDes != self._p_app.project_name + self._p_app.design_name:
+            self._primitives = Primitives3DLayout(self._p_app, self)
+            self._primitivesDes = self._p_app.project_name + self._p_app.design_name
         return self._primitives
 
     @model_units.setter
@@ -240,14 +223,14 @@ class ModelerSimplorer(ModelerCircuit):
 
     Parameters
     ----------
-    parent :
+    app : :class:`pyaedt.application.AnalysisSimplorer.FieldAnalysisSimplorer`
 
     """
 
-    def __init__(self, parent):
-        self._parent = parent
-        ModelerCircuit.__init__(self, parent)
-        self.components = SimplorerComponents(parent, self)
+    def __init__(self, app):
+        self._p_app = app
+        ModelerCircuit.__init__(self, app)
+        self.components = SimplorerComponents(self)
 
 
 class ModelerEmit(ModelerCircuit):
@@ -255,10 +238,10 @@ class ModelerEmit(ModelerCircuit):
 
     Parameters
     ----------
-    parent :
+    app : :class:`pyaedt.application.AnalysisSimplorer.FieldAnalysisSimplorer`
 
     """
 
-    def __init__(self, parent):
-        self._parent = parent
-        ModelerCircuit.__init__(self, parent)
+    def __init__(self, app):
+        self._p_app = app
+        ModelerCircuit.__init__(self, app)

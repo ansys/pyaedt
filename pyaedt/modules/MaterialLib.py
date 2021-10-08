@@ -15,39 +15,12 @@ class Materials(object):
 
     Parameters
     ----------
-    parent : str
+    app : :class:`pyaedt.application.Analysis3D.FieldAnalysis3D`
         Inherited parent object.
 
     """
-
-    @property
-    def odefinition_manager(self):
-        """Definition manager."""
-        return self._parent._oproject.GetDefinitionManager()
-
-    @property
-    def omaterial_manager(self):
-        """Material manager."""
-        return self.odefinition_manager.GetManager("Material")
-
-    @property
-    def _messenger(self):
-        """Messenger.
-
-        Returns
-        -------
-        MessageManager
-            Message manager object.
-        """
-        return self._parent._messenger
-
-    @property
-    def oproject(self):
-        """Project."""
-        return self._parent.oproject
-
-    def __init__(self, parent):
-        self._parent = parent
+    def __init__(self, app):
+        self._p_app = app
         self._messenger.logger.info("Successfully loaded project materials !")
         self.material_keys = self._get_materials()
         self.surface_material_keys = self._get_surface_materials()
@@ -67,14 +40,40 @@ class Materials(object):
         elif item in list(self.surface_material_keys.keys()):
             return self.surface_material_keys[item]
 
+    @property
+    def odefinition_manager(self):
+        """Definition manager."""
+        return self._p_app._oproject.GetDefinitionManager()
+
+    @property
+    def omaterial_manager(self):
+        """Material manager."""
+        return self.odefinition_manager.GetManager("Material")
+
+    @property
+    def _messenger(self):
+        """Messenger.
+
+        Returns
+        -------
+        MessageManager
+            Message manager object.
+        """
+        return self._p_app._messenger
+
+    @property
+    def _oproject(self):
+        """Project."""
+        return self._p_app.oproject
+
     @aedt_exception_handler
     def _get_materials(self):
         """Get materials."""
         mats = {}
         try:
-            for ds in self._parent.project_properies["AnsoftProject"]["Definitions"]["Materials"]:
+            for ds in self._p_app.project_properies["AnsoftProject"]["Definitions"]["Materials"]:
                 mats[ds.lower()] = Material(
-                    self, ds.lower(), self._parent.project_properies["AnsoftProject"]["Definitions"]["Materials"][ds]
+                    self, ds.lower(), self._p_app.project_properies["AnsoftProject"]["Definitions"]["Materials"][ds]
                 )
         except:
             pass
@@ -84,11 +83,11 @@ class Materials(object):
     def _get_surface_materials(self):
         mats = {}
         try:
-            for ds in self._parent.project_properies["AnsoftProject"]["Definitions"]["SurfaceMaterials"]:
+            for ds in self._p_app.project_properies["AnsoftProject"]["Definitions"]["SurfaceMaterials"]:
                 mats[ds.lower()] = SurfaceMaterial(
                     self,
                     ds.lower(),
-                    self._parent.project_properies["AnsoftProject"]["Definitions"]["SurfaceMaterials"][ds],
+                    self._p_app.project_properies["AnsoftProject"]["Definitions"]["SurfaceMaterials"][ds],
                 )
         except:
             pass
@@ -187,7 +186,7 @@ class Materials(object):
             )
             return self.material_keys[materialname]
         else:
-            material = Material(self._parent, materialname, props)
+            material = Material(self._p_app, materialname, props)
             material.update()
             self._messenger.add_info_message("Material has been added. Edit it to update in Desktop.")
             self.material_keys[materialname] = material
@@ -228,7 +227,7 @@ class Materials(object):
             )
             return self.surface_material_keys[materialname]
         else:
-            material = SurfaceMaterial(self._parent, materialname)
+            material = SurfaceMaterial(self._p_app, materialname)
             if emissivity:
                 material.emissivity = emissivity
                 material.update()
@@ -300,12 +299,12 @@ class Materials(object):
 
         mat_dict = self._create_mat_project_vars(matsweep)
 
-        newmat = Material(self._parent, matname)
+        newmat = Material(self._p_app, matname)
         index = "$ID" + matname
-        self._parent[index] = 0
+        self._p_app[index] = 0
         for el in mat_dict:
             if el in list(mat_dict.keys()):
-                self._parent["$" + matname + el] = mat_dict[el]
+                self._p_app["$" + matname + el] = mat_dict[el]
                 newmat.__dict__["_" + el].value = "$" + matname + el + "[" + index + "]"
                 newmat._update_props(el, "$" + matname + el + "[" + index + "]", False)
 
@@ -500,8 +499,8 @@ class Materials(object):
         find_datasets(output_dict, out_list)
         datasets = OrderedDict()
         for ds in out_list:
-            if ds in list(self._parent.project_datasets.keys()):
-                d = self._parent.project_datasets[ds]
+            if ds in list(self._p_app.project_datasets.keys()):
+                d = self._p_app.project_datasets[ds]
                 if d.z:
                     datasets[ds] = OrderedDict(
                         {
@@ -567,7 +566,7 @@ class Materials(object):
                 if numcol > 2:
                     zunit = val["Coordinates"]["DimUnits"][2]
                     zval = new_list[2]
-                self._parent.create_dataset(
+                self._p_app.create_dataset(
                     el[1:], xunit=xunit, yunit=yunit, zunit=zunit, xlist=xval, ylist=yval, zlist=zval
                 )
 

@@ -13,13 +13,13 @@ class ModelerRMxprt(Modeler):
 
     """
 
-    def __init__(self, parent):
-        Modeler.__init__(self, parent)
+    def __init__(self, app):
+        Modeler.__init__(self, app)
 
     @property
     def oeditor(self):
         """Editor."""
-        return self.odesign.SetActiveEditor("Machine")
+        return self._odesign.SetActiveEditor("Machine")
 
 
 class Modeler2D(GeometryModeler):
@@ -30,7 +30,7 @@ class Modeler2D(GeometryModeler):
 
     Parameters
     ----------
-    application :
+    application : :class:`pyaedt.application.Analysis2D.FieldAnalysis2D`
 
     is3d : bool, optional
         Whether the model is 3D. The default is ``False``.
@@ -39,11 +39,11 @@ class Modeler2D(GeometryModeler):
 
     def __init__(self, application):
         GeometryModeler.__init__(self, application, is3d=False)
-        self._primitives = Primitives2D(self._parent, self)
-        self._primitivesDes = self._parent.project_name + self._parent.design_name
+        self._primitives = Primitives2D(self)
+        self._primitivesDes = self._p_app.project_name + self._p_app.design_name
 
     def __get__(self, instance, owner):
-        self._parent = instance
+        self._p_app = instance
         return self
 
     @property
@@ -55,9 +55,9 @@ class Modeler2D(GeometryModeler):
         :class:`pyaedt.modeler.Primitives2D.Primitives2D`
 
         """
-        if self._primitivesDes != self._parent.project_name + self._parent.design_name:
+        if self._primitivesDes != self._p_app.project_name + self._p_app.design_name:
             self._primitives.refresh()
-            self._primitivesDes = self._parent.project_name + self._parent.design_name
+            self._primitivesDes = self._p_app.project_name + self._p_app.design_name
         return self._primitives
 
     @aedt_exception_handler
