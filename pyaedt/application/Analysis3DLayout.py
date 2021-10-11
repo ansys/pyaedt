@@ -320,8 +320,7 @@ class FieldAnalysis3DLayout(Analysis):
             List of names of all analysis setups in the design.
 
         """
-        oModule = self.odesign.GetModule("SolveSetups")
-        setups = list(oModule.GetSetups())
+        setups = list(self.oanalysis.GetSetups())
         return setups
 
     @aedt_exception_handler

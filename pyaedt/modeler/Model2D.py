@@ -14,8 +14,8 @@ class ModelerRMxprt(Modeler):
     """
 
     def __init__(self, app):
-        self._oeditor = self._odesign.SetActiveEditor("Machine")
         Modeler.__init__(self, app)
+        self._oeditor = self._odesign.SetActiveEditor("Machine")
 
     @property
     def oeditor(self):

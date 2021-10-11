@@ -77,8 +77,7 @@ class FieldAnalysisCircuit(Analysis):
     @property
     def existing_analysis_setups(self):
         """Analysis setups."""
-        oModule = self.odesign.GetModule("SimSetup")
-        setups = oModule.GetAllSolutionSetups()
+        setups = self.oanalysis.GetAllSolutionSetups()
         return setups
 
     @property

@@ -99,6 +99,7 @@ class Analysis(Design, object):
             close_on_exit,
             student_version,
         )
+        self._ooutput_variable = self.odesign.GetModule("OutputVariable")
         self.logger.info("Design Loaded")
         self._setup = None
         if setup_name:
@@ -366,8 +367,7 @@ class Analysis(Design, object):
             List of output variables.
 
         """
-        oModule = self.odesign.GetModule("OutputVariable")
-        return oModule.GetOutputVariables()
+        return self._ooutput_variable.GetOutputVariables()
 
     @property
     def setup_names(self):
@@ -403,7 +403,7 @@ class Analysis(Design, object):
             Output variable module object.
 
         """
-        return self.odesign.GetModule("OutputVariable")
+        return self._ooutput_variable
 
     @property
     def SimulationSetupTypes(self):
@@ -847,7 +847,7 @@ class Analysis(Design, object):
         bool
            ``True`` when successful, ``False`` when failed.
         """
-        oModule = self.odesign.GetModule("OutputVariable")
+        oModule = self._ooutput_variable
         if variable in self.output_variables:
             oModule.EditOutputVariable(
                 variable, expression, variable, self.existing_analysis_sweeps[0], self.solution_type, []
@@ -874,7 +874,7 @@ class Analysis(Design, object):
         type
             Value of the output variable.
         """
-        oModule = self.odesign.GetModule("OutputVariable")
+        oModule = self._ooutput_variable
         assert variable in self.output_variables, "Output variable {} does not exist.".format(variable)
         nominal_variation = self.odesign.GetNominalVariation()
         sol_type = self.solution_type

@@ -1,4 +1,5 @@
 import os
+import time
 
 from pyaedt import _pythonver, is_ironpython, inside_desktop
 
@@ -38,6 +39,7 @@ class Modeler3DLayout(Modeler):
                 self._mttime = os.path.getmtime(edb_file)
             else:
                 self._mttime = 0
+            time.sleep(1)
             self._edb = Edb(
                 edb_folder,
                 self._p_app.design_name,
