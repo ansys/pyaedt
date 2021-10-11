@@ -29,15 +29,15 @@ def discover_and_run(start_dir, pattern=None):
         result = runner.run(test_suite)
 
 
-discover_and_run(run_dir, pattern="test_21*.py")
+discover_and_run(run_dir, pattern="test_*.py")
 
 success_file = os.path.join(run_dir, "tests_succeeded.log")
-# with open(success_file, "w") as f:
-#     f.write("ok")
-# if is_ironpython and "oDesktop" in dir(sys.modules["__main__"]):
-#     pid = sys.modules["__main__"].oDesktop.GetProcessID()
-#     if pid > 0:
-#         try:
-#             os.kill(pid, 9)
-#         except:
-#             successfully_closed = False
+with open(success_file, "w") as f:
+    f.write("ok")
+if is_ironpython and "oDesktop" in dir(sys.modules["__main__"]):
+    pid = sys.modules["__main__"].oDesktop.GetProcessID()
+    if pid > 0:
+        try:
+            os.kill(pid, 9)
+        except:
+            successfully_closed = False
