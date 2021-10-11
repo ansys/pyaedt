@@ -68,7 +68,7 @@ class FieldAnalysisEmit(Design):
             student_version,
         )
         self._modeler = ModelerEmit(self)
-        self._post = PostProcessor(self)
+        #self._post = PostProcessor(self)
 
     @property
     def modeler(self):

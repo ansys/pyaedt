@@ -2,11 +2,8 @@ from ..generic.general_methods import aedt_exception_handler
 from ..modeler.Model2D import ModelerRMxprt
 from .Analysis import Analysis
 from .Design import design_solutions
-from .. import is_ironpython
-if is_ironpython:
-    from ..modules.PostProcessor import PostProcessor
-else:
-    from ..modules.AdvancedPostProcessing import PostProcessor
+from ..modules.PostProcessor import CircuitPostProcessor
+
 
 
 class FieldAnalysisRMxprt(Analysis):
@@ -69,7 +66,7 @@ class FieldAnalysisRMxprt(Analysis):
         )
 
         self._modeler = ModelerRMxprt(self)
-        self._post = PostProcessor(self)
+        self._post = CircuitPostProcessor(self)
 
     @property
     def modeler(self):

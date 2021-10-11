@@ -1,9 +1,9 @@
 from ..generic.general_methods import aedt_exception_handler
 from ..modeler.Circuit import ModelerSimplorer
-from ..modules.PostProcessor import PostProcessor
 from ..modules.SolveSetup import SetupCircuit
 from .Analysis import Analysis
 from .Design import solutions_settings
+from ..modules.PostProcessor import CircuitPostProcessor
 
 
 class FieldAnalysisSimplorer(Analysis):
@@ -73,7 +73,7 @@ class FieldAnalysisSimplorer(Analysis):
             student_version,
         )
         self._modeler = ModelerSimplorer(self)
-        self._post = PostProcessor(self)
+        self._post = CircuitPostProcessor(self)
 
     @property
     def modeler(self):
