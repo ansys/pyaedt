@@ -18,12 +18,13 @@ class ModelerCircuit(Modeler):
 
     def __init__(self, app):
         self._p_app = app
+        self._oeditor = self._odesign.SetActiveEditor("SchematicEditor")
         Modeler.__init__(self, app)
 
     @property
     def oeditor(self):
         """Editor."""
-        return self._odesign.SetActiveEditor("SchematicEditor")
+        return self._oeditor
 
     @property
     def obounding_box(self):

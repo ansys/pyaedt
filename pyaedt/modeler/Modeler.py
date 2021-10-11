@@ -610,6 +610,7 @@ class GeometryModeler(Modeler, object):
 
     def __init__(self, app, is3d=True):
         self._p_app = app
+        self._oeditor = self._odesign.SetActiveEditor("3D Modeler")
         Modeler.__init__(self, app)
         # TODO Refactor this as a dictionary with names as key
         self.coordinate_systems = self._get_coordinates_data()
@@ -746,7 +747,7 @@ class GeometryModeler(Modeler, object):
         pyaedt.modeler.Model3D.Modeler3D
 
         """
-        return self._odesign.SetActiveEditor("3D Modeler")
+        return self._oeditor
 
     @property
     def model_units(self):

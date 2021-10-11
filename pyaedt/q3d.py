@@ -34,13 +34,6 @@ class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
         """Material manager."""
         return self.odefinition_manager.GetManager("Material")
 
-    '''
-    @property
-    def oeditor(self):
-        ""Editor."""
-        return self.odesign.SetActiveEditor("3D Modeler")
-    '''
-
     @property
     def design_file(self):
         """Design file."""
