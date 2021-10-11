@@ -26,7 +26,7 @@ class Modeler3DLayout(Modeler):
 
     def __init__(self, app):
         self._p_app = app
-        self._oeditor = self._p_app.odesign.SetActiveEditor("Layout")
+        self._oeditor = self._p_app._odesign.SetActiveEditor("Layout")
         self._messenger.add_info_message("Loading Modeler.")
         Modeler.__init__(self, app)
         self._messenger.add_info_message("Modeler loaded.")
@@ -339,7 +339,7 @@ class Modeler3DLayout(Modeler):
             brd_filename, os.path.join(edb_path, edb_name + ".aedb"), os.path.join(edb_path, edb_name + ".xml")
         )
         self._p_app.oproject = self._p_app._desktop.GetActiveProject().GetName()
-        self._p_app.odesign = None
+        self._p_app._odesign = None
         return True
 
     @aedt_exception_handler
@@ -390,7 +390,7 @@ class Modeler3DLayout(Modeler):
             ipc_filename, os.path.join(edb_path, edb_name + ".aedb"), os.path.join(edb_path, edb_name + ".xml")
         )
         self._p_app.oproject = self._p_app._desktop.GetActiveProject().GetName()
-        self._p_app.odesign = None
+        self._p_app._odesign = None
         return True
 
     @aedt_exception_handler

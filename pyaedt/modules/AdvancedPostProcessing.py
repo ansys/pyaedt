@@ -1210,7 +1210,7 @@ class PostProcessor(Post):
                 if file_to_add:
                     files_to_add.append(file_to_add)
         for el in variation_list:
-            self._p_app.odesign.ChangeProperty(
+            self._p_app._odesign.ChangeProperty(
                 [
                     "NAME:AllTabs",
                     [

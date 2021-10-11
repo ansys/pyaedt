@@ -569,7 +569,7 @@ class Layers(object):
     @property
     def _oeditor(self):
         """Editor."""
-        return self._p_modeler._p_app.odesign.SetActiveEditor("Layout")
+        return self._p_modeler._p_app._odesign.SetActiveEditor("Layout")
 
     @property
     def LengthUnit(self):

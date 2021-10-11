@@ -152,9 +152,9 @@ class Mesh(object):
     @property
     def omeshmodule(self):
         """Mesh module."""
-        design_type = self.odesign.GetDesignType()
+        design_type = self._odesign.GetDesignType()
         assert design_type in meshers, "Invalid design type {}".format(design_type)
-        return self.odesign.GetModule(meshers[design_type])
+        return self._odesign.GetModule(meshers[design_type])
 
     @property
     def _messenger(self):
@@ -162,7 +162,7 @@ class Mesh(object):
         return self._p_app._messenger
 
     @property
-    def odesign(self):
+    def _odesign(self):
         """Design."""
         return self._p_app._odesign
 
@@ -487,7 +487,7 @@ class Mesh(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        return self.odesign.GenerateMesh(name) == 0
+        return self._odesign.GenerateMesh(name) == 0
 
     @aedt_exception_handler
     def delete_mesh_operations(self, mesh_type=None):

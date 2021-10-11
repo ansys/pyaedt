@@ -99,7 +99,7 @@ class Analysis(Design, object):
             close_on_exit,
             student_version,
         )
-        self._ooutput_variable = self.odesign.GetModule("OutputVariable")
+        self._ooutput_variable = self._odesign.GetModule("OutputVariable")
         self.logger.info("Design Loaded")
         self._setup = None
         if setup_name:
@@ -246,12 +246,12 @@ class Analysis(Design, object):
             Solution module.
 
         """
-        return self.odesign.GetModule("Solutions")
+        return self._odesign.GetModule("Solutions")
 
     @property
     def oanalysis(self):
         """Analysis."""
-        return self.odesign.GetModule("AnalysisSetup")
+        return self._odesign.GetModule("AnalysisSetup")
 
     @property
     def analysis_setup(self):
@@ -391,7 +391,7 @@ class Analysis(Design, object):
             Optimetrics module object.
 
         """
-        return self.odesign.GetModule("Optimetrics")
+        return self._odesign.GetModule("Optimetrics")
 
     @property
     def ooutput_variable(self):
@@ -535,15 +535,15 @@ class Analysis(Design, object):
             """Nominal with values."""
             families = []
             if self._p_app.design_type == "HFSS 3D Layout Design":
-                listvar = list(self._p_app.odesign.GetVariables())
+                listvar = list(self._p_app._odesign.GetVariables())
                 for el in listvar:
                     families.append(el + ":=")
-                    families.append([self._p_app.odesign.GetVariableValue(el)])
+                    families.append([self._p_app._odesign.GetVariableValue(el)])
             else:
-                variation = self._p_app.odesign.GetNominalVariation()
+                variation = self._p_app._odesign.GetNominalVariation()
                 for el in self.variables:
                     families.append(el + ":=")
-                    families.append([self._p_app.odesign.GetVariationVariableValue(variation, el)])
+                    families.append([self._p_app._odesign.GetVariationVariableValue(variation, el)])
             return families
 
         @property
@@ -551,13 +551,13 @@ class Analysis(Design, object):
             """Nominal with values in a dictionary."""
             families = {}
             if self._p_app.design_type == "HFSS 3D Layout Design":
-                listvar = list(self._p_app.odesign.GetVariables())
+                listvar = list(self._p_app._odesign.GetVariables())
                 for el in listvar:
-                    families[el] = self._p_app.odesign.GetVariableValue(el)
+                    families[el] = self._p_app._odesign.GetVariableValue(el)
             else:
-                variation = self._p_app.odesign.GetNominalVariation()
+                variation = self._p_app._odesign.GetNominalVariation()
                 for el in self.variables:
-                    families[el] = self._p_app.odesign.GetVariationVariableValue(variation, el)
+                    families[el] = self._p_app._odesign.GetVariationVariableValue(variation, el)
             return families
 
         @property

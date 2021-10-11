@@ -332,7 +332,7 @@ class NexximComponents(CircuitComponents):
         )
 
         self.o_component_manager.Add(arg)
-        self._p_app.odesign.AddCompInstance(component_name)
+        self._p_app._odesign.AddCompInstance(component_name)
         self.refresh_all_ids()
         for el in self.components:
             if component_name in self.components[el].composed_name:
@@ -1256,7 +1256,7 @@ class NexximComponents(CircuitComponents):
         )
 
         self.o_component_manager.Add(compInfo2)
-        self._p_app.odesign.AddCompInstance(comp_name)
+        self._p_app._odesign.AddCompInstance(comp_name)
         self.refresh_all_ids()
         for el in self.components:
             item = comp_name

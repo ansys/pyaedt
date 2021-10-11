@@ -157,7 +157,7 @@ class CommonOptimetrics(object):
             Optimetrics object.
 
         """
-        return self._p_app.odesign.GetModule("Optimetrics")
+        return self._p_app._odesign.GetModule("Optimetrics")
 
     def __init__(self, p_app, name, dictinputs, optimtype):
         self._p_app = p_app
@@ -566,7 +566,7 @@ class DXSetups(object):
         :class:`Optimetrics`
 
         """
-        return self._p_app.odesign.GetModule("Optimetrics")
+        return self._p_app._odesign.GetModule("Optimetrics")
 
     def __init__(self, p_app):
         self._p_app = p_app
@@ -622,7 +622,7 @@ class DXSetups(object):
                 if "$" in v:
                     sweepdefinition["Data"] = self._p_app.oproject.GetVariableValue(v)
                 else:
-                    sweepdefinition["Data"] = self._p_app.odesign.GetVariableValue(v)
+                    sweepdefinition["Data"] = self._p_app._odesign.GetVariableValue(v)
                 sweepdefinition["OffsetF1"] = False
                 sweepdefinition["Synchronize"] = 0
         else:

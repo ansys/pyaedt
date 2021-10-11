@@ -876,7 +876,7 @@ class Primitives(object):
     @property
     def _odesign(self):
         """Design."""
-        return self._p_app.odesign
+        return self._p_app._odesign
 
     @property
     def _materials(self):

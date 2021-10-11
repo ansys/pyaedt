@@ -1616,7 +1616,7 @@ class DataSet(object):
         if self.name[0] == "$":
             self._p_app._oproject.AddDataset(self._args())
         else:
-            self._p_app.odesign.AddDataset(self._args())
+            self._p_app._odesign.AddDataset(self._args())
         return True
 
     @aedt_exception_handler
@@ -1707,7 +1707,7 @@ class DataSet(object):
         if self.name[0] == "$":
             self._p_app._oproject.EditDataset(self.name, self._args())
         else:
-            self._p_app.odesign.EditDataset(self.name, self._args())
+            self._p_app._odesign.EditDataset(self.name, self._args())
         return True
 
     @aedt_exception_handler
@@ -1724,7 +1724,7 @@ class DataSet(object):
             self._p_app._oproject.DeleteDataset(self.name)
             del self._p_app.project_datasets[self.name]
         else:
-            self._p_app.odesign.DeleteDataset(self.name)
+            self._p_app._odesign.DeleteDataset(self.name)
             del self._p_app.project_datasets[self.name]
         return True
 
@@ -1749,5 +1749,5 @@ class DataSet(object):
         if self.name[0] == "$":
             self._p_app._oproject.ExportDataset(self.name, dataset_path)
         else:
-            self._p_app.odesign.ExportDataset(self.name, dataset_path)
+            self._p_app._odesign.ExportDataset(self.name, dataset_path)
         return True

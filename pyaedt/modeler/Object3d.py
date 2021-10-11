@@ -676,7 +676,7 @@ class Object3d(object):
     @property
     def _odesign(self):
         """Design."""
-        return self._p_primitives._p_modeler._p_app.odesign
+        return self._p_primitives._p_modeler._p_app._odesign
 
     @property
     def faces(self):

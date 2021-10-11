@@ -14,7 +14,7 @@ class Primitives2D(Primitives, object):
         """Create a 2D plane."""
         plane = "Z"
         if self._p_app.design_type == "Maxwell 2D":
-            if self._p_app.odesign.GetGeometryMode() == "about Z":
+            if self._p_app._odesign.GetGeometryMode() == "about Z":
                 plane = "Y"
         return plane
 

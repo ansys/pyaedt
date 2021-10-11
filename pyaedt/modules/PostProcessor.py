@@ -1354,7 +1354,7 @@ class PostProcessor(PostProcessorCommon, object):
             obj_list = []
             for obj in list_objs[4:]:
                 obj_list.append(
-                    self._p_app.odesign.SetActiveEditor("3D Modeler").GetObjectNameByID(int(obj)))
+                    self._p_app._odesign.SetActiveEditor("3D Modeler").GetObjectNameByID(int(obj)))
         if obj_list:
             return obj_list
         else:
