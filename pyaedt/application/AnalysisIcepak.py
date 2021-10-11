@@ -6,6 +6,11 @@ from ..generic.general_methods import aedt_exception_handler, generate_unique_na
 from ..application.Analysis import Analysis
 from ..modeler.Model3D import Modeler3D
 from ..modules.MeshIcepak import IcepakMesh
+from .. import is_ironpython
+if is_ironpython:
+    from ..modules.PostProcessor import PostProcessor
+else:
+    from ..modules.AdvancedPostProcessing import PostProcessor
 
 
 class FieldAnalysisIcepak(Analysis, object):
@@ -81,6 +86,7 @@ class FieldAnalysisIcepak(Analysis, object):
         )
         self._modeler = Modeler3D(self)
         self._mesh = IcepakMesh(self)
+        self._post = PostProcessor(self)
 
     @property
     def modeler(self):

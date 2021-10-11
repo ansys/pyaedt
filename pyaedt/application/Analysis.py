@@ -12,7 +12,6 @@ import threading
 import warnings
 from collections import OrderedDict
 
-from .. import is_ironpython
 from ..generic.general_methods import aedt_exception_handler
 from ..modeler.modeler_constants import CoordinateSystemAxis, CoordinateSystemPlane, GravityDirection, Plane
 from ..modules.Boundary import NativeComponentObject
@@ -29,11 +28,6 @@ from ..modules.SetupTemplates import SetupKeys
 from ..modules.SolutionType import SetupTypes, SolutionType
 from ..modules.SolveSetup import Setup
 from .Design import Design
-
-if is_ironpython:
-    from ..modules.PostProcessor import PostProcessor
-else:
-    from ..modules.AdvancedPostProcessing import PostProcessor
 
 
 class Analysis(Design, object):
@@ -107,7 +101,6 @@ class Analysis(Design, object):
         self.solution_type = solution_type
         self._materials = Materials(self)
         self.logger.info("Materials Loaded")
-        self._post = PostProcessor(self)
         self._available_variations = self.AvailableVariations(self)
         self.setups = [self.get_setup(setup_name) for setup_name in self.setup_names]
         self.opti_parametric = ParametericsSetups(self)

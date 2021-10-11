@@ -4,6 +4,11 @@ from .Analysis import Analysis
 from ..modeler.Model2D import Modeler2D
 from ..modules.Mesh import Mesh
 from ..generic.general_methods import aedt_exception_handler
+from .. import is_ironpython
+if is_ironpython:
+    from ..modules.PostProcessor import PostProcessor
+else:
+    from ..modules.AdvancedPostProcessing import PostProcessor
 
 
 class FieldAnalysis2D(Analysis):
@@ -77,6 +82,7 @@ class FieldAnalysis2D(Analysis):
             close_on_exit,
             student_version,
         )
+        self._post = PostProcessor(self)
         self._modeler = Modeler2D(self)
         self._mesh = Mesh(self)
         # self._post = PostProcessor(self)

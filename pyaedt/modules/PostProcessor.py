@@ -1242,6 +1242,8 @@ class PostProcessor(PostProcessorCommon, object):
 
     def __init__(self, app):
         self._p_app = app
+        self._post_osolution = self._p_app.osolution
+        self._ofieldsreporter = self._odesign.GetModule("FieldsReporter")
         self.field_plots = self._get_fields_plot()
         PostProcessorCommon.__init__(self, app)
 
@@ -1277,7 +1279,7 @@ class PostProcessor(PostProcessorCommon, object):
         type
             Solution module.
         """
-        return self._p_app.osolution
+        return self._post_osolution
 
     @property
     def ofieldsreporter(self):
@@ -1288,7 +1290,7 @@ class PostProcessor(PostProcessorCommon, object):
         :attr:`pyaedt.modules.PostProcessor.PostProcessor.ofieldsreporter`
 
         """
-        return self._odesign.GetModule("FieldsReporter")
+        return self._ofieldsreporter
 
     @property
     def report_types(self):

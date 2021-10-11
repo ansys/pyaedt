@@ -4,6 +4,11 @@ from ..modules.Mesh3DLayout import Mesh3d
 from ..modules.SetupTemplates import SetupKeys
 from ..modules.SolveSetup import Setup3DLayout
 from .Analysis import Analysis
+from .. import is_ironpython
+if is_ironpython:
+    from ..modules.PostProcessor import PostProcessor
+else:
+    from ..modules.AdvancedPostProcessing import PostProcessor
 
 
 class FieldAnalysis3DLayout(Analysis):
@@ -77,6 +82,7 @@ class FieldAnalysis3DLayout(Analysis):
             close_on_exit,
             student_version,
         )
+        self._post = PostProcessor(self)
         self._messenger.add_info_message("Analysis Loaded")
         self._modeler = Modeler3DLayout(self)
         self._modeler.primitives.init_padstacks()
