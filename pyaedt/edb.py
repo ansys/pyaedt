@@ -183,10 +183,8 @@ class Edb(object):
         self.simSetup = None
         self.layout_methods = None
         self.simsetupdata = None
-        if os.name == "posix":
-            clr.ClearProfilerData()
-        time.sleep(2)
-        gc.collect()
+        # time.sleep(2)
+        # gc.collect()
 
     @aedt_exception_handler
     def _init_objects(self):
@@ -367,12 +365,9 @@ class Edb(object):
         self._messenger.add_info_message("Cell {} Opened".format(self._active_cell.GetName()))
 
         if self._db and self._active_cell:
-            dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib", "DataModel.dll")
+            dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib")
             self._messenger.add_info_message(dllpath)
-            self.layout_methods.LoadDataModel(dllpath)
-            dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib",
-                                   "IPC_2581_DataModel.dll")
-            self.layout_methods.LoadDataModel(dllpath)
+            self.layout_methods.LoadDataModel(dllpath, self.edbversion)
             time.sleep(3)
             retry_ntimes(
                 10,
@@ -424,12 +419,9 @@ class Edb(object):
             )
             if self._active_cell is None:
                 self._active_cell = list(self._db.TopCircuitCells)[0]
-            dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib", "DataModel.dll")
+            dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib")
             if self._db and self._active_cell:
-                self.layout_methods.LoadDataModel(dllpath)
-                dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib",
-                                       "IPC_2581_DataModel.dll")
-                self.layout_methods.LoadDataModel(dllpath)
+                self.layout_methods.LoadDataModel(dllpath, self.edbversion)
                 if not os.path.exists(self.edbpath):
                     os.makedirs(self.edbpath)
                 time.sleep(3)
@@ -482,12 +474,9 @@ class Edb(object):
         if not self.cellname:
             self.cellname = generate_unique_name("Cell")
         self._active_cell = self.edb.Cell.Cell.Create(self._db, self.edb.Cell.CellType.CircuitCell, self.cellname)
-        dllpath = os.path.join(os.path.dirname(__file__), "dlls", "EDBLib", "DataModel.dll")
+        dllpath = os.path.join(os.path.dirname(__file__), "dlls", "EDBLib")
         if self._db and self._active_cell:
-            self.layout_methods.LoadDataModel(dllpath)
-            dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib",
-                                   "IPC_2581_DataModel.dll")
-            self.layout_methods.LoadDataModel(dllpath)
+            self.layout_methods.LoadDataModel(dllpath, self.edbversion)
             time.sleep(3)
             retry_ntimes(
                 10,
@@ -765,14 +754,12 @@ class Edb(object):
         time.sleep(1)
         self._db.Close()
         self._messenger.add_info_message("Database successfully closed.")
-        # try:
-        #     self._db.Close()
-        # except:
-        #     self._messenger.add_warning_message("Cannot Close dB")
         time.sleep(1)
         self._clean_variables()
+        time.sleep(1)
         gc.collect()
-        # gc.collect()
+        time.sleep(1)
+        gc.collect()
         return True
 
     @aedt_exception_handler
