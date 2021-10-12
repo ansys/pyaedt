@@ -31,7 +31,7 @@ from pyaedt.application.MessageManager import AEDTMessageManager
 from pyaedt.misc import list_installed_ansysem
 from pyaedt import is_ironpython, _pythonver, inside_desktop
 
-from .import aedt_logger
+from . import aedt_logger
 
 
 pathname = os.path.dirname(__file__)
@@ -394,8 +394,6 @@ class Desktop:
     def _init_desktop(self):
         self._main.AEDTVersion = self._main.oDesktop.GetVersion()[0:6]
         self._main.oDesktop.RestoreWindow()
-        # logfile = os.path.join(self._main.oDesktop.GetProjectDirectory(),
-        #                                 "pyaedt{}.log".format(datetime.datetime.now().strftime("%Y%m%d_%H%M%S")))
         self._main.oMessenger = AEDTMessageManager()
         self._logger = aedt_logger.AedtLogger(self._main.oMessenger, filename = self.logfile, level = logging.DEBUG)
         self._main.aedt_logger = self._logger
@@ -549,23 +547,6 @@ class Desktop:
     def logger(self):
         """Logger."""
         return self._logger
-
-    @property
-    def install_path(self):
-        """Installation path for AEDT."""
-        version_key = self._main.AEDTVersion
-        root = self._version_ids[version_key]
-        return os.environ[root]
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, ex_type, ex_value, ex_traceback):
-        # Write the trace stack to the log file if an exception occurred in the main script.
-        if ex_type:
-            err = self._exception(ex_value, ex_traceback)
-        if self.release:
-            self.release_desktop(close_projects=self._main.close_on_exit, close_on_exit=self._main.close_on_exit)
 
     def _exception(self, ex_value, tb_data):
         """Write the trace stack to the desktop when a Python error occurs.
