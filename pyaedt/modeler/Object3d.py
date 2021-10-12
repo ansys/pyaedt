@@ -2116,12 +2116,8 @@ class Objec3DLayout(object):
 
     def __init__(self, primitives):
         self._p_primitives = primitives
+        self.m_Editor = self._p_primitives._oeditor
         self._n = 10
-
-    @property
-    def m_Editor(self):
-        """Editor."""
-        return self._p_primitives.oeditor
 
     @property
     def object_units(self):
