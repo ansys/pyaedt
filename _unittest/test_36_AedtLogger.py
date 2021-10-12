@@ -50,6 +50,10 @@ class TestClass:
                 continue
             if '[info] Project' in message:
                 project = True
+
+        print("#######")
+        print("Global")
+        print(global_messages)
         assert '[info] Design Loaded' in global_messages
         assert '[info] Materials Loaded' in global_messages
         assert '[info] Debug message for testing.' in global_messages
