@@ -50,6 +50,8 @@ class Primitives3DLayout(object):
 
     def __init__(self, modeler):
         self._p_modeler = modeler
+        self._oeditor = self.modeler.oeditor
+        self.opadstackmanager = self._p_app._oproject.GetDefinitionManager().GetManager("Padstack")
         self.padstacks = defaultdict(Padstack)
         self._components = defaultdict(Components3DLayout)
         self._geometries = defaultdict(Geometries3DLayout)
@@ -218,16 +220,6 @@ class Primitives3DLayout(object):
         return self._p_modeler
 
     @property
-    def oeditor(self):
-        """Editor."""
-        return self.modeler.oeditor
-
-    @property
-    def opadstackmanager(self):
-        """Padstack manager."""
-        return retry_ntimes(10, self._p_app._oproject.GetDefinitionManager().GetManager, "Padstack")
-
-    @property
     def model_units(self):
         """Model units."""
         return self.modeler.model_units
@@ -365,7 +357,7 @@ class Primitives3DLayout(object):
             args.append(net)
             args.append("Vis:=")
             args.append(visible)
-        self.oeditor.SetNetVisible(args)
+        self._oeditor.SetNetVisible(args)
         return True
 
     @aedt_exception_handler
@@ -421,7 +413,7 @@ class Primitives3DLayout(object):
         if not name:
             name = _uname()
         else:
-            listnames = self.oeditor.FindObjects("Name", name)
+            listnames = self._oeditor.FindObjects("Name", name)
             if listnames:
                 name = _uname(name)
         arg = ["NAME:Contents"]
@@ -441,7 +433,7 @@ class Primitives3DLayout(object):
         arg.append("Pin:="), arg.append(False)
         arg.append("highest_layer:="), arg.append(top_layer)
         arg.append("lowest_layer:="), arg.append(bot_layer)
-        self.oeditor.CreateVia(arg)
+        self._oeditor.CreateVia(arg)
         # self.objects[name] = Object3dlayout(self)
         # self.objects[name].name = name
         # if netname:
@@ -478,7 +470,7 @@ class Primitives3DLayout(object):
         if not name:
             name = _uname()
         else:
-            listnames = self.oeditor.FindObjects("Name", name)
+            listnames = self._oeditor.FindObjects("Name", name)
             if listnames:
                 name = _uname(name)
 
@@ -491,7 +483,7 @@ class Primitives3DLayout(object):
         vArg2.append("y:="), vArg2.append(self.arg_with_dim(y))
         vArg2.append("r:="), vArg2.append(self.arg_with_dim(radius))
         vArg1.append(vArg2)
-        self.oeditor.CreateCircle(vArg1)
+        self._oeditor.CreateCircle(vArg1)
         if self.is_outside_desktop:
             self._geometries[name] = Geometries3DLayout(self, name)
             if netname:
@@ -530,7 +522,7 @@ class Primitives3DLayout(object):
         if not name:
             name = _uname()
         else:
-            listnames = self.oeditor.FindObjects("Name", name)
+            listnames = self._oeditor.FindObjects("Name", name)
             if listnames:
                 name = _uname(name)
 
@@ -546,7 +538,7 @@ class Primitives3DLayout(object):
         vArg2.append("cr:="), vArg2.append(self.arg_with_dim(corner_radius))
         vArg2.append("ang="), vArg2.append(self.arg_with_dim(angle))
         vArg1.append(vArg2)
-        self.oeditor.CreateRectangle(vArg1)
+        self._oeditor.CreateRectangle(vArg1)
         if self.is_outside_desktop:
             self._geometries[name] = Geometries3DLayout(self, name)
             if netname:
@@ -592,7 +584,7 @@ class Primitives3DLayout(object):
         if not name:
             name = _uname()
         else:
-            listnames = self.oeditor.FindObjects("Name", name)
+            listnames = self._oeditor.FindObjects("Name", name)
             if listnames:
                 name = _uname(name)
         arg = ["NAME:Contents", "lineGeometry:="]
@@ -618,7 +610,7 @@ class Primitives3DLayout(object):
             arg2.append("y:=")
             arg2.append(a[1])
         arg.append(arg2)
-        self.oeditor.CreateLine(arg)
+        self._oeditor.CreateLine(arg)
         if self.is_outside_desktop:
             self._geometries[name] = Geometries3DLayout(self, name)
             if netname:

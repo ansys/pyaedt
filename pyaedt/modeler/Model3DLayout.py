@@ -26,7 +26,7 @@ class Modeler3DLayout(Modeler):
 
     def __init__(self, app):
         self._p_app = app
-        self._oeditor = self._p_app._odesign.SetActiveEditor("Layout")
+        self.oeditor = self._p_app._odesign.SetActiveEditor("Layout")
         self._messenger.add_info_message("Loading Modeler.")
         Modeler.__init__(self, app)
         self._messenger.add_info_message("Modeler loaded.")
@@ -95,10 +95,6 @@ class Modeler3DLayout(Modeler):
         """Messenger."""
         return self._p_app._messenger
 
-    @property
-    def oeditor(self):
-        """Editor."""
-        return self._oeditor
 
     @aedt_exception_handler
     def fit_all(self):

@@ -15,12 +15,7 @@ class ModelerRMxprt(Modeler):
 
     def __init__(self, app):
         Modeler.__init__(self, app)
-        self._oeditor = self._odesign.SetActiveEditor("Machine")
-
-    @property
-    def oeditor(self):
-        """Editor."""
-        return self._oeditor
+        self.oeditor = self._odesign.SetActiveEditor("Machine")
 
 
 class Modeler2D(GeometryModeler):

@@ -147,20 +147,9 @@ class CommonOptimetrics(object):
 
     """
 
-    @property
-    def omodule(self):
-        """Module.
-
-        Returns
-        -------
-        :class:`Optimetrics`
-            Optimetrics object.
-
-        """
-        return self._p_app._odesign.GetModule("Optimetrics")
-
     def __init__(self, p_app, name, dictinputs, optimtype):
         self._p_app = p_app
+        self.omodule =  self._p_app.ooptimetrics
         self.name = name
         self.soltype = optimtype
 
@@ -566,7 +555,7 @@ class DXSetups(object):
         :class:`Optimetrics`
 
         """
-        return self._p_app._odesign.GetModule("Optimetrics")
+        return self._p_app.ooptimetrics
 
     def __init__(self, p_app):
         self._p_app = p_app
@@ -757,7 +746,7 @@ class ParametericsSetups(object):
         :class:`Optimetrics`
 
         """
-        return self.p_app.odesign.GetModule("Optimetrics")
+        return self._p_app.ooptimetrics
 
     def __init__(self, p_app):
         self._p_app = p_app
@@ -903,7 +892,7 @@ class SensitivitySetups(object):
         :class:`Optimetrics`
 
         """
-        return self.p_app.odesign.GetModule("Optimetrics")
+        return self._p_app.ooptimetrics
 
     def __init__(self, p_app):
         self._p_app = p_app
@@ -1066,7 +1055,7 @@ class StatisticalSetups(object):
         :class:`Optimetrics`
 
         """
-        return self.p_app.odesign.GetModule("Optimetrics")
+        return self._p_app.ooptimetrics
 
     def __init__(self, p_app):
         self._p_app = p_app
@@ -1298,7 +1287,7 @@ class DOESetups(object):
         :class:`Optimetrics`
 
         """
-        return self.p_app.odesign.GetModule("Optimetrics")
+        return self._p_app.ooptimetrics
 
     def __init__(self, p_app):
         self._p_app = p_app
@@ -1502,7 +1491,7 @@ class OptimizationSetups(object):
         :class:`Optimetrics`
 
         """
-        return self.p_app.odesign.GetModule("Optimetrics")
+        return self._p_app.ooptimetrics
 
     def __init__(self, p_app):
         self._p_app = p_app

@@ -68,7 +68,11 @@ class FieldAnalysis3DLayout(Analysis):
         close_on_exit=False,
         student_version=False,
     ):
+        self.oanalysis = self._odesign.GetModule("SolveSetups")
 
+        self.osolution = self._odesign.GetModule("SolveSetups")
+        self.oexcitation = self._odesign.GetModule("Excitations")
+        self.oboundary = self._odesign.GetModule("Excitations")
         Analysis.__init__(
             self,
             application,
@@ -82,25 +86,13 @@ class FieldAnalysis3DLayout(Analysis):
             close_on_exit,
             student_version,
         )
-        self._post = PostProcessor(self)
         self._messenger.add_info_message("Analysis Loaded")
         self._modeler = Modeler3DLayout(self)
         self._modeler.primitives.init_padstacks()
         self._messenger.add_info_message("Modeler Loaded")
         self._mesh = Mesh3d(self)
+        self._post = PostProcessor(self)
         # self._post = PostProcessor(self)
-
-    @property
-    def oboundary(self):
-        """Boundary.
-
-        Returns
-        -------
-        AEDT object
-            Boundaries module object.
-
-        """
-        return self._odesign.GetModule("Excitations")
 
     @property
     def mesh(self):
@@ -288,33 +280,10 @@ class FieldAnalysis3DLayout(Analysis):
         """Modeler object."""
         return self._modeler
 
-    # @property
-    # def mesh(self):
-    #     return self._mesh
-    #
-    # @property
-    # def post(self):
-    #     return self._post
-
-    @property
-    def osolution(self):
-        """Solution object."""
-        return self.odesign.GetModule("SolveSetups")
-
-    @property
-    def oexcitation(self):
-        """Excitation object."""
-        return self.odesign.GetModule("Excitations")
-
     @property
     def port_list(self):
         """Port list."""
         return self.oexcitation.GetAllPortsList()
-
-    @property
-    def oanalysis(self):
-        """Analysis."""
-        return self.odesign.GetModule("SolveSetups")
 
     @property
     def existing_analysis_setups(self):

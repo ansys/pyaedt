@@ -21,6 +21,9 @@ class Materials(object):
     """
     def __init__(self, app):
         self._p_app = app
+        self.odefinition_manager = self._p_app.odefinition_manager
+        self.omaterial_manager = self._p_app.omaterial_manager
+        self._desktop = self._p_app.odesktop
         self._messenger.logger.info("Successfully loaded project materials !")
         self.material_keys = self._get_materials()
         self.surface_material_keys = self._get_surface_materials()
@@ -39,16 +42,6 @@ class Materials(object):
             return self.material_keys[item]
         elif item in list(self.surface_material_keys.keys()):
             return self.surface_material_keys[item]
-
-    @property
-    def odefinition_manager(self):
-        """Definition manager."""
-        return self._p_app._oproject.GetDefinitionManager()
-
-    @property
-    def omaterial_manager(self):
-        """Material manager."""
-        return self.odefinition_manager.GetManager("Material")
 
     @property
     def _messenger(self):

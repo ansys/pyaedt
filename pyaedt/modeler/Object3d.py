@@ -830,7 +830,7 @@ class Object3d(object):
         oEditor COM Object
 
         """
-        return self._p_primitives.oeditor
+        return self._p_primitives._oeditor
 
     @property
     def _messenger(self):
@@ -932,7 +932,7 @@ class Object3d(object):
 
         """
         try:
-            get_id = self._p_primitives.oeditor.GetObjectIDByName(self._m_name)
+            get_id = self._p_primitives._oeditor.GetObjectIDByName(self._m_name)
         except Exception as e:
             return None
         return get_id
@@ -1001,7 +1001,7 @@ class Object3d(object):
                 vPropServers.append(self._m_name)
                 vGeo3d = ["NAME:Geometry3DAttributeTab", vPropServers, vChangedProps]
                 vOut = ["NAME:AllTabs", vGeo3d]
-                retry_ntimes(10, self._p_primitives.oeditor.ChangeProperty, vOut)
+                retry_ntimes(10, self._p_primitives._oeditor.ChangeProperty, vOut)
                 self._m_name = obj_name
                 self._p_primitives.cleanup_objects()
         else:

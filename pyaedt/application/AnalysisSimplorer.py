@@ -59,6 +59,7 @@ class FieldAnalysisSimplorer(Analysis):
         student_version=False,
     ):
         self.solution_type = solution_type
+        self.oanalysis = self._odesign.GetModule("SimSetup")
         Analysis.__init__(
             self,
             application,
@@ -79,11 +80,6 @@ class FieldAnalysisSimplorer(Analysis):
     def modeler(self):
         """Design oModeler."""
         return self._modeler
-
-    @property
-    def oanalysis(self):
-        """Design Module ``"SimSetup"``."""
-        return self.odesign.GetModule("SimSetup")
 
     @aedt_exception_handler
     def create_setup(self, setupname="MySetupAuto", setuptype=None, props={}):

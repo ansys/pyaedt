@@ -610,7 +610,9 @@ class GeometryModeler(Modeler, object):
 
     def __init__(self, app, is3d=True):
         self._p_app = app
-        self._oeditor = self._odesign.SetActiveEditor("3D Modeler")
+        self.oeditor = self._odesign.SetActiveEditor("3D Modeler")
+        self._odefinition_manager = self._p_app.odefinition_manager
+        self._omaterial_manager = self._p_app._oproject.GetDefinitionManager().GetManager("Material")
         Modeler.__init__(self, app)
         # TODO Refactor this as a dictionary with names as key
         self.coordinate_systems = self._get_coordinates_data()
@@ -739,17 +741,6 @@ class GeometryModeler(Modeler, object):
         return self
 
     @property
-    def oeditor(self):
-        """Editor.
-
-        Returns
-        -------
-        pyaedt.modeler.Model3D.Modeler3D
-
-        """
-        return self._oeditor
-
-    @property
     def model_units(self):
         """Model units as a string. For example ``"mm"``."""
         return retry_ntimes(10, self.oeditor.GetModelUnits)
@@ -768,22 +759,6 @@ class GeometryModeler(Modeler, object):
     def obounding_box(self):
         """Bounding box."""
         return self.oeditor.GetModelBoundingBox()
-
-    @property
-    def odefinition_manager(self):
-        """Definition manager."""
-        return self._p_app._oproject.GetDefinitionManager()
-
-    @property
-    def omaterial_manager(self):
-        """Material manager used in the project.
-
-        Returns
-        -------
-        :class:`pyaedt.modules.MaterialLib.Materials`
-
-        """
-        return self._p_app._oproject.GetDefinitionManager().GetManager("Material")
 
     @aedt_exception_handler
     def fit_all(self):
@@ -2309,7 +2284,7 @@ class GeometryModeler(Modeler, object):
 
         """
         self._messenger.add_info_message("Subtract all objects from Chassis object - exclude vacuum objs")
-        mat_names = self.omaterial_manager.GetNames()
+        mat_names = self._omaterial_manager.GetNames()
         num_obj_start = self.oeditor.GetNumObjects()
         blank_part = chassis_part
         # in main code this object will need to be determined automatically eg by name such as chassis or sheer size

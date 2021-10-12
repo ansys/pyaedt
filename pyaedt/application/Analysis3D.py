@@ -82,9 +82,9 @@ class FieldAnalysis3D(Analysis, object):
             close_on_exit,
             student_version,
         )
-        self._post = PostProcessor(self)
         self._modeler = Modeler3D(self)
         self._mesh = Mesh(self)
+        self._post = PostProcessor(self)
 
     @property
     def modeler(self):

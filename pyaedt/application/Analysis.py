@@ -93,7 +93,8 @@ class Analysis(Design, object):
             close_on_exit,
             student_version,
         )
-        self._ooutput_variable = self._odesign.GetModule("OutputVariable")
+        self.oanalysis = self._odesign.GetModule("AnalysisSetup")
+        self.osolution = self._odesign.GetModule("Solutions")
         self.logger.info("Design Loaded")
         self._setup = None
         if setup_name:
@@ -230,23 +231,6 @@ class Analysis(Design, object):
         return self._post
 
     @property
-    def osolution(self):
-        """Solution.
-
-        Returns
-        -------
-        AEDT object
-            Solution module.
-
-        """
-        return self._odesign.GetModule("Solutions")
-
-    @property
-    def oanalysis(self):
-        """Analysis."""
-        return self._odesign.GetModule("AnalysisSetup")
-
-    @property
     def analysis_setup(self):
         """Analysis setup.
 
@@ -350,17 +334,6 @@ class Analysis(Design, object):
         setups = list(self.oanalysis.GetSetups())
         return setups
 
-    @property
-    def output_variables(self):
-        """Output variables.
-
-        Returns
-        -------
-        list
-            List of output variables.
-
-        """
-        return self._ooutput_variable.GetOutputVariables()
 
     @property
     def setup_names(self):
@@ -373,30 +346,6 @@ class Analysis(Design, object):
 
         """
         return self.oanalysis.GetSetups()
-
-    @property
-    def ooptimetrics(self):
-        """Optimetrics.
-
-        Returns
-        -------
-        AEDT object
-            Optimetrics module object.
-
-        """
-        return self._odesign.GetModule("Optimetrics")
-
-    @property
-    def ooutput_variable(self):
-        """Output variable.
-
-        Returns
-        -------
-        AEDT object
-            Output variable module object.
-
-        """
-        return self._ooutput_variable
 
     @property
     def SimulationSetupTypes(self):
@@ -840,8 +789,8 @@ class Analysis(Design, object):
         bool
            ``True`` when successful, ``False`` when failed.
         """
-        oModule = self._ooutput_variable
-        if variable in self.output_variables:
+        oModule = self.ooutput_variable
+        if variable in self.output_variable:
             oModule.EditOutputVariable(
                 variable, expression, variable, self.existing_analysis_sweeps[0], self.solution_type, []
             )
@@ -867,8 +816,8 @@ class Analysis(Design, object):
         type
             Value of the output variable.
         """
-        oModule = self._ooutput_variable
-        assert variable in self.output_variables, "Output variable {} does not exist.".format(variable)
+        oModule = self.ooutput_variable
+        assert variable in self.ooutput_variable, "Output variable {} does not exist.".format(variable)
         nominal_variation = self.odesign.GetNominalVariation()
         sol_type = self.solution_type
         value = oModule.GetOutputVariableValue(

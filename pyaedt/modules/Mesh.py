@@ -15,6 +15,7 @@ meshers = {
     "Maxwell 2D": "MeshSetup",
     "Maxwell 3D": "MeshSetup",
     "Q3D Extractor": "MeshSetup",
+    "2D Extractor": "MeshSetup",
 }
 
 
@@ -144,32 +145,17 @@ class Mesh(object):
 
     def __init__(self, app):
         self._p_app = app
+
+        self._messenger = self._p_app._messenger
+        self._odesign = self._p_app._odesign
+        self.modeler = self._p_app._modeler
+        design_type = self._odesign.GetDesignType()
+
+        self.omeshmodule = self._odesign.GetModule(meshers[design_type])
         self.id = 0
         self.meshoperations = self._get_design_mesh_operations()
         self.globalmesh = self._get_design_global_mesh()
         pass
-
-    @property
-    def omeshmodule(self):
-        """Mesh module."""
-        design_type = self._odesign.GetDesignType()
-        assert design_type in meshers, "Invalid design type {}".format(design_type)
-        return self._odesign.GetModule(meshers[design_type])
-
-    @property
-    def _messenger(self):
-        """_messenger."""
-        return self._p_app._messenger
-
-    @property
-    def _odesign(self):
-        """Design."""
-        return self._p_app._odesign
-
-    @property
-    def modeler(self):
-        """Modeler."""
-        return self._p_app._modeler
 
     @aedt_exception_handler
     def _get_design_global_mesh(self):

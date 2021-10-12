@@ -113,13 +113,10 @@ class Circuit(FieldAnalysisCircuit, object):
             student_version,
         )
 
+        self.onetwork_data_explorer = self._desktop.GetTool("NdExplorer")
+
     def __enter__(self):
         return self
-
-    @property
-    def onetwork_data_explorer(self):
-        """Data explorer."""
-        return self._desktop.GetTool("NdExplorer")
 
     def _get_number_from_string(self, stringval):
         value = stringval[stringval.find("=") + 1 :].strip().replace("{", "").replace("}", "").replace(",", ".")

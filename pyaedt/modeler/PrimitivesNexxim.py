@@ -81,7 +81,7 @@ class NexximComponents(CircuitComponents):
 
         """
         self._p_app._oproject.CopyDesign(sourcename)
-        self.oeditor.PasteDesign(0, ["NAME:Attributes", "Page:=", 1, "X:=", 0, "Y:=", 0, "Angle:=", 0, "Flip:=", False])
+        self._oeditor.PasteDesign(0, ["NAME:Attributes", "Page:=", 1, "X:=", 0, "Y:=", 0, "Angle:=", 0, "Flip:=", False])
         self.refresh_all_ids()
         for el in self.components:
             if sourcename in self.components[el].composed_name:
@@ -980,9 +980,9 @@ class NexximComponents(CircuitComponents):
 
         """
         name = o.composed_name
-        proparray = self.oeditor.GetProperties("PassedParameterTab", name)
+        proparray = self._oeditor.GetProperties("PassedParameterTab", name)
         for j in proparray:
-            propval = retry_ntimes(10, self.oeditor.GetPropertyValue, "PassedParameterTab", name, j)
+            propval = retry_ntimes(10, self._oeditor.GetPropertyValue, "PassedParameterTab", name, j)
             o._add_property(j, propval)
         return o
 

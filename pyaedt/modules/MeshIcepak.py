@@ -14,6 +14,12 @@ class IcepakMesh(object):
 
     def __init__(self, app):
         self._p_app = app
+
+        self._odesign = self._p_app._odesign
+        self.modeler = self._p_app._modeler
+        design_type = self._odesign.GetDesignType()
+        assert design_type in meshers, "Invalid design type {}".format(design_type)
+        self.omeshmodule = self._odesign.GetModule(meshers[design_type])
         self.id = 0
         self._oeditor = self.modeler.oeditor
         self._model_units = self.modeler.model_units
@@ -193,39 +199,9 @@ class IcepakMesh(object):
             return True
 
     @property
-    def omeshmodule(self):
-        """Mesh module."""
-        design_type = self._odesign.GetDesignType()
-        assert design_type in meshers, "Invalid design type {}".format(design_type)
-        return self._odesign.GetModule(meshers[design_type])
-
-    @property
     def boundingdimension(self):
         """Bounding dimension."""
         return self.modeler.get_bounding_dimension()
-
-    @property
-    def _odesign(self):
-        """Design.
-
-        Returns
-        -------
-        type
-            Design object.
-
-        """
-        return self._p_app._odesign
-
-    @property
-    def modeler(self):
-        """Modeler.
-
-        Returns
-        -------
-        :class:`pyaedt.modules.Modeler`
-
-        """
-        return self._p_app._modeler
 
     @aedt_exception_handler
     def _get_design_mesh_operations(self):

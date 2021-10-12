@@ -25,16 +25,6 @@ class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
     """
 
     @property
-    def odefinition_manager(self):
-        """Definition manager."""
-        return self.oproject.GetDefinitionManager()
-
-    @property
-    def omaterial_manager(self):
-        """Material manager."""
-        return self.odefinition_manager.GetManager("Material")
-
-    @property
     def design_file(self):
         """Design file."""
         design_file = os.path.join(self.working_directory, "design_data.json")

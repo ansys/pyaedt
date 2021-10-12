@@ -548,6 +548,21 @@ class Design(object):
         close_on_exit=False,
         student_version=False,
     ):
+        self.oboundary = None
+
+        self.omodelsetup = None
+
+        self.oimportexport = None
+
+        self.oanalysis_setup = None
+
+        self.ooptimetrics = None
+
+        self.ooutput_variable = None
+
+        self.odesktop = None
+
+        self.oanalysis = None
         # Get Desktop from global Desktop Environment
         self._project_dictionary = OrderedDict()
         self.boundaries = []
@@ -591,6 +606,29 @@ class Design(object):
         """Implement destructor with array name or index."""
         del self._variable_manager[key]
 
+    @aedt_exception_handler
+    def initialize_all_aedt_objects(self):
+        self.oboundary = self._odesign.GetModule("BoundarySetup")
+        if self.design_type == "Maxwell 2D":
+            self.omodelsetup = None
+        else:
+            self.omodelsetup = self._odesign.GetModule("ModelSetup")
+
+        self.oimportexport = self._desktop.GetTool("ImportExport")
+
+        self.oanalysis_setup = self._odesign.GetModule("AnalysisSetup")
+
+        self.ooptimetrics = self._odesign.GetModule("Optimetrics")
+
+        self.ooutput_variable = self._odesign.GetModule("OutputVariable")
+
+        self.odefinition_manager = self._oproject.GetDefinitionManager()
+
+        self.omaterial_manager =  self.odefinition_manager.GetManager("Material")
+
+        self.odesktop = self._desktop
+
+
     @property
     def project_properies(self):
         """Project properties.
@@ -604,14 +642,6 @@ class Design(object):
         if not self._project_dictionary:
             self._project_dictionary = load_entire_aedt_file(self.project_file)
             self._messenger.add_info_message("AEDT Load time {}".format(time.time() - start))
-        # import time
-        # start = time.time()
-        # if os.path.exists(self.project_file):
-        #     _mttime = os.path.getmtime(self.project_file)
-        #     if _mttime != self._mttime:
-        #         self._project_dictionary = load_entire_aedt_file(self.project_file)
-        #         self._mttime = _mttime
-        #         self._messenger.add_info_message("AEDT Load time {}".format(time.time()-start))
         return self._project_dictionary
 
     @property
@@ -731,7 +761,6 @@ class Design(object):
             Type of the design. See above for a list of possible return values.
 
         """
-        # return self._odesign.GetDesignType()
         return self._design_type
 
     @property
@@ -1028,43 +1057,8 @@ class Design(object):
             if warning_msg:
                 self.add_info_message(warning_msg)
                 self._insert_design(self._design_type, solution_type=self._solution_type)
+        self.initialize_all_aedt_objects()
         self.boundaries = self._get_boundaries_data()
-
-    @property
-    def oboundary(self):
-        """Boundary.
-
-        Returns
-        -------
-        type
-            BoundarySetup module object.
-
-        """
-        return self._odesign.GetModule("BoundarySetup")
-
-    @property
-    def omodelsetup(self):
-        """Model setup.
-
-        Returns
-        -------
-        type
-            ModelSetup module object.
-
-        """
-        return self._odesign.GetModule("ModelSetup")
-
-    @property
-    def oimportexport(self):
-        """Import/Export.
-
-        Returns
-        -------
-        type
-            Import/Export module object.
-
-        """
-        return self.odesktop.GetTool("ImportExport")
 
     @property
     def oproject(self):
@@ -1123,30 +1117,6 @@ class Design(object):
         if not self._oproject:
             self._oproject = self._desktop.NewProject()
             self.add_info_message("Project {} has been created.".format(self._oproject.GetName()), "Global")
-
-    @property
-    def oanalysis_setup(self):
-        """Analysis setup.
-
-        Returns
-        -------
-        type
-            AnalysisSetup module object.
-
-        """
-        return self.odesign.GetModule("AnalysisSetup")
-
-    @property
-    def odesktop(self):
-        """Desktop.
-
-        Returns
-        -------
-        type
-            Desktop module object.
-
-        """
-        return self._desktop
 
     @property
     def desktop_install_dir(self):

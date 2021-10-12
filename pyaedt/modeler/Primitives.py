@@ -480,8 +480,8 @@ class Polyline(Object3d):
 
         """
         vArg1 = ["NAME:Selections", "Selections:=", self.name]
-        self._p_primitives.oeditor.Copy(vArg1)
-        self._p_primitives.oeditor.Paste()
+        self._p_primitives._oeditor.Copy(vArg1)
+        self._p_primitives._oeditor.Paste()
         return self._add_new_polyline()
 
     def _add_new_polyline(self):
@@ -549,7 +549,7 @@ class Polyline(Object3d):
                 break
 
         assert found_vertex, "Specified vertex {} not found in polyline {}.".format(position, self._m_name)
-        self._p_primitives.oeditor.DeletePolylinePoint(
+        self._p_primitives._oeditor.DeletePolylinePoint(
             [
                 "NAME:Delete Point",
                 "Selections:=",
@@ -588,7 +588,7 @@ class Polyline(Object3d):
         if isinstance(edge_id, int):
             edge_id = [edge_id]
         try:
-            self._p_primitives.oeditor.DeletePolylinePoint(
+            self._p_primitives._oeditor.DeletePolylinePoint(
                 [
                     "NAME:Delete Point",
                     "Selections:=",
@@ -684,7 +684,7 @@ class Polyline(Object3d):
             arg3.append(["NAME:Height", "Value:=", _dim_arg(height, model_units)])
         arg2.append(arg3)
         arg1.append(arg2)
-        self._p_primitives.oeditor.ChangeProperty(arg1)
+        self._p_primitives._oeditor.ChangeProperty(arg1)
         self._update()
         return True
 
@@ -775,7 +775,7 @@ class Polyline(Object3d):
             varg2.append(self._pl_point(segment.extra_points[1]))
             varg1.append(varg2)
             varg1 += seg_str[9:]
-        self._p_primitives.oeditor.InsertPolylineSegment(varg1)
+        self._p_primitives._oeditor.InsertPolylineSegment(varg1)
 
         return True
 
@@ -794,7 +794,9 @@ class Primitives(object):
     def __init__(self, modeler):
         self._p_modeler = modeler
         self._p_app = modeler._p_app
+        self._oeditor = self.modeler.oeditor
         self.refresh()
+
 
     @property
     def solid_objects(self):
@@ -861,9 +863,9 @@ class Primitives(object):
         """List of the names of all 3d components objects."""
         obs3d = []
         try:
-            comps3d = self.oeditor.Get3DComponentDefinitionNames()
+            comps3d = self._oeditor.Get3DComponentDefinitionNames()
             for comp3d in comps3d:
-                obs3d += list(self.oeditor.Get3DComponentInstanceNames(comp3d))
+                obs3d += list(self._oeditor.Get3DComponentInstanceNames(comp3d))
         except Exception as e:
             obs3d = []
         return obs3d
@@ -910,11 +912,6 @@ class Primitives(object):
         return self._p_modeler
 
     @property
-    def oeditor(self):
-        """Editor."""
-        return self.modeler.oeditor
-
-    @property
     def model_units(self):
         """Model units."""
         return self.modeler.model_units
@@ -959,7 +956,7 @@ class Primitives(object):
             vPropServers.append(el)
         vGeo3d = ["NAME:Geometry3DAttributeTab", vPropServers, vChangedProps]
         vOut = ["NAME:AllTabs", vGeo3d]
-        retry_ntimes(10, self.oeditor.ChangeProperty, vOut)
+        retry_ntimes(10, self._oeditor.ChangeProperty, vOut)
         if "NAME:Name" in vPropChange:
             self.cleanup_objects()
         return True
@@ -1114,7 +1111,7 @@ class Primitives(object):
             "IsLightweight:=",
             False,
         ]
-        self.oeditor.CreateRegion(arg, arg2)
+        self._oeditor.CreateRegion(arg, arg2)
         return self._create_object("Region")
 
     @aedt_exception_handler
@@ -1149,7 +1146,7 @@ class Primitives(object):
             varg2 = ["NAME:BodyFromEdgeToParameters"]
             varg2.append("Edges:="), varg2.append([edge_id])
 
-            new_object_name = self.oeditor.CreateObjectFromEdges(varg1, ["NAME:Parameters", varg2])[0]
+            new_object_name = self._oeditor.CreateObjectFromEdges(varg1, ["NAME:Parameters", varg2])[0]
             return self._create_object(new_object_name)
 
     @aedt_exception_handler
@@ -1179,7 +1176,7 @@ class Primitives(object):
 
             varg2 = ["NAME:BodyFromFaceToParameters"]
             varg2.append("FacesToDetach:="), varg2.append([face_id])
-            new_object_name = self.oeditor.CreateObjectFromFaces(varg1, ["NAME:Parameters", varg2])[0]
+            new_object_name = self._oeditor.CreateObjectFromFaces(varg1, ["NAME:Parameters", varg2])[0]
             return self._create_object(new_object_name)
 
     @aedt_exception_handler
@@ -1398,7 +1395,7 @@ class Primitives(object):
         vArg1.append(vArgParamVector)
         obj_name, ext = os.path.splitext(os.path.basename(udp_dll_name))
         vArg2 = self._default_object_attributes(name=obj_name)
-        obj_name = self.oeditor.CreateUserDefinedPart(vArg1, vArg2)
+        obj_name = self._oeditor.CreateUserDefinedPart(vArg1, vArg2)
         return self._create_object(obj_name)
 
     @aedt_exception_handler
@@ -1422,7 +1419,7 @@ class Primitives(object):
         elif not isinstance(objects, list):
             objects = [objects]
         for el in objects:
-            if el not in self.object_names and not list(self.oeditor.GetObjectsInGroup(el)):
+            if el not in self.object_names and not list(self._oeditor.GetObjectsInGroup(el)):
                 objects.remove(el)
         if not objects:
             self._messenger.add_warning_message("No objects to delete")
@@ -1435,7 +1432,7 @@ class Primitives(object):
             objects_str = self._p_modeler.convert_to_selections(objs, return_list=False)
             arg = ["NAME:Selections", "Selections:=", objects_str]
             try:
-                self.oeditor.Delete(arg)
+                self._oeditor.Delete(arg)
             except:
                 self._messenger.add_warning_message("Failed to delete {}".format(objects_str))
             remaining -= slice
@@ -1915,12 +1912,12 @@ class Primitives(object):
         """
         oFaceIDs = []
         if type(partId) is str and partId in self.object_id_dict:
-            oFaceIDs = self.oeditor.GetFaceIDs(partId)
+            oFaceIDs = self._oeditor.GetFaceIDs(partId)
             oFaceIDs = [int(i) for i in oFaceIDs]
         elif partId in self.objects:
             o = self.objects[partId]
             name = o.name
-            oFaceIDs = self.oeditor.GetFaceIDs(name)
+            oFaceIDs = self._oeditor.GetFaceIDs(name)
             oFaceIDs = [int(i) for i in oFaceIDs]
         return oFaceIDs
 
@@ -1941,11 +1938,11 @@ class Primitives(object):
         """
         oEdgeIDs = []
         if type(partId) is str and partId in self.object_id_dict:
-            oEdgeIDs = self.oeditor.GetEdgeIDsFromObject(partId)
+            oEdgeIDs = self._oeditor.GetEdgeIDsFromObject(partId)
             oEdgeIDs = [int(i) for i in oEdgeIDs]
         elif partId in self.objects:
             o = self.objects[partId]
-            oEdgeIDs = self.oeditor.GetEdgeIDsFromObject(o.name)
+            oEdgeIDs = self._oeditor.GetEdgeIDsFromObject(o.name)
             oEdgeIDs = [int(i) for i in oEdgeIDs]
         return oEdgeIDs
 
@@ -1963,7 +1960,7 @@ class Primitives(object):
         list
             List of edge IDs.
         """
-        oEdgeIDs = self.oeditor.GetEdgeIDsFromFace(partId)
+        oEdgeIDs = self._oeditor.GetEdgeIDsFromFace(partId)
         oEdgeIDs = [int(i) for i in oEdgeIDs]
         return oEdgeIDs
 
@@ -1984,11 +1981,11 @@ class Primitives(object):
         """
         oVertexIDs = []
         if type(partID) is str and partID in self.object_id_dict:
-            oVertexIDs = self.oeditor.GetVertexIDsFromObject(partID)
+            oVertexIDs = self._oeditor.GetVertexIDsFromObject(partID)
             oVertexIDs = [int(i) for i in oVertexIDs]
         elif partID in self.objects:
             o = self.objects[partID]
-            oVertexIDs = self.oeditor.GetVertexIDsFromObject(o.name)
+            oVertexIDs = self._oeditor.GetVertexIDsFromObject(o.name)
             oVertexIDs = [int(i) for i in oVertexIDs]
         return oVertexIDs
 
@@ -2010,7 +2007,7 @@ class Primitives(object):
 
         """
         try:
-            oVertexIDs = self.oeditor.GetVertexIDsFromFace(face_id)
+            oVertexIDs = self._oeditor.GetVertexIDsFromFace(face_id)
         except:
             oVertexIDs = []
         else:
@@ -2058,7 +2055,7 @@ class Primitives(object):
 
         """
         try:
-            oVertexIDs = self.oeditor.GetVertexIDsFromEdge(edgeID)
+            oVertexIDs = self._oeditor.GetVertexIDsFromEdge(edgeID)
         except:
             oVertexIDs = []
         else:
@@ -2081,7 +2078,7 @@ class Primitives(object):
 
         """
         try:
-            pos = self.oeditor.GetVertexPosition(vertex_id)
+            pos = self._oeditor.GetVertexPosition(vertex_id)
         except:
             position = []
         else:
@@ -2104,7 +2101,7 @@ class Primitives(object):
 
         """
 
-        area = self.oeditor.GetFaceArea(face_id)
+        area = self._oeditor.GetFaceArea(face_id)
         return area
 
     @aedt_exception_handler
@@ -2124,7 +2121,7 @@ class Primitives(object):
 
         """
         try:
-            c = self.oeditor.GetFaceCenter(face_id)
+            c = self._oeditor.GetFaceCenter(face_id)
         except:
             self._messenger.add_warning_message("Non Planar Faces doesn't provide any Face Center")
             return False
@@ -2223,7 +2220,7 @@ class Primitives(object):
         vArg1.append("XPosition:="), vArg1.append(XCenter)
         vArg1.append("YPosition:="), vArg1.append(YCenter)
         vArg1.append("ZPosition:="), vArg1.append(ZCenter)
-        list_of_bodies = list(self.oeditor.GetBodyNamesByPosition(vArg1))
+        list_of_bodies = list(self._oeditor.GetBodyNamesByPosition(vArg1))
         return list_of_bodies
 
     @aedt_exception_handler
@@ -2262,7 +2259,7 @@ class Primitives(object):
         for obj in object_list:
             vArg1[2] = obj
             try:
-                edgeID = int(self.oeditor.GetEdgeByPosition(vArg1))
+                edgeID = int(self._oeditor.GetEdgeByPosition(vArg1))
                 return edgeID
             except Exception as e:
                 pass
@@ -2328,7 +2325,7 @@ class Primitives(object):
         for obj in object_list:
             vArg1[2] = obj
             try:
-                face_id = self.oeditor.GetFaceByPosition(vArg1)
+                face_id = self._oeditor.GetFaceByPosition(vArg1)
                 return face_id
             except:
                 # Not Found, keep looking
@@ -2799,7 +2796,7 @@ class Primitives(object):
             return defaultmatname, True
 
     def _refresh_solids(self):
-        test = retry_ntimes(10, self.oeditor.GetObjectsInGroup, "Solids")
+        test = retry_ntimes(10, self._oeditor.GetObjectsInGroup, "Solids")
         if test is None or test is False:
             assert False, "Get Solids is failing"
         elif test is True:
@@ -2809,7 +2806,7 @@ class Primitives(object):
         self._all_object_names = self._solids + self._sheets + self._lines
 
     def _refresh_sheets(self):
-        test = retry_ntimes(10, self.oeditor.GetObjectsInGroup, "Sheets")
+        test = retry_ntimes(10, self._oeditor.GetObjectsInGroup, "Sheets")
         if test is None or test is False:
             assert False, "Get Sheets is failing"
         elif test is True:
@@ -2819,7 +2816,7 @@ class Primitives(object):
         self._all_object_names = self._solids + self._sheets + self._lines
 
     def _refresh_lines(self):
-        test = retry_ntimes(10, self.oeditor.GetObjectsInGroup, "Lines")
+        test = retry_ntimes(10, self._oeditor.GetObjectsInGroup, "Lines")
         if test is None or test is False:
             assert False, "Get Lines is failing"
         elif test is True:
@@ -2829,7 +2826,7 @@ class Primitives(object):
         self._all_object_names = self._solids + self._sheets + self._lines
 
     def _refresh_unclassified(self):
-        test = retry_ntimes(10, self.oeditor.GetObjectsInGroup, "Unclassified")
+        test = retry_ntimes(10, self._oeditor.GetObjectsInGroup, "Unclassified")
         if test is None or test is False:
             self._unclassified = []
             self._messenger.logger.debug("Unclassified is failing")
@@ -3043,13 +3040,13 @@ class Primitives(object):
         if len(objListSolids) > 0:
             objList.extend(objListSolids)
         for obj in objList:
-            val = retry_ntimes(10, self.oeditor.GetEdgeIDsFromObject, obj)
+            val = retry_ntimes(10, self._oeditor.GetEdgeIDsFromObject, obj)
             if not(isinstance(val, bool)) and str(lval) in list(val):
                 return obj
         return None
 
     def _find_object_from_face_id(self, lval):
-        if self.oeditor is not None:
+        if self._oeditor is not None:
             objList = []
             objListSheets = self.sheet_names
             if len(objListSheets) > 0:
@@ -3058,7 +3055,7 @@ class Primitives(object):
             if len(objListSolids) > 0:
                 objList.extend(objListSolids)
             for obj in objList:
-                face_ids = list(self.oeditor.GetFaceIDs(obj))
+                face_ids = list(self._oeditor.GetFaceIDs(obj))
                 if str(lval) in face_ids:
                     return obj
 

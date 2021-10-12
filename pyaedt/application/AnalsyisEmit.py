@@ -55,6 +55,7 @@ class FieldAnalysisEmit(Design):
         student_version=False,
     ):
         self.solution_type = solution_type
+        self.oanalysis = None
         Design.__init__(
             self,
             application,
@@ -80,14 +81,3 @@ class FieldAnalysisEmit(Design):
             Design oModeler
         """
         return self._modeler
-
-    @property
-    def oanalysis(self):
-        """Analysis object.
-
-        Returns
-        -------
-        int
-           Design module ``"SimSetup"``
-        """
-        return None

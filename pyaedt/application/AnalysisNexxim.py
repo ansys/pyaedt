@@ -34,6 +34,7 @@ class FieldAnalysisCircuit(Analysis):
         student_version=False,
     ):
         self.solution_type = solution_type
+        self.oanalysis = self._odesign.GetModule("SimSetup")
         Analysis.__init__(
             self,
             application,
@@ -92,11 +93,6 @@ class FieldAnalysisCircuit(Analysis):
     def modeler(self):
         """Modeler object."""
         return self._modeler
-
-    @property
-    def oanalysis(self):
-        """Analysis object."""
-        return self.odesign.GetModule("SimSetup")
 
     @property
     def setup_names(self):

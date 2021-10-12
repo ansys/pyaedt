@@ -820,6 +820,7 @@ class PostProcessorCommon(object):
 
     def __init__(self, app):
         self._p_app = app
+        self._oeditor = self.modeler.oeditor
         self._oreportsetup = self._odesign.GetModule("ReportSetup")
         self._scratch = Scratch(self._p_app.temp_directory, volatile=True)
 
@@ -858,11 +859,6 @@ class PostProcessorCommon(object):
     def modeler(self):
         """Modeler."""
         return self._p_app._modeler
-
-    @property
-    def oeditor(self):
-        """Editor."""
-        return self.modeler.oeditor
 
     @property
     def post_solution_type(self):
@@ -1168,8 +1164,8 @@ class PostProcessorCommon(object):
         self._desktop.RestoreWindow()
         param = ["NAME:SphereParameters", "XCenter:=", "0mm", "YCenter:=", "0mm", "ZCenter:=", "0mm", "Radius:=", "1mm"]
         attr = ["NAME:Attributes", "Name:=", "DUMMYSPHERE1", "Flags:=", "NonModel#"]
-        self.oeditor.CreateSphere(param, attr)
-        self.oeditor.Delete(["NAME:Selections", "Selections:=", "DUMMYSPHERE1"])
+        self._oeditor.CreateSphere(param, attr)
+        self._oeditor.Delete(["NAME:Selections", "Selections:=", "DUMMYSPHERE1"])
         return True
 
     @aedt_exception_handler
@@ -1268,7 +1264,7 @@ class PostProcessor(PostProcessorCommon, object):
         str
            Model units, such as ``"mm"``.
         """
-        return retry_ntimes(10, self.oeditor.GetModelUnits)
+        return retry_ntimes(10, self._oeditor.GetModelUnits)
 
     @property
     def post_osolution(self):
@@ -2062,7 +2058,7 @@ class PostProcessor(PostProcessorCommon, object):
             for solid in wireframes:
                 self._primitives[solid].display_wireframe = False
         else:
-            self.oeditor.ExportImage(fileName, 1920, 1080)
+            self._oeditor.ExportImage(fileName, 1920, 1080)
         return True
 
     @aedt_exception_handler
@@ -2167,9 +2163,9 @@ class PostProcessor(PostProcessorCommon, object):
                 picturename = picturename[:-4]
 
         # open the 3D modeler and remove the selection on other objects
-        self.oeditor.ShowWindow()
+        self._oeditor.ShowWindow()
         self.steal_focus_oneditor()
-        self.oeditor.FitAll()
+        self._oeditor.FitAll()
         # export the image
         arg = [
             "NAME:SaveImageParams",
@@ -2185,7 +2181,7 @@ class PostProcessor(PostProcessorCommon, object):
             "",
         ]
         file_name = os.path.join(file_path, picturename + ".jpg")
-        self.oeditor.ExportModelImageToFile(file_name, 0, 0, arg)
+        self._oeditor.ExportModelImageToFile(file_name, 0, 0, arg)
         return file_name
 
     @aedt_exception_handler

@@ -18,33 +18,17 @@ class ModelerCircuit(Modeler):
 
     def __init__(self, app):
         self._p_app = app
-        self._oeditor = self._odesign.SetActiveEditor("SchematicEditor")
-        Modeler.__init__(self, app)
+        self.oeditor = self._odesign.SetActiveEditor("SchematicEditor")
+        self.o_def_manager = self._p_app.odefinition_manager
+        self.o_component_manager = self.o_def_manager.GetManager("Component")
+        self.o_model_manager = self.o_def_manager.GetManager("Model")
 
-    @property
-    def oeditor(self):
-        """Editor."""
-        return self._oeditor
+        Modeler.__init__(self, app)
 
     @property
     def obounding_box(self):
         """Bounding box."""
         return self.oeditor.GetModelBoundingBox()
-
-    @property
-    def o_def_manager(self):
-        """Definition manager."""
-        return self._p_app.oproject.GetDefinitionManager()
-
-    @property
-    def o_component_manager(self):
-        """Component."""
-        return self.o_def_manager.GetManager("Component")
-
-    @property
-    def o_model_manager(self):
-        """Model manager."""
-        return self.o_def_manager.GetManager("Model")
 
     @aedt_exception_handler
     def connect_schematic_components(self, firstcomponent, secondcomponent, pinnum_first=2, pinnum_second=1):

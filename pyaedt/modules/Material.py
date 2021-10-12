@@ -664,6 +664,15 @@ class CommonMaterial(object):
     """
     def __init__(self, materials, name, props=None):
         self._p_materials = materials
+        self.odefinition_manager = self._p_materials.odefinition_manager
+        self._omaterial_manager = self._p_materials.omaterial_manager
+
+        self._messenger = self._p_materials._messenger
+
+        self._oproject = self._p_materials._oproject
+
+        self._desktop = self._p_materials._desktop
+
         self.name = name
         self.coordinate_system = ""
         if props:
@@ -688,31 +697,6 @@ class CommonMaterial(object):
         if "ModSinceLib" in self._props:
             self.mod_since_lib = self._props["ModSinceLib"]
             del self._props["ModSinceLib"]
-
-    @property
-    def odefinition_manager(self):
-        """Definition manager."""
-        return self._p_materials._oproject.GetDefinitionManager()
-
-    @property
-    def _omaterial_manager(self):
-        """Material manager."""
-        return self.odefinition_manager.GetManager("Material")
-
-    @property
-    def _messenger(self):
-        """Messenger."""
-        return self._p_materials._messenger
-
-    @property
-    def _oproject(self):
-        """Project."""
-        return self._p_materials._oproject
-
-    @property
-    def _desktop(self):
-        """Desktop."""
-        return self._p_materials._desktop
 
     @aedt_exception_handler
     def _get_args(self, props=None):
