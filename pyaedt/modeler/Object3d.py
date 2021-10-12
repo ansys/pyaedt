@@ -297,7 +297,7 @@ class EdgePrimitive(EdgeTypePrimitive, object):
 
         Returns
         -------
-        list
+        list of :class:`pyaedt.modeler.Object3d.VertexPrimitive`
             List of vertices.
         """
         vertices = []
@@ -385,7 +385,7 @@ class FacePrimitive(object):
 
         Returns
         -------
-        list
+        list of :class:`pyaedt.modeler.Object3d.EdgePrimitive`
             List of Edges.
         """
         edges = []
@@ -399,7 +399,7 @@ class FacePrimitive(object):
 
         Returns
         -------
-        list
+        list of :class:`pyaedt.modeler.Object3d.VertexPrimitive`
             List of Vertices.
         """
         vertices = []
@@ -684,7 +684,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.FacePrimitive`
+        list of :class:`pyaedt.modeler.Object3d.FacePrimitive`
 
         """
         faces = []
@@ -795,7 +795,7 @@ class Object3d(object):
 
         Returns
         -------
-        list of EdgePrimitive
+        list of :class:`pyaedt.modeler.Object3d.EdgePrimitive`
 
         """
         edges = []
@@ -810,7 +810,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.FacePrimitive`
+        list of :class:`pyaedt.modeler.Object3d.VertexPrimitive`
 
         """
         vertices = []
