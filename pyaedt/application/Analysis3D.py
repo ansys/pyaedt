@@ -273,22 +273,22 @@ class FieldAnalysis3D(Analysis, object):
             body_list += design.modeler.primitives.sheet_names
         selection_list = []
         material_properties = design.modeler.primitives.objects
-        for body in body_list:
-            include_object = True
-            if object_list:
-                if body not in object_list:
-                    include_object = False
-            for key, val in material_properties.items():
-                if val.name == body:
-                    if no_vacuum and val.material_name == "Vacuum":
-                        include_object = False
-                    if no_pec and val.material_name == "pec":
-                        include_object = False
-            if include_object:
-                selection_list.append(body)
+        if object_list:
+            selection_list = [i for i in object_list if i in body_list]
+        else:
+            for body in body_list:
+                include_object = True
+                for key, val in material_properties.items():
+                    if val.name == body:
+                        if no_vacuum and val.material_name == "Vacuum":
+                            include_object = False
+                        if no_pec and val.material_name == "pec":
+                            include_object = False
+                if include_object:
+                    selection_list.append(body)
         design.modeler.oeditor.Copy(["NAME:Selections", "Selections:=", ",".join(selection_list)])
         self.modeler.oeditor.Paste()
-
+        self.modeler.primitives.refresh_all_ids()
         return True
 
     @aedt_exception_handler
@@ -431,10 +431,8 @@ class FieldAnalysis3D(Analysis, object):
         cond = self.materials.conductors
         cond = [i.lower() for i in cond]
         obj_names = []
-        for el, obj in self.modeler.primitives.objects.items():
-            if obj.object_type == "Solid":
-                if obj.material_name.lower() in cond:
-                    obj_names.append(obj.name)
+        for el in cond:
+            obj_names += list(self._modeler.oeditor.GetObjectsByMaterial(el))
         return obj_names
 
     @aedt_exception_handler
@@ -450,9 +448,6 @@ class FieldAnalysis3D(Analysis, object):
         diel = self.materials.dielectrics
         diel = [i.lower() for i in diel]
         obj_names = []
-        for name in self.modeler.primitives.solid_names:
-            id = self.modeler.primitives.object_id_dict[name]
-            obj = self.modeler.primitives.objects[id]
-            if obj.material_name.lower() in diel:
-                obj_names.append(obj.name)
+        for el in diel:
+            obj_names += list(self._modeler.oeditor.GetObjectsByMaterial(el))
         return obj_names

@@ -30,6 +30,9 @@ from ..modules.Boundary import BoundaryObject
 from ..generic.general_methods import generate_unique_name
 
 
+if sys.version_info.major > 2:
+    import base64
+
 design_solutions = {
     "Maxwell 2D": [
         "MagnetostaticXY",
@@ -548,7 +551,7 @@ class Design(object):
     ):
         # Get Desktop from global Desktop Environment
         self._project_dictionary = OrderedDict()
-        self.boundaries = OrderedDict()
+        self.boundaries = []
         self.project_datasets = {}
         self.design_datasets = {}
         main_module = sys.modules["__main__"]
@@ -562,7 +565,6 @@ class Design(object):
             self._logger = main_module.aedt_logger
             self.release_on_exit = False
 
-        self._project_dictionary = {}
         self._mttime = None
         self._desktop = main_module.oDesktop
         self._aedt_version = main_module.AEDTVersion
@@ -604,11 +606,18 @@ class Design(object):
         dict
             Dictionary of the project properties.
         """
-        if os.path.exists(self.project_file):
-            _mttime = os.path.getmtime(self.project_file)
-            if _mttime != self._mttime:
-                self._project_dictionary = load_entire_aedt_file(self.project_file)
-                self._mttime = _mttime
+        start = time.time()
+        if not self._project_dictionary:
+            self._project_dictionary = load_entire_aedt_file(self.project_file)
+            self._messenger.add_info_message("AEDT Load time {}".format(time.time() - start))
+        # import time
+        # start = time.time()
+        # if os.path.exists(self.project_file):
+        #     _mttime = os.path.getmtime(self.project_file)
+        #     if _mttime != self._mttime:
+        #         self._project_dictionary = load_entire_aedt_file(self.project_file)
+        #         self._mttime = _mttime
+        #         self._messenger.add_info_message("AEDT Load time {}".format(time.time()-start))
         return self._project_dictionary
 
     @property
@@ -1674,12 +1683,17 @@ class Design(object):
 
     @aedt_exception_handler
     def _get_boundaries_data(self):
-        """Retrieve boundary data."""
+        """Retrieve boundary data.
+
+        Returns
+        -------
+        [:class:`pyaedt.modules.Boundary.BoundaryObject`]
+        """
         boundaries = []
         if self.design_properties and "BoundarySetup" in self.design_properties:
             for ds in self.design_properties["BoundarySetup"]["Boundaries"]:
                 try:
-                    if type(self.design_properties["BoundarySetup"]["Boundaries"][ds]) is OrderedDict:
+                    if isinstance(self.design_properties["BoundarySetup"]["Boundaries"][ds], (OrderedDict, dict)):
                         boundaries.append(
                             BoundaryObject(
                                 self,
@@ -2548,6 +2562,34 @@ class Design(object):
         self.design_name = newname
         self.__init__(self.project_name, self.design_name)
 
+        return True
+
+    @aedt_exception_handler
+    def export_design_preview_to_jpg(self, filename):
+        """Export design preview image to a jpg file.
+
+        Parameters
+        ----------
+        filename : str
+            Full path and name for the JPG file
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        design_info = self.project_properies["ProjectPreview"]["DesignInfo"]
+        if not isinstance(design_info, dict):
+            #there are multiple designs, find the right one
+            #is self.design_name guaranteed to be there?
+            design_info = [design for design in design_info if design["DesignName"] == self.design_name][0]
+        image_data_str = design_info["Image64"]
+        with open(filename, "wb") as f:
+            if sys.version_info.major == 2:
+                bytestring = bytes(image_data_str).decode('base64')
+            else:
+                bytestring = base64.decodebytes(image_data_str.encode("ascii"))
+            f.write(bytestring)
         return True
 
     @aedt_exception_handler

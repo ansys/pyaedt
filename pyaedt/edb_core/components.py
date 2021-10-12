@@ -148,18 +148,16 @@ class Components(object):
 
         Returns
         -------
-        dict
+
             Default dictionary for the EDB component.
 
         """
+        self._cmp = {}
         self._messenger.add_info_message("Refreshing the Components dictionary.")
-        try:
-            cmplist = self.get_component_list()
-            self._cmp = {}
-            for cmp in cmplist:
-                self._cmp[cmp.RefDes] = EDBComponent(self, cmp, cmp.RefDes)
-        except:
-            pass
+        if self._active_layout:
+            for cmp in self._active_layout.Groups:
+                if cmp.GetType().ToString() == "Ansys.Ansoft.Edb.Cell.Hierarchy.Component":
+                    self._cmp[cmp.GetName()] = EDBComponent(self, cmp)
 
     @property
     def resistors(self):
@@ -335,7 +333,7 @@ class Components(object):
             List of component setup information.
 
         """
-        cmp_setup_info_list = self._edbutils.ComponentSetupInfo.GetFromLayout(self._builder.EdbHandler.layout)
+        cmp_setup_info_list = self._edbutils.ComponentSetupInfo.GetFromLayout(self._active_layout)
         cmp_list = []
         for comp in cmp_setup_info_list:
             cmp_list.append(comp)
@@ -413,14 +411,14 @@ class Components(object):
 
         """
         try:
-            new_cmp = self._edb.Cell.Hierarchy.Component.Create(self._builder.EdbHandler, component_name)
-            new_group = self._edb.Cell.Hierarchy.Group.Create(self._builder.EdbHandler.layout, component_name)
+            new_cmp = self._edb.Cell.Hierarchy.Component.Create(self._active_layout, component_name)
+            new_group = self._edb.Cell.Hierarchy.Group.Create(self._active_layout, component_name)
             for pin in pins:
                 new_group.AddMember(pin)
             new_cmp.SetGroup(new_group)
             new_cmp_layer_name = pins[0].GetPadstackDef().GetData().GetLayerNames().First()
             new_cmp_placement_layer = self._edb.Cell.Layer.FindByName(
-                self._builder.EdbHandler.layout.GetLayerCollection(), new_cmp_layer_name
+                self._active_layout.GetLayerCollection(), new_cmp_layer_name
             )
             new_cmp.SetPlacementLayer(new_cmp_placement_layer)
             return (True, new_cmp)

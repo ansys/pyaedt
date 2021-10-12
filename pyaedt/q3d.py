@@ -8,7 +8,7 @@ from collections import OrderedDict
 from .modules.Boundary import BoundaryObject
 from .generic.DataHandlers import dict2arg
 import os
-
+import warnings
 
 class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
     """Extracts a 2D or 3D field analysis.
@@ -580,15 +580,43 @@ class Q2d(QExtractor, object):
                                                         matname=matname)
 
     def assign_single_signal_line(self, target_objects, name="", solve_option="SolveInside", thickness=None, unit="um"):
+        """Assign conductor type to sheets.
+
+        Parameters
+        ----------
+        target_objects : list
+            List of Object3D.
+        name : str
+            Name of the conductor.
+        solve_option : str, optional
+            Method for solving. Options are ``"SolveInside"``, ``"SolveOnBoundary"`` or ``"Automatic"``. The default is
+            ``"SolveInside"``.
+        thickness : float, optional
+            Conductor thickness. The default is ``None``, in which case the conductor thickness is obtained by dividing
+            the conductor's area by its perimeter (A/p). If multiple conductors are selected, the average conductor
+            thickness is used.
+        unit : str, optional
+            Thickness unit. The default is ``"um"``.
+        """
+
+        warnings.warn('`assign_single_signal_line` is deprecated. Use `assign_single_conductor` instead.',
+                      DeprecationWarning)
+        self.assign_single_conductor(target_objects, name, "SignalLine", solve_option,
+                                thickness, unit)
+
+    def assign_single_conductor(self, target_objects, name="", conductor_type="SignalLine", solve_option="SolveInside",
+                                thickness=None, unit="um"):
         """
         Assign conductor type to sheets.
 
         Parameters
         ----------
-        name : str
-            Name of the conductor.
         target_objects : list
             List of Object3D.
+        name : str
+            Name of the conductor.
+        conductor_type : str
+            Type of conductor. Options are ``"SignalLine"``, ``"ReferenceGround"``. The default is SignalLine.
         solve_option : str, optional
             Method for solving. Options are ``"SolveInside"``, ``"SolveOnBoundary"`` or ``"Automatic"``. The default is
             ``"SolveInside"``.
@@ -600,7 +628,8 @@ class Q2d(QExtractor, object):
             Thickness unit. The default is ``"um"``.
         Returns
         -------
-        None.
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         if not name:
@@ -630,7 +659,14 @@ class Q2d(QExtractor, object):
 
         arg = ["NAME:" + name]
         dict2arg(props, arg)
-        self.oboundary.AssignSingleSignalLine(arg)
+        if conductor_type == "SignalLine":
+            self.oboundary.AssignSingleSignalLine(arg)
+        elif conductor_type == "ReferenceGround":
+            self.oboundary.AssignSingleReferenceGround(arg)
+        else:
+            return False
+
+        return True
 
     def assign_huray_finitecond_to_edges(self, edges, radius, ratio, unit="um", name=""):
         """

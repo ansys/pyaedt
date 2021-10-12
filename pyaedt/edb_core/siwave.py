@@ -1022,7 +1022,7 @@ class EdbSiwave(object):
             ``True`` when successful, ``False`` when failed.
         """
         self._siwave_setup.AddACSimSetup(
-            self._builder,
+            self._cell,
             accuracy_level,
             str(decade_count),
             sweeptype,
@@ -1073,7 +1073,7 @@ class EdbSiwave(object):
         """
 
         self._siwave_setup.AddSYZSimSetup(
-            self._builder,
+            self._cell,
             accuracy_level,
             str(decade_count),
             sweeptype,

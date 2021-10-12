@@ -262,7 +262,7 @@ aedtapp.post.plot_field_from_fieldplot(
     setup_name=setup_name,
     intrinsic_dict=intrinsic,
     imageformat="jpg",
-    view="iso",
+    view="isometric",
     off_screen=True,
 )
 
@@ -310,7 +310,7 @@ ipkapp.post.plot_field_from_fieldplot(
     meshplot=False,
     setup_name=setup_name,
     imageformat="jpg",
-    view="iso",
+    view="isometric",
     off_screen=True,
 )
 

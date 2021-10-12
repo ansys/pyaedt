@@ -1409,38 +1409,187 @@ class EDBComponent(object):
     ----------
     parent : str
         Inherited AEDT object.
-    component :
-
-    name :
+    component : object
+        Edb Component Object
 
     """
 
-    def __init__(self, parent, component, name):
+    def __init__(self, parent, cmp):
         self.parent = parent
-        self.edbcomponent = component
-        self.refdes = name
-        self.partname = component.PartName
-        self.numpins = component.NumPins
-        self.type = component.PartType
-        self.pinlist = self.parent.get_pin_from_component(self.refdes)
-        self.nets = self.parent.get_nets_from_pin_list(self.pinlist)
-        self.res_value = None
-        self.pins = defaultdict(EDBPinInstances)
-        for el in self.pinlist:
-            self.pins[el.GetName()] = EDBPinInstances(self, el)
+        self.edbcomponent = cmp
 
-        try:
-            self.res_value = self._edb_value(component.Model.RValue).ToDouble()
-        except:
-            self.res_value = None
-        try:
-            self.cap_value = self._edb_value(component.Model.CValue).ToDouble()
-        except:
-            self.cap_value = None
-        try:
-            self.ind_value = self._edb_value(component.Model.LValue).ToDouble()
-        except:
-            self.ind_value = None
+    @property
+    def refdes(self):
+        """Reference Designator Name.
+
+        Returns
+        -------
+        str
+            Reference Designator Name.
+        """
+        return self.edbcomponent.GetName()
+
+    @property
+    def res_value(self):
+        """Resitance Value.
+
+        Returns
+        -------
+        str
+            Resitance Value. ``None`` if not an RLC Type.
+        """
+        cmp_type = int(self.edbcomponent.GetComponentType())
+        if 0 < cmp_type < 4:
+            componentProperty = self.edbcomponent.GetComponentProperty()
+            model = componentProperty.GetModel()
+            pinpairs = model.PinPairs
+            for pinpair in pinpairs:
+                pair = model.GetPinPairRlc(pinpair)
+                return pair.R.ToString()
+        return None
+
+    @property
+    def cap_value(self):
+        """Capacitance Value.
+
+        Returns
+        -------
+        str
+            Capacitance Value. ``None`` if not an RLC Type.
+        """
+        cmp_type = int(self.edbcomponent.GetComponentType())
+        if 0 < cmp_type < 4:
+            componentProperty = self.edbcomponent.GetComponentProperty()
+            model = componentProperty.GetModel()
+            pinpairs = model.PinPairs
+            for pinpair in pinpairs:
+                pair = model.GetPinPairRlc(pinpair)
+                return pair.C.ToString()
+        return None
+
+    @property
+    def ind_value(self):
+        """Inductance Value.
+
+        Returns
+        -------
+        str
+            Inductance Value. ``None`` if not an RLC Type.
+        """
+        cmp_type = int(self.edbcomponent.GetComponentType())
+        if 0 < cmp_type < 4:
+            componentProperty = self.edbcomponent.GetComponentProperty()
+            model = componentProperty.GetModel()
+            pinpairs = model.PinPairs
+            for pinpair in pinpairs:
+                pair = model.GetPinPairRlc(pinpair)
+                return pair.L.ToString()
+        return None
+
+    @property
+    def is_parallel_rlc(self):
+        """Define if model is Parallel or Series.
+
+        Returns
+        -------
+        bool
+            ``True`` if it is a parallel rlc model. ``False`` for series RLC. ``None`` if not an RLC Type.
+        """
+        cmp_type = int(self.edbcomponent.GetComponentType())
+        if 0 < cmp_type < 4:
+            componentProperty = self.edbcomponent.GetComponentProperty()
+            model = componentProperty.GetModel()
+            pinpairs = model.PinPairs
+            for pinpair in pinpairs:
+                pair = model.GetPinPairRlc(pinpair)
+                return pair.IsParallel
+        return None
+
+    @property
+    def pinlist(self):
+        """Pins of Component.
+
+        Returns
+        -------
+        list
+            List of Pins of Component.
+        """
+        pins = [p for p in self.edbcomponent.LayoutObjs if
+                p.GetObjType() == self._edb.Cell.LayoutObjType.PadstackInstance and p.IsLayoutPin()]
+        return pins
+
+    @property
+    def nets(self):
+        """Nets of Component.
+
+        Returns
+        -------
+        list
+            List of Nets of Component.
+        """
+        netlist = []
+        for pin in self.pinlist:
+            netlist.append(pin.GetNet().GetName())
+        return list(set(netlist))
+
+    @property
+    def pins(self):
+        """EDBPinInstances of Component.
+
+        Returns
+        -------
+        list
+            List of EDBPinInstances of Component.
+        """
+        pins = defaultdict(EDBPinInstances)
+        for el in self.pinlist:
+            pins[el.GetName()] = EDBPinInstances(self, el)
+        return pins
+
+    @property
+    def type(self):
+        """Component type.
+
+        Returns
+        -------
+        str
+            Component type.
+        """
+        cmp_type = int(self.edbcomponent.GetComponentType())
+        if cmp_type == 1:
+            return "Resistor"
+        elif cmp_type == 2:
+            return "Inductor"
+        elif cmp_type == 3:
+            return "Capacitor"
+        elif cmp_type == 4:
+            return "IC"
+        elif cmp_type == 5:
+            return "IO"
+        elif cmp_type == 0:
+            return "Other"
+
+    @property
+    def numpins(self):
+        """Number of Pins of Component.
+
+        Returns
+        -------
+        int
+            Number of Pins of Component.
+        """
+        return self.edbcomponent.GetNumberOfPins()
+
+    @property
+    def partname(self):
+        """Component Part Name.
+
+        Returns
+        -------
+        str
+            Component Part Name.
+        """
+        return self.edbcomponent.GetComponentDef().GetName()
 
     @property
     def _edb_value(self):

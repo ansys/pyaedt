@@ -114,7 +114,7 @@ def desktop_init():
     # If new_thread is set to false by a local_config, then don't close the desktop.
     # Intended for local debugging purposes only
     if new_thread or os.name == "posix":
-        desktop.force_close_desktop()
+        desktop.close_desktop()
     p = [x[0] for x in os.walk(scratch_path) if "scratch" in x[0]]
     # p = pathlib.Path(scratch_path).glob('**/scratch*')
     for folder in p:

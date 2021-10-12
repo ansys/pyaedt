@@ -1596,8 +1596,6 @@ class Primitives(object):
         all_objects = self.object_names
         all_unclassified = self.unclassified_objects
         for old_id, obj in self.objects.items():
-            if obj.name == "box2":
-                pass
             if obj.name in all_objects or obj.name in all_unclassified:
                 updated_id = obj.id  # By calling the object property we get the new id
                 new_object_id_dict[obj.name] = updated_id
@@ -2269,7 +2267,7 @@ class Primitives(object):
         for obj in object_list:
             vArg1[2] = obj
             try:
-                edgeID = self.oeditor.GetEdgeByPosition(vArg1)
+                edgeID = int(self.oeditor.GetEdgeByPosition(vArg1))
                 return edgeID
             except Exception as e:
                 pass
@@ -2717,7 +2715,7 @@ class Primitives(object):
 
         Returns
         -------
-        type
+        int
             Edge ID of the edge closest to this position.
 
         """
@@ -2738,7 +2736,7 @@ class Primitives(object):
                 midpoint = [i * 1000 for i in midpoint]
             d = GeometryOperators.points_distance(midpoint, [position.X, position.Y, position.Z])
             if d < distance:
-                selected_edge = edge
+                selected_edge = int(edge)
                 distance = d
         return selected_edge
 
@@ -2878,7 +2876,7 @@ class Primitives(object):
         for el in self._parent.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"]["ToplevelParts"][
             "GeometryPart"
         ]:
-            if isinstance(el, OrderedDict):
+            if isinstance(el, (OrderedDict, dict)):
                 attribs = el["Attributes"]
             else:
                 attribs = self._parent.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"][
@@ -2905,9 +2903,9 @@ class Primitives(object):
             o._color = attribs["Color"]
             o._surface_material = attribs.get("SurfaceMaterialValue", None)
             if o._surface_material:
-                o._surface_material = o._surface_material[1:-1]
+                o._surface_material = o._surface_material[1:-1].lower()
             if "MaterialValue" in attribs:
-                o._material_name = attribs["MaterialValue"][1:-1]
+                o._material_name = attribs["MaterialValue"][1:-1].lower()
             else:
                 o._material_name = attribs.get("MaterialName", None)
 

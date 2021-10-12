@@ -190,7 +190,7 @@ class Mesh(object):
         meshops = []
         try:
             for ds in self._parent.design_properties["MeshSetup"]["MeshOperations"]:
-                if type(self._parent.design_properties["MeshSetup"]["MeshOperations"][ds]) is OrderedDict:
+                if isinstance(self._parent.design_properties["MeshSetup"]["MeshOperations"][ds], (OrderedDict, dict)):
                     meshops.append(
                         MeshOperation(
                             self,
