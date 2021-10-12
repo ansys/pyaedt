@@ -68,11 +68,6 @@ class FieldAnalysis3DLayout(Analysis):
         close_on_exit=False,
         student_version=False,
     ):
-        self.oanalysis = self._odesign.GetModule("SolveSetups")
-
-        self.osolution = self._odesign.GetModule("SolveSetups")
-        self.oexcitation = self._odesign.GetModule("Excitations")
-        self.oboundary = self._odesign.GetModule("Excitations")
         Analysis.__init__(
             self,
             application,
@@ -86,6 +81,9 @@ class FieldAnalysis3DLayout(Analysis):
             close_on_exit,
             student_version,
         )
+        self.osolution = self._odesign.GetModule("SolveSetups")
+        self.oexcitation = self._odesign.GetModule("Excitations")
+        self.oboundary = self._odesign.GetModule("Excitations")
         self._messenger.add_info_message("Analysis Loaded")
         self._modeler = Modeler3DLayout(self)
         self._modeler.primitives.init_padstacks()

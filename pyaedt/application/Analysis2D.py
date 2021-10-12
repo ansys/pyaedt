@@ -82,6 +82,8 @@ class FieldAnalysis2D(Analysis):
             close_on_exit,
             student_version,
         )
+        self.osolution = self._odesign.GetModule("Solutions")
+
         self._modeler = Modeler2D(self)
         self._mesh = Mesh(self)
         self._post = PostProcessor(self)

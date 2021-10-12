@@ -17,6 +17,10 @@ class Maxwell(object):
         self.odefinition_manager = self.materials.odefinition_manager
         self.omaterial_manager = self.materials.omaterial_manager
         self.o_maxwell_parameters = self.odesign.GetModule("MaxwellParameterSetup")
+        if self.solution_type != "Transient":
+            self.omodelsetup = None
+        else:
+            self.omodelsetup = self._odesign.GetModule("ModelSetup")
         pass
 
     @property
@@ -93,7 +97,7 @@ class Maxwell(object):
                     fo.write(file_str)
                 assert os.path.exists(ctl_file), "Control Program file could not be created."
 
-        self.oanalysis_setup.EditSetup(
+        self.oanalysis.EditSetup(
             setupname,
             [
                 "NAME:" + setupname,

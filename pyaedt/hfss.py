@@ -142,6 +142,7 @@ class Hfss(FieldAnalysis3D, object):
             close_on_exit,
             student_version,
         )
+        self.omodelsetup = self._odesign.GetModule("ModelSetup")
 
     def __enter__(self):
         return self

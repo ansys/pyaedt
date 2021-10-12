@@ -34,7 +34,6 @@ class FieldAnalysisCircuit(Analysis):
         student_version=False,
     ):
         self.solution_type = solution_type
-        self.oanalysis = self._odesign.GetModule("SimSetup")
         Analysis.__init__(
             self,
             application,
@@ -48,6 +47,7 @@ class FieldAnalysisCircuit(Analysis):
             close_on_exit,
             student_version,
         )
+
         self._modeler = ModelerNexxim(self)
         self._modeler.primitives.init_padstacks()
         self._post = CircuitPostProcessor(self)

@@ -24,6 +24,8 @@ class Materials(object):
         self.odefinition_manager = self._p_app.odefinition_manager
         self.omaterial_manager = self._p_app.omaterial_manager
         self._desktop = self._p_app.odesktop
+        self._messenger = self._p_app._messenger
+        self._oproject = self._p_app.oproject
         self._messenger.logger.info("Successfully loaded project materials !")
         self.material_keys = self._get_materials()
         self.surface_material_keys = self._get_surface_materials()
@@ -42,22 +44,6 @@ class Materials(object):
             return self.material_keys[item]
         elif item in list(self.surface_material_keys.keys()):
             return self.surface_material_keys[item]
-
-    @property
-    def _messenger(self):
-        """Messenger.
-
-        Returns
-        -------
-        MessageManager
-            Message manager object.
-        """
-        return self._p_app._messenger
-
-    @property
-    def _oproject(self):
-        """Project."""
-        return self._p_app.oproject
 
     @aedt_exception_handler
     def _get_materials(self):

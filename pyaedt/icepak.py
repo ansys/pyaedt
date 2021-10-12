@@ -122,6 +122,7 @@ class Icepak(FieldAnalysisIcepak):
             close_on_exit,
             student_version,
         )
+        self.omodelsetup = self._odesign.GetModule("ModelSetup")
 
     def __enter__(self):
         return self
@@ -288,7 +289,7 @@ class Icepak(FieldAnalysisIcepak):
             else:
                 self._messenger.add_error_message("No setup is defined.")
                 return False
-        self.oanalysis_setup.AddTwoWayCoupling(
+        self.oanalysis.AddTwoWayCoupling(
             setup_name,
             [
                 "NAME:Options",

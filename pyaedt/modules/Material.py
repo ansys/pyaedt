@@ -656,9 +656,9 @@ class CommonMaterial(object):
     ----------
     materials : :class:`pyaedt.modules.MaterialLib.Materials`
 
-    name :
+    name : str
 
-    props :
+    props : dict
         The default is ``None``.
 
     """

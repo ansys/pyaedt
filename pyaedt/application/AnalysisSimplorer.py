@@ -58,8 +58,7 @@ class FieldAnalysisSimplorer(Analysis):
         close_on_exit=False,
         student_version=False,
     ):
-        self.solution_type = solution_type
-        self.oanalysis = self._odesign.GetModule("SimSetup")
+
         Analysis.__init__(
             self,
             application,
@@ -73,6 +72,7 @@ class FieldAnalysisSimplorer(Analysis):
             close_on_exit,
             student_version,
         )
+        self.solution_type = solution_type
         self._modeler = ModelerSimplorer(self)
         self._post = CircuitPostProcessor(self)
 

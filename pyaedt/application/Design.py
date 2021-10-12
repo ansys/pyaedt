@@ -554,8 +554,6 @@ class Design(object):
 
         self.oimportexport = None
 
-        self.oanalysis_setup = None
-
         self.ooptimetrics = None
 
         self.ooutput_variable = None
@@ -608,23 +606,14 @@ class Design(object):
 
     @aedt_exception_handler
     def initialize_all_aedt_objects(self):
-        self.oboundary = self._odesign.GetModule("BoundarySetup")
-        if self.design_type == "Maxwell 2D":
-            self.omodelsetup = None
-        else:
-            self.omodelsetup = self._odesign.GetModule("ModelSetup")
+        if self.design_type not in ["RMxprtSolution", "EMIT", "Circuit Design", "Twin Builder"]:
+            self.oboundary = self._odesign.GetModule("BoundarySetup")
 
         self.oimportexport = self._desktop.GetTool("ImportExport")
 
-        self.oanalysis_setup = self._odesign.GetModule("AnalysisSetup")
-
-        self.ooptimetrics = self._odesign.GetModule("Optimetrics")
-
-        self.ooutput_variable = self._odesign.GetModule("OutputVariable")
-
         self.odefinition_manager = self._oproject.GetDefinitionManager()
 
-        self.omaterial_manager =  self.odefinition_manager.GetManager("Material")
+        self.omaterial_manager = self.odefinition_manager.GetManager("Material")
 
         self.odesktop = self._desktop
 

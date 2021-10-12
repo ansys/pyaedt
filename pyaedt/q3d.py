@@ -72,6 +72,7 @@ class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
                 student_version,
             )
 
+
     def __enter__(self):
         return self
 
