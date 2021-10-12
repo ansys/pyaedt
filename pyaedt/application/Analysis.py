@@ -95,7 +95,7 @@ class Analysis(Design, object):
         )
         self.ooptimetrics = self._odesign.GetModule("Optimetrics")
         self.ooutput_variable = self._odesign.GetModule("OutputVariable")
-        self.output_variables = self.ooutput_variable.GetOutputVariables()
+        self.output_variable = self.ooutput_variable.GetOutputVariables()
         self.logger.info("Design Loaded")
         self._setup = None
         if setup_name:

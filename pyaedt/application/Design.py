@@ -606,8 +606,6 @@ class Design(object):
 
     @aedt_exception_handler
     def initialize_all_aedt_objects(self):
-        if self.design_type not in ["RMxprtSolution", "EMIT", "Circuit Design", "Twin Builder"]:
-            self.oboundary = self._odesign.GetModule("BoundarySetup")
 
         self.oimportexport = self._desktop.GetTool("ImportExport")
 

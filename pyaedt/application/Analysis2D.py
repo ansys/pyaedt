@@ -83,6 +83,7 @@ class FieldAnalysis2D(Analysis):
             student_version,
         )
         self.osolution = self._odesign.GetModule("Solutions")
+        self.oboundary = self._odesign.GetModule("BoundarySetup")
 
         self._modeler = Modeler2D(self)
         self._mesh = Mesh(self)
