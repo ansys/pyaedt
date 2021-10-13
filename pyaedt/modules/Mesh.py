@@ -16,6 +16,7 @@ meshers = {
     "Maxwell 3D": "MeshSetup",
     "Q3D Extractor": "MeshSetup",
     "Mechanical": "MeshSetup",
+    "2D Extractor": "MeshSetup",
 }
 
 

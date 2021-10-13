@@ -188,7 +188,6 @@ class Edb(object):
         if os.name == "posix":
             clr.ClearProfilerData()
 
-
     @aedt_exception_handler
     def _init_objects(self):
         time.sleep(1)

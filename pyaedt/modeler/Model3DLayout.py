@@ -95,7 +95,6 @@ class Modeler3DLayout(Modeler):
         """Messenger."""
         return self._p_app._messenger
 
-
     @aedt_exception_handler
     def fit_all(self):
         """Fit all."""

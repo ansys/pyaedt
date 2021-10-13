@@ -594,6 +594,10 @@ class Design(object):
         self._design_type = design_type
         self.oproject = project_name
         self.odesign = design_name
+        self.oimportexport = self._desktop.GetTool("ImportExport")
+        self.odefinition_manager = self._oproject.GetDefinitionManager()
+        self.omaterial_manager = self.odefinition_manager.GetManager("Material")
+        self.odesktop = self._desktop
         self._variable_manager = VariableManager(self)
         self.solution_type = self._solution_type
         self.project_datasets = self._get_project_datasets()
@@ -603,18 +607,6 @@ class Design(object):
     def __delitem__(self, key):
         """Implement destructor with array name or index."""
         del self._variable_manager[key]
-
-    @aedt_exception_handler
-    def initialize_all_aedt_objects(self):
-
-        self.oimportexport = self._desktop.GetTool("ImportExport")
-
-        self.odefinition_manager = self._oproject.GetDefinitionManager()
-
-        self.omaterial_manager = self.odefinition_manager.GetManager("Material")
-
-        self.odesktop = self._desktop
-
 
     @property
     def project_properies(self):

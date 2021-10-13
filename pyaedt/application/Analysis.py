@@ -343,7 +343,6 @@ class Analysis(Design, object):
         setups = list(self.oanalysis.GetSetups())
         return setups
 
-
     @property
     def setup_names(self):
         """Setup names.

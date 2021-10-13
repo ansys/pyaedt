@@ -1,5 +1,4 @@
 from ..modeler.Circuit import ModelerEmit
-from ..modules.PostProcessor import PostProcessor
 from .Design import Design
 
 

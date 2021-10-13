@@ -584,7 +584,8 @@ class FacePrimitive(object):
         inv_norm = [-i for i in normal]
         mv1 = GeometryOperators.v_sum(fc, normal)
         mv2 = GeometryOperators.v_sum(fc, inv_norm)
-        bb_center = GeometryOperators.get_mid_point(self._p_object3d.bounding_box[0:3], self._p_object3d.bounding_box[3:6])
+        bb_center = GeometryOperators.get_mid_point(self._p_object3d.bounding_box[0:3],
+                                                    self._p_object3d.bounding_box[3:6])
         d1 = GeometryOperators.points_distance(mv1, bb_center)
         d2 = GeometryOperators.points_distance(mv2, bb_center)
         if d1 > d2:

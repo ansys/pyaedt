@@ -5,7 +5,6 @@ from .Design import design_solutions
 from ..modules.PostProcessor import CircuitPostProcessor
 
 
-
 class FieldAnalysisRMxprt(Analysis):
     """Manages RMXprt field analysis setup. (To be implemented.)
 

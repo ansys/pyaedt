@@ -350,21 +350,14 @@ class MatProperty(object):
                     "free_form_value": formula,
                 }
             )
-            self._p_material._props["ModifierData"] = OrderedDict(
-                {
-                    "ThermalModifierData": OrderedDict(
-                        {
-                            "modifier_data": "thermal_modifier_data",
-                            "all_thermal_modifiers": OrderedDict({"one_thermal_modifier": tm}),
-                        }
-                    )
-                }
-            )
+            self._p_material._props["ModifierData"] = OrderedDict({"ThermalModifierData": OrderedDict(
+                {"modifier_data": "thermal_modifier_data",
+                 "all_thermal_modifiers": OrderedDict({"one_thermal_modifier": tm}), })})
         else:
             for tmname in self._p_material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"]:
                 if isinstance(
-                    self._p_material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname], list
-                ):
+                        self._p_material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname],
+                        list):
                     found = False
                     for tm in self._p_material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][
                         tmname

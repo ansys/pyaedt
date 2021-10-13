@@ -52,7 +52,6 @@ class TestClass:
             )
             self.aedtapp = Circuit(self.test_project)
 
-
     def teardown_class(self):
         for proj in self.aedtapp.project_list:
             try:

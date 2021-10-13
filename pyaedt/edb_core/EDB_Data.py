@@ -1305,14 +1305,15 @@ class EDBPinInstances(object):
         list
             List of ``[x, y]``` coordinates for the pin position.
         """
-        self._pedbcomponents._edb.Geometry.PointData(self._pedbcomponents._edb_value(0.0), self._pedbcomponents._edb_value(0.0))
+        self._pedbcomponents._edb.Geometry.PointData(self._pedbcomponents._edb_value(0.0),
+                                                     self._pedbcomponents._edb_value(0.0))
         if is_ironpython:
             out = self.pin.GetPositionAndRotationValue()
         else:
             out = self.pin.GetPositionAndRotationValue(
-                self._pedbcomponents._edb.Geometry.PointData(self._pedbcomponents._edb_value(0.0), self._pedbcomponents._edb_value(0.0)),
-                self._pedbcomponents._edb_value(0.0),
-            )
+                self._pedbcomponents._edb.Geometry.PointData(self._pedbcomponents._edb_value(0.0),
+                                                             self._pedbcomponents._edb_value(0.0)),
+                                                             self._pedbcomponents._edb_value(0.0),)
         if out[0]:
             return [out[1].X.ToDouble(), out[1].Y.ToDouble()]
 
@@ -1325,13 +1326,15 @@ class EDBPinInstances(object):
         float
             Rotatation value for the pin.
         """
-        self._pedbcomponents._edb.Geometry.PointData(self._pedbcomponents._edb_value(0.0), self._pedbcomponents._edb_value(0.0))
+        self._pedbcomponents._edb.Geometry.PointData(self._pedbcomponents._edb_value(0.0),
+                                                     self._pedbcomponents._edb_value(0.0))
         if is_ironpython:
             out = self.pin.GetPositionAndRotationValue()
         else:
             out = self.pin.GetPositionAndRotationValue(
-                self._pedbcomponents._edb.Geometry.PointData(self._pedbcomponents._edb_value(0.0), self._pedbcomponents._edb_value(0.0)),
-                self._pedbcomponents._edb_value(0.0),
+                self._pedbcomponents._edb.Geometry.PointData(self._pedbcomponents._edb_value(0.0),
+                                                             self._pedbcomponents._edb_value(0.0)),
+                                                             self._pedbcomponents._edb_value(0.0),
             )
         if out[0]:
             return out[2].ToDouble()

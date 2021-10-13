@@ -797,7 +797,6 @@ class Primitives(object):
         self._oeditor = self.modeler.oeditor
         self.refresh()
 
-
     @property
     def solid_objects(self):
         """List of all solid objects."""

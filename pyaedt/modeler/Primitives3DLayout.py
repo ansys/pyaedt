@@ -1,7 +1,7 @@
 import sys
 from collections import defaultdict
 
-from ..generic.general_methods import aedt_exception_handler, retry_ntimes
+from ..generic.general_methods import aedt_exception_handler
 from .Object3d import Padstack, Components3DLayout, Geometries3DLayout, Pins3DLayout, Nets3DLayout, _uname
 from .Primitives import default_materials
 from pyaedt import is_ironpython
@@ -49,6 +49,8 @@ class Primitives3DLayout(object):
         return None
 
     def __init__(self, modeler):
+        self.is_outside_desktop = sys.modules["__main__"].isoutsideDesktop
+        self._p_app = self._p_modeler._p_app
         self._p_modeler = modeler
         self._oeditor = self.modeler.oeditor
         self.opadstackmanager = self._p_app._oproject.GetDefinitionManager().GetManager("Padstack")
@@ -58,14 +60,6 @@ class Primitives3DLayout(object):
         self._pins = defaultdict(Pins3DLayout)
         self._nets = defaultdict(Nets3DLayout)
         pass
-
-    @property
-    def is_outside_desktop(self):
-        return sys.modules["__main__"].isoutsideDesktop
-
-    @property
-    def _p_app(self):
-        return self._p_modeler._p_app
 
     @property
     def components(self):
