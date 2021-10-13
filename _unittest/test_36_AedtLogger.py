@@ -13,27 +13,27 @@ class TestClass:
     def test_01_global(self, clean_desktop, hfss):
         logger = hfss.logger
         # The default logger level is DEBUGGING.
-        logger.glb.debug("Debug message for testing.")
-        logger.glb.info("Info message for testing.")
-        logger.glb.warning("Warning message for testing.")
-        logger.glb.error("Error message for testing.")
-        logger.glb.info("Critical message for testing.")
+        logger.glb.debug("Global debug message for testing.")
+        logger.glb.info("Global info message for testing.")
+        logger.glb.warning("Global warning message for testing.")
+        logger.glb.error("Global error message for testing.")
+        logger.glb.info("Global critical message for testing.")
 
         # Project logger
         logger.add_logger("Project")
-        logger.project.debug("Debug message for testing.")
-        logger.project.info("Info message for testing.")
-        logger.project.warning("Warning message for testing.")
-        logger.project.error("Error message for testing.")
-        logger.project.info("Critical message for testing.")
+        logger.project.debug("Project debug message for testing.")
+        logger.project.info("Project info message for testing.")
+        logger.project.warning("Project warning message for testing.")
+        logger.project.error("Project error message for testing.")
+        logger.project.info("Project critical message for testing.")
 
         # Current active design logger
         logger.add_logger("Design")
-        logger.design.debug("Debug message for testing.")
-        logger.design.info("Info message for testing.")
-        logger.design.warning("Warning message for testing.")
-        logger.design.error("Error message for testing.")
-        logger.design.info("Critical message for testing.")
+        logger.design.debug("Design debug message for testing.")
+        logger.design.info("Design info message for testing.")
+        logger.design.warning("Design warning message for testing.")
+        logger.design.error("Design error message for testing.")
+        logger.design.info("Design critical message for testing.")
 
         global_messages = logger.get_messages().global_level
         assert len(global_messages) >= 11
@@ -56,28 +56,28 @@ class TestClass:
         print(global_messages)
         assert '[info] Design Loaded' in global_messages
         assert '[info] Materials Loaded' in global_messages
-        assert '[info] Debug message for testing.' in global_messages
-        assert '[info] Info message for testing.' in global_messages
-        assert '[warning] Warning message for testing.' in global_messages
-        assert '[error] Error message for testing.' in global_messages
-        assert '[info] Critical message for testing.' in global_messages
+        assert '[info] Global debug message for testing.' in global_messages
+        assert '[info] Global info message for testing.' in global_messages
+        assert '[warning] Global warning message for testing.' in global_messages
+        assert '[error] Global error message for testing.' in global_messages
+        assert '[info] Global critical message for testing.' in global_messages
 
         design_messages = logger.get_messages().design_level
         assert len(design_messages) >= 6
         assert '[info] Successfully loaded project materials !' in design_messages[0]
-        assert '[info] Debug message for testing.' in design_messages[1]
-        assert '[info] Info message for testing.' in design_messages[2]
-        assert '[warning] Warning message for testing.' in design_messages[3]
-        assert '[error] Error message for testing.' in design_messages[4]
-        assert '[info] Critical message for testing.' in design_messages[5]
+        assert '[info] Project debug message for testing.' in design_messages[1]
+        assert '[info] Project info message for testing.' in design_messages[2]
+        assert '[warning] Project warning message for testing.' in design_messages[3]
+        assert '[error] Project error message for testing.' in design_messages[4]
+        assert '[info] Project critical message for testing.' in design_messages[5]
 
         project_messages = logger.get_messages().project_level
         assert len(project_messages) >= 5
-        assert '[info] Debug message for testing.' in project_messages[0]
-        assert '[info] Info message for testing.' in project_messages[1]
-        assert '[warning] Warning message for testing.' in project_messages[2]
-        assert '[error] Error message for testing.' in project_messages[3]
-        assert '[info] Critical message for testing.' in project_messages[4]
+        assert '[info] Design debug message for testing.' in project_messages[0]
+        assert '[info] Design info message for testing.' in project_messages[1]
+        assert '[warning] Design warning message for testing.' in project_messages[2]
+        assert '[error] Design error message for testing.' in project_messages[3]
+        assert '[info] Design critical message for testing.' in project_messages[4]
 
         logger.clear_messages("", "", 2)
         assert not logger.get_messages().global_level
