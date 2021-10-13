@@ -816,28 +816,23 @@ class Analysis(Design, object):
         return True
 
     @aedt_exception_handler
-    def get_output_variable(self, variable, solution_name=None, report_type_name=None):
+    def get_output_variable(self, variable):
         """Retrieve the value of the output variable.
 
         Parameters
         ----------
         variable : str
             Name of the variable.
-        solution_name : str, optional
-            Name of the solution. The default is ``None``.
-        report_type_name : str, optional
-            Name of the report type. The default is ``None``.
 
         Returns
         -------
         type
             Value of the output variable.
         """
-        oModule = self.ooutput_variable
         assert variable in self.output_variables, "Output variable {} does not exist.".format(variable)
         nominal_variation = self.odesign.GetNominalVariation()
         sol_type = self.solution_type
-        value = oModule.GetOutputVariableValue(
+        value = self.ooutput_variable.GetOutputVariableValue(
             variable, nominal_variation, self.existing_analysis_sweeps[0], self.solution_type, []
         )
         return value

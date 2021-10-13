@@ -772,7 +772,7 @@ class Edb(object):
         end = time.time()-start_time
         self._messenger.add_info_message("Release Time {}".format(end))
         while gc.collect() != 0:
-            time.sleep(0.5)
+            time.sleep(1)
         self._clean_variables()
         return True
 
