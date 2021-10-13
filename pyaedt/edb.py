@@ -654,7 +654,7 @@ class Edb(object):
     @property
     def active_layout(self):
         """Active layout."""
-        if self._active_cell and not self._active_layout:
+        if self._active_cell:
             self._active_layout = self.active_cell.GetLayout()
         return self._active_layout
 
@@ -771,11 +771,6 @@ class Edb(object):
         self._wait_for_file_release()
         end = time.time()-start_time
         self._messenger.add_info_message("Release Time {}".format(end))
-        del self._active_layout
-        del self._active_cell
-        del self._db
-        del self.layout_methods
-        del self.edblib
         while gc.collect() != 0:
             time.sleep(0.5)
         self._clean_variables()
