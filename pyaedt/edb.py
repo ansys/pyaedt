@@ -366,18 +366,16 @@ class Edb(object):
         if self._active_cell is None:
             self._active_cell = list(self._db.TopCircuitCells)[0]
         self._messenger.add_info_message("Cell {} Opened".format(self._active_cell.GetName()))
-
         if self._db and self._active_cell:
             dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib")
             self._messenger.add_info_message(dllpath)
             self.layout_methods.LoadDataModel(dllpath, self.edbversion)
-            time.sleep(3)
             self.layout_methods.InitializeBuilder(
-            self._db,
-            self._active_cell,
-            self.edbpath,
-            self.edbversion,
-            self.standalone,)
+                                                self._db,
+                                                self._active_cell,
+                                                self.edbpath,
+                                                self.edbversion,
+                                                self.standalone,)
             self.builder = EdbBuilder(self.edbutils, self._db, self._active_cell)
             self._init_objects()
             self._messenger.add_info_message("Builder Initialized")
@@ -467,17 +465,13 @@ class Edb(object):
         dllpath = os.path.join(os.path.dirname(__file__), "dlls", "EDBLib")
         if self._db and self._active_cell:
             self.layout_methods.LoadDataModel(dllpath, self.edbversion)
-
-            time.sleep(3)
-            retry_ntimes(
-                10,
-                self.layout_methods.InitializeBuilder,
-                self._db,
-                self._active_cell,
-                self.edbpath,
-                self.edbversion,
-                self.standalone
-            )
+            self.layout_methods.InitializeBuilder(
+                                                self._db,
+                                                self._active_cell,
+                                                self.edbpath,
+                                                self.edbversion,
+                                                self.standalone
+                                            )
             self.builder = EdbBuilder(self.edbutils, self._db, self._active_cell)
             self._init_objects()
             return self.builder
@@ -783,7 +777,7 @@ class Edb(object):
         del self.layout_methods
         del self.edblib
         while gc.collect() != 0:
-             time.sleep(0.5)
+            time.sleep(0.5)
         self._clean_variables()
         return True
 
@@ -986,15 +980,13 @@ class Edb(object):
                 self._db = db2
                 self.edbpath = output_aedb_path
                 self._active_cell = list(self._db.TopCircuitCells)[0]
-                retry_ntimes(
-                    10,
-                    self.layout_methods.InitializeBuilder,
-                    self._db,
-                    self._active_cell,
-                    self.edbpath,
-                    self.edbversion,
-                    self.standalone,
-                )
+                self.layout_methods.InitializeBuilder(
+                                                    self._db,
+                                                    self._active_cell,
+                                                    self.edbpath,
+                                                    self.edbversion,
+                                                    self.standalone,
+                                                )
                 self.builder = EdbBuilder(self.edbutils, self._db, self._active_cell)
                 self._init_objects()
             else:
