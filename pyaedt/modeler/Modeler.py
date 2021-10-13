@@ -665,14 +665,6 @@ class GeometryModeler(Modeler, object):
         return output_list
 
     def _get_coordinates_data(self):
-        """Get coordinate data.
-
-        Returns
-        -------
-        list
-            List of coordinates.
-
-        """
         coord = []
         id2name = {1: "Global"}
         name2refid = {}
@@ -798,15 +790,15 @@ class GeometryModeler(Modeler, object):
 
     @property
     def solid_bodies(self):
-        """Directory of object IDs with the object name as the key.
+        """List of Object Names.
 
         .. note::
             Non-model objects are also returned.
 
         Returns
         -------
-        list
-            List of object IDs with the object name as the key.
+        list os str
+            List of object names with the object name as the key.
 
         """
         if self.dimension == "3D":

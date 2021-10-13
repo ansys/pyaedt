@@ -304,7 +304,7 @@ class FieldAnalysis3D(Analysis, object):
 
         Returns
         -------
-        list
+        list of str
             List of setup sources.
         """
         return list(self.osolution.GetAllSources())
@@ -431,7 +431,7 @@ class FieldAnalysis3D(Analysis, object):
 
         Returns
         -------
-        list
+        list of str
             List of all conductors.
 
         """
@@ -448,7 +448,7 @@ class FieldAnalysis3D(Analysis, object):
 
         Returns
         -------
-        List
+        list of str
            List of all dielectrics.
 
         """

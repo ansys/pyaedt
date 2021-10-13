@@ -273,7 +273,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-        list
+        list of str
             List of all analysis sweeps in the design.
 
         """
@@ -336,7 +336,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-        list
+        list of str
             List of all analysis setups in the design.
 
         """
@@ -350,7 +350,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-        list
+        list of str
             List of names of all analysis setups in the design.
 
         """
@@ -435,7 +435,7 @@ class Analysis(Design, object):
 
             Returns
             -------
-            list
+            list of str
                 List of names of independent variables.
             """
             return [i for i in self._p_app.variable_manager.independent_variables]
@@ -451,7 +451,7 @@ class Analysis(Design, object):
 
             Returns
             -------
-            list
+            list of str
                 List of variation families.
 
             """
@@ -531,7 +531,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-        list
+        list of str
             List of names of all setups.
 
         """
@@ -544,7 +544,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-        list
+        list of str
             List of nominal variations.
         """
         return self.available_variations.nominal
@@ -560,7 +560,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-        list
+        list of str
             List of names of all sweeps for the setup.
 
         """

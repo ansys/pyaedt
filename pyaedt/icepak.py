@@ -133,7 +133,7 @@ class Icepak(FieldAnalysisIcepak):
 
         Returns
         -------
-        list
+        list of str
             List of all analysis setups in the design.
 
         """
@@ -323,7 +323,7 @@ class Icepak(FieldAnalysisIcepak):
 
         Returns
         -------
-        list
+        list of :class:`pyaedt.modules.Boundary.BoundaryObject`
             List of boundaries inserted.
 
         Examples
@@ -613,7 +613,7 @@ class Icepak(FieldAnalysisIcepak):
 
         Returns
         -------
-        list
+        list of :class:`pyaedt.modules.Boundary.BoundaryObject`
             List of boundary objects created.
 
         Examples

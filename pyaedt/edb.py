@@ -9,7 +9,7 @@ import sys
 import time
 import traceback
 import warnings
-
+import threading
 try:
     import clr
     from System.Collections.Generic import List
@@ -99,6 +99,8 @@ class Edb(object):
             student_version=False,
             use_ppe=False,
     ):
+        while gc.collect() != 0:
+            time.sleep(0.5)
         self._clean_variables()
         if is_ironpython and inside_desktop:
             self.standalone = False
@@ -177,6 +179,8 @@ class Edb(object):
         self._nets = None
         self._db = None
         self._edb = None
+        if "edbutils" in dir(self):
+            self.edbutils.Logger.Disable = True
         self.builder = None
         self.edblib = None
         self.edbutils = None
@@ -185,12 +189,11 @@ class Edb(object):
         self.simsetupdata = None
         if os.name == "posix":
             clr.ClearProfilerData()
-        time.sleep(2)
-        gc.collect()
+
 
     @aedt_exception_handler
     def _init_objects(self):
-        time.sleep(1)
+        time.sleep(2)
         self._components = Components(self)
         self._stackup = EdbStackup(self)
         self._padstack = EdbPadstacks(self)
@@ -367,12 +370,9 @@ class Edb(object):
         self._messenger.add_info_message("Cell {} Opened".format(self._active_cell.GetName()))
 
         if self._db and self._active_cell:
-            dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib", "DataModel.dll")
+            dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib")
             self._messenger.add_info_message(dllpath)
-            self.layout_methods.LoadDataModel(dllpath)
-            dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib",
-                                   "IPC_2581_DataModel.dll")
-            self.layout_methods.LoadDataModel(dllpath)
+            self.layout_methods.LoadDataModel(dllpath, self.edbversion)
             time.sleep(3)
             retry_ntimes(
                 10,
@@ -424,26 +424,13 @@ class Edb(object):
             )
             if self._active_cell is None:
                 self._active_cell = list(self._db.TopCircuitCells)[0]
-            dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib", "DataModel.dll")
+            dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib")
             if self._db and self._active_cell:
-                self.layout_methods.LoadDataModel(dllpath)
-                dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib",
-                                       "IPC_2581_DataModel.dll")
-                self.layout_methods.LoadDataModel(dllpath)
+                self.layout_methods.LoadDataModel(dllpath, self.edbversion)
                 if not os.path.exists(self.edbpath):
                     os.makedirs(self.edbpath)
                 time.sleep(3)
                 self.builder = EdbBuilder(self.edbutils, self._db, self._active_cell)
-                # self.builder = retry_ntimes(
-                #     10,
-                #     self.layout_methods.GetBuilder,
-                #     self._db,
-                #     self._active_cell,
-                #     self.edbpath,
-                #     self.edbversion,
-                #     self.standalone,
-                #     True
-                # )
                 self._init_objects()
                 return self.builder
             else:
@@ -482,12 +469,10 @@ class Edb(object):
         if not self.cellname:
             self.cellname = generate_unique_name("Cell")
         self._active_cell = self.edb.Cell.Cell.Create(self._db, self.edb.Cell.CellType.CircuitCell, self.cellname)
-        dllpath = os.path.join(os.path.dirname(__file__), "dlls", "EDBLib", "DataModel.dll")
+        dllpath = os.path.join(os.path.dirname(__file__), "dlls", "EDBLib")
         if self._db and self._active_cell:
-            self.layout_methods.LoadDataModel(dllpath)
-            dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib",
-                                   "IPC_2581_DataModel.dll")
-            self.layout_methods.LoadDataModel(dllpath)
+            self.layout_methods.LoadDataModel(dllpath, self.edbversion)
+
             time.sleep(3)
             retry_ntimes(
                 10,
@@ -753,6 +738,36 @@ class Edb(object):
         return self.edb.Utility.Value(val)
 
     @aedt_exception_handler
+    def _is_file_existing_and_released(self, filename):
+        if os.path.exists(filename):
+            try:
+                os.rename(filename, filename + '_')
+                os.rename(filename + '_', filename)
+                # print 'Access on file "' + filename + '" is available!'
+                return True
+            except OSError as e:
+                # print 'Access-error on file "' + filename + '"! \n' + str(e)
+                return False
+        else:
+            # print 'File "' + filename + '" is not existing!'
+            return False
+
+    @aedt_exception_handler
+    def _wait_for_file_release(self, timeout=30):
+        filename = os.path.join(self.edbpath)
+        tstart = time.time()
+        while True:
+            if self._is_file_existing_and_released(filename):
+                # print 'File is released'
+                return True
+            elif time.time() - tstart > timeout:
+                # print 'Timeout reached'
+                return False
+            else:
+                # print 'Retring... '
+                time.sleep(0.250)
+
+    @aedt_exception_handler
     def close_edb(self):
         """Close EDB.
 
@@ -762,17 +777,16 @@ class Edb(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        time.sleep(1)
+        time.sleep(2)
         self._db.Close()
-        self._messenger.add_info_message("Database successfully closed.")
-        # try:
-        #     self._db.Close()
-        # except:
-        #     self._messenger.add_warning_message("Cannot Close dB")
-        time.sleep(1)
+        time.sleep(2)
+        start_time = time.time()
+        self._wait_for_file_release()
+        end = time.time()-start_time
+        self._messenger.add_info_message("Release Time {}".format(end))
+        while gc.collect() != 0:
+            time.sleep(0.5)
         self._clean_variables()
-        gc.collect()
-        # gc.collect()
         return True
 
     @aedt_exception_handler
@@ -1301,7 +1315,7 @@ class Edb(object):
 
         Returns
         -------
-        list
+        list of list of double
             The bounding box as a [lower-left X, lower-left Y], [upper-right X, upper-right Y]) pair in meter.
         """
         bbox = self.edbutils.HfssUtilities.GetBBox(self.active_layout)

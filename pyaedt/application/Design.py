@@ -308,7 +308,7 @@ class DesignCache(object):
 
         Returns
         -------
-        list
+        list of str
             List of any new or missing global-level messages since the last update.
         """
         return self._delta_global_messages
@@ -319,7 +319,7 @@ class DesignCache(object):
 
         Returns
         -------
-        list
+        list of str
             List of any new or missing project-level messages since the last update.
         """
         return self._delta_global_messages
@@ -330,7 +330,7 @@ class DesignCache(object):
 
         Returns
         -------
-        list
+        list of str
             List of any new or missing design-level messages since the last update.
         """
         return self._delta_design_messages
@@ -341,7 +341,7 @@ class DesignCache(object):
 
         Returns
         -------
-        list
+        list of str
             List of any new or missing error messages since the last update.
         """
         return self._new_error_messages

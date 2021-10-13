@@ -2778,7 +2778,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        list
+        list of int
             List of the port IDs where thickened sheets were created.
 
         Examples
@@ -2924,7 +2924,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        list
+        list of str
             List of all the validation information for later use.
         bool
             Indicates if the validation was successful or not.

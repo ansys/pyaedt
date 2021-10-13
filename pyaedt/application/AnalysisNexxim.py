@@ -125,7 +125,7 @@ class FieldAnalysisCircuit(Analysis):
 
         Returns
         -------
-        list
+        list of str
             List of strings representing the S parameters of the excitations.
             For example, ``"S(1,1)", "S(1,2)", "S(2,2)"``.
 
@@ -157,7 +157,7 @@ class FieldAnalysisCircuit(Analysis):
 
         Returns
         -------
-        list
+        list of str
             List of strings representing the return losses of the excitations.
             For example ``["S(1, 1)", S(2, 2)]``
 
@@ -189,7 +189,7 @@ class FieldAnalysisCircuit(Analysis):
 
         Returns
         -------
-        list
+        list of str
             List of strings representing insertion losses of the excitations.
             For example, ``["S(1,2)"]``.
 
@@ -220,7 +220,7 @@ class FieldAnalysisCircuit(Analysis):
 
         Returns
         -------
-        list
+        list of str
             List of strings representing near end XTalks of the excitations.
             For example, ``["S(1, 2)", "S(1, 3)", "S(2, 3)"]``.
 
@@ -259,7 +259,7 @@ class FieldAnalysisCircuit(Analysis):
 
         Returns
         -------
-        list
+        list of str
             List of strings representing the far end XTalks of the excitations.
             For example, ``["S(1, 4)", "S(2, 3)"]``.
 

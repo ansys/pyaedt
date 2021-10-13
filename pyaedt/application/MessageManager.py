@@ -137,7 +137,7 @@ class AEDTMessageManager(object):
 
         Returns
         -------
-        list
+        list of str
            List of messages for the active project and design.
 
         """
@@ -158,7 +158,7 @@ class AEDTMessageManager(object):
 
         Returns
         -------
-        list
+        list of str
             List of messages for the specified project and design.
 
         """

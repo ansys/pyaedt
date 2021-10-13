@@ -327,7 +327,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         Returns
         -------
-        list
+        list of str
             List of validation messages.
 
         """

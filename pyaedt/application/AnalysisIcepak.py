@@ -532,7 +532,7 @@ class FieldAnalysisIcepak(Analysis, object):
 
         Returns
         -------
-        list
+        list of str
             List of conductors.
 
         """
@@ -549,7 +549,7 @@ class FieldAnalysisIcepak(Analysis, object):
 
         Returns
         -------
-        list
+        list of str
             List of dielectrics.
 
         """
