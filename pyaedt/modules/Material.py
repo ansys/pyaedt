@@ -429,9 +429,8 @@ class MatProperty(object):
                             "free_form_value": formula,
                         }
                     )
-                    self._p_material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname].append(
-                        tm
-                    )
+                    self._p_material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][
+                        tmname].append(tm)
         return self._p_material.update()
 
     def add_thermal_modifier_free_form(self, formula, index=0):
