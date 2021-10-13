@@ -2117,7 +2117,7 @@ class Objec3DLayout(object):
 
     def __init__(self, primitives):
         self._p_primitives = primitives
-        self.m_Editor = self._p_primitives.oeditor
+        self.m_Editor = self._p_primitives._oeditor
         self._n = 10
 
     @property
