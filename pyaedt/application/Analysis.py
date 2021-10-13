@@ -834,7 +834,7 @@ class Analysis(Design, object):
             Value of the output variable.
         """
         oModule = self.ooutput_variable
-        assert variable in self.ooutput_variable, "Output variable {} does not exist.".format(variable)
+        assert variable in self.output_variables, "Output variable {} does not exist.".format(variable)
         nominal_variation = self.odesign.GetNominalVariation()
         sol_type = self.solution_type
         value = oModule.GetOutputVariableValue(

@@ -299,7 +299,7 @@ class Modeler3DLayout(Modeler):
                 if i not in geom_names
             ]
             if self.primitives.is_outside_desktop:
-                self.primitives._geometries[new_geom_names[0]] = Geometries3DLayout(self, new_geom_names[0])
+                self.primitives._geometries[new_geom_names[0]] = Geometries3DLayout(self.primitives, new_geom_names[0])
             return new_geom_names[0]
         return object_to_expand
 
