@@ -129,7 +129,7 @@ class AedtLogger():
     @property
     def design(self):
         """Design logger."""
-        self._design = logging.getLogger(self._messenger._design_name)
+        self._design = logging.getLogger(self._messenger._project_name + ":" + self._messenger._design_name)
         if not self._design.hasHandlers:
             self.add_logger("Design")
         return self._design

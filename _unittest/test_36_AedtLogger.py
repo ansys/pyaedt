@@ -10,7 +10,7 @@ from pyaedt.aedt_logger import AedtLogger
 
 class TestClass:
 
-    def test_01_global(self, hfss):
+    def test_01_global(self, clean_desktop, hfss):
         logger = hfss.logger
         # The default logger level is DEBUGGING.
         logger.glb.debug("Debug message for testing.")
