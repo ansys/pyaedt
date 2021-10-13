@@ -10,7 +10,7 @@ from pyaedt.aedt_logger import AedtLogger
 
 class TestClass:
 
-    def test_01_global(self, clean_desktop, hfss):
+    def test_01_global(self, clean_desktop_messages, clean_desktop, hfss):
         logger = hfss.logger
         # The default logger level is DEBUGGING.
         logger.glb.debug("Global debug message for testing.")
@@ -63,22 +63,23 @@ class TestClass:
         design_messages = logger.get_messages().design_level
         assert len(design_messages) >= 6
         assert '[info] Successfully loaded project materials !' in design_messages[0]
-        assert '[info] Project debug message for testing.' in design_messages[1]
-        assert '[info] Project info message for testing.' in design_messages[2]
-        assert '[warning] Project warning message for testing.' in design_messages[3]
-        assert '[error] Project error message for testing.' in design_messages[4]
-        assert '[info] Project critical message for testing.' in design_messages[5]
+        assert '[info] Design debug message for testing.' in design_messages[1]
+        assert '[info] Design info message for testing.' in design_messages[2]
+        assert '[warning] Design warning message for testing.' in design_messages[3]
+        assert '[error] Design error message for testing.' in design_messages[4]
+        assert '[info] Design critical message for testing.' in design_messages[5]
 
         project_messages = logger.get_messages().project_level
         assert len(project_messages) >= 5
-        assert '[info] Design debug message for testing.' in project_messages[0]
-        assert '[info] Design info message for testing.' in project_messages[1]
-        assert '[warning] Design warning message for testing.' in project_messages[2]
-        assert '[error] Design error message for testing.' in project_messages[3]
-        assert '[info] Design critical message for testing.' in project_messages[4]
+        assert '[info] Project debug message for testing.' in project_messages[0]
+        assert '[info] Project info message for testing.' in project_messages[1]
+        assert '[warning] Project warning message for testing.' in project_messages[2]
+        assert '[error] Project error message for testing.' in project_messages[3]
+        assert '[info] Project critical message for testing.' in project_messages[4]
 
         logger.clear_messages("", "", 2)
         assert not logger.get_messages().global_level
+        breakpoint()
 
     def test_02_output_file_with_app_filter(self, hfss):
         content = None
