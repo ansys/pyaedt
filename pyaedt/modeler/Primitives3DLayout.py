@@ -50,8 +50,8 @@ class Primitives3DLayout(object):
 
     def __init__(self, modeler):
         self.is_outside_desktop = sys.modules["__main__"].isoutsideDesktop
-        self._p_app = self._p_modeler._p_app
         self._p_modeler = modeler
+        self._p_app = self._p_modeler._p_app
         self._oeditor = self.modeler.oeditor
         self.opadstackmanager = self._p_app._oproject.GetDefinitionManager().GetManager("Padstack")
         self.padstacks = defaultdict(Padstack)
