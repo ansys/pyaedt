@@ -975,6 +975,8 @@ class Edb(object):
                 self._db = db2
                 self.edbpath = output_aedb_path
                 self._active_cell = list(self._db.TopCircuitCells)[0]
+                dllpath = os.path.join(os.path.dirname(__file__), "dlls", "EDBLib")
+                self.layout_methods.LoadDataModel(dllpath, self.edbversion)
                 self.layout_methods.InitializeBuilder(
                                                     self._db,
                                                     self._active_cell,
