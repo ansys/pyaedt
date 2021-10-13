@@ -9,7 +9,7 @@ import sys
 import time
 import traceback
 import warnings
-import threading
+
 try:
     import clr
     from System.Collections.Generic import List
@@ -99,8 +99,6 @@ class Edb(object):
             student_version=False,
             use_ppe=False,
     ):
-        while gc.collect() != 0:
-            time.sleep(0.5)
         self._clean_variables()
         if is_ironpython and inside_desktop:
             self.standalone = False
@@ -193,7 +191,7 @@ class Edb(object):
 
     @aedt_exception_handler
     def _init_objects(self):
-        time.sleep(2)
+        time.sleep(1)
         self._components = Components(self)
         self._stackup = EdbStackup(self)
         self._padstack = EdbPadstacks(self)
