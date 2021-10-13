@@ -95,7 +95,6 @@ class Analysis(Design, object):
         )
         self.ooptimetrics = self._odesign.GetModule("Optimetrics")
         self.ooutput_variable = self._odesign.GetModule("OutputVariable")
-        self.output_variable = self.ooutput_variable.GetOutputVariables()
         self.logger.info("Design Loaded")
         self._setup = None
         if setup_name:
@@ -120,6 +119,16 @@ class Analysis(Design, object):
         self.opti_sensitivity = SensitivitySetups(self)
         self.opti_statistical = StatisticalSetups(self)
         self.native_components = self._get_native_data()
+
+    @property
+    def output_variables(self):
+        """List of Output variables.
+
+        Returns
+        -------
+        list of str
+        """
+        return self.ooutput_variable.GetOutputVariables()
 
     @property
     def materials(self):
@@ -798,7 +807,7 @@ class Analysis(Design, object):
            ``True`` when successful, ``False`` when failed.
         """
         oModule = self.ooutput_variable
-        if variable in self.output_variable:
+        if variable in self.output_variables:
             oModule.EditOutputVariable(
                 variable, expression, variable, self.existing_analysis_sweeps[0], self.solution_type, []
             )

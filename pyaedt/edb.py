@@ -168,6 +168,7 @@ class Edb(object):
 
     def _clean_variables(self):
         """Initialize internal variables and perform garbage collection."""
+
         self._components = None
         self._core_primitives = None
         self._stackup = None
@@ -177,8 +178,8 @@ class Edb(object):
         self._nets = None
         self._db = None
         self._edb = None
-        if "edbutils" in dir(self):
-            self.edbutils.Logger.Disable = True
+        self._active_cell = None
+        self._active_layout = None
         self.builder = None
         self.edblib = None
         self.edbutils = None
@@ -371,15 +372,12 @@ class Edb(object):
             self._messenger.add_info_message(dllpath)
             self.layout_methods.LoadDataModel(dllpath, self.edbversion)
             time.sleep(3)
-            retry_ntimes(
-                10,
-                self.layout_methods.InitializeBuilder,
-                self._db,
-                self._active_cell,
-                self.edbpath,
-                self.edbversion,
-                self.standalone,
-            )
+            self.layout_methods.InitializeBuilder(
+            self._db,
+            self._active_cell,
+            self.edbpath,
+            self.edbversion,
+            self.standalone,)
             self.builder = EdbBuilder(self.edbutils, self._db, self._active_cell)
             self._init_objects()
             self._messenger.add_info_message("Builder Initialized")
@@ -662,13 +660,9 @@ class Edb(object):
     @property
     def active_layout(self):
         """Active layout."""
-        if self._active_cell:
-            return self.active_cell.GetLayout()
-        return None
-
-    # @property
-    # def builder(self):
-    #     return self.edbutils.HfssUtilities(self.edbpath)
+        if self._active_cell and not self._active_layout:
+            self._active_layout = self.active_cell.GetLayout()
+        return self._active_layout
 
     @property
     def pins(self):
@@ -774,6 +768,8 @@ class Edb(object):
             ``True`` when successful, ``False`` when failed.
 
         """
+        if "edbutils" in dir(self):
+            self.edbutils.Logger.Disable = True
         time.sleep(2)
         self._db.Close()
         time.sleep(2)
@@ -781,8 +777,13 @@ class Edb(object):
         self._wait_for_file_release()
         end = time.time()-start_time
         self._messenger.add_info_message("Release Time {}".format(end))
+        del self._active_layout
+        del self._active_cell
+        del self._db
+        del self.layout_methods
+        del self.edblib
         while gc.collect() != 0:
-            time.sleep(0.5)
+             time.sleep(0.5)
         self._clean_variables()
         return True
 
