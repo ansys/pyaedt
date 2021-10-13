@@ -54,8 +54,6 @@ class TestClass:
         print("#######")
         print("Global")
         print(global_messages)
-        assert '[info] Design Loaded' in global_messages
-        assert '[info] Materials Loaded' in global_messages
         assert '[info] Global debug message for testing.' in global_messages
         assert '[info] Global info message for testing.' in global_messages
         assert '[warning] Global warning message for testing.' in global_messages
