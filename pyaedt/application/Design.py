@@ -1036,7 +1036,6 @@ class Design(object):
             if warning_msg:
                 self.add_info_message(warning_msg)
                 self._insert_design(self._design_type, solution_type=self._solution_type)
-        self.initialize_all_aedt_objects()
         self.boundaries = self._get_boundaries_data()
 
     @property
