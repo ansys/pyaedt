@@ -59,7 +59,7 @@ class AedtLogger():
         self._std_out_handler = None
 
         if not self._global.handlers:
-            self._global.addHandler(log_handler._LogHandler(self._messenger, 'Global', logging.DEBUG))
+            self._global.addHandler(log_handler.LogHandler(self._messenger, 'Global', logging.DEBUG))
             self._global.setLevel(level)
             self._global.addFilter(AppFilter())
 

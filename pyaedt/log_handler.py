@@ -1,7 +1,7 @@
 import logging
 
 
-class _LogHandler(logging.Handler):
+class LogHandler(logging.Handler):
     """Creates a handler to send log messages in AEDT logging stream.
 
     Parameters

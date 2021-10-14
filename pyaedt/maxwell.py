@@ -250,7 +250,7 @@ class Maxwell(object):
             if type(object_list[0]) is str:
                 props = OrderedDict({"Objects": object_list, "Current": amplitude, "IsPositive": swap_direction})
             else:
-                self.logger.glb.warning("Input has to be a 2D Object")
+                self.logger.glb.warning("Input has to be a 2D Object.")
                 return False
         bound = BoundaryObject(self, name, props, "Current")
         if bound.create():
