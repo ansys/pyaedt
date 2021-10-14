@@ -1295,7 +1295,7 @@ class Hfss(FieldAnalysis3D, object):
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
             endobject
         ):
-            self.logger.glb.error("One or both objects doesn't exists. Check and retry")
+            self.logger.glb.error("One or both objects doesn't exists. Check and retry.")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
             out, parallel = self.modeler.primitives.find_closest_edges(startobj, endobject, axisdir)

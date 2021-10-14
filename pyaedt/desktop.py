@@ -322,7 +322,7 @@ class Desktop:
                 self._main.oDesktop = oAnsoftApp.GetAppDesktop()
                 self._main.isoutsideDesktop = True
             self._main.AEDTVersion = version_key
-        #self._init_logger()
+        self._set_logger_file()
         self._init_desktop()
         self._logger.glb.info("pyaedt v%s", self._main.pyaedt_version)
         self._logger.glb.info("Python version %s", sys.version)
@@ -526,7 +526,7 @@ class Desktop:
             )
             self._dispatch_win32(version)
 
-    def _init_logger(self):
+    def _set_logger_file(self):
         # Set up the log file in the AEDT project directory
         if "oDesktop" in dir(self._main):
             project_dir = self._main.oDesktop.GetProjectDirectory()
