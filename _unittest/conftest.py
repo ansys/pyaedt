@@ -58,7 +58,7 @@ if os.path.exists(local_config_file):
     with open(local_config_file) as f:
         config = json.load(f)
 else:
-    config = {"desktopVersion": "2021.1", "NonGraphical": False, "NewThread": False, "test_desktops": False,
+    config = {"desktopVersion": "2021.1", "NonGraphical": False, "NewThread": True, "test_desktops": False,
               "build_machine": True, "skip_space_claim": False, "skip_circuits": False, "skip_edb": False,
               "skip_debug": False, "local": False}
 
