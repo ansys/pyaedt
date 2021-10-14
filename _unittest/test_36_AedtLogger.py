@@ -11,6 +11,8 @@ from pyaedt.aedt_logger import AedtLogger
 class TestClass:
 
     def test_01_global(self, clean_desktop_messages, clean_desktop, hfss):
+        import time
+        time.sleep(2)
         logger = hfss.logger
         # The default logger level is DEBUGGING.
         logger.glb.debug("Global debug message for testing.")
@@ -79,7 +81,6 @@ class TestClass:
 
         logger.clear_messages("", "", 2)
         assert not logger.get_messages().global_level
-        breakpoint()
 
     def test_02_output_file_with_app_filter(self, hfss):
         content = None
