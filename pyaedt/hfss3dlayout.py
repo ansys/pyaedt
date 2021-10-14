@@ -707,7 +707,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 sweep.props["UseQ3DForDC"] = use_q3d_for_dc
                 sweep.props["MaxSolutions"] = interpolation_max_solutions
                 sweep.update()
-                self.logger.glb.info("Linear count sweep {} has been correctly created".format(sweepname))
+                self.logger.glb.info("Linear count sweep %s has been correctly created", sweepname)
                 return sweep
         return False
 
