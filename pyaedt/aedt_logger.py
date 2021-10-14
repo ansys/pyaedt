@@ -80,7 +80,7 @@ class AedtLogger():
         if destination == 'Project':
             project_name = self._messenger._project_name
             self._project = logging.getLogger(project_name)
-            self._project.addHandler(log_handler._LogHandler(self._messenger, 'Project', level))
+            self._project.addHandler(log_handler.LogHandler(self._messenger, 'Project', level))
             self._project.setLevel(level)
             #self._project.setFormatter(FORMATTER)
             self._project.addFilter(AppFilter('Project', project_name))
@@ -93,7 +93,7 @@ class AedtLogger():
             project_name = self._messenger._project_name
             design_name = self._messenger._design_name
             self._design = logging.getLogger(project_name + ":" + design_name)
-            self._design.addHandler(log_handler._LogHandler(self._messenger, 'Design', level))
+            self._design.addHandler(log_handler.LogHandler(self._messenger, 'Design', level))
             self._design.setLevel(level)
             #self._design.setFormatter(FORMATTER)
             self._design.addFilter(AppFilter('Design', design_name))
