@@ -770,9 +770,11 @@ class Edb(object):
         start_time = time.time()
         self._wait_for_file_release()
         end = time.time()-start_time
-        self._messenger.add_info_message("Release Time {}".format(end))
-        while gc.collect() != 0:
+        self._messenger.add_info_message("EDB file release time: {0:.2f}ms".format(end*1000.))
+        timeout = 4
+        while gc.collect() != 0 and timeout > 0:
             time.sleep(1)
+            timeout -= 1
         self._clean_variables()
         return True
 
