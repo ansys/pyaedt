@@ -119,7 +119,7 @@ class Modeler3DLayout(Modeler):
     def primitives(self):
         """Primitives."""
         if self._primitivesDes != self._p_app.project_name + self._p_app.design_name:
-            self._primitives = Primitives3DLayout(self._p_app, self)
+            self._primitives = Primitives3DLayout(self)
             self._primitivesDes = self._p_app.project_name + self._p_app.design_name
         return self._primitives
 
