@@ -120,7 +120,7 @@ class EmitComponents(object):
         # Pass an empty string to allow name to be automatically assigned.
         if name is None:
             name = ""
-        # Pass an emptry string to use syslib EMIT library.
+        # Pass an empty string to use syslib EMIT library.
         if library is None:
             library = ""
         new_comp_name = self.oeditor.CreateComponent(name, component_type, library)

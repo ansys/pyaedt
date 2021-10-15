@@ -6,7 +6,12 @@ from pyaedt.modeler.PrimitivesEmit import EmitComponent, EmitComponents
 from pyaedt import Emit
 from pyaedt.generic.filesystem import Scratch
 
-from _unittest.conftest import scratch_path
+from _unittest.conftest import scratch_path, config
+
+try:
+    import pytest
+except ImportError:
+    import _unittest_ironpython.conf_unittest as pytest
 
 class TestEmit:
     def setup_class(self):
@@ -37,6 +42,7 @@ class TestEmit:
         assert antenna.name == "TestAntenna"
         assert isinstance(antenna, EmitComponent)
 
+    @pytest.mark.skipif(config["desktopVersion"] < "2021.2", reason="Skipped on versions lower than 2021.2")
     def test_connect_components(self):
         radio = self.aedtapp.modeler.components.create_component("New Radio")
         antenna = self.aedtapp.modeler.components.create_component("Antenna")
