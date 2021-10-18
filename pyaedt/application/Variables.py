@@ -799,6 +799,11 @@ class VariableManager(object):
         """Messenger."""
         return self._p_app._messenger
 
+    @property
+    def logger(self):
+        """Logger."""
+        return self._p_app.logger
+
     def __init__(self, app):
         # Global Desktop Environment
         self._p_app = app
@@ -962,7 +967,7 @@ class VariableManager(object):
             try:
                 if self.delete_separator(variable_name):
                     desktop_object.Undo()
-                    self._messenger.clear_messages()
+                    self.logger.clear_messages()
                     return
             except:
                 pass

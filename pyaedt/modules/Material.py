@@ -217,6 +217,7 @@ class MatProperty(object):
     """
     def __init__(self, material, name, val=None, thermalmodifier=None):
         self._p_material = material
+        self.logger = self._p_material.logger
         self._type = "simple"
         self.name = name
         self._property_value = [BasicValue()]
@@ -538,7 +539,7 @@ class MatProperty(object):
         """
 
         if index > len(self._property_value):
-            self._messenger.add_error_message(
+            self.logger.glb.error(
                 "Wrong index number. Index must be 0 for simple or nonlinear properties,"
                 " <=2 for anisotropic materials, <=9 for Tensors"
             )
@@ -662,9 +663,7 @@ class CommonMaterial(object):
         self._messenger = self._p_materials._messenger
 
         self._oproject = self._p_materials._oproject
-
-        self._desktop = self._p_materials._desktop
-
+        self.logger = self._p_materials.logger
         self.name = name
         self.coordinate_system = ""
         if props:

@@ -197,7 +197,7 @@ class Maxwell(object):
             if type(object_list[0]) is str:
                 props = OrderedDict({"Objects": object_list, "Current": amplitude, "IsPositive": swap_direction})
             else:
-                self._messenger.add_warning_message("Input has to be a 2D Object")
+                self.logger.glb.warning("Input has to be a 2D Object.")
                 return False
         bound = BoundaryObject(self, name, props, "Current")
         if bound.create():
@@ -422,7 +422,7 @@ class Maxwell(object):
                 bound = BoundaryObject(self, name, props2, "CoilTerminal")
 
             else:
-                self._messenger.add_warning_message("Face Selection is not allowed in Maxwell 2D. Provide a 2D object.")
+                self.logger.glb.warning("Face Selection is not allowed in Maxwell 2D. Provide a 2D object.")
                 return False
         if bound.create():
             self.boundaries.append(bound)

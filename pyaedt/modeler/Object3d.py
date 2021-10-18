@@ -845,6 +845,11 @@ class Object3d(object):
         return self._p_primitives._messenger
 
     @property
+    def logger(self):
+        """Logger."""
+        return self._parent.logger
+
+    @property
     def surface_material_name(self):
         """Surface material name of the object.
 
@@ -908,7 +913,7 @@ class Object3d(object):
             self._change_property(vMaterial)
             self._material_name = mat.lower()
         else:
-            self._messenger.add_warning_message("Material {} does not exist.".format(mat))
+            self.logger.glb.warning("Material %s does not exist.", mat)
 
     @surface_material_name.setter
     def surface_material_name(self, mat):
@@ -920,7 +925,7 @@ class Object3d(object):
             self._change_property(vMaterial)
             self._surface_material = mat
         except:
-            self._messenger.add_warning_message("Material {} does not exist".format(mat))
+            self.logger.glb.warning("Material %s does not exist", mat)
 
     @property
     def id(self):

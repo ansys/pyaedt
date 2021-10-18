@@ -124,6 +124,28 @@ def desktop_init():
         run_desktop_tests()
 
 
+@pytest.fixture
+def clean_desktop_messages(desktop_init):
+    """Clear all Desktop app messages."""
+    desktop_init.logger.clear_messages(level=3)
+
+
+@pytest.fixture
+def clean_desktop(desktop_init):
+    """Close all projects, but don't close Desktop app."""
+    desktop_init.release_desktop(close_projects=True, close_on_exit=False)
+    return desktop_init
+
+@pytest.fixture
+def hfss():
+    """Create a new Hfss project."""
+    # Be sure that the base class constructor "design" exposes oDesktop.
+    hfss = Hfss(new_desktop_session=False)
+    yield hfss
+    hfss.close_project(hfss.project_name)
+    gc.collect()
+
+
 from functools import wraps
 
 
@@ -147,7 +169,6 @@ def pyaedt_unittest_check_desktop_error(func):
     return inner_function
 
 
-#
 # def pyaedt_unittest_same_design(func):
 #     @wraps(func)
 #     def inner_function(*args, **kwargs):

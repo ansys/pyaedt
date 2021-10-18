@@ -115,6 +115,7 @@ class Mesh3d(object):
         self._p_app = app
 
         self._messenger = self._p_app._messenger
+        self.logger = self._p_app.logger
         self._odesign = self._p_app._odesign
         self.modeler =  self._p_app._modeler
         self.omeshmodule = self._odesign.GetModule("SolveSetups")
@@ -220,7 +221,7 @@ class Mesh3d(object):
             restrictel = True
             numel = str(maxel)
         if maxlength is None and maxel is None:
-            self._messenger.add_error_message("mesh not assigned due to incorrect settings")
+            self.logger.glb.error("mesh not assigned due to incorrect settings")
             return
         if type(layer_name) is list and type(net_name) is list:
             assignment = OrderedDict({"MeshEntityInfo": []})

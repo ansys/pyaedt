@@ -841,6 +841,11 @@ class PostProcessorCommon(object):
         return self._p_app._messenger
 
     @property
+    def logger(self):
+        """Logger."""
+        return self._parent.logger
+
+    @property
     def _desktop(self):
         """Desktop."""
         return self._p_app._desktop
@@ -1635,7 +1640,7 @@ class PostProcessor(PostProcessorCommon, object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        self._messenger.add_info_message("Exporting {} field. Be patient".format(quantity_name))
+        self.logger.glb.info("Exporting %s field. Be patient", quantity_name)
         if not solution:
             solution = self._p_app.existing_analysis_sweeps[0]
         if not filename:
@@ -1758,7 +1763,7 @@ class PostProcessor(PostProcessorCommon, object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        self._messenger.add_info_message("Exporting {} field. Be patient".format(quantity_name))
+        self.logger.glb.info("Exporting %s field. Be patient", quantity_name)
         if not solution:
             solution = self._p_app.existing_analysis_sweeps[0]
         if not filename:
@@ -1777,7 +1782,7 @@ class PostProcessor(PostProcessorCommon, object):
                 elif obj_type == "Surf":
                     self.ofieldsreporter.EnterSurf(obj_list)
                 else:
-                    self._messenger.add_error_message("No correct choice.")
+                    self.logger.glb.error("No correct choice.")
                     return False
                 self.ofieldsreporter.CalcOp("Value")
                 variation_dict = self._p_app.available_variations.nominal_w_values
@@ -2142,7 +2147,7 @@ class PostProcessor(PostProcessorCommon, object):
         # Set up arguments list for createReport function
         if not dir:
             dir = self._scratch.path
-            self._messenger.logger.debug("Using scratch path {}".format(self._scratch.path))
+            self.logger.glb.debug("Using scratch path {}".format(self._scratch.path))
 
         assert os.path.exists(dir), "Specified directory does not exist: {}".format(dir)
 

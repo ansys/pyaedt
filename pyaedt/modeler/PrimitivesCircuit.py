@@ -37,7 +37,7 @@ class CircuitComponents(object):
     def __init__(self, modeler):
         self._p_app = modeler._p_app
         self._p_modeler = modeler
-
+        self.logger = self._p_app.logger
         self.o_model_manager = self._p_modeler.o_model_manager
 
         self.o_definition_manager = self._p_app._oproject.GetDefinitionManager()

@@ -207,7 +207,7 @@ class Icepak(FieldAnalysisIcepak):
         bound = BoundaryObject(self, boundary_name, props, "Grille")
         if bound.create():
             self.boundaries.append(bound)
-            self._messenger.add_info_message("Grille Assigned")
+            self.logger.glb.info("Grille Assigned")
             return bound
         return None
 
@@ -250,7 +250,7 @@ class Icepak(FieldAnalysisIcepak):
         bound = BoundaryObject(self, boundary_name, props, "Opening")
         if bound.create():
             self.boundaries.append(bound)
-            self._messenger.add_info_message("Opening Assigned")
+            self.logger.glb.info("Opening Assigned")
             return bound
         return None
 
@@ -287,7 +287,7 @@ class Icepak(FieldAnalysisIcepak):
             if self.setups:
                 setup_name = self.setups[0].name
             else:
-                self._messenger.add_error_message("No setup is defined.")
+                self.logger.glb.error("No setup is defined.")
                 return False
         self.oanalysis.AddTwoWayCoupling(
             setup_name,
@@ -417,7 +417,7 @@ class Icepak(FieldAnalysisIcepak):
         bound = BoundaryObject(self, boundary_name, props, "Block")
         if bound.create():
             self.boundaries.append(bound)
-            self._messenger.add_info_message(
+            self.logger.glb.info(
                 "Block on {} with {} Power, created correctly.".format(object_name, input_power)
             )
             return bound
@@ -777,9 +777,8 @@ class Icepak(FieldAnalysisIcepak):
                         "COMP_" + component_data["Ref Des"][i], str(power) + "W", assign_material=False
                     )
                     if not status:
-                        self._messenger.add_warning_message(
-                            "Warning. Block {} skipped with {}W power.".format(component_data["Ref Des"][i], power)
-                        )
+                        self.logger.glb.warning(
+                            "Warning. Block %s skipped with %sW power.", component_data["Ref Des"][i], power)
                     else:
                         total_power += float(power)
                 elif component_data["Ref Des"][i] in all_objects:
@@ -787,15 +786,14 @@ class Icepak(FieldAnalysisIcepak):
                         component_data["Ref Des"][i], str(power) + "W", assign_material=False
                     )
                     if not status:
-                        self._messenger.add_warning_message(
-                            "Warning. Block {} skipped with {}W power.".format(component_data["Ref Des"][i], power)
-                        )
+                        self.logger.glb.warning(
+                            "Warning. Block %s skipped with %sW power.", component_data["Ref Des"][i], power)
                     else:
                         total_power += float(power)
             except:
                 pass
             i += 1
-        self._messenger.add_info_message("Blocks inserted with total power {}W.".format(total_power))
+        self.logger.glb.info("Blocks inserted with total power %sW.", total_power)
         return total_power
 
     @aedt_exception_handler
@@ -1194,7 +1192,7 @@ class Icepak(FieldAnalysisIcepak):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self._messenger.add_info_message("Mapping HFSS EM losses.")
+        self.logger.glb.info("Mapping HFSS EM losses.")
         oName = self.project_name
         if oName == source_project_name or source_project_name is None:
             projname = "This Project*"
@@ -1243,7 +1241,7 @@ class Icepak(FieldAnalysisIcepak):
         bound = BoundaryObject(self, name, props, "EMLoss")
         if bound.create():
             self.boundaries.append(bound)
-            self._messenger.add_info_message("EM losses mapped from design {}.".format(designname))
+            self.logger.glb.info("EM losses mapped from design %s.", designname)
             return bound
         return False
 
@@ -1466,7 +1464,7 @@ class Icepak(FieldAnalysisIcepak):
         all_objs_NonModeled = list(self.modeler.oeditor.GetObjectsInGroup("Non Model"))
         all_objs_model = [item for item in all_objs if item not in all_objs_NonModeled]
         arg = []
-        self._messenger.add_info_message("Objects lists " + str(all_objs_model))
+        self.logger.glb.info("Objects lists " + str(all_objs_model))
         for el in all_objs_model:
             try:
                 self.osolution.EditFieldsSummarySetting(
@@ -1475,8 +1473,8 @@ class Icepak(FieldAnalysisIcepak):
                 arg.append("Calculation:=")
                 arg.append([type, geometryType, el, quantity, "", "Default"])
             except Exception as e:
-                self._messenger.add_error_message("Object " + el + " not added.")
-                self._messenger.add_error_message(str(e))
+                self.logger.glb.error("Object " + el + " not added.")
+                self.logger.glb.error(str(e))
         if not output_dir:
             output_dir = self.project_path
         self.osolution.EditFieldsSummarySetting(arg)
@@ -1762,7 +1760,7 @@ class Icepak(FieldAnalysisIcepak):
         if close_linked_project_after_import and ".aedt" in project_name:
             prjname = os.path.splitext(os.path.basename(project_name))[0]
             self.close_project(prjname, saveproject=False)
-        self._messenger.add_info_message("PCB component correctly created in Icepak.")
+        self.logger.glb.info("PCB component correctly created in Icepak.")
         return status
 
     @aedt_exception_handler

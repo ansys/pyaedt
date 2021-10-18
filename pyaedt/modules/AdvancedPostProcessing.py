@@ -658,7 +658,7 @@ class PostProcessor(Post):
 
         if plot:
             end = time.time() - start
-            self._messenger.add_info_message("PyVista plot generation took {} seconds.".format(end))
+            self.logger.glb.info("PyVista plot generation took {} seconds.".format(end))
             if off_screen:
                 if imageformat:
                     plot.show(screenshot=filename + "." + imageformat)

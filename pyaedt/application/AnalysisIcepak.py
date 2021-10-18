@@ -338,7 +338,7 @@ class FieldAnalysisIcepak(Analysis, object):
             else:
                 arg2.append("SolveInside:="), arg2.append(False)
             self.modeler.oeditor.AssignMaterial(arg1, arg2)
-            self._messenger.add_info_message("Assign Material " + mat + " to object " + selections)
+            self.logger.glb.info("Assign Material " + mat + " to object " + selections)
             self.materials._aedmattolibrary(mat)
             for el in obj:
                 self.modeler.primitives[el].material_name = mat
@@ -350,12 +350,12 @@ class FieldAnalysisIcepak(Analysis, object):
             else:
                 arg2.append("SolveInside:="), arg2.append(False)
             self.modeler.oeditor.AssignMaterial(arg1, arg2)
-            self._messenger.add_info_message("Assign Material " + mat + " to object " + selections)
+            self.logger.glb.info("Assign Material " + mat + " to object " + selections)
             for el in obj:
                 self.modeler.primitives[el].material_name = mat
             return True
         else:
-            self._messenger.add_error_message("Material Does Not Exists")
+            self.logger.glb.error("Material does not exist.")
             return False
 
     @aedt_exception_handler

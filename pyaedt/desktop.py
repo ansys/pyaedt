@@ -31,6 +31,8 @@ from pyaedt.application.MessageManager import AEDTMessageManager
 from pyaedt.misc import list_installed_ansysem
 from pyaedt import is_ironpython, _pythonver, inside_desktop
 
+from . import aedt_logger
+
 
 pathname = os.path.dirname(__file__)
 if os.path.exists(os.path.join(pathname, "version.txt")):
@@ -67,7 +69,7 @@ elif IsWindows:
 
         _com = "pywin32"
     else:
-        raise Exception("Error. No win32com.client or Pythonnet modules found. Please install them")
+        raise Exception("Error. No win32com.client or Pythonnet modules found. Please install them.")
 
 
 def exception_to_desktop(ex_value, tb_data):
@@ -320,10 +322,10 @@ class Desktop:
                 self._main.oDesktop = oAnsoftApp.GetAppDesktop()
                 self._main.isoutsideDesktop = True
             self._main.AEDTVersion = version_key
-        self._init_logger()
+        self._set_logger_file()
         self._init_desktop()
-        self._main.oMessenger.add_info_message("pyaedt v{}".format(self._main.pyaedt_version))
-        self._main.oMessenger.add_info_message("Python version {}".format(sys.version))
+        self._logger.glb.info("pyaedt v%s", self._main.pyaedt_version)
+        self._logger.glb.info("Python version %s", sys.version)
 
     def __enter__(self):
         return self
@@ -393,6 +395,8 @@ class Desktop:
         self._main.AEDTVersion = self._main.oDesktop.GetVersion()[0:6]
         self._main.oDesktop.RestoreWindow()
         self._main.oMessenger = AEDTMessageManager()
+        self._logger = aedt_logger.AedtLogger(self._main.oMessenger, filename = self.logfile, level = logging.DEBUG)
+        self._main.aedt_logger = self._logger
         self._main.sDesktopinstallDirectory = self._main.oDesktop.GetExeDir()
         self._main.pyaedt_initialized = True
 
@@ -522,25 +526,27 @@ class Desktop:
             )
             self._dispatch_win32(version)
 
-    def _init_logger(self):
+    def _set_logger_file(self):
         # Set up the log file in the AEDT project directory
-        self.logger = logging.getLogger(__name__)
-        if not self.logger.handlers:
-            if "oDesktop" in dir(self._main):
-                project_dir = self._main.oDesktop.GetProjectDirectory()
-            else:
-                project_dir = tempfile.gettempdir()
-            self.logfile = os.path.join(
-                project_dir, "pyaedt{}.log".format(datetime.datetime.now().strftime("%Y%m%d_%H%M%S"))
-            )
-            logging.basicConfig(
-                filename=self.logfile,
-                format="%(asctime)s:%(name)s:%(levelname)-8s:%(message)s",
-                level=logging.DEBUG,
-                datefmt="%Y/%m/%d %H.%M.%S",
-                filemode="w",
-            )
+        if "oDesktop" in dir(self._main):
+            project_dir = self._main.oDesktop.GetProjectDirectory()
+        else:
+            project_dir = tempfile.gettempdir()
+        self.logfile = os.path.join(
+            project_dir, "pyaedt{}.log".format(datetime.datetime.now().strftime("%Y%m%d_%H%M%S"))
+        )
+
         return True
+
+    @property
+    def messenger(self):
+        """Messenger manager for AEDT Log."""
+        return self._main.oMessenger
+
+    @property
+    def logger(self):
+        """Logger."""
+        return self._logger
 
     def _exception(self, ex_value, tb_data):
         """Write the trace stack to the desktop when a Python error occurs.
@@ -560,9 +566,9 @@ class Desktop:
         """
         tb_trace = traceback.format_tb(tb_data)
         tblist = tb_trace[0].split("\n")
-        self._main.oMessenger.add_error_message(str(ex_value), "Global")
+        self.logger.glb.error(str(ex_value), "Global")
         for el in tblist:
-            self._main.oMessenger.add_error_message(el, "Global")
+            self.logger.glb.error(el, "Global")
 
         return str(ex_value)
 
@@ -699,21 +705,21 @@ class Desktop:
         if isinstance(key_value, str):
             try:
                 self._main.oDesktop.SetRegistryString(key_full_name, key_value)
-                self._main.oMessenger.add_info_message("Key {} correctly changed.".format(key_full_name), "Global")
+                self.logger.glb.info("Key %s correctly changed.", key_full_name)
                 return True
             except:
-                self._main.oMessenger.add_warning_message("Error setting up Key {}.".format(key_full_name), "Global")
+                self.logger.glb.warning("Error setting up Key %s.", key_full_name)
                 return False
         elif isinstance(key_value, int):
             try:
                 self._main.oDesktop.SetRegistryInt(key_full_name, key_value)
-                self._main.oMessenger.add_info_message("Key {} correctly changed.".format(key_full_name), "Global")
+                self.logger.glb.info("Key %s correctly changed.", key_full_name)
                 return True
             except:
-                self._main.oMessenger.add_warning_message("Error setting up Key {}.".format(key_full_name), "Global")
+                self.logger.glb.warning("Error setting up Key %s.", key_full_name)
                 return False
         else:
-            self._main.oMessenger.add_warning_message("Key Value must be an int or str.")
+            self.logger.glb.warning("Key Value must be an int or str.")
             return False
 
     def change_active_dso_config_name(self, product_name="HFSS", config_name="Local"):
@@ -731,12 +737,12 @@ class Desktop:
         """
         try:
             self.change_registry_key("Desktop/ActiveDSOConfigurations/{}".format(product_name), config_name)
-            self._main.oMessenger.add_info_message(
-                "Configuration Changed correctly to {} for {}.".format(config_name, product_name))
+            self.logger.glb.info(
+                "Configuration Changed correctly to %s for %s.", config_name, product_name)
             return True
         except:
-            self._main.oMessenger.add_warning_message(
-                "Error Setting Up Configuration {} for {}.".format(config_name, product_name))
+            self.logger.glb.warning(
+                "Error Setting Up Configuration %s for %s.", config_name, product_name)
             return False
 
     def change_registry_from_file(self, registry_file, make_active=True):

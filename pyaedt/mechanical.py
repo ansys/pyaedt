@@ -150,7 +150,7 @@ class Mechanical(FieldAnalysis3D, object):
         """
         assert self.solution_type == "Thermal", "This Method works only in Mechanical Structural Solution"
 
-        self._messenger.add_info_message("Mapping HFSS EM Lossess")
+        self.logger.glb.info("Mapping HFSS EM Lossess")
         oName = self.project_name
         if oName == source_project_name or source_project_name is None:
             projname = "This Project*"
@@ -198,7 +198,7 @@ class Mechanical(FieldAnalysis3D, object):
         bound = BoundaryObject(self, name, props, "EMLoss")
         if bound.create():
             self.boundaries.append(bound)
-            self._messenger.add_info_message("EM losses mapped from design {}.".format(designname))
+            self.logger.glb.info("EM losses mapped from design %s.", designname)
             return bound
         return False
 
@@ -241,7 +241,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         assert self.solution_type == "Structural", "This method works only in a Mechanical structural solution."
 
-        self._messenger.add_info_message("Mapping HFSS EM Lossess")
+        self.logger.glb.info("Mapping HFSS EM Lossess")
         oName = self.project_name
         if oName == source_project_name or source_project_name is None:
             projname = "This Project*"
@@ -281,7 +281,7 @@ class Mechanical(FieldAnalysis3D, object):
         bound = BoundaryObject(self, name, props, "ThermalCondition")
         if bound.create():
             self.boundaries.append(bound)
-            self._messenger.add_info_message("Thermal conditions are mapped from design {}.".format(designname))
+            self.logger.glb.info("Thermal conditions are mapped from design %s.", designname)
             return bound
 
         return True
@@ -399,7 +399,7 @@ class Mechanical(FieldAnalysis3D, object):
         """
 
         if not (self.solution_type == "Structural" or self.solution_type == "Modal"):
-            self._messenger.add_error_message("This method works only in Mechanical Structural Solution")
+            self.logger.glb.error("This method works only in Mechanical Structural Solution")
             return False
         props = {}
         objects_list = self.modeler._convert_list_to_ids(objects_list)
@@ -439,7 +439,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         """
         if not (self.solution_type == "Structural" or self.solution_type == "Modal"):
-            self._messenger.add_error_message("This method works only in a Mechanical structural solution.")
+            self.logger.glb.error("This method works only in a Mechanical structural solution.")
             return False
         props = {}
         objects_list = self.modeler._convert_list_to_ids(objects_list)

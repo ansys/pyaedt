@@ -555,6 +555,7 @@ class Layers(object):
         self._currentId = 0
         self.layers = defaultdict(Layer)
         self.lengthUnitRough = roughnessunits
+        self.logger = self._p_app._messenger
 
     @property
     def _p_app(self):
