@@ -20,4 +20,5 @@ documentation.
    SetupTemplates
    Boundaries
    MultiPartComponent
+   LogHandler
 

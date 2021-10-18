@@ -21,6 +21,14 @@ class LogHandler(logging.Handler):
         self.messenger = aedt_app_messenger
 
     def emit(self, record):
+        """ The record is written to the stream.
+
+        Parameters
+        ----------
+        record : class:`logging.LogRecord`
+            Contains information related to the event being logged.
+        """
+
         if record.levelname == 'DEBUG':
             # Debug message does not exist for AEDT so we will log an info message.
             self.messenger.add_info_message(self.format(record), self.destination)
