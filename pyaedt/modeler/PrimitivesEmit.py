@@ -211,7 +211,6 @@ class EmitComponent(object):
             return EmitComponent(components, component_name)
         return cls.subclasses[root_node_type](components, component_name)
 
-
     def __init__(self, components, component_name):
         self.name = component_name
         self.oeditor = components.oeditor
