@@ -25,7 +25,7 @@ class AppFilter(logging.Filter):
         self._extra = extra
 
     def filter(self, record):
-        """Modify the record send to the stream.
+        """Modify the record sent to the stream.
 
         Parameters
         ----------
