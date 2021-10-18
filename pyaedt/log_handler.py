@@ -8,7 +8,7 @@ class LogHandler(logging.Handler):
     ----------
     aedt_app_messenger : class:`pyaedt.application.MessageManager.AEDTMessageManager`
         AEDT app log manager.
-    log_destination: str
+    log_destination : str
         AEDT has 3 different logs: `'Global'`, `'Project'`, `'Design'`.
     level : int, optional
         Threshold for this handler.  For example ``logging.DEBUG``
