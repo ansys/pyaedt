@@ -1,11 +1,11 @@
-import random
 from collections import defaultdict
 
-from ..generic.general_methods import aedt_exception_handler, retry_ntimes
+from ..generic.general_methods import aedt_exception_handler
+
 
 class EmitComponents(object):
-    """EmitComponents class. 
-    
+    """EmitComponents class.
+
      This is the class for managing all EMIT components.
      """
 
@@ -70,8 +70,8 @@ class EmitComponents(object):
         Parameters
         ----------
         partname : str
-           Name of the component. 
-        
+           Name of the component.
+
         Returns
         -------
         EmitComponent
@@ -108,12 +108,12 @@ class EmitComponents(object):
             Name to assign to the new component. If ``None``, then an instance
             name is assigned automatically. The default is ``None.``
         library : str, optional
-            Name of the component library. If ``None``, the syslib is used. The 
+            Name of the component library. If ``None``, the syslib is used. The
             default is ``None``.
 
         Returns
         -------
-        EmitComponent 
+        EmitComponent
             The newly created component.
 
         """
@@ -123,7 +123,8 @@ class EmitComponents(object):
         # Pass an empty string to use syslib EMIT library.
         if library is None:
             library = ""
-        new_comp_name = self.oeditor.CreateComponent(name, component_type, library)
+        new_comp_name = self.oeditor.CreateComponent(name, component_type,
+                                                     library)
         o = EmitComponent.create(self, new_comp_name)
         o.name = new_comp_name
         o_update = self.update_object_properties(o)
@@ -140,7 +141,6 @@ class EmitComponents(object):
                 o_update = self.update_object_properties(o)
                 self.components[comp_name] = o_update
         return len(self.components)
-
 
     @aedt_exception_handler
     def get_obj_id(self, objname):
@@ -181,85 +181,11 @@ class EmitComponents(object):
         o._add_property('Type', comp_type)
         return o
 
-    @aedt_exception_handler
-    def get_pins(self, partid):
-        """
-
-        Parameters
-        ----------
-        partid : int or str
-            ID or full name of the component.
-
-        Returns
-        -------
-        type
-            Object with properties.
-
-        """
-        if type(partid) is str:
-            pins = retry_ntimes(10, self.oeditor.GetComponentPins, partid)
-            #pins = self.oeditor.GetComponentPins(partid)
-        else:
-            pins = retry_ntimes(10, self.oeditor.GetComponentPins, self.components[partid].composed_name)
-            #pins = self.oeditor.GetComponentPins(self.components[partid].composed_name)
-        return list(pins)
-
-    @aedt_exception_handler
-    def get_pin_location(self, partid, pinname):
-        """
-
-        Parameters
-        ----------
-        partid : 
-            ID of the component.
-        pinname :
-            Name of the pin.
-
-        Returns
-        -------
-        List
-            List of axis values ``[x, y]``.
-
-        """
-        if type(partid) is str:
-            x = retry_ntimes(30, self.oeditor.GetComponentPinLocation, partid, pinname, True)
-            y = retry_ntimes(30, self.oeditor.GetComponentPinLocation, partid, pinname, False)
-        else:
-            x = retry_ntimes(30, self.oeditor.GetComponentPinLocation, self.components[partid].composed_name, pinname, True)
-            y = retry_ntimes(30, self.oeditor.GetComponentPinLocation, self.components[partid].composed_name, pinname, False)
-        return [x, y]
-
-    @aedt_exception_handler
-    def arg_with_dim(self, Value, sUnits=None):
-        """
-
-        Parameters
-        ----------
-        Value : str
-            
-        sUnits :
-            The default is ``None``.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        """
-        if type(Value) is str:
-            val = Value
-        else:
-            if sUnits is None:
-                sUnits = self.model_units
-            val = "{0}{1}".format(Value, sUnits)
-
-        return val
-
 
 class EmitComponent(object):
     """A component in the EMIT schematic."""
 
-    # Dictionary of subclass types. Register each subclass types with 
+    # Dictionary of subclass types. Register each subclass types with
     # class decorator and use EmitComponent.create to create the correct
     # object type.
     subclasses = {}
@@ -275,7 +201,8 @@ class EmitComponent(object):
     def create(cls, components, component_name):
         nodes = components.odesign.GetComponentNodeNames(component_name)
         root_node = nodes[0]
-        prop_list = components.odesign.GetComponentNodeProperties(component_name, root_node)
+        prop_list = components.odesign.GetComponentNodeProperties(
+            component_name, root_node)
         props = dict(p.split('=') for p in prop_list)
         root_node_type = props['Type']
         if root_node_type.endswith('Node'):
@@ -284,13 +211,6 @@ class EmitComponent(object):
             return EmitComponent(components, component_name)
         return cls.subclasses[root_node_type](components, component_name)
 
-    @property
-    def composed_name(self):
-        """ """
-        if self.id:
-            return self.name + ";" +str(self.id) + ";" + str(self.schematic_id)
-        else:
-            return self.name + ";" + str(self.schematic_id)
 
     def __init__(self, components, component_name):
         self.name = component_name
@@ -305,9 +225,9 @@ class EmitComponent(object):
         Parameters
         ----------
         component : EmitComponent or str
-            The component or name of component to move this component to 
+            The component or name of component to move this component to
             and connect. For example, "Radio1"
-        
+
         Returns
         -------
         None
@@ -331,7 +251,7 @@ class EmitComponent(object):
     @aedt_exception_handler
     def port_connection(self, port_name):
         """Get the name component and port connected to the given port.
-        
+
         Parameters
         ----------
         port_name : str
@@ -340,18 +260,18 @@ class EmitComponent(object):
         Returns
         -------
         str
-            Connected component name. Returns None if no connection at given 
+            Connected component name. Returns None if no connection at given
             port.
         str
-            Port name on connected component. Returns None if no connection 
+            Port name on connected component. Returns None if no connection
             at given port.
         """
         wire_name = self.oeditor.GetWireAtPort(self.name, port_name)
         wire_connections = self.oeditor.GetWireConnections(wire_name)
         # One end of the wire will be this componenent. The other end will be
-        # the other component. Return component and port names for the other 
+        # the other component. Return component and port names for the other
         # end.
-        for wc_comp_name, wc_port_name in wire_connections:        
+        for wc_comp_name, wc_port_name in wire_connections:
             if wc_comp_name != self.name:
                 return wc_comp_name, wc_port_name
         return None, None
@@ -369,7 +289,8 @@ class EmitComponent(object):
         root_node_name = node_names[0]
         nodes = {}
         for node_name in node_names:
-            new_node = EmitComponentPropNode(self.oeditor, self.odesign, self, node_name)
+            new_node = EmitComponentPropNode(self.oeditor, self.odesign, self,
+                                             node_name)
             parent_name = node_name.rpartition('-*-')[0]
             if parent_name in nodes:
                 parent_node = nodes[parent_name]
@@ -387,7 +308,7 @@ class EmitComponent(object):
         ----------
         node : str
             The name of the node (property group) whose properties will
-            be returned. If node is None, the root node properties will be 
+            be returned. If node is None, the root node properties will be
             returned. (Default value = None)
 
         Returns
@@ -401,96 +322,10 @@ class EmitComponent(object):
         node_name = root_node
         if node is not None:
             node_name = root_node + '-*-' + '-*-'.join(node.split('/')[1:])
-        props_list = self.odesign.GetComponentNodeProperties(self.name, node_name)
+        props_list = self.odesign.GetComponentNodeProperties(self.name,
+                                                             node_name)
         props = dict(p.split('=') for p in props_list)
         return props
-
-    @aedt_exception_handler
-    def set_location(self, x_location=None, y_location=None):
-        """Set part location
-
-        Parameters
-        ----------
-        x_location :
-            x location (Default value = None)
-        y_location :
-            y location (Default value = None)
-
-        Returns
-        -------
-
-        """
-        if x_location is None:
-            x_location = self.x_location
-        else:
-            x_location = _dim_arg(x_location,"mil")
-        if y_location is None:
-            y_location = self.y_location
-        else:
-            y_location = _dim_arg(y_location,"mil")
-
-        vMaterial = ["NAME:Component Location", "X:=", x_location,"Y:=", y_location]
-        self.change_property(vMaterial)
-
-    @aedt_exception_handler
-    def set_mirror(self, mirror_value=None):
-        """Mirror part
-
-        Parameters
-        ----------
-        mirror_value :
-            mirror angle (Default value = None)
-
-        Returns
-        -------
-
-        """
-        if not mirror_value:
-            mirror_value = self.mirror
-        vMaterial = ["NAME:Component Mirror", "Value:=", mirror_value]
-        self.change_property(vMaterial)
-
-    @aedt_exception_handler
-    def set_use_symbol_color(self, symbol_color=None):
-        """Set Symbol Color usage
-
-        Parameters
-        ----------
-        symbol_color :
-            Bool (Default value = None)
-
-        Returns
-        -------
-
-        """
-        if not symbol_color:
-            symbol_color = self.usesymbolcolor
-        vMaterial = ["NAME:Use Symbol Color", "Value:=", symbol_color]
-        self.change_property(vMaterial)
-        return True
-
-
-    @aedt_exception_handler
-    def set_color(self, R=255, G=128, B=0):
-        """Set Symbol Color
-
-        Parameters
-        ----------
-        R :
-            red (Default value = 255)
-        G :
-            Green (Default value = 128)
-        B :
-            Blue (Default value = 0)
-
-        Returns
-        -------
-
-        """
-        self.set_mirror(True)
-        vMaterial = ["NAME:Component Color", "R:=", R,"G:=", G, "B:=", B]
-        self.change_property(vMaterial)
-        return True
 
     @aedt_exception_handler
     def set_property(self, property_name, property_value):
@@ -508,7 +343,7 @@ class EmitComponent(object):
 
         """
         if type(property_name) is list:
-            for p,v in zip(property_name, property_value):
+            for p, v in zip(property_name, property_value):
                 v_prop = ["NAME:"+p, "Value:=", v]
                 self.change_property(v_prop)
                 self.__dict__[p] = v
@@ -520,62 +355,28 @@ class EmitComponent(object):
 
     @aedt_exception_handler
     def _add_property(self, property_name, property_value):
-        """
+        """Add a property or update existing property value.
 
         Parameters
         ----------
-        property_name :
+        property_name : Name of property.
 
-        property_value :
+        property_value : Value to assign to property.
 
 
         Returns
         -------
-
+        True.
         """
         self.__dict__[property_name] = property_value
         return True
-
-    def change_property(self, vPropChange, names_list=None):
-        """
-
-        Parameters
-        ----------
-        vPropChange :
-
-        names_list :
-             (Default value = None)
-
-        Returns
-        -------
-
-        """
-        vChangedProps = ["NAME:ChangedProps", vPropChange]
-        if names_list:
-            vPropServers = ["NAME:PropServers"]
-            for el in names_list:
-                vPropServers.append(el)
-        else:
-            vPropServers = ["NAME:PropServers", self.composed_name]
-        tabname = None
-        if vPropChange[0][5:] in list(self.m_Editor.GetProperties(self.tabname, self.composed_name)):
-            tabname = self.tabname
-        elif vPropChange[0][5:] in list(self.m_Editor.GetProperties("PassedParameterTab", self.composed_name)):
-            tabname = "PassedParameterTab"
-        elif vPropChange[0][5:] in list(self.m_Editor.GetProperties("BaseElementTab", self.composed_name)):
-            tabname = "BaseElementTab"
-        if tabname:
-            vGeo3dlayout = ["NAME:"+tabname, vPropServers, vChangedProps]
-            vOut = ["NAME:AllTabs", vGeo3dlayout]
-            return retry_ntimes(10, self.m_Editor.ChangeProperty, vOut)
-        return False
 
     def get_prop_nodes(self, property_filter={}):
         """Get all property nodes that match a set of key,value pairs.
 
         Args:
             property_filter (dict, optional): Only return nodes with all
-            the property name,value pairs of this dict. Defaults to {} 
+            the property name,value pairs of this dict. Defaults to {}
             which returns all nodes.
 
         Returns:
@@ -586,21 +387,21 @@ class EmitComponent(object):
         while nodes_to_expand:
             node = nodes_to_expand.pop()
             nodes_to_expand.extend(node.children)
-            num_missing_props = sum(1 for prop, value in property_filter.items() if prop not in node.props or node.props[prop] != value)
             # <= checks if subset; {} is subset of all dicts
-            if property_filter.items() <= node.props.items(): 
+            if property_filter.items() <= node.props.items():
                 filtered_nodes.append(node)
         return filtered_nodes
+
 
 @EmitComponent.register_subclass("Radio")
 class EmitRadioComponent(EmitComponent):
     """A Radio component in the EMIT schematic."""
 
     def __init__(self, components, component_name):
-        super(EmitRadioComponent, self) .__init__(components, component_name)
+        super(EmitRadioComponent, self).__init__(components, component_name)
 
     def bands(self):
-        band_nodes = self.get_prop_nodes({'Type':'Band'})
+        band_nodes = self.get_prop_nodes({'Type': 'Band'})
         return band_nodes
 
     def band_start_frequency_hz(self, band_node):
@@ -611,14 +412,16 @@ class EmitRadioComponent(EmitComponent):
             if child.props['Type'] == 'TxSpectralProfNode':
                 return float(child.props['FundamentalAmplitude'])
 
-
     def has_tx_channels(self):
-        nodes = self.get_prop_nodes({'Type':'TxSpectralProfNode', 'Enabled':'true'})
+        nodes = self.get_prop_nodes({'Type': 'TxSpectralProfNode',
+                                     'Enabled': 'true'})
         return len(nodes) > 0
 
     def has_rx_channels(self):
-        nodes = self.get_prop_nodes({'Type':'RxSusceptibilityProfNode', 'Enabled':'true'})
+        nodes = self.get_prop_nodes({'Type': 'RxSusceptibilityProfNode',
+                                     'Enabled': 'true'})
         return len(nodes) > 0
+
 
 class EmitComponentPropNode(object):
     def __init__(self, editor, design, parent_component, node_name):
@@ -632,13 +435,14 @@ class EmitComponentPropNode(object):
 
     @property
     def props(self):
-        prop_list = self.odesign.GetComponentNodeProperties(self.parent_component.name, self.node_name)
+        prop_list = self.odesign.GetComponentNodeProperties(
+            self.parent_component.name, self.node_name)
         props = dict(p.split('=') for p in prop_list)
         return props
 
     @property
     def enabled(self):
-        return self.props['Enabled']=='true'
+        return self.props['Enabled'] == 'true'
 
     @aedt_exception_handler
     def _set_prop_value(self, props={}):
@@ -647,22 +451,22 @@ class EmitComponentPropNode(object):
         for prop_name, value in props.items():
             prop_list.append('{}:='.format(prop_name))
             if type(value) is not str:
-                raise TypeError('Value for key {} is not a string.'.format(prop_name))
+                raise TypeError(
+                    'Value for key {} is not a string.'.format(prop_name))
             prop_list.append(value)
         properties_to_set = [
                 [
-                    "NAME:node", 
+                    "NAME:node",
                     "fullname:=", self.node_name,
                     prop_list
                 ],
-                [] # Property does not get set without this empty list
+                []  # Property does not get set without this empty list
             ]
-        nodes_to_delete = [] # No nodes to delete
-        self.odesign.EditComponentNodes(comp_name, properties_to_set, nodes_to_delete)
+        nodes_to_delete = []  # No nodes to delete
+        self.odesign.EditComponentNodes(comp_name, properties_to_set,
+                                        nodes_to_delete)
 
     @enabled.setter
     def enabled(self, value):
         str_value = 'true' if value else 'false'
-        self._set_prop_value({'Enabled':str_value})
-        
-
+        self._set_prop_value({'Enabled': str_value})
