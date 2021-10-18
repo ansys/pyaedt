@@ -25,6 +25,13 @@ class AppFilter(logging.Filter):
         self._extra = extra
 
     def filter(self, record):
+        """Modify the record send to the stream.
+
+        Parameters
+        ----------
+        record : class:`logging.LogRecord`
+            Contains information related to the event being logged.
+        """
         record.destination = self._destination
 
         # This will avoid the extra '::' for Global that does not have any extra info.
@@ -76,13 +83,21 @@ class AedtLogger():
             self._global.addHandler(self._std_out_handler)
 
     def add_logger(self, destination, level=logging.DEBUG):
-        """Add a logger for either an active project or an active design."""
+        """Add a logger for either an active project or an active design.
+
+        Parameters
+        ----------
+        destination : str
+            Either `'Project'` or `'Design'`.
+        level : int
+            Logging level enum.
+        """
+
         if destination == 'Project':
             project_name = self._messenger._project_name
             self._project = logging.getLogger(project_name)
             self._project.addHandler(log_handler.LogHandler(self._messenger, 'Project', level))
             self._project.setLevel(level)
-            #self._project.setFormatter(FORMATTER)
             self._project.addFilter(AppFilter('Project', project_name))
             if self._file_handler is not None:
                 self._project.addHandler(self._file_handler)
@@ -95,7 +110,6 @@ class AedtLogger():
             self._design = logging.getLogger(project_name + ":" + design_name)
             self._design.addHandler(log_handler.LogHandler(self._messenger, 'Design', level))
             self._design.setLevel(level)
-            #self._design.setFormatter(FORMATTER)
             self._design.addFilter(AppFilter('Design', design_name))
             if self._file_handler is not None:
                 self._design.addHandler(self._file_handler)
