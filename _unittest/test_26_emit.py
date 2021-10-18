@@ -14,7 +14,7 @@ except ImportError:
     import _unittest_ironpython.conf_unittest as pytest
 
 
-class TestEmit:
+class TestClass:
     def setup_class(self):
         # set a scratch directory and the environment / test data
         with Scratch(scratch_path) as self.local_scratch:
