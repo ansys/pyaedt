@@ -209,6 +209,9 @@ if os.name != "posix" and "PYAEDT_CI_NO_EXAMPLES" not in os.environ:
         }
 
 
+autodoc_inherit_docstrings = False
+
+
 # -- Options for HTML output -------------------------------------------------
 html_show_sourcelink = True
 html_theme = "pyansys_sphinx_theme"
