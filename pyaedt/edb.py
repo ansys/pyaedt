@@ -9,6 +9,7 @@ import sys
 import time
 import traceback
 import warnings
+import shutil
 
 try:
     import clr
@@ -738,11 +739,19 @@ class Edb(object):
             return False
 
     @aedt_exception_handler
-    def _wait_for_file_release(self, timeout=30):
-        filename = os.path.join(self.edbpath)
+    def _is_file_existing(self, filename):
+        if os.path.exists(filename):
+            return True
+        else:
+            return False
+
+    @aedt_exception_handler
+    def _wait_for_file_release(self, timeout=30, file_to_release=None):
+        if not file_to_release:
+            file_to_release = os.path.join(self.edbpath)
         tstart = time.time()
         while True:
-            if self._is_file_existing_and_released(filename):
+            if self._is_file_existing_and_released(file_to_release):
                 # print 'File is released'
                 return True
             elif time.time() - tstart > timeout:
@@ -750,6 +759,25 @@ class Edb(object):
                 return False
             else:
                 # print 'Retring... '
+                time.sleep(0.250)
+
+    @aedt_exception_handler
+    def _wait_for_file_exists(self, timeout=30, file_to_release=None, wait_count=4):
+        if not file_to_release:
+            file_to_release = os.path.join(self.edbpath)
+        tstart = time.time()
+        times = 0
+        while True:
+            if self._is_file_existing(file_to_release):
+                # print 'File is released'
+                times += 1
+                if times == wait_count:
+                    return True
+            elif time.time() - tstart > timeout:
+                # print 'Timeout reached'
+                return False
+            else:
+                times = 0
                 time.sleep(0.250)
 
     @aedt_exception_handler
@@ -968,8 +996,7 @@ class Edb(object):
 
         if output_aedb_path:
             db2 = self.edb.Database.Create(output_aedb_path)
-            # Function input is the name of a .aedb folder inside which the edb.def will be created.
-            # Ex: 'D:/backedup/EDB/TEST PROJECTS/CUTOUT/N1.aedb'
+            _success = db2.Save()
             _dbCells = convert_py_list_to_net_list(_dbCells)
             db2.CopyCells(_dbCells)  # Copies cutout cell/design to db2 project
             _success = db2.Save()
@@ -990,6 +1017,14 @@ class Edb(object):
                 self._init_objects()
             else:
                 db2.Close()
+                source = os.path.join(output_aedb_path, "edb.def.tmp")
+                target = os.path.join(output_aedb_path, "edb.def")
+                self._wait_for_file_release(file_to_release=output_aedb_path)
+                if os.path.exists(source) and not os.path.exists(target):
+                    try:
+                        shutil.move(source, target)
+                    except:
+                        pass
         else:
             self.db.CopyCells(_cutout)
         return True
@@ -1064,8 +1099,6 @@ class Edb(object):
         # Create new cutout cell/design
         _cutout = self.active_cell.CutOut(net_signals, _netsClip, polygonData)
         self._messenger.add_info_message("Cutout {} created correctly".format(_cutout.GetName()))
-        # The analysis setup(s) do not come over with the clipped design copy,
-        # so add the analysis setup(s) from the original here
         for _setup in self.active_cell.SimulationSetups:
             # Empty string '' if coming from setup copy and don't set explicitly.
             _setup_name = _setup.GetName()
@@ -1080,15 +1113,18 @@ class Edb(object):
         _dbCells = [_cutout]
         if output_aedb_path:
             db2 = self.edb.Database.Create(output_aedb_path)
-            # Function input is the name of a .aedb folder inside which the edb.def will be created.
-            # Ex: 'D:/backedup/EDB/TEST PROJECTS/CUTOUT/N1.aedb'
+            db2.Save()
             _dbCells = convert_py_list_to_net_list(_dbCells)
             db2.CopyCells(_dbCells)  # Copies cutout cell/design to db2 project
-            _success = db2.Save()
+            cell = list(db2.TopCircuitCells)[0]
+            cell.SetName(os.path.basename(output_aedb_path[:-5]))
+            layout = cell.GetLayout()
+            db2.Save()
             if open_cutout_at_end:
+                _success = db2.Save()
                 self._db = db2
                 self.edbpath = output_aedb_path
-                self._active_cell = list(self._db.TopCircuitCells)[0]
+                self._active_cell = cell
                 retry_ntimes(
                     10,
                     self.layout_methods.InitializeBuilder,
@@ -1102,8 +1138,19 @@ class Edb(object):
                 self._init_objects()
             else:
                 db2.Close()
+                source = os.path.join(output_aedb_path, "edb.def.tmp")
+                target = os.path.join(output_aedb_path, "edb.def")
+                self._wait_for_file_release(file_to_release=output_aedb_path)
+                if os.path.exists(source) and not os.path.exists(target):
+                    try:
+                        shutil.move(source, target)
+                        self._messenger.add_warning_message("Def file manually created.")
+                    except:
+                        pass
+
         else:
             self.db.CopyCells(_cutout)
+
         return True
 
     @aedt_exception_handler
