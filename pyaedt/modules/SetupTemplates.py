@@ -1485,8 +1485,8 @@ class SweepQ3D(object):
         if props:
             self.props = props
         else:
+            self.props["Type"] = sweeptype
             if sweeptype == "Discrete":
-                self.props["Type"] = sweeptype
                 self.props["isenabled"] = True
                 self.props["RangeType"] = "LinearCount"
                 self.props["RangeStart"] = "2.5GHz"
@@ -1500,7 +1500,6 @@ class SweepQ3D(object):
                 self.props["SaveRadFields"] = True
                 self.props["SweepRanges"] = []
             else:
-                self.props["Type"] = sweeptype
                 self.props["IsEnabled"] = True
                 self.props["RangeType"] = "LinearStep"
                 self.props["RangeStart"] = "1GHz"
