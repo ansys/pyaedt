@@ -6,7 +6,7 @@ class LogHandler(logging.Handler):
 
     Parameters
     ----------
-    aedt_app_messenger : :class:`pyaedt.application.MessageManager.AEDTMessageManager`
+    aedt_app_messenger : str
         AEDT app log manager.
     log_destination: str
         AEDT has 3 different logs: `'Global'`, `'Desktop'`, `'Project'`.
@@ -16,8 +16,7 @@ class LogHandler(logging.Handler):
 
     def __init__(self, aedt_app_messenger, log_destination, level=logging.INFO):
         # base class's constructor must be called to set level and filters.
-        logging.Handler.__init__(self, level)
-        # super().__init__(level)
+        super().__init__(level)
         self.destination = log_destination
         self.messenger = aedt_app_messenger
 
