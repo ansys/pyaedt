@@ -21,4 +21,5 @@ documentation.
    Boundaries
    MultiPartComponent
    LogHandler
+   AedtLogger
 
