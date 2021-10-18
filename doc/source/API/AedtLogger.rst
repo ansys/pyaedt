@@ -11,3 +11,4 @@ pyaedt log files:
    :nosignatures:
 
    aedt_logger.AedtLogger
+   aedt_logger.AppFilter

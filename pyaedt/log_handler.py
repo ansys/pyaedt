@@ -21,7 +21,7 @@ class LogHandler(logging.Handler):
         self.messenger = aedt_app_messenger
 
     def emit(self, record):
-        """ The record is written to the stream.
+        """Write the record to the stream.
 
         Parameters
         ----------
