@@ -30,8 +30,13 @@ class EdbLayout(object):
 
     @property
     def _messenger(self):
-        """ """
+        """Messenger."""
         return self._parent._messenger
+
+    @property
+    def logger(self):
+        """Logger."""
+        return self._parent.logger
 
     @property
     def _builder(self):

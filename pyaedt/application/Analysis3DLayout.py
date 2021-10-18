@@ -77,10 +77,10 @@ class FieldAnalysis3DLayout(Analysis):
             close_on_exit,
             student_version,
         )
-        self._messenger.add_info_message("Analysis Loaded")
+        self.logger.glb.info("Analysis Loaded")
         self._modeler = Modeler3DLayout(self)
         self._modeler.primitives.init_padstacks()
-        self._messenger.add_info_message("Modeler Loaded")
+        self.logger.glb.info("Modeler Loaded")
         self._mesh = Mesh(self)
         # self._post = PostProcessor(self)
 
@@ -205,7 +205,7 @@ class FieldAnalysis3DLayout(Analysis):
         if not reclist:
             reclist = [i for i in self.get_excitations_name if rx_prefix in i]
         if len(trlist) != len(reclist):
-            self._messenger.add_error_message("TX and RX should be same length lists")
+            self.logger.glb.error("The TX and RX lists should be same length.")
             return False
         for i, j in zip(trlist, reclist):
             spar.append("S({},{})".format(i, j))

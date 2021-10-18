@@ -576,6 +576,11 @@ class Modeler(object):
         return self._parent._messenger
 
     @property
+    def logger(self):
+        """Logger."""
+        return self._parent.logger
+
+    @property
     def odesign(self):
         """Design."""
         return self._parent._odesign
@@ -1060,14 +1065,14 @@ class GeometryModeler(Modeler, object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self._messenger.add_info_message("Enabling deformation feedback")
+        self.logger.glb.info("Enabling deformation feedback")
         try:
             self.odesign.SetObjectDeformation(["EnabledObjects:=", objects])
         except:
-            self._messenger.add_error_message("Failed to enable the deformation dependence")
+            self.logger.glb.error("Failed to enable the deformation dependence")
             return False
         else:
-            self._messenger.add_info_message("Successfully enabled deformation feedback")
+            self.logger.glb.info("Successfully enabled deformation feedback")
             return True
 
     @aedt_exception_handler
@@ -1092,7 +1097,7 @@ class GeometryModeler(Modeler, object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self._messenger.add_info_message("Set model temperature and enabling Thermal Feedback")
+        self.logger.glb.info("Set model temperature and enabling Thermal Feedback")
         if create_project_var:
             self._parent.variable_manager["$AmbientTemp"] = str(ambient_temp) + "cel"
             var = "$AmbientTemp"
@@ -1120,10 +1125,10 @@ class GeometryModeler(Modeler, object):
         try:
             self.odesign.SetObjectTemperature(vargs1)
         except:
-            self._messenger.add_error_message("Failed to enable the temperature dependence")
+            self.logger.glb.error("Failed to enable the temperature dependence")
             return False
         else:
-            self._messenger.add_info_message("Assigned Objects Temperature")
+            self.logger.glb.info("Assigned Objects Temperature")
             return True
 
     @aedt_exception_handler
@@ -1628,7 +1633,7 @@ class GeometryModeler(Modeler, object):
         if is_3d_comp:
             added_3d_comps = [i for i in self.primitives.components_3d_names if i not in orig_3d]
             if added_3d_comps:
-                self._messenger.add_info_message("Found 3D Components Duplication")
+                self.logger.glb.info("Found 3D Components Duplication")
                 return True, added_3d_comps
         return True, added_objs
 
@@ -1717,7 +1722,7 @@ class GeometryModeler(Modeler, object):
         if is_3d_comp:
             added_3d_comps = [i for i in self.primitives.components_3d_names if i not in orig_3d]
             if added_3d_comps:
-                self._messenger.add_info_message("Found 3D Components Duplication")
+                self.logger.glb.info("Found 3D Components Duplication")
                 return True, added_3d_comps
 
         return True, list(added_objs)
@@ -1769,7 +1774,7 @@ class GeometryModeler(Modeler, object):
         if is_3d_comp:
             added_3d_comps = [i for i in self.primitives.components_3d_names if i not in orig_3d]
             if added_3d_comps:
-                self._messenger.add_info_message("Found 3D Components Duplication")
+                self.logger.glb.info("Found 3D Components Duplication")
                 return True, added_3d_comps
         return True, list(added_objs)
         # return self._duplicate_added_objects_tuple()
@@ -2229,10 +2234,10 @@ class GeometryModeler(Modeler, object):
         unclassified1 = list(self.oeditor.GetObjectsInGroup("Unclassified"))
         if unclassified != unclassified1:
             self.odesign.Undo()
-            self._messenger.add_error_message("Error in intersection. Reverting Operation")
+            self.logger.glb.error("Error in intersection. Reverting Operation")
             return False
         self.primitives.cleanup_objects()
-        self._messenger.add_info_message("Intersection Succeeded")
+        self.logger.glb.info("Intersection Succeeded")
         return True
 
     @aedt_exception_handler
@@ -2258,11 +2263,11 @@ class GeometryModeler(Modeler, object):
         self.oeditor.Connect(vArg1)
         if unclassified_before != self.primitives.unclassified_names:
             self.odesign.Undo()
-            self._messenger.add_error_message("Error in connection. Reverting Operation")
+            self.logger.glb.error("Error in connection. Reverting Operation")
             return False
 
         self.primitives.cleanup_objects()
-        self._messenger.add_info_message("Connection Correctly created")
+        self.logger.glb.info("Connection Correctly created")
         return True
 
     @aedt_exception_handler
@@ -2307,12 +2312,12 @@ class GeometryModeler(Modeler, object):
 
 
         """
-        self._messenger.add_info_message("Subtract all objects from Chassis object - exclude vacuum objs")
+        self.logger.glb.info("Subtract all objects from Chassis object - exclude vacuum objs")
         mat_names = self.omaterial_manager.GetNames()
         num_obj_start = self.oeditor.GetNumObjects()
         blank_part = chassis_part
         # in main code this object will need to be determined automatically eg by name such as chassis or sheer size
-        self._messenger.add_info_message("Blank Part in Subtraction = " + str(blank_part))
+        self.logger.glb.info("Blank Part in Subtraction = " + str(blank_part))
         """
         check if blank part exists, if not, skip subtraction
         """
@@ -2328,7 +2333,7 @@ class GeometryModeler(Modeler, object):
         num_obj_end = self.oeditor.GetNumObjects()
         self.subtract(blank_part, tool_parts, True)
 
-        self._messenger.add_info_message(
+        self.logger.glb.info(
             "Subtraction Objs - Initial: " + str(num_obj_start) + "  ,  Final: " + str(num_obj_end)
         )
 
@@ -2487,7 +2492,7 @@ class GeometryModeler(Modeler, object):
             ID of the airbox created.
 
         """
-        self._messenger.add_info_message("Adding Airbox to the Bounding ")
+        self.logger.glb.info("Adding Airbox to the Bounding ")
 
         bound = self.get_model_bounding_box()
         if offset_type == "Absolute":
@@ -2834,7 +2839,7 @@ class GeometryModeler(Modeler, object):
             ["NAME:GeometryEntityListParameters", "EntityType:=", "Face", "EntityList:=", fl],
             ["NAME:Attributes", "Name:=", name],
         )
-        self._messenger.add_info_message("Face List " + name + " created")
+        self.logger.glb.info("Face List " + name + " created")
         return True
 
     @aedt_exception_handler
@@ -2859,7 +2864,7 @@ class GeometryModeler(Modeler, object):
             ["NAME:GeometryEntityListParameters", "EntityType:=", "Object", "EntityList:=", listf],
             ["NAME:Attributes", "Name:=", name],
         )
-        self._messenger.add_info_message("Object List " + name + " created")
+        self.logger.glb.info("Object List " + name + " created")
 
         return self.get_entitylist_id(name)
 
@@ -2932,7 +2937,7 @@ class GeometryModeler(Modeler, object):
                 edgelist.append(el)
                 verlist.append([p1, p2])
         if not edgelist:
-            self._messenger.add_error_message("No edges found specified direction. Check again")
+            self.logger.glb.error("No edges found specified direction. Check again")
             return False
         connected = [edgelist[0]]
         tol = 1e-6
@@ -3046,7 +3051,7 @@ class GeometryModeler(Modeler, object):
         """
         list2 = self.select_allfaces_fromobjects(externalobjects)  # find ALL faces of outer objects
         self.create_face_list(list2, name)
-        self._messenger.add_info_message("Extfaces of thermal model = " + str(len(list2)))
+        self.logger.glb.info("Extfaces of thermal model = " + str(len(list2)))
         return True
 
     @aedt_exception_handler
@@ -3066,7 +3071,7 @@ class GeometryModeler(Modeler, object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self._messenger.add_info_message("Creating explicit subtraction between objects.")
+        self.logger.glb.info("Creating explicit subtraction between objects.")
         for el in diellist:
             list1 = el
             list2 = ""
@@ -3091,7 +3096,7 @@ class GeometryModeler(Modeler, object):
                 self.subtract(list1, list2, True)
                 self.purge_history(list1)
                 self.purge_history(list2)
-        self._messenger.add_info_message("Explicit subtraction is completed.")
+        self.logger.glb.info("Explicit subtraction is completed.")
         return True
 
     @aedt_exception_handler
@@ -3162,7 +3167,7 @@ class GeometryModeler(Modeler, object):
             try:
                 line_ids[line_object] = str(self.oeditor.GetObjectIDByName(line_object))
             except:
-                self._messenger.add_warning_message("Line {} has an invalid ID!".format(line_object))
+                self.logger.glb.warning("Line {} has an invalid ID!".format(line_object))
         return line_ids
 
     @aedt_exception_handler
@@ -3319,7 +3324,7 @@ class GeometryModeler(Modeler, object):
         self.oeditor.Import(vArg1)
         if refresh_all_ids:
             self.primitives.refresh_all_ids()
-        self._messenger.add_info_message("Step file {} imported".format(filename))
+        self.logger.glb.info("Step file {} imported".format(filename))
         return True
 
     @aedt_exception_handler
@@ -3344,7 +3349,7 @@ class GeometryModeler(Modeler, object):
                 if l > latestversion:
                     latestversion = l
         if not latestversion:
-            self._messenger.add_error_message("SpaceClaim is not found.")
+            self.logger.glb.error("SpaceClaim is not found.")
         else:
             scdm_path = os.path.join(os.environ[latestversion], "scdm")
         self.oeditor.CreateUserDefinedModel(
@@ -3626,7 +3631,7 @@ class GeometryModeler(Modeler, object):
             List of all outer faces of the specified materials.
 
         """
-        self._messenger.add_info_message("Selecting outer faces.")
+        self.logger.glb.info("Selecting outer faces.")
 
         sel = []
         if type(mats) is str:
@@ -3658,7 +3663,7 @@ class GeometryModeler(Modeler, object):
             List of outer faces in the given list of objects.
 
         """
-        self._messenger.add_info_message("Selecting outer faces.")
+        self.logger.glb.info("Selecting outer faces.")
 
         sel = []
 
@@ -3783,7 +3788,7 @@ class GeometryModeler(Modeler, object):
                                 ],
                             )
                     except:
-                        self._messenger.add_info_message("done")
+                        self.logger.glb.info("done")
                         # self.modeler_oproject.ClearMessages()
         return True
 

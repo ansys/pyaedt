@@ -136,6 +136,11 @@ class Mesh(object):
         return self._parent._messenger
 
     @property
+    def logger(self):
+        """Logger."""
+        return self._parent.logger
+
+    @property
     def odesign(self):
         """Design."""
         return self._parent._odesign
@@ -241,7 +246,7 @@ class Mesh(object):
             restrictel = True
             numel = str(maxel)
         if maxlength is None and maxel is None:
-            self._messenger.add_error_message("mesh not assigned due to incorrect settings")
+            self.logger.glb.error("mesh not assigned due to incorrect settings")
             return
         if type(layer_name) is list and type(net_name) is list:
             assignment = OrderedDict({"MeshEntityInfo": []})

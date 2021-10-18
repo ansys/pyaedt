@@ -25,9 +25,9 @@ class Modeler3DLayout(Modeler):
 
     def __init__(self, parent):
         self._parent = parent
-        self._messenger.add_info_message("Loading Modeler.")
+        self.logger.glb.info("Loading Modeler.")
         Modeler.__init__(self, parent)
-        self._messenger.add_info_message("Modeler loaded.")
+        self.logger.glb.info("Modeler loaded.")
         self._primitivesDes = self._parent.project_name + self._parent.design_name
         edb_folder = os.path.join(self._parent.project_path, self._parent.project_name + ".aedb")
         edb_file = os.path.join(edb_folder, "edb.def")
@@ -47,12 +47,12 @@ class Modeler3DLayout(Modeler):
             )
         else:
             self._mttime = 0
-        self._messenger.add_info_message("EDB loaded.")
+        self.logger.glb.info("EDB loaded.")
 
         self.layers = Layers(self._parent, self, roughnessunits="um")
-        self._messenger.add_info_message("Layers loaded.")
+        self.logger.glb.info("Layers loaded.")
         self._primitives = Primitives3DLayout(self._parent, self)
-        self._messenger.add_info_message("Primitives loaded.")
+        self.logger.glb.info("Primitives loaded.")
         self.layers.refresh_all_layers()
 
         pass
@@ -92,6 +92,11 @@ class Modeler3DLayout(Modeler):
     def _messenger(self):
         """Messenger."""
         return self._parent._messenger
+
+    @property
+    def logger(self):
+        """Logger."""
+        return self._parent.logger
 
     @property
     def oeditor(self):
@@ -458,7 +463,7 @@ class Modeler3DLayout(Modeler):
                         self.primitives._geometries.pop(el)
             return True
         else:
-            self._messenger.add_error_message("Input list must contain at least two elements.")
+            self.logger.glb.error("Input list must contain at least two elements.")
             return False
 
     @aedt_exception_handler
@@ -487,7 +492,7 @@ class Modeler3DLayout(Modeler):
                         self.primitives._geometries.pop(el)
             return True
         else:
-            self._messenger.add_error_message("Input list must contain at least two elements.")
+            self.logger.glb.error("Input list must contain at least two elements.")
             return False
 
     @aedt_exception_handler
@@ -544,7 +549,7 @@ class Modeler3DLayout(Modeler):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self._messenger.add_info_message("Set the temperature dependence for the design.")
+        self.logger.glb.info("Set the temperature dependence for the design.")
         if create_project_var:
             self._parent.variable_manager["$AmbientTemp"] = str(ambient_temp) + "cel"
             var = "$AmbientTemp"
@@ -559,8 +564,8 @@ class Modeler3DLayout(Modeler):
         try:
             self.odesign.SetTemperatureSettings(vargs1)
         except:
-            self._messenger.add_error_message("Failed to enable the temperature dependence.")
+            self.logger.glb.error("Failed to enable the temperature dependence.")
             return False
         else:
-            self._messenger.add_info_message("Assigned Objects Temperature")
+            self.logger.glb.info("Assigned Objects Temperature")
             return True

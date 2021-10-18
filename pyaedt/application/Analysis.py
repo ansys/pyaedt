@@ -99,13 +99,13 @@ class Analysis(Design, object):
             close_on_exit,
             student_version,
         )
-        self.logger.info("Design Loaded")
+        self.logger.glb.info("Design Loaded")
         self._setup = None
         if setup_name:
             self.analysis_setup = setup_name
         self.solution_type = solution_type
         self._materials = Materials(self)
-        self.logger.info("Materials Loaded")
+        self.logger.glb.info("Materials Loaded")
         self._post = PostProcessor(self)
         self._available_variations = self.AvailableVariations(self)
         self.setups = [self.get_setup(setup_name) for setup_name in self.setup_names]
@@ -940,14 +940,14 @@ class Analysis(Design, object):
            ``True`` when successful, ``False`` when failed.
         """
         if name in self.existing_analysis_setups:
-            self._messenger.add_info_message("Solving design setup {}".format(name))
+            self.logger.glb.info("Solving design setup %s", name)
             self.odesign.Analyze(name)
         else:
             try:
-                self._messenger.add_info_message("Solving Optimetrics")
+                self.logger.glb.info("Solving Optimetrics")
                 self.ooptimetrics.SolveSetup(name)
             except:
-                self._messenger.add_error_message("Setup Not found {}".format(name))
+                self.logger.glb.error("Setup Not found %s", name)
                 return False
         return True
 
@@ -1054,11 +1054,11 @@ class Analysis(Design, object):
                     r"\\\\\\\\" + clustername + r"\\\\AnsysEM\\\\AnsysEM{}\\\\Linux64\\\\ansysedt".format(version)
                 )
             else:
-                self._messenger.add_error_message("Aedt Path doesn't exists. Please provide a full path")
+                self.logger.glb.error("AEDT path does not exist. Please provide a full path.")
                 return False
         else:
             if not os.path.exists(aedt_full_exe_path):
-                self._messenger.add_error_message("Aedt Path doesn't exists. Please provide a full path")
+                self.logger.glb.error("Aedt Path doesn't exists. Please provide a full path")
                 return False
             aedt_full_exe_path.replace("\\", "\\\\")
 

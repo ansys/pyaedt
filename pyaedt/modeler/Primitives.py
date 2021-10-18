@@ -901,6 +901,11 @@ class Primitives(object):
         return self._parent._messenger
 
     @property
+    def logger(self):
+        """Logger."""
+        return self._parent.logger
+
+    @property
     def version(self):
         """Version."""
         return self._parent._aedt_version
@@ -1426,7 +1431,7 @@ class Primitives(object):
             if el not in self.object_names and not list(self.oeditor.GetObjectsInGroup(el)):
                 objects.remove(el)
         if not objects:
-            self._messenger.add_warning_message("No objects to delete")
+            self.logger.glb.warning("No objects to delete")
             return False
         slice = min(100, len(objects))
         num_objects = len(objects)
@@ -1438,7 +1443,7 @@ class Primitives(object):
             try:
                 self.oeditor.Delete(arg)
             except:
-                self._messenger.add_warning_message("Failed to delete {}".format(objects_str))
+                self.logger.glb.warning("Failed to delete {}".format(objects_str))
             remaining -= slice
             if remaining > 0:
                 objects = objects[slice:]
@@ -1447,8 +1452,7 @@ class Primitives(object):
 
         if len(objects) > 0:
             self.cleanup_objects()
-            self._messenger.add_info_message("Deleted {} Objects : {}".format(num_objects, objects_str))
-
+            self.logger.glb.info("Deleted {} Objects".format(num_objects, objects_str))
         return True
 
     @aedt_exception_handler
@@ -1479,7 +1483,7 @@ class Primitives(object):
                 if contained_string.lower() in el.lower():
                     self.delete(el)
                     num_del += 1
-        self._messenger.add_info_message("Deleted {} objects".format(num_del))
+        self.logger.glb.info("Deleted %s objects", num_del)
         return True
 
     @aedt_exception_handler
@@ -2127,7 +2131,7 @@ class Primitives(object):
         try:
             c = self.oeditor.GetFaceCenter(face_id)
         except:
-            self._messenger.add_warning_message("Non Planar Faces doesn't provide any Face Center")
+            self.logger.glb.warning("Non Planar Faces doesn't provide any Face Center")
             return False
         center = [float(i) for i in c]
         return center
@@ -2791,9 +2795,8 @@ class Primitives(object):
                     return matname, True
 
             else:
-                self._messenger.add_warning_message(
-                    "Material {} doesn not exists. Assigning default material".format(matname)
-                )
+                self.logger.glb.warning(
+                    "Material %s doesn not exists. Assigning default material", matname)
         if self._parent._design_type == "HFSS":
             return defaultmatname, self._parent.materials.material_keys[defaultmatname].is_dielectric()
         else:
