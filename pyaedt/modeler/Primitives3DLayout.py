@@ -199,7 +199,7 @@ class Primitives3DLayout(object):
     @property
     def logger(self):
         """Logger."""
-        return self._parent.logger
+        return self._p_app.logger
 
     @property
     def version(self):

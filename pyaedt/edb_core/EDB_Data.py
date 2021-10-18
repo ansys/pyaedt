@@ -51,7 +51,7 @@ class EDBLayer(object):
     @property
     def logger(self):
         """Logger."""
-        return self._parent.logger
+        return self._pedblayers.logger
 
     @property
     def name(self):
@@ -415,7 +415,7 @@ class EDBLayers(object):
     @property
     def logger(self):
         """Logger."""
-        return self._parent.logger
+        return self._pedbstackup.logger
 
     @property
     def _stackup_methods(self):
@@ -534,7 +534,7 @@ class EDBLayers(object):
     @property
     def logger(self):
         """Logger."""
-        return self._parent.logger
+        return self._pedbstackup.logger
 
     @aedt_exception_handler
     def _int_to_layer_types(self, val):

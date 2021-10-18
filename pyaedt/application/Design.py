@@ -1843,7 +1843,9 @@ class Design(object):
             ``True`` when successful, ``False`` when failed.
 
         """
+
         if close_active_proj:
+            self._close_edb()
             self.close_project(self.project_name)
         proj = self._desktop.OpenProject(project_file)
         if proj:
@@ -1851,6 +1853,12 @@ class Design(object):
             return True
         else:
             return False
+
+    @aedt_exception_handler
+    def _close_edb(self):
+        if self.design_type == "Circuit Design" or self.design_type == "HFSS 3D Layout Design":
+            if self.modeler.edb:
+                self.modeler.edb.close_edb()
 
     @aedt_exception_handler
     def create_dataset1d_design(self, dsname, xlist, ylist, xunit="", yunit=""):
@@ -2328,9 +2336,7 @@ class Design(object):
             Name of the design.
 
         """
-        if self.design_type == "Circuit Design" or self.design_type == "HFSS 3D Layout Design":
-            if self.modeler.edb:
-                self.modeler.edb.close_edb()
+        self._close_edb()
         if self.project_name:
             self.__init__(projectname=self.project_name, designname=design_name)
         else:
@@ -2470,6 +2476,7 @@ class Design(object):
         self._desktop.CloseProject(proj_from_name)
         # reset the active design (very important)
         self.save_project()
+        self._close_edb()
         self.__init__(self.project_name, new_designname)
         self._oproject.SetActiveDesign(active_design)
 
@@ -2508,6 +2515,7 @@ class Design(object):
         actual_name = [i for i in self.design_list if i not in design_list]
         self.odesign = actual_name
         self.design_name = newname
+        self._close_edb()
         self.__init__(self.project_name, self.design_name)
 
         return True
@@ -2695,6 +2703,7 @@ class Design(object):
         """
         self.oproject.SetActiveDesign(name)
         self.odesign = name
+        self._close_edb()
         self.__init__(self.project_name, self.design_name)
         return True
 

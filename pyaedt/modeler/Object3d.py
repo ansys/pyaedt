@@ -847,7 +847,7 @@ class Object3d(object):
     @property
     def logger(self):
         """Logger."""
-        return self._parent.logger
+        return self._p_primitives.logger
 
     @property
     def surface_material_name(self):

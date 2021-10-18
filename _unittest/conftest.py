@@ -140,7 +140,7 @@ def clean_desktop(desktop_init):
 def hfss():
     """Create a new Hfss project."""
     # Be sure that the base class constructor "design" exposes oDesktop.
-    hfss = Hfss(new_desktop_session=False)
+    hfss = Hfss(new_desktop_session=False, specified_version=desktop_version)
     yield hfss
     hfss.close_project(hfss.project_name)
     gc.collect()

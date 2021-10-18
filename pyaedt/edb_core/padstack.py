@@ -68,7 +68,7 @@ class EdbPadstacks(object):
 
         Returns
         -------
-        list
+        dict of :class:`pyaedt.edb_core.Edb_Data.EdbPadstack`
             List of padstacks via padstack definitions.
 
         """
@@ -176,12 +176,27 @@ class EdbPadstacks(object):
         str
             Name of the padstack if the operation is successful.
         """
+        var_server_db = self.db.GetVariableServer()
+        var_names = var_server_db.GetAllVariableNames()
+        if holediam in var_names:
+            holediam = self._edb.Utility.Value(holediam, var_server_db)
+        else:
+            holediam = self._edb_value(holediam)
+
+        if paddiam in var_names:
+            paddiam = self._edb.Utility.Value(paddiam, var_server_db)
+        else:
+            paddiam = self._edb_value(paddiam)
+        if antipaddiam in var_names:
+            antipaddiam = self._edb.Utility.Value(antipaddiam, var_server_db)
+        else:
+            antipaddiam = self._edb_value(antipaddiam)
         if not padstackname:
             padstackname = generate_unique_name("VIA")
         # assert not self.isreadonly, "Write Functions are not available within AEDT"
         padstackData = self._edb.Definition.PadstackDefData.Create()
         ptype = self._edb.Definition.PadGeometryType.Circle
-        holparam = Array[type(self._edb_value(holediam))]([self._edb_value(holediam)])
+        holparam = Array[type(holediam)]([holediam])
         value0 = self._edb_value("0.0")
 
         padstackData.SetHoleParameters(ptype, holparam, value0, value0, value0)
@@ -189,14 +204,13 @@ class EdbPadstacks(object):
         padstackData.SetHolePlatingPercentage(self._edb_value(20.0))
         padstackData.SetHoleRange(self._edb.Definition.PadstackHoleRange.UpperPadToLowerPad)
         padstackData.SetMaterial("copper")
+        layers = list(self._pedb.core_stackup.signal_layers.keys())
         if not startlayer:
-            layers = list(self._pedb.core_stackup.signal_layers.keys())
             startlayer = layers[0]
         if not endlayer:
-            layers = list(self._pedb.core_stackup.signal_layers.keys())
             endlayer = layers[len(layers) - 1]
-        for layer in [startlayer, "Default", endlayer]:
-            padparam_array = Array[type(self._edb_value(paddiam))]([self._edb_value(paddiam)])
+        for layer in ["Default"]+layers:
+            padparam_array = Array[type(paddiam)]([paddiam])
             padstackData.SetPadParameters(
                 layer,
                 self._edb.Definition.PadType.RegularPad,
@@ -206,7 +220,7 @@ class EdbPadstacks(object):
                 value0,
                 value0,
             )
-            antipad_array = Array[type(self._edb_value(antipaddiam))]([self._edb_value(antipaddiam)])
+            antipad_array = Array[type(antipaddiam)]([antipaddiam])
 
             padstackData.SetPadParameters(
                 layer,

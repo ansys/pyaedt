@@ -1288,14 +1288,19 @@ class Edb(object):
         tuple
             tuple containing AddVariable Result and variableserver.
         """
-        var_server = self.active_cell.GetVariableServer()
+        is_parameter = True
+        if "$" in variable_name:
+            var_server = self.db.GetVariableServer()
+            is_parameter = False
+        else:
+            var_server = self.active_cell.GetVariableServer()
         variables = var_server.GetAllVariableNames()
         if variable_name in list(variables):
             self._messenger.add_warning_message("Parameter {} exists. Using it.".format(variable_name))
             return False, var_server
         else:
             self._messenger.add_info_message("Creating Parameter {}.".format(variable_name))
-            var_server.AddVariable(variable_name, self.edb_value(variable_value), True)
+            var_server.AddVariable(variable_name, self.edb_value(variable_value), is_parameter)
             return True, var_server
 
     @aedt_exception_handler

@@ -89,7 +89,10 @@ class ModelerNexxim(ModelerCircuit):
         self._p_app = app
         ModelerCircuit.__init__(self, app)
         self.components = NexximComponents(self)
-
+        self.layouteditor = None
+        if self._p_app.design_type != "Twin Builder":
+            self.layouteditor = self._odesign.SetActiveEditor("Layout")
+            self._odesign.SetActiveEditor("SchematicEditor")
         self.layers = Layers(self, roughnessunits="um")
         self._primitives = Primitives3DLayout(self)
         self._primitivesDes = self._p_app.project_name + self._p_app.design_name
@@ -106,13 +109,6 @@ class ModelerNexxim(ModelerCircuit):
         """
         # TODO Check while it crashes when multiple circuits are created
         return None
-
-    @property
-    def layouteditor(self):
-        """Layout editor."""
-        if self._p_app.design_type == "Twin Builder":
-            return
-        return self._odesign.SetActiveEditor("Layout")
 
     @property
     def model_units(self):
