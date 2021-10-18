@@ -13,10 +13,9 @@ try:
 except ImportError:
     import _unittest_ironpython.conf_unittest as pytest
 
+
 class TestEmit:
     def setup_class(self):
-        project_name = "EmitProject"
-        design_name = "EmitDesign1"
         # set a scratch directory and the environment / test data
         with Scratch(scratch_path) as self.local_scratch:
             self.aedtapp = Emit()
@@ -35,20 +34,23 @@ class TestEmit:
         assert self.aedtapp.oanalysis is None
 
     def test_create_components(self):
-        radio = self.aedtapp.modeler.components.create_component("New Radio", "TestRadio")
+        radio = self.aedtapp.modeler.components.create_component(
+            "New Radio", "TestRadio")
         assert radio.name == "TestRadio"
         assert isinstance(radio, EmitComponent)
-        antenna = self.aedtapp.modeler.components.create_component("Antenna", "TestAntenna")
+        antenna = self.aedtapp.modeler.components.create_component(
+            "Antenna", "TestAntenna")
         assert antenna.name == "TestAntenna"
         assert isinstance(antenna, EmitComponent)
 
-    @pytest.mark.skipif(config["desktopVersion"] < "2021.2", reason="Skipped on versions lower than 2021.2")
+    @pytest.mark.skipif(config["desktopVersion"] < "2021.2",
+                        reason="Skipped on versions lower than 2021.2")
     def test_connect_components(self):
         radio = self.aedtapp.modeler.components.create_component("New Radio")
         antenna = self.aedtapp.modeler.components.create_component("Antenna")
         antenna.move_and_connect_to(radio)
-        antenna_port = antenna.port_names()[0] # antennas have 1 port
-        radio_port = radio.port_names()[0] # radios have 1 port
+        antenna_port = antenna.port_names()[0]  # antennas have 1 port
+        radio_port = radio.port_names()[0]  # radios have 1 port
         connected_comp, connected_port = antenna.port_connection(antenna_port)
         assert connected_comp == radio.name
         assert connected_port == radio_port
@@ -56,8 +58,8 @@ class TestEmit:
         radio2 = self.aedtapp.modeler.components.create_component("New Radio")
         radio2_port = radio2.port_names()[0]
         connected_comp, connected_port = radio2.port_connection(radio2_port)
-        assert connected_comp == None
-        assert connected_port == None
+        assert connected_comp is None
+        assert connected_port is None
 
     def test_radio_component(self):
         radio = self.aedtapp.modeler.components.create_component("New Radio")

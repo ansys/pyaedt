@@ -4,19 +4,17 @@ EMIT Example
 This tutorial shows how you can use PyAEDT to create a project in in EMIT.
 """
 
-# TODO: update thumbnail
-# sphinx_gallery_thumbnail_path = 'Resources/circuit.png'
+# sphinx_gallery_thumbnail_path = 'Resources/emit.png'
 
 from pyaedt import Emit
-from pyaedt import Circuit
 from pyaedt import Desktop
 
 ###############################################################################
 # Initialization Settings
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Change NonGraphical Boolean to False to open AEDT in graphical mode
-# With NewThread = False, an existing instance of AEDT will be used, if available.
-# This example will use AEDT 2021.2
+# With NewThread = False, an existing instance of AEDT will be used, if
+# available. This example will use AEDT 2021.2
 NonGraphical = False
 NewThread = False
 desktopVersion = "2021.2"
@@ -25,9 +23,10 @@ desktopVersion = "2021.2"
 ###############################################################################
 # Launch AEDT and EMIT Design
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Desktop class initializes AEDT and starts it on specified version and specified 
-# graphical mode. NewThread Boolean variable defines if a user wants to create 
-# a new instance of AEDT or try to connect to existing instance of it.
+# Desktop class initializes AEDT and starts it on specified version and
+# specified graphical mode. NewThread Boolean variable defines if a user wants
+# to create a new instance of AEDT or try to connect to existing instance of
+# it.
 d = Desktop(desktopVersion, NonGraphical, NewThread)
 aedtapp = Emit()
 
@@ -64,8 +63,8 @@ ant3.move_and_connect_to(rad3)
 ###############################################################################
 # Close Desktop
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# After the simulaton is completed user can close the desktop or release it 
-# (using release_desktop method). All methods give possibility to save projects 
+# After the simulaton is completed user can close the desktop or release it
+# (using release_desktop method). All methods give possibility to save projects
 # before exit.
 aedtapp.save_project()
 aedtapp.release_desktop(close_projects=True, close_desktop=True)
