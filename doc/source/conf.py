@@ -208,9 +208,8 @@ if os.name != "posix" and "PYAEDT_CI_NO_EXAMPLES" not in os.environ:
             #                         "set_plot_theme('document')"),
         }
 
-
+# Warnings and errors from the inherited classes are disabled.
 autodoc_inherit_docstrings = False
-
 
 # -- Options for HTML output -------------------------------------------------
 html_show_sourcelink = True
