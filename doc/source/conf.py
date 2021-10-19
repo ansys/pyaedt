@@ -68,9 +68,6 @@ intersphinx_mapping = {
     "pytest": ("https://docs.pytest.org/en/stable", None),
 }
 
-# Warnings and errors from the inherited classes are disabled.
-# autodoc_inherit_docstrings = False
-
 # numpydoc configuration
 numpydoc_use_plots = True
 numpydoc_show_class_members = False
