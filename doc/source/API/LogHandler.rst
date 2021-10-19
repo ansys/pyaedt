@@ -10,5 +10,6 @@ send log messages in AEDT logging stream.
    :toctree: _autosummary
    :template: custom-class-template.rst
    :nosignatures:
+   :exclude-members:log_handler.LogHandler.get_name
 
    log_handler.LogHandler

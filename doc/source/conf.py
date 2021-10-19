@@ -69,7 +69,7 @@ intersphinx_mapping = {
 }
 
 # Warnings and errors from the inherited classes are disabled.
-autodoc_inherit_docstrings = False
+# autodoc_inherit_docstrings = False
 
 # numpydoc configuration
 numpydoc_use_plots = True
