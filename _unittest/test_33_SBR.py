@@ -1,5 +1,6 @@
 import gc
 import os
+import time
 # Import required modules
 from pyaedt import Hfss
 from pyaedt.generic.filesystem import Scratch
@@ -17,7 +18,10 @@ test_project_name = "Cassegrain"
 
 class TestClass:
     def setup_class(self):
-        gc.collect()
+        timeout = 4
+        while gc.collect() != 0 and timeout > 0:
+            time.sleep(0.5)
+            timeout -= 0.5
         # set a scratch directory and the environment / test data
         with Scratch(scratch_path) as self.local_scratch:
             example_project = os.path.join(local_path, "example_models", test_project_name + ".aedt")

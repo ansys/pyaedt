@@ -36,7 +36,10 @@ source_project_path = os.path.join(local_path, "example_models", src_project_nam
 
 class TestClass:
     def setup_class(self):
-        # set a scratch directory and the environment / test data
+        timeout = 4
+        while gc.collect() != 0 and timeout > 0:
+            time.sleep(0.5)
+            timeout -= 0.5
         with Scratch(scratch_path) as self.local_scratch:
             example_project = os.path.join(local_path, "example_models", test_project_name + ".aedt")
 
@@ -49,17 +52,14 @@ class TestClass:
             self.aedtapp = Icepak(self.test_project, specified_version=desktop_version)
 
     def teardown_class(self):
+        self.aedtapp.close_project(src_project_name, False)
         self.aedtapp.close_project(self.aedtapp.project_name)
         time.sleep(2)
-        try:
-            self.aedtapp.close_project(src_project_name)
-        except:
-            pass
         self.local_scratch.remove()
         gc.collect()
 
     def test_01_save(self):
-        assert os.path.exists(self.aedtapp.project_path)
+        self.aedtapp.save_project()
 
     def test_02_ImportPCB(self):
         component_name = "RadioBoard1"

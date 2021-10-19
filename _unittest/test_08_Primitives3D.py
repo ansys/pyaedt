@@ -827,7 +827,7 @@ class TestClass(BasisTest):
 
     @pyaedt_unittest_check_desktop_error
     def test_61_get_closest_edge_to_position(self):
-        my_box = self.create_copper_box()
+        my_box = self.create_copper_box("test_closest_edge")
         assert isinstance(self.aedtapp.modeler.primitives.get_closest_edgeid_to_position([0.2, 0, 0]), int)
         pass
 
@@ -842,12 +842,11 @@ class TestClass(BasisTest):
     def test_63_import_step(self):
         self.aedtapp.insert_design("StepImport")
         assert self.aedtapp.modeler.import_3d_cad(self.step_file)
-        assert len(self.aedtapp.modeler.primitives.objects) == 1
-        pass
+        assert len(self.aedtapp.modeler.primitives.object_names) == 1
 
     @pyaedt_unittest_check_desktop_error
     def test_64_create_equationbased_curve(self):
-
+        self.aedtapp.insert_design("Equations")
         eq_line = self.aedtapp.modeler.primitives.create_equationbased_curve(x_t="_t", y_t="_t*2", num_points=0)
         assert len(eq_line.edges) == 1
         eq_segmented = self.aedtapp.modeler.primitives.create_equationbased_curve(x_t="_t", y_t="_t*2", num_points=5)
