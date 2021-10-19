@@ -295,11 +295,11 @@ class AEDTMessageManager(object):
 
         if self._log_on_screen:
             if type == 0:
-                print("pyaedt info: {}".format(message_text))
+                print("PyAEDT Info: {}".format(message_text))
             elif type == 1:
-                print("pyaedt warning: {}".format(message_text))
+                print("PyAEDT Warning: {}".format(message_text))
             elif type == 2:
-                print("pyaedt error: {}".format(message_text))
+                print("PyAEDT Error: {}".format(message_text))
         if self._log_on_file:
             if type == 0 and self.logger:
                 self.logger.debug(message_text)
