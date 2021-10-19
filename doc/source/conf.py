@@ -68,6 +68,9 @@ intersphinx_mapping = {
     "pytest": ("https://docs.pytest.org/en/stable", None),
 }
 
+# Warnings and errors from the inherited classes are disabled.
+autodoc_inherit_docstrings = False
+
 # numpydoc configuration
 numpydoc_use_plots = True
 numpydoc_show_class_members = False
@@ -207,9 +210,6 @@ if os.name != "posix" and "PYAEDT_CI_NO_EXAMPLES" not in os.environ:
             #                         "from pyvista import set_plot_theme\n"
             #                         "set_plot_theme('document')"),
         }
-
-# Warnings and errors from the inherited classes are disabled.
-autodoc_inherit_docstrings = False
 
 # -- Options for HTML output -------------------------------------------------
 html_show_sourcelink = True
