@@ -29,7 +29,7 @@ solution_freq = "2.5GHz"
 resolution = 2
 group_name = "Group1"
 
-src_project_name = "USB_Connector"
+src_project_name = "USB_Connector_IPK"
 source_project = os.path.join(local_path, "example_models", src_project_name + ".aedt")
 source_project_path = os.path.join(local_path, "example_models", src_project_name)
 
