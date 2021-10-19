@@ -26,7 +26,7 @@ class TestClass:
             self.source = Hfss(projectname=test_project_name, designname="feeder")
 
     def teardown_class(self):
-        assert self.source.close_project(self.source.project_name)
+        assert self.source.close_project(self.source.project_name, False)
         self.local_scratch.remove()
 
     def test_01_open_source(self):

@@ -2240,7 +2240,7 @@ class Design(object):
         if name == legacy_name:
             self._oproject = None
             self._odesign = None
-        while locked:
+        while locked & i < timeout:
             if not os.path.exists(os.path.join(proj_path, name + ".aedt.lock")):
                 self.logger.glb.info("Project Closed Correctly")
                 locked = False

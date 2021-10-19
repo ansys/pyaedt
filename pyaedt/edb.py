@@ -367,7 +367,10 @@ class Edb(object):
         if self._db and self._active_cell:
             dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib")
             self._messenger.add_info_message(dllpath)
-            self.layout_methods.LoadDataModel(dllpath, self.edbversion)
+            try:
+                self.layout_methods.LoadDataModel(dllpath, self.edbversion)
+            except:
+                pass
             # self.layout_methods.InitializeBuilder(
             #                                     self._db,
             #                                     self._active_cell,
@@ -417,7 +420,10 @@ class Edb(object):
                 self._active_cell = list(self._db.TopCircuitCells)[0]
             dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib")
             if self._db and self._active_cell:
-                self.layout_methods.LoadDataModel(dllpath, self.edbversion)
+                try:
+                    self.layout_methods.LoadDataModel(dllpath, self.edbversion)
+                except:
+                    pass
                 if not os.path.exists(self.edbpath):
                     os.makedirs(self.edbpath)
                 time.sleep(3)
@@ -462,7 +468,10 @@ class Edb(object):
         self._active_cell = self.edb.Cell.Cell.Create(self._db, self.edb.Cell.CellType.CircuitCell, self.cellname)
         dllpath = os.path.join(os.path.dirname(__file__), "dlls", "EDBLib")
         if self._db and self._active_cell:
-            self.layout_methods.LoadDataModel(dllpath, self.edbversion)
+            try:
+                self.layout_methods.LoadDataModel(dllpath, self.edbversion)
+            except:
+                pass
             # self.layout_methods.InitializeBuilder(
             #                                     self._db,
             #                                     self._active_cell,
@@ -1002,7 +1011,10 @@ class Edb(object):
                 self.edbpath = output_aedb_path
                 self._active_cell = list(self._db.TopCircuitCells)[0]
                 dllpath = os.path.join(os.path.dirname(__file__), "dlls", "EDBLib")
-                self.layout_methods.LoadDataModel(dllpath, self.edbversion)
+                try:
+                    self.layout_methods.LoadDataModel(dllpath, self.edbversion)
+                except:
+                    pass
                 # self.layout_methods.InitializeBuilder(
                 #                                     self._db,
                 #                                     self._active_cell,
