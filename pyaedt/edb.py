@@ -1129,20 +1129,14 @@ class Edb(object):
             cell.SetName(os.path.basename(output_aedb_path[:-5]))
             layout = cell.GetLayout()
             db2.Save()
+            for c in list(self.db.TopCircuitCells):
+                if c.GetName() == _cutout.GetName():
+                    c.Delete()
             if open_cutout_at_end:
                 _success = db2.Save()
                 self._db = db2
                 self.edbpath = output_aedb_path
                 self._active_cell = cell
-                # retry_ntimes(
-                #     10,
-                #     self.layout_methods.InitializeBuilder,
-                #     self._db,
-                #     self._active_cell,
-                #     self.edbpath,
-                #     self.edbversion,
-                #     self.standalone,
-                # )
                 self.builder = EdbBuilder(self.edbutils, self._db, self._active_cell)
                 self._init_objects()
             else:
@@ -1157,8 +1151,7 @@ class Edb(object):
                     except:
                         pass
 
-        else:
-            self.db.CopyCells(_cutout)
+
 
         return True
 

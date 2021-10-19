@@ -1,5 +1,5 @@
 import logging
-
+import sys
 from .import log_handler
 
 
@@ -60,6 +60,9 @@ class AedtLogger():
 
         if not self._global.handlers:
             self._global.addHandler(log_handler.LogHandler(self._messenger, 'Global', logging.DEBUG))
+            main = sys.modules["__main__"]
+            main._aedt_handler = self._global.handlers
+
             self._global.setLevel(level)
             self._global.addFilter(AppFilter())
 
@@ -116,6 +119,7 @@ class AedtLogger():
     @property
     def glb(self):
         """Global logger."""
+        self._global = logging.getLogger('Global')
         return self._global
 
     @property

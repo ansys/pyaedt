@@ -1332,10 +1332,17 @@ class PostProcessor(PostProcessorCommon, object):
                             return base_name
             else:
                 base_name = sim_data["SimSetup"]["Name"]
-                for sol in sim_data["SimSetup"]['Solution']:
+                if isinstance(sim_data["SimSetup"]['Solution'], list):
+                    for sol in sim_data["SimSetup"]['Solution']:
+                        if sol['ID'] == setups_data[setup]["SolutionId"]:
+                            base_name += " : " + sol['Name']
+                            return base_name
+                else:
+                    sol = sim_data["SimSetup"]['Solution']
                     if sol['ID'] == setups_data[setup]["SolutionId"]:
                         base_name += " : " + sol['Name']
                         return base_name
+
         return ""
 
     @aedt_exception_handler

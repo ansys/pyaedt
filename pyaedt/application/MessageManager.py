@@ -242,7 +242,6 @@ class AEDTMessageManager(object):
         """
         self.add_message(0, message_text, level)
 
-    @aedt_exception_handler
     def add_message(self, type, message_text, level=None, proj_name=None, des_name=None):
         """Pass a parameterized message to the Message Manager to specify the type and project or design level.
 

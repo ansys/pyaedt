@@ -134,6 +134,12 @@ def _delete_objects():
         del module.oDesktop
     if "pyaedt_initialized" in dir(module):
         del module.pyaedt_initialized
+    if "aedt_logger" in dir(module):
+        del module.aedt_logger
+    if "_aedt_handler" in dir(module):
+        _global = logging.getLogger('Global')
+        for i in range(len(module._aedt_handler) - 1, -1, -1):
+            _global.removeHandler(module._aedt_handler[i])
     gc.collect()
 
 
