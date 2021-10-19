@@ -11,8 +11,7 @@ send log messages in AEDT logging stream.
    :template: custom-class-template.rst
    :nosignatures:
 
-
-.. automodule:: log_handler
-   :exclude-members:log_handler.LogHandler.get_name
+.. autoclass:: pyaedt.log_handler.LogHandler
+   :inherited-members: Handler
 
    log_handler.LogHandler
