@@ -3,7 +3,6 @@ LogHandler
 This section lists modules for creating a handler to
 send log messages in AEDT logging stream.
 
-
 .. currentmodule:: pyaedt
 
 .. autosummary::
