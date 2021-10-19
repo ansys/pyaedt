@@ -414,7 +414,7 @@ class FacePrimitive(object):
         return self._id
 
     @property
-    def center(self):
+    def center_from_aedt(self):
         """Face center for a planar face in model units.
 
         Returns
@@ -432,8 +432,13 @@ class FacePrimitive(object):
         return center
 
     @property
-    def centroid(self):
+    def center(self):
         """Face center in model units.
+
+        .. note::
+           It returns the face centroid if number of face vertex is >1.
+           It tries to get AEDT Face Center in case of single vertex face
+           and returns the vertex position otherwise.
 
         Returns
         -------
@@ -444,7 +449,11 @@ class FacePrimitive(object):
         if len(self.vertices) > 1:
             return GeometryOperators.get_polygon_centroid([pos.position for pos in self.vertices])
         else:
-            return self.vertices[0].position
+            center = self.center_from_aedt
+            if center:
+                return center
+            else:
+                return self.vertices[0].position
 
     @property
     def area(self):

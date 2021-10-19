@@ -152,18 +152,18 @@ class TestClass:
             design_logger.warning("Warning for Design")
             design_logger.error("Error for Design")
 
-        assert "PyAEDT Info: Info for Global" in capture.content
-        assert "PyAEDT Info: Debug for Global" in capture.content
-        assert "PyAEDT Warning: Warning for Global" in capture.content
-        assert "PyAEDT Error: Error for Global" in capture.content
-        assert "PyAEDT Info: Info for Project" in capture.content
-        assert "PyAEDT Info: Debug for Project" in capture.content
-        assert "PyAEDT Warning: Warning for Project" in capture.content
-        assert "PyAEDT Error: Error for Project" in capture.content
-        assert "PyAEDT Info: Info for Design" in capture.content
-        assert "PyAEDT Info: Debug for Design" in capture.content
-        assert "PyAEDT Warning: Warning for Design" in capture.content
-        assert "PyAEDT Error: Error for Design" in capture.content
+        assert "pyaedt info: Info for Global" in capture.content
+        assert "pyaedt info: Debug for Global" in capture.content
+        assert "pyaedt warning: Warning for Global" in capture.content
+        assert "pyaedt error: Error for Global" in capture.content
+        assert "pyaedt info: Info for Project" in capture.content
+        assert "pyaedt info: Debug for Project" in capture.content
+        assert "pyaedt warning: Warning for Project" in capture.content
+        assert "pyaedt error: Error for Project" in capture.content
+        assert "pyaedt info: Info for Design" in capture.content
+        assert "pyaedt info: Debug for Design" in capture.content
+        assert "pyaedt warning: Warning for Design" in capture.content
+        assert "pyaedt error: Error for Design" in capture.content
 
         for handler in logger.glb.handlers:
             handler.close()

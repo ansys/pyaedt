@@ -695,7 +695,7 @@ class Analysis(Design, object):
         >>> setup1.props["MaxNumberOfBounces"] = "3"
         >>> setup1.update()
         ...
-        pyaedt Info: Sweep was created correctly.
+        pyaedt info: Sweep was created correctly.
         """
         if setuptype is None:
             if self.design_type == "Icepak" and self.solution_type == "Transient":
@@ -737,7 +737,7 @@ class Analysis(Design, object):
         >>> setup1 = hfss.create_setup(setupname='Setup1')
         >>> hfss.delete_setup(setupname='Setup1')
         ...
-        pyaedt Info: Sweep was deleted correctly.
+        pyaedt info: Sweep was deleted correctly.
         """
         if setupname in self.existing_analysis_setups:
             self.oanalysis.DeleteSetups([setupname])

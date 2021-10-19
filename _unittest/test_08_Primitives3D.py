@@ -163,7 +163,7 @@ class TestClass(BasisTest):
     def test_05_center_and_centroid(self):
         o = self.create_copper_box()
         tol = 1e-9
-        assert GeometryOperators.v_norm(o.faces[0].center) - GeometryOperators.v_norm(o.faces[0].centroid) < tol
+        assert GeometryOperators.v_norm(o.faces[0].center_from_aedt) - GeometryOperators.v_norm(o.faces[0].center) < tol
 
     @pyaedt_unittest_check_desktop_error
     def test_11_get_object_name_from_edge(self):
