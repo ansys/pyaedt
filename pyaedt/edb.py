@@ -178,19 +178,14 @@ class Edb(object):
         self._nets = None
         self._db = None
         self._edb = None
-        self._active_cell = None
-        self._active_layout = None
         self.builder = None
-        try:
-            del self.edblib
-            del self.edbutils
-            del self.simSetup
-            del self.layout_methods
-            del self.simsetupdata
-            if os.name == "posix":
-                clr.ClearProfilerData()
-        except AttributeError:
-            pass
+        self.edblib = None
+        self.edbutils = None
+        self.simSetup = None
+        self.layout_methods = None
+        self.simsetupdata = None
+        # time.sleep(2)
+        # gc.collect()
 
     @aedt_exception_handler
     def _init_objects(self):
@@ -657,6 +652,7 @@ class Edb(object):
     @property
     def active_layout(self):
         """Active layout."""
+        self._active_layout = None
         if self._active_cell:
             self._active_layout = self.active_cell.GetLayout()
         return self._active_layout
@@ -792,8 +788,6 @@ class Edb(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        if "edbutils" in dir(self):
-            self.edbutils.Logger.Disable = True
         time.sleep(2)
         self._db.Close()
         time.sleep(2)
@@ -801,11 +795,11 @@ class Edb(object):
         self._wait_for_file_release()
         end = time.time()-start_time
         self._messenger.add_info_message("EDB file release time: {0:.2f}ms".format(end*1000.))
+        self._clean_variables()
         timeout = 4
         while gc.collect() != 0 and timeout > 0:
             time.sleep(1)
             timeout -= 1
-        self._clean_variables()
         return True
 
     @aedt_exception_handler
@@ -1025,7 +1019,7 @@ class Edb(object):
                 self._wait_for_file_release(file_to_release=output_aedb_path)
                 if os.path.exists(source) and not os.path.exists(target):
                     try:
-                        shutil.move(source, target)
+                        shutil.copy(source, target)
                     except:
                         pass
         else:
@@ -1146,7 +1140,7 @@ class Edb(object):
                 self._wait_for_file_release(file_to_release=output_aedb_path)
                 if os.path.exists(source) and not os.path.exists(target):
                     try:
-                        shutil.move(source, target)
+                        shutil.copy(source, target)
                         self._messenger.add_warning_message("Def file manually created.")
                     except:
                         pass
