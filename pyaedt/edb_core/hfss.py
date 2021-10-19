@@ -61,7 +61,7 @@ class Edb3DLayout(object):
         dict
             Dictionary of trace width data.
         """
-        mesh = self._hfss_mesh_setup.GetMeshOperation()
+        mesh = self._hfss_mesh_setup.GetMeshOperation(self._active_layout)
         if mesh.Item1:
             return convert_netdict_to_pydict(mesh.Item2)
         else:
