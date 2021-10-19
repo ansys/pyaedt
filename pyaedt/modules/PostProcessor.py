@@ -1561,8 +1561,9 @@ class PostProcessor(PostProcessorCommon, object):
                     "Quantity {} not present. Trying to get it from Stack".format(quantity_name))
                 self.ofieldsreporter.CopyNamedExprToStack(quantity_name)
         obj_list = "AllObjects"
-        self.ofieldsreporter.EnterVol(obj_list)
-        self.ofieldsreporter.CalcOp(scalar_function)
+        if scalar_function:
+            self.ofieldsreporter.EnterVol(obj_list)
+            self.ofieldsreporter.CalcOp(scalar_function)
         if not variation_dict:
             variation_dict = self._p_app.available_variations.nominal_w_values
         if intrinsics:

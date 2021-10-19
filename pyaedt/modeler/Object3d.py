@@ -1149,6 +1149,9 @@ class Object3d(object):
 
     @part_coordinate_system.setter
     def part_coordinate_system(self, sCS):
+
+        pcs = ["NAME:Orientation", "Value:=", sCS]
+        self._change_property(pcs)
         self._part_coordinate_system = sCS
         return True
 
