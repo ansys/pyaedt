@@ -20,7 +20,6 @@ from pyaedt import inside_desktop, is_ironpython
 from pyaedt.application.MessageManager import EDBMessageManager
 from pyaedt.edb_core import Components, EdbNets, EdbPadstacks, EdbLayout, Edb3DLayout, EdbSiwave, EdbStackup
 from pyaedt.edb_core.EDB_Data import EdbBuilder
-from pyaedt import retry_ntimes
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import (
     aedt_exception_handler,
@@ -192,7 +191,6 @@ class Edb(object):
                 clr.ClearProfilerData()
         except AttributeError:
             pass
-
 
     @aedt_exception_handler
     def _init_objects(self):
