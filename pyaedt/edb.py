@@ -182,13 +182,17 @@ class Edb(object):
         self._active_cell = None
         self._active_layout = None
         self.builder = None
-        del self.edblib
-        del self.edbutils
-        del self.simSetup
-        del self.layout_methods
-        del self.simsetupdata
-        # if os.name == "posix":
-        #     clr.ClearProfilerData()
+        try:
+            del self.edblib
+            del self.edbutils
+            del self.simSetup
+            del self.layout_methods
+            del self.simsetupdata
+            if os.name == "posix":
+                clr.ClearProfilerData()
+        except AttributeError:
+            pass
+
 
     @aedt_exception_handler
     def _init_objects(self):
