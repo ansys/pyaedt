@@ -983,16 +983,16 @@ class Edb(object):
 
         # The analysis setup(s) do not come over with the clipped design copy,
         # so add the analysis setup(s) from the original here
-        for _setup in self.active_cell.SimulationSetups:
-            # Empty string '' if coming from setup copy and don't set explicitly.
-            _setup_name = _setup.GetName()
-            if "GetSimSetupInfo" in dir(_setup):
-                # setup is an Ansys.Ansoft.Edb.Utility.HFSSSimulationSetup object
-                _hfssSimSetupInfo = _setup.GetSimSetupInfo()
-                _hfssSimSetupInfo.Name = "HFSS Setup 1"  # Set name of analysis setup
-                # Write the simulation setup info into the cell/design setup
-                _setup.SetSimSetupInfo(_hfssSimSetupInfo)
-                _cutout.AddSimulationSetup(_setup)  # Add simulation setup to the cutout design
+        # for _setup in self.active_cell.SimulationSetups:
+        #     # Empty string '' if coming from setup copy and don't set explicitly.
+        #     _setup_name = _setup.GetName()
+        #     if "GetSimSetupInfo" in dir(_setup):
+        #         # setup is an Ansys.Ansoft.Edb.Utility.HFSSSimulationSetup object
+        #         _hfssSimSetupInfo = _setup.GetSimSetupInfo()
+        #         _hfssSimSetupInfo.Name = "HFSS Setup 1"  # Set name of analysis setup
+        #         # Write the simulation setup info into the cell/design setup
+        #         _setup.SetSimSetupInfo(_hfssSimSetupInfo)
+        #         _cutout.AddSimulationSetup(_setup)  # Add simulation setup to the cutout design
 
         _dbCells = [_cutout]
 
@@ -1002,6 +1002,7 @@ class Edb(object):
             _dbCells = convert_py_list_to_net_list(_dbCells)
             db2.CopyCells(_dbCells)  # Copies cutout cell/design to db2 project
             _success = db2.Save()
+
             if open_cutout_at_end:
                 self._db = db2
                 self.edbpath = output_aedb_path
