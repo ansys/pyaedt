@@ -2880,7 +2880,7 @@ class Primitives(object):
 
             o = self._create_object(name=attribs["Name"])
 
-            o.part_coordinate_system = attribs["PartCoordinateSystem"]
+            o._part_coordinate_system = attribs["PartCoordinateSystem"]
             if "NonModel" in attribs["Flags"]:
                 o._model = False
             else:
