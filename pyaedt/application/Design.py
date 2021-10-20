@@ -2247,12 +2247,12 @@ class Design(object):
         if saveproject:
             oproj.Save()
         self.odesktop.CloseProject(name)
-        self._close_edb()
         i = 0
         timeout = 10
         locked = True
         if name == legacy_name:
-            self._init_variables()
+            if os.name != "posix":
+                self._init_variables()
             self._oproject = None
             self._odesign = None
         while locked:
@@ -2297,11 +2297,13 @@ class Design(object):
             try:
                 self.set_active_design(fallback_design)
             except:
-                self._init_variables()
+                if os.name != "posix":
+                    self._init_variables()
                 self._odesign = None
                 return False
         else:
-            self._init_variables()
+            if os.name != "posix":
+                self._init_variables()
             self._odesign = None
         return True
 
