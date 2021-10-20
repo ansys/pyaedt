@@ -91,11 +91,6 @@ class Modeler3DLayout(Modeler):
         return self._edb
 
     @property
-    def _messenger(self):
-        """Messenger."""
-        return self._p_app._messenger
-
-    @property
     def logger(self):
         """Logger."""
         return self._p_app.logger
@@ -190,9 +185,9 @@ class Modeler3DLayout(Modeler):
                 ["NAME:AllTabs", ["NAME:"+property_tab, ["NAME:PropServers", property_object],
                                   ["NAME:ChangedProps", ["NAME:"+property_name, "Value:=", posx]]]])
         else:
-            self._messenger.add_error_message("Wrong Property Value")
+            self.logger.error("Wrong Property Value")
             return False
-        self._messenger.add_info_message("Property {} Changed correctly.".format(property_name))
+        self.logger.info("Property {} Changed correctly.".format(property_name))
         return True
 
     @aedt_exception_handler

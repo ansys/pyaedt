@@ -363,6 +363,7 @@ class Circuit(FieldAnalysisCircuit, object):
                         counter = 0
         if autosave:
             self._desktop.EnableAutoSave(True)
+        self.logger.design("Netlist correctly imported into %s", self.design_name)
         return True
 
     @aedt_exception_handler
@@ -503,6 +504,7 @@ class Circuit(FieldAnalysisCircuit, object):
                     xpos += delta
                     ypos = 0
 
+        self.logger.design("Netlist correctly imported into %s", self.design_name)
         return True
 
     @aedt_exception_handler
@@ -583,7 +585,7 @@ class Circuit(FieldAnalysisCircuit, object):
         if not port:
             return False
         pins = list(oModule.GetExcitationsOfType(port))
-
+        self.logger.design("%s Excitations Pins found.", len(pins))
         return pins
 
     @aedt_exception_handler
@@ -715,6 +717,7 @@ class Circuit(FieldAnalysisCircuit, object):
             "External",
         ]
         self.odesign.ImportData(arg, "", True)
+        self.logger.design("Touchstone correctly imported into %s", self.design_name)
         return portnames
 
     @aedt_exception_handler
@@ -751,7 +754,7 @@ class Circuit(FieldAnalysisCircuit, object):
             filename = os.path.join(self.project_path, solutionname + "_" + sweepname + appendix + ext)
         else:
             filename = filename.replace("//", "/").replace("\\", "/")
-        self.add_info_message("Exporting Touchstone " + filename)
+        self.logger.info("Exporting Touchstone " + filename)
         DesignVariations = ""
         i = 0
         for el in variation:
@@ -791,6 +794,7 @@ class Circuit(FieldAnalysisCircuit, object):
             IncludeGammaImpedance,
             NonStandardExtensions,
         )
+        self.logger.design("Touchstone correctly exported to %s", filename)
         return True
 
     @aedt_exception_handler
@@ -912,6 +916,8 @@ class Circuit(FieldAnalysisCircuit, object):
                 20,
             ],
         )
+        self.logger.design("FullWaveSpice correctly exported to %s", filename)
+
         return filename
 
     @aedt_exception_handler
@@ -1130,6 +1136,7 @@ class Circuit(FieldAnalysisCircuit, object):
         arg2.append(arg3)
 
         self.odesign.UpdateSources(arg1, arg2)
+        self.logger.design.info("Voltage Source updated correctly.")
         return True
 
     @aedt_exception_handler
@@ -1251,6 +1258,8 @@ class Circuit(FieldAnalysisCircuit, object):
         arg2.append(arg3)
 
         self.odesign.UpdateSources(arg1, arg2)
+        self.logger.design.info("Current Source updated correctly.")
+
         return True
 
     @aedt_exception_handler
@@ -1371,4 +1380,6 @@ class Circuit(FieldAnalysisCircuit, object):
         arg2.append(arg3)
 
         self.odesign.UpdateSources(arg1, arg2)
+        self.logger.design.info("Power Source updated correctly.")
+
         return True

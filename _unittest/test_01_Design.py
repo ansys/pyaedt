@@ -30,6 +30,7 @@ class TestClass:
             # self.cache = DesignCache(self.aedtapp)
 
     def teardown_class(self):
+        self.aedtapp._desktop.ClearMessages("","",3)
         assert self.aedtapp.close_project(self.aedtapp.project_name)
         self.local_scratch.remove()
         gc.collect()
@@ -92,7 +93,7 @@ class TestClass:
         print(self.aedtapp.oboundary)
         print(self.aedtapp.oanalysis)
         print(self.aedtapp.odesktop)
-        print(self.aedtapp._messenger)
+        print(self.aedtapp.logger)
         print(self.aedtapp.variable_manager)
         print(self.aedtapp.materials)
 

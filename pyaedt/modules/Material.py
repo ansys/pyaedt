@@ -243,11 +243,6 @@ class MatProperty(object):
                     self._property_value[tm["Index:"]].thermalmodifier.autocalculation = tm["auto_calculation"]
 
     @property
-    def _messenger(self):
-        """Messenger."""
-        return self._p_material._messenger
-
-    @property
     def type(self):
         """Type of the material property.
 
@@ -660,7 +655,6 @@ class CommonMaterial(object):
         self.odefinition_manager = self._p_materials.odefinition_manager
         self._omaterial_manager = self._p_materials.omaterial_manager
 
-        self._messenger = self._p_materials._messenger
 
         self._oproject = self._p_materials._oproject
         self.logger = self._p_materials.logger

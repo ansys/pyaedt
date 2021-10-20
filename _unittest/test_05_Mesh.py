@@ -22,6 +22,7 @@ class TestClass:
             self.aedtapp = Hfss()
 
     def teardown_class(self):
+        self.aedtapp._desktop.ClearMessages("","",3)
         assert self.aedtapp.close_project(self.aedtapp.project_name)
         self.local_scratch.remove()
         gc.collect()

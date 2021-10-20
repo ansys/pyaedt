@@ -192,11 +192,6 @@ class Primitives3DLayout(object):
         return default_materials[self._p_app._design_type]
 
     @property
-    def _messenger(self):
-        """Messenger."""
-        return self._p_app._messenger
-
-    @property
     def logger(self):
         """Logger."""
         return self._p_app.logger

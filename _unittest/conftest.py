@@ -86,14 +86,10 @@ class BasisTest:
                 new_desktop_session=new_thread,
                 non_graphical=non_graphical,
             )
-            # TODO do we need this ?
-            if project_name:
-                if design_name:
-                    self.aedtapp.design_name = design_name
-
             self.cache = DesignCache(self.aedtapp)
 
     def teardown_class(self):
+        self.aedtapp._desktop.ClearMessages("","",3)
         self.aedtapp.close_project(name=self.aedtapp.project_name, saveproject=False)
         self.local_scratch.remove()
         gc.collect()
@@ -152,7 +148,6 @@ from functools import wraps
 def pyaedt_unittest_check_desktop_error(func):
     @wraps(func)
     def inner_function(*args, **kwargs):
-        # args[0].aedtapp._messenger("Test Function Here")
         args[0].cache.update()
         ret_val = func(*args, **kwargs)
         try:

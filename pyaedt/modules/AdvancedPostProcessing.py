@@ -962,7 +962,7 @@ class PostProcessor(Post):
     @aedt_exception_handler
     def export_model_obj(self):
         """Export the model."""
-        assert self._p_app._aedt_version >= "2021.2", self._messenger.add_error_message(
+        assert self._p_app._aedt_version >= "2021.2", self.logger.design.error(
             "Object is supported from AEDT 2021 R2."
         )
         project_path = self._p_app.project_path
@@ -1038,7 +1038,7 @@ class PostProcessor(Post):
         list
             List of plot files.
         """
-        assert self._p_app._aedt_version >= "2021.2", self._messenger.add_error_message(
+        assert self._p_app._aedt_version >= "2021.2", self.logger.design.error(
             "Object is supported from AEDT 2021 R2."
         )
         files = [self.export_model_obj()]

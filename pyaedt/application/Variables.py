@@ -795,12 +795,7 @@ class VariableManager(object):
         return self._p_app._odesign
 
     @property
-    def _messenger(self):
-        """Messenger."""
-        return self._p_app._messenger
-
-    @property
-    def logger(self):
+    def _logger(self):
         """Logger."""
         return self._p_app.logger
 
@@ -1012,7 +1007,7 @@ class VariableManager(object):
                 )
             except:
                 if ";" in desktop_object.GetName() and prop_type == "PostProcessingVariableProp":
-                    self._messenger.add_info_message("PostProcessing Variable exists already. Changing value.")
+                    self._logger.info("PostProcessing Variable exists already. Changing value.")
                     desktop_object.ChangeProperty(
                         [
                             "NAME:AllTabs",
@@ -1666,7 +1661,7 @@ class DataSet(object):
 
         """
         if x not in self.x:
-            self._p_app._messenger.add_error_message("Value {} is not found.".format(x))
+            self._p_app.logger.error("Value {} is not found.".format(x))
             return False
         id_to_remove = self.x.index(x)
         return self.remove_point_from_index(id_to_remove)
@@ -1693,7 +1688,7 @@ class DataSet(object):
                 self.z.pop(id_to_remove)
                 self.v.pop(id_to_remove)
             return self.update()
-        self._p_app._messenger.add_error_message("cannot Remove {} index.".format(id_to_remove))
+        self._p_app.logger.error("cannot Remove {} index.".format(id_to_remove))
         return False
 
     @aedt_exception_handler

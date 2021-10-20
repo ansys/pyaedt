@@ -41,7 +41,7 @@ class TestClass:
             msg.clear_messages(level=3)
 
     def teardown_class(self):
-
+        self.aedtapp._desktop.ClearMessages("","",3)
         assert self.aedtapp.close_project()
         self.local_scratch.remove()
         gc.collect()

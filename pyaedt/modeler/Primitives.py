@@ -896,11 +896,6 @@ class Primitives(object):
         return default_materials[self._p_app._design_type]
 
     @property
-    def _messenger(self):
-        """Messenger."""
-        return self._p_app._messenger
-
-    @property
     def logger(self):
         """Logger."""
         return self._p_app.logger
@@ -2831,7 +2826,7 @@ class Primitives(object):
         test = retry_ntimes(10, self._oeditor.GetObjectsInGroup, "Unclassified")
         if test is None or test is False:
             self._unclassified = []
-            self._messenger.logger.debug("Unclassified is failing")
+            self.logger.design.debug("Unclassified is failing")
         elif test is True:
             self._unclassified = []  # In IronPython True is returned when no unclassified are present
         else:

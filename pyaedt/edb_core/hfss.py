@@ -33,6 +33,10 @@ class Edb3DLayout(object):
         return self._pedb.edblib.SimulationSetup.SweepMethods
 
     @property
+    def _logger(self):
+        return self._pedb.logger
+
+    @property
     def _edb(self):
         return self._pedb.edb
 

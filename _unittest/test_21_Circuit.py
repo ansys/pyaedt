@@ -53,6 +53,7 @@ class TestClass:
             self.aedtapp = Circuit(self.test_project)
 
     def teardown_class(self):
+        self.aedtapp._desktop.ClearMessages("","",3)
         for proj in self.aedtapp.project_list:
             try:
                 self.aedtapp.close_project(proj)

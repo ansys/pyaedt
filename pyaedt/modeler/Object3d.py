@@ -144,7 +144,7 @@ class EdgeTypePrimitive(object):
             if self._p_object3d.is3d:
                 edge_id_list = [self.id]
             else:
-                self._p_object3d._messenger.add_error_message("Filet is possible only on a vertex in 2D designs.")
+                self._p_object3d.logger.design.error("Filet is possible only on a vertex in 2D designs.")
                 return False
 
         vArg1 = ["NAME:Selections", "Selections:=", self._p_object3d.name, "NewPartsModelFlag:=", "Model"]
@@ -156,7 +156,7 @@ class EdgeTypePrimitive(object):
         self._p_object3d.m_Editor.Fillet(vArg1, ["NAME:Parameters", vArg2])
         if self._p_object3d.name in list(self._p_object3d.m_Editor.GetObjectsInGroup("UnClassified")):
             self._p_object3d._p_primitives._odesign.Undo()
-            self._p_object3d._messenger.add_error_message(
+            self._p_object3d.logger.design.error(
                 "Operation failed, generating an unclassified object. Check and retry."
             )
             return False
@@ -198,7 +198,7 @@ class EdgeTypePrimitive(object):
             if self._p_object3d.is3d:
                 edge_id_list = [self.id]
             else:
-                self._p_object3d._messenger.add_error_message("chamfer is possible only on Vertex in 2D Designs ")
+                self._p_object3d.logger.design.error("chamfer is possible only on Vertex in 2D Designs ")
                 return False
         vArg1 = ["NAME:Selections", "Selections:=", self._p_object3d.name, "NewPartsModelFlag:=", "Model"]
         vArg2 = ["NAME:ChamferParameters"]
@@ -221,12 +221,12 @@ class EdgeTypePrimitive(object):
             vArg2.append("RightDistance:="), vArg2.append(self._p_object3d._p_primitives._arg_with_dim(right_distance))
             vArg2.append("ChamferType:="), vArg2.append("Right Distance-Angle")
         else:
-            self._p_object3d._messenger.add_error_message("Wrong Type Entered. Type must be integer from 0 to 3")
+            self._p_object3d.logger.design.error("Wrong Type Entered. Type must be integer from 0 to 3")
             return False
         self._p_object3d.m_Editor.Chamfer(vArg1, ["NAME:Parameters", vArg2])
         if self._p_object3d.name in list(self._p_object3d.m_Editor.GetObjectsInGroup("UnClassified")):
             self._p_object3d.odesign.Undo()
-            self._p_object3d._messenger.add_error_message(
+            self._p_object3d.logger.design.error(
                 "Operation Failed generating Unclassified object. Check and retry"
             )
             return False
@@ -372,8 +372,8 @@ class FacePrimitive(object):
         return self._p_object3d.m_Editor
 
     @property
-    def _messenger(self):
-        return self._p_object3d._messenger
+    def logger(self):
+        return self._p_object3d.logger
 
     @property
     def _units(self):
@@ -426,7 +426,7 @@ class FacePrimitive(object):
         try:
             c = self._oeditor.GetFaceCenter(self.id)
         except:
-            self._messenger.add_warning_message("Non-planar face does not provide a face center.")
+            self.logger.design.warning("Non-planar face does not provide a face center.")
             return False
         center = [float(i) for i in c]
         return center
@@ -564,7 +564,7 @@ class FacePrimitive(object):
         """
         vertices_ids = self.vertices
         if len(vertices_ids) < 2 or not self.center:
-            self._p_object3d._messenger.add_warning_message("Not enough vertices or non-planar face")
+            self._p_object3d.logger.design.warning("Not enough vertices or non-planar face")
             return None
         # elif len(vertices_ids)<2:
         #     v1 = vertices_ids[0].position
@@ -843,17 +843,6 @@ class Object3d(object):
         return self._p_primitives._oeditor
 
     @property
-    def _messenger(self):
-        """Message Manager.
-
-        Returns
-        -------
-        AEDTMessageManager
-
-        """
-        return self._p_primitives._messenger
-
-    @property
     def logger(self):
         """Logger."""
         return self._p_primitives.logger
@@ -1087,7 +1076,7 @@ class Object3d(object):
                 color_tuple = None
         else:
             msg_text = "Invalid color input {} for object {}.".format(color_value, self._m_name)
-            self._p_primitives._messenger.add_warning_message(msg_text)
+            self._p_primitives.logger.design.warning(msg_text)
 
     @property
     def transparency(self):

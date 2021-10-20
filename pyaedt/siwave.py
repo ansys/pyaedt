@@ -139,9 +139,7 @@ class Siwave:
         # info_msg1 = 'Started external COM connection with module {0}'.format(_com)
         # info_msg2 = 'Python version {0}'.format(sys.version)
         # info_msg3 = 'Exe path: {0}'.format(sys.executable)
-        # self._main.oMessenger.add_info_message(info_msg1, 'Global')
-        # self._main.oMessenger.add_info_messge(info_msg2, 'Global')
-        # self._main.oMessenger.add_info_message(info_msg3, 'Global')
+
 
     @property
     def project_name(self):

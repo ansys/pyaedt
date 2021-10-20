@@ -25,7 +25,7 @@ class TestClass:
             self._close_on_completion = True
 
     def teardown_class(self):
-
+        self.aedtapp._desktop.ClearMessages("","",3)
         if self._close_on_completion:
             assert self.aedtapp.close_project()
             self.local_scratch.remove()

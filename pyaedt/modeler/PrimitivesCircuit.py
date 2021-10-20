@@ -49,11 +49,6 @@ class CircuitComponents(object):
         pass
 
     @property
-    def _messenger(self):
-        """_messenger."""
-        return self._p_app._messenger
-
-    @property
     def version(self):
         """Version."""
         return self._p_app._aedt_version

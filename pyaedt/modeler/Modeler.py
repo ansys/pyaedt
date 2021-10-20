@@ -571,11 +571,6 @@ class Modeler(object):
         return self._p_app._desktop
 
     @property
-    def _messenger(self):
-        """Messager."""
-        return self._p_app._messenger
-
-    @property
     def logger(self):
         """Logger."""
         return self._p_app.logger
@@ -2146,7 +2141,7 @@ class GeometryModeler(Modeler, object):
         self.primitives.cleanup_objects()
         if len(objs_groups) > 1:
             return self.unite(objs_groups)
-        self._messenger.add_info_message("Union of {} objects has been executed.".format(num_objects))
+        self.logger.info("Union of {} objects has been executed.".format(num_objects))
         return True
 
     @aedt_exception_handler

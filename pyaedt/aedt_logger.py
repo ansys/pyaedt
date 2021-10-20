@@ -62,7 +62,8 @@ class AedtLogger(object):
         if self._global.handlers:
             if 'messenger' in dir(self._global.handlers[0]):
                 self._global.removeHandler(self._global.handlers[0])
-                self._global.removeHandler(self._global.handlers[0])
+                if self._global.handlers:
+                    self._global.removeHandler(self._global.handlers[0])
         if not self._global.handlers:
             self._global.addHandler(log_handler.LogHandler(self._messenger, 'Global', logging.DEBUG))
             main._aedt_handler = self._global.handlers
@@ -120,12 +121,15 @@ class AedtLogger(object):
         self._messenger.clear_messages(project_name, design_name, level)
 
     def info(self, msg, *args, **kwargs):
+        """Send Global info."""
         return self._global.info(msg, *args, **kwargs)
 
     def warning(self, msg, *args, **kwargs):
+        """Send Global warning."""
         return self._global.warning(msg, *args, **kwargs)
 
     def error(self, msg, *args, **kwargs):
+        """Send Global errror."""
         return self._global.error(msg, *args, **kwargs)
 
     @property

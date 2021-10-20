@@ -552,20 +552,11 @@ class Layers(object):
     """
     def __init__(self, modeler, roughnessunits="um"):
         self._p_modeler = modeler
+        self._p_app = modeler._p_app
         self._currentId = 0
         self.layers = defaultdict(Layer)
         self.lengthUnitRough = roughnessunits
-        self.logger = self._p_app._messenger
-
-    @property
-    def _p_app(self):
-        """Messenger."""
-        return self._p_modeler._p_app
-
-    @property
-    def _messenger(self):
-        """Messenger."""
-        return self._p_app._messenger
+        self.logger = self._p_app.logger
 
     @property
     def _oeditor(self):

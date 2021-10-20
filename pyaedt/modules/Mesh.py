@@ -147,7 +147,6 @@ class Mesh(object):
     def __init__(self, app):
         self._p_app = app
 
-        self._messenger = self._p_app._messenger
         self._odesign = self._p_app._odesign
         self.modeler = self._p_app._modeler
         design_type = self._odesign.GetDesignType()

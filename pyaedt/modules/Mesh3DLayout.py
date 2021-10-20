@@ -114,7 +114,6 @@ class Mesh3d(object):
     def __init__(self, app):
         self._p_app = app
 
-        self._messenger = self._p_app._messenger
         self.logger = self._p_app.logger
         self._odesign = self._p_app._odesign
         self.modeler =  self._p_app._modeler

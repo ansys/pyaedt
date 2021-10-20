@@ -402,6 +402,7 @@ class Desktop:
         self._main.oDesktop.RestoreWindow()
         self._main.oMessenger = AEDTMessageManager()
         self._logger = aedt_logger.AedtLogger(self._main.oMessenger, filename = self.logfile, level = logging.DEBUG)
+        self._logger.info("Logger Started on %s", self.logfile)
         self._main.aedt_logger = self._logger
         self._main.sDesktopinstallDirectory = self._main.oDesktop.GetExeDir()
         self._main.pyaedt_initialized = True

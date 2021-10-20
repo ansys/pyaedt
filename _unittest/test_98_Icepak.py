@@ -52,6 +52,7 @@ class TestClass:
             self.aedtapp = Icepak(self.test_project, specified_version=desktop_version)
 
     def teardown_class(self):
+        self.aedtapp._desktop.ClearMessages("","",3)
         self.aedtapp.close_project(src_project_name, False)
         self.aedtapp.close_project(self.aedtapp.project_name)
         time.sleep(2)
