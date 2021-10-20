@@ -28,7 +28,8 @@ from ..modules.SetupTemplates import SetupKeys
 from ..modules.SolutionType import SetupTypes, SolutionType
 from ..modules.SolveSetup import Setup
 from .Design import Design
-
+from .. import generate_unique_name
+from .JobManager import update_hpc_option
 
 class Analysis(Design, object):
     """Contains all common analysis functions.
@@ -622,7 +623,7 @@ class Analysis(Design, object):
         self.analyze_nominal()
 
     @aedt_exception_handler
-    def analyze_nominal(self):
+    def analyze_nominal(self, num_cores=None, num_tasks=None, num_gpu=None, acf_file=None):
         """Solve the nominal design.
 
         Returns
@@ -630,7 +631,36 @@ class Analysis(Design, object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
+        active_config = self._desktop.GetRegistryString(r"Desktop/ActiveDSOConfigurations/"+self.design_type)
+        if acf_file:
+            self._desktop.SetRegistryFromFile(acf_file)
+            name = ""
+            with open(acf_file, 'r') as f:
+                lines = f.readlines()
+                for line in lines:
+                    if "ConfigName" in line:
+                        name = line.strip().split("=")[1]
+                        break
+            if name:
+                self.set_registry_key(r"Desktop/ActiveDSOConfigurations/"+self.design_type, name)
+        elif num_gpu or num_tasks or num_cores:
+            config_name = "pyaedt_config"
+            source_name = os.path.join(self.pyaedt_dir, "misc", "pyaedt_local_config.acf")
+            target_name = os.path.join(self.project_path, config_name + ".acf")
+            shutil.copy2(source_name, target_name)
+            if num_cores:
+                update_hpc_option(target_name, "NumCores",num_cores, False)
+            if num_gpu:
+                update_hpc_option(target_name, "NumGPUs",num_gpu, False)
+            if num_tasks:
+                update_hpc_option(target_name, "NumEngines",num_tasks, False)
+            update_hpc_option(target_name, "ConfigName", config_name, True)
+            update_hpc_option(target_name, "DesignType", self.design_type, True)
+            self._desktop.SetRegistryFromFile(target_name)
+            self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, config_name)
         self.odesign.Analyze(self.analysis_setup)
+        self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
+
         return True
 
     @aedt_exception_handler
