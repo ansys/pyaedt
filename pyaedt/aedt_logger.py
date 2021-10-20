@@ -62,7 +62,8 @@ class AedtLogger(object):
         if self._global.handlers:
             if 'messenger' in dir(self._global.handlers[0]):
                 self._global.removeHandler(self._global.handlers[0])
-                self._global.removeHandler(self._global.handlers[0])
+                if self._global.handlers:
+                    self._global.removeHandler(self._global.handlers[0])
         if not self._global.handlers:
             self._global.addHandler(log_handler.LogHandler(self._messenger, 'Global', logging.DEBUG))
             main._aedt_handler = self._global.handlers

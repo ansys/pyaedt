@@ -13,8 +13,8 @@ class Primitives2D(Primitives, object):
     def plane2d(self):
         """Create a 2D plane."""
         plane = "Z"
-        if self._p_app.design_type == "Maxwell 2D":
-            if self._p_app._odesign.GetGeometryMode() == "about Z":
+        if self._app.design_type == "Maxwell 2D":
+            if self._app._odesign.GetGeometryMode() == "about Z":
                 plane = "Y"
         return plane
 

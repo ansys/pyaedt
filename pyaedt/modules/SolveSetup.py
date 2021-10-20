@@ -37,23 +37,23 @@ class Setup(object):
     @property
     def p_app(self):
         """Parent."""
-        return self._p_app
+        return self._app
 
     @p_app.setter
     def p_app(self, value):
-        self._p_app = value
+        self._app = value
 
     @property
     def omodule(self):
         """Analysis module."""
-        return self._p_app.oanalysis
+        return self._app.oanalysis
 
     def __repr__(self):
         return "SetupName " + self.name + " with " + str(len(self.sweeps)) + " Sweeps"
 
     def __init__(self, app, solutiontype, setupname="MySetupAuto", isnewsetup=True):
 
-        self._p_app = None
+        self._app = None
         self.p_app = app
         if isinstance(solutiontype, int):
             self.setuptype = solutiontype
@@ -419,7 +419,7 @@ class Setup(object):
         meshlinks["Soln"] = solution_name
         meshlinks["Params"] = OrderedDict({})
         for el in parameters_dict:
-            if el in list(self._p_app.available_variations.nominal_w_values_dict.keys()):
+            if el in list(self._app.available_variations.nominal_w_values_dict.keys()):
                 meshlinks["Params"][el] = el
             else:
                 meshlinks["Params"][el] = parameters_dict[el]
@@ -448,7 +448,7 @@ class SetupCircuit(object):
 
     """
     def __init__(self, app, solutiontype, setupname="MySetupAuto", isnewsetup=True):
-        self._p_app = None
+        self._app = None
         self.p_app = app
         if isinstance(solutiontype, int):
             self.setuptype = solutiontype
@@ -487,16 +487,16 @@ class SetupCircuit(object):
     @property
     def p_app(self):
         """AEDT app module for setting up the analysis."""
-        return self._p_app
+        return self._app
 
     @p_app.setter
     def p_app(self, name):
-        self._p_app = name
+        self._app = name
 
     @property
     def _odesign(self):
         """Design."""
-        return self._p_app._odesign
+        return self._app._odesign
 
     @property
     def omodule(self):
@@ -520,7 +520,7 @@ class SetupCircuit(object):
             Name of the setup.
 
         """
-        return self._p_app.oanalysis
+        return self._app.oanalysis
 
     @aedt_exception_handler
     def create(self):
@@ -864,10 +864,10 @@ class Setup3DLayout(object):
             Analysis module.
 
         """
-        return self._p_app.oanalysis
+        return self._app.oanalysis
 
     def __init__(self, app, solutiontype, setupname="MySetupAuto", isnewsetup=True):
-        self._p_app = app
+        self._app = app
         if isinstance(solutiontype, int):
             self._solutiontype = solutiontype
         else:
@@ -881,7 +881,7 @@ class Setup3DLayout(object):
                 tuple2dict(t, self.props)
         else:
             try:
-                setups_data = self._p_app.design_properties["Setup"]["Data"]
+                setups_data = self._app.design_properties["Setup"]["Data"]
                 if setupname in setups_data:
                     setup_data = setups_data[setupname]
                     if "Data" in setup_data:  # 0 and 7 represent setup HFSSDrivenAuto

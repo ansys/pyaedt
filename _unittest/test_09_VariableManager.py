@@ -82,8 +82,8 @@ class TestClass:
         self.aedtapp["p3"] = "p1 * p2"
         v = self.aedtapp.variable_manager
 
-        eval_p3_nom = v._p_app.get_evaluated_value("p3")
-        eval_p3_var = v._p_app.get_evaluated_value("p3", variation="p1=100mm p2=20mm")
+        eval_p3_nom = v._app.get_evaluated_value("p3")
+        eval_p3_var = v._app.get_evaluated_value("p3", variation="p1=100mm p2=20mm")
         assert eval_p3_nom == 0.0002
         assert eval_p3_var == 0.002
 

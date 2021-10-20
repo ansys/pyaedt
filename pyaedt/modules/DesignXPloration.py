@@ -148,8 +148,8 @@ class CommonOptimetrics(object):
     """
 
     def __init__(self, p_app, name, dictinputs, optimtype):
-        self._p_app = p_app
-        self.omodule =  self._p_app.ooptimetrics
+        self._app = p_app
+        self.omodule =  self._app.ooptimetrics
         self.name = name
         self.soltype = optimtype
 
@@ -178,14 +178,14 @@ class CommonOptimetrics(object):
             if inputd.get("Sim. Setups"):
                 setups = inputd["Sim. Setups"]
                 for el in setups:
-                    if type(self._p_app.design_properties["SolutionManager"]["ID Map"]["Setup"]) is list:
-                        for setup in self._p_app.design_properties["SolutionManager"]["ID Map"]["Setup"]:
+                    if type(self._app.design_properties["SolutionManager"]["ID Map"]["Setup"]) is list:
+                        for setup in self._app.design_properties["SolutionManager"]["ID Map"]["Setup"]:
                             if setup["I"] == el:
                                 setups[setups.index(el)] = setup["I"]
                                 break
                     else:
-                        if self._p_app.design_properties["SolutionManager"]["ID Map"]["Setup"]["I"] == el:
-                            setups[setups.index(el)] = self._p_app.design_properties["SolutionManager"]["ID Map"][
+                        if self._app.design_properties["SolutionManager"]["ID Map"]["Setup"]["I"] == el:
+                            setups[setups.index(el)] = self._app.design_properties["SolutionManager"]["ID Map"][
                                 "Setup"
                             ]["N"]
                             break
@@ -275,7 +275,7 @@ class CommonOptimetrics(object):
         sweepdefinition = OrderedDict()
         sweepdefinition["ReportType"] = reporttype
         if not solution:
-            solution = self._p_app.nominal_sweep
+            solution = self._app.nominal_sweep
 
         sweepdefinition["Solution"] = solution
         sweepdefinition["SimValueContext"] = OrderedDict({"Domain": domain})
@@ -353,7 +353,7 @@ class CommonOptimetrics(object):
         sweepdefinition = OrderedDict()
         sweepdefinition["ReportType"] = reporttype
         if not solution:
-            solution = self._p_app.nominal_sweep
+            solution = self._app.nominal_sweep
         sweepdefinition["Solution"] = solution
         sweepdefinition["SimValueContext"] = OrderedDict({"Domain": domain})
         sweepdefinition["Calculation"] = calculation
@@ -545,7 +545,7 @@ class DXSetups(object):
     @property
     def p_app(self):
         """Parent."""
-        return self._p_app
+        return self._app
 
     @property
     def optimodule(self):
@@ -555,14 +555,14 @@ class DXSetups(object):
         :class:`Optimetrics`
 
         """
-        return self._p_app.ooptimetrics
+        return self._app.ooptimetrics
 
     def __init__(self, p_app):
-        self._p_app = p_app
+        self._app = p_app
         self.setups = []
-        if self._p_app.design_properties:
+        if self._app.design_properties:
             try:
-                setups_data = self._p_app.design_properties["Optimetrics"]["OptimetricsSetups"]
+                setups_data = self._app.design_properties["Optimetrics"]["OptimetricsSetups"]
                 for data in setups_data:
                     if (
                         type(setups_data[data]) is OrderedDict
@@ -596,12 +596,12 @@ class DXSetups(object):
 
         """
         if not setupname:
-            setupname = [self._p_app.analysis_setup]
+            setupname = [self._app.analysis_setup]
         elif type(setupname) is not list:
             setupname = [setupname]
         if not parametricname:
             parametricname = generate_unique_name("DesignXplorer")
-        setup = self.Setup(self._p_app, parametricname)
+        setup = self.Setup(self._app, parametricname)
         setup.props["Sim. Setups"] = setupname
         setup.props["Sweeps"] = []
         if not defaults_var_values:
@@ -609,9 +609,9 @@ class DXSetups(object):
                 sweepdefinition = OrderedDict()
                 sweepdefinition["Variable"] = v
                 if "$" in v:
-                    sweepdefinition["Data"] = self._p_app.oproject.GetVariableValue(v)
+                    sweepdefinition["Data"] = self._app.oproject.GetVariableValue(v)
                 else:
-                    sweepdefinition["Data"] = self._p_app._odesign.GetVariableValue(v)
+                    sweepdefinition["Data"] = self._app._odesign.GetVariableValue(v)
                 sweepdefinition["OffsetF1"] = False
                 sweepdefinition["Synchronize"] = 0
         else:
@@ -735,7 +735,7 @@ class ParametericsSetups(object):
     @property
     def p_app(self):
         """Parent."""
-        return self._p_app
+        return self._app
 
     @property
     def optimodule(self):
@@ -746,14 +746,14 @@ class ParametericsSetups(object):
         :class:`Optimetrics`
 
         """
-        return self._p_app.ooptimetrics
+        return self._app.ooptimetrics
 
     def __init__(self, p_app):
-        self._p_app = p_app
+        self._app = p_app
         self.setups = []
-        if self._p_app.design_properties:
+        if self._app.design_properties:
             try:
-                setups_data = self._p_app.design_properties["Optimetrics"]["OptimetricsSetups"]
+                setups_data = self._app.design_properties["Optimetrics"]["OptimetricsSetups"]
 
                 for data in setups_data:
                     if isinstance(setups_data[data], (OrderedDict, dict)) and\
@@ -787,12 +787,12 @@ class ParametericsSetups(object):
 
         """
         if not setupname:
-            setupname = [self._p_app.analysis_setup]
+            setupname = [self._app.analysis_setup]
         elif type(setupname) is not list:
             setupname = [setupname]
         if not parametricname:
             parametricname = generate_unique_name("Parametric")
-        setup = self.Setup(self._p_app, parametricname)
+        setup = self.Setup(self._app, parametricname)
         setup.props["Sim. Setups"] = setupname
         sweepdefinition = OrderedDict()
         sweepdefinition["Variable"] = sweep_var
@@ -881,7 +881,7 @@ class SensitivitySetups(object):
     @property
     def p_app(self):
         """Parent."""
-        return self._p_app
+        return self._app
 
     @property
     def optimodule(self):
@@ -892,14 +892,14 @@ class SensitivitySetups(object):
         :class:`Optimetrics`
 
         """
-        return self._p_app.ooptimetrics
+        return self._app.ooptimetrics
 
     def __init__(self, p_app):
-        self._p_app = p_app
+        self._app = p_app
         self.setups = []
-        if self._p_app.design_properties:
+        if self._app.design_properties:
             try:
-                setups_data = self._p_app.design_properties["Optimetrics"]["OptimetricsSetups"]
+                setups_data = self._app.design_properties["Optimetrics"]["OptimetricsSetups"]
                 for data in setups_data:
                     if isinstance(setups_data[data], (OrderedDict, dict)) and\
                             setups_data[data]["SetupType"] == "OptiSensitivity":
@@ -949,11 +949,11 @@ class SensitivitySetups(object):
         """
         if not parametricname:
             parametricname = generate_unique_name("Sensitivity")
-        setup = self.Setup(self._p_app, parametricname)
+        setup = self.Setup(self._app, parametricname)
         sweepdefinition = OrderedDict()
         sweepdefinition["ReportType"] = reporttype
         if not solution:
-            solution = self._p_app.nominal_sweep
+            solution = self._app.nominal_sweep
         sweepdefinition["Solution"] = solution
         sweepdefinition["SimValueContext"] = OrderedDict({"Domain": domain})
         sweepdefinition["Calculation"] = calculation
@@ -1044,7 +1044,7 @@ class StatisticalSetups(object):
     @property
     def p_app(self):
         """Parent."""
-        return self._p_app
+        return self._app
 
     @property
     def optimodule(self):
@@ -1055,14 +1055,14 @@ class StatisticalSetups(object):
         :class:`Optimetrics`
 
         """
-        return self._p_app.ooptimetrics
+        return self._app.ooptimetrics
 
     def __init__(self, p_app):
-        self._p_app = p_app
+        self._app = p_app
         self.setups = []
-        if self._p_app.design_properties:
+        if self._app.design_properties:
             try:
-                setups_data = self._p_app.design_properties["Optimetrics"]["OptimetricsSetups"]
+                setups_data = self._app.design_properties["Optimetrics"]["OptimetricsSetups"]
                 for data in setups_data:
                     if isinstance(setups_data[data], (OrderedDict, dict)) and\
                             setups_data[data]["SetupType"] == "OptiStatistical":
@@ -1112,11 +1112,11 @@ class StatisticalSetups(object):
         """
         if not parametricname:
             parametricname = generate_unique_name("Statistical")
-        setup = self.Setup(self._p_app, parametricname)
+        setup = self.Setup(self._app, parametricname)
         sweepdefinition = OrderedDict()
         sweepdefinition["ReportType"] = reporttype
         if not solution:
-            solution = self._p_app.nominal_sweep
+            solution = self._app.nominal_sweep
 
         sweepdefinition["Solution"] = solution
         sweepdefinition["SimValueContext"] = OrderedDict({"Domain": domain})
@@ -1276,7 +1276,7 @@ class DOESetups(object):
     @property
     def p_app(self):
         """Parent."""
-        return self._p_app
+        return self._app
 
     @property
     def optimodule(self):
@@ -1287,14 +1287,14 @@ class DOESetups(object):
         :class:`Optimetrics`
 
         """
-        return self._p_app.ooptimetrics
+        return self._app.ooptimetrics
 
     def __init__(self, p_app):
-        self._p_app = p_app
+        self._app = p_app
         self.setups = []
-        if self._p_app.design_properties:
+        if self._app.design_properties:
             try:
-                setups_data = self._p_app.design_properties["Optimetrics"]["OptimetricsSetups"]
+                setups_data = self._app.design_properties["Optimetrics"]["OptimetricsSetups"]
                 for data in setups_data:
                     if isinstance(setups_data[data], (OrderedDict, dict)) and \
                             setups_data[data]["SetupType"] == "OptiDXDOE":
@@ -1355,11 +1355,11 @@ class DOESetups(object):
 
         """
         if not solution:
-            solution = self._p_app.nominal_sweep
+            solution = self._app.nominal_sweep
         setupname = [solution.split(" ")[0]]
         if not parametricname:
             parametricname = generate_unique_name("DesignOfExp")
-        setup = self.Setup(self._p_app, parametricname)
+        setup = self.Setup(self._app, parametricname)
         setup.props["Sim. Setups"] = setupname
         sweepdefinition = OrderedDict()
         sweepdefinition["ReportType"] = reporttype
@@ -1480,7 +1480,7 @@ class OptimizationSetups(object):
     @property
     def p_app(self):
         """Parent."""
-        return self._p_app
+        return self._app
 
     @property
     def optimodule(self):
@@ -1491,14 +1491,14 @@ class OptimizationSetups(object):
         :class:`Optimetrics`
 
         """
-        return self._p_app.ooptimetrics
+        return self._app.ooptimetrics
 
     def __init__(self, p_app):
-        self._p_app = p_app
+        self._app = p_app
         self.setups = []
-        if self._p_app.design_properties:
+        if self._app.design_properties:
             try:
-                setups_data = self._p_app.design_properties["Optimetrics"]["OptimetricsSetups"]
+                setups_data = self._app.design_properties["Optimetrics"]["OptimetricsSetups"]
                 for data in setups_data:
                     if isinstance(setups_data[data], (OrderedDict, dict)) and \
                             setups_data[data]["SetupType"] == "OptiOptimization":
@@ -1558,11 +1558,11 @@ class OptimizationSetups(object):
         """
         if not parametricname:
             parametricname = generate_unique_name("Optimization")
-        setup = self.Setup(self._p_app, parametricname)
+        setup = self.Setup(self._app, parametricname)
         sweepdefinition = OrderedDict()
         sweepdefinition["ReportType"] = reporttype
         if not solution:
-            solution = self._p_app.nominal_sweep
+            solution = self._app.nominal_sweep
         sweepdefinition["Solution"] = solution
         sweepdefinition["SimValueContext"] = OrderedDict({"Domain": domain})
         sweepdefinition["Calculation"] = calculation

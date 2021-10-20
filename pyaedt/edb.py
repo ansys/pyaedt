@@ -371,12 +371,6 @@ class Edb(object):
                 self.layout_methods.LoadDataModel(dllpath, self.edbversion)
             except:
                 pass
-            # self.layout_methods.InitializeBuilder(
-            #                                     self._db,
-            #                                     self._active_cell,
-            #                                     self.edbpath,
-            #                                     self.edbversion,
-            #                                     self.standalone,)
             self.builder = EdbBuilder(self.edbutils, self._db, self._active_cell)
             self._init_objects()
             self._messenger.add_info_message("Builder Initialized")
@@ -472,13 +466,6 @@ class Edb(object):
                 self.layout_methods.LoadDataModel(dllpath, self.edbversion)
             except:
                 pass
-            # self.layout_methods.InitializeBuilder(
-            #                                     self._db,
-            #                                     self._active_cell,
-            #                                     self.edbpath,
-            #                                     self.edbversion,
-            #                                     self.standalone
-            #                                 )
             self.builder = EdbBuilder(self.edbutils, self._db, self._active_cell)
             self._init_objects()
             return self.builder
@@ -736,13 +723,10 @@ class Edb(object):
             try:
                 os.rename(filename, filename + '_')
                 os.rename(filename + '_', filename)
-                # print 'Access on file "' + filename + '" is available!'
                 return True
             except OSError as e:
-                # print 'Access-error on file "' + filename + '"! \n' + str(e)
                 return False
         else:
-            # print 'File "' + filename + '" is not existing!'
             return False
 
     @aedt_exception_handler
@@ -759,13 +743,10 @@ class Edb(object):
         tstart = time.time()
         while True:
             if self._is_file_existing_and_released(file_to_release):
-                # print 'File is released'
                 return True
             elif time.time() - tstart > timeout:
-                # print 'Timeout reached'
                 return False
             else:
-                # print 'Retring... '
                 time.sleep(0.250)
 
     @aedt_exception_handler
@@ -1015,13 +996,6 @@ class Edb(object):
                     self.layout_methods.LoadDataModel(dllpath, self.edbversion)
                 except:
                     pass
-                # self.layout_methods.InitializeBuilder(
-                #                                     self._db,
-                #                                     self._active_cell,
-                #                                     self.edbpath,
-                #                                     self.edbversion,
-                #                                     self.standalone,
-                #                                 )
                 self.builder = EdbBuilder(self.edbutils, self._db, self._active_cell)
                 self._init_objects()
             else:

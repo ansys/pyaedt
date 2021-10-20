@@ -97,7 +97,7 @@ class Layer(object):
     def __init__(self, app, layertype="signal", negative=False):
         self.LengthUnit = app.LengthUnit
         self.LengthUnitRough = app.LengthUnit
-        self._p_layers = app
+        self._layers = app
         self.name = None
         self.type = layertype
         self.id = 0
@@ -146,7 +146,7 @@ class Layer(object):
 
     @property
     def _oeditor(self):
-        return self._p_layers._oeditor
+        return self._layers._oeditor
 
     @property
     def visflag(self):
@@ -551,31 +551,27 @@ class Layers(object):
 
     """
     def __init__(self, modeler, roughnessunits="um"):
-        self._p_modeler = modeler
+        self._modeler = modeler
+        self._app = self._modeler._app
         self._currentId = 0
         self.layers = defaultdict(Layer)
         self.lengthUnitRough = roughnessunits
-        self.logger = self._p_app._messenger
-
-    @property
-    def _p_app(self):
-        """Messenger."""
-        return self._p_modeler._p_app
+        self.logger = self._app._messenger
 
     @property
     def _messenger(self):
         """Messenger."""
-        return self._p_app._messenger
+        return self._app._messenger
 
     @property
     def _oeditor(self):
         """Editor."""
-        return self._p_modeler._p_app._odesign.SetActiveEditor("Layout")
+        return self._modeler._app._odesign.SetActiveEditor("Layout")
 
     @property
     def LengthUnit(self):
         """Length units."""
-        return self._p_modeler.model_units
+        return self._modeler.model_units
 
     @property
     def all_layers(self):

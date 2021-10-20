@@ -20,13 +20,13 @@ class Materials(object):
 
     """
     def __init__(self, app):
-        self._p_app = app
-        self.odefinition_manager = self._p_app.odefinition_manager
-        self.omaterial_manager = self._p_app.omaterial_manager
-        self._desktop = self._p_app.odesktop
-        self._messenger = self._p_app._messenger
-        self._oproject = self._p_app.oproject
-        self.logger = self._p_app.logger
+        self._app = app
+        self.odefinition_manager = self._app.odefinition_manager
+        self.omaterial_manager = self._app.omaterial_manager
+        self._desktop = self._app.odesktop
+        self._messenger = self._app._messenger
+        self._oproject = self._app.oproject
+        self.logger = self._app.logger
         self._messenger.logger.info("Successfully loaded project materials !")
         self.material_keys = self._get_materials()
         self.surface_material_keys = self._get_surface_materials()
@@ -51,9 +51,9 @@ class Materials(object):
         """Get materials."""
         mats = {}
         try:
-            for ds in self._p_app.project_properies["AnsoftProject"]["Definitions"]["Materials"]:
+            for ds in self._app.project_properies["AnsoftProject"]["Definitions"]["Materials"]:
                 mats[ds.lower()] = Material(
-                    self, ds.lower(), self._p_app.project_properies["AnsoftProject"]["Definitions"]["Materials"][ds]
+                    self, ds.lower(), self._app.project_properies["AnsoftProject"]["Definitions"]["Materials"][ds]
                 )
         except:
             pass
@@ -63,11 +63,11 @@ class Materials(object):
     def _get_surface_materials(self):
         mats = {}
         try:
-            for ds in self._p_app.project_properies["AnsoftProject"]["Definitions"]["SurfaceMaterials"]:
+            for ds in self._app.project_properies["AnsoftProject"]["Definitions"]["SurfaceMaterials"]:
                 mats[ds.lower()] = SurfaceMaterial(
                     self,
                     ds.lower(),
-                    self._p_app.project_properies["AnsoftProject"]["Definitions"]["SurfaceMaterials"][ds],
+                    self._app.project_properies["AnsoftProject"]["Definitions"]["SurfaceMaterials"][ds],
                 )
         except:
             pass
@@ -166,7 +166,7 @@ class Materials(object):
             )
             return self.material_keys[materialname]
         else:
-            material = Material(self._p_app, materialname, props)
+            material = Material(self._app, materialname, props)
             material.update()
             self.logger.glb.info("Material has been added. Edit it to update in Desktop.")
             self.material_keys[materialname] = material
@@ -207,7 +207,7 @@ class Materials(object):
             )
             return self.surface_material_keys[materialname]
         else:
-            material = SurfaceMaterial(self._p_app, materialname)
+            material = SurfaceMaterial(self._app, materialname)
             if emissivity:
                 material.emissivity = emissivity
                 material.update()
@@ -279,12 +279,12 @@ class Materials(object):
 
         mat_dict = self._create_mat_project_vars(matsweep)
 
-        newmat = Material(self._p_app, matname)
+        newmat = Material(self._app, matname)
         index = "$ID" + matname
-        self._p_app[index] = 0
+        self._app[index] = 0
         for el in mat_dict:
             if el in list(mat_dict.keys()):
-                self._p_app["$" + matname + el] = mat_dict[el]
+                self._app["$" + matname + el] = mat_dict[el]
                 newmat.__dict__["_" + el].value = "$" + matname + el + "[" + index + "]"
                 newmat._update_props(el, "$" + matname + el + "[" + index + "]", False)
 
@@ -479,8 +479,8 @@ class Materials(object):
         find_datasets(output_dict, out_list)
         datasets = OrderedDict()
         for ds in out_list:
-            if ds in list(self._p_app.project_datasets.keys()):
-                d = self._p_app.project_datasets[ds]
+            if ds in list(self._app.project_datasets.keys()):
+                d = self._app.project_datasets[ds]
                 if d.z:
                     datasets[ds] = OrderedDict(
                         {
@@ -546,7 +546,7 @@ class Materials(object):
                 if numcol > 2:
                     zunit = val["Coordinates"]["DimUnits"][2]
                     zval = new_list[2]
-                self._p_app.create_dataset(
+                self._app.create_dataset(
                     el[1:], xunit=xunit, yunit=yunit, zunit=zunit, xlist=xval, ylist=yval, zlist=zval
                 )
 

@@ -25,13 +25,13 @@ class Modeler3DLayout(Modeler):
     """
 
     def __init__(self, app):
-        self._p_app = app
-        self.oeditor = self._p_app._odesign.SetActiveEditor("Layout")
+        self._app = app
+        self.oeditor = self._app._odesign.SetActiveEditor("Layout")
         self.logger.glb.info("Loading Modeler.")
         Modeler.__init__(self, app)
         self.logger.glb.info("Modeler loaded.")
-        self._primitivesDes = self._p_app.project_name + self._p_app.design_name
-        edb_folder = os.path.join(self._p_app.project_path, self._p_app.project_name + ".aedb")
+        self._primitivesDes = self._app.project_name + self._app.design_name
+        edb_folder = os.path.join(self._app.project_path, self._app.project_name + ".aedb")
         edb_file = os.path.join(edb_folder, "edb.def")
         self._edb = None
         if os.path.exists(edb_file) or (inside_desktop and is_ironpython):
@@ -42,11 +42,11 @@ class Modeler3DLayout(Modeler):
             time.sleep(1)
             self._edb = Edb(
                 edb_folder,
-                self._p_app.design_name,
+                self._app.design_name,
                 True,
-                self._p_app._aedt_version,
+                self._app._aedt_version,
                 isaedtowned=True,
-                oproject=self._p_app.oproject,
+                oproject=self._app.oproject,
             )
         else:
             self._mttime = 0
@@ -70,7 +70,7 @@ class Modeler3DLayout(Modeler):
 
         """
         if not (inside_desktop and is_ironpython):
-            edb_folder = os.path.join(self._p_app.project_path, self._p_app.project_name + ".aedb")
+            edb_folder = os.path.join(self._app.project_path, self._app.project_name + ".aedb")
             edb_file = os.path.join(edb_folder, "edb.def")
             if os.path.exists(edb_file):
                 _mttime = os.path.getmtime(edb_file)
@@ -81,11 +81,11 @@ class Modeler3DLayout(Modeler):
                     self._edb.close_edb()
                 self._edb = Edb(
                     edb_folder,
-                    self._p_app.design_name,
+                    self._app.design_name,
                     True,
-                    self._p_app._aedt_version,
+                    self._app._aedt_version,
                     isaedtowned=True,
-                    oproject=self._p_app.oproject,
+                    oproject=self._app.oproject,
                 )
                 self._mttime = _mttime
         return self._edb
@@ -93,12 +93,12 @@ class Modeler3DLayout(Modeler):
     @property
     def _messenger(self):
         """Messenger."""
-        return self._p_app._messenger
+        return self._app._messenger
 
     @property
     def logger(self):
         """Logger."""
-        return self._p_app.logger
+        return self._app.logger
 
     @aedt_exception_handler
     def fit_all(self):
@@ -123,9 +123,9 @@ class Modeler3DLayout(Modeler):
     @property
     def primitives(self):
         """Primitives."""
-        if self._primitivesDes != self._p_app.project_name + self._p_app.design_name:
+        if self._primitivesDes != self._app.project_name + self._app.design_name:
             self._primitives = Primitives3DLayout(self)
-            self._primitivesDes = self._p_app.project_name + self._p_app.design_name
+            self._primitivesDes = self._app.project_name + self._app.design_name
         return self._primitives
 
     @property
@@ -338,8 +338,8 @@ class Modeler3DLayout(Modeler):
         self._oimportexport.ImportExtracta(
             brd_filename, os.path.join(edb_path, edb_name + ".aedb"), os.path.join(edb_path, edb_name + ".xml")
         )
-        self._p_app.oproject = self._p_app._desktop.GetActiveProject().GetName()
-        self._p_app._odesign = None
+        self._app.oproject = self._app._desktop.GetActiveProject().GetName()
+        self._app._odesign = None
         return True
 
     @aedt_exception_handler
@@ -389,8 +389,8 @@ class Modeler3DLayout(Modeler):
         self._oimportexport.ImportIPC(
             ipc_filename, os.path.join(edb_path, edb_name + ".aedb"), os.path.join(edb_path, edb_name + ".xml")
         )
-        self._p_app.oproject = self._p_app._desktop.GetActiveProject().GetName()
-        self._p_app._odesign = None
+        self._app.oproject = self._app._desktop.GetActiveProject().GetName()
+        self._app._odesign = None
         return True
 
     @aedt_exception_handler
@@ -541,7 +541,7 @@ class Modeler3DLayout(Modeler):
         """
         self.logger.glb.info("Set the temperature dependence for the design.")
         if create_project_var:
-            self._p_app.variable_manager["$AmbientTemp"] = str(ambient_temp) + "cel"
+            self._app.variable_manager["$AmbientTemp"] = str(ambient_temp) + "cel"
             var = "$AmbientTemp"
         else:
             var = str(ambient_temp) + "cel"

@@ -17,9 +17,9 @@ class ModelerCircuit(Modeler):
     """
 
     def __init__(self, app):
-        self._p_app = app
+        self._app = app
         self.oeditor = self._odesign.SetActiveEditor("SchematicEditor")
-        self.o_def_manager = self._p_app.odefinition_manager
+        self.o_def_manager = self._app.odefinition_manager
         self.o_component_manager = self.o_def_manager.GetManager("Component")
         self.o_model_manager = self.o_def_manager.GetManager("Model")
 
@@ -86,16 +86,16 @@ class ModelerNexxim(ModelerCircuit):
     """
 
     def __init__(self, app):
-        self._p_app = app
+        self._app = app
         ModelerCircuit.__init__(self, app)
         self.components = NexximComponents(self)
         self.layouteditor = None
-        if self._p_app.design_type != "Twin Builder":
+        if self._app.design_type != "Twin Builder":
             self.layouteditor = self._odesign.SetActiveEditor("Layout")
             self._odesign.SetActiveEditor("SchematicEditor")
         self.layers = Layers(self, roughnessunits="um")
         self._primitives = Primitives3DLayout(self)
-        self._primitivesDes = self._p_app.project_name + self._p_app.design_name
+        self._primitivesDes = self._app.project_name + self._app.design_name
 
     @property
     def edb(self):
@@ -124,11 +124,11 @@ class ModelerNexxim(ModelerCircuit):
         :class:`pyaedt.modeler.Primitives3DLayout.Primitives3DLayout`
 
         """
-        if self._p_app.design_type == "Twin Builder":
+        if self._app.design_type == "Twin Builder":
             return
-        if self._primitivesDes != self._p_app.project_name + self._p_app.design_name:
+        if self._primitivesDes != self._app.project_name + self._app.design_name:
             self._primitives = Primitives3DLayout(self)
-            self._primitivesDes = self._p_app.project_name + self._p_app.design_name
+            self._primitivesDes = self._app.project_name + self._app.design_name
         return self._primitives
 
     @model_units.setter
@@ -209,7 +209,7 @@ class ModelerSimplorer(ModelerCircuit):
     """
 
     def __init__(self, app):
-        self._p_app = app
+        self._app = app
         ModelerCircuit.__init__(self, app)
         self.components = SimplorerComponents(self)
 
@@ -224,5 +224,5 @@ class ModelerEmit(ModelerCircuit):
     """
 
     def __init__(self, app):
-        self._p_app = app
+        self._app = app
         ModelerCircuit.__init__(self, app)

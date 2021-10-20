@@ -787,26 +787,26 @@ class VariableManager(object):
     @property
     def _oproject(self):
         """Project."""
-        return self._p_app._oproject
+        return self._app._oproject
 
     @property
     def _odesign(self):
         """Design."""
-        return self._p_app._odesign
+        return self._app._odesign
 
     @property
     def _messenger(self):
         """Messenger."""
-        return self._p_app._messenger
+        return self._app._messenger
 
     @property
     def logger(self):
         """Logger."""
-        return self._p_app.logger
+        return self._app.logger
 
     def __init__(self, app):
         # Global Desktop Environment
-        self._p_app = app
+        self._app = app
 
     @aedt_exception_handler
     def __delitem__(self, key):
@@ -852,11 +852,11 @@ class VariableManager(object):
                     if independent and is_number(value.value):
                         var_dict[variable_name] = value
                     elif dependent and type(value.value) is str:
-                        float_value = self._p_app.get_evaluated_value(variable_name)
+                        float_value = self._app.get_evaluated_value(variable_name)
                         var_dict[variable_name] = Expression(variable_expression, float_value, all_names)
                 except:
                     if dependent:
-                        float_value = self._p_app.get_evaluated_value(variable_name)
+                        float_value = self._app.get_evaluated_value(variable_name)
                         var_dict[variable_name] = Expression(variable_expression, float_value, all_names)
         return var_dict
 
@@ -1567,7 +1567,7 @@ class DataSet(object):
     """
 
     def __init__(self, app, name, x, y, z=None, v=None, xunit="", yunit="", zunit="", vunit=""):
-        self._p_app = app
+        self._app = app
         self.name = name
         self.x = x
         self.y = y
@@ -1619,9 +1619,9 @@ class DataSet(object):
 
         """
         if self.name[0] == "$":
-            self._p_app._oproject.AddDataset(self._args())
+            self._app._oproject.AddDataset(self._args())
         else:
-            self._p_app._odesign.AddDataset(self._args())
+            self._app._odesign.AddDataset(self._args())
         return True
 
     @aedt_exception_handler
@@ -1666,7 +1666,7 @@ class DataSet(object):
 
         """
         if x not in self.x:
-            self._p_app._messenger.add_error_message("Value {} is not found.".format(x))
+            self._app._messenger.add_error_message("Value {} is not found.".format(x))
             return False
         id_to_remove = self.x.index(x)
         return self.remove_point_from_index(id_to_remove)
@@ -1693,7 +1693,7 @@ class DataSet(object):
                 self.z.pop(id_to_remove)
                 self.v.pop(id_to_remove)
             return self.update()
-        self._p_app._messenger.add_error_message("cannot Remove {} index.".format(id_to_remove))
+        self._app._messenger.add_error_message("cannot Remove {} index.".format(id_to_remove))
         return False
 
     @aedt_exception_handler
@@ -1710,9 +1710,9 @@ class DataSet(object):
         if not args:
             return False
         if self.name[0] == "$":
-            self._p_app._oproject.EditDataset(self.name, self._args())
+            self._app._oproject.EditDataset(self.name, self._args())
         else:
-            self._p_app._odesign.EditDataset(self.name, self._args())
+            self._app._odesign.EditDataset(self.name, self._args())
         return True
 
     @aedt_exception_handler
@@ -1726,11 +1726,11 @@ class DataSet(object):
 
         """
         if self.name[0] == "$":
-            self._p_app._oproject.DeleteDataset(self.name)
-            del self._p_app.project_datasets[self.name]
+            self._app._oproject.DeleteDataset(self.name)
+            del self._app.project_datasets[self.name]
         else:
-            self._p_app._odesign.DeleteDataset(self.name)
-            del self._p_app.project_datasets[self.name]
+            self._app._odesign.DeleteDataset(self.name)
+            del self._app.project_datasets[self.name]
         return True
 
     @aedt_exception_handler
@@ -1750,9 +1750,9 @@ class DataSet(object):
 
         """
         if not dataset_path:
-            dataset_path = os.path.join(self._p_app.project_path, self.name + ".tab")
+            dataset_path = os.path.join(self._app.project_path, self.name + ".tab")
         if self.name[0] == "$":
-            self._p_app._oproject.ExportDataset(self.name, dataset_path)
+            self._app._oproject.ExportDataset(self.name, dataset_path)
         else:
-            self._p_app._odesign.ExportDataset(self.name, dataset_path)
+            self._app._odesign.ExportDataset(self.name, dataset_path)
         return True

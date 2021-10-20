@@ -272,7 +272,7 @@ class DesignCache(object):
     """
 
     def __init__(self, app):
-        self._p_app = app
+        self._app = app
         self._allow_errors_local = []
         self._allow_errors_global = []
         self.clear()
@@ -404,10 +404,10 @@ class DesignCache(object):
             Snapshot object.
         """
         snapshot = {
-            "Solids:": self._p_app.modeler.primitives.solid_names,
-            "Lines:": self._p_app.modeler.primitives.line_names,
-            "Sheets": self._p_app.modeler.primitives.sheet_names,
-            "DesignName": self._p_app.design_name,
+            "Solids:": self._app.modeler.primitives.solid_names,
+            "Lines:": self._app.modeler.primitives.line_names,
+            "Sheets": self._app.modeler.primitives.sheet_names,
+            "DesignName": self._app.design_name,
         }
         return snapshot
 
@@ -429,7 +429,7 @@ class DesignCache(object):
            ``'no_change'`` is accessed.
         """
 
-        messages = self._p_app._messenger.messages
+        messages = self._app._messenger.messages
 
         # Check whether the design snapshot has changed since the last update
         new_snapshot = self.design_snapshot()
@@ -549,13 +549,7 @@ class Design(object):
         close_on_exit=False,
         student_version=False,
     ):
-        self.oboundary = None
-        self.omodelsetup = None
-        self.oimport_export = None
-        self.ooptimetrics = None
-        self.ooutput_variable = None
-        self.odesktop = None
-        self.oanalysis = None
+        self._init_variables()
         # Get Desktop from global Desktop Environment
         self._project_dictionary = OrderedDict()
         self.boundaries = []
@@ -603,6 +597,27 @@ class Design(object):
     def __delitem__(self, key):
         """Implement destructor with array name or index."""
         del self._variable_manager[key]
+
+    @aedt_exception_handler
+    def _init_variables(self):
+        self.oboundary = None
+        self.omodelsetup = None
+        self.oimport_export = None
+        self.ooptimetrics = None
+        self.ooutput_variable = None
+        self.oanalysis = None
+        self._modeler = None
+        self._post = None
+        self._materials = None
+        self._variable_manager = None
+        self.opti_parametric = None
+        self.opti_optimization = None
+        self.opti_doe = None
+        self.opti_designxplorer = None
+        self.opti_sensitivity = None
+        self.opti_statistical = None
+        self.native_components = None
+        self._mesh = None
 
     @property
     def logger(self):
@@ -1846,7 +1861,7 @@ class Design(object):
         if close_active_proj:
             self._close_edb()
             self.close_project(self.project_name)
-        proj = self._desktop.OpenProject(project_file)
+        proj = self.odesktop.OpenProject(project_file)
         if proj:
             self.__init__(projectname=proj.GetName(), designname=design_name)
             return True
@@ -2236,6 +2251,7 @@ class Design(object):
         timeout = 10
         locked = True
         if name == legacy_name:
+            self._init_variables()
             self._oproject = None
             self._odesign = None
         while locked:
@@ -2280,9 +2296,12 @@ class Design(object):
             try:
                 self.set_active_design(fallback_design)
             except:
+                self._init_variables()
+                self._odesign = None
                 return False
         else:
-            self.odesign = None
+            self._init_variables()
+            self._odesign = None
         return True
 
     @aedt_exception_handler

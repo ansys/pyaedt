@@ -216,8 +216,8 @@ class MatProperty(object):
         The default is ``None``.
     """
     def __init__(self, material, name, val=None, thermalmodifier=None):
-        self._p_material = material
-        self.logger = self._p_material.logger
+        self._material = material
+        self.logger = self._material.logger
         self._type = "simple"
         self.name = name
         self._property_value = [BasicValue()]
@@ -245,7 +245,7 @@ class MatProperty(object):
     @property
     def _messenger(self):
         """Messenger."""
-        return self._p_material._messenger
+        return self._material._messenger
 
     @property
     def type(self):
@@ -341,7 +341,7 @@ class MatProperty(object):
         type
 
         """
-        if "ModifierData" not in self._p_material._props:
+        if "ModifierData" not in self._material._props:
             tm = OrderedDict(
                 {
                     "Property:": self.name,
@@ -351,16 +351,16 @@ class MatProperty(object):
                     "free_form_value": formula,
                 }
             )
-            self._p_material._props["ModifierData"] = OrderedDict({"ThermalModifierData": OrderedDict(
+            self._material._props["ModifierData"] = OrderedDict({"ThermalModifierData": OrderedDict(
                 {"modifier_data": "thermal_modifier_data",
                  "all_thermal_modifiers": OrderedDict({"one_thermal_modifier": tm}), })})
         else:
-            for tmname in self._p_material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"]:
+            for tmname in self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"]:
                 if isinstance(
-                        self._p_material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname],
+                        self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname],
                         list):
                     found = False
-                    for tm in self._p_material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][
+                    for tm in self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][
                         tmname
                     ]:
                         if self.name == tm["Property:"] and index == tm["Index:"]:
@@ -382,44 +382,44 @@ class MatProperty(object):
                                 "free_form_value": formula,
                             }
                         )
-                        self._p_material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][
+                        self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][
                             tmname
                         ].append(tm)
                 elif (
                     self.name
-                    == self._p_material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname][
+                    == self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname][
                         "Property:"
                     ]
                     and index
-                    == self._p_material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname][
+                    == self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname][
                         "Index:"
                     ]
                 ):
-                    self._p_material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname][
+                    self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname][
                         "use_free_form"
                     ] = True
-                    self._p_material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname][
+                    self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname][
                         "free_form_value"
                     ] = formula
-                    self._p_material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname].pop(
+                    self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname].pop(
                         "Tref", None
                     )
-                    self._p_material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname].pop(
+                    self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname].pop(
                         "C1", None
                     )
-                    self._p_material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname].pop(
+                    self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname].pop(
                         "C2", None
                     )
-                    self._p_material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname].pop(
+                    self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname].pop(
                         "TL", None
                     )
-                    self._p_material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname].pop(
+                    self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname].pop(
                         "TU", None
                     )
 
                 else:
-                    self._p_material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname] = [
-                        self._p_material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname]
+                    self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname] = [
+                        self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname]
                     ]
                     tm = OrderedDict(
                         {
@@ -430,9 +430,9 @@ class MatProperty(object):
                             "free_form_value": formula,
                         }
                     )
-                    self._p_material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][
+                    self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][
                         tmname].append(tm)
-        return self._p_material.update()
+        return self._material.update()
 
     def add_thermal_modifier_free_form(self, formula, index=0):
         """Add a thermal modifier to a material property using a free-form formula.
@@ -586,8 +586,8 @@ class MatProperty(object):
                     "TMU": str(tmu),
                 }
             )
-        if "ModifierData" not in self._p_material._props:
-            self._p_material._props["ModifierData"] = OrderedDict(
+        if "ModifierData" not in self._material._props:
+            self._material._props["ModifierData"] = OrderedDict(
                 {
                     "ThermalModifierData": OrderedDict(
                         {
@@ -598,8 +598,8 @@ class MatProperty(object):
                 }
             )
         else:
-            for tmname in self._p_material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"]:
-                tml = self._p_material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname]
+            for tmname in self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"]:
+                tml = self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname]
                 if isinstance(tml, list):
                     found = False
                     for tm in tml:
@@ -639,7 +639,7 @@ class MatProperty(object):
                 else:
                     tml = [tml]
                     tml.append(tm_new)
-        return self._p_material.update()
+        return self._material.update()
 
 
 class CommonMaterial(object):
@@ -656,14 +656,14 @@ class CommonMaterial(object):
 
     """
     def __init__(self, materials, name, props=None):
-        self._p_materials = materials
-        self.odefinition_manager = self._p_materials.odefinition_manager
-        self._omaterial_manager = self._p_materials.omaterial_manager
+        self._materials = materials
+        self.odefinition_manager = self._materials.odefinition_manager
+        self._omaterial_manager = self._materials.omaterial_manager
 
-        self._messenger = self._p_materials._messenger
+        self._messenger = self._materials._messenger
 
-        self._oproject = self._p_materials._oproject
-        self.logger = self._p_materials.logger
+        self._oproject = self._materials._oproject
+        self.logger = self._materials.logger
         self.name = name
         self.coordinate_system = ""
         if props:

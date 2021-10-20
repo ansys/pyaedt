@@ -764,7 +764,7 @@ class Primitives3D(Primitives, object):
         vArg1 = ["NAME:InsertComponentData"]
         sz_geo_params = ""
         if not geoParams:
-            geometryparams = self._p_app.get_components3d_vars(compFile)
+            geometryparams = self._app.get_components3d_vars(compFile)
             if geometryparams:
                 geoParams = geometryparams
 
@@ -824,10 +824,10 @@ class Primitives3D(Primitives, object):
 
     @aedt_exception_handler
     def _initialize_multipart(self):
-        if MultiPartComponent._t in self._p_app._variable_manager.independent_variable_names:
+        if MultiPartComponent._t in self._app._variable_manager.independent_variable_names:
             return True
         else:
-            return MultiPartComponent.start(self._p_app)
+            return MultiPartComponent.start(self._app)
 
     @aedt_exception_handler
     def add_person(self, actor_folder, speed=0.0, global_offset=[0, 0, 0], yaw=0, pitch=0, roll=0,
@@ -919,7 +919,7 @@ class Primitives3D(Primitives, object):
         person1.yaw = self._arg_with_dim(yaw, "deg")
         person1.pitch = self._arg_with_dim(pitch, "deg")
         person1.roll = self._arg_with_dim(roll, "deg")
-        person1.insert(self._p_app)
+        person1.insert(self._app)
         self.multiparts.append(person1)
         return person1
 
@@ -996,7 +996,7 @@ class Primitives3D(Primitives, object):
         vehicle.yaw = self._arg_with_dim(yaw, "deg")
         vehicle.pitch = self._arg_with_dim(pitch, "deg")
         vehicle.roll = self._arg_with_dim(roll, "deg")
-        vehicle.insert(self._p_app)
+        vehicle.insert(self._app)
         self.multiparts.append(vehicle)
         return vehicle
 
@@ -1093,7 +1093,7 @@ class Primitives3D(Primitives, object):
         bird.yaw = self._arg_with_dim(yaw, "deg")
         bird.pitch = self._arg_with_dim(pitch, "deg")
         bird.roll = self._arg_with_dim(roll, "deg")
-        bird.insert(self._p_app)
+        bird.insert(self._app)
         self.multiparts.append(bird)
         return bird
 
@@ -1154,6 +1154,6 @@ class Primitives3D(Primitives, object):
         environment.yaw = self._arg_with_dim(yaw, "deg")
         environment.pitch = self._arg_with_dim(pitch, "deg")
         environment.roll = self._arg_with_dim(roll, "deg")
-        environment.insert(self._p_app)
+        environment.insert(self._app)
         self.multiparts.append(environment)
         return environment
