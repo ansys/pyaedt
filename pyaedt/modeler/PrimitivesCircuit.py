@@ -909,17 +909,22 @@ class CircuitComponents(object):
     @aedt_exception_handler
     def refresh_all_ids(self):
         """Refresh all IDs and return the number of components."""
-        obj = self._oeditor.GetAllComponents()
+        obj = self._oeditor.GetAllElements()
+        obj = [i for i in obj if "Wire" not in i[:4]]
         for el in obj:
             if not self.get_obj_id(el):
                 name = el.split(";")
-                o = CircuitComponent(self._oeditor, tabname=self.tab_name)
-                o.name = name[0]
-                o.id = int(name[1])
-                o.schematic_id = name[2]
-                o_update = self.update_object_properties(o)
-                objID = o.id
-                self.components[objID] = o_update
+                if len(name) > 1:
+                    o = CircuitComponent(self._oeditor, tabname=self.tab_name)
+                    o.name = name[0]
+                    if len(name) == 2:
+                        o.schematic_id = name[1]
+                    else:
+                        o.id = int(name[1])
+                        o.schematic_id = name[2]
+                    o_update = self.update_object_properties(o)
+                    objID = o.id
+                    self.components[objID] = o_update
         return len(self.components)
 
     @aedt_exception_handler
