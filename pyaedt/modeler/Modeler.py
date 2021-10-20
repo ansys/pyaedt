@@ -588,7 +588,7 @@ class Modeler(object):
     @property
     def _oimportexport(self):
         """Import/Export."""
-        return self._p_app.oimportexport
+        return self._p_app.oimport_export
 
     @property
     def projdir(self):

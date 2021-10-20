@@ -550,17 +550,11 @@ class Design(object):
         student_version=False,
     ):
         self.oboundary = None
-
         self.omodelsetup = None
-
-        self.oimportexport = None
-
+        self.oimport_export = None
         self.ooptimetrics = None
-
         self.ooutput_variable = None
-
         self.odesktop = None
-
         self.oanalysis = None
         # Get Desktop from global Desktop Environment
         self._project_dictionary = OrderedDict()
@@ -595,7 +589,7 @@ class Design(object):
         self._design_type = design_type
         self.oproject = project_name
         self.odesign = design_name
-        self.oimportexport = self._desktop.GetTool("ImportExport")
+        self.oimport_export = self._desktop.GetTool("ImportExport")
         self.odefinition_manager = self._oproject.GetDefinitionManager()
         self.omaterial_manager = self.odefinition_manager.GetManager("Material")
         self.odesktop = self._desktop
