@@ -948,17 +948,23 @@ class Analysis(Design, object):
                 self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
 
         if name in self.existing_analysis_setups:
-            self.logger.glb.info("Solving design setup %s", name)
-            self.odesign.Analyze(name)
-
+            try:
+                self.logger.glb.info("Solving design setup %s", name)
+                self.odesign.Analyze(name)
+            except:
+                self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
+                self.logger.glb.error("Error in Solving Setup %s", name)
+                return False
         else:
             try:
                 self.logger.glb.info("Solving Optimetrics")
                 self.ooptimetrics.SolveSetup(name)
             except:
-                self.logger.glb.error("Setup Not found %s", name)
+                self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
+                self.logger.glb.error("Error in Solving or Missing Setup  %s", name)
                 return False
         self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
+        self.logger.glb.info("Design setup %s solved correctly", name)
         return True
 
     @aedt_exception_handler

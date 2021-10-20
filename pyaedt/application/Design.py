@@ -611,7 +611,12 @@ class Design(object):
 
     @property
     def logger(self):
-        "Logger for the Design."
+        """Logger for the Design.
+
+        Returns
+        -------
+        :class:`pyaedt.aedt_logger.AedtLogger`
+        """
         return self._logger
 
     @property
@@ -626,7 +631,6 @@ class Design(object):
         start = time.time()
         if not self._project_dictionary:
             self._project_dictionary = load_entire_aedt_file(self.project_file)
-            self._messenger.add_info_message("AEDT Load time {}".format(time.time() - start))
             self._messenger.add_info_message("AEDT Load time {}".format(time.time() - start))
         return self._project_dictionary
 
@@ -1019,7 +1023,6 @@ class Design(object):
             if self._assert_consistent_design_type(des_name) == des_name:
                 self._insert_design(self._design_type, design_name=des_name, solution_type=self._solution_type)
         else:
-            # self._odesign = self._oproject.GetActiveDesign()
             if self.design_list:
                 self._odesign = self._oproject.GetDesign(self.design_list[0])
                 if not self._check_design_consistency():
@@ -1033,10 +1036,10 @@ class Design(object):
                         warning_msg = "No consistent unique design is present. Inserting a new design."
                     else:
                         self._odesign = self.oproject.SetActiveDesign(activedes)
-                        self.add_info_message("Active Design set to {}".format(activedes))
+                        self.logger.glb.info("Active Design set to {}".format(activedes))
                 else:
                     self._odesign = self._oproject.SetActiveDesign(self.design_list[0])
-                    self.add_info_message("Active design is set to {}".format(self.design_list[0]))
+                    self.logger.glb.info("Active design is set to {}".format(self.design_list[0]))
             else:
                 warning_msg = "No design is present. Inserting a new design."
 
