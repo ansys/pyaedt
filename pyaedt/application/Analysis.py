@@ -626,42 +626,24 @@ class Analysis(Design, object):
     def analyze_nominal(self, num_cores=None, num_tasks=None, num_gpu=None, acf_file=None):
         """Solve the nominal design.
 
+        Parameters
+        ----------
+        num_cores : int, optional
+            Number of Simulation cores.
+        num_tasks : int, optional
+            Number of Simulation tasks.
+        num_gpu : int, optional
+            Number of Simulation Gpu to use.
+        acf_file : str, optional
+            Full path to custom acf_file.
+
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        active_config = self._desktop.GetRegistryString(r"Desktop/ActiveDSOConfigurations/"+self.design_type)
-        if acf_file:
-            self._desktop.SetRegistryFromFile(acf_file)
-            name = ""
-            with open(acf_file, 'r') as f:
-                lines = f.readlines()
-                for line in lines:
-                    if "ConfigName" in line:
-                        name = line.strip().split("=")[1]
-                        break
-            if name:
-                self.set_registry_key(r"Desktop/ActiveDSOConfigurations/"+self.design_type, name)
-        elif num_gpu or num_tasks or num_cores:
-            config_name = "pyaedt_config"
-            source_name = os.path.join(self.pyaedt_dir, "misc", "pyaedt_local_config.acf")
-            target_name = os.path.join(self.project_path, config_name + ".acf")
-            shutil.copy2(source_name, target_name)
-            if num_cores:
-                update_hpc_option(target_name, "NumCores",num_cores, False)
-            if num_gpu:
-                update_hpc_option(target_name, "NumGPUs",num_gpu, False)
-            if num_tasks:
-                update_hpc_option(target_name, "NumEngines",num_tasks, False)
-            update_hpc_option(target_name, "ConfigName", config_name, True)
-            update_hpc_option(target_name, "DesignType", self.design_type, True)
-            self._desktop.SetRegistryFromFile(target_name)
-            self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, config_name)
-        self.odesign.Analyze(self.analysis_setup)
-        self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
 
-        return True
+        return self.analyze_setup(self.analysis_setup, num_cores, num_tasks, num_gpu, acf_file)
 
     @aedt_exception_handler
     def generate_unique_setup_name(self, setup_name=None):
@@ -910,22 +892,66 @@ class Analysis(Design, object):
         return dict
 
     @aedt_exception_handler
-    def analyze_setup(self, name):
+    def analyze_setup(self, name, num_cores=None, num_tasks=None, num_gpu=None, acf_file=None):
         """Analyze a specific design setup.
 
         Parameters
         ----------
         name : str
             Name of the setup, which can be an optimetric setup or a simple setup.
+        num_cores : int, optional
+            Number of Simulation cores.
+        num_tasks : int, optional
+            Number of Simulation tasks.
+        num_gpu : int, optional
+            Number of Simulation Gpu to use.
+        acf_file : str, optional
+            Full path to custom acf_file.
 
         Returns
         -------
         bool
            ``True`` when successful, ``False`` when failed.
         """
+
+        active_config = self._desktop.GetRegistryString(r"Desktop/ActiveDSOConfigurations/"+self.design_type)
+        if acf_file:
+            self._desktop.SetRegistryFromFile(acf_file)
+            name = ""
+            with open(acf_file, 'r') as f:
+                lines = f.readlines()
+                for line in lines:
+                    if "ConfigName" in line:
+                        name = line.strip().split("=")[1]
+                        break
+            if name:
+                try:
+                    self.set_registry_key(r"Desktop/ActiveDSOConfigurations/"+self.design_type, name)
+                except:
+                    self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
+        elif num_gpu or num_tasks or num_cores:
+            config_name = "pyaedt_config"
+            source_name = os.path.join(self.pyaedt_dir, "misc", "pyaedt_local_config.acf")
+            target_name = os.path.join(self.project_path, config_name + ".acf")
+            shutil.copy2(source_name, target_name)
+            if num_cores:
+                update_hpc_option(target_name, "NumCores",num_cores, False)
+            if num_gpu:
+                update_hpc_option(target_name, "NumGPUs",num_gpu, False)
+            if num_tasks:
+                update_hpc_option(target_name, "NumEngines",num_tasks, False)
+            update_hpc_option(target_name, "ConfigName", config_name, True)
+            update_hpc_option(target_name, "DesignType", self.design_type, True)
+            try:
+                self._desktop.SetRegistryFromFile(target_name)
+                self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, config_name)
+            except:
+                self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
+
         if name in self.existing_analysis_setups:
             self.logger.glb.info("Solving design setup %s", name)
             self.odesign.Analyze(name)
+
         else:
             try:
                 self.logger.glb.info("Solving Optimetrics")
@@ -933,6 +959,7 @@ class Analysis(Design, object):
             except:
                 self.logger.glb.error("Setup Not found %s", name)
                 return False
+        self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
         return True
 
     @aedt_exception_handler
