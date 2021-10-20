@@ -188,7 +188,10 @@ class Hfss(FieldAnalysis3D, object):
         result = bound.create()
         if result:
             self.boundaries.append(bound)
-            return bound
+            self.logger.design.info("Boundary %s %s has been correctly created.", boundary_type, name)
+            return
+        self.logger.design.error("Error in boundary creation for %s %s.", boundary_type, name)
+
         return result
 
     @aedt_exception_handler
@@ -566,7 +569,7 @@ class Hfss(FieldAnalysis3D, object):
                 sweepdata.props["SaveFields"] = save_fields
                 sweepdata.props["SaveRadFields"] = save_rad_fields
                 sweepdata.update()
-                self.logger.info("Linear count sweep {} has been correctly created".format(sweepname))
+                self.logger.design.info("Linear count sweep {} has been correctly created".format(sweepname))
                 return sweepdata
         return False
 
@@ -657,7 +660,7 @@ class Hfss(FieldAnalysis3D, object):
                     sweepdata.props["InterpMinSolns"] = 0
                     sweepdata.props["InterpMinSubranges"] = 1
                 sweepdata.update()
-                self.logger.info("Linear step sweep {} has been correctly created".format(sweepname))
+                self.logger.design.info("Linear step sweep {} has been correctly created".format(sweepname))
                 return sweepdata
         return False
 
@@ -757,7 +760,7 @@ class Hfss(FieldAnalysis3D, object):
                     for f, s in zip(freq, save_single_field):
                         sweepdata.add_subrange(rangetype="SinglePoints", start=f, unit=unit, save_single_fields=s)
                 sweepdata.update()
-                self.logger.info("Single point sweep {} has been correctly created".format(sweepname))
+                self.logger.design.info("Single point sweep {} has been correctly created".format(sweepname))
                 return sweepdata
         return False
 
@@ -878,7 +881,10 @@ class Hfss(FieldAnalysis3D, object):
         native = NativeComponentObject(self, antenna_type, antenna_name, native_props)
         if native.create():
             self.native_components.append(native)
+            self.logger.design.info("Native Component %s %s has been correctly created", antenna_type, antenna_name)
             return native
+        self.logger.design.error("Error in Native Component creation for %s %s.",antenna_type, antenna_name)
+
         return None
 
     class SbrAntennas:
@@ -1874,6 +1880,7 @@ class Hfss(FieldAnalysis3D, object):
 
         """
         self.odesign.SARSetup(TissueMass, MaterialDensity, Tissue_object_List_ID, voxel_size, Average_SAR_method)
+        self.logger.design.info("SAR Settings correctly applied.")
         return True
 
     @aedt_exception_handler
@@ -1903,6 +1910,7 @@ class Hfss(FieldAnalysis3D, object):
             vars.append(GPAXis)
 
         self.omodelsetup.CreateOpenRegion(vars)
+        self.logger.design.info("Open Region correctly created.")
         return True
 
     @aedt_exception_handler
@@ -3786,4 +3794,5 @@ class Hfss(FieldAnalysis3D, object):
             arg.append("Power Fraction:=")
             arg.append(str(power_fraction))
         self.oboundary.EditGlobalCurrentSourcesOption(arg)
+        self.logger.design.info("SBR+ current source options correctly applied.")
         return True

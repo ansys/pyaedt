@@ -363,7 +363,7 @@ class Circuit(FieldAnalysisCircuit, object):
                         counter = 0
         if autosave:
             self._desktop.EnableAutoSave(True)
-        self.logger.design("Netlist correctly imported into %s", self.design_name)
+        self.logger.design.info("Netlist correctly imported into %s", self.design_name)
         return True
 
     @aedt_exception_handler
@@ -377,7 +377,7 @@ class Circuit(FieldAnalysisCircuit, object):
         * C
         * Diodes
         * Bjts
-        * Discrete components with syntax ``Uxxx net1 net2 ... netn modname``
+        * Discrete components with syntax ``Uxxx net1 net2get_source_pin_names ... netn modname``
 
         Parameters
         ----------
@@ -504,7 +504,7 @@ class Circuit(FieldAnalysisCircuit, object):
                     xpos += delta
                     ypos = 0
 
-        self.logger.design("Netlist correctly imported into %s", self.design_name)
+        self.logger.design.info("Netlist correctly imported into %s", self.design_name)
         return True
 
     @aedt_exception_handler
@@ -585,7 +585,7 @@ class Circuit(FieldAnalysisCircuit, object):
         if not port:
             return False
         pins = list(oModule.GetExcitationsOfType(port))
-        self.logger.design("%s Excitations Pins found.", len(pins))
+        self.logger.design.info("%s Excitations Pins found.", len(pins))
         return pins
 
     @aedt_exception_handler
@@ -717,7 +717,7 @@ class Circuit(FieldAnalysisCircuit, object):
             "External",
         ]
         self.odesign.ImportData(arg, "", True)
-        self.logger.design("Touchstone correctly imported into %s", self.design_name)
+        self.logger.design.info("Touchstone correctly imported into %s", self.design_name)
         return portnames
 
     @aedt_exception_handler
@@ -794,7 +794,7 @@ class Circuit(FieldAnalysisCircuit, object):
             IncludeGammaImpedance,
             NonStandardExtensions,
         )
-        self.logger.design("Touchstone correctly exported to %s", filename)
+        self.logger.design.info("Touchstone correctly exported to %s", filename)
         return True
 
     @aedt_exception_handler
@@ -916,7 +916,7 @@ class Circuit(FieldAnalysisCircuit, object):
                 20,
             ],
         )
-        self.logger.design("FullWaveSpice correctly exported to %s", filename)
+        self.logger.design.info("FullWaveSpice correctly exported to %s", filename)
 
         return filename
 
