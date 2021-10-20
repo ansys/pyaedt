@@ -119,6 +119,15 @@ class AedtLogger(object):
         """Clear messages for a design and/or a project and/or global."""
         self._messenger.clear_messages(project_name, design_name, level)
 
+    def info(self, msg, *args, **kwargs):
+        return self._global.info(msg, *args, **kwargs)
+
+    def warning(self, msg, *args, **kwargs):
+        return self._global.warning(msg, *args, **kwargs)
+
+    def error(self, msg, *args, **kwargs):
+        return self._global.error(msg, *args, **kwargs)
+
     @property
     def glb(self):
         """Global logger."""
