@@ -589,6 +589,7 @@ class Design(object):
         self._design_type = design_type
         self.oproject = project_name
         self.odesign = design_name
+
         self.oimport_export = self._desktop.GetTool("ImportExport")
         self.odefinition_manager = self._oproject.GetDefinitionManager()
         self.omaterial_manager = self.odefinition_manager.GetManager("Material")
