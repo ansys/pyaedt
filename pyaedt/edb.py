@@ -783,8 +783,8 @@ class Edb(object):
         time.sleep(2)
         start_time = time.time()
         self._wait_for_file_release()
-        end = time.time()-start_time
-        self._messenger.add_info_message("EDB file release time: {0:.2f}ms".format(end*1000.))
+        elapsed_time = time.time() - start_time
+        self._messenger.add_info_message("EDB file release time: {0:.2f}ms".format(elapsed_time*1000.))
         self._clean_variables()
         timeout = 4
         while gc.collect() != 0 and timeout > 0:
@@ -1096,7 +1096,7 @@ class Edb(object):
         _dbCells = [_cutout]
         if output_aedb_path:
             db2 = self.edb.Database.Create(output_aedb_path)
-            db2.Save()
+            _success = db2.Save()
             _dbCells = convert_py_list_to_net_list(_dbCells)
             db2.CopyCells(_dbCells)  # Copies cutout cell/design to db2 project
             cell = list(db2.TopCircuitCells)[0]

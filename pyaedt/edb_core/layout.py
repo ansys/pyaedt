@@ -18,9 +18,9 @@ except ImportError:
 class EdbLayout(object):
     """Manages EDB functionalities for layouts."""
 
-    def __init__(self, edb_class):
+    def __init__(self, p_edb):
         self._prims = []
-        self._pedb = edb_class
+        self._pedb = p_edb
         self._primitives_by_layer = {}
         # self.update_primitives()
 
