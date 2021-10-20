@@ -2247,6 +2247,7 @@ class Design(object):
         if saveproject:
             oproj.Save()
         self.odesktop.CloseProject(name)
+        self._close_edb()
         i = 0
         timeout = 10
         locked = True
