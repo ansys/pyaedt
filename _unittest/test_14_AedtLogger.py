@@ -3,7 +3,6 @@ import tempfile
 import os
 import io
 import sys
-import pytest
 
 # Import required modules
 from pyaedt.aedt_logger import AedtLogger

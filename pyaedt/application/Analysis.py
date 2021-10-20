@@ -28,7 +28,6 @@ from ..modules.SetupTemplates import SetupKeys
 from ..modules.SolutionType import SetupTypes, SolutionType
 from ..modules.SolveSetup import Setup
 from .Design import Design
-from .. import generate_unique_name
 from .JobManager import update_hpc_option
 
 class Analysis(Design, object):
@@ -935,11 +934,11 @@ class Analysis(Design, object):
             target_name = os.path.join(self.project_path, config_name + ".acf")
             shutil.copy2(source_name, target_name)
             if num_cores:
-                update_hpc_option(target_name, "NumCores",num_cores, False)
+                update_hpc_option(target_name, "NumCores", num_cores, False)
             if num_gpu:
-                update_hpc_option(target_name, "NumGPUs",num_gpu, False)
+                update_hpc_option(target_name, "NumGPUs", num_gpu, False)
             if num_tasks:
-                update_hpc_option(target_name, "NumEngines",num_tasks, False)
+                update_hpc_option(target_name, "NumEngines", num_tasks, False)
             update_hpc_option(target_name, "ConfigName", config_name, True)
             update_hpc_option(target_name, "DesignType", self.design_type, True)
             try:

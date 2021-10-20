@@ -1150,9 +1150,6 @@ class Edb(object):
                         self._messenger.add_warning_message("Def file manually created.")
                     except:
                         pass
-
-
-
         return True
 
     @aedt_exception_handler
