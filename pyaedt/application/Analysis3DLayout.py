@@ -1,9 +1,14 @@
 from ..generic.general_methods import aedt_exception_handler
 from ..modeler.Model3DLayout import Modeler3DLayout
-from ..modules.Mesh3DLayout import Mesh
+from ..modules.Mesh3DLayout import Mesh3d
 from ..modules.SetupTemplates import SetupKeys
 from ..modules.SolveSetup import Setup3DLayout
 from .Analysis import Analysis
+from .. import is_ironpython
+if is_ironpython:
+    from ..modules.PostProcessor import PostProcessor
+else:
+    from ..modules.AdvancedPostProcessing import PostProcessor
 
 
 class FieldAnalysis3DLayout(Analysis):
@@ -63,7 +68,6 @@ class FieldAnalysis3DLayout(Analysis):
         close_on_exit=False,
         student_version=False,
     ):
-
         Analysis.__init__(
             self,
             application,
@@ -77,24 +81,16 @@ class FieldAnalysis3DLayout(Analysis):
             close_on_exit,
             student_version,
         )
+        self.osolution = self._odesign.GetModule("SolveSetups")
+        self.oexcitation = self._odesign.GetModule("Excitations")
+        self.oboundary = self._odesign.GetModule("Excitations")
         self.logger.glb.info("Analysis Loaded")
         self._modeler = Modeler3DLayout(self)
         self._modeler.primitives.init_padstacks()
         self.logger.glb.info("Modeler Loaded")
-        self._mesh = Mesh(self)
+        self._mesh = Mesh3d(self)
+        self._post = PostProcessor(self)
         # self._post = PostProcessor(self)
-
-    @property
-    def oboundary(self):
-        """Boundary.
-
-        Returns
-        -------
-        AEDT object
-            Boundaries module object.
-
-        """
-        return self._odesign.GetModule("Excitations")
 
     @property
     def mesh(self):
@@ -102,7 +98,7 @@ class FieldAnalysis3DLayout(Analysis):
 
         Returns
         -------
-        :class:`pyaedt.modules.Mesh3DLayout.Mesh`
+        :class:`pyaedt.modules.Mesh3DLayout.Mesh3d`
         """
         return self._mesh
 
@@ -282,33 +278,10 @@ class FieldAnalysis3DLayout(Analysis):
         """Modeler object."""
         return self._modeler
 
-    # @property
-    # def mesh(self):
-    #     return self._mesh
-    #
-    # @property
-    # def post(self):
-    #     return self._post
-
-    @property
-    def osolution(self):
-        """Solution object."""
-        return self.odesign.GetModule("SolveSetups")
-
-    @property
-    def oexcitation(self):
-        """Excitation object."""
-        return self.odesign.GetModule("Excitations")
-
     @property
     def port_list(self):
         """Port list."""
         return self.oexcitation.GetAllPortsList()
-
-    @property
-    def oanalysis(self):
-        """Analysis."""
-        return self.odesign.GetModule("SolveSetups")
 
     @property
     def existing_analysis_setups(self):
@@ -320,8 +293,7 @@ class FieldAnalysis3DLayout(Analysis):
             List of names of all analysis setups in the design.
 
         """
-        oModule = self.odesign.GetModule("SolveSetups")
-        setups = list(oModule.GetSetups())
+        setups = list(self.oanalysis.GetSetups())
         return setups
 
     @aedt_exception_handler
@@ -406,7 +378,7 @@ class FieldAnalysis3DLayout(Analysis):
         >>> setup1 = hfss3dlayout.create_setup(setupname='Setup1')
         >>> hfss3dlayout.delete_setup(setupname='Setup1')
         ...
-        pyaedt Info: Sweep was deleted correctly.
+        pyaedt info: Sweep was deleted correctly.
         """
         if setupname in self.existing_analysis_setups:
             self.osolution.Delete(setupname)

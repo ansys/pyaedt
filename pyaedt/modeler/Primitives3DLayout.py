@@ -1,7 +1,7 @@
 import sys
 from collections import defaultdict
 
-from ..generic.general_methods import aedt_exception_handler, retry_ntimes
+from ..generic.general_methods import aedt_exception_handler
 from .Object3d import Padstack, Components3DLayout, Geometries3DLayout, Pins3DLayout, Nets3DLayout, _uname
 from .Primitives import default_materials
 from pyaedt import is_ironpython
@@ -23,9 +23,7 @@ class Primitives3DLayout(object):
 
     Parameters
     ----------
-    parent : str
-        Name of the parent AEDT application.
-    modeler : str
+    modeler : :class:`pyaedt.modeler.Model3DLayout.Modeler3DLayout`
         Name of the modeler.
 
     """
@@ -50,17 +48,17 @@ class Primitives3DLayout(object):
                 return self.geometries[el]
         return None
 
-    def __init__(self, parent, modeler):
+    def __init__(self, modeler):
+        self.is_outside_desktop = sys.modules["__main__"].isoutsideDesktop
         self._modeler = modeler
-        self._parent = parent
-        self._currentId = 0
+        self._app = self._modeler._app
+        self._oeditor = self.modeler.oeditor
+        self.opadstackmanager = self._app._oproject.GetDefinitionManager().GetManager("Padstack")
         self.padstacks = defaultdict(Padstack)
         self._components = defaultdict(Components3DLayout)
         self._geometries = defaultdict(Geometries3DLayout)
         self._pins = defaultdict(Pins3DLayout)
         self._nets = defaultdict(Nets3DLayout)
-        self._main = sys.modules["__main__"]
-        self.isoutsideDesktop = self._main.isoutsideDesktop
         pass
 
     @property
@@ -191,17 +189,17 @@ class Primitives3DLayout(object):
             List of default materials.
 
         """
-        return default_materials[self._parent._design_type]
+        return default_materials[self._app._design_type]
 
     @property
     def _messenger(self):
         """Messenger."""
-        return self._parent._messenger
+        return self._app._messenger
 
     @property
     def logger(self):
         """Logger."""
-        return self._parent.logger
+        return self._app.logger
 
     @property
     def version(self):
@@ -213,22 +211,12 @@ class Primitives3DLayout(object):
             Version of AEDT.
 
         """
-        return self._parent._aedt_version
+        return self._app._aedt_version
 
     @property
     def modeler(self):
         """Modeler."""
         return self._modeler
-
-    @property
-    def oeditor(self):
-        """Editor."""
-        return self.modeler.oeditor
-
-    @property
-    def opadstackmanager(self):
-        """Padstack manager."""
-        return retry_ntimes(10, self._parent._oproject.GetDefinitionManager().GetManager, "Padstack")
 
     @property
     def model_units(self):
@@ -368,7 +356,7 @@ class Primitives3DLayout(object):
             args.append(net)
             args.append("Vis:=")
             args.append(visible)
-        self.oeditor.SetNetVisible(args)
+        self._oeditor.SetNetVisible(args)
         return True
 
     @aedt_exception_handler
@@ -424,7 +412,7 @@ class Primitives3DLayout(object):
         if not name:
             name = _uname()
         else:
-            listnames = self.oeditor.FindObjects("Name", name)
+            listnames = self._oeditor.FindObjects("Name", name)
             if listnames:
                 name = _uname(name)
         arg = ["NAME:Contents"]
@@ -444,7 +432,7 @@ class Primitives3DLayout(object):
         arg.append("Pin:="), arg.append(False)
         arg.append("highest_layer:="), arg.append(top_layer)
         arg.append("lowest_layer:="), arg.append(bot_layer)
-        self.oeditor.CreateVia(arg)
+        self._oeditor.CreateVia(arg)
         # self.objects[name] = Object3dlayout(self)
         # self.objects[name].name = name
         # if netname:
@@ -481,7 +469,7 @@ class Primitives3DLayout(object):
         if not name:
             name = _uname()
         else:
-            listnames = self.oeditor.FindObjects("Name", name)
+            listnames = self._oeditor.FindObjects("Name", name)
             if listnames:
                 name = _uname(name)
 
@@ -494,8 +482,8 @@ class Primitives3DLayout(object):
         vArg2.append("y:="), vArg2.append(self.arg_with_dim(y))
         vArg2.append("r:="), vArg2.append(self.arg_with_dim(radius))
         vArg1.append(vArg2)
-        self.oeditor.CreateCircle(vArg1)
-        if self.isoutsideDesktop:
+        self._oeditor.CreateCircle(vArg1)
+        if self.is_outside_desktop:
             self._geometries[name] = Geometries3DLayout(self, name)
             if netname:
                 self._geometries[name].set_net_name(netname)
@@ -533,7 +521,7 @@ class Primitives3DLayout(object):
         if not name:
             name = _uname()
         else:
-            listnames = self.oeditor.FindObjects("Name", name)
+            listnames = self._oeditor.FindObjects("Name", name)
             if listnames:
                 name = _uname(name)
 
@@ -549,8 +537,8 @@ class Primitives3DLayout(object):
         vArg2.append("cr:="), vArg2.append(self.arg_with_dim(corner_radius))
         vArg2.append("ang="), vArg2.append(self.arg_with_dim(angle))
         vArg1.append(vArg2)
-        self.oeditor.CreateRectangle(vArg1)
-        if self.isoutsideDesktop:
+        self._oeditor.CreateRectangle(vArg1)
+        if self.is_outside_desktop:
             self._geometries[name] = Geometries3DLayout(self, name)
             if netname:
                 self._geometries[name].set_net_name(netname)
@@ -595,7 +583,7 @@ class Primitives3DLayout(object):
         if not name:
             name = _uname()
         else:
-            listnames = self.oeditor.FindObjects("Name", name)
+            listnames = self._oeditor.FindObjects("Name", name)
             if listnames:
                 name = _uname(name)
         arg = ["NAME:Contents", "lineGeometry:="]
@@ -621,8 +609,8 @@ class Primitives3DLayout(object):
             arg2.append("y:=")
             arg2.append(a[1])
         arg.append(arg2)
-        self.oeditor.CreateLine(arg)
-        if self.isoutsideDesktop:
+        self._oeditor.CreateLine(arg)
+        if self.is_outside_desktop:
             self._geometries[name] = Geometries3DLayout(self, name)
             if netname:
                 self._geometries[name].set_net_name(netname)

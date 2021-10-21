@@ -1,4 +1,5 @@
 import os
+import time
 
 from pyaedt import _pythonver, is_ironpython, inside_desktop
 
@@ -18,18 +19,19 @@ class Modeler3DLayout(Modeler):
 
     Parameters
     ----------
-    parent :
-        Inherited parent object.
+    app : :class:`pyaedt.application.Analysis3DLayout.FieldAnalysis3DLayout`
+            Inherited parent object.
 
     """
 
-    def __init__(self, parent):
-        self._parent = parent
+    def __init__(self, app):
+        self._app = app
+        self.oeditor = self._app._odesign.SetActiveEditor("Layout")
         self.logger.glb.info("Loading Modeler.")
-        Modeler.__init__(self, parent)
+        Modeler.__init__(self, app)
         self.logger.glb.info("Modeler loaded.")
-        self._primitivesDes = self._parent.project_name + self._parent.design_name
-        edb_folder = os.path.join(self._parent.project_path, self._parent.project_name + ".aedb")
+        self._primitivesDes = self._app.project_name + self._app.design_name
+        edb_folder = os.path.join(self._app.project_path, self._app.project_name + ".aedb")
         edb_file = os.path.join(edb_folder, "edb.def")
         self._edb = None
         if os.path.exists(edb_file) or (inside_desktop and is_ironpython):
@@ -37,21 +39,21 @@ class Modeler3DLayout(Modeler):
                 self._mttime = os.path.getmtime(edb_file)
             else:
                 self._mttime = 0
+            time.sleep(1)
             self._edb = Edb(
                 edb_folder,
-                self._parent.design_name,
+                self._app.design_name,
                 True,
-                self._parent._aedt_version,
+                self._app._aedt_version,
                 isaedtowned=True,
-                oproject=self._parent.oproject,
+                oproject=self._app.oproject,
             )
         else:
             self._mttime = 0
         self.logger.glb.info("EDB loaded.")
-
-        self.layers = Layers(self._parent, self, roughnessunits="um")
+        self.layers = Layers(self, roughnessunits="um")
         self.logger.glb.info("Layers loaded.")
-        self._primitives = Primitives3DLayout(self._parent, self)
+        self._primitives = Primitives3DLayout(self)
         self.logger.glb.info("Primitives loaded.")
         self.layers.refresh_all_layers()
 
@@ -63,12 +65,12 @@ class Modeler3DLayout(Modeler):
 
         Returns
         -------
-        :class:`pyaedt.Edb`
+        :class:`pyaedt.edb.Edb`
              EDB.
 
         """
         if not (inside_desktop and is_ironpython):
-            edb_folder = os.path.join(self._parent.project_path, self._parent.project_name + ".aedb")
+            edb_folder = os.path.join(self._app.project_path, self._app.project_name + ".aedb")
             edb_file = os.path.join(edb_folder, "edb.def")
             if os.path.exists(edb_file):
                 _mttime = os.path.getmtime(edb_file)
@@ -79,11 +81,11 @@ class Modeler3DLayout(Modeler):
                     self._edb.close_edb()
                 self._edb = Edb(
                     edb_folder,
-                    self._parent.design_name,
+                    self._app.design_name,
                     True,
-                    self._parent._aedt_version,
+                    self._app._aedt_version,
                     isaedtowned=True,
-                    oproject=self._parent.oproject,
+                    oproject=self._app.oproject,
                 )
                 self._mttime = _mttime
         return self._edb
@@ -91,17 +93,12 @@ class Modeler3DLayout(Modeler):
     @property
     def _messenger(self):
         """Messenger."""
-        return self._parent._messenger
+        return self._app._messenger
 
     @property
     def logger(self):
         """Logger."""
-        return self._parent.logger
-
-    @property
-    def oeditor(self):
-        """Editor."""
-        return self._parent.odesign.SetActiveEditor("Layout")
+        return self._app.logger
 
     @aedt_exception_handler
     def fit_all(self):
@@ -126,9 +123,9 @@ class Modeler3DLayout(Modeler):
     @property
     def primitives(self):
         """Primitives."""
-        if self._primitivesDes != self._parent.project_name + self._parent.design_name:
-            self._primitives = Primitives3DLayout(self._parent, self)
-            self._primitivesDes = self._parent.project_name + self._parent.design_name
+        if self._primitivesDes != self._app.project_name + self._app.design_name:
+            self._primitives = Primitives3DLayout(self)
+            self._primitivesDes = self._app.project_name + self._app.design_name
         return self._primitives
 
     @property
@@ -306,8 +303,8 @@ class Modeler3DLayout(Modeler):
                 for i in self.oeditor.FindObjectsByPoint(self.oeditor.Point().Set(pos[0], pos[1]), layer)
                 if i not in geom_names
             ]
-            if self.primitives.isoutsideDesktop:
-                self.primitives._geometries[new_geom_names[0]] = Geometries3DLayout(self, new_geom_names[0])
+            if self.primitives.is_outside_desktop:
+                self.primitives._geometries[new_geom_names[0]] = Geometries3DLayout(self.primitives, new_geom_names[0])
             return new_geom_names[0]
         return object_to_expand
 
@@ -338,18 +335,11 @@ class Modeler3DLayout(Modeler):
             name = os.path.basename(brd_filename)
             edb_name = os.path.splitext(name)[0]
 
-        self.oimportexport.ImportExtracta(
+        self._oimportexport.ImportExtracta(
             brd_filename, os.path.join(edb_path, edb_name + ".aedb"), os.path.join(edb_path, edb_name + ".xml")
         )
-        self._parent.oproject = self._parent._desktop.GetActiveProject().GetName()
-        self._parent.odesign = None
-
-        # name = self._parent.project_name
-        # prjpath = self._parent.project_path
-        # self._parent.close_project(self._parent.project_name, True)
-        #
-        # self._parent.load_project(os.path.join(prjpath, name+".aedt"))
-
+        self._app.oproject = self._app._desktop.GetActiveProject().GetName()
+        self._app._odesign = None
         return True
 
     @aedt_exception_handler
@@ -396,11 +386,11 @@ class Modeler3DLayout(Modeler):
             name = os.path.basename(ipc_filename)
             edb_name = os.path.splitext(name)[0]
 
-        self.oimportexport.ImportIPC(
+        self._oimportexport.ImportIPC(
             ipc_filename, os.path.join(edb_path, edb_name + ".aedb"), os.path.join(edb_path, edb_name + ".xml")
         )
-        self._parent.oproject = self._parent._desktop.GetActiveProject().GetName()
-        self._parent.odesign = None
+        self._app.oproject = self._app._desktop.GetActiveProject().GetName()
+        self._app._odesign = None
         return True
 
     @aedt_exception_handler
@@ -430,10 +420,10 @@ class Modeler3DLayout(Modeler):
             self.oeditor.Subtract(vArg1)
         if type(tool) is list:
             for el in tool:
-                if self.primitives.isoutsideDesktop:
+                if self.primitives.is_outside_desktop:
                     self.primitives._geometries.pop(el)
         else:
-            if self.primitives.isoutsideDesktop:
+            if self.primitives.is_outside_desktop:
                 self.primitives._geometries.pop(tool)
         return True
 
@@ -459,7 +449,7 @@ class Modeler3DLayout(Modeler):
             self.oeditor.Unite(vArg1)
             for el in objectlists:
                 if not self.oeditor.FindObjects("Name", el):
-                    if self.primitives.isoutsideDesktop:
+                    if self.primitives.is_outside_desktop:
                         self.primitives._geometries.pop(el)
             return True
         else:
@@ -488,7 +478,7 @@ class Modeler3DLayout(Modeler):
             self.oeditor.Intersect(vArg1)
             for el in objectlists:
                 if not self.oeditor.FindObjects("Name", el):
-                    if self.primitives.isoutsideDesktop:
+                    if self.primitives.is_outside_desktop:
                         self.primitives._geometries.pop(el)
             return True
         else:
@@ -551,7 +541,7 @@ class Modeler3DLayout(Modeler):
         """
         self.logger.glb.info("Set the temperature dependence for the design.")
         if create_project_var:
-            self._parent.variable_manager["$AmbientTemp"] = str(ambient_temp) + "cel"
+            self._app.variable_manager["$AmbientTemp"] = str(ambient_temp) + "cel"
             var = "$AmbientTemp"
         else:
             var = str(ambient_temp) + "cel"
@@ -562,7 +552,7 @@ class Modeler3DLayout(Modeler):
             "Temperature:=", var,
         ]
         try:
-            self.odesign.SetTemperatureSettings(vargs1)
+            self._odesign.SetTemperatureSettings(vargs1)
         except:
             self.logger.glb.error("Failed to enable the temperature dependence.")
             return False

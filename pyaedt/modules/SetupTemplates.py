@@ -1495,8 +1495,8 @@ class SweepQ3D(object):
 
             self.props["RangeSamples"] = 3
             self.props["RangeCount"] = 401
-            self.props["SaveFields"] = True
-            self.props["SaveRadFields"] = True
+            self.props["SaveFields"] = False
+            self.props["SaveRadFields"] = False
             self.props["SweepRanges"] = []
 
     @aedt_exception_handler

@@ -63,38 +63,38 @@ class Icepak(FieldAnalysisIcepak):
 
     >>> from pyaedt import Icepak
     >>> icepak = Icepak()
-    pyaedt Info: No project is defined. Project ...
-    pyaedt Info: Active design is set to ...
+    pyaedt info: No project is defined. Project ...
+    pyaedt info: Active design is set to ...
 
     Create an instance of Icepak and link to a project named
     ``IcepakProject``. If this project does not exist, create one with
     this name.
 
     >>> icepak = Icepak("IcepakProject")
-    pyaedt Info: Project ...
-    pyaedt Info: Added design ...
+    pyaedt info: Project ...
+    pyaedt info: Added design ...
 
     Create an instance of Icepak and link to a design named
     ``IcepakDesign1`` in a project named ``IcepakProject``.
 
     >>> icepak = Icepak("IcepakProject", "IcepakDesign1")
-    pyaedt Info: Added design 'IcepakDesign1' of type Icepak.
+    pyaedt info: Added design 'IcepakDesign1' of type Icepak.
 
     Create an instance of `Icepak` and open the specified project,
     which is ``myipk.aedt``.
 
     >>> icepak = Icepak("myipk.aedt")
-    pyaedt Info: Project myipk has been created.
-    pyaedt Info: No design is present. Inserting a new design.
-    pyaedt Info: Added design ...
+    pyaedt info: Project myipk has been created.
+    pyaedt info: No design is present. Inserting a new design.
+    pyaedt info: Added design ...
 
     Create an instance of Icepak using the 2021 R1 release and
     open the specified project, which is ``myipk2.aedt``.
 
     >>> icepak = Icepak(specified_version="2021.1", projectname="myipk2.aedt")
-    pyaedt Info: Project...
-    pyaedt Info: No design is present. Inserting a new design.
-    pyaedt Info: Added design...
+    pyaedt info: Project...
+    pyaedt info: No design is present. Inserting a new design.
+    pyaedt info: Added design...
     """
 
     def __init__(
@@ -122,6 +122,7 @@ class Icepak(FieldAnalysisIcepak):
             close_on_exit,
             student_version,
         )
+        self.omodelsetup = self._odesign.GetModule("ModelSetup")
 
     def __enter__(self):
         return self
@@ -132,7 +133,7 @@ class Icepak(FieldAnalysisIcepak):
 
         Returns
         -------
-        list
+        list of str
             List of all analysis setups in the design.
 
         """
@@ -232,8 +233,8 @@ class Icepak(FieldAnalysisIcepak):
         >>> faces = icepak.modeler.primitives["USB_GND"].faces
         >>> face_names = [face.id for face in faces]
         >>> boundary = icepak.assign_openings(face_names)
-        pyaedt Info: Face List boundary_faces created
-        pyaedt Info: Opening Assigned
+        pyaedt info: Face List boundary_faces created
+        pyaedt info: Opening Assigned
 
         """
         boundary_name = generate_unique_name("Opening")
@@ -288,7 +289,7 @@ class Icepak(FieldAnalysisIcepak):
             else:
                 self.logger.glb.error("No setup is defined.")
                 return False
-        self.oanalysis_setup.AddTwoWayCoupling(
+        self.oanalysis.AddTwoWayCoupling(
             setup_name,
             [
                 "NAME:Options",
@@ -322,7 +323,7 @@ class Icepak(FieldAnalysisIcepak):
 
         Returns
         -------
-        list
+        list of :class:`pyaedt.modules.Boundary.BoundaryObject`
             List of boundaries inserted.
 
         Examples
@@ -333,7 +334,7 @@ class Icepak(FieldAnalysisIcepak):
         >>> box1 = icepak.modeler.primitives.create_box([1, 1, 1], [3, 3, 3], "BlockBox1", "copper")
         >>> box2 = icepak.modeler.primitives.create_box([2, 2, 2], [4, 4, 4], "BlockBox2", "copper")
         >>> blocks = icepak.create_source_blocks_from_list([["BlockBox1", 2], ["BlockBox2", 4]])
-        pyaedt Info: Block on ...
+        pyaedt info: Block on ...
         >>> blocks[1].props
         {'Objects': ['BlockBox1'], 'Block Type': 'Solid', 'Use External Conditions': False, 'Total Power': '2W'}
         >>> blocks[3].props
@@ -389,7 +390,7 @@ class Icepak(FieldAnalysisIcepak):
 
         >>> box = icepak.modeler.primitives.create_box([5, 5, 5], [1, 2, 3], "BlockBox3", "copper")
         >>> block = icepak.create_source_block("BlockBox3", "1W", False)
-        pyaedt Info: Block on ...
+        pyaedt info: Block on ...
         >>> block.props
         {'Objects': ['BlockBox3'], 'Block Type': 'Solid', 'Use External Conditions': False, 'Total Power': '1W'}
 
@@ -612,7 +613,7 @@ class Icepak(FieldAnalysisIcepak):
 
         Returns
         -------
-        list
+        list of :class:`pyaedt.modules.Boundary.BoundaryObject`
             List of boundary objects created.
 
         Examples
