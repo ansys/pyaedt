@@ -499,7 +499,7 @@ class NexximComponents(CircuitComponents):
 
     @aedt_exception_handler
     def create_current_pulse(
-        self, compname=None, value_lists=[], xpos=0, ypos=0, angle=0, use_instance_id_netlist=False
+            self, compname=None, value_lists=[], xpos=0, ypos=0, angle=0, use_instance_id_netlist=False
     ):
         """Create a current pulse.
 
@@ -556,7 +556,7 @@ class NexximComponents(CircuitComponents):
 
     @aedt_exception_handler
     def create_voltage_pulse(
-        self, compname=None, value_lists=[], xpos=0, ypos=0, angle=0, use_instance_id_netlist=False
+            self, compname=None, value_lists=[], xpos=0, ypos=0, angle=0, use_instance_id_netlist=False
     ):
         """Create a voltage pulse.
 
@@ -653,7 +653,7 @@ class NexximComponents(CircuitComponents):
         return cmpid, cmpname
 
     def create_coupling_inductors(
-        self, compname, l1, l2, value=1, xpos=0, ypos=0, angle=0, use_instance_id_netlist=False
+            self, compname, l1, l2, value=1, xpos=0, ypos=0, angle=0, use_instance_id_netlist=False
     ):
         """Create a coupling inductor.
 
@@ -702,7 +702,7 @@ class NexximComponents(CircuitComponents):
 
     @aedt_exception_handler
     def create_diode(
-        self, compname=None, model_name="required", xpos=0, ypos=0, angle=0, use_instance_id_netlist=False
+            self, compname=None, model_name="required", xpos=0, ypos=0, angle=0, use_instance_id_netlist=False
     ):
         """Create a diode.
 
@@ -828,7 +828,7 @@ class NexximComponents(CircuitComponents):
 
     @aedt_exception_handler
     def create_new_component_from_symbol(
-        self, symbol_name, pin_lists, Refbase="U", parameter_list=[], parameter_value=[]
+            self, symbol_name, pin_lists, Refbase="U", parameter_list=[], parameter_value=[]
     ):
         """Create a component from a symbol.
 
@@ -988,7 +988,7 @@ class NexximComponents(CircuitComponents):
 
     @aedt_exception_handler
     def get_comp_custom_settings(
-        self, toolNum, dc=0, interp=0, extrap=1, conv=0, passivity=0, reciprocal="False", opt="", data_type=1
+            self, toolNum, dc=0, interp=0, extrap=1, conv=0, passivity=0, reciprocal="False", opt="", data_type=1
     ):
         """Retrieve custom settings for a resistor.
 
@@ -1050,13 +1050,13 @@ class NexximComponents(CircuitComponents):
 
     @aedt_exception_handler
     def add_subcircuit_hfss_link(
-        self,
-        comp_name,
-        pin_names,
-        source_project_path,
-        source_project_name,
-        source_design_name,
-        solution_name="Setup1 : Sweep",
+            self,
+            comp_name,
+            pin_names,
+            source_project_path,
+            source_design_name,
+            solution_name="Setup1 : Sweep",
+            image_subcircuit_path=None,
     ):
         """Add a subcircuit HFSS link.
 
@@ -1068,13 +1068,14 @@ class NexximComponents(CircuitComponents):
             List of the pin names.
         source_project_path : str
             Path to the source project.
-        source_project_name : str
-            Name  of the source project.
         source_design_name : str
             Name of the design.
         solution_name : str, optional
             Name of the solution and sweep. The
             default is ``"Setup1 : Sweep"``.
+        image_subcircuit_path : str
+            Path of the Picture used in Circuit.
+            Default is an HFSS Picture exported automatically
 
         Returns
         -------
@@ -1086,10 +1087,27 @@ class NexximComponents(CircuitComponents):
         nexxim_customization = self.get_comp_custom_settings(2, 3, 1, 3, 0, 0, "False", "", 2)
         hspice_customization = self.get_comp_custom_settings(3, 1, 2, 3, 0, 0, "False", "", 3)
 
+        if image_subcircuit_path:
+            if image_subcircuit_path[-3:] != "gif" or image_subcircuit_path[-3:] != "bmp" \
+                    or image_subcircuit_path[-3:] != "jpg":
+                image_subcircuit_path = None
+                warnings.warn(
+                    "Image extension is not valid. Use default image instead.", DeprecationWarning
+                )
+        if not image_subcircuit_path:
+            image_subcircuit_path = "C:\\Program Files\\AnsysEM\\AnsysEM21.2\\Win64\\syslib\\Bitmaps\\hfss.bmp"
+        filename = ""
+        comp_name_aux = source_design_name
+        WB_SystemID = source_design_name
+        if not self._parent.project_file == source_project_path:
+            filename = source_project_path
+            comp_name_aux = comp_name
+            WB_SystemID = ""
+
         compInfo = [
-            "NAME:" + str(comp_name),
+            "NAME:" + str(comp_name_aux),
             "Name:=",
-            comp_name,
+            comp_name_aux,
             "ModTime:=",
             1591855779,
             "Library:=",
@@ -1101,7 +1119,7 @@ class NexximComponents(CircuitComponents):
             "Description:=",
             "",
             "ImageFile:=",
-            "",
+            image_subcircuit_path,
             "SymbolPinConfiguration:=",
             0,
             ["NAME:PortInfoBlk"],
@@ -1122,11 +1140,11 @@ class NexximComponents(CircuitComponents):
             "NoiseModelOption:=",
             "External",
             "WB_SystemID:=",
-            "",
+            WB_SystemID,
             "IsWBModel:=",
             False,
             "filename:=",
-            source_project_path,
+            filename,
             "numberofports:=",
             len(pin_names),
             "Simulate:=",
@@ -1244,7 +1262,7 @@ class NexximComponents(CircuitComponents):
                     "Connect:=",
                     True,
                     "ModelDefinitionName:=",
-                    comp_name,
+                    comp_name_aux,
                     "ShowRefPin2:=",
                     2,
                     "LenPropName:=",
