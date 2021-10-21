@@ -110,10 +110,7 @@ class Edb(object):
                 self._main = sys.modules["__main__"]
                 self._messenger = self._main.oMessenger
             else:
-                if not edbpath or not os.path.exists(edbpath):
-                    self._messenger = EDBMessageManager()
-                elif os.path.exists(edbpath):
-                    self._messenger = EDBMessageManager(os.path.dirname(edbpath))
+                self._messenger = EDBMessageManager(os.path.dirname(edbpath))
 
             self.student_version = student_version
             self._messenger.add_info_message("Messenger Initialized in EDB")
