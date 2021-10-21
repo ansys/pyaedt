@@ -552,7 +552,7 @@ class Layers(object):
         self._currentId = 0
         self.layers = defaultdict(Layer)
         self.lengthUnitRough = roughnessunits
-        self.logger = self._app._messenger
+        self.logger = self._app.logger
 
     @property
     def _oeditor(self):

@@ -189,7 +189,7 @@ class Hfss(FieldAnalysis3D, object):
         if result:
             self.boundaries.append(bound)
             self.logger.design.info("Boundary %s %s has been correctly created.", boundary_type, name)
-            return
+            return bound
         self.logger.design.error("Error in boundary creation for %s %s.", boundary_type, name)
 
         return result

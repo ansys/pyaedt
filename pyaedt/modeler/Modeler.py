@@ -3579,7 +3579,7 @@ class GeometryModeler(Modeler, object):
         return True
 
     @aedt_exception_handler
-    def select_allfaces_from_mat(self, mats):
+    def get_faces_from_materials(self, mats):
         """Select all outer faces given a list of materials.
 
         Parameters

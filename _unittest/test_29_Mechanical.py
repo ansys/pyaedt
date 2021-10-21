@@ -23,8 +23,8 @@ class TestClass:
             self.aedtapp = Mechanical(solution_type="Thermal")
 
     def teardown_class(self):
-        self.aedtapp._desktop.ClearMessages("","",3)
-        assert self.aedtapp.close_project(self.aedtapp.project_name)
+        self.aedtapp._desktop.ClearMessages("", "", 3)
+        assert self.aedtapp.close_project(self.aedtapp.project_name, saveproject=False)
         self.local_scratch.remove()
         gc.collect()
 

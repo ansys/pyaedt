@@ -27,7 +27,7 @@ class TestClass:
             self.source = Hfss(projectname=test_project_name, designname="feeder")
 
     def teardown_class(self):
-        self.aedtapp._desktop.ClearMessages("","",3)
+        self.aedtapp._desktop.ClearMessages("", "", 3)
         assert self.source.close_project(self.source.project_name, False)
         self.local_scratch.remove()
 

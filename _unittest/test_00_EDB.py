@@ -31,7 +31,6 @@ class TestClass:
             self.edbapp = Edb(aedbproject, "Galileo_G87173_204", edbversion=desktop_version, isreadonly=False)
 
     def teardown_class(self):
-
         self.edbapp.close_edb()
         self.edbapp = None
         self.local_scratch.remove()
