@@ -18,50 +18,50 @@ except ImportError:
 class EdbLayout(object):
     """Manages EDB functionalities for layouts."""
 
-    def __init__(self, parent):
+    def __init__(self, p_edb):
         self._prims = []
-        self._parent = parent
+        self._pedb = p_edb
         self._primitives_by_layer = {}
         # self.update_primitives()
 
     @property
     def _edb(self):
-        return self._parent.edb
+        return self._pedb.edb
 
     @property
     def _messenger(self):
         """Messenger."""
-        return self._parent._messenger
+        return self._pedb._messenger
 
     @property
     def logger(self):
         """Logger."""
-        return self._parent.logger
+        return self._pedb.logger
 
     @property
     def _builder(self):
-        return self._parent.builder
+        return self._pedb.builder
 
     @property
     def _edb_value(self):
-        return self._parent.edb_value
+        return self._pedb.edb_value
 
     @property
     def _edbutils(self):
-        return self._parent.edbutils
+        return self._pedb.edbutils
 
     @property
     def _active_layout(self):
-        return self._parent.active_layout
+        return self._pedb.active_layout
 
     @property
     def _cell(self):
-        return self._parent.active_cell
+        return self._pedb.active_cell
 
     @property
     def db(self):
         """Db object."""
-        return self._parent.db
+        return self._pedb.db
 
     @property
     def layers(self):
@@ -72,7 +72,7 @@ class EdbLayout(object):
         dict
             Dictionary of layers.
         """
-        return self._parent.core_stackup.stackup_layers.layers
+        return self._pedb.core_stackup.stackup_layers.layers
 
     @aedt_exception_handler
     def update_primitives(self):
@@ -374,7 +374,7 @@ class EdbLayout(object):
 
         if not origin:
             origin = [center[0] + float(x1) * 10000, center[1] + float(y1) * 10000]
-        result, var_server = self._parent.add_design_variable(offset_name, 0.0)
+        result, var_server = self._pedb.add_design_variable(offset_name, 0.0)
         i = 0
         continue_iterate = True
         prev_point = None
@@ -445,7 +445,7 @@ class EdbLayout(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        net = self._parent.core_nets.find_or_create_net(net_name)
+        net = self._pedb.core_nets.find_or_create_net(net_name)
         if start_cap_style.lower() == "round":
             start_cap_style = 0
         elif start_cap_style.lower() == "extended":
@@ -510,7 +510,7 @@ class EdbLayout(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        net = self._parent.core_nets.find_or_create_net(net_name)
+        net = self._pedb.core_nets.find_or_create_net(net_name)
         polygonData = self.shape_to_polygon_data(main_shape)
         if polygonData is None or polygonData.IsNull() or polygonData is False:
             self._messenger.add_error_message("Failed to create main shape polygon data")
@@ -702,13 +702,13 @@ class EdbLayout(object):
                         if not var_server:
                             if not variable_value:
                                 variable_value = p.GetWidth()
-                            result, var_server = self._parent.add_design_variable(parameter_name, variable_value)
+                            result, var_server = self._pedb.add_design_variable(parameter_name, variable_value)
                         p.SetWidth(self._edb.Utility.Value(parameter_name, var_server))
                     elif p.GetLayer().GetName() in layers_name:
                         if not var_server:
                             if not variable_value:
                                 variable_value = p.GetWidth()
-                            result, var_server = self._parent.add_design_variable(parameter_name, variable_value)
+                            result, var_server = self._pedb.add_design_variable(parameter_name, variable_value)
                         p.SetWidth(self._edb.Utility.Value(parameter_name, var_server))
         return True
 
@@ -731,7 +731,7 @@ class EdbLayout(object):
         if isinstance(layer_name, str):
             layer_name = [layer_name]
         if not layer_name:
-            layer_name = list(self._parent.core_stackup.signal_layers.keys())
+            layer_name = list(self._pedb.core_stackup.signal_layers.keys())
 
         for lay in layer_name:
             self._messenger.add_info_message("Uniting Objects on layer {}.".format(lay))
@@ -752,15 +752,15 @@ class EdbLayout(object):
                             if item.GetIntersectionType(void.GetPolygonData()) == 2:
                                 item.AddHole(void.GetPolygonData())
                     poly = self._edb.Cell.Primitive.Polygon.Create(self._active_layout, lay,
-                                                                   self._parent.core_nets.nets[net], item)
+                                                                   self._pedb.core_nets.nets[net], item)
 
                 [i.Delete() for i in poly_by_nets[net]]
 
         if delete_padstack_gemometries:
             self._messenger.add_info_message("Deleting Padstack Definitions")
-            for pad in self._parent.core_padstack.padstacks:
-                p1 = self._parent.core_padstack.padstacks[pad].edb_padstack.GetData()
+            for pad in self._pedb.core_padstack.padstacks:
+                p1 = self._pedb.core_padstack.padstacks[pad].edb_padstack.GetData()
                 if len(p1.GetLayerNames()) > 1:
-                    self._parent.core_padstack.remove_pads_from_padstack(pad)
+                    self._pedb.core_padstack.remove_pads_from_padstack(pad)
         self.update_primitives()
         return True

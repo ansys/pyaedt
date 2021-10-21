@@ -677,7 +677,7 @@ class VariableManager(object):
             design property in the active design.
 
         """
-        return self._variable_dict([self.odesign, self.oproject])
+        return self._variable_dict([self._odesign, self._oproject])
 
     @property
     def design_variables(self):
@@ -688,7 +688,7 @@ class VariableManager(object):
         dict
             Dictionary of the design properties (local properties) in the design.
         """
-        return self._variable_dict([self.odesign])
+        return self._variable_dict([self._odesign])
 
     @property
     def project_variables(self):
@@ -699,7 +699,7 @@ class VariableManager(object):
         dict
             Dictionary of the project properties.
         """
-        return self._variable_dict([self.oproject])
+        return self._variable_dict([self._oproject])
 
     @property
     def independent_variables(self):
@@ -711,7 +711,7 @@ class VariableManager(object):
             Dictionary of the independent variables (constant numeric
             values) available to the design.
         """
-        return self._variable_dict([self.odesign, self.oproject], dependent=False)
+        return self._variable_dict([self._odesign, self._oproject], dependent=False)
 
     @property
     def independent_project_variables(self):
@@ -722,7 +722,7 @@ class VariableManager(object):
         dict
             Dictionary of the independent project variables available to the design.
         """
-        return self._variable_dict([self.oproject], dependent=False)
+        return self._variable_dict([self._oproject], dependent=False)
 
     @property
     def independent_design_variables(self):
@@ -734,7 +734,7 @@ class VariableManager(object):
             Dictionary of the independent design properties (local
             variables) available to the design.
         """
-        return self._variable_dict([self.odesign], dependent=False)
+        return self._variable_dict([self._odesign], dependent=False)
 
     @property
     def dependent_variables(self):
@@ -747,7 +747,7 @@ class VariableManager(object):
             variables) and project variables available to the design.
 
         """
-        return self._variable_dict([self.odesign, self.oproject], independent=False)
+        return self._variable_dict([self._odesign, self._oproject], independent=False)
 
     @property
     def variable_names(self):
@@ -785,28 +785,28 @@ class VariableManager(object):
         return [var_name for var_name in self.dependent_variables]
 
     @property
-    def oproject(self):
+    def _oproject(self):
         """Project."""
-        return self._parent._oproject
+        return self._app._oproject
 
     @property
-    def odesign(self):
+    def _odesign(self):
         """Design."""
-        return self._parent._odesign
+        return self._app._odesign
 
     @property
     def _messenger(self):
         """Messenger."""
-        return self._parent._messenger
+        return self._app._messenger
 
     @property
     def logger(self):
         """Logger."""
-        return self._parent.logger
+        return self._app.logger
 
-    def __init__(self, parent):
+    def __init__(self, app):
         # Global Desktop Environment
-        self._parent = parent
+        self._app = app
 
     @aedt_exception_handler
     def __delitem__(self, key):
@@ -852,11 +852,11 @@ class VariableManager(object):
                     if independent and is_number(value.value):
                         var_dict[variable_name] = value
                     elif dependent and type(value.value) is str:
-                        float_value = self._parent.get_evaluated_value(variable_name)
+                        float_value = self._app.get_evaluated_value(variable_name)
                         var_dict[variable_name] = Expression(variable_expression, float_value, all_names)
                 except:
                     if dependent:
-                        float_value = self._parent.get_evaluated_value(variable_name)
+                        float_value = self._app.get_evaluated_value(variable_name)
                         var_dict[variable_name] = Expression(variable_expression, float_value, all_names)
         return var_dict
 
@@ -876,9 +876,9 @@ class VariableManager(object):
 
         """
         if variable[0] == "$":
-            return self.oproject
+            return self._oproject
         else:
-            return self.odesign
+            return self._odesign
 
     @aedt_exception_handler
     def set_variable(
@@ -944,7 +944,7 @@ class VariableManager(object):
 
         desktop_object = self.aedt_object(variable_name)
         test = desktop_object.GetName()
-        proj_name = self.oproject.GetName()
+        proj_name = self._oproject.GetName()
         var_type = "Project" if test == proj_name else "Local"
 
         prop_type = "VariableProp"
@@ -1078,7 +1078,7 @@ class VariableManager(object):
             ``True`` when the separator exists and can be deleted, ``False`` otherwise.
 
         """
-        object_list = [(self.odesign, "Local"), (self.oproject, "Project")]
+        object_list = [(self._odesign, "Local"), (self._oproject, "Project")]
 
         for object_tuple in object_list:
             desktop_object = object_tuple[0]
@@ -1116,7 +1116,7 @@ class VariableManager(object):
 
         """
         desktop_object = self.aedt_object(sVarName)
-        var_type = "Project" if desktop_object == self.oproject else "Local"
+        var_type = "Project" if desktop_object == self._oproject else "Local"
 
         var_list = desktop_object.GetVariables()
         lower_case_vars = [var_name.lower() for var_name in var_list]
@@ -1545,7 +1545,7 @@ class DataSet(object):
 
     Parameters
     ----------
-    parent :
+    app :
     name :
     x : list
         List of X-axis values for the dataset.
@@ -1566,8 +1566,8 @@ class DataSet(object):
 
     """
 
-    def __init__(self, parent, name, x, y, z=None, v=None, xunit="", yunit="", zunit="", vunit=""):
-        self._parent = parent
+    def __init__(self, app, name, x, y, z=None, v=None, xunit="", yunit="", zunit="", vunit=""):
+        self._app = app
         self.name = name
         self.x = x
         self.y = y
@@ -1619,9 +1619,9 @@ class DataSet(object):
 
         """
         if self.name[0] == "$":
-            self._parent._oproject.AddDataset(self._args())
+            self._app._oproject.AddDataset(self._args())
         else:
-            self._parent.odesign.AddDataset(self._args())
+            self._app._odesign.AddDataset(self._args())
         return True
 
     @aedt_exception_handler
@@ -1666,7 +1666,7 @@ class DataSet(object):
 
         """
         if x not in self.x:
-            self._parent._messenger.add_error_message("Value {} is not found.".format(x))
+            self._app._messenger.add_error_message("Value {} is not found.".format(x))
             return False
         id_to_remove = self.x.index(x)
         return self.remove_point_from_index(id_to_remove)
@@ -1693,7 +1693,7 @@ class DataSet(object):
                 self.z.pop(id_to_remove)
                 self.v.pop(id_to_remove)
             return self.update()
-        self._parent._messenger.add_error_message("cannot Remove {} index.".format(id_to_remove))
+        self._app._messenger.add_error_message("cannot Remove {} index.".format(id_to_remove))
         return False
 
     @aedt_exception_handler
@@ -1710,9 +1710,9 @@ class DataSet(object):
         if not args:
             return False
         if self.name[0] == "$":
-            self._parent._oproject.EditDataset(self.name, self._args())
+            self._app._oproject.EditDataset(self.name, self._args())
         else:
-            self._parent.odesign.EditDataset(self.name, self._args())
+            self._app._odesign.EditDataset(self.name, self._args())
         return True
 
     @aedt_exception_handler
@@ -1726,11 +1726,11 @@ class DataSet(object):
 
         """
         if self.name[0] == "$":
-            self._parent._oproject.DeleteDataset(self.name)
-            del self._parent.project_datasets[self.name]
+            self._app._oproject.DeleteDataset(self.name)
+            del self._app.project_datasets[self.name]
         else:
-            self._parent.odesign.DeleteDataset(self.name)
-            del self._parent.project_datasets[self.name]
+            self._app._odesign.DeleteDataset(self.name)
+            del self._app.project_datasets[self.name]
         return True
 
     @aedt_exception_handler
@@ -1750,9 +1750,9 @@ class DataSet(object):
 
         """
         if not dataset_path:
-            dataset_path = os.path.join(self._parent.project_path, self.name + ".tab")
+            dataset_path = os.path.join(self._app.project_path, self.name + ".tab")
         if self.name[0] == "$":
-            self._parent._oproject.ExportDataset(self.name, dataset_path)
+            self._app._oproject.ExportDataset(self.name, dataset_path)
         else:
-            self._parent.odesign.ExportDataset(self.name, dataset_path)
+            self._app._odesign.ExportDataset(self.name, dataset_path)
         return True

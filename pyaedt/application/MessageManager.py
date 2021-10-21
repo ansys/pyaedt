@@ -104,9 +104,9 @@ class AEDTMessageManager(object):
 
     """
 
-    def __init__(self, parent=None):
-        self._parent = parent
-        if not parent:
+    def __init__(self, app=None):
+        self._app = app
+        if not app:
             if "oDesktop" in dir(sys.modules["__main__"]):
                 self.MainModule = sys.modules["__main__"]
                 self._desktop = self.MainModule.oDesktop
@@ -121,7 +121,7 @@ class AEDTMessageManager(object):
                 self._log_on_desktop = False
                 self._desktop = None
         else:
-            self._desktop = self._parent._desktop
+            self._desktop = self._app._desktop
             self._log_on_desktop = os.getenv("PYAEDT_DESKTOP_LOGS", "True").lower() in ("true", "1", "t")
         self._log_on_file = os.getenv("PYAEDT_FILE_LOGS", "True").lower() in ("true", "1", "t")
         self._log_on_screen = os.getenv("PYAEDT_SCREEN_LOGS", "True").lower() in ("true", "1", "t")
@@ -137,7 +137,7 @@ class AEDTMessageManager(object):
 
         Returns
         -------
-        list
+        list of str
            List of messages for the active project and design.
 
         """
@@ -158,7 +158,7 @@ class AEDTMessageManager(object):
 
         Returns
         -------
-        list
+        list of str
             List of messages for the specified project and design.
 
         """
@@ -242,7 +242,6 @@ class AEDTMessageManager(object):
         """
         self.add_message(0, message_text, level)
 
-    @aedt_exception_handler
     def add_message(self, type, message_text, level=None, proj_name=None, des_name=None):
         """Pass a parameterized message to the Message Manager to specify the type and project or design level.
 
@@ -295,11 +294,11 @@ class AEDTMessageManager(object):
 
         if self._log_on_screen:
             if type == 0:
-                print("PyAEDT Info: {}".format(message_text))
+                print("pyaedt info: {}".format(message_text))
             elif type == 1:
-                print("PyAEDT Warning: {}".format(message_text))
+                print("pyaedt warning: {}".format(message_text))
             elif type == 2:
-                print("PyAEDT Error: {}".format(message_text))
+                print("pyaedt error: {}".format(message_text))
         if self._log_on_file:
             if type == 0 and self.logger:
                 self.logger.debug(message_text)
