@@ -140,7 +140,7 @@ class Mesh(object):
 
     Parameters
     ----------
-    application : :class:`pyaedt.application.Analysis3D.FieldAnalysis3D`
+    app : :class:`pyaedt.application.Analysis3D.FieldAnalysis3D`
 
     """
 
