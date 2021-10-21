@@ -32,7 +32,7 @@ class TestClass:
 
     def teardown_class(self):
         self.aedtapp._desktop.ClearMessages("", "", 3)
-        self.aedtapp.close_project(test_project_name, save_project=False)
+        self.aedtapp.close_project(test_project_name, saveproject=False)
         self.local_scratch.remove()
         gc.collect()
 
