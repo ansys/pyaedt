@@ -53,8 +53,8 @@ class SimplorerComponents(CircuitComponents):
 
     def __init__(self, modeler):
         CircuitComponents.__init__(self, modeler)
-        self._p_app = modeler._p_app
-        self._p_modeler = modeler
+        self._app = modeler._app
+        self._modeler = modeler
         self._currentId = 0
         self.components = defaultdict(CircuitComponent)
         pass

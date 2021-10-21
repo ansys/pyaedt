@@ -22,10 +22,10 @@ class Modeler3D(GeometryModeler):
     def __init__(self, application):
         GeometryModeler.__init__(self, application, is3d=True)
         self._primitives = Primitives3D(self)
-        self._primitivesDes = self._p_app.project_name + self._p_app.design_name
+        self._primitivesDes = self._app.project_name + self._app.design_name
 
     def __get__(self, instance, owner):
-        self._p_app = instance
+        self._app = instance
         return self
 
     @property
@@ -37,9 +37,9 @@ class Modeler3D(GeometryModeler):
         :class:`pyaedt.modeler.Primitives3D.Primitives3D`
 
         """
-        if self._primitivesDes != self._p_app.project_name + self._p_app.design_name:
+        if self._primitivesDes != self._app.project_name + self._app.design_name:
             self._primitives.refresh()
-            self._primitivesDes = self._p_app.project_name + self._p_app.design_name
+            self._primitivesDes = self._app.project_name + self._app.design_name
         return self._primitives
 
     @aedt_exception_handler
@@ -63,10 +63,10 @@ class Modeler3D(GeometryModeler):
             ``True`` when successful, ``False`` when failed.
 
         """
-        if self._p_app.design_type == "Icepak":
+        if self._app.design_type == "Icepak":
             exclude_region = True
         if not component_name:
-            component_name = self._p_app.design_name
+            component_name = self._app.design_name
         arg = [
             "NAME:CreateData",
             "ComponentName:=",
@@ -124,7 +124,7 @@ class Modeler3D(GeometryModeler):
         arg.append("ReferenceCS:="), arg.append(activecs)
         variables = variables_to_include
         arg.append("IncludedParameters:="), arg.append(variables)
-        variables = self._p_app._variable_manager.dependent_variable_names
+        variables = self._app._variable_manager.dependent_variable_names
         par_description = []
         for el in variables:
             par_description.append(el)
@@ -141,8 +141,8 @@ class Modeler3D(GeometryModeler):
         arg2 = ["NAME:DesignData"]
         boundaries = self.get_boundaries_name()
         arg2.append("Boundaries:="), arg2.append(boundaries)
-        if self._p_app.design_type == "Icepak":
-            meshregions = [name for name in self._p_app.mesh.meshregions.name]
+        if self._app.design_type == "Icepak":
+            meshregions = [name for name in self._app.mesh.meshregions.name]
             try:
                 meshregions.remove("Global")
             except:
@@ -151,7 +151,7 @@ class Modeler3D(GeometryModeler):
         else:
             excitations = self.get_excitations_name()
             arg2.append("Excitations:="), arg2.append(excitations)
-        meshops = [el.name for el in self._p_app.mesh.meshoperations]
+        meshops = [el.name for el in self._app.mesh.meshoperations]
         arg2.append("MeshOperations:="), arg2.append(meshops)
         arg3 = ["NAME:ImageFile", "ImageFile:=", ""]
         self.oeditor.Create3DComponent(arg, arg2, component_file, arg3)

@@ -13,10 +13,10 @@ class IcepakMesh(object):
     """
 
     def __init__(self, app):
-        self._p_app = app
+        self._app = app
 
-        self._odesign = self._p_app._odesign
-        self.modeler = self._p_app._modeler
+        self._odesign = self._app._odesign
+        self.modeler = self._app._modeler
         design_type = self._odesign.GetDesignType()
         assert design_type in meshers, "Invalid design type {}".format(design_type)
         self.omeshmodule = self._odesign.GetModule(meshers[design_type])
@@ -155,7 +155,7 @@ class IcepakMesh(object):
         @property
         def _odesign(self):
             """Instance of a design in a project."""
-            return self._p_app._odesign
+            return self._app._odesign
 
         @aedt_exception_handler
         def update(self):
@@ -208,14 +208,14 @@ class IcepakMesh(object):
         """Retrieve design mesh operations."""
         meshops = []
         try:
-            for ds in self._p_app.design_properties["MeshRegion"]["MeshSetup"]["MeshOperations"]:
-                if isinstance(self._p_app.design_properties["MeshRegion"]["MeshSetup"]["MeshOperations"][
+            for ds in self._app.design_properties["MeshRegion"]["MeshSetup"]["MeshOperations"]:
+                if isinstance(self._app.design_properties["MeshRegion"]["MeshSetup"]["MeshOperations"][
                                   ds], (OrderedDict, dict)):
                     meshops.append(
                         MeshOperation(
                             self,
                             ds,
-                            self._p_app.design_properties["MeshRegion"]["MeshSetup"]["MeshOperations"][ds],
+                            self._app.design_properties["MeshRegion"]["MeshSetup"]["MeshOperations"][ds],
                             "Icepak",
                         )
                     )
@@ -228,11 +228,11 @@ class IcepakMesh(object):
         """Retrieve design mesh regions."""
         meshops = []
         try:
-            for ds in self._p_app.design_properties["MeshRegion"]["MeshSetup"]["MeshRegions"]:
-                if isinstance(self._p_app.design_properties["MeshRegion"]["MeshSetup"]["MeshRegions"][ds],
+            for ds in self._app.design_properties["MeshRegion"]["MeshSetup"]["MeshRegions"]:
+                if isinstance(self._app.design_properties["MeshRegion"]["MeshSetup"]["MeshRegions"][ds],
                               (OrderedDict, dict)):
                     meshop = self.MeshRegion(self.omeshmodule, self.boundingdimension, self.modeler.model_units)
-                    dict_prop = self._p_app.design_properties["MeshRegion"]["MeshSetup"]["MeshRegions"][ds]
+                    dict_prop = self._app.design_properties["MeshRegion"]["MeshSetup"]["MeshRegions"][ds]
                     self.name = ds
                     for el in dict_prop:
                         if el in meshop.__dict__:

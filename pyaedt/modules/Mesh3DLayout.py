@@ -28,7 +28,7 @@ class Mesh3DOperation(object):
     """
 
     def __init__(self, app, hfss_setup_name, name, props):
-        self._p_mesh3dlayout = app
+        self._mesh3dlayout = app
         self.name = name
         self.props = props
         self.hfss_setup_name = hfss_setup_name
@@ -65,7 +65,7 @@ class Mesh3DOperation(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self._p_mesh3dlayout.omeshmodule.AddMeshOperation(self.hfss_setup_name, self._get_args())
+        self._mesh3dlayout.omeshmodule.AddMeshOperation(self.hfss_setup_name, self._get_args())
         return True
 
     @aedt_exception_handler
@@ -78,7 +78,7 @@ class Mesh3DOperation(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self._p_mesh3dlayout.omeshmodule.EditMeshOperation(self.hfss_setup_name, self.name, self._get_args())
+        self._mesh3dlayout.omeshmodule.EditMeshOperation(self.hfss_setup_name, self.name, self._get_args())
         return True
 
     @aedt_exception_handler
@@ -91,7 +91,7 @@ class Mesh3DOperation(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self._p_mesh3dlayout.omeshmodule.DeleteMeshOperation(
+        self._mesh3dlayout.omeshmodule.DeleteMeshOperation(
             self.hfss_setup_name,
             self.name,
         )
@@ -112,11 +112,11 @@ class Mesh3d(object):
     """
 
     def __init__(self, app):
-        self._p_app = app
+        self._app = app
 
-        self.logger = self._p_app.logger
-        self._odesign = self._p_app._odesign
-        self.modeler =  self._p_app._modeler
+        self.logger = self._app.logger
+        self._odesign = self._app._odesign
+        self.modeler =  self._app._modeler
         self.omeshmodule = self._odesign.GetModule("SolveSetups")
         self.id = 0
 
@@ -160,10 +160,10 @@ class Mesh3d(object):
         """
         meshops = []
         try:
-            for ds in self._p_app.design_properties["Setup"]["Data"]:
-                if "MeshOps" in self._p_app.design_properties["Setup"]["Data"][ds]:
-                    for ops in self._p_app.design_properties["Setup"]["Data"][ds]["MeshOps"]:
-                        props = self._p_app.design_properties["Setup"]["Data"][ds]["MeshOps"][ops]
+            for ds in self._app.design_properties["Setup"]["Data"]:
+                if "MeshOps" in self._app.design_properties["Setup"]["Data"][ds]:
+                    for ops in self._app.design_properties["Setup"]["Data"][ds]["MeshOps"]:
+                        props = self._app.design_properties["Setup"]["Data"][ds]["MeshOps"][ops]
                         meshops.append(Mesh3DOperation(self, ds, ops, props))
         except:
             pass

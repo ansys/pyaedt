@@ -105,7 +105,7 @@ class AEDTMessageManager(object):
     """
 
     def __init__(self, app=None):
-        self._p_app = app
+        self._app = app
         if not app:
             if "oDesktop" in dir(sys.modules["__main__"]):
                 self.MainModule = sys.modules["__main__"]
@@ -121,7 +121,7 @@ class AEDTMessageManager(object):
                 self._log_on_desktop = False
                 self._desktop = None
         else:
-            self._desktop = self._p_app._desktop
+            self._desktop = self._app._desktop
             self._log_on_desktop = os.getenv("PYAEDT_DESKTOP_LOGS", "True").lower() in ("true", "1", "t")
         self._log_on_file = os.getenv("PYAEDT_FILE_LOGS", "True").lower() in ("true", "1", "t")
         self._log_on_screen = os.getenv("PYAEDT_SCREEN_LOGS", "True").lower() in ("true", "1", "t")

@@ -164,7 +164,7 @@ class Polyline(Object3d):
         xsection_bend_type=None,
     ):
 
-        self._p_primitives = primitives
+        self._primitives = primitives
 
         if src_object:
             self.__dict__ = src_object.__dict__.copy()
@@ -175,7 +175,7 @@ class Polyline(Object3d):
                 self._m_name = src_object.name
         else:
 
-            self._xsection = self._p_primitives._crosssection_arguments(
+            self._xsection = self._primitives._crosssection_arguments(
                 type=xsection_type,
                 orient=xsection_orient,
                 width=xsection_width,
@@ -200,13 +200,13 @@ class Polyline(Object3d):
 
             varg1 = self._point_segment_string_array()
 
-            varg2 = self._p_primitives._default_object_attributes(name=name, matname=matname)
+            varg2 = self._primitives._default_object_attributes(name=name, matname=matname)
 
             new_object_name = retry_ntimes(10, self.m_Editor.CreatePolyline, varg1, varg2)
 
             Object3d.__init__(self, primitives, name=new_object_name)
-            self._p_primitives.objects[self.id] = self
-            self._p_primitives.object_id_dict[self.name] = self.id
+            self._primitives.objects[self.id] = self
+            self._primitives.object_id_dict[self.name] = self.id
 
     @property
     def start_point(self):
@@ -220,8 +220,8 @@ class Polyline(Object3d):
             object.
 
         """
-        vertex_id = self._p_primitives.get_object_vertices(partID=self.id)[0]
-        return self._p_primitives.get_vertex_position(vertex_id)
+        vertex_id = self._primitives.get_object_vertices(partID=self.id)[0]
+        return self._primitives.get_vertex_position(vertex_id)
 
     @property
     def end_point(self):
@@ -235,8 +235,8 @@ class Polyline(Object3d):
             object.
 
         """
-        end_vertex_id = self._p_primitives.get_object_vertices(partID=self.id)[-1]
-        return self._p_primitives.get_vertex_position(end_vertex_id)
+        end_vertex_id = self._primitives.get_object_vertices(partID=self.id)[-1]
+        return self._primitives.get_vertex_position(end_vertex_id)
 
     @property
     def vertex_positions(self):
@@ -250,18 +250,18 @@ class Polyline(Object3d):
             polyline object.
 
         """
-        id_list = self._p_primitives.get_object_vertices(partID=self.id)
-        position_list = [self._p_primitives.get_vertex_position(id) for id in id_list]
+        id_list = self._primitives.get_object_vertices(partID=self.id)
+        position_list = [self._primitives.get_vertex_position(id) for id in id_list]
         return position_list
 
     def _pl_point(self, pt):
         pt_data = ["NAME:PLPoint"]
         pt_data.append("X:=")
-        pt_data.append(_dim_arg(pt[0], self._p_primitives.model_units))
+        pt_data.append(_dim_arg(pt[0], self._primitives.model_units))
         pt_data.append("Y:=")
-        pt_data.append(_dim_arg(pt[1], self._p_primitives.model_units))
+        pt_data.append(_dim_arg(pt[1], self._primitives.model_units))
         pt_data.append("Z:=")
-        pt_data.append(_dim_arg(pt[2], self._p_primitives.model_units))
+        pt_data.append(_dim_arg(pt[2], self._primitives.model_units))
         return pt_data
 
     def _point_segment_string_array(self):
@@ -405,8 +405,8 @@ class Polyline(Object3d):
             # Also identify the plane of the arc ("YZ", "ZX", "XY")
             plane_axes = {"YZ": [1, 2], "ZX": [2, 0], "XY": [0, 1]}
             assert start_point, "Start-point must be defined for an AngularArc Segment"
-            c_xyz = self._p_primitives.value_in_object_units(segment_data.arc_center)
-            p0_xyz = self._p_primitives.value_in_object_units(start_point)
+            c_xyz = self._primitives.value_in_object_units(segment_data.arc_center)
+            p0_xyz = self._primitives.value_in_object_units(start_point)
 
             if segment_data.arc_plane:
                 # Accept the user input for the plane of rotation - let the modeler fail if invalid
@@ -422,7 +422,7 @@ class Polyline(Object3d):
                 else:
                     raise ("Start point and arc-center do not lie on a common base plane.")
 
-            mod_units = self._p_primitives.model_units
+            mod_units = self._primitives.model_units
             seg += [
                 "ArcAngle:=",
                 segment_data.arc_angle,
@@ -445,7 +445,7 @@ class Polyline(Object3d):
             p0_beta = p0_xyz[beta_index] - c_beta
 
             # rotate to generate the new points
-            arc_ang_rad = self._p_primitives._p_app.evaluate_expression(segment_data.arc_angle)
+            arc_ang_rad = self._primitives._app.evaluate_expression(segment_data.arc_angle)
             rot_angle = arc_ang_rad * 0.5
             p1_alph = p0_alph * math.cos(rot_angle) + p0_beta * math.sin(rot_angle)
             p1_beta = p0_beta * math.cos(rot_angle) - p0_alph * math.sin(rot_angle)
@@ -480,17 +480,17 @@ class Polyline(Object3d):
 
         """
         vArg1 = ["NAME:Selections", "Selections:=", self.name]
-        self._p_primitives._oeditor.Copy(vArg1)
-        self._p_primitives._oeditor.Paste()
+        self._primitives._oeditor.Copy(vArg1)
+        self._primitives._oeditor.Paste()
         return self._add_new_polyline()
 
     def _add_new_polyline(self):
-        new_objects = self._p_primitives.find_new_objects()
+        new_objects = self._primitives.find_new_objects()
         assert len(new_objects) == 1
         new_name = new_objects[0]
-        new_polyline = Polyline(self._p_primitives, src_object=self, name=new_name)
-        self._p_primitives.objects[new_polyline.id] = new_polyline
-        self._p_primitives.object_id_dict[new_name] = new_polyline.id
+        new_polyline = Polyline(self._primitives, src_object=self, name=new_name)
+        self._primitives.objects[new_polyline.id] = new_polyline
+        self._primitives.object_id_dict[new_name] = new_polyline.id
         return new_polyline
 
     @aedt_exception_handler
@@ -534,7 +534,7 @@ class Polyline(Object3d):
         found_vertex = False
 
         # Search for position in the vertex data
-        pos_xyz = self._p_primitives.value_in_object_units(position)
+        pos_xyz = self._primitives.value_in_object_units(position)
         for ind, vertex_pos in enumerate(self.vertex_positions):
             # compare the specified point with the vertex data using an absolute tolerance
             # (default of math.isclose is 1e-9 which should be ok in almost all cases)
@@ -549,7 +549,7 @@ class Polyline(Object3d):
                 break
 
         assert found_vertex, "Specified vertex {} not found in polyline {}.".format(position, self._m_name)
-        self._p_primitives._oeditor.DeletePolylinePoint(
+        self._primitives._oeditor.DeletePolylinePoint(
             [
                 "NAME:Delete Point",
                 "Selections:=",
@@ -588,7 +588,7 @@ class Polyline(Object3d):
         if isinstance(edge_id, int):
             edge_id = [edge_id]
         try:
-            self._p_primitives._oeditor.DeletePolylinePoint(
+            self._primitives._oeditor.DeletePolylinePoint(
                 [
                     "NAME:Delete Point",
                     "Selections:=",
@@ -666,7 +666,7 @@ class Polyline(Object3d):
         if num_seg:
             assert num_seg > 2, "Number of segments for a cross-section must be 0 or greater than 2."
 
-        model_units = self._p_primitives.model_units
+        model_units = self._primitives.model_units
 
         arg1 = ["NAME:AllTabs"]
         arg2 = ["NAME:Geometry3DCmdTab", ["NAME:PropServers", self._m_name + ":CreatePolyline:1"]]
@@ -684,7 +684,7 @@ class Polyline(Object3d):
             arg3.append(["NAME:Height", "Value:=", _dim_arg(height, model_units)])
         arg2.append(arg3)
         arg1.append(arg2)
-        self._p_primitives._oeditor.ChangeProperty(arg1)
+        self._primitives._oeditor.ChangeProperty(arg1)
         self._update()
         return True
 
@@ -727,11 +727,11 @@ class Polyline(Object3d):
             num_points = segment.num_points
 
         # Check whether start-point of the segment is in the existing vertices
-        start_point = self._p_primitives.value_in_object_units(position_list[0])
+        start_point = self._primitives.value_in_object_units(position_list[0])
 
         # End point does not exist e.g. for an AngularArc
         try:
-            end_point = self._p_primitives.value_in_object_units(position_list[num_points - 1])
+            end_point = self._primitives.value_in_object_units(position_list[num_points - 1])
         except:
             end_point = []
 
@@ -775,7 +775,7 @@ class Polyline(Object3d):
             varg2.append(self._pl_point(segment.extra_points[1]))
             varg1.append(varg2)
             varg1 += seg_str[9:]
-        self._p_primitives._oeditor.InsertPolylineSegment(varg1)
+        self._primitives._oeditor.InsertPolylineSegment(varg1)
 
         return True
 
@@ -792,8 +792,8 @@ class Primitives(object):
     """
 
     def __init__(self, modeler):
-        self._p_modeler = modeler
-        self._p_app = modeler._p_app
+        self._modeler = modeler
+        self._app = modeler._app
         self._oeditor = self.modeler.oeditor
         self.refresh()
 
@@ -872,12 +872,12 @@ class Primitives(object):
     @property
     def _oproject(self):
         """Project."""
-        return self._p_app.oproject
+        return self._app.oproject
 
     @property
     def _odesign(self):
         """Design."""
-        return self._p_app._odesign
+        return self._app._odesign
 
     @property
     def _materials(self):
@@ -888,27 +888,27 @@ class Primitives(object):
         :class:`pyaedt.modules.MaterialLib.Materials`
             Material Manager that is used to manage materials in the project.
         """
-        return self._p_app.materials
+        return self._app.materials
 
     @property
     def defaultmaterial(self):
         """Default material."""
-        return default_materials[self._p_app._design_type]
+        return default_materials[self._app._design_type]
 
     @property
     def logger(self):
         """Logger."""
-        return self._p_app.logger
+        return self._app.logger
 
     @property
     def version(self):
         """Version."""
-        return self._p_app._aedt_version
+        return self._app._aedt_version
 
     @property
     def modeler(self):
         """Modeler."""
-        return self._p_modeler
+        return self._modeler
 
     @property
     def model_units(self):
@@ -948,7 +948,7 @@ class Primitives(object):
 
     @aedt_exception_handler
     def _change_geometry_property(self, vPropChange, names_list):
-        names = self._p_app.modeler.convert_to_selections(names_list, True)
+        names = self._app.modeler.convert_to_selections(names_list, True)
         vChangedProps = ["NAME:ChangedProps", vPropChange]
         vPropServers = ["NAME:PropServers"]
         for el in names:
@@ -1010,7 +1010,7 @@ class Primitives(object):
                 num_val = element
             elif isinstance(element, str):
                 # element is an existing variable
-                si_value = self._p_app.evaluate_expression(element)
+                si_value = self._app.evaluate_expression(element)
                 v = Variable("{}meter".format(si_value))
                 v.rescale_to(self.model_units)
                 num_val = v.numeric_value
@@ -1428,7 +1428,7 @@ class Primitives(object):
         remaining = num_objects
         while remaining > 0:
             objs = objects[:slice]
-            objects_str = self._p_modeler.convert_to_selections(objs, return_list=False)
+            objects_str = self._modeler.convert_to_selections(objs, return_list=False)
             arg = ["NAME:Selections", "Selections:=", objects_str]
             try:
                 self._oeditor.Delete(arg)
@@ -1486,7 +1486,7 @@ class Primitives(object):
             List of 6 float values ``[min_x, min_y, min_z, max_x, max_y, max_z]``
             for the bounding box.
         """
-        return self._p_app.modeler.get_model_bounding_box()
+        return self._app.modeler.get_model_bounding_box()
 
     @aedt_exception_handler
     def get_obj_id(self, objname):
@@ -2352,8 +2352,8 @@ class Primitives(object):
             List of edge IDs lying on the bounding box.
 
         """
-        port_sheets = self._p_modeler.convert_to_selections(sheets, return_list=True)
-        bb = self._p_modeler.get_model_bounding_box()
+        port_sheets = self._modeler.convert_to_selections(sheets, return_list=True)
+        bb = self._modeler.get_model_bounding_box()
 
         candidate_edges = []
         for p in port_sheets:
@@ -2440,7 +2440,7 @@ class Primitives(object):
 
         """
         tol2 = tol ** 2
-        port_sheet = self._p_modeler.convert_to_selections(sheet, return_list=True)
+        port_sheet = self._modeler.convert_to_selections(sheet, return_list=True)
         if len(port_sheet) > 1:
             return []
         else:
@@ -2449,7 +2449,7 @@ class Primitives(object):
 
         # find the bodies to exclude
         port_sheet_midpoint = self.get_face_center(self.get_object_faces(port_sheet)[0])
-        point = self._p_modeler.Position(*port_sheet_midpoint)
+        point = self._modeler.Position(*port_sheet_midpoint)
         list_of_bodies = self.get_bodynames_from_position(point)
 
         # select all edges
@@ -2593,7 +2593,7 @@ class Primitives(object):
 
         # find the bodies to exclude
         port_sheet_midpoint = self.get_face_center(face_id)
-        point = self._p_modeler.Position(port_sheet_midpoint)
+        point = self._modeler.Position(port_sheet_midpoint)
         list_of_bodies = self.get_bodynames_from_position(point)
 
         # select all edges
@@ -2778,17 +2778,17 @@ class Primitives(object):
         """
         if matname:
             matname = matname.lower()
-            if self._p_app.materials.checkifmaterialexists(matname):
-                if self._p_app._design_type == "HFSS":
-                    return matname, self._p_app.materials.material_keys[matname].is_dielectric()
+            if self._app.materials.checkifmaterialexists(matname):
+                if self._app._design_type == "HFSS":
+                    return matname, self._app.materials.material_keys[matname].is_dielectric()
                 else:
                     return matname, True
 
             else:
                 self.logger.glb.warning(
                     "Material %s doesn not exists. Assigning default material", matname)
-        if self._p_app._design_type == "HFSS":
-            return defaultmatname, self._p_app.materials.material_keys[defaultmatname].is_dielectric()
+        if self._app._design_type == "HFSS":
+            return defaultmatname, self._app.materials.material_keys[defaultmatname].is_dielectric()
         else:
             return defaultmatname, True
 
@@ -2846,11 +2846,11 @@ class Primitives(object):
         return o
 
     def _refresh_all_ids_from_aedt_file(self):
-        if not self._p_app.design_properties or "ModelSetup" not in self._p_app.design_properties:
+        if not self._app.design_properties or "ModelSetup" not in self._app.design_properties:
             return False
 
         try:
-            groups = self._p_app.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"]["Groups"][
+            groups = self._app.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"]["Groups"][
                 "Group"
             ]
         except KeyError:
@@ -2858,18 +2858,18 @@ class Primitives(object):
         if type(groups) is not list:
             groups = [groups]
         try:
-            self._p_app.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"]["ToplevelParts"][
+            self._app.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"]["ToplevelParts"][
                 "GeometryPart"
             ]
         except KeyError:
             return 0
-        for el in self._p_app.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"]["ToplevelParts"][
+        for el in self._app.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"]["ToplevelParts"][
             "GeometryPart"
         ]:
             if isinstance(el, (OrderedDict, dict)):
                 attribs = el["Attributes"]
             else:
-                attribs = self._p_app.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"][
+                attribs = self._app.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"][
                     "ToplevelParts"
                 ]["GeometryPart"]["Attributes"]
 

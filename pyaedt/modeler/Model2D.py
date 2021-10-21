@@ -36,10 +36,10 @@ class Modeler2D(GeometryModeler):
     def __init__(self, application):
         GeometryModeler.__init__(self, application, is3d=False)
         self._primitives = Primitives2D(self)
-        self._primitivesDes = self._p_app.project_name + self._p_app.design_name
+        self._primitivesDes = self._app.project_name + self._app.design_name
 
     def __get__(self, instance, owner):
-        self._p_app = instance
+        self._app = instance
         return self
 
     @property
@@ -51,9 +51,9 @@ class Modeler2D(GeometryModeler):
         :class:`pyaedt.modeler.Primitives2D.Primitives2D`
 
         """
-        if self._primitivesDes != self._p_app.project_name + self._p_app.design_name:
+        if self._primitivesDes != self._app.project_name + self._app.design_name:
             self._primitives.refresh()
-            self._primitivesDes = self._p_app.project_name + self._p_app.design_name
+            self._primitivesDes = self._app.project_name + self._app.design_name
         return self._primitives
 
     @aedt_exception_handler

@@ -50,10 +50,10 @@ class Primitives3DLayout(object):
 
     def __init__(self, modeler):
         self.is_outside_desktop = sys.modules["__main__"].isoutsideDesktop
-        self._p_modeler = modeler
-        self._p_app = self._p_modeler._p_app
+        self._modeler = modeler
+        self._app = self._modeler._app
         self._oeditor = self.modeler.oeditor
-        self.opadstackmanager = self._p_app._oproject.GetDefinitionManager().GetManager("Padstack")
+        self.opadstackmanager = self._app._oproject.GetDefinitionManager().GetManager("Padstack")
         self.padstacks = defaultdict(Padstack)
         self._components = defaultdict(Components3DLayout)
         self._geometries = defaultdict(Geometries3DLayout)
@@ -189,12 +189,12 @@ class Primitives3DLayout(object):
             List of default materials.
 
         """
-        return default_materials[self._p_app._design_type]
+        return default_materials[self._app._design_type]
 
     @property
     def logger(self):
         """Logger."""
-        return self._p_app.logger
+        return self._app.logger
 
     @property
     def version(self):
@@ -206,12 +206,12 @@ class Primitives3DLayout(object):
             Version of AEDT.
 
         """
-        return self._p_app._aedt_version
+        return self._app._aedt_version
 
     @property
     def modeler(self):
         """Modeler."""
-        return self._p_modeler
+        return self._modeler
 
     @property
     def model_units(self):
