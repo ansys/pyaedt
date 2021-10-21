@@ -19,7 +19,7 @@ except ImportError:
 class EDBLayer(object):
     """Manages EDB functionalities for a layer."""
 
-    def __init__(self, edblayer, parent):
+    def __init__(self, edblayer, app):
         self._layer = edblayer
         self._name = None
         self._layer_type = None
@@ -31,27 +31,27 @@ class EDBLayer(object):
         self._upper_elevation = None
         self._top_bottom_association = None
         self._id = None
-        self._edb = parent._edb
-        self._active_layout = parent._active_layout
-        self._parent = parent
+        self._edb = app._edb
+        self._active_layout = app._active_layout
+        self._pedblayers = app
         self.init_vals()
 
     @property
     def _stackup_methods(self):
-        return self._parent._stackup_methods
+        return self._pedblayers._stackup_methods
 
     @property
     def _builder(self):
-        return self._parent._builder
+        return self._pedblayers._builder
 
     @property
     def _messenger(self):
-        return self._parent._messenger
+        return self._pedblayers._messenger
 
     @property
     def logger(self):
         """Logger."""
-        return self._parent.logger
+        return self._pedblayers.logger
 
     @property
     def name(self):
@@ -371,7 +371,7 @@ class EDBLayer(object):
         if not lcNew.AddLayers(newLayers) or not self._active_layout.SetLayerCollection(lcNew):
             self._messenger.add_error_message("Failed to set new layers when updating the stackup information.")
             return False
-        self._parent._update_edb_objects()
+        self._pedblayers._update_edb_objects()
         time.sleep(1)
         return True
 
@@ -381,14 +381,14 @@ class EDBLayers(object):
 
     Parameters
     ----------
-    parent :
+    edbstackup :
         Inherited AEDT object.
 
     """
 
-    def __init__(self, parent):
+    def __init__(self, edb_stackup):
         self._stackup_mode = None
-        self._parent = parent
+        self._pedbstackup = edb_stackup
         self._edb_object = OrderedDict(defaultdict(EDBLayer))
         self._update_edb_objects()
 
@@ -410,28 +410,28 @@ class EDBLayers(object):
 
     @property
     def _messenger(self):
-        return self._parent._messenger
+        return self._pedbstackup._messenger
 
     @property
     def logger(self):
         """Logger."""
-        return self._parent.logger
+        return self._pedbstackup.logger
 
     @property
     def _stackup_methods(self):
-        return self._parent._stackup_methods
+        return self._pedbstackup._stackup_methods
 
     @property
     def _edb(self):
-        return self._parent._edb
+        return self._pedbstackup._edb
 
     @property
     def _builder(self):
-        return self._parent._builder
+        return self._pedbstackup._builder
 
     @property
     def _active_layout(self):
-        return self._parent._active_layout
+        return self._pedbstackup._active_layout
 
     @property
     def layers(self):
@@ -529,12 +529,12 @@ class EDBLayers(object):
 
     @property
     def _messenger(self):
-        return self._parent._messenger
+        return self._pedbstackup._messenger
 
     @property
     def logger(self):
         """Logger."""
-        return self._parent.logger
+        return self._pedbstackup.logger
 
     @aedt_exception_handler
     def _int_to_layer_types(self, val):
@@ -625,7 +625,7 @@ class EDBLayers(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        thisLC = self._parent._active_layout.GetLayerCollection()
+        thisLC = self._pedbstackup._active_layout.GetLayerCollection()
         layers = list(list(thisLC.Layers(self._edb.Cell.LayerTypeSet.AllLayerSet)))
         layers.reverse()
         newLayers = List[self._edb.Cell.Layer]()
@@ -643,7 +643,7 @@ class EDBLayers(object):
                     "",
                 )
                 newLayers.Add(newLayer)
-                self._edb_object[layerName] = EDBLayer(newLayer, self._parent)
+                self._edb_object[layerName] = EDBLayer(newLayer, self._pedbstackup)
                 newLayer = self._edb_object[layerName].update_layer_vals(
                     layerName, newLayer, etchMap, material, fillMaterial, thickness, self._int_to_layer_types(layerType)
                 )
@@ -666,7 +666,7 @@ class EDBLayers(object):
                         self._edb.Utility.Value(0),
                         "",
                     )
-                    self._edb_object[layerName] = EDBLayer(newLayer, self._parent)
+                    self._edb_object[layerName] = EDBLayer(newLayer, self._pedbstackup)
                     newLayer = self._edb_object[layerName].update_layer_vals(
                         layerName,
                         newLayer,
@@ -725,7 +725,7 @@ class EDBLayers(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        thisLC = self._edb.Cell.LayerCollection(self._parent._active_layout.GetLayerCollection())
+        thisLC = self._edb.Cell.LayerCollection(self._pedbstackup._active_layout.GetLayerCollection())
         layers = list(list(thisLC.Layers(self._edb.Cell.LayerTypeSet.AllLayerSet)))
         layers.reverse()
         newLayers = List[self._edb.Cell.Layer]()
@@ -741,7 +741,7 @@ class EDBLayers(object):
                 newLayers.Add(newLayer)
         lcNew = self._edb.Cell.LayerCollection()
         newLayers.Reverse()
-        if not lcNew.AddLayers(newLayers) or not self._parent._active_layout.SetLayerCollection(lcNew):
+        if not lcNew.AddLayers(newLayers) or not self._pedbstackup._active_layout.SetLayerCollection(lcNew):
             self._messenger.add_error_message("Failed to set new layers when updating the stackup information.")
             return False
         self._update_edb_objects()
@@ -759,37 +759,37 @@ class EDBPadProperties(object):
         Name of the layer.
     pad_type :
         Type of the pad.
-    parent : str
+    pedbpadstack : str
         Inherited AEDT object.
 
     """
 
-    def __init__(self, edb_padstack, layer_name, pad_type, parent):
+    def __init__(self, edb_padstack, layer_name, pad_type, p_edb_padstack):
         self._edb_padstack = edb_padstack
-        self._parent = parent
+        self._pedbpadstack = p_edb_padstack
         self.layer_name = layer_name
         self.pad_type = pad_type
         pass
 
     @property
     def _padstack_methods(self):
-        return self._parent._padstack_methods
+        return self._pedbpadstack._padstack_methods
 
     @property
     def _stackup_layers(self):
-        return self._parent._stackup_layers
+        return self._pedbpadstack._stackup_layers
 
     @property
     def _builder(self):
-        return self._parent._builder
+        return self._pedbpadstack._builder
 
     @property
     def _edb(self):
-        return self._parent._edb
+        return self._pedbpadstack._edb
 
     @property
     def _edb_value(self):
-        return self._parent._edb_value
+        return self._pedbpadstack._edb_value
 
     @property
     def geometry_type(self):
@@ -981,14 +981,14 @@ class EDBPadstack(object):
     ----------
     edb_padstack :
 
-    parent : str
+    ppadstack : str
         Inherited AEDT object.
 
     """
 
-    def __init__(self, edb_padstack, parent):
+    def __init__(self, edb_padstack, ppadstack):
         self.edb_padstack = edb_padstack
-        self._parent = parent
+        self._ppadstack = ppadstack
         self.pad_by_layer = {}
         self.antipad_by_layer = {}
         self.thermalpad_by_layer = {}
@@ -1000,23 +1000,23 @@ class EDBPadstack(object):
 
     @property
     def _padstack_methods(self):
-        return self._parent._padstack_methods
+        return self._ppadstack._padstack_methods
 
     @property
     def _stackup_layers(self):
-        return self._parent._stackup_layers
+        return self._ppadstack._stackup_layers
 
     @property
     def _builder(self):
-        return self._parent._builder
+        return self._ppadstack._builder
 
     @property
     def _edb(self):
-        return self._parent._edb
+        return self._ppadstack._edb
 
     @property
     def _edb_value(self):
-        return self._parent._edb_value
+        return self._ppadstack._edb_value
 
     @property
     def via_layers(self):
@@ -1280,8 +1280,8 @@ class EDBPadstack(object):
 class EDBPinInstances(object):
     """Manages EDB functionalities in instances."""
 
-    def __init__(self, parent, pin):
-        self.parent = parent
+    def __init__(self, edb_components, pin):
+        self._pedbcomponents = edb_components
         self.pin = pin
 
     @property
@@ -1320,14 +1320,15 @@ class EDBPinInstances(object):
         list
             List of ``[x, y]``` coordinates for the pin position.
         """
-        self.parent._edb.Geometry.PointData(self.parent._edb_value(0.0), self.parent._edb_value(0.0))
+        self._pedbcomponents._edb.Geometry.PointData(self._pedbcomponents._edb_value(0.0),
+                                                     self._pedbcomponents._edb_value(0.0))
         if is_ironpython:
             out = self.pin.GetPositionAndRotationValue()
         else:
             out = self.pin.GetPositionAndRotationValue(
-                self.parent._edb.Geometry.PointData(self.parent._edb_value(0.0), self.parent._edb_value(0.0)),
-                self.parent._edb_value(0.0),
-            )
+                self._pedbcomponents._edb.Geometry.PointData(self._pedbcomponents._edb_value(0.0),
+                                                             self._pedbcomponents._edb_value(0.0)),
+                                                             self._pedbcomponents._edb_value(0.0),)
         if out[0]:
             return [out[1].X.ToDouble(), out[1].Y.ToDouble()]
 
@@ -1340,13 +1341,15 @@ class EDBPinInstances(object):
         float
             Rotatation value for the pin.
         """
-        self.parent._edb.Geometry.PointData(self.parent._edb_value(0.0), self.parent._edb_value(0.0))
+        self._pedbcomponents._edb.Geometry.PointData(self._pedbcomponents._edb_value(0.0),
+                                                     self._pedbcomponents._edb_value(0.0))
         if is_ironpython:
             out = self.pin.GetPositionAndRotationValue()
         else:
             out = self.pin.GetPositionAndRotationValue(
-                self.parent._edb.Geometry.PointData(self.parent._edb_value(0.0), self.parent._edb_value(0.0)),
-                self.parent._edb_value(0.0),
+                self._pedbcomponents._edb.Geometry.PointData(self._pedbcomponents._edb_value(0.0),
+                                                             self._pedbcomponents._edb_value(0.0)),
+                                                             self._pedbcomponents._edb_value(0.0),
             )
         if out[0]:
             return out[2].ToDouble()
@@ -1407,15 +1410,15 @@ class EDBComponent(object):
 
     Parameters
     ----------
-    parent : str
+    parent : :class:`pyaedt.edb_core.components.Components`
         Inherited AEDT object.
     component : object
         Edb Component Object
 
     """
 
-    def __init__(self, parent, cmp):
-        self.parent = parent
+    def __init__(self, components, cmp):
+        self._pcomponents = components
         self.edbcomponent = cmp
 
     @property
@@ -1593,11 +1596,11 @@ class EDBComponent(object):
 
     @property
     def _edb_value(self):
-        return self.parent._edb_value
+        return self._pcomponents._edb_value
 
     @property
     def _edb(self):
-        return self.parent._edb
+        return self._pcomponents._edb
 
     @property
     def placement_layer(self):

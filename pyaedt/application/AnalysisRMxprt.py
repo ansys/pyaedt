@@ -2,6 +2,7 @@ from ..generic.general_methods import aedt_exception_handler
 from ..modeler.Model2D import ModelerRMxprt
 from .Analysis import Analysis
 from .Design import design_solutions
+from ..modules.PostProcessor import CircuitPostProcessor
 
 
 class FieldAnalysisRMxprt(Analysis):
@@ -62,8 +63,9 @@ class FieldAnalysisRMxprt(Analysis):
             close_on_exit,
             student_version,
         )
+
         self._modeler = ModelerRMxprt(self)
-        # self._post = PostProcessor(self)
+        self._post = CircuitPostProcessor(self)
 
     @property
     def modeler(self):

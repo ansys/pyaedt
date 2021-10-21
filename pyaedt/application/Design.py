@@ -271,8 +271,8 @@ class DesignCache(object):
 
     """
 
-    def __init__(self, parent):
-        self._parent = parent
+    def __init__(self, app):
+        self._app = app
         self._allow_errors_local = []
         self._allow_errors_global = []
         self.clear()
@@ -309,7 +309,7 @@ class DesignCache(object):
 
         Returns
         -------
-        list
+        list of str
             List of any new or missing global-level messages since the last update.
         """
         return self._delta_global_messages
@@ -320,7 +320,7 @@ class DesignCache(object):
 
         Returns
         -------
-        list
+        list of str
             List of any new or missing project-level messages since the last update.
         """
         return self._delta_global_messages
@@ -331,7 +331,7 @@ class DesignCache(object):
 
         Returns
         -------
-        list
+        list of str
             List of any new or missing design-level messages since the last update.
         """
         return self._delta_design_messages
@@ -342,7 +342,7 @@ class DesignCache(object):
 
         Returns
         -------
-        list
+        list of str
             List of any new or missing error messages since the last update.
         """
         return self._new_error_messages
@@ -404,10 +404,10 @@ class DesignCache(object):
             Snapshot object.
         """
         snapshot = {
-            "Solids:": self._parent.modeler.primitives.solid_names,
-            "Lines:": self._parent.modeler.primitives.line_names,
-            "Sheets": self._parent.modeler.primitives.sheet_names,
-            "DesignName": self._parent.design_name,
+            "Solids:": self._app.modeler.primitives.solid_names,
+            "Lines:": self._app.modeler.primitives.line_names,
+            "Sheets": self._app.modeler.primitives.sheet_names,
+            "DesignName": self._app.design_name,
         }
         return snapshot
 
@@ -429,7 +429,7 @@ class DesignCache(object):
            ``'no_change'`` is accessed.
         """
 
-        messages = self._parent._messenger.messages
+        messages = self._app._messenger.messages
 
         # Check whether the design snapshot has changed since the last update
         new_snapshot = self.design_snapshot()
@@ -549,6 +549,7 @@ class Design(object):
         close_on_exit=False,
         student_version=False,
     ):
+        self._init_variables()
         # Get Desktop from global Desktop Environment
         self._project_dictionary = OrderedDict()
         self.boundaries = []
@@ -582,6 +583,11 @@ class Design(object):
         self._design_type = design_type
         self.oproject = project_name
         self.odesign = design_name
+
+        self.oimport_export = self._desktop.GetTool("ImportExport")
+        self.odefinition_manager = self._oproject.GetDefinitionManager()
+        self.omaterial_manager = self.odefinition_manager.GetManager("Material")
+        self.odesktop = self._desktop
         self._variable_manager = VariableManager(self)
         self.solution_type = self._solution_type
         self.project_datasets = self._get_project_datasets()
@@ -592,9 +598,35 @@ class Design(object):
         """Implement destructor with array name or index."""
         del self._variable_manager[key]
 
+    @aedt_exception_handler
+    def _init_variables(self):
+        self.oboundary = None
+        self.omodelsetup = None
+        self.oimport_export = None
+        self.ooptimetrics = None
+        self.ooutput_variable = None
+        self.oanalysis = None
+        self._modeler = None
+        self._post = None
+        self._materials = None
+        self._variable_manager = None
+        self.opti_parametric = None
+        self.opti_optimization = None
+        self.opti_doe = None
+        self.opti_designxplorer = None
+        self.opti_sensitivity = None
+        self.opti_statistical = None
+        self.native_components = None
+        self._mesh = None
+
     @property
     def logger(self):
-        "Logger for the Design."
+        """Logger for the Design.
+
+        Returns
+        -------
+        :class:`pyaedt.aedt_logger.AedtLogger`
+        """
         return self._logger
 
     @property
@@ -610,14 +642,6 @@ class Design(object):
         if not self._project_dictionary:
             self._project_dictionary = load_entire_aedt_file(self.project_file)
             self._messenger.add_info_message("AEDT Load time {}".format(time.time() - start))
-        # import time
-        # start = time.time()
-        # if os.path.exists(self.project_file):
-        #     _mttime = os.path.getmtime(self.project_file)
-        #     if _mttime != self._mttime:
-        #         self._project_dictionary = load_entire_aedt_file(self.project_file)
-        #         self._mttime = _mttime
-        #         self._messenger.add_info_message("AEDT Load time {}".format(time.time()-start))
         return self._project_dictionary
 
     @property
@@ -737,7 +761,6 @@ class Design(object):
             Type of the design. See above for a list of possible return values.
 
         """
-        # return self._odesign.GetDesignType()
         return self._design_type
 
     @property
@@ -1010,7 +1033,6 @@ class Design(object):
             if self._assert_consistent_design_type(des_name) == des_name:
                 self._insert_design(self._design_type, design_name=des_name, solution_type=self._solution_type)
         else:
-            # self._odesign = self._oproject.GetActiveDesign()
             if self.design_list:
                 self._odesign = self._oproject.GetDesign(self.design_list[0])
                 if not self._check_design_consistency():
@@ -1024,10 +1046,10 @@ class Design(object):
                         warning_msg = "No consistent unique design is present. Inserting a new design."
                     else:
                         self._odesign = self.oproject.SetActiveDesign(activedes)
-                        self.add_info_message("Active Design set to {}".format(activedes))
+                        self.logger.glb.info("Active Design set to {}".format(activedes))
                 else:
                     self._odesign = self._oproject.SetActiveDesign(self.design_list[0])
-                    self.add_info_message("Active design is set to {}".format(self.design_list[0]))
+                    self.logger.glb.info("Active design is set to {}".format(self.design_list[0]))
             else:
                 warning_msg = "No design is present. Inserting a new design."
 
@@ -1035,42 +1057,6 @@ class Design(object):
                 self.logger.glb.info(warning_msg)
                 self._insert_design(self._design_type, solution_type=self._solution_type)
         self.boundaries = self._get_boundaries_data()
-
-    @property
-    def oboundary(self):
-        """Boundary.
-
-        Returns
-        -------
-        type
-            BoundarySetup module object.
-
-        """
-        return self._odesign.GetModule("BoundarySetup")
-
-    @property
-    def omodelsetup(self):
-        """Model setup.
-
-        Returns
-        -------
-        type
-            ModelSetup module object.
-
-        """
-        return self._odesign.GetModule("ModelSetup")
-
-    @property
-    def oimportexport(self):
-        """Import/Export.
-
-        Returns
-        -------
-        type
-            Import/Export module object.
-
-        """
-        return self.odesktop.GetTool("ImportExport")
 
     @property
     def oproject(self):
@@ -1128,30 +1114,6 @@ class Design(object):
         if not self._oproject:
             self._oproject = self._desktop.NewProject()
             self.logger.glb.info("Project %s has been created.", self._oproject.GetName())
-
-    @property
-    def oanalysis_setup(self):
-        """Analysis setup.
-
-        Returns
-        -------
-        type
-            AnalysisSetup module object.
-
-        """
-        return self.odesign.GetModule("AnalysisSetup")
-
-    @property
-    def odesktop(self):
-        """Desktop.
-
-        Returns
-        -------
-        type
-            Desktop module object.
-
-        """
-        return self._desktop
 
     @property
     def desktop_install_dir(self):
@@ -1895,14 +1857,22 @@ class Design(object):
             ``True`` when successful, ``False`` when failed.
 
         """
+
         if close_active_proj:
+            self._close_edb()
             self.close_project(self.project_name)
-        proj = self._desktop.OpenProject(project_file)
+        proj = self.odesktop.OpenProject(project_file)
         if proj:
             self.__init__(projectname=proj.GetName(), designname=design_name)
             return True
         else:
             return False
+
+    @aedt_exception_handler
+    def _close_edb(self):
+        if self.design_type == "Circuit Design" or self.design_type == "HFSS 3D Layout Design":
+            if self.modeler.edb:
+                self.modeler.edb.close_edb()
 
     @aedt_exception_handler
     def create_dataset1d_design(self, dsname, xlist, ylist, xunit="", yunit=""):
@@ -2281,6 +2251,8 @@ class Design(object):
         timeout = 10
         locked = True
         if name == legacy_name:
+            if os.name != "posix":
+                self._init_variables()
             self._oproject = None
             self._odesign = None
         while locked:
@@ -2325,9 +2297,14 @@ class Design(object):
             try:
                 self.set_active_design(fallback_design)
             except:
+                if os.name != "posix":
+                    self._init_variables()
+                self._odesign = None
                 return False
         else:
-            self.odesign = None
+            if os.name != "posix":
+                self._init_variables()
+            self._odesign = None
         return True
 
     @aedt_exception_handler
@@ -2380,9 +2357,7 @@ class Design(object):
             Name of the design.
 
         """
-        if self.design_type == "Circuit Design" or self.design_type == "HFSS 3D Layout Design":
-            if self.modeler.edb:
-                self.modeler.edb.close_edb()
+        self._close_edb()
         if self.project_name:
             self.__init__(projectname=self.project_name, designname=design_name)
         else:
@@ -2522,6 +2497,7 @@ class Design(object):
         self._desktop.CloseProject(proj_from_name)
         # reset the active design (very important)
         self.save_project()
+        self._close_edb()
         self.__init__(self.project_name, new_designname)
         self._oproject.SetActiveDesign(active_design)
 
@@ -2560,6 +2536,7 @@ class Design(object):
         actual_name = [i for i in self.design_list if i not in design_list]
         self.odesign = actual_name
         self.design_name = newname
+        self._close_edb()
         self.__init__(self.project_name, self.design_name)
 
         return True
@@ -2747,6 +2724,7 @@ class Design(object):
         """
         self.oproject.SetActiveDesign(name)
         self.odesign = name
+        self._close_edb()
         self.__init__(self.project_name, self.design_name)
         return True
 

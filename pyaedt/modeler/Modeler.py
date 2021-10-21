@@ -24,7 +24,7 @@ class CoordinateSystem(object):
 
     Parameters
     ----------
-    parent :
+    modeler :
         Inherited parent object.
     props : dict, optional
         Dictionary of properties. The default is ``None``.
@@ -33,9 +33,9 @@ class CoordinateSystem(object):
 
     """
 
-    def __init__(self, parent, props=None, name=None):
-        self._parent = parent
-        self.model_units = self._parent.model_units
+    def __init__(self, modeler, props=None, name=None):
+        self._modeler = modeler
+        self.model_units = self._modeler.model_units
         self.name = name
         self.props = props
         self.ref_cs = None
@@ -93,7 +93,7 @@ class CoordinateSystem(object):
 
         """
         arguments = ["NAME:AllTabs", ["NAME:Geometry3DCSTab", ["NAME:PropServers", name], arg]]
-        retry_ntimes(10, self._parent.oeditor.ChangeProperty, arguments)
+        retry_ntimes(10, self._modeler.oeditor.ChangeProperty, arguments)
 
     @aedt_exception_handler
     def rename(self, newname):
@@ -447,7 +447,7 @@ class CoordinateSystem(object):
             raise ValueError("Specify the mode = 'view', 'axis', 'zxz', 'zyz', 'axisrotation' ")
 
         self.props = orientationParameters
-        self._parent.oeditor.CreateRelativeCS(self.orientation, self.attributes)
+        self._modeler.oeditor.CreateRelativeCS(self.orientation, self.attributes)
         self.ref_cs = reference_cs
         self.update()
 
@@ -461,7 +461,7 @@ class CoordinateSystem(object):
         -------
         list
         """
-        self._parent._parent.variable_manager["temp_var"] = 0
+        self._modeler._app.variable_manager["temp_var"] = 0
         if self.mode == "axis" or self.mode == "view":
             x1 = self.props["XAxisXvec"]
             x2 = self.props["XAxisYvec"]
@@ -469,40 +469,40 @@ class CoordinateSystem(object):
             y1 = self.props["YAxisXvec"]
             y2 = self.props["YAxisYvec"]
             y3 = self.props["YAxisZvec"]
-            self._parent._parent.variable_manager["temp_var"] = x1
-            x_pointing_num = [self._parent._parent.variable_manager["temp_var"].numeric_value]
-            self._parent._parent.variable_manager["temp_var"] = x2
-            x_pointing_num.append(self._parent._parent.variable_manager["temp_var"].numeric_value)
-            self._parent._parent.variable_manager["temp_var"] = x3
-            x_pointing_num.append(self._parent._parent.variable_manager["temp_var"].numeric_value)
-            self._parent._parent.variable_manager["temp_var"] = y1
-            y_pointing_num = [self._parent._parent.variable_manager["temp_var"].numeric_value]
-            self._parent._parent.variable_manager["temp_var"] = y2
-            y_pointing_num.append(self._parent._parent.variable_manager["temp_var"].numeric_value)
-            self._parent._parent.variable_manager["temp_var"] = y3
-            y_pointing_num.append(self._parent._parent.variable_manager["temp_var"].numeric_value)
+            self._modeler._app.variable_manager["temp_var"] = x1
+            x_pointing_num = [self._modeler._app.variable_manager["temp_var"].numeric_value]
+            self._modeler._app.variable_manager["temp_var"] = x2
+            x_pointing_num.append(self._modeler._app.variable_manager["temp_var"].numeric_value)
+            self._modeler._app.variable_manager["temp_var"] = x3
+            x_pointing_num.append(self._modeler._app.variable_manager["temp_var"].numeric_value)
+            self._modeler._app.variable_manager["temp_var"] = y1
+            y_pointing_num = [self._modeler._app.variable_manager["temp_var"].numeric_value]
+            self._modeler._app.variable_manager["temp_var"] = y2
+            y_pointing_num.append(self._modeler._app.variable_manager["temp_var"].numeric_value)
+            self._modeler._app.variable_manager["temp_var"] = y3
+            y_pointing_num.append(self._modeler._app.variable_manager["temp_var"].numeric_value)
             x, y, z = GeometryOperators.pointing_to_axis(x_pointing_num, y_pointing_num)
             a, b, g = GeometryOperators.axis_to_euler_zyz(x, y, z)
             self._quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
-            del self._parent._parent.variable_manager["temp_var"]
+            del self._modeler._app.variable_manager["temp_var"]
         elif self.mode == "zxz":
-            self._parent._parent.variable_manager["temp_var"] = self.props["Phi"]
-            a = GeometryOperators.deg2rad(self._parent._parent.variable_manager["temp_var"].numeric_value)
-            self._parent._parent.variable_manager["temp_var"] = self.props["Theta"]
-            b = GeometryOperators.deg2rad(self._parent._parent.variable_manager["temp_var"].numeric_value)
-            self._parent._parent.variable_manager["temp_var"] = self.props["Psi"]
-            g = GeometryOperators.deg2rad(self._parent._parent.variable_manager["temp_var"].numeric_value)
+            self._modeler._app.variable_manager["temp_var"] = self.props["Phi"]
+            a = GeometryOperators.deg2rad(self._modeler._app.variable_manager["temp_var"].numeric_value)
+            self._modeler._app.variable_manager["temp_var"] = self.props["Theta"]
+            b = GeometryOperators.deg2rad(self._modeler._app.variable_manager["temp_var"].numeric_value)
+            self._modeler._app.variable_manager["temp_var"] = self.props["Psi"]
+            g = GeometryOperators.deg2rad(self._modeler._app.variable_manager["temp_var"].numeric_value)
             self._quaternion = GeometryOperators.euler_zxz_to_quaternion(a, b, g)
-            del self._parent._parent.variable_manager["temp_var"]
+            del self._modeler._app.variable_manager["temp_var"]
         elif self.mode == "zyz" or self.mode == "axisrotation":
-            self._parent._parent.variable_manager["temp_var"] = self.props["Phi"]
-            a = GeometryOperators.deg2rad(self._parent._parent.variable_manager["temp_var"].numeric_value)
-            self._parent._parent.variable_manager["temp_var"] = self.props["Theta"]
-            b = GeometryOperators.deg2rad(self._parent._parent.variable_manager["temp_var"].numeric_value)
-            self._parent._parent.variable_manager["temp_var"] = self.props["Psi"]
-            g = GeometryOperators.deg2rad(self._parent._parent.variable_manager["temp_var"].numeric_value)
+            self._modeler._app.variable_manager["temp_var"] = self.props["Phi"]
+            a = GeometryOperators.deg2rad(self._modeler._app.variable_manager["temp_var"].numeric_value)
+            self._modeler._app.variable_manager["temp_var"] = self.props["Theta"]
+            b = GeometryOperators.deg2rad(self._modeler._app.variable_manager["temp_var"].numeric_value)
+            self._modeler._app.variable_manager["temp_var"] = self.props["Psi"]
+            g = GeometryOperators.deg2rad(self._modeler._app.variable_manager["temp_var"].numeric_value)
             self._quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
-            del self._parent._parent.variable_manager["temp_var"]
+            del self._modeler._app.variable_manager["temp_var"]
         return self._quaternion
 
     @property
@@ -528,8 +528,8 @@ class CoordinateSystem(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self._parent.oeditor.Delete(["NAME:Selections", "Selections:=", self.name])
-        self._parent.coordinate_systems.remove(self)
+        self._modeler.oeditor.Delete(["NAME:Selections", "Selections:=", self.name])
+        self._modeler.coordinate_systems.remove(self)
         return True
 
     @aedt_exception_handler
@@ -542,7 +542,7 @@ class CoordinateSystem(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self._parent.oeditor.SetWCS(
+        self._modeler.oeditor.SetWCS(
             ["NAME:SetWCS Parameter", "Working Coordinate System:=", self.name, "RegionDepCSOk:=", False]
         )
         return True
@@ -556,44 +556,44 @@ class Modeler(object):
 
     Parameters
     ----------
-    parent :
+    app :
         Inherited parent object.
 
     """
 
-    def __init__(self, parent):
-        self._parent = parent
+    def __init__(self, app):
+        self._app = app
 
     # Properties derived from internal parent data
     @property
     def _desktop(self):
         """Desktop."""
-        return self._parent._desktop
+        return self._app._desktop
 
     @property
     def _messenger(self):
         """Messager."""
-        return self._parent._messenger
+        return self._app._messenger
 
     @property
     def logger(self):
         """Logger."""
-        return self._parent.logger
+        return self._app.logger
 
     @property
-    def odesign(self):
+    def _odesign(self):
         """Design."""
-        return self._parent._odesign
+        return self._app._odesign
 
     @property
-    def oimportexport(self):
+    def _oimportexport(self):
         """Import/Export."""
-        return self._parent.oimportexport
+        return self._app.oimport_export
 
     @property
     def projdir(self):
         """Project directory."""
-        return self._parent.project_path
+        return self._app.project_path
 
 
 class GeometryModeler(Modeler, object):
@@ -613,9 +613,12 @@ class GeometryModeler(Modeler, object):
 
     """
 
-    def __init__(self, parent, is3d=True):
-        self._parent = parent
-        Modeler.__init__(self, parent)
+    def __init__(self, app, is3d=True):
+        self._app = app
+        self.oeditor = self._odesign.SetActiveEditor("3D Modeler")
+        self._odefinition_manager = self._app.odefinition_manager
+        self._omaterial_manager = self._app._oproject.GetDefinitionManager().GetManager("Material")
+        Modeler.__init__(self, app)
         # TODO Refactor this as a dictionary with names as key
         self.coordinate_systems = self._get_coordinates_data()
         self._is3d = is3d
@@ -629,7 +632,7 @@ class GeometryModeler(Modeler, object):
         :class:`pyaedt.modules.MaterialLib.Materials`
 
         """
-        return self._parent.materials
+        return self._app.materials
 
     @aedt_exception_handler
     def _convert_list_to_ids(self, input_list, convert_objects_ids_to_name=True):
@@ -667,19 +670,11 @@ class GeometryModeler(Modeler, object):
         return output_list
 
     def _get_coordinates_data(self):
-        """Get coordinate data.
-
-        Returns
-        -------
-        list
-            List of coordinates.
-
-        """
         coord = []
         id2name = {1: "Global"}
         name2refid = {}
-        if self._parent.design_properties and "ModelSetup" in self._parent.design_properties:
-            cs = self._parent.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"]["CoordinateSystems"]
+        if self._app.design_properties and "ModelSetup" in self._app.design_properties:
+            cs = self._app.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"]["CoordinateSystems"]
             for ds in cs:
                 try:
                     if isinstance(cs[ds], (OrderedDict, dict)):
@@ -704,54 +699,43 @@ class GeometryModeler(Modeler, object):
                     cs.ref_cs = id2name[name2refid[cs.name]]
                     if cs.props["Mode"] == "Axis/Position":
                         x1 = GeometryOperators.parse_dim_arg(cs.props["XAxisXvec"],
-                                                             variable_manager=self._parent.variable_manager)
+                                                             variable_manager=self._app.variable_manager)
                         x2 = GeometryOperators.parse_dim_arg(cs.props["XAxisYvec"],
-                                                             variable_manager=self._parent.variable_manager)
+                                                             variable_manager=self._app.variable_manager)
                         x3 = GeometryOperators.parse_dim_arg(cs.props["XAxisZvec"],
-                                                             variable_manager=self._parent.variable_manager)
+                                                             variable_manager=self._app.variable_manager)
                         y1 = GeometryOperators.parse_dim_arg(cs.props["YAxisXvec"],
-                                                             variable_manager=self._parent.variable_manager)
+                                                             variable_manager=self._app.variable_manager)
                         y2 = GeometryOperators.parse_dim_arg(cs.props["YAxisYvec"],
-                                                             variable_manager=self._parent.variable_manager)
+                                                             variable_manager=self._app.variable_manager)
                         y3 = GeometryOperators.parse_dim_arg(cs.props["YAxisZvec"],
-                                                             variable_manager=self._parent.variable_manager)
+                                                             variable_manager=self._app.variable_manager)
                         x, y, z = GeometryOperators.pointing_to_axis([x1, x2, x3], [y1, y2, y3])
                         a, b, g = GeometryOperators.axis_to_euler_zyz(x, y, z)
                         cs.quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
                     elif cs.props["Mode"] == "Euler Angle ZXZ":
                         a = GeometryOperators.parse_dim_arg(cs.props["Phi"],
-                                                            variable_manager=self._parent.variable_manager)
+                                                            variable_manager=self._app.variable_manager)
                         b = GeometryOperators.parse_dim_arg(cs.props["Theta"],
-                                                            variable_manager=self._parent.variable_manager)
+                                                            variable_manager=self._app.variable_manager)
                         g = GeometryOperators.parse_dim_arg(cs.props["Psi"],
-                                                            variable_manager=self._parent.variable_manager)
+                                                            variable_manager=self._app.variable_manager)
                         cs.quaternion = GeometryOperators.euler_zxz_to_quaternion(a, b, g)
                     elif cs.props["Mode"] == "Euler Angle ZYZ":
                         a = GeometryOperators.parse_dim_arg(cs.props["Phi"],
-                                                            variable_manager=self._parent.variable_manager)
+                                                            variable_manager=self._app.variable_manager)
                         b = GeometryOperators.parse_dim_arg(cs.props["Theta"],
-                                                            variable_manager=self._parent.variable_manager)
+                                                            variable_manager=self._app.variable_manager)
                         g = GeometryOperators.parse_dim_arg(cs.props["Psi"],
-                                                            variable_manager=self._parent.variable_manager)
+                                                            variable_manager=self._app.variable_manager)
                         cs.quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
                 except:
                     pass
         return coord
 
     def __get__(self, instance, owner):
-        self._parent = instance
+        self._app = instance
         return self
-
-    @property
-    def oeditor(self):
-        """Editor.
-
-        Returns
-        -------
-        pyaedt.modeler.Model3D.Modeler3D
-
-        """
-        return self.odesign.SetActiveEditor("3D Modeler")
 
     @property
     def model_units(self):
@@ -773,22 +757,6 @@ class GeometryModeler(Modeler, object):
         """Bounding box."""
         return self.oeditor.GetModelBoundingBox()
 
-    @property
-    def odefinition_manager(self):
-        """Definition manager."""
-        return self._parent._oproject.GetDefinitionManager()
-
-    @property
-    def omaterial_manager(self):
-        """Material manager used in the project.
-
-        Returns
-        -------
-        :class:`pyaedt.modules.MaterialLib.Materials`
-
-        """
-        return self._parent._oproject.GetDefinitionManager().GetManager("Material")
-
     @aedt_exception_handler
     def fit_all(self):
         """Fit all."""
@@ -805,7 +773,7 @@ class GeometryModeler(Modeler, object):
 
         """
         try:
-            if self.odesign.Is2D():
+            if self._odesign.Is2D():
                 return "2D"
             else:
                 return "3D"
@@ -818,24 +786,24 @@ class GeometryModeler(Modeler, object):
     @property
     def design_type(self):
         """Design type."""
-        return self.odesign.GetDesignType()
+        return self._odesign.GetDesignType()
 
     @property
     def geometry_mode(self):
         """Geometry mode."""
-        return self.odesign.GetGeometryMode()
+        return self._odesign.GetGeometryMode()
 
     @property
     def solid_bodies(self):
-        """Directory of object IDs with the object name as the key.
+        """List of Object Names.
 
         .. note::
             Non-model objects are also returned.
 
         Returns
         -------
-        list
-            List of object IDs with the object name as the key.
+        list os str
+            List of object names with the object name as the key.
 
         """
         if self.dimension == "3D":
@@ -981,11 +949,11 @@ class GeometryModeler(Modeler, object):
             idx = cs_names.index(cs)
             q = self.coordinate_systems[idx].quaternion
             ox = GeometryOperators.parse_dim_arg(self.coordinate_systems[idx].props["OriginX"], self.model_units,
-                                                 variable_manager=self._parent.variable_manager)
+                                                 variable_manager=self._app.variable_manager)
             oy = GeometryOperators.parse_dim_arg(self.coordinate_systems[idx].props["OriginY"], self.model_units,
-                                                 variable_manager=self._parent.variable_manager)
+                                                 variable_manager=self._app.variable_manager)
             oz = GeometryOperators.parse_dim_arg(self.coordinate_systems[idx].props["OriginZ"], self.model_units,
-                                                 variable_manager=self._parent.variable_manager)
+                                                 variable_manager=self._app.variable_manager)
             o = [ox, oy, oz]
             refcs = self.coordinate_systems[idx].ref_cs
             if refcs == "Global":
@@ -1067,7 +1035,7 @@ class GeometryModeler(Modeler, object):
         """
         self.logger.glb.info("Enabling deformation feedback")
         try:
-            self.odesign.SetObjectDeformation(["EnabledObjects:=", objects])
+            self._odesign.SetObjectDeformation(["EnabledObjects:=", objects])
         except:
             self.logger.glb.error("Failed to enable the deformation dependence")
             return False
@@ -1099,7 +1067,7 @@ class GeometryModeler(Modeler, object):
         """
         self.logger.glb.info("Set model temperature and enabling Thermal Feedback")
         if create_project_var:
-            self._parent.variable_manager["$AmbientTemp"] = str(ambient_temp) + "cel"
+            self._app.variable_manager["$AmbientTemp"] = str(ambient_temp) + "cel"
             var = "$AmbientTemp"
         else:
             var = str(ambient_temp) + "cel"
@@ -1114,7 +1082,7 @@ class GeometryModeler(Modeler, object):
         vargs2 = []
         for obj in objects:
             mat = self.primitives[obj].material_name
-            th = self._parent.materials.check_thermal_modifier(mat)
+            th = self._app.materials.check_thermal_modifier(mat)
             if th:
                 vargs2.append(obj)
                 vargs2.append(var)
@@ -1123,7 +1091,7 @@ class GeometryModeler(Modeler, object):
         else:
             vargs1.append(vargs2)
         try:
-            self.odesign.SetObjectTemperature(vargs1)
+            self._odesign.SetObjectTemperature(vargs1)
         except:
             self.logger.glb.error("Failed to enable the temperature dependence")
             return False
@@ -1295,13 +1263,13 @@ class GeometryModeler(Modeler, object):
             axisdist = -axisdist
 
         if divmod(axisdir, 3)[1] == 0:
-            cs = self._parent.CoordinateSystemPlane.YZPlane
+            cs = self._app.CoordinateSystemPlane.YZPlane
             vector = [axisdist, 0, 0]
         elif divmod(axisdir, 3)[1] == 1:
-            cs = self._parent.CoordinateSystemPlane.ZXPlane
+            cs = self._app.CoordinateSystemPlane.ZXPlane
             vector = [0, axisdist, 0]
         elif divmod(axisdir, 3)[1] == 2:
-            cs = self._parent.CoordinateSystemPlane.XYPlane
+            cs = self._app.CoordinateSystemPlane.XYPlane
             vector = [0, 0, axisdist]
 
         offset = self.find_point_around(objectname, start, sheet_dim, cs)
@@ -1407,7 +1375,7 @@ class GeometryModeler(Modeler, object):
 
         """
         try:
-            list_names = list(self._parent.oboundary.GetExcitations())
+            list_names = list(self._app.oboundary.GetExcitations())
             del list_names[1::2]
             return list_names
         except:
@@ -1424,7 +1392,7 @@ class GeometryModeler(Modeler, object):
             boundary for each mode.
 
         """
-        list_names = list(self._parent.oboundary.GetBoundaries())
+        list_names = list(self._app.oboundary.GetBoundaries())
         del list_names[1::2]
         return list_names
 
@@ -1500,7 +1468,7 @@ class GeometryModeler(Modeler, object):
             vArg1 = ["NAME:Model", "Value:=", False]
             self.primitives._change_geometry_property(vArg1, objs_to_unmodel)
             bounding = self.get_model_bounding_box()
-            self.odesign.Undo()
+            self._odesign.Undo()
         else:
             bounding = self.get_model_bounding_box()
         return bounding
@@ -2233,7 +2201,7 @@ class GeometryModeler(Modeler, object):
         self.oeditor.Intersect(vArg1, vArg2)
         unclassified1 = list(self.oeditor.GetObjectsInGroup("Unclassified"))
         if unclassified != unclassified1:
-            self.odesign.Undo()
+            self._odesign.Undo()
             self.logger.glb.error("Error in intersection. Reverting Operation")
             return False
         self.primitives.cleanup_objects()
@@ -2262,7 +2230,7 @@ class GeometryModeler(Modeler, object):
 
         self.oeditor.Connect(vArg1)
         if unclassified_before != self.primitives.unclassified_names:
-            self.odesign.Undo()
+            self._odesign.Undo()
             self.logger.glb.error("Error in connection. Reverting Operation")
             return False
 
@@ -2313,7 +2281,7 @@ class GeometryModeler(Modeler, object):
 
         """
         self.logger.glb.info("Subtract all objects from Chassis object - exclude vacuum objs")
-        mat_names = self.omaterial_manager.GetNames()
+        mat_names = self._omaterial_manager.GetNames()
         num_obj_start = self.oeditor.GetNumObjects()
         blank_part = chassis_part
         # in main code this object will need to be determined automatically eg by name such as chassis or sheer size
@@ -2722,7 +2690,7 @@ class GeometryModeler(Modeler, object):
             if not wg_thickness:
                 wg_thickness = wgheight / 20
             if parametrize_h:
-                self._parent[wgmodel + "_H"] = self.primitives._arg_with_dim(wgheight)
+                self._app[wgmodel + "_H"] = self.primitives._arg_with_dim(wgheight)
                 h = wgmodel + "_H"
                 hb = wgmodel + "_H + 2*" + self.primitives._arg_with_dim(wg_thickness)
             else:
@@ -2730,13 +2698,13 @@ class GeometryModeler(Modeler, object):
                 hb = self.primitives._arg_with_dim(wgheight) + " + 2*" + self.primitives._arg_with_dim(wg_thickness)
 
             if parametrize_w:
-                self._parent[wgmodel + "_W"] = self.primitives._arg_with_dim(wgwidth)
+                self._app[wgmodel + "_W"] = self.primitives._arg_with_dim(wgwidth)
                 w = wgmodel + "_W"
                 wb = wgmodel + "_W + " + self.primitives._arg_with_dim(2 * wg_thickness)
             else:
                 w = self.primitives._arg_with_dim(wgwidth)
                 wb = self.primitives._arg_with_dim(wgwidth) + " + 2*" + self.primitives._arg_with_dim(wg_thickness)
-            if wg_direction_axis == self._parent.CoordinateSystemAxis.ZAxis:
+            if wg_direction_axis == self._app.CoordinateSystemAxis.ZAxis:
                 airbox = self.primitives.create_box(origin, [w, h, wg_length])
 
                 if type(wg_thickness) is str:
@@ -2746,7 +2714,7 @@ class GeometryModeler(Modeler, object):
                     origin[0] -= wg_thickness
                     origin[1] -= wg_thickness
 
-            elif wg_direction_axis == self._parent.CoordinateSystemAxis.YAxis:
+            elif wg_direction_axis == self._app.CoordinateSystemAxis.YAxis:
                 airbox = self.primitives.create_box(origin, [w, wg_length, h])
 
                 if type(wg_thickness) is str:
@@ -2773,9 +2741,9 @@ class GeometryModeler(Modeler, object):
                 p2 = self.primitives.create_object_from_face(airbox.faces[maxi].id)
             if not name:
                 name = generate_unique_name(wgmodel)
-            if wg_direction_axis == self._parent.CoordinateSystemAxis.ZAxis:
+            if wg_direction_axis == self._app.CoordinateSystemAxis.ZAxis:
                 wgbox = self.primitives.create_box(origin, [wb, hb, wg_length], name=name)
-            elif wg_direction_axis == self._parent.CoordinateSystemAxis.YAxis:
+            elif wg_direction_axis == self._app.CoordinateSystemAxis.YAxis:
                 wgbox = self.primitives.create_box(origin, [wb, wg_length, hb], name=name)
             else:
                 wgbox = self.primitives.create_box(origin, [wg_length, wb, hb], name=name)
@@ -3730,7 +3698,7 @@ class GeometryModeler(Modeler, object):
                     ["NAME:SheetThickenParameters", "Thickness:=", str(l) + "mm", "BothSides:=", False],
                 )
                 aedt_bounding_box2 = self.get_model_bounding_box()
-                self.odesign.Undo()
+                self._odesign.Undo()
                 if aedt_bounding_box != aedt_bounding_box2:
                     directions[el] = "External"
                     directionfound = True
@@ -3740,7 +3708,7 @@ class GeometryModeler(Modeler, object):
                 )
                 aedt_bounding_box2 = self.get_model_bounding_box()
 
-                self.odesign.Undo()
+                self._odesign.Undo()
 
                 if aedt_bounding_box != aedt_bounding_box2:
                     directions[el] = "Internal"
@@ -3793,7 +3761,7 @@ class GeometryModeler(Modeler, object):
         return True
 
     def __get__(self, instance, owner):
-        self._parent = instance
+        self._app = instance
         return self
 
     class Position:

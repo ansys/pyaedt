@@ -37,5 +37,5 @@ def set_active_design(request, doctest_namespace):
         return
 
     icepak = doctest_namespace["icepak"]
-    icepak.oproject = "RadioBoardIcepak"
-    icepak.odesign = "IcepakDesign1"
+    icepak._oproject = "RadioBoardIcepak"
+    icepak._odesign = "IcepakDesign1"

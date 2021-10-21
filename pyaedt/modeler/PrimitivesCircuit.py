@@ -12,61 +12,6 @@ class CircuitComponents(object):
     This is the common class for managing all circuit components for Nexxim and Simplorer.
     """
 
-    @property
-    def oeditor(self):
-        """Editor."""
-        return self.modeler.oeditor
-
-    @property
-    def _messenger(self):
-        """_messenger."""
-        return self._parent._messenger
-
-    @property
-    def logger(self):
-        """Logger."""
-        return self._parent.logger
-
-    @property
-    def version(self):
-        """Version."""
-        return self._parent._aedt_version
-
-    @property
-    def design_types(self):
-        """Design types."""
-        return self._parent._modeler
-
-    @property
-    def model_units(self):
-        """Model units."""
-        return self.modeler.model_units
-
-    @property
-    def o_model_manager(self):
-        """Model manager."""
-        return self.modeler.o_model_manager
-
-    @property
-    def o_definition_manager(self):
-        """Definition manager."""
-        return self._parent._oproject.GetDefinitionManager()
-
-    @property
-    def o_symbol_manager(self):
-        """Symbol manager."""
-        return self.o_definition_manager.GetManager("Symbol")
-
-    @property
-    def o_component_manager(self):
-        """Component manager."""
-        return self.o_definition_manager.GetManager("Component")
-
-    @property
-    def design_type(self):
-        """Design type."""
-        return self._parent.design_type
-
     @aedt_exception_handler
     def __getitem__(self, partname):
         """Retrieve a part.
@@ -89,12 +34,44 @@ class CircuitComponents(object):
 
         return None
 
-    def __init__(self, parent, modeler):
-        self._parent = parent
-        self.modeler = modeler
+    def __init__(self, modeler):
+        self._app = modeler._app
+        self._modeler = modeler
+        self.logger = self._app.logger
+        self.o_model_manager = self._modeler.o_model_manager
+
+        self.o_definition_manager = self._app._oproject.GetDefinitionManager()
+        self.o_symbol_manager = self.o_definition_manager.GetManager("Symbol")
+        self.o_component_manager = self.o_definition_manager.GetManager("Component")
+        self._oeditor = self._modeler.oeditor
         self._currentId = 0
         self.components = defaultdict(CircuitComponent)
         pass
+
+    @property
+    def _messenger(self):
+        """_messenger."""
+        return self._app._messenger
+
+    @property
+    def version(self):
+        """Version."""
+        return self._app._aedt_version
+
+    @property
+    def design_types(self):
+        """Design types."""
+        return self._app._modeler
+
+    @property
+    def model_units(self):
+        """Model units."""
+        return self._modeler.model_units
+
+    @property
+    def design_type(self):
+        """Design type."""
+        return self._app.design_type
 
     @aedt_exception_handler
     def create_unique_id(self):
@@ -128,7 +105,7 @@ class CircuitComponents(object):
 
         """
         pointlist = [str(tuple(i)) for i in points_array]
-        self.oeditor.CreateWire(
+        self._oeditor.CreateWire(
             ["NAME:WireData", "Name:=", "", "Id:=", random.randint(20000, 23000), "Points:=", pointlist],
             ["NAME:Attributes", "Page:=", 1],
         )
@@ -170,7 +147,7 @@ class CircuitComponents(object):
         id = self.create_unique_id()
         arg1 = ["NAME:IPortProps", "Name:=", name, "Id:=", id]
         arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", posx, "Y:=", posy, "Angle:=", angle, "Flip:=", False]
-        id = self.oeditor.CreateIPort(arg1, arg2)
+        id = self._oeditor.CreateIPort(arg1, arg2)
 
         id = int(id.split(";")[1])
         self.add_id_to_component(id)
@@ -203,7 +180,7 @@ class CircuitComponents(object):
 
         """
         id = self.create_unique_id()
-        id = self.oeditor.CreatePagePort(
+        id = self._oeditor.CreatePagePort(
             ["NAME:PagePortProps", "Name:=", name, "Id:=", id],
             ["NAME:Attributes", "Page:=", 1, "X:=", posx, "Y:=", posy, "Angle:=", angle, "Flip:=", False],
         )
@@ -233,7 +210,7 @@ class CircuitComponents(object):
         """
         id = self.create_unique_id()
 
-        name = self.oeditor.CreateGround(
+        name = self._oeditor.CreateGround(
             ["NAME:GroundProps", "Id:=", id],
             ["NAME:Attributes", "Page:=", 1, "X:=", posx, "Y:=", posy, "Angle:=", 0, "Flip:=", False],
         )
@@ -497,7 +474,7 @@ class CircuitComponents(object):
         id = self.create_unique_id()
         arg1 = ["NAME:ComponentProps", "Name:=", modelname, "Id:=", str(id)]
         arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
-        id = retry_ntimes(10, self.oeditor.CreateComponent, arg1, arg2)
+        id = retry_ntimes(10, self._oeditor.CreateComponent, arg1, arg2)
         id = int(id.split(";")[1])
         self.add_id_to_component(id)
         return id, self.components[id].composed_name
@@ -551,7 +528,7 @@ class CircuitComponents(object):
             name = component_name
         arg1 = ["NAME:ComponentProps", "Name:=", name, "Id:=", str(id)]
         arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
-        id = retry_ntimes(10, self.oeditor.CreateComponent, arg1, arg2)
+        id = retry_ntimes(10, self._oeditor.CreateComponent, arg1, arg2)
         id = int(id.split(";")[1])
         # self.refresh_all_ids()
         self.add_id_to_component(id)
@@ -692,7 +669,7 @@ class CircuitComponents(object):
             "InitialLevels:=",
             [0, 1],
         ]
-        oDefinitionEditor = self._parent._oproject.SetActiveDefinitionEditor("SymbolEditor", symbol_name)
+        oDefinitionEditor = self._app._oproject.SetActiveDefinitionEditor("SymbolEditor", symbol_name)
         id = 2
         oDefinitionEditor.CreateRectangle(
             [
@@ -932,17 +909,22 @@ class CircuitComponents(object):
     @aedt_exception_handler
     def refresh_all_ids(self):
         """Refresh all IDs and return the number of components."""
-        obj = self.oeditor.GetAllComponents()
+        obj = self._oeditor.GetAllElements()
+        obj = [i for i in obj if "Wire" not in i[:4]]
         for el in obj:
             if not self.get_obj_id(el):
                 name = el.split(";")
-                o = CircuitComponent(self.oeditor, tabname=self.tab_name)
-                o.name = name[0]
-                o.id = int(name[1])
-                o.schematic_id = name[2]
-                o_update = self.update_object_properties(o)
-                objID = o.id
-                self.components[objID] = o_update
+                if len(name) > 1:
+                    o = CircuitComponent(self._oeditor, tabname=self.tab_name)
+                    o.name = name[0]
+                    if len(name) == 2:
+                        o.schematic_id = name[1]
+                    else:
+                        o.id = int(name[1])
+                        o.schematic_id = name[2]
+                    o_update = self.update_object_properties(o)
+                    objID = o.id
+                    self.components[objID] = o_update
         return len(self.components)
 
     @aedt_exception_handler
@@ -960,11 +942,11 @@ class CircuitComponents(object):
             Number of components.
 
         """
-        obj = retry_ntimes(10, self.oeditor.GetAllElements)
+        obj = retry_ntimes(10, self._oeditor.GetAllElements)
         for el in obj:
             name = el.split(";")
             if len(name) > 1 and str(id) == name[1]:
-                o = CircuitComponent(self.oeditor, tabname=self.tab_name)
+                o = CircuitComponent(self._oeditor, tabname=self.tab_name)
                 o.name = name[0]
                 if len(name) > 2:
                     o.id = int(name[1])
@@ -1013,9 +995,9 @@ class CircuitComponents(object):
 
         """
         name = o.composed_name
-        proparray = retry_ntimes(10, self.oeditor.GetProperties, "PassedParameterTab", name)
+        proparray = retry_ntimes(10, self._oeditor.GetProperties, "PassedParameterTab", name)
         for j in proparray:
-            propval = retry_ntimes(10, self.oeditor.GetPropertyValue, "PassedParameterTab", name, j)
+            propval = retry_ntimes(10, self._oeditor.GetPropertyValue, "PassedParameterTab", name, j)
             o._add_property(j, propval)
         return o
 
@@ -1035,10 +1017,10 @@ class CircuitComponents(object):
 
         """
         if type(partid) is str:
-            pins = retry_ntimes(10, self.oeditor.GetComponentPins, partid)
+            pins = retry_ntimes(10, self._oeditor.GetComponentPins, partid)
             # pins = self.oeditor.GetComponentPins(partid)
         else:
-            pins = retry_ntimes(10, self.oeditor.GetComponentPins, self.components[partid].composed_name)
+            pins = retry_ntimes(10, self._oeditor.GetComponentPins, self.components[partid].composed_name)
             # pins = self.oeditor.GetComponentPins(self.components[partid].composed_name)
         return list(pins)
 
@@ -1060,14 +1042,14 @@ class CircuitComponents(object):
 
         """
         if type(partid) is str:
-            x = retry_ntimes(30, self.oeditor.GetComponentPinLocation, partid, pinname, True)
-            y = retry_ntimes(30, self.oeditor.GetComponentPinLocation, partid, pinname, False)
+            x = retry_ntimes(30, self._oeditor.GetComponentPinLocation, partid, pinname, True)
+            y = retry_ntimes(30, self._oeditor.GetComponentPinLocation, partid, pinname, False)
         else:
             x = retry_ntimes(
-                30, self.oeditor.GetComponentPinLocation, self.components[partid].composed_name, pinname, True
+                30, self._oeditor.GetComponentPinLocation, self.components[partid].composed_name, pinname, True
             )
             y = retry_ntimes(
-                30, self.oeditor.GetComponentPinLocation, self.components[partid].composed_name, pinname, False
+                30, self._oeditor.GetComponentPinLocation, self.components[partid].composed_name, pinname, False
             )
         return [x, y]
 

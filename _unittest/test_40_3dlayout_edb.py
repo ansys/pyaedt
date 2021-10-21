@@ -31,8 +31,7 @@ class TestClass:
                 self.aedtapp = None
 
     def teardown_class(self):
-        self.aedtapp.close_project(test_project_name)
-
+        self.aedtapp.close_project(self.aedtapp.project_name)
         self.local_scratch.remove()
         gc.collect()
 

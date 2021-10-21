@@ -327,7 +327,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         Returns
         -------
-        list
+        list of str
             List of validation messages.
 
         """
@@ -913,6 +913,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         if xml_path:
             oeditor.ImportStackupXML(xml_path)
         if set_as_active:
+            self._close_edb()
             self.__init__(project_name)
         if close_active_project:
             self.odesktop.CloseProject(active_project)
