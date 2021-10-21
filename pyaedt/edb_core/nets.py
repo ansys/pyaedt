@@ -250,7 +250,7 @@ class EdbNets(object):
                 if edb_net is not None:
                     edb_net.Delete()
                     nets_deleted.append(net)
-                    self._messenger.add_info_message("Net {} Deleted".format(net))
+                    self._messenger.add_info_message("Net %s Deleted", net)
             except:
                 pass
 

@@ -582,7 +582,7 @@ class EdbLayout(object):
                 elif endPoint[2].ToString() == "ccw":
                     rotationDirection = self._edb.Geometry.RotationDirection.CCW
                 else:
-                    self._messenger.add_error_message("Invalid rotation direction {} is specified.".format(endPoint[2]))
+                    self._messenger.add_error_message("Invalid rotation direction %s is specified.", endPoint[2])
                     return None
                 arc = self._edb.Geometry.ArcData(
                     self._edb.Geometry.PointData(startPoint[0], startPoint[1]),
@@ -734,7 +734,7 @@ class EdbLayout(object):
             layer_name = list(self._pedb.core_stackup.signal_layers.keys())
 
         for lay in layer_name:
-            self._messenger.add_info_message("Uniting Objects on layer {}.".format(lay))
+            self._messenger.add_info_message("Uniting Objects on layer %s.", lay)
             poly_by_nets = {}
             if lay in list(self.polygons_by_layer.keys()):
                 for poly in self.polygons_by_layer[lay]:

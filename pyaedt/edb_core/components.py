@@ -723,7 +723,7 @@ class Components(object):
                 "or it contains a number of pins not equal to 2".format(componentname)
             )
             return False
-        self._messenger.add_warning_message("RLC properties for Component {} has been assigned.".format(componentname))
+        self._messenger.add_warning_message("RLC properties for Component %s has been assigned.", componentname)
         return True
 
     @aedt_exception_handler

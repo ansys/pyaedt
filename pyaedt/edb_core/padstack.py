@@ -240,7 +240,7 @@ class EdbPadstacks(object):
             padstackLayerMap.SetMapping(layer.GetLayerId(), padstackLayerIdMap[padstackLayerName])
         padstackDefinition = self._edb.Definition.PadstackDef.Create(self.db, padstackname)
         padstackDefinition.SetData(padstackData)
-        self._messenger.add_info_message("Padstack {} create correctly".format(padstackname))
+        self._messenger.add_info_message("Padstack %s create correctly", padstackname)
         self.update_padstacks()
         return padstackname
 

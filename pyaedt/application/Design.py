@@ -641,7 +641,7 @@ class Design(object):
         start = time.time()
         if not self._project_dictionary:
             self._project_dictionary = load_entire_aedt_file(self.project_file)
-            self._messenger.add_info_message("AEDT Load time {}".format(time.time() - start))
+            self._messenger.add_info_message("AEDT Load time %s", (time.time() - start))
         return self._project_dictionary
 
     @property

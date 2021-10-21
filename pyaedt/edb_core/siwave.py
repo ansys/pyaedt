@@ -459,7 +459,7 @@ class EdbSiwave(object):
             except:
                 name = generate_unique_name(source.name)
                 pos_pingroup_terminal.SetName(name)
-                self._messenger.add_warning_message("{} already exists. Renaming to {}".format(source.name, name))
+                self._messenger.add_warning_message("%s already exists. Renaming to %s", source.name, name)
         elif source.type == SourceType.CurrentSource:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kCurrentSource)
             neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kCurrentSource)
@@ -471,7 +471,7 @@ class EdbSiwave(object):
             except Exception as e:
                 name = generate_unique_name(source.name)
                 pos_pingroup_terminal.SetName(name)
-                self._messenger.add_warning_message("{} already exists. Renaming to {}".format(source.name, name))
+                self._messenger.add_warning_message("%s already exists. Renaming to %s", source.name, name)
 
         elif source.type == SourceType.VoltageSource:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kVoltageSource)
@@ -484,7 +484,7 @@ class EdbSiwave(object):
             except:
                 name = generate_unique_name(source.name)
                 pos_pingroup_terminal.SetName(name)
-                self._messenger.add_warning_message("{} already exists. Renaming to {}".format(source.name, name))
+                self._messenger.add_warning_message("%s already exists. Renaming to %s", source.name, name)
 
         elif source.type == SourceType.Resistor:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.RlcBoundary)
@@ -502,7 +502,7 @@ class EdbSiwave(object):
             except:
                 name = generate_unique_name(source.name)
                 pos_pingroup_terminal.SetName(name)
-                self._messenger.add_warning_message("{} already exists. Renaming to {}".format(source.name, name))
+                self._messenger.add_warning_message("%s already exists. Renaming to %s", source.name, name)
         else:
             pass
         return pos_pingroup_terminal.GetName()
@@ -1225,7 +1225,7 @@ class EdbSiwave(object):
             except:
                 name = generate_unique_name(source.name)
                 pos_pingroup_terminal.SetName(name)
-                self._messenger.add_warning_message("{} already exists. Renaming to {}".format(source.name, name))
+                self._messenger.add_warning_message("%s already exists. Renaming to %s", source.name, name)
 
         elif source.type == SourceType.CurrentSource:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kCurrentSource)
@@ -1238,7 +1238,7 @@ class EdbSiwave(object):
             except Exception as e:
                 name = generate_unique_name(source.name)
                 pos_pingroup_terminal.SetName(name)
-                self._messenger.add_warning_message("{} already exists. Renaming to {}".format(source.name, name))
+                self._messenger.add_warning_message("%s already exists. Renaming to %s", source.name, name)
 
         elif source.type == SourceType.VoltageSource:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kVoltageSource)
@@ -1251,7 +1251,7 @@ class EdbSiwave(object):
             except:
                 name = generate_unique_name(source.name)
                 pos_pingroup_terminal.SetName(name)
-                self._messenger.add_warning_message("{} already exists. Renaming to {}".format(source.name, name))
+                self._messenger.add_warning_message("%s already exists. Renaming to %s", source.name, name)
 
         elif source.type == SourceType.Resistor:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.RlcBoundary)
