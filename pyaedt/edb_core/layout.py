@@ -262,12 +262,12 @@ class EdbLayout(object):
         """
         bounding = []
         try:
-            bbox = polygon.GetPolygonData().GetBBox()
+            bounding_box = polygon.GetPolygonData().GetBBox()
             bounding = [
-                bbox.Item1.X.ToDouble(),
-                bbox.Item1.Y.ToDouble(),
-                bbox.Item2.X.ToDouble(),
-                bbox.Item2.Y.ToDouble(),
+                bounding_box.Item1.X.ToDouble(),
+                bounding_box.Item1.Y.ToDouble(),
+                bounding_box.Item2.X.ToDouble(),
+                bounding_box.Item2.Y.ToDouble(),
             ]
         except:
             pass
