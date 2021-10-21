@@ -521,7 +521,7 @@ class Mesh(object):
             List of object names or face IDs.
         isinside : bool, optional
             Whether the length mesh is inside the selection. The default is ``True``.
-        maxlength : int, optional
+        maxlength : str, float, optional
             Maximum element length. The default is ``1``. When ``None``,
             this parameter is disabled.
         maxel : int, optional

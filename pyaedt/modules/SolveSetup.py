@@ -181,6 +181,11 @@ class Setup(object):
                 name = expression.replace("(", "_") + "1"
                 name = name.replace(")", "_")
                 name = name.replace(" ", "_")
+                name = name.replace(".", "_")
+                name = name.replace("/", "_")
+                name = name.replace("*", "_")
+                name = name.replace("+", "_")
+                name = name.replace("-", "_")
                 if type(report_type_list) is list:
                     report_type = report_type_list[i]
                 else:
