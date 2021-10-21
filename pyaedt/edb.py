@@ -736,6 +736,16 @@ class Edb(object):
         -------
 
         """
+        var_server_db = self.db.GetVariableServer()
+        var_names = var_server_db.GetAllVariableNames()
+        var_server_cell = self.active_cell.GetVariableServer()
+        var_names_cell = var_server_cell.GetAllVariableNames()
+        if isinstance(val, (int, float)):
+            return self.edb.Utility.Value(val)
+        if val in var_names or any(s in val for s in var_names):
+            return self._edb.Utility.Value(val, var_server_db)
+        elif val in var_names_cell or any(s in val for s in var_names_cell):
+            return self.edb.Utility.Value(val, var_server_cell)
         return self.edb.Utility.Value(val)
 
     @aedt_exception_handler

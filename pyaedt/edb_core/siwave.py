@@ -390,6 +390,11 @@ class EdbSiwave(object):
         return self._pedb.edb
 
     @property
+    def _edb_value(self):
+        """EDB."""
+        return self._pedb.edb_value
+
+    @property
     def _logger(self):
         """EDB."""
         return self._pedb.logger
@@ -450,7 +455,7 @@ class EdbSiwave(object):
         if source.type == SourceType.Port:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
             neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
-            pos_pingroup_terminal.SetSourceAmplitude(self._edb.Utility.Value(source.impedance))
+            pos_pingroup_terminal.SetSourceAmplitude(self._edb_value(source.impedance))
             pos_pingroup_terminal.SetIsCircuitPort(True)
             neg_pingroup_terminal.SetIsCircuitPort(True)
             pos_pingroup_terminal.SetReferenceTerminal(neg_pingroup_terminal)
@@ -463,8 +468,8 @@ class EdbSiwave(object):
         elif source.type == SourceType.CurrentSource:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kCurrentSource)
             neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kCurrentSource)
-            pos_pingroup_terminal.SetSourceAmplitude(self._edb.Utility.Value(source.magnitude))
-            pos_pingroup_terminal.SetSourcePhase(self._edb.Utility.Value(source.phase))
+            pos_pingroup_terminal.SetSourceAmplitude(self._edb_value(source.magnitude))
+            pos_pingroup_terminal.SetSourcePhase(self._edb_value(source.phase))
             pos_pingroup_terminal.SetReferenceTerminal(neg_pingroup_terminal)
             try:
                 pos_pingroup_terminal.SetName(source.name)
@@ -476,8 +481,8 @@ class EdbSiwave(object):
         elif source.type == SourceType.VoltageSource:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kVoltageSource)
             neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kVoltageSource)
-            pos_pingroup_terminal.SetSourceAmplitude(self._edb.Utility.Value(source.magnitude))
-            pos_pingroup_terminal.SetSourcePhase(self._edb.Utility.Value(source.phase))
+            pos_pingroup_terminal.SetSourceAmplitude(self._edb_value(source.magnitude))
+            pos_pingroup_terminal.SetSourcePhase(self._edb_value(source.phase))
             pos_pingroup_terminal.SetReferenceTerminal(neg_pingroup_terminal)
             try:
                 pos_pingroup_terminal.SetName(source.name)
@@ -490,12 +495,12 @@ class EdbSiwave(object):
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.RlcBoundary)
             neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.RlcBoundary)
             pos_pingroup_terminal.SetReferenceTerminal(neg_pingroup_terminal)
-            pos_pingroup_terminal.SetSourceAmplitude(self._edb.Utility.Value(source.rvalue))
+            pos_pingroup_terminal.SetSourceAmplitude(self._edb_value(source.rvalue))
             Rlc = self._edb.Utility.Rlc()
             Rlc.CEnabled = False
             Rlc.LEnabled = False
             Rlc.REnabled = True
-            Rlc.R = self._edb.Utility.Value(source.rvalue)
+            Rlc.R = self._edb_value(source.rvalue)
             pos_pingroup_terminal.SetRlcBoundaryParameters(Rlc)
             try:
                 pos_pingroup_terminal.SetName(source.name)
@@ -1216,7 +1221,7 @@ class EdbSiwave(object):
         if source.type == SourceType.Port:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
             neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
-            pos_pingroup_terminal.SetSourceAmplitude(self._edb.Utility.Value(source.impedance))
+            pos_pingroup_terminal.SetSourceAmplitude(self._edb_value(source.impedance))
             pos_pingroup_terminal.SetIsCircuitPort(True)
             neg_pingroup_terminal.SetIsCircuitPort(True)
             pos_pingroup_terminal.SetReferenceTerminal(neg_pingroup_terminal)
@@ -1230,7 +1235,7 @@ class EdbSiwave(object):
         elif source.type == SourceType.CurrentSource:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kCurrentSource)
             neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kCurrentSource)
-            pos_pingroup_terminal.SetSourceAmplitude(self._edb.Utility.Value(source.magnitude))
+            pos_pingroup_terminal.SetSourceAmplitude(self._edb_value(source.magnitude))
             pos_pingroup_terminal.SetSourcePhase(self._edb.Utility.Value(source.phase))
             pos_pingroup_terminal.SetReferenceTerminal(neg_pingroup_terminal)
             try:
@@ -1243,8 +1248,8 @@ class EdbSiwave(object):
         elif source.type == SourceType.VoltageSource:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kVoltageSource)
             neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kVoltageSource)
-            pos_pingroup_terminal.SetSourceAmplitude(self._edb.Utility.Value(source.magnitude))
-            pos_pingroup_terminal.SetSourcePhase(self._edb.Utility.Value(source.phase))
+            pos_pingroup_terminal.SetSourceAmplitude(self._edb_value(source.magnitude))
+            pos_pingroup_terminal.SetSourcePhase(self._edb_value(source.phase))
             pos_pingroup_terminal.SetReferenceTerminal(neg_pingroup_terminal)
             try:
                 pos_pingroup_terminal.SetName(source.name)
@@ -1257,12 +1262,12 @@ class EdbSiwave(object):
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.RlcBoundary)
             neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.RlcBoundary)
             pos_pingroup_terminal.SetReferenceTerminal(neg_pingroup_terminal)
-            pos_pingroup_terminal.SetSourceAmplitude(self._edb.Utility.Value(source.rvalue))
+            pos_pingroup_terminal.SetSourceAmplitude(self._edb_value(source.rvalue))
             Rlc = self._edb.Utility.Rlc()
             Rlc.CEnabled = False
             Rlc.LEnabled = False
             Rlc.REnabled = True
-            Rlc.R = self._edb.Utility.Value(source.rvalue)
+            Rlc.R = self._edb_value(source.rvalue)
             pos_pingroup_terminal.SetRlcBoundaryParameters(Rlc)
 
         else:

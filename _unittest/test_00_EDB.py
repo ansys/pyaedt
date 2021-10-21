@@ -85,7 +85,10 @@ class TestClass:
     def test_07_vias_creation(self):
         self.edbapp.core_padstack.create_padstack(padstackname="myVia")
         assert "myVia" in list(self.edbapp.core_padstack.padstacks.keys())
-        assert self.edbapp.core_padstack.place_padstack([5e-3, 5e-3], "myVia")
+        self.edbapp.add_design_variable("via_x", 5e-3)
+        self.edbapp.add_design_variable("via_y", 1e-3)
+
+        assert self.edbapp.core_padstack.place_padstack(["via_x",  "via_x+via_y"], "myVia")
 
     def test_08_nets_query(self):
         signalnets = self.edbapp.core_nets.signal_nets

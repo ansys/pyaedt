@@ -20,11 +20,6 @@ class EdbNets(object):
         return self._pedb.edb
 
     @property
-    def _edb_value(self):
-        """ """
-        return self._pedb.edb_value
-
-    @property
     def _active_layout(self):
         """ """
         return self._pedb.active_layout

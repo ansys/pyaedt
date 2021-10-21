@@ -48,6 +48,11 @@ class EDBLayer(object):
     def _logger(self):
         """Logger."""
         return self._pedblayers.logger
+    
+    @property
+    def _edb_value(self):
+        """Edb Value."""
+        return self._pedblayers._edb_value
 
     @property
     def name(self):
@@ -289,7 +294,7 @@ class EDBLayer(object):
             self._logger.error("Layer {0} has unknown type {1}".format(layerName, layerTypeMap))
             return False
         if thicknessMap:
-            newLayer.SetThickness(self._edb.Utility.Value(thicknessMap))
+            newLayer.SetThickness(self._edb_value(thicknessMap))
         if materialMap:
             newLayer.SetMaterial(materialMap)
         if fillMaterialMap:
@@ -300,7 +305,7 @@ class EDBLayer(object):
             etchVal = 0.0
         if etchVal != 0.0:
             newLayer.SetEtchFactorEnabled(True)
-            newLayer.SetEtchFactor(self._edb.Utility.Value(etchVal))
+            newLayer.SetEtchFactor(self._edb_value(etchVal))
         return newLayer
 
     @aedt_exception_handler
@@ -320,7 +325,7 @@ class EDBLayer(object):
             Layer
 
         """
-        layer.SetLowerElevation(self._edb.Utility.Value(elev))
+        layer.SetLowerElevation(self._edb_value(elev))
         return layer
 
     @aedt_exception_handler
@@ -416,7 +421,11 @@ class EDBLayers(object):
     @property
     def _edb(self):
         return self._pedbstackup._edb
-
+    
+    @property
+    def _edb_value(self):
+        return self._pedbstackup._edb_value
+    
     @property
     def _builder(self):
         return self._pedbstackup._builder
@@ -626,8 +635,8 @@ class EDBLayers(object):
                 newLayer = self._edb.Cell.StackupLayer(
                     layerName,
                     self._int_to_layer_types(layerType),
-                    self._edb.Utility.Value(0),
-                    self._edb.Utility.Value(0),
+                    self._edb_value(0),
+                    self._edb_value(0),
                     "",
                 )
                 newLayers.Add(newLayer)
@@ -650,8 +659,8 @@ class EDBLayers(object):
                     newLayer = self._edb.Cell.StackupLayer(
                         layerName,
                         self._int_to_layer_types(layerType),
-                        self._edb.Utility.Value(0),
-                        self._edb.Utility.Value(0),
+                        self._edb_value(0),
+                        self._edb_value(0),
                         "",
                     )
                     self._edb_object[layerName] = EDBLayer(newLayer, self._pedbstackup)
@@ -774,11 +783,11 @@ class EDBPadProperties(object):
     @property
     def _edb(self):
         return self._pedbpadstack._edb
-
+    
     @property
     def _edb_value(self):
         return self._pedbpadstack._edb_value
-
+    
     @property
     def geometry_type(self):
         """Geometry type.
@@ -1006,6 +1015,7 @@ class EDBPadstack(object):
     def _edb_value(self):
         return self._ppadstack._edb_value
 
+
     @property
     def via_layers(self):
         """Layers.
@@ -1099,7 +1109,8 @@ class EDBPadstack(object):
             rotation = self.hole_rotation
         if is_ironpython:
             newPadstackDefinitionData.SetHoleParameters(
-                hole_type, params, self._edb_value(offsetx), self._edb_value(offsety), self._edb_value(rotation)
+                hole_type, params, self._edb_value(offsetx), self._edb_value(offsety),
+                self._edb_value(rotation)
             )
         else:
             newPadstackDefinitionData.SetHoleParameters(

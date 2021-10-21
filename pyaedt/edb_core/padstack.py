@@ -176,21 +176,11 @@ class EdbPadstacks(object):
         str
             Name of the padstack if the operation is successful.
         """
-        var_server_db = self.db.GetVariableServer()
-        var_names = var_server_db.GetAllVariableNames()
-        if holediam in var_names:
-            holediam = self._edb.Utility.Value(holediam, var_server_db)
-        else:
-            holediam = self._edb_value(holediam)
 
-        if paddiam in var_names:
-            paddiam = self._edb.Utility.Value(paddiam, var_server_db)
-        else:
-            paddiam = self._edb_value(paddiam)
-        if antipaddiam in var_names:
-            antipaddiam = self._edb.Utility.Value(antipaddiam, var_server_db)
-        else:
-            antipaddiam = self._edb_value(antipaddiam)
+
+        holediam = self._edb_value(holediam)
+        paddiam = self._edb_value(paddiam)
+        antipaddiam = self._edb_value(antipaddiam)
         if not padstackname:
             padstackname = generate_unique_name("VIA")
         # assert not self.isreadonly, "Write Functions are not available within AEDT"
