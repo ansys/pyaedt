@@ -1100,7 +1100,7 @@ class NexximComponents(CircuitComponents):
         filename = ""
         comp_name_aux = source_design_name
         WB_SystemID = source_design_name
-        if not self._parent.project_file == source_project_path:
+        if not self._app.project_file == source_project_path:
             filename = source_project_path
             comp_name_aux = comp_name
             WB_SystemID = ""
