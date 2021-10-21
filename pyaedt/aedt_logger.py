@@ -129,7 +129,7 @@ class AedtLogger(object):
         return self._global.warning(msg, *args, **kwargs)
 
     def error(self, msg, *args, **kwargs):
-        """Send Global errror."""
+        """Send Global error."""
         return self._global.error(msg, *args, **kwargs)
 
     @property
