@@ -366,8 +366,8 @@ class EdbSiwave(object):
 
     """
 
-    def __init__(self, edb_class):
-        self._pedb = edb_class
+    def __init__(self, p_edb):
+        self._pedb = p_edb
 
     @property
     def _siwave_source(self):

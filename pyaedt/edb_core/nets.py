@@ -6,8 +6,8 @@ from pyaedt.generic.general_methods import aedt_exception_handler, generate_uniq
 class EdbNets(object):
     """Manages EDB functionalities  for nets."""
 
-    def __init__(self, edb_class):
-        self._pedb = edb_class
+    def __init__(self, p_edb):
+        self._pedb = p_edb
 
     @property
     def _builder(self):

@@ -140,13 +140,14 @@ class Mesh(object):
 
     Parameters
     ----------
-    application : :class:`pyaedt.application.Analysis3D.FieldAnalysis3D`
+    app : :class:`pyaedt.application.Analysis3D.FieldAnalysis3D`
 
     """
 
     def __init__(self, app):
         self._app = app
 
+        self._messenger = self._app._messenger
         self._odesign = self._app._odesign
         self.modeler = self._app._modeler
         design_type = self._odesign.GetDesignType()
@@ -520,7 +521,7 @@ class Mesh(object):
             List of object names or face IDs.
         isinside : bool, optional
             Whether the length mesh is inside the selection. The default is ``True``.
-        maxlength : int, optional
+        maxlength : str, float, optional
             Maximum element length. The default is ``1``. When ``None``,
             this parameter is disabled.
         maxel : int, optional

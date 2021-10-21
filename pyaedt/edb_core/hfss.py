@@ -9,8 +9,8 @@ from pyaedt.generic.general_methods import aedt_exception_handler, generate_uniq
 class Edb3DLayout(object):
     """Manages EDB functionalities for 3D layouts."""
 
-    def __init__(self, edb_class):
-        self._pedb = edb_class
+    def __init__(self, p_edb):
+        self._pedb = p_edb
 
     @property
     def _hfss_terminals(self):

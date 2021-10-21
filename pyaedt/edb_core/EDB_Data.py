@@ -382,9 +382,9 @@ class EDBLayers(object):
 
     """
 
-    def __init__(self, edbstackup):
+    def __init__(self, edb_stackup):
         self._stackup_mode = None
-        self._pedbstackup = edbstackup
+        self._pedbstackup = edb_stackup
         self._edb_object = OrderedDict(defaultdict(EDBLayer))
         self._update_edb_objects()
 
@@ -752,9 +752,9 @@ class EDBPadProperties(object):
 
     """
 
-    def __init__(self, edb_padstack, layer_name, pad_type, pedbpadstack):
+    def __init__(self, edb_padstack, layer_name, pad_type, p_edb_padstack):
         self._edb_padstack = edb_padstack
-        self._pedbpadstack = pedbpadstack
+        self._pedbpadstack = p_edb_padstack
         self.layer_name = layer_name
         self.pad_type = pad_type
         pass
@@ -1268,8 +1268,8 @@ class EDBPadstack(object):
 class EDBPinInstances(object):
     """Manages EDB functionalities in instances."""
 
-    def __init__(self, edbcomponents, pin):
-        self._pedbcomponents = edbcomponents
+    def __init__(self, edb_components, pin):
+        self._pedbcomponents = edb_components
         self.pin = pin
 
     @property

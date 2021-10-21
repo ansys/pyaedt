@@ -126,6 +126,7 @@ class TestClass:
             == "TestTransient"
         )
         self.aedtapp.delete_design("TestTransient")
+        self.aedtapp.insert_design("NewDesign")
 
     def test_14_get_nominal_variation(self):
         assert self.aedtapp.get_nominal_variation() != [] or self.aedtapp.get_nominal_variation() is not None
@@ -133,7 +134,7 @@ class TestClass:
     def test_15a_duplicate_design(self):
         self.aedtapp.duplicate_design("myduplicateddesign")
         assert "myduplicateddesign" in self.aedtapp.design_list
-        self.aedtapp.delete_design("myduplicateddesign")
+        self.aedtapp.delete_design("myduplicateddesign", "NewDesign")
 
     def test_15b_copy_design_from(self):
         origin = os.path.join(self.local_scratch.path, "origin.aedt")

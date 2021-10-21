@@ -86,10 +86,6 @@ class Layer(object):
 
     layertype : string, optional
         The default is ``"signal"``.
-    layerunits : str, optional
-        The default is ``"mm"``.
-    roughunit : str, optional
-        The default is ``"um"``.
     negative : bool, optional
         Whether the geometry on the layer is cut away
         from the layer. The default is ``False``.
@@ -552,11 +548,11 @@ class Layers(object):
     """
     def __init__(self, modeler, roughnessunits="um"):
         self._modeler = modeler
-        self._app = modeler._app
+        self._app = self._modeler._app
         self._currentId = 0
         self.layers = defaultdict(Layer)
         self.lengthUnitRough = roughnessunits
-        self.logger = self._app.logger
+        self.logger = self._app._messenger
 
     @property
     def _oeditor(self):

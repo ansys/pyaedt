@@ -18,10 +18,7 @@ test_project_name = "Cassegrain"
 
 class TestClass:
     def setup_class(self):
-        timeout = 4
-        while gc.collect() != 0 and timeout > 0:
-            time.sleep(0.5)
-            timeout -= 0.5
+        gc.collect()
         # set a scratch directory and the environment / test data
         with Scratch(scratch_path) as self.local_scratch:
             example_project = os.path.join(local_path, "example_models", test_project_name + ".aedt")

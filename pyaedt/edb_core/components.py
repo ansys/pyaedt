@@ -60,8 +60,8 @@ class Components(object):
 
     """
 
-    def __init__(self, edb_class):
-        self._pedb = edb_class
+    def __init__(self, p_edb):
+        self._pedb = p_edb
         self._cmp = {}
         self._res = {}
         self._cap = {}

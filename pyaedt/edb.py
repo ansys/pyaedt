@@ -392,12 +392,6 @@ class Edb(object):
                 self.layout_methods.LoadDataModel(dllpath, self.edbversion)
             except:
                 pass
-            # self.layout_methods.InitializeBuilder(
-            #                                     self._db,
-            #                                     self._active_cell,
-            #                                     self.edbpath,
-            #                                     self.edbversion,
-            #                                     self.standalone,)
             self.builder = EdbBuilder(self.edbutils, self._db, self._active_cell)
             self._init_objects()
             self.logger.info("Builder Initialized")
@@ -493,13 +487,6 @@ class Edb(object):
                 self.layout_methods.LoadDataModel(dllpath, self.edbversion)
             except:
                 pass
-            # self.layout_methods.InitializeBuilder(
-            #                                     self._db,
-            #                                     self._active_cell,
-            #                                     self.edbpath,
-            #                                     self.edbversion,
-            #                                     self.standalone
-            #                                 )
             self.builder = EdbBuilder(self.edbutils, self._db, self._active_cell)
             self._init_objects()
             return self.builder
@@ -757,13 +744,10 @@ class Edb(object):
             try:
                 os.rename(filename, filename + '_')
                 os.rename(filename + '_', filename)
-                # print 'Access on file "' + filename + '" is available!'
                 return True
             except OSError as e:
-                # print 'Access-error on file "' + filename + '"! \n' + str(e)
                 return False
         else:
-            # print 'File "' + filename + '" is not existing!'
             return False
 
     @aedt_exception_handler
@@ -780,13 +764,10 @@ class Edb(object):
         tstart = time.time()
         while True:
             if self._is_file_existing_and_released(file_to_release):
-                # print 'File is released'
                 return True
             elif time.time() - tstart > timeout:
-                # print 'Timeout reached'
                 return False
             else:
-                # print 'Retring... '
                 time.sleep(0.250)
 
     @aedt_exception_handler
@@ -823,8 +804,8 @@ class Edb(object):
         time.sleep(2)
         start_time = time.time()
         self._wait_for_file_release()
-        end = time.time()-start_time
-        self.logger.info("EDB file release time: {0:.2f}ms".format(end*1000.))
+        elapsed_time = time.time() - start_time
+        self.logger.info("EDB file release time: {0:.2f}ms".format(elapsed_time*1000.))
         self._clean_variables()
         timeout = 4
         while gc.collect() != 0 and timeout > 0:
@@ -1036,13 +1017,6 @@ class Edb(object):
                     self.layout_methods.LoadDataModel(dllpath, self.edbversion)
                 except:
                     pass
-                # self.layout_methods.InitializeBuilder(
-                #                                     self._db,
-                #                                     self._active_cell,
-                #                                     self.edbpath,
-                #                                     self.edbversion,
-                #                                     self.standalone,
-                #                                 )
                 self.builder = EdbBuilder(self.edbutils, self._db, self._active_cell)
                 self._init_objects()
             else:
@@ -1143,7 +1117,7 @@ class Edb(object):
         _dbCells = [_cutout]
         if output_aedb_path:
             db2 = self.edb.Database.Create(output_aedb_path)
-            db2.Save()
+            _success = db2.Save()
             _dbCells = convert_py_list_to_net_list(_dbCells)
             db2.CopyCells(_dbCells)  # Copies cutout cell/design to db2 project
             cell = list(db2.TopCircuitCells)[0]

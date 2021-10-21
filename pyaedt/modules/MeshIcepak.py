@@ -9,7 +9,7 @@ class IcepakMesh(object):
 
     Parameters
     ----------
-    application : :class:`pyaedt.application.Analysis3D.FieldAnalysis3D`
+    app : :class:`pyaedt.application.Analysis3D.FieldAnalysis3D`
     """
 
     def __init__(self, app):

@@ -549,19 +549,7 @@ class Design(object):
         close_on_exit=False,
         student_version=False,
     ):
-        self.oboundary = None
-
-        self.omodelsetup = None
-
-        self.oimportexport = None
-
-        self.ooptimetrics = None
-
-        self.ooutput_variable = None
-
-        self.odesktop = None
-
-        self.oanalysis = None
+        self._init_variables()
         # Get Desktop from global Desktop Environment
         self._project_dictionary = OrderedDict()
         self.boundaries = []
@@ -595,7 +583,8 @@ class Design(object):
         self._design_type = design_type
         self.oproject = project_name
         self.odesign = design_name
-        self.oimportexport = self._desktop.GetTool("ImportExport")
+
+        self.oimport_export = self._desktop.GetTool("ImportExport")
         self.odefinition_manager = self._oproject.GetDefinitionManager()
         self.omaterial_manager = self.odefinition_manager.GetManager("Material")
         self.odesktop = self._desktop
@@ -608,6 +597,27 @@ class Design(object):
     def __delitem__(self, key):
         """Implement destructor with array name or index."""
         del self._variable_manager[key]
+
+    @aedt_exception_handler
+    def _init_variables(self):
+        self.oboundary = None
+        self.omodelsetup = None
+        self.oimport_export = None
+        self.ooptimetrics = None
+        self.ooutput_variable = None
+        self.oanalysis = None
+        self._modeler = None
+        self._post = None
+        self._materials = None
+        self._variable_manager = None
+        self.opti_parametric = None
+        self.opti_optimization = None
+        self.opti_doe = None
+        self.opti_designxplorer = None
+        self.opti_sensitivity = None
+        self.opti_statistical = None
+        self.native_components = None
+        self._mesh = None
 
     @property
     def logger(self):
@@ -1866,7 +1876,7 @@ class Design(object):
         if close_active_proj:
             self._close_edb()
             self.close_project(self.project_name)
-        proj = self._desktop.OpenProject(project_file)
+        proj = self.odesktop.OpenProject(project_file)
         if proj:
             self.__init__(projectname=proj.GetName(), designname=design_name)
             return True
@@ -2256,6 +2266,8 @@ class Design(object):
         timeout = 10
         locked = True
         if name == legacy_name:
+            if os.name != "posix":
+                self._init_variables()
             self._oproject = None
             self._odesign = None
         while locked:
@@ -2300,9 +2312,14 @@ class Design(object):
             try:
                 self.set_active_design(fallback_design)
             except:
+                if os.name != "posix":
+                    self._init_variables()
+                self._odesign = None
                 return False
         else:
-            self.odesign = None
+            if os.name != "posix":
+                self._init_variables()
+            self._odesign = None
         return True
 
     @aedt_exception_handler
