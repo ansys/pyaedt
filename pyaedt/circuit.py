@@ -363,7 +363,7 @@ class Circuit(FieldAnalysisCircuit, object):
                         counter = 0
         if autosave:
             self._desktop.EnableAutoSave(True)
-        self.logger.design.info("Netlist correctly imported into %s", self.design_name)
+        self.logger.project.info("Netlist correctly imported into %s", self.design_name)
         return True
 
     @aedt_exception_handler
@@ -504,7 +504,7 @@ class Circuit(FieldAnalysisCircuit, object):
                     xpos += delta
                     ypos = 0
 
-        self.logger.design.info("Netlist correctly imported into %s", self.design_name)
+        self.logger.project.info("Netlist correctly imported into %s", self.design_name)
         return True
 
     @aedt_exception_handler
@@ -1136,7 +1136,7 @@ class Circuit(FieldAnalysisCircuit, object):
         arg2.append(arg3)
 
         self.odesign.UpdateSources(arg1, arg2)
-        self.logger.design.info("Voltage Source updated correctly.")
+        self.logger.info("Voltage Source updated correctly.")
         return True
 
     @aedt_exception_handler
