@@ -48,7 +48,7 @@ class EDBLayer(object):
     def _logger(self):
         """Logger."""
         return self._pedblayers.logger
-    
+
     @property
     def _edb_value(self):
         """Edb Value."""
@@ -421,11 +421,11 @@ class EDBLayers(object):
     @property
     def _edb(self):
         return self._pedbstackup._edb
-    
+
     @property
     def _edb_value(self):
         return self._pedbstackup._edb_value
-    
+
     @property
     def _builder(self):
         return self._pedbstackup._builder
@@ -783,11 +783,11 @@ class EDBPadProperties(object):
     @property
     def _edb(self):
         return self._pedbpadstack._edb
-    
+
     @property
     def _edb_value(self):
         return self._pedbpadstack._edb_value
-    
+
     @property
     def geometry_type(self):
         """Geometry type.
@@ -1014,7 +1014,6 @@ class EDBPadstack(object):
     @property
     def _edb_value(self):
         return self._ppadstack._edb_value
-
 
     @property
     def via_layers(self):

@@ -140,7 +140,6 @@ class Siwave:
         # info_msg2 = 'Python version {0}'.format(sys.version)
         # info_msg3 = 'Exe path: {0}'.format(sys.executable)
 
-
     @property
     def project_name(self):
         """Project name.

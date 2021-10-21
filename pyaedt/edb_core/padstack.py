@@ -176,8 +176,6 @@ class EdbPadstacks(object):
         str
             Name of the padstack if the operation is successful.
         """
-
-
         holediam = self._edb_value(holediam)
         paddiam = self._edb_value(paddiam)
         antipaddiam = self._edb_value(antipaddiam)
