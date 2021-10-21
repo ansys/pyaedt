@@ -373,6 +373,7 @@ class FacePrimitive(object):
 
     @property
     def logger(self):
+        """logger."""
         return self._object3d.logger
 
     @property
@@ -912,9 +913,6 @@ class Object3d(object):
             self._material_name = mat.lower()
         else:
             self.logger.glb.warning("Material %s does not exist.", mat)
-
-    def set_material_name(self, name):
-        self.material_name = name
 
     @surface_material_name.setter
     def surface_material_name(self, mat):
