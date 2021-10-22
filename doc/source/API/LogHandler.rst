@@ -6,9 +6,7 @@ send log messages in AEDT logging stream.
 .. currentmodule:: pyaedt
 
 .. autosummary::
-   :toctree: _autosummary
-   :template: custom-class-template.rst
-   :nosignatures:
+   :toctree:
 
 .. autoclass:: pyaedt.log_handler.LogHandler
    :inherited-members: Handler
