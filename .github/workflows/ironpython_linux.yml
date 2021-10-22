@@ -29,13 +29,13 @@ jobs:
 
       - name: 'Run Unit Tests in Ironpython'
         run: |
-          chmod 777 _unittest_ironpython/run_unittests_batchmode_linux.cmd
-          timeout -k 2400s 2400s ./_unittest_ironpython/run_unittests_batchmode_linux.cmd
+          chmod 777 pyaedt/_unittest_ironpython/run_unittests_batchmode_linux.cmd
+          timeout -k 2400s 2400s .pyaedt/_unittest_ironpython/run_unittests_batchmode_linux.cmd
           if [ $? -eq 124 ] ; then
             echo "ERROR: Timeout while waiting for the file _unittest_ironpython/tests_succeeded.log."
             exit 1
           else
-            cat _unittest_ironpython/runner_unittest.log
+            cat pyaedt/_unittest_ironpython/runner_unittest.log
             exit 0
           fi
 
