@@ -152,8 +152,8 @@ class AedtLogger(object):
         return self._design
 
 
-class AedtLogger(object):
-    """Logger used for each Aedt logger.
+class EdbLogger(object):
+    """Logger used for each Edb logger.
 
     This class allows you to add handler to a file or standard output.
 
@@ -170,13 +170,12 @@ class AedtLogger(object):
     """
 
     def __init__(self, level=logging.DEBUG, filename=None, to_stdout=False):
-        main = sys.modules["__main__"]
 
         self.logger = logging.getLogger('Edb')
         if not self.logger.handlers:
             self.logger.addFilter(AppFilter())
-        self._file_handler = None
-        self._std_out_handler = None
+        # self._file_handler = None
+        # self._std_out_handler = None
         # if self._global.handlers:
         #     if 'messenger' in dir(self._global.handlers[0]):
         #         self._global.removeHandler(self._global.handlers[0])

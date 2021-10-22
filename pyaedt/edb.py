@@ -113,7 +113,7 @@ class Edb(object):
                 self._messenger = EDBMessageManager(os.path.dirname(edbpath))
 
             self.student_version = student_version
-            self._messenger.add_info_message("Messenger Initialized in EDB")
+            self._messenger.info("Messenger Initialized in EDB")
             self.edbversion = edbversion
             self.isaedtowned = isaedtowned
             self._init_dlls()
@@ -132,7 +132,7 @@ class Edb(object):
                     if not edbpath:
                         edbpath = os.path.expanduser("~")
                     edbpath = os.path.join(edbpath, generate_unique_name("layout") + ".aedb")
-                self._messenger.add_info_message("No Edb Provided. Creating new EDB {}.".format(edbpath))
+                self._messenger.info("No Edb Provided. Creating new EDB %s.", edbpath)
             self.edbpath = edbpath
             if isaedtowned and inside_desktop:
                 self.open_edb_inside_aedt()
@@ -140,19 +140,19 @@ class Edb(object):
                 self.edbpath = edbpath[:-4] + ".aedb"
                 working_dir = os.path.dirname(edbpath)
                 self.import_layout_pcb(edbpath, working_dir, use_ppe=use_ppe)
-                self._messenger.add_info_message(
-                    "Edb {} Created Correctly from {} file".format(self.edbpath, edbpath[-2:])
+                self._messenger.info(
+                    "Edb %s Created Correctly from %s file", self.edbpath, edbpath[-2:]
                 )
             elif not os.path.exists(os.path.join(self.edbpath, "edb.def")):
                 self.create_edb()
-                self._messenger.add_info_message("Edb {} Created Correctly".format(self.edbpath))
+                self._messenger.info("Edb %s Created Correctly", self.edbpath)
             elif ".aedb" in edbpath:
                 self.edbpath = edbpath
                 self.open_edb()
             if self.builder:
-                self._messenger.add_info_message("Edb Initialized")
+                self._messenger.info("Edb Initialized")
             else:
-                self._messenger.add_info_message("Failed to initialize Dlls")
+                self._messenger.info("Failed to initialize Dlls")
         else:
             warnings.warn("Failed to initialize Dlls")
 
@@ -194,7 +194,7 @@ class Edb(object):
         self._hfss = Edb3DLayout(self)
         self._nets = EdbNets(self)
         self._core_primitives = EdbLayout(self)
-        self._messenger.add_info_message("Objects Initialized")
+        self._messenger.info("Objects Initialized")
 
     @aedt_exception_handler
     def add_info_message(self, message_text):
@@ -216,10 +216,10 @@ class Edb(object):
         --------
         >>> from pyaedt import Edb
         >>> edb = Edb()
-        >>> edb.add_info_message("Design info message")
+        >>> edb.logger.info("Design info message")
 
         """
-        self._messenger.add_info_message(message_text)
+        self._messenger.info(message_text)
         return True
 
     @aedt_exception_handler
@@ -242,10 +242,10 @@ class Edb(object):
         --------
         >>> from pyaedt import Edb
         >>> edb = Edb()
-        >>> edb.add_warning_message("Design warning message")
+        >>> edb.logger.warning("Design warning message")
 
         """
-        self._messenger.add_warning_message(message_text)
+        self._messenger.warning(message_text)
         return True
 
     @aedt_exception_handler
@@ -269,10 +269,10 @@ class Edb(object):
         --------
         >>> from pyaedt import Edb
         >>> edb = Edb()
-        >>> edb.add_error_message("Design error message")
+        >>> edb.logger.error("Design error message")
 
         """
-        self._messenger.add_error_message(message_text)
+        self._messenger.error(message_text)
         return True
 
     @aedt_exception_handler
@@ -334,23 +334,23 @@ class Edb(object):
         """
         if init_dlls:
             self._init_dlls()
-        self._messenger.add_info_message("EDB Path {}".format(self.edbpath))
-        self._messenger.add_info_message("EDB Version {}".format(self.edbversion))
+        self._messenger.info("EDB Path %s", self.edbpath)
+        self._messenger.info("EDB Version %s", self.edbversion)
         self.edb.Database.SetRunAsStandAlone(self.standalone)
-        self._messenger.add_info_message("EDB Standalone {}".format(self.standalone))
+        self._messenger.info("EDB Standalone %s", self.standalone)
         try:
             db = self.edb.Database.Open(self.edbpath, self.isreadonly)
         except Exception as e:
             db = None
-            self._messenger.add_error_message("Builder is not Initialized.")
+            self._messenger.error("Builder is not Initialized.")
         if not db:
-            self._messenger.add_warning_message("Error Opening db")
+            self._messenger.warning("Error Opening db")
             self._db = None
             self._active_cell = None
             self.builder = None
             return None
         self._db = db
-        self._messenger.add_info_message("Database Opened")
+        self._messenger.info("Database Opened")
 
         self._active_cell = None
         if self.cellname:
@@ -360,20 +360,20 @@ class Edb(object):
         # if self._active_cell is still None, set it to default cell
         if self._active_cell is None:
             self._active_cell = list(self._db.TopCircuitCells)[0]
-        self._messenger.add_info_message("Cell {} Opened".format(self._active_cell.GetName()))
+        self._messenger.info("Cell %s Opened", self._active_cell.GetName())
         if self._db and self._active_cell:
             dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib")
-            self._messenger.add_info_message(dllpath)
+            self._messenger.info(dllpath)
             try:
                 self.layout_methods.LoadDataModel(dllpath, self.edbversion)
             except:
                 pass
             self.builder = EdbBuilder(self.edbutils, self._db, self._active_cell)
             self._init_objects()
-            self._messenger.add_info_message("Builder Initialized")
+            self._messenger.info("Builder Initialized")
         else:
             self.builder = None
-            self._messenger.add_error_message("Builder Not Initialized")
+            self._messenger.error("Builder Not Initialized")
 
         return self.builder
 
@@ -392,13 +392,13 @@ class Edb(object):
         """
         if init_dlls:
             self._init_dlls()
-        self._messenger.add_info_message("Opening EDB from HDL")
+        self._messenger.info("Opening EDB from HDL")
         self.edb.Database.SetRunAsStandAlone(False)
         if self.oproject.GetEDBHandle():
             hdl = Convert.ToUInt64(self.oproject.GetEDBHandle())
             db = self.edb.Database.Attach(hdl)
             if not db:
-                self._messenger.add_warning_message("Error Getting db")
+                self._messenger.warning("Error Getting db")
                 self._db = None
                 self._active_cell = None
                 self.builder = None
@@ -448,7 +448,7 @@ class Edb(object):
         self.edb.Database.SetRunAsStandAlone(self.standalone)
         db = self.edb.Database.Create(self.edbpath)
         if not db:
-            self._messenger.add_warning_message("Error Creating db")
+            self._messenger.warning("Error Creating db")
             self._db = None
             self._active_cell = None
             self.builder = None
@@ -518,7 +518,7 @@ class Edb(object):
         p = subprocess.Popen(cmd_translator)
         p.wait()
         if not os.path.exists(os.path.join(working_dir, aedb_name)):
-            self._messenger.add_error_message("Translator failed to translate.")
+            self._messenger.error("Translator failed to translate.")
             return False
         self.edbpath = os.path.join(working_dir, aedb_name)
         return self.open_edb()
@@ -545,22 +545,22 @@ class Edb(object):
 
         """
         if units.lower() not in ["millimeter", "inch", "micron"]:
-            self._messenger.add_warning_message("Wrong unit entered. Setting default to millimiter")
+            self._messenger.warning("Wrong unit entered. Setting default to millimiter")
             units = "millimeter"
 
         if not ipc_path:
             ipc_path = self.edbpath[:-4] + "xml"
-        self._messenger.add_info_message("Export IPC 2581 is starting. This operation can take a while...")
+        self._messenger.info("Export IPC 2581 is starting. This operation can take a while...")
         start = time.time()
         result = self.edblib.IPC8521.IPCExporter.ExportIPC2581FromLayout(self.active_layout, self.edbversion, ipc_path,
                                                              units.lower())
         #result = self.layout_methods.ExportIPC2581FromBuilder(self.builder, ipc_path, units.lower())
         end = time.time() - start
         if result:
-            self._messenger.add_info_message("Export IPC 2581 completed in {} sec.".format(end))
-            self._messenger.add_info_message("File saved in {}".format(ipc_path))
+            self._messenger.info("Export IPC 2581 completed in %s sec.", end)
+            self._messenger.info("File saved in %s", ipc_path)
             return ipc_path
-        self._messenger.add_info_message("Error Exporting IPC 2581.")
+        self._messenger.info("Error Exporting IPC 2581.")
         return False
 
     def edb_exception(self, ex_value, tb_data):
@@ -579,9 +579,9 @@ class Edb(object):
         """
         tb_trace = traceback.format_tb(tb_data)
         tblist = tb_trace[0].split("\n")
-        self._messenger.add_error_message(str(ex_value))
+        self._messenger.error(str(ex_value))
         for el in tblist:
-            self._messenger.add_error_message(el)
+            self._messenger.error(el)
 
     @property
     def db(self):
@@ -781,7 +781,7 @@ class Edb(object):
         start_time = time.time()
         self._wait_for_file_release()
         elapsed_time = time.time() - start_time
-        self._messenger.add_info_message("EDB file release time: {0:.2f}ms".format(elapsed_time*1000.))
+        self._messenger.info("EDB file release time: {0:.2f}ms".format(elapsed_time*1000.))
         self._clean_variables()
         timeout = 4
         while gc.collect() != 0 and timeout > 0:
@@ -1078,7 +1078,7 @@ class Edb(object):
         net_signals = List[type(_ref_nets[0])]()
         # Create new cutout cell/design
         _cutout = self.active_cell.CutOut(net_signals, _netsClip, polygonData)
-        self._messenger.add_info_message("Cutout {} created correctly".format(_cutout.GetName()))
+        self._messenger.info("Cutout %s created correctly", _cutout.GetName())
         for _setup in self.active_cell.SimulationSetups:
             # Empty string '' if coming from setup copy and don't set explicitly.
             _setup_name = _setup.GetName()
@@ -1118,7 +1118,7 @@ class Edb(object):
                 if os.path.exists(source) and not os.path.exists(target):
                     try:
                         shutil.copy(source, target)
-                        self._messenger.add_warning_message("Def file manually created.")
+                        self._messenger.warning("Def file manually created.")
                     except:
                         pass
         return True
@@ -1313,10 +1313,10 @@ class Edb(object):
             var_server = self.active_cell.GetVariableServer()
         variables = var_server.GetAllVariableNames()
         if variable_name in list(variables):
-            self._messenger.add_warning_message("Parameter {} exists. Using it.".format(variable_name))
+            self._messenger.warning("Parameter %s exists. Using it.", variable_name)
             return False, var_server
         else:
-            self._messenger.add_info_message("Creating Parameter {}.".format(variable_name))
+            self._messenger.info("Creating Parameter %s.", variable_name)
             var_server.AddVariable(variable_name, self.edb_value(variable_value), is_parameter)
             return True, var_server
 

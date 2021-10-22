@@ -290,7 +290,7 @@ class EDBLayer(object):
         try:
             newLayer.SetLayerType(layerTypeMap)
         except:
-            self._messenger.add_error_message("Layer %s has unknown type %s.", layerName, layerTypeMap)
+            self._messenger.error("Layer %s has unknown type %s.", layerName, layerTypeMap)
             return False
         if thicknessMap:
             newLayer.SetThickness(self._edb.Utility.Value(thicknessMap))
@@ -369,7 +369,7 @@ class EDBLayer(object):
         lcNew = self._edb.Cell.LayerCollection()
         newLayers.Reverse()
         if not lcNew.AddLayers(newLayers) or not self._active_layout.SetLayerCollection(lcNew):
-            self._messenger.add_error_message("Failed to set new layers when updating the stackup information.")
+            self._messenger.error("Failed to set new layers when updating the stackup information.")
             return False
         self._pedblayers._update_edb_objects()
         time.sleep(1)
@@ -686,7 +686,7 @@ class EDBLayers(object):
         lcNew = self._edb.Cell.LayerCollection()
         newLayers.Reverse()
         if not lcNew.AddLayers(newLayers) or not self._active_layout.SetLayerCollection(lcNew):
-            self._messenger.add_error_message("Failed to set new layers when updating the stackup information.")
+            self._messenger.error("Failed to set new layers when updating the stackup information.")
             return False
         self._update_edb_objects()
         return True
@@ -742,7 +742,7 @@ class EDBLayers(object):
         lcNew = self._edb.Cell.LayerCollection()
         newLayers.Reverse()
         if not lcNew.AddLayers(newLayers) or not self._pedbstackup._active_layout.SetLayerCollection(lcNew):
-            self._messenger.add_error_message("Failed to set new layers when updating the stackup information.")
+            self._messenger.error("Failed to set new layers when updating the stackup information.")
             return False
         self._update_edb_objects()
         return True
