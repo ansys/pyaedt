@@ -1097,13 +1097,12 @@ class PostProcessor(Post):
             ``"jpg"``.
         view : str, optional
             View to export. Options are ``isometric``, ``top``, ``front``,
-             ``left``, ``all``.. The default is ``"iso"``. If
-            ``"all"``, all views are exported.
+             ``left``, ``all``.. The default is ``"iso"``. If ``"all"``, all views are exported.
         plot_label : str, optional
             Type of the plot. The default is ``"Temperature"``.
         plot_folder : str, optional
-            Plot folder to update before exporting the
-            field. The default is ``None``, in which case all plot
+            Plot folder to update before exporting the field.
+            The default is ``None``, in which case all plot
             folders are updated.
         off_screen : bool, optional
             Export Image without plotting on UI.

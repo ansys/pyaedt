@@ -373,7 +373,7 @@ class FacePrimitive(object):
 
     @property
     def logger(self):
-        """logger."""
+        """Logger."""
         return self._object3d.logger
 
     @property

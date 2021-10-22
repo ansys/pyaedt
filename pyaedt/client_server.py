@@ -5,7 +5,7 @@ try:
     import rpyc
     from rpyc.utils.server import ThreadedServer
 except ImportError:
-    warnings.warn("rpyc is needed to run the servie")
+    warnings.warn("rpyc is needed to run the service")
 import subprocess
 
 
