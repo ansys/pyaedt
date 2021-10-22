@@ -1076,7 +1076,7 @@ class NexximComponents(CircuitComponents):
             default is ``"Setup1 : Sweep"``.
         image_subcircuit_path : str
             Path of the Picture used in Circuit.
-            Default is an HFSS Picture exported automatically
+            Default is an HFSS Picture exported automatically.
 
         Returns
         -------
