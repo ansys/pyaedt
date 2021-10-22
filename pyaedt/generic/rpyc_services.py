@@ -3,7 +3,7 @@ import random
 import subprocess
 import tempfile
 import threading
-
+import site
 import rpyc
 from rpyc import ThreadedServer
 
@@ -472,7 +472,12 @@ class PyaedtServiceLinux(rpyc.Service):
 
     def exposed_run_script(self, script, aedt_version="2021.1", ansysem_path=None):
         script_file = os.path.join(tempfile.gettempdir(), generate_unique_name("pyaedt_script")+".py")
+
+        package_paths = site.getsitepackages()
         with open(script_file, "w") as f:
+            f.write("import sys\n")
+            for pack_path in package_paths:
+                f.write("sys.path.append({})\n".format(pack_path))
             for line in script:
                 f.write(line+"\n")
         executable = "ansysedt"
@@ -480,9 +485,9 @@ class PyaedtServiceLinux(rpyc.Service):
 
         if env_path(aedt_version) or ansysem_path:
             if not ansysem_path:
-                ansysem_path =  env_path(aedt_version)
-            command = os.path.join(ansysem_path, executable) + " -RunScriptAndExit " +script_file
-            p = subprocess.Popen(" ".join(command))
+                ansysem_path = env_path(aedt_version)
+            command = [os.path.join(ansysem_path, executable), "-RunScriptAndExit", script_file]
+            p = subprocess.Popen(command)
             p.wait()
             return "Command Executed."
 
