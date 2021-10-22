@@ -29,6 +29,7 @@ jobs:
 
       - name: 'Run Unit Tests in Ironpython'
         run: |
+          export DISPLAY =: 0 PULSE SERVER = top: 127.0.0.1: 0
           chmod 777 _unittest_ironpython/run_unittests_batchmode_linux.cmd
           timeout -k 2400s 2400s ./_unittest_ironpython/run_unittests_batchmode_linux.cmd
           if [ $? -eq 124 ] ; then
