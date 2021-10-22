@@ -33,7 +33,7 @@ class PyaedtService(rpyc.Service):
         pass
 
     def exposed_run_script(self, script, aedt_version="2021.1", ansysem_path=None):
-        script_file = os.path.join(tempfile..gettempdir(), generate_unique_name("pyaedt_script")+".py")
+        script_file = os.path.join(tempfile.gettempdir(), generate_unique_name("pyaedt_script")+".py")
         with open(script_file, "w") as f:
             for line in script:
                 f.write(line+"\n")
