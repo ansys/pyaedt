@@ -41,8 +41,8 @@ class PyaedtServiceWindows(rpyc.Service):
 
         if env_path(aedt_version) or ansysem_path:
             if not ansysem_path:
-                ansysem_path =  env_path(aedt_version)
-            command = os.path.join(ansysem_path, executable) + " -RunScriptAndExit " +script_file
+                ansysem_path = env_path(aedt_version)
+            command = os.path.join(ansysem_path, executable) + " -RunScriptAndExit " + script_file
             p = subprocess.Popen(command)
             p.wait()
             print("Command Executed.")
@@ -482,7 +482,6 @@ class PyaedtServiceLinux(rpyc.Service):
                 f.write(line+"\n")
         executable = "ansysedt"
 
-
         if env_path(aedt_version) or ansysem_path:
             if not ansysem_path:
                 ansysem_path = env_path(aedt_version)
@@ -524,7 +523,7 @@ class GlobalService(rpyc.Service):
             def thread_pyaed():
                 t = ThreadedServer(PyaedtServiceLinux, hostname=hostname, port=port,
                                    protocol_config={'sync_request_timeout': None, 'allow_public_attrs': True,
-                                                    'allow_setattr': True,'allow_delattr': True})
+                                                    'allow_setattr': True, 'allow_delattr': True})
                 t.start()
 
             t = threading.Thread(target=thread_pyaed)
