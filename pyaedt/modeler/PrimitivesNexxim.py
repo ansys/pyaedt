@@ -1094,10 +1094,11 @@ class NexximComponents(CircuitComponents):
             if file_extension != ".gif" or file_extension != ".bmp" or file_extension != ".jpg":
                 image_subcircuit_path = None
                 warnings.warn(
-                    "Image extension is not valid. Use default image instead.", DeprecationWarning
+                    "Image extension is not valid. Use default image instead."
                 )
         if not image_subcircuit_path:
-            image_subcircuit_path = "C:\\Program Files\\AnsysEM\\AnsysEM21.2\\Win64\\syslib\\Bitmaps\\hfss.bmp"
+            image_subcircuit_path = os.path.normpath(os.path.join(self._modeler._app.desktop_install_dir, "syslib",
+                                                                  "Bitmaps", "hfss.bmp"))
         filename = ""
         comp_name_aux = source_design_name
         WB_SystemID = source_design_name
