@@ -29,9 +29,9 @@ class EdbLayout(object):
         return self._pedb.edb
 
     @property
-    def _messenger(self):
+    def _logger(self):
         """Messenger."""
-        return self._pedb._messenger
+        return self._pedb._logger
 
     @property
     def logger(self):
@@ -94,7 +94,7 @@ class EdbLayout(object):
                     pass
             for lay in self.layers:
                 self._primitives_by_layer[lay] = self.get_polygons_by_layer(lay)
-            self._messenger.add_info_message("Primitives Updated")
+            self._logger.add_info_message("Primitives Updated")
             return True
         return False
 
@@ -477,7 +477,7 @@ class EdbLayout(object):
             polygonData,
         )
         if polygon.IsNull():
-            self._messenger.error("Null path created")
+            self._logger.error("Null path created")
             return False
         else:
             if not self._prims:
@@ -513,17 +513,17 @@ class EdbLayout(object):
         net = self._pedb.core_nets.find_or_create_net(net_name)
         polygonData = self.shape_to_polygon_data(main_shape)
         if polygonData is None or polygonData.IsNull() or polygonData is False:
-            self._messenger.error("Failed to create main shape polygon data")
+            self._logger.error("Failed to create main shape polygon data")
             return False
         for void in voids:
             voidPolygonData = self.shape_to_polygon_data(void)
             if voidPolygonData is None or voidPolygonData.IsNull() or polygonData is False:
-                self._messenger.error("Failed to create void polygon data")
+                self._logger.error("Failed to create void polygon data")
                 return False
             polygonData.AddHole(voidPolygonData)
         polygon = self._edb.Cell.Primitive.Polygon.Create(self._active_layout, layer_name, net, polygonData)
         if polygon.IsNull() or polygonData is False:
-            self._messenger.error("Null polygon created")
+            self._logger.error("Null polygon created")
             return False
         else:
             if not self._prims:
@@ -550,7 +550,7 @@ class EdbLayout(object):
         elif shape.type == "rectangle":
             return self._createPolygonDataFromRectangle(shape)
         else:
-            self._messenger.error(
+            self._logger.error(
                 "Unsupported shape type %s when creating a polygon primitive.", shape.type
             )
             return None
@@ -559,7 +559,7 @@ class EdbLayout(object):
     def _createPolygonDataFromPolygon(self, shape):
         points = shape.points
         if not self._validatePoint(points[0]):
-            self._messenger.error("Error validating point.")
+            self._logger.error("Error validating point.")
             return None
         arcs = []
         for i in range(1, len(points)):
@@ -582,7 +582,7 @@ class EdbLayout(object):
                 elif endPoint[2].ToString() == "ccw":
                     rotationDirection = self._edb.Geometry.RotationDirection.CCW
                 else:
-                    self._messenger.error("Invalid rotation direction %s is specified.", endPoint[2])
+                    self._logger.error("Invalid rotation direction %s is specified.", endPoint[2])
                     return None
                 arc = self._edb.Geometry.ArcData(
                     self._edb.Geometry.PointData(startPoint[0], startPoint[1]),
@@ -597,34 +597,34 @@ class EdbLayout(object):
     def _validatePoint(self, point, allowArcs=True):
         if len(point) == 2:
             if not isinstance(point[0], (int, float, str)):
-                self._messenger.error("Point X value must be a number.")
+                self._logger.error("Point X value must be a number.")
                 return False
             if not isinstance(point[1], (int, float, str)):
-                self._messenger.error("Point Y value must be a number.")
+                self._logger.error("Point Y value must be a number.")
                 return False
             return True
         elif len(point) == 5:
             if not allowArcs:
-                self._messenger.error("Arc found but arcs are not allowed in _validatePoint.")
+                self._logger.error("Arc found but arcs are not allowed in _validatePoint.")
                 return False
             if not isinstance(point[0], (int, float, str)):
-                self._messenger.error("Point X value must be a number.")
+                self._logger.error("Point X value must be a number.")
                 return False
             if not isinstance(point[1], (int, float, str)):
-                self._messenger.error("Point Y value must be a number.")
+                self._logger.error("Point Y value must be a number.")
                 return False
             if not isinstance(point[2], str) or point[2] not in ["cw", "ccw"]:
-                self._messenger.error("Invalid rotation direction {} is specified.")
+                self._logger.error("Invalid rotation direction {} is specified.")
                 return False
             if not isinstance(point[3], (int, float, str)):
-                self._messenger.error("Arc center point X value must be a number.")
+                self._logger.error("Arc center point X value must be a number.")
                 return False
             if not isinstance(point[4], (int, float, str)):
-                self._messenger.error("Arc center point Y value must be a number.")
+                self._logger.error("Arc center point Y value must be a number.")
                 return False
             return True
         else:
-            self._messenger.error(
+            self._logger.error(
                 "Arc point descriptor has incorrect number of elements (%s)", len(point)
             )
             return False
@@ -734,7 +734,7 @@ class EdbLayout(object):
             layer_name = list(self._pedb.core_stackup.signal_layers.keys())
 
         for lay in layer_name:
-            self._messenger.add_info_message("Uniting Objects on layer %s.", lay)
+            self._logger.add_info_message("Uniting Objects on layer %s.", lay)
             poly_by_nets = {}
             if lay in list(self.polygons_by_layer.keys()):
                 for poly in self.polygons_by_layer[lay]:
@@ -757,7 +757,7 @@ class EdbLayout(object):
                 [i.Delete() for i in poly_by_nets[net]]
 
         if delete_padstack_gemometries:
-            self._messenger.add_info_message("Deleting Padstack Definitions")
+            self._logger.add_info_message("Deleting Padstack Definitions")
             for pad in self._pedb.core_padstack.padstacks:
                 p1 = self._pedb.core_padstack.padstacks[pad].edb_padstack.GetData()
                 if len(p1.GetLayerNames()) > 1:

@@ -53,9 +53,9 @@ class EdbPadstacks(object):
         return self._pedb.edblib.Layout.PadStackMethods
 
     @property
-    def _messenger(self):
+    def _logger(self):
         """ """
-        return self._pedb._messenger
+        return self._pedb._logger
 
     @property
     def _layers(self):
@@ -240,7 +240,7 @@ class EdbPadstacks(object):
             padstackLayerMap.SetMapping(layer.GetLayerId(), padstackLayerIdMap[padstackLayerName])
         padstackDefinition = self._edb.Definition.PadstackDef.Create(self.db, padstackname)
         padstackDefinition.SetData(padstackData)
-        self._messenger.add_info_message("Padstack %s create correctly", padstackname)
+        self._logger.add_info_message("Padstack %s create correctly", padstackname)
         self.update_padstacks()
         return padstackname
 

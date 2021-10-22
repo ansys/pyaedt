@@ -74,9 +74,9 @@ class Components(object):
         self._init_parts()
 
     @property
-    def _messenger(self):
+    def logger(self):
         """Messenger."""
-        return self._pedb._messenger
+        return self._pedb._logger
 
     @property
     def _edb(self):
@@ -153,7 +153,7 @@ class Components(object):
 
         """
         self._cmp = {}
-        self._messenger.add_info_message("Refreshing the Components dictionary.")
+        self._logger.add_info_message("Refreshing the Components dictionary.")
         if self._active_layout:
             for cmp in self._active_layout.Groups:
                 if cmp.GetType().ToString() == "Ansys.Ansoft.Edb.Cell.Hierarchy.Component":
@@ -485,10 +485,10 @@ class Components(object):
 
                 edbRlcComponentProperty.SetModel(spiceMod)
                 if not edbComponent.SetComponentProperty(edbRlcComponentProperty):
-                    self._messenger.error("Error Assigning the Touchstone model")
+                    self._logger.error("Error Assigning the Touchstone model")
                     return False
             else:
-                self._messenger.error("Wrong number of Pins")
+                self._logger.error("Wrong number of Pins")
                 return False
 
         elif model_type == "Touchstone":
@@ -512,7 +512,7 @@ class Components(object):
             sParameterMod.SetReferenceNet(net)
             edbRlcComponentProperty.SetModel(sParameterMod)
             if not edbComponent.SetComponentProperty(edbRlcComponentProperty):
-                self._messenger.error("Error Assigning the Touchstone model")
+                self._logger.error("Error Assigning the Touchstone model")
                 return False
         return True
 
@@ -541,7 +541,7 @@ class Components(object):
 
         """
         if len(pins) < 1:
-            self._messenger.error("No pins specified for pin group %s", group_name)
+            self._logger.error("No pins specified for pin group %s", group_name)
             return (False, None)
         if group_name is None:
             cmp_name = pins[0].GetComponent().GetName()
@@ -585,7 +585,7 @@ class Components(object):
                 if edb_cmp is not None:
                     edb_cmp.Delete()
                     deleted_comps.append(comp)
-                    self._pedb._messenger.add_info_message("Component {} deleted".format(comp))
+                    self._pedb._logger.add_info_message("Component {} deleted".format(comp))
         for el in deleted_comps:
             del self.components[el]
         return deleted_comps
@@ -715,15 +715,15 @@ class Components(object):
             if not edbRlcComponentProperty.SetModel(rlcModel) or not edbComponent.SetComponentProperty(
                 edbRlcComponentProperty
             ):
-                self._messenger.error("Failed to set RLC model on component")
+                self._logger.error("Failed to set RLC model on component")
                 return False
         else:
-            self._messenger.warning(
+            self._logger.warning(
                 "Component %s has not been assigned because either it is not present in the layout "
                 "or it contains a number of pins not equal to 2", componentname
             )
             return False
-        self._messenger.warning("RLC properties for Component %s has been assigned.", componentname)
+        self._logger.warning("RLC properties for Component %s has been assigned.", componentname)
         return True
 
     @aedt_exception_handler

@@ -1,5 +1,7 @@
 import logging
+import os
 import sys
+
 from .import log_handler
 
 
@@ -89,7 +91,6 @@ class AedtLogger(object):
             self._project = logging.getLogger(project_name)
             self._project.addHandler(log_handler.LogHandler(self._messenger, 'Project', level))
             self._project.setLevel(level)
-            #self._project.setFormatter(FORMATTER)
             self._project.addFilter(AppFilter('Project', project_name))
             if self._file_handler is not None:
                 self._project.addHandler(self._file_handler)
@@ -102,7 +103,6 @@ class AedtLogger(object):
             self._design = logging.getLogger(project_name + ":" + design_name)
             self._design.addHandler(log_handler.LogHandler(self._messenger, 'Design', level))
             self._design.setLevel(level)
-            #self._design.setFormatter(FORMATTER)
             self._design.addFilter(AppFilter('Design', design_name))
             if self._file_handler is not None:
                 self._design.addHandler(self._file_handler)
@@ -187,11 +187,16 @@ class EdbLogger(object):
         #     self._global.setLevel(level)
         #     self._global.addFilter(AppFilter())
 
-        if filename:
-            self._file_handler = logging.FileHandler(filename)
-            self._file_handler.setLevel(level)
-            self._file_handler.setFormatter(FORMATTER)
-            self._global.addHandler(self._file_handler)
+        if filename is None:
+            if os.name == "posix":
+                filename = "/tmp/pyaedt_edb.log"
+            else:
+                filename = "C:\\Temp\\pyaedt_edb.log"
+
+        self._file_handler = logging.FileHandler(filename)
+        self._file_handler.setLevel(level)
+        self._file_handler.setFormatter(FORMATTER)
+        self._global.addHandler(self._file_handler)
 
         if to_stdout:
             self._std_out_handler = logging.StreamHandler()
