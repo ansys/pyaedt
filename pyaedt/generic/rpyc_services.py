@@ -482,14 +482,14 @@ class PyaedtServiceLinux(rpyc.Service):
             if not ansysem_path:
                 ansysem_path =  env_path(aedt_version)
             command = os.path.join(ansysem_path, executable) + " -RunScriptAndExit " +script_file
-            p = subprocess.Popen(command)
+            p = subprocess.Popen(" ".join(command))
             p.wait()
-            print("Command Executed.")
+            return "Command Executed."
 
         else:
-            print("Ansys EM not found or wrong AEDT Version.")
+            return "Ansys EM not found or wrong AEDT Version."
 
-        pass
+        return "Command Executed."
 
 
 class GlobalService(rpyc.Service):
