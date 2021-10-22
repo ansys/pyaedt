@@ -23,7 +23,7 @@ class GlobalService(rpyc.Service):
         # (to finalize the service, if needed)
         pass
 
-    def exposed_start_service(self):
+    def exposed_start_service(self, hostname):
         """Starts a new Pyaedt Service and start listen.
 
         Returns
@@ -33,9 +33,10 @@ class GlobalService(rpyc.Service):
         """
         port = random.randint(18001, 20000)
         name = os.path.join(os.path.abspath(os.path.dirname(__file__)), "misc", "rpyc_service.py")
-        cmd_service = "python {} {}".format(name, port)
+        cmd_service = [name, str(port), hostname]
         p = subprocess.Popen(cmd_service)
         self._processes[port] = p
+        print("Service Started on Port {}".format(port))
         return port
 
     def exposed_stop_service(self, port_number):
@@ -116,5 +117,5 @@ def pyaedt_client(hostname, server_port=18000):
 
     """
     c = rpyc.connect(hostname, server_port, config={'sync_request_timeout': None})
-    port = c.root.start_service()
+    port = c.root.start_service("hostname")
     return rpyc.connect(hostname, port, config={'sync_request_timeout': None})

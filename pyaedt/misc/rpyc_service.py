@@ -450,8 +450,9 @@ class PyaedtService(rpyc.Service):
 
 
 if __name__ == "__main__":
-    port = sys.argv[1]
-    print(port)
+    port = int(sys.argv[1])
+    hostname = sys.argv[2]
+    print("Starting Service on Port {} Hostname {}".format(port, hostname))
     safe_attrs = {'__abs__', '__add__', '__and__', '__bool__', '__code__', '__cmp__', '__contains__', '__delitem__',
                   '__delslice__', '__div__', '__divmod__', '__doc__', '__eq__', '__float__', '__floordiv__', '__func__',
                   '__ge__',
@@ -468,7 +469,7 @@ if __name__ == "__main__":
                   '__sub__',
                   '__truediv__', '__xor__', 'next', '__length_hint__', '__enter__', '__exit__', '__next__',
                   '__format__'}
-    t = ThreadedServer(PyaedtService, hostname="MLNMCFERRO", port=port,
+    t = ThreadedServer(PyaedtService, hostname=hostname, port=port,
                        protocol_config={'sync_request_timeout': None, 'allow_public_attrs': True, 'allow_setattr': True,
                                         'safe_attrs': safe_attrs,
                                         'allow_delattr': True})
