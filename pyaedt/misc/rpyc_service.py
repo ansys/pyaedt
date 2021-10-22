@@ -1,5 +1,9 @@
 import sys
 import warnings
+import tempfile
+import os
+import subprocess
+from pyaedt.generic.general_methods import env_path, generate_unique_name
 try:
     import rpyc
     from rpyc.utils.server import ThreadedServer
@@ -26,6 +30,29 @@ class PyaedtService(rpyc.Service):
                 self.app[0].release_desktop()
             except:
                 pass
+        pass
+
+    def exposed_run_script(self, script, aedt_version="2021.1", ansysem_path=None):
+        script_file = os.path.join(tempfile..gettempdir(), generate_unique_name("pyaedt_script")+".py")
+        with open(script_file, "w") as f:
+            for line in script:
+                f.write(line+"\n")
+        if os.name == "posix":
+            executable = "ansysedt"
+        else:
+            executable = "ansysedt.exe"
+
+        if env_path(aedt_version) or ansysem_path:
+            if not ansysem_path:
+                ansysem_path =  env_path(aedt_version)
+            command = os.path.join(ansysem_path, executable) + " -RunScriptAndExit " +script_file
+            p = subprocess.Popen(command)
+            p.wait()
+            print("Command Executed.")
+
+        else:
+            print("Ansys EM not found or wrong AEDT Version.")
+
         pass
 
     def exposed_edb(self, edbpath=None, cellname=None, isreadonly=False, edbversion="2021.1", use_ppe=False, ):
