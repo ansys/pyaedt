@@ -278,7 +278,7 @@ class AEDTMessageManager(object):
 
         assert level in message_levels, "Message level must be `Design', 'Project', or 'Global'."
 
-        if self._log_on_desktop:
+        if self._log_on_desktop and self._desktop:
             if not proj_name and message_levels[level] > 0:
                 proj_name = self._project_name
             if not des_name and message_levels[level] > 1:
