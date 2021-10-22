@@ -1089,8 +1089,8 @@ class NexximComponents(CircuitComponents):
         nexxim_customization = self.get_comp_custom_settings(2, 3, 1, 3, 0, 0, "False", "", 2)
         hspice_customization = self.get_comp_custom_settings(3, 1, 2, 3, 0, 0, "False", "", 3)
 
-        filename, file_extension = os.path.splitext(image_subcircuit_path)
         if image_subcircuit_path:
+            _, file_extension = os.path.splitext(image_subcircuit_path)
             if file_extension != ".gif" or file_extension != ".bmp" or file_extension != ".jpg":
                 image_subcircuit_path = None
                 warnings.warn(
