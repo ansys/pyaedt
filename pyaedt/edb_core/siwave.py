@@ -390,7 +390,7 @@ class EdbSiwave(object):
         return self._pedb.edb
 
     @property
-    def _logger(self):
+    def logger(self):
         """EDB."""
         return self._pedb._logger
 

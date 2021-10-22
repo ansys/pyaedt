@@ -29,7 +29,7 @@ class EdbLayout(object):
         return self._pedb.edb
 
     @property
-    def _logger(self):
+    def logger(self):
         """Messenger."""
         return self._pedb._logger
 

@@ -584,6 +584,11 @@ class Edb(object):
             self._logger.error(el)
 
     @property
+    def logger(self):
+        """Edb logger."""
+        return self._logger
+
+    @property
     def db(self):
         """Db object."""
         return self._db

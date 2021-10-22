@@ -53,7 +53,7 @@ class EdbPadstacks(object):
         return self._pedb.edblib.Layout.PadStackMethods
 
     @property
-    def _logger(self):
+    def logger(self):
         """ """
         return self._pedb._logger
 
