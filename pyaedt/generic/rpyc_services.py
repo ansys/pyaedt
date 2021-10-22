@@ -477,7 +477,7 @@ class PyaedtServiceLinux(rpyc.Service):
         with open(script_file, "w") as f:
             f.write("import sys\n")
             for pack_path in package_paths:
-                f.write("sys.path.append({})\n".format(pack_path))
+                f.write("sys.path.append(\"{}\")\n".format(pack_path))
             for line in script:
                 f.write(line+"\n")
         executable = "ansysedt"
