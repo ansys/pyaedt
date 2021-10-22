@@ -150,3 +150,52 @@ class AedtLogger(object):
         if not self._design.hasHandlers:
             self.add_logger("Design")
         return self._design
+
+
+class AedtLogger(object):
+    """Logger used for each Aedt logger.
+
+    This class allows you to add handler to a file or standard output.
+
+    Parameters
+    ----------
+    level : int, optional
+        Logging level to filter the message severity allowed in the logger.
+        The default is ``logging.DEBUG``.
+    filename : str, optional
+        Name of the file where log messages can be written to.
+        The default is ``None``.
+    to_stdout : bool, optional
+        Write log message into the standard output. The default is ``False``.
+    """
+
+    def __init__(self, level=logging.DEBUG, filename=None, to_stdout=False):
+        main = sys.modules["__main__"]
+
+        self.logger = logging.getLogger('Edb')
+        if not self.logger.handlers:
+            self.logger.addFilter(AppFilter())
+        self._file_handler = None
+        self._std_out_handler = None
+        # if self._global.handlers:
+        #     if 'messenger' in dir(self._global.handlers[0]):
+        #         self._global.removeHandler(self._global.handlers[0])
+        #         if self._global.handlers:
+        #             self._global.removeHandler(self._global.handlers[0])
+        # if not self._global.handlers:
+        #     self._global.addHandler(log_handler.LogHandler(self._messenger, 'Global', logging.DEBUG))
+        #     main._aedt_handler = self._global.handlers
+        #     self._global.setLevel(level)
+        #     self._global.addFilter(AppFilter())
+
+        if filename:
+            self._file_handler = logging.FileHandler(filename)
+            self._file_handler.setLevel(level)
+            self._file_handler.setFormatter(FORMATTER)
+            self._global.addHandler(self._file_handler)
+
+        if to_stdout:
+            self._std_out_handler = logging.StreamHandler()
+            self._std_out_handler.setLevel(level)
+            self._std_out_handler.setFormatter(FORMATTER)
+            self._global.addHandler(self._std_out_handler)
