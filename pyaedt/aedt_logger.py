@@ -135,12 +135,15 @@ class AedtLogger(object):
         self._messenger.clear_messages(project_name, design_name, level)
 
     def info(self, msg, *args, **kwargs):
+        """Write info message in the Global log."""
         return self._global.info(msg, *args, **kwargs)
 
     def warning(self, msg, *args, **kwargs):
+        """Write warning message in the Global log."""
         return self._global.warning(msg, *args, **kwargs)
 
     def error(self, msg, *args, **kwargs):
+        """Write error message in the Global log."""
         return self._global.error(msg, *args, **kwargs)
 
     @property
