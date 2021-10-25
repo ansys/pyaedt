@@ -332,6 +332,7 @@ class Desktop:
         self._init_desktop()
         self._logger.glb.info("pyaedt v%s", self._main.pyaedt_version)
         self._logger.glb.info("Python version %s", sys.version)
+        self.odesktop = self._main.oDesktop
 
     def __enter__(self):
         return self
@@ -554,6 +555,105 @@ class Desktop:
     def logger(self):
         """Logger."""
         return self._logger
+
+    @property
+    def project_list(self):
+        """Project list.
+
+        Returns
+        -------
+        list
+            List of projects.
+
+        """
+        return list(self.odesktop.GetProjectList())
+
+    @property
+    def design_list(self, project=None):
+        """Design list.
+
+        Parameters
+        ----------
+        project : str, optional
+            Project name.
+
+        Returns
+        -------
+        str
+            List of the designs.
+        """
+
+        updateddeslist = []
+        if not project:
+            oproject = self.odesktop.GetActiveProject()
+        else:
+            oproject = self.odesktop.SetActiveProject(project)
+        if oproject:
+            deslist = list(oproject.GetTopDesignList())
+            for el in deslist:
+                m = re.search(r"[^;]+$", el)
+                updateddeslist.append(m.group(0))
+        return updateddeslist
+
+    @property
+    def personallib(self):
+        """PersonalLib directory.
+
+        Returns
+        -------
+        str
+            Full absolute path for the ``PersonalLib`` directory.
+
+        """
+        return os.path.normpath(self.odesktop.GetPersonalLibDirectory())
+
+    @property
+    def userlib(self):
+        """UserLib directory.
+
+        Returns
+        -------
+        str
+            Full absolute path for the ``UserLib`` directory.
+
+        """
+        return os.path.normpath(self.odesktop.GetUserLibDirectory())
+
+    @property
+    def syslib(self):
+        """SysLib directory.
+
+        Returns
+        -------
+        str
+            Full absolute path for the ``SysLib`` directory.
+
+        """
+        return os.path.normpath(self.odesktop.GetLibraryDirectory())
+
+    @property
+    def src_dir(self):
+        """Source directory for Python.
+
+        Returns
+        -------
+        str
+            Full absolute path for the ``python`` directory.
+
+        """
+        return os.path.dirname(os.path.realpath(__file__))
+
+    @property
+    def pyaedt_dir(self):
+        """PyAEDT directory.
+
+        Returns
+        -------
+        str
+           Full absolute path for the ``pyaedt`` directory.
+
+        """
+        return os.path.realpath(os.path.join(self.src_dir, ".."))
 
     def _exception(self, ex_value, tb_data):
         """Write the trace stack to the desktop when a Python error occurs.
@@ -783,6 +883,7 @@ class Desktop:
             return True
         except:
             return False
+
 
 def get_version_env_variable(version_id):
     """Retrieve the environment variable for the AEDT version.

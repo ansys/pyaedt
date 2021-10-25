@@ -6,7 +6,7 @@ import threading
 import site
 import rpyc
 from rpyc import ThreadedServer
-import socket
+import sys
 from pyaedt import generate_unique_name
 from pyaedt.generic.general_methods import env_path
 
@@ -567,7 +567,7 @@ class GlobalService(rpyc.Service):
             t.start()
         else:
             name = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "misc", "pyaedt_client_windows.py")
-            cmd_service = ["python", name, str(port), hostname]
+            cmd_service = [sys.executable, name, str(port), hostname]
             print(" ".join(cmd_service))
             p = subprocess.Popen(" ".join(cmd_service))
             self._processes[port] = p
