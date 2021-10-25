@@ -62,7 +62,7 @@ Here one example of usage on Windows Server:
     # Launch the latest installed version of AEDT in graphical mode.
 
     from pyaedt.common_rpc import pyaedt_server
-    pyaedt_server("full_name_of_server") # don't use localhost or 127.0.0.1 here. use the full hostname.
+    pyaedt_server() # don't use localhost or 127.0.0.1 here. use the full hostname.
 
 On Client Side:
 
@@ -85,7 +85,7 @@ Here one example of usage on Linux Server:
     # Launch the latest installed version of AEDT in graphical mode.
 
     from pyaedt.common_rpc import pyaedt_server
-    pyaedt_server("full_name_of_server") # don't use localhost or 127.0.0.1 here. use the full hostname.
+    pyaedt_server() # don't use localhost or 127.0.0.1 here. use the full hostname.
 
 On Client Side:
 

@@ -1,4 +1,5 @@
 import warnings
+import socket
 try:
     import rpyc
     from rpyc.utils.server import ThreadedServer
@@ -8,7 +9,7 @@ except ImportError:
 from pyaedt.generic.rpyc_services import GlobalService
 
 
-def pyaedt_server(hostname, port=18000):
+def pyaedt_server(port=18000):
     """Starts an rpyc servers an start listening on specified port. This method has to run on server machine.
 
     Parameters
@@ -20,12 +21,13 @@ def pyaedt_server(hostname, port=18000):
     Examples
     --------
     >>> from pyaedt.common_rpc import pyaedt_server
-    >>> pyaedt_server("my_server", port=18000)
+    >>> pyaedt_server( port=18000)
 
     """
+    hostname = socket.gethostname()
     safe_attrs = {'__abs__', '__add__', '__and__', '__bool__', '__code__', '__cmp__', '__contains__', '__delitem__',
                   '__delslice__', '__div__', '__divmod__', '__doc__', '__eq__', '__float__', '__floordiv__', '__func__',
-                  '__ge__',
+                  '__ge__', "__getmodule", "__cache", "__weakref__",
                   '__getitem__', '__getslice__', '__gt__', '__hash__', '__hex__', '__iadd__', '__iand__', '__idiv__',
                   '__ifloordiv__',
                   '__ilshift__', '__imod__', '__imul__', '__index__', '__int__', '__invert__', '__ior__', '__ipow__',
@@ -46,12 +48,12 @@ def pyaedt_server(hostname, port=18000):
     t.start()
 
 
-def pyaedt_client(hostname, server_port=18000):
+def pyaedt_client(server_name, server_port=18000):
     """Starts an rpyc client and connects to a remote machine.
 
     Parameters
     ----------
-    hostname : str
+    server_name : str
         name of the remote machine to connect.
     server_port : int, optional
         port on which rpyc_server is running
@@ -65,7 +67,7 @@ def pyaedt_client(hostname, server_port=18000):
     Windows Example.
 
     >>> from pyaedt.common_rpc import pyaedt_client
-    >>> client = pyaedt_client("server_name")
+    >>> client = pyaedt_client(server_name="server_name")
     >>> hfss = client.root.hfss(specified_version="2021.2")
 
     Linux Example.
@@ -74,6 +76,6 @@ def pyaedt_client(hostname, server_port=18000):
     >>> client.root.run_script = client.root.hfss(script_to_run, ansysem_path = "/path/to/AnsysEMxxx/Linux64")
 
     """
-    c = rpyc.connect(hostname, server_port, config={'sync_request_timeout': None})
-    port = c.root.start_service(hostname)
-    return rpyc.connect(hostname, port, config={'sync_request_timeout': None})
+    c = rpyc.connect(server_name, server_port, config={'sync_request_timeout': None})
+    port = c.root.start_service(server_name)
+    return rpyc.connect(server_name, port, config={'sync_request_timeout': None})

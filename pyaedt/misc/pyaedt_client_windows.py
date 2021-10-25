@@ -29,6 +29,8 @@ if __name__ == "__main__":
                   '__format__'}
     t = ThreadedServer(PyaedtServiceWindows, hostname=hostname, port=port,
                        protocol_config={'sync_request_timeout': None, 'allow_public_attrs': True, 'allow_setattr': True,
-                                        'safe_attrs': safe_attrs,
+                                        'allow_all_attrs': True, 'safe_attrs': safe_attrs, 'allow_pickle': True,
+                                        'allow_getattr': True, 'import_custom_exceptions': True,
+                                        'instantiate_custom_exceptions': True, 'instantiate_oldstyle_exceptions': True,
                                         'allow_delattr': True})
     t.start()

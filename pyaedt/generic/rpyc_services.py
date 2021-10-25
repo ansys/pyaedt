@@ -6,7 +6,6 @@ import threading
 import site
 import rpyc
 from rpyc import ThreadedServer
-
 from pyaedt import generate_unique_name
 from pyaedt.generic.general_methods import env_path
 
@@ -18,7 +17,7 @@ class PyaedtServiceWindows(rpyc.Service):
     def on_connect(self, conn):
         # code that runs when a connection is created
         # (to init the service, if needed)
-
+        self.conn = conn
         self.app = []
         pass
 
