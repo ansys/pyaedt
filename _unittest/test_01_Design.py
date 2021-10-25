@@ -3,7 +3,7 @@ import gc
 import os
 
 # Import required modules
-from pyaedt import Hfss
+from pyaedt import Hfss, Desktop
 from pyaedt.generic.filesystem import Scratch
 
 # Setup paths for module imports
@@ -37,6 +37,17 @@ class TestClass:
 
     def test_app(self):
         assert self.aedtapp
+
+    def test_00_destkop(self):
+        d = Desktop(desktop_version, new_desktop_session=False)
+        assert isinstance(d.project_list(), list)
+        assert isinstance(d.design_list(), list)
+        assert desktop_version == d.aedt_version_id
+        assert d.personallib
+        assert d.userlib
+        assert d.syslib
+        assert d.design_type() == "HFSS"
+
 
     def test_01_designname(self):
         self.aedtapp.design_name = "myname"

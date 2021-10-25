@@ -29,7 +29,7 @@ else:
     import subprocess
 from pyaedt.application.MessageManager import AEDTMessageManager
 from pyaedt.misc import list_installed_ansysem
-from pyaedt import is_ironpython, _pythonver, inside_desktop, aedt_exception_handler
+from pyaedt.generic.general_methods import is_ironpython, _pythonver, inside_desktop, aedt_exception_handler
 
 from . import aedt_logger
 
