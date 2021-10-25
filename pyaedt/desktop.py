@@ -29,7 +29,7 @@ else:
     import subprocess
 from pyaedt.application.MessageManager import AEDTMessageManager
 from pyaedt.misc import list_installed_ansysem
-from pyaedt import is_ironpython, _pythonver, inside_desktop
+from pyaedt import is_ironpython, _pythonver, inside_desktop, aedt_exception_handler
 
 from . import aedt_logger
 
@@ -556,7 +556,7 @@ class Desktop:
         """Logger."""
         return self._logger
 
-    @property
+    @aedt_exception_handler
     def project_list(self):
         """Project list.
 
@@ -568,7 +568,7 @@ class Desktop:
         """
         return list(self.odesktop.GetProjectList())
 
-    @property
+    @aedt_exception_handler
     def design_list(self, project=None):
         """Design list.
 
@@ -594,6 +594,35 @@ class Desktop:
                 m = re.search(r"[^;]+$", el)
                 updateddeslist.append(m.group(0))
         return updateddeslist
+
+    @aedt_exception_handler
+    def design_type(self, project_name=None, design_name=None):
+        """Design list.
+
+        Parameters
+        ----------
+        project_name : str, optional
+            Project name.
+        design_name : str, optional
+            Design name.
+        Returns
+        -------
+        str
+            Design Type.
+        """
+        if not project_name:
+            oproject = self.odesktop.GetActiveProject()
+        else:
+            oproject = self.odesktop.SetActiveProject(project_name)
+        if not oproject:
+            return ""
+        if not design_name:
+            odesign = oproject.GetActiveDesign()
+        else:
+            odesign = oproject.SetActiveDesign(design_name)
+        if odesign:
+            return odesign.GetDesignType()
+        return ""
 
     @property
     def personallib(self):
@@ -630,6 +659,20 @@ class Desktop:
 
         """
         return os.path.normpath(self.odesktop.GetLibraryDirectory())
+
+    @property
+    def aedt_version_id(self):
+        """AEDT version.
+
+        Returns
+        -------
+        str
+            Version of AEDT.
+
+        """
+        version = self.odesktop.GetVersion().split(".")
+        v = ".".join([version[0],version[1]])
+        return v
 
     @property
     def src_dir(self):
