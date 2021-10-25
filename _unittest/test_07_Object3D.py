@@ -21,6 +21,7 @@ class TestClass:
             self.prim = self.aedtapp.modeler.primitives
 
     def teardown_class(self):
+        self.aedtapp._desktop.ClearMessages("", "", 3)
         self.aedtapp.close_project(name=self.aedtapp.project_name, saveproject=False)
         self.local_scratch.remove()
         gc.collect()

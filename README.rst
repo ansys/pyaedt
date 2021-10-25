@@ -136,6 +136,27 @@ Implicit Desktop Declaration and Error Management
     # Desktop is automatically released here.
 
 
+Remot Application Call
+~~~~~~~~~~~~~~~~~~~~~~
+
+On the server
+
+.. code:: python
+
+    Launch Pyaedt remote server
+
+    from pyaedt.common_rpc import pyaedt_server
+    pyaedt_server()
+
+On any windows client machine
+
+.. code:: python
+
+    from pyaedt.common_rpc import pyaedt_client
+    client = pyaedt_client("server_name")
+    hfss = client.root.hfss()
+    # your code here
+
 Variables
 ~~~~~~~~~
 

@@ -828,7 +828,7 @@ class Icepak(FieldAnalysisIcepak):
                         name = line[id1 : id1 + id2]
                         if name not in priority_list:
                             priority_list.append(name)
-            self._messenger.add_info_message(
+            self.logger.info(
                 "{} Intersections have been found. Applying Priorities".format(len(priority_list)))
             for objname in priority_list:
                 self.mesh.add_priority(1, [objname], priority=i)
@@ -1834,7 +1834,7 @@ class Icepak(FieldAnalysisIcepak):
         else:
             allObjects = object_list[:]
 
-        self.add_info_message("Exporting {} objects".format(len(allObjects)))
+        self.logger.info("Exporting {} objects".format(len(allObjects)))
 
         stringa = ",".join(allObjects)
         arg = [

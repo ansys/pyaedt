@@ -7,7 +7,6 @@ import math
 import os
 import time
 from collections import OrderedDict, defaultdict
-from copy import copy
 
 from ..application.Variables import Variable
 from ..generic.general_methods import aedt_exception_handler, is_number, retry_ntimes
@@ -184,8 +183,8 @@ class Polyline(Object3d):
                 num_seg=xsection_num_seg,
                 bend_type=xsection_bend_type,
             )
-            self._positions = copy(position_list)
-
+            #self._positions = copy(position_list)
+            self._positions = [i for i in position_list]
             # When close surface or cover_surface are set to True, ensure the start point and end point are coincident,
             # and insert a line segment to achieve this if necessary
             if cover_surface:
@@ -196,7 +195,11 @@ class Polyline(Object3d):
 
             self._segment_types = None
             if segment_type:
-                self._segment_types = copy(segment_type)
+                if isinstance(segment_type, (list, tuple)):
+                    #self._segment_types = copy(segment_type)
+                    self._segment_types = [i for i in segment_type]
+                else:
+                    self._segment_types = segment_type
 
             varg1 = self._point_segment_string_array()
 
@@ -894,11 +897,6 @@ class Primitives(object):
     def defaultmaterial(self):
         """Default material."""
         return default_materials[self._app._design_type]
-
-    @property
-    def _messenger(self):
-        """Messenger."""
-        return self._app._messenger
 
     @property
     def logger(self):
@@ -2831,7 +2829,7 @@ class Primitives(object):
         test = retry_ntimes(10, self._oeditor.GetObjectsInGroup, "Unclassified")
         if test is None or test is False:
             self._unclassified = []
-            self._messenger.logger.debug("Unclassified is failing")
+            self.logger.design.debug("Unclassified is failing")
         elif test is True:
             self._unclassified = []  # In IronPython True is returned when no unclassified are present
         else:

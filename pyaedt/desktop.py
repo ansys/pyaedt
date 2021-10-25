@@ -29,7 +29,7 @@ else:
     import subprocess
 from pyaedt.application.MessageManager import AEDTMessageManager
 from pyaedt.misc import list_installed_ansysem
-from pyaedt import is_ironpython, _pythonver, inside_desktop
+from pyaedt import is_ironpython, _pythonver, inside_desktop, aedt_exception_handler
 
 from . import aedt_logger
 
@@ -305,9 +305,12 @@ class Desktop:
         self._main = sys.modules["__main__"]
         self._main.interpreter = _com
         self.close_on_exit = close_on_exit
-        self._main.isoutsideDesktop = False
         self._main.pyaedt_version = pyaedtversion
         self._main.interpreter_ver = _pythonver
+        if is_ironpython:
+            self._main.isoutsideDesktop = False
+        else:
+            self._main.isoutsideDesktop = True
         self.releae_on_exit = True
         self.logfile = None
         if "oDesktop" in dir(self._main) and self._main.oDesktop is not None:
@@ -332,6 +335,7 @@ class Desktop:
         self._init_desktop()
         self._logger.glb.info("pyaedt v%s", self._main.pyaedt_version)
         self._logger.glb.info("Python version %s", sys.version)
+        self.odesktop = self._main.oDesktop
 
     def __enter__(self):
         return self
@@ -402,6 +406,7 @@ class Desktop:
         self._main.oDesktop.RestoreWindow()
         self._main.oMessenger = AEDTMessageManager()
         self._logger = aedt_logger.AedtLogger(self._main.oMessenger, filename = self.logfile, level = logging.DEBUG)
+        self._logger.info("Logger Started on %s", self.logfile)
         self._main.aedt_logger = self._logger
         self._main.sDesktopinstallDirectory = self._main.oDesktop.GetExeDir()
         self._main.pyaedt_initialized = True
@@ -553,6 +558,148 @@ class Desktop:
     def logger(self):
         """Logger."""
         return self._logger
+
+    @aedt_exception_handler
+    def project_list(self):
+        """Project list.
+
+        Returns
+        -------
+        list
+            List of projects.
+
+        """
+        return list(self.odesktop.GetProjectList())
+
+    @aedt_exception_handler
+    def design_list(self, project=None):
+        """Design list.
+
+        Parameters
+        ----------
+        project : str, optional
+            Project name.
+
+        Returns
+        -------
+        str
+            List of the designs.
+        """
+
+        updateddeslist = []
+        if not project:
+            oproject = self.odesktop.GetActiveProject()
+        else:
+            oproject = self.odesktop.SetActiveProject(project)
+        if oproject:
+            deslist = list(oproject.GetTopDesignList())
+            for el in deslist:
+                m = re.search(r"[^;]+$", el)
+                updateddeslist.append(m.group(0))
+        return updateddeslist
+
+    @aedt_exception_handler
+    def design_type(self, project_name=None, design_name=None):
+        """Design list.
+
+        Parameters
+        ----------
+        project_name : str, optional
+            Project name.
+        design_name : str, optional
+            Design name.
+        Returns
+        -------
+        str
+            Design Type.
+        """
+        if not project_name:
+            oproject = self.odesktop.GetActiveProject()
+        else:
+            oproject = self.odesktop.SetActiveProject(project_name)
+        if not oproject:
+            return ""
+        if not design_name:
+            odesign = oproject.GetActiveDesign()
+        else:
+            odesign = oproject.SetActiveDesign(design_name)
+        if odesign:
+            return odesign.GetDesignType()
+        return ""
+
+    @property
+    def personallib(self):
+        """PersonalLib directory.
+
+        Returns
+        -------
+        str
+            Full absolute path for the ``PersonalLib`` directory.
+
+        """
+        return os.path.normpath(self.odesktop.GetPersonalLibDirectory())
+
+    @property
+    def userlib(self):
+        """UserLib directory.
+
+        Returns
+        -------
+        str
+            Full absolute path for the ``UserLib`` directory.
+
+        """
+        return os.path.normpath(self.odesktop.GetUserLibDirectory())
+
+    @property
+    def syslib(self):
+        """SysLib directory.
+
+        Returns
+        -------
+        str
+            Full absolute path for the ``SysLib`` directory.
+
+        """
+        return os.path.normpath(self.odesktop.GetLibraryDirectory())
+
+    @property
+    def aedt_version_id(self):
+        """AEDT version.
+
+        Returns
+        -------
+        str
+            Version of AEDT.
+
+        """
+        version = self.odesktop.GetVersion().split(".")
+        v = ".".join([version[0], version[1]])
+        return v
+
+    @property
+    def src_dir(self):
+        """Source directory for Python.
+
+        Returns
+        -------
+        str
+            Full absolute path for the ``python`` directory.
+
+        """
+        return os.path.dirname(os.path.realpath(__file__))
+
+    @property
+    def pyaedt_dir(self):
+        """PyAEDT directory.
+
+        Returns
+        -------
+        str
+           Full absolute path for the ``pyaedt`` directory.
+
+        """
+        return os.path.realpath(os.path.join(self.src_dir, ".."))
 
     def _exception(self, ex_value, tb_data):
         """Write the trace stack to the desktop when a Python error occurs.
@@ -782,6 +929,7 @@ class Desktop:
             return True
         except:
             return False
+
 
 def get_version_env_variable(version_id):
     """Retrieve the environment variable for the AEDT version.

@@ -20,11 +20,6 @@ class EdbNets(object):
         return self._pedb.edb
 
     @property
-    def _edb_value(self):
-        """ """
-        return self._pedb.edb_value
-
-    @property
     def _active_layout(self):
         """ """
         return self._pedb.active_layout
@@ -45,9 +40,9 @@ class EdbNets(object):
         return self._pedb.edblib.Layout.PadStackMethods
 
     @property
-    def _messenger(self):
+    def _logger(self):
         """ """
-        return self._pedb._messenger
+        return self._pedb.logger
 
     @property
     def _nets_methods(self):
@@ -250,7 +245,7 @@ class EdbNets(object):
                 if edb_net is not None:
                     edb_net.Delete()
                     nets_deleted.append(net)
-                    self._messenger.add_info_message("Net {} Deleted".format(net))
+                    self._logger.info("Net {} Deleted".format(net))
             except:
                 pass
 

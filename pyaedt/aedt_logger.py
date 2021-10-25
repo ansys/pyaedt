@@ -121,12 +121,15 @@ class AedtLogger(object):
         self._messenger.clear_messages(project_name, design_name, level)
 
     def info(self, msg, *args, **kwargs):
+        """Send Global info."""
         return self._global.info(msg, *args, **kwargs)
 
     def warning(self, msg, *args, **kwargs):
+        """Send Global warning."""
         return self._global.warning(msg, *args, **kwargs)
 
     def error(self, msg, *args, **kwargs):
+        """Send Global error."""
         return self._global.error(msg, *args, **kwargs)
 
     @property
@@ -139,7 +142,7 @@ class AedtLogger(object):
     def project(self):
         """Project logger."""
         self._project = logging.getLogger(self._messenger._project_name)
-        if not self._project.hasHandlers:
+        if not self._project.handlers:
             self.add_logger("Project")
         return self._project
 
@@ -147,6 +150,6 @@ class AedtLogger(object):
     def design(self):
         """Design logger."""
         self._design = logging.getLogger(self._messenger._project_name + ":" + self._messenger._design_name)
-        if not self._design.hasHandlers:
+        if not self._design.handlers:
             self.add_logger("Design")
         return self._design
