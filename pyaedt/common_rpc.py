@@ -74,6 +74,11 @@ def pyaedt_client(server_name, server_port=18000):
     >>> script_to_run = ["from pyaedt import Hfss", "hfss =Hfss()"]
     >>> client.root.run_script = client.root.hfss(script_to_run, ansysem_path = "/path/to/AnsysEMxxx/Linux64")
 
+    Linux Example 2.
+    >>> client = pyaedt_client("my_server")
+    >>> script_to_run = "/path/to/script.py"
+    >>> client.root.run_script = client.root.hfss(script_to_run, ansysem_path = "/path/to/AnsysEMxxx/Linux64")
+
     """
     c = rpyc.connect(server_name, server_port, config={'sync_request_timeout': None})
     port = c.root.start_service(server_name)

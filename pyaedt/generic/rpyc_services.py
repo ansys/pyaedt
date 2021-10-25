@@ -6,7 +6,7 @@ import threading
 import site
 import rpyc
 from rpyc import ThreadedServer
-
+import socket
 from pyaedt import generate_unique_name
 from pyaedt.generic.general_methods import env_path
 
@@ -38,7 +38,6 @@ class PyaedtServiceWindows(rpyc.Service):
                 self.app[0].release_desktop()
             except:
                 pass
-        return True
 
     def exposed_run_script(self, script, aedt_version="2021.1", ansysem_path=None):
         """Run script on AEDT in the server.
