@@ -15,7 +15,6 @@ except:
 
 try:
     from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, retry_ntimes
-    from pyaedt.generic.general_methods import is_ironpython, _pythonver, inside_desktop
     from pyaedt.hfss3dlayout import Hfss3dLayout
     from pyaedt.hfss import Hfss
     from pyaedt.circuit import Circuit
@@ -32,7 +31,6 @@ try:
     from pyaedt.aedt_logger import AedtLogger
 except:
     from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, retry_ntimes
-    from pyaedt.generic.general_methods import is_ironpython, _pythonver, inside_desktop
     from pyaedt.hfss3dlayout import Hfss3dLayout
     from pyaedt.hfss import Hfss
     from pyaedt.circuit import Circuit
