@@ -41,6 +41,21 @@ class PyaedtServiceWindows(rpyc.Service):
         return True
 
     def exposed_run_script(self, script, aedt_version="2021.1", ansysem_path=None):
+        """Run script on AEDT in the server.
+
+        Parameters
+        ----------
+        script : str or list
+            It can be the full path of the script file or a list of command to execute on the server.
+        aedt_version : str, optional
+            Aedt Version to run.
+        ansysem_path : str, optional
+            Full path to AEDT Installation folder.
+
+        Returns
+        -------
+        str
+        """
         script_file = os.path.join(tempfile.gettempdir(), generate_unique_name("pyaedt_script")+".py")
         with open(script_file, "w") as f:
             for line in script:
@@ -472,7 +487,22 @@ class PyaedtServiceLinux(rpyc.Service):
     def exposed_close_connection(self):
         return True
 
-    def exposed_run_script(self, script, aedt_version="2021.1", ansysem_path=None):
+    def exposed_run_script(self, script,  aedt_version="2021.1", ansysem_path=None):
+        """Run script on AEDT in the server.
+
+        Parameters
+        ----------
+        script : str or list
+            It can be the full path of the script file or a list of command to execute on the server.
+        aedt_version : str, optional
+            Aedt Version to run.
+        ansysem_path : str, optional
+            Full path to AEDT Installation folder.
+
+        Returns
+        -------
+        str
+        """
         script_file = os.path.join(tempfile.gettempdir(), generate_unique_name("pyaedt_script")+".py")
 
         package_paths = site.getsitepackages()

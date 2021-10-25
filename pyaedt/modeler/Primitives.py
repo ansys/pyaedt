@@ -195,8 +195,11 @@ class Polyline(Object3d):
 
             self._segment_types = None
             if segment_type:
+                if isinstance(segment_type, (list, tuple)):
                 #self._segment_types = copy(segment_type)
-                self._segment_types = [i for i in segment_type]
+                    self._segment_types = [i for i in segment_type]
+                else:
+                    self._segment_types = segment_type
 
             varg1 = self._point_segment_string_array()
 

@@ -98,6 +98,20 @@ On Client Side:
     my_client.root.run_script(example_script, aedt_version="2021.2") #if env variable is registered in the server
 
 
+As an alternative, the user can upload the script to run to the server and run it.
+
+.. code:: python
+
+    # Launch the latest installed version of AEDT in graphical mode.
+
+    from pyaedt.common_rpc import pyaedt_client, upload
+    my_client = pyaedt_client("full_name_of_server")
+    local_script ="path/to/my/local/pyaedt/script.py"
+    remote_script ="path/to/my/remote/pyaedt/script.py"
+    upload(local_script, remote_script, "servername")
+    ansysem = "/path/to/AnsysEMxxx/Linux64"
+    my_client.root.run_script(remote_script, ansysem_path=ansysem)
+
 Variables
 ~~~~~~~~~
 PyAEDT provides a simplified interface for getting and setting variables inside a project or a design.
