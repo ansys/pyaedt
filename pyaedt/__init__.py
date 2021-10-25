@@ -24,7 +24,7 @@ try:
 except:
     from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, retry_ntimes
     from pyaedt.generic.general_methods import is_ironpython, _pythonver, inside_desktop
-    from .hfss3dlayout import Hfss3dLayout
+    from pyaedt.hfss3dlayout import Hfss3dLayout
     from pyaedt.hfss import Hfss
     from pyaedt.circuit import Circuit
     from pyaedt.q3d import Q2d, Q3d
