@@ -89,6 +89,7 @@ class Primitives3DLayout(object):
             List of geometries from EDB. If EDB is not present, ``None`` is returned.
 
         """
+
         try:
             prims = self.modeler.edb.core_primitives.primitives
         except:

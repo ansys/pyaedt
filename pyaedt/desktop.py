@@ -305,9 +305,12 @@ class Desktop:
         self._main = sys.modules["__main__"]
         self._main.interpreter = _com
         self.close_on_exit = close_on_exit
-        self._main.isoutsideDesktop = False
         self._main.pyaedt_version = pyaedtversion
         self._main.interpreter_ver = _pythonver
+        if is_ironpython:
+            self._main.isoutsideDesktop = False
+        else:
+            self._main.isoutsideDesktop = True
         self.releae_on_exit = True
         self.logfile = None
         if "oDesktop" in dir(self._main) and self._main.oDesktop is not None:
