@@ -134,6 +134,12 @@ def _delete_objects():
         del module.oDesktop
     if "pyaedt_initialized" in dir(module):
         del module.pyaedt_initialized
+    if "aedt_logger" in dir(module):
+        del module.aedt_logger
+    if "_aedt_handler" in dir(module):
+        _global = logging.getLogger('Global')
+        for i in range(len(module._aedt_handler) - 1, -1, -1):
+            _global.removeHandler(module._aedt_handler[i])
     gc.collect()
 
 
@@ -278,19 +284,19 @@ class Desktop:
 
     >>> import pyaedt
     >>> desktop = pyaedt.Desktop("2021.1", non_graphical=True)
-    pyaedt Info: pyaedt v...
-    pyaedt Info: Python version ...
+    pyaedt info: pyaedt v...
+    pyaedt info: Python version ...
     >>> hfss = pyaedt.Hfss(designname="HFSSDesign1")
-    pyaedt Info: Project...
-    pyaedt Info: Added design 'HFSSDesign1' of type HFSS.
+    pyaedt info: Project...
+    pyaedt info: Added design 'HFSSDesign1' of type HFSS.
 
     Launch AEDT 2021 R1 in graphical mode and initialize HFSS.
 
     >>> desktop = Desktop("2021.1")
-    pyaedt Info: pyaedt v...
-    pyaedt Info: Python version ...
+    pyaedt info: pyaedt v...
+    pyaedt info: Python version ...
     >>> hfss = pyaedt.Hfss(designname="HFSSDesign1")
-    pyaedt Info: No project is defined. Project...
+    pyaedt info: No project is defined. Project...
     """
 
     def __init__(self, specified_version=None, non_graphical=False, new_desktop_session=True, close_on_exit=True,
@@ -484,7 +490,7 @@ class Desktop:
         self.COMUtil = AnsoftCOMUtil.Ansoft.CoreCOMScripting.Util.COMUtil
         self._main.COMUtil = self.COMUtil
         StandalonePyScriptWrapper = AnsoftCOMUtil.Ansoft.CoreCOMScripting.COM.StandalonePyScriptWrapper
-        print("PyAEDT Info: Launching AEDT with module Pythonnet.")
+        print("pyaedt info: Launching AEDT with module Pythonnet.")
         processID = []
         if IsWindows:
             processID = self._get_tasks_list_windows(student_version)
@@ -507,9 +513,9 @@ class Desktop:
             self._dispatch_win32(version)
         elif version_key >= "2021.1":
             if student_version:
-                print("PyAEDT Info:: {} Student version started with process ID {}.".format(version, proc[0]))
+                print("pyaedt info:: {} Student version started with process ID {}.".format(version, proc[0]))
             else:
-                print("PyAEDT Info:: {} Started with process ID {}.".format(version, proc[0]))
+                print("pyaedt info:: {} Started with process ID {}.".format(version, proc[0]))
             context = pythoncom.CreateBindCtx(0)
             running_coms = pythoncom.GetRunningObjectTable()
             monikiers = running_coms.EnumRunning()
@@ -593,8 +599,8 @@ class Desktop:
         --------
         >>> import pyaedt
         >>> desktop = pyaedt.Desktop("2021.1")
-        pyaedt Info: pyaedt v...
-        pyaedt Info: Python version ...
+        pyaedt info: pyaedt v...
+        pyaedt info: Python version ...
         >>> desktop.release_desktop(close_projects=False, close_on_exit=False) # doctest: +SKIP
 
         """
@@ -632,8 +638,8 @@ class Desktop:
         --------
         >>> import pyaedt
         >>> desktop = pyaedt.Desktop("2021.1")
-        pyaedt Info: pyaedt v...
-        pyaedt Info: Python version ...
+        pyaedt info: pyaedt v...
+        pyaedt info: Python version ...
         >>> desktop.close_desktop() # doctest: +SKIP
 
         """
@@ -646,8 +652,8 @@ class Desktop:
         --------
         >>> import pyaedt
         >>> desktop = pyaedt.Desktop("2021.1")
-        pyaedt Info: pyaedt v...
-        pyaedt Info: Python version ...
+        pyaedt info: pyaedt v...
+        pyaedt info: Python version ...
         >>> desktop.enable_autosave()
 
         """
@@ -660,8 +666,8 @@ class Desktop:
         --------
         >>> import pyaedt
         >>> desktop = pyaedt.Desktop("2021.1")
-        pyaedt Info: pyaedt v...
-        pyaedt Info: Python version ...
+        pyaedt info: pyaedt v...
+        pyaedt info: Python version ...
         >>> desktop.disable_autosave()
 
         """

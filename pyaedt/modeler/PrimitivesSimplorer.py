@@ -51,10 +51,10 @@ class SimplorerComponents(CircuitComponents):
 
         return None
 
-    def __init__(self, parent, modeler):
-        CircuitComponents.__init__(self, parent, modeler)
-        self._parent = parent
-        self.modeler = modeler
+    def __init__(self, modeler):
+        CircuitComponents.__init__(self, modeler)
+        self._app = modeler._app
+        self._modeler = modeler
         self._currentId = 0
         self.components = defaultdict(CircuitComponent)
         pass

@@ -355,7 +355,7 @@ class EdbSiwave(object):
 
     Parameters
     ----------
-    parent :
+    edb_class : :class:`pyaedt.edb.Edb`
         Inherited parent object.
 
     Examples
@@ -366,48 +366,48 @@ class EdbSiwave(object):
 
     """
 
-    def __init__(self, parent):
-        self.parent = parent
+    def __init__(self, p_edb):
+        self._pedb = p_edb
 
     @property
     def _siwave_source(self):
         """SIwave source."""
-        return self.parent.edblib.SIwave.SiwaveSourceMethods
+        return self._pedb.edblib.SIwave.SiwaveSourceMethods
 
     @property
     def _siwave_setup(self):
         """SIwave setup."""
-        return self.parent.edblib.SIwave.SiwaveSimulationSetupMethods
+        return self._pedb.edblib.SIwave.SiwaveSimulationSetupMethods
 
     @property
     def _builder(self):
         """Builder."""
-        return self.parent.builder
+        return self._pedb.builder
 
     @property
     def _edb(self):
         """EDB."""
-        return self.parent.edb
+        return self._pedb.edb
 
     @property
     def _messenger(self):
         """EDB."""
-        return self.parent._messenger
+        return self._pedb._messenger
 
     @property
     def _active_layout(self):
         """Active layout."""
-        return self.parent.active_layout
+        return self._pedb.active_layout
 
     @property
     def _cell(self):
         """Cell."""
-        return self.parent.active_cell
+        return self._pedb.active_cell
 
     @property
     def _db(self):
         """ """
-        return self.parent.db
+        return self._pedb.db
 
     @aedt_exception_handler
     def _create_terminal_on_pins(self, source):
@@ -700,13 +700,13 @@ class EdbSiwave(object):
     @aedt_exception_handler
     def _check_gnd(self, component_name):
         negative_net_name = None
-        if self.parent.core_nets.is_net_in_component(component_name, "GND"):
+        if self._pedb.core_nets.is_net_in_component(component_name, "GND"):
             negative_net_name = "GND"
-        elif self.parent.core_nets.is_net_in_component(component_name, "PGND"):
+        elif self._pedb.core_nets.is_net_in_component(component_name, "PGND"):
             negative_net_name = "PGND"
-        elif self.parent.core_nets.is_net_in_component(component_name, "AGND"):
+        elif self._pedb.core_nets.is_net_in_component(component_name, "AGND"):
             negative_net_name = "AGND"
-        elif self.parent.core_nets.is_net_in_component(component_name, "DGND"):
+        elif self._pedb.core_nets.is_net_in_component(component_name, "DGND"):
             negative_net_name = "DGND"
         if not negative_net_name:
             raise ValueError("No GND, PGND, AGND, DGND found. Please setup the negative net name manually.")
@@ -762,10 +762,10 @@ class EdbSiwave(object):
         circuit_port.positive_node.net = positive_net_name
         circuit_port.negative_node.net = negative_net_name
         circuit_port.impedance = impedance_value
-        pos_node_cmp = self.parent.core_components.get_component_by_name(positive_component_name)
-        neg_node_cmp = self.parent.core_components.get_component_by_name(negative_component_name)
-        pos_node_pins = self.parent.core_components.get_pin_from_component(positive_component_name, positive_net_name)
-        neg_node_pins = self.parent.core_components.get_pin_from_component(negative_component_name, negative_net_name)
+        pos_node_cmp = self._pedb.core_components.get_component_by_name(positive_component_name)
+        neg_node_cmp = self._pedb.core_components.get_component_by_name(negative_component_name)
+        pos_node_pins = self._pedb.core_components.get_pin_from_component(positive_component_name, positive_net_name)
+        neg_node_pins = self._pedb.core_components.get_pin_from_component(negative_component_name, negative_net_name)
         if port_name == "":
             port_name = "Port_{}_{}_{}_{}".format(
                 positive_component_name, positive_net_name, negative_component_name, negative_net_name
@@ -829,10 +829,10 @@ class EdbSiwave(object):
         voltage_source.negative_node.net = negative_net_name
         voltage_source.magnitude = voltage_value
         voltage_source.phase = phase_value
-        pos_node_cmp = self.parent.core_components.get_component_by_name(positive_component_name)
-        neg_node_cmp = self.parent.core_components.get_component_by_name(negative_component_name)
-        pos_node_pins = self.parent.core_components.get_pin_from_component(positive_component_name, positive_net_name)
-        neg_node_pins = self.parent.core_components.get_pin_from_component(negative_component_name, negative_net_name)
+        pos_node_cmp = self._pedb.core_components.get_component_by_name(positive_component_name)
+        neg_node_cmp = self._pedb.core_components.get_component_by_name(negative_component_name)
+        pos_node_pins = self._pedb.core_components.get_pin_from_component(positive_component_name, positive_net_name)
+        neg_node_pins = self._pedb.core_components.get_pin_from_component(negative_component_name, negative_net_name)
 
         if source_name == "":
             source_name = "Vsource_{}_{}_{}_{}".format(
@@ -897,10 +897,10 @@ class EdbSiwave(object):
         current_source.negative_node.net = negative_net_name
         current_source.magnitude = current_value
         current_source.phase = phase_value
-        pos_node_cmp = self.parent.core_components.get_component_by_name(positive_component_name)
-        neg_node_cmp = self.parent.core_components.get_component_by_name(negative_component_name)
-        pos_node_pins = self.parent.core_components.get_pin_from_component(positive_component_name, positive_net_name)
-        neg_node_pins = self.parent.core_components.get_pin_from_component(negative_component_name, negative_net_name)
+        pos_node_cmp = self._pedb.core_components.get_component_by_name(positive_component_name)
+        neg_node_cmp = self._pedb.core_components.get_component_by_name(negative_component_name)
+        pos_node_pins = self._pedb.core_components.get_pin_from_component(positive_component_name, positive_net_name)
+        neg_node_pins = self._pedb.core_components.get_pin_from_component(negative_component_name, negative_net_name)
 
         if source_name == "":
             source_name = "Port_{}_{}_{}_{}".format(
@@ -960,10 +960,10 @@ class EdbSiwave(object):
         resistor.positive_node.net = positive_net_name
         resistor.negative_node.net = negative_net_name
         resistor.magnitude = rvalue
-        pos_node_cmp = self.parent.core_components.get_component_by_name(positive_component_name)
-        neg_node_cmp = self.parent.core_components.get_component_by_name(negative_component_name)
-        pos_node_pins = self.parent.core_components.get_pin_from_component(positive_component_name, positive_net_name)
-        neg_node_pins = self.parent.core_components.get_pin_from_component(negative_component_name, negative_net_name)
+        pos_node_cmp = self._pedb.core_components.get_component_by_name(positive_component_name)
+        neg_node_cmp = self._pedb.core_components.get_component_by_name(negative_component_name)
+        pos_node_pins = self._pedb.core_components.get_pin_from_component(positive_component_name, positive_net_name)
+        neg_node_pins = self._pedb.core_components.get_pin_from_component(negative_component_name, negative_net_name)
 
         if resistor_name == "":
             resistor_name = "Port_{}_{}_{}_{}".format(
@@ -979,8 +979,8 @@ class EdbSiwave(object):
     @aedt_exception_handler
     def create_exec_file(self):
         """Create an executable file."""
-        workdir = os.path.dirname(self.parent.edbpath)
-        file_name = os.path.join(workdir, os.path.splitext(os.path.basename(self.parent.edbpath))[0] + ".exec")
+        workdir = os.path.dirname(self._pedb.edbpath)
+        file_name = os.path.join(workdir, os.path.splitext(os.path.basename(self._pedb.edbpath))[0] + ".exec")
         if os.path.isfile(file_name):
             os.remove(file_name)
         f = open(file_name, "w")
@@ -1131,8 +1131,8 @@ class EdbSiwave(object):
         >>> edb.core_siwave.add_siwave_dc_analysis2(settings)
 
         """
-        sim_setup_info = self.parent.simsetupdata.SimSetupInfo[
-            self.parent.simsetupdata.SIwave.SIWDCIRSimulationSettings
+        sim_setup_info = self._pedb.simsetupdata.SimSetupInfo[
+            self._pedb.simsetupdata.SIwave.SIWDCIRSimulationSettings
         ]()
         sim_setup_info.Name = setup_settings.name
         sim_setup_info.SimulationSettings.DCIRSettings.DCReportShowActiveDevices = (
@@ -1187,10 +1187,10 @@ class EdbSiwave(object):
             Name of the source.
 
         """
-        pos_pin_group = self.parent.core_components.create_pingroup_from_pins(source.positive_node.node_pins)
-        neg_pin_group = self.parent.core_components.create_pingroup_from_pins(source.negative_node.node_pins)
-        pos_node_net = self.parent.core_nets.get_net_by_name(source.positive_node.net)
-        neg_node_net = self.parent.core_nets.get_net_by_name(source.negative_node.net)
+        pos_pin_group = self._pedb.core_components.create_pingroup_from_pins(source.positive_node.node_pins)
+        neg_pin_group = self._pedb.core_components.create_pingroup_from_pins(source.negative_node.node_pins)
+        pos_node_net = self._pedb.core_nets.get_net_by_name(source.positive_node.net)
+        neg_node_net = self._pedb.core_nets.get_net_by_name(source.negative_node.net)
         pos_pingroup_term_name = generate_unique_name(source.name + "_P_", n=3)
         neg_pingroup_term_name = generate_unique_name(source.name + "_N_", n=3)
         pos_pingroup_terminal = retry_ntimes(

@@ -1,5 +1,5 @@
 import logging
-
+import sys
 from .import log_handler
 
 
@@ -42,7 +42,7 @@ class AppFilter(logging.Filter):
         return True
 
 
-class AedtLogger():
+class AedtLogger(object):
     """Logger used for each Aedt logger.
 
     This class allows you to add handler to a file or standard output.
@@ -60,13 +60,20 @@ class AedtLogger():
     """
 
     def __init__(self, messenger, level=logging.DEBUG, filename=None, to_stdout=False):
+        main = sys.modules["__main__"]
+
         self._messenger = messenger
         self._global = logging.getLogger('Global')
         self._file_handler = None
         self._std_out_handler = None
-
+        if self._global.handlers:
+            if 'messenger' in dir(self._global.handlers[0]):
+                self._global.removeHandler(self._global.handlers[0])
+                if self._global.handlers:
+                    self._global.removeHandler(self._global.handlers[0])
         if not self._global.handlers:
             self._global.addHandler(log_handler.LogHandler(self._messenger, 'Global', logging.DEBUG))
+            main._aedt_handler = self._global.handlers
             self._global.setLevel(level)
             self._global.addFilter(AppFilter())
 
@@ -127,9 +134,19 @@ class AedtLogger():
         """Clear messages for a design and/or a project and/or global."""
         self._messenger.clear_messages(project_name, design_name, level)
 
+    def info(self, msg, *args, **kwargs):
+        return self._global.info(msg, *args, **kwargs)
+
+    def warning(self, msg, *args, **kwargs):
+        return self._global.warning(msg, *args, **kwargs)
+
+    def error(self, msg, *args, **kwargs):
+        return self._global.error(msg, *args, **kwargs)
+
     @property
     def glb(self):
         """Global logger."""
+        self._global = logging.getLogger('Global')
         return self._global
 
     @property

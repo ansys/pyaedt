@@ -27,33 +27,30 @@ ami_project = "AMI_Example"
 class TestClass:
     def setup_class(self):
         with Scratch(scratch_path) as self.local_scratch:
-            try:
-                time.sleep(2)
-                example_project = os.path.join(local_path, "example_models", original_project_name + ".aedt")
-                netlist_file1 = os.path.join(local_path, "example_models", netlist1)
-                netlist_file2 = os.path.join(local_path, "example_models", netlist2)
-                touchstone_file = os.path.join(local_path, "example_models", touchstone)
-                touchstone_file2 = os.path.join(local_path, "example_models", touchstone2)
-                self.test_project = self.local_scratch.copyfile(
-                    example_project, os.path.join(self.local_scratch.path,
-                                                  test_project_name + ".aedt"))
-                self.local_scratch.copyfile(netlist_file1)
-                self.local_scratch.copyfile(netlist_file2)
-                self.local_scratch.copyfile(touchstone_file)
-                self.local_scratch.copyfile(touchstone_file2)
-                self.local_scratch.copyfolder(
-                    os.path.join(local_path, "example_models", original_project_name + ".aedb"),
-                    os.path.join(self.local_scratch.path, test_project_name + ".aedb"),
-                )
-                ami_example_project = os.path.join(local_path, "example_models", ami_project + ".aedt")
-                self.ami_example_project = self.local_scratch.copyfile(ami_example_project)
-                self.local_scratch.copyfolder(
-                    os.path.join(local_path, "example_models", ami_project + ".aedb"),
-                    os.path.join(self.local_scratch.path, ami_project + ".aedb"),
-                )
-                self.aedtapp = Circuit(self.test_project)
-            except:
-                pass
+            time.sleep(2)
+            example_project = os.path.join(local_path, "example_models", original_project_name + ".aedt")
+            netlist_file1 = os.path.join(local_path, "example_models", netlist1)
+            netlist_file2 = os.path.join(local_path, "example_models", netlist2)
+            touchstone_file = os.path.join(local_path, "example_models", touchstone)
+            touchstone_file2 = os.path.join(local_path, "example_models", touchstone2)
+            self.test_project = self.local_scratch.copyfile(
+                example_project, os.path.join(self.local_scratch.path,
+                                              test_project_name + ".aedt"))
+            self.local_scratch.copyfile(netlist_file1)
+            self.local_scratch.copyfile(netlist_file2)
+            self.local_scratch.copyfile(touchstone_file)
+            self.local_scratch.copyfile(touchstone_file2)
+            self.local_scratch.copyfolder(
+                os.path.join(local_path, "example_models", original_project_name + ".aedb"),
+                os.path.join(self.local_scratch.path, test_project_name + ".aedb"),
+            )
+            ami_example_project = os.path.join(local_path, "example_models", ami_project + ".aedt")
+            self.ami_example_project = self.local_scratch.copyfile(ami_example_project)
+            self.local_scratch.copyfolder(
+                os.path.join(local_path, "example_models", ami_project + ".aedb"),
+                os.path.join(self.local_scratch.path, ami_project + ".aedb"),
+            )
+            self.aedtapp = Circuit(self.test_project)
 
     def teardown_class(self):
         for proj in self.aedtapp.project_list:
