@@ -553,3 +553,29 @@ class GlobalService(rpyc.Service):
                 return False
 
         return True
+
+    def exposed_open(self, filename):
+        f = open(filename, "rb")
+        return rpyc.restricted(f, ["readlines", "close"], [])
+
+    def exposed_create(self, filename):
+        if os.path.exists(filename):
+            return "File already exists"
+        f = open(filename, "wb")
+        return rpyc.restricted(f, ["read", "write", "close"], [])
+
+    def exposed_makedirs(self, remotepath):
+        if os.path.exists(remotepath):
+            return "Directory Exists!"
+        os.makedirs(remotepath)
+        return "Directory created!"
+
+    def exposed_listdir(self, remotepath):
+        if os.path.exists(remotepath):
+            return os.listdir(remotepath)
+        return []
+
+    def exposed_path_exists(self, remotepath):
+        if os.path.exists(remotepath):
+            return True
+        return False

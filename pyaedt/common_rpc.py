@@ -1,5 +1,6 @@
 import warnings
 import socket
+import os
 try:
     import rpyc
     from rpyc.utils.server import ThreadedServer
@@ -79,3 +80,90 @@ def pyaedt_client(server_name, server_port=18000):
     c = rpyc.connect(server_name, server_port, config={'sync_request_timeout': None})
     port = c.root.start_service(server_name)
     return rpyc.connect(server_name, port, config={'sync_request_timeout': None})
+
+
+def _upload_file(local_file,remote_file, server_name, server_port=18000):
+    c = rpyc.connect(server_name, server_port, config={'sync_request_timeout': None})
+    if c.root.path_exists(remote_file):
+        return "File already existing on the server."
+    with open(local_file, 'rb') as f:
+        lines = f.readlines()
+        new_file = c.root.create(remote_file)
+        for line in lines:
+            new_file.write(line)
+        new_file.close()
+
+
+def _upload_dir(localpath, remotepath, server_name, server_port=18000):
+    c = rpyc.connect(server_name, server_port, config={'sync_request_timeout': None})
+    if c.root.path_exists(remotepath):
+        return "Folder already existing on the server."
+    c.root.makedirs(remotepath)
+    for fn in os.listdir(localpath):
+        lfn = os.path.join(localpath, fn)
+        rfn = os.path.join(remotepath, fn)
+        _upload_file(lfn, rfn, server_name, server_port=18000)
+
+
+def _download_file(remote_file, local_file, server_name, server_port=18000):
+    c = rpyc.connect(server_name, server_port, config={'sync_request_timeout': None})
+    if os.path.exists(local_file):
+        return "File already existing on the server."
+    remote = c.root.open(remote_file)
+    lines = remote.readlines()
+    with open(local_file, 'wb') as new_file:
+        for line in lines:
+            new_file.write(line)
+        new_file.close()
+
+
+def _download_dir(remotepath, localpath,  server_name, server_port=18000):
+    c = rpyc.connect(server_name, server_port, config={'sync_request_timeout': None})
+    if os.path.exists(localpath):
+        return "Folder already existing on the local machine."
+    if not os.path.isdir(localpath):
+        os.makedirs(localpath)
+    for fn in c.root.listdir(remotepath):
+        lfn = os.path.join(localpath, fn)
+        rfn = os.path.join(remotepath, fn)
+        _download_file(rfn, lfn, server_name, server_port=18000)
+
+
+def upload(localpath, remotepath, server_name, server_port=18000):
+    """Uploads a file or a directory to the given remote path.
+
+    Parameters
+    ----------
+    localpath : str
+        The local file or directory.
+    remotepath : str
+        The remote path.
+    server_name : str
+        Name of the server to which connect.
+    server_port : int
+        Port Number.
+    """
+    if os.path.isdir(localpath):
+        _upload_dir(localpath, remotepath, server_name, server_port)
+    elif os.path.isfile(localpath):
+        _upload_file(localpath, remotepath, server_name, server_port)
+
+
+def download(remotepath, localpath, server_name, server_port=18000):
+    """Download a file or a directory from given remote path to local path.
+
+    Parameters
+    ----------
+    remotepath : str
+        The remote path.
+    localpath : str
+        The local file or directory.
+    server_name : str
+        Name of the server to which connect.
+    server_port : int
+        Port Number.
+    """
+    if os.path.isdir(remotepath):
+        _download_dir(remotepath, localpath, server_name, server_port)
+    elif os.path.isfile(localpath):
+        _download_file(localpath, remotepath, server_name, server_port)
