@@ -6,6 +6,7 @@ import threading
 import site
 import rpyc
 from rpyc import ThreadedServer
+
 from pyaedt import generate_unique_name
 from pyaedt.generic.general_methods import env_path
 
@@ -14,14 +15,14 @@ class PyaedtServiceWindows(rpyc.Service):
     """Server Pyaedt rpyc Service.
     """
 
-    def on_connect(self, conn):
+    def on_connect(self, connection):
         # code that runs when a connection is created
         # (to init the service, if needed)
-        self.conn = conn
+        self.connection = connection
         self.app = []
         pass
 
-    def on_disconnect(self, conn):
+    def on_disconnect(self, connection):
         # code that runs after the connection has already closed
         # (to finalize the service, if needed)
         if self.app:
@@ -460,11 +461,12 @@ class PyaedtServiceLinux(rpyc.Service):
     """Server Pyaedt rpyc Service.
     """
 
-    def on_connect(self, conn):
+    def on_connect(self, connection):
+        self.connection = connection
         self.app = []
         pass
 
-    def on_disconnect(self, conn):
+    def on_disconnect(self, connection):
         pass
 
     def exposed_close_connection(self):
@@ -499,13 +501,14 @@ class PyaedtServiceLinux(rpyc.Service):
 class GlobalService(rpyc.Service):
     """Global class to manage rpyc Server of PyAEDT.
     """
-    def on_connect(self, conn):
+    def on_connect(self, connection):
         # code that runs when a connection is created
         # (to init the service, if needed)
+        self.connection = connection
         self._processes = {}
         pass
 
-    def on_disconnect(self, conn):
+    def on_disconnect(self, connection):
         # code that runs after the connection has already closed
         # (to finalize the service, if needed)
         pass

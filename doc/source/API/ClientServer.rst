@@ -10,7 +10,7 @@ Initial Setup and Launching AEDT Locally
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-AEDT can be started from Python in the graphica/non-graphical mode using AEDT.
+AEDT can be started from Python in the graphical/non-graphical mode using AEDT.
 
 .. code:: python
 
@@ -98,6 +98,6 @@ On Client Side:
     example_script = ["from pyaedt import Circuit", "circuit="Circuit()", "circuit.save_project(\"project_name\")"]
     ansysem = "/path/to/AnsysEMxxx/Linux64"
     my_client.root.run_script(example_script, ansysem_path=ansysem)
-    my_client.root.run_script(example_script, aedt_version="2021.2") #if env variable is registered in the server
+    my_client.root.run_script(example_script, aedt_version="2021.2") #if ANSYSEM_ROOTxxx env variable is registered in the server
 
 

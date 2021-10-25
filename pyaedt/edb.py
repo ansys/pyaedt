@@ -212,7 +212,7 @@ class Edb(object):
 
     @property
     def logger(self):
-        """Logger for the Design.
+        """Logger for the Edb.
 
         Returns
         -------

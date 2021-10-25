@@ -7,7 +7,6 @@ import math
 import os
 import time
 from collections import OrderedDict, defaultdict
-from copy import copy
 
 from ..application.Variables import Variable
 from ..generic.general_methods import aedt_exception_handler, is_number, retry_ntimes
@@ -957,7 +956,6 @@ class Primitives(object):
         vGeo3d = ["NAME:Geometry3DAttributeTab", vPropServers, vChangedProps]
         vOut = ["NAME:AllTabs", vGeo3d]
         retry_ntimes(10, self._oeditor.ChangeProperty, vOut)
-        #self._oeditor.ChangeProperty(vOut)
         if "NAME:Name" in vPropChange:
             self.cleanup_objects()
         return True

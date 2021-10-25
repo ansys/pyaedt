@@ -15,8 +15,6 @@ def pyaedt_server(port=18000):
 
     Parameters
     ----------
-    hostname : str
-        name of the remote machine to connect.
     port : int, optional
         port on which rpyc_server whill listen.
     Examples
@@ -82,6 +80,46 @@ def pyaedt_client(server_name, server_port=18000):
     return rpyc.connect(server_name, port, config={'sync_request_timeout': None})
 
 
+def upload(localpath, remotepath, server_name, server_port=18000):
+    """Uploads a file or a directory to the given remote path.
+
+    Parameters
+    ----------
+    localpath : str
+        The local file or directory.
+    remotepath : str
+        The remote path.
+    server_name : str
+        Name of the server to which connect.
+    server_port : int
+        Port Number.
+    """
+    if os.path.isdir(localpath):
+        _upload_dir(localpath, remotepath, server_name, server_port)
+    elif os.path.isfile(localpath):
+        _upload_file(localpath, remotepath, server_name, server_port)
+
+
+def download(remotepath, localpath, server_name, server_port=18000):
+    """Download a file or a directory from given remote path to local path.
+
+    Parameters
+    ----------
+    remotepath : str
+        The remote path.
+    localpath : str
+        The local file or directory.
+    server_name : str
+        Name of the server to which connect.
+    server_port : int
+        Port Number.
+    """
+    if os.path.isdir(remotepath):
+        _download_dir(remotepath, localpath, server_name, server_port)
+    elif os.path.isfile(localpath):
+        _download_file(localpath, remotepath, server_name, server_port)
+
+
 def _upload_file(local_file, remote_file, server_name, server_port=18000):
     c = rpyc.connect(server_name, server_port, config={'sync_request_timeout': None})
     if c.root.path_exists(remote_file):
@@ -127,43 +165,3 @@ def _download_dir(remotepath, localpath,  server_name, server_port=18000):
         lfn = os.path.join(localpath, fn)
         rfn = os.path.join(remotepath, fn)
         _download_file(rfn, lfn, server_name, server_port=18000)
-
-
-def upload(localpath, remotepath, server_name, server_port=18000):
-    """Uploads a file or a directory to the given remote path.
-
-    Parameters
-    ----------
-    localpath : str
-        The local file or directory.
-    remotepath : str
-        The remote path.
-    server_name : str
-        Name of the server to which connect.
-    server_port : int
-        Port Number.
-    """
-    if os.path.isdir(localpath):
-        _upload_dir(localpath, remotepath, server_name, server_port)
-    elif os.path.isfile(localpath):
-        _upload_file(localpath, remotepath, server_name, server_port)
-
-
-def download(remotepath, localpath, server_name, server_port=18000):
-    """Download a file or a directory from given remote path to local path.
-
-    Parameters
-    ----------
-    remotepath : str
-        The remote path.
-    localpath : str
-        The local file or directory.
-    server_name : str
-        Name of the server to which connect.
-    server_port : int
-        Port Number.
-    """
-    if os.path.isdir(remotepath):
-        _download_dir(remotepath, localpath, server_name, server_port)
-    elif os.path.isfile(localpath):
-        _download_file(localpath, remotepath, server_name, server_port)
