@@ -11,17 +11,6 @@ from collections import OrderedDict
 import inspect
 import itertools
 
-import sys
-
-is_ironpython = "IronPython" in sys.version or ".NETFramework" in sys.version
-_pythonver = sys.version_info[0]
-try:
-    import ScriptEnv
-
-    ScriptEnv.Initialize("Ansoft.ElectronicsDesktop")
-    inside_desktop = True
-except:
-    inside_desktop = False
 
 logger = logging.getLogger(__name__)
 
