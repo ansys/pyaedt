@@ -56,10 +56,15 @@ class PyaedtServiceWindows(rpyc.Service):
         -------
         str
         """
-        script_file = os.path.join(tempfile.gettempdir(), generate_unique_name("pyaedt_script")+".py")
-        with open(script_file, "w") as f:
-            for line in script:
-                f.write(line+"\n")
+        if isinstance(script, list):
+            script_file = os.path.join(tempfile.gettempdir(), generate_unique_name("pyaedt_script")+".py")
+            with open(script_file, "w") as f:
+                for line in script:
+                    f.write(line+"\n")
+        elif os.path.exists(script):
+            script_file = script
+        else:
+            return "File wrong or wrong commands."
         executable = "ansysedt.exe"
 
         if env_path(aedt_version) or ansysem_path:
@@ -503,15 +508,19 @@ class PyaedtServiceLinux(rpyc.Service):
         -------
         str
         """
-        script_file = os.path.join(tempfile.gettempdir(), generate_unique_name("pyaedt_script")+".py")
-
-        package_paths = site.getsitepackages()
-        with open(script_file, "w") as f:
-            f.write("import sys\n")
-            for pack_path in package_paths:
-                f.write("sys.path.append(\"{}\")\n".format(pack_path))
-            for line in script:
-                f.write(line+"\n")
+        if isinstance(script, list):
+            script_file = os.path.join(tempfile.gettempdir(), generate_unique_name("pyaedt_script") + ".py")
+            package_paths = site.getsitepackages()
+            with open(script_file, "w") as f:
+                f.write("import sys\n")
+                for pack_path in package_paths:
+                    f.write("sys.path.append(\"{}\")\n".format(pack_path))
+                for line in script:
+                    f.write(line+"\n")
+        elif os.path.exists(script):
+            script_file = script
+        else:
+            return "File wrong or wrong commands."
         executable = "ansysedt"
 
         if env_path(aedt_version) or ansysem_path:
