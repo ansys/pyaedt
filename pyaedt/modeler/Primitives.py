@@ -184,8 +184,8 @@ class Polyline(Object3d):
                 num_seg=xsection_num_seg,
                 bend_type=xsection_bend_type,
             )
-            self._positions = copy(position_list)
-
+            #self._positions = copy(position_list)
+            self._positions = [i for i in position_list]
             # When close surface or cover_surface are set to True, ensure the start point and end point are coincident,
             # and insert a line segment to achieve this if necessary
             if cover_surface:
@@ -196,7 +196,8 @@ class Polyline(Object3d):
 
             self._segment_types = None
             if segment_type:
-                self._segment_types = copy(segment_type)
+                #self._segment_types = copy(segment_type)
+                self._segment_types = [i for i in segment_type]
 
             varg1 = self._point_segment_string_array()
 

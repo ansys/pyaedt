@@ -82,7 +82,7 @@ def pyaedt_client(server_name, server_port=18000):
     return rpyc.connect(server_name, port, config={'sync_request_timeout': None})
 
 
-def _upload_file(local_file,remote_file, server_name, server_port=18000):
+def _upload_file(local_file, remote_file, server_name, server_port=18000):
     c = rpyc.connect(server_name, server_port, config={'sync_request_timeout': None})
     if c.root.path_exists(remote_file):
         return "File already existing on the server."
