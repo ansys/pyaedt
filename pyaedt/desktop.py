@@ -671,7 +671,7 @@ class Desktop:
 
         """
         version = self.odesktop.GetVersion().split(".")
-        v = ".".join([version[0],version[1]])
+        v = ".".join([version[0], version[1]])
         return v
 
     @property

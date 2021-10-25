@@ -48,7 +48,6 @@ class TestClass:
         assert d.syslib
         assert d.design_type() == "HFSS"
 
-
     def test_01_designname(self):
         self.aedtapp.design_name = "myname"
         assert self.aedtapp.design_name == "myname"
