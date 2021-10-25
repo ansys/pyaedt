@@ -743,7 +743,7 @@ class Edb(object):
         if isinstance(val, (int, float)):
             return self.edb.Utility.Value(val)
         if val in var_names or any(s in val for s in var_names):
-            return self._edb.Utility.Value(val, var_server_db)
+            return self.edb.Utility.Value(val, var_server_db)
         elif val in var_names_cell or any(s in val for s in var_names_cell):
             return self.edb.Utility.Value(val, var_server_cell)
         return self.edb.Utility.Value(val)
