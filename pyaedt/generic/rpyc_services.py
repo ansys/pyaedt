@@ -521,13 +521,9 @@ class GlobalService(rpyc.Service):
         """
         port = random.randint(18001, 20000)
         if os.name == "posix":
-            def thread_pyaed():
-                t = ThreadedServer(PyaedtServiceLinux, hostname=hostname, port=port,
-                                   protocol_config={'sync_request_timeout': None, 'allow_public_attrs': True,
-                                                    'allow_setattr': True, 'allow_delattr': True})
-                t.start()
-
-            t = threading.Thread(target=thread_pyaed)
+            t = threading.Thread(target=ThreadedServer(PyaedtServiceLinux, hostname=hostname, port=port,
+                                 protocol_config={'sync_request_timeout': None, 'allow_public_attrs': True,
+                                                  'allow_setattr': True, 'allow_delattr': True}).start)
             t.start()
         else:
             name = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "misc", "pyaedt_client_windows.py")
