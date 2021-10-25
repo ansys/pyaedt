@@ -522,10 +522,10 @@ class GlobalService(rpyc.Service):
         port = random.randint(18001, 20000)
         if os.name == "posix":
             def thread_pyaed():
-                t_linux = ThreadedServer(PyaedtServiceLinux, hostname=hostname, port=port,
+                t = ThreadedServer(PyaedtServiceLinux, hostname=hostname, port=port,
                                    protocol_config={'sync_request_timeout': None, 'allow_public_attrs': True,
                                                     'allow_setattr': True, 'allow_delattr': True})
-                t_linux.start()
+                t.start()
 
             t = threading.Thread(target=thread_pyaed)
             t.start()
