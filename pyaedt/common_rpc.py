@@ -1,4 +1,5 @@
 import warnings
+import os
 try:
     import rpyc
     from rpyc.utils.server import ThreadedServer
@@ -6,6 +7,7 @@ except ImportError:
     warnings.warn("rpyc is needed to run the service")
 
 from pyaedt.generic.rpyc_services import GlobalService
+from pyaedt.generic.general_methods import env_path
 
 
 def pyaedt_server(hostname, port=18000):
@@ -17,7 +19,10 @@ def pyaedt_server(hostname, port=18000):
         name of the remote machine to connect.
     port : int, optional
         port on which rpyc_server whill listen.
-
+    Examples
+    --------
+    >>> from pyaedt.common_rpc import pyaedt_server
+    >>> pyaedt_server("my_server", port=18000)
 
     """
     safe_attrs = {'__abs__', '__add__', '__and__', '__bool__', '__code__', '__cmp__', '__contains__', '__delitem__',
@@ -59,8 +64,16 @@ def pyaedt_client(hostname, server_port=18000):
 
     Examples
     --------
-    >>> client = pyaedt_client("my_server")
+    Windows Example.
+
+    >>> from pyaedt.common_rpc import pyaedt_client
+    >>> client = pyaedt_client("server_name")
     >>> hfss = client.root.hfss(specified_version="2021.2")
+
+    Linux Example.
+    >>> client = pyaedt_client("my_server")
+    >>> script_to_run = ["from pyaedt import Hfss", "hfss =Hfss()"]
+    >>> client.root.run_script = client.root.hfss(script_to_run, ansysem_path = "/path/to/AnsysEMxxx/Linux64")
 
     """
     c = rpyc.connect(hostname, server_port, config={'sync_request_timeout': None})

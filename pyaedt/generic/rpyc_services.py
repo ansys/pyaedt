@@ -32,6 +32,14 @@ class PyaedtServiceWindows(rpyc.Service):
                 pass
         pass
 
+    def exposed_close_connection(self):
+        if self.app:
+            try:
+                self.app[0].release_desktop()
+            except:
+                pass
+        return True
+
     def exposed_run_script(self, script, aedt_version="2021.1", ansysem_path=None):
         script_file = os.path.join(tempfile.gettempdir(), generate_unique_name("pyaedt_script")+".py")
         with open(script_file, "w") as f:
@@ -454,21 +462,14 @@ class PyaedtServiceLinux(rpyc.Service):
     """
 
     def on_connect(self, conn):
-        # code that runs when a connection is created
-        # (to init the service, if needed)
-
         self.app = []
         pass
 
     def on_disconnect(self, conn):
-        # code that runs after the connection has already closed
-        # (to finalize the service, if needed)
-        if self.app:
-            try:
-                self.app[0].release_desktop()
-            except:
-                pass
         pass
+
+    def exposed_close_connection(self):
+        return True
 
     def exposed_run_script(self, script, aedt_version="2021.1", ansysem_path=None):
         script_file = os.path.join(tempfile.gettempdir(), generate_unique_name("pyaedt_script")+".py")
@@ -521,15 +522,15 @@ class GlobalService(rpyc.Service):
         port = random.randint(18001, 20000)
         if os.name == "posix":
             def thread_pyaed():
-                t = ThreadedServer(PyaedtServiceLinux, hostname=hostname, port=port,
+                t_linux = ThreadedServer(PyaedtServiceLinux, hostname=hostname, port=port,
                                    protocol_config={'sync_request_timeout': None, 'allow_public_attrs': True,
                                                     'allow_setattr': True, 'allow_delattr': True})
-                t.start()
+                t_linux.start()
 
             t = threading.Thread(target=thread_pyaed)
             t.start()
         else:
-            name = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "misc", "rpyc_service.py")
+            name = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "misc", "pyaedt_client_windows.py")
             cmd_service = ["python", name, str(port), hostname]
             print(" ".join(cmd_service))
             p = subprocess.Popen(" ".join(cmd_service))

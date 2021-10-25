@@ -1,21 +1,25 @@
-User Guide
-----------
+Initial Setup and Launching AEDT
+================================
 
-PyAEDT works both inside AEDT and as a standalone application.
+`pyaedt` works both inside AEDT and as a standalone application.
 It automatically detects whether it is running in an IronPython or CPython
-environment and initializes AEDT accordingly. PyAEDT also provides
-advanced error management.
+environment and initializes AEDT accordingly.
 
-AEDT can be started from Python in the non-graphical mode using AEDT.
+
+Initial Setup and Launching AEDT Locally
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+AEDT can be started from Python in the graphica/non-graphical mode using AEDT.
 
 .. code:: python
 
-    Launch AEDT 2021 R1 in Non-Graphical mode
+    Launch AEDT 2021 R2 in Non-Graphical mode
 
-    from pyaedt import Desktop, Circuit
-    with Desktop(specified_version="2021.1", non_graphical=True, new_desktop_session=True, close_on_exit=True,
+    from pyaedt import Desktop, Maxwell3d
+    with Desktop(specified_version="2021.2", non_graphical=True, new_desktop_session=True, close_on_exit=True,
                  student_version=False):
-        circuit = Circuit()
+        m3d = Maxwell3d()
         ...
         # Any error here will be caught by Desktop.
         ...
@@ -23,27 +27,26 @@ AEDT can be started from Python in the non-graphical mode using AEDT.
     # Desktop is automatically closed here.
 
 
-The previous command launches AEDT and initializes a new Circuit design.
-
-.. image:: ./aedt_first_page.png
-  :width: 800
-  :alt: Electronics Desktop Launched
-
-
 The same result can be obtained with the following code:
+
 
 .. code:: python
 
     # Launch the latest installed version of AEDT in graphical mode.
 
-    from pyaedt import Circuit
-    with Circuit(specified_version="2021.1", non_graphical=False) as circuit:
-        ...
-        # Any error here will be caught by Desktop.
-        ...
+    from pyaedt import Maxwell3d
+    m3d = Maxwell3d(specified_version="2021.2", non_graphical=False)
+    ...
+    # Put your code here
+    ...
+    m3d.release_desktop(close_projects =True, close_desktop=True)
 
     # Desktop is automatically released here.
 
+
+
+Initial Setup and Launching AEDT Remotely
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Pyaedt can also be launched on a remote machine. To do that, the following conditions are needed:
 
@@ -98,44 +101,3 @@ On Client Side:
     my_client.root.run_script(example_script, aedt_version="2021.2") #if env variable is registered in the server
 
 
-Variables
-~~~~~~~~~
-PyAEDT provides a simplified interface for getting and setting variables inside a project or a design.
-You simply need to initialize a variable as a dictionary key. If you use ``$`` as the prefix 
-for the variable name, a project-wide variable is created.
-
-.. code:: python
-
-    from pyaedt import Hfss
-    with Hfss as hfss:
-         hfss["dim"] = "1mm"   # design variable
-         hfss["$dim"] = "1mm"  # project variable
-
-
-.. image:: ./aedt_variables.png
-  :width: 800
-  :alt: Variable Management
-
-
-Modeler
-~~~~~~~
-Object-oriented programming is used to create and manage objects in the AEDT 3D and 2D Modelers. 
-You can create an object and change properties using getters and setters.
-
-.. code:: python
-
-    Create a box, assign variables, and assign materials.
-
-    from pyaedt.hfss import Hfss
-    with Hfss as hfss:
-         box = hfss.modeler.primitives.create_box([0, 0, 0], [10, "dim", 10],
-                                                  "mybox", "aluminum")
-         print(box.faces)
-         box.material_name = "copper"
-         box.color = "Red"
-
-
-
-.. image:: ./aedt_box.png
-  :width: 800
-  :alt: Modeler Object
