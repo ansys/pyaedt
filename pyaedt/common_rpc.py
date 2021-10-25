@@ -1,5 +1,4 @@
 import warnings
-import os
 try:
     import rpyc
     from rpyc.utils.server import ThreadedServer
@@ -7,7 +6,6 @@ except ImportError:
     warnings.warn("rpyc is needed to run the service")
 
 from pyaedt.generic.rpyc_services import GlobalService
-from pyaedt.generic.general_methods import env_path
 
 
 def pyaedt_server(hostname, port=18000):

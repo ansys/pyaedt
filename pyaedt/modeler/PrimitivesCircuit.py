@@ -1,7 +1,7 @@
 import random
 import warnings
 from collections import defaultdict
-
+import os
 from ..generic.general_methods import aedt_exception_handler, retry_ntimes
 from .Object3d import CircuitComponent
 
