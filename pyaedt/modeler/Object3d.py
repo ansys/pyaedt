@@ -427,7 +427,7 @@ class FacePrimitive(object):
         try:
             c = self._oeditor.GetFaceCenter(self.id)
         except:
-            self.logger.design.warning("Non-planar face does not provide a face center.")
+            self.logger.warning("Non-planar face does not provide a face center.")
             return False
         center = [float(i) for i in c]
         return center

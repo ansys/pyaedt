@@ -90,5 +90,4 @@ aedtapp.create_schematic_from_netlist(myfile)
 # After adding any other desired functionalities, close the project.
 
 if os.name != "posix":
-    aedtapp.close_project()
-    desktop.force_close_desktop()
+    desktop.release_desktop()

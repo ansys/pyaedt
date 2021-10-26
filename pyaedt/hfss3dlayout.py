@@ -981,7 +981,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         """
         if interpolation_algorithm not in ["auto", "lin", "shadH", "shadNH"]:
-            self.logger.design.error("Wrong Interpolation Algorithm")
+            self.logger.error("Wrong Interpolation Algorithm")
             return False
         arg = ["NAME:CoSimOptions", "Override:="]
 
