@@ -6,13 +6,15 @@ import sys
 
 # Import required modules
 from pyaedt.aedt_logger import AedtLogger
-
+from pyaedt import Hfss
 
 class TestClass:
     def setup_class(self):
+        self.aedtapp = Hfss()
         pass
 
     def teardown_class(self):
+        self.aedtapp.close_project(self.aedtapp.project_name, saveproject=False)
         pass
     # @pytest.mark.xfail
     # def test_01_global(self, clean_desktop_messages, clean_desktop, hfss):
@@ -85,11 +87,11 @@ class TestClass:
     #     logger.clear_messages("", "", 2)
     #     assert not logger.get_messages().global_level
 
-    def test_02_output_file_with_app_filter(self, hfss):
+    def test_02_output_file_with_app_filter(self):
         content = None
         with tempfile.TemporaryDirectory() as temp_dir:
             path = os.path.join(temp_dir, "test.txt")
-            logger = AedtLogger(hfss._messenger, filename=path)
+            logger = AedtLogger(self.aedtapp._messenger, filename=path)
             logger.glb.info("Info for Global")
             logger.glb.debug("Debug for Global")
             logger.glb.warning("Warning for Global")
@@ -131,15 +133,15 @@ class TestClass:
         assert ":WARNING :Warning for Design" in content[10]
         assert ":ERROR   :Error for Design" in content[11]
 
-        hfss.logger.glb.handlers.pop()
-        hfss.logger.project.handlers.pop()
-        if len(hfss.logger.design.handlers) > 0:
-            hfss.logger.design.handlers.pop()
+        self.aedtapp.logger.glb.handlers.pop()
+        self.aedtapp.logger.project.handlers.pop()
+        if len(self.aedtapp.logger.design.handlers) > 0:
+            self.aedtapp.logger.design.handlers.pop()
 
-    def test_03_stdout_with_app_filter(self, hfss):
+    def test_03_stdout_with_app_filter(self):
         capture = CaptureStdOut()
         with capture:
-            logger = AedtLogger(hfss._messenger, to_stdout=True)
+            logger = AedtLogger(self.aedtapp._messenger, to_stdout=True)
             logger.glb.info("Info for Global")
             logger.glb.debug("Debug for Global")
             logger.glb.warning("Warning for Global")
