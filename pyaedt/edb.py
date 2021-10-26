@@ -752,7 +752,7 @@ class Edb(object):
             return self.edb.Utility.Value(val, var_server_db)
         if set(val_decomposed).intersection(var_names_cell):
             return self.edb.Utility.Value(val, var_server_cell)
-        raise AttributeError("Variable {} not defined in Edb.".format(val))
+        return self.edb.Utility.Value(val)
 
     @aedt_exception_handler
     def _is_file_existing_and_released(self, filename):
