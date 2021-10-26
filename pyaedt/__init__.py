@@ -5,4 +5,4 @@ from pyaedt.generic.general_methods import is_ironpython, _pythonver, inside_des
 from pyaedt.aedt_logger import AedtLogger
 
 from pyaedt.generic.design_types import Hfss3dLayout, Hfss, Circuit, Q2d, Q3d, Siwave, Icepak, Edb, Maxwell3d, \
-    Maxwell2d, Mechanical, Rmxprt, Simplorer, Emit, design_types, get_pyaedt_app
+    Maxwell2d, Mechanical, Rmxprt, Simplorer, Emit, design_types, get_pyaedt_app, Desktop

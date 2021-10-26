@@ -13,6 +13,7 @@ try:
     from pyaedt.simplorer import Simplorer
     from pyaedt.emit import Emit
     from pyaedt.aedt_logger import AedtLogger
+    from pyaedt.desktop import Desktop
 except:
     from pyaedt.hfss3dlayout import Hfss3dLayout
     from pyaedt.hfss import Hfss
@@ -27,6 +28,7 @@ except:
     from pyaedt.simplorer import Simplorer
     from pyaedt.emit import Emit
     from pyaedt.aedt_logger import AedtLogger
+    from pyaedt.desktop import Desktop
 
 
 design_types = {
