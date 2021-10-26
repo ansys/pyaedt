@@ -386,7 +386,7 @@ class Components(object):
         return cmp_list
 
     @aedt_exception_handler
-    def create_component_from_pins(self, pins, component_name):
+    def create_component_from_pins(self, pins, component_name, partname, placement_layer=None):
         """Create a component from pins.
 
         Parameters
@@ -411,16 +411,24 @@ class Components(object):
 
         """
         try:
-            new_cmp = self._edb.Cell.Hierarchy.Component.Create(self._active_layout, component_name)
+            new_cmp = self._edb.Cell.Hierarchy.Component.Create(self._active_layout, component_name, component_name)
             new_group = self._edb.Cell.Hierarchy.Group.Create(self._active_layout, component_name)
-            for pin in pins:
-                new_group.AddMember(pin)
             new_cmp.SetGroup(new_group)
-            new_cmp_layer_name = pins[0].GetPadstackDef().GetData().GetLayerNames().First()
+            for pin in pins:
+                pin.SetIsLayoutPin(True)
+                conv_pin = self._components_methods.PinToConnectable(pin)
+                add_result = new_group.AddMember(conv_pin)
+            #new_cmp.SetGroup(new_group)
+            if not placement_layer:
+                new_cmp_layer_name = pins[0].GetPadstackDef().GetData().GetLayerNames()[0]
+            else:
+                new_cmp_layer_name = placement_layer
             new_cmp_placement_layer = self._edb.Cell.Layer.FindByName(
                 self._active_layout.GetLayerCollection(), new_cmp_layer_name
             )
             new_cmp.SetPlacementLayer(new_cmp_placement_layer)
+            #cmp_transform = System.Activator.CreateInstance(self._edb.Utility.)
+            #new_cmp.SetTransform(cmp_transform)
             return (True, new_cmp)
         except:
             return (False, None)
