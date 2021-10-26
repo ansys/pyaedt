@@ -34,11 +34,18 @@ def discover_and_run(start_dir, pattern=None):
         runner = unittest.TextTestRunner(f, verbosity=2)
         result = runner.run(test_suite)
 
+with open(os.path.join(start_dir, "runner_unittest.log"), "w") as f:
+    log_content = f.readlines()
 
 discover_and_run(run_dir, pattern=test_filter)
 success_file = os.path.join(run_dir, "tests_succeeded.log")
 with open(success_file, "w") as f:
-    f.write("ok")
+    if "ERROR" in log_content:
+        f.write("error")
+    elif "FAILED" in log_content:
+        f.write("failed")
+    else:
+        f.write("ok")
 
 if is_ironpython and "oDesktop" in dir(sys.modules["__main__"]):
     pid = sys.modules["__main__"].oDesktop.GetProcessID()
