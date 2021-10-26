@@ -363,7 +363,7 @@ class Circuit(FieldAnalysisCircuit, object):
                         counter = 0
         if autosave:
             self._desktop.EnableAutoSave(True)
-        self.logger.project.info("Netlist correctly imported into %s", self.design_name)
+        self.logger.info("Netlist correctly imported into %s", self.design_name)
         return True
 
     @aedt_exception_handler
@@ -504,7 +504,7 @@ class Circuit(FieldAnalysisCircuit, object):
                     xpos += delta
                     ypos = 0
 
-        self.logger.project.info("Netlist correctly imported into %s", self.design_name)
+        self.logger.info("Netlist correctly imported into %s", self.design_name)
         return True
 
     @aedt_exception_handler
@@ -585,7 +585,7 @@ class Circuit(FieldAnalysisCircuit, object):
         if not port:
             return False
         pins = list(oModule.GetExcitationsOfType(port))
-        self.logger.design.info("%s Excitations Pins found.", len(pins))
+        self.logger.info("%s Excitations Pins found.", len(pins))
         return pins
 
     @aedt_exception_handler
@@ -717,7 +717,7 @@ class Circuit(FieldAnalysisCircuit, object):
             "External",
         ]
         self.odesign.ImportData(arg, "", True)
-        self.logger.design.info("Touchstone correctly imported into %s", self.design_name)
+        self.logger.info("Touchstone correctly imported into %s", self.design_name)
         return portnames
 
     @aedt_exception_handler
@@ -794,7 +794,7 @@ class Circuit(FieldAnalysisCircuit, object):
             IncludeGammaImpedance,
             NonStandardExtensions,
         )
-        self.logger.design.info("Touchstone correctly exported to %s", filename)
+        self.logger.info("Touchstone correctly exported to %s", filename)
         return True
 
     @aedt_exception_handler
@@ -916,7 +916,7 @@ class Circuit(FieldAnalysisCircuit, object):
                 20,
             ],
         )
-        self.logger.design.info("FullWaveSpice correctly exported to %s", filename)
+        self.logger.info("FullWaveSpice correctly exported to %s", filename)
 
         return filename
 
@@ -1258,7 +1258,7 @@ class Circuit(FieldAnalysisCircuit, object):
         arg2.append(arg3)
 
         self.odesign.UpdateSources(arg1, arg2)
-        self.logger.design.info("Current Source updated correctly.")
+        self.logger.info("Current Source updated correctly.")
 
         return True
 
@@ -1380,6 +1380,6 @@ class Circuit(FieldAnalysisCircuit, object):
         arg2.append(arg3)
 
         self.odesign.UpdateSources(arg1, arg2)
-        self.logger.design.info("Power Source updated correctly.")
+        self.logger.info("Power Source updated correctly.")
 
         return True

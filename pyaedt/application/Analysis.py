@@ -999,7 +999,7 @@ class Analysis(Design, object):
         else:
             options = " -ng -distribute -machinelist list=" + machine + " -Batchsolve "
 
-        self.logger.project.info("Batch Solve Options: " + options)
+        self.logger.info("Batch Solve Options: " + options)
         if os.name == "posix":
             batch_run = os.path.join(
                 self.desktop_install_dir + "/ansysedt" + chr(34) + options + chr(34) + filename + chr(34)
@@ -1014,8 +1014,8 @@ class Analysis(Design, object):
         dont have old .asol files etc
         """
 
-        self.logger.project.info("Solving model in batch mode on " + machine)
-        self.logger.project.info("Batch Job command:" + batch_run)
+        self.logger.info("Solving model in batch mode on " + machine)
+        self.logger.info("Batch Job command:" + batch_run)
         if run_in_thread:
 
             def thread_run():
@@ -1026,7 +1026,7 @@ class Analysis(Design, object):
             x.start()
         else:
             os.system(batch_run)
-        self.logger.project.info("Batch job finished.")
+        self.logger.info("Batch job finished.")
         return True
 
     @aedt_exception_handler
