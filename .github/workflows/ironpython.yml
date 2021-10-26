@@ -37,7 +37,7 @@ jobs:
           }
           else
           {
-            If(($log_content -contains "ERROR") -or ($log_content -contains "FAIL"))
+            if (($log_content -contains "ERROR") -or ($log_content -contains "FAIL"))
             {
             exit 1
             }
