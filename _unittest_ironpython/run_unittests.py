@@ -19,7 +19,7 @@ args = parser.parse_args(args_env.split())
 test_filter = args.test_filter
 
 def discover_and_run(start_dir, pattern=None):
-    """Discover and run tests cases, returning the result."""
+    """Discover and run tests cases, returning the log content."""
     # use the default shared TestLoader instance
     test_loader = unittest.defaultTestLoader
 
@@ -35,9 +35,6 @@ def discover_and_run(start_dir, pattern=None):
         result = runner.run(test_suite)
         log_content = f.readlines()
     return log_content
-
-with open(os.path.join(start_dir, "runner_unittest.log"), "w") as f:
-    
 
 log_content = discover_and_run(run_dir, pattern=test_filter)
 success_file = os.path.join(run_dir, "tests_succeeded.log")

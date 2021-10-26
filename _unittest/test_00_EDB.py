@@ -42,8 +42,10 @@ class TestClass:
         assert os.path.exists(ipc_path)
 
     def test_01_find_by_name(self):
-        testing_var=3
-        assert testing_var == 4
+        comp = self.edbapp.core_components.get_component_by_name("J1")
+        assert comp is not None
+        pin = self.edbapp.core_components.get_pin_from_component("J1", pinName="1")
+        assert pin is not False
 
     # def test_02_get_properties(self):
     #     assert len(self.edbapp.core_components.components) > 0
