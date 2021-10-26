@@ -33,11 +33,13 @@ def discover_and_run(start_dir, pattern=None):
         f.write("Test started {}\n".format(datetime.now()))
         runner = unittest.TextTestRunner(f, verbosity=2)
         result = runner.run(test_suite)
+        log_content = f.readlines()
+    return log_content
 
 with open(os.path.join(start_dir, "runner_unittest.log"), "w") as f:
-    log_content = f.readlines()
+    
 
-discover_and_run(run_dir, pattern=test_filter)
+log_content = discover_and_run(run_dir, pattern=test_filter)
 success_file = os.path.join(run_dir, "tests_succeeded.log")
 with open(success_file, "w") as f:
     if "ERROR" in log_content:
