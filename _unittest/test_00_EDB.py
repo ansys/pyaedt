@@ -244,6 +244,7 @@ class TestClass:
         assert self.edbapp.core_hfss.create_coax_port_on_component("U2A5", ["RSVD_0", "V1P0_SO"])
 
     def test_37_create_circuit_port(self):
+        initial_len = len(self.edbapp.core_padstack.pingroups)
         assert (
             self.edbapp.core_siwave.create_circuit_port_on_net("U2A5", "V1P5_S3", "U2A5", "GND", 50, "test") == "test"
         )
@@ -253,6 +254,7 @@ class TestClass:
         p3 = self.edbapp.core_siwave.create_circuit_port_on_pin(pins[200], pins[0])
         assert p3 != ""
         p4 = self.edbapp.core_hfss.create_circuit_port_on_net("U2A5", "RSVD_9")
+        assert len(self.edbapp.core_padstack.pingroups) == initial_len + 6
         assert "GND" in p4 and "RSVD_9" in p4
 
     def test_38_create_voltage_source(self):

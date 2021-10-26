@@ -566,7 +566,8 @@ class GlobalService(rpyc.Service):
                                                   'allow_setattr': True, 'allow_delattr': True}).start)
             t.start()
         else:
-            name = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "misc", "pyaedt_client_windows.py")
+            name = os.path.normpath(
+                os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "misc", "pyaedt_client_windows.py"))
             cmd_service = [sys.executable, name, str(port), hostname]
             print(" ".join(cmd_service))
             p = subprocess.Popen(" ".join(cmd_service))

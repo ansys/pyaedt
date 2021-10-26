@@ -3,16 +3,23 @@ import tempfile
 import os
 import io
 import sys
+try:
+    import pytest
+except ImportError:
+    import _unittest_ironpython.conf_unittest as pytest
 
+from .conftest import is_ironpython
 # Import required modules
 from pyaedt.aedt_logger import AedtLogger
-
+from pyaedt import Hfss
 
 class TestClass:
     def setup_class(self):
+        self.aedtapp = Hfss()
         pass
 
     def teardown_class(self):
+        self.aedtapp.close_project(self.aedtapp.project_name, saveproject=False)
         pass
     # @pytest.mark.xfail
     # def test_01_global(self, clean_desktop_messages, clean_desktop, hfss):
@@ -85,38 +92,38 @@ class TestClass:
     #     logger.clear_messages("", "", 2)
     #     assert not logger.get_messages().global_level
 
-    def test_02_output_file_with_app_filter(self, hfss):
+    def test_02_output_file_with_app_filter(self):
         content = None
-        with tempfile.TemporaryDirectory() as temp_dir:
-            path = os.path.join(temp_dir, "test.txt")
-            logger = AedtLogger(hfss._messenger, filename=path)
-            logger.glb.info("Info for Global")
-            logger.glb.debug("Debug for Global")
-            logger.glb.warning("Warning for Global")
-            logger.glb.error("Error for Global")
-            project_logger = logger.add_logger('Project')
-            project_logger.info("Info for Project")
-            project_logger.debug("Debug for Project")
-            project_logger.warning("Warning for Project")
-            project_logger.error("Error for Project")
-            design_logger = logger.add_logger('Design')
-            design_logger.info("Info for Design")
-            design_logger.debug("Debug for Design")
-            design_logger.warning("Warning for Design")
-            design_logger.error("Error for Design")
+        temp_dir = tempfile.gettempdir()
+        path = os.path.join(temp_dir, "test.txt")
+        logger = AedtLogger(self.aedtapp._messenger, filename=path)
+        logger.glb.info("Info for Global")
+        logger.glb.debug("Debug for Global")
+        logger.glb.warning("Warning for Global")
+        logger.glb.error("Error for Global")
+        project_logger = logger.add_logger('Project')
+        project_logger.info("Info for Project")
+        project_logger.debug("Debug for Project")
+        project_logger.warning("Warning for Project")
+        project_logger.error("Error for Project")
+        design_logger = logger.add_logger('Design')
+        design_logger.info("Info for Design")
+        design_logger.debug("Debug for Design")
+        design_logger.warning("Warning for Design")
+        design_logger.error("Error for Design")
 
-            # Close every handlers to make sure that the
-            # file handler on every logger has been released properly.
-            # Otherwise, we can't read the content of the log file.
-            for handler in logger.glb.handlers:
-                handler.close()
-            for handler in project_logger.handlers:
-                handler.close()
-            for handler in design_logger.handlers:
-                handler.close()
+        # Close every handlers to make sure that the
+        # file handler on every logger has been released properly.
+        # Otherwise, we can't read the content of the log file.
+        for handler in logger.glb.handlers:
+            handler.close()
+        for handler in project_logger.handlers:
+            handler.close()
+        for handler in design_logger.handlers:
+            handler.close()
 
-            with open(path, 'r') as f:
-                content = f.readlines()
+        with open(path, 'r') as f:
+            content = f.readlines()
 
         assert ":Global:INFO    :Info for Global" in content[0]
         assert ":Global:DEBUG   :Debug for Global" in content[1]
@@ -130,16 +137,16 @@ class TestClass:
         assert ":DEBUG   :Debug for Design" in content[9]
         assert ":WARNING :Warning for Design" in content[10]
         assert ":ERROR   :Error for Design" in content[11]
+        # self.aedtapp.logger.glb.handlers.pop()
+        # self.aedtapp.logger.project.handlers.pop()
+        # if len(self.aedtapp.logger.design.handlers) > 0:
+        #     self.aedtapp.logger.design.handlers.pop()
 
-        hfss.logger.glb.handlers.pop()
-        hfss.logger.project.handlers.pop()
-        if len(hfss.logger.design.handlers) > 0:
-            hfss.logger.design.handlers.pop()
-
-    def test_03_stdout_with_app_filter(self, hfss):
+    @pytest.mark.skipif(is_ironpython, reason="To be investigated on IronPython.")
+    def test_03_stdout_with_app_filter(self):
         capture = CaptureStdOut()
         with capture:
-            logger = AedtLogger(hfss._messenger, to_stdout=True)
+            logger = AedtLogger(self.aedtapp._messenger, to_stdout=True)
             logger.glb.info("Info for Global")
             logger.glb.debug("Debug for Global")
             logger.glb.warning("Warning for Global")
@@ -168,12 +175,12 @@ class TestClass:
         assert "pyaedt warning: Warning for Design" in capture.content
         assert "pyaedt error: Error for Design" in capture.content
 
-        for handler in logger.glb.handlers:
-            handler.close()
-        for handler in project_logger.handlers:
-            handler.close()
-        for handler in design_logger.handlers:
-            handler.close()
+        # for handler in logger.glb.handlers:
+        #     handler.close()
+        # for handler in project_logger.handlers:
+        #     handler.close()
+        # for handler in design_logger.handlers:
+        #     handler.close()
 
 
 class CaptureStdOut():

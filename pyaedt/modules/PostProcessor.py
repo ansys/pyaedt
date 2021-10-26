@@ -1101,7 +1101,7 @@ class PostProcessorCommon(object):
             families_input,
             ["X Component:=", primary_sweep_variable, "Y Component:=", expression],
         )
-        self.logger.design.info("Report %s correctly created.", plotname)
+        self.logger.info("Report %s correctly created.", plotname)
         return True
 
     @aedt_exception_handler
@@ -1150,7 +1150,7 @@ class PostProcessorCommon(object):
 
         data = list(
             self.oreportsetup.GetSolutionDataPerVariation(soltype, setup_sweep_name, ctxt, sweep_list, expression))
-        self.logger.design.info("Solution Data Correctly Loaded.")
+        self.logger.info("Solution Data Correctly Loaded.")
         return SolutionData(data)
 
     @aedt_exception_handler

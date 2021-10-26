@@ -2829,7 +2829,7 @@ class Primitives(object):
         test = retry_ntimes(10, self._oeditor.GetObjectsInGroup, "Unclassified")
         if test is None or test is False:
             self._unclassified = []
-            self.logger.design.debug("Unclassified is failing")
+            self.logger.debug("Unclassified is failing")
         elif test is True:
             self._unclassified = []  # In IronPython True is returned when no unclassified are present
         else:

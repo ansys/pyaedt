@@ -522,8 +522,8 @@ def _find_units_in_dependent_variables(variable_value, full_variables={}):
             if unit_system(m2[0]):
                 return SI_units[unit_system(m2[0])]
     else:
-        m1 = re.findall(r"(?<=[/+-/*//^/(/[])([a-z_A-Z]\w*)", variable_value.replace(" ", ""))
-        m2 = re.findall(r"^([a-z_A-Z]\w*)", variable_value.replace(" ", ""))
+        m1 = re.findall(r"(?<=[/+-/*//^/(/[])([a-z_A-Z/$]\w*)", variable_value.replace(" ", ""))
+        m2 = re.findall(r"^([a-z_A-Z/$]\w*)", variable_value.replace(" ", ""))
         m = list(set(m1).union(m2))
         for i, v in full_variables.items():
             if i in m and _find_units_in_dependent_variables(v):

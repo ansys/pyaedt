@@ -77,6 +77,20 @@ class EdbPadstacks(object):
         self.update_padstacks()
         return self._padstacks
 
+    @property
+    def pingroups(self):
+        """All Layout Pin groups.
+
+        Returns
+        -------
+        list
+            List of all layout pin groups.
+        """
+        pingroups = []
+        for el in self._active_layout.PinGroups:
+            pingroups.append(el)
+        return pingroups
+
     @aedt_exception_handler
     def update_padstacks(self):
         """Update Padstack Dictionary.
