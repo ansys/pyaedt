@@ -136,7 +136,7 @@ Implicit Desktop Declaration and Error Management
     # Desktop is automatically released here.
 
 
-Remot Application Call
+Remote Application Call
 ~~~~~~~~~~~~~~~~~~~~~~
 
 On the server
