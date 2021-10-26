@@ -29,14 +29,18 @@ jobs:
             Start-Sleep 1
             $Timeout -= 1
           }
+
+          $log_content = get-content .\_unittest_ironpython\runner_unittest.log
           if ( $Timeout  -eq 0)
           {
-            get-content .\_unittest_ironpython\runner_unittest.log
             exit 1
           }
           else
           {
-            get-content .\_unittest_ironpython\runner_unittest.log
+            If(($log_content -contains "ERROR") -or ($log_content -contains "FAIL"))
+            {
+            exit 1
+            }
             exit 0
           }
 
