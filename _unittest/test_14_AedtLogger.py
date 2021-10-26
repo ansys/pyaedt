@@ -89,7 +89,7 @@ class TestClass:
 
     def test_02_output_file_with_app_filter(self):
         content = None
-        with tempfile.TemporaryDirectory() as temp_dir:
+        with tempfile.gettempdir() as temp_dir:
             path = os.path.join(temp_dir, "test.txt")
             logger = AedtLogger(self.aedtapp._messenger, filename=path)
             logger.glb.info("Info for Global")
@@ -132,11 +132,10 @@ class TestClass:
         assert ":DEBUG   :Debug for Design" in content[9]
         assert ":WARNING :Warning for Design" in content[10]
         assert ":ERROR   :Error for Design" in content[11]
-
-        self.aedtapp.logger.glb.handlers.pop()
-        self.aedtapp.logger.project.handlers.pop()
-        if len(self.aedtapp.logger.design.handlers) > 0:
-            self.aedtapp.logger.design.handlers.pop()
+        # self.aedtapp.logger.glb.handlers.pop()
+        # self.aedtapp.logger.project.handlers.pop()
+        # if len(self.aedtapp.logger.design.handlers) > 0:
+        #     self.aedtapp.logger.design.handlers.pop()
 
     def test_03_stdout_with_app_filter(self):
         capture = CaptureStdOut()

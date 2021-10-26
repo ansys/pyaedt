@@ -1,7 +1,8 @@
 """
 Magnet Example
 --------------
-This example shows how you can use PyAEDT to create a Maxwell DC Analysis, compute mass center and move Coordinate Systems.
+This example shows how you can use PyAEDT to create a Maxwell DC Analysis,
+compute mass center and move Coordinate Systems.
 """
 
 from pyaedt import Maxwell3d
