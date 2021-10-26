@@ -2,8 +2,8 @@
 import math
 import re
 import sys
-from ..generic.general_methods import aedt_exception_handler
-from .modeler_constants import CoordinateSystemPlane, CoordinateSystemAxis, SweepDraftType
+from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.modeler.modeler_constants import CoordinateSystemPlane, CoordinateSystemAxis, SweepDraftType
 
 class GeometryOperators(object):
     """Manages geometry operators."""

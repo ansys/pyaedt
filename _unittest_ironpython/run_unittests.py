@@ -3,7 +3,8 @@ import os
 import sys
 import unittest
 from datetime import datetime
-from pyaedt import is_ironpython
+from pyaedt.generic.general_methods import is_ironpython
+
 if os.name != "posix":
     sys.path.append(os.path.join(os.environ["ANSYSEM_ROOT211"], "PythonFiles", "DesktopPlugin"))
 path_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..")

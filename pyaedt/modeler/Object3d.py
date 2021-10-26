@@ -16,8 +16,8 @@ import random
 import string
 from collections import defaultdict
 
-from .. import aedt_exception_handler, retry_ntimes
-from .GeometryOperators import GeometryOperators
+from pyaedt import aedt_exception_handler, retry_ntimes
+from pyaedt.modeler.GeometryOperators import GeometryOperators
 
 clamp = lambda n, minn, maxn: max(min(maxn, n), minn)
 

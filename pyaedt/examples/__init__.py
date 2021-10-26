@@ -1,1 +1,1 @@
-from .downloads import *
+from pyaedt.examples.downloads import *

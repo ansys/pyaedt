@@ -4,12 +4,12 @@ import os
 import warnings
 import math
 import tempfile
-from .application.Analysis3D import FieldAnalysis3D
-from .modeler.GeometryOperators import GeometryOperators
-from .modules.Boundary import BoundaryObject, NativeComponentObject
-from .generic.general_methods import generate_unique_name, aedt_exception_handler
+from pyaedt.application.Analysis3D import FieldAnalysis3D
+from pyaedt.modeler.GeometryOperators import GeometryOperators
+from pyaedt.modules.Boundary import BoundaryObject, NativeComponentObject
+from pyaedt.generic.general_methods import generate_unique_name, aedt_exception_handler
 from collections import OrderedDict
-from .modeler.actors import Radar
+from pyaedt.modeler.actors import Radar
 
 
 class Hfss(FieldAnalysis3D, object):

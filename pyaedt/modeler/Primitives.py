@@ -8,10 +8,10 @@ import os
 import time
 from collections import OrderedDict, defaultdict
 
-from ..application.Variables import Variable
-from ..generic.general_methods import aedt_exception_handler, is_number, retry_ntimes
-from .GeometryOperators import GeometryOperators
-from .Object3d import EdgePrimitive, FacePrimitive, Object3d, _dim_arg, _uname
+from pyaedt.application.Variables import Variable
+from pyaedt.generic.general_methods import aedt_exception_handler, is_number, retry_ntimes
+from pyaedt.modeler.GeometryOperators import GeometryOperators
+from pyaedt.modeler.Object3d import EdgePrimitive, FacePrimitive, Object3d, _dim_arg, _uname
 
 default_materials = {
     "Icepak": "air",

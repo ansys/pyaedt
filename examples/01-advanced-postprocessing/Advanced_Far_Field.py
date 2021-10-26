@@ -26,7 +26,7 @@ import time
 
 from pyaedt import Desktop
 from pyaedt import Hfss
-
+from pyaedt.generic.general_methods import remove_project_lock
 
 ###############################################################################
 # Import All Modules for Postprocessing
@@ -51,6 +51,8 @@ desktop = Desktop(desktopVersion, NonGraphical, NewThread)
 # Open the HFSS Project
 # ~~~~~~~~~~~~~~~~~~~~~
 # This command opens the HFSS project.
+
+remove_project_lock(project_name)
 
 hfss = Hfss(project_name, "4X4_MultiCell_CA-Array")
 

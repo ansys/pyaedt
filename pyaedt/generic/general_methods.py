@@ -12,6 +12,19 @@ import inspect
 import itertools
 
 logger = logging.getLogger(__name__)
+is_ironpython = "IronPython" in sys.version or ".NETFramework" in sys.version
+_pythonver = sys.version_info[0]
+inside_desktop = True
+import sys
+
+try:
+    import ScriptEnv
+
+    ScriptEnv.Initialize("Ansoft.ElectronicsDesktop")
+except:
+    inside_desktop = False
+
+
 
 
 class MethodNotSupportedError(Exception):
@@ -365,3 +378,38 @@ def is_number(a):
     else:
         return False
     # return str(a).replace(".", "").replace("+", "").replace("-", "").replace("e","").replace("E","").isnumeric()
+
+
+def is_project_locked(project_path):
+    """Checks if an aedt project lock file exists.
+
+    Parameters
+    ----------
+    project_path : str
+        Aedt project path.
+
+    Returns
+    -------
+    bool
+    """
+    return os.path.exists(project_path[:-4]+"lock")
+
+@aedt_exception_handler
+def remove_project_lock(project_path):
+    """Checks if an aedt project exists and try to remove the lock file.
+
+    .. note::
+       This operation is risky because the file could be open in another Desktop instance.
+
+    Parameters
+    ----------
+    project_path : str
+        Aedt project path.
+
+    Returns
+    -------
+    bool
+    """
+    if os.path.exists(project_path[:-4] + "lock"):
+        os.remove(project_path[:-4] + "lock")
+    return True

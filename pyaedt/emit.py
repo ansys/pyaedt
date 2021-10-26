@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 
-from .application.AnalsyisEmit import FieldAnalysisEmit
+from pyaedt.application.AnalsyisEmit import FieldAnalysisEmit
 
 
 class Emit(FieldAnalysisEmit, object):

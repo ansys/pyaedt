@@ -1,1 +1,1 @@
-from .misc import list_installed_ansysem
+from pyaedt.misc.misc import list_installed_ansysem

@@ -2,15 +2,15 @@ import ntpath
 import os
 import warnings
 
-from ..generic.general_methods import aedt_exception_handler, retry_ntimes
-from ..modeler.Model3D import Modeler3D
-from ..modules.Mesh import Mesh
-from .Analysis import Analysis
-from .. import is_ironpython
+from pyaedt.generic.general_methods import aedt_exception_handler, retry_ntimes, is_ironpython
+from pyaedt.modeler.Model3D import Modeler3D
+from pyaedt.modules.Mesh import Mesh
+from pyaedt.application.Analysis import Analysis
+
 if is_ironpython:
-    from ..modules.PostProcessor import PostProcessor
+    from pyaedt.modules.PostProcessor import PostProcessor
 else:
-    from ..modules.AdvancedPostProcessing import PostProcessor
+    from pyaedt.modules.AdvancedPostProcessing import PostProcessor
 
 class FieldAnalysis3D(Analysis, object):
     """Manages 3D field analysis setup in HFSS, Maxwell 3D, and Q3D.

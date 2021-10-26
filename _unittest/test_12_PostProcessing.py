@@ -3,7 +3,8 @@ import gc
 import os
 
 # Import required modules
-from pyaedt import Hfss, is_ironpython
+from pyaedt import Hfss
+from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.filesystem import Scratch
 
 # Setup paths for module imports

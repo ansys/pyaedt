@@ -2,10 +2,8 @@ import time
 import warnings
 from collections import OrderedDict, defaultdict
 
-from pyaedt import is_ironpython
-
-from ..generic.general_methods import aedt_exception_handler
-from .general import convert_py_list_to_net_list
+from pyaedt.generic.general_methods import aedt_exception_handler, is_ironpython
+from pyaedt.edb_core.general import convert_py_list_to_net_list
 
 try:
     from System import Array

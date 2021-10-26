@@ -10,13 +10,12 @@ import os
 import warnings
 
 from collections import OrderedDict
-from .GeometryOperators import GeometryOperators
-from ..application.Variables import AEDT_units
-from ..generic.general_methods import generate_unique_name, retry_ntimes, aedt_exception_handler
+from pyaedt.modeler.GeometryOperators import GeometryOperators
+from pyaedt.application.Variables import AEDT_units
+from pyaedt.generic.general_methods import generate_unique_name, retry_ntimes, aedt_exception_handler, _pythonver
 import math
-from ..generic.DataHandlers import dict2arg
-from .Object3d import EdgePrimitive, FacePrimitive, VertexPrimitive, Object3d
-from pyaedt import _pythonver
+from pyaedt.generic.DataHandlers import dict2arg
+from pyaedt.modeler.Object3d import EdgePrimitive, FacePrimitive, VertexPrimitive, Object3d
 
 
 class CoordinateSystem(object):
