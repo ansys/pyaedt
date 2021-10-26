@@ -28,7 +28,7 @@ def discover_and_run(start_dir, pattern=None):
 
     # run the test suite
     log_file = os.path.join(start_dir, "runner_unittest.log")
-    with open(log_file, "w") as f:
+    with open(log_file, "w+") as f:
         f.write("Test filter: {}\n".format(test_filter))
         f.write("Test started {}\n".format(datetime.now()))
         runner = unittest.TextTestRunner(f, verbosity=2)
