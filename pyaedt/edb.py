@@ -13,6 +13,7 @@ import shutil
 import tempfile
 import datetime
 import logging
+import re
 try:
     import clr
     from System.Collections.Generic import List
@@ -729,24 +730,29 @@ class Edb(object):
 
         Parameters
         ----------
-        val :
+        val : str, float int
 
 
         Returns
         -------
 
         """
+        if isinstance(val, (int, float)):
+            return self.edb.Utility.Value(val)
+        m1 = re.findall(r"(?<=[/+-/*//^/(/[])([a-z_A-Z/$]\w*)", str(val).replace(" ", ""))
+        m2 = re.findall(r"^([a-z_A-Z/$]\w*)", str(val).replace(" ", ""))
+        val_decomposed = list(set(m1).union(m2))
+        if not val_decomposed:
+            return self.edb.Utility.Value(val)
         var_server_db = self.db.GetVariableServer()
         var_names = var_server_db.GetAllVariableNames()
         var_server_cell = self.active_cell.GetVariableServer()
         var_names_cell = var_server_cell.GetAllVariableNames()
-        if isinstance(val, (int, float)):
-            return self.edb.Utility.Value(val)
-        if val in var_names or any(s in val for s in var_names):
+        if set(val_decomposed).intersection(var_names):
             return self.edb.Utility.Value(val, var_server_db)
-        elif val in var_names_cell or any(s in val for s in var_names_cell):
+        if set(val_decomposed).intersection(var_names_cell):
             return self.edb.Utility.Value(val, var_server_cell)
-        return self.edb.Utility.Value(val)
+        raise AttributeError("Variable {} not defined in Edb.".format(val))
 
     @aedt_exception_handler
     def _is_file_existing_and_released(self, filename):

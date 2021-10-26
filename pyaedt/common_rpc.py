@@ -10,7 +10,7 @@ except ImportError:
 from pyaedt.generic.rpyc_services import GlobalService
 
 
-def pyaedt_server(port=18000):
+def server(port=18000):
     """Starts an rpyc servers an start listening on specified port. This method has to run on server machine.
 
     Parameters
@@ -19,8 +19,8 @@ def pyaedt_server(port=18000):
         port on which rpyc_server whill listen.
     Examples
     --------
-    >>> from pyaedt.common_rpc import pyaedt_server
-    >>> pyaedt_server( port=18000)
+    >>> from pyaedt.common_rpc import server
+    >>> server( port=18000)
 
     """
     hostname = socket.gethostname()
@@ -47,7 +47,7 @@ def pyaedt_server(port=18000):
     t.start()
 
 
-def pyaedt_client(server_name, server_port=18000):
+def client(server_name, server_port=18000):
     """Starts an rpyc client and connects to a remote machine.
 
     Parameters
@@ -65,17 +65,17 @@ def pyaedt_client(server_name, server_port=18000):
     --------
     Windows Example.
 
-    >>> from pyaedt.common_rpc import pyaedt_client
-    >>> client = pyaedt_client(server_name="server_name")
+    >>> from pyaedt.common_rpc import client
+    >>> client = client(server_name="server_name")
     >>> hfss = client.root.hfss(specified_version="2021.2")
 
     Linux Example.
-    >>> client = pyaedt_client("my_server")
+    >>> client = client("my_server")
     >>> script_to_run = ["from pyaedt import Hfss", "hfss =Hfss()"]
     >>> client.root.run_script = client.root.hfss(script_to_run, ansysem_path = "/path/to/AnsysEMxxx/Linux64")
 
     Linux Example 2.
-    >>> client = pyaedt_client("my_server")
+    >>> client = client("my_server")
     >>> script_to_run = "/path/to/script.py"
     >>> client.root.run_script = client.root.hfss(script_to_run, ansysem_path = "/path/to/AnsysEMxxx/Linux64")
 
