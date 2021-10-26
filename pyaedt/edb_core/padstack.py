@@ -79,6 +79,13 @@ class EdbPadstacks(object):
 
     @property
     def pingroups(self):
+        """All Layout Pin groups.
+
+        Returns
+        -------
+        list
+            List of all layout pin groups.
+        """
         pingroups = []
         for el in self._active_layout.PinGroups:
             pingroups.append(el)
