@@ -3,7 +3,12 @@ import tempfile
 import os
 import io
 import sys
+try:
+    import pytest
+except ImportError:
+    import _unittest_ironpython.conf_unittest as pytest
 
+from .conftest import is_ironpython
 # Import required modules
 from pyaedt.aedt_logger import AedtLogger
 from pyaedt import Hfss
@@ -137,6 +142,7 @@ class TestClass:
         # if len(self.aedtapp.logger.design.handlers) > 0:
         #     self.aedtapp.logger.design.handlers.pop()
 
+    @pytest.mark.skipif(is_ironpython, reason="To be investigated on IronPython.")
     def test_03_stdout_with_app_filter(self):
         capture = CaptureStdOut()
         with capture:
@@ -169,12 +175,12 @@ class TestClass:
         assert "pyaedt warning: Warning for Design" in capture.content
         assert "pyaedt error: Error for Design" in capture.content
 
-        for handler in logger.glb.handlers:
-            handler.close()
-        for handler in project_logger.handlers:
-            handler.close()
-        for handler in design_logger.handlers:
-            handler.close()
+        # for handler in logger.glb.handlers:
+        #     handler.close()
+        # for handler in project_logger.handlers:
+        #     handler.close()
+        # for handler in design_logger.handlers:
+        #     handler.close()
 
 
 class CaptureStdOut():
