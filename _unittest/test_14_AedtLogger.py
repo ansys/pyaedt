@@ -89,36 +89,36 @@ class TestClass:
 
     def test_02_output_file_with_app_filter(self):
         content = None
-        with tempfile.gettempdir() as temp_dir:
-            path = os.path.join(temp_dir, "test.txt")
-            logger = AedtLogger(self.aedtapp._messenger, filename=path)
-            logger.glb.info("Info for Global")
-            logger.glb.debug("Debug for Global")
-            logger.glb.warning("Warning for Global")
-            logger.glb.error("Error for Global")
-            project_logger = logger.add_logger('Project')
-            project_logger.info("Info for Project")
-            project_logger.debug("Debug for Project")
-            project_logger.warning("Warning for Project")
-            project_logger.error("Error for Project")
-            design_logger = logger.add_logger('Design')
-            design_logger.info("Info for Design")
-            design_logger.debug("Debug for Design")
-            design_logger.warning("Warning for Design")
-            design_logger.error("Error for Design")
+        temp_dir = tempfile.gettempdir()
+        path = os.path.join(temp_dir, "test.txt")
+        logger = AedtLogger(self.aedtapp._messenger, filename=path)
+        logger.glb.info("Info for Global")
+        logger.glb.debug("Debug for Global")
+        logger.glb.warning("Warning for Global")
+        logger.glb.error("Error for Global")
+        project_logger = logger.add_logger('Project')
+        project_logger.info("Info for Project")
+        project_logger.debug("Debug for Project")
+        project_logger.warning("Warning for Project")
+        project_logger.error("Error for Project")
+        design_logger = logger.add_logger('Design')
+        design_logger.info("Info for Design")
+        design_logger.debug("Debug for Design")
+        design_logger.warning("Warning for Design")
+        design_logger.error("Error for Design")
 
-            # Close every handlers to make sure that the
-            # file handler on every logger has been released properly.
-            # Otherwise, we can't read the content of the log file.
-            for handler in logger.glb.handlers:
-                handler.close()
-            for handler in project_logger.handlers:
-                handler.close()
-            for handler in design_logger.handlers:
-                handler.close()
+        # Close every handlers to make sure that the
+        # file handler on every logger has been released properly.
+        # Otherwise, we can't read the content of the log file.
+        for handler in logger.glb.handlers:
+            handler.close()
+        for handler in project_logger.handlers:
+            handler.close()
+        for handler in design_logger.handlers:
+            handler.close()
 
-            with open(path, 'r') as f:
-                content = f.readlines()
+        with open(path, 'r') as f:
+            content = f.readlines()
 
         assert ":Global:INFO    :Info for Global" in content[0]
         assert ":Global:DEBUG   :Debug for Global" in content[1]
