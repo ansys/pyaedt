@@ -3,7 +3,7 @@ import gc
 import os
 
 # Import required modules
-from pyaedt import Hfss
+from pyaedt import Hfss, Desktop
 from pyaedt.generic.filesystem import Scratch
 
 # Setup paths for module imports
@@ -30,12 +30,23 @@ class TestClass:
             # self.cache = DesignCache(self.aedtapp)
 
     def teardown_class(self):
-        assert self.aedtapp.close_project(self.aedtapp.project_name)
+        self.aedtapp._desktop.ClearMessages("", "", 3)
+        assert self.aedtapp.close_project(self.aedtapp.project_name, False)
         self.local_scratch.remove()
         gc.collect()
 
     def test_app(self):
         assert self.aedtapp
+
+    def test_00_destkop(self):
+        d = Desktop(desktop_version, new_desktop_session=False)
+        assert isinstance(d.project_list(), list)
+        assert isinstance(d.design_list(), list)
+        assert desktop_version == d.aedt_version_id
+        assert d.personallib
+        assert d.userlib
+        assert d.syslib
+        assert d.design_type() == "HFSS"
 
     def test_01_designname(self):
         self.aedtapp.design_name = "myname"
@@ -92,7 +103,7 @@ class TestClass:
         print(self.aedtapp.oboundary)
         print(self.aedtapp.oanalysis)
         print(self.aedtapp.odesktop)
-        print(self.aedtapp._messenger)
+        print(self.aedtapp.logger)
         print(self.aedtapp.variable_manager)
         print(self.aedtapp.materials)
 

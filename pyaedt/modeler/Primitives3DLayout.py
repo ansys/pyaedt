@@ -89,6 +89,7 @@ class Primitives3DLayout(object):
             List of geometries from EDB. If EDB is not present, ``None`` is returned.
 
         """
+
         try:
             prims = self.modeler.edb.core_primitives.primitives
         except:
@@ -190,11 +191,6 @@ class Primitives3DLayout(object):
 
         """
         return default_materials[self._app._design_type]
-
-    @property
-    def _messenger(self):
-        """Messenger."""
-        return self._app._messenger
 
     @property
     def logger(self):

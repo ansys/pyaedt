@@ -9,7 +9,11 @@ from pyaedt.aedt_logger import AedtLogger
 
 
 class TestClass:
+    def setup_class(self):
+        pass
 
+    def teardown_class(self):
+        pass
     # @pytest.mark.xfail
     # def test_01_global(self, clean_desktop_messages, clean_desktop, hfss):
     #     logger = hfss.logger

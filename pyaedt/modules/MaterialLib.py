@@ -24,10 +24,9 @@ class Materials(object):
         self.odefinition_manager = self._app.odefinition_manager
         self.omaterial_manager = self._app.omaterial_manager
         self._desktop = self._app.odesktop
-        self._messenger = self._app._messenger
         self._oproject = self._app.oproject
         self.logger = self._app.logger
-        self._messenger.logger.info("Successfully loaded project materials !")
+        self.logger.info("Successfully loaded project materials !")
         self.material_keys = self._get_materials()
         self.surface_material_keys = self._get_surface_materials()
         self._load_from_project()

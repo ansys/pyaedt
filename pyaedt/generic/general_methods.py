@@ -174,7 +174,7 @@ def env_path(input_version):
         else:
             release -= 2
     v_key = "ANSYSEM_ROOT{0}{1}".format(version, release)
-    return os.getenv(v_key)
+    return os.getenv(v_key, "")
 
 
 @aedt_exception_handler
