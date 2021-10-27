@@ -31,6 +31,7 @@ jobs:
           }
 
           $log_content = get-content .\_unittest_ironpython\runner_unittest.log
+          Write-Output $log_content
           if ( $Timeout  -eq 0)
           {
             exit 1
