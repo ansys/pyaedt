@@ -20,11 +20,6 @@ class EdbNets(object):
         return self._pedb.edb
 
     @property
-    def _edb_value(self):
-        """ """
-        return self._pedb.edb_value
-
-    @property
     def _active_layout(self):
         """ """
         return self._pedb.active_layout
@@ -250,7 +245,7 @@ class EdbNets(object):
                 if edb_net is not None:
                     edb_net.Delete()
                     nets_deleted.append(net)
-                    self._logger.add_info_message("Net %s Deleted", net)
+                    self._logger.info("Net %s Deleted", net)
             except:
                 pass
 

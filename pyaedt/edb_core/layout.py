@@ -29,22 +29,17 @@ class EdbLayout(object):
         return self._pedb.edb
 
     @property
-    def logger(self):
-        """Messenger."""
-        return self._pedb._logger
+    def _edb_value(self):
+        return self._pedb.edb_value
 
     @property
-    def logger(self):
+    def _logger(self):
         """Logger."""
         return self._pedb.logger
 
     @property
     def _builder(self):
         return self._pedb.builder
-
-    @property
-    def _edb_value(self):
-        return self._pedb.edb_value
 
     @property
     def _edbutils(self):
@@ -94,7 +89,7 @@ class EdbLayout(object):
                     pass
             for lay in self.layers:
                 self._primitives_by_layer[lay] = self.get_polygons_by_layer(lay)
-            self._logger.add_info_message("Primitives Updated")
+            self._logger.info("Primitives Updated")
             return True
         return False
 
@@ -387,10 +382,10 @@ class EdbLayout(object):
                         xcoeff, ycoeff = calc_slope([point.X.ToDouble(), point.X.ToDouble()], origin)
 
                         new_points = self._edb.Geometry.PointData(
-                            self._edb.Utility.Value(
+                            self._edb_value(
                                 point.X.ToString() + "{}*{}".format(xcoeff, offset_name), var_server
                             ),
-                            self._edb.Utility.Value(
+                            self._edb_value(
                                 point.Y.ToString() + "{}*{}".format(ycoeff, offset_name), var_server
                             ),
                         )
@@ -703,13 +698,13 @@ class EdbLayout(object):
                             if not variable_value:
                                 variable_value = p.GetWidth()
                             result, var_server = self._pedb.add_design_variable(parameter_name, variable_value)
-                        p.SetWidth(self._edb.Utility.Value(parameter_name, var_server))
+                        p.SetWidth(self._pedb.edb_value(parameter_name))
                     elif p.GetLayer().GetName() in layers_name:
                         if not var_server:
                             if not variable_value:
                                 variable_value = p.GetWidth()
                             result, var_server = self._pedb.add_design_variable(parameter_name, variable_value)
-                        p.SetWidth(self._edb.Utility.Value(parameter_name, var_server))
+                        p.SetWidth(self._pedb.edb_value(parameter_name))
         return True
 
     @aedt_exception_handler
@@ -757,7 +752,7 @@ class EdbLayout(object):
                 [i.Delete() for i in poly_by_nets[net]]
 
         if delete_padstack_gemometries:
-            self._logger.add_info_message("Deleting Padstack Definitions")
+            self._logger.info("Deleting Padstack Definitions")
             for pad in self._pedb.core_padstack.padstacks:
                 p1 = self._pedb.core_padstack.padstacks[pad].edb_padstack.GetData()
                 if len(p1.GetLayerNames()) > 1:

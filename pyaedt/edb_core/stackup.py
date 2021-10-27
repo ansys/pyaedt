@@ -60,13 +60,8 @@ class EdbStackup(object):
         return self._pedb.edblib.Layout.StackupMethods
 
     @property
-    def logger(self):
+    def _logger(self):
         """ """
-        return self._pedb._logger
-
-    @property
-    def logger(self):
-        """Logger."""
         return self._pedb.logger
 
     @property

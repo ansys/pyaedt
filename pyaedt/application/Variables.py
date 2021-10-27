@@ -522,8 +522,8 @@ def _find_units_in_dependent_variables(variable_value, full_variables={}):
             if unit_system(m2[0]):
                 return SI_units[unit_system(m2[0])]
     else:
-        m1 = re.findall(r"(?<=[/+-/*//^/(/[])([a-z_A-Z]\w*)", variable_value.replace(" ", ""))
-        m2 = re.findall(r"^([a-z_A-Z]\w*)", variable_value.replace(" ", ""))
+        m1 = re.findall(r"(?<=[/+-/*//^/(/[])([a-z_A-Z/$]\w*)", variable_value.replace(" ", ""))
+        m2 = re.findall(r"^([a-z_A-Z/$]\w*)", variable_value.replace(" ", ""))
         m = list(set(m1).union(m2))
         for i, v in full_variables.items():
             if i in m and _find_units_in_dependent_variables(v):
@@ -795,12 +795,7 @@ class VariableManager(object):
         return self._app._odesign
 
     @property
-    def _messenger(self):
-        """Messenger."""
-        return self._app._messenger
-
-    @property
-    def logger(self):
+    def _logger(self):
         """Logger."""
         return self._app.logger
 
@@ -1012,7 +1007,7 @@ class VariableManager(object):
                 )
             except:
                 if ";" in desktop_object.GetName() and prop_type == "PostProcessingVariableProp":
-                    self._messenger.add_info_message("PostProcessing Variable exists already. Changing value.")
+                    self._logger.info("PostProcessing Variable exists already. Changing value.")
                     desktop_object.ChangeProperty(
                         [
                             "NAME:AllTabs",
@@ -1666,7 +1661,7 @@ class DataSet(object):
 
         """
         if x not in self.x:
-            self._app._messenger.add_error_message("Value {} is not found.".format(x))
+            self._app.logger.error("Value {} is not found.".format(x))
             return False
         id_to_remove = self.x.index(x)
         return self.remove_point_from_index(id_to_remove)
@@ -1693,7 +1688,7 @@ class DataSet(object):
                 self.z.pop(id_to_remove)
                 self.v.pop(id_to_remove)
             return self.update()
-        self._app._messenger.add_error_message("cannot Remove {} index.".format(id_to_remove))
+        self._app.logger.error("cannot Remove {} index.".format(id_to_remove))
         return False
 
     @aedt_exception_handler

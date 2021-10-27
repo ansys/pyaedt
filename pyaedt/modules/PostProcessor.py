@@ -791,7 +791,7 @@ class FieldPlot:
                     scale_max=scale_max,
                     )
         else:
-            self._postprocessor._messenger.add_info_message("This method wors only on CPython with PyVista")
+            self._postprocessor.logger.info("This method wors only on CPython with PyVista")
             return False
 
 
@@ -809,7 +809,7 @@ class PostProcessorCommon(object):
     ----------
     app : :class:`pyaedt.application.Analsis3D.FieldAnalysis3D`
         Inherited parent object. The parent object must provide the members
-        ``_modeler``, ``_desktop``, ``_odesign``, and ``_messenger``.
+        ``_modeler``, ``_desktop``, ``_odesign``, and ``logger``.
 
     Examples
     --------
@@ -834,11 +834,6 @@ class PostProcessorCommon(object):
 
         """
         return self._oreportsetup
-
-    @property
-    def _messenger(self):
-        """Messenger."""
-        return self._app._messenger
 
     @property
     def logger(self):
@@ -1072,7 +1067,7 @@ class PostProcessorCommon(object):
         if not setup_sweep_name:
             setup_sweep_name = self._app.nominal_sweep
         if self.post_solution_type not in report_type:
-            self._messenger.add_info_message("Solution not supported")
+            self.logger.info("Solution not supported")
             return False
         if not report_category:
             modal_data = report_type[self.post_solution_type]
@@ -1106,7 +1101,7 @@ class PostProcessorCommon(object):
             families_input,
             ["X Component:=", primary_sweep_variable, "Y Component:=", expression],
         )
-
+        self.logger.info("Report %s correctly created.", plotname)
         return True
 
     @aedt_exception_handler
@@ -1155,6 +1150,7 @@ class PostProcessorCommon(object):
 
         data = list(
             self.oreportsetup.GetSolutionDataPerVariation(soltype, setup_sweep_name, ctxt, sweep_list, expression))
+        self.logger.info("Solution Data Correctly Loaded.")
         return SolutionData(data)
 
     @aedt_exception_handler
@@ -1237,7 +1233,7 @@ class PostProcessor(PostProcessorCommon, object):
     ----------
     app : :class:`pyaedt.application.Analsis3D.FieldAnalysis3D`
         Inherited parent object. The parent object must provide the members
-        `_modeler`, `_desktop`, `_odesign`, and `_messenger`.
+        `_modeler`, `_desktop`, `_odesign`, and `logger`.
 
     """
 
@@ -1540,7 +1536,7 @@ class PostProcessor(PostProcessorCommon, object):
         float
             ``True`` when successful, ``False`` when failed.
         """
-        self._messenger.add_info_message("Exporting {} field. Be patient".format(quantity_name))
+        self.logger.info("Exporting {} field. Be patient".format(quantity_name))
         if not solution:
             solution = self._app.existing_analysis_sweeps[0]
         self.ofieldsreporter.CalcStack("clear")
@@ -1557,7 +1553,7 @@ class PostProcessor(PostProcessorCommon, object):
             try:
                 self.ofieldsreporter.EnterQty(quantity_name)
             except:
-                self._messenger.add_info_message(
+                self.logger.info(
                     "Quantity {} not present. Trying to get it from Stack".format(quantity_name))
                 self.ofieldsreporter.CopyNamedExprToStack(quantity_name)
         obj_list = "AllObjects"
@@ -1687,7 +1683,7 @@ class PostProcessor(PostProcessorCommon, object):
             grid_stop_wu = [str(grid_stop[0]) + units, str(grid_stop[1]) + ang_units, str(grid_stop[2]) + ang_units]
             grid_step_wu = [str(grid_step[0]) + units, str(grid_step[1]) + ang_units, str(grid_step[2]) + ang_units]
         else:
-            self._app._messenger.add_error_message("Error in the type of the grid.")
+            self.logger.error("Error in the type of the grid.")
             return False
         if not variation_dict:
             variation_dict = self._app.available_variations.nominal_w_values
@@ -1954,7 +1950,7 @@ class PostProcessor(PostProcessorCommon, object):
 
         """
         if plot_name and plot_name in list(self.field_plots.keys()):
-            self._messenger.add_info_message("Plot {} exists. returning the object.".format(plot_name))
+            self.logger.info("Plot {} exists. returning the object.".format(plot_name))
             return self.field_plots[plot_name]
         return self._create_fieldplot(objlist, quantityName, setup_name, intrinsincDict, "Surface", "FacesList",
                                       plot_name)
@@ -1986,7 +1982,7 @@ class PostProcessor(PostProcessorCommon, object):
 
         """
         if plot_name and plot_name in list(self.field_plots.keys()):
-            self._messenger.add_info_message("Plot {} exists. returning the object.".format(plot_name))
+            self.logger.info("Plot {} exists. returning the object.".format(plot_name))
             return self.field_plots[plot_name]
         return self._create_fieldplot(objlist, quantityName, setup_name, intrinsincDict, "Surface", "CutPlane",
                                       plot_name)
@@ -2017,7 +2013,7 @@ class PostProcessor(PostProcessorCommon, object):
             Plot object
         """
         if plot_name and plot_name in list(self.field_plots.keys()):
-            self._messenger.add_info_message("Plot {} exists. returning the object.".format(plot_name))
+            self.logger.info("Plot {} exists. returning the object.".format(plot_name))
             return self.field_plots[plot_name]
         return self._create_fieldplot(objlist, quantityName, setup_name, intrinsincDict, "Volume", "ObjList", plot_name)
 
@@ -2250,7 +2246,7 @@ class CircuitPostProcessor(PostProcessorCommon, object):
     ----------
     app : :class:`pyaedt.application.AnalysisNexxim.FieldAnalysisCircuit`
         Inherited parent object. The parent object must provide the members
-        `_modeler`, `_desktop`, `_odesign`, and `_messenger`.
+        `_modeler`, `_desktop`, `_odesign`, and `logger`.
 
     """
 

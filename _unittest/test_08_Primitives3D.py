@@ -180,7 +180,7 @@ class TestClass(BasisTest):
     @pyaedt_unittest_check_desktop_error
     def test_11a_get_faces_from_mat(self):
         self.create_copper_box()
-        faces = self.aedtapp.modeler.select_allfaces_from_mat("Copper")
+        faces = self.aedtapp.modeler.get_faces_from_materials("Copper")
         assert len(faces) >= 6
 
     @pyaedt_unittest_check_desktop_error

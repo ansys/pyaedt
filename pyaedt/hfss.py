@@ -188,7 +188,10 @@ class Hfss(FieldAnalysis3D, object):
         result = bound.create()
         if result:
             self.boundaries.append(bound)
+            self.logger.info("Boundary %s %s has been correctly created.", boundary_type, name)
             return bound
+        self.logger.error("Error in boundary creation for %s %s.", boundary_type, name)
+
         return result
 
     @aedt_exception_handler
@@ -566,7 +569,7 @@ class Hfss(FieldAnalysis3D, object):
                 sweepdata.props["SaveFields"] = save_fields
                 sweepdata.props["SaveRadFields"] = save_rad_fields
                 sweepdata.update()
-                self.add_info_message("Linear count sweep {} has been correctly created".format(sweepname))
+                self.logger.info("Linear count sweep {} has been correctly created".format(sweepname))
                 return sweepdata
         return False
 
@@ -657,7 +660,7 @@ class Hfss(FieldAnalysis3D, object):
                     sweepdata.props["InterpMinSolns"] = 0
                     sweepdata.props["InterpMinSubranges"] = 1
                 sweepdata.update()
-                self.add_info_message("Linear step sweep {} has been correctly created".format(sweepname))
+                self.logger.info("Linear step sweep {} has been correctly created".format(sweepname))
                 return sweepdata
         return False
 
@@ -757,7 +760,7 @@ class Hfss(FieldAnalysis3D, object):
                     for f, s in zip(freq, save_single_field):
                         sweepdata.add_subrange(rangetype="SinglePoints", start=f, unit=unit, save_single_fields=s)
                 sweepdata.update()
-                self.add_info_message("Single point sweep {} has been correctly created".format(sweepname))
+                self.logger.info("Single point sweep {} has been correctly created".format(sweepname))
                 return sweepdata
         return False
 
@@ -811,7 +814,7 @@ class Hfss(FieldAnalysis3D, object):
 
         """
         if self.solution_type != "SBR+":
-            self.add_error_message("This Native components only applies to SBR+ Solution")
+            self.logger.error("This Native components only applies to SBR+ Solution")
             return False
         compName = source_object.design_name
         uniquename = generate_unique_name(compName)
@@ -878,7 +881,10 @@ class Hfss(FieldAnalysis3D, object):
         native = NativeComponentObject(self, antenna_type, antenna_name, native_props)
         if native.create():
             self.native_components.append(native)
+            self.logger.info("Native Component %s %s has been correctly created", antenna_type, antenna_name)
             return native
+        self.logger.error("Error in Native Component creation for %s %s.", antenna_type, antenna_name)
+
         return None
 
     class SbrAntennas:
@@ -1093,7 +1099,7 @@ class Hfss(FieldAnalysis3D, object):
 
         """
         if self.solution_type != "SBR+":
-            self.add_error_message("This native component only applies to a SBR+ solution.")
+            self.logger.error("This native component only applies to a SBR+ solution.")
             return False
         if target_cs is None:
             target_cs = self.modeler.oeditor.GetActiveCoordinateSystem()
@@ -1198,7 +1204,7 @@ class Hfss(FieldAnalysis3D, object):
 
         """
         if self.solution_type != "SBR+":
-            self.add_error_message("This Native component only applies to a SBR+ Solution.")
+            self.logger.error("This Native component only applies to a SBR+ Solution.")
             return False
         if target_cs is None:
             target_cs = self.modeler.oeditor.GetActiveCoordinateSystem()
@@ -1235,7 +1241,7 @@ class Hfss(FieldAnalysis3D, object):
 
         """
         if self.solution_type != "SBR+":
-            self.add_error_message("This Boundary only applies to SBR+ Solution")
+            self.logger.error("This Boundary only applies to SBR+ Solution")
             return False
         id = 0
         props = OrderedDict({})
@@ -1874,6 +1880,7 @@ class Hfss(FieldAnalysis3D, object):
 
         """
         self.odesign.SARSetup(TissueMass, MaterialDensity, Tissue_object_List_ID, voxel_size, Average_SAR_method)
+        self.logger.info("SAR Settings correctly applied.")
         return True
 
     @aedt_exception_handler
@@ -1903,6 +1910,7 @@ class Hfss(FieldAnalysis3D, object):
             vars.append(GPAXis)
 
         self.omodelsetup.CreateOpenRegion(vars)
+        self.logger.info("Open Region correctly created.")
         return True
 
     @aedt_exception_handler
@@ -3449,7 +3457,7 @@ class Hfss(FieldAnalysis3D, object):
 
         """
         if self.solution_type != "SBR+":
-            self.add_error_message("Method Applies only to SBR+ Solution.")
+            self.logger.error("Method Applies only to SBR+ Solution.")
             return False, False
         if not setup_name:
             setup_name = generate_unique_name("ChirpI")
@@ -3463,7 +3471,7 @@ class Hfss(FieldAnalysis3D, object):
                     time_var = var_name
                     break
             if not time_var:
-                self.add_error_message("No Time Variable Found. Setup or explicitly assign to the method.")
+                self.logger.error("No Time Variable Found. Setup or explicitly assign to the method.")
                 raise ValueError("No Time Variable Found")
         setup = self._create_sbr_doppler_setup(
             "ChirpI",
@@ -3546,7 +3554,7 @@ class Hfss(FieldAnalysis3D, object):
 
         """
         if self.solution_type != "SBR+":
-            self.add_error_message("Method Applies only to SBR+ Solution.")
+            self.logger.error("Method Applies only to SBR+ Solution.")
             return False, False
         if not setup_name:
             setup_name = generate_unique_name("ChirpIQ")
@@ -3637,7 +3645,7 @@ class Hfss(FieldAnalysis3D, object):
 
         """
         if self.solution_type != "SBR+":
-            self.add_error_message("Method Applies only to SBR+ Solution.")
+            self.logger.error("Method Applies only to SBR+ Solution.")
             return False, False
         if not setup_name:
             setup_name = generate_unique_name("PulseSetup")
@@ -3737,7 +3745,7 @@ class Hfss(FieldAnalysis3D, object):
         """
         self.modeler.primitives._initialize_multipart()
         if self.solution_type != "SBR+":
-            self.add_error_message("Method Applies only to SBR+ Solution.")
+            self.logger.error("Method Applies only to SBR+ Solution.")
             return False
         use_motion = abs(speed) > 0.0
         r = Radar(
@@ -3770,7 +3778,7 @@ class Hfss(FieldAnalysis3D, object):
         bool
         """
         if self.solution_type != "SBR+":
-            self.add_error_message("Method Applies only to SBR+ Solution.")
+            self.logger.error("Method Applies only to SBR+ Solution.")
             return False
         current_conformance = "Disable"
         if conformance:
@@ -3786,4 +3794,5 @@ class Hfss(FieldAnalysis3D, object):
             arg.append("Power Fraction:=")
             arg.append(str(power_fraction))
         self.oboundary.EditGlobalCurrentSourcesOption(arg)
+        self.logger.info("SBR+ current source options correctly applied.")
         return True

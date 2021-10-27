@@ -1,7 +1,7 @@
 import random
 import warnings
 from collections import defaultdict
-
+import os
 from ..generic.general_methods import aedt_exception_handler, retry_ntimes
 from .Object3d import CircuitComponent
 
@@ -47,11 +47,6 @@ class CircuitComponents(object):
         self._currentId = 0
         self.components = defaultdict(CircuitComponent)
         pass
-
-    @property
-    def _messenger(self):
-        """_messenger."""
-        return self._app._messenger
 
     @property
     def version(self):

@@ -583,7 +583,6 @@ class Design(object):
         self._design_type = design_type
         self.oproject = project_name
         self.odesign = design_name
-
         self.oimport_export = self._desktop.GetTool("ImportExport")
         self.odefinition_manager = self._oproject.GetDefinitionManager()
         self.omaterial_manager = self.odefinition_manager.GetManager("Material")
@@ -641,7 +640,7 @@ class Design(object):
         start = time.time()
         if not self._project_dictionary:
             self._project_dictionary = load_entire_aedt_file(self.project_file)
-            self._messenger.add_info_message("AEDT Load time %s", (time.time() - start))
+            self._logger.info("AEDT Load time {}".format(time.time() - start))
         return self._project_dictionary
 
     @property
@@ -1153,16 +1152,21 @@ class Design(object):
         --------
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
-        >>> hfss.add_info_message("Global info message", "Global")
-        >>> hfss.add_info_message("Project info message", "Project")
-        >>> hfss.add_info_message("Design info message")
+        >>> hfss.logger.info("Global info message")
+        >>> hfss.logger.project.info("Project info message")
+        >>> hfss.logger.design.info("Design info message")
 
         """
         warnings.warn(
             "`add_info_message` is deprecated. Use `logger.design_logger.info` instead.",
             DeprecationWarning,
         )
-        self._messenger.add_info_message(message_text, message_type)
+        if message_type.lower() == "project":
+            self.logger.project.info(message_text)
+        elif message_type.lower() == "design":
+            self.logger.design.info(message_text)
+        else:
+            self.logger.info(message_text)
         return True
 
     @aedt_exception_handler
@@ -1191,9 +1195,9 @@ class Design(object):
         --------
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
-        >>> hfss.add_warning_message("Global warning message", "Global")
-        >>> hfss.add_warning_message("Project warning message", "Project")
-        >>> hfss.add_warning_message("Design warning message")
+        >>> hfss.logger.warning("Global warning message", "Global")
+        >>> hfss.logger.project.warning("Project warning message", "Project")
+        >>> hfss.logger.design.warning("Design warning message")
 
         """
         warnings.warn(
@@ -1201,7 +1205,12 @@ class Design(object):
             DeprecationWarning,
         )
 
-        self._messenger.add_warning_message(message_text, message_type)
+        if message_type.lower() == "project":
+            self.logger.project.warning(message_text)
+        elif message_type.lower() == "design":
+            self.logger.design.warning(message_text)
+        else:
+            self.logger.warning(message_text)
         return True
 
     @aedt_exception_handler
@@ -1230,9 +1239,9 @@ class Design(object):
         --------
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
-        >>> hfss.add_error_message("Global error message", "Global")
-        >>> hfss.add_error_message("Project error message", "Project")
-        >>> hfss.add_error_message("Design error message")
+        >>> hfss.logger.error("Global error message", "Global")
+        >>> hfss.logger.project.error("Project error message", "Project")
+        >>> hfss.logger.design.error("Design error message")
 
         """
         warnings.warn(
@@ -1240,7 +1249,12 @@ class Design(object):
             DeprecationWarning,
         )
 
-        self._messenger.add_error_message(message_text, message_type)
+        if message_type.lower() == "project":
+            self.logger.project.error(message_text)
+        elif message_type.lower() == "design":
+            self.logger.design.error(message_text)
+        else:
+            self.logger.error(message_text)
         return True
 
     @property

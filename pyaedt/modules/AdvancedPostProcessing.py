@@ -962,7 +962,7 @@ class PostProcessor(Post):
     @aedt_exception_handler
     def export_model_obj(self):
         """Export the model."""
-        assert self._app._aedt_version >= "2021.2", self._messenger.add_error_message(
+        assert self._app._aedt_version >= "2021.2", self.logger.error(
             "Object is supported from AEDT 2021 R2."
         )
         project_path = self._app.project_path
@@ -1038,7 +1038,7 @@ class PostProcessor(Post):
         list
             List of plot files.
         """
-        assert self._app._aedt_version >= "2021.2", self._messenger.add_error_message(
+        assert self._app._aedt_version >= "2021.2", self.logger.error(
             "Object is supported from AEDT 2021 R2."
         )
         files = [self.export_model_obj()]
@@ -1097,13 +1097,12 @@ class PostProcessor(Post):
             ``"jpg"``.
         view : str, optional
             View to export. Options are ``isometric``, ``top``, ``front``,
-             ``left``, ``all``.. The default is ``"iso"``. If
-            ``"all"``, all views are exported.
+             ``left``, ``all``.. The default is ``"iso"``. If ``"all"``, all views are exported.
         plot_label : str, optional
             Type of the plot. The default is ``"Temperature"``.
         plot_folder : str, optional
-            Plot folder to update before exporting the
-            field. The default is ``None``, in which case all plot
+            Plot folder to update before exporting the field.
+            The default is ``None``, in which case all plot
             folders are updated.
         off_screen : bool, optional
             Export Image without plotting on UI.

@@ -59,9 +59,10 @@ class TestClass:
                 pass
 
     def teardown_class(self):
+        self.aedtapp._desktop.ClearMessages("", "", 3)
         for proj in self.aedtapp.project_list:
             try:
-                self.aedtapp.close_project(proj)
+                self.aedtapp.close_project(proj, False)
             except:
                 pass
         self.local_scratch.remove()
@@ -86,7 +87,7 @@ class TestClass:
         assert "usb_P_pcb" in pin_names
 
         hfss_comp_id, hfss_comp = self.aedtapp.modeler.components.add_subcircuit_hfss_link(
-            "uUSB", pin_names, source_project_path, src_project_name, src_design_name
+            "uUSB", pin_names, source_project_path, src_design_name
         )
         assert hfss_comp_id == 87
         assert hfss_comp == "CompInst@uUSB;87;3"

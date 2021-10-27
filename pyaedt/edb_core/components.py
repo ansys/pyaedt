@@ -74,9 +74,9 @@ class Components(object):
         self._init_parts()
 
     @property
-    def logger(self):
-        """Messenger."""
-        return self._pedb._logger
+    def _logger(self):
+        """Logger."""
+        return self._pedb.logger
 
     @property
     def _edb(self):
@@ -153,7 +153,7 @@ class Components(object):
 
         """
         self._cmp = {}
-        self._logger.add_info_message("Refreshing the Components dictionary.")
+        self._logger.info("Refreshing the Components dictionary.")
         if self._active_layout:
             for cmp in self._active_layout.Groups:
                 if cmp.GetType().ToString() == "Ansys.Ansoft.Edb.Cell.Hierarchy.Component":
@@ -585,7 +585,7 @@ class Components(object):
                 if edb_cmp is not None:
                     edb_cmp.Delete()
                     deleted_comps.append(comp)
-                    self._pedb._logger.add_info_message("Component {} deleted".format(comp))
+                    self._pedb._logger.info("Component {} deleted".format(comp))
         for el in deleted_comps:
             del self.components[el]
         return deleted_comps

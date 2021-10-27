@@ -208,7 +208,6 @@ if os.name != "posix" and "PYAEDT_CI_NO_EXAMPLES" not in os.environ:
             #                         "set_plot_theme('document')"),
         }
 
-
 # -- Options for HTML output -------------------------------------------------
 html_show_sourcelink = True
 html_theme = "pyansys_sphinx_theme"

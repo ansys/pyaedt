@@ -21,7 +21,8 @@ class TestClass:
             self.test_project = self.local_scratch.copyfile(example_project)
 
     def teardown_class(self):
-        assert self.aedtapp.close_project(self.aedtapp.project_name)
+        self.aedtapp._desktop.ClearMessages("", "", 3)
+        assert self.aedtapp.close_project(self.aedtapp.project_name, saveproject=False)
         self.local_scratch.remove()
         gc.collect()
 

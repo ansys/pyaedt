@@ -1,6 +1,5 @@
 import gc
 import os
-import time
 # Import required modules
 from pyaedt import Hfss
 from pyaedt.generic.filesystem import Scratch
@@ -18,10 +17,7 @@ test_project_name = "Cassegrain"
 
 class TestClass:
     def setup_class(self):
-        timeout = 4
-        while gc.collect() != 0 and timeout > 0:
-            time.sleep(0.5)
-            timeout -= 0.5
+        gc.collect()
         # set a scratch directory and the environment / test data
         with Scratch(scratch_path) as self.local_scratch:
             example_project = os.path.join(local_path, "example_models", test_project_name + ".aedt")
@@ -30,6 +26,7 @@ class TestClass:
             self.source = Hfss(projectname=test_project_name, designname="feeder")
 
     def teardown_class(self):
+        self.aedtapp._desktop.ClearMessages("", "", 3)
         assert self.source.close_project(self.source.project_name, False)
         self.local_scratch.remove()
 

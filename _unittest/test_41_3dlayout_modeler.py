@@ -29,11 +29,8 @@ class TestClass:
                 self.aedtapp = None
 
     def teardown_class(self):
-        for proj in self.aedtapp.project_list:
-            try:
-                self.aedtapp.close_project(proj)
-            except:
-                pass
+        self.aedtapp._desktop.ClearMessages("", "", 3)
+        self.aedtapp.close_project(self.aedtapp.project_name, saveproject=False)
         gc.collect()
 
     def test_01_creatematerial(self):

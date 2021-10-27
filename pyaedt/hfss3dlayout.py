@@ -36,7 +36,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
     specified_version : str, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
-    NG : bool, optional
+    non_graphical : bool, optional
         Whether to launch AEDT in the non-graphical mode. The default
         is``False``, in which case AEDT is launched in the graphical mode.
     new_desktop_session : bool, optional
@@ -981,7 +981,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         """
         if interpolation_algorithm not in ["auto", "lin", "shadH", "shadNH"]:
-            self.add_error_message("Wrong Interpolation Algorithm")
+            self.logger.error("Wrong Interpolation Algorithm")
             return False
         arg = ["NAME:CoSimOptions", "Override:="]
 
