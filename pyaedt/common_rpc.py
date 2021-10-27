@@ -44,6 +44,7 @@ def server(port=18000):
                        protocol_config={'sync_request_timeout': None, 'allow_public_attrs': True, 'allow_setattr': True,
                                         'safe_attrs': safe_attrs,
                                         'allow_delattr': True})
+    print("Starting Server on Port {} on {}.".format(port, hostname))
     t.start()
 
 

@@ -12,9 +12,8 @@ try:
     from pyaedt.rmxprt import Rmxprt
     from pyaedt.simplorer import Simplorer
     from pyaedt.emit import Emit
-    from pyaedt.aedt_logger import AedtLogger
     from pyaedt.desktop import Desktop
-except:
+except ImportError:
     from pyaedt.hfss3dlayout import Hfss3dLayout
     from pyaedt.hfss import Hfss
     from pyaedt.circuit import Circuit
@@ -27,11 +26,10 @@ except:
     from pyaedt.rmxprt import Rmxprt
     from pyaedt.simplorer import Simplorer
     from pyaedt.emit import Emit
-    from pyaedt.aedt_logger import AedtLogger
     from pyaedt.desktop import Desktop
 
 
-design_types = {
+app_map = {
     "Maxwell 2D": Maxwell2d,
     "Maxwell 3D": Maxwell3d,
     "Twin Builder": Simplorer,
@@ -44,6 +42,9 @@ design_types = {
     "Rmxprt": Rmxprt,
     "HFSS 3D Layout Design": Hfss3dLayout,
     "EMIT": Emit,
+    "EDB": Edb,
+    "Desktop": Desktop,
+    "Siwave": Siwave
 }
 
 def get_pyaedt_app(project_name=None, design_name=None):
@@ -80,8 +81,8 @@ def get_pyaedt_app(project_name=None, design_name=None):
         if not oDesign:
             raise AttributeError("No Design Present.")
         design_type = oDesign.GetDesignType()
-        if design_type in list(design_types.keys()):
+        if design_type in list(app_map.keys()):
             version = main.oDesktop.GetVersion().split(".")
             v = ".".join([version[0], version[1]])
-            return design_types[design_type](project_name, design_name, specified_version=v)
+            return app_map[design_type](project_name, design_name, specified_version=v)
     return None
