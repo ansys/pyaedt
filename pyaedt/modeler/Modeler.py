@@ -1493,6 +1493,8 @@ class GeometryModeler(Modeler, object):
         for el in objtosplit:
             if isinstance(el, int) and el in self.primitives.objects:
                 objnames.append(self.primitives.objects[el].name)
+            elif isinstance(el, int):
+                objnames.append(el)
             elif isinstance(el, Object3d):
                 objnames.append(el.name)
             elif isinstance(el, FacePrimitive):
