@@ -1,5 +1,8 @@
 # Import exception handling here due to:
 # https://github.com/pyansys/PyAEDT/pull/243
+import os
+os.environ["SF6694_NON_GRAPHICAL_COMMAND_EXECUTION"] = "1"
+os.environ["SF159726_SCRIPTOBJECT"] = "1"
 from pyaedt.generic.design_types import (Hfss3dLayout,
                                          Hfss,
                                          Circuit,

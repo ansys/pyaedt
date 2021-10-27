@@ -39,7 +39,7 @@ class PyaedtServiceWindows(rpyc.Service):
             except:
                 pass
 
-    def exposed_run_script(self, script, aedt_version="2021.1", ansysem_path=None):
+    def exposed_run_script(self, script, aedt_version="2021.1", ansysem_path=None, non_graphical=True):
         """Run script on AEDT in the server.
 
         Parameters
@@ -50,6 +50,8 @@ class PyaedtServiceWindows(rpyc.Service):
             Aedt Version to run.
         ansysem_path : str, optional
             Full path to AEDT Installation folder.
+        non_graphical : bool, optional
+            Set AEDT to run either in graphical or non graphical. Default is non-grahical
 
         Returns
         -------
@@ -69,15 +71,17 @@ class PyaedtServiceWindows(rpyc.Service):
         if env_path(aedt_version) or ansysem_path:
             if not ansysem_path:
                 ansysem_path = env_path(aedt_version)
-            command = os.path.join(ansysem_path, executable) + " -RunScriptAndExit " + script_file
+            ng_feature = ""
+            if non_graphical:
+                ng_feature = "-features=SF6694_NON_GRAPHICAL_COMMAND_EXECUTION -ng "
+            command = os.path.join(ansysem_path, executable) + ng_feature + " -RunScriptAndExit " + script_file
             p = subprocess.Popen(command)
             p.wait()
-            print("Command Executed.")
+            return "Script Executed."
 
         else:
-            print("Ansys EM not found or wrong AEDT Version.")
+            return "Ansys EM not found or wrong AEDT Version."
 
-        pass
 
     def exposed_edb(self, edbpath=None, cellname=None, isreadonly=False, edbversion="2021.1", use_ppe=False, ):
         """Starts a new Hfss session.
@@ -106,7 +110,7 @@ class PyaedtServiceWindows(rpyc.Service):
         return aedtapp
 
     def exposed_hfss(self, projectname=None, designname=None, solution_type=None, setup_name=None,
-                     specified_version=None, non_graphical=False):
+                     specified_version=None, non_graphical=True):
         """Starts a new Hfss session.
 
         Parameters
@@ -132,7 +136,7 @@ class PyaedtServiceWindows(rpyc.Service):
             the active version or latest installed version is used.
         non_graphical : bool, optional
             Whether to launch AEDT in the non-graphical mode. The default
-            is``False``, in which case AEDT is launched in the graphical mode.
+            is``True``, in which case AEDT is launched in the non graphical mode.
 
         Returns
         -------
@@ -149,7 +153,7 @@ class PyaedtServiceWindows(rpyc.Service):
         return aedtapp
 
     def exposed_hfss3dlayout(self, projectname=None, designname=None, solution_type=None, setup_name=None,
-                     specified_version=None, non_graphical=False):
+                     specified_version=None, non_graphical=True):
         """Starts a new Hfss3dLayout session.
 
         Parameters
@@ -175,7 +179,7 @@ class PyaedtServiceWindows(rpyc.Service):
             the active version or latest installed version is used.
         non_graphical : bool, optional
             Whether to launch AEDT in the non-graphical mode. The default
-            is``False``, in which case AEDT is launched in the graphical mode.
+            is``True``, in which case AEDT is launched in the non graphical mode.
 
         Returns
         -------
@@ -189,7 +193,7 @@ class PyaedtServiceWindows(rpyc.Service):
         return aedtapp
 
     def exposed_maxwell3d(self, projectname=None, designname=None, solution_type=None, setup_name=None,
-                          specified_version=None, non_graphical=False):
+                          specified_version=None, non_graphical=True):
         """Starts a new Maxwell3d session.
 
         Parameters
@@ -215,7 +219,7 @@ class PyaedtServiceWindows(rpyc.Service):
             the active version or latest installed version is used.
         non_graphical : bool, optional
             Whether to launch AEDT in the non-graphical mode. The default
-            is``False``, in which case AEDT is launched in the graphical mode.
+            is``True``, in which case AEDT is launched in the non graphical mode.
 
         Returns
         -------
@@ -230,7 +234,7 @@ class PyaedtServiceWindows(rpyc.Service):
         return aedtapp
 
     def exposed_maxwell2d(self, projectname=None, designname=None, solution_type=None, setup_name=None,
-                          specified_version=None, non_graphical=False):
+                          specified_version=None, non_graphical=True):
         """Starts a new Maxwell32 session.
 
         Parameters
@@ -256,7 +260,7 @@ class PyaedtServiceWindows(rpyc.Service):
             the active version or latest installed version is used.
         non_graphical : bool, optional
             Whether to launch AEDT in the non-graphical mode. The default
-            is``False``, in which case AEDT is launched in the graphical mode.
+            is``True``, in which case AEDT is launched in the non graphical mode.
 
         Returns
         -------
@@ -271,7 +275,7 @@ class PyaedtServiceWindows(rpyc.Service):
         return aedtapp
 
     def exposed_icepak(self, projectname=None, designname=None, solution_type=None, setup_name=None,
-                       specified_version=None, non_graphical=False):
+                       specified_version=None, non_graphical=True):
         """Starts a new Icepak session.
 
         Parameters
@@ -297,7 +301,7 @@ class PyaedtServiceWindows(rpyc.Service):
             the active version or latest installed version is used.
         non_graphical : bool, optional
             Whether to launch AEDT in the non-graphical mode. The default
-            is``False``, in which case AEDT is launched in the graphical mode.
+            is``True``, in which case AEDT is launched in the non graphical mode.
 
         Returns
         -------
@@ -312,7 +316,7 @@ class PyaedtServiceWindows(rpyc.Service):
         return aedtapp
 
     def exposed_circuit(self, projectname=None, designname=None, solution_type=None, setup_name=None,
-                        specified_version=None, non_graphical=False):
+                        specified_version=None, non_graphical=True):
         """Starts a new Circuit session.
 
         Parameters
@@ -338,7 +342,7 @@ class PyaedtServiceWindows(rpyc.Service):
             the active version or latest installed version is used.
         non_graphical : bool, optional
             Whether to launch AEDT in the non-graphical mode. The default
-            is``False``, in which case AEDT is launched in the graphical mode.
+            is``True``, in which case AEDT is launched in the non graphical mode.
 
         Returns
         -------
@@ -353,7 +357,7 @@ class PyaedtServiceWindows(rpyc.Service):
         return aedtapp
 
     def exposed_mechanical(self, projectname=None, designname=None, solution_type=None, setup_name=None,
-                           specified_version=None, non_graphical=False):
+                           specified_version=None, non_graphical=True):
         """Starts a new Mechanical session.
 
         Parameters
@@ -379,7 +383,7 @@ class PyaedtServiceWindows(rpyc.Service):
             the active version or latest installed version is used.
         non_graphical : bool, optional
             Whether to launch AEDT in the non-graphical mode. The default
-            is``False``, in which case AEDT is launched in the graphical mode.
+            is``True``, in which case AEDT is launched in the non graphical mode.
 
         Returns
         -------
@@ -394,7 +398,7 @@ class PyaedtServiceWindows(rpyc.Service):
         return aedtapp
 
     def exposed_q3d(self, projectname=None, designname=None, solution_type=None, setup_name=None,
-                    specified_version=None, non_graphical=False):
+                    specified_version=None, non_graphical=True):
         """Starts a new Q3d session.
 
         Parameters
@@ -420,7 +424,7 @@ class PyaedtServiceWindows(rpyc.Service):
             the active version or latest installed version is used.
         non_graphical : bool, optional
             Whether to launch AEDT in the non-graphical mode. The default
-            is``False``, in which case AEDT is launched in the graphical mode.
+            is``True``, in which case AEDT is launched in the non graphical mode.
 
         Returns
         -------
@@ -435,7 +439,7 @@ class PyaedtServiceWindows(rpyc.Service):
         return aedtapp
 
     def exposed_q2d(self, projectname=None, designname=None, solution_type=None, setup_name=None,
-                    specified_version=None, non_graphical=False):
+                    specified_version=None, non_graphical=True):
         """Starts a new Q2d session.
 
         Parameters
@@ -461,7 +465,7 @@ class PyaedtServiceWindows(rpyc.Service):
             the active version or latest installed version is used.
         non_graphical : bool, optional
             Whether to launch AEDT in the non-graphical mode. The default
-            is``False``, in which case AEDT is launched in the graphical mode.
+            is``True``, in which case AEDT is launched in the non graphical mode.
 
         Returns
         -------
@@ -491,7 +495,7 @@ class PyaedtServiceLinux(rpyc.Service):
     def exposed_close_connection(self):
         return True
 
-    def exposed_run_script(self, script,  aedt_version="2021.1", ansysem_path=None):
+    def exposed_run_script(self, script,  aedt_version="2021.1", ansysem_path=None, non_graphical=True):
         """Run script on AEDT in the server.
 
         Parameters
@@ -502,6 +506,8 @@ class PyaedtServiceLinux(rpyc.Service):
             Aedt Version to run.
         ansysem_path : str, optional
             Full path to AEDT Installation folder.
+        non_graphical : bool, optional
+            Set AEDT to run either in graphical or non graphical. Default is non-grahical
 
         Returns
         -------
@@ -525,15 +531,17 @@ class PyaedtServiceLinux(rpyc.Service):
         if env_path(aedt_version) or ansysem_path:
             if not ansysem_path:
                 ansysem_path = env_path(aedt_version)
-            command = [os.path.join(ansysem_path, executable), "-RunScriptAndExit", script_file]
+            if non_graphical:
+                ng_feature = "-features=SF6694_NON_GRAPHICAL_COMMAND_EXECUTION"
+                command = [os.path.join(ansysem_path, executable), ng_feature, "-ng", "-RunScriptAndExit", script_file]
+            else:
+                command = [os.path.join(ansysem_path, executable),  "-RunScriptAndExit", script_file]
             p = subprocess.Popen(command)
             p.wait()
-            return "Command Executed."
+            return "Script Executed."
 
         else:
             return "Ansys EM not found or wrong AEDT Version."
-
-        return "Command Executed."
 
 
 class GlobalService(rpyc.Service):
