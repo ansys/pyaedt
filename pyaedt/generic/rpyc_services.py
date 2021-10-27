@@ -82,7 +82,6 @@ class PyaedtServiceWindows(rpyc.Service):
         else:
             return "Ansys EM not found or wrong AEDT Version."
 
-
     def exposed_edb(self, edbpath=None, cellname=None, isreadonly=False, edbversion="2021.1", use_ppe=False, ):
         """Starts a new Hfss session.
 

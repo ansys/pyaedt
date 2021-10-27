@@ -25,8 +25,6 @@ except:
     inside_desktop = False
 
 
-
-
 class MethodNotSupportedError(Exception):
     """ """
 
