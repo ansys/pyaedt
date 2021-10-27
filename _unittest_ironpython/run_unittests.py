@@ -33,6 +33,7 @@ def discover_and_run(start_dir, pattern=None):
         f.write("Test started {}\n".format(datetime.now()))
         runner = unittest.TextTestRunner(f, verbosity=2)
         result = runner.run(test_suite)
+        f.write("ERROR")
         log_content = f.readlines()
     return log_content
 

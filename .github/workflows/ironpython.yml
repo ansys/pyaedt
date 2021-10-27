@@ -31,8 +31,8 @@ jobs:
           }
 
           $log_content = get-content .\_unittest_ironpython\runner_unittest.log
-          $test_error = Select-String -Path .\_unittest_ironpython\runner_unittest.log -Pattern "ERROR"
-          $test_fail = Select-String -Path .\_unittest_ironpython\runner_unittest.log -Pattern "FAIL"
+          $test_error = Select-String -Path .\_unittest_ironpython\runner_unittest.log -Pattern "... ERROR"
+          $test_fail = Select-String -Path .\_unittest_ironpython\runner_unittest.log -Pattern "... FAIL"
           Write-Output $log_content
           if ( $Timeout  -eq 0)
           {
