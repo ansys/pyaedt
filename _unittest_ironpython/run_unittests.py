@@ -34,7 +34,7 @@ def discover_and_run(start_dir, pattern=None):
         runner = unittest.TextTestRunner(f, verbosity=2)
         result = runner.run(test_suite)
 
-
+discover_and_run(run_dir, pattern=test_filter)
 success_file = os.path.join(run_dir, "tests_succeeded.log")
 with open(success_file, "w") as f:
     f.write("ok")
