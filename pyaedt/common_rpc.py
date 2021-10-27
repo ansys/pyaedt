@@ -50,7 +50,7 @@ def server(port=18000):
     t.start()
 
 
-def client(server_name, server_port=18000, ansysem_path=None):
+def client(server_name, server_port=18000, ansysem_path=None, non_graphical=False):
     """Starts an rpyc client and connects to a remote machine.
 
     Parameters
@@ -59,6 +59,11 @@ def client(server_name, server_port=18000, ansysem_path=None):
         name of the remote machine to connect.
     server_port : int, optional
         port on which rpyc_server is running
+    ansysem_path : str
+        Full path to AEDT install folder. This setting is neeeded for Ironpython on Linux connections only.
+    non_graphical : bool
+        Either to start AEDT in
+        graphical or non-graphical mode. This setting is neeeded for Ironpython on Linux connections only.
 
     Returns
     -------
@@ -86,8 +91,8 @@ def client(server_name, server_port=18000, ansysem_path=None):
 
     """
     c = rpyc.connect(server_name, server_port, config={'sync_request_timeout': None})
-    port = c.root.start_service(server_name, None)
-    if os.name=="posix" and is_ironpython:
+    port = c.root.start_service(server_name, ansysem_path, non_graphical)
+    if os.name == "posix" and is_ironpython:
         if port:
             time.sleep(30)
             timeout = 200
