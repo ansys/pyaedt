@@ -241,7 +241,7 @@ class Edb(object):
         --------
         >>> from pyaedt import Edb
         >>> edb = Edb()
-        >>> edb.logger.info("Design info message")
+        >>> edb.add_info_message("Design info message")
 
         """
         self.logger.info(message_text)
@@ -267,7 +267,7 @@ class Edb(object):
         --------
         >>> from pyaedt import Edb
         >>> edb = Edb()
-        >>> edb.logger.warning("Design warning message")
+        >>> edb.add_warning_message("Design warning message")
 
         """
         self.logger.warning(message_text)
@@ -294,7 +294,7 @@ class Edb(object):
         --------
         >>> from pyaedt import Edb
         >>> edb = Edb()
-        >>> edb.logger.error("Design error message")
+        >>> edb.add_error_message("Design error message")
 
         """
         self.logger.error(message_text)

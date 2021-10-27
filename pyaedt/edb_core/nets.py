@@ -4,7 +4,7 @@ from pyaedt.generic.general_methods import aedt_exception_handler, generate_uniq
 
 
 class EdbNets(object):
-    """Manages EDB functionalities  for nets."""
+    """Manages EDB functionalities for nets."""
 
     def __init__(self, p_edb):
         self._pedb = p_edb
@@ -40,9 +40,9 @@ class EdbNets(object):
         return self._pedb.edblib.Layout.PadStackMethods
 
     @property
-    def logger(self):
-        """ """
-        return self._pedb._logger
+    def _logger(self):
+        """Edb logger."""
+        return self._pedb.logger
 
     @property
     def _nets_methods(self):
