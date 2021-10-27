@@ -31,6 +31,8 @@ jobs:
           }
 
           $log_content = get-content .\_unittest_ironpython\runner_unittest.log
+          $error = Select-String -Path .\_unittest_ironpython\runner_unittest.log -Pattern "ERROR"
+          $fail = Select-String -Path .\_unittest_ironpython\runner_unittest.log -Pattern "FAIL"
           Write-Output $log_content
           if ( $Timeout  -eq 0)
           {
@@ -38,10 +40,10 @@ jobs:
           }
           else
           {
-            if (($log_content -contains "ERROR") -or ($log_content -contains "FAIL"))
+            if (($error -eq $null) -and ($fail -eq $null))
             {
-            exit 1
-            }
             exit 0
+            }
+            exit 1
           }
 
