@@ -37,10 +37,6 @@ class TestClass:
         gc.collect()
 
     def test_00_export_ipc2581(self):
-        from pyaedt import is_ironpython
-        if is_ironpython:
-            test_ci_cd = 3
-            assert test_ci_cd == 4
         ipc_path = os.path.join(self.local_scratch.path, "test.xml")
         self.edbapp.export_to_ipc2581(ipc_path)
         assert os.path.exists(ipc_path)
