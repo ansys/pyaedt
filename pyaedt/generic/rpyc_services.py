@@ -4,12 +4,17 @@ import subprocess
 import tempfile
 import threading
 import site
-import rpyc
-from rpyc import ThreadedServer
+
 import sys
 from pyaedt import generate_unique_name
 from pyaedt.generic.general_methods import env_path
-
+from pyaedt import is_ironpython
+if is_ironpython:
+    import subprocessdotnet as subprocess
+else:
+    import subprocess
+import rpyc
+from rpyc import ThreadedServer, OneShotServer
 
 class PyaedtServiceWindows(rpyc.Service):
     """Server Pyaedt rpyc Service.
@@ -558,16 +563,44 @@ class GlobalService(rpyc.Service):
         # (to finalize the service, if needed)
         pass
 
-    def exposed_start_service(self, hostname):
+    def exposed_start_service(self, hostname, ansysem_path=None, non_graphical=False):
         """Starts a new Pyaedt Service and start listen.
 
         Returns
         -------
-        int
-            port number
+        hostname : str
+            host name
         """
         port = random.randint(18001, 20000)
-        if os.name == "posix":
+        if is_ironpython and os.name == "posix":
+            if ansysem_path:
+                executable = "ansysedt"
+                pyaedt_path = os.path.normpath(os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", ".."))
+                script_file = os.path.normpath(
+                    os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "misc", "pyaedt_client_linux.py"))
+                dest_file = os.path.join(tempfile.gettempdir(),"pyaedt_client_linux.py")
+                print(dest_file)
+                with open(dest_file,"w") as f:
+                    f.write("port={}\n".format(port))
+                    f.write("hostname='{}'\n".format(hostname))
+                    f.write("pyaedt_path='{}'\n".format(pyaedt_path))
+                    with open(script_file, "r") as f1:
+                        lines = f1.readlines()
+                        for line in lines:
+                            f.write(line)
+                if non_graphical:
+                    ng_feature = "-features=SF6694_NON_GRAPHICAL_COMMAND_EXECUTION"
+                    command = [os.path.join(ansysem_path, executable), ng_feature, "-ng", "-RunScriptAndExit",
+                               dest_file]
+                else:
+                    command = [os.path.join(ansysem_path, executable), "-RunScriptAndExit", dest_file]
+                print(command)
+                subprocess.Popen(command)
+                return port
+            else:
+                return "Error. Ansys EM Path has to be provided"
+
+        elif os.name == "posix":
             t = threading.Thread(target=ThreadedServer(PyaedtServiceLinux, hostname=hostname, port=port,
                                  protocol_config={'sync_request_timeout': None, 'allow_public_attrs': True,
                                                   'allow_setattr': True, 'allow_delattr': True}).start)

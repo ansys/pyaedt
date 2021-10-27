@@ -1,5 +1,6 @@
 import sys
 from collections import defaultdict
+import warnings
 
 from pyaedt.generic.general_methods import aedt_exception_handler, is_ironpython
 from pyaedt.modeler.Object3d import Padstack, Components3DLayout, Geometries3DLayout, Pins3DLayout, Nets3DLayout, _uname
@@ -7,11 +8,14 @@ from pyaedt.modeler.Primitives import default_materials
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 import pkgutil
 
-modules = [tup[1] for tup in pkgutil.iter_modules()]
-if "clr" in modules or is_ironpython:
+# modules = [tup[1] for tup in pkgutil.iter_modules()]
+# if "clr" in modules or is_ironpython:
+try:
     import clr
     from System import String
     import System
+except ImportError:
+    warning.warns("Pythonnet has to be installed to run Pyaedt")
 
 
 class Primitives3DLayout(object):

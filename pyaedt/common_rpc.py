@@ -1,12 +1,14 @@
-import warnings
 import socket
 import os
-try:
-    import rpyc
-    from rpyc.utils.server import ThreadedServer
-except ImportError:
-    warnings.warn("rpyc is needed to run the service")
+import sys
+import time
 
+from pyaedt import is_ironpython
+if is_ironpython:
+    sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), "third_party","ironpython")))
+
+import rpyc
+from rpyc.utils.server import ThreadedServer
 from pyaedt.generic.rpyc_services import GlobalService
 
 
@@ -48,7 +50,7 @@ def server(port=18000):
     t.start()
 
 
-def client(server_name, server_port=18000):
+def client(server_name, server_port=18000, ansysem_path=None):
     """Starts an rpyc client and connects to a remote machine.
 
     Parameters
@@ -84,8 +86,22 @@ def client(server_name, server_port=18000):
 
     """
     c = rpyc.connect(server_name, server_port, config={'sync_request_timeout': None})
-    port = c.root.start_service(server_name)
-    return rpyc.connect(server_name, port, config={'sync_request_timeout': None})
+    port = c.root.start_service(server_name, None)
+    if os.name=="posix" and is_ironpython:
+        if port:
+            time.sleep(30)
+            timeout = 200
+            while timeout > 0:
+                c1 = rpyc.connect(server_name, port, config={'sync_request_timeout': None})
+                if c1:
+                    return c1
+                else:
+                    timeout -= 20
+            return "Error. No connection."
+        else:
+            return "Error. No connection."
+    else:
+        return rpyc.connect(server_name, port, config={'sync_request_timeout': None})
 
 
 def upload(localpath, remotepath, server_name, server_port=18000):
