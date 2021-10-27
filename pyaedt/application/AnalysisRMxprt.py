@@ -1,8 +1,8 @@
-from ..generic.general_methods import aedt_exception_handler
-from ..modeler.Model2D import ModelerRMxprt
-from .Analysis import Analysis
-from .Design import design_solutions
-from ..modules.PostProcessor import CircuitPostProcessor
+from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.modeler.Model2D import ModelerRMxprt
+from pyaedt.application.Analysis import Analysis
+from pyaedt.application.Design import design_solutions
+from pyaedt.modules.PostProcessor import CircuitPostProcessor
 
 
 class FieldAnalysisRMxprt(Analysis):

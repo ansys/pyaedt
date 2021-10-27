@@ -7,7 +7,7 @@ import warnings
 from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 
-from .EDB_Data import EDBPadstack
+from pyaedt.edb_core.EDB_Data import EDBPadstack
 
 try:
     from System import Array

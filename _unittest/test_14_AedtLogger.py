@@ -8,7 +8,7 @@ try:
 except ImportError:
     import _unittest_ironpython.conf_unittest as pytest
 
-from .conftest import is_ironpython
+from pyaedt.generic.general_methods import is_ironpython
 # Import required modules
 from pyaedt.aedt_logger import AedtLogger
 from pyaedt import Hfss

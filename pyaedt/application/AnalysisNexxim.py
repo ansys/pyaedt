@@ -1,9 +1,9 @@
-from ..generic.general_methods import aedt_exception_handler
-from ..modeler.Circuit import ModelerNexxim
-from ..modules.PostProcessor import CircuitPostProcessor
-from ..modules.SolveSetup import SetupCircuit
-from .Analysis import Analysis
-from .Design import solutions_settings
+from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.modeler.Circuit import ModelerNexxim
+from pyaedt.modules.PostProcessor import CircuitPostProcessor
+from pyaedt.modules.SolveSetup import SetupCircuit
+from pyaedt.application.Analysis import Analysis
+from pyaedt.application.Design import solutions_settings
 
 
 class FieldAnalysisCircuit(Analysis):
