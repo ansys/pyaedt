@@ -492,6 +492,7 @@ class Polyline(Object3d):
         assert len(new_objects) == 1
         new_name = new_objects[0]
         new_polyline = Polyline(self._primitives, src_object=self, name=new_name)
+        new_polyline._id = None
         self._primitives.objects[new_polyline.id] = new_polyline
         self._primitives.object_id_dict[new_name] = new_polyline.id
         return new_polyline
