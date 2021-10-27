@@ -30,10 +30,12 @@ jobs:
             $Timeout -= 1
           }
 
-          $log_content = get-content .\_unittest_ironpython\runner_unittest.log
+          # Print the runner log content.
+          get-content .\_unittest_ironpython\runner_unittest.log
+
           $test_error = Select-String -Path .\_unittest_ironpython\runner_unittest.log -Pattern "... ERROR"
           $test_fail = Select-String -Path .\_unittest_ironpython\runner_unittest.log -Pattern "... FAIL"
-          Write-Output $log_content
+
           if ( $Timeout  -eq 0)
           {
             exit 1
