@@ -5,6 +5,7 @@ This module provides all layer stackup functionalities for the Circuit and HFSS 
 """
 from __future__ import absolute_import
 from collections import defaultdict
+
 from pyaedt.generic.general_methods import aedt_exception_handler
 
 

@@ -397,7 +397,7 @@ def remove_project_lock(project_path):
     """Checks if an aedt project exists and try to remove the lock file.
 
     .. note::
-       This operation is risky because the file could be open in another Desktop instance.
+       This operation is risky because the file could be opened in another Desktop instance.
 
     Parameters
     ----------
