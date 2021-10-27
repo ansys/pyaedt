@@ -1227,9 +1227,9 @@ class GeometryOperators(object):
             sz += (z0 + z1) / 2 * L2
             sl += L
             sl2 += L2
-        xc = sx / sl
-        yc = sy / sl
-        zc = sz / sl2
+        xc = sx / sl if sl != 0.0 else x1
+        yc = sy / sl if sl != 0.0 else y1
+        zc = sz / sl2 if sl2 != 0.0 else z1
 
         return [xc, yc, zc]
 

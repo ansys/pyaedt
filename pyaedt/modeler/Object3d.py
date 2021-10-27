@@ -635,6 +635,7 @@ class Object3d(object):
             Inherited parent object.
         name : str
         """
+        self._id = None
         if name:
             self._m_name = name
         else:
@@ -936,11 +937,12 @@ class Object3d(object):
             ID of the object when successful, ``None`` otherwise.
 
         """
-        try:
-            get_id = self._primitives._oeditor.GetObjectIDByName(self._m_name)
-        except Exception as e:
-            return None
-        return get_id
+        if not self._id:
+            try:
+                self._id = self._primitives._oeditor.GetObjectIDByName(self._m_name)
+            except Exception as e:
+                return None
+        return self._id
 
     @property
     def object_type(self):

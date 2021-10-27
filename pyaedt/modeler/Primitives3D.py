@@ -788,6 +788,7 @@ class Primitives3D(Primitives, object):
         vArg1.append(varg2)
         new_object_name = self._oeditor.Insert3DComponent(vArg1)
         # TODO return an object
+        self.refresh_all_ids()
         return new_object_name
 
     @aedt_exception_handler

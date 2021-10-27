@@ -172,7 +172,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-        tuple
+        :class:`pyaedt.modeler.modeler_constants.CoordinateSystemAxis`
             Coordinate system axis constants tuple (.X, .Y, .Z).
 
         """
@@ -184,7 +184,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-        tuple
+        :class:`pyaedt.modeler.modeler_constants.CoordinateSystemPlane`
             Coordinate system plane constants tuple (.XY, .YZ, .XZ).
 
         """
