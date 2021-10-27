@@ -33,7 +33,6 @@ def discover_and_run(start_dir, pattern=None):
         f.write("Test started {}\n".format(datetime.now()))
         runner = unittest.TextTestRunner(f, verbosity=2)
         result = runner.run(test_suite)
-        f.write("test ... ERROR")
         log_content = f.readlines()
     return log_content
 
@@ -42,8 +41,8 @@ success_file = os.path.join(run_dir, "tests_succeeded.log")
 with open(success_file, "w") as f:
     if "ERROR" in log_content:
         f.write("error")
-    elif "FAILED" in log_content:
-        f.write("failed")
+    elif "FAIL" in log_content:
+        f.write("fail")
     else:
         f.write("ok")
 
