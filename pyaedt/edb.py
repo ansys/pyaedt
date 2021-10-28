@@ -314,6 +314,13 @@ class Edb(object):
                     self.base_path = main.oDesktop.GetExeDir()
                     sys.path.append(main.oDesktop.GetExeDir())
                     os.environ[env_value(self.edbversion)] = self.base_path
+                else:
+                    edb_path = os.getenv("PYAEDT_SERVER_AEDT_PATH")
+                    if edb_path:
+                        self.base_path = edb_path
+                        sys.path.append(edb_path)
+                        os.environ[env_value(self.edbversion)] = self.base_path
+
             clr.AddReferenceToFile("Ansys.Ansoft.Edb.dll")
             clr.AddReferenceToFile("Ansys.Ansoft.EdbBuilderUtils.dll")
             clr.AddReferenceToFile("EdbLib.dll")

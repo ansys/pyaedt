@@ -58,6 +58,26 @@ def server(port=18000, ansysem_path=None, non_graphical=False):
     t.start()
 
 
+def connect(server_name, aedt_client_port):
+    """Connect to an existing aedt server session.
+
+    Parameters
+    ----------
+    server_name : str
+        name of the remote machine to connect.
+    aedt_client_port : int
+        port on which rpyc_server is running inside AEDT
+
+    Returns
+    -------
+    rpyc object.
+    """
+    try:
+        return rpyc.connect(server_name, aedt_client_port, config={'sync_request_timeout': None})
+    except:
+        return "Error. No connection. Check if AEDT is running and if the port number is correct."
+
+
 def client(server_name, server_port=18000):
     """Starts an rpyc client and connects to a remote machine.
 
@@ -74,19 +94,25 @@ def client(server_name, server_port=18000):
 
     Examples
     --------
-    Windows Example.
+    Windows CPython Example.
 
     >>> from pyaedt.common_rpc import client
     >>> cl1 = client(server_name="server_name")
     >>> hfss = cl1.root.hfss(specified_version="2021.2")
 
-    Linux Example.
+    Linux Ironpython CPython Example.
+
+    >>> from pyaedt.common_rpc import client
+    >>> cl1 = client(server_name="server_name", ansysem_path="path/to/aedt/executable/folder", non_graphical=True)
+    >>> hfss = cl1.root.hfss()
+
+    Linux CPython Example.
     >>> from pyaedt.common_rpc import client
     >>> cl2 = client("my_server")
     >>> script_to_run = ["from pyaedt import Hfss", "hfss =Hfss()"]
     >>> cl2.root.run_script(script_to_run, ansysem_path = "/path/to/AnsysEMxxx/Linux64")
 
-    Linux Example 2.
+    Linux CPython Example 2.
     >>> from pyaedt.common_rpc import client
     >>> cl2 = client("my_server")
     >>> script_to_run = "/path/to/script.py"
@@ -98,19 +124,18 @@ def client(server_name, server_port=18000):
     if not port:
         return "Error Connecting to the Server. Check the server name and port and retry."
     if is_ironpython:
+        print("Connecting to new session of Electronics Desktop on port {}. Please Wait.".format(port))
         if port:
-            time.sleep(15)
+            time.sleep(20)
             timeout = 200
             while timeout > 0:
-                a_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                location = (server_name, port)
-                result_of_check = a_socket.connect_ex(location)
-                if result_of_check == 0:
+                try:
+                    c1 = rpyc.connect(server_name, port, config={'sync_request_timeout': None})
+                    if c1:
+                        return c1
+                except:
                     time.sleep(2)
-                    return rpyc.connect(server_name, port, config={'sync_request_timeout': None})
-                else:
                     timeout -= 2
-
             return "Error. No connection."
         else:
             return "Error. No connection."

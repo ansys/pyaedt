@@ -15,6 +15,18 @@ else:
 import rpyc
 from rpyc import ThreadedServer
 
+from pyaedt import Edb
+from pyaedt import Hfss
+from pyaedt import Hfss3dLayout
+from pyaedt import Maxwell3d
+from pyaedt import Maxwell2d
+from pyaedt import Q3d
+from pyaedt import Q2d
+from pyaedt import Circuit
+from pyaedt import Icepak
+from pyaedt import Mechanical
+
+
 
 class PyaedtServiceWindows(rpyc.Service):
     """Server Pyaedt rpyc Service.
@@ -108,7 +120,6 @@ class PyaedtServiceWindows(rpyc.Service):
         -------
         :class:`pyaedt.edb.Edb`
         """
-        from pyaedt import Edb
         aedtapp = Edb(edbpath=edbpath, cellname=cellname, isreadonly=isreadonly, edbversion=edbversion,
                       isaedtowned=False, oproject=None, student_version=False, use_ppe=use_ppe)
         self.app.append(aedtapp)
@@ -147,7 +158,6 @@ class PyaedtServiceWindows(rpyc.Service):
         -------
         :class:`pyaedt.hfss.Hfss`
         """
-        from pyaedt import Hfss
         aedtapp = Hfss(projectname=projectname, designname=designname, solution_type=solution_type,
                     setup_name=setup_name, specified_version=specified_version, non_graphical=non_graphical,
                     new_desktop_session=True, close_on_exit=True, student_version=False, )
@@ -187,7 +197,6 @@ class PyaedtServiceWindows(rpyc.Service):
         -------
         :class:`pyaedt.hfss3dlayout.Hfss3dLayout`
         """
-        from pyaedt import Hfss3dLayout
         aedtapp = Hfss3dLayout(projectname=projectname, designname=designname, solution_type=solution_type,
                     setup_name=setup_name, specified_version=specified_version, non_graphical=non_graphical,
                     new_desktop_session=True, close_on_exit=True, student_version=False, )
@@ -227,8 +236,6 @@ class PyaedtServiceWindows(rpyc.Service):
         -------
         :class:`pyaedt.maxwell.Maxwell3d`
         """
-        from pyaedt import Maxwell3d
-
         aedtapp = Maxwell3d(projectname=projectname, designname=designname, solution_type=solution_type,
                          setup_name=setup_name, specified_version=specified_version, non_graphical=non_graphical,
                          new_desktop_session=True, close_on_exit=True, student_version=False, )
@@ -268,8 +275,6 @@ class PyaedtServiceWindows(rpyc.Service):
         -------
         :class:`pyaedt.maxwell.Maxwell32`
         """
-        from pyaedt import Maxwell2d
-
         aedtapp = Maxwell2d(projectname=projectname, designname=designname, solution_type=solution_type,
                          setup_name=setup_name, specified_version=specified_version, non_graphical=non_graphical,
                          new_desktop_session=True, close_on_exit=True, student_version=False, )
@@ -309,8 +314,6 @@ class PyaedtServiceWindows(rpyc.Service):
         -------
         :class:`pyaedt.icepak.Icepak`
         """
-        from pyaedt import Icepak
-
         aedtapp = Icepak(projectname=projectname, designname=designname, solution_type=solution_type,
                       setup_name=setup_name, specified_version=specified_version, non_graphical=non_graphical,
                       new_desktop_session=True, close_on_exit=True, student_version=False, )
@@ -350,8 +353,6 @@ class PyaedtServiceWindows(rpyc.Service):
         -------
         :class:`pyaedt.circuit.Circuit`
         """
-        from pyaedt import Circuit
-
         aedtapp = Circuit(projectname=projectname, designname=designname, solution_type=solution_type,
                        setup_name=setup_name, specified_version=specified_version, non_graphical=non_graphical,
                        new_desktop_session=True, close_on_exit=True, student_version=False, )
@@ -391,8 +392,6 @@ class PyaedtServiceWindows(rpyc.Service):
         -------
         :class:`pyaedt.mechanical.Mechanical`
         """
-        from pyaedt import Mechanical
-
         aedtapp = Mechanical(projectname=projectname, designname=designname, solution_type=solution_type,
                           setup_name=setup_name, specified_version=specified_version, non_graphical=non_graphical,
                           new_desktop_session=True, close_on_exit=True, student_version=False, )
@@ -432,8 +431,6 @@ class PyaedtServiceWindows(rpyc.Service):
         -------
         :class:`pyaedt.q3d.Q3d`
         """
-        from pyaedt import Q3d
-
         aedtapp = Q3d(projectname=projectname, designname=designname, solution_type=solution_type,
                    setup_name=setup_name, specified_version=specified_version, non_graphical=non_graphical,
                    new_desktop_session=True, close_on_exit=True, student_version=False, )
@@ -473,8 +470,6 @@ class PyaedtServiceWindows(rpyc.Service):
         -------
         :class:`pyaedt.q3d.Q2d`
         """
-        from pyaedt import Q2d
-
         aedtapp = Q2d(projectname=projectname, designname=designname, solution_type=solution_type,
                    setup_name=setup_name, specified_version=specified_version, non_graphical=non_graphical,
                    new_desktop_session=True, close_on_exit=True, student_version=False, )
@@ -559,6 +554,30 @@ class GlobalService(rpyc.Service):
         # code that runs after the connection has already closed
         # (to finalize the service, if needed)
         pass
+
+    def exposed_edb(self, edbpath=None, cellname=None, isreadonly=False, edbversion="2021.1", use_ppe=False, ):
+        """Starts a new Edb session.
+
+        Parameters
+        ----------
+        edbpath : str, optional
+            Full path to the ``aedb`` folder. The variable can also contain
+            the path to a layout to import. Allowed formarts are BRD,
+            XML (IPC2581), GDS, and DXF. The default is ``None``.
+        cellname : str, optional
+            Name of the cell to select. The default is ``None``.
+        isreadonly : bool, optional
+            Whether to open ``edb_core`` in read-only mode. The default is ``False``.
+        edbversion : str, optional
+            Version of ``edb_core`` to use. The default is ``"2021.1"``.
+
+        Returns
+        -------
+        :class:`pyaedt.edb.Edb`
+        """
+        aedtapp = Edb(edbpath=edbpath, cellname=cellname, isreadonly=isreadonly, edbversion=edbversion,
+                      isaedtowned=False, oproject=None, student_version=False, use_ppe=use_ppe)
+        return aedtapp
 
     def exposed_start_service(self, hostname):
         """Starts a new Pyaedt Service and start listen.
