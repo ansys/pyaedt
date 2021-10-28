@@ -145,16 +145,17 @@ On the server
 
     Launch Pyaedt remote server
 
-    from pyaedt.common_rpc import pyaedt_server
-    pyaedt_server()
+    from pyaedt.common_rpc import server
+    # ansysem_path and non_graphical are needed only for Linux Ironpython Server
+    server(ansysem_path="/path/to/ansys/executable/folder", non_graphical=True)
 
 On any windows client machine
 
 .. code:: python
 
-    from pyaedt.common_rpc import pyaedt_client
-    client = pyaedt_client("server_name")
-    hfss = client.root.hfss()
+    from pyaedt.common_rpc import client
+    cl1 = client("server_name")
+    hfss = cl1.root.hfss()
     # your code here
 
 Variables

@@ -20,10 +20,10 @@ def server(port=18000, ansysem_path=None, non_graphical=False):
     port : int, optional
         port on which rpyc_server whill listen.
     ansysem_path : str
-        Full path to AEDT install folder. This setting is neeeded for Ironpython on Linux connections only.
+        Full path to AEDT install folder. This setting is needed for Ironpython on Linux connections only.
     non_graphical : bool
         Either to start AEDT in
-        graphical or non-graphical mode. This setting is neeeded for Ironpython on Linux connections only.
+        graphical or non-graphical mode. This setting is needed for Ironpython on Linux connections only.
     Examples
     --------
     >>> from pyaedt.common_rpc import server

@@ -55,9 +55,9 @@ packages = [
     "pyaedt.examples",
     "pyaedt.rpc",
     "pyaedt.third_party",
-    "pyaedt.ironpython",
-    "pyaedt.ironpython.rpyc",
-    "pyaedt.ironpython.plumbum",
+    "pyaedt.third_party.ironpython",
+    "pyaedt.third_party.ironpython.rpyc",
+    "pyaedt.third_party.ironpython.plumbum",
 ]
 
 data_files = [
