@@ -367,8 +367,7 @@ class FieldAnalysisIcepak(Analysis, object):
         obj : str, list
             One or more objects to assign surface materials to.
         mat : str
-            Material to assign. If this material is not present it will be
-            created.
+            Material to assign. The material must be present in the database.
 
         Returns
         -------
