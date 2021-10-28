@@ -15,7 +15,7 @@ try:
     from System import String
     import System
 except ImportError:
-    warnings.warns("Pythonnet has to be installed to run Pyaedt")
+    warnings.warn("Pythonnet has to be installed to run Pyaedt")
 
 
 class Primitives3DLayout(object):
