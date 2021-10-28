@@ -145,9 +145,9 @@ On the server
 
     Launch Pyaedt remote server
 
-    from pyaedt.common_rpc import server
+    from pyaedt.common_rpc import launch_server
     # ansysem_path and non_graphical are needed only for Linux Ironpython Server
-    server(ansysem_path="/path/to/ansys/executable/folder", non_graphical=True)
+    launch_server(ansysem_path="/path/to/ansys/executable/folder", non_graphical=True)
 
 On any windows client machine
 

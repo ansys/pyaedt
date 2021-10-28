@@ -57,9 +57,9 @@ Here one example of usage on Windows Server or Linux Server(Ironpython):
 
     # Launch the latest installed version of AEDT in graphical mode.
 
-    from pyaedt.common_rpc import server
+    from pyaedt.common_rpc import launch_server
     # ansysem_path and non_graphical are needed only for Linux Ironpython Server
-    server(ansysem_path="/path/to/ansys/executable/folder", non_graphical=True)
+    launch_server(ansysem_path="/path/to/ansys/executable/folder", non_graphical=True)
 
 On Client Side:
 
@@ -81,8 +81,8 @@ Here one example of usage on Linux Server (CPython):
 
     # Launch the latest installed version of AEDT in graphical mode.
 
-    from pyaedt.common_rpc import server
-    server()
+    from pyaedt.common_rpc import launch_server
+    launch_server()
 
 On Client Side:
 

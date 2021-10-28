@@ -12,7 +12,7 @@ from rpyc.utils.server import ThreadedServer
 from pyaedt.rpc.rpyc_services import GlobalService
 
 
-def server(port=18000, ansysem_path=None, non_graphical=False):
+def launch_server(port=18000, ansysem_path=None, non_graphical=False):
     """Starts an rpyc servers an start listening on specified port. This method has to run on server machine.
 
     Parameters
@@ -26,7 +26,7 @@ def server(port=18000, ansysem_path=None, non_graphical=False):
         graphical or non-graphical mode. This setting is needed for Ironpython on Linux connections only.
     Examples
     --------
-    >>> from pyaedt.common_rpc import server
+    >>> from pyaedt.common_rpc import launch_server
     >>> server( port=18000)
 
     """
