@@ -53,6 +53,11 @@ packages = [
     "pyaedt.generic",
     "pyaedt.edb_core",
     "pyaedt.examples",
+    "pyaedt.rpc",
+    "pyaedt.third_party",
+    "pyaedt.ironpython",
+    "pyaedt.ironpython.rpyc",
+    "pyaedt.ironpython.plumbum",
 ]
 
 data_files = [

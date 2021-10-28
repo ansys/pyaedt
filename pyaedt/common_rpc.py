@@ -9,7 +9,7 @@ if is_ironpython:
 
 import rpyc
 from rpyc.utils.server import ThreadedServer
-from pyaedt.generic.rpyc_services import GlobalService
+from pyaedt.rpc.rpyc_services import GlobalService
 
 
 def server(port=18000, ansysem_path=None, non_graphical=False):
@@ -32,7 +32,7 @@ def server(port=18000, ansysem_path=None, non_graphical=False):
     """
     if os.name == "posix":
         os.environ["PYAEDT_SERVER_AEDT_PATH"] = ansysem_path
-        os.environ["PYAEDT_SERVER_AEDT_NG"] = non_graphical
+        os.environ["PYAEDT_SERVER_AEDT_NG"] = str(non_graphical)
     hostname = socket.gethostname()
     safe_attrs = {'__abs__', '__add__', '__and__', '__bool__', '__code__', '__cmp__', '__contains__', '__delitem__',
                   '__delslice__', '__div__', '__divmod__', '__doc__', '__eq__', '__float__', '__floordiv__', '__func__',
@@ -95,16 +95,22 @@ def client(server_name, server_port=18000):
     """
     c = rpyc.connect(server_name, server_port, config={'sync_request_timeout': None})
     port = c.root.start_service(server_name)
-    if os.name == "posix" and is_ironpython:
+    if not port:
+        return "Error Connecting to the Server. Check the server name and port and retry."
+    if is_ironpython:
         if port:
-            time.sleep(30)
+            time.sleep(15)
             timeout = 200
             while timeout > 0:
-                c1 = rpyc.connect(server_name, port, config={'sync_request_timeout': None})
-                if c1:
-                    return c1
+                a_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                location = (server_name, port)
+                result_of_check = a_socket.connect_ex(location)
+                if result_of_check == 0:
+                    time.sleep(2)
+                    return rpyc.connect(server_name, port, config={'sync_request_timeout': None})
                 else:
-                    timeout -= 20
+                    timeout -= 2
+
             return "Error. No connection."
         else:
             return "Error. No connection."

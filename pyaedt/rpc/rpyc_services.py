@@ -1,6 +1,5 @@
 import os
 import random
-import subprocess
 import tempfile
 import threading
 import site
@@ -580,7 +579,7 @@ class GlobalService(rpyc.Service):
                 executable = "ansysedt"
                 pyaedt_path = os.path.normpath(os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", ".."))
                 script_file = os.path.normpath(
-                    os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "misc", "pyaedt_client_linux.py"))
+                    os.path.join(os.path.abspath(os.path.dirname(__file__)), "pyaedt_client_linux.py"))
                 dest_file = os.path.join(tempfile.gettempdir(),"pyaedt_client_linux.py")
                 print(dest_file)
                 with open(dest_file,"w") as f:
@@ -610,7 +609,7 @@ class GlobalService(rpyc.Service):
             t.start()
         else:
             name = os.path.normpath(
-                os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "misc", "pyaedt_client_windows.py"))
+                os.path.join(os.path.abspath(os.path.dirname(__file__)), "pyaedt_client_windows.py"))
             cmd_service = [sys.executable, name, str(port), hostname]
             print(" ".join(cmd_service))
             p = subprocess.Popen(" ".join(cmd_service))
