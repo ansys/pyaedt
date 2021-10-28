@@ -37,7 +37,7 @@ def server(port=18000, ansysem_path=None, non_graphical=False):
     hostname = socket.gethostname()
     safe_attrs = {'__abs__', '__add__', '__and__', '__bool__', '__code__', '__cmp__', '__contains__', '__delitem__',
                   '__delslice__', '__div__', '__divmod__', '__doc__', '__eq__', '__float__', '__floordiv__', '__func__',
-                  '__ge__', "__getmodule", "__cache", "__weakref__",
+                  '__ge__', "__getmodule", "__cache", "__weakref__", '__dict__',
                   '__getitem__', '__getslice__', '__gt__', '__hash__', '__hex__', '__iadd__', '__iand__', '__idiv__',
                   '__ifloordiv__',
                   '__ilshift__', '__imod__', '__imul__', '__index__', '__int__', '__invert__', '__ior__', '__ipow__',
@@ -124,24 +124,24 @@ def client(server_name, server_port=18000):
     port = c.root.start_service(server_name)
     if not port:
         return "Error Connecting to the Server. Check the server name and port and retry."
-    if is_ironpython:
-        print("Connecting to new session of Electronics Desktop on port {}. Please Wait.".format(port))
-        if port:
-            time.sleep(20)
-            timeout = 200
-            while timeout > 0:
-                try:
-                    c1 = rpyc.connect(server_name, port, config={'sync_request_timeout': None})
-                    if c1:
-                        return c1
-                except:
-                    time.sleep(2)
-                    timeout -= 2
-            return "Error. No connection."
-        else:
-            return "Error. No connection."
+    #if is_ironpython:
+    print("Connecting to new session of Electronics Desktop on port {}. Please Wait.".format(port))
+    if port:
+        time.sleep(20)
+        timeout = 200
+        while timeout > 0:
+            try:
+                c1 = rpyc.connect(server_name, port, config={'sync_request_timeout': None})
+                if c1:
+                    return c1
+            except:
+                time.sleep(2)
+                timeout -= 2
+        return "Error. No connection."
     else:
-        return rpyc.connect(server_name, port, config={'sync_request_timeout': None})
+        return "Error. No connection."
+    #else:
+    #    return rpyc.connect(server_name, port, config={'sync_request_timeout': None})
 
 
 def upload(localpath, remotepath, server_name, server_port=18000):
