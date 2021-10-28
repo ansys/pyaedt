@@ -12,21 +12,22 @@ from rpyc.utils.server import ThreadedServer
 from pyaedt.rpc.rpyc_services import GlobalService
 
 
-def launch_server(port=18000, ansysem_path=None, non_graphical=False):
+def server(port=18000, ansysem_path=None, non_graphical=False):
     """Starts an rpyc servers an start listening on specified port. This method has to run on server machine.
 
     Parameters
     ----------
     port : int, optional
-        port on which rpyc_server whill listen.
-    ansysem_path : str
-        Full path to AEDT install folder. This setting is needed for Ironpython on Linux connections only.
-    non_graphical : bool
-        Either to start AEDT in
-        graphical or non-graphical mode. This setting is needed for Ironpython on Linux connections only.
+        Port rpyc_server will listen.
+    ansysem_path : str, optional
+        Full path to the AEDT installation directory. This parameter is needed for
+        IronPython on Linux only.
+    non_graphical : bool, optional
+        Either to start AEDT in graphical or non-graphical mode. This
+        setting is needed for IronPython on Linux connections only.
     Examples
     --------
-    >>> from pyaedt.common_rpc import launch_server
+    >>> from pyaedt.common_rpc import server
     >>> server( port=18000)
 
     """

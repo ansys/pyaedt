@@ -574,9 +574,8 @@ class GlobalService(rpyc.Service):
         -------
         :class:`pyaedt.edb.Edb`
         """
-        aedtapp = Edb(edbpath=edbpath, cellname=cellname, isreadonly=isreadonly, edbversion=edbversion,
-                      isaedtowned=False, oproject=None, student_version=False, use_ppe=use_ppe)
-        return aedtapp
+        return Edb(edbpath=edbpath, cellname=cellname, isreadonly=isreadonly, edbversion=edbversion,
+                   isaedtowned=False, oproject=None, student_version=False, use_ppe=use_ppe)
 
     def exposed_start_service(self, hostname):
         """Starts a new Pyaedt Service and start listen.
@@ -584,7 +583,7 @@ class GlobalService(rpyc.Service):
         Returns
         -------
         hostname : str
-            host name
+            Hostname.
         """
         port = random.randint(18001, 20000)
         ansysem_path = ""

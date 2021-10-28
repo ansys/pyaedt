@@ -49,9 +49,9 @@ Pyaedt can also be launched on a remote machine. To do that, the following condi
 
 1. Pyaedt has to be installed on Client and Server machines
 2. No need to have AEDT installed on client machine
-3. Same Python version has to be used on client and server (CPython 3.6+ or Ironpython embedded in AEDT Installation)
+3. Same Python version has to be used on client and server (CPython 3.6+ or IronPython embedded in AEDT Installation)
 
-Here one example of usage on Windows Server or Linux Server(Ironpython):
+Here one example of usage on Windows Server or Linux Server (IronPython):
 
 .. code:: python
 
