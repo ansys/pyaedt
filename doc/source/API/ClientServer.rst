@@ -84,8 +84,8 @@ Here one example of usage on Linux Server (CPython):
 
     # Launch the latest installed version of AEDT in graphical mode.
 
-    from pyaedt.common_rpc import server
-    server()
+    from pyaedt.common_rpc import launch_server
+    launch_server()
 
 On Client Side:
 
