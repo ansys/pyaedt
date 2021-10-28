@@ -27,7 +27,6 @@ from pyaedt import Icepak
 from pyaedt import Mechanical
 
 
-
 class PyaedtServiceWindows(rpyc.Service):
     """Server Pyaedt rpyc Service.
     """
@@ -599,9 +598,9 @@ class GlobalService(rpyc.Service):
                 pyaedt_path = os.path.normpath(os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", ".."))
                 script_file = os.path.normpath(
                     os.path.join(os.path.abspath(os.path.dirname(__file__)), "pyaedt_client_linux.py"))
-                dest_file = os.path.join(tempfile.gettempdir(),"pyaedt_client_linux.py")
+                dest_file = os.path.join(tempfile.gettempdir(), "pyaedt_client_linux.py")
                 print(dest_file)
-                with open(dest_file,"w") as f:
+                with open(dest_file, "w") as f:
                     f.write("port={}\n".format(port))
                     f.write("hostname='{}'\n".format(hostname))
                     f.write("pyaedt_path='{}'\n".format(pyaedt_path))

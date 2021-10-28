@@ -5,7 +5,7 @@ import time
 
 from pyaedt import is_ironpython
 if is_ironpython:
-    sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), "third_party","ironpython")))
+    sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), "third_party", "ironpython")))
 
 import rpyc
 from rpyc.utils.server import ThreadedServer
