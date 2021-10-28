@@ -2,9 +2,9 @@
 
 from __future__ import absolute_import
 
-from .application.Analysis3D import FieldAnalysis3D
-from .generic.general_methods import generate_unique_name, aedt_exception_handler
-from .modules.Boundary import BoundaryObject
+from pyaedt.application.Analysis3D import FieldAnalysis3D
+from pyaedt.generic.general_methods import generate_unique_name, aedt_exception_handler
+from pyaedt.modules.Boundary import BoundaryObject
 from collections import OrderedDict
 
 

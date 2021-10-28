@@ -11,7 +11,7 @@ except:
 
 # Setup paths for module imports
 from _unittest.conftest import scratch_path, local_path, BasisTest, pyaedt_unittest_check_desktop_error, config
-from pyaedt import is_ironpython
+from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.filesystem import Scratch
 from pyaedt.modeler.Primitives import Polyline, PolylineSegment
 from pyaedt.modeler.Object3d import Object3d

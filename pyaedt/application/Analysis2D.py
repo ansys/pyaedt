@@ -1,14 +1,14 @@
 import warnings
 
-from .Analysis import Analysis
-from ..modeler.Model2D import Modeler2D
-from ..modules.Mesh import Mesh
-from ..generic.general_methods import aedt_exception_handler
-from .. import is_ironpython
+from pyaedt.application.Analysis import Analysis
+from pyaedt.modeler.Model2D import Modeler2D
+from pyaedt.modules.Mesh import Mesh
+from pyaedt.generic.general_methods import aedt_exception_handler, is_ironpython
+
 if is_ironpython:
-    from ..modules.PostProcessor import PostProcessor
+    from pyaedt.modules.PostProcessor import PostProcessor
 else:
-    from ..modules.AdvancedPostProcessing import PostProcessor
+    from pyaedt.modules.AdvancedPostProcessing import PostProcessor
 
 
 class FieldAnalysis2D(Analysis):

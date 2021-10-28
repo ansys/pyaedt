@@ -29,10 +29,10 @@ else:
     import subprocess
 from pyaedt.application.MessageManager import AEDTMessageManager
 from pyaedt.misc import list_installed_ansysem
-from pyaedt import is_ironpython, _pythonver, inside_desktop, aedt_exception_handler
+from pyaedt import aedt_exception_handler
+from pyaedt.generic.general_methods import is_ironpython, _pythonver, inside_desktop
 
-from . import aedt_logger
-
+from pyaedt import aedt_logger
 
 pathname = os.path.dirname(__file__)
 if os.path.exists(os.path.join(pathname, "version.txt")):
@@ -313,7 +313,10 @@ class Desktop:
             self._main.isoutsideDesktop = True
         self.releae_on_exit = True
         self.logfile = None
-        if "oDesktop" in dir(self._main) and self._main.oDesktop is not None:
+        if "oDesktop" in dir():
+            self.releae_on_exit = False
+            self._main.oDesktop = oDesktop
+        elif "oDesktop" in dir(self._main) and self._main.oDesktop is not None:
             self.releae_on_exit = False
         else:
             if "oDesktop" in dir(self._main):

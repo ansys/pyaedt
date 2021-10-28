@@ -18,8 +18,8 @@ import math
 import os
 import re
 
-from .. import aedt_exception_handler
-from ..generic.general_methods import is_number
+from pyaedt import aedt_exception_handler
+from pyaedt.generic.general_methods import is_number
 
 
 @aedt_exception_handler

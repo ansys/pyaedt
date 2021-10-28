@@ -11,10 +11,10 @@ import warnings
 from collections import OrderedDict
 import os.path
 
-from ..generic.general_methods import aedt_exception_handler, generate_unique_name
+from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name
 
-from .SetupTemplates import SweepHFSS, SweepQ3D, SetupKeys, SweepHFSS3DLayout
-from ..generic.DataHandlers import tuple2dict, dict2arg
+from pyaedt.modules.SetupTemplates import SweepHFSS, SweepQ3D, SetupKeys, SweepHFSS3DLayout
+from pyaedt.generic.DataHandlers import tuple2dict, dict2arg
 
 
 class Setup(object):

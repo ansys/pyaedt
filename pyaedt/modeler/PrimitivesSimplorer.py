@@ -1,8 +1,8 @@
 from collections import defaultdict
 
-from ..generic.general_methods import aedt_exception_handler
-from .Object3d import CircuitComponent
-from .PrimitivesCircuit import CircuitComponents
+from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.modeler.Object3d import CircuitComponent
+from pyaedt.modeler.PrimitivesCircuit import CircuitComponents
 
 
 class SimplorerComponents(CircuitComponents):

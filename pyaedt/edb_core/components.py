@@ -4,11 +4,11 @@
 import re
 import warnings
 
-from pyaedt import generate_unique_name, is_ironpython, retry_ntimes
+from pyaedt import generate_unique_name, retry_ntimes
 from pyaedt.edb_core.general import convert_py_list_to_net_list
-from pyaedt.generic.general_methods import aedt_exception_handler, get_filename_without_extension
+from pyaedt.generic.general_methods import aedt_exception_handler, get_filename_without_extension, is_ironpython
 
-from .EDB_Data import EDBComponent
+from pyaedt.edb_core.EDB_Data import EDBComponent
 
 try:
     import clr

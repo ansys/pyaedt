@@ -1,7 +1,7 @@
 import logging
 import sys
 
-from .import log_handler
+from pyaedt import log_handler
 
 
 FORMATTER = logging.Formatter(

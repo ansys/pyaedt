@@ -2,9 +2,9 @@
 
 from __future__ import absolute_import
 
-from .application.AnalysisSimplorer import FieldAnalysisSimplorer
-from .application.Variables import Variable
-from .generic.general_methods import aedt_exception_handler, is_number
+from pyaedt.application.AnalysisSimplorer import FieldAnalysisSimplorer
+from pyaedt.application.Variables import Variable
+from pyaedt.generic.general_methods import aedt_exception_handler, is_number
 
 
 class Simplorer(FieldAnalysisSimplorer, object):

@@ -2,8 +2,8 @@
 import math
 import re
 import sys
-from ..generic.general_methods import aedt_exception_handler
-from .modeler_constants import CoordinateSystemPlane, CoordinateSystemAxis, SweepDraftType
+from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.modeler.modeler_constants import CoordinateSystemPlane, CoordinateSystemAxis, SweepDraftType
 
 class GeometryOperators(object):
     """Manages geometry operators."""
@@ -1227,9 +1227,9 @@ class GeometryOperators(object):
             sz += (z0 + z1) / 2 * L2
             sl += L
             sl2 += L2
-        xc = sx / sl
-        yc = sy / sl
-        zc = sz / sl2
+        xc = sx / sl if sl != 0.0 else x1
+        yc = sy / sl if sl != 0.0 else y1
+        zc = sz / sl2 if sl2 != 0.0 else z1
 
         return [xc, yc, zc]
 
