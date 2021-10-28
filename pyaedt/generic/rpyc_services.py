@@ -14,7 +14,8 @@ if is_ironpython:
 else:
     import subprocess
 import rpyc
-from rpyc import ThreadedServer, OneShotServer
+from rpyc import ThreadedServer
+
 
 class PyaedtServiceWindows(rpyc.Service):
     """Server Pyaedt rpyc Service.
@@ -72,7 +73,8 @@ class PyaedtServiceWindows(rpyc.Service):
         else:
             return "File wrong or wrong commands."
         executable = "ansysedt.exe"
-
+        if os.name == "posix" and not ansysem_path and not env_path(aedt_version):
+            ansysem_path = os.getenv("PYAEDT_SERVER_AEDT_PATH", "")
         if env_path(aedt_version) or ansysem_path:
             if not ansysem_path:
                 ansysem_path = env_path(aedt_version)
@@ -146,9 +148,6 @@ class PyaedtServiceWindows(rpyc.Service):
         -------
         :class:`pyaedt.hfss.Hfss`
         """
-        if os.name == "posix":
-            print("Direct Call of AEDT is not supported on linux. Use run_script.")
-            return False
         from pyaedt import Hfss
         aedtapp = Hfss(projectname=projectname, designname=designname, solution_type=solution_type,
                     setup_name=setup_name, specified_version=specified_version, non_graphical=non_graphical,
@@ -499,15 +498,13 @@ class PyaedtServiceLinux(rpyc.Service):
     def exposed_close_connection(self):
         return True
 
-    def exposed_run_script(self, script,  aedt_version="2021.1", ansysem_path=None, non_graphical=True):
+    def exposed_run_script(self, script,  ansysem_path=None, non_graphical=True):
         """Run script on AEDT in the server.
 
         Parameters
         ----------
         script : str or list
             It can be the full path of the script file or a list of command to execute on the server.
-        aedt_version : str, optional
-            Aedt Version to run.
         ansysem_path : str, optional
             Full path to AEDT Installation folder.
         non_graphical : bool, optional
@@ -531,10 +528,11 @@ class PyaedtServiceLinux(rpyc.Service):
         else:
             return "File wrong or wrong commands."
         executable = "ansysedt"
-
-        if env_path(aedt_version) or ansysem_path:
-            if not ansysem_path:
-                ansysem_path = env_path(aedt_version)
+        if not ansysem_path:
+            ansysem_path = os.getenv("PYAEDT_SERVER_AEDT_PATH", "")
+        if not non_graphical:
+            non_graphical = os.getenv("PYAEDT_SERVER_AEDT_NG", "True").lower() in ("true", "1", "t")
+        if ansysem_path:
             if non_graphical:
                 ng_feature = "-features=SF6694_NON_GRAPHICAL_COMMAND_EXECUTION"
                 command = [os.path.join(ansysem_path, executable), ng_feature, "-ng", "-RunScriptAndExit", script_file]
@@ -563,7 +561,7 @@ class GlobalService(rpyc.Service):
         # (to finalize the service, if needed)
         pass
 
-    def exposed_start_service(self, hostname, ansysem_path=None, non_graphical=False):
+    def exposed_start_service(self, hostname):
         """Starts a new Pyaedt Service and start listen.
 
         Returns
@@ -572,6 +570,11 @@ class GlobalService(rpyc.Service):
             host name
         """
         port = random.randint(18001, 20000)
+        ansysem_path = ""
+        non_graphical = True
+        if os.name == "posix":
+            ansysem_path = os.getenv("PYAEDT_SERVER_AEDT_PATH", "")
+            non_graphical = os.getenv("PYAEDT_SERVER_AEDT_NG", "True").lower() in ("true", "1", "t")
         if is_ironpython and os.name == "posix":
             if ansysem_path:
                 executable = "ansysedt"

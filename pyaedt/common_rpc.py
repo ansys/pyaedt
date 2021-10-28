@@ -12,19 +12,27 @@ from rpyc.utils.server import ThreadedServer
 from pyaedt.generic.rpyc_services import GlobalService
 
 
-def server(port=18000):
+def server(port=18000, ansysem_path=None, non_graphical=False):
     """Starts an rpyc servers an start listening on specified port. This method has to run on server machine.
 
     Parameters
     ----------
     port : int, optional
         port on which rpyc_server whill listen.
+    ansysem_path : str
+        Full path to AEDT install folder. This setting is neeeded for Ironpython on Linux connections only.
+    non_graphical : bool
+        Either to start AEDT in
+        graphical or non-graphical mode. This setting is neeeded for Ironpython on Linux connections only.
     Examples
     --------
     >>> from pyaedt.common_rpc import server
     >>> server( port=18000)
 
     """
+    if os.name == "posix":
+        os.environ["PYAEDT_SERVER_AEDT_PATH"] = ansysem_path
+        os.environ["PYAEDT_SERVER_AEDT_NG"] = non_graphical
     hostname = socket.gethostname()
     safe_attrs = {'__abs__', '__add__', '__and__', '__bool__', '__code__', '__cmp__', '__contains__', '__delitem__',
                   '__delslice__', '__div__', '__divmod__', '__doc__', '__eq__', '__float__', '__floordiv__', '__func__',
@@ -50,7 +58,7 @@ def server(port=18000):
     t.start()
 
 
-def client(server_name, server_port=18000, ansysem_path=None, non_graphical=False):
+def client(server_name, server_port=18000):
     """Starts an rpyc client and connects to a remote machine.
 
     Parameters
@@ -59,11 +67,6 @@ def client(server_name, server_port=18000, ansysem_path=None, non_graphical=Fals
         name of the remote machine to connect.
     server_port : int, optional
         port on which rpyc_server is running
-    ansysem_path : str
-        Full path to AEDT install folder. This setting is neeeded for Ironpython on Linux connections only.
-    non_graphical : bool
-        Either to start AEDT in
-        graphical or non-graphical mode. This setting is neeeded for Ironpython on Linux connections only.
 
     Returns
     -------
@@ -91,7 +94,7 @@ def client(server_name, server_port=18000, ansysem_path=None, non_graphical=Fals
 
     """
     c = rpyc.connect(server_name, server_port, config={'sync_request_timeout': None})
-    port = c.root.start_service(server_name, ansysem_path, non_graphical)
+    port = c.root.start_service(server_name)
     if os.name == "posix" and is_ironpython:
         if port:
             time.sleep(30)
