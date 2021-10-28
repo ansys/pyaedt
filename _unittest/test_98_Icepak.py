@@ -305,8 +305,9 @@ class TestClass:
         assert sorted(dielectrics) == ["Region", "box2", "box3"]
 
     def test_28_assign_surface_material(self):
-        mats = self.aedtapp.materials.add_surface_material("my_surface", 0.5)
-        assert mats.emissivity.value == 0.5
+        self.aedtapp.materials.add_surface_material("my_surface", 0.5)
+        obj = ["box2", "box3"]
+        assert self.aedtapp.assign_surface_material(obj, "my_surface")
 
     def test_33_create_region(self):
         self.aedtapp.modeler.primitives.delete("Region")
