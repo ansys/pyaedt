@@ -1,2 +1,2 @@
 [run]
-omit = examples/**/*, doc/**/*, testvenv/Lib/**/*
+omit = examples/**/*, doc/**/*, testvenv/Lib/**/*, third_party/**/*
