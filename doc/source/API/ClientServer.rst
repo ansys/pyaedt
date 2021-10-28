@@ -54,7 +54,7 @@ Pyaedt can also be launched on a remote machine. To do that, the following condi
 2. No need to have AEDT installed on client machine
 3. Same Python version has to be used on client and server (CPython 3.6+ or Ironpython embedded in AEDT Installation)
 
-Here one example of usage on Windows Server or Linux Server(Ironpython):
+Here one example of usage on Windows Server or Linux Server (Ironpython):
 
 .. code:: python
 
@@ -64,11 +64,11 @@ Here one example of usage on Windows Server or Linux Server(Ironpython):
     # ansysem_path and non_graphical are needed only for Linux Ironpython Server
     server(ansysem_path="/path/to/ansys/executable/folder", non_graphical=True)
 
-On Client Side:
+On client side:
 
 .. code:: python
 
-    # Launch the latest installed version of AEDT in graphical mode.
+    # Launch the latest installed version of AEDT in non-graphical mode.
 
     from pyaedt.common_rpc import client
     my_client = client("full_name_of_server")
@@ -95,7 +95,7 @@ On Client Side:
 
     from pyaedt.common_rpc import client
     my_client = client("full_name_of_server")
-    example_script = ["from pyaedt import Circuit", "circuit="Circuit()", "circuit.save_project(\"project_name\")"]
+    example_script = ["from pyaedt import Circuit", circuit="Circuit()", "circuit.save_project('project_name')"]
     ansysem = "/path/to/AnsysEMxxx/Linux64"
     my_client.root.run_script(example_script, ansysem_path=ansysem)
     my_client.root.run_script(example_script, aedt_version="2021.2") #if ANSYSEM_ROOTxxx env variable is present

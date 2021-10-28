@@ -13,21 +13,24 @@ from pyaedt.rpc.rpyc_services import GlobalService
 
 
 def server(port=18000, ansysem_path=None, non_graphical=False):
-    """Starts an rpyc servers an start listening on specified port. This method has to run on server machine.
+    """Starts an rpyc server listening on the specified port.
+
+    This method has to run on server machine.
 
     Parameters
     ----------
     port : int, optional
-        port on which rpyc_server whill listen.
-    ansysem_path : str
-        Full path to AEDT install folder. This setting is needed for Ironpython on Linux connections only.
-    non_graphical : bool
-        Either to start AEDT in
-        graphical or non-graphical mode. This setting is needed for Ironpython on Linux connections only.
+        Port rpyc_server will listen.
+    ansysem_path : str, optional
+        Full path to the AEDT installation directory. This parameter is needed for
+        IronPython on Linux only.
+    non_graphical : bool, optional
+        Either to start AEDT in graphical or non-graphical mode. This 
+        setting is needed for IronPython on Linux connections only.
     Examples
     --------
     >>> from pyaedt.common_rpc import server
-    >>> server( port=18000)
+    >>> server(port=18000)
 
     """
     if os.name == "posix":
@@ -64,13 +67,13 @@ def connect(server_name, aedt_client_port):
     Parameters
     ----------
     server_name : str
-        name of the remote machine to connect.
+        Hostname or IP of the remote machine to connect to.
     aedt_client_port : int
-        port on which rpyc_server is running inside AEDT
+        Port to connect to the rpyc_server running within AEDT.
 
     Returns
     -------
-    rpyc object.
+    An RPyC connection object.
     """
     try:
         return rpyc.connect(server_name, aedt_client_port, config={'sync_request_timeout': None})
@@ -107,12 +110,14 @@ def client(server_name, server_port=18000):
     >>> hfss = cl1.root.hfss()
 
     Linux CPython Example.
+
     >>> from pyaedt.common_rpc import client
     >>> cl2 = client("my_server")
     >>> script_to_run = ["from pyaedt import Hfss", "hfss =Hfss()"]
     >>> cl2.root.run_script(script_to_run, ansysem_path = "/path/to/AnsysEMxxx/Linux64")
 
     Linux CPython Example 2.
+
     >>> from pyaedt.common_rpc import client
     >>> cl2 = client("my_server")
     >>> script_to_run = "/path/to/script.py"
