@@ -5,7 +5,7 @@ import shutil
 import zipfile
 import tempfile
 
-from pyaedt import is_ironpython
+from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.misc import list_installed_ansysem
 
 if is_ironpython:

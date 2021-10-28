@@ -2,15 +2,15 @@ import csv
 import re
 import warnings
 
-from ..generic.general_methods import aedt_exception_handler, generate_unique_name
-from ..application.Analysis import Analysis
-from ..modeler.Model3D import Modeler3D
-from ..modules.MeshIcepak import IcepakMesh
-from .. import is_ironpython
+from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, is_ironpython
+from pyaedt.application.Analysis import Analysis
+from pyaedt.modeler.Model3D import Modeler3D
+from pyaedt.modules.MeshIcepak import IcepakMesh
+
 if is_ironpython:
-    from ..modules.PostProcessor import PostProcessor
+    from pyaedt.modules.PostProcessor import PostProcessor
 else:
-    from ..modules.AdvancedPostProcessing import PostProcessor
+    from pyaedt.modules.AdvancedPostProcessing import PostProcessor
 
 
 class FieldAnalysisIcepak(Analysis, object):

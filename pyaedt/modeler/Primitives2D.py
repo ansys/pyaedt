@@ -1,5 +1,5 @@
-from ..generic.general_methods import aedt_exception_handler, is_number
-from .Primitives import Primitives
+from pyaedt.generic.general_methods import aedt_exception_handler, is_number
+from pyaedt.modeler.Primitives import Primitives
 
 
 class Primitives2D(Primitives, object):

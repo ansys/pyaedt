@@ -44,6 +44,7 @@ def server(port=18000):
                        protocol_config={'sync_request_timeout': None, 'allow_public_attrs': True, 'allow_setattr': True,
                                         'safe_attrs': safe_attrs,
                                         'allow_delattr': True})
+    print("Starting Server on Port {} on {}.".format(port, hostname))
     t.start()
 
 
@@ -66,18 +67,20 @@ def client(server_name, server_port=18000):
     Windows Example.
 
     >>> from pyaedt.common_rpc import client
-    >>> client = client(server_name="server_name")
-    >>> hfss = client.root.hfss(specified_version="2021.2")
+    >>> cl1 = client(server_name="server_name")
+    >>> hfss = cl1.root.hfss(specified_version="2021.2")
 
     Linux Example.
-    >>> client = client("my_server")
+    >>> from pyaedt.common_rpc import client
+    >>> cl2 = client("my_server")
     >>> script_to_run = ["from pyaedt import Hfss", "hfss =Hfss()"]
-    >>> client.root.run_script = client.root.hfss(script_to_run, ansysem_path = "/path/to/AnsysEMxxx/Linux64")
+    >>> cl2.root.run_script(script_to_run, ansysem_path = "/path/to/AnsysEMxxx/Linux64")
 
     Linux Example 2.
-    >>> client = client("my_server")
+    >>> from pyaedt.common_rpc import client
+    >>> cl2 = client("my_server")
     >>> script_to_run = "/path/to/script.py"
-    >>> client.root.run_script = client.root.hfss(script_to_run, ansysem_path = "/path/to/AnsysEMxxx/Linux64")
+    >>> cl2.root.run_script(script_to_run, ansysem_path = "/path/to/AnsysEMxxx/Linux64")
 
     """
     c = rpyc.connect(server_name, server_port, config={'sync_request_timeout': None})

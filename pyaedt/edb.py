@@ -19,7 +19,6 @@ try:
     from System.Collections.Generic import List
 except ImportError:
     warnings.warn("Pythonnet is needed to run pyaedt")
-from pyaedt import inside_desktop, is_ironpython
 from pyaedt.application.MessageManager import AEDTMessageManager
 from pyaedt.edb_core import Components, EdbNets, EdbPadstacks, EdbLayout, Edb3DLayout, EdbSiwave, EdbStackup
 from pyaedt.edb_core.EDB_Data import EdbBuilder
@@ -29,10 +28,11 @@ from pyaedt.generic.general_methods import (
     env_path,
     env_path_student,
     env_value,
-    generate_unique_name,
+    generate_unique_name, is_ironpython, inside_desktop,
 )
 from pyaedt.aedt_logger import AedtLogger
 from pyaedt.generic.process import SiwaveSolve
+from pyaedt.edb_core.general import convert_py_list_to_net_list
 
 if os.name == "posix":
     try:
@@ -982,8 +982,6 @@ class Edb(object):
         for _ref in reference_list:
             _netobj = self.edb.Cell.Net.FindByName(self.active_layout, _ref)
             _ref_nets.append(_netobj)
-
-        from .edb_core.general import convert_py_list_to_net_list
 
         _netsClip = [
             self.edb.Cell.Net.FindByName(self.active_layout, reference_list[i]) for i, p in enumerate(reference_list)

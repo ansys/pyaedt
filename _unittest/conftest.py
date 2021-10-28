@@ -23,7 +23,7 @@ import shutil
 import json
 import gc
 import sys
-from pyaedt import is_ironpython
+from pyaedt.generic.general_methods import is_ironpython
 
 if is_ironpython:
     import _unittest_ironpython.conf_unittest as pytest

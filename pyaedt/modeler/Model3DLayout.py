@@ -1,14 +1,13 @@
 import os
 import time
 
-from pyaedt import _pythonver, is_ironpython, inside_desktop
-
-from ..application.Variables import AEDT_units
-from ..edb import Edb
-from ..generic.general_methods import aedt_exception_handler, retry_ntimes
-from ..modules.LayerStackup import Layers
-from .Modeler import Modeler
-from .Primitives3DLayout import Geometries3DLayout, Primitives3DLayout
+from pyaedt.application.Variables import AEDT_units
+from pyaedt.edb import Edb
+from pyaedt.generic.general_methods import aedt_exception_handler, retry_ntimes, is_ironpython, _pythonver, \
+    inside_desktop
+from pyaedt.modules.LayerStackup import Layers
+from pyaedt.modeler.Modeler import Modeler
+from pyaedt.modeler.Primitives3DLayout import Geometries3DLayout, Primitives3DLayout
 
 
 class Modeler3DLayout(Modeler):

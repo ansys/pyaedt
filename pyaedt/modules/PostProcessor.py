@@ -15,9 +15,9 @@ import warnings
 import sys
 from collections import OrderedDict
 
-from ..application.Variables import AEDT_units
-from ..generic.filesystem import Scratch
-from ..generic.general_methods import aedt_exception_handler, generate_unique_name, retry_ntimes
+from pyaedt.application.Variables import AEDT_units
+from pyaedt.generic.filesystem import Scratch
+from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, retry_ntimes
 
 report_type = {
     "DrivenModal": "Modal Solution Data",

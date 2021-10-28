@@ -12,10 +12,10 @@ import threading
 import warnings
 from collections import OrderedDict
 
-from ..generic.general_methods import aedt_exception_handler
-from ..modeler.modeler_constants import CoordinateSystemAxis, CoordinateSystemPlane, GravityDirection, Plane
-from ..modules.Boundary import NativeComponentObject
-from ..modules.DesignXPloration import (
+from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.modeler.modeler_constants import CoordinateSystemAxis, CoordinateSystemPlane, GravityDirection, Plane
+from pyaedt.modules.Boundary import NativeComponentObject
+from pyaedt.modules.DesignXPloration import (
     DOESetups,
     DXSetups,
     OptimizationSetups,
@@ -23,12 +23,12 @@ from ..modules.DesignXPloration import (
     SensitivitySetups,
     StatisticalSetups,
 )
-from ..modules.MaterialLib import Materials
-from ..modules.SetupTemplates import SetupKeys
-from ..modules.SolutionType import SetupTypes, SolutionType
-from ..modules.SolveSetup import Setup
-from .Design import Design
-from .JobManager import update_hpc_option
+from pyaedt.modules.MaterialLib import Materials
+from pyaedt.modules.SetupTemplates import SetupKeys
+from pyaedt.modules.SolutionType import SetupTypes, SolutionType
+from pyaedt.modules.SolveSetup import Setup
+from pyaedt.application.Design import Design
+from pyaedt.application.JobManager import update_hpc_option
 
 class Analysis(Design, object):
     """Contains all common analysis functions.
@@ -172,7 +172,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-        tuple
+        :class:`pyaedt.modeler.modeler_constants.CoordinateSystemAxis`
             Coordinate system axis constants tuple (.X, .Y, .Z).
 
         """
@@ -184,7 +184,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-        tuple
+        :class:`pyaedt.modeler.modeler_constants.CoordinateSystemPlane`
             Coordinate system plane constants tuple (.XY, .YZ, .XZ).
 
         """

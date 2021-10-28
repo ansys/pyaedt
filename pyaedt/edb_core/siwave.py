@@ -7,8 +7,7 @@ import os
 import time
 import warnings
 
-from pyaedt import is_ironpython
-from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, retry_ntimes
+from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, retry_ntimes, is_ironpython
 
 try:
     from System import String
