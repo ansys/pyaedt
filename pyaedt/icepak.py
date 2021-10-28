@@ -1801,62 +1801,6 @@ class Icepak(FieldAnalysisIcepak):
         return True
 
     @aedt_exception_handler
-    def export3DModel(self, fileName, filePath, fileFormat=".step", object_list=[], removed_objects=[]):
-        """Export the 3D model.
-
-        Parameters
-        ----------
-        fileName : str
-            Name of the file.
-        filePath : str
-            Path for the file.
-        fileFormat : str, optional
-             Format of the file. The default is ``".step"``.
-        object_list : list, optional
-             List of objects to export. The default is ``[]``.
-        removed_objects : list, optional
-             The default is ``[]``.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        """
-        if not object_list:
-            allObjects = self.modeler.primitives.object_names
-            if removed_objects:
-                for rem in removed_objects:
-                    allObjects.remove(rem)
-            else:
-                if "Region" in allObjects:
-                    allObjects.remove("Region")
-        else:
-            allObjects = object_list[:]
-
-        self.logger.info("Exporting {} objects".format(len(allObjects)))
-
-        stringa = ",".join(allObjects)
-        arg = [
-            "NAME:ExportParameters",
-            "AllowRegionDependentPartSelectionForPMLCreation:=",
-            True,
-            "AllowRegionSelectionForPMLCreation:=",
-            True,
-            "Selections:=",
-            stringa,
-            "File Name:=",
-            str(filePath) + "/" + str(fileName) + str(fileFormat),
-            "Major Version:=",
-            -1,
-            "Minor Version:=",
-            -1,
-        ]
-
-        self.modeler.oeditor.Export(arg)
-        return True
-
-    @aedt_exception_handler
     def globalMeshSettings(
         self,
         meshtype,
