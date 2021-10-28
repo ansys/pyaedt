@@ -511,7 +511,7 @@ class Application(object):
                 ).format(max_args, tailargs)
             )
 
-        # Positional arguement validataion
+        # Positional argument validataion
         if hasattr(self.main, "positional"):
             tailargs = self._positional_validate(
                 tailargs,
@@ -876,7 +876,7 @@ class Application(object):
                 by_groups[si.group] = []
             by_groups[si.group].append(si)
 
-        def switchs(by_groups, show_groups):
+        def switches(by_groups, show_groups):
             for grp, swinfos in sorted(by_groups.items(), key=lambda item: item[0]):
                 if show_groups:
                     lgrp = T_(grp) if grp in _switch_groups else grp
@@ -904,13 +904,13 @@ class Application(object):
                     print("")
 
         sw_width = (
-            max(len(prefix) for si, prefix, color in switchs(by_groups, False)) + 4
+            max(len(prefix) for si, prefix, color in switches(by_groups, False)) + 4
         )
         description_indent = "    {0}{1}{2}"
         wrapper = TextWrapper(width=max(cols - min(sw_width, 60), 50) - 6)
         indentation = "\n" + " " * (cols - wrapper.width)
 
-        for switch_info, prefix, color in switchs(by_groups, True):
+        for switch_info, prefix, color in switches(by_groups, True):
             help = switch_info.help  # @ReservedAssignment
             if switch_info.list:
                 help += T_("; may be given multiple times")

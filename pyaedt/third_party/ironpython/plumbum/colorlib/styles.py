@@ -487,7 +487,7 @@ class Style(object):
         return other + other.__class__(self)
 
     def wrap(self, wrap_this):
-        """Wrap a sting in this style and its inverse."""
+        """Wrap a string in this style and its inverse."""
         return self + wrap_this + ~self
 
     def __and__(self, other):
@@ -499,7 +499,7 @@ class Style(object):
             return self.wrap(other)
 
     def __rand__(self, other):
-        """This class supports ``"String:" & color`` syntax, excpet in Python 2.6 due to bug with that Python."""
+        """This class supports ``"String:" & color`` syntax, except in Python 2.6 due to bug with that Python."""
         return self.wrap(other)
 
     def __ror__(self, other):
