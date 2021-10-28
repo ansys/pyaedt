@@ -978,41 +978,6 @@ class GeometryModeler(Modeler, object):
         return True
 
     @aedt_exception_handler
-    def add_workbench_link(self, objects, ambient_temp=22, create_project_var=False, enable_deformation=True):
-        """Assign temperature and deformation objects to a Workbench link.
-
-        .. deprecated:: 0.3.1
-           Use :func:`GeometryModeler.set_objects_temperature` and
-           :func:`GeometryModeler.set_objects_deformation` instead.
-
-        Parameters
-        ----------
-        objects : list
-            List of the objects to assign to the Workbench link.
-        ambient_temp : float, optional
-            Ambient temperature. The default is ``22.``
-        create_project_var : bool, optional
-            Whether to create a project variable for the ambient temperature.
-            The default is ``False``. If ``True,`` ``$AmbientTemp`` is created.
-        enable_deformation : bool, optional
-            Whether to add the deformation link. The default is ``True``.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        """
-        warnings.warn(
-            "add_workbench_link is deprecated. " "Use set_objects_temperature and set_objects_deformation instead.",
-            DeprecationWarning,
-        )
-        self.set_objects_temperature(objects, ambient_temp, create_project_var)
-        if enable_deformation:
-            self.set_objects_deformation(objects)
-        return True
-
-    @aedt_exception_handler
     def set_objects_deformation(self, objects):
         """Assign deformation objects to a Workbench link.
 

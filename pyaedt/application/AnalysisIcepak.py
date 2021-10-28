@@ -351,18 +351,6 @@ class FieldAnalysisIcepak(Analysis, object):
         return True
 
     @aedt_exception_handler
-    def assignmaterial(self, obj, mat):
-        """Assign a material to one or more objects.
-
-        .. deprecated:: 0.3.1
-           Use :func:`FieldAnalysisIcepak.assign_material` instead.
-
-        """
-        # raise a DeprecationWarning.  User won't have to change anything
-        warnings.warn("assignmaterial is deprecated. Use assign_material instead.", DeprecationWarning)
-        self.assign_material(obj, mat)
-
-    @aedt_exception_handler
     def assign_material(self, obj, mat):
         """Assign a material to one or more objects.
 

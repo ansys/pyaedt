@@ -302,6 +302,9 @@ class FieldAnalysis3D(Analysis, object):
     def export3DModel(self, fileName, filePath, fileFormat=".step", object_list=[], removed_objects=[]):
         """Export the 3D model.
 
+        .. deprecated:: 0.5.0
+           Use :func:`pyaedt.application.Analysis3D.modeler.export_3d_model` instead.
+
         Parameters
         ----------
         fileName : str
@@ -414,17 +417,6 @@ class FieldAnalysis3D(Analysis, object):
             contexts.append([s + ":" + str(i + 1) for s in sources])  # use one based indexing
         self.osolution.SetSourceContexts(contexts)
         return True
-
-    @aedt_exception_handler
-    def assignmaterial(self, obj, mat):
-        """Assign a material to one or more objects.
-
-        .. deprecated:: 0.3.1
-           Use :func:`FieldAnalysis3D.assign_material` instead.
-
-        """
-        warnings.warn("assignmaterial is deprecated. Use assign_material instead.", DeprecationWarning)
-        self.assign_material(obj, mat)
 
     @aedt_exception_handler
     def assign_material(self, obj, mat):
