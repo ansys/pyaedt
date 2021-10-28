@@ -4,7 +4,7 @@ from pyaedt.generic.general_methods import aedt_exception_handler, generate_uniq
 
 
 class EdbNets(object):
-    """Manages EDB functionalities  for nets."""
+    """Manages EDB functionalities for nets."""
 
     def __init__(self, p_edb):
         self._pedb = p_edb
@@ -41,7 +41,7 @@ class EdbNets(object):
 
     @property
     def _logger(self):
-        """ """
+        """Edb logger."""
         return self._pedb.logger
 
     @property
@@ -245,7 +245,7 @@ class EdbNets(object):
                 if edb_net is not None:
                     edb_net.Delete()
                     nets_deleted.append(net)
-                    self._logger.info("Net {} Deleted".format(net))
+                    self._logger.info("Net %s Deleted", net)
             except:
                 pass
 

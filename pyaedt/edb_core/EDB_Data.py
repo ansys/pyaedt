@@ -289,7 +289,7 @@ class EDBLayer(object):
         try:
             newLayer.SetLayerType(layerTypeMap)
         except:
-            self._logger.error("Layer {0} has unknown type {1}".format(layerName, layerTypeMap))
+            self._logger.error("Layer %s has unknown type %s.", layerName, layerTypeMap)
             return False
         if thicknessMap:
             newLayer.SetThickness(self._edb_value(thicknessMap))
