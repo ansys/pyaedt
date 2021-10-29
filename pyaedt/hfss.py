@@ -14,7 +14,7 @@ from pyaedt.modeler.actors import Radar
 
 
 class Hfss(FieldAnalysis3D, object):
-    """Provides the HFSS application interface.
+    """Provides the HFSS application interface.ffgghhjj
 
     This class allows you to create an interactive instance of HfSS and
     connect to an existing HFSS design or create a new HFSS design if
