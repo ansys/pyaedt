@@ -22,7 +22,7 @@ jobs:
 
       - name: 'Run Unit Tests in Ironpython'
         run: |
-          start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmode.cmd'
+          $p = start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmode.cmd'
 
           $Timeout = 100
           while (($Timeout -gt 0) -and (!(Test-Path ".\_unittest_ironpython\tests_succeeded.log")))
@@ -32,6 +32,13 @@ jobs:
           }
 
           get-content .\_unittest_ironpython\runner_unittest.log
+
+          Write-Output "OUT.."
+
+          $p.ExitCode
+          $LASTEXITCODE
+          Write-Output $p
+          Write-Output $LASTEXITCODE
 
       # - name: 'Print the runner unittest log.'
       #   run: |
