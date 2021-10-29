@@ -24,7 +24,9 @@ jobs:
         run: |
           start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmode.cmd'
 
-      - name: 'Print the runner unittest log.'
-        run: |
-          # Print the runner log content.
           get-content .\_unittest_ironpython\runner_unittest.log
+
+      # - name: 'Print the runner unittest log.'
+      #   run: |
+      #     # Print the runner log content.
+      #     get-content .\_unittest_ironpython\runner_unittest.log
