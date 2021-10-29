@@ -35,10 +35,7 @@ jobs:
 
           Write-Output "OUT.."
 
-          $p.ExitCode
-          $LASTEXITCODE
-          Write-Output $p
-          Write-Output $LASTEXITCODE
+          Write-Output $p.ExitCode
 
       # - name: 'Print the runner unittest log.'
       #   run: |
