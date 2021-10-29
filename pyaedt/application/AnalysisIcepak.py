@@ -2,15 +2,15 @@ import csv
 import re
 import warnings
 
-from ..generic.general_methods import aedt_exception_handler, generate_unique_name
-from ..application.Analysis import Analysis
-from ..modeler.Model3D import Modeler3D
-from ..modules.MeshIcepak import IcepakMesh
-from .. import is_ironpython
+from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, is_ironpython
+from pyaedt.application.Analysis import Analysis
+from pyaedt.modeler.Model3D import Modeler3D
+from pyaedt.modules.MeshIcepak import IcepakMesh
+
 if is_ironpython:
-    from ..modules.PostProcessor import PostProcessor
+    from pyaedt.modules.PostProcessor import PostProcessor
 else:
-    from ..modules.AdvancedPostProcessing import PostProcessor
+    from pyaedt.modules.AdvancedPostProcessing import PostProcessor
 
 
 class FieldAnalysisIcepak(Analysis, object):
@@ -357,6 +357,52 @@ class FieldAnalysisIcepak(Analysis, object):
         else:
             self.logger.glb.error("Material does not exist.")
             return False
+
+    @aedt_exception_handler
+    def assign_surface_material(self, obj, mat):
+        """Assign a surface material to one or more objects.
+
+        Parameters
+        ----------
+        obj : str, list
+            One or more objects to assign surface materials to.
+        mat : str
+            Material to assign. The material must be present in the database.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        mat = mat.lower()
+        if mat not in self.materials.surface_material_keys:
+            self.logger.glb.warning(
+                "Warning. The material is not the database. Use add_surface_material."
+            )
+            return False
+        else:
+            for el in obj:
+                self.modeler.oeditor.ChangeProperty(
+                    [
+                        "NAME:AllTabs",
+                        [
+                            "NAME:Geometry3DAttributeTab",
+                            [
+                                "NAME:PropServers",
+                                el
+                            ],
+                            [
+                                "NAME:ChangedProps",
+                                [
+                                    "NAME:Surface Material",
+                                    "Value:=", "\"" + mat + "\""
+                                ]
+                            ]
+                        ]
+                    ])
+
+            return True
 
     @aedt_exception_handler
     def _assign_property_to_mat(self, newmat, val, property):

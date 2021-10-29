@@ -7,7 +7,7 @@ from __future__ import absolute_import
 import logging
 import warnings
 
-from ..generic.general_methods import aedt_exception_handler
+from pyaedt.generic.general_methods import aedt_exception_handler
 
 try:
     import clr

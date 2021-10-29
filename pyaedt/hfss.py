@@ -4,12 +4,13 @@ import os
 import warnings
 import math
 import tempfile
-from .application.Analysis3D import FieldAnalysis3D
-from .modeler.GeometryOperators import GeometryOperators
-from .modules.Boundary import BoundaryObject, NativeComponentObject
-from .generic.general_methods import generate_unique_name, aedt_exception_handler
+
+from pyaedt.application.Analysis3D import FieldAnalysis3D
+from pyaedt.modeler.GeometryOperators import GeometryOperators
+from pyaedt.modules.Boundary import BoundaryObject, NativeComponentObject
+from pyaedt.generic.general_methods import generate_unique_name, aedt_exception_handler
 from collections import OrderedDict
-from .modeler.actors import Radar
+from pyaedt.modeler.actors import Radar
 
 
 class Hfss(FieldAnalysis3D, object):
@@ -282,7 +283,10 @@ class Hfss(FieldAnalysis3D, object):
             useintline = False
 
         props = OrderedDict({})
-        props["Objects"] = [objectname]
+        if isinstance(objectname, int):
+            props["Faces"] = [objectname]
+        else:
+            props["Objects"] = [objectname]
         props["NumModes"] = nummodes
         props["UseLineModeAlignment"] = False
 
@@ -2148,8 +2152,12 @@ class Hfss(FieldAnalysis3D, object):
         return self._create_boundary(boundary_name, props, boundary_type)
 
     @aedt_exception_handler
-    def _get_reference_and_integration_points(self, sheet, axisdir):
-        objID = self.modeler.oeditor.GetFaceIDs(sheet)
+    def _get_reference_and_integration_points(self, sheet, axisdir, obj_name=None):
+        if isinstance(sheet, int):
+            objID = [sheet]
+            sheet = obj_name
+        else:
+            objID = self.modeler.oeditor.GetFaceIDs(sheet)
         face_edges = self.modeler.primitives.get_face_edges(objID[0])
         mid_points = [self.modeler.primitives.get_edge_midpoint(i) for i in face_edges]
         if axisdir < 3:
@@ -2234,9 +2242,18 @@ class Hfss(FieldAnalysis3D, object):
         """
 
         sheet = self.modeler.convert_to_selections(sheet, True)
+        obj_names = []
+        for sh in sheet:
+            if isinstance(sh, int):
+                try:
+                    obj_names.append(self.modeler.oeditor.GetObjectNameByFaceID(sh))
+                except:
+                    obj_names.append("")
+            else:
+                obj_names.append("")
         portnames = []
-        for obj in sheet:
-            refid, int_start, int_stop = self._get_reference_and_integration_points(obj, axisdir)
+        for obj, oname in zip(sheet, obj_names):
+            refid, int_start, int_stop = self._get_reference_and_integration_points(obj, axisdir, oname)
 
             if not portname:
                 portname = generate_unique_name("Port")
@@ -3329,11 +3346,7 @@ class Hfss(FieldAnalysis3D, object):
         <class 'pyaedt.modules.Boundary.BoundaryObject'>
 
         """
-
-        if type(faces_id) is not list:
-            faces_list = [int(faces_id)]
-        else:
-            faces_list = [int(i) for i in faces_id]
+        faces_list = self.modeler.convert_to_selections(faces_id, True)
         if boundary_name:
             rad_name = boundary_name
         else:

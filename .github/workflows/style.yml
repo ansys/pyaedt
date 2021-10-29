@@ -24,5 +24,6 @@ jobs:
           make codespell
 
       - name: flake8
+        if: ${{ always() }}
         run: |
           make flake8

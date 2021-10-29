@@ -1,10 +1,10 @@
 import os
 
-from .parts import Part, Antenna
-from ..generic.DataHandlers import json_to_dict
-from ..generic.filesystem import get_json_files
-from .GeometryOperators import GeometryOperators
-from ..generic.general_methods import aedt_exception_handler
+from pyaedt.modeler.parts import Part, Antenna
+from pyaedt.generic.DataHandlers import json_to_dict
+from pyaedt.generic.filesystem import get_json_files
+from pyaedt.modeler.GeometryOperators import GeometryOperators
+from pyaedt.generic.general_methods import aedt_exception_handler
 
 
 class MultiPartComponent(object):

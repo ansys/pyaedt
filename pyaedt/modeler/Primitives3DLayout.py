@@ -1,11 +1,10 @@
 import sys
 from collections import defaultdict
 
-from ..generic.general_methods import aedt_exception_handler
-from .Object3d import Padstack, Components3DLayout, Geometries3DLayout, Pins3DLayout, Nets3DLayout, _uname
-from .Primitives import default_materials
-from pyaedt import is_ironpython
-from .GeometryOperators import GeometryOperators
+from pyaedt.generic.general_methods import aedt_exception_handler, is_ironpython
+from pyaedt.modeler.Object3d import Padstack, Components3DLayout, Geometries3DLayout, Pins3DLayout, Nets3DLayout, _uname
+from pyaedt.modeler.Primitives import default_materials
+from pyaedt.modeler.GeometryOperators import GeometryOperators
 import pkgutil
 
 modules = [tup[1] for tup in pkgutil.iter_modules()]

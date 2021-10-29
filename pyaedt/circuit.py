@@ -7,9 +7,9 @@ import math
 import os
 import re
 
-from .application.AnalysisNexxim import FieldAnalysisCircuit
-from .generic.DataHandlers import from_rkm_to_aedt
-from .generic.general_methods import aedt_exception_handler
+from pyaedt.application.AnalysisNexxim import FieldAnalysisCircuit
+from pyaedt.generic.DataHandlers import from_rkm_to_aedt
+from pyaedt.generic.general_methods import aedt_exception_handler
 
 
 class Circuit(FieldAnalysisCircuit, object):

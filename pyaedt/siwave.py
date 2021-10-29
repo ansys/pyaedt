@@ -6,14 +6,13 @@ automatically initialized by an app to the latest installed AEDT version.
 
 """
 from __future__ import absolute_import
-from .generic.general_methods import aedt_exception_handler
+from pyaedt.generic.general_methods import aedt_exception_handler, is_ironpython, _pythonver
 import os
 import sys
 import pkgutil
 import time
 
-from .misc import list_installed_ansysem
-from pyaedt import is_ironpython, _pythonver
+from pyaedt.misc import list_installed_ansysem
 
 if is_ironpython:
     import clr  # IronPython C:\Program Files\AnsysEM\AnsysEM19.4\Win64\common\IronPython\ipy64.exe
@@ -33,12 +32,6 @@ elif os.name == "nt":
         _com = "pywin32"
     else:
         raise Exception("Error. No win32com.client or Python.NET modules found. They need to be installed.")
-
-
-# if _pythonver == 3:
-#     from .MessageManager import AEDTMessageManager
-# else:
-#     from MessageManager import AEDTMessageManager
 
 
 class Siwave:

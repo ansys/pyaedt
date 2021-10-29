@@ -1,7 +1,7 @@
 from __future__ import absolute_import
-from ..generic.general_methods import aedt_exception_handler
-from .Modeler import GeometryModeler
-from .Primitives3D import Primitives3D
+from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.modeler.Modeler import GeometryModeler
+from pyaedt.modeler.Primitives3D import Primitives3D
 
 
 class Modeler3D(GeometryModeler):

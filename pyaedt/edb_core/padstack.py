@@ -7,7 +7,7 @@ import warnings
 from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 
-from .EDB_Data import EDBPadstack
+from pyaedt.edb_core.EDB_Data import EDBPadstack
 
 try:
     from System import Array
@@ -242,7 +242,7 @@ class EdbPadstacks(object):
             padstackLayerMap.SetMapping(layer.GetLayerId(), padstackLayerIdMap[padstackLayerName])
         padstackDefinition = self._edb.Definition.PadstackDef.Create(self.db, padstackname)
         padstackDefinition.SetData(padstackData)
-        self._logger.info("Padstack {} create correctly".format(padstackname))
+        self._logger.info("Padstack %s create correctly", padstackname)
         self.update_padstacks()
         return padstackname
 

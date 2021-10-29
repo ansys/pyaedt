@@ -2,10 +2,8 @@ import time
 import warnings
 from collections import OrderedDict, defaultdict
 
-from pyaedt import is_ironpython
-
-from ..generic.general_methods import aedt_exception_handler
-from .general import convert_py_list_to_net_list
+from pyaedt.generic.general_methods import aedt_exception_handler, is_ironpython
+from pyaedt.edb_core.general import convert_py_list_to_net_list
 
 try:
     from System import Array
@@ -291,7 +289,7 @@ class EDBLayer(object):
         try:
             newLayer.SetLayerType(layerTypeMap)
         except:
-            self._logger.error("Layer {0} has unknown type {1}".format(layerName, layerTypeMap))
+            self._logger.error("Layer %s has unknown type %s.", layerName, layerTypeMap)
             return False
         if thicknessMap:
             newLayer.SetThickness(self._edb_value(thicknessMap))
