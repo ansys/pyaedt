@@ -35,12 +35,12 @@ def discover_and_run(start_dir, pattern=None):
         f.write("Test started {}\n".format(datetime.now()))
         runner = unittest.TextTestRunner(f, verbosity=2)
         result = runner.run(test_suite)
+        f.write("TEST DEDUG")
+        f.write(str(tests_result))
+        f.write(str(tests_result.wasSuccessful()))
     return result
 
 tests_result = discover_and_run(run_dir, pattern=test_filter)
-print("TEST DEDUG")
-print(str(tests_result))
-print(str(tests_result.wasSuccessful()))
 
 if is_ironpython and "oDesktop" in dir(sys.modules["__main__"]):
     pid = sys.modules["__main__"].oDesktop.GetProcessID()
