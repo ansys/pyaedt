@@ -22,8 +22,9 @@ jobs:
 
       - name: 'Run Unit Tests in Ironpython'
         run: |
-          $p = start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmode.cmd' -PassThru -Wait
-
+          $p = start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmode.cmd' -PassThru
+          $handle = $p.Handle # cache proc.Handle
+          $p.WaitForExit();
           $Timeout = 100
           while (($Timeout -gt 0) -and (!(Test-Path ".\_unittest_ironpython\tests_succeeded.log")))
           {
