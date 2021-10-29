@@ -236,7 +236,7 @@ class EdbNets(object):
 
         >>> deleted_nets = edb_core.core_nets.delete_nets(["Net1","Net2"])
         """
-        if type(netlist) is str:
+        if isinstance(netlist, str):
             netlist = [netlist]
         nets_deleted = []
         for net in netlist:

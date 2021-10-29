@@ -211,5 +211,8 @@ def get_methods(obj_attrs, obj):
         attrs.update(basecls.__dict__)
     for name, attr in attrs.items():
         if name not in obj_attrs and hasattr(attr, "__call__"):
-            methods[name] = inspect.getdoc(attr)
+            try:
+                methods[name] = inspect.getdoc(attr)
+            except:
+                pass
     return methods.items()

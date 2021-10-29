@@ -654,7 +654,7 @@ class GeometryModeler(Modeler, object):
             elif type(el) is EdgePrimitive or type(el) is FacePrimitive or type(el) is VertexPrimitive:
                 output_list = [i.id for i in input_list]
             elif type(el) is int and convert_objects_ids_to_name:
-                if el in self.primitives.objects:
+                if el in list(self.primitives.objects.keys()):
                     output_list.append(self.primitives.objects[el].name)
                 else:
                     output_list.append(el)
@@ -1451,11 +1451,11 @@ class GeometryModeler(Modeler, object):
            String or list of the selections.
 
         """
-        if type(objtosplit) is not list:
+        if not isinstance(objtosplit, list):
             objtosplit = [objtosplit]
         objnames = []
         for el in objtosplit:
-            if isinstance(el, int) and el in self.primitives.objects:
+            if isinstance(el, int) and el in list(self.primitives.objects.keys()):
                 objnames.append(self.primitives.objects[el].name)
             elif isinstance(el, int):
                 objnames.append(el)

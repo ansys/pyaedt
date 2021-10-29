@@ -703,13 +703,13 @@ class Primitives3D(Primitives, object):
         vArgParamVector = ["NAME:GeometryParams"]
 
         for pair in udm_params_list:
-            if type(pair) is list:
+            if isinstance(pair, list):
                 name = pair[0]
                 val = pair[1]
             else:
                 name = pair.Name
                 val = pair.Value
-            if type(val) is int:
+            if isinstance(val, int):
                 vArgParamVector.append(
                     ["NAME:UDMParam", "Name:=", name, "Value:=", str(val), "PropType2:=", 3, "PropFlag2:=", 2])
             elif str(val)[0] in '0123456789':

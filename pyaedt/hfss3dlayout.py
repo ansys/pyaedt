@@ -177,7 +177,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         """
         listp = self.port_list
-        if type(layer) is str:
+        if isinstance(layer, str):
             layerid = self.modeler.layers.layer_id(layer)
         else:
             layerid = layer

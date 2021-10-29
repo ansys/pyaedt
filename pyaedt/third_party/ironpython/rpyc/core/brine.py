@@ -117,6 +117,15 @@ def _dump_int(obj, stream):
         else:
             stream.append(TAG_INT_L4 + I4.pack(lenobj) + obj)
 
+@register(_dump_registry, long)
+def _dump_int(obj, stream):
+    str_obj = str(obj) if str(obj)[-1]!="L" else str(obj)[:-1]
+    obj = BYTES_LITERAL(str(str_obj))
+    lenobj = len(obj)
+    if lenobj < 256:
+        stream.append(TAG_INT_L1 + I1.pack(lenobj) + obj)
+    else:
+        stream.append(TAG_INT_L4 + I4.pack(lenobj) + obj)
 
 @register(_dump_registry, float)
 def _dump_float(obj, stream):
@@ -360,7 +369,7 @@ def load(data):
     return _load(stream)
 
 
-simple_types = frozenset([type(None), int, bool, float, bytes, str, complex, type(NotImplemented), type(Ellipsis)])
+simple_types = frozenset([type(None), int, long, bool, float, bytes, str, complex, type(NotImplemented), type(Ellipsis)])
 
 
 def dumpable(obj):

@@ -43,7 +43,7 @@ class SimplorerComponents(CircuitComponents):
             Part object details.
 
         """
-        if type(partname) is int:
+        if isinstance(partname, int):
             return self.components[partname]
         for el in self.components:
             if self.components[el].name == partname or self.components[el].composed_name == partname or el == partname:

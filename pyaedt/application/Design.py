@@ -667,7 +667,7 @@ class Design(object):
         try:
             if model_names[self._design_type] in self.project_properies["AnsoftProject"]:
                 designs = self.project_properies["AnsoftProject"][model_names[self._design_type]]
-                if type(designs) is list:
+                if isinstance(designs, list):
                     for design in designs:
                         if design["Name"] == design_name:
                             return design

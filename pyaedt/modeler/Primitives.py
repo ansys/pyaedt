@@ -1043,7 +1043,7 @@ class Primitives(object):
             ``True`` when successful, ``False`` when failed
 
         """
-        if type(object) is int:
+        if isinstance(object, int):
             if object in self.objects:
                 return True
             else:
@@ -1389,7 +1389,7 @@ class Primitives(object):
         vArgParamVector = ["NAME:ParamVector"]
 
         for pair in udp_parameters_list:
-            if type(pair) is list:
+            if isinstance(pair, list):
                 vArgParamVector.append(["NAME:Pair", "Name:=", pair[0], "Value:=", pair[1]])
 
             else:
@@ -1913,7 +1913,7 @@ class Primitives(object):
 
         """
         oFaceIDs = []
-        if type(partId) is str and partId in self.object_id_dict:
+        if isinstance(partId, str) and partId in self.object_id_dict:
             oFaceIDs = self._oeditor.GetFaceIDs(partId)
             oFaceIDs = [int(i) for i in oFaceIDs]
         elif partId in self.objects:
@@ -1939,7 +1939,7 @@ class Primitives(object):
 
         """
         oEdgeIDs = []
-        if type(partId) is str and partId in self.object_id_dict:
+        if isinstance(partId, str) and partId in self.object_id_dict:
             oEdgeIDs = self._oeditor.GetEdgeIDsFromObject(partId)
             oEdgeIDs = [int(i) for i in oEdgeIDs]
         elif partId in self.objects:
@@ -1982,7 +1982,7 @@ class Primitives(object):
 
         """
         oVertexIDs = []
-        if type(partID) is str and partID in self.object_id_dict:
+        if isinstance(partID, str) and partID in self.object_id_dict:
             oVertexIDs = self._oeditor.GetVertexIDsFromObject(partID)
             oVertexIDs = [int(i) for i in oVertexIDs]
         elif partID in self.objects:
@@ -2179,7 +2179,7 @@ class Primitives(object):
             two vertices, an empty list is returned.
         """
 
-        if type(partID) is str and partID in self.object_id_dict:
+        if isinstance(partID, str) and partID in self.object_id_dict:
             partID = self.object_id_dict[partID]
 
         if partID in self.objects and self.objects[partID].object_type == "Line":
@@ -2713,7 +2713,7 @@ class Primitives(object):
             Edge ID of the edge closest to this position.
 
         """
-        if type(position) is list:
+        if isinstance(position, list):
             position = self.modeler.Position(position)
 
         bodies = self.get_bodynames_from_position(position, units)
@@ -2859,7 +2859,7 @@ class Primitives(object):
             ]
         except KeyError:
             groups = []
-        if type(groups) is not list:
+        if not isinstance(groups, list):
             groups = [groups]
         try:
             self._app.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"]["ToplevelParts"][

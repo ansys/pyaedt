@@ -846,7 +846,7 @@ class VariableManager(object):
                     value = Variable(variable_expression)
                     if independent and is_number(value.value):
                         var_dict[variable_name] = value
-                    elif dependent and type(value.value) is str:
+                    elif dependent and isinstance(value.value, str):
                         float_value = self._app.get_evaluated_value(variable_name)
                         var_dict[variable_name] = Expression(variable_expression, float_value, all_names)
                 except:

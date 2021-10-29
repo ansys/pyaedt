@@ -33,7 +33,7 @@ def resistor_value_parser(RValue):
         Resistor value.
 
     """
-    if type(RValue) is str:
+    if isinstance(RValue, str):
         RValue = RValue.replace(" ", "")
         RValue = RValue.replace("meg", "m")
         RValue = RValue.replace("Ohm", "")
@@ -376,7 +376,7 @@ class Components(object):
 
         """
         cmp_list = []
-        if type(netlist) is str:
+        if isinstance(netlist, str):
             netlist = [netlist]
         components = list(self.components.keys())
         for refdes in components:

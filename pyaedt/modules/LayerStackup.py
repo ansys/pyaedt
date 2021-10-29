@@ -355,7 +355,7 @@ class Layer(object):
         -------
 
         """
-        if type(value) is str:
+        if isinstance(value, str):
             val = value
         else:
             if units is None:

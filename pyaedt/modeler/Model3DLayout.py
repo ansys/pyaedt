@@ -129,7 +129,7 @@ class Modeler3DLayout(Modeler):
 
     @aedt_exception_handler
     def _arg_with_dim(self, value, units=None):
-        if type(value) is str:
+        if isinstance(value, str):
             val = value
         else:
             if units is None:
@@ -405,14 +405,14 @@ class Modeler3DLayout(Modeler):
 
         """
         vArg1 = ["NAME:primitives", blank]
-        if type(tool) is list:
+        if isinstance(tool, list):
             for el in tool:
                 vArg1.append(el)
         else:
             vArg1.append(tool)
         if self.oeditor is not None:
             self.oeditor.Subtract(vArg1)
-        if type(tool) is list:
+        if isinstance(tool, list):
             for el in tool:
                 if self.primitives.is_outside_desktop:
                     self.primitives._geometries.pop(el)
