@@ -36,8 +36,8 @@ def discover_and_run(start_dir, pattern=None):
         runner = unittest.TextTestRunner(f, verbosity=2)
         result = runner.run(test_suite)
         f.write("TEST DEDUG")
-        f.write(str(tests_result))
-        f.write(str(tests_result.wasSuccessful()))
+        f.write(str(result))
+        f.write(str(result.wasSuccessful()))
     return result
 
 tests_result = discover_and_run(run_dir, pattern=test_filter)
