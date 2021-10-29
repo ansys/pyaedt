@@ -50,7 +50,7 @@ if is_ironpython and "oDesktop" in dir(sys.modules["__main__"]):
         except:
             successfully_closed = False
 
-# if tests_result.wasSuccessful():
-#     sys.exit(0)
-# else:
-#     sys.exit(1)
+if tests_result.wasSuccessful():
+    sys.exit(0)
+else:
+    sys.exit(1)
