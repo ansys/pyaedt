@@ -23,18 +23,8 @@ jobs:
       - name: 'Run Unit Tests in Ironpython'
         run: |
           start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmode.cmd'
-          $Timeout = 1200
-          while (($Timeout -gt 0) -and (!(Test-Path ".\_unittest_ironpython\tests_succeeded.log")))
-          {
-            Start-Sleep 1
-            $Timeout -= 1
-          }
 
+      - name: 'Print the runner unittest log.'
+        run: |
           # Print the runner log content.
           get-content .\_unittest_ironpython\runner_unittest.log
-
-          if ( $Timeout  -eq 0)
-          {
-            exit 1
-          }
-

@@ -3,6 +3,7 @@ import os
 import sys
 import unittest
 from datetime import datetime
+
 from pyaedt import is_ironpython
 if os.name != "posix":
     sys.path.append(os.path.join(os.environ["ANSYSEM_ROOT211"], "PythonFiles", "DesktopPlugin"))
@@ -36,6 +37,7 @@ def discover_and_run(start_dir, pattern=None):
     return result
 
 tests_result = discover_and_run(run_dir, pattern=test_filter)
+print(str(tests_result.wasSuccessful()))
 
 if is_ironpython and "oDesktop" in dir(sys.modules["__main__"]):
     pid = sys.modules["__main__"].oDesktop.GetProcessID()
@@ -45,7 +47,7 @@ if is_ironpython and "oDesktop" in dir(sys.modules["__main__"]):
         except:
             successfully_closed = False
 
-if tests_result.wasSuccessful():
-    sys.exit(0)
-else:
-    sys.exit(1)
+# if tests_result.wasSuccessful():
+#     sys.exit(0)
+# else:
+#     sys.exit(1)
