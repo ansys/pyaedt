@@ -180,7 +180,7 @@ def download(remotepath, localpath, server_name, server_port=18000):
     """
     if os.path.isdir(remotepath):
         _download_dir(remotepath, localpath, server_name, server_port)
-    elif os.path.isfile(localpath):
+    elif os.path.isfile(remotepath):
         _download_file(localpath, remotepath, server_name, server_port)
 
 
