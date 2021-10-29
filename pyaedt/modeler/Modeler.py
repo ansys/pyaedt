@@ -1451,7 +1451,11 @@ class GeometryModeler(Modeler, object):
            String or list of the selections.
 
         """
-        if not isinstance(objtosplit, list):
+        if "netref.builtins.list" in str(type(objtosplit)):
+            list_new=[]
+            for i in range(len(objtosplit)):
+                list_new.append(objtosplit[i])
+        elif not isinstance(objtosplit, list):
             objtosplit = [objtosplit]
         objnames = []
         for el in objtosplit:

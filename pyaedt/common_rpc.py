@@ -5,7 +5,8 @@ import time
 
 from pyaedt import is_ironpython
 if is_ironpython:
-    sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), "third_party", "ironpython")))
+    pyaedt_path = os.path.normpath(os.path.abspath(os.path.dirname(__file__)))
+    sys.path.append(os.path.join(pyaedt_path, "third_party", "ironpython"))
 
 import rpyc
 from rpyc.utils.server import ThreadedServer
@@ -35,7 +36,7 @@ def launch_server(port=18000, ansysem_path=None, non_graphical=False):
         os.environ["PYAEDT_SERVER_AEDT_PATH"] = ansysem_path
         os.environ["PYAEDT_SERVER_AEDT_NG"] = str(non_graphical)
     hostname = socket.gethostname()
-    safe_attrs = {'__abs__', '__add__', '__and__', '__bool__', '__code__', '__cmp__', '__contains__', '__delitem__',
+    safe_attrs = {'__abs__', '__add__', '__and__', '__bool__', '__class__', '__code__','__cmp__', '__contains__', '__delitem__',
                   '__delslice__', '__div__', '__divmod__', '__doc__', '__eq__', '__float__', '__floordiv__', '__func__',
                   '__ge__', "__getmodule", "__cache", "__weakref__", '__dict__',
                   '__getitem__', '__getslice__', '__gt__', '__hash__', '__hex__', '__iadd__', '__iand__', '__idiv__',

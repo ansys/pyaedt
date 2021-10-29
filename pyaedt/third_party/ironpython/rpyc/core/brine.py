@@ -21,34 +21,35 @@ from rpyc.lib.compat import Struct, BytesIO, BYTES_LITERAL
 
 
 # singletons
-TAG_NONE = bytes("\x00")
-TAG_EMPTY_STR = bytes("\x01")
-TAG_EMPTY_TUPLE = bytes("\x02")
-TAG_TRUE = bytes("\x03")
-TAG_FALSE = bytes("\x04")
-TAG_NOT_IMPLEMENTED = bytes("\x05")
-TAG_ELLIPSIS = bytes("\x06")
+TAG_NONE = "\x00"
+TAG_EMPTY_STR = "\x01"
+TAG_EMPTY_TUPLE = "\x02"
+TAG_TRUE = "\x03"
+TAG_FALSE = "\x04"
+TAG_NOT_IMPLEMENTED = "\x05"
+TAG_ELLIPSIS = "\x06"
 # types
-TAG_UNICODE = bytes("\x08")
+TAG_UNICODE = "\x08"
 # deprecated w/ py2 support TAG_LONG = b"\x09"
-TAG_STR1 = bytes("\x0a")
-TAG_STR2 = bytes("\x0b")
-TAG_STR3 = bytes("\x0c")
-TAG_STR4 = bytes("\x0d")
-TAG_STR_L1 = bytes("\x0e")
-TAG_STR_L4 = bytes("\x0f")
-TAG_TUP1 = bytes("\x10")
-TAG_TUP2 = bytes("\x11")
-TAG_TUP3 = bytes(b"\x12")
-TAG_TUP4 = bytes("\x13")
-TAG_TUP_L1 = bytes("\x14")
-TAG_TUP_L4 = bytes("\x15")
-TAG_INT_L1 = bytes("\x16")
-TAG_INT_L4 = bytes("\x17")
-TAG_FLOAT = bytes("\x18")
-TAG_SLICE = bytes("\x19")
-TAG_FSET = bytes("\x1a")
-TAG_COMPLEX = bytes("\x1b")
+TAG_LONG = b"\x09"
+TAG_STR1 = "\x0a"
+TAG_STR2 = "\x0b"
+TAG_STR3 = "\x0c"
+TAG_STR4 = "\x0d"
+TAG_STR_L1 = "\x0e"
+TAG_STR_L4 = "\x0f"
+TAG_TUP1 = "\x10"
+TAG_TUP2 = "\x11"
+TAG_TUP3 = b"\x12"
+TAG_TUP4 = "\x13"
+TAG_TUP_L1 = "\x14"
+TAG_TUP_L4 = "\x15"
+TAG_INT_L1 = "\x16"
+TAG_INT_L4 = "\x17"
+TAG_FLOAT = "\x18"
+TAG_SLICE = "\x19"
+TAG_FSET = "\x1a"
+TAG_COMPLEX = "\x1b"
 IMM_INTS = dict((i, bytes([i + 0x50])) for i in range(-0x30, 0xa0))
 
 I1 = Struct("!B")
@@ -156,11 +157,8 @@ def _dump_bytes(obj, stream):
         stream.append(TAG_STR_L4 + I4.pack(lenobj) + obj)
 
 
-@register(_dump_registry, type(u""))
+@register(_dump_registry, type(unicode("")))
 def _dump_str(obj, stream):
-    try:
-       _dump_bytes(obj.decode('ascii'), stream)
-    except:
         stream.append(TAG_UNICODE)
         _dump_bytes(obj.encode("utf8"), stream)
 
@@ -184,7 +182,6 @@ def _dump_tuple(obj, stream):
         stream.append(TAG_TUP_L4 + I4.pack(lenobj))
     for item in obj:
         _dump(item, stream)
-
 
 def _undumpable(obj, stream):
     raise TypeError("cannot dump %r" % (obj,))
@@ -369,7 +366,7 @@ def load(data):
     return _load(stream)
 
 
-simple_types = frozenset([type(None), int, long, bool, float, bytes, str, complex, type(NotImplemented), type(Ellipsis)])
+simple_types = frozenset([type(None), int, bool, float, long, bytes, str, complex, type(NotImplemented), type(Ellipsis)])
 
 
 def dumpable(obj):
