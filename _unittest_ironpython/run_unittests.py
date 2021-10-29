@@ -38,6 +38,8 @@ def discover_and_run(start_dir, pattern=None):
     return result
 
 tests_result = discover_and_run(run_dir, pattern=test_filter)
+print("TEST DEDUG")
+print(str(tests_result))
 print(str(tests_result.wasSuccessful()))
 
 if is_ironpython and "oDesktop" in dir(sys.modules["__main__"]):
