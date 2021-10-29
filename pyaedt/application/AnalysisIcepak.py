@@ -1,6 +1,5 @@
 import csv
 import re
-import warnings
 
 from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, is_ironpython
 from pyaedt.application.Analysis import Analysis

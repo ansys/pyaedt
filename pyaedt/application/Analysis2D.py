@@ -1,4 +1,3 @@
-import warnings
 
 from pyaedt.application.Analysis import Analysis
 from pyaedt.modeler.Model2D import Modeler2D

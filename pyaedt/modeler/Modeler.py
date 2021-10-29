@@ -7,7 +7,6 @@ This modules provides functionalities for the 3D Modeler, 2D Modeler,
 """
 from __future__ import absolute_import
 import os
-import warnings
 
 from collections import OrderedDict
 from pyaedt.modeler.GeometryOperators import GeometryOperators
