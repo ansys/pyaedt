@@ -24,7 +24,7 @@ jobs:
         run: |
           start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmode.cmd'
 
-          $Timeout = 1200
+          $Timeout = 100
           while (($Timeout -gt 0) -and (!(Test-Path ".\_unittest_ironpython\tests_succeeded.log")))
           {
             Start-Sleep 1
