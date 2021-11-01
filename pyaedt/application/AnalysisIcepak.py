@@ -6,6 +6,11 @@ from ..generic.general_methods import aedt_exception_handler, generate_unique_na
 from ..application.Analysis import Analysis
 from ..modeler.Model3D import Modeler3D
 from ..modules.MeshIcepak import IcepakMesh
+from .. import is_ironpython
+if is_ironpython:
+    from ..modules.PostProcessor import PostProcessor
+else:
+    from ..modules.AdvancedPostProcessing import PostProcessor
 
 
 class FieldAnalysisIcepak(Analysis, object):
@@ -79,8 +84,11 @@ class FieldAnalysisIcepak(Analysis, object):
             close_on_exit,
             student_version,
         )
+        self.osolution = self._odesign.GetModule("Solutions")
+        self.oboundary = self._odesign.GetModule("BoundarySetup")
         self._modeler = Modeler3D(self)
         self._mesh = IcepakMesh(self)
+        self._post = PostProcessor(self)
 
     @property
     def modeler(self):
@@ -330,7 +338,7 @@ class FieldAnalysisIcepak(Analysis, object):
             else:
                 arg2.append("SolveInside:="), arg2.append(False)
             self.modeler.oeditor.AssignMaterial(arg1, arg2)
-            self._messenger.add_info_message("Assign Material " + mat + " to object " + selections)
+            self.logger.glb.info("Assign Material " + mat + " to object " + selections)
             self.materials._aedmattolibrary(mat)
             for el in obj:
                 self.modeler.primitives[el].material_name = mat
@@ -342,12 +350,12 @@ class FieldAnalysisIcepak(Analysis, object):
             else:
                 arg2.append("SolveInside:="), arg2.append(False)
             self.modeler.oeditor.AssignMaterial(arg1, arg2)
-            self._messenger.add_info_message("Assign Material " + mat + " to object " + selections)
+            self.logger.glb.info("Assign Material " + mat + " to object " + selections)
             for el in obj:
                 self.modeler.primitives[el].material_name = mat
             return True
         else:
-            self._messenger.add_error_message("Material Does Not Exists")
+            self.logger.glb.error("Material does not exist.")
             return False
 
     @aedt_exception_handler
@@ -525,7 +533,7 @@ class FieldAnalysisIcepak(Analysis, object):
 
         Returns
         -------
-        list
+        list of str
             List of conductors.
 
         """
@@ -542,7 +550,7 @@ class FieldAnalysisIcepak(Analysis, object):
 
         Returns
         -------
-        list
+        list of str
             List of dielectrics.
 
         """

@@ -9,17 +9,19 @@ import sys
 import time
 import traceback
 import warnings
-
+import shutil
+import tempfile
+import datetime
+import logging
 try:
     import clr
     from System.Collections.Generic import List
 except ImportError:
     warnings.warn("Pythonnet is needed to run pyaedt")
 from pyaedt import inside_desktop, is_ironpython
-from pyaedt.application.MessageManager import EDBMessageManager
+from pyaedt.application.MessageManager import AEDTMessageManager
 from pyaedt.edb_core import Components, EdbNets, EdbPadstacks, EdbLayout, Edb3DLayout, EdbSiwave, EdbStackup
 from pyaedt.edb_core.EDB_Data import EdbBuilder
-from pyaedt import retry_ntimes
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import (
     aedt_exception_handler,
@@ -28,6 +30,7 @@ from pyaedt.generic.general_methods import (
     env_value,
     generate_unique_name,
 )
+from pyaedt.aedt_logger import AedtLogger
 from pyaedt.generic.process import SiwaveSolve
 
 if os.name == "posix":
@@ -106,17 +109,25 @@ class Edb(object):
             self.standalone = True
         if edb_initialized:
             self.oproject = oproject
+            self._main = sys.modules["__main__"]
             if isaedtowned and 'oMessenger' in dir(sys.modules["__main__"]):
-                self._main = sys.modules["__main__"]
-                self._messenger = self._main.oMessenger
+                _messenger = self._main.oMessenger
+                self._logger = self._main.aedt_logger
             else:
-                if not edbpath or not os.path.exists(edbpath):
-                    self._messenger = EDBMessageManager()
-                elif os.path.exists(edbpath):
-                    self._messenger = EDBMessageManager(os.path.dirname(edbpath))
+                if not edbpath or not os.path.exists(os.path.dirname(edbpath)):
+                    project_dir = tempfile.gettempdir()
+                else:
+                    project_dir = os.path.dirname(edbpath)
+                logfile = os.path.join(
+                        project_dir, "pyaedt{}.log".format(datetime.datetime.now().strftime("%Y%m%d_%H%M%S"))
+                    )
+                self._main.oMessenger = AEDTMessageManager()
+                self._logger = AedtLogger(self._main.oMessenger, filename=logfile, level=logging.DEBUG)
+                self._logger.info("Logger Started on %s", logfile)
+                self._main.aedt_logger = self._logger
 
             self.student_version = student_version
-            self._messenger.add_info_message("Messenger Initialized in EDB")
+            self.logger.info("Logger Initialized in EDB")
             self.edbversion = edbversion
             self.isaedtowned = isaedtowned
             self._init_dlls()
@@ -135,7 +146,7 @@ class Edb(object):
                     if not edbpath:
                         edbpath = os.path.expanduser("~")
                     edbpath = os.path.join(edbpath, generate_unique_name("layout") + ".aedb")
-                self._messenger.add_info_message("No Edb Provided. Creating new EDB {}.".format(edbpath))
+                self.logger.info("No Edb Provided. Creating new EDB {}.".format(edbpath))
             self.edbpath = edbpath
             if isaedtowned and inside_desktop:
                 self.open_edb_inside_aedt()
@@ -143,19 +154,19 @@ class Edb(object):
                 self.edbpath = edbpath[:-4] + ".aedb"
                 working_dir = os.path.dirname(edbpath)
                 self.import_layout_pcb(edbpath, working_dir, use_ppe=use_ppe)
-                self._messenger.add_info_message(
+                self.logger.info(
                     "Edb {} Created Correctly from {} file".format(self.edbpath, edbpath[-2:])
                 )
             elif not os.path.exists(os.path.join(self.edbpath, "edb.def")):
                 self.create_edb()
-                self._messenger.add_info_message("Edb {} Created Correctly".format(self.edbpath))
+                self.logger.info("Edb {} Created Correctly".format(self.edbpath))
             elif ".aedb" in edbpath:
                 self.edbpath = edbpath
                 self.open_edb()
             if self.builder:
-                self._messenger.add_info_message("Edb Initialized")
+                self.logger.info("Edb Initialized")
             else:
-                self._messenger.add_info_message("Failed to initialize Dlls")
+                self.logger.info("Failed to initialize Dlls")
         else:
             warnings.warn("Failed to initialize Dlls")
 
@@ -168,6 +179,7 @@ class Edb(object):
 
     def _clean_variables(self):
         """Initialize internal variables and perform garbage collection."""
+
         self._components = None
         self._core_primitives = None
         self._stackup = None
@@ -196,7 +208,17 @@ class Edb(object):
         self._hfss = Edb3DLayout(self)
         self._nets = EdbNets(self)
         self._core_primitives = EdbLayout(self)
-        self._messenger.add_info_message("Objects Initialized")
+        self.logger.info("Objects Initialized")
+
+    @property
+    def logger(self):
+        """Logger for the Edb.
+
+        Returns
+        -------
+        :class:`pyaedt.aedt_logger.AedtLogger`
+        """
+        return self._logger
 
     @aedt_exception_handler
     def add_info_message(self, message_text):
@@ -221,7 +243,7 @@ class Edb(object):
         >>> edb.add_info_message("Design info message")
 
         """
-        self._messenger.add_info_message(message_text)
+        self.logger.info(message_text)
         return True
 
     @aedt_exception_handler
@@ -247,7 +269,7 @@ class Edb(object):
         >>> edb.add_warning_message("Design warning message")
 
         """
-        self._messenger.add_warning_message(message_text)
+        self.logger.warning(message_text)
         return True
 
     @aedt_exception_handler
@@ -274,7 +296,7 @@ class Edb(object):
         >>> edb.add_error_message("Design error message")
 
         """
-        self._messenger.add_error_message(message_text)
+        self.logger.error(message_text)
         return True
 
     @aedt_exception_handler
@@ -336,23 +358,23 @@ class Edb(object):
         """
         if init_dlls:
             self._init_dlls()
-        self._messenger.add_info_message("EDB Path {}".format(self.edbpath))
-        self._messenger.add_info_message("EDB Version {}".format(self.edbversion))
+        self.logger.info("EDB Path {}".format(self.edbpath))
+        self.logger.info("EDB Version {}".format(self.edbversion))
         self.edb.Database.SetRunAsStandAlone(self.standalone)
-        self._messenger.add_info_message("EDB Standalone {}".format(self.standalone))
+        self.logger.info("EDB Standalone {}".format(self.standalone))
         try:
             db = self.edb.Database.Open(self.edbpath, self.isreadonly)
         except Exception as e:
             db = None
-            self._messenger.add_error_message("Builder is not Initialized.")
+            self.logger.error("Builder is not Initialized.")
         if not db:
-            self._messenger.add_warning_message("Error Opening db")
+            self.logger.warning("Error Opening db")
             self._db = None
             self._active_cell = None
             self.builder = None
             return None
         self._db = db
-        self._messenger.add_info_message("Database Opened")
+        self.logger.info("Database Opened")
 
         self._active_cell = None
         if self.cellname:
@@ -362,28 +384,20 @@ class Edb(object):
         # if self._active_cell is still None, set it to default cell
         if self._active_cell is None:
             self._active_cell = list(self._db.TopCircuitCells)[0]
-        self._messenger.add_info_message("Cell {} Opened".format(self._active_cell.GetName()))
-
+        self.logger.info("Cell {} Opened".format(self._active_cell.GetName()))
         if self._db and self._active_cell:
             dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib")
-            self._messenger.add_info_message(dllpath)
-            self.layout_methods.LoadDataModel(dllpath, self.edbversion)
-            time.sleep(3)
-            retry_ntimes(
-                10,
-                self.layout_methods.InitializeBuilder,
-                self._db,
-                self._active_cell,
-                self.edbpath,
-                self.edbversion,
-                self.standalone,
-            )
+            self.logger.info(dllpath)
+            try:
+                self.layout_methods.LoadDataModel(dllpath, self.edbversion)
+            except:
+                pass
             self.builder = EdbBuilder(self.edbutils, self._db, self._active_cell)
             self._init_objects()
-            self._messenger.add_info_message("Builder Initialized")
+            self.logger.info("Builder Initialized")
         else:
             self.builder = None
-            self._messenger.add_error_message("Builder Not Initialized")
+            self.logger.error("Builder Not Initialized")
 
         return self.builder
 
@@ -402,13 +416,13 @@ class Edb(object):
         """
         if init_dlls:
             self._init_dlls()
-        self._messenger.add_info_message("Opening EDB from HDL")
+        self.logger.info("Opening EDB from HDL")
         self.edb.Database.SetRunAsStandAlone(False)
         if self.oproject.GetEDBHandle():
             hdl = Convert.ToUInt64(self.oproject.GetEDBHandle())
             db = self.edb.Database.Attach(hdl)
             if not db:
-                self._messenger.add_warning_message("Error Getting db")
+                self.logger.warning("Error Getting db")
                 self._db = None
                 self._active_cell = None
                 self.builder = None
@@ -421,21 +435,14 @@ class Edb(object):
                 self._active_cell = list(self._db.TopCircuitCells)[0]
             dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib")
             if self._db and self._active_cell:
-                self.layout_methods.LoadDataModel(dllpath, self.edbversion)
+                try:
+                    self.layout_methods.LoadDataModel(dllpath, self.edbversion)
+                except:
+                    pass
                 if not os.path.exists(self.edbpath):
                     os.makedirs(self.edbpath)
                 time.sleep(3)
                 self.builder = EdbBuilder(self.edbutils, self._db, self._active_cell)
-                # self.builder = retry_ntimes(
-                #     10,
-                #     self.layout_methods.GetBuilder,
-                #     self._db,
-                #     self._active_cell,
-                #     self.edbpath,
-                #     self.edbversion,
-                #     self.standalone,
-                #     True
-                # )
                 self._init_objects()
                 return self.builder
             else:
@@ -465,7 +472,7 @@ class Edb(object):
         self.edb.Database.SetRunAsStandAlone(self.standalone)
         db = self.edb.Database.Create(self.edbpath)
         if not db:
-            self._messenger.add_warning_message("Error Creating db")
+            self.logger.warning("Error Creating db")
             self._db = None
             self._active_cell = None
             self.builder = None
@@ -476,17 +483,10 @@ class Edb(object):
         self._active_cell = self.edb.Cell.Cell.Create(self._db, self.edb.Cell.CellType.CircuitCell, self.cellname)
         dllpath = os.path.join(os.path.dirname(__file__), "dlls", "EDBLib")
         if self._db and self._active_cell:
-            self.layout_methods.LoadDataModel(dllpath, self.edbversion)
-            time.sleep(3)
-            retry_ntimes(
-                10,
-                self.layout_methods.InitializeBuilder,
-                self._db,
-                self._active_cell,
-                self.edbpath,
-                self.edbversion,
-                self.standalone
-            )
+            try:
+                self.layout_methods.LoadDataModel(dllpath, self.edbversion)
+            except:
+                pass
             self.builder = EdbBuilder(self.edbutils, self._db, self._active_cell)
             self._init_objects()
             return self.builder
@@ -542,7 +542,7 @@ class Edb(object):
         p = subprocess.Popen(cmd_translator)
         p.wait()
         if not os.path.exists(os.path.join(working_dir, aedb_name)):
-            self._messenger.add_error_message("Translator failed to translate.")
+            self.logger.error("Translator failed to translate.")
             return False
         self.edbpath = os.path.join(working_dir, aedb_name)
         return self.open_edb()
@@ -569,22 +569,22 @@ class Edb(object):
 
         """
         if units.lower() not in ["millimeter", "inch", "micron"]:
-            self._messenger.add_warning_message("Wrong unit entered. Setting default to millimiter")
+            self.logger.warning("Wrong unit entered. Setting default to millimiter")
             units = "millimeter"
 
         if not ipc_path:
             ipc_path = self.edbpath[:-4] + "xml"
-        self._messenger.add_info_message("Export IPC 2581 is starting. This operation can take a while...")
+        self.logger.info("Export IPC 2581 is starting. This operation can take a while...")
         start = time.time()
         result = self.edblib.IPC8521.IPCExporter.ExportIPC2581FromLayout(self.active_layout, self.edbversion, ipc_path,
                                                              units.lower())
         #result = self.layout_methods.ExportIPC2581FromBuilder(self.builder, ipc_path, units.lower())
         end = time.time() - start
         if result:
-            self._messenger.add_info_message("Export IPC 2581 completed in {} sec.".format(end))
-            self._messenger.add_info_message("File saved in {}".format(ipc_path))
+            self.logger.info("Export IPC 2581 completed in {} sec.".format(end))
+            self.logger.info("File saved in {}".format(ipc_path))
             return ipc_path
-        self._messenger.add_info_message("Error Exporting IPC 2581.")
+        self.logger.info("Error Exporting IPC 2581.")
         return False
 
     def edb_exception(self, ex_value, tb_data):
@@ -603,9 +603,9 @@ class Edb(object):
         """
         tb_trace = traceback.format_tb(tb_data)
         tblist = tb_trace[0].split("\n")
-        self._messenger.add_error_message(str(ex_value))
+        self.logger.error(str(ex_value))
         for el in tblist:
-            self._messenger.add_error_message(el)
+            self.logger.error(el)
 
     @property
     def db(self):
@@ -669,13 +669,10 @@ class Edb(object):
     @property
     def active_layout(self):
         """Active layout."""
+        self._active_layout = None
         if self._active_cell:
-            return self.active_cell.GetLayout()
-        return None
-
-    # @property
-    # def builder(self):
-    #     return self.edbutils.HfssUtilities(self.edbpath)
+            self._active_layout = self.active_cell.GetLayout()
+        return self._active_layout
 
     @property
     def pins(self):
@@ -739,7 +736,68 @@ class Edb(object):
         -------
 
         """
+        var_server_db = self.db.GetVariableServer()
+        var_names = var_server_db.GetAllVariableNames()
+        var_server_cell = self.active_cell.GetVariableServer()
+        var_names_cell = var_server_cell.GetAllVariableNames()
+        if isinstance(val, (int, float)):
+            return self.edb.Utility.Value(val)
+        if val in var_names or any(s in val for s in var_names):
+            return self._edb.Utility.Value(val, var_server_db)
+        elif val in var_names_cell or any(s in val for s in var_names_cell):
+            return self.edb.Utility.Value(val, var_server_cell)
         return self.edb.Utility.Value(val)
+
+    @aedt_exception_handler
+    def _is_file_existing_and_released(self, filename):
+        if os.path.exists(filename):
+            try:
+                os.rename(filename, filename + '_')
+                os.rename(filename + '_', filename)
+                return True
+            except OSError as e:
+                return False
+        else:
+            return False
+
+    @aedt_exception_handler
+    def _is_file_existing(self, filename):
+        if os.path.exists(filename):
+            return True
+        else:
+            return False
+
+    @aedt_exception_handler
+    def _wait_for_file_release(self, timeout=30, file_to_release=None):
+        if not file_to_release:
+            file_to_release = os.path.join(self.edbpath)
+        tstart = time.time()
+        while True:
+            if self._is_file_existing_and_released(file_to_release):
+                return True
+            elif time.time() - tstart > timeout:
+                return False
+            else:
+                time.sleep(0.250)
+
+    @aedt_exception_handler
+    def _wait_for_file_exists(self, timeout=30, file_to_release=None, wait_count=4):
+        if not file_to_release:
+            file_to_release = os.path.join(self.edbpath)
+        tstart = time.time()
+        times = 0
+        while True:
+            if self._is_file_existing(file_to_release):
+                # print 'File is released'
+                times += 1
+                if times == wait_count:
+                    return True
+            elif time.time() - tstart > timeout:
+                # print 'Timeout reached'
+                return False
+            else:
+                times = 0
+                time.sleep(0.250)
 
     @aedt_exception_handler
     def close_edb(self):
@@ -751,15 +809,18 @@ class Edb(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        time.sleep(1)
+        time.sleep(2)
         self._db.Close()
-        self._messenger.add_info_message("Database successfully closed.")
-        time.sleep(1)
+        time.sleep(2)
+        start_time = time.time()
+        self._wait_for_file_release()
+        elapsed_time = time.time() - start_time
+        self.logger.info("EDB file release time: {0:.2f}ms".format(elapsed_time*1000.))
         self._clean_variables()
-        time.sleep(1)
-        gc.collect()
-        time.sleep(1)
-        gc.collect()
+        timeout = 4
+        while gc.collect() != 0 and timeout > 0:
+            time.sleep(1)
+            timeout -= 1
         return True
 
     @aedt_exception_handler
@@ -937,43 +998,47 @@ class Edb(object):
 
         # The analysis setup(s) do not come over with the clipped design copy,
         # so add the analysis setup(s) from the original here
-        for _setup in self.active_cell.SimulationSetups:
-            # Empty string '' if coming from setup copy and don't set explicitly.
-            _setup_name = _setup.GetName()
-            if "GetSimSetupInfo" in dir(_setup):
-                # setup is an Ansys.Ansoft.Edb.Utility.HFSSSimulationSetup object
-                _hfssSimSetupInfo = _setup.GetSimSetupInfo()
-                _hfssSimSetupInfo.Name = "HFSS Setup 1"  # Set name of analysis setup
-                # Write the simulation setup info into the cell/design setup
-                _setup.SetSimSetupInfo(_hfssSimSetupInfo)
-                _cutout.AddSimulationSetup(_setup)  # Add simulation setup to the cutout design
+        # for _setup in self.active_cell.SimulationSetups:
+        #     # Empty string '' if coming from setup copy and don't set explicitly.
+        #     _setup_name = _setup.GetName()
+        #     if "GetSimSetupInfo" in dir(_setup):
+        #         # setup is an Ansys.Ansoft.Edb.Utility.HFSSSimulationSetup object
+        #         _hfssSimSetupInfo = _setup.GetSimSetupInfo()
+        #         _hfssSimSetupInfo.Name = "HFSS Setup 1"  # Set name of analysis setup
+        #         # Write the simulation setup info into the cell/design setup
+        #         _setup.SetSimSetupInfo(_hfssSimSetupInfo)
+        #         _cutout.AddSimulationSetup(_setup)  # Add simulation setup to the cutout design
 
         _dbCells = [_cutout]
 
         if output_aedb_path:
             db2 = self.edb.Database.Create(output_aedb_path)
-            # Function input is the name of a .aedb folder inside which the edb.def will be created.
-            # Ex: 'D:/backedup/EDB/TEST PROJECTS/CUTOUT/N1.aedb'
+            _success = db2.Save()
             _dbCells = convert_py_list_to_net_list(_dbCells)
             db2.CopyCells(_dbCells)  # Copies cutout cell/design to db2 project
             _success = db2.Save()
+
             if open_cutout_at_end:
                 self._db = db2
                 self.edbpath = output_aedb_path
                 self._active_cell = list(self._db.TopCircuitCells)[0]
-                retry_ntimes(
-                    10,
-                    self.layout_methods.InitializeBuilder,
-                    self._db,
-                    self._active_cell,
-                    self.edbpath,
-                    self.edbversion,
-                    self.standalone,
-                )
+                dllpath = os.path.join(os.path.dirname(__file__), "dlls", "EDBLib")
+                try:
+                    self.layout_methods.LoadDataModel(dllpath, self.edbversion)
+                except:
+                    pass
                 self.builder = EdbBuilder(self.edbutils, self._db, self._active_cell)
                 self._init_objects()
             else:
                 db2.Close()
+                source = os.path.join(output_aedb_path, "edb.def.tmp")
+                target = os.path.join(output_aedb_path, "edb.def")
+                self._wait_for_file_release(file_to_release=output_aedb_path)
+                if os.path.exists(source) and not os.path.exists(target):
+                    try:
+                        shutil.copy(source, target)
+                    except:
+                        pass
         else:
             self.db.CopyCells(_cutout)
         return True
@@ -1047,9 +1112,7 @@ class Edb(object):
         net_signals = List[type(_ref_nets[0])]()
         # Create new cutout cell/design
         _cutout = self.active_cell.CutOut(net_signals, _netsClip, polygonData)
-        self._messenger.add_info_message("Cutout {} created correctly".format(_cutout.GetName()))
-        # The analysis setup(s) do not come over with the clipped design copy,
-        # so add the analysis setup(s) from the original here
+        self.logger.info("Cutout {} created correctly".format(_cutout.GetName()))
         for _setup in self.active_cell.SimulationSetups:
             # Empty string '' if coming from setup copy and don't set explicitly.
             _setup_name = _setup.GetName()
@@ -1064,30 +1127,34 @@ class Edb(object):
         _dbCells = [_cutout]
         if output_aedb_path:
             db2 = self.edb.Database.Create(output_aedb_path)
-            # Function input is the name of a .aedb folder inside which the edb.def will be created.
-            # Ex: 'D:/backedup/EDB/TEST PROJECTS/CUTOUT/N1.aedb'
+            _success = db2.Save()
             _dbCells = convert_py_list_to_net_list(_dbCells)
             db2.CopyCells(_dbCells)  # Copies cutout cell/design to db2 project
-            _success = db2.Save()
+            cell = list(db2.TopCircuitCells)[0]
+            cell.SetName(os.path.basename(output_aedb_path[:-5]))
+            layout = cell.GetLayout()
+            db2.Save()
+            for c in list(self.db.TopCircuitCells):
+                if c.GetName() == _cutout.GetName():
+                    c.Delete()
             if open_cutout_at_end:
+                _success = db2.Save()
                 self._db = db2
                 self.edbpath = output_aedb_path
-                self._active_cell = list(self._db.TopCircuitCells)[0]
-                retry_ntimes(
-                    10,
-                    self.layout_methods.InitializeBuilder,
-                    self._db,
-                    self._active_cell,
-                    self.edbpath,
-                    self.edbversion,
-                    self.standalone,
-                )
+                self._active_cell = cell
                 self.builder = EdbBuilder(self.edbutils, self._db, self._active_cell)
                 self._init_objects()
             else:
                 db2.Close()
-        else:
-            self.db.CopyCells(_cutout)
+                source = os.path.join(output_aedb_path, "edb.def.tmp")
+                target = os.path.join(output_aedb_path, "edb.def")
+                self._wait_for_file_release(file_to_release=output_aedb_path)
+                if os.path.exists(source) and not os.path.exists(target):
+                    try:
+                        shutil.copy(source, target)
+                        self.logger.warning("aedb def file manually created.")
+                    except:
+                        pass
         return True
 
     @aedt_exception_handler
@@ -1272,14 +1339,19 @@ class Edb(object):
         tuple
             tuple containing AddVariable Result and variableserver.
         """
-        var_server = self.active_cell.GetVariableServer()
+        is_parameter = True
+        if "$" in variable_name:
+            var_server = self.db.GetVariableServer()
+            is_parameter = False
+        else:
+            var_server = self.active_cell.GetVariableServer()
         variables = var_server.GetAllVariableNames()
         if variable_name in list(variables):
-            self._messenger.add_warning_message("Parameter {} exists. Using it.".format(variable_name))
+            self.logger.warning("Parameter {} exists. Using it.".format(variable_name))
             return False, var_server
         else:
-            self._messenger.add_info_message("Creating Parameter {}.".format(variable_name))
-            var_server.AddVariable(variable_name, self.edb_value(variable_value), True)
+            self.logger.info("Creating Parameter {}.".format(variable_name))
+            var_server.AddVariable(variable_name, self.edb_value(variable_value), is_parameter)
             return True, var_server
 
     @aedt_exception_handler
@@ -1288,7 +1360,7 @@ class Edb(object):
 
         Returns
         -------
-        list
+        list of list of double
             The bounding box as a [lower-left X, lower-left Y], [upper-right X, upper-right Y]) pair in meter.
         """
         bbox = self.edbutils.HfssUtilities.GetBBox(self.active_layout)

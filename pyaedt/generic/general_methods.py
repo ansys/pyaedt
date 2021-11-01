@@ -57,7 +57,7 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
 
     """
     _write_mes("**************************************************************")
-    _write_mes("pyaedt Error on Method {}:  {}. Please Check again".format(func.__name__, message))
+    _write_mes("pyaedt error on Method {}:  {}. Please Check again".format(func.__name__, message))
     _write_mes("Arguments Provided: ")
     try:
         if int(sys.version[0]) > 2:
@@ -138,7 +138,7 @@ def aedt_exception_handler(func):
                 message = "This Method is not supported in current AEDT Design Type."
                 if os.getenv("PYAEDT_SCREEN_LOGS", "True").lower() in ("true", "1", "t"):
                     print("**************************************************************")
-                    print("pyaedt Error on Method {}:  {}. Please Check again".format(func.__name__, message))
+                    print("pyaedt error on Method {}:  {}. Please Check again".format(func.__name__, message))
                     print("**************************************************************")
                     print("")
                 if os.getenv("PYAEDT_FILE_LOGS", "True").lower() in ("true", "1", "t"):
@@ -174,7 +174,7 @@ def env_path(input_version):
         else:
             release -= 2
     v_key = "ANSYSEM_ROOT{0}{1}".format(version, release)
-    return os.getenv(v_key)
+    return os.getenv(v_key, "")
 
 
 @aedt_exception_handler

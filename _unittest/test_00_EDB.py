@@ -1,5 +1,4 @@
 import os
-
 # Setup paths for module imports
 import gc
 
@@ -20,6 +19,7 @@ except ImportError:
 
 class TestClass:
     def setup_class(self):
+
         with Scratch(scratch_path) as self.local_scratch:
             # example_project = os.path.join(local_path, 'example_models', test_project_name + '.aedt')
             # self.test_project = self.local_scratch.copyfile(example_project)
@@ -31,7 +31,6 @@ class TestClass:
             self.edbapp = Edb(aedbproject, "Galileo_G87173_204", edbversion=desktop_version, isreadonly=False)
 
     def teardown_class(self):
-
         self.edbapp.close_edb()
         self.edbapp = None
         self.local_scratch.remove()
@@ -86,7 +85,10 @@ class TestClass:
     def test_07_vias_creation(self):
         self.edbapp.core_padstack.create_padstack(padstackname="myVia")
         assert "myVia" in list(self.edbapp.core_padstack.padstacks.keys())
-        assert self.edbapp.core_padstack.place_padstack([5e-3, 5e-3], "myVia")
+        self.edbapp.add_design_variable("via_x", 5e-3)
+        self.edbapp.add_design_variable("via_y", 1e-3)
+
+        assert self.edbapp.core_padstack.place_padstack(["via_x",  "via_x+via_y"], "myVia")
 
     def test_08_nets_query(self):
         signalnets = self.edbapp.core_nets.signal_nets

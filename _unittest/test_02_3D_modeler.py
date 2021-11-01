@@ -52,8 +52,8 @@ class TestClass(BasisTest):
     @pyaedt_unittest_check_desktop_error
     def test_03_objects(self):
         print(self.aedtapp.modeler.oeditor)
-        print(self.aedtapp.modeler.odefinition_manager)
-        print(self.aedtapp.modeler.omaterial_manager)
+        print(self.aedtapp.modeler._odefinition_manager)
+        print(self.aedtapp.modeler._omaterial_manager)
 
     @pyaedt_unittest_check_desktop_error
     def test_04_convert_to_selection(self):

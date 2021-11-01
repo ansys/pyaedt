@@ -163,7 +163,7 @@ class TestClass(BasisTest):
     def test_05_center_and_centroid(self):
         o = self.create_copper_box()
         tol = 1e-9
-        assert GeometryOperators.v_norm(o.faces[0].center) - GeometryOperators.v_norm(o.faces[0].centroid) < tol
+        assert GeometryOperators.v_norm(o.faces[0].center_from_aedt) - GeometryOperators.v_norm(o.faces[0].center) < tol
 
     @pyaedt_unittest_check_desktop_error
     def test_11_get_object_name_from_edge(self):
@@ -180,7 +180,7 @@ class TestClass(BasisTest):
     @pyaedt_unittest_check_desktop_error
     def test_11a_get_faces_from_mat(self):
         self.create_copper_box()
-        faces = self.aedtapp.modeler.select_allfaces_from_mat("Copper")
+        faces = self.aedtapp.modeler.get_faces_from_materials("Copper")
         assert len(faces) >= 6
 
     @pyaedt_unittest_check_desktop_error
@@ -590,20 +590,20 @@ class TestClass(BasisTest):
         self.cache.ignore_error_message_local("Wrong Type Entered. Type must be integer from 0 to 3")
         o = self.create_copper_box(name="MyBox")
         assert o.edges[0].chamfer()
-        self.aedtapp.odesign.Undo()
+        self.aedtapp._odesign.Undo()
         assert o.edges[0].chamfer(chamfer_type=1)
-        self.aedtapp.odesign.Undo()
+        self.aedtapp._odesign.Undo()
         assert o.edges[0].chamfer(chamfer_type=2)
-        self.aedtapp.odesign.Undo()
+        self.aedtapp._odesign.Undo()
         assert o.edges[0].chamfer(chamfer_type=3)
-        self.aedtapp.odesign.Undo()
+        self.aedtapp._odesign.Undo()
         assert not o.edges[0].chamfer(chamfer_type=4)
 
     @pyaedt_unittest_check_desktop_error
     def test_43_fillet_and_undo(self):
         o = self.create_copper_box(name="MyBox")
         assert o.edges[0].fillet()
-        self.aedtapp.odesign.Undo()
+        self.aedtapp._odesign.Undo()
         assert o.edges[0].fillet()
 
     @pyaedt_unittest_check_desktop_error
@@ -827,7 +827,7 @@ class TestClass(BasisTest):
 
     @pyaedt_unittest_check_desktop_error
     def test_61_get_closest_edge_to_position(self):
-        my_box = self.create_copper_box()
+        my_box = self.create_copper_box("test_closest_edge")
         assert isinstance(self.aedtapp.modeler.primitives.get_closest_edgeid_to_position([0.2, 0, 0]), int)
         pass
 
@@ -842,12 +842,11 @@ class TestClass(BasisTest):
     def test_63_import_step(self):
         self.aedtapp.insert_design("StepImport")
         assert self.aedtapp.modeler.import_3d_cad(self.step_file)
-        assert len(self.aedtapp.modeler.primitives.objects) == 1
-        pass
+        assert len(self.aedtapp.modeler.primitives.object_names) == 1
 
     @pyaedt_unittest_check_desktop_error
     def test_64_create_equationbased_curve(self):
-
+        self.aedtapp.insert_design("Equations")
         eq_line = self.aedtapp.modeler.primitives.create_equationbased_curve(x_t="_t", y_t="_t*2", num_points=0)
         assert len(eq_line.edges) == 1
         eq_segmented = self.aedtapp.modeler.primitives.create_equationbased_curve(x_t="_t", y_t="_t*2", num_points=5)

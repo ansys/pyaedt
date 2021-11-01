@@ -98,15 +98,15 @@ class AEDTMessageManager(object):
 
     >>> from pyaedt.hfss import Hfss
     >>> hfss = Hfss()
-    >>> hfss._messenger.add_info_message("This is an info message on a design", "Design")
-    >>> hfss._messenger.add_warning_message("This is a global warning message", "Global")
-    >>> hfss._messenger.add_error_message("This is a project error message", "Project")
+    >>> hfss.logger.design.info("This is an info message on a design", "Design")
+    >>> hfss.logger.warning("This is a global warning message", "Global")
+    >>> hfss.logger.project.error("This is a project error message", "Project")
 
     """
 
-    def __init__(self, parent=None):
-        self._parent = parent
-        if not parent:
+    def __init__(self, app=None):
+        self._app = app
+        if not app:
             if "oDesktop" in dir(sys.modules["__main__"]):
                 self.MainModule = sys.modules["__main__"]
                 self._desktop = self.MainModule.oDesktop
@@ -121,7 +121,7 @@ class AEDTMessageManager(object):
                 self._log_on_desktop = False
                 self._desktop = None
         else:
-            self._desktop = self._parent._desktop
+            self._desktop = self._app._desktop
             self._log_on_desktop = os.getenv("PYAEDT_DESKTOP_LOGS", "True").lower() in ("true", "1", "t")
         self._log_on_file = os.getenv("PYAEDT_FILE_LOGS", "True").lower() in ("true", "1", "t")
         self._log_on_screen = os.getenv("PYAEDT_SCREEN_LOGS", "True").lower() in ("true", "1", "t")
@@ -137,7 +137,7 @@ class AEDTMessageManager(object):
 
         Returns
         -------
-        list
+        list of str
            List of messages for the active project and design.
 
         """
@@ -158,7 +158,7 @@ class AEDTMessageManager(object):
 
         Returns
         -------
-        list
+        list of str
             List of messages for the specified project and design.
 
         """
@@ -187,7 +187,7 @@ class AEDTMessageManager(object):
         --------
         Add an error message to the AEDT Message Manager.
 
-        >>> hfss._messenger.add_error_message("Project Error Message", "Project")
+        >>> hfss.logger.project.error("Project Error Message", "Project")
 
         """
         self.add_message(2, message_text, level)
@@ -212,7 +212,7 @@ class AEDTMessageManager(object):
         --------
         Add a warning message to the AEDT Message Manager.
 
-        >>> hfss._messenger.add_warning_message("Project warning message")
+        >>> hfss.logger.warning("Global warning message")
 
         """
         self.add_message(1, message_text, level)
@@ -237,12 +237,11 @@ class AEDTMessageManager(object):
         --------
         Add an info message at the global level.
 
-        >>> hfss._messenger.add_info_message("Global warning message", "Global")
+        >>> hfss.logger.info("Global warning message", "Global")
 
         """
         self.add_message(0, message_text, level)
 
-    @aedt_exception_handler
     def add_message(self, type, message_text, level=None, proj_name=None, des_name=None):
         """Pass a parameterized message to the Message Manager to specify the type and project or design level.
 
@@ -279,7 +278,7 @@ class AEDTMessageManager(object):
 
         assert level in message_levels, "Message level must be `Design', 'Project', or 'Global'."
 
-        if self._log_on_desktop:
+        if self._log_on_desktop and self._desktop:
             if not proj_name and message_levels[level] > 0:
                 proj_name = self._project_name
             if not des_name and message_levels[level] > 1:
@@ -295,11 +294,11 @@ class AEDTMessageManager(object):
 
         if self._log_on_screen:
             if type == 0:
-                print("PyAEDT Info: {}".format(message_text))
+                print("pyaedt info: {}".format(message_text))
             elif type == 1:
-                print("PyAEDT Warning: {}".format(message_text))
+                print("pyaedt warning: {}".format(message_text))
             elif type == 2:
-                print("PyAEDT Error: {}".format(message_text))
+                print("pyaedt error: {}".format(message_text))
         if self._log_on_file:
             if type == 0 and self.logger:
                 self.logger.debug(message_text)

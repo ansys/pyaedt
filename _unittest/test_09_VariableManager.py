@@ -25,9 +25,9 @@ class TestClass:
             self._close_on_completion = True
 
     def teardown_class(self):
-
+        self.aedtapp._desktop.ClearMessages("", "", 3)
         if self._close_on_completion:
-            assert self.aedtapp.close_project()
+            assert self.aedtapp.close_project(saveproject=False)
             self.local_scratch.remove()
             gc.collect()
 
@@ -82,8 +82,8 @@ class TestClass:
         self.aedtapp["p3"] = "p1 * p2"
         v = self.aedtapp.variable_manager
 
-        eval_p3_nom = v._parent.get_evaluated_value("p3")
-        eval_p3_var = v._parent.get_evaluated_value("p3", variation="p1=100mm p2=20mm")
+        eval_p3_nom = v._app.get_evaluated_value("p3")
+        eval_p3_var = v._app.get_evaluated_value("p3", variation="p1=100mm p2=20mm")
         assert eval_p3_nom == 0.0002
         assert eval_p3_var == 0.002
 

@@ -6,7 +6,11 @@ from ..generic.general_methods import aedt_exception_handler, retry_ntimes
 from ..modeler.Model3D import Modeler3D
 from ..modules.Mesh import Mesh
 from .Analysis import Analysis
-
+from .. import is_ironpython
+if is_ironpython:
+    from ..modules.PostProcessor import PostProcessor
+else:
+    from ..modules.AdvancedPostProcessing import PostProcessor
 
 class FieldAnalysis3D(Analysis, object):
     """Manages 3D field analysis setup in HFSS, Maxwell 3D, and Q3D.
@@ -37,7 +41,7 @@ class FieldAnalysis3D(Analysis, object):
     specified_version : str, optional
         Version of AEDT  to use. The default is ``None``, in which case
         the active version or latest installed version is used.
-    NG : bool, optional
+    non_graphical : bool, optional
         Whether to run AEDT in the non-graphical mode. The default
         is ``False``, in which case AEDT is launched in the graphical mode.
     new_desktop_session : bool, optional
@@ -78,8 +82,11 @@ class FieldAnalysis3D(Analysis, object):
             close_on_exit,
             student_version,
         )
+        self.osolution = self._odesign.GetModule("Solutions")
+        self.oboundary = self._odesign.GetModule("BoundarySetup")
         self._modeler = Modeler3D(self)
         self._mesh = Mesh(self)
+        self._post = PostProcessor(self)
 
     @property
     def modeler(self):
@@ -297,7 +304,7 @@ class FieldAnalysis3D(Analysis, object):
 
         Returns
         -------
-        list
+        list of str
             List of setup sources.
         """
         return list(self.osolution.GetAllSources())
@@ -391,7 +398,7 @@ class FieldAnalysis3D(Analysis, object):
             else:
                 arg2.append("SolveInside:="), arg2.append(False)
             self.modeler.oeditor.AssignMaterial(arg1, arg2)
-            self._messenger.add_info_message("Assign Material " + mat + " to object " + selections)
+            self.logger.glb.info("Assign Material " + mat + " to object " + selections)
             if type(obj) is list:
                 for el in obj:
                     self.modeler.primitives[el].material_name = mat
@@ -406,7 +413,7 @@ class FieldAnalysis3D(Analysis, object):
             else:
                 arg2.append("SolveInside:="), arg2.append(False)
             self.modeler.oeditor.AssignMaterial(arg1, arg2)
-            self._messenger.add_info_message("Assign Material " + mat + " to object " + selections)
+            self.logger.glb.info("Assign Material " + mat + " to object " + selections)
             if type(obj) is list:
                 for el in obj:
                     self.modeler.primitives[el].material_name = mat
@@ -415,7 +422,7 @@ class FieldAnalysis3D(Analysis, object):
 
             return True
         else:
-            self._messenger.add_error_message("Material Does Not Exists")
+            self.logger.glb.error("Material does not exist.")
             return False
 
     @aedt_exception_handler
@@ -424,7 +431,7 @@ class FieldAnalysis3D(Analysis, object):
 
         Returns
         -------
-        list
+        list of str
             List of all conductors.
 
         """
@@ -441,7 +448,7 @@ class FieldAnalysis3D(Analysis, object):
 
         Returns
         -------
-        List
+        list of str
            List of all dielectrics.
 
         """

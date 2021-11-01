@@ -47,6 +47,7 @@ class FieldAnalysisCircuit(Analysis):
             close_on_exit,
             student_version,
         )
+
         self._modeler = ModelerNexxim(self)
         self._modeler.primitives.init_padstacks()
         self._post = CircuitPostProcessor(self)
@@ -77,8 +78,7 @@ class FieldAnalysisCircuit(Analysis):
     @property
     def existing_analysis_setups(self):
         """Analysis setups."""
-        oModule = self.odesign.GetModule("SimSetup")
-        setups = oModule.GetAllSolutionSetups()
+        setups = self.oanalysis.GetAllSolutionSetups()
         return setups
 
     @property
@@ -93,11 +93,6 @@ class FieldAnalysisCircuit(Analysis):
     def modeler(self):
         """Modeler object."""
         return self._modeler
-
-    @property
-    def oanalysis(self):
-        """Analysis object."""
-        return self.odesign.GetModule("SimSetup")
 
     @property
     def setup_names(self):
@@ -130,7 +125,7 @@ class FieldAnalysisCircuit(Analysis):
 
         Returns
         -------
-        list
+        list of str
             List of strings representing the S parameters of the excitations.
             For example, ``"S(1,1)", "S(1,2)", "S(2,2)"``.
 
@@ -162,7 +157,7 @@ class FieldAnalysisCircuit(Analysis):
 
         Returns
         -------
-        list
+        list of str
             List of strings representing the return losses of the excitations.
             For example ``["S(1, 1)", S(2, 2)]``
 
@@ -194,7 +189,7 @@ class FieldAnalysisCircuit(Analysis):
 
         Returns
         -------
-        list
+        list of str
             List of strings representing insertion losses of the excitations.
             For example, ``["S(1,2)"]``.
 
@@ -205,7 +200,7 @@ class FieldAnalysisCircuit(Analysis):
         if not reclist:
             reclist = [i for i in self.get_excitations_name if rx_prefix in i]
         if len(trlist) != len(reclist):
-            self._messenger.add_error_message("TX and RX should be same length lists")
+            self.logger.glb.error("The TX and RX lists should be the same length.")
             return False
         for i, j in zip(trlist, reclist):
             spar.append("S({},{})".format(i, j))
@@ -225,7 +220,7 @@ class FieldAnalysisCircuit(Analysis):
 
         Returns
         -------
-        list
+        list of str
             List of strings representing near end XTalks of the excitations.
             For example, ``["S(1, 2)", "S(1, 3)", "S(2, 3)"]``.
 
@@ -264,7 +259,7 @@ class FieldAnalysisCircuit(Analysis):
 
         Returns
         -------
-        list
+        list of str
             List of strings representing the far end XTalks of the excitations.
             For example, ``["S(1, 4)", "S(2, 3)"]``.
 

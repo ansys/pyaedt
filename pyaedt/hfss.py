@@ -65,47 +65,47 @@ class Hfss(FieldAnalysis3D, object):
 
     >>> from pyaedt import Hfss
     >>> hfss = Hfss()
-    pyaedt Info: No project is defined...
-    pyaedt Info: Active design is set to...
+    pyaedt info: No project is defined...
+    pyaedt info: Active design is set to...
 
     Create an instance of HFSS and link to a project named
     ``HfssProject``. If this project does not exist, create one with
     this name.
 
     >>> hfss = Hfss("HfssProject")
-    pyaedt Info: Project HfssProject has been created.
-    pyaedt Info: No design is present. Inserting a new design.
-    pyaedt Info: Added design ...
+    pyaedt info: Project HfssProject has been created.
+    pyaedt info: No design is present. Inserting a new design.
+    pyaedt info: Added design ...
 
     Create an instance of HFSS and link to a design named
     ``HfssDesign1`` in a project named ``HfssProject``.
 
     >>> hfss = Hfss("HfssProject","HfssDesign1")
-    pyaedt Info: Added design 'HfssDesign1' of type HFSS.
+    pyaedt info: Added design 'HfssDesign1' of type HFSS.
 
     Create an instance of HFSS and open the specified project,
     which is named ``"myfile.aedt"``.
 
     >>> hfss = Hfss("myfile.aedt")
-    pyaedt Info: Project myfile has been created.
-    pyaedt Info: No design is present. Inserting a new design.
-    pyaedt Info: Added design...
+    pyaedt info: Project myfile has been created.
+    pyaedt info: No design is present. Inserting a new design.
+    pyaedt info: Added design...
 
     Create an instance of HFSS using the 2021 R1 release and open
     the specified project, which is named ``"myfile2.aedt"``.
 
     >>> hfss = Hfss(specified_version="2021.1", projectname="myfile2.aedt")
-    pyaedt Info: Project myfile2 has been created.
-    pyaedt Info: No design is present. Inserting a new design.
-    pyaedt Info: Added design...
+    pyaedt info: Project myfile2 has been created.
+    pyaedt info: No design is present. Inserting a new design.
+    pyaedt info: Added design...
 
     Create an instance of HFSS using the 2021 R2 student version and open
     the specified project, which is named ``"myfile3.aedt"``.
 
     >>> hfss = Hfss(specified_version="2021.2", projectname="myfile3.aedt", student_version=True)
-    pyaedt Info: Project myfile3 has been created.
-    pyaedt Info: No design is present. Inserting a new design.
-    pyaedt Info: Added design...
+    pyaedt info: Project myfile3 has been created.
+    pyaedt info: No design is present. Inserting a new design.
+    pyaedt info: Added design...
 
     """
 
@@ -142,6 +142,7 @@ class Hfss(FieldAnalysis3D, object):
             close_on_exit,
             student_version,
         )
+        self.omodelsetup = self._odesign.GetModule("ModelSetup")
 
     def __enter__(self):
         return self
@@ -187,7 +188,10 @@ class Hfss(FieldAnalysis3D, object):
         result = bound.create()
         if result:
             self.boundaries.append(bound)
+            self.logger.design.info("Boundary %s %s has been correctly created.", boundary_type, name)
             return bound
+        self.logger.design.error("Error in boundary creation for %s %s.", boundary_type, name)
+
         return result
 
     @aedt_exception_handler
@@ -549,9 +553,8 @@ class Hfss(FieldAnalysis3D, object):
                 if sweepname in [sweep.name for sweep in setupdata.sweeps]:
                     oldname = sweepname
                     sweepname = generate_unique_name(oldname)
-                    self._messenger.add_warning_message(
-                        "Sweep {} is already present. Sweep has been renamed in {}.".format(oldname, sweepname)
-                    )
+                    self.logger.glb.warning(
+                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname)
                 sweepdata = setupdata.add_sweep(sweepname, sweep_type)
                 sweepdata.props["RangeType"] = "LinearCount"
                 sweepdata.props["RangeStart"] = str(freqstart) + unit
@@ -566,7 +569,7 @@ class Hfss(FieldAnalysis3D, object):
                 sweepdata.props["SaveFields"] = save_fields
                 sweepdata.props["SaveRadFields"] = save_rad_fields
                 sweepdata.update()
-                self.add_info_message("Linear count sweep {} has been correctly created".format(sweepname))
+                self.logger.design.info("Linear count sweep {} has been correctly created".format(sweepname))
                 return sweepdata
         return False
 
@@ -640,9 +643,8 @@ class Hfss(FieldAnalysis3D, object):
                 if sweepname in [sweep.name for sweep in setupdata.sweeps]:
                     oldname = sweepname
                     sweepname = generate_unique_name(oldname)
-                    self._messenger.add_warning_message(
-                        "Sweep {} is already present. Sweep has been renamed in {}.".format(oldname, sweepname)
-                    )
+                    self.logger.glb.warning(
+                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname)
                 sweepdata = setupdata.add_sweep(sweepname, sweep_type)
                 sweepdata.props["RangeType"] = "LinearStep"
                 sweepdata.props["RangeStart"] = str(freqstart) + unit
@@ -658,7 +660,7 @@ class Hfss(FieldAnalysis3D, object):
                     sweepdata.props["InterpMinSolns"] = 0
                     sweepdata.props["InterpMinSubranges"] = 1
                 sweepdata.update()
-                self.add_info_message("Linear step sweep {} has been correctly created".format(sweepname))
+                self.logger.design.info("Linear step sweep {} has been correctly created".format(sweepname))
                 return sweepdata
         return False
 
@@ -744,9 +746,8 @@ class Hfss(FieldAnalysis3D, object):
                 if sweepname in [sweep.name for sweep in setupdata.sweeps]:
                     oldname = sweepname
                     sweepname = generate_unique_name(oldname)
-                    self._messenger.add_warning_message(
-                        "Sweep {} is already present. Sweep has been renamed in {}.".format(oldname, sweepname)
-                    )
+                    self.logger.glb.warning(
+                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname)
                 sweepdata = setupdata.add_sweep(sweepname, "Discrete")
                 sweepdata.props["RangeType"] = "SinglePoints"
                 sweepdata.props["RangeStart"] = str(freq0) + unit
@@ -759,7 +760,7 @@ class Hfss(FieldAnalysis3D, object):
                     for f, s in zip(freq, save_single_field):
                         sweepdata.add_subrange(rangetype="SinglePoints", start=f, unit=unit, save_single_fields=s)
                 sweepdata.update()
-                self.add_info_message("Single point sweep {} has been correctly created".format(sweepname))
+                self.logger.design.info("Single point sweep {} has been correctly created".format(sweepname))
                 return sweepdata
         return False
 
@@ -813,7 +814,7 @@ class Hfss(FieldAnalysis3D, object):
 
         """
         if self.solution_type != "SBR+":
-            self.add_error_message("This Native components only applies to SBR+ Solution")
+            self.logger.design.error("This Native components only applies to SBR+ Solution")
             return False
         compName = source_object.design_name
         uniquename = generate_unique_name(compName)
@@ -880,7 +881,10 @@ class Hfss(FieldAnalysis3D, object):
         native = NativeComponentObject(self, antenna_type, antenna_name, native_props)
         if native.create():
             self.native_components.append(native)
+            self.logger.design.info("Native Component %s %s has been correctly created", antenna_type, antenna_name)
             return native
+        self.logger.design.error("Error in Native Component creation for %s %s.", antenna_type, antenna_name)
+
         return None
 
     class SbrAntennas:
@@ -1087,7 +1091,7 @@ class Hfss(FieldAnalysis3D, object):
         --------
         >>> from pyaedt import Hfss
         >>> hfss = Hfss(solution_type="SBR+")  # doctest: +SKIP
-        pyaedt Info: Added design 'HFSS_IPO' of type HFSS.
+        pyaedt info: Added design 'HFSS_IPO' of type HFSS.
         >>> parm = {"polarization": "Vertical"}  # doctest: +SKIP
         >>> par_beam = hfss.create_sbr_antenna(hfss.SbrAntennas.ShortDipole,
         ...                                    parameters_dict=parm,
@@ -1095,7 +1099,7 @@ class Hfss(FieldAnalysis3D, object):
 
         """
         if self.solution_type != "SBR+":
-            self.add_error_message("This native component only applies to a SBR+ solution.")
+            self.logger.design.error("This native component only applies to a SBR+ solution.")
             return False
         if target_cs is None:
             target_cs = self.modeler.oeditor.GetActiveCoordinateSystem()
@@ -1200,7 +1204,7 @@ class Hfss(FieldAnalysis3D, object):
 
         """
         if self.solution_type != "SBR+":
-            self.add_error_message("This Native component only applies to a SBR+ Solution.")
+            self.logger.design.error("This Native component only applies to a SBR+ Solution.")
             return False
         if target_cs is None:
             target_cs = self.modeler.oeditor.GetActiveCoordinateSystem()
@@ -1237,7 +1241,7 @@ class Hfss(FieldAnalysis3D, object):
 
         """
         if self.solution_type != "SBR+":
-            self.add_error_message("This Boundary only applies to SBR+ Solution")
+            self.logger.design.error("This Boundary only applies to SBR+ Solution")
             return False
         id = 0
         props = OrderedDict({})
@@ -1298,7 +1302,7 @@ class Hfss(FieldAnalysis3D, object):
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
             endobject
         ):
-            self._messenger.add_error_message("One or both objects doesn't exists. Check and retry")
+            self.logger.glb.error("One or both objects doesn't exists. Check and retry.")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
             out, parallel = self.modeler.primitives.find_closest_edges(startobj, endobject, axisdir)
@@ -1357,7 +1361,7 @@ class Hfss(FieldAnalysis3D, object):
         >>> hfss.create_lumped_port_between_objects("BoxLumped1", "BoxLumped2",
         ...                                         hfss.AxisDir.XNeg, 50,
         ...                                         "LumpedPort", True, False)
-        pyaedt Info: Connection Correctly created
+        pyaedt info: Connection Correctly created
         'LumpedPort'
 
         """
@@ -1365,7 +1369,7 @@ class Hfss(FieldAnalysis3D, object):
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
             endobject
         ):
-            self._messenger.add_error_message("One or both objects do not exist. Check and retry.")
+            self.logger.glb.error("One or both objects do not exist. Check and retry.")
             return False
 
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
@@ -1424,14 +1428,14 @@ class Hfss(FieldAnalysis3D, object):
         >>> v1 = hfss.create_voltage_source_from_objects("BoxVolt1", "BoxVolt2",
         ...                                         hfss.AxisDir.XNeg,
         ...                                         "VoltageSource")
-        pyaedt Info: Connection Correctly created
+        pyaedt info: Connection Correctly created
 
         """
 
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
             endobject
         ):
-            self._messenger.add_error_message("One or both objects doesn't exists. Check and retry")
+            self.logger.glb.error("One or both objects doesn't exists. Check and retry")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
             sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(
@@ -1481,14 +1485,14 @@ class Hfss(FieldAnalysis3D, object):
         >>> i1 = hfss.create_current_source_from_objects("BoxCurrent1", "BoxCurrent2",
         ...                                         hfss.AxisDir.XPos,
         ...                                         "CurrentSource")
-        pyaedt Info: Connection created 'CurrentSource' correctly.
+        pyaedt info: Connection created 'CurrentSource' correctly.
 
         """
 
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
             endobject
         ):
-            self._messenger.add_error_message("One or both objects do not exist. Check and retry.")
+            self.logger.glb.error("One or both objects do not exist. Check and retry.")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
             sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(
@@ -1589,14 +1593,14 @@ class Hfss(FieldAnalysis3D, object):
         >>> wave_port = hfss.create_wave_port_between_objects("BoxWave1", "BoxWave2",
         ...                                                   hfss.AxisDir.XNeg, 50, 1,
         ...                                                   "WavePort", False)
-        pyaedt Info: Connection Correctly created
+        pyaedt info: Connection Correctly created
 
         """
 
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
             endobject
         ):
-            self._messenger.add_error_message("One or both objects do not exist. Check and retry.")
+            self.logger.glb.error("One or both objects do not exist. Check and retry.")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
             sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(
@@ -1703,13 +1707,13 @@ class Hfss(FieldAnalysis3D, object):
         >>> port = hfss.create_wave_port_microstrip_between_objects("GND1", "MS1",
         ...                                                         portname="MS1",
         ...                                                         axisdir=1)
-        pyaedt Info: Connection Correctly created
+        pyaedt info: Connection Correctly created
 
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
             endobject
         ):
-            self._messenger.add_error_message("One or both objects do not exist. Check and retry.")
+            self.logger.glb.error("One or both objects do not exist. Check and retry.")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
             sheet_name, point0, point1 = self.modeler._create_microstrip_sheet_from_object_closest_edge(
@@ -1771,7 +1775,7 @@ class Hfss(FieldAnalysis3D, object):
         ...                                           "perfect2", "copper")
         >>> perfect_e = hfss.create_perfecte_from_objects("perfect1", "perfect2",
         ...                                               hfss.AxisDir.ZNeg, "PerfectE")
-        pyaedt Info: Connection Correctly created
+        pyaedt info: Connection Correctly created
         >>> type(perfect_e)
         <class 'pyaedt.modules.Boundary.BoundaryObject'>
 
@@ -1780,7 +1784,7 @@ class Hfss(FieldAnalysis3D, object):
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
             endobject
         ):
-            self._messenger.add_error_message("One or both objects do not exist. Check and retry.")
+            self.logger.glb.error("One or both objects do not exist. Check and retry.")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
             sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(
@@ -1829,7 +1833,7 @@ class Hfss(FieldAnalysis3D, object):
         ...                                           "perfect2", "copper")
         >>> perfect_h = hfss.create_perfecth_from_objects("perfect1", "perfect2",
         ...                                               hfss.AxisDir.ZNeg, "PerfectH")
-        pyaedt Info: Connection Correctly created
+        pyaedt info: Connection Correctly created
         >>> type(perfect_h)
         <class 'pyaedt.modules.Boundary.BoundaryObject'>
 
@@ -1838,7 +1842,7 @@ class Hfss(FieldAnalysis3D, object):
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
             endobject
         ):
-            self._messenger.add_error_message("One or both objects do not exist. Check and retry.")
+            self.logger.glb.error("One or both objects do not exist. Check and retry.")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
             sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(
@@ -1876,6 +1880,7 @@ class Hfss(FieldAnalysis3D, object):
 
         """
         self.odesign.SARSetup(TissueMass, MaterialDensity, Tissue_object_List_ID, voxel_size, Average_SAR_method)
+        self.logger.design.info("SAR Settings correctly applied.")
         return True
 
     @aedt_exception_handler
@@ -1905,6 +1910,7 @@ class Hfss(FieldAnalysis3D, object):
             vars.append(GPAXis)
 
         self.omodelsetup.CreateOpenRegion(vars)
+        self.logger.design.info("Open Region correctly created.")
         return True
 
     @aedt_exception_handler
@@ -1968,14 +1974,14 @@ class Hfss(FieldAnalysis3D, object):
         >>> rlc = hfss.create_lumped_rlc_between_objects("rlc1", "rlc2", hfss.AxisDir.XPos,
         ...                                              "LumpedRLC", Rvalue=50,
         ...                                              Lvalue=1e-9, Cvalue = 1e-6)
-        pyaedt Info: Connection Correctly created
+        pyaedt info: Connection Correctly created
 
         """
 
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
             endobject
         ):
-            self._messenger.add_error_message("One or both objects do not exist. Check and retry.")
+            self.logger.glb.error("One or both objects do not exist. Check and retry.")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"] and (
             Rvalue or Lvalue or Cvalue
@@ -2063,14 +2069,14 @@ class Hfss(FieldAnalysis3D, object):
         ...                                           "box2", "copper")
         >>> impedance = hfss.create_impedance_between_objects("box1", "box2", hfss.AxisDir.XPos,
         ...                                                   "ImpedanceExample", 100, 50)
-        pyaedt Info: Connection Correctly created
+        pyaedt info: Connection Correctly created
 
         """
 
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
             endobject
         ):
-            self._messenger.add_error_message("One or both objects do not exist. Check and retry.")
+            self.logger.glb.error("One or both objects do not exist. Check and retry.")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
             sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(
@@ -2739,12 +2745,12 @@ class Hfss(FieldAnalysis3D, object):
         >>> wave_port = hfss.create_wave_port_from_sheet(sheet, 5, hfss.AxisDir.XNeg, 40,
         ...                                              2, "SheetWavePort", True)
         >>> hfss.edit_source("SheetWavePort" + ":1", "10W")
-        pyaedt Info: Setting up power to Eigenmode 10W
+        pyaedt info: Setting up power to Eigenmode 10W
         True
 
         """
 
-        self._messenger.add_info_message("Setting up power to Eigenmode " + powerin)
+        self.logger.glb.info("Setting up power to Eigenmode " + powerin)
         if self.solution_type != "Eigenmode":
             self.osolution.EditSources(
                 [
@@ -2777,7 +2783,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        list
+        list of int
             List of the port IDs where thickened sheets were created.
 
         Examples
@@ -2792,7 +2798,7 @@ class Hfss(FieldAnalysis3D, object):
         >>> port_for_thickness = hfss.create_wave_port_from_sheet(sheet_for_thickness, 5, hfss.AxisDir.XNeg,
         ...                                                       40, 2, "WavePortForThickness", True)
         >>> hfss.thicken_port_sheets(["SheetForThickness"], 2)
-        pyaedt Info: done
+        pyaedt info: done
         {}
 
         """
@@ -2902,7 +2908,7 @@ class Hfss(FieldAnalysis3D, object):
                                 ],
                             )
                     except:
-                        self._messenger.add_info_message("done")
+                        self.logger.glb.info("done")
                         # self.modeler_oproject.ClearMessages()
         return ports_ID
 
@@ -2923,7 +2929,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        list
+        list of str
             List of all the validation information for later use.
         bool
             Indicates if the validation was successful or not.
@@ -2935,13 +2941,13 @@ class Hfss(FieldAnalysis3D, object):
         the current project directory.
 
         >>> validation = hfss.validate_full_design()
-        pyaedt Info: Design Validation Checks
+        pyaedt info: Design Validation Checks
         >>> validation[1]
         False
 
         """
 
-        self._messenger.add_info_message("Design Validation Checks")
+        self.logger.glb.info("Design Validation Checks")
         validation_ok = True
         val_list = []
         if not dname:
@@ -2978,7 +2984,7 @@ class Hfss(FieldAnalysis3D, object):
             os.remove(temp_val_file)
         else:
             msg = "** No design validation file is found. **"
-            self._messenger.add_info_message(msg)
+            self.logger.glb.info(msg)
             val_list.append(msg)
         msg = "** End of design validation messages. **"
         val_list.append(msg)
@@ -2996,7 +3002,7 @@ class Hfss(FieldAnalysis3D, object):
                     ports_t = ports
                 if ports_t != len(detected_excitations):
                     msg = "** Port number error. Check the model. **"
-                    self._messenger.add_error_message(msg)
+                    self.logger.glb.error(msg)
                     val_list.append(msg)
                     validation_ok = False
                 else:
@@ -3010,7 +3016,7 @@ class Hfss(FieldAnalysis3D, object):
                     val_list.append(msg4)
         else:
             msg = "Eigen model is detected. No excitatons are defined."
-            self._messenger.add_info_message(msg)
+            self.logger.glb.info(msg)
             val_list.append(msg)
 
         # Find the number of analysis setups and output the info.
@@ -3081,7 +3087,7 @@ class Hfss(FieldAnalysis3D, object):
         if not sweep_name:
             sweep_name = self.existing_analysis_sweeps[1]
         elif sweep_name not in self.existing_analysis_sweeps:
-            self._messenger.add_error_message("Setup {} doesn't exist in the Setup list.".format(sweep_name))
+            self.logger.glb.error("Setup %s doesn't exist in the Setup list.", sweep_name)
             return False
         if not port_names:
             port_names = self.modeler.get_excitations_name()
@@ -3451,7 +3457,7 @@ class Hfss(FieldAnalysis3D, object):
 
         """
         if self.solution_type != "SBR+":
-            self.add_error_message("Method Applies only to SBR+ Solution.")
+            self.logger.design.error("Method Applies only to SBR+ Solution.")
             return False, False
         if not setup_name:
             setup_name = generate_unique_name("ChirpI")
@@ -3465,7 +3471,7 @@ class Hfss(FieldAnalysis3D, object):
                     time_var = var_name
                     break
             if not time_var:
-                self.add_error_message("No Time Variable Found. Setup or explicitly assign to the method.")
+                self.logger.design.error("No Time Variable Found. Setup or explicitly assign to the method.")
                 raise ValueError("No Time Variable Found")
         setup = self._create_sbr_doppler_setup(
             "ChirpI",
@@ -3548,7 +3554,7 @@ class Hfss(FieldAnalysis3D, object):
 
         """
         if self.solution_type != "SBR+":
-            self.add_error_message("Method Applies only to SBR+ Solution.")
+            self.logger.design.error("Method Applies only to SBR+ Solution.")
             return False, False
         if not setup_name:
             setup_name = generate_unique_name("ChirpIQ")
@@ -3639,7 +3645,7 @@ class Hfss(FieldAnalysis3D, object):
 
         """
         if self.solution_type != "SBR+":
-            self.add_error_message("Method Applies only to SBR+ Solution.")
+            self.logger.design.error("Method Applies only to SBR+ Solution.")
             return False, False
         if not setup_name:
             setup_name = generate_unique_name("PulseSetup")
@@ -3739,7 +3745,7 @@ class Hfss(FieldAnalysis3D, object):
         """
         self.modeler.primitives._initialize_multipart()
         if self.solution_type != "SBR+":
-            self.add_error_message("Method Applies only to SBR+ Solution.")
+            self.logger.design.error("Method Applies only to SBR+ Solution.")
             return False
         use_motion = abs(speed) > 0.0
         r = Radar(
@@ -3772,7 +3778,7 @@ class Hfss(FieldAnalysis3D, object):
         bool
         """
         if self.solution_type != "SBR+":
-            self.add_error_message("Method Applies only to SBR+ Solution.")
+            self.logger.design.error("Method Applies only to SBR+ Solution.")
             return False
         current_conformance = "Disable"
         if conformance:
@@ -3788,4 +3794,5 @@ class Hfss(FieldAnalysis3D, object):
             arg.append("Power Fraction:=")
             arg.append(str(power_fraction))
         self.oboundary.EditGlobalCurrentSourcesOption(arg)
+        self.logger.design.info("SBR+ current source options correctly applied.")
         return True

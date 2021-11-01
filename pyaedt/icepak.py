@@ -63,38 +63,38 @@ class Icepak(FieldAnalysisIcepak):
 
     >>> from pyaedt import Icepak
     >>> icepak = Icepak()
-    pyaedt Info: No project is defined. Project ...
-    pyaedt Info: Active design is set to ...
+    pyaedt info: No project is defined. Project ...
+    pyaedt info: Active design is set to ...
 
     Create an instance of Icepak and link to a project named
     ``IcepakProject``. If this project does not exist, create one with
     this name.
 
     >>> icepak = Icepak("IcepakProject")
-    pyaedt Info: Project ...
-    pyaedt Info: Added design ...
+    pyaedt info: Project ...
+    pyaedt info: Added design ...
 
     Create an instance of Icepak and link to a design named
     ``IcepakDesign1`` in a project named ``IcepakProject``.
 
     >>> icepak = Icepak("IcepakProject", "IcepakDesign1")
-    pyaedt Info: Added design 'IcepakDesign1' of type Icepak.
+    pyaedt info: Added design 'IcepakDesign1' of type Icepak.
 
     Create an instance of `Icepak` and open the specified project,
     which is ``myipk.aedt``.
 
     >>> icepak = Icepak("myipk.aedt")
-    pyaedt Info: Project myipk has been created.
-    pyaedt Info: No design is present. Inserting a new design.
-    pyaedt Info: Added design ...
+    pyaedt info: Project myipk has been created.
+    pyaedt info: No design is present. Inserting a new design.
+    pyaedt info: Added design ...
 
     Create an instance of Icepak using the 2021 R1 release and
     open the specified project, which is ``myipk2.aedt``.
 
     >>> icepak = Icepak(specified_version="2021.1", projectname="myipk2.aedt")
-    pyaedt Info: Project...
-    pyaedt Info: No design is present. Inserting a new design.
-    pyaedt Info: Added design...
+    pyaedt info: Project...
+    pyaedt info: No design is present. Inserting a new design.
+    pyaedt info: Added design...
     """
 
     def __init__(
@@ -122,6 +122,7 @@ class Icepak(FieldAnalysisIcepak):
             close_on_exit,
             student_version,
         )
+        self.omodelsetup = self._odesign.GetModule("ModelSetup")
 
     def __enter__(self):
         return self
@@ -132,7 +133,7 @@ class Icepak(FieldAnalysisIcepak):
 
         Returns
         -------
-        list
+        list of str
             List of all analysis setups in the design.
 
         """
@@ -206,7 +207,7 @@ class Icepak(FieldAnalysisIcepak):
         bound = BoundaryObject(self, boundary_name, props, "Grille")
         if bound.create():
             self.boundaries.append(bound)
-            self._messenger.add_info_message("Grille Assigned")
+            self.logger.glb.info("Grille Assigned")
             return bound
         return None
 
@@ -232,8 +233,8 @@ class Icepak(FieldAnalysisIcepak):
         >>> faces = icepak.modeler.primitives["USB_GND"].faces
         >>> face_names = [face.id for face in faces]
         >>> boundary = icepak.assign_openings(face_names)
-        pyaedt Info: Face List boundary_faces created
-        pyaedt Info: Opening Assigned
+        pyaedt info: Face List boundary_faces created
+        pyaedt info: Opening Assigned
 
         """
         boundary_name = generate_unique_name("Opening")
@@ -249,7 +250,7 @@ class Icepak(FieldAnalysisIcepak):
         bound = BoundaryObject(self, boundary_name, props, "Opening")
         if bound.create():
             self.boundaries.append(bound)
-            self._messenger.add_info_message("Opening Assigned")
+            self.logger.glb.info("Opening Assigned")
             return bound
         return None
 
@@ -286,9 +287,9 @@ class Icepak(FieldAnalysisIcepak):
             if self.setups:
                 setup_name = self.setups[0].name
             else:
-                self._messenger.add_error_message("No setup is defined.")
+                self.logger.glb.error("No setup is defined.")
                 return False
-        self.oanalysis_setup.AddTwoWayCoupling(
+        self.oanalysis.AddTwoWayCoupling(
             setup_name,
             [
                 "NAME:Options",
@@ -322,7 +323,7 @@ class Icepak(FieldAnalysisIcepak):
 
         Returns
         -------
-        list
+        list of :class:`pyaedt.modules.Boundary.BoundaryObject`
             List of boundaries inserted.
 
         Examples
@@ -333,7 +334,7 @@ class Icepak(FieldAnalysisIcepak):
         >>> box1 = icepak.modeler.primitives.create_box([1, 1, 1], [3, 3, 3], "BlockBox1", "copper")
         >>> box2 = icepak.modeler.primitives.create_box([2, 2, 2], [4, 4, 4], "BlockBox2", "copper")
         >>> blocks = icepak.create_source_blocks_from_list([["BlockBox1", 2], ["BlockBox2", 4]])
-        pyaedt Info: Block on ...
+        pyaedt info: Block on ...
         >>> blocks[1].props
         {'Objects': ['BlockBox1'], 'Block Type': 'Solid', 'Use External Conditions': False, 'Total Power': '2W'}
         >>> blocks[3].props
@@ -389,7 +390,7 @@ class Icepak(FieldAnalysisIcepak):
 
         >>> box = icepak.modeler.primitives.create_box([5, 5, 5], [1, 2, 3], "BlockBox3", "copper")
         >>> block = icepak.create_source_block("BlockBox3", "1W", False)
-        pyaedt Info: Block on ...
+        pyaedt info: Block on ...
         >>> block.props
         {'Objects': ['BlockBox3'], 'Block Type': 'Solid', 'Use External Conditions': False, 'Total Power': '1W'}
 
@@ -416,7 +417,7 @@ class Icepak(FieldAnalysisIcepak):
         bound = BoundaryObject(self, boundary_name, props, "Block")
         if bound.create():
             self.boundaries.append(bound)
-            self._messenger.add_info_message(
+            self.logger.glb.info(
                 "Block on {} with {} Power, created correctly.".format(object_name, input_power)
             )
             return bound
@@ -612,7 +613,7 @@ class Icepak(FieldAnalysisIcepak):
 
         Returns
         -------
-        list
+        list of :class:`pyaedt.modules.Boundary.BoundaryObject`
             List of boundary objects created.
 
         Examples
@@ -776,9 +777,8 @@ class Icepak(FieldAnalysisIcepak):
                         "COMP_" + component_data["Ref Des"][i], str(power) + "W", assign_material=False
                     )
                     if not status:
-                        self._messenger.add_warning_message(
-                            "Warning. Block {} skipped with {}W power.".format(component_data["Ref Des"][i], power)
-                        )
+                        self.logger.glb.warning(
+                            "Warning. Block %s skipped with %sW power.", component_data["Ref Des"][i], power)
                     else:
                         total_power += float(power)
                 elif component_data["Ref Des"][i] in all_objects:
@@ -786,15 +786,14 @@ class Icepak(FieldAnalysisIcepak):
                         component_data["Ref Des"][i], str(power) + "W", assign_material=False
                     )
                     if not status:
-                        self._messenger.add_warning_message(
-                            "Warning. Block {} skipped with {}W power.".format(component_data["Ref Des"][i], power)
-                        )
+                        self.logger.glb.warning(
+                            "Warning. Block %s skipped with %sW power.", component_data["Ref Des"][i], power)
                     else:
                         total_power += float(power)
             except:
                 pass
             i += 1
-        self._messenger.add_info_message("Blocks inserted with total power {}W.".format(total_power))
+        self.logger.glb.info("Blocks inserted with total power %sW.", total_power)
         return total_power
 
     @aedt_exception_handler
@@ -829,7 +828,7 @@ class Icepak(FieldAnalysisIcepak):
                         name = line[id1 : id1 + id2]
                         if name not in priority_list:
                             priority_list.append(name)
-            self._messenger.add_info_message(
+            self.logger.info(
                 "{} Intersections have been found. Applying Priorities".format(len(priority_list)))
             for objname in priority_list:
                 self.mesh.add_priority(1, [objname], priority=i)
@@ -1193,7 +1192,7 @@ class Icepak(FieldAnalysisIcepak):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self._messenger.add_info_message("Mapping HFSS EM losses.")
+        self.logger.glb.info("Mapping HFSS EM losses.")
         oName = self.project_name
         if oName == source_project_name or source_project_name is None:
             projname = "This Project*"
@@ -1242,7 +1241,7 @@ class Icepak(FieldAnalysisIcepak):
         bound = BoundaryObject(self, name, props, "EMLoss")
         if bound.create():
             self.boundaries.append(bound)
-            self._messenger.add_info_message("EM losses mapped from design {}.".format(designname))
+            self.logger.glb.info("EM losses mapped from design %s.", designname)
             return bound
         return False
 
@@ -1465,7 +1464,7 @@ class Icepak(FieldAnalysisIcepak):
         all_objs_NonModeled = list(self.modeler.oeditor.GetObjectsInGroup("Non Model"))
         all_objs_model = [item for item in all_objs if item not in all_objs_NonModeled]
         arg = []
-        self._messenger.add_info_message("Objects lists " + str(all_objs_model))
+        self.logger.glb.info("Objects lists " + str(all_objs_model))
         for el in all_objs_model:
             try:
                 self.osolution.EditFieldsSummarySetting(
@@ -1474,8 +1473,8 @@ class Icepak(FieldAnalysisIcepak):
                 arg.append("Calculation:=")
                 arg.append([type, geometryType, el, quantity, "", "Default"])
             except Exception as e:
-                self._messenger.add_error_message("Object " + el + " not added.")
-                self._messenger.add_error_message(str(e))
+                self.logger.glb.error("Object " + el + " not added.")
+                self.logger.glb.error(str(e))
         if not output_dir:
             output_dir = self.project_path
         self.osolution.EditFieldsSummarySetting(arg)
@@ -1761,7 +1760,7 @@ class Icepak(FieldAnalysisIcepak):
         if close_linked_project_after_import and ".aedt" in project_name:
             prjname = os.path.splitext(os.path.basename(project_name))[0]
             self.close_project(prjname, saveproject=False)
-        self._messenger.add_info_message("PCB component correctly created in Icepak.")
+        self.logger.glb.info("PCB component correctly created in Icepak.")
         return status
 
     @aedt_exception_handler
@@ -1835,7 +1834,7 @@ class Icepak(FieldAnalysisIcepak):
         else:
             allObjects = object_list[:]
 
-        self.add_info_message("Exporting {} objects".format(len(allObjects)))
+        self.logger.info("Exporting {} objects".format(len(allObjects)))
 
         stringa = ",".join(allObjects)
         arg = [

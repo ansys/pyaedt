@@ -1,9 +1,9 @@
 from ..generic.general_methods import aedt_exception_handler
 from ..modeler.Circuit import ModelerSimplorer
-from ..modules.PostProcessor import PostProcessor
 from ..modules.SolveSetup import SetupCircuit
 from .Analysis import Analysis
 from .Design import solutions_settings
+from ..modules.PostProcessor import CircuitPostProcessor
 
 
 class FieldAnalysisSimplorer(Analysis):
@@ -58,7 +58,7 @@ class FieldAnalysisSimplorer(Analysis):
         close_on_exit=False,
         student_version=False,
     ):
-        self.solution_type = solution_type
+
         Analysis.__init__(
             self,
             application,
@@ -72,18 +72,14 @@ class FieldAnalysisSimplorer(Analysis):
             close_on_exit,
             student_version,
         )
+        self.solution_type = solution_type
         self._modeler = ModelerSimplorer(self)
-        self._post = PostProcessor(self)
+        self._post = CircuitPostProcessor(self)
 
     @property
     def modeler(self):
         """Design oModeler."""
         return self._modeler
-
-    @property
-    def oanalysis(self):
-        """Design Module ``"SimSetup"``."""
-        return self.odesign.GetModule("SimSetup")
 
     @aedt_exception_handler
     def create_setup(self, setupname="MySetupAuto", setuptype=None, props={}):

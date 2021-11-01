@@ -1,7 +1,6 @@
-import os
-
 # Import exception handling here due to:
 # https://github.com/pyansys/PyAEDT/pull/243
+
 import sys
 
 is_ironpython = "IronPython" in sys.version or ".NETFramework" in sys.version
@@ -29,6 +28,7 @@ try:
     from .simplorer import Simplorer
     from .desktop import Desktop
     from .emit import Emit
+    from .aedt_logger import AedtLogger
 except:
     from .generic.general_methods import aedt_exception_handler, generate_unique_name, retry_ntimes
     from .hfss3dlayout import Hfss3dLayout
@@ -44,3 +44,5 @@ except:
     from .simplorer import Simplorer
     from .desktop import Desktop
     from .emit import Emit
+    from .aedt_logger import AedtLogger
+

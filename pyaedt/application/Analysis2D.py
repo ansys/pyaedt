@@ -4,6 +4,11 @@ from .Analysis import Analysis
 from ..modeler.Model2D import Modeler2D
 from ..modules.Mesh import Mesh
 from ..generic.general_methods import aedt_exception_handler
+from .. import is_ironpython
+if is_ironpython:
+    from ..modules.PostProcessor import PostProcessor
+else:
+    from ..modules.AdvancedPostProcessing import PostProcessor
 
 
 class FieldAnalysis2D(Analysis):
@@ -77,9 +82,12 @@ class FieldAnalysis2D(Analysis):
             close_on_exit,
             student_version,
         )
+        self.osolution = self._odesign.GetModule("Solutions")
+        self.oboundary = self._odesign.GetModule("BoundarySetup")
+
         self._modeler = Modeler2D(self)
         self._mesh = Mesh(self)
-        # self._post = PostProcessor(self)
+        self._post = PostProcessor(self)
 
     @property
     def modeler(self):
@@ -149,7 +157,7 @@ class FieldAnalysis2D(Analysis):
             else:
                 arg2.append("SolveInside:="), arg2.append(False)
             self.modeler.oeditor.AssignMaterial(arg1, arg2)
-            self._messenger.add_info_message("Assign Material " + mat + " to object " + selections)
+            self.logger.glb.info("Assign Material " + mat + " to object " + selections)
             if type(obj) is list:
                 for el in obj:
                     self.modeler.primitives[el].material_name = mat
@@ -164,7 +172,7 @@ class FieldAnalysis2D(Analysis):
             else:
                 arg2.append("SolveInside:="), arg2.append(False)
             self.modeler.oeditor.AssignMaterial(arg1, arg2)
-            self._messenger.add_info_message("Assign Material " + mat + " to object " + selections)
+            self.logger.glb.info("Assign Material " + mat + " to object " + selections)
             if type(obj) is list:
                 for el in obj:
                     self.modeler.primitives[el].material_name = mat
@@ -173,5 +181,5 @@ class FieldAnalysis2D(Analysis):
 
             return True
         else:
-            self._messenger.add_error_message("Material Does Not Exists")
+            self.logger.glb.error("Material does not exist.")
             return False

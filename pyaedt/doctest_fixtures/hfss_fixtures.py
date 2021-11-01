@@ -37,5 +37,5 @@ def set_active_design(request, doctest_namespace):
         return
 
     hfss = doctest_namespace["hfss"]
-    hfss.oproject = "USB_Connector"
-    hfss.odesign = "HfssDesign1"
+    hfss._oproject = "USB_Connector"
+    hfss._odesign = "HfssDesign1"

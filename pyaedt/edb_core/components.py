@@ -50,7 +50,7 @@ class Components(object):
 
     Parameters
     ----------
-    parent : str
+    edb_class : :class:`pyaedt.edb.Edb`
 
     Examples
     --------
@@ -60,8 +60,8 @@ class Components(object):
 
     """
 
-    def __init__(self, parent):
-        self.parent = parent
+    def __init__(self, p_edb):
+        self._pedb = p_edb
         self._cmp = {}
         self._res = {}
         self._cap = {}
@@ -74,13 +74,13 @@ class Components(object):
         self._init_parts()
 
     @property
-    def _messenger(self):
-        """Messenger."""
-        return self.parent._messenger
+    def _logger(self):
+        """Logger."""
+        return self._pedb.logger
 
     @property
     def _edb(self):
-        return self.parent.edb
+        return self._pedb.edb
 
     @aedt_exception_handler
     def _init_parts(self):
@@ -95,31 +95,31 @@ class Components(object):
 
     @property
     def _builder(self):
-        return self.parent.builder
+        return self._pedb.builder
 
     @property
     def _edb_value(self):
-        return self.parent.edb_value
+        return self._pedb.edb_value
 
     @property
     def _edbutils(self):
-        return self.parent.edbutils
+        return self._pedb.edbutils
 
     @property
     def _active_layout(self):
-        return self.parent.active_layout
+        return self._pedb.active_layout
 
     @property
     def _cell(self):
-        return self.parent.cell
+        return self._pedb.cell
 
     @property
     def _db(self):
-        return self.parent.db
+        return self._pedb.db
 
     @property
     def _components_methods(self):
-        return self.parent.edblib.Layout.ComponentsMethods
+        return self._pedb.edblib.Layout.ComponentsMethods
 
     @property
     def components(self):
@@ -153,7 +153,7 @@ class Components(object):
 
         """
         self._cmp = {}
-        self._messenger.add_info_message("Refreshing the Components dictionary.")
+        self._logger.info("Refreshing the Components dictionary.")
         if self._active_layout:
             for cmp in self._active_layout.Groups:
                 if cmp.GetType().ToString() == "Ansys.Ansoft.Edb.Cell.Hierarchy.Component":
@@ -493,10 +493,10 @@ class Components(object):
 
                 edbRlcComponentProperty.SetModel(spiceMod)
                 if not edbComponent.SetComponentProperty(edbRlcComponentProperty):
-                    self._messenger.add_error_message("Error Assigning the Touchstone model")
+                    self._logger.error("Error Assigning the Touchstone model")
                     return False
             else:
-                self._messenger.add_error_message("Wrong number of Pins")
+                self._logger.error("Wrong number of Pins")
                 return False
 
         elif model_type == "Touchstone":
@@ -520,7 +520,7 @@ class Components(object):
             sParameterMod.SetReferenceNet(net)
             edbRlcComponentProperty.SetModel(sParameterMod)
             if not edbComponent.SetComponentProperty(edbRlcComponentProperty):
-                self._messenger.add_error_message("Error Assigning the Touchstone model")
+                self._logger.error("Error Assigning the Touchstone model")
                 return False
         return True
 
@@ -549,7 +549,7 @@ class Components(object):
 
         """
         if len(pins) < 1:
-            self._messenger.add_error_message("No pins specified for pin group {}".format(group_name))
+            self._logger.error("No pins specified for pin group {}".format(group_name))
             return (False, None)
         if group_name is None:
             cmp_name = pins[0].GetComponent().GetName()
@@ -593,7 +593,7 @@ class Components(object):
                 if edb_cmp is not None:
                     edb_cmp.Delete()
                     deleted_comps.append(comp)
-                    self.parent._messenger.add_info_message("Component {} deleted".format(comp))
+                    self._pedb._logger.info("Component {} deleted".format(comp))
         for el in deleted_comps:
             del self.components[el]
         return deleted_comps
@@ -723,15 +723,15 @@ class Components(object):
             if not edbRlcComponentProperty.SetModel(rlcModel) or not edbComponent.SetComponentProperty(
                 edbRlcComponentProperty
             ):
-                self._messenger.add_error_message("Failed to set RLC model on component")
+                self._logger.error("Failed to set RLC model on component")
                 return False
         else:
-            self._messenger.add_warning_message(
+            self._logger.warning(
                 "Component {} has not been assigned because either it is not present in the layout "
                 "or it contains a number of pins not equal to 2".format(componentname)
             )
             return False
-        self._messenger.add_warning_message("RLC properties for Component {} has been assigned.".format(componentname))
+        self._logger.warning("RLC properties for Component {} has been assigned.".format(componentname))
         return True
 
     @aedt_exception_handler

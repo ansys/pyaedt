@@ -13,79 +13,26 @@ from collections import OrderedDict
 
 
 class Maxwell(object):
-    """Contains all methods that are common to both Maxwell 2D and Maxwell 3D.
-
-    Parameters
-    ----------
-    projectname : str, optional
-        Name of the project to select or the full path to the project
-        or AEDTZ archive to open. The default is ``None``, in which
-        case an attempt is made to get an active project. If no
-        projects are present, an empty project is created.
-    designname : str, optional
-        Name of the design to select. The default is ``None``, in
-        which case an attempt is made to get an active design. If no
-        designs are present, an empty design is created.
-    solution_type : str, optional
-        Solution type to apply to the design. The default is
-        ``None``, in which case the default type is applied.
-    setup_name : str, optional
-        Name of the setup to use as the nominal. The default is
-        ``None``, in which case the active setup is used or
-        nothing is used.
-    specified_version : str, optional
-        Version of AEDT to use. The default is ``None``, in which case
-        the active version or latest installed version is used. This
-        parameter is ignored when Script is launched within AEDT.
-    NG : bool, optional
-        Whether to launch AEDT in the non-graphical mode. The default
-        is ``False``, in which case AEDT is launched in the graphical
-        mode. This parameter is ignored when Script is launched within
-        AEDT.
-    new_desktop_session : bool, optional
-        Whether to launch an instance of AEDT in a new thread, even if
-        another instance of the ``specified_version`` is active on the
-        machine. The default is ``True``. This parameter is ignored
-        when Script is launched within AEDT.
-    close_on_exit : bool, optional
-        Whether to release AEDT on exit. The default is ``False``.
-    student_version : bool, optional
-        Whether to open the AEDT student version. The default is
-        ``False``. This parameter is ignored when Script is launched
-        within AEDT.
-
-    """
-
     def __init__(self):
+        self.odefinition_manager = self.materials.odefinition_manager
+        self.omaterial_manager = self.materials.omaterial_manager
+        self.o_maxwell_parameters = self.odesign.GetModule("MaxwellParameterSetup")
+        if self.solution_type != "Transient":
+            self.omodelsetup = None
+        else:
+            self.omodelsetup = self._odesign.GetModule("ModelSetup")
         pass
-
-    @property
-    def odefinition_manager(self):
-        """Definition manager."""
-        return self.oproject.GetDefinitionManager()
-
-    @property
-    def omaterial_manager(self):
-        """Material manager."""
-        return self.odefinition_manager.GetManager("Material")
 
     @property
     def symmetry_multiplier(self):
         """Symmetry multiplier."""
-        omodule = self._odesign.GetModule("ModelSetup")
-        return int(omodule.GetSymmetryMultiplier())
+        return int(self.omodelsetup.GetSymmetryMultiplier())
 
     @property
     def windings(self):
         """Windings."""
-        oModule = self.odesign.GetModule("BoundarySetup")
-        windings = oModule.GetExcitationsOfType("Winding Group")
+        windings = self.oboundary.GetExcitationsOfType("Winding Group")
         return list(windings)
-
-    @property
-    def o_maxwell_parameters(self):
-        """Maxwell parameters."""
-        return self.odesign.GetModule("MaxwellParameterSetup")
 
     @property
     def design_file(self):
@@ -150,7 +97,7 @@ class Maxwell(object):
                     fo.write(file_str)
                 assert os.path.exists(ctl_file), "Control Program file could not be created."
 
-        self.oanalysis_setup.EditSetup(
+        self.oanalysis.EditSetup(
             setupname,
             [
                 "NAME:" + setupname,
@@ -250,7 +197,7 @@ class Maxwell(object):
             if type(object_list[0]) is str:
                 props = OrderedDict({"Objects": object_list, "Current": amplitude, "IsPositive": swap_direction})
             else:
-                self._messenger.add_warning_message("Input has to be a 2D Object")
+                self.logger.glb.warning("Input has to be a 2D Object.")
                 return False
         bound = BoundaryObject(self, name, props, "Current")
         if bound.create():
@@ -475,7 +422,7 @@ class Maxwell(object):
                 bound = BoundaryObject(self, name, props2, "CoilTerminal")
 
             else:
-                self._messenger.add_warning_message("Face Selection is not allowed in Maxwell 2D. Provide a 2D object.")
+                self.logger.glb.warning("Face Selection is not allowed in Maxwell 2D. Provide a 2D object.")
                 return False
         if bound.create():
             self.boundaries.append(bound)
@@ -740,13 +687,13 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
     >>> from pyaedt import Maxwell3d
     >>> aedtapp = Maxwell3d("mymaxwell.aedt")
-    pyaedt Info: Added design ...
+    pyaedt info: Added design ...
 
     Create an instance of Maxwell 3D using the 2021 R1 release and open
     the specified project, which is named ``mymaxwell2.aedt``.
 
     >>> aedtapp = Maxwell3d(specified_version="2021.1", projectname="mymaxwell2.aedt")
-    pyaedt Info: Added design ...
+    pyaedt info: Added design ...
 
     """
 
