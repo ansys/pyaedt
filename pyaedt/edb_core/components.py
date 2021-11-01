@@ -4,11 +4,11 @@
 import re
 import warnings
 
-from pyaedt import generate_unique_name, is_ironpython, retry_ntimes
+from pyaedt import generate_unique_name, retry_ntimes
 from pyaedt.edb_core.general import convert_py_list_to_net_list
-from pyaedt.generic.general_methods import aedt_exception_handler, get_filename_without_extension
+from pyaedt.generic.general_methods import aedt_exception_handler, get_filename_without_extension, is_ironpython
 
-from .EDB_Data import EDBComponent
+from pyaedt.edb_core.EDB_Data import EDBComponent
 
 try:
     import clr
@@ -549,7 +549,7 @@ class Components(object):
 
         """
         if len(pins) < 1:
-            self._logger.error("No pins specified for pin group {}".format(group_name))
+            self._logger.error("No pins specified for pin group %s", group_name)
             return (False, None)
         if group_name is None:
             cmp_name = pins[0].GetComponent().GetName()
@@ -727,11 +727,11 @@ class Components(object):
                 return False
         else:
             self._logger.warning(
-                "Component {} has not been assigned because either it is not present in the layout "
-                "or it contains a number of pins not equal to 2".format(componentname)
+                "Component %s has not been assigned because either it is not present in the layout "
+                "or it contains a number of pins not equal to 2", componentname
             )
             return False
-        self._logger.warning("RLC properties for Component {} has been assigned.".format(componentname))
+        self._logger.warning("RLC properties for Component %s has been assigned.", componentname)
         return True
 
     @aedt_exception_handler

@@ -2,7 +2,7 @@ import os
 import os.path
 import warnings
 
-from .general_methods import env_path
+from pyaedt.generic.general_methods import env_path
 
 if os.name == "posix":
     try:

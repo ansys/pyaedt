@@ -5,8 +5,8 @@ from __future__ import absolute_import
 import os
 import warnings
 
-from .application.Analysis3DLayout import FieldAnalysis3DLayout
-from .generic.general_methods import aedt_exception_handler, generate_unique_name
+from pyaedt.application.Analysis3DLayout import FieldAnalysis3DLayout
+from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name
 
 
 class Hfss3dLayout(FieldAnalysis3DLayout):
@@ -981,7 +981,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         """
         if interpolation_algorithm not in ["auto", "lin", "shadH", "shadNH"]:
-            self.logger.design.error("Wrong Interpolation Algorithm")
+            self.logger.error("Wrong Interpolation Algorithm")
             return False
         arg = ["NAME:CoSimOptions", "Override:="]
 

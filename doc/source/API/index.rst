@@ -21,4 +21,6 @@ documentation.
    SetupTemplates
    Boundaries
    MultiPartComponent
+   LogHandler
+   AedtLogger
 

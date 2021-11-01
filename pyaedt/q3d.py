@@ -1,12 +1,12 @@
 """This module contains these classes: `Q2d`, `Q3d`, and `QExtractor`."""
 from __future__ import absolute_import
 
-from .application.Analysis2D import FieldAnalysis2D
-from .application.Analysis3D import FieldAnalysis3D
-from .generic.general_methods import aedt_exception_handler, generate_unique_name
+from pyaedt.application.Analysis2D import FieldAnalysis2D
+from pyaedt.application.Analysis3D import FieldAnalysis3D
+from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name
 from collections import OrderedDict
-from .modules.Boundary import BoundaryObject
-from .generic.DataHandlers import dict2arg
+from pyaedt.modules.Boundary import BoundaryObject
+from pyaedt.generic.DataHandlers import dict2arg
 import os
 import warnings
 

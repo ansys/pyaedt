@@ -8,10 +8,10 @@ import os
 import time
 from collections import OrderedDict, defaultdict
 
-from ..application.Variables import Variable
-from ..generic.general_methods import aedt_exception_handler, is_number, retry_ntimes
-from .GeometryOperators import GeometryOperators
-from .Object3d import EdgePrimitive, FacePrimitive, Object3d, _dim_arg, _uname
+from pyaedt.application.Variables import Variable
+from pyaedt.generic.general_methods import aedt_exception_handler, is_number, retry_ntimes
+from pyaedt.modeler.GeometryOperators import GeometryOperators
+from pyaedt.modeler.Object3d import EdgePrimitive, FacePrimitive, Object3d, _dim_arg, _uname
 
 default_materials = {
     "Icepak": "air",
@@ -492,6 +492,7 @@ class Polyline(Object3d):
         assert len(new_objects) == 1
         new_name = new_objects[0]
         new_polyline = Polyline(self._primitives, src_object=self, name=new_name)
+        new_polyline._id = None
         self._primitives.objects[new_polyline.id] = new_polyline
         self._primitives.object_id_dict[new_name] = new_polyline.id
         return new_polyline
@@ -2829,7 +2830,7 @@ class Primitives(object):
         test = retry_ntimes(10, self._oeditor.GetObjectsInGroup, "Unclassified")
         if test is None or test is False:
             self._unclassified = []
-            self.logger.design.debug("Unclassified is failing")
+            self.logger.debug("Unclassified is failing")
         elif test is True:
             self._unclassified = []  # In IronPython True is returned when no unclassified are present
         else:

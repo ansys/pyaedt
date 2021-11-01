@@ -1,48 +1,28 @@
 # Import exception handling here due to:
 # https://github.com/pyansys/PyAEDT/pull/243
+import os
+os.environ["SF6694_NON_GRAPHICAL_COMMAND_EXECUTION"] = "1"
+os.environ["SF159726_SCRIPTOBJECT"] = "1"
+from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, retry_ntimes
+from pyaedt.generic.general_methods import is_ironpython, _pythonver, inside_desktop
+from pyaedt.aedt_logger import AedtLogger
+from pyaedt.generic.design_types import (Hfss3dLayout,
+                                         Hfss,
+                                         Circuit,
+                                         Q2d,
+                                         Q3d,
+                                         Siwave,
+                                         Icepak,
+                                         Edb,
+                                         Maxwell3d,
+                                         Maxwell2d,
+                                         Mechanical,
+                                         Rmxprt,
+                                         Simplorer,
+                                         Emit,
+                                         get_pyaedt_app,
+                                         Desktop)
 
-import sys
 
-is_ironpython = "IronPython" in sys.version or ".NETFramework" in sys.version
-_pythonver = sys.version_info[0]
-try:
-    import ScriptEnv
 
-    ScriptEnv.Initialize("Ansoft.ElectronicsDesktop")
-    inside_desktop = True
-except:
-    inside_desktop = False
-
-try:
-    from .generic.general_methods import aedt_exception_handler, generate_unique_name, retry_ntimes
-    from .hfss3dlayout import Hfss3dLayout
-    from .hfss import Hfss
-    from .circuit import Circuit
-    from .q3d import Q2d, Q3d
-    from .siwave import Siwave
-    from .icepak import Icepak
-    from .edb import Edb
-    from .maxwell import Maxwell2d, Maxwell3d
-    from .mechanical import Mechanical
-    from .rmxprt import Rmxprt
-    from .simplorer import Simplorer
-    from .desktop import Desktop
-    from .emit import Emit
-    from .aedt_logger import AedtLogger
-except:
-    from .generic.general_methods import aedt_exception_handler, generate_unique_name, retry_ntimes
-    from .hfss3dlayout import Hfss3dLayout
-    from .hfss import Hfss
-    from .circuit import Circuit
-    from .q3d import Q2d, Q3d
-    from .siwave import Siwave
-    from .icepak import Icepak
-    from .edb import Edb
-    from .maxwell import Maxwell2d, Maxwell3d
-    from .mechanical import Mechanical
-    from .rmxprt import Rmxprt
-    from .simplorer import Simplorer
-    from .desktop import Desktop
-    from .emit import Emit
-    from .aedt_logger import AedtLogger
 

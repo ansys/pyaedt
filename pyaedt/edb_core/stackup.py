@@ -6,10 +6,8 @@ from __future__ import absolute_import
 
 import warnings
 
-from pyaedt import is_ironpython
-
-from .EDB_Data import EDBLayers
-from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.edb_core.EDB_Data import EDBLayers
+from pyaedt.generic.general_methods import aedt_exception_handler, is_ironpython
 
 try:
     from System import Double

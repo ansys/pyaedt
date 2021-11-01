@@ -10,8 +10,8 @@ import os
 import time
 import warnings
 
-from ..generic.general_methods import aedt_exception_handler
-from .PostProcessor import PostProcessor as Post
+from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.modules.PostProcessor import PostProcessor as Post
 
 try:
     import numpy as np
@@ -962,7 +962,7 @@ class PostProcessor(Post):
     @aedt_exception_handler
     def export_model_obj(self):
         """Export the model."""
-        assert self._app._aedt_version >= "2021.2", self.logger.design.error(
+        assert self._app._aedt_version >= "2021.2", self.logger.error(
             "Object is supported from AEDT 2021 R2."
         )
         project_path = self._app.project_path
@@ -1038,7 +1038,7 @@ class PostProcessor(Post):
         list
             List of plot files.
         """
-        assert self._app._aedt_version >= "2021.2", self.logger.design.error(
+        assert self._app._aedt_version >= "2021.2", self.logger.error(
             "Object is supported from AEDT 2021 R2."
         )
         files = [self.export_model_obj()]

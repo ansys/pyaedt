@@ -1,10 +1,10 @@
-from ..application.Variables import AEDT_units
-from ..generic.general_methods import aedt_exception_handler, retry_ntimes
-from ..modules.LayerStackup import Layers
-from .Modeler import Modeler
-from .Primitives3DLayout import Primitives3DLayout
-from .PrimitivesNexxim import NexximComponents
-from .PrimitivesSimplorer import SimplorerComponents
+from pyaedt.application.Variables import AEDT_units
+from pyaedt.generic.general_methods import aedt_exception_handler, retry_ntimes
+from pyaedt.modules.LayerStackup import Layers
+from pyaedt.modeler.Modeler import Modeler
+from pyaedt.modeler.Primitives3DLayout import Primitives3DLayout
+from pyaedt.modeler.PrimitivesNexxim import NexximComponents
+from pyaedt.modeler.PrimitivesSimplorer import SimplorerComponents
 
 
 class ModelerCircuit(Modeler):

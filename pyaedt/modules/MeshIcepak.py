@@ -1,7 +1,7 @@
 from collections import OrderedDict
 
-from ..generic.general_methods import aedt_exception_handler, generate_unique_name
-from .Mesh import meshers, MeshOperation
+from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name
+from pyaedt.modules.Mesh import meshers, MeshOperation
 
 
 class IcepakMesh(object):

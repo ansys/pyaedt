@@ -13,12 +13,12 @@ import shutil
 import tempfile
 import datetime
 import logging
+import re
 try:
     import clr
     from System.Collections.Generic import List
 except ImportError:
     warnings.warn("Pythonnet is needed to run pyaedt")
-from pyaedt import inside_desktop, is_ironpython
 from pyaedt.application.MessageManager import AEDTMessageManager
 from pyaedt.edb_core import Components, EdbNets, EdbPadstacks, EdbLayout, Edb3DLayout, EdbSiwave, EdbStackup
 from pyaedt.edb_core.EDB_Data import EdbBuilder
@@ -28,10 +28,11 @@ from pyaedt.generic.general_methods import (
     env_path,
     env_path_student,
     env_value,
-    generate_unique_name,
+    generate_unique_name, is_ironpython, inside_desktop,
 )
 from pyaedt.aedt_logger import AedtLogger
 from pyaedt.generic.process import SiwaveSolve
+from pyaedt.edb_core.general import convert_py_list_to_net_list
 
 if os.name == "posix":
     try:
@@ -155,11 +156,11 @@ class Edb(object):
                 working_dir = os.path.dirname(edbpath)
                 self.import_layout_pcb(edbpath, working_dir, use_ppe=use_ppe)
                 self.logger.info(
-                    "Edb {} Created Correctly from {} file".format(self.edbpath, edbpath[-2:])
+                    "Edb %s Created Correctly from %s file", self.edbpath, edbpath[-2:]
                 )
             elif not os.path.exists(os.path.join(self.edbpath, "edb.def")):
                 self.create_edb()
-                self.logger.info("Edb {} Created Correctly".format(self.edbpath))
+                self.logger.info("Edb %s Created Correctly", self.edbpath)
             elif ".aedb" in edbpath:
                 self.edbpath = edbpath
                 self.open_edb()
@@ -358,10 +359,10 @@ class Edb(object):
         """
         if init_dlls:
             self._init_dlls()
-        self.logger.info("EDB Path {}".format(self.edbpath))
-        self.logger.info("EDB Version {}".format(self.edbversion))
+        self.logger.info("EDB Path %s", self.edbpath)
+        self.logger.info("EDB Version %s", self.edbversion)
         self.edb.Database.SetRunAsStandAlone(self.standalone)
-        self.logger.info("EDB Standalone {}".format(self.standalone))
+        self.logger.info("EDB Standalone %s", self.standalone)
         try:
             db = self.edb.Database.Open(self.edbpath, self.isreadonly)
         except Exception as e:
@@ -384,7 +385,7 @@ class Edb(object):
         # if self._active_cell is still None, set it to default cell
         if self._active_cell is None:
             self._active_cell = list(self._db.TopCircuitCells)[0]
-        self.logger.info("Cell {} Opened".format(self._active_cell.GetName()))
+        self.logger.info("Cell %s Opened", self._active_cell.GetName())
         if self._db and self._active_cell:
             dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib")
             self.logger.info(dllpath)
@@ -581,8 +582,8 @@ class Edb(object):
         #result = self.layout_methods.ExportIPC2581FromBuilder(self.builder, ipc_path, units.lower())
         end = time.time() - start
         if result:
-            self.logger.info("Export IPC 2581 completed in {} sec.".format(end))
-            self.logger.info("File saved in {}".format(ipc_path))
+            self.logger.info("Export IPC 2581 completed in %s sec.", end)
+            self.logger.info("File saved in %s", ipc_path)
             return ipc_path
         self.logger.info("Error Exporting IPC 2581.")
         return False
@@ -729,22 +730,27 @@ class Edb(object):
 
         Parameters
         ----------
-        val :
+        val : str, float int
 
 
         Returns
         -------
 
         """
+        if isinstance(val, (int, float)):
+            return self.edb.Utility.Value(val)
+        m1 = re.findall(r"(?<=[/+-/*//^/(/[])([a-z_A-Z/$]\w*)", str(val).replace(" ", ""))
+        m2 = re.findall(r"^([a-z_A-Z/$]\w*)", str(val).replace(" ", ""))
+        val_decomposed = list(set(m1).union(m2))
+        if not val_decomposed:
+            return self.edb.Utility.Value(val)
         var_server_db = self.db.GetVariableServer()
         var_names = var_server_db.GetAllVariableNames()
         var_server_cell = self.active_cell.GetVariableServer()
         var_names_cell = var_server_cell.GetAllVariableNames()
-        if isinstance(val, (int, float)):
-            return self.edb.Utility.Value(val)
-        if val in var_names or any(s in val for s in var_names):
-            return self._edb.Utility.Value(val, var_server_db)
-        elif val in var_names_cell or any(s in val for s in var_names_cell):
+        if set(val_decomposed).intersection(var_names):
+            return self.edb.Utility.Value(val, var_server_db)
+        if set(val_decomposed).intersection(var_names_cell):
             return self.edb.Utility.Value(val, var_server_cell)
         return self.edb.Utility.Value(val)
 
@@ -977,8 +983,6 @@ class Edb(object):
             _netobj = self.edb.Cell.Net.FindByName(self.active_layout, _ref)
             _ref_nets.append(_netobj)
 
-        from .edb_core.general import convert_py_list_to_net_list
-
         _netsClip = [
             self.edb.Cell.Net.FindByName(self.active_layout, reference_list[i]) for i, p in enumerate(reference_list)
         ]
@@ -1112,7 +1116,7 @@ class Edb(object):
         net_signals = List[type(_ref_nets[0])]()
         # Create new cutout cell/design
         _cutout = self.active_cell.CutOut(net_signals, _netsClip, polygonData)
-        self.logger.info("Cutout {} created correctly".format(_cutout.GetName()))
+        self.logger.info("Cutout %s created correctly", _cutout.GetName())
         for _setup in self.active_cell.SimulationSetups:
             # Empty string '' if coming from setup copy and don't set explicitly.
             _setup_name = _setup.GetName()
@@ -1347,10 +1351,10 @@ class Edb(object):
             var_server = self.active_cell.GetVariableServer()
         variables = var_server.GetAllVariableNames()
         if variable_name in list(variables):
-            self.logger.warning("Parameter {} exists. Using it.".format(variable_name))
+            self.logger.warning("Parameter %s exists. Using it.", variable_name)
             return False, var_server
         else:
-            self.logger.info("Creating Parameter {}.".format(variable_name))
+            self.logger.info("Creating Parameter %s.", variable_name)
             var_server.AddVariable(variable_name, self.edb_value(variable_value), is_parameter)
             return True, var_server
 

@@ -1,8 +1,8 @@
 import warnings
 import os
 
-from ..generic.general_methods import aedt_exception_handler, retry_ntimes
-from .PrimitivesCircuit import CircuitComponents
+from pyaedt.generic.general_methods import aedt_exception_handler, retry_ntimes
+from pyaedt.modeler.PrimitivesCircuit import CircuitComponents
 
 
 class NexximComponents(CircuitComponents):
