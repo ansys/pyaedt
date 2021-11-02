@@ -16,28 +16,16 @@ jobs:
   build:
     # The type of runner that the job will run on
     runs-on: Windows
+    timeout-minutes: 2
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - uses: actions/checkout@v2
 
       - name: 'Run Unit Tests in Ironpython'
         run: |
-          $p = start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmode.cmd' -PassThru
-          $handle = $p.Handle # cache proc.Handle
-          $p.WaitForExit();
-          $Timeout = 100
-          while (($Timeout -gt 0) -and (!(Test-Path ".\_unittest_ironpython\tests_succeeded.log")))
-          {
-            Start-Sleep 1
-            $Timeout -= 1
-          }
+          '.\_unittest_ironpython\run_unittests_batchmode.cmd'
 
-          get-content .\_unittest_ironpython\runner_unittest.log
-
-          Write-Output "$LASTEXITCODE"
-          Write-Host $LASTEXITCODE
-          Write-Output "p.ExitCode"
-          $p.ExitCode
+      #    get-content .\_unittest_ironpython\runner_unittest.log
 
       # - name: 'Print the runner unittest log.'
       #   run: |
