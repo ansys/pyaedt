@@ -7,7 +7,7 @@ import warnings
 from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 
-from .EDB_Data import EDBPadstack
+from pyaedt.edb_core.EDB_Data import EDBPadstack
 
 try:
     from System import Array
@@ -23,46 +23,55 @@ class EdbPadstacks(object):
         self._padstacks = {}
 
     @property
+    @aedt_exception_handler
     def _builder(self):
         """ """
         return self._pedb.builder
 
     @property
+    @aedt_exception_handler
     def _edb(self):
         """ """
         return self._pedb.edb
 
     @property
+    @aedt_exception_handler
     def _edb_value(self):
         """ """
         return self._pedb.edb_value
 
     @property
+    @aedt_exception_handler
     def _active_layout(self):
         """ """
         return self._pedb.active_layout
 
     @property
+    @aedt_exception_handler
     def db(self):
         """Db object."""
         return self._pedb.db
 
     @property
+    @aedt_exception_handler
     def _padstack_methods(self):
         """ """
         return self._pedb.edblib.Layout.PadStackMethods
 
     @property
+    @aedt_exception_handler
     def _logger(self):
         """ """
         return self._pedb.logger
 
     @property
+    @aedt_exception_handler
     def _layers(self):
         """ """
         return self._pedb.core_stackup.stackup_layers
 
     @property
+    @aedt_exception_handler
     def padstacks(self):
         """Padstacks via padstack definitions.
 
@@ -78,6 +87,7 @@ class EdbPadstacks(object):
         return self._padstacks
 
     @property
+    @aedt_exception_handler
     def pingroups(self):
         """All Layout Pin groups.
 
@@ -242,7 +252,7 @@ class EdbPadstacks(object):
             padstackLayerMap.SetMapping(layer.GetLayerId(), padstackLayerIdMap[padstackLayerName])
         padstackDefinition = self._edb.Definition.PadstackDef.Create(self.db, padstackname)
         padstackDefinition.SetData(padstackData)
-        self._logger.info("Padstack {} create correctly".format(padstackname))
+        self._logger.info("Padstack %s create correctly", padstackname)
         self.update_padstacks()
         return padstackname
 

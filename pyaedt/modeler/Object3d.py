@@ -14,10 +14,9 @@ from __future__ import absolute_import
 
 import random
 import string
-from collections import defaultdict
 
-from .. import aedt_exception_handler, retry_ntimes
-from .GeometryOperators import GeometryOperators
+from pyaedt import aedt_exception_handler, retry_ntimes
+from pyaedt.modeler.GeometryOperators import GeometryOperators
 
 clamp = lambda n, minn, maxn: max(min(maxn, n), minn)
 
@@ -144,7 +143,7 @@ class EdgeTypePrimitive(object):
             if self._object3d.is3d:
                 edge_id_list = [self.id]
             else:
-                self._object3d.logger.design.error("Filet is possible only on a vertex in 2D designs.")
+                self._object3d.logger.error("Filet is possible only on a vertex in 2D designs.")
                 return False
 
         vArg1 = ["NAME:Selections", "Selections:=", self._object3d.name, "NewPartsModelFlag:=", "Model"]
@@ -156,7 +155,7 @@ class EdgeTypePrimitive(object):
         self._object3d.m_Editor.Fillet(vArg1, ["NAME:Parameters", vArg2])
         if self._object3d.name in list(self._object3d.m_Editor.GetObjectsInGroup("UnClassified")):
             self._object3d._primitives._odesign.Undo()
-            self._object3d.logger.design.error(
+            self._object3d.logger.error(
                 "Operation failed, generating an unclassified object. Check and retry."
             )
             return False
@@ -198,7 +197,7 @@ class EdgeTypePrimitive(object):
             if self._object3d.is3d:
                 edge_id_list = [self.id]
             else:
-                self._object3d.logger.design.error("chamfer is possible only on Vertex in 2D Designs ")
+                self._object3d.logger.error("chamfer is possible only on Vertex in 2D Designs ")
                 return False
         vArg1 = ["NAME:Selections", "Selections:=", self._object3d.name, "NewPartsModelFlag:=", "Model"]
         vArg2 = ["NAME:ChamferParameters"]
@@ -221,12 +220,12 @@ class EdgeTypePrimitive(object):
             vArg2.append("RightDistance:="), vArg2.append(self._object3d._primitives._arg_with_dim(right_distance))
             vArg2.append("ChamferType:="), vArg2.append("Right Distance-Angle")
         else:
-            self._object3d.logger.design.error("Wrong Type Entered. Type must be integer from 0 to 3")
+            self._object3d.logger.error("Wrong Type Entered. Type must be integer from 0 to 3")
             return False
         self._object3d.m_Editor.Chamfer(vArg1, ["NAME:Parameters", vArg2])
         if self._object3d.name in list(self._object3d.m_Editor.GetObjectsInGroup("UnClassified")):
             self._object3d.odesign.Undo()
-            self._object3d.logger.design.error(
+            self._object3d.logger.error(
                 "Operation Failed generating Unclassified object. Check and retry"
             )
             return False
@@ -250,6 +249,7 @@ class VertexPrimitive(EdgeTypePrimitive, object):
         self._oeditor = object3d.m_Editor
 
     @property
+    @aedt_exception_handler
     def position(self):
         """Position of the vertex.
 
@@ -565,7 +565,7 @@ class FacePrimitive(object):
         """
         vertices_ids = self.vertices
         if len(vertices_ids) < 2 or not self.center:
-            self._object3d.logger.design.warning("Not enough vertices or non-planar face")
+            self._object3d.logger.warning("Not enough vertices or non-planar face")
             return None
         # elif len(vertices_ids)<2:
         #     v1 = vertices_ids[0].position
@@ -635,6 +635,7 @@ class Object3d(object):
             Inherited parent object.
         name : str
         """
+        self._id = None
         if name:
             self._m_name = name
         else:
@@ -936,11 +937,12 @@ class Object3d(object):
             ID of the object when successful, ``None`` otherwise.
 
         """
-        try:
-            get_id = self._primitives._oeditor.GetObjectIDByName(self._m_name)
-        except Exception as e:
-            return None
-        return get_id
+        if not self._id:
+            try:
+                self._id = self._primitives._oeditor.GetObjectIDByName(self._m_name)
+            except Exception as e:
+                return None
+        return self._id
 
     @property
     def object_type(self):
@@ -1077,7 +1079,7 @@ class Object3d(object):
                 color_tuple = None
         else:
             msg_text = "Invalid color input {} for object {}.".format(color_value, self._m_name)
-            self._primitives.logger.design.warning(msg_text)
+            self._primitives.logger.warning(msg_text)
 
     @property
     def transparency(self):
@@ -1517,7 +1519,7 @@ class Padstack(object):
         self.lib = ""
         self.mat = "copper"
         self.plating = 100
-        self.layers = defaultdict(self.PDSLayer)
+        self.layers = {}
         self.hole = self.PDSHole()
         self.holerange = "UTL"
         self.solder_shape = "None"

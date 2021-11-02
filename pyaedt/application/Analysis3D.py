@@ -2,15 +2,15 @@ import ntpath
 import os
 import warnings
 
-from ..generic.general_methods import aedt_exception_handler, retry_ntimes
-from ..modeler.Model3D import Modeler3D
-from ..modules.Mesh import Mesh
-from .Analysis import Analysis
-from .. import is_ironpython
+from pyaedt.generic.general_methods import aedt_exception_handler, retry_ntimes, is_ironpython
+from pyaedt.modeler.Model3D import Modeler3D
+from pyaedt.modules.Mesh import Mesh
+from pyaedt.application.Analysis import Analysis
+
 if is_ironpython:
-    from ..modules.PostProcessor import PostProcessor
+    from pyaedt.modules.PostProcessor import PostProcessor
 else:
-    from ..modules.AdvancedPostProcessing import PostProcessor
+    from pyaedt.modules.AdvancedPostProcessing import PostProcessor
 
 class FieldAnalysis3D(Analysis, object):
     """Manages 3D field analysis setup in HFSS, Maxwell 3D, and Q3D.
@@ -89,6 +89,7 @@ class FieldAnalysis3D(Analysis, object):
         self._post = PostProcessor(self)
 
     @property
+    @aedt_exception_handler
     def modeler(self):
         """Modeler.
 
@@ -99,6 +100,7 @@ class FieldAnalysis3D(Analysis, object):
         return self._modeler
 
     @property
+    @aedt_exception_handler
     def mesh(self):
         """Mesh.
 
@@ -109,6 +111,7 @@ class FieldAnalysis3D(Analysis, object):
         return self._mesh
 
     @property
+    @aedt_exception_handler
     def components3d(self):
         """Components 3D.
 
@@ -299,6 +302,91 @@ class FieldAnalysis3D(Analysis, object):
         return True
 
     @aedt_exception_handler
+    def export3DModel(self, fileName, filePath, fileFormat=".step", object_list=[], removed_objects=[]):
+        """Export the 3D model.
+
+        .. deprecated:: 0.5.0
+           Use :func:`pyaedt.application.Analysis3D.modeler.export_3d_model` instead.
+
+        Parameters
+        ----------
+        fileName : str
+            Name of the file.
+        filePath : str
+            Path for the file.
+        fileFormat : str, optional
+             Format of the file. The default is ``".step"``.
+        object_list : list, optional
+             List of objects to export. The default is ``[]``.
+        removed_objects : list, optional
+             The default is ``[]``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        warnings.warn("`export3DModel` is deprecated. Use `export_3d_model` instead.", DeprecationWarning)
+        return self.export_3d_model(fileName, filePath, fileFormat, object_list, removed_objects)
+
+    @aedt_exception_handler
+    def export_3d_model(self, fileName, filePath, fileFormat=".step", object_list=[], removed_objects=[]):
+        """Export the 3D model.
+
+        Parameters
+        ----------
+        fileName : str
+            Name of the file.
+        filePath : str
+            Path for the file.
+        fileFormat : str, optional
+             Format of the file. The default is ``".step"``.
+        object_list : list, optional
+             List of objects to export. The default is ``[]``.
+        removed_objects : list, optional
+             The default is ``[]``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        if not object_list:
+            allObjects = self.modeler.primitives.object_names
+            if removed_objects:
+                for rem in removed_objects:
+                    allObjects.remove(rem)
+            else:
+                if "Region" in allObjects:
+                    allObjects.remove("Region")
+        else:
+            allObjects = object_list[:]
+
+        self.logger.info("Exporting {} objects".format(len(allObjects)))
+
+        stringa = ",".join(allObjects)
+        arg = [
+            "NAME:ExportParameters",
+            "AllowRegionDependentPartSelectionForPMLCreation:=",
+            True,
+            "AllowRegionSelectionForPMLCreation:=",
+            True,
+            "Selections:=",
+            stringa,
+            "File Name:=",
+            str(filePath) + "/" + str(fileName) + str(fileFormat),
+            "Major Version:=",
+            -1,
+            "Minor Version:=",
+            -1,
+        ]
+
+        self.modeler.oeditor.Export(arg)
+        return True
+
+    @aedt_exception_handler
     def get_all_sources(self):
         """Retrieve all setup sources.
 
@@ -332,17 +420,6 @@ class FieldAnalysis3D(Analysis, object):
             contexts.append([s + ":" + str(i + 1) for s in sources])  # use one based indexing
         self.osolution.SetSourceContexts(contexts)
         return True
-
-    @aedt_exception_handler
-    def assignmaterial(self, obj, mat):
-        """Assign a material to one or more objects.
-
-        .. deprecated:: 0.3.1
-           Use :func:`FieldAnalysis3D.assign_material` instead.
-
-        """
-        warnings.warn("assignmaterial is deprecated. Use assign_material instead.", DeprecationWarning)
-        self.assign_material(obj, mat)
 
     @aedt_exception_handler
     def assign_material(self, obj, mat):
@@ -399,7 +476,7 @@ class FieldAnalysis3D(Analysis, object):
                 arg2.append("SolveInside:="), arg2.append(False)
             self.modeler.oeditor.AssignMaterial(arg1, arg2)
             self.logger.glb.info("Assign Material " + mat + " to object " + selections)
-            if type(obj) is list:
+            if isinstance(obj, list):
                 for el in obj:
                     self.modeler.primitives[el].material_name = mat
             else:
@@ -414,7 +491,7 @@ class FieldAnalysis3D(Analysis, object):
                 arg2.append("SolveInside:="), arg2.append(False)
             self.modeler.oeditor.AssignMaterial(arg1, arg2)
             self.logger.glb.info("Assign Material " + mat + " to object " + selections)
-            if type(obj) is list:
+            if isinstance(obj, list):
                 for el in obj:
                     self.modeler.primitives[el].material_name = mat
             else:

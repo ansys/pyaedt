@@ -7,8 +7,7 @@ import os
 import time
 import warnings
 
-from pyaedt import is_ironpython
-from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, retry_ntimes
+from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, retry_ntimes, is_ironpython
 
 try:
     from System import String
@@ -464,7 +463,7 @@ class EdbSiwave(object):
             except:
                 name = generate_unique_name(source.name)
                 pos_pingroup_terminal.SetName(name)
-                self._logger.warning("{} already exists. Renaming to {}".format(source.name, name))
+                self._logger.warning("%s already exists. Renaming to %s", source.name, name)
         elif source.type == SourceType.CurrentSource:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kCurrentSource)
             neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kCurrentSource)
@@ -476,7 +475,7 @@ class EdbSiwave(object):
             except Exception as e:
                 name = generate_unique_name(source.name)
                 pos_pingroup_terminal.SetName(name)
-                self._logger.warning("{} already exists. Renaming to {}".format(source.name, name))
+                self._logger.warning("%s already exists. Renaming to %s", source.name, name)
 
         elif source.type == SourceType.VoltageSource:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kVoltageSource)
@@ -489,7 +488,7 @@ class EdbSiwave(object):
             except:
                 name = generate_unique_name(source.name)
                 pos_pingroup_terminal.SetName(name)
-                self._logger.warning("{} already exists. Renaming to {}".format(source.name, name))
+                self._logger.warning("%s already exists. Renaming to %s", source.name, name)
 
         elif source.type == SourceType.Resistor:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.RlcBoundary)
@@ -507,7 +506,7 @@ class EdbSiwave(object):
             except:
                 name = generate_unique_name(source.name)
                 pos_pingroup_terminal.SetName(name)
-                self._logger.warning("{} already exists. Renaming to {}".format(source.name, name))
+                self._logger.warning("%s already exists. Renaming to %s", source.name, name)
         else:
             pass
         return pos_pingroup_terminal.GetName()
@@ -1230,7 +1229,7 @@ class EdbSiwave(object):
             except:
                 name = generate_unique_name(source.name)
                 pos_pingroup_terminal.SetName(name)
-                self._logger.warning("{} already exists. Renaming to {}".format(source.name, name))
+                self._logger.warning("%s already exists. Renaming to %s", source.name, name)
 
         elif source.type == SourceType.CurrentSource:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kCurrentSource)
@@ -1243,7 +1242,7 @@ class EdbSiwave(object):
             except Exception as e:
                 name = generate_unique_name(source.name)
                 pos_pingroup_terminal.SetName(name)
-                self._logger.warning("{} already exists. Renaming to {}".format(source.name, name))
+                self._logger.warning("%s already exists. Renaming to %s", source.name, name)
 
         elif source.type == SourceType.VoltageSource:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kVoltageSource)
@@ -1256,7 +1255,7 @@ class EdbSiwave(object):
             except:
                 name = generate_unique_name(source.name)
                 pos_pingroup_terminal.SetName(name)
-                self._logger.warning("{} already exists. Renaming to {}".format(source.name, name))
+                self._logger.warning("%s already exists. Renaming to %s", source.name, name)
 
         elif source.type == SourceType.Resistor:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.RlcBoundary)

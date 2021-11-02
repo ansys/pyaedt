@@ -10,8 +10,8 @@ import os
 import time
 import warnings
 
-from ..generic.general_methods import aedt_exception_handler
-from .PostProcessor import PostProcessor as Post
+from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.modules.PostProcessor import PostProcessor as Post
 
 try:
     import numpy as np

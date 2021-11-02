@@ -1,9 +1,9 @@
-from ..generic.general_methods import aedt_exception_handler
-from ..modeler.Circuit import ModelerSimplorer
-from ..modules.SolveSetup import SetupCircuit
-from .Analysis import Analysis
-from .Design import solutions_settings
-from ..modules.PostProcessor import CircuitPostProcessor
+from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.modeler.Circuit import ModelerSimplorer
+from pyaedt.modules.SolveSetup import SetupCircuit
+from pyaedt.application.Analysis import Analysis
+from pyaedt.application.Design import solutions_settings
+from pyaedt.modules.PostProcessor import CircuitPostProcessor
 
 
 class FieldAnalysisSimplorer(Analysis):
@@ -23,6 +23,7 @@ class FieldAnalysisSimplorer(Analysis):
     """
 
     @property
+    @aedt_exception_handler
     def solution_type(self):
         """Solution Type."""
         return self._solution_type
@@ -35,12 +36,14 @@ class FieldAnalysisSimplorer(Analysis):
             self._solution_type = "TR"
 
     @property
+    @aedt_exception_handler
     def existing_analysis_setups(self):
         """Existing analysis setups."""
         setups = self.oanalysis.GetAllSolutionSetups()
         return setups
 
     @property
+    @aedt_exception_handler
     def setup_names(self):
         """Setup names."""
         return list(self.oanalysis.GetAllSolutionSetups())
@@ -77,6 +80,7 @@ class FieldAnalysisSimplorer(Analysis):
         self._post = CircuitPostProcessor(self)
 
     @property
+    @aedt_exception_handler
     def modeler(self):
         """Design oModeler."""
         return self._modeler

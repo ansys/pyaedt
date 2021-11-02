@@ -15,9 +15,9 @@ import warnings
 import sys
 from collections import OrderedDict
 
-from ..application.Variables import AEDT_units
-from ..generic.filesystem import Scratch
-from ..generic.general_methods import aedt_exception_handler, generate_unique_name, retry_ntimes
+from pyaedt.application.Variables import AEDT_units
+from pyaedt.generic.filesystem import Scratch
+from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, retry_ntimes
 
 report_type = {
     "DrivenModal": "Modal Solution Data",
@@ -59,11 +59,13 @@ class SolutionData(object):
     """Contains information from the :func:`GetSolutionDataPerVariation` method."""
 
     @property
+    @aedt_exception_handler
     def sweeps(self):
         """Sweeps."""
         return self._sweeps
 
     @property
+    @aedt_exception_handler
     def sweeps_siunits(self):
         """SI units for the sweep."""
         data = {}
@@ -74,6 +76,7 @@ class SolutionData(object):
         return data
 
     @property
+    @aedt_exception_handler
     def variations_value(self):
         """Variation values for design variables."""
         vars = self.nominal_variation.GetDesignVariableNames()
@@ -83,6 +86,7 @@ class SolutionData(object):
         return variationvals
 
     @property
+    @aedt_exception_handler
     def nominal_variation(self):
         """Nominal variation."""
         return self._nominal_variation
@@ -96,6 +100,7 @@ class SolutionData(object):
             print(str(val) + " not in Variations")
 
     @property
+    @aedt_exception_handler
     def primary_sweep(self):
         """Primary sweep.
 
@@ -112,6 +117,7 @@ class SolutionData(object):
             self._primary_sweep = ps
 
     @property
+    @aedt_exception_handler
     def expressions(self):
         """Expressions."""
         mydata = [i for i in self._nominal_variation.GetDataExpressions()]
@@ -479,6 +485,7 @@ class FieldPlot:
         self.CloudMaxSpacing = -1
 
     @property
+    @aedt_exception_handler
     def plotGeomInfo(self):
         """Plot geometry information."""
         info = [1, self.objtype, self.listtype, 0]
@@ -488,6 +495,7 @@ class FieldPlot:
         return info
 
     @property
+    @aedt_exception_handler
     def intrinsicVar(self):
         """Intrinsic variable.
 
@@ -512,6 +520,7 @@ class FieldPlot:
         return var
 
     @property
+    @aedt_exception_handler
     def plotsettings(self):
         """Plot settings.
 
@@ -583,6 +592,7 @@ class FieldPlot:
         return arg
 
     @property
+    @aedt_exception_handler
     def surfacePlotInstruction(self):
         """Surface plot settings.
 
@@ -622,6 +632,7 @@ class FieldPlot:
         ]
 
     @property
+    @aedt_exception_handler
     def field_plot_settings(self):
         """Field Plot Settings.
 
@@ -825,6 +836,7 @@ class PostProcessorCommon(object):
         self._scratch = Scratch(self._app.temp_directory, volatile=True)
 
     @property
+    @aedt_exception_handler
     def oreportsetup(self):
         """Report setup.
 
@@ -836,31 +848,37 @@ class PostProcessorCommon(object):
         return self._oreportsetup
 
     @property
+    @aedt_exception_handler
     def logger(self):
         """Logger."""
         return self._app.logger
 
     @property
+    @aedt_exception_handler
     def _desktop(self):
         """Desktop."""
         return self._app._desktop
 
     @property
+    @aedt_exception_handler
     def _odesign(self):
         """Design."""
         return self._app._odesign
 
     @property
+    @aedt_exception_handler
     def _oproject(self):
         """Project."""
         return self._app._oproject
 
     @property
+    @aedt_exception_handler
     def modeler(self):
         """Modeler."""
         return self._app._modeler
 
     @property
+    @aedt_exception_handler
     def post_solution_type(self):
         """Design solution type.
 
@@ -1245,6 +1263,7 @@ class PostProcessor(PostProcessorCommon, object):
         PostProcessorCommon.__init__(self, app)
 
     @property
+    @aedt_exception_handler
     def _primitives(self):
         """Primitives.
 
@@ -1257,6 +1276,7 @@ class PostProcessor(PostProcessorCommon, object):
         return self._app._modeler.primitives
 
     @property
+    @aedt_exception_handler
     def model_units(self):
         """Model units.
 
@@ -1268,6 +1288,7 @@ class PostProcessor(PostProcessorCommon, object):
         return retry_ntimes(10, self._oeditor.GetModelUnits)
 
     @property
+    @aedt_exception_handler
     def post_osolution(self):
         """Solution.
 
@@ -1279,6 +1300,7 @@ class PostProcessor(PostProcessorCommon, object):
         return self._post_osolution
 
     @property
+    @aedt_exception_handler
     def ofieldsreporter(self):
         """Fields reporter.
 
@@ -1290,6 +1312,7 @@ class PostProcessor(PostProcessorCommon, object):
         return self._ofieldsreporter
 
     @property
+    @aedt_exception_handler
     def report_types(self):
         """Report types."""
         return list(self.oreportsetup.GetAvailableReportTypes())

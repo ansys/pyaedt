@@ -153,7 +153,7 @@ class TestClass:
     def test_07_ExportStepForWB(self):
         file_path = self.local_scratch.path
         file_name = "WBStepModel"
-        assert self.aedtapp.export3DModel(file_name, file_path, ".step", [], ["Region", "Component_Region"])
+        assert self.aedtapp.export_3d_model(file_name, file_path, ".step", [], ["Region", "Component_Region"])
 
     def test_08_Setup(self):
         setup_name = "DomSetup"
@@ -305,8 +305,9 @@ class TestClass:
         assert sorted(dielectrics) == ["Region", "box2", "box3"]
 
     def test_28_assign_surface_material(self):
-        mats = self.aedtapp.materials.add_surface_material("my_surface", 0.5)
-        assert mats.emissivity.value == 0.5
+        self.aedtapp.materials.add_surface_material("my_surface", 0.5)
+        obj = ["box2", "box3"]
+        assert self.aedtapp.assign_surface_material(obj, "my_surface")
 
     def test_33_create_region(self):
         self.aedtapp.modeler.primitives.delete("Region")

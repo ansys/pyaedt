@@ -7,16 +7,14 @@ This modules provides functionalities for the 3D Modeler, 2D Modeler,
 """
 from __future__ import absolute_import
 import os
-import warnings
 
 from collections import OrderedDict
-from .GeometryOperators import GeometryOperators
-from ..application.Variables import AEDT_units
-from ..generic.general_methods import generate_unique_name, retry_ntimes, aedt_exception_handler
+from pyaedt.modeler.GeometryOperators import GeometryOperators
+from pyaedt.application.Variables import AEDT_units
+from pyaedt.generic.general_methods import generate_unique_name, retry_ntimes, aedt_exception_handler, _pythonver
 import math
-from ..generic.DataHandlers import dict2arg
-from .Object3d import EdgePrimitive, FacePrimitive, VertexPrimitive, Object3d
-from pyaedt import _pythonver
+from pyaedt.generic.DataHandlers import dict2arg
+from pyaedt.modeler.Object3d import EdgePrimitive, FacePrimitive, VertexPrimitive, Object3d
 
 
 class CoordinateSystem(object):
@@ -656,7 +654,7 @@ class GeometryModeler(Modeler, object):
             elif type(el) is EdgePrimitive or type(el) is FacePrimitive or type(el) is VertexPrimitive:
                 output_list = [i.id for i in input_list]
             elif type(el) is int and convert_objects_ids_to_name:
-                if el in self.primitives.objects:
+                if el in list(self.primitives.objects.keys()):
                     output_list.append(self.primitives.objects[el].name)
                 else:
                     output_list.append(el)
@@ -976,41 +974,6 @@ class GeometryModeler(Modeler, object):
 
         """
         self.oeditor.SetWCS(["NAME:SetWCS Parameter", "Working Coordinate System:=", name, "RegionDepCSOk:=", False])
-        return True
-
-    @aedt_exception_handler
-    def add_workbench_link(self, objects, ambient_temp=22, create_project_var=False, enable_deformation=True):
-        """Assign temperature and deformation objects to a Workbench link.
-
-        .. deprecated:: 0.3.1
-           Use :func:`GeometryModeler.set_objects_temperature` and
-           :func:`GeometryModeler.set_objects_deformation` instead.
-
-        Parameters
-        ----------
-        objects : list
-            List of the objects to assign to the Workbench link.
-        ambient_temp : float, optional
-            Ambient temperature. The default is ``22.``
-        create_project_var : bool, optional
-            Whether to create a project variable for the ambient temperature.
-            The default is ``False``. If ``True,`` ``$AmbientTemp`` is created.
-        enable_deformation : bool, optional
-            Whether to add the deformation link. The default is ``True``.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        """
-        warnings.warn(
-            "add_workbench_link is deprecated. " "Use set_objects_temperature and set_objects_deformation instead.",
-            DeprecationWarning,
-        )
-        self.set_objects_temperature(objects, ambient_temp, create_project_var)
-        if enable_deformation:
-            self.set_objects_deformation(objects)
         return True
 
     @aedt_exception_handler
@@ -1488,12 +1451,18 @@ class GeometryModeler(Modeler, object):
            String or list of the selections.
 
         """
-        if type(objtosplit) is not list:
+        if "netref.builtins.list" in str(type(objtosplit)):
+            list_new = []
+            for i in range(len(objtosplit)):
+                list_new.append(objtosplit[i])
+        elif not isinstance(objtosplit, list):
             objtosplit = [objtosplit]
         objnames = []
         for el in objtosplit:
-            if isinstance(el, int) and el in self.primitives.objects:
+            if isinstance(el, int) and el in list(self.primitives.objects.keys()):
                 objnames.append(self.primitives.objects[el].name)
+            elif isinstance(el, int):
+                objnames.append(el)
             elif isinstance(el, Object3d):
                 objnames.append(el.name)
             elif isinstance(el, FacePrimitive):

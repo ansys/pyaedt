@@ -6,10 +6,8 @@ from __future__ import absolute_import
 
 import warnings
 
-from pyaedt import is_ironpython
-
-from .EDB_Data import EDBLayers
-from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.edb_core.EDB_Data import EDBLayers
+from pyaedt.generic.general_methods import aedt_exception_handler, is_ironpython
 
 try:
     from System import Double
@@ -25,46 +23,55 @@ class EdbStackup(object):
         self._layer_dict = None
 
     @property
+    @aedt_exception_handler
     def _builder(self):
         """ """
         return self._pedb.builder
 
     @property
+    @aedt_exception_handler
     def _edb_value(self):
         """ """
         return self._pedb.edb_value
 
     @property
+    @aedt_exception_handler
     def _edb(self):
         """ """
         return self._pedb.edb
 
     @property
+    @aedt_exception_handler
     def _active_layout(self):
         """ """
         return self._pedb.active_layout
 
     @property
+    @aedt_exception_handler
     def _cell(self):
         """ """
         return self._pedb.cell
 
     @property
+    @aedt_exception_handler
     def _db(self):
         """ """
         return self._pedb.db
 
     @property
+    @aedt_exception_handler
     def _stackup_methods(self):
         """ """
         return self._pedb.edblib.Layout.StackupMethods
 
     @property
+    @aedt_exception_handler
     def _logger(self):
         """ """
         return self._pedb.logger
 
     @property
+    @aedt_exception_handler
     def stackup_layers(self):
         """Stackup layers.
 
@@ -78,6 +85,7 @@ class EdbStackup(object):
         return self._layer_dict
 
     @property
+    @aedt_exception_handler
     def signal_layers(self):
         """List of all signal layers.
 
@@ -89,6 +97,7 @@ class EdbStackup(object):
         return self.stackup_layers.signal_layers
 
     @property
+    @aedt_exception_handler
     def layer_types(self):
         """Layer types.
 
@@ -100,6 +109,7 @@ class EdbStackup(object):
         return self._edb.Cell.LayerType
 
     @property
+    @aedt_exception_handler
     def materials(self):
         """Materials.
 

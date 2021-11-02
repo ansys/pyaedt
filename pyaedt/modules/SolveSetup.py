@@ -11,10 +11,10 @@ import warnings
 from collections import OrderedDict
 import os.path
 
-from ..generic.general_methods import aedt_exception_handler, generate_unique_name
+from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name
 
-from .SetupTemplates import SweepHFSS, SweepQ3D, SetupKeys, SweepHFSS3DLayout
-from ..generic.DataHandlers import tuple2dict, dict2arg
+from pyaedt.modules.SetupTemplates import SweepHFSS, SweepQ3D, SetupKeys, SweepHFSS3DLayout
+from pyaedt.generic.DataHandlers import tuple2dict, dict2arg
 
 
 class Setup(object):
@@ -35,6 +35,7 @@ class Setup(object):
     """
 
     @property
+    @aedt_exception_handler
     def p_app(self):
         """Parent."""
         return self._app
@@ -44,6 +45,7 @@ class Setup(object):
         self._app = value
 
     @property
+    @aedt_exception_handler
     def omodule(self):
         """Analysis module."""
         return self._app.oanalysis
@@ -480,6 +482,7 @@ class SetupCircuit(object):
         self.name = setupname
 
     @property
+    @aedt_exception_handler
     def name(self):
         """Name."""
         return self._Name
@@ -490,6 +493,7 @@ class SetupCircuit(object):
         self.props["Name"] = name
 
     @property
+    @aedt_exception_handler
     def p_app(self):
         """AEDT app module for setting up the analysis."""
         return self._app
@@ -499,11 +503,13 @@ class SetupCircuit(object):
         self._app = name
 
     @property
+    @aedt_exception_handler
     def _odesign(self):
         """Design."""
         return self._app._odesign
 
     @property
+    @aedt_exception_handler
     def omodule(self):
         """Analysis module.
 
@@ -860,6 +866,7 @@ class Setup3DLayout(object):
     """
 
     @property
+    @aedt_exception_handler
     def omodule(self):
         """Analysis module.
 
@@ -905,6 +912,7 @@ class Setup3DLayout(object):
             # self.props = dict_data[setupname]
 
     @property
+    @aedt_exception_handler
     def setup_type(self):
         """Setup type.
 

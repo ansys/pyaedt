@@ -1,8 +1,8 @@
 import math
 
-from ..generic.general_methods import aedt_exception_handler
-from .Modeler import Modeler, GeometryModeler
-from .Primitives2D import Primitives2D
+from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.modeler.Modeler import Modeler, GeometryModeler
+from pyaedt.modeler.Primitives2D import Primitives2D
 
 
 class ModelerRMxprt(Modeler):

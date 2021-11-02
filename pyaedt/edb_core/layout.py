@@ -257,12 +257,12 @@ class EdbLayout(object):
         """
         bounding = []
         try:
-            bbox = polygon.GetPolygonData().GetBBox()
+            bounding_box = polygon.GetPolygonData().GetBBox()
             bounding = [
-                bbox.Item1.X.ToDouble(),
-                bbox.Item1.Y.ToDouble(),
-                bbox.Item2.X.ToDouble(),
-                bbox.Item2.Y.ToDouble(),
+                bounding_box.Item1.X.ToDouble(),
+                bounding_box.Item1.Y.ToDouble(),
+                bounding_box.Item2.X.ToDouble(),
+                bounding_box.Item2.Y.ToDouble(),
             ]
         except:
             pass
@@ -546,7 +546,7 @@ class EdbLayout(object):
             return self._createPolygonDataFromRectangle(shape)
         else:
             self._logger.error(
-                "Unsupported shape type {} when creating a polygon primitive.".format(shape.type)
+                "Unsupported shape type %s when creating a polygon primitive.", shape.type
             )
             return None
 
@@ -577,7 +577,7 @@ class EdbLayout(object):
                 elif endPoint[2].ToString() == "ccw":
                     rotationDirection = self._edb.Geometry.RotationDirection.CCW
                 else:
-                    self._logger.error("Invalid rotation direction {} is specified.".format(endPoint[2]))
+                    self._logger.error("Invalid rotation direction %s is specified.", endPoint[2])
                     return None
                 arc = self._edb.Geometry.ArcData(
                     self._edb.Geometry.PointData(startPoint[0], startPoint[1]),
@@ -620,7 +620,7 @@ class EdbLayout(object):
             return True
         else:
             self._logger.error(
-                "Arc point descriptor has incorrect number of elements ({})".format(len(point))
+                "Arc point descriptor has incorrect number of elements (%s)", len(point)
             )
             return False
 
@@ -729,7 +729,7 @@ class EdbLayout(object):
             layer_name = list(self._pedb.core_stackup.signal_layers.keys())
 
         for lay in layer_name:
-            self._logger.info("Uniting Objects on layer {}.".format(lay))
+            self._logger.add_info_message("Uniting Objects on layer %s.", lay)
             poly_by_nets = {}
             if lay in list(self.polygons_by_layer.keys()):
                 for poly in self.polygons_by_layer[lay]:

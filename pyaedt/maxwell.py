@@ -4,11 +4,11 @@ from __future__ import absolute_import
 import os
 import json
 import io
-from .application.Analysis2D import FieldAnalysis2D
-from .application.Analysis3D import FieldAnalysis3D
-from .generic.DataHandlers import float_units
-from .generic.general_methods import generate_unique_name, aedt_exception_handler
-from .modules.Boundary import BoundaryObject
+from pyaedt.application.Analysis2D import FieldAnalysis2D
+from pyaedt.application.Analysis3D import FieldAnalysis3D
+from pyaedt.generic.DataHandlers import float_units
+from pyaedt.generic.general_methods import generate_unique_name, aedt_exception_handler
+from pyaedt.modules.Boundary import BoundaryObject
 from collections import OrderedDict
 
 
@@ -24,17 +24,20 @@ class Maxwell(object):
         pass
 
     @property
+    @aedt_exception_handler
     def symmetry_multiplier(self):
         """Symmetry multiplier."""
         return int(self.omodelsetup.GetSymmetryMultiplier())
 
     @property
+    @aedt_exception_handler
     def windings(self):
         """Windings."""
         windings = self.oboundary.GetExcitationsOfType("Winding Group")
         return list(windings)
 
     @property
+    @aedt_exception_handler
     def design_file(self):
         """Design file."""
         design_file = os.path.join(self.working_directory, "design_data.json")
@@ -698,6 +701,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
     """
 
     @property  # for legacy purposes
+    @aedt_exception_handler
     def dim(self):
         """Dimensions."""
         return "3D"

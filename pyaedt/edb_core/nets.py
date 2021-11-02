@@ -4,32 +4,37 @@ from pyaedt.generic.general_methods import aedt_exception_handler, generate_uniq
 
 
 class EdbNets(object):
-    """Manages EDB functionalities  for nets."""
+    """Manages EDB functionalities for nets."""
 
     def __init__(self, p_edb):
         self._pedb = p_edb
 
     @property
+    @aedt_exception_handler
     def _builder(self):
         """ """
         return self._pedb.builder
 
     @property
+    @aedt_exception_handler
     def _edb(self):
         """ """
         return self._pedb.edb
 
     @property
+    @aedt_exception_handler
     def _active_layout(self):
         """ """
         return self._pedb.active_layout
 
     @property
+    @aedt_exception_handler
     def _cell(self):
         """ """
         return self._pedb.cell
 
     @property
+    @aedt_exception_handler
     def db(self):
         """Db object."""
         return self._pedb.db
@@ -41,7 +46,7 @@ class EdbNets(object):
 
     @property
     def _logger(self):
-        """ """
+        """Edb logger."""
         return self._pedb.logger
 
     @property
@@ -115,6 +120,7 @@ class EdbNets(object):
                 return True
         return False
 
+    @aedt_exception_handler
     def get_dcconnected_net_list(self, ground_nets=["GND"]):
         """Retrieve the nets connected to DC through inductors.
 
@@ -158,6 +164,7 @@ class EdbNets(object):
 
         return dcconnected_net_list
 
+    @aedt_exception_handler
     def get_powertree(self, power_net_name, ground_nets):
         """Retrieve the power tree.
 
@@ -236,7 +243,7 @@ class EdbNets(object):
 
         >>> deleted_nets = edb_core.core_nets.delete_nets(["Net1","Net2"])
         """
-        if type(netlist) is str:
+        if isinstance(netlist, str):
             netlist = [netlist]
         nets_deleted = []
         for net in netlist:
@@ -245,7 +252,7 @@ class EdbNets(object):
                 if edb_net is not None:
                     edb_net.Delete()
                     nets_deleted.append(net)
-                    self._logger.info("Net {} Deleted".format(net))
+                    self._logger.info("Net %s Deleted", net)
             except:
                 pass
 

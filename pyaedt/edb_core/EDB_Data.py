@@ -1,11 +1,8 @@
 import time
 import warnings
-from collections import OrderedDict, defaultdict
 
-from pyaedt import is_ironpython
-
-from ..generic.general_methods import aedt_exception_handler
-from .general import convert_py_list_to_net_list
+from pyaedt.generic.general_methods import aedt_exception_handler, is_ironpython
+from pyaedt.edb_core.general import convert_py_list_to_net_list
 
 try:
     from System import Array
@@ -291,7 +288,7 @@ class EDBLayer(object):
         try:
             newLayer.SetLayerType(layerTypeMap)
         except:
-            self._logger.error("Layer {0} has unknown type {1}".format(layerName, layerTypeMap))
+            self._logger.error("Layer %s has unknown type %s.", layerName, layerTypeMap)
             return False
         if thicknessMap:
             newLayer.SetThickness(self._edb_value(thicknessMap))
@@ -390,7 +387,7 @@ class EDBLayers(object):
     def __init__(self, edb_stackup):
         self._stackup_mode = None
         self._pedbstackup = edb_stackup
-        self._edb_object = OrderedDict(defaultdict(EDBLayer))
+        self._edb_object = {}
         self._update_edb_objects()
 
     def __getitem__(self, layername):
@@ -580,7 +577,7 @@ class EDBLayers(object):
 
     @aedt_exception_handler
     def _update_edb_objects(self):
-        self._edb_object = OrderedDict(defaultdict(EDBLayer))
+        self._edb_object = {}
         layers = self.edb_layers
         for i in range(len(layers)):
             self._edb_object[layers[i].GetName()] = EDBLayer(layers[i], self)
@@ -1310,6 +1307,7 @@ class EDBPinInstances(object):
         return self.pin.GetPinGroups()
 
     @property
+    @aedt_exception_handler
     def position(self):
         """Pin position.
 
@@ -1542,7 +1540,7 @@ class EDBComponent(object):
         list
             List of EDBPinInstances of Component.
         """
-        pins = defaultdict(EDBPinInstances)
+        pins = {}
         for el in self.pinlist:
             pins[el.GetName()] = EDBPinInstances(self, el)
         return pins

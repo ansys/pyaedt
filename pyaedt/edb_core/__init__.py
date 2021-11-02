@@ -1,9 +1,9 @@
 from __future__ import absolute_import
 
-from .components import Components
-from .hfss import Edb3DLayout
-from .nets import EdbNets
-from .padstack import EdbPadstacks
-from .siwave import EdbSiwave
-from .stackup import EdbStackup
-from .layout import EdbLayout
+from pyaedt.edb_core.components import Components
+from pyaedt.edb_core.hfss import Edb3DLayout
+from pyaedt.edb_core.nets import EdbNets
+from pyaedt.edb_core.padstack import EdbPadstacks
+from pyaedt.edb_core.siwave import EdbSiwave
+from pyaedt.edb_core.stackup import EdbStackup
+from pyaedt.edb_core.layout import EdbLayout

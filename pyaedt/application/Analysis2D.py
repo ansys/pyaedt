@@ -1,14 +1,13 @@
-import warnings
 
-from .Analysis import Analysis
-from ..modeler.Model2D import Modeler2D
-from ..modules.Mesh import Mesh
-from ..generic.general_methods import aedt_exception_handler
-from .. import is_ironpython
+from pyaedt.application.Analysis import Analysis
+from pyaedt.modeler.Model2D import Modeler2D
+from pyaedt.modules.Mesh import Mesh
+from pyaedt.generic.general_methods import aedt_exception_handler, is_ironpython
+
 if is_ironpython:
-    from ..modules.PostProcessor import PostProcessor
+    from pyaedt.modules.PostProcessor import PostProcessor
 else:
-    from ..modules.AdvancedPostProcessing import PostProcessor
+    from pyaedt.modules.AdvancedPostProcessing import PostProcessor
 
 
 class FieldAnalysis2D(Analysis):
@@ -90,6 +89,7 @@ class FieldAnalysis2D(Analysis):
         self._post = PostProcessor(self)
 
     @property
+    @aedt_exception_handler
     def modeler(self):
         """Modeler.
 
@@ -100,6 +100,7 @@ class FieldAnalysis2D(Analysis):
         return self._modeler
 
     @property
+    @aedt_exception_handler
     def mesh(self):
         """Mesh.
 
@@ -112,18 +113,6 @@ class FieldAnalysis2D(Analysis):
     # @property
     # def post(self):
     #     return self._post
-
-    @aedt_exception_handler
-    def assignmaterial(self, obj, mat):
-        """Assign a material to one or more objects.
-
-        .. deprecated:: 0.3.1
-           Use :func:`FieldAnalysis2D.assign_material` instead.
-
-        """
-        # raise a DeprecationWarning.  User won't have to change anything
-        warnings.warn("assignmaterial is deprecated. Use assign_material instead.", DeprecationWarning)
-        self.assign_material(obj, mat)
 
     @aedt_exception_handler
     def assign_material(self, obj, mat):
@@ -158,7 +147,7 @@ class FieldAnalysis2D(Analysis):
                 arg2.append("SolveInside:="), arg2.append(False)
             self.modeler.oeditor.AssignMaterial(arg1, arg2)
             self.logger.glb.info("Assign Material " + mat + " to object " + selections)
-            if type(obj) is list:
+            if isinstance(obj, list):
                 for el in obj:
                     self.modeler.primitives[el].material_name = mat
             else:
@@ -173,7 +162,7 @@ class FieldAnalysis2D(Analysis):
                 arg2.append("SolveInside:="), arg2.append(False)
             self.modeler.oeditor.AssignMaterial(arg1, arg2)
             self.logger.glb.info("Assign Material " + mat + " to object " + selections)
-            if type(obj) is list:
+            if isinstance(obj, list):
                 for el in obj:
                     self.modeler.primitives[el].material_name = mat
             else:

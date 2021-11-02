@@ -1,10 +1,10 @@
 import os
-from ..generic.general_methods import aedt_exception_handler
-from .Primitives import Primitives
-from .GeometryOperators import GeometryOperators
-from .multiparts import MultiPartComponent, Environment
-from .actors import Person, Bird, Vehicle
-from ..generic.general_methods import retry_ntimes
+from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.modeler.Primitives import Primitives
+from pyaedt.modeler.GeometryOperators import GeometryOperators
+from pyaedt.modeler.multiparts import MultiPartComponent, Environment
+from pyaedt.modeler.actors import Person, Bird, Vehicle
+from pyaedt.generic.general_methods import retry_ntimes
 
 
 class Primitives3D(Primitives, object):
@@ -703,13 +703,13 @@ class Primitives3D(Primitives, object):
         vArgParamVector = ["NAME:GeometryParams"]
 
         for pair in udm_params_list:
-            if type(pair) is list:
+            if isinstance(pair, list):
                 name = pair[0]
                 val = pair[1]
             else:
                 name = pair.Name
                 val = pair.Value
-            if type(val) is int:
+            if isinstance(val, int):
                 vArgParamVector.append(
                     ["NAME:UDMParam", "Name:=", name, "Value:=", str(val), "PropType2:=", 3, "PropFlag2:=", 2])
             elif str(val)[0] in '0123456789':
@@ -788,6 +788,7 @@ class Primitives3D(Primitives, object):
         vArg1.append(varg2)
         new_object_name = self._oeditor.Insert3DComponent(vArg1)
         # TODO return an object
+        self.refresh_all_ids()
         return new_object_name
 
     @aedt_exception_handler

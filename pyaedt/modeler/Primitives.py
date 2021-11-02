@@ -6,12 +6,12 @@ from __future__ import absolute_import
 import math
 import os
 import time
-from collections import OrderedDict, defaultdict
+from collections import OrderedDict
 
-from ..application.Variables import Variable
-from ..generic.general_methods import aedt_exception_handler, is_number, retry_ntimes
-from .GeometryOperators import GeometryOperators
-from .Object3d import EdgePrimitive, FacePrimitive, Object3d, _dim_arg, _uname
+from pyaedt.application.Variables import Variable
+from pyaedt.generic.general_methods import aedt_exception_handler, is_number, retry_ntimes
+from pyaedt.modeler.GeometryOperators import GeometryOperators
+from pyaedt.modeler.Object3d import EdgePrimitive, FacePrimitive, Object3d, _dim_arg, _uname
 
 default_materials = {
     "Icepak": "air",
@@ -492,6 +492,7 @@ class Polyline(Object3d):
         assert len(new_objects) == 1
         new_name = new_objects[0]
         new_polyline = Polyline(self._primitives, src_object=self, name=new_name)
+        new_polyline._id = None
         self._primitives.objects[new_polyline.id] = new_polyline
         self._primitives.object_id_dict[new_name] = new_polyline.id
         return new_polyline
@@ -1042,7 +1043,7 @@ class Primitives(object):
             ``True`` when successful, ``False`` when failed
 
         """
-        if type(object) is int:
+        if isinstance(object, int):
             if object in self.objects:
                 return True
             else:
@@ -1388,7 +1389,7 @@ class Primitives(object):
         vArgParamVector = ["NAME:ParamVector"]
 
         for pair in udp_parameters_list:
-            if type(pair) is list:
+            if isinstance(pair, list):
                 vArgParamVector.append(["NAME:Pair", "Name:=", pair[0], "Value:=", pair[1]])
 
             else:
@@ -1564,8 +1565,8 @@ class Primitives(object):
         self._lines = []
         self._unclassified = []
         self._all_object_names = []
-        self.objects = defaultdict(Object3d)
-        self.object_id_dict = defaultdict()
+        self.objects = {}
+        self.object_id_dict = {}
         self._currentId = 0
         self._refresh_all_ids_from_aedt_file()
         self.add_new_objects()
@@ -1912,7 +1913,7 @@ class Primitives(object):
 
         """
         oFaceIDs = []
-        if type(partId) is str and partId in self.object_id_dict:
+        if isinstance(partId, str) and partId in self.object_id_dict:
             oFaceIDs = self._oeditor.GetFaceIDs(partId)
             oFaceIDs = [int(i) for i in oFaceIDs]
         elif partId in self.objects:
@@ -1938,7 +1939,7 @@ class Primitives(object):
 
         """
         oEdgeIDs = []
-        if type(partId) is str and partId in self.object_id_dict:
+        if isinstance(partId, str) and partId in self.object_id_dict:
             oEdgeIDs = self._oeditor.GetEdgeIDsFromObject(partId)
             oEdgeIDs = [int(i) for i in oEdgeIDs]
         elif partId in self.objects:
@@ -1981,7 +1982,7 @@ class Primitives(object):
 
         """
         oVertexIDs = []
-        if type(partID) is str and partID in self.object_id_dict:
+        if isinstance(partID, str) and partID in self.object_id_dict:
             oVertexIDs = self._oeditor.GetVertexIDsFromObject(partID)
             oVertexIDs = [int(i) for i in oVertexIDs]
         elif partID in self.objects:
@@ -2178,7 +2179,7 @@ class Primitives(object):
             two vertices, an empty list is returned.
         """
 
-        if type(partID) is str and partID in self.object_id_dict:
+        if isinstance(partID, str) and partID in self.object_id_dict:
             partID = self.object_id_dict[partID]
 
         if partID in self.objects and self.objects[partID].object_type == "Line":
@@ -2712,7 +2713,7 @@ class Primitives(object):
             Edge ID of the edge closest to this position.
 
         """
-        if type(position) is list:
+        if isinstance(position, list):
             position = self.modeler.Position(position)
 
         bodies = self.get_bodynames_from_position(position, units)
@@ -2858,7 +2859,7 @@ class Primitives(object):
             ]
         except KeyError:
             groups = []
-        if type(groups) is not list:
+        if not isinstance(groups, list):
             groups = [groups]
         try:
             self._app.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"]["ToplevelParts"][

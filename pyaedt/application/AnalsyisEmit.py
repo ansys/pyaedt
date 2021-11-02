@@ -1,5 +1,5 @@
-from ..modeler.Circuit import ModelerEmit
-from .Design import Design
+from pyaedt.modeler.Circuit import ModelerEmit
+from pyaedt.application.Design import Design
 
 
 class FieldAnalysisEmit(Design):

@@ -1,14 +1,13 @@
 import os
 import time
 
-from pyaedt import _pythonver, is_ironpython, inside_desktop
-
-from ..application.Variables import AEDT_units
-from ..edb import Edb
-from ..generic.general_methods import aedt_exception_handler, retry_ntimes
-from ..modules.LayerStackup import Layers
-from .Modeler import Modeler
-from .Primitives3DLayout import Geometries3DLayout, Primitives3DLayout
+from pyaedt.application.Variables import AEDT_units
+from pyaedt.edb import Edb
+from pyaedt.generic.general_methods import aedt_exception_handler, retry_ntimes, is_ironpython, _pythonver, \
+    inside_desktop
+from pyaedt.modules.LayerStackup import Layers
+from pyaedt.modeler.Modeler import Modeler
+from pyaedt.modeler.Primitives3DLayout import Geometries3DLayout, Primitives3DLayout
 
 
 class Modeler3DLayout(Modeler):
@@ -60,6 +59,7 @@ class Modeler3DLayout(Modeler):
         pass
 
     @property
+    @aedt_exception_handler
     def edb(self):
         """EBD.
 
@@ -91,6 +91,7 @@ class Modeler3DLayout(Modeler):
         return self._edb
 
     @property
+    @aedt_exception_handler
     def logger(self):
         """Logger."""
         return self._app.logger
@@ -105,6 +106,7 @@ class Modeler3DLayout(Modeler):
             self._desktop.RestoreWindow()
 
     @property
+    @aedt_exception_handler
     def model_units(self):
         """Model units."""
         return retry_ntimes(10, self.oeditor.GetActiveUnits)
@@ -116,6 +118,7 @@ class Modeler3DLayout(Modeler):
         self.oeditor.SetActivelUnits(["NAME:Units Parameter", "Units:=", units, "Rescale:=", False])
 
     @property
+    @aedt_exception_handler
     def primitives(self):
         """Primitives."""
         if self._primitivesDes != self._app.project_name + self._app.design_name:
@@ -124,13 +127,14 @@ class Modeler3DLayout(Modeler):
         return self._primitives
 
     @property
+    @aedt_exception_handler
     def obounding_box(self):
         """Bounding box."""
         return self.oeditor.GetModelBoundingBox()
 
     @aedt_exception_handler
     def _arg_with_dim(self, value, units=None):
-        if type(value) is str:
+        if isinstance(value, str):
             val = value
         else:
             if units is None:
@@ -406,14 +410,14 @@ class Modeler3DLayout(Modeler):
 
         """
         vArg1 = ["NAME:primitives", blank]
-        if type(tool) is list:
+        if isinstance(tool, list):
             for el in tool:
                 vArg1.append(el)
         else:
             vArg1.append(tool)
         if self.oeditor is not None:
             self.oeditor.Subtract(vArg1)
-        if type(tool) is list:
+        if isinstance(tool, list):
             for el in tool:
                 if self.primitives.is_outside_desktop:
                     self.primitives._geometries.pop(el)

@@ -1,10 +1,10 @@
-from ..application.Variables import AEDT_units
-from ..generic.general_methods import aedt_exception_handler, retry_ntimes
-from ..modules.LayerStackup import Layers
-from .Modeler import Modeler
-from .Primitives3DLayout import Primitives3DLayout
-from .PrimitivesNexxim import NexximComponents
-from .PrimitivesSimplorer import SimplorerComponents
+from pyaedt.application.Variables import AEDT_units
+from pyaedt.generic.general_methods import aedt_exception_handler, retry_ntimes
+from pyaedt.modules.LayerStackup import Layers
+from pyaedt.modeler.Modeler import Modeler
+from pyaedt.modeler.Primitives3DLayout import Primitives3DLayout
+from pyaedt.modeler.PrimitivesNexxim import NexximComponents
+from pyaedt.modeler.PrimitivesSimplorer import SimplorerComponents
 
 
 class ModelerCircuit(Modeler):
@@ -26,6 +26,7 @@ class ModelerCircuit(Modeler):
         Modeler.__init__(self, app)
 
     @property
+    @aedt_exception_handler
     def obounding_box(self):
         """Bounding box."""
         return self.oeditor.GetModelBoundingBox()
@@ -98,6 +99,7 @@ class ModelerNexxim(ModelerCircuit):
         self._primitivesDes = self._app.project_name + self._app.design_name
 
     @property
+    @aedt_exception_handler
     def edb(self):
         """EDB.
 
@@ -111,11 +113,13 @@ class ModelerNexxim(ModelerCircuit):
         return None
 
     @property
+    @aedt_exception_handler
     def model_units(self):
         """Model units."""
         return retry_ntimes(10, self.layouteditor.GetActiveUnits)
 
     @property
+    @aedt_exception_handler
     def primitives(self):
         """Primitives.
 
