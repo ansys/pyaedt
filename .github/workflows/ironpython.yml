@@ -26,11 +26,6 @@ jobs:
           $p = start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmode.cmd'
 
           Wait-Process -Id $p.id
-          # while (($Timeout -gt 0) -and (!(Test-Path ".\_unittest_ironpython\tests_succeeded.log")))
-          # {
-          #   Start-Sleep 1
-          #   $Timeout -= 1
-          # }
 
           get-content .\_unittest_ironpython\runner_unittest.log
 
