@@ -1452,7 +1452,7 @@ class GeometryModeler(Modeler, object):
 
         """
         if "netref.builtins.list" in str(type(objtosplit)):
-            list_new=[]
+            list_new = []
             for i in range(len(objtosplit)):
                 list_new.append(objtosplit[i])
         elif not isinstance(objtosplit, list):
