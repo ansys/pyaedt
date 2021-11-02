@@ -207,14 +207,20 @@ class EdbPadstacks(object):
 
         if not is_ironpython:
             res, fromlayer, tolayer = padstackinstance.GetLayerRange(None, None)
-            self._edb.Cell.Terminal.PadstackInstanceTerminal.Create(self._active_layout, padstackinstance.GetNet(),
-                                                                    port_name, padstackinstance, tolayer)
+            self._edb.Cell.Terminal.PadstackInstanceTerminal.Create(self._active_layout,
+                                                                    padstackinstance.GetNet(),
+                                                                    port_name,
+                                                                    padstackinstance,
+                                                                    tolayer)
             if res:
                 return port_name
         else:
             res, fromlayer, tolayer = padstackinstance.GetLayerRange()
-            self._edb.Cell.Terminal.PadstackInstanceTerminal.Create(self._active_layout, padstackinstance.GetNet(),
-                                                                    port_name, padstackinstance, tolayer)
+            self._edb.Cell.Terminal.PadstackInstanceTerminal.Create(self._active_layout,
+                                                                    padstackinstance.GetNet(),
+                                                                    port_name,
+                                                                    padstackinstance,
+                                                                    tolayer)
             if res:
                 return port_name
         return ""
