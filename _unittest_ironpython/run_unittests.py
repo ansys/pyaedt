@@ -35,9 +35,7 @@ def discover_and_run(start_dir, pattern=None):
         f.write("Test started {}\n".format(datetime.now()))
         runner = unittest.TextTestRunner(f, verbosity=2)
         result = runner.run(test_suite)
-        f.write("TEST DEDUG")
         f.write(str(result))
-        f.write(str(result.wasSuccessful()))
     return result
 
 tests_result = discover_and_run(run_dir, pattern=test_filter)
@@ -49,8 +47,3 @@ if is_ironpython and "oDesktop" in dir(sys.modules["__main__"]):
             os.kill(pid, 9)
         except:
             successfully_closed = False
-
-if tests_result.wasSuccessful():
-    sys.exit(0)
-else:
-    sys.exit(1)
