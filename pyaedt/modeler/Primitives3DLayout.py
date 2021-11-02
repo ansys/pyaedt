@@ -56,7 +56,7 @@ class Primitives3DLayout(object):
         self._oeditor = self.modeler.oeditor
         self.opadstackmanager = self._app._oproject.GetDefinitionManager().GetManager("Padstack")
         self.padstacks = {}
-        self._components ={}
+        self._components = {}
         self._geometries = {}
         self._pins = {}
         self._nets = {}
