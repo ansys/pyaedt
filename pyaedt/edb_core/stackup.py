@@ -110,12 +110,6 @@ class EdbStackup(object):
         for el in self._pedb.edbutils.MaterialSetupInfo.GetFromLayout(self._pedb.active_layout):
             mats[el.Name] = el
         return mats
-    @aedt_exception_handler
-    def get_edb_layer(self, name):
-        found_layer = [ll for ll in
-                       self.parent.edblib.Layout.StackupMethods.GetLayoutSignalStackUpLayer(self.parent.active_layout)
-                       if ll.GetName() == name][0]
-        return found_layer
 
     @aedt_exception_handler
     def create_dielectric(self, name, permittivity=1, loss_tangent=0):
