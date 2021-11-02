@@ -250,6 +250,7 @@ class VertexPrimitive(EdgeTypePrimitive, object):
         self._oeditor = object3d.m_Editor
 
     @property
+    @aedt_exception_handler
     def position(self):
         """Position of the vertex.
 

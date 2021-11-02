@@ -129,7 +129,7 @@ def client(server_name, server_port=18000):
     print("Connecting to new session of Electronics Desktop on port {}. Please Wait.".format(port))
     if port:
         time.sleep(20)
-        timeout = 200
+        timeout = 30
         while timeout > 0:
             try:
                 c1 = rpyc.connect(server_name, port, config={'sync_request_timeout': None})

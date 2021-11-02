@@ -23,7 +23,7 @@ LOCAL_ATTRS = frozenset([
     '__init__', '__metaclass__', '__module__', '__new__', '__reduce__',
     '__reduce_ex__', '__repr__', '__setattr__', '__slots__', '__str__',
     '__weakref__', '__dict__', '__methods__', '__exit__',
-    '__eq__', '__ne__', '__lt__', '__gt__', '__le__', '__ge__',
+    '__eq__', '__ne__', '__lt__', '__gt__', '__le__', '__ge__', '__len__', '__iter__',
 ]) | DELETED_ATTRS
 
 """a list of types considered built-in (shared between connections)

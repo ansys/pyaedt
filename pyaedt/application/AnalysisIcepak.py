@@ -90,6 +90,7 @@ class FieldAnalysisIcepak(Analysis, object):
         self._post = PostProcessor(self)
 
     @property
+    @aedt_exception_handler
     def modeler(self):
         """Modeler.
 
@@ -100,6 +101,7 @@ class FieldAnalysisIcepak(Analysis, object):
         return self._modeler
 
     @property
+    @aedt_exception_handler
     def mesh(self):
         """Mesh.
 
@@ -110,6 +112,7 @@ class FieldAnalysisIcepak(Analysis, object):
         return self._mesh
 
     # @property
+    # @aedt_exception_handler
     # def post(self):
     #     return self._post
 

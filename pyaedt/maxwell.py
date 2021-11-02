@@ -24,17 +24,20 @@ class Maxwell(object):
         pass
 
     @property
+    @aedt_exception_handler
     def symmetry_multiplier(self):
         """Symmetry multiplier."""
         return int(self.omodelsetup.GetSymmetryMultiplier())
 
     @property
+    @aedt_exception_handler
     def windings(self):
         """Windings."""
         windings = self.oboundary.GetExcitationsOfType("Winding Group")
         return list(windings)
 
     @property
+    @aedt_exception_handler
     def design_file(self):
         """Design file."""
         design_file = os.path.join(self.working_directory, "design_data.json")
@@ -698,6 +701,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
     """
 
     @property  # for legacy purposes
+    @aedt_exception_handler
     def dim(self):
         """Dimensions."""
         return "3D"
