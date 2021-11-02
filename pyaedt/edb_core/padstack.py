@@ -140,6 +140,41 @@ class EdbPadstacks(object):
         self.update_padstacks()
 
     @aedt_exception_handler
+    def set_solderball(self, padstackInst, sballLayer_name, isTopPlaced=True, ballDiam=100e-6):
+        """Set solderball for the given PadstackInstance
+
+        Parameters
+        ----------
+        padstackInst : Edb.Cell.Primitive.PadstackInstance,
+            Required.
+        sballLayer_name : str,
+            Name of the layer where the solder ball is placed. No default values.
+        isTopPlaced : bool, optional
+            Bollean triggering is the solder ball is placed on Top or Bottom of the layer stackup.
+        ballDiam : double, optional,
+            Solder ball diameter value.
+
+        Returns
+        -------
+        bool
+
+        """
+
+        psDef = padstackInst.GetPadstackDef()
+        newDefData = self._edb.Definition.PadstackDefData(psDef.GetData())
+        newDefData.SetSolderBallShape(self._edb.Definition.SolderballShape.Cylinder)
+        newDefData.SetSolderBallParameter(self._edb_value(ballDiam), self._edb_value(ballDiam))
+        sballPlacement = self._edb.Definition.SolderballPlacement.AbovePadstack if isTopPlaced else self._edb.Definition.SolderballPlacement.BelowPadstack
+        newDefData.SetSolderBallPlacement(sballPlacement)
+        psDef.SetData(newDefData)
+        sballLayer = self.parent.core_stackup.signal_layers[sballLayer_name]._layer
+        if sballLayer is not None:
+            padstackInst.SetSolderBallLayer(sballLayer)
+            return True
+
+        return False
+
+    @aedt_exception_handler
     def get_pinlist_from_component_and_net(self, refdes=None, netname=None):
         """Retrieve pins given a component's reference designator and net name.
 
