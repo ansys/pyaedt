@@ -1,16 +1,13 @@
 """
-HFSS 3D Layout Parametric Via Analysis
 --------------------------------------
-This example shows how to use HFSS 3D Layout to create and solve a parametric design.
+This example shows how to use HFSS 3D Layout to create and solve a 5G linear array antenna.
 """
 # sphinx_gallery_thumbnail_path = 'Resources/3dlayout.png'
 
 ###############################################################################
-# # Import the `Hfss3dlayout` Object
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This example imports the `Hfss3dlayout` object and initializes it on version
 # 2021.1.
-import time
 import tempfile
 from pyaedt import Edb
 from pyaedt.generic.general_methods import generate_unique_name
@@ -19,7 +16,7 @@ import os
 
 
 class Patch:
-    def __init__(self, width=0, height=0, position=0):
+    def __init__(self, width=0.0, height=0.0, position=0.0):
         self.width = width
         self.height = height
         self.position = position
@@ -31,7 +28,7 @@ class Patch:
 
 
 class Line:
-    def __init__(self, length=0, width=0, position=0):
+    def __init__(self, length=0.0, width=0.0, position=0.0):
         self.length = length
         self.width = width
         self.position = position
