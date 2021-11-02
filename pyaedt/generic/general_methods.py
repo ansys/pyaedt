@@ -174,11 +174,7 @@ def aedt_exception_handler(func):
             try:
                 new_args = _remote_list_conversion(args)
                 new_kwargs = _remote_dict_conversion(kwargs)
-                out = func(*new_args, **new_kwargs)
-                if out:
-                    return _remote_list_conversion([out])[0]
-                else:
-                    return out
+                return func(*new_args, **new_kwargs)
             except TypeError:
                 _exception(sys.exc_info(), func, args, kwargs, "Type Error")
                 return False
