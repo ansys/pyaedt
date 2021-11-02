@@ -40,6 +40,8 @@ class TestClass:
         ipc_path = os.path.join(self.local_scratch.path, "test.xml")
         self.edbapp.export_to_ipc2581(ipc_path)
         assert os.path.exists(ipc_path)
+        yes = "yes"
+        assert yes == "no"
 
     def test_01_find_by_name(self):
         comp = self.edbapp.core_components.get_component_by_name("J1")
