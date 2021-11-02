@@ -160,13 +160,14 @@ class EdbPadstacks(object):
 
         """
 
-        psDef = padstackInst.GetPadstackDef()
-        newDefData = self._edb.Definition.PadstackDefData(psDef.GetData())
-        newDefData.SetSolderBallShape(self._edb.Definition.SolderballShape.Cylinder)
-        newDefData.SetSolderBallParameter(self._edb_value(ballDiam), self._edb_value(ballDiam))
-        sballPlacement = self._edb.Definition.SolderballPlacement.AbovePadstack if isTopPlaced else self._edb.Definition.SolderballPlacement.BelowPadstack
-        newDefData.SetSolderBallPlacement(sballPlacement)
-        psDef.SetData(newDefData)
+        psdef = padstackInst.GetPadstackDef()
+        newdefdata = self._edb.Definition.PadstackDefData(psdef.GetData())
+        newdefdata.SetSolderBallShape(self._edb.Definition.SolderballShape.Cylinder)
+        newdefdata.SetSolderBallParameter(self._edb_value(ballDiam), self._edb_value(ballDiam))
+        sballPlacement = self._edb.Definition.SolderballPlacement.AbovePadstack \
+            if isTopPlaced else self._edb.Definition.SolderballPlacement.BelowPadstack
+        newdefdata.SetSolderBallPlacement(sballPlacement)
+        psdef.SetData(newdefdata)
         sballLayer = self.parent.core_stackup.signal_layers[sballLayer_name]._layer
         if sballLayer is not None:
             padstackInst.SetSolderBallLayer(sballLayer)
