@@ -222,7 +222,7 @@ class Mesh3d(object):
         if maxlength is None and maxel is None:
             self.logger.glb.error("mesh not assigned due to incorrect settings")
             return
-        if type(layer_name) is list and type(net_name) is list:
+        if isinstance(layer_name, list) and isinstance(net_name, list):
             assignment = OrderedDict({"MeshEntityInfo": []})
             for l, n in zip(layer_name, net_name):
                 meshbody = OrderedDict({"Id": -1, "Nam": "", "Layer": l, "Net": n, "OrigNet": n})

@@ -560,3 +560,8 @@ class TestClass:
             self.aedtapp.CoordinateSystemPlane.XYPlane, [0, 0, 0], [5, 1], name="RectangleForSource", matname="Copper"
         )
         assert self.aedtapp.assign_current_source_to_sheet(sheet.name)
+
+    def test_41_export_step(self):
+        file_path = self.local_scratch.path
+        file_name = "test_step"
+        assert self.aedtapp.export_3d_model(file_name, file_path, ".step", [], [])

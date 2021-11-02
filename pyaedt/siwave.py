@@ -46,6 +46,7 @@ class Siwave:
     """
 
     @property
+    @aedt_exception_handler
     def version_keys(self):
         """Version keys for AEDT."""
 
@@ -68,6 +69,7 @@ class Siwave:
         return self._version_keys
 
     @property
+    @aedt_exception_handler
     def current_version(self):
         """Current version of AEDT."""
         return self.version_keys[0]
@@ -134,6 +136,7 @@ class Siwave:
         # info_msg3 = 'Exe path: {0}'.format(sys.executable)
 
     @property
+    @aedt_exception_handler
     def project_name(self):
         """Project name.
 
@@ -146,6 +149,7 @@ class Siwave:
         return self._oproject.GetName()
 
     @property
+    @aedt_exception_handler
     def project_path(self):
         """Project path.
 
@@ -158,6 +162,7 @@ class Siwave:
         return os.path.normpath(self.oSiwave.GetProjectDirectory())
 
     @property
+    @aedt_exception_handler
     def project_file(self):
         """Project file.
 
@@ -170,6 +175,7 @@ class Siwave:
         return os.path.join(self.project_path, self.project_name + ".siw")
 
     @property
+    @aedt_exception_handler
     def lock_file(self):
         """Lock file.
 
@@ -182,6 +188,7 @@ class Siwave:
         return os.path.join(self.project_path, self.project_name + ".siw.lock")
 
     @property
+    @aedt_exception_handler
     def results_directory(self):
         """Results directory.
 
@@ -193,6 +200,7 @@ class Siwave:
         return os.path.join(self.project_path, self.project_name + ".siwresults")
 
     @property
+    @aedt_exception_handler
     def src_dir(self):
         """Source directory.
 
@@ -204,6 +212,7 @@ class Siwave:
         return os.path.dirname(os.path.realpath(__file__))
 
     @property
+    @aedt_exception_handler
     def pyaedt_dir(self):
         """PyAEDT directory.
 
@@ -215,6 +224,7 @@ class Siwave:
         return os.path.realpath(os.path.join(self.src_dir, ".."))
 
     @property
+    @aedt_exception_handler
     def oproject(self):
         """Project."""
         return self._oproject

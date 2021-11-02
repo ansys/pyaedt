@@ -101,6 +101,58 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
     _write_mes("************************************************************")
 
 
+def _get_remote_args(arg):
+    if "netref.builtins.list" in str(type(arg)):
+        list_new = []
+        for i in range(arg.__len__()):
+            if "netref.builtins.dict" in str(type(arg[i])) or "netref.builtins.list" in str(type(arg[i])):
+                list_new.append(_get_remote_args(arg[i]))
+            else:
+                list_new.append(arg[i])
+        return list_new
+    elif "netref.builtins.dict" in str(type(arg)):
+        import re
+        data = re.split(': |, ', str(arg)[1:-1])
+        keys = [i for i in data if data.index(i) % 2 == 0]
+        new_dict = {}
+        for i in keys:
+            if i[0] == "'":
+                id_dict = i.strip("'")
+            elif "." in i:
+                id_dict = float(i)
+            else:
+                id_dict = int(i)
+            if "netref.builtins.dict" in str(type(arg[id_dict])) or "netref.builtins.list" in str(type(arg[id_dict])):
+                new_dict[id_dict] = _get_remote_args(arg[id_dict])
+            else:
+                new_dict[id_dict] = arg[id_dict]
+        return new_dict
+    return arg
+
+
+def _remote_list_conversion(args):
+    if not os.getenv("PYAEDT_IRONPYTHON_SERVER", "False").lower() in ("true", "1", "t"):
+        return args
+    new_args = []
+    if args:
+        for arg in args:
+            new_args.append(_get_remote_args(arg))
+    return new_args
+
+
+def _remote_dict_conversion(args):
+    if not os.getenv("PYAEDT_IRONPYTHON_SERVER", "False").lower() in ("true", "1", "t"):
+        return args
+
+    if args:
+        new_kwargs = {}
+        for arg in args:
+            new_kwargs[arg] = _get_remote_args(args[arg])
+    else:
+        new_kwargs = args
+    return new_kwargs
+
+
 def aedt_exception_handler(func):
     """Decorator for pyaedt Exception Management
 
@@ -120,7 +172,9 @@ def aedt_exception_handler(func):
     def inner_function(*args, **kwargs):
         if os.getenv("PYAEDT_ERROR_HANDLER", "True").lower() in ("true", "1", "t"):
             try:
-                return func(*args, **kwargs)
+                new_args = _remote_list_conversion(args)
+                new_kwargs = _remote_dict_conversion(kwargs)
+                return func(*new_args, **new_kwargs)
             except TypeError:
                 _exception(sys.exc_info(), func, args, kwargs, "Type Error")
                 return False

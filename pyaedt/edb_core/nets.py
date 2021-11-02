@@ -10,26 +10,31 @@ class EdbNets(object):
         self._pedb = p_edb
 
     @property
+    @aedt_exception_handler
     def _builder(self):
         """ """
         return self._pedb.builder
 
     @property
+    @aedt_exception_handler
     def _edb(self):
         """ """
         return self._pedb.edb
 
     @property
+    @aedt_exception_handler
     def _active_layout(self):
         """ """
         return self._pedb.active_layout
 
     @property
+    @aedt_exception_handler
     def _cell(self):
         """ """
         return self._pedb.cell
 
     @property
+    @aedt_exception_handler
     def db(self):
         """Db object."""
         return self._pedb.db
@@ -115,6 +120,7 @@ class EdbNets(object):
                 return True
         return False
 
+    @aedt_exception_handler
     def get_dcconnected_net_list(self, ground_nets=["GND"]):
         """Retrieve the nets connected to DC through inductors.
 
@@ -158,6 +164,7 @@ class EdbNets(object):
 
         return dcconnected_net_list
 
+    @aedt_exception_handler
     def get_powertree(self, power_net_name, ground_nets):
         """Retrieve the power tree.
 
@@ -236,7 +243,7 @@ class EdbNets(object):
 
         >>> deleted_nets = edb_core.core_nets.delete_nets(["Net1","Net2"])
         """
-        if type(netlist) is str:
+        if isinstance(netlist, str):
             netlist = [netlist]
         nets_deleted = []
         for net in netlist:

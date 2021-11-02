@@ -250,7 +250,7 @@ class Hfss(FieldAnalysis3D, object):
         if self.solution_type == "DrivenModal":
 
             if renorm:
-                if type(renorm_impedance) is int or type(renorm_impedance) is float or "i" not in renorm_impedance:
+                if isinstance(renorm_impedance, (int , float)) or "i" not in renorm_impedance:
                     renorm_imp = str(renorm_impedance) + "ohm"
                 else:
                     renorm_imp = "(" + renorm_impedance + ") ohm"

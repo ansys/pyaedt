@@ -213,7 +213,7 @@ class Mesh(object):
         self.logger.glb.info("Assigning Mesh Level " + str(level) + " to " + str(names))
         names = self._app._modeler._convert_list_to_ids(names)
 
-        if type(names[0]) is int:
+        if isinstance(names[0], int):
             seltype = "Faces"
         else:
             seltype = "Objects"
@@ -324,7 +324,7 @@ class Mesh(object):
         else:
             meshop_name = generate_unique_name("ModelResolution")
         for name in names:
-            if type(name) is int:
+            if isinstance(name, int):
                 self.logger.glb.error("Mesh Operation Applies to Objects only")
                 return False
         if defeature_length is None:
@@ -560,9 +560,9 @@ class Mesh(object):
             return
         names = self._app._modeler._convert_list_to_ids(names)
 
-        if type(names[0]) is int and not isinside:
+        if isinstance(names[0], int) and not isinside:
             seltype = "Faces"
-        elif type(names[0]) is str:
+        elif isinstance(names[0], str):
             seltype = "Objects"
         else:
             seltype = None
@@ -632,9 +632,9 @@ class Mesh(object):
             restrictlength = True
         names = self._app._modeler._convert_list_to_ids(names)
 
-        if type(names[0]) is int:
+        if isinstance(names[0], int):
             seltype = "Faces"
-        elif type(names[0]) is str:
+        elif isinstance(names[0], str):
             seltype = "Objects"
         else:
             seltype = None
@@ -691,9 +691,9 @@ class Mesh(object):
             meshop_name = generate_unique_name("CurvilinearElements")
         names = self._app._modeler._convert_list_to_ids(names)
 
-        if type(names[0]) is int:
+        if isinstance(names[0], int):
             seltype = "Faces"
-        elif type(names[0]) is str:
+        elif isinstance(names[0], str):
             seltype = "Objects"
         else:
             seltype = None
@@ -737,9 +737,9 @@ class Mesh(object):
         else:
             meshop_name = generate_unique_name("CurvilinearElements")
         names = self._app._modeler._convert_list_to_ids(names)
-        if type(names[0]) is int:
+        if isinstance(names[0], int):
             seltype = "Faces"
-        elif type(names[0]) is str:
+        elif isinstance(names[0], str):
             seltype = "Objects"
         else:
             seltype = None

@@ -7,7 +7,7 @@ except ImportError:
     warnings.warn("rpyc is needed to run the service")
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
 
-from pyaedt.generic.rpyc_services import PyaedtServiceWindows
+from pyaedt.rpc.rpyc_services import PyaedtServiceWindows
 
 if __name__ == "__main__":
     port = int(sys.argv[1])

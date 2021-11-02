@@ -1,6 +1,5 @@
 import random
 import warnings
-from collections import defaultdict
 import os
 
 from pyaedt.generic.general_methods import aedt_exception_handler, retry_ntimes
@@ -27,7 +26,7 @@ class CircuitComponents(object):
         type
             Part object details.
         """
-        if type(partname) is int:
+        if isinstance(partname, int):
             return self.components[partname]
         for el in self.components:
             if self.components[el].name == partname or self.components[el].composed_name == partname or el == partname:
@@ -46,7 +45,7 @@ class CircuitComponents(object):
         self.o_component_manager = self.o_definition_manager.GetManager("Component")
         self._oeditor = self._modeler.oeditor
         self._currentId = 0
-        self.components = defaultdict(CircuitComponent)
+        self.components = {}
         pass
 
     @property
@@ -815,7 +814,7 @@ class CircuitComponents(object):
         arg.append(1)
         arg2 = ["NAME:Parameters"]
         for el, val in zip(parameter_list, parameter_value):
-            if type(val) is str:
+            if isinstance(val, str):
                 arg2.append("TextValueProp:=")
                 arg2.append([el, "D", "", val])
             else:
@@ -1012,7 +1011,7 @@ class CircuitComponents(object):
             Pin with properties.
 
         """
-        if type(partid) is str:
+        if isinstance(partid, str):
             pins = retry_ntimes(10, self._oeditor.GetComponentPins, partid)
             # pins = self.oeditor.GetComponentPins(partid)
         else:
@@ -1037,7 +1036,7 @@ class CircuitComponents(object):
             List of axis values ``[x, y]``.
 
         """
-        if type(partid) is str:
+        if isinstance(partid, str):
             x = retry_ntimes(30, self._oeditor.GetComponentPinLocation, partid, pinname, True)
             y = retry_ntimes(30, self._oeditor.GetComponentPinLocation, partid, pinname, False)
         else:
@@ -1066,7 +1065,7 @@ class CircuitComponents(object):
 
 
         """
-        if type(Value) is str:
+        if isinstance(Value, str):
             val = Value
         else:
             if sUnits is None:
