@@ -33,6 +33,18 @@ jobs:
 
           get-content .\_unittest_ironpython\runner_unittest.log
 
+          $test_error = Select-String -Path .\_unittest_ironpython\runner_unittest.log -Pattern "... ERROR"
+          $test_fail = Select-String -Path .\_unittest_ironpython\runner_unittest.log -Pattern "... FAIL"
+
+            if (($test_error -eq $null) -and ($test_fail -eq $null))
+            {
+            exit 0
+            }
+            else
+            {
+            exit 1
+            }
+
       #    get-content .\_unittest_ironpython\runner_unittest.log
 
       # - name: 'Print the runner unittest log.'
