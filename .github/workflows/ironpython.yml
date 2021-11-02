@@ -23,8 +23,7 @@ jobs:
       - name: 'Run Unit Tests in Ironpython'
         timeout-minutes: 2
         run: |
-          start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmode.cmd' -PassThru
-          $handle = $p.Handle # cache proc.Handle
+          start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmode.cmd'
 
           while (!(Test-Path ".\_unittest_ironpython\tests_succeeded.log"))
           {
@@ -36,16 +35,14 @@ jobs:
           $test_error = Select-String -Path .\_unittest_ironpython\runner_unittest.log -Pattern "... ERROR"
           $test_fail = Select-String -Path .\_unittest_ironpython\runner_unittest.log -Pattern "... FAIL"
 
-            if (($test_error -eq $null) -and ($test_fail -eq $null))
-            {
-            exit 0
-            }
-            else
-            {
-            exit 1
-            }
-
-      #    get-content .\_unittest_ironpython\runner_unittest.log
+          if (($test_error -eq $null) -and ($test_fail -eq $null))
+          {
+          exit 0
+          }
+          else
+          {
+          exit 1
+          }
 
       # - name: 'Print the runner unittest log.'
       #   run: |
