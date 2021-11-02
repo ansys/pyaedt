@@ -177,7 +177,8 @@ class EdbPadstacks(object):
 
     @aedt_exception_handler
     def create_coax_port(self, padstackinstance):
-        """Creates HFSS 3Dlayout coaxial lumped port on a pastack. Requires to have solder ball defined before calling this method.
+        """Creates HFSS 3Dlayout coaxial lumped port on a pastack.
+        Requires to have solder ball defined before calling this method.
         Parameters
         ----------
         padstackinstance : Edb.Cell.Primitive.PadstackInstance object
