@@ -165,13 +165,13 @@ class EdbPadstacks(object):
         newdefdata = self._edb.Definition.PadstackDefData(psdef.GetData())
         newdefdata.SetSolderBallShape(self._edb.Definition.SolderballShape.Cylinder)
         newdefdata.SetSolderBallParameter(self._edb_value(ballDiam), self._edb_value(ballDiam))
-        sballPlacement = self._edb.Definition.SolderballPlacement.AbovePadstack \
+        sball_placement = self._edb.Definition.SolderballPlacement.AbovePadstack \
             if isTopPlaced else self._edb.Definition.SolderballPlacement.BelowPadstack
-        newdefdata.SetSolderBallPlacement(sballPlacement)
+        newdefdata.SetSolderBallPlacement(sball_placement)
         psdef.SetData(newdefdata)
-        sballLayer = self.parent.core_stackup.signal_layers[sballLayer_name]._layer
-        if sballLayer is not None:
-            padstackInst.SetSolderBallLayer(sballLayer)
+        sball_layer = [lay for lay in self._layers.edb_layers if lay.GetName() == sballLayer_name][0]
+        if sball_layer is not None:
+            padstackInst.SetSolderBallLayer(sball_layer)
             return True
 
         return False
