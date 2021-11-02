@@ -37,6 +37,9 @@ jobs:
           $test_error = Select-String -Path .\_unittest_ironpython\runner_unittest.log -Pattern "... ERROR"
           $test_fail = Select-String -Path .\_unittest_ironpython\runner_unittest.log -Pattern "... FAIL"
 
+          Write-Host $test_error
+          Write-Host $test_fail
+
           if (($test_error -eq $null) -and ($test_fail -eq $null))
           {
           exit 0
