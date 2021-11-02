@@ -386,7 +386,7 @@ class Components(object):
         return cmp_list
 
     @aedt_exception_handler
-    def create_component_from_pins(self, pins, component_name, partname, placement_layer=None):
+    def create_component_from_pins(self, pins, component_name, placement_layer=None):
         """Create a component from pins.
 
         Parameters
@@ -395,6 +395,8 @@ class Components(object):
             List of EDB core pins.
         component_name : str
             Name of the reference designator for the component.
+        placement_layer : str
+            Name of the layer used for placing the component.
 
         Returns
         -------
