@@ -4,7 +4,7 @@ This module contains the `EdbPadstacks` class.
 
 import warnings
 
-from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name
+from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, is_ironpython
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 
 from pyaedt.edb_core.EDB_Data import EDBPadstack
@@ -174,6 +174,48 @@ class EdbPadstacks(object):
             return True
 
         return False
+
+    @aedt_exception_handler
+    def create_coax_port(self, padstackinstance):
+        """Creates HFSS 3Dlayout coaxial lumped port on a pastack. Requires to have solder ball defined before calling this method.
+        Parameters
+        ----------
+        padstackinstance : Edb.Cell.Primitive.PadstackInstance object
+
+        Returns
+        -------
+        string terminal name
+
+        """
+        cmp_name = padstackinstance.GetComponent().GetName()
+        if cmp_name == "":
+            cmp_name = "no_comp"
+
+        net_name = padstackinstance.GetNet().GetName()
+        if net_name == "":
+            net_name = "no_net"
+
+        pin_name = padstackinstance.GetName()
+        if pin_name == "":
+            pin_name = "no_pin_name"
+
+        port_name = "{0}_{1}_{2}".format(cmp_name, net_name, pin_name)
+        if not padstackinstance.IsLayoutPin():
+            padstackinstance.SetIsLayoutPin(True)
+
+        if not is_ironpython:
+            res, fromlayer, tolayer = padstackinstance.GetLayerRange(None, None)
+            self._edb.Cell.Terminal.PadstackInstanceTerminal.Create(self._active_layout, padstackinstance.GetNet(),
+                                                                    port_name, padstackinstance, tolayer)
+            if res:
+                return port_name
+        else:
+            res, fromlayer, tolayer = padstackinstance.GetLayerRange()
+            self._edb.Cell.Terminal.PadstackInstanceTerminal.Create(self._active_layout, padstackinstance.GetNet(),
+                                                                    port_name, padstackinstance, tolayer)
+            if res:
+                return port_name
+        return ""
 
     @aedt_exception_handler
     def get_pinlist_from_component_and_net(self, refdes=None, netname=None):
