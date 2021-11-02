@@ -27,7 +27,7 @@ jobs:
           $handle = $p.Handle # cache proc.Handle
           $p.WaitForExit();
 
-          while ((!(Test-Path ".\_unittest_ironpython\tests_succeeded.log")))
+          while (!(Test-Path ".\_unittest_ironpython\tests_succeeded.log"))
           {
             Start-Sleep 1
           }
