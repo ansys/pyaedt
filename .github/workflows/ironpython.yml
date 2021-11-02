@@ -34,8 +34,9 @@ jobs:
 
           get-content .\_unittest_ironpython\runner_unittest.log
 
-          Write-Output "OUT.."
+          Write-Output "$LASTEXITCODE"
           Write-Host $LASTEXITCODE
+          Write-Output "p.ExitCode"
           $p.ExitCode
 
       # - name: 'Print the runner unittest log.'
