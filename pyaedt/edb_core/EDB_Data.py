@@ -1,6 +1,5 @@
 import time
 import warnings
-from collections import OrderedDict, defaultdict
 
 from pyaedt.generic.general_methods import aedt_exception_handler, is_ironpython
 from pyaedt.edb_core.general import convert_py_list_to_net_list
@@ -388,7 +387,7 @@ class EDBLayers(object):
     def __init__(self, edb_stackup):
         self._stackup_mode = None
         self._pedbstackup = edb_stackup
-        self._edb_object = OrderedDict(defaultdict(EDBLayer))
+        self._edb_object = {}
         self._update_edb_objects()
 
     def __getitem__(self, layername):
@@ -578,7 +577,7 @@ class EDBLayers(object):
 
     @aedt_exception_handler
     def _update_edb_objects(self):
-        self._edb_object = OrderedDict(defaultdict(EDBLayer))
+        self._edb_object = {}
         layers = self.edb_layers
         for i in range(len(layers)):
             self._edb_object[layers[i].GetName()] = EDBLayer(layers[i], self)
@@ -1541,7 +1540,7 @@ class EDBComponent(object):
         list
             List of EDBPinInstances of Component.
         """
-        pins = defaultdict(EDBPinInstances)
+        pins = {}
         for el in self.pinlist:
             pins[el.GetName()] = EDBPinInstances(self, el)
         return pins

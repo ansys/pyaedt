@@ -1,5 +1,4 @@
 import sys
-from collections import defaultdict
 import warnings
 
 from pyaedt.generic.general_methods import aedt_exception_handler, is_ironpython
@@ -56,11 +55,11 @@ class Primitives3DLayout(object):
         self._app = self._modeler._app
         self._oeditor = self.modeler.oeditor
         self.opadstackmanager = self._app._oproject.GetDefinitionManager().GetManager("Padstack")
-        self.padstacks = defaultdict(Padstack)
-        self._components = defaultdict(Components3DLayout)
-        self._geometries = defaultdict(Geometries3DLayout)
-        self._pins = defaultdict(Pins3DLayout)
-        self._nets = defaultdict(Nets3DLayout)
+        self.padstacks = {}
+        self._components ={}
+        self._geometries = {}
+        self._pins = {}
+        self._nets = {}
         pass
 
     @property

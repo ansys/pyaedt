@@ -1,6 +1,5 @@
 import random
 import warnings
-from collections import defaultdict
 import os
 
 from pyaedt.generic.general_methods import aedt_exception_handler, retry_ntimes
@@ -46,7 +45,7 @@ class CircuitComponents(object):
         self.o_component_manager = self.o_definition_manager.GetManager("Component")
         self._oeditor = self._modeler.oeditor
         self._currentId = 0
-        self.components = defaultdict(CircuitComponent)
+        self.components = {}
         pass
 
     @property

@@ -1,7 +1,5 @@
-from collections import defaultdict
 
 from pyaedt.generic.general_methods import aedt_exception_handler
-from pyaedt.modeler.Object3d import CircuitComponent
 from pyaedt.modeler.PrimitivesCircuit import CircuitComponents
 
 
@@ -56,7 +54,7 @@ class SimplorerComponents(CircuitComponents):
         self._app = modeler._app
         self._modeler = modeler
         self._currentId = 0
-        self.components = defaultdict(CircuitComponent)
+        self.components = {}
         pass
 
     @aedt_exception_handler

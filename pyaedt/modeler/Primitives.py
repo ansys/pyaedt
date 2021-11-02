@@ -6,7 +6,7 @@ from __future__ import absolute_import
 import math
 import os
 import time
-from collections import OrderedDict, defaultdict
+from collections import OrderedDict
 
 from pyaedt.application.Variables import Variable
 from pyaedt.generic.general_methods import aedt_exception_handler, is_number, retry_ntimes

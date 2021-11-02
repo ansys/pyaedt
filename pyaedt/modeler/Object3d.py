@@ -14,7 +14,6 @@ from __future__ import absolute_import
 
 import random
 import string
-from collections import defaultdict
 
 from pyaedt import aedt_exception_handler, retry_ntimes
 from pyaedt.modeler.GeometryOperators import GeometryOperators
@@ -1520,7 +1519,7 @@ class Padstack(object):
         self.lib = ""
         self.mat = "copper"
         self.plating = 100
-        self.layers = defaultdict(self.PDSLayer)
+        self.layers = {}
         self.hole = self.PDSHole()
         self.holerange = "UTL"
         self.solder_shape = "None"
