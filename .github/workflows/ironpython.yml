@@ -23,9 +23,9 @@ jobs:
       - name: 'Run Unit Tests in Ironpython'
         timeout-minutes: 3
         run: |
-          $p = start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmode.cmd'
+          $p = start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmode.cmd' -PassThru
 
-          Wait-Process -Id $p.id
+          $p.WaitForExit()
 
           get-content .\_unittest_ironpython\runner_unittest.log
 
