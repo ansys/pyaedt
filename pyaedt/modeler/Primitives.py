@@ -1565,8 +1565,8 @@ class Primitives(object):
         self._lines = []
         self._unclassified = []
         self._all_object_names = []
-        self.objects = defaultdict(Object3d)
-        self.object_id_dict = defaultdict()
+        self.objects = {}
+        self.object_id_dict = {}
         self._currentId = 0
         self._refresh_all_ids_from_aedt_file()
         self.add_new_objects()
