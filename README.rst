@@ -139,15 +139,15 @@ Implicit Desktop Declaration and Error Management
 Remote Application Call
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-On the server
+On a CPython Server
 
 .. code:: python
 
-    Launch Pyaedt remote server
+    Launch Pyaedt remote server on CPython
 
     from pyaedt.common_rpc import launch_server
-    # ansysem_path and non_graphical are needed only for Linux Ironpython Server
-    launch_server(ansysem_path="/path/to/ansys/executable/folder", non_graphical=True)
+    launch_server()
+
 
 On any windows client machine
 

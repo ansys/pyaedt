@@ -324,6 +324,8 @@ class TestClass:
 
     def test_19B_analyze_setup(self):
         assert self.aedtapp.analyze_setup("RFBoardSetup3")
+        assert os.path.exists(self.aedtapp.export_profile("RFBoardSetup3"))
+        assert os.path.exists(self.aedtapp.export_mesh_stats("RFBoardSetup3"))
 
     @pytest.mark.skipif(os.name == "posix", reason="To be investigated on linux.")
     def test_19C_export_touchsthone(self):

@@ -10,6 +10,7 @@ from functools import wraps
 from collections import OrderedDict
 import inspect
 import itertools
+import re
 
 logger = logging.getLogger(__name__)
 is_ironpython = "IronPython" in sys.version or ".NETFramework" in sys.version
@@ -100,18 +101,28 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
     _write_mes("https://aedtdocs.pyansys.com/search.html?q={}".format(func.__name__))
     _write_mes("************************************************************")
 
-
-def _get_remote_args(arg):
+def _check_types(arg):
     if "netref.builtins.list" in str(type(arg)):
+        return "list"
+    elif "netref.builtins.dict" in str(type(arg)):
+        return "dict"
+    elif "netref.__builtin__.list" in str(type(arg)):
+        return "list"
+    elif "netref.__builtin__.dict" in str(type(arg)):
+        return "dict"
+    return ""
+
+
+def convert_remote_object(arg):
+    if _check_types(arg) == "list":
         list_new = []
         for i in range(arg.__len__()):
-            if "netref.builtins.dict" in str(type(arg[i])) or "netref.builtins.list" in str(type(arg[i])):
-                list_new.append(_get_remote_args(arg[i]))
+            if _check_types(arg[i]):
+                list_new.append(convert_remote_object(arg[i]))
             else:
                 list_new.append(arg[i])
         return list_new
-    elif "netref.builtins.dict" in str(type(arg)):
-        import re
+    elif _check_types(arg) == "dict":
         data = re.split(': |, ', str(arg)[1:-1])
         keys = [i for i in data if data.index(i) % 2 == 0]
         new_dict = {}
@@ -122,8 +133,8 @@ def _get_remote_args(arg):
                 id_dict = float(i)
             else:
                 id_dict = int(i)
-            if "netref.builtins.dict" in str(type(arg[id_dict])) or "netref.builtins.list" in str(type(arg[id_dict])):
-                new_dict[id_dict] = _get_remote_args(arg[id_dict])
+            if _check_types(arg[id_dict]):
+                new_dict[id_dict] = convert_remote_object(arg[id_dict])
             else:
                 new_dict[id_dict] = arg[id_dict]
         return new_dict
@@ -136,7 +147,7 @@ def _remote_list_conversion(args):
     new_args = []
     if args:
         for arg in args:
-            new_args.append(_get_remote_args(arg))
+            new_args.append(convert_remote_object(arg))
     return new_args
 
 
@@ -147,7 +158,7 @@ def _remote_dict_conversion(args):
     if args:
         new_kwargs = {}
         for arg in args:
-            new_kwargs[arg] = _get_remote_args(args[arg])
+            new_kwargs[arg] = convert_remote_object(args[arg])
     else:
         new_kwargs = args
     return new_kwargs

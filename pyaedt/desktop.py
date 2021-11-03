@@ -575,6 +575,135 @@ class Desktop:
         return list(self.odesktop.GetProjectList())
 
     @aedt_exception_handler
+    def analyze_all(self, project=None, design=None):
+        """Analyze all setup in a given project.
+
+        Parameters
+        ----------
+        project : str
+            Project name. If None, the active project will be taken.
+        design : str
+            Design name. If None, all the design in active project will be solved.
+
+        Returns
+        -------
+        bool
+            ``True`` when simulation is finished.
+        """
+        if not project:
+            oproject = self.odesktop.GetActiveProject()
+        else:
+            oproject = self.odesktop.SetActiveProject(project)
+        if oproject:
+            if not design:
+                oproject.AnalyzeAll()
+            else:
+                odesign = oproject.SetActiveDesign(design)
+                if odesign:
+                    odesign.AnalyzeAll()
+        return True
+
+    @aedt_exception_handler
+    def clear_messages(self):
+        """Clear all desktop messages.
+
+        Returns
+        -------
+        bool
+            ``True`` if succeeded.
+        """
+        self._desktop.ClearMessages("", "", 3)
+        return True
+
+    @aedt_exception_handler
+    def save_project(self, project_name=None, project_path=None):
+        """Save project. if Path is provided, save as is used.
+
+        Parameters
+        ----------
+        project_name : str
+            Project name. If None, the active project will be taken.
+        project_path : str
+            Full path to the aedt file name
+
+        Returns
+        -------
+        bool
+            ``True`` if succeeded.
+        """
+        if not project_name:
+            oproject = self.odesktop.GetActiveProject()
+        else:
+            oproject = self.odesktop.SetActiveProject(project_name)
+        if project_path:
+            oproject.SaveAs(project_path, True)
+        else:
+            oproject.Save()
+        return True
+
+    @aedt_exception_handler
+    def copy_design(self, project_name=None, design_name=None, target_project=None):
+        """Copy a design. Design can be pasted in existing project or new one.
+
+        Parameters
+        ----------
+        project_name :str
+            Project name.
+        design_name : str
+            Design name.
+        target_project : str, optional
+            Target Project.
+
+        Returns
+        -------
+        bool
+        """
+        if not project_name:
+            oproject = self.odesktop.GetActiveProject()
+        else:
+            oproject = self.odesktop.SetActiveProject(project_name)
+        if oproject:
+            if not design_name:
+                odesign = oproject.GetActiveDesign()
+            else:
+                odesign = oproject.SetActiveDesign(design_name)
+            if odesign:
+                oproject.CopyDesign(design_name)
+                if not target_project:
+                    oproject.Paste()
+                    return True
+                else:
+                    oproject_target = self.odesktop.SetActiveProject(target_project)
+                    if not oproject_target:
+                        oproject_target = self.odesktop.NewProject(target_project)
+                        oproject_target.Paste()
+                        return True
+        return False
+
+    @aedt_exception_handler
+    def project_path(self, project_name=None):
+        """Project path.
+
+        Parameters
+        ----------
+        project_name : str
+            Project name. If None, the active project will be taken.
+
+        Returns
+        -------
+        str
+            Path to the project file.
+
+        """
+        if not project_name:
+            oproject = self.odesktop.GetActiveProject()
+        else:
+            oproject = self.odesktop.SetActiveProject(project_name)
+        if oproject:
+            return os.path.normpath(oproject.GetPath())
+        return None
+
+    @aedt_exception_handler
     def design_list(self, project=None):
         """Design list.
 

@@ -609,7 +609,6 @@ class Design(object):
         """Implement destructor with array name or index."""
         del self._variable_manager[key]
 
-    @aedt_exception_handler
     def _init_variables(self):
         self.oboundary = None
         self.omodelsetup = None
@@ -1165,6 +1164,30 @@ class Design(object):
 
         """
         return self._desktop_install_dir
+
+    @aedt_exception_handler
+    def export_profile(self, setup_name, variation_string="", file_path=None):
+        """Export a solution profile to file.
+
+        Parameters
+        ----------
+        setup_name : str
+            Setup name. Eg ``'Setup1'``
+        variation_string : str
+            Variation string with values. Eg ``'radius=3mm'``
+        file_path : str, optional
+            full path to .prof file.
+
+
+        Returns
+        -------
+        str
+            File path if created.
+        """
+        if not file_path:
+            file_path = os.path.join(self.project_path, generate_unique_name("Profile")+".prop")
+        self.odesign.ExportProfile(setup_name, variation_string, file_path)
+        return file_path
 
     @aedt_exception_handler
     def add_info_message(self, message_text, message_type=None):

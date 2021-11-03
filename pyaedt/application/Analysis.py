@@ -494,7 +494,10 @@ class Analysis(Design, object):
             """Nominal with values."""
             families = []
             if self._app.design_type == "HFSS 3D Layout Design":
-                listvar = list(self._app._odesign.GetVariables())
+                try:
+                    listvar = list(self._app._odesign.GetChildObject('Variables').GetChildNames())
+                except:
+                    listvar = list(self._app._odesign.GetVariables())
                 for el in listvar:
                     families.append(el + ":=")
                     families.append([self._app._odesign.GetVariableValue(el)])
@@ -510,7 +513,10 @@ class Analysis(Design, object):
             """Nominal with values in a dictionary."""
             families = {}
             if self._app.design_type == "HFSS 3D Layout Design":
-                listvar = list(self._app._odesign.GetVariables())
+                try:
+                    listvar = list(self._app._odesign.GetChildObject('Variables').GetChildNames())
+                except:
+                    listvar = list(self._app._odesign.GetVariables())
                 for el in listvar:
                     families[el] = self._app._odesign.GetVariableValue(el)
             else:
