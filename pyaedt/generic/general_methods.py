@@ -110,8 +110,7 @@ def _check_types(arg):
         return "list"
     elif "netref.__builtin__.dict" in str(type(arg)):
         return "dict"
-    else:
-        return ""
+    return ""
 
 
 def convert_remote_object(arg):
