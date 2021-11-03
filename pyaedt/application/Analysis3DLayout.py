@@ -1,3 +1,5 @@
+import os
+
 from pyaedt.generic.general_methods import aedt_exception_handler, is_ironpython
 from pyaedt.modeler.Model3DLayout import Modeler3DLayout
 from pyaedt.modules.Mesh3DLayout import Mesh3d
@@ -142,6 +144,29 @@ class FieldAnalysis3DLayout(Analysis):
                 spar.append("S({},{})".format(i, excitation_names[k]))
                 k += 1
         return spar
+
+    @aedt_exception_handler
+    def export_mesh_stats(self, setup_name, variation_string="", mesh_path=None):
+        """Exports mesh statistics to a file.
+
+        Parameters
+        ----------
+        setup_name :str
+            Setup name.
+        variation_string : str, optional
+            Variation List.
+        mesh_path : str, optional
+            Full path to mesh statistics file.
+
+        Returns
+        -------
+        str
+            File Path.
+        """
+        if not mesh_path:
+            mesh_path = os.path.join(self.project_path, "meshstats.ms")
+        self.odesign.ExportMeshStats(setup_name, variation_string, mesh_path)
+        return mesh_path
 
     @aedt_exception_handler
     def get_all_return_loss_list(self, excitation_names=[], excitation_name_prefix=""):

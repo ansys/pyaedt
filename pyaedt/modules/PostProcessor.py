@@ -205,6 +205,7 @@ class SolutionData(object):
             sols_data[expression] = solution_Data
         return sols_data
 
+    @aedt_exception_handler
     def _solution_data_imag(self):
         """ """
         sols_data = {}
@@ -891,6 +892,17 @@ class PostProcessorCommon(object):
             return self._odesign.GetSolutionType()
         except:
             return self._app._design_type
+
+    @property
+    @aedt_exception_handler
+    def all_report_names(self):
+        """List of all report names.
+
+        Returns
+        -------
+        list
+        """
+        return list(self.oreportsetup.GetAllReportNames())
 
     @aedt_exception_handler
     def copy_report_data(self, PlotName):
