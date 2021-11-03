@@ -482,8 +482,7 @@ class Analysis(Design, object):
 
         @aedt_exception_handler
         def get_variation_strings(self, setup_sweep=None):
-            """
-            Variations.
+            """Return variation strings.
 
             Parameters
             ----------
