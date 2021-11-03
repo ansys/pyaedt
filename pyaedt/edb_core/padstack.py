@@ -142,7 +142,7 @@ class EdbPadstacks(object):
 
     @aedt_exception_handler
     def set_solderball(self, padstackInst, sballLayer_name, isTopPlaced=True, ballDiam=100e-6):
-        """Set solderball for the given PadstackInstance
+        """Set solderball for the given PadstackInstance.
 
         Parameters
         ----------
@@ -150,7 +150,7 @@ class EdbPadstacks(object):
             Required.
         sballLayer_name : str,
             Name of the layer where the solder ball is placed. No default values.
-        isTopPlaced : bool, optional
+        isTopPlaced : bool, optional.
             Bollean triggering is the solder ball is placed on Top or Bottom of the layer stackup.
         ballDiam : double, optional,
             Solder ball diameter value.
@@ -182,11 +182,11 @@ class EdbPadstacks(object):
         Requires to have solder ball defined before calling this method.
         Parameters
         ----------
-        padstackinstance : Edb.Cell.Primitive.PadstackInstance object
+        padstackinstance : Edb.Cell.Primitive.PadstackInstance object.
 
         Returns
         -------
-        string terminal name
+        string terminal name.
 
         """
         cmp_name = padstackinstance.GetComponent().GetName()
