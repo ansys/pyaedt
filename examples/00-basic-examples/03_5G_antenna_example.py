@@ -55,7 +55,7 @@ class LinearArray:
 tmpfold = tempfile.gettempdir()
 aedb_path = os.path.join(tmpfold, generate_unique_name("pcb") + ".aedb")
 print(aedb_path)
-edb = Edb(edbpath=aedb_path, edbversion="2021.2")
+edb = Edb(edbpath=aedb_path, edbversion="2021.1")
 
 # Create a Stackup
 # ~~~~~~~~~~~~~~~~
@@ -134,7 +134,7 @@ if edb:
 print("EDB saved correctly to {}. You can import in AEDT.".format(aedb_path))
 
 project = os.path.join(aedb_path, "edb.def")
-h3d = Hfss3dLayout(projectname=project, specified_version="2021.2", new_desktop_session=True, non_graphical=False)
+h3d = Hfss3dLayout(projectname=project, specified_version="2021.1", new_desktop_session=True, non_graphical=False)
 # h3d.load_project(os.path.join(aedb_path,"edb.def"))
 setup = h3d.create_setup()
 h3d.create_linear_count_sweep(
@@ -155,5 +155,4 @@ h3d.analyze_nominal()
 h3d.post.create_rectangular_plot(
     ["db(S({0},{1}))".format(port_name, port_name)])
 h3d.save_project()
-h3d.close_project()
-h3d.close_desktop()
+h3d.release_desktop()
