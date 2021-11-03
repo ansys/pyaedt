@@ -839,7 +839,11 @@ class VariableManager(object):
         var_dict = {}
         all_names = {}
         for obj in object_list:
-            for variable_name in obj.GetVariables():
+            try:
+                listvar = list(obj.GetChildObject('Variables').GetChildNames())
+            except:
+                listvar = list(obj.GetVariables())
+            for variable_name in listvar:
                 variable_expression = self.get_expression(variable_name)
                 all_names[variable_name] = variable_expression
                 try:
@@ -973,7 +977,10 @@ class VariableManager(object):
             prop_type = "PostProcessingVariableProp"
 
         # Get all design and project variables in lower case for a case-sensitive comparison
-        var_list = desktop_object.GetVariables()
+        try:
+            var_list = list(desktop_object.GetChildObject('Variables').GetChildNames())
+        except:
+            var_list = list(desktop_object.GetVariables())
         lower_case_vars = [var_name.lower() for var_name in var_list]
 
         if variable_name.lower() not in lower_case_vars:
@@ -1112,8 +1119,10 @@ class VariableManager(object):
         """
         desktop_object = self.aedt_object(sVarName)
         var_type = "Project" if desktop_object == self._oproject else "Local"
-
-        var_list = desktop_object.GetVariables()
+        try:
+            var_list = list(desktop_object.GetChildObject('Variables').GetChildNames())
+        except:
+            var_list = list(desktop_object.GetVariables())
         lower_case_vars = [var_name.lower() for var_name in var_list]
 
         if sVarName.lower() in lower_case_vars:
