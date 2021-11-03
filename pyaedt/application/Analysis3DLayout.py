@@ -147,7 +147,7 @@ class FieldAnalysis3DLayout(Analysis):
 
     @aedt_exception_handler
     def export_mesh_stats(self, setup_name, variation_string="", mesh_path=None):
-        """Exports mesh statistics to a file.
+        """Export mesh statistics to a file.
 
         Parameters
         ----------

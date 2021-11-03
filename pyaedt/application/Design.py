@@ -1167,7 +1167,7 @@ class Design(object):
 
     @aedt_exception_handler
     def export_profile(self, setup_name, variation_string="", file_path=None):
-        """Exports a solution profile to file.
+        """Export a solution profile to file.
 
         Parameters
         ----------
