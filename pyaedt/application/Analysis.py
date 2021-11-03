@@ -497,9 +497,7 @@ class Analysis(Design, object):
             """
             if not setup_sweep:
                 setup_sweep = self._app.existing_analysis_sweeps[0]
-            vs = self._app.osolution.GetAvailableVariations(setup_sweep)
-
-            return vs
+            return self._app.osolution.GetAvailableVariations(setup_sweep)
 
         @property
         def nominal(self):
