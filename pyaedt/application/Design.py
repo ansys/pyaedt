@@ -609,7 +609,6 @@ class Design(object):
         """Implement destructor with array name or index."""
         del self._variable_manager[key]
 
-    @aedt_exception_handler
     def _init_variables(self):
         self.oboundary = None
         self.omodelsetup = None
