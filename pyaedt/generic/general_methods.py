@@ -10,7 +10,6 @@ from functools import wraps
 from collections import OrderedDict
 import inspect
 import itertools
-import re
 
 logger = logging.getLogger(__name__)
 is_ironpython = "IronPython" in sys.version or ".NETFramework" in sys.version
@@ -114,30 +113,23 @@ def _check_types(arg):
 
 
 def convert_remote_object(arg):
+    """Convert Remote list or dict to native list and dictionary.
+
+    .. note::
+        This is needed only on Cpython to Ironpython Connection.
+
+    Parameters
+    ----------
+    arg : dict or list
+        Object to convert
+    Returns
+    -------
+    dict or list
+    """
     if _check_types(arg) == "list":
-        list_new = []
-        for i in range(arg.__len__()):
-            if _check_types(arg[i]):
-                list_new.append(convert_remote_object(arg[i]))
-            else:
-                list_new.append(arg[i])
-        return list_new
+        return list(eval(str(arg)))
     elif _check_types(arg) == "dict":
-        data = re.split(': |, ', str(arg)[1:-1])
-        keys = [i for i in data if data.index(i) % 2 == 0]
-        new_dict = {}
-        for i in keys:
-            if i[0] == "'":
-                id_dict = i.strip("'")
-            elif "." in i:
-                id_dict = float(i)
-            else:
-                id_dict = int(i)
-            if _check_types(arg[id_dict]):
-                new_dict[id_dict] = convert_remote_object(arg[id_dict])
-            else:
-                new_dict[id_dict] = arg[id_dict]
-        return new_dict
+        return dict(eval(str(arg)))
     return arg
 
 
