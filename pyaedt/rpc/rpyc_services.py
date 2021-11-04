@@ -43,13 +43,13 @@ class PyaedtServiceWindows(rpyc.Service):
         # (to finalize the service, if needed)
         if self.app:
             if not os.name == "posix":
-                if self.app:
+                if self.app and "release_desktop" in dir(self.app[0]):
                     self.app[0].release_desktop()
 
         pass
 
     def exposed_close_connection(self):
-        if self.app:
+        if self.app and "release_desktop" in dir(self.app[0]):
             self.app[0].release_desktop()
 
     def exposed_run_script(self, script, aedt_version="2021.1", ansysem_path=None, non_graphical=True):
