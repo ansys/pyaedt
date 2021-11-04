@@ -1,3 +1,4 @@
+import os
 
 from pyaedt.application.Analysis import Analysis
 from pyaedt.modeler.Model2D import Modeler2D
@@ -113,6 +114,29 @@ class FieldAnalysis2D(Analysis):
     # @property
     # def post(self):
     #     return self._post
+
+    @aedt_exception_handler
+    def export_mesh_stats(self, setup_name, variation_string="", mesh_path=None):
+        """Export mesh statistics to a file.
+
+        Parameters
+        ----------
+        setup_name :str
+            Setup name.
+        variation_string : str, optional
+            Variation List.
+        mesh_path : str, optional
+            Full path to mesh statistics file.
+
+        Returns
+        -------
+        str
+            File Path.
+        """
+        if not mesh_path:
+            mesh_path = os.path.join(self.project_path, "meshstats.ms")
+        self.odesign.ExportMeshStats(setup_name, variation_string, mesh_path)
+        return mesh_path
 
     @aedt_exception_handler
     def assign_material(self, obj, mat):

@@ -42,18 +42,15 @@ class PyaedtServiceWindows(rpyc.Service):
         # code that runs after the connection has already closed
         # (to finalize the service, if needed)
         if self.app:
-            try:
-                self.app[0].release_desktop()
-            except:
-                pass
+            if not os.name == "posix":
+                if self.app and "release_desktop" in dir(self.app[0]):
+                    self.app[0].release_desktop()
+
         pass
 
     def exposed_close_connection(self):
-        if self.app:
-            try:
-                self.app[0].release_desktop()
-            except:
-                pass
+        if self.app and "release_desktop" in dir(self.app[0]):
+            self.app[0].release_desktop()
 
     def exposed_run_script(self, script, aedt_version="2021.1", ansysem_path=None, non_graphical=True):
         """Run script on AEDT in the server.

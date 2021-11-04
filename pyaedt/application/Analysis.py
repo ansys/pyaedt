@@ -459,7 +459,7 @@ class Analysis(Design, object):
 
             Returns
             -------
-            list of str
+            list of lists
                 List of variation families.
 
             """
@@ -480,6 +480,25 @@ class Analysis(Design, object):
                 families.append(family)
             return families
 
+        @aedt_exception_handler
+        def get_variation_strings(self, setup_sweep=None):
+            """Return variation strings.
+
+            Parameters
+            ----------
+            setup_sweep : str, optional
+                Setup name with the sweep to search for variations on. The default is ``None``.
+
+            Returns
+            -------
+            list of str
+                List of variation families.
+
+            """
+            if not setup_sweep:
+                setup_sweep = self._app.existing_analysis_sweeps[0]
+            return self._app.osolution.GetAvailableVariations(setup_sweep)
+
         @property
         def nominal(self):
             """Nominal."""
@@ -494,7 +513,10 @@ class Analysis(Design, object):
             """Nominal with values."""
             families = []
             if self._app.design_type == "HFSS 3D Layout Design":
-                listvar = list(self._app._odesign.GetVariables())
+                try:
+                    listvar = list(self._app._odesign.GetChildObject('Variables').GetChildNames())
+                except:
+                    listvar = list(self._app._odesign.GetVariables())
                 for el in listvar:
                     families.append(el + ":=")
                     families.append([self._app._odesign.GetVariableValue(el)])
@@ -510,7 +532,10 @@ class Analysis(Design, object):
             """Nominal with values in a dictionary."""
             families = {}
             if self._app.design_type == "HFSS 3D Layout Design":
-                listvar = list(self._app._odesign.GetVariables())
+                try:
+                    listvar = list(self._app._odesign.GetChildObject('Variables').GetChildNames())
+                except:
+                    listvar = list(self._app._odesign.GetVariables())
                 for el in listvar:
                     families[el] = self._app._odesign.GetVariableValue(el)
             else:

@@ -11,7 +11,10 @@ if is_ironpython:
 import rpyc
 from rpyc.utils.server import ThreadedServer
 from pyaedt.rpc.rpyc_services import GlobalService
+import rpyc.core.consts
 
+# Maximum Stream message size. Set to 256MB
+rpyc.core.consts.STREAM_CHUNK = 256000000
 
 def launch_server(port=18000, ansysem_path=None, non_graphical=False):
     """Starts an rpyc servers an start listening on specified port. This method has to run on server machine.

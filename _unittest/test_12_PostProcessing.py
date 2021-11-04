@@ -174,6 +174,7 @@ class TestClass:
 
     def test_09_manipulate_report(self):
         assert self.aedtapp.post.create_rectangular_plot("dB(S(1,1))")
+        assert len(self.aedtapp.post.all_report_names) > 0
 
     def test_10_delete_report(self):
         assert self.aedtapp.post.delete_report("MyNewScattering")

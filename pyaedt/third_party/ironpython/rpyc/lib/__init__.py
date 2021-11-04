@@ -175,7 +175,7 @@ def get_id_pack(obj):
                 else:
                     name_pack = '{0}.{1}'.format(obj.__class__.__module__, obj.__name__)
             elif inspect.ismodule(obj):
-                name_pack = '{0}.{1}'.format(obj__module__, obj.__name__)
+                name_pack = '{0}.{1}'.format(obj.__module__, obj.__name__)
                 print(name_pack)
             elif hasattr(obj, '__module__'):
                 name_pack = '{0}.{1}'.format(obj.__module__, obj.__name__)
