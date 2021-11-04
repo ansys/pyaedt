@@ -167,6 +167,7 @@ class SolutionData(object):
         for el in self._sweeps_names:
             values = list(self.nominal_variation.GetSweepValues(el, False))
             self._sweeps[el] = [i for i in values]
+            self._sweeps[el] = list(dict.fromkeys(self._sweeps[el]))
         return self._sweeps
 
     @aedt_exception_handler
