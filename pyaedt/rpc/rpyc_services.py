@@ -43,18 +43,15 @@ class PyaedtServiceWindows(rpyc.Service):
         # (to finalize the service, if needed)
         if self.app:
             if not os.name == "posix":
-                try:
+                if self.app:
                     self.app[0].release_desktop()
-                except:
-                    pass
+
         pass
 
     def exposed_close_connection(self):
         if self.app:
-            try:
-                self.app[0].release_desktop()
-            except:
-                pass
+            self.app[0].release_desktop()
+
 
     def exposed_run_script(self, script, aedt_version="2021.1", ansysem_path=None, non_graphical=True):
         """Run script on AEDT in the server.
