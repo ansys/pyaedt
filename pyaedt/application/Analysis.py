@@ -459,7 +459,7 @@ class Analysis(Design, object):
 
             Returns
             -------
-            list of str
+            list of lists
                 List of variation families.
 
             """
@@ -479,6 +479,25 @@ class Analysis(Design, object):
                         i += 1
                 families.append(family)
             return families
+
+        @aedt_exception_handler
+        def get_variation_strings(self, setup_sweep=None):
+            """Return variation strings.
+
+            Parameters
+            ----------
+            setup_sweep : str, optional
+                Setup name with the sweep to search for variations on. The default is ``None``.
+
+            Returns
+            -------
+            list of str
+                List of variation families.
+
+            """
+            if not setup_sweep:
+                setup_sweep = self._app.existing_analysis_sweeps[0]
+            return self._app.osolution.GetAvailableVariations(setup_sweep)
 
         @property
         def nominal(self):
