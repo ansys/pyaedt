@@ -744,12 +744,19 @@ class EdbLayout(object):
                 for item in a:
                     for v in all_voids:
                         for void in v:
-                            if item.GetIntersectionType(void.GetPolygonData()) == 2:
+                            if int(item.GetIntersectionType(void.GetPolygonData())) == 2:
                                 item.AddHole(void.GetPolygonData())
                     poly = self._edb.Cell.Primitive.Polygon.Create(self._active_layout, lay,
                                                                    self._pedb.core_nets.nets[net], item)
-
-                [i.Delete() for i in poly_by_nets[net]]
+                list_to_delete = [i for i in poly_by_nets[net]]
+                for v in all_voids:
+                    for void in v:
+                        for poly in poly_by_nets[net]:
+                            if int(void.GetPolygonData().GetIntersectionType(poly.GetPolygonData())) >= 2:
+                                id = list_to_delete.index(poly)
+                                if id >= 0:
+                                    del list_to_delete[id]
+                [i.Delete() for i in list_to_delete]
 
         if delete_padstack_gemometries:
             self._logger.info("Deleting Padstack Definitions")
