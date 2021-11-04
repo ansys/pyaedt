@@ -165,8 +165,9 @@ class SolutionData(object):
 
         self._sweeps = OrderedDict({})
         for el in self._sweeps_names:
-            self._sweeps[el] = [i for i in self.nominal_variation.GetSweepValues(el, False)]
-            self._sweeps[el] = list(dict.fromkeys(self._sweeps[el]))
+            values = list(self.nominal_variation.GetSweepValues(el, False))
+            self._sweeps[el] = [i for i in values]
+            self._sweeps[el] = list(OrderedDict.fromkeys(self._sweeps[el]))
         return self._sweeps
 
     @aedt_exception_handler
