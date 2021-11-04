@@ -1,4 +1,5 @@
 """
+5G linear array antenna
 --------------------------------------
 This example shows how to use HFSS 3D Layout to create and solve a 5G linear array antenna.
 """
