@@ -38,7 +38,9 @@ HANDLE_INSTANCECHECK = 20
 EXC_STOP_ITERATION = 1
 
 # IO values
-STREAM_CHUNK = 64000  # read/write chunk is 64KB, too large of a value will degrade response for other clients
+# read/write chunk is 640KB, too large of a value will degrade response for other clients
+#TODO Check the best value to not affect performances
+STREAM_CHUNK = 640000
 
 # DEBUG
 # for k in globals().keys():
