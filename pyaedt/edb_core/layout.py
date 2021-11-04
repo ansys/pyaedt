@@ -729,7 +729,7 @@ class EdbLayout(object):
             layer_name = list(self._pedb.core_stackup.signal_layers.keys())
 
         for lay in layer_name:
-            self._logger.add_info_message("Uniting Objects on layer %s.", lay)
+            self._logger.info("Uniting Objects on layer %s.", lay)
             poly_by_nets = {}
             if lay in list(self.polygons_by_layer.keys()):
                 for poly in self.polygons_by_layer[lay]:
