@@ -62,7 +62,6 @@ packages = [
     "pyaedt.third_party.ironpython.rpyc.utils",
     "pyaedt.third_party.ironpython.plumbum",
     "pyaedt.third_party.ironpython.plumbum.cli",
-    "pyaedt.third_party.ironpython.plumbum.cli.i18n",
     "pyaedt.third_party.ironpython.plumbum.colorlib",
     "pyaedt.third_party.ironpython.plumbum.commands",
     "pyaedt.third_party.ironpython.plumbum.fs",
