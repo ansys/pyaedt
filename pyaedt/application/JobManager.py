@@ -109,7 +109,7 @@ def update_machine_name(name, machinename):
     Parameters
     ----------
     name : str
-        Name of the machine to update.
+        Path of the configuration file.
     machinename : str
         New name of the machine.
 
@@ -131,7 +131,7 @@ def update_config_name(name, machinename):
     Parameters
     ----------
     name : str
-        Path of the config file
+        Path of the configuration file.
     machinename : str
         New name of the machine.
 
