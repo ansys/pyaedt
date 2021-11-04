@@ -42,11 +42,13 @@ class PyaedtServiceWindows(rpyc.Service):
         # code that runs after the connection has already closed
         # (to finalize the service, if needed)
         if self.app:
-            try:
-                self.app[0].release_desktop()
-            except:
-                pass
+            if not os.name == "posix":
+                try:
+                    self.app[0].release_desktop()
+                except:
+                    pass
         pass
+
 
     def exposed_close_connection(self):
         if self.app:
