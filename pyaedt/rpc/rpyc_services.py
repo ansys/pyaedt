@@ -52,7 +52,6 @@ class PyaedtServiceWindows(rpyc.Service):
         if self.app:
             self.app[0].release_desktop()
 
-
     def exposed_run_script(self, script, aedt_version="2021.1", ansysem_path=None, non_graphical=True):
         """Run script on AEDT in the server.
 
