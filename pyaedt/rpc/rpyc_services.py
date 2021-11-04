@@ -49,7 +49,6 @@ class PyaedtServiceWindows(rpyc.Service):
                     pass
         pass
 
-
     def exposed_close_connection(self):
         if self.app:
             try:
