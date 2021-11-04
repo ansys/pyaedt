@@ -126,18 +126,14 @@ def update_machine_name(name, machinename):
 
 
 def update_config_name(name, machinename):
-    """Update the name of the machine.
+    """Update the name of the configuration.
 
     Parameters
     ----------
     name : str
-        Name of the machine to update.
+        Path of the config file
     machinename : str
         New name of the machine.
-
-    Returns
-    -------
-    type
 
     """
     with open(name) as fid:
