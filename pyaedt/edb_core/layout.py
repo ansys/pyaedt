@@ -752,7 +752,7 @@ class EdbLayout(object):
                 for v in all_voids:
                     for void in v:
                         for poly in poly_by_nets[net]:
-                            if int(void.GetPolygonData().GetIntersectionType(poly.GetPolygonData())) == 2:
+                            if int(void.GetPolygonData().GetIntersectionType(poly.GetPolygonData())) >= 2:
                                 id = list_to_delete.index(poly)
                                 if id >= 0:
                                     del list_to_delete[id]
