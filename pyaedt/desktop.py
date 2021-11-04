@@ -329,7 +329,6 @@ class Desktop:
                 print("Launching PyAEDT outside Electronics Desktop with CPython and Pythonnet")
                 self._init_cpython(non_graphical, new_desktop_session, version, student_version, version_key)
             else:
-                self.add_info_message("Launching PyAEDT outside AEDT with CPython and PyWin32.")
                 oAnsoftApp = win32com.client.Dispatch(version)
                 self._main.oDesktop = oAnsoftApp.GetAppDesktop()
                 self._main.isoutsideDesktop = True
