@@ -350,6 +350,48 @@ class Hfss(FieldAnalysis3D, object):
     ):
         """Assign finite conductivity to one or more objects of a given material.
 
+        .. deprecated:: 0.4.3
+           Use :func:`Hfss.assign_coating` instead.
+
+        """
+
+        warnings.warn('`assigncoating` is deprecated. Use `assign_coating` instead.', DeprecationWarning)
+        self.assign_coating(
+            obj,
+            mat,
+            cond,
+            perm,
+            usethickness,
+            thickness,
+            roughness,
+            isinfgnd,
+            istwoside,
+            isInternal,
+            issheelElement,
+            usehuray,
+            radius,
+            ratio)
+
+    @aedt_exception_handler
+    def assign_coating(
+        self,
+        obj,
+        mat=None,
+        cond=58000000,
+        perm=1,
+        usethickness=False,
+        thickness="0.1mm",
+        roughness="0um",
+        isinfgnd=False,
+        istwoside=False,
+        isInternal=True,
+        issheelElement=False,
+        usehuray=False,
+        radius="0.5um",
+        ratio="2.9",
+    ):
+        """Assign finite conductivity to one or more objects of a given material.
+
         Parameters
         ----------
         obj : str or list
