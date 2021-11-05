@@ -25,11 +25,11 @@ class TestClass:
     # def test_01_global(self, clean_desktop_messages, clean_desktop, hfss):
     #     logger = hfss.logger
     #     # The default logger level is DEBUGGING.
-    #     logger.glb.debug("Global debug message for testing.")
-    #     logger.glb.info("Global info message for testing.")
-    #     logger.glb.warning("Global warning message for testing.")
-    #     logger.glb.error("Global error message for testing.")
-    #     logger.glb.info("Global critical message for testing.")
+    #     logger.debug("Global debug message for testing.")
+    #     logger.info("Global info message for testing.")
+    #     logger.warning("Global warning message for testing.")
+    #     logger.error("Global error message for testing.")
+    #     logger.info("Global critical message for testing.")
     #
     #     # Project logger
     #     logger.add_logger("Project")
@@ -97,10 +97,10 @@ class TestClass:
         temp_dir = tempfile.gettempdir()
         path = os.path.join(temp_dir, "test.txt")
         logger = AedtLogger(self.aedtapp._messenger, filename=path)
-        logger.glb.info("Info for Global")
-        logger.glb.debug("Debug for Global")
-        logger.glb.warning("Warning for Global")
-        logger.glb.error("Error for Global")
+        logger.info("Info for Global")
+        logger.debug("Debug for Global")
+        logger.warning("Warning for Global")
+        logger.error("Error for Global")
         project_logger = logger.add_logger('Project')
         project_logger.info("Info for Project")
         project_logger.debug("Debug for Project")
@@ -115,7 +115,7 @@ class TestClass:
         # Close every handlers to make sure that the
         # file handler on every logger has been released properly.
         # Otherwise, we can't read the content of the log file.
-        for handler in logger.glb.handlers:
+        for handler in logger.handlers:
             handler.close()
         for handler in project_logger.handlers:
             handler.close()
@@ -137,7 +137,7 @@ class TestClass:
         assert ":DEBUG   :Debug for Design" in content[9]
         assert ":WARNING :Warning for Design" in content[10]
         assert ":ERROR   :Error for Design" in content[11]
-        # self.aedtapp.logger.glb.handlers.pop()
+        # self.aedtapp.logger.handlers.pop()
         # self.aedtapp.logger.project.handlers.pop()
         # if len(self.aedtapp.logger.design.handlers) > 0:
         #     self.aedtapp.logger.design.handlers.pop()
@@ -147,10 +147,10 @@ class TestClass:
         capture = CaptureStdOut()
         with capture:
             logger = AedtLogger(self.aedtapp._messenger, to_stdout=True)
-            logger.glb.info("Info for Global")
-            logger.glb.debug("Debug for Global")
-            logger.glb.warning("Warning for Global")
-            logger.glb.error("Error for Global")
+            logger.info("Info for Global")
+            logger.debug("Debug for Global")
+            logger.warning("Warning for Global")
+            logger.error("Error for Global")
             project_logger = logger.add_logger('Project')
             project_logger.info("Info for Project")
             project_logger.debug("Debug for Project")
@@ -175,7 +175,7 @@ class TestClass:
         assert "pyaedt warning: Warning for Design" in capture.content
         assert "pyaedt error: Error for Design" in capture.content
 
-        # for handler in logger.glb.handlers:
+        # for handler in logger.handlers:
         #     handler.close()
         # for handler in project_logger.handlers:
         #     handler.close()

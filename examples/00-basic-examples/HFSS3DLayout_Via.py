@@ -9,12 +9,12 @@ This example shows how to use HFSS 3D Layout to create and solve a parametric de
 # # Import the `Hfss3dlayout` Object
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This example imports the `Hfss3dlayout` object and initializes it on version
-# 2021.1.
+# 2021.2.
 
 from pyaedt import Hfss3dLayout
 import os
 
-h3d = Hfss3dLayout(specified_version="2021.1", new_desktop_session=True, non_graphical=True)
+h3d = Hfss3dLayout(specified_version="2021.2", new_desktop_session=True, non_graphical=True)
 
 ###############################################################################
 # Set Up Parametric Variables
@@ -103,4 +103,4 @@ h3d.post.create_rectangular_plot(
 # All methods provide for saving the project before exiting.
 
 if os.name != "posix":
-    h3d.close_desktop()
+    h3d.release_desktop()

@@ -20,15 +20,15 @@ if not os.path.exists(temp_folder):
 ###############################################################################
 # Launch AEDT in Graphical Mode
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This examples launches AEDT 2021.1 in graphical mode.
+# This examples launches AEDT 2021.2 in graphical mode.
 
 nongraphical = False
-d = Desktop("2021.1", non_graphical=nongraphical)
+d = Desktop("2021.2", non_graphical=nongraphical, new_desktop_session=True)
 
 ###############################################################################
 # Launch HFSS in Graphical Mode
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This examples launches HFSS 2021.1 in graphical mode.
+# This examples launches HFSS 2021.2 in graphical mode.
 
 hfss = Hfss()
 
@@ -63,14 +63,22 @@ hfss.create_open_region(Frequency="1GHz")
 # ----------------
 # A setup with a sweep will be used to run the simulation.
 
-setup = hfss.create_setup("MySetup", hfss.SimulationSetupTypes.HFSSDrivenAuto)
-setup.props["Type"] = "Interpolating"
-setup.props["Sweeps"]["Sweep"]["RangeType"] = "LinearCount"
-setup.props["Sweeps"]["Sweep"]["RangeStart"] = "0.5GHz"
-setup.props["Sweeps"]["Sweep"]["RangeEnd"] = "1.5GHz"
-setup.props["Sweeps"]["Sweep"]["RangeCount"] = 401
-setup.props["Sweeps"]["Sweep"]["AutoSolverSetting"] = "Higher Speed"
+setup = hfss.create_setup("MySetup")
+setup.props["Frequency"] = "1GHz"
+setup.props["MaximumPasses"] = 1
 setup.update()
+hfss.create_linear_count_sweep(
+    setupname=setup.name,
+    unit="GHz",
+    freqstart=0.5,
+    freqstop=1.5,
+    num_of_freq_points=251,
+    sweepname="sweep1",
+    sweep_type="Interpolating",
+    interpolation_tol=3,
+    interpolation_max_solutions=255,
+    save_fields=False,
+)
 
 ###############################################################################
 # Save and Run the Simulation
@@ -102,4 +110,4 @@ hfss.post.create_rectangular_plot(
 # All methods provide for saving the project before exiting.
 
 if os.name != "posix":
-    d.force_close_desktop()
+    d.release_desktop()

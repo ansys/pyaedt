@@ -1275,7 +1275,7 @@ class Primitives(object):
         >>> from pyaedt.desktop import Desktop
         >>> from pyaedt.Maxwell import Maxwell3d
         >>> from pyaedt.modeler.Primitives import PolylineSegment
-        >>> desktop=Desktop(specified_version="2021.1", new_desktop_session=False)
+        >>> desktop=Desktop(specified_version="2021.2", new_desktop_session=False)
         >>> aedtapp = Maxwell3D()
         >>> aedtapp.modeler.model_units = "mm"
         >>> primitives = aedtapp.modeler.primitives
@@ -1425,7 +1425,7 @@ class Primitives(object):
             if el not in self.object_names and not list(self._oeditor.GetObjectsInGroup(el)):
                 objects.remove(el)
         if not objects:
-            self.logger.glb.warning("No objects to delete")
+            self.logger.warning("No objects to delete")
             return False
         slice = min(100, len(objects))
         num_objects = len(objects)
@@ -1437,7 +1437,7 @@ class Primitives(object):
             try:
                 self._oeditor.Delete(arg)
             except:
-                self.logger.glb.warning("Failed to delete {}".format(objects_str))
+                self.logger.warning("Failed to delete {}".format(objects_str))
             remaining -= slice
             if remaining > 0:
                 objects = objects[slice:]
@@ -1446,7 +1446,7 @@ class Primitives(object):
 
         if len(objects) > 0:
             self.cleanup_objects()
-            self.logger.glb.info("Deleted {} Objects".format(num_objects, objects_str))
+            self.logger.info("Deleted {} Objects".format(num_objects, objects_str))
         return True
 
     @aedt_exception_handler
@@ -1477,7 +1477,7 @@ class Primitives(object):
                 if contained_string.lower() in el.lower():
                     self.delete(el)
                     num_del += 1
-        self.logger.glb.info("Deleted %s objects", num_del)
+        self.logger.info("Deleted %s objects", num_del)
         return True
 
     @aedt_exception_handler
@@ -2125,7 +2125,7 @@ class Primitives(object):
         try:
             c = self._oeditor.GetFaceCenter(face_id)
         except:
-            self.logger.glb.warning("Non Planar Faces doesn't provide any Face Center")
+            self.logger.warning("Non Planar Faces doesn't provide any Face Center")
             return False
         center = [float(i) for i in c]
         return center
@@ -2789,7 +2789,7 @@ class Primitives(object):
                     return matname, True
 
             else:
-                self.logger.glb.warning(
+                self.logger.warning(
                     "Material %s doesn not exists. Assigning default material", matname)
         if self._app._design_type == "HFSS":
             return defaultmatname, self._app.materials.material_keys[defaultmatname].is_dielectric()
@@ -2948,7 +2948,7 @@ class Primitives(object):
         else:
             args += ["MaterialName:=", material]
 
-        if self.version >= "2021.1":
+        if self.version >= "2021.2":
             args += [
                 "ShellElement:=",
                 False,

@@ -86,10 +86,10 @@ class FieldAnalysis3DLayout(Analysis):
         self.osolution = self._odesign.GetModule("SolveSetups")
         self.oexcitation = self._odesign.GetModule("Excitations")
         self.oboundary = self._odesign.GetModule("Excitations")
-        self.logger.glb.info("Analysis Loaded")
+        self.logger.info("Analysis Loaded")
         self._modeler = Modeler3DLayout(self)
         self._modeler.primitives.init_padstacks()
-        self.logger.glb.info("Modeler Loaded")
+        self.logger.info("Modeler Loaded")
         self._mesh = Mesh3d(self)
         self._post = PostProcessor(self)
         # self._post = PostProcessor(self)
@@ -226,7 +226,7 @@ class FieldAnalysis3DLayout(Analysis):
         if not reclist:
             reclist = [i for i in self.get_excitations_name if rx_prefix in i]
         if len(trlist) != len(reclist):
-            self.logger.glb.error("The TX and RX lists should be same length.")
+            self.logger.error("The TX and RX lists should be same length.")
             return False
         for i, j in zip(trlist, reclist):
             spar.append("S({},{})".format(i, j))

@@ -1680,7 +1680,7 @@ class PostProcessor(PostProcessorCommon, object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        self.logger.glb.info("Exporting %s field. Be patient", quantity_name)
+        self.logger.info("Exporting %s field. Be patient", quantity_name)
         if not solution:
             solution = self._app.existing_analysis_sweeps[0]
         if not filename:
@@ -1803,7 +1803,7 @@ class PostProcessor(PostProcessorCommon, object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        self.logger.glb.info("Exporting %s field. Be patient", quantity_name)
+        self.logger.info("Exporting %s field. Be patient", quantity_name)
         if not solution:
             solution = self._app.existing_analysis_sweeps[0]
         if not filename:
@@ -1822,7 +1822,7 @@ class PostProcessor(PostProcessorCommon, object):
                 elif obj_type == "Surf":
                     self.ofieldsreporter.EnterSurf(obj_list)
                 else:
-                    self.logger.glb.error("No correct choice.")
+                    self.logger.error("No correct choice.")
                     return False
                 self.ofieldsreporter.CalcOp("Value")
                 variation_dict = self._app.available_variations.nominal_w_values
@@ -2187,7 +2187,7 @@ class PostProcessor(PostProcessorCommon, object):
         # Set up arguments list for createReport function
         if not dir:
             dir = self._scratch.path
-            self.logger.glb.debug("Using scratch path {}".format(self._scratch.path))
+            self.logger.debug("Using scratch path {}".format(self._scratch.path))
 
         assert os.path.exists(dir), "Specified directory does not exist: {}".format(dir)
 

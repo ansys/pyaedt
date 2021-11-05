@@ -37,9 +37,9 @@ print(targetfile)
 # Launch EDB
 # ~~~~~~~~~~
 # This example launches the :class:`pyaedt.Edb` class.
-# This example uses EDB 2021.1 and uses SI units.
+# This example uses EDB 2021.2 and uses SI units.
 
-edb = Edb(edbpath=targetfile, edbversion="2021.1")
+edb = Edb(edbpath=targetfile, edbversion="2021.2")
 
 
 ###############################################################################

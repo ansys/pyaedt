@@ -29,7 +29,7 @@ class AedtSolve(object):
     >>> solver.solve()
     """
 
-    def __init__(self, aedt_version="2021.1", aedt_installer_path=None):
+    def __init__(self, aedt_version="2021.2", aedt_installer_path=None):
         self._project_path = ""
         self._command = []
         self._nbcores = 4
@@ -126,7 +126,7 @@ class AedtSolve(object):
 
 
 class SiwaveSolve(object):
-    def __init__(self, project_path, aedt_version="2021.1", aedt_installer_path=None):
+    def __init__(self, project_path, aedt_version="2021.2", aedt_installer_path=None):
         self._project_path = project_path
         self._exec_path = ""
         self._nbcores = 4

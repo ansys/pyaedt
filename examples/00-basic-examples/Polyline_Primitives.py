@@ -19,7 +19,8 @@ from pyaedt.modeler.Primitives import PolylineSegment
 # This example creates a :class:`pyaedt.Maxwell3d` object and sets the unit
 # type to ``"mm"``.
 
-M3D = Maxwell3d(solution_type="Transient", designname="test_polyline_3D", specified_version="2021.1")
+M3D = Maxwell3d(solution_type="Transient", designname="test_polyline_3D", specified_version="2021.2",
+                new_desktop_session=True)
 M3D.modeler.model_units = "mm"
 prim3D = M3D.modeler.primitives
 
@@ -304,4 +305,4 @@ project_file = os.path.join(project_dir, project_name + ".aedt")
 M3D.save_project(project_file)
 
 if os.name != "posix":
-    M3D.close_desktop()
+    M3D.release_desktop()

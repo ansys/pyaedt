@@ -22,13 +22,12 @@ NonGraphical = True
 ###############################################################################
 # Launch AEDT and Q3D
 # ~~~~~~~~~~~~~~~~~~~
-# This example launches AEDT 2021.1 in graphical mode.
+# This example launches AEDT 2021.2 in graphical mode.
 
 # This example use SI units.
 
-d = Desktop("2021.1", NonGraphical, False)
 
-q = Q3d()
+q = Q3d(specified_version="2021.2", non_graphical=NonGraphical, new_desktop_session=True)
 
 ###############################################################################
 # Create Primitives

@@ -70,7 +70,7 @@ class Edb(object):
         Whether to open ``edb_core`` in read-only mode when it is
         owned by HFSS 3D Layout. The default is ``False``.
     edbversion : str, optional
-        Version of ``edb_core`` to use. The default is ``"2021.1"``.
+        Version of ``edb_core`` to use. The default is ``"2021.2"``.
     isaedtowned : bool, optional
         Whether to launch ``edb_core`` from HFSS 3D Layout. The
         default is ``False``.
@@ -97,7 +97,7 @@ class Edb(object):
             edbpath=None,
             cellname=None,
             isreadonly=False,
-            edbversion="2021.1",
+            edbversion="2021.2",
             isaedtowned=False,
             oproject=None,
             student_version=False,
@@ -1151,7 +1151,7 @@ class Edb(object):
 
         >>> from pyaedt import Edb
 
-        >>> edb = Edb(edbpath=r"C:\temp\myproject.aedb", edbversion="2021.1")
+        >>> edb = Edb(edbpath=r"C:\temp\myproject.aedb", edbversion="2021.2")
 
         >>> options_config = {'UNITE_NETS' : 1, 'LAUNCH_Q3D' : 0}
         >>> edb.write_export3d_option_config_file(r"C:\temp", options_config)
@@ -1188,7 +1188,7 @@ class Edb(object):
 
         >>> from pyaedt import Edb
 
-        >>> edb = Edb(edbpath=r"C:\temp\myproject.aedb", edbversion="2021.1")
+        >>> edb = Edb(edbpath=r"C:\temp\myproject.aedb", edbversion="2021.2")
 
         >>> options_config = {'UNITE_NETS' : 1, 'LAUNCH_Q3D' : 0}
         >>> edb.write_export3d_option_config_file(r"C:\temp", options_config)
@@ -1227,7 +1227,7 @@ class Edb(object):
 
         >>> from pyaedt import Edb
 
-        >>> edb = Edb(edbpath=r"C:\temp\myproject.aedb", edbversion="2021.1")
+        >>> edb = Edb(edbpath=r"C:\temp\myproject.aedb", edbversion="2021.2")
 
         >>> options_config = {'UNITE_NETS' : 1, 'LAUNCH_Q3D' : 0}
         >>> edb.write_export3d_option_config_file(r"C:\temp", options_config)

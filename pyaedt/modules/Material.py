@@ -449,7 +449,7 @@ class MatProperty(object):
         --------
 
         >>> from pyaedt import Hfss
-        >>> hfss = Hfss(specified_version="2021.1")
+        >>> hfss = Hfss(specified_version="2021.2")
         >>> mat1 = hfss.materials.add_material("new_copper2")
         >>> mat1.add_thermal_modifier_free_form("if(Temp > 1000cel, 1, if(Temp < -273.15cel, 1, 1))")
         """
@@ -476,7 +476,7 @@ class MatProperty(object):
         --------
 
         >>> from pyaedt import Hfss
-        >>> hfss = Hfss(specified_version="2021.1")
+        >>> hfss = Hfss(specified_version="2021.2")
         >>> mat1 = hfss.materials.add_material("new_copper2")
         >>> mat1.add_thermal_modifier_dataset("$ds1")
         """
@@ -528,13 +528,13 @@ class MatProperty(object):
         --------
 
         >>> from pyaedt import Hfss
-        >>> hfss = Hfss(specified_version="2021.1")
+        >>> hfss = Hfss(specified_version="2021.2")
         >>> mat1 = hfss.materials.add_material("new_copper2")
         >>> mat1.permittivity.add_thermal_modifier_closed_form(c1 = 1e-3)
         """
 
         if index > len(self._property_value):
-            self.logger.glb.error(
+            self.logger.error(
                 "Wrong index number. Index must be 0 for simple or nonlinear properties,"
                 " <=2 for anisotropic materials, <=9 for Tensors"
             )
@@ -806,7 +806,7 @@ class Material(CommonMaterial, object):
         Create a new material with color ``[0, 153, 153]`` (darker cyan).
 
         >>> from pyaedt import Hfss
-        >>> hfss = Hfss(specified_version="2021.1")
+        >>> hfss = Hfss(specified_version="2021.2")
         >>> mat1 = hfss.materials.add_material("new_material")
         >>> rgbcolor = mat1.material_appearance
         >>> mat1.material_appearance = [0, 153, 153]

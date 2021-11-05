@@ -220,7 +220,7 @@ class Mesh3d(object):
             restrictel = True
             numel = str(maxel)
         if maxlength is None and maxel is None:
-            self.logger.glb.error("mesh not assigned due to incorrect settings")
+            self.logger.error("mesh not assigned due to incorrect settings")
             return
         if isinstance(layer_name, list) and isinstance(net_name, list):
             assignment = OrderedDict({"MeshEntityInfo": []})

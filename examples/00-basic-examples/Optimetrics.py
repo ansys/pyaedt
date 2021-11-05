@@ -16,7 +16,7 @@ import os
 # AEDT in graphical mode.
 
 NG = False
-d = Desktop("2021.1", non_graphical=NG)
+d = Desktop("2021.2", non_graphical=NG, new_desktop_session=True)
 
 ###############################################################################
 # Initialize the `Hfss` Object and Create the Needed Design Variables
@@ -130,4 +130,4 @@ sweep5.add_calculation(calculation="dB(S(1,1))", calculation_value="2.5GHz")
 # All methods provide for saving the project before exiting.
 
 if os.name != "posix":
-    d.force_close_desktop()
+    d.release_desktop()

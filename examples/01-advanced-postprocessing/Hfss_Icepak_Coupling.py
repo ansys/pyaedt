@@ -44,10 +44,10 @@ import matplotlib.pyplot as plt
 ###############################################################################
 # Launch AEDT
 # ~~~~~~~~~~~
-# This example launches AEDT 2021.1 in graphical mode.
+# This example launches AEDT 2021.2 in graphical mode.
 # This example uses SI units.
 
-desktopVersion = "2021.1"
+desktopVersion = "2021.2"
 
 ###############################################################################
 # Launch AEDT in Non-Graphical Mode
@@ -347,5 +347,5 @@ plt.show()
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This example closes the project and then closes AEDT.
 
-aedtapp.close_project(aedtapp.project_name)
-aedtapp.close_desktop()
+#aedtapp.close_project(aedtapp.project_name)
+aedtapp.release_desktop()
