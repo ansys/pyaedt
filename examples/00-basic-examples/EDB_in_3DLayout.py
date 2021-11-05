@@ -34,11 +34,11 @@ aedt_file = targetfile[:-12] + "aedt"
 ###############################################################################
 # Launch AEDT
 # ~~~~~~~~~~~
-# This example launches AEDT 2021.1 in graphical model.
+# This example launches AEDT 2021.2 in graphical model.
 
 # This example uses SI units.
 
-desktopVersion = "2021.1"
+desktopVersion = "2021.2"
 
 
 ###############################################################################
@@ -48,7 +48,7 @@ desktopVersion = "2021.1"
 # graphical mode.
 
 NonGraphical = True
-NewThread = False
+NewThread = True
 
 ###############################################################################
 # Initialize AEDT
@@ -140,4 +140,4 @@ h3d.modeler.fit_all()
 
 if os.name != "posix":
     h3d.close_project()
-    d.force_close_desktop()
+    d.release_desktop()

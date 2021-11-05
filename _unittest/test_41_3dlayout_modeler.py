@@ -29,11 +29,8 @@ class TestClass:
                 self.aedtapp = None
 
     def teardown_class(self):
-        for proj in self.aedtapp.project_list:
-            try:
-                self.aedtapp.close_project(proj)
-            except:
-                pass
+        self.aedtapp._desktop.ClearMessages("", "", 3)
+        self.aedtapp.close_project(self.aedtapp.project_name, saveproject=False)
         gc.collect()
 
     def test_01_creatematerial(self):
@@ -327,6 +324,8 @@ class TestClass:
 
     def test_19B_analyze_setup(self):
         assert self.aedtapp.analyze_setup("RFBoardSetup3")
+        assert os.path.exists(self.aedtapp.export_profile("RFBoardSetup3"))
+        assert os.path.exists(self.aedtapp.export_mesh_stats("RFBoardSetup3"))
 
     @pytest.mark.skipif(os.name == "posix", reason="To be investigated on linux.")
     def test_19C_export_touchsthone(self):

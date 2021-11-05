@@ -26,7 +26,7 @@ import time
 
 from pyaedt import Desktop
 from pyaedt import Hfss
-
+from pyaedt.generic.general_methods import remove_project_lock
 
 ###############################################################################
 # Import All Modules for Postprocessing
@@ -40,9 +40,9 @@ import math
 ###############################################################################
 # Launch AEDT in Non-Graphical Mode
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This example launches AEDT 2021.1 in graphical mode.
+# This example launches AEDT 2021.2 in graphical mode.
 
-desktopVersion = "2021.1"
+desktopVersion = "2021.2"
 NonGraphical = True
 NewThread = False
 desktop = Desktop(desktopVersion, NonGraphical, NewThread)
@@ -51,6 +51,8 @@ desktop = Desktop(desktopVersion, NonGraphical, NewThread)
 # Open the HFSS Project
 # ~~~~~~~~~~~~~~~~~~~~~
 # This command opens the HFSS project.
+
+remove_project_lock(project_name)
 
 hfss = Hfss(project_name, "4X4_MultiCell_CA-Array")
 
@@ -263,5 +265,5 @@ fig1.set_size_inches(22.5, 22.5)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # The following example closes the HFSS project and AEDT.
 
-hfss.close_project()
-desktop.force_close_desktop()
+#hfss.close_project()
+desktop.release_desktop()

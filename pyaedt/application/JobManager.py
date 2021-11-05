@@ -25,7 +25,7 @@ def get_hpc_info(filename):
     return config_name, design_type
 
 
-def update_hpc_option(self, filnename, propertyname, propertyvalue, isvaluestring=True):
+def update_hpc_option(filnename, propertyname, propertyvalue, isvaluestring=True):
     """Update an HPC option in the configuration file.
 
     Parameters
@@ -59,7 +59,7 @@ def update_hpc_option(self, filnename, propertyname, propertyvalue, isvaluestrin
         f.write(new_line)
 
 
-def update_simulation_cores(self, name, nc):
+def update_simulation_cores(name, nc):
     """Update the HPC number of cores in the configuration file.
 
     Parameters
@@ -81,7 +81,7 @@ def update_simulation_cores(self, name, nc):
         f.write(new_line)
 
 
-def update_simulation_engines(self, name, nc):
+def update_simulation_engines(name, nc):
     """Update the HPC number of simulaton engines in the configuration file.
 
     Parameters
@@ -103,13 +103,13 @@ def update_simulation_engines(self, name, nc):
         f.write(new_line)
 
 
-def update_machine_name(self, name, machinename):
+def update_machine_name(name, machinename):
     """Update the machine name.
 
     Parameters
     ----------
     name : str
-        Name of the machine to update.
+        Path of the configuration file.
     machinename : str
         New name of the machine.
 
@@ -125,19 +125,15 @@ def update_machine_name(self, name, machinename):
         f.write(new_line)
 
 
-def update_config_name(self, name, machinename):
-    """Update the name of the machine.
+def update_config_name(name, machinename):
+    """Update the name of the configuration.
 
     Parameters
     ----------
     name : str
-        Name of the machine to update.
+        Path of the configuration file.
     machinename : str
         New name of the machine.
-
-    Returns
-    -------
-    type
 
     """
     with open(name) as fid:
@@ -153,7 +149,7 @@ def update_config_name(self, name, machinename):
         f.write(new_line)
 
 
-def update_cluster_cores(self, file_name, param_name, param_val):
+def update_cluster_cores(file_name, param_name, param_val):
     """Update the number of cluster cores in the configuration file.
 
     Parameters
@@ -177,7 +173,7 @@ def update_cluster_cores(self, file_name, param_name, param_val):
         f.write(new_line)
 
 
-def Update_hpc_template(self, file_name, param_name, param_val):
+def update_hpc_template(file_name, param_name, param_val):
     """Update a paramerter in the HPC template file.
 
     Parameters

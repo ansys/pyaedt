@@ -15,9 +15,9 @@ import warnings
 import sys
 from collections import OrderedDict
 
-from ..application.Variables import AEDT_units
-from ..generic.filesystem import Scratch
-from ..generic.general_methods import aedt_exception_handler, generate_unique_name, retry_ntimes
+from pyaedt.application.Variables import AEDT_units
+from pyaedt.generic.filesystem import Scratch
+from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, retry_ntimes
 
 report_type = {
     "DrivenModal": "Modal Solution Data",
@@ -59,11 +59,13 @@ class SolutionData(object):
     """Contains information from the :func:`GetSolutionDataPerVariation` method."""
 
     @property
+    @aedt_exception_handler
     def sweeps(self):
         """Sweeps."""
         return self._sweeps
 
     @property
+    @aedt_exception_handler
     def sweeps_siunits(self):
         """SI units for the sweep."""
         data = {}
@@ -74,6 +76,7 @@ class SolutionData(object):
         return data
 
     @property
+    @aedt_exception_handler
     def variations_value(self):
         """Variation values for design variables."""
         vars = self.nominal_variation.GetDesignVariableNames()
@@ -83,6 +86,7 @@ class SolutionData(object):
         return variationvals
 
     @property
+    @aedt_exception_handler
     def nominal_variation(self):
         """Nominal variation."""
         return self._nominal_variation
@@ -96,6 +100,7 @@ class SolutionData(object):
             print(str(val) + " not in Variations")
 
     @property
+    @aedt_exception_handler
     def primary_sweep(self):
         """Primary sweep.
 
@@ -112,6 +117,7 @@ class SolutionData(object):
             self._primary_sweep = ps
 
     @property
+    @aedt_exception_handler
     def expressions(self):
         """Expressions."""
         mydata = [i for i in self._nominal_variation.GetDataExpressions()]
@@ -159,8 +165,9 @@ class SolutionData(object):
 
         self._sweeps = OrderedDict({})
         for el in self._sweeps_names:
-            self._sweeps[el] = [i for i in self.nominal_variation.GetSweepValues(el, False)]
-            self._sweeps[el] = list(dict.fromkeys(self._sweeps[el]))
+            values = list(self.nominal_variation.GetSweepValues(el, False))
+            self._sweeps[el] = [i for i in values]
+            self._sweeps[el] = list(OrderedDict.fromkeys(self._sweeps[el]))
         return self._sweeps
 
     @aedt_exception_handler
@@ -199,6 +206,7 @@ class SolutionData(object):
             sols_data[expression] = solution_Data
         return sols_data
 
+    @aedt_exception_handler
     def _solution_data_imag(self):
         """ """
         sols_data = {}
@@ -435,7 +443,7 @@ class FieldPlot:
 
     Parameters
     ----------
-    oField :
+    postprocessor : :class:`pyaedt.modules.PostProcessor.PostProcessor`
 
     objlist : list
         List of objects.
@@ -443,14 +451,14 @@ class FieldPlot:
         Name of the solution.
     quantityName : str
         Name of the plot or the name of the object.
-    intrinsicList : dict, optional
+    intrinsincList : dict, optional
         Name of the intrinsic dictionary. The default is ``{}``.
 
     """
 
-    def __init__(self, parent, objlist=[], solutionName="", quantityName="", intrinsincList={}):
-        self._parent = parent
-        self.oField = parent.ofieldsreporter
+    def __init__(self, postprocessor, objlist=[], solutionName="", quantityName="", intrinsincList={}):
+        self._postprocessor = postprocessor
+        self.oField = postprocessor.ofieldsreporter
         self.faceIndexes = objlist
         self.solutionName = solutionName
         self.quantityName = quantityName
@@ -479,6 +487,7 @@ class FieldPlot:
         self.CloudMaxSpacing = -1
 
     @property
+    @aedt_exception_handler
     def plotGeomInfo(self):
         """Plot geometry information."""
         info = [1, self.objtype, self.listtype, 0]
@@ -488,6 +497,7 @@ class FieldPlot:
         return info
 
     @property
+    @aedt_exception_handler
     def intrinsicVar(self):
         """Intrinsic variable.
 
@@ -512,6 +522,7 @@ class FieldPlot:
         return var
 
     @property
+    @aedt_exception_handler
     def plotsettings(self):
         """Plot settings.
 
@@ -583,6 +594,7 @@ class FieldPlot:
         return arg
 
     @property
+    @aedt_exception_handler
     def surfacePlotInstruction(self):
         """Surface plot settings.
 
@@ -622,6 +634,7 @@ class FieldPlot:
         ]
 
     @property
+    @aedt_exception_handler
     def field_plot_settings(self):
         """Field Plot Settings.
 
@@ -716,10 +729,10 @@ class FieldPlot:
 
     @aedt_exception_handler
     def export_image(self, full_path=None, width=1920, height=1080, orientation="isometric", display_wireframe=True):
-        """Export an image of active Plot.
+        """Save an image of active Plot.
 
         .. note::
-           Works with some limitation on HFSS3DLayout.
+           There are some limitation on HFSS3DLayout.
 
         full_path : str, optional
             Path where image will be saved. It supports png and gif format.
@@ -740,9 +753,9 @@ class FieldPlot:
         """
         self.oField.UpdateQuantityFieldsPlots(self.plotFolder)
         if not full_path:
-            full_path = os.path.join(self._parent._parent.project_path, self.name+".png")
-        status = self._parent.export_field_jpg(full_path, self.name, self.plotFolder, orientation=orientation,
-                                               width=width, height=height, display_wireframe=display_wireframe)
+            full_path = os.path.join(self._postprocessor._app.project_path, self.name + ".png")
+        status = self._postprocessor.export_field_jpg(full_path, self.name, self.plotFolder, orientation=orientation,
+                                                        width=width, height=height, display_wireframe=display_wireframe)
         if status:
             return full_path
         else:
@@ -751,7 +764,7 @@ class FieldPlot:
     @aedt_exception_handler
     def export_image_from_aedtplt(self, export_path=None, view="isometric", plot_mesh=False, scale_min=None,
                                   scale_max=None):
-        """Export an image of Active Plot using PyVista.
+        """Save an image of Active Plot using PyVista.
 
         .. note::
            Only working in CPython with PyVista Module Installed.
@@ -775,9 +788,9 @@ class FieldPlot:
             Full path to exported file if successful.
         """
         if not export_path:
-            export_path = self._parent._parent.project_path
+            export_path = self._postprocessor._app.project_path
         if sys.version_info.major > 2:
-            return self._parent.plot_field_from_fieldplot(
+            return self._postprocessor.plot_field_from_fieldplot(
                     self.name,
                     project_path=export_path,
                     meshplot=plot_mesh,
@@ -791,7 +804,7 @@ class FieldPlot:
                     scale_max=scale_max,
                     )
         else:
-            self._parent._messenger.add_info_message("This method wors only on CPython with PyVista")
+            self._postprocessor.logger.info("This method wors only on CPython with PyVista")
             return False
 
 
@@ -807,9 +820,9 @@ class PostProcessorCommon(object):
 
     Parameters
     ----------
-    parent
+    app : :class:`pyaedt.application.Analsis3D.FieldAnalysis3D`
         Inherited parent object. The parent object must provide the members
-        ``_modeler``, ``_desktop``, ``_odesign``, and ``_messenger``.
+        ``_modeler``, ``_desktop``, ``_odesign``, and ``logger``.
 
     Examples
     --------
@@ -818,11 +831,14 @@ class PostProcessorCommon(object):
     >>> q3d = q.post.get_report_data(expression="C(Bar1,Bar1)", domain=["Context:=", "Original"])
     """
 
-    def __init__(self, parent):
-        self._parent = parent
-        self._scratch = Scratch(self._parent.temp_directory, volatile=True)
+    def __init__(self, app):
+        self._app = app
+        self._oeditor = self.modeler.oeditor
+        self._oreportsetup = self._odesign.GetModule("ReportSetup")
+        self._scratch = Scratch(self._app.temp_directory, volatile=True)
 
     @property
+    @aedt_exception_handler
     def oreportsetup(self):
         """Report setup.
 
@@ -831,39 +847,40 @@ class PostProcessorCommon(object):
         :attr:`pyaedt.modules.PostProcessor.PostProcessor.oreportsetup`
 
         """
-        return self.odesign.GetModule("ReportSetup")
+        return self._oreportsetup
 
     @property
-    def _messenger(self):
-        """Messenger."""
-        return self._parent._messenger
+    @aedt_exception_handler
+    def logger(self):
+        """Logger."""
+        return self._app.logger
 
     @property
+    @aedt_exception_handler
     def _desktop(self):
         """Desktop."""
-        return self._parent._desktop
+        return self._app._desktop
 
     @property
-    def odesign(self):
+    @aedt_exception_handler
+    def _odesign(self):
         """Design."""
-        return self._parent._odesign
+        return self._app._odesign
 
     @property
-    def oproject(self):
+    @aedt_exception_handler
+    def _oproject(self):
         """Project."""
-        return self._parent._oproject
+        return self._app._oproject
 
     @property
+    @aedt_exception_handler
     def modeler(self):
         """Modeler."""
-        return self._parent._modeler
+        return self._app._modeler
 
     @property
-    def oeditor(self):
-        """Editor."""
-        return self.modeler.oeditor
-
-    @property
+    @aedt_exception_handler
     def post_solution_type(self):
         """Design solution type.
 
@@ -873,9 +890,20 @@ class PostProcessorCommon(object):
             Design solution type.
         """
         try:
-            return self.odesign.GetSolutionType()
+            return self._odesign.GetSolutionType()
         except:
-            return self._parent._design_type
+            return self._app._design_type
+
+    @property
+    @aedt_exception_handler
+    def all_report_names(self):
+        """List of all report names.
+
+        Returns
+        -------
+        list
+        """
+        return list(self.oreportsetup.GetAllReportNames())
 
     @aedt_exception_handler
     def copy_report_data(self, PlotName):
@@ -992,7 +1020,7 @@ class PostProcessorCommon(object):
         if not isinstance(expression, list):
             expression = [expression]
         if not setup_sweep_name:
-            setup_sweep_name = self._parent.nominal_sweep
+            setup_sweep_name = self._app.nominal_sweep
 
         if not report_input_type:
             report_input_type = report_type[self.post_solution_type]
@@ -1048,7 +1076,7 @@ class PostProcessorCommon(object):
         """
         ctxt = []
         if not setup_sweep_name:
-            setup_sweep_name = self._parent.nominal_sweep
+            setup_sweep_name = self._app.nominal_sweep
         if self.post_solution_type in ["HFSS 3D Layout Design", "NexximLNA", "NexximTransient"]:
             if "Freq" == primary_sweep_variable or "Freq" in list(families_dict.keys()):
                 did = 3
@@ -1068,9 +1096,9 @@ class PostProcessorCommon(object):
         if not isinstance(expression, list):
             expression = [expression]
         if not setup_sweep_name:
-            setup_sweep_name = self._parent.nominal_sweep
+            setup_sweep_name = self._app.nominal_sweep
         if self.post_solution_type not in report_type:
-            self._messenger.add_info_message("Solution not supported")
+            self.logger.info("Solution not supported")
             return False
         if not report_category:
             modal_data = report_type[self.post_solution_type]
@@ -1104,7 +1132,7 @@ class PostProcessorCommon(object):
             families_input,
             ["X Component:=", primary_sweep_variable, "Y Component:=", expression],
         )
-
+        self.logger.info("Report %s correctly created.", plotname)
         return True
 
     @aedt_exception_handler
@@ -1142,7 +1170,7 @@ class PostProcessorCommon(object):
         if not isinstance(expression, list):
             expression = [expression]
         if not setup_sweep_name:
-            setup_sweep_name = self._parent.nominal_adaptive
+            setup_sweep_name = self._app.nominal_adaptive
         sweep_list = []
         for el in sweeps:
             sweep_list.append(el + ":=")
@@ -1153,6 +1181,7 @@ class PostProcessorCommon(object):
 
         data = list(
             self.oreportsetup.GetSolutionDataPerVariation(soltype, setup_sweep_name, ctxt, sweep_list, expression))
+        self.logger.info("Solution Data Correctly Loaded.")
         return SolutionData(data)
 
     @aedt_exception_handler
@@ -1167,8 +1196,48 @@ class PostProcessorCommon(object):
         self._desktop.RestoreWindow()
         param = ["NAME:SphereParameters", "XCenter:=", "0mm", "YCenter:=", "0mm", "ZCenter:=", "0mm", "Radius:=", "1mm"]
         attr = ["NAME:Attributes", "Name:=", "DUMMYSPHERE1", "Flags:=", "NonModel#"]
-        self.oeditor.CreateSphere(param, attr)
-        self.oeditor.Delete(["NAME:Selections", "Selections:=", "DUMMYSPHERE1"])
+        self._oeditor.CreateSphere(param, attr)
+        self._oeditor.Delete(["NAME:Selections", "Selections:=", "DUMMYSPHERE1"])
+        return True
+
+    @aedt_exception_handler
+    def export_report_to_file(self, project_dir, plot_name, extension):
+        """Export the 2D Plot data to a file.
+
+        This method leaves the data in the plot (as data) as a reference
+        for the Plot after the loops.
+
+        Parameters
+        ----------
+        project_dir : str
+            Path to the project directory. The csv file will be plot_name.csv.
+        plot_name : str
+            Name of the plot to export.
+        extension : str
+            Extension of export , one of
+                * (CSV) .csv
+                * (Tab delimited) .tab
+                * (Post processor format) .txt
+                * (Ensight XY data) .exy
+                * (Anosft Plot Data) .dat
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        npath = os.path.normpath(project_dir)
+
+        if "." not in extension:
+            extension = "." + extension
+
+        supported_ext = [".csv", ".tab", ".txt", ".exy", ".dat"]
+        if extension not in supported_ext:
+            msg = "Extension {} is not supported. Use one of {}".format(extension, ", ".join(supported_ext))
+            raise ValueError(msg)
+
+        csv_file_name = os.path.join(npath, plot_name + extension)
+        self.oreportsetup.ExportToFile(plot_name, csv_file_name)
         return True
 
     @aedt_exception_handler
@@ -1190,11 +1259,7 @@ class PostProcessorCommon(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        npath = os.path.normpath(project_dir)
-
-        csv_file_name = os.path.join(npath, plot_name + ".csv")
-        self.oreportsetup.ExportToFile(plot_name, csv_file_name)
-        return True
+        return self.export_report_to_file(project_dir, plot_name, extension=".csv")
 
     @aedt_exception_handler
     def export_report_to_jpg(self, project_dir, plot_name):
@@ -1233,18 +1298,21 @@ class PostProcessor(PostProcessorCommon, object):
 
     Parameters
     ----------
-    parent
+    app : :class:`pyaedt.application.Analsis3D.FieldAnalysis3D`
         Inherited parent object. The parent object must provide the members
-        `_modeler`, `_desktop`, `_odesign`, and `_messenger`.
+        `_modeler`, `_desktop`, `_odesign`, and `logger`.
 
     """
 
-    def __init__(self, parent):
-        self._parent = parent
+    def __init__(self, app):
+        self._app = app
+        self._post_osolution = self._app.osolution
+        self._ofieldsreporter = self._odesign.GetModule("FieldsReporter")
         self.field_plots = self._get_fields_plot()
-        PostProcessorCommon.__init__(self, parent)
+        PostProcessorCommon.__init__(self, app)
 
     @property
+    @aedt_exception_handler
     def _primitives(self):
         """Primitives.
 
@@ -1254,9 +1322,10 @@ class PostProcessor(PostProcessorCommon, object):
             Primitives object.
 
         """
-        return self._parent._modeler.primitives
+        return self._app._modeler.primitives
 
     @property
+    @aedt_exception_handler
     def model_units(self):
         """Model units.
 
@@ -1265,9 +1334,10 @@ class PostProcessor(PostProcessorCommon, object):
         str
            Model units, such as ``"mm"``.
         """
-        return retry_ntimes(10, self.oeditor.GetModelUnits)
+        return retry_ntimes(10, self._oeditor.GetModelUnits)
 
     @property
+    @aedt_exception_handler
     def post_osolution(self):
         """Solution.
 
@@ -1276,9 +1346,10 @@ class PostProcessor(PostProcessorCommon, object):
         type
             Solution module.
         """
-        return self.odesign.GetModule("Solutions")
+        return self._post_osolution
 
     @property
+    @aedt_exception_handler
     def ofieldsreporter(self):
         """Fields reporter.
 
@@ -1287,9 +1358,10 @@ class PostProcessor(PostProcessorCommon, object):
         :attr:`pyaedt.modules.PostProcessor.PostProcessor.ofieldsreporter`
 
         """
-        return self.odesign.GetModule("FieldsReporter")
+        return self._ofieldsreporter
 
     @property
+    @aedt_exception_handler
     def report_types(self):
         """Report types."""
         return list(self.oreportsetup.GetAvailableReportTypes())
@@ -1312,12 +1384,12 @@ class PostProcessor(PostProcessorCommon, object):
 
     @aedt_exception_handler
     def _get_base_name(self, setup):
-        setups_data = self._parent.design_properties["FieldsReporter"]["FieldsPlotManagerID"]
+        setups_data = self._app.design_properties["FieldsReporter"]["FieldsPlotManagerID"]
         base_name = ""
-        if 'SimDataExtractors' in self._parent.design_properties["SolutionManager"]:
-            sim_data = self._parent.design_properties["SolutionManager"]['SimDataExtractors']
+        if 'SimDataExtractors' in self._app.design_properties["SolutionManager"]:
+            sim_data = self._app.design_properties["SolutionManager"]['SimDataExtractors']
         else:
-            sim_data = self._parent.design_properties["SolutionManager"]
+            sim_data = self._app.design_properties["SolutionManager"]
         if 'SimSetup' in sim_data:
             if isinstance(sim_data["SimSetup"], list):
                 for solution in sim_data["SimSetup"]:
@@ -1328,15 +1400,22 @@ class PostProcessor(PostProcessorCommon, object):
                             return base_name
             else:
                 base_name = sim_data["SimSetup"]["Name"]
-                for sol in sim_data["SimSetup"]['Solution']:
+                if isinstance(sim_data["SimSetup"]['Solution'], list):
+                    for sol in sim_data["SimSetup"]['Solution']:
+                        if sol['ID'] == setups_data[setup]["SolutionId"]:
+                            base_name += " : " + sol['Name']
+                            return base_name
+                else:
+                    sol = sim_data["SimSetup"]['Solution']
                     if sol['ID'] == setups_data[setup]["SolutionId"]:
                         base_name += " : " + sol['Name']
                         return base_name
+
         return ""
 
     @aedt_exception_handler
     def _get_intrinsic(self, setup):
-        setups_data = self._parent.design_properties["FieldsReporter"]["FieldsPlotManagerID"]
+        setups_data = self._app.design_properties["FieldsReporter"]["FieldsPlotManagerID"]
         intrinsics = [i.split("=") for i in setups_data[setup]["IntrinsicVar"].split(" ")]
         intr_dict = {}
         if intrinsics:
@@ -1347,11 +1426,11 @@ class PostProcessor(PostProcessorCommon, object):
 
     @aedt_exception_handler
     def _get_volume_objects(self, list_objs):
-        if self._parent.solution_type not in ["HFSS3DLayout", "HFSS 3D Layout Design"]:
+        if self._app.solution_type not in ["HFSS3DLayout", "HFSS 3D Layout Design"]:
             obj_list = []
             for obj in list_objs[4:]:
                 obj_list.append(
-                    self._parent.odesign.SetActiveEditor("3D Modeler").GetObjectNameByID(int(obj)))
+                    self._app._odesign.SetActiveEditor("3D Modeler").GetObjectNameByID(int(obj)))
         if obj_list:
             return obj_list
         else:
@@ -1360,7 +1439,7 @@ class PostProcessor(PostProcessorCommon, object):
     @aedt_exception_handler
     def _get_surface_objects(self, list_objs):
         faces = [int(i) for i in list_objs[4:]]
-        if self._parent.solution_type not in ["HFSS3DLayout", "HFSS 3D Layout Design"]:
+        if self._app.solution_type not in ["HFSS3DLayout", "HFSS 3D Layout Design"]:
             planes = self._get_cs_plane_ids()
             objs = []
             for face in faces:
@@ -1373,8 +1452,8 @@ class PostProcessor(PostProcessorCommon, object):
     @aedt_exception_handler
     def _get_cs_plane_ids(self):
         name2refid = {-4: "Global:XY", -3: "Global:YZ", -2: "Global:XZ"}
-        if self._parent.design_properties and "ModelSetup" in self._parent.design_properties:
-            cs = self._parent.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"]["CoordinateSystems"]
+        if self._app.design_properties and "ModelSetup" in self._app.design_properties:
+            cs = self._app.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"]["CoordinateSystems"]
             for ds in cs:
                 try:
                     if isinstance(cs[ds], (OrderedDict, dict)):
@@ -1397,10 +1476,10 @@ class PostProcessor(PostProcessorCommon, object):
     @aedt_exception_handler
     def _get_fields_plot(self):
         plots = {}
-        if self._parent.design_properties \
-                and "FieldsReporter" in self._parent.design_properties and "FieldsPlotManagerID" in \
-                self._parent.design_properties["FieldsReporter"]:
-            setups_data = self._parent.design_properties["FieldsReporter"]["FieldsPlotManagerID"]
+        if self._app.design_properties \
+                and "FieldsReporter" in self._app.design_properties and "FieldsPlotManagerID" in \
+                self._app.design_properties["FieldsReporter"]:
+            setups_data = self._app.design_properties["FieldsReporter"]["FieldsPlotManagerID"]
             for setup in setups_data:
                 try:
                     if isinstance(setups_data[setup], (OrderedDict, dict)) and "PlotDefinition" in setup:
@@ -1483,7 +1562,7 @@ class PostProcessor(PostProcessorCommon, object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        self.odesign.ChangeProperty(
+        self._odesign.ChangeProperty(
             [
                 "NAME:AllTabs",
                 [
@@ -1529,9 +1608,9 @@ class PostProcessor(PostProcessorCommon, object):
         float
             ``True`` when successful, ``False`` when failed.
         """
-        self._messenger.add_info_message("Exporting {} field. Be patient".format(quantity_name))
+        self.logger.info("Exporting {} field. Be patient".format(quantity_name))
         if not solution:
-            solution = self._parent.existing_analysis_sweeps[0]
+            solution = self._app.existing_analysis_sweeps[0]
         self.ofieldsreporter.CalcStack("clear")
         if isvector:
             try:
@@ -1546,14 +1625,15 @@ class PostProcessor(PostProcessorCommon, object):
             try:
                 self.ofieldsreporter.EnterQty(quantity_name)
             except:
-                self._messenger.add_info_message(
+                self.logger.info(
                     "Quantity {} not present. Trying to get it from Stack".format(quantity_name))
                 self.ofieldsreporter.CopyNamedExprToStack(quantity_name)
         obj_list = "AllObjects"
-        self.ofieldsreporter.EnterVol(obj_list)
-        self.ofieldsreporter.CalcOp(scalar_function)
+        if scalar_function:
+            self.ofieldsreporter.EnterVol(obj_list)
+            self.ofieldsreporter.CalcOp(scalar_function)
         if not variation_dict:
-            variation_dict = self._parent.available_variations.nominal_w_values
+            variation_dict = self._app.available_variations.nominal_w_values
         if intrinsics:
             if "Transient" in solution:
                 variation_dict.append("Time:=")
@@ -1566,7 +1646,7 @@ class PostProcessor(PostProcessorCommon, object):
                     variation_dict.append(phase)
                 else:
                     variation_dict.append("0deg")
-        file_name = os.path.join(self._parent.project_path, generate_unique_name("temp_fld")+".fld")
+        file_name = os.path.join(self._app.project_path, generate_unique_name("temp_fld") + ".fld")
         self.ofieldsreporter.CalculatorWrite(file_name, ["Solution:=", solution], variation_dict)
         value = None
         if os.path.exists(file_name):
@@ -1636,13 +1716,13 @@ class PostProcessor(PostProcessorCommon, object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        self._messenger.add_info_message("Exporting {} field. Be patient".format(quantity_name))
+        self.logger.info("Exporting %s field. Be patient", quantity_name)
         if not solution:
-            solution = self._parent.existing_analysis_sweeps[0]
+            solution = self._app.existing_analysis_sweeps[0]
         if not filename:
             appendix = ""
             ext = ".fld"
-            filename = os.path.join(self._parent.project_path, solution.replace(" : ", "_") + appendix + ext)
+            filename = os.path.join(self._app.project_path, solution.replace(" : ", "_") + appendix + ext)
         else:
             filename = filename.replace("//", "/").replace("\\", "/")
         self.ofieldsreporter.CalcStack("clear")
@@ -1675,10 +1755,10 @@ class PostProcessor(PostProcessorCommon, object):
             grid_stop_wu = [str(grid_stop[0]) + units, str(grid_stop[1]) + ang_units, str(grid_stop[2]) + ang_units]
             grid_step_wu = [str(grid_step[0]) + units, str(grid_step[1]) + ang_units, str(grid_step[2]) + ang_units]
         else:
-            self._parent._messenger.add_error_message("Error in the type of the grid.")
+            self.logger.error("Error in the type of the grid.")
             return False
         if not variation_dict:
-            variation_dict = self._parent.available_variations.nominal_w_values
+            variation_dict = self._app.available_variations.nominal_w_values
         if intrinsics:
             if "Transient" in solution:
                 variation_dict.append("Time:=")
@@ -1759,13 +1839,13 @@ class PostProcessor(PostProcessorCommon, object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        self._messenger.add_info_message("Exporting {} field. Be patient".format(quantity_name))
+        self.logger.info("Exporting %s field. Be patient", quantity_name)
         if not solution:
-            solution = self._parent.existing_analysis_sweeps[0]
+            solution = self._app.existing_analysis_sweeps[0]
         if not filename:
             appendix = ""
             ext = ".fld"
-            filename = os.path.join(self._parent.project_path, solution.replace(" : ", "_") + appendix + ext)
+            filename = os.path.join(self._app.project_path, solution.replace(" : ", "_") + appendix + ext)
         else:
             filename = filename.replace("//", "/").replace("\\", "/")
         self.ofieldsreporter.CalcStack("clear")
@@ -1778,12 +1858,12 @@ class PostProcessor(PostProcessorCommon, object):
                 elif obj_type == "Surf":
                     self.ofieldsreporter.EnterSurf(obj_list)
                 else:
-                    self._messenger.add_error_message("No correct choice.")
+                    self.logger.error("No correct choice.")
                     return False
                 self.ofieldsreporter.CalcOp("Value")
-                variation_dict = self._parent.available_variations.nominal_w_values
+                variation_dict = self._app.available_variations.nominal_w_values
             else:
-                variations = self._parent.available_variations.nominal_w_values_dict
+                variations = self._app.available_variations.nominal_w_values_dict
                 variation_dict = []
                 for el, value in variations.items():
                     variation_dict.append(el + ":=")
@@ -1815,7 +1895,7 @@ class PostProcessor(PostProcessorCommon, object):
                 export_with_sample_points,
             )
         else:
-            sample_points_file = os.path.join(self._parent.project_path, "temp_points.pts")
+            sample_points_file = os.path.join(self._app.project_path, "temp_points.pts")
             with open(sample_points_file, "w") as f:
                 for point in sample_points_lists:
                     f.write(" ".join([str(i) for i in point]) + "\n")
@@ -1891,14 +1971,14 @@ class PostProcessor(PostProcessorCommon, object):
         if isinstance(objlist, (str, int)):
             objlist = [objlist]
         if not setup_name:
-            setup_name = self._parent.existing_analysis_sweeps[0]
+            setup_name = self._app.existing_analysis_sweeps[0]
         self._desktop.CloseAllWindows()
         try:
-            self._parent._modeler.fit_all()
+            self._app._modeler.fit_all()
         except:
             pass
         self._desktop.TileWindows(0)
-        self.oproject.SetActiveDesign(self._parent.design_name)
+        self._oproject.SetActiveDesign(self._app.design_name)
 
         char_set = string.ascii_uppercase + string.digits
         if not plot_name:
@@ -1942,7 +2022,7 @@ class PostProcessor(PostProcessorCommon, object):
 
         """
         if plot_name and plot_name in list(self.field_plots.keys()):
-            self._messenger.add_info_message("Plot {} exists. returning the object.".format(plot_name))
+            self.logger.info("Plot {} exists. returning the object.".format(plot_name))
             return self.field_plots[plot_name]
         return self._create_fieldplot(objlist, quantityName, setup_name, intrinsincDict, "Surface", "FacesList",
                                       plot_name)
@@ -1974,7 +2054,7 @@ class PostProcessor(PostProcessorCommon, object):
 
         """
         if plot_name and plot_name in list(self.field_plots.keys()):
-            self._messenger.add_info_message("Plot {} exists. returning the object.".format(plot_name))
+            self.logger.info("Plot {} exists. returning the object.".format(plot_name))
             return self.field_plots[plot_name]
         return self._create_fieldplot(objlist, quantityName, setup_name, intrinsincDict, "Surface", "CutPlane",
                                       plot_name)
@@ -2005,7 +2085,7 @@ class PostProcessor(PostProcessorCommon, object):
             Plot object
         """
         if plot_name and plot_name in list(self.field_plots.keys()):
-            self._messenger.add_info_message("Plot {} exists. returning the object.".format(plot_name))
+            self.logger.info("Plot {} exists. returning the object.".format(plot_name))
             return self.field_plots[plot_name]
         return self._create_fieldplot(objlist, quantityName, setup_name, intrinsincDict, "Volume", "ObjList", plot_name)
 
@@ -2041,7 +2121,7 @@ class PostProcessor(PostProcessorCommon, object):
                     if not self._primitives[el].display_wireframe:
                         wireframes.append(el)
                         self._primitives[el].display_wireframe = True
-            if self._parent._aedt_version < "2021.2":
+            if self._app._aedt_version < "2021.2":
                 bound = self.modeler.get_model_bounding_box()
                 center = [
                     (float(bound[0]) + float(bound[3])) / 2,
@@ -2059,7 +2139,7 @@ class PostProcessor(PostProcessorCommon, object):
             for solid in wireframes:
                 self._primitives[solid].display_wireframe = False
         else:
-            self.oeditor.ExportImage(fileName, 1920, 1080)
+            self._oeditor.ExportImage(fileName, 1920, 1080)
         return True
 
     @aedt_exception_handler
@@ -2143,7 +2223,7 @@ class PostProcessor(PostProcessorCommon, object):
         # Set up arguments list for createReport function
         if not dir:
             dir = self._scratch.path
-            self._messenger.logger.debug("Using scratch path {}".format(self._scratch.path))
+            self.logger.debug("Using scratch path {}".format(self._scratch.path))
 
         assert os.path.exists(dir), "Specified directory does not exist: {}".format(dir)
 
@@ -2164,9 +2244,9 @@ class PostProcessor(PostProcessorCommon, object):
                 picturename = picturename[:-4]
 
         # open the 3D modeler and remove the selection on other objects
-        self.oeditor.ShowWindow()
+        self._oeditor.ShowWindow()
         self.steal_focus_oneditor()
-        self.oeditor.FitAll()
+        self._oeditor.FitAll()
         # export the image
         arg = [
             "NAME:SaveImageParams",
@@ -2182,7 +2262,7 @@ class PostProcessor(PostProcessorCommon, object):
             "",
         ]
         file_name = os.path.join(file_path, picturename + ".jpg")
-        self.oeditor.ExportModelImageToFile(file_name, 0, 0, arg)
+        self._oeditor.ExportModelImageToFile(file_name, 0, 0, arg)
         return file_name
 
     @aedt_exception_handler
@@ -2215,7 +2295,7 @@ class PostProcessor(PostProcessorCommon, object):
         if type(expression) is not list:
             expression = [expression]
         if not setup_sweep_name:
-            setup_sweep_name = self._parent.nominal_adaptive
+            setup_sweep_name = self._app.nominal_adaptive
         if families_dict is None:
             families_dict = {"Theta": ["All"], "Phi": ["All"], "Freq": ["All"]}
         solution_data = self.get_solution_data_per_variation(
@@ -2236,14 +2316,14 @@ class CircuitPostProcessor(PostProcessorCommon, object):
 
     Parameters
     ----------
-    parent:
+    app : :class:`pyaedt.application.AnalysisNexxim.FieldAnalysisCircuit`
         Inherited parent object. The parent object must provide the members
-        `_modeler`, `_desktop`, `_odesign`, and `_messenger`.
+        `_modeler`, `_desktop`, `_odesign`, and `logger`.
 
     """
 
-    def __init__(self, parent):
-        PostProcessorCommon.__init__(self, parent)
+    def __init__(self, app):
+        PostProcessorCommon.__init__(self, app)
 
     def create_ami_initial_response_plot(
         self,

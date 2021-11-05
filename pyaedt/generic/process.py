@@ -2,7 +2,7 @@ import os
 import os.path
 import warnings
 
-from .general_methods import env_path
+from pyaedt.generic.general_methods import env_path
 
 if os.name == "posix":
     try:
@@ -29,7 +29,7 @@ class AedtSolve(object):
     >>> solver.solve()
     """
 
-    def __init__(self, aedt_version="2021.1", aedt_installer_path=None):
+    def __init__(self, aedt_version="2021.2", aedt_installer_path=None):
         self._project_path = ""
         self._command = []
         self._nbcores = 4
@@ -126,7 +126,7 @@ class AedtSolve(object):
 
 
 class SiwaveSolve(object):
-    def __init__(self, project_path, aedt_version="2021.1", aedt_installer_path=None):
+    def __init__(self, project_path, aedt_version="2021.2", aedt_installer_path=None):
         self._project_path = project_path
         self._exec_path = ""
         self._nbcores = 4
@@ -268,7 +268,7 @@ class SiwaveSolve(object):
         command.append("-RunScriptAndExit")
         command.append(scriptname)
         print(command)
-        #os.system(" ".join(command))
-        p1 = subprocess.call(" ".join(command))
+        os.system(" ".join(command))
+        #p1 = subprocess.call(" ".join(command))
         #p1.wait()
         return os.path.join(output_folder, aedt_file_name)

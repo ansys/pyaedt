@@ -1,11 +1,15 @@
 import csv
 import re
-import warnings
 
-from ..generic.general_methods import aedt_exception_handler, generate_unique_name
-from ..application.Analysis import Analysis
-from ..modeler.Model3D import Modeler3D
-from ..modules.MeshIcepak import IcepakMesh
+from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, is_ironpython
+from pyaedt.application.Analysis import Analysis
+from pyaedt.modeler.Model3D import Modeler3D
+from pyaedt.modules.MeshIcepak import IcepakMesh
+
+if is_ironpython:
+    from pyaedt.modules.PostProcessor import PostProcessor
+else:
+    from pyaedt.modules.AdvancedPostProcessing import PostProcessor
 
 
 class FieldAnalysisIcepak(Analysis, object):
@@ -79,10 +83,14 @@ class FieldAnalysisIcepak(Analysis, object):
             close_on_exit,
             student_version,
         )
+        self.osolution = self._odesign.GetModule("Solutions")
+        self.oboundary = self._odesign.GetModule("BoundarySetup")
         self._modeler = Modeler3D(self)
         self._mesh = IcepakMesh(self)
+        self._post = PostProcessor(self)
 
     @property
+    @aedt_exception_handler
     def modeler(self):
         """Modeler.
 
@@ -93,6 +101,7 @@ class FieldAnalysisIcepak(Analysis, object):
         return self._modeler
 
     @property
+    @aedt_exception_handler
     def mesh(self):
         """Mesh.
 
@@ -103,6 +112,7 @@ class FieldAnalysisIcepak(Analysis, object):
         return self._mesh
 
     # @property
+    # @aedt_exception_handler
     # def post(self):
     #     return self._post
 
@@ -178,6 +188,62 @@ class FieldAnalysisIcepak(Analysis, object):
             ],
             ["NAME:Model Validation Settings"],
         )
+        return True
+
+    @aedt_exception_handler
+    def export_3d_model(self, fileName, filePath, fileFormat=".step", object_list=[], removed_objects=[]):
+        """Export the 3D model.
+
+        Parameters
+        ----------
+        fileName : str
+            Name of the file.
+        filePath : str
+            Path for the file.
+        fileFormat : str, optional
+             Format of the file. The default is ``".step"``.
+        object_list : list, optional
+             List of objects to export. The default is ``[]``.
+        removed_objects : list, optional
+             The default is ``[]``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        if not object_list:
+            allObjects = self.modeler.primitives.object_names
+            if removed_objects:
+                for rem in removed_objects:
+                    allObjects.remove(rem)
+            else:
+                if "Region" in allObjects:
+                    allObjects.remove("Region")
+        else:
+            allObjects = object_list[:]
+
+        self.logger.info("Exporting {} objects".format(len(allObjects)))
+
+        stringa = ",".join(allObjects)
+        arg = [
+            "NAME:ExportParameters",
+            "AllowRegionDependentPartSelectionForPMLCreation:=",
+            True,
+            "AllowRegionSelectionForPMLCreation:=",
+            True,
+            "Selections:=",
+            stringa,
+            "File Name:=",
+            str(filePath) + "/" + str(fileName) + str(fileFormat),
+            "Major Version:=",
+            -1,
+            "Minor Version:=",
+            -1,
+        ]
+
+        self.modeler.oeditor.Export(arg)
         return True
 
     @aedt_exception_handler
@@ -287,18 +353,6 @@ class FieldAnalysisIcepak(Analysis, object):
         return True
 
     @aedt_exception_handler
-    def assignmaterial(self, obj, mat):
-        """Assign a material to one or more objects.
-
-        .. deprecated:: 0.3.1
-           Use :func:`FieldAnalysisIcepak.assign_material` instead.
-
-        """
-        # raise a DeprecationWarning.  User won't have to change anything
-        warnings.warn("assignmaterial is deprecated. Use assign_material instead.", DeprecationWarning)
-        self.assign_material(obj, mat)
-
-    @aedt_exception_handler
     def assign_material(self, obj, mat):
         """Assign a material to one or more objects.
 
@@ -330,7 +384,7 @@ class FieldAnalysisIcepak(Analysis, object):
             else:
                 arg2.append("SolveInside:="), arg2.append(False)
             self.modeler.oeditor.AssignMaterial(arg1, arg2)
-            self._messenger.add_info_message("Assign Material " + mat + " to object " + selections)
+            self.logger.info("Assign Material " + mat + " to object " + selections)
             self.materials._aedmattolibrary(mat)
             for el in obj:
                 self.modeler.primitives[el].material_name = mat
@@ -342,13 +396,59 @@ class FieldAnalysisIcepak(Analysis, object):
             else:
                 arg2.append("SolveInside:="), arg2.append(False)
             self.modeler.oeditor.AssignMaterial(arg1, arg2)
-            self._messenger.add_info_message("Assign Material " + mat + " to object " + selections)
+            self.logger.info("Assign Material " + mat + " to object " + selections)
             for el in obj:
                 self.modeler.primitives[el].material_name = mat
             return True
         else:
-            self._messenger.add_error_message("Material Does Not Exists")
+            self.logger.error("Material does not exist.")
             return False
+
+    @aedt_exception_handler
+    def assign_surface_material(self, obj, mat):
+        """Assign a surface material to one or more objects.
+
+        Parameters
+        ----------
+        obj : str, list
+            One or more objects to assign surface materials to.
+        mat : str
+            Material to assign. The material must be present in the database.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        mat = mat.lower()
+        if mat not in self.materials.surface_material_keys:
+            self.logger.warning(
+                "Warning. The material is not the database. Use add_surface_material."
+            )
+            return False
+        else:
+            for el in obj:
+                self.modeler.oeditor.ChangeProperty(
+                    [
+                        "NAME:AllTabs",
+                        [
+                            "NAME:Geometry3DAttributeTab",
+                            [
+                                "NAME:PropServers",
+                                el
+                            ],
+                            [
+                                "NAME:ChangedProps",
+                                [
+                                    "NAME:Surface Material",
+                                    "Value:=", "\"" + mat + "\""
+                                ]
+                            ]
+                        ]
+                    ])
+
+            return True
 
     @aedt_exception_handler
     def _assign_property_to_mat(self, newmat, val, property):
@@ -525,7 +625,7 @@ class FieldAnalysisIcepak(Analysis, object):
 
         Returns
         -------
-        list
+        list of str
             List of conductors.
 
         """
@@ -542,7 +642,7 @@ class FieldAnalysisIcepak(Analysis, object):
 
         Returns
         -------
-        list
+        list of str
             List of dielectrics.
 
         """

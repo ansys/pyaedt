@@ -29,14 +29,17 @@ solution_freq = "2.5GHz"
 resolution = 2
 group_name = "Group1"
 
-src_project_name = "USB_Connector"
+src_project_name = "USB_Connector_IPK"
 source_project = os.path.join(local_path, "example_models", src_project_name + ".aedt")
 source_project_path = os.path.join(local_path, "example_models", src_project_name)
 
 
 class TestClass:
     def setup_class(self):
-        # set a scratch directory and the environment / test data
+        timeout = 4
+        while gc.collect() != 0 and timeout > 0:
+            time.sleep(0.5)
+            timeout -= 0.5
         with Scratch(scratch_path) as self.local_scratch:
             example_project = os.path.join(local_path, "example_models", test_project_name + ".aedt")
 
@@ -49,17 +52,15 @@ class TestClass:
             self.aedtapp = Icepak(self.test_project, specified_version=desktop_version)
 
     def teardown_class(self):
+        self.aedtapp._desktop.ClearMessages("", "", 3)
+        self.aedtapp.close_project(src_project_name, False)
         self.aedtapp.close_project(self.aedtapp.project_name)
         time.sleep(2)
-        try:
-            self.aedtapp.close_project(src_project_name)
-        except:
-            pass
         self.local_scratch.remove()
         gc.collect()
 
     def test_01_save(self):
-        assert os.path.exists(self.aedtapp.project_path)
+        self.aedtapp.save_project()
 
     def test_02_ImportPCB(self):
         component_name = "RadioBoard1"
@@ -152,7 +153,7 @@ class TestClass:
     def test_07_ExportStepForWB(self):
         file_path = self.local_scratch.path
         file_name = "WBStepModel"
-        assert self.aedtapp.export3DModel(file_name, file_path, ".step", [], ["Region", "Component_Region"])
+        assert self.aedtapp.export_3d_model(file_name, file_path, ".step", [], ["Region", "Component_Region"])
 
     def test_08_Setup(self):
         setup_name = "DomSetup"
@@ -304,8 +305,9 @@ class TestClass:
         assert sorted(dielectrics) == ["Region", "box2", "box3"]
 
     def test_28_assign_surface_material(self):
-        mats = self.aedtapp.materials.add_surface_material("my_surface", 0.5)
-        assert mats.emissivity.value == 0.5
+        self.aedtapp.materials.add_surface_material("my_surface", 0.5)
+        obj = ["box2", "box3"]
+        assert self.aedtapp.assign_surface_material(obj, "my_surface")
 
     def test_33_create_region(self):
         self.aedtapp.modeler.primitives.delete("Region")

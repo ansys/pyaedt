@@ -4,55 +4,55 @@ from pyaedt.generic.general_methods import aedt_exception_handler, generate_uniq
 
 
 class EdbNets(object):
-    """Manages EDB functionalities  for nets."""
+    """Manages EDB functionalities for nets."""
 
-    def __init__(self, parent):
-        self.parent = parent
+    def __init__(self, p_edb):
+        self._pedb = p_edb
 
     @property
+    @aedt_exception_handler
     def _builder(self):
         """ """
-        return self.parent.builder
+        return self._pedb.builder
 
     @property
+    @aedt_exception_handler
     def _edb(self):
         """ """
-        return self.parent.edb
+        return self._pedb.edb
 
     @property
-    def _edb_value(self):
-        """ """
-        return self.parent.edb_value
-
-    @property
+    @aedt_exception_handler
     def _active_layout(self):
         """ """
-        return self.parent.active_layout
+        return self._pedb.active_layout
 
     @property
+    @aedt_exception_handler
     def _cell(self):
         """ """
-        return self.parent.cell
+        return self._pedb.cell
 
     @property
+    @aedt_exception_handler
     def db(self):
         """Db object."""
-        return self.parent.db
+        return self._pedb.db
 
     @property
     def _padstack_methods(self):
         """ """
-        return self.parent.edblib.Layout.PadStackMethods
+        return self._pedb.edblib.Layout.PadStackMethods
 
     @property
-    def _messenger(self):
-        """ """
-        return self.parent._messenger
+    def _logger(self):
+        """Edb logger."""
+        return self._pedb.logger
 
     @property
     def _nets_methods(self):
         """ """
-        return self.parent.edblib.Layout.NetsMethods
+        return self._pedb.edblib.Layout.NetsMethods
 
     @property
     def nets(self):
@@ -120,6 +120,7 @@ class EdbNets(object):
                 return True
         return False
 
+    @aedt_exception_handler
     def get_dcconnected_net_list(self, ground_nets=["GND"]):
         """Retrieve the nets connected to DC through inductors.
 
@@ -137,7 +138,7 @@ class EdbNets(object):
             List of nets connected to DC through inductors.
         """
         temp_list = []
-        for refdes, comp_obj in self.parent.core_components.inductors.items():
+        for refdes, comp_obj in self._pedb.core_components.inductors.items():
 
             numpins = comp_obj.numpins
 
@@ -163,6 +164,7 @@ class EdbNets(object):
 
         return dcconnected_net_list
 
+    @aedt_exception_handler
     def get_powertree(self, power_net_name, ground_nets):
         """Retrieve the power tree.
 
@@ -189,7 +191,7 @@ class EdbNets(object):
             net_group.append(power_net_name)
 
         component_list = []
-        rats = self.parent.core_components.get_rats()
+        rats = self._pedb.core_components.get_rats()
         for net in net_group:
             for el in rats:
                 if net in el["net_name"]:
@@ -203,13 +205,13 @@ class EdbNets(object):
         component_type = []
         for el in component_list:
             refdes = el[0]
-            comp_type = self.parent.core_components._cmp[refdes].type
+            comp_type = self._pedb.core_components._cmp[refdes].type
             component_type.append(comp_type)
             el.append(comp_type)
 
-            comp_partname = self.parent.core_components._cmp[refdes].partname
+            comp_partname = self._pedb.core_components._cmp[refdes].partname
             el.append(comp_partname)
-            pins = self.parent.core_components.get_pin_from_component(cmpName=refdes, netName=el[2])
+            pins = self._pedb.core_components.get_pin_from_component(cmpName=refdes, netName=el[2])
             el.append("-".join([i.GetName() for i in pins]))
 
         component_list_columns = ["refdes", "pin_name", "net_name", "component_type", "component_partname", "pin_list"]
@@ -241,7 +243,7 @@ class EdbNets(object):
 
         >>> deleted_nets = edb_core.core_nets.delete_nets(["Net1","Net2"])
         """
-        if type(netlist) is str:
+        if isinstance(netlist, str):
             netlist = [netlist]
         nets_deleted = []
         for net in netlist:
@@ -250,7 +252,7 @@ class EdbNets(object):
                 if edb_net is not None:
                     edb_net.Delete()
                     nets_deleted.append(net)
-                    self._messenger.add_info_message("Net {} Deleted".format(net))
+                    self._logger.info("Net %s Deleted", net)
             except:
                 pass
 
@@ -296,9 +298,9 @@ class EdbNets(object):
             ``True`` if the net is found in component pins.
 
         """
-        if component_name not in self.parent.core_components.components:
+        if component_name not in self._pedb.core_components.components:
             return False
-        for net in self.parent.core_components.components[component_name].nets:
+        for net in self._pedb.core_components.components[component_name].nets:
             if net_name == net:
                 return True
         return False

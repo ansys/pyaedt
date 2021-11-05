@@ -12,4 +12,3 @@ The PyAEDT API includes these classes for AEDT and EDB Message managers:
    :nosignatures:
 
    application.MessageManager.AEDTMessageManager
-   application.MessageManager.EDBMessageManager

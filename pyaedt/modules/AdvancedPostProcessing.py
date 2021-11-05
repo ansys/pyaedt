@@ -10,8 +10,8 @@ import os
 import time
 import warnings
 
-from ..generic.general_methods import aedt_exception_handler
-from .PostProcessor import PostProcessor as Post
+from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.modules.PostProcessor import PostProcessor as Post
 
 try:
     import numpy as np
@@ -74,13 +74,13 @@ class PostProcessor(Post):
 
     Parameters
     ----------
-    parent :
+    app :
         Inherited parent object.
 
     """
 
-    def __init__(self, parent):
-        Post.__init__(self, parent)
+    def __init__(self, app):
+        Post.__init__(self, app)
 
     @aedt_exception_handler
     def nb_display(self, show_axis=True, show_grid=True, show_ruler=True):
@@ -131,7 +131,7 @@ class PostProcessor(Post):
             numpy array containing ``[theta_range, phi_range, Etheta, Ephi]``.
         """
         if not setup_sweep_name:
-            setup_sweep_name = self._parent.nominal_adaptive
+            setup_sweep_name = self._app.nominal_adaptive
         results_dict = {}
         all_sources = self.post_osolution.GetAllSources()
         # assuming only 1 mode
@@ -658,7 +658,7 @@ class PostProcessor(Post):
 
         if plot:
             end = time.time() - start
-            self._messenger.add_info_message("PyVista plot generation took {} seconds.".format(end))
+            self.logger.info("PyVista plot generation took {} seconds.".format(end))
             if off_screen:
                 if imageformat:
                     plot.show(screenshot=filename + "." + imageformat)
@@ -962,27 +962,27 @@ class PostProcessor(Post):
     @aedt_exception_handler
     def export_model_obj(self):
         """Export the model."""
-        assert self._parent._aedt_version >= "2021.2", self._messenger.add_error_message(
+        assert self._app._aedt_version >= "2021.2", self.logger.error(
             "Object is supported from AEDT 2021 R2."
         )
-        project_path = self._parent.project_path
-        obj_list = self._parent.modeler.primitives.object_names
+        project_path = self._app.project_path
+        obj_list = self._app.modeler.primitives.object_names
         obj_list = [
             i
             for i in obj_list
-            if not self._parent.modeler.primitives.objects[self._parent.modeler.primitives.get_obj_id(i)].is3d
+            if not self._app.modeler.primitives.objects[self._app.modeler.primitives.get_obj_id(i)].is3d
             or (
-                self._parent.modeler.primitives.objects[
-                    self._parent.modeler.primitives.get_obj_id(i)
+                self._app.modeler.primitives.objects[
+                    self._app.modeler.primitives.get_obj_id(i)
                 ].material_name.lower()
                 != "vacuum"
-                and self._parent.modeler.primitives.objects[
-                    self._parent.modeler.primitives.get_obj_id(i)
+                and self._app.modeler.primitives.objects[
+                    self._app.modeler.primitives.get_obj_id(i)
                 ].material_name.lower()
                 != "air"
             )
         ]
-        self._parent.modeler.oeditor.ExportModelMeshToFile(os.path.join(project_path, "Model.obj"), obj_list)
+        self._app.modeler.oeditor.ExportModelMeshToFile(os.path.join(project_path, "Model.obj"), obj_list)
         return os.path.join(project_path, "Model.obj")
 
     @aedt_exception_handler
@@ -1001,19 +1001,19 @@ class PostProcessor(Post):
         -------
 
         """
-        project_path = self._parent.project_path
+        project_path = self._app.project_path
 
         if not setup_name:
-            setup_name = self._parent.nominal_adaptive
+            setup_name = self._app.nominal_adaptive
         face_lists = []
-        obj_list = self._parent.modeler.primitives.object_names
+        obj_list = self._app.modeler.primitives.object_names
         for el in obj_list:
-            obj_id = self._parent.modeler.primitives.get_obj_id(el)
-            if not self._parent.modeler.primitives.objects[obj_id].is3d or (
-                self._parent.modeler.primitives.objects[obj_id].material_name != "vacuum"
-                and self._parent.modeler.primitives.objects[obj_id].material_name != "air"
+            obj_id = self._app.modeler.primitives.get_obj_id(el)
+            if not self._app.modeler.primitives.objects[obj_id].is3d or (
+                    self._app.modeler.primitives.objects[obj_id].material_name != "vacuum"
+                    and self._app.modeler.primitives.objects[obj_id].material_name != "air"
             ):
-                face_lists += self._parent.modeler.primitives.get_object_faces(obj_id)
+                face_lists += self._app.modeler.primitives.get_object_faces(obj_id)
         plot = self.create_fieldplot_surface(face_lists, "Mesh", setup_name, intrinsic_dict)
         if plot:
             file_to_add = self.export_field_plot(plot.name, project_path)
@@ -1038,7 +1038,7 @@ class PostProcessor(Post):
         list
             List of plot files.
         """
-        assert self._parent._aedt_version >= "2021.2", self._messenger.add_error_message(
+        assert self._app._aedt_version >= "2021.2", self.logger.error(
             "Object is supported from AEDT 2021 R2."
         )
         files = [self.export_model_obj()]
@@ -1097,13 +1097,12 @@ class PostProcessor(Post):
             ``"jpg"``.
         view : str, optional
             View to export. Options are ``isometric``, ``top``, ``front``,
-             ``left``, ``all``.. The default is ``"iso"``. If
-            ``"all"``, all views are exported.
+             ``left``, ``all``.. The default is ``"iso"``. If ``"all"``, all views are exported.
         plot_label : str, optional
             Type of the plot. The default is ``"Temperature"``.
         plot_folder : str, optional
-            Plot folder to update before exporting the
-            field. The default is ``None``, in which case all plot
+            Plot folder to update before exporting the field.
+            The default is ``None``, in which case all plot
             folders are updated.
         off_screen : bool, optional
             Export Image without plotting on UI.
@@ -1125,7 +1124,7 @@ class PostProcessor(Post):
         start = time.time()
         files_to_add = []
         if not project_path:
-            project_path = self._parent.project_path
+            project_path = self._app.project_path
         file_to_add = self.export_field_plot(plotname, project_path)
         file_list = None
         if not file_to_add:
@@ -1133,7 +1132,7 @@ class PostProcessor(Post):
         else:
             files_to_add.append(file_to_add)
             if meshplot:
-                if self._parent._aedt_version >= "2021.2":
+                if self._app._aedt_version >= "2021.2":
                     files_to_add.append(self.export_model_obj())
                 else:
                     file_to_add = self.export_mesh_obj(setup_name, intrinsic_dict)
@@ -1203,14 +1202,14 @@ class PostProcessor(Post):
             self.ofieldsreporter.UpdateQuantityFieldsPlots(plot_folder)
         files_to_add = []
         if meshplot:
-            if self._parent._aedt_version >= "2021.2":
+            if self._app._aedt_version >= "2021.2":
                 files_to_add.append(self.export_model_obj())
             else:
                 file_to_add = self.export_mesh_obj(setup_name, intrinsic_dict)
                 if file_to_add:
                     files_to_add.append(file_to_add)
         for el in variation_list:
-            self._parent.odesign.ChangeProperty(
+            self._app._odesign.ChangeProperty(
                 [
                     "NAME:AllTabs",
                     [
@@ -1287,10 +1286,10 @@ class PostProcessor(Post):
             ``True`` when successful, ``False`` when failed.
         """
         if not project_path:
-            project_path = self._parent.project_path
+            project_path = self._app.project_path
         files_to_add = []
         if meshplot:
-            if self._parent._aedt_version >= "2021.2":
+            if self._app._aedt_version >= "2021.2":
                 files_to_add.append(self.export_model_obj())
             else:
                 file_to_add = self.export_mesh_obj(setup_name, intrinsic_dict)

@@ -2,9 +2,9 @@
 
 from __future__ import absolute_import
 
-from .application.Analysis3D import FieldAnalysis3D
-from .generic.general_methods import generate_unique_name, aedt_exception_handler
-from .modules.Boundary import BoundaryObject
+from pyaedt.application.Analysis3D import FieldAnalysis3D
+from pyaedt.generic.general_methods import generate_unique_name, aedt_exception_handler
+from pyaedt.modules.Boundary import BoundaryObject
 from collections import OrderedDict
 
 
@@ -71,11 +71,11 @@ class Mechanical(FieldAnalysis3D, object):
 
     >>> aedtapp = Mechanical("myfile.aedt")
 
-    Create a ``Desktop on 2021R1`` object and then create an
+    Create a ``Desktop on 2021R2`` object and then create an
     ``Mechanical`` object and open the specified project, which is
     named ``"myfile.aedt"``.
 
-    >>> aedtapp = Mechanical(specified_version="2021.1", projectname="myfile.aedt")
+    >>> aedtapp = Mechanical(specified_version="2021.2", projectname="myfile.aedt")
 
     """
 
@@ -150,7 +150,7 @@ class Mechanical(FieldAnalysis3D, object):
         """
         assert self.solution_type == "Thermal", "This Method works only in Mechanical Structural Solution"
 
-        self._messenger.add_info_message("Mapping HFSS EM Lossess")
+        self.logger.info("Mapping HFSS EM Lossess")
         oName = self.project_name
         if oName == source_project_name or source_project_name is None:
             projname = "This Project*"
@@ -198,7 +198,7 @@ class Mechanical(FieldAnalysis3D, object):
         bound = BoundaryObject(self, name, props, "EMLoss")
         if bound.create():
             self.boundaries.append(bound)
-            self._messenger.add_info_message("EM losses mapped from design {}.".format(designname))
+            self.logger.info("EM losses mapped from design %s.", designname)
             return bound
         return False
 
@@ -241,7 +241,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         assert self.solution_type == "Structural", "This method works only in a Mechanical structural solution."
 
-        self._messenger.add_info_message("Mapping HFSS EM Lossess")
+        self.logger.info("Mapping HFSS EM Lossess")
         oName = self.project_name
         if oName == source_project_name or source_project_name is None:
             projname = "This Project*"
@@ -281,7 +281,7 @@ class Mechanical(FieldAnalysis3D, object):
         bound = BoundaryObject(self, name, props, "ThermalCondition")
         if bound.create():
             self.boundaries.append(bound)
-            self._messenger.add_info_message("Thermal conditions are mapped from design {}.".format(designname))
+            self.logger.info("Thermal conditions are mapped from design %s.", designname)
             return bound
 
         return True
@@ -399,7 +399,7 @@ class Mechanical(FieldAnalysis3D, object):
         """
 
         if not (self.solution_type == "Structural" or self.solution_type == "Modal"):
-            self._messenger.add_error_message("This method works only in Mechanical Structural Solution")
+            self.logger.error("This method works only in Mechanical Structural Solution")
             return False
         props = {}
         objects_list = self.modeler._convert_list_to_ids(objects_list)
@@ -439,7 +439,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         """
         if not (self.solution_type == "Structural" or self.solution_type == "Modal"):
-            self._messenger.add_error_message("This method works only in a Mechanical structural solution.")
+            self.logger.error("This method works only in a Mechanical structural solution.")
             return False
         props = {}
         objects_list = self.modeler._convert_list_to_ids(objects_list)
@@ -456,6 +456,7 @@ class Mechanical(FieldAnalysis3D, object):
         return False
 
     @property
+    @aedt_exception_handler
     def existing_analysis_sweeps(self):
         """Existing analysis sweeps in the design.
 

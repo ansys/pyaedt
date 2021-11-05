@@ -26,9 +26,9 @@ class TestClass:
             self.source = Hfss(projectname=test_project_name, designname="feeder")
 
     def teardown_class(self):
-        assert self.aedtapp.close_project(self.aedtapp.project_name, saveproject=False)
+        self.aedtapp._desktop.ClearMessages("", "", 3)
+        assert self.source.close_project(self.source.project_name, False)
         self.local_scratch.remove()
-        gc.collect()
 
     def test_01_open_source(self):
         assert self.aedtapp.create_sbr_linked_antenna(self.source, target_cs="feederPosition", fieldtype="farfield")

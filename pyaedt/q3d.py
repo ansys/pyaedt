@@ -1,12 +1,12 @@
 """This module contains these classes: `Q2d`, `Q3d`, and `QExtractor`."""
 from __future__ import absolute_import
 
-from .application.Analysis2D import FieldAnalysis2D
-from .application.Analysis3D import FieldAnalysis3D
-from .generic.general_methods import aedt_exception_handler, generate_unique_name
+from pyaedt.application.Analysis2D import FieldAnalysis2D
+from pyaedt.application.Analysis3D import FieldAnalysis3D
+from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name
 from collections import OrderedDict
-from .modules.Boundary import BoundaryObject
-from .generic.DataHandlers import dict2arg
+from pyaedt.modules.Boundary import BoundaryObject
+from pyaedt.generic.DataHandlers import dict2arg
 import os
 import warnings
 
@@ -23,23 +23,6 @@ class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
 
 
     """
-
-    @property
-    def odefinition_manager(self):
-        """Definition manager."""
-        return self.oproject.GetDefinitionManager()
-
-    @property
-    def omaterial_manager(self):
-        """Material manager."""
-        return self.odefinition_manager.GetManager("Material")
-
-    '''
-    @property
-    def oeditor(self):
-        ""Editor."""
-        return self.odesign.SetActiveEditor("3D Modeler")
-    '''
 
     @property
     def design_file(self):
@@ -91,7 +74,6 @@ class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
 
     def __enter__(self):
         return self
-
 
 class Q3d(QExtractor, object):
     """Provides the Q3D application interface.
@@ -375,9 +357,8 @@ class Q3d(QExtractor, object):
                 setupdata = i
                 for sw in setupdata.sweeps:
                     if sweepname == sw.name:
-                        self._messenger.add_warning_message(
-                            "Sweep {} is already present. Rename and retry.".format(sweepname)
-                        )
+                        self.logger.warning(
+                            "Sweep %s is already present. Rename and retry.", sweepname)
                         return False
                 sweepdata = setupdata.add_sweep(sweepname, "Discrete")
                 sweepdata.props["RangeStart"] = str(freqstart) + "GHz"
@@ -438,9 +419,8 @@ class Q3d(QExtractor, object):
                 setupdata = i
                 for sw in setupdata.sweeps:
                     if sweepname == sw.name:
-                        self._messenger.add_warning_message(
-                            "Sweep {} already present. Please rename and retry".format(sweepname)
-                        )
+                        self.logger.warning(
+                            "Sweep %s already present. Please rename and retry", sweepname)
                         return False
                 sweepdata = setupdata.add_sweep(sweepname, "Discrete")
                 sweepdata.props["RangeStart"] = str(freqstart) + "GHz"

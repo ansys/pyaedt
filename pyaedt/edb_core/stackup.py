@@ -6,10 +6,8 @@ from __future__ import absolute_import
 
 import warnings
 
-from pyaedt import is_ironpython
-
-from .EDB_Data import EDBLayers
-from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.edb_core.EDB_Data import EDBLayers
+from pyaedt.generic.general_methods import aedt_exception_handler, is_ironpython
 
 try:
     from System import Double
@@ -20,51 +18,60 @@ except ImportError:
 class EdbStackup(object):
     """Manages EDB functionalities for stackups."""
 
-    def __init__(self, parent):
-        self.parent = parent
+    def __init__(self, p_edb):
+        self._pedb = p_edb
         self._layer_dict = None
 
     @property
+    @aedt_exception_handler
     def _builder(self):
         """ """
-        return self.parent.builder
+        return self._pedb.builder
 
     @property
+    @aedt_exception_handler
     def _edb_value(self):
         """ """
-        return self.parent.edb_value
+        return self._pedb.edb_value
 
     @property
+    @aedt_exception_handler
     def _edb(self):
         """ """
-        return self.parent.edb
+        return self._pedb.edb
 
     @property
+    @aedt_exception_handler
     def _active_layout(self):
         """ """
-        return self.parent.active_layout
+        return self._pedb.active_layout
 
     @property
+    @aedt_exception_handler
     def _cell(self):
         """ """
-        return self.parent.cell
+        return self._pedb.cell
 
     @property
+    @aedt_exception_handler
     def _db(self):
         """ """
-        return self.parent.db
+        return self._pedb.db
 
     @property
+    @aedt_exception_handler
     def _stackup_methods(self):
         """ """
-        return self.parent.edblib.Layout.StackupMethods
+        return self._pedb.edblib.Layout.StackupMethods
 
     @property
-    def _messenger(self):
+    @aedt_exception_handler
+    def _logger(self):
         """ """
-        return self.parent._messenger
+        return self._pedb.logger
 
     @property
+    @aedt_exception_handler
     def stackup_layers(self):
         """Stackup layers.
 
@@ -78,6 +85,7 @@ class EdbStackup(object):
         return self._layer_dict
 
     @property
+    @aedt_exception_handler
     def signal_layers(self):
         """List of all signal layers.
 
@@ -89,6 +97,7 @@ class EdbStackup(object):
         return self.stackup_layers.signal_layers
 
     @property
+    @aedt_exception_handler
     def layer_types(self):
         """Layer types.
 
@@ -100,6 +109,7 @@ class EdbStackup(object):
         return self._edb.Cell.LayerType
 
     @property
+    @aedt_exception_handler
     def materials(self):
         """Materials.
 
@@ -109,7 +119,7 @@ class EdbStackup(object):
             Dictionary of materials.
         """
         mats = {}
-        for el in self.parent.edbutils.MaterialSetupInfo.GetFromLayout(self.parent.active_layout):
+        for el in self._pedb.edbutils.MaterialSetupInfo.GetFromLayout(self._pedb.active_layout):
             mats[el.Name] = el
         return mats
 

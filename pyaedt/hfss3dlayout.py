@@ -5,8 +5,8 @@ from __future__ import absolute_import
 import os
 import warnings
 
-from .application.Analysis3DLayout import FieldAnalysis3DLayout
-from .generic.general_methods import aedt_exception_handler, generate_unique_name
+from pyaedt.application.Analysis3DLayout import FieldAnalysis3DLayout
+from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name
 
 
 class Hfss3dLayout(FieldAnalysis3DLayout):
@@ -36,7 +36,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
     specified_version : str, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
-    NG : bool, optional
+    non_graphical : bool, optional
         Whether to launch AEDT in the non-graphical mode. The default
         is``False``, in which case AEDT is launched in the graphical mode.
     new_desktop_session : bool, optional
@@ -74,7 +74,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
     Create an AEDT 2021 R1 object and then create a
     `Hfss3dLayout` object and open the specified project.
 
-    >>> aedtapp = Hfss3dLayout(specified_version="2021.1", projectname="myfile.aedt")
+    >>> aedtapp = Hfss3dLayout(specified_version="2021.2", projectname="myfile.aedt")
 
     """
 
@@ -177,7 +177,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         """
         listp = self.port_list
-        if type(layer) is str:
+        if isinstance(layer, str):
             layerid = self.modeler.layers.layer_id(layer)
         else:
             layerid = layer
@@ -327,7 +327,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         Returns
         -------
-        list
+        list of str
             List of validation messages.
 
         """
@@ -336,7 +336,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         if outputdir is None:
             outputdir = self.project_path
 
-        self._messenger.add_info_message("#### Design Validation Checks###")
+        self.logger.info("#### Design Validation Checks###")
         #
         # Routine outputs to the validation info to a log file in the project directory and also
         # returns the validation info to be used to update properties.xml file
@@ -358,7 +358,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             msgs = self._desktop.GetMessages(name, "HFSSDesign1", 0)
             # need to check if design name is always this default name HFSSDesign1
             for msg in msgs:
-                self._messenger.add_info_message(msg)
+                self.logger.info(msg)
                 # msg = msg.replace('"','')
                 msg = msg.rstrip("\r\n")
                 val_list.append(msg)
@@ -372,10 +372,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             val_list.append(msg)
             if ret == 0:
                 msg = "**** ERRORS Present - please check and confirm"
-                self._messenger.add_error_message(msg)
+                self.logger.error(msg)
             else:
                 msg = "**** Validation Completed Correctly"
-                self._messenger.add_info_message(msg)
+                self.logger.info(msg)
 
             # Find the Excitations and check or list them out
             msg = "Excitation Messages:"
@@ -384,7 +384,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             numportsdefined = int(len(self.get_excitations_name))
             if ports is not None and ports != numportsdefined:
                 msg = "**** Port Number Error! - Please check model"
-                self._messenger.add_error_message(msg)
+                self.logger.error(msg)
                 validation.writelines(msg + "\n")
                 val_list.append(msg)
                 validation_ok = False
@@ -392,17 +392,17 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             else:
                 msg1 = "Ports Requested: " + str(ports)
                 msg2 = "Ports Defined: " + str(numportsdefined)
-                self._messenger.add_info_message(msg1)
+                self.logger.info(msg1)
                 validation.writelines(msg1 + "\n")
                 val_list.append(msg1)
-                self._messenger.add_info_message(msg2)
+                self.logger.info(msg2)
                 validation.writelines(msg2 + "\n")
                 val_list.append(msg2)
 
             excitation_names = self.get_excitations_name
             for excitation in excitation_names:
                 msg = "Excitation name: " + str(excitation)
-                self._messenger.add_info_message(msg)
+                self.logger.info(msg)
                 validation.writelines(msg + "\n")
                 val_list.append(msg)
         validation.close()
@@ -695,9 +695,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 if sweepname in [sweep.name for sweep in setupdata.sweeps]:
                     oldname = sweepname
                     sweepname = generate_unique_name(oldname)
-                    self._messenger.add_warning_message(
-                        "Sweep {} is already present. Sweep has been renamed in {}.".format(oldname, sweepname)
-                    )
+                    self.logger.warning(
+                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname)
                 sweep = setupdata.add_sweep(sweepname=sweepname)
                 sweep.change_range("LinearCount", freqstart, freqstop, num_of_freq_points, unit)
                 sweep.props["GenerateSurfaceCurrent"] = save_fields
@@ -708,7 +707,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 sweep.props["UseQ3DForDC"] = use_q3d_for_dc
                 sweep.props["MaxSolutions"] = interpolation_max_solutions
                 sweep.update()
-                self.add_info_message("Linear count sweep {} has been correctly created".format(sweepname))
+                self.logger.info("Linear count sweep %s has been correctly created", sweepname)
                 return sweep
         return False
 
@@ -790,9 +789,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 if sweepname in [sweep.name for sweep in setupdata.sweeps]:
                     oldname = sweepname
                     sweepname = generate_unique_name(oldname)
-                    self._messenger.add_warning_message(
-                        "Sweep {} is already present. Sweep has been renamed in {}.".format(oldname, sweepname)
-                    )
+                    self.logger.warning(
+                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname)
                 sweep = setupdata.add_sweep(sweepname=sweepname)
                 sweep.change_range("LinearStep", freqstart, freqstop, step_size, unit)
                 sweep.props["GenerateSurfaceCurrent"] = save_fields
@@ -803,7 +801,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 sweep.props["UseQ3DForDC"] = use_q3d_for_dc
                 sweep.props["MaxSolutions"] = interpolation_max_solutions
                 sweep.update()
-                self.add_info_message("Linear step sweep {} has been correctly created".format(sweepname))
+                self.logger.info("Linear step sweep %s has been correctly created", sweepname)
                 return sweep
         return False
 
@@ -860,9 +858,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 if sweepname in [sweep.name for sweep in setupdata.sweeps]:
                     oldname = sweepname
                     sweepname = generate_unique_name(oldname)
-                    self._messenger.add_warning_message(
-                        "Sweep {} is already present. Sweep has been renamed in {}.".format(oldname, sweepname)
-                    )
+                    self.logger.warning(
+                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname)
                 sweepdata = setupdata.add_sweep(sweepname, "Discrete")
                 sweepdata.change_range("SinglePoint", freq0, unit=unit)
                 sweepdata.props["GenerateSurfaceCurrent"] = save_fields
@@ -871,7 +868,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 if add_subranges:
                     for f in freq:
                         sweepdata.add_subrange(rangetype="SinglePoint", start=f, unit=unit)
-                self.add_info_message("Single point sweep {} has been correctly created".format(sweepname))
+                self.logger.info("Single point sweep %s has been correctly created", sweepname)
                 return sweepdata
         return False
 
@@ -907,7 +904,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             old_name = project_name
             project_name = generate_unique_name(project_name)
             aedb_path = gds_path.replace(old_name + ".gds", project_name + ".aedb")
-            self._messenger.add_warning_message("aedb_exists. Renaming it to {}".format(project_name))
+            self.logger.warning("aedb_exists. Renaming it to %s", project_name)
 
         oTool = self.odesktop.GetTool("ImportExport")
         oTool.ImportGDSII(gds_path, aedb_path, "", "")
@@ -916,6 +913,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         if xml_path:
             oeditor.ImportStackupXML(xml_path)
         if set_as_active:
+            self._close_edb()
             self.__init__(project_name)
         if close_active_project:
             self.odesktop.CloseProject(active_project)
@@ -983,7 +981,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         """
         if interpolation_algorithm not in ["auto", "lin", "shadH", "shadNH"]:
-            self.add_error_message("Wrong Interpolation Algorithm")
+            self.logger.error("Wrong Interpolation Algorithm")
             return False
         arg = ["NAME:CoSimOptions", "Override:="]
 

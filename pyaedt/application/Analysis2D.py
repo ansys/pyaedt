@@ -1,9 +1,14 @@
-import warnings
+import os
 
-from .Analysis import Analysis
-from ..modeler.Model2D import Modeler2D
-from ..modules.Mesh import Mesh
-from ..generic.general_methods import aedt_exception_handler
+from pyaedt.application.Analysis import Analysis
+from pyaedt.modeler.Model2D import Modeler2D
+from pyaedt.modules.Mesh import Mesh
+from pyaedt.generic.general_methods import aedt_exception_handler, is_ironpython
+
+if is_ironpython:
+    from pyaedt.modules.PostProcessor import PostProcessor
+else:
+    from pyaedt.modules.AdvancedPostProcessing import PostProcessor
 
 
 class FieldAnalysis2D(Analysis):
@@ -77,11 +82,15 @@ class FieldAnalysis2D(Analysis):
             close_on_exit,
             student_version,
         )
+        self.osolution = self._odesign.GetModule("Solutions")
+        self.oboundary = self._odesign.GetModule("BoundarySetup")
+
         self._modeler = Modeler2D(self)
         self._mesh = Mesh(self)
-        # self._post = PostProcessor(self)
+        self._post = PostProcessor(self)
 
     @property
+    @aedt_exception_handler
     def modeler(self):
         """Modeler.
 
@@ -92,6 +101,7 @@ class FieldAnalysis2D(Analysis):
         return self._modeler
 
     @property
+    @aedt_exception_handler
     def mesh(self):
         """Mesh.
 
@@ -106,16 +116,27 @@ class FieldAnalysis2D(Analysis):
     #     return self._post
 
     @aedt_exception_handler
-    def assignmaterial(self, obj, mat):
-        """Assign a material to one or more objects.
+    def export_mesh_stats(self, setup_name, variation_string="", mesh_path=None):
+        """Export mesh statistics to a file.
 
-        .. deprecated:: 0.3.1
-           Use :func:`FieldAnalysis2D.assign_material` instead.
+        Parameters
+        ----------
+        setup_name :str
+            Setup name.
+        variation_string : str, optional
+            Variation List.
+        mesh_path : str, optional
+            Full path to mesh statistics file.
 
+        Returns
+        -------
+        str
+            File Path.
         """
-        # raise a DeprecationWarning.  User won't have to change anything
-        warnings.warn("assignmaterial is deprecated. Use assign_material instead.", DeprecationWarning)
-        self.assign_material(obj, mat)
+        if not mesh_path:
+            mesh_path = os.path.join(self.project_path, "meshstats.ms")
+        self.odesign.ExportMeshStats(setup_name, variation_string, mesh_path)
+        return mesh_path
 
     @aedt_exception_handler
     def assign_material(self, obj, mat):
@@ -149,8 +170,8 @@ class FieldAnalysis2D(Analysis):
             else:
                 arg2.append("SolveInside:="), arg2.append(False)
             self.modeler.oeditor.AssignMaterial(arg1, arg2)
-            self._messenger.add_info_message("Assign Material " + mat + " to object " + selections)
-            if type(obj) is list:
+            self.logger.info("Assign Material " + mat + " to object " + selections)
+            if isinstance(obj, list):
                 for el in obj:
                     self.modeler.primitives[el].material_name = mat
             else:
@@ -164,8 +185,8 @@ class FieldAnalysis2D(Analysis):
             else:
                 arg2.append("SolveInside:="), arg2.append(False)
             self.modeler.oeditor.AssignMaterial(arg1, arg2)
-            self._messenger.add_info_message("Assign Material " + mat + " to object " + selections)
-            if type(obj) is list:
+            self.logger.info("Assign Material " + mat + " to object " + selections)
+            if isinstance(obj, list):
                 for el in obj:
                     self.modeler.primitives[el].material_name = mat
             else:
@@ -173,5 +194,5 @@ class FieldAnalysis2D(Analysis):
 
             return True
         else:
-            self._messenger.add_error_message("Material Does Not Exists")
+            self.logger.error("Material does not exist.")
             return False

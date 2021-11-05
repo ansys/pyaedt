@@ -1,5 +1,5 @@
-from ..generic.general_methods import aedt_exception_handler, is_number
-from .Primitives import Primitives
+from pyaedt.generic.general_methods import aedt_exception_handler, is_number
+from pyaedt.modeler.Primitives import Primitives
 
 
 class Primitives2D(Primitives, object):
@@ -13,13 +13,13 @@ class Primitives2D(Primitives, object):
     def plane2d(self):
         """Create a 2D plane."""
         plane = "Z"
-        if self._parent.design_type == "Maxwell 2D":
-            if self._parent.odesign.GetGeometryMode() == "about Z":
+        if self._app.design_type == "Maxwell 2D":
+            if self._app._odesign.GetGeometryMode() == "about Z":
                 plane = "Y"
         return plane
 
-    def __init__(self, parent, modeler):
-        Primitives.__init__(self, parent, modeler)
+    def __init__(self, modeler):
+        Primitives.__init__(self, modeler)
 
     @aedt_exception_handler
     def create_circle(self, position, radius, num_sides=0, is_covered=True, name=None, matname=None):
@@ -69,7 +69,7 @@ class Primitives2D(Primitives, object):
         vArg1.append("NumSegments:="), vArg1.append("{}".format(num_sides))
 
         vArg2 = self._default_object_attributes(name=name, matname=matname)
-        new_object_name = self.oeditor.CreateCircle(vArg1, vArg2)
+        new_object_name = self._oeditor.CreateCircle(vArg1, vArg2)
         return self._create_object(new_object_name)
 
     @aedt_exception_handler
@@ -117,7 +117,7 @@ class Primitives2D(Primitives, object):
         vArg1.append("WhichAxis:="), vArg1.append(szAxis)
 
         vArg2 = self._default_object_attributes(name=name, matname=matname)
-        new_object_name = self.oeditor.CreateEllipse(vArg1, vArg2)
+        new_object_name = self._oeditor.CreateEllipse(vArg1, vArg2)
         return self._create_object(new_object_name)
 
     @aedt_exception_handler
@@ -167,7 +167,7 @@ class Primitives2D(Primitives, object):
         vArg1.append("WhichAxis:="), vArg1.append(szAxis)
 
         vArg2 = self._default_object_attributes(name=name, matname=matname)
-        new_object_name = self.oeditor.CreateRectangle(vArg1, vArg2)
+        new_object_name = self._oeditor.CreateRectangle(vArg1, vArg2)
         return self._create_object(new_object_name)
 
     @aedt_exception_handler
@@ -218,7 +218,7 @@ class Primitives2D(Primitives, object):
         vArg1.append("WhichAxis:="), vArg1.append(self.plane2d)
 
         vArg2 = self._default_object_attributes(name=name, matname=matname)
-        new_object_name = self.oeditor.CreateRegularPolygon(vArg1, vArg2)
+        new_object_name = self._oeditor.CreateRegularPolygon(vArg1, vArg2)
         return self._create_object(new_object_name)
 
     @aedt_exception_handler

@@ -11,7 +11,7 @@ sys.path.append(os.path.join(pyaedtpath, ".."))
 from pyaedt import Desktop
 
 if len(sys.argv) < 2:
-    version = "2021.1"
+    version = "2021.2"
 else:
     v = sys.argv[1]
     version = "20" + v[-3:-1] + "." + v[-1:]
@@ -23,7 +23,7 @@ pyaedtpath = os.path.join(
     "..",
 )
 
-d = Desktop("2021.1", True)
+d = Desktop("2021.2", True)
 desktop = sys.modules["__main__"].oDesktop
 pers1 = os.path.join(desktop.GetPersonalLibDirectory(), "pyaedt")
 

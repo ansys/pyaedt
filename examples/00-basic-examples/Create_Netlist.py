@@ -34,11 +34,11 @@ from pyaedt import Desktop
 ###############################################################################
 # Launch AEDT and Circuit
 # ~~~~~~~~~~~~~~~~~~~~~~~
-# This example launches AEDT 2021.1 in graphical mode.
+# This example launches AEDT 2021.2 in graphical mode.
 
 # This examples uses SI units.
 
-desktopVersion = "2021.1"
+desktopVersion = "2021.2"
 
 
 ###############################################################################
@@ -90,5 +90,4 @@ aedtapp.create_schematic_from_netlist(myfile)
 # After adding any other desired functionalities, close the project.
 
 if os.name != "posix":
-    aedtapp.close_project()
-    desktop.force_close_desktop()
+    desktop.release_desktop()

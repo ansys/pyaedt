@@ -1,5 +1,4 @@
 import os
-
 # Setup paths for module imports
 import gc
 
@@ -20,6 +19,7 @@ except ImportError:
 
 class TestClass:
     def setup_class(self):
+
         with Scratch(scratch_path) as self.local_scratch:
             # example_project = os.path.join(local_path, 'example_models', test_project_name + '.aedt')
             # self.test_project = self.local_scratch.copyfile(example_project)
@@ -31,7 +31,6 @@ class TestClass:
             self.edbapp = Edb(aedbproject, "Galileo_G87173_204", edbversion=desktop_version, isreadonly=False)
 
     def teardown_class(self):
-
         self.edbapp.close_edb()
         self.edbapp = None
         self.local_scratch.remove()
@@ -86,7 +85,10 @@ class TestClass:
     def test_07_vias_creation(self):
         self.edbapp.core_padstack.create_padstack(padstackname="myVia")
         assert "myVia" in list(self.edbapp.core_padstack.padstacks.keys())
-        assert self.edbapp.core_padstack.place_padstack([5e-3, 5e-3], "myVia")
+        self.edbapp.add_design_variable("via_x", 5e-3)
+        self.edbapp.add_design_variable("via_y", 1e-3)
+
+        assert self.edbapp.core_padstack.place_padstack(["via_x",  "via_x+via_y"], "myVia")
 
     def test_08_nets_query(self):
         signalnets = self.edbapp.core_nets.signal_nets
@@ -242,6 +244,7 @@ class TestClass:
         assert self.edbapp.core_hfss.create_coax_port_on_component("U2A5", ["RSVD_0", "V1P0_SO"])
 
     def test_37_create_circuit_port(self):
+        initial_len = len(self.edbapp.core_padstack.pingroups)
         assert (
             self.edbapp.core_siwave.create_circuit_port_on_net("U2A5", "V1P5_S3", "U2A5", "GND", 50, "test") == "test"
         )
@@ -251,6 +254,7 @@ class TestClass:
         p3 = self.edbapp.core_siwave.create_circuit_port_on_pin(pins[200], pins[0])
         assert p3 != ""
         p4 = self.edbapp.core_hfss.create_circuit_port_on_net("U2A5", "RSVD_9")
+        assert len(self.edbapp.core_padstack.pingroups) == initial_len + 6
         assert "GND" in p4 and "RSVD_9" in p4
 
     def test_38_create_voltage_source(self):
@@ -465,7 +469,7 @@ class TestClass:
 
     @pytest.mark.skipif(config["build_machine"], reason="Not running in non-graphical mode")
     def test_62_export_to_hfss(self):
-        edb = Edb(edbpath=os.path.join(local_path, "example_models", "simple.aedb"), edbversion="2021.1")
+        edb = Edb(edbpath=os.path.join(local_path, "example_models", "simple.aedb"), edbversion="2021.2")
         options_config = {"UNITE_NETS": 1, "LAUNCH_Q3D": 0}
         out = edb.write_export3d_option_config_file(scratch_path, options_config)
         assert os.path.exists(out)
@@ -475,7 +479,7 @@ class TestClass:
 
     @pytest.mark.skipif(config["build_machine"], reason="Not running in non-graphical mode")
     def test_63_export_to_q3d(self):
-        edb = Edb(edbpath=os.path.join(local_path, "example_models", "simple.aedb"), edbversion="2021.1")
+        edb = Edb(edbpath=os.path.join(local_path, "example_models", "simple.aedb"), edbversion="2021.2")
         options_config = {"UNITE_NETS": 1, "LAUNCH_Q3D": 0}
         out = edb.write_export3d_option_config_file(scratch_path, options_config)
         assert os.path.exists(out)
@@ -485,7 +489,7 @@ class TestClass:
 
     @pytest.mark.skipif(config["build_machine"], reason="Not running in non-graphical mode")
     def test_64_export_to_maxwell(self):
-        edb = Edb(edbpath=os.path.join(local_path, "example_models", "simple.aedb"), edbversion="2021.1")
+        edb = Edb(edbpath=os.path.join(local_path, "example_models", "simple.aedb"), edbversion="2021.2")
         options_config = {"UNITE_NETS": 1, "LAUNCH_MAXWELL": 0}
         out = edb.write_export3d_option_config_file(scratch_path, options_config)
         assert os.path.exists(out)

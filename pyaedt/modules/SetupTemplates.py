@@ -1,5 +1,5 @@
-from ..generic.general_methods import aedt_exception_handler
-from ..generic.DataHandlers import dict2arg
+from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.generic.DataHandlers import dict2arg
 from collections import OrderedDict
 
 meshlink = [("ImportMesh", False)]
@@ -1495,8 +1495,8 @@ class SweepQ3D(object):
 
             self.props["RangeSamples"] = 3
             self.props["RangeCount"] = 401
-            self.props["SaveFields"] = True
-            self.props["SaveRadFields"] = True
+            self.props["SaveFields"] = False
+            self.props["SaveRadFields"] = False
             self.props["SweepRanges"] = []
 
     @aedt_exception_handler

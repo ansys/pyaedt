@@ -49,7 +49,7 @@ class Part(object):
 
         # Default values:
         self._compdef = dict()
-        self._parent = parent
+        self._multiparts = parent
 
         # Extract the 3D component name and part folder
         # from the file name.
@@ -63,7 +63,7 @@ class Part(object):
 
         self._motion = False
         if parent:  # Inherit _motion directly from parent.
-            self._motion = self._parent.motion
+            self._motion = self._multiparts.motion
 
         # make sure self._name is unique if it is not passed as an argument.
         if name:
@@ -174,7 +174,7 @@ class Part(object):
         if self._motion or not self.zero_offset('offset') or not self.zero_offset('rotation_cs'):
             return self.name + '_cs'
         else:
-            return self._parent.cs_name
+            return self._multiparts.cs_name
 
     # Define the variable names for angles in the app:
     @property
@@ -225,10 +225,10 @@ class Part(object):
             if self.zero_offset('offset') or self['offset'] == 'Global':
                 return [0, 0, 0]
             else:
-                if self._parent._local_units:
-                    units = self._parent._local_units
+                if self._multiparts._local_units:
+                    units = self._multiparts._local_units
                 else:
-                    units = self._parent.modeler_units
+                    units = self._multiparts.modeler_units
                 offset = [str(i)+units for i in self['offset']]
 
                 return offset
@@ -316,7 +316,7 @@ class Part(object):
         str
             Name of the part.
         """
-        return self._parent.name + '_' + self._name
+        return self._multiparts.name + '_' + self._name
 
     @aedt_exception_handler
     def set_relative_cs(self, app):
@@ -339,7 +339,7 @@ class Part(object):
             app.modeler.create_coordinate_system(origin=self.local_origin,
                                                  x_pointing=x_pointing,
                                                  y_pointing=y_pointing,
-                                                 reference_cs=self._parent.cs_name,
+                                                 reference_cs=self._multiparts.cs_name,
                                                  mode="axis",
                                                  name=self.cs_name)
         return True
@@ -375,7 +375,7 @@ class Part(object):
         app.modeler.create_coordinate_system(origin=self.rotate_origin,
                                              x_pointing=x_pointing,
                                              y_pointing=y_pointing,
-                                             reference_cs=self._parent.cs_name,
+                                             reference_cs=self._multiparts.cs_name,
                                              mode="axis",
                                              name=self.rot_cs_name)
         if self.rot_axis[0]:
@@ -410,12 +410,12 @@ class Part(object):
             aedt_objects.append(app.modeler.primitives.insert_3d_component(self.file_name, targetCS=self.cs_name))
         else:
             aedt_objects.append(
-                app.modeler.primitives.insert_3d_component(self.file_name, targetCS=self._parent.cs_name))
+                app.modeler.primitives.insert_3d_component(self.file_name, targetCS=self._multiparts.cs_name))
         if self._do_rotate:
             self.do_rotate(app, aedt_objects[0])
 
         # Duplication occurs in parent coordinate system.
-        app.modeler.set_working_coordinate_system(self._parent.cs_name)
+        app.modeler.set_working_coordinate_system(self._multiparts.cs_name)
         if self['duplicate_vector']:
             d_vect = [float(i) for i in self['duplicate_vector']]
             duplicate_result = app.modeler.duplicate_along_line(aedt_objects[0], d_vect,
@@ -471,14 +471,15 @@ class Antenna(Part, object):
     @aedt_exception_handler
     def _insert(self, app, target_cs=None, units=None):
         if not target_cs:
-            target_cs = self._parent.cs_name
+            target_cs = self._multiparts.cs_name
         if not units:
-            if self._parent._local_units:
-                units = self._parent._local_units
+            if self._multiparts._local_units:
+                units = self._multiparts._local_units
             else:
-                units = self._parent.units
+                units = self._multiparts.units
         if self._compdef['ffd_name']:
-            ffd = os.path.join(self._compdef['part_folder'], self._parent._name + ".ffd", self._compdef['ffd_name'])
+            ffd = os.path.join(self._compdef['part_folder'], self._multiparts._name + ".ffd",
+                               self._compdef['ffd_name'])
             a = app.create_sbr_file_based_antenna(ffd_full_path=ffd, model_units=units,
                                        target_cs=target_cs,
                                        antenna_name=self.name)
@@ -509,7 +510,7 @@ class Antenna(Part, object):
             self.set_relative_cs(app)
             antenna_object = self._insert(app, units=units)  # Create coordinate system, if needed.
         else:
-            antenna_object = self._insert(app, target_cs=self._parent.cs_name, units=units)
+            antenna_object = self._insert(app, target_cs=self._multiparts.cs_name, units=units)
         if self._do_rotate and antenna_object:
             self.do_rotate(app, antenna_object.antennaname)
 

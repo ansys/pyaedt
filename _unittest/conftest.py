@@ -10,7 +10,7 @@ This module contains the configuration and fixture for the pytest-based unit tes
 The default configuration can be changed by placing a file called local_config.json in the same
 directory as this module. An example of the contents of local_config.json
 {
-  "desktopVersion": "2021.1",
+  "desktopVersion": "2021.2",
   "NonGraphical": false,
   "NewThread": false,
   "test_desktops": true
@@ -23,7 +23,7 @@ import shutil
 import json
 import gc
 import sys
-from pyaedt import is_ironpython
+from pyaedt.generic.general_methods import is_ironpython
 
 if is_ironpython:
     import _unittest_ironpython.conf_unittest as pytest
@@ -58,7 +58,7 @@ if os.path.exists(local_config_file):
     with open(local_config_file) as f:
         config = json.load(f)
 else:
-    config = {"desktopVersion": "2021.1", "NonGraphical": False, "NewThread": True, "test_desktops": False,
+    config = {"desktopVersion": "2021.2", "NonGraphical": False, "NewThread": True, "test_desktops": False,
               "build_machine": True, "skip_space_claim": False, "skip_circuits": False, "skip_edb": False,
               "skip_debug": False, "local": False}
 
@@ -83,17 +83,11 @@ class BasisTest:
                 designname=design_name,
                 solution_type=solution_type,
                 specified_version=desktop_version,
-                new_desktop_session=new_thread,
-                non_graphical=non_graphical,
             )
-            # TODO do we need this ?
-            if project_name:
-                if design_name:
-                    self.aedtapp.design_name = design_name
-
             self.cache = DesignCache(self.aedtapp)
 
     def teardown_class(self):
+        self.aedtapp._desktop.ClearMessages("", "", 3)
         self.aedtapp.close_project(name=self.aedtapp.project_name, saveproject=False)
         self.local_scratch.remove()
         gc.collect()
@@ -124,13 +118,34 @@ def desktop_init():
         run_desktop_tests()
 
 
+@pytest.fixture
+def clean_desktop_messages(desktop_init):
+    """Clear all Desktop app messages."""
+    desktop_init.logger.clear_messages(level=3)
+
+
+@pytest.fixture
+def clean_desktop(desktop_init):
+    """Close all projects, but don't close Desktop app."""
+    desktop_init.release_desktop(close_projects=True, close_on_exit=False)
+    return desktop_init
+
+@pytest.fixture
+def hfss():
+    """Create a new Hfss project."""
+    # Be sure that the base class constructor "design" exposes oDesktop.
+    hfss = Hfss()
+    yield hfss
+    hfss.close_project(hfss.project_name)
+    gc.collect()
+
+
 from functools import wraps
 
 
 def pyaedt_unittest_check_desktop_error(func):
     @wraps(func)
     def inner_function(*args, **kwargs):
-        # args[0].aedtapp._messenger("Test Function Here")
         args[0].cache.update()
         ret_val = func(*args, **kwargs)
         try:
@@ -145,54 +160,3 @@ def pyaedt_unittest_check_desktop_error(func):
         return ret_val
 
     return inner_function
-
-
-#
-# def pyaedt_unittest_same_design(func):
-#     @wraps(func)
-#     def inner_function(*args, **kwargs):
-#         args[0].cache.update()
-#         func(*args, **kwargs)
-#         try:
-#             args[0].aedtapp.design_name
-#         except Exception as e:
-#             pytest.exit("Desktop Crashed - Aborting the test!")
-#         args[0].cache.update()
-#         assert args[0].cache.no_new_errors
-#         assert args[0].cache.no_change
-#
-#     return inner_function
-#
-# def pyaedt_unittest_duplicate_design(func):
-#     @wraps(func)
-#     def inner_function(*args, **kwargs):
-#         time.sleep(0.5)
-#         args[0].aedtapp.duplicate_design(label=generate_unique_name("pytest"))
-#         time.sleep(0.5)
-#         args[0].cache.update()
-#         func(*args, **kwargs)
-#         try:
-#             if args[0].aedtapp.design_name:
-#                 args[0].aedtapp.delete_design()
-#         except Exception as e:
-#             pytest.exit("Desktop Crashed - Aborting the test!")
-#         args[0].cache.update()
-#         assert args[0].cache.no_new_errors
-#
-#     return inner_function
-#
-# def pyaedt_unittest_new_design(func):
-#     @wraps(func)
-#     def inner_function(*args, **kwargs):
-#         args[0].aedtapp.insert_design(design_name=generate_unique_name("pytest"))
-#         args[0].cache.update()
-#         func(*args, **kwargs)
-#         try:
-#             if args[0].aedtapp.design_name:
-#                 args[0].aedtapp.delete_design()
-#         except Exception as e:
-#             pytest.exit("Desktop Crashed - Aborting the test!")
-#         args[0].cache.update()
-#         assert args[0].cache.no_new_errors
-#
-#     return inner_function

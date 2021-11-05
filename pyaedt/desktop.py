@@ -29,8 +29,10 @@ else:
     import subprocess
 from pyaedt.application.MessageManager import AEDTMessageManager
 from pyaedt.misc import list_installed_ansysem
-from pyaedt import is_ironpython, _pythonver, inside_desktop
+from pyaedt import aedt_exception_handler
+from pyaedt.generic.general_methods import is_ironpython, _pythonver, inside_desktop
 
+from pyaedt import aedt_logger
 
 pathname = os.path.dirname(__file__)
 if os.path.exists(os.path.join(pathname, "version.txt")):
@@ -67,7 +69,7 @@ elif IsWindows:
 
         _com = "pywin32"
     else:
-        raise Exception("Error. No win32com.client or Pythonnet modules found. Please install them")
+        raise Exception("Error. No win32com.client or Pythonnet modules found. Please install them.")
 
 
 def exception_to_desktop(ex_value, tb_data):
@@ -132,6 +134,12 @@ def _delete_objects():
         del module.oDesktop
     if "pyaedt_initialized" in dir(module):
         del module.pyaedt_initialized
+    if "aedt_logger" in dir(module):
+        del module.aedt_logger
+    if "_aedt_handler" in dir(module):
+        _global = logging.getLogger('Global')
+        for i in range(len(module._aedt_handler) - 1, -1, -1):
+            _global.removeHandler(module._aedt_handler[i])
     gc.collect()
 
 
@@ -275,20 +283,20 @@ class Desktop:
     Launch AEDT 2021 R1 in non-graphical mode and initialize HFSS.
 
     >>> import pyaedt
-    >>> desktop = pyaedt.Desktop("2021.1", non_graphical=True)
-    pyaedt Info: pyaedt v...
-    pyaedt Info: Python version ...
+    >>> desktop = pyaedt.Desktop("2021.2", non_graphical=True)
+    pyaedt info: pyaedt v...
+    pyaedt info: Python version ...
     >>> hfss = pyaedt.Hfss(designname="HFSSDesign1")
-    pyaedt Info: Project...
-    pyaedt Info: Added design 'HFSSDesign1' of type HFSS.
+    pyaedt info: Project...
+    pyaedt info: Added design 'HFSSDesign1' of type HFSS.
 
     Launch AEDT 2021 R1 in graphical mode and initialize HFSS.
 
-    >>> desktop = Desktop("2021.1")
-    pyaedt Info: pyaedt v...
-    pyaedt Info: Python version ...
+    >>> desktop = Desktop("2021.2")
+    pyaedt info: pyaedt v...
+    pyaedt info: Python version ...
     >>> hfss = pyaedt.Hfss(designname="HFSSDesign1")
-    pyaedt Info: No project is defined. Project...
+    pyaedt info: No project is defined. Project...
     """
 
     def __init__(self, specified_version=None, non_graphical=False, new_desktop_session=True, close_on_exit=True,
@@ -297,12 +305,18 @@ class Desktop:
         self._main = sys.modules["__main__"]
         self._main.interpreter = _com
         self.close_on_exit = close_on_exit
-        self._main.isoutsideDesktop = False
         self._main.pyaedt_version = pyaedtversion
         self._main.interpreter_ver = _pythonver
+        if is_ironpython:
+            self._main.isoutsideDesktop = False
+        else:
+            self._main.isoutsideDesktop = True
         self.releae_on_exit = True
         self.logfile = None
-        if "oDesktop" in dir(self._main) and self._main.oDesktop is not None:
+        if "oDesktop" in dir():
+            self.releae_on_exit = False
+            self._main.oDesktop = oDesktop
+        elif "oDesktop" in dir(self._main) and self._main.oDesktop is not None:
             self.releae_on_exit = False
         else:
             if "oDesktop" in dir(self._main):
@@ -315,15 +329,14 @@ class Desktop:
                 print("Launching PyAEDT outside Electronics Desktop with CPython and Pythonnet")
                 self._init_cpython(non_graphical, new_desktop_session, version, student_version, version_key)
             else:
-                self.add_info_message("Launching PyAEDT outside AEDT with CPython and PyWin32.")
                 oAnsoftApp = win32com.client.Dispatch(version)
                 self._main.oDesktop = oAnsoftApp.GetAppDesktop()
                 self._main.isoutsideDesktop = True
-            self._main.AEDTVersion = version_key
-        self._init_logger()
+        self._set_logger_file()
         self._init_desktop()
-        self._main.oMessenger.add_info_message("pyaedt v{}".format(self._main.pyaedt_version))
-        self._main.oMessenger.add_info_message("Python version {}".format(sys.version))
+        self._logger.info("pyaedt v%s", self._main.pyaedt_version)
+        self._logger.info("Python version %s", sys.version)
+        self.odesktop = self._main.oDesktop
 
     def __enter__(self):
         return self
@@ -393,6 +406,9 @@ class Desktop:
         self._main.AEDTVersion = self._main.oDesktop.GetVersion()[0:6]
         self._main.oDesktop.RestoreWindow()
         self._main.oMessenger = AEDTMessageManager()
+        self._logger = aedt_logger.AedtLogger(self._main.oMessenger, filename = self.logfile, level = logging.DEBUG)
+        self._logger.info("Logger Started on %s", self.logfile)
+        self._main.aedt_logger = self._logger
         self._main.sDesktopinstallDirectory = self._main.oDesktop.GetExeDir()
         self._main.pyaedt_initialized = True
 
@@ -416,7 +432,6 @@ class Desktop:
         else:
             version = "Ansoft.ElectronicsDesktop." + version_key
         self._main.sDesktopinstallDirectory = os.getenv(self._version_ids[version_key])
-        self._main.AEDTVersion = version_key
         return version_student, version_key, version
 
     def _init_ironpython(self, non_graphical, new_aedt_session, version):
@@ -480,7 +495,7 @@ class Desktop:
         self.COMUtil = AnsoftCOMUtil.Ansoft.CoreCOMScripting.Util.COMUtil
         self._main.COMUtil = self.COMUtil
         StandalonePyScriptWrapper = AnsoftCOMUtil.Ansoft.CoreCOMScripting.COM.StandalonePyScriptWrapper
-        print("PyAEDT Info: Launching AEDT with module Pythonnet.")
+        print("pyaedt info: Launching AEDT with module Pythonnet.")
         processID = []
         if IsWindows:
             processID = self._get_tasks_list_windows(student_version)
@@ -501,11 +516,11 @@ class Desktop:
             proc = processID2
         if proc == processID2 and len(processID2) > 1:
             self._dispatch_win32(version)
-        elif version_key >= "2021.1":
+        elif version_key >= "2021.2":
             if student_version:
-                print("PyAEDT Info:: {} Student version started with process ID {}.".format(version, proc[0]))
+                print("pyaedt info:: {} Student version started with process ID {}.".format(version, proc[0]))
             else:
-                print("PyAEDT Info:: {} Started with process ID {}.".format(version, proc[0]))
+                print("pyaedt info:: {} Started with process ID {}.".format(version, proc[0]))
             context = pythoncom.CreateBindCtx(0)
             running_coms = pythoncom.GetRunningObjectTable()
             monikiers = running_coms.EnumRunning()
@@ -518,29 +533,302 @@ class Desktop:
                     break
         else:
             warnings.warn(
-                "PyAEDT is not supported in AEDT versions older than 2021.1. Trying to launch it with PyWin32."
+                "PyAEDT is not supported in AEDT versions older than 2021.2. Trying to launch it with PyWin32."
             )
             self._dispatch_win32(version)
 
-    def _init_logger(self):
+    def _set_logger_file(self):
         # Set up the log file in the AEDT project directory
-        self.logger = logging.getLogger(__name__)
-        if not self.logger.handlers:
-            if "oDesktop" in dir(self._main):
-                project_dir = self._main.oDesktop.GetProjectDirectory()
-            else:
-                project_dir = tempfile.gettempdir()
-            self.logfile = os.path.join(
-                project_dir, "pyaedt{}.log".format(datetime.datetime.now().strftime("%Y%m%d_%H%M%S"))
-            )
-            logging.basicConfig(
-                filename=self.logfile,
-                format="%(asctime)s:%(name)s:%(levelname)-8s:%(message)s",
-                level=logging.DEBUG,
-                datefmt="%Y/%m/%d %H.%M.%S",
-                filemode="w",
-            )
+        if "oDesktop" in dir(self._main):
+            project_dir = self._main.oDesktop.GetProjectDirectory()
+        else:
+            project_dir = tempfile.gettempdir()
+        self.logfile = os.path.join(
+            project_dir, "pyaedt{}.log".format(datetime.datetime.now().strftime("%Y%m%d_%H%M%S"))
+        )
+
         return True
+
+    @property
+    def messenger(self):
+        """Messenger manager for AEDT Log."""
+        return self._main.oMessenger
+
+    @property
+    def logger(self):
+        """Logger."""
+        return self._logger
+
+    @aedt_exception_handler
+    def project_list(self):
+        """Project list.
+
+        Returns
+        -------
+        list
+            List of projects.
+
+        """
+        return list(self.odesktop.GetProjectList())
+
+    @aedt_exception_handler
+    def analyze_all(self, project=None, design=None):
+        """Analyze all setup in a given project.
+
+        Parameters
+        ----------
+        project : str
+            Project name. If None, the active project will be taken.
+        design : str
+            Design name. If None, all the design in active project will be solved.
+
+        Returns
+        -------
+        bool
+            ``True`` when simulation is finished.
+        """
+        if not project:
+            oproject = self.odesktop.GetActiveProject()
+        else:
+            oproject = self.odesktop.SetActiveProject(project)
+        if oproject:
+            if not design:
+                oproject.AnalyzeAll()
+            else:
+                odesign = oproject.SetActiveDesign(design)
+                if odesign:
+                    odesign.AnalyzeAll()
+        return True
+
+    @aedt_exception_handler
+    def clear_messages(self):
+        """Clear all desktop messages.
+
+        Returns
+        -------
+        bool
+            ``True`` if succeeded.
+        """
+        self._desktop.ClearMessages("", "", 3)
+        return True
+
+    @aedt_exception_handler
+    def save_project(self, project_name=None, project_path=None):
+        """Save project. if Path is provided, save as is used.
+
+        Parameters
+        ----------
+        project_name : str
+            Project name. If None, the active project will be taken.
+        project_path : str
+            Full path to the aedt file name
+
+        Returns
+        -------
+        bool
+            ``True`` if succeeded.
+        """
+        if not project_name:
+            oproject = self.odesktop.GetActiveProject()
+        else:
+            oproject = self.odesktop.SetActiveProject(project_name)
+        if project_path:
+            oproject.SaveAs(project_path, True)
+        else:
+            oproject.Save()
+        return True
+
+    @aedt_exception_handler
+    def copy_design(self, project_name=None, design_name=None, target_project=None):
+        """Copy a design. Design can be pasted in existing project or new one.
+
+        Parameters
+        ----------
+        project_name :str
+            Project name.
+        design_name : str
+            Design name.
+        target_project : str, optional
+            Target Project.
+
+        Returns
+        -------
+        bool
+        """
+        if not project_name:
+            oproject = self.odesktop.GetActiveProject()
+        else:
+            oproject = self.odesktop.SetActiveProject(project_name)
+        if oproject:
+            if not design_name:
+                odesign = oproject.GetActiveDesign()
+            else:
+                odesign = oproject.SetActiveDesign(design_name)
+            if odesign:
+                oproject.CopyDesign(design_name)
+                if not target_project:
+                    oproject.Paste()
+                    return True
+                else:
+                    oproject_target = self.odesktop.SetActiveProject(target_project)
+                    if not oproject_target:
+                        oproject_target = self.odesktop.NewProject(target_project)
+                        oproject_target.Paste()
+                        return True
+        return False
+
+    @aedt_exception_handler
+    def project_path(self, project_name=None):
+        """Project path.
+
+        Parameters
+        ----------
+        project_name : str
+            Project name. If None, the active project will be taken.
+
+        Returns
+        -------
+        str
+            Path to the project file.
+
+        """
+        if not project_name:
+            oproject = self.odesktop.GetActiveProject()
+        else:
+            oproject = self.odesktop.SetActiveProject(project_name)
+        if oproject:
+            return os.path.normpath(oproject.GetPath())
+        return None
+
+    @aedt_exception_handler
+    def design_list(self, project=None):
+        """Design list.
+
+        Parameters
+        ----------
+        project : str, optional
+            Project name.
+
+        Returns
+        -------
+        str
+            List of the designs.
+        """
+
+        updateddeslist = []
+        if not project:
+            oproject = self.odesktop.GetActiveProject()
+        else:
+            oproject = self.odesktop.SetActiveProject(project)
+        if oproject:
+            deslist = list(oproject.GetTopDesignList())
+            for el in deslist:
+                m = re.search(r"[^;]+$", el)
+                updateddeslist.append(m.group(0))
+        return updateddeslist
+
+    @aedt_exception_handler
+    def design_type(self, project_name=None, design_name=None):
+        """Design list.
+
+        Parameters
+        ----------
+        project_name : str, optional
+            Project name.
+        design_name : str, optional
+            Design name.
+        Returns
+        -------
+        str
+            Design Type.
+        """
+        if not project_name:
+            oproject = self.odesktop.GetActiveProject()
+        else:
+            oproject = self.odesktop.SetActiveProject(project_name)
+        if not oproject:
+            return ""
+        if not design_name:
+            odesign = oproject.GetActiveDesign()
+        else:
+            odesign = oproject.SetActiveDesign(design_name)
+        if odesign:
+            return odesign.GetDesignType()
+        return ""
+
+    @property
+    def personallib(self):
+        """PersonalLib directory.
+
+        Returns
+        -------
+        str
+            Full absolute path for the ``PersonalLib`` directory.
+
+        """
+        return os.path.normpath(self.odesktop.GetPersonalLibDirectory())
+
+    @property
+    def userlib(self):
+        """UserLib directory.
+
+        Returns
+        -------
+        str
+            Full absolute path for the ``UserLib`` directory.
+
+        """
+        return os.path.normpath(self.odesktop.GetUserLibDirectory())
+
+    @property
+    def syslib(self):
+        """SysLib directory.
+
+        Returns
+        -------
+        str
+            Full absolute path for the ``SysLib`` directory.
+
+        """
+        return os.path.normpath(self.odesktop.GetLibraryDirectory())
+
+    @property
+    def aedt_version_id(self):
+        """AEDT version.
+
+        Returns
+        -------
+        str
+            Version of AEDT.
+
+        """
+        version = self.odesktop.GetVersion().split(".")
+        v = ".".join([version[0], version[1]])
+        return v
+
+    @property
+    def src_dir(self):
+        """Source directory for Python.
+
+        Returns
+        -------
+        str
+            Full absolute path for the ``python`` directory.
+
+        """
+        return os.path.dirname(os.path.realpath(__file__))
+
+    @property
+    def pyaedt_dir(self):
+        """PyAEDT directory.
+
+        Returns
+        -------
+        str
+           Full absolute path for the ``pyaedt`` directory.
+
+        """
+        return os.path.realpath(os.path.join(self.src_dir, ".."))
 
     def _exception(self, ex_value, tb_data):
         """Write the trace stack to the desktop when a Python error occurs.
@@ -560,9 +848,9 @@ class Desktop:
         """
         tb_trace = traceback.format_tb(tb_data)
         tblist = tb_trace[0].split("\n")
-        self._main.oMessenger.add_error_message(str(ex_value), "Global")
+        self.logger.error(str(ex_value), "Global")
         for el in tblist:
-            self._main.oMessenger.add_error_message(el, "Global")
+            self.logger.error(el, "Global")
 
         return str(ex_value)
 
@@ -586,9 +874,9 @@ class Desktop:
         Examples
         --------
         >>> import pyaedt
-        >>> desktop = pyaedt.Desktop("2021.1")
-        pyaedt Info: pyaedt v...
-        pyaedt Info: Python version ...
+        >>> desktop = pyaedt.Desktop("2021.2")
+        pyaedt info: pyaedt v...
+        pyaedt info: Python version ...
         >>> desktop.release_desktop(close_projects=False, close_on_exit=False) # doctest: +SKIP
 
         """
@@ -625,9 +913,9 @@ class Desktop:
         Examples
         --------
         >>> import pyaedt
-        >>> desktop = pyaedt.Desktop("2021.1")
-        pyaedt Info: pyaedt v...
-        pyaedt Info: Python version ...
+        >>> desktop = pyaedt.Desktop("2021.2")
+        pyaedt info: pyaedt v...
+        pyaedt info: Python version ...
         >>> desktop.close_desktop() # doctest: +SKIP
 
         """
@@ -639,9 +927,9 @@ class Desktop:
         Examples
         --------
         >>> import pyaedt
-        >>> desktop = pyaedt.Desktop("2021.1")
-        pyaedt Info: pyaedt v...
-        pyaedt Info: Python version ...
+        >>> desktop = pyaedt.Desktop("2021.2")
+        pyaedt info: pyaedt v...
+        pyaedt info: Python version ...
         >>> desktop.enable_autosave()
 
         """
@@ -653,9 +941,9 @@ class Desktop:
         Examples
         --------
         >>> import pyaedt
-        >>> desktop = pyaedt.Desktop("2021.1")
-        pyaedt Info: pyaedt v...
-        pyaedt Info: Python version ...
+        >>> desktop = pyaedt.Desktop("2021.2")
+        pyaedt info: pyaedt v...
+        pyaedt info: Python version ...
         >>> desktop.disable_autosave()
 
         """
@@ -699,21 +987,21 @@ class Desktop:
         if isinstance(key_value, str):
             try:
                 self._main.oDesktop.SetRegistryString(key_full_name, key_value)
-                self._main.oMessenger.add_info_message("Key {} correctly changed.".format(key_full_name), "Global")
+                self.logger.info("Key %s correctly changed.", key_full_name)
                 return True
             except:
-                self._main.oMessenger.add_warning_message("Error setting up Key {}.".format(key_full_name), "Global")
+                self.logger.warning("Error setting up Key %s.", key_full_name)
                 return False
         elif isinstance(key_value, int):
             try:
                 self._main.oDesktop.SetRegistryInt(key_full_name, key_value)
-                self._main.oMessenger.add_info_message("Key {} correctly changed.".format(key_full_name), "Global")
+                self.logger.info("Key %s correctly changed.", key_full_name)
                 return True
             except:
-                self._main.oMessenger.add_warning_message("Error setting up Key {}.".format(key_full_name), "Global")
+                self.logger.warning("Error setting up Key %s.", key_full_name)
                 return False
         else:
-            self._main.oMessenger.add_warning_message("Key Value must be an int or str.")
+            self.logger.warning("Key Value must be an int or str.")
             return False
 
     def change_active_dso_config_name(self, product_name="HFSS", config_name="Local"):
@@ -731,12 +1019,12 @@ class Desktop:
         """
         try:
             self.change_registry_key("Desktop/ActiveDSOConfigurations/{}".format(product_name), config_name)
-            self._main.oMessenger.add_info_message(
-                "Configuration Changed correctly to {} for {}.".format(config_name, product_name))
+            self.logger.info(
+                "Configuration Changed correctly to %s for %s.", config_name, product_name)
             return True
         except:
-            self._main.oMessenger.add_warning_message(
-                "Error Setting Up Configuration {} for {}.".format(config_name, product_name))
+            self.logger.warning(
+                "Error Setting Up Configuration %s for %s.", config_name, product_name)
             return False
 
     def change_registry_from_file(self, registry_file, make_active=True):
@@ -771,13 +1059,14 @@ class Desktop:
         except:
             return False
 
+
 def get_version_env_variable(version_id):
     """Retrieve the environment variable for the AEDT version.
 
     Parameters
     ----------
     version_id : str
-        Full AEDT version number, such as ``"2021.1"``.
+        Full AEDT version number, such as ``"2021.2"``.
 
     Returns
     -------
@@ -787,8 +1076,8 @@ def get_version_env_variable(version_id):
     Examples
     --------
     >>> from pyaedt import desktop
-    >>> desktop.get_version_env_variable("2021.1")
-    'ANSYSEM_ROOT211'
+    >>> desktop.get_version_env_variable("2021.2")
+    'ANSYSEM_ROOT212'
 
     """
     version_env_var = "ANSYSEM_ROOT"

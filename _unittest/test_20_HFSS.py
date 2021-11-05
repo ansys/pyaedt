@@ -19,10 +19,11 @@ class TestClass:
     def setup_class(self):
         # set a scratch directory and the environment / test data
         with Scratch(scratch_path) as self.local_scratch:
-            self.aedtapp = Hfss(new_desktop_session=True)
+            self.aedtapp = Hfss()
 
     def teardown_class(self):
-        assert self.aedtapp.close_project(self.aedtapp.project_name)
+        self.aedtapp._desktop.ClearMessages("", "", 3)
+        assert self.aedtapp.close_project(self.aedtapp.project_name, saveproject=False)
         self.local_scratch.remove()
         gc.collect()
 
@@ -559,3 +560,8 @@ class TestClass:
             self.aedtapp.CoordinateSystemPlane.XYPlane, [0, 0, 0], [5, 1], name="RectangleForSource", matname="Copper"
         )
         assert self.aedtapp.assign_current_source_to_sheet(sheet.name)
+
+    def test_41_export_step(self):
+        file_path = self.local_scratch.path
+        file_name = "test_step"
+        assert self.aedtapp.export_3d_model(file_name, file_path, ".step", [], [])

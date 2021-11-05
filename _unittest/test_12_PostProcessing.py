@@ -3,7 +3,8 @@ import gc
 import os
 
 # Import required modules
-from pyaedt import Hfss, is_ironpython
+from pyaedt import Hfss
+from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.filesystem import Scratch
 
 # Setup paths for module imports
@@ -39,7 +40,8 @@ class TestClass:
                 pass
 
     def teardown_class(self):
-        assert self.aedtapp.close_project(self.aedtapp.project_name)
+        self.aedtapp._desktop.ClearMessages("", "", 3)
+        assert self.aedtapp.close_project(self.aedtapp.project_name, False)
         self.local_scratch.remove()
         gc.collect()
 
@@ -172,6 +174,7 @@ class TestClass:
 
     def test_09_manipulate_report(self):
         assert self.aedtapp.post.create_rectangular_plot("dB(S(1,1))")
+        assert len(self.aedtapp.post.all_report_names) > 0
 
     def test_10_delete_report(self):
         assert self.aedtapp.post.delete_report("MyNewScattering")
