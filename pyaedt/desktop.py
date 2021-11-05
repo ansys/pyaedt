@@ -1077,7 +1077,7 @@ def get_version_env_variable(version_id):
     --------
     >>> from pyaedt import desktop
     >>> desktop.get_version_env_variable("2021.2")
-    'ANSYSEM_ROOT211'
+    'ANSYSEM_ROOT212'
 
     """
     version_env_var = "ANSYSEM_ROOT"
