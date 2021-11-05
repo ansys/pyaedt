@@ -281,7 +281,7 @@ def download_multiparts():
     """
     dest_folder = os.path.join(EXAMPLES_PATH, "multiparts")
     if os.path.exists(os.path.join(dest_folder, "library")):
-        shutil.rmtree(os.path.join(dest_folder, "library"),ignore_errors=True)
+        shutil.rmtree(os.path.join(dest_folder, "library"), ignore_errors=True)
     _download_file("multiparts", "library.zip")
     if os.path.exists(os.path.join(EXAMPLES_PATH, "multiparts", "library.zip")):
         unzip(os.path.join(EXAMPLES_PATH, "multiparts", "library.zip"), dest_folder)
