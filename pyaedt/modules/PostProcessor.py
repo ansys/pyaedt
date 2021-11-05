@@ -1216,6 +1216,7 @@ class PostProcessorCommon(object):
         extension : str
             Extension of export , one of
                 * (CSV) .csv
+                * (Tab delimited) .tab
                 * (Post processor format) .txt
                 * (Ensight XY data) .exy
                 * (Anosft Plot Data) .dat
@@ -1230,7 +1231,7 @@ class PostProcessorCommon(object):
         if "." not in extension:
             extension = "." + extension
 
-        supported_ext = [".csv", ".txt", ".exy", ".dat"]
+        supported_ext = [".csv", ".tab", ".txt", ".exy", ".dat"]
         if extension not in supported_ext:
             msg = "Extension {} is not supported. Use one of {}".format(extension, ", ".join(supported_ext))
             raise ValueError(msg)
