@@ -350,6 +350,48 @@ class Hfss(FieldAnalysis3D, object):
     ):
         """Assign finite conductivity to one or more objects of a given material.
 
+        .. deprecated:: 0.4.5
+           Use :func:`Hfss.assign_coating` instead.
+
+        """
+
+        warnings.warn('`assigncoating` is deprecated. Use `assign_coating` instead.', DeprecationWarning)
+        self.assign_coating(
+            obj,
+            mat,
+            cond,
+            perm,
+            usethickness,
+            thickness,
+            roughness,
+            isinfgnd,
+            istwoside,
+            isInternal,
+            issheelElement,
+            usehuray,
+            radius,
+            ratio)
+
+    @aedt_exception_handler
+    def assign_coating(
+        self,
+        obj,
+        mat=None,
+        cond=58000000,
+        perm=1,
+        usethickness=False,
+        thickness="0.1mm",
+        roughness="0um",
+        isinfgnd=False,
+        istwoside=False,
+        isInternal=True,
+        issheelElement=False,
+        usehuray=False,
+        radius="0.5um",
+        ratio="2.9",
+    ):
+        """Assign finite conductivity to one or more objects of a given material.
+
         Parameters
         ----------
         obj : str or list
@@ -396,7 +438,7 @@ class Hfss(FieldAnalysis3D, object):
         ...     hfss.CoordinateSystemPlane.XYPlane, origin, 3, 200, 0, "inner"
         ... )
         >>> inner_id = hfss.modeler.primitives.get_obj_id("inner")
-        >>> coat = hfss.assigncoating([inner_id], "copper", usethickness=True, thickness="0.2mm")
+        >>> coat = hfss.assign_coating([inner_id], "copper", usethickness=True, thickness="0.2mm")
 
         """
 
@@ -1864,6 +1906,17 @@ class Hfss(FieldAnalysis3D, object):
     def SARSetup(self, Tissue_object_List_ID, TissueMass=1, MaterialDensity=1, voxel_size=1, Average_SAR_method=0):
         """Define SAR settings.
 
+        .. deprecated:: 0.4.5
+           Use :func:`Hfss.sar_setup` instead.
+
+        """
+        warnings.warn('`SARSetup` is deprecated. Use `sar_setup` instead.', DeprecationWarning)
+        self.sar_setup(Tissue_object_List_ID, TissueMass, MaterialDensity, voxel_size, Average_SAR_method)
+
+    @aedt_exception_handler
+    def sar_setup(self, Tissue_object_List_ID, TissueMass=1, MaterialDensity=1, voxel_size=1, Average_SAR_method=0):
+        """Define SAR settings.
+
         Parameters
         ----------
         Tissue_object_List_ID : int
@@ -1879,8 +1932,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`pyaedt.hfss.SARSetup`
-            SARSetup object.
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         self.odesign.SARSetup(TissueMass, MaterialDensity, Tissue_object_List_ID, voxel_size, Average_SAR_method)
@@ -1896,7 +1949,7 @@ class Hfss(FieldAnalysis3D, object):
         Frequency : str, optional
             Frequency with units. The  default is ``"1GHz"``.
         Boundary : str, optional
-            Type of the boundary. The default is ``"Radition"``.
+            Type of the boundary. The default is ``"Radiation"``.
         ApplyInfiniteGP : bool, optional
             Whether to apply an infinite ground plane. The default is ``False``.
         GPAXis : str, optional
