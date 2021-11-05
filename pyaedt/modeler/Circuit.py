@@ -232,4 +232,3 @@ class ModelerEmit(ModelerCircuit):
         self._app = app
         ModelerCircuit.__init__(self, app)
         self.components = EmitComponents(app, self)
-
