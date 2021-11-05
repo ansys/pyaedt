@@ -115,13 +115,15 @@ class TestClass:
         # Close every handlers to make sure that the
         # file handler on every logger has been released properly.
         # Otherwise, we can't read the content of the log file.
-        for handler in logger.handlers:
-            handler.close()
-        for handler in project_logger.handlers:
-            handler.close()
-        for handler in design_logger.handlers:
-            handler.close()
-
+        try:
+            for handler in logger.handlers:
+                handler.close()
+            for handler in project_logger.handlers:
+                handler.close()
+            for handler in design_logger.handlers:
+                handler.close()
+        except:
+            pass
         with open(path, 'r') as f:
             content = f.readlines()
 
