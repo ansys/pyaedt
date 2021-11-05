@@ -729,10 +729,10 @@ class FieldPlot:
 
     @aedt_exception_handler
     def export_image(self, full_path=None, width=1920, height=1080, orientation="isometric", display_wireframe=True):
-        """Export an image of active Plot.
+        """Save an image of active Plot.
 
         .. note::
-           Works with some limitation on HFSS3DLayout.
+           There are some limitation on HFSS3DLayout.
 
         full_path : str, optional
             Path where image will be saved. It supports png and gif format.
@@ -764,7 +764,7 @@ class FieldPlot:
     @aedt_exception_handler
     def export_image_from_aedtplt(self, export_path=None, view="isometric", plot_mesh=False, scale_min=None,
                                   scale_max=None):
-        """Export an image of Active Plot using PyVista.
+        """Save an image of Active Plot using PyVista.
 
         .. note::
            Only working in CPython with PyVista Module Installed.

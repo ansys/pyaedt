@@ -303,7 +303,7 @@ class AEDTMessageManager(object):
                 self.logger.error(message_text)
 
     def add_debug_message(self, type, message_text):
-        """Pass a parameterized message to the Message Manager to specify the type and project or design level.
+        """Parameterized message to the Message Manager to specify the type and project or design level.
 
         Parameters
         ----------
@@ -316,7 +316,6 @@ class AEDTMessageManager(object):
 
         message_text : str
             Text to display as the message.
-
 
         """
         if len(message_text) > 250:
