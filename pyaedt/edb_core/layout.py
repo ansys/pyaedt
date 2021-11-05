@@ -525,7 +525,7 @@ class EdbLayout(object):
                 self.update_primitives()
             else:
                 self._prims.append(polygon)
-                if layer_name in self._primitives_by_layer:
+                if layer_name in list(self._primitives_by_layer.keys()):
                     self._primitives_by_layer[layer_name].append(polygon)
                 else:
                     self._primitives_by_layer[layer_name] = [polygon]
