@@ -12,14 +12,14 @@ Examples
 >>> hfss["postd"] = "1W"
 
 """
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 
 import math
 import os
 import re
 
-from .. import aedt_exception_handler
-from ..generic.general_methods import is_number
+from pyaedt import aedt_exception_handler
+from pyaedt.generic.general_methods import is_number
 
 
 @aedt_exception_handler
@@ -522,8 +522,8 @@ def _find_units_in_dependent_variables(variable_value, full_variables={}):
             if unit_system(m2[0]):
                 return SI_units[unit_system(m2[0])]
     else:
-        m1 = re.findall(r"(?<=[/+-/*//^/(/[])([a-z_A-Z]\w*)", variable_value.replace(" ", ""))
-        m2 = re.findall(r"^([a-z_A-Z]\w*)", variable_value.replace(" ", ""))
+        m1 = re.findall(r"(?<=[/+-/*//^/(/[])([a-z_A-Z/$]\w*)", variable_value.replace(" ", ""))
+        m2 = re.findall(r"^([a-z_A-Z/$]\w*)", variable_value.replace(" ", ""))
         m = list(set(m1).union(m2))
         for i, v in full_variables.items():
             if i in m and _find_units_in_dependent_variables(v):
@@ -677,7 +677,7 @@ class VariableManager(object):
             design property in the active design.
 
         """
-        return self._variable_dict([self.odesign, self.oproject])
+        return self._variable_dict([self._odesign, self._oproject])
 
     @property
     def design_variables(self):
@@ -688,7 +688,7 @@ class VariableManager(object):
         dict
             Dictionary of the design properties (local properties) in the design.
         """
-        return self._variable_dict([self.odesign])
+        return self._variable_dict([self._odesign])
 
     @property
     def project_variables(self):
@@ -699,7 +699,7 @@ class VariableManager(object):
         dict
             Dictionary of the project properties.
         """
-        return self._variable_dict([self.oproject])
+        return self._variable_dict([self._oproject])
 
     @property
     def independent_variables(self):
@@ -711,7 +711,7 @@ class VariableManager(object):
             Dictionary of the independent variables (constant numeric
             values) available to the design.
         """
-        return self._variable_dict([self.odesign, self.oproject], dependent=False)
+        return self._variable_dict([self._odesign, self._oproject], dependent=False)
 
     @property
     def independent_project_variables(self):
@@ -722,7 +722,7 @@ class VariableManager(object):
         dict
             Dictionary of the independent project variables available to the design.
         """
-        return self._variable_dict([self.oproject], dependent=False)
+        return self._variable_dict([self._oproject], dependent=False)
 
     @property
     def independent_design_variables(self):
@@ -734,7 +734,7 @@ class VariableManager(object):
             Dictionary of the independent design properties (local
             variables) available to the design.
         """
-        return self._variable_dict([self.odesign], dependent=False)
+        return self._variable_dict([self._odesign], dependent=False)
 
     @property
     def dependent_variables(self):
@@ -747,7 +747,7 @@ class VariableManager(object):
             variables) and project variables available to the design.
 
         """
-        return self._variable_dict([self.odesign, self.oproject], independent=False)
+        return self._variable_dict([self._odesign, self._oproject], independent=False)
 
     @property
     def variable_names(self):
@@ -785,23 +785,23 @@ class VariableManager(object):
         return [var_name for var_name in self.dependent_variables]
 
     @property
-    def oproject(self):
+    def _oproject(self):
         """Project."""
-        return self._parent._oproject
+        return self._app._oproject
 
     @property
-    def odesign(self):
+    def _odesign(self):
         """Design."""
-        return self._parent._odesign
+        return self._app._odesign
 
     @property
-    def _messenger(self):
-        """Messenger."""
-        return self._parent._messenger
+    def _logger(self):
+        """Logger."""
+        return self._app.logger
 
-    def __init__(self, parent):
+    def __init__(self, app):
         # Global Desktop Environment
-        self._parent = parent
+        self._app = app
 
     @aedt_exception_handler
     def __delitem__(self, key):
@@ -839,19 +839,23 @@ class VariableManager(object):
         var_dict = {}
         all_names = {}
         for obj in object_list:
-            for variable_name in obj.GetVariables():
+            try:
+                listvar = list(obj.GetChildObject('Variables').GetChildNames())
+            except:
+                listvar = list(obj.GetVariables())
+            for variable_name in listvar:
                 variable_expression = self.get_expression(variable_name)
                 all_names[variable_name] = variable_expression
                 try:
                     value = Variable(variable_expression)
                     if independent and is_number(value.value):
                         var_dict[variable_name] = value
-                    elif dependent and type(value.value) is str:
-                        float_value = self._parent.get_evaluated_value(variable_name)
+                    elif dependent and isinstance(value.value, str):
+                        float_value = self._app.get_evaluated_value(variable_name)
                         var_dict[variable_name] = Expression(variable_expression, float_value, all_names)
                 except:
                     if dependent:
-                        float_value = self._parent.get_evaluated_value(variable_name)
+                        float_value = self._app.get_evaluated_value(variable_name)
                         var_dict[variable_name] = Expression(variable_expression, float_value, all_names)
         return var_dict
 
@@ -871,9 +875,9 @@ class VariableManager(object):
 
         """
         if variable[0] == "$":
-            return self.oproject
+            return self._oproject
         else:
-            return self.odesign
+            return self._odesign
 
     @aedt_exception_handler
     def set_variable(
@@ -939,7 +943,7 @@ class VariableManager(object):
 
         desktop_object = self.aedt_object(variable_name)
         test = desktop_object.GetName()
-        proj_name = self.oproject.GetName()
+        proj_name = self._oproject.GetName()
         var_type = "Project" if test == proj_name else "Local"
 
         prop_type = "VariableProp"
@@ -962,7 +966,7 @@ class VariableManager(object):
             try:
                 if self.delete_separator(variable_name):
                     desktop_object.Undo()
-                    self._messenger.clear_messages()
+                    self.logger.clear_messages()
                     return
             except:
                 pass
@@ -973,38 +977,67 @@ class VariableManager(object):
             prop_type = "PostProcessingVariableProp"
 
         # Get all design and project variables in lower case for a case-sensitive comparison
-        var_list = desktop_object.GetVariables()
+        try:
+            var_list = list(desktop_object.GetChildObject('Variables').GetChildNames())
+        except:
+            var_list = list(desktop_object.GetVariables())
         lower_case_vars = [var_name.lower() for var_name in var_list]
 
         if variable_name.lower() not in lower_case_vars:
-
-            desktop_object.ChangeProperty(
-                [
-                    "NAME:AllTabs",
+            try:
+                desktop_object.ChangeProperty(
                     [
-                        "NAME:{0}VariableTab".format(var_type),
-                        ["NAME:PropServers", "{0}Variables".format(var_type)],
+                        "NAME:AllTabs",
                         [
-                            "NAME:NewProps",
+                            "NAME:{0}VariableTab".format(var_type),
+                            ["NAME:PropServers", "{0}Variables".format(var_type)],
                             [
-                                "NAME:" + variable_name,
-                                "PropType:=",
-                                prop_type,
-                                "UserDef:=",
-                                True,
-                                "Value:=",
-                                variable,
-                                "Description:=",
-                                description,
-                                "ReadOnly:=",
-                                readonly,
-                                "Hidden:=",
-                                hidden,
+                                "NAME:NewProps",
+                                [
+                                    "NAME:" + variable_name,
+                                    "PropType:=",
+                                    prop_type,
+                                    "UserDef:=",
+                                    True,
+                                    "Value:=",
+                                    variable,
+                                    "Description:=",
+                                    description,
+                                    "ReadOnly:=",
+                                    readonly,
+                                    "Hidden:=",
+                                    hidden,
+                                ],
                             ],
                         ],
-                    ],
-                ]
-            )
+                    ]
+                )
+            except:
+                if ";" in desktop_object.GetName() and prop_type == "PostProcessingVariableProp":
+                    self._logger.info("PostProcessing Variable exists already. Changing value.")
+                    desktop_object.ChangeProperty(
+                        [
+                            "NAME:AllTabs",
+                            [
+                                "NAME:{}VariableTab".format(var_type),
+                                ["NAME:PropServers", "{}Variables".format(var_type)],
+                                [
+                                    "NAME:ChangedProps",
+                                    [
+                                        "NAME:" + variable_name,
+                                        "Value:=",
+                                        variable,
+                                        "Description:=",
+                                        description,
+                                        "ReadOnly:=",
+                                        readonly,
+                                        "Hidden:=",
+                                        hidden,
+                                    ],
+                                ],
+                            ],
+                        ]
+                    )
         elif overwrite:
             desktop_object.ChangeProperty(
                 [
@@ -1047,7 +1080,7 @@ class VariableManager(object):
             ``True`` when the separator exists and can be deleted, ``False`` otherwise.
 
         """
-        object_list = [(self.odesign, "Local"), (self.oproject, "Project")]
+        object_list = [(self._odesign, "Local"), (self._oproject, "Project")]
 
         for object_tuple in object_list:
             desktop_object = object_tuple[0]
@@ -1085,9 +1118,11 @@ class VariableManager(object):
 
         """
         desktop_object = self.aedt_object(sVarName)
-        var_type = "Project" if desktop_object == self.oproject else "Local"
-
-        var_list = desktop_object.GetVariables()
+        var_type = "Project" if desktop_object == self._oproject else "Local"
+        try:
+            var_list = list(desktop_object.GetChildObject('Variables').GetChildNames())
+        except:
+            var_list = list(desktop_object.GetVariables())
         lower_case_vars = [var_name.lower() for var_name in var_list]
 
         if sVarName.lower() in lower_case_vars:
@@ -1459,7 +1494,7 @@ class Variable(object):
         Divide a number by a variable with units ``"s"`` and automatically determine that
         the result is in ``"Hz"``.
 
-        >>> from pyaedt.application.Core.Variables import Variable
+        >>> from pyaedt.application.Variables import Variable
         >>> v = Variable("1s")
         >>> result = 3.0 / v
         >>> assert result.numeric_value == 3.0
@@ -1467,15 +1502,20 @@ class Variable(object):
         >>> assert result.unit_system == "Freq"
 
         """
-        assert is_number(other), "Dividend must be a numerical quantity!"
-        result_value = other / self.value
-        result_units = _resolve_unit_system("None", self.unit_system, "divide")
+        if is_number(other):
+            result_value = other / self.numeric_value
+            result_units = _resolve_unit_system("None", self.unit_system, "divide")
+
+        else:
+            result_value = other.numeric_value / self.numeric_value
+            result_units = _resolve_unit_system(other.unit_system, self.unit_system, "divide")
+
         return Variable("{}{}".format(result_value, result_units))
 
-    # Python 2.7 version
-    @aedt_exception_handler
-    def __div__(self, other):
-        return self.__rtruediv__(other)
+    # # Python 2.7 version
+    # @aedt_exception_handler
+    # def __div__(self, other):
+    #     return self.__rtruediv__(other)
 
 
 class Expression(Variable, object):
@@ -1509,7 +1549,7 @@ class DataSet(object):
 
     Parameters
     ----------
-    parent :
+    app :
     name :
     x : list
         List of X-axis values for the dataset.
@@ -1530,8 +1570,8 @@ class DataSet(object):
 
     """
 
-    def __init__(self, parent, name, x, y, z=None, v=None, xunit="", yunit="", zunit="", vunit=""):
-        self._parent = parent
+    def __init__(self, app, name, x, y, z=None, v=None, xunit="", yunit="", zunit="", vunit=""):
+        self._app = app
         self.name = name
         self.x = x
         self.y = y
@@ -1583,9 +1623,9 @@ class DataSet(object):
 
         """
         if self.name[0] == "$":
-            self._parent._oproject.AddDataset(self._args())
+            self._app._oproject.AddDataset(self._args())
         else:
-            self._parent.odesign.AddDataset(self._args())
+            self._app._odesign.AddDataset(self._args())
         return True
 
     @aedt_exception_handler
@@ -1630,7 +1670,7 @@ class DataSet(object):
 
         """
         if x not in self.x:
-            self._parent._messenger.add_error_message("Value {} is not found.".format(x))
+            self._app.logger.error("Value {} is not found.".format(x))
             return False
         id_to_remove = self.x.index(x)
         return self.remove_point_from_index(id_to_remove)
@@ -1657,7 +1697,7 @@ class DataSet(object):
                 self.z.pop(id_to_remove)
                 self.v.pop(id_to_remove)
             return self.update()
-        self._parent._messenger.add_error_message("cannot Remove {} index.".format(id_to_remove))
+        self._app.logger.error("cannot Remove {} index.".format(id_to_remove))
         return False
 
     @aedt_exception_handler
@@ -1674,9 +1714,9 @@ class DataSet(object):
         if not args:
             return False
         if self.name[0] == "$":
-            self._parent._oproject.EditDataset(self.name, self._args())
+            self._app._oproject.EditDataset(self.name, self._args())
         else:
-            self._parent.odesign.EditDataset(self.name, self._args())
+            self._app._odesign.EditDataset(self.name, self._args())
         return True
 
     @aedt_exception_handler
@@ -1690,11 +1730,11 @@ class DataSet(object):
 
         """
         if self.name[0] == "$":
-            self._parent._oproject.DeleteDataset(self.name)
-            del self._parent.project_datasets[self.name]
+            self._app._oproject.DeleteDataset(self.name)
+            del self._app.project_datasets[self.name]
         else:
-            self._parent.odesign.DeleteDataset(self.name)
-            del self._parent.project_datasets[self.name]
+            self._app._odesign.DeleteDataset(self.name)
+            del self._app.project_datasets[self.name]
         return True
 
     @aedt_exception_handler
@@ -1714,9 +1754,9 @@ class DataSet(object):
 
         """
         if not dataset_path:
-            dataset_path = os.path.join(self._parent.project_path, self.name + ".tab")
+            dataset_path = os.path.join(self._app.project_path, self.name + ".tab")
         if self.name[0] == "$":
-            self._parent._oproject.ExportDataset(self.name, dataset_path)
+            self._app._oproject.ExportDataset(self.name, dataset_path)
         else:
-            self._parent.odesign.ExportDataset(self.name, dataset_path)
+            self._app._odesign.ExportDataset(self.name, dataset_path)
         return True

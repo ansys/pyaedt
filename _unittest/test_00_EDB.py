@@ -1,5 +1,4 @@
 import os
-
 # Setup paths for module imports
 import gc
 
@@ -20,6 +19,7 @@ except ImportError:
 
 class TestClass:
     def setup_class(self):
+
         with Scratch(scratch_path) as self.local_scratch:
             # example_project = os.path.join(local_path, 'example_models', test_project_name + '.aedt')
             # self.test_project = self.local_scratch.copyfile(example_project)
@@ -31,11 +31,15 @@ class TestClass:
             self.edbapp = Edb(aedbproject, "Galileo_G87173_204", edbversion=desktop_version, isreadonly=False)
 
     def teardown_class(self):
-
         self.edbapp.close_edb()
         self.edbapp = None
         self.local_scratch.remove()
         gc.collect()
+
+    def test_00_export_ipc2581(self):
+        ipc_path = os.path.join(self.local_scratch.path, "test.xml")
+        self.edbapp.export_to_ipc2581(ipc_path)
+        assert os.path.exists(ipc_path)
 
     def test_01_find_by_name(self):
         comp = self.edbapp.core_components.get_component_by_name("J1")
@@ -67,7 +71,8 @@ class TestClass:
         assert len(stackup.layers) > 2
         assert self.edbapp.core_stackup.stackup_layers["TOP"]._builder
         assert self.edbapp.core_stackup.stackup_layers["TOP"].id
-        assert isinstance(self.edbapp.core_stackup.stackup_layers["TOP"].layer_type, int)
+        assert isinstance(self.edbapp.core_stackup.stackup_layers["TOP"].layer_type, int) or str(
+            type(self.edbapp.core_stackup.stackup_layers["TOP"].layer_type)) == "<type 'LayerType'>"
 
     def test_05_get_signal_layers(self):
         signal_layers = self.edbapp.core_stackup.signal_layers
@@ -80,7 +85,10 @@ class TestClass:
     def test_07_vias_creation(self):
         self.edbapp.core_padstack.create_padstack(padstackname="myVia")
         assert "myVia" in list(self.edbapp.core_padstack.padstacks.keys())
-        assert self.edbapp.core_padstack.place_padstack([5e-3, 5e-3], "myVia")
+        self.edbapp.add_design_variable("via_x", 5e-3)
+        self.edbapp.add_design_variable("via_y", 1e-3)
+
+        assert self.edbapp.core_padstack.place_padstack(["via_x",  "via_x+via_y"], "myVia")
 
     def test_08_nets_query(self):
         signalnets = self.edbapp.core_nets.signal_nets
@@ -236,33 +244,35 @@ class TestClass:
         assert self.edbapp.core_hfss.create_coax_port_on_component("U2A5", ["RSVD_0", "V1P0_SO"])
 
     def test_37_create_circuit_port(self):
+        initial_len = len(self.edbapp.core_padstack.pingroups)
         assert (
             self.edbapp.core_siwave.create_circuit_port_on_net("U2A5", "V1P5_S3", "U2A5", "GND", 50, "test") == "test"
         )
-        p2 = self.edbapp.core_siwave.create_circuit_port_on_net("U2A5", "V1P5_S3", "U2A5", "GND", 50, "test")
+        p2 = self.edbapp.core_siwave.create_circuit_port_on_net("U2A5", "V3P3_S0", "U2A5", "GND", 50, "test")
         assert p2 != "test" and "test" in p2
         pins = self.edbapp.core_components.get_pin_from_component("U2A5")
         p3 = self.edbapp.core_siwave.create_circuit_port_on_pin(pins[200], pins[0])
         assert p3 != ""
-        p4 = self.edbapp.core_hfss.create_circuit_port_on_net("U2A5", "V1P5_S3")
-        assert "GND" in p4 and "V1P5_S3" in p4
+        p4 = self.edbapp.core_hfss.create_circuit_port_on_net("U2A5", "RSVD_9")
+        assert len(self.edbapp.core_padstack.pingroups) == initial_len + 6
+        assert "GND" in p4 and "RSVD_9" in p4
 
     def test_38_create_voltage_source(self):
         assert "Vsource_" in self.edbapp.core_siwave.create_voltage_source_on_net(
-            "U2A5", "V1P5_S3", "U2A5", "GND", 3.3, 0
+            "U2A5", "PCIE_RBIAS", "U2A5", "GND", 3.3, 0
         )
         pins = self.edbapp.core_components.get_pin_from_component("U2A5")
         assert "VSource_" in self.edbapp.core_siwave.create_voltage_source_on_pin(pins[300], pins[10], 3.3, 0)
 
     def test_39_create_current_source(self):
-        assert self.edbapp.core_siwave.create_current_source_on_net("U2A5", "V1P5_S3", "U2A5", "GND", 0.1, 0) != ""
+        assert self.edbapp.core_siwave.create_current_source_on_net("U2A5", "DDR3_DM1", "U2A5", "GND", 0.1, 0) != ""
         pins = self.edbapp.core_components.get_pin_from_component("U2A5")
-        assert "I22" == self.edbapp.core_siwave.create_current_source_on_pin(pins[300], pins[10], 0.1, 0, "I22")
+        assert "I22" == self.edbapp.core_siwave.create_current_source_on_pin(pins[301], pins[10], 0.1, 0, "I22")
 
     def test_39B_create_resistors(self):
         assert "myRes" in self.edbapp.core_siwave.create_resistor_on_net("U2A5", "V1P5_S0", "U2A5", "GND", 50, "myRes")
         pins = self.edbapp.core_components.get_pin_from_component("U2A5")
-        assert "RST4000" == self.edbapp.core_siwave.create_resistor_on_pin(pins[300], pins[10], 40, "RST4000")
+        assert "RST4000" == self.edbapp.core_siwave.create_resistor_on_pin(pins[302], pins[10], 40, "RST4000")
 
     def test_40_create_siwave_ac_analsyis(self):
         assert self.edbapp.core_siwave.add_siwave_ac_analysis()
@@ -398,7 +408,7 @@ class TestClass:
         pins = self.edbapp.core_components.get_pin_from_component("R13")
         assert self.edbapp.core_components.create_component_from_pins(pins, "newcomp")
 
-    def test_55_create_cutout(self):
+    def test_55b_create_cutout(self):
         output = os.path.join(self.local_scratch.path, "cutout.aedb")
         assert self.edbapp.create_cutout(["A0_N", "A0_P"], ["GND"], output_aedb_path=output)
         assert os.path.exists(os.path.join(output, "edb.def"))
@@ -410,6 +420,7 @@ class TestClass:
         assert self.edbapp.core_stackup.stackup_limits()
 
     def test_58_create_polygon(self):
+        os.environ["PYAEDT_ERROR_HANDLER"] = "True"
         points = [[-0.025, -0.02], [0.025, -0.02], [0.025, 0.02], [-0.025, 0.02], [-0.025, -0.02]]
         plane = self.edbapp.core_primitives.Shape("polygon", points=points)
         points = [
@@ -435,6 +446,7 @@ class TestClass:
         points = [[0.001, -0.001, "ccn", 0.0, -0.0012]]
         plane = self.edbapp.core_primitives.Shape("polygon", points=points)
         assert not self.edbapp.core_primitives.create_polygon(plane, "TOP")
+        os.environ["PYAEDT_ERROR_HANDLER"] = "False"
 
     def test_59_create_path(self):
         points = [
@@ -484,3 +496,6 @@ class TestClass:
         out = edb.export_maxwell(scratch_path, num_cores=6)
         assert os.path.exists(out)
         edb.close_edb()
+
+    def test_65_flatten_planes(self):
+        assert self.edbapp.core_primitives.unite_polygons_on_layer()

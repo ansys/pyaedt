@@ -1,5 +1,5 @@
 """
-EDB Parametric Via Creation
+EDB Geometry Creation
 ---------------------------
 This example shows how to use EDB to create a layout.
 """

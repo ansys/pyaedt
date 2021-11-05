@@ -107,7 +107,7 @@ Testing
 ~~~~~~~
 When making changes, periodically test locally before creating a pull request. Because the following tests are executed after any commit or pull request, we ask that you perform the following sequence locally to track down any new issues from your changes.
 
-. code::
+.. code::
 
     pip install -r requirements_test.txt
 

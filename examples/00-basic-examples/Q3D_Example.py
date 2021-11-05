@@ -122,4 +122,4 @@ a.data_magnitude()
 # `release_desktop` method.
 # All methods provide for saving projects before exiting.
 if os.name != "posix":
-    d.force_close_desktop()
+    d.release_desktop(close_projects=True, close_on_exit=True)

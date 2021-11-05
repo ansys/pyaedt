@@ -16,18 +16,21 @@ except ImportError:
 
 # Input Data and version for the test
 
-test_project_name = "Coax_HFSS"
+test_project_name = "Test_RadioBoard.aedt"
 
 
 class TestClass:
     def setup_class(self):
         with Scratch(scratch_path) as self.local_scratch:
-            self.test_project = os.path.join(self.local_scratch.path, "Test_RadioBoard.aedt")
-            self.aedtapp = Hfss3dLayout(self.test_project)
+            self.test_project = os.path.join(self.local_scratch.path, test_project_name)
+            try:
+                self.aedtapp = Hfss3dLayout(self.test_project)
+            except:
+                self.aedtapp = None
 
     def teardown_class(self):
-        assert self.aedtapp.close_project(self.aedtapp.project_name)
-        # self.local_scratch.remove()
+        self.aedtapp._desktop.ClearMessages("", "", 3)
+        self.aedtapp.close_project(self.aedtapp.project_name, saveproject=False)
         gc.collect()
 
     def test_01_creatematerial(self):
@@ -307,6 +310,13 @@ class TestClass:
         )
         assert sweep6.props["Sweeps"]["Data"] == '1GHz 2GHz 3GHz 4GHz'
 
+    def test_18d_delete_setup(self):
+        setup_name = "SetupToDelete"
+        setuptd = self.aedtapp.create_setup(setupname=setup_name)
+        assert setuptd.name in self.aedtapp.existing_analysis_setups
+        self.aedtapp.delete_setup(setup_name)
+        assert setuptd.name not in self.aedtapp.existing_analysis_setups
+
     def test_19A_validate(self):
         assert self.aedtapp.validate_full_design()
         self.aedtapp.delete_port("Port3")
@@ -314,6 +324,8 @@ class TestClass:
 
     def test_19B_analyze_setup(self):
         assert self.aedtapp.analyze_setup("RFBoardSetup3")
+        assert os.path.exists(self.aedtapp.export_profile("RFBoardSetup3"))
+        assert os.path.exists(self.aedtapp.export_mesh_stats("RFBoardSetup3"))
 
     @pytest.mark.skipif(os.name == "posix", reason="To be investigated on linux.")
     def test_19C_export_touchsthone(self):

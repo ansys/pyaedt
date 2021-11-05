@@ -11,4 +11,4 @@ The ``Mesh`` module includes these classes:
 
    Mesh.Mesh
    MeshIcepak.IcepakMesh
-   Mesh3DLayout.Mesh
+   Mesh3DLayout.Mesh3d

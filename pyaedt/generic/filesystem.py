@@ -72,19 +72,25 @@ class Scratch:
         except:
             pass
 
-    def copyfile(self, src_file):
+    def copyfile(self, src_file, dst_filename=None):
         """
 
         Parameters
         ----------
-        src_file :
+        src_file : str
+            Source File with fullpath
+        dst_filename : str, optional
+            Optional destination filename with extensione
 
 
         Returns
         -------
 
         """
-        dst_file = os.path.join(self.path, os.path.basename(src_file))
+        if dst_filename:
+            dst_file = os.path.join(self.path, dst_filename)
+        else:
+            dst_file = os.path.join(self.path, os.path.basename(src_file))
         shutil.copyfile(src_file, dst_file)
         return dst_file
 

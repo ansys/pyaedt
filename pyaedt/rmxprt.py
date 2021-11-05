@@ -1,8 +1,8 @@
 """This module contains these classes: `RMXprtModule` and `Rmxprt`."""
 from __future__ import absolute_import
 
-from .application.AnalysisRMxprt import FieldAnalysisRMxprt
-from .generic.general_methods import aedt_exception_handler
+from pyaedt.application.AnalysisRMxprt import FieldAnalysisRMxprt
+from pyaedt.generic.general_methods import aedt_exception_handler
 
 
 class RMXprtModule(object):

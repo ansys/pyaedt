@@ -1,8 +1,8 @@
 import math
 
-from ..generic.general_methods import aedt_exception_handler
-from .Modeler import Modeler, GeometryModeler
-from .Primitives2D import Primitives2D
+from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.modeler.Modeler import Modeler, GeometryModeler
+from pyaedt.modeler.Primitives2D import Primitives2D
 
 
 class ModelerRMxprt(Modeler):
@@ -13,13 +13,9 @@ class ModelerRMxprt(Modeler):
 
     """
 
-    def __init__(self, parent):
-        Modeler.__init__(self, parent)
-
-    @property
-    def oeditor(self):
-        """Editor."""
-        return self.odesign.SetActiveEditor("Machine")
+    def __init__(self, app):
+        Modeler.__init__(self, app)
+        self.oeditor = self._odesign.SetActiveEditor("Machine")
 
 
 class Modeler2D(GeometryModeler):
@@ -30,7 +26,7 @@ class Modeler2D(GeometryModeler):
 
     Parameters
     ----------
-    application :
+    application : :class:`pyaedt.application.Analysis2D.FieldAnalysis2D`
 
     is3d : bool, optional
         Whether the model is 3D. The default is ``False``.
@@ -39,11 +35,11 @@ class Modeler2D(GeometryModeler):
 
     def __init__(self, application):
         GeometryModeler.__init__(self, application, is3d=False)
-        self._primitives = Primitives2D(self._parent, self)
-        self._primitivesDes = self._parent.project_name + self._parent.design_name
+        self._primitives = Primitives2D(self)
+        self._primitivesDes = self._app.project_name + self._app.design_name
 
     def __get__(self, instance, owner):
-        self._parent = instance
+        self._app = instance
         return self
 
     @property
@@ -55,9 +51,9 @@ class Modeler2D(GeometryModeler):
         :class:`pyaedt.modeler.Primitives2D.Primitives2D`
 
         """
-        if self._primitivesDes != self._parent.project_name + self._parent.design_name:
+        if self._primitivesDes != self._app.project_name + self._app.design_name:
             self._primitives.refresh()
-            self._primitivesDes = self._parent.project_name + self._parent.design_name
+            self._primitivesDes = self._app.project_name + self._app.design_name
         return self._primitives
 
     @aedt_exception_handler

@@ -10,8 +10,8 @@ import os
 import time
 import warnings
 
-from ..generic.general_methods import aedt_exception_handler
-from .PostProcessor import PostProcessor as Post
+from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.modules.PostProcessor import PostProcessor as Post
 
 try:
     import numpy as np
@@ -74,13 +74,13 @@ class PostProcessor(Post):
 
     Parameters
     ----------
-    parent :
+    app :
         Inherited parent object.
 
     """
 
-    def __init__(self, parent):
-        Post.__init__(self, parent)
+    def __init__(self, app):
+        Post.__init__(self, app)
 
     @aedt_exception_handler
     def nb_display(self, show_axis=True, show_grid=True, show_ruler=True):
@@ -131,7 +131,7 @@ class PostProcessor(Post):
             numpy array containing ``[theta_range, phi_range, Etheta, Ephi]``.
         """
         if not setup_sweep_name:
-            setup_sweep_name = self._parent.nominal_adaptive
+            setup_sweep_name = self._app.nominal_adaptive
         results_dict = {}
         all_sources = self.post_osolution.GetAllSources()
         # assuming only 1 mode
@@ -292,12 +292,14 @@ class PostProcessor(Post):
         self,
         aedtplt_files=None,
         imageformat="jpg",
-        view="iso",
+        view="isometric",
         plot_type="Full",
         plot_label="Temperature",
         model_color="#8faf8f",
         show_model_edge=False,
         off_screen=False,
+        scale_min=None,
+        scale_max=None,
     ):
         """Export the 3D field solver mesh, fields, or both mesh and fields as images using Python Plotly.
 
@@ -312,8 +314,9 @@ class PostProcessor(Post):
             Format of the image file. Options are ``"jpg"``, ``"png"``, ``"svg"``, and
             ``"webp"``. The default is ``"jpg"``.
         view : str, optional
-            View to export. Options are ``"iso"``, ``"x"`` , ``"y"``, ``"z"``, and ``"all"``.
-            The default is ``"iso"``. The ``"all"`` option exports all views.
+            View to export. Options are `Options are ``isometric``,
+            ``top``, ``front``, ``left``, ``all``.
+            The ``"all"`` option exports all views.
         plot_type : str, optional
             Type of the plot. The default is ``"Full"``.
         plot_label : str, optional
@@ -325,6 +328,10 @@ class PostProcessor(Post):
             is ``False``.
         off_screen : bool, optional
              The default is ``False``.
+        scale_min : float, optional
+            Fix the Scale Minimum value.
+        scale_max : float, optional
+            Fix the Scale Maximum value.
 
         Returns
         -------
@@ -336,9 +343,9 @@ class PostProcessor(Post):
             aedtplt_files = [aedtplt_files]
 
         plot = pv.Plotter(off_screen=off_screen)
-        if not off_screen:
-            plot.enable_anti_aliasing()
-        plot.enable_fly_to_right_click()
+        # if not off_screen:
+        #     plot.enable_anti_aliasing()
+        # plot.enable_fly_to_right_click()
         lines = []
         for file in aedtplt_files:
             if ".aedtplt" in file:
@@ -398,7 +405,6 @@ class PostProcessor(Post):
                     title="Opacity",
                 )
         filename = os.path.splitext(aedtplt_files[0])[0]
-        print(filename)
         for drawing_lines in lines:
             bounding = []
             elements = []
@@ -466,7 +472,7 @@ class PostProcessor(Post):
                     log = True
                 else:
                     log = False
-                surf.point_arrays[plot_label] = temps
+                surf.point_data[plot_label] = temps
 
             sargs = dict(
                 title_font_size=10,
@@ -518,7 +524,6 @@ class PostProcessor(Post):
                             return
 
                     engine = MyCustomRoutine(surf)
-
                     plot.add_box_widget(
                         surf,
                         show_edges=False,
@@ -530,26 +535,31 @@ class PostProcessor(Post):
                         smooth_shading=True,
                         name="FieldPlot",
                     )
+                    if not off_screen:
+                        plot.add_slider_widget(
+                            callback=lambda value: engine("min_val", value),
+                            rng=[np.min(temps), np.max(temps)],
+                            title="Lower",
+                            style="modern",
+                            value=np.min(temps),
+                            pointa=(0.5, 0.98),
+                            pointb=(0.65, 0.98),
+                        )
 
-                    plot.add_slider_widget(
-                        callback=lambda value: engine("min_val", value),
-                        rng=[np.min(temps), np.max(temps)],
-                        title="Lower",
-                        style="modern",
-                        value=np.min(temps),
-                        pointa=(0.5, 0.98),
-                        pointb=(0.65, 0.98),
-                    )
-
-                    plot.add_slider_widget(
-                        callback=lambda value: engine("max_val", value),
-                        rng=[np.min(temps), np.max(temps)],
-                        title="Upper",
-                        style="modern",
-                        value=np.max(temps),
-                        pointa=(0.66, 0.98),
-                        pointb=(0.8, 0.98),
-                    )
+                        plot.add_slider_widget(
+                            callback=lambda value: engine("max_val", value),
+                            rng=[np.min(temps), np.max(temps)],
+                            title="Upper",
+                            style="modern",
+                            value=np.max(temps),
+                            pointa=(0.66, 0.98),
+                            pointb=(0.8, 0.98),
+                        )
+                    else:
+                        if isinstance(scale_max, float):
+                            engine("max_val", scale_max)
+                        if isinstance(scale_min, float):
+                            engine("min_val", scale_min)
                 else:
                     plot.add_box_widget(
                         surf, show_edges=True, line_width=0.1, color="grey", pickable=True, smooth_shading=True
@@ -557,7 +567,6 @@ class PostProcessor(Post):
             else:
                 plot.add_text("Full Plot", font_size=15)
                 if solution:
-
                     class MyCustomRoutine:
                         """ """
 
@@ -595,7 +604,6 @@ class PostProcessor(Post):
                             return
 
                     engine = MyCustomRoutine(surf)
-
                     plot.add_mesh(
                         surf,
                         show_edges=False,
@@ -607,45 +615,50 @@ class PostProcessor(Post):
                         smooth_shading=True,
                         name="FieldPlot",
                     )
+                    if not off_screen:
+                        plot.add_slider_widget(
+                            callback=lambda value: engine("min_val", value),
+                            rng=[np.min(temps), np.max(temps)],
+                            title="Lower",
+                            style="modern",
+                            value=np.min(temps),
+                            pointa=(0.5, 0.98),
+                            pointb=(0.65, 0.98),
+                        )
 
-                    plot.add_slider_widget(
-                        callback=lambda value: engine("min_val", value),
-                        rng=[np.min(temps), np.max(temps)],
-                        title="Lower",
-                        style="modern",
-                        value=np.min(temps),
-                        pointa=(0.5, 0.98),
-                        pointb=(0.65, 0.98),
-                    )
-
-                    plot.add_slider_widget(
-                        callback=lambda value: engine("max_val", value),
-                        rng=[np.min(temps), np.max(temps)],
-                        title="Upper",
-                        style="modern",
-                        value=np.max(temps),
-                        pointa=(0.66, 0.98),
-                        pointb=(0.8, 0.98),
-                    )
+                        plot.add_slider_widget(
+                            callback=lambda value: engine("max_val", value),
+                            rng=[np.min(temps), np.max(temps)],
+                            title="Upper",
+                            style="modern",
+                            value=np.max(temps),
+                            pointa=(0.66, 0.98),
+                            pointb=(0.8, 0.98),
+                        )
+                    else:
+                        if isinstance(scale_max, (int, float)):
+                            engine("max_val", scale_max)
+                        if isinstance(scale_min, (int, float)):
+                            engine("min_val", scale_min)
                 else:
                     plot.add_mesh(
                         surf, show_edges=True, line_width=0.1, color="grey", pickable=True, smooth_shading=True
                     )
             plot.show_axes()
-            plot.show_grid()
-            if view == "iso":
+            # plot.show_grid()
+            if view == "isometric":
                 plot.view_isometric()
-            elif view == "x":
+            elif view == "top":
                 plot.view_yz()
-            elif view == "y":
+            elif view == "front":
                 plot.view_xz()
-            elif view == "z":
+            elif view == "top":
                 plot.view_xy()
         files_list = []
 
         if plot:
             end = time.time() - start
-            self._messenger.add_info_message("PyVista plot generation took {} seconds.".format(end))
+            self.logger.glb.info("PyVista plot generation took {} seconds.".format(end))
             if off_screen:
                 if imageformat:
                     plot.show(screenshot=filename + "." + imageformat)
@@ -845,7 +858,7 @@ class PostProcessor(Post):
                 std = np.std(temps)
                 if np.min(temps) <= 0:
                     log = False
-                surf.point_arrays[plot_label] = temps
+                surf.point_data[plot_label] = temps
             if solution:
                 surfs.append(surf)
                 if np.min(temps) < mins:
@@ -922,7 +935,7 @@ class PostProcessor(Post):
                     break
                 i = 0
                 first_loop = False
-            scalars = surfs[i].point_arrays[plot_label]
+            scalars = surfs[i].point_data[plot_label]
             plot.update_scalars(scalars, render=False)
             # p.add_mesh(surfs[i], scalars=plot_label, log_scale=log, scalar_bar_args=sargs, cmap='rainbow',
             #            show_edges=False, pickable=True, smooth_shading=True, name="FieldPlot")
@@ -949,27 +962,27 @@ class PostProcessor(Post):
     @aedt_exception_handler
     def export_model_obj(self):
         """Export the model."""
-        assert self._parent._aedt_version >= "2021.2", self._messenger.add_error_message(
+        assert self._app._aedt_version >= "2021.2", self.logger.error(
             "Object is supported from AEDT 2021 R2."
         )
-        project_path = self._parent.project_path
-        obj_list = self._parent.modeler.primitives.object_names
+        project_path = self._app.project_path
+        obj_list = self._app.modeler.primitives.object_names
         obj_list = [
             i
             for i in obj_list
-            if not self._parent.modeler.primitives.objects[self._parent.modeler.primitives.get_obj_id(i)].is3d
+            if not self._app.modeler.primitives.objects[self._app.modeler.primitives.get_obj_id(i)].is3d
             or (
-                self._parent.modeler.primitives.objects[
-                    self._parent.modeler.primitives.get_obj_id(i)
+                self._app.modeler.primitives.objects[
+                    self._app.modeler.primitives.get_obj_id(i)
                 ].material_name.lower()
                 != "vacuum"
-                and self._parent.modeler.primitives.objects[
-                    self._parent.modeler.primitives.get_obj_id(i)
+                and self._app.modeler.primitives.objects[
+                    self._app.modeler.primitives.get_obj_id(i)
                 ].material_name.lower()
                 != "air"
             )
         ]
-        self._parent.modeler.oeditor.ExportModelMeshToFile(os.path.join(project_path, "Model.obj"), obj_list)
+        self._app.modeler.oeditor.ExportModelMeshToFile(os.path.join(project_path, "Model.obj"), obj_list)
         return os.path.join(project_path, "Model.obj")
 
     @aedt_exception_handler
@@ -988,19 +1001,19 @@ class PostProcessor(Post):
         -------
 
         """
-        project_path = self._parent.project_path
+        project_path = self._app.project_path
 
         if not setup_name:
-            setup_name = self._parent.nominal_adaptive
+            setup_name = self._app.nominal_adaptive
         face_lists = []
-        obj_list = self._parent.modeler.primitives.object_names
+        obj_list = self._app.modeler.primitives.object_names
         for el in obj_list:
-            obj_id = self._parent.modeler.primitives.get_obj_id(el)
-            if not self._parent.modeler.primitives.objects[obj_id].is3d or (
-                self._parent.modeler.primitives.objects[obj_id].material_name != "vacuum"
-                and self._parent.modeler.primitives.objects[obj_id].material_name != "air"
+            obj_id = self._app.modeler.primitives.get_obj_id(el)
+            if not self._app.modeler.primitives.objects[obj_id].is3d or (
+                    self._app.modeler.primitives.objects[obj_id].material_name != "vacuum"
+                    and self._app.modeler.primitives.objects[obj_id].material_name != "air"
             ):
-                face_lists += self._parent.modeler.primitives.get_object_faces(obj_id)
+                face_lists += self._app.modeler.primitives.get_object_faces(obj_id)
         plot = self.create_fieldplot_surface(face_lists, "Mesh", setup_name, intrinsic_dict)
         if plot:
             file_to_add = self.export_field_plot(plot.name, project_path)
@@ -1025,7 +1038,7 @@ class PostProcessor(Post):
         list
             List of plot files.
         """
-        assert self._parent._aedt_version >= "2021.2", self._messenger.add_error_message(
+        assert self._app._aedt_version >= "2021.2", self.logger.error(
             "Object is supported from AEDT 2021 R2."
         )
         files = [self.export_model_obj()]
@@ -1052,10 +1065,12 @@ class PostProcessor(Post):
         setup_name=None,
         intrinsic_dict={},
         imageformat="jpg",
-        view="iso",
+        view="isometric",
         plot_label="Temperature",
         plot_folder=None,
         off_screen=False,
+        scale_min=None,
+        scale_max=None,
     ):
         """Export a field plot to an image file (JPG or PNG) using Python Plotly.
 
@@ -1081,15 +1096,20 @@ class PostProcessor(Post):
             ``"png"``, ``"svg"``, and ``"webp"``. The default is
             ``"jpg"``.
         view : str, optional
-            View to export. Options are ``"iso"``, ``"x"`` , ``"y"``,
-            ``"z"``, and ``"all"``. The default is ``"iso"``. If
-            ``"all"``, all views are exported.
+            View to export. Options are ``isometric``, ``top``, ``front``,
+             ``left``, ``all``.. The default is ``"iso"``. If ``"all"``, all views are exported.
         plot_label : str, optional
             Type of the plot. The default is ``"Temperature"``.
         plot_folder : str, optional
-            Plot folder to update before exporting the
-            field. The default is ``None``, in which case all plot
+            Plot folder to update before exporting the field.
+            The default is ``None``, in which case all plot
             folders are updated.
+        off_screen : bool, optional
+            Export Image without plotting on UI.
+        scale_min : float, optional
+            Fix the Scale Minimum value.
+        scale_max : float, optional
+            Fix the Scale Maximum value.
 
         Returns
         -------
@@ -1104,7 +1124,7 @@ class PostProcessor(Post):
         start = time.time()
         files_to_add = []
         if not project_path:
-            project_path = self._parent.project_path
+            project_path = self._app.project_path
         file_to_add = self.export_field_plot(plotname, project_path)
         file_list = None
         if not file_to_add:
@@ -1112,15 +1132,15 @@ class PostProcessor(Post):
         else:
             files_to_add.append(file_to_add)
             if meshplot:
-                if self._parent._aedt_version >= "2021.2":
+                if self._app._aedt_version >= "2021.2":
                     files_to_add.append(self.export_model_obj())
                 else:
                     file_to_add = self.export_mesh_obj(setup_name, intrinsic_dict)
                     if file_to_add:
                         files_to_add.append(file_to_add)
             file_list = self._plot_from_aedtplt(
-                files_to_add, imageformat=imageformat, view=view, plot_label=plot_label, off_screen=off_screen
-            )
+                files_to_add, imageformat=imageformat, view=view, plot_label=plot_label, off_screen=off_screen,
+                scale_min=scale_min, scale_max=scale_max)
             endt = time.time() - start
             print("Field Generation, export and plot time: ", endt)
         return file_list
@@ -1182,14 +1202,14 @@ class PostProcessor(Post):
             self.ofieldsreporter.UpdateQuantityFieldsPlots(plot_folder)
         files_to_add = []
         if meshplot:
-            if self._parent._aedt_version >= "2021.2":
+            if self._app._aedt_version >= "2021.2":
                 files_to_add.append(self.export_model_obj())
             else:
                 file_to_add = self.export_mesh_obj(setup_name, intrinsic_dict)
                 if file_to_add:
                     files_to_add.append(file_to_add)
         for el in variation_list:
-            self._parent.odesign.ChangeProperty(
+            self._app._odesign.ChangeProperty(
                 [
                     "NAME:AllTabs",
                     [
@@ -1266,10 +1286,10 @@ class PostProcessor(Post):
             ``True`` when successful, ``False`` when failed.
         """
         if not project_path:
-            project_path = self._parent.project_path
+            project_path = self._app.project_path
         files_to_add = []
         if meshplot:
-            if self._parent._aedt_version >= "2021.2":
+            if self._app._aedt_version >= "2021.2":
                 files_to_add.append(self.export_model_obj())
             else:
                 file_to_add = self.export_mesh_obj(setup_name, intrinsic_dict)

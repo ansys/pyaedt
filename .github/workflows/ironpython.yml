@@ -21,22 +21,21 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: 'Run Unit Tests in Ironpython'
+        timeout-minutes: 20
         run: |
-          start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmode.cmd'
-          $Timeout = 1200
-          while (($Timeout -gt 0) -and (!(Test-Path ".\_unittest_ironpython\tests_succeeded.log")))
+          $process = start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmode.cmd' -PassThru
+
+          $process.WaitForExit()
+
+          get-content .\_unittest_ironpython\runner_unittest.log
+
+          $test_errors_failures = Select-String -Path .\_unittest_ironpython\runner_unittest.log -Pattern "errors=0 failures=0"
+
+          if ($test_errors_failures -ne $null)
           {
-            Start-Sleep 1
-            $Timeout -= 1
-          }
-          if ( $Timeout  -eq 0)
-          {
-            get-content .\_unittest_ironpython\runner_unittest.log
-            exit 1
+          exit 0
           }
           else
           {
-            get-content .\_unittest_ironpython\runner_unittest.log
-            exit 0
+          exit 1
           }
-

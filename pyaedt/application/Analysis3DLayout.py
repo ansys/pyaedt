@@ -1,9 +1,16 @@
-from ..generic.general_methods import aedt_exception_handler
-from ..modeler.Model3DLayout import Modeler3DLayout
-from ..modules.Mesh3DLayout import Mesh
-from ..modules.SetupTemplates import SetupKeys
-from ..modules.SolveSetup import Setup3DLayout
-from .Analysis import Analysis
+import os
+
+from pyaedt.generic.general_methods import aedt_exception_handler, is_ironpython
+from pyaedt.modeler.Model3DLayout import Modeler3DLayout
+from pyaedt.modules.Mesh3DLayout import Mesh3d
+from pyaedt.modules.SetupTemplates import SetupKeys
+from pyaedt.modules.SolveSetup import Setup3DLayout
+from pyaedt.application.Analysis import Analysis
+
+if is_ironpython:
+    from pyaedt.modules.PostProcessor import PostProcessor
+else:
+    from pyaedt.modules.AdvancedPostProcessing import PostProcessor
 
 
 class FieldAnalysis3DLayout(Analysis):
@@ -63,7 +70,6 @@ class FieldAnalysis3DLayout(Analysis):
         close_on_exit=False,
         student_version=False,
     ):
-
         Analysis.__init__(
             self,
             application,
@@ -77,24 +83,16 @@ class FieldAnalysis3DLayout(Analysis):
             close_on_exit,
             student_version,
         )
-        self._messenger.add_info_message("Analysis Loaded")
+        self.osolution = self._odesign.GetModule("SolveSetups")
+        self.oexcitation = self._odesign.GetModule("Excitations")
+        self.oboundary = self._odesign.GetModule("Excitations")
+        self.logger.glb.info("Analysis Loaded")
         self._modeler = Modeler3DLayout(self)
         self._modeler.primitives.init_padstacks()
-        self._messenger.add_info_message("Modeler Loaded")
-        self._mesh = Mesh(self)
+        self.logger.glb.info("Modeler Loaded")
+        self._mesh = Mesh3d(self)
+        self._post = PostProcessor(self)
         # self._post = PostProcessor(self)
-
-    @property
-    def oboundary(self):
-        """Boundary.
-
-        Returns
-        -------
-        AEDT object
-            Boundaries module object.
-
-        """
-        return self._odesign.GetModule("Excitations")
 
     @property
     def mesh(self):
@@ -102,7 +100,7 @@ class FieldAnalysis3DLayout(Analysis):
 
         Returns
         -------
-        :class:`pyaedt.modules.Mesh3DLayout.Mesh`
+        :class:`pyaedt.modules.Mesh3DLayout.Mesh3d`
         """
         return self._mesh
 
@@ -146,6 +144,29 @@ class FieldAnalysis3DLayout(Analysis):
                 spar.append("S({},{})".format(i, excitation_names[k]))
                 k += 1
         return spar
+
+    @aedt_exception_handler
+    def export_mesh_stats(self, setup_name, variation_string="", mesh_path=None):
+        """Export mesh statistics to a file.
+
+        Parameters
+        ----------
+        setup_name :str
+            Setup name.
+        variation_string : str, optional
+            Variation List.
+        mesh_path : str, optional
+            Full path to mesh statistics file.
+
+        Returns
+        -------
+        str
+            File Path.
+        """
+        if not mesh_path:
+            mesh_path = os.path.join(self.project_path, "meshstats.ms")
+        self.odesign.ExportMeshStats(setup_name, variation_string, mesh_path)
+        return mesh_path
 
     @aedt_exception_handler
     def get_all_return_loss_list(self, excitation_names=[], excitation_name_prefix=""):
@@ -205,7 +226,7 @@ class FieldAnalysis3DLayout(Analysis):
         if not reclist:
             reclist = [i for i in self.get_excitations_name if rx_prefix in i]
         if len(trlist) != len(reclist):
-            self._messenger.add_error_message("TX and RX should be same length lists")
+            self.logger.glb.error("The TX and RX lists should be same length.")
             return False
         for i, j in zip(trlist, reclist):
             spar.append("S({},{})".format(i, j))
@@ -282,33 +303,10 @@ class FieldAnalysis3DLayout(Analysis):
         """Modeler object."""
         return self._modeler
 
-    # @property
-    # def mesh(self):
-    #     return self._mesh
-    #
-    # @property
-    # def post(self):
-    #     return self._post
-
-    @property
-    def osolution(self):
-        """Solution object."""
-        return self.odesign.GetModule("SolveSetups")
-
-    @property
-    def oexcitation(self):
-        """Excitation object."""
-        return self.odesign.GetModule("Excitations")
-
     @property
     def port_list(self):
         """Port list."""
         return self.oexcitation.GetAllPortsList()
-
-    @property
-    def oanalysis(self):
-        """Analysis."""
-        return self.odesign.GetModule("SolveSetups")
 
     @property
     def existing_analysis_setups(self):
@@ -320,8 +318,7 @@ class FieldAnalysis3DLayout(Analysis):
             List of names of all analysis setups in the design.
 
         """
-        oModule = self.odesign.GetModule("SolveSetups")
-        setups = list(oModule.GetSetups())
+        setups = list(self.oanalysis.GetSetups())
         return setups
 
     @aedt_exception_handler
@@ -382,3 +379,36 @@ class FieldAnalysis3DLayout(Analysis):
         setup = Setup3DLayout(self, setuptype, setupname, isnewsetup=False)
         self.analysis_setup = setupname
         return setup
+
+    @aedt_exception_handler
+    def delete_setup(self, setupname):
+        """Delete a setup.
+
+        Parameters
+        ----------
+        setupname : str
+            Name of the setup.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        Create a setup and then delete it.
+
+        >>> import pyaedt
+        >>> hfss3dlayout = pyaedt.Hfss3dLayout()
+        >>> setup1 = hfss3dlayout.create_setup(setupname='Setup1')
+        >>> hfss3dlayout.delete_setup(setupname='Setup1')
+        ...
+        pyaedt info: Sweep was deleted correctly.
+        """
+        if setupname in self.existing_analysis_setups:
+            self.osolution.Delete(setupname)
+            for s in self.setups:
+                if s.name == setupname:
+                    self.setups.remove(s)
+            return True
+        return False

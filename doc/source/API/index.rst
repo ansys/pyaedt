@@ -9,6 +9,7 @@ documentation.
 .. toctree::
    :maxdepth: 2
 
+   ClientServer
    Application
    DesktopMessenger
    CoreModules
@@ -20,4 +21,6 @@ documentation.
    SetupTemplates
    Boundaries
    MultiPartComponent
+   LogHandler
+   AedtLogger
 

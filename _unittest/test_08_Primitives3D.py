@@ -2,6 +2,7 @@
 import os
 import sys
 import time
+import gc
 
 try:
     import pytest
@@ -10,7 +11,7 @@ except:
 
 # Setup paths for module imports
 from _unittest.conftest import scratch_path, local_path, BasisTest, pyaedt_unittest_check_desktop_error, config
-
+from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.filesystem import Scratch
 from pyaedt.modeler.Primitives import Polyline, PolylineSegment
 from pyaedt.modeler.Object3d import Object3d
@@ -25,12 +26,12 @@ step = "input.stp"
 
 class TestClass(BasisTest):
     def setup_class(self):
+        gc.collect()
         BasisTest.setup_class(self, project_name="test_primitives", design_name="3D_Primitives")
         with Scratch(scratch_path) as self.local_scratch:
             scdoc_file = os.path.join(local_path, "example_models", scdoc)
             self.local_scratch.copyfile(scdoc_file)
-            step_file = os.path.join(local_path, "example_models", step)
-            self.local_scratch.copyfile(step_file)
+            self.step_file = os.path.join(local_path, "example_models", step)
             test_98_project = os.path.join(local_path, "example_models", "assembly2" + ".aedt")
             self.test_98_project = self.local_scratch.copyfile(test_98_project)
             test_99_project = os.path.join(local_path, "example_models", "assembly" + ".aedt")
@@ -162,7 +163,7 @@ class TestClass(BasisTest):
     def test_05_center_and_centroid(self):
         o = self.create_copper_box()
         tol = 1e-9
-        assert GeometryOperators.v_norm(o.faces[0].center) - GeometryOperators.v_norm(o.faces[0].centroid) < tol
+        assert GeometryOperators.v_norm(o.faces[0].center_from_aedt) - GeometryOperators.v_norm(o.faces[0].center) < tol
 
     @pyaedt_unittest_check_desktop_error
     def test_11_get_object_name_from_edge(self):
@@ -179,7 +180,7 @@ class TestClass(BasisTest):
     @pyaedt_unittest_check_desktop_error
     def test_11a_get_faces_from_mat(self):
         self.create_copper_box()
-        faces = self.aedtapp.modeler.select_allfaces_from_mat("Copper")
+        faces = self.aedtapp.modeler.get_faces_from_materials("Copper")
         assert len(faces) >= 6
 
     @pyaedt_unittest_check_desktop_error
@@ -589,20 +590,20 @@ class TestClass(BasisTest):
         self.cache.ignore_error_message_local("Wrong Type Entered. Type must be integer from 0 to 3")
         o = self.create_copper_box(name="MyBox")
         assert o.edges[0].chamfer()
-        self.aedtapp.odesign.Undo()
+        self.aedtapp._odesign.Undo()
         assert o.edges[0].chamfer(chamfer_type=1)
-        self.aedtapp.odesign.Undo()
+        self.aedtapp._odesign.Undo()
         assert o.edges[0].chamfer(chamfer_type=2)
-        self.aedtapp.odesign.Undo()
+        self.aedtapp._odesign.Undo()
         assert o.edges[0].chamfer(chamfer_type=3)
-        self.aedtapp.odesign.Undo()
+        self.aedtapp._odesign.Undo()
         assert not o.edges[0].chamfer(chamfer_type=4)
 
     @pyaedt_unittest_check_desktop_error
     def test_43_fillet_and_undo(self):
         o = self.create_copper_box(name="MyBox")
         assert o.edges[0].fillet()
-        self.aedtapp.odesign.Undo()
+        self.aedtapp._odesign.Undo()
         assert o.edges[0].fillet()
 
     @pyaedt_unittest_check_desktop_error
@@ -826,10 +827,11 @@ class TestClass(BasisTest):
 
     @pyaedt_unittest_check_desktop_error
     def test_61_get_closest_edge_to_position(self):
-        self.create_copper_box()
-        self.aedtapp.modeler.primitives.get_closest_edgeid_to_position([0.2, 0, 0])
+        my_box = self.create_copper_box("test_closest_edge")
+        assert isinstance(self.aedtapp.modeler.primitives.get_closest_edgeid_to_position([0.2, 0, 0]), int)
+        pass
 
-    @pytest.mark.skipif(config["build_machine"], reason="Not running in non-graphical mode")
+    @pytest.mark.skipif(config["build_machine"] or is_ironpython, reason="Not running in non-graphical mode")
     @pyaedt_unittest_check_desktop_error
     def test_62_import_space_claim(self):
         self.aedtapp.insert_design("SCImport")
@@ -839,13 +841,12 @@ class TestClass(BasisTest):
     @pyaedt_unittest_check_desktop_error
     def test_63_import_step(self):
         self.aedtapp.insert_design("StepImport")
-        assert self.aedtapp.modeler.import_3d_cad(os.path.join(self.local_scratch.path, step))
-        assert len(self.aedtapp.modeler.primitives.objects) == 1
-        pass
+        assert self.aedtapp.modeler.import_3d_cad(self.step_file)
+        assert len(self.aedtapp.modeler.primitives.object_names) == 1
 
     @pyaedt_unittest_check_desktop_error
     def test_64_create_equationbased_curve(self):
-
+        self.aedtapp.insert_design("Equations")
         eq_line = self.aedtapp.modeler.primitives.create_equationbased_curve(x_t="_t", y_t="_t*2", num_points=0)
         assert len(eq_line.edges) == 1
         eq_segmented = self.aedtapp.modeler.primitives.create_equationbased_curve(x_t="_t", y_t="_t*2", num_points=5)

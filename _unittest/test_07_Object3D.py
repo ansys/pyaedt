@@ -21,6 +21,7 @@ class TestClass:
             self.prim = self.aedtapp.modeler.primitives
 
     def teardown_class(self):
+        self.aedtapp._desktop.ClearMessages("", "", 3)
         self.aedtapp.close_project(name=self.aedtapp.project_name, saveproject=False)
         self.local_scratch.remove()
         gc.collect()
@@ -203,13 +204,13 @@ class TestClass:
         initial_object.model = False
         initial_object.draw_wireframe = True
 
-    def test_top_face(self):
+    def test_08A_top_face(self):
         o = self.create_copper_box()
         assert isinstance(o.top_face_x, FacePrimitive)
         assert isinstance(o.top_face_y, FacePrimitive)
         assert isinstance(o.top_face_z, FacePrimitive)
 
-    def test_bottom_face(self):
+    def test_08B_bottom_face(self):
         o = self.create_copper_box()
         assert isinstance(o.bottom_face_x, FacePrimitive)
         assert isinstance(o.bottom_face_y, FacePrimitive)

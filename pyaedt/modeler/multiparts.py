@@ -1,17 +1,17 @@
 import os
 
-from .parts import Part, Antenna
-from ..generic.DataHandlers import json_to_dict
-from ..generic.filesystem import get_json_files
-from .GeometryOperators import GeometryOperators
-from ..generic.general_methods import aedt_exception_handler
+from pyaedt.modeler.parts import Part, Antenna
+from pyaedt.generic.DataHandlers import json_to_dict
+from pyaedt.generic.filesystem import get_json_files
+from pyaedt.modeler.GeometryOperators import GeometryOperators
+from pyaedt.generic.general_methods import aedt_exception_handler
 
 
 class MultiPartComponent(object):
-    """Supports multi-part 3D components for AEDT SBR+.
+    """Supports multi-part 3D components for HFSS SBR+.
 
     .. note::
-           Forward motion is in the X-direction if motion is set.
+           Forward motion is in the X-axis direction if motion is set.
 
     Parameters
     ----------
@@ -37,7 +37,7 @@ class MultiPartComponent(object):
         List of ``[x, y, z]`` coordinate values defining the component offset.
         The default is ``["0", "0", "0"]``.
     yaw : str or float, optional
-        Yaw angle, indicating the rotation about the component Z-axis. The default
+        Yaw angle, indicating the rotation about the component's Z-axis. The default
         is ``"0deg"``.
     pitch : str or float, optional
         Pitch angle, indicating the rotation about the component Y-axis The default
@@ -45,6 +45,9 @@ class MultiPartComponent(object):
     roll : str or float, optional
         Roll angle, indicating the rotation about the component X-axis. The default
         is ``"0deg"``.
+    roll : str or float, optional
+        Roll angle, indicating the rotation about the component's X-axis. The default
+
     """
 
     _component_classes = ["environment", "rcs_standard", "vehicle", "person", "bike", "bird", "radar"]
@@ -55,7 +58,7 @@ class MultiPartComponent(object):
     # for c in _component_classes:
     #     _count[c] = 0
 
-    # Initialization variables and values for the app using
+    # Initialize variables and values for the app using
     # the MultiPartComponent
     _t = "time_var"
     _t_value = "0s"
@@ -178,7 +181,7 @@ class MultiPartComponent(object):
 
     @property
     def index(self):
-        """Track number of self._name using MultiPartComponent._names.
+        """Number of multi-part components.
 
         Returns
         -------
@@ -353,7 +356,7 @@ class MultiPartComponent(object):
 
     @property
     def use_global_cs(self):
-        """Use global coordinate system.
+        """Global coordinate system.
 
         Returns
         -------
@@ -364,7 +367,7 @@ class MultiPartComponent(object):
 
     @property
     def offset(self):
-        """Offset for multi-part component.
+        """Offset values for the multi-part component.
 
         Returns
         -------
@@ -381,16 +384,16 @@ class MultiPartComponent(object):
 
     @aedt_exception_handler
     def position_in_app(self, app):
-        """Set up design variables and values to enable motion for the multi-part 3D component in the application.
+        """Set up design variables and values to enable motion for the multi-part 3D component.
 
         Parameters
         ----------
-        app : pyaedt.Hfss, required
-            HFSS pplication instance.
+        app : pyaedt.Hfss
+            HFSS application instance.
 
         Returns
         -------
-        Coordinate system.
+        :class:`pyaedt.modeler.Modeler.CoordinateSystem`
         """
         if self.motion:
             xyz = ["x", "y", "z"]
@@ -433,7 +436,7 @@ class MultiPartComponent(object):
 
         Parameters
         ----------
-        app: :class:`pyaedt.hfss.Hfss`
+        app : :class:`pyaedt.hfss.Hfss`
             HFSS application where multi-part component is to be inserted.
         motion : bool, optional
             Whether variables (yaw, pitch, and roll) should be created in the app to set position.
@@ -461,7 +464,7 @@ class MultiPartComponent(object):
 
     @aedt_exception_handler
     def insert(self, app, motion=False):
-        """Insert the object into the app.
+        """Insert the object in HFSS SBR+.
 
         Returns
         -------
@@ -471,19 +474,20 @@ class MultiPartComponent(object):
 
 
 class Environment(MultiPartComponent, object):
-    """Supports multi-part 3D components without motion for AEDT SBR+.
+    """Supports multi-part 3D components without motion for HFSS SBR+.
 
     This class is derived from :class:`MultiPartComponent`. Its
     call signature is identical to the parent class except
-    motion is always set to ``False``.
+    ``motion`` is always set to ``False``.
 
     Parameters
     ----------
     env_folder : str
         Full path to the folder with the JSON file containing the component definition.
     relative_cs_name : str, optional
-        Name of the coordinate system to connect the multi-part relative system to.
-        The default is ``None``.
+        Name of the coordinate system to connect the component's relative system to
+        when ``use_relative_cs=True``. The default is ``None``, in which case the
+        global coordinate system is used.
     """
 
     def __init__(self, env_folder, relative_cs_name=None):
@@ -566,7 +570,7 @@ class Actor(MultiPartComponent, object):
 
     This class is derived from :class:`MultiPartComponent`.
 
-    .. note::  Motion is always forward in the X-direction.
+    .. note::  Motion is always forward in the X-axis direction.
 
     Parameters
     ----------

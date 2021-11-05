@@ -13,8 +13,9 @@ You can edit a setup after it is created. Here is an example:
 
     hfss = Hfss()
     # Any property of this setup can be found in this page.
-    hfss.props["AdaptMultipleFreqs"] = True
-    hfss.update()
+    setup = hfss.create_setup()
+    setup.props["AdaptMultipleFreqs"] = True
+    setup.update()
 
 
 

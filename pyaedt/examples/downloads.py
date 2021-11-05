@@ -5,7 +5,7 @@ import shutil
 import zipfile
 import tempfile
 
-from pyaedt import is_ironpython
+from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.misc import list_installed_ansysem
 
 if is_ironpython:
@@ -281,7 +281,8 @@ def download_multiparts():
     """
     _download_file("multiparts", "library.zip")
     dest_folder = os.path.join(EXAMPLES_PATH, "multiparts")
-    unzip(os.path.join(EXAMPLES_PATH, "multiparts", "library.zip"), dest_folder)
+    if os.path.exists(os.path.join(EXAMPLES_PATH, "multiparts", "library.zip")):
+        unzip(os.path.join(EXAMPLES_PATH, "multiparts", "library.zip"), dest_folder)
     return os.path.join(dest_folder, "library")
 
 

@@ -12,6 +12,17 @@ import inspect
 import itertools
 
 logger = logging.getLogger(__name__)
+is_ironpython = "IronPython" in sys.version or ".NETFramework" in sys.version
+_pythonver = sys.version_info[0]
+inside_desktop = True
+import sys
+
+try:
+    import ScriptEnv
+
+    ScriptEnv.Initialize("Ansoft.ElectronicsDesktop")
+except:
+    inside_desktop = False
 
 
 class MethodNotSupportedError(Exception):
@@ -20,17 +31,20 @@ class MethodNotSupportedError(Exception):
     pass
 
 
-def _write_mes(mes_text, print_on_desktop=False):
+def _write_mes(mes_text):
+    mes_text = str(mes_text)
+    parts = [mes_text[i:i + 80] for i in range(0, len(mes_text), 80)]
+
     if os.getenv("PYAEDT_SCREEN_LOGS", "True").lower() in ("true", "1", "t"):
-        print(mes_text)
+        for el in parts:
+            print(el)
     if logger and os.getenv("PYAEDT_FILE_LOGS", "True").lower() in ("true", "1", "t"):
-        logger.error(str(mes_text))
-    if (
-        print_on_desktop
-        and os.getenv("PYAEDT_DESKTOP_LOGS", "True").lower() in ("true", "1", "t")
-        and "oDesktop" in dir(sys.modules["__main__"])
-    ):
-        sys.modules["__main__"].oDesktop.AddMessage("", "", 2, (str(mes_text)))
+        for el in parts:
+            logger.error(el)
+    if (os.getenv("PYAEDT_DESKTOP_LOGS", "True").lower() in ("true", "1", "t")
+            and "oDesktop" in dir(sys.modules["__main__"])):
+        for el in parts:
+            sys.modules["__main__"].oDesktop.AddMessage("", "", 2, el)
 
 
 def _exception(ex_info, func, args, kwargs, message="Type Error"):
@@ -53,46 +67,93 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
     -------
 
     """
-    if os.getenv("PYAEDT_SCREEN_LOGS", "True").lower() in ("true", "1", "t"):
-        _write_mes("**************************************************************")
-        _write_mes("pyaedt Error on Method {}:  {}. Please Check again".format(func.__name__, message), True)
-        _write_mes("Arguments Provided: ")
+    _write_mes("**************************************************************")
+    _write_mes("pyaedt error on Method {}:  {}. Please Check again".format(func.__name__, message))
+    _write_mes("Arguments Provided: ")
+    try:
+        if int(sys.version[0]) > 2:
+            args_name = list(OrderedDict.fromkeys(inspect.getfullargspec(func)[0] + list(kwargs.keys())))
+            args_dict = OrderedDict(list(itertools.zip_longest(args_name, args)) + list(kwargs.items()))
+        else:
+            args_name = list(OrderedDict.fromkeys(inspect.getargspec(func)[0] + list(kwargs.keys())))
+            args_dict = OrderedDict(list(itertools.izip(args_name, args)) + list(kwargs.iteritems()))
 
-        try:
-
-            if int(sys.version[0]) > 2:
-                args_name = list(OrderedDict.fromkeys(inspect.getfullargspec(func)[0] + list(kwargs.keys())))
-                args_dict = OrderedDict(list(itertools.zip_longest(args_name, args)) + list(kwargs.items()))
-            else:
-                args_name = list(OrderedDict.fromkeys(inspect.getargspec(func)[0] + list(kwargs.keys())))
-                args_dict = OrderedDict(list(itertools.izip(args_name, args)) + list(kwargs.iteritems()))
-
-            for el in args_dict:
-                if el != "self":
-                    _write_mes("    {} = {} ".format(el, args_dict[el]))
-        except:
-            if len(args) > 1:
-                _write_mes(args[1:], kwargs)
-            else:
-                _write_mes(kwargs)
-    ex_value = ex_info[1]
+        for el in args_dict:
+            if el != "self":
+                _write_mes("    {} = {} ".format(el, args_dict[el]))
+    except:
+        pass
     tb_data = ex_info[2]
     tb_trace = traceback.format_tb(tb_data)
     if len(tb_trace) > 1:
         tblist = tb_trace[1].split("\n")
     else:
         tblist = tb_trace[0].split("\n")
-    _write_mes(str(ex_value), True)
     for el in tblist:
-        # self._main.oDesktop.AddMessage(proj_name, des_name, 2, el)
-        if "inner_function" not in el and "**kwargs" not in el:
-            _write_mes(el, True)
+        if func.__name__ in el:
+            _write_mes("Error in : ")
+            _write_mes(el)
     _write_mes("")
     _write_mes("")
-    _write_mes("Method Docstring: ")
+    _write_mes("Check Online documentation on: ")
     _write_mes("")
-    _write_mes(func.__doc__)
+    _write_mes("https://aedtdocs.pyansys.com/search.html?q={}".format(func.__name__))
     _write_mes("************************************************************")
+
+def _check_types(arg):
+    if "netref.builtins.list" in str(type(arg)):
+        return "list"
+    elif "netref.builtins.dict" in str(type(arg)):
+        return "dict"
+    elif "netref.__builtin__.list" in str(type(arg)):
+        return "list"
+    elif "netref.__builtin__.dict" in str(type(arg)):
+        return "dict"
+    return ""
+
+
+def convert_remote_object(arg):
+    """Convert Remote list or dict to native list and dictionary.
+
+    .. note::
+        This is needed only on Cpython to Ironpython Connection.
+
+    Parameters
+    ----------
+    arg : dict or list
+        Object to convert
+    Returns
+    -------
+    dict or list
+    """
+    if _check_types(arg) == "list":
+        return list(eval(str(arg)))
+    elif _check_types(arg) == "dict":
+        return dict(eval(str(arg)))
+    return arg
+
+
+def _remote_list_conversion(args):
+    if not os.getenv("PYAEDT_IRONPYTHON_SERVER", "False").lower() in ("true", "1", "t"):
+        return args
+    new_args = []
+    if args:
+        for arg in args:
+            new_args.append(convert_remote_object(arg))
+    return new_args
+
+
+def _remote_dict_conversion(args):
+    if not os.getenv("PYAEDT_IRONPYTHON_SERVER", "False").lower() in ("true", "1", "t"):
+        return args
+
+    if args:
+        new_kwargs = {}
+        for arg in args:
+            new_kwargs[arg] = convert_remote_object(args[arg])
+    else:
+        new_kwargs = args
+    return new_kwargs
 
 
 def aedt_exception_handler(func):
@@ -114,7 +175,9 @@ def aedt_exception_handler(func):
     def inner_function(*args, **kwargs):
         if os.getenv("PYAEDT_ERROR_HANDLER", "True").lower() in ("true", "1", "t"):
             try:
-                return func(*args, **kwargs)
+                new_args = _remote_list_conversion(args)
+                new_kwargs = _remote_dict_conversion(kwargs)
+                return func(*new_args, **new_kwargs)
             except TypeError:
                 _exception(sys.exc_info(), func, args, kwargs, "Type Error")
                 return False
@@ -143,7 +206,7 @@ def aedt_exception_handler(func):
                 message = "This Method is not supported in current AEDT Design Type."
                 if os.getenv("PYAEDT_SCREEN_LOGS", "True").lower() in ("true", "1", "t"):
                     print("**************************************************************")
-                    print("pyaedt Error on Method {}:  {}. Please Check again".format(func.__name__, message))
+                    print("pyaedt error on Method {}:  {}. Please Check again".format(func.__name__, message))
                     print("**************************************************************")
                     print("")
                 if os.getenv("PYAEDT_FILE_LOGS", "True").lower() in ("true", "1", "t"):
@@ -179,7 +242,7 @@ def env_path(input_version):
         else:
             release -= 2
     v_key = "ANSYSEM_ROOT{0}{1}".format(version, release)
-    return os.getenv(v_key)
+    return os.getenv(v_key, "")
 
 
 @aedt_exception_handler
@@ -335,6 +398,12 @@ def retry_ntimes(n, function, *args, **kwargs):
             time.sleep(0.1)
         else:
             break
+    if retry == n:
+        if "__name__" in dir(function):
+            raise AttributeError("Error in Executing Method {}.".format(function.__name__))
+        else:
+            raise AttributeError("Error in Executing Method.")
+
     return ret_val
 
 
@@ -364,3 +433,38 @@ def is_number(a):
     else:
         return False
     # return str(a).replace(".", "").replace("+", "").replace("-", "").replace("e","").replace("E","").isnumeric()
+
+
+def is_project_locked(project_path):
+    """Checks if an aedt project lock file exists.
+
+    Parameters
+    ----------
+    project_path : str
+        Aedt project path.
+
+    Returns
+    -------
+    bool
+    """
+    return os.path.exists(project_path[:-4]+"lock")
+
+@aedt_exception_handler
+def remove_project_lock(project_path):
+    """Checks if an aedt project exists and try to remove the lock file.
+
+    .. note::
+       This operation is risky because the file could be opened in another Desktop instance.
+
+    Parameters
+    ----------
+    project_path : str
+        Aedt project path.
+
+    Returns
+    -------
+    bool
+    """
+    if os.path.exists(project_path[:-4] + "lock"):
+        os.remove(project_path[:-4] + "lock")
+    return True

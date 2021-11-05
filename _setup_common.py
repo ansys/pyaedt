@@ -53,6 +53,20 @@ packages = [
     "pyaedt.generic",
     "pyaedt.edb_core",
     "pyaedt.examples",
+    "pyaedt.rpc",
+    "pyaedt.third_party",
+    "pyaedt.third_party.ironpython",
+    "pyaedt.third_party.ironpython.rpyc",
+    "pyaedt.third_party.ironpython.rpyc.core",
+    "pyaedt.third_party.ironpython.rpyc.lib",
+    "pyaedt.third_party.ironpython.rpyc.utils",
+    "pyaedt.third_party.ironpython.plumbum",
+    "pyaedt.third_party.ironpython.plumbum.cli",
+    "pyaedt.third_party.ironpython.plumbum.colorlib",
+    "pyaedt.third_party.ironpython.plumbum.commands",
+    "pyaedt.third_party.ironpython.plumbum.fs",
+    "pyaedt.third_party.ironpython.plumbum.machines",
+    "pyaedt.third_party.ironpython.plumbum.path",
 ]
 
 data_files = [

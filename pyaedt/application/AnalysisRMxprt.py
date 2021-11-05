@@ -1,7 +1,8 @@
-from ..generic.general_methods import aedt_exception_handler
-from ..modeler.Model2D import ModelerRMxprt
-from .Analysis import Analysis
-from .Design import design_solutions
+from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.modeler.Model2D import ModelerRMxprt
+from pyaedt.application.Analysis import Analysis
+from pyaedt.application.Design import design_solutions
+from pyaedt.modules.PostProcessor import CircuitPostProcessor
 
 
 class FieldAnalysisRMxprt(Analysis):
@@ -62,8 +63,9 @@ class FieldAnalysisRMxprt(Analysis):
             close_on_exit,
             student_version,
         )
+
         self._modeler = ModelerRMxprt(self)
-        # self._post = PostProcessor(self)
+        self._post = CircuitPostProcessor(self)
 
     @property
     def modeler(self):

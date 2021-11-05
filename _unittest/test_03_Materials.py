@@ -23,14 +23,15 @@ class TestClass:
                                 non_graphical=non_graphical)
 
     def teardown_class(self):
-        assert self.aedtapp.close_project(self.aedtapp.project_name)
+        self.messages = self.aedtapp._desktop.ClearMessages("", "", 3)
+        assert self.aedtapp.close_project(self.aedtapp.project_name, False)
         self.local_scratch.remove()
         gc.collect()
 
-    def test_vaacum(self):
+    def test_01_vaacum(self):
         assert "vacuum" in list(self.aedtapp.materials.material_keys.keys())
 
-    def test_create_material(self):
+    def test_02_create_material(self):
         mat1 = self.aedtapp.materials.add_material("new_copper2")
         assert mat1
         mat1.conductivity = 59000000000
@@ -99,7 +100,7 @@ class TestClass:
         except ValueError:
             assert True
 
-    def test_create_thermal_modifier(self):
+    def test_03_create_thermal_modifier(self):
         assert self.aedtapp.materials["new_copper2"].mass_density.add_thermal_modifier_free_form(
             "if(Temp > 1000cel, 1, if(Temp < -273.15cel, 1, 1))"
         )
@@ -107,15 +108,15 @@ class TestClass:
         assert self.aedtapp.materials["new_copper2"].permeability.add_thermal_modifier_closed_form(auto_calc=False)
         assert self.aedtapp.materials["new_copper2"].permittivity.add_thermal_modifier_closed_form(auto_calc=True)
 
-    def test_duplicate_material(self):
+    def test_04_duplicate_material(self):
         assert self.aedtapp.materials.duplicate_material("new_copper2", "copper3")
         assert not self.aedtapp.materials.duplicate_material("new_copper3", "copper3")
 
-    def test_delete_material(self):
+    def test_05_delete_material(self):
         assert self.aedtapp.materials.remove_material("copper3")
         assert not self.aedtapp.materials.remove_material("copper4")
 
-    def test_surface_material(self):
+    def test_06_surface_material(self):
         ipk = Icepak()
         mat2 = ipk.materials.add_surface_material("Steel")
         mat2.emissivity.value = SurfMatProperties.get_defaultvalue(aedtname="surface_emissivity")
@@ -133,11 +134,11 @@ class TestClass:
         assert ipk.materials.duplicate_surface_material("Steel", "Steel2")
         assert not ipk.materials.duplicate_surface_material("Steel4", "Steel2")
 
-    def test_export_materials(self):
+    def test_07_export_materials(self):
         assert self.aedtapp.materials.export_materials_to_file(os.path.join(self.local_scratch.path, "materials.json"))
         assert os.path.exists(os.path.join(self.local_scratch.path, "materials.json"))
 
-    def test_import_materials(self):
+    def test_08_import_materials(self):
         assert self.aedtapp.materials.import_materials_from_file(
             os.path.join(local_path, "example_models", "mats.json")
         )
@@ -146,6 +147,6 @@ class TestClass:
         assert "al-extruded1" in self.aedtapp.materials.material_keys.keys()
         assert self.aedtapp.materials["al-extruded1"].thermal_conductivity.thermalmodifier
 
-    def test_add_material_sweep(self):
+    def test_09_add_material_sweep(self):
         assert self.aedtapp.materials.add_material_sweep(["copper3", "new_copper"], "sweep_copper")
         assert "sweep_copper" in list(self.aedtapp.materials.material_keys.keys())

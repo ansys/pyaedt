@@ -2,7 +2,7 @@ import os
 import os.path
 import warnings
 
-from .general_methods import env_path
+from pyaedt.generic.general_methods import env_path
 
 if os.name == "posix":
     try:
@@ -215,7 +215,7 @@ class SiwaveSolve(object):
             p = subprocess.Popen(" ".join(command))
             p.wait()
 
-    def export_3d_cad(self, format_3d="Q3D", output_folder=None, net_list=None, num_cores=None):
+    def export_3d_cad(self, format_3d="Q3D", output_folder=None, net_list=None, num_cores=None, aedt_file_name=None):
         """Export edb to Q3D or HFSS
 
         Parameters
@@ -227,7 +227,8 @@ class SiwaveSolve(object):
             Define Nets to Export. if None, all nets will be exported
         num_cores : int, optional
             Define number of cores to use during export
-
+        aedt_file_name : str, optional
+            Output  aedt file name (without .aedt extension). If `` then default naming is used
         Returns
         -------
         str
@@ -250,7 +251,9 @@ class SiwaveSolve(object):
                 f.write("    if allnets[i] != 'DUMMY':\n")
                 f.write("        oDoc.ScrSelectNet(allnets[i], 1)\n")
             f.write("oDoc.ScrSetOptionsFor3DModelExport(exportOptions)\n")
-            f.write("q3d_filename = os.path.join(r'{}', '{}')\n".format(output_folder, format_3d + "_siwave.aedt"))
+            if not aedt_file_name:
+                aedt_file_name = format_3d + "_siwave.aedt"
+            f.write("q3d_filename = os.path.join(r'{}', '{}')\n".format(output_folder, aedt_file_name))
             if num_cores:
                 f.write("oDoc.ScrSetNumCpusToUse('{}')\n".format(num_cores))
                 self.nbcores = num_cores
@@ -266,5 +269,6 @@ class SiwaveSolve(object):
         command.append(scriptname)
         print(command)
         os.system(" ".join(command))
-
-        return os.path.join(output_folder, format_3d + "_siwave.aedt")
+        #p1 = subprocess.call(" ".join(command))
+        #p1.wait()
+        return os.path.join(output_folder, aedt_file_name)
