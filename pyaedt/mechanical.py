@@ -71,7 +71,7 @@ class Mechanical(FieldAnalysis3D, object):
 
     >>> aedtapp = Mechanical("myfile.aedt")
 
-    Create a ``Desktop on 2021R1`` object and then create an
+    Create a ``Desktop on 2021R2`` object and then create an
     ``Mechanical`` object and open the specified project, which is
     named ``"myfile.aedt"``.
 
