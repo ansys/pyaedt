@@ -7,7 +7,7 @@ from pyaedt import Hfss, Desktop
 from pyaedt.generic.filesystem import Scratch
 
 # Setup paths for module imports
-from _unittest.conftest import desktop_version, local_path, new_thread, non_graphical, scratch_path
+from _unittest.conftest import desktop_version, local_path, scratch_path
 
 try:
     import pytest  # noqa: F401
@@ -45,7 +45,6 @@ class TestClass:
         assert d.personallib
         assert d.userlib
         assert d.syslib
-        assert d.design_type(self.aedtapp.project_name, self.aedtapp.design_name) == "HFSS"
 
     def test_01_designname(self):
         self.aedtapp.design_name = "myname"

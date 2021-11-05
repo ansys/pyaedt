@@ -8,7 +8,7 @@ from pyaedt.generic.filesystem import Scratch
 from pyaedt.modules.Material import MatProperties, SurfMatProperties
 
 # Setup paths for module imports
-from _unittest.conftest import desktop_version, local_path, new_thread, non_graphical, scratch_path
+from _unittest.conftest import desktop_version, local_path, scratch_path
 
 try:
     import pytest  # noqa: F401
