@@ -19,8 +19,7 @@ except ImportError:
 class TestClass:
     def setup_class(self):
         with Scratch(scratch_path) as self.local_scratch:
-            self.aedtapp = Hfss(specified_version=desktop_version, new_desktop_session=new_thread,
-                                non_graphical=non_graphical)
+            self.aedtapp = Hfss(specified_version=desktop_version)
 
     def teardown_class(self):
         self.messages = self.aedtapp._desktop.ClearMessages("", "", 3)

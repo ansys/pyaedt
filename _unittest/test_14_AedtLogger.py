@@ -150,32 +150,12 @@ class TestClass:
         with capture:
             logger = AedtLogger(self.aedtapp._messenger, to_stdout=True)
             logger.info("Info for Global")
-            logger.debug("Debug for Global")
             logger.warning("Warning for Global")
             logger.error("Error for Global")
-            project_logger = logger.add_logger('Project')
-            project_logger.info("Info for Project")
-            project_logger.debug("Debug for Project")
-            project_logger.warning("Warning for Project")
-            project_logger.error("Error for Project")
-            design_logger = logger.add_logger('Design')
-            design_logger.info("Info for Design")
-            design_logger.debug("Debug for Design")
-            design_logger.warning("Warning for Design")
-            design_logger.error("Error for Design")
 
         assert "pyaedt info: Info for Global" in capture.content
-        assert "pyaedt info: Debug for Global" in capture.content
         assert "pyaedt warning: Warning for Global" in capture.content
         assert "pyaedt error: Error for Global" in capture.content
-        assert "pyaedt info: Info for Project" in capture.content
-        assert "pyaedt info: Debug for Project" in capture.content
-        assert "pyaedt warning: Warning for Project" in capture.content
-        assert "pyaedt error: Error for Project" in capture.content
-        assert "pyaedt info: Info for Design" in capture.content
-        assert "pyaedt info: Debug for Design" in capture.content
-        assert "pyaedt warning: Warning for Design" in capture.content
-        assert "pyaedt error: Error for Design" in capture.content
 
         # for handler in logger.handlers:
         #     handler.close()

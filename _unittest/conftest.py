@@ -83,8 +83,6 @@ class BasisTest:
                 designname=design_name,
                 solution_type=solution_type,
                 specified_version=desktop_version,
-                new_desktop_session=new_thread,
-                non_graphical=non_graphical,
             )
             self.cache = DesignCache(self.aedtapp)
 
@@ -136,7 +134,7 @@ def clean_desktop(desktop_init):
 def hfss():
     """Create a new Hfss project."""
     # Be sure that the base class constructor "design" exposes oDesktop.
-    hfss = Hfss(new_desktop_session=False, specified_version=desktop_version)
+    hfss = Hfss()
     yield hfss
     hfss.close_project(hfss.project_name)
     gc.collect()
