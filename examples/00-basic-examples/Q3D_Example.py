@@ -8,7 +8,6 @@ in Q3D and run a simulation.
 
 import os
 
-from pyaedt.desktop import Desktop
 from pyaedt import Q3d
 
 ###############################################################################

@@ -10,7 +10,6 @@ import logging
 import os
 import sys
 
-from pyaedt.generic.general_methods import aedt_exception_handler
 
 message_levels = {"Global": 0, "Project": 1, "Design": 2}
 
@@ -331,7 +330,6 @@ class AEDTMessageManager(object):
                 self.logger.warning(message_text)
             elif type == 2 and self.logger:
                 self.logger.error(message_text)
-
 
     def clear_messages(self, proj_name=None, des_name=None, level=2):
         """Clear all messages.
