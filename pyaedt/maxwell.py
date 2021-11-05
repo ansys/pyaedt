@@ -170,7 +170,8 @@ class Maxwell(object):
             Boundary object.
 
         """
-        amplitude = str(amplitude) + "A"
+        if isinstance(amplitude, (int, float)):
+            amplitude = str(amplitude) + "A"
 
         if not name:
             name = generate_unique_name("Current")
@@ -228,8 +229,8 @@ class Maxwell(object):
             Boundary object.
 
         """
-
-        amplitude = str(amplitude) + "mV"
+        if isinstance(amplitude, (int, float)):
+            amplitude = str(amplitude) + "mV"
 
         if not name:
             name = generate_unique_name("Voltage")
@@ -264,8 +265,8 @@ class Maxwell(object):
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
         """
-
-        amplitude = str(amplitude) + "mV"
+        if isinstance(amplitude, (int, float)):
+            amplitude = str(amplitude) + "mV"
 
         if not name:
             name = generate_unique_name("VoltageDrop")
