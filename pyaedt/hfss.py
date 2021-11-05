@@ -1932,8 +1932,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`pyaedt.hfss.SARSetup`
-            SARSetup object.
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         self.odesign.SARSetup(TissueMass, MaterialDensity, Tissue_object_List_ID, voxel_size, Average_SAR_method)
