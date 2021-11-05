@@ -729,10 +729,10 @@ class FieldPlot:
 
     @aedt_exception_handler
     def export_image(self, full_path=None, width=1920, height=1080, orientation="isometric", display_wireframe=True):
-        """Export an image of active Plot.
+        """Save an image of active Plot.
 
         .. note::
-           Works with some limitation on HFSS3DLayout.
+           There are some limitation on HFSS3DLayout.
 
         full_path : str, optional
             Path where image will be saved. It supports png and gif format.
@@ -764,7 +764,7 @@ class FieldPlot:
     @aedt_exception_handler
     def export_image_from_aedtplt(self, export_path=None, view="isometric", plot_mesh=False, scale_min=None,
                                   scale_max=None):
-        """Export an image of Active Plot using PyVista.
+        """Save an image of Active Plot using PyVista.
 
         .. note::
            Only working in CPython with PyVista Module Installed.
@@ -1716,7 +1716,7 @@ class PostProcessor(PostProcessorCommon, object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        self.logger.glb.info("Exporting %s field. Be patient", quantity_name)
+        self.logger.info("Exporting %s field. Be patient", quantity_name)
         if not solution:
             solution = self._app.existing_analysis_sweeps[0]
         if not filename:
@@ -1839,7 +1839,7 @@ class PostProcessor(PostProcessorCommon, object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        self.logger.glb.info("Exporting %s field. Be patient", quantity_name)
+        self.logger.info("Exporting %s field. Be patient", quantity_name)
         if not solution:
             solution = self._app.existing_analysis_sweeps[0]
         if not filename:
@@ -1858,7 +1858,7 @@ class PostProcessor(PostProcessorCommon, object):
                 elif obj_type == "Surf":
                     self.ofieldsreporter.EnterSurf(obj_list)
                 else:
-                    self.logger.glb.error("No correct choice.")
+                    self.logger.error("No correct choice.")
                     return False
                 self.ofieldsreporter.CalcOp("Value")
                 variation_dict = self._app.available_variations.nominal_w_values
@@ -2223,7 +2223,7 @@ class PostProcessor(PostProcessorCommon, object):
         # Set up arguments list for createReport function
         if not dir:
             dir = self._scratch.path
-            self.logger.glb.debug("Using scratch path {}".format(self._scratch.path))
+            self.logger.debug("Using scratch path {}".format(self._scratch.path))
 
         assert os.path.exists(dir), "Specified directory does not exist: {}".format(dir)
 

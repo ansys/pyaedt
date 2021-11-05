@@ -95,7 +95,7 @@ class Hfss(FieldAnalysis3D, object):
     Create an instance of HFSS using the 2021 R1 release and open
     the specified project, which is named ``"myfile2.aedt"``.
 
-    >>> hfss = Hfss(specified_version="2021.1", projectname="myfile2.aedt")
+    >>> hfss = Hfss(specified_version="2021.2", projectname="myfile2.aedt")
     pyaedt info: Project myfile2 has been created.
     pyaedt info: No design is present. Inserting a new design.
     pyaedt info: Added design...
@@ -110,13 +110,13 @@ class Hfss(FieldAnalysis3D, object):
 
     """
 
-    def __repr__(self):
-        try:
-            return "HFSS {} {}. ProjectName:{} DesignName:{} ".format(
-                self._aedt_version, self.solution_type, self.project_name, self.design_name
-            )
-        except:
-            return "HFSS Module"
+    # def __repr__(self):
+    #     try:
+    #         return "HFSS {} {}. ProjectName:{} DesignName:{} ".format(
+    #             self._aedt_version, self.solution_type, self.project_name, self.design_name
+    #         )
+    #     except:
+    #         return "HFSS Module"
 
     def __init__(
         self,
@@ -557,7 +557,7 @@ class Hfss(FieldAnalysis3D, object):
                 if sweepname in [sweep.name for sweep in setupdata.sweeps]:
                     oldname = sweepname
                     sweepname = generate_unique_name(oldname)
-                    self.logger.glb.warning(
+                    self.logger.warning(
                         "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname)
                 sweepdata = setupdata.add_sweep(sweepname, sweep_type)
                 sweepdata.props["RangeType"] = "LinearCount"
@@ -647,7 +647,7 @@ class Hfss(FieldAnalysis3D, object):
                 if sweepname in [sweep.name for sweep in setupdata.sweeps]:
                     oldname = sweepname
                     sweepname = generate_unique_name(oldname)
-                    self.logger.glb.warning(
+                    self.logger.warning(
                         "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname)
                 sweepdata = setupdata.add_sweep(sweepname, sweep_type)
                 sweepdata.props["RangeType"] = "LinearStep"
@@ -750,7 +750,7 @@ class Hfss(FieldAnalysis3D, object):
                 if sweepname in [sweep.name for sweep in setupdata.sweeps]:
                     oldname = sweepname
                     sweepname = generate_unique_name(oldname)
-                    self.logger.glb.warning(
+                    self.logger.warning(
                         "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname)
                 sweepdata = setupdata.add_sweep(sweepname, "Discrete")
                 sweepdata.props["RangeType"] = "SinglePoints"
@@ -810,9 +810,9 @@ class Hfss(FieldAnalysis3D, object):
         >>> target_project = "my/path/to/targetProject.aedt"
         >>> source_project = "my/path/to/sourceProject.aedt"
         >>> target = Hfss(projectname=target_project, solution_type="SBR+",
-        ...               specified_version="2021.1", new_desktop_session=False)  # doctest: +SKIP
+        ...               specified_version="2021.2", new_desktop_session=False)  # doctest: +SKIP
         >>> source = Hfss(projectname=source_project, designname="feeder",
-        ...               specified_version="2021.1", new_desktop_session=False)  # doctest: +SKIP
+        ...               specified_version="2021.2", new_desktop_session=False)  # doctest: +SKIP
         >>> target.create_sbr_linked_antenna(source, target_cs="feederPosition",
         ...                                  fieldtype="farfield")  # doctest: +SKIP
 
@@ -1306,7 +1306,7 @@ class Hfss(FieldAnalysis3D, object):
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
             endobject
         ):
-            self.logger.glb.error("One or both objects doesn't exists. Check and retry.")
+            self.logger.error("One or both objects doesn't exists. Check and retry.")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
             out, parallel = self.modeler.primitives.find_closest_edges(startobj, endobject, axisdir)
@@ -1373,7 +1373,7 @@ class Hfss(FieldAnalysis3D, object):
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
             endobject
         ):
-            self.logger.glb.error("One or both objects do not exist. Check and retry.")
+            self.logger.error("One or both objects do not exist. Check and retry.")
             return False
 
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
@@ -1439,7 +1439,7 @@ class Hfss(FieldAnalysis3D, object):
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
             endobject
         ):
-            self.logger.glb.error("One or both objects doesn't exists. Check and retry")
+            self.logger.error("One or both objects doesn't exists. Check and retry")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
             sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(
@@ -1496,7 +1496,7 @@ class Hfss(FieldAnalysis3D, object):
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
             endobject
         ):
-            self.logger.glb.error("One or both objects do not exist. Check and retry.")
+            self.logger.error("One or both objects do not exist. Check and retry.")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
             sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(
@@ -1604,7 +1604,7 @@ class Hfss(FieldAnalysis3D, object):
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
             endobject
         ):
-            self.logger.glb.error("One or both objects do not exist. Check and retry.")
+            self.logger.error("One or both objects do not exist. Check and retry.")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
             sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(
@@ -1717,7 +1717,7 @@ class Hfss(FieldAnalysis3D, object):
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
             endobject
         ):
-            self.logger.glb.error("One or both objects do not exist. Check and retry.")
+            self.logger.error("One or both objects do not exist. Check and retry.")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
             sheet_name, point0, point1 = self.modeler._create_microstrip_sheet_from_object_closest_edge(
@@ -1788,7 +1788,7 @@ class Hfss(FieldAnalysis3D, object):
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
             endobject
         ):
-            self.logger.glb.error("One or both objects do not exist. Check and retry.")
+            self.logger.error("One or both objects do not exist. Check and retry.")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
             sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(
@@ -1846,7 +1846,7 @@ class Hfss(FieldAnalysis3D, object):
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
             endobject
         ):
-            self.logger.glb.error("One or both objects do not exist. Check and retry.")
+            self.logger.error("One or both objects do not exist. Check and retry.")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
             sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(
@@ -1985,7 +1985,7 @@ class Hfss(FieldAnalysis3D, object):
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
             endobject
         ):
-            self.logger.glb.error("One or both objects do not exist. Check and retry.")
+            self.logger.error("One or both objects do not exist. Check and retry.")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"] and (
             Rvalue or Lvalue or Cvalue
@@ -2080,7 +2080,7 @@ class Hfss(FieldAnalysis3D, object):
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
             endobject
         ):
-            self.logger.glb.error("One or both objects do not exist. Check and retry.")
+            self.logger.error("One or both objects do not exist. Check and retry.")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
             sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(
@@ -2767,7 +2767,7 @@ class Hfss(FieldAnalysis3D, object):
 
         """
 
-        self.logger.glb.info("Setting up power to Eigenmode " + powerin)
+        self.logger.info("Setting up power to Eigenmode " + powerin)
         if self.solution_type != "Eigenmode":
             self.osolution.EditSources(
                 [
@@ -2925,7 +2925,7 @@ class Hfss(FieldAnalysis3D, object):
                                 ],
                             )
                     except:
-                        self.logger.glb.info("done")
+                        self.logger.info("done")
                         # self.modeler_oproject.ClearMessages()
         return ports_ID
 
@@ -2964,7 +2964,7 @@ class Hfss(FieldAnalysis3D, object):
 
         """
 
-        self.logger.glb.info("Design Validation Checks")
+        self.logger.info("Design Validation Checks")
         validation_ok = True
         val_list = []
         if not dname:
@@ -3001,7 +3001,7 @@ class Hfss(FieldAnalysis3D, object):
             os.remove(temp_val_file)
         else:
             msg = "** No design validation file is found. **"
-            self.logger.glb.info(msg)
+            self.logger.info(msg)
             val_list.append(msg)
         msg = "** End of design validation messages. **"
         val_list.append(msg)
@@ -3019,7 +3019,7 @@ class Hfss(FieldAnalysis3D, object):
                     ports_t = ports
                 if ports_t != len(detected_excitations):
                     msg = "** Port number error. Check the model. **"
-                    self.logger.glb.error(msg)
+                    self.logger.error(msg)
                     val_list.append(msg)
                     validation_ok = False
                 else:
@@ -3033,7 +3033,7 @@ class Hfss(FieldAnalysis3D, object):
                     val_list.append(msg4)
         else:
             msg = "Eigen model is detected. No excitatons are defined."
-            self.logger.glb.info(msg)
+            self.logger.info(msg)
             val_list.append(msg)
 
         # Find the number of analysis setups and output the info.
@@ -3104,7 +3104,7 @@ class Hfss(FieldAnalysis3D, object):
         if not sweep_name:
             sweep_name = self.existing_analysis_sweeps[1]
         elif sweep_name not in self.existing_analysis_sweeps:
-            self.logger.glb.error("Setup %s doesn't exist in the Setup list.", sweep_name)
+            self.logger.error("Setup %s doesn't exist in the Setup list.", sweep_name)
             return False
         if not port_names:
             port_names = self.modeler.get_excitations_name()

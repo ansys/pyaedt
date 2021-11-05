@@ -10,7 +10,7 @@ This module contains the configuration and fixture for the pytest-based unit tes
 The default configuration can be changed by placing a file called local_config.json in the same
 directory as this module. An example of the contents of local_config.json
 {
-  "desktopVersion": "2021.1",
+  "desktopVersion": "2021.2",
   "NonGraphical": false,
   "NewThread": false,
   "test_desktops": true
@@ -58,7 +58,7 @@ if os.path.exists(local_config_file):
     with open(local_config_file) as f:
         config = json.load(f)
 else:
-    config = {"desktopVersion": "2021.1", "NonGraphical": False, "NewThread": True, "test_desktops": False,
+    config = {"desktopVersion": "2021.2", "NonGraphical": False, "NewThread": True, "test_desktops": False,
               "build_machine": True, "skip_space_claim": False, "skip_circuits": False, "skip_edb": False,
               "skip_debug": False, "local": False}
 
@@ -83,8 +83,6 @@ class BasisTest:
                 designname=design_name,
                 solution_type=solution_type,
                 specified_version=desktop_version,
-                new_desktop_session=new_thread,
-                non_graphical=non_graphical,
             )
             self.cache = DesignCache(self.aedtapp)
 
@@ -136,7 +134,7 @@ def clean_desktop(desktop_init):
 def hfss():
     """Create a new Hfss project."""
     # Be sure that the base class constructor "design" exposes oDesktop.
-    hfss = Hfss(new_desktop_session=False, specified_version=desktop_version)
+    hfss = Hfss()
     yield hfss
     hfss.close_project(hfss.project_name)
     gc.collect()

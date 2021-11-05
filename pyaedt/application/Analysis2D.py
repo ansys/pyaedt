@@ -170,7 +170,7 @@ class FieldAnalysis2D(Analysis):
             else:
                 arg2.append("SolveInside:="), arg2.append(False)
             self.modeler.oeditor.AssignMaterial(arg1, arg2)
-            self.logger.glb.info("Assign Material " + mat + " to object " + selections)
+            self.logger.info("Assign Material " + mat + " to object " + selections)
             if isinstance(obj, list):
                 for el in obj:
                     self.modeler.primitives[el].material_name = mat
@@ -185,7 +185,7 @@ class FieldAnalysis2D(Analysis):
             else:
                 arg2.append("SolveInside:="), arg2.append(False)
             self.modeler.oeditor.AssignMaterial(arg1, arg2)
-            self.logger.glb.info("Assign Material " + mat + " to object " + selections)
+            self.logger.info("Assign Material " + mat + " to object " + selections)
             if isinstance(obj, list):
                 for el in obj:
                     self.modeler.primitives[el].material_name = mat
@@ -194,5 +194,5 @@ class FieldAnalysis2D(Analysis):
 
             return True
         else:
-            self.logger.glb.error("Material does not exist.")
+            self.logger.error("Material does not exist.")
             return False

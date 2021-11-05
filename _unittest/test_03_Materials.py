@@ -8,7 +8,7 @@ from pyaedt.generic.filesystem import Scratch
 from pyaedt.modules.Material import MatProperties, SurfMatProperties
 
 # Setup paths for module imports
-from _unittest.conftest import desktop_version, local_path, new_thread, non_graphical, scratch_path
+from _unittest.conftest import desktop_version, local_path, scratch_path
 
 try:
     import pytest  # noqa: F401
@@ -19,8 +19,7 @@ except ImportError:
 class TestClass:
     def setup_class(self):
         with Scratch(scratch_path) as self.local_scratch:
-            self.aedtapp = Hfss(specified_version=desktop_version, new_desktop_session=new_thread,
-                                non_graphical=non_graphical)
+            self.aedtapp = Hfss(specified_version=desktop_version)
 
     def teardown_class(self):
         self.messages = self.aedtapp._desktop.ClearMessages("", "", 3)

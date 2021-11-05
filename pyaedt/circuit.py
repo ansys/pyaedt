@@ -78,7 +78,7 @@ class Circuit(FieldAnalysisCircuit, object):
     Create an instance of Circuit using the 2021 R1 version and
     open the specified project, which is ``"myfile.aedt"``.
 
-    >>> aedtapp = Circuit(specified_version="2021.1", projectname="myfile.aedt")
+    >>> aedtapp = Circuit(specified_version="2021.2", projectname="myfile.aedt")
 
     Create an instance of Circuit using the 2021 R2 student version and open
     the specified project, which is named ``"myfile.aedt"``.
@@ -214,7 +214,7 @@ class Circuit(FieldAnalysisCircuit, object):
                         try:
                             float(fields[4])
                         except:
-                            self.logger.glb.warning(
+                            self.logger.warning(
                                 "Component {} Not Imported. Check it and manually import".format(name)
                             )
                             continue
@@ -483,7 +483,7 @@ class Circuit(FieldAnalysisCircuit, object):
                     if netname:
                         self.modeler.components.create_page_port(netname, pos[0], pos[1], angle)
                     else:
-                        self.logger.glb.info("Page Port Not Created")
+                        self.logger.info("Page Port Not Created")
                     id += 1
                 ypos += delta
                 if ypos > delta * (column_number):

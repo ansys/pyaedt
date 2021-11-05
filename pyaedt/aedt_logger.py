@@ -147,6 +147,10 @@ class AedtLogger(object):
         """Write error message in the Global log."""
         return self._global.error(msg, *args, **kwargs)
 
+    def debug(self, msg, *args, **kwargs):
+        """Write debug message in the Global log."""
+        return self._global.debug(msg, *args, **kwargs)
+
     @property
     def glb(self):
         """Global logger."""

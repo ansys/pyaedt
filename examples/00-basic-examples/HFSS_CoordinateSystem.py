@@ -21,10 +21,10 @@ if not os.path.exists(temp_folder):
 ###############################################################################
 # Launch AEDT in Graphical Mode
 # -----------------------------
-# This example launches AEDT 2021.1 in graphical mode.
+# This example launches AEDT 2021.2 in graphical mode.
 
 nongraphical = False
-d = Desktop("2021.1", non_graphical=nongraphical)
+d = Desktop("2021.2", non_graphical=nongraphical, new_desktop_session=True)
 
 ###############################################################################
 # Insert an HFSS Design
@@ -161,4 +161,4 @@ print("CS5 :", p2)
 # All methods provide for saving the project before exiting.
 
 if os.name != "posix":
-    d.close_desktop()
+    d.release_desktop()

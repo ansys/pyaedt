@@ -357,7 +357,7 @@ class Q3d(QExtractor, object):
                 setupdata = i
                 for sw in setupdata.sweeps:
                     if sweepname == sw.name:
-                        self.logger.glb.warning(
+                        self.logger.warning(
                             "Sweep %s is already present. Rename and retry.", sweepname)
                         return False
                 sweepdata = setupdata.add_sweep(sweepname, "Discrete")
@@ -419,7 +419,7 @@ class Q3d(QExtractor, object):
                 setupdata = i
                 for sw in setupdata.sweeps:
                     if sweepname == sw.name:
-                        self.logger.glb.warning(
+                        self.logger.warning(
                             "Sweep %s already present. Please rename and retry", sweepname)
                         return False
                 sweepdata = setupdata.add_sweep(sweepname, "Discrete")

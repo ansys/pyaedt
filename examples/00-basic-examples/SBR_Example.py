@@ -33,11 +33,11 @@ target = Hfss(
     projectname=project_full_name,
     designname="Cassegrain_",
     solution_type="SBR+",
-    specified_version="2021.1",
-    new_desktop_session=False,
+    specified_version="2021.2",
+    new_desktop_session=True,
 )
 target.save_project(os.path.join(temp_folder, project_name + ".aedt"))
-source = Hfss(projectname=project_name, designname="feeder", specified_version="2021.1", new_desktop_session=False)
+source = Hfss(projectname=project_name, designname="feeder", specified_version="2021.2", new_desktop_session=False)
 
 ###############################################################################
 # Define a Linked Antenna
@@ -82,4 +82,4 @@ target.post.create_rectangular_plot(
     "db(GainTotal)", target.nominal_adaptive, variations, "Theta", "ATK_3D", report_category="Far Fields"
 )
 if os.name != "posix":
-    target.close_desktop()
+    target.release_desktop()

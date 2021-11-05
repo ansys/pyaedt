@@ -52,7 +52,7 @@ class PyaedtServiceWindows(rpyc.Service):
         if self.app and "release_desktop" in dir(self.app[0]):
             self.app[0].release_desktop()
 
-    def exposed_run_script(self, script, aedt_version="2021.1", ansysem_path=None, non_graphical=True):
+    def exposed_run_script(self, script, aedt_version="2021.2", ansysem_path=None, non_graphical=True):
         """Run script on AEDT in the server.
 
         Parameters
@@ -96,7 +96,7 @@ class PyaedtServiceWindows(rpyc.Service):
         else:
             return "Ansys EM not found or wrong AEDT Version."
 
-    def exposed_edb(self, edbpath=None, cellname=None, isreadonly=False, edbversion="2021.1", use_ppe=False, ):
+    def exposed_edb(self, edbpath=None, cellname=None, isreadonly=False, edbversion="2021.2", use_ppe=False, ):
         """Starts a new Hfss session.
 
         Parameters
@@ -110,7 +110,7 @@ class PyaedtServiceWindows(rpyc.Service):
         isreadonly : bool, optional
             Whether to open ``edb_core`` in read-only mode. The default is ``False``.
         edbversion : str, optional
-            Version of ``edb_core`` to use. The default is ``"2021.1"``.
+            Version of ``edb_core`` to use. The default is ``"2021.2"``.
 
         Returns
         -------
@@ -551,7 +551,7 @@ class GlobalService(rpyc.Service):
         # (to finalize the service, if needed)
         pass
 
-    def exposed_edb(self, edbpath=None, cellname=None, isreadonly=False, edbversion="2021.1", use_ppe=False, ):
+    def exposed_edb(self, edbpath=None, cellname=None, isreadonly=False, edbversion="2021.2", use_ppe=False, ):
         """Starts a new Edb session.
 
         Parameters
@@ -565,7 +565,7 @@ class GlobalService(rpyc.Service):
         isreadonly : bool, optional
             Whether to open ``edb_core`` in read-only mode. The default is ``False``.
         edbversion : str, optional
-            Version of ``edb_core`` to use. The default is ``"2021.1"``.
+            Version of ``edb_core`` to use. The default is ``"2021.2"``.
 
         Returns
         -------
