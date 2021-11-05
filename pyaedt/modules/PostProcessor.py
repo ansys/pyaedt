@@ -1201,6 +1201,46 @@ class PostProcessorCommon(object):
         return True
 
     @aedt_exception_handler
+    def export_report_to_file(self, project_dir, plot_name, extension):
+        """Export the 2D Plot data to a file.
+
+        This method leaves the data in the plot (as data) as a reference
+        for the Plot after the loops.
+
+        Parameters
+        ----------
+        project_dir : str
+            Path to the project directory. The csv file will be plot_name.csv.
+        plot_name : str
+            Name of the plot to export.
+        extension : str
+            Extension of export , one of
+                * (CSV) .csv
+                * (Tab delimited) .tab
+                * (Post processor format) .txt
+                * (Ensight XY data) .exy
+                * (Anosft Plot Data) .dat
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        npath = os.path.normpath(project_dir)
+
+        if "." not in extension:
+            extension = "." + extension
+
+        supported_ext = [".csv", ".tab", ".txt", ".exy", ".dat"]
+        if extension not in supported_ext:
+            msg = "Extension {} is not supported. Use one of {}".format(extension, ", ".join(supported_ext))
+            raise ValueError(msg)
+
+        csv_file_name = os.path.join(npath, plot_name + extension)
+        self.oreportsetup.ExportToFile(plot_name, csv_file_name)
+        return True
+
+    @aedt_exception_handler
     def export_report_to_csv(self, project_dir, plot_name):
         """Export the 2D Plot data to a CSV file.
 
@@ -1219,11 +1259,7 @@ class PostProcessorCommon(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        npath = os.path.normpath(project_dir)
-
-        csv_file_name = os.path.join(npath, plot_name + ".csv")
-        self.oreportsetup.ExportToFile(plot_name, csv_file_name)
-        return True
+        return self.export_report_to_file(project_dir, plot_name, extension=".csv")
 
     @aedt_exception_handler
     def export_report_to_jpg(self, project_dir, plot_name):
