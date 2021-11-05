@@ -350,7 +350,7 @@ class Hfss(FieldAnalysis3D, object):
     ):
         """Assign finite conductivity to one or more objects of a given material.
 
-        .. deprecated:: 0.4.3
+        .. deprecated:: 0.4.5
            Use :func:`Hfss.assign_coating` instead.
 
         """
@@ -1904,6 +1904,17 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def SARSetup(self, Tissue_object_List_ID, TissueMass=1, MaterialDensity=1, voxel_size=1, Average_SAR_method=0):
+        """Define SAR settings.
+
+        .. deprecated:: 0.4.5
+           Use :func:`Hfss.sar_setup` instead.
+
+        """
+        warnings.warn('`SARSetup` is deprecated. Use `sar_setup` instead.', DeprecationWarning)
+        self.sar_setup(Tissue_object_List_ID, TissueMass, MaterialDensity, voxel_size, Average_SAR_method)
+
+    @aedt_exception_handler
+    def sar_setup(self, Tissue_object_List_ID, TissueMass=1, MaterialDensity=1, voxel_size=1, Average_SAR_method=0):
         """Define SAR settings.
 
         Parameters
