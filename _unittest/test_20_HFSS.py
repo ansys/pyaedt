@@ -83,7 +83,7 @@ class TestClass:
     )
     def test_04_assign_coating(self, object_name, kwargs):
         id = self.aedtapp.modeler.primitives.get_obj_id(object_name)
-        coat = self.aedtapp.assigncoating([id], **kwargs)
+        coat = self.aedtapp.assign_coating([id], **kwargs)
         material = coat.props.get("Material", "")
         assert material == kwargs.get("mat", "")
 

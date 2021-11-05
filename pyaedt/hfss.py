@@ -438,7 +438,7 @@ class Hfss(FieldAnalysis3D, object):
         ...     hfss.CoordinateSystemPlane.XYPlane, origin, 3, 200, 0, "inner"
         ... )
         >>> inner_id = hfss.modeler.primitives.get_obj_id("inner")
-        >>> coat = hfss.assigncoating([inner_id], "copper", usethickness=True, thickness="0.2mm")
+        >>> coat = hfss.assign_coating([inner_id], "copper", usethickness=True, thickness="0.2mm")
 
         """
 
