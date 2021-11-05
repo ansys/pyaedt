@@ -33,6 +33,7 @@ class TestClass:
         assert self.aedtapp.modeler
         assert self.aedtapp.oanalysis is None
 
+    @pytest.mark.skipif(config["build_machine"], reason="Not functional in non-graphical mode")
     def test_create_components(self):
         radio = self.aedtapp.modeler.components.create_component(
             "New Radio", "TestRadio")
@@ -43,8 +44,8 @@ class TestClass:
         assert antenna.name == "TestAntenna"
         assert isinstance(antenna, EmitComponent)
 
-    @pytest.mark.skipif(config["desktopVersion"] < "2021.2",
-                        reason="Skipped on versions lower than 2021.2")
+    @pytest.mark.skipif(config["build_machine"], reason="Not functional in non-graphical mode")
+    @pytest.mark.skipif(config["desktopVersion"] < "2021.2", reason="Skipped on versions lower than 2021.2")
     def test_connect_components(self):
         radio = self.aedtapp.modeler.components.create_component("New Radio")
         antenna = self.aedtapp.modeler.components.create_component("Antenna")
@@ -61,6 +62,7 @@ class TestClass:
         assert connected_comp is None
         assert connected_port is None
 
+    @pytest.mark.skipif(config["build_machine"], reason="Not functional in non-graphical mode")
     def test_radio_component(self):
         radio = self.aedtapp.modeler.components.create_component("New Radio")
         # default radio has 1 Tx channel and 1 Rx channel
