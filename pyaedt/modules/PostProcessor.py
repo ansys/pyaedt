@@ -1202,7 +1202,7 @@ class PostProcessorCommon(object):
         return True
 
     @aedt_exception_handler
-    def export_report_to_file(self, output_dir, plot_name, extension, unique_name=False):
+    def export_report_to_file(self, output_dir, plot_name, extension, unique_file=False):
         """Export the 2D Plot data to a file.
 
         This method leaves the data in the plot (as data) as a reference
@@ -1221,7 +1221,7 @@ class PostProcessorCommon(object):
                 * (Post processor format) .txt
                 * (Ensight XY data) .exy
                 * (Anosft Plot Data) .dat
-        unique_name : bool
+        unique_file : bool
             If set to True, generates unique file in output_dit
 
         Returns
@@ -1240,7 +1240,7 @@ class PostProcessorCommon(object):
             raise ValueError(msg)
 
         file_path = os.path.join(npath, plot_name + extension)
-        if unique_name:
+        if unique_file:
             while os.path.exists(file_path):
                 file_name = generate_unique_name(plot_name)
                 file_path = os.path.join(npath, file_name + extension)
