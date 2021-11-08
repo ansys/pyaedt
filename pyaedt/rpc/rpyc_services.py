@@ -36,6 +36,7 @@ class PyaedtServiceWindows(rpyc.Service):
         # (to init the service, if needed)
         self.connection = connection
         self.app = []
+        self._beta_options = []
         pass
 
     def on_disconnect(self, connection):
@@ -51,6 +52,13 @@ class PyaedtServiceWindows(rpyc.Service):
     def exposed_close_connection(self):
         if self.app and "release_desktop" in dir(self.app[0]):
             self.app[0].release_desktop()
+
+    def _beta(self):
+        os.environ["ANSYSEM_FEATURE_SF6694_NON_GRAPHICAL_COMMAND_EXECUTION_ENABLE"] = "1"
+        os.environ["ANSYSEM_FEATURE_SF159726_SCRIPTOBJECT_ENABLE"] = "1"
+        if self._beta_options and not self.app:
+            for opt in range(self._beta_options.__len__()):
+                os.environ["ANSYSEM_FEATURE_"+self._beta_options[opt]+"_ENABLE"] = "1"
 
     def exposed_run_script(self, script, aedt_version="2021.2", ansysem_path=None, non_graphical=True):
         """Run script on AEDT in the server.
@@ -85,9 +93,14 @@ class PyaedtServiceWindows(rpyc.Service):
         if env_path(aedt_version) or ansysem_path:
             if not ansysem_path:
                 ansysem_path = env_path(aedt_version)
-            ng_feature = ""
+
+            ng_feature = " -features=SF159726_SCRIPTOBJECT"
+            if self._beta_options:
+                for opt in range(self._beta_options.__len__()):
+                    if self._beta_options[opt] not in ng_feature:
+                        ng_feature += "," + self._beta_options[opt]
             if non_graphical:
-                ng_feature = "-features=SF6694_NON_GRAPHICAL_COMMAND_EXECUTION -ng "
+                ng_feature += ",SF6694_NON_GRAPHICAL_COMMAND_EXECUTION -ng"
             command = os.path.join(ansysem_path, executable) + ng_feature + " -RunScriptAndExit " + script_file
             p = subprocess.Popen(command)
             p.wait()
@@ -116,6 +129,7 @@ class PyaedtServiceWindows(rpyc.Service):
         -------
         :class:`pyaedt.edb.Edb`
         """
+        self._beta()
         aedtapp = Edb(edbpath=edbpath, cellname=cellname, isreadonly=isreadonly, edbversion=edbversion,
                       isaedtowned=False, oproject=None, student_version=False, use_ppe=use_ppe)
         self.app.append(aedtapp)
@@ -154,6 +168,7 @@ class PyaedtServiceWindows(rpyc.Service):
         -------
         :class:`pyaedt.hfss.Hfss`
         """
+        self._beta()
         aedtapp = Hfss(projectname=projectname, designname=designname, solution_type=solution_type,
                     setup_name=setup_name, specified_version=specified_version, non_graphical=non_graphical,
                     new_desktop_session=True, close_on_exit=True, student_version=False, )
@@ -193,6 +208,7 @@ class PyaedtServiceWindows(rpyc.Service):
         -------
         :class:`pyaedt.hfss3dlayout.Hfss3dLayout`
         """
+        self._beta()
         aedtapp = Hfss3dLayout(projectname=projectname, designname=designname, solution_type=solution_type,
                     setup_name=setup_name, specified_version=specified_version, non_graphical=non_graphical,
                     new_desktop_session=True, close_on_exit=True, student_version=False, )
@@ -232,6 +248,7 @@ class PyaedtServiceWindows(rpyc.Service):
         -------
         :class:`pyaedt.maxwell.Maxwell3d`
         """
+        self._beta()
         aedtapp = Maxwell3d(projectname=projectname, designname=designname, solution_type=solution_type,
                          setup_name=setup_name, specified_version=specified_version, non_graphical=non_graphical,
                          new_desktop_session=True, close_on_exit=True, student_version=False, )
@@ -271,6 +288,7 @@ class PyaedtServiceWindows(rpyc.Service):
         -------
         :class:`pyaedt.maxwell.Maxwell32`
         """
+        self._beta()
         aedtapp = Maxwell2d(projectname=projectname, designname=designname, solution_type=solution_type,
                          setup_name=setup_name, specified_version=specified_version, non_graphical=non_graphical,
                          new_desktop_session=True, close_on_exit=True, student_version=False, )
@@ -310,6 +328,7 @@ class PyaedtServiceWindows(rpyc.Service):
         -------
         :class:`pyaedt.icepak.Icepak`
         """
+        self._beta()
         aedtapp = Icepak(projectname=projectname, designname=designname, solution_type=solution_type,
                       setup_name=setup_name, specified_version=specified_version, non_graphical=non_graphical,
                       new_desktop_session=True, close_on_exit=True, student_version=False, )
@@ -349,6 +368,7 @@ class PyaedtServiceWindows(rpyc.Service):
         -------
         :class:`pyaedt.circuit.Circuit`
         """
+        self._beta()
         aedtapp = Circuit(projectname=projectname, designname=designname, solution_type=solution_type,
                        setup_name=setup_name, specified_version=specified_version, non_graphical=non_graphical,
                        new_desktop_session=True, close_on_exit=True, student_version=False, )
@@ -388,6 +408,7 @@ class PyaedtServiceWindows(rpyc.Service):
         -------
         :class:`pyaedt.mechanical.Mechanical`
         """
+        self._beta()
         aedtapp = Mechanical(projectname=projectname, designname=designname, solution_type=solution_type,
                           setup_name=setup_name, specified_version=specified_version, non_graphical=non_graphical,
                           new_desktop_session=True, close_on_exit=True, student_version=False, )
@@ -427,6 +448,7 @@ class PyaedtServiceWindows(rpyc.Service):
         -------
         :class:`pyaedt.q3d.Q3d`
         """
+        self._beta()
         aedtapp = Q3d(projectname=projectname, designname=designname, solution_type=solution_type,
                    setup_name=setup_name, specified_version=specified_version, non_graphical=non_graphical,
                    new_desktop_session=True, close_on_exit=True, student_version=False, )
@@ -466,6 +488,7 @@ class PyaedtServiceWindows(rpyc.Service):
         -------
         :class:`pyaedt.q3d.Q2d`
         """
+        self._beta()
         aedtapp = Q2d(projectname=projectname, designname=designname, solution_type=solution_type,
                    setup_name=setup_name, specified_version=specified_version, non_graphical=non_graphical,
                    new_desktop_session=True, close_on_exit=True, student_version=False, )
@@ -480,7 +503,7 @@ class PyaedtServiceLinux(rpyc.Service):
     def on_connect(self, connection):
         self.connection = connection
         self.app = []
-        pass
+        self._beta_options = []
 
     def on_disconnect(self, connection):
         pass
@@ -524,10 +547,19 @@ class PyaedtServiceLinux(rpyc.Service):
             non_graphical = os.getenv("PYAEDT_SERVER_AEDT_NG", "True").lower() in ("true", "1", "t")
         if ansysem_path:
             if non_graphical:
-                ng_feature = "-features=SF6694_NON_GRAPHICAL_COMMAND_EXECUTION"
+                ng_feature = "-features=SF6694_NON_GRAPHICAL_COMMAND_EXECUTION,SF159726_SCRIPTOBJECT"
+                if self._beta_options:
+                    for opt in range(self._beta_options.__len__()):
+                        if self._beta_options[opt] not in ng_feature:
+                            ng_feature += "," + self._beta_options[opt]
                 command = [os.path.join(ansysem_path, executable), ng_feature, "-ng", "-RunScriptAndExit", script_file]
             else:
-                command = [os.path.join(ansysem_path, executable),  "-RunScriptAndExit", script_file]
+                ng_feature = "-features=SF159726_SCRIPTOBJECT"
+                if self._beta_options:
+                    for opt in range(self._beta_options.__len__()):
+                        if self._beta_options[opt] not in ng_feature:
+                            ng_feature += "," + self._beta_options[opt]
+                command = [os.path.join(ansysem_path, executable),  ng_feature, "-RunScriptAndExit", script_file]
             p = subprocess.Popen(command)
             p.wait()
             return "Script Executed."
@@ -551,30 +583,7 @@ class GlobalService(rpyc.Service):
         # (to finalize the service, if needed)
         pass
 
-    def exposed_edb(self, edbpath=None, cellname=None, isreadonly=False, edbversion="2021.2", use_ppe=False, ):
-        """Starts a new Edb session.
-
-        Parameters
-        ----------
-        edbpath : str, optional
-            Full path to the ``aedb`` folder. The variable can also contain
-            the path to a layout to import. Allowed formarts are BRD,
-            XML (IPC2581), GDS, and DXF. The default is ``None``.
-        cellname : str, optional
-            Name of the cell to select. The default is ``None``.
-        isreadonly : bool, optional
-            Whether to open ``edb_core`` in read-only mode. The default is ``False``.
-        edbversion : str, optional
-            Version of ``edb_core`` to use. The default is ``"2021.2"``.
-
-        Returns
-        -------
-        :class:`pyaedt.edb.Edb`
-        """
-        return Edb(edbpath=edbpath, cellname=cellname, isreadonly=isreadonly, edbversion=edbversion,
-                   isaedtowned=False, oproject=None, student_version=False, use_ppe=use_ppe)
-
-    def exposed_start_service(self, hostname):
+    def exposed_start_service(self, hostname, beta_options=None):
         """Starts a new Pyaedt Service and start listen.
 
         Returns
@@ -605,11 +614,20 @@ class GlobalService(rpyc.Service):
                         for line in lines:
                             f.write(line)
                 if non_graphical:
-                    ng_feature = "-features=SF6694_NON_GRAPHICAL_COMMAND_EXECUTION"
+                    ng_feature = "-features=SF6694_NON_GRAPHICAL_COMMAND_EXECUTION,SF159726_SCRIPTOBJECT"
+                    if beta_options:
+                        for option in range(beta_options.__len__()):
+                            if beta_options[option] not in ng_feature:
+                                ng_feature += "," + beta_options[option]
                     command = [os.path.join(ansysem_path, executable), ng_feature, "-ng", "-RunScriptAndExit",
                                dest_file]
                 else:
-                    command = [os.path.join(ansysem_path, executable), "-RunScriptAndExit", dest_file]
+                    ng_feature = "-features=SF159726_SCRIPTOBJECT"
+                    if beta_options:
+                        for option in range(beta_options.__len__()):
+                            if beta_options[option] not in ng_feature:
+                                ng_feature += "," + beta_options[option]
+                    command = [os.path.join(ansysem_path, executable), ng_feature, "-RunScriptAndExit", dest_file]
                 print(command)
                 subprocess.Popen(command)
                 return port

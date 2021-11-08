@@ -1934,7 +1934,7 @@ class Design(object):
 
         """
 
-        if close_active_proj:
+        if close_active_proj and self.oproject:
             self._close_edb()
             self.close_project(self.project_name)
         proj = self.odesktop.OpenProject(project_file)
@@ -1947,7 +1947,7 @@ class Design(object):
     @aedt_exception_handler
     def _close_edb(self):
         if self.design_type == "Circuit Design" or self.design_type == "HFSS 3D Layout Design":
-            if self.modeler.edb:
+            if self.modeler and self.modeler.edb:
                 self.modeler.edb.close_edb()
 
     @aedt_exception_handler
