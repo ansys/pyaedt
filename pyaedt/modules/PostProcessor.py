@@ -1266,8 +1266,8 @@ class PostProcessorCommon(object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        str
+            path of exported file
         """
         return self.export_report_to_file(project_dir, plot_name, extension=".csv")
 
