@@ -57,8 +57,8 @@ class PyaedtServiceWindows(rpyc.Service):
         os.environ["ANSYSEM_FEATURE_SF6694_NON_GRAPHICAL_COMMAND_EXECUTION_ENABLE"] = "1"
         os.environ["ANSYSEM_FEATURE_SF159726_SCRIPTOBJECT_ENABLE"] = "1"
         if self._beta_options and not self.app:
-            for opt in self._beta_options:
-                os.environ["ANSYSEM_FEATURE_"+opt+"_ENABLE"] = "1"
+            for opt in range(self._beta_options.__len__()):
+                os.environ["ANSYSEM_FEATURE_"+self._beta_options[opt]+"_ENABLE"] = "1"
 
     def exposed_run_script(self, script, aedt_version="2021.2", ansysem_path=None, non_graphical=True):
         """Run script on AEDT in the server.
@@ -93,11 +93,14 @@ class PyaedtServiceWindows(rpyc.Service):
         if env_path(aedt_version) or ansysem_path:
             if not ansysem_path:
                 ansysem_path = env_path(aedt_version)
-            ng_feature = ""
+
+            ng_feature = " -features=SF159726_SCRIPTOBJECT"
+            if self._beta_options:
+                for opt in range(self._beta_options.__len__()):
+                    if self._beta_options[opt] not in ng_feature:
+                        ng_feature += "," + self._beta_options[opt]
             if non_graphical:
-                ng_feature = "-features=SF6694_NON_GRAPHICAL_COMMAND_EXECUTION,SF159726_SCRIPTOBJECT -ng "
-            else:
-                ng_feature = "-features=SF159726_SCRIPTOBJECT "
+                ng_feature += ",SF6694_NON_GRAPHICAL_COMMAND_EXECUTION -ng"
             command = os.path.join(ansysem_path, executable) + ng_feature + " -RunScriptAndExit " + script_file
             p = subprocess.Popen(command)
             p.wait()
@@ -546,16 +549,16 @@ class PyaedtServiceLinux(rpyc.Service):
             if non_graphical:
                 ng_feature = "-features=SF6694_NON_GRAPHICAL_COMMAND_EXECUTION,SF159726_SCRIPTOBJECT"
                 if self._beta_options:
-                    for opt in self._beta_options:
-                        if opt not in ng_feature:
-                            ng_feature += "," + opt
+                    for opt in range(self._beta_options.__len__()):
+                        if self._beta_options[opt] not in ng_feature:
+                            ng_feature += "," + self._beta_options[opt]
                 command = [os.path.join(ansysem_path, executable), ng_feature, "-ng", "-RunScriptAndExit", script_file]
             else:
                 ng_feature = "-features=SF159726_SCRIPTOBJECT"
                 if self._beta_options:
-                    for opt in self._beta_options:
-                        if opt not in ng_feature:
-                            ng_feature += "," + opt
+                    for opt in range(self._beta_options.__len__()):
+                        if self._beta_options[opt] not in ng_feature:
+                            ng_feature += "," + self._beta_options[opt]
                 command = [os.path.join(ansysem_path, executable),  ng_feature, "-RunScriptAndExit", script_file]
             p = subprocess.Popen(command)
             p.wait()
@@ -613,17 +616,17 @@ class GlobalService(rpyc.Service):
                 if non_graphical:
                     ng_feature = "-features=SF6694_NON_GRAPHICAL_COMMAND_EXECUTION,SF159726_SCRIPTOBJECT"
                     if beta_options:
-                        for option in beta_options:
-                            if option not in ng_feature:
-                                ng_feature += "," + option
+                        for option in range(beta_options.__len__()):
+                            if beta_options[option] not in ng_feature:
+                                ng_feature += "," + beta_options[option]
                     command = [os.path.join(ansysem_path, executable), ng_feature, "-ng", "-RunScriptAndExit",
                                dest_file]
                 else:
                     ng_feature = "-features=SF159726_SCRIPTOBJECT"
                     if beta_options:
-                        for option in beta_options:
-                            if option not in ng_feature:
-                                ng_feature += "," + option
+                        for option in range(beta_options.__len__()):
+                            if beta_options[option] not in ng_feature:
+                                ng_feature += "," + beta_options[option]
                     command = [os.path.join(ansysem_path, executable), ng_feature, "-RunScriptAndExit", dest_file]
                 print(command)
                 subprocess.Popen(command)
