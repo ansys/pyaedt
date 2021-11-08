@@ -1211,7 +1211,7 @@ class PostProcessorCommon(object):
         Parameters
         ----------
         output_dir : str
-            Path to the project directory. The csv file will be plot_name.csv.
+            Path to the directory of exported report
         plot_name : str
             Name of the plot to export.
         extension : str
@@ -1222,7 +1222,7 @@ class PostProcessorCommon(object):
                 * (Ensight XY data) .exy
                 * (Anosft Plot Data) .dat
         unique_name : bool
-            If set to True, generates unique file name
+            If set to True, generates unique file in output_dit
 
         Returns
         -------
