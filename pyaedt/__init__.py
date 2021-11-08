@@ -1,8 +1,9 @@
 # Import exception handling here due to:
 # https://github.com/pyansys/PyAEDT/pull/243
 import os
-os.environ["SF6694_NON_GRAPHICAL_COMMAND_EXECUTION"] = "1"
-os.environ["SF159726_SCRIPTOBJECT"] = "1"
+
+os.environ["ANSYSEM_FEATURE_SF6694_NON_GRAPHICAL_COMMAND_EXECUTION_ENABLE"] = "1"
+os.environ["ANSYSEM_FEATURE_SF159726_SCRIPTOBJECT_ENABLE"] = "1"
 
 from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, retry_ntimes
 from pyaedt.generic.general_methods import is_ironpython, _pythonver, inside_desktop, convert_remote_object
