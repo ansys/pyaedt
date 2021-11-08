@@ -698,6 +698,7 @@ class FieldPlot:
     def delete(self):
         """Delete the field plot."""
         self.oField.DeleteFieldPlot([self.name])
+        self._postprocessor.field_plots.pop(self.name, None)
 
     @aedt_exception_handler
     def change_plot_scale(self, minimum_value, maximum_value, is_log=False, is_db=False):
@@ -1912,7 +1913,7 @@ class PostProcessor(PostProcessorCommon, object):
         return os.path.exists(filename)
 
     @aedt_exception_handler
-    def export_field_plot(self, plotname, filepath, filename=""):
+    def export_field_plot(self, plotname, filepath, filename="", file_format="aedtplt"):
         """Export a field plot.
 
         Parameters
@@ -1926,6 +1927,9 @@ class PostProcessor(PostProcessorCommon, object):
         filename : str, optional
             Name of the file. The default is ``""``.
 
+        file_format : str, optional
+            Name of the file extension. The default is ``"aedtplt"``. Option is ``"case"``.
+
         Returns
         -------
         bool
@@ -1933,8 +1937,8 @@ class PostProcessor(PostProcessorCommon, object):
         """
         if not filename:
             filename = plotname
-        self.ofieldsreporter.ExportFieldPlot(plotname, False, os.path.join(filepath, filename + ".aedtplt"))
-        return os.path.join(filepath, filename + ".aedtplt")
+        self.ofieldsreporter.ExportFieldPlot(plotname, False, os.path.join(filepath, filename + "." + file_format))
+        return os.path.join(filepath, filename + "." + file_format)
 
     @aedt_exception_handler
     def change_field_plot_scale(self, plot_name, minimum_value, maximum_value, is_log=False, is_db=False):
