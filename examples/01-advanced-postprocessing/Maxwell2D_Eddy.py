@@ -21,7 +21,7 @@ from pyaedt import Maxwell3d
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This example inserts a Maxwell 3D design.
 
-M3D = Maxwell3d(solution_type="EddyCurrent", specified_version="2021.1", non_graphical=False, new_desktop_session=True)
+M3D = Maxwell3d(solution_type="EddyCurrent", specified_version="2021.2", non_graphical=False, new_desktop_session=True)
 M3D.modeler.model_units = "mm"
 
 ###############################################################################
@@ -151,4 +151,4 @@ plt.show()
 # This example saves the project and then closes AEDT.
 
 M3D.save_project(project_name)
-M3D.close_desktop()
+M3D.release_desktop()

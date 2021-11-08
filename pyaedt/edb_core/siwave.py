@@ -360,7 +360,7 @@ class EdbSiwave(object):
     Examples
     --------
     >>> from pyaedt import Edb
-    >>> edbapp = Edb("myaedbfolder", edbversion="2021.1")
+    >>> edbapp = Edb("myaedbfolder", edbversion="2021.2")
     >>> edbapp.core_siwave
 
     """

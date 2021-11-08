@@ -31,7 +31,7 @@ class LogHandler(logging.Handler):
 
         if record.levelname == 'DEBUG':
             # Debug message does not exist for AEDT so we will log an info message.
-            self.messenger.add_info_message(self.format(record), self.destination)
+            self.messenger.add_debug_message(self.format(record), self.destination)
         elif record.levelname == 'INFO':
             self.messenger.add_info_message(self.format(record), self.destination)
         elif record.levelname == 'WARNING':

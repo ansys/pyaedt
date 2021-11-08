@@ -698,6 +698,7 @@ class FieldPlot:
     def delete(self):
         """Delete the field plot."""
         self.oField.DeleteFieldPlot([self.name])
+        self._postprocessor.field_plots.pop(self.name, None)
 
     @aedt_exception_handler
     def change_plot_scale(self, minimum_value, maximum_value, is_log=False, is_db=False):
@@ -729,10 +730,10 @@ class FieldPlot:
 
     @aedt_exception_handler
     def export_image(self, full_path=None, width=1920, height=1080, orientation="isometric", display_wireframe=True):
-        """Export an image of active Plot.
+        """Save an image of active Plot.
 
         .. note::
-           Works with some limitation on HFSS3DLayout.
+           There are some limitation on HFSS3DLayout.
 
         full_path : str, optional
             Path where image will be saved. It supports png and gif format.
@@ -764,7 +765,7 @@ class FieldPlot:
     @aedt_exception_handler
     def export_image_from_aedtplt(self, export_path=None, view="isometric", plot_mesh=False, scale_min=None,
                                   scale_max=None):
-        """Export an image of Active Plot using PyVista.
+        """Save an image of Active Plot using PyVista.
 
         .. note::
            Only working in CPython with PyVista Module Installed.
@@ -1201,6 +1202,46 @@ class PostProcessorCommon(object):
         return True
 
     @aedt_exception_handler
+    def export_report_to_file(self, project_dir, plot_name, extension):
+        """Export the 2D Plot data to a file.
+
+        This method leaves the data in the plot (as data) as a reference
+        for the Plot after the loops.
+
+        Parameters
+        ----------
+        project_dir : str
+            Path to the project directory. The csv file will be plot_name.csv.
+        plot_name : str
+            Name of the plot to export.
+        extension : str
+            Extension of export , one of
+                * (CSV) .csv
+                * (Tab delimited) .tab
+                * (Post processor format) .txt
+                * (Ensight XY data) .exy
+                * (Anosft Plot Data) .dat
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        npath = os.path.normpath(project_dir)
+
+        if "." not in extension:
+            extension = "." + extension
+
+        supported_ext = [".csv", ".tab", ".txt", ".exy", ".dat"]
+        if extension not in supported_ext:
+            msg = "Extension {} is not supported. Use one of {}".format(extension, ", ".join(supported_ext))
+            raise ValueError(msg)
+
+        csv_file_name = os.path.join(npath, plot_name + extension)
+        self.oreportsetup.ExportToFile(plot_name, csv_file_name)
+        return True
+
+    @aedt_exception_handler
     def export_report_to_csv(self, project_dir, plot_name):
         """Export the 2D Plot data to a CSV file.
 
@@ -1219,11 +1260,7 @@ class PostProcessorCommon(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        npath = os.path.normpath(project_dir)
-
-        csv_file_name = os.path.join(npath, plot_name + ".csv")
-        self.oreportsetup.ExportToFile(plot_name, csv_file_name)
-        return True
+        return self.export_report_to_file(project_dir, plot_name, extension=".csv")
 
     @aedt_exception_handler
     def export_report_to_jpg(self, project_dir, plot_name):
@@ -1680,7 +1717,7 @@ class PostProcessor(PostProcessorCommon, object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        self.logger.glb.info("Exporting %s field. Be patient", quantity_name)
+        self.logger.info("Exporting %s field. Be patient", quantity_name)
         if not solution:
             solution = self._app.existing_analysis_sweeps[0]
         if not filename:
@@ -1803,7 +1840,7 @@ class PostProcessor(PostProcessorCommon, object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        self.logger.glb.info("Exporting %s field. Be patient", quantity_name)
+        self.logger.info("Exporting %s field. Be patient", quantity_name)
         if not solution:
             solution = self._app.existing_analysis_sweeps[0]
         if not filename:
@@ -1822,7 +1859,7 @@ class PostProcessor(PostProcessorCommon, object):
                 elif obj_type == "Surf":
                     self.ofieldsreporter.EnterSurf(obj_list)
                 else:
-                    self.logger.glb.error("No correct choice.")
+                    self.logger.error("No correct choice.")
                     return False
                 self.ofieldsreporter.CalcOp("Value")
                 variation_dict = self._app.available_variations.nominal_w_values
@@ -1876,7 +1913,7 @@ class PostProcessor(PostProcessorCommon, object):
         return os.path.exists(filename)
 
     @aedt_exception_handler
-    def export_field_plot(self, plotname, filepath, filename=""):
+    def export_field_plot(self, plotname, filepath, filename="", file_format="aedtplt"):
         """Export a field plot.
 
         Parameters
@@ -1890,6 +1927,9 @@ class PostProcessor(PostProcessorCommon, object):
         filename : str, optional
             Name of the file. The default is ``""``.
 
+        file_format : str, optional
+            Name of the file extension. The default is ``"aedtplt"``. Option is ``"case"``.
+
         Returns
         -------
         bool
@@ -1897,8 +1937,8 @@ class PostProcessor(PostProcessorCommon, object):
         """
         if not filename:
             filename = plotname
-        self.ofieldsreporter.ExportFieldPlot(plotname, False, os.path.join(filepath, filename + ".aedtplt"))
-        return os.path.join(filepath, filename + ".aedtplt")
+        self.ofieldsreporter.ExportFieldPlot(plotname, False, os.path.join(filepath, filename + "." + file_format))
+        return os.path.join(filepath, filename + "." + file_format)
 
     @aedt_exception_handler
     def change_field_plot_scale(self, plot_name, minimum_value, maximum_value, is_log=False, is_db=False):
@@ -2187,7 +2227,7 @@ class PostProcessor(PostProcessorCommon, object):
         # Set up arguments list for createReport function
         if not dir:
             dir = self._scratch.path
-            self.logger.glb.debug("Using scratch path {}".format(self._scratch.path))
+            self.logger.debug("Using scratch path {}".format(self._scratch.path))
 
         assert os.path.exists(dir), "Specified directory does not exist: {}".format(dir)
 

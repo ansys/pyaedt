@@ -19,7 +19,7 @@ class TestClass:
     def setup_class(self):
         # set a scratch directory and the environment / test data
         with Scratch(scratch_path) as self.local_scratch:
-            self.aedtapp = Hfss(new_desktop_session=True)
+            self.aedtapp = Hfss()
 
     def teardown_class(self):
         self.aedtapp._desktop.ClearMessages("", "", 3)
@@ -83,7 +83,7 @@ class TestClass:
     )
     def test_04_assign_coating(self, object_name, kwargs):
         id = self.aedtapp.modeler.primitives.get_obj_id(object_name)
-        coat = self.aedtapp.assigncoating([id], **kwargs)
+        coat = self.aedtapp.assign_coating([id], **kwargs)
         material = coat.props.get("Material", "")
         assert material == kwargs.get("mat", "")
 

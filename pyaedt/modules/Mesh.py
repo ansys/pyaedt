@@ -210,7 +210,7 @@ class Mesh(object):
                     meshop_name = generate_unique_name(meshop_name)
         else:
             meshop_name = generate_unique_name("SurfApprox")
-        self.logger.glb.info("Assigning Mesh Level " + str(level) + " to " + str(names))
+        self.logger.info("Assigning Mesh Level " + str(level) + " to " + str(names))
         names = self._app._modeler._convert_list_to_ids(names)
 
         if isinstance(names[0], int):
@@ -325,7 +325,7 @@ class Mesh(object):
             meshop_name = generate_unique_name("ModelResolution")
         for name in names:
             if isinstance(name, int):
-                self.logger.glb.error("Mesh Operation Applies to Objects only")
+                self.logger.error("Mesh Operation Applies to Objects only")
                 return False
         if defeature_length is None:
             props = OrderedDict({"Objects": names, "UseAutoLength": True})
@@ -556,7 +556,7 @@ class Mesh(object):
             restrictel = True
             numel = str(maxel)
         if maxlength is None and maxel is None:
-            self.logger.glb.error("mesh not assigned due to incorrect settings")
+            self.logger.error("mesh not assigned due to incorrect settings")
             return
         names = self._app._modeler._convert_list_to_ids(names)
 
@@ -567,7 +567,7 @@ class Mesh(object):
         else:
             seltype = None
         if seltype is None:
-            self.logger.glb.error("Error in Assignment")
+            self.logger.error("Error in Assignment")
             return
         props = OrderedDict(
             {
@@ -639,7 +639,7 @@ class Mesh(object):
         else:
             seltype = None
         if seltype is None:
-            self.logger.glb.error("Error in Assignment")
+            self.logger.error("Error in Assignment")
             return
 
         props = OrderedDict(
@@ -698,7 +698,7 @@ class Mesh(object):
         else:
             seltype = None
         if seltype is None:
-            self.logger.glb.error("Error in Assignment")
+            self.logger.error("Error in Assignment")
             return
         props = OrderedDict({"Type": "Curvilinear", seltype: names, "Apply": enable})
         mop = MeshOperation(self, meshop_name, props, "Curvilinear")
@@ -744,7 +744,7 @@ class Mesh(object):
         else:
             seltype = None
         if seltype is None:
-            self.logger.glb.error("Error in Assignment")
+            self.logger.error("Error in Assignment")
             return
         props = OrderedDict(
             {"Type": "CurvatureExtraction", seltype: names, "DisableForFacetedSurfaces": disable_for_faceted_surf}

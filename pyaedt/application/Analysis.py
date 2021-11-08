@@ -95,13 +95,13 @@ class Analysis(Design, object):
         )
         self.ooptimetrics = self._odesign.GetModule("Optimetrics")
         self.ooutput_variable = self._odesign.GetModule("OutputVariable")
-        self.logger.glb.info("Design Loaded")
+        self.logger.info("Design Loaded")
         self._setup = None
         if setup_name:
             self.analysis_setup = setup_name
         self.solution_type = solution_type
         self._materials = Materials(self)
-        self.logger.glb.info("Materials Loaded")
+        self.logger.info("Materials Loaded")
         self._available_variations = self.AvailableVariations(self)
         if "HFSS 3D Layout Design" in self.design_type:
             self.oanalysis = self._odesign.GetModule("SolveSetups")
@@ -974,22 +974,22 @@ class Analysis(Design, object):
 
         if name in self.existing_analysis_setups:
             try:
-                self.logger.glb.info("Solving design setup %s", name)
+                self.logger.info("Solving design setup %s", name)
                 self.odesign.Analyze(name)
             except:
                 self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
-                self.logger.glb.error("Error in Solving Setup %s", name)
+                self.logger.error("Error in Solving Setup %s", name)
                 return False
         else:
             try:
-                self.logger.glb.info("Solving Optimetrics")
+                self.logger.info("Solving Optimetrics")
                 self.ooptimetrics.SolveSetup(name)
             except:
                 self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
-                self.logger.glb.error("Error in Solving or Missing Setup  %s", name)
+                self.logger.error("Error in Solving or Missing Setup  %s", name)
                 return False
         self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
-        self.logger.glb.info("Design setup %s solved correctly", name)
+        self.logger.info("Design setup %s solved correctly", name)
         return True
 
     @aedt_exception_handler
@@ -1095,11 +1095,11 @@ class Analysis(Design, object):
                     r"\\\\\\\\" + clustername + r"\\\\AnsysEM\\\\AnsysEM{}\\\\Linux64\\\\ansysedt".format(version)
                 )
             else:
-                self.logger.glb.error("AEDT path does not exist. Please provide a full path.")
+                self.logger.error("AEDT path does not exist. Please provide a full path.")
                 return False
         else:
             if not os.path.exists(aedt_full_exe_path):
-                self.logger.glb.error("Aedt Path doesn't exists. Please provide a full path")
+                self.logger.error("Aedt Path doesn't exists. Please provide a full path")
                 return False
             aedt_full_exe_path.replace("\\", "\\\\")
 

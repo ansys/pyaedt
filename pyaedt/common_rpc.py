@@ -83,7 +83,7 @@ def connect(server_name, aedt_client_port):
         return "Error. No connection. Check if AEDT is running and if the port number is correct."
 
 
-def client(server_name, server_port=18000):
+def client(server_name, server_port=18000, beta_options=None):
     """Starts an rpyc client and connects to a remote machine.
 
     Parameters
@@ -91,7 +91,9 @@ def client(server_name, server_port=18000):
     server_name : str
         name of the remote machine to connect.
     server_port : int, optional
-        port on which rpyc_server is running
+        port on which rpyc_server is running.
+    beta_options : list, optional
+        list of beta options to apply to new service.
 
     Returns
     -------
@@ -125,10 +127,9 @@ def client(server_name, server_port=18000):
 
     """
     c = rpyc.connect(server_name, server_port, config={'sync_request_timeout': None})
-    port = c.root.start_service(server_name)
+    port = c.root.start_service(server_name, beta_options)
     if not port:
         return "Error Connecting to the Server. Check the server name and port and retry."
-    #if is_ironpython:
     print("Connecting to new session of Electronics Desktop on port {}. Please Wait.".format(port))
     if port:
         time.sleep(20)
@@ -137,6 +138,8 @@ def client(server_name, server_port=18000):
             try:
                 c1 = rpyc.connect(server_name, port, config={'sync_request_timeout': None})
                 if c1:
+                    if beta_options:
+                        c1._beta_options = beta_options
                     return c1
             except:
                 time.sleep(2)

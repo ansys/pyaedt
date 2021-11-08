@@ -44,10 +44,10 @@ import matplotlib.pyplot as plt
 ###############################################################################
 # Launch AEDT
 # ~~~~~~~~~~~
-# This example launches AEDT 2021.1 in graphical mode.
+# This example launches AEDT 2021.2 in graphical mode.
 # This example uses SI units.
 
-desktopVersion = "2021.1"
+desktopVersion = "2021.2"
 
 ###############################################################################
 # Launch AEDT in Non-Graphical Mode
@@ -160,7 +160,7 @@ setup.update()
 # ~~~~~~~~~~~~~~~~
 # A sweep is created with default values.
 
-sweepname = aedtapp.create_linear_count_sweep("MySetup", "GHz", 0.8, 1.2, 401)
+sweepname = aedtapp.create_linear_count_sweep("MySetup", "GHz", 0.8, 1.2, 401, sweep_type="Interpolating")
 
 ################################################################################
 # Create an Icepak Model
@@ -347,5 +347,5 @@ plt.show()
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This example closes the project and then closes AEDT.
 
-aedtapp.close_project(aedtapp.project_name)
-aedtapp.close_desktop()
+#aedtapp.close_project(aedtapp.project_name)
+aedtapp.release_desktop()

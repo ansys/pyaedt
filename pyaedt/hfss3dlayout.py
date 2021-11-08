@@ -74,7 +74,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
     Create an AEDT 2021 R1 object and then create a
     `Hfss3dLayout` object and open the specified project.
 
-    >>> aedtapp = Hfss3dLayout(specified_version="2021.1", projectname="myfile.aedt")
+    >>> aedtapp = Hfss3dLayout(specified_version="2021.2", projectname="myfile.aedt")
 
     """
 
@@ -336,7 +336,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         if outputdir is None:
             outputdir = self.project_path
 
-        self.logger.glb.info("#### Design Validation Checks###")
+        self.logger.info("#### Design Validation Checks###")
         #
         # Routine outputs to the validation info to a log file in the project directory and also
         # returns the validation info to be used to update properties.xml file
@@ -358,7 +358,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             msgs = self._desktop.GetMessages(name, "HFSSDesign1", 0)
             # need to check if design name is always this default name HFSSDesign1
             for msg in msgs:
-                self.logger.glb.info(msg)
+                self.logger.info(msg)
                 # msg = msg.replace('"','')
                 msg = msg.rstrip("\r\n")
                 val_list.append(msg)
@@ -372,10 +372,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             val_list.append(msg)
             if ret == 0:
                 msg = "**** ERRORS Present - please check and confirm"
-                self.logger.glb.error(msg)
+                self.logger.error(msg)
             else:
                 msg = "**** Validation Completed Correctly"
-                self.logger.glb.info(msg)
+                self.logger.info(msg)
 
             # Find the Excitations and check or list them out
             msg = "Excitation Messages:"
@@ -384,7 +384,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             numportsdefined = int(len(self.get_excitations_name))
             if ports is not None and ports != numportsdefined:
                 msg = "**** Port Number Error! - Please check model"
-                self.logger.glb.error(msg)
+                self.logger.error(msg)
                 validation.writelines(msg + "\n")
                 val_list.append(msg)
                 validation_ok = False
@@ -392,17 +392,17 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             else:
                 msg1 = "Ports Requested: " + str(ports)
                 msg2 = "Ports Defined: " + str(numportsdefined)
-                self.logger.glb.info(msg1)
+                self.logger.info(msg1)
                 validation.writelines(msg1 + "\n")
                 val_list.append(msg1)
-                self.logger.glb.info(msg2)
+                self.logger.info(msg2)
                 validation.writelines(msg2 + "\n")
                 val_list.append(msg2)
 
             excitation_names = self.get_excitations_name
             for excitation in excitation_names:
                 msg = "Excitation name: " + str(excitation)
-                self.logger.glb.info(msg)
+                self.logger.info(msg)
                 validation.writelines(msg + "\n")
                 val_list.append(msg)
         validation.close()
@@ -695,7 +695,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 if sweepname in [sweep.name for sweep in setupdata.sweeps]:
                     oldname = sweepname
                     sweepname = generate_unique_name(oldname)
-                    self.logger.glb.warning(
+                    self.logger.warning(
                         "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname)
                 sweep = setupdata.add_sweep(sweepname=sweepname)
                 sweep.change_range("LinearCount", freqstart, freqstop, num_of_freq_points, unit)
@@ -707,7 +707,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 sweep.props["UseQ3DForDC"] = use_q3d_for_dc
                 sweep.props["MaxSolutions"] = interpolation_max_solutions
                 sweep.update()
-                self.logger.glb.info("Linear count sweep %s has been correctly created", sweepname)
+                self.logger.info("Linear count sweep %s has been correctly created", sweepname)
                 return sweep
         return False
 
@@ -789,7 +789,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 if sweepname in [sweep.name for sweep in setupdata.sweeps]:
                     oldname = sweepname
                     sweepname = generate_unique_name(oldname)
-                    self.logger.glb.warning(
+                    self.logger.warning(
                         "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname)
                 sweep = setupdata.add_sweep(sweepname=sweepname)
                 sweep.change_range("LinearStep", freqstart, freqstop, step_size, unit)
@@ -801,7 +801,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 sweep.props["UseQ3DForDC"] = use_q3d_for_dc
                 sweep.props["MaxSolutions"] = interpolation_max_solutions
                 sweep.update()
-                self.logger.glb.info("Linear step sweep %s has been correctly created", sweepname)
+                self.logger.info("Linear step sweep %s has been correctly created", sweepname)
                 return sweep
         return False
 
@@ -858,7 +858,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 if sweepname in [sweep.name for sweep in setupdata.sweeps]:
                     oldname = sweepname
                     sweepname = generate_unique_name(oldname)
-                    self.logger.glb.warning(
+                    self.logger.warning(
                         "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname)
                 sweepdata = setupdata.add_sweep(sweepname, "Discrete")
                 sweepdata.change_range("SinglePoint", freq0, unit=unit)
@@ -868,7 +868,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 if add_subranges:
                     for f in freq:
                         sweepdata.add_subrange(rangetype="SinglePoint", start=f, unit=unit)
-                self.logger.glb.info("Single point sweep %s has been correctly created", sweepname)
+                self.logger.info("Single point sweep %s has been correctly created", sweepname)
                 return sweepdata
         return False
 
@@ -904,7 +904,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             old_name = project_name
             project_name = generate_unique_name(project_name)
             aedb_path = gds_path.replace(old_name + ".gds", project_name + ".aedb")
-            self.logger.glb.warning("aedb_exists. Renaming it to %s", project_name)
+            self.logger.warning("aedb_exists. Renaming it to %s", project_name)
 
         oTool = self.odesktop.GetTool("ImportExport")
         oTool.ImportGDSII(gds_path, aedb_path, "", "")

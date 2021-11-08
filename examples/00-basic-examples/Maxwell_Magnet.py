@@ -16,8 +16,8 @@ if not os.path.exists(tmpfold):
 ###############################################################################
 # Launch AEDT in Graphical Mode
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This examples launches AEDT 2021.1 in graphical mode.
-m3d = Maxwell3d(specified_version="2021.1")
+# This examples launches AEDT 2021.2 in graphical mode.
+m3d = Maxwell3d(specified_version="2021.2", new_desktop_session=True)
 
 
 ###############################################################################

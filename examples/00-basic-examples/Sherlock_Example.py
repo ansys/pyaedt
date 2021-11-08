@@ -38,7 +38,7 @@ outline_polygon_name = "poly_14188"
 ###############################################################################
 # Import PyAEDT and Launch AEDT
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This example launches AEDT 2021.1 in graphical mode.
+# This example launches AEDT 2021.2 in graphical mode.
 
 from pyaedt import Icepak
 from pyaedt import Desktop
@@ -51,7 +51,7 @@ from pyaedt import Desktop
 
 NonGraphical = False
 
-d = Desktop("2021.1", non_graphical=NonGraphical)
+d = Desktop("2021.2", non_graphical=NonGraphical, new_desktop_session=True)
 
 start = time.time()
 material_list = os.path.join(input_dir, material_name)
@@ -186,6 +186,6 @@ ipk.save_project()
 
 end = time.time() - start
 if os.name != "posix":
-    ipk.close_desktop()
+    ipk.release_desktop()
 print("Elapsed time: {}".format(datetime.timedelta(seconds=end)))
 print("Project Saved in {} ".format(temp_folder))
