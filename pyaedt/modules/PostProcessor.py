@@ -1239,13 +1239,11 @@ class PostProcessorCommon(object):
             msg = "Extension {} is not supported. Use one of {}".format(extension, ", ".join(supported_ext))
             raise ValueError(msg)
 
+        file_path = os.path.join(npath, plot_name + extension)
         if unique_name:
-            file_path = ""
-            while not os.path.exists(file_path):
+            while os.path.exists(file_path):
                 file_name = generate_unique_name(plot_name)
                 file_path = os.path.join(npath, file_name + extension)
-        else:
-            file_path = os.path.join(npath, plot_name + extension)
 
         self.oreportsetup.ExportToFile(plot_name, file_path)
         return file_path
