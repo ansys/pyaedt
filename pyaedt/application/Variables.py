@@ -94,14 +94,11 @@ def unit_system(units):
     ``False`` when the units specified are not defined in AEDT units.
 
     """
-    found = False
-    for unit_type, unit_list in AEDT_units.items():
-        for test_unit in unit_list:
-            if test_unit == units:
-                found = True
-                break
-        if found:
+
+    for unit_type, unit_dict in AEDT_units.items():
+        if units in unit_dict:
             return unit_type
+
     return False
 
 
@@ -1102,12 +1099,12 @@ class VariableManager(object):
         return False
 
     @aedt_exception_handler
-    def delete_variable(self, sVarName):
+    def delete_variable(self, var_name):
         """Delete a variable.
 
         Parameters
         ----------
-        sVarName : str
+        var_name : str
             Name of the variable.
 
 
@@ -1117,7 +1114,7 @@ class VariableManager(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        desktop_object = self.aedt_object(sVarName)
+        desktop_object = self.aedt_object(var_name)
         var_type = "Project" if desktop_object == self._oproject else "Local"
         try:
             var_list = list(desktop_object.GetChildObject('Variables').GetChildNames())
@@ -1125,7 +1122,7 @@ class VariableManager(object):
             var_list = list(desktop_object.GetVariables())
         lower_case_vars = [var_name.lower() for var_name in var_list]
 
-        if sVarName.lower() in lower_case_vars:
+        if var_name.lower() in lower_case_vars:
             try:
                 desktop_object.ChangeProperty(
                     [
@@ -1133,7 +1130,7 @@ class VariableManager(object):
                         [
                             "NAME:{0}VariableTab".format(var_type),
                             ["NAME:PropServers", "{0}Variables".format(var_type)],
-                            ["NAME:DeletedProps", sVarName],
+                            ["NAME:DeletedProps", var_name],
                         ],
                     ]
                 )
