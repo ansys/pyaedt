@@ -420,7 +420,7 @@ class Primitives3DLayout(object):
         arg.append("vrotation:="), arg.append([str(rotation) + "deg"])
         if hole_diam:
             arg.append("overrides hole:="), arg.append(True)
-            arg.append("hole diameter:="), arg.append([self.arg_with_dim(hole_diam)])
+            arg.append("hole diameter:="), arg.append([self.arg_with_dim("hole_diam")])
 
         else:
             arg.append("overrides hole:="), arg.append(False)
