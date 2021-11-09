@@ -2,7 +2,7 @@ import ntpath
 import os
 import warnings
 
-from pyaedt.generic.general_methods import aedt_exception_handler, retry_ntimes, is_ironpython
+from pyaedt.generic.general_methods import aedt_exception_handler, _retry_ntimes, is_ironpython
 from pyaedt.modeler.Model3D import Modeler3D
 from pyaedt.modules.Mesh import Mesh
 from pyaedt.application.Analysis import Analysis
@@ -246,28 +246,28 @@ class FieldAnalysis3D(Analysis, object):
         }
         if type == "Boundary":
             propserv = boundary[self._design_type]
-            val = retry_ntimes(10, self.odesign.GetPropertyValue, propserv, objectname, property)
+            val = _retry_ntimes(10, self.odesign.GetPropertyValue, propserv, objectname, property)
             return val
         elif type == "Setup":
             propserv = setup[self._design_type]
-            val = retry_ntimes(10, self.odesign.GetPropertyValue, propserv, objectname, property)
+            val = _retry_ntimes(10, self.odesign.GetPropertyValue, propserv, objectname, property)
             return val
 
         elif type == "Excitation":
             propserv = excitation[self._design_type]
-            val = retry_ntimes(10, self.odesign.GetPropertyValue, propserv, objectname, property)
+            val = _retry_ntimes(10, self.odesign.GetPropertyValue, propserv, objectname, property)
             return val
 
         elif type == "Mesh":
             propserv = mesh[self._design_type]
-            val = retry_ntimes(10, self.odesign.GetPropertyValue, propserv, objectname, property)
+            val = _retry_ntimes(10, self.odesign.GetPropertyValue, propserv, objectname, property)
             return val
         else:
             propservs = all[self._design_type]
             for propserv in propservs:
                 properties = list(self.odesign.GetProperties(propserv, objectname))
                 if property in properties:
-                    val = retry_ntimes(10, self.odesign.GetPropertyValue, propserv, objectname, property)
+                    val = _retry_ntimes(10, self.odesign.GetPropertyValue, propserv, objectname, property)
                     return val
         return None
 

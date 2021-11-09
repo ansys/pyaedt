@@ -3,7 +3,7 @@ This module contains these classes: `BoundaryCommon` and `BoundaryObject`.
 """
 from collections import OrderedDict
 from pyaedt.generic.general_methods import aedt_exception_handler
-from pyaedt.generic.DataHandlers import dict2arg
+from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.modeler.Object3d import EdgePrimitive, FacePrimitive, VertexPrimitive
 from pyaedt.generic.DataHandlers import random_string
 
@@ -29,7 +29,7 @@ class BoundaryCommon(object):
         if not props:
             props = self.props
         arg = ["NAME:" + self.name]
-        dict2arg(props, arg)
+        _dict2arg(props, arg)
         return arg
 
     @aedt_exception_handler
@@ -143,7 +143,7 @@ class NativeComponentObject(BoundaryCommon, object):
         if props is None:
             props = self.props
         arg = ["NAME:" + self.name]
-        dict2arg(props, arg)
+        _dict2arg(props, arg)
         return arg
 
     @aedt_exception_handler
@@ -260,7 +260,7 @@ class BoundaryObject(BoundaryCommon, object):
         if props is None:
             props = self.props
         arg = ["NAME:" + self.name]
-        dict2arg(props, arg)
+        _dict2arg(props, arg)
         return arg
 
     @aedt_exception_handler

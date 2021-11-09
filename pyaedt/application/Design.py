@@ -716,6 +716,7 @@ class Design(object):
             return name
 
     @design_name.setter
+    @aedt_exception_handler
     def design_name(self, new_name):
         if ";" in new_name:
             new_name = new_name.split(";")[1]
@@ -859,6 +860,7 @@ class Design(object):
                 return None
 
     @solution_type.setter
+    @aedt_exception_handler
     def solution_type(self, soltype):
         if soltype:
             sol = solutions_settings[soltype]
@@ -1026,6 +1028,7 @@ class Design(object):
         return self._odesign
 
     @odesign.setter
+    @aedt_exception_handler
     def odesign(self, des_name):
         warning_msg = None
         activedes = des_name
@@ -1070,6 +1073,7 @@ class Design(object):
         return self._oproject
 
     @oproject.setter
+    @aedt_exception_handler
     def oproject(self, proj_name=None):
         if not proj_name:
             self._oproject = self._desktop.GetActiveProject()

@@ -1,7 +1,7 @@
 import warnings
 import os
 
-from pyaedt.generic.general_methods import aedt_exception_handler, retry_ntimes
+from pyaedt.generic.general_methods import aedt_exception_handler, _retry_ntimes
 from pyaedt.modeler.PrimitivesCircuit import CircuitComponents
 
 
@@ -984,7 +984,7 @@ class NexximComponents(CircuitComponents):
         name = o.composed_name
         proparray = self._oeditor.GetProperties("PassedParameterTab", name)
         for j in proparray:
-            propval = retry_ntimes(10, self._oeditor.GetPropertyValue, "PassedParameterTab", name, j)
+            propval = _retry_ntimes(10, self._oeditor.GetPropertyValue, "PassedParameterTab", name, j)
             o._add_property(j, propval)
         return o
 

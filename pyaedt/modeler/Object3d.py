@@ -15,7 +15,7 @@ from __future__ import absolute_import
 import random
 import string
 
-from pyaedt import aedt_exception_handler, retry_ntimes
+from pyaedt import aedt_exception_handler, _retry_ntimes
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 
 clamp = lambda n, minn, maxn: max(min(maxn, n), minn)
@@ -861,7 +861,7 @@ class Object3d(object):
         if self._surface_material is not None:
             return self._surface_material
         if "Surface Material" in self.valid_properties and self.model:
-            self._surface_material = retry_ntimes(
+            self._surface_material = _retry_ntimes(
                 10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, "Surface Material"
             )
             return self._surface_material.strip('"')
@@ -879,7 +879,7 @@ class Object3d(object):
         if self._m_groupName is not None:
             return self._m_groupName
         if "Group" in self.valid_properties:
-            self._m_groupName = retry_ntimes(
+            self._m_groupName = _retry_ntimes(
                 10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, "Group"
             )
             return self._m_groupName
@@ -897,7 +897,7 @@ class Object3d(object):
         if self._material_name is not None:
             return self._material_name
         if "Material" in self.valid_properties and self.model:
-            mat = retry_ntimes(10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, "Material")
+            mat = _retry_ntimes(10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, "Material")
             self._material_name = ""
             if mat:
                 self._material_name = mat.strip('"').lower()
@@ -1007,7 +1007,7 @@ class Object3d(object):
                 vPropServers.append(self._m_name)
                 vGeo3d = ["NAME:Geometry3DAttributeTab", vPropServers, vChangedProps]
                 vOut = ["NAME:AllTabs", vGeo3d]
-                retry_ntimes(10, self._primitives._oeditor.ChangeProperty, vOut)
+                _retry_ntimes(10, self._primitives._oeditor.ChangeProperty, vOut)
                 self._m_name = obj_name
                 self._primitives.cleanup_objects()
         else:
@@ -1018,7 +1018,7 @@ class Object3d(object):
     def valid_properties(self):
         """Valid properties."""
         if not self._all_props:
-            self._all_props = retry_ntimes(10, self.m_Editor.GetProperties, "Geometry3DAttributeTab", self._m_name)
+            self._all_props = _retry_ntimes(10, self.m_Editor.GetProperties, "Geometry3DAttributeTab", self._m_name)
         return self._all_props
 
     @property
@@ -1035,7 +1035,7 @@ class Object3d(object):
         if self._color is not None:
             return self._color
         if "Color" in self.valid_properties:
-            color = retry_ntimes(10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, "Color")
+            color = _retry_ntimes(10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, "Color")
             if color:
                 b = (int(color) >> 16) & 255
                 g = (int(color) >> 8) & 255
@@ -1090,7 +1090,7 @@ class Object3d(object):
         if self._transparency is not None:
             return self._transparency
         if "Transparent" in self.valid_properties:
-            transp = retry_ntimes(
+            transp = _retry_ntimes(
                 10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, "Transparent"
             )
             try:
@@ -1133,7 +1133,7 @@ class Object3d(object):
         if self._part_coordinate_system is not None:
             return self._part_coordinate_system
         if "Orientation" in self.valid_properties:
-            self._part_coordinate_system = retry_ntimes(
+            self._part_coordinate_system = _retry_ntimes(
                 10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, "Orientation"
             )
             return self._part_coordinate_system
@@ -1159,7 +1159,7 @@ class Object3d(object):
         if self._solve_inside is not None:
             return self._solve_inside
         if "Solve Inside" in self.valid_properties and self.model:
-            solveinside = retry_ntimes(
+            solveinside = _retry_ntimes(
                 10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, "Solve Inside"
             )
             if solveinside == "false" or solveinside == "False":
@@ -1195,7 +1195,7 @@ class Object3d(object):
         if self._wireframe is not None:
             return self._wireframe
         if "Display Wireframe" in self.valid_properties:
-            wireframe = retry_ntimes(
+            wireframe = _retry_ntimes(
                 10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, "Display Wireframe"
             )
             if wireframe == "true" or wireframe == "True":
@@ -1225,7 +1225,7 @@ class Object3d(object):
         if self._model is not None:
             return self._model
         if "Model" in self.valid_properties:
-            mod = retry_ntimes(10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, "Model")
+            mod = _retry_ntimes(10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, "Model")
             if mod == "false" or mod == "False":
                 self._model = False
             else:
@@ -2110,7 +2110,7 @@ class CircuitComponent(object):
         if tabname:
             vGeo3dlayout = ["NAME:" + tabname, vPropServers, vChangedProps]
             vOut = ["NAME:AllTabs", vGeo3dlayout]
-            return retry_ntimes(10, self.m_Editor.ChangeProperty, vOut)
+            return _retry_ntimes(10, self.m_Editor.ChangeProperty, vOut)
         return False
 
 
@@ -2210,7 +2210,7 @@ class Components3DLayout(Objec3DLayout, object):
            List of ``(x, y, z)`` coordinates for the component location.
 
         """
-        location = retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Location")
+        location = _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Location")
         return list(location)
 
     @aedt_exception_handler
@@ -2222,7 +2222,7 @@ class Components3DLayout(Objec3DLayout, object):
         type
             Component placement layer.
         """
-        return retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "PlacementLayer")
+        return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "PlacementLayer")
 
     @aedt_exception_handler
     def get_part(self):
@@ -2234,7 +2234,7 @@ class Components3DLayout(Objec3DLayout, object):
             Component part.
 
         """
-        return retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Part")
+        return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Part")
 
     @aedt_exception_handler
     def get_part_type(self):
@@ -2246,7 +2246,7 @@ class Components3DLayout(Objec3DLayout, object):
             Component part type.
 
         """
-        return retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Part Type")
+        return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Part Type")
 
     @aedt_exception_handler
     def get_angle(self):
@@ -2258,7 +2258,7 @@ class Components3DLayout(Objec3DLayout, object):
             Component angle.
 
         """
-        return retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Angle")
+        return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Angle")
 
 
 class Nets3DLayout(Objec3DLayout, object):
@@ -2310,7 +2310,7 @@ class Pins3DLayout(Objec3DLayout, object):
            List of ``(x, y, z)`` coordinates for the pin location.
 
         """
-        location = retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Location")
+        location = _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Location")
         return location
 
     @aedt_exception_handler
@@ -2323,7 +2323,7 @@ class Pins3DLayout(Objec3DLayout, object):
             Name of the starting layer of the pin.
 
         """
-        return retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Start Layer")
+        return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Start Layer")
 
     @aedt_exception_handler
     def get_stop_layer(self):
@@ -2335,7 +2335,7 @@ class Pins3DLayout(Objec3DLayout, object):
             Name of the stopping layer of the pin.
 
         """
-        return retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Stop Layer")
+        return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Stop Layer")
 
     @aedt_exception_handler
     def get_holediam(self):
@@ -2347,7 +2347,7 @@ class Pins3DLayout(Objec3DLayout, object):
            Hole diameter of the pin.
 
         """
-        return retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "HoleDiameter")
+        return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "HoleDiameter")
 
     @aedt_exception_handler
     def get_angle(self):
@@ -2359,7 +2359,7 @@ class Pins3DLayout(Objec3DLayout, object):
             Rotation angle of the pin
 
         """
-        return retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Angle")
+        return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Angle")
 
 
 class Geometries3DLayout(Objec3DLayout, object):
@@ -2391,7 +2391,7 @@ class Geometries3DLayout(Objec3DLayout, object):
             Object placement layer.
 
         """
-        return retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "PlacementLayer")
+        return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "PlacementLayer")
 
     @aedt_exception_handler
     def get_net_name(self):
@@ -2403,7 +2403,7 @@ class Geometries3DLayout(Objec3DLayout, object):
             Name of the net.
 
         """
-        return retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Net")
+        return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Net")
 
     @aedt_exception_handler
     def get_property_value(self, propertyname):
@@ -2420,7 +2420,7 @@ class Geometries3DLayout(Objec3DLayout, object):
             Value of the property.
 
         """
-        return retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, propertyname)
+        return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, propertyname)
 
     @aedt_exception_handler
     def set_layer(self, layer_name):

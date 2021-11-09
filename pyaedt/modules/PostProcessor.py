@@ -17,7 +17,7 @@ from collections import OrderedDict
 
 from pyaedt.application.Variables import AEDT_units
 from pyaedt.generic.filesystem import Scratch
-from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, retry_ntimes
+from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, _retry_ntimes
 
 report_type = {
     "DrivenModal": "Modal Solution Data",
@@ -1314,7 +1314,7 @@ class PostProcessor(PostProcessorCommon, object):
         str
            Model units, such as ``"mm"``.
         """
-        return retry_ntimes(10, self._oeditor.GetModelUnits)
+        return _retry_ntimes(10, self._oeditor.GetModelUnits)
 
     @property
     def post_osolution(self):
@@ -1859,10 +1859,10 @@ class PostProcessor(PostProcessorCommon, object):
                     variation_dict.append("0deg")
         if not sample_points_file and not sample_points_lists:
 
-            retry_ntimes(10, self.ofieldsreporter.CalculatorWrite, filename, ["Solution:=", solution], variation_dict)
+            _retry_ntimes(10, self.ofieldsreporter.CalculatorWrite, filename, ["Solution:=", solution], variation_dict)
         elif sample_points_file:
 
-            retry_ntimes(
+            _retry_ntimes(
                 10,
                 self.ofieldsreporter.ExportToFile,
                 filename,
@@ -1876,7 +1876,7 @@ class PostProcessor(PostProcessorCommon, object):
             with open(sample_points_file, "w") as f:
                 for point in sample_points_lists:
                     f.write(" ".join([str(i) for i in point]) + "\n")
-            retry_ntimes(
+            _retry_ntimes(
                 10,
                 self.ofieldsreporter.ExportToFile,
                 filename,

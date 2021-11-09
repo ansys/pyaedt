@@ -3,7 +3,7 @@ import time
 
 from pyaedt.application.Variables import AEDT_units
 from pyaedt.edb import Edb
-from pyaedt.generic.general_methods import aedt_exception_handler, retry_ntimes, is_ironpython, _pythonver, \
+from pyaedt.generic.general_methods import aedt_exception_handler, _retry_ntimes, is_ironpython, _pythonver, \
     inside_desktop
 from pyaedt.modules.LayerStackup import Layers
 from pyaedt.modeler.Modeler import Modeler
@@ -106,7 +106,7 @@ class Modeler3DLayout(Modeler):
     @property
     def model_units(self):
         """Model units."""
-        return retry_ntimes(10, self.oeditor.GetActiveUnits)
+        return _retry_ntimes(10, self.oeditor.GetActiveUnits)
 
     @model_units.setter
     def model_units(self, units):
@@ -284,7 +284,7 @@ class Modeler3DLayout(Modeler):
         line_4
 
         """
-        layer = retry_ntimes(10, self.oeditor.GetPropertyValue, "BaseElementTab", object_to_expand, "PlacementLayer")
+        layer = _retry_ntimes(10, self.oeditor.GetPropertyValue, "BaseElementTab", object_to_expand, "PlacementLayer")
         poly = self.oeditor.GetPolygonDef(object_to_expand).GetPoints()
         pos = [poly[0].GetX(), poly[0].GetY()]
         geom_names = self.oeditor.FindObjectsByPoint(self.oeditor.Point().Set(pos[0], pos[1]), layer)
