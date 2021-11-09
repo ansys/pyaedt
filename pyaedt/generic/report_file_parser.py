@@ -16,14 +16,15 @@ def parse_file(file_path):
     for report_name in report_data:
         report_dict[report_name] = {}
         for trace, trace_data in report_data[report_name]["Traces"].items():
-            component_data = trace_data["TraceComponents"]["TraceDataComps"]
-            all_x_values = component_data["0"]["TraceDataCol"]["ColumnValues"]
-            all_y_values = component_data["1"]["TraceDataCol"]["ColumnValues"]
+            x_data = trace_data["TraceComponents"]["TraceDataComps"]["0"]
+            y_data = trace_data["TraceComponents"]["TraceDataComps"]["1"]
+            all_x_values = x_data["TraceDataCol"]["ColumnValues"]
+            all_y_values = y_data["TraceDataCol"]["ColumnValues"]
 
-            si_unit_x = SI_units[unit_system(component_data["0"]["TraceDataCol"]["Units"])]
-            si_unit_y = SI_units[unit_system(component_data["1"]["TraceDataCol"]["Units"])]
+            si_unit_x = SI_units[unit_system(x_data["TraceDataCol"]["Units"])]
+            si_unit_y = SI_units[unit_system(y_data["TraceDataCol"]["Units"])]
             report_dict[report_name][trace_data["TraceName"]] = {
-                "x_name": component_data["0"]["TraceCompExpr"],
+                "x_name": x_data["TraceCompExpr"],
                 "x_unit": si_unit_x,
                 "y_unit": si_unit_y,
                 "curves": {},
