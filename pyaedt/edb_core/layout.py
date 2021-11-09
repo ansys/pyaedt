@@ -557,6 +557,7 @@ class EdbLayout(object):
             self._logger.error("Error validating point.")
             return None
         arcs = []
+        is_parametric = False
         for i in range(1, len(points)):
             startPoint = points[i - 1]
             endPoint = points[i]
@@ -565,12 +566,17 @@ class EdbLayout(object):
             startPoint = [self._edb_value(i) for i in startPoint]
             endPoint = [self._edb_value(i) for i in endPoint]
             if len(endPoint) == 2:
+                is_parametric = is_parametric or startPoint[0].IsParametric() or startPoint[1].IsParametric() or \
+                                endPoint[0].IsParametric() or endPoint[1].IsParametric()
                 arc = self._edb.Geometry.ArcData(
-                    self._edb.Geometry.PointData(startPoint[0], startPoint[1]),
-                    self._edb.Geometry.PointData(endPoint[0], endPoint[1]),
+                    self._edb.Geometry.PointData(self._edb_value(startPoint[0].ToDouble()), self._edb_value(startPoint[1].ToDouble())),
+                    self._edb.Geometry.PointData(self._edb_value(endPoint[0].ToDouble()), self._edb_value(endPoint[1].ToDouble())),
                 )
                 arcs.append(arc)
             elif len(endPoint) == 5:
+                is_parametric = is_parametric or startPoint[0].IsParametric() or startPoint[1].IsParametric() or \
+                                endPoint[0].IsParametric() or endPoint[1].IsParametric() or endPoint[
+                                    3].IsParametric() or endPoint[4].IsParametric()
                 rotationDirection = self._edb.Geometry.RotationDirection.Colinear
                 if endPoint[2].ToString() == "cw":
                     rotationDirection = self._edb.Geometry.RotationDirection.CW
@@ -580,13 +586,26 @@ class EdbLayout(object):
                     self._logger.error("Invalid rotation direction %s is specified.", endPoint[2])
                     return None
                 arc = self._edb.Geometry.ArcData(
-                    self._edb.Geometry.PointData(startPoint[0], startPoint[1]),
-                    self._edb.Geometry.PointData(endPoint[0], endPoint[1]),
+                    self._edb.Geometry.PointData(self._edb_value(startPoint[0].ToDouble()), self._edb_value(startPoint[1].ToDouble())),
+                    self._edb.Geometry.PointData(self._edb_value(endPoint[0].ToDouble()), self._edb_value(endPoint[1].ToDouble())),
                     rotationDirection,
-                    self._edb.Geometry.PointData(endPoint[3], endPoint[4]),
+                    self._edb.Geometry.PointData(self._edb_value(endPoint[3].ToDouble()), self._edb_value(endPoint[4].ToDouble())),
                 )
                 arcs.append(arc)
-        return self._edb.Geometry.PolygonData.CreateFromArcs(convert_py_list_to_net_list(arcs), True)
+        polygon = self._edb.Geometry.PolygonData.CreateFromArcs(convert_py_list_to_net_list(arcs), True)
+        if not is_parametric:
+            return polygon
+        else:
+            k = 0
+            for i in range(0, len(points)-1):
+                startPoint = points[i]
+                point = [self._edb_value(i) for i in startPoint]
+                new_points = self._edb.Geometry.PointData(point[0], point[1])
+                if len(point) > 2:
+                    k += 1
+                polygon.SetPoint(k, new_points)
+                k += 1
+        return polygon
 
     @aedt_exception_handler
     def _validatePoint(self, point, allowArcs=True):
