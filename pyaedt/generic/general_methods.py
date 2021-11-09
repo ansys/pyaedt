@@ -180,8 +180,8 @@ def aedt_exception_handler(func):
                 new_kwargs = _remote_dict_conversion(kwargs)
                 out = func(*new_args, **new_kwargs)
                 if str(func.__name__)[0] != "_":
-                    line_begin = "\n                Implicit Arguments : "
-                    line_begin2 = "\n                Explicit Arguments : "
+                    line_begin = "\n                                    Implicit Arguments : "
+                    line_begin2 = "\n                                    Explicit Arguments : "
                     if args:
                         object_name = str([new_args[0]])[1:-1]
                         id = object_name.find(" object at ")
