@@ -26,7 +26,6 @@ class ModelerCircuit(Modeler):
         Modeler.__init__(self, app)
 
     @property
-    @aedt_exception_handler
     def obounding_box(self):
         """Bounding box."""
         return self.oeditor.GetModelBoundingBox()
@@ -99,7 +98,6 @@ class ModelerNexxim(ModelerCircuit):
         self._primitivesDes = self._app.project_name + self._app.design_name
 
     @property
-    @aedt_exception_handler
     def edb(self):
         """EDB.
 
@@ -113,13 +111,11 @@ class ModelerNexxim(ModelerCircuit):
         return None
 
     @property
-    @aedt_exception_handler
     def model_units(self):
         """Model units."""
         return retry_ntimes(10, self.layouteditor.GetActiveUnits)
 
     @property
-    @aedt_exception_handler
     def primitives(self):
         """Primitives.
 

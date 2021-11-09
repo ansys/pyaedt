@@ -59,7 +59,6 @@ class Modeler3DLayout(Modeler):
         pass
 
     @property
-    @aedt_exception_handler
     def edb(self):
         """EBD.
 
@@ -91,7 +90,6 @@ class Modeler3DLayout(Modeler):
         return self._edb
 
     @property
-    @aedt_exception_handler
     def logger(self):
         """Logger."""
         return self._app.logger
@@ -106,7 +104,6 @@ class Modeler3DLayout(Modeler):
             self._desktop.RestoreWindow()
 
     @property
-    @aedt_exception_handler
     def model_units(self):
         """Model units."""
         return retry_ntimes(10, self.oeditor.GetActiveUnits)
@@ -118,7 +115,6 @@ class Modeler3DLayout(Modeler):
         self.oeditor.SetActivelUnits(["NAME:Units Parameter", "Units:=", units, "Rescale:=", False])
 
     @property
-    @aedt_exception_handler
     def primitives(self):
         """Primitives."""
         if self._primitivesDes != self._app.project_name + self._app.design_name:
@@ -127,7 +123,6 @@ class Modeler3DLayout(Modeler):
         return self._primitives
 
     @property
-    @aedt_exception_handler
     def obounding_box(self):
         """Bounding box."""
         return self.oeditor.GetModelBoundingBox()

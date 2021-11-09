@@ -128,7 +128,6 @@ class Icepak(FieldAnalysisIcepak):
         return self
 
     @property
-    @aedt_exception_handler
     def existing_analysis_sweeps(self):
         """Existing analysis setups.
 

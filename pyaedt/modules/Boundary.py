@@ -111,7 +111,6 @@ class NativeComponentObject(BoundaryCommon, object):
         self.native_properties = self.props["NativeComponentDefinitionProvider"]
 
     @property
-    @aedt_exception_handler
     def targetcs(self):
         """Native Component Coordinate System.
 
@@ -120,7 +119,10 @@ class NativeComponentObject(BoundaryCommon, object):
         str
             Native Component Coordinate System
         """
-        return self.props["TargetCS"]
+        if "TargetCS" in list(self.props.keys()):
+            return self.props["TargetCS"]
+        else:
+            return "Global"
 
     @targetcs.setter
     def targetcs(self, cs):

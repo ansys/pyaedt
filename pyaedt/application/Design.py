@@ -280,7 +280,6 @@ class DesignCache(object):
         self._snapshot = self.design_snapshot()
 
     @property
-    @aedt_exception_handler
     def allowed_error_messages(self):
         """Add this error message to the ignored error messages."""
         return self._allow_errors_global + self._allow_errors_local
@@ -294,7 +293,6 @@ class DesignCache(object):
         self._allow_errors_global.append("[error] {}".format(msg))
 
     @property
-    @aedt_exception_handler
     def no_change(self):
         """Check if the design snapshot is unchanged since the last update.
 
@@ -307,7 +305,6 @@ class DesignCache(object):
         return self._no_change
 
     @property
-    @aedt_exception_handler
     def delta_global_messages(self):
         """Check for any new or missing global-level messages since the last update.
 
@@ -319,7 +316,6 @@ class DesignCache(object):
         return self._delta_global_messages
 
     @property
-    @aedt_exception_handler
     def delta_project_messages(self):
         """Check for any new or missing project-level messages since the last update.
 
@@ -331,7 +327,6 @@ class DesignCache(object):
         return self._delta_global_messages
 
     @property
-    @aedt_exception_handler
     def delta_design_messages(self):
         """Check for any new or missing design-level messages since the last update.
 
@@ -343,7 +338,6 @@ class DesignCache(object):
         return self._delta_design_messages
 
     @property
-    @aedt_exception_handler
     def delta_error_messages(self):
         """Check for any new or missing error messages since the last update.
 
@@ -355,7 +349,6 @@ class DesignCache(object):
         return self._new_error_messages
 
     @property
-    @aedt_exception_handler
     def no_new_messages(self):
         """Check for any new messages that have appeared since the last update or since the Message Manager was cleared.
 
@@ -369,7 +362,6 @@ class DesignCache(object):
         return not bool(self._delta_messages)
 
     @property
-    @aedt_exception_handler
     def no_new_errors(self):
         """Check for any new error messages that have appeared since the last uodate.
 
@@ -382,7 +374,6 @@ class DesignCache(object):
         return not bool(self._new_error_messages)
 
     @property
-    @aedt_exception_handler
     def no_new_warnings(self):
         """Check for any new warning messages that have appeared since the last uodate.
 
@@ -395,7 +386,6 @@ class DesignCache(object):
         return not bool(self._new_warning_messages)
 
     @property
-    @aedt_exception_handler
     def no_change(self):
         """Check if cache elements are unchanged since the last update.
 
@@ -630,7 +620,6 @@ class Design(object):
         self._mesh = None
 
     @property
-    @aedt_exception_handler
     def logger(self):
         """Logger for the Design.
 
@@ -641,7 +630,6 @@ class Design(object):
         return self._logger
 
     @property
-    @aedt_exception_handler
     def project_properies(self):
         """Project properties.
 
@@ -657,7 +645,6 @@ class Design(object):
         return self._project_dictionary
 
     @property
-    @aedt_exception_handler
     def design_properties(self, design_name=None):
         """Design properties.
 
@@ -690,7 +677,6 @@ class Design(object):
             return OrderedDict()
 
     @property
-    @aedt_exception_handler
     def aedt_version_id(self):
         """AEDT version.
 
@@ -704,7 +690,6 @@ class Design(object):
         return get_version_env_variable(version)
 
     @property
-    @aedt_exception_handler
     def design_name(self):
         """Design name.
 
@@ -744,7 +729,6 @@ class Design(object):
             assert timeout >= 0
 
     @property
-    @aedt_exception_handler
     def design_list(self):
         """Design list.
 
@@ -762,7 +746,6 @@ class Design(object):
         return updateddeslist
 
     @property
-    @aedt_exception_handler
     def design_type(self):
         """Design type.
 
@@ -781,7 +764,6 @@ class Design(object):
         return self._design_type
 
     @property
-    @aedt_exception_handler
     def project_name(self):
         """Project name.
 
@@ -797,7 +779,6 @@ class Design(object):
             return None
 
     @property
-    @aedt_exception_handler
     def project_list(self):
         """Project list.
 
@@ -810,7 +791,6 @@ class Design(object):
         return list(self._desktop.GetProjectList())
 
     @property
-    @aedt_exception_handler
     def project_path(self):
         """Project path.
 
@@ -823,7 +803,6 @@ class Design(object):
         return os.path.normpath(self._oproject.GetPath())
 
     @property
-    @aedt_exception_handler
     def project_file(self):
         """Project file.
 
@@ -836,7 +815,6 @@ class Design(object):
         return os.path.join(self.project_path, self.project_name + ".aedt")
 
     @property
-    @aedt_exception_handler
     def lock_file(self):
         """Lock file.
 
@@ -849,7 +827,6 @@ class Design(object):
         return os.path.join(self.project_path, self.project_name + ".aedt.lock")
 
     @property
-    @aedt_exception_handler
     def results_directory(self):
         """Results directory.
 
@@ -862,7 +839,6 @@ class Design(object):
         return os.path.join(self.project_path, self.project_name + ".aedtresults")
 
     @property
-    @aedt_exception_handler
     def solution_type(self):
         """Solution type.
 
@@ -895,7 +871,6 @@ class Design(object):
                 pass
 
     @property
-    @aedt_exception_handler
     def valid_design(self):
         """Valid design.
 
@@ -911,7 +886,6 @@ class Design(object):
             return False
 
     @property
-    @aedt_exception_handler
     def personallib(self):
         """PersonalLib directory.
 
@@ -924,7 +898,6 @@ class Design(object):
         return os.path.normpath(self._desktop.GetPersonalLibDirectory())
 
     @property
-    @aedt_exception_handler
     def userlib(self):
         """UserLib directory.
 
@@ -937,7 +910,6 @@ class Design(object):
         return os.path.normpath(self._desktop.GetUserLibDirectory())
 
     @property
-    @aedt_exception_handler
     def syslib(self):
         """SysLib directory.
 
@@ -950,7 +922,6 @@ class Design(object):
         return os.path.normpath(self._desktop.GetLibraryDirectory())
 
     @property
-    @aedt_exception_handler
     def src_dir(self):
         """Source directory for Python.
 
@@ -963,7 +934,6 @@ class Design(object):
         return os.path.dirname(os.path.realpath(__file__))
 
     @property
-    @aedt_exception_handler
     def pyaedt_dir(self):
         """PyAEDT directory.
 
@@ -976,7 +946,6 @@ class Design(object):
         return os.path.realpath(os.path.join(self.src_dir, ".."))
 
     @property
-    @aedt_exception_handler
     def library_list(self):
         """Library list.
 
@@ -989,7 +958,6 @@ class Design(object):
         return [self.syslib, self.userlib, self.personallib]
 
     @property
-    @aedt_exception_handler
     def temp_directory(self):
         """Path to the temporary directory.
 
@@ -1002,7 +970,6 @@ class Design(object):
         return os.path.normpath(self._desktop.GetTempDirectory())
 
     @property
-    @aedt_exception_handler
     def toolkit_directory(self):
         """Path to the toolkit directory.
 
@@ -1019,7 +986,6 @@ class Design(object):
         return toolkit_directory
 
     @property
-    @aedt_exception_handler
     def working_directory(self):
         """Path to the working directory.
 
@@ -1036,7 +1002,6 @@ class Design(object):
         return working_directory
 
     @property
-    @aedt_exception_handler
     def default_solution_type(self):
         """Default solution type.
 
@@ -1049,7 +1014,6 @@ class Design(object):
         return design_solutions[self._design_type][0]
 
     @property
-    @aedt_exception_handler
     def odesign(self):
         """Design.
 
@@ -1319,7 +1283,6 @@ class Design(object):
         return True
 
     @property
-    @aedt_exception_handler
     def variable_manager(self):
         """Variable manager for creating and managing project design and postprocessing variables.
 

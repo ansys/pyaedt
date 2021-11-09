@@ -89,7 +89,6 @@ class FieldAnalysis3D(Analysis, object):
         self._post = PostProcessor(self)
 
     @property
-    @aedt_exception_handler
     def modeler(self):
         """Modeler.
 
@@ -100,7 +99,6 @@ class FieldAnalysis3D(Analysis, object):
         return self._modeler
 
     @property
-    @aedt_exception_handler
     def mesh(self):
         """Mesh.
 
@@ -111,7 +109,6 @@ class FieldAnalysis3D(Analysis, object):
         return self._mesh
 
     @property
-    @aedt_exception_handler
     def components3d(self):
         """Components 3D.
 

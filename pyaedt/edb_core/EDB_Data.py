@@ -1307,7 +1307,6 @@ class EDBPinInstances(object):
         return self.pin.GetPinGroups()
 
     @property
-    @aedt_exception_handler
     def position(self):
         """Pin position.
 

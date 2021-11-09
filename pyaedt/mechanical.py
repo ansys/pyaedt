@@ -456,7 +456,6 @@ class Mechanical(FieldAnalysis3D, object):
         return False
 
     @property
-    @aedt_exception_handler
     def existing_analysis_sweeps(self):
         """Existing analysis sweeps in the design.
 
