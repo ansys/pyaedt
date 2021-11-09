@@ -159,11 +159,11 @@ class Primitives2D(Primitives, object):
 
         vArg1 = ["NAME:RectangleParameters"]
         vArg1.append("IsCovered:="), vArg1.append(is_covered)
-        vArg1.append("x_start:="), vArg1.append(x_start)
-        vArg1.append("y_start:="), vArg1.append(y_start)
-        vArg1.append("z_start:="), vArg1.append(z_start)
-        vArg1.append("width:="), vArg1.append(width)
-        vArg1.append("height:="), vArg1.append(height)
+        vArg1.append("XStart:="), vArg1.append(x_start)
+        vArg1.append("YStart:="), vArg1.append(y_start)
+        vArg1.append("ZStart:="), vArg1.append(z_start)
+        vArg1.append("Width:="), vArg1.append(width)
+        vArg1.append("Height:="), vArg1.append(height)
         vArg1.append("WhichAxis:="), vArg1.append(axis)
 
         vArg2 = self._default_object_attributes(name=name, matname=matname)
