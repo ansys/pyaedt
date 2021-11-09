@@ -1,8 +1,11 @@
+import os
+
 from pyaedt.generic.report_file_parser import parse_file
 
+local_path = os.path.dirname(os.path.realpath(__file__))
 
 def test_report_file_parser():
-    data = parse_file(r"example_models/test_report.rdat")
+    data = parse_file(os.path.join(local_path, "example_models", "test_report.rdat"))
     assert data == {
         "Calculator Expressions Plot 1": {
             "Mag_H": {
