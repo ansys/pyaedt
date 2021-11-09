@@ -146,6 +146,46 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             return False
 
     @aedt_exception_handler
+    def create_wave_port_from_two_conductors(self, primivitivenames=[""], edgenumbers=[""]):
+        """Create a wave port.
+
+        Parameters
+        ----------
+        primivitivenames : list(str)
+            List of the of the primitive name to create the wave port on.
+            The list length must be 2 e.g. for the two conductors or the command will not be executed.
+
+        edgenumbers :
+            List of the edge number to create the wave port on.
+            The list length must be 2 e.g. for thr two edges or the command will not be executed,
+
+        Returns
+        -------
+        type
+            Name of the port when successful, ``False`` when failed.
+
+        """
+        if len(primivitivenames) == 2 and len(edgenumbers) == 2:
+            listp = self.port_list
+            self.modeler.oeditor.CreateEdgePort(
+                [
+                    "NAME:Contents",
+                    "edge:="	, [			"et:="			, "pe",			"prim:="		, primivitivenames[0],			"edge:="		, edgenumbers[0]],
+                    "edge:="		, [			"et:="			, "pe",			"prim:="		, primivitivenames[1],			"edge:="		, edgenumbers[1]],
+                    "external:="		, True,
+                    "btype:="		, 0
+                ]
+            )
+            listnew = self.port_list
+            a = [i for i in listnew if i not in listp]
+            if len(a) > 0:
+                return a[0]
+            else:
+                return False
+        else:
+            return False
+
+    @aedt_exception_handler
     def create_coax_port(self, vianame, layer, xstart, xend, ystart, yend, archeight=0, arcrad=0, isexternal=True):
         """Create a new coax port.
 
