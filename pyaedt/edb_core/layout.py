@@ -569,8 +569,10 @@ class EdbLayout(object):
                 is_parametric = is_parametric or startPoint[0].IsParametric() or startPoint[1].IsParametric() or \
                                 endPoint[0].IsParametric() or endPoint[1].IsParametric()
                 arc = self._edb.Geometry.ArcData(
-                    self._edb.Geometry.PointData(self._edb_value(startPoint[0].ToDouble()), self._edb_value(startPoint[1].ToDouble())),
-                    self._edb.Geometry.PointData(self._edb_value(endPoint[0].ToDouble()), self._edb_value(endPoint[1].ToDouble())),
+                    self._edb.Geometry.PointData(self._edb_value(startPoint[0].ToDouble()),
+                                                 self._edb_value(startPoint[1].ToDouble())),
+                    self._edb.Geometry.PointData(self._edb_value(endPoint[0].ToDouble()),
+                                                 self._edb_value(endPoint[1].ToDouble())),
                 )
                 arcs.append(arc)
             elif len(endPoint) == 5:
@@ -586,10 +588,13 @@ class EdbLayout(object):
                     self._logger.error("Invalid rotation direction %s is specified.", endPoint[2])
                     return None
                 arc = self._edb.Geometry.ArcData(
-                    self._edb.Geometry.PointData(self._edb_value(startPoint[0].ToDouble()), self._edb_value(startPoint[1].ToDouble())),
-                    self._edb.Geometry.PointData(self._edb_value(endPoint[0].ToDouble()), self._edb_value(endPoint[1].ToDouble())),
+                    self._edb.Geometry.PointData(self._edb_value(startPoint[0].ToDouble()),
+                                                 self._edb_value(startPoint[1].ToDouble())),
+                    self._edb.Geometry.PointData(self._edb_value(endPoint[0].ToDouble()),
+                                                 self._edb_value(endPoint[1].ToDouble())),
                     rotationDirection,
-                    self._edb.Geometry.PointData(self._edb_value(endPoint[3].ToDouble()), self._edb_value(endPoint[4].ToDouble())),
+                    self._edb.Geometry.PointData(self._edb_value(endPoint[3].ToDouble()),
+                                                 self._edb_value(endPoint[4].ToDouble())),
                 )
                 arcs.append(arc)
         polygon = self._edb.Geometry.PolygonData.CreateFromArcs(convert_py_list_to_net_list(arcs), True)
