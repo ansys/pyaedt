@@ -3,6 +3,12 @@ from pyaedt.application.Variables import unit_system, SI_units
 
 
 def parse_file(file_path):
+    """
+    Parse Ansys report .rdat file
+
+    Returns:
+        (dict) report data
+    """
     report_dict = {}
     data = load_entire_aedt_file(file_path)
 
