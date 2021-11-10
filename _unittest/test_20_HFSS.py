@@ -565,3 +565,26 @@ class TestClass:
         file_path = self.local_scratch.path
         file_name = "test_step"
         assert self.aedtapp.export_3d_model(file_name, file_path, ".step", [], [])
+
+    def test_42_floquet_port(self):
+        self.aedtapp.insert_design("floquet")
+        box1 = self.aedtapp.modeler.primitives.create_box([-100, -100, -100], [200, 200, 200], name="Rad_box2")
+        assert self.aedtapp.create_floquet_port(box1.faces[0], deembed_dist=1, nummodes=7,
+                                            reporter_filter=[False, True, False, False, False, False, False])
+        assert self.aedtapp.create_floquet_port(box1.faces[1], deembed_dist=1, nummodes=7,
+                                            reporter_filter=[False, True, False, False, False, False, False])
+        sheet = self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.CoordinateSystemPlane.XYPlane,
+                                                                 [-100, -100, -100], [200, 200],
+                                                                 name="RectangleForSource", matname="Copper")
+        assert self.aedtapp.create_floquet_port(sheet, deembed_dist=1, nummodes=4, reporter_filter=False)
+
+    def test_43_autoassign_pairs(self):
+        self.aedtapp.insert_design("lattice")
+        box1 = self.aedtapp.modeler.primitives.create_box([-100, -100, -100], [200, 200, 200], name="Rad_box2")
+        assert len(self.aedtapp.auto_assign_lattice_pairs(box1)) == 2
+        box1.delete()
+        box1 = self.aedtapp.modeler.primitives.create_box([-100, -100, -100], [200, 200, 200], name="Rad_box2")
+        assert self.aedtapp.assign_lattice_pair([box1.faces[2], box1.faces[4]])
+        primary = self.aedtapp.assign_primary(box1.faces[1], [100, -100, -100], [100, 100, -100])
+        assert primary
+        assert self.aedtapp.assign_secondary(box1.faces[0], primary.name, [100, -100, 100], [100, 100, 100],reverse_v=True)
