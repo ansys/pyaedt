@@ -1202,7 +1202,7 @@ class PostProcessorCommon(object):
                 * (Post processor format) .txt
                 * (Ensight XY data) .exy
                 * (Anosft Plot Data) .dat
-                * (Anosft Report Data Files) .rdat
+                * (Ansoft Report Data Files) .rdat
         unique_file : bool
             If set to True, generates unique file in output_dit
 
