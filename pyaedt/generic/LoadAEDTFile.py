@@ -175,39 +175,30 @@ def _decode_key(l , d):
     """
     m = _key_parse.search(l)
     if m and m.group("KEY1"):  # key btw ''
-        value = m.group("VAL1")
-        if "\\'" in value:
-            value2 = value.replace("\\'", '"')
-        else:
-            value2 = value
-        # if there are no spaces in value
-        if not _value_parse1.search(value2) or _value_parse2.search(value2):
-            # or values with spaces are between quote
-            key = m.group("KEY1")
-            _decode_value_and_save(key, value, d)
-        else:  # spaces in value without quotes
-            key = l
-            value = None
-            _decode_value_and_save(key, value, d)
+        key, value = _parse_key(l, m, group_name="VAL1", key_name="KEY1")
     elif m and m.group("KEY2"):  # key without ''
-        value = m.group("VAL2")
-        if "\\'" in value:
-            value2 = value.replace("\\'", '"')
-        else:
-            value2 = value
-        # if there are no spaces in value
-        if not _value_parse1.search(value2) or _value_parse2.search(value2):
-            # or values with spaces are between quote
-            key = m.group("KEY2")
-            _decode_value_and_save(key, value, d)
-        else:  # spaces in value without quotes
-            key = l
-            value = None
-            _decode_value_and_save(key, value, d)
+        key, value = _parse_key(l, m, group_name="VAL2", key_name="KEY2")
     else:  # no = sign found
         key = l
         value = None
-        _decode_value_and_save(key, value, d)
+
+    _decode_value_and_save(key, value, d)
+
+
+def _parse_key(text, m, group_name, key_name):
+    value = m.group(group_name)
+    if "\\'" in value:
+        value2 = value.replace("\\'", '"')
+    else:
+        value2 = value
+    # if there are no spaces in value
+    if not _value_parse1.search(value2) or _value_parse2.search(value2):
+        # or values with spaces are between quote
+        key = m.group(key_name)
+    else:  # spaces in value without quotes
+        key = text
+        value = None
+    return key, value
 
 
 def _walk_through_structure(keyword, save_dict):
