@@ -4,7 +4,7 @@ from pyaedt.modeler.Primitives import Primitives
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 from pyaedt.modeler.multiparts import MultiPartComponent, Environment
 from pyaedt.modeler.actors import Person, Bird, Vehicle
-from pyaedt.generic.general_methods import retry_ntimes
+from pyaedt.generic.general_methods import _retry_ntimes
 
 
 class Primitives3D(Primitives, object):
@@ -82,7 +82,7 @@ class Primitives3D(Primitives, object):
         vArg1.append("YSize:="), vArg1.append(YSize)
         vArg1.append("ZSize:="), vArg1.append(ZSize)
         vArg2 = self._default_object_attributes(name=name, matname=matname)
-        new_object_name = retry_ntimes(10, self._oeditor.CreateBox, vArg1, vArg2)
+        new_object_name = _retry_ntimes(10, self._oeditor.CreateBox, vArg1, vArg2)
         return self._create_object(new_object_name)
 
     @aedt_exception_handler
@@ -806,11 +806,13 @@ class Primitives3D(Primitives, object):
             List of objects belonging to the 3D component.
 
         """
-        compobj = self._oeditor.GetChildObject(componentname)
-        if compobj:
-            return list(compobj.GetChildNames())
+        if self._app._is_object_oriented_enabled():
+            compobj = self._oeditor.GetChildObject(componentname)
+            if compobj:
+                return list(compobj.GetChildNames())
         else:
-            return []
+            self.logger.warning("Object Oriented Beta Option is not enabled in this Desktop.")
+        return []
 
     @aedt_exception_handler
     def _check_actor_folder(self, actor_folder):

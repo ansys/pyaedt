@@ -9,7 +9,7 @@ from collections import OrderedDict
 
 from pyaedt.application.AnalysisIcepak import FieldAnalysisIcepak
 from pyaedt.generic.general_methods import generate_unique_name, aedt_exception_handler
-from pyaedt.generic.DataHandlers import arg2dict
+from pyaedt.generic.DataHandlers import _arg2dict
 from pyaedt.modules.Boundary import BoundaryObject, NativeComponentObject
 
 
@@ -128,7 +128,6 @@ class Icepak(FieldAnalysisIcepak):
         return self
 
     @property
-    @aedt_exception_handler
     def existing_analysis_sweeps(self):
         """Existing analysis setups.
 
@@ -1644,7 +1643,7 @@ class Icepak(FieldAnalysisIcepak):
         """
         lowRad, highRad = self.get_radiation_settings(rad)
         hfssLinkInfo = OrderedDict({})
-        arg2dict(self.get_link_data(setupLinkInfo), hfssLinkInfo)
+        _arg2dict(self.get_link_data(setupLinkInfo), hfssLinkInfo)
 
         native_props = OrderedDict(
             {

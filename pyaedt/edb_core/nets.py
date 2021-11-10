@@ -10,31 +10,26 @@ class EdbNets(object):
         self._pedb = p_edb
 
     @property
-    @aedt_exception_handler
     def _builder(self):
         """ """
         return self._pedb.builder
 
     @property
-    @aedt_exception_handler
     def _edb(self):
         """ """
         return self._pedb.edb
 
     @property
-    @aedt_exception_handler
     def _active_layout(self):
         """ """
         return self._pedb.active_layout
 
     @property
-    @aedt_exception_handler
     def _cell(self):
         """ """
         return self._pedb.cell
 
     @property
-    @aedt_exception_handler
     def db(self):
         """Db object."""
         return self._pedb.db

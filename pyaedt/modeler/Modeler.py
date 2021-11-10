@@ -11,9 +11,9 @@ import os
 from collections import OrderedDict
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 from pyaedt.application.Variables import AEDT_units
-from pyaedt.generic.general_methods import generate_unique_name, retry_ntimes, aedt_exception_handler, _pythonver
+from pyaedt.generic.general_methods import generate_unique_name, _retry_ntimes, aedt_exception_handler, _pythonver
 import math
-from pyaedt.generic.DataHandlers import dict2arg
+from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.modeler.Object3d import EdgePrimitive, FacePrimitive, VertexPrimitive, Object3d
 
 
@@ -91,7 +91,7 @@ class CoordinateSystem(object):
 
         """
         arguments = ["NAME:AllTabs", ["NAME:Geometry3DCSTab", ["NAME:PropServers", name], arg]]
-        retry_ntimes(10, self._modeler.oeditor.ChangeProperty, arguments)
+        _retry_ntimes(10, self._modeler.oeditor.ChangeProperty, arguments)
 
     @aedt_exception_handler
     def rename(self, newname):
@@ -507,7 +507,7 @@ class CoordinateSystem(object):
     def orientation(self):
         """Internal named array for orientation of the coordinate system."""
         arg = ["Name:RelativeCSParameters"]
-        dict2arg(self.props, arg)
+        _dict2arg(self.props, arg)
         return arg
 
     @property
@@ -733,7 +733,7 @@ class GeometryModeler(Modeler, object):
     @property
     def model_units(self):
         """Model units as a string. For example ``"mm"``."""
-        return retry_ntimes(10, self.oeditor.GetModelUnits)
+        return _retry_ntimes(10, self.oeditor.GetModelUnits)
 
     @model_units.setter
     def model_units(self, units):

@@ -37,17 +37,6 @@ To post issues, questions, and code, go to `PyAEDT Issues
 <https://github.com/pyansys/PyAEDT/issues>`_.
 
 
-Project Transition - Legacy Support
------------------------------------
-This project was formerly known as AEDTLib.
-Thanks to all early adopters, contributors, and users who submitted issues,
-gave feedback, and contributed code through the years.
-
-With PyAEDT, Ansys is leveraging its ability to create new Pythonic,
-cross-platform, and multi-language service-based interfaces for Ansys products.
-Your contributions to PyAEDT will help shape PyAEDT into a better solution.
-
-
 Dependencies
 ------------
 To run PyAEDT, you must have a local licenced copy of AEDT.

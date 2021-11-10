@@ -43,7 +43,6 @@ from pyaedt.generic.filesystem import Scratch
 
 test_project_name = "test_primitives"
 
-local_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(local_path)
 from .launch_desktop_tests import run_desktop_tests
 

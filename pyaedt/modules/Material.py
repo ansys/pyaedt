@@ -14,7 +14,7 @@ This module contains these data classes for creating a material library:
 """
 from collections import OrderedDict
 from pyaedt.generic.general_methods import aedt_exception_handler
-from pyaedt.generic.DataHandlers import dict2arg
+from pyaedt.generic.DataHandlers import _dict2arg
 
 
 class MatProperties(object):
@@ -694,7 +694,7 @@ class CommonMaterial(object):
         if not props:
             props = self._props
         arg = ["NAME:" + self.name]
-        dict2arg(props, arg)
+        _dict2arg(props, arg)
         return arg
 
     def _update_props(self, propname, provpavlue, update_aedt=True):
