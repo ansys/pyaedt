@@ -129,7 +129,7 @@ class Primitives2D(Primitives, object):
         position : list of float
             Position of the lower-left corner of the rectangle
         dimension_list : list of float
-            List of [height, width] of the rectangle
+            List of rectangle sizes: [X size, Y size] for XY planes or [Z size, R size] for RZ planes
         is_covered : bool
             Specify whether the ellipse is a sheet (covered) or a line object
         name : str, default=None
@@ -148,23 +148,19 @@ class Primitives2D(Primitives, object):
         ...                                                     name="MyCircle", matname="Copper")
 
         """
-        szAxis = self.plane2d
-        XStart, YStart, ZStart = self._pos_with_arg(position)
-        if self.plane2d == "Z":
-            Height = self._arg_with_dim(dimension_list[1])
-            Width = self._arg_with_dim(dimension_list[0])
-        else:
-            Height = self._arg_with_dim(dimension_list[0])
-            Width = self._arg_with_dim(dimension_list[1])
+        axis = self.plane2d
+        x_start, y_start, z_start = self._pos_with_arg(position)
+        width = self._arg_with_dim(dimension_list[0])
+        height = self._arg_with_dim(dimension_list[1])
 
         vArg1 = ["NAME:RectangleParameters"]
         vArg1.append("IsCovered:="), vArg1.append(is_covered)
-        vArg1.append("XStart:="), vArg1.append(XStart)
-        vArg1.append("YStart:="), vArg1.append(YStart)
-        vArg1.append("ZStart:="), vArg1.append(ZStart)
-        vArg1.append("Width:="), vArg1.append(Width)
-        vArg1.append("Height:="), vArg1.append(Height)
-        vArg1.append("WhichAxis:="), vArg1.append(szAxis)
+        vArg1.append("XStart:="), vArg1.append(x_start)
+        vArg1.append("YStart:="), vArg1.append(y_start)
+        vArg1.append("ZStart:="), vArg1.append(z_start)
+        vArg1.append("Width:="), vArg1.append(width)
+        vArg1.append("Height:="), vArg1.append(height)
+        vArg1.append("WhichAxis:="), vArg1.append(axis)
 
         vArg2 = self._default_object_attributes(name=name, matname=matname)
         new_object_name = self._oeditor.CreateRectangle(vArg1, vArg2)

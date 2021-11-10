@@ -83,13 +83,25 @@ class BasisTest:
                 solution_type=solution_type,
                 specified_version=desktop_version,
             )
+            self.project_name = self.aedtapp.project_name
             self.cache = DesignCache(self.aedtapp)
 
     def teardown_class(self):
         self.aedtapp._desktop.ClearMessages("", "", 3)
-        self.aedtapp.close_project(name=self.aedtapp.project_name, saveproject=False)
+        if self.project_name in self.aedtapp.project_list:
+            self.aedtapp.close_project(name=self.project_name, saveproject=False)
         self.local_scratch.remove()
         gc.collect()
+
+    def teardown(self):
+        """
+        Could be redefined
+        """
+
+    def setup(self):
+        """
+        Could be redefined
+        """
 
 
 # Define desktopVersion explicitly since this is imported by other modules
