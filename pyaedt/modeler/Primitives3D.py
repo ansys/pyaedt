@@ -806,11 +806,14 @@ class Primitives3D(Primitives, object):
             List of objects belonging to the 3D component.
 
         """
-        compobj = self._oeditor.GetChildObject(componentname)
-        if compobj:
-            return list(compobj.GetChildNames())
+        if self._app._is_object_oriented_enabled():
+            compobj = self._oeditor.GetChildObject(componentname)
+            if compobj:
+                return list(compobj.GetChildNames())
         else:
-            return []
+            self.logger.warning("Object Oriented Beta Option is not enabled in this Desktop.")
+        return []
+
 
     @aedt_exception_handler
     def _check_actor_folder(self, actor_folder):

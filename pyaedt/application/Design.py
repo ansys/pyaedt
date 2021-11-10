@@ -1355,6 +1355,70 @@ class Design(object):
             return False
 
     @aedt_exception_handler
+    def get_registry_key_string(self, key_full_name):
+        """Get Desktop Registry Key Value if exists, otherwise ''.
+
+        Parameters
+        ----------
+        key_full_name : str
+            Desktop Registry Key full name.
+
+        Returns
+        -------
+        str
+        """
+        return self.odesktop.GetRegistryString(key_full_name)
+
+    @aedt_exception_handler
+    def get_registry_key_int(self, key_full_name):
+        """Get Desktop Registry Key Value if exists, otherwise 0.
+
+        Parameters
+        ----------
+        key_full_name : str
+            Desktop Registry Key full name.
+
+        Returns
+        -------
+        str
+        """
+        return self.odesktop.GetRegistryInt(key_full_name)
+
+    @aedt_exception_handler
+    def check_beta_option_enabled(self, beta_option_name):
+        """Check if a Beta Option is enabled.
+
+        Parameters
+        ----------
+        beta_option_name : str
+            Name of the Beta Option to check. Example `'SF43060_HFSS_PI'`
+
+        Returns
+        -------
+        bool
+            `True` if succeeded.
+        """
+        limit = 100
+        i=0
+        while limit > 0:
+            a = self.get_registry_key_string("Desktop/Settings/ProjectOptions/EnabledBetaOptions/Item{}".format(i))
+            if a and a == beta_option_name:
+                limit = 0
+                return True
+            elif a:
+                limit -= 1
+            else:
+                limit = 0
+        return False
+
+    @aedt_exception_handler
+    def _is_object_oriented_enabled(self):
+        if self._aedt_version >= "2022.1":
+            return True
+        else:
+            return self.check_beta_option_enabled("SF159726_SCRIPTOBJECT")
+
+    @aedt_exception_handler
     def set_active_dso_config_name(self, product_name="HFSS", config_name="Local"):
         """Change a specific registry key to new value.
 

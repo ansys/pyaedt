@@ -836,9 +836,9 @@ class VariableManager(object):
         var_dict = {}
         all_names = {}
         for obj in object_list:
-            try:
+            if self._app._is_object_oriented_enabled():
                 listvar = list(obj.GetChildObject('Variables').GetChildNames())
-            except:
+            else:
                 listvar = list(obj.GetVariables())
             for variable_name in listvar:
                 variable_expression = self.get_expression(variable_name)
@@ -974,9 +974,9 @@ class VariableManager(object):
             prop_type = "PostProcessingVariableProp"
 
         # Get all design and project variables in lower case for a case-sensitive comparison
-        try:
+        if self._app._is_object_oriented_enabled():
             var_list = list(desktop_object.GetChildObject('Variables').GetChildNames())
-        except:
+        else:
             var_list = list(desktop_object.GetVariables())
         lower_case_vars = [var_name.lower() for var_name in var_list]
 
