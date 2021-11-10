@@ -5,7 +5,7 @@ This module contains the `Mesh` class.
 from __future__ import absolute_import
 from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, MethodNotSupportedError
 
-from pyaedt.generic.DataHandlers import dict2arg
+from pyaedt.generic.DataHandlers import _dict2arg
 from collections import OrderedDict
 
 meshers = {
@@ -46,7 +46,7 @@ class MeshOperation(object):
         """Retrieve arguments."""
         props = self.props
         arg = ["NAME:" + self.name]
-        dict2arg(props, arg)
+        _dict2arg(props, arg)
         return arg
 
     @aedt_exception_handler

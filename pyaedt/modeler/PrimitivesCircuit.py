@@ -2,7 +2,7 @@ import random
 import warnings
 import os
 
-from pyaedt.generic.general_methods import aedt_exception_handler, retry_ntimes
+from pyaedt.generic.general_methods import aedt_exception_handler, _retry_ntimes
 from pyaedt.modeler.Object3d import CircuitComponent
 
 
@@ -469,7 +469,7 @@ class CircuitComponents(object):
         id = self.create_unique_id()
         arg1 = ["NAME:ComponentProps", "Name:=", modelname, "Id:=", str(id)]
         arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
-        id = retry_ntimes(10, self._oeditor.CreateComponent, arg1, arg2)
+        id = _retry_ntimes(10, self._oeditor.CreateComponent, arg1, arg2)
         id = int(id.split(";")[1])
         self.add_id_to_component(id)
         return id, self.components[id].composed_name
@@ -523,7 +523,7 @@ class CircuitComponents(object):
             name = component_name
         arg1 = ["NAME:ComponentProps", "Name:=", name, "Id:=", str(id)]
         arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
-        id = retry_ntimes(10, self._oeditor.CreateComponent, arg1, arg2)
+        id = _retry_ntimes(10, self._oeditor.CreateComponent, arg1, arg2)
         id = int(id.split(";")[1])
         # self.refresh_all_ids()
         self.add_id_to_component(id)
@@ -592,7 +592,7 @@ class CircuitComponents(object):
                     nexxim_data = list(nexxim[nexxim.index(el) + 1])
                     nexxim_data[1] = "\n".join(global_netlist_list).replace("\\", "/")
                     nexxim[nexxim.index(el) + 1] = nexxim_data
-        retry_ntimes(
+        _retry_ntimes(
             10,
             self.o_component_manager.Edit,
             name,
@@ -893,7 +893,7 @@ class CircuitComponents(object):
                 elif el == "GRef:=":
                     nexxim_data = list(nexxim[nexxim.index(el) + 1])
                     nexxim[nexxim.index(el) + 1] = nexxim_data
-        retry_ntimes(
+        _retry_ntimes(
             10,
             self.o_component_manager.Edit,
             name,
@@ -937,7 +937,7 @@ class CircuitComponents(object):
             Number of components.
 
         """
-        obj = retry_ntimes(10, self._oeditor.GetAllElements)
+        obj = _retry_ntimes(10, self._oeditor.GetAllElements)
         for el in obj:
             name = el.split(";")
             if len(name) > 1 and str(id) == name[1]:
@@ -990,9 +990,9 @@ class CircuitComponents(object):
 
         """
         name = o.composed_name
-        proparray = retry_ntimes(10, self._oeditor.GetProperties, "PassedParameterTab", name)
+        proparray = _retry_ntimes(10, self._oeditor.GetProperties, "PassedParameterTab", name)
         for j in proparray:
-            propval = retry_ntimes(10, self._oeditor.GetPropertyValue, "PassedParameterTab", name, j)
+            propval = _retry_ntimes(10, self._oeditor.GetPropertyValue, "PassedParameterTab", name, j)
             o._add_property(j, propval)
         return o
 
@@ -1012,10 +1012,10 @@ class CircuitComponents(object):
 
         """
         if isinstance(partid, str):
-            pins = retry_ntimes(10, self._oeditor.GetComponentPins, partid)
+            pins = _retry_ntimes(10, self._oeditor.GetComponentPins, partid)
             # pins = self.oeditor.GetComponentPins(partid)
         else:
-            pins = retry_ntimes(10, self._oeditor.GetComponentPins, self.components[partid].composed_name)
+            pins = _retry_ntimes(10, self._oeditor.GetComponentPins, self.components[partid].composed_name)
             # pins = self.oeditor.GetComponentPins(self.components[partid].composed_name)
         return list(pins)
 
@@ -1037,13 +1037,13 @@ class CircuitComponents(object):
 
         """
         if isinstance(partid, str):
-            x = retry_ntimes(30, self._oeditor.GetComponentPinLocation, partid, pinname, True)
-            y = retry_ntimes(30, self._oeditor.GetComponentPinLocation, partid, pinname, False)
+            x = _retry_ntimes(30, self._oeditor.GetComponentPinLocation, partid, pinname, True)
+            y = _retry_ntimes(30, self._oeditor.GetComponentPinLocation, partid, pinname, False)
         else:
-            x = retry_ntimes(
+            x = _retry_ntimes(
                 30, self._oeditor.GetComponentPinLocation, self.components[partid].composed_name, pinname, True
             )
-            y = retry_ntimes(
+            y = _retry_ntimes(
                 30, self._oeditor.GetComponentPinLocation, self.components[partid].composed_name, pinname, False
             )
         return [x, y]

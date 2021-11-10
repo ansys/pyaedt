@@ -9,7 +9,7 @@ import time
 from collections import OrderedDict
 
 from pyaedt.application.Variables import Variable
-from pyaedt.generic.general_methods import aedt_exception_handler, is_number, retry_ntimes
+from pyaedt.generic.general_methods import aedt_exception_handler, is_number, _retry_ntimes
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 from pyaedt.modeler.Object3d import EdgePrimitive, FacePrimitive, Object3d, _dim_arg, _uname
 
@@ -205,7 +205,7 @@ class Polyline(Object3d):
 
             varg2 = self._primitives._default_object_attributes(name=name, matname=matname)
 
-            new_object_name = retry_ntimes(10, self.m_Editor.CreatePolyline, varg1, varg2)
+            new_object_name = _retry_ntimes(10, self.m_Editor.CreatePolyline, varg1, varg2)
 
             Object3d.__init__(self, primitives, name=new_object_name)
             self._primitives.objects[self.id] = self
@@ -959,7 +959,7 @@ class Primitives(object):
             vPropServers.append(el)
         vGeo3d = ["NAME:Geometry3DAttributeTab", vPropServers, vChangedProps]
         vOut = ["NAME:AllTabs", vGeo3d]
-        retry_ntimes(10, self._oeditor.ChangeProperty, vOut)
+        _retry_ntimes(10, self._oeditor.ChangeProperty, vOut)
         if "NAME:Name" in vPropChange:
             self.cleanup_objects()
         return True
@@ -2797,7 +2797,7 @@ class Primitives(object):
             return defaultmatname, True
 
     def _refresh_solids(self):
-        test = retry_ntimes(10, self._oeditor.GetObjectsInGroup, "Solids")
+        test = _retry_ntimes(10, self._oeditor.GetObjectsInGroup, "Solids")
         if test is None or test is False:
             assert False, "Get Solids is failing"
         elif test is True:
@@ -2807,7 +2807,7 @@ class Primitives(object):
         self._all_object_names = self._solids + self._sheets + self._lines
 
     def _refresh_sheets(self):
-        test = retry_ntimes(10, self._oeditor.GetObjectsInGroup, "Sheets")
+        test = _retry_ntimes(10, self._oeditor.GetObjectsInGroup, "Sheets")
         if test is None or test is False:
             assert False, "Get Sheets is failing"
         elif test is True:
@@ -2817,7 +2817,7 @@ class Primitives(object):
         self._all_object_names = self._solids + self._sheets + self._lines
 
     def _refresh_lines(self):
-        test = retry_ntimes(10, self._oeditor.GetObjectsInGroup, "Lines")
+        test = _retry_ntimes(10, self._oeditor.GetObjectsInGroup, "Lines")
         if test is None or test is False:
             assert False, "Get Lines is failing"
         elif test is True:
@@ -2827,7 +2827,7 @@ class Primitives(object):
         self._all_object_names = self._solids + self._sheets + self._lines
 
     def _refresh_unclassified(self):
-        test = retry_ntimes(10, self._oeditor.GetObjectsInGroup, "Unclassified")
+        test = _retry_ntimes(10, self._oeditor.GetObjectsInGroup, "Unclassified")
         if test is None or test is False:
             self._unclassified = []
             self.logger.debug("Unclassified is failing")
@@ -3041,7 +3041,7 @@ class Primitives(object):
         if len(objListSolids) > 0:
             objList.extend(objListSolids)
         for obj in objList:
-            val = retry_ntimes(10, self._oeditor.GetEdgeIDsFromObject, obj)
+            val = _retry_ntimes(10, self._oeditor.GetEdgeIDsFromObject, obj)
             if not(isinstance(val, bool)) and str(lval) in list(val):
                 return obj
         return None

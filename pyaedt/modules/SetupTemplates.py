@@ -1,5 +1,5 @@
 from pyaedt.generic.general_methods import aedt_exception_handler
-from pyaedt.generic.DataHandlers import dict2arg
+from pyaedt.generic.DataHandlers import _dict2arg
 from collections import OrderedDict
 
 meshlink = [("ImportMesh", False)]
@@ -1204,7 +1204,7 @@ class SweepHFSS(object):
         if props is None:
             props = self.props
         arg = ["NAME:" + self.name]
-        dict2arg(props, arg)
+        _dict2arg(props, arg)
         return arg
 
 
@@ -1453,7 +1453,7 @@ class SweepHFSS3DLayout(object):
         if props is None:
             props = self.props
         arg = ["NAME:" + self.name]
-        dict2arg(props, arg)
+        _dict2arg(props, arg)
         return arg
 
 
@@ -1594,7 +1594,7 @@ class SweepQ3D(object):
         if props is None:
             props = self.props
         arg = ["NAME:" + self.name]
-        dict2arg(props, arg)
+        _dict2arg(props, arg)
         return arg
 
 

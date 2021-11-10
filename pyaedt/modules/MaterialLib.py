@@ -5,8 +5,8 @@ from __future__ import absolute_import
 
 import json
 import copy
-from pyaedt.generic.DataHandlers import arg2dict
-from pyaedt.generic.general_methods import aedt_exception_handler, retry_ntimes, generate_unique_name
+from pyaedt.generic.DataHandlers import _arg2dict
+from pyaedt.generic.general_methods import aedt_exception_handler, _retry_ntimes, generate_unique_name
 from pyaedt.modules.Material import Material, SurfaceMaterial, MatProperties, OrderedDict
 
 
@@ -434,7 +434,7 @@ class Materials(object):
     def _aedmattolibrary(self, matname):
         matname = matname.lower()
         props = {}
-        arg2dict(list(retry_ntimes(10, self.omaterial_manager.GetData, matname)), props)
+        _arg2dict(list(_retry_ntimes(10, self.omaterial_manager.GetData, matname)), props)
         values_view = props.values()
         value_iterator = iter(values_view)
         first_value = next(value_iterator)

@@ -7,7 +7,7 @@ This module provides all functionalities for creating and editing the mesh in th
 from __future__ import absolute_import
 
 from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name
-from pyaedt.generic.DataHandlers import dict2arg
+from pyaedt.generic.DataHandlers import _dict2arg
 from collections import OrderedDict
 
 
@@ -52,7 +52,7 @@ class Mesh3DOperation(object):
         if not props:
             props = self.props
         arg = ["NAME:" + self.name]
-        dict2arg(props, arg)
+        _dict2arg(props, arg)
         return arg
 
     @aedt_exception_handler
