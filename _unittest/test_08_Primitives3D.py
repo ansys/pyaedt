@@ -678,7 +678,9 @@ class TestClass(BasisTest):
         assert P
         start_point = P.start_point
         insert_point = ["90mm", "20mm", "0mm"]
+        insert_point2 = ["95mm", "20mm", "0mm"]
         assert P.insert_segment(position_list=[start_point, insert_point])
+        assert P.insert_segment(position_list=[insert_point, insert_point2])
 
     @pyaedt_unittest_check_desktop_error
     def test_48_insert_polylines_segments_test2(self):

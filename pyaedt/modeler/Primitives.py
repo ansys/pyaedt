@@ -753,14 +753,16 @@ class Polyline(Object3d):
             segment_index += 1
         id_v = 0
         if isinstance(self._segment_types, list):
-            for el in self._segment_types:
+            s_types =[i for i in self._segment_types]
+        else:
+            s_types = [self._segment_types]
+        for el in s_types:
+            if isinstance(s_types, PolylineSegment):
                 id_v += el.num_seg-1
                 if id_v > segment_index:
                     id_v -= el.num_seg-1
                     break
-        elif self._segment_types.num_seg-1 <= segment_index:
-            idv = self._segment_types.num_seg-1
-        segment_index -= idv
+        segment_index -= id_v
 
         assert segment_index < num_vertices, "Vertex for the insert is not found."
         type = segment.type
