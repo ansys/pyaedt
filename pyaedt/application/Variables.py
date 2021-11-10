@@ -235,6 +235,28 @@ AEDT_units = {
         "megW": 1e6,
         "gW": 1e9,
     },
+    "B-field": {
+        "ftesla": 1e-15,
+        "ptesla": 1e-12,
+        "ntesla": 1e-9,
+        "utesla": 1e-6,
+        "mtesla": 1e-3,
+        "tesla": 1.0,
+        "ktesla": 1e3,
+        "megtesla": 1e6,
+        "gtesla": 1e9,
+    },
+    "H-field": {
+        "fA_per_m": 1e-15,
+        "pA_per_m": 1e-12,
+        "nA_per_m": 1e-9,
+        "uA_per_m": 1e-6,
+        "mA_per_m": 1e-3,
+        "A_per_m": 1.0,
+        "kA_per_m": 1e3,
+        "megA_per_m": 1e6,
+        "gA_per_m": 1e9,
+    },
 }
 SI_units = {
     "AngularSpeed": "rad_per_sec",
@@ -252,6 +274,8 @@ SI_units = {
     "Voltage": "V",
     "Temperature": "kel",
     "Power": "W",
+    "B-field": "tesla",
+    "H-field": "A_per_m",
 }
 
 unit_system_operations = {
@@ -837,7 +861,7 @@ class VariableManager(object):
         all_names = {}
         for obj in object_list:
             try:
-                listvar = list(obj.GetChildObject('Variables').GetChildNames())
+                listvar = list(obj.GetChildObject("Variables").GetChildNames())
             except:
                 listvar = list(obj.GetVariables())
             for variable_name in listvar:
@@ -975,7 +999,7 @@ class VariableManager(object):
 
         # Get all design and project variables in lower case for a case-sensitive comparison
         try:
-            var_list = list(desktop_object.GetChildObject('Variables').GetChildNames())
+            var_list = list(desktop_object.GetChildObject("Variables").GetChildNames())
         except:
             var_list = list(desktop_object.GetVariables())
         lower_case_vars = [var_name.lower() for var_name in var_list]
@@ -1117,7 +1141,7 @@ class VariableManager(object):
         desktop_object = self.aedt_object(var_name)
         var_type = "Project" if desktop_object == self._oproject else "Local"
         try:
-            var_list = list(desktop_object.GetChildObject('Variables').GetChildNames())
+            var_list = list(desktop_object.GetChildObject("Variables").GetChildNames())
         except:
             var_list = list(desktop_object.GetVariables())
         lower_case_vars = [var_name.lower() for var_name in var_list]

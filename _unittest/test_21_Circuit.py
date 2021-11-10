@@ -5,6 +5,7 @@ import time
 # Import required modules
 from pyaedt import Circuit
 from pyaedt.generic.filesystem import Scratch
+from pyaedt.generic.TouchstoneParser import read_touchstone
 
 # Setup paths for module imports
 from _unittest.conftest import local_path, scratch_path
@@ -187,8 +188,6 @@ class TestClass:
         assert self.aedtapp.modeler.rotate("L100")
 
     def test_16_read_touchstone(self):
-        from pyaedt.generic.TouchstoneParser import read_touchstone
-
         data = read_touchstone(os.path.join(self.local_scratch.path, touchstone))
         assert len(data.expressions) > 0
         assert data.data_real()
