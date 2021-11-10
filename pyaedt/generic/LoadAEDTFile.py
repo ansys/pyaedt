@@ -192,7 +192,10 @@ def _parse_key(text, m, group_name, key_name):
     else:
         value2 = value
     # if there are no spaces in value
-    if not _value_parse1.search(value2) or _value_parse2.search(value2):
+    if (not _value_parse1.search(value2) or _value_parse2.search(value2)) and (
+            # ensure that there is no '(' without closing ')', and opposite
+            (re.search(r"\((.*)\)", value2) or ("(" not in value2 and ")" not in value2))
+    ):
         # or values with spaces are between quote
         key = m.group(key_name)
     else:  # spaces in value without quotes
