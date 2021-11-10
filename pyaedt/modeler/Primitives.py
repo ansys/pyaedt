@@ -753,7 +753,7 @@ class Polyline(Object3d):
             segment_index += 1
         id_v = 0
         if isinstance(self._segment_types, list):
-            s_types =[i for i in self._segment_types]
+            s_types = [i for i in self._segment_types]
         else:
             s_types = [self._segment_types]
         for el in s_types:
