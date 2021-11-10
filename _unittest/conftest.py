@@ -94,6 +94,16 @@ class BasisTest:
         self.local_scratch.remove()
         gc.collect()
 
+    def teardown(self):
+        """
+        Could be redefined
+        """
+
+    def setup(self):
+        """
+        Could be redefined
+        """
+
 
 # Define desktopVersion explicitly since this is imported by other modules
 desktop_version = config["desktopVersion"]
