@@ -1202,6 +1202,7 @@ class PostProcessorCommon(object):
                 * (Post processor format) .txt
                 * (Ensight XY data) .exy
                 * (Anosft Plot Data) .dat
+                * (Anosft Report Data Files) .rdat
         unique_file : bool
             If set to True, generates unique file in output_dit
 
@@ -1215,7 +1216,7 @@ class PostProcessorCommon(object):
         if "." not in extension:
             extension = "." + extension
 
-        supported_ext = [".csv", ".tab", ".txt", ".exy", ".dat"]
+        supported_ext = [".csv", ".tab", ".txt", ".exy", ".dat", ".rdat"]
         if extension not in supported_ext:
             msg = "Extension {} is not supported. Use one of {}".format(extension, ", ".join(supported_ext))
             raise ValueError(msg)
@@ -1226,7 +1227,11 @@ class PostProcessorCommon(object):
                 file_name = generate_unique_name(plot_name)
                 file_path = os.path.join(npath, file_name + extension)
 
-        self.oreportsetup.ExportToFile(plot_name, file_path)
+        if extension == ".rdat":
+            self.oreportsetup.ExportReportDataToFile(plot_name, file_path)
+        else:
+            self.oreportsetup.ExportToFile(plot_name, file_path)
+
         return file_path
 
     @aedt_exception_handler
