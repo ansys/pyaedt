@@ -45,7 +45,7 @@ maxwell_2d.save_project(os.path.join(project_dir, "M2d.aedt"))
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This example creates a rectangle and then duplicates it.
 
-rect1 = maxwell_2d.modeler.primitives.create_rectangle([0, 0, 0], [20, 10], name="winding", matname="copper")
+rect1 = maxwell_2d.modeler.primitives.create_rectangle([0, 0, 0], [10, 20], name="winding", matname="copper")
 added = rect1.duplicate_along_line([14, 0, 0])
 rect2 = maxwell_2d.modeler.primitives[added[0]]
 
