@@ -129,8 +129,7 @@ class Primitives2D(Primitives, object):
         position : list of float
             Position of the lower-left corner of the rectangle
         dimension_list : list of float
-            List of [height, width] of the rectangle
-                where height is Y dimension in XY design and Z dimension in RZ design
+            List of rectangle sizes: [X size, Y size] for XY planes or [Z size, R size] for RZ planes
         is_covered : bool
             Specify whether the ellipse is a sheet (covered) or a line object
         name : str, default=None
@@ -151,12 +150,8 @@ class Primitives2D(Primitives, object):
         """
         axis = self.plane2d
         x_start, y_start, z_start = self._pos_with_arg(position)
-        if self.plane2d == "Z":
-            height = self._arg_with_dim(dimension_list[1])
-            width = self._arg_with_dim(dimension_list[0])
-        else:
-            height = self._arg_with_dim(dimension_list[0])
-            width = self._arg_with_dim(dimension_list[1])
+        width = self._arg_with_dim(dimension_list[0])
+        height = self._arg_with_dim(dimension_list[1])
 
         vArg1 = ["NAME:RectangleParameters"]
         vArg1.append("IsCovered:="), vArg1.append(is_covered)

@@ -68,9 +68,9 @@ class TestClass(BasisTest):
 
     def test_create_rectangle_rz(self):
         self.aedtapp.solution_type = "MagnetostaticZ"
-        rect1 = self.aedtapp.modeler.primitives.create_rectangle([1, 0, -2], [3, 8])
+        rect1 = self.aedtapp.modeler.primitives.create_rectangle([1, 0, -2], [8, 3])
         rect2 = self.aedtapp.modeler.primitives.create_rectangle(
-            position=[10, 0, -2], dimension_list=[3, 10], name="MyRectangle", matname="Copper"
+            position=[10, 0, -2], dimension_list=[10, 3], name="MyRectangle", matname="Copper"
         )
         list_of_pos = [ver.position for ver in rect1.vertices]
         assert sorted(list_of_pos) == [[1.0, 0.0, -2.0], [1.0, 0.0, 6.0], [4.0, 0.0, -2.0], [4.0, 0.0, 6.0]]
