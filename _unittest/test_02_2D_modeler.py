@@ -5,7 +5,7 @@ from pyaedt.generic.general_methods import isclose
 from pyaedt.maxwell import Maxwell2d
 
 # Setup paths for module imports
-from _unittest.conftest import BasisTest
+from _unittest.conftest import BasisTest, desktop_version
 
 try:
     import pytest  # noqa: F401
@@ -14,21 +14,19 @@ except ImportError:
 
 
 class TestClass(BasisTest):
-    def setup_class(self, project_name=None, design_name=None, solution_type=None, application=None):
-        """
-        redefine not to mock empty call
-        """
+    def setup_class(self):
+        BasisTest.setup_class(self, design_name="2D_Primitives", application=Maxwell2d)
 
     def setup(self):
-        super().setup_class(project_name="test_primitives", design_name="2D_Primitives", application=Maxwell2d)
-
-    def teardown_class(self):
-        """
-        redefine not to mock empty call
-        """
+        self.aedtapp = Maxwell2d(
+            projectname=self.test_project,
+            designname="2D_Primitives",
+            solution_type=None,
+            specified_version=desktop_version,
+        )
 
     def teardown(self):
-        super().teardown_class()
+        self.aedtapp.close_project(saveproject=False)
 
     def test_01_model_units(self):
         model_units = self.aedtapp.modeler.model_units
