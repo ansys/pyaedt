@@ -190,7 +190,10 @@ class CommonOptimetrics(object):
                             ]["N"]
                             break
             if inputd.get("Goals", None):
-                oparams = self.omodule.GetChildObject(self.name).GetCalculationInfo()
+                if self._app._is_object_oriented_enabled():
+                    oparams = self.omodule.GetChildObject(self.name).GetCalculationInfo()
+                else:
+                    oparams = []
                 oparam = [i for i in oparams[0]]
                 calculation = ["NAME:Goal"]
                 calculation.extend(oparam)
