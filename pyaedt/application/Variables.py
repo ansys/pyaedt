@@ -1140,9 +1140,9 @@ class VariableManager(object):
         """
         desktop_object = self.aedt_object(var_name)
         var_type = "Project" if desktop_object == self._oproject else "Local"
-        try:
+        if self._app._is_object_oriented_enabled():
             var_list = list(desktop_object.GetChildObject("Variables").GetChildNames())
-        except:
+        else:
             var_list = list(desktop_object.GetVariables())
         lower_case_vars = [var_name.lower() for var_name in var_list]
 
