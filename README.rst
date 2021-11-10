@@ -37,17 +37,6 @@ To post issues, questions, and code, go to `PyAEDT Issues
 <https://github.com/pyansys/PyAEDT/issues>`_.
 
 
-Project Transition - Legacy Support
------------------------------------
-This project was formerly known as AEDTLib.
-Thanks to all early adopters, contributors, and users who submitted issues,
-gave feedback, and contributed code through the years.
-
-With PyAEDT, Ansys is leveraging its ability to create new Pythonic,
-cross-platform, and multi-language service-based interfaces for Ansys products.
-Your contributions to PyAEDT will help shape PyAEDT into a better solution.
-
-
 Dependencies
 ------------
 To run PyAEDT, you must have a local licenced copy of AEDT.
@@ -139,22 +128,23 @@ Implicit Desktop Declaration and Error Management
 Remote Application Call
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-On the server
+On a CPython Server
 
 .. code:: python
 
-    Launch Pyaedt remote server
+    Launch Pyaedt remote server on CPython
 
-    from pyaedt.common_rpc import pyaedt_server
-    pyaedt_server()
+    from pyaedt.common_rpc import launch_server
+    launch_server()
+
 
 On any windows client machine
 
 .. code:: python
 
-    from pyaedt.common_rpc import pyaedt_client
-    client = pyaedt_client("server_name")
-    hfss = client.root.hfss()
+    from pyaedt.common_rpc import client
+    cl1 = client("server_name")
+    hfss = cl1.root.hfss()
     # your code here
 
 Variables

@@ -6,10 +6,10 @@ from __future__ import absolute_import
 import math
 import os
 import time
-from collections import OrderedDict, defaultdict
+from collections import OrderedDict
 
 from pyaedt.application.Variables import Variable
-from pyaedt.generic.general_methods import aedt_exception_handler, is_number, retry_ntimes
+from pyaedt.generic.general_methods import aedt_exception_handler, is_number, _retry_ntimes
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 from pyaedt.modeler.Object3d import EdgePrimitive, FacePrimitive, Object3d, _dim_arg, _uname
 
@@ -205,7 +205,7 @@ class Polyline(Object3d):
 
             varg2 = self._primitives._default_object_attributes(name=name, matname=matname)
 
-            new_object_name = retry_ntimes(10, self.m_Editor.CreatePolyline, varg1, varg2)
+            new_object_name = _retry_ntimes(10, self.m_Editor.CreatePolyline, varg1, varg2)
 
             Object3d.__init__(self, primitives, name=new_object_name)
             self._primitives.objects[self.id] = self
@@ -959,7 +959,7 @@ class Primitives(object):
             vPropServers.append(el)
         vGeo3d = ["NAME:Geometry3DAttributeTab", vPropServers, vChangedProps]
         vOut = ["NAME:AllTabs", vGeo3d]
-        retry_ntimes(10, self._oeditor.ChangeProperty, vOut)
+        _retry_ntimes(10, self._oeditor.ChangeProperty, vOut)
         if "NAME:Name" in vPropChange:
             self.cleanup_objects()
         return True
@@ -1043,7 +1043,7 @@ class Primitives(object):
             ``True`` when successful, ``False`` when failed
 
         """
-        if type(object) is int:
+        if isinstance(object, int):
             if object in self.objects:
                 return True
             else:
@@ -1275,7 +1275,7 @@ class Primitives(object):
         >>> from pyaedt.desktop import Desktop
         >>> from pyaedt.Maxwell import Maxwell3d
         >>> from pyaedt.modeler.Primitives import PolylineSegment
-        >>> desktop=Desktop(specified_version="2021.1", new_desktop_session=False)
+        >>> desktop=Desktop(specified_version="2021.2", new_desktop_session=False)
         >>> aedtapp = Maxwell3D()
         >>> aedtapp.modeler.model_units = "mm"
         >>> primitives = aedtapp.modeler.primitives
@@ -1389,7 +1389,7 @@ class Primitives(object):
         vArgParamVector = ["NAME:ParamVector"]
 
         for pair in udp_parameters_list:
-            if type(pair) is list:
+            if isinstance(pair, list):
                 vArgParamVector.append(["NAME:Pair", "Name:=", pair[0], "Value:=", pair[1]])
 
             else:
@@ -1425,7 +1425,7 @@ class Primitives(object):
             if el not in self.object_names and not list(self._oeditor.GetObjectsInGroup(el)):
                 objects.remove(el)
         if not objects:
-            self.logger.glb.warning("No objects to delete")
+            self.logger.warning("No objects to delete")
             return False
         slice = min(100, len(objects))
         num_objects = len(objects)
@@ -1437,7 +1437,7 @@ class Primitives(object):
             try:
                 self._oeditor.Delete(arg)
             except:
-                self.logger.glb.warning("Failed to delete {}".format(objects_str))
+                self.logger.warning("Failed to delete {}".format(objects_str))
             remaining -= slice
             if remaining > 0:
                 objects = objects[slice:]
@@ -1446,7 +1446,7 @@ class Primitives(object):
 
         if len(objects) > 0:
             self.cleanup_objects()
-            self.logger.glb.info("Deleted {} Objects".format(num_objects, objects_str))
+            self.logger.info("Deleted {} Objects".format(num_objects, objects_str))
         return True
 
     @aedt_exception_handler
@@ -1477,7 +1477,7 @@ class Primitives(object):
                 if contained_string.lower() in el.lower():
                     self.delete(el)
                     num_del += 1
-        self.logger.glb.info("Deleted %s objects", num_del)
+        self.logger.info("Deleted %s objects", num_del)
         return True
 
     @aedt_exception_handler
@@ -1565,8 +1565,8 @@ class Primitives(object):
         self._lines = []
         self._unclassified = []
         self._all_object_names = []
-        self.objects = defaultdict(Object3d)
-        self.object_id_dict = defaultdict()
+        self.objects = {}
+        self.object_id_dict = {}
         self._currentId = 0
         self._refresh_all_ids_from_aedt_file()
         self.add_new_objects()
@@ -1913,7 +1913,7 @@ class Primitives(object):
 
         """
         oFaceIDs = []
-        if type(partId) is str and partId in self.object_id_dict:
+        if isinstance(partId, str) and partId in self.object_id_dict:
             oFaceIDs = self._oeditor.GetFaceIDs(partId)
             oFaceIDs = [int(i) for i in oFaceIDs]
         elif partId in self.objects:
@@ -1939,7 +1939,7 @@ class Primitives(object):
 
         """
         oEdgeIDs = []
-        if type(partId) is str and partId in self.object_id_dict:
+        if isinstance(partId, str) and partId in self.object_id_dict:
             oEdgeIDs = self._oeditor.GetEdgeIDsFromObject(partId)
             oEdgeIDs = [int(i) for i in oEdgeIDs]
         elif partId in self.objects:
@@ -1982,7 +1982,7 @@ class Primitives(object):
 
         """
         oVertexIDs = []
-        if type(partID) is str and partID in self.object_id_dict:
+        if isinstance(partID, str) and partID in self.object_id_dict:
             oVertexIDs = self._oeditor.GetVertexIDsFromObject(partID)
             oVertexIDs = [int(i) for i in oVertexIDs]
         elif partID in self.objects:
@@ -2125,7 +2125,7 @@ class Primitives(object):
         try:
             c = self._oeditor.GetFaceCenter(face_id)
         except:
-            self.logger.glb.warning("Non Planar Faces doesn't provide any Face Center")
+            self.logger.warning("Non Planar Faces doesn't provide any Face Center")
             return False
         center = [float(i) for i in c]
         return center
@@ -2179,7 +2179,7 @@ class Primitives(object):
             two vertices, an empty list is returned.
         """
 
-        if type(partID) is str and partID in self.object_id_dict:
+        if isinstance(partID, str) and partID in self.object_id_dict:
             partID = self.object_id_dict[partID]
 
         if partID in self.objects and self.objects[partID].object_type == "Line":
@@ -2713,7 +2713,7 @@ class Primitives(object):
             Edge ID of the edge closest to this position.
 
         """
-        if type(position) is list:
+        if isinstance(position, list):
             position = self.modeler.Position(position)
 
         bodies = self.get_bodynames_from_position(position, units)
@@ -2789,7 +2789,7 @@ class Primitives(object):
                     return matname, True
 
             else:
-                self.logger.glb.warning(
+                self.logger.warning(
                     "Material %s doesn not exists. Assigning default material", matname)
         if self._app._design_type == "HFSS":
             return defaultmatname, self._app.materials.material_keys[defaultmatname].is_dielectric()
@@ -2797,7 +2797,7 @@ class Primitives(object):
             return defaultmatname, True
 
     def _refresh_solids(self):
-        test = retry_ntimes(10, self._oeditor.GetObjectsInGroup, "Solids")
+        test = _retry_ntimes(10, self._oeditor.GetObjectsInGroup, "Solids")
         if test is None or test is False:
             assert False, "Get Solids is failing"
         elif test is True:
@@ -2807,7 +2807,7 @@ class Primitives(object):
         self._all_object_names = self._solids + self._sheets + self._lines
 
     def _refresh_sheets(self):
-        test = retry_ntimes(10, self._oeditor.GetObjectsInGroup, "Sheets")
+        test = _retry_ntimes(10, self._oeditor.GetObjectsInGroup, "Sheets")
         if test is None or test is False:
             assert False, "Get Sheets is failing"
         elif test is True:
@@ -2817,7 +2817,7 @@ class Primitives(object):
         self._all_object_names = self._solids + self._sheets + self._lines
 
     def _refresh_lines(self):
-        test = retry_ntimes(10, self._oeditor.GetObjectsInGroup, "Lines")
+        test = _retry_ntimes(10, self._oeditor.GetObjectsInGroup, "Lines")
         if test is None or test is False:
             assert False, "Get Lines is failing"
         elif test is True:
@@ -2827,7 +2827,7 @@ class Primitives(object):
         self._all_object_names = self._solids + self._sheets + self._lines
 
     def _refresh_unclassified(self):
-        test = retry_ntimes(10, self._oeditor.GetObjectsInGroup, "Unclassified")
+        test = _retry_ntimes(10, self._oeditor.GetObjectsInGroup, "Unclassified")
         if test is None or test is False:
             self._unclassified = []
             self.logger.debug("Unclassified is failing")
@@ -2859,7 +2859,7 @@ class Primitives(object):
             ]
         except KeyError:
             groups = []
-        if type(groups) is not list:
+        if not isinstance(groups, list):
             groups = [groups]
         try:
             self._app.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"]["ToplevelParts"][
@@ -2948,7 +2948,7 @@ class Primitives(object):
         else:
             args += ["MaterialName:=", material]
 
-        if self.version >= "2021.1":
+        if self.version >= "2021.2":
             args += [
                 "ShellElement:=",
                 False,
@@ -3041,7 +3041,7 @@ class Primitives(object):
         if len(objListSolids) > 0:
             objList.extend(objListSolids)
         for obj in objList:
-            val = retry_ntimes(10, self._oeditor.GetEdgeIDsFromObject, obj)
+            val = _retry_ntimes(10, self._oeditor.GetEdgeIDsFromObject, obj)
             if not(isinstance(val, bool)) and str(lval) in list(val):
                 return obj
         return None

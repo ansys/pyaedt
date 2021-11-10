@@ -13,11 +13,11 @@ import os
 ###############################################################################
 # Launch AEDT and Circuit
 # ~~~~~~~~~~~~~~~~~~~~~~~
-# This examples launches AEDT 2021.1 in graphical mode.
+# This examples launches AEDT 2021.2 in graphical mode.
 
 # This examples uses SI units.
 
-desktop_version = "2021.1"
+desktop_version = "2021.2"
 
 ###############################################################################
 # Launch AEDT in Non-Graphical Mode
@@ -113,4 +113,4 @@ aedt_app.export_fullwave_spice()
 # :func:`pyaedt.Desktop.force_close_desktop` method.
 # All methods provide for saving the project before exiting.
 if os.name != "posix":
-    desktop.force_close_desktop()
+    desktop.release_desktop()

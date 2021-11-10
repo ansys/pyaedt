@@ -167,7 +167,8 @@ class Maxwell(object):
             Boundary object.
 
         """
-        amplitude = str(amplitude) + "A"
+        if isinstance(amplitude, (int, float)):
+            amplitude = str(amplitude) + "A"
 
         if not name:
             name = generate_unique_name("Current")
@@ -197,7 +198,7 @@ class Maxwell(object):
             if type(object_list[0]) is str:
                 props = OrderedDict({"Objects": object_list, "Current": amplitude, "IsPositive": swap_direction})
             else:
-                self.logger.glb.warning("Input has to be a 2D Object.")
+                self.logger.warning("Input has to be a 2D Object.")
                 return False
         bound = BoundaryObject(self, name, props, "Current")
         if bound.create():
@@ -225,8 +226,8 @@ class Maxwell(object):
             Boundary object.
 
         """
-
-        amplitude = str(amplitude) + "mV"
+        if isinstance(amplitude, (int, float)):
+            amplitude = str(amplitude) + "mV"
 
         if not name:
             name = generate_unique_name("Voltage")
@@ -261,8 +262,8 @@ class Maxwell(object):
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
         """
-
-        amplitude = str(amplitude) + "mV"
+        if isinstance(amplitude, (int, float)):
+            amplitude = str(amplitude) + "mV"
 
         if not name:
             name = generate_unique_name("VoltageDrop")
@@ -422,7 +423,7 @@ class Maxwell(object):
                 bound = BoundaryObject(self, name, props2, "CoilTerminal")
 
             else:
-                self.logger.glb.warning("Face Selection is not allowed in Maxwell 2D. Provide a 2D object.")
+                self.logger.warning("Face Selection is not allowed in Maxwell 2D. Provide a 2D object.")
                 return False
         if bound.create():
             self.boundaries.append(bound)
@@ -692,7 +693,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
     Create an instance of Maxwell 3D using the 2021 R1 release and open
     the specified project, which is named ``mymaxwell2.aedt``.
 
-    >>> aedtapp = Maxwell3d(specified_version="2021.1", projectname="mymaxwell2.aedt")
+    >>> aedtapp = Maxwell3d(specified_version="2021.2", projectname="mymaxwell2.aedt")
     pyaedt info: Added design ...
 
     """

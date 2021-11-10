@@ -7,7 +7,7 @@ import os
 import time
 import warnings
 
-from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, retry_ntimes, is_ironpython
+from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, _retry_ntimes, is_ironpython
 
 try:
     from System import String
@@ -360,7 +360,7 @@ class EdbSiwave(object):
     Examples
     --------
     >>> from pyaedt import Edb
-    >>> edbapp = Edb("myaedbfolder", edbversion="2021.1")
+    >>> edbapp = Edb("myaedbfolder", edbversion="2021.2")
     >>> edbapp.core_siwave
 
     """
@@ -432,7 +432,7 @@ class EdbSiwave(object):
         else:
             res, fromLayer_pos, toLayer_pos = source.positive_node.node_pins.GetLayerRange(None, None)
             res, fromLayer_neg, toLayer_neg = source.negative_node.node_pins.GetLayerRange(None, None)
-        pos_pingroup_terminal = retry_ntimes(
+        pos_pingroup_terminal = _retry_ntimes(
             10,
             self._edb.Cell.Terminal.PadstackInstanceTerminal.Create,
             self._active_layout,
@@ -442,7 +442,7 @@ class EdbSiwave(object):
             toLayer_pos,
         )
         time.sleep(0.5)
-        neg_pingroup_terminal = retry_ntimes(
+        neg_pingroup_terminal = _retry_ntimes(
             10,
             self._edb.Cell.Terminal.PadstackInstanceTerminal.Create,
             self._active_layout,
@@ -1197,7 +1197,7 @@ class EdbSiwave(object):
         neg_node_net = self._pedb.core_nets.get_net_by_name(source.negative_node.net)
         pos_pingroup_term_name = generate_unique_name(source.name + "_P_", n=3)
         neg_pingroup_term_name = generate_unique_name(source.name + "_N_", n=3)
-        pos_pingroup_terminal = retry_ntimes(
+        pos_pingroup_terminal = _retry_ntimes(
             10,
             self._edb.Cell.Terminal.PinGroupTerminal.Create,
             self._active_layout,
@@ -1207,7 +1207,7 @@ class EdbSiwave(object):
             False,
         )
         time.sleep(0.5)
-        neg_pingroup_terminal = retry_ntimes(
+        neg_pingroup_terminal = _retry_ntimes(
             10,
             self._edb.Cell.Terminal.PinGroupTerminal.Create,
             self._active_layout,

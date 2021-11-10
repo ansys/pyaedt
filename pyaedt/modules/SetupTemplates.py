@@ -1,5 +1,5 @@
 from pyaedt.generic.general_methods import aedt_exception_handler
-from pyaedt.generic.DataHandlers import dict2arg
+from pyaedt.generic.DataHandlers import _dict2arg
 from collections import OrderedDict
 
 meshlink = [("ImportMesh", False)]
@@ -1204,7 +1204,7 @@ class SweepHFSS(object):
         if props is None:
             props = self.props
         arg = ["NAME:" + self.name]
-        dict2arg(props, arg)
+        _dict2arg(props, arg)
         return arg
 
 
@@ -1453,7 +1453,7 @@ class SweepHFSS3DLayout(object):
         if props is None:
             props = self.props
         arg = ["NAME:" + self.name]
-        dict2arg(props, arg)
+        _dict2arg(props, arg)
         return arg
 
 
@@ -1486,18 +1486,31 @@ class SweepQ3D(object):
             self.props = props
         else:
             self.props["Type"] = sweeptype
-            self.props["isenabled"] = True
-            self.props["RangeType"] = "LinearCount"
-            self.props["RangeStart"] = "2.5GHz"
-            self.props["RangeStep"] = "1GHz"
-            self.props["RangeEnd"] = "7.5GHz"
-            self.props["SaveSingleField"] = False
+            if sweeptype == "Discrete":
+                self.props["isenabled"] = True
+                self.props["RangeType"] = "LinearCount"
+                self.props["RangeStart"] = "2.5GHz"
+                self.props["RangeStep"] = "1GHz"
+                self.props["RangeEnd"] = "7.5GHz"
+                self.props["SaveSingleField"] = False
 
-            self.props["RangeSamples"] = 3
-            self.props["RangeCount"] = 401
-            self.props["SaveFields"] = False
-            self.props["SaveRadFields"] = False
-            self.props["SweepRanges"] = []
+                self.props["RangeSamples"] = 3
+                self.props["RangeCount"] = 401
+                self.props["SaveFields"] = False
+                self.props["SaveRadFields"] = False
+                self.props["SweepRanges"] = []
+            else:
+                self.props["IsEnabled"] = True
+                self.props["RangeType"] = "LinearStep"
+                self.props["RangeStart"] = "1GHz"
+                self.props["RangeStep"] = "1GHz"
+                self.props["RangeEnd"] = "20GHz"
+                self.props["SaveFields"] = False
+                self.props["SaveRadFields"] = False
+                self.props["InterpTolerance"] = 0.5
+                self.props["InterpMaxSolns"] = 50
+                self.props["InterpMinSolns"] = 0
+                self.props["InterpMinSubranges"] = 1
 
     @aedt_exception_handler
     def add_subrange(self, type, start, end, count):
@@ -1581,7 +1594,7 @@ class SweepQ3D(object):
         if props is None:
             props = self.props
         arg = ["NAME:" + self.name]
-        dict2arg(props, arg)
+        _dict2arg(props, arg)
         return arg
 
 

@@ -40,9 +40,9 @@ import math
 ###############################################################################
 # Launch AEDT in Non-Graphical Mode
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This example launches AEDT 2021.1 in graphical mode.
+# This example launches AEDT 2021.2 in graphical mode.
 
-desktopVersion = "2021.1"
+desktopVersion = "2021.2"
 NonGraphical = True
 NewThread = False
 desktop = Desktop(desktopVersion, NonGraphical, NewThread)
@@ -265,5 +265,5 @@ fig1.set_size_inches(22.5, 22.5)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # The following example closes the HFSS project and AEDT.
 
-hfss.close_project()
-desktop.force_close_desktop()
+#hfss.close_project()
+desktop.release_desktop()

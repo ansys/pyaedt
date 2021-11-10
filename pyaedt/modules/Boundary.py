@@ -3,7 +3,7 @@ This module contains these classes: `BoundaryCommon` and `BoundaryObject`.
 """
 from collections import OrderedDict
 from pyaedt.generic.general_methods import aedt_exception_handler
-from pyaedt.generic.DataHandlers import dict2arg
+from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.modeler.Object3d import EdgePrimitive, FacePrimitive, VertexPrimitive
 from pyaedt.generic.DataHandlers import random_string
 
@@ -29,7 +29,7 @@ class BoundaryCommon(object):
         if not props:
             props = self.props
         arg = ["NAME:" + self.name]
-        dict2arg(props, arg)
+        _dict2arg(props, arg)
         return arg
 
     @aedt_exception_handler
@@ -119,7 +119,10 @@ class NativeComponentObject(BoundaryCommon, object):
         str
             Native Component Coordinate System
         """
-        return self.props["TargetCS"]
+        if "TargetCS" in list(self.props.keys()):
+            return self.props["TargetCS"]
+        else:
+            return "Global"
 
     @targetcs.setter
     def targetcs(self, cs):
@@ -140,7 +143,7 @@ class NativeComponentObject(BoundaryCommon, object):
         if props is None:
             props = self.props
         arg = ["NAME:" + self.name]
-        dict2arg(props, arg)
+        _dict2arg(props, arg)
         return arg
 
     @aedt_exception_handler
@@ -230,7 +233,7 @@ class BoundaryObject(BoundaryCommon, object):
     >>> origin = hfss.modeler.Position(0, 0, 0)
     >>> inner = hfss.modeler.primitives.create_cylinder(hfss.CoordinateSystemPlane.XYPlane, origin, 3, 200, 0, "inner")
     >>> inner_id = hfss.modeler.primitives.get_obj_id("inner")
-    >>> coat = hfss.assigncoating([inner_id], "copper", usethickness=True, thickness="0.2mm")
+    >>> coat = hfss.assign_coating([inner_id], "copper", usethickness=True, thickness="0.2mm")
     """
 
     def __init__(self, app, name, props, boundarytype):
@@ -257,7 +260,7 @@ class BoundaryObject(BoundaryCommon, object):
         if props is None:
             props = self.props
         arg = ["NAME:" + self.name]
-        dict2arg(props, arg)
+        _dict2arg(props, arg)
         return arg
 
     @aedt_exception_handler

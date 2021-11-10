@@ -4,7 +4,7 @@
 import re
 import warnings
 
-from pyaedt import generate_unique_name, retry_ntimes
+from pyaedt import generate_unique_name, _retry_ntimes
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import aedt_exception_handler, get_filename_without_extension, is_ironpython
 
@@ -33,7 +33,7 @@ def resistor_value_parser(RValue):
         Resistor value.
 
     """
-    if type(RValue) is str:
+    if isinstance(RValue, str):
         RValue = RValue.replace(" ", "")
         RValue = RValue.replace("meg", "m")
         RValue = RValue.replace("Ohm", "")
@@ -376,7 +376,7 @@ class Components(object):
 
         """
         cmp_list = []
-        if type(netlist) is str:
+        if isinstance(netlist, str):
             netlist = [netlist]
         components = list(self.components.keys())
         for refdes in components:
@@ -386,7 +386,7 @@ class Components(object):
         return cmp_list
 
     @aedt_exception_handler
-    def create_component_from_pins(self, pins, component_name):
+    def create_component_from_pins(self, pins, component_name, placement_layer=None):
         """Create a component from pins.
 
         Parameters
@@ -395,6 +395,8 @@ class Components(object):
             List of EDB core pins.
         component_name : str
             Name of the reference designator for the component.
+        placement_layer : str
+            Name of the layer used for placing the component.
 
         Returns
         -------
@@ -411,16 +413,24 @@ class Components(object):
 
         """
         try:
-            new_cmp = self._edb.Cell.Hierarchy.Component.Create(self._active_layout, component_name)
+            new_cmp = self._edb.Cell.Hierarchy.Component.Create(self._active_layout, component_name, component_name)
             new_group = self._edb.Cell.Hierarchy.Group.Create(self._active_layout, component_name)
-            for pin in pins:
-                new_group.AddMember(pin)
             new_cmp.SetGroup(new_group)
-            new_cmp_layer_name = pins[0].GetPadstackDef().GetData().GetLayerNames().First()
+            for pin in pins:
+                pin.SetIsLayoutPin(True)
+                conv_pin = self._components_methods.PinToConnectable(pin)
+                add_result = new_group.AddMember(conv_pin)
+            #new_cmp.SetGroup(new_group)
+            if not placement_layer:
+                new_cmp_layer_name = pins[0].GetPadstackDef().GetData().GetLayerNames()[0]
+            else:
+                new_cmp_layer_name = placement_layer
             new_cmp_placement_layer = self._edb.Cell.Layer.FindByName(
                 self._active_layout.GetLayerCollection(), new_cmp_layer_name
             )
             new_cmp.SetPlacementLayer(new_cmp_placement_layer)
+            #cmp_transform = System.Activator.CreateInstance(self._edb.Utility.)
+            #new_cmp.SetTransform(cmp_transform)
             return (True, new_cmp)
         except:
             return (False, None)
@@ -547,7 +557,7 @@ class Components(object):
             cmp_name = pins[0].GetComponent().GetName()
             net_name = pins[0].GetNet().GetName()
             group_name = generate_unique_name("{}_{}_".format(cmp_name, net_name), n=3)
-        pingroup = retry_ntimes(
+        pingroup = _retry_ntimes(
             10,
             self._edb.Cell.Hierarchy.PinGroup.Create,
             self._active_layout,

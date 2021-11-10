@@ -525,7 +525,7 @@ class EdbLayout(object):
                 self.update_primitives()
             else:
                 self._prims.append(polygon)
-                if layer_name in self._primitives_by_layer:
+                if layer_name in list(self._primitives_by_layer.keys()):
                     self._primitives_by_layer[layer_name].append(polygon)
                 else:
                     self._primitives_by_layer[layer_name] = [polygon]
@@ -602,7 +602,7 @@ class EdbLayout(object):
             return polygon
         else:
             k = 0
-            for i in range(0, len(points) - 1):
+            for i in range(0, len(points)-1):
                 startPoint = points[i]
                 point = [self._edb_value(i) for i in startPoint]
                 new_points = self._edb.Geometry.PointData(point[0], point[1])
@@ -753,7 +753,7 @@ class EdbLayout(object):
             layer_name = list(self._pedb.core_stackup.signal_layers.keys())
 
         for lay in layer_name:
-            self._logger.add_info_message("Uniting Objects on layer %s.", lay)
+            self._logger.info("Uniting Objects on layer %s.", lay)
             poly_by_nets = {}
             if lay in list(self.polygons_by_layer.keys()):
                 for poly in self.polygons_by_layer[lay]:
@@ -768,12 +768,19 @@ class EdbLayout(object):
                 for item in a:
                     for v in all_voids:
                         for void in v:
-                            if item.GetIntersectionType(void.GetPolygonData()) == 2:
+                            if int(item.GetIntersectionType(void.GetPolygonData())) == 2:
                                 item.AddHole(void.GetPolygonData())
                     poly = self._edb.Cell.Primitive.Polygon.Create(self._active_layout, lay,
                                                                    self._pedb.core_nets.nets[net], item)
-
-                [i.Delete() for i in poly_by_nets[net]]
+                list_to_delete = [i for i in poly_by_nets[net]]
+                for v in all_voids:
+                    for void in v:
+                        for poly in poly_by_nets[net]:
+                            if int(void.GetPolygonData().GetIntersectionType(poly.GetPolygonData())) >= 2:
+                                id = list_to_delete.index(poly)
+                                if id >= 0:
+                                    del list_to_delete[id]
+                [i.Delete() for i in list_to_delete]
 
         if delete_padstack_gemometries:
             self._logger.info("Deleting Padstack Definitions")

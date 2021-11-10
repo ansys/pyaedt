@@ -4,7 +4,7 @@ This module contains the `EdbPadstacks` class.
 
 import warnings
 
-from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name
+from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, is_ironpython
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 
 from pyaedt.edb_core.EDB_Data import EDBPadstack
@@ -108,7 +108,8 @@ class EdbPadstacks(object):
 
     @aedt_exception_handler
     def create_circular_padstack(
-        self, padstackname=None, holediam="300um", paddiam="400um", antipaddiam="600um", startlayer=None, endlayer=None
+        self, padstackname=None, holediam="300um", paddiam="400um", antipaddiam="600um",
+            startlayer=None, endlayer=None
     ):
         """Create a circular padstack.
 
@@ -138,6 +139,92 @@ class EdbPadstacks(object):
             self._builder, padstackname, holediam, paddiam, antipaddiam, startlayer, endlayer
         )
         self.update_padstacks()
+
+    @aedt_exception_handler
+    def set_solderball(self, padstackInst, sballLayer_name, isTopPlaced=True, ballDiam=100e-6):
+        """Set solderball for the given PadstackInstance.
+
+        Parameters
+        ----------
+        padstackInst : Edb.Cell.Primitive.PadstackInstance,
+            Required.
+        sballLayer_name : str,
+            Name of the layer where the solder ball is placed. No default values.
+        isTopPlaced : bool, optional.
+            Bollean triggering is the solder ball is placed on Top or Bottom of the layer stackup.
+        ballDiam : double, optional,
+            Solder ball diameter value.
+
+        Returns
+        -------
+        bool
+
+        """
+        psdef = padstackInst.GetPadstackDef()
+        newdefdata = self._edb.Definition.PadstackDefData(psdef.GetData())
+        newdefdata.SetSolderBallShape(self._edb.Definition.SolderballShape.Cylinder)
+        newdefdata.SetSolderBallParameter(self._edb_value(ballDiam), self._edb_value(ballDiam))
+        sball_placement = self._edb.Definition.SolderballPlacement.AbovePadstack \
+            if isTopPlaced else self._edb.Definition.SolderballPlacement.BelowPadstack
+        newdefdata.SetSolderBallPlacement(sball_placement)
+        psdef.SetData(newdefdata)
+        sball_layer = [lay for lay in self._layers.edb_layers if lay.GetName() == sballLayer_name][0]
+        if sball_layer is not None:
+            padstackInst.SetSolderBallLayer(sball_layer)
+            return True
+
+        return False
+
+    @aedt_exception_handler
+    def create_coax_port(self, padstackinstance):
+        """Create HFSS 3Dlayout coaxial lumped port on a pastack
+        Requires to have solder ball defined before calling this method.
+
+        Parameters
+        ----------
+        padstackinstance : Edb.Cell.Primitive.PadstackInstance object.
+
+        Returns
+        -------
+        string
+            terminal name.
+
+        """
+        cmp_name = padstackinstance.GetComponent().GetName()
+        if cmp_name == "":
+            cmp_name = "no_comp"
+
+        net_name = padstackinstance.GetNet().GetName()
+        if net_name == "":
+            net_name = "no_net"
+
+        pin_name = padstackinstance.GetName()
+        if pin_name == "":
+            pin_name = "no_pin_name"
+
+        port_name = "{0}_{1}_{2}".format(cmp_name, net_name, pin_name)
+        if not padstackinstance.IsLayoutPin():
+            padstackinstance.SetIsLayoutPin(True)
+
+        if not is_ironpython:
+            res, fromlayer, tolayer = padstackinstance.GetLayerRange(None, None)
+            self._edb.Cell.Terminal.PadstackInstanceTerminal.Create(self._active_layout,
+                                                                    padstackinstance.GetNet(),
+                                                                    port_name,
+                                                                    padstackinstance,
+                                                                    tolayer)
+            if res:
+                return port_name
+        else:
+            res, fromlayer, tolayer = padstackinstance.GetLayerRange()
+            self._edb.Cell.Terminal.PadstackInstanceTerminal.Create(self._active_layout,
+                                                                    padstackinstance.GetNet(),
+                                                                    port_name,
+                                                                    padstackinstance,
+                                                                    tolayer)
+            if res:
+                return port_name
+        return ""
 
     @aedt_exception_handler
     def get_pinlist_from_component_and_net(self, refdes=None, netname=None):

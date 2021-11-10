@@ -4,7 +4,6 @@ This module contains these classes: `Layer` and `Layers`.
 This module provides all layer stackup functionalities for the Circuit and HFSS 3D Layout tools.
 """
 from __future__ import absolute_import
-from collections import defaultdict
 
 from pyaedt.generic.general_methods import aedt_exception_handler
 
@@ -355,7 +354,7 @@ class Layer(object):
         -------
 
         """
-        if type(value) is str:
+        if isinstance(value, str):
             val = value
         else:
             if units is None:
@@ -551,7 +550,7 @@ class Layers(object):
         self._modeler = modeler
         self._app = self._modeler._app
         self._currentId = 0
-        self.layers = defaultdict(Layer)
+        self.layers = {}
         self.lengthUnitRough = roughnessunits
         self.logger = self._app.logger
 

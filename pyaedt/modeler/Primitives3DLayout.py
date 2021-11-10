@@ -1,17 +1,19 @@
 import sys
-from collections import defaultdict
+import warnings
 
 from pyaedt.generic.general_methods import aedt_exception_handler, is_ironpython
 from pyaedt.modeler.Object3d import Padstack, Components3DLayout, Geometries3DLayout, Pins3DLayout, Nets3DLayout, _uname
 from pyaedt.modeler.Primitives import default_materials
 from pyaedt.modeler.GeometryOperators import GeometryOperators
-import pkgutil
-
-modules = [tup[1] for tup in pkgutil.iter_modules()]
-if "clr" in modules or is_ironpython:
+# import pkgutil
+# modules = [tup[1] for tup in pkgutil.iter_modules()]
+# if "clr" in modules or is_ironpython:
+try:
     import clr
     from System import String
     import System
+except ImportError:
+    warnings.warn("Pythonnet has to be installed to run Pyaedt")
 
 
 class Primitives3DLayout(object):
@@ -53,11 +55,11 @@ class Primitives3DLayout(object):
         self._app = self._modeler._app
         self._oeditor = self.modeler.oeditor
         self.opadstackmanager = self._app._oproject.GetDefinitionManager().GetManager("Padstack")
-        self.padstacks = defaultdict(Padstack)
-        self._components = defaultdict(Components3DLayout)
-        self._geometries = defaultdict(Geometries3DLayout)
-        self._pins = defaultdict(Pins3DLayout)
-        self._nets = defaultdict(Nets3DLayout)
+        self.padstacks = {}
+        self._components = {}
+        self._geometries = {}
+        self._pins = {}
+        self._nets = {}
         pass
 
     @property
@@ -418,7 +420,7 @@ class Primitives3DLayout(object):
         arg.append("vrotation:="), arg.append([str(rotation) + "deg"])
         if hole_diam:
             arg.append("overrides hole:="), arg.append(True)
-            arg.append("hole diameter:="), arg.append([self.arg_with_dim("hole_diam")])
+            arg.append("hole diameter:="), arg.append([self.arg_with_dim(hole_diam)])
 
         else:
             arg.append("overrides hole:="), arg.append(False)

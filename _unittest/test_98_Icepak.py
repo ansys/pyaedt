@@ -153,7 +153,7 @@ class TestClass:
     def test_07_ExportStepForWB(self):
         file_path = self.local_scratch.path
         file_name = "WBStepModel"
-        assert self.aedtapp.export3DModel(file_name, file_path, ".step", [], ["Region", "Component_Region"])
+        assert self.aedtapp.export_3d_model(file_name, file_path, ".step", [], ["Region", "Component_Region"])
 
     def test_08_Setup(self):
         setup_name = "DomSetup"

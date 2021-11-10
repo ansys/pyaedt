@@ -11,7 +11,10 @@ from collections import OrderedDict
 import inspect
 import itertools
 
-logger = logging.getLogger(__name__)
+try:
+    logger = logging.getLogger('Global')
+except:
+    logger = logging.getLogger(__name__)
 is_ironpython = "IronPython" in sys.version or ".NETFramework" in sys.version
 _pythonver = sys.version_info[0]
 inside_desktop = True
@@ -24,6 +27,7 @@ try:
 except:
     inside_desktop = False
 
+is_remote_server = os.getenv("PYAEDT_IRONPYTHON_SERVER", "False").lower() in ("true", "1", "t")
 
 class MethodNotSupportedError(Exception):
     """ """
@@ -33,7 +37,7 @@ class MethodNotSupportedError(Exception):
 
 def _write_mes(mes_text):
     mes_text = str(mes_text)
-    parts = [mes_text[i:i + 80] for i in range(0, len(mes_text), 80)]
+    parts = [mes_text[i:i + 150] for i in range(0, len(mes_text), 150)]
 
     if os.getenv("PYAEDT_SCREEN_LOGS", "True").lower() in ("true", "1", "t"):
         for el in parts:
@@ -41,10 +45,6 @@ def _write_mes(mes_text):
     if logger and os.getenv("PYAEDT_FILE_LOGS", "True").lower() in ("true", "1", "t"):
         for el in parts:
             logger.error(el)
-    if (os.getenv("PYAEDT_DESKTOP_LOGS", "True").lower() in ("true", "1", "t")
-            and "oDesktop" in dir(sys.modules["__main__"])):
-        for el in parts:
-            sys.modules["__main__"].oDesktop.AddMessage("", "", 2, el)
 
 
 def _exception(ex_info, func, args, kwargs, message="Type Error"):
@@ -69,6 +69,7 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
     """
     _write_mes("**************************************************************")
     _write_mes("pyaedt error on Method {}:  {}. Please Check again".format(func.__name__, message))
+    _write_mes(ex_info[1])
     _write_mes("Arguments Provided: ")
     try:
         if int(sys.version[0]) > 2:
@@ -100,6 +101,61 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
     _write_mes("https://aedtdocs.pyansys.com/search.html?q={}".format(func.__name__))
     _write_mes("************************************************************")
 
+def _check_types(arg):
+    if "netref.builtins.list" in str(type(arg)):
+        return "list"
+    elif "netref.builtins.dict" in str(type(arg)):
+        return "dict"
+    elif "netref.__builtin__.list" in str(type(arg)):
+        return "list"
+    elif "netref.__builtin__.dict" in str(type(arg)):
+        return "dict"
+    return ""
+
+
+def convert_remote_object(arg):
+    """Convert Remote list or dict to native list and dictionary.
+
+    .. note::
+        This is needed only on Cpython to Ironpython Connection.
+
+    Parameters
+    ----------
+    arg : dict or list
+        Object to convert
+    Returns
+    -------
+    dict or list
+    """
+    if _check_types(arg) == "list":
+        return list(eval(str(arg)))
+    elif _check_types(arg) == "dict":
+        return dict(eval(str(arg)))
+    return arg
+
+
+def _remote_list_conversion(args):
+    if not is_remote_server:
+        return args
+    new_args = []
+    if args:
+        for arg in args:
+            new_args.append(convert_remote_object(arg))
+    return new_args
+
+
+def _remote_dict_conversion(args):
+    if not is_remote_server:
+        return args
+
+    if args:
+        new_kwargs = {}
+        for arg in args:
+            new_kwargs[arg] = convert_remote_object(args[arg])
+    else:
+        new_kwargs = args
+    return new_kwargs
+
 
 def aedt_exception_handler(func):
     """Decorator for pyaedt Exception Management
@@ -120,7 +176,38 @@ def aedt_exception_handler(func):
     def inner_function(*args, **kwargs):
         if os.getenv("PYAEDT_ERROR_HANDLER", "True").lower() in ("true", "1", "t"):
             try:
-                return func(*args, **kwargs)
+                new_args = _remote_list_conversion(args)
+                new_kwargs = _remote_dict_conversion(kwargs)
+                out = func(*new_args, **new_kwargs)
+                if str(func.__name__)[0] != "_":
+                    line_begin = "\n                                    Implicit Arguments : "
+                    line_begin2 = "\n                                    Explicit Arguments : "
+                    if args:
+                        object_name = str([new_args[0]])[1:-1]
+                        id = object_name.find(" object at ")
+                        if id >= 0:
+                            object_name = object_name[1:id]
+                            message = " '{}' has been exectuted.".format(
+                                object_name + "." + str(func.__name__))
+                            if new_args[1:]:
+                                message += line_begin + str(args[1:])[1:-1]
+                            if new_kwargs:
+                                message += line_begin2 + str(new_kwargs)[1:-1]
+
+                        else:
+                            message = " '{}' has been exectuted.".format(str(func.__name__))
+                            if new_args[1:]:
+                                message += line_begin + str(args[1:])[1:-1]
+                            if new_kwargs:
+                                message += line_begin2 + str(new_kwargs)[1:-1]
+
+                    else:
+                        message = " '{}' has been exectuted".format(str(func.__name__))
+                        if new_kwargs:
+                            message += line_begin2 + str(new_kwargs)[1:-1]
+                    logger.debug(message)
+
+                return out
             except TypeError:
                 _exception(sys.exc_info(), func, args, kwargs, "Type Error")
                 return False
@@ -227,8 +314,8 @@ def env_path_student(input_version):
 
     Examples
     --------
-    >>> env_path_student("2021.1")
-    "C:/Program Files/ANSYSEM/ANSYSEM2021.1/Win64"
+    >>> env_path_student("2021.2")
+    "C:/Program Files/ANSYSEM/ANSYSEM2021.2/Win64"
     """
     version = int(input_version[2:4])
     release = int(input_version[5])
@@ -256,7 +343,7 @@ def env_value_student(input_version):
 
     Examples
     --------
-    >>> env_value_student("2021.1")
+    >>> env_value_student("2021.2")
     "ANSYSEMSV_ROOT211"
     """
     version = int(input_version[2:4])
@@ -311,7 +398,7 @@ def generate_unique_name(rootname, suffix="", n=6):
     return unique_name
 
 
-def retry_ntimes(n, function, *args, **kwargs):
+def _retry_ntimes(n, function, *args, **kwargs):
     """
 
     Parameters
@@ -408,6 +495,6 @@ def remove_project_lock(project_path):
     -------
     bool
     """
-    if os.path.exists(project_path[:-4] + "lock"):
-        os.remove(project_path[:-4] + "lock")
+    if os.path.exists(project_path + ".lock"):
+        os.remove(os.path.join(project_path, ".lock"))
     return True

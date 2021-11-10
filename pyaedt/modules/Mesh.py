@@ -5,7 +5,7 @@ This module contains the `Mesh` class.
 from __future__ import absolute_import
 from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, MethodNotSupportedError
 
-from pyaedt.generic.DataHandlers import dict2arg
+from pyaedt.generic.DataHandlers import _dict2arg
 from collections import OrderedDict
 
 meshers = {
@@ -46,7 +46,7 @@ class MeshOperation(object):
         """Retrieve arguments."""
         props = self.props
         arg = ["NAME:" + self.name]
-        dict2arg(props, arg)
+        _dict2arg(props, arg)
         return arg
 
     @aedt_exception_handler
@@ -210,10 +210,10 @@ class Mesh(object):
                     meshop_name = generate_unique_name(meshop_name)
         else:
             meshop_name = generate_unique_name("SurfApprox")
-        self.logger.glb.info("Assigning Mesh Level " + str(level) + " to " + str(names))
+        self.logger.info("Assigning Mesh Level " + str(level) + " to " + str(names))
         names = self._app._modeler._convert_list_to_ids(names)
 
-        if type(names[0]) is int:
+        if isinstance(names[0], int):
             seltype = "Faces"
         else:
             seltype = "Objects"
@@ -324,8 +324,8 @@ class Mesh(object):
         else:
             meshop_name = generate_unique_name("ModelResolution")
         for name in names:
-            if type(name) is int:
-                self.logger.glb.error("Mesh Operation Applies to Objects only")
+            if isinstance(name, int):
+                self.logger.error("Mesh Operation Applies to Objects only")
                 return False
         if defeature_length is None:
             props = OrderedDict({"Objects": names, "UseAutoLength": True})
@@ -556,18 +556,18 @@ class Mesh(object):
             restrictel = True
             numel = str(maxel)
         if maxlength is None and maxel is None:
-            self.logger.glb.error("mesh not assigned due to incorrect settings")
+            self.logger.error("mesh not assigned due to incorrect settings")
             return
         names = self._app._modeler._convert_list_to_ids(names)
 
-        if type(names[0]) is int and not isinside:
+        if isinstance(names[0], int) and not isinside:
             seltype = "Faces"
-        elif type(names[0]) is str:
+        elif isinstance(names[0], str):
             seltype = "Objects"
         else:
             seltype = None
         if seltype is None:
-            self.logger.glb.error("Error in Assignment")
+            self.logger.error("Error in Assignment")
             return
         props = OrderedDict(
             {
@@ -632,14 +632,14 @@ class Mesh(object):
             restrictlength = True
         names = self._app._modeler._convert_list_to_ids(names)
 
-        if type(names[0]) is int:
+        if isinstance(names[0], int):
             seltype = "Faces"
-        elif type(names[0]) is str:
+        elif isinstance(names[0], str):
             seltype = "Objects"
         else:
             seltype = None
         if seltype is None:
-            self.logger.glb.error("Error in Assignment")
+            self.logger.error("Error in Assignment")
             return
 
         props = OrderedDict(
@@ -691,14 +691,14 @@ class Mesh(object):
             meshop_name = generate_unique_name("CurvilinearElements")
         names = self._app._modeler._convert_list_to_ids(names)
 
-        if type(names[0]) is int:
+        if isinstance(names[0], int):
             seltype = "Faces"
-        elif type(names[0]) is str:
+        elif isinstance(names[0], str):
             seltype = "Objects"
         else:
             seltype = None
         if seltype is None:
-            self.logger.glb.error("Error in Assignment")
+            self.logger.error("Error in Assignment")
             return
         props = OrderedDict({"Type": "Curvilinear", seltype: names, "Apply": enable})
         mop = MeshOperation(self, meshop_name, props, "Curvilinear")
@@ -737,14 +737,14 @@ class Mesh(object):
         else:
             meshop_name = generate_unique_name("CurvilinearElements")
         names = self._app._modeler._convert_list_to_ids(names)
-        if type(names[0]) is int:
+        if isinstance(names[0], int):
             seltype = "Faces"
-        elif type(names[0]) is str:
+        elif isinstance(names[0], str):
             seltype = "Objects"
         else:
             seltype = None
         if seltype is None:
-            self.logger.glb.error("Error in Assignment")
+            self.logger.error("Error in Assignment")
             return
         props = OrderedDict(
             {"Type": "CurvatureExtraction", seltype: names, "DisableForFacetedSurfaces": disable_for_faceted_surf}

@@ -3,7 +3,7 @@ import time
 
 from pyaedt.application.Variables import AEDT_units
 from pyaedt.edb import Edb
-from pyaedt.generic.general_methods import aedt_exception_handler, retry_ntimes, is_ironpython, _pythonver, \
+from pyaedt.generic.general_methods import aedt_exception_handler, _retry_ntimes, is_ironpython, _pythonver, \
     inside_desktop
 from pyaedt.modules.LayerStackup import Layers
 from pyaedt.modeler.Modeler import Modeler
@@ -26,9 +26,9 @@ class Modeler3DLayout(Modeler):
     def __init__(self, app):
         self._app = app
         self.oeditor = self._app._odesign.SetActiveEditor("Layout")
-        self.logger.glb.info("Loading Modeler.")
+        self.logger.info("Loading Modeler.")
         Modeler.__init__(self, app)
-        self.logger.glb.info("Modeler loaded.")
+        self.logger.info("Modeler loaded.")
         self._primitivesDes = self._app.project_name + self._app.design_name
         edb_folder = os.path.join(self._app.project_path, self._app.project_name + ".aedb")
         edb_file = os.path.join(edb_folder, "edb.def")
@@ -49,11 +49,11 @@ class Modeler3DLayout(Modeler):
             )
         else:
             self._mttime = 0
-        self.logger.glb.info("EDB loaded.")
+        self.logger.info("EDB loaded.")
         self.layers = Layers(self, roughnessunits="um")
-        self.logger.glb.info("Layers loaded.")
+        self.logger.info("Layers loaded.")
         self._primitives = Primitives3DLayout(self)
-        self.logger.glb.info("Primitives loaded.")
+        self.logger.info("Primitives loaded.")
         self.layers.refresh_all_layers()
 
         pass
@@ -106,7 +106,7 @@ class Modeler3DLayout(Modeler):
     @property
     def model_units(self):
         """Model units."""
-        return retry_ntimes(10, self.oeditor.GetActiveUnits)
+        return _retry_ntimes(10, self.oeditor.GetActiveUnits)
 
     @model_units.setter
     def model_units(self, units):
@@ -129,7 +129,7 @@ class Modeler3DLayout(Modeler):
 
     @aedt_exception_handler
     def _arg_with_dim(self, value, units=None):
-        if type(value) is str:
+        if isinstance(value, str):
             val = value
         else:
             if units is None:
@@ -226,7 +226,7 @@ class Modeler3DLayout(Modeler):
         Examples
         --------
         >>> from pyaedt import Hfss3dLayout
-        >>> h3d=Hfss3dLayout(specified_version="2021.1")
+        >>> h3d=Hfss3dLayout(specified_version="2021.2")
         >>> h3d.modeler.layers.add_layer("TOP")
         >>> l1=h3d.modeler.primitives.create_line("TOP", [[0,0],[100,0]],  0.5, name="poly_1")
         >>> l2=h3d.modeler.primitives.create_line("TOP", [[100,0],[120,-35]],  0.5, name="poly_2")
@@ -275,7 +275,7 @@ class Modeler3DLayout(Modeler):
         Examples
         --------
         >>> from pyaedt import Hfss3dLayout
-        >>> h3d=Hfss3dLayout(specified_version="2021.1")
+        >>> h3d=Hfss3dLayout(specified_version="2021.2")
         >>> h3d.modeler.layers.add_layer("TOP")
         >>> h3d.modeler.primitives.create_rectangle("TOP", [20,20],[50,50], name="rect_1")
         >>> h3d.modeler.primitives.create_line("TOP",[[25,25],[40,40]], name="line_3")
@@ -284,7 +284,7 @@ class Modeler3DLayout(Modeler):
         line_4
 
         """
-        layer = retry_ntimes(10, self.oeditor.GetPropertyValue, "BaseElementTab", object_to_expand, "PlacementLayer")
+        layer = _retry_ntimes(10, self.oeditor.GetPropertyValue, "BaseElementTab", object_to_expand, "PlacementLayer")
         poly = self.oeditor.GetPolygonDef(object_to_expand).GetPoints()
         pos = [poly[0].GetX(), poly[0].GetY()]
         geom_names = self.oeditor.FindObjectsByPoint(self.oeditor.Point().Set(pos[0], pos[1]), layer)
@@ -405,14 +405,14 @@ class Modeler3DLayout(Modeler):
 
         """
         vArg1 = ["NAME:primitives", blank]
-        if type(tool) is list:
+        if isinstance(tool, list):
             for el in tool:
                 vArg1.append(el)
         else:
             vArg1.append(tool)
         if self.oeditor is not None:
             self.oeditor.Subtract(vArg1)
-        if type(tool) is list:
+        if isinstance(tool, list):
             for el in tool:
                 if self.primitives.is_outside_desktop:
                     self.primitives._geometries.pop(el)
@@ -447,7 +447,7 @@ class Modeler3DLayout(Modeler):
                         self.primitives._geometries.pop(el)
             return True
         else:
-            self.logger.glb.error("Input list must contain at least two elements.")
+            self.logger.error("Input list must contain at least two elements.")
             return False
 
     @aedt_exception_handler
@@ -476,7 +476,7 @@ class Modeler3DLayout(Modeler):
                         self.primitives._geometries.pop(el)
             return True
         else:
-            self.logger.glb.error("Input list must contain at least two elements.")
+            self.logger.error("Input list must contain at least two elements.")
             return False
 
     @aedt_exception_handler
@@ -533,7 +533,7 @@ class Modeler3DLayout(Modeler):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self.logger.glb.info("Set the temperature dependence for the design.")
+        self.logger.info("Set the temperature dependence for the design.")
         if create_project_var:
             self._app.variable_manager["$AmbientTemp"] = str(ambient_temp) + "cel"
             var = "$AmbientTemp"
@@ -548,8 +548,8 @@ class Modeler3DLayout(Modeler):
         try:
             self._odesign.SetTemperatureSettings(vargs1)
         except:
-            self.logger.glb.error("Failed to enable the temperature dependence.")
+            self.logger.error("Failed to enable the temperature dependence.")
             return False
         else:
-            self.logger.glb.info("Assigned Objects Temperature")
+            self.logger.info("Assigned Objects Temperature")
             return True

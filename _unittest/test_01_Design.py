@@ -7,7 +7,7 @@ from pyaedt import Hfss, Desktop
 from pyaedt.generic.filesystem import Scratch
 
 # Setup paths for module imports
-from _unittest.conftest import desktop_version, local_path, new_thread, non_graphical, scratch_path
+from _unittest.conftest import desktop_version, local_path, scratch_path
 
 try:
     import pytest  # noqa: F401
@@ -23,8 +23,7 @@ class TestClass:
         with Scratch(scratch_path) as self.local_scratch:
             self.test_project = self.local_scratch.copyfile(example_project)
             self.aedtapp = Hfss(
-                projectname=self.test_project, specified_version=desktop_version, new_desktop_session=new_thread,
-                non_graphical=non_graphical
+                projectname=self.test_project, specified_version=desktop_version,
             )
             # self.aedtapp.save_project()
             # self.cache = DesignCache(self.aedtapp)

@@ -36,7 +36,7 @@ non_graphical = True
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This example inserts a Maxwell 2D design and then saves the project.
 
-maxwell_2d = Maxwell2d(solution_type="TransientXY", specified_version="2021.1", non_graphical=non_graphical)
+maxwell_2d = Maxwell2d(solution_type="TransientXY", specified_version="2021.2", non_graphical=non_graphical)
 project_dir = maxwell_2d.generate_temp_project_directory("Example")
 maxwell_2d.save_project(os.path.join(project_dir, "M2d.aedt"))
 
@@ -124,4 +124,4 @@ id_list = [f.id for f in face_lists]
 # ~~~~~~~~~~
 # This command closes AEDT.
 
-maxwell_2d.close_desktop()
+maxwell_2d.release_desktop()

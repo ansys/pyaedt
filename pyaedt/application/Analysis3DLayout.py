@@ -1,3 +1,5 @@
+import os
+
 from pyaedt.generic.general_methods import aedt_exception_handler, is_ironpython
 from pyaedt.modeler.Model3DLayout import Modeler3DLayout
 from pyaedt.modules.Mesh3DLayout import Mesh3d
@@ -84,10 +86,10 @@ class FieldAnalysis3DLayout(Analysis):
         self.osolution = self._odesign.GetModule("SolveSetups")
         self.oexcitation = self._odesign.GetModule("Excitations")
         self.oboundary = self._odesign.GetModule("Excitations")
-        self.logger.glb.info("Analysis Loaded")
+        self.logger.info("Analysis Loaded")
         self._modeler = Modeler3DLayout(self)
         self._modeler.primitives.init_padstacks()
-        self.logger.glb.info("Modeler Loaded")
+        self.logger.info("Modeler Loaded")
         self._mesh = Mesh3d(self)
         self._post = PostProcessor(self)
         # self._post = PostProcessor(self)
@@ -142,6 +144,29 @@ class FieldAnalysis3DLayout(Analysis):
                 spar.append("S({},{})".format(i, excitation_names[k]))
                 k += 1
         return spar
+
+    @aedt_exception_handler
+    def export_mesh_stats(self, setup_name, variation_string="", mesh_path=None):
+        """Export mesh statistics to a file.
+
+        Parameters
+        ----------
+        setup_name :str
+            Setup name.
+        variation_string : str, optional
+            Variation List.
+        mesh_path : str, optional
+            Full path to mesh statistics file.
+
+        Returns
+        -------
+        str
+            File Path.
+        """
+        if not mesh_path:
+            mesh_path = os.path.join(self.project_path, "meshstats.ms")
+        self.odesign.ExportMeshStats(setup_name, variation_string, mesh_path)
+        return mesh_path
 
     @aedt_exception_handler
     def get_all_return_loss_list(self, excitation_names=[], excitation_name_prefix=""):
@@ -201,7 +226,7 @@ class FieldAnalysis3DLayout(Analysis):
         if not reclist:
             reclist = [i for i in self.get_excitations_name if rx_prefix in i]
         if len(trlist) != len(reclist):
-            self.logger.glb.error("The TX and RX lists should be same length.")
+            self.logger.error("The TX and RX lists should be same length.")
             return False
         for i, j in zip(trlist, reclist):
             spar.append("S({},{})".format(i, j))

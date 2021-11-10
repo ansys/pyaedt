@@ -1,7 +1,5 @@
-from collections import defaultdict
 
 from pyaedt.generic.general_methods import aedt_exception_handler
-from pyaedt.modeler.Object3d import CircuitComponent
 from pyaedt.modeler.PrimitivesCircuit import CircuitComponents
 
 
@@ -43,7 +41,7 @@ class SimplorerComponents(CircuitComponents):
             Part object details.
 
         """
-        if type(partname) is int:
+        if isinstance(partname, int):
             return self.components[partname]
         for el in self.components:
             if self.components[el].name == partname or self.components[el].composed_name == partname or el == partname:
@@ -56,7 +54,7 @@ class SimplorerComponents(CircuitComponents):
         self._app = modeler._app
         self._modeler = modeler
         self._currentId = 0
-        self.components = defaultdict(CircuitComponent)
+        self.components = {}
         pass
 
     @aedt_exception_handler

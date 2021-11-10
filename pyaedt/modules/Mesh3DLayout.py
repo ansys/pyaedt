@@ -7,7 +7,7 @@ This module provides all functionalities for creating and editing the mesh in th
 from __future__ import absolute_import
 
 from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name
-from pyaedt.generic.DataHandlers import dict2arg
+from pyaedt.generic.DataHandlers import _dict2arg
 from collections import OrderedDict
 
 
@@ -52,7 +52,7 @@ class Mesh3DOperation(object):
         if not props:
             props = self.props
         arg = ["NAME:" + self.name]
-        dict2arg(props, arg)
+        _dict2arg(props, arg)
         return arg
 
     @aedt_exception_handler
@@ -220,9 +220,9 @@ class Mesh3d(object):
             restrictel = True
             numel = str(maxel)
         if maxlength is None and maxel is None:
-            self.logger.glb.error("mesh not assigned due to incorrect settings")
+            self.logger.error("mesh not assigned due to incorrect settings")
             return
-        if type(layer_name) is list and type(net_name) is list:
+        if isinstance(layer_name, list) and isinstance(net_name, list):
             assignment = OrderedDict({"MeshEntityInfo": []})
             for l, n in zip(layer_name, net_name):
                 meshbody = OrderedDict({"Id": -1, "Nam": "", "Layer": l, "Net": n, "OrigNet": n})

@@ -129,7 +129,7 @@ class Person(Actor, object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        app.logger.design.info("Adding person: " + self.name)
+        app.logger.info("Adding person: " + self.name)
 
         # Insert the component first, then set variables.
         self._insert(app)  # Place the person in the app.
@@ -191,7 +191,7 @@ class Bird(Actor, object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        app.logger.design.info("Adding Vehicle: " + self.name)
+        app.logger.info("Adding Vehicle: " + self.name)
 
         self._insert(app)  # Place the multipart component in the app.
         if motion:
@@ -251,7 +251,7 @@ class Vehicle(Actor, object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        app.logger.design.info("Adding vehicle: " + self.name)
+        app.logger.info("Adding vehicle: " + self.name)
 
         self._insert(app)  # Place the multipart component in the app.
         if motion:
@@ -361,7 +361,7 @@ class Radar(MultiPartComponent, object):
         list
             List of antennae that have been placed.
         """
-        app.logger.design.info("Adding radar module:  " + self.name)
+        app.logger.info("Adding radar module:  " + self.name)
         if self.use_global_cs or self.cs_name in app.modeler.oeditor.GetCoordinateSystems():
             app.modeler.set_working_coordinate_system(self.cs_name)
             if self.use_relative_cs:
@@ -390,7 +390,7 @@ class Radar(MultiPartComponent, object):
 
         app.modeler.create_group(components=self.aedt_components,
                                  group_name=self.name)
-        app.logger.design.info("Group Created:  " + self.name)
+        app.logger.info("Group Created:  " + self.name)
         if motion:
             self._add_speed(app)
         return self.aedt_antenna_names

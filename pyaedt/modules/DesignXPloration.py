@@ -1,6 +1,6 @@
 from collections import OrderedDict
 from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name
-from pyaedt.generic.DataHandlers import dict2arg, arg2dict
+from pyaedt.generic.DataHandlers import _dict2arg, _arg2dict
 import copy
 
 defaultparametricSetup = OrderedDict(
@@ -195,7 +195,7 @@ class CommonOptimetrics(object):
                 calculation = ["NAME:Goal"]
                 calculation.extend(oparam)
                 arg1 = OrderedDict()
-                arg2dict(calculation, arg1)
+                _arg2dict(calculation, arg1)
                 self.props["Goals"] = arg1
 
     @aedt_exception_handler
@@ -218,7 +218,7 @@ class CommonOptimetrics(object):
                 self.props[el] = update_dictionary[el]
 
         arg = ["NAME:" + self.name]
-        dict2arg(self.props, arg)
+        _dict2arg(self.props, arg)
 
         self.omodule.EditSetup(self.name, arg)
         return True
@@ -234,7 +234,7 @@ class CommonOptimetrics(object):
 
         """
         arg = ["NAME:" + self.name]
-        dict2arg(self.props, arg)
+        _dict2arg(self.props, arg)
         self.omodule.InsertSetup(self.soltype, arg)
         return True
 

@@ -1,5 +1,5 @@
 from pyaedt.application.Variables import AEDT_units
-from pyaedt.generic.general_methods import aedt_exception_handler, retry_ntimes
+from pyaedt.generic.general_methods import aedt_exception_handler, _retry_ntimes
 from pyaedt.modules.LayerStackup import Layers
 from pyaedt.modeler.Modeler import Modeler
 from pyaedt.modeler.Primitives3DLayout import Primitives3DLayout
@@ -113,7 +113,7 @@ class ModelerNexxim(ModelerCircuit):
     @property
     def model_units(self):
         """Model units."""
-        return retry_ntimes(10, self.layouteditor.GetActiveUnits)
+        return _retry_ntimes(10, self.layouteditor.GetActiveUnits)
 
     @property
     def primitives(self):

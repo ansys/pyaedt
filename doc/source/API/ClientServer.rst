@@ -52,40 +52,46 @@ Pyaedt can also be launched on a remote machine. To do that, the following condi
 
 1. Pyaedt has to be installed on Client and Server machines
 2. No need to have AEDT installed on client machine
-3. Same Python version has to be used on client and server (CPython 3.6+)
-4. On linux server it allows only to run scripts
+3. Same Python version has to be used on client and server (CPython 3.6+ or Ironpython embedded in AEDT Installation)
+4. CPython to IronPython can be used with some data type limitations and potential issues. As an example, when getting
+   lists from a command you can access every item (e.g. ``mylist[i]``) and len (e.g. ``mylist.__len__()``) but not ``len(mylist)``.
 
-Here one example of usage on Windows Server:
-
-.. code:: python
-
-    # Launch the latest installed version of AEDT in graphical mode.
-
-    from pyaedt.common_rpc import pyaedt_server
-    pyaedt_server() # don't use localhost or 127.0.0.1 here. use the full hostname.
-
-On Client Side:
+Here one example of usage on Windows Server or Linux Server (Ironpython):
 
 .. code:: python
 
     # Launch the latest installed version of AEDT in graphical mode.
 
-    from pyaedt.common_rpc import pyaedt_client
-    my_client = pyaedt_client("full_name_of_server")
+    from pyaedt.common_rpc import launch_server
+    # ansysem_path and non_graphical are needed only for Linux Ironpython Server
+    launch_server(ansysem_path="/path/to/ansys/executable/folder", non_graphical=True)
+
+On Linux, the IronPython console can be launched with the following command:
+/path/to/AnsysEM21.x/Linux64/common/mono/Linux64/bin/mono /path/to/AnsysEM21.x/Linux64/common/IronPython/ipy64.exe
+
+On client side:
+
+.. code:: python
+
+    # Launch the latest installed version of AEDT in non-graphical mode.
+
+    from pyaedt.common_rpc import client
+    my_client = client("full_name_of_server")
     circuit = my_client.root.circuit(specified_version="2021.2", non_graphical=True)
     ...
     # code like locally
     ...
 
 
-Here one example of usage on Linux Server:
+The Linux CPython server is also supported but allows you only to run PyAEDT in a script (in a non-interactive session).
+Here one example of usage on Linux Server (CPython):
 
 .. code:: python
 
     # Launch the latest installed version of AEDT in graphical mode.
 
-    from pyaedt.common_rpc import pyaedt_server
-    pyaedt_server() # don't use localhost or 127.0.0.1 here. use the full hostname.
+    from pyaedt.common_rpc import launch_server
+    launch_server()
 
 On Client Side:
 
@@ -93,12 +99,12 @@ On Client Side:
 
     # Launch the latest installed version of AEDT in graphical mode.
 
-    from pyaedt.common_rpc import pyaedt_client
-    my_client = pyaedt_client("full_name_of_server")
-    example_script = ["from pyaedt import Circuit", "circuit="Circuit()", "circuit.save_project(\"project_name\")"]
+    from pyaedt.common_rpc import client
+    my_client = client("full_name_of_server")
+    example_script = ["from pyaedt import Circuit", circuit="Circuit()", "circuit.save_project('project_name')"]
     ansysem = "/path/to/AnsysEMxxx/Linux64"
     my_client.root.run_script(example_script, ansysem_path=ansysem)
-    my_client.root.run_script(example_script, aedt_version="2021.2") #if ANSYSEM_ROOTxxx env variable is registered in the server
+    my_client.root.run_script(example_script, aedt_version="2021.2") #if ANSYSEM_ROOTxxx env variable is present
 
 
 As an alternative, the user can upload the script to run to the server and run it.
@@ -107,8 +113,8 @@ As an alternative, the user can upload the script to run to the server and run i
 
     # Launch the latest installed version of AEDT in graphical mode.
 
-    from pyaedt.common_rpc import pyaedt_client, upload
-    my_client = pyaedt_client("full_name_of_server")
+    from pyaedt.common_rpc import client, upload
+    my_client = client("full_name_of_server")
     local_script ="path/to/my/local/pyaedt/script.py"
     remote_script ="path/to/my/remote/pyaedt/script.py"
     upload(local_script, remote_script, "servername")

@@ -2,7 +2,7 @@ import ntpath
 import os
 import warnings
 
-from pyaedt.generic.general_methods import aedt_exception_handler, retry_ntimes, is_ironpython
+from pyaedt.generic.general_methods import aedt_exception_handler, _retry_ntimes, is_ironpython
 from pyaedt.modeler.Model3D import Modeler3D
 from pyaedt.modules.Mesh import Mesh
 from pyaedt.application.Analysis import Analysis
@@ -144,6 +144,29 @@ class FieldAnalysis3D(Analysis, object):
         return components_dict
 
     @aedt_exception_handler
+    def export_mesh_stats(self, setup_name, variation_string="", mesh_path=None):
+        """Export mesh statistics to a file.
+
+        Parameters
+        ----------
+        setup_name :str
+            Setup name.
+        variation_string : str, optional
+            Variation List.
+        mesh_path : str, optional
+            Full path to mesh statistics file.
+
+        Returns
+        -------
+        str
+            File Path.
+        """
+        if not mesh_path:
+            mesh_path = os.path.join(self.project_path, "meshstats.ms")
+        self.odesign.ExportMeshStats(setup_name, variation_string, mesh_path)
+        return mesh_path
+
+    @aedt_exception_handler
     def get_components3d_vars(self, component3dname):
         """Read the A3DCOMP file and check for variables.
 
@@ -223,28 +246,28 @@ class FieldAnalysis3D(Analysis, object):
         }
         if type == "Boundary":
             propserv = boundary[self._design_type]
-            val = retry_ntimes(10, self.odesign.GetPropertyValue, propserv, objectname, property)
+            val = _retry_ntimes(10, self.odesign.GetPropertyValue, propserv, objectname, property)
             return val
         elif type == "Setup":
             propserv = setup[self._design_type]
-            val = retry_ntimes(10, self.odesign.GetPropertyValue, propserv, objectname, property)
+            val = _retry_ntimes(10, self.odesign.GetPropertyValue, propserv, objectname, property)
             return val
 
         elif type == "Excitation":
             propserv = excitation[self._design_type]
-            val = retry_ntimes(10, self.odesign.GetPropertyValue, propserv, objectname, property)
+            val = _retry_ntimes(10, self.odesign.GetPropertyValue, propserv, objectname, property)
             return val
 
         elif type == "Mesh":
             propserv = mesh[self._design_type]
-            val = retry_ntimes(10, self.odesign.GetPropertyValue, propserv, objectname, property)
+            val = _retry_ntimes(10, self.odesign.GetPropertyValue, propserv, objectname, property)
             return val
         else:
             propservs = all[self._design_type]
             for propserv in propservs:
                 properties = list(self.odesign.GetProperties(propserv, objectname))
                 if property in properties:
-                    val = retry_ntimes(10, self.odesign.GetPropertyValue, propserv, objectname, property)
+                    val = _retry_ntimes(10, self.odesign.GetPropertyValue, propserv, objectname, property)
                     return val
         return None
 
@@ -299,6 +322,91 @@ class FieldAnalysis3D(Analysis, object):
         return True
 
     @aedt_exception_handler
+    def export3DModel(self, fileName, filePath, fileFormat=".step", object_list=[], removed_objects=[]):
+        """Export the 3D model.
+
+        .. deprecated:: 0.5.0
+           Use :func:`pyaedt.application.Analysis3D.modeler.export_3d_model` instead.
+
+        Parameters
+        ----------
+        fileName : str
+            Name of the file.
+        filePath : str
+            Path for the file.
+        fileFormat : str, optional
+             Format of the file. The default is ``".step"``.
+        object_list : list, optional
+             List of objects to export. The default is ``[]``.
+        removed_objects : list, optional
+             The default is ``[]``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        warnings.warn("`export3DModel` is deprecated. Use `export_3d_model` instead.", DeprecationWarning)
+        return self.export_3d_model(fileName, filePath, fileFormat, object_list, removed_objects)
+
+    @aedt_exception_handler
+    def export_3d_model(self, fileName, filePath, fileFormat=".step", object_list=[], removed_objects=[]):
+        """Export the 3D model.
+
+        Parameters
+        ----------
+        fileName : str
+            Name of the file.
+        filePath : str
+            Path for the file.
+        fileFormat : str, optional
+             Format of the file. The default is ``".step"``.
+        object_list : list, optional
+             List of objects to export. The default is ``[]``.
+        removed_objects : list, optional
+             The default is ``[]``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        if not object_list:
+            allObjects = self.modeler.primitives.object_names
+            if removed_objects:
+                for rem in removed_objects:
+                    allObjects.remove(rem)
+            else:
+                if "Region" in allObjects:
+                    allObjects.remove("Region")
+        else:
+            allObjects = object_list[:]
+
+        self.logger.info("Exporting {} objects".format(len(allObjects)))
+
+        stringa = ",".join(allObjects)
+        arg = [
+            "NAME:ExportParameters",
+            "AllowRegionDependentPartSelectionForPMLCreation:=",
+            True,
+            "AllowRegionSelectionForPMLCreation:=",
+            True,
+            "Selections:=",
+            stringa,
+            "File Name:=",
+            str(filePath) + "/" + str(fileName) + str(fileFormat),
+            "Major Version:=",
+            -1,
+            "Minor Version:=",
+            -1,
+        ]
+
+        self.modeler.oeditor.Export(arg)
+        return True
+
+    @aedt_exception_handler
     def get_all_sources(self):
         """Retrieve all setup sources.
 
@@ -332,17 +440,6 @@ class FieldAnalysis3D(Analysis, object):
             contexts.append([s + ":" + str(i + 1) for s in sources])  # use one based indexing
         self.osolution.SetSourceContexts(contexts)
         return True
-
-    @aedt_exception_handler
-    def assignmaterial(self, obj, mat):
-        """Assign a material to one or more objects.
-
-        .. deprecated:: 0.3.1
-           Use :func:`FieldAnalysis3D.assign_material` instead.
-
-        """
-        warnings.warn("assignmaterial is deprecated. Use assign_material instead.", DeprecationWarning)
-        self.assign_material(obj, mat)
 
     @aedt_exception_handler
     def assign_material(self, obj, mat):
@@ -398,8 +495,8 @@ class FieldAnalysis3D(Analysis, object):
             else:
                 arg2.append("SolveInside:="), arg2.append(False)
             self.modeler.oeditor.AssignMaterial(arg1, arg2)
-            self.logger.glb.info("Assign Material " + mat + " to object " + selections)
-            if type(obj) is list:
+            self.logger.info("Assign Material " + mat + " to object " + selections)
+            if isinstance(obj, list):
                 for el in obj:
                     self.modeler.primitives[el].material_name = mat
             else:
@@ -413,8 +510,8 @@ class FieldAnalysis3D(Analysis, object):
             else:
                 arg2.append("SolveInside:="), arg2.append(False)
             self.modeler.oeditor.AssignMaterial(arg1, arg2)
-            self.logger.glb.info("Assign Material " + mat + " to object " + selections)
-            if type(obj) is list:
+            self.logger.info("Assign Material " + mat + " to object " + selections)
+            if isinstance(obj, list):
                 for el in obj:
                     self.modeler.primitives[el].material_name = mat
             else:
@@ -422,7 +519,7 @@ class FieldAnalysis3D(Analysis, object):
 
             return True
         else:
-            self.logger.glb.error("Material does not exist.")
+            self.logger.error("Material does not exist.")
             return False
 
     @aedt_exception_handler

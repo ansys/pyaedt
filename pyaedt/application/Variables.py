@@ -94,14 +94,11 @@ def unit_system(units):
     ``False`` when the units specified are not defined in AEDT units.
 
     """
-    found = False
-    for unit_type, unit_list in AEDT_units.items():
-        for test_unit in unit_list:
-            if test_unit == units:
-                found = True
-                break
-        if found:
+
+    for unit_type, unit_dict in AEDT_units.items():
+        if units in unit_dict:
             return unit_type
+
     return False
 
 
@@ -839,14 +836,18 @@ class VariableManager(object):
         var_dict = {}
         all_names = {}
         for obj in object_list:
-            for variable_name in obj.GetVariables():
+            try:
+                listvar = list(obj.GetChildObject('Variables').GetChildNames())
+            except:
+                listvar = list(obj.GetVariables())
+            for variable_name in listvar:
                 variable_expression = self.get_expression(variable_name)
                 all_names[variable_name] = variable_expression
                 try:
                     value = Variable(variable_expression)
                     if independent and is_number(value.value):
                         var_dict[variable_name] = value
-                    elif dependent and type(value.value) is str:
+                    elif dependent and isinstance(value.value, str):
                         float_value = self._app.get_evaluated_value(variable_name)
                         var_dict[variable_name] = Expression(variable_expression, float_value, all_names)
                 except:
@@ -973,7 +974,10 @@ class VariableManager(object):
             prop_type = "PostProcessingVariableProp"
 
         # Get all design and project variables in lower case for a case-sensitive comparison
-        var_list = desktop_object.GetVariables()
+        try:
+            var_list = list(desktop_object.GetChildObject('Variables').GetChildNames())
+        except:
+            var_list = list(desktop_object.GetVariables())
         lower_case_vars = [var_name.lower() for var_name in var_list]
 
         if variable_name.lower() not in lower_case_vars:
@@ -1095,12 +1099,12 @@ class VariableManager(object):
         return False
 
     @aedt_exception_handler
-    def delete_variable(self, sVarName):
+    def delete_variable(self, var_name):
         """Delete a variable.
 
         Parameters
         ----------
-        sVarName : str
+        var_name : str
             Name of the variable.
 
 
@@ -1110,13 +1114,15 @@ class VariableManager(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        desktop_object = self.aedt_object(sVarName)
+        desktop_object = self.aedt_object(var_name)
         var_type = "Project" if desktop_object == self._oproject else "Local"
-
-        var_list = desktop_object.GetVariables()
+        try:
+            var_list = list(desktop_object.GetChildObject('Variables').GetChildNames())
+        except:
+            var_list = list(desktop_object.GetVariables())
         lower_case_vars = [var_name.lower() for var_name in var_list]
 
-        if sVarName.lower() in lower_case_vars:
+        if var_name.lower() in lower_case_vars:
             try:
                 desktop_object.ChangeProperty(
                     [
@@ -1124,7 +1130,7 @@ class VariableManager(object):
                         [
                             "NAME:{0}VariableTab".format(var_type),
                             ["NAME:PropServers", "{0}Variables".format(var_type)],
-                            ["NAME:DeletedProps", sVarName],
+                            ["NAME:DeletedProps", var_name],
                         ],
                     ]
                 )

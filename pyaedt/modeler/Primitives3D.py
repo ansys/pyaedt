@@ -4,7 +4,7 @@ from pyaedt.modeler.Primitives import Primitives
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 from pyaedt.modeler.multiparts import MultiPartComponent, Environment
 from pyaedt.modeler.actors import Person, Bird, Vehicle
-from pyaedt.generic.general_methods import retry_ntimes
+from pyaedt.generic.general_methods import _retry_ntimes
 
 
 class Primitives3D(Primitives, object):
@@ -82,7 +82,7 @@ class Primitives3D(Primitives, object):
         vArg1.append("YSize:="), vArg1.append(YSize)
         vArg1.append("ZSize:="), vArg1.append(ZSize)
         vArg2 = self._default_object_attributes(name=name, matname=matname)
-        new_object_name = retry_ntimes(10, self._oeditor.CreateBox, vArg1, vArg2)
+        new_object_name = _retry_ntimes(10, self._oeditor.CreateBox, vArg1, vArg2)
         return self._create_object(new_object_name)
 
     @aedt_exception_handler
@@ -378,7 +378,7 @@ class Primitives3D(Primitives, object):
         elif bond_type == 2:
             bondwire = "LOW"
         else:
-            self.logger.glb.error("Wrong Profile Type")
+            self.logger.error("Wrong Profile Type")
             return False
         vArg1 = ["NAME:BondwireParameters"]
         vArg1.append("WireType:="), vArg1.append(bondwire)
@@ -703,13 +703,13 @@ class Primitives3D(Primitives, object):
         vArgParamVector = ["NAME:GeometryParams"]
 
         for pair in udm_params_list:
-            if type(pair) is list:
+            if isinstance(pair, list):
                 name = pair[0]
                 val = pair[1]
             else:
                 name = pair.Name
                 val = pair.Value
-            if type(val) is int:
+            if isinstance(val, int):
                 vArgParamVector.append(
                     ["NAME:UDMParam", "Name:=", name, "Value:=", str(val), "PropType2:=", 3, "PropFlag2:=", 2])
             elif str(val)[0] in '0123456789':
@@ -815,11 +815,11 @@ class Primitives3D(Primitives, object):
     @aedt_exception_handler
     def _check_actor_folder(self, actor_folder):
         if not os.path.exists(actor_folder):
-            self.logger.glb.error("Folder {} does not exist.".format(actor_folder))
+            self.logger.error("Folder {} does not exist.".format(actor_folder))
             return False
         if not any(fname.endswith('.json') for fname in os.listdir(actor_folder)) or not any(
                 fname.endswith('.a3dcomp') for fname in os.listdir(actor_folder)):
-            self.logger.glb.error("At least one json and one a3dcomp file is needed.")
+            self.logger.error("At least one json and one a3dcomp file is needed.")
             return False
         return True
 

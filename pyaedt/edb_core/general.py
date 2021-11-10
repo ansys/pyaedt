@@ -74,7 +74,7 @@ def convert_py_list_to_net_list(pylist):
     list
         List converted to Net.
     """
-    if type(pylist) is not list and type(pylist) is not tuple:
+    if not isinstance(pylist, (list, tuple)):
         pylist = [pylist]
     ls = list([type(item) for item in pylist])
     if len(ls) > 0:

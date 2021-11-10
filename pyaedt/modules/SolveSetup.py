@@ -14,7 +14,7 @@ import os.path
 from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name
 
 from pyaedt.modules.SetupTemplates import SweepHFSS, SweepQ3D, SetupKeys, SweepHFSS3DLayout
-from pyaedt.generic.DataHandlers import tuple2dict, dict2arg
+from pyaedt.generic.DataHandlers import _tuple2dict, _dict2arg
 
 
 class Setup(object):
@@ -66,7 +66,7 @@ class Setup(object):
         if isnewsetup:
             setup_template = SetupKeys.SetupTemplates[self.setuptype]
             for t in setup_template:
-                tuple2dict(t, self.props)
+                _tuple2dict(t, self.props)
         else:
             try:
                 setups_data = self.p_app.design_properties["AnalysisSetup"]["SolveSetups"]
@@ -107,7 +107,7 @@ class Setup(object):
         """
         soltype = SetupKeys.SetupNames[self.setuptype]
         arg = ["NAME:" + self.name]
-        dict2arg(self.props, arg)
+        _dict2arg(self.props, arg)
         self.omodule.InsertSetup(soltype, arg)
         return arg
 
@@ -130,7 +130,7 @@ class Setup(object):
             for el in update_dictionary:
                 self.props[el] = update_dictionary[el]
         arg = ["NAME:" + self.name]
-        dict2arg(self.props, arg)
+        _dict2arg(self.props, arg)
 
         self.omodule.EditSetup(self.name, arg)
         return True
@@ -290,7 +290,7 @@ class Setup(object):
 
         """
         arg = ["NAME:" + self.name]
-        dict2arg(self.props, arg)
+        _dict2arg(self.props, arg)
         expression_cache = self._expression_cache(
             expressions, report_type, intrinsics, isconvergence, isrelativeconvergence, conv_criteria
         )
@@ -314,7 +314,7 @@ class Setup(object):
 
         """
         arg = ["NAME:" + self.name]
-        dict2arg(self.props, arg)
+        _dict2arg(self.props, arg)
         arg.append("VariablesForDerivatives:=")
         arg.append(derivative_list)
         self.omodule.EditSetup(self.name, arg)
@@ -464,7 +464,7 @@ class SetupCircuit(object):
         if isnewsetup:
             setup_template = SetupKeys.SetupTemplates[self.setuptype]
             for t in setup_template:
-                tuple2dict(t, self.props)
+                _tuple2dict(t, self.props)
         else:
             try:
                 setups_data = self.p_app.design_properties["SimSetups"]["SimSetup"]
@@ -539,7 +539,7 @@ class SetupCircuit(object):
         """
         soltype = SetupKeys.SetupNames[self.setuptype]
         arg = ["NAME:SimSetup"]
-        dict2arg(self.props, arg)
+        _dict2arg(self.props, arg)
         self._setup(soltype, arg)
         return arg
 
@@ -616,7 +616,7 @@ class SetupCircuit(object):
                 self.props[el] = update_dictionary[el]
         arg = ["NAME:SimSetup"]
         soltype = SetupKeys.SetupNames[self.setuptype]
-        dict2arg(self.props, arg)
+        _dict2arg(self.props, arg)
         self._setup(soltype, arg, False)
         return True
 
@@ -771,7 +771,7 @@ class SetupCircuit(object):
 
         """
         arg = ["Name:SimSetup"]
-        dict2arg(self.props, arg)
+        _dict2arg(self.props, arg)
         expression_cache = self._expression_cache(
             expressions, report_type, intrinsics, isconvergence, isrelativeconvergence, conv_criteria
         )
@@ -795,7 +795,7 @@ class SetupCircuit(object):
 
         """
         arg = ["Name:SimSetup"]
-        dict2arg(self.props, arg)
+        _dict2arg(self.props, arg)
         arg.append("VariablesForDerivatives:=")
         arg.append(derivative_list)
         self.omodule.EditSetup(self.name, arg)
@@ -883,7 +883,7 @@ class Setup3DLayout(object):
         if isnewsetup:
             setup_template = SetupKeys.SetupTemplates[self._solutiontype]
             for t in setup_template:
-                tuple2dict(t, self.props)
+                _tuple2dict(t, self.props)
         else:
             try:
                 setups_data = self._app.design_properties["Setup"]["Data"]
@@ -930,7 +930,7 @@ class Setup3DLayout(object):
 
         """
         arg = ["NAME:" + self.name]
-        dict2arg(self.props, arg)
+        _dict2arg(self.props, arg)
         self.omodule.Add(arg)
         return True
 
@@ -950,7 +950,7 @@ class Setup3DLayout(object):
 
         """
         arg = ["NAME:" + self.name]
-        dict2arg(self.props, arg)
+        _dict2arg(self.props, arg)
         self.omodule.Edit(self.name, arg)
         return True
 

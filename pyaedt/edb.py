@@ -70,7 +70,7 @@ class Edb(object):
         Whether to open ``edb_core`` in read-only mode when it is
         owned by HFSS 3D Layout. The default is ``False``.
     edbversion : str, optional
-        Version of ``edb_core`` to use. The default is ``"2021.1"``.
+        Version of ``edb_core`` to use. The default is ``"2021.2"``.
     isaedtowned : bool, optional
         Whether to launch ``edb_core`` from HFSS 3D Layout. The
         default is ``False``.
@@ -97,7 +97,7 @@ class Edb(object):
             edbpath=None,
             cellname=None,
             isreadonly=False,
-            edbversion="2021.1",
+            edbversion="2021.2",
             isaedtowned=False,
             oproject=None,
             student_version=False,
@@ -222,85 +222,6 @@ class Edb(object):
         return self._logger
 
     @aedt_exception_handler
-    def add_info_message(self, message_text):
-        """Add a type 0 "Info" message to the active design level of the Message Manager tree.
-
-        Also add an info message to the logger if the handler is present.
-
-        Parameters
-        ----------
-        message_text : str
-            Text to display as the info message.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        Examples
-        --------
-        >>> from pyaedt import Edb
-        >>> edb = Edb()
-        >>> edb.add_info_message("Design info message")
-
-        """
-        self.logger.info(message_text)
-        return True
-
-    @aedt_exception_handler
-    def add_warning_message(self, message_text):
-        """Add a type 0 "Warning" message to the active design level of the Message Manager tree.
-
-        Also add an info message to the logger if the handler is present.
-
-        Parameters
-        ----------
-        message_text : str
-            Text to display as the warning message.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        Examples
-        --------
-        >>> from pyaedt import Edb
-        >>> edb = Edb()
-        >>> edb.add_warning_message("Design warning message")
-
-        """
-        self.logger.warning(message_text)
-        return True
-
-    @aedt_exception_handler
-    def add_error_message(self, message_text):
-        """Add a type 0 "Error" message to the active design level of the Message Manager tree.
-
-        Also add an error message to the logger if the handler is present.
-
-        Parameters
-        ----------
-        message_text : str
-            Text to display as the error message.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-
-        Examples
-        --------
-        >>> from pyaedt import Edb
-        >>> edb = Edb()
-        >>> edb.add_error_message("Design error message")
-
-        """
-        self.logger.error(message_text)
-        return True
-
-    @aedt_exception_handler
     def _init_dlls(self):
         """Initialize DLLs."""
         sys.path.append(os.path.join(os.path.dirname(__file__), "dlls", "EDBLib"))
@@ -314,6 +235,13 @@ class Edb(object):
                     self.base_path = main.oDesktop.GetExeDir()
                     sys.path.append(main.oDesktop.GetExeDir())
                     os.environ[env_value(self.edbversion)] = self.base_path
+                else:
+                    edb_path = os.getenv("PYAEDT_SERVER_AEDT_PATH")
+                    if edb_path:
+                        self.base_path = edb_path
+                        sys.path.append(edb_path)
+                        os.environ[env_value(self.edbversion)] = self.base_path
+
             clr.AddReferenceToFile("Ansys.Ansoft.Edb.dll")
             clr.AddReferenceToFile("Ansys.Ansoft.EdbBuilderUtils.dll")
             clr.AddReferenceToFile("EdbLib.dll")
@@ -1223,7 +1151,7 @@ class Edb(object):
 
         >>> from pyaedt import Edb
 
-        >>> edb = Edb(edbpath=r"C:\temp\myproject.aedb", edbversion="2021.1")
+        >>> edb = Edb(edbpath=r"C:\temp\myproject.aedb", edbversion="2021.2")
 
         >>> options_config = {'UNITE_NETS' : 1, 'LAUNCH_Q3D' : 0}
         >>> edb.write_export3d_option_config_file(r"C:\temp", options_config)
@@ -1260,7 +1188,7 @@ class Edb(object):
 
         >>> from pyaedt import Edb
 
-        >>> edb = Edb(edbpath=r"C:\temp\myproject.aedb", edbversion="2021.1")
+        >>> edb = Edb(edbpath=r"C:\temp\myproject.aedb", edbversion="2021.2")
 
         >>> options_config = {'UNITE_NETS' : 1, 'LAUNCH_Q3D' : 0}
         >>> edb.write_export3d_option_config_file(r"C:\temp", options_config)
@@ -1299,7 +1227,7 @@ class Edb(object):
 
         >>> from pyaedt import Edb
 
-        >>> edb = Edb(edbpath=r"C:\temp\myproject.aedb", edbversion="2021.1")
+        >>> edb = Edb(edbpath=r"C:\temp\myproject.aedb", edbversion="2021.2")
 
         >>> options_config = {'UNITE_NETS' : 1, 'LAUNCH_Q3D' : 0}
         >>> edb.write_export3d_option_config_file(r"C:\temp", options_config)

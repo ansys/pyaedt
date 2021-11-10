@@ -110,7 +110,7 @@ class Siwave:
                 # but doesn't return the wrapper of oApp
                 print("Launching Siwave with Module win32com")
 
-                self._main.oSiwave = win32com.client.Dispatch("Siwave.Application.2021.1")
+                self._main.oSiwave = win32com.client.Dispatch("Siwave.Application.2021.2")
 
             self._main.AEDTVersion = version_key
             self.oSiwave = self._main.oSiwave
@@ -121,9 +121,9 @@ class Siwave:
         pass
         # self.logger = logging.getLogger(__name__)
         # if not self.logger.handlers:
-        #     project_dir = self._main.oSiwave.GetProjectDirectory()
+        #     output_dir = self._main.oSiwave.GetProjectDirectory()
         #     logging.basicConfig(
-        #         filename=os.path.join(project_dir, "pyaedt.log"),
+        #         filename=os.path.join(output_dir, "pyaedt.log"),
         #         level=logging.DEBUG,
         #         format='%(asctime)s:%(name)s:%(levelname)-8s:%(message)s',
         #         datefmt='%Y/%m/%d %H.%M.%S')

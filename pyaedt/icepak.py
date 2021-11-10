@@ -9,7 +9,7 @@ from collections import OrderedDict
 
 from pyaedt.application.AnalysisIcepak import FieldAnalysisIcepak
 from pyaedt.generic.general_methods import generate_unique_name, aedt_exception_handler
-from pyaedt.generic.DataHandlers import arg2dict
+from pyaedt.generic.DataHandlers import _arg2dict
 from pyaedt.modules.Boundary import BoundaryObject, NativeComponentObject
 
 
@@ -91,7 +91,7 @@ class Icepak(FieldAnalysisIcepak):
     Create an instance of Icepak using the 2021 R1 release and
     open the specified project, which is ``myipk2.aedt``.
 
-    >>> icepak = Icepak(specified_version="2021.1", projectname="myipk2.aedt")
+    >>> icepak = Icepak(specified_version="2021.2", projectname="myipk2.aedt")
     pyaedt info: Project...
     pyaedt info: No design is present. Inserting a new design.
     pyaedt info: Added design...
@@ -207,7 +207,7 @@ class Icepak(FieldAnalysisIcepak):
         bound = BoundaryObject(self, boundary_name, props, "Grille")
         if bound.create():
             self.boundaries.append(bound)
-            self.logger.glb.info("Grille Assigned")
+            self.logger.info("Grille Assigned")
             return bound
         return None
 
@@ -250,7 +250,7 @@ class Icepak(FieldAnalysisIcepak):
         bound = BoundaryObject(self, boundary_name, props, "Opening")
         if bound.create():
             self.boundaries.append(bound)
-            self.logger.glb.info("Opening Assigned")
+            self.logger.info("Opening Assigned")
             return bound
         return None
 
@@ -287,7 +287,7 @@ class Icepak(FieldAnalysisIcepak):
             if self.setups:
                 setup_name = self.setups[0].name
             else:
-                self.logger.glb.error("No setup is defined.")
+                self.logger.error("No setup is defined.")
                 return False
         self.oanalysis.AddTwoWayCoupling(
             setup_name,
@@ -417,7 +417,7 @@ class Icepak(FieldAnalysisIcepak):
         bound = BoundaryObject(self, boundary_name, props, "Block")
         if bound.create():
             self.boundaries.append(bound)
-            self.logger.glb.info(
+            self.logger.info(
                 "Block on {} with {} Power, created correctly.".format(object_name, input_power)
             )
             return bound
@@ -777,7 +777,7 @@ class Icepak(FieldAnalysisIcepak):
                         "COMP_" + component_data["Ref Des"][i], str(power) + "W", assign_material=False
                     )
                     if not status:
-                        self.logger.glb.warning(
+                        self.logger.warning(
                             "Warning. Block %s skipped with %sW power.", component_data["Ref Des"][i], power)
                     else:
                         total_power += float(power)
@@ -786,14 +786,14 @@ class Icepak(FieldAnalysisIcepak):
                         component_data["Ref Des"][i], str(power) + "W", assign_material=False
                     )
                     if not status:
-                        self.logger.glb.warning(
+                        self.logger.warning(
                             "Warning. Block %s skipped with %sW power.", component_data["Ref Des"][i], power)
                     else:
                         total_power += float(power)
             except:
                 pass
             i += 1
-        self.logger.glb.info("Blocks inserted with total power %sW.", total_power)
+        self.logger.info("Blocks inserted with total power %sW.", total_power)
         return total_power
 
     @aedt_exception_handler
@@ -1192,7 +1192,7 @@ class Icepak(FieldAnalysisIcepak):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self.logger.glb.info("Mapping HFSS EM losses.")
+        self.logger.info("Mapping HFSS EM losses.")
         oName = self.project_name
         if oName == source_project_name or source_project_name is None:
             projname = "This Project*"
@@ -1241,7 +1241,7 @@ class Icepak(FieldAnalysisIcepak):
         bound = BoundaryObject(self, name, props, "EMLoss")
         if bound.create():
             self.boundaries.append(bound)
-            self.logger.glb.info("EM losses mapped from design %s.", designname)
+            self.logger.info("EM losses mapped from design %s.", designname)
             return bound
         return False
 
@@ -1464,7 +1464,7 @@ class Icepak(FieldAnalysisIcepak):
         all_objs_NonModeled = list(self.modeler.oeditor.GetObjectsInGroup("Non Model"))
         all_objs_model = [item for item in all_objs if item not in all_objs_NonModeled]
         arg = []
-        self.logger.glb.info("Objects lists " + str(all_objs_model))
+        self.logger.info("Objects lists " + str(all_objs_model))
         for el in all_objs_model:
             try:
                 self.osolution.EditFieldsSummarySetting(
@@ -1473,8 +1473,8 @@ class Icepak(FieldAnalysisIcepak):
                 arg.append("Calculation:=")
                 arg.append([type, geometryType, el, quantity, "", "Default"])
             except Exception as e:
-                self.logger.glb.error("Object " + el + " not added.")
-                self.logger.glb.error(str(e))
+                self.logger.error("Object " + el + " not added.")
+                self.logger.error(str(e))
         if not output_dir:
             output_dir = self.project_path
         self.osolution.EditFieldsSummarySetting(arg)
@@ -1643,7 +1643,7 @@ class Icepak(FieldAnalysisIcepak):
         """
         lowRad, highRad = self.get_radiation_settings(rad)
         hfssLinkInfo = OrderedDict({})
-        arg2dict(self.get_link_data(setupLinkInfo), hfssLinkInfo)
+        _arg2dict(self.get_link_data(setupLinkInfo), hfssLinkInfo)
 
         native_props = OrderedDict(
             {
@@ -1760,7 +1760,7 @@ class Icepak(FieldAnalysisIcepak):
         if close_linked_project_after_import and ".aedt" in project_name:
             prjname = os.path.splitext(os.path.basename(project_name))[0]
             self.close_project(prjname, saveproject=False)
-        self.logger.glb.info("PCB component correctly created in Icepak.")
+        self.logger.info("PCB component correctly created in Icepak.")
         return status
 
     @aedt_exception_handler
@@ -1798,62 +1798,6 @@ class Icepak(FieldAnalysisIcepak):
         self.modeler.oeditor.Paste()
         self.modeler.primitives.refresh_all_ids()
         self.materials._load_from_project()
-        return True
-
-    @aedt_exception_handler
-    def export3DModel(self, fileName, filePath, fileFormat=".step", object_list=[], removed_objects=[]):
-        """Export the 3D model.
-
-        Parameters
-        ----------
-        fileName : str
-            Name of the file.
-        filePath : str
-            Path for the file.
-        fileFormat : str, optional
-             Format of the file. The default is ``".step"``.
-        object_list : list, optional
-             List of objects to export. The default is ``[]``.
-        removed_objects : list, optional
-             The default is ``[]``.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        """
-        if not object_list:
-            allObjects = self.modeler.primitives.object_names
-            if removed_objects:
-                for rem in removed_objects:
-                    allObjects.remove(rem)
-            else:
-                if "Region" in allObjects:
-                    allObjects.remove("Region")
-        else:
-            allObjects = object_list[:]
-
-        self.logger.info("Exporting {} objects".format(len(allObjects)))
-
-        stringa = ",".join(allObjects)
-        arg = [
-            "NAME:ExportParameters",
-            "AllowRegionDependentPartSelectionForPMLCreation:=",
-            True,
-            "AllowRegionSelectionForPMLCreation:=",
-            True,
-            "Selections:=",
-            stringa,
-            "File Name:=",
-            str(filePath) + "/" + str(fileName) + str(fileFormat),
-            "Major Version:=",
-            -1,
-            "Minor Version:=",
-            -1,
-        ]
-
-        self.modeler.oeditor.Export(arg)
         return True
 
     @aedt_exception_handler

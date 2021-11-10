@@ -19,7 +19,7 @@ class TestClass:
     def setup_class(self):
         # set a scratch directory and the environment / test data
         with Scratch(scratch_path) as self.local_scratch:
-            self.aedtapp = Hfss(new_desktop_session=True)
+            self.aedtapp = Hfss()
 
     def teardown_class(self):
         self.aedtapp._desktop.ClearMessages("", "", 3)
@@ -83,7 +83,7 @@ class TestClass:
     )
     def test_04_assign_coating(self, object_name, kwargs):
         id = self.aedtapp.modeler.primitives.get_obj_id(object_name)
-        coat = self.aedtapp.assigncoating([id], **kwargs)
+        coat = self.aedtapp.assign_coating([id], **kwargs)
         material = coat.props.get("Material", "")
         assert material == kwargs.get("mat", "")
 
@@ -560,3 +560,8 @@ class TestClass:
             self.aedtapp.CoordinateSystemPlane.XYPlane, [0, 0, 0], [5, 1], name="RectangleForSource", matname="Copper"
         )
         assert self.aedtapp.assign_current_source_to_sheet(sheet.name)
+
+    def test_41_export_step(self):
+        file_path = self.local_scratch.path
+        file_name = "test_step"
+        assert self.aedtapp.export_3d_model(file_name, file_path, ".step", [], [])
