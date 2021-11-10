@@ -1780,13 +1780,13 @@ class Hfss(FieldAnalysis3D, object):
         phase_delay : str, optional
             Define the phase delay approach. Default is `"UseScanAngle"`.
             Options are `"UseScanUV"`, `"InputPhaseDelay"`
-        phase_delay_param1: str, optional
+        phase_delay_param1 : str, optional
             Phi Angle if "UseScanAngle" is used. U value if "UseScanUV" is used".
             "Phase" if "InputPhaseDelay". Default is `0deg`.
-        phase_delay_param2:  str, optional
+        phase_delay_param2 :  str, optional
             Theta Angle if "UseScanAngle" is used. V value if "UseScanUV" is used".
             Default is `0deg`.
-        pair_name: str, optional
+        pair_name : str, optional
             Boundary name.
 
         Returns
@@ -1848,26 +1848,26 @@ class Hfss(FieldAnalysis3D, object):
         ----------
         face : int, FacePrimitive
             Face to assign the lattice pair.
-        primary_name: str
+        primary_name : str
             Name of the Primary boundary to couple.
-        u_start: list
+        u_start : list
             List of [x,y,z] values for start point of U vector.
-        u_end: list
+        u_end : list
             List of [x,y,z] values for end point of U vector.
         reverse_v : bool, optional
             Reverse V Vector. Default is `False`.
         phase_delay : str, optional
             Define the phase delay approach. Default is `"UseScanAngle"`.
             Options are `"UseScanUV"`, `"InputPhaseDelay"`
-        phase_delay_param1: str, optional
+        phase_delay_param1 : str, optional
             Phi Angle if "UseScanAngle" is used. U value if "UseScanUV" is used".
             "Phase" if "InputPhaseDelay". Default is `0deg`.
-        phase_delay_param2:  str, optional
+        phase_delay_param2 :  str, optional
             Theta Angle if "UseScanAngle" is used. V value if "UseScanUV" is used".
             Default is `0deg`.
         coord_name : str, optional
             Name of the coordinate system for u coordinates.
-        secondary_name: str, optional
+        secondary_name : str, optional
             Boundary name.
 
         Returns
@@ -1912,15 +1912,15 @@ class Hfss(FieldAnalysis3D, object):
         ----------
         face : int, FacePrimitive
             Face to assign the lattice pair.
-        u_start: list
+        u_start : list
             List of [x,y,z] values for start point of U vector.
-        u_end: list
+        u_end : list
             List of [x,y,z] values for end point of U vector.
         reverse_v : bool, optional
             Reverse V Vector. Default is `False`.
         coord_name : str, optional
             Name of the coordinate system for u coordinates.
-        primary_name: str, optional
+        primary_name : str, optional
             Boundary name.
 
         Returns
