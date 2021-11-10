@@ -13,7 +13,7 @@ def test_report_file_parser():
                 "x_unit": "meter",
                 "y_unit": "A_per_m",
                 "curves": {
-                    "Freq=\\'1e-08GHz\\' Ip=\\'10mA\\' Phase=\\'0deg\\'": {
+                    "Freq=\"1e-08GHz\" Ip=\"10mA\" Phase=\"0deg\"": {
                         "x_data": [
                             0,
                             2.2449795918367348e-05,
@@ -119,7 +119,7 @@ def test_report_file_parser():
                             4.430559106125551,
                         ],
                     },
-                    "Freq=\\'2.575e-07GHz\\' Ip=\\'10mA\\' Phase=\\'0deg\\'": {
+                    "Freq=\"2.575e-07GHz\" Ip=\"10mA\" Phase=\"0deg\"": {
                         "x_data": [
                             2.2449795918367348e-05,
                             4.4899591836734695e-05,
@@ -225,7 +225,7 @@ def test_report_file_parser():
                             3.759891802559506,
                         ],
                     },
-                    "Freq=\\'5.05e-07GHz\\' Ip=\\'10mA\\' Phase=\\'0deg\\'": {
+                    "Freq=\"5.05e-07GHz\" Ip=\"10mA\" Phase=\"0deg\"": {
                         "x_data": [
                             4.4899591836734695e-05,
                             6.734938775510204e-05,
@@ -331,7 +331,7 @@ def test_report_file_parser():
                             3.788181676852373,
                         ],
                     },
-                    "Freq=\\'7.525e-07GHz\\' Ip=\\'10mA\\' Phase=\\'0deg\\'": {
+                    "Freq=\"7.525e-07GHz\" Ip=\"10mA\" Phase=\"0deg\"": {
                         "x_data": [
                             6.734938775510204e-05,
                             8.979918367346939e-05,
@@ -437,7 +437,7 @@ def test_report_file_parser():
                             3.8156716173410565,
                         ],
                     },
-                    "Freq=\\'1e-06GHz\\' Ip=\\'10mA\\' Phase=\\'0deg\\'": {
+                    "Freq=\"1e-06GHz\" Ip=\"10mA\" Phase=\"0deg\"": {
                         "x_data": [
                             8.979918367346939e-05,
                             0.00011224897959183674,
@@ -543,7 +543,7 @@ def test_report_file_parser():
                             3.841017149436518,
                         ],
                     },
-                    "Freq=\\'1e-05GHz\\' Ip=\\'10mA\\' Phase=\\'0deg\\'": {
+                    "Freq=\"1e-05GHz\" Ip=\"10mA\" Phase=\"0deg\"": {
                         "x_data": [
                             0.00011224897959183674,
                             0.00013469877551020409,
@@ -646,7 +646,7 @@ def test_report_file_parser():
                 "x_unit": "meter",
                 "y_unit": "tesla",
                 "curves": {
-                    "Freq=\\'1e-08GHz\\' Ip=\\'10mA\\' Phase=\\'0deg\\'": {
+                    "Freq=\"1e-08GHz\" Ip=\"10mA\" Phase=\"0deg\"": {
                         "x_data": [
                             0,
                             2.2449795918367348e-05,
@@ -752,7 +752,7 @@ def test_report_file_parser():
                             5.567554667196776e-06,
                         ],
                     },
-                    "Freq=\\'2.575e-07GHz\\' Ip=\\'10mA\\' Phase=\\'0deg\\'": {
+                    "Freq=\"2.575e-07GHz\" Ip=\"10mA\" Phase=\"0deg\"": {
                         "x_data": [
                             2.2449795918367348e-05,
                             4.4899591836734695e-05,
@@ -858,7 +858,7 @@ def test_report_file_parser():
                             4.724776862710896e-06,
                         ],
                     },
-                    "Freq=\\'5.05e-07GHz\\' Ip=\\'10mA\\' Phase=\\'0deg\\'": {
+                    "Freq=\"5.05e-07GHz\" Ip=\"10mA\" Phase=\"0deg\"": {
                         "x_data": [
                             4.4899591836734695e-05,
                             6.734938775510204e-05,
@@ -964,7 +964,7 @@ def test_report_file_parser():
                             4.760326647259736e-06,
                         ],
                     },
-                    "Freq=\\'7.525e-07GHz\\' Ip=\\'10mA\\' Phase=\\'0deg\\'": {
+                    "Freq=\"7.525e-07GHz\" Ip=\"10mA\" Phase=\"0deg\"": {
                         "x_data": [
                             6.734938775510204e-05,
                             8.979918367346939e-05,
@@ -1070,7 +1070,7 @@ def test_report_file_parser():
                             4.794871214390582e-06,
                         ],
                     },
-                    "Freq=\\'1e-06GHz\\' Ip=\\'10mA\\' Phase=\\'0deg\\'": {
+                    "Freq=\"1e-06GHz\" Ip=\"10mA\" Phase=\"0deg\"": {
                         "x_data": [
                             8.979918367346939e-05,
                             0.00011224897959183674,
@@ -1176,7 +1176,7 @@ def test_report_file_parser():
                             4.826721062712338e-06,
                         ],
                     },
-                    "Freq=\\'1e-05GHz\\' Ip=\\'10mA\\' Phase=\\'0deg\\'": {
+                    "Freq=\"1e-05GHz\" Ip=\"10mA\" Phase=\"0deg\"": {
                         "x_data": [
                             0.00011224897959183674,
                             0.00013469877551020409,
@@ -1279,7 +1279,7 @@ def test_report_file_parser():
                 "x_unit": "meter",
                 "y_unit": "",
                 "curves": {
-                    "Freq=\\'1e-08GHz\\' Ip=\\'10mA\\' Phase=\\'0deg\\'": {
+                    "Freq=\"1e-08GHz\" Ip=\"10mA\" Phase=\"0deg\"": {
                         "x_data": [
                             0,
                             1.3924556962025317e-05,
@@ -1445,7 +1445,7 @@ def test_report_file_parser():
                             2.355219013977738,
                         ],
                     },
-                    "Freq=\\'2.575e-07GHz\\' Ip=\\'10mA\\' Phase=\\'0deg\\'": {
+                    "Freq=\"2.575e-07GHz\" Ip=\"10mA\" Phase=\"0deg\"": {
                         "x_data": [
                             1.3924556962025317e-05,
                             2.7849113924050634e-05,
@@ -1611,7 +1611,7 @@ def test_report_file_parser():
                             2.355739202137682,
                         ],
                     },
-                    "Freq=\\'5.05e-07GHz\\' Ip=\\'10mA\\' Phase=\\'0deg\\'": {
+                    "Freq=\"5.05e-07GHz\" Ip=\"10mA\" Phase=\"0deg\"": {
                         "x_data": [
                             2.7849113924050634e-05,
                             4.177367088607595e-05,
@@ -1777,7 +1777,7 @@ def test_report_file_parser():
                             2.3563287252448957,
                         ],
                     },
-                    "Freq=\\'7.525e-07GHz\\' Ip=\\'10mA\\' Phase=\\'0deg\\'": {
+                    "Freq=\"7.525e-07GHz\" Ip=\"10mA\" Phase=\"0deg\"": {
                         "x_data": [
                             4.177367088607595e-05,
                             5.569822784810127e-05,
@@ -1943,7 +1943,7 @@ def test_report_file_parser():
                             2.35710209265958,
                         ],
                     },
-                    "Freq=\\'1e-06GHz\\' Ip=\\'10mA\\' Phase=\\'0deg\\'": {
+                    "Freq=\"1e-06GHz\" Ip=\"10mA\" Phase=\"0deg\"": {
                         "x_data": [
                             5.569822784810127e-05,
                             6.962278481012659e-05,
@@ -2109,7 +2109,7 @@ def test_report_file_parser():
                             2.535391233444374,
                         ],
                     },
-                    "Freq=\\'1e-05GHz\\' Ip=\\'10mA\\' Phase=\\'0deg\\'": {
+                    "Freq=\"1e-05GHz\" Ip=\"10mA\" Phase=\"0deg\"": {
                         "x_data": [
                             6.962278481012659e-05,
                             8.35473417721519e-05,
@@ -2272,7 +2272,7 @@ def test_report_file_parser():
                 "x_unit": "meter",
                 "y_unit": "A_per_m",
                 "curves": {
-                    "Freq=\\'1e-08GHz\\' Ip=\\'10mA\\' Phase=\\'0deg\\'": {
+                    "Freq=\"1e-08GHz\" Ip=\"10mA\" Phase=\"0deg\"": {
                         "x_data": [
                             0,
                             2.2449795918367348e-05,
@@ -2378,7 +2378,7 @@ def test_report_file_parser():
                             4.430559106125551,
                         ],
                     },
-                    "Freq=\\'2.575e-07GHz\\' Ip=\\'10mA\\' Phase=\\'0deg\\'": {
+                    "Freq=\"2.575e-07GHz\" Ip=\"10mA\" Phase=\"0deg\"": {
                         "x_data": [
                             2.2449795918367348e-05,
                             4.4899591836734695e-05,
@@ -2484,7 +2484,7 @@ def test_report_file_parser():
                             3.759891802559506,
                         ],
                     },
-                    "Freq=\\'5.05e-07GHz\\' Ip=\\'10mA\\' Phase=\\'0deg\\'": {
+                    "Freq=\"5.05e-07GHz\" Ip=\"10mA\" Phase=\"0deg\"": {
                         "x_data": [
                             4.4899591836734695e-05,
                             6.734938775510204e-05,
@@ -2590,7 +2590,7 @@ def test_report_file_parser():
                             3.788181676852373,
                         ],
                     },
-                    "Freq=\\'7.525e-07GHz\\' Ip=\\'10mA\\' Phase=\\'0deg\\'": {
+                    "Freq=\"7.525e-07GHz\" Ip=\"10mA\" Phase=\"0deg\"": {
                         "x_data": [
                             6.734938775510204e-05,
                             8.979918367346939e-05,
@@ -2696,7 +2696,7 @@ def test_report_file_parser():
                             3.8156716173410565,
                         ],
                     },
-                    "Freq=\\'1e-06GHz\\' Ip=\\'10mA\\' Phase=\\'0deg\\'": {
+                    "Freq=\"1e-06GHz\" Ip=\"10mA\" Phase=\"0deg\"": {
                         "x_data": [
                             8.979918367346939e-05,
                             0.00011224897959183674,
@@ -2802,7 +2802,7 @@ def test_report_file_parser():
                             3.841017149436518,
                         ],
                     },
-                    "Freq=\\'1e-05GHz\\' Ip=\\'10mA\\' Phase=\\'0deg\\'": {
+                    "Freq=\"1e-05GHz\" Ip=\"10mA\" Phase=\"0deg\"": {
                         "x_data": [
                             0.00011224897959183674,
                             0.00013469877551020409,
