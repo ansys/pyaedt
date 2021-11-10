@@ -1776,7 +1776,7 @@ class Hfss(FieldAnalysis3D, object):
         face_couple : list
             List of 2 faces to assign the lattice pair.
         reverse_v : bool, optional
-            Rever V Vector. Default is `False`.
+            Reverse V Vector. Default is `False`.
         phase_delay : str, optional
             Define the phase delay approach. Default is `"UseScanAngle"`.
             Options are `"UseScanUV"`, `"InputPhaseDelay"`
@@ -1855,7 +1855,7 @@ class Hfss(FieldAnalysis3D, object):
         u_end: list
             List of [x,y,z] values for end point of U vector.
         reverse_v : bool, optional
-            Rever V Vector. Default is `False`.
+            Reverse V Vector. Default is `False`.
         phase_delay : str, optional
             Define the phase delay approach. Default is `"UseScanAngle"`.
             Options are `"UseScanUV"`, `"InputPhaseDelay"`
@@ -1917,7 +1917,7 @@ class Hfss(FieldAnalysis3D, object):
         u_end: list
             List of [x,y,z] values for end point of U vector.
         reverse_v : bool, optional
-            Rever V Vector. Default is `False`.
+            Reverse V Vector. Default is `False`.
         coord_name : str, optional
             Name of the coordinate system for u coordinates.
         primary_name: str, optional

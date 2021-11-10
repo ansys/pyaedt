@@ -587,4 +587,5 @@ class TestClass:
         assert self.aedtapp.assign_lattice_pair([box1.faces[2], box1.faces[4]])
         primary = self.aedtapp.assign_primary(box1.faces[1], [100, -100, -100], [100, 100, -100])
         assert primary
-        assert self.aedtapp.assign_secondary(box1.faces[0], primary.name, [100, -100, 100], [100, 100, 100],reverse_v=True)
+        assert self.aedtapp.assign_secondary(box1.faces[0], primary.name, [100, -100, 100], [100, 100, 100],
+                                             reverse_v=True)
