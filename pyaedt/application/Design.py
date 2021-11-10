@@ -1399,11 +1399,10 @@ class Design(object):
             `True` if succeeded.
         """
         limit = 100
-        i=0
+        i = 0
         while limit > 0:
             a = self.get_registry_key_string("Desktop/Settings/ProjectOptions/EnabledBetaOptions/Item{}".format(i))
             if a and a == beta_option_name:
-                limit = 0
                 return True
             elif a:
                 limit -= 1

@@ -814,7 +814,6 @@ class Primitives3D(Primitives, object):
             self.logger.warning("Object Oriented Beta Option is not enabled in this Desktop.")
         return []
 
-
     @aedt_exception_handler
     def _check_actor_folder(self, actor_folder):
         if not os.path.exists(actor_folder):
