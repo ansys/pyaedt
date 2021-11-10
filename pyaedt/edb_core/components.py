@@ -667,6 +667,73 @@ class Components(object):
         return False
 
     @aedt_exception_handler
+    def set_solder_ball(self, componentname="", sball_diam="100um", sball_height="150um"):
+        """Set cylindrical solder balls on a given component.
+
+        Parameters
+        ----------
+        componentname : str
+            Name of the discret component.
+
+        sball_diam  : str, float
+            Diameter of the solder ball.
+
+        sball_height : str, float
+            Height of the solder ball.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+
+        >>> from pyaedt import Edb
+        >>> edbapp = Edb("myaedbfolder")
+        >>> edbapp.core_components.set_solder_ball("A1")
+
+        """
+        edb_cmp = self.get_component_by_name(componentname)
+        if edb_cmp:
+            cmp_type = edb_cmp.GetComponentType()
+            if cmp_type == self._edb.Definition.ComponentType.IC:
+                ic_cmp_property = edb_cmp.GetComponentProperty().Clone()
+                ic_die_prop = ic_cmp_property.GetDieProperty().Clone()
+                ic_die_prop.SetType(self._edb.Definition.DieType.FlipChip)
+                ic_die_prop.SetOrientation(self._edb.Definition.DieOrientation.ChipDown)
+                ic_cmp_property.SetDieProperty(ic_die_prop)
+
+                ic_solder_ball_prop = ic_cmp_property.GetSolderBallProperty().Clone()
+                ic_solder_ball_prop.SetDiameter(sball_diam, sball_diam)
+                ic_solder_ball_prop.SetHeight(sball_height)
+                ic_solder_ball_prop.SetShape(self._edb.Definition.SolderballShape.Cylinder)
+                ic_solder_ball_prop.SetSolderBallProperty(ic_solder_ball_prop)
+
+                ic_port_prop = ic_cmp_property.GetPortProperty().Clone()
+                ic_port_prop.SetReferenceSizeAuto(True)
+                ic_cmp_property.SetPortProperty(ic_port_prop)
+                edb_cmp.SetComponentProperty(ic_cmp_property)
+                return True
+
+            elif cmp_type == self._edb.Definition.ComponentType.IO:
+                io_cmp_prop = edb_cmp.GetComponentProperty().Clone()
+                io_solder_ball_prop = io_cmp_prop.GetSolderBallProperty().Clone()
+                io_solder_ball_prop.SetDiameter(sball_diam, sball_diam)
+                io_solder_ball_prop.SetHeight(sball_height)
+                io_solder_ball_prop.SetShape(self._edb.Definition.SolderballShape.Cylinder)
+                io_cmp_prop.SetSolderBallProperty(io_solder_ball_prop)
+                io_port_prop = io_cmp_prop.GetPortProperty().Clone()
+                io_port_prop.SetReferenceSizeAuto(True)
+                io_cmp_prop.SetPortProperty(io_port_prop)
+                edb_cmp.SetComponentProperty(io_cmp_prop)
+                return True
+            else:
+                return False
+        else:
+            return False
+
+    @aedt_exception_handler
     def set_component_rlc(self, componentname, res_value=None, ind_value=None, cap_value=None, isparallel=False):
         """Update values for an RLC component.
 
