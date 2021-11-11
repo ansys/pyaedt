@@ -261,7 +261,9 @@ class EdbPadstacks(object):
 
     @aedt_exception_handler
     def create_padstack(
-        self, padstackname=None, holediam="300um", paddiam="400um", antipaddiam="600um", startlayer=None, endlayer=None
+            self, padstackname=None, holediam="300um", paddiam="400um", antipadshape="Circle", antipaddiam="600um",
+            xsize="600um", ysize="600um", cornerradius="300um", offsetx="0.0", offsety="0.0", rotation="0.0",
+            startlayer=None, endlayer=None
     ):
         """Create a padstack.
 
@@ -273,8 +275,22 @@ class EdbPadstacks(object):
             Diameter of the hole with units. The default is ``"300um"``.
         paddiam : str, optional
             Diameter of the pad with units. The default is ``"400um"``.
+        antipadshape : str, optional
+            Shape of the antipad. The default is ``Circle``. Options are ``"Bullet"``.
         antipaddiam : str, optional
             Diameter of the antipad with units. The default is ``"600um"``.
+        xsize : str, optional
+            Only applicable to bullet shape. The default is ``"600um"``.
+        ysize : str, optional
+            Only applicable to bullet shape. The default is ``"600um"``.
+        cornerradius :
+            Only applicable to bullet shape. The default is ``"300um"``.
+        offsetx : str, optional
+            X offset of antipad. The default is ``"0.0"``.
+        offsety : str, optional
+            Y offset of antipad. The default is ``"0.0"``.
+        rotation : str, optional
+            rotation of antipad. The default is ``"0.0"``.
         startlayer : str, optional
             Starting layer. The default is ``None``, in which case the top
             is the starting layer.
@@ -290,6 +306,7 @@ class EdbPadstacks(object):
         holediam = self._edb_value(holediam)
         paddiam = self._edb_value(paddiam)
         antipaddiam = self._edb_value(antipaddiam)
+
         if not padstackname:
             padstackname = generate_unique_name("VIA")
         # assert not self.isreadonly, "Write Functions are not available within AEDT"
@@ -297,6 +314,12 @@ class EdbPadstacks(object):
         ptype = self._edb.Definition.PadGeometryType.Circle
         holparam = Array[type(holediam)]([holediam])
         value0 = self._edb_value("0.0")
+        xsize = self._edb_value(xsize)
+        ysize = self._edb_value(ysize)
+        cornerradius = self._edb_value(cornerradius)
+        offsetx = self._edb_value(offsetx)
+        offsety = self._edb_value(offsety)
+        rotation = self._edb_value(rotation)
 
         padstackData.SetHoleParameters(ptype, holparam, value0, value0, value0)
 
@@ -308,7 +331,15 @@ class EdbPadstacks(object):
             startlayer = layers[0]
         if not endlayer:
             endlayer = layers[len(layers) - 1]
-        for layer in ["Default"]+layers:
+
+        if antipadshape == "Bullet":
+            antipad_array = Array[type(xsize)]([xsize, ysize, cornerradius])
+            antipad_shape = self._edb.Definition.PadGeometryType.Bullet
+        else:
+            antipad_array = Array[type(antipaddiam)]([antipaddiam])
+            antipad_shape = self._edb.Definition.PadGeometryType.Circle
+
+        for layer in ["Default"] + layers:
             padparam_array = Array[type(paddiam)]([paddiam])
             padstackData.SetPadParameters(
                 layer,
@@ -319,17 +350,17 @@ class EdbPadstacks(object):
                 value0,
                 value0,
             )
-            antipad_array = Array[type(antipaddiam)]([antipaddiam])
 
             padstackData.SetPadParameters(
                 layer,
                 self._edb.Definition.PadType.AntiPad,
-                self._edb.Definition.PadGeometryType.Circle,
+                antipad_shape,
                 antipad_array,
-                value0,
-                value0,
-                value0,
+                offsetx,
+                offsety,
+                rotation,
             )
+
         padstackLayerIdMap = {k: v for k, v in zip(padstackData.GetLayerNames(), padstackData.GetLayerIds())}
         padstackLayerMap = self._edb.Utility.LayerMap(self._edb.Utility.UniqueDirection.ForwardUnique)
         for layer, padstackLayerName in zip(
