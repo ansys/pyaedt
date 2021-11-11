@@ -705,10 +705,10 @@ class Components(object):
                 ic_cmp_property.SetDieProperty(ic_die_prop)
 
                 ic_solder_ball_prop = ic_cmp_property.GetSolderBallProperty().Clone()
-                ic_solder_ball_prop.SetDiameter(sball_diam, sball_diam)
-                ic_solder_ball_prop.SetHeight(sball_height)
+                ic_solder_ball_prop.SetDiameter(self._edb_value(sball_diam), self._edb_value(sball_diam))
+                ic_solder_ball_prop.SetHeight(self._edb_value(sball_height))
                 ic_solder_ball_prop.SetShape(self._edb.Definition.SolderballShape.Cylinder)
-                ic_solder_ball_prop.SetSolderBallProperty(ic_solder_ball_prop)
+                ic_cmp_property.SetSolderBallProperty(ic_solder_ball_prop)
 
                 ic_port_prop = ic_cmp_property.GetPortProperty().Clone()
                 ic_port_prop.SetReferenceSizeAuto(True)
@@ -719,8 +719,8 @@ class Components(object):
             elif cmp_type == self._edb.Definition.ComponentType.IO:
                 io_cmp_prop = edb_cmp.GetComponentProperty().Clone()
                 io_solder_ball_prop = io_cmp_prop.GetSolderBallProperty().Clone()
-                io_solder_ball_prop.SetDiameter(sball_diam, sball_diam)
-                io_solder_ball_prop.SetHeight(sball_height)
+                io_solder_ball_prop.SetDiameter(self._edb_value(sball_diam), self._edb_value(sball_diam))
+                io_solder_ball_prop.SetHeight(self._edb_value(sball_height))
                 io_solder_ball_prop.SetShape(self._edb.Definition.SolderballShape.Cylinder)
                 io_cmp_prop.SetSolderBallProperty(io_solder_ball_prop)
                 io_port_prop = io_cmp_prop.GetPortProperty().Clone()
