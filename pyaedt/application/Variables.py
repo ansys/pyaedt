@@ -1027,9 +1027,9 @@ import pyaedt.generic.constants        >>> v1 = Variable("10mm")
         >>> result_1 = v1 * v2
         >>> result_2 = v1 * 3
         >>> assert result_1.numeric_value == 30.0
-        >>> assert pyaedt.generic.constants.unit_system == "Length"
+        >>> assert result_1.unit_system == "Length"
         >>> assert result_2.numeric_value == result_1.numeric_value
-        >>> assert pyaedt.generic.constants.unit_system == pyaedt.generic.constants.unit_system
+        >>> assert result_2.unit_system == "Length"
 
         Multiply voltage times current to obtain power.
 
@@ -1038,7 +1038,7 @@ import pyaedt.generic.constants        >>> v3 = Variable("3mA")
         >>> result_3 = v3 * v4
         >>> assert result_3.numeric_value == 0.12
         >>> assert result_3.units == "W"
-        >>> assert pyaedt.generic.constants.unit_system == "Power"
+        >>> assert result_3.unit_system == "Power"
 
         """
         assert is_number(other) or isinstance(other, Variable), "Multiplier must be a scalar quantity or a variable."
@@ -1083,7 +1083,7 @@ import pyaedt.generic.constants        >>> v1 = Variable("3mA")
         >>> result = v1 + v2
         >>> assert result.numeric_value == 10.003
         >>> assert result.units == "A"
-        >>> assert pyaedt.generic.constants.unit_system == "Current"
+        >>> assert result.unit_system == "Current"
 
         """
         assert isinstance(other, Variable), "You can only add a variable with another variable."
@@ -1124,7 +1124,7 @@ import pyaedt.generic.constants        >>> from pyaedt.application.Variables imp
         >>> result_2 = v3 - v4
         >>> assert result_2.numeric_value == -9.997
         >>> assert result_2.units == "A"
-        >>> assert pyaedt.generic.constants.unit_system == "Current"
+        >>> assert result_2.unit_system == "Current"
 
         """
         assert isinstance(other, Variable), "You can only subtract a variable from another variable."
@@ -1169,7 +1169,7 @@ import pyaedt.generic.constants        >>> v1 = Variable("10W")
         >>> result = v1 / v2
         >>> assert result_1.numeric_value == 0.25
         >>> assert result_1.units == "A"
-        >>> assert pyaedt.generic.constants.unit_system == "Current"
+        >>> assert result_1.unit_system == "Current"
 
         """
         assert is_number(other) or isinstance(other, Variable), "Divisor must be a scalar quantity or a variable."
@@ -1211,7 +1211,7 @@ import pyaedt.generic.constants        >>> from pyaedt.application.Variables imp
         >>> result = 3.0 / v
         >>> assert result.numeric_value == 3.0
         >>> assert result.units == "Hz"
-        >>> assert pyaedt.generic.constants.unit_system == "Freq"
+        >>> assert result.unit_system == "Freq"
 
         """
         if is_number(other):

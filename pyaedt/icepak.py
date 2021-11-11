@@ -1011,12 +1011,12 @@ class Icepak(FieldAnalysisIcepak):
 
         all_names = self.modeler.primitives.object_names
         list = [i for i in all_names if "Fin" in i]
-        self.modeler.split(list, self.AXIS.Z, "PositiveOnly")
+        self.modeler.split(list, self.PLANE.ZX, "PositiveOnly")
         all_names = self.modeler.primitives.object_names
         list = [i for i in all_names if "Fin" in i]
         self.modeler.create_coordinate_system(self.Position(0, "HSHeight", 0), mode="view", view="XY", name="TopRight")
 
-        self.modeler.split(list, self.AXIS.Z, "NegativeOnly")
+        self.modeler.split(list, self.PLANE.ZX, "NegativeOnly")
 
         if symmetric:
 
