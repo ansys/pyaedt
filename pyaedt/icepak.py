@@ -1062,10 +1062,10 @@ class Icepak(FieldAnalysisIcepak):
         self.modeler.translate(list_to_move, center)
         if plane_enum == self.PLANE.XY:
             self.modeler.rotate(list_to_move, self.AXIS.X, rotation)
-        elif plane_enum == self.AXIS.Z:
+        elif plane_enum == self.PLANE.ZX:
             self.modeler.rotate(list_to_move, self.AXIS.X, 90)
             self.modeler.rotate(list_to_move, self.AXIS.Y, rotation)
-        elif plane_enum == self.AXIS.YZ:
+        elif plane_enum == self.PLANE.YZ:
             self.modeler.rotate(list_to_move, self.AXIS.Y, 90)
             self.modeler.rotate(list_to_move, self.AXIS.Z, rotation)
         self.modeler.unite(list_to_move)

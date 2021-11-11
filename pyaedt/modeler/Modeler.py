@@ -1252,10 +1252,10 @@ class GeometryModeler(Modeler, object):
             axisdist = -axisdist
 
         if divmod(axisdir, 3)[1] == 0:
-            cs = self._app.AXIS.YZ
+            cs = self._app.PLANE.YZ
             vector = [axisdist, 0, 0]
         elif divmod(axisdir, 3)[1] == 1:
-            cs = self._app.AXIS.Z
+            cs = self._app.PLANE.ZX
             vector = [0, axisdist, 0]
         elif divmod(axisdir, 3)[1] == 2:
             cs = self._app.PLANE.XY

@@ -2561,7 +2561,7 @@ class Hfss(FieldAnalysis3D, object):
         ``'WavePortFromSheet'``.
 
         >>> origin_position = hfss.modeler.Position(0, 0, 0)
-        >>> circle = hfss.modeler.primitives.create_circle(hfss.AXIS.YZ,
+        >>> circle = hfss.modeler.primitives.create_circle(hfss.PLANE.YZ,
         ...                                                origin_position, 10, name="WaveCircle")
         >>> hfss.solution_type = "DrivenModal"
         >>> port = hfss.create_wave_port_from_sheet(circle, 5, hfss.AxisDir.XNeg, 40, 2,
@@ -3085,7 +3085,7 @@ class Hfss(FieldAnalysis3D, object):
         Create a circle sheet and use it to create a wave port.
         Set up the thermal power for the port created above.
 
-        >>> sheet = hfss.modeler.primitives.create_circle(hfss.AXIS.YZ,
+        >>> sheet = hfss.modeler.primitives.create_circle(hfss.PLANE.YZ,
         ...                                               [-20, 0, 0], 10,
         ...                                               name="sheet_for_source")
         >>> hfss.solution_type = "DrivenModal"
@@ -3139,7 +3139,7 @@ class Hfss(FieldAnalysis3D, object):
         Create a circle sheet and use it to create a wave port.
         Set the thickness of this circle sheet to ``"2 mm"``.
 
-        >>> sheet_for_thickness = hfss.modeler.primitives.create_circle(hfss.AXIS.YZ,
+        >>> sheet_for_thickness = hfss.modeler.primitives.create_circle(hfss.PLANE.YZ,
         ...                                                             [60, 60, 60], 10,
         ...                                                             name="SheetForThickness")
         >>> port_for_thickness = hfss.create_wave_port_from_sheet(sheet_for_thickness, 5, hfss.AxisDir.XNeg,
