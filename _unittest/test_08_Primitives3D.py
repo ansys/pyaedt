@@ -16,7 +16,7 @@ from pyaedt.generic.filesystem import Scratch
 from pyaedt.modeler.Primitives import Polyline, PolylineSegment
 from pyaedt.modeler.Object3d import Object3d
 from pyaedt.modeler.GeometryOperators import GeometryOperators
-from pyaedt.application.Analysis import CoordinateSystemAxis
+from pyaedt.generic.constants import AXIS
 
 test = sys.modules.keys()
 
@@ -140,7 +140,7 @@ class TestClass(BasisTest):
         assert o1.solve_inside
 
         o2 = self.aedtapp.modeler.primitives.create_polyhedron(
-            cs_axis=CoordinateSystemAxis.ZAxis,
+            cs_axis=AXIS.ZAxis,
             center_position=[0, 0, 0],
             start_position=[0, 1, 0],
             height=2.0,
