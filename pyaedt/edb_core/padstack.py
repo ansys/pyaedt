@@ -261,9 +261,9 @@ class EdbPadstacks(object):
 
     @aedt_exception_handler
     def create_padstack(
-            self, padstackname=None, holediam="300um", paddiam="400um", antipadshape="Circle", antipaddiam="600um",
-            xsize="600um", ysize="600um", cornerradius="300um", offsetx="0.0", offsety="0.0", rotation="0.0",
-            startlayer=None, endlayer=None
+            self, padstackname=None, holediam="300um", paddiam="400um", antipaddiam="600um",
+            startlayer=None, endlayer=None, antipadshape="Circle", xsize="600um", ysize="600um", cornerradius="300um",
+            offsetx="0.0", offsety="0.0", rotation="0.0"
     ):
         """Create a padstack.
 
@@ -275,10 +275,16 @@ class EdbPadstacks(object):
             Diameter of the hole with units. The default is ``"300um"``.
         paddiam : str, optional
             Diameter of the pad with units. The default is ``"400um"``.
-        antipadshape : str, optional
-            Shape of the antipad. The default is ``Circle``. Options are ``"Bullet"``.
         antipaddiam : str, optional
             Diameter of the antipad with units. The default is ``"600um"``.
+        startlayer : str, optional
+            Starting layer. The default is ``None``, in which case the top
+            is the starting layer.
+        endlayer : str, optional
+            Ending layer. The default is ``None``, in which case the bottom
+            is the ending layer.
+        antipadshape : str, optional
+            Shape of the antipad. The default is ``Circle``. Options are ``"Bullet"``.
         xsize : str, optional
             Only applicable to bullet shape. The default is ``"600um"``.
         ysize : str, optional
@@ -291,13 +297,6 @@ class EdbPadstacks(object):
             Y offset of antipad. The default is ``"0.0"``.
         rotation : str, optional
             rotation of antipad. The default is ``"0.0"``.
-        startlayer : str, optional
-            Starting layer. The default is ``None``, in which case the top
-            is the starting layer.
-        endlayer : str, optional
-            Ending layer. The default is ``None``, in which case the bottom
-            is the ending layer.
-
         Returns
         -------
         str
