@@ -94,7 +94,15 @@ class EdbPadstacks(object):
 
     @property
     def pad_type(self):
-        return self._edb.Definition.PadType
+        """Return a PadType Enumerator.
+        """
+
+        class PadType:
+            (RegularPad, AntiPad, ThermalPad, Hole, UnknownGeomType) = (
+                self._edb.Definition.PadType.RegularPad, self._edb.Definition.PadType.AntiPad,
+                self._edb.Definition.PadType.ThermalPad, self._edb.Definition.PadType.Hole,
+                self._edb.Definition.PadType.UnknownGeomType)
+        return PadType
 
     @aedt_exception_handler
     def update_padstacks(self):
@@ -256,7 +264,7 @@ class EdbPadstacks(object):
 
     @aedt_exception_handler
     def get_pad_parameters(self, pin, layername, pad_type=None):
-        """Get Padstack Parameters from Pin or Padstack Definition
+        """Get Padstack Parameters from Pin or Padstack Definition.
 
         Parameters
         ----------
