@@ -1028,7 +1028,7 @@ class Icepak(FieldAnalysisIcepak):
                 reference_cs="TopRight",
             )
 
-            self.modeler.split(list, self.AXIS.YZ, "NegativeOnly")
+            self.modeler.split(list, self.PLANE.YZ, "NegativeOnly")
             self.modeler.create_coordinate_system(
                 self.Position("SymSeparation/2", 0, 0),
                 mode="view",
@@ -1052,7 +1052,7 @@ class Icepak(FieldAnalysisIcepak):
             self.modeler.create_coordinate_system(
                 self.Position("HSWidth", 0, 0), mode="view", view="XY", name="BottomRight", reference_cs="TopRight"
             )
-            self.modeler.split(list, self.AXIS.YZ, "NegativeOnly")
+            self.modeler.split(list, self.PLANE.YZ, "NegativeOnly")
         all_objs2 = self.modeler.primitives.object_names
         list_to_move = [i for i in all_objs2 if i not in all_objs]
         center[0] -= hs_width / 2
