@@ -13,8 +13,8 @@ import warnings
 from collections import OrderedDict
 
 from pyaedt.generic.general_methods import aedt_exception_handler
-from pyaedt.generic.constants import AXIS, PLANE, GRAVITY, VIEW, \
-    SOLUTIONS, SETUPS
+from pyaedt.generic.constants import (AXIS, PLANE, GRAVITY, VIEW, 
+    SOLUTIONS, SETUPS)
 from pyaedt.modules.Boundary import NativeComponentObject
 from pyaedt.modules.DesignXPloration import (
     DOESetups,
