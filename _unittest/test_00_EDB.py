@@ -46,7 +46,8 @@ class TestClass:
         assert comp is not None
         pin = self.edbapp.core_components.get_pin_from_component("J1", pinName="1")
         assert pin is not False
-        parameters = self.edbapp.core_padstack.get_pad_parameters(pin, "TOP", self.edbapp.core_padstack.pad_type.RegularPad)
+        parameters = self.edbapp.core_padstack.get_pad_parameters(pin[0], "TOP",
+                                                                  self.edbapp.core_padstack.pad_type.RegularPad)
         assert isinstance(parameters[1], list)
         assert isinstance(parameters[0], int)
 
