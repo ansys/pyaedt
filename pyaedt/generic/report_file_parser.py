@@ -2,7 +2,7 @@ from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 from pyaedt.application.Variables import unit_system, SI_units
 
 
-def parse_file(file_path):
+def parse_rdat_file(file_path):
     """
     Parse Ansys report .rdat file
 
