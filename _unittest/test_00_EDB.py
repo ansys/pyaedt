@@ -85,7 +85,7 @@ class TestClass:
     def test_07_vias_creation(self):
         self.edbapp.core_padstack.create_padstack(padstackname="myVia")
         assert "myVia" in list(self.edbapp.core_padstack.padstacks.keys())
-        self.edbapp.core_padstack.create_padstack(padstackname="myVia_bullet", antipadshape="Bullet")
+        self.edbapp.core_padstack.create_padstack(padstackname="myVia_bullet", antipad_shape="Bullet")
         assert "myVia_bullet" in list(self.edbapp.core_padstack.padstacks.keys())
 
         self.edbapp.add_design_variable("via_x", 5e-3)

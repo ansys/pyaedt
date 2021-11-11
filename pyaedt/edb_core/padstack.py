@@ -262,8 +262,8 @@ class EdbPadstacks(object):
     @aedt_exception_handler
     def create_padstack(
             self, padstackname=None, holediam="300um", paddiam="400um", antipaddiam="600um",
-            startlayer=None, endlayer=None, antipadshape="Circle", xsize="600um", ysize="600um", cornerradius="300um",
-            offsetx="0.0", offsety="0.0", rotation="0.0"
+            startlayer=None, endlayer=None, antipad_shape="Circle", x_size="600um", y_size="600um", corner_radius="300um",
+            offset_x="0.0", offset_y="0.0", rotation="0.0"
     ):
         """Create a padstack.
 
@@ -283,17 +283,17 @@ class EdbPadstacks(object):
         endlayer : str, optional
             Ending layer. The default is ``None``, in which case the bottom
             is the ending layer.
-        antipadshape : str, optional
+        antipad_shape : str, optional
             Shape of the antipad. The default is ``"Circle"``. Options are ``"Circle"`` and ``"Bullet"``.
-        xsize : str, optional
+        x_size : str, optional
             Only applicable to bullet shape. The default is ``"600um"``.
-        ysize : str, optional
+        y_size : str, optional
             Only applicable to bullet shape. The default is ``"600um"``.
-        cornerradius :
+        corner_radius :
             Only applicable to bullet shape. The default is ``"300um"``.
-        offsetx : str, optional
+        offset_x : str, optional
             X offset of antipad. The default is ``"0.0"``.
-        offsety : str, optional
+        offset_y : str, optional
             Y offset of antipad. The default is ``"0.0"``.
         rotation : str, optional
             rotation of antipad. The default is ``"0.0"``.
@@ -313,11 +313,11 @@ class EdbPadstacks(object):
         ptype = self._edb.Definition.PadGeometryType.Circle
         holparam = Array[type(holediam)]([holediam])
         value0 = self._edb_value("0.0")
-        xsize = self._edb_value(xsize)
-        ysize = self._edb_value(ysize)
-        cornerradius = self._edb_value(cornerradius)
-        offsetx = self._edb_value(offsetx)
-        offsety = self._edb_value(offsety)
+        x_size = self._edb_value(x_size)
+        y_size = self._edb_value(y_size)
+        corner_radius = self._edb_value(corner_radius)
+        offset_x = self._edb_value(offset_x)
+        offset_y = self._edb_value(offset_y)
         rotation = self._edb_value(rotation)
 
         padstackData.SetHoleParameters(ptype, holparam, value0, value0, value0)
@@ -331,8 +331,8 @@ class EdbPadstacks(object):
         if not endlayer:
             endlayer = layers[len(layers) - 1]
 
-        if antipadshape == "Bullet":
-            antipad_array = Array[type(xsize)]([xsize, ysize, cornerradius])
+        if antipad_shape == "Bullet":
+            antipad_array = Array[type(x_size)]([x_size, y_size, corner_radius])
             antipad_shape = self._edb.Definition.PadGeometryType.Bullet
         else:
             antipad_array = Array[type(antipaddiam)]([antipaddiam])
@@ -355,8 +355,8 @@ class EdbPadstacks(object):
                 self._edb.Definition.PadType.AntiPad,
                 antipad_shape,
                 antipad_array,
-                offsetx,
-                offsety,
+                offset_x,
+                offset_y,
                 rotation,
             )
 
