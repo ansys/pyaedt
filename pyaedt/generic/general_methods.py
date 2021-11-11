@@ -156,6 +156,35 @@ def _remote_dict_conversion(args):
         new_kwargs = args
     return new_kwargs
 
+def _log_method(func, new_args, new_kwargs):
+    if str(func.__name__)[0] != "_":
+        line_begin = "\n                                    Implicit Arguments : "
+        line_begin2 = "\n                                    Explicit Arguments : "
+        if new_args:
+            object_name = str([new_args[0]])[1:-1]
+            id = object_name.find(" object at ")
+            if id >= 0:
+                object_name = object_name[1:id]
+                message = " '{}' has been exectuted.".format(
+                    object_name + "." + str(func.__name__))
+                if new_args[1:]:
+                    message += line_begin + str(new_args[1:])[1:-1]
+                if new_kwargs:
+                    message += line_begin2 + str(new_kwargs)[1:-1]
+
+            else:
+                message = " '{}' has been exectuted.".format(str(func.__name__))
+                if new_args[1:]:
+                    message += line_begin + str(new_args[1:])[1:-1]
+                if new_kwargs:
+                    message += line_begin2 + str(new_kwargs)[1:-1]
+
+        else:
+            message = " '{}' has been exectuted".format(str(func.__name__))
+            if new_kwargs:
+                message += line_begin2 + str(new_kwargs)[1:-1]
+        logger.debug(message)
+
 
 def aedt_exception_handler(func):
     """Decorator for pyaedt Exception Management
@@ -179,26 +208,7 @@ def aedt_exception_handler(func):
                 new_args = _remote_list_conversion(args)
                 new_kwargs = _remote_dict_conversion(kwargs)
                 out = func(*new_args, **new_kwargs)
-                if args:
-                    object_name = str([new_args[0]])[1:-1]
-                    id = object_name.find(" object at ")
-                    if id >= 0:
-                        object_name = object_name[1:id]
-                        message = "Method {} has been correctly exectuted.".format(object_name+"."+str(func.__name__))
-                        if new_args[1:] or new_kwargs:
-                            message += "\n\t\tInput Arguments:  {} {}".format(str(args[1:]), str(new_kwargs))
-
-                    else:
-                        message = "Method {} has been correctly exectuted.".format(str(func.__name__))
-                        if new_args[1:] or new_kwargs:
-                            message += "\n\t\tInput Arguments:  {} {}".format(str(args), str(new_kwargs))
-
-                else:
-                    message = "Method {} has been correctly exectuted".format(str(func.__name__))
-                    if new_kwargs:
-                        message += "\n\t\tInput Arguments:  {}".format(str(new_kwargs))
-                logger.debug(message)
-
+                _log_method(func, new_args, new_kwargs)
                 return out
             except TypeError:
                 _exception(sys.exc_info(), func, args, kwargs, "Type Error")
@@ -390,7 +400,7 @@ def generate_unique_name(rootname, suffix="", n=6):
     return unique_name
 
 
-def retry_ntimes(n, function, *args, **kwargs):
+def _retry_ntimes(n, function, *args, **kwargs):
     """
 
     Parameters

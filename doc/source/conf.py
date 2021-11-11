@@ -213,7 +213,11 @@ html_show_sourcelink = True
 html_theme = "pyansys_sphinx_theme"
 html_logo = "https://docs.pyansys.com/_static/pyansys-logo-black-cropped.png"
 
-html_theme_options = {"github_url": "https://github.com/pyansys/PyAEDT", "show_prev_next": False}
+html_theme_options = {
+    "github_url": "https://github.com/pyansys/PyAEDT",
+    "show_prev_next": False,
+    "logo_link": "https://aedtdocs.pyansys.com/"  # navigate to the main page
+}
 
 html_static_path = ["_static"]
 

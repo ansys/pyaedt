@@ -94,14 +94,11 @@ def unit_system(units):
     ``False`` when the units specified are not defined in AEDT units.
 
     """
-    found = False
-    for unit_type, unit_list in AEDT_units.items():
-        for test_unit in unit_list:
-            if test_unit == units:
-                found = True
-                break
-        if found:
+
+    for unit_type, unit_dict in AEDT_units.items():
+        if units in unit_dict:
             return unit_type
+
     return False
 
 
@@ -238,6 +235,28 @@ AEDT_units = {
         "megW": 1e6,
         "gW": 1e9,
     },
+    "B-field": {
+        "ftesla": 1e-15,
+        "ptesla": 1e-12,
+        "ntesla": 1e-9,
+        "utesla": 1e-6,
+        "mtesla": 1e-3,
+        "tesla": 1.0,
+        "ktesla": 1e3,
+        "megtesla": 1e6,
+        "gtesla": 1e9,
+    },
+    "H-field": {
+        "fA_per_m": 1e-15,
+        "pA_per_m": 1e-12,
+        "nA_per_m": 1e-9,
+        "uA_per_m": 1e-6,
+        "mA_per_m": 1e-3,
+        "A_per_m": 1.0,
+        "kA_per_m": 1e3,
+        "megA_per_m": 1e6,
+        "gA_per_m": 1e9,
+    },
 }
 SI_units = {
     "AngularSpeed": "rad_per_sec",
@@ -255,6 +274,8 @@ SI_units = {
     "Voltage": "V",
     "Temperature": "kel",
     "Power": "W",
+    "B-field": "tesla",
+    "H-field": "A_per_m",
 }
 
 unit_system_operations = {
@@ -839,9 +860,9 @@ class VariableManager(object):
         var_dict = {}
         all_names = {}
         for obj in object_list:
-            try:
-                listvar = list(obj.GetChildObject('Variables').GetChildNames())
-            except:
+            if self._app._is_object_oriented_enabled():
+                listvar = list(obj.GetChildObject("Variables").GetChildNames())
+            else:
                 listvar = list(obj.GetVariables())
             for variable_name in listvar:
                 variable_expression = self.get_expression(variable_name)
@@ -977,9 +998,9 @@ class VariableManager(object):
             prop_type = "PostProcessingVariableProp"
 
         # Get all design and project variables in lower case for a case-sensitive comparison
-        try:
-            var_list = list(desktop_object.GetChildObject('Variables').GetChildNames())
-        except:
+        if self._app._is_object_oriented_enabled():
+            var_list = list(desktop_object.GetChildObject("Variables").GetChildNames())
+        else:
             var_list = list(desktop_object.GetVariables())
         lower_case_vars = [var_name.lower() for var_name in var_list]
 
@@ -1102,12 +1123,12 @@ class VariableManager(object):
         return False
 
     @aedt_exception_handler
-    def delete_variable(self, sVarName):
+    def delete_variable(self, var_name):
         """Delete a variable.
 
         Parameters
         ----------
-        sVarName : str
+        var_name : str
             Name of the variable.
 
 
@@ -1117,15 +1138,15 @@ class VariableManager(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        desktop_object = self.aedt_object(sVarName)
+        desktop_object = self.aedt_object(var_name)
         var_type = "Project" if desktop_object == self._oproject else "Local"
-        try:
-            var_list = list(desktop_object.GetChildObject('Variables').GetChildNames())
-        except:
+        if self._app._is_object_oriented_enabled():
+            var_list = list(desktop_object.GetChildObject("Variables").GetChildNames())
+        else:
             var_list = list(desktop_object.GetVariables())
         lower_case_vars = [var_name.lower() for var_name in var_list]
 
-        if sVarName.lower() in lower_case_vars:
+        if var_name.lower() in lower_case_vars:
             try:
                 desktop_object.ChangeProperty(
                     [
@@ -1133,7 +1154,7 @@ class VariableManager(object):
                         [
                             "NAME:{0}VariableTab".format(var_type),
                             ["NAME:PropServers", "{0}Variables".format(var_type)],
-                            ["NAME:DeletedProps", sVarName],
+                            ["NAME:DeletedProps", var_name],
                         ],
                     ]
                 )

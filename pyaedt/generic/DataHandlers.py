@@ -24,7 +24,7 @@ except ImportError:
 
 
 @aedt_exception_handler
-def tuple2dict(t, d):
+def _tuple2dict(t, d):
     """
 
     Parameters
@@ -49,13 +49,13 @@ def tuple2dict(t, d):
     ):  # len check is to avoid expanding the list with a 3rd element=None
         d[k] = OrderedDict()
         for tt in v:
-            tuple2dict(tt, d[k])
+            _tuple2dict(tt, d[k])
     else:
         d[k] = v
 
 
 @aedt_exception_handler
-def dict2arg(d, arg_out):
+def _dict2arg(d, arg_out):
     """
 
     Parameters
@@ -72,14 +72,14 @@ def dict2arg(d, arg_out):
     for k, v in d.items():
         if isinstance(v, (OrderedDict, dict)):
             arg = ["NAME:" + k]
-            dict2arg(v, arg)
+            _dict2arg(v, arg)
             arg_out.append(arg)
         elif v is None:
             arg_out.append(["NAME:" + k])
         elif type(v) is list and len(v) > 0 and isinstance(v[0], (OrderedDict, dict)):
             for el in v:
                 arg = ["NAME:" + k]
-                dict2arg(el, arg)
+                _dict2arg(el, arg)
                 arg_out.append(arg)
 
         else:
@@ -91,7 +91,7 @@ def dict2arg(d, arg_out):
 
 
 @aedt_exception_handler
-def arg2dict(arg, dict_out):
+def _arg2dict(arg, dict_out):
     """
 
     Parameters
@@ -115,7 +115,7 @@ def arg2dict(arg, dict_out):
             if (type(arg[i]) is list or type(arg[i]) is tuple or str(type(arg[i])) == r"<type 'List'>") and arg[i][0][
                 :5
             ] == "NAME:":
-                arg2dict(list(arg[i]), dict_in)
+                _arg2dict(list(arg[i]), dict_in)
                 i += 1
             elif arg[i][-2:] == ":=":
                 if str(type(arg[i+1])) == r"<type 'List'>":

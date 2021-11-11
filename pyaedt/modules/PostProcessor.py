@@ -17,7 +17,7 @@ from collections import OrderedDict
 
 from pyaedt.application.Variables import AEDT_units
 from pyaedt.generic.filesystem import Scratch
-from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, retry_ntimes
+from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, _retry_ntimes
 
 report_type = {
     "DrivenModal": "Modal Solution Data",
@@ -59,13 +59,11 @@ class SolutionData(object):
     """Contains information from the :func:`GetSolutionDataPerVariation` method."""
 
     @property
-    @aedt_exception_handler
     def sweeps(self):
         """Sweeps."""
         return self._sweeps
 
     @property
-    @aedt_exception_handler
     def sweeps_siunits(self):
         """SI units for the sweep."""
         data = {}
@@ -76,7 +74,6 @@ class SolutionData(object):
         return data
 
     @property
-    @aedt_exception_handler
     def variations_value(self):
         """Variation values for design variables."""
         vars = self.nominal_variation.GetDesignVariableNames()
@@ -86,7 +83,6 @@ class SolutionData(object):
         return variationvals
 
     @property
-    @aedt_exception_handler
     def nominal_variation(self):
         """Nominal variation."""
         return self._nominal_variation
@@ -100,7 +96,6 @@ class SolutionData(object):
             print(str(val) + " not in Variations")
 
     @property
-    @aedt_exception_handler
     def primary_sweep(self):
         """Primary sweep.
 
@@ -117,7 +112,6 @@ class SolutionData(object):
             self._primary_sweep = ps
 
     @property
-    @aedt_exception_handler
     def expressions(self):
         """Expressions."""
         mydata = [i for i in self._nominal_variation.GetDataExpressions()]
@@ -487,7 +481,6 @@ class FieldPlot:
         self.CloudMaxSpacing = -1
 
     @property
-    @aedt_exception_handler
     def plotGeomInfo(self):
         """Plot geometry information."""
         info = [1, self.objtype, self.listtype, 0]
@@ -497,7 +490,6 @@ class FieldPlot:
         return info
 
     @property
-    @aedt_exception_handler
     def intrinsicVar(self):
         """Intrinsic variable.
 
@@ -522,7 +514,6 @@ class FieldPlot:
         return var
 
     @property
-    @aedt_exception_handler
     def plotsettings(self):
         """Plot settings.
 
@@ -594,7 +585,6 @@ class FieldPlot:
         return arg
 
     @property
-    @aedt_exception_handler
     def surfacePlotInstruction(self):
         """Surface plot settings.
 
@@ -634,7 +624,6 @@ class FieldPlot:
         ]
 
     @property
-    @aedt_exception_handler
     def field_plot_settings(self):
         """Field Plot Settings.
 
@@ -839,7 +828,6 @@ class PostProcessorCommon(object):
         self._scratch = Scratch(self._app.temp_directory, volatile=True)
 
     @property
-    @aedt_exception_handler
     def oreportsetup(self):
         """Report setup.
 
@@ -851,37 +839,31 @@ class PostProcessorCommon(object):
         return self._oreportsetup
 
     @property
-    @aedt_exception_handler
     def logger(self):
         """Logger."""
         return self._app.logger
 
     @property
-    @aedt_exception_handler
     def _desktop(self):
         """Desktop."""
         return self._app._desktop
 
     @property
-    @aedt_exception_handler
     def _odesign(self):
         """Design."""
         return self._app._odesign
 
     @property
-    @aedt_exception_handler
     def _oproject(self):
         """Project."""
         return self._app._oproject
 
     @property
-    @aedt_exception_handler
     def modeler(self):
         """Modeler."""
         return self._app._modeler
 
     @property
-    @aedt_exception_handler
     def post_solution_type(self):
         """Design solution type.
 
@@ -896,7 +878,6 @@ class PostProcessorCommon(object):
             return self._app._design_type
 
     @property
-    @aedt_exception_handler
     def all_report_names(self):
         """List of all report names.
 
@@ -1202,7 +1183,7 @@ class PostProcessorCommon(object):
         return True
 
     @aedt_exception_handler
-    def export_report_to_file(self, project_dir, plot_name, extension):
+    def export_report_to_file(self, output_dir, plot_name, extension, unique_file=False):
         """Export the 2D Plot data to a file.
 
         This method leaves the data in the plot (as data) as a reference
@@ -1210,8 +1191,8 @@ class PostProcessorCommon(object):
 
         Parameters
         ----------
-        project_dir : str
-            Path to the project directory. The csv file will be plot_name.csv.
+        output_dir : str
+            Path to the directory of exported report
         plot_name : str
             Name of the plot to export.
         extension : str
@@ -1221,25 +1202,37 @@ class PostProcessorCommon(object):
                 * (Post processor format) .txt
                 * (Ensight XY data) .exy
                 * (Anosft Plot Data) .dat
+                * (Ansoft Report Data Files) .rdat
+        unique_file : bool
+            If set to True, generates unique file in output_dit
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        str
+            path of exported file
         """
-        npath = os.path.normpath(project_dir)
+        npath = os.path.normpath(output_dir)
 
         if "." not in extension:
             extension = "." + extension
 
-        supported_ext = [".csv", ".tab", ".txt", ".exy", ".dat"]
+        supported_ext = [".csv", ".tab", ".txt", ".exy", ".dat", ".rdat"]
         if extension not in supported_ext:
             msg = "Extension {} is not supported. Use one of {}".format(extension, ", ".join(supported_ext))
             raise ValueError(msg)
 
-        csv_file_name = os.path.join(npath, plot_name + extension)
-        self.oreportsetup.ExportToFile(plot_name, csv_file_name)
-        return True
+        file_path = os.path.join(npath, plot_name + extension)
+        if unique_file:
+            while os.path.exists(file_path):
+                file_name = generate_unique_name(plot_name)
+                file_path = os.path.join(npath, file_name + extension)
+
+        if extension == ".rdat":
+            self.oreportsetup.ExportReportDataToFile(plot_name, file_path)
+        else:
+            self.oreportsetup.ExportToFile(plot_name, file_path)
+
+        return file_path
 
     @aedt_exception_handler
     def export_report_to_csv(self, project_dir, plot_name):
@@ -1257,8 +1250,8 @@ class PostProcessorCommon(object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        str
+            path of exported file
         """
         return self.export_report_to_file(project_dir, plot_name, extension=".csv")
 
@@ -1313,7 +1306,6 @@ class PostProcessor(PostProcessorCommon, object):
         PostProcessorCommon.__init__(self, app)
 
     @property
-    @aedt_exception_handler
     def _primitives(self):
         """Primitives.
 
@@ -1326,7 +1318,6 @@ class PostProcessor(PostProcessorCommon, object):
         return self._app._modeler.primitives
 
     @property
-    @aedt_exception_handler
     def model_units(self):
         """Model units.
 
@@ -1335,10 +1326,9 @@ class PostProcessor(PostProcessorCommon, object):
         str
            Model units, such as ``"mm"``.
         """
-        return retry_ntimes(10, self._oeditor.GetModelUnits)
+        return _retry_ntimes(10, self._oeditor.GetModelUnits)
 
     @property
-    @aedt_exception_handler
     def post_osolution(self):
         """Solution.
 
@@ -1350,7 +1340,6 @@ class PostProcessor(PostProcessorCommon, object):
         return self._post_osolution
 
     @property
-    @aedt_exception_handler
     def ofieldsreporter(self):
         """Fields reporter.
 
@@ -1362,7 +1351,6 @@ class PostProcessor(PostProcessorCommon, object):
         return self._ofieldsreporter
 
     @property
-    @aedt_exception_handler
     def report_types(self):
         """Report types."""
         return list(self.oreportsetup.GetAvailableReportTypes())
@@ -1883,10 +1871,10 @@ class PostProcessor(PostProcessorCommon, object):
                     variation_dict.append("0deg")
         if not sample_points_file and not sample_points_lists:
 
-            retry_ntimes(10, self.ofieldsreporter.CalculatorWrite, filename, ["Solution:=", solution], variation_dict)
+            _retry_ntimes(10, self.ofieldsreporter.CalculatorWrite, filename, ["Solution:=", solution], variation_dict)
         elif sample_points_file:
 
-            retry_ntimes(
+            _retry_ntimes(
                 10,
                 self.ofieldsreporter.ExportToFile,
                 filename,
@@ -1900,7 +1888,7 @@ class PostProcessor(PostProcessorCommon, object):
             with open(sample_points_file, "w") as f:
                 for point in sample_points_lists:
                     f.write(" ".join([str(i) for i in point]) + "\n")
-            retry_ntimes(
+            _retry_ntimes(
                 10,
                 self.ofieldsreporter.ExportToFile,
                 filename,

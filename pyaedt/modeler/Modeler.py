@@ -11,9 +11,9 @@ import os
 from collections import OrderedDict
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 from pyaedt.application.Variables import AEDT_units
-from pyaedt.generic.general_methods import generate_unique_name, retry_ntimes, aedt_exception_handler, _pythonver
+from pyaedt.generic.general_methods import generate_unique_name, _retry_ntimes, aedt_exception_handler, _pythonver
 import math
-from pyaedt.generic.DataHandlers import dict2arg
+from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.modeler.Object3d import EdgePrimitive, FacePrimitive, VertexPrimitive, Object3d
 
 
@@ -91,7 +91,7 @@ class CoordinateSystem(object):
 
         """
         arguments = ["NAME:AllTabs", ["NAME:Geometry3DCSTab", ["NAME:PropServers", name], arg]]
-        retry_ntimes(10, self._modeler.oeditor.ChangeProperty, arguments)
+        _retry_ntimes(10, self._modeler.oeditor.ChangeProperty, arguments)
 
     @aedt_exception_handler
     def rename(self, newname):
@@ -507,7 +507,7 @@ class CoordinateSystem(object):
     def orientation(self):
         """Internal named array for orientation of the coordinate system."""
         arg = ["Name:RelativeCSParameters"]
-        dict2arg(self.props, arg)
+        _dict2arg(self.props, arg)
         return arg
 
     @property
@@ -733,7 +733,7 @@ class GeometryModeler(Modeler, object):
     @property
     def model_units(self):
         """Model units as a string. For example ``"mm"``."""
-        return retry_ntimes(10, self.oeditor.GetModelUnits)
+        return _retry_ntimes(10, self.oeditor.GetModelUnits)
 
     @model_units.setter
     def model_units(self, units):
@@ -804,6 +804,37 @@ class GeometryModeler(Modeler, object):
         else:
             objects = self.oeditor.GetObjectsInGroup("Sheets")
         return list(objects)
+
+    @aedt_exception_handler
+    def _find_perpendicular_points(self, face):
+
+        if isinstance(face, str):
+            vertices = [i.position for i in self.primitives[face].vertices]
+        else:
+            vertices = []
+            for vertex in list(self.oeditor.GetVertexIDsFromFace(face)):
+                vertices.append([float(i) for i in list(self.oeditor.GetVertexPosition(vertex))])
+        assert len(vertices) > 2, "Automatic A-B Assignment can be done only on face with more than 2 vertices."
+        origin = vertices[0]
+        a_end = []
+        b_end = []
+        tol = 1e-10
+        for v in vertices[1:]:
+            edge1 = GeometryOperators.v_points(origin, v)
+            for v2 in vertices[1:]:
+                if v2 != v:
+                    edge2 = GeometryOperators.v_points(origin, v2)
+                    if abs(GeometryOperators.v_dot(edge1, edge2)) < tol:
+                        a_end = v
+                        b_end = v2
+                        break
+            if a_end:
+                break
+        if not a_end:
+            a_end = vertices[1]
+            b_end = vertices[2]
+            return False, (origin, a_end, b_end)
+        return True, (origin, a_end, b_end)
 
     @aedt_exception_handler
     def create_coordinate_system(

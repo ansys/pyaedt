@@ -6,7 +6,7 @@ from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name
 from collections import OrderedDict
 from pyaedt.modules.Boundary import BoundaryObject
-from pyaedt.generic.DataHandlers import dict2arg
+from pyaedt.generic.DataHandlers import _dict2arg
 import os
 import warnings
 
@@ -640,7 +640,7 @@ class Q2d(QExtractor, object):
                             )
 
         arg = ["NAME:" + name]
-        dict2arg(props, arg)
+        _dict2arg(props, arg)
         if conductor_type == "SignalLine":
             self.oboundary.AssignSingleSignalLine(arg)
         elif conductor_type == "ReferenceGround":
