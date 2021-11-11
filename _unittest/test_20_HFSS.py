@@ -53,7 +53,7 @@ class TestClass:
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 200
         cyl_1 = self.aedtapp.modeler.primitives.create_cylinder(
-            self.aedtapp.PLANE.XY, udp, 10, coax_dimension, 0, "die"
+            self.aedtapp.AXIS.X, udp, 10, coax_dimension, 0, "die"
         )
         self.aedtapp.modeler.subtract(cyl_1, "inner", True)
         self.aedtapp.modeler.primitives["inner"].material_name = "Copper"

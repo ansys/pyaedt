@@ -157,6 +157,7 @@ class GeometryOperators(object):
         else:
             return "Y"
 
+    @staticmethod
     @aedt_exception_handler
     def cs_plane_to_plane_str(val):
         """Retrieve a string for a coordinate system plane.
