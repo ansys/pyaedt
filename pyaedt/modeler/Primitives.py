@@ -12,6 +12,7 @@ from pyaedt.application.Variables import Variable
 from pyaedt.generic.general_methods import aedt_exception_handler, is_number, _retry_ntimes
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 from pyaedt.modeler.Object3d import EdgePrimitive, FacePrimitive, Object3d, _dim_arg, _uname
+from pyaedt.generic.constants import PLANE
 
 default_materials = {
     "Icepak": "air",
@@ -51,7 +52,7 @@ class PolylineSegment:
         List of values in model units or a valid value string. For
         example, a list of ``[x, y, z]`` coordinates or ``"Specific to
         type AngularArc"``.
-    arc_plane : str, optional
+    arc_plane : str, int optional
         Plane in which the arc sweep is performed in the active
         coordinate system ``"XY"``, ``"YZ"`` or ``"ZX"``. The default is
         ``None``, in which case the plane is determined automatically
@@ -84,7 +85,15 @@ class PolylineSegment:
                 arc_center = [0, 0, 0]
             assert len(arc_center) == 3, "Arc center must be a list of length 3."
             self.arc_center = arc_center
-        self.arc_plane = arc_plane
+        if isinstance(arc_plane, int):
+            if arc_plane == PLANE.XY:
+                self.arc_plane = "XY"
+            elif arc_plane == PLANE.ZX:
+                self.arc_plane = "ZX"
+            else:
+                self.arc_plane = "YZ"
+        else:
+            self.arc_plane = arc_plane
 
 
 class Polyline(Object3d):

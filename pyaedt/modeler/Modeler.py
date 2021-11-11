@@ -1517,7 +1517,7 @@ class GeometryModeler(Modeler, object):
             One or more objects to split. A list can contain
             both strings (object names) and integers (object IDs).
         plane : str
-            Coordinate plane of the cut or the Application.CoordinateSystemPlane object.
+            Coordinate plane of the cut or the Application.PLANE object.
             Choices for the coordinate plane are ``"XY"``, ``"YZ"``, and ``"ZX"``.
         sides : str
             Which side to keep. Options are ``"Both"``, ``"PositiveOnly"``,
