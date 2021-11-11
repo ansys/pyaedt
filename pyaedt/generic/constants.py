@@ -340,6 +340,12 @@ class VIEW(object):
     (XY, YZ, ZX, ISO) = ("XY", "YZ", "ZX", "iso")
 
 
+class GLOBALCS(object):
+    """GlobalCS class."""
+
+    (XY, YZ, ZX) = ("Global_XY", "Global_YZ", "Global:XZ")
+
+
 class SEGMENTTYPE(object):
     """CROSSSECTION class."""
 
