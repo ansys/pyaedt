@@ -12,12 +12,20 @@ METER2IN = 0.0254
 METER2MILES = 1609.344051499
 
 
-def dB(x, inverse=True):
-    """Convert db to decimal"""
+def db20(x, inverse=True):
+    """Convert db20 to decimal and viceversa."""
     if inverse:
         return 20 * math.log10(x)
     else:
         return math.pow(10, x / 20.0)
+
+
+def db10(x, inverse=True):
+    """Convert db10 to decimal and viceversa."""
+    if inverse:
+        return 10 * math.log10(x)
+    else:
+        return math.pow(10, x / 10.0)
 
 
 def fah2kel(val, inverse=True):
@@ -138,7 +146,7 @@ AEDT_UNITS = {
         "kA": 1e3,
         "MegA": 1e6,
         "gA": 1e9,
-        "dBA": (dB,),
+        "dBA": (db20,),
     },
     "Flux": {"Wb": 1.0, "mx": 1e-8, "vh": 3600, "vs": 1.0},
     "Freq": {"Hz": 1.0, "kHz": 1e3, "MHz": 1e6, "GHz": 1e9, "THz": 1e12, "rps": 1.0, "per_sec": 1.0},
@@ -220,7 +228,7 @@ AEDT_UNITS = {
         "kV": 1e3,
         "MegV": 1e6,
         "gV": 1e9,
-        "dBV": (dB,),
+        "dBV": (db20,),
     },
     "Temperature": {"kel": 1.0, "cel": (cel2kel,), "fah": (fah2kel,)},
     "Power": {
