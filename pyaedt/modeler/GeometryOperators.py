@@ -196,9 +196,9 @@ class GeometryOperators(object):
            Type of the draft.
 
         """
-        if val == SWEEPDRAFT.ExtendedDraft:
+        if val == SWEEPDRAFT.Extended:
             return "Extended"
-        elif val == SWEEPDRAFT.RoundDraft:
+        elif val == SWEEPDRAFT.Round:
             return "Round"
         else:
             return "Natural"
