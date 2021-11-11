@@ -13,8 +13,13 @@ import warnings
 from collections import OrderedDict
 
 from pyaedt.generic.general_methods import aedt_exception_handler
-from pyaedt.generic.constants import (AXIS, PLANE, GRAVITY, VIEW, 
-    SOLUTIONS, SETUPS)
+from pyaedt.generic.constants import (
+    AXIS,
+    PLANE,
+    GRAVITY,
+    VIEW,
+    SOLUTIONS,
+    SETUPS)
 from pyaedt.modules.Boundary import NativeComponentObject
 from pyaedt.modules.DesignXPloration import (
     DOESetups,
@@ -29,6 +34,7 @@ from pyaedt.modules.SetupTemplates import SetupKeys
 from pyaedt.modules.SolveSetup import Setup
 from pyaedt.application.Design import Design
 from pyaedt.application.JobManager import update_hpc_option
+
 
 class Analysis(Design, object):
     """Contains all common analysis functions.
@@ -204,7 +210,7 @@ class Analysis(Design, object):
 
     @property
     def View(self):
-        """Planes. (To check if redundant to CoordinateSystemPlane.)
+        """Planes.
 
         .. deprecated:: 0.4.8
            Use :attr:`VIEW` instead.
@@ -219,7 +225,7 @@ class Analysis(Design, object):
 
     @property
     def GravityDirection(self):
-        """Gravity direction. (To check if redundant.)
+        """Gravity direction.
 
         .. deprecated:: 0.4.8
            Use :attr:`GRAVITY` instead.

@@ -91,8 +91,9 @@ class Primitives3D(Primitives, object):
 
         Parameters
         ----------
-        cs_axis : str
+        cs_axis : int or str
             Axis of rotation of the starting point around the center point.
+            :class:`pyaedt.constants.AXIS` Enumerator can be used as input.
         position : list
             Center point of the cylinder in a list of ``(x, y, z)`` coordinates.
         radius : float
@@ -408,8 +409,9 @@ class Primitives3D(Primitives, object):
 
         Parameters
         ----------
-        cs_plane :
+        csPlane : str or int
             Coordinate system plane for orienting the rectangle.
+            :class:`pyaedt.constants.PLANE` Enumerator can be used as input.
         position : list or Position
             List of ``[x, y, z]`` coordinates for the center point of the rectangle or
             the positionApplicationName.modeler.Position(x,y,z) object.
@@ -454,8 +456,9 @@ class Primitives3D(Primitives, object):
 
         Parameters
         ----------
-        cs_plane :
+        cs_plane : str or int
             Coordinate system plane for orienting the circle.
+            :class:`pyaedt.constants.PLANE` Enumerator can be used as input.
         position : list
             List of ``[x, y, z]`` coordinates for the center point of the circle.
         radius : float
@@ -496,8 +499,9 @@ class Primitives3D(Primitives, object):
 
         Parameters
         ----------
-        cs_plane : str
+        cs_plane : str or int
             Coordinate system plane for orienting the ellipse.
+            :class:`pyaedt.constants.PLANE` Enumerator can be used as input.
         position : list
             List of ``[x, y, z]`` coordinates for the center point of the ellipse.
         major_raidus : float

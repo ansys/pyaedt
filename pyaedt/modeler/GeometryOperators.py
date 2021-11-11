@@ -150,9 +150,9 @@ class GeometryOperators(object):
            String for the coordinate system plane.
 
         """
-        if val == PLANE.XY:
+        if val == PLANE.XY or val == "XY":
             return "Z"
-        elif val == PLANE.YZ:
+        elif val == PLANE.YZ or val == "YZ":
             return "X"
         else:
             return "Y"
