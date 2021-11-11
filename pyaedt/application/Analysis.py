@@ -119,6 +119,12 @@ class Analysis(Design, object):
         self.opti_sensitivity = SensitivitySetups(self)
         self.opti_statistical = StatisticalSetups(self)
         self.native_components = self._get_native_data()
+        self.SOLUTIONS = SOLUTIONS()
+        self.SETUPS = SETUPS()
+        self.AXIS = AXIS()
+        self.PLANE = PLANE()
+        self.VIEW = VIEW()
+        self.GRAVITY = GRAVITY()
 
     @property
     def output_variables(self):
@@ -170,6 +176,9 @@ class Analysis(Design, object):
     def CoordinateSystemAxis(self):
         """Coordinate system axis constant.
 
+        .. deprecated:: 0.4.8
+           Use :attr:`AXIS` instead.
+
         Returns
         -------
         :class:`pyaedt.modeler.constants.AXIS`
@@ -181,6 +190,9 @@ class Analysis(Design, object):
     @property
     def CoordinateSystemPlane(self):
         """Coordinate system plane constants.
+
+        .. deprecated:: 0.4.8
+           Use :attr:`PLANE` instead.
 
         Returns
         -------
@@ -194,6 +206,8 @@ class Analysis(Design, object):
     def View(self):
         """Planes. (To check if redundant to CoordinateSystemPlane.)
 
+        .. deprecated:: 0.4.8
+           Use :attr:`VIEW` instead.
 
         Returns
         -------
@@ -207,6 +221,8 @@ class Analysis(Design, object):
     def GravityDirection(self):
         """Gravity direction. (To check if redundant.)
 
+        .. deprecated:: 0.4.8
+           Use :attr:`GRAVITY` instead.
         Returns
         -------
         tuple

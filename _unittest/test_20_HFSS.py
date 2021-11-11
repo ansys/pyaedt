@@ -40,11 +40,11 @@ class TestClass:
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 200
         o1 = self.aedtapp.modeler.primitives.create_cylinder(
-            self.aedtapp.CoordinateSystemAxis.XAxis, udp, 3, coax_dimension, 0, "inner"
+            self.aedtapp.AXIS.X, udp, 3, coax_dimension, 0, "inner"
         )
         assert isinstance(o1.id, int)
         o2 = self.aedtapp.modeler.primitives.create_cylinder(
-            self.aedtapp.CoordinateSystemAxis.XAxis, udp, 10, coax_dimension, 0, "outer"
+            self.aedtapp.AXIS.X, udp, 10, coax_dimension, 0, "outer"
         )
         assert isinstance(o2.id, int)
         assert self.aedtapp.modeler.subtract(o2, o1, True)
@@ -53,7 +53,7 @@ class TestClass:
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 200
         cyl_1 = self.aedtapp.modeler.primitives.create_cylinder(
-            self.aedtapp.CoordinateSystemPlane.XYPlane, udp, 10, coax_dimension, 0, "die"
+            self.aedtapp.PLANE.XY, udp, 10, coax_dimension, 0, "die"
         )
         self.aedtapp.modeler.subtract(cyl_1, "inner", True)
         self.aedtapp.modeler.primitives["inner"].material_name = "Copper"
@@ -90,7 +90,7 @@ class TestClass:
     def test_05_create_wave_port_from_sheets(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         o5 = self.aedtapp.modeler.primitives.create_circle(
-            self.aedtapp.CoordinateSystemPlane.YZPlane, udp, 10, name="sheet1"
+            self.aedtapp.AXIS.YZ, udp, 10, name="sheet1"
         )
         self.aedtapp.solution_type = "DrivenTerminal"
         ports = self.aedtapp.create_wave_port_from_sheet(o5, 5, self.aedtapp.AxisDir.XNeg, 40, 2, "sheet1_Port", True)
@@ -99,7 +99,7 @@ class TestClass:
         self.aedtapp.solution_type = "DrivenModal"
         udp = self.aedtapp.modeler.Position(200, 0, 0)
         o6 = self.aedtapp.modeler.primitives.create_circle(
-            self.aedtapp.CoordinateSystemPlane.YZPlane, udp, 10, name="sheet2"
+            self.aedtapp.AXIS.YZ, udp, 10, name="sheet2"
         )
         ports = self.aedtapp.create_wave_port_from_sheet(o6, 5, self.aedtapp.AxisDir.XPos, 40, 2, "sheet2_Port", True)
         assert ports[0].name == "sheet2_Port"
@@ -108,7 +108,7 @@ class TestClass:
         id6 = self.aedtapp.modeler.primitives.create_box([20, 20, 20], [10, 10, 2], matname="Copper", name="My_Box")
         id7 = self.aedtapp.modeler.primitives.create_box([20, 25, 30], [10, 2, 2], matname="Copper")
         rect = self.aedtapp.modeler.primitives.create_rectangle(
-            self.aedtapp.CoordinateSystemPlane.YZPlane, [20, 25, 20], [2, 10]
+            self.aedtapp.AXIS.YZ, [20, 25, 20], [2, 10]
         )
         ports = self.aedtapp.create_wave_port_from_sheet(rect, 5, self.aedtapp.AxisDir.ZNeg, 40, 2, "sheet3_Port", True)
         assert ports[0].name in [i.name for i in self.aedtapp.boundaries]
@@ -253,7 +253,7 @@ class TestClass:
         assert self.aedtapp.edit_source("sheet1_Port" + ":1", "10W")
 
     def test_08_create_circuit_port_from_edges(self):
-        plane = self.aedtapp.CoordinateSystemPlane.XYPlane
+        plane = self.aedtapp.PLANE.XY
         rect_1 = self.aedtapp.modeler.primitives.create_rectangle(plane, [10, 10, 10], [10, 10], name="rect1_for_port")
         edges1 = self.aedtapp.modeler.primitives.get_object_edges(rect_1.id)
         e1 = edges1[0]
@@ -305,7 +305,7 @@ class TestClass:
         assert port2.name != "Wave1" and "Wave1" in port2.name
 
     def test_09a_create_waveport_on_true_surface_objects(self):
-        cs = self.aedtapp.CoordinateSystemPlane.XYPlane
+        cs = self.aedtapp.PLANE.XY
         o1 = self.aedtapp.modeler.primitives.create_cylinder(
             cs, [0, 0, 0], radius=5, height=100, numSides=0, name="inner", matname="Copper"
         )
@@ -378,7 +378,7 @@ class TestClass:
 
     def test_15_create_perfects_on_sheets(self):
         rect = self.aedtapp.modeler.primitives.create_rectangle(
-            self.aedtapp.CoordinateSystemPlane.XYPlane, [0, 0, 0], [10, 2], name="RectBound", matname="Copper"
+            self.aedtapp.PLANE.XY, [0, 0, 0], [10, 2], name="RectBound", matname="Copper"
         )
         pe = self.aedtapp.assign_perfecte_to_sheets(rect.name)
         assert pe.name in self.aedtapp.modeler.get_boundaries_name()
@@ -387,7 +387,7 @@ class TestClass:
 
     def test_16_create_impedance_on_sheets(self):
         rect = self.aedtapp.modeler.primitives.create_rectangle(
-            self.aedtapp.CoordinateSystemPlane.XYPlane, [0, 0, 0], [10, 2], name="ImpBound", matname="Copper"
+            self.aedtapp.PLANE.XY, [0, 0, 0], [10, 2], name="ImpBound", matname="Copper"
         )
         imp = self.aedtapp.assign_impedance_to_sheet("imp1", "TL2", 50, 25)
         assert imp.name in self.aedtapp.modeler.get_boundaries_name()
@@ -395,7 +395,7 @@ class TestClass:
 
     def test_17_create_lumpedrlc_on_sheets(self):
         rect = self.aedtapp.modeler.primitives.create_rectangle(
-            self.aedtapp.CoordinateSystemPlane.XYPlane, [0, 0, 0], [10, 2], name="rlcBound", matname="Copper"
+            self.aedtapp.PLANE.XY, [0, 0, 0], [10, 2], name="rlcBound", matname="Copper"
         )
         imp = self.aedtapp.assign_lumped_rlc_to_sheet(rect.name, self.aedtapp.AxisDir.XPos, Rvalue=50, Lvalue=1e-9)
         names = self.aedtapp.modeler.get_boundaries_name()
@@ -421,7 +421,7 @@ class TestClass:
 
     def test_19_create_lumped_on_sheet(self):
         rect = self.aedtapp.modeler.primitives.create_rectangle(
-            self.aedtapp.CoordinateSystemPlane.XYPlane, [0, 0, 0], [10, 2], name="lump_port", matname="Copper"
+            self.aedtapp.PLANE.XY, [0, 0, 0], [10, 2], name="lump_port", matname="Copper"
         )
         port = self.aedtapp.create_lumped_port_to_sheet(
             rect.name, self.aedtapp.AxisDir.XNeg, 50, "Lump_sheet", True, False
@@ -430,7 +430,7 @@ class TestClass:
 
     def test_20_create_voltage_on_sheet(self):
         rect = self.aedtapp.modeler.primitives.create_rectangle(
-            self.aedtapp.CoordinateSystemPlane.XYPlane, [0, 0, 0], [10, 2], name="lump_volt", matname="Copper"
+            self.aedtapp.PLANE.XY, [0, 0, 0], [10, 2], name="lump_volt", matname="Copper"
         )
         port = self.aedtapp.assign_voltage_source_to_sheet(rect.name, self.aedtapp.AxisDir.XNeg, "LumpVolt1")
         assert port.name in self.aedtapp.modeler.get_excitations_name()
@@ -515,7 +515,7 @@ class TestClass:
 
     def test_32_get_property_value(self):
         rect = self.aedtapp.modeler.primitives.create_rectangle(
-            self.aedtapp.CoordinateSystemPlane.XYPlane, [0, 0, 0], [10, 2], name="RectBound", matname="Copper"
+            self.aedtapp.PLANE.XY, [0, 0, 0], [10, 2], name="RectBound", matname="Copper"
         )
         pe = self.aedtapp.assign_perfecte_to_sheets(rect.name, "PerfectE_1")
         assert self.aedtapp.get_property_value("BoundarySetup:PerfectE_1", "Inf Ground Plane", "Boundary") == "false"
@@ -557,7 +557,7 @@ class TestClass:
 
     def test_40_assign_current_source_to_sheet(self):
         sheet = self.aedtapp.modeler.primitives.create_rectangle(
-            self.aedtapp.CoordinateSystemPlane.XYPlane, [0, 0, 0], [5, 1], name="RectangleForSource", matname="Copper"
+            self.aedtapp.PLANE.XY, [0, 0, 0], [5, 1], name="RectangleForSource", matname="Copper"
         )
         assert self.aedtapp.assign_current_source_to_sheet(sheet.name)
 
@@ -573,7 +573,7 @@ class TestClass:
                                             reporter_filter=[False, True, False, False, False, False, False])
         assert self.aedtapp.create_floquet_port(box1.faces[1], deembed_dist=1, nummodes=7,
                                             reporter_filter=[False, True, False, False, False, False, False])
-        sheet = self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.CoordinateSystemPlane.XYPlane,
+        sheet = self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.PLANE.XY,
                                                                  [-100, -100, -100], [200, 200],
                                                                  name="RectangleForSource", matname="Copper")
         assert self.aedtapp.create_floquet_port(sheet, deembed_dist=1, nummodes=4, reporter_filter=False)

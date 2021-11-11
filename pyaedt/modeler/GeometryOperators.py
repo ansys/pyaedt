@@ -3,7 +3,7 @@ import math
 import re
 import sys
 from pyaedt.generic.general_methods import aedt_exception_handler
-from pyaedt.generic.constants import CoordinateSystemPlane, CoordinateSystemAxis, SWEEPDRAFT
+from pyaedt.generic.constants import PLANE, AXIS, SWEEPDRAFT
 
 class GeometryOperators(object):
     """Manages geometry operators."""
@@ -150,9 +150,9 @@ class GeometryOperators(object):
            String for the coordinate system plane.
 
         """
-        if val == CoordinateSystemPlane.XYPlane:
+        if val == PLANE.XY:
             return "Z"
-        elif val == CoordinateSystemPlane.YZPlane:
+        elif val == PLANE.YZ:
             return "X"
         else:
             return "Y"
@@ -173,9 +173,9 @@ class GeometryOperators(object):
             String for the coordinate system axis.
 
         """
-        if val == CoordinateSystemAxis.XAxis or val == "X":
+        if val == AXIS.X or val == "X":
             return "X"
-        elif val == CoordinateSystemAxis.YAxis or val == "Y":
+        elif val == AXIS.Y or val == "Y":
             return "Y"
         else:
             return "Z"

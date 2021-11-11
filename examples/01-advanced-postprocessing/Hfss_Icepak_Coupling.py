@@ -90,13 +90,13 @@ aedtapp["inner"] = "3mm"
 
 # TODO: How does this work when two truesurfaces are defined?
 o1 = aedtapp.modeler.primitives.create_cylinder(
-    aedtapp.CoordinateSystemPlane.XYPlane, udp, "inner", "$coax_dimension", numSides=0, name="inner"
+    aedtapp.PLANE.XY, udp, "inner", "$coax_dimension", numSides=0, name="inner"
 )
 o2 = aedtapp.modeler.primitives.create_cylinder(
-    aedtapp.CoordinateSystemPlane.XYPlane, udp, 8, "$coax_dimension", numSides=0, matname="teflon_based"
+    aedtapp.PLANE.XY, udp, 8, "$coax_dimension", numSides=0, matname="teflon_based"
 )
 o3 = aedtapp.modeler.primitives.create_cylinder(
-    aedtapp.CoordinateSystemPlane.XYPlane, udp, 10, "$coax_dimension", numSides=0, name="outer"
+    aedtapp.PLANE.XY, udp, 10, "$coax_dimension", numSides=0, name="outer"
 )
 
 ###############################################################################
@@ -222,7 +222,7 @@ aedtapp.save_project()
 aedtapp.close_project(project_name)
 aedtapp = Hfss(project_file)
 ipkapp = Icepak()
-ipkapp.solution_type = ipkapp.SolutionTypes.Icepak.SteadyTemperatureAndFlow
+ipkapp.solution_type = ipkapp.SOLUTIONS.Icepak.SteadyTemperatureAndFlow
 ipkapp.modeler.fit_all()
 
 ################################################################################

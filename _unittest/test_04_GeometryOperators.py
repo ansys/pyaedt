@@ -4,7 +4,7 @@ import clr
 from pyaedt.modeler.GeometryOperators import GeometryOperators as go
 
 clr.AddReference("System.Collections")
-from pyaedt.generic.constants import CoordinateSystemAxis, CoordinateSystemPlane, SWEEPDRAFT
+from pyaedt.generic.constants import AXIS, PLANE, SWEEPDRAFT
 from System import Double
 from System.Collections.Generic import List
 
@@ -58,20 +58,20 @@ class TestClass:
         assert go.parse_dim_arg("1.57rad") == 1.57
 
     def test_cs_plane_str(self):
-        assert go.cs_plane_str(CoordinateSystemPlane.XYPlane) == "Z"
-        assert go.cs_plane_str(CoordinateSystemPlane.YZPlane) == "X"
-        assert go.cs_plane_str(CoordinateSystemPlane.ZXPlane) == "Y"
+        assert go.cs_plane_str(PLANE.XY) == "Z"
+        assert go.cs_plane_str(PLANE.YZ) == "X"
+        assert go.cs_plane_str(PLANE.ZX) == "Y"
 
     def test_cs_axis_str(self):
-        assert go.cs_axis_str(CoordinateSystemAxis.XAxis) == "X"
-        assert go.cs_axis_str(CoordinateSystemAxis.YAxis) == "Y"
-        assert go.cs_axis_str(CoordinateSystemAxis.ZAxis) == "Z"
+        assert go.cs_axis_str(AXIS.X) == "X"
+        assert go.cs_axis_str(AXIS.Y) == "Y"
+        assert go.cs_axis_str(AXIS.Z) == "Z"
 
     def test_draft_type_str(self):
-        assert go.draft_type_str(SWEEPDRAFT.ExtendedDraft) == "Extended"
-        assert go.draft_type_str(SWEEPDRAFT.RoundDraft) == "Round"
-        assert go.draft_type_str(SWEEPDRAFT.NaturalDraft) == "Natural"
-        assert go.draft_type_str(SWEEPDRAFT.MixedDraft) == "Natural"
+        assert go.draft_type_str(SWEEPDRAFT.Extended) == "Extended"
+        assert go.draft_type_str(SWEEPDRAFT.Round) == "Round"
+        assert go.draft_type_str(SWEEPDRAFT.Natural) == "Natural"
+        assert go.draft_type_str(SWEEPDRAFT.Mixed) == "Natural"
 
     def test_get_mid_point(self):
         p1 = [0.0, 0.0, 0.0]

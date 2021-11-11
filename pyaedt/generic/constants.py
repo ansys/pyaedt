@@ -311,13 +311,13 @@ class FILLET(object):
 class AXIS(object):
     """CoordinateSystemAxis class."""
 
-    (XAxis, YAxis, ZAxis) = range(0, 3)
+    (X, Y, Z) = range(0, 3)
 
 
 class PLANE(object):
     """CoordinateSystemPlane class."""
 
-    (XYPlane, YZPlane, ZXPlane) = range(0, 3)
+    (XY, YZ, ZX) = range(0, 3)
 
 
 class GRAVITY(object):
@@ -329,13 +329,13 @@ class GRAVITY(object):
 class VIEW(object):
     """View class."""
 
-    (XYPlane, YZPlane, ZXPlane, ISO) = ("XY", "YZ", "ZX", "iso")
+    (XY, YZ, ZX, ISO) = ("XY", "YZ", "ZX", "iso")
 
 
 class SEGMENTTYPE(object):
     """CROSSSECTION class."""
 
-    (LineSegment, ArcSegment, SplineSegment, AngularArcSegment) = range(0, 4)
+    (Line, Arc, Spline, AngularArc) = range(0, 4)
 
 
 class CROSSSECTION(object):
@@ -347,7 +347,7 @@ class CROSSSECTION(object):
 class SWEEPDRAFT(object):
     """SweepDraftType class."""
 
-    (ExtendedDraft, RoundDraft, NaturalDraft, MixedDraft) = range(0, 4)
+    (Extended, Round, Natural, Mixed) = range(0, 4)
 
 
 class SOLUTIONS(object):

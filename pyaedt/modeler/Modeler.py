@@ -1252,13 +1252,13 @@ class GeometryModeler(Modeler, object):
             axisdist = -axisdist
 
         if divmod(axisdir, 3)[1] == 0:
-            cs = self._app.CoordinateSystemPlane.YZPlane
+            cs = self._app.AXIS.YZ
             vector = [axisdist, 0, 0]
         elif divmod(axisdir, 3)[1] == 1:
-            cs = self._app.CoordinateSystemPlane.ZXPlane
+            cs = self._app.AXIS.Z
             vector = [0, axisdist, 0]
         elif divmod(axisdir, 3)[1] == 2:
-            cs = self._app.CoordinateSystemPlane.XYPlane
+            cs = self._app.PLANE.XY
             vector = [0, 0, axisdist]
 
         offset = self.find_point_around(objectname, start, sheet_dim, cs)
@@ -2523,7 +2523,7 @@ class GeometryModeler(Modeler, object):
         startingposition : list
             List of ``[x, y, z]`` coordinates for the starting position.
         axis : int
-            Coordinate system axis (integer ``0`` for XAxis, ``1`` for YAxis, ``2`` for ZAxis) or
+            Coordinate system AXIS (integer ``0`` for X, ``1`` for Y, ``2`` for Z) or
             the :class:`Application.CoordinateSystemAxis` enumerator.
         innerradius : float, optional
             Inner coax radius. The default is ``1``.
@@ -2555,7 +2555,7 @@ class GeometryModeler(Modeler, object):
         >>> app = Hfss()
         >>> position = [0,0,0]
         >>> coax = app.modeler.create_coaxial(
-        ...    position, app.CoordinateSystemAxis.XAxis, innerradius=0.5, outerradius=0.8, dielradius=0.78, length=50
+        ...    position, app.AXIS.X, innerradius=0.5, outerradius=0.8, dielradius=0.78, length=50
         ... )
 
         """
@@ -2598,7 +2598,7 @@ class GeometryModeler(Modeler, object):
         origin : list
             List of ``[x, y, z]`` coordinates for the original position.
         wg_direction_axis : int
-            Coordinate system axis (integer ``0`` for XAxis, ``1`` for YAxis, ``2`` for ZAxis) or
+            Coordinate system axis (integer ``0`` for X, ``1`` for Y, ``2`` for Z) or
             the :class:`Application.CoordinateSystemAxis` enumerator.
         wgmodel : str, optional
             Waveguide model. The default is ``"WG0"``.
@@ -2632,7 +2632,7 @@ class GeometryModeler(Modeler, object):
         >>> from pyaedt import Hfss
         >>> app = Hfss()
         >>> position = [0, 0, 0]
-        >>> wg1 = app.modeler.create_waveguide(position, app.CoordinateSystemAxis.XAxis,
+        >>> wg1 = app.modeler.create_waveguide(position, app.AXIS.,
         ...                                    wgmodel="WG9", wg_length=2000)
 
 
@@ -2699,7 +2699,7 @@ class GeometryModeler(Modeler, object):
             else:
                 w = self.primitives._arg_with_dim(wgwidth)
                 wb = self.primitives._arg_with_dim(wgwidth) + " + 2*" + self.primitives._arg_with_dim(wg_thickness)
-            if wg_direction_axis == self._app.CoordinateSystemAxis.ZAxis:
+            if wg_direction_axis == self._app.AXIS.Z:
                 airbox = self.primitives.create_box(origin, [w, h, wg_length])
 
                 if type(wg_thickness) is str:
@@ -2709,7 +2709,7 @@ class GeometryModeler(Modeler, object):
                     origin[0] -= wg_thickness
                     origin[1] -= wg_thickness
 
-            elif wg_direction_axis == self._app.CoordinateSystemAxis.YAxis:
+            elif wg_direction_axis == self._app.AXIS.Y:
                 airbox = self.primitives.create_box(origin, [w, wg_length, h])
 
                 if type(wg_thickness) is str:
@@ -2736,9 +2736,9 @@ class GeometryModeler(Modeler, object):
                 p2 = self.primitives.create_object_from_face(airbox.faces[maxi].id)
             if not name:
                 name = generate_unique_name(wgmodel)
-            if wg_direction_axis == self._app.CoordinateSystemAxis.ZAxis:
+            if wg_direction_axis == self._app.AXIS.Z:
                 wgbox = self.primitives.create_box(origin, [wb, hb, wg_length], name=name)
-            elif wg_direction_axis == self._app.CoordinateSystemAxis.YAxis:
+            elif wg_direction_axis == self._app.AXIS.Y:
                 wgbox = self.primitives.create_box(origin, [wb, wg_length, hb], name=name)
             else:
                 wgbox = self.primitives.create_box(origin, [wg_length, wb, hb], name=name)

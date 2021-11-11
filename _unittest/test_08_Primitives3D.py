@@ -68,7 +68,7 @@ class TestClass(BasisTest):
             name = "MyRectangle"
         if self.aedtapp.modeler.primitives[name]:
             self.aedtapp.modeler.primitives.delete(name)
-        plane = self.aedtapp.CoordinateSystemPlane.XYPlane
+        plane = self.aedtapp.PLANE.XY
         return self.aedtapp.modeler.primitives.create_rectangle(plane, [5, 3, 8], [4, 5], name=name)
 
     def create_polylines(self, name=None):
@@ -140,7 +140,7 @@ class TestClass(BasisTest):
         assert o1.solve_inside
 
         o2 = self.aedtapp.modeler.primitives.create_polyhedron(
-            cs_axis=AXIS.ZAxis,
+            cs_axis=AXIS.Z,
             center_position=[0, 0, 0],
             start_position=[0, 1, 0],
             height=2.0,
@@ -217,7 +217,7 @@ class TestClass(BasisTest):
     @pyaedt_unittest_check_desktop_error
     def test_13_create_circle(self):
         udp = self.aedtapp.modeler.Position(5, 3, 8)
-        plane = self.aedtapp.CoordinateSystemPlane.XYPlane
+        plane = self.aedtapp.PLANE.XY
         o = self.aedtapp.modeler.primitives.create_circle(plane, udp, 2, name="MyCircle", matname="Copper")
         assert o.id > 0
         assert o.name.startswith("MyCircle")
@@ -238,7 +238,7 @@ class TestClass(BasisTest):
     @pyaedt_unittest_check_desktop_error
     def test_15_create_cylinder(self):
         udp = self.aedtapp.modeler.Position(20, 20, 0)
-        axis = self.aedtapp.CoordinateSystemAxis.YAxis
+        axis = self.aedtapp.AXIS.Y
         radius = 5
         height = 50
         o = self.aedtapp.modeler.primitives.create_cylinder(axis, udp, radius, height, 8, "MyCyl", "Copper")
@@ -251,7 +251,7 @@ class TestClass(BasisTest):
     @pyaedt_unittest_check_desktop_error
     def test_16_create_ellipse(self):
         udp = self.aedtapp.modeler.Position(5, 3, 8)
-        plane = self.aedtapp.CoordinateSystemPlane.XYPlane
+        plane = self.aedtapp.PLANE.XY
         o1 = self.aedtapp.modeler.primitives.create_ellipse(
             plane, udp, 5, 1.5, True, name="MyEllpise01", matname="Copper"
         )
@@ -340,7 +340,7 @@ class TestClass(BasisTest):
         assert my_name in self.aedtapp.modeler.primitives.object_names
         assert isinstance(self.aedtapp.modeler.get_vertices_of_line(my_name), list)
         rect = self.aedtapp.modeler.primitives.create_rectangle(
-            self.aedtapp.CoordinateSystemPlane.YZPlane, [0, -2, -2], [4, 3], name="rect_1"
+            self.aedtapp.AXIS.YZ, [0, -2, -2], [4, 3], name="rect_1"
         )
         swept = self.aedtapp.modeler.sweep_along_path(rect, path)
         assert swept
@@ -349,7 +349,7 @@ class TestClass(BasisTest):
     @pyaedt_unittest_check_desktop_error
     def test_22_sweep_along_vector(self):
         rect2 = self.aedtapp.modeler.primitives.create_rectangle(
-            self.aedtapp.CoordinateSystemPlane.YZPlane, [0, -2, -2], [4, 3], name="rect_2"
+            self.aedtapp.AXIS.YZ, [0, -2, -2], [4, 3], name="rect_2"
         )
         assert self.aedtapp.modeler.sweep_along_vector(rect2, [10, 20, 20])
         assert rect2.name in self.aedtapp.modeler.primitives.solid_names
@@ -357,7 +357,7 @@ class TestClass(BasisTest):
     @pyaedt_unittest_check_desktop_error
     def test_23_create_rectangle(self):
         udp = self.aedtapp.modeler.Position(5, 3, 8)
-        plane = self.aedtapp.CoordinateSystemPlane.XYPlane
+        plane = self.aedtapp.PLANE.XY
         o = self.aedtapp.modeler.primitives.create_rectangle(plane, udp, [4, 5], name="MyRectangle", matname="Copper")
         assert o.id > 0
         assert o.name.startswith("MyRectangle")
@@ -367,7 +367,7 @@ class TestClass(BasisTest):
     @pyaedt_unittest_check_desktop_error
     def test_24_create_cone(self):
         udp = self.aedtapp.modeler.Position(5, 3, 8)
-        axis = self.aedtapp.CoordinateSystemAxis.ZAxis
+        axis = self.aedtapp.AXIS.Z
         o = self.aedtapp.modeler.primitives.create_cone(axis, udp, 20, 10, 5, name="MyCone", matname="Copper")
         assert o.id > 0
         assert o.name.startswith("MyCone")
@@ -377,7 +377,7 @@ class TestClass(BasisTest):
     @pyaedt_unittest_check_desktop_error
     def test_25_get_object_id(self):
         udp = self.aedtapp.modeler.Position(5, 3, 8)
-        plane = self.aedtapp.CoordinateSystemPlane.XYPlane
+        plane = self.aedtapp.PLANE.XY
         o = self.aedtapp.modeler.primitives.create_rectangle(plane, udp, [4, 5], name="MyRectangle5")
         assert self.aedtapp.modeler.primitives.get_obj_id(o.name) == o.id
 
@@ -477,7 +477,7 @@ class TestClass(BasisTest):
 
     @pyaedt_unittest_check_desktop_error
     def test_32_get_face_vertices(self):
-        plane = self.aedtapp.CoordinateSystemPlane.XYPlane
+        plane = self.aedtapp.PLANE.XY
         rectid = self.aedtapp.modeler.primitives.create_rectangle(plane, [1, 2, 3], [7, 13], name="rect_for_get")
         listfaces = self.aedtapp.modeler.primitives.get_object_faces("rect_for_get")
         vertices = self.aedtapp.modeler.primitives.get_face_vertices(listfaces[0])
@@ -526,7 +526,7 @@ class TestClass(BasisTest):
         spherename = self.aedtapp.modeler.primitives.get_bodynames_from_position(center)
         assert "fred" in spherename
 
-        plane = self.aedtapp.CoordinateSystemPlane.XYPlane
+        plane = self.aedtapp.PLANE.XY
         rectid = self.aedtapp.modeler.primitives.create_rectangle(plane, [-50, -50, -50], [2, 2], name="bob")
         rectname = self.aedtapp.modeler.primitives.get_bodynames_from_position([-49.0, -49.0, -50.0])
         assert "bob" in rectname
@@ -575,7 +575,7 @@ class TestClass(BasisTest):
     @pyaedt_unittest_check_desktop_error
     def test_41b_get_edges_for_circuit_port(self):
         udp = self.aedtapp.modeler.Position(0, 0, 8)
-        plane = self.aedtapp.CoordinateSystemPlane.XYPlane
+        plane = self.aedtapp.PLANE.XY
         o = self.aedtapp.modeler.primitives.create_rectangle(plane, udp, [3, 10], name="MyGND", matname="Copper")
         face_id = o.faces[0].id
         edges1 = self.aedtapp.modeler.primitives.get_edges_for_circuit_port(
