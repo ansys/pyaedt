@@ -284,7 +284,7 @@ class EdbPadstacks(object):
             Ending layer. The default is ``None``, in which case the bottom
             is the ending layer.
         antipadshape : str, optional
-            Shape of the antipad. The default is ``Circle``. Options are ``"Bullet"``.
+            Shape of the antipad. The default is ``"Circle"``. Options are ``"Circle"`` and ``"Bullet"``.
         xsize : str, optional
             Only applicable to bullet shape. The default is ``"600um"``.
         ysize : str, optional
