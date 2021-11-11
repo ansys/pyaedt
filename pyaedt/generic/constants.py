@@ -325,7 +325,7 @@ class AXIS(object):
 class PLANE(object):
     """CoordinateSystemPlane class."""
 
-    (XY, YZ, ZX) = range(0, 3)
+    (YZ, ZX, XY) = range(0, 3)
 
 
 class GRAVITY(object):
@@ -544,7 +544,7 @@ class CoordinateSystemPlane(object):
     .. deprecated:: 0.4.8
     Use :func:`PLANE` instead."""
 
-    (XYPlane, YZPlane, ZXPlane) = range(0, 3)
+    (YZPlane, ZXPlane, XYPlane) = range(0, 3)
 
 
 class Plane(object):

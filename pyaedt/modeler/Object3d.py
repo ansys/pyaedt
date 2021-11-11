@@ -1400,8 +1400,8 @@ class Object3d(object):
 
         Parameters
         ----------
-        plane : pyaedt.generic.constants.CoordinateSystemPlane
-            Coordinate system of the plane object. Application.CoordinateSystemPlane object
+        plane : pyaedt.generic.constants.PLANE
+            Coordinate system of the plane object. Application.PLANE object
         create_new : bool, optional
             Whether to create an object. The default is ``True``.
         section_cross_object : bool, optional

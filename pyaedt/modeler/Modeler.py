@@ -1940,7 +1940,7 @@ class GeometryModeler(Modeler, object):
         object_list : str, int, or Object3d
             One or more objects to section.
         plane : str
-            Coordinate plane or Application.CoordinateSystemPlane object.
+            Coordinate plane or Application.PLANE object.
             Choices for the coordinate plane are ``"XY"``, ``"YZ"``, and ``"ZX"``.'
         create_new : bool, optional
             The default is ``True``, but this parameter has no effect.
