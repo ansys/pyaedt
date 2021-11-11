@@ -340,7 +340,7 @@ class TestClass(BasisTest):
         assert my_name in self.aedtapp.modeler.primitives.object_names
         assert isinstance(self.aedtapp.modeler.get_vertices_of_line(my_name), list)
         rect = self.aedtapp.modeler.primitives.create_rectangle(
-            self.aedtapp.AXIS.YZ, [0, -2, -2], [4, 3], name="rect_1"
+            self.aedtapp.PLANE.YZ, [0, -2, -2], [4, 3], name="rect_1"
         )
         swept = self.aedtapp.modeler.sweep_along_path(rect, path)
         assert swept
@@ -349,7 +349,7 @@ class TestClass(BasisTest):
     @pyaedt_unittest_check_desktop_error
     def test_22_sweep_along_vector(self):
         rect2 = self.aedtapp.modeler.primitives.create_rectangle(
-            self.aedtapp.AXIS.YZ, [0, -2, -2], [4, 3], name="rect_2"
+            self.aedtapp.PLANE.YZ, [0, -2, -2], [4, 3], name="rect_2"
         )
         assert self.aedtapp.modeler.sweep_along_vector(rect2, [10, 20, 20])
         assert rect2.name in self.aedtapp.modeler.primitives.solid_names

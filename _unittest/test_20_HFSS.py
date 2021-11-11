@@ -90,7 +90,7 @@ class TestClass:
     def test_05_create_wave_port_from_sheets(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         o5 = self.aedtapp.modeler.primitives.create_circle(
-            self.aedtapp.AXIS.YZ, udp, 10, name="sheet1"
+            self.aedtapp.PLANE.YZ, udp, 10, name="sheet1"
         )
         self.aedtapp.solution_type = "DrivenTerminal"
         ports = self.aedtapp.create_wave_port_from_sheet(o5, 5, self.aedtapp.AxisDir.XNeg, 40, 2, "sheet1_Port", True)
@@ -99,7 +99,7 @@ class TestClass:
         self.aedtapp.solution_type = "DrivenModal"
         udp = self.aedtapp.modeler.Position(200, 0, 0)
         o6 = self.aedtapp.modeler.primitives.create_circle(
-            self.aedtapp.AXIS.YZ, udp, 10, name="sheet2"
+            self.aedtapp.PLANE.YZ, udp, 10, name="sheet2"
         )
         ports = self.aedtapp.create_wave_port_from_sheet(o6, 5, self.aedtapp.AxisDir.XPos, 40, 2, "sheet2_Port", True)
         assert ports[0].name == "sheet2_Port"
@@ -108,7 +108,7 @@ class TestClass:
         id6 = self.aedtapp.modeler.primitives.create_box([20, 20, 20], [10, 10, 2], matname="Copper", name="My_Box")
         id7 = self.aedtapp.modeler.primitives.create_box([20, 25, 30], [10, 2, 2], matname="Copper")
         rect = self.aedtapp.modeler.primitives.create_rectangle(
-            self.aedtapp.AXIS.YZ, [20, 25, 20], [2, 10]
+            self.aedtapp.PLANE.YZ, [20, 25, 20], [2, 10]
         )
         ports = self.aedtapp.create_wave_port_from_sheet(rect, 5, self.aedtapp.AxisDir.ZNeg, 40, 2, "sheet3_Port", True)
         assert ports[0].name in [i.name for i in self.aedtapp.boundaries]

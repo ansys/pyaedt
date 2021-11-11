@@ -339,7 +339,7 @@ class TestClass(BasisTest):
         self.aedtapp.modeler.set_working_coordinate_system("new1")
 
     def test_44_sweep_around_axis(self):
-        rect1 = self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.AXIS.YZ, [0, 0, 0],
+        rect1 = self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.PLANE.YZ, [0, 0, 0],
                                                                  [20, 20], "rectangle_to_split")
         assert rect1.sweep_around_axis("Z", sweep_angle=360, draft_angle=0)
 
@@ -347,7 +347,7 @@ class TestClass(BasisTest):
         udp1 = [0, 0, 0]
         udp2 = [5, 0, 0]
         path = self.aedtapp.modeler.primitives.create_polyline([udp1, udp2], name="Poly1")
-        rect1 = self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.AXIS.YZ, [0, 0, 0],
+        rect1 = self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.PLANE.YZ, [0, 0, 0],
                                                                  [20, 20], "rectangle_to_sweep")
         assert rect1.sweep_along_path(path)
 
@@ -358,7 +358,7 @@ class TestClass(BasisTest):
 
     def test_47_sweep_along_vector(self):
         sweep_vector = [5, 0, 0]
-        rect1 = self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.AXIS.YZ, [0, 0, 0],
+        rect1 = self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.PLANE.YZ, [0, 0, 0],
                                                                  [20, 20], "rectangle_to_vector")
         assert rect1.sweep_along_vector(sweep_vector)
 
