@@ -34,7 +34,7 @@ def parse_file(file_path):
                     "x_data": all_x_values[0 : curve_data[0]],
                     "y_data": all_y_values[0 : curve_data[0]],
                 }
-                all_x_values = all_x_values[curve_data[0] + 1 :]
-                all_y_values = all_y_values[curve_data[0] + 1 :]
+                all_x_values = all_x_values[curve_data[0] :]
+                all_y_values = all_y_values[curve_data[0] :]
 
     return report_dict
