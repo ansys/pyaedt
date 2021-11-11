@@ -8,6 +8,8 @@ from pyaedt.generic.general_methods import aedt_exception_handler, generate_uniq
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 
 from pyaedt.edb_core.EDB_Data import EDBPadstack
+from System import Double
+from System.Collections.Generic import List
 
 try:
     from System import Array
@@ -90,6 +92,10 @@ class EdbPadstacks(object):
         for el in self._active_layout.PinGroups:
             pingroups.append(el)
         return pingroups
+
+    @property
+    def pad_type(self):
+        return self._edb.Definition.PadType
 
     @aedt_exception_handler
     def update_padstacks(self):
@@ -248,6 +254,35 @@ class EdbPadstacks(object):
             pinlist = self._padstack_methods.GetPinsFromComponentAndNets(self._active_layout, refdes, netname)
             if pinlist.Item1:
                 return pinlist.Item2
+
+    @aedt_exception_handler
+    def get_pad_parameters(self, pin, layername, pad_type=None):
+        """Get Padstack Parameters from Pin or Padstack Definition
+
+        Parameters
+        ----------
+        pin : Edb.Definition.PadstackDef or Edb.Definition.PadstackInstance
+            Pin or PadstackDef on which get values.
+        layername : str
+            Layer on which get properties.
+        pad_type : int
+            Pad Type.
+
+        Returns
+        -------
+        tuple
+            Tuple of (GeometryType, ParameterList, OffsetX, OffsetY, Rot)
+        """
+        if "PadstackDef" in str(type(pin)):
+            padparams = self._padstack_methods.GetPadParametersValue(pin, layername, pad_type)
+        else:
+            padparams = self._padstack_methods.GetPadParametersValue(pin.GetPadstackDef(), layername, pad_type)
+        geom_type = int(padparams.Item1)
+        parameters = [i.ToString() for i in padparams.Item2]
+        offset_x = padparams.Item3.ToDouble()
+        offset_y = padparams.Item4.ToDouble()
+        rot = padparams.Item5.ToDouble()
+        return geom_type, parameters, offset_x, offset_y, rot
 
     @aedt_exception_handler
     def create_padstack(
