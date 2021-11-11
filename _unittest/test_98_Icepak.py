@@ -215,7 +215,7 @@ class TestClass:
 
     def test_15_insert_new_icepak(self):
         self.aedtapp.insert_design("Solve")
-        self.aedtapp.solution_type = self.aedtapp.SolutionTypes.Icepak.SteadyTemperatureAndFlow
+        self.aedtapp.solution_type = self.aedtapp.SOLUTIONS.Icepak.SteadyTemperatureAndFlow
         self.aedtapp.modeler.primitives.create_box([0, 0, 0], [10, 10, 10], "box", "copper")
         self.aedtapp.modeler.primitives.create_box([9, 9, 9], [5, 5, 5], "box2", "copper")
         self.aedtapp.create_source_block("box", "1W", False)
@@ -333,7 +333,7 @@ class TestClass:
 
     def test_37_surface_monitor(self):
         self.aedtapp.modeler.primitives.create_rectangle(
-            self.aedtapp.CoordinateSystemPlane.XYPlane, [0, 0, 0], [10, 20], name="surf1"
+            self.aedtapp.PLANE.XY, [0, 0, 0], [10, 20], name="surf1"
         )
         assert self.aedtapp.assign_surface_monitor("surf1")
 

@@ -15,7 +15,7 @@ import warnings
 import sys
 from collections import OrderedDict
 
-from pyaedt.application.Variables import AEDT_units
+from pyaedt.generic.constants import AEDT_UNITS, db10, db20
 from pyaedt.generic.filesystem import Scratch
 from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, _retry_ntimes
 
@@ -177,8 +177,8 @@ class SolutionData(object):
         -------
 
         """
-        for el in AEDT_units:
-            keys_units = [i.lower() for i in list(AEDT_units[el].keys())]
+        for el in AEDT_UNITS:
+            keys_units = [i.lower() for i in list(AEDT_UNITS[el].keys())]
             if unit.lower() in keys_units:
                 return el
         return None
@@ -317,13 +317,16 @@ class SolutionData(object):
 
         """
         sol = datalist
-        if dataunits in AEDT_units and units in AEDT_units[dataunits]:
-            sol = [i * AEDT_units[dataunits][units] for i in datalist]
+        if dataunits in AEDT_UNITS and units in AEDT_UNITS[dataunits]:
+            sol = [i * AEDT_UNITS[dataunits][units] for i in datalist]
         return sol
 
     @aedt_exception_handler
     def data_db(self, expression=None, convert_to_SI=False):
-        """Retrieve the data in the database for an expression.
+        """Retrieve the data in the database for an expression and convert in db10.
+
+        .. deprecated:: 0.4.8
+           Use :func:`data_db10` instead.
 
         Parameters
         ----------
@@ -343,7 +346,53 @@ class SolutionData(object):
         if not expression:
             expression = self.expressions[0]
 
-        return [10 * math.log10(i) for i in self.data_magnitude(expression, convert_to_SI)]
+        return [db10(i) for i in self.data_magnitude(expression, convert_to_SI)]
+
+    def data_db10(self, expression=None, convert_to_SI=False):
+        """Retrieve the data in the database for an expression and convert in db10.
+
+        Parameters
+        ----------
+        expression : str, optional
+            Name of the expression. The default is ``None``,
+            in which case the first expression is used.
+        convert_to_SI : bool, optional
+            Whether to convert the data to the SI unit system.
+            The default is ``False``.
+
+        Returns
+        -------
+        list
+            List of the data in the database for the expression.
+
+        """
+        if not expression:
+            expression = self.expressions[0]
+
+        return [db10(i) for i in self.data_magnitude(expression, convert_to_SI)]
+
+    def data_db20(self, expression=None, convert_to_SI=False):
+        """Retrieve the data in the database for an expression and convert in db20.
+
+        Parameters
+        ----------
+        expression : str, optional
+            Name of the expression. The default is ``None``,
+            in which case the first expression is used.
+        convert_to_SI : bool, optional
+            Whether to convert the data to the SI unit system.
+            The default is ``False``.
+
+        Returns
+        -------
+        list
+            List of the data in the database for the expression.
+
+        """
+        if not expression:
+            expression = self.expressions[0]
+
+        return [db20(i) for i in self.data_magnitude(expression, convert_to_SI)]
 
     def data_real(self, expression=None, convert_to_SI=False):
         """Retrieve the real part of the data for an expression.

@@ -1,5 +1,5 @@
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
-from pyaedt.application.Variables import unit_system, SI_units
+from pyaedt.generic.constants import SI_UNITS, unit_system
 
 
 def parse_rdat_file(file_path):
@@ -21,8 +21,8 @@ def parse_rdat_file(file_path):
             all_x_values = x_data["TraceDataCol"]["ColumnValues"]
             all_y_values = y_data["TraceDataCol"]["ColumnValues"]
 
-            si_unit_x = SI_units[unit_system(x_data["TraceDataCol"]["Units"])]
-            si_unit_y = SI_units[unit_system(y_data["TraceDataCol"]["Units"])]
+            si_unit_x = SI_UNITS[unit_system(x_data["TraceDataCol"]["Units"])]
+            si_unit_y = SI_UNITS[unit_system(y_data["TraceDataCol"]["Units"])]
             report_dict[report_name][trace_data["TraceName"]] = {
                 "x_name": x_data["TraceCompExpr"],
                 "x_unit": si_unit_x,

@@ -11,7 +11,7 @@ import os
 ###############################################################################
 # Import Packages
 # ~~~~~~~~~~~~~~~
-# Set the local path to the path for AEDTLib.
+# Set the local path to the path for PyAEDT.
 
 from pyaedt import examples
 import tempfile

@@ -24,7 +24,7 @@ m3d = Maxwell3d(specified_version="2021.2", new_desktop_session=True)
 # Setup Maxwell Solution
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Setup Maxwell Solution to DC.
-m3d.solution_type = m3d.SolutionTypes.Maxwell3d.ElectroDCConduction
+m3d.solution_type = m3d.SOLUTIONS.Maxwell3d.ElectroDCConduction
 
 
 ###############################################################################

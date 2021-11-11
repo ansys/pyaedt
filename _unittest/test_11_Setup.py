@@ -33,7 +33,7 @@ class TestClass:
         gc.collect()
 
     def test_01_create_hfss_setup(self):
-        setup1 = self.aedtapp.create_setup("My_HFSS_Setup", self.aedtapp.SimulationSetupTypes.HFSSDrivenDefault)
+        setup1 = self.aedtapp.create_setup("My_HFSS_Setup", self.aedtapp.SETUPS.HFSSDrivenDefault)
         assert setup1.name == "My_HFSS_Setup"
         assert "SaveRadFieldsOnly" in setup1.props
         setup1.props["SaveRadFieldsOnly"] = True
@@ -58,7 +58,7 @@ class TestClass:
 
     def test_02_create_circuit_setup(self):
         circuit = Circuit()
-        setup1 = circuit.create_setup("circuit", self.aedtapp.SimulationSetupTypes.NexximLNA)
+        setup1 = circuit.create_setup("circuit", self.aedtapp.SETUPS.NexximLNA)
         assert setup1.name == "circuit"
         setup1.props["SweepDefinition"]["Data"] = "LINC 0GHz 4GHz 501"
         setup1.update()

@@ -19,7 +19,7 @@ class FieldAnalysisEmit(Design):
         Parameters
         ----------
         soltype :
-            SolutionType object.
+            SOLUTIONS object.
         """
         return self._solution_type
 

@@ -13,7 +13,13 @@ import warnings
 from collections import OrderedDict
 
 from pyaedt.generic.general_methods import aedt_exception_handler
-from pyaedt.modeler.modeler_constants import CoordinateSystemAxis, CoordinateSystemPlane, GravityDirection, Plane
+from pyaedt.generic.constants import (
+    AXIS,
+    PLANE,
+    GRAVITY,
+    VIEW,
+    SOLUTIONS,
+    SETUPS)
 from pyaedt.modules.Boundary import NativeComponentObject
 from pyaedt.modules.DesignXPloration import (
     DOESetups,
@@ -25,10 +31,10 @@ from pyaedt.modules.DesignXPloration import (
 )
 from pyaedt.modules.MaterialLib import Materials
 from pyaedt.modules.SetupTemplates import SetupKeys
-from pyaedt.modules.SolutionType import SetupTypes, SolutionType
 from pyaedt.modules.SolveSetup import Setup
 from pyaedt.application.Design import Design
 from pyaedt.application.JobManager import update_hpc_option
+
 
 class Analysis(Design, object):
     """Contains all common analysis functions.
@@ -119,6 +125,12 @@ class Analysis(Design, object):
         self.opti_sensitivity = SensitivitySetups(self)
         self.opti_statistical = StatisticalSetups(self)
         self.native_components = self._get_native_data()
+        self.SOLUTIONS = SOLUTIONS()
+        self.SETUPS = SETUPS()
+        self.AXIS = AXIS()
+        self.PLANE = PLANE()
+        self.VIEW = VIEW()
+        self.GRAVITY = GRAVITY()
 
     @property
     def output_variables(self):
@@ -170,50 +182,60 @@ class Analysis(Design, object):
     def CoordinateSystemAxis(self):
         """Coordinate system axis constant.
 
+        .. deprecated:: 0.4.8
+           Use :attr:`AXIS` instead.
+
         Returns
         -------
-        :class:`pyaedt.modeler.modeler_constants.CoordinateSystemAxis`
+        :class:`pyaedt.modeler.constants.AXIS`
             Coordinate system axis constants tuple (.X, .Y, .Z).
 
         """
-        return CoordinateSystemAxis()
+        return AXIS()
 
     @property
     def CoordinateSystemPlane(self):
         """Coordinate system plane constants.
 
+        .. deprecated:: 0.4.8
+           Use :attr:`PLANE` instead.
+
         Returns
         -------
-        :class:`pyaedt.modeler.modeler_constants.CoordinateSystemPlane`
+        :class:`pyaedt.modeler.constants.PLANE`
             Coordinate system plane constants tuple (.XY, .YZ, .XZ).
 
         """
-        return CoordinateSystemPlane()
+        return PLANE()
 
     @property
     def View(self):
-        """Planes. (To check if redundant to CoordinateSystemPlane.)
+        """Planes.
 
+        .. deprecated:: 0.4.8
+           Use :attr:`VIEW` instead.
 
         Returns
         -------
-        tuple
+        :class:`pyaedt.modeler.constants.PLANE`
             Coordinate system plane string tuple ("XY", "YZ", "XZ").
 
         """
-        return Plane()
+        return VIEW()
 
     @property
     def GravityDirection(self):
-        """Gravity direction. (To check if redundant.)
+        """Gravity direction.
 
+        .. deprecated:: 0.4.8
+           Use :attr:`GRAVITY` instead.
         Returns
         -------
         tuple
             Gravity direction tuple (XNeg, YNeg, ZNeg, XPos, YPos, ZPos).
 
         """
-        return GravityDirection()
+        return GRAVITY()
 
     @property
     def modeler(self):
@@ -370,10 +392,10 @@ class Analysis(Design, object):
 
         Returns
         -------
-        SetupTypes
+        SETUPS
             List of all simulation setup types categorized by application.
         """
-        return SetupTypes()
+        return SETUPS()
 
     @property
     def SolutionTypes(self):
@@ -381,10 +403,10 @@ class Analysis(Design, object):
 
         Returns
         -------
-        SolutionType
+        SOLUTIONS
             List of all solution type categorized by application.
         """
-        return SolutionType()
+        return SOLUTIONS()
 
     @aedt_exception_handler
     def _get_native_data(self):
