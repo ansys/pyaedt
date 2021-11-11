@@ -56,6 +56,9 @@ _value_parse1 = re.compile(r"\s")
 _value_parse2 = re.compile(r"^'([^']*\s[^']*)(?=')")
 _begin_search = re.compile(r"\$begin '(.+)'")
 
+# set recognized keywords
+_recognized_keywords = ['CurvesInfo']
+
 # global variables
 _all_lines = []
 _len_all_lines = 0
@@ -159,7 +162,36 @@ def _decode_value_and_save(k, v, d):
             d[k] = _parse_value(v)
 
 
-def _decode_key(l , d):
+def _decode_recognized_key(keyword, l, d):
+    """ Special decodings for keys belonging to  _recognized_keywords
+
+    Parameters
+    ----------
+    keyword : str
+        dictionary key recognized
+
+    l : str
+        Line.
+
+    d : dict
+        Active dictionary.
+
+    -------
+
+    """
+    if keyword == _recognized_keywords[0]:   # 'CurvesInfo'
+        m = re.search(r'\'(\d+)\'\((.*)\)$', l)
+        if m:
+            k = m.group(1)
+            v = m.group(2)
+            v2 = v.replace("\\'", '"')
+            v3 = _separate_list_elements(v2)
+            d[k] = v3
+    else:
+        raise AttributeError('Keyword {} is supposed to be in the recognized_keywords list'.format(keyword))
+
+
+def _decode_key(l, d):
     """
 
     Parameters
@@ -195,9 +227,8 @@ def _decode_key(l , d):
             value2 = value.replace("\\'", '"')
         else:
             value2 = value
-        # if there are no spaces in value
+        # if there are no spaces in value   or   values with spaces are between quotes
         if not _value_parse1.search(value2) or _value_parse2.search(value2):
-            # or values with spaces are between quote
             key = m.group("KEY2")
             _decode_value_and_save(key, value, d)
         else:  # spaces in value without quotes
@@ -250,6 +281,8 @@ def _walk_through_structure(keyword, save_dict):
             if b:  # walk down a level
                 nextlvl_begin_key = b.group(1)
                 _walk_through_structure(nextlvl_begin_key, save_dict[keyword])
+            elif keyword in _recognized_keywords:
+                _decode_recognized_key(keyword, line, save_dict[keyword])
             else:  # decode key
                 _decode_key(line, save_dict[keyword])
         _count += 1

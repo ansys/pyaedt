@@ -806,6 +806,37 @@ class GeometryModeler(Modeler, object):
         return list(objects)
 
     @aedt_exception_handler
+    def _find_perpendicular_points(self, face):
+
+        if isinstance(face, str):
+            vertices = [i.position for i in self.primitives[face].vertices]
+        else:
+            vertices = []
+            for vertex in list(self.oeditor.GetVertexIDsFromFace(face)):
+                vertices.append([float(i) for i in list(self.oeditor.GetVertexPosition(vertex))])
+        assert len(vertices) > 2, "Automatic A-B Assignment can be done only on face with more than 2 vertices."
+        origin = vertices[0]
+        a_end = []
+        b_end = []
+        tol = 1e-10
+        for v in vertices[1:]:
+            edge1 = GeometryOperators.v_points(origin, v)
+            for v2 in vertices[1:]:
+                if v2 != v:
+                    edge2 = GeometryOperators.v_points(origin, v2)
+                    if abs(GeometryOperators.v_dot(edge1, edge2)) < tol:
+                        a_end = v
+                        b_end = v2
+                        break
+            if a_end:
+                break
+        if not a_end:
+            a_end = vertices[1]
+            b_end = vertices[2]
+            return False, (origin, a_end, b_end)
+        return True, (origin, a_end, b_end)
+
+    @aedt_exception_handler
     def create_coordinate_system(
         self,
         origin=None,

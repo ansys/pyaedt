@@ -1668,6 +1668,283 @@ class Hfss(FieldAnalysis3D, object):
                 return self._create_port_terminal(faces[0], endobject, portname, iswaveport=True)
         return False
 
+    @aedt_exception_handler
+    def create_floquet_port(
+        self,
+        face,
+        lattice_origin=None,
+        lattice_a_end=None,
+        lattice_b_end=None,
+        nummodes=2,
+        portname=None,
+        renorm=True,
+        deembed_dist=0,
+        reporter_filter=True,
+        lattice_cs = "Global"
+    ):
+        """Create a Floquet Port on a Face.
+
+        Parameters
+        ----------
+        face :
+            Face or Sheet on which apply the Floquet Port.
+        lattice_origin : list
+            List of `[x,y,z]` coordinates for the lattice A-B origin. If `None` the method will
+            try to compute the A-B automatically.
+        lattice_a_end : list
+            List of `[x,y,z]` coordinates for the lattice A end point. If `None` the method will
+            try to compute the A-B automatically.
+        lattice_b_end : list
+            List of `[x,y,z]` coordinates for the lattice B end point. If `None` the method will
+            try to compute the A-B automatically.
+        nummodes : int, optional
+            Number of modes. The default is ``2``.
+        portname : str, optional
+            Name of the port. The default is ``None``.
+        renorm : bool, optional
+            Whether to renormalize the mode. The default is ``True``.
+        deembed_dist : float, str, optional
+            Deembed distance in millimeters. The default is ``0``,
+            in which case deembed is disabled.
+        reporter_filter : bool, list of bool
+            Whether to include mode into reported. It can be a bool and applies to all modes or list of bools
+            and applies to each mode. List must have `nummodes` elements.
+        lattice_cs : str, optional
+            Lattice A-B Vector Coordinate System Reference.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
+
+        Examples
+        --------
+
+
+
+        """
+        face_id = self.modeler._convert_list_to_ids(face, True)
+        props = OrderedDict({})
+        if isinstance(face_id[0], int):
+            props["Faces"] = face_id
+        else:
+            props["Objects"] = face_id
+
+        props["NumModes"] = nummodes
+        if deembed_dist:
+            props["DoDeembed"] = True
+            props["DeembedDist"] = self.modeler.primitives._arg_with_dim(deembed_dist)
+        else:
+            props["DoDeembed"] = False
+            props["DeembedDist"] = "0mm"
+        props["RenormalizeAllTerminals"] = renorm
+        props["Modes"] = OrderedDict({})
+        for i in range(1, 1 + nummodes):
+            props["Modes"]["Mode{}".format(i)] = OrderedDict({})
+            props["Modes"]["Mode{}".format(i)]["ModeNum"] = i
+            props["Modes"]["Mode{}".format(i)]["UseIntLine"] = False
+            props["Modes"]["Mode{}".format(i)]["CharImp"] = "Zpi"
+        props["ShowReporterFilter"] = True
+        if isinstance(reporter_filter, bool):
+            props["ReporterFilter"] = [reporter_filter for i in range(nummodes)]
+        else:
+            props["ReporterFilter"] = reporter_filter
+        if not lattice_a_end or not lattice_origin or not lattice_b_end:
+           result, output = self.modeler._find_perpendicular_points(face_id[0])
+           lattice_origin = output[0]
+           lattice_a_end = output[1]
+           lattice_b_end = output[2]
+        props["LatticeAVector"] = OrderedDict({})
+        props["LatticeAVector"]["Coordinate System"] = lattice_cs
+        props["LatticeAVector"]["Start"] = lattice_origin
+        props["LatticeAVector"]["End"] = lattice_a_end
+        props["LatticeBVector"] = OrderedDict({})
+        props["LatticeBVector"]["Coordinate System"] = lattice_cs
+        props["LatticeBVector"]["Start"] = lattice_origin
+        props["LatticeBVector"]["End"] = lattice_b_end
+        if not portname:
+            portname = generate_unique_name("Floquet")
+        return self._create_boundary(portname, props, "FloquetPort")
+
+    @aedt_exception_handler
+    def assign_lattice_pair(self, face_couple, reverse_v=False, phase_delay="UseScanAngle", phase_delay_param1="0deg",
+                            phase_delay_param2="0deg", pair_name=None):
+        """Assign Lattice Pair to a couple of faces.
+
+        Parameters
+        ----------
+        face_couple : list
+            List of 2 faces to assign the lattice pair to.
+        reverse_v : bool, optional
+            Reverse V Vector. Default is `False`.
+        phase_delay : str, optional
+            Define the phase delay approach. Default is `"UseScanAngle"`.
+            Options are `"UseScanUV"`, `"InputPhaseDelay"`
+        phase_delay_param1 : str, optional
+            Phi Angle if "UseScanAngle" is used. U value if "UseScanUV" is used".
+            "Phase" if "InputPhaseDelay". Default is `0deg`.
+        phase_delay_param2 :  str, optional
+            Theta Angle if "UseScanAngle" is used. V value if "UseScanUV" is used".
+            Default is `0deg`.
+        pair_name : str, optional
+            Boundary name.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
+
+        """
+        props = OrderedDict({})
+        face_id = self.modeler._convert_list_to_ids(face_couple, True)
+        props["Faces"] = face_id
+        props["ReverseV"] = reverse_v
+
+        props["PhaseDelay"] = phase_delay
+        if phase_delay == "UseScanAngle":
+            props["Phi"] = phase_delay_param1
+            props["Theta"] = phase_delay_param2
+        elif phase_delay == "UseScanUV":
+            props["ScanU"] = phase_delay_param1
+            props["ScanV"] = phase_delay_param2
+        else:
+            props["Phase"] = phase_delay_param1
+        if not pair_name:
+            pair_name = generate_unique_name("LatticePair")
+        return self._create_boundary(pair_name, props, "Lattice Pair")
+
+    @aedt_exception_handler
+    def auto_assign_lattice_pairs(self, object_to_assign, coordinate_system="Global", coordinate_plane="XY"):
+        """Auto Assign Lattice Pairs to geometry.
+
+        Parameters
+        ----------
+        object_to_assign : str, Object3d
+            Object to which assign Lattice.
+        coordinate_system : str, optional
+            Coordinate System on which look for lattice.
+        coordinate_plane : str, optional
+            Plane on which looks for lattice. Default is `"XY"`. Options are`"XZ"` and `"YZ"`.
+
+        Returns
+        -------
+        list of str
+            list of created pair names.
+        """
+        objectname = self.modeler._convert_list_to_ids(object_to_assign, True)
+        boundaries = list(self.oboundary.GetBoundaries())
+        self.oboundary.AutoIdentifyLatticePair("{}:{}".format(coordinate_system, coordinate_plane), objectname[0])
+        boundaries = [i for i in list(self.oboundary.GetBoundaries()) if i not in boundaries]
+        bounds = [i for i in boundaries if boundaries.index(i) % 2 == 0]
+        return bounds
+
+    @aedt_exception_handler
+    def assign_secondary(self, face, primary_name, u_start, u_end, reverse_v=False, phase_delay="UseScanAngle",
+                         phase_delay_param1="0deg", phase_delay_param2="0deg", coord_name="Global",
+                         secondary_name=None):
+        """Assign Secondary Boundary Condition.
+
+        Parameters
+        ----------
+        face : int, FacePrimitive
+            Face to assign the lattice pair.
+        primary_name : str
+            Name of the Primary boundary to couple.
+        u_start : list
+            List of [x,y,z] values for start point of U vector.
+        u_end : list
+            List of [x,y,z] values for end point of U vector.
+        reverse_v : bool, optional
+            Reverse V Vector. Default is `False`.
+        phase_delay : str, optional
+            Define the phase delay approach. Default is `"UseScanAngle"`.
+            Options are `"UseScanUV"`, `"InputPhaseDelay"`
+        phase_delay_param1 : str, optional
+            Phi Angle if "UseScanAngle" is used. U value if "UseScanUV" is used".
+            "Phase" if "InputPhaseDelay". Default is `0deg`.
+        phase_delay_param2 :  str, optional
+            Theta Angle if "UseScanAngle" is used. V value if "UseScanUV" is used".
+            Default is `0deg`.
+        coord_name : str, optional
+            Name of the coordinate system for u coordinates.
+        secondary_name : str, optional
+            Boundary name.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
+
+        """
+        props = OrderedDict({})
+        face_id = self.modeler._convert_list_to_ids(face, True)
+        if isinstance(face_id[0], str):
+            props["Objects"] = face_id
+
+        else:
+            props["Faces"] = face_id
+
+        props["CoordSysVector"] = OrderedDict({})
+        props["CoordSysVector"]["Coordinate System"] = coord_name
+        props["CoordSysVector"]["Origin"] = u_start
+        props["CoordSysVector"]["UPos"] = u_end
+        props["ReverseV"] = reverse_v
+
+        props["Primary"] = primary_name
+        props["PhaseDelay"] = phase_delay
+        if phase_delay == "UseScanAngle":
+            props["Phi"] = phase_delay_param1
+            props["Theta"] = phase_delay_param2
+        elif phase_delay == "UseScanUV":
+            props["ScanU"] = phase_delay_param1
+            props["ScanV"] = phase_delay_param2
+        else:
+            props["Phase"] = phase_delay_param1
+        if not secondary_name:
+            secondary_name = generate_unique_name("Secondary")
+        return self._create_boundary(secondary_name, props, "Secondary")
+
+    @aedt_exception_handler
+    def assign_primary(self, face, u_start, u_end, reverse_v=False, coord_name="Global", primary_name=None):
+        """Assign Secondary Boundary Condition.
+
+        Parameters
+        ----------
+        face : int, FacePrimitive
+            Face to assign the lattice pair.
+        u_start : list
+            List of [x,y,z] values for start point of U vector.
+        u_end : list
+            List of [x,y,z] values for end point of U vector.
+        reverse_v : bool, optional
+            Reverse V Vector. Default is `False`.
+        coord_name : str, optional
+            Name of the coordinate system for u coordinates.
+        primary_name : str, optional
+            Boundary name.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
+
+        """
+        props = OrderedDict({})
+        face_id = self.modeler._convert_list_to_ids(face, True)
+        if isinstance(face_id[0], str):
+            props["Objects"] = face_id
+
+        else:
+            props["Faces"] = face_id
+        props["ReverseV"] = reverse_v
+        props["CoordSysVector"] = OrderedDict({})
+        props["CoordSysVector"]["Coordinate System"] = coord_name
+        props["CoordSysVector"]["Origin"] = u_start
+        props["CoordSysVector"]["UPos"] = u_end
+        if not primary_name:
+            primary_name = generate_unique_name("Primary")
+        return self._create_boundary(primary_name, props, "Primary")
+
     def _create_pec_cap(self, sheet_name, obj_name, pecthick):
         # TODO check method
         obj = self.modeler.primitives[sheet_name].clone()
