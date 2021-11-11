@@ -63,7 +63,7 @@ class TestClass(BasisTest):
     @pyaedt_unittest_check_desktop_error
     def test_05_split(self):
         box1 = self.aedtapp.modeler.primitives.create_box([-10, -10, -10], [20, 20, 20], "box_to_split")
-        assert self.aedtapp.modeler.split("box_to_split", 1)
+        assert self.aedtapp.modeler.split("box_to_split", 2)
 
     @pyaedt_unittest_check_desktop_error
     def test_06_duplicate_and_mirror(self):

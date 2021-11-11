@@ -1538,7 +1538,7 @@ class GeometryModeler(Modeler, object):
             [
                 "NAME:SplitToParameters",
                 "SplitPlane:=",
-                planes[plane],
+                planes,
                 "WhichSide:=",
                 sides,
                 "ToolType:=",
