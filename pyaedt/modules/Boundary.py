@@ -379,6 +379,8 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.AssignLumpedPort(self._get_args())
         elif self.type == "WavePort":
             self._app.oboundary.AssignWavePort(self._get_args())
+        elif self.type == "FloquetPort":
+            self._app.oboundary.AssignFloquetPort(self._get_args())
         elif self.type == "AutoIdentify":
             self._app.oboundary.AutoIdentifyPorts(
                 ["NAME:Faces", self.props["Faces"]],
@@ -497,6 +499,8 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.EditWavePort(self.name, self._get_args())
         elif self.type == "SetSBRTxRxSettings":
             self._app.oboundary.SetSBRTxRxSettings(self._get_args())
+        elif self.type == "FloquetPort":
+            self._app.oboundary.EditFloquetPort(self.name, self._get_args())
         else:
             return False
         return True
