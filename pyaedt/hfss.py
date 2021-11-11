@@ -1774,7 +1774,7 @@ class Hfss(FieldAnalysis3D, object):
         Parameters
         ----------
         face_couple : list
-            List of 2 faces to assign the lattice pair.
+            List of 2 faces to assign the lattice pair to.
         reverse_v : bool, optional
             Reverse V Vector. Default is `False`.
         phase_delay : str, optional
