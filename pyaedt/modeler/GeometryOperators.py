@@ -3,7 +3,7 @@ import math
 import re
 import sys
 from pyaedt.generic.general_methods import aedt_exception_handler
-from pyaedt.modeler.modeler_constants import CoordinateSystemPlane, CoordinateSystemAxis, SweepDraftType
+from pyaedt.generic.constants import CoordinateSystemPlane, CoordinateSystemAxis, SWEEPDRAFT
 
 class GeometryOperators(object):
     """Manages geometry operators."""
@@ -196,9 +196,9 @@ class GeometryOperators(object):
            Type of the draft.
 
         """
-        if val == SweepDraftType.ExtendedDraft:
+        if val == SWEEPDRAFT.ExtendedDraft:
             return "Extended"
-        elif val == SweepDraftType.RoundDraft:
+        elif val == SWEEPDRAFT.RoundDraft:
             return "Round"
         else:
             return "Natural"

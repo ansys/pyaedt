@@ -5,6 +5,7 @@ import warnings
 import math
 import tempfile
 
+import pyaedt.generic.constants
 from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 from pyaedt.modules.Boundary import BoundaryObject, NativeComponentObject

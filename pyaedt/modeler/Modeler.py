@@ -10,7 +10,7 @@ import os
 
 from collections import OrderedDict
 from pyaedt.modeler.GeometryOperators import GeometryOperators
-from pyaedt.application.Variables import AEDT_units
+from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.general_methods import generate_unique_name, _retry_ntimes, aedt_exception_handler, _pythonver
 import math
 from pyaedt.generic.DataHandlers import _dict2arg
@@ -737,7 +737,7 @@ class GeometryModeler(Modeler, object):
 
     @model_units.setter
     def model_units(self, units):
-        assert units in AEDT_units["Length"], "Invalid units string {0}.".format(units)
+        assert units in AEDT_UNITS["Length"], "Invalid units string {0}.".format(units)
         self.oeditor.SetModelUnits(["NAME:Units Parameter", "Units:=", units, "Rescale:=", False])
 
     @property

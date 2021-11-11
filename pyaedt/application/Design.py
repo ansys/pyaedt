@@ -21,7 +21,8 @@ import gc
 import warnings
 from collections import OrderedDict
 
-from pyaedt.application.Variables import VariableManager, DataSet, AEDT_units, unit_system
+from pyaedt.application.Variables import VariableManager, DataSet
+from pyaedt.generic.constants import AEDT_UNITS, unit_system
 from pyaedt.desktop import Desktop
 from pyaedt.desktop import exception_to_desktop, release_desktop, get_version_env_variable
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
@@ -2891,7 +2892,7 @@ class Design(object):
 
         si_value = self._odesign.GetVariationVariableValue(variation_string, variable_name)
         if units:
-            scale = AEDT_units[unit_system(units)][units]
+            scale = AEDT_UNITS[unit_system(units)][units]
             if isinstance(scale, tuple):
                 return scale[0](si_value, True)
             else:

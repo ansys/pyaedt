@@ -4,7 +4,7 @@ import clr
 from pyaedt.modeler.GeometryOperators import GeometryOperators as go
 
 clr.AddReference("System.Collections")
-from pyaedt.modeler.modeler_constants import CoordinateSystemAxis, CoordinateSystemPlane, SweepDraftType
+from pyaedt.generic.constants import CoordinateSystemAxis, CoordinateSystemPlane, SWEEPDRAFT
 from System import Double
 from System.Collections.Generic import List
 
@@ -68,10 +68,10 @@ class TestClass:
         assert go.cs_axis_str(CoordinateSystemAxis.ZAxis) == "Z"
 
     def test_draft_type_str(self):
-        assert go.draft_type_str(SweepDraftType.ExtendedDraft) == "Extended"
-        assert go.draft_type_str(SweepDraftType.RoundDraft) == "Round"
-        assert go.draft_type_str(SweepDraftType.NaturalDraft) == "Natural"
-        assert go.draft_type_str(SweepDraftType.MixedDraft) == "Natural"
+        assert go.draft_type_str(SWEEPDRAFT.ExtendedDraft) == "Extended"
+        assert go.draft_type_str(SWEEPDRAFT.RoundDraft) == "Round"
+        assert go.draft_type_str(SWEEPDRAFT.NaturalDraft) == "Natural"
+        assert go.draft_type_str(SWEEPDRAFT.MixedDraft) == "Natural"
 
     def test_get_mid_point(self):
         p1 = [0.0, 0.0, 0.0]

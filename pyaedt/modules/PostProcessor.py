@@ -15,7 +15,7 @@ import warnings
 import sys
 from collections import OrderedDict
 
-from pyaedt.application.Variables import AEDT_units
+from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.filesystem import Scratch
 from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, _retry_ntimes
 
@@ -177,8 +177,8 @@ class SolutionData(object):
         -------
 
         """
-        for el in AEDT_units:
-            keys_units = [i.lower() for i in list(AEDT_units[el].keys())]
+        for el in AEDT_UNITS:
+            keys_units = [i.lower() for i in list(AEDT_UNITS[el].keys())]
             if unit.lower() in keys_units:
                 return el
         return None
@@ -317,8 +317,8 @@ class SolutionData(object):
 
         """
         sol = datalist
-        if dataunits in AEDT_units and units in AEDT_units[dataunits]:
-            sol = [i * AEDT_units[dataunits][units] for i in datalist]
+        if dataunits in AEDT_UNITS and units in AEDT_UNITS[dataunits]:
+            sol = [i * AEDT_UNITS[dataunits][units] for i in datalist]
         return sol
 
     @aedt_exception_handler

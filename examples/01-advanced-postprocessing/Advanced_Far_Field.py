@@ -8,7 +8,7 @@ This examples runs only on Windows using CPython.
 ###############################################################################
 # Import Packages
 # ~~~~~~~~~~~~~~~
-# Set the local path to the path for the AEDTLib.
+# Set the local path to the path for the PyAEDT.
 
 import os
 import pathlib
