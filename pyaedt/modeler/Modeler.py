@@ -867,7 +867,7 @@ class GeometryModeler(Modeler, object):
         mode : str, optional
             Definition mode. Options are ``"view"``, ``"axis"``,
             ``"zxz"``, ``"zyz"``, and ``"axisrotation"``. The default
-            is ``"axis"``.
+            is ``"axis"``.  Enumerator ``pyaedt.generic.constants.CSMODE`` can be used.
 
             * If ``mode="view"``, specify ``view``.
             * If ``mode="axis"``, specify ``x_pointing`` and ``y_pointing``.
@@ -880,10 +880,11 @@ class GeometryModeler(Modeler, object):
             a coordinate system parallel to the global coordinate
             system centered in the global origin.
 
-        view : str, optional
+        view : str, int optional
             View for the coordinate system if ``mode="view"``. Options
             are ``"XY"``, ``"XZ"``, ``"XY"``, ``"iso"``, ``None``, and
             ``"rotate"`` (obsolete). The default is ``"iso"``.
+            Enumerator ``pyaedt.generic.constants.VIEW`` can be used.
 
             .. note::
                Because the ``"rotate"`` option is obsolete, use
@@ -1530,7 +1531,7 @@ class GeometryModeler(Modeler, object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        planes = {0: "XY", 1: "YZ", 2: "ZX"}
+        planes = GeometryOperators.cs_plane_to_plane_str(plane)
         selections = self.convert_to_selections(objects)
         self.oeditor.Split(
             ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"],

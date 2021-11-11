@@ -58,9 +58,12 @@ class TestClass:
         assert go.parse_dim_arg("1.57rad") == 1.57
 
     def test_cs_plane_str(self):
-        assert go.cs_plane_str(PLANE.XY) == "Z"
-        assert go.cs_plane_str(PLANE.YZ) == "X"
-        assert go.cs_plane_str(PLANE.ZX) == "Y"
+        assert go.cs_plane_to_axis_str(PLANE.XY) == "Z"
+        assert go.cs_plane_to_axis_str(PLANE.YZ) == "X"
+        assert go.cs_plane_to_axis_str(PLANE.ZX) == "Y"
+        assert go.cs_plane_to_plane_str(PLANE.XY) == "XY"
+        assert go.cs_plane_to_plane_str(PLANE.YZ) == "YZ"
+        assert go.cs_plane_to_plane_str(PLANE.ZX) == "ZX"
 
     def test_cs_axis_str(self):
         assert go.cs_axis_str(AXIS.X) == "X"

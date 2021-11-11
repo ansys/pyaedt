@@ -136,7 +136,7 @@ class GeometryOperators(object):
 
     @staticmethod
     @aedt_exception_handler
-    def cs_plane_str(val):
+    def cs_plane_to_axis_str(val):
         """Retrieve a string for a coordinate system plane.
 
         Parameters
@@ -156,6 +156,28 @@ class GeometryOperators(object):
             return "X"
         else:
             return "Y"
+
+    @aedt_exception_handler
+    def cs_plane_to_plane_str(val):
+        """Retrieve a string for a coordinate system plane.
+
+        Parameters
+        ----------
+        val :
+
+
+        Returns
+        -------
+        str
+           String for the coordinate system plane.
+
+        """
+        if val == PLANE.XY or val == "XY":
+            return "XY"
+        elif val == PLANE.YZ or val == "YZ":
+            return "YZ"
+        else:
+            return "ZX"
 
     @staticmethod
     @aedt_exception_handler

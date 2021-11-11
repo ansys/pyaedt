@@ -311,55 +311,61 @@ UNIT_SYSTEM_OPERATIONS = {
 
 
 class FILLET(object):
-    """FilletType class."""
+    """FilletType Enumerator class."""
 
     (Round, Mitered) = range(0, 2)
 
 
 class AXIS(object):
-    """CoordinateSystemAxis class."""
+    """CoordinateSystemAxis Enumerator class."""
 
     (X, Y, Z) = range(0, 3)
 
 
 class PLANE(object):
-    """CoordinateSystemPlane class."""
+    """CoordinateSystemPlane Enumerator class."""
 
     (YZ, ZX, XY) = range(0, 3)
 
 
 class GRAVITY(object):
-    """GravityDirection class."""
+    """GravityDirection Enumerator class."""
 
     (XNeg, YNeg, ZNeg, XPos, YPos, ZPos) = range(0, 6)
 
 
 class VIEW(object):
-    """View class."""
+    """View Enumerator class."""
 
     (XY, YZ, ZX, ISO) = ("XY", "YZ", "ZX", "iso")
 
 
 class GLOBALCS(object):
-    """GlobalCS class."""
+    """GlobalCS Enumerator class."""
 
     (XY, YZ, ZX) = ("Global_XY", "Global_YZ", "Global:XZ")
 
 
+class CSMODE(object):
+    """COORDINATE SYSTEM MODE Enumerator class."""
+
+    (View, Axis, ZXZ, ZYZ, AXISROTATION) = ("view", "axis", "zxz", "zyz", "axisrotation")
+
+
 class SEGMENTTYPE(object):
-    """CROSSSECTION class."""
+    """CROSSSECTION Enumerator class."""
 
     (Line, Arc, Spline, AngularArc) = range(0, 4)
 
 
 class CROSSSECTION(object):
-    """CROSSSECTION class."""
+    """CROSSSECTION Enumerator class."""
 
     (NONE, Line, Circle, Rectangle, Trapezoid) = range(0, 5)
 
 
 class SWEEPDRAFT(object):
-    """SweepDraftType class."""
+    """SweepDraftType Enumerator class."""
 
     (Extended, Round, Natural, Mixed) = range(0, 4)
 

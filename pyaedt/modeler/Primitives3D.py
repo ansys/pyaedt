@@ -432,7 +432,7 @@ class Primitives3D(Primitives, object):
             3D object.
 
         """
-        szAxis = GeometryOperators.cs_plane_str(csPlane)
+        szAxis = GeometryOperators.cs_plane_to_axis_str(csPlane)
         XStart, YStart, ZStart = self._pos_with_arg(position)
 
         Width = self._arg_with_dim(dimension_list[0])
@@ -478,7 +478,7 @@ class Primitives3D(Primitives, object):
             3D object.
 
         """
-        szAxis = GeometryOperators.cs_plane_str(cs_plane)
+        szAxis = GeometryOperators.cs_plane_to_axis_str(cs_plane)
         XCenter, YCenter, ZCenter = self._pos_with_arg(position)
         Radius = self._arg_with_dim(radius)
         vArg1 = ["NAME:CircleParameters"]
@@ -525,7 +525,7 @@ class Primitives3D(Primitives, object):
             3D object.
 
         """
-        szAxis = GeometryOperators.cs_plane_str(cs_plane)
+        szAxis = GeometryOperators.cs_plane_to_axis_str(cs_plane)
         XStart, YStart, ZStart = self._pos_with_arg(position)
 
         MajorRadius = self._arg_with_dim(major_raidus)
