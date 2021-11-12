@@ -262,8 +262,8 @@ class EdbPadstacks(object):
     @aedt_exception_handler
     def create_padstack(
             self, padstackname=None, holediam="300um", paddiam="400um", antipaddiam="600um",
-            startlayer=None, endlayer=None, antipad_shape="Circle", x_size="600um", y_size="600um", corner_radius="300um",
-            offset_x="0.0", offset_y="0.0", rotation="0.0"
+            startlayer=None, endlayer=None, antipad_shape="Circle", x_size="600um", y_size="600um",
+            corner_radius="300um", offset_x="0.0", offset_y="0.0", rotation="0.0"
     ):
         """Create a padstack.
 
