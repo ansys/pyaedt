@@ -149,6 +149,20 @@ AEDT_UNITS = {
         "dBA": (db20,),
     },
     "Flux": {"Wb": 1.0, "mx": 1e-8, "vh": 3600, "vs": 1.0},
+    "Force": {
+        "fNewton": 1e-15,
+        "pNewton": 1e-12,
+        "nNewton": 1e-9,
+        "uNewton": 1e-6,
+        "mNewton": 1e-3,
+        "newton": 1.0,
+        "kNewton": 1e3,
+        "megNewton": 1e6,
+        "gNewton": 1e9,
+        "dyne": 1e-5,
+        "kp": 9.80665,
+        "PoundsForce": 4.44822,
+    },
     "Freq": {"Hz": 1.0, "kHz": 1e3, "MHz": 1e6, "GHz": 1e9, "THz": 1e12, "rps": 1.0, "per_sec": 1.0},
     "Inductance": {"fH": 1e-15, "pH": 1e-12, "nH": 1e-9, "uH": 1e-6, "mH": 1e-3, "H": 1.0},
     "Length": {
@@ -270,6 +284,7 @@ SI_UNITS = {
     "Angle": "rad",
     "Current": "A",
     "Flux": "vs",
+    "Force": "newton",
     "Freq": "Hz",
     "Inductance": "H",
     "Length": "meter",
@@ -558,6 +573,7 @@ class Plane(object):
 
     .. deprecated:: 0.4.8
     Use :func:`VIEW` instead."""
+
     (XYPlane, YZPlane, ZXPlane, ISO) = ("XY", "YZ", "ZX", "iso")
 
 
