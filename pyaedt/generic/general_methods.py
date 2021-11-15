@@ -266,15 +266,16 @@ def get_version_and_release(input_version):
 
 @aedt_exception_handler
 def env_path(input_version):
-    """
+    """Return the version Environment Variable name based on an input version string.
 
     Parameters
     ----------
-    input_version :
+    input_version : str
 
 
     Returns
     -------
+    str
 
     """
     v_key = "ANSYSEM_ROOT{0}{1}".format(get_version_and_release(0), get_version_and_release(1))
@@ -283,24 +284,24 @@ def env_path(input_version):
 
 @aedt_exception_handler
 def env_value(input_version):
-    """
+    """Return the version Environment Variable value based on an input version string.
 
     Parameters
     ----------
-    input_version :
+    input_version : str
 
 
     Returns
     -------
+    str
 
     """
-    v_key = "ANSYSEM_ROOT{0}{1}".format(get_version_and_release(0), get_version_and_release(1))
-    return v_key
+    return "ANSYSEM_ROOT{0}{1}".format(get_version_and_release(0), get_version_and_release(1))
 
 
 @aedt_exception_handler
 def env_path_student(input_version):
-    """Return the Student version Environment Variable value based on an input version string
+    """Return the Student version Environment Variable value based on an input version string.
 
     Parameters
     ----------
@@ -321,7 +322,7 @@ def env_path_student(input_version):
 
 @aedt_exception_handler
 def env_value_student(input_version):
-    """Return the Student version Environment Variable name based on an input version string
+    """Return the Student version Environment Variable name based on an input version string.
 
     Parameters
     ----------
@@ -358,7 +359,7 @@ def get_filename_without_extension(path):
 
 @aedt_exception_handler
 def generate_unique_name(rootname, suffix="", n=6):
-    """Generate a new random name given a rootname and optionally a suffix
+    """Generate a new  name given a rootname and optionally a suffix.
 
     Parameters
     ----------
