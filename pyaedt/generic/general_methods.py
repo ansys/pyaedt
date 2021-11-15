@@ -272,7 +272,6 @@ def env_path(input_version):
     ----------
     input_version : str
 
-
     Returns
     -------
     str
@@ -292,7 +291,6 @@ def env_value(input_version):
     Parameters
     ----------
     input_version : str
-
 
     Returns
     -------
@@ -314,7 +312,6 @@ def env_path_student(input_version):
     ----------
     input_version : str
 
-
     Returns
     -------
     str
@@ -335,7 +332,6 @@ def env_value_student(input_version):
     ----------
     input_version : str
 
-
     Returns
     -------
     str
@@ -350,7 +346,7 @@ def env_value_student(input_version):
 
 @aedt_exception_handler
 def get_filename_without_extension(path):
-    """
+    """Get the filename without its extension.
 
     Parameters
     ----------
@@ -359,6 +355,7 @@ def get_filename_without_extension(path):
 
     Returns
     -------
+    str
 
     """
     return os.path.splitext(os.path.split(path)[1])[0]
