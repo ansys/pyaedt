@@ -616,7 +616,6 @@ class EdbLayout(object):
                 k += 1
         return polygon
 
-
     @aedt_exception_handler
     def _validatePoint(self, point, allowArcs=True):
         if len(point) == 2:
