@@ -25,20 +25,28 @@ var_server = edb.active_cell.GetVariableServer()
 
 class via_def:
     def __init__(self, name="via_def", hole_diam="", pad_diam="", anti_pad_diam="", start_layer="top",
-                 stop_layer="bottom"):
+                 stop_layer="bottom", antipad_shape="Circle", x_size="", y_size="", corner_rad=""):
         self.name = name
         self.hole_diam = hole_diam
         self.pad_diam = pad_diam
         self.anti_pad_diam = anti_pad_diam
         self.start_layer = start_layer
         self.stop_layer = stop_layer
+        self.anti_pad_shape = antipad_shape
+        self.x_size = x_size
+        self.y_size = y_size
+        self.corner_rad = corner_rad
 
     def add_via_def_to_edb(self):
         edb.core_padstack.create_padstack(padstackname=self.name, holediam=self.hole_diam,
                                           paddiam=self.pad_diam,
                                           antipaddiam=self.anti_pad_diam,
                                           startlayer=self.start_layer,
-                                          endlayer=self.stop_layer)
+                                          endlayer=self.stop_layer,
+                                          antipad_shape=self.anti_pad_shape,
+                                          x_size=self.x_size,
+                                          y_size=self.y_size,
+                                          corner_radius=self.corner_rad)
 
 
 class via_instance:
@@ -117,8 +125,12 @@ edb.add_design_variable("$pad_diam", "0.6mm")
 edb.add_design_variable("$anti_pad_diam", "0.7mm")
 edb.add_design_variable("$pcb_len", "30mm")
 edb.add_design_variable("$pcb_w", "5mm")
+edb.add_design_variable("$x_size", "0.8mm")
+edb.add_design_variable("$y_size", "1mm")
+edb.add_design_variable("$corner_rad", "0.5mm")
 
-viadef1 = via_def(name="automated_via", hole_diam="$via_diam", pad_diam="$pad_diam", anti_pad_diam="$anti_pad_diam")
+viadef1 = via_def(name="automated_via", hole_diam="$via_diam", pad_diam="$pad_diam", antipad_shape="Bullet",
+                  x_size="$x_size", y_size="$y_size", corner_rad="$corner_rad")
 viadef1.add_via_def_to_edb()
 
 # net p
@@ -238,4 +250,4 @@ h3d.create_linear_count_sweep(
     use_q3d_for_dc=False,
 )
 
-h3d.analyze_nominal()
+#h3d.analyze_nominal() uncomment to solve
