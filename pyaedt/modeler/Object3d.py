@@ -1612,7 +1612,6 @@ class Padstack(object):
             else:
                 self._thermal = Padstack.PDSHole(holetype="None", sizes=[])
 
-
     @property
     def pads_args(self):
         """Pad properties."""
