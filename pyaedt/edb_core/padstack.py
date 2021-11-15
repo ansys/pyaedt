@@ -9,6 +9,7 @@ from pyaedt.edb_core.general import convert_py_list_to_net_list
 
 from pyaedt.edb_core.EDB_Data import EDBPadstack
 
+
 try:
     from System import Array
 except ImportError:
@@ -90,6 +91,18 @@ class EdbPadstacks(object):
         for el in self._active_layout.PinGroups:
             pingroups.append(el)
         return pingroups
+
+    @property
+    def pad_type(self):
+        """Return a PadType Enumerator.
+        """
+
+        class PadType:
+            (RegularPad, AntiPad, ThermalPad, Hole, UnknownGeomType) = (
+                self._edb.Definition.PadType.RegularPad, self._edb.Definition.PadType.AntiPad,
+                self._edb.Definition.PadType.ThermalPad, self._edb.Definition.PadType.Hole,
+                self._edb.Definition.PadType.UnknownGeomType)
+        return PadType
 
     @aedt_exception_handler
     def update_padstacks(self):
@@ -250,8 +263,39 @@ class EdbPadstacks(object):
                 return pinlist.Item2
 
     @aedt_exception_handler
+    def get_pad_parameters(self, pin, layername, pad_type=None):
+        """Get Padstack Parameters from Pin or Padstack Definition.
+
+        Parameters
+        ----------
+        pin : Edb.Definition.PadstackDef or Edb.Definition.PadstackInstance
+            Pin or PadstackDef on which get values.
+        layername : str
+            Layer on which get properties.
+        pad_type : int
+            Pad Type.
+
+        Returns
+        -------
+        tuple
+            Tuple of (GeometryType, ParameterList, OffsetX, OffsetY, Rot)
+        """
+        if "PadstackDef" in str(type(pin)):
+            padparams = self._padstack_methods.GetPadParametersValue(pin, layername, pad_type)
+        else:
+            padparams = self._padstack_methods.GetPadParametersValue(pin.GetPadstackDef(), layername, pad_type)
+        geom_type = int(padparams.Item1)
+        parameters = [i.ToString() for i in padparams.Item2]
+        offset_x = padparams.Item3.ToDouble()
+        offset_y = padparams.Item4.ToDouble()
+        rot = padparams.Item5.ToDouble()
+        return geom_type, parameters, offset_x, offset_y, rot
+
+    @aedt_exception_handler
     def create_padstack(
-        self, padstackname=None, holediam="300um", paddiam="400um", antipaddiam="600um", startlayer=None, endlayer=None
+            self, padstackname=None, holediam="300um", paddiam="400um", antipaddiam="600um",
+            startlayer=None, endlayer=None, antipad_shape="Circle", x_size="600um", y_size="600um",
+            corner_radius="300um", offset_x="0.0", offset_y="0.0", rotation="0.0"
     ):
         """Create a padstack.
 
@@ -271,7 +315,20 @@ class EdbPadstacks(object):
         endlayer : str, optional
             Ending layer. The default is ``None``, in which case the bottom
             is the ending layer.
-
+        antipad_shape : str, optional
+            Shape of the antipad. The default is ``"Circle"``. Options are ``"Circle"`` and ``"Bullet"``.
+        x_size : str, optional
+            Only applicable to bullet shape. The default is ``"600um"``.
+        y_size : str, optional
+            Only applicable to bullet shape. The default is ``"600um"``.
+        corner_radius :
+            Only applicable to bullet shape. The default is ``"300um"``.
+        offset_x : str, optional
+            X offset of antipad. The default is ``"0.0"``.
+        offset_y : str, optional
+            Y offset of antipad. The default is ``"0.0"``.
+        rotation : str, optional
+            rotation of antipad. The default is ``"0.0"``.
         Returns
         -------
         str
@@ -280,6 +337,7 @@ class EdbPadstacks(object):
         holediam = self._edb_value(holediam)
         paddiam = self._edb_value(paddiam)
         antipaddiam = self._edb_value(antipaddiam)
+
         if not padstackname:
             padstackname = generate_unique_name("VIA")
         # assert not self.isreadonly, "Write Functions are not available within AEDT"
@@ -287,6 +345,12 @@ class EdbPadstacks(object):
         ptype = self._edb.Definition.PadGeometryType.Circle
         holparam = Array[type(holediam)]([holediam])
         value0 = self._edb_value("0.0")
+        x_size = self._edb_value(x_size)
+        y_size = self._edb_value(y_size)
+        corner_radius = self._edb_value(corner_radius)
+        offset_x = self._edb_value(offset_x)
+        offset_y = self._edb_value(offset_y)
+        rotation = self._edb_value(rotation)
 
         padstackData.SetHoleParameters(ptype, holparam, value0, value0, value0)
 
@@ -298,7 +362,15 @@ class EdbPadstacks(object):
             startlayer = layers[0]
         if not endlayer:
             endlayer = layers[len(layers) - 1]
-        for layer in ["Default"]+layers:
+
+        if antipad_shape == "Bullet":
+            antipad_array = Array[type(x_size)]([x_size, y_size, corner_radius])
+            antipad_shape = self._edb.Definition.PadGeometryType.Bullet
+        else:
+            antipad_array = Array[type(antipaddiam)]([antipaddiam])
+            antipad_shape = self._edb.Definition.PadGeometryType.Circle
+
+        for layer in ["Default"] + layers:
             padparam_array = Array[type(paddiam)]([paddiam])
             padstackData.SetPadParameters(
                 layer,
@@ -309,17 +381,17 @@ class EdbPadstacks(object):
                 value0,
                 value0,
             )
-            antipad_array = Array[type(antipaddiam)]([antipaddiam])
 
             padstackData.SetPadParameters(
                 layer,
                 self._edb.Definition.PadType.AntiPad,
-                self._edb.Definition.PadGeometryType.Circle,
+                antipad_shape,
                 antipad_array,
-                value0,
-                value0,
-                value0,
+                offset_x,
+                offset_y,
+                rotation,
             )
+
         padstackLayerIdMap = {k: v for k, v in zip(padstackData.GetLayerNames(), padstackData.GetLayerIds())}
         padstackLayerMap = self._edb.Utility.LayerMap(self._edb.Utility.UniqueDirection.ForwardUnique)
         for layer, padstackLayerName in zip(

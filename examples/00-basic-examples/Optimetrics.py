@@ -35,7 +35,7 @@ hfss["w2"] = "100mm"
 
 wg1, p1, p2 = hfss.modeler.create_waveguide(
     [0, 0, 0],
-    hfss.CoordinateSystemAxis.YAxis,
+    hfss.AXIS.Y,
     "WG17",
     wg_thickness="w1",
     wg_length="w2",

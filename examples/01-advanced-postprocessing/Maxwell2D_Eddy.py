@@ -77,7 +77,7 @@ M3D.modeler.create_coordinate_system(origin=[200, 100, 0], mode="view", view="XY
 # ~~~~~~~~~~~~~~~~~~~~~~
 # This example creates a coil terminal.
 
-M3D.modeler.section(["Coil"], M3D.CoordinateSystemPlane.ZXPlane)
+M3D.modeler.section(["Coil"], M3D.PLANE.ZX)
 M3D.modeler.separate_bodies(["Coil_Section1"])
 M3D.modeler.primitives.delete("Coil_Section1_Separate1")
 M3D.assign_current(["Coil_Section1"], amplitude=2472)

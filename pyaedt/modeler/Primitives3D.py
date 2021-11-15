@@ -91,8 +91,9 @@ class Primitives3D(Primitives, object):
 
         Parameters
         ----------
-        cs_axis : str
+        cs_axis : int or str
             Axis of rotation of the starting point around the center point.
+            :class:`pyaedt.constants.AXIS` Enumerator can be used as input.
         position : list
             Center point of the cylinder in a list of ``(x, y, z)`` coordinates.
         radius : float
@@ -408,8 +409,9 @@ class Primitives3D(Primitives, object):
 
         Parameters
         ----------
-        cs_plane :
+        csPlane : str or int
             Coordinate system plane for orienting the rectangle.
+            :class:`pyaedt.constants.PLANE` Enumerator can be used as input.
         position : list or Position
             List of ``[x, y, z]`` coordinates for the center point of the rectangle or
             the positionApplicationName.modeler.Position(x,y,z) object.
@@ -430,7 +432,7 @@ class Primitives3D(Primitives, object):
             3D object.
 
         """
-        szAxis = GeometryOperators.cs_plane_str(csPlane)
+        szAxis = GeometryOperators.cs_plane_to_axis_str(csPlane)
         XStart, YStart, ZStart = self._pos_with_arg(position)
 
         Width = self._arg_with_dim(dimension_list[0])
@@ -454,8 +456,9 @@ class Primitives3D(Primitives, object):
 
         Parameters
         ----------
-        cs_plane :
+        cs_plane : str or int
             Coordinate system plane for orienting the circle.
+            :class:`pyaedt.constants.PLANE` Enumerator can be used as input.
         position : list
             List of ``[x, y, z]`` coordinates for the center point of the circle.
         radius : float
@@ -475,7 +478,7 @@ class Primitives3D(Primitives, object):
             3D object.
 
         """
-        szAxis = GeometryOperators.cs_plane_str(cs_plane)
+        szAxis = GeometryOperators.cs_plane_to_axis_str(cs_plane)
         XCenter, YCenter, ZCenter = self._pos_with_arg(position)
         Radius = self._arg_with_dim(radius)
         vArg1 = ["NAME:CircleParameters"]
@@ -496,8 +499,9 @@ class Primitives3D(Primitives, object):
 
         Parameters
         ----------
-        cs_plane : str
+        cs_plane : str or int
             Coordinate system plane for orienting the ellipse.
+            :class:`pyaedt.constants.PLANE` Enumerator can be used as input.
         position : list
             List of ``[x, y, z]`` coordinates for the center point of the ellipse.
         major_raidus : float
@@ -521,7 +525,7 @@ class Primitives3D(Primitives, object):
             3D object.
 
         """
-        szAxis = GeometryOperators.cs_plane_str(cs_plane)
+        szAxis = GeometryOperators.cs_plane_to_axis_str(cs_plane)
         XStart, YStart, ZStart = self._pos_with_arg(position)
 
         MajorRadius = self._arg_with_dim(major_raidus)
@@ -806,11 +810,13 @@ class Primitives3D(Primitives, object):
             List of objects belonging to the 3D component.
 
         """
-        compobj = self._oeditor.GetChildObject(componentname)
-        if compobj:
-            return list(compobj.GetChildNames())
+        if self._app._is_object_oriented_enabled():
+            compobj = self._oeditor.GetChildObject(componentname)
+            if compobj:
+                return list(compobj.GetChildNames())
         else:
-            return []
+            self.logger.warning("Object Oriented Beta Option is not enabled in this Desktop.")
+        return []
 
     @aedt_exception_handler
     def _check_actor_folder(self, actor_folder):

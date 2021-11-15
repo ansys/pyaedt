@@ -1378,7 +1378,7 @@ class Object3d(object):
 
         Parameters
         ----------
-        cs_axis : pyaedt.modeler.modeler_constants.CoordinateSystemAxis
+        cs_axis : pyaedt.generic.constants.CoordinateSystemAxis
             Coordinate system of the axis.
         sweep_angle : float, optional
              Sweep angle in degrees. The default is ``360``.
@@ -1400,8 +1400,8 @@ class Object3d(object):
 
         Parameters
         ----------
-        plane : pyaedt.modeler.modeler_constants.CoordinateSystemPlane
-            Coordinate system of the plane object. Application.CoordinateSystemPlane object
+        plane : pyaedt.generic.constants.PLANE
+            Coordinate system of the plane object. Application.PLANE object
         create_new : bool, optional
             Whether to create an object. The default is ``True``.
         section_cross_object : bool, optional

@@ -10,7 +10,7 @@ import os
 
 from collections import OrderedDict
 from pyaedt.modeler.GeometryOperators import GeometryOperators
-from pyaedt.application.Variables import AEDT_units
+from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.general_methods import generate_unique_name, _retry_ntimes, aedt_exception_handler, _pythonver
 import math
 from pyaedt.generic.DataHandlers import _dict2arg
@@ -737,7 +737,7 @@ class GeometryModeler(Modeler, object):
 
     @model_units.setter
     def model_units(self, units):
-        assert units in AEDT_units["Length"], "Invalid units string {0}.".format(units)
+        assert units in AEDT_UNITS["Length"], "Invalid units string {0}.".format(units)
         self.oeditor.SetModelUnits(["NAME:Units Parameter", "Units:=", units, "Rescale:=", False])
 
     @property
@@ -806,6 +806,37 @@ class GeometryModeler(Modeler, object):
         return list(objects)
 
     @aedt_exception_handler
+    def _find_perpendicular_points(self, face):
+
+        if isinstance(face, str):
+            vertices = [i.position for i in self.primitives[face].vertices]
+        else:
+            vertices = []
+            for vertex in list(self.oeditor.GetVertexIDsFromFace(face)):
+                vertices.append([float(i) for i in list(self.oeditor.GetVertexPosition(vertex))])
+        assert len(vertices) > 2, "Automatic A-B Assignment can be done only on face with more than 2 vertices."
+        origin = vertices[0]
+        a_end = []
+        b_end = []
+        tol = 1e-10
+        for v in vertices[1:]:
+            edge1 = GeometryOperators.v_points(origin, v)
+            for v2 in vertices[1:]:
+                if v2 != v:
+                    edge2 = GeometryOperators.v_points(origin, v2)
+                    if abs(GeometryOperators.v_dot(edge1, edge2)) < tol:
+                        a_end = v
+                        b_end = v2
+                        break
+            if a_end:
+                break
+        if not a_end:
+            a_end = vertices[1]
+            b_end = vertices[2]
+            return False, (origin, a_end, b_end)
+        return True, (origin, a_end, b_end)
+
+    @aedt_exception_handler
     def create_coordinate_system(
         self,
         origin=None,
@@ -836,7 +867,7 @@ class GeometryModeler(Modeler, object):
         mode : str, optional
             Definition mode. Options are ``"view"``, ``"axis"``,
             ``"zxz"``, ``"zyz"``, and ``"axisrotation"``. The default
-            is ``"axis"``.
+            is ``"axis"``.  Enumerator ``pyaedt.generic.constants.CSMODE`` can be used.
 
             * If ``mode="view"``, specify ``view``.
             * If ``mode="axis"``, specify ``x_pointing`` and ``y_pointing``.
@@ -849,10 +880,11 @@ class GeometryModeler(Modeler, object):
             a coordinate system parallel to the global coordinate
             system centered in the global origin.
 
-        view : str, optional
+        view : str, int optional
             View for the coordinate system if ``mode="view"``. Options
             are ``"XY"``, ``"XZ"``, ``"XY"``, ``"iso"``, ``None``, and
             ``"rotate"`` (obsolete). The default is ``"iso"``.
+            Enumerator ``pyaedt.generic.constants.VIEW`` can be used.
 
             .. note::
                Because the ``"rotate"`` option is obsolete, use
@@ -1221,13 +1253,13 @@ class GeometryModeler(Modeler, object):
             axisdist = -axisdist
 
         if divmod(axisdir, 3)[1] == 0:
-            cs = self._app.CoordinateSystemPlane.YZPlane
+            cs = self._app.PLANE.YZ
             vector = [axisdist, 0, 0]
         elif divmod(axisdir, 3)[1] == 1:
-            cs = self._app.CoordinateSystemPlane.ZXPlane
+            cs = self._app.PLANE.ZX
             vector = [0, axisdist, 0]
         elif divmod(axisdir, 3)[1] == 2:
-            cs = self._app.CoordinateSystemPlane.XYPlane
+            cs = self._app.PLANE.XY
             vector = [0, 0, axisdist]
 
         offset = self.find_point_around(objectname, start, sheet_dim, cs)
@@ -1486,7 +1518,7 @@ class GeometryModeler(Modeler, object):
             One or more objects to split. A list can contain
             both strings (object names) and integers (object IDs).
         plane : str
-            Coordinate plane of the cut or the Application.CoordinateSystemPlane object.
+            Coordinate plane of the cut or the Application.PLANE object.
             Choices for the coordinate plane are ``"XY"``, ``"YZ"``, and ``"ZX"``.
         sides : str
             Which side to keep. Options are ``"Both"``, ``"PositiveOnly"``,
@@ -1499,14 +1531,14 @@ class GeometryModeler(Modeler, object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        planes = {0: "XY", 1: "YZ", 2: "ZX"}
+        planes = GeometryOperators.cs_plane_to_plane_str(plane)
         selections = self.convert_to_selections(objects)
         self.oeditor.Split(
             ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"],
             [
                 "NAME:SplitToParameters",
                 "SplitPlane:=",
-                planes[plane],
+                planes,
                 "WhichSide:=",
                 sides,
                 "ToolType:=",
@@ -1909,7 +1941,7 @@ class GeometryModeler(Modeler, object):
         object_list : str, int, or Object3d
             One or more objects to section.
         plane : str
-            Coordinate plane or Application.CoordinateSystemPlane object.
+            Coordinate plane or Application.PLANE object.
             Choices for the coordinate plane are ``"XY"``, ``"YZ"``, and ``"ZX"``.'
         create_new : bool, optional
             The default is ``True``, but this parameter has no effect.
@@ -2492,7 +2524,7 @@ class GeometryModeler(Modeler, object):
         startingposition : list
             List of ``[x, y, z]`` coordinates for the starting position.
         axis : int
-            Coordinate system axis (integer ``0`` for XAxis, ``1`` for YAxis, ``2`` for ZAxis) or
+            Coordinate system AXIS (integer ``0`` for X, ``1`` for Y, ``2`` for Z) or
             the :class:`Application.CoordinateSystemAxis` enumerator.
         innerradius : float, optional
             Inner coax radius. The default is ``1``.
@@ -2524,7 +2556,7 @@ class GeometryModeler(Modeler, object):
         >>> app = Hfss()
         >>> position = [0,0,0]
         >>> coax = app.modeler.create_coaxial(
-        ...    position, app.CoordinateSystemAxis.XAxis, innerradius=0.5, outerradius=0.8, dielradius=0.78, length=50
+        ...    position, app.AXIS.X, innerradius=0.5, outerradius=0.8, dielradius=0.78, length=50
         ... )
 
         """
@@ -2567,7 +2599,7 @@ class GeometryModeler(Modeler, object):
         origin : list
             List of ``[x, y, z]`` coordinates for the original position.
         wg_direction_axis : int
-            Coordinate system axis (integer ``0`` for XAxis, ``1`` for YAxis, ``2`` for ZAxis) or
+            Coordinate system axis (integer ``0`` for X, ``1`` for Y, ``2`` for Z) or
             the :class:`Application.CoordinateSystemAxis` enumerator.
         wgmodel : str, optional
             Waveguide model. The default is ``"WG0"``.
@@ -2601,7 +2633,7 @@ class GeometryModeler(Modeler, object):
         >>> from pyaedt import Hfss
         >>> app = Hfss()
         >>> position = [0, 0, 0]
-        >>> wg1 = app.modeler.create_waveguide(position, app.CoordinateSystemAxis.XAxis,
+        >>> wg1 = app.modeler.create_waveguide(position, app.AXIS.,
         ...                                    wgmodel="WG9", wg_length=2000)
 
 
@@ -2668,7 +2700,7 @@ class GeometryModeler(Modeler, object):
             else:
                 w = self.primitives._arg_with_dim(wgwidth)
                 wb = self.primitives._arg_with_dim(wgwidth) + " + 2*" + self.primitives._arg_with_dim(wg_thickness)
-            if wg_direction_axis == self._app.CoordinateSystemAxis.ZAxis:
+            if wg_direction_axis == self._app.AXIS.Z:
                 airbox = self.primitives.create_box(origin, [w, h, wg_length])
 
                 if type(wg_thickness) is str:
@@ -2678,7 +2710,7 @@ class GeometryModeler(Modeler, object):
                     origin[0] -= wg_thickness
                     origin[1] -= wg_thickness
 
-            elif wg_direction_axis == self._app.CoordinateSystemAxis.YAxis:
+            elif wg_direction_axis == self._app.AXIS.Y:
                 airbox = self.primitives.create_box(origin, [w, wg_length, h])
 
                 if type(wg_thickness) is str:
@@ -2705,9 +2737,9 @@ class GeometryModeler(Modeler, object):
                 p2 = self.primitives.create_object_from_face(airbox.faces[maxi].id)
             if not name:
                 name = generate_unique_name(wgmodel)
-            if wg_direction_axis == self._app.CoordinateSystemAxis.ZAxis:
+            if wg_direction_axis == self._app.AXIS.Z:
                 wgbox = self.primitives.create_box(origin, [wb, hb, wg_length], name=name)
-            elif wg_direction_axis == self._app.CoordinateSystemAxis.YAxis:
+            elif wg_direction_axis == self._app.AXIS.Y:
                 wgbox = self.primitives.create_box(origin, [wb, wg_length, hb], name=name)
             else:
                 wgbox = self.primitives.create_box(origin, [wg_length, wb, hb], name=name)

@@ -57,7 +57,7 @@ class Maxwell(object):
         python_interpreter : bool, optional
              The default value is ``None``.
         aedt_lib_dir : str, optional
-             Full path to the ``AEDTLib`` directory. The default value is ``None``.
+             Full path to the ``PyAEDT`` directory. The default value is ``None``.
 
         Returns
         -------

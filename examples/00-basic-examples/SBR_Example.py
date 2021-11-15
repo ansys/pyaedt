@@ -7,7 +7,7 @@ in Q3D and run a simulation.
 ###############################################################################
 # Import Packages
 # ~~~~~~~~~~~~~~~
-# This example sets up the local path to the path for the ``AEDTLib`` directory.
+# This example sets up the local path to the path for the ``PyAEDT`` directory.
 
 import os
 import tempfile

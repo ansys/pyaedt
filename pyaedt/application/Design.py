@@ -21,7 +21,8 @@ import gc
 import warnings
 from collections import OrderedDict
 
-from pyaedt.application.Variables import VariableManager, DataSet, AEDT_units, unit_system
+from pyaedt.application.Variables import VariableManager, DataSet
+from pyaedt.generic.constants import AEDT_UNITS, unit_system
 from pyaedt.desktop import Desktop
 from pyaedt.desktop import exception_to_desktop, release_desktop, get_version_env_variable
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
@@ -1353,6 +1354,69 @@ class Design(object):
         else:
             self.logger.warning("Key Value must be an int or str.")
             return False
+
+    @aedt_exception_handler
+    def get_registry_key_string(self, key_full_name):
+        """Get Desktop Registry Key Value if exists, otherwise ''.
+
+        Parameters
+        ----------
+        key_full_name : str
+            Desktop Registry Key full name.
+
+        Returns
+        -------
+        str
+        """
+        return self.odesktop.GetRegistryString(key_full_name)
+
+    @aedt_exception_handler
+    def get_registry_key_int(self, key_full_name):
+        """Get Desktop Registry Key Value if exists, otherwise 0.
+
+        Parameters
+        ----------
+        key_full_name : str
+            Desktop Registry Key full name.
+
+        Returns
+        -------
+        str
+        """
+        return self.odesktop.GetRegistryInt(key_full_name)
+
+    @aedt_exception_handler
+    def check_beta_option_enabled(self, beta_option_name):
+        """Check if a Beta Option is enabled.
+
+        Parameters
+        ----------
+        beta_option_name : str
+            Name of the Beta Option to check. Example `'SF43060_HFSS_PI'`
+
+        Returns
+        -------
+        bool
+            `True` if succeeded.
+        """
+        limit = 100
+        i = 0
+        while limit > 0:
+            a = self.get_registry_key_string("Desktop/Settings/ProjectOptions/EnabledBetaOptions/Item{}".format(i))
+            if a and a == beta_option_name:
+                return True
+            elif a:
+                limit -= 1
+            else:
+                limit = 0
+        return False
+
+    @aedt_exception_handler
+    def _is_object_oriented_enabled(self):
+        if self._aedt_version >= "2022.1":
+            return True
+        else:
+            return self.check_beta_option_enabled("SF159726_SCRIPTOBJECT")
 
     @aedt_exception_handler
     def set_active_dso_config_name(self, product_name="HFSS", config_name="Local"):
@@ -2828,7 +2892,7 @@ class Design(object):
 
         si_value = self._odesign.GetVariationVariableValue(variation_string, variable_name)
         if units:
-            scale = AEDT_units[unit_system(units)][units]
+            scale = AEDT_UNITS[unit_system(units)][units]
             if isinstance(scale, tuple):
                 return scale[0](si_value, True)
             else:
