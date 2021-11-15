@@ -341,7 +341,9 @@ def env_value_student(input_version):
     >>> env_value_student("2021.2")
     "ANSYSEMSV_ROOT211"
     """
-    return "ANSYSEMSV_ROOT{0}{1}".format(get_version_and_release(input_version)(0), get_version_and_release(input_version)(1))
+    return "ANSYSEMSV_ROOT{0}{1}".format(
+        get_version_and_release(input_version)(0),
+        get_version_and_release(input_version)(1))
 
 
 @aedt_exception_handler
