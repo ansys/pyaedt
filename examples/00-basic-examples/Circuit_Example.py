@@ -93,10 +93,10 @@ aedt_app.modeler.connect_schematic_components(capacitor_id, gnd_id)
 # ~~~~~~~~~~~~~~~~~~~~~
 # This method adds a transient setup.
 
-setup2 = aedt_app.create_setup("MyTransient", aedt_app.SimulationSetupTypes.NexximTransient)
+setup2 = aedt_app.create_setup("MyTransient", aedt_app.SETUPS.NexximTransient)
 setup2.TransientData = ["0.01ns", "200ns"]
 setup2.update()
-setup3 = aedt_app.create_setup("MyDC", aedt_app.SimulationSetupTypes.NexximDC)
+setup3 = aedt_app.create_setup("MyDC", aedt_app.SETUPS.NexximDC)
 
 ###############################################################################
 # Solve the Transient Setup

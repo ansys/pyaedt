@@ -35,7 +35,7 @@ class TestClass:
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 30
         o = self.aedtapp.modeler.primitives.create_cylinder(
-            self.aedtapp.CoordinateSystemPlane.XYPlane, udp, 3, coax_dimension, 0, matname="brass", name="MyCylinder"
+            self.aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, matname="brass", name="MyCylinder"
         )
         assert isinstance(o.id, int)
 
@@ -70,10 +70,10 @@ class TestClass:
 
     def test_07B_create_source_tosheet(self):
         self.aedtapp.modeler.primitives.create_circle(
-            self.aedtapp.CoordinateSystemPlane.XYPlane, [0, 0, 0], 4, name="Source1"
+            self.aedtapp.PLANE.XY, [0, 0, 0], 4, name="Source1"
         )
         self.aedtapp.modeler.primitives.create_circle(
-            self.aedtapp.CoordinateSystemPlane.XYPlane, [10, 10, 10], 4, name="Sink1"
+            self.aedtapp.PLANE.XY, [10, 10, 10], 4, name="Sink1"
         )
 
         source = self.aedtapp.assign_source_to_sheet("Source1", sourcename="Source3")
@@ -82,10 +82,10 @@ class TestClass:
         assert sink.name == "Sink3"
 
         self.aedtapp.modeler.primitives.create_circle(
-            self.aedtapp.CoordinateSystemPlane.XYPlane, [0, 0, 0], 4, name="Source1"
+            self.aedtapp.PLANE.XY, [0, 0, 0], 4, name="Source1"
         )
         self.aedtapp.modeler.primitives.create_circle(
-            self.aedtapp.CoordinateSystemPlane.XYPlane, [10, 10, 10], 4, name="Sink1"
+            self.aedtapp.PLANE.XY, [10, 10, 10], 4, name="Sink1"
         )
 
         source = self.aedtapp.assign_source_to_sheet("Source1", netname="GND", objectname="Cylinder1")
@@ -96,7 +96,7 @@ class TestClass:
     def test_08_create_faceted_bondwire(self):
         self.aedtapp.load_project(self.test_project, close_active_proj=True)
         test = self.aedtapp.modeler.create_faceted_bondwire_from_true_surface(
-            "bondwire_example", self.aedtapp.CoordinateSystemAxis.ZAxis, min_size=0.2, numberofsegments=8
+            "bondwire_example", self.aedtapp.AXIS.Z, min_size=0.2, numberofsegments=8
         )
         assert test
         pass

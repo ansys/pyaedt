@@ -14,321 +14,12 @@ Examples
 """
 from __future__ import absolute_import, division
 
-import math
 import os
 import re
 
 from pyaedt import aedt_exception_handler
+from pyaedt.generic.constants import AEDT_UNITS, SI_UNITS, unit_system, _resolve_unit_system
 from pyaedt.generic.general_methods import is_number
-
-
-@aedt_exception_handler
-def dB(x, inverse=True):
-    """Convert db to decimal"""
-    if inverse:
-        return 20 * math.log10(x)
-    else:
-        return math.pow(10, x / 20.0)
-
-
-@aedt_exception_handler
-def fah2kel(val, inverse=True):
-    """Convert a temperature from Fahrenheit to Kelvin.
-
-    Parameters
-    ----------
-    val : float
-        Temperature value in Fahrenheit.
-    inverse : bool, optional
-        The default is ``True``.
-
-    Returns
-    -------
-    float
-        Temperature value converted to Kelvin.
-
-    """
-    if inverse:
-        return (val - 273.15) * 9 / 5 + 32
-    else:
-        return (val - 32) * 5 / 9 + 273.15
-
-
-@aedt_exception_handler
-def cel2kel(val, inverse=True):
-    """Convert a temperature from Celsius to Kelvin.
-
-    Parameters
-    ----------
-    val : float
-        Temperature value in Celsius.
-    inverse : bool, optional
-        The default is ``True``.
-
-    Returns
-    -------
-    float
-        Temperature value converted to Kelvin.
-
-    """
-
-    if inverse:
-        return val - 273.15
-    else:
-        return val + 273.15
-
-
-@aedt_exception_handler
-def unit_system(units):
-    """Retrieve the name of the unit system associated with a unit string.
-
-    Parameters
-    ----------
-    units : str
-        Units for retrieving the associated unit system name.
-
-    Returns
-    -------
-    str
-        Key from the ``AEDT_units`` when successful. For example, ``"AngularSpeed"``.
-    ``False`` when the units specified are not defined in AEDT units.
-
-    """
-
-    for unit_type, unit_dict in AEDT_units.items():
-        if units in unit_dict:
-            return unit_type
-
-    return False
-
-
-# TODO Add additional units
-rad2deg = 180.0 / math.pi
-deg2rad = math.pi / 180
-hour2sec = 3600.0
-min2sec = 60.0
-sec2min = 1 / 60.0
-sec2hour = 1 / 3600.0
-inv2pi = 0.5 / math.pi
-v2pi = 2.0 * math.pi
-m2in = 0.0254
-m2miles = 1609.344051499
-
-# Value in new units equals value in old units * scaling vector of new units
-# e.g. value_in_deg Variable("1rad") = 1 * rad2deg
-AEDT_units = {
-    "AngularSpeed": {
-        "deg_per_hr": hour2sec * deg2rad,
-        "rad_per_hr": hour2sec,
-        "deg_per_min": min2sec * deg2rad,
-        "rad_per_min": min2sec,
-        "deg_per_sec": deg2rad,
-        "rad_per_sec": 1.0,
-        "rev_per_sec": v2pi,
-        "per_sec": v2pi,
-        "rpm": sec2min * v2pi,
-    },
-    "Angle": {"deg": deg2rad, "rad": 1.0, "degmin": deg2rad * sec2min, "degsec": deg2rad * sec2hour},
-    "Current": {
-        "fA": 1e-15,
-        "pA": 1e-12,
-        "nA": 1e-9,
-        "uA": 1e-6,
-        "mA": 1e-3,
-        "A": 1.0,
-        "kA": 1e3,
-        "MegA": 1e6,
-        "gA": 1e9,
-        "dBA": (dB,),
-    },
-    "Flux": {"Wb": 1.0, "mx": 1e-8, "vh": 3600, "vs": 1.0},
-    "Freq": {"Hz": 1.0, "kHz": 1e3, "MHz": 1e6, "GHz": 1e9, "THz": 1e12, "rps": 1.0, "per_sec": 1.0},
-    "Inductance": {"fH": 1e-15, "pH": 1e-12, "nH": 1e-9, "uH": 1e-6, "mH": 1e-3, "H": 1.0},
-    "Length": {
-        "fm": 1e-15,
-        "pm": 1e-12,
-        "nm": 1e-9,
-        "um": 1e-6,
-        "mm": 1e-3,
-        "cm": 1e-2,
-        "dm": 1e-1,
-        "meter": 1.0,
-        "km": 1e3,
-        "uin": m2in * 1e-6,
-        "mil": m2in * 1e-3,
-        "in": m2in,
-        "ft": m2in * 12,
-        "yd": m2in * 144,
-    },
-    "Mass": {"ug": 1e-9, "mg": 1e-6, "g": 1e-3, "kg": 1.0, "ton": 1000, "oz": 0.0283495, "lb": 0.453592},
-    "None": {
-        "f": 1e-15,
-        "p": 1e-12,
-        "n": 1e-9,
-        "u": 1e-6,
-        "m": 1e-3,
-        "": 1.0,
-        "k": 1e3,
-        "meg": 1e6,
-        "g": 1e9,
-        "t": 1e12,
-    },
-    "Resistance": {"uOhm": 1e-6, "mOhm": 1e-3, "ohm": 1.0, "kOhm": 1e3, "megohm": 1e6, "GOhm": 1e9},
-    "Speed": {
-        "mm_per_sec": 1e-3,
-        "cm_per_sec": 1e-2,
-        "m_per_sec": 1.0,
-        "km_per_sec": 1e3,
-        "inches_per_sec": m2in,
-        "feet_per_sec": m2in * 12,
-        "feet_per_min": m2in * 12 * sec2min,
-        "km_per_min": 60e3,
-        "m_per_h": 3600,
-        "miles_per_hour": m2miles * sec2hour,
-        "miles_per_minute": m2miles * sec2min,
-        "miles_per_sec": m2miles,
-    },
-    "Time": {
-        "fs": 1e-15,
-        "ps": 1e-12,
-        "ns": 1e-9,
-        "us": 1e-6,
-        "ms": 1e-3,
-        "s": 1,
-        "min": 60,
-        "hour": 3600,
-        "day": 3600 * 12,
-    },
-    "Torque": {
-        "fNewtonMeter": 1e-15,
-        "pNewtonMeter": 1e-12,
-        "nNewtonMeter": 1e-9,
-        "uNewtonMeter": 1e-6,
-        "mNewtonMeter": 1e-3,
-        "cNewtonMeter": 1e-2,
-        "NewtonMeter": 1,
-        "kNewtonMeter": 1e3,
-        "megNewtonMeter": 1e6,
-        "gNewtonMeter": 1e9,
-    },
-    "Voltage": {
-        "fV": 1e-15,
-        "pV": 1e-12,
-        "nV": 1e-9,
-        "uV": 1e-6,
-        "mV": 1e-3,
-        "V": 1.0,
-        "kV": 1e3,
-        "MegV": 1e6,
-        "gV": 1e9,
-        "dBV": (dB,),
-    },
-    "Temperature": {"kel": 1.0, "cel": (cel2kel,), "fah": (fah2kel,)},
-    "Power": {
-        "fW": 1e-15,
-        "pW": 1e-12,
-        "nW": 1e-9,
-        "uW": 1e-6,
-        "mW": 1e-3,
-        "W": 1.0,
-        "kW": 1e3,
-        "megW": 1e6,
-        "gW": 1e9,
-    },
-    "B-field": {
-        "ftesla": 1e-15,
-        "ptesla": 1e-12,
-        "ntesla": 1e-9,
-        "utesla": 1e-6,
-        "mtesla": 1e-3,
-        "tesla": 1.0,
-        "ktesla": 1e3,
-        "megtesla": 1e6,
-        "gtesla": 1e9,
-    },
-    "H-field": {
-        "fA_per_m": 1e-15,
-        "pA_per_m": 1e-12,
-        "nA_per_m": 1e-9,
-        "uA_per_m": 1e-6,
-        "mA_per_m": 1e-3,
-        "A_per_m": 1.0,
-        "kA_per_m": 1e3,
-        "megA_per_m": 1e6,
-        "gA_per_m": 1e9,
-    },
-}
-SI_units = {
-    "AngularSpeed": "rad_per_sec",
-    "Angle": "rad",
-    "Current": "A",
-    "Flux": "vs",
-    "Freq": "Hz",
-    "Inductance": "H",
-    "Length": "meter",
-    "Mass": "kg",
-    "None": "",
-    "Resistance": "ohm",
-    "Time": "s",
-    "Torque": "NewtonMeter",
-    "Voltage": "V",
-    "Temperature": "kel",
-    "Power": "W",
-    "B-field": "tesla",
-    "H-field": "A_per_m",
-}
-
-unit_system_operations = {
-    # Multiplication of physical domains
-    "Voltage_multiply_Current": "Power",
-    "Torque_multiply_AngularSpeed": "Power",
-    "AngularSpeed_multiply_Time": "Angle",
-    "Current_multiply_Resistance": "Voltage",
-    "AngularSpeed_multiply_Inductance": "Resistance",
-    "Speed_multiply_Time": "Length",
-    # Division of Physical Domains
-    "Power_divide_Voltage": "Current",
-    "Power_divide_Current": "Voltage",
-    "Power_divide_AngularSpeed": "Torque",
-    "Power_divide_Torque": "AngularSpeed",
-    "Angle_divide_AngularSpeed": "Time",
-    "Angle_divide_Time": "AngularSpeed",
-    "Voltage_divide_Current": "Resistance",
-    "Voltage_divide_Resistance": "Current",
-    "Resistance_divide_AngularSpeed": "Inductance",
-    "Resistance_divide_Inductance": "AngularSpeed",
-    "None_divide_Freq": "Time",
-    "None_divide_Time": "Freq",
-    "Length_divide_Time": "Speed",
-    "Length_divide_Speed": "Time",
-}
-
-
-def _resolve_unit_system(unit_system_1, unit_system_2, operation):
-    """Retrieve the unit string of an arithmetic operation on ``Variable`` objects. If no resulting unit system
-    is defined for a specific operation (in unit_system_operations), an empty string is returned
-
-    Parameters
-    ----------
-    unit_system_1 : str
-        Name of a unit system, which is a key of ``AEDT_units``.
-    unit_system_2 : str
-        Name of another unit system, which is a key of ``AEDT_units``.
-    operation : str
-        Name of an operator within the data set of ``["multiply" ,"divide"]``.
-
-    Returns
-    -------
-    str
-        Unit system when successful, ``""`` when failed.
-
-    """
-    try:
-        key = "{}_{}_{}".format(unit_system_1, operation, unit_system_2)
-        result_unit_system = unit_system_operations[key]
-        return SI_units[result_unit_system]
-    except KeyError:
-        return ""
 
 
 class CSVDataset:
@@ -541,7 +232,7 @@ def _find_units_in_dependent_variables(variable_value, full_variables={}):
             return m2[0]
         else:
             if unit_system(m2[0]):
-                return SI_units[unit_system(m2[0])]
+                return SI_UNITS[unit_system(m2[0])]
     else:
         m1 = re.findall(r"(?<=[/+-/*//^/(/[])([a-z_A-Z/$]\w*)", variable_value.replace(" ", ""))
         m2 = re.findall(r"^([a-z_A-Z/$]\w*)", variable_value.replace(" ", ""))
@@ -1213,7 +904,7 @@ class Variable(object):
             self._units = specified_units
 
         if is_number(self._value):
-            scale = AEDT_units[self.unit_system][self._units]
+            scale = AEDT_UNITS[self.unit_system][self._units]
             if isinstance(scale, tuple):
                 self._value = scale[0](self._value, inverse=False)
             else:
@@ -1238,7 +929,7 @@ class Variable(object):
     def numeric_value(self):
         """Numeric part of the expression as a float value."""
         if is_number(self._value):
-            scale = AEDT_units[self.unit_system][self._units]
+            scale = AEDT_UNITS[self.unit_system][self._units]
         if isinstance(scale, tuple):
             return scale[0](self._value, True)
         else:
@@ -1331,18 +1022,18 @@ class Variable(object):
         Multiply ``'Length1'`` by unitless ``'None'``` to obtain ``'Length'``.
         A numerical value is also considered to be unitless.
 
-        >>> v1 = Variable("10mm")
+import pyaedt.generic.constants        >>> v1 = Variable("10mm")
         >>> v2 = Variable(3)
         >>> result_1 = v1 * v2
         >>> result_2 = v1 * 3
         >>> assert result_1.numeric_value == 30.0
         >>> assert result_1.unit_system == "Length"
         >>> assert result_2.numeric_value == result_1.numeric_value
-        >>> assert result_2.unit_system == result_1.unit_system
+        >>> assert result_2.unit_system == "Length"
 
         Multiply voltage times current to obtain power.
 
-        >>> v3 = Variable("3mA")
+import pyaedt.generic.constants        >>> v3 = Variable("3mA")
         >>> v4 = Variable("40V")
         >>> result_3 = v3 * v4
         >>> assert result_3.numeric_value == 0.12
@@ -1387,7 +1078,7 @@ class Variable(object):
         --------
         >>> from pyaedt.application.Variables import Variable
 
-        >>> v1 = Variable("3mA")
+import pyaedt.generic.constants        >>> v1 = Variable("3mA")
         >>> v2 = Variable("10A")
         >>> result = v1 + v2
         >>> assert result.numeric_value == 10.003
@@ -1400,7 +1091,7 @@ class Variable(object):
             self.unit_system == other.unit_system
         ), "Only ``Variable`` objects with the same unit system can be added."
         result_value = self.value + other.value
-        result_units = SI_units[self.unit_system]
+        result_units = SI_UNITS[self.unit_system]
         # If the units of the two operands are different, return SI-Units
         result_variable = Variable("{}{}".format(result_value, result_units))
 
@@ -1427,7 +1118,7 @@ class Variable(object):
         Examples
         --------
 
-        >>> from pyaedt.application.Variables import Variable
+import pyaedt.generic.constants        >>> from pyaedt.application.Variables import Variable
         >>> v3 = Variable("3mA")
         >>> v4 = Variable("10A")
         >>> result_2 = v3 - v4
@@ -1441,7 +1132,7 @@ class Variable(object):
             self.unit_system == other.unit_system
         ), "Only ``Variable`` objects with the same unit system can be subtracted."
         result_value = self.value - other.value
-        result_units = SI_units[self.unit_system]
+        result_units = SI_UNITS[self.unit_system]
         # If the units of the two operands are different, return SI-Units
         result_variable = Variable("{}{}".format(result_value, result_units))
 
@@ -1473,7 +1164,7 @@ class Variable(object):
 
         >>> from pyaedt.application.Variables import Variable
 
-        >>> v1 = Variable("10W")
+import pyaedt.generic.constants        >>> v1 = Variable("10W")
         >>> v2 = Variable("40V")
         >>> result = v1 / v2
         >>> assert result_1.numeric_value == 0.25
@@ -1515,7 +1206,7 @@ class Variable(object):
         Divide a number by a variable with units ``"s"`` and automatically determine that
         the result is in ``"Hz"``.
 
-        >>> from pyaedt.application.Variables import Variable
+import pyaedt.generic.constants        >>> from pyaedt.application.Variables import Variable
         >>> v = Variable("1s")
         >>> result = 3.0 / v
         >>> assert result.numeric_value == 3.0

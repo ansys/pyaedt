@@ -683,7 +683,7 @@ class Icepak(FieldAnalysisIcepak):
 
         Create a rectangle named ``"Surface1"`` and assign a temperature monitor to that surface.
 
-        >>> surface = icepak.modeler.primitives.create_rectangle(icepak.CoordinateSystemPlane.XYPlane,
+        >>> surface = icepak.modeler.primitives.create_rectangle(icepak.PLANE.XY,
         ...                                                      [0, 0, 0], [10, 20], name="Surface1")
         >>> icepak.assign_surface_monitor("Surface1")
         True
@@ -1011,12 +1011,12 @@ class Icepak(FieldAnalysisIcepak):
 
         all_names = self.modeler.primitives.object_names
         list = [i for i in all_names if "Fin" in i]
-        self.modeler.split(list, self.CoordinateSystemPlane.ZXPlane, "PositiveOnly")
+        self.modeler.split(list, self.PLANE.ZX, "PositiveOnly")
         all_names = self.modeler.primitives.object_names
         list = [i for i in all_names if "Fin" in i]
         self.modeler.create_coordinate_system(self.Position(0, "HSHeight", 0), mode="view", view="XY", name="TopRight")
 
-        self.modeler.split(list, self.CoordinateSystemPlane.ZXPlane, "NegativeOnly")
+        self.modeler.split(list, self.PLANE.ZX, "NegativeOnly")
 
         if symmetric:
 
@@ -1028,7 +1028,7 @@ class Icepak(FieldAnalysisIcepak):
                 reference_cs="TopRight",
             )
 
-            self.modeler.split(list, self.CoordinateSystemPlane.YZPlane, "NegativeOnly")
+            self.modeler.split(list, self.PLANE.YZ, "NegativeOnly")
             self.modeler.create_coordinate_system(
                 self.Position("SymSeparation/2", 0, 0),
                 mode="view",
@@ -1052,7 +1052,7 @@ class Icepak(FieldAnalysisIcepak):
             self.modeler.create_coordinate_system(
                 self.Position("HSWidth", 0, 0), mode="view", view="XY", name="BottomRight", reference_cs="TopRight"
             )
-            self.modeler.split(list, self.CoordinateSystemPlane.YZPlane, "NegativeOnly")
+            self.modeler.split(list, self.PLANE.YZ, "NegativeOnly")
         all_objs2 = self.modeler.primitives.object_names
         list_to_move = [i for i in all_objs2 if i not in all_objs]
         center[0] -= hs_width / 2
@@ -1060,14 +1060,14 @@ class Icepak(FieldAnalysisIcepak):
         center[2] += hs_basethick
         self.modeler.set_working_coordinate_system("Global")
         self.modeler.translate(list_to_move, center)
-        if plane_enum == self.CoordinateSystemPlane.XYPlane:
-            self.modeler.rotate(list_to_move, self.CoordinateSystemAxis.XAxis, rotation)
-        elif plane_enum == self.CoordinateSystemPlane.ZXPlane:
-            self.modeler.rotate(list_to_move, self.CoordinateSystemAxis.XAxis, 90)
-            self.modeler.rotate(list_to_move, self.CoordinateSystemAxis.YAxis, rotation)
-        elif plane_enum == self.CoordinateSystemPlane.YZPlane:
-            self.modeler.rotate(list_to_move, self.CoordinateSystemAxis.YAxis, 90)
-            self.modeler.rotate(list_to_move, self.CoordinateSystemAxis.ZAxis, rotation)
+        if plane_enum == self.PLANE.XY:
+            self.modeler.rotate(list_to_move, self.AXIS.X, rotation)
+        elif plane_enum == self.PLANE.ZX:
+            self.modeler.rotate(list_to_move, self.AXIS.X, 90)
+            self.modeler.rotate(list_to_move, self.AXIS.Y, rotation)
+        elif plane_enum == self.PLANE.YZ:
+            self.modeler.rotate(list_to_move, self.AXIS.Y, 90)
+            self.modeler.rotate(list_to_move, self.AXIS.Z, rotation)
         self.modeler.unite(list_to_move)
         self.modeler.primitives[list_to_move[0]].name = "HeatSink1"
         return True

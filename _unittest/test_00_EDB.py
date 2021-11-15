@@ -503,3 +503,6 @@ class TestClass:
 
     def test_65_flatten_planes(self):
         assert self.edbapp.core_primitives.unite_polygons_on_layer()
+
+    def test_66_create_solder_ball_on_component(self):
+        assert self.edbapp.core_components.set_solder_ball("U1A1")

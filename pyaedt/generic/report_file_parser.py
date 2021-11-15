@@ -1,8 +1,8 @@
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
-from pyaedt.application.Variables import unit_system, SI_units
+from pyaedt.generic.constants import SI_UNITS, unit_system
 
 
-def parse_file(file_path):
+def parse_rdat_file(file_path):
     """
     Parse Ansys report .rdat file
 
@@ -21,8 +21,8 @@ def parse_file(file_path):
             all_x_values = x_data["TraceDataCol"]["ColumnValues"]
             all_y_values = y_data["TraceDataCol"]["ColumnValues"]
 
-            si_unit_x = SI_units[unit_system(x_data["TraceDataCol"]["Units"])]
-            si_unit_y = SI_units[unit_system(y_data["TraceDataCol"]["Units"])]
+            si_unit_x = SI_UNITS[unit_system(x_data["TraceDataCol"]["Units"])]
+            si_unit_y = SI_UNITS[unit_system(y_data["TraceDataCol"]["Units"])]
             report_dict[report_name][trace_data["TraceName"]] = {
                 "x_name": x_data["TraceCompExpr"],
                 "x_unit": si_unit_x,
@@ -34,7 +34,7 @@ def parse_file(file_path):
                     "x_data": all_x_values[0 : curve_data[0]],
                     "y_data": all_y_values[0 : curve_data[0]],
                 }
-                all_x_values = all_x_values[curve_data[0] + 1 :]
-                all_y_values = all_y_values[curve_data[0] + 1 :]
+                all_x_values = all_x_values[curve_data[0] :]
+                all_y_values = all_y_values[curve_data[0] :]
 
     return report_dict

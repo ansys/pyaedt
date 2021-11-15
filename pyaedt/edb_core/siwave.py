@@ -652,7 +652,7 @@ class EdbSiwave(object):
         current_source.positive_node.component_node = pos_pin.GetComponent()
         current_source.positive_node.node_pins = pos_pin
         current_source.negative_node.component_node = neg_pin.GetComponent()
-        current_source.negative_node.node_pins = pos_pin
+        current_source.negative_node.node_pins = neg_pin
         return self._create_terminal_on_pins(current_source)
 
     @aedt_exception_handler

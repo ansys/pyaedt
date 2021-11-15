@@ -61,7 +61,7 @@ class TestClass:
         assert self.aedtapp.modeler.create_coordinate_system([200, 100, 0], mode="view", view="XY", name="Coil_CS")
 
     def test_04_coil_terminal(self):
-        self.aedtapp.modeler.section(["Coil"], self.aedtapp.CoordinateSystemPlane.ZXPlane)
+        self.aedtapp.modeler.section(["Coil"], self.aedtapp.PLANE.ZX)
         self.aedtapp.modeler.separate_bodies(["Coil_Section1"])
         self.aedtapp.modeler.primitives.delete("Coil_Section1_Separate1")
         assert self.aedtapp.assign_current(["Coil_Section1"], amplitude=2472)
