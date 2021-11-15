@@ -972,7 +972,7 @@ class Edb(object):
                     except:
                         pass
         else:
-            self.db.CopyCells(_cutout)
+            self.db.CopyCells(convert_py_list_to_net_list(_dbCells))
         return True
 
     @aedt_exception_handler
