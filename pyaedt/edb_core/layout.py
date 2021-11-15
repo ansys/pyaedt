@@ -558,9 +558,14 @@ class EdbLayout(object):
             return None
         arcs = []
         is_parametric = False
-        for i in range(1, len(points)):
-            startPoint = points[i - 1]
-            endPoint = points[i]
+        for i in range(len(points) - 1):
+            if i == 0:
+                startPoint = points[-1]
+                endPoint = points[i]
+            else:
+                startPoint = points[i - 1]
+                endPoint = points[i]
+
             if not self._validatePoint(endPoint):
                 return None
             startPoint = [self._edb_value(i) for i in startPoint]
@@ -602,9 +607,8 @@ class EdbLayout(object):
             return polygon
         else:
             k = 0
-            for i in range(0, len(points)-1):
-                startPoint = points[i]
-                point = [self._edb_value(i) for i in startPoint]
+            for pt in points:
+                point = [self._edb_value(i) for i in pt]
                 new_points = self._edb.Geometry.PointData(point[0], point[1])
                 if len(point) > 2:
                     k += 1
