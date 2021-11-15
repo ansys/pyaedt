@@ -10,7 +10,6 @@ This example shows how to use HFSS 3D Layout to create and solve a parametric de
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This example imports the `Hfss3dlayout` object and initializes it on version
 # 2021.1.
-import math
 import tempfile
 from pyaedt import Edb
 from pyaedt.generic.general_methods import generate_unique_name
