@@ -10,7 +10,7 @@ This example shows how to use HFSS 3D Layout to create and solve a parametric de
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This example imports the `Hfss3dlayout` object and initializes it on version
 # 2021.1.
-
+import math
 import tempfile
 from pyaedt import Edb
 from pyaedt.generic.general_methods import generate_unique_name
@@ -50,16 +50,17 @@ class via_def:
 
 
 class via_instance:
-    def __init__(self, pos_x="", pos_y="", net_name=""):
+    def __init__(self, pos_x="", pos_y="", rotation=0.0, net_name=""):
         self.pos_x = pos_x
         self.pos_y = pos_y
+        self.rotation = rotation
         self.pos = [self.pos_x, self.pos_y]
         self.net_name = net_name
 
     def place_via(self, viadef=via_def()):
         edb_padstanck_inst = edb.core_padstack.place_padstack(
-            self.pos, viadef.name, self.net_name, "", 0, viadef.start_layer,
-            viadef.stop_layer)
+            position=self.pos, definition_name=viadef.name, net_name=self.net_name, via_name="", rotation=self.rotation,
+            fromlayer=viadef.start_layer, tolayer=viadef.stop_layer)
 
 
 class line():
@@ -116,6 +117,7 @@ if edb:
     edb.core_stackup.stackup_layers.add_layer("Diel_1", "sig1", layerType=1, thickness="275um", material="FR4_epoxy")
     edb.core_stackup.stackup_layers.add_layer("top", "Diel_1")
 
+### Desgin variables #####
 edb.add_design_variable("$line_width", "0.5mm")
 edb.add_design_variable("$line2_width", "0.5mm")
 edb.add_design_variable("$line_spacing", "0.2mm")
@@ -125,10 +127,11 @@ edb.add_design_variable("$pad_diam", "0.6mm")
 edb.add_design_variable("$anti_pad_diam", "0.7mm")
 edb.add_design_variable("$pcb_len", "30mm")
 edb.add_design_variable("$pcb_w", "5mm")
-edb.add_design_variable("$x_size", "0.8mm")
+edb.add_design_variable("$x_size", "1.2mm")
 edb.add_design_variable("$y_size", "1mm")
 edb.add_design_variable("$corner_rad", "0.5mm")
 
+#### Via definition ####
 viadef1 = via_def(name="automated_via", hole_diam="$via_diam", pad_diam="$pad_diam", antipad_shape="Bullet",
                   x_size="$x_size", y_size="$y_size", corner_rad="$corner_rad")
 viadef1.add_via_def_to_edb()
@@ -147,7 +150,7 @@ seg1_p.point_list = [["0.0", "($line_width+$line_spacing)/2"],
 seg1_p.place_line()
 path_port_1p = edb.core_primitives.primitives[-1]
 #
-via_instance(pos_x="$pcb_len/3", pos_y="($line_width+$line_spacing+$via_spacing)/2",
+via_instance(pos_x="$pcb_len/3", pos_y="($line_width+$line_spacing+$via_spacing)/2", rotation=90,
              net_name=net_name).place_via(viadef1)
 
 seg2_p = line(width="$line2_width", net_name=net_name, layer="sig1")
@@ -160,7 +163,7 @@ seg2_p.point_list = [["$pcb_len/3", "($line_width+$line_spacing+$via_spacing)/2"
                      ]
 seg2_p.place_line()
 
-via_instance(pos_x="2*$pcb_len/3", pos_y="($line_width+$line_spacing+$via_spacing)/2",
+via_instance(pos_x="2*$pcb_len/3", pos_y="($line_width+$line_spacing+$via_spacing)/2", rotation=90,
              net_name=net_name).place_via(viadef1)
 
 seg3_p = line(width="$line_width", net_name=net_name, layer="top")
@@ -184,7 +187,7 @@ seg1_n.point_list = [["0.0", "-($line_width+$line_spacing)/2"],
 seg1_n.place_line()
 path_port_1p = edb.core_primitives.primitives[-1]
 #
-via_instance(pos_x="$pcb_len/3", pos_y="-($line_width+$line_spacing+$via_spacing)/2",
+via_instance(pos_x="$pcb_len/3", pos_y="-($line_width+$line_spacing+$via_spacing)/2", rotation=-90,
              net_name=net_name2).place_via(viadef1)
 
 seg2_n = line(width="$line2_width", net_name=net_name2, layer="sig1")
@@ -197,7 +200,7 @@ seg2_n.point_list = [["$pcb_len/3", "-($line_width+$line_spacing+$via_spacing)/2
                      ]
 seg2_n.place_line()
 
-via_instance(pos_x="2*$pcb_len/3", pos_y="-($line_width+$line_spacing+$via_spacing)/2",
+via_instance(pos_x="2*$pcb_len/3", pos_y="-($line_width+$line_spacing+$via_spacing)/2", rotation=-90,
              net_name=net_name2).place_via(viadef1)
 
 seg3_p = line(width="$line_width", net_name=net_name2, layer="top")
