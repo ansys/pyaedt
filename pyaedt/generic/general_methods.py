@@ -277,9 +277,12 @@ def env_path(input_version):
     -------
     str
 
+    Examples
+    --------
+    >>> env_path_student("2021.2")
+    "C:/Program Files/ANSYSEM/ANSYSEM2021.2/Win64"
     """
-    v_key = "ANSYSEM_ROOT{0}{1}".format(get_version_and_release(0), get_version_and_release(1))
-    return os.getenv(v_key, "")
+    return os.getenv("ANSYSEM_ROOT{0}{1}".format(get_version_and_release(0), get_version_and_release(1)), "")
 
 
 @aedt_exception_handler
@@ -295,6 +298,10 @@ def env_value(input_version):
     -------
     str
 
+    Examples
+    --------
+    >>> env_value("2021.2")
+    "ANSYSEM_ROOT211"
     """
     return "ANSYSEM_ROOT{0}{1}".format(get_version_and_release(0), get_version_and_release(1))
 
@@ -317,7 +324,7 @@ def env_path_student(input_version):
     >>> env_path_student("2021.2")
     "C:/Program Files/ANSYSEM/ANSYSEM2021.2/Win64"
     """
-    return "ANSYSEMSV_ROOT{0}{1}".format(get_version_and_release(0), get_version_and_release(1))
+    return os.getenv("ANSYSEMSV_ROOT{0}{1}".format(get_version_and_release(0), get_version_and_release(1)), "")
 
 
 @aedt_exception_handler
