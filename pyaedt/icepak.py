@@ -122,10 +122,13 @@ class Icepak(FieldAnalysisIcepak):
             close_on_exit,
             student_version,
         )
-        self.omodelsetup = self._odesign.GetModule("ModelSetup")
 
     def __enter__(self):
         return self
+
+    @property
+    def omodelsetup(self):
+        return self._odesign.GetModule("ModelSetup")
 
     @property
     def existing_analysis_sweeps(self):

@@ -602,7 +602,6 @@ class Design(object):
 
     def _init_variables(self):
         self.oboundary = None
-        self.omodelsetup = None
         self.oimport_export = None
         self.ooptimetrics = None
         self.ooutput_variable = None
@@ -1297,6 +1296,33 @@ class Design(object):
 
         """
         return self._variable_manager
+
+    @aedt_exception_handler
+    def _arg_with_units(self, value, units=None):
+        """Dimension argument.
+
+        Parameters
+        ----------
+        value :
+
+        sUnits : optional
+             The default is ``None``.
+
+        Returns
+        -------
+
+        """
+        if units is None:
+            units = self.modeler.model_units
+        if type(value) is str:
+            try:
+                float(value)
+                val = "{0}{1}".format(value, units)
+            except:
+                val = value
+        else:
+            val = "{0}{1}".format(value, units)
+        return val
 
     @aedt_exception_handler
     def set_license_type(self, license_type="Pool"):

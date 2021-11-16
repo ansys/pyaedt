@@ -4,6 +4,7 @@ import os
 # Import required modules
 from pyaedt import Maxwell3d
 from pyaedt.generic.filesystem import Scratch
+from pyaedt.generic.constants import SOLUTIONS
 import gc
 try:
     import pytest
@@ -194,3 +195,12 @@ class TestClass:
 
     def test_29_assign_force(self):
         assert self.aedtapp.assign_force("Coil")
+
+    def test_30_assign_movement(self):
+        self.aedtapp.insert_design("Motion")
+        self.aedtapp.solution_type = SOLUTIONS.Maxwell3d.Transient
+        self.aedtapp.modeler.primitives.create_box([0, 0, 0], [10,10,10], name="Inner_Box")
+        self.aedtapp.modeler.primitives.create_box([0, 0, 0], [30,20,20], name="Outer_Box")
+        bound = self.aedtapp.assign_translate_motion("Outer_Box", mechanical_transient=True, velocity=1)
+        assert bound
+        assert bound.props["Velocity"] == "1m_per_sec"
