@@ -144,7 +144,9 @@ viadef1.add_via_def_to_edb()
 net_name = "strip_line_p"
 net_name2 = "strip_line_n"
 
-# line p ##################
+######################
+# line p 
+# 
 seg1_p = line(width="$line_width", net_name=net_name, layer="top")
 
 seg1_p.point_list = [["0.0", "($line_width+$line_spacing)/2"],
