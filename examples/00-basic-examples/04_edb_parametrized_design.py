@@ -1,6 +1,6 @@
 """
 Example of fully parameterized design using edb.
---------------------------------------
+-------------------------------------------------------
 This example shows how to use HFSS 3D Layout to create and solve a parametric design.
 """
 # sphinx_gallery_thumbnail_path = 'Resources/3dlayout.png'
