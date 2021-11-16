@@ -126,7 +126,7 @@ class AEDTMessageManager(object):
         self._log_on_screen = os.getenv("PYAEDT_SCREEN_LOGS", "True").lower() in ("true", "1", "t")
 
         if self._log_on_file:
-            self.logger = logging.getLogger(__name__)
+            self.logger = logging.getLogger('Global')
         else:
             self.logger = None
 
@@ -318,6 +318,9 @@ class AEDTMessageManager(object):
             Text to display as the message.
 
         """
+        if type not in [0, 1, 2]:
+            raise ValueError("The parameter 'type' is an int that only accepts 0, 1, 2 as a valid value.")
+
         if len(message_text) > 250:
             message_text = message_text[:250] + "..."
 
@@ -329,6 +332,7 @@ class AEDTMessageManager(object):
                 self.logger.warning(message_text)
             elif type == 2 and self.logger:
                 self.logger.error(message_text)
+
 
     def clear_messages(self, proj_name=None, des_name=None, level=2):
         """Clear all messages.
