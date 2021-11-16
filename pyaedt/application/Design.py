@@ -1310,6 +1310,8 @@ class Design(object):
 
         Returns
         -------
+        str
+            String concatenating value and unit.
 
         """
         if units is None:
