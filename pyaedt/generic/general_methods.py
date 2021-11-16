@@ -492,5 +492,5 @@ def remove_project_lock(project_path):
     bool
     """
     if os.path.exists(project_path + ".lock"):
-        os.remove(os.path.join(project_path, ".lock"))
+        os.remove(project_path + ".lock")
     return True

@@ -481,16 +481,55 @@ class SolutionData(object):
             )
         return sol
 
-    def export_data_to_csv(self, output, all_data=True, data_format="db20", convert_to_SI=False):
-        header = [el for el in self._sweeps_names]
-        header.extend([el for el in self.expressions])
-        with open(output, 'w', encoding='UTF8') as f:
+    @aedt_exception_handler
+    def is_real_only(self, expression=None):
+        if not expression:
+            expression = self.expressions[0]
+        for e, v in self.solutions_data_imag[expression].items():
+            if float(v) != 0.0:
+                return False
+        return True
+
+    @aedt_exception_handler
+    def export_data_to_csv(self, output):
+        """Save to output csv file the Solution Data.
+
+        Parameters
+        ----------
+        output : str,
+            Full path to csv file.
+
+        Returns
+        -------
+        bool
+        """
+        header = [el for el in reversed(self._sweeps_names)]
+        for el in self.expressions:
+            if not self.is_real_only(el):
+                header.append(el + " (Real)")
+                header.append(el + " (Imag)")
+            else:
+                header.append(el)
+
+        with open(output, 'w', encoding='UTF8', newline='') as f:
             writer = csv.writer(f)
             writer.writerow(header)
-            if all_data:
-                list_data = []
-                for expr in list(self.solution_data_real.keys()):
-                    for el in
+            list_full = []
+            for e, v in self.solutions_data_real[self.expressions[0]].items():
+                list_full.append(list(e))
+            for el in self.expressions:
+                i = 0
+                for e, v in self.solutions_data_real[el].items():
+                    list_full[i].extend([v])
+                    i += 1
+                i = 0
+                if not self.is_real_only(el):
+                    for e, v in self.solutions_data_imag[el].items():
+                        list_full[i].extend([v])
+                        i += 1
+            for el in list_full:
+                writer.writerow(el)
+        return True
 
 
 class FieldPlot:
