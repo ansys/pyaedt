@@ -157,7 +157,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         edgenumbers :
             List of the edge number to create the wave port on.
-            The list length must be 2 e.g. for thr two edges or the command will not be executed,
+            The list length must be 2 e.g. for the two edges or the command will not be executed.
 
         Returns
         -------
