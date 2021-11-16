@@ -13,6 +13,7 @@ import random
 import string
 import warnings
 import sys
+import csv
 from collections import OrderedDict
 
 from pyaedt.generic.constants import AEDT_UNITS, db10, db20
@@ -479,6 +480,17 @@ class SolutionData(object):
                 sol, self._quantity(self.units_data[expression]), self.units_data[expression]
             )
         return sol
+
+    def export_data_to_csv(self, output, all_data=True, data_format="db20", convert_to_SI=False):
+        header = [el for el in self._sweeps_names]
+        header.extend([el for el in self.expressions])
+        with open(output, 'w', encoding='UTF8') as f:
+            writer = csv.writer(f)
+            writer.writerow(header)
+            if all_data:
+                list_data = []
+                for expr in list(self.solution_data_real.keys()):
+                    for el in
 
 
 class FieldPlot:
