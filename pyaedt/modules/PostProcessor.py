@@ -524,7 +524,7 @@ class SolutionData(object):
             else:
                 header.append(el)
 
-        with open(output, 'w', encoding='UTF8', newline='') as f:
+        with open(output, 'w', newline='') as f:
             writer = csv.writer(f)
             writer.writerow(header)
             list_full = []
