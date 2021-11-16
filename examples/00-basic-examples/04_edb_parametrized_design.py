@@ -188,7 +188,9 @@ seg3_p.point_list = [["2*$pcb_len/3", "($line_width+$line_spacing+$via_spacing)/
 seg3_p.place_line()
 path_port_2p = edb.core_primitives.primitives[-1]
 
-# line n ##################
+##################
+# line n
+# 
 
 # line creation ####
 seg1_n = line(width="$line_width", net_name=net_name2, layer="top")
