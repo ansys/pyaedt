@@ -315,6 +315,8 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.AssignIndependent(self._get_args())
         elif self.type == "Dependent":
             self._app.oboundary.AssignDependent(self._get_args())
+        elif self.type == "Band":
+            self._app.omodelsetup.AssignBand(self._get_args())
         elif self.type == "InfiniteGround":
             self._app.oboundary.AssignInfiniteGround(self._get_args())
         elif self.type == "ThinConductor":
@@ -447,6 +449,8 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.EditIndependent(self.name, self._get_args())
         elif self.type == "Dependent":
             self._app.oboundary.EditDependent(self.name, self._get_args())
+        elif self.type == "Band":
+            self._app.omodelsetup.EditMotionSetup(self.name, self._get_args())
         elif self.type == "InfiniteGround":
             self._app.oboundary.EditInfiniteGround(self.name, self._get_args())
         elif self.type == "ThinConductor":
