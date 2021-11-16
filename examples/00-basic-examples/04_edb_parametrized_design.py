@@ -115,7 +115,9 @@ if edb:
     edb.core_stackup.stackup_layers.add_layer("Diel_1", "sig1", layerType=1, thickness="275um", material="FR4_epoxy")
     edb.core_stackup.stackup_layers.add_layer("top", "Diel_1")
 
-# Desgin variables #####
+####################
+# Design variables 
+# 
 edb.add_design_variable("$line_width", "0.5mm")
 edb.add_design_variable("$line2_width", "0.5mm")
 edb.add_design_variable("$line_spacing", "0.2mm")
