@@ -524,8 +524,8 @@ class SolutionData(object):
             else:
                 header.append(el)
 
-        with open(output, 'w', newline='') as f:
-            writer = csv.writer(f)
+        with open(output, 'w') as f:
+            writer = csv.writer(f, delimiter=",", quotechar="|", quoting=csv.QUOTE_MINIMAL)
             writer.writerow(header)
             list_full = []
             for e, v in self.solutions_data_real[self.expressions[0]].items():
