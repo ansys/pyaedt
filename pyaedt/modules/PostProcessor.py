@@ -487,7 +487,7 @@ class SolutionData(object):
 
         Parameters
         ----------
-        xpression : str, optional
+        expression : str, optional
             Name of the expression. The default is ``None``,
             in which case the first expression is used.
 
