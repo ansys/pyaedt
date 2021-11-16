@@ -3,7 +3,7 @@ Example of fully parameterized design using edb.
 -------------------------------------------------------
 This example shows how to use HFSS 3D Layout to create and solve a parametric design.
 """
-# sphinx_gallery_thumbnail_path = 'Resources/3dlayout.png'
+# sphinx_gallery_thumbnail_path = 'Resources/parametrized_edb.png'
 
 ###############################################################################
 # # Import the `Hfss3dlayout` Object
@@ -63,7 +63,7 @@ class via_instance:
             fromlayer=viadef.start_layer, tolayer=viadef.stop_layer)
 
 
-class line():
+class line:
     def __init__(self, width="0.0", point_list=None, layer="", net_name=""):
         if point_list is None:
             point_list = [[0.0, 0.0], [1e-3, 0.0]]
