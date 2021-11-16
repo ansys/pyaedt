@@ -483,6 +483,19 @@ class SolutionData(object):
 
     @aedt_exception_handler
     def is_real_only(self, expression=None):
+        """Check if the expression has only real values or not.
+
+        Parameters
+        ----------
+        xpression : str, optional
+            Name of the expression. The default is ``None``,
+            in which case the first expression is used.
+
+        Returns
+        -------
+        bool
+            ``True`` if the Solution Data for specific expression contains only real values.
+        """
         if not expression:
             expression = self.expressions[0]
         for e, v in self.solutions_data_imag[expression].items():
