@@ -23,7 +23,7 @@ class Maxwell(object):
 
     @property
     def omodelsetup(self):
-        """AEDT Model Setup Object"""
+        """AEDT Model Setup Object."""
         if self.solution_type != "Transient":
             return None
         else:
@@ -327,7 +327,7 @@ class Maxwell(object):
             Object container.
         coordinate_system : str, optional
             Coordinate System Name. Default is ``"Global``.
-        axis:str or int, optional
+        axis : str or int, optional
             Coordinate System Axis. Default is ``"Z"``.
             It can be a ``pyaedt.generic.constants.AXIS`` Enumerator value.
         positive_movement : bool, Optional

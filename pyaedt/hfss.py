@@ -149,7 +149,7 @@ class Hfss(FieldAnalysis3D, object):
 
     @property
     def omodelsetup(self):
-        """AEDT Model Setup Object"""
+        """AEDT Model Setup Object."""
         return self._odesign.GetModule("ModelSetup")
 
     class BoundaryType(object):
