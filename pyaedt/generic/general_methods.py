@@ -1,4 +1,5 @@
 import os
+import csv
 import string
 import random
 import time
@@ -493,4 +494,16 @@ def remove_project_lock(project_path):
     """
     if os.path.exists(project_path + ".lock"):
         os.remove(project_path + ".lock")
+    return True
+
+@aedt_exception_handler
+def write_csv(output, list_data, delimiter=",", quotechar="|", quoting=csv.QUOTE_MINIMAL):
+    if is_ironpython:
+        f = open(output, 'wb')
+    else:
+        f = open(output, 'w', newline='')
+    writer = csv.writer(f, delimiter=delimiter, quotechar=quotechar, quoting=quoting)
+    for data in list_data:
+        writer.writerow(data)
+    f.close()
     return True

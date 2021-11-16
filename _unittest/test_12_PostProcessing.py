@@ -134,8 +134,8 @@ class TestClass:
         assert my_data.data_imag(trace_names[0])
         assert my_data.data_real(trace_names[0])
         assert my_data.data_magnitude(trace_names[0])
-        assert my_data.export_data_to_csv(os.path.join(scratch_path, "output.csv"))
-        assert os.path.exists(os.path.join(scratch_path, "output.csv"))
+        assert my_data.export_data_to_csv(os.path.join(self.local_scratch.path, "output.csv"))
+        assert os.path.exists(os.path.join( self.local_scratch.path, "output.csv"))
 
     def test_04_export_touchstone(self):
         self.aedtapp.export_touchstone("Setup1", "Sweep", os.path.join(self.local_scratch.path, "Setup1_Sweep.S2p"))

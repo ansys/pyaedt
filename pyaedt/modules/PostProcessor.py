@@ -13,12 +13,11 @@ import random
 import string
 import warnings
 import sys
-import csv
 from collections import OrderedDict
 
 from pyaedt.generic.constants import AEDT_UNITS, db10, db20
 from pyaedt.generic.filesystem import Scratch
-from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, _retry_ntimes
+from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, _retry_ntimes, write_csv
 
 report_type = {
     "DrivenModal": "Modal Solution Data",
@@ -504,13 +503,15 @@ class SolutionData(object):
         return True
 
     @aedt_exception_handler
-    def export_data_to_csv(self, output):
+    def export_data_to_csv(self, output, delimiter=";"):
         """Save to output csv file the Solution Data.
 
         Parameters
         ----------
         output : str,
             Full path to csv file.
+        delimiter : str,
+            CSV Delimiter. Default is ``";"``.
 
         Returns
         -------
@@ -524,25 +525,21 @@ class SolutionData(object):
             else:
                 header.append(el)
 
-        with open(output, 'w') as f:
-            writer = csv.writer(f, delimiter=",", quotechar="|", quoting=csv.QUOTE_MINIMAL)
-            writer.writerow(header)
-            list_full = []
-            for e, v in self.solutions_data_real[self.expressions[0]].items():
-                list_full.append(list(e))
-            for el in self.expressions:
-                i = 0
-                for e, v in self.solutions_data_real[el].items():
+        list_full = [header]
+        for e, v in self.solutions_data_real[self.expressions[0]].items():
+            list_full.append(list(e))
+        for el in self.expressions:
+            i = 1
+            for e, v in self.solutions_data_real[el].items():
+                list_full[i].extend([v])
+                i += 1
+            i = 1
+            if not self.is_real_only(el):
+                for e, v in self.solutions_data_imag[el].items():
                     list_full[i].extend([v])
                     i += 1
-                i = 0
-                if not self.is_real_only(el):
-                    for e, v in self.solutions_data_imag[el].items():
-                        list_full[i].extend([v])
-                        i += 1
-            for el in list_full:
-                writer.writerow(el)
-        return True
+
+        return write_csv(output, list_full, delimiter=delimiter)
 
 
 class FieldPlot:
