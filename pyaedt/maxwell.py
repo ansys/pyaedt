@@ -23,6 +23,7 @@ class Maxwell(object):
 
     @property
     def omodelsetup(self):
+        """AEDT Model Setup Object"""
         if self.solution_type != "Transient":
             return None
         else:
@@ -234,34 +235,34 @@ class Maxwell(object):
 
         Parameters
         ----------
-        band_object: str,
+        band_object : str,
             Object container.
-        coordinate_system: str, optional
+        coordinate_system : str, optional
             Coordinate System Name. Default is ``"Global``.
-        axis:str or int, optional
+        axis :str or int, optional
             Coordinate System Axis. Default is ``"Z"``.
             It can be a ``pyaedt.generic.constants.AXIS`` Enumerator value.
-        positive_movement: bool, Optional
+        positive_movement : bool, Optional
             Either if movement is Positive or not. Default is ``True``.
-        start_position: float or str, optional
+        start_position : float or str, optional
             Movement Start Position. If float, default modeler units will be applied.
-        periodic_translate: bool, Optional
+        periodic_translate : bool, Optional
             Either if Periodic Movement or not. Default is ``False``.
-        negative_limit: float or str, optional
+        negative_limit : float or str, optional
             Movement negative limit. If float, default modeler units will be applied.
-        positive_limit: float or str, optional
+        positive_limit : float or str, optional
             Movement positive limit. If float, default modeler units will be applied.
-        velocity: float or str, optional
+        velocity : float or str, optional
             Movement velocity. If float, "m_per_sec" units will be applied.
-        mechanical_transient: bool, Optional
+        mechanical_transient : bool, Optional
             Either to consider or not mechanical movement. Default is ``False``.
-        mass: float or str, optional
+        mass : float or str, optional
             mechanical mass. If float, "Kg" units will be applied.
-        damping: float, optional
+        damping : float, optional
             Damping Factor. Default ``0``.
-        load_force: float or str, optional
+        load_force : float or str, optional
             Load Force. If float, "newton" units will be applied.
-        motion_name: str, optional
+        motion_name : str, optional
             Motion Name.
 
         Returns
@@ -322,36 +323,36 @@ class Maxwell(object):
 
         Parameters
         ----------
-        band_object: str,
+        band_object : str,
             Object container.
-        coordinate_system: str, optional
+        coordinate_system : str, optional
             Coordinate System Name. Default is ``"Global``.
         axis:str or int, optional
             Coordinate System Axis. Default is ``"Z"``.
             It can be a ``pyaedt.generic.constants.AXIS`` Enumerator value.
-        positive_movement: bool, Optional
+        positive_movement : bool, Optional
             Either if movement is Positive or not. Default is ``True``.
-        start_position: float or str, optional
+        start_position : float or str, optional
             Movement Start Position. If float, "deg" units will be applied.
-        has_rotation_limits: bool, Optional
+        has_rotation_limits : bool, Optional
             Either if there will be a limit in rotation or not. Default is ``False``.
-        negative_limit: float or str, optional
+        negative_limit : float or str, optional
             Movement negative limit. If float, "deg" units will be applied.
-        positive_limit: float or str, optional
+        positive_limit : float or str, optional
             Movement positive limit. If float, "deg" units will be applied.
-        non_cylindrical: bool, optional
+        non_cylindrical : bool, optional
             Either if Non Cylindrical rotation has to be considered. Default is ``False``.
-        angular_velocity: float or str, optional
+        angular_velocity : float or str, optional
             Movement velocity. If float, "rpm" units will be applied.
-        mechanical_transient: bool, Optional
+        mechanical_transient : bool, Optional
             Either to consider or not mechanical movement. Default is ``False``.
-        inertia: float, optional
+        inertia : float, optional
             mechanical inertia.
-        damping: float, optional
+        damping : float, optional
             Damping Factor. Default ``0``.
-        load_torque: float or str, optional
+        load_torque : float or str, optional
             Load Force. If float, "NewtonMeter" units will be applied.
-        motion_name: str, optional
+        motion_name : str, optional
             Motion Name.
 
         Returns
