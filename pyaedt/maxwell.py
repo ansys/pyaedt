@@ -258,7 +258,7 @@ class Maxwell(object):
         mass: float or str, optional
             mechanical mass. If float, "Kg" units will be applied.
         damping: float, optional
-            Damping Factor. Defalut ``0``.
+            Damping Factor. Default ``0``.
         load_force: float or str, optional
             Load Force. If float, "newton" units will be applied.
         motion_name: str, optional
@@ -348,7 +348,7 @@ class Maxwell(object):
         inertia: float, optional
             mechanical inertia.
         damping: float, optional
-            Damping Factor. Defalut ``0``.
+            Damping Factor. Default ``0``.
         load_torque: float or str, optional
             Load Force. If float, "NewtonMeter" units will be applied.
         motion_name: str, optional
