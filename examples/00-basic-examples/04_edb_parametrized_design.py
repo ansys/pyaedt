@@ -131,7 +131,9 @@ edb.add_design_variable("$x_size", "1.2mm")
 edb.add_design_variable("$y_size", "1mm")
 edb.add_design_variable("$corner_rad", "0.5mm")
 
-# Via definition ####
+#################
+# Via definition 
+# 
 viadef1 = via_def(name="automated_via", hole_diam="$via_diam", pad_diam="$pad_diam", antipad_shape="Bullet",
                   x_size="$x_size", y_size="$y_size", corner_rad="$corner_rad")
 viadef1.add_via_def_to_edb()
