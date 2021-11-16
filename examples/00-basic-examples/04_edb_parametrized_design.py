@@ -172,7 +172,9 @@ seg2_p.point_list = [["$pcb_len/3", "($line_width+$line_spacing+$via_spacing)/2"
                      ]
 seg2_p.place_line()
 
-# via placement ####
+##################
+# Via placement
+# 
 via_instance(pos_x="2*$pcb_len/3", pos_y="($line_width+$line_spacing+$via_spacing)/2", rotation=90,
              net_name=net_name).place_via(viadef1)
 
