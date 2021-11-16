@@ -116,8 +116,8 @@ if edb:
     edb.core_stackup.stackup_layers.add_layer("top", "Diel_1")
 
 ####################
-# Design variables 
-# 
+# Design variables
+#
 edb.add_design_variable("$line_width", "0.5mm")
 edb.add_design_variable("$line2_width", "0.5mm")
 edb.add_design_variable("$line_spacing", "0.2mm")
@@ -132,21 +132,21 @@ edb.add_design_variable("$y_size", "1mm")
 edb.add_design_variable("$corner_rad", "0.5mm")
 
 #################
-# Via definition 
-# 
+# Via definition
+#
 viadef1 = via_def(name="automated_via", hole_diam="$via_diam", pad_diam="$pad_diam", antipad_shape="Bullet",
                   x_size="$x_size", y_size="$y_size", corner_rad="$corner_rad")
 viadef1.add_via_def_to_edb()
 
 ###################
-# line creation 
-# 
+# line creation
+#
 net_name = "strip_line_p"
 net_name2 = "strip_line_n"
 
 ######################
-# line p 
-# 
+# line p
+#
 seg1_p = line(width="$line_width", net_name=net_name, layer="top")
 
 seg1_p.point_list = [["0.0", "($line_width+$line_spacing)/2"],
@@ -174,7 +174,7 @@ seg2_p.place_line()
 
 ##################
 # Via placement
-# 
+#
 via_instance(pos_x="2*$pcb_len/3", pos_y="($line_width+$line_spacing+$via_spacing)/2", rotation=90,
              net_name=net_name).place_via(viadef1)
 
@@ -190,8 +190,7 @@ path_port_2p = edb.core_primitives.primitives[-1]
 
 ##################
 # line n
-# 
-
+#
 # line creation ####
 seg1_n = line(width="$line_width", net_name=net_name2, layer="top")
 
