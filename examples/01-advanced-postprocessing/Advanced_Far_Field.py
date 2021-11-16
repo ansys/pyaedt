@@ -266,4 +266,5 @@ fig1.set_size_inches(22.5, 22.5)
 # The following example closes the HFSS project and AEDT.
 
 #hfss.close_project()
+hfss.save_project()
 desktop.release_desktop()
