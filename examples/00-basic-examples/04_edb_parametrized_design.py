@@ -138,7 +138,9 @@ viadef1 = via_def(name="automated_via", hole_diam="$via_diam", pad_diam="$pad_di
                   x_size="$x_size", y_size="$y_size", corner_rad="$corner_rad")
 viadef1.add_via_def_to_edb()
 
-# line creation ####
+###################
+# line creation 
+# 
 net_name = "strip_line_p"
 net_name2 = "strip_line_n"
 
