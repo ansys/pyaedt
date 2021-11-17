@@ -27,7 +27,7 @@ class Trace(object):
                                                    end_cap_style="Flat")
         return edb_path
 
-class via_def(object):
+class ViaDefinition(object):
     def __init__(self, name="via_def", hole_diam="", pad_diam="", anti_pad_diam="", start_layer="top",
                  stop_layer="bottom", antipad_shape="Circle", x_size="", y_size="", corner_rad=""):
         self.name = name
