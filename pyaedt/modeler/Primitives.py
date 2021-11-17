@@ -112,7 +112,7 @@ class Polyline(Object3d):
     src_object : optional
         The default is ``None``.
     position_list : list, optional
-        List of positions in the ``[x, y, z]`` form. The default is ``None``.
+        List of positions in the ``[x, y, z]`` format. The default is ``None``.
     segment_type : optional
         The default is ``None``.
     cover_surface : bool, optional

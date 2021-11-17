@@ -15,7 +15,7 @@ This section lists setup modules:
 
 Sweep Classes
 =============
-This section lists the Sweeos classes and their default values.
+This section lists Sweep classes and their default values.
 
 .. currentmodule:: pyaedt.modules.SetupTemplates
 

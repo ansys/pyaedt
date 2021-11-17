@@ -29,7 +29,7 @@ class Primitives3DLayout(object):
 
     Examples
     --------
-    Basic usage demonstrated with an HFSS 3d Layout design:
+    Basic usage demonstrated with an HFSS 3D Layout design:
 
     >>> from pyaedt import Hfss3dLayout
     >>> aedtapp = Hfss3dLayout()

@@ -79,7 +79,7 @@ class PostProcessor(Post):
 
     Examples
     --------
-    Basic usage demonstrated with an HFSS, Maxwell or any other design:
+    Basic usage demonstrated with an HFSS, Maxwell, or any other design:
 
     >>> from pyaedt import Hfss
     >>> aedtapp = Hfss()

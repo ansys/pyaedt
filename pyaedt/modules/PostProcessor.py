@@ -832,18 +832,18 @@ class FieldPlot:
         """Export the active plot to an image file.
 
         .. note::
-            There are some limitation on HFSS3DLayout.
+            There are some limitations on HFSS 3D Layout plots.
 
         full_path : str, optional
-            Path where image will be saved. It supports png and gif format.
+            Path for saving the image file. PNG and GIF formats are supported.
         width : int, optional
             Plot Width.
         height : int, optional
-            Plot Height.
+            Plot height.
         orientation : str, optional
             View of the exported plot. Options are ``isometric``,
             ``top``, ``bottom``, ``right``, ``left``, ``front``,
-            ``back``any custom orientation.
+            ``back``, and any custom orientation.
         display_wireframe : bool, optional
             Set to ``True`` if the objects has to be put in wireframe mode.
 
@@ -865,10 +865,10 @@ class FieldPlot:
     @aedt_exception_handler
     def export_image_from_aedtplt(self, export_path=None, view="isometric", plot_mesh=False, scale_min=None,
                                   scale_max=None):
-        """Save an image of Active Plot using PyVista.
+        """Save an image of the active plot using PyVista.
 
         .. note::
-            Only working in CPython with PyVista Module Installed.
+            This method only works if the CPython with PyVista module is installed.
 
         Parameters
         ----------
@@ -876,9 +876,9 @@ class FieldPlot:
             Path where image will be saved
         view : str, optional
             View of the exported plot. Options are ``isometric``,
-            ``top``, ``front``, ``left``, ``all``.
+            ``top``, ``front``, ``left``, and ``all``.
         plot_mesh : bool, optional
-            Plot Mesh.
+            Plot mesh.
         scale_min : float, optional
             Scale output min.
         scale_max : float, optional
@@ -1406,11 +1406,11 @@ class PostProcessor(PostProcessorCommon, object):
     ----------
     app : :class:`pyaedt.application.Analsis3D.FieldAnalysis3D`
         Inherited parent object. The parent object must provide the members
-        `_modeler`, `_desktop`, `_odesign`, and `logger`.
+        ``_modeler``, ``_desktop``, ``_odesign``, and ``logger``.
 
     Examples
     --------
-    Basic usage demonstrated with an HFSS, Maxwell or any other design:
+    Basic usage demonstrated with an HFSS, Maxwell, or any other design:
 
     >>> from pyaedt import Hfss
     >>> aedtapp = Hfss()

@@ -16,7 +16,7 @@ class NexximComponents(CircuitComponents):
 
     Examples
     --------
-    Basic usage demonstrated with an Circuit design:
+    Basic usage demonstrated with a Circuit design:
 
     >>> from pyaedt import Circuit
     >>> aedtapp = Circuit()
