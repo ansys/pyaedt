@@ -6,7 +6,7 @@ from pyaedt import aedt_exception_handler
 from pyaedt.edb_core.layout import EdbLayout
 from pyaedt.edb_core.padstack import EdbPadstacks
 
-class trace(object):
+class Trace(object):
     """
     Manage EDB trace
     """
