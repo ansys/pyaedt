@@ -10,6 +10,14 @@ class CircuitComponents(object):
     """CircutComponents class.
 
     This is the common class for managing all circuit components for Nexxim and Simplorer.
+
+    Examples
+    --------
+    Basic usage demonstrated with an Circuit design:
+
+    >>> from pyaedt import Circuit
+    >>> aedtapp = Circuit()
+    >>> prim = aedtapp.modeler.components
     """
 
     @aedt_exception_handler

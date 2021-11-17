@@ -14,6 +14,13 @@ class NexximComponents(CircuitComponents):
         Inherited parent object.
     modeler :
 
+    Examples
+    --------
+    Basic usage demonstrated with an Circuit design:
+
+    >>> from pyaedt import Circuit
+    >>> aedtapp = Circuit()
+    >>> prim = aedtapp.modeler.components
     """
 
     @property

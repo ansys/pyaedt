@@ -624,7 +624,6 @@ class Object3d(object):
 
     >>> id = prim.create_box([0, 0, 0], [10, 10, 5], "Mybox", "Copper")
     >>> part = prim[id]
-
     """
     def __init__(self, primitives, name=None):
         """

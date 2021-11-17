@@ -2,17 +2,28 @@ Setup
 =====
 This section lists setup modules:
 
-.. currentmodule:: pyaedt.modules
+.. currentmodule:: pyaedt.modules.SolveSetup
 
 .. autosummary::
    :toctree: _autosummary
    :template: custom-class-template.rst
    :nosignatures:
 
-   SolveSetup.Setup
-   SolveSetup.Setup3DLayout
-   SolveSetup.SetupCircuit
-   SetupTemplates.SweepHFSS
-   SetupTemplates.SweepHFSS3DLayout
-   SetupTemplates.SweepQ3D
-   SetupTemplates.SetupKeys
+   Setup
+   Setup3DLayout
+   SetupCircuit
+
+Sweep Classes
+=============
+This section lists the Sweeos classes and their default values.
+
+.. currentmodule:: pyaedt.modules.SetupTemplates
+
+.. autosummary::
+   :toctree: _autosummary
+   :template: custom-class-template.rst
+   :nosignatures:
+
+   SweepHFSS
+   SweepHFSS3DLayout
+   SweepQ3D

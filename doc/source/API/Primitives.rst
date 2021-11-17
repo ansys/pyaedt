@@ -41,8 +41,7 @@ The ``Primitives`` module includes these classes:
    :template: custom-class-template.rst
    :nosignatures:
 
-   Primitives.PolylineSegment
-   Primitives.Polyline
+
    Primitives2D.Primitives2D
    Primitives3D.Primitives3D
    Primitives3DLayout.Primitives3DLayout
@@ -55,14 +54,16 @@ The ``Primitives`` module includes these classes:
 Objects
 ~~~~~~~
 
-.. currentmodule:: pyaedt.modeler.Object3d
+.. currentmodule:: pyaedt.modeler
 
 .. autosummary::
    :toctree: _autosummary
    :template: custom-class-template.rst
    :nosignatures:
 
-   Object3d
-   FacePrimitive
-   EdgePrimitive
-   VertexPrimitive
+   Object3d.Object3d
+   Object3d.FacePrimitive
+   Object3d.EdgePrimitive
+   Object3d.VertexPrimitive
+   Primitives.PolylineSegment
+   Primitives.Polyline

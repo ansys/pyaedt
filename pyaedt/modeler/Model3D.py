@@ -14,9 +14,11 @@ class Modeler3D(GeometryModeler):
     ----------
     application : :class:`pyaedt.application.Analysis3D.FieldAnalysis3D`
 
-    is3D : bool, optional
-        Whether the model is 3D. The default is ``True``.
-
+    Examples
+    --------
+    >>> from pyaedt import Hfss
+    >>> hfss = Hfss()
+    >>> my_modeler = hfss.modeler
     """
 
     def __init__(self, application):

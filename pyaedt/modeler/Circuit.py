@@ -14,6 +14,11 @@ class ModelerCircuit(Modeler):
     ----------
     app : :class:`pyaedt.application.AnalysisNexxim.FieldAnalysisCircuit`
 
+    Examples
+    --------
+    >>> from pyaedt import Circuit
+    >>> app = Circuit()
+    >>> my_modeler = app.modeler
     """
 
     def __init__(self, app):

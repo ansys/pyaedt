@@ -5,13 +5,13 @@ boundaries in the 3D tools:
 
 
 
-.. currentmodule:: pyaedt.modules
+.. currentmodule:: pyaedt.modules.Boundary
 
 .. autosummary::
    :toctree: _autosummary
    :template: custom-class-template.rst
    :nosignatures:
 
-   Boundary.NativeComponentObject
-   Boundary.BoundaryObject
+   NativeComponentObject
+   BoundaryObject
 

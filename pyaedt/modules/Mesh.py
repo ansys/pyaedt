@@ -723,8 +723,7 @@ class Mesh(object):
          Returns
          -------
         :class:`pyaedt.modules.Mesh.MeshOperation`
-             Mesh operation object.
-
+            Mesh operation object.
         """
         names = self.modeler.convert_to_selections(names, True)
 

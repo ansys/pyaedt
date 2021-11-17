@@ -829,10 +829,10 @@ class FieldPlot:
 
     @aedt_exception_handler
     def export_image(self, full_path=None, width=1920, height=1080, orientation="isometric", display_wireframe=True):
-        """Save an image of active Plot.
+        """Export the active plot to an image file.
 
         .. note::
-           There are some limitation on HFSS3DLayout.
+            There are some limitation on HFSS3DLayout.
 
         full_path : str, optional
             Path where image will be saved. It supports png and gif format.
@@ -841,7 +841,8 @@ class FieldPlot:
         height : int, optional
             Plot Height.
         orientation : str, optional
-            View of the exported plot. Options are ``isometric``, ``top``, ``bottom``, ``right``, ``left``, ``front``,
+            View of the exported plot. Options are ``isometric``,
+            ``top``, ``bottom``, ``right``, ``left``, ``front``,
             ``back``any custom orientation.
         display_wireframe : bool, optional
             Set to ``True`` if the objects has to be put in wireframe mode.
@@ -867,14 +868,15 @@ class FieldPlot:
         """Save an image of Active Plot using PyVista.
 
         .. note::
-           Only working in CPython with PyVista Module Installed.
+            Only working in CPython with PyVista Module Installed.
 
         Parameters
         ----------
         export_path : str, optional
             Path where image will be saved
         view : str, optional
-            View of the exported plot. Options are ``isometric``, ``top``, ``front``, ``left``, ``all``.
+            View of the exported plot. Options are ``isometric``,
+            ``top``, ``front``, ``left``, ``all``.
         plot_mesh : bool, optional
             Plot Mesh.
         scale_min : float, optional
@@ -1406,6 +1408,13 @@ class PostProcessor(PostProcessorCommon, object):
         Inherited parent object. The parent object must provide the members
         `_modeler`, `_desktop`, `_odesign`, and `logger`.
 
+    Examples
+    --------
+    Basic usage demonstrated with an HFSS, Maxwell or any other design:
+
+    >>> from pyaedt import Hfss
+    >>> aedtapp = Hfss()
+    >>> post = aedtapp.post
     """
 
     def __init__(self, app):

@@ -27,6 +27,13 @@ class Primitives3DLayout(object):
     modeler : :class:`pyaedt.modeler.Model3DLayout.Modeler3DLayout`
         Name of the modeler.
 
+    Examples
+    --------
+    Basic usage demonstrated with an HFSS 3d Layout design:
+
+    >>> from pyaedt import Hfss3dLayout
+    >>> aedtapp = Hfss3dLayout()
+    >>> prim = aedtapp.modeler.primitives
     """
 
     @aedt_exception_handler

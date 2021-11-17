@@ -107,14 +107,12 @@ class Polyline(Object3d):
 
     Parameters
     ----------
-    parent : :class:`pyaedt.modeler.Primitives.Primitives`
+    primitives : :class:`pyaedt.modeler.Primitives.Primitives`
         Pointer to the parent Primitives object.
     src_object : optional
         The default is ``None``.
     position_list : list, optional
         List of positions in the ``[x, y, z]`` form. The default is ``None``.
-    object_id : optional
-        The default is ``None``.
     segment_type : optional
         The default is ``None``.
     cover_surface : bool, optional
@@ -813,7 +811,13 @@ class Primitives(object):
     modeler : :class:`pyaedt.modeler.Model3D.Modeler3D`, :class:`pyaedt.modeler.Model2D.Modeler2D`
         Pointer to the parent object.
 
+    Examples
+    --------
+    Basic usage demonstrated with an HFSS design:
 
+    >>> from pyaedt import Hfss
+    >>> aedtapp = Hfss()
+    >>> prim = aedtapp.modeler.primitives
     """
 
     def __init__(self, modeler):

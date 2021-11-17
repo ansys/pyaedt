@@ -28,9 +28,11 @@ class Modeler2D(GeometryModeler):
     ----------
     application : :class:`pyaedt.application.Analysis2D.FieldAnalysis2D`
 
-    is3d : bool, optional
-        Whether the model is 3D. The default is ``False``.
-
+    Examples
+    --------
+    >>> from pyaedt import Maxwell2d
+    >>> app = Maxwell2d()
+    >>> my_modeler = app.modeler
     """
 
     def __init__(self, application):

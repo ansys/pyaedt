@@ -19,7 +19,6 @@ plots in the 3D tools:
    :template: custom-class-template.rst
    :nosignatures:
 
+   AdvancedPostProcessing.PostProcessor
    PostProcessor.SolutionData
    PostProcessor.FieldPlot
-   PostProcessor.PostProcessor
-   AdvancedPostProcessing.PostProcessor

@@ -557,6 +557,11 @@ class Modeler(object):
     app :
         Inherited parent object.
 
+    Examples
+    --------
+    >>> from pyaedt import Maxwell2d
+    >>> app = Maxwell2d()
+    >>> my_modeler = app.modeler
     """
 
     def __init__(self, app):

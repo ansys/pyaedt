@@ -100,7 +100,7 @@ setup3 = aedt_app.create_setup("MyDC", aedt_app.SETUPS.NexximDC)
 
 ###############################################################################
 # Solve the Transient Setup
-# ~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This method solves the transient setup.
 
 aedt_app.analyze_setup("MyLNA")
