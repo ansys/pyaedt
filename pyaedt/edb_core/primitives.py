@@ -68,7 +68,7 @@ class ViaInstance(object):
             fromlayer=viadef.start_layer, tolayer=viadef.stop_layer)
         return  edb_padstanck_inst
 
-class rectangle(object):
+class Rectangle(object):
     def __init__(self, lower_left_corner=[], upper_right_corner=[], voids=None):
         self.lower_left_corner = lower_left_corner
         self.upper_right_corner = upper_right_corner
