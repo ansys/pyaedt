@@ -6,7 +6,7 @@ import os
 
 # Import required modules
 from pyaedt import Maxwell2d
-
+from pyaedt.generic.constants import SOLUTIONS
 from _unittest.conftest import BasisTest, local_path, pyaedt_unittest_check_desktop_error
 
 try:
@@ -89,3 +89,13 @@ class TestClass(BasisTest):
         jpg_file = os.path.join(self.local_scratch.path, "file.jpg")
         self.aedtapp.export_design_preview_to_jpg(jpg_file)
         assert filecmp.cmp(jpg_file, os.path.join(local_path, "example_models", "Motor_EM_R2019R3.jpg"))
+
+    @pyaedt_unittest_check_desktop_error
+    def test_15_assign_movement(self):
+        self.aedtapp.insert_design("Motion")
+        self.aedtapp.solution_type = SOLUTIONS.Maxwell2d.TransientXY
+        self.aedtapp.modeler.primitives.create_circle([0, 0, 0], 10, name="Circle_inner")
+        self.aedtapp.modeler.primitives.create_circle([0, 0, 0], 30, name="Circle_outer")
+        bound = self.aedtapp.assign_rotate_motion("Circle_outer", positive_limit=300, mechanical_transient=True)
+        assert bound
+        assert bound.props["PositivePos"] == "300deg"

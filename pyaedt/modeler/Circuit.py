@@ -1,4 +1,4 @@
-from pyaedt.application.Variables import AEDT_units
+from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.general_methods import aedt_exception_handler, _retry_ntimes
 from pyaedt.modules.LayerStackup import Layers
 from pyaedt.modeler.Modeler import Modeler
@@ -133,7 +133,7 @@ class ModelerNexxim(ModelerCircuit):
 
     @model_units.setter
     def model_units(self, units):
-        assert units in AEDT_units["Length"], "Invalid units string {0}".format(units)
+        assert units in AEDT_UNITS["Length"], "Invalid units string {0}".format(units)
         """ Set the model units as a string e.g. "mm" """
         self.oeditor.SetActivelUnits(["NAME:Units Parameter", "Units:=", units, "Rescale:=", False])
 

@@ -361,7 +361,7 @@ class FieldAnalysis3DLayout(Analysis):
         ----------
         setupname : str
             Name of the setup.
-        setuptype : SetupTypes, optional
+        setuptype : SETUPS, optional
             Type of the setup. The default is ``None``, in which case
             the default type is applied.
 

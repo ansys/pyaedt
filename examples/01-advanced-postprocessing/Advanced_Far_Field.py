@@ -8,7 +8,7 @@ This examples runs only on Windows using CPython.
 ###############################################################################
 # Import Packages
 # ~~~~~~~~~~~~~~~
-# Set the local path to the path for the AEDTLib.
+# Set the local path to the path for the PyAEDT.
 
 import os
 import pathlib
@@ -266,4 +266,5 @@ fig1.set_size_inches(22.5, 22.5)
 # The following example closes the HFSS project and AEDT.
 
 #hfss.close_project()
+hfss.save_project()
 desktop.release_desktop()

@@ -15,9 +15,9 @@ import warnings
 import sys
 from collections import OrderedDict
 
-from pyaedt.application.Variables import AEDT_units
+from pyaedt.generic.constants import AEDT_UNITS, db10, db20
 from pyaedt.generic.filesystem import Scratch
-from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, _retry_ntimes
+from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, _retry_ntimes, write_csv
 
 report_type = {
     "DrivenModal": "Modal Solution Data",
@@ -177,8 +177,8 @@ class SolutionData(object):
         -------
 
         """
-        for el in AEDT_units:
-            keys_units = [i.lower() for i in list(AEDT_units[el].keys())]
+        for el in AEDT_UNITS:
+            keys_units = [i.lower() for i in list(AEDT_UNITS[el].keys())]
             if unit.lower() in keys_units:
                 return el
         return None
@@ -317,13 +317,16 @@ class SolutionData(object):
 
         """
         sol = datalist
-        if dataunits in AEDT_units and units in AEDT_units[dataunits]:
-            sol = [i * AEDT_units[dataunits][units] for i in datalist]
+        if dataunits in AEDT_UNITS and units in AEDT_UNITS[dataunits]:
+            sol = [i * AEDT_UNITS[dataunits][units] for i in datalist]
         return sol
 
     @aedt_exception_handler
     def data_db(self, expression=None, convert_to_SI=False):
-        """Retrieve the data in the database for an expression.
+        """Retrieve the data in the database for an expression and convert in db10.
+
+        .. deprecated:: 0.4.8
+           Use :func:`data_db10` instead.
 
         Parameters
         ----------
@@ -343,7 +346,53 @@ class SolutionData(object):
         if not expression:
             expression = self.expressions[0]
 
-        return [10 * math.log10(i) for i in self.data_magnitude(expression, convert_to_SI)]
+        return [db10(i) for i in self.data_magnitude(expression, convert_to_SI)]
+
+    def data_db10(self, expression=None, convert_to_SI=False):
+        """Retrieve the data in the database for an expression and convert in db10.
+
+        Parameters
+        ----------
+        expression : str, optional
+            Name of the expression. The default is ``None``,
+            in which case the first expression is used.
+        convert_to_SI : bool, optional
+            Whether to convert the data to the SI unit system.
+            The default is ``False``.
+
+        Returns
+        -------
+        list
+            List of the data in the database for the expression.
+
+        """
+        if not expression:
+            expression = self.expressions[0]
+
+        return [db10(i) for i in self.data_magnitude(expression, convert_to_SI)]
+
+    def data_db20(self, expression=None, convert_to_SI=False):
+        """Retrieve the data in the database for an expression and convert in db20.
+
+        Parameters
+        ----------
+        expression : str, optional
+            Name of the expression. The default is ``None``,
+            in which case the first expression is used.
+        convert_to_SI : bool, optional
+            Whether to convert the data to the SI unit system.
+            The default is ``False``.
+
+        Returns
+        -------
+        list
+            List of the data in the database for the expression.
+
+        """
+        if not expression:
+            expression = self.expressions[0]
+
+        return [db20(i) for i in self.data_magnitude(expression, convert_to_SI)]
 
     def data_real(self, expression=None, convert_to_SI=False):
         """Retrieve the real part of the data for an expression.
@@ -430,6 +479,67 @@ class SolutionData(object):
                 sol, self._quantity(self.units_data[expression]), self.units_data[expression]
             )
         return sol
+
+    @aedt_exception_handler
+    def is_real_only(self, expression=None):
+        """Check if the expression has only real values or not.
+
+        Parameters
+        ----------
+        expression : str, optional
+            Name of the expression. The default is ``None``,
+            in which case the first expression is used.
+
+        Returns
+        -------
+        bool
+            ``True`` if the Solution Data for specific expression contains only real values.
+        """
+        if not expression:
+            expression = self.expressions[0]
+        for e, v in self.solutions_data_imag[expression].items():
+            if float(v) != 0.0:
+                return False
+        return True
+
+    @aedt_exception_handler
+    def export_data_to_csv(self, output, delimiter=";"):
+        """Save to output csv file the Solution Data.
+
+        Parameters
+        ----------
+        output : str,
+            Full path to csv file.
+        delimiter : str,
+            CSV Delimiter. Default is ``";"``.
+
+        Returns
+        -------
+        bool
+        """
+        header = [el for el in reversed(self._sweeps_names)]
+        for el in self.expressions:
+            if not self.is_real_only(el):
+                header.append(el + " (Real)")
+                header.append(el + " (Imag)")
+            else:
+                header.append(el)
+
+        list_full = [header]
+        for e, v in self.solutions_data_real[self.expressions[0]].items():
+            list_full.append(list(e))
+        for el in self.expressions:
+            i = 1
+            for e, v in self.solutions_data_real[el].items():
+                list_full[i].extend([v])
+                i += 1
+            i = 1
+            if not self.is_real_only(el):
+                for e, v in self.solutions_data_imag[el].items():
+                    list_full[i].extend([v])
+                    i += 1
+
+        return write_csv(output, list_full, delimiter=delimiter)
 
 
 class FieldPlot:

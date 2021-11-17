@@ -25,6 +25,7 @@ sys.path.append(os.path.join(module_path))
 sys.path.append(os.path.join(aedt_lib_path))
 sys.path.append(os.path.join(pdf_path1))
 from pyaedt import generate_unique_name
+from pyaedt.generic.constants import GLOBALCS
 
 tmpfold = tempfile.gettempdir()
 
@@ -90,13 +91,13 @@ aedtapp["inner"] = "3mm"
 
 # TODO: How does this work when two truesurfaces are defined?
 o1 = aedtapp.modeler.primitives.create_cylinder(
-    aedtapp.CoordinateSystemPlane.XYPlane, udp, "inner", "$coax_dimension", numSides=0, name="inner"
+    aedtapp.PLANE.XY, udp, "inner", "$coax_dimension", numSides=0, name="inner"
 )
 o2 = aedtapp.modeler.primitives.create_cylinder(
-    aedtapp.CoordinateSystemPlane.XYPlane, udp, 8, "$coax_dimension", numSides=0, matname="teflon_based"
+    aedtapp.PLANE.XY, udp, 8, "$coax_dimension", numSides=0, matname="teflon_based"
 )
 o3 = aedtapp.modeler.primitives.create_cylinder(
-    aedtapp.CoordinateSystemPlane.XYPlane, udp, 10, "$coax_dimension", numSides=0, name="outer"
+    aedtapp.PLANE.XY, udp, 10, "$coax_dimension", numSides=0, name="outer"
 )
 
 ###############################################################################
@@ -222,7 +223,7 @@ aedtapp.save_project()
 aedtapp.close_project(project_name)
 aedtapp = Hfss(project_file)
 ipkapp = Icepak()
-ipkapp.solution_type = ipkapp.SolutionTypes.Icepak.SteadyTemperatureAndFlow
+ipkapp.solution_type = ipkapp.SOLUTIONS.Icepak.SteadyTemperatureAndFlow
 ipkapp.modeler.fit_all()
 
 ################################################################################
@@ -242,7 +243,7 @@ aedtapp.analyze_setup("MySetup")
 # This example generates field plots on the HFSS project and
 # exports them as an image.
 
-cutlist = ["Global:XY", "Global:XZ", "Global:YZ"]
+cutlist = [GLOBALCS.XY, GLOBALCS.ZX, GLOBALCS.YZ]
 vollist = [o2.name]
 setup_name = "MySetup : LastAdaptive"
 quantity_name = "ComplexMag_E"

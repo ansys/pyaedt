@@ -3,7 +3,7 @@ import math
 import re
 import sys
 from pyaedt.generic.general_methods import aedt_exception_handler
-from pyaedt.modeler.modeler_constants import CoordinateSystemPlane, CoordinateSystemAxis, SweepDraftType
+from pyaedt.generic.constants import PLANE, AXIS, SWEEPDRAFT
 
 class GeometryOperators(object):
     """Manages geometry operators."""
@@ -136,7 +136,7 @@ class GeometryOperators(object):
 
     @staticmethod
     @aedt_exception_handler
-    def cs_plane_str(val):
+    def cs_plane_to_axis_str(val):
         """Retrieve a string for a coordinate system plane.
 
         Parameters
@@ -150,12 +150,35 @@ class GeometryOperators(object):
            String for the coordinate system plane.
 
         """
-        if val == CoordinateSystemPlane.XYPlane:
+        if val == PLANE.XY or val == "XY":
             return "Z"
-        elif val == CoordinateSystemPlane.YZPlane:
+        elif val == PLANE.YZ or val == "YZ":
             return "X"
         else:
             return "Y"
+
+    @staticmethod
+    @aedt_exception_handler
+    def cs_plane_to_plane_str(val):
+        """Retrieve a string for a coordinate system plane.
+
+        Parameters
+        ----------
+        val :
+
+
+        Returns
+        -------
+        str
+           String for the coordinate system plane.
+
+        """
+        if val == PLANE.XY or val == "XY":
+            return "XY"
+        elif val == PLANE.YZ or val == "YZ":
+            return "YZ"
+        else:
+            return "ZX"
 
     @staticmethod
     @aedt_exception_handler
@@ -173,9 +196,9 @@ class GeometryOperators(object):
             String for the coordinate system axis.
 
         """
-        if val == CoordinateSystemAxis.XAxis or val == "X":
+        if val == AXIS.X or val == "X":
             return "X"
-        elif val == CoordinateSystemAxis.YAxis or val == "Y":
+        elif val == AXIS.Y or val == "Y":
             return "Y"
         else:
             return "Z"
@@ -196,9 +219,9 @@ class GeometryOperators(object):
            Type of the draft.
 
         """
-        if val == SweepDraftType.ExtendedDraft:
+        if val == SWEEPDRAFT.Extended:
             return "Extended"
-        elif val == SweepDraftType.RoundDraft:
+        elif val == SWEEPDRAFT.Round:
             return "Round"
         else:
             return "Natural"

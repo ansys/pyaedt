@@ -31,7 +31,7 @@ class TestClass:
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 200
         o = self.aedtapp.modeler.primitives.create_cylinder(
-            self.aedtapp.CoordinateSystemPlane.XYPlane, udp, 3, coax_dimension, 0, "inner"
+            self.aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, "inner"
         )
         self.aedtapp.mesh.assign_model_resolution(o, 1e-4, "ModelRes1")
         assert "ModelRes1" in [i.name for i in self.aedtapp.mesh.meshoperations]
@@ -42,7 +42,7 @@ class TestClass:
         udp = self.aedtapp.modeler.Position(10, 10, 0)
         coax_dimension = 200
         o = self.aedtapp.modeler.primitives.create_cylinder(
-            self.aedtapp.CoordinateSystemPlane.XYPlane, udp, 3, coax_dimension, 0, "surface"
+            self.aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, "surface"
         )
         surface = self.aedtapp.mesh.assign_surface_mesh(o.id, 3, "Surface")
         assert "Surface" in [i.name for i in self.aedtapp.mesh.meshoperations]
@@ -52,7 +52,7 @@ class TestClass:
         udp = self.aedtapp.modeler.Position(20, 20, 0)
         coax_dimension = 200
         o = self.aedtapp.modeler.primitives.create_cylinder(
-            self.aedtapp.CoordinateSystemPlane.XYPlane, udp, 3, coax_dimension, 0, "surface_manual"
+            self.aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, "surface_manual"
         )
         surface = self.aedtapp.mesh.assign_surface_mesh_manual(o.id, 1e-6, aspect_ratio=3, meshop_name="Surface_Manual")
         assert "Surface_Manual" in [i.name for i in self.aedtapp.mesh.meshoperations]

@@ -9,7 +9,6 @@ from __future__ import absolute_import
 
 import os
 import re
-import csv
 import shutil
 import sys
 import json
@@ -21,11 +20,12 @@ import gc
 import warnings
 from collections import OrderedDict
 
-from pyaedt.application.Variables import VariableManager, DataSet, AEDT_units, unit_system
+from pyaedt.application.Variables import VariableManager, DataSet
+from pyaedt.generic.constants import AEDT_UNITS, unit_system
 from pyaedt.desktop import Desktop
 from pyaedt.desktop import exception_to_desktop, release_desktop, get_version_env_variable
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
-from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.generic.general_methods import aedt_exception_handler, write_csv
 from pyaedt.generic.DataHandlers import variation_string_to_dict
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.generic.general_methods import generate_unique_name
@@ -601,7 +601,6 @@ class Design(object):
 
     def _init_variables(self):
         self.oboundary = None
-        self.omodelsetup = None
         self.oimport_export = None
         self.ooptimetrics = None
         self.ooutput_variable = None
@@ -1296,6 +1295,35 @@ class Design(object):
 
         """
         return self._variable_manager
+
+    @aedt_exception_handler
+    def _arg_with_units(self, value, units=None):
+        """Dimension argument.
+
+        Parameters
+        ----------
+        value :
+
+        sUnits : optional
+             The default is ``None``.
+
+        Returns
+        -------
+        str
+            String concatenating value and unit.
+
+        """
+        if units is None:
+            units = self.modeler.model_units
+        if type(value) is str:
+            try:
+                float(value)
+                val = "{0}{1}".format(value, units)
+            except:
+                val = value
+        else:
+            val = "{0}{1}".format(value, units)
+        return val
 
     @aedt_exception_handler
     def set_license_type(self, license_type="Pool"):
@@ -2701,16 +2729,14 @@ class Design(object):
             varnames = self.oproject.GetProperties("ProjectVariableTab", "ProjectVariables")
         if export_design:
             desnames = self.odesign.GetProperties("LocalVariableTab", "LocalVariables")
-        with open(filename, "w") as csvfile:
-            filewriter = csv.writer(csvfile, delimiter=",", quotechar="|", quoting=csv.QUOTE_MINIMAL)
-            filewriter.writerow(["Name", "Value"])
-            for el in varnames:
-                value = self.oproject.GetVariableValue(el)
-                filewriter.writerow([el, value])
-            for el in desnames:
-                value = self.odesign.GetVariableValue(el)
-                filewriter.writerow([el, value])
-        return True
+        list_full = [["Name", "Value"]]
+        for el in varnames:
+            value = self.oproject.GetVariableValue(el)
+            list_full.append([el, value])
+        for el in desnames:
+            value = self.odesign.GetVariableValue(el)
+            list_full.append([el, value])
+        return write_csv(filename, list_full)
 
     @aedt_exception_handler
     def read_design_data(self):
@@ -2891,7 +2917,7 @@ class Design(object):
 
         si_value = self._odesign.GetVariationVariableValue(variation_string, variable_name)
         if units:
-            scale = AEDT_units[unit_system(units)][units]
+            scale = AEDT_UNITS[unit_system(units)][units]
             if isinstance(scale, tuple):
                 return scale[0](si_value, True)
             else:

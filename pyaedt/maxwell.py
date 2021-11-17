@@ -10,6 +10,8 @@ from pyaedt.generic.DataHandlers import float_units
 from pyaedt.generic.general_methods import generate_unique_name, aedt_exception_handler
 from pyaedt.modules.Boundary import BoundaryObject
 from collections import OrderedDict
+from pyaedt.modeler.GeometryOperators import  GeometryOperators
+from pyaedt.generic.constants import SOLUTIONS
 
 
 class Maxwell(object):
@@ -17,11 +19,15 @@ class Maxwell(object):
         self.odefinition_manager = self.materials.odefinition_manager
         self.omaterial_manager = self.materials.omaterial_manager
         self.o_maxwell_parameters = self.odesign.GetModule("MaxwellParameterSetup")
-        if self.solution_type != "Transient":
-            self.omodelsetup = None
-        else:
-            self.omodelsetup = self._odesign.GetModule("ModelSetup")
         pass
+
+    @property
+    def omodelsetup(self):
+        """AEDT Model Setup Object."""
+        if self.solution_type != "Transient":
+            return None
+        else:
+            return self._odesign.GetModule("ModelSetup")
 
     @property
     def symmetry_multiplier(self):
@@ -57,7 +63,7 @@ class Maxwell(object):
         python_interpreter : bool, optional
              The default value is ``None``.
         aedt_lib_dir : str, optional
-             Full path to the ``AEDTLib`` directory. The default value is ``None``.
+             Full path to the ``PyAEDT`` directory. The default value is ``None``.
 
         Returns
         -------
@@ -203,6 +209,183 @@ class Maxwell(object):
         bound = BoundaryObject(self, name, props, "Current")
         if bound.create():
 
+            self.boundaries.append(bound)
+            return bound
+        return False
+
+    @aedt_exception_handler
+    def assign_translate_motion(
+            self,
+            band_object,
+            coordinate_system="Global",
+            axis="Z",
+            positive_movement=True,
+            start_position= 0,
+            periodic_translate=True,
+            negative_limit = 0,
+            positive_limit=0,
+            velocity=0,
+            mechanical_transient=False,
+            mass=1,
+            damping=0,
+            load_force=0,
+            motion_name=None
+    ):
+        """Assign a Translation Motion to an object container.
+
+        Parameters
+        ----------
+        band_object : str,
+            Object container.
+        coordinate_system : str, optional
+            Coordinate System Name. Default is ``"Global``.
+        axis :str or int, optional
+            Coordinate System Axis. Default is ``"Z"``.
+            It can be a ``pyaedt.generic.constants.AXIS`` Enumerator value.
+        positive_movement : bool, Optional
+            Either if movement is Positive or not. Default is ``True``.
+        start_position : float or str, optional
+            Movement Start Position. If float, default modeler units will be applied.
+        periodic_translate : bool, Optional
+            Either if Periodic Movement or not. Default is ``False``.
+        negative_limit : float or str, optional
+            Movement negative limit. If float, default modeler units will be applied.
+        positive_limit : float or str, optional
+            Movement positive limit. If float, default modeler units will be applied.
+        velocity : float or str, optional
+            Movement velocity. If float, "m_per_sec" units will be applied.
+        mechanical_transient : bool, Optional
+            Either to consider or not mechanical movement. Default is ``False``.
+        mass : float or str, optional
+            mechanical mass. If float, "Kg" units will be applied.
+        damping : float, optional
+            Damping Factor. Default ``0``.
+        load_force : float or str, optional
+            Load Force. If float, "newton" units will be applied.
+        motion_name : str, optional
+            Motion Name.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
+        """
+        assert self.solution_type == SOLUTIONS.Maxwell3d.Transient, "Motion applies only to Transient Setup"
+        if not motion_name:
+            motion_name = generate_unique_name("Motion")
+        object_list = self.modeler._convert_list_to_ids(band_object)
+        props = OrderedDict(
+            {
+                "Move Type": "Translate",
+                "Coordinate System": coordinate_system,
+                "PostProcessing Coordinate System": coordinate_system,
+                "Axis": GeometryOperators.cs_axis_str(axis),
+                "Is Positive": positive_movement,
+                "InitPos": self._arg_with_units(start_position),
+                "TranslatePeriodic": periodic_translate,
+                "NegativePos": self._arg_with_units(negative_limit),
+                "PositivePos": self._arg_with_units(positive_limit),
+                "Consider Mechanical Transient": mechanical_transient,
+                "Velocity": self._arg_with_units(velocity, "m_per_sec"),
+                "Mass": self._arg_with_units(mass, "Kg"),
+                "Damping": str(damping),
+                "Load Force": self._arg_with_units(load_force, "newton"),
+                "Objects": object_list,
+
+            }
+        )
+        bound = BoundaryObject(self, motion_name, props, "Band")
+        if bound.create():
+            self.boundaries.append(bound)
+            return bound
+        return False
+
+    @aedt_exception_handler
+    def assign_rotate_motion(
+            self,
+            band_object,
+            coordinate_system="Global",
+            axis="Z",
+            positive_movement=True,
+            start_position=0,
+            has_rotation_limits=True,
+            negative_limit=0,
+            positive_limit=360,
+            non_cylindrical=False,
+            mechanical_transient=False,
+            angular_velocity="0rpm",
+            inertia="1",
+            damping=0,
+            load_torque="0newton",
+            motion_name=None
+    ):
+        """Assign a Rotation Motion to an object container.
+
+        Parameters
+        ----------
+        band_object : str,
+            Object container.
+        coordinate_system : str, optional
+            Coordinate System Name. Default is ``"Global``.
+        axis : str or int, optional
+            Coordinate System Axis. Default is ``"Z"``.
+            It can be a ``pyaedt.generic.constants.AXIS`` Enumerator value.
+        positive_movement : bool, Optional
+            Either if movement is Positive or not. Default is ``True``.
+        start_position : float or str, optional
+            Movement Start Position. If float, "deg" units will be applied.
+        has_rotation_limits : bool, Optional
+            Either if there will be a limit in rotation or not. Default is ``False``.
+        negative_limit : float or str, optional
+            Movement negative limit. If float, "deg" units will be applied.
+        positive_limit : float or str, optional
+            Movement positive limit. If float, "deg" units will be applied.
+        non_cylindrical : bool, optional
+            Either if Non Cylindrical rotation has to be considered. Default is ``False``.
+        angular_velocity : float or str, optional
+            Movement velocity. If float, "rpm" units will be applied.
+        mechanical_transient : bool, Optional
+            Either to consider or not mechanical movement. Default is ``False``.
+        inertia : float, optional
+            mechanical inertia.
+        damping : float, optional
+            Damping Factor. Default ``0``.
+        load_torque : float or str, optional
+            Load Force. If float, "NewtonMeter" units will be applied.
+        motion_name : str, optional
+            Motion Name.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
+        """
+        assert self.solution_type == SOLUTIONS.Maxwell3d.Transient, "Motion applies only to Transient Setup"
+        if not motion_name:
+            motion_name = generate_unique_name("Motion")
+        object_list = self.modeler._convert_list_to_ids(band_object)
+        props = OrderedDict(
+            {
+                "Move Type": "Rotate",
+                "Coordinate System": coordinate_system,
+                "Axis": GeometryOperators.cs_axis_str(axis),
+                "Is Positive": positive_movement,
+                "InitPos": self._arg_with_units(start_position, "deg"),
+                "HasRotateLimit": has_rotation_limits,
+                "NegativePos": self._arg_with_units(negative_limit, "deg"),
+                "PositivePos": self._arg_with_units(positive_limit, "deg"),
+                "NonCylindrical": non_cylindrical,
+                "Consider Mechanical Transient": mechanical_transient,
+                "Angular Velocity": self._arg_with_units(angular_velocity, "rpm"),
+                "Moment of Inertia": str(inertia),
+                "Damping": str(damping),
+                "Load Torque": self._arg_with_units(load_torque, "NewtonMeter"),
+                "Objects": object_list,
+
+            }
+        )
+        bound = BoundaryObject(self, motion_name, props, "Band")
+        if bound.create():
             self.boundaries.append(bound)
             return bound
         return False

@@ -143,10 +143,14 @@ class Hfss(FieldAnalysis3D, object):
             close_on_exit,
             student_version,
         )
-        self.omodelsetup = self._odesign.GetModule("ModelSetup")
 
     def __enter__(self):
         return self
+
+    @property
+    def omodelsetup(self):
+        """AEDT Model Setup Object."""
+        return self._odesign.GetModule("ModelSetup")
 
     class BoundaryType(object):
         """Creates and manages boundaries.
@@ -435,7 +439,7 @@ class Hfss(FieldAnalysis3D, object):
 
         >>> origin = hfss.modeler.Position(0, 0, 0)
         >>> inner = hfss.modeler.primitives.create_cylinder(
-        ...     hfss.CoordinateSystemPlane.XYPlane, origin, 3, 200, 0, "inner"
+        ...     hfss.PLANE.XY, origin, 3, 200, 0, "inner"
         ... )
         >>> inner_id = hfss.modeler.primitives.get_obj_id("inner")
         >>> coat = hfss.assign_coating([inner_id], "copper", usethickness=True, thickness="0.2mm")
@@ -2561,7 +2565,7 @@ class Hfss(FieldAnalysis3D, object):
         ``'WavePortFromSheet'``.
 
         >>> origin_position = hfss.modeler.Position(0, 0, 0)
-        >>> circle = hfss.modeler.primitives.create_circle(hfss.CoordinateSystemPlane.YZPlane,
+        >>> circle = hfss.modeler.primitives.create_circle(hfss.PLANE.YZ,
         ...                                                origin_position, 10, name="WaveCircle")
         >>> hfss.solution_type = "DrivenModal"
         >>> port = hfss.create_wave_port_from_sheet(circle, 5, hfss.AxisDir.XNeg, 40, 2,
@@ -2640,7 +2644,7 @@ class Hfss(FieldAnalysis3D, object):
         Create a rectangle sheet that will be used to create a lumped port named
         ``'LumpedPortFromSheet'``.
 
-        >>> rectangle = hfss.modeler.primitives.create_rectangle(hfss.CoordinateSystemPlane.XYPlane,
+        >>> rectangle = hfss.modeler.primitives.create_rectangle(hfss.PLANE.XY,
         ...                                                      [0, 0, 0], [10, 2], name="lump_port",
         ...                                                      matname="copper")
         >>> h1 = hfss.create_lumped_port_to_sheet(rectangle.name, hfss.AxisDir.XNeg, 50,
@@ -2717,7 +2721,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Create a sheet and assign to it some voltage.
 
-        >>> sheet = hfss.modeler.primitives.create_rectangle(hfss.CoordinateSystemPlane.XYPlane,
+        >>> sheet = hfss.modeler.primitives.create_rectangle(hfss.PLANE.XY,
         ...                                                  [0, 0, -70], [10, 2], name="VoltageSheet",
         ...                                                  matname="copper")
         >>> v1 = hfss.assign_voltage_source_to_sheet(sheet.name, hfss.AxisDir.XNeg, "VoltageSheetExample")
@@ -2758,7 +2762,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Create a sheet and assign to it some current.
 
-        >>> sheet = hfss.modeler.primitives.create_rectangle(hfss.CoordinateSystemPlane.XYPlane, [0, 0, -50],
+        >>> sheet = hfss.modeler.primitives.create_rectangle(hfss.PLANE.XY, [0, 0, -50],
         ...                                                  [5, 1], name="CurrentSheet", matname="copper")
         >>> hfss.assign_current_source_to_sheet(sheet.name, hfss.AxisDir.XNeg, "CurrentSheetExample")
         'CurrentSheetExample'
@@ -2799,7 +2803,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Create a sheet and use it to create a Perfect E.
 
-        >>> sheet = hfss.modeler.primitives.create_rectangle(hfss.CoordinateSystemPlane.XYPlane, [0, 0, -90],
+        >>> sheet = hfss.modeler.primitives.create_rectangle(hfss.PLANE.XY, [0, 0, -90],
         ...                                                  [10, 2], name="PerfectESheet", matname="Copper")
         >>> perfect_e_from_sheet = hfss.assign_perfecte_to_sheets(sheet.name, "PerfectEFromSheet")
         >>> type(perfect_e_from_sheet)
@@ -2836,7 +2840,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Create a sheet and use it to create a Perfect H.
 
-        >>> sheet = hfss.modeler.primitives.create_rectangle(hfss.CoordinateSystemPlane.XYPlane, [0, 0, -90],
+        >>> sheet = hfss.modeler.primitives.create_rectangle(hfss.PLANE.XY, [0, 0, -90],
         ...                                                  [10, 2], name="PerfectHSheet", matname="Copper")
         >>> perfect_h_from_sheet = hfss.assign_perfecth_to_sheets(sheet.name, "PerfectHFromSheet")
         >>> type(perfect_h_from_sheet)
@@ -2891,7 +2895,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Create a sheet and use it to create a lumped RLC.
 
-        >>> sheet = hfss.modeler.primitives.create_rectangle(hfss.CoordinateSystemPlane.XYPlane,
+        >>> sheet = hfss.modeler.primitives.create_rectangle(hfss.PLANE.XY,
         ...                                                  [0, 0, -90], [10, 2], name="RLCSheet",
         ...                                                  matname="Copper")
         >>> lumped_rlc_to_sheet = hfss.assign_lumped_rlc_to_sheet(sheet.name, hfss.AxisDir.XPos,
@@ -2958,7 +2962,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Create a sheet and use it to create an impedance.
 
-        >>> sheet = hfss.modeler.primitives.create_rectangle(hfss.CoordinateSystemPlane.XYPlane,
+        >>> sheet = hfss.modeler.primitives.create_rectangle(hfss.PLANE.XY,
         ...                                                  [0, 0, -90], [10, 2], name="ImpedanceSheet",
         ...                                                  matname="Copper")
         >>> impedance_to_sheet = hfss.assign_impedance_to_sheet(sheet.name, "ImpedanceFromSheet", 100, 50)
@@ -3031,7 +3035,7 @@ class Hfss(FieldAnalysis3D, object):
         Create a circuit port from the first edge of the first rectangle
         toward the first edge of the second rectangle.
 
-        >>> plane = hfss.CoordinateSystemPlane.XYPlane
+        >>> plane = hfss.PLANE.XY
         >>> rectangle1 = hfss.modeler.primitives.create_rectangle(plane, [10, 10, 10], [10, 10],
         ...                                                       name="rectangle1_for_port")
         >>> edges1 = hfss.modeler.primitives.get_object_edges(rectangle1.id)
@@ -3085,7 +3089,7 @@ class Hfss(FieldAnalysis3D, object):
         Create a circle sheet and use it to create a wave port.
         Set up the thermal power for the port created above.
 
-        >>> sheet = hfss.modeler.primitives.create_circle(hfss.CoordinateSystemPlane.YZPlane,
+        >>> sheet = hfss.modeler.primitives.create_circle(hfss.PLANE.YZ,
         ...                                               [-20, 0, 0], 10,
         ...                                               name="sheet_for_source")
         >>> hfss.solution_type = "DrivenModal"
@@ -3139,7 +3143,7 @@ class Hfss(FieldAnalysis3D, object):
         Create a circle sheet and use it to create a wave port.
         Set the thickness of this circle sheet to ``"2 mm"``.
 
-        >>> sheet_for_thickness = hfss.modeler.primitives.create_circle(hfss.CoordinateSystemPlane.YZPlane,
+        >>> sheet_for_thickness = hfss.modeler.primitives.create_circle(hfss.PLANE.YZ,
         ...                                                             [60, 60, 60], 10,
         ...                                                             name="SheetForThickness")
         >>> port_for_thickness = hfss.create_wave_port_from_sheet(sheet_for_thickness, 5, hfss.AxisDir.XNeg,

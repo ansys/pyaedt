@@ -1378,7 +1378,7 @@ class Object3d(object):
 
         Parameters
         ----------
-        cs_axis : pyaedt.modeler.modeler_constants.CoordinateSystemAxis
+        cs_axis : pyaedt.generic.constants.CoordinateSystemAxis
             Coordinate system of the axis.
         sweep_angle : float, optional
              Sweep angle in degrees. The default is ``360``.
@@ -1400,8 +1400,8 @@ class Object3d(object):
 
         Parameters
         ----------
-        plane : pyaedt.modeler.modeler_constants.CoordinateSystemPlane
-            Coordinate system of the plane object. Application.CoordinateSystemPlane object
+        plane : pyaedt.generic.constants.PLANE
+            Coordinate system of the plane object. Application.PLANE object
         create_new : bool, optional
             Whether to create an object. The default is ``True``.
         section_cross_object : bool, optional
@@ -1586,7 +1586,7 @@ class Padstack(object):
             if value:
                 self._pad = value
             else:
-                self._pad = self.PDSHole(holetype="None", sizes=[])
+                self._pad = Padstack.PDSHole(holetype="None", sizes=[])
 
         @property
         def antipad(self):
@@ -1598,7 +1598,7 @@ class Padstack(object):
             if value:
                 self._antipad = value
             else:
-                self._antipad = self.PDSHole(holetype="None", sizes=[])
+                self._antipad = Padstack.PDSHole(holetype="None", sizes=[])
 
         @property
         def thermal(self):
@@ -1610,32 +1610,7 @@ class Padstack(object):
             if value:
                 self._thermal = value
             else:
-                self._thermal = self.PDSHole(holetype="None", sizes=[])
-
-        class PDSHole:
-            """Properties of a padstack hole.
-
-            Parameters
-            ----------
-            holetype : str, optional
-                Type of the hole. The default is ``Circular``.
-            sizes : str, optional
-                Diameter of the hole with units. The default is ``"1mm"``.
-            xpos : str, optional
-                The default is ``"0mm"``.
-            ypos : str, optional
-                The default is ``"0mm"``.
-            rot : str, otpional
-                Rotation in degrees. The default is ``"0deg"``.
-
-            """
-
-            def __init__(self, holetype="Cir", sizes=["1mm"], xpos="0mm", ypos="0mm", rot="0deg"):
-                self.shape = holetype
-                self.sizes = sizes
-                self.x = xpos
-                self.y = ypos
-                self.rot = rot
+                self._thermal = Padstack.PDSHole(holetype="None", sizes=[])
 
     @property
     def pads_args(self):
