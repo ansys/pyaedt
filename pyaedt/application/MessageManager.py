@@ -237,6 +237,37 @@ class AEDTMessageManager(object):
         """
         self.add_message(0, message_text, level)
 
+    def add_debug_message(self, type, message_text):
+        """Parameterized message to the Message Manager to specify the type and project or design level.
+
+        Parameters
+        ----------
+        type : int
+            Type of the message. Options are:
+
+            * ``0`` : Info
+            * ``1`` : Warning
+            * ``2`` : Error
+
+        message_text : str
+            Text to display as the message.
+
+        """
+        if type not in [0, 1, 2]:
+            raise ValueError("The parameter 'type' is an int that only accepts 0, 1, 2 as a valid value.")
+
+        if len(message_text) > 250:
+            message_text = message_text[:250] + "..."
+
+        # Print to stdout and to logger
+        if self._log_on_file:
+            if type == 0 and self.logger:
+                self.logger.debug(message_text)
+            elif type == 1 and self.logger:
+                self.logger.warning(message_text)
+            elif type == 2 and self.logger:
+                self.logger.error(message_text)
+
     def add_message(self, type, message_text, level=None, proj_name=None, des_name=None):
         """Pass a parameterized message to the Message Manager to specify the type and project or design level.
 
@@ -301,38 +332,6 @@ class AEDTMessageManager(object):
                 self.logger.warning(message_text)
             elif type == 2 and self.logger:
                 self.logger.error(message_text)
-
-    def add_debug_message(self, type, message_text):
-        """Parameterized message to the Message Manager to specify the type and project or design level.
-
-        Parameters
-        ----------
-        type : int
-            Type of the message. Options are:
-
-            * ``0`` : Info
-            * ``1`` : Warning
-            * ``2`` : Error
-
-        message_text : str
-            Text to display as the message.
-
-        """
-        if type not in [0, 1, 2]:
-            raise ValueError("The parameter 'type' is an int that only accepts 0, 1, 2 as a valid value.")
-
-        if len(message_text) > 250:
-            message_text = message_text[:250] + "..."
-
-        # Print to stdout and to logger
-        if self._log_on_file:
-            if type == 0 and self.logger:
-                self.logger.debug(message_text)
-            elif type == 1 and self.logger:
-                self.logger.warning(message_text)
-            elif type == 2 and self.logger:
-                self.logger.error(message_text)
-
 
     def clear_messages(self, proj_name=None, des_name=None, level=2):
         """Clear all messages.
