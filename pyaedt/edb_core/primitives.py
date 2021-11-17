@@ -87,5 +87,6 @@ class rectangle(object):
             shape_void = [self.layout_core.Shape("polygon", points=self.voids)]
         else:
             shape_void = []
-        poly = self.layout_core.create_polygon(main_shape=shape, layer_name=layer_name, voids=shape_void, net_name=net_name)
+        poly = self.layout_core.create_polygon(main_shape=shape, layer_name=layer_name, 
+                                               voids=shape_void, net_name=net_name)
         return poly
