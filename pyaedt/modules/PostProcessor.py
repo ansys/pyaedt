@@ -17,7 +17,7 @@ from collections import OrderedDict
 
 from pyaedt.generic.constants import AEDT_UNITS, db10, db20
 from pyaedt.generic.filesystem import Scratch
-from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, _retry_ntimes
+from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, _retry_ntimes, write_csv
 
 report_type = {
     "DrivenModal": "Modal Solution Data",
@@ -479,6 +479,67 @@ class SolutionData(object):
                 sol, self._quantity(self.units_data[expression]), self.units_data[expression]
             )
         return sol
+
+    @aedt_exception_handler
+    def is_real_only(self, expression=None):
+        """Check if the expression has only real values or not.
+
+        Parameters
+        ----------
+        expression : str, optional
+            Name of the expression. The default is ``None``,
+            in which case the first expression is used.
+
+        Returns
+        -------
+        bool
+            ``True`` if the Solution Data for specific expression contains only real values.
+        """
+        if not expression:
+            expression = self.expressions[0]
+        for e, v in self.solutions_data_imag[expression].items():
+            if float(v) != 0.0:
+                return False
+        return True
+
+    @aedt_exception_handler
+    def export_data_to_csv(self, output, delimiter=";"):
+        """Save to output csv file the Solution Data.
+
+        Parameters
+        ----------
+        output : str,
+            Full path to csv file.
+        delimiter : str,
+            CSV Delimiter. Default is ``";"``.
+
+        Returns
+        -------
+        bool
+        """
+        header = [el for el in reversed(self._sweeps_names)]
+        for el in self.expressions:
+            if not self.is_real_only(el):
+                header.append(el + " (Real)")
+                header.append(el + " (Imag)")
+            else:
+                header.append(el)
+
+        list_full = [header]
+        for e, v in self.solutions_data_real[self.expressions[0]].items():
+            list_full.append(list(e))
+        for el in self.expressions:
+            i = 1
+            for e, v in self.solutions_data_real[el].items():
+                list_full[i].extend([v])
+                i += 1
+            i = 1
+            if not self.is_real_only(el):
+                for e, v in self.solutions_data_imag[el].items():
+                    list_full[i].extend([v])
+                    i += 1
+
+        return write_csv(output, list_full, delimiter=delimiter)
 
 
 class FieldPlot:

@@ -310,7 +310,7 @@ class FieldAnalysis3D(Analysis, object):
                 include_object = True
                 for key, val in material_properties.items():
                     if val.name == body:
-                        if no_vacuum and val.material_name == "Vacuum":
+                        if no_vacuum and val.material_name.lower() == "vacuum":
                             include_object = False
                         if no_pec and val.material_name == "pec":
                             include_object = False
