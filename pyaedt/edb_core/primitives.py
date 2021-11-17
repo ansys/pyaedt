@@ -53,7 +53,7 @@ class via_def(object):
                                           y_size=self.y_size,
                                           corner_radius=self.corner_rad)
 
-class via_instance(object):
+class ViaInstance(object):
     def __init__(self, pos_x="", pos_y="", rotation=0.0, net_name=""):
         self.pos_x = pos_x
         self.pos_y = pos_y
