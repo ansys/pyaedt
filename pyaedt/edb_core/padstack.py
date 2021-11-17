@@ -6,7 +6,7 @@ import warnings
 
 from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, is_ironpython
 from pyaedt.edb_core.general import convert_py_list_to_net_list
-
+import math
 from pyaedt.edb_core.EDB_Data import EDBPadstack
 
 
@@ -412,7 +412,7 @@ class EdbPadstacks(object):
         definition_name,
         net_name="",
         via_name="",
-        rotation=0,
+        rotation=0.0,
         fromlayer=None,
         tolayer=None,
         solderlayer=None,
@@ -449,7 +449,7 @@ class EdbPadstacks(object):
                 padstack = self.padstacks[pad].edb_padstack
         position = self._edb.Geometry.PointData(self._edb_value(position[0]), self._edb_value(position[1]))
         net = self._pedb.core_nets.find_or_create_net(net_name)
-        rotation = self._edb_value(rotation)
+        rotation = self._edb_value(rotation * math.pi / 180)
         sign_layers = list(self._pedb.core_stackup.signal_layers.keys())
         if not fromlayer:
             fromlayer = self._pedb.core_stackup.signal_layers[sign_layers[-1]]._layer
