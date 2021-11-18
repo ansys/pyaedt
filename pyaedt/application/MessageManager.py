@@ -317,7 +317,6 @@ class AEDTMessageManager(object):
             message_text = message_text[:250] + "..."
 
         # Print to stdout and to logger
-
         if self._log_on_screen:
             if type == 0:
                 print("pyaedt info: {}".format(message_text))
