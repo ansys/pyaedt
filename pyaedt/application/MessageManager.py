@@ -253,8 +253,6 @@ class AEDTMessageManager(object):
             Text to display as the message.
 
         """
-        if type not in [0, 1, 2]:
-            raise ValueError("The parameter 'type' is an int that only accepts 0, 1, 2 as a valid value.")
 
         if len(message_text) > 250:
             message_text = message_text[:250] + "..."
