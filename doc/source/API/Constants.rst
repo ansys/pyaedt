@@ -1,6 +1,6 @@
 Constants
 ==========
-This section lists all the useful constants used in pyaedt.
+This section lists constants that are commonly used in PyAEDT.
 
 
 Example of constants usage:
