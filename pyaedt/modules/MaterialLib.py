@@ -434,7 +434,7 @@ class Materials(object):
     def _aedmattolibrary(self, matname):
         matname = matname.lower()
         props = {}
-        _arg2dict(list(_retry_ntimes(10, self.omaterial_manager.GetData, matname)), props)
+        _arg2dict(list(_retry_ntimes(20, self.omaterial_manager.GetData, matname)), props)
         values_view = props.values()
         value_iterator = iter(values_view)
         first_value = next(value_iterator)
