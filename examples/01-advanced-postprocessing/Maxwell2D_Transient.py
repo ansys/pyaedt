@@ -51,7 +51,7 @@ rect2 = maxwell_2d.modeler.primitives[added[0]]
 
 ###############################################################################
 # Create an Air Region
-# ~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~
 # This command creates an air region.
 
 region = maxwell_2d.modeler.primitives.create_region([100, 100, 100, 100, 100, 100])

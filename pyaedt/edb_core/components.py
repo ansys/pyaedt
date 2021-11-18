@@ -127,8 +127,8 @@ class Components(object):
 
         Returns
         -------
-        dict
-            Default dictionary for the EDB comopnent.
+        dict[str, :class:`pyaedt.edb_core.EDB_Data.EDBComponent`]
+            Default dictionary for the EDB component.
 
         Examples
         --------
@@ -145,12 +145,6 @@ class Components(object):
     @aedt_exception_handler
     def refresh_components(self):
         """Refresh the component dictionary.
-
-        Returns
-        -------
-
-            Default dictionary for the EDB component.
-
         """
         self._cmp = {}
         self._logger.info("Refreshing the Components dictionary.")

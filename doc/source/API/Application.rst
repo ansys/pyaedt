@@ -1,6 +1,36 @@
-Application
-===========
+AEDT Applications
+=================
 The PyAEDT API includes these classes for applications and modules.
+The application has to be initialized by the user. All other classes and methods are inherited into application class.
+Desktop application is implicitly launched in any of the other applications.
+Example with Desktop:
+
+.. code:: python
+
+    from pyaedt import Desktop, Circuit
+    d = Desktop(specified_version="2021.1",
+                 non_graphical=False, new_desktop_session=True,
+                 close_on_exit=True, student_version=False):
+     circuit = Circuit()
+     ...
+     # Any error here will be caught by Desktop.
+     ...
+     d.release_desktop()
+
+Example without Desktop:
+
+.. code:: python
+
+    from pyaedt import Circuit
+    circuit = Circuit(specified_version="2021.1",
+                 non_graphical=False, new_desktop_session=True,
+                 close_on_exit=True, student_version=False):
+     circuit = Circuit()
+     ...
+     # Any error here will be caught by Desktop.
+     ...
+     circuit.release_desktop()
+
 
 .. currentmodule:: pyaedt
 
