@@ -903,5 +903,3 @@ class TestClass(BasisTest):
     def test_67_cover_lines(self):
         P1 = self.aedtapp.modeler.primitives.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]], close_surface=True)
         assert self.aedtapp.modeler.cover_lines(P1)
-
-
