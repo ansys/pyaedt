@@ -843,7 +843,7 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def cover_lines(self, selection):
-        """
+        """Cover a closed line and transform it to sheet.
 
         Parameters
         ----------

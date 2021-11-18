@@ -62,9 +62,8 @@ class Maxwell(object):
         bool
         """
         self.odesign.SetDesignSettings(
-            ["NAME:Design Settings Data"],
-            "ComputeTransientInductance:=", compute_transient_inductance,
-            "ComputeIncrementalMatrix:=", incremental_matrix,)
+            ["NAME:Design Settings Data", "ComputeTransientInductance:=", compute_transient_inductance,
+             "ComputeIncrementalMatrix:=", incremental_matrix])
         return True
 
     @aedt_exception_handler
