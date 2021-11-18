@@ -26,7 +26,6 @@ class Primitives3D(Primitives, object):
     >>> from pyaedt import Hfss
     >>> aedtapp = Hfss()
     >>> prim = aedtapp.modeler.primitives
-
     """
 
     def __init__(self, modeler):
