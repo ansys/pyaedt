@@ -18,8 +18,6 @@ You can edit a setup after it is created. Here is an example:
     setup.update()
 
 
-
-
 .. currentmodule:: pyaedt.modules.SetupTemplates
 
 HFSS Templates

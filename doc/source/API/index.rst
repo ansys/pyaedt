@@ -13,6 +13,7 @@ documentation.
    Application
    DesktopMessenger
    CoreModules
+   CoreModulesEdb
    Primitives
    Mesh
    MaterialManagement
@@ -21,7 +22,5 @@ documentation.
    SetupTemplates
    Boundaries
    MultiPartComponent
-   LogHandler
-   AedtLogger
    Constants
 
