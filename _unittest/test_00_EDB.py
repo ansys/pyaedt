@@ -519,4 +519,4 @@ class TestClass:
         path = self.edbapp.core_primitives.Shape("polygon", points=[["0", "0"], ["0", "1mm"]])
         void = self.edbapp.core_primitives.create_path(path, layer_name="TOP",
                                                        width="0.1mm")
-        self.edbapp.core_primitives.add_void(plane, void)
+        assert self.edbapp.core_primitives.add_void(plane, void)
