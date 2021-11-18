@@ -13,7 +13,6 @@ class CircuitComponents(object):
 
     Examples
     --------
-    Basic usage demonstrated with a Circuit design:
 
     >>> from pyaedt import Circuit
     >>> aedtapp = Circuit()

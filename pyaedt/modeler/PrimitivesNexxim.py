@@ -14,7 +14,6 @@ class NexximComponents(CircuitComponents):
         Inherited parent object.
     Examples
     --------
-    Basic usage demonstrated with a Circuit design:
 
     >>> from pyaedt import Circuit
     >>> aedtapp = Circuit()
