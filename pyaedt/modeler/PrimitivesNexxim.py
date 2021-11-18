@@ -10,10 +10,8 @@ class NexximComponents(CircuitComponents):
 
     Parameters
     ----------
-    parent :
+    modeler : :class:`pyaedt.modeler.Circuit.ModelerNexxim`
         Inherited parent object.
-    modeler :
-
     Examples
     --------
     Basic usage demonstrated with a Circuit design:

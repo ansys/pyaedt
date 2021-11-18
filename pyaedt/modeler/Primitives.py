@@ -107,13 +107,15 @@ class Polyline(Object3d):
 
     Parameters
     ----------
-    primitives : :class:`pyaedt.modeler.Primitives.Primitives`
+    primitives : :class:`pyaedt.modeler.Primitives3D.Primitives3D`
         Pointer to the parent Primitives object.
     src_object : optional
         The default is ``None``.
     position_list : list, optional
         List of positions in the ``[x, y, z]`` format. The default is ``None``.
-    segment_type : optional
+    segment_type : str or list, optional
+        Define the list of segment types.
+        Valid arguments are  ``"Line"``, ``"Arc"``, ``"Spline"``, ``"AngularArc"``.
         The default is ``None``.
     cover_surface : bool, optional
         The default is ``False``.
