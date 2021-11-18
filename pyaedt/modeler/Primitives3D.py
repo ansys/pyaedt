@@ -22,7 +22,6 @@ class Primitives3D(Primitives, object):
     Examples
     --------
     Basic usage demonstrated with an HFSS, Maxwell 3D, Icepak, Q3D, or Mechanical design:
-
     >>> from pyaedt import Hfss
     >>> aedtapp = Hfss()
     >>> prim = aedtapp.modeler.primitives
