@@ -8,26 +8,26 @@ This section lists the core PyAEDT application modules:
 
 
 
-
-Design
-~~~~~~
-This module contains all properties and methods applicable to projects
-and designs.
-
-.. currentmodule:: pyaedt.application.Design
-
-.. autosummary::
-   :toctree: _autosummary
-   :template: custom-class-template.rst
-   :nosignatures:
-
-   DesignCache
-
-
 Variable
 ~~~~~~~~
 This module provides all functionalities for creating and editing
 design and project variables in the 3D tools.
+
+.. code:: python
+
+    from pyaedt import Hfss
+    app = Hfss(specified_version="2021.1",
+                 non_graphical=False, new_desktop_session=True,
+                 close_on_exit=True, student_version=False)
+
+    # this call return the VariableManager Class
+    variable_manager = self.aedtapp._variable_manager
+
+    # Set and Get a variable
+    app["w"] = "10mm"
+    a = app["w"]
+    ...
+
 
 .. currentmodule:: pyaedt.application.Variables
 
@@ -47,6 +47,36 @@ DesignXploration
 This module contains all properties and methods needed to create
 optimetrics setups.
 
+.. code:: python
+
+    from pyaedt import Hfss
+    app = Hfss(specified_version="2021.1",
+                 non_graphical=False, new_desktop_session=True,
+                 close_on_exit=True, student_version=False)
+
+    # this call return the ParametericsSetups Class
+    app.opti_parametric
+
+    # this call return the OptimizationSetups Class
+    app.opti_optimization
+
+    # this call return the DOESetups Class
+    app.opti_doe
+
+    # this call return the DXSetups Class
+    app.opti_designxplorer
+
+    # this call return the SensitivitySetups Class
+    app.opti_sensitivity
+
+    # this call return the StatisticalSetups Class
+    app.opti_statistical
+
+    # this call add an optimization and return Setup class with all settings and methods
+    sweep3 = hfss.opti_optimization.add_optimization(calculation="dB(S(1,1))", calculation_value="2.5GHz")
+
+    ...
+
 .. currentmodule:: pyaedt.modules.DesignXPloration
 
 .. autosummary::
@@ -54,10 +84,25 @@ optimetrics setups.
    :template: custom-class-template.rst
    :nosignatures:
 
-   CommonOptimetrics
    DXSetups
    ParametericsSetups
    SensitivitySetups
    StatisticalSetups
    DOESetups
    OptimizationSetups
+
+
+
+Design Cache
+~~~~~~~~~~~~
+This module contains all properties and methods applicable to projects
+and designs.
+
+.. currentmodule:: pyaedt.application.Design
+
+.. autosummary::
+   :toctree: _autosummary
+   :template: custom-class-template.rst
+   :nosignatures:
+
+   DesignCache

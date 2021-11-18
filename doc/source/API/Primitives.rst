@@ -116,6 +116,7 @@ Objects
 ~~~~~~~
 Those classes define the objects properties for 3D and 2D Solvers (excluding ``Hfss3dLayout``).
 It contains all getter and setter to simplify object manipulation.
+
 .. code:: python
 
     from pyaedt import Hfss

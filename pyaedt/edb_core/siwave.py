@@ -361,8 +361,7 @@ class EdbSiwave(object):
     --------
     >>> from pyaedt import Edb
     >>> edbapp = Edb("myaedbfolder", edbversion="2021.2")
-    >>> edbapp.core_siwave
-
+    >>> edb_siwave = edbapp.core_siwave
     """
 
     def __init__(self, p_edb):

@@ -33,4 +33,5 @@ Example:
    Material.MatProperty
    Material.Material
    Material.SurfaceMaterial
+   LayerStackup.Layers
    LayerStackup.Layer

@@ -17,7 +17,14 @@ except ImportError:
 
 
 class EdbPadstacks(object):
-    """Manages EDB functionalities for padstacks."""
+    """Manages EDB functionalities for padstacks.
+
+    Examples
+    --------
+    >>> from pyaedt import Edb
+    >>> edbapp = Edb("myaedbfolder", edbversion="2021.2")
+    >>> edb_padstacks = edbapp.core_padstack
+    """
 
     def __init__(self, p_edb):
         self._pedb = p_edb
