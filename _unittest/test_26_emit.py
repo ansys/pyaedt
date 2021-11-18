@@ -1,10 +1,10 @@
 # Setup paths for module imports
 import gc
-from pyaedt.modeler.PrimitivesEmit import EmitComponent, EmitComponents
 
 # Import required modules
 from pyaedt import Emit
 from pyaedt.generic.filesystem import Scratch
+from pyaedt.modeler.PrimitivesEmit import EmitComponent, EmitComponents
 
 from _unittest.conftest import scratch_path, config
 

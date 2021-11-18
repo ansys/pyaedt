@@ -69,7 +69,7 @@ class EmitComponents(object):
         """
         Parameters
         ----------
-        partname : str
+        compname : str
            Name of the component.
 
         Returns
@@ -143,12 +143,12 @@ class EmitComponents(object):
         return len(self.components)
 
     @aedt_exception_handler
-    def get_obj_id(self, objname):
+    def get_obj_id(self, object_name):
         """
 
         Parameters
         ----------
-        objname : str
+        object_name : str
             Name of the object.
 
         Returns
@@ -157,7 +157,7 @@ class EmitComponents(object):
             The component when successful, None when failed.
         """
         for el in self.components:
-            if self.components[el].name == objname:
+            if self.components[el].name == object_name:
                 return el
         return None
 

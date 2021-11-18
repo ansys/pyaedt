@@ -1,7 +1,7 @@
 """
 EMIT Example
 --------------------------------------------
-This tutorial shows how you can use PyAEDT to create a project in in EMIT.
+This tutorial shows how you can use PyAEDT to create a project in EMIT.
 """
 
 # sphinx_gallery_thumbnail_path = 'Resources/emit.png'
@@ -17,7 +17,7 @@ from pyaedt import Desktop
 # available. This example will use AEDT 2021.2
 NonGraphical = False
 NewThread = False
-desktopVersion = "2021.2"
+desktop_version = "2021.2"
 
 
 ###############################################################################
@@ -27,7 +27,7 @@ desktopVersion = "2021.2"
 # specified graphical mode. NewThread Boolean variable defines if a user wants
 # to create a new instance of AEDT or try to connect to existing instance of
 # it.
-d = Desktop(desktopVersion, NonGraphical, NewThread)
+d = Desktop(desktop_version, NonGraphical, NewThread)
 aedtapp = Emit()
 
 
