@@ -503,5 +503,3 @@ class EdbPadstacks(object):
         self.padstacks[padstack_name].edb_padstack.SetData(newPadstackDefinitionData)
         self.update_padstacks()
         return True
-
-
