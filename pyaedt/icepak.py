@@ -1084,8 +1084,8 @@ class Icepak(FieldAnalysisIcepak):
                    filter_cap=False,
                    filter_ind=False,
                    filter_res=False,
-                   height_under=None,
-                   height_exclude_2d=False,
+                   filter_height_under=None,
+                   filter_height_exclude_2d=False,
                    power_under=None,
                    create_filtered_as_non_model=False,
                    high_surface_thick="0.07mm",
@@ -1119,19 +1119,19 @@ class Icepak(FieldAnalysisIcepak):
             Either to Filter Inductors from IDF. Default ``False``.
         filter_res : bool, optional
             Either to Filter Resistor from IDF. Default ``False``.
-        height_under : float, str optional
+        filter_height_under : float or str optional
             Height Under components will be filtered. Default ``None``.
-        height_exclude_2d : bool, optional
+        filter_height_exclude_2d : bool, optional
             Either to Filter 2D Components from IDF. Default ``False``.
-        power_under : float, str optional
+        power_under : float or str optional
             Power in "mW" Under components will be filtered. Default ``None``.
         create_filtered_as_non_model: bool, optional
             Either to Import Filtered Components and set as Non-Model. Default ``False``.
-        high_surface_thick : float, str optional
+        high_surface_thick : float or str optional
             Height Surface Thickness. Default ``"0.07mm"``.
-        low_surface_thick : float, str optional
+        low_surface_thick : float or str optional
             Low Surface Thickness. Default ``"0.07mm"``.
-        internal_thick : float, str optional
+        internal_thick : float or str optional
             Internal Layer Thickness. Default ``"0.07mm"``.
         internal_layer_number : int, optional
             Internal Layer Number. Default ``2``.
@@ -1151,7 +1151,7 @@ class Icepak(FieldAnalysisIcepak):
             Either to Create the Board as rectangle. Default ``False``.
         model_device_as_rect : bool, optional
             Either to Create the Components as rectangle. Default ``True``.
-        cutoff_height : str, float, optional
+        cutoff_height : str or float, optional
             Cutoff Eight. Default is ``None``.
         component_lib : str, optional
             If provided, defines the component Library path.
@@ -1173,15 +1173,15 @@ class Icepak(FieldAnalysisIcepak):
             filters.append("Ind")
         if filter_res:
             filters.append("Res")
-        if height_under:
+        if filter_height_under:
             filters.append("Height")
         else:
-            height_under = "0.1mm"
+            filter_height_under = "0.1mm"
         if power_under:
             filters.append("Power")
         else:
             power_under = "10mW"
-        if height_exclude_2d:
+        if filter_height_exclude_2d:
             filters.append("HeightExclude2D")
         if cutoff_height:
             cutoff = True
@@ -1199,7 +1199,7 @@ class Icepak(FieldAnalysisIcepak):
                 "Control:=", control_path.replace("\\", "\\\\"),
                 "Filters:=", filters,
                 "CreateFilteredAsNonModel:=", create_filtered_as_non_model,
-                "HeightVal:=", self._arg_with_units(height_under),
+                "HeightVal:=", self._arg_with_units(filter_height_under),
                 "PowerVal:=", self._arg_with_units(power_under, "mW"),
                 [
                     "NAME:definitionOverridesMap",
