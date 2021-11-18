@@ -12,11 +12,11 @@ Setup object is accessible through the ``create_setup`` method and ``setups`` ob
                non_graphical=False, new_desktop_session=True,
                close_on_exit=True, student_version=False)
 
-    # this call return the Setup Class
+    # this call returns the Setup Class
     my_setup = app.setups[0]
 
 
-    # this call return a Setup Object
+    # this call returns a Setup Object
     setup = app.create_setup("MySetup")
 
     ...

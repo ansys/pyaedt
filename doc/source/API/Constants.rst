@@ -10,9 +10,9 @@ Example of constants usage:
     from pyaedt import constants
     ipk = Icepak()
     # Use of AXIS Constant
-    cyl = ipk.modeler.primitives.create_cylinder(constants.AXIS.X, [0,0,0],10,3)
+    cylinder = ipk.modeler.primitives.create_cylinder(constants.AXIS.X, [0,0,0],10,3)
     # Use of PLANE Constant
-    ipk.modeler.split(cyl, constants.PLANE.YZ, sides="Both")
+    ipk.modeler.split(cylinder, constants.PLANE.YZ, sides="Both")
     ...
     ipk.release_desktop()
 

@@ -114,7 +114,7 @@ EM Solver and ``modeler.components`` for circuit solvers.
 
 Objects
 ~~~~~~~
-Those class define the objects properties for 3D and 2D Solvers (excluding ``Hfss3dLayout``).
+Those classes define the objects properties for 3D and 2D Solvers (excluding ``Hfss3dLayout``).
 It contains all getter and setter to simplify object manipulation.
 .. code:: python
 
@@ -173,10 +173,10 @@ GeometryOperators can be imported and used as it is made by static methods.
                  non_graphical=False, new_desktop_session=True,
                  close_on_exit=True, student_version=False)
 
-    # this call return the CoordinateSystem Object lists
+    # this call returns the CoordinateSystem Object lists
     cs = app.modeler.coordinate_systems
 
-    # this call return a Primitives3D Object
+    # this call returns a CoordinateSystem Object
     new_cs = app.modeler.create_coordinate_system()
 
     ...

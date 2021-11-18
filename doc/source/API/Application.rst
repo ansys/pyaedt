@@ -2,7 +2,7 @@ AEDT Applications
 =================
 The PyAEDT API includes these classes for applications and modules.
 The application has to be initialized by the user. All other classes and methods are inherited into application class.
-Desktop application is implicitily launched in any of the other applications.
+Desktop application is implicitly launched in any of the other applications.
 Example with Desktop:
 
 .. code:: python
