@@ -510,3 +510,14 @@ class TestClass:
 
     def test_66_create_solder_ball_on_component(self):
         assert self.edbapp.core_components.set_solder_ball("U1A1")
+
+    def test_67_add_void(self):
+        plane_shape = self.edbapp.core_primitives.Shape("rectangle", pointA=["-5mm", "-5mm"],
+                                               pointB=["5mm", "5mm"])
+        plane = self.edbapp.core_primitives.create_polygon(plane_shape, "TOP", net_name="GND")
+
+        path = self.edbapp.core_primitives.Shape("polygon", points=[["0", "0"], ["0", "1mm"]])
+        void = self.edbapp.core_primitives.create_path(path, layer_name="TOP",
+                                                         width="0.1mm",
+                                                         )
+        self.edbapp.core_primitives.add_void(plane, void)
