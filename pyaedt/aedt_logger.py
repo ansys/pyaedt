@@ -128,11 +128,11 @@ class AedtLogger(object):
             raise ValueError("The destination must be either 'Project' or 'Design'.")
 
     def disable_desktop_log(self):
-        """Disable log on desktop application."""
+        """Disable log in desktop application."""
         self._messenger._log_on_desktop = False
 
     def enable_desktop_log(self):
-        """Enable log on desktop application."""
+        """Enable log in desktop application."""
         self._messenger._log_on_desktop = True
 
     def disable_stdout_log(self):
@@ -144,11 +144,11 @@ class AedtLogger(object):
         self._messenger._log_on_stdout = True
 
     def disable_log_on_file(self):
-        """Log will be printed into the output file."""
+        """Log will be written into an output file."""
         self._messenger._log_on_file = False
 
     def enable_log_on_file(self):
-        """Log will not be printed into the output file."""
+        """Log will not be written into an output file."""
         self._messenger._log_on_file = True
 
     def get_messages(self):
