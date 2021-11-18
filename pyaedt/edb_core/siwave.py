@@ -442,7 +442,7 @@ class EdbSiwave(object):
         )
         time.sleep(0.5)
         neg_pingroup_terminal = _retry_ntimes(
-            10,
+            20,
             self._edb.Cell.Terminal.PadstackInstanceTerminal.Create,
             self._active_layout,
             neg_pin.GetNet(),
@@ -1207,7 +1207,7 @@ class EdbSiwave(object):
         )
         time.sleep(0.5)
         neg_pingroup_terminal = _retry_ntimes(
-            10,
+            20,
             self._edb.Cell.Terminal.PinGroupTerminal.Create,
             self._active_layout,
             neg_node_net,
