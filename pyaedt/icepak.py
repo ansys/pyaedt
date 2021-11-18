@@ -1077,6 +1077,157 @@ class Icepak(FieldAnalysisIcepak):
         return True
 
     @aedt_exception_handler
+    def import_idf(self,
+                   board_path,
+                   library_path=None,
+                   control_path=None,
+                   filter_cap=False,
+                   filter_ind=False,
+                   filter_res=False,
+                   height_under=None,
+                   height_exclude_2d=False,
+                   power_under=None,
+                   create_filtered_as_non_model=False,
+                   high_surface_thick="0.07mm",
+                   low_surface_thick="0.07mm",
+                   internal_thick="0.07mm",
+                   internal_layer_number=2,
+                   high_surface_coverage=30,
+                   low_surface_coverage=30,
+                   internal_layer_coverage=30,
+                   trace_material="Cu-Pure",
+                   substrate_material="FR-4",
+                   create_board=True,
+                   model_board_as_rect=False,
+                   model_device_as_rect=True,
+                   cutoff_height="5mm",
+                   component_lib=""
+                   ):
+        """Import an IDF file to Icepak Design.
+
+        Parameters
+        ----------
+        board_path : str
+            Full path to .emn file.
+        library_path : str
+            Full path to .emp file. If ``None`` emp will be looked in same folder with same name.
+        control_path : str
+            Full path to .xml file. If ``None`` xml will be looked in same folder with same name.
+        filter_cap : bool, optional
+            Either to Filter Capacitor from IDF. Default ``False``.
+        filter_ind : bool, optional
+            Either to Filter Inductors from IDF. Default ``False``.
+        filter_res : bool, optional
+            Either to Filter Resistor from IDF. Default ``False``.
+        height_under : float, str optional
+            Height Under components will be filtered. Default ``None``.
+        height_exclude_2d : bool, optional
+            Either to Filter 2D Components from IDF. Default ``False``.
+        power_under : float, str optional
+            Power in "mW" Under components will be filtered. Default ``None``.
+        create_filtered_as_non_model: bool, optional
+            Either to Import Filtered Components and set as Non-Model. Default ``False``.
+        high_surface_thick : float, str optional
+            Height Surface Thickness. Default ``"0.07mm"``.
+        low_surface_thick : float, str optional
+            Low Surface Thickness. Default ``"0.07mm"``.
+        internal_thick : float, str optional
+            Internal Layer Thickness. Default ``"0.07mm"``.
+        internal_layer_number : int, optional
+            Internal Layer Number. Default ``2``.
+        high_surface_coverage : float, optional
+            High Surface Material Coverage. Default ``30``.
+        low_surface_coverage : float, optional
+            Low Surface Material Coverage. Default ``30``.
+        internal_layer_coverage : float, optional
+            Internal Layere Material Coverage. Default ``30``.
+        trace_material : str, optional
+            Trace Material Coverage. Default ``"Cu-Pure"``.
+        substrate_material : str, optional
+            Trace Material Coverage. Default ``"FR-4"``.
+        create_board : bool, optional
+            Either to Create the Board or not. Default ``True``.
+        model_board_as_rect : bool, optional
+            Either to Create the Board as rectangle. Default ``False``.
+        model_device_as_rect : bool, optional
+            Either to Create the Components as rectangle. Default ``True``.
+        cutoff_height : str, float, optional
+            Cutoff Eight. Default is ``None``.
+        component_lib : str, optional
+            If provided, defines the component Library path.
+
+        Returns
+        -------
+        bool
+        """
+        if not library_path:
+            library_path = board_path[:-3]+"emp"
+        if not control_path and os.path.exists(board_path[:-3]+"xml"):
+            control_path = board_path[:-3]+"xml"
+        else:
+            control_path = ""
+        filters = []
+        if filter_cap:
+            filters.append("Cap")
+        if filter_ind:
+            filters.append("Ind")
+        if filter_res:
+            filters.append("Res")
+        if height_under:
+            filters.append("Height")
+        else:
+            height_under = "0.1mm"
+        if power_under:
+            filters.append("Power")
+        else:
+            power_under = "10mW"
+        if height_exclude_2d:
+            filters.append("HeightExclude2D")
+        if cutoff_height:
+            cutoff = True
+        else:
+            cutoff = False
+        if component_lib:
+            replace_device = True
+        else:
+            replace_device = False
+        self.odesign.ImportIDF(
+            [
+                "NAME:Settings",
+                "Board:=", board_path.replace("\\", "\\\\"),
+                "Library:=", library_path.replace("\\", "\\\\"),
+                "Control:=", control_path.replace("\\", "\\\\"),
+                "Filters:=", filters,
+                "CreateFilteredAsNonModel:=", create_filtered_as_non_model,
+                "HeightVal:=", self._arg_with_units(height_under),
+                "PowerVal:=", self._arg_with_units(power_under, "mW"),
+                [
+                    "NAME:definitionOverridesMap",
+                ],
+                [
+                    "NAME:instanceOverridesMap"
+                ],
+                "HighSurfThickness:=", self._arg_with_units(high_surface_thick),
+                "LowSurfThickness:=", self._arg_with_units(low_surface_thick),
+                "InternalLayerThickness:=", self._arg_with_units(internal_thick),
+                "NumInternalLayer:=", internal_layer_number,
+                "HighSurfaceCopper:=", high_surface_coverage,
+                "LowSurfaceCopper:=", low_surface_coverage,
+                "InternalLayerCopper:=", internal_layer_coverage,
+                "TraceMaterial:=", trace_material,
+                "SubstrateMaterial:=", substrate_material,
+                "CreateBoard:=", create_board,
+                "ModelBoardAsRect:=", model_board_as_rect,
+                "ModelDeviceAsRect:=", model_device_as_rect,
+                "Cutoff:=", cutoff,
+                "CutoffHeight:=", self._arg_with_units(cutoff_height),
+                "ReplaceDevices:=", replace_device,
+                "CompLibDir:=", component_lib
+            ])
+        self.modeler.primitives.add_new_objects()
+        return True
+
+    @aedt_exception_handler
     def edit_design_settings(
         self,
         gravityDir=0,
