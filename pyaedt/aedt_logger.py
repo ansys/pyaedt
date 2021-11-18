@@ -127,6 +127,30 @@ class AedtLogger(object):
         else:
             raise ValueError("The destination must be either 'Project' or 'Design'.")
 
+    def disable_desktop_log(self):
+        """Disable log in desktop application."""
+        self._messenger._log_on_desktop = False
+
+    def enable_desktop_log(self):
+        """Enable log in desktop application."""
+        self._messenger._log_on_desktop = True
+
+    def disable_stdout_log(self):
+        """Log will not be printed into stdout."""
+        self._messenger._log_on_desktop = False
+
+    def enable_stdout_log(self):
+        """Log will be printed into stdout."""
+        self._messenger._log_on_stdout = True
+
+    def disable_log_on_file(self):
+        """Log will be written into an output file."""
+        self._messenger._log_on_file = False
+
+    def enable_log_on_file(self):
+        """Log will not be written into an output file."""
+        self._messenger._log_on_file = True
+
     def get_messages(self):
         """Get messages for the current design of the current project."""
         return self._messenger.get_messages(self._messenger._project_name, self._messenger._design_name)
