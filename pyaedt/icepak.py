@@ -1125,7 +1125,7 @@ class Icepak(FieldAnalysisIcepak):
             Either to Filter 2D Components from IDF. Default ``False``.
         power_under : float or str optional
             Power in "mW" Under components will be filtered. Default ``None``.
-        create_filtered_as_non_model: bool, optional
+        create_filtered_as_non_model : bool, optional
             Either to Import Filtered Components and set as Non-Model. Default ``False``.
         high_surface_thick : float or str optional
             Height Surface Thickness. Default ``"0.07mm"``.
