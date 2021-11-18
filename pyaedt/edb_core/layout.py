@@ -533,7 +533,7 @@ class EdbLayout(object):
 
     @aedt_exception_handler
     def add_void(self, shape, void_shape):
-        """add a void into a shape
+        """Add a void into a shape.
 
         Parameters
         ----------
@@ -550,7 +550,6 @@ class EdbLayout(object):
                     return flag
         else:
             return shape.AddVoid(void_shape)
-
 
     @aedt_exception_handler
     def shape_to_polygon_data(self, shape):
