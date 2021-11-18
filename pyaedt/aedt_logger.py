@@ -138,6 +138,7 @@ class AedtLogger(object):
     def disable_stdout_log(self):
         """Log will not be printed into stdout."""
         self._messenger._log_on_desktop = False
+        self._global.removeHandler(self._std_out_handler)
 
     def enable_stdout_log(self):
         """Log will be printed into stdout."""
@@ -146,6 +147,7 @@ class AedtLogger(object):
     def disable_log_on_file(self):
         """Log will be written into an output file."""
         self._messenger._log_on_file = False
+        self._global.removeHandler(self._file_handler)
 
     def enable_log_on_file(self):
         """Log will not be written into an output file."""
