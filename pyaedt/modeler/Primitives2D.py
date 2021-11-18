@@ -6,7 +6,16 @@ class Primitives2D(Primitives, object):
     """Manages primitives in 2D tools.
 
     This class is inherited in the caller application and is accessible through the primitives variable part
-    of modeler object( eg. ``hfss.modeler.primitives`` or ``icepak.modeler.primitives``).
+    of the modeler object (for example, ``hfss.modeler.primitives`` or ``icepak.modeler.primitives``).
+
+
+    Examples
+    --------
+    Basic usage demonstrated with a Q2D or Maxwell 2D design:
+
+    >>> from pyaedt import Q2d
+    >>> aedtapp = Q2d()
+    >>> prim = aedtapp.modeler.primitives
     """
 
     @property

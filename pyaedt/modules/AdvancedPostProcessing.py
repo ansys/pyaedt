@@ -77,6 +77,13 @@ class PostProcessor(Post):
     app :
         Inherited parent object.
 
+    Examples
+    --------
+    Basic usage demonstrated with an HFSS, Maxwell, or any other design:
+
+    >>> from pyaedt import Hfss
+    >>> aedtapp = Hfss()
+    >>> post = aedtapp.post
     """
 
     def __init__(self, app):
@@ -87,7 +94,7 @@ class PostProcessor(Post):
         """Show the Jupyter Notebook display.
 
           .. note::
-             Jupyter Notebook is not supported by IronPython.
+              .assign_curvature_extraction Jupyter Notebook is not supported by IronPython.
 
          Parameters
          ----------

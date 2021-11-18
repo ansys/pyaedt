@@ -274,6 +274,6 @@ h3d.create_linear_count_sweep(
     save_fields=False,
     use_q3d_for_dc=False,
 )
-
 # start hfss solver ####
 # h3d.analyze_nominal()
+h3d.release_desktop()
