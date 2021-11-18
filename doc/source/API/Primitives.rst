@@ -120,8 +120,8 @@ It contains all getter and setter to simplify object manipulation.
 
     from pyaedt import Hfss
     app = Hfss(specified_version="2021.1",
-                 non_graphical=False, new_desktop_session=True,
-                 close_on_exit=True, student_version=False)
+               non_graphical=False, new_desktop_session=True,
+               close_on_exit=True, student_version=False)
 
     # this call return the Modeler3D Class
     modeler = app.modeler

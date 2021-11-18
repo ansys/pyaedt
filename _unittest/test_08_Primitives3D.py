@@ -898,3 +898,10 @@ class TestClass(BasisTest):
         assert self.aedtapp.modeler.primitives[box2].material_name == "aluminum"
         assert self.aedtapp.modeler.primitives[cyl1].material_name == "aluminum"
         assert self.aedtapp.modeler.primitives[cyl2].material_name == "aluminum"
+
+    @pyaedt_unittest_check_desktop_error
+    def test_67_cover_lines(self):
+        P1 = self.aedtapp.modeler.primitives.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]], close_surface=True)
+        assert self.aedtapp.modeler.cover_lines(P1)
+
+

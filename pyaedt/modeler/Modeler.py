@@ -842,6 +842,22 @@ class GeometryModeler(Modeler, object):
         return True, (origin, a_end, b_end)
 
     @aedt_exception_handler
+    def cover_lines(self, selection):
+        """
+
+        Parameters
+        ----------
+        selection : str, int
+            Polyline object to cover.
+        Returns
+        -------
+        bool
+        """
+        obj_to_cover = self.convert_to_selections(selection, False)
+        self.oeditor.CoverLines(["NAME:Selections", "Selections:=", obj_to_cover, "NewPartsModelFlag:=", "Model"])
+        return True
+
+    @aedt_exception_handler
     def create_coordinate_system(
         self,
         origin=None,

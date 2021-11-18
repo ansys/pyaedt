@@ -13,7 +13,7 @@ documentation.
    Application
    DesktopMessenger
    CoreModules
-   CoreModulesEdb
+   CoreEdb
    Primitives
    Mesh
    MaterialManagement

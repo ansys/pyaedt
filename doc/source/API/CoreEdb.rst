@@ -1,15 +1,8 @@
 EDB Modules
 ===========
-This section lists the core PyAEDT application modules:
-
-* EDB
-
-
-
-EDB
-~~~
-This module contains all EDB functionalities for reading and writing
+This section lists the core EDB application modules for reading and writing
 information to AEDB files.
+
 
 .. currentmodule:: pyaedt.edb_core
 
@@ -32,4 +25,3 @@ information to AEDB files.
    EDB_Data.EDBPinInstances
    EDB_Data.EDBComponent
    siwave.SiwaveDCSetupTemplate
-
