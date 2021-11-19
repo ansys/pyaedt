@@ -63,6 +63,7 @@ class AedtLogger(object):
     def __init__(self, messenger, level=logging.DEBUG, filename=None, to_stdout=False):
         main = sys.modules["__main__"]
 
+        self.filename = filename
         self._messenger = messenger
         self._global = logging.getLogger('Global')
         self._file_handler = None
