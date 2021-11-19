@@ -409,6 +409,18 @@ class Analysis(Design, object):
         return SOLUTIONS()
 
     @aedt_exception_handler
+    def analyze_all(self):
+        """Analyze all setup in a actual design.
+
+        Returns
+        -------
+        bool
+            ``True`` when simulation is finished.
+        """
+        self.odesign.AnalyzeAll()
+        return True
+
+    @aedt_exception_handler
     def _get_native_data(self):
         """Retrieve Native Components data."""
         boundaries = []
