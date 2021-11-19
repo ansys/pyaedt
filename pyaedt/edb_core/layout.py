@@ -16,7 +16,14 @@ except ImportError:
 
 
 class EdbLayout(object):
-    """Manages EDB functionalities for layouts."""
+    """Manages EDB functionalities for layouts.
+
+    Examples
+    --------
+    >>> from pyaedt import Edb
+    >>> edbapp = Edb("myaedbfolder", edbversion="2021.2")
+    >>> edb_layout = edbapp.core_layout
+    """
 
     def __init__(self, p_edb):
         self._prims = []
@@ -483,7 +490,7 @@ class EdbLayout(object):
                     self._primitives_by_layer[layer_name].append(polygon)
                 else:
                     self._primitives_by_layer[layer_name] = [polygon]
-        return True
+        return polygon
 
     @aedt_exception_handler
     def create_polygon(self, main_shape, layer_name, voids=[], net_name=""):
@@ -529,7 +536,27 @@ class EdbLayout(object):
                     self._primitives_by_layer[layer_name].append(polygon)
                 else:
                     self._primitives_by_layer[layer_name] = [polygon]
-            return True
+            return polygon
+
+    @aedt_exception_handler
+    def add_void(self, shape, void_shape):
+        """Add a void into a shape.
+
+        Parameters
+        ----------
+        shape : Polygon
+            Shape of the main object.
+        void_shape : list, Path
+            Shape of the voids.
+        """
+        flag = False
+        if isinstance(void_shape, list):
+            for void in void_shape:
+                flag = shape.AddVoid(void)
+                if not flag:
+                    return flag
+        else:
+            return shape.AddVoid(void_shape)
 
     @aedt_exception_handler
     def shape_to_polygon_data(self, shape):

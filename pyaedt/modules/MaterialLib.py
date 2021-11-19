@@ -18,6 +18,11 @@ class Materials(object):
     app : :class:`pyaedt.application.Analysis3D.FieldAnalysis3D`
         Inherited parent object.
 
+    Examples
+    --------
+    >>>from pyaedt import Hfss
+    >>>app = Hfss()
+    >>>materials = app.materials
     """
     def __init__(self, app):
         self._app = app

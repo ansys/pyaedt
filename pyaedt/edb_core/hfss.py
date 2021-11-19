@@ -1,12 +1,19 @@
 """
-This module contains the `Edb3DLayout` class.
+This module contains the `EdbHfss` class.
 """
 from pyaedt.edb_core.general import convert_netdict_to_pydict
 from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, is_ironpython
 
 
-class Edb3DLayout(object):
-    """Manages EDB functionalities for 3D layouts."""
+class EdbHfss(object):
+    """Manages EDB functionalities for 3D layouts.
+
+    Examples
+    --------
+    >>> from pyaedt import Edb
+    >>> edbapp = Edb("myaedbfolder")
+    >>> edb_hfss = edb_3dedbapp.core_hfss
+    """
 
     def __init__(self, p_edb):
         self._pedb = p_edb

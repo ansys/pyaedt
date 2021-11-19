@@ -15,7 +15,7 @@ The PyAEDT API includes these classes for AEDT and EDB Message managers:
 
 
 LogHandler
-==========
+~~~~~~~~~~
 This section lists modules for creating a handler to
 send log messages in AEDT logging stream.
 
@@ -31,7 +31,7 @@ send log messages in AEDT logging stream.
 
 
 AedtLogger
-==========
+~~~~~~~~~~
 This section lists modules for creating and editing
 pyaedt log files.
 

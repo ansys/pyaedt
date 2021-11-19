@@ -14,7 +14,14 @@ except ImportError:
 
 
 class EDBLayer(object):
-    """Manages EDB functionalities for a layer."""
+    """Manages EDB functionalities for a layer.
+
+    Examples
+    --------
+    >>> from pyaedt import Edb
+    >>> edb = Edb(myedb, edbversion="2021.2")
+    >>> edb_layer = edb.core_stackup.stackup_layers.layers["TOP"]
+    """
 
     def __init__(self, edblayer, app):
         self._layer = edblayer
@@ -379,9 +386,14 @@ class EDBLayers(object):
 
     Parameters
     ----------
-    edbstackup :
+    edb_stackup : :class:`pyaedt.edb_core.stackup.EdbStackup`
         Inherited AEDT object.
 
+    Examples
+    --------
+    >>> from pyaedt import Edb
+    >>> edb = Edb(myedb, edbversion="2021.2")
+    >>> edb_layers = edb.core_stackup.stackup_layers
     """
 
     def __init__(self, edb_stackup):
@@ -437,7 +449,7 @@ class EDBLayers(object):
 
         Returns
         -------
-        dict
+        dict[str, :class:`pyaedt.edb_core.EDB_Data.EDBLayer`]
             Dictionary of layers.
         """
         if not self._edb_object:
@@ -470,7 +482,7 @@ class EDBLayers(object):
 
         Returns
         -------
-        dict
+        dict[str, :class:`pyaedt.edb_core.EDB_Data.EDBLayer`]
             Dictionary of signal layers.
         """
         self._signal_layers = {}
@@ -756,6 +768,11 @@ class EDBPadProperties(object):
     pedbpadstack : str
         Inherited AEDT object.
 
+    Examples
+    --------
+    >>> from pyaedt import Edb
+    >>> edb = Edb(myedb, edbversion="2021.2")
+    >>> edb_pad_properties = edb.core_padstack.padstacks["MyPad"].pad_by_layer["TOP"]
     """
 
     def __init__(self, edb_padstack, layer_name, pad_type, p_edb_padstack):
@@ -978,6 +995,11 @@ class EDBPadstack(object):
     ppadstack : str
         Inherited AEDT object.
 
+    Examples
+    --------
+    >>> from pyaedt import Edb
+    >>> edb = Edb(myedb, edbversion="2021.2")
+    >>> edb_padstack = edb.core_padstack.padstacks["MyPad"]
     """
 
     def __init__(self, edb_padstack, ppadstack):
@@ -1273,7 +1295,15 @@ class EDBPadstack(object):
 
 
 class EDBPinInstances(object):
-    """Manages EDB functionalities in instances."""
+    """Manages EDB functionalities in instances.
+
+
+    Examples
+    --------
+    >>> from pyaedt import Edb
+    >>> edb = Edb(myedb, edbversion="2021.2")
+    >>> edb_pin_instance = edb.core_components.components["R1"].pins[0]
+    """
 
     def __init__(self, edb_components, pin):
         self._pedbcomponents = edb_components

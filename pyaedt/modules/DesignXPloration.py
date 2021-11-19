@@ -409,10 +409,11 @@ class CommonOptimetrics(object):
 class DXSetups(object):
     """Sets up DesignXplorer optimizations.
 
-    Parameters
-    ----------
-    p_app :
-
+    Examples
+    --------
+    >>> from pyaedt import Hfss
+    >>> app = Hfss()
+    >>> dx_setup = app.opti_designxplorer
     """
 
     class Setup(CommonOptimetrics, object):
@@ -634,10 +635,11 @@ class DXSetups(object):
 class ParametericsSetups(object):
     """Sets up parametric analyses.
 
-    Parameters
-    ----------
-    p_app :
-
+    Examples
+    --------
+    >>> from pyaedt import Hfss
+    >>> app = Hfss()
+    >>> parametric_setup = app.opti_parametric
     """
 
     class Setup(CommonOptimetrics, object):
@@ -811,10 +813,11 @@ class ParametericsSetups(object):
 class SensitivitySetups(object):
     """Sets up sensitivity analyses.
 
-    Parameters
-    ----------
-    p_app :
-
+    Examples
+    --------
+    >>> from pyaedt import Hfss
+    >>> app = Hfss()
+    >>> sensitivity_setups = app.opti_sensitivity
     """
 
     class Setup(CommonOptimetrics, object):
@@ -973,10 +976,11 @@ class SensitivitySetups(object):
 class StatisticalSetups(object):
     """Sets up statistical analyses.
 
-    Parameters
-    ----------
-    p_app :
-
+    Examples
+    --------
+    >>> from pyaedt import Hfss
+    >>> app = Hfss()
+    >>> statistical_setups = app.opti_statistical
     """
 
     class Setup(CommonOptimetrics, object):
@@ -1137,10 +1141,11 @@ class StatisticalSetups(object):
 class DOESetups(object):
     """Sets up DOEs (Designs of Experiments).
 
-    Parameters
-    ----------
-    p_app :
-
+    Examples
+    --------
+    >>> from pyaedt import Hfss
+    >>> app = Hfss()
+    >>> doe_setups = app.opti_doe
     """
 
     class Setup(CommonOptimetrics, object):
@@ -1388,10 +1393,11 @@ class DOESetups(object):
 class OptimizationSetups(object):
     """Sets up optimizations.
 
-    Parameters
-    ----------
-    p_app :
-
+    Examples
+    --------
+    >>> from pyaedt import Hfss
+    >>> app = Hfss()
+    >>> optimization_setup = app.opti_optimization
     """
 
     class Setup(CommonOptimetrics, object):

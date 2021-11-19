@@ -5,6 +5,7 @@ This section lists setup modules:
 * SetupCircuit for ``Circuit`` and ``Simplorer``
 * Setup3DLayout for ``Hfss3dLayout``
 Setup object is accessible through the ``create_setup`` method and ``setups`` object list.
+
 .. code:: python
 
     from pyaedt import Hfss

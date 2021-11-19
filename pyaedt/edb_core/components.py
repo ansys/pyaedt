@@ -57,7 +57,6 @@ class Components(object):
     >>> from pyaedt import Edb
     >>> edbapp = Edb("myaedbfolder")
     >>> edbapp.core_components
-
     """
 
     def __init__(self, p_edb):
@@ -159,7 +158,7 @@ class Components(object):
 
         Returns
         -------
-        dict
+        dict[str, :class:`pyaedt.edb_core.EDB_Data.EDBComponent`]
             Dictionary of resistors.
 
         Examples
@@ -181,7 +180,7 @@ class Components(object):
 
         Returns
         -------
-        dict
+        dict[str, :class:`pyaedt.edb_core.EDB_Data.EDBComponent`]
             Dictionary of capacitors.
 
         Examples
@@ -203,7 +202,7 @@ class Components(object):
 
         Returns
         -------
-        dict
+        dict[str, :class:`pyaedt.edb_core.EDB_Data.EDBComponent`]
             Dictionary of inductors.
 
         Examples
@@ -226,7 +225,7 @@ class Components(object):
 
         Returns
         -------
-        dict
+        dict[str, :class:`pyaedt.edb_core.EDB_Data.EDBComponent`]
             Dictionary of integrated circuits.
 
         Examples
@@ -249,7 +248,7 @@ class Components(object):
 
         Returns
         -------
-        dict
+        dict[str, :class:`pyaedt.edb_core.EDB_Data.EDBComponent`]
             Dictionary of circuit inputs and outputs.
 
         Examples
@@ -275,7 +274,7 @@ class Components(object):
 
         Returns
         -------
-        dict
+        dict[str, :class:`pyaedt.edb_core.EDB_Data.EDBComponent`]
             Dictionary of other core components.
 
         Examples

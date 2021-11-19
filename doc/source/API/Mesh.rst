@@ -1,5 +1,5 @@
-Mesh
-====
+Mesh Classes
+============
 The ``Mesh`` module includes these classes:
 
 * Mesh for ``Hfss``, ``Maxwell2D``, ``Maxwell3d``, ``Q2d`` and ``Q3d``
