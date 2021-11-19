@@ -1062,7 +1062,6 @@ class SetupHFSS(Setup, object):
     def __init__(self, app, solutiontype, setupname="MySetupAuto", isnewsetup=True):
         Setup.__init__(self, app, solutiontype, setupname, isnewsetup)
 
-
     @aedt_exception_handler
     def create_linear_count_sweep(
         self,
