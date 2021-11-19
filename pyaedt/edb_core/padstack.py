@@ -540,3 +540,43 @@ class EdbPadstacks(object):
         self.padstacks[padstack_name].edb_padstack.SetData(newPadstackDefinitionData)
         self.update_padstacks()
         return True
+
+    @aedt_exception_handler
+    def edit_antipad_from_padstack(self, padstack_name, layer_name=None, antipad_shape=None, antipad_diam=None,
+                                   x_size=None, y_size=None,
+                                   corner_radius=None, offset_x=None, offset_y=None, rotation=None):
+        offset_x = self._edb_value(offset_x)
+        offset_y = self._edb_value(offset_y)
+        rotation = self._edb_value(rotation)
+
+        if antipad_shape == "Circuit":
+            antipad_diam = self._edb_value(antipad_diam)
+            antipad_geo = self._edb.Definition.PadGeometryType.Circle
+            antipad_array = Array[type(antipad_diam)]([antipad_diam])
+        elif antipad_shape == "Bullet":
+            x_size = self._edb_value(x_size)
+            y_size = self._edb_value(y_size)
+            corner_radius = self._edb_value(corner_radius)
+            antipad_geo = self._edb.Definition.PadGeometryType.Bullet
+            antipad_array = Array[type(x_size)]([x_size, y_size, corner_radius])
+        else:
+            return False
+
+        p1 = self.padstacks[padstack_name].edb_padstack.GetData()
+        newPadstackDefinitionData = self._edb.Definition.PadstackDefData(p1)
+
+        if not layer_name:
+            layer_name = list(self._pedb.core_stackup.signal_layers.keys())
+        elif isinstance(layer_name, str):
+            layer_name = [layer_name]
+
+        for lay in layer_name:
+            newPadstackDefinitionData.SetPadParameters(lay,
+                                                       self._edb.Definition.PadType.AntiPad,
+                                                       antipad_geo,
+                                                       antipad_array,
+                                                       offset_x, offset_y, rotation)
+
+        self.padstacks[padstack_name].edb_padstack.SetData(newPadstackDefinitionData)
+        self.update_padstacks()
+        return True
