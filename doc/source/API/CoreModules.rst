@@ -54,25 +54,25 @@ optimetrics setups.
                  non_graphical=False, new_desktop_session=True,
                  close_on_exit=True, student_version=False)
 
-    # this call return the ParametericsSetups Class
+    # returns the ParametericsSetups Class
     app.opti_parametric
 
-    # this call return the OptimizationSetups Class
+    # returns the OptimizationSetups Class
     app.opti_optimization
 
-    # this call return the DOESetups Class
+    # returns the DOESetups Class
     app.opti_doe
 
-    # this call return the DXSetups Class
+    # returns the DXSetups Class
     app.opti_designxplorer
 
-    # this call return the SensitivitySetups Class
+    # returns the SensitivitySetups Class
     app.opti_sensitivity
 
-    # this call return the StatisticalSetups Class
+    # returns the StatisticalSetups Class
     app.opti_statistical
 
-    # this call add an optimization and return Setup class with all settings and methods
+    # adds an optimization and returns Setup class with all settings and methods
     sweep3 = hfss.opti_optimization.add_optimization(calculation="dB(S(1,1))", calculation_value="2.5GHz")
 
     ...
