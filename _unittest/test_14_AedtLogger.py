@@ -195,7 +195,7 @@ class TestClass:
         assert ":INFO    :Info for Project before disabling the log file handler." in content[1]
         assert ":INFO    :Info for Design before disabling the log file handler." in content[2]
         
-        # disable log on file
+        # Disable log on file.
         logger.disable_log_on_file()
         logger.info("Info for Global after disabling the log file handler.")
         project_logger.info("Info for Project after disabling the log file handler.")
@@ -210,6 +210,20 @@ class TestClass:
                 disablement_succeeded = False
                 break
         assert disablement_succeeded
+
+        # Enable log on file.
+        logger.enable_log_on_file()
+        logger.info("Info for Global after re-enabling the log file handler.")
+
+        with open(path, 'r') as f:
+            content = f.readlines()
+
+        enablement_succeeded = False
+        for i in range(len(content)):
+            if "Info for Global after disabling the log file handler." in content[i]:
+                enablement_succeeded = True
+                break
+        assert enablement_succeeded
 
 class CaptureStdOut():
     """Capture standard output with a context manager."""
