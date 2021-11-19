@@ -518,9 +518,9 @@ class Desktop:
             self._dispatch_win32(version)
         elif version_key >= "2021.2":
             if student_version:
-                print("pyaedt info:: {} Student version started with process ID {}.".format(version, proc[0]))
+                print("pyaedt info: {} Student version started with process ID {}.".format(version, proc[0]))
             else:
-                print("pyaedt info:: {} Started with process ID {}.".format(version, proc[0]))
+                print("pyaedt info: {} Started with process ID {}.".format(version, proc[0]))
             context = pythoncom.CreateBindCtx(0)
             running_coms = pythoncom.GetRunningObjectTable()
             monikiers = running_coms.EnumRunning()

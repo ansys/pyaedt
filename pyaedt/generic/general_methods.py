@@ -75,7 +75,6 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
             messages = []
         if messages and '[error] Script macro error' in messages[-1]:
             message_to_print = messages[-1]
-    _write_mes("**************************************************************")
     _write_mes("Method {} Failed:  {}. Please Check again".format(func.__name__, message))
     _write_mes(ex_info[1])
     if message_to_print:
@@ -103,9 +102,7 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
     for el in tblist:
         if func.__name__ in el:
             _write_mes("Error in : "+el)
-    _write_mes("")
     _write_mes("Check Online documentation on: https://aedtdocs.pyansys.com/search.html?q={}".format(func.__name__))
-    _write_mes("************************************************************")
 
 def _check_types(arg):
     if "netref.builtins.list" in str(type(arg)):
