@@ -58,6 +58,14 @@ Those classes are the container of Data read from edb file.
     layer = edb.core_stackup.stackup_layers.layers["TOP"]
     ...
 
+
+.. currentmodule:: pyaedt.edb_core
+
+.. autosummary::
+   :toctree: _autosummary
+   :template: custom-class-template.rst
+   :nosignatures:
+
    EDB_Data.EDBLayer
    EDB_Data.EDBLayers
    EDB_Data.EDBPadProperties
