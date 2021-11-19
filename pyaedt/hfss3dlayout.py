@@ -738,6 +738,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                     self.logger.warning(
                         "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname)
                 sweep = setupdata.add_sweep(sweepname=sweepname)
+                if not sweep:
+                    return False
                 sweep.change_range("LinearCount", freqstart, freqstop, num_of_freq_points, unit)
                 sweep.props["GenerateSurfaceCurrent"] = save_fields
                 sweep.props["SaveRadFieldsOnly"] = save_rad_fields_only
@@ -832,6 +834,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                     self.logger.warning(
                         "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname)
                 sweep = setupdata.add_sweep(sweepname=sweepname)
+                if not sweep:
+                    return False
                 sweep.change_range("LinearStep", freqstart, freqstop, step_size, unit)
                 sweep.props["GenerateSurfaceCurrent"] = save_fields
                 sweep.props["SaveRadFieldsOnly"] = save_rad_fields_only

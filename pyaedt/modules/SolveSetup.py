@@ -1136,6 +1136,8 @@ class SetupHFSS(Setup, object):
             self.logger.warning(
                 "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname)
         sweepdata = self.add_sweep(sweepname, sweep_type)
+        if not sweepdata:
+            return False
         sweepdata.props["RangeType"] = "LinearCount"
         sweepdata.props["RangeStart"] = str(freqstart) + unit
         sweepdata.props["RangeEnd"] = str(freqstop) + unit
@@ -1225,6 +1227,8 @@ class SetupHFSS(Setup, object):
                     self.logger.warning(
                         "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname)
                 sweepdata = setupdata.add_sweep(sweepname, sweep_type)
+                if not sweepdata:
+                    return False
                 sweepdata.props["RangeType"] = "LinearStep"
                 sweepdata.props["RangeStart"] = str(freqstart) + unit
                 sweepdata.props["RangeEnd"] = str(freqstop) + unit
