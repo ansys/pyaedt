@@ -99,3 +99,9 @@ class TestClass(BasisTest):
         bound = self.aedtapp.assign_rotate_motion("Circle_outer", positive_limit=300, mechanical_transient=True)
         assert bound
         assert bound.props["PositivePos"] == "300deg"
+
+    @pyaedt_unittest_check_desktop_error
+    def test_16_enable_inductance_computation(self):
+        assert self.aedtapp.change_inductance_computation()
+        assert self.aedtapp.change_inductance_computation(True, False)
+        assert self.aedtapp.change_inductance_computation(False, False)

@@ -14,6 +14,13 @@ class SimplorerComponents(CircuitComponents):
 
     modeler :
 
+    Examples
+    --------
+    Basic usage demonstrated with a Simplorer design:
+
+    >>> from pyaedt import Simplorer
+    >>> aedtapp = Simplorer()
+    >>> prim = aedtapp.modeler.components
     """
 
     @property

@@ -3,7 +3,7 @@ Message Manager
 
 The PyAEDT API includes these classes for AEDT and EDB Message managers:
 
-.. currentmodule:: pyaedt
+.. currentmodule:: pyaedt.application.MessageManager
 
 
 .. autosummary::
@@ -11,4 +11,36 @@ The PyAEDT API includes these classes for AEDT and EDB Message managers:
    :template: custom-class-template.rst
    :nosignatures:
 
-   application.MessageManager.AEDTMessageManager
+   AEDTMessageManager
+
+
+LogHandler
+==========
+This section lists modules for creating a handler to
+send log messages in AEDT logging stream.
+
+.. currentmodule:: pyaedt
+
+.. autosummary::
+   :toctree:
+
+.. autoclass:: pyaedt.log_handler.LogHandler
+   :inherited-members: Handler
+
+   log_handler.LogHandler
+
+
+AedtLogger
+==========
+This section lists modules for creating and editing
+pyaedt log files.
+
+.. currentmodule:: pyaedt.aedt_logger
+
+.. autosummary::
+   :toctree: _autosummary
+   :template: custom-class-template.rst
+   :nosignatures:
+
+   AedtLogger
+   AppFilter

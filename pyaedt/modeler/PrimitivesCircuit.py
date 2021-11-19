@@ -9,7 +9,14 @@ from pyaedt.modeler.Object3d import CircuitComponent
 class CircuitComponents(object):
     """CircutComponents class.
 
-    This is the common class for managing all circuit components for Nexxim and Simplorer.
+    Manages all circuit components for Nexxim and Simplorer.
+
+    Examples
+    --------
+
+    >>> from pyaedt import Circuit
+    >>> aedtapp = Circuit()
+    >>> prim = aedtapp.modeler.components
     """
 
     @aedt_exception_handler

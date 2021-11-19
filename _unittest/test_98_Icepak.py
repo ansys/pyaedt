@@ -53,8 +53,11 @@ class TestClass:
 
     def teardown_class(self):
         self.aedtapp._desktop.ClearMessages("", "", 3)
-        self.aedtapp.close_project(src_project_name, False)
-        self.aedtapp.close_project(self.aedtapp.project_name)
+        try:
+            self.aedtapp.close_project(src_project_name, False)
+            self.aedtapp.close_project(self.aedtapp.project_name)
+        except:
+            pass
         time.sleep(2)
         self.local_scratch.remove()
         gc.collect()
@@ -340,5 +343,14 @@ class TestClass:
     def test_38_point_monitor(self):
         assert self.aedtapp.assign_point_monitor([0, 0, 0])
 
+    def test_39_import_idf(self):
+        self.aedtapp.insert_design("IDF")
+        assert self.aedtapp.import_idf(os.path.join(local_path, "example_models", "brd_board.emn"))
+        assert self.aedtapp.import_idf(os.path.join(local_path, "example_models", "brd_board.emn"), filter_cap=True,
+                                       filter_ind=True, filter_res=True, filter_height_under=2,
+                                       filter_height_exclude_2d=False, internal_layer_coverage=20,
+                                       internal_layer_number=5, internal_thick=0.05, high_surface_thick="0.1in")
+
     def test_88_create_heat_sink(self):
+        self.aedtapp.insert_design("HS")
         assert self.aedtapp.create_parametric_fin_heat_sink()
