@@ -361,8 +361,7 @@ class EdbSiwave(object):
     --------
     >>> from pyaedt import Edb
     >>> edbapp = Edb("myaedbfolder", edbversion="2021.2")
-    >>> edbapp.core_siwave
-
+    >>> edb_siwave = edbapp.core_siwave
     """
 
     def __init__(self, p_edb):
@@ -443,7 +442,7 @@ class EdbSiwave(object):
         )
         time.sleep(0.5)
         neg_pingroup_terminal = _retry_ntimes(
-            10,
+            20,
             self._edb.Cell.Terminal.PadstackInstanceTerminal.Create,
             self._active_layout,
             neg_pin.GetNet(),
@@ -1208,7 +1207,7 @@ class EdbSiwave(object):
         )
         time.sleep(0.5)
         neg_pingroup_terminal = _retry_ntimes(
-            10,
+            20,
             self._edb.Cell.Terminal.PinGroupTerminal.Create,
             self._active_layout,
             neg_node_net,

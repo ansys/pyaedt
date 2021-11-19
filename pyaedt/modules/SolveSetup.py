@@ -1040,3 +1040,309 @@ class Setup3DLayout(object):
             self.sweeps.append(sweep_n)
             return sweep_n
         return False
+
+
+class SetupHFSS(Setup, object):
+    """Initializes, creates, and updates an HFSS setup.
+
+    Parameters
+    ----------
+    app : :class:`pyaedt.application.Analysis3D.FieldAnalysis3D`
+        Inherited app object.
+    solutiontype : int, str
+        Type of the setup.
+    setupname : str, optional
+        Name of the setup. The default is ``"MySetupAuto"``.
+    isnewsetup : bool, optional
+        Whether to create the setup from a template. The default is ``True``.
+        If ``False``, access is to the existing setup.
+
+    """
+
+    def __init__(self, app, solutiontype, setupname="MySetupAuto", isnewsetup=True):
+        Setup.__init__(self, app, solutiontype, setupname, isnewsetup)
+
+    @aedt_exception_handler
+    def create_linear_count_sweep(
+        self,
+        unit,
+        freqstart,
+        freqstop,
+        num_of_freq_points,
+        sweepname=None,
+        save_fields=True,
+        save_rad_fields=False,
+        sweep_type="Discrete",
+        interpolation_tol=0.5,
+        interpolation_max_solutions=250,
+    ):
+        """Create a sweep with the specified number of points.
+
+        Parameters
+        ----------
+        unit : str
+            Frequency Units.
+        freqstart : float
+            Starting frequency of the sweep, such as ``1``.
+        freqstop : float
+            Stopping frequency of the sweep.
+        num_of_freq_points : int
+            Number of frequency points in the range.
+        sweepname : str, optional
+            Name of the sweep. The default is ``None``.
+        save_fields : bool, optional
+            Whether to save the fields. The default is ``True``.
+        save_rad_fields : bool, optional
+            Whether to save the radiating fields. The default is ``False``.
+        sweep_type : str, optional
+            Type of the sweep. Options are ``"Fast"``, ``"Interpolating"``,
+            and ``"Discrete"``. The default is ``"Discrete"``.
+        interpolation_tol : float, optional
+            Error tolerance threshold for the interpolation
+            process. The default is ``0.5``.
+        interpolation_max_solutions : int, optional
+            Maximum number of solutions evaluated for the interpolation process.
+            The default is ``250``.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or bool
+            Sweep object if successful, ``False`` otherwise.
+
+        Examples
+        --------
+
+        Create a setup named ``"LinearCountSetup"`` and use it in a linear count sweep
+        named ``"LinearCountSweep"``.
+
+        >>> setup = hfss.create_setup("LinearCountSetup")
+        >>> linear_count_sweep = hfss.create_linear_count_sweep(setupname="LinearCountSetup",
+        ...                                                     sweepname="LinearCountSweep",
+        ...                                                     unit="MHz", freqstart=1.1e3,
+        ...                                                     freqstop=1200.1, num_of_freq_points=1658)
+        >>> type(linear_count_sweep)
+        <class 'pyaedt.modules.SetupTemplates.SweepHFSS'>
+
+        """
+        if sweep_type not in ["Discrete", "Interpolating", "Fast"]:
+            raise AttributeError("Invalid in `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'")
+
+        if sweepname is None:
+            sweepname = generate_unique_name("Sweep")
+
+        if sweepname in [sweep.name for sweep in self.sweeps]:
+            oldname = sweepname
+            sweepname = generate_unique_name(oldname)
+            self.logger.warning(
+                "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname)
+        sweepdata = self.add_sweep(sweepname, sweep_type)
+        if not sweepdata:
+            return False
+        sweepdata.props["RangeType"] = "LinearCount"
+        sweepdata.props["RangeStart"] = str(freqstart) + unit
+        sweepdata.props["RangeEnd"] = str(freqstop) + unit
+        sweepdata.props["RangeCount"] = num_of_freq_points
+        sweepdata.props["Type"] = sweep_type
+        if sweep_type == "Interpolating":
+            sweepdata.props["InterpTolerance"] = interpolation_tol
+            sweepdata.props["InterpMaxSolns"] = interpolation_max_solutions
+            sweepdata.props["InterpMinSolns"] = 0
+            sweepdata.props["InterpMinSubranges"] = 1
+        sweepdata.props["SaveFields"] = save_fields
+        sweepdata.props["SaveRadFields"] = save_rad_fields
+        sweepdata.update()
+        self.logger.info("Linear count sweep {} has been correctly created".format(sweepname))
+        return sweepdata
+
+    @aedt_exception_handler
+    def create_linear_step_sweep(
+        self,
+        setupname,
+        unit,
+        freqstart,
+        freqstop,
+        step_size,
+        sweepname=None,
+        save_fields=True,
+        save_rad_fields=False,
+        sweep_type="Discrete",
+    ):
+        """Create a Sweep with a specified frequency step.
+
+        Parameters
+        ----------
+        setupname : str
+            Name of the setup.
+        unit : str
+            Unit of the frequency. For example, ``"MHz`` or ``"GHz"``.
+        freqstart : float
+            Starting frequency of the sweep.
+        freqstop : float
+            Stopping frequency of the sweep.
+        step_size : float
+            Frequency size of the step.
+        sweepname : str, optional
+            Name of the sweep. The default is ``None``.
+        save_fields : bool, optional
+            Whether to save the fields. The default is ``True``.
+        save_rad_fields : bool, optional
+            Whether to save the radiating fields. The default is ``False``.
+        sweep_type : str, optional
+            Whether to create a ``"Discrete"``,``"Interpolating"`` or ``"Fast"`` sweep.
+            The default is ``"Discrete"``.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or bool
+            Sweep object if successful, ``False`` otherwise.
+
+        Examples
+        --------
+
+        Create a setup named ``"LinearStepSetup"`` and use it in a linear step sweep
+        named ``"LinearStepSweep"``.
+
+        >>> setup = hfss.create_setup("LinearStepSetup")
+        >>> linear_step_sweep = hfss.create_linear_step_sweep(setupname="LinearStepSetup",
+        ...                                                   sweepname="LinearStepSweep",
+        ...                                                   unit="MHz", freqstart=1.1e3,
+        ...                                                   freqstop=1200.1, step_size=153.8)
+        >>> type(linear_step_sweep)
+        <class 'pyaedt.modules.SetupTemplates.SweepHFSS'>
+
+        """
+        if sweep_type not in ["Discrete", "Interpolating", "Fast"]:
+            raise AttributeError("Invalid in `sweep_type`. It has to either 'Discrete', 'Interpolating', or 'Fast'")
+        if sweepname is None:
+            sweepname = generate_unique_name("Sweep")
+
+        if setupname not in self.setup_names:
+            return False
+        for s in self.setups:
+            if s.name == setupname:
+                setupdata = s
+                if sweepname in [sweep.name for sweep in setupdata.sweeps]:
+                    oldname = sweepname
+                    sweepname = generate_unique_name(oldname)
+                    self.logger.warning(
+                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname)
+                sweepdata = setupdata.add_sweep(sweepname, sweep_type)
+                if not sweepdata:
+                    return False
+                sweepdata.props["RangeType"] = "LinearStep"
+                sweepdata.props["RangeStart"] = str(freqstart) + unit
+                sweepdata.props["RangeEnd"] = str(freqstop) + unit
+                sweepdata.props["RangeStep"] = str(step_size) + unit
+                sweepdata.props["SaveFields"] = save_fields
+                sweepdata.props["SaveRadFields"] = save_rad_fields
+                sweepdata.props["ExtrapToDC"] = False
+                sweepdata.props["Type"] = sweep_type
+                if sweep_type == "Interpolating":
+                    sweepdata.props["InterpTolerance"] = 0.5
+                    sweepdata.props["InterpMaxSolns"] = 250
+                    sweepdata.props["InterpMinSolns"] = 0
+                    sweepdata.props["InterpMinSubranges"] = 1
+                sweepdata.update()
+                self.logger.info("Linear step sweep {} has been correctly created".format(sweepname))
+                return sweepdata
+        return False
+
+    @aedt_exception_handler
+    def create_single_point_sweep(
+        self,
+        setupname,
+        unit,
+        freq,
+        sweepname=None,
+        save_single_field=True,
+        save_fields=False,
+        save_rad_fields=False,
+    ):
+        """Create a Sweep with a single frequency point.
+
+        Parameters
+        ----------
+        setupname : str
+            Name of the setup.
+        unit : str
+            Unit of the frequency. For example, ``"MHz`` or ``"GHz"``.
+        freq : float, list
+            Frequency of the single point or list of frequencies to create distinct single points.
+        sweepname : str, optional
+            Name of the sweep. The default is ``None``.
+        save_single_field : bool, list, optional
+            Whether to save the fields of the single point. The default is ``True``.
+            If a list is specified, the length must be the same as freq length.
+        save_fields : bool, optional
+            Whether to save the fields for all points and subranges defined in the sweep. The default is ``False``.
+        save_rad_fields : bool, optional
+            Whether to save only the radiating fields. The default is ``False``.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or bool
+            Sweep object if successful, ``False`` otherwise.
+
+        Examples
+        --------
+
+        Create a setup named ``"LinearStepSetup"`` and use it in a single point sweep
+        named ``"SinglePointSweep"``.
+
+        >>> setup = hfss.create_setup("LinearStepSetup")
+        >>> single_point_sweep = hfss.create_single_point_sweep(setupname="LinearStepSetup",
+        ...                                                   sweepname="SinglePointSweep",
+        ...                                                   unit="MHz", freq=1.1e3)
+        >>> type(single_point_sweep)
+        <class 'pyaedt.modules.SetupTemplates.SweepHFSS'>
+
+        """
+        if sweepname is None:
+            sweepname = generate_unique_name("SinglePoint")
+
+        if isinstance(save_single_field, list):
+            if not isinstance(freq, list) or len(save_single_field) != len(freq):
+                raise AttributeError("The length of save_single_field must be the same as freq length.")
+
+        add_subranges = False
+        if isinstance(freq, list):
+            if not freq:
+                raise AttributeError("Frequency list is empty! Specify at least one frequency point.")
+            freq0 = freq.pop(0)
+            if freq:
+                add_subranges = True
+        else:
+            freq0 = freq
+
+        if isinstance(save_single_field, list):
+            save0 = save_single_field.pop(0)
+        else:
+            save0 = save_single_field
+            if add_subranges:
+                save_single_field = [save0] * len(freq)
+
+        if setupname not in self.setup_names:
+            return False
+        for s in self.setups:
+            if s.name == setupname:
+                setupdata = s
+                if sweepname in [sweep.name for sweep in setupdata.sweeps]:
+                    oldname = sweepname
+                    sweepname = generate_unique_name(oldname)
+                    self.logger.warning(
+                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname)
+                sweepdata = setupdata.add_sweep(sweepname, "Discrete")
+                sweepdata.props["RangeType"] = "SinglePoints"
+                sweepdata.props["RangeStart"] = str(freq0) + unit
+                sweepdata.props["RangeEnd"] = str(freq0) + unit
+                sweepdata.props["SaveSingleField"] = save0
+                sweepdata.props["SaveFields"] = save_fields
+                sweepdata.props["SaveRadFields"] = save_rad_fields
+                sweepdata.props["SMatrixOnlySolveMode"] = "Auto"
+                if add_subranges:
+                    for f, s in zip(freq, save_single_field):
+                        sweepdata.add_subrange(rangetype="SinglePoints", start=f, unit=unit, save_single_fields=s)
+                sweepdata.update()
+                self.logger.info("Single point sweep {} has been correctly created".format(sweepname))
+                return sweepdata
+        return False

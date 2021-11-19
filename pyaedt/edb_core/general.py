@@ -21,12 +21,12 @@ logger = logging.getLogger(__name__)
 
 
 @aedt_exception_handler
-def convert_netdict_to_pydict(dict):
+def convert_netdict_to_pydict(dict_in):
     """Convert a net dictionary to a Python dictionary.
 
     Parameters
     ----------
-    dict : dict
+    dict_in : dict
         Net dictionary to convert.
 
     Returns
@@ -36,8 +36,8 @@ def convert_netdict_to_pydict(dict):
 
     """
     pydict = {}
-    for key in dict.Keys:
-        pydict[key] = dict[key]
+    for key in dict_in.Keys:
+        pydict[key] = dict_in[key]
     return pydict
 
 

@@ -22,7 +22,6 @@ class MatProperties(object):
     mappings to their internal XML names.
 
     Internal names are used in scripts, and XML names are used in the XML syntax.
-
     """
 
     aedtname = [
@@ -214,6 +213,12 @@ class MatProperty(object):
         The default is ``None``.
     thermalmodifier
         The default is ``None``.
+
+    Examples
+    --------
+    >>>from pyaedt import Hfss
+    >>>app = Hfss()
+    >>>matproperty = app.materials["copper"].conductivity
     """
     def __init__(self, material, name, val=None, thermalmodifier=None):
         self._material = material
@@ -741,6 +746,11 @@ class Material(CommonMaterial, object):
     props  :
         The default is ``None``.
 
+    Examples
+    --------
+    >>>from pyaedt import Hfss
+    >>>app = Hfss()
+    >>>material = app.materials["copper"]
     """
 
     def __init__(self, materiallib, name, props=None):

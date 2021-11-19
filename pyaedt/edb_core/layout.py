@@ -16,7 +16,14 @@ except ImportError:
 
 
 class EdbLayout(object):
-    """Manages EDB functionalities for layouts."""
+    """Manages EDB functionalities for layouts.
+
+    Examples
+    --------
+    >>> from pyaedt import Edb
+    >>> edbapp = Edb("myaedbfolder", edbversion="2021.2")
+    >>> edb_layout = edbapp.core_layout
+    """
 
     def __init__(self, p_edb):
         self._prims = []
