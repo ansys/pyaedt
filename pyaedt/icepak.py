@@ -1128,7 +1128,7 @@ class Icepak(FieldAnalysisIcepak):
         create_filtered_as_non_model : bool, optional
             Either to Import Filtered Components and set as Non-Model. Default ``False``.
         high_surface_thick : float or str optional
-            Height Surface Thickness. Default ``"0.07mm"``.
+            High Surface Thickness. Default ``"0.07mm"``.
         low_surface_thick : float or str optional
             Low Surface Thickness. Default ``"0.07mm"``.
         internal_thick : float or str optional
@@ -1144,7 +1144,7 @@ class Icepak(FieldAnalysisIcepak):
         trace_material : str, optional
             Trace Material Coverage. Default ``"Cu-Pure"``.
         substrate_material : str, optional
-            Trace Material Coverage. Default ``"FR-4"``.
+            Substrate Material Coverage. Default ``"FR-4"``.
         create_board : bool, optional
             Either to Create the Board or not. Default ``True``.
         model_board_as_rect : bool, optional

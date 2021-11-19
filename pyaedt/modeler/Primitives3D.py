@@ -108,7 +108,7 @@ class Primitives3D(Primitives, object):
         height : float
             Height of the cylinder.
         numSides : int, optional
-            Number of sides. The default is ``0``, shich is correct for
+            Number of sides. The default is ``0``, which is correct for
             a cylinder.
         name : str, optional
             Name of the cylinder. The default is ``None``, in which case
