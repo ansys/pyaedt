@@ -208,7 +208,6 @@ class TestClass:
         for i in range(len(content)):
             if "Info for Global after disabling the log file handler." in content[i]:
                 disablement_succeeded = False
-                break
         assert disablement_succeeded
 
         # Enable log on file.
@@ -222,8 +221,24 @@ class TestClass:
         for i in range(len(content)):
             if "Info for Global after disabling the log file handler." in content[i]:
                 enablement_succeeded = True
-                break
         assert enablement_succeeded
+
+    @pytest.mark.skipif(is_ironpython, reason="To be investigated on IronPython.")
+    def test_05_disable_stdout(self):
+        capture = CaptureStdOut()
+        with capture:
+            logger = AedtLogger(self.aedtapp._messenger, to_stdout=True)
+            logger.info("Info for Global")
+            logger.disable_stdout_log()
+            logger.info ("Info after disabling the stdout handler.")
+            logger.enable_stdout_log()
+            logger.info ("Info after re-enabling the stdout handler.")
+
+        assert "pyaedt info: Info for Global" in capture.content
+        assert "Info after disabling the stdout handler." not in capture.content
+        assert "Info after re-enabling the stdout handler." in capture.content
+
+
 
 class CaptureStdOut():
     """Capture standard output with a context manager."""
