@@ -30,7 +30,7 @@ class TestClass:
         # logger.warning("Global warning message for testing.")
         # logger.error("Global error message for testing.")
         # logger.info("Global critical message for testing.")
-    
+
         # # Project logger
         # logger.add_logger("Project")
         # logger.project.debug("Project debug message for testing.")
@@ -38,7 +38,7 @@ class TestClass:
         # logger.project.warning("Project warning message for testing.")
         # logger.project.error("Project error message for testing.")
         # logger.project.info("Project critical message for testing.")
-    
+
         # # Current active design logger
         # logger.add_logger("Design")
         # logger.design.debug("Design debug message for testing.")
@@ -46,10 +46,10 @@ class TestClass:
         # logger.design.warning("Design warning message for testing.")
         # logger.design.error("Design error message for testing.")
         # logger.design.info("Design critical message for testing.")
-    
+
         # global_messages = logger.get_messages().global_level
         # assert len(global_messages) >= 11
-    
+
         # pyaedt_version = False
         # python_version = False
         # project = False
@@ -62,7 +62,7 @@ class TestClass:
         #         continue
         #     if '[info] Project' in message:
         #         project = True
-    
+
         # print("#######")
         # print("Global")
         # print(global_messages)
@@ -71,7 +71,7 @@ class TestClass:
         # assert '[warning] Global warning message for testing.' in global_messages
         # assert '[error] Global error message for testing.' in global_messages
         # assert '[info] Global critical message for testing.' in global_messages
-    
+
         # design_messages = logger.get_messages().design_level
         # assert len(design_messages) >= 6
         # assert '[info] Successfully loaded project materials !' in design_messages[0]
@@ -80,7 +80,7 @@ class TestClass:
         # assert '[warning] Design warning message for testing.' in design_messages[3]
         # assert '[error] Design error message for testing.' in design_messages[4]
         # assert '[info] Design critical message for testing.' in design_messages[5]
-    
+
         # project_messages = logger.get_messages().project_level
         # assert len(project_messages) >= 5
         # assert '[info] Project debug message for testing.' in project_messages[0]
@@ -88,7 +88,7 @@ class TestClass:
         # assert '[warning] Project warning message for testing.' in project_messages[2]
         # assert '[error] Project error message for testing.' in project_messages[3]
         # assert '[info] Project critical message for testing.' in project_messages[4]
-    
+
         # logger.clear_messages("", "", 2)
         # assert not logger.get_messages().global_level
 
@@ -164,7 +164,6 @@ class TestClass:
         # for handler in design_logger.handlers:
         #     handler.close()
 
-
     def test_04_disable_output_file_handler(self):
         content = None
         temp_dir = tempfile.gettempdir()
@@ -194,7 +193,7 @@ class TestClass:
         assert ":Global:INFO    :Info for Global" in content[0]
         assert ":INFO    :Info for Project before disabling the log file handler." in content[1]
         assert ":INFO    :Info for Design before disabling the log file handler." in content[2]
-        
+
         # Disable log on file.
         logger.disable_log_on_file()
         logger.info("Info for Global after disabling the log file handler.")
@@ -237,7 +236,6 @@ class TestClass:
         assert "pyaedt info: Info for Global" in capture.content
         assert "Info after disabling the stdout handler." not in capture.content
         assert "Info after re-enabling the stdout handler." in capture.content
-
 
 
 class CaptureStdOut():
