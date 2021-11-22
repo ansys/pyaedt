@@ -222,7 +222,6 @@ class TestClass:
                 enablement_succeeded = True
         assert enablement_succeeded
 
-    @pytest.mark.skipif(is_ironpython, reason="To be investigated on IronPython.")
     def test_05_disable_stdout(self):
         capture = CaptureStdOut()
         with capture:
