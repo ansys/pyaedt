@@ -218,7 +218,7 @@ class TestClass:
 
         enablement_succeeded = False
         for i in range(len(content)):
-            if "Info for Global after disabling the log file handler." in content[i]:
+            if "Info for Global after re-enabling the log file handler." in content[i]:
                 enablement_succeeded = True
         assert enablement_succeeded
 
