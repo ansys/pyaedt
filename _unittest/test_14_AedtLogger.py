@@ -249,6 +249,7 @@ class CaptureStdOut():
         sys.stdout = self._stream
 
     def __exit__(self, type, value, traceback):
+        self._stream.close()
         sys.stdout = sys.__stdout__
 
     @property
