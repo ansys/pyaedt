@@ -223,8 +223,9 @@ class TestClass:
         assert enablement_succeeded
 
     def test_05_disable_stdout(self):
-        # capture = CaptureStdOut()
-        # with capture:
+        capture = CaptureStdOut()
+        with capture:
+            print('foo')
         logger = AedtLogger(self.aedtapp._messenger, to_stdout=True)
         logger.info("Info for Global")
         logger.disable_stdout_log()
