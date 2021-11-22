@@ -1152,6 +1152,7 @@ class Design(object):
         if not file_path:
             file_path = os.path.join(self.project_path, generate_unique_name("Profile")+".prop")
         self.odesign.ExportProfile(setup_name, variation_string, file_path)
+        self.logger.info("Export Profile to  %s", file_path)
         return file_path
 
     @aedt_exception_handler
