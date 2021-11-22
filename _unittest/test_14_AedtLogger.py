@@ -144,7 +144,7 @@ class TestClass:
         # if len(self.aedtapp.logger.design.handlers) > 0:
         #     self.aedtapp.logger.design.handlers.pop()
 
-    @pytest.mark.skipif(is_ironpython, reason="To be investigated on IronPython.")
+    @pytest.mark.skipif(is_ironpython, reason="stdout redirection does not work in IronPython.")
     def test_03_stdout_with_app_filter(self):
         capture = CaptureStdOut()
         with capture:
@@ -156,13 +156,6 @@ class TestClass:
         assert "pyaedt info: Info for Global" in capture.content
         assert "pyaedt warning: Warning for Global" in capture.content
         assert "pyaedt error: Error for Global" in capture.content
-
-        # for handler in logger.handlers:
-        #     handler.close()
-        # for handler in project_logger.handlers:
-        #     handler.close()
-        # for handler in design_logger.handlers:
-        #     handler.close()
 
     def test_04_disable_output_file_handler(self):
         content = None
@@ -222,22 +215,20 @@ class TestClass:
                 enablement_succeeded = True
         assert enablement_succeeded
 
+    @pytest.mark.skipif(is_ironpython, reason="stdout redirection does not work in IronPython.")
     def test_05_disable_stdout(self):
         capture = CaptureStdOut()
         with capture:
-            print('foo')
-        capture.release()
-        logger = AedtLogger(self.aedtapp._messenger, to_stdout=True)
-        logger.info("Info for Global")
-        logger.disable_stdout_log()
-        logger.info ("Info after disabling the stdout handler.")
-        logger.enable_stdout_log()
-        logger.info ("Info after re-enabling the stdout handler.")
-        test = True
-        assert test
-        # assert "pyaedt info: Info for Global" in capture.content
-        # assert "Info after disabling the stdout handler." not in capture.content
-        # assert "Info after re-enabling the stdout handler." in capture.content
+            logger = AedtLogger(self.aedtapp._messenger, to_stdout=True)
+            logger.info("Info for Global")
+            logger.disable_stdout_log()
+            logger.info ("Info after disabling the stdout handler.")
+            logger.enable_stdout_log()
+            logger.info ("Info after re-enabling the stdout handler.")
+
+        assert "pyaedt info: Info for Global" in capture.content
+        assert "Info after disabling the stdout handler." not in capture.content
+        assert "Info after re-enabling the stdout handler." in capture.content
 
 
 class CaptureStdOut():
@@ -251,7 +242,7 @@ class CaptureStdOut():
 
     def __exit__(self, type, value, traceback):
         sys.stdout = sys.__stdout__
-    
+
     def release(self):
         self._stream.close()
 
