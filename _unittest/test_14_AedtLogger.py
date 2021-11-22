@@ -226,6 +226,7 @@ class TestClass:
         capture = CaptureStdOut()
         with capture:
             print('foo')
+        capture.release()
         logger = AedtLogger(self.aedtapp._messenger, to_stdout=True)
         logger.info("Info for Global")
         logger.disable_stdout_log()
@@ -249,8 +250,10 @@ class CaptureStdOut():
         sys.stdout = self._stream
 
     def __exit__(self, type, value, traceback):
-        self._stream.close()
         sys.stdout = sys.__stdout__
+    
+    def release(self):
+        self._stream.close()
 
     @property
     def content(self):
