@@ -510,3 +510,6 @@ class TestClass:
 
     def test_66_create_solder_ball_on_component(self):
         assert self.edbapp.core_components.set_solder_ball("U1A1")
+
+    def test_67_flip_layer_stackup(self):
+        assert self.edbapp.core_stackup.flip_stackup()

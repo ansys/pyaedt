@@ -7,6 +7,7 @@ from __future__ import absolute_import
 import warnings
 
 from pyaedt.edb_core.EDB_Data import EDBLayers
+import pyaedt.edb_core.general as general
 from pyaedt.generic.general_methods import aedt_exception_handler, is_ironpython
 
 try:
@@ -212,6 +213,47 @@ class EdbStackup(object):
         return self._add_dielectric_material_model(name, material_def)
 
     @aedt_exception_handler
+    def flip_stackup(self):
+        """Flip the current layer stackup of a layout.
+        Parameters
+        ----------
+        Returns
+        -------
+        type bool
+            True when layer stackup update success False if not.
+        """
+        lc = self._active_layout.GetLayerCollection()
+        new_lc = self._edb.Cell.LayerCollection()
+        max_elevation = 0.0
+        for lyr in lc.Layers(self._edb.Cell.LayerTypeSet.StackupLayerSet):
+            if not 'RadBox' in lyr.GetName():  # Ignore RadBox
+                lower_elevation = lyr.GetLowerElevation() * 1.0e6
+                upper_elevation = lyr.GetUpperElevation() * 1.0e6
+                max_elevation = max([max_elevation, lower_elevation, upper_elevation])
+
+        non_stackup_layers = []
+        for lyr in lc.Layers(self._edb.Cell.LayerTypeSet.AllLayerSet):
+            cloned_layer = lyr.Clone()
+            if not cloned_layer.IsStackupLayer():
+                non_stackup_layers.append(cloned_layer)
+                continue
+
+            if not 'RadBox' in lyr.GetName():
+                upper_elevation = lyr.GetUpperElevation() * 1.0e6
+                updated_lower_el = max_elevation - upper_elevation
+                val = self._edb_value("{}um".format(updated_lower_el))
+                cloned_layer.SetLowerElevation(val)
+                new_lc.AddStackupLayerAtElevation(cloned_layer)
+
+        layer_list = general.convert_py_list_to_net_list(non_stackup_layers)
+        new_lc.AddLayers(layer_list)
+        if self._active_layout.SetLayerCollection(new_lc):
+           return True
+
+        else:
+            return False
+
+    @aedt_exception_handler
     def create_djordjevicsarkar_material(self, name, relative_permittivity, loss_tangent, test_frequency):
         """Create a Djordjevic_Sarkar dielectric.
 
@@ -278,3 +320,8 @@ class EdbStackup(object):
             )
         h_stackup = abs(float(topz) - float(bottomz))
         return topl.GetName(), topz, bottoml.GetName(), bottomz
+
+
+
+
+
