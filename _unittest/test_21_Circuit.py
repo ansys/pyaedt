@@ -208,9 +208,10 @@ class TestClass:
     @pytest.mark.skipif(os.name == "posix", reason="To be investigated on linux.")
     def test_18_export_touchstone(self):
         assert self.aedtapp.analyze_nominal()
+        time.sleep(30)
         assert self.aedtapp.export_touchstone("Dom_LNA", "Dom_LNA", os.path.join(self.local_scratch.path, "new.s2p"))
 
-    def test_18B_create_sweeps(self):
+    def test_19A_create_sweeps(self):
         setup_name = "Sweep_LNA"
         LNA_setup = self.aedtapp.create_setup(setup_name)
         LNA_setup.add_sweep_step("Freq", 1, 2, 0.01, "GHz", override_existing_sweep=True)
@@ -223,7 +224,7 @@ class TestClass:
         assert LNA_setup.props["SweepDefinition"][1]["Variable"] == "Temp"
         assert LNA_setup.props["SweepDefinition"][1]["Data"] == "DEC 20cel 100cel 81"
 
-    def test_19_create_EyE_setups(self):
+    def test_19B_create_EyE_setups(self):
         setup_name = "Dom_Verify"
         assert self.aedtapp.create_setup(setup_name, "NexximVerifEye")
         setup_name = "Dom_Quick"
