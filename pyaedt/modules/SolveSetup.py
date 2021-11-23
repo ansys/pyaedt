@@ -621,7 +621,7 @@ class SetupCircuit(object):
         return True
 
     @aedt_exception_handler
-    def add_sweep_points(self, sweep_variable="Freq",sweep_points=1,  units="GHz", override_existing_sweep=True):
+    def add_sweep_points(self, sweep_variable="Freq", sweep_points=1, units="GHz", override_existing_sweep=True):
         """Add a linear count sweep to existing Circuit Setup.
 
         Parameters
@@ -636,7 +636,7 @@ class SetupCircuit(object):
         units : str, optional
             Sweeps Units. It will be ignored if strings are provided as start_point or end_point
         override_existing_sweep : bool, optional
-            Define if existing sweep on the same variable has to be overriden or kept and added to this new sweep.
+            Define if existing sweep on the same variable has to be overridden or kept and added to this new sweep.
 
         Returns
         -------
@@ -675,7 +675,7 @@ class SetupCircuit(object):
         count_type : str, optional
             Count Type. Default is ``"Linear"``. It can be also ``"Decade"`` or ``"Octave"``.
         override_existing_sweep : bool, optional
-            Define if existing sweep on the same variable has to be overriden or kept and added to this new sweep.
+            Define if existing sweep on the same variable has to be overridden or kept and added to this new sweep.
 
         Returns
         -------
@@ -712,7 +712,7 @@ class SetupCircuit(object):
         units : str, optional
             Sweeps Units. It will be ignored if strings are provided as start_point or end_point
         override_existing_sweep : bool, optional
-            Define if existing sweep on the same variable has to be overriden or kept and added to this new sweep.
+            Define if existing sweep on the same variable has to be overridden or kept and added to this new sweep.
 
         Returns
         -------
@@ -746,7 +746,7 @@ class SetupCircuit(object):
             return self.update()
         if isinstance(self.props["SweepDefinition"], (OrderedDict, dict)):
             self.props["SweepDefinition"] = [self.props["SweepDefinition"]]
-        prop = OrderedDict({"Variable": sweep_variable, "Data": equation, "OffsetF1": False, "Synchronize":0})
+        prop = OrderedDict({"Variable": sweep_variable, "Data": equation, "OffsetF1": False, "Synchronize": 0})
         self.props["SweepDefinition"].append(prop)
         return self.update()
 
