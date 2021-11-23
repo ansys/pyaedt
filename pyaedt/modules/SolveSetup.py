@@ -621,6 +621,136 @@ class SetupCircuit(object):
         return True
 
     @aedt_exception_handler
+    def add_sweep_points(self, sweep_variable="Freq",sweep_points=1,  units="GHz", override_existing_sweep=True):
+        """Add a linear count sweep to existing Circuit Setup.
+
+        Parameters
+        ----------
+        sweep_variable : str, optional
+            Variable to which the sweep belongs. Default is ``"Freq``.
+        sweep_points : float or str or list, optional
+            Sweep points to apply linear sweep. It can be a list or single points.
+             Points can be float or str. If ``str`` then no units will be applied.
+        end_point float or str, optional
+            End Point of Linear Count sweep. If ``str`` then no units will be applied.
+        units : str, optional
+            Sweeps Units. It will be ignored if strings are provided as start_point or end_point
+        override_existing_sweep : bool, optional
+            Define if existing sweep on the same variable has to be overriden or kept and added to this new sweep.
+
+        Returns
+        -------
+        bool
+            ``True`` is succeeded.
+        """
+        if isinstance(sweep_points, (int, float)):
+            sweep_points = [sweep_points]
+        sweeps = []
+        for el in sweep_points:
+
+            if isinstance(el, (int, float)):
+                sweeps.append(str(el)+units)
+            else:
+                sweeps.append(el)
+        lin_data = " ".join(sweeps)
+        return self._add_sweep(sweep_variable, lin_data, override_existing_sweep)
+
+    @aedt_exception_handler
+    def add_sweep_count(self, sweep_variable="Freq", start_point=1, end_point=100, count=100, units="GHz",
+                        count_type="Linear", override_existing_sweep=True):
+        """Add a step sweep to existing Circuit Setup. It can be ``"Linear"``, ``"Decade"`` or ``"Octave"``.
+
+        Parameters
+        ----------
+        sweep_variable : str, optional
+            Variable to which the sweep belongs. Default is ``"Freq``.
+        start_point : float or str, optional
+            Start Point of Linear Count sweep. If ``str`` then no units will be applied.
+        end_point : float or str, optional
+            End Point of Linear Count sweep. If ``str`` then no units will be applied.
+        count :  int, optional
+            Number of points. Default is ``100``.
+        units : str, optional
+            Sweeps Units. It will be ignored if strings are provided as start_point or end_point.
+        count_type : str, optional
+            Count Type. Default is ``"Linear"``. It can be also ``"Decade"`` or ``"Octave"``.
+        override_existing_sweep : bool, optional
+            Define if existing sweep on the same variable has to be overriden or kept and added to this new sweep.
+
+        Returns
+        -------
+        bool
+            ``True`` is succeeded.
+        """
+        if isinstance(start_point, (int, float)):
+            start_point = str(start_point)+units
+        if isinstance(end_point, (int, float)):
+            end_point = str(end_point)+units
+        lin_in = "LINC"
+        if count_type.lower() == "decade":
+            lin_in = "DEC"
+        elif count_type.lower() == "octave":
+            lin_in = "OCT"
+        lin_data = "{} {} {} {}".format(lin_in, start_point, end_point, count)
+        return self._add_sweep(sweep_variable, lin_data, override_existing_sweep)
+
+    @aedt_exception_handler
+    def add_sweep_step(self, sweep_variable="Freq", start_point=1, end_point=100, step_size=1, units="GHz",
+                       override_existing_sweep=True):
+        """Add a linear count sweep to existing Circuit Setup.
+
+        Parameters
+        ----------
+        sweep_variable : str, optional
+            Variable to which the sweep belongs. Default is ``"Freq``.
+        start_point : float or str, optional
+            Start Point of Linear Count sweep. If ``str`` then no units will be applied.
+        end_point : float or str, optional
+            End Point of Linear Count sweep. If ``str`` then no units will be applied.
+        step_size :  float or str, optional
+            Step Size of sweep. If ``str`` then no units will be applied.
+        units : str, optional
+            Sweeps Units. It will be ignored if strings are provided as start_point or end_point
+        override_existing_sweep : bool, optional
+            Define if existing sweep on the same variable has to be overriden or kept and added to this new sweep.
+
+        Returns
+        -------
+        bool
+            ``True`` is succeeded.
+        """
+        if isinstance(start_point, (int, float)):
+            start_point = str(start_point)+units
+        if isinstance(end_point, (int, float)):
+            end_point = str(end_point)+units
+        if isinstance(step_size, (int, float)):
+            step_size = str(step_size) + units
+        linc_data = "LIN {} {} {}".format(start_point, end_point, step_size)
+        return self._add_sweep(sweep_variable, linc_data, override_existing_sweep)
+
+    @aedt_exception_handler
+    def _add_sweep(self, sweep_variable, equation, override_existing_sweep):
+        if isinstance(self.props["SweepDefinition"], list):
+            for sw in self.props["SweepDefinition"]:
+                if sw["Variable"] == sweep_variable:
+                    if override_existing_sweep:
+                        sw["Data"] = equation
+                    else:
+                        sw["Data"] += " " + equation
+                    return self.update()
+        elif self.props["SweepDefinition"]["Variable"] == sweep_variable:
+            if override_existing_sweep:
+                self.props["SweepDefinition"]["Data"] = equation
+            else:
+                self.props["SweepDefinition"]["Data"] += " " + equation
+            return self.update()
+        if isinstance(self.props["SweepDefinition"], (OrderedDict, dict)):
+            self.props["SweepDefinition"] = [self.props["SweepDefinition"]]
+        prop = OrderedDict({"Variable": sweep_variable, "Data": equation, "OffsetF1": False, "Synchronize":0})
+        self.props["SweepDefinition"].append(prop)
+        return self.update()
+
+    @aedt_exception_handler
     def _expression_cache(
         self,
         expression_list,

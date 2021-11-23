@@ -205,10 +205,24 @@ class TestClass:
         ]
         assert LNA_setup.update()
 
+
     @pytest.mark.skipif(os.name == "posix", reason="To be investigated on linux.")
     def test_18_export_touchstone(self):
         assert self.aedtapp.analyze_nominal()
         assert self.aedtapp.export_touchstone("Dom_LNA", "Dom_LNA", os.path.join(self.local_scratch.path, "new.s2p"))
+
+    def test_18B_create_sweeps(self):
+        setup_name = "Sweep_LNA"
+        LNA_setup = self.aedtapp.create_setup(setup_name)
+        LNA_setup.add_sweep_step("Freq", 1, 2, 0.01, "GHz", override_existing_sweep=True)
+        assert LNA_setup.props["SweepDefinition"]["Data"] == "LIN 1GHz 2GHz 0.01GHz"
+        LNA_setup.add_sweep_points("Freq", [11, 12, 13.4], "GHz", override_existing_sweep=False)
+        assert "13.4GHz" in LNA_setup.props["SweepDefinition"]["Data"]
+        assert "LIN 1GHz 2GHz 0.01GHz" in LNA_setup.props["SweepDefinition"]["Data"]
+        LNA_setup.add_sweep_count("Temp", 20, 100, 81, "cel", count_type="Decade", override_existing_sweep=True)
+        assert isinstance(LNA_setup.props["SweepDefinition"], list)
+        assert LNA_setup.props["SweepDefinition"][1]["Variable"] == "Temp"
+        assert LNA_setup.props["SweepDefinition"][1]["Data"] == "DEC 20cel 100cel 81"
 
     def test_19_create_EyE_setups(self):
         setup_name = "Dom_Verify"
