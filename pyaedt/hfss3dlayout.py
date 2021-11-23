@@ -1066,4 +1066,3 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         arg.append(renorm_impedance)
         self.odesign.EditCoSimulationOptions(arg)
         return True
-

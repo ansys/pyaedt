@@ -551,7 +551,6 @@ class Analysis(Design, object):
                                 self.logger.info("Export SnP Failed: No Solution")
         return exported_files
 
-
     @aedt_exception_handler
     def export_convergence(self, setup_name, variation_string="", file_path=None):
         """Export a solution convergence to file.
