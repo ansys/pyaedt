@@ -247,12 +247,6 @@ class TestClass:
         # assert stream_content[0] == "Info for Global"
         # assert stream_content[1] == "Info after re-enabling the stdout handler."
 
-def print_to_real_stdout(value: str) -> None:
-    #sys.__stdout__.write(value)
-    f = open("c:\demofile2.txt", "a")
-    f.write(value)
-    f.close()
-
 
 class CaptureStdOut():
     """Capture standard output with a context manager."""
