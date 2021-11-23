@@ -3,9 +3,9 @@ import tempfile
 import os
 import io
 import sys
-import unittest.mock
 try:
     import pytest
+    import unittest.mock
 except ImportError:
     import _unittest_ironpython.conf_unittest as pytest
 
