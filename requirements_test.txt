@@ -4,4 +4,3 @@ numpy
 pytest
 pytest-cov
 codecov
-unittest
