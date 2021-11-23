@@ -218,38 +218,34 @@ class TestClass:
 
     @pytest.mark.skipif(is_ironpython, reason="stdout redirection does not work in IronPython.")
     def test_05_disable_stdout(self):
-        try:
-            tmp = tempfile.NamedTemporaryFile("w")
-            with open(tmp.name) as fp:
+        with tempfile.TemporaryFile("w+") as fp:
 
-                stream = unittest.mock.MagicMock()
-                stream.write = unittest.mock.MagicMock()
+            stream = unittest.mock.MagicMock()
+            stream.write = unittest.mock.MagicMock()
 
-                stream.write.side_effect = fp.write
-                sys.stdout = stream
+            stream.write.side_effect = fp.write
+            sys.stdout = stream
 
-                logger = AedtLogger(self.aedtapp._messenger, to_stdout=True)
-                logger.info("Info for Global")
-                logger.disable_stdout_log()
-                logger.info ("Info after disabling the stdout handler.")
-                logger.enable_stdout_log()
-                logger.info ("Info after re-enabling the stdout handler.")
+            logger = AedtLogger(self.aedtapp._messenger, to_stdout=True)
+            logger.info("Info for Global")
+            logger.disable_stdout_log()
+            logger.info ("Info after disabling the stdout handler.")
+            logger.enable_stdout_log()
+            logger.info ("Info after re-enabling the stdout handler.")
 
-                sys.stdout = sys.__stdout__
+            sys.stdout = sys.__stdout__
 
-                stream.write.assert_any_call("pyaedt info: Info for Global")
-                stream.write.assert_any_call("pyaedt info: Info after re-enabling the stdout handler.")
+            stream.write.assert_any_call("pyaedt info: Info for Global")
+            stream.write.assert_any_call("pyaedt info: Info after re-enabling the stdout handler.")
 
-                with pytest.raises(AssertionError) as e_info:
-                    stream.write.assert_any_call("pyaedt info: Info after disabling the stdout handler.")
+            with pytest.raises(AssertionError) as e_info:
+                stream.write.assert_any_call("pyaedt info: Info after disabling the stdout handler.")
 
-            with open(tmp.name) as fp:
-                stream_content = fp.readlines()
-        finally:
-            tmp.close()
+            fp.seek(0)
+            stream_content = fp.readlines()
 
-        assert stream_content[0] == "Info for Global"
-        assert stream_content[1] == "Info after re-enabling the stdout handler."
+        assert stream_content[0] == "pyaedt info: Info for Global\n"
+        assert stream_content[1] == "pyaedt info: Info after re-enabling the stdout handler.\n"
 
 
 class CaptureStdOut():
