@@ -1852,19 +1852,66 @@ class Padstack(object):
         """
         self.padstackmgr.Remove(self.name, True, "", "Project")
 
+class CircuitPins(object):
+    def __init__(self, circuit_comp, pinname):
+        self._circuit_comp = circuit_comp
+        self.name = pinname
+        self.m_Editor = circuit_comp.m_Editor
+
+    @property
+    def x_pos(self):
+        return _retry_ntimes(30, self.m_Editor.GetComponentPinLocation, self._circuit_comp.composed_name, self.name,
+                             True)
+
+    @property
+    def y_pos(self):
+        return _retry_ntimes(30, self.m_Editor.GetComponentPinLocation, self._circuit_comp.composed_name, self.name,
+                             False)
+
+    @aedt_exception_handler
+    def connect_to_component(self, component_pin):
+        """Connect schematic components.
+
+        Parameters
+        ----------
+        component_pin : :class:`pyaedt.modeler.PrimitivesNexxim.CircuitPins`
+           Component Pin to attach
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        pos1 = [self.x_pos, self.y_pos]
+        pos2 = [component_pin.x_pos, component_pin.y_pos]
+        return self._circuit_comp.create_wire([pos1, pos2])
+
+    @aedt_exception_handler
+    def create_wire(self, points_array):
+        """Create a wire.
+
+        Parameters
+        ----------
+        points_array : list
+            A nested list of point coordinates. For example,
+            ``[[x1, y1], [x2, y2], ...]``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        pointlist = [str(tuple(i)) for i in points_array]
+        self._oeditor.CreateWire(
+            ["NAME:WireData", "Name:=", "", "Id:=", random.randint(20000, 23000), "Points:=", pointlist],
+            ["NAME:Attributes", "Page:=", 1],
+        )
+        return True
 
 class CircuitComponent(object):
     """Manages circuit components.
-
-    Parameters
-    ----------
-    editor : optional
-
-    units, str, optional
-       The default is ``"mm"``.
-    tabname, str, optional
-       The default is ``"PassedParameterTab"``.
-
     """
 
     @property
@@ -1875,9 +1922,10 @@ class CircuitComponent(object):
         else:
             return self.name + ";" + str(self.schematic_id)
 
-    def __init__(self, editor=None, units="mm", tabname="PassedParameterTab"):
+    def __init__(self, circuit_components, units="mm", tabname="PassedParameterTab"):
         self.name = ""
-        self.m_Editor = editor
+        self._circuit_components = circuit_components
+        self.m_Editor = circuit_components._oeditor
         self.modelName = None
         self.status = "Active"
         self.component = None
@@ -1890,9 +1938,27 @@ class CircuitComponent(object):
         self.y_location = "0mil"
         self.mirror = False
         self.usesymbolcolor = True
-        self.units = "mm"
+        self.units = units
         self.tabname = tabname
         self.InstanceName = None
+        self._pins = None
+
+    @property
+    def pins(self):
+        """
+        Returns
+        -------
+        list of :class:`pyaedt.modeler.PrimitivesNexxim.CircuitPins`
+        """
+        if self._pins:
+            return self._pins
+        pins = _retry_ntimes(10, self.m_Editor.GetComponentPins, self.composed_name)
+        self._pins = []
+        if not pins:
+            return []
+        for pin in pins:
+            self._pins.append(CircuitPins(self, pin))
+        return self._pins
 
     @aedt_exception_handler
     def set_location(self, x_location=None, y_location=None):
