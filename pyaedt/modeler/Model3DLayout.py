@@ -21,6 +21,11 @@ class Modeler3DLayout(Modeler):
     app : :class:`pyaedt.application.Analysis3DLayout.FieldAnalysis3DLayout`
             Inherited parent object.
 
+    Examples
+    --------
+    >>> from pyaedt import Hfss3dLayout
+    >>> hfss = Hfss3dLayout()
+    >>> my_modeler = hfss.modeler
     """
 
     def __init__(self, app):

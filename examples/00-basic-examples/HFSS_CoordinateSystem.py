@@ -117,7 +117,7 @@ cs4 = hfss.modeler.create_coordinate_system(name="CS4", origin=[1, 0, 0], refere
 
 ###############################################################################
 # Create a Coordinate System by Defining the Axis and Angle Rotation
-# ----------------------------------------------------------------
+# -------------------------------------------------------------------
 # When the axis and angle rotation are specified, this data is automatically
 # translated to Euler angles.
 

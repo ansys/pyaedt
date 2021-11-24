@@ -20,7 +20,7 @@ try:
 except ImportError:
     warnings.warn("Pythonnet is needed to run pyaedt")
 from pyaedt.application.MessageManager import AEDTMessageManager
-from pyaedt.edb_core import Components, EdbNets, EdbPadstacks, EdbLayout, Edb3DLayout, EdbSiwave, EdbStackup
+from pyaedt.edb_core import Components, EdbNets, EdbPadstacks, EdbLayout, EdbHfss, EdbSiwave, EdbStackup
 from pyaedt.edb_core.EDB_Data import EdbBuilder
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import (
@@ -206,7 +206,7 @@ class Edb(object):
         self._stackup = EdbStackup(self)
         self._padstack = EdbPadstacks(self)
         self._siwave = EdbSiwave(self)
-        self._hfss = Edb3DLayout(self)
+        self._hfss = EdbHfss(self)
         self._nets = EdbNets(self)
         self._core_primitives = EdbLayout(self)
         self.logger.info("Objects Initialized")
@@ -480,9 +480,10 @@ class Edb(object):
     def export_to_ipc2581(self, ipc_path=None, units="millimeter"):
         """Create an XML IPC2581 File from active Edb.
 
-    .. note::
-       This Method is still under test and need further Debug. Any feedback is welcome. Actually, backdrills and
-       custom pads are not supported yet.
+        .. note::
+           This Method is still under test and need further Debug.
+           Any feedback is welcome. Actually, backdrills and
+           custom pads are not supported yet.
 
         Parameters
         ----------
@@ -578,7 +579,7 @@ class Edb(object):
     def core_hfss(self):
         """Core HFSS."""
         if not self._hfss and self.builder:
-            self._hfss = Edb3DLayout(self)
+            self._hfss = EdbHfss(self)
         return self._hfss
 
     @property

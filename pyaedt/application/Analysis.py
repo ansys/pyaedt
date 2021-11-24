@@ -959,7 +959,7 @@ class Analysis(Design, object):
         bool
            ``True`` when successful, ``False`` when failed.
         """
-
+        set_custom_dso = False
         active_config = self._desktop.GetRegistryString(r"Desktop/ActiveDSOConfigurations/"+self.design_type)
         if acf_file:
             self._desktop.SetRegistryFromFile(acf_file)
@@ -973,8 +973,9 @@ class Analysis(Design, object):
             if name:
                 try:
                     self.set_registry_key(r"Desktop/ActiveDSOConfigurations/"+self.design_type, name)
+                    set_custom_dso = True
                 except:
-                    self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
+                    pass
         elif num_gpu or num_tasks or num_cores:
             config_name = "pyaedt_config"
             source_name = os.path.join(self.pyaedt_dir, "misc", "pyaedt_local_config.acf")
@@ -991,15 +992,17 @@ class Analysis(Design, object):
             try:
                 self._desktop.SetRegistryFromFile(target_name)
                 self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, config_name)
+                set_custom_dso = True
             except:
-                self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
+                pass
 
         if name in self.existing_analysis_setups:
             try:
                 self.logger.info("Solving design setup %s", name)
                 self.odesign.Analyze(name)
             except:
-                self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
+                if set_custom_dso:
+                    self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
                 self.logger.error("Error in Solving Setup %s", name)
                 return False
         else:
@@ -1007,10 +1010,12 @@ class Analysis(Design, object):
                 self.logger.info("Solving Optimetrics")
                 self.ooptimetrics.SolveSetup(name)
             except:
-                self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
+                if set_custom_dso:
+                    self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
                 self.logger.error("Error in Solving or Missing Setup  %s", name)
                 return False
-        self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
+        if set_custom_dso:
+            self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
         self.logger.info("Design setup %s solved correctly", name)
         return True
 

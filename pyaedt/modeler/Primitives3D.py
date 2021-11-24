@@ -19,6 +19,13 @@ class Primitives3D(Primitives, object):
     modeler : str
         Name of the modeler.
 
+    Examples
+    --------
+    Basic usage demonstrated with an HFSS, Maxwell 3D, Icepak, Q3D, or Mechanical design:
+
+    >>> from pyaedt import Hfss
+    >>> aedtapp = Hfss()
+    >>> prim = aedtapp.modeler.primitives
     """
 
     def __init__(self, modeler):
@@ -101,7 +108,7 @@ class Primitives3D(Primitives, object):
         height : float
             Height of the cylinder.
         numSides : int, optional
-            Number of sides. The default is ``0``, shich is correct for
+            Number of sides. The default is ``0``, which is correct for
             a cylinder.
         name : str, optional
             Name of the cylinder. The default is ``None``, in which case

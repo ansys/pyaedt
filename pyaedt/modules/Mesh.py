@@ -713,17 +713,17 @@ class Mesh(object):
          Parameters
          ----------
          names : list
-             List of objects or faces.
+            List of objects or faces.
          disable_for_faceted_surf : bool, optional
-             Whether curvature extraction is enabled for faceted surfaces.
-             The default is ``True``.
+            Whether curvature extraction is enabled for faceted surfaces.
+            The default is ``True``.
          meshop_name : str, optional
-             Name of the mesh operation. The default is ``None``.
+            Name of the mesh operation. The default is ``None``.
 
          Returns
          -------
         :class:`pyaedt.modules.Mesh.MeshOperation`
-             Mesh operation object.
+            Mesh operation object.
 
         """
         names = self.modeler.convert_to_selections(names, True)

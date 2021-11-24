@@ -57,7 +57,6 @@ class Components(object):
     >>> from pyaedt import Edb
     >>> edbapp = Edb("myaedbfolder")
     >>> edbapp.core_components
-
     """
 
     def __init__(self, p_edb):
@@ -127,8 +126,8 @@ class Components(object):
 
         Returns
         -------
-        dict
-            Default dictionary for the EDB comopnent.
+        dict[str, :class:`pyaedt.edb_core.EDB_Data.EDBComponent`]
+            Default dictionary for the EDB component.
 
         Examples
         --------
@@ -145,12 +144,6 @@ class Components(object):
     @aedt_exception_handler
     def refresh_components(self):
         """Refresh the component dictionary.
-
-        Returns
-        -------
-
-            Default dictionary for the EDB component.
-
         """
         self._cmp = {}
         self._logger.info("Refreshing the Components dictionary.")
@@ -165,7 +158,7 @@ class Components(object):
 
         Returns
         -------
-        dict
+        dict[str, :class:`pyaedt.edb_core.EDB_Data.EDBComponent`]
             Dictionary of resistors.
 
         Examples
@@ -187,7 +180,7 @@ class Components(object):
 
         Returns
         -------
-        dict
+        dict[str, :class:`pyaedt.edb_core.EDB_Data.EDBComponent`]
             Dictionary of capacitors.
 
         Examples
@@ -209,7 +202,7 @@ class Components(object):
 
         Returns
         -------
-        dict
+        dict[str, :class:`pyaedt.edb_core.EDB_Data.EDBComponent`]
             Dictionary of inductors.
 
         Examples
@@ -232,7 +225,7 @@ class Components(object):
 
         Returns
         -------
-        dict
+        dict[str, :class:`pyaedt.edb_core.EDB_Data.EDBComponent`]
             Dictionary of integrated circuits.
 
         Examples
@@ -255,7 +248,7 @@ class Components(object):
 
         Returns
         -------
-        dict
+        dict[str, :class:`pyaedt.edb_core.EDB_Data.EDBComponent`]
             Dictionary of circuit inputs and outputs.
 
         Examples
@@ -281,7 +274,7 @@ class Components(object):
 
         Returns
         -------
-        dict
+        dict[str, :class:`pyaedt.edb_core.EDB_Data.EDBComponent`]
             Dictionary of other core components.
 
         Examples

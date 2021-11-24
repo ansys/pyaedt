@@ -47,6 +47,26 @@ class Maxwell(object):
         return design_file
 
     @aedt_exception_handler
+    def change_inductance_computation(self, compute_transient_inductance=True, incremental_matrix=False):
+        """Enable the inductance computation (for Transient Analysis) and sets the incremental_matrix.
+
+        Parameters
+        ----------
+        compute_transient_inductance : bool
+            Enable or disable the Inductance Calculation for Transient Analysis.
+        incremental_matrix : bool
+            Set the Inductance Calculation to Incremental if ``True``.
+
+        Returns
+        -------
+        bool
+        """
+        self.odesign.SetDesignSettings(
+            ["NAME:Design Settings Data", "ComputeTransientInductance:=", compute_transient_inductance,
+             "ComputeIncrementalMatrix:=", incremental_matrix])
+        return True
+
+    @aedt_exception_handler
     def setup_ctrlprog(
         self, setupname, file_str=None, keep_modifications=False, python_interpreter=None, aedt_lib_dir=None
     ):
@@ -1207,7 +1227,7 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
 
             props2 = OrderedDict({"Edges": slave_edge, "ReverseU": reverse_slave, "Independent": bound_name_m,
                                   "SameAsMaster": same_as_master})
-            bound2 = BoundaryObject(self, bound_name_s, props2, "Independent")
+            bound2 = BoundaryObject(self, bound_name_s, props2, "Dependent")
             if bound2.create():
                 self.boundaries.append(bound2)
                 return bound, bound2

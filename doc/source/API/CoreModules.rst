@@ -1,62 +1,33 @@
-Application Modules
-===================
+AEDT Modules
+============
 This section lists the core PyAEDT application modules:
 
-* EDB
 * Design
 * Variable
 * DesignXPloration
 
 
 
-
-EDB
-~~~
-This module contains all EDB functionalities for reading and writing
-information to AEDB files.
-
-.. currentmodule:: pyaedt.edb_core
-
-.. autosummary::
-   :toctree: _autosummary
-   :template: custom-class-template.rst
-   :nosignatures:
-
-   components.Components
-   hfss.Edb3DLayout
-   siwave.EdbSiwave
-   nets.EdbNets
-   padstack.EdbPadstacks
-   layout.EdbLayout
-   stackup.EdbStackup
-   EDB_Data.EDBLayer
-   EDB_Data.EDBLayers
-   EDB_Data.EDBPadProperties
-   EDB_Data.EDBPadstack
-   EDB_Data.EDBPinInstances
-   EDB_Data.EDBComponent
-   siwave.SiwaveDCSetupTemplate
-
-
-Design
-~~~~~~
-This module contains all properties and methods applicable to projects
-and designs.
-
-.. currentmodule:: pyaedt.application.Design
-
-.. autosummary::
-   :toctree: _autosummary
-   :template: custom-class-template.rst
-   :nosignatures:
-
-   DesignCache
-
-
 Variable
 ~~~~~~~~
 This module provides all functionalities for creating and editing
 design and project variables in the 3D tools.
+
+.. code:: python
+
+    from pyaedt import Hfss
+    app = Hfss(specified_version="2021.1",
+                 non_graphical=False, new_desktop_session=True,
+                 close_on_exit=True, student_version=False)
+
+    # this call return the VariableManager Class
+    variable_manager = self.aedtapp._variable_manager
+
+    # Set and Get a variable
+    app["w"] = "10mm"
+    a = app["w"]
+    ...
+
 
 .. currentmodule:: pyaedt.application.Variables
 
@@ -76,6 +47,36 @@ DesignXploration
 This module contains all properties and methods needed to create
 optimetrics setups.
 
+.. code:: python
+
+    from pyaedt import Hfss
+    app = Hfss(specified_version="2021.1",
+                 non_graphical=False, new_desktop_session=True,
+                 close_on_exit=True, student_version=False)
+
+    # returns the ParametericsSetups Class
+    app.opti_parametric
+
+    # returns the OptimizationSetups Class
+    app.opti_optimization
+
+    # returns the DOESetups Class
+    app.opti_doe
+
+    # returns the DXSetups Class
+    app.opti_designxplorer
+
+    # returns the SensitivitySetups Class
+    app.opti_sensitivity
+
+    # returns the StatisticalSetups Class
+    app.opti_statistical
+
+    # adds an optimization and returns Setup class with all settings and methods
+    sweep3 = hfss.opti_optimization.add_optimization(calculation="dB(S(1,1))", calculation_value="2.5GHz")
+
+    ...
+
 .. currentmodule:: pyaedt.modules.DesignXPloration
 
 .. autosummary::
@@ -83,10 +84,25 @@ optimetrics setups.
    :template: custom-class-template.rst
    :nosignatures:
 
-   CommonOptimetrics
    DXSetups
    ParametericsSetups
    SensitivitySetups
    StatisticalSetups
    DOESetups
    OptimizationSetups
+
+
+
+Design Cache
+~~~~~~~~~~~~
+This module contains all properties and methods applicable to projects
+and designs.
+
+.. currentmodule:: pyaedt.application.Design
+
+.. autosummary::
+   :toctree: _autosummary
+   :template: custom-class-template.rst
+   :nosignatures:
+
+   DesignCache

@@ -3,6 +3,7 @@ from pyaedt.generic.general_methods import aedt_exception_handler, _retry_ntimes
 from pyaedt.modules.LayerStackup import Layers
 from pyaedt.modeler.Modeler import Modeler
 from pyaedt.modeler.Primitives3DLayout import Primitives3DLayout
+from pyaedt.modeler.PrimitivesEmit import EmitComponents
 from pyaedt.modeler.PrimitivesNexxim import NexximComponents
 from pyaedt.modeler.PrimitivesSimplorer import SimplorerComponents
 
@@ -14,6 +15,11 @@ class ModelerCircuit(Modeler):
     ----------
     app : :class:`pyaedt.application.AnalysisNexxim.FieldAnalysisCircuit`
 
+    Examples
+    --------
+    >>> from pyaedt import Circuit
+    >>> app = Circuit()
+    >>> my_modeler = app.modeler
     """
 
     def __init__(self, app):
@@ -32,7 +38,7 @@ class ModelerCircuit(Modeler):
 
     @aedt_exception_handler
     def connect_schematic_components(self, firstcomponent, secondcomponent, pinnum_first=2, pinnum_second=1):
-        """Connect schematic components.Modd
+        """Connect schematic components.
 
         Parameters
         ----------
@@ -226,3 +232,4 @@ class ModelerEmit(ModelerCircuit):
     def __init__(self, app):
         self._app = app
         ModelerCircuit.__init__(self, app)
+        self.components = EmitComponents(app, self)

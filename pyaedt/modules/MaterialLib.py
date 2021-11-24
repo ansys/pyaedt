@@ -18,6 +18,11 @@ class Materials(object):
     app : :class:`pyaedt.application.Analysis3D.FieldAnalysis3D`
         Inherited parent object.
 
+    Examples
+    --------
+    >>>from pyaedt import Hfss
+    >>>app = Hfss()
+    >>>materials = app.materials
     """
     def __init__(self, app):
         self._app = app
@@ -434,7 +439,7 @@ class Materials(object):
     def _aedmattolibrary(self, matname):
         matname = matname.lower()
         props = {}
-        _arg2dict(list(_retry_ntimes(10, self.omaterial_manager.GetData, matname)), props)
+        _arg2dict(list(_retry_ntimes(20, self.omaterial_manager.GetData, matname)), props)
         values_view = props.values()
         value_iterator = iter(values_view)
         first_value = next(value_iterator)

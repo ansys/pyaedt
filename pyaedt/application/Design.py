@@ -9,7 +9,6 @@ from __future__ import absolute_import
 
 import os
 import re
-import csv
 import shutil
 import sys
 import json
@@ -26,7 +25,7 @@ from pyaedt.generic.constants import AEDT_UNITS, unit_system
 from pyaedt.desktop import Desktop
 from pyaedt.desktop import exception_to_desktop, release_desktop, get_version_env_variable
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
-from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.generic.general_methods import aedt_exception_handler, write_csv
 from pyaedt.generic.DataHandlers import variation_string_to_dict
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.generic.general_methods import generate_unique_name
@@ -2730,16 +2729,14 @@ class Design(object):
             varnames = self.oproject.GetProperties("ProjectVariableTab", "ProjectVariables")
         if export_design:
             desnames = self.odesign.GetProperties("LocalVariableTab", "LocalVariables")
-        with open(filename, "w") as csvfile:
-            filewriter = csv.writer(csvfile, delimiter=",", quotechar="|", quoting=csv.QUOTE_MINIMAL)
-            filewriter.writerow(["Name", "Value"])
-            for el in varnames:
-                value = self.oproject.GetVariableValue(el)
-                filewriter.writerow([el, value])
-            for el in desnames:
-                value = self.odesign.GetVariableValue(el)
-                filewriter.writerow([el, value])
-        return True
+        list_full = [["Name", "Value"]]
+        for el in varnames:
+            value = self.oproject.GetVariableValue(el)
+            list_full.append([el, value])
+        for el in desnames:
+            value = self.odesign.GetVariableValue(el)
+            list_full.append([el, value])
+        return write_csv(filename, list_full)
 
     @aedt_exception_handler
     def read_design_data(self):

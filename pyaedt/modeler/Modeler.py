@@ -557,6 +557,11 @@ class Modeler(object):
     app :
         Inherited parent object.
 
+    Examples
+    --------
+    >>> from pyaedt import Maxwell2d
+    >>> app = Maxwell2d()
+    >>> my_modeler = app.modeler
     """
 
     def __init__(self, app):
@@ -835,6 +840,22 @@ class GeometryModeler(Modeler, object):
             b_end = vertices[2]
             return False, (origin, a_end, b_end)
         return True, (origin, a_end, b_end)
+
+    @aedt_exception_handler
+    def cover_lines(self, selection):
+        """Cover a closed line and transform it to sheet.
+
+        Parameters
+        ----------
+        selection : str, int
+            Polyline object to cover.
+        Returns
+        -------
+        bool
+        """
+        obj_to_cover = self.convert_to_selections(selection, False)
+        self.oeditor.CoverLines(["NAME:Selections", "Selections:=", obj_to_cover, "NewPartsModelFlag:=", "Model"])
+        return True
 
     @aedt_exception_handler
     def create_coordinate_system(

@@ -17,7 +17,7 @@ from collections import OrderedDict
 
 from pyaedt.generic.constants import AEDT_UNITS, db10, db20
 from pyaedt.generic.filesystem import Scratch
-from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, _retry_ntimes
+from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, _retry_ntimes, write_csv
 
 report_type = {
     "DrivenModal": "Modal Solution Data",
@@ -480,6 +480,67 @@ class SolutionData(object):
             )
         return sol
 
+    @aedt_exception_handler
+    def is_real_only(self, expression=None):
+        """Check if the expression has only real values or not.
+
+        Parameters
+        ----------
+        expression : str, optional
+            Name of the expression. The default is ``None``,
+            in which case the first expression is used.
+
+        Returns
+        -------
+        bool
+            ``True`` if the Solution Data for specific expression contains only real values.
+        """
+        if not expression:
+            expression = self.expressions[0]
+        for e, v in self.solutions_data_imag[expression].items():
+            if float(v) != 0.0:
+                return False
+        return True
+
+    @aedt_exception_handler
+    def export_data_to_csv(self, output, delimiter=";"):
+        """Save to output csv file the Solution Data.
+
+        Parameters
+        ----------
+        output : str,
+            Full path to csv file.
+        delimiter : str,
+            CSV Delimiter. Default is ``";"``.
+
+        Returns
+        -------
+        bool
+        """
+        header = [el for el in reversed(self._sweeps_names)]
+        for el in self.expressions:
+            if not self.is_real_only(el):
+                header.append(el + " (Real)")
+                header.append(el + " (Imag)")
+            else:
+                header.append(el)
+
+        list_full = [header]
+        for e, v in self.solutions_data_real[self.expressions[0]].items():
+            list_full.append(list(e))
+        for el in self.expressions:
+            i = 1
+            for e, v in self.solutions_data_real[el].items():
+                list_full[i].extend([v])
+                i += 1
+            i = 1
+            if not self.is_real_only(el):
+                for e, v in self.solutions_data_imag[el].items():
+                    list_full[i].extend([v])
+                    i += 1
+
+        return write_csv(output, list_full, delimiter=delimiter)
+
 
 class FieldPlot:
     """Creates and edits field plots.
@@ -768,20 +829,21 @@ class FieldPlot:
 
     @aedt_exception_handler
     def export_image(self, full_path=None, width=1920, height=1080, orientation="isometric", display_wireframe=True):
-        """Save an image of active Plot.
+        """Export the active plot to an image file.
 
         .. note::
-           There are some limitation on HFSS3DLayout.
+            There are some limitations on HFSS 3D Layout plots.
 
         full_path : str, optional
-            Path where image will be saved. It supports png and gif format.
+            Path for saving the image file. PNG and GIF formats are supported.
         width : int, optional
             Plot Width.
         height : int, optional
-            Plot Height.
+            Plot height.
         orientation : str, optional
-            View of the exported plot. Options are ``isometric``, ``top``, ``bottom``, ``right``, ``left``, ``front``,
-            ``back``any custom orientation.
+            View of the exported plot. Options are ``isometric``,
+            ``top``, ``bottom``, ``right``, ``left``, ``front``,
+            ``back``, and any custom orientation.
         display_wireframe : bool, optional
             Set to ``True`` if the objects has to be put in wireframe mode.
 
@@ -803,19 +865,20 @@ class FieldPlot:
     @aedt_exception_handler
     def export_image_from_aedtplt(self, export_path=None, view="isometric", plot_mesh=False, scale_min=None,
                                   scale_max=None):
-        """Save an image of Active Plot using PyVista.
+        """Save an image of the active plot using PyVista.
 
         .. note::
-           Only working in CPython with PyVista Module Installed.
+            This method only works if the CPython with PyVista module is installed.
 
         Parameters
         ----------
         export_path : str, optional
             Path where image will be saved
         view : str, optional
-            View of the exported plot. Options are ``isometric``, ``top``, ``front``, ``left``, ``all``.
+            View of the exported plot. Options are ``isometric``,
+            ``top``, ``front``, ``left``, and ``all``.
         plot_mesh : bool, optional
-            Plot Mesh.
+            Plot mesh.
         scale_min : float, optional
             Scale output min.
         scale_max : float, optional
@@ -1343,8 +1406,15 @@ class PostProcessor(PostProcessorCommon, object):
     ----------
     app : :class:`pyaedt.application.Analsis3D.FieldAnalysis3D`
         Inherited parent object. The parent object must provide the members
-        `_modeler`, `_desktop`, `_odesign`, and `logger`.
+        ``_modeler``, ``_desktop``, ``_odesign``, and ``logger``.
 
+    Examples
+    --------
+    Basic usage demonstrated with an HFSS, Maxwell, or any other design:
+
+    >>> from pyaedt import Hfss
+    >>> aedtapp = Hfss()
+    >>> post = aedtapp.post
     """
 
     def __init__(self, app):

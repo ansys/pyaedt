@@ -89,6 +89,12 @@ class Layer(object):
     negative : bool, optional
         Whether the geometry on the layer is cut away
         from the layer. The default is ``False``.
+
+    Examples
+    --------
+    >>>from pyaedt import Hfss3dLayout
+    >>>app = Hfss3dLayout()
+    >>>layers = app.modeler.primitives.layers["Top"]
     """
     def __init__(self, app, layertype="signal", negative=False):
         self.LengthUnit = app.LengthUnit
@@ -545,6 +551,11 @@ class Layers(object):
     roughnessunits : str, optional
        Units for the roughness of layers. The default is ``"um"``.
 
+    Examples
+    --------
+    >>>from pyaedt import Hfss3dLayout
+    >>>app = Hfss3dLayout()
+    >>>layers = app.modeler.primitives.layers
     """
     def __init__(self, modeler, roughnessunits="um"):
         self._modeler = modeler

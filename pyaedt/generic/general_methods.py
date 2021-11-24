@@ -1,4 +1,5 @@
 import os
+import csv
 import string
 import random
 import time
@@ -37,14 +38,13 @@ class MethodNotSupportedError(Exception):
 
 def _write_mes(mes_text):
     mes_text = str(mes_text)
-    parts = [mes_text[i:i + 150] for i in range(0, len(mes_text), 150)]
-
-    if os.getenv("PYAEDT_SCREEN_LOGS", "True").lower() in ("true", "1", "t"):
-        for el in parts:
-            print(el)
-    if logger and os.getenv("PYAEDT_FILE_LOGS", "True").lower() in ("true", "1", "t"):
+    parts = [mes_text[i:i + 250] for i in range(0, len(mes_text), 250)]
+    if logger:
         for el in parts:
             logger.error(el)
+    elif os.getenv("PYAEDT_SCREEN_LOGS", "True").lower() in ("true", "1", "t"):
+        for el in parts:
+            print(el)
 
 
 def _exception(ex_info, func, args, kwargs, message="Type Error"):
@@ -67,9 +67,18 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
     -------
 
     """
-    _write_mes("**************************************************************")
-    _write_mes("pyaedt error on Method {}:  {}. Please Check again".format(func.__name__, message))
+    message_to_print = ""
+    if "oDesktop" in dir(sys.modules['__main__']):
+        try:
+            messages = list(sys.modules['__main__'].oDesktop.GetMessages("", "", 2))
+        except:
+            messages = []
+        if messages and '[error] Script macro error' in messages[-1]:
+            message_to_print = messages[-1]
+    _write_mes("Method {} Failed:  {}. Please Check again".format(func.__name__, message))
     _write_mes(ex_info[1])
+    if message_to_print:
+        _write_mes(message_to_print)
     _write_mes("Arguments Provided: ")
     try:
         if int(sys.version[0]) > 2:
@@ -92,14 +101,8 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
         tblist = tb_trace[0].split("\n")
     for el in tblist:
         if func.__name__ in el:
-            _write_mes("Error in : ")
-            _write_mes(el)
-    _write_mes("")
-    _write_mes("")
-    _write_mes("Check Online documentation on: ")
-    _write_mes("")
-    _write_mes("https://aedtdocs.pyansys.com/search.html?q={}".format(func.__name__))
-    _write_mes("************************************************************")
+            _write_mes("Error in : "+el)
+    _write_mes("Check Online documentation on: https://aedtdocs.pyansys.com/search.html?q={}".format(func.__name__))
 
 def _check_types(arg):
     if "netref.builtins.list" in str(type(arg)):
@@ -246,6 +249,7 @@ def aedt_exception_handler(func):
                 return False
             except BaseException:
                 _exception(sys.exc_info(), func, args, kwargs, "General or AEDT Error")
+
                 return False
         else:
             return func(*args, **kwargs)
@@ -492,5 +496,17 @@ def remove_project_lock(project_path):
     bool
     """
     if os.path.exists(project_path + ".lock"):
-        os.remove(os.path.join(project_path, ".lock"))
+        os.remove(project_path + ".lock")
+    return True
+
+@aedt_exception_handler
+def write_csv(output, list_data, delimiter=",", quotechar="|", quoting=csv.QUOTE_MINIMAL):
+    if is_ironpython:
+        f = open(output, 'wb')
+    else:
+        f = open(output, 'w', newline='')
+    writer = csv.writer(f, delimiter=delimiter, quotechar=quotechar, quoting=quoting)
+    for data in list_data:
+        writer.writerow(data)
+    f.close()
     return True

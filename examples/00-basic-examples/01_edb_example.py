@@ -1,6 +1,6 @@
 """
 EDB  Analysis
--------------
+--------------
 This example shows how to use EDB to interact with a layout.
 """
 # sphinx_gallery_thumbnail_path = 'Resources/edb.png'
@@ -152,8 +152,8 @@ edb.core_stackup.stackup_layers.remove_layer("Signal1")
 
 ###############################################################################
 # Create a Voltage Source and Siwave DC IR Simulation
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This example creates a Voltage Source and then setup a DCIR Analysis.
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# This example creates a voltage source and then sets up a DCIR analysis.
 
 edb.core_siwave.create_voltage_source_on_net("U2A5", "V1P5_S3", "U2A5", "GND", 3.3, 0, "V1")
 edb.core_siwave.create_current_source_on_net("U1B5", "V1P5_S3", "U1B5", "GND", 1.0, 0, "I1")

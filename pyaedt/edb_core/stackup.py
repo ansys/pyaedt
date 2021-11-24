@@ -17,7 +17,14 @@ except ImportError:
 
 
 class EdbStackup(object):
-    """Manages EDB functionalities for stackups."""
+    """Manages EDB functionalities for stackups.
+
+    Examples
+    --------
+    >>> from pyaedt import Edb
+    >>> edbapp = Edb("myaedbfolder", edbversion="2021.2")
+    >>> edb_stackup = edbapp.core_stackup
+    """
 
     def __init__(self, p_edb):
         self._pedb = p_edb
