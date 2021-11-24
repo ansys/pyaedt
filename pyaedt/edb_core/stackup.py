@@ -221,14 +221,23 @@ class EdbStackup(object):
 
     @aedt_exception_handler
     def flip_stackup_and_apply_transform(self, angle=0.0, offset_x=0.0, offset_y=0.0, mirror=True):
-        """Flip the current layer stackup of a layout.
+        """Flip the current layer stackup of a layout. Transform parameters currently not supported.
 
         Parameters
         ----------
+        angle : double
+            The rotation angle applied on the design (not supported for the moment).
+        offset_x : double
+            The x offset value (not supported for the moment.
+        offset_y : double
+            The y offset value (not supported for the moment.
+        mirror : bool
+            mirror the flipped design, default value True (not supported for the moment.
+
         Returns
         -------
         bool
-            ``True`` when layer stackup update success ``False`` if not.
+            ``True`` when succeed ``False`` if not.
         """
         lc = self._active_layout.GetLayerCollection()
         new_lc = self._edb.Cell.LayerCollection()
