@@ -222,11 +222,13 @@ class EdbStackup(object):
     @aedt_exception_handler
     def flip_stackup(self):
         """Flip the current layer stackup of a layout.
+
         Parameters
         ----------
+
         Returns
         -------
-        type bool
+        bool
             ``True`` when layer stackup update success ``False`` if not.
         """
         lc = self._active_layout.GetLayerCollection()
