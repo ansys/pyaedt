@@ -523,4 +523,4 @@ class TestClass:
         assert self.edbapp.core_primitives.add_void(plane, void)
 
     def test_68_flip_layer_stackup(self):
-        assert self.edbapp.core_stackup.flip_stackup()
+        assert self.edbapp.core_stackup.flip_stackup_and_apply_transform()

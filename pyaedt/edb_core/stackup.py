@@ -9,7 +9,6 @@ import warnings
 from pyaedt.edb_core.EDB_Data import EDBLayers
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import aedt_exception_handler, is_ironpython
-from pyaedt.edb_core.components import Components
 
 try:
     from System import Double
@@ -221,7 +220,7 @@ class EdbStackup(object):
         return self._add_dielectric_material_model(name, material_def)
 
     @aedt_exception_handler
-    def flip_stackup_and_rotate(self, angle=180.0):
+    def flip_stackup_and_apply_transform(self, angle=0.0, offset_x=0.0, offset_y=0.0, mirror=True):
         """Flip the current layer stackup of a layout.
 
         Parameters
