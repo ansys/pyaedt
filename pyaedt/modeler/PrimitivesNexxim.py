@@ -81,8 +81,8 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        type
-            el, composed_name if succeeded or False
+        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+            Circuit Component Object.
 
         """
         self._app._oproject.CopyDesign(sourcename)
@@ -91,7 +91,7 @@ class NexximComponents(CircuitComponents):
         self.refresh_all_ids()
         for el in self.components:
             if sourcename in self.components[el].composed_name:
-                return el, self.components[el].composed_name
+                return self.components[el]
         return False
 
     @aedt_exception_handler
@@ -946,29 +946,6 @@ class NexximComponents(CircuitComponents):
         arg.append(arg3)
         self.o_component_manager.Add(arg)
         return True
-
-    @aedt_exception_handler
-    def update_object_properties(self, o):
-        """Update the properties of an object.
-
-        Parameters
-        ----------
-        o :
-            Object to update.
-
-        Returns
-        -------
-        :class:`pyaedt.modeler.Object3d.CircuitComponent`
-            Object with properties.
-
-        """
-        name = o.composed_name
-        proparray = self._oeditor.GetProperties("PassedParameterTab", name)
-        proparray = self._oeditor.GetProperties("PassedParameterTab", name)
-        for j in proparray:
-            propval = _retry_ntimes(10, self._oeditor.GetPropertyValue, "PassedParameterTab", name, j)
-            o._add_property(j, propval)
-        return o
 
     @aedt_exception_handler
     def get_comp_custom_settings(

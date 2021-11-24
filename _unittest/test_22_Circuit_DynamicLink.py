@@ -74,8 +74,8 @@ class TestClass:
     @pytest.mark.skipif(config.get("skip_circuits", False), reason="Skipped because Desktop is crashing")
     def test_02_add_subcircuits_3dlayout(self):
         layout_design = "Galileo_G87173_205_cutout3"
-        hfss3Dlayout_comp_id, hfss3Dlayout_comp = self.aedtapp.modeler.components.add_subcircuit_3dlayout(layout_design)
-        assert hfss3Dlayout_comp_id == 86
+        hfss3Dlayout_comp = self.aedtapp.modeler.components.add_subcircuit_3dlayout(layout_design)
+        assert hfss3Dlayout_comp.id == 86
         assert hfss3Dlayout_comp
 
     @pytest.mark.skipif(config.get("skip_circuits", False), reason="Skipped because Desktop is crashing")
