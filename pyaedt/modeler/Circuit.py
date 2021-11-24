@@ -258,11 +258,25 @@ class ModelerSimplorer(ModelerCircuit):
 
     @property
     def components(self):
+        """
+        .. deprecated:: 0.4.0
+           Use :func:`Simplorer.modeler.schematic` instead.
+
+        """
         return self._components
 
     @property
     def schematic(self):
+        """Schematic Object.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.PrimitivesSimplorer.SimplorerComponents`
+
+        """
         return self._components
+
+
 class ModelerEmit(ModelerCircuit):
     """ModelerEmit class.
 
