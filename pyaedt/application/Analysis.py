@@ -410,7 +410,7 @@ class Analysis(Design, object):
 
     @aedt_exception_handler
     def analyze_all(self):
-        """Analyze all setup in a actual design.
+        """Analyze all setup in an actual design.
 
         Returns
         -------
@@ -421,14 +421,14 @@ class Analysis(Design, object):
         return True
 
     @aedt_exception_handler
-    def list_of_variations(self, setupname=None, sweepname=None):
+    def list_of_variations(self, setup_name=None, sweep_name=None):
         """Return list of active variation for input setup.
 
         Parameters
         ----------
-        setupname : str, optional
+        setup_name : str, optional
             Setup name. If ``None`` nominal adaptive will be used.
-        sweepname : str, optional
+        sweep_name : str, optional
             Sweep name. If ``None`` nominal adaptive will be used.
 
         Returns
@@ -436,24 +436,24 @@ class Analysis(Design, object):
         list
         """
 
-        if not setupname and ":" in self.nominal_sweep:
-            setupname = self.nominal_adaptive.split(":")[0].strip()
-        elif not setupname:
+        if not setup_name and ":" in self.nominal_sweep:
+            setup_name = self.nominal_adaptive.split(":")[0].strip()
+        elif not setup_name:
             self.logger.warning("No Setup defined.")
             return False
-        if not sweepname and ":" in self.nominal_sweep:
-            sweepname = self.nominal_adaptive.split(":")[1].strip()
-        elif not sweepname:
-            self.logger.warning("No Setup defined.")
+        if not sweep_name and ":" in self.nominal_sweep:
+            sweep_name = self.nominal_adaptive.split(":")[1].strip()
+        elif not sweep_name:
+            self.logger.warning("No Sweep defined.")
             return False
         if self.solution_type == "HFSS3DLayout" or self.solution_type == "HFSS 3D Layout Design":
             try:
-                return list(self.osolution.ListVariations("{0} : {1}".format(setupname, sweepname)))
+                return list(self.osolution.ListVariations("{0} : {1}".format(setup_name, sweep_name)))
             except:
                 return [""]
         else:
             try:
-                return list(self.odesign.ListVariations("{0} : {1}".format(setupname, sweepname)))
+                return list(self.odesign.ListVariations("{0} : {1}".format(setup_name, sweep_name)))
             except:
                 return [""]
 
@@ -484,14 +484,14 @@ class Analysis(Design, object):
         else:
             excitations = self.oboundary.GetNumExcitations()
         reportnames = self.post.oreportsetup.GetAllReportNames()
-        for rName in reportnames:
-            rName2 = rName.replace(" ", "_")
-            self.post.oreportsetup.UpdateReports([str(rName)])
-            szExportPath = os.path.join(export_folder,
-                                        "{0}_{1}_{2}.csv".format(self.project_name, self.design_name, rName2))
-            self.post.oreportsetup.ExportToFile(str(rName), szExportPath)
-            self.logger.debug("Export Data: {}".format(szExportPath))
-            exported_files.append(szExportPath)
+        for report_name in reportnames:
+            name_no_space = report_name.replace(" ", "_")
+            self.post.oreportsetup.UpdateReports([str(report_name)])
+            export_path = os.path.join(export_folder,
+                                        "{0}_{1}_{2}.csv".format(self.project_name, self.design_name, name_no_space))
+            self.post.oreportsetup.ExportToFile(str(report_name), export_path)
+            self.logger.info("Export Data: {}".format(export_path))
+            exported_files.append(export_path)
 
         for s in setups:
             sweeps = self.oanalysis.GetSweeps(s)
@@ -502,51 +502,51 @@ class Analysis(Design, object):
             for sweep in sweeps:
                 variation_array = self.list_of_variations(s, sweep)
                 if len(variation_array) == 1:
-                    szExportPath = os.path.join(export_folder, "{}.prof".format(self.project_name))
-                    result = self.export_profile(s, variation_array[0], szExportPath)
+                    export_path = os.path.join(export_folder, "{}.prof".format(self.project_name))
+                    result = self.export_profile(s, variation_array[0], export_path)
                     if result:
-                        exported_files.append(szExportPath)
-                    szExportPath = os.path.join(export_folder, "{}.conv".format(self.project_name))
-                    result = self.export_convergence(s, variation_array[0], szExportPath)
+                        exported_files.append(export_path)
+                    export_path = os.path.join(export_folder, "{}.conv".format(self.project_name))
+                    result = self.export_convergence(s, variation_array[0], export_path)
                     if result:
-                        exported_files.append(szExportPath)
+                        exported_files.append(export_path)
                     if self.solution_type in ["HFSS3DLayout", "HFSS 3D Layout Design", "HFSS", "Circuit"]:
                         try:
-                            szExportPath = os.path.join(export_folder,
+                            export_path = os.path.join(export_folder,
                                                         "{0}.s{1}p".format(self.project_name, excitations))
                             self.osolution.ExportNetworkData(variation_array[0], ["{0}:{1}".format(s, sweep)], 3,
-                                                             szExportPath, ["All"], True, 50, "S", -1, 0, 15, True,
+                                                             export_path, ["All"], True, 50, "S", -1, 0, 15, True,
                                                              False,
                                                              False)
-                            exported_files.append(szExportPath)
-                            self.logger.info("Export Touchstone: %s", szExportPath)
+                            exported_files.append(export_path)
+                            self.logger.info("Export Touchstone: %s", export_path)
                         except:
-                            self.logger.debug("Export SnP Failed: No Solution")
+                            self.logger.info("Export SnP Failed: No Solution")
 
                 else:
                     varCount = 0
                     for variation in variation_array:
                         varCount += 1
-                        szExportPath = os.path.join(export_folder, "{0}_{1}.prof".format(self.project_name, varCount))
-                        result = self.export_profile(s, variation, szExportPath)
+                        export_path = os.path.join(export_folder, "{0}_{1}.prof".format(self.project_name, varCount))
+                        result = self.export_profile(s, variation, export_path)
                         if result:
-                            exported_files.append(szExportPath)
-                        szExportPath = os.path.join(export_folder, "{0}_{1}.conv".format(self.project_name, varCount))
-                        self.logger.info("Export Convergence: %s", szExportPath)
-                        result = self.export_convergence(s, variation, szExportPath)
+                            exported_files.append(export_path)
+                        export_path = os.path.join(export_folder, "{0}_{1}.conv".format(self.project_name, varCount))
+                        self.logger.info("Export Convergence: %s", export_path)
+                        result = self.export_convergence(s, variation, export_path)
                         if result:
-                            exported_files.append(szExportPath)
+                            exported_files.append(export_path)
                         if self.solution_type in ["HFSS3DLayout", "HFSS 3D Layout Design", "HFSS", "Circuit"]:
                             try:
-                                szExportPath = os.path.join(export_folder,
+                                export_path = os.path.join(export_folder,
                                                             "{0}_{1}.s{2}p".format(self.project_name, varCount,
                                                                                    excitations))
-                                self.logger.info("Export SnP: {}".format(szExportPath))
+                                self.logger.info("Export SnP: {}".format(export_path))
                                 self.osolution.ExportNetworkData(variation, ["{0}:{1}".format(s, sweep)], 3,
-                                                                 szExportPath,
+                                                                 export_path,
                                                                  ["All"], True, 50, "S", -1, 0, 15, True, False, False)
-                                exported_files.append(szExportPath)
-                                self.logger.info("Export Touchstone: %s", szExportPath)
+                                exported_files.append(export_path)
+                                self.logger.info("Export Touchstone: %s", export_path)
                             except:
                                 self.logger.info("Export SnP Failed: No Solution")
         return exported_files
