@@ -227,7 +227,7 @@ class EdbStackup(object):
         Returns
         -------
         type bool
-            True when layer stackup update success False if not.
+            ``True`` when layer stackup update success ``False`` if not.
         """
         lc = self._active_layout.GetLayerCollection()
         new_lc = self._edb.Cell.LayerCollection()
