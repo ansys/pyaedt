@@ -4,11 +4,13 @@ This module contains the `EdbStackup` class.
 """
 from __future__ import absolute_import
 
+import math
 import warnings
 
 from pyaedt.edb_core.EDB_Data import EDBLayers
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import aedt_exception_handler, is_ironpython
+from pyaedt.edb_core.components import Components
 
 try:
     from System import Double
@@ -220,7 +222,7 @@ class EdbStackup(object):
         return self._add_dielectric_material_model(name, material_def)
 
     @aedt_exception_handler
-    def flip_stackup(self):
+    def flip_stackup_and_rotate(self, angle=180.0):
         """Flip the current layer stackup of a layout.
 
         Parameters
@@ -256,7 +258,25 @@ class EdbStackup(object):
         layer_list = convert_py_list_to_net_list(non_stackup_layers)
         new_lc.AddLayers(layer_list)
         if self._active_layout.SetLayerCollection(new_lc):
-           return True
+            cell_name = self._active_layout.GetCell().GetName()
+            cell_inst = self._edb.Cell.Hierarchy.CellInstance.FindByName(self._active_layout, cell_name)
+            cell_trans = cell_inst.GetTransform()
+            rot = self._edb_value(angle)
+            test = cell_trans.SetRotationValue(rot)
+            cmp_list = [cmp for cmp in self._active_layout.Groups if cmp.GetComponent() is not None]
+            for cmp in cmp_list:
+                cmp_type = cmp.GetComponentType()
+                cmp_prop = cmp.GetComponentProperty().Clone()
+                die_prop = cmp_prop.GetDieProperty().Clone()
+                chip_orientation = die_prop.GetOrientation()
+                if chip_orientation == self._edb.Definition.DieOrientation.ChipDown:
+                    die_prop.SetOrientation(self._edb.Definition.DieOrientation.ChipUp)
+                    cmp_prop.SetDieProperty(die_prop)
+                else:
+                    die_prop.SetOrientation(self._edb.Definition.DieOrientation.ChipDown)
+                    cmp_prop.SetDieProperty(die_prop)
+                cmp.SetComponentProperty(cmp_prop)
+            return True
 
         else:
             return False
