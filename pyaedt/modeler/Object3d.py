@@ -1852,6 +1852,7 @@ class Padstack(object):
         """
         self.padstackmgr.Remove(self.name, True, "", "Project")
 
+
 class CircuitPins(object):
     def __init__(self, circuit_comp, pinname):
         self._circuit_comp = circuit_comp
@@ -1885,30 +1886,8 @@ class CircuitPins(object):
         """
         pos1 = [self.x_pos, self.y_pos]
         pos2 = [component_pin.x_pos, component_pin.y_pos]
-        return self._circuit_comp.create_wire([pos1, pos2])
+        return self._circuit_comp._circuit_components.create_wire([pos1, pos2])
 
-    @aedt_exception_handler
-    def create_wire(self, points_array):
-        """Create a wire.
-
-        Parameters
-        ----------
-        points_array : list
-            A nested list of point coordinates. For example,
-            ``[[x1, y1], [x2, y2], ...]``.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        """
-        pointlist = [str(tuple(i)) for i in points_array]
-        self._oeditor.CreateWire(
-            ["NAME:WireData", "Name:=", "", "Id:=", random.randint(20000, 23000), "Points:=", pointlist],
-            ["NAME:Attributes", "Page:=", 1],
-        )
-        return True
 
 class CircuitComponent(object):
     """Manages circuit components.
@@ -1925,7 +1904,7 @@ class CircuitComponent(object):
     def __init__(self, circuit_components, units="mm", tabname="PassedParameterTab"):
         self.name = ""
         self._circuit_components = circuit_components
-        self.m_Editor = circuit_components._oeditor
+        self.m_Editor = self._circuit_components._oeditor
         self.modelName = None
         self.status = "Active"
         self.component = None

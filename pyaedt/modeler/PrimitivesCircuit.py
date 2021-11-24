@@ -917,7 +917,7 @@ class CircuitComponents(object):
             if not self.get_obj_id(el):
                 name = el.split(";")
                 if len(name) > 1:
-                    o = CircuitComponent(self._oeditor, tabname=self.tab_name)
+                    o = CircuitComponent(self, tabname=self.tab_name)
                     o.name = name[0]
                     if len(name) == 2:
                         o.schematic_id = name[1]
@@ -948,7 +948,7 @@ class CircuitComponents(object):
         for el in obj:
             name = el.split(";")
             if len(name) > 1 and str(id) == name[1]:
-                o = CircuitComponent(self._oeditor, tabname=self.tab_name)
+                o = CircuitComponent(self, tabname=self.tab_name)
                 o.name = name[0]
                 if len(name) > 2:
                     o.id = int(name[1])
