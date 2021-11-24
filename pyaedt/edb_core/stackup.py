@@ -4,7 +4,6 @@ This module contains the `EdbStackup` class.
 """
 from __future__ import absolute_import
 
-import math
 import warnings
 
 from pyaedt.edb_core.EDB_Data import EDBLayers
