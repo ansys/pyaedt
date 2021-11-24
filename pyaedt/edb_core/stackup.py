@@ -280,9 +280,9 @@ class EdbStackup(object):
             for cmp in cmp_list:
                 cmp_type = cmp.GetComponentType()
                 cmp_prop = cmp.GetComponentProperty().Clone()
-                die_prop = cmp_prop.GetDieProperty().Clone()
-                chip_orientation = die_prop.GetOrientation()
                 if cmp_type == self._edb.Definition.ComponentType.IC:
+                    die_prop = cmp_prop.GetDieProperty().Clone()
+                    chip_orientation = die_prop.GetOrientation()
                     if chip_orientation == self._edb.Definition.DieOrientation.ChipDown:
                         die_prop.SetOrientation(self._edb.Definition.DieOrientation.ChipUp)
                         cmp_prop.SetDieProperty(die_prop)
