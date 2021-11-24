@@ -154,17 +154,6 @@ class Hfss(FieldAnalysis3D, object):
 
     class BoundaryType(object):
         """Creates and manages boundaries.
-
-        Parameters
-        ----------
-        PerfectE :
-        PerfectH :
-        Aperture :
-        Radiation :
-        Impedance :
-        LayeredImp :
-        LumpedRLC :
-        FiniteCond :
         """
 
         (PerfectE, PerfectH, Aperture, Radiation, Impedance, LayeredImp, LumpedRLC, FiniteCond) = range(0, 8)
