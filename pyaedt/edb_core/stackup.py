@@ -225,7 +225,6 @@ class EdbStackup(object):
 
         Parameters
         ----------
-
         Returns
         -------
         bool
