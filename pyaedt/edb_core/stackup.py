@@ -7,7 +7,7 @@ from __future__ import absolute_import
 import warnings
 
 from pyaedt.edb_core.EDB_Data import EDBLayers
-import pyaedt.edb_core.general as general
+from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import aedt_exception_handler, is_ironpython
 
 try:
@@ -252,7 +252,7 @@ class EdbStackup(object):
                 cloned_layer.SetLowerElevation(val)
                 new_lc.AddStackupLayerAtElevation(cloned_layer)
 
-        layer_list = general.convert_py_list_to_net_list(non_stackup_layers)
+        layer_list = convert_py_list_to_net_list(non_stackup_layers)
         new_lc.AddLayers(layer_list)
         if self._active_layout.SetLayerCollection(new_lc):
            return True
