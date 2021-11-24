@@ -519,9 +519,9 @@ class Analysis(Design, object):
                                                              False,
                                                              False)
                             exported_files.append(export_path)
-                            self.logger.info("Export Touchstone: %s", export_path)
+                            self.logger.info("Exported Touchstone: %s", export_path)
                         except:
-                            self.logger.info("Export SnP Failed: No Solution")
+                            self.logger.warning("Export SnP failed: no solutions found")
 
                 else:
                     varCount = 0
@@ -546,9 +546,9 @@ class Analysis(Design, object):
                                                                  export_path,
                                                                  ["All"], True, 50, "S", -1, 0, 15, True, False, False)
                                 exported_files.append(export_path)
-                                self.logger.info("Export Touchstone: %s", export_path)
+                                self.logger.info("Exported Touchstone: %s", export_path)
                             except:
-                                self.logger.info("Export SnP Failed: No Solution")
+                                self.logger.warning("Export SnP failed: no solutions found")
         return exported_files
 
     @aedt_exception_handler
