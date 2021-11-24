@@ -95,7 +95,7 @@ class TestClass:
         self.edbapp.add_design_variable("via_x", 5e-3)
         self.edbapp.add_design_variable("via_y", 1e-3)
 
-        assert self.edbapp.core_padstack.place_padstack(["via_x",  "via_x+via_y"], "myVia")
+        assert self.edbapp.core_padstack.place_padstack(["via_x", "via_x+via_y"], "myVia")
         assert self.edbapp.core_padstack.place_padstack(["via_x", "via_x+via_y*2"], "myVia_bullet")
 
     def test_08_nets_query(self):
@@ -157,20 +157,20 @@ class TestClass:
         assert self.edbapp.core_components.components["R1"].pinlist
         pinname = self.edbapp.core_components.components["R1"].pinlist[0].GetName()
         assert (
-            self.edbapp.core_components.components["R1"].pins[pinname].lower_elevation
-            == self.edbapp.core_components.components["R1"].lower_elevation
+                self.edbapp.core_components.components["R1"].pins[pinname].lower_elevation
+                == self.edbapp.core_components.components["R1"].lower_elevation
         )
         assert (
-            self.edbapp.core_components.components["R1"].pins[pinname].placement_layer
-            == self.edbapp.core_components.components["R1"].placement_layer
+                self.edbapp.core_components.components["R1"].pins[pinname].placement_layer
+                == self.edbapp.core_components.components["R1"].placement_layer
         )
         assert (
-            self.edbapp.core_components.components["R1"].pins[pinname].upper_elevation
-            == self.edbapp.core_components.components["R1"].upper_elevation
+                self.edbapp.core_components.components["R1"].pins[pinname].upper_elevation
+                == self.edbapp.core_components.components["R1"].upper_elevation
         )
         assert (
-            self.edbapp.core_components.components["R1"].pins[pinname].top_bottom_association
-            == self.edbapp.core_components.components["R1"].top_bottom_association
+                self.edbapp.core_components.components["R1"].pins[pinname].top_bottom_association
+                == self.edbapp.core_components.components["R1"].top_bottom_association
         )
         assert self.edbapp.core_components.components["R1"].pins[pinname].position
         assert self.edbapp.core_components.components["R1"].pins[pinname].rotation
@@ -254,7 +254,8 @@ class TestClass:
     def test_37_create_circuit_port(self):
         initial_len = len(self.edbapp.core_padstack.pingroups)
         assert (
-            self.edbapp.core_siwave.create_circuit_port_on_net("U2A5", "V1P5_S3", "U2A5", "GND", 50, "test") == "test"
+                self.edbapp.core_siwave.create_circuit_port_on_net("U2A5", "V1P5_S3", "U2A5", "GND", 50,
+                                                                   "test") == "test"
         )
         p2 = self.edbapp.core_siwave.create_circuit_port_on_net("U2A5", "V3P3_S0", "U2A5", "GND", 50, "test")
         assert p2 != "test" and "test" in p2
@@ -520,7 +521,6 @@ class TestClass:
         void = self.edbapp.core_primitives.create_path(path, layer_name="TOP",
                                                        width="0.1mm")
         assert self.edbapp.core_primitives.add_void(plane, void)
-
 
     def test_68_flip_layer_stackup(self):
         assert self.edbapp.core_stackup.flip_stackup()

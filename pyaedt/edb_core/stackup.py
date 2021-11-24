@@ -327,8 +327,3 @@ class EdbStackup(object):
             )
         h_stackup = abs(float(topz) - float(bottomz))
         return topl.GetName(), topz, bottoml.GetName(), bottomz
-
-
-
-
-
