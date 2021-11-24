@@ -4,6 +4,7 @@ This module contains the `EdbStackup` class.
 """
 from __future__ import absolute_import
 
+import math
 import warnings
 
 from pyaedt.edb_core.EDB_Data import EDBLayers
@@ -268,20 +269,26 @@ class EdbStackup(object):
             cell_name = self._active_layout.GetCell().GetName()
             cell_inst = self._edb.Cell.Hierarchy.CellInstance.FindByName(self._active_layout, cell_name)
             cell_trans = cell_inst.GetTransform()
-            rot = self._edb_value(angle)
-            test = cell_trans.SetRotationValue(rot)
+            _angle = self._edb_value(angle * math.pi / 180.0)
+            _offset_x = self._edb_value(offset_x)
+            _offset_y = self._edb_value(offset_y)
+            cell_trans.SetRotationValue(_angle)
+            cell_trans.SetXOffsetValue(_offset_x)
+            cell_trans.SetYOffsetValue(_offset_y)
+            cell_trans.SetMirror(mirror)
             cmp_list = [cmp for cmp in self._active_layout.Groups if cmp.GetComponent() is not None]
             for cmp in cmp_list:
                 cmp_type = cmp.GetComponentType()
                 cmp_prop = cmp.GetComponentProperty().Clone()
                 die_prop = cmp_prop.GetDieProperty().Clone()
                 chip_orientation = die_prop.GetOrientation()
-                if chip_orientation == self._edb.Definition.DieOrientation.ChipDown:
-                    die_prop.SetOrientation(self._edb.Definition.DieOrientation.ChipUp)
-                    cmp_prop.SetDieProperty(die_prop)
-                else:
-                    die_prop.SetOrientation(self._edb.Definition.DieOrientation.ChipDown)
-                    cmp_prop.SetDieProperty(die_prop)
+                if cmp_type == self._edb.Definition.ComponentType.IC:
+                    if chip_orientation == self._edb.Definition.DieOrientation.ChipDown:
+                        die_prop.SetOrientation(self._edb.Definition.DieOrientation.ChipUp)
+                        cmp_prop.SetDieProperty(die_prop)
+                    else:
+                        die_prop.SetOrientation(self._edb.Definition.DieOrientation.ChipDown)
+                        cmp_prop.SetDieProperty(die_prop)
                 cmp.SetComponentProperty(cmp_prop)
             return True
 
