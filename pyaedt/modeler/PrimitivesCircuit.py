@@ -53,6 +53,7 @@ class CircuitComponents(object):
         self._oeditor = self._modeler.oeditor
         self._currentId = 0
         self.components = {}
+        self.refresh_all_ids()
         pass
 
     @property
@@ -140,10 +141,8 @@ class CircuitComponents(object):
 
         Returns
         -------
-        type
-            Port object.
-        str
-            Port name.
+        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+            Circuit Component Object.
 
         """
         id = self.create_unique_id()
@@ -156,7 +155,8 @@ class CircuitComponents(object):
         # return id, self.components[id].composed_name
         for el in self.components:
             if name in self.components[el].composed_name:
-                return el, self.components[el].composed_name
+                return self.components[el]
+        return False
 
     @aedt_exception_handler
     def create_page_port(self, name, posx=0.1, posy=0.1, angle=0):
@@ -175,10 +175,8 @@ class CircuitComponents(object):
 
         Returns
         -------
-        type
-            Port ID.
-        str
-            Port name.
+        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+            Circuit Component Object.
 
         """
         id = self.create_unique_id()
@@ -189,7 +187,7 @@ class CircuitComponents(object):
         id = int(id.split(";")[1])
         # self.refresh_all_ids()
         self.add_id_to_component(id)
-        return id, self.components[id].composed_name
+        return self.components[id]
 
     @aedt_exception_handler
     def create_gnd(self, posx, posy):
@@ -204,10 +202,8 @@ class CircuitComponents(object):
 
         Returns
         -------
-        type
-            Ground object.
-        str
-            Ground name.
+        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+            Circuit Component Object.
 
         """
         id = self.create_unique_id()
@@ -221,7 +217,7 @@ class CircuitComponents(object):
         # return id, self.components[id].composed_name
         for el in self.components:
             if name in self.components[el].composed_name:
-                return el, self.components[el].composed_name
+                return self.components[el]
 
     @aedt_exception_handler
     def create_model_from_touchstone(self, touchstone_full_path, model_name=None):
@@ -469,8 +465,8 @@ class CircuitComponents(object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+            Circuit Component Object.
 
         """
         id = self.create_unique_id()
@@ -479,7 +475,7 @@ class CircuitComponents(object):
         id = _retry_ntimes(10, self._oeditor.CreateComponent, arg1, arg2)
         id = int(id.split(";")[1])
         self.add_id_to_component(id)
-        return id, self.components[id].composed_name
+        return self.components[id]
 
     @aedt_exception_handler
     def create_component(
@@ -517,10 +513,8 @@ class CircuitComponents(object):
 
         Returns
         -------
-        type
-            Component ID.
-        str
-            Component name.
+        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+            Circuit Component Object.
 
         """
         id = self.create_unique_id()
@@ -540,7 +534,7 @@ class CircuitComponents(object):
             self.enable_use_instance_name(component_library, component_name)
         elif global_netlist_list:
             self.enable_global_netlist(component_name, global_netlist_list)
-        return id, self.components[id].composed_name
+        return self.components[id]
 
     @aedt_exception_handler
     def disable_data_netlist(self, component_name):
@@ -924,9 +918,8 @@ class CircuitComponents(object):
                     else:
                         o.id = int(name[1])
                         o.schematic_id = name[2]
-                    o_update = self.update_object_properties(o)
                     objID = o.id
-                    self.components[objID] = o_update
+                    self.components[objID] = o
         return len(self.components)
 
     @aedt_exception_handler
@@ -957,9 +950,8 @@ class CircuitComponents(object):
                 else:
                     o.schematic_id = int(name[1])
                     objID = o.schematic_id
-                o_update = self.update_object_properties(o)
+                self.components[objID] = o
 
-                self.components[objID] = o_update
         return len(self.components)
 
     @aedt_exception_handler
@@ -982,28 +974,6 @@ class CircuitComponents(object):
         return None
 
     @aedt_exception_handler
-    def update_object_properties(self, o):
-        """Update the properties of an object.
-
-        Parameters
-        ----------
-        o :
-            Object to update.
-
-        Returns
-        -------
-        type
-            Object with properties.
-
-        """
-        name = o.composed_name
-        proparray = _retry_ntimes(10, self._oeditor.GetProperties, "PassedParameterTab", name)
-        for j in proparray:
-            propval = _retry_ntimes(10, self._oeditor.GetPropertyValue, "PassedParameterTab", name, j)
-            o._add_property(j, propval)
-        return o
-
-    @aedt_exception_handler
     def get_pins(self, partid):
         """Retrieve one or more pins.
 
@@ -1018,7 +988,9 @@ class CircuitComponents(object):
             Pin with properties.
 
         """
-        if isinstance(partid, str):
+        if isinstance(partid, CircuitComponent):
+            pins = _retry_ntimes(10, self._oeditor.GetComponentPins, partid.composed_name)
+        elif isinstance(partid, str):
             pins = _retry_ntimes(10, self._oeditor.GetComponentPins, partid)
             # pins = self.oeditor.GetComponentPins(partid)
         else:

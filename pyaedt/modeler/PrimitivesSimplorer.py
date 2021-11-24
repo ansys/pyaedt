@@ -44,8 +44,8 @@ class SimplorerComponents(CircuitComponents):
 
         Returns
         -------
-        type
-            Part object details.
+        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+            Circuit Component Object.
 
         """
         if isinstance(partname, int):
@@ -85,13 +85,11 @@ class SimplorerComponents(CircuitComponents):
 
         Returns
         -------
-        int
-            ID of the resistor.
-        str
-            Name of the resistor.
+        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+            Circuit Component Object.
 
         """
-        id, name = self.create_component(
+        id = self.create_component(
             compname,
             component_library="Basic Elements\\Circuit\\Passive Elements",
             component_name="R",
@@ -101,9 +99,9 @@ class SimplorerComponents(CircuitComponents):
             use_instance_id_netlist=use_instance_id_netlist,
         )
 
-        self.components[id].set_property("R", value)
+        id.set_property("R", value)
 
-        return id, name
+        return id
 
     @aedt_exception_handler
     def create_inductor(self, compname=None, value=50, xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
@@ -126,12 +124,10 @@ class SimplorerComponents(CircuitComponents):
 
         Returns
         -------
-        int
-            ID of the inductor.
-        str
-            Name of the inductor.
+        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+            Circuit Component Object.
         """
-        id, name = self.create_component(
+        id = self.create_component(
             compname,
             component_library="Basic Elements\\Circuit\\Passive Elements",
             component_name="L",
@@ -141,8 +137,8 @@ class SimplorerComponents(CircuitComponents):
             use_instance_id_netlist=use_instance_id_netlist,
         )
 
-        self.components[id].set_property("L", value)
-        return id, name
+        id.set_property("L", value)
+        return id
 
     @aedt_exception_handler
     def create_capacitor(self, compname=None, value=50, xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
@@ -165,12 +161,10 @@ class SimplorerComponents(CircuitComponents):
 
         Returns
         -------
-        int
-            ID of the capacitor.
-        str
-            Name of the capacitor.
+        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+            Circuit Component Object.
         """
-        id, name = self.create_component(
+        id = self.create_component(
             compname,
             component_library="Basic Elements\\Circuit\\Passive Elements",
             component_name="C",
@@ -180,8 +174,8 @@ class SimplorerComponents(CircuitComponents):
             use_instance_id_netlist=use_instance_id_netlist,
         )
 
-        self.components[id].set_property("C", value)
-        return id, name
+        id.set_property("C", value)
+        return id
 
     @aedt_exception_handler
     def create_diode(
@@ -206,13 +200,11 @@ class SimplorerComponents(CircuitComponents):
 
         Returns
         -------
-        int
-            ID of the diode.
-        str
-            Name of the diode.
+        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+            Circuit Component Object.
 
         """
-        id, name = self.create_component(
+        id = self.create_component(
             compname,
             component_library="Basic Elements\\Circuit\\Semiconductors System Level",
             component_name="D",
@@ -221,7 +213,7 @@ class SimplorerComponents(CircuitComponents):
             angle=angle,
             use_instance_id_netlist=use_instance_id_netlist,
         )
-        return id, name
+        return id
 
     @aedt_exception_handler
     def create_npn(self, compname=None, value=None, xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
@@ -244,13 +236,11 @@ class SimplorerComponents(CircuitComponents):
 
         Returns
         -------
-        int
-            ID of the NPN transistor.
-        str
-            Name of the NPN transistor.
+        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+            Circuit Component Object.
 
         """
-        id, name = self.create_component(
+        id = self.create_component(
             compname,
             component_library="Basic Elements\\Circuit\\Semiconductors System Level",
             component_name="BJT",
@@ -259,7 +249,7 @@ class SimplorerComponents(CircuitComponents):
             angle=angle,
             use_instance_id_netlist=use_instance_id_netlist,
         )
-        return id, name
+        return id
 
     @aedt_exception_handler
     def create_pnp(self, compname=None, value=50, xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
@@ -282,13 +272,11 @@ class SimplorerComponents(CircuitComponents):
 
         Returns
         -------
-        int
-            ID of the PNP transistor.
-        str
-            Name of the PNP transistor.
+        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+            Circuit Component Object.
 
         """
-        id, name = self.create_component(
+        id = self.create_component(
             compname,
             component_library="Basic Elements\\Circuit\\Semiconductors System Level",
             component_name="BJT",
@@ -298,4 +286,4 @@ class SimplorerComponents(CircuitComponents):
             use_instance_id_netlist=use_instance_id_netlist,
         )
 
-        return id, name
+        return id

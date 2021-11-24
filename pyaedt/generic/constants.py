@@ -11,6 +11,7 @@ V2PI = 2.0 * math.pi
 METER2IN = 0.0254
 METER2MILES = 1609.344051499
 
+MILS2METER = 39370.078740157
 
 def db20(x, inverse=True):
     """Convert db20 to decimal and viceversa."""
@@ -174,6 +175,7 @@ AEDT_UNITS = {
         "cm": 1e-2,
         "dm": 1e-1,
         "meter": 1.0,
+        "": 1.0,
         "km": 1e3,
         "uin": METER2IN * 1e-6,
         "mil": METER2IN * 1e-3,

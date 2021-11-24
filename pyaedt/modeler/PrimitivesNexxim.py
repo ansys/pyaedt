@@ -40,8 +40,8 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        type
-            Part object details.
+        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+            Circuit Component Object.
         """
         if type(partname) is int:
             return self.components[partname]
@@ -367,18 +367,16 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        int
-            ID of the resistor.
-        str
-            Name of the resistor.
+        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+            Circuit Component Object.
 
         """
-        cmpid, cmpname = self.create_component(
+        cmpid = self.create_component(
             compname, xpos=xpos, ypos=ypos, angle=angle, use_instance_id_netlist=use_instance_id_netlist
         )
 
-        self.components[cmpid].set_property("R", value)
-        return cmpid, cmpname
+        cmpid.set_property("R", value)
+        return cmpid
 
     @aedt_exception_handler
     def create_inductor(self, compname=None, value=50, xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
@@ -402,13 +400,10 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        int
-            ID of the inductor.
-        str
-            Name of the inductor.
-
+        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+            Circuit Component Object.
         """
-        cmpid, cmpname = self.create_component(
+        cmpid = self.create_component(
             compname,
             component_library="Inductors",
             component_name="IND_",
@@ -418,9 +413,9 @@ class NexximComponents(CircuitComponents):
             use_instance_id_netlist=use_instance_id_netlist,
         )
 
-        self.components[cmpid].set_property("L", value)
+        cmpid.set_property("L", value)
 
-        return cmpid, cmpname
+        return cmpid
 
     @aedt_exception_handler
     def create_capacitor(self, compname=None, value=50, xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
@@ -444,13 +439,11 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        int
-            ID of the capacitor.
-        str
-            Name of the capacitor.
+        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+            Circuit Component Object.
 
         """
-        cmpid, cmpname = self.create_component(
+        cmpid = self.create_component(
             compname,
             component_library="Capacitors",
             component_name="CAP_",
@@ -460,8 +453,8 @@ class NexximComponents(CircuitComponents):
             use_instance_id_netlist=use_instance_id_netlist,
         )
 
-        self.components[cmpid].set_property("C", value)
-        return cmpid, cmpname
+        cmpid.set_property("C", value)
+        return cmpid
 
     @aedt_exception_handler
     def create_voltage_dc(self, compname=None, value=1, xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
@@ -484,13 +477,11 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        int
-            ID of the voltage DC source.
-        str
-            Name of the voltage DC source.
+        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+            Circuit Component Object.
 
         """
-        cmpid, cmpname = self.create_component(
+        cmpid = self.create_component(
             compname,
             component_library="Independent Sources",
             component_name="V_DC",
@@ -500,8 +491,8 @@ class NexximComponents(CircuitComponents):
             use_instance_id_netlist=use_instance_id_netlist,
         )
 
-        self.components[cmpid].set_property("DC", value)
-        return cmpid, cmpname
+        cmpid.set_property("DC", value)
+        return cmpid
 
     @aedt_exception_handler
     def create_current_pulse(
@@ -527,13 +518,11 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        int
-            ID of the current pulse.
-        str
-            Name of the current pulse.
+        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+            Circuit Component Object.
 
         """
-        cmpid, cmpname = self.create_component(
+        cmpid = self.create_component(
             compname,
             component_library="Independent Sources",
             component_name="I_PULSE",
@@ -544,21 +533,21 @@ class NexximComponents(CircuitComponents):
         )
 
         if len(value_lists) > 0:
-            self.components[cmpid].set_property("I1", value_lists[0])
+            cmpid.set_property("I1", value_lists[0])
         if len(value_lists) > 1:
-            self.components[cmpid].set_property("I2", value_lists[1])
+            cmpid.set_property("I2", value_lists[1])
         if len(value_lists) > 2:
-            self.components[cmpid].set_property("TD", value_lists[2])
+            cmpid.set_property("TD", value_lists[2])
         if len(value_lists) > 3:
-            self.components[cmpid].set_property("TR", value_lists[3])
+            cmpid.set_property("TR", value_lists[3])
         if len(value_lists) > 4:
-            self.components[cmpid].set_property("TF", value_lists[4])
+            cmpid.set_property("TF", value_lists[4])
         if len(value_lists) > 5:
-            self.components[cmpid].set_property("PW", value_lists[5])
+            cmpid.set_property("PW", value_lists[5])
         if len(value_lists) > 6:
-            self.components[cmpid].set_property("PER", value_lists[6])
+            cmpid.set_property("PER", value_lists[6])
 
-        return cmpid, cmpname
+        return cmpid
 
     @aedt_exception_handler
     def create_voltage_pulse(
@@ -584,13 +573,11 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        int
-            ID of the voltage pulse.
-        str
-            Name of the voltage pulse.
+        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+            Circuit Component Object.
 
         """
-        cmpid, cmpname = self.create_component(
+        cmpid = self.create_component(
             compname,
             component_library="Independent Sources",
             component_name="V_PULSE",
@@ -601,21 +588,21 @@ class NexximComponents(CircuitComponents):
         )
 
         if len(value_lists) > 0:
-            self.components[cmpid].set_property("V1", value_lists[0])
+            cmpid.set_property("V1", value_lists[0])
         if len(value_lists) > 1:
-            self.components[cmpid].set_property("V2", value_lists[1])
+            cmpid.set_property("V2", value_lists[1])
         if len(value_lists) > 2:
-            self.components[cmpid].set_property("TD", value_lists[2])
+            cmpid.set_property("TD", value_lists[2])
         if len(value_lists) > 3:
-            self.components[cmpid].set_property("TR", value_lists[3])
+            cmpid.set_property("TR", value_lists[3])
         if len(value_lists) > 4:
-            self.components[cmpid].set_property("TF", value_lists[4])
+            cmpid.set_property("TF", value_lists[4])
         if len(value_lists) > 5:
-            self.components[cmpid].set_property("PW", value_lists[5])
+            cmpid.set_property("PW", value_lists[5])
         if len(value_lists) > 6:
-            self.components[cmpid].set_property("PER", value_lists[6])
+            cmpid.set_property("PER", value_lists[6])
 
-        return cmpid, cmpname
+        return cmpid
 
     @aedt_exception_handler
     def create_current_dc(self, compname=None, value=1, xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
@@ -639,13 +626,11 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        int
-            ID of the current DC source.
-        str
-            Name of the current DC source.
+        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+            Circuit Component Object.
 
         """
-        cmpid, cmpname = self.create_component(
+        cmpid = self.create_component(
             compname,
             component_library="Independent Sources",
             component_name="I_DC",
@@ -655,8 +640,8 @@ class NexximComponents(CircuitComponents):
             use_instance_id_netlist=use_instance_id_netlist,
         )
 
-        self.components[cmpid].set_property("DC", value)
-        return cmpid, cmpname
+        cmpid.set_property("DC", value)
+        return cmpid
 
     def create_coupling_inductors(
             self, compname, l1, l2, value=1, xpos=0, ypos=0, angle=0, use_instance_id_netlist=False
@@ -685,13 +670,11 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        int
-            ID of the coupling inductor.
-        str
-            Name of the coupling inductor.
+        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+            Circuit Component Object.
 
         """
-        cmpid, cmpname = self.create_component(
+        cmpid = self.create_component(
             compname,
             component_library="Inductors",
             component_name="K_IND",
@@ -701,10 +684,10 @@ class NexximComponents(CircuitComponents):
             use_instance_id_netlist=use_instance_id_netlist,
         )
 
-        self.components[cmpid].set_property("Inductor1", l1)
-        self.components[cmpid].set_property("Inductor2", l2)
-        self.components[cmpid].set_property("CouplingFactor", value)
-        return cmpid, cmpname
+        cmpid.set_property("Inductor1", l1)
+        cmpid.set_property("Inductor2", l2)
+        cmpid.set_property("CouplingFactor", value)
+        return cmpid
 
     @aedt_exception_handler
     def create_diode(
@@ -730,13 +713,11 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        int
-            ID of the diode.
-        str
-            Name of the diode.
+        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+            Circuit Component Object.
 
         """
-        cmpid, cmpname = self.create_component(
+        cmpid = self.create_component(
             compname,
             component_library="Diodes",
             component_name="DIODE_Level1",
@@ -746,8 +727,8 @@ class NexximComponents(CircuitComponents):
             use_instance_id_netlist=use_instance_id_netlist,
         )
 
-        self.components[cmpid].set_property("MOD", model_name)
-        return cmpid, cmpname
+        cmpid.set_property("MOD", model_name)
+        return cmpid
 
     @aedt_exception_handler
     def create_npn(self, compname=None, value=None, xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
@@ -771,13 +752,11 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        int
-            ID of the NPN transistor.
-        str
-            Name of the NPN transistor.
+        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+            Circuit Component Object.
 
         """
-        id, name = self.create_component(
+        id = self.create_component(
             compname,
             component_library="BJTs",
             component_name="Level01_NPN",
@@ -787,8 +766,8 @@ class NexximComponents(CircuitComponents):
             use_instance_id_netlist=use_instance_id_netlist,
         )
         if value:
-            self.components[id].set_property("MOD", value)
-        return id, name
+            id.set_property("MOD", value)
+        return id
 
     @aedt_exception_handler
     def create_pnp(self, compname=None, value=50, xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
@@ -812,13 +791,11 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        int
-            ID of the PNP transistor.
-        str
-            Name of the PNP transistor.
+        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+            Circuit Component Object.
 
         """
-        id, name = self.create_component(
+        id = self.create_component(
             compname,
             component_library="BJTs",
             component_name="Level01_PNP",
@@ -828,9 +805,9 @@ class NexximComponents(CircuitComponents):
             use_instance_id_netlist=use_instance_id_netlist,
         )
         if value:
-            self.components[id].set_property("MOD", value)
+            id.set_property("MOD", value)
 
-        return id, name
+        return id
 
     @aedt_exception_handler
     def create_new_component_from_symbol(
@@ -987,6 +964,7 @@ class NexximComponents(CircuitComponents):
         """
         name = o.composed_name
         proparray = self._oeditor.GetProperties("PassedParameterTab", name)
+        proparray = self._oeditor.GetProperties("PassedParameterTab", name)
         for j in proparray:
             propval = _retry_ntimes(10, self._oeditor.GetPropertyValue, "PassedParameterTab", name, j)
             o._add_property(j, propval)
@@ -1085,8 +1063,8 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+            Circuit Component Object.
 
         """
         designer_customization = self.get_comp_custom_settings(1, 0, 0, 1, 0, 0, "False", "", 1)
@@ -1287,7 +1265,7 @@ class NexximComponents(CircuitComponents):
             item = comp_name
             item2 = self.components[el].composed_name
             if comp_name in self.components[el].composed_name:
-                return el, self.components[el].composed_name
+                return self.components[el]
         return False
 
     @aedt_exception_handler

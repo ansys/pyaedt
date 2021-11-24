@@ -94,7 +94,7 @@ class ModelerNexxim(ModelerCircuit):
     def __init__(self, app):
         self._app = app
         ModelerCircuit.__init__(self, app)
-        self.components = NexximComponents(self)
+        self._schematic = NexximComponents(self)
         self.layouteditor = None
         if self._app.design_type != "Twin Builder":
             self.layouteditor = self._odesign.SetActiveEditor("Layout")
@@ -102,6 +102,29 @@ class ModelerNexxim(ModelerCircuit):
         self.layers = Layers(self, roughnessunits="um")
         self._primitives = Primitives3DLayout(self)
         self._primitivesDes = self._app.project_name + self._app.design_name
+
+    @property
+    def schematic(self):
+        """Schematic Component.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.PrimitivesNexxim.NexximComponents`
+        """
+        return self._schematic
+
+    @property
+    def components(self):
+        """Schematic Component.
+
+        .. deprecated:: 0.4.10
+           Use :func:`Circuit.modeler.schematic` instead.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.PrimitivesNexxim.NexximComponents`
+        """
+        return self._schematic
 
     @property
     def edb(self):
@@ -122,7 +145,7 @@ class ModelerNexxim(ModelerCircuit):
         return _retry_ntimes(10, self.layouteditor.GetActiveUnits)
 
     @property
-    def primitives(self):
+    def layout(self):
         """Primitives.
 
         Returns
@@ -135,6 +158,20 @@ class ModelerNexxim(ModelerCircuit):
         if self._primitivesDes != self._app.project_name + self._app.design_name:
             self._primitives = Primitives3DLayout(self)
             self._primitivesDes = self._app.project_name + self._app.design_name
+        return self._primitives
+
+    @property
+    def primitives(self):
+        """Primitives.
+
+        .. deprecated:: 0.4.10
+           Use :func:`Circuit.modeler.layout` instead.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Primitives3DLayout.Primitives3DLayout`
+
+        """
         return self._primitives
 
     @model_units.setter
@@ -217,9 +254,15 @@ class ModelerSimplorer(ModelerCircuit):
     def __init__(self, app):
         self._app = app
         ModelerCircuit.__init__(self, app)
-        self.components = SimplorerComponents(self)
+        self._components = SimplorerComponents(self)
 
+    @property
+    def components(self):
+        return self._components
 
+    @property
+    def schematic(self):
+        return self._components
 class ModelerEmit(ModelerCircuit):
     """ModelerEmit class.
 

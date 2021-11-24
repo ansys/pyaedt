@@ -174,9 +174,9 @@ class Circuit(FieldAnalysisCircuit, object):
                 elif ".model" in line[:7].lower() or ".lib" in line[:4].lower():
                     model.append(line)
         if model:
-            self.modeler.components.create_symbol("Models_Netlist", [])
-            self.modeler.components.create_new_component_from_symbol("Models_Netlist", [], "")
-            self.modeler.components.create_component(
+            self.modeler.schematic.create_symbol("Models_Netlist", [])
+            self.modeler.schematic.create_new_component_from_symbol("Models_Netlist", [], "")
+            self.modeler.schematic.create_component(
                 None,
                 component_library=None,
                 component_name="Models_Netlist",
@@ -184,7 +184,7 @@ class Circuit(FieldAnalysisCircuit, object):
                 ypos=0,
                 global_netlist_list=model,
             )
-            self.modeler.components.disable_data_netlist(component_name="Models_Netlist")
+            self.modeler.schematic.disable_data_netlist(component_name="Models_Netlist")
             xpos += 0.0254
         counter = 0
         with open(file_to_import, "rb") as f:
@@ -206,7 +206,7 @@ class Circuit(FieldAnalysisCircuit, object):
                         value = self._get_number_from_string(fields[3].split("/")[0])
                     else:
                         value = self._get_number_from_string(fields[3])
-                    mycomp, mycompname = self.modeler.components.create_resistor(
+                    mycomp = self.modeler.schematic.create_resistor(
                         name, value, xpos, ypos, use_instance_id_netlist=use_instance
                     )
                 elif fields[0][0] == "L":
@@ -224,7 +224,7 @@ class Circuit(FieldAnalysisCircuit, object):
                         value = self._get_number_from_string(fields[3].split("/")[0])
                     else:
                         value = self._get_number_from_string(fields[3])
-                    mycomp, mycompname = self.modeler.components.create_inductor(
+                    mycomp = self.modeler.schematic.create_inductor(
                         name, value, xpos, ypos, use_instance_id_netlist=use_instance
                     )
                 elif fields[0][0] == "C":
@@ -234,13 +234,13 @@ class Circuit(FieldAnalysisCircuit, object):
                         value = self._get_number_from_string(fields[3].split("/")[0])
                     else:
                         value = self._get_number_from_string(fields[3])
-                    mycomp, mycompname = self.modeler.components.create_capacitor(
+                    mycomp = self.modeler.schematic.create_capacitor(
                         name, value, xpos, ypos, use_instance_id_netlist=use_instance
                     )
                 elif fields[0][0] == "Q" or fields[0][0] == "U":
                     if len(fields) == 4 and fields[0][0] == "Q":
                         value = fields[3].strip()
-                        mycomp, mycompname = self.modeler.components.create_npn(
+                        mycomp = self.modeler.schematic.create_npn(
                             fields[0], value, xpos, ypos, use_instance_id_netlist=use_instance
                         )
                     else:
@@ -257,16 +257,16 @@ class Circuit(FieldAnalysisCircuit, object):
                         else:
                             parameter_list = ["MOD"]
                             parameter_value = [parameter]
-                        self.modeler.components.create_symbol(parameter, pins)
+                        self.modeler.schematic.create_symbol(parameter, pins)
                         already_exist = False
-                        for el in self.modeler.components.components:
-                            if self.modeler.components.components[el].name == parameter:
+                        for el in self.modeler.schematic.components:
+                            if self.modeler.schematic.components[el].name == parameter:
                                 already_exist = True
                         if not already_exist:
-                            self.modeler.components.create_new_component_from_symbol(
+                            self.modeler.schematic.create_new_component_from_symbol(
                                 parameter, pins, fields[0][0], parameter_list, parameter_value
                             )
-                        mycomp, mycompname = self.modeler.components.create_component(
+                        mycomp = self.modeler.schematic.create_component(
                             fields[0],
                             component_library=None,
                             component_name=parameter,
@@ -289,16 +289,16 @@ class Circuit(FieldAnalysisCircuit, object):
                     else:
                         parameter_list = ["MOD"]
                         parameter_value = [parameter]
-                    self.modeler.components.create_symbol(parameter, pins)
+                    self.modeler.schematic.create_symbol(parameter, pins)
                     already_exist = False
-                    for el in self.modeler.components.components:
-                        if self.modeler.components.components[el].name == parameter:
+                    for el in self.modeler.schematic.components:
+                        if self.modeler.schematic.components[el].name == parameter:
                             already_exist = True
                     if not already_exist:
-                        self.modeler.components.create_new_component_from_symbol(
+                        self.modeler.schematic.create_new_component_from_symbol(
                             parameter, pins, fields[0][0], parameter_list, parameter_value
                         )
-                    mycomp, mycompname = self.modeler.components.create_component(
+                    mycomp = self.modeler.schematic.create_component(
                         fields[0],
                         component_library=None,
                         component_name=parameter,
@@ -309,49 +309,48 @@ class Circuit(FieldAnalysisCircuit, object):
                     value = None
                 elif fields[0][0] == "D":
                     value = self._get_number_from_string(fields[3])
-                    mycomp, mycompname = self.modeler.components.create_diode(
+                    mycomp = self.modeler.schematic.create_diode(
                         name, value, xpos, ypos, use_instance_id_netlist=use_instance
                     )
                 elif fields[0][0] == "V":
                     if "PULSE" not in line:
                         value = self._get_number_from_string(fields[3])
-                        mycomp, mycompname = self.modeler.components.create_voltage_dc(
+                        mycomp = self.modeler.schematic.create_voltage_dc(
                             name, value, xpos, ypos, use_instance_id_netlist=use_instance
                         )
                     else:
                         value = line[line.index("PULSE") + 6 : line.index(")") - 1].split(" ")
                         value = [i.replace("{", "").replace("}", "") for i in value]
                         fields[1], fields[2] = fields[2], fields[1]
-                        mycomp, mycompname = self.modeler.components.create_voltage_pulse(
+                        mycomp = self.modeler.schematic.create_voltage_pulse(
                             name, value, xpos, ypos, use_instance_id_netlist=use_instance
                         )
                 elif fields[0][0] == "K":
                     value = self._get_number_from_string(fields[3])
-                    mycomp, mycompname = self.modeler.components.create_coupling_inductors(
+                    mycomp = self.modeler.schematic.create_coupling_inductors(
                         name, fields[1], fields[2], value, xpos, ypos, use_instance_id_netlist=use_instance
                     )
                 elif fields[0][0] == "I":
                     if "PULSE" not in line:
                         value = self._get_number_from_string(fields[3])
-                        mycomp, mycompname = self.modeler.components.create_current_dc(
+                        mycomp = self.modeler.schematic.create_current_dc(
                             name, value, xpos, ypos, use_instance_id_netlist=use_instance
                         )
                     else:
                         value = line[line.index("PULSE") + 6 : line.index(")") - 1].split(" ")
                         value = [i.replace("{", "").replace("}", "") for i in value]
-                        mycomp, mycompname = self.modeler.components.create_current_pulse(
+                        mycomp = self.modeler.schematic.create_current_pulse(
                             name, value, xpos, ypos, use_instance_id_netlist=use_instance
                         )
                 if mycomp:
-                    pins = self.modeler.components.get_pins(mycomp)
                     id = 1
-                    for pin in pins:
-                        pos = self.modeler.components.get_pin_location(mycomp, pin)
+                    for pin in mycomp.pins:
+                        pos = pin.location
                         if pos[0] < xpos:
                             angle = 6.28318530717959
                         else:
                             angle = 3.14159265358979
-                        self.modeler.components.create_page_port(fields[id], pos[0], pos[1], angle)
+                        self.modeler.schematic.create_page_port(fields[id], pos[0], pos[1], angle)
                         id += 1
                     ypos += delta
                     if ypos > 0.254:
@@ -432,35 +431,34 @@ class Circuit(FieldAnalysisCircuit, object):
 
             mycomp = None
             if "resistor:RES." in comptype:
-                mycomp, mycompname = self.modeler.components.create_resistor(
+                mycomp= self.modeler.schematic.create_resistor(
                     name, value, xpos, ypos, use_instance_id_netlist=use_instance
                 )
             elif "inductor:COIL." in comptype:
-                mycomp, mycompname = self.modeler.components.create_inductor(
+                mycomp = self.modeler.schematic.create_inductor(
                     name, value, xpos, ypos, use_instance_id_netlist=use_instance
                 )
             elif "capacitor:CAP." in comptype:
-                mycomp, mycompname = self.modeler.components.create_capacitor(
+                mycomp = self.modeler.schematic.create_capacitor(
                     name, value, xpos, ypos, use_instance_id_netlist=use_instance
                 )
             elif "transistor:NPN" in comptype:
-                mycomp, mycompname = self.modeler.components.create_npn(
+                mycomp = self.modeler.schematic.create_npn(
                     name, value, xpos, ypos, use_instance_id_netlist=use_instance
                 )
             elif "transistor:PNP" in comptype:
-                mycomp, mycompname = self.modeler.components.create_pnp(
+                mycomp = self.modeler.schematic.create_pnp(
                     name, value, xpos, ypos, use_instance_id_netlist=use_instance
                 )
             elif "diode:" in comptype:
-                mycomp, mycompname = self.modeler.components.create_diode(
+                mycomp = self.modeler.schematic.create_diode(
                     name, value, xpos, ypos, use_instance_id_netlist=use_instance
                 )
 
             if mycomp:
-                pins = self.modeler.components.get_pins(mycomp)
                 id = 1
-                for pin in pins:
-                    pos = self.modeler.components.get_pin_location(mycomp, pin)
+                for pin in mycomp.pins:
+                    pos = pin.location
                     if pos[0] < xpos:
                         angle = 6.28318530717959
                     else:
@@ -481,7 +479,7 @@ class Circuit(FieldAnalysisCircuit, object):
                             netname = netname.replace("$", "")
 
                     if netname:
-                        self.modeler.components.create_page_port(netname, pos[0], pos[1], angle)
+                        self.modeler.schematic.create_page_port(netname, pos[0], pos[1], angle)
                     else:
                         self.logger.info("Page Port Not Created")
                     id += 1
@@ -494,11 +492,10 @@ class Circuit(FieldAnalysisCircuit, object):
             netname = el[2][1:-1]
             netname = netname.replace("$", "")
             if "GND" in netname.upper():
-                self.modeler.components.create_gnd(xpos, ypos)
+                self.modeler.schematic.create_gnd(xpos, ypos)
                 page_pos = ypos + 0.00254
-                id, name = self.modeler.components.create_page_port(netname, xpos, ypos, 6.28318530717959)
-                mod1 = self.modeler.components[id]
-                mod1.set_location(str(xpos) + "meter", str(page_pos) + "meter")
+                mod1 = self.modeler.schematic.create_page_port(netname, xpos, ypos, 6.28318530717959)
+                mod1.location = [str(xpos) + "meter", str(page_pos) + "meter"]
                 ypos += delta
                 if ypos > delta * column_number:
                     xpos += delta
@@ -1056,7 +1053,7 @@ class Circuit(FieldAnalysisCircuit, object):
             if settings[i] == "":
                 settings[i] = defaults[i]
 
-        id = self.modeler.components.create_unique_id()
+        id = self.modeler.schematic.create_unique_id()
 
         arg1 = [
             "NAME:NexximSources",
@@ -1178,7 +1175,7 @@ class Circuit(FieldAnalysisCircuit, object):
             if settings[i] == "":
                 settings[i] = defaults[i]
 
-        id = self.modeler.components.create_unique_id()
+        id = self.modeler.schematic.create_unique_id()
 
         arg1 = [
             "NAME:NexximSources",
@@ -1300,7 +1297,7 @@ class Circuit(FieldAnalysisCircuit, object):
             if settings[i] == "":
                 settings[i] = defaults[i]
 
-        id = self.modeler.components.create_unique_id()
+        id = self.modeler.schematic.create_unique_id()
 
         arg1 = [
             "NAME:NexximSources",
