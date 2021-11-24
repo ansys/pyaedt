@@ -431,7 +431,7 @@ class Circuit(FieldAnalysisCircuit, object):
 
             mycomp = None
             if "resistor:RES." in comptype:
-                mycomp= self.modeler.schematic.create_resistor(
+                mycomp = self.modeler.schematic.create_resistor(
                     name, value, xpos, ypos, use_instance_id_netlist=use_instance
                 )
             elif "inductor:COIL." in comptype:
