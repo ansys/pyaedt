@@ -2025,7 +2025,7 @@ class CircuitComponent(object):
         Parameters
         ----------
         location_xy : list
-            List of x and y coordinates. If float is provided, ``mils`` will be used
+            List of x and y coordinates. If float is provided, ``mils`` will be used.
         """
         decomposed = decompose_variable_value(location_xy[0])
         try:
