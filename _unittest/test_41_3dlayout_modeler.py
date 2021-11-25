@@ -341,6 +341,10 @@ class TestClass:
             assert setup.export_to_hfss(file_fullname=file_fullname)
             time.sleep(2)  # wait for the export operation to finish
 
+    def test_19_E_export_results(self):
+        files = self.aedtapp.export_results()
+        assert len(files) > 0
+
     def test_20_set_export_touchstone(self):
         assert self.aedtapp.set_export_touchstone(True)
         assert self.aedtapp.set_export_touchstone(False)

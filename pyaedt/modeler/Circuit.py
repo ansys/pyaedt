@@ -3,6 +3,7 @@ from pyaedt.generic.general_methods import aedt_exception_handler, _retry_ntimes
 from pyaedt.modules.LayerStackup import Layers
 from pyaedt.modeler.Modeler import Modeler
 from pyaedt.modeler.Primitives3DLayout import Primitives3DLayout
+from pyaedt.modeler.PrimitivesEmit import EmitComponents
 from pyaedt.modeler.PrimitivesNexxim import NexximComponents
 from pyaedt.modeler.PrimitivesSimplorer import SimplorerComponents
 
@@ -231,3 +232,4 @@ class ModelerEmit(ModelerCircuit):
     def __init__(self, app):
         self._app = app
         ModelerCircuit.__init__(self, app)
+        self.components = EmitComponents(app, self)

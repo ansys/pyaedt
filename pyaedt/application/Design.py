@@ -1152,6 +1152,7 @@ class Design(object):
         if not file_path:
             file_path = os.path.join(self.project_path, generate_unique_name("Profile")+".prop")
         self.odesign.ExportProfile(setup_name, variation_string, file_path)
+        self.logger.info("Exported Profile to file {}".format(file_path))
         return file_path
 
     @aedt_exception_handler
@@ -1442,8 +1443,14 @@ class Design(object):
     def _is_object_oriented_enabled(self):
         if self._aedt_version >= "2022.1":
             return True
+        elif self.check_beta_option_enabled("SF159726_SCRIPTOBJECT"):
+            return True
         else:
-            return self.check_beta_option_enabled("SF159726_SCRIPTOBJECT")
+            try:
+                self.oproject.GetChildObject("Variables")
+                return True
+            except:
+                return False
 
     @aedt_exception_handler
     def set_active_dso_config_name(self, product_name="HFSS", config_name="Local"):

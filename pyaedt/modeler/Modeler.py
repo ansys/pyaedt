@@ -599,16 +599,10 @@ class GeometryModeler(Modeler, object):
 
     Parameters
     ----------
-    parent :
+    app :
         Inherited parent object.
-    is3D : bool, optional
+    is3d : bool, optional
         Whether the model is 3D. The default is ``True``.
-
-    Returns
-    -------
-    bool
-        ``True`` when successful, ``False`` when failed.
-
     """
 
     def __init__(self, app, is3d=True):

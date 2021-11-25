@@ -7,7 +7,10 @@ from datetime import datetime
 from pyaedt.generic.general_methods import is_ironpython
 
 if os.name != "posix":
-    sys.path.append(os.path.join(os.environ["ANSYSEM_ROOT212"], "PythonFiles", "DesktopPlugin"))
+    ansysem_install_dir = os.environ.get("ANSYSEM_INSTALL_DIR", "")
+    if not ansysem_install_dir:
+        ansysem_install_dir = os.environ["ANSYSEM_ROOT212"]
+    sys.path.append(os.path.join(ansysem_install_dir, "PythonFiles", "DesktopPlugin"))
 path_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..")
 sys.path.append(path_dir)
 
