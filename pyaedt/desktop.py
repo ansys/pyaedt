@@ -104,36 +104,6 @@ def _delete_objects():
     module = sys.modules["__main__"]
     if "COMUtil" in dir(module):
         del module.COMUtil
-    if "Hfss" in dir(module):
-        del module.Hfss
-    if "Edb" in dir(module):
-        del module.Edb
-    if "Q3d" in dir(module):
-        del module.Q3d
-    if "Q2d" in dir(module):
-        del module.Q2d
-    if "Maxwell3d" in dir(module):
-        del module.Maxwell3d
-    if "Maxwell2d" in dir(module):
-        del module.Maxwell2d
-    if "Icepak" in dir(module):
-        del module.Icepak
-    if "Mechanical" in dir(module):
-        del module.Mechanical
-    if "Emit" in dir(module):
-        del module.Emit
-    if "Circuit" in dir(module):
-        del module.Circuit
-    if "Simplorer" in dir(module):
-        del module.Simplorer
-    if "Hfss3dLayout" in dir(module):
-        del module.Hfss3dLayout
-    if "oMessenger" in dir(module):
-        del module.oMessenger
-    if "oDesktop" in dir(module):
-        del module.oDesktop
-    if "pyaedt_initialized" in dir(module):
-        del module.pyaedt_initialized
     if "aedt_logger" in dir(module):
         del module.aedt_logger
     if "_aedt_handler" in dir(module):
