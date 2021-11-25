@@ -1443,8 +1443,14 @@ class Design(object):
     def _is_object_oriented_enabled(self):
         if self._aedt_version >= "2022.1":
             return True
+        elif self.check_beta_option_enabled("SF159726_SCRIPTOBJECT"):
+            return True
         else:
-            return self.check_beta_option_enabled("SF159726_SCRIPTOBJECT")
+            try:
+                self.oproject.GetChildObject("Variables")
+                return True
+            except:
+                return False
 
     @aedt_exception_handler
     def set_active_dso_config_name(self, product_name="HFSS", config_name="Local"):
