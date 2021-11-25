@@ -19,7 +19,11 @@ from pyaedt.generic.constants import (
     GRAVITY,
     VIEW,
     SOLUTIONS,
-    SETUPS)
+    SETUPS,
+    CoordinateSystemPlane,
+    CoordinateSystemAxis,
+    Plane,
+    GravityDirection)
 from pyaedt.modules.Boundary import NativeComponentObject
 from pyaedt.modules.DesignXPloration import (
     DOESetups,
@@ -191,7 +195,7 @@ class Analysis(Design, object):
             Coordinate system axis constants tuple (.X, .Y, .Z).
 
         """
-        return AXIS()
+        return CoordinateSystemAxis()
 
     @property
     def CoordinateSystemPlane(self):
@@ -206,7 +210,7 @@ class Analysis(Design, object):
             Coordinate system plane constants tuple (.XY, .YZ, .XZ).
 
         """
-        return PLANE()
+        return CoordinateSystemPlane()
 
     @property
     def View(self):
@@ -221,7 +225,7 @@ class Analysis(Design, object):
             Coordinate system plane string tuple ("XY", "YZ", "XZ").
 
         """
-        return VIEW()
+        return Plane()
 
     @property
     def GravityDirection(self):
@@ -235,7 +239,7 @@ class Analysis(Design, object):
             Gravity direction tuple (XNeg, YNeg, ZNeg, XPos, YPos, ZPos).
 
         """
-        return GRAVITY()
+        return GravityDirection()
 
     @property
     def modeler(self):
