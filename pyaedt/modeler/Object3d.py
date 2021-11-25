@@ -1863,6 +1863,16 @@ class CircuitPins(object):
     @property
     def location(self):
         """Pin Position in [x,y] format."""
+        if "Port" in self._circuit_comp.composed_name:
+            pos1 = _retry_ntimes(30, self.m_Editor.GetPropertyValue, "BaseElementTab", self._circuit_comp.composed_name,
+                                 "Component Location")
+            if isinstance(pos1, str):
+                pos1 = pos1.split(", ")
+                pos1 = [float(i.strip()[:-3]) * 0.0000254 for i in pos1]
+                if "GPort" in self._circuit_comp.composed_name:
+                    pos1[1] += 0.00254
+                return pos1
+            return []
         return [_retry_ntimes(30, self.m_Editor.GetComponentPinLocation, self._circuit_comp.composed_name, self.name,
                               True),
                 _retry_ntimes(30, self.m_Editor.GetComponentPinLocation, self._circuit_comp.composed_name, self.name,
@@ -1883,14 +1893,27 @@ class CircuitPins(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-
-        page_name = "{}_{}".format(self._circuit_comp.composed_name, self.name)
+        if "Port" in self._circuit_comp.composed_name:
+            try:
+                page_name = self._circuit_comp.name.split("@")[1].replace(";", "_")
+            except:
+                page_name = "{}_{}".format(self._circuit_comp.composed_name.replace("CompInst@", "").replace(";", "_"),
+                                           self.name)
+        elif "Port" in component_pin._circuit_comp.composed_name:
+            try:
+                page_name = self._circuit_comp.name.split("@")[1].replace(";", "_")
+            except:
+                page_name = "{}_{}".format(self._circuit_comp.composed_name.replace("CompInst@", "").replace(";", "_"),
+                                           self.name)
+        else:
+            page_name = "{}_{}".format(self._circuit_comp.composed_name.replace("CompInst@", "").replace(";", "_"),
+                                       self.name)
         try:
             x_loc = AEDT_UNITS["Length"][decompose_variable_value(self._circuit_comp.location[0])[1]] * float(
                 decompose_variable_value(self._circuit_comp.location[1])[0])
         except:
             x_loc = float(self._circuit_comp.location[0])
-        if self.position[0] < x_loc:
+        if self.location[0] < x_loc:
             angle = 6.28318530717959
         else:
             angle = 3.14159265358979
@@ -1902,7 +1925,7 @@ class CircuitPins(object):
                 decompose_variable_value(component_pin._circuit_comp.location[0])[0])
         except:
             x_loc = float(self._circuit_comp.location[0])
-        if component_pin.position[0] < x_loc:
+        if component_pin.location[0] < x_loc:
             angle = 6.28318530717959
         else:
             angle = 3.14159265358979
@@ -1992,16 +2015,20 @@ class CircuitComponent(object):
         """
         Returns
         -------
-        list of :class:`pyaedt.modeler.PrimitivesNexxim.CircuitPins`
+        list of :class:`pyaedt.modeler.Object3d.CircuitPins`
         """
         if self._pins:
             return self._pins
-        pins = _retry_ntimes(10, self.m_Editor.GetComponentPins, self.composed_name)
         self._pins = []
-        if not pins:
-            return []
-        for pin in pins:
-            self._pins.append(CircuitPins(self, pin))
+
+        if "Port" in self.composed_name:
+            self._pins.append(CircuitPins(self, self.composed_name))
+        else:
+            pins = _retry_ntimes(10, self.m_Editor.GetComponentPins, self.composed_name)
+            if not pins:
+                return []
+            for pin in pins:
+                self._pins.append(CircuitPins(self, pin))
         return self._pins
 
     @property
