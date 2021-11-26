@@ -34,7 +34,6 @@ source_project = os.path.join(local_path, "example_models", src_project_name + "
 source_project_path = os.path.join(local_path, "example_models", src_project_name)
 
 
-
 class TestClass:
     def setup_class(self):
         timeout = 4
@@ -355,7 +354,7 @@ class TestClass:
     def test_88_create_heat_sink(self):
         self.aedtapp.insert_design("HS")
         assert self.aedtapp.create_parametric_fin_heat_sink()
-    
+
     def test_89_check_bounding_box(self):
 
         self.aedtapp.insert_design("Bbox")

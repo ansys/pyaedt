@@ -243,6 +243,7 @@ class VertexPrimitive(EdgeTypePrimitive, object):
         Object ID as determined by the parent object.
 
     """
+
     def __init__(self, object3d, objid):
         self.id = objid
         self._object3d = object3d
@@ -625,6 +626,7 @@ class Object3d(object):
     >>> id = prim.create_box([0, 0, 0], [10, 10, 5], "Mybox", "Copper")
     >>> part = prim[id]
     """
+
     def __init__(self, primitives, name=None):
         """
         Parameters
@@ -667,7 +669,8 @@ class Object3d(object):
             Xmin, Ymin, Zmin, Xmax, Ymax, and Zmax values.
 
         """
-        objs_to_unmodel = [val.name for i, val in self._primitives.objects.items() if val.model and val.name!=self.name]
+        objs_to_unmodel = [val.name for i, val in self._primitives.objects.items() if
+                           val.model and val.name != self.name]
         if objs_to_unmodel:
             vArg1 = ["NAME:Model", "Value:=", False]
             self._primitives._change_geometry_property(vArg1, objs_to_unmodel)
@@ -1342,7 +1345,7 @@ class Object3d(object):
 
     @aedt_exception_handler
     def sweep_along_path(
-        self, sweep_object, draft_angle=0, draft_type="Round", is_check_face_intersection=False, twist_angle=0
+            self, sweep_object, draft_angle=0, draft_type="Round", is_check_face_intersection=False, twist_angle=0
     ):
         """Sweep the selection along a vector.
 
@@ -1721,7 +1724,7 @@ class Padstack(object):
 
     @aedt_exception_handler
     def add_layer(
-        self, layername="Start", pad_hole=None, antipad_hole=None, thermal_hole=None, connx=0, conny=0, conndir=0
+            self, layername="Start", pad_hole=None, antipad_hole=None, thermal_hole=None, connx=0, conny=0, conndir=0
     ):
         """Create a layer in the padstack.
 
