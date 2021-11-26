@@ -491,16 +491,16 @@ unit_val = {
     "km": 1e3,
 }
 resynch_maxwell2D_control_program_for_design = """
-from pyaedt.Desktop import Desktop
-from pyaedt.Maxwell import Maxwell2D
+from pyaedt.desktop import Desktop
+from pyaedt.maxwell import Maxwell2d
 design_name = os.getenv('design')
 setup = os.getenv('setup')
 
 with Desktop() as d:
-    mxwl = Maxwell2D(designname=design_name, setup_name=setup)
-    mxwl.setup_ctrlprog(keep_modifications=True )
-    oDesktop.AddMessage( mxwl.project_name, mxwl.design_name, 0, "Successfully updated project definitions")
-    mxwl.save_project()
+    maxwell_2d = Maxwell2d(designname=design_name, setup_name=setup)
+    maxwell_2d.setup_ctrlprog(keep_modifications=True )
+    oDesktop.AddMessage( maxwell_2d.project_name, maxwell_2d.design_name, 0, "Successfully updated project definitions")
+    maxwell_2d.save_project()
 """
 
 
