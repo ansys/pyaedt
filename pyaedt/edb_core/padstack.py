@@ -299,6 +299,23 @@ class EdbPadstacks(object):
         return geom_type, parameters, offset_x, offset_y, rot
 
     @aedt_exception_handler
+    def get_via_instance_from_net(self):
+        """
+
+        """
+        layout_lobj_collection = self._active_layout.GetLayoutInstance().GetAllLayoutObjInstances()
+        via_list = []
+        for lobj in layout_lobj_collection:
+            if lobj.GetObjType() == self._edb.Cell.LayoutObjType.PadstackInstance:
+                pad_layersname = lobj.GetPadstackDef().GetData().GetLayerNames()
+                if len(pad_layersname) > 1:
+                    via_list.append(lobj)
+        #padstacks_list = [lobj for lobj in layout_lobj_collection if ]
+        #test = list(filter(lambda x: [pp for pp in x.GetPadstackDef().GetData().GetLayerNames() if len(pp) > 1], padstacks_list))
+        #via_list = [pad for pad in padstacks_list if pad]
+        return  via_list
+
+    @aedt_exception_handler
     def create_padstack(
             self, padstackname=None, holediam="300um", paddiam="400um", antipaddiam="600um",
             startlayer=None, endlayer=None, antipad_shape="Circle", x_size="600um", y_size="600um",
