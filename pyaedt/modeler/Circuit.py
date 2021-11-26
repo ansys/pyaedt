@@ -185,17 +185,17 @@ class ModelerNexxim(ModelerCircuit):
         self.oeditor.SetActivelUnits(["NAME:Units Parameter", "Units:=", units, "Rescale:=", False])
 
     @aedt_exception_handler
-    def move(self, selections, posx, posy):
+    def move(self, selections, pos, units="meter"):
         """Move the selections by ``[x, y]``.
 
         Parameters
         ----------
         selections : list
             List of the selections.
-        posx : float, str
-            Offset for the X axis. If float is provided units are intended in mils.
-        posy : float, str
-            Offset for the Y axis. If float is provided units are intended in mils.
+        pos : list
+            Offset for the ``[x, y]`` axis.
+        units : str
+            Offset for the Y axis.
 
         Returns
         -------
@@ -215,27 +215,10 @@ class ModelerNexxim(ModelerCircuit):
                 for el in list(self.schematic.components.values()):
                     if sel == el.InstanceName or el.composed_name or el.name:
                         sels.append(el.composed_name)
-        decomposed = decompose_variable_value(posx)
-        try:
-            if decomposed[1] != "":
-                x_location = round(AEDT_UNITS["Length"][decomposed[1]] * float(decomposed[0]) * MILS2METER, -2)
-            else:
-                x_location = round(float(decomposed[0]), -2)
 
-            x_location = _dim_arg(x_location, "mil")
+        x_location = AEDT_UNITS["Length"][units] * float(pos[0])
+        y_location = AEDT_UNITS["Length"][units] * float(pos[1])
 
-        except:
-            x_location = posx
-        decomposed = decompose_variable_value(posy)
-        try:
-            if decomposed[1] != "":
-                y_location = round(AEDT_UNITS["Length"][decomposed[1]] * float(decomposed[0]) * MILS2METER, -2)
-            else:
-                y_location = round(float(decomposed[0]), -2)
-            y_location = _dim_arg(y_location, "mil")
-
-        except:
-            y_location = posy
         self.oeditor.Move(
             ["NAME:Selections", "Selections:=", sels],
             ["NAME:MoveParameters", "xdelta:=", x_location, "ydelta:=", y_location, "Disconnect:=", False,

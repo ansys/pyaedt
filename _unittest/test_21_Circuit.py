@@ -185,7 +185,8 @@ class TestClass:
         assert self.aedtapp.modeler.model_units
 
     def test_14_move(self):
-        assert self.aedtapp.modeler.move("L100", 0.00508, 0.00508)
+        assert self.aedtapp.modeler.move("L100", [0.00508, 0.00508])
+        assert self.aedtapp.modeler.move("L100", [200, 200], "mil")
 
     def test_15_rotate(self):
         assert self.aedtapp.modeler.rotate("L100")

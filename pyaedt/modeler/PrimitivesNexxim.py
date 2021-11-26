@@ -1,7 +1,7 @@
 import warnings
 import os
 
-from pyaedt.generic.general_methods import aedt_exception_handler, _retry_ntimes
+from pyaedt.generic.general_methods import aedt_exception_handler
 from pyaedt.modeler.PrimitivesCircuit import CircuitComponents
 
 
