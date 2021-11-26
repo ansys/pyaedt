@@ -14,6 +14,7 @@ from __future__ import absolute_import
 
 import random
 import string
+import math
 
 from pyaedt import aedt_exception_handler, _retry_ntimes
 from pyaedt.modeler.GeometryOperators import GeometryOperators
@@ -1893,6 +1894,12 @@ class CircuitPins(object):
             ``True`` when successful, ``False`` when failed.
 
         """
+        comp_angle = self._circuit_comp.angle * math.pi / 180
+        comp_pin_angle = component_pin._circuit_comp.angle * math.pi / 180
+        if len(self._circuit_comp.pins) == 2:
+            comp_angle += math.pi/2
+        if len(component_pin._circuit_comp.pins) == 2:
+            comp_pin_angle += math.pi / 2
         if "Port" in self._circuit_comp.composed_name:
             try:
                 page_name = self._circuit_comp.name.split("@")[1].replace(";", "_")
@@ -1914,9 +1921,9 @@ class CircuitPins(object):
         except:
             x_loc = float(self._circuit_comp.location[0])
         if self.location[0] < x_loc:
-            angle = 6.28318530717959
+            angle = comp_angle
         else:
-            angle = 3.14159265358979
+            angle = math.pi + comp_angle
 
         ret1 = self._circuit_comp._circuit_components.create_page_port(page_name, posx=self.location[0],
                                                                        posy=self.location[1], angle=angle)
@@ -1926,9 +1933,9 @@ class CircuitPins(object):
         except:
             x_loc = float(self._circuit_comp.location[0])
         if component_pin.location[0] < x_loc:
-            angle = 6.28318530717959
+            angle = comp_pin_angle
         else:
-            angle = 3.14159265358979
+            angle = math.pi + comp_pin_angle
         ret2 = self._circuit_comp._circuit_components.create_page_port(page_name, posx=component_pin.location[0],
                                                                 posy=component_pin.location[1], angle=angle)
         if ret1 and ret2:
@@ -2085,12 +2092,12 @@ class CircuitComponent(object):
         """
         if self._angle is not None:
             return self._angle
-        self._angle = "0deg"
+        self._angle = 0.0
         try:
-            self._angle = _retry_ntimes(10, self.m_Editor.GetPropertyValue, "BaseElementTab", self.composed_name,
-                                  'Component Angle').replace("°", "deg")
+            self._angle = float(_retry_ntimes(10, self.m_Editor.GetPropertyValue, "BaseElementTab", self.composed_name,
+                                  'Component Angle').replace("°", ""))
         except:
-            self._angle = ""
+            self._angle = 0.0
         return self._angle
 
     @angle.setter
@@ -2098,9 +2105,9 @@ class CircuitComponent(object):
         """Set the part angle.
         """
         if not angle:
-            angle = str(self.angle) + "°"
+            angle = str(self._angle) + "°"
         else:
-            angle = str(angle) + "°"
+            angle = _dim_arg(angle, "°")
         vMaterial = ["NAME:Component Angle", "Value:=", angle]
         self.change_property(vMaterial)
 
