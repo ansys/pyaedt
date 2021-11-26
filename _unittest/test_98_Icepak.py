@@ -357,7 +357,6 @@ class TestClass:
         assert self.aedtapp.create_parametric_fin_heat_sink()
     
     def test_89_check_bounding_box(self):
-
         self.aedtapp.insert_design("Bbox")
         obj_1 = self.aedtapp.modeler.primitives.get_object_from_name("Region")
         obj_1_bbox = obj_1.bounding_box
