@@ -95,8 +95,8 @@ class TestClass:
                 assert len(pinlocation) == 2
 
     def test_06_add_3dlayout_component(self):
-        myedb, myname = self.aedtapp.modeler.components.add_subcircuit_3dlayout("Galileo_G87173_204")
-        assert type(myedb) is int
+        myedb = self.aedtapp.modeler.components.add_subcircuit_3dlayout("Galileo_G87173_204")
+        assert type(myedb.id) is int
 
     def test_07_add_hfss_component(self):
         my_model, myname = self.aedtapp.modeler.components.create_field_model(

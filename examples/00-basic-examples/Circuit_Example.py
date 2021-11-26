@@ -27,7 +27,7 @@ desktop_version = "2021.2"
 # You can change the Boolean parameter ``new_thread`` to ``False`` to launch
 # AEDT in existing Desktop Session, if any.
 
-non_graphical = True
+non_graphical = False
 new_thread = True
 
 ###############################################################################
@@ -59,9 +59,9 @@ setup1.update()
 # ~~~~~~~~~~~~~~~~~
 # These methods create components, such as inductors, resistors, and capacitors.
 
-inductor = aedt_app.modeler.components.create_inductor("L1", 1e-9, 0, 0)
-resistor = aedt_app.modeler.components.create_resistor("R1", 50, 0.0254, 0)
-capacitor = aedt_app.modeler.components.create_capacitor("C1", 1e-12, 0.0400, 0)
+inductor = aedt_app.modeler.schematic.create_inductor("L1", 1e-9, 0, 0)
+resistor = aedt_app.modeler.schematic.create_resistor("R1", 50, 0.0254, 0)
+capacitor = aedt_app.modeler.schematic.create_capacitor("C1", 1e-12, 0.0400, 0)
 
 ###############################################################################
 # Get Component Pins

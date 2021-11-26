@@ -6,6 +6,10 @@ from pyaedt.modeler.Primitives3DLayout import Primitives3DLayout
 from pyaedt.modeler.PrimitivesEmit import EmitComponents
 from pyaedt.modeler.PrimitivesNexxim import NexximComponents
 from pyaedt.modeler.PrimitivesSimplorer import SimplorerComponents
+from pyaedt.modeler.Object3d import CircuitComponent
+from pyaedt.modeler.Object3d import _dim_arg
+from pyaedt.application.Variables import decompose_variable_value
+from pyaedt.generic.constants import AEDT_UNITS, MILS2METER
 
 
 class ModelerCircuit(Modeler):
@@ -188,10 +192,10 @@ class ModelerNexxim(ModelerCircuit):
         ----------
         selections : list
             List of the selections.
-        posx : float
-            Offset for the X axis.
-        posy : float
-            Offset for the Y axis.
+        posx : float, str
+            Offset for the X axis. If float is provided units are intended in mils.
+        posy : float, str
+            Offset for the Y axis. If float is provided units are intended in mils.
 
         Returns
         -------
@@ -199,17 +203,43 @@ class ModelerNexxim(ModelerCircuit):
             ``True`` when successful, ``False`` when failed.
 
         """
-        if type(selections) is str:
+        if not isinstance(selections, list):
             selections = [selections]
         sels = []
         for sel in selections:
-            for el in list(self.components.components.values()):
-                if sel == el.InstanceName:
-                    sels.append(self.components.components[el.id].composed_name)
+            if isinstance(sel, int):
+                sels.append(self.schematic.components[sel].composed_name)
+            elif isinstance(sel, CircuitComponent):
+                sels.append(sel.composed_name)
+            else:
+                for el in list(self.schematic.components.values()):
+                    if sel == el.InstanceName or el.composed_name or el.name:
+                        sels.append(el.composed_name)
+        decomposed = decompose_variable_value(posx)
+        try:
+            if decomposed[1] != "":
+                x_location = round(AEDT_UNITS["Length"][decomposed[1]] * float(decomposed[0]) * MILS2METER, -2)
+            else:
+                x_location = round(float(decomposed[0]), -2)
 
+            x_location = _dim_arg(x_location, "mil")
+
+        except:
+            x_location = posx
+        decomposed = decompose_variable_value(posy)
+        try:
+            if decomposed[1] != "":
+                y_location = round(AEDT_UNITS["Length"][decomposed[1]] * float(decomposed[0]) * MILS2METER, -2)
+            else:
+                y_location = round(float(decomposed[0]), -2)
+            y_location = _dim_arg(y_location, "mil")
+
+        except:
+            y_location = posy
         self.oeditor.Move(
             ["NAME:Selections", "Selections:=", sels],
-            ["NAME:MoveParameters", "xdelta:=", posx, "ydelta:=", posy, "Disconnect:=", False, "Rubberband:=", False],
+            ["NAME:MoveParameters", "xdelta:=", x_location, "ydelta:=", y_location, "Disconnect:=", False,
+             "Rubberband:=", False],
         )
         return True
 
@@ -235,9 +265,11 @@ class ModelerNexxim(ModelerCircuit):
             for el in list(self.components.components.values()):
                 if sel == el.InstanceName:
                     sels.append(self.components.components[el.id].composed_name)
+
         self.oeditor.Rotate(
             ["NAME:Selections", "Selections:=", sels],
-            ["NAME:RotateParameters", "Degrees:=", degrees, "Disconnect:=", False, "Rubberband:=", False],
+            ["NAME:RotateParameters", "Degrees:=", _dim_arg(degrees, "°"), "Disconnect:=", False, "Rubberband:=",
+             False],
         )
         return True
 
