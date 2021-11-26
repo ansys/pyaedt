@@ -357,12 +357,10 @@ class TestClass:
         assert self.aedtapp.create_parametric_fin_heat_sink()
     
     def test_89_check_bounding_box(self):
-
         self.aedtapp.insert_design("Bbox")
         obj_1 = self.aedtapp.modeler.primitives.get_object_from_name("Region")
         obj_1_bbox = obj_1.bounding_box
         obj_2 = self.aedtapp.modeler.primitives.create_box([0.2, 0.2, 0.2], [0.3, 0.4, 0.2], name="Box1")
-
         obj_2_bbox = obj_2.bounding_box
         count = 0
         tol = 1e-9
@@ -370,11 +368,9 @@ class TestClass:
             if abs(i - j) > tol:
                 count += 1
         assert count != 0
-
         exp_bounding = [0, 0, 0, 1, 1, 1]
         real_bound = obj_1_bbox
         assert abs(sum([i - j for i, j in zip(exp_bounding, real_bound)])) < tol
-
         exp_bounding = [0.2, 0.2, 0.2, 0.5, 0.6, 0.4]
         real_bound = obj_2_bbox
         assert abs(sum([i - j for i, j in zip(exp_bounding, real_bound)])) < tol
