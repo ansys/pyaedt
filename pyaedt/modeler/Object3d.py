@@ -667,7 +667,7 @@ class Object3d(object):
             Xmin, Ymin, Zmin, Xmax, Ymax, and Zmax values.
 
         """
-        objs_to_unmodel = [val.name for i, val in self._primitives.objects.items() if val.model]
+        objs_to_unmodel = [val.name for i, val in self._primitives.objects.items() if val.model and val.name!=self.name]
         if objs_to_unmodel:
             vArg1 = ["NAME:Model", "Value:=", False]
             self._primitives._change_geometry_property(vArg1, objs_to_unmodel)
