@@ -9,7 +9,6 @@ from pyaedt.edb_core.general import convert_py_list_to_net_list
 import math
 from pyaedt.edb_core.EDB_Data import EDBPadstack
 
-
 try:
     from System import Array
 except ImportError:
@@ -109,6 +108,7 @@ class EdbPadstacks(object):
                 self._edb.Definition.PadType.RegularPad, self._edb.Definition.PadType.AntiPad,
                 self._edb.Definition.PadType.ThermalPad, self._edb.Definition.PadType.Hole,
                 self._edb.Definition.PadType.UnknownGeomType)
+
         return PadType
 
     @aedt_exception_handler
@@ -128,7 +128,7 @@ class EdbPadstacks(object):
 
     @aedt_exception_handler
     def create_circular_padstack(
-        self, padstackname=None, holediam="300um", paddiam="400um", antipaddiam="600um",
+            self, padstackname=None, holediam="300um", paddiam="400um", antipaddiam="600um",
             startlayer=None, endlayer=None
     ):
         """Create a circular padstack.
@@ -299,6 +299,36 @@ class EdbPadstacks(object):
         return geom_type, parameters, offset_x, offset_y, rot
 
     @aedt_exception_handler
+    def get_via_instance_from_net(self, net_list=[]):
+        """Get the list for Edb vias from net name list.
+
+        Parameters
+        ----------
+        net_list : str or list
+            The list of the net name to be used for filtering vias. If no net is provided the command will
+            return an all vias list.
+
+        Returns
+        -------
+        list of Edb.Cell.Primitive.PadstackInstance
+            list of EDB vias.
+        """
+        if not isinstance(net_list, list):
+            net_list = [net_list]
+        layout_lobj_collection = self._active_layout.GetLayoutInstance().GetAllLayoutObjInstances()
+        via_list = []
+        for obj in layout_lobj_collection.Items:
+            lobj = obj.GetLayoutObj()
+            if type(lobj) is self._edb.Cell.Primitive.PadstackInstance:
+                pad_layers_name = lobj.GetPadstackDef().GetData().GetLayerNames()
+                if len(pad_layers_name) > 1:
+                    if not net_list:
+                        via_list.append(lobj)
+                    elif lobj.GetNet().GetName() in net_list:
+                        via_list.append(lobj)
+        return via_list
+
+    @aedt_exception_handler
     def create_padstack(
             self, padstackname=None, holediam="300um", paddiam="400um", antipaddiam="600um",
             startlayer=None, endlayer=None, antipad_shape="Circle", x_size="600um", y_size="600um",
@@ -402,8 +432,8 @@ class EdbPadstacks(object):
         padstackLayerIdMap = {k: v for k, v in zip(padstackData.GetLayerNames(), padstackData.GetLayerIds())}
         padstackLayerMap = self._edb.Utility.LayerMap(self._edb.Utility.UniqueDirection.ForwardUnique)
         for layer, padstackLayerName in zip(
-            self._active_layout.GetLayerCollection().Layers(self._edb.Cell.LayerTypeSet.SignalLayerSet),
-            [startlayer, "Default", endlayer],
+                self._active_layout.GetLayerCollection().Layers(self._edb.Cell.LayerTypeSet.SignalLayerSet),
+                [startlayer, "Default", endlayer],
         ):
             padstackLayerMap.SetMapping(layer.GetLayerId(), padstackLayerIdMap[padstackLayerName])
         padstackDefinition = self._edb.Definition.PadstackDef.Create(self.db, padstackname)
@@ -414,15 +444,15 @@ class EdbPadstacks(object):
 
     @aedt_exception_handler
     def place_padstack(
-        self,
-        position,
-        definition_name,
-        net_name="",
-        via_name="",
-        rotation=0.0,
-        fromlayer=None,
-        tolayer=None,
-        solderlayer=None,
+            self,
+            position,
+            definition_name,
+            net_name="",
+            via_name="",
+            rotation=0.0,
+            fromlayer=None,
+            tolayer=None,
+            solderlayer=None,
     ):
         """Place the padstack.
 
