@@ -499,7 +499,7 @@ setup = os.getenv('setup')
 with Desktop() as d:
     maxwell_2d = Maxwell2d(designname=design_name, setup_name=setup)
     maxwell_2d.setup_ctrlprog(keep_modifications=True )
-    oDesktop.AddMessage( maxwell_2d.project_name, maxwell_2d.design_name, 0, "Successfully updated project definitions")
+    d.logger.info("Successfully updated project definitions")
     maxwell_2d.save_project()
 """
 
