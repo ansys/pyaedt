@@ -299,20 +299,22 @@ class EdbPadstacks(object):
         return geom_type, parameters, offset_x, offset_y, rot
 
     @aedt_exception_handler
-    def get_via_instance_from_net(self, net_list=[""]):
+    def get_via_instance_from_net(self, net_list=[]):
         """Get the list for Edb vias from net name list.
 
         Parameters
         ----------
-        net_list : [str]
+        net_list : str or list
             The list of the net name to be used for filtering vias. If no net is provided the command will
-            return an empty list.
+            return an all vias list.
 
         Returns
         -------
-        list[Edb.Cell.Primitive.PadstackInstance]
+        list of Edb.Cell.Primitive.PadstackInstance
             list of EDB vias.
         """
+        if not isinstance(net_list, list):
+            net_list = [net_list]
         layout_lobj_collection = self._active_layout.GetLayoutInstance().GetAllLayoutObjInstances()
         via_list = []
         for obj in layout_lobj_collection.Items:
@@ -320,7 +322,9 @@ class EdbPadstacks(object):
             if type(lobj) is self._edb.Cell.Primitive.PadstackInstance:
                 pad_layers_name = lobj.GetPadstackDef().GetData().GetLayerNames()
                 if len(pad_layers_name) > 1:
-                    if lobj.GetNet().GetName() in net_list:
+                    if not net_list:
+                        via_list.append(lobj)
+                    elif lobj.GetNet().GetName() in net_list:
                         via_list.append(lobj)
         return via_list
 
