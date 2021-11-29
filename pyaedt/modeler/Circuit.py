@@ -120,7 +120,7 @@ class ModelerNexxim(ModelerCircuit):
     def components(self):
         """Schematic Component.
 
-        .. deprecated:: 0.4.10
+        .. deprecated:: 0.4.13
            Use :func:`Circuit.modeler.schematic` instead.
 
         Returns
@@ -167,7 +167,7 @@ class ModelerNexxim(ModelerCircuit):
     def primitives(self):
         """Primitives.
 
-        .. deprecated:: 0.4.10
+        .. deprecated:: 0.4.13
            Use :func:`Circuit.modeler.layout` instead.
 
         Returns
@@ -273,7 +273,7 @@ class ModelerSimplorer(ModelerCircuit):
     @property
     def components(self):
         """
-        .. deprecated:: 0.4.0
+        .. deprecated:: 0.4.13
            Use :func:`Simplorer.modeler.schematic` instead.
 
         """

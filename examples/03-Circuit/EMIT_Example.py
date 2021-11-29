@@ -3,7 +3,6 @@ EMIT Example
 --------------------------------------------
 This tutorial shows how you can use PyAEDT to create a project in EMIT.
 """
-
 # sphinx_gallery_thumbnail_path = 'Resources/emit.png'
 
 from pyaedt import Emit
@@ -42,12 +41,12 @@ if rad1 and ant1:
 
 rad2 = aedtapp.modeler.components.create_component("GPS Receiver")
 ant2 = aedtapp.modeler.components.create_component("Antenna")
-if rad1 and ant1:
+if rad2 and ant2:
     ant2.move_and_connect_to(rad2)
 
 rad3 = aedtapp.modeler.components.create_component("Bluetooth")
 ant3 = aedtapp.modeler.components.create_component("Antenna")
-if rad1 and ant1:
+if rad3 and ant3:
     ant3.move_and_connect_to(rad3)
 
 

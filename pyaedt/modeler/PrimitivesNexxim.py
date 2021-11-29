@@ -3,6 +3,7 @@ import os
 
 from pyaedt.generic.general_methods import aedt_exception_handler
 from pyaedt.modeler.PrimitivesCircuit import CircuitComponents
+from pyaedt.modeler.Object3d import CircuitComponent
 
 
 class NexximComponents(CircuitComponents):
@@ -1266,7 +1267,14 @@ class NexximComponents(CircuitComponents):
     @aedt_exception_handler
     def _edit_link_definition_hfss_subcircuit(self, component, edited_prop):
         """Generic function to set the link definition for an hfss subcircuit."""
-        complist = component.split(";")
+        if isinstance(component, str):
+            complist = component.split(";")
+        elif isinstance(component, CircuitComponent):
+            complist = component.composed_name.split(";")
+        elif isinstance(component, int):
+            complist = self.components[component].composed_name.split(";")
+        else:
+            raise AttributeError("Wrong Component Input")
         complist2 = complist[0].split("@")
         arg = ["NAME:AllTabs"]
         arg1 = ["NAME:Model"]
