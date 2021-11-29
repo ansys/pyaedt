@@ -20,6 +20,7 @@ from pyaedt import aedt_exception_handler, _retry_ntimes
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.constants import AEDT_UNITS, MILS2METER
+
 clamp = lambda n, minn, maxn: max(min(maxn, n), minn)
 
 rgb_color_codes = {
