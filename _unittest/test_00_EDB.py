@@ -528,6 +528,3 @@ class TestClass:
 
     def test_68_flip_layer_stackup(self):
         assert self.edbapp.core_stackup.flip_stackup_and_apply_transform()
-
-    def test_69_get_vias_from_nets(self):
-        assert self.edbapp.core_padstack.get_via_instance_from_net(["GND"])
