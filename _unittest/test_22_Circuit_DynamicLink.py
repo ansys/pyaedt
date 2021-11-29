@@ -154,23 +154,21 @@ class TestClass:
 
         # Ports Creation
         portname = self.aedtapp.modeler.components.create_interface_port(
-            "Excitation_1", hfss_pin2location["USB_VCC_T1"][0], hfss_pin2location["USB_VCC_T1"][1]
+            "Excitation_1", [hfss_pin2location["USB_VCC_T1"][0], hfss_pin2location["USB_VCC_T1"][1]]
         )
         assert "Excitation_1" in portname.composed_name
         portname = self.aedtapp.modeler.components.create_interface_port(
-            "Excitation_2", hfss_pin2location["usb_P_pcb"][0], hfss_pin2location["usb_P_pcb"][1]
+            "Excitation_2", [hfss_pin2location["usb_P_pcb"][0], hfss_pin2location["usb_P_pcb"][1]]
         )
         assert "Excitation_2" in portname.composed_name
         portname = self.aedtapp.modeler.components.create_interface_port(
             "Port_1",
-            hfss3Dlayout_pin2location["L3M1.2.USBH2_DP_CH"][0],
-            hfss3Dlayout_pin2location["L3M1.2.USBH2_DP_CH"][1],
+            [hfss3Dlayout_pin2location["L3M1.2.USBH2_DP_CH"][0], hfss3Dlayout_pin2location["L3M1.2.USBH2_DP_CH"][1]]
         )
         assert "Port_1" in portname.composed_name
         portname = self.aedtapp.modeler.components.create_interface_port(
             "Port_2",
-            hfss3Dlayout_pin2location["J3B2.2.USBH2_DN_CH"][0],
-            hfss3Dlayout_pin2location["J3B2.2.USBH2_DN_CH"][1],
+            [hfss3Dlayout_pin2location["J3B2.2.USBH2_DN_CH"][0], hfss3Dlayout_pin2location["J3B2.2.USBH2_DN_CH"][1]]
         )
         assert "Port_2" in portname.composed_name
 

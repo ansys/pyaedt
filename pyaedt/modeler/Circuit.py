@@ -1,4 +1,3 @@
-from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.general_methods import aedt_exception_handler, _retry_ntimes
 from pyaedt.modules.LayerStackup import Layers
 from pyaedt.modeler.Modeler import Modeler
@@ -8,8 +7,7 @@ from pyaedt.modeler.PrimitivesNexxim import NexximComponents
 from pyaedt.modeler.PrimitivesSimplorer import SimplorerComponents
 from pyaedt.modeler.Object3d import CircuitComponent
 from pyaedt.modeler.Object3d import _dim_arg
-from pyaedt.application.Variables import decompose_variable_value
-from pyaedt.generic.constants import AEDT_UNITS, MILS2METER
+from pyaedt.generic.constants import AEDT_UNITS
 
 
 class ModelerCircuit(Modeler):

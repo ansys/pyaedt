@@ -76,7 +76,7 @@ pins_resistor = resistor.pins
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 # These methods create a port and a ground, which are needed for a circuit anlaysis.
 
-port = aedt_app.modeler.components.create_interface_port("myport",[-0.0254, 0])
+port = aedt_app.modeler.components.create_interface_port("myport", [-0.0254, 0])
 gnd = aedt_app.modeler.components.create_gnd([0.0508, -0.00254])
 ###############################################################################
 # Connect Components

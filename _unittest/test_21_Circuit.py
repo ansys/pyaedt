@@ -69,7 +69,7 @@ class TestClass:
         assert myind.parameters["L"] == '1e-09'
 
     def test_02_create_resistor(self):
-        myres = self.aedtapp.modeler.components.create_resistor(value=50, location=[0.4,0.2])
+        myres = self.aedtapp.modeler.components.create_resistor(value=50, location=[0.4, 0.2])
         assert type(myres.id) is int
         assert myres.parameters["R"] == '50'
 
