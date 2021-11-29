@@ -161,32 +161,34 @@ def _remote_dict_conversion(args):
 
 def _log_method(func, new_args, new_kwargs):
     if str(func.__name__)[0] != "_":
-        line_begin = "\n                                    Implicit Arguments : "
-        line_begin2 = "\n                                    Explicit Arguments : "
+        line_begin = "    Implicit Arguments: "
+        line_begin2 = "    Explicit Arguments: "
+        message = []
         if new_args:
             object_name = str([new_args[0]])[1:-1]
             id = object_name.find(" object at ")
             if id >= 0:
                 object_name = object_name[1:id]
-                message = " '{}' has been exectuted.".format(
-                    object_name + "." + str(func.__name__))
+                message.append(" '{}' has been exectuted.".format(
+                    object_name + "." + str(func.__name__)))
                 if new_args[1:]:
-                    message += line_begin + str(new_args[1:])[1:-1]
+                    message.append(line_begin + str(new_args[1:])[1:-1])
                 if new_kwargs:
-                    message += line_begin2 + str(new_kwargs)[1:-1]
+                    message.append(line_begin2 + str(new_kwargs)[1:-1])
 
             else:
-                message = " '{}' has been exectuted.".format(str(func.__name__))
+                message.append(" '{}' has been exectuted.".format(str(func.__name__)))
                 if new_args[1:]:
-                    message += line_begin + str(new_args[1:])[1:-1]
+                    message.append(line_begin + str(new_args[1:])[1:-1])
                 if new_kwargs:
-                    message += line_begin2 + str(new_kwargs)[1:-1]
+                    message.append(line_begin2 + str(new_kwargs)[1:-1])
 
         else:
-            message = " '{}' has been exectuted".format(str(func.__name__))
+            message.append(" '{}' has been exectuted".format(str(func.__name__)))
             if new_kwargs:
-                message += line_begin2 + str(new_kwargs)[1:-1]
-        logger.debug(message)
+                message.append(line_begin2 + str(new_kwargs)[1:-1])
+        for m in message:
+            logger.debug(m)
 
 
 def aedt_exception_handler(func):
