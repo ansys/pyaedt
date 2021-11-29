@@ -1,6 +1,7 @@
 import random
 import warnings
 import os
+import math
 
 from pyaedt.generic.general_methods import aedt_exception_handler, _retry_ntimes
 from pyaedt.modeler.Object3d import CircuitComponent
@@ -722,7 +723,7 @@ class CircuitComponents(object):
             if i == (h + r):
                 yp = 0.00254 * (h + 2)
                 xp = 0.00762
-                angle = 3.14159265358979
+                angle = math.pi
             else:
                 yp -= 0.00254
             id += 2

@@ -344,9 +344,9 @@ class Circuit(FieldAnalysisCircuit, object):
                     for pin in mycomp.pins:
                         pos = pin.location
                         if pos[0] < xpos:
-                            angle = 6.28318530717959
+                            angle = 0.0
                         else:
-                            angle = 3.14159265358979
+                            angle = math.pi
                         self.modeler.schematic.create_page_port(fields[id], [pos[0], pos[1]], angle)
                         id += 1
                     ypos += delta
@@ -457,9 +457,9 @@ class Circuit(FieldAnalysisCircuit, object):
                 for pin in mycomp.pins:
                     pos = pin.location
                     if pos[0] < xpos:
-                        angle = 6.28318530717959
+                        angle = 0.0
                     else:
-                        angle = 3.14159265358979
+                        angle = math.pi
                     netname = None
                     for net in nets:
                         net = [i.strip() for i in net]
@@ -491,7 +491,7 @@ class Circuit(FieldAnalysisCircuit, object):
             if "GND" in netname.upper():
                 self.modeler.schematic.create_gnd([xpos, ypos])
                 page_pos = ypos + 0.00254
-                mod1 = self.modeler.schematic.create_page_port(netname, [xpos, ypos], 6.28318530717959)
+                mod1 = self.modeler.schematic.create_page_port(netname, [xpos, ypos], 0.0)
                 mod1.location = [str(xpos) + "meter", str(page_pos) + "meter"]
                 ypos += delta
                 if ypos > delta * column_number:

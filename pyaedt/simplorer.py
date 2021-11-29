@@ -1,6 +1,7 @@
 """This module contains the `Simplorer` class."""
 
 from __future__ import absolute_import
+import math
 
 from pyaedt.application.AnalysisSimplorer import FieldAnalysisSimplorer
 from pyaedt.application.Variables import Variable
@@ -164,9 +165,9 @@ class Simplorer(FieldAnalysisSimplorer, object):
                             continue
                         pos = pin.location
                         if pos[0] < xpos:
-                            angle = 6.28318530717959
+                            angle = 0.0
                         else:
-                            angle = 3.14159265358979
+                            angle = math.pi
                         self.modeler.components.create_page_port(fields[id], [pos[0], pos[1]], angle)
                         id += 1
                     ypos += delta
