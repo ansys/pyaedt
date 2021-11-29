@@ -379,6 +379,13 @@ class Components(object):
         return cmp_list
 
     @aedt_exception_handler
+    def get_solder_ball_height(self, component):
+        """
+
+        """
+
+
+    @aedt_exception_handler
     def create_component_from_pins(self, pins, component_name, placement_layer=None):
         """Create a component from pins.
 
