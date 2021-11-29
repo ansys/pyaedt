@@ -1925,8 +1925,7 @@ class CircuitPins(object):
         else:
             angle = math.pi + comp_angle
 
-        ret1 = self._circuit_comp._circuit_components.create_page_port(page_name, posx=self.location[0],
-                                                                       posy=self.location[1], angle=angle)
+        ret1 = self._circuit_comp._circuit_components.create_page_port(page_name, self.location, angle=angle)
         try:
             x_loc = AEDT_UNITS["Length"][decompose_variable_value(component_pin._circuit_comp.location[0])[1]] * float(
                 decompose_variable_value(component_pin._circuit_comp.location[0])[0])
@@ -1936,8 +1935,8 @@ class CircuitPins(object):
             angle = comp_pin_angle
         else:
             angle = math.pi + comp_pin_angle
-        ret2 = self._circuit_comp._circuit_components.create_page_port(page_name, posx=component_pin.location[0],
-                                                                posy=component_pin.location[1], angle=angle)
+        ret2 = self._circuit_comp._circuit_components.create_page_port(page_name, location=component_pin.location,
+                                                                       angle=angle)
         if ret1 and ret2:
             return True
         else:

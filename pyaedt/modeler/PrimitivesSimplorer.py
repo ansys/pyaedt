@@ -65,7 +65,7 @@ class SimplorerComponents(CircuitComponents):
         pass
 
     @aedt_exception_handler
-    def create_resistor(self, compname=None, value=50, xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
+    def create_resistor(self, compname=None, value=50, location=None, angle=0, use_instance_id_netlist=False):
         """Create a resistor.
 
         Parameters
@@ -74,10 +74,8 @@ class SimplorerComponents(CircuitComponents):
             Name of the resistor. The default is ``None``.
         value : float, optional
             Value for the resistor. The default is ``50``.
-        xpos : float, optional
-            Position on the X axis. The default is ``0``.
-        ypos : float, optional
-            Position on the Y axis. The default is ``0``.
+        location : list of float, optional
+            Position on the X axis and Y axis.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
@@ -93,8 +91,7 @@ class SimplorerComponents(CircuitComponents):
             compname,
             component_library="Basic Elements\\Circuit\\Passive Elements",
             component_name="R",
-            xpos=xpos,
-            ypos=ypos,
+            location=location,
             angle=angle,
             use_instance_id_netlist=use_instance_id_netlist,
         )
@@ -104,7 +101,7 @@ class SimplorerComponents(CircuitComponents):
         return id
 
     @aedt_exception_handler
-    def create_inductor(self, compname=None, value=50, xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
+    def create_inductor(self, compname=None, value=50, location=None, angle=0, use_instance_id_netlist=False):
         """Create an inductor.
 
         Parameters
@@ -113,10 +110,8 @@ class SimplorerComponents(CircuitComponents):
             Name of the inductor. The default is ``None``.
         value : float, optional
             Value for the inductor. The default is ``50``.
-        xpos : float, optional
-            Position on the X axis. The default is ``0``.
-        ypos : float, optional
-            Position on the Y axis. The default is ``0``.
+        location : list of float, optional
+            Position on the X axis and Y axis.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
@@ -131,8 +126,7 @@ class SimplorerComponents(CircuitComponents):
             compname,
             component_library="Basic Elements\\Circuit\\Passive Elements",
             component_name="L",
-            xpos=xpos,
-            ypos=ypos,
+            location=location,
             angle=angle,
             use_instance_id_netlist=use_instance_id_netlist,
         )
@@ -141,7 +135,7 @@ class SimplorerComponents(CircuitComponents):
         return id
 
     @aedt_exception_handler
-    def create_capacitor(self, compname=None, value=50, xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
+    def create_capacitor(self, compname=None, value=50, location=None, angle=0, use_instance_id_netlist=False):
         """Create a capacitor.
 
         Parameters
@@ -150,10 +144,8 @@ class SimplorerComponents(CircuitComponents):
             Name of the capacitor. The default is ``None``.
         value : float, optional
             Value for the capacitor. The default is ``50``.
-        xpos : float, optional
-            Position on the X axis. The default is ``0``.
-        ypos : float, optional
-            Position on the Y axis. The default is ``0``.
+        location : list of float, optional
+            Position on the X axis and Y axis.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
@@ -168,8 +160,7 @@ class SimplorerComponents(CircuitComponents):
             compname,
             component_library="Basic Elements\\Circuit\\Passive Elements",
             component_name="C",
-            xpos=xpos,
-            ypos=ypos,
+            location=location,
             angle=angle,
             use_instance_id_netlist=use_instance_id_netlist,
         )
@@ -179,7 +170,7 @@ class SimplorerComponents(CircuitComponents):
 
     @aedt_exception_handler
     def create_diode(
-        self, compname=None, model_name="required", xpos=0, ypos=0, angle=0, use_instance_id_netlist=False
+        self, compname=None, model_name="required", location=None, angle=0, use_instance_id_netlist=False
     ):
         """Create a diode.
 
@@ -189,10 +180,8 @@ class SimplorerComponents(CircuitComponents):
             Name of the diode. The default is ``None``.
         model_name : str, optional
             Name of the model. The default is ``"required"``.
-        xpos : float, optional
-            Position on the X axis. The default is ``0``.
-        ypos : float, optional
-            Position on the Y axis. The default is ``0``.
+        location : list of float, optional
+            Position on the X axis and Y axis.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
@@ -208,27 +197,22 @@ class SimplorerComponents(CircuitComponents):
             compname,
             component_library="Basic Elements\\Circuit\\Semiconductors System Level",
             component_name="D",
-            xpos=xpos,
-            ypos=ypos,
+            location=location,
             angle=angle,
             use_instance_id_netlist=use_instance_id_netlist,
         )
         return id
 
     @aedt_exception_handler
-    def create_npn(self, compname=None, value=None, xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
+    def create_npn(self, compname=None, location=None, angle=0, use_instance_id_netlist=False):
         """Create an NPN transistor.
 
         Parameters
         ----------
         compname : str, optional
             Name of the NPN transistor. The default is ``None``.
-        value : float, optional
-            Value for the NPN transistor. The default is ``50``.
-        xpos : float, optional
-            Position on the X axis. The default is ``0``.
-        ypos : float, optional
-            Position on the Y axis. The default is ``0``.
+        location : list of float, optional
+            Position on the X axis and Y axis.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
@@ -244,27 +228,22 @@ class SimplorerComponents(CircuitComponents):
             compname,
             component_library="Basic Elements\\Circuit\\Semiconductors System Level",
             component_name="BJT",
-            xpos=xpos,
-            ypos=ypos,
+            location=location,
             angle=angle,
             use_instance_id_netlist=use_instance_id_netlist,
         )
         return id
 
     @aedt_exception_handler
-    def create_pnp(self, compname=None, value=50, xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
+    def create_pnp(self, compname=None, location=None, angle=0, use_instance_id_netlist=False):
         """Create a PNP transistor.
 
         Parameters
         ----------
         compname : str, optional
             Name of the PNP transistor. The default is ``None``.
-        value : float, optional
-            Value for the PNP transistor. The default is ``50``.
-        xpos : float, optional
-            Position on the X axis. The default is ``0``.
-        ypos : float, optional
-            Position on the Y axis. The default is ``0``.
+        location : list of float, optional
+            Position on the X axis and Y axis.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
@@ -280,8 +259,7 @@ class SimplorerComponents(CircuitComponents):
             compname,
             component_library="Basic Elements\\Circuit\\Semiconductors System Level",
             component_name="BJT",
-            xpos=xpos,
-            ypos=ypos,
+            location=location,
             angle=angle,
             use_instance_id_netlist=use_instance_id_netlist,
         )

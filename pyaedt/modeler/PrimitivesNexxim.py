@@ -346,7 +346,7 @@ class NexximComponents(CircuitComponents):
         return False
 
     @aedt_exception_handler
-    def create_resistor(self, compname=None, value=50, xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
+    def create_resistor(self, compname=None, value=50, location=None, angle=0, use_instance_id_netlist=False):
         """Create a resistor.
 
         Parameters
@@ -355,8 +355,8 @@ class NexximComponents(CircuitComponents):
             Name of the resistor. The default is ``None``.
         value : float, optional
             Resistance in ohms. The default is ``50``.
-        xpos : float, optional
-            Position on the X axis. The default is ``0``.
+        location : list of float, optional
+            Position on the X axis and Y axis.
         ypos : float, optional
             Position on the Y axis. The default is ``0``.
         angle : float, optional
@@ -372,14 +372,14 @@ class NexximComponents(CircuitComponents):
 
         """
         cmpid = self.create_component(
-            compname, xpos=xpos, ypos=ypos, angle=angle, use_instance_id_netlist=use_instance_id_netlist
+            compname, location=location, angle=angle, use_instance_id_netlist=use_instance_id_netlist
         )
 
         cmpid.set_property("R", value)
         return cmpid
 
     @aedt_exception_handler
-    def create_inductor(self, compname=None, value=50, xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
+    def create_inductor(self, compname=None, value=50, location=None, angle=0, use_instance_id_netlist=False):
         """Create an inductor.
 
         Parameters
@@ -388,10 +388,8 @@ class NexximComponents(CircuitComponents):
             Name of the inductor. The default is ``None``.
         value : float, optional
             Inductance value. The default is ``50``.
-        xpos : float, optional
-            Position on the X axis. The default is ``0``.
-        ypos : float, optional
-            Position on the X axis. The default is ``0``.
+        location : list of float, optional
+            Position on the X axis and Y axis.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
@@ -407,8 +405,7 @@ class NexximComponents(CircuitComponents):
             compname,
             component_library="Inductors",
             component_name="IND_",
-            xpos=xpos,
-            ypos=ypos,
+            location=location,
             angle=angle,
             use_instance_id_netlist=use_instance_id_netlist,
         )
@@ -418,7 +415,7 @@ class NexximComponents(CircuitComponents):
         return cmpid
 
     @aedt_exception_handler
-    def create_capacitor(self, compname=None, value=50, xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
+    def create_capacitor(self, compname=None, value=50, location=None, angle=0, use_instance_id_netlist=False):
         """Create a capacitor.
 
         Parameters
@@ -427,10 +424,8 @@ class NexximComponents(CircuitComponents):
             Name of the capacitor. The default is ``None``.
         value : float, optional
             Capacitor value. The default is ``50``.
-        xpos : float, optional
-            Position on the X axis. The default is ``0``.
-        ypos : float, optional
-            Position on the Y axis. The default is ``0``.
+        location : list of float, optional
+            Position on the X axis and Y axis.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
@@ -447,8 +442,7 @@ class NexximComponents(CircuitComponents):
             compname,
             component_library="Capacitors",
             component_name="CAP_",
-            xpos=xpos,
-            ypos=ypos,
+            location=location,
             angle=angle,
             use_instance_id_netlist=use_instance_id_netlist,
         )
@@ -457,7 +451,7 @@ class NexximComponents(CircuitComponents):
         return cmpid
 
     @aedt_exception_handler
-    def create_voltage_dc(self, compname=None, value=1, xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
+    def create_voltage_dc(self, compname=None, value=1, location=None, angle=0, use_instance_id_netlist=False):
         """Create a voltage DC source.
 
         Parameters
@@ -466,9 +460,8 @@ class NexximComponents(CircuitComponents):
             Name of the voltage DC source. The default is ``None``.
         value : float, optional
             Voltage value. The default is ``50``.
-        xpos : float, optional
-            Position on the X axis. The default is ``0``.
-        ypos : float, optional
+        location : list of float, optional
+            Position on the X axis and Y axis.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
@@ -485,8 +478,7 @@ class NexximComponents(CircuitComponents):
             compname,
             component_library="Independent Sources",
             component_name="V_DC",
-            xpos=xpos,
-            ypos=ypos,
+            location=location,
             angle=angle,
             use_instance_id_netlist=use_instance_id_netlist,
         )
@@ -496,7 +488,7 @@ class NexximComponents(CircuitComponents):
 
     @aedt_exception_handler
     def create_current_pulse(
-            self, compname=None, value_lists=[], xpos=0, ypos=0, angle=0, use_instance_id_netlist=False
+            self, compname=None, value_lists=[], location=None, angle=0, use_instance_id_netlist=False
     ):
         """Create a current pulse.
 
@@ -506,10 +498,8 @@ class NexximComponents(CircuitComponents):
             Name of the current pulse. The default is ``None``.
         value_lists : list, optional
             List of values for the current pulse. The default is ``[]``.
-        xpos : float, optional
-            Position on the X axis. The default is ``0``.
-        ypos : float, optional
-            Position on the Y axis. The default is ``0``.
+        location : list of float, optional
+            Position on the X axis and Y axis.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
@@ -526,8 +516,7 @@ class NexximComponents(CircuitComponents):
             compname,
             component_library="Independent Sources",
             component_name="I_PULSE",
-            xpos=xpos,
-            ypos=ypos,
+            location=location,
             angle=angle,
             use_instance_id_netlist=use_instance_id_netlist,
         )
@@ -551,7 +540,7 @@ class NexximComponents(CircuitComponents):
 
     @aedt_exception_handler
     def create_voltage_pulse(
-            self, compname=None, value_lists=[], xpos=0, ypos=0, angle=0, use_instance_id_netlist=False
+            self, compname=None, value_lists=[], location=None, angle=0, use_instance_id_netlist=False
     ):
         """Create a voltage pulse.
 
@@ -561,10 +550,8 @@ class NexximComponents(CircuitComponents):
             Name of the voltage pulse. The default is ``None``.
         value_lists : list, optional
             List of values for the voltage pulse. The default is ``[]``.
-        xpos : float, optional
-            Position on the X axis. The default is ``0``.
-        ypos : float, optional
-            Position on the Y axis. The default is ``0``.
+        location : list of float, optional
+            Position on the X axis and Y axis.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
@@ -581,8 +568,7 @@ class NexximComponents(CircuitComponents):
             compname,
             component_library="Independent Sources",
             component_name="V_PULSE",
-            xpos=xpos,
-            ypos=ypos,
+            location=location,
             angle=angle,
             use_instance_id_netlist=use_instance_id_netlist,
         )
@@ -605,7 +591,7 @@ class NexximComponents(CircuitComponents):
         return cmpid
 
     @aedt_exception_handler
-    def create_current_dc(self, compname=None, value=1, xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
+    def create_current_dc(self, compname=None, value=1, location=None, angle=0, use_instance_id_netlist=False):
         """Create a current DC source.
 
         Parameters
@@ -614,10 +600,8 @@ class NexximComponents(CircuitComponents):
             Name of the current DC source. The default is ``None``.
         value : float, optional
             Current value. The default is ``1``.
-        xpos : float, optional
-            Position on the X axis. The default is ``0``.
-        ypos : float, optional
-            Position on the Y axis. The default is ``0``.
+        location : list of float, optional
+            Position on the X axis and Y axis.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
@@ -634,8 +618,7 @@ class NexximComponents(CircuitComponents):
             compname,
             component_library="Independent Sources",
             component_name="I_DC",
-            xpos=xpos,
-            ypos=ypos,
+            location=location,
             angle=angle,
             use_instance_id_netlist=use_instance_id_netlist,
         )
@@ -644,7 +627,7 @@ class NexximComponents(CircuitComponents):
         return cmpid
 
     def create_coupling_inductors(
-            self, compname, l1, l2, value=1, xpos=0, ypos=0, angle=0, use_instance_id_netlist=False
+            self, compname, l1, l2, value=1, location=None, angle=0, use_instance_id_netlist=False
     ):
         """Create a coupling inductor.
 
@@ -658,10 +641,8 @@ class NexximComponents(CircuitComponents):
             Value for the second inductor.
         value : float, optional
             Value for the coupling inductor. The default is ``1``.
-        xpos : float, optional
-            Position on the X axis. The default is ``0``.
-        ypos : float, optional
-            Position on the Y axis. The default is ``0``.
+        location : list of float, optional
+            Position on the X axis and Y axis.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
@@ -678,8 +659,7 @@ class NexximComponents(CircuitComponents):
             compname,
             component_library="Inductors",
             component_name="K_IND",
-            xpos=xpos,
-            ypos=ypos,
+            location=location,
             angle=angle,
             use_instance_id_netlist=use_instance_id_netlist,
         )
@@ -691,7 +671,7 @@ class NexximComponents(CircuitComponents):
 
     @aedt_exception_handler
     def create_diode(
-            self, compname=None, model_name="required", xpos=0, ypos=0, angle=0, use_instance_id_netlist=False
+            self, compname=None, model_name="required", location=None, angle=0, use_instance_id_netlist=False
     ):
         """Create a diode.
 
@@ -701,10 +681,8 @@ class NexximComponents(CircuitComponents):
             Name of the diode. The default is ``None``.
         model_name : str, optional
             Name of the model. The default is ``"required"``.
-        xpos : float, optional
-            Position on the X axis. The default is ``0``.
-        ypos : float, optional
-            Position on the Y axis. The default is ``0``.
+        location : list of float, optional
+            Position on the X axis and Y axis.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
@@ -721,8 +699,7 @@ class NexximComponents(CircuitComponents):
             compname,
             component_library="Diodes",
             component_name="DIODE_Level1",
-            xpos=xpos,
-            ypos=ypos,
+            location=location,
             angle=angle,
             use_instance_id_netlist=use_instance_id_netlist,
         )
@@ -731,7 +708,7 @@ class NexximComponents(CircuitComponents):
         return cmpid
 
     @aedt_exception_handler
-    def create_npn(self, compname=None, value=None, xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
+    def create_npn(self, compname=None, value=None, location=None, angle=0, use_instance_id_netlist=False):
         """Create an NPN transistor.
 
         Parameters
@@ -740,10 +717,8 @@ class NexximComponents(CircuitComponents):
             Name of the NPN transistor. The default is ``None``.
         value : float, optional
             Value for the NPN transistor. The default is ``None``.
-        xpos : float, optional
-            Position on the X axis. The default is ``0``.
-        ypos : float, optional
-            Position on the Y axis. The default is ``0``.
+        location : list of float, optional
+            Position on the X axis and Y axis.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
@@ -760,8 +735,7 @@ class NexximComponents(CircuitComponents):
             compname,
             component_library="BJTs",
             component_name="Level01_NPN",
-            xpos=xpos,
-            ypos=ypos,
+            location=location,
             angle=angle,
             use_instance_id_netlist=use_instance_id_netlist,
         )
@@ -770,7 +744,7 @@ class NexximComponents(CircuitComponents):
         return id
 
     @aedt_exception_handler
-    def create_pnp(self, compname=None, value=50, xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
+    def create_pnp(self, compname=None, value=50, location=None, angle=0, use_instance_id_netlist=False):
         """Create a PNP transistor.
 
         Parameters
@@ -779,10 +753,8 @@ class NexximComponents(CircuitComponents):
             Name of the PNP transistor. The default is ``None``.
         value : float, optional
             Value for the PNP transistor. The default is ``None``.
-        xpos : float, optional
-            Position on the X axis. The default is ``0``.
-        ypos : float, optional
-            Position on the Y axis. The default is ``0``.
+        location : list of float, optional
+            Position on the X axis and Y axis.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
@@ -799,8 +771,7 @@ class NexximComponents(CircuitComponents):
             compname,
             component_library="BJTs",
             component_name="Level01_PNP",
-            xpos=xpos,
-            ypos=ypos,
+            location=location,
             angle=angle,
             use_instance_id_netlist=use_instance_id_netlist,
         )

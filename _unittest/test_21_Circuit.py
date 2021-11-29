@@ -64,22 +64,22 @@ class TestClass:
         gc.collect()
 
     def test_01_create_inductor(self):
-        myind = self.aedtapp.modeler.components.create_inductor(value=1e-9, xpos=0.2, ypos=0.2)
+        myind = self.aedtapp.modeler.components.create_inductor(value=1e-9, location=[0.2, 0.2])
         assert type(myind.id) is int
         assert myind.parameters["L"] == '1e-09'
 
     def test_02_create_resistor(self):
-        myres = self.aedtapp.modeler.components.create_resistor(value=50, xpos=0.4, ypos=0.2)
+        myres = self.aedtapp.modeler.components.create_resistor(value=50, location=[0.4,0.2])
         assert type(myres.id) is int
         assert myres.parameters["R"] == '50'
 
     def test_03_create_capacitor(self):
-        mycap = self.aedtapp.modeler.components.create_capacitor(value=1e-12, xpos=0.6, ypos=0.2)
+        mycap = self.aedtapp.modeler.components.create_capacitor(value=1e-12, location=[0.6, 0.2])
         assert type(mycap.id) is int
         assert mycap.parameters["C"] == '1e-12'
 
     def test_04_getpin_names(self):
-        mycap2 = self.aedtapp.modeler.components.create_capacitor(value=1e-12, xpos=0.6, ypos=0.3)
+        mycap2 = self.aedtapp.modeler.components.create_capacitor(value=1e-12)
         pinnames = self.aedtapp.modeler.components.get_pins(mycap2)
         pinnames2 = self.aedtapp.modeler.components.get_pins(mycap2.id)
         pinnames3 = self.aedtapp.modeler.components.get_pins(mycap2.composed_name)
@@ -142,10 +142,10 @@ class TestClass:
 
     def test_12_connect_components(self):
 
-        myind = self.aedtapp.modeler.components.create_inductor("L100", 1e-9, 0, 0)
-        myres = self.aedtapp.modeler.components.create_resistor("R100", 50, 0.0254, 0)
-        mycap = self.aedtapp.modeler.components.create_capacitor("C100", 1e-12, 0.0400, 0)
-        portname = self.aedtapp.modeler.components.create_interface_port("Port1", 0.2, 0.2)
+        myind = self.aedtapp.modeler.components.create_inductor("L100", 1e-9)
+        myres = self.aedtapp.modeler.components.create_resistor("R100", 50)
+        mycap = self.aedtapp.modeler.components.create_capacitor("C100", 1e-12)
+        portname = self.aedtapp.modeler.components.create_interface_port("Port1")
         assert "Port1" in portname.name
 
         assert self.aedtapp.modeler.connect_schematic_components(myind.id, myind.id, pinnum_second=2)
@@ -163,21 +163,21 @@ class TestClass:
             C1_pin2location[pin.name] = pin.location
 
         portname = self.aedtapp.modeler.components.create_interface_port(
-            "P1_1", L1_pin2location["n1"][0], L1_pin2location["n1"][1]
+            "P1_1", [L1_pin2location["n1"][0], L1_pin2location["n1"][1]]
         )
         assert "P1_1" in portname.name
         portname = self.aedtapp.modeler.components.create_interface_port(
-            "P2_2", C1_pin2location["negative"][0], C1_pin2location["negative"][1]
+            "P2_2", [C1_pin2location["negative"][0], C1_pin2location["negative"][1]]
         )
         assert "P2_2" in portname.name
 
         # create_page_port
         portname = self.aedtapp.modeler.components.create_page_port(
-            "Link_1", L1_pin2location["n2"][0], L1_pin2location["n2"][1]
+            "Link_1", [L1_pin2location["n2"][0], L1_pin2location["n2"][1]]
         )
         assert "Link_1" in portname.name
         portname = self.aedtapp.modeler.components.create_page_port(
-            "Link_2", C1_pin2location["positive"][0], C1_pin2location["positive"][1], 180
+            "Link_2", [C1_pin2location["positive"][0], C1_pin2location["positive"][1]], 180
         )
         assert "Link_2" in portname.name
 

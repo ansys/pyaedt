@@ -27,28 +27,28 @@ class TestClass:
         gc.collect()
 
     def test_01_create_resistor(self):
-        id = self.aedtapp.modeler.components.create_resistor("Resistor1", 10, 0, 0)
+        id = self.aedtapp.modeler.components.create_resistor("Resistor1", 10, [0, 0])
         assert id.parameters["R"] == "10"
 
     def test_02_create_inductor(self):
-        id = self.aedtapp.modeler.components.create_inductor("Inductor1", 1.5, 0.25, 0)
+        id = self.aedtapp.modeler.components.create_inductor("Inductor1", 1.5, [0.25, 0])
         assert id.parameters["L"] == "1.5"
 
     def test_03_create_capacitor(self):
-        id = self.aedtapp.modeler.components.create_capacitor("Capacitor1", 7.5, 0.5, 0)
+        id = self.aedtapp.modeler.components.create_capacitor("Capacitor1", 7.5, [0.5, 0])
         assert id.parameters["C"] == "7.5"
 
     def test_04_create_diode(self):
-        id = self.aedtapp.modeler.components.create_diode("Diode1", xpos=-0.25)
+        id = self.aedtapp.modeler.components.create_diode("Diode1")
         assert id.parameters["VF"] == "0.8V"
 
     def test_05_create_npn(self):
-        name = self.aedtapp.modeler.components.create_npn("NPN", ypos=0.25)
+        name = self.aedtapp.modeler.components.create_npn("NPN")
         # Get component info by part name
         assert name.parameters["VF"] == "0.8V"
 
     def test_06_create_pnp(self):
-        id = self.aedtapp.modeler.components.create_pnp("PNP", ypos=-0.25)
+        id = self.aedtapp.modeler.components.create_pnp("PNP")
         assert id.parameters["VF"] == "0.8V"
 
     def test_07_import_netlist(self):

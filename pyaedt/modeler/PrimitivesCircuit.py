@@ -4,7 +4,7 @@ import os
 
 from pyaedt.generic.general_methods import aedt_exception_handler, _retry_ntimes
 from pyaedt.modeler.Object3d import CircuitComponent
-
+from pyaedt.generic.constants import AEDT_UNITS
 
 class CircuitComponents(object):
     """CircutComponents class.
@@ -54,6 +54,9 @@ class CircuitComponents(object):
         self._currentId = 0
         self.components = {}
         self.refresh_all_ids()
+        self.current_position = [0, 0]
+        self.increment_mils = [1000, 1000]
+        self.limits_mils = 20000
         pass
 
     @property
@@ -75,6 +78,21 @@ class CircuitComponents(object):
     def design_type(self):
         """Design type."""
         return self._app.design_type
+
+    @aedt_exception_handler
+    def _get_location(self, location=None):
+        if location is None:
+            xpos = self.current_position[0]
+            ypos = self.current_position[1]
+            self.current_position[1] += AEDT_UNITS["Length"]["mil"] * self.increment_mils[1]
+            if self.current_position[1] > self.limits_mils:
+                self.current_position[1] = 0
+                self.current_position[0] += AEDT_UNITS["Length"]["mil"] * self.increment_mils[0]
+        else:
+            xpos = location[0]
+            ypos = location[1]
+            self.current_position = location
+        return xpos, ypos
 
     @aedt_exception_handler
     def create_unique_id(self):
@@ -125,17 +143,15 @@ class CircuitComponents(object):
         return self.create_interface_port(name, posx, posy, angle)
 
     @aedt_exception_handler
-    def create_interface_port(self, name, posx=0.1, posy=0.1, angle=0):
+    def create_interface_port(self, name, location=None, angle=0):
         """Create an interface port.
 
         Parameters
         ----------
         name : str
             Name of the port.
-        posx : float, optional
-            Position on the X axis. The default is ``0.1``.
-        posy : float, optional
-            Position on the Y axis. The default is ``0.1``.
+        location : list, optional
+            Position on the X and Y axis. The default is ``None``.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
 
@@ -145,6 +161,7 @@ class CircuitComponents(object):
             Circuit Component Object.
 
         """
+        posx, posy = self._get_location(location)
         id = self.create_unique_id()
         arg1 = ["NAME:IPortProps", "Name:=", name, "Id:=", id]
         arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", posx, "Y:=", posy, "Angle:=", angle, "Flip:=", False]
@@ -159,17 +176,15 @@ class CircuitComponents(object):
         return False
 
     @aedt_exception_handler
-    def create_page_port(self, name, posx=0.1, posy=0.1, angle=0):
+    def create_page_port(self, name, location=None, angle=0):
         """Create a page port.
 
         Parameters
         ----------
         name : str
             Name of the port.
-        posx : float, optional
-            Position on the X axis. The default is ``0.1``.
-        posy : float, optional
-            Position on the Y axis. The default is ``0.1``.
+        location : list, optional
+            Position on the X and Y axis. The default is ``None``.
         angle : optional
             Angle rotation in degrees. The default is ``0``.
 
@@ -179,10 +194,12 @@ class CircuitComponents(object):
             Circuit Component Object.
 
         """
+        xpos, ypos = self._get_location(location)
+
         id = self.create_unique_id()
         id = self._oeditor.CreatePagePort(
             ["NAME:PagePortProps", "Name:=", name, "Id:=", id],
-            ["NAME:Attributes", "Page:=", 1, "X:=", posx, "Y:=", posy, "Angle:=", angle, "Flip:=", False],
+            ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False],
         )
         id = int(id.split(";")[1])
         # self.refresh_all_ids()
@@ -190,15 +207,13 @@ class CircuitComponents(object):
         return self.components[id]
 
     @aedt_exception_handler
-    def create_gnd(self, posx, posy):
+    def create_gnd(self, location=None):
         """Create a ground.
 
         Parameters
         ----------
-        posx : float, optional
-            Position on the X axis. The default is ``0.1``.
-        posy : float, optional
-            Position on the Y axis. The default is ``0.1``.
+        location : list, optional
+            Position on the X and Y axis. The default is ``None``.
 
         Returns
         -------
@@ -206,11 +221,12 @@ class CircuitComponents(object):
             Circuit Component Object.
 
         """
+        xpos, ypos = self._get_location(location)
         id = self.create_unique_id()
 
         name = self._oeditor.CreateGround(
             ["NAME:GroundProps", "Id:=", id],
-            ["NAME:Attributes", "Page:=", 1, "X:=", posx, "Y:=", posy, "Angle:=", 0, "Flip:=", False],
+            ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", 0, "Flip:=", False],
         )
         id = int(name.split(";")[1])
         self.add_id_to_component(id)
@@ -446,8 +462,7 @@ class CircuitComponents(object):
     def create_component_from_touchstonmodel(
         self,
         modelname,
-        xpos=0.1,
-        ypos=0.1,
+        location=None,
         angle=0,
     ):
         """Create a component from a Touchstone model.
@@ -456,10 +471,8 @@ class CircuitComponents(object):
         ----------
         modelname : str
             Name of the Touchstone model.
-        xpos : float, optional
-            Position on the X axis. The default is ``0.1``.
-        ypos : float, optional
-            Position on the Y axis. The default is ``0.1``.
+        location : list of float, optional
+            Position on the X  and Y axis.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
 
@@ -469,6 +482,7 @@ class CircuitComponents(object):
             Circuit Component Object.
 
         """
+        xpos, ypos = self._get_location(location)
         id = self.create_unique_id()
         arg1 = ["NAME:ComponentProps", "Name:=", modelname, "Id:=", str(id)]
         arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
@@ -483,8 +497,7 @@ class CircuitComponents(object):
         inst_name=None,
         component_library="Resistors",
         component_name="RES_",
-        xpos=0.1,
-        ypos=0.1,
+        location=None,
         angle=0,
         use_instance_id_netlist=False,
         global_netlist_list=[],
@@ -499,10 +512,8 @@ class CircuitComponents(object):
             Name of the component library. The default is ``"Resistors"``.
         component_name : str, optional
             Name of component in the library. The default is ``"RES"``.
-        xpos : float, optional
-            Position on the X axis. The default is ``0.1``.
-        yos : float, optional
-            Position on the Y axis. The default is ``0.1``.
+        location : list of float, optional
+            Position on the X axis and Y axis.
         angle : optional
             Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
@@ -523,6 +534,8 @@ class CircuitComponents(object):
         else:
             name = component_name
         arg1 = ["NAME:ComponentProps", "Name:=", name, "Id:=", str(id)]
+        xpos, ypos = self._get_location(location)
+
         arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
         id = _retry_ntimes(10, self._oeditor.CreateComponent, arg1, arg2)
         id = int(id.split(";")[1])

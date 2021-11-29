@@ -59,9 +59,9 @@ setup1.update()
 # ~~~~~~~~~~~~~~~~~
 # These methods create components, such as inductors, resistors, and capacitors.
 
-inductor = aedt_app.modeler.schematic.create_inductor("L1", 1e-9, 0, 0)
-resistor = aedt_app.modeler.schematic.create_resistor("R1", 50, 0.0254, 0)
-capacitor = aedt_app.modeler.schematic.create_capacitor("C1", 1e-12, 0.0400, 0)
+inductor = aedt_app.modeler.schematic.create_inductor("L1", 1e-9, [0, 0])
+resistor = aedt_app.modeler.schematic.create_resistor("R1", 50, [0.0254, 0])
+capacitor = aedt_app.modeler.schematic.create_capacitor("C1", 1e-12, [0.0400, 0])
 
 ###############################################################################
 # Get Component Pins
@@ -76,8 +76,8 @@ pins_resistor = resistor.pins
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 # These methods create a port and a ground, which are needed for a circuit anlaysis.
 
-port = aedt_app.modeler.components.create_interface_port("myport", -0.0254, 0)
-gnd = aedt_app.modeler.components.create_gnd(0.0508, -0.00254)
+port = aedt_app.modeler.components.create_interface_port("myport",[-0.0254, 0])
+gnd = aedt_app.modeler.components.create_gnd([0.0508, -0.00254])
 ###############################################################################
 # Connect Components
 # ~~~~~~~~~~~~~~~~~~

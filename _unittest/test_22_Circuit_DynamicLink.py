@@ -130,26 +130,24 @@ class TestClass:
 
         # Link 1 Creation
         portname = self.aedtapp.modeler.components.create_page_port(
-            "Link1", hfss_pin2location["usb_N_conn"][0], hfss_pin2location["usb_N_conn"][1], 180
+            "Link1", [hfss_pin2location["usb_N_conn"][0], hfss_pin2location["usb_N_conn"][1]], 180
         )
         assert "Link1" in portname.composed_name
         portname = self.aedtapp.modeler.components.create_page_port(
             "Link1",
-            hfss3Dlayout_pin2location["J3B2.3.USBH2_DP_CH"][0],
-            hfss3Dlayout_pin2location["J3B2.3.USBH2_DP_CH"][1],
+            [hfss3Dlayout_pin2location["J3B2.3.USBH2_DP_CH"][0], hfss3Dlayout_pin2location["J3B2.3.USBH2_DP_CH"][1]],
             180,
         )
         assert "Link1" in portname.composed_name
 
         # Link 2 Creation
         portname = self.aedtapp.modeler.components.create_page_port(
-            "Link2", hfss_pin2location["usb_N_pcb"][0], hfss_pin2location["usb_N_pcb"][1], 180
+            "Link2", [hfss_pin2location["usb_N_pcb"][0], hfss_pin2location["usb_N_pcb"][1]], 180
         )
         assert "Link2" in portname.composed_name
         portname = self.aedtapp.modeler.components.create_page_port(
             "Link2",
-            hfss3Dlayout_pin2location["L3M1.3.USBH2_DN_CH"][0],
-            hfss3Dlayout_pin2location["L3M1.3.USBH2_DN_CH"][1],
+            [hfss3Dlayout_pin2location["L3M1.3.USBH2_DN_CH"][0], hfss3Dlayout_pin2location["L3M1.3.USBH2_DN_CH"][1]],
             180,
         )
         assert "Link2" in portname.composed_name
