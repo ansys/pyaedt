@@ -4,6 +4,7 @@ import os
 import io
 import shutil
 import sys
+import pdb
 try:
     import pytest
     import unittest.mock
@@ -97,7 +98,10 @@ class TestClass:
     def test_02_output_file_with_app_filter(self):
         content = None
         temp_dir = tempfile.gettempdir()
-        path = os.path.join(temp_dir, "test.txt")
+        logging_dir = os.path.join(temp_dir,"log_testing")
+        if not os.path.exists(logging_dir):
+            os.makedirs(logging_dir)
+        path = os.path.join(logging_dir, "test02.txt")
         logger = AedtLogger(self.aedtapp._messenger, filename=path)
         logger.info("Info for Global")
         logger.debug("Debug for Global")
@@ -114,6 +118,8 @@ class TestClass:
         design_logger.warning("Warning for Design")
         design_logger.error("Error for Design")
 
+        pdb.set_trace()
+
         # Close every handlers to make sure that the
         # file handler on every logger has been released properly.
         # Otherwise, we can't read the content of the log file.
@@ -128,6 +134,7 @@ class TestClass:
             pass
         with open(path, 'r') as f:
             content = f.readlines()
+        
 
         assert ":Global:INFO    :Info for Global" in content[0]
         assert ":Global:DEBUG   :Debug for Global" in content[1]
@@ -145,8 +152,8 @@ class TestClass:
         # self.aedtapp.logger.project.handlers.pop()
         # if len(self.aedtapp.logger.design.handlers) > 0:
         #     self.aedtapp.logger.design.handlers.pop()
-
-        shutil.rmtree(temp_dir)
+        os.remove(path)
+        shutil.rmtree(path)
 
     @pytest.mark.skipif(is_ironpython, reason="stdout redirection does not work in IronPython.")
     def test_03_stdout_with_app_filter(self):
@@ -164,7 +171,10 @@ class TestClass:
     def test_04_disable_output_file_handler(self):
         content = None
         temp_dir = tempfile.gettempdir()
-        path = os.path.join(temp_dir, "test04.txt")
+        logging_dir = os.path.join(temp_dir,"log_testing")
+        if not os.path.exists(logging_dir):
+            os.makedirs(logging_dir)
+        path = os.path.join(logging_dir, "test04.txt")
         logger = AedtLogger(self.aedtapp._messenger, filename=path)
         logger.info("Info for Global before disabling the log file handler.")
         project_logger = logger.add_logger('Project')
@@ -219,7 +229,8 @@ class TestClass:
                 enablement_succeeded = True
         assert enablement_succeeded
 
-        shutil.rmtree(temp_dir)
+        logger.disable_log_on_file()
+        shutil.rmtree(path)
 
     @pytest.mark.skipif(is_ironpython, reason="stdout redirection does not work in IronPython.")
     def test_05_disable_stdout(self):
