@@ -2,6 +2,7 @@
 import tempfile
 import os
 import io
+import shutil
 import sys
 try:
     import pytest
@@ -145,6 +146,8 @@ class TestClass:
         # if len(self.aedtapp.logger.design.handlers) > 0:
         #     self.aedtapp.logger.design.handlers.pop()
 
+        shutil.rmtree(temp_dir)
+
     @pytest.mark.skipif(is_ironpython, reason="stdout redirection does not work in IronPython.")
     def test_03_stdout_with_app_filter(self):
         capture = CaptureStdOut()
@@ -215,6 +218,8 @@ class TestClass:
             if "Info for Global after re-enabling the log file handler." in content[i]:
                 enablement_succeeded = True
         assert enablement_succeeded
+
+        shutil.rmtree(temp_dir)
 
     @pytest.mark.skipif(is_ironpython, reason="stdout redirection does not work in IronPython.")
     def test_05_disable_stdout(self):
