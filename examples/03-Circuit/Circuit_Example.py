@@ -24,8 +24,10 @@ desktop_version = "2021.2"
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # You can change the Boolean parameter ``non_graphical`` to ``False`` to launch
 # AEDT in graphical mode.
+# You can change the Boolean parameter ``new_thread`` to ``False`` to launch
+# AEDT in existing Desktop Session, if any.
 
-non_graphical = True
+non_graphical = False
 new_thread = True
 
 ###############################################################################
@@ -57,36 +59,34 @@ setup1.update()
 # ~~~~~~~~~~~~~~~~~
 # These methods create components, such as inductors, resistors, and capacitors.
 
-inductor_id, inductor = aedt_app.modeler.components.create_inductor("L1", 1e-9, 0, 0)
-resistor_id, resistor = aedt_app.modeler.components.create_resistor("R1", 50, 0.0254, 0)
-capacitor_id, capacitor = aedt_app.modeler.components.create_capacitor("C1", 1e-12, 0.0400, 0)
+inductor = aedt_app.modeler.schematic.create_inductor("L1", 1e-9, [0, 0])
+resistor = aedt_app.modeler.schematic.create_resistor("R1", 50, [0.0254, 0])
+capacitor = aedt_app.modeler.schematic.create_capacitor("C1", 1e-12)
 
 ###############################################################################
 # Get Component Pins
 # ~~~~~~~~~~~~~~~~~~
 # This method gets all pins of a specified component.
 
-pins_resistor = aedt_app.modeler.components.get_pins(resistor)
+pins_resistor = resistor.pins
 
-inductor_component = aedt_app.modeler.components[inductor]
-resistor_component = aedt_app.modeler.components[resistor]
 
 ###############################################################################
 # Create a Port and a Ground
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 # These methods create a port and a ground, which are needed for a circuit anlaysis.
 
-port_id, port_name = aedt_app.modeler.components.create_interface_port("myport", -0.0254, 0)
-gnd_id, gnd_name = aedt_app.modeler.components.create_gnd(0.0508, -0.00254)
+port = aedt_app.modeler.components.create_interface_port("myport")
+gnd = aedt_app.modeler.components.create_gnd()
 ###############################################################################
 # Connect Components
 # ~~~~~~~~~~~~~~~~~~
 # This method connects components with wires.
 
-aedt_app.modeler.connect_schematic_components(port_id, inductor_id)
-aedt_app.modeler.connect_schematic_components(inductor_id, resistor_id, pinnum_second=2)
-aedt_app.modeler.connect_schematic_components(resistor_id, capacitor_id, pinnum_first=1)
-aedt_app.modeler.connect_schematic_components(capacitor_id, gnd_id)
+port.pins[0].connect_to_component(inductor.pins[0])
+inductor.pins[1].connect_to_component(resistor.pins[0])
+resistor.pins[1].connect_to_component(capacitor.pins[0])
+capacitor.pins[1].connect_to_component(gnd.pins[0])
 
 ###############################################################################
 # Add a Transient Setup

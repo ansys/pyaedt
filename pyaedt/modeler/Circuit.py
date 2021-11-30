@@ -1,4 +1,4 @@
-from pyaedt.generic.constants import AEDT_UNITS
+# -*- coding: utf-8 -*-
 from pyaedt.generic.general_methods import aedt_exception_handler, _retry_ntimes
 from pyaedt.modules.LayerStackup import Layers
 from pyaedt.modeler.Modeler import Modeler
@@ -6,6 +6,9 @@ from pyaedt.modeler.Primitives3DLayout import Primitives3DLayout
 from pyaedt.modeler.PrimitivesEmit import EmitComponents
 from pyaedt.modeler.PrimitivesNexxim import NexximComponents
 from pyaedt.modeler.PrimitivesSimplorer import SimplorerComponents
+from pyaedt.modeler.Object3d import CircuitComponent
+from pyaedt.modeler.Object3d import _dim_arg
+from pyaedt.generic.constants import AEDT_UNITS
 
 
 class ModelerCircuit(Modeler):
@@ -94,7 +97,7 @@ class ModelerNexxim(ModelerCircuit):
     def __init__(self, app):
         self._app = app
         ModelerCircuit.__init__(self, app)
-        self.components = NexximComponents(self)
+        self._schematic = NexximComponents(self)
         self.layouteditor = None
         if self._app.design_type != "Twin Builder":
             self.layouteditor = self._odesign.SetActiveEditor("Layout")
@@ -102,6 +105,29 @@ class ModelerNexxim(ModelerCircuit):
         self.layers = Layers(self, roughnessunits="um")
         self._primitives = Primitives3DLayout(self)
         self._primitivesDes = self._app.project_name + self._app.design_name
+
+    @property
+    def schematic(self):
+        """Schematic Component.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.PrimitivesNexxim.NexximComponents`
+        """
+        return self._schematic
+
+    @property
+    def components(self):
+        """Schematic Component.
+
+        .. deprecated:: 0.4.13
+           Use :func:`Circuit.modeler.schematic` instead.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.PrimitivesNexxim.NexximComponents`
+        """
+        return self._schematic
 
     @property
     def edb(self):
@@ -122,7 +148,7 @@ class ModelerNexxim(ModelerCircuit):
         return _retry_ntimes(10, self.layouteditor.GetActiveUnits)
 
     @property
-    def primitives(self):
+    def layout(self):
         """Primitives.
 
         Returns
@@ -137,6 +163,20 @@ class ModelerNexxim(ModelerCircuit):
             self._primitivesDes = self._app.project_name + self._app.design_name
         return self._primitives
 
+    @property
+    def primitives(self):
+        """Primitives.
+
+        .. deprecated:: 0.4.13
+           Use :func:`Circuit.modeler.layout` instead.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Primitives3DLayout.Primitives3DLayout`
+
+        """
+        return self._primitives
+
     @model_units.setter
     def model_units(self, units):
         assert units in AEDT_UNITS["Length"], "Invalid units string {0}".format(units)
@@ -144,16 +184,16 @@ class ModelerNexxim(ModelerCircuit):
         self.oeditor.SetActivelUnits(["NAME:Units Parameter", "Units:=", units, "Rescale:=", False])
 
     @aedt_exception_handler
-    def move(self, selections, posx, posy):
+    def move(self, selections, pos, units="meter"):
         """Move the selections by ``[x, y]``.
 
         Parameters
         ----------
         selections : list
             List of the selections.
-        posx : float
-            Offset for the X axis.
-        posy : float
+        pos : list
+            Offset for the ``[x, y]`` axis.
+        units : str
             Offset for the Y axis.
 
         Returns
@@ -162,17 +202,26 @@ class ModelerNexxim(ModelerCircuit):
             ``True`` when successful, ``False`` when failed.
 
         """
-        if type(selections) is str:
+        if not isinstance(selections, list):
             selections = [selections]
         sels = []
         for sel in selections:
-            for el in list(self.components.components.values()):
-                if sel == el.InstanceName:
-                    sels.append(self.components.components[el.id].composed_name)
+            if isinstance(sel, int):
+                sels.append(self.schematic.components[sel].composed_name)
+            elif isinstance(sel, CircuitComponent):
+                sels.append(sel.composed_name)
+            else:
+                for el in list(self.schematic.components.values()):
+                    if sel == el.InstanceName or el.composed_name or el.name:
+                        sels.append(el.composed_name)
+
+        x_location = AEDT_UNITS["Length"][units] * float(pos[0])
+        y_location = AEDT_UNITS["Length"][units] * float(pos[1])
 
         self.oeditor.Move(
             ["NAME:Selections", "Selections:=", sels],
-            ["NAME:MoveParameters", "xdelta:=", posx, "ydelta:=", posy, "Disconnect:=", False, "Rubberband:=", False],
+            ["NAME:MoveParameters", "xdelta:=", x_location, "ydelta:=", y_location, "Disconnect:=", False,
+             "Rubberband:=", False],
         )
         return True
 
@@ -198,9 +247,11 @@ class ModelerNexxim(ModelerCircuit):
             for el in list(self.components.components.values()):
                 if sel == el.InstanceName:
                     sels.append(self.components.components[el.id].composed_name)
+
         self.oeditor.Rotate(
             ["NAME:Selections", "Selections:=", sels],
-            ["NAME:RotateParameters", "Degrees:=", degrees, "Disconnect:=", False, "Rubberband:=", False],
+            ["NAME:RotateParameters", "Degrees:=", _dim_arg(degrees, "°"), "Disconnect:=", False, "Rubberband:=",
+             False],
         )
         return True
 
@@ -217,7 +268,27 @@ class ModelerSimplorer(ModelerCircuit):
     def __init__(self, app):
         self._app = app
         ModelerCircuit.__init__(self, app)
-        self.components = SimplorerComponents(self)
+        self._components = SimplorerComponents(self)
+
+    @property
+    def components(self):
+        """
+        .. deprecated:: 0.4.13
+           Use :func:`Simplorer.modeler.schematic` instead.
+
+        """
+        return self._components
+
+    @property
+    def schematic(self):
+        """Schematic Object.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.PrimitivesSimplorer.SimplorerComponents`
+
+        """
+        return self._components
 
 
 class ModelerEmit(ModelerCircuit):

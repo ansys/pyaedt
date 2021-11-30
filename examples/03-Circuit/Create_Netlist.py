@@ -5,6 +5,7 @@ Netlist Example Analysis
 # Circuit design. Supported Netlist files are HSPICE and,
 # partially, Mentor.
 """
+# sphinx_gallery_thumbnail_path = 'Resources/schematic.png'
 
 import os
 

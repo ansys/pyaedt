@@ -51,6 +51,10 @@ class TestClass:
         assert isinstance(parameters[1], list)
         assert isinstance(parameters[0], int)
 
+    def test_01B_get_vias_from_nets(self):
+        assert self.edbapp.core_padstack.get_via_instance_from_net("GND")
+        assert not self.edbapp.core_padstack.get_via_instance_from_net(["GND2"])
+
     def test_02_get_properties(self):
         assert len(self.edbapp.core_components.components) > 0
         assert len(self.edbapp.core_components.inductors) > 0

@@ -80,7 +80,7 @@ class Maxwell(object):
             Name of the file. The default value is ``None``.
         keep_modifications : bool, optional
             Whether to save the changes. The default value is ``False``.
-        python_interpreter : bool, optional
+        python_interpreter : str, optional
              The default value is ``None``.
         aedt_lib_dir : str, optional
              Full path to the ``PyAEDT`` directory. The default value is ``None``.

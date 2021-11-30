@@ -1,10 +1,11 @@
 import random
 import warnings
 import os
+import math
 
 from pyaedt.generic.general_methods import aedt_exception_handler, _retry_ntimes
 from pyaedt.modeler.Object3d import CircuitComponent
-
+from pyaedt.generic.constants import AEDT_UNITS
 
 class CircuitComponents(object):
     """CircutComponents class.
@@ -53,6 +54,10 @@ class CircuitComponents(object):
         self._oeditor = self._modeler.oeditor
         self._currentId = 0
         self.components = {}
+        self.refresh_all_ids()
+        self.current_position = [0, 0]
+        self.increment_mils = [1000, 1000]
+        self.limits_mils = 20000
         pass
 
     @property
@@ -74,6 +79,21 @@ class CircuitComponents(object):
     def design_type(self):
         """Design type."""
         return self._app.design_type
+
+    @aedt_exception_handler
+    def _get_location(self, location=None):
+        if not location:
+            xpos = self.current_position[0]
+            ypos = self.current_position[1]
+            self.current_position[1] += AEDT_UNITS["Length"]["mil"] * self.increment_mils[1]
+            if self.current_position[1] > self.limits_mils:
+                self.current_position[1] = 0
+                self.current_position[0] += AEDT_UNITS["Length"]["mil"] * self.increment_mils[0]
+        else:
+            xpos = location[0]
+            ypos = location[1]
+            self.current_position = location
+        return xpos, ypos
 
     @aedt_exception_handler
     def create_unique_id(self):
@@ -124,28 +144,25 @@ class CircuitComponents(object):
         return self.create_interface_port(name, posx, posy, angle)
 
     @aedt_exception_handler
-    def create_interface_port(self, name, posx=0.1, posy=0.1, angle=0):
+    def create_interface_port(self, name, location=[], angle=0):
         """Create an interface port.
 
         Parameters
         ----------
         name : str
             Name of the port.
-        posx : float, optional
-            Position on the X axis. The default is ``0.1``.
-        posy : float, optional
-            Position on the Y axis. The default is ``0.1``.
+        location : list, optional
+            Position on the X and Y axis. The default is ``None``.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
 
         Returns
         -------
-        type
-            Port object.
-        str
-            Port name.
+        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+            Circuit Component Object.
 
         """
+        posx, posy = self._get_location(location)
         id = self.create_unique_id()
         arg1 = ["NAME:IPortProps", "Name:=", name, "Id:=", id]
         arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", posx, "Y:=", posy, "Angle:=", angle, "Flip:=", False]
@@ -156,72 +173,68 @@ class CircuitComponents(object):
         # return id, self.components[id].composed_name
         for el in self.components:
             if name in self.components[el].composed_name:
-                return el, self.components[el].composed_name
+                return self.components[el]
+        return False
 
     @aedt_exception_handler
-    def create_page_port(self, name, posx=0.1, posy=0.1, angle=0):
+    def create_page_port(self, name, location=[], angle=0):
         """Create a page port.
 
         Parameters
         ----------
         name : str
             Name of the port.
-        posx : float, optional
-            Position on the X axis. The default is ``0.1``.
-        posy : float, optional
-            Position on the Y axis. The default is ``0.1``.
+        location : list, optional
+            Position on the X and Y axis. The default is ``None``.
         angle : optional
             Angle rotation in degrees. The default is ``0``.
 
         Returns
         -------
-        type
-            Port ID.
-        str
-            Port name.
+        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+            Circuit Component Object.
 
         """
+        xpos, ypos = self._get_location(location)
+
         id = self.create_unique_id()
         id = self._oeditor.CreatePagePort(
             ["NAME:PagePortProps", "Name:=", name, "Id:=", id],
-            ["NAME:Attributes", "Page:=", 1, "X:=", posx, "Y:=", posy, "Angle:=", angle, "Flip:=", False],
+            ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False],
         )
         id = int(id.split(";")[1])
         # self.refresh_all_ids()
         self.add_id_to_component(id)
-        return id, self.components[id].composed_name
+        return self.components[id]
 
     @aedt_exception_handler
-    def create_gnd(self, posx, posy):
+    def create_gnd(self, location=[]):
         """Create a ground.
 
         Parameters
         ----------
-        posx : float, optional
-            Position on the X axis. The default is ``0.1``.
-        posy : float, optional
-            Position on the Y axis. The default is ``0.1``.
+        location : list, optional
+            Position on the X and Y axis. The default is ``None``.
 
         Returns
         -------
-        type
-            Ground object.
-        str
-            Ground name.
+        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+            Circuit Component Object.
 
         """
+        xpos, ypos = self._get_location(location)
         id = self.create_unique_id()
 
         name = self._oeditor.CreateGround(
             ["NAME:GroundProps", "Id:=", id],
-            ["NAME:Attributes", "Page:=", 1, "X:=", posx, "Y:=", posy, "Angle:=", 0, "Flip:=", False],
+            ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", 0, "Flip:=", False],
         )
         id = int(name.split(";")[1])
         self.add_id_to_component(id)
         # return id, self.components[id].composed_name
         for el in self.components:
             if name in self.components[el].composed_name:
-                return el, self.components[el].composed_name
+                return self.components[el]
 
     @aedt_exception_handler
     def create_model_from_touchstone(self, touchstone_full_path, model_name=None):
@@ -450,8 +463,7 @@ class CircuitComponents(object):
     def create_component_from_touchstonmodel(
         self,
         modelname,
-        xpos=0.1,
-        ypos=0.1,
+        location=[],
         angle=0,
     ):
         """Create a component from a Touchstone model.
@@ -460,26 +472,25 @@ class CircuitComponents(object):
         ----------
         modelname : str
             Name of the Touchstone model.
-        xpos : float, optional
-            Position on the X axis. The default is ``0.1``.
-        ypos : float, optional
-            Position on the Y axis. The default is ``0.1``.
+        location : list of float, optional
+            Position on the X  and Y axis.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+            Circuit Component Object.
 
         """
+        xpos, ypos = self._get_location(location)
         id = self.create_unique_id()
         arg1 = ["NAME:ComponentProps", "Name:=", modelname, "Id:=", str(id)]
         arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
         id = _retry_ntimes(10, self._oeditor.CreateComponent, arg1, arg2)
         id = int(id.split(";")[1])
         self.add_id_to_component(id)
-        return id, self.components[id].composed_name
+        return self.components[id]
 
     @aedt_exception_handler
     def create_component(
@@ -487,8 +498,7 @@ class CircuitComponents(object):
         inst_name=None,
         component_library="Resistors",
         component_name="RES_",
-        xpos=0.1,
-        ypos=0.1,
+        location=[],
         angle=0,
         use_instance_id_netlist=False,
         global_netlist_list=[],
@@ -503,10 +513,8 @@ class CircuitComponents(object):
             Name of the component library. The default is ``"Resistors"``.
         component_name : str, optional
             Name of component in the library. The default is ``"RES"``.
-        xpos : float, optional
-            Position on the X axis. The default is ``0.1``.
-        yos : float, optional
-            Position on the Y axis. The default is ``0.1``.
+        location : list of float, optional
+            Position on the X axis and Y axis.
         angle : optional
             Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
@@ -517,10 +525,8 @@ class CircuitComponents(object):
 
         Returns
         -------
-        type
-            Component ID.
-        str
-            Component name.
+        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+            Circuit Component Object.
 
         """
         id = self.create_unique_id()
@@ -529,6 +535,8 @@ class CircuitComponents(object):
         else:
             name = component_name
         arg1 = ["NAME:ComponentProps", "Name:=", name, "Id:=", str(id)]
+        xpos, ypos = self._get_location(location)
+
         arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
         id = _retry_ntimes(10, self._oeditor.CreateComponent, arg1, arg2)
         id = int(id.split(";")[1])
@@ -540,7 +548,7 @@ class CircuitComponents(object):
             self.enable_use_instance_name(component_library, component_name)
         elif global_netlist_list:
             self.enable_global_netlist(component_name, global_netlist_list)
-        return id, self.components[id].composed_name
+        return self.components[id]
 
     @aedt_exception_handler
     def disable_data_netlist(self, component_name):
@@ -715,7 +723,7 @@ class CircuitComponents(object):
             if i == (h + r):
                 yp = 0.00254 * (h + 2)
                 xp = 0.00762
-                angle = 3.14159265358979
+                angle = math.pi
             else:
                 yp -= 0.00254
             id += 2
@@ -917,16 +925,15 @@ class CircuitComponents(object):
             if not self.get_obj_id(el):
                 name = el.split(";")
                 if len(name) > 1:
-                    o = CircuitComponent(self._oeditor, tabname=self.tab_name)
+                    o = CircuitComponent(self, tabname=self.tab_name)
                     o.name = name[0]
                     if len(name) == 2:
                         o.schematic_id = name[1]
                     else:
                         o.id = int(name[1])
                         o.schematic_id = name[2]
-                    o_update = self.update_object_properties(o)
                     objID = o.id
-                    self.components[objID] = o_update
+                    self.components[objID] = o
         return len(self.components)
 
     @aedt_exception_handler
@@ -948,7 +955,7 @@ class CircuitComponents(object):
         for el in obj:
             name = el.split(";")
             if len(name) > 1 and str(id) == name[1]:
-                o = CircuitComponent(self._oeditor, tabname=self.tab_name)
+                o = CircuitComponent(self, tabname=self.tab_name)
                 o.name = name[0]
                 if len(name) > 2:
                     o.id = int(name[1])
@@ -957,9 +964,8 @@ class CircuitComponents(object):
                 else:
                     o.schematic_id = int(name[1])
                     objID = o.schematic_id
-                o_update = self.update_object_properties(o)
+                self.components[objID] = o
 
-                self.components[objID] = o_update
         return len(self.components)
 
     @aedt_exception_handler
@@ -982,28 +988,6 @@ class CircuitComponents(object):
         return None
 
     @aedt_exception_handler
-    def update_object_properties(self, o):
-        """Update the properties of an object.
-
-        Parameters
-        ----------
-        o :
-            Object to update.
-
-        Returns
-        -------
-        type
-            Object with properties.
-
-        """
-        name = o.composed_name
-        proparray = _retry_ntimes(10, self._oeditor.GetProperties, "PassedParameterTab", name)
-        for j in proparray:
-            propval = _retry_ntimes(10, self._oeditor.GetPropertyValue, "PassedParameterTab", name, j)
-            o._add_property(j, propval)
-        return o
-
-    @aedt_exception_handler
     def get_pins(self, partid):
         """Retrieve one or more pins.
 
@@ -1018,7 +1002,9 @@ class CircuitComponents(object):
             Pin with properties.
 
         """
-        if isinstance(partid, str):
+        if isinstance(partid, CircuitComponent):
+            pins = _retry_ntimes(10, self._oeditor.GetComponentPins, partid.composed_name)
+        elif isinstance(partid, str):
             pins = _retry_ntimes(10, self._oeditor.GetComponentPins, partid)
             # pins = self.oeditor.GetComponentPins(partid)
         else:

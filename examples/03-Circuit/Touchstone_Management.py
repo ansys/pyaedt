@@ -8,6 +8,7 @@ must be installed on the machine.
 
 This example runs only on Windows using CPython.
 """
+# sphinx_gallery_thumbnail_path = 'Resources/nde.png'
 
 import os
 import pathlib

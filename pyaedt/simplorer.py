@@ -1,6 +1,7 @@
 """This module contains the `Simplorer` class."""
 
 from __future__ import absolute_import
+import math
 
 from pyaedt.application.AnalysisSimplorer import FieldAnalysisSimplorer
 from pyaedt.application.Variables import Variable
@@ -132,43 +133,42 @@ class Simplorer(FieldAnalysisSimplorer, object):
                 name = fields[0]
                 if fields[0][0] == "R":
                     value = fields[3][fields[3].find("=") + 1 :].strip()
-                    mycomp, mycompname = self.modeler.components.create_resistor(
-                        name, value, xpos, ypos, use_instance_id_netlist=use_instance
+                    mycomp = self.modeler.components.create_resistor(
+                        name, value, [xpos, ypos], use_instance_id_netlist=use_instance
                     )
                 elif fields[0][0] == "L":
                     value = fields[3][fields[3].find("=") + 1 :].strip()
-                    mycomp, mycompname = self.modeler.components.create_inductor(
-                        name, value, xpos, ypos, use_instance_id_netlist=use_instance
+                    mycomp = self.modeler.components.create_inductor(
+                        name, value, [xpos, ypos], use_instance_id_netlist=use_instance
                     )
                 elif fields[0][0] == "C":
                     value = fields[3][fields[3].find("=") + 1 :].strip()
-                    mycomp, mycompname = self.modeler.components.create_capacitor(
-                        name, value, xpos, ypos, use_instance_id_netlist=use_instance
+                    mycomp = self.modeler.components.create_capacitor(
+                        name, value, [xpos, ypos], use_instance_id_netlist=use_instance
                     )
                 elif fields[0][0] == "Q":
                     if len(fields) == 4 and fields[0][0] == "Q":
                         value = fields[3].strip()
-                        mycomp, mycompname = self.modeler.components.create_npn(
-                            fields[0], value, xpos, ypos, use_instance_id_netlist=use_instance
+                        mycomp = self.modeler.components.create_npn(
+                            fields[0], value, [xpos, ypos], use_instance_id_netlist=use_instance
                         )
                         value = None
                 elif fields[0][0] == "D":
                     value = fields[3][fields[3].find("=") + 1 :].strip()
-                    mycomp, mycompname = self.modeler.components.create_diode(
-                        name, value, xpos, ypos, use_instance_id_netlist=use_instance
+                    mycomp = self.modeler.components.create_diode(
+                        name, value, [xpos, ypos], use_instance_id_netlist=use_instance
                     )
                 if mycomp:
-                    pins = self.modeler.components.get_pins(mycomp)
                     id = 1
-                    for pin in pins:
-                        if pin == "CH" or pin == fields[0][0]:
+                    for pin in mycomp.pins:
+                        if pin.name == "CH" or pin.name == fields[0][0]:
                             continue
-                        pos = self.modeler.components.get_pin_location(mycomp, pin)
+                        pos = pin.location
                         if pos[0] < xpos:
-                            angle = 6.28318530717959
+                            angle = 0.0
                         else:
-                            angle = 3.14159265358979
-                        self.modeler.components.create_page_port(fields[id], pos[0], pos[1], angle)
+                            angle = math.pi
+                        self.modeler.components.create_page_port(fields[id], [pos[0], pos[1]], angle)
                         id += 1
                     ypos += delta
                     if ypos > 0.254:
