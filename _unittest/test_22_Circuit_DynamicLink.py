@@ -74,8 +74,8 @@ class TestClass:
     @pytest.mark.skipif(config.get("skip_circuits", False), reason="Skipped because Desktop is crashing")
     def test_02_add_subcircuits_3dlayout(self):
         layout_design = "Galileo_G87173_205_cutout3"
-        hfss3Dlayout_comp_id, hfss3Dlayout_comp = self.aedtapp.modeler.components.add_subcircuit_3dlayout(layout_design)
-        assert hfss3Dlayout_comp_id == 86
+        hfss3Dlayout_comp = self.aedtapp.modeler.components.add_subcircuit_3dlayout(layout_design)
+        assert hfss3Dlayout_comp.id == 86
         assert hfss3Dlayout_comp
 
     @pytest.mark.skipif(config.get("skip_circuits", False), reason="Skipped because Desktop is crashing")
@@ -86,11 +86,11 @@ class TestClass:
         assert len(pin_names) == 4
         assert "usb_P_pcb" in pin_names
 
-        hfss_comp_id, hfss_comp = self.aedtapp.modeler.components.add_subcircuit_hfss_link(
+        hfss_comp = self.aedtapp.modeler.components.add_subcircuit_hfss_link(
             "uUSB", pin_names, source_project_path, src_design_name
         )
-        assert hfss_comp_id == 87
-        assert hfss_comp == "CompInst@uUSB;87;3"
+        assert hfss_comp.id == 87
+        assert hfss_comp.composed_name == "CompInst@uUSB;87;3"
 
     @pytest.mark.skipif(config.get("skip_circuits", False), reason="Skipped because Desktop is crashing")
     def test_04_refresh_dynamic_link(self):
@@ -129,52 +129,48 @@ class TestClass:
             assert len(hfss3Dlayout_pin2location[pin]) == 2
 
         # Link 1 Creation
-        portid, portname = self.aedtapp.modeler.components.create_page_port(
-            "Link1", hfss_pin2location["usb_N_conn"][0], hfss_pin2location["usb_N_conn"][1], 180
+        portname = self.aedtapp.modeler.components.create_page_port(
+            "Link1", [hfss_pin2location["usb_N_conn"][0], hfss_pin2location["usb_N_conn"][1]], 180
         )
-        assert "Link1" in portname
-        portid, portname = self.aedtapp.modeler.components.create_page_port(
+        assert "Link1" in portname.composed_name
+        portname = self.aedtapp.modeler.components.create_page_port(
             "Link1",
-            hfss3Dlayout_pin2location["J3B2.3.USBH2_DP_CH"][0],
-            hfss3Dlayout_pin2location["J3B2.3.USBH2_DP_CH"][1],
+            [hfss3Dlayout_pin2location["J3B2.3.USBH2_DP_CH"][0], hfss3Dlayout_pin2location["J3B2.3.USBH2_DP_CH"][1]],
             180,
         )
-        assert "Link1" in portname
+        assert "Link1" in portname.composed_name
 
         # Link 2 Creation
-        portid, portname = self.aedtapp.modeler.components.create_page_port(
-            "Link2", hfss_pin2location["usb_N_pcb"][0], hfss_pin2location["usb_N_pcb"][1], 180
+        portname = self.aedtapp.modeler.components.create_page_port(
+            "Link2", [hfss_pin2location["usb_N_pcb"][0], hfss_pin2location["usb_N_pcb"][1]], 180
         )
-        assert "Link2" in portname
-        portid, portname = self.aedtapp.modeler.components.create_page_port(
+        assert "Link2" in portname.composed_name
+        portname = self.aedtapp.modeler.components.create_page_port(
             "Link2",
-            hfss3Dlayout_pin2location["L3M1.3.USBH2_DN_CH"][0],
-            hfss3Dlayout_pin2location["L3M1.3.USBH2_DN_CH"][1],
+            [hfss3Dlayout_pin2location["L3M1.3.USBH2_DN_CH"][0], hfss3Dlayout_pin2location["L3M1.3.USBH2_DN_CH"][1]],
             180,
         )
-        assert "Link2" in portname
+        assert "Link2" in portname.composed_name
 
         # Ports Creation
-        portobj, portname = self.aedtapp.modeler.components.create_interface_port(
-            "Excitation_1", hfss_pin2location["USB_VCC_T1"][0], hfss_pin2location["USB_VCC_T1"][1]
+        portname = self.aedtapp.modeler.components.create_interface_port(
+            "Excitation_1", [hfss_pin2location["USB_VCC_T1"][0], hfss_pin2location["USB_VCC_T1"][1]]
         )
-        assert "Excitation_1" in portname
-        portobj, portname = self.aedtapp.modeler.components.create_interface_port(
-            "Excitation_2", hfss_pin2location["usb_P_pcb"][0], hfss_pin2location["usb_P_pcb"][1]
+        assert "Excitation_1" in portname.composed_name
+        portname = self.aedtapp.modeler.components.create_interface_port(
+            "Excitation_2", [hfss_pin2location["usb_P_pcb"][0], hfss_pin2location["usb_P_pcb"][1]]
         )
-        assert "Excitation_2" in portname
-        portobj, portname = self.aedtapp.modeler.components.create_interface_port(
+        assert "Excitation_2" in portname.composed_name
+        portname = self.aedtapp.modeler.components.create_interface_port(
             "Port_1",
-            hfss3Dlayout_pin2location["L3M1.2.USBH2_DP_CH"][0],
-            hfss3Dlayout_pin2location["L3M1.2.USBH2_DP_CH"][1],
+            [hfss3Dlayout_pin2location["L3M1.2.USBH2_DP_CH"][0], hfss3Dlayout_pin2location["L3M1.2.USBH2_DP_CH"][1]]
         )
-        assert "Port_1" in portname
-        portobj, portname = self.aedtapp.modeler.components.create_interface_port(
+        assert "Port_1" in portname.composed_name
+        portname = self.aedtapp.modeler.components.create_interface_port(
             "Port_2",
-            hfss3Dlayout_pin2location["J3B2.2.USBH2_DN_CH"][0],
-            hfss3Dlayout_pin2location["J3B2.2.USBH2_DN_CH"][1],
+            [hfss3Dlayout_pin2location["J3B2.2.USBH2_DN_CH"][0], hfss3Dlayout_pin2location["J3B2.2.USBH2_DN_CH"][1]]
         )
-        assert "Port_2" in portname
+        assert "Port_2" in portname.composed_name
 
     @pytest.mark.skipif(config.get("skip_circuits", False), reason="Skipped because Desktop is crashing")
     def test_08_assign_excitations(self):

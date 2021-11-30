@@ -14,9 +14,12 @@ from __future__ import absolute_import
 
 import random
 import string
+import math
 
 from pyaedt import aedt_exception_handler, _retry_ntimes
 from pyaedt.modeler.GeometryOperators import GeometryOperators
+from pyaedt.application.Variables import decompose_variable_value
+from pyaedt.generic.constants import AEDT_UNITS, MILS2METER
 
 clamp = lambda n, minn, maxn: max(min(maxn, n), minn)
 
@@ -1856,18 +1859,119 @@ class Padstack(object):
         self.padstackmgr.Remove(self.name, True, "", "Project")
 
 
+class CircuitPins(object):
+    def __init__(self, circuit_comp, pinname):
+        self._circuit_comp = circuit_comp
+        self.name = pinname
+        self.m_Editor = circuit_comp.m_Editor
+
+    @property
+    def location(self):
+        """Pin Position in [x,y] format."""
+        if "Port" in self._circuit_comp.composed_name:
+            pos1 = _retry_ntimes(30, self.m_Editor.GetPropertyValue, "BaseElementTab", self._circuit_comp.composed_name,
+                                 "Component Location")
+            if isinstance(pos1, str):
+                pos1 = pos1.split(", ")
+                pos1 = [float(i.strip()[:-3]) * 0.0000254 for i in pos1]
+                if "GPort" in self._circuit_comp.composed_name:
+                    pos1[1] += 0.00254
+                return pos1
+            return []
+        return [_retry_ntimes(30, self.m_Editor.GetComponentPinLocation, self._circuit_comp.composed_name, self.name,
+                              True),
+                _retry_ntimes(30, self.m_Editor.GetComponentPinLocation, self._circuit_comp.composed_name, self.name,
+                              False)]
+
+    @aedt_exception_handler
+    def connect_to_component(self, component_pin):
+        """Connect schematic components.
+
+        Parameters
+        ----------
+        component_pin : :class:`pyaedt.modeler.PrimitivesNexxim.CircuitPins`
+           Component Pin to attach
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        comp_angle = self._circuit_comp.angle * math.pi / 180
+        comp_pin_angle = component_pin._circuit_comp.angle * math.pi / 180
+        if len(self._circuit_comp.pins) == 2:
+            comp_angle += math.pi/2
+        if len(component_pin._circuit_comp.pins) == 2:
+            comp_pin_angle += math.pi / 2
+        if "Port" in self._circuit_comp.composed_name:
+            try:
+                page_name = self._circuit_comp.name.split("@")[1].replace(";", "_")
+            except:
+                page_name = "{}_{}".format(self._circuit_comp.composed_name.replace("CompInst@", "").replace(";", "_"),
+                                           self.name)
+        elif "Port" in component_pin._circuit_comp.composed_name:
+            try:
+                page_name = self._circuit_comp.name.split("@")[1].replace(";", "_")
+            except:
+                page_name = "{}_{}".format(self._circuit_comp.composed_name.replace("CompInst@", "").replace(";", "_"),
+                                           self.name)
+        else:
+            page_name = "{}_{}".format(self._circuit_comp.composed_name.replace("CompInst@", "").replace(";", "_"),
+                                       self.name)
+        try:
+            x_loc = AEDT_UNITS["Length"][decompose_variable_value(self._circuit_comp.location[0])[1]] * float(
+                decompose_variable_value(self._circuit_comp.location[1])[0])
+        except:
+            x_loc = float(self._circuit_comp.location[0])
+        if self.location[0] < x_loc:
+            angle = comp_angle
+        else:
+            angle = math.pi + comp_angle
+
+        ret1 = self._circuit_comp._circuit_components.create_page_port(page_name, self.location, angle=angle)
+        try:
+            x_loc = AEDT_UNITS["Length"][decompose_variable_value(component_pin._circuit_comp.location[0])[1]] * float(
+                decompose_variable_value(component_pin._circuit_comp.location[0])[0])
+        except:
+            x_loc = float(self._circuit_comp.location[0])
+        if component_pin.location[0] < x_loc:
+            angle = comp_pin_angle
+        else:
+            angle = math.pi + comp_pin_angle
+        ret2 = self._circuit_comp._circuit_components.create_page_port(page_name, location=component_pin.location,
+                                                                       angle=angle)
+        if ret1 and ret2:
+            return True
+        else:
+            return False
+
+
+class ComponentParameters(object):
+
+    def __getitem__(self, key):
+        return self.parameters[key]
+
+    def __setitem__(self, key, value):
+        try:
+            self._component.m_Editor.ChangeProperty([
+                "NAME:AllTabs", ["NAME:"+self._tab, ["NAME:PropServers", self._component.composed_name],
+                                 ["NAME:ChangedProps", ["NAME:"+key, "Value:=", str(value)]]]])
+            self.parameters[key] = value
+        except:
+            self._component._circuit_components.logger.warning("Property %s has not been edited", key)
+
+    def __repr__(self):
+        return str(self.parameters)
+
+    def __init__(self, component, tab, params):
+        self._component = component
+        self._tab = tab
+        self.parameters = params
+
+
 class CircuitComponent(object):
     """Manages circuit components.
-
-    Parameters
-    ----------
-    editor : optional
-
-    units, str, optional
-       The default is ``"mm"``.
-    tabname, str, optional
-       The default is ``"PassedParameterTab"``.
-
     """
 
     @property
@@ -1878,9 +1982,10 @@ class CircuitComponent(object):
         else:
             return self.name + ";" + str(self.schematic_id)
 
-    def __init__(self, editor=None, units="mm", tabname="PassedParameterTab"):
+    def __init__(self, circuit_components, units="mm", tabname="PassedParameterTab"):
         self.name = ""
-        self.m_Editor = editor
+        self._circuit_components = circuit_components
+        self.m_Editor = self._circuit_components._oeditor
         self.modelName = None
         self.status = "Active"
         self.component = None
@@ -1888,77 +1993,153 @@ class CircuitComponent(object):
         self.refdes = ""
         self.schematic_id = 0
         self.levels = 0.1
-        self.angle = 0
-        self.x_location = "0mil"
-        self.y_location = "0mil"
-        self.mirror = False
+        self._angle = None
+        self._location = []
+        self._mirror = None
         self.usesymbolcolor = True
-        self.units = "mm"
+        self.units = units
         self.tabname = tabname
         self.InstanceName = None
+        self._pins = None
+        self._parameters = {}
 
-    @aedt_exception_handler
-    def set_location(self, x_location=None, y_location=None):
+    @property
+    def parameters(self):
+        if self._parameters:
+            return self._parameters
+        _parameters = {}
+        if self._circuit_components._app.design_type == "Circuit Design":
+            tab = "PassedParameterTab"
+        else:
+            tab = "Quantities"
+        proparray = self.m_Editor.GetProperties(tab, self.composed_name)
+
+        for j in proparray:
+            propval = _retry_ntimes(10, self.m_Editor.GetPropertyValue, tab, self.composed_name, j)
+            _parameters[j] = propval
+        self._parameters = ComponentParameters(self, tab, _parameters)
+        return self._parameters
+
+    @property
+    def pins(self):
+        """
+        Returns
+        -------
+        list of :class:`pyaedt.modeler.Object3d.CircuitPins`
+        """
+        if self._pins:
+            return self._pins
+        self._pins = []
+
+        if "Port" in self.composed_name:
+            self._pins.append(CircuitPins(self, self.composed_name))
+        else:
+            pins = _retry_ntimes(10, self.m_Editor.GetComponentPins, self.composed_name)
+            if not pins:
+                return []
+            for pin in pins:
+                self._pins.append(CircuitPins(self, pin))
+        return self._pins
+
+    @property
+    def location(self):
+        """Get the part location.
+        """
+        if self._location:
+            return self._location
+        try:
+            loc = _retry_ntimes(10, self.m_Editor.GetPropertyValue, "BaseElementTab", self.composed_name,
+                                'Component Location')
+            self._location = [loc.split(",")[0].strip(), loc.split(",")[1].strip()]
+        except:
+            self._location = []
+        return self._location
+
+    @location.setter
+    def location(self, location_xy):
         """Set the part location.
 
         Parameters
         ----------
-        x_location :
-            Position on the X axis. The default is ``None``.
-        y_location :
-            Position on the Y axis. The default is ``None``.
-
-        Returns
-        -------
-
+        location_xy : list
+            List of x and y coordinates. If float is provided, ``mils`` will be used.
         """
-        if x_location is None:
-            x_location = self.x_location
-        else:
+        decomposed = decompose_variable_value(location_xy[0])
+        try:
+            if decomposed[1] != "":
+                x_location = round(AEDT_UNITS["Length"][decomposed[1]] * float(decomposed[0]) * MILS2METER, -2)
+            else:
+                x_location = round(float(decomposed[0]), -2)
+
             x_location = _dim_arg(x_location, "mil")
-        if y_location is None:
-            y_location = self.y_location
-        else:
+
+        except:
+            x_location = location_xy[0]
+        decomposed = decompose_variable_value(location_xy[1])
+        try:
+            if decomposed[1] != "":
+                y_location = round(AEDT_UNITS["Length"][decomposed[1]] * float(decomposed[0]) * MILS2METER, -2)
+            else:
+                y_location = round(float(decomposed[0]), -2)
             y_location = _dim_arg(y_location, "mil")
 
+        except:
+            y_location = location_xy[1]
         vMaterial = ["NAME:Component Location", "X:=", x_location, "Y:=", y_location]
         self.change_property(vMaterial)
+        self._location = [x_location, y_location]
 
-    @aedt_exception_handler
-    def set_angle(self, angle=None):
-        """Set part angle
+    @property
+    def angle(self):
+        """Get the part angle.
+        """
+        if self._angle is not None:
+            return self._angle
+        self._angle = 0.0
+        try:
+            self._angle = float(_retry_ntimes(10, self.m_Editor.GetPropertyValue, "BaseElementTab", self.composed_name,
+                                  'Component Angle').replace("°", ""))
+        except:
+            self._angle = 0.0
+        return self._angle
 
-        Parameters
-        ----------
-        angle : float, optional
-            Angle rotation in degrees. The default is ``None``.
-
-        Returns
-        -------
-
+    @angle.setter
+    def angle(self, angle=None):
+        """Set the part angle.
         """
         if not angle:
-            angle = str(self.angle) + "°"
+            angle = str(self._angle) + "°"
         else:
-            angle = str(angle) + "°"
+            angle = _dim_arg(angle, "°")
         vMaterial = ["NAME:Component Angle", "Value:=", angle]
         self.change_property(vMaterial)
 
-    @aedt_exception_handler
-    def set_mirror(self, mirror_value=None):
+    @property
+    def mirror(self):
+        """Get the part mirror.
+        """
+        if self._mirror is not None:
+            return self._mirror
+        try:
+            self._mirror = _retry_ntimes(10, self.m_Editor.GetPropertyValue, "BaseElementTab", self.composed_name,
+                                     'Component Mirror') == "true"
+        except:
+            self._mirror = False
+        return self._mirror
+
+    @mirror.setter
+    def mirror(self, mirror_value=True):
         """Mirror part.
 
         Parameters
         ----------
-        mirror_value :
-            Angle for mirroring the part. The default is ``None``.
+        mirror_value : bool
+            Either to mirror the part. The default is ``True``.
 
         Returns
         -------
 
         """
-        if not mirror_value:
-            mirror_value = self.mirror
         vMaterial = ["NAME:Component Mirror", "Value:=", mirror_value]
         self.change_property(vMaterial)
 

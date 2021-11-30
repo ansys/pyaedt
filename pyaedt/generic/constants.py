@@ -11,6 +11,7 @@ V2PI = 2.0 * math.pi
 METER2IN = 0.0254
 METER2MILES = 1609.344051499
 
+MILS2METER = 39370.078740157
 
 def db20(x, inverse=True):
     """Convert db20 to decimal and viceversa."""
@@ -358,7 +359,7 @@ class VIEW(object):
 class GLOBALCS(object):
     """GlobalCS Enumerator class."""
 
-    (XY, YZ, ZX) = ("Global_XY", "Global_YZ", "Global:XZ")
+    (XY, YZ, ZX) = ("Global:XY", "Global:YZ", "Global:XZ")
 
 
 class CSMODE(object):

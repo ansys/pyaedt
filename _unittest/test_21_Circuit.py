@@ -64,23 +64,26 @@ class TestClass:
         gc.collect()
 
     def test_01_create_inductor(self):
-        myind, myname = self.aedtapp.modeler.components.create_inductor(value=1e-9, xpos=0.2, ypos=0.2)
-        assert type(myind) is int
-        assert self.aedtapp.modeler.components.components[myind].L == 1e-9
+        myind = self.aedtapp.modeler.components.create_inductor(value=1e-9, location=[0.2, 0.2])
+        assert type(myind.id) is int
+        assert myind.parameters["L"] == '1e-09'
 
     def test_02_create_resistor(self):
-        myres, myname = self.aedtapp.modeler.components.create_resistor(value=50, xpos=0.4, ypos=0.2)
-        assert type(myres) is int
-        assert self.aedtapp.modeler.components.components[myres].R == 50
+        myres = self.aedtapp.modeler.components.create_resistor(value=50, location=[0.4, 0.2])
+        assert type(myres.id) is int
+        assert myres.parameters["R"] == '50'
 
     def test_03_create_capacitor(self):
-        mycap, myname = self.aedtapp.modeler.components.create_capacitor(value=1e-12, xpos=0.6, ypos=0.2)
-        assert type(mycap) is int
-        assert self.aedtapp.modeler.components.components[mycap].C == 1e-12
+        mycap = self.aedtapp.modeler.components.create_capacitor(value=1e-12, location=[0.6, 0.2])
+        assert type(mycap.id) is int
+        assert mycap.parameters["C"] == '1e-12'
 
     def test_04_getpin_names(self):
-        mycap2, myname = self.aedtapp.modeler.components.create_capacitor(value=1e-12, xpos=0.6, ypos=0.3)
+        mycap2 = self.aedtapp.modeler.components.create_capacitor(value=1e-12)
         pinnames = self.aedtapp.modeler.components.get_pins(mycap2)
+        pinnames2 = self.aedtapp.modeler.components.get_pins(mycap2.id)
+        pinnames3 = self.aedtapp.modeler.components.get_pins(mycap2.composed_name)
+        assert pinnames2 == pinnames3
         assert type(pinnames) is list
         assert len(pinnames) == 2
 
@@ -92,8 +95,8 @@ class TestClass:
                 assert len(pinlocation) == 2
 
     def test_06_add_3dlayout_component(self):
-        myedb, myname = self.aedtapp.modeler.components.add_subcircuit_3dlayout("Galileo_G87173_204")
-        assert type(myedb) is int
+        myedb = self.aedtapp.modeler.components.add_subcircuit_3dlayout("Galileo_G87173_204")
+        assert type(myedb.id) is int
 
     def test_07_add_hfss_component(self):
         my_model, myname = self.aedtapp.modeler.components.create_field_model(
@@ -139,50 +142,51 @@ class TestClass:
 
     def test_12_connect_components(self):
 
-        myindid, myind = self.aedtapp.modeler.components.create_inductor("L100", 1e-9, 0, 0)
-        myresid, myres = self.aedtapp.modeler.components.create_resistor("R100", 50, 0.0254, 0)
-        mycapid, mycap = self.aedtapp.modeler.components.create_capacitor("C100", 1e-12, 0.0400, 0)
-        portobj, portname = self.aedtapp.modeler.components.create_interface_port("Port1", 0.2, 0.2)
-        assert "Port1" in portname
+        myind = self.aedtapp.modeler.components.create_inductor("L100", 1e-9)
+        myres = self.aedtapp.modeler.components.create_resistor("R100", 50)
+        mycap = self.aedtapp.modeler.components.create_capacitor("C100", 1e-12)
+        portname = self.aedtapp.modeler.components.create_interface_port("Port1")
+        assert "Port1" in portname.name
 
-        assert self.aedtapp.modeler.connect_schematic_components(myresid, myindid, pinnum_second=2)
-        assert self.aedtapp.modeler.connect_schematic_components(myresid, mycapid, pinnum_first=1)
+        assert self.aedtapp.modeler.connect_schematic_components(myind.id, myind.id, pinnum_second=2)
+        assert self.aedtapp.modeler.connect_schematic_components(myres.id, mycap.id, pinnum_first=1)
 
         # create_interface_port
-        L1_pins = self.aedtapp.modeler.components.get_pins(myindid)
+        L1_pins = myind.pins
         L1_pin2location = {}
         for pin in L1_pins:
-            L1_pin2location[pin] = self.aedtapp.modeler.components.get_pin_location(myindid, pin)
+            L1_pin2location[pin.name] = pin.location
 
-        C1_pins = self.aedtapp.modeler.components.get_pins(mycapid)
+        C1_pins = mycap.pins
         C1_pin2location = {}
         for pin in C1_pins:
-            C1_pin2location[pin] = self.aedtapp.modeler.components.get_pin_location(mycapid, pin)
+            C1_pin2location[pin.name] = pin.location
 
-        portobj, portname = self.aedtapp.modeler.components.create_interface_port(
-            "P1_1", L1_pin2location["n1"][0], L1_pin2location["n1"][1]
+        portname = self.aedtapp.modeler.components.create_interface_port(
+            "P1_1", [L1_pin2location["n1"][0], L1_pin2location["n1"][1]]
         )
-        assert "P1_1" in portname
-        portobj, portname = self.aedtapp.modeler.components.create_interface_port(
-            "P2_2", C1_pin2location["negative"][0], C1_pin2location["negative"][1]
+        assert "P1_1" in portname.name
+        portname = self.aedtapp.modeler.components.create_interface_port(
+            "P2_2", [C1_pin2location["negative"][0], C1_pin2location["negative"][1]]
         )
-        assert "P2_2" in portname
+        assert "P2_2" in portname.name
 
         # create_page_port
-        portid, portname = self.aedtapp.modeler.components.create_page_port(
-            "Link_1", L1_pin2location["n2"][0], L1_pin2location["n2"][1]
+        portname = self.aedtapp.modeler.components.create_page_port(
+            "Link_1", [L1_pin2location["n2"][0], L1_pin2location["n2"][1]]
         )
-        assert "Link_1" in portname
-        portid, portname = self.aedtapp.modeler.components.create_page_port(
-            "Link_2", C1_pin2location["positive"][0], C1_pin2location["positive"][1], 180
+        assert "Link_1" in portname.name
+        portname = self.aedtapp.modeler.components.create_page_port(
+            "Link_2", [C1_pin2location["positive"][0], C1_pin2location["positive"][1]], 180
         )
-        assert "Link_2" in portname
+        assert "Link_2" in portname.name
 
     def test_13_properties(self):
         assert self.aedtapp.modeler.model_units
 
     def test_14_move(self):
-        assert self.aedtapp.modeler.move("L100", 0.00508, 0.00508)
+        assert self.aedtapp.modeler.move("L100", [0.00508, 0.00508])
+        assert self.aedtapp.modeler.move("L100", [200, 200], "mil")
 
     def test_15_rotate(self):
         assert self.aedtapp.modeler.rotate("L100")
