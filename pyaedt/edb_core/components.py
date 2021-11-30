@@ -384,7 +384,7 @@ class Components(object):
 
         Parameters
         ----------
-        cmp : cmomponent
+        cmp : str or self._edb.Cell.Hierarchy.Component
             EDB component or str component name.
 
         Returns
