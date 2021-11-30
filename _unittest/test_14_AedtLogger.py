@@ -22,7 +22,7 @@ class TestClass:
 
     def teardown_class(self):
         self.aedtapp.close_project(self.aedtapp.project_name, saveproject=False)
-        shutil.rmtree(os.path.join(tempfile.gettempdir(),"log_testing"))
+        shutil.rmtree(os.path.join(tempfile.gettempdir(), "log_testing"))
         pass
     # @pytest.mark.xfail
     # def test_01_global(self, clean_desktop_messages, clean_desktop, hfss):
@@ -98,7 +98,7 @@ class TestClass:
     def test_02_output_file_with_app_filter(self):
         content = None
         temp_dir = tempfile.gettempdir()
-        logging_dir = os.path.join(temp_dir,"log_testing")
+        logging_dir = os.path.join(temp_dir, "log_testing")
         if not os.path.exists(logging_dir):
             os.makedirs(logging_dir)
         path = os.path.join(logging_dir, "test02.txt")
@@ -127,12 +127,12 @@ class TestClass:
         logger.disable_log_on_file()
 
         for handler in project_logger.handlers:
-            if isinstance(handler,logging.FileHandler):
+            if isinstance(handler, logging.FileHandler):
                 handler.close()
                 project_logger.removeHandler(handler)
 
         for handler in design_logger.handlers:
-            if isinstance(handler,logging.FileHandler):
+            if isinstance(handler, logging.FileHandler):
                 handler.close()
                 design_logger.removeHandler(handler)
 
@@ -158,7 +158,6 @@ class TestClass:
 
         os.remove(path)
 
-
     @pytest.mark.skipif(is_ironpython, reason="stdout redirection does not work in IronPython.")
     def test_03_stdout_with_app_filter(self):
         capture = CaptureStdOut()
@@ -175,7 +174,7 @@ class TestClass:
     def test_04_disable_output_file_handler(self):
         content = None
         temp_dir = tempfile.gettempdir()
-        logging_dir = os.path.join(temp_dir,"log_testing")
+        logging_dir = os.path.join(temp_dir, "log_testing")
         if not os.path.exists(logging_dir):
             os.makedirs(logging_dir)
         path = os.path.join(logging_dir, "test04.txt")
@@ -227,12 +226,12 @@ class TestClass:
         logger.disable_log_on_file()
 
         for handler in project_logger.handlers:
-            if isinstance(handler,logging.FileHandler):
+            if isinstance(handler, logging.FileHandler):
                 handler.close()
                 project_logger.removeHandler(handler)
 
         for handler in design_logger.handlers:
-            if isinstance(handler,logging.FileHandler):
+            if isinstance(handler, logging.FileHandler):
                 handler.close()
                 design_logger.removeHandler(handler)
 
