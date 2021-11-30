@@ -1062,7 +1062,7 @@ class Edb(object):
             db2 = self.edb.Database.Create(output_aedb_path)
             _success = db2.Save()
             _dbCells = convert_py_list_to_net_list(_dbCells)
-            db2.CopyCells(_dbCells)  # Copies cutout cell/design to db2 project
+            cell_copied = db2.CopyCells(_dbCells)  # Copies cutout cell/design to db2 project
             cell = list(db2.TopCircuitCells)[0]
             cell.SetName(os.path.basename(output_aedb_path[:-5]))
             layout = cell.GetLayout()
