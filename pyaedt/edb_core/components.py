@@ -384,7 +384,7 @@ class Components(object):
 
         Parameters
         ----------
-        cmp : cmomponent
+        cmp : str or self._edb.Cell.Hierarchy.Component
             EDB component or str component name.
 
         Returns
@@ -406,7 +406,7 @@ class Components(object):
 
         Parameters
         ----------
-        cmp : Component
+        cmp : str or self._edb.Cell.Hierarchy.Component
             Edb component or str component name..
         sball_height : str or double
             Solder balls height value.
