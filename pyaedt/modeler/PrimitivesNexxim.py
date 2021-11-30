@@ -91,7 +91,7 @@ class NexximComponents(CircuitComponents):
                         comps.append(cmp)
                         break
         i = 0
-        assert len(comps) > 1, "At least two components has to be passed"
+        assert len(comps) > 1, "At least two components have to be passed."
         while i < (len(comps)-1):
             comps[i].pins[-1].connect_to_component(comps[i+1].pins[0])
             i += 1
