@@ -235,7 +235,7 @@ class SimplorerComponents(CircuitComponents):
         return id
 
     @aedt_exception_handler
-    def create_pnp(self, compname=None, location[], angle=0, use_instance_id_netlist=False):
+    def create_pnp(self, compname=None, location=[], angle=0, use_instance_id_netlist=False):
         """Create a PNP transistor.
 
         Parameters
