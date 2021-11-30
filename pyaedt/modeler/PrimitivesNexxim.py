@@ -347,7 +347,7 @@ class NexximComponents(CircuitComponents):
         return False
 
     @aedt_exception_handler
-    def create_resistor(self, compname=None, value=50, location=None, angle=0, use_instance_id_netlist=False):
+    def create_resistor(self, compname=None, value=50, location=[], angle=0, use_instance_id_netlist=False):
         """Create a resistor.
 
         Parameters
@@ -380,7 +380,7 @@ class NexximComponents(CircuitComponents):
         return cmpid
 
     @aedt_exception_handler
-    def create_inductor(self, compname=None, value=50, location=None, angle=0, use_instance_id_netlist=False):
+    def create_inductor(self, compname=None, value=50, location=[], angle=0, use_instance_id_netlist=False):
         """Create an inductor.
 
         Parameters
@@ -416,7 +416,7 @@ class NexximComponents(CircuitComponents):
         return cmpid
 
     @aedt_exception_handler
-    def create_capacitor(self, compname=None, value=50, location=None, angle=0, use_instance_id_netlist=False):
+    def create_capacitor(self, compname=None, value=50, location=[], angle=0, use_instance_id_netlist=False):
         """Create a capacitor.
 
         Parameters
@@ -452,7 +452,7 @@ class NexximComponents(CircuitComponents):
         return cmpid
 
     @aedt_exception_handler
-    def create_voltage_dc(self, compname=None, value=1, location=None, angle=0, use_instance_id_netlist=False):
+    def create_voltage_dc(self, compname=None, value=1, location=[], angle=0, use_instance_id_netlist=False):
         """Create a voltage DC source.
 
         Parameters
@@ -489,7 +489,7 @@ class NexximComponents(CircuitComponents):
 
     @aedt_exception_handler
     def create_current_pulse(
-            self, compname=None, value_lists=[], location=None, angle=0, use_instance_id_netlist=False
+            self, compname=None, value_lists=[], location=[], angle=0, use_instance_id_netlist=False
     ):
         """Create a current pulse.
 
@@ -541,7 +541,7 @@ class NexximComponents(CircuitComponents):
 
     @aedt_exception_handler
     def create_voltage_pulse(
-            self, compname=None, value_lists=[], location=None, angle=0, use_instance_id_netlist=False
+            self, compname=None, value_lists=[], location=[], angle=0, use_instance_id_netlist=False
     ):
         """Create a voltage pulse.
 
@@ -592,7 +592,7 @@ class NexximComponents(CircuitComponents):
         return cmpid
 
     @aedt_exception_handler
-    def create_current_dc(self, compname=None, value=1, location=None, angle=0, use_instance_id_netlist=False):
+    def create_current_dc(self, compname=None, value=1, location=[], angle=0, use_instance_id_netlist=False):
         """Create a current DC source.
 
         Parameters
@@ -628,7 +628,7 @@ class NexximComponents(CircuitComponents):
         return cmpid
 
     def create_coupling_inductors(
-            self, compname, l1, l2, value=1, location=None, angle=0, use_instance_id_netlist=False
+            self, compname, l1, l2, value=1, location=[], angle=0, use_instance_id_netlist=False
     ):
         """Create a coupling inductor.
 
@@ -672,7 +672,7 @@ class NexximComponents(CircuitComponents):
 
     @aedt_exception_handler
     def create_diode(
-            self, compname=None, model_name="required", location=None, angle=0, use_instance_id_netlist=False
+            self, compname=None, model_name="required", location=[], angle=0, use_instance_id_netlist=False
     ):
         """Create a diode.
 
@@ -709,7 +709,7 @@ class NexximComponents(CircuitComponents):
         return cmpid
 
     @aedt_exception_handler
-    def create_npn(self, compname=None, value=None, location=None, angle=0, use_instance_id_netlist=False):
+    def create_npn(self, compname=None, value=None, location=[], angle=0, use_instance_id_netlist=False):
         """Create an NPN transistor.
 
         Parameters
@@ -745,7 +745,7 @@ class NexximComponents(CircuitComponents):
         return id
 
     @aedt_exception_handler
-    def create_pnp(self, compname=None, value=50, location=None, angle=0, use_instance_id_netlist=False):
+    def create_pnp(self, compname=None, value=50, location=[], angle=0, use_instance_id_netlist=False):
         """Create a PNP transistor.
 
         Parameters

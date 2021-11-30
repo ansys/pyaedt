@@ -65,7 +65,7 @@ class SimplorerComponents(CircuitComponents):
         pass
 
     @aedt_exception_handler
-    def create_resistor(self, compname=None, value=50, location=None, angle=0, use_instance_id_netlist=False):
+    def create_resistor(self, compname=None, value=50, location=[], angle=0, use_instance_id_netlist=False):
         """Create a resistor.
 
         Parameters
@@ -101,7 +101,7 @@ class SimplorerComponents(CircuitComponents):
         return id
 
     @aedt_exception_handler
-    def create_inductor(self, compname=None, value=50, location=None, angle=0, use_instance_id_netlist=False):
+    def create_inductor(self, compname=None, value=50, location=[], angle=0, use_instance_id_netlist=False):
         """Create an inductor.
 
         Parameters
@@ -135,7 +135,7 @@ class SimplorerComponents(CircuitComponents):
         return id
 
     @aedt_exception_handler
-    def create_capacitor(self, compname=None, value=50, location=None, angle=0, use_instance_id_netlist=False):
+    def create_capacitor(self, compname=None, value=50, location=[], angle=0, use_instance_id_netlist=False):
         """Create a capacitor.
 
         Parameters
@@ -170,7 +170,7 @@ class SimplorerComponents(CircuitComponents):
 
     @aedt_exception_handler
     def create_diode(
-        self, compname=None, model_name="required", location=None, angle=0, use_instance_id_netlist=False
+        self, compname=None, model_name="required", location=[], angle=0, use_instance_id_netlist=False
     ):
         """Create a diode.
 
@@ -204,7 +204,7 @@ class SimplorerComponents(CircuitComponents):
         return id
 
     @aedt_exception_handler
-    def create_npn(self, compname=None, location=None, angle=0, use_instance_id_netlist=False):
+    def create_npn(self, compname=None, location=[], angle=0, use_instance_id_netlist=False):
         """Create an NPN transistor.
 
         Parameters
@@ -235,7 +235,7 @@ class SimplorerComponents(CircuitComponents):
         return id
 
     @aedt_exception_handler
-    def create_pnp(self, compname=None, location=None, angle=0, use_instance_id_netlist=False):
+    def create_pnp(self, compname=None, location[], angle=0, use_instance_id_netlist=False):
         """Create a PNP transistor.
 
         Parameters

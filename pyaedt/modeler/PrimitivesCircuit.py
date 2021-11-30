@@ -82,7 +82,7 @@ class CircuitComponents(object):
 
     @aedt_exception_handler
     def _get_location(self, location=None):
-        if location is None:
+        if not location:
             xpos = self.current_position[0]
             ypos = self.current_position[1]
             self.current_position[1] += AEDT_UNITS["Length"]["mil"] * self.increment_mils[1]
@@ -144,7 +144,7 @@ class CircuitComponents(object):
         return self.create_interface_port(name, posx, posy, angle)
 
     @aedt_exception_handler
-    def create_interface_port(self, name, location=None, angle=0):
+    def create_interface_port(self, name, location=[], angle=0):
         """Create an interface port.
 
         Parameters
@@ -177,7 +177,7 @@ class CircuitComponents(object):
         return False
 
     @aedt_exception_handler
-    def create_page_port(self, name, location=None, angle=0):
+    def create_page_port(self, name, location=[], angle=0):
         """Create a page port.
 
         Parameters
@@ -208,7 +208,7 @@ class CircuitComponents(object):
         return self.components[id]
 
     @aedt_exception_handler
-    def create_gnd(self, location=None):
+    def create_gnd(self, location=[]):
         """Create a ground.
 
         Parameters
@@ -463,7 +463,7 @@ class CircuitComponents(object):
     def create_component_from_touchstonmodel(
         self,
         modelname,
-        location=None,
+        location=[],
         angle=0,
     ):
         """Create a component from a Touchstone model.
@@ -498,7 +498,7 @@ class CircuitComponents(object):
         inst_name=None,
         component_library="Resistors",
         component_name="RES_",
-        location=None,
+        location=[],
         angle=0,
         use_instance_id_netlist=False,
         global_netlist_list=[],
