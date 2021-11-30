@@ -206,6 +206,28 @@ def download_icepak():
 
     return _download_file("icepak", "Graphics_card.aedt")
 
+def download_via_wizard():
+    """Download an example of Hfss Via Wizard and return the def path.
+
+    Examples files are downloaded to a persistent cache to avoid
+    re-downloading the same file twice.
+
+    Returns
+    -------
+    str
+        Path to the example file.
+
+    Examples
+    --------
+    Download an example result file and return the path of the file
+
+    >>> from pyaedt import examples
+    >>> path = examples.download_via_wizard()
+    >>> path
+    'C:/Users/user/AppData/local/temp/pyaedtexamples/Graphic_Card.aedt'
+    """
+
+    return _download_file("via_wizard", "viawizard_vacuum_FR4.aedt")
 
 def download_touchstone():
     """Download an example of touchstone File and return the def path.

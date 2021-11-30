@@ -2508,7 +2508,7 @@ class Primitives(object):
                 if not center_i:  # non planar face
                     continue
                 radius_i = GeometryOperators.points_distance(vertex1_i, center_i)
-                area_i_eval = 3.141592653589793 * radius_i ** 2
+                area_i_eval = math.pi * radius_i ** 2
                 if abs(area_i - area_i_eval) < tol2:  # it is a circle
                     vertex2_i = center_i
                     midpoints[ei] = center_i
@@ -2652,7 +2652,7 @@ class Primitives(object):
                 if not center_i:  # non planar face
                     continue
                 radius_i = GeometryOperators.points_distance(vertex1_i, center_i)
-                area_i_eval = 3.141592653589793 * radius_i ** 2
+                area_i_eval = math.pi * radius_i ** 2
                 if abs(area_i - area_i_eval) < tol2:  # it is a circle
                     vertex2_i = center_i
                     midpoints[ei] = center_i

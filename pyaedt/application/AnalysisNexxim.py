@@ -49,7 +49,7 @@ class FieldAnalysisCircuit(Analysis):
         )
 
         self._modeler = ModelerNexxim(self)
-        self._modeler.primitives.init_padstacks()
+        self._modeler.layout.init_padstacks()
         self._post = CircuitPostProcessor(self)
 
     @property
