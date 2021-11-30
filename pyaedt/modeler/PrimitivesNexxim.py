@@ -97,7 +97,6 @@ class NexximComponents(CircuitComponents):
             i += 1
         return True
 
-
     @aedt_exception_handler
     def connect_components_in_parallel(self, components_to_connect):
         """Connect schematic components in parallel.
@@ -135,7 +134,6 @@ class NexximComponents(CircuitComponents):
         if len(terminal_to_connect) > 1:
             terminal_to_connect[0].pins[1].connect_to_component([i.pins[1] for i in terminal_to_connect[1:]])
         return True
-
 
     @aedt_exception_handler
     def create_3dlayout_subcircuit(self, sourcename):
