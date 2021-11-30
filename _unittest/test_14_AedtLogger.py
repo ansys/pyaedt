@@ -2,11 +2,10 @@
 import tempfile
 import os
 import io
+import logging
 import shutil
 import sys
-import pdb
 try:
-    import pytest
     import unittest.mock
 except ImportError:
     import _unittest_ironpython.conf_unittest as pytest
@@ -23,6 +22,7 @@ class TestClass:
 
     def teardown_class(self):
         self.aedtapp.close_project(self.aedtapp.project_name, saveproject=False)
+        shutil.rmtree(os.path.join(tempfile.gettempdir(),"log_testing"))
         pass
     # @pytest.mark.xfail
     # def test_01_global(self, clean_desktop_messages, clean_desktop, hfss):
@@ -118,23 +118,26 @@ class TestClass:
         design_logger.warning("Warning for Design")
         design_logger.error("Error for Design")
 
-        pdb.set_trace()
-
         # Close every handlers to make sure that the
         # file handler on every logger has been released properly.
         # Otherwise, we can't read the content of the log file.
-        try:
-            for handler in logger.handlers:
+
+        # delete the global file handler but not the log hadler because
+        # it is used to write some info messages when closing AEDT.
+        logger.disable_log_on_file()
+
+        for handler in project_logger.handlers:
+            if isinstance(handler,logging.FileHandler):
                 handler.close()
-            for handler in project_logger.handlers:
+                project_logger.removeHandler(handler)
+
+        for handler in design_logger.handlers:
+            if isinstance(handler,logging.FileHandler):
                 handler.close()
-            for handler in design_logger.handlers:
-                handler.close()
-        except:
-            pass
+                design_logger.removeHandler(handler)
+
         with open(path, 'r') as f:
             content = f.readlines()
-        
 
         assert ":Global:INFO    :Info for Global" in content[0]
         assert ":Global:DEBUG   :Debug for Global" in content[1]
@@ -152,8 +155,9 @@ class TestClass:
         # self.aedtapp.logger.project.handlers.pop()
         # if len(self.aedtapp.logger.design.handlers) > 0:
         #     self.aedtapp.logger.design.handlers.pop()
+
         os.remove(path)
-        shutil.rmtree(path)
+
 
     @pytest.mark.skipif(is_ironpython, reason="stdout redirection does not work in IronPython.")
     def test_03_stdout_with_app_filter(self):
@@ -182,18 +186,6 @@ class TestClass:
         design_logger = logger.add_logger('Design')
         design_logger.info("Info for Design before disabling the log file handler.")
 
-        # Close every handlers to make sure that the
-        # file handler on every logger has been released properly.
-        # Otherwise, we can't read the content of the log file.
-        try:
-            for handler in logger.handlers:
-                handler.close()
-            for handler in project_logger.handlers:
-                handler.close()
-            for handler in design_logger.handlers:
-                handler.close()
-        except:
-            pass
         with open(path, 'r') as f:
             content = f.readlines()
 
@@ -229,8 +221,22 @@ class TestClass:
                 enablement_succeeded = True
         assert enablement_succeeded
 
+        # Close every handlers to make sure that the
+        # file handler on every logger has been released properly.
+        # Otherwise, we can't read the content of the log file.
         logger.disable_log_on_file()
-        shutil.rmtree(path)
+
+        for handler in project_logger.handlers:
+            if isinstance(handler,logging.FileHandler):
+                handler.close()
+                project_logger.removeHandler(handler)
+
+        for handler in design_logger.handlers:
+            if isinstance(handler,logging.FileHandler):
+                handler.close()
+                design_logger.removeHandler(handler)
+
+        os.remove(path)
 
     @pytest.mark.skipif(is_ironpython, reason="stdout redirection does not work in IronPython.")
     def test_05_disable_stdout(self):

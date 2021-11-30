@@ -149,6 +149,7 @@ class AedtLogger(object):
     def disable_log_on_file(self):
         """Log will be written into an output file."""
         self._messenger._log_on_file = False
+        self._file_handler.close()
         self._global.removeHandler(self._file_handler)
 
     def enable_log_on_file(self):
