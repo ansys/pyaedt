@@ -385,6 +385,12 @@ class SWEEPDRAFT(object):
     (Extended, Round, Natural, Mixed) = range(0, 4)
 
 
+class FlipChipOrientation(object):
+    """Chip orientation enumerator class."""
+
+    (Up, Down) = range(0, 2)
+
+
 class SOLUTIONS(object):
     """Provides the names of default solution types."""
 

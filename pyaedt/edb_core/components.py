@@ -7,7 +7,7 @@ import warnings
 from pyaedt import generate_unique_name, _retry_ntimes
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import aedt_exception_handler, get_filename_without_extension, is_ironpython
-
+from pyaedt.generic.constants import FlipChipOrientation
 from pyaedt.edb_core.EDB_Data import EDBComponent
 
 try:
@@ -379,11 +379,86 @@ class Components(object):
         return cmp_list
 
     @aedt_exception_handler
-    def get_solder_ball_height(self, component):
-        """
+    def get_solder_ball_height(self, cmp):
+        """Get component solder ball height.
+
+        Parameters
+        ----------
+        cmp : cmomponent
+            EDB component or str component name.
+
+        Returns
+        -------
+        double, bool
+            Salder ball height vale, ``False`` when failed.
 
         """
+        if cmp is not None:
+            if not(isinstance(cmp, self._edb.Cell.Hierarchy.Component)):
+                cmp = self.get_component_by_name(cmp)
+            cmp_prop = cmp.GetComponentProperty().Clone()
+            return cmp_prop.GetSolderBallProperty().GetHeight()
+        return False
 
+    @aedt_exception_handler
+    def set_solder_ball(self, cmp, sball_height=100e-6, sball_diam=150e-6, orientation=FlipChipOrientation.Up):
+        """Define component solder ball ready for port assignment.
+
+        Parameters
+        ----------
+        cmp : Component
+            Edb component or str component name..
+        sball_height : str or double
+            Solder balls height value.
+        sball_diam : str or double
+            Solder balls diameter value.
+        orientation : FlipChipOrientation
+            Gives the orientation for flip chip (only applied on IC component).
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+
+        >>> from pyaedt import Edb
+        >>> edbapp = Edb("myaedbfolder")
+        >>> set_solder_ball = edbapp.core_components.set_solder_ball("A1")
+
+        """
+        if cmp is not None:
+            if not(isinstance(cmp, self._edb.Cell.Hierarchy.Component)):
+                cmp = self.get_component_by_name(cmp)
+            cmp_prop = cmp.GetComponentProperty().Clone()
+            cmp_type = cmp.GetComponentType()
+            if cmp_type == self._edb.Definition.ComponentType.IC:
+                die_prop = cmp_prop.GetDieProperty().Clone()
+                if orientation == FlipChipOrientation.Up:
+                    if not die_prop.SetOrientation(self._edb.Definition.DieOrientation.ChipUp):
+                        return False
+                else:
+                    die_prop.SetOrientation(self._edb.Definition.DieOrientation.ChipDown)
+                if not cmp_prop.SetDieProperty(die_prop):
+                    return False
+
+            solder_prop = cmp_prop.GetSolderBallProperty().Clone()
+            if not solder_prop.SetDiameter(self._edb_value(sball_diam), self._edb_value(sball_diam)):
+                return False
+            if not solder_prop.SetHeight(self._edb_value(sball_height)):
+                return False
+            if not cmp_prop.SetSolderBallProperty(solder_prop):
+                return False
+
+            port_prop = cmp_prop.GetPortProperty().Clone()
+            port_prop.SetReferenceSizeAuto(True)
+            cmp_prop.SetPortProperty(port_prop)
+            if not cmp.SetComponentProperty(cmp_prop):
+                return False
+
+            return True
+        else:
+            return False
 
     @aedt_exception_handler
     def create_component_from_pins(self, pins, component_name, placement_layer=None):
