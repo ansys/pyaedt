@@ -1063,9 +1063,8 @@ class Edb(object):
             _success = db2.Save()
             _dbCells = convert_py_list_to_net_list(_dbCells)
             cell_copied = db2.CopyCells(_dbCells)  # Copies cutout cell/design to db2 project
-            cell = list(db2.TopCircuitCells)[0]
+            cell = list(cell_copied)[0]
             cell.SetName(os.path.basename(output_aedb_path[:-5]))
-            layout = cell.GetLayout()
             db2.Save()
             for c in list(self.db.TopCircuitCells):
                 if c.GetName() == _cutout.GetName():
