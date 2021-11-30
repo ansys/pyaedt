@@ -359,7 +359,7 @@ class VIEW(object):
 class GLOBALCS(object):
     """GlobalCS Enumerator class."""
 
-    (XY, YZ, ZX) = ("Global_XY", "Global_YZ", "Global:XZ")
+    (XY, YZ, ZX) = ("Global:XY", "Global:YZ", "Global:XZ")
 
 
 class CSMODE(object):
