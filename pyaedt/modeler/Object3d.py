@@ -1883,6 +1883,19 @@ class CircuitPins(object):
                 _retry_ntimes(30, self.m_Editor.GetComponentPinLocation, self._circuit_comp.composed_name, self.name,
                               False)]
 
+    @property
+    def net(self):
+        """Pin net name."""
+        if "PagePort@" in self.name:
+            return self._circuit_comp.name.split("@")[1]
+        for net in self._circuit_comp._circuit_components.nets:
+            conns = self.m_Editor.GetNetConnections(net)
+            for conn in conns:
+                if self.name == conn[-len(self.name):] and (
+                        ";{};".format(self._circuit_comp.id) in conn or ";{} ".format(self._circuit_comp.id) in conn):
+                    return net
+        return ""
+
     @aedt_exception_handler
     def connect_to_component(self, component_pin):
         """Connect schematic components.
@@ -2037,10 +2050,14 @@ class CircuitComponent(object):
             self._pins.append(CircuitPins(self, self.composed_name))
         else:
             pins = _retry_ntimes(10, self.m_Editor.GetComponentPins, self.composed_name)
+
             if not pins:
                 return []
             for pin in pins:
-                self._pins.append(CircuitPins(self, pin))
+                if self._circuit_components._app.design_type != "Twin Builder":
+                    self._pins.append(CircuitPins(self, pin))
+                elif pin not in list(self.parameters.parameters.keys()):
+                    self._pins.append(CircuitPins(self, pin))
         return self._pins
 
     @property

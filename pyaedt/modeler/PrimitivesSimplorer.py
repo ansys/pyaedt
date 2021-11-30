@@ -61,7 +61,6 @@ class SimplorerComponents(CircuitComponents):
         self._app = modeler._app
         self._modeler = modeler
         self._currentId = 0
-        self.components = {}
         pass
 
     @aedt_exception_handler

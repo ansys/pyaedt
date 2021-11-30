@@ -80,6 +80,16 @@ class CircuitComponents(object):
         """Design type."""
         return self._app.design_type
 
+    @property
+    def nets(self):
+        nets_comp = self._oeditor.GetAllNets()
+        nets = []
+        for net in nets_comp:
+            v = net.split(";")
+            if v[0].replace("Wire@", "") not in nets:
+                nets.append(v[0].replace("Wire@", ""))
+        return nets
+
     @aedt_exception_handler
     def _get_location(self, location=None):
         if not location:
