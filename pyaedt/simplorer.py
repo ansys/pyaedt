@@ -133,29 +133,29 @@ class Simplorer(FieldAnalysisSimplorer, object):
                 name = fields[0]
                 if fields[0][0] == "R":
                     value = fields[3][fields[3].find("=") + 1 :].strip()
-                    mycomp = self.modeler.components.create_resistor(
+                    mycomp = self.modeler.schematic.create_resistor(
                         name, value, [xpos, ypos], use_instance_id_netlist=use_instance
                     )
                 elif fields[0][0] == "L":
                     value = fields[3][fields[3].find("=") + 1 :].strip()
-                    mycomp = self.modeler.components.create_inductor(
+                    mycomp = self.modeler.schematic.create_inductor(
                         name, value, [xpos, ypos], use_instance_id_netlist=use_instance
                     )
                 elif fields[0][0] == "C":
                     value = fields[3][fields[3].find("=") + 1 :].strip()
-                    mycomp = self.modeler.components.create_capacitor(
+                    mycomp = self.modeler.schematic.create_capacitor(
                         name, value, [xpos, ypos], use_instance_id_netlist=use_instance
                     )
                 elif fields[0][0] == "Q":
                     if len(fields) == 4 and fields[0][0] == "Q":
                         value = fields[3].strip()
-                        mycomp = self.modeler.components.create_npn(
+                        mycomp = self.modeler.schematic.create_npn(
                             fields[0], value, [xpos, ypos], use_instance_id_netlist=use_instance
                         )
                         value = None
                 elif fields[0][0] == "D":
                     value = fields[3][fields[3].find("=") + 1 :].strip()
-                    mycomp = self.modeler.components.create_diode(
+                    mycomp = self.modeler.schematic.create_diode(
                         name, value, [xpos, ypos], use_instance_id_netlist=use_instance
                     )
                 if mycomp:
@@ -168,7 +168,7 @@ class Simplorer(FieldAnalysisSimplorer, object):
                             angle = 0.0
                         else:
                             angle = math.pi
-                        self.modeler.components.create_page_port(fields[id], [pos[0], pos[1]], angle)
+                        self.modeler.schematic.create_page_port(fields[id], [pos[0], pos[1]], angle)
                         id += 1
                     ypos += delta
                     if ypos > 0.254:

@@ -1898,27 +1898,27 @@ class CircuitPins(object):
             ``True`` when successful, ``False`` when failed.
 
         """
+        if not isinstance(component_pin, list):
+            component_pin = [component_pin]
         comp_angle = self._circuit_comp.angle * math.pi / 180
-        comp_pin_angle = component_pin._circuit_comp.angle * math.pi / 180
         if len(self._circuit_comp.pins) == 2:
             comp_angle += math.pi/2
-        if len(component_pin._circuit_comp.pins) == 2:
-            comp_pin_angle += math.pi / 2
+        page_name = "{}_{}".format(self._circuit_comp.composed_name.replace("CompInst@", "").replace(";", "_"),
+                                   self.name)
+
         if "Port" in self._circuit_comp.composed_name:
             try:
                 page_name = self._circuit_comp.name.split("@")[1].replace(";", "_")
             except:
-                page_name = "{}_{}".format(self._circuit_comp.composed_name.replace("CompInst@", "").replace(";", "_"),
-                                           self.name)
-        elif "Port" in component_pin._circuit_comp.composed_name:
-            try:
-                page_name = self._circuit_comp.name.split("@")[1].replace(";", "_")
-            except:
-                page_name = "{}_{}".format(self._circuit_comp.composed_name.replace("CompInst@", "").replace(";", "_"),
-                                           self.name)
+                pass
         else:
-            page_name = "{}_{}".format(self._circuit_comp.composed_name.replace("CompInst@", "").replace(";", "_"),
-                                       self.name)
+            for cmp in component_pin:
+                if "Port" in cmp._circuit_comp.composed_name:
+                    try:
+                        page_name = cmp._circuit_comp.name.split("@")[1].replace(";", "_")
+                        break
+                    except:
+                        continue
         try:
             x_loc = AEDT_UNITS["Length"][decompose_variable_value(self._circuit_comp.location[0])[1]] * float(
                 decompose_variable_value(self._circuit_comp.location[1])[0])
@@ -1928,24 +1928,26 @@ class CircuitPins(object):
             angle = comp_angle
         else:
             angle = math.pi + comp_angle
-
         ret1 = self._circuit_comp._circuit_components.create_page_port(page_name, self.location, angle=angle)
-        try:
-            x_loc = AEDT_UNITS["Length"][decompose_variable_value(component_pin._circuit_comp.location[0])[1]] * float(
-                decompose_variable_value(component_pin._circuit_comp.location[0])[0])
-        except:
-            x_loc = float(self._circuit_comp.location[0])
-        if component_pin.location[0] < x_loc:
-            angle = comp_pin_angle
-        else:
-            angle = math.pi + comp_pin_angle
-        ret2 = self._circuit_comp._circuit_components.create_page_port(page_name, location=component_pin.location,
-                                                                       angle=angle)
+        for cmp in component_pin:
+            try:
+                x_loc = AEDT_UNITS["Length"][decompose_variable_value(cmp._circuit_comp.location[0])[1]] * float(
+                    decompose_variable_value(cmp._circuit_comp.location[0])[0])
+            except:
+                x_loc = float(self._circuit_comp.location[0])
+            comp_pin_angle = cmp._circuit_comp.angle * math.pi / 180
+            if len(cmp._circuit_comp.pins) == 2:
+                comp_pin_angle += math.pi / 2
+            if cmp.location[0] < x_loc:
+                angle = comp_pin_angle
+            else:
+                angle = math.pi + comp_pin_angle
+            ret2 = self._circuit_comp._circuit_components.create_page_port(page_name, location=cmp.location,
+                                                                           angle=angle)
         if ret1 and ret2:
             return True
         else:
             return False
-
 
 class ComponentParameters(object):
 

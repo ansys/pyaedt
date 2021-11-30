@@ -17,7 +17,7 @@ class CircuitComponents(object):
 
     >>> from pyaedt import Circuit
     >>> aedtapp = Circuit()
-    >>> prim = aedtapp.modeler.components
+    >>> prim = aedtapp.modeler.schematic
     """
 
     @aedt_exception_handler
@@ -138,7 +138,7 @@ class CircuitComponents(object):
         """Create an interface port.
 
         .. deprecated:: 0.4.0
-           Use :func:`Circuit.modeler.components.create_interface_port` instead.
+           Use :func:`Circuit.modeler.schematic.create_interface_port` instead.
         """
         warnings.warn("`create_iport` is deprecated. Use `create_interface_port` instead.", DeprecationWarning)
         return self.create_interface_port(name, posx, posy, angle)

@@ -20,7 +20,7 @@ class SimplorerComponents(CircuitComponents):
 
     >>> from pyaedt import Simplorer
     >>> aedtapp = Simplorer()
-    >>> prim = aedtapp.modeler.components
+    >>> prim = aedtapp.modeler.schematic
     """
 
     @property
