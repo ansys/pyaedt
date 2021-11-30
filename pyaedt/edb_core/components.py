@@ -8,7 +8,9 @@ from pyaedt import generate_unique_name, _retry_ntimes
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import aedt_exception_handler, get_filename_without_extension, is_ironpython
 from pyaedt.generic.constants import FlipChipOrientation
+from pyaedt.generic.constants import PortType
 from pyaedt.edb_core.EDB_Data import EDBComponent
+from pyaedt.edb_core.padstack import EdbPadstacks
 
 try:
     import clr
@@ -394,11 +396,51 @@ class Components(object):
 
         """
         if cmp is not None:
-            if not(isinstance(cmp, self._edb.Cell.Hierarchy.Component)):
+            if not (isinstance(cmp, self._edb.Cell.Hierarchy.Component)):
                 cmp = self.get_component_by_name(cmp)
             cmp_prop = cmp.GetComponentProperty().Clone()
             return cmp_prop.GetSolderBallProperty().GetHeight()
         return False
+
+    @aedt_exception_handler
+    def create_port_on_component(self, cmp, net_list, port_type=PortType.Coaxial, sball_height="150um"):
+        """
+
+        """
+        if isinstance(cmp, self._edb.Cell.Hierarchy.Component):
+            cmp = cmp.GetName()
+        if not isinstance(net_list, list):
+            net_list = [net_list]
+        for net in net_list:
+            if not isinstance(net, str):
+                try:
+                    net_name = net.GetName()
+                    if net_name != "":
+                        net_list.append(net_name)
+                except:
+                    pass
+
+        cmp_pins = self.get_pin_from_component(cmp, net_list)
+        sb_height = self.get_solder_ball_height(cmp)
+        if sb_height == 0:
+            sb_height = sball_height
+            sball_diam = 0.0
+            pin_layers = cmp_pins[0].GetPadstackDef().GetData().GetLayerNames()
+            geom_type, parameters, offset_x, offset_y, rot = EdbPadstacks.get_pad_parameters(pin_layers[0], 0)
+            if geom_type == self._edb.Definition.PadGeometryType.Circle:
+                sball_diam = parameters[0]
+            elif geom_type == self._edb.Definition.PadGeometryType.Square:
+                sball_diam = min(parameters)
+            elif geom_type == self._edb.Definition.PadGeometryType.Rectangle:
+                sball_diam = min(parameters)
+            self.set_solder_ball(cmp, sb_height, sball_diam)
+
+        if port_type == PortType.Coaxial:
+            for pin in cmp_pins:
+                EdbPadstacks.create_coax_port(pin)
+
+        elif port_type == PortType.Circuit:
+            pass
 
     @aedt_exception_handler
     def set_solder_ball(self, cmp, sball_height=100e-6, sball_diam=150e-6, orientation=FlipChipOrientation.Up):
@@ -428,7 +470,7 @@ class Components(object):
 
         """
         if cmp is not None:
-            if not(isinstance(cmp, self._edb.Cell.Hierarchy.Component)):
+            if not (isinstance(cmp, self._edb.Cell.Hierarchy.Component)):
                 cmp = self.get_component_by_name(cmp)
             cmp_prop = cmp.GetComponentProperty().Clone()
             cmp_type = cmp.GetComponentType()
@@ -495,7 +537,7 @@ class Components(object):
                 pin.SetIsLayoutPin(True)
                 conv_pin = self._components_methods.PinToConnectable(pin)
                 add_result = new_group.AddMember(conv_pin)
-            #new_cmp.SetGroup(new_group)
+            # new_cmp.SetGroup(new_group)
             if not placement_layer:
                 new_cmp_layer_name = pins[0].GetPadstackDef().GetData().GetLayerNames()[0]
             else:
@@ -504,8 +546,8 @@ class Components(object):
                 self._active_layout.GetLayerCollection(), new_cmp_layer_name
             )
             new_cmp.SetPlacementLayer(new_cmp_placement_layer)
-            #cmp_transform = System.Activator.CreateInstance(self._edb.Utility.)
-            #new_cmp.SetTransform(cmp_transform)
+            # cmp_transform = System.Activator.CreateInstance(self._edb.Utility.)
+            # new_cmp.SetTransform(cmp_transform)
             return (True, new_cmp)
         except:
             return (False, None)
@@ -865,7 +907,7 @@ class Components(object):
             rlcModel = self._edb.Cell.Hierarchy.PinPairModel()
             rlcModel.SetPinPairRlc(pinPair, rlc)
             if not edbRlcComponentProperty.SetModel(rlcModel) or not edbComponent.SetComponentProperty(
-                edbRlcComponentProperty
+                    edbRlcComponentProperty
             ):
                 self._logger.error("Failed to set RLC model on component")
                 return False
@@ -880,7 +922,7 @@ class Components(object):
 
     @aedt_exception_handler
     def update_rlc_from_bom(
-        self, bom_file, delimiter=";", valuefield="Func des", comptype="Prod name", refdes="Pos / Place"
+            self, bom_file, delimiter=";", valuefield="Func des", comptype="Prod name", refdes="Pos / Place"
     ):
         """Update the EDC core component values (RLCs) with values coming from a BOM file.
 
@@ -972,16 +1014,16 @@ class Components(object):
                 p
                 for p in cmp.LayoutObjs
                 if p.GetObjType() == self._edb.Cell.LayoutObjType.PadstackInstance
-                and p.IsLayoutPin()
-                and p.GetNet().GetName() == netName
+                   and p.IsLayoutPin()
+                   and p.GetNet().GetName() == netName
             ]
         elif pinName:
             pins = [
                 p
                 for p in cmp.LayoutObjs
                 if p.GetObjType() == self._edb.Cell.LayoutObjType.PadstackInstance
-                and p.IsLayoutPin()
-                and (self.get_aedt_pin_name(p) == str(pinName) or p.GetName() == str(pinName))
+                   and p.IsLayoutPin()
+                   and (self.get_aedt_pin_name(p) == str(pinName) or p.GetName() == str(pinName))
             ]
         else:
             pins = [

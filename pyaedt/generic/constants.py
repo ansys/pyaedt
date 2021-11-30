@@ -13,6 +13,7 @@ METER2MILES = 1609.344051499
 
 MILS2METER = 39370.078740157
 
+
 def db20(x, inverse=True):
     """Convert db20 to decimal and viceversa."""
     if inverse:
@@ -390,6 +391,12 @@ class FlipChipOrientation(object):
     """Chip orientation enumerator class."""
 
     (Up, Down) = range(0, 2)
+
+
+class PortType(object):
+    """Type of excitation enumerator."""
+
+    (Coaxial, Circuit, Lumped) = range(0, 3)
 
 
 class SOLUTIONS(object):
