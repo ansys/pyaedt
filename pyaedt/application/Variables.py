@@ -254,7 +254,8 @@ def decompose_variable_value(variable_value, full_variables={}):
 
     Returns
     -------
-
+    tuples
+        tuples made of the float value of the variable and the units exposed as a string.
     """
     # set default return values - then check for valid units
     float_value = variable_value
@@ -269,9 +270,11 @@ def decompose_variable_value(variable_value, full_variables={}):
         except ValueError:
             # search for a valid units string at the end of the variable_value
             if full_variables=={}:
-                float_value = re.findall(r"[0-9.]+", variable_value)[0]
-                units = variable_value.replace(float_value,"")
-            units = _find_units_in_dependent_variables(variable_value, full_variables)
+                value = re.findall(r"[0-9.]+", variable_value)[0]
+                float_value = float(value)
+                units = variable_value.replace(value,"")
+            else:
+                units = _find_units_in_dependent_variables(variable_value, full_variables)
 
             # if loc:
             #     loc_units = loc.span()[0]
