@@ -64,9 +64,9 @@ design_solutions = {
     "Q3D Extractor": ["Q3D Extractor"],
     "HFSS": ["DrivenModal", "DrivenTerminal", "Transient Network", "Eigenmode", "Characteristic Mode", "SBR+"],
     "Icepak": [
-        "SteadyTemperatureAndFlow",
-        "SteadyTemperatureOnly",
-        "SteadyFlowOnly",
+        "SteadyStateTemperatureAndFlow",
+        "SteadyStateTemperatureOnly",
+        "SteadyStateFlowOnly",
         "TransientTemperatureAndFlow",
         "TransientTemperatureOnly",
         "TransientFlowOnly",
@@ -133,47 +133,47 @@ solutions_settings = {
     "ElectroDCConduction": "ElectroDCConduction",
     "ElectricTransient": "ElectricTransient",
     "Matrix": "Matrix",
-    "SteadyTemperatureAndFlow": [
+    "SteadyStateTemperatureAndFlow": [
         "NAME:SolutionTypeOption",
         "SolutionTypeOption:=",
         "SteadyState",
         "ProblemOption:=",
-        "SteadyTemperatureAndFlow",
+        "TemperatureAndFlow",
     ],
-    "SteadyTemperatureOnly": [
+    "SteadyStateTemperatureOnly": [
         "NAME:SolutionTypeOption",
         "SolutionTypeOption:=",
         "SteadyState",
         "ProblemOption:=",
-        "SteadyTemperatureOnly",
+        "TemperatureOnly",
     ],
-    "SteadyFlowOnly": [
+    "SteadyStateFlowOnly": [
         "NAME:SolutionTypeOption",
         "SolutionTypeOption:=",
         "SteadyState",
         "ProblemOption:=",
-        "SteadyFlowOnly",
+        "FlowOnly",
     ],
     "TransientTemperatureAndFlow": [
         "NAME:SolutionTypeOption",
         "SolutionTypeOption:=",
         "Transient",
         "ProblemOption:=",
-        "SteadyTemperatureAndFlow",
+        "TemperatureAndFlow",
     ],
     "TransientTemperatureOnly": [
         "NAME:SolutionTypeOption",
         "SolutionTypeOption:=",
         "Transient",
         "ProblemOption:=",
-        "SteadyTemperatureOnly",
+        "TemperatureOnly",
     ],
     "TransientFlowOnly": [
         "NAME:SolutionTypeOption",
         "SolutionTypeOption:=",
         "Transient",
         "ProblemOption:=",
-        "SteadyFlowOnly",
+        "FlowOnly",
     ],
     "NexximLNA": "NexximLNA",
     "NexximDC": "NexximDC",
@@ -573,6 +573,7 @@ class Design(object):
         self._desktop = main_module.oDesktop
         self._desktop_install_dir = main_module.sDesktopinstallDirectory
         self._messenger = self._logger._messenger
+        self._aedt_version = self._desktop.GetVersion()[0:6]
 
         if solution_type:
             assert (
@@ -592,7 +593,6 @@ class Design(object):
         self.solution_type = self._solution_type
         self.project_datasets = self._get_project_datasets()
         self.design_datasets = self._get_design_datasets()
-        self._aedt_version = self._desktop.GetVersion()[0:6]
 
     @aedt_exception_handler
     def __delitem__(self, key):
@@ -861,6 +861,7 @@ class Design(object):
     @solution_type.setter
     @aedt_exception_handler
     def solution_type(self, soltype):
+        self._solution_type = soltype
         if soltype:
             sol = solutions_settings[soltype]
             try:
@@ -2514,6 +2515,17 @@ class Design(object):
             ), "Solution type {0} is invalid for design type {1}.".format(solution_type, self._design_type)
         else:
             solution_type = self.default_solution_type
+        try:
+            sol = solutions_settings[solution_type]
+        except:
+            sol = solution_type
+        if isinstance(sol, str):
+            sol = [sol, ""]
+        elif design_type == "Icepak":
+            if self._aedt_version > "2021.1":
+                sol = ["SteadyState TemperatureAndFlow", ""]
+            else:
+                sol = ["TemperatureAndFlow", ""]
         if design_type == "RMxprtSolution":
             new_design = self._oproject.InsertDesign("RMxprt", unique_design_name, "Inner-Rotor Induction Machine", "")
         elif design_type == "ModelCreation":
@@ -2521,7 +2533,7 @@ class Design(object):
                 "RMxprt", unique_design_name, "Model Creation Inner-Rotor Induction Machine", ""
             )
         else:
-            new_design = self._oproject.InsertDesign(design_type, unique_design_name, solution_type, "")
+            new_design = self._oproject.InsertDesign(design_type, unique_design_name, sol[0], "")
         logging.getLogger().info("Added design '%s' of type %s.", unique_design_name, design_type)
         name = new_design.GetName()
         if ";" in name:

@@ -395,7 +395,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             msg = "Desktop Messages:"
             validation.writelines(msg + "\n")
             val_list.append(msg)
-            msgs = self._desktop.GetMessages(name, "HFSSDesign1", 0)
+            msgs = self._desktop.GetMessages(self.project_name, name, 0)
             # need to check if design name is always this default name HFSSDesign1
             for msg in msgs:
                 self.logger.info(msg)

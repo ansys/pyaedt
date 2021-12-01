@@ -8,7 +8,7 @@ from pyaedt.generic.filesystem import Scratch
 from pyaedt.generic.TouchstoneParser import read_touchstone
 
 # Setup paths for module imports
-from _unittest.conftest import local_path, scratch_path
+from _unittest.conftest import local_path, scratch_path, config
 
 try:
     import pytest  # noqa: F401
@@ -270,6 +270,9 @@ class TestClass:
             )
             == "MyReportQ"
         )
+
+    @pytest.mark.skipif(config["desktopVersion"] > "2021.2", reason="Skipped on versions higher than 2021.2")
+    def test_20B_create_AMI_plots(self):
         assert (
             self.aedtapp.post.create_statistical_eye_plot(
                 "Dom_Verify",

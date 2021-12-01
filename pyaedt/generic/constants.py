@@ -460,9 +460,9 @@ class SOLUTIONS(object):
             TransientTemperatureOnly,
             TransientFlowOnly,
         ) = (
-            "SteadyTemperatureAndFlow",
-            "SteadyTemperatureOnly",
-            "SteadyFlowOnly",
+            "SteadyStateTemperatureAndFlow",
+            "SteadyStateTemperatureOnly",
+            "SteadyStateFlowOnly",
             "TransientTemperatureAndFlow",
             "TransientTemperatureOnly",
             "TransientFlowOnly",
