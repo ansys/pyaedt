@@ -82,6 +82,7 @@ class CircuitComponents(object):
 
     @property
     def nets(self):
+        """List of all schematic nets."""
         nets_comp = self._oeditor.GetAllNets()
         nets = []
         for net in nets_comp:
