@@ -268,7 +268,8 @@ def decompose_variable_value(variable_value, full_variables={}):
         except ValueError:
             # search for a valid units string at the end of the variable_value
             loc = re.search("[a-z_A-Z]+$", variable_value)
-            units = _find_units_in_dependent_variables(variable_value, full_variables)
+            units = variable_value.replace(re.findall(r"[0-9.]+", variable_value)[0],"")
+            #units = _find_units_in_dependent_variables(variable_value, full_variables)
 
             if loc:
                 loc_units = loc.span()[0]
