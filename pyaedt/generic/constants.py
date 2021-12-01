@@ -393,10 +393,10 @@ class FlipChipOrientation(object):
     (Up, Down) = range(0, 2)
 
 
-class PortType(object):
+class SourceType(object):
     """Type of excitation enumerator."""
 
-    (Coaxial, Circuit, Lumped) = range(0, 3)
+    (CoaxPort, CircPort, LumpedPort, Vsource, Isource, Resistor, Inductor, Capacitor) = range(0, 8)
 
 
 class SOLUTIONS(object):

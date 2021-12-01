@@ -8,7 +8,7 @@ from pyaedt import generate_unique_name, _retry_ntimes
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import aedt_exception_handler, get_filename_without_extension, is_ironpython
 from pyaedt.generic.constants import FlipChipOrientation
-from pyaedt.generic.constants import PortType
+from pyaedt.generic.constants import SourceType
 from pyaedt.edb_core.EDB_Data import EDBComponent
 from pyaedt.edb_core.padstack import EdbPadstacks
 
@@ -403,7 +403,7 @@ class Components(object):
         return False
 
     @aedt_exception_handler
-    def create_port_on_component(self, cmp, net_list, port_type=PortType.Coaxial, sball_height="150um"):
+    def create_port_on_component(self, cmp, net_list, port_type=SourceType.CoaxPort, sball_height="auto", do_pingroup=True, refnet="gnd"):
         """
 
         """
@@ -419,11 +419,11 @@ class Components(object):
                         net_list.append(net_name)
                 except:
                     pass
-
+        if refnet in net_list:
+            net_list.remove(refnet)
         cmp_pins = self.get_pin_from_component(cmp, net_list)
         sb_height = self.get_solder_ball_height(cmp)
         if sb_height == 0:
-            sb_height = sball_height
             sball_diam = 0.0
             pin_layers = cmp_pins[0].GetPadstackDef().GetData().GetLayerNames()
             geom_type, parameters, offset_x, offset_y, rot = EdbPadstacks.get_pad_parameters(pin_layers[0], 0)
@@ -433,14 +433,96 @@ class Components(object):
                 sball_diam = min(parameters)
             elif geom_type == self._edb.Definition.PadGeometryType.Rectangle:
                 sball_diam = min(parameters)
+            if sball_height == "auto":
+                sb_height = 2*sball_diam/3
+            else:
+                sb_height = sball_height
             self.set_solder_ball(cmp, sb_height, sball_diam)
 
-        if port_type == PortType.Coaxial:
+        if port_type == SourceType.CoaxPort:
             for pin in cmp_pins:
                 EdbPadstacks.create_coax_port(pin)
 
-        elif port_type == PortType.Circuit:
-            pass
+        elif port_type == SourceType.CircPort:
+            ref_pins = [pin for pin in cmp_pins if pin.GetNet().GetName().lower() == refnet]
+            if do_pingroup:
+                pingroups = []
+                ref_pin_group = self.create_pingroup_from_pins(ref_pins)
+                ref_pin_group_term = self._create_pin_group_terminal(ref_pin_group)
+                ref_pin_group_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
+                ref_pin_group_term.SetIsCircuitPort(True)
+                if not ref_pin_group[0]:
+                    return False
+                for net in net_list:
+                    pins = [pin for pin in cmp_pins if pin.GetNet().GetName().lower() == net]
+                    pin_group = self.create_pingroup_from_pins(pins)
+                    if pin_group[0]:
+                        pingroups.append(pin_group[1])
+
+                pg_terminal = []
+                for pg in pingroups:
+                    pg_term = self._create_pin_group_terminal(pg)
+                    pg_terminal.append(pg_term)
+
+                for term in pg_terminal:
+                    term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
+                    term.SetIsCircuitPort(True)
+                    term.SetReferenceTerminal(ref_pin_group_term)
+            else:
+                for net in net_list:
+                    pins = [pin for pin in cmp_pins if pin.GetNet().GetName().lower() == net]
+                    for pin in pins:
+                        ref_pin = self._get_closest_pin_from(pin, ref_pins)
+                        ref_pin_term = self._create_terminal(ref_pin)
+                        term = self._create_terminal(pin)
+                        ref_pin_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
+                        ref_pin_term.SetIsCircuitPort(True)
+                        term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
+                        term.SetIsCircuitPort(True)
+                        term.SetReferenceTerminal(ref_pin_term)
+
+    @aedt_exception_handler
+    def _create_terminal(self, pin):
+        """
+
+        """
+        pin_pos = self._edb.Definition.Geometry.PointData()
+        pin_rot = 0.0
+        from_layer = self._edb.Cell.ILayerReadOnly
+        to_layer = self._edb.Cell.ILayerReadOnly
+        pin.GetLayerRange(from_layer, to_layer)
+        term_name = "{]_{}_{}".format(pin.GetComponent().GetName(), pin.GetNet().GetName(), pin.GetName())
+        term = self._edb.Cell.Terminal.PointTerminal.Create(pin.GetLayout(), pin.GetNet(), term_name, pin_pos, from_layer)
+        return term
+
+    @aedt_exception_handler
+    def _get_closest_pin_from(self, pin, ref_pinlist):
+        """
+
+        """
+        pin_position = self._edb.Geometry.PointData()
+        pin_rot = 0.0
+        pin.GetPositionAndRotation(pin_position, pin_rot)
+
+        distance = 1e3
+        closest_pin = ref_pinlist[0]
+        ref_pin_pos = self._edb.Geometry.PointData()
+        ref_pin_rot = 0.0
+        for ref_pin in ref_pinlist:
+            ref_pin.GetPositionAndRotation(ref_pin_pos, ref_pin_rot)
+            temp_distance = pin_position.Distance(ref_pin_pos)
+            if temp_distance < distance:
+                distance = temp_distance
+                closest_pin = ref_pin
+        return closest_pin
+
+    @aedt_exception_handler
+    def _create_pin_group_terminal(self, pingroup, isref=False):
+        """
+
+        """
+        pingroup_term = self._edb.Cell.Terminal.PinGroupTerminal.Create(self._active_layout, pingroup.GetNet(), "name", pingroup, isref)
+        return pingroup_term
 
     @aedt_exception_handler
     def set_solder_ball(self, cmp, sball_height=100e-6, sball_diam=150e-6, orientation=FlipChipOrientation.Up):
@@ -684,6 +766,7 @@ class Components(object):
         if pingroup.IsNull():
             return (False, None)
         else:
+            pingroup.SetNet(pins[0].GetNet())
             return (True, pingroup)
 
     @aedt_exception_handler
