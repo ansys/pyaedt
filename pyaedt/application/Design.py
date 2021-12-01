@@ -2515,7 +2515,10 @@ class Design(object):
             ), "Solution type {0} is invalid for design type {1}.".format(solution_type, self._design_type)
         else:
             solution_type = self.default_solution_type
-        sol = solutions_settings[solution_type]
+        try:
+            sol = solutions_settings[solution_type]
+        except:
+            sol = solution_type
         if isinstance(sol, str):
             sol = [sol, ""]
         elif design_type == "Icepak":
