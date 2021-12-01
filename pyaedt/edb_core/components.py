@@ -405,7 +405,6 @@ class Components(object):
     @aedt_exception_handler
     def create_port_on_component(self, cmp, net_list, port_type=SourceType.CoaxPort, sball_height="auto", do_pingroup=True, refnet="gnd"):
         """
-
         """
         if isinstance(cmp, self._edb.Cell.Hierarchy.Component):
             cmp = cmp.GetName()
