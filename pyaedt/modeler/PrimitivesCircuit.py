@@ -262,7 +262,7 @@ class CircuitComponents(object):
         Returns
         -------
         str
-            Model name when successfully crated. ``False`` if something went wrong.
+            Model name when successfully created. ``False`` if something went wrong.
 
         """
         if not model_name:
