@@ -553,6 +553,10 @@ class Circuit(FieldAnalysisCircuit, object):
         list
             List of pin names.
 
+        References
+        ----------
+
+        >>> oModule.GetExcitationsOfType
         """
         if source_project_name and self.project_name != source_project_name and not source_project_path:
             raise AttributeError(
@@ -598,6 +602,10 @@ class Circuit(FieldAnalysisCircuit, object):
         list
             List of ports.
 
+        References
+        ----------
+
+        >>> oDesign.ImportData
         """
         if filename[-2:] == "ts":
             with open(filename, "r") as f:
@@ -738,6 +746,10 @@ class Circuit(FieldAnalysisCircuit, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oDesign.ExportNetworkData
         """
         # Normalize the save path
         if not filename:
@@ -841,6 +853,10 @@ class Circuit(FieldAnalysisCircuit, object):
         str
             Name of the HSpice file if the export is successful.
 
+        References
+        ----------
+
+        >>> oDesign.ExportFullWaveSpice
         """
         if not designname:
             designname = self.design_name
@@ -944,6 +960,10 @@ class Circuit(FieldAnalysisCircuit, object):
         bool
            ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oModule.CreateReport
         """
         if not solution_name:
             solution_name = self.nominal_sweep
@@ -978,6 +998,10 @@ class Circuit(FieldAnalysisCircuit, object):
         :class:`pyaedt.modules.PostProcessor.SolutionData`
            Class containing all Requested Data
 
+        References
+        ----------
+
+        >>> oModule.GetSolutionDataPerVariation
         """
         if not solution_name:
             solution_name = self.nominal_sweep
@@ -1006,6 +1030,10 @@ class Circuit(FieldAnalysisCircuit, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.PushExcitations
         """
         arg = ["NAME:options", "CalcThevenin:=", thevenin_calculation, "Sol:=", setup_name]
 
@@ -1043,6 +1071,10 @@ class Circuit(FieldAnalysisCircuit, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oDesign.UpdateSources
         """
         # setting the defaults if no value is provided
         defaults = ["nan V", "0deg", "0V", "0V", "0V", "1GHz", "0s", "0", "0deg", "0Hz"]
@@ -1165,6 +1197,10 @@ class Circuit(FieldAnalysisCircuit, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oDesign.UpdateSources
         """
         # setting the defaults if no value is provided
         defaults = ["nan A", "0deg", "0A", "0A", "0A", "1GHz", "0s", "0", "0deg", "1", "0Hz"]
@@ -1287,6 +1323,10 @@ class Circuit(FieldAnalysisCircuit, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oDesign.UpdateSources
         """
         # setting the defaults if no value is provided
         defaults = ["nan V", "0deg", "0V", "0W", "0W", "1GHz", "0s", "0", "0deg", "0Hz"]

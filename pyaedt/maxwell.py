@@ -18,12 +18,29 @@ class Maxwell(object):
     def __init__(self):
         self.odefinition_manager = self.materials.odefinition_manager
         self.omaterial_manager = self.materials.omaterial_manager
-        self.o_maxwell_parameters = self.odesign.GetModule("MaxwellParameterSetup")
+        self._o_maxwell_parameters = self.odesign.GetModule("MaxwellParameterSetup")
         pass
 
     @property
+    def o_maxwell_parameters(self):
+        """AEDT MaxwellParameterSetup Object.
+
+        References
+        ----------
+
+        >>> oDesign.GetModule("MaxwellParameterSetup")
+        """
+        return self._o_maxwell_parameters
+
+    @property
     def omodelsetup(self):
-        """AEDT Model Setup Object."""
+        """AEDT Model Setup Object.
+
+        References
+        ----------
+
+        >>> oDesign.GetModule("ModelSetup")
+        """
         if self.solution_type != "Transient":
             return None
         else:
@@ -31,12 +48,23 @@ class Maxwell(object):
 
     @property
     def symmetry_multiplier(self):
-        """Symmetry multiplier."""
+        """Symmetry multiplier.
+
+        References
+        ----------
+
+        >>> oModule.GetSymmetryMultiplier()
+        """
         return int(self.omodelsetup.GetSymmetryMultiplier())
 
     @property
     def windings(self):
-        """Windings."""
+        """Windings.
+
+        References
+        ----------
+
+        >>> oModule.GetExcitationsOfType("Winding Group")"""
         windings = self.oboundary.GetExcitationsOfType("Winding Group")
         return list(windings)
 
@@ -60,6 +88,11 @@ class Maxwell(object):
         Returns
         -------
         bool
+
+        References
+        ----------
+
+        >>> oDesign.SetDesignSettings
         """
         self.odesign.SetDesignSettings(
             ["NAME:Design Settings Data", "ComputeTransientInductance:=", compute_transient_inductance,
@@ -159,6 +192,10 @@ class Maxwell(object):
         bool
             ``True`` when successful and ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oModule.SetEddyEffect
         """
         EddyVector = ["NAME:EddyEffectVector"]
         for obj in object_list:
@@ -192,6 +229,10 @@ class Maxwell(object):
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
+        References
+        ----------
+
+        >>> oModule.AssignCurrent
         """
         if isinstance(amplitude, (int, float)):
             amplitude = str(amplitude) + "A"
@@ -289,6 +330,11 @@ class Maxwell(object):
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
+
+        References
+        ----------
+
+        >>> oModule.AssignBand
         """
         assert self.solution_type == SOLUTIONS.Maxwell3d.Transient, "Motion applies only to Transient Setup"
         if not motion_name:
@@ -379,6 +425,11 @@ class Maxwell(object):
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
+
+        References
+        ----------
+
+        >>> oModule.AssignBand
         """
         assert self.solution_type == SOLUTIONS.Maxwell3d.Transient, "Motion applies only to Transient Setup"
         if not motion_name:
@@ -428,6 +479,10 @@ class Maxwell(object):
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
+        References
+        ----------
+
+        >>> oModule.AssignVoltage
         """
         if isinstance(amplitude, (int, float)):
             amplitude = str(amplitude) + "mV"
@@ -464,6 +519,11 @@ class Maxwell(object):
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
+
+        References
+        ----------
+
+        >>> oModule.AssignVoltageDrop
         """
         if isinstance(amplitude, (int, float)):
             amplitude = str(amplitude) + "mV"
@@ -522,6 +582,10 @@ class Maxwell(object):
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Bounding object for the winding, otherwise only the bounding object.
 
+        References
+        ----------
+
+        >>> oModule.AssignWindingGroup
         """
 
         if not name:
@@ -569,6 +633,11 @@ class Maxwell(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oModule.AddWindingTerminals
+        >>> oModule.AddWindingCoils
         """
         if self.modeler._is3d:
             self.oboundary.AddWindingTerminals(windingname, coil_names)
@@ -596,6 +665,10 @@ class Maxwell(object):
         CoilObject
             Coil object.
 
+        References
+        ----------
+
+        >>> oModule.AssignCoil
         """
         if polarity == "Positive":
             point = False
@@ -653,6 +726,10 @@ class Maxwell(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oModule.AssignForce
         """
         input_object = self.modeler._convert_list_to_ids(input_object, True)
         if not force_name:
@@ -701,6 +778,10 @@ class Maxwell(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oModule.AssignTorque
         """
         input_object = self.modeler._convert_list_to_ids(input_object, True)
         if not torque_name:
@@ -755,6 +836,10 @@ class Maxwell(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oModule.AssignForce
         """
         input_object = self.modeler._convert_list_to_ids(input_object, True)
         if not force_name:
@@ -788,6 +873,10 @@ class Maxwell(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.ChangeProperty
         """
         self.modeler.primitives[name].solve_inside = activate
         return True
@@ -801,6 +890,10 @@ class Maxwell(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oModule.ResetSetupToTimeZero
         """
         self.oanalysis.ResetSetupToTimeZero(self._setup)
         self.analyze_nominal()
@@ -822,6 +915,10 @@ class Maxwell(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oDesign.ChangeProperty
         """
         self.odesign.ChangeProperty(
             [
@@ -1009,7 +1106,12 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
 
     @property
     def geometry_mode(self):
-        """Geometry mode."""
+        """Geometry mode.
+
+        References
+        ----------
+
+        >>> oDesign.GetGeometryMode"""
         return self.odesign.GetGeometryMode()
 
     def __init__(
@@ -1138,6 +1240,10 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
+        References
+        ----------
+
+        >>> oModule.AssignBalloon
         """
         edge_list = self.modeler._convert_list_to_ids(edge_list)
 
@@ -1170,6 +1276,10 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Vector Potential Object
 
+        References
+        ----------
+
+        >>> oModule.AssignVectorPotential
         """
         input_edge = self.modeler._convert_list_to_ids(input_edge)
 
@@ -1211,6 +1321,11 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
         :class:`pyaedt.modules.Boundary.BoundaryObject`, :class:`pyaedt.modules.Boundary.BoundaryObject`
             Master and slave objects.
 
+        References
+        ----------
+
+        >>> oModule.AssignIndependent
+        >>> oModule.AssignDependent
         """
         master_edge = self.modeler._convert_list_to_ids(master_edge)
         slave_edge = self.modeler._convert_list_to_ids(slave_edge)

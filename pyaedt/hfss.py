@@ -385,6 +385,11 @@ class Hfss(FieldAnalysis3D, object):
     ):
         """Assign finite conductivity to one or more objects of a given material.
 
+        References
+        ----------
+
+        >>> oModule.AssignFiniteCond
+
         Parameters
         ----------
         obj : str or list
@@ -530,6 +535,11 @@ class Hfss(FieldAnalysis3D, object):
     ):
         """Create a sweep with the specified number of points.
 
+        References
+        ----------
+
+        >>> oModule.InsertFrequencySweep
+
         Parameters
         ----------
         setupname : str
@@ -629,6 +639,11 @@ class Hfss(FieldAnalysis3D, object):
     ):
         """Create a Sweep with a specified frequency step.
 
+        References
+        ----------
+
+        >>> oModule.InsertFrequencySweep
+
         Parameters
         ----------
         setupname : str
@@ -719,6 +734,11 @@ class Hfss(FieldAnalysis3D, object):
         save_rad_fields=False,
     ):
         """Create a Sweep with a single frequency point.
+
+        References
+        ----------
+
+        >>> oModule.InsertFrequencySweep
 
         Parameters
         ----------
@@ -821,6 +841,11 @@ class Hfss(FieldAnalysis3D, object):
         power_fraction="0.95",
     ):
         """Create a linked antenna.
+
+        References
+        ----------
+
+        >>> oEditor.InsertNativeComponent
 
         Parameters
         ----------
@@ -1104,6 +1129,11 @@ class Hfss(FieldAnalysis3D, object):
     ):
         """Create a parametric beam antenna in SBR+.
 
+        References
+        ----------
+
+        >>> oEditor.InsertNativeComponent
+
         Parameters
         ----------
         antenna_type : str, `SbrAntennas.ConicalHorn`
@@ -1213,6 +1243,11 @@ class Hfss(FieldAnalysis3D, object):
     ):
         """Create a linked antenna.
 
+        References
+        ----------
+
+        >>> oEditor.InsertNativeComponent
+
         Parameters
         ----------
         ffd_full_path : str
@@ -1269,6 +1304,11 @@ class Hfss(FieldAnalysis3D, object):
     def set_sbr_txrx_settings(self, txrx_settings):
         """Set Sbr+ TX RX Antenna Settings.
 
+        References
+        ----------
+
+        >>> oModule.SetSBRTxRxSettings
+
         Parameters
         ----------
         txrx_settings : dict
@@ -1298,6 +1338,11 @@ class Hfss(FieldAnalysis3D, object):
         self, startobj, endobject, axisdir=0, impedance=50, portname=None, renorm=True, renorm_impedance=50, deemb=False
     ):
         """Create a circuit port taking the closest edges of two objects.
+
+        References
+        ----------
+
+        >>> oModule.AssignCircuitPort
 
         Parameters
         ----------
@@ -1363,6 +1408,11 @@ class Hfss(FieldAnalysis3D, object):
         self, startobj, endobject, axisdir=0, impedance=50, portname=None, renorm=True, deemb=False, port_on_plane=True
     ):
         """Create a lumped port taking the closest edges of two objects.
+
+        References
+        ----------
+
+        >>> oModule.AssignLumpedPort
 
         Parameters
         ----------
@@ -1436,6 +1486,11 @@ class Hfss(FieldAnalysis3D, object):
     def create_voltage_source_from_objects(self, startobj, endobject, axisdir=0, sourcename=None, source_on_plane=True):
         """Create a voltage source taking the closest edges of two objects.
 
+        References
+        ----------
+
+        >>> oModule.AssignVoltage
+
         Parameters
         ----------
         startobj :
@@ -1495,6 +1550,11 @@ class Hfss(FieldAnalysis3D, object):
     def create_current_source_from_objects(self, startobj, endobject, axisdir=0, sourcename=None, source_on_plane=True):
         """Create a current source taking the closest edges of two objects.
 
+        References
+        ----------
+
+        >>> oModule.AssignCurrent
+
         Parameters
         ----------
         startobj :
@@ -1552,6 +1612,12 @@ class Hfss(FieldAnalysis3D, object):
     def create_source_excitation(self, sheet_name, point1, point2, sourcename, sourcetype="Voltage"):
         """Create a source excitation.
 
+        References
+        ----------
+
+        >>> oModule.AssignVoltage
+        >>> oModule.AssignCurrent
+
         Parameters
         ----------
         sheet_name : str
@@ -1591,6 +1657,11 @@ class Hfss(FieldAnalysis3D, object):
         add_pec_cap=False,
     ):
         """Create a waveport taking the closest edges of two objects.
+
+        References
+        ----------
+
+        >>> oModule.AssignWavePort
 
         Parameters
         ----------
@@ -1680,6 +1751,11 @@ class Hfss(FieldAnalysis3D, object):
         lattice_cs = "Global"
     ):
         """Create a Floquet Port on a Face.
+
+        References
+        ----------
+
+        >>> oModule.AssignFloquetPort
 
         Parameters
         ----------
@@ -1786,6 +1862,11 @@ class Hfss(FieldAnalysis3D, object):
         pair_name : str, optional
             Boundary name.
 
+        References
+        ----------
+
+        >>> oModule.AssignLatticePair
+
         Returns
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`
@@ -1814,6 +1895,11 @@ class Hfss(FieldAnalysis3D, object):
     def auto_assign_lattice_pairs(self, object_to_assign, coordinate_system="Global", coordinate_plane="XY"):
         """Auto Assign Lattice Pairs to geometry.
 
+        References
+        ----------
+
+        >>> oModule.AutoIdentifyLatticePair
+
         Parameters
         ----------
         object_to_assign : str, Object3d
@@ -1840,6 +1926,11 @@ class Hfss(FieldAnalysis3D, object):
                          phase_delay_param1="0deg", phase_delay_param2="0deg", coord_name="Global",
                          secondary_name=None):
         """Assign Secondary Boundary Condition.
+
+        References
+        ----------
+
+        >>> oModule.AssignSecondary
 
         Parameters
         ----------
@@ -1904,6 +1995,11 @@ class Hfss(FieldAnalysis3D, object):
     @aedt_exception_handler
     def assign_primary(self, face, u_start, u_end, reverse_v=False, coord_name="Global", primary_name=None):
         """Assign Secondary Boundary Condition.
+
+        References
+        ----------
+
+        >>> oModule.AssignPrimary
 
         Parameters
         ----------
@@ -1981,6 +2077,11 @@ class Hfss(FieldAnalysis3D, object):
         hfactor=5,
     ):
         """Create a waveport taking the closest edges of two objects.
+
+        References
+        ----------
+
+        >>> oModule.AssignWavePort
 
         Parameters
         ----------
@@ -2060,6 +2161,11 @@ class Hfss(FieldAnalysis3D, object):
     ):
         """Create a Perfect E taking the closest edges of two objects.
 
+        References
+        ----------
+
+        >>> oModule.AssignPerfectE
+
         Parameters
         ----------
         startobj :
@@ -2121,6 +2227,11 @@ class Hfss(FieldAnalysis3D, object):
     @aedt_exception_handler
     def create_perfecth_from_objects(self, startobj, endobject, axisdir=0, sourcename=None, bound_on_plane=True):
         """Create a Perfect H taking the closest edges of two objects.
+
+        References
+        ----------
+
+        >>> oModule.AssignPerfectH
 
         Parameters
         ----------
@@ -2191,6 +2302,11 @@ class Hfss(FieldAnalysis3D, object):
     def sar_setup(self, Tissue_object_List_ID, TissueMass=1, MaterialDensity=1, voxel_size=1, Average_SAR_method=0):
         """Define SAR settings.
 
+        References
+        ----------
+
+        >>> oDesign.SARSetup
+
         Parameters
         ----------
         Tissue_object_List_ID : int
@@ -2217,6 +2333,11 @@ class Hfss(FieldAnalysis3D, object):
     @aedt_exception_handler
     def create_open_region(self, Frequency="1GHz", Boundary="Radiation", ApplyInfiniteGP=False, GPAXis="-z"):
         """Create an open region on the active editor.
+
+        References
+        ----------
+
+        >>> oModule.CreateOpenRegion
 
         Parameters
         ----------
@@ -2258,6 +2379,11 @@ class Hfss(FieldAnalysis3D, object):
         bound_on_plane=True,
     ):
         """Create a lumped RLC taking the closest edges of two objects.
+
+        References
+        ----------
+
+        >>> oModule.AssignLumpedRLC
 
         Parameters
         ----------
@@ -2358,6 +2484,11 @@ class Hfss(FieldAnalysis3D, object):
         bound_on_plane=True,
     ):
         """Create an impedance taking the closest edges of two objects.
+
+        References
+        ----------
+
+        >>> oModule.AssignImpedance
 
         Parameters
         ----------
@@ -2524,6 +2655,11 @@ class Hfss(FieldAnalysis3D, object):
     ):
         """Create a waveport on sheet objects created starting from sheets.
 
+        References
+        ----------
+
+        >>> oModule.AssignWavePort
+
         Parameters
         ----------
         sheet : list
@@ -2606,6 +2742,11 @@ class Hfss(FieldAnalysis3D, object):
         self, sheet_name, axisdir=0, impedance=50, portname=None, renorm=True, deemb=False, reference_object_list=[]
     ):
         """Create a lumped port taking one sheet.
+
+        References
+        ----------
+
+        >>> oModule.AssignLumpedPort
 
         Parameters
         ----------
@@ -2693,6 +2834,11 @@ class Hfss(FieldAnalysis3D, object):
     def assign_voltage_source_to_sheet(self, sheet_name, axisdir=0, sourcename=None):
         """Create a voltage source taking one sheet.
 
+        References
+        ----------
+
+        >>> oModule.AssignVoltage
+
         Parameters
         ----------
         sheet_name : str
@@ -2733,6 +2879,11 @@ class Hfss(FieldAnalysis3D, object):
     @aedt_exception_handler
     def assign_current_source_to_sheet(self, sheet_name, axisdir=0, sourcename=None):
         """Create a current source taking one sheet.
+
+        References
+        ----------
+
+        >>> oModule.AssignCurrent
 
         Parameters
         ----------
@@ -2777,6 +2928,11 @@ class Hfss(FieldAnalysis3D, object):
     def assign_perfecte_to_sheets(self, sheet_list, sourcename=None, is_infinite_gnd=False):
         """Create a Perfect E taking one sheet.
 
+        References
+        ----------
+
+        >>> oModule.AssignPerfectE
+
         Parameters
         ----------
         sheet_list : str or list
@@ -2815,6 +2971,11 @@ class Hfss(FieldAnalysis3D, object):
     @aedt_exception_handler
     def assign_perfecth_to_sheets(self, sheet_list, sourcename=None):
         """Assign a Perfect H to sheets.
+
+        References
+        ----------
+
+        >>> oModule.AssignPerfectH
 
         Parameters
         ----------
@@ -2855,6 +3016,11 @@ class Hfss(FieldAnalysis3D, object):
         self, sheet_name, axisdir=0, sourcename=None, rlctype="Parallel", Rvalue=None, Lvalue=None, Cvalue=None
     ):
         """Create a lumped RLC taking one sheet.
+
+        References
+        ----------
+
+        >>> oModule.AssignLumpedRLC
 
         Parameters
         ----------
@@ -2930,6 +3096,11 @@ class Hfss(FieldAnalysis3D, object):
     def assign_impedance_to_sheet(self, sheet_name, sourcename=None, resistance=50, reactance=0, is_infground=False):
         """Create an impedance taking one sheet.
 
+        References
+        ----------
+
+        >>> oModule.AssignImpedance
+
         Parameters
         ----------
         sheet_name : str
@@ -2993,6 +3164,11 @@ class Hfss(FieldAnalysis3D, object):
         deembed=False,
     ):
         """Create a circuit port from two edges.
+
+        References
+        ----------
+
+        >>> oModule.AssignCircuitPort
 
         The integration line is from edge 2 to edge 1.
 
@@ -3062,6 +3238,11 @@ class Hfss(FieldAnalysis3D, object):
     def edit_source(self, portandmode, powerin, phase="0deg"):
         """Set up the power loaded to the filter for thermal analysis.
 
+        References
+        ----------
+
+        >>> oModule.EditSources
+
         Parameters
         ----------
         portandmode : str
@@ -3111,6 +3292,11 @@ class Hfss(FieldAnalysis3D, object):
     @aedt_exception_handler
     def thicken_port_sheets(self, inputlist, value, internalExtr=True, internalvalue=1):
         """Create thickened sheets over a list of input port sheets.
+
+        References
+        ----------
+
+        >>> oEditor.ThickenSheet
 
         Parameters
         ----------
@@ -3260,6 +3446,11 @@ class Hfss(FieldAnalysis3D, object):
     def validate_full_design(self, dname=None, outputdir=None, ports=None):
         """Validate a design based on an expected value and save information to the log file.
 
+        References
+        ----------
+
+        >>> oDesign.ValidateDesign
+
         Parameters
         ----------
         dname : str,  optional
@@ -3394,6 +3585,11 @@ class Hfss(FieldAnalysis3D, object):
     ):
         """Create a scattering report.
 
+        References
+        ----------
+
+        >>> oModule.CreateReport
+
         Parameters
         ----------
         PlotName : str, optional
@@ -3469,6 +3665,11 @@ class Hfss(FieldAnalysis3D, object):
     @aedt_exception_handler
     def create_qfactor_report(self, project_dir, outputlist, setupname, plotname, Xaxis="X"):
         """Export a CSV file of the EigenQ plot.
+
+        References
+        ----------
+
+        >>> oModule.CreateReport
 
         Parameters
         ----------
@@ -3580,6 +3781,11 @@ class Hfss(FieldAnalysis3D, object):
     def set_export_touchstone(self, activate, export_dir=""):
         """Set automatic export of the Touchstone file after simulation.
 
+        References
+        ----------
+
+        >>> oDesign.SetDesignSettings
+
         Parameters
         ----------
         activate : bool
@@ -3610,6 +3816,11 @@ class Hfss(FieldAnalysis3D, object):
     @aedt_exception_handler
     def assign_radiation_boundary_to_objects(self, obj_names, boundary_name=""):
         """Assign a radiation boundary to one or more objects (usually airbox objects).
+
+        References
+        ----------
+
+        >>> oModule.AssignRadiation
 
         Parameters
         ----------
@@ -3646,6 +3857,11 @@ class Hfss(FieldAnalysis3D, object):
     @aedt_exception_handler
     def assign_radiation_boundary_to_faces(self, faces_id, boundary_name=""):
         """Assign a radiation boundary to one or more faces.
+
+        References
+        ----------
+
+        >>> oModule.AssignRadiation
 
         Parameters
         ----------
@@ -3758,6 +3974,11 @@ class Hfss(FieldAnalysis3D, object):
     ):
         """Create an SBR+ Chirp IQ Setup.
 
+        References
+        ----------
+
+        >>> oModule.InsertSetup
+
         Parameters
         ----------
         time_var : str, optional
@@ -3855,6 +4076,11 @@ class Hfss(FieldAnalysis3D, object):
     ):
         """Create an SBR+ Chirp IQ Setup.
 
+        References
+        ----------
+
+        >>> oModule.InsertSetup
+
         Parameters
         ----------
         time_var : str, optional
@@ -3948,6 +4174,11 @@ class Hfss(FieldAnalysis3D, object):
     ):
         """Create an SBR+ pulse doppler setup.
 
+        References
+        ----------
+
+        >>> oModule.InsertSetup
+
         Parameters
         ----------
         time_var : str, optional
@@ -4027,6 +4258,13 @@ class Hfss(FieldAnalysis3D, object):
     ):
         """Create an SBR+ radar from a JSON file.
 
+        References
+        ----------
+
+        >>> oEditor.CreateRelativeCS
+        >>> oModule.SetSBRTxRxSettings
+        >>> oEditor.CreateGroup
+
         Parameters
         ----------
         radar_file : str
@@ -4103,6 +4341,11 @@ class Hfss(FieldAnalysis3D, object):
     @aedt_exception_handler
     def set_sbr_current_sources_options(self, conformance=False, thin_sources=False, power_fraction=0.95):
         """Set Current Sources SBR+ Setup Options.
+
+        References
+        ----------
+
+        >>> oModule.EditGlobalCurrentSourcesOption
 
         Parameters
         ----------

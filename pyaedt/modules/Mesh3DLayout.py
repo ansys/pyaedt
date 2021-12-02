@@ -64,6 +64,10 @@ class Mesh3DOperation(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oModule.AddMeshOperation
         """
         self._mesh3dlayout.omeshmodule.AddMeshOperation(self.hfss_setup_name, self._get_args())
         return True
@@ -77,6 +81,10 @@ class Mesh3DOperation(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oModule.EditMeshOperation
         """
         self._mesh3dlayout.omeshmodule.EditMeshOperation(self.hfss_setup_name, self.name, self._get_args())
         return True
@@ -90,6 +98,10 @@ class Mesh3DOperation(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oModule.DeleteMeshOperation
         """
         self._mesh3dlayout.omeshmodule.DeleteMeshOperation(
             self.hfss_setup_name,
@@ -124,6 +136,16 @@ class Mesh3d(object):
 
         pass
 
+    @property
+    def omeshmodule(self):
+        """AEDT Mesh Module
+
+        References
+        ----------
+
+        >>> oDesign.GetModule("SolveSetups")
+        """
+
     @aedt_exception_handler
     def delete_mesh_operations(self, setup_name, mesh_name):
         """Remove mesh operations from a setup.
@@ -140,6 +162,10 @@ class Mesh3d(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oModule.DeleteMeshOperation
         """
         for el in self.meshoperations:
             if el.hfss_setup_name == setup_name and el.name == mesh_name:
@@ -199,6 +225,10 @@ class Mesh3d(object):
         type
             Mesh operation object.
 
+        References
+        ----------
+
+        >>> oModule.AddMeshOperation
         """
         if meshop_name:
             for el in self.meshoperations:
@@ -295,6 +325,10 @@ class Mesh3d(object):
         type
             Mesh operation object.
 
+        References
+        ----------
+
+        >>> oModule.AddMeshOperation
         """
         if meshop_name:
             for el in self.meshoperations:

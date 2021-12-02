@@ -116,6 +116,10 @@ class EmitComponents(object):
         EmitComponent
             The newly created component.
 
+        References
+        ----------
+
+        >>> oEditor.CreateComponent
         """
         # Pass an empty string to allow name to be automatically assigned.
         if name is None:
@@ -244,6 +248,11 @@ class EmitComponent(object):
         -------
         List
             List of port names.
+
+        References
+        ----------
+
+        >>> oEditor.GetComponentPorts
         """
         return self.oeditor.GetComponentPorts(self.name)
 
@@ -264,6 +273,12 @@ class EmitComponent(object):
         str
             Port name on connected component. Returns None if no connection
             at given port.
+
+        References
+        ----------
+
+        >>> oEditor.GetWireAtPort
+        >>> oEditor.GetWireConnections
         """
         wire_name = self.oeditor.GetWireAtPort(self.name, port_name)
         wire_connections = self.oeditor.GetWireConnections(wire_name)
@@ -283,6 +298,11 @@ class EmitComponent(object):
         -------
         EmitComponentPropNode
             The root node of the updated property tree.
+
+        References
+        ----------
+
+        >>> oDesign.GetComponentNodeNames
         """
         node_names = sorted(self.odesign.GetComponentNodeNames(self.name))
         root_node_name = node_names[0]
@@ -315,6 +335,11 @@ class EmitComponent(object):
         dict
             Dictionary of property names (keys) and property values.
 
+        References
+        ----------
+
+        >>> oDesign.GetComponentNodeNames
+        >>> oDesign.GetComponentNodeProperties
         """
         nodes = sorted(self.odesign.GetComponentNodeNames(self.name))
         root_node = nodes[0]
@@ -339,7 +364,12 @@ class EmitComponent(object):
 
         Returns
         -------
+        bool
 
+        References
+        ----------
+
+        >>> oEditor.ChangeProperty
         """
         if type(property_name) is list:
             for p, v in zip(property_name, property_value):

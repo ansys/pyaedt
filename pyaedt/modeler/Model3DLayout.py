@@ -30,7 +30,7 @@ class Modeler3DLayout(Modeler):
 
     def __init__(self, app):
         self._app = app
-        self.oeditor = self._app._odesign.SetActiveEditor("Layout")
+        self._oeditor = self._app._odesign.SetActiveEditor("Layout")
         self.logger.info("Loading Modeler.")
         Modeler.__init__(self, app)
         self.logger.info("Modeler loaded.")
@@ -62,6 +62,16 @@ class Modeler3DLayout(Modeler):
         self.layers.refresh_all_layers()
 
         pass
+
+    @property
+    def oeditor(self):
+        """Oeditor Module.
+
+        References
+        ----------
+
+        >>> oEditor = oDesign.SetActiveEditor("Layout")"""
+        return self._oeditor
 
     @property
     def edb(self):
@@ -101,7 +111,13 @@ class Modeler3DLayout(Modeler):
 
     @aedt_exception_handler
     def fit_all(self):
-        """Fit all."""
+        """Fit all.
+
+        References
+        ----------
+
+        >>> oEditor.ZoomToFit()
+        """
         try:
             self._desktop.RestoreWindow()
             self.oeditor.ZoomToFit()
@@ -110,7 +126,14 @@ class Modeler3DLayout(Modeler):
 
     @property
     def model_units(self):
-        """Model units."""
+        """Model units.
+
+        References
+        ----------
+
+        >>> oEditor.GetActiveUnits
+        >>> oEditor.SetActivelUnits
+        """
         return _retry_ntimes(10, self.oeditor.GetActiveUnits)
 
     @model_units.setter
@@ -129,7 +152,13 @@ class Modeler3DLayout(Modeler):
 
     @property
     def obounding_box(self):
-        """Bounding box."""
+        """Bounding box.
+
+        References
+        ----------
+
+        >>> oEditor.GetModelBoundingBox
+        """
         return self.oeditor.GetModelBoundingBox()
 
     @aedt_exception_handler
@@ -177,6 +206,11 @@ class Modeler3DLayout(Modeler):
         -------
         bool
             ``True`` if successful.
+
+        References
+        ----------
+
+        >>> oEditor.ChangeProperty
         """
         if isinstance(property_value, list) and len(property_value) == 3:
             xpos, ypos, zpos = self._pos_with_arg(property_value)
@@ -209,6 +243,11 @@ class Modeler3DLayout(Modeler):
         -------
         bool
             ``True`` if successful.
+
+        References
+        ----------
+
+        >>> oEditor.ChangeProperty
         """
         return self.change_property(clip_name, "Location", position)
 
@@ -228,6 +267,13 @@ class Modeler3DLayout(Modeler):
         bool
              ``True`` when successful, ``False`` when failed.
 
+
+        References
+        ----------
+
+        >>> oEditor.Heal
+
+
         Examples
         --------
         >>> from pyaedt import Hfss3dLayout
@@ -238,7 +284,6 @@ class Modeler3DLayout(Modeler):
         >>> h3d.modeler.unite([l1,l2])
         >>> h3d.modeler.colinear_heal("poly_2", 0.25)
         True
-
         """
         if isinstance(selection, str):
             selection = [selection]
@@ -276,6 +321,12 @@ class Modeler3DLayout(Modeler):
         -------
         str
             Name of the object.
+
+        References
+        ----------
+
+        >>> oEditor.Expand
+
 
         Examples
         --------
@@ -327,6 +378,10 @@ class Modeler3DLayout(Modeler):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oImportExport.ImportExtracta
         """
         if not edb_path:
             edb_path = self.projdir
@@ -378,6 +433,10 @@ class Modeler3DLayout(Modeler):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oImportExport.ImportIPC
         """
         if not edb_path:
             edb_path = self.projdir
@@ -408,6 +467,10 @@ class Modeler3DLayout(Modeler):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.Subtract
         """
         vArg1 = ["NAME:primitives", blank]
         if isinstance(tool, list):
@@ -440,6 +503,10 @@ class Modeler3DLayout(Modeler):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.Unite
         """
         vArg1 = ["NAME:primitives"]
         if len(objectlists) >= 2:
@@ -469,6 +536,10 @@ class Modeler3DLayout(Modeler):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.Intersect
         """
         vArg1 = ["NAME:primitives"]
         if len(objectlists) >= 2:
@@ -502,6 +573,10 @@ class Modeler3DLayout(Modeler):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.Duplicate
         """
         if isinstance(objectlists, str):
             objectlists = [objectlists]
@@ -537,6 +612,10 @@ class Modeler3DLayout(Modeler):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oDesign.SetTemperatureSettings
         """
         self.logger.info("Set the temperature dependence for the design.")
         if create_project_var:

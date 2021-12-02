@@ -19,7 +19,7 @@ class IcepakMesh(object):
         self.modeler = self._app._modeler
         design_type = self._odesign.GetDesignType()
         assert design_type in meshers, "Invalid design type {}".format(design_type)
-        self.omeshmodule = self._odesign.GetModule(meshers[design_type])
+        self._omeshmodule = self._odesign.GetModule(meshers[design_type])
         self.id = 0
         self._oeditor = self.modeler.oeditor
         self._model_units = self.modeler.model_units
@@ -27,6 +27,18 @@ class IcepakMesh(object):
         self.meshoperations = self._get_design_mesh_operations()
         self.meshregions = self._get_design_mesh_regions()
         self._priorities_args = []
+
+    @property
+    def omeshmodule(self):
+        """AEDT Mesh Module
+
+        References
+        ----------
+
+        >>> oDesign.GetModule("MeshSetup")
+        >>> oDesign.GetModule("MeshRegion")
+        """
+        return self._omeshmodule
 
     class MeshRegion(object):
         """Manages Icepak mesh region settings."""
@@ -165,6 +177,12 @@ class IcepakMesh(object):
             -------
             bool
                 ``True`` when successful, ``False`` when failed.
+
+            References
+            ----------
+
+            >>> oModule.EditGlobalMeshRegion
+            >>> oModule.EditMeshRegion
             """
             if self.name == "Settings":
                 args = ["NAME:Settings"]
@@ -188,6 +206,11 @@ class IcepakMesh(object):
             -------
             bool
                 ``True`` when successful, ``False`` when failed.
+
+            References
+            ----------
+
+            >>> oModule.AssignMeshRegion
             """
             assert self.name != "Settings", "Cannot create a new mesh region with this Name"
             args = ["NAME:" + self.name, "Enable:=", self.Enable]
@@ -258,6 +281,11 @@ class IcepakMesh(object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.AssignMeshOperation
         """
         level_order = {}
         for obj in mesh_order:
@@ -291,6 +319,11 @@ class IcepakMesh(object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.EditMeshOperation
         """
         xsize = self.boundingdimension[0] / (15 * accuracy * accuracy)
         ysize = self.boundingdimension[1] / (15 * accuracy * accuracy)
@@ -327,6 +360,10 @@ class IcepakMesh(object):
          bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oModule.EditMeshOperation
         """
         xsize = self.boundingdimension[0] / (10 * accuracy2 * accuracy2)
         ysize = self.boundingdimension[1] / (10 * accuracy2 * accuracy2)
@@ -362,6 +399,11 @@ class IcepakMesh(object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.UpdatePriorityList
         """
         i = priority
         objects = ", ".join(obj_list)
@@ -420,6 +462,10 @@ class IcepakMesh(object):
         -------
         :class:`pyaedt.modules.MeshIcepak.IcepakMesh.MeshRegion`
 
+        References
+        ----------
+
+        >>> oModule.AssignMeshRegion
         """
         if not name:
             name = generate_unique_name("MeshRegion")
@@ -455,6 +501,11 @@ class IcepakMesh(object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oDesign.GenerateMesh
         """
         return self._odesign.GenerateMesh(name) == 0
 
@@ -486,6 +537,10 @@ class IcepakMesh(object):
         -------
         :class:`pyaedt.modules.Mesh.MeshOperation`
 
+        References
+        ----------
+
+        >>> oModule.AssignMeshOperation
         """
         if meshop_name:
             for el in self.meshoperations:

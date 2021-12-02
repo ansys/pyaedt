@@ -82,12 +82,34 @@ class FieldAnalysis2D(Analysis):
             close_on_exit,
             student_version,
         )
-        self.osolution = self._odesign.GetModule("Solutions")
-        self.oboundary = self._odesign.GetModule("BoundarySetup")
+        self._osolution = self._odesign.GetModule("Solutions")
+        self._oboundary = self._odesign.GetModule("BoundarySetup")
 
         self._modeler = Modeler2D(self)
         self._mesh = Mesh(self)
         self._post = PostProcessor(self)
+
+    @property
+    def osolution(self):
+        """Solution Module.
+
+        References
+        ----------
+
+        >>> oModule = oDesign.GetModule("Solutions")
+        """
+        return self._osolution
+
+    @property
+    def oboundary(self):
+        """Solution Module.
+
+        References
+        ----------
+
+        >>> oModule = oDesign.GetModule("BoundarySetup")
+        """
+        return self._oboundary
 
     @property
     def modeler(self):
@@ -130,6 +152,11 @@ class FieldAnalysis2D(Analysis):
         -------
         str
             File Path.
+
+        References
+        ----------
+
+        >>> oDesign.ExportMeshStats
         """
         if not mesh_path:
             mesh_path = os.path.join(self.project_path, "meshstats.ms")
@@ -153,6 +180,10 @@ class FieldAnalysis2D(Analysis):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.AssignMaterial
         """
         mat = mat.lower()
         selections = self.modeler.convert_to_selections(obj)

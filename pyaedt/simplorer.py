@@ -187,7 +187,12 @@ class Simplorer(FieldAnalysisSimplorer, object):
 
         Returns
         -------
+        bool
 
+        References
+        ----------
+
+        >>> oDesign.ChangeProperty
         """
         self.set_sim_setup_parameter("Tend", expression)
         return True
@@ -206,6 +211,10 @@ class Simplorer(FieldAnalysisSimplorer, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oDesign.ChangeProperty
         """
         self.set_sim_setup_parameter("Hmin", expression)
         return True
@@ -224,6 +233,10 @@ class Simplorer(FieldAnalysisSimplorer, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oDesign.ChangeProperty
         """
         self.set_sim_setup_parameter("Hmax", expression)
         return True
@@ -246,6 +259,10 @@ class Simplorer(FieldAnalysisSimplorer, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oDesign.ChangeProperty
         """
         if isinstance(expression, Variable):
             value_str = expression.string_value

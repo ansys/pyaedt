@@ -104,6 +104,10 @@ class Setup(object):
         dict
             Dictionary of arguments.
 
+        References
+        ----------
+
+        >>> oModule.InsertSetup
         """
         soltype = SetupKeys.SetupNames[self.setuptype]
         arg = ["NAME:" + self.name]
@@ -125,6 +129,10 @@ class Setup(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oModule.EditSetup
         """
         if update_dictionary:
             for el in update_dictionary:
@@ -288,6 +296,10 @@ class Setup(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oModule.EditSetup
         """
         arg = ["NAME:" + self.name]
         _dict2arg(self.props, arg)
@@ -312,6 +324,10 @@ class Setup(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oModule.EditSetup
         """
         arg = ["NAME:" + self.name]
         _dict2arg(self.props, arg)
@@ -334,6 +350,10 @@ class Setup(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oModule.EditSetup
         """
         if not setup_name:
             setup_name = self.name
@@ -355,6 +375,10 @@ class Setup(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oModule.EditSetup
         """
         if not setup_name:
             setup_name = self.name
@@ -378,6 +402,10 @@ class Setup(object):
         type
             Sweep object.
 
+        References
+        ----------
+
+        >>> oModule.InsertFrequencySweep
         """
         if not sweepname:
             sweepname = generate_unique_name("Sweep")
@@ -415,6 +443,10 @@ class Setup(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oModule.EditSetup
         """
         meshlinks = self.props["MeshLink"]
         meshlinks["ImportMesh"] = True
@@ -536,6 +568,15 @@ class SetupCircuit(object):
         dict
             Dictionary of the arguments.
 
+        References
+        ----------
+
+        >>> oModule.AddLinearNetworkAnalysis
+        >>> oModule.AddDCAnalysis
+        >>> oModule.AddTransient
+        >>> oModule.AddQuickEyeAnalysis
+        >>> oModule.AddVerifEyeAnalysis
+        >>> oModule.AddAMIAnalysis
         """
         soltype = SetupKeys.SetupNames[self.setuptype]
         arg = ["NAME:SimSetup"]
@@ -545,24 +586,6 @@ class SetupCircuit(object):
 
     @aedt_exception_handler
     def _setup(self, soltype, arg, newsetup=True):
-        """
-
-        Parameters
-        ----------
-        soltype : str
-            Type of the solution.
-
-        arg :
-
-        newsetup : bool, optional
-            Whether this is a new setup. The default is ``True``.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        """
         if newsetup:
             if soltype == "NexximLNA":
                 self.omodule.AddLinearNetworkAnalysis(arg)
@@ -610,6 +633,15 @@ class SetupCircuit(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oModule.EditLinearNetworkAnalysis
+        >>> oModule.EditDCAnalysis
+        >>> oModule.EditTransient
+        >>> oModule.EditQuickEyeAnalysis
+        >>> oModule.EditVerifEyeAnalysis
+        >>> oModule.EditAMIAnalysis
         """
         if update_dictionary:
             for el in update_dictionary:
@@ -642,6 +674,16 @@ class SetupCircuit(object):
         -------
         bool
             ``True`` is succeeded.
+
+        References
+        ----------
+
+        >>> oModule.EditLinearNetworkAnalysis
+        >>> oModule.EditDCAnalysis
+        >>> oModule.EditTransient
+        >>> oModule.EditQuickEyeAnalysis
+        >>> oModule.EditVerifEyeAnalysis
+        >>> oModule.EditAMIAnalysis
         """
         if isinstance(sweep_points, (int, float)):
             sweep_points = [sweep_points]
@@ -681,6 +723,16 @@ class SetupCircuit(object):
         -------
         bool
             ``True`` is succeeded.
+
+        References
+        ----------
+
+        >>> oModule.EditLinearNetworkAnalysis
+        >>> oModule.EditDCAnalysis
+        >>> oModule.EditTransient
+        >>> oModule.EditQuickEyeAnalysis
+        >>> oModule.EditVerifEyeAnalysis
+        >>> oModule.EditAMIAnalysis
         """
         if isinstance(start_point, (int, float)):
             start_point = str(start_point)+units
@@ -718,6 +770,16 @@ class SetupCircuit(object):
         -------
         bool
             ``True`` is succeeded.
+
+        References
+        ----------
+
+        >>> oModule.EditLinearNetworkAnalysis
+        >>> oModule.EditDCAnalysis
+        >>> oModule.EditTransient
+        >>> oModule.EditQuickEyeAnalysis
+        >>> oModule.EditVerifEyeAnalysis
+        >>> oModule.EditAMIAnalysis
         """
         if isinstance(start_point, (int, float)):
             start_point = str(start_point)+units
@@ -899,6 +961,10 @@ class SetupCircuit(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oModule.EditSetup
         """
         arg = ["Name:SimSetup"]
         _dict2arg(self.props, arg)
@@ -923,6 +989,10 @@ class SetupCircuit(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oModule.EditSetup
         """
         arg = ["Name:SimSetup"]
         _dict2arg(self.props, arg)
@@ -945,6 +1015,10 @@ class SetupCircuit(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oModule.EditSetup
         """
         if not setup_name:
             setup_name = self.name
@@ -965,6 +1039,10 @@ class SetupCircuit(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oModule.EditSetup
         """
         if not setup_name:
             setup_name = self.name
@@ -1058,6 +1136,10 @@ class Setup3DLayout(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oModule.Add
         """
         arg = ["NAME:" + self.name]
         _dict2arg(self.props, arg)
@@ -1078,6 +1160,10 @@ class Setup3DLayout(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oModule.Edit
         """
         arg = ["NAME:" + self.name]
         _dict2arg(self.props, arg)
@@ -1098,6 +1184,10 @@ class Setup3DLayout(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oModule.Edit
         """
         self.props["Properties"]["Enable"] = "true"
         self.update()
@@ -1117,6 +1207,10 @@ class Setup3DLayout(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oModule.Edit
         """
         self.props["Properties"]["Enable"] = "false"
         self.update()
@@ -1136,6 +1230,10 @@ class Setup3DLayout(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oModule.ExportToHfss
         """
 
         file_fullname = os.path.normpath(file_fullname)
@@ -1162,6 +1260,10 @@ class Setup3DLayout(object):
         :class:`pyaedt.modules.SetupTemplates.SweepHFSS3DLayout`
             Sweep object.
 
+        References
+        ----------
+
+        >>> oModule.AddSweep
         """
         if not sweepname:
             sweepname = generate_unique_name("Sweep")
@@ -1207,6 +1309,11 @@ class SetupHFSS(Setup, object):
         interpolation_max_solutions=250,
     ):
         """Create a sweep with the specified number of points.
+
+        References
+        ----------
+
+        >>> oModule.InsertFrequencySweep
 
         Parameters
         ----------
@@ -1299,6 +1406,11 @@ class SetupHFSS(Setup, object):
     ):
         """Create a Sweep with a specified frequency step.
 
+        References
+        ----------
+
+        >>> oModule.InsertFrequencySweep
+
         Parameters
         ----------
         setupname : str
@@ -1389,6 +1501,11 @@ class SetupHFSS(Setup, object):
         save_rad_fields=False,
     ):
         """Create a Sweep with a single frequency point.
+
+        References
+        ----------
+
+        >>> oModule.InsertFrequencySweep
 
         Parameters
         ----------

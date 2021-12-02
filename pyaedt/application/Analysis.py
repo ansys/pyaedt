@@ -103,8 +103,8 @@ class Analysis(Design, object):
             close_on_exit,
             student_version,
         )
-        self.ooptimetrics = self._odesign.GetModule("Optimetrics")
-        self.ooutput_variable = self._odesign.GetModule("OutputVariable")
+        self._ooptimetrics = self._odesign.GetModule("Optimetrics")
+        self._ooutput_variable = self._odesign.GetModule("OutputVariable")
         self.logger.info("Design Loaded")
         self._setup = None
         if setup_name:
@@ -116,11 +116,11 @@ class Analysis(Design, object):
         if "HFSS 3D Layout Design" in self.design_type:
             self.oanalysis = self._odesign.GetModule("SolveSetups")
         elif "EMIT" in self.design_type:
-            self.oanalysis = None
+            self._oanalysis = None
         elif "Circuit Design" in self.design_type or "Twin Builder" in self.design_type:
-            self.oanalysis = self._odesign.GetModule("SimSetup")
+            self._oanalysis = self._odesign.GetModule("SimSetup")
         else:
-            self.oanalysis = self._odesign.GetModule("AnalysisSetup")
+            self._oanalysis = self._odesign.GetModule("AnalysisSetup")
         self.setups = [self.get_setup(setup_name) for setup_name in self.setup_names]
         self.opti_parametric = ParametericsSetups(self)
         self.opti_optimization = OptimizationSetups(self)
@@ -137,12 +137,52 @@ class Analysis(Design, object):
         self.GRAVITY = GRAVITY()
 
     @property
+    def ooptimetrics(self):
+        """Optimetrics AEDT Module.
+
+        References
+        ----------
+
+        >>> oDesign.GetModule("Optimetrics")
+        """
+        return self._ooptimetrics
+
+    @property
+    def ooutput_variable(self):
+        """Output Variable AEDT Module.
+
+        References
+        ----------
+
+        >>> oDesign.GetModule("OutputVariable")
+        """
+        return self._ooutput_variable
+
+    @property
+    def oanalysis(self):
+        """Analysis AEDT Module.
+
+        References
+        ----------
+
+        >>> oDesign.GetModule("SolveSetups")
+        >>> oDesign.GetModule("SimSetup")
+        >>> oDesign.GetModule("AnalysisSetup")
+        """
+        return self._oanalysis
+
+    @property
     def output_variables(self):
         """List of Output variables.
 
         Returns
         -------
         list of str
+
+        References
+        ----------
+
+        >>> oModule.GetOutputVariables()
         """
         return self.ooutput_variable.GetOutputVariables()
 
@@ -283,6 +323,10 @@ class Analysis(Design, object):
         str
             Name of the active or first analysis setup.
 
+        References
+        ----------
+
+        >>> oModule.GetAllSolutionSetups()
         """
         if self._setup:
             return self._setup
@@ -300,7 +344,6 @@ class Analysis(Design, object):
             self._setup = setup_name
         else:
             self._setup = setup_list[0]
-        # return self._setup
 
     @property
     def existing_analysis_sweeps(self):
@@ -311,6 +354,11 @@ class Analysis(Design, object):
         list of str
             List of all analysis sweeps in the design.
 
+        References
+        ----------
+
+        >>> oModule.GelAllSolutionNames
+        >>> oModule.GetSweeps
         """
         setup_list = self.existing_analysis_setups
         sweep_list = []
@@ -343,6 +391,11 @@ class Analysis(Design, object):
         str
             Name of the nominal adaptive sweep.
 
+        References
+        ----------
+
+        >>> oModule.GelAllSolutionNames
+        >>> oModule.GetSweeps
         """
         if len(self.existing_analysis_sweeps) > 0:
             return self.existing_analysis_sweeps[0]
@@ -358,6 +411,12 @@ class Analysis(Design, object):
         str
             Name of the last adaptive sweep if a sweep is available or
             the name of the nominal adaptive sweep if present.
+
+        References
+        ----------
+
+        >>> oModule.GelAllSolutionNames
+        >>> oModule.GetSweeps
         """
 
         if len(self.existing_analysis_sweeps) > 1:
@@ -374,6 +433,10 @@ class Analysis(Design, object):
         list of str
             List of all analysis setups in the design.
 
+        References
+        ----------
+
+        >>> oModule.GetSetups
         """
         setups = list(self.oanalysis.GetSetups())
         return setups
@@ -387,6 +450,10 @@ class Analysis(Design, object):
         list of str
             List of names of all analysis setups in the design.
 
+        References
+        ----------
+
+        >>> oModule.GetSetups
         """
         return self.oanalysis.GetSetups()
 
@@ -438,6 +505,11 @@ class Analysis(Design, object):
         Returns
         -------
         list
+
+        References
+        ----------
+
+        >>> oModule.ListVariations
         """
 
         if not setup_name and ":" in self.nominal_sweep:
@@ -476,6 +548,15 @@ class Analysis(Design, object):
         -------
         list
             List of all exported files.
+
+        References
+        ----------
+
+        >>> oModule.GetAllPortsList
+        >>> oDesign.ExportProfile
+        >>> oModule.ExportToFile
+        >>> oModule.ExportConvergence
+        >>> oModule.ExportNetworkData
         """
         exported_files = []
         if not export_folder:
@@ -573,6 +654,11 @@ class Analysis(Design, object):
         -------
         str
             File path if created.
+
+        References
+        ----------
+
+        >>> oModule.ExportConvergence
         """
         if not file_path:
             file_path = os.path.join(self.project_path, generate_unique_name("Convergence")+".prop")
@@ -656,6 +742,10 @@ class Analysis(Design, object):
             list of lists
                 List of variation families.
 
+            References
+            ----------
+
+            >>> oModule.GetAvailableVariations
             """
             if not setup_sweep:
                 setup_sweep = self._app.existing_analysis_sweeps[0]
@@ -688,6 +778,10 @@ class Analysis(Design, object):
             list of str
                 List of variation families.
 
+            References
+            ----------
+
+            >>> oModule.GetAvailableVariations
             """
             if not setup_sweep:
                 setup_sweep = self._app.existing_analysis_sweeps[0]
@@ -704,7 +798,15 @@ class Analysis(Design, object):
 
         @property
         def nominal_w_values(self):
-            """Nominal with values."""
+            """Nominal with values.
+
+            References
+            ----------
+
+            >>> oDesign.GetChildObject('Variables').GetChildNames
+            >>> oDesign.GetVariables
+            >>> oDesign.GetVariableValue
+            >>> oDesign.GetNominalVariation"""
             families = []
             if self._app.design_type == "HFSS 3D Layout Design":
                 if self._app._is_object_oriented_enabled():
@@ -723,7 +825,15 @@ class Analysis(Design, object):
 
         @property
         def nominal_w_values_dict(self):
-            """Nominal with values in a dictionary."""
+            """Nominal with values in a dictionary.
+
+            References
+            ----------
+
+            >>> oDesign.GetChildObject('Variables').GetChildNames
+            >>> oDesign.GetVariables
+            >>> oDesign.GetVariableValue
+            >>> oDesign.GetNominalVariation"""
             families = {}
             if self._app.design_type == "HFSS 3D Layout Design":
                 if self._app._is_object_oriented_enabled():
@@ -761,6 +871,10 @@ class Analysis(Design, object):
         list of str
             List of names of all setups.
 
+        References
+        ----------
+
+        >>> oModule.GetSetups
         """
         setups = self.oanalysis.GetSetups()
         return list(setups)
@@ -790,6 +904,10 @@ class Analysis(Design, object):
         list of str
             List of names of all sweeps for the setup.
 
+        References
+        ----------
+
+        >>> oModule.GetSweeps
         """
         sweeps = self.oanalysis.GetSweeps(name)
         return list(sweeps)
@@ -812,6 +930,11 @@ class Analysis(Design, object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.ExportParametricResults
         """
 
         self.ooptimetrics.ExportParametricResults(sweepname, filename, exportunits)
@@ -825,6 +948,12 @@ class Analysis(Design, object):
         -------
         bool
            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.RevertSetupToInitial
+        >>> oDesign.Analyze
         """
         self.oanalysis.RevertSetupToInitial(self._setup)
         self.analyze_nominal()
@@ -859,6 +988,11 @@ class Analysis(Design, object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oDesign.Analyze
         """
 
         return self.analyze_setup(self.analysis_setup, num_cores, num_tasks, num_gpu, acf_file)
@@ -889,6 +1023,11 @@ class Analysis(Design, object):
     @aedt_exception_handler
     def create_setup(self, setupname="MySetupAuto", setuptype=None, props={}):
         """Create a setup.
+
+        References
+        ----------
+
+        >>> oModule.InsertSetup
 
         Parameters
         ----------
@@ -948,6 +1087,11 @@ class Analysis(Design, object):
     def delete_setup(self, setupname):
         """Delete a setup.
 
+        References
+        ----------
+
+        >>> oModule.DeleteSetups
+
         Parameters
         ----------
         setupname : str
@@ -981,6 +1125,11 @@ class Analysis(Design, object):
     def edit_setup(self, setupname, properties_dict):
         """Modify a setup.
 
+        References
+        ----------
+
+        >>> oModule.EditSetup
+
         Parameters
         ----------
         setupname : str
@@ -991,7 +1140,6 @@ class Analysis(Design, object):
         Returns
         -------
         :class:`pyaedt.modules.SolveSetup.Setup`
-
         """
         setuptype = SetupKeys.defaultSetups[self.solution_type]
         setup = Setup(self, setuptype, setupname, isnewsetup=False)
@@ -1024,6 +1172,11 @@ class Analysis(Design, object):
     def create_output_variable(self, variable, expression):
         """Create or modify an output variable.
 
+        References
+        ----------
+
+        >>> oModule.CreateOutputVariable
+
         Parameters
         ----------
         variable : str
@@ -1048,6 +1201,12 @@ class Analysis(Design, object):
     @aedt_exception_handler
     def get_output_variable(self, variable):
         """Retrieve the value of the output variable.
+
+        References
+        ----------
+
+        >>> oDesign.GetNominalVariation
+        >>> oModule.GetOutputVariableValue
 
         Parameters
         ----------
@@ -1112,6 +1271,11 @@ class Analysis(Design, object):
     @aedt_exception_handler
     def analyze_setup(self, name, num_cores=None, num_tasks=None, num_gpu=None, acf_file=None):
         """Analyze a specific design setup.
+
+        References
+        ----------
+
+        >>> oDesign.Analyze
 
         Parameters
         ----------
@@ -1258,6 +1422,11 @@ class Analysis(Design, object):
         self, clustername, aedt_full_exe_path=None, numnodes=1, numcores=32, wait_for_license=True, setting_file=None
     ):
         """Submit a job to be solved on a cluster.
+
+        References
+        ----------
+
+        >>> oDesktop.SubmitJob
 
         Parameters
         ----------
