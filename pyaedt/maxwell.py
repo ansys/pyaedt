@@ -16,8 +16,8 @@ from pyaedt.generic.constants import SOLUTIONS
 
 class Maxwell(object):
     def __init__(self):
-        self.odefinition_manager = self.materials.odefinition_manager
-        self.omaterial_manager = self.materials.omaterial_manager
+        self._odefinition_manager = self.materials.odefinition_manager
+        self._omaterial_manager = self.materials.omaterial_manager
         self._o_maxwell_parameters = self.odesign.GetModule("MaxwellParameterSetup")
         pass
 

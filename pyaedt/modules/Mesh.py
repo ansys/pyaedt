@@ -182,6 +182,8 @@ class Mesh(object):
 
         >>> oDesign.GetModule("MeshSetup")
         """
+        return self._omeshmodule
+
     @aedt_exception_handler
     def _get_design_global_mesh(self):
         """ """

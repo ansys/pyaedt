@@ -114,7 +114,7 @@ class Analysis(Design, object):
         self.logger.info("Materials Loaded")
         self._available_variations = self.AvailableVariations(self)
         if "HFSS 3D Layout Design" in self.design_type:
-            self.oanalysis = self._odesign.GetModule("SolveSetups")
+            self._oanalysis = self._odesign.GetModule("SolveSetups")
         elif "EMIT" in self.design_type:
             self._oanalysis = None
         elif "Circuit Design" in self.design_type or "Twin Builder" in self.design_type:
