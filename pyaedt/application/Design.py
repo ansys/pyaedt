@@ -630,10 +630,10 @@ class Design(object):
         del self._variable_manager[key]
 
     def _init_variables(self):
-        self.oboundary = None
-        self.oimport_export = None
-        self.ooptimetrics = None
-        self.ooutput_variable = None
+        self._oboundary = None
+        self._oimport_export = None
+        self._ooptimetrics = None
+        self._ooutput_variable = None
         self.oanalysis = None
         self._modeler = None
         self._post = None
