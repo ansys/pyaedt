@@ -1943,16 +1943,16 @@ class Hfss(FieldAnalysis3D, object):
         secondary_name : str, optional
             Boundary name.
 
-        References
-        ----------
-
-        >>> oModule.AssignSecondary
 
         Returns
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
+        References
+        ----------
+
+        >>> oModule.AssignSecondary
         """
         props = OrderedDict({})
         face_id = self.modeler._convert_list_to_ids(face, True)
@@ -3225,11 +3225,6 @@ class Hfss(FieldAnalysis3D, object):
     def edit_source(self, portandmode, powerin, phase="0deg"):
         """Set up the power loaded to the filter for thermal analysis.
 
-        References
-        ----------
-
-        >>> oModule.EditSources
-
         Parameters
         ----------
         portandmode : str
@@ -3243,6 +3238,11 @@ class Hfss(FieldAnalysis3D, object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.EditSources
 
         Examples
         --------
@@ -3433,10 +3433,6 @@ class Hfss(FieldAnalysis3D, object):
     def validate_full_design(self, dname=None, outputdir=None, ports=None):
         """Validate a design based on an expected value and save information to the log file.
 
-        References
-        ----------
-
-        >>> oDesign.ValidateDesign
 
         Parameters
         ----------
@@ -3455,6 +3451,11 @@ class Hfss(FieldAnalysis3D, object):
             List of all the validation information for later use.
         bool
             Indicates if the validation was successful or not.
+
+        References
+        ----------
+
+        >>> oDesign.ValidateDesign
 
         Examples
         --------
@@ -3768,11 +3769,6 @@ class Hfss(FieldAnalysis3D, object):
     def set_export_touchstone(self, activate, export_dir=""):
         """Set automatic export of the Touchstone file after simulation.
 
-        References
-        ----------
-
-        >>> oDesign.SetDesignSettings
-
         Parameters
         ----------
         activate : bool
@@ -3785,6 +3781,10 @@ class Hfss(FieldAnalysis3D, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oDesign.SetDesignSettings
         """
         settings = []
         if activate:
@@ -4243,13 +4243,6 @@ class Hfss(FieldAnalysis3D, object):
     ):
         """Create an SBR+ radar from a JSON file.
 
-        References
-        ----------
-
-        >>> oEditor.CreateRelativeCS
-        >>> oModule.SetSBRTxRxSettings
-        >>> oEditor.CreateGroup
-
         Parameters
         ----------
         radar_file : str
@@ -4265,6 +4258,17 @@ class Hfss(FieldAnalysis3D, object):
         relative_cs_name : str
             Name of the relative coordinate system to link the radar to.
             The default is ``None``, in which case the global coordinate system is used.
+
+        References
+        ----------
+
+        >>> oEditor.CreateRelativeCS
+        >>> oModule.SetSBRTxRxSettings
+        >>> oEditor.CreateGroup
+
+       Returns
+        -------
+        :class:`pyaedt.modeler.actors.Radar`
 
         Examples
         --------
@@ -4302,9 +4306,6 @@ class Hfss(FieldAnalysis3D, object):
                 }
             }
 
-       Returns
-        -------
-        :class:`pyaedt.modeler.actors.Radar`
         """
         self.modeler.primitives._initialize_multipart()
         if self.solution_type != "SBR+":

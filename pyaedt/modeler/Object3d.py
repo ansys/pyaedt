@@ -2079,9 +2079,6 @@ class Padstack(object):
     def create(self):
         """Create a padstack in AEDT.
 
-        Parameters
-        ----------
-
         Returns
         -------
         bool
@@ -2232,7 +2229,9 @@ class CircuitPins(object):
 
 
 class ComponentParameters(object):
+    """AEDT Circuit Component Internal Parameters.
 
+    """
     def __getitem__(self, key):
         return self.parameters[key]
 
@@ -2560,7 +2559,7 @@ class CircuitComponent(object):
         return True
 
     def change_property(self, vPropChange, names_list=None):
-        """Modify a property
+        """Modify a property.
 
         Parameters
         ----------

@@ -406,6 +406,11 @@ class Icepak(FieldAnalysisIcepak):
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
+        References
+        ----------
+
+        >>> oModule.AssignBlockBoundary
+
         Examples
         --------
 
@@ -415,10 +420,6 @@ class Icepak(FieldAnalysisIcepak):
         >>> block.props
         {'Objects': ['BlockBox3'], 'Block Type': 'Solid', 'Use External Conditions': False, 'Total Power': '1W'}
 
-        References
-        ----------
-
-        >>> oModule.AssignBlockBoundary
         """
         if assign_material:
             if isinstance(object_name, list):

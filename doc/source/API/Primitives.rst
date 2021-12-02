@@ -156,6 +156,7 @@ It contains all getter and setter to simplify object manipulation.
    Primitives.PolylineSegment
    Primitives.Polyline
 
+
 Objects in Circuit
 ~~~~~~~~~~~~~~~~~~
 Those classes define the objects properties for circuit tools.
@@ -231,11 +232,11 @@ It contains all getter and setter to simplify object manipulation.
    :template: custom-class-template.rst
    :nosignatures:
 
-   Object3d.Objec3dLayout
-   Object3d.Components3dLayout
-   Object3d.Nets3dLayout
-   Object3d.Pins3dLayout
-   Object3d.Geometries3dLayout
+   Object3d.Objec3DLayout
+   Object3d.Components3DLayout
+   Object3d.Nets3DLayout
+   Object3d.Pins3DLayout
+   Object3d.Geometries3DLayout
    Object3d.Padstack
 
 

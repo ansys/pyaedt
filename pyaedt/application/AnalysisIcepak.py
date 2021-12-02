@@ -278,10 +278,6 @@ class FieldAnalysisIcepak(Analysis, object):
     def get_property_value(self, objectname, property, type=None):
         """Retrieve a design property value for an object.
 
-        References
-        ----------
-
-        >>> oDesign.GetPropertyValue
 
         Parameters
         ----------
@@ -298,6 +294,11 @@ class FieldAnalysisIcepak(Analysis, object):
         -------
         type
             Value of the property.
+
+        References
+        ----------
+
+        >>> oDesign.GetPropertyValue
 
         Examples
         --------

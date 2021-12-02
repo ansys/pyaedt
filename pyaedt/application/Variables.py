@@ -692,12 +692,6 @@ class VariableManager(object):
     ):
         """Set the value of a design property or project variable.
 
-        References
-        ----------
-
-        >>> oProject.ChangeProperty
-        >>> oDesign.ChangeProperty
-
         Parameters
         ----------
         variable_name : str
@@ -725,6 +719,12 @@ class VariableManager(object):
         -------
         bool
              ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oProject.ChangeProperty
+        >>> oDesign.ChangeProperty
 
         Examples
         --------
