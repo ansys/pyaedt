@@ -307,3 +307,12 @@ class TestClass:
         port = self.aedtapp.modeler.components.create_interface_port("Port1")
         assert self.aedtapp.modeler.schematic.connect_components_in_series([myind, myres.composed_name])
         assert self.aedtapp.modeler.schematic.connect_components_in_parallel([mycap, port, myind2.id])
+
+    def test_25_import_model(self):
+        self.aedtapp.insert_design("Touch_import")
+        touch = os.path.join(local_path, "example_models", "SSN_ssn.s6p")
+        t1 = self.aedtapp.modeler.schematic.create_touchsthone_component(touch)
+        assert t1
+        assert len(t1.pins) == 6
+        t2 = self.aedtapp.modeler.schematic.create_touchsthone_component(touch)
+        assert t2
