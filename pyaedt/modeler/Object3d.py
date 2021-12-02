@@ -2132,6 +2132,8 @@ class Padstack(object):
 
 
 class CircuitPins(object):
+    """Class that manages circuit component pins.
+    """
     def __init__(self, circuit_comp, pinname):
         self._circuit_comp = circuit_comp
         self.name = pinname

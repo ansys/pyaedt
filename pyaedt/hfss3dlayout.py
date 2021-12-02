@@ -1063,6 +1063,11 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         bool
             ``True`` if successful and ``False`` if failed.
 
+        References
+        ----------
+
+        >>> oDesign.EditCoSimulationOptions
+
         Examples
         --------
         >>> from pyaedt import Hfss3dLayout
@@ -1079,10 +1084,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         ...     interpolation_algorithm="auto"
         ... )
 
-        References
-        ----------
-
-        >>> oDesign.EditCoSimulationOptions
         """
         if interpolation_algorithm not in ["auto", "lin", "shadH", "shadNH"]:
             self.logger.error("Wrong Interpolation Algorithm")

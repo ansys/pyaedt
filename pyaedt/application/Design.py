@@ -731,6 +731,12 @@ class Design(object):
         str
             Name of the parent AEDT design.
 
+        References
+        ----------
+
+        >>> oDesign.GetName
+        >>> oDesign.RenameDesignInstance
+
         Examples
         --------
         Set the design name.
@@ -738,12 +744,6 @@ class Design(object):
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
         >>> hfss.design_name = 'new_design'
-
-        References
-        ----------
-
-        >>> oDesign.GetName
-        >>> oDesign.RenameDesignInstance
         """
         if not self.odesign:
             return None
@@ -3193,6 +3193,12 @@ class Design(object):
         float
             Evaluated value of the design property or project variable in SI units.
 
+        References
+        ----------
+
+        >>> oDesign.GetNominalVariation
+        >>> oDesign.GetVariationVariableValue
+
         Examples
         --------
 
@@ -3201,12 +3207,6 @@ class Design(object):
         >>> M3D["p2"] = "20mm"
         >>> M3D["p3"] = "P1 * p2"
         >>> eval_p3 = M3D.get_evaluated_value("p3")
-
-        References
-        ----------
-
-        >>> oDesign.GetNominalVariation
-        >>> oDesign.GetVariationVariableValue
         """
         if not variation:
             variation_string = self._odesign.GetNominalVariation()

@@ -71,7 +71,7 @@ class Primitives3DLayout(object):
 
     @property
     def opadstackmanager(self):
-        """oPadstackManager.
+        """Aedt oPadstackManager.
 
         References
         ----------

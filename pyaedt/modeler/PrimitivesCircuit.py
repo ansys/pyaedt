@@ -62,7 +62,7 @@ class CircuitComponents(object):
 
     @property
     def o_definition_manager(self):
-        """oDefinitionManager from AEDT.
+        """Aedt oDefinitionManager.
 
         References
         ----------
@@ -73,7 +73,7 @@ class CircuitComponents(object):
 
     @property
     def o_component_manager(self):
-        """oComponentManager from AEDT.
+        """Aedt oComponentManager.
 
         References
         ----------
@@ -84,7 +84,7 @@ class CircuitComponents(object):
 
     @property
     def o_symbol_manager(self):
-        """oSymbolManger from AEDT.
+        """Aedt oSymbolManger.
 
         References
         ----------

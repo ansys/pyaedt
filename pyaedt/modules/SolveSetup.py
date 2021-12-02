@@ -1310,11 +1310,6 @@ class SetupHFSS(Setup, object):
     ):
         """Create a sweep with the specified number of points.
 
-        References
-        ----------
-
-        >>> oModule.InsertFrequencySweep
-
         Parameters
         ----------
         unit : str
@@ -1345,6 +1340,11 @@ class SetupHFSS(Setup, object):
         -------
         :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or bool
             Sweep object if successful, ``False`` otherwise.
+
+        References
+        ----------
+
+        >>> oModule.InsertFrequencySweep
 
         Examples
         --------
@@ -1502,11 +1502,6 @@ class SetupHFSS(Setup, object):
     ):
         """Create a Sweep with a single frequency point.
 
-        References
-        ----------
-
-        >>> oModule.InsertFrequencySweep
-
         Parameters
         ----------
         setupname : str
@@ -1529,6 +1524,11 @@ class SetupHFSS(Setup, object):
         -------
         :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or bool
             Sweep object if successful, ``False`` otherwise.
+
+        References
+        ----------
+
+        >>> oModule.InsertFrequencySweep
 
         Examples
         --------

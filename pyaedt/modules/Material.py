@@ -443,11 +443,6 @@ class MatProperty(object):
     def add_thermal_modifier_free_form(self, formula, index=0):
         """Add a thermal modifier to a material property using a free-form formula.
 
-        References
-        ----------
-
-        >>> oDefinitionManager.EditMaterial
-
         Parameters
         ----------
         formula : str
@@ -460,6 +455,10 @@ class MatProperty(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oDefinitionManager.EditMaterial
 
         Examples
         --------
@@ -475,11 +474,6 @@ class MatProperty(object):
     def add_thermal_modifier_dataset(self, dataset_name, index=0):
         """Add a thermal modifier to a material property using an existing dataset.
 
-        References
-        ----------
-
-        >>> oDefinitionManager.EditMaterial
-
         Parameters
         ----------
         dataset_name : str
@@ -492,6 +486,11 @@ class MatProperty(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+
+        References
+        ----------
+
+        >>> oDefinitionManager.EditMaterial
 
         Examples
         --------
@@ -510,11 +509,6 @@ class MatProperty(object):
         self, tref=22, c1=0.0001, c2=1e-6, tl=-273.15, tu=1000, units="cel", auto_calc=True, tml=1000, tmu=1000, index=0
     ):
         """Add a thermal modifier to a material property using a closed-form formula.
-
-        References
-        ----------
-
-        >>> oDefinitionManager.EditMaterial
 
         Parameters
         ----------
@@ -549,6 +543,10 @@ class MatProperty(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oDefinitionManager.EditMaterial
 
         Examples
         --------

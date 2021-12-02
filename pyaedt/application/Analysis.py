@@ -1024,11 +1024,6 @@ class Analysis(Design, object):
     def create_setup(self, setupname="MySetupAuto", setuptype=None, props={}):
         """Create a setup.
 
-        References
-        ----------
-
-        >>> oModule.InsertSetup
-
         Parameters
         ----------
         setupname : str, optional
@@ -1043,6 +1038,11 @@ class Analysis(Design, object):
         Returns
         -------
         :class:`pyaedt.modules.SolveSetup.Setup`
+
+        References
+        ----------
+
+        >>> oModule.InsertSetup
 
         Examples
         --------
@@ -1087,11 +1087,6 @@ class Analysis(Design, object):
     def delete_setup(self, setupname):
         """Delete a setup.
 
-        References
-        ----------
-
-        >>> oModule.DeleteSetups
-
         Parameters
         ----------
         setupname : str
@@ -1101,6 +1096,11 @@ class Analysis(Design, object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.DeleteSetups
 
         Examples
         --------
@@ -1125,11 +1125,6 @@ class Analysis(Design, object):
     def edit_setup(self, setupname, properties_dict):
         """Modify a setup.
 
-        References
-        ----------
-
-        >>> oModule.EditSetup
-
         Parameters
         ----------
         setupname : str
@@ -1140,6 +1135,11 @@ class Analysis(Design, object):
         Returns
         -------
         :class:`pyaedt.modules.SolveSetup.Setup`
+
+        References
+        ----------
+
+        >>> oModule.EditSetup
         """
         setuptype = SetupKeys.defaultSetups[self.solution_type]
         setup = Setup(self, setuptype, setupname, isnewsetup=False)
@@ -1172,10 +1172,6 @@ class Analysis(Design, object):
     def create_output_variable(self, variable, expression):
         """Create or modify an output variable.
 
-        References
-        ----------
-
-        >>> oModule.CreateOutputVariable
 
         Parameters
         ----------
@@ -1188,6 +1184,11 @@ class Analysis(Design, object):
         -------
         bool
            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.CreateOutputVariable
         """
         oModule = self.ooutput_variable
         if variable in self.output_variables:
@@ -1202,12 +1203,6 @@ class Analysis(Design, object):
     def get_output_variable(self, variable):
         """Retrieve the value of the output variable.
 
-        References
-        ----------
-
-        >>> oDesign.GetNominalVariation
-        >>> oModule.GetOutputVariableValue
-
         Parameters
         ----------
         variable : str
@@ -1217,6 +1212,12 @@ class Analysis(Design, object):
         -------
         type
             Value of the output variable.
+
+        References
+        ----------
+
+        >>> oDesign.GetNominalVariation
+        >>> oModule.GetOutputVariableValue
         """
         assert variable in self.output_variables, "Output variable {} does not exist.".format(variable)
         nominal_variation = self.odesign.GetNominalVariation()
@@ -1224,6 +1225,7 @@ class Analysis(Design, object):
         value = self.ooutput_variable.GetOutputVariableValue(
             variable, nominal_variation, self.existing_analysis_sweeps[0], self.solution_type, []
         )
+
         return value
 
     @aedt_exception_handler
@@ -1272,11 +1274,6 @@ class Analysis(Design, object):
     def analyze_setup(self, name, num_cores=None, num_tasks=None, num_gpu=None, acf_file=None):
         """Analyze a specific design setup.
 
-        References
-        ----------
-
-        >>> oDesign.Analyze
-
         Parameters
         ----------
         name : str
@@ -1294,6 +1291,11 @@ class Analysis(Design, object):
         -------
         bool
            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oDesign.Analyze
         """
         set_custom_dso = False
         active_config = self._desktop.GetRegistryString(r"Desktop/ActiveDSOConfigurations/"+self.design_type)
@@ -1423,11 +1425,6 @@ class Analysis(Design, object):
     ):
         """Submit a job to be solved on a cluster.
 
-        References
-        ----------
-
-        >>> oDesktop.SubmitJob
-
         Parameters
         ----------
         clustername : str
@@ -1449,6 +1446,10 @@ class Analysis(Design, object):
         type
             ID of the job.
 
+        References
+        ----------
+
+        >>> oDesktop.SubmitJob
         """
         project_file = self.project_file
         project_path = self.project_path

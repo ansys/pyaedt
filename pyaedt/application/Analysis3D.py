@@ -498,11 +498,6 @@ class FieldAnalysis3D(Analysis, object):
     def assign_material(self, obj, mat):
         """Assign a material to one or more objects.
 
-        References
-        ----------
-
-        >>> oEditor.AssignMaterial
-
         Parameters
         ----------
         obj : str, list
@@ -515,6 +510,11 @@ class FieldAnalysis3D(Analysis, object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.AssignMaterial
 
         Examples
         --------

@@ -41,22 +41,37 @@ class EmitComponents(object):
 
     @property
     def o_model_manager(self):
-        """ """
+        """Aedt Model Manager """
         return self.modeler.o_model_manager
 
     @property
     def o_definition_manager(self):
-        """ """
+        """Aedt Definition Manager.
+
+        References
+        ----------
+
+        >>> oDefinitionManager = oProject.GetDefinitionManager()"""
         return self._parent._oproject.GetDefinitionManager()
 
     @property
     def o_symbol_manager(self):
-        """ """
+        """Aedt Simbol Manager.
+
+        References
+        ----------
+
+        >>> oSymbolManager = oDefinitionManager.GetManager("Symbol")"""
         return self.o_definition_manager.GetManager("Symbol")
 
     @property
     def o_component_manager(self):
-        """ """
+        """Aedt Component Manager.
+
+        References
+        ----------
+
+        >>> oComponentManager = oDefinitionManager.GetManager("Component")"""
         return self.o_definition_manager.GetManager("Component")
 
     @property

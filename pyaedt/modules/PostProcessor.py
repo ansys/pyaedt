@@ -1105,11 +1105,6 @@ class PostProcessorCommon(object):
         This method returns the data object and the arrays ``solData`` and
         ``FreqVals``.
 
-        References
-        ----------
-
-        >>> oModule.GetSolutionDataPerVariation
-
         Parameters
         ----------
         expression : str or list
@@ -1131,6 +1126,11 @@ class PostProcessorCommon(object):
         Returns
         -------
         pyaedt.modules.PostProcessor.SolutionData
+
+        References
+        ----------
+
+        >>> oModule.GetSolutionDataPerVariation
 
         Examples
         --------

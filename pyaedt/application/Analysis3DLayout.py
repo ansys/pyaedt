@@ -455,11 +455,6 @@ class FieldAnalysis3DLayout(Analysis):
     def delete_setup(self, setupname):
         """Delete a setup.
 
-        References
-        ----------
-
-        >>> oModule.Delete
-
         Parameters
         ----------
         setupname : str
@@ -469,6 +464,11 @@ class FieldAnalysis3DLayout(Analysis):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.Delete
 
         Examples
         --------

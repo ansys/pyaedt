@@ -30,7 +30,7 @@ class IcepakMesh(object):
 
     @property
     def omeshmodule(self):
-        """AEDT Mesh Module
+        """AEDT Mesh Module.
 
         References
         ----------
