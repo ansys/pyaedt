@@ -64,42 +64,42 @@ class TestClass:
         gc.collect()
 
     def test_01_create_inductor(self):
-        myind = self.aedtapp.modeler.components.create_inductor(value=1e-9, location=[0.2, 0.2])
+        myind = self.aedtapp.modeler.schematic.create_inductor(value=1e-9, location=[0.2, 0.2])
         assert type(myind.id) is int
         assert myind.parameters["L"] == '1e-09'
 
     def test_02_create_resistor(self):
-        myres = self.aedtapp.modeler.components.create_resistor(value=50, location=[0.4, 0.2])
+        myres = self.aedtapp.modeler.schematic.create_resistor(value=50, location=[0.4, 0.2])
         assert type(myres.id) is int
         assert myres.parameters["R"] == '50'
 
     def test_03_create_capacitor(self):
-        mycap = self.aedtapp.modeler.components.create_capacitor(value=1e-12, location=[0.6, 0.2])
+        mycap = self.aedtapp.modeler.schematic.create_capacitor(value=1e-12, location=[0.6, 0.2])
         assert type(mycap.id) is int
         assert mycap.parameters["C"] == '1e-12'
 
     def test_04_getpin_names(self):
-        mycap2 = self.aedtapp.modeler.components.create_capacitor(value=1e-12)
-        pinnames = self.aedtapp.modeler.components.get_pins(mycap2)
-        pinnames2 = self.aedtapp.modeler.components.get_pins(mycap2.id)
-        pinnames3 = self.aedtapp.modeler.components.get_pins(mycap2.composed_name)
+        mycap2 = self.aedtapp.modeler.schematic.create_capacitor(value=1e-12)
+        pinnames = self.aedtapp.modeler.schematic.get_pins(mycap2)
+        pinnames2 = self.aedtapp.modeler.schematic.get_pins(mycap2.id)
+        pinnames3 = self.aedtapp.modeler.schematic.get_pins(mycap2.composed_name)
         assert pinnames2 == pinnames3
         assert type(pinnames) is list
         assert len(pinnames) == 2
 
     def test_05_getpin_location(self):
-        for el in self.aedtapp.modeler.components.components:
-            pinnames = self.aedtapp.modeler.components.get_pins(el)
+        for el in self.aedtapp.modeler.schematic.components:
+            pinnames = self.aedtapp.modeler.schematic.get_pins(el)
             for pinname in pinnames:
-                pinlocation = self.aedtapp.modeler.components.get_pin_location(el, pinname)
+                pinlocation = self.aedtapp.modeler.schematic.get_pin_location(el, pinname)
                 assert len(pinlocation) == 2
 
     def test_06_add_3dlayout_component(self):
-        myedb = self.aedtapp.modeler.components.add_subcircuit_3dlayout("Galileo_G87173_204")
+        myedb = self.aedtapp.modeler.schematic.add_subcircuit_3dlayout("Galileo_G87173_204")
         assert type(myedb.id) is int
 
     def test_07_add_hfss_component(self):
-        my_model, myname = self.aedtapp.modeler.components.create_field_model(
+        my_model, myname = self.aedtapp.modeler.schematic.create_field_model(
             "uUSB", "Setup1 : Sweep", ["usb_N_conn", "usb_N_pcb", "usb_P_conn", "usb_P_pcb"]
         )
         assert type(my_model) is int
@@ -142,10 +142,10 @@ class TestClass:
 
     def test_12_connect_components(self):
 
-        myind = self.aedtapp.modeler.components.create_inductor("L100", 1e-9)
-        myres = self.aedtapp.modeler.components.create_resistor("R100", 50)
-        mycap = self.aedtapp.modeler.components.create_capacitor("C100", 1e-12)
-        portname = self.aedtapp.modeler.components.create_interface_port("Port1")
+        myind = self.aedtapp.modeler.schematic.create_inductor("L100", 1e-9)
+        myres = self.aedtapp.modeler.schematic.create_resistor("R100", 50)
+        mycap = self.aedtapp.modeler.schematic.create_capacitor("C100", 1e-12)
+        portname = self.aedtapp.modeler.schematic.create_interface_port("Port1")
         assert "Port1" in portname.name
 
         assert self.aedtapp.modeler.connect_schematic_components(myind.id, myind.id, pinnum_second=2)
@@ -162,21 +162,21 @@ class TestClass:
         for pin in C1_pins:
             C1_pin2location[pin.name] = pin.location
 
-        portname = self.aedtapp.modeler.components.create_interface_port(
+        portname = self.aedtapp.modeler.schematic.create_interface_port(
             "P1_1", [L1_pin2location["n1"][0], L1_pin2location["n1"][1]]
         )
         assert "P1_1" in portname.name
-        portname = self.aedtapp.modeler.components.create_interface_port(
+        portname = self.aedtapp.modeler.schematic.create_interface_port(
             "P2_2", [C1_pin2location["negative"][0], C1_pin2location["negative"][1]]
         )
         assert "P2_2" in portname.name
 
         # create_page_port
-        portname = self.aedtapp.modeler.components.create_page_port(
+        portname = self.aedtapp.modeler.schematic.create_page_port(
             "Link_1", [L1_pin2location["n2"][0], L1_pin2location["n2"][1]]
         )
         assert "Link_1" in portname.name
-        portname = self.aedtapp.modeler.components.create_page_port(
+        portname = self.aedtapp.modeler.schematic.create_page_port(
             "Link_2", [C1_pin2location["positive"][0], C1_pin2location["positive"][1]], 180
         )
         assert "Link_2" in portname.name
@@ -297,3 +297,22 @@ class TestClass:
         settings = ["", "", "", "", "20W", "14GHz", "0s", "0", "0deg", "0Hz"]
         ports_list = ["P2_2"]
         assert self.aedtapp.assign_power_sinusoidal_excitation_to_ports(ports_list, settings)
+
+    def test_24_new_connect_components(self):
+        self.aedtapp.insert_design("Components")
+        myind = self.aedtapp.modeler.schematic.create_inductor("L100", 1e-9)
+        myres = self.aedtapp.modeler.components.create_resistor("R100", 50)
+        mycap = self.aedtapp.modeler.components.create_capacitor("C100", 1e-12)
+        myind2 = self.aedtapp.modeler.components.create_inductor("L101", 1e-9)
+        port = self.aedtapp.modeler.components.create_interface_port("Port1")
+        assert self.aedtapp.modeler.schematic.connect_components_in_series([myind, myres.composed_name])
+        assert self.aedtapp.modeler.schematic.connect_components_in_parallel([mycap, port, myind2.id])
+
+    def test_25_import_model(self):
+        self.aedtapp.insert_design("Touch_import")
+        touch = os.path.join(local_path, "example_models", "SSN_ssn.s6p")
+        t1 = self.aedtapp.modeler.schematic.create_touchsthone_component(touch)
+        assert t1
+        assert len(t1.pins) == 6
+        t2 = self.aedtapp.modeler.schematic.create_touchsthone_component(touch)
+        assert t2
