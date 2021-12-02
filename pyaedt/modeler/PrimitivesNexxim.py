@@ -128,7 +128,7 @@ class NexximComponents(CircuitComponents):
                     if component in [cmp.id, cmp.name, cmp.composed_name]:
                         comps.append(cmp)
                         break
-        assert len(comps) > 1, "At least two components has to be passed"
+        assert len(comps) > 1, "At least two components have to be passed."
         comps[0].pins[0].connect_to_component([i.pins[0] for i in comps[1:]])
         terminal_to_connect = [cmp for cmp in comps if len(cmp.pins) >= 2]
         if len(terminal_to_connect) > 1:
