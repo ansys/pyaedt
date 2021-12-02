@@ -1885,13 +1885,13 @@ class CircuitPins(object):
 
     @property
     def net(self):
-        """Pin net name."""
+        """Get pin net."""
         if "PagePort@" in self.name:
             return self._circuit_comp.name.split("@")[1]
         for net in self._circuit_comp._circuit_components.nets:
             conns = self.m_Editor.GetNetConnections(net)
             for conn in conns:
-                if self.name == conn[-len(self.name):] and (
+                if conn.endswith(self.name) and (
                         ";{};".format(self._circuit_comp.id) in conn or ";{} ".format(self._circuit_comp.id) in conn):
                     return net
         return ""
