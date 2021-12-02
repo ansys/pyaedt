@@ -634,7 +634,7 @@ class Design(object):
         self._oimport_export = None
         self._ooptimetrics = None
         self._ooutput_variable = None
-        self.oanalysis = None
+        self._oanalysis = None
         self._modeler = None
         self._post = None
         self._materials = None

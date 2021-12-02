@@ -167,7 +167,7 @@ class Mesh(object):
         self.modeler = self._app.modeler
         design_type = self._odesign.GetDesignType()
         self.logger = self._app.logger
-        self.omeshmodule = self._odesign.GetModule(meshers[design_type])
+        self._omeshmodule = self._odesign.GetModule(meshers[design_type])
         self.id = 0
         self.meshoperations = self._get_design_mesh_operations()
         self.globalmesh = self._get_design_global_mesh()
