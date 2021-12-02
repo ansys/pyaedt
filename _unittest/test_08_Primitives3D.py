@@ -447,7 +447,6 @@ class TestClass(BasisTest):
         assert len(o.edges) == 4
         assert len(o.vertices) == 4
 
-    @pyaedt_unittest_check_desktop_error
     def test_29_get_edges_from_position(self):
         self.cache.ignore_error_message_local("Script macro error: Can't find face by name and position.")
         o = self.create_rectangle(name="MyRectangle_for_primitives")
@@ -840,7 +839,6 @@ class TestClass(BasisTest):
         assert self.aedtapp.modeler.import_spaceclaim_document(os.path.join(self.local_scratch.path, scdoc))
         assert len(self.aedtapp.modeler.primitives.objects) == 1
 
-    @pyaedt_unittest_check_desktop_error
     def test_63_import_step(self):
         self.aedtapp.insert_design("StepImport")
         assert self.aedtapp.modeler.import_3d_cad(self.step_file)

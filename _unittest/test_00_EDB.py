@@ -528,3 +528,6 @@ class TestClass:
 
     def test_68_flip_layer_stackup(self):
         assert self.edbapp.core_stackup.flip_stackup_and_apply_transform()
+
+    def test_69_create_solder_balls_on_component(self):
+        assert self.edbapp.core_components.set_solder_ball("U2A5")
