@@ -63,6 +63,8 @@ class AedtLogger(object):
     def __init__(self, messenger, level=logging.DEBUG, filename=None, to_stdout=False):
         main = sys.modules["__main__"]
 
+        self.level = level
+        self.filename = filename
         self._messenger = messenger
         self._global = logging.getLogger('Global')
         self._file_handler = None
@@ -137,19 +139,26 @@ class AedtLogger(object):
 
     def disable_stdout_log(self):
         """Log will not be printed into stdout."""
-        self._messenger._log_on_desktop = False
+        self._messenger._log_on_screen = False
+        self._global.removeHandler(self._std_out_handler)
 
     def enable_stdout_log(self):
         """Log will be printed into stdout."""
-        self._messenger._log_on_stdout = True
+        self._messenger._log_on_screen = True
 
     def disable_log_on_file(self):
         """Log will be written into an output file."""
         self._messenger._log_on_file = False
+        self._file_handler.close()
+        self._global.removeHandler(self._file_handler)
 
     def enable_log_on_file(self):
         """Log will not be written into an output file."""
         self._messenger._log_on_file = True
+        self._file_handler = logging.FileHandler(self.filename)
+        self._file_handler.setLevel(self.level)
+        self._file_handler.setFormatter(FORMATTER)
+        self._global.addHandler(self._file_handler)
 
     def get_messages(self):
         """Get messages for the current design of the current project."""
