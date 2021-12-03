@@ -4245,7 +4245,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Example of input JSON file:
 
-        .. code-block:: json
+         .. code-block:: json
 
             {
                 "name": "Example_1Tx_1Rx",

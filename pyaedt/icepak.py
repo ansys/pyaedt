@@ -2066,7 +2066,7 @@ class Icepak(FieldAnalysisIcepak):
 
         Parameters
         ----------
-        meshtype :
+        meshtype : int
             Type of the mesh. Options are ``1``, ``2``, and ``3``, which represent
             respectively a coarse, standard, or very accurate mesh.
         gap_min_elements : str, optional
