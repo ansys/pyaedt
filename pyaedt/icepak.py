@@ -187,6 +187,10 @@ class Icepak(FieldAnalysisIcepak):
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
+        References
+        ----------
+
+        >>> oModule.AssignGrilleBoundary
         """
         boundary_name = generate_unique_name("Grille")
 
@@ -229,6 +233,11 @@ class Icepak(FieldAnalysisIcepak):
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
+        References
+        ----------
+
+        >>> oModule.AssignOpeningBoundary
+
         Examples
         --------
 
@@ -239,7 +248,6 @@ class Icepak(FieldAnalysisIcepak):
         >>> boundary = icepak.assign_openings(face_names)
         pyaedt info: Face List boundary_faces created
         pyaedt info: Opening Assigned
-
         """
         boundary_name = generate_unique_name("Opening")
         self.modeler.create_face_list(air_faces, "boundary_faces")
@@ -279,6 +287,11 @@ class Icepak(FieldAnalysisIcepak):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.AddTwoWayCoupling
 
         Examples
         --------
@@ -330,6 +343,11 @@ class Icepak(FieldAnalysisIcepak):
         list of :class:`pyaedt.modules.Boundary.BoundaryObject`
             List of boundaries inserted.
 
+        References
+        ----------
+
+        >>> oModule.AssignBlockBoundary
+
         Examples
         --------
 
@@ -343,7 +361,6 @@ class Icepak(FieldAnalysisIcepak):
         {'Objects': ['BlockBox1'], 'Block Type': 'Solid', 'Use External Conditions': False, 'Total Power': '2W'}
         >>> blocks[3].props
         {'Objects': ['BlockBox2'], 'Block Type': 'Solid', 'Use External Conditions': False, 'Total Power': '4W'}
-
         """
         oObjects = self.modeler.primitives.solid_names
         listmcad = []
@@ -388,6 +405,11 @@ class Icepak(FieldAnalysisIcepak):
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.AssignBlockBoundary
 
         Examples
         --------
@@ -462,6 +484,11 @@ class Icepak(FieldAnalysisIcepak):
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
+        References
+        ----------
+
+        >>> oModule.AssignSourceBoundary
+
         Examples
         --------
 
@@ -533,6 +560,11 @@ class Icepak(FieldAnalysisIcepak):
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
+        References
+        ----------
+
+        >>> oModule.AssignNetworkBoundary
+
         Examples
         --------
 
@@ -540,7 +572,6 @@ class Icepak(FieldAnalysisIcepak):
         >>> block = icepak.create_network_block("NetworkBox1", "2W", 20, 10, icepak.GravityDirection.ZNeg, 1.05918)
         >>> block.props["Nodes"]["Internal"][0]
         '2W'
-
         """
         if object_name in self.modeler.primitives.object_names:
             faces = self.modeler.primitives.get_object_faces(object_name)
@@ -620,6 +651,11 @@ class Icepak(FieldAnalysisIcepak):
         list of :class:`pyaedt.modules.Boundary.BoundaryObject`
             List of boundary objects created.
 
+        References
+        ----------
+
+        >>> oModule.AssignNetworkBoundary
+
         Examples
         --------
 
@@ -631,7 +667,6 @@ class Icepak(FieldAnalysisIcepak):
         ...                                        icepak.GravityDirection.ZNeg, 1.05918, False)
         >>> blocks[0].props["Nodes"]["Internal"]
         ['3W']
-
         """
         objs = self.modeler.primitives.solid_names
         countpow = len(input_list[0]) - 3
@@ -682,6 +717,11 @@ class Icepak(FieldAnalysisIcepak):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oModule.AssignFaceMonitor
+
         Examples
         --------
 
@@ -691,7 +731,6 @@ class Icepak(FieldAnalysisIcepak):
         ...                                                      [0, 0, 0], [10, 20], name="Surface1")
         >>> icepak.assign_surface_monitor("Surface1")
         True
-
         """
         if not monitor_name:
             monitor_name = generate_unique_name("Monitor")
@@ -717,6 +756,11 @@ class Icepak(FieldAnalysisIcepak):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.AssignPointMonitor
 
         Examples
         --------
@@ -760,6 +804,10 @@ class Icepak(FieldAnalysisIcepak):
         type
             Total power applied.
 
+        References
+        ----------
+
+        >>> oModule.AssignBlockBoundary
         """
         with open(csv_name) as csvfile:
             csv_input = csv.reader(csvfile)
@@ -816,6 +864,10 @@ class Icepak(FieldAnalysisIcepak):
         bool
              ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.UpdatePriorityList
         """
         temp_log = os.path.join(self.project_path, "validation.log")
         validate = self.odesign.ValidateDesign(temp_log)
@@ -853,6 +905,10 @@ class Icepak(FieldAnalysisIcepak):
         float
             Top position.
 
+        References
+        ----------
+
+        >>> oEditor.GetModelBoundingBox
         """
         dirs = ["-X", "+X", "-Y", "+Y", "-Z", "+Z"]
         for dir in dirs:
@@ -1159,6 +1215,11 @@ class Icepak(FieldAnalysisIcepak):
         Returns
         -------
         bool
+
+        References
+        ----------
+
+        >>> oDesign.ImportIDF
         """
         if not library_path:
             library_path = board_path[:-3]+"emp"
@@ -1261,6 +1322,10 @@ class Icepak(FieldAnalysisIcepak):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oDesign.SetDesignSettings
         """
         AmbientTemp = str(ambtemp) + "cel"
         #
@@ -1346,6 +1411,10 @@ class Icepak(FieldAnalysisIcepak):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oModule.AssignEMLoss
         """
         self.logger.info("Mapping HFSS EM losses.")
         oName = self.project_name
@@ -1435,6 +1504,10 @@ class Icepak(FieldAnalysisIcepak):
         str
             Name of the file.
 
+        References
+        ----------
+
+        >>> oModule.ExportFieldsSummary
         """
         name = generate_unique_name(quantity_name)
         self.modeler.create_face_list(faces_list, name)
@@ -1502,6 +1575,10 @@ class Icepak(FieldAnalysisIcepak):
         str
            Name of the file.
 
+        References
+        ----------
+
+        >>> oModule.ExportFieldsSummary
         """
         if not savedir:
             savedir = self.project_path
@@ -1614,6 +1691,11 @@ class Icepak(FieldAnalysisIcepak):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oModule.EditFieldsSummarySetting
+        >>> oModule.ExportFieldsSummary
         """
         all_objs = list(self.modeler.oeditor.GetObjectsInGroup("Solids"))
         all_objs_NonModeled = list(self.modeler.oeditor.GetObjectsInGroup("Non Model"))
@@ -1678,7 +1760,7 @@ class Icepak(FieldAnalysisIcepak):
 
         Returns
         -------
-
+        (bool, bool)
         """
         if radiation == "Nothing":
             lowSideRad = False
@@ -1795,6 +1877,10 @@ class Icepak(FieldAnalysisIcepak):
         :class:`pyaedt.modules.Boundary.NativeComponentObject`
             NativeComponentObject object.
 
+        References
+        ----------
+
+        >>> oModule.InsertNativeComponent
         """
         lowRad, highRad = self.get_radiation_settings(rad)
         hfssLinkInfo = OrderedDict({})
@@ -1897,6 +1983,10 @@ class Icepak(FieldAnalysisIcepak):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oModule.InsertNativeComponent
         """
         if project_name == self.project_name:
             project_name = "This Project*"
@@ -1938,6 +2028,11 @@ class Icepak(FieldAnalysisIcepak):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.Copy
+        >>> oeditor.Paste
         """
         oName = self.project_name
         if sourceProject == oName or sourceProject is None:
@@ -1971,7 +2066,7 @@ class Icepak(FieldAnalysisIcepak):
 
         Parameters
         ----------
-        meshtype :
+        meshtype : int
             Type of the mesh. Options are ``1``, ``2``, and ``3``, which represent
             respectively a coarse, standard, or very accurate mesh.
         gap_min_elements : str, optional
@@ -1994,6 +2089,10 @@ class Icepak(FieldAnalysisIcepak):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oModule.EditGlobalMeshRegion
         """
         oModule = self.odesign.GetModule("MeshRegion")
 
@@ -2070,6 +2169,10 @@ class Icepak(FieldAnalysisIcepak):
         tuple
             Tuple containing the ``(x, y, z)`` distances of the region.
 
+        References
+        ----------
+
+        >>> oeditor.ChangeProperty
         """
         self.modeler.edit_region_dimensions([0, 0, 0, 0, 0, 0])
 
@@ -2127,6 +2230,10 @@ class Icepak(FieldAnalysisIcepak):
         bool
              ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oModule.AssignPointMonitor
         """
         arg1 = [
             "NAME:PointParameters",
@@ -2162,6 +2269,10 @@ class Icepak(FieldAnalysisIcepak):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oModule.DeleteBoundaries
         """
         self.oboundary.DeleteBoundaries([bound_name])
         return True
@@ -2180,6 +2291,10 @@ class Icepak(FieldAnalysisIcepak):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.Delete
         """
         arg = ["NAME:Selections", "Selections:=", comp_name]
 

@@ -191,6 +191,10 @@ class Layer(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.ChangeLayer
         """
         rgb = [r, g, b]
         self.color = _getIfromRGB(rgb)
@@ -205,6 +209,11 @@ class Layer(object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.AddStackupLayer
         """
         self.remove_stackup_layer()
         if self.type == "signal":
@@ -381,6 +390,11 @@ class Layer(object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.ChangeLayer
         """
         if self.type == "signal":
             self._oeditor.ChangeLayer(
@@ -534,6 +548,11 @@ class Layer(object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.RemoveLayer
         """
         if self.name in self._oeditor.GetStackupLayerNames():
             self._oeditor.RemoveLayer(self.name)
@@ -567,7 +586,12 @@ class Layers(object):
 
     @property
     def _oeditor(self):
-        """Editor."""
+        """Editor.
+
+        References
+        ----------
+
+        >>> oEditor = oDesign.SetActiveEditor("Layout")"""
         return self._modeler._app._odesign.SetActiveEditor("Layout")
 
     @property
@@ -583,6 +607,11 @@ class Layers(object):
         -------
         list
            List of stackup layers.
+
+        References
+        ----------
+
+        >>> oEditor.GetStackupLayerNames()
         """
         return self._oeditor.GetStackupLayerNames()
 

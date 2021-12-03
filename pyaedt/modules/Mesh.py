@@ -91,6 +91,18 @@ class MeshOperation(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oModule.EditTrueSurfOp
+        >>> oModule.EditModelResolutionOp
+        >>> oModule.EditSurfPriorityForTauOp
+        >>> oModule.EditLengthOp
+        >>> oModule.EditApplyCurvlinearElementsOp
+        >>> oModule.EditRotationalLayerOp
+        >>> oModule.EditDensityControlOp
+        >>> oModule.EditMeshOperation
+        >>> oModule.EditSBRCurvatureExtractionOp
         """
         if self.type == "SurfApproxBased":
             self._meshicepak.omeshmodule.EditTrueSurfOp(self.name, self._get_args())
@@ -125,6 +137,10 @@ class MeshOperation(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oModule.DeleteOp
         """
         self._meshicepak.omeshmodule.DeleteOp([self.name])
         for el in self._meshicepak.meshoperations:
@@ -151,11 +167,22 @@ class Mesh(object):
         self.modeler = self._app.modeler
         design_type = self._odesign.GetDesignType()
         self.logger = self._app.logger
-        self.omeshmodule = self._odesign.GetModule(meshers[design_type])
+        self._omeshmodule = self._odesign.GetModule(meshers[design_type])
         self.id = 0
         self.meshoperations = self._get_design_mesh_operations()
         self.globalmesh = self._get_design_global_mesh()
         pass
+
+    @property
+    def omeshmodule(self):
+        """Aedt Mesh Module.
+
+        References
+        ----------
+
+        >>> oDesign.GetModule("MeshSetup")
+        """
+        return self._omeshmodule
 
     @aedt_exception_handler
     def _get_design_global_mesh(self):
@@ -202,6 +229,10 @@ class Mesh(object):
         :class:`pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
 
+        References
+        ----------
+
+        >>> oModule.AssignTrueSurfOp
         """
         names = self.modeler.convert_to_selections(names, True)
         if meshop_name:
@@ -252,6 +283,10 @@ class Mesh(object):
         :class:`pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
 
+        References
+        ----------
+
+        >>> oModule.AssignTrueSurfOp
         """
         names = self.modeler.convert_to_selections(names, True)
         if meshop_name:
@@ -315,6 +350,10 @@ class Mesh(object):
         :class:`pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
 
+        References
+        ----------
+
+        >>> oModule.AssignModelResolutionOp
         """
         names = self.modeler.convert_to_selections(names, True)
         if meshop_name:
@@ -390,6 +429,10 @@ class Mesh(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oModule.InitialMeshSettings
         """
         if self._app.design_type == "2D Extractor" or self._app.design_type == "Maxwell 2D":
             mesh_methods = ["Auto", "AnsoftClassic"]
@@ -450,6 +493,10 @@ class Mesh(object):
         :class:`pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
 
+        References
+        ----------
+
+        >>> oModule.AssignSurfPriorityForTauOp
         """
         meshop_name = generate_unique_name("SurfaceRepPriority")
         props = OrderedDict({"Type": "SurfaceRepPriority", "Objects": object_lists, "SurfaceRepPriority": surfpriority})
@@ -472,6 +519,10 @@ class Mesh(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oDesign.GenerateMesh
         """
         return self._odesign.GenerateMesh(name) == 0
 
@@ -490,6 +541,10 @@ class Mesh(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oModule.DeleteOp
         """
         # Type "Area Based" not included since the delete command causes
         # desktop to crash
@@ -534,6 +589,10 @@ class Mesh(object):
         :class:`pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
 
+        References
+        ----------
+
+        >>> oModule.AssignLengthOp
         """
         names = self.modeler.convert_to_selections(names, True)
         if meshop_name:
@@ -613,6 +672,10 @@ class Mesh(object):
         :class:`pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
 
+        References
+        ----------
+
+        >>> oModule.AssignSkinDepthOp
         """
         names = self.modeler.convert_to_selections(names, True)
 
@@ -678,6 +741,10 @@ class Mesh(object):
         :class:`pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
 
+        References
+        ----------
+
+        >>> oModule.AssignApplyCurvlinearElementsOp
         """
         names = self.modeler.convert_to_selections(names, True)
 
@@ -725,6 +792,10 @@ class Mesh(object):
         :class:`pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
 
+        References
+        ----------
+
+        >>> oModule.AssignCurvatureExtractionOp
         """
         names = self.modeler.convert_to_selections(names, True)
 
@@ -775,6 +846,10 @@ class Mesh(object):
         :class:`pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
 
+        References
+        ----------
+
+        >>> oModule.AssignRotationalLayerOp
         """
         names = self.modeler.convert_to_selections(names, True)
 
@@ -819,6 +894,10 @@ class Mesh(object):
         :class:`pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
 
+        References
+        ----------
+
+        >>> oModule.AssignRotationalLayerOp
         """
         names = self.modeler.convert_to_selections(names, True)
 
@@ -862,6 +941,10 @@ class Mesh(object):
         :class:`pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
 
+        References
+        ----------
+
+        >>> oModule.AssignDensityControlOp
         """
         names = self.modeler.convert_to_selections(names, True)
 

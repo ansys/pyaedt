@@ -15,7 +15,17 @@ class ModelerRMxprt(Modeler):
 
     def __init__(self, app):
         Modeler.__init__(self, app)
-        self.oeditor = self._odesign.SetActiveEditor("Machine")
+        self._oeditor = self._odesign.SetActiveEditor("Machine")
+
+    @property
+    def oeditor(self):
+        """oEditor Module.
+
+        References
+        ----------
+
+        >>> oEditor = oDesign.SetActiveEditor("Machine")"""
+        return self._oeditor
 
 
 class Modeler2D(GeometryModeler):
@@ -113,7 +123,6 @@ class Modeler2D(GeometryModeler):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-
         """
         self.oeditor.CreateCircle(
             [

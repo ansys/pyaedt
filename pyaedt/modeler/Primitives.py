@@ -246,6 +246,12 @@ class Polyline(Object3d):
             List of the ``[x, y, z]`` coordinates for the ending point in the polyline
             object.
 
+        References
+        ----------
+
+        >>> oEditor.GetVertexIDsFromObject
+        >>> oEditor.GetVertexPosition
+
         """
         end_vertex_id = self._primitives.get_object_vertices(partID=self.id)[-1]
         return self._primitives.get_vertex_position(end_vertex_id)
@@ -260,6 +266,12 @@ class Polyline(Object3d):
         list
             List of the ``[x, y, z]`` coordinates for all vertex positions in the
             polyline object.
+
+        References
+        ----------
+
+        >>> oEditor.GetVertexIDsFromObject
+        >>> oEditor.GetVertexPosition
 
         """
         id_list = self._primitives.get_object_vertices(partID=self.id)
@@ -484,6 +496,12 @@ class Polyline(Object3d):
         pyaedt.modeler.Primitives.Polyline
             Polyline object that was created.
 
+        References
+        ----------
+
+        >>> oEditor.Copy
+        >>> oEditor.Paste
+
         Examples
         --------
         >>> primitives = self.aedtapp.modeler.primitives
@@ -525,6 +543,11 @@ class Polyline(Object3d):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.DeletePolylinePoint
 
         Examples
         --------
@@ -593,6 +616,11 @@ class Polyline(Object3d):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.DeletePolylinePoint
+
         Examples
         --------
         >>> P = primitives.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
@@ -653,6 +681,11 @@ class Polyline(Object3d):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.ChangeProperty
 
         Examples
         --------
@@ -721,6 +754,12 @@ class Polyline(Object3d):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.InsertPolylineSegment
+
         """
 
         # Check for a valid number of points
@@ -890,7 +929,14 @@ class Primitives(object):
 
     @property
     def components_3d_names(self):
-        """List of the names of all 3d components objects."""
+        """List of the names of all 3d components objects.
+
+        References
+        ----------
+
+        >>> oEditor.Get3DComponentDefinitionNames
+        >>> oEditor.Get3DComponentInstanceNames
+        """
         obs3d = []
         try:
             comps3d = self._oeditor.Get3DComponentDefinitionNames()
@@ -1097,6 +1143,10 @@ class Primitives(object):
         :class:`pyaedt.modeler.Object3d.Object3d`
             Region object.
 
+        References
+        ----------
+
+        >>> oEditor.CreateRegion
         """
         if "Region" in self.object_names:
             return None
@@ -1159,6 +1209,10 @@ class Primitives(object):
         :class:`pyaedt.modeler.Object3d.Object3d`
             3D object.
 
+        References
+        ----------
+
+        >>> oEditor.CreateObjectFromEdges
         """
         if isinstance(edge, EdgePrimitive):
             edge_id = edge.id
@@ -1193,6 +1247,10 @@ class Primitives(object):
         :class:`pyaedt.modeler.Object3d.Object3d`
             3D object.
 
+        References
+        ----------
+
+        >>> oEditor.CreateObjectFromFaces
         """
         face_id = face
         if isinstance(face, FacePrimitive):
@@ -1294,6 +1352,11 @@ class Primitives(object):
         -------
         pyaedt.modeler.Primitives.Polyline
            Polyline object.
+
+        References
+        ----------
+
+        >>> oEditor.CreatePolyline
 
         Examples
         --------
@@ -1401,6 +1464,11 @@ class Primitives(object):
         :class:`pyaedt.modeler.Object3d.Object3d`
             UDP object created.
 
+        References
+        ----------
+
+        >>> oEditor.CreateUserDefinedPart
+
         """
         if ".dll" not in udp_dll_name:
             vArg1 = [
@@ -1442,6 +1510,11 @@ class Primitives(object):
         -------
         bool
             ``True`` when successful, ``False`` when failed
+
+        References
+        ----------
+
+        >>> oEditor.Delete
 
         """
         if objects is None:
@@ -1492,6 +1565,11 @@ class Primitives(object):
         bool
             ``True`` when successful, ``False`` when failed
 
+        References
+        ----------
+
+        >>> oEditor.Delete
+
         """
         objnames = self.object_id_dict
         num_del = 0
@@ -1516,6 +1594,11 @@ class Primitives(object):
         list
             List of 6 float values ``[min_x, min_y, min_z, max_x, max_y, max_z]``
             for the bounding box.
+
+        References
+        ----------
+
+        >>> oEditor.GetModelBoundingBox
         """
         return self._app.modeler.get_model_bounding_box()
 
@@ -1682,6 +1765,11 @@ class Primitives(object):
         -------
         list
             List of IDs for objects of the specified material.
+
+        References
+        ----------
+
+        >>> oEditor.GetObjectsByMaterial
 
         """
         obj_lst = []
@@ -1938,6 +2026,11 @@ class Primitives(object):
         list
             List of faces IDs.
 
+        References
+        ----------
+
+        >>> oEditor.GetFaceIDs
+
         """
         oFaceIDs = []
         if isinstance(partId, str) and partId in self.object_id_dict:
@@ -1964,6 +2057,11 @@ class Primitives(object):
         list
             List of edge IDs.
 
+        References
+        ----------
+
+        >>> oEditor.GetEdgeIDsFromObject
+
         """
         oEdgeIDs = []
         if isinstance(partId, str) and partId in self.object_id_dict:
@@ -1988,6 +2086,12 @@ class Primitives(object):
         -------
         list
             List of edge IDs.
+
+        References
+        ----------
+
+        >>> oEditor.GetEdgeIDsFromFace
+
         """
         oEdgeIDs = self._oeditor.GetEdgeIDsFromFace(partId)
         oEdgeIDs = [int(i) for i in oEdgeIDs]
@@ -2006,6 +2110,11 @@ class Primitives(object):
         -------
         list
             List of vertex IDs.
+
+        References
+        ----------
+
+        >>> oEditor.GetVertexIDsFromObject
 
         """
         oVertexIDs = []
@@ -2033,6 +2142,11 @@ class Primitives(object):
         -------
         list
             List of vertex IDs.
+
+        References
+        ----------
+
+        >>> oEditor.GetVertexIDsFromFace
 
         """
         try:
@@ -2082,6 +2196,11 @@ class Primitives(object):
         list
             List of vertex IDs.
 
+        References
+        ----------
+
+        >>> oEditor.GetVertexIDsFromEdge
+
         """
         try:
             oVertexIDs = self._oeditor.GetVertexIDsFromEdge(edgeID)
@@ -2104,6 +2223,11 @@ class Primitives(object):
         -------
         list
             List of ``[x, y, z]`` coordinates indicating the position.
+
+        References
+        ----------
+
+        >>> oEditor.GetVertexPosition
 
         """
         try:
@@ -2128,6 +2252,11 @@ class Primitives(object):
         float
             Value for the face area.
 
+        References
+        ----------
+
+        >>> oEditor.GetFaceArea
+
         """
 
         area = self._oeditor.GetFaceArea(face_id)
@@ -2147,6 +2276,11 @@ class Primitives(object):
         list
             A list of ``[x, y, z]`` coordinates for the
             planar face center position.
+
+        References
+        ----------
+
+        >>> oEditor.GetFaceCenter
 
         """
         try:
@@ -2243,6 +2377,11 @@ class Primitives(object):
         list
             List of object names.
 
+        References
+        ----------
+
+        >>> oEditor.GetBodyNamesByPosition
+
         """
         XCenter, YCenter, ZCenter = self._pos_with_arg(position, units)
         vArg1 = ["NAME:Parameters"]
@@ -2309,6 +2448,12 @@ class Primitives(object):
         List
             List of edge IDs for the vertex ID.
 
+        References
+        ----------
+
+        >>> oEditor.GetEdgeIDsFromObject
+        >>> oEditor.GetVertexIDsFromEdge
+
         """
         edgeID = []
         edges = self.get_object_edges(obj_name)
@@ -2338,6 +2483,11 @@ class Primitives(object):
         -------
         int
             Face ID of the first object touching this position.
+
+        References
+        ----------
+
+        >>> oEditor.GetFaceByPosition
 
         """
         if isinstance(obj_name, str):

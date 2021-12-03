@@ -41,22 +41,37 @@ class EmitComponents(object):
 
     @property
     def o_model_manager(self):
-        """ """
+        """Aedt Model Manager """
         return self.modeler.o_model_manager
 
     @property
     def o_definition_manager(self):
-        """ """
+        """Aedt Definition Manager.
+
+        References
+        ----------
+
+        >>> oDefinitionManager = oProject.GetDefinitionManager()"""
         return self._parent._oproject.GetDefinitionManager()
 
     @property
     def o_symbol_manager(self):
-        """ """
+        """Aedt Simbol Manager.
+
+        References
+        ----------
+
+        >>> oSymbolManager = oDefinitionManager.GetManager("Symbol")"""
         return self.o_definition_manager.GetManager("Symbol")
 
     @property
     def o_component_manager(self):
-        """ """
+        """Aedt Component Manager.
+
+        References
+        ----------
+
+        >>> oComponentManager = oDefinitionManager.GetManager("Component")"""
         return self.o_definition_manager.GetManager("Component")
 
     @property
@@ -116,6 +131,10 @@ class EmitComponents(object):
         EmitComponent
             The newly created component.
 
+        References
+        ----------
+
+        >>> oEditor.CreateComponent
         """
         # Pass an empty string to allow name to be automatically assigned.
         if name is None:
@@ -244,6 +263,11 @@ class EmitComponent(object):
         -------
         List
             List of port names.
+
+        References
+        ----------
+
+        >>> oEditor.GetComponentPorts
         """
         return self.oeditor.GetComponentPorts(self.name)
 
@@ -264,6 +288,12 @@ class EmitComponent(object):
         str
             Port name on connected component. Returns None if no connection
             at given port.
+
+        References
+        ----------
+
+        >>> oEditor.GetWireAtPort
+        >>> oEditor.GetWireConnections
         """
         wire_name = self.oeditor.GetWireAtPort(self.name, port_name)
         wire_connections = self.oeditor.GetWireConnections(wire_name)
@@ -283,6 +313,11 @@ class EmitComponent(object):
         -------
         EmitComponentPropNode
             The root node of the updated property tree.
+
+        References
+        ----------
+
+        >>> oDesign.GetComponentNodeNames
         """
         node_names = sorted(self.odesign.GetComponentNodeNames(self.name))
         root_node_name = node_names[0]
@@ -315,6 +350,11 @@ class EmitComponent(object):
         dict
             Dictionary of property names (keys) and property values.
 
+        References
+        ----------
+
+        >>> oDesign.GetComponentNodeNames
+        >>> oDesign.GetComponentNodeProperties
         """
         nodes = sorted(self.odesign.GetComponentNodeNames(self.name))
         root_node = nodes[0]
@@ -339,7 +379,12 @@ class EmitComponent(object):
 
         Returns
         -------
+        bool
 
+        References
+        ----------
+
+        >>> oEditor.ChangeProperty
         """
         if type(property_name) is list:
             for p, v in zip(property_name, property_value):

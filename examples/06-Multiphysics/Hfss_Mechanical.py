@@ -46,7 +46,7 @@ pin_names = hfss.modeler.get_excitations_name()
 # Starts Circuit and add Hfss dynamic link component to it.
 
 circuit = Circuit()
-hfss_comp = circuit.modeler.components.add_subcircuit_hfss_link("MyHfss", pin_names, hfss.project_file,
+hfss_comp = circuit.modeler.schematic.add_subcircuit_hfss_link("MyHfss", pin_names, hfss.project_file,
                                                                               hfss.design_name)
 
 ###############################################################################
@@ -56,10 +56,10 @@ hfss_comp = circuit.modeler.components.add_subcircuit_hfss_link("MyHfss", pin_na
 # argument of set_sim_option_on_hfss_subcircuit can be the component name, the component id or
 # the component object.
 
-circuit.modeler.components.refresh_dynamic_link("MyHfss")
-circuit.modeler.components.set_sim_option_on_hfss_subcircuit(hfss_comp)
+circuit.modeler.schematic.refresh_dynamic_link("MyHfss")
+circuit.modeler.schematic.set_sim_option_on_hfss_subcircuit(hfss_comp)
 hfss_setup_name = hfss.setups[0].name + " : " + hfss.setups[0].sweeps[0].name
-circuit.modeler.components.set_sim_solution_on_hfss_subcircuit(hfss_comp.composed_name, hfss_setup_name)
+circuit.modeler.schematic.set_sim_solution_on_hfss_subcircuit(hfss_comp.composed_name, hfss_setup_name)
 
 ###############################################################################
 # Create Ports and Excitations
@@ -68,13 +68,13 @@ circuit.modeler.components.set_sim_solution_on_hfss_subcircuit(hfss_comp.compose
 # Voltage source on input port.
 
 
-circuit.modeler.components.create_interface_port("Excitation_1",
+circuit.modeler.schematic.create_interface_port("Excitation_1",
                                                  [hfss_comp.pins[0].location[0], hfss_comp.pins[0].location[1]])
-circuit.modeler.components.create_interface_port("Excitation_2",
+circuit.modeler.schematic.create_interface_port("Excitation_2",
                                                  [hfss_comp.pins[1].location[0], hfss_comp.pins[1].location[1]])
-circuit.modeler.components.create_interface_port("Port_1",
+circuit.modeler.schematic.create_interface_port("Port_1",
                                                  [hfss_comp.pins[2].location[0], hfss_comp.pins[2].location[1]])
-circuit.modeler.components.create_interface_port("Port_2",
+circuit.modeler.schematic.create_interface_port("Port_2",
                                                  [hfss_comp.pins[3].location[0], hfss_comp.pins[3].location[1]])
 
 voltage = 1

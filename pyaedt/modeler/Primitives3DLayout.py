@@ -61,13 +61,24 @@ class Primitives3DLayout(object):
         self._modeler = modeler
         self._app = self._modeler._app
         self._oeditor = self.modeler.oeditor
-        self.opadstackmanager = self._app._oproject.GetDefinitionManager().GetManager("Padstack")
+        self._opadstackmanager = self._app._oproject.GetDefinitionManager().GetManager("Padstack")
         self.padstacks = {}
         self._components = {}
         self._geometries = {}
         self._pins = {}
         self._nets = {}
         pass
+
+    @property
+    def opadstackmanager(self):
+        """Aedt oPadstackManager.
+
+        References
+        ----------
+
+        >>> oPadstackManger = oDefinitionManager.GetManager("Padstack")
+        """
+        return self._opadstackmanager
 
     @property
     def components(self):
@@ -348,6 +359,10 @@ class Primitives3DLayout(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.SetNetVisible
         """
         if not netlist:
             netlist = self.nets
@@ -407,6 +422,10 @@ class Primitives3DLayout(object):
         str
             Name of the via created when successful.
 
+        References
+        ----------
+
+        >>> oEditor.CreateVia
         """
         layers = self.modeler.layers.all_signal_layers
         if not top_layer:
@@ -469,6 +488,10 @@ class Primitives3DLayout(object):
         str
             Name of the circle created when successful.
 
+        References
+        ----------
+
+        >>> oEditor.CreateCircle
         """
         if not name:
             name = _uname()
@@ -520,6 +543,10 @@ class Primitives3DLayout(object):
         str
             Name of the rectangle created when successful.
 
+        References
+        ----------
+
+        >>> oEditor.CreateRectangle
         """
 
         if not name:
@@ -583,6 +610,10 @@ class Primitives3DLayout(object):
         str
             Name of the line created when successful.
 
+        References
+        ----------
+
+        >>> oEditor.CreateLine
         """
         if not name:
             name = _uname()

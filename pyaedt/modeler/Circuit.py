@@ -27,7 +27,7 @@ class ModelerCircuit(Modeler):
 
     def __init__(self, app):
         self._app = app
-        self.oeditor = self._odesign.SetActiveEditor("SchematicEditor")
+        self._oeditor = self._odesign.SetActiveEditor("SchematicEditor")
         self.o_def_manager = self._app.odefinition_manager
         self.o_component_manager = self.o_def_manager.GetManager("Component")
         self.o_model_manager = self.o_def_manager.GetManager("Model")
@@ -35,8 +35,23 @@ class ModelerCircuit(Modeler):
         Modeler.__init__(self, app)
 
     @property
+    def oeditor(self):
+        """Oeditor Module.
+
+        References
+        ----------
+
+        >>> oEditor = oDesign.SetActiveEditor("SchematicEditor")"""
+        return self._oeditor
+
+    @property
     def obounding_box(self):
-        """Bounding box."""
+        """Bounding box.
+
+        References
+        ----------
+
+        >>> oEditor.GetModelBoundingBox()"""
         return self.oeditor.GetModelBoundingBox()
 
     @aedt_exception_handler
@@ -61,6 +76,10 @@ class ModelerCircuit(Modeler):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.CreateWire
         """
         obj1 = self.components[firstcomponent]
         if "Port" in obj1.composed_name:
@@ -139,12 +158,19 @@ class ModelerNexxim(ModelerCircuit):
             edb_core object if it exists.
 
         """
-        # TODO Check while it crashes when multiple circuits are created
+        # TODO Check why it crashes when multiple circuits are created
         return None
 
     @property
     def model_units(self):
-        """Model units."""
+        """Model units.
+
+        References
+        ----------
+
+        >>> oEditor.GetActiveUnits
+        >>> oEditor.SetActiveUnits
+        """
         return _retry_ntimes(10, self.layouteditor.GetActiveUnits)
 
     @property
@@ -201,6 +227,10 @@ class ModelerNexxim(ModelerCircuit):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.Move
         """
         if not isinstance(selections, list):
             selections = [selections]
@@ -241,6 +271,10 @@ class ModelerNexxim(ModelerCircuit):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.Rotate
         """
         sels = []
         for sel in selections:

@@ -251,9 +251,11 @@ def decompose_variable_value(variable_value, full_variables={}):
     ----------
     variable_value : float
     full_variables : dict
+
     Returns
     -------
-
+    tuples
+        tuples made of the float value of the variable and the units exposed as a string.
     """
     # set default return values - then check for valid units
     float_value = variable_value
@@ -267,18 +269,17 @@ def decompose_variable_value(variable_value, full_variables={}):
             float_value = float(variable_value)
         except ValueError:
             # search for a valid units string at the end of the variable_value
-            loc = re.search("[a-z_A-Z]+$", variable_value)
+            loc = re.search("[a-z_A-Z]+", variable_value)
             units = _find_units_in_dependent_variables(variable_value, full_variables)
 
             if loc:
                 loc_units = loc.span()[0]
                 extract_units = variable_value[loc_units:]
-                if unit_system(extract_units):
-                    try:
-                        float_value = float(variable_value[0:loc_units])
-                        units = extract_units
-                    except ValueError:
-                        float_value = variable_value
+                try:
+                    float_value = float(variable_value[0:loc_units])
+                    units = extract_units
+                except ValueError:
+                    float_value = variable_value
 
     return float_value, units
 
@@ -388,6 +389,13 @@ class VariableManager(object):
             Dictionary of the `Variable` objects for each project variable and each
             design property in the active design.
 
+        References
+        ----------
+
+        >>> oProject.GetVariables
+        >>> oDesign.GetVariables
+        >>> oProject.GetChildObject("Variables").GetChildNames
+        >>> oDesign.GetChildObject("Variables").GetChildNames
         """
         return self._variable_dict([self._odesign, self._oproject])
 
@@ -399,6 +407,12 @@ class VariableManager(object):
         -------
         dict
             Dictionary of the design properties (local properties) in the design.
+
+        References
+        ----------
+
+        >>> oDesign.GetVariables
+        >>> oDesign.GetChildObject("Variables").GetChildNames
         """
         return self._variable_dict([self._odesign])
 
@@ -410,6 +424,12 @@ class VariableManager(object):
         -------
         dict
             Dictionary of the project properties.
+
+        References
+        ----------
+
+        >>> oProject.GetVariables
+        >>> oProject.GetChildObject("Variables").GetChildNames
         """
         return self._variable_dict([self._oproject])
 
@@ -422,6 +442,14 @@ class VariableManager(object):
         dict
             Dictionary of the independent variables (constant numeric
             values) available to the design.
+
+        References
+        ----------
+
+        >>> oProject.GetVariables
+        >>> oDesign.GetVariables
+        >>> oProject.GetChildObject("Variables").GetChildNames
+        >>> oDesign.GetChildObject("Variables").GetChildNames
         """
         return self._variable_dict([self._odesign, self._oproject], dependent=False)
 
@@ -433,6 +461,12 @@ class VariableManager(object):
         -------
         dict
             Dictionary of the independent project variables available to the design.
+
+        References
+        ----------
+
+        >>> oProject.GetVariables
+        >>> oProject.GetChildObject("Variables").GetChildNames
         """
         return self._variable_dict([self._oproject], dependent=False)
 
@@ -445,6 +479,12 @@ class VariableManager(object):
         dict
             Dictionary of the independent design properties (local
             variables) available to the design.
+
+        References
+        ----------
+
+        >>> oDesign.GetVariables
+        >>> oDesign.GetChildObject("Variables").GetChildNames
         """
         return self._variable_dict([self._odesign], dependent=False)
 
@@ -458,6 +498,13 @@ class VariableManager(object):
             Dictionary of the dependent design properties (local
             variables) and project variables available to the design.
 
+        References
+        ----------
+
+        >>> oProject.GetVariables
+        >>> oDesign.GetVariables
+        >>> oProject.GetChildObject("Variables").GetChildNames
+        >>> oDesign.GetChildObject("Variables").GetChildNames
         """
         return self._variable_dict([self._odesign, self._oproject], independent=False)
 
@@ -468,32 +515,74 @@ class VariableManager(object):
 
     @property
     def project_variable_names(self):
-        """List of project variables."""
+        """List of project variables.
+
+        References
+        ----------
+
+        >>> oProject.GetVariables
+        >>> oProject.GetChildObject("Variables").GetChildNames
+        """
         return [var_name for var_name in self.project_variables]
 
     @property
     def independent_project_variable_names(self):
-        """List of independent project variables."""
+        """List of independent project variables.
+
+        References
+        ----------
+
+        >>> oProject.GetVariables
+        >>> oProject.GetChildObject("Variables").GetChildNames
+        """
         return [var_name for var_name in self.independent_project_variables]
 
     @property
     def design_variable_names(self):
-        """List of design variables."""
+        """List of design variables.
+
+        References
+        ----------
+
+        >>> oDesign.GetVariables
+        >>> oDesign.GetChildObject("Variables").GetChildNames"""
         return [var_name for var_name in self.design_variables]
 
     @property
     def independent_design_variable_names(self):
-        """List of independent design variables."""
+        """List of independent design variables.
+
+        References
+        ----------
+
+        >>> oDesign.GetVariables
+        >>> oDesign.GetChildObject("Variables").GetChildNames"""
         return [var_name for var_name in self.independent_design_variables]
 
     @property
     def independent_variable_names(self):
-        """List of independent variables."""
+        """List of independent variables.
+
+        References
+        ----------
+
+        >>> oProject.GetVariables
+        >>> oDesign.GetVariables
+        >>> oProject.GetChildObject("Variables").GetChildNames
+        >>> oDesign.GetChildObject("Variables").GetChildNames"""
         return [var_name for var_name in self.independent_variables]
 
     @property
     def dependent_variable_names(self):
-        """List of dependent variables."""
+        """List of dependent variables.
+
+        References
+        ----------
+
+        >>> oProject.GetVariables
+        >>> oDesign.GetVariables
+        >>> oProject.GetChildObject("Variables").GetChildNames
+        >>> oDesign.GetChildObject("Variables").GetChildNames"""
         return [var_name for var_name in self.dependent_variables]
 
     @property
@@ -573,7 +662,14 @@ class VariableManager(object):
 
     @aedt_exception_handler
     def get_expression(self, variable_name):
-        """Retrieve the variable value of a project or design variable as a string."""
+        """Retrieve the variable value of a project or design variable as a string.
+
+        References
+        ----------
+
+        >>> oProject.GetVariableValue
+        >>> oDesign.GetVariableValue
+        """
         return self.aedt_object(variable_name).GetVariableValue(variable_name)
 
     @aedt_exception_handler
@@ -624,6 +720,12 @@ class VariableManager(object):
         -------
         bool
              ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oProject.ChangeProperty
+        >>> oDesign.ChangeProperty
 
         Examples
         --------
@@ -791,6 +893,11 @@ class VariableManager(object):
         bool
             ``True`` when the separator exists and can be deleted, ``False`` otherwise.
 
+        References
+        ----------
+
+        >>> oProject.ChangeProperty
+        >>> oDesign.ChangeProperty
         """
         object_list = [(self._odesign, "Local"), (self._oproject, "Project")]
 
@@ -828,6 +935,11 @@ class VariableManager(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oProject.ChangeProperty
+        >>> oDesign.ChangeProperty
         """
         desktop_object = self.aedt_object(var_name)
         var_type = "Project" if desktop_object == self._oproject else "Local"
@@ -1333,6 +1445,11 @@ class DataSet(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oProject.AddDataset
+        >>> oDesign.AddDataset
         """
         if self.name[0] == "$":
             self._app._oproject.AddDataset(self._args())
@@ -1358,6 +1475,11 @@ class DataSet(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oProject.EditDataset
+        >>> oDesign.EditDataset
         """
         self.x.append(x)
         self.y.append(y)
@@ -1380,6 +1502,11 @@ class DataSet(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oProject.EditDataset
+        >>> oDesign.EditDataset
         """
         if x not in self.x:
             self._app.logger.error("Value {} is not found.".format(x))
@@ -1401,6 +1528,11 @@ class DataSet(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oProject.EditDataset
+        >>> oDesign.EditDataset
         """
         if id_to_remove < len(self.x) > 2:
             self.x.pop(id_to_remove)
@@ -1421,6 +1553,11 @@ class DataSet(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oProject.EditDataset
+        >>> oDesign.EditDataset
         """
         args = self._args()
         if not args:
@@ -1440,6 +1577,11 @@ class DataSet(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oProject.DeleteDataset
+        >>> oDesign.DeleteDataset
         """
         if self.name[0] == "$":
             self._app._oproject.DeleteDataset(self.name)
@@ -1464,6 +1606,11 @@ class DataSet(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oProject.ExportDataset
+        >>> oDesign.ExportDataset
         """
         if not dataset_path:
             dataset_path = os.path.join(self._app.project_path, self.name + ".tab")

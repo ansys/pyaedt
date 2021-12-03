@@ -136,6 +136,11 @@ class EdgeTypePrimitive(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.Fillet
+
         """
         edge_id_list = []
         vertex_id_list = []
@@ -189,6 +194,11 @@ class EdgeTypePrimitive(object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.Chamfer
 
         """
         edge_id_list = []
@@ -263,6 +273,11 @@ class VertexPrimitive(EdgeTypePrimitive, object):
             in model units when the data from AEDT is valid, ``None``
             otherwise.
 
+        References
+        ----------
+
+        >>> oEditor.GetVertexPosition
+
         """
         try:
             vertex_data = list(self._oeditor.GetVertexPosition(self.id))
@@ -302,6 +317,12 @@ class EdgePrimitive(EdgeTypePrimitive, object):
         -------
         list of :class:`pyaedt.modeler.Object3d.VertexPrimitive`
             List of vertices.
+
+        References
+        ----------
+
+        >>> oEditor.GetVertexIDsFromEdge
+
         """
         vertices = []
         for vertex in self._oeditor.GetVertexIDsFromEdge(self.id):
@@ -319,6 +340,11 @@ class EdgePrimitive(EdgeTypePrimitive, object):
             Midpoint in ``[x, y, z]`` coordinates when the edge
             is a circle with only one vertex, ``None`` otherwise.
 
+        References
+        ----------
+
+        >>> oEditor.GetVertexPosition
+
         """
 
         if len(self.vertices) == 2:
@@ -335,6 +361,11 @@ class EdgePrimitive(EdgeTypePrimitive, object):
         -------
         float or bool
             Edge length in model units when edge has two vertices, ``False`` othwerise.
+
+        References
+        ----------
+
+        >>> oEditor.GetVertexPosition
 
         """
         if len(self.vertices) == 2:
@@ -391,6 +422,12 @@ class FacePrimitive(object):
         -------
         list of :class:`pyaedt.modeler.Object3d.EdgePrimitive`
             List of Edges.
+
+        References
+        ----------
+
+        >>> oEditor.GetEdgeIDsFromFace
+
         """
         edges = []
         for edge in list(self._oeditor.GetEdgeIDsFromFace(self.id)):
@@ -405,6 +442,12 @@ class FacePrimitive(object):
         -------
         list of :class:`pyaedt.modeler.Object3d.VertexPrimitive`
             List of Vertices.
+
+        References
+        ----------
+
+        >>> oEditor.GetVertexIDsFromFace
+
         """
         vertices = []
         for vertex in list(self._oeditor.GetVertexIDsFromFace(self.id)):
@@ -425,6 +468,11 @@ class FacePrimitive(object):
         -------
         list or bool
             Center position in ``[x, y, z]`` coordinates for the planar face, ``False`` otherwise.
+
+        References
+        ----------
+
+        >>> oEditor.GetFaceCenter
 
         """
         try:
@@ -449,6 +497,11 @@ class FacePrimitive(object):
         list of float values
             Centroid of all vertices of the face.
 
+        References
+        ----------
+
+        >>> oEditor.GetFaceCenter
+
         """
         if len(self.vertices) > 1:
             return GeometryOperators.get_polygon_centroid([pos.position for pos in self.vertices])
@@ -468,6 +521,11 @@ class FacePrimitive(object):
         float
             Face area in model units.
 
+        References
+        ----------
+
+        >>> oEditor.GetFaceArea
+
         """
         area = self._oeditor.GetFaceArea(self.id)
         return area
@@ -485,6 +543,11 @@ class FacePrimitive(object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.MoveFaces
 
         """
         self._oeditor.MoveFaces(
@@ -523,6 +586,11 @@ class FacePrimitive(object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.MoveFaces
 
         """
         self._oeditor.MoveFaces(
@@ -564,6 +632,11 @@ class FacePrimitive(object):
         -------
         list of float values or ``None``
             Normal vector (normalized ``[x, y, z]`` coordinates) or ``None``.
+
+        References
+        ----------
+
+        >>> oEditor.GetVertexPosition
 
         """
         vertices_ids = self.vertices
@@ -671,6 +744,11 @@ class Object3d(object):
             List of six ``[x, y, z]`` positions of the bounding box containing
             Xmin, Ymin, Zmin, Xmax, Ymax, and Zmax values.
 
+        References
+        ----------
+
+        >>> oEditor.GetModelBoundingBox
+
         """
         objs_to_unmodel = [val.name for i, val in self._primitives.objects.items() if
                            val.model and val.name != self.name]
@@ -702,6 +780,11 @@ class Object3d(object):
         -------
         list of :class:`pyaedt.modeler.Object3d.FacePrimitive`
 
+        References
+        ----------
+
+        >>> oEditor.GetFaceIDs
+
         """
         faces = []
         for face in list(self.m_Editor.GetFaceIDs(self.name)):
@@ -716,6 +799,11 @@ class Object3d(object):
         Returns
         -------
         :class:`pyaedt.modeler.Object3d.FacePrimitive`
+
+        References
+        ----------
+
+        >>> oEditor.FaceCenter
 
         """
         try:
@@ -733,6 +821,11 @@ class Object3d(object):
         -------
         :class:`pyaedt.modeler.Object3d.FacePrimitive`
 
+        References
+        ----------
+
+        >>> oEditor.FaceCenter
+
         """
         try:
             result = [(float(face.center[2]), face) for face in self.faces]
@@ -748,6 +841,11 @@ class Object3d(object):
         Returns
         -------
         :class:`pyaedt.modeler.Object3d.FacePrimitive`
+
+        References
+        ----------
+
+        >>> oEditor.FaceCenter
 
         """
         try:
@@ -765,6 +863,11 @@ class Object3d(object):
         -------
         :class:`pyaedt.modeler.Object3d.FacePrimitive`
 
+        References
+        ----------
+
+        >>> oEditor.FaceCenter
+
         """
         try:
             result = [(float(face.center[0]), face) for face in self.faces]
@@ -780,6 +883,11 @@ class Object3d(object):
         Returns
         -------
         :class:`pyaedt.modeler.Object3d.FacePrimitive`
+
+        References
+        ----------
+
+        >>> oEditor.FaceCenter
 
         """
         try:
@@ -797,6 +905,11 @@ class Object3d(object):
         -------
         :class:`pyaedt.modeler.Object3d.FacePrimitive`
 
+        References
+        ----------
+
+        >>> oEditor.FaceCenter
+
         """
         try:
             result = [(float(face.center[1]), face) for face in self.faces]
@@ -813,6 +926,11 @@ class Object3d(object):
         -------
         list of :class:`pyaedt.modeler.Object3d.EdgePrimitive`
 
+        References
+        ----------
+
+        >>> oEditor.GetEdgeIDsFromObject
+
         """
         edges = []
         for edge in self._primitives.get_object_edges(self.name):
@@ -827,6 +945,11 @@ class Object3d(object):
         Returns
         -------
         list of :class:`pyaedt.modeler.Object3d.VertexPrimitive`
+
+        References
+        ----------
+
+        >>> oEditor.GetVertexIDsFromObject
 
         """
         vertices = []
@@ -862,6 +985,12 @@ class Object3d(object):
         str or None
             Name of the surface material when successful, ``None`` and a warning message otherwise.
 
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        >>> oEditor.ChangeProperty
+
         """
         if self._surface_material is not None:
             return self._surface_material
@@ -880,6 +1009,12 @@ class Object3d(object):
         str
             Name of the group.
 
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        >>> oEditor.ChangeProperty
+
         """
         if self._m_groupName is not None:
             return self._m_groupName
@@ -897,6 +1032,12 @@ class Object3d(object):
         -------
         str or None
             Name of the material when successful, ``None`` and a warning message otherwise.
+
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        >>> oEditor.ChangeProperty
 
         """
         if self._material_name is not None:
@@ -939,6 +1080,11 @@ class Object3d(object):
         -------
         int or None
             ID of the object when successful, ``None`` otherwise.
+
+        References
+        ----------
+
+        >>> oEditor.GetObjectIDByName
 
         """
         if not self._id:
@@ -996,6 +1142,12 @@ class Object3d(object):
         str
            Name of object as a string value.
 
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        >>> oEditor.ChangeProperty
+
         """
         return self._m_name
 
@@ -1021,7 +1173,13 @@ class Object3d(object):
 
     @property
     def valid_properties(self):
-        """Valid properties."""
+        """Valid properties.
+
+        References
+        ----------
+
+        >>> oEditor.GetProperties
+        """
         if not self._all_props:
             self._all_props = _retry_ntimes(10, self.m_Editor.GetProperties, "Geometry3DAttributeTab", self._m_name)
         return self._all_props
@@ -1031,6 +1189,12 @@ class Object3d(object):
         """Part color as a tuple of integer values for `(Red, Green, Blue)` color values.
 
         If the integer values are outside the range 0-255, then limit the values. Invalid inputs are ignored.
+
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        >>> oEditor.ChangeProperty
 
         Examples
         --------
@@ -1052,7 +1216,14 @@ class Object3d(object):
 
     @property
     def color_string(self):
-        """Color tuple as a string in the format '(Red, Green, Blue)'."""
+        """Color tuple as a string in the format '(Red, Green, Blue)'.
+
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        >>> oEditor.ChangeProperty
+        """
         return "({} {} {})".format(self.color[0], self.color[1], self.color[2])
 
     @color.setter
@@ -1090,6 +1261,12 @@ class Object3d(object):
         """Part transparency as a value between 0.0 and 1.0.
 
         If the value is outside the range, then apply a limit. If the value is not a valid number, set to ``0.0``.
+
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        >>> oEditor.ChangeProperty
 
         """
         if self._transparency is not None:
@@ -1134,6 +1311,12 @@ class Object3d(object):
         str
             Name of the part coordinate system.
 
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        >>> oEditor.ChangeProperty
+
         """
         if self._part_coordinate_system is not None:
             return self._part_coordinate_system
@@ -1159,6 +1342,12 @@ class Object3d(object):
         -------
         bool
             ``True`` when ``"solve-inside"`` is activated for the part, ``False`` otherwise.
+
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        >>> oEditor.ChangeProperty
 
         """
         if self._solve_inside is not None:
@@ -1196,6 +1385,12 @@ class Object3d(object):
         bool
             ``True`` when wirefame is activated for the part, ``False`` otherwise.
 
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        >>> oEditor.ChangeProperty
+
         """
         if self._wireframe is not None:
             return self._wireframe
@@ -1225,6 +1420,12 @@ class Object3d(object):
         -------
         bool
             ``True`` when model, ``False`` otherwise.
+
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        >>> oEditor.ChangeProperty
 
         """
         if self._model is not None:
@@ -1258,6 +1459,11 @@ class Object3d(object):
         pyaedt.modeler.Object3d.Object3d
            Object 3D object.
 
+        References
+        ----------
+
+        >>> oEditor.Unite
+
         """
         unite_list = [self.name] + self._primitives.modeler.convert_to_selections(object_list, return_list=True)
         self._primitives.modeler.unite(unite_list)
@@ -1281,6 +1487,11 @@ class Object3d(object):
         -------
         list
             List of names of the newly added objects.
+
+        References
+        ----------
+
+        >>> oEditor.DuplicateAroundAxis
 
         """
         ret, added_objects = self._primitives.modeler.duplicate_around_axis(
@@ -1306,6 +1517,11 @@ class Object3d(object):
         list
             List of names of the newly added objects.
 
+        References
+        ----------
+
+        >>> oEditor.DuplicateAlongLine
+
         """
         ret, added_objects = self._primitives.modeler.duplicate_along_line(self, vector, nclones, attachObject)
         return added_objects
@@ -1318,6 +1534,11 @@ class Object3d(object):
         -------
         pyaedt.modeler.Object3d.Object3d
             3D object.
+
+        References
+        ----------
+
+        >>> oEditor.Move
 
         """
         self._primitives.modeler.translate(self.id, vector)
@@ -1341,6 +1562,11 @@ class Object3d(object):
         -------
         bool
             ``True`` when model, ``False`` otherwise.
+
+        References
+        ----------
+
+        >>> oEditor.SweepAlongVector
 
         """
         self._primitives.modeler.sweep_along_vector(self, sweep_vector, draft_angle, draft_type)
@@ -1371,6 +1597,11 @@ class Object3d(object):
         pyaedt.modeler.Object3d.Object3d
             Swept object.
 
+        References
+        ----------
+
+        >>> oEditor.SweepAlongPath
+
         """
         self._primitives.modeler.sweep_along_path(
             self, sweep_object, draft_angle, draft_type, is_check_face_intersection, twist_angle
@@ -1395,6 +1626,11 @@ class Object3d(object):
         pyaedt.modeler.Object3d.Object3d
             Swept object.
 
+        References
+        ----------
+
+        >>> oEditor.SweepAroundAxis
+
         """
         self._primitives.modeler.sweep_around_axis(self, cs_axis, sweep_angle, draft_angle)
         return self
@@ -1417,6 +1653,11 @@ class Object3d(object):
         pyaedt.modeler.Object3d.Object3d
             3D object.
 
+        References
+        ----------
+
+        >>> oEditor.Section
+
         """
         # TODO Refactor plane !
         self._primitives.modeler.section(self, plane, create_new, section_cross_object)
@@ -1430,6 +1671,11 @@ class Object3d(object):
         -------
         pyaedt.modeler.Object3d.Object3d
             3D object that was added.
+
+        References
+        ----------
+
+        >>> oEditor.Clone
 
         """
         new_obj_tuple = self._primitives.modeler.clone(self.id)
@@ -1455,13 +1701,24 @@ class Object3d(object):
         pyaedt.modeler.Object3d.Object3d
             Modified 3D object following the subtraction.
 
+        References
+        ----------
+
+        >>> oEditor.Subtract
+
         """
         self._primitives.modeler.subtract(self.name, tool_list, keep_originals)
         return self
 
     @aedt_exception_handler
     def delete(self):
-        """Delete the object."""
+        """Delete the object.
+
+        References
+        ----------
+
+        >>> oEditor.Delete
+        """
         arg = ["NAME:Selections", "Selections:=", self._m_name]
         self.m_Editor.Delete(arg)
         self._primitives.cleanup_objects()
@@ -1822,13 +2079,15 @@ class Padstack(object):
     def create(self):
         """Create a padstack in AEDT.
 
-        Parameters
-        ----------
-
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oPadstackManager.Add
 
         """
         self.padstackmgr.Add(self.pads_args)
@@ -1843,6 +2102,11 @@ class Padstack(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oPadstackManager.Edit
+
         """
         self.padstackmgr.Edit(self.name, self.pads_args)
 
@@ -1855,11 +2119,18 @@ class Padstack(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oPadstackManager.Remove
+
         """
         self.padstackmgr.Remove(self.name, True, "", "Project")
 
 
 class CircuitPins(object):
+    """Class that manages circuit component pins.
+    """
     def __init__(self, circuit_comp, pinname):
         self._circuit_comp = circuit_comp
         self.name = pinname
@@ -1867,7 +2138,13 @@ class CircuitPins(object):
 
     @property
     def location(self):
-        """Pin Position in [x,y] format."""
+        """Pin Position in [x,y] format.
+
+        References
+        ----------
+
+        >>> oPadstackManager.GetComponentPinLocation
+        """
         if "Port" in self._circuit_comp.composed_name:
             pos1 = _retry_ntimes(30, self.m_Editor.GetPropertyValue, "BaseElementTab", self._circuit_comp.composed_name,
                                  "Component Location")
@@ -1883,6 +2160,19 @@ class CircuitPins(object):
                 _retry_ntimes(30, self.m_Editor.GetComponentPinLocation, self._circuit_comp.composed_name, self.name,
                               False)]
 
+    @property
+    def net(self):
+        """Get pin net."""
+        if "PagePort@" in self.name:
+            return self._circuit_comp.name.split("@")[1]
+        for net in self._circuit_comp._circuit_components.nets:
+            conns = self.m_Editor.GetNetConnections(net)
+            for conn in conns:
+                if conn.endswith(self.name) and (
+                        ";{};".format(self._circuit_comp.id) in conn or ";{} ".format(self._circuit_comp.id) in conn):
+                    return net
+        return ""
+
     @aedt_exception_handler
     def connect_to_component(self, component_pin):
         """Connect schematic components.
@@ -1897,28 +2187,32 @@ class CircuitPins(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oPadstackManager.CreatePagePort
         """
+        if not isinstance(component_pin, list):
+            component_pin = [component_pin]
         comp_angle = self._circuit_comp.angle * math.pi / 180
-        comp_pin_angle = component_pin._circuit_comp.angle * math.pi / 180
         if len(self._circuit_comp.pins) == 2:
             comp_angle += math.pi/2
-        if len(component_pin._circuit_comp.pins) == 2:
-            comp_pin_angle += math.pi / 2
+        page_name = "{}_{}".format(self._circuit_comp.composed_name.replace("CompInst@", "").replace(";", "_"),
+                                   self.name)
+
         if "Port" in self._circuit_comp.composed_name:
             try:
                 page_name = self._circuit_comp.name.split("@")[1].replace(";", "_")
             except:
-                page_name = "{}_{}".format(self._circuit_comp.composed_name.replace("CompInst@", "").replace(";", "_"),
-                                           self.name)
-        elif "Port" in component_pin._circuit_comp.composed_name:
-            try:
-                page_name = self._circuit_comp.name.split("@")[1].replace(";", "_")
-            except:
-                page_name = "{}_{}".format(self._circuit_comp.composed_name.replace("CompInst@", "").replace(";", "_"),
-                                           self.name)
+                pass
         else:
-            page_name = "{}_{}".format(self._circuit_comp.composed_name.replace("CompInst@", "").replace(";", "_"),
-                                       self.name)
+            for cmp in component_pin:
+                if "Port" in cmp._circuit_comp.composed_name:
+                    try:
+                        page_name = cmp._circuit_comp.name.split("@")[1].replace(";", "_")
+                        break
+                    except:
+                        continue
         try:
             x_loc = AEDT_UNITS["Length"][decompose_variable_value(self._circuit_comp.location[0])[1]] * float(
                 decompose_variable_value(self._circuit_comp.location[1])[0])
@@ -1928,27 +2222,31 @@ class CircuitPins(object):
             angle = comp_angle
         else:
             angle = math.pi + comp_angle
-
         ret1 = self._circuit_comp._circuit_components.create_page_port(page_name, self.location, angle=angle)
-        try:
-            x_loc = AEDT_UNITS["Length"][decompose_variable_value(component_pin._circuit_comp.location[0])[1]] * float(
-                decompose_variable_value(component_pin._circuit_comp.location[0])[0])
-        except:
-            x_loc = float(self._circuit_comp.location[0])
-        if component_pin.location[0] < x_loc:
-            angle = comp_pin_angle
-        else:
-            angle = math.pi + comp_pin_angle
-        ret2 = self._circuit_comp._circuit_components.create_page_port(page_name, location=component_pin.location,
-                                                                       angle=angle)
+        for cmp in component_pin:
+            try:
+                x_loc = AEDT_UNITS["Length"][decompose_variable_value(cmp._circuit_comp.location[0])[1]] * float(
+                    decompose_variable_value(cmp._circuit_comp.location[0])[0])
+            except:
+                x_loc = float(self._circuit_comp.location[0])
+            comp_pin_angle = cmp._circuit_comp.angle * math.pi / 180
+            if len(cmp._circuit_comp.pins) == 2:
+                comp_pin_angle += math.pi / 2
+            if cmp.location[0] < x_loc:
+                angle = comp_pin_angle
+            else:
+                angle = math.pi + comp_pin_angle
+            ret2 = self._circuit_comp._circuit_components.create_page_port(page_name, location=cmp.location,
+                                                                           angle=angle)
         if ret1 and ret2:
             return True
         else:
             return False
 
-
 class ComponentParameters(object):
+    """AEDT Circuit Component Internal Parameters.
 
+    """
     def __getitem__(self, key):
         return self.parameters[key]
 
@@ -2005,6 +2303,14 @@ class CircuitComponent(object):
 
     @property
     def parameters(self):
+        """Circuit Parameters.
+
+        References
+        ----------
+
+        >>> oEditor.GetProperties
+        >>> oEditor.GetPropertyValue
+        """
         if self._parameters:
             return self._parameters
         _parameters = {}
@@ -2022,10 +2328,12 @@ class CircuitComponent(object):
 
     @property
     def pins(self):
-        """
+        """Pins of component.
+
         Returns
         -------
         list of :class:`pyaedt.modeler.Object3d.CircuitPins`
+
         """
         if self._pins:
             return self._pins
@@ -2035,15 +2343,25 @@ class CircuitComponent(object):
             self._pins.append(CircuitPins(self, self.composed_name))
         else:
             pins = _retry_ntimes(10, self.m_Editor.GetComponentPins, self.composed_name)
+
             if not pins:
                 return []
             for pin in pins:
-                self._pins.append(CircuitPins(self, pin))
+                if self._circuit_components._app.design_type != "Twin Builder":
+                    self._pins.append(CircuitPins(self, pin))
+                elif pin not in list(self.parameters.parameters.keys()):
+                    self._pins.append(CircuitPins(self, pin))
         return self._pins
 
     @property
     def location(self):
         """Get the part location.
+
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        >>> oEditor.ChangeProperty
         """
         if self._location:
             return self._location
@@ -2092,6 +2410,12 @@ class CircuitComponent(object):
     @property
     def angle(self):
         """Get the part angle.
+
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        >>> oEditor.ChangeProperty
         """
         if self._angle is not None:
             return self._angle
@@ -2117,6 +2441,12 @@ class CircuitComponent(object):
     @property
     def mirror(self):
         """Get the part mirror.
+
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        >>> oEditor.ChangeProperty
         """
         if self._mirror is not None:
             return self._mirror
@@ -2157,6 +2487,10 @@ class CircuitComponent(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.ChangeProperty
         """
         if not symbol_color:
             symbol_color = self.usesymbolcolor
@@ -2182,8 +2516,11 @@ class CircuitComponent(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.ChangeProperty
         """
-        self.set_mirror(True)
         vMaterial = ["NAME:Component Color", "R:=", R, "G:=", G, "B:=", B]
         self.change_property(vMaterial)
         return True
@@ -2204,6 +2541,10 @@ class CircuitComponent(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.ChangeProperty
         """
         if type(property_name) is list:
             for p, v in zip(property_name, property_value):
@@ -2238,7 +2579,7 @@ class CircuitComponent(object):
         return True
 
     def change_property(self, vPropChange, names_list=None):
-        """Modify a property
+        """Modify a property.
 
         Parameters
         ----------
@@ -2249,7 +2590,13 @@ class CircuitComponent(object):
 
         Returns
         -------
+        bool
 
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        >>> oEditor.ChangeProperty
         """
         vChangedProps = ["NAME:ChangedProps", vPropChange]
         if names_list:
@@ -2307,6 +2654,10 @@ class Objec3DLayout(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.ChangeProperty
         """
         vChangedProps = ["NAME:ChangedProps", vPropChange]
         if names_list:
@@ -2337,6 +2688,10 @@ class Objec3DLayout(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.ChangeProperty
         """
         vProp = ["NAME:" + property_name, "Value:=", property_value]
         return self.change_property(vProp)
@@ -2367,6 +2722,10 @@ class Components3DLayout(Objec3DLayout, object):
         list
            List of ``(x, y, z)`` coordinates for the component location.
 
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
         """
         location = _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Location")
         return list(location)
@@ -2379,6 +2738,11 @@ class Components3DLayout(Objec3DLayout, object):
         -------
         type
             Component placement layer.
+
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
         """
         return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "PlacementLayer")
 
@@ -2391,6 +2755,10 @@ class Components3DLayout(Objec3DLayout, object):
         type
             Component part.
 
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
         """
         return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Part")
 
@@ -2403,6 +2771,10 @@ class Components3DLayout(Objec3DLayout, object):
         type
             Component part type.
 
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
         """
         return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Part Type")
 
@@ -2415,6 +2787,10 @@ class Components3DLayout(Objec3DLayout, object):
         type
             Component angle.
 
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
         """
         return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Angle")
 
@@ -2467,6 +2843,10 @@ class Pins3DLayout(Objec3DLayout, object):
         list
            List of ``(x, y, z)`` coordinates for the pin location.
 
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
         """
         location = _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Location")
         return location
@@ -2480,6 +2860,10 @@ class Pins3DLayout(Objec3DLayout, object):
         str
             Name of the starting layer of the pin.
 
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
         """
         return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Start Layer")
 
@@ -2492,6 +2876,10 @@ class Pins3DLayout(Objec3DLayout, object):
         str
             Name of the stopping layer of the pin.
 
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
         """
         return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Stop Layer")
 
@@ -2504,6 +2892,10 @@ class Pins3DLayout(Objec3DLayout, object):
         float
            Hole diameter of the pin.
 
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
         """
         return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "HoleDiameter")
 
@@ -2516,6 +2908,10 @@ class Pins3DLayout(Objec3DLayout, object):
         float
             Rotation angle of the pin
 
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
         """
         return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Angle")
 
@@ -2548,6 +2944,10 @@ class Geometries3DLayout(Objec3DLayout, object):
         type
             Object placement layer.
 
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
         """
         return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "PlacementLayer")
 
@@ -2560,6 +2960,10 @@ class Geometries3DLayout(Objec3DLayout, object):
         str
             Name of the net.
 
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
         """
         return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Net")
 
@@ -2577,6 +2981,10 @@ class Geometries3DLayout(Objec3DLayout, object):
         type
             Value of the property.
 
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
         """
         return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, propertyname)
 
@@ -2593,13 +3001,17 @@ class Geometries3DLayout(Objec3DLayout, object):
         -------
         type
 
+        References
+        ----------
+
+        >>> oEditor.ChangeProperty
         """
         vMaterial = ["NAME:PlacementLayer", "Value:=", layer_name]
         return self.change_property(vMaterial)
 
     @aedt_exception_handler
     def set_lock_position(self, lock_position=True):
-        """Set the lock position
+        """Set the lock position.
 
         Parameters
         ----------
@@ -2610,6 +3022,10 @@ class Geometries3DLayout(Objec3DLayout, object):
         -------
         type
 
+        References
+        ----------
+
+        >>> oEditor.ChangeProperty
         """
         vMaterial = ["NAME:LockPosition", "Value:=", lock_position]
         return self.change_property(vMaterial)
@@ -2626,13 +3042,17 @@ class Geometries3DLayout(Objec3DLayout, object):
         -------
         type
 
+        References
+        ----------
+
+        >>> oEditor.ChangeProperty
         """
         vMaterial = ["NAME:Negative", "Value:=", negative]
         return self.change_property(vMaterial)
 
     @aedt_exception_handler
     def set_net_name(self, netname=""):
-        """Set the net name
+        """Set the net name.
 
         Parameters
         ----------
@@ -2643,6 +3063,10 @@ class Geometries3DLayout(Objec3DLayout, object):
         -------
         type
 
+        References
+        ----------
+
+        >>> oEditor.ChangeProperty
         """
         vMaterial = ["NAME:Net", "Value:=", netname]
         return self.change_property(vMaterial)

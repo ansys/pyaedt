@@ -157,6 +157,88 @@ It contains all getter and setter to simplify object manipulation.
    Primitives.Polyline
 
 
+Objects in Circuit
+~~~~~~~~~~~~~~~~~~
+Those classes define the objects properties for circuit tools.
+It contains all getter and setter to simplify object manipulation.
+
+.. code:: python
+
+    from pyaedt import Circuit
+    app = Circuit(specified_version="2021.1",
+               non_graphical=False, new_desktop_session=True,
+               close_on_exit=True, student_version=False)
+
+    # this call return the Modeler Class
+    modeler = app.modeler
+
+    # this call return a Schematic Object
+    schematic = modeler.schematic
+
+    # this call return a Object3d Object
+    my_res = schematic.create_resistor("R1", 50)
+
+    # Getter and setter
+    my_res.location
+    my_res.parameters["R"]=100
+
+
+    ...
+
+
+.. currentmodule:: pyaedt.modeler
+
+.. autosummary::
+   :toctree: _autosummary
+   :template: custom-class-template.rst
+   :nosignatures:
+
+   Object3d.CircuitComponent
+   Object3d.CircuitPins
+   Object3d.ComponentParameters
+
+
+Objects in Hfss3d Layout
+~~~~~~~~~~~~~~~~~~~~~~~~
+Those classes define the objects properties for ``Hfss3dLayout``.
+It contains all getter and setter to simplify object manipulation.
+
+.. code:: python
+
+    from pyaedt import Hfss3dLayout
+    app = Hfss3dLayout(specified_version="2021.1",
+               non_graphical=False, new_desktop_session=True,
+               close_on_exit=True, student_version=False)
+
+    # this call return the Modeler3DLayout Class
+    modeler = app.modeler
+
+    # this call return a Primitives3D Object
+    primitives = modeler.primitives
+
+    # this call return a Object3d Object
+    my_rect = primitives.create_rectangle([0,0,0],[10,10])
+
+    # Getter and setter
+    my_rect.material_name
+
+    ...
+
+
+.. currentmodule:: pyaedt.modeler
+
+.. autosummary::
+   :toctree: _autosummary
+   :template: custom-class-template.rst
+   :nosignatures:
+
+   Object3d.Objec3DLayout
+   Object3d.Components3DLayout
+   Object3d.Nets3DLayout
+   Object3d.Pins3DLayout
+   Object3d.Geometries3DLayout
+   Object3d.Padstack
+
 
 Coordinate System and Geometry Operators
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

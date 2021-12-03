@@ -92,6 +92,11 @@ class Materials(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oDefinitionManager.GetProjectMaterialNames
+        >>> oMaterialManager.GetData
         """
         mat = mat.lower()
         lista = [i.lower() for i in list(self.odefinition_manager.GetProjectMaterialNames())]
@@ -153,6 +158,11 @@ class Materials(object):
         -------
         :class:`pyaedt.modules.Material.Material`
 
+        References
+        ----------
+
+        >>> oDefinitionManager.AddMaterial
+
         Examples
         --------
 
@@ -160,6 +170,9 @@ class Materials(object):
         >>> hfss = Hfss()
         >>> mat = hfss.materials.add_material("MyMaterial")
         >>> print(mat.conductivity.value)
+
+        >>> oDefinitionManager.GetProjectMaterialNames
+        >>> oMaterialManager.GetData
 
         """
         materialname = materialname.lower()
@@ -194,6 +207,11 @@ class Materials(object):
         -------
         :class:`pyaedt.modules.SurfaceMaterial`
 
+        References
+        ----------
+
+        >>> oDefinitionManager.AddSurfaceMaterial
+
         Examples
         --------
 
@@ -201,6 +219,7 @@ class Materials(object):
         >>> hfss = Hfss()
         >>> mat = hfss.materials.add_surface_material("Steel", 0.85)
         >>> print(mat.emissivity.value)
+
         """
 
         materialname = material_name.lower()
@@ -262,6 +281,11 @@ class Materials(object):
         int
             Index of the project variable.
 
+        References
+        ----------
+
+        >>> oDefinitionManager.AddMaterial
+
         Examples
         --------
 
@@ -270,7 +294,6 @@ class Materials(object):
         >>> hfss.materials.add_material("MyMaterial")
         >>> hfss.materials.add_material("MyMaterial2")
         >>> hfss.materials.add_material_sweep(["MyMaterial", "MyMaterial2"], "Sweep_copper")
-
         """
         matsweep = []
         matname = matname.lower()
@@ -311,6 +334,11 @@ class Materials(object):
         -------
         :class:`pyaedt.modules.Material.Material`
 
+        References
+        ----------
+
+        >>> oDefinitionManager.AddMaterial
+
         Examples
         --------
 
@@ -343,6 +371,11 @@ class Materials(object):
         -------
         :class:`pyaedt.modules.SurfaceMaterial`
 
+        References
+        ----------
+
+        >>> oDefinitionManager.AddSurfaceMaterial
+
         Examples
         --------
 
@@ -350,7 +383,6 @@ class Materials(object):
         >>> hfss = Hfss()
         >>> hfss.materials.add_surface_material("MyMaterial")
         >>> hfss.materials.duplicate_surface_material("MyMaterial", "MyMaterial2")
-
         """
         if not material.lower() in list(self.surface_material_keys.keys()):
             self.logger.error("Material {} is not present".format(material))
@@ -377,6 +409,10 @@ class Materials(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oDefinitionManager.RemoveMaterial
 
         Examples
         --------

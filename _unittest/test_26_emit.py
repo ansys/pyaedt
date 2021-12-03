@@ -65,7 +65,7 @@ class TestClass:
 
     @pytest.mark.skipif(config["build_machine"], reason="Not functional in non-graphical mode")
     def test_radio_component(self):
-        radio = self.aedtapp.modeler.components.create_component("New Radio")
+        radio = self.aedtapp.modeler.schematic.create_component("New Radio")
         # default radio has 1 Tx channel and 1 Rx channel
         assert radio.has_rx_channels()
         assert radio.has_tx_channels()

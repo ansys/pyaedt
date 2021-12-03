@@ -59,6 +59,10 @@ class RMXprtModule(object):
         bool
             ``True`` when successful, ``False`` when failed
 
+        References
+        ----------
+
+        >>> oEditor.ChangeProperty
         """
         prop_server = self.get_prop_server(parameter_name)
         separator = ":" if prop_server else ""

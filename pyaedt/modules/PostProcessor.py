@@ -27,9 +27,9 @@ report_type = {
     "SBR+": "Modal Solution Data",
     "Transient": "Transient",
     "EddyCurrent": "EddyCurrent",
-    "SteadyTemperatureAndFlow": "Monitor",
-    "SteadyTemperatureOnly": "Monitor",
-    "SteadyFlowOnly": "Monitor",
+    "SteadyStateTemperatureAndFlow": "Monitor",
+    "SteadyStateTemperatureOnly": "Monitor",
+    "SteadyStateFlowOnly": "Monitor",
     "SteadyState": "Monitor",
     "NexximLNA": "Standard",
     "NexximDC": "Standard",
@@ -818,6 +818,11 @@ class FieldPlot:
         -------
         bool
             ``True`` if successful.
+
+        References
+        ----------
+
+        >>> oModule.SetPlotFolderSettings
         """
         args = ["NAME:FieldsPlotSettings", "Real Time mode:=", True]
         args += [["NAME:ColorMaPSettings", "ColorMapType:=", "Spectrum", "SpectrumType:=", "Rainbow", "UniformColor:=",
@@ -851,6 +856,12 @@ class FieldPlot:
         -------
         str
             Full path to exported file if successful.
+
+        References
+        ----------
+
+        >>> oModule.ExportPlotImageToFile
+        >>> oModule.ExportPlotImageWithViewToFile
         """
         self.oField.UpdateQuantityFieldsPlots(self.plotFolder)
         if not full_path:
@@ -888,6 +899,13 @@ class FieldPlot:
         -------
         str
             Full path to exported file if successful.
+
+        References
+        ----------
+
+        >>> oModule.UpdateAllFieldsPlots
+        >>> oModule.UpdateQuantityFieldsPlots
+        >>> oModule.ExportFieldPlot
         """
         if not export_path:
             export_path = self._postprocessor._app.project_path
@@ -947,6 +965,10 @@ class PostProcessorCommon(object):
         -------
         :attr:`pyaedt.modules.PostProcessor.PostProcessor.oreportsetup`
 
+        References
+        ----------
+
+        >>> oDesign.GetModule("ReportSetup")
         """
         return self._oreportsetup
 
@@ -996,6 +1018,11 @@ class PostProcessorCommon(object):
         Returns
         -------
         list
+
+        References
+        ----------
+
+        >>> oModule.GetAllReportNames()
         """
         return list(self.oreportsetup.GetAllReportNames())
 
@@ -1012,6 +1039,12 @@ class PostProcessorCommon(object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.CopyReportsData
+        >>> oModule.PasteReports
         """
         self.oreportsetup.CopyReportsData([PlotName])
         self.oreportsetup.PasteReports()
@@ -1030,6 +1063,11 @@ class PostProcessorCommon(object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.DeleteReports
         """
         self.oreportsetup.DeleteReports([PlotName])
         return True
@@ -1049,6 +1087,11 @@ class PostProcessorCommon(object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.RenameReport
         """
         self.oreportsetup.RenameReport(PlotName, newname)
         return True
@@ -1083,6 +1126,11 @@ class PostProcessorCommon(object):
         Returns
         -------
         pyaedt.modules.PostProcessor.SolutionData
+
+        References
+        ----------
+
+        >>> oModule.GetSolutionDataPerVariation
 
         Examples
         --------
@@ -1167,6 +1215,11 @@ class PostProcessorCommon(object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.CreateReport
         """
         ctxt = []
         if not setup_sweep_name:
@@ -1256,6 +1309,11 @@ class PostProcessorCommon(object):
         -------
         pyaedt.modules.PostProcessor.SolutionData
 
+
+        References
+        ----------
+
+        >>> oModule.GetSolutionDataPerVariation
         """
         if sweeps is None:
             sweeps = {"Theta": "All", "Phi": "All", "Freq": "All"}
@@ -1286,6 +1344,11 @@ class PostProcessorCommon(object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oDesktop.RestoreWindow
         """
         self._desktop.RestoreWindow()
         param = ["NAME:SphereParameters", "XCenter:=", "0mm", "YCenter:=", "0mm", "ZCenter:=", "0mm", "Radius:=", "1mm"]
@@ -1322,6 +1385,12 @@ class PostProcessorCommon(object):
         -------
         str
             path of exported file
+
+        References
+        ----------
+
+        >>> oModule.ExportReportDataToFile
+        >>> oModule.ExportToFile
         """
         npath = os.path.normpath(output_dir)
 
@@ -1364,6 +1433,12 @@ class PostProcessorCommon(object):
         -------
         str
             path of exported file
+
+        References
+        ----------
+
+        >>> oModule.ExportReportDataToFile
+        >>> oModule.ExportToFile
         """
         return self.export_report_to_file(project_dir, plot_name, extension=".csv")
 
@@ -1382,6 +1457,11 @@ class PostProcessorCommon(object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.ExportImageToFile
         """
         # path
         npath = os.path.normpath(project_dir)
@@ -1466,12 +1546,22 @@ class PostProcessor(PostProcessorCommon, object):
         -------
         :attr:`pyaedt.modules.PostProcessor.PostProcessor.ofieldsreporter`
 
+        References
+        ----------
+
+        >>> oDesign.GetModule("FieldsReporter")
         """
         return self._ofieldsreporter
 
     @property
     def report_types(self):
-        """Report types."""
+        """Report types.
+
+        References
+        ----------
+
+        >>> oModule.GetAvailableReportTypes
+        """
         return list(self.oreportsetup.GetAvailableReportTypes())
 
     @aedt_exception_handler
@@ -1487,6 +1577,10 @@ class PostProcessor(PostProcessorCommon, object):
         -------
         :attr:`pyaedt.modules.PostProcessor.PostProcessor.report_types`
 
+        References
+        ----------
+
+        >>> oModule.GetAvailableDisplayTypes
         """
         return self.oreportsetup.GetAvailableDisplayTypes(report_type)
 
@@ -1643,6 +1737,13 @@ class PostProcessor(PostProcessorCommon, object):
         str
             Name of the variable created.
 
+        References
+        ----------
+
+        >>> oModule.EnterQty
+        >>> oModule.EnterVol
+        >>> oModule.CalcOp
+        >>> oModule.AddNamedExpression
         """
         oModule = self.ofieldsreporter
         oModule.EnterQty("OhmicLoss")
@@ -1669,6 +1770,11 @@ class PostProcessor(PostProcessorCommon, object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oDesign.ChangeProperty
         """
         self._odesign.ChangeProperty(
             [
@@ -1715,6 +1821,16 @@ class PostProcessor(PostProcessorCommon, object):
         -------
         float
             ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.EnterQty
+        >>> oModule.CopyNamedExprToStack
+        >>> oModule.CalcOp
+        >>> oModule.EnterQty
+        >>> oModule.EnterVol
+        >>> oModule.CalculatorWrite
         """
         self.logger.info("Exporting {} field. Be patient".format(quantity_name))
         if not solution:
@@ -1823,6 +1939,16 @@ class PostProcessor(PostProcessorCommon, object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.EnterQty
+        >>> oModule.CopyNamedExprToStack
+        >>> oModule.CalcOp
+        >>> oModule.EnterQty
+        >>> oModule.EnterVol
+        >>> oModule.ExportOnGrid
         """
         self.logger.info("Exporting %s field. Be patient", quantity_name)
         if not solution:
@@ -1946,6 +2072,17 @@ class PostProcessor(PostProcessorCommon, object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.EnterQty
+        >>> oModule.CopyNamedExprToStack
+        >>> oModule.CalcOp
+        >>> oModule.EnterQty
+        >>> oModule.EnterVol
+        >>> oModule.CalculatorWrite
+        >>> oModule.ExportToFile
         """
         self.logger.info("Exporting %s field. Be patient", quantity_name)
         if not solution:
@@ -2041,6 +2178,11 @@ class PostProcessor(PostProcessorCommon, object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.ExportFieldPlot
         """
         if not filename:
             filename = plotname
@@ -2068,6 +2210,11 @@ class PostProcessor(PostProcessorCommon, object):
         -------
         bool
             ``True`` if successful.
+
+        References
+        ----------
+
+        >>> oModule.SetPlotFolderSettings
         """
         args = ["NAME:FieldsPlotSettings", "Real Time mode:=", True]
         args += [["NAME:ColorMaPSettings", "ColorMapType:=", "Spectrum", "SpectrumType:=", "Rainbow", "UniformColor:=",
@@ -2131,6 +2278,10 @@ class PostProcessor(PostProcessorCommon, object):
         type
             Plot object.
 
+        References
+        ----------
+
+        >>> oModule.CreateFieldPlot
         """
         if plot_name and plot_name in list(self.field_plots.keys()):
             self.logger.info("Plot {} exists. returning the object.".format(plot_name))
@@ -2163,6 +2314,10 @@ class PostProcessor(PostProcessorCommon, object):
         :class:``pyaedt.modules.PostProcessor.FieldPlot``
             Plot object.
 
+        References
+        ----------
+
+        >>> oModule.CreateFieldPlot
         """
         if plot_name and plot_name in list(self.field_plots.keys()):
             self.logger.info("Plot {} exists. returning the object.".format(plot_name))
@@ -2194,6 +2349,11 @@ class PostProcessor(PostProcessorCommon, object):
         -------
         :class:``pyaedt.modules.PostProcessor.FieldPlot``
             Plot object
+
+        References
+        ----------
+
+        >>> oModule.CreateFieldPlot
         """
         if plot_name and plot_name in list(self.field_plots.keys()):
             self.logger.info("Plot {} exists. returning the object.".format(plot_name))
@@ -2223,6 +2383,12 @@ class PostProcessor(PostProcessorCommon, object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.ExportPlotImageToFile
+        >>> oModule.ExportPlotImageWithViewToFile
         """
         if self.post_solution_type not in ["HFSS3DLayout", "HFSS 3D Layout Design"]:
             wireframes = []
@@ -2278,6 +2444,12 @@ class PostProcessor(PostProcessorCommon, object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.ExportPlotImageToFile
+        >>> oModule.ExportPlotImageWithViewToFile
         """
         return self.export_field_jpg(exportFilePath, plotName, foldername, orientation=view,
                                      display_wireframe=wireframe)
@@ -2295,6 +2467,11 @@ class PostProcessor(PostProcessorCommon, object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.DeleteFieldPlot
         """
         self.oreportsetup.DeleteFieldPlot([name])
         self.field_plots.pop(name, None)
@@ -2330,6 +2507,11 @@ class PostProcessor(PostProcessorCommon, object):
         -------
         str
             File path of the generated JPG file.
+
+        References
+        ----------
+
+        >>> oEditor.ExportModelImageToFile
         """
         # Set up arguments list for createReport function
         if not dir:
@@ -2402,6 +2584,10 @@ class PostProcessor(PostProcessorCommon, object):
         -------
         :class:`pyaedt.modules.PostProcessor.SolutionData`
 
+        References
+        ----------
+
+        >>> oModule.GetSolutionDataPerVariation
         """
         if type(expression) is not list:
             expression = [expression]
@@ -2569,6 +2755,11 @@ class CircuitPostProcessor(PostProcessorCommon, object):
         -------
         str
            The name of the plot.
+
+        References
+        ----------
+
+        >>> oModule.CreateReport
         """
         if not plotname:
             plotname = generate_unique_name("AMYAanalysis")
@@ -2667,6 +2858,11 @@ class CircuitPostProcessor(PostProcessorCommon, object):
         -------
         str
             The name of the plot.
+
+        References
+        ----------
+
+        >>> oModule.CreateReport
         """
         if not plotname:
             plotname = generate_unique_name("AMIAanalysis")

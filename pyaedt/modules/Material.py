@@ -319,7 +319,13 @@ class MatProperty(object):
 
     @thermalmodifier.setter
     def thermalmodifier(self, thermal_value):
-        """Thermal modifier."""
+        """Thermal modifier.
+
+        References
+        ----------
+
+        >>> oDefinitionManager.EditMaterial
+        """
         if isinstance(thermal_value, str):
             self._add_thermal_modifier(thermal_value, 0)
         else:
@@ -449,6 +455,10 @@ class MatProperty(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oDefinitionManager.EditMaterial
 
         Examples
         --------
@@ -476,6 +486,11 @@ class MatProperty(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+
+        References
+        ----------
+
+        >>> oDefinitionManager.EditMaterial
 
         Examples
         --------
@@ -528,6 +543,10 @@ class MatProperty(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oDefinitionManager.EditMaterial
 
         Examples
         --------
@@ -855,14 +874,18 @@ class Material(CommonMaterial, object):
 
         Returns
         -------
-        type
+        str
             Permittivity of the material.
+
+        References
+        ----------
+
+        >>> oDefinitionManager.EditMaterial
         """
         return self._permittivity
 
     @permittivity.setter
     def permittivity(self, value):
-
         self._permittivity.value = value
         self._update_props("permittivity", value)
 
@@ -872,8 +895,13 @@ class Material(CommonMaterial, object):
 
         Returns
         -------
-        type
+        str or float
             Permeability of the material.
+
+        References
+        ----------
+
+        >>> oDefinitionManager.EditMaterial
         """
         return self._permeability
 
@@ -889,8 +917,13 @@ class Material(CommonMaterial, object):
 
         Returns
         -------
-        type
+        str or float
             Conductivity of the material.
+
+        References
+        ----------
+
+        >>> oDefinitionManager.EditMaterial
         """
         return self._conductivity
 
@@ -905,14 +938,13 @@ class Material(CommonMaterial, object):
 
         Returns
         -------
-        type
+        str or float
             Dielectric loss tangent of the material.
         """
         return self._dielectric_loss_tangent
 
     @dielectric_loss_tangent.setter
     def dielectric_loss_tangent(self, value):
-
         self._dielectric_loss_tangent.value = value
         self._update_props("dielectric_loss_tangent", value)
 
@@ -922,14 +954,18 @@ class Material(CommonMaterial, object):
 
         Returns
         -------
-        type
+        str or float
             Magnetic loss tangent of the material.
+
+        References
+        ----------
+
+        >>> oDefinitionManager.EditMaterial
         """
         return self._magnetic_loss_tangent
 
     @magnetic_loss_tangent.setter
     def magnetic_loss_tangent(self, value):
-
         self._magnetic_loss_tangent.value = value
         self._update_props("magnetic_loss_tangent", value)
 
@@ -939,15 +975,18 @@ class Material(CommonMaterial, object):
 
         Returns
         -------
-        type
+        str or float
             Thermal conductivity of the material.
 
+        References
+        ----------
+
+        >>> oDefinitionManager.EditMaterial
         """
         return self._thermal_conductivity
 
     @thermal_conductivity.setter
     def thermal_conductivity(self, value):
-
         self._thermal_conductivity.value = value
         self.physics_type = ["Electromagnetic", "Thermal", "Structural"]
         self._props["PhysicsTypes"] = OrderedDict({"set": ["Electromagnetic", "Thermal", "Structural"]})
@@ -959,15 +998,18 @@ class Material(CommonMaterial, object):
 
         Returns
         -------
-        type
+        str or float
             Mass density of the material.
 
+        References
+        ----------
+
+        >>> oDefinitionManager.EditMaterial
         """
         return self._mass_density
 
     @mass_density.setter
     def mass_density(self, value):
-
         self._mass_density.value = value
         self._update_props("mass_density", value)
 
@@ -977,15 +1019,18 @@ class Material(CommonMaterial, object):
 
         Returns
         -------
-        type
+        str or float
             Specific heat of the material.
 
+        References
+        ----------
+
+        >>> oDefinitionManager.EditMaterial
         """
         return self._specific_heat
 
     @specific_heat.setter
     def specific_heat(self, value):
-
         self._specific_heat.value = value
         self._update_props("specific_heat", value)
 
@@ -995,15 +1040,18 @@ class Material(CommonMaterial, object):
 
         Returns
         -------
-        type
+        str or float
             Thermal expansion coefficient of the material.
 
+        References
+        ----------
+
+        >>> oDefinitionManager.EditMaterial
         """
         return self._thermal_expansion_coefficient
 
     @thermal_expansion_coefficient.setter
     def thermal_expansion_coefficient(self, value):
-
         self._thermal_expansion_coefficient.value = value
         self._update_props("thermal_expansion_coefficient", value)
 
@@ -1013,8 +1061,13 @@ class Material(CommonMaterial, object):
 
         Returns
         -------
-        type
+        str or float
             Young's modulus of the material.
+
+        References
+        ----------
+
+        >>> oDefinitionManager.EditMaterial
         """
         return self._youngs_modulus
 
@@ -1031,8 +1084,13 @@ class Material(CommonMaterial, object):
 
         Returns
         -------
-        type
+        str or float
             Poisson's ratio of the material.
+
+        References
+        ----------
+
+        >>> oDefinitionManager.EditMaterial
         """
         return self._poissons_ratio
 
@@ -1049,8 +1107,13 @@ class Material(CommonMaterial, object):
 
         Returns
         -------
-        type
+        str or float
             Diffusivity of the material.
+
+        References
+        ----------
+
+        >>> oDefinitionManager.EditMaterial
         """
         return self._diffusivity
 
@@ -1065,8 +1128,13 @@ class Material(CommonMaterial, object):
 
         Returns
         -------
-        type
+        str or float
             Molecular mass of the material.
+
+        References
+        ----------
+
+        >>> oDefinitionManager.EditMaterial
         """
         return self._molecular_mass
 
@@ -1081,8 +1149,13 @@ class Material(CommonMaterial, object):
 
         Returns
         -------
-        type
+        str or float
             Viscosity of the material.
+
+        References
+        ----------
+
+        >>> oDefinitionManager.EditMaterial
         """
         return self._viscosity
 
@@ -1097,8 +1170,13 @@ class Material(CommonMaterial, object):
 
         Returns
         -------
-        type
+        str or float
             Core loss of the material in kilohertz.
+
+        References
+        ----------
+
+        >>> oDefinitionManager.EditMaterial
         """
         return self._core_loss_kh
 
@@ -1113,8 +1191,13 @@ class Material(CommonMaterial, object):
 
         Returns
         -------
-        type
+        str or float
             Core loss of the material in kilocalories.
+
+        References
+        ----------
+
+        >>> oDefinitionManager.EditMaterial
         """
         return self._core_loss_kc
 
@@ -1131,6 +1214,11 @@ class Material(CommonMaterial, object):
         -------
         type
             Core loss of the material in kinetic energy.
+
+        References
+        ----------
+
+        >>> oDefinitionManager.EditMaterial
         """
         return self._core_loss_ke
 
@@ -1154,6 +1242,7 @@ class Material(CommonMaterial, object):
         -------
         bool
             ``True`` when the material is a condutor, ``False`` otherwise.
+
         """
         cond = self.conductivity.value
         if not cond:
@@ -1184,7 +1273,7 @@ class Material(CommonMaterial, object):
         bool
             ``True`` when the material is dielectric, ``False`` otherwise.
         """
-        return not self.is_conductor()
+        return not self.is_conductor(threshold)
 
     @aedt_exception_handler
     def update(self):
@@ -1194,6 +1283,12 @@ class Material(CommonMaterial, object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oDefinitionManager.AddMaterial
+        >>> oDefinitionManager.EditMaterial
         """
 
         args = self._get_args()
@@ -1264,8 +1359,13 @@ class SurfaceMaterial(CommonMaterial, object):
 
         Returns
         -------
-        type
+        str or float
             Emissivity of the surface material.
+
+        References
+        ----------
+
+        >>> oDefinitionManager.EditSurfaceMaterial
         """
         return self._surface_emissivity
 
@@ -1281,8 +1381,13 @@ class SurfaceMaterial(CommonMaterial, object):
 
         Returns
         -------
-        type
+        str or float
             Surface diffuse absorptance of the surface material.
+
+        References
+        ----------
+
+        >>> oDefinitionManager.EditSurfaceMaterial
         """
         return self._surface_diffuse_absorptance
 
@@ -1298,8 +1403,13 @@ class SurfaceMaterial(CommonMaterial, object):
 
         Returns
         -------
-        type
+        str or float
             Surface incident absorptance of the surface material.
+
+        References
+        ----------
+
+        >>> oDefinitionManager.EditSurfaceMaterial
         """
         return self._surface_incident_absorptance
 
@@ -1315,14 +1425,18 @@ class SurfaceMaterial(CommonMaterial, object):
 
         Returns
         -------
-        type
+        str or float
             Surface roughness of the surface material.
+
+        References
+        ----------
+
+        >>> oDefinitionManager.EditSurfaceMaterial
         """
         return self._surface_roughness
 
     @surface_roughness.setter
     def surface_roughness(self, value):
-
         self._surface_roughness.value = value
         self._update_props("surface_roughness", value)
 
@@ -1334,6 +1448,13 @@ class SurfaceMaterial(CommonMaterial, object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oDefinitionManager.DoesSurfaceMaterialExist
+        >>> oDefinitionManager.AddSurfaceMaterial
+        >>> oDefinitionManager.EditSurfaceMaterial
         """
         args = self._get_args()
         if self._does_material_exists(self.name):

@@ -36,13 +36,23 @@ class FieldAnalysisSimplorer(Analysis):
 
     @property
     def existing_analysis_setups(self):
-        """Existing analysis setups."""
+        """Existing analysis setups.
+
+        References
+        ----------
+
+        >>> oModule.GetAllSolutionSetups"""
         setups = self.oanalysis.GetAllSolutionSetups()
         return setups
 
     @property
     def setup_names(self):
-        """Setup names."""
+        """Setup names.
+
+        References
+        ----------
+
+        >>> oModule.GetAllSolutionSetups"""
         return list(self.oanalysis.GetAllSolutionSetups())
 
     def __init__(
@@ -98,7 +108,6 @@ class FieldAnalysisSimplorer(Analysis):
         -------
         pyaedt.modules.SolveSetup.SetupCircuit
             Setup object
-
         """
         if setuptype is None:
             setuptype = self.solution_type

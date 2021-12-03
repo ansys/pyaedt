@@ -126,7 +126,8 @@ class FieldAnalysisRMxprt(Analysis):
 
     @aedt_exception_handler
     def _check_solution_consistency(self):
-        """Check solution consistency."""
+        """Check solution consistency.
+        """
         if self._solution_type:
             return self._odesign.GetSolutionType() == self._solution_type
         else:

@@ -83,9 +83,9 @@ class FieldAnalysis3DLayout(Analysis):
             close_on_exit,
             student_version,
         )
-        self.osolution = self._odesign.GetModule("SolveSetups")
-        self.oexcitation = self._odesign.GetModule("Excitations")
-        self.oboundary = self._odesign.GetModule("Excitations")
+        self._osolution = self._odesign.GetModule("SolveSetups")
+        self._oexcitation = self._odesign.GetModule("Excitations")
+        self._oboundary = self._odesign.GetModule("Excitations")
         self.logger.info("Analysis Loaded")
         self._modeler = Modeler3DLayout(self)
         self._modeler.primitives.init_padstacks()
@@ -93,6 +93,39 @@ class FieldAnalysis3DLayout(Analysis):
         self._mesh = Mesh3d(self)
         self._post = PostProcessor(self)
         # self._post = PostProcessor(self)
+
+    @property
+    def osolution(self):
+        """Solution Module.
+
+        References
+        ----------
+
+        >>> oModule = oDesign.GetModule("SolveSetups")
+        """
+        return self._osolution
+
+    @property
+    def oexcitation(self):
+        """Solution Module.
+
+        References
+        ----------
+
+        >>> oModule = oDesign.GetModule("Excitations")
+        """
+        return self._oexcitation
+
+    @property
+    def oboundary(self):
+        """Boundary Module.
+
+        References
+        ----------
+
+        >>> oModule = oDesign.GetModule("Excitations")
+        """
+        return self._oboundary
 
     @property
     def mesh(self):
@@ -113,6 +146,10 @@ class FieldAnalysis3DLayout(Analysis):
         list
             list of all excitation
 
+        References
+        ----------
+
+        >>> oModule.GetAllPortsList
         """
         return list(self.oboundary.GetAllPortsList())
 
@@ -162,6 +199,11 @@ class FieldAnalysis3DLayout(Analysis):
         -------
         str
             File Path.
+
+        References
+        ----------
+
+        >>> oModule.ExportMeshStats
         """
         if not mesh_path:
             mesh_path = os.path.join(self.project_path, "meshstats.ms")
@@ -187,6 +229,10 @@ class FieldAnalysis3DLayout(Analysis):
             List of strings representing the return losses of the excitations.
             For example, ``["S(1, 1)", "S(2, 2)"]``.
 
+        References
+        ----------
+
+        >>> oModule.GetAllPorts
         """
         if not excitation_names:
             excitation_names = self.get_excitations_name
@@ -219,6 +265,10 @@ class FieldAnalysis3DLayout(Analysis):
             List of strings representing insertion losses of the excitations.
             For example, ``["S(1, 2)"]``.
 
+        References
+        ----------
+
+        >>> oModule.GetAllPorts
         """
         spar = []
         if not trlist:
@@ -249,6 +299,10 @@ class FieldAnalysis3DLayout(Analysis):
             List of strings representing near end XTalks of the excitations.
             For example, ``["S(1, 2)", "S(1, 3)", "S(2, 3)"]``.
 
+        References
+        ----------
+
+        >>> oModule.GetAllPorts
         """
         next = []
         if not trlist:
@@ -286,6 +340,10 @@ class FieldAnalysis3DLayout(Analysis):
             List of strings representing the far end XTalks of the excitations.
             For example, ``["S(1, 4)", "S(2, 3)"]``.
 
+        References
+        ----------
+
+        >>> oModule.GetAllPorts
         """
         fext = []
         if not trlist:
@@ -305,7 +363,12 @@ class FieldAnalysis3DLayout(Analysis):
 
     @property
     def port_list(self):
-        """Port list."""
+        """Port list.
+
+        References
+        ----------
+
+        >>> oModule.GetAllPorts"""
         return self.oexcitation.GetAllPortsList()
 
     @property
@@ -317,6 +380,10 @@ class FieldAnalysis3DLayout(Analysis):
         list
             List of names of all analysis setups in the design.
 
+        References
+        ----------
+
+        >>> oModule.GetSetups
         """
         setups = list(self.oanalysis.GetSetups())
         return setups
@@ -339,6 +406,10 @@ class FieldAnalysis3DLayout(Analysis):
         -------
         :class:`pyaedt.modules.SolveSetup.Setup3DLayout`
 
+        References
+        ----------
+
+        >>> oModule.Add
         """
         if setuptype is None:
             setuptype = SetupKeys.defaultSetups[self.solution_type]
@@ -393,6 +464,11 @@ class FieldAnalysis3DLayout(Analysis):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.Delete
 
         Examples
         --------

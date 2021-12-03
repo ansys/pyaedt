@@ -18,7 +18,7 @@ class NexximComponents(CircuitComponents):
 
     >>> from pyaedt import Circuit
     >>> aedtapp = Circuit()
-    >>> prim = aedtapp.modeler.components
+    >>> prim = aedtapp.modeler.schematic
     """
 
     @property
@@ -60,11 +60,87 @@ class NexximComponents(CircuitComponents):
         pass
 
     @aedt_exception_handler
+    def connect_components_in_series(self, components_to_connect):
+        """Connect schematic components in series.
+
+        Parameters
+        ----------
+        components_to_connect : list of :class:`pyaedt.modeler.Object3d.CircuitComponent`
+           List of Components to connect. It can be a list of objects or component names.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from pyaedt import Circuit
+        >>> circuit = Circuit()
+        >>> myind = circuit.modeler.schematic.create_inductor(compname="L100", value=1e-9, location=[0,0])
+        >>> myres = circuit.modeler.schematic.create_resistor(compname="R100", value=50, location=[0.002, 0.05])
+        >>> circuit.modeler.schematic.connect_components_in_series([myind, myres])
+        """
+        comps = []
+        for component in components_to_connect:
+            if isinstance(component, CircuitComponent):
+                comps.append(component)
+            else:
+                for id, cmp in self.components.items():
+                    if component in [cmp.id, cmp.name, cmp.composed_name]:
+                        comps.append(cmp)
+                        break
+        i = 0
+        assert len(comps) > 1, "At least two components have to be passed."
+        while i < (len(comps)-1):
+            comps[i].pins[-1].connect_to_component(comps[i+1].pins[0])
+            i += 1
+        return True
+
+    @aedt_exception_handler
+    def connect_components_in_parallel(self, components_to_connect):
+        """Connect schematic components in parallel.
+
+        Parameters
+        ----------
+        components_to_connect : list of :class:`pyaedt.modeler.Object3d.CircuitComponent`
+           List of Components to connect. It can be a list of objects or component names.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from pyaedt import Circuit
+        >>> circuit = Circuit()
+        >>> myind = circuit.modeler.schematic.create_inductor("L100", 1e-9)
+        >>> myres = circuit.modeler.schematic.create_resistor("R100", 50)
+        >>> circuit.modeler.schematic.connect_components_in_parallel([myind, myres.composed_name])
+        """
+        comps = []
+        for component in components_to_connect:
+            if isinstance(component, CircuitComponent):
+                comps.append(component)
+            else:
+                for id, cmp in self.components.items():
+                    if component in [cmp.id, cmp.name, cmp.composed_name]:
+                        comps.append(cmp)
+                        break
+        assert len(comps) > 1, "At least two components have to be passed."
+        comps[0].pins[0].connect_to_component([i.pins[0] for i in comps[1:]])
+        terminal_to_connect = [cmp for cmp in comps if len(cmp.pins) >= 2]
+        if len(terminal_to_connect) > 1:
+            terminal_to_connect[0].pins[1].connect_to_component([i.pins[1] for i in terminal_to_connect[1:]])
+        return True
+
+    @aedt_exception_handler
     def create_3dlayout_subcircuit(self, sourcename):
         """Add a subcircuit from a HFSS 3DLayout.
 
         .. deprecated:: 0.4.0
-           Use :func:`Circuit.modeler.components.add_subcircuit_3dlayout` instead.
+           Use :func:`Circuit.modeler.schematic.add_subcircuit_3dlayout` instead.
         """
         warnings.warn(
             "`create_3dlayout_subcircuit` is deprecated. Use `add_subcircuit_3dlayout` instead.", DeprecationWarning
@@ -85,6 +161,11 @@ class NexximComponents(CircuitComponents):
         :class:`pyaedt.modeler.Object3d.CircuitComponent`
             Circuit Component Object.
 
+        References
+        ----------
+
+        >>> oProject.CopyDesign
+        >>> oEditor.PasteDesign
         """
         self._app._oproject.CopyDesign(sourcename)
         self._oeditor.PasteDesign(0,
@@ -119,6 +200,11 @@ class NexximComponents(CircuitComponents):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oModelManager.Add
+        >>> oComponentManager.Add
         """
         id = self.create_unique_id()
         component_name = design_name + "_" + str(id)
@@ -371,6 +457,10 @@ class NexximComponents(CircuitComponents):
         :class:`pyaedt.modeler.Object3d.CircuitComponent`
             Circuit Component Object.
 
+        References
+        ----------
+
+        >>> oEditor.CreateComponent
         """
         cmpid = self.create_component(
             compname, location=location, angle=angle, use_instance_id_netlist=use_instance_id_netlist
@@ -401,6 +491,11 @@ class NexximComponents(CircuitComponents):
         -------
         :class:`pyaedt.modeler.Object3d.CircuitComponent`
             Circuit Component Object.
+
+        References
+        ----------
+
+        >>> oEditor.CreateComponent
         """
         cmpid = self.create_component(
             compname,
@@ -438,6 +533,10 @@ class NexximComponents(CircuitComponents):
         :class:`pyaedt.modeler.Object3d.CircuitComponent`
             Circuit Component Object.
 
+        References
+        ----------
+
+        >>> oEditor.CreateComponent
         """
         cmpid = self.create_component(
             compname,
@@ -474,6 +573,10 @@ class NexximComponents(CircuitComponents):
         :class:`pyaedt.modeler.Object3d.CircuitComponent`
             Circuit Component Object.
 
+        References
+        ----------
+
+        >>> oEditor.CreateComponent
         """
         cmpid = self.create_component(
             compname,
@@ -512,6 +615,10 @@ class NexximComponents(CircuitComponents):
         :class:`pyaedt.modeler.Object3d.CircuitComponent`
             Circuit Component Object.
 
+        References
+        ----------
+
+        >>> oEditor.CreateComponent
         """
         cmpid = self.create_component(
             compname,
@@ -564,6 +671,10 @@ class NexximComponents(CircuitComponents):
         :class:`pyaedt.modeler.Object3d.CircuitComponent`
             Circuit Component Object.
 
+        References
+        ----------
+
+        >>> oEditor.CreateComponent
         """
         cmpid = self.create_component(
             compname,
@@ -614,6 +725,10 @@ class NexximComponents(CircuitComponents):
         :class:`pyaedt.modeler.Object3d.CircuitComponent`
             Circuit Component Object.
 
+        References
+        ----------
+
+        >>> oEditor.CreateComponent
         """
         cmpid = self.create_component(
             compname,
@@ -655,6 +770,10 @@ class NexximComponents(CircuitComponents):
         :class:`pyaedt.modeler.Object3d.CircuitComponent`
             Circuit Component Object.
 
+        References
+        ----------
+
+        >>> oEditor.CreateComponent
         """
         cmpid = self.create_component(
             compname,
@@ -695,6 +814,10 @@ class NexximComponents(CircuitComponents):
         :class:`pyaedt.modeler.Object3d.CircuitComponent`
             Circuit Component Object.
 
+        References
+        ----------
+
+        >>> oEditor.CreateComponent
         """
         cmpid = self.create_component(
             compname,
@@ -731,6 +854,10 @@ class NexximComponents(CircuitComponents):
         :class:`pyaedt.modeler.Object3d.CircuitComponent`
             Circuit Component Object.
 
+        References
+        ----------
+
+        >>> oEditor.CreateComponent
         """
         id = self.create_component(
             compname,
@@ -767,6 +894,10 @@ class NexximComponents(CircuitComponents):
         :class:`pyaedt.modeler.Object3d.CircuitComponent`
             Circuit Component Object.
 
+        References
+        ----------
+
+        >>> oEditor.CreateComponent
         """
         id = self.create_component(
             compname,
@@ -805,6 +936,11 @@ class NexximComponents(CircuitComponents):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oModelManager.Add
+        >>> oComponentManager.Add
         """
         arg = [
             "NAME:" + symbol_name,
@@ -1015,6 +1151,12 @@ class NexximComponents(CircuitComponents):
         :class:`pyaedt.modeler.Object3d.CircuitComponent`
             Circuit Component Object.
 
+        References
+        ----------
+
+        >>> oModelManager.Add
+        >>> oComponentManager.Add
+        >>> oDesign.AddCompInstance
         """
         designer_customization = self.get_comp_custom_settings(1, 0, 0, 1, 0, 0, "False", "", 1)
         nexxim_customization = self.get_comp_custom_settings(2, 3, 1, 3, 0, 0, "False", "", 2)
@@ -1234,6 +1376,10 @@ class NexximComponents(CircuitComponents):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oProject.ChangeProperty
         """
         if option == "simulate":
             setting = "Simulate missing solutions"
@@ -1260,6 +1406,10 @@ class NexximComponents(CircuitComponents):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oProject.ChangeProperty
         """
         arg = ["NAME:Solution", "Value:=", solution_name]
         return self._edit_link_definition_hfss_subcircuit(component, arg)
@@ -1303,6 +1453,10 @@ class NexximComponents(CircuitComponents):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oComponentManager.UpdateDynamicLink
         """
         self.o_component_manager.UpdateDynamicLink(component_name)
         return True
@@ -1315,7 +1469,7 @@ class NexximComponents(CircuitComponents):
            Use :func:`Circuit.push_excitations` instead.
         """
         warnings.warn(
-            "`circuit.modeler.components.push_excitation` is deprecated. " "Use `circuit.push_excitation` instead.",
+            "`circuit.modeler.schematic.push_excitation` is deprecated. " "Use `circuit.push_excitation` instead.",
             DeprecationWarning,
         )
         return self._app.push_excitations(instance_name, thevenin_calculation, setup_name)
@@ -1325,7 +1479,7 @@ class NexximComponents(CircuitComponents):
         """Assign a voltage sinusoidal excitation to circuit ports.
 
         .. deprecated:: 0.4.0
-           Use :func:`Circuit.modeler.components.assign_voltage_sinusoidal_excitation_to_ports` instead.
+           Use :func:`Circuit.modeler.schematic.assign_voltage_sinusoidal_excitation_to_ports` instead.
         """
         warnings.warn(
             "`assign_sin_excitation2ports` is deprecated. "
