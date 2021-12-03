@@ -4276,6 +4276,7 @@ class Hfss(FieldAnalysis3D, object):
                 }
             }
 
+\
         Parameters
         ----------
         radar_file : str
@@ -4292,16 +4293,16 @@ class Hfss(FieldAnalysis3D, object):
             Name of the relative coordinate system to link the radar to.
             The default is ``None``, in which case the global coordinate system is used.
 
+       Returns
+        -------
+        :class:`pyaedt.modeler.actors.Radar`
+
         References
         ----------
 
         >>> oEditor.CreateRelativeCS
         >>> oModule.SetSBRTxRxSettings
         >>> oEditor.CreateGroup
-
-       Returns
-        -------
-        :class:`pyaedt.modeler.actors.Radar`
         """
         self.modeler.primitives._initialize_multipart()
         if self.solution_type != "SBR+":
