@@ -4242,36 +4242,6 @@ class Hfss(FieldAnalysis3D, object):
         self, radar_file, radar_name, offset=[0, 0, 0], speed=0.0, use_relative_cs=False, relative_cs_name=None
     ):
         """Create an SBR+ radar from a JSON file.
-
-        Parameters
-        ----------
-        radar_file : str
-            Path to the directory with the radar file.
-        radar_name : str
-            Name of the radar file.
-        offset : list, optional
-            Offset relative to the global coordinate system.
-        speed : float, optional
-            Radar movement speed relative to the global coordinate system if greater than ``0``.
-        use_relative_cs : bool, optional
-            Whether the relative coordinate system must be used. The default is ``False``.
-        relative_cs_name : str
-            Name of the relative coordinate system to link the radar to.
-            The default is ``None``, in which case the global coordinate system is used.
-
-        References
-        ----------
-
-        >>> oEditor.CreateRelativeCS
-        >>> oModule.SetSBRTxRxSettings
-        >>> oEditor.CreateGroup
-
-       Returns
-        -------
-        :class:`pyaedt.modeler.actors.Radar`
-
-        Notes
-        -----
         Example of input JSON file:
 
         .. code-block:: json
@@ -4305,6 +4275,33 @@ class Hfss(FieldAnalysis3D, object):
                         }
                 }
             }
+
+        Parameters
+        ----------
+        radar_file : str
+            Path to the directory with the radar file.
+        radar_name : str
+            Name of the radar file.
+        offset : list, optional
+            Offset relative to the global coordinate system.
+        speed : float, optional
+            Radar movement speed relative to the global coordinate system if greater than ``0``.
+        use_relative_cs : bool, optional
+            Whether the relative coordinate system must be used. The default is ``False``.
+        relative_cs_name : str
+            Name of the relative coordinate system to link the radar to.
+            The default is ``None``, in which case the global coordinate system is used.
+
+        References
+        ----------
+
+        >>> oEditor.CreateRelativeCS
+        >>> oModule.SetSBRTxRxSettings
+        >>> oEditor.CreateGroup
+
+       Returns
+        -------
+        :class:`pyaedt.modeler.actors.Radar`
         """
         self.modeler.primitives._initialize_multipart()
         if self.solution_type != "SBR+":
