@@ -4242,6 +4242,7 @@ class Hfss(FieldAnalysis3D, object):
         self, radar_file, radar_name, offset=[0, 0, 0], speed=0.0, use_relative_cs=False, relative_cs_name=None
     ):
         """Create an SBR+ radar from a JSON file.
+
         Example of input JSON file:
 
         .. code-block:: json

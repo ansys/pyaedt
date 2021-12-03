@@ -128,6 +128,7 @@ class FieldAnalysisIcepak(Analysis, object):
         Returns
         -------
         :class:`pyaedt.modules.MeshIcepak.IcepakMesh'
+
         """
         return self._mesh
 
