@@ -617,12 +617,13 @@ class GeometryModeler(Modeler, object):
 
     @property
     def oeditor(self):
-        """Oeditor Module.
+        """Aedt oEditor Module.
 
         References
         ----------
 
-                >>> oEditor = oDesign.SetActiveEditor("3D Modeler")"""
+        >>> oEditor = oDesign.SetActiveEditor("3D Modeler")"""
+
         return self._oeditor
 
     @property

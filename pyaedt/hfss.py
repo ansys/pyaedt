@@ -4274,37 +4274,37 @@ class Hfss(FieldAnalysis3D, object):
         --------
         Create an SBR+ radar from a JSON file:
 
-          .. code-block:: json
+        .. code-block:: json
 
-            {
-                "name": "Example_1Tx_1Rx",
-                "version": 1,
-                "number_tx":"1",
-                "number_rx":"1",
-                "units":"mm",
-                "antennas": {
-                    "tx1": {
-                        "antenna_type":"parametric",
-                        "mode":"tx",
-                        "offset":["0" ,"0" ,"0"],
-                        "rotation_axis":null,
-                        "rotation":null,
-                        "beamwidth_elevation":"10deg",
-                        "beamwidth_azimuth":"60deg",
-                        "polarization":"Vertical"
-                        },
-                    "rx1": {
-                        "antenna_type":"parametric",
-                        "mode":"rx",
-                        "offset":["0" ,"1.8" ,"0"],
-                        "rotation_axis":null,
-                        "rotation":null,
-                        "beamwidth_elevation":"10deg",
-                        "beamwidth_azimuth":"60deg",
-                        "polarization":"Vertical"
-                        }
-                }
+        {
+            "name": "Example_1Tx_1Rx",
+            "version": 1,
+            "number_tx":"1",
+            "number_rx":"1",
+            "units":"mm",
+            "antennas": {
+                "tx1": {
+                    "antenna_type":"parametric",
+                    "mode":"tx",
+                    "offset":["0" ,"0" ,"0"],
+                    "rotation_axis":null,
+                    "rotation":null,
+                    "beamwidth_elevation":"10deg",
+                    "beamwidth_azimuth":"60deg",
+                    "polarization":"Vertical"
+                    },
+                "rx1": {
+                    "antenna_type":"parametric",
+                    "mode":"rx",
+                    "offset":["0" ,"1.8" ,"0"],
+                    "rotation_axis":null,
+                    "rotation":null,
+                    "beamwidth_elevation":"10deg",
+                    "beamwidth_azimuth":"60deg",
+                    "polarization":"Vertical"
+                    }
             }
+        }
 
         """
         self.modeler.primitives._initialize_multipart()

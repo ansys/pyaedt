@@ -2313,7 +2313,8 @@ class CircuitComponent(object):
 
     @property
     def pins(self):
-        """
+        """Pins of component.
+
         Returns
         -------
         list of :class:`pyaedt.modeler.Object3d.CircuitPins`
