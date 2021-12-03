@@ -544,12 +544,12 @@ class EdbPadstacks(object):
     @aedt_exception_handler
     def edit_antipad_from_padstack(self, padstack_name, layer_name=None, antipad_shape=None, antipad_diam=None,
                                    x_size=None, y_size=None,
-                                   corner_radius=None, offset_x=None, offset_y=None, rotation=None):
+                                   corner_radius=None, offset_x="0", offset_y="0", rotation="0"):
         offset_x = self._edb_value(offset_x)
         offset_y = self._edb_value(offset_y)
         rotation = self._edb_value(rotation)
 
-        if antipad_shape == "Circuit":
+        if antipad_shape == "Circle":
             antipad_diam = self._edb_value(antipad_diam)
             antipad_geo = self._edb.Definition.PadGeometryType.Circle
             antipad_array = Array[type(antipad_diam)]([antipad_diam])
