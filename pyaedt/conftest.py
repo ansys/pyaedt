@@ -13,7 +13,7 @@ pytest_plugins = [
 ]
 
 
-@pytest.fixture(autouse=True, scope="session")
+@pytest.fixture(autouse=True, scope="sessions")
 def start_aedt():
     desktop = Desktop("2021.2", non_graphical=True)
     desktop.disable_autosave()

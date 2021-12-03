@@ -206,6 +206,7 @@ def download_icepak():
 
     return _download_file("icepak", "Graphics_card.aedt")
 
+
 def download_via_wizard():
     """Download an example of Hfss Via Wizard and return the def path.
 
@@ -228,6 +229,7 @@ def download_via_wizard():
     """
 
     return _download_file("via_wizard", "viawizard_vacuum_FR4.aedt")
+
 
 def download_touchstone():
     """Download an example of touchstone File and return the def path.

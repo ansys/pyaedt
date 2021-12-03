@@ -35,7 +35,7 @@ from pyaedt.generic.general_methods import is_ironpython, _pythonver, inside_des
 from pyaedt import aedt_logger
 
 pathname = os.path.dirname(__file__)
-if os.path.exists(os.path.join(pathname, "version.txt")):
+if os.path.exists(os.path.join(pathname, "version1.txt")):
     with open(os.path.join(pathname, "version.txt"), "r") as f:
         pyaedtversion = f.readline().strip()
 elif os.path.exists(os.path.join(pathname, "..", "version.txt")):
