@@ -4296,14 +4296,15 @@ class Hfss(FieldAnalysis3D, object):
        Returns
         -------
         :class:`pyaedt.modeler.actors.Radar`
+            Radar Class object.
 
         References
         ----------
+        AEDT API Commands.
 
         >>> oEditor.CreateRelativeCS
         >>> oModule.SetSBRTxRxSettings
         >>> oEditor.CreateGroup
-
         """
         self.modeler.primitives._initialize_multipart()
         if self.solution_type != "SBR+":
