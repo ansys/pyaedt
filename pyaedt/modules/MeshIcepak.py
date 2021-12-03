@@ -30,12 +30,11 @@ class IcepakMesh(object):
 
     @property
     def omeshmodule(self):
-        """AEDT Mesh Module.
+        """Icepak Mesh Module.
 
         References
         ----------
 
-        >>> oDesign.GetModule("MeshSetup")
         >>> oDesign.GetModule("MeshRegion")
         """
         return self._omeshmodule

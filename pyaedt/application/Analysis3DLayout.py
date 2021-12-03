@@ -118,7 +118,7 @@ class FieldAnalysis3DLayout(Analysis):
 
     @property
     def oboundary(self):
-        """Solution Module.
+        """Boundary Module.
 
         References
         ----------

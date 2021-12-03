@@ -101,7 +101,7 @@ class FieldAnalysis3D(Analysis, object):
 
     @property
     def oboundary(self):
-        """Solution Module.
+        """Boundary Module.
 
         References
         ----------

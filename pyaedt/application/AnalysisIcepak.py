@@ -102,7 +102,7 @@ class FieldAnalysisIcepak(Analysis, object):
 
     @property
     def oboundary(self):
-        """Solution Module.
+        """Boundary Module.
 
         References
         ----------
@@ -127,8 +127,7 @@ class FieldAnalysisIcepak(Analysis, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.MeshIcepak.IcepakMesh'
-
+        :class:`pyaedt.modules.MeshIcepak.IcepakMesh`
         """
         return self._mesh
 
