@@ -4270,9 +4270,9 @@ class Hfss(FieldAnalysis3D, object):
         -------
         :class:`pyaedt.modeler.actors.Radar`
 
-        Examples
-        --------
-        Create an SBR+ radar from a JSON file:
+        Notes
+        -----
+        Example of input JSON file:
 
         .. code-block:: json
 

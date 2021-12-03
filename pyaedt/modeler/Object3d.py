@@ -2992,7 +2992,7 @@ class Geometries3DLayout(Objec3DLayout, object):
 
     @aedt_exception_handler
     def set_lock_position(self, lock_position=True):
-        """Set the lock position
+        """Set the lock position.
 
         Parameters
         ----------
@@ -3033,7 +3033,7 @@ class Geometries3DLayout(Objec3DLayout, object):
 
     @aedt_exception_handler
     def set_net_name(self, netname=""):
-        """Set the net name
+        """Set the net name.
 
         Parameters
         ----------
