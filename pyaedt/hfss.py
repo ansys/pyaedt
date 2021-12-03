@@ -4276,7 +4276,6 @@ class Hfss(FieldAnalysis3D, object):
                 }
             }
 
-\
         Parameters
         ----------
         radar_file : str
@@ -4303,6 +4302,7 @@ class Hfss(FieldAnalysis3D, object):
         >>> oEditor.CreateRelativeCS
         >>> oModule.SetSBRTxRxSettings
         >>> oEditor.CreateGroup
+
         """
         self.modeler.primitives._initialize_multipart()
         if self.solution_type != "SBR+":
