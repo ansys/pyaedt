@@ -438,12 +438,9 @@ class Desktop:
         else:
             process = "ansysedt.exe"
 
-        with os.popen('tasklist /FI "IMAGENAME eq {}" /v'.format(process)) as tasks_list:
-            output2 = tasks_list.readlines()
-
         p = subprocess.Popen('tasklist /FI "IMAGENAME eq {}" /v'.format(process), stdout=subprocess.PIPE)
         result = p.communicate()
-        output = result[0].decode(encoding='UTF-8',errors='ignore').split(os.linesep)
+        output = result[0].decode(encoding=sys.stdout.encoding, errors='ignore').split(os.linesep)
 
         pattern = r"(?i)^(?:{})\s+?(\d+)\s+.+[\s|\\](?:{})\s+".format(process, username)
         for l in output:
