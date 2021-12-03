@@ -161,6 +161,11 @@ class NexximComponents(CircuitComponents):
         :class:`pyaedt.modeler.Object3d.CircuitComponent`
             Circuit Component Object.
 
+        References
+        ----------
+
+        >>> oProject.CopyDesign
+        >>> oEditor.PasteDesign
         """
         self._app._oproject.CopyDesign(sourcename)
         self._oeditor.PasteDesign(0,
@@ -195,6 +200,11 @@ class NexximComponents(CircuitComponents):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oModelManager.Add
+        >>> oComponentManager.Add
         """
         id = self.create_unique_id()
         component_name = design_name + "_" + str(id)
@@ -447,6 +457,10 @@ class NexximComponents(CircuitComponents):
         :class:`pyaedt.modeler.Object3d.CircuitComponent`
             Circuit Component Object.
 
+        References
+        ----------
+
+        >>> oEditor.CreateComponent
         """
         cmpid = self.create_component(
             compname, location=location, angle=angle, use_instance_id_netlist=use_instance_id_netlist
@@ -477,6 +491,11 @@ class NexximComponents(CircuitComponents):
         -------
         :class:`pyaedt.modeler.Object3d.CircuitComponent`
             Circuit Component Object.
+
+        References
+        ----------
+
+        >>> oEditor.CreateComponent
         """
         cmpid = self.create_component(
             compname,
@@ -514,6 +533,10 @@ class NexximComponents(CircuitComponents):
         :class:`pyaedt.modeler.Object3d.CircuitComponent`
             Circuit Component Object.
 
+        References
+        ----------
+
+        >>> oEditor.CreateComponent
         """
         cmpid = self.create_component(
             compname,
@@ -550,6 +573,10 @@ class NexximComponents(CircuitComponents):
         :class:`pyaedt.modeler.Object3d.CircuitComponent`
             Circuit Component Object.
 
+        References
+        ----------
+
+        >>> oEditor.CreateComponent
         """
         cmpid = self.create_component(
             compname,
@@ -588,6 +615,10 @@ class NexximComponents(CircuitComponents):
         :class:`pyaedt.modeler.Object3d.CircuitComponent`
             Circuit Component Object.
 
+        References
+        ----------
+
+        >>> oEditor.CreateComponent
         """
         cmpid = self.create_component(
             compname,
@@ -640,6 +671,10 @@ class NexximComponents(CircuitComponents):
         :class:`pyaedt.modeler.Object3d.CircuitComponent`
             Circuit Component Object.
 
+        References
+        ----------
+
+        >>> oEditor.CreateComponent
         """
         cmpid = self.create_component(
             compname,
@@ -690,6 +725,10 @@ class NexximComponents(CircuitComponents):
         :class:`pyaedt.modeler.Object3d.CircuitComponent`
             Circuit Component Object.
 
+        References
+        ----------
+
+        >>> oEditor.CreateComponent
         """
         cmpid = self.create_component(
             compname,
@@ -731,6 +770,10 @@ class NexximComponents(CircuitComponents):
         :class:`pyaedt.modeler.Object3d.CircuitComponent`
             Circuit Component Object.
 
+        References
+        ----------
+
+        >>> oEditor.CreateComponent
         """
         cmpid = self.create_component(
             compname,
@@ -771,6 +814,10 @@ class NexximComponents(CircuitComponents):
         :class:`pyaedt.modeler.Object3d.CircuitComponent`
             Circuit Component Object.
 
+        References
+        ----------
+
+        >>> oEditor.CreateComponent
         """
         cmpid = self.create_component(
             compname,
@@ -807,6 +854,10 @@ class NexximComponents(CircuitComponents):
         :class:`pyaedt.modeler.Object3d.CircuitComponent`
             Circuit Component Object.
 
+        References
+        ----------
+
+        >>> oEditor.CreateComponent
         """
         id = self.create_component(
             compname,
@@ -843,6 +894,10 @@ class NexximComponents(CircuitComponents):
         :class:`pyaedt.modeler.Object3d.CircuitComponent`
             Circuit Component Object.
 
+        References
+        ----------
+
+        >>> oEditor.CreateComponent
         """
         id = self.create_component(
             compname,
@@ -881,6 +936,11 @@ class NexximComponents(CircuitComponents):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oModelManager.Add
+        >>> oComponentManager.Add
         """
         arg = [
             "NAME:" + symbol_name,
@@ -1091,6 +1151,12 @@ class NexximComponents(CircuitComponents):
         :class:`pyaedt.modeler.Object3d.CircuitComponent`
             Circuit Component Object.
 
+        References
+        ----------
+
+        >>> oModelManager.Add
+        >>> oComponentManager.Add
+        >>> oDesign.AddCompInstance
         """
         designer_customization = self.get_comp_custom_settings(1, 0, 0, 1, 0, 0, "False", "", 1)
         nexxim_customization = self.get_comp_custom_settings(2, 3, 1, 3, 0, 0, "False", "", 2)
@@ -1310,6 +1376,10 @@ class NexximComponents(CircuitComponents):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oProject.ChangeProperty
         """
         if option == "simulate":
             setting = "Simulate missing solutions"
@@ -1336,6 +1406,10 @@ class NexximComponents(CircuitComponents):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oProject.ChangeProperty
         """
         arg = ["NAME:Solution", "Value:=", solution_name]
         return self._edit_link_definition_hfss_subcircuit(component, arg)
@@ -1379,6 +1453,10 @@ class NexximComponents(CircuitComponents):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oComponentManager.UpdateDynamicLink
         """
         self.o_component_manager.UpdateDynamicLink(component_name)
         return True

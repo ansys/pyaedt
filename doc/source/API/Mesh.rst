@@ -4,7 +4,8 @@ The ``Mesh`` module includes these classes:
 
 * Mesh for ``Hfss``, ``Maxwell2D``, ``Maxwell3d``, ``Q2d`` and ``Q3d``
 * IcepakMesh for ``Icepak``
-* Mesh3d for ``Hfss3dLayout``
+* Mesh3d for ``Hfss3dLayout``.
+
 They are accessible through the mesh property:
 
 .. code:: python

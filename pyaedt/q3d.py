@@ -162,6 +162,10 @@ class Q3d(QExtractor, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oModule.AutoIdentifyNets
         """
         self.oboundary.AutoIdentifyNets()
         return True
@@ -189,6 +193,10 @@ class Q3d(QExtractor, object):
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Source object.
 
+        References
+        ----------
+
+        >>> oModule.AssignSource
         """
         a = self.modeler._get_faceid_on_axis(object_name, axisdir)
 
@@ -226,6 +234,10 @@ class Q3d(QExtractor, object):
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Source object.
 
+        References
+        ----------
+
+        >>> oModule.AssignSource
         """
         if not sourcename:
             sourcename = generate_unique_name("Source")
@@ -266,6 +278,10 @@ class Q3d(QExtractor, object):
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Sink object.
 
+        References
+        ----------
+
+        >>> oModule.AssignSink
         """
         a = self.modeler._get_faceid_on_axis(object_name, axisdir)
 
@@ -303,6 +319,10 @@ class Q3d(QExtractor, object):
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Source object.
 
+        References
+        ----------
+
+        >>> oModule.AssignSink
         """
         if not sinkname:
             sinkname = generate_unique_name("Source")
@@ -346,6 +366,10 @@ class Q3d(QExtractor, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oModule.InsertSweep
         """
         if sweepname is None:
             sweepname = generate_unique_name("Sweep")
@@ -408,6 +432,11 @@ class Q3d(QExtractor, object):
         -------
         SweepQ3D
             Sweep option.
+
+        References
+        ----------
+
+        >>> oModule.InsertSweep
         """
         if sweepname is None:
             sweepname = generate_unique_name("Sweep")
@@ -557,6 +586,10 @@ class Q2d(QExtractor, object):
         pyaedt.modeler.Object3d.Object3d
             3D object.
 
+        References
+        ----------
+
+        >>> oEditor.CreateRectangle
         """
         return self.modeler.primitives.create_rectangle(position, dimension_list=dimension_list, name=name,
                                                         matname=matname)
@@ -579,6 +612,12 @@ class Q2d(QExtractor, object):
             thickness is used.
         unit : str, optional
             Thickness unit. The default is ``"um"``.
+
+        References
+        ----------
+
+        >>> oModule.AssignSingleSignalLine
+        >>> oModule.AssignSingleReferenceGround
         """
 
         warnings.warn('`assign_single_signal_line` is deprecated. Use `assign_single_conductor` instead.',
@@ -613,6 +652,11 @@ class Q2d(QExtractor, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oModule.AssignSingleSignalLine
+        >>> oModule.AssignSingleReferenceGround
         """
         if not name:
             name = generate_unique_name(name)
@@ -665,7 +709,13 @@ class Q2d(QExtractor, object):
 
         Returns
         -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Source object.
 
+        References
+        ----------
+
+        >>> oMdoule.AssignFiniteCond
         """
         if not name:
             name = generate_unique_name(name)
@@ -685,3 +735,4 @@ class Q2d(QExtractor, object):
         if bound.create():
             self.boundaries.append(bound)
             return bound
+        return False

@@ -56,6 +56,11 @@ class Primitives2D(Primitives, object):
         pyaedt.modeler.Object3d.Object3d
             Object3d
 
+        References
+        ----------
+
+        >>> oEditor.CreateCircle
+
         Examples
         --------
         >>> circle1 = aedtapp.modeler.primitives.create_circle([0, -2, -2], 3)
@@ -107,6 +112,11 @@ class Primitives2D(Primitives, object):
         pyaedt.modeler.Object3d.Object3d
             Object3d
 
+        References
+        ----------
+
+        >>> oEditor.CreateEllipse
+
         Examples
         --------
         >>> ellipse1 = aedtapp.modeler.primitives.create_ellipse([0, -2, -2], 4.0, 0.2)
@@ -151,6 +161,14 @@ class Primitives2D(Primitives, object):
         Returns
         -------
         pyaedt.modeler.Object3d.Object3d
+
+        References
+        ----------
+
+        >>> oEditor.CreateRectangle
+
+        Examples
+        --------
 
         >>> rect1 = aedtapp.modeler.primitives.create_rectangle([0, -2, -2], [3, 4])
         >>> rect2 = aedtapp.modeler.primitives.create_rectangle(position=[0, -2, -2], dimension_list=[3, 4],
@@ -200,6 +218,14 @@ class Primitives2D(Primitives, object):
         -------
         pyaedt.modeler.Object3d.Object3d
 
+        References
+        ----------
+
+        >>> oEditor.CreateRegularPolygon
+
+        Examples
+        --------
+
         >>> pg1 = aedtapp.modeler.primitives.create_regular_polygon([0, 0, 0], [0, 2, 0])
         >>> pg2 = aedtapp.modeler.primitives.create_regular_polygon(position=[0, 0, 0], start_point=[0, 2, 0],
         ...                                                     name="MyPolygon", matname="Copper")
@@ -239,6 +265,11 @@ class Primitives2D(Primitives, object):
         Returns
         -------
         pyaedt.modeler.Object3d.Object3d
+
+        References
+        ----------
+
+        >>> oEditor.CreateRegion
 
         """
         # TODO handle RZ!!

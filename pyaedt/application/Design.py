@@ -585,14 +585,44 @@ class Design(object):
         self._design_type = design_type
         self.oproject = project_name
         self.odesign = design_name
-        self.oimport_export = self._desktop.GetTool("ImportExport")
-        self.odefinition_manager = self._oproject.GetDefinitionManager()
-        self.omaterial_manager = self.odefinition_manager.GetManager("Material")
+        self._oimport_export = self._desktop.GetTool("ImportExport")
+        self._odefinition_manager = self._oproject.GetDefinitionManager()
+        self._omaterial_manager = self.odefinition_manager.GetManager("Material")
         self.odesktop = self._desktop
         self._variable_manager = VariableManager(self)
         self.solution_type = self._solution_type
         self.project_datasets = self._get_project_datasets()
         self.design_datasets = self._get_design_datasets()
+
+    @property
+    def oimport_export(self):
+        """Import Export Manager Module.
+
+        References
+        ----------
+
+        >>> oDesktop.GetTool("ImportExport")"""
+        return self._oimport_export
+
+    @property
+    def odefinition_manager(self):
+        """Definition Manager Module.
+
+        References
+        ----------
+
+        >>> oDefinitionManager = oProject.GetDefinitionManager()"""
+        return self._odefinition_manager
+
+    @property
+    def omaterial_manager(self):
+        """Material Manager Module.
+
+        References
+        ----------
+
+        >>> oMaterialManager = oDefinitionManager.GetManager("Material")"""
+        return self._omaterial_manager
 
     @aedt_exception_handler
     def __delitem__(self, key):
@@ -600,11 +630,11 @@ class Design(object):
         del self._variable_manager[key]
 
     def _init_variables(self):
-        self.oboundary = None
-        self.oimport_export = None
-        self.ooptimetrics = None
-        self.ooutput_variable = None
-        self.oanalysis = None
+        self._oboundary = None
+        self._oimport_export = None
+        self._ooptimetrics = None
+        self._ooutput_variable = None
+        self._oanalysis = None
         self._modeler = None
         self._post = None
         self._materials = None
@@ -684,6 +714,10 @@ class Design(object):
         str
             Version of AEDT.
 
+        References
+        ----------
+
+        >>> oDesktop.GetVersion()
         """
         version = self.odesktop.GetVersion()
         return get_version_env_variable(version)
@@ -697,6 +731,12 @@ class Design(object):
         str
             Name of the parent AEDT design.
 
+        References
+        ----------
+
+        >>> oDesign.GetName
+        >>> oDesign.RenameDesignInstance
+
         Examples
         --------
         Set the design name.
@@ -704,7 +744,6 @@ class Design(object):
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
         >>> hfss.design_name = 'new_design'
-
         """
         if not self.odesign:
             return None
@@ -737,6 +776,10 @@ class Design(object):
         list
             List of the designs.
 
+        References
+        ----------
+
+        >>> oProject.GetTopDesignList()
         """
         deslist = list(self.oproject.GetTopDesignList())
         updateddeslist = []
@@ -772,6 +815,10 @@ class Design(object):
         str
             Name of the project.
 
+        References
+        ----------
+
+        >>> oProject.GetName
         """
         if self._oproject:
             return self._oproject.GetName()
@@ -787,6 +834,10 @@ class Design(object):
         list
             List of projects.
 
+        References
+        ----------
+
+        >>> oDesktop.GetProjectList
         """
         return list(self._desktop.GetProjectList())
 
@@ -799,6 +850,10 @@ class Design(object):
         str
             Path to the project file.
 
+        References
+        ----------
+
+        >>> oProject.GetPath
         """
         return os.path.normpath(self._oproject.GetPath())
 
@@ -847,6 +902,11 @@ class Design(object):
         str
             Type of the solution.
 
+        References
+        ----------
+
+        >>> oDesign.GetSolutionType
+        >>> oDesign.SetSolutionType
         """
         try:
             return self._odesign.GetSolutionType()
@@ -896,6 +956,10 @@ class Design(object):
         str
             Full absolute path for the ``PersonalLib`` directory.
 
+        References
+        ----------
+
+        >>> oDesktop.GetPersonalLibDirectory
         """
         return os.path.normpath(self._desktop.GetPersonalLibDirectory())
 
@@ -908,6 +972,10 @@ class Design(object):
         str
             Full absolute path for the ``UserLib`` directory.
 
+        References
+        ----------
+
+        >>> oDesktop.GetUserLibDirectory
         """
         return os.path.normpath(self._desktop.GetUserLibDirectory())
 
@@ -920,6 +988,10 @@ class Design(object):
         str
             Full absolute path for the ``SysLib`` directory.
 
+        References
+        ----------
+
+        >>> oDesktop.GetLibraryDirectory
         """
         return os.path.normpath(self._desktop.GetLibraryDirectory())
 
@@ -1024,6 +1096,11 @@ class Design(object):
         type
             Design object.
 
+        References
+        ----------
+
+        >>> oProject.SetActiveDesign
+        >>> oProject.InsertDesign
         """
         return self._odesign
 
@@ -1069,6 +1146,12 @@ class Design(object):
         -------
             Project object
 
+        References
+        ----------
+
+        >>> oDesktop.GetActiveProject
+        >>> oDesktop.SetActiveProject
+        >>> oDesktop.NewProject
         """
         return self._oproject
 
@@ -1149,6 +1232,11 @@ class Design(object):
         -------
         str
             File path if created.
+
+        References
+        ----------
+
+        >>> oDesign.ExportProfile
         """
         if not file_path:
             file_path = os.path.join(self.project_path, generate_unique_name("Profile")+".prop")
@@ -1343,6 +1431,11 @@ class Design(object):
         Returns
         -------
         bool
+
+        References
+        ----------
+
+        >>> oDesktop.SetRegistryString
         """
         try:
             self.odesktop.SetRegistryString("Desktop/Settings/ProjectOptions/HPCLicenseType", license_type)
@@ -1363,6 +1456,12 @@ class Design(object):
         Returns
         -------
         bool
+
+        References
+        ----------
+
+        >>> oDesktop.SetRegistryString
+        >>> oDesktop.SetRegistryInt
         """
         if isinstance(key_value, str):
             try:
@@ -1396,6 +1495,11 @@ class Design(object):
         Returns
         -------
         str
+
+        References
+        ----------
+
+        >>> oDesktop.GetRegistryString
         """
         return self.odesktop.GetRegistryString(key_full_name)
 
@@ -1411,6 +1515,11 @@ class Design(object):
         Returns
         -------
         str
+
+        References
+        ----------
+
+        >>> oDesktop.GetRegistryInt
         """
         return self.odesktop.GetRegistryInt(key_full_name)
 
@@ -1427,6 +1536,11 @@ class Design(object):
         -------
         bool
             `True` if succeeded.
+
+        References
+        ----------
+
+        >>> oDesktop.GetRegistryString
         """
         limit = 100
         i = 0
@@ -1466,6 +1580,11 @@ class Design(object):
         Returns
         -------
         bool
+
+        References
+        ----------
+
+        >>> oDesktop.SetRegistryString
         """
         try:
             self.set_registry_key("Desktop/ActiveDSOConfigurations/{}".format(product_name), config_name)
@@ -1492,6 +1611,11 @@ class Design(object):
         Returns
         -------
         bool
+
+        References
+        ----------
+
+        >>> oDesktop.SetRegistryFromFile
         """
         try:
             self.odesktop.SetRegistryFromFile(registry_file)
@@ -1601,6 +1725,10 @@ class Design(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oDesign.ChangeProperty
         """
         arg = ["NAME:AllTabs"]
         self._optimetrics_variable_args(
@@ -1630,6 +1758,10 @@ class Design(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oDesign.ChangeProperty
         """
         arg = ["NAME:AllTabs"]
         self._optimetrics_variable_args(arg, "Optimization", variable_name, min_val, max_val)
@@ -1657,6 +1789,10 @@ class Design(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oDesign.ChangeProperty
         """
         arg = ["NAME:AllTabs"]
         self._optimetrics_variable_args(arg, "Sensitivity", variable_name, min_val, max_val)
@@ -1684,6 +1820,10 @@ class Design(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oDesign.ChangeProperty
         """
         arg = ["NAME:AllTabs"]
         self._optimetrics_variable_args(arg, "Tuning", variable_name, min_val, max_val)
@@ -1707,6 +1847,10 @@ class Design(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oDesign.ChangeProperty
         """
         arg = ["NAME:AllTabs"]
         self._optimetrics_variable_args(arg, "Statistical", variable_name, enable=False)
@@ -1730,6 +1874,10 @@ class Design(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oDesign.ChangeProperty
         """
         arg = ["NAME:AllTabs"]
         self._optimetrics_variable_args(arg, "Optimization", variable_name, enable=False)
@@ -1753,6 +1901,10 @@ class Design(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oDesign.ChangeProperty
         """
         arg = ["NAME:AllTabs"]
         self._optimetrics_variable_args(arg, "Sensitivity", variable_name, enable=False)
@@ -1776,6 +1928,10 @@ class Design(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oDesign.ChangeProperty
         """
         arg = ["NAME:AllTabs"]
         self._optimetrics_variable_args(arg, "Tuning", variable_name, enable=False)
@@ -1901,6 +2057,11 @@ class Design(object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oDesktop.EnableAutoSave
         """
         self.odesktop.EnableAutoSave(False)
         return True
@@ -1913,6 +2074,11 @@ class Design(object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oDesktop.EnableAutoSave
         """
         self.odesktop.EnableAutoSave(True)
         return True
@@ -1998,6 +2164,10 @@ class Design(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oDesktop.OpenProject
         """
 
         if close_active_proj and self.oproject:
@@ -2037,6 +2207,11 @@ class Design(object):
         -------
         :class:`pyaedt.application.Variables.DataSet`
 
+        References
+        ----------
+
+        >>> oProject.AddDataset
+        >>> oDesign.AddDataset
         """
         return self.create_dataset(dsname, xlist, ylist, is_project_dataset=False, xunit=xunit, yunit=yunit)
 
@@ -2059,9 +2234,14 @@ class Design(object):
 
         Returns
         -------
-        type
+        :class:`pyaedt.application.Variables.DataSet`
             Dataset object when the dataset is created, ``False`` otherwise.
 
+        References
+        ----------
+
+        >>> oProject.AddDataset
+        >>> oDesign.AddDataset
         """
         return self.create_dataset(dsname, xlist, ylist, is_project_dataset=True, xunit=xunit, yunit=yunit)
 
@@ -2092,9 +2272,13 @@ class Design(object):
 
         Returns
         -------
-        type
+        :class:`pyaedt.application.Variables.DataSet`
             Dataset object when the dataset is created, ``False`` otherwise.
 
+        References
+        ----------
+
+        >>> oDesign.AddDataset
         """
         return self.create_dataset(
             dsname=dsname,
@@ -2149,9 +2333,14 @@ class Design(object):
 
         Returns
         -------
-        type
+        :class:`pyaedt.application.Variables.DataSet`
             Dataset object when the dataset is created, ``False`` otherwise.
 
+        References
+        ----------
+
+        >>> oProject.AddDataset
+        >>> oDesign.AddDataset
         """
         if not self.dataset_exists(dsname, is_project_dataset):
             if is_project_dataset:
@@ -2211,6 +2400,10 @@ class Design(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oDesign.SetDesignSettings
         """
         if lossy_dielectric:
             self.logger.info("Enabling Automatic use of causal materials")
@@ -2234,6 +2427,10 @@ class Design(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oDesign.SetDesignSettings
         """
         if material_override:
             self.logger.info("Enabling Material Override")
@@ -2262,6 +2459,10 @@ class Design(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oDesign.SetDesignSettings
         """
         self.logger.info("Changing the validation design settings")
         self.odesign.SetDesignSettings(
@@ -2328,6 +2529,10 @@ class Design(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oProject.SaveAs
         """
         self.logger.info("Copy AEDT Project ")
         self.oproject.Save()
@@ -2348,6 +2553,10 @@ class Design(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oDesktop.NewProject
         """
         self.logger.info("Creating new Project ")
         prj = self._desktop.NewProject(proj_name)
@@ -2374,6 +2583,10 @@ class Design(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oDesktop.CloseProject
         """
         msg_txt = ""
         legacy_name = self.project_name
@@ -2427,6 +2640,10 @@ class Design(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oProject.DeleteDesign
         """
         if not name:
             name = self.design_name
@@ -2463,6 +2680,11 @@ class Design(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oProject.ChangeProperty
+        >>> oDesign.ChangeProperty
         """
         return self._variable_manager.delete_separator(separator_name)
 
@@ -2475,6 +2697,11 @@ class Design(object):
         sVarName :
             Name of the variable.
 
+        References
+        ----------
+
+        >>> oProject.ChangeProperty
+        >>> oDesign.ChangeProperty
         """
         return self.variable_manager.delete_variable(sVarName)
 
@@ -2498,6 +2725,10 @@ class Design(object):
         str
             Name of the design.
 
+        References
+        ----------
+
+        >>> oProject.InsertDesign
         """
         self._close_edb()
         if self.project_name:
@@ -2601,6 +2832,10 @@ class Design(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oDesign.RenameDesignInstance
         """
         self._odesign.RenameDesignInstance(self.design_name, new_name)
         self.odesign = new_name
@@ -2627,6 +2862,11 @@ class Design(object):
            Failure is generally a result of the name specified for ``design_name``
            not existing in the project specified for ``project_fullname``.
 
+        References
+        ----------
+
+        >>> oProject.CopyDesign
+        >>> oProject.Paste
         """
         self.save_project()
         active_design = self.design_name
@@ -2675,6 +2915,11 @@ class Design(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oProject.CopyDesign
+        >>> oProject.Paste
         """
 
         active_design = self.design_name
@@ -2741,6 +2986,13 @@ class Design(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oProject.GetProperties
+        >>> oDesign.GetProperties
+        >>> oProject.GetVariableValue
+        >>> oDesign.GetVariableValue
         """
         varnames = []
         desnames = []
@@ -2791,6 +3043,11 @@ class Design(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oProject.Save
+        >>> oProject.SaveAs
         """
         msg_text = "Saving {0} Project".format(self.project_name)
         self.logger.info(msg_text)
@@ -2832,6 +3089,11 @@ class Design(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oProject.Save
+        >>> oProject.SaveProjectArchive
         """
         msg_text = "Saving {0} Project".format(self.project_name)
         self.logger.info(msg_text)
@@ -2858,6 +3120,10 @@ class Design(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oDesktop.DeleteProject
         """
         assert self.project_name != project_name, "You cannot delete the active project."
         self._desktop.DeleteProject(project_name)
@@ -2872,6 +3138,10 @@ class Design(object):
         name :
             Name of the design to make active.
 
+        References
+        ----------
+
+        >>> oProject.SetActiveDesign
         """
         self.oproject.SetActiveDesign(name)
         self.odesign = name
@@ -2894,6 +3164,10 @@ class Design(object):
         int
             ``1`` when successful, ``0`` when failed.
 
+        References
+        ----------
+
+        >>> oDesign.ValidateDesign
         """
         if logfile:
             return self._odesign.ValidateDesign(logfile)
@@ -2919,6 +3193,12 @@ class Design(object):
         float
             Evaluated value of the design property or project variable in SI units.
 
+        References
+        ----------
+
+        >>> oDesign.GetNominalVariation
+        >>> oDesign.GetVariationVariableValue
+
         Examples
         --------
 
@@ -2927,7 +3207,6 @@ class Design(object):
         >>> M3D["p2"] = "20mm"
         >>> M3D["p3"] = "P1 * p2"
         >>> eval_p3 = M3D.get_evaluated_value("p3")
-
         """
         if not variation:
             variation_string = self._odesign.GetNominalVariation()
@@ -3000,6 +3279,10 @@ class Design(object):
         str
             String specifying the desired variation.
 
+        References
+        ----------
+
+        >>> oDesign.GetNominalVariation
         """
         nominal = self._odesign.GetNominalVariation()
         if variation_string:
@@ -3024,18 +3307,6 @@ class Design(object):
 
     @aedt_exception_handler
     def _assert_consistent_design_type(self, des_name):
-        """Assert consistent design type.
-
-        Parameters
-        ----------
-        des_name : str
-            Name of the design.
-
-
-        Returns
-        -------
-
-        """
         if des_name in self.design_list:
             self._odesign = self._oproject.SetActiveDesign(des_name)
             dtype = self._odesign.GetDesignType()

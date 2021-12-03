@@ -85,6 +85,10 @@ class SimplorerComponents(CircuitComponents):
         :class:`pyaedt.modeler.Object3d.CircuitComponent`
             Circuit Component Object.
 
+        References
+        ----------
+
+        >>> oEditor.CreateComponent
         """
         id = self.create_component(
             compname,
@@ -120,6 +124,11 @@ class SimplorerComponents(CircuitComponents):
         -------
         :class:`pyaedt.modeler.Object3d.CircuitComponent`
             Circuit Component Object.
+
+        References
+        ----------
+
+        >>> oEditor.CreateComponent
         """
         id = self.create_component(
             compname,
@@ -154,6 +163,11 @@ class SimplorerComponents(CircuitComponents):
         -------
         :class:`pyaedt.modeler.Object3d.CircuitComponent`
             Circuit Component Object.
+
+        References
+        ----------
+
+        >>> oEditor.CreateComponent
         """
         id = self.create_component(
             compname,
@@ -191,6 +205,10 @@ class SimplorerComponents(CircuitComponents):
         :class:`pyaedt.modeler.Object3d.CircuitComponent`
             Circuit Component Object.
 
+        References
+        ----------
+
+        >>> oEditor.CreateComponent
         """
         id = self.create_component(
             compname,
@@ -222,6 +240,10 @@ class SimplorerComponents(CircuitComponents):
         :class:`pyaedt.modeler.Object3d.CircuitComponent`
             Circuit Component Object.
 
+        References
+        ----------
+
+        >>> oEditor.CreateComponent
         """
         id = self.create_component(
             compname,
@@ -253,6 +275,10 @@ class SimplorerComponents(CircuitComponents):
         :class:`pyaedt.modeler.Object3d.CircuitComponent`
             Circuit Component Object.
 
+        References
+        ----------
+
+        >>> oEditor.CreateComponent
         """
         id = self.create_component(
             compname,

@@ -77,7 +77,12 @@ class FieldAnalysisCircuit(Analysis):
 
     @property
     def existing_analysis_setups(self):
-        """Analysis setups."""
+        """Analysis setups.
+
+        References
+        ----------
+
+        >>> oModule.GetAllSolutionSetups"""
         setups = self.oanalysis.GetAllSolutionSetups()
         return setups
 
@@ -96,7 +101,12 @@ class FieldAnalysisCircuit(Analysis):
 
     @property
     def setup_names(self):
-        """Setup names."""
+        """Setup names.
+
+        References
+        ----------
+
+        >>> oModule.GetAllSolutionSetups"""
         return self.oanalysis.GetAllSolutionSetups()
 
     @property
@@ -108,6 +118,10 @@ class FieldAnalysisCircuit(Analysis):
         type
             BoundarySetup Module object
 
+        References
+        ----------
+
+        >>> oEditor.GetAllPorts
         """
         ports = [p.replace("IPort@", "").split(";")[0] for p in self.modeler.oeditor.GetAllPorts()]
         return ports
@@ -118,7 +132,7 @@ class FieldAnalysisCircuit(Analysis):
 
         Parameters
         ----------
-        eexcitation_names : list, optional
+        excitation_names : list, optional
             List of excitations. The default is ``[]``, in which case
             the S parameters for all excitations are to be provided.
             For example, ``["1", "2"]``.
@@ -128,7 +142,6 @@ class FieldAnalysisCircuit(Analysis):
         list of str
             List of strings representing the S parameters of the excitations.
             For example, ``"S(1,1)", "S(1,2)", "S(2,2)"``.
-
 
         """
         if not excitation_names:
@@ -161,6 +174,10 @@ class FieldAnalysisCircuit(Analysis):
             List of strings representing the return losses of the excitations.
             For example ``["S(1, 1)", S(2, 2)]``
 
+        References
+        ----------
+
+        >>> oEditor.GetAllPorts
         """
         if not excitation_names:
             excitation_names = self.get_excitations_name
@@ -193,6 +210,10 @@ class FieldAnalysisCircuit(Analysis):
             List of strings representing insertion losses of the excitations.
             For example, ``["S(1,2)"]``.
 
+        References
+        ----------
+
+        >>> oEditor.GetAllPorts
         """
         spar = []
         if not trlist:
@@ -224,6 +245,10 @@ class FieldAnalysisCircuit(Analysis):
             List of strings representing near end XTalks of the excitations.
             For example, ``["S(1, 2)", "S(1, 3)", "S(2, 3)"]``.
 
+        References
+        ----------
+
+        >>> oEditor.GetAllPorts
         """
         next = []
         if not trlist:
@@ -263,6 +288,10 @@ class FieldAnalysisCircuit(Analysis):
             List of strings representing the far end XTalks of the excitations.
             For example, ``["S(1, 4)", "S(2, 3)"]``.
 
+        References
+        ----------
+
+        >>> oEditor.GetAllPorts
         """
         fext = []
         if not trlist:
@@ -314,6 +343,15 @@ class FieldAnalysisCircuit(Analysis):
         SetupCircuit
             Setup object.
 
+        References
+        ----------
+
+        >>> oModule.AddLinearNetworkAnalysis
+        >>> oModule.AddDCAnalysis
+        >>> oModule.AddTransient
+        >>> oModule.AddQuickEyeAnalysis
+        >>> oModule.AddVerifEyeAnalysis
+        >>> oModule.AddAMIAnalysis
         """
         if setuptype is None:
             setuptype = self.solution_type

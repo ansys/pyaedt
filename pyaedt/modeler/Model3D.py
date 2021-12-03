@@ -63,6 +63,10 @@ class Modeler3D(GeometryModeler):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor. Create3DComponent
         """
         if self._app.design_type == "Icepak":
             exclude_region = True

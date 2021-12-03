@@ -146,7 +146,12 @@ class Mechanical(FieldAnalysis3D, object):
 
         Returns
         -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
 
+        References
+        ----------
+
+        >>> oModule.AssignEMLoss
         """
         assert self.solution_type == "Thermal", "This Method works only in Mechanical Structural Solution"
 
@@ -237,6 +242,11 @@ class Mechanical(FieldAnalysis3D, object):
         -------
         :class:`aedt.modules.Boundary.Boundary object`
             Boundary object.
+
+        References
+        ----------
+
+        >>> oModule.AssignThermalCondition
         """
 
         assert self.solution_type == "Structural", "This method works only in a Mechanical structural solution."
@@ -310,6 +320,10 @@ class Mechanical(FieldAnalysis3D, object):
         :class:`aedt.modules.Boundary.Boundary object`
             Boundary object.
 
+        References
+        ----------
+
+        >>> oModule.AssignConvection
         """
         assert self.solution_type == "Thermal", "This method works only in a Mechanical structural solution."
 
@@ -355,6 +369,10 @@ class Mechanical(FieldAnalysis3D, object):
         :class:`aedt.modules.Boundary.Boundary object`
             Boundary object.
 
+        References
+        ----------
+
+        >>> oModule.AssignTemperature
         """
         assert self.solution_type == "Thermal", "This method works only in a Mechanical structural analysis."
 
@@ -396,6 +414,10 @@ class Mechanical(FieldAnalysis3D, object):
         :class:`aedt.modules.Boundary.Boundary object`
             Boundary object.
 
+        References
+        ----------
+
+        >>> oModule.AssignFrictionlessSupport
         """
 
         if not (self.solution_type == "Structural" or self.solution_type == "Modal"):
@@ -437,6 +459,10 @@ class Mechanical(FieldAnalysis3D, object):
         aedt.modules.Boundary.Boundary
             Boundary object.
 
+        References
+        ----------
+
+        >>> oModule.AssignFixedSupport
         """
         if not (self.solution_type == "Structural" or self.solution_type == "Modal"):
             self.logger.error("This method works only in a Mechanical structural solution.")
@@ -464,6 +490,10 @@ class Mechanical(FieldAnalysis3D, object):
         list
             List of existing analysis sweeps.
 
+        References
+        ----------
+
+        >>> oModule.GetSetups
         """
         setup_list = self.existing_analysis_setups
         sweep_list = []

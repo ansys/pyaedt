@@ -215,6 +215,10 @@ class CommonOptimetrics(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oModule.EditSetup
         """
         if update_dictionary:
             for el in update_dictionary:
@@ -235,6 +239,10 @@ class CommonOptimetrics(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oModule.InsertSetup
         """
         arg = ["NAME:" + self.name]
         _dict2arg(self.props, arg)
@@ -466,6 +474,11 @@ class DXSetups(object):
             -------
             bool
                 ``True`` when successful, ``False`` when failed.
+
+            References
+            ----------
+
+            >>> oModule.EditSetup
             """
             return self._add_calculation(
                 reporttype=reporttype,
@@ -530,6 +543,10 @@ class DXSetups(object):
             bool
                 ``True`` when successful, ``False`` when failed.
 
+            References
+            ----------
+
+            >>> oModule.EditSetup
             """
             return self._add_goal(
                 optigoalname="CostFunctionGoals",
@@ -598,6 +615,10 @@ class DXSetups(object):
         -------
         :class:`Optimetrics`
 
+        References
+        ----------
+
+        >>> oModule.InsertSetup
         """
         if not setupname:
             setupname = [self._app.analysis_setup]
@@ -680,6 +701,10 @@ class ParametericsSetups(object):
             bool
                 ``True`` when successful, ``False`` when failed.
 
+            References
+            ----------
+
+            >>> oModule.EditSetup
             """
             if type(self.props["Sweeps"]["SweepDefinition"]) is not list:
                 self.props["Sweeps"]["SweepDefinition"] = [self.props["Sweeps"]["SweepDefinition"]]
@@ -726,6 +751,10 @@ class ParametericsSetups(object):
             bool
                 ``True`` when successful, ``False`` when failed.
 
+            References
+            ----------
+
+            >>> oModule.EditSetup
             """
             return self._add_calculation(
                 reporttype=reporttype,
@@ -790,6 +819,10 @@ class ParametericsSetups(object):
         :class:`pyaedt.modules.DesignXPloration.ParametericsSetups.Optimetrics`
             Optimetrics object.
 
+        References
+        ----------
+
+        >>> oModule.InsertSetup
         """
         if not setupname:
             setupname = [self._app.analysis_setup]
@@ -873,6 +906,10 @@ class SensitivitySetups(object):
             bool
                 ``True`` when successful, ``False`` when failed.
 
+            References
+            ----------
+
+            >>> oModule.EditSetup
             """
             return self._add_calculation(
                 reporttype=reporttype,
@@ -952,6 +989,10 @@ class SensitivitySetups(object):
         -------
         :class:`Sensitivity`
 
+        References
+        ----------
+
+        >>> oModule.InsertSetup
         """
         if not parametricname:
             parametricname = generate_unique_name("Sensitivity")
@@ -1037,6 +1078,10 @@ class StatisticalSetups(object):
             bool
                 ``True`` when successful, ``False`` when failed.
 
+            References
+            ----------
+
+            >>> oModule.EditSetup
             """
             return self._add_calculation(
                 reporttype=reporttype,
@@ -1116,6 +1161,10 @@ class StatisticalSetups(object):
         -------
         :class:`Statistical`
 
+        References
+        ----------
+
+        >>> oModule.InsertSetup
         """
         if not parametricname:
             parametricname = generate_unique_name("Statistical")
@@ -1202,6 +1251,10 @@ class DOESetups(object):
             bool
                 ``True`` when successful, ``False`` when failed.
 
+            References
+            ----------
+
+            >>> oModule.EditSetup
             """
             return self._add_calculation(
                 reporttype=reporttype,
@@ -1265,6 +1318,10 @@ class DOESetups(object):
             bool
                 ``True`` when successful, ``False`` when failed.
 
+            References
+            ----------
+
+            >>> oModule.EditSetup
             """
             return self._add_goal(
                 optigoalname="CostFunctionGoals",
@@ -1361,6 +1418,10 @@ class DOESetups(object):
         type
             DOE object.
 
+        References
+        ----------
+
+        >>> oModule.InsertSetup
         """
         if not solution:
             solution = self._app.nominal_sweep
@@ -1470,6 +1531,10 @@ class OptimizationSetups(object):
             bool
                 ``True`` when successful, ``False`` when failed.
 
+            References
+            ----------
+
+            >>> oModule.EditSetup
             """
             return self._add_goal(
                 optigoalname="Goals",
@@ -1564,6 +1629,10 @@ class OptimizationSetups(object):
         type
             Optimization object.
 
+        References
+        ----------
+
+        >>> oModule.InsertSetup
         """
         if not parametricname:
             parametricname = generate_unique_name("Optimization")

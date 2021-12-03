@@ -49,9 +49,9 @@ class CircuitComponents(object):
         self.logger = self._app.logger
         self.o_model_manager = self._modeler.o_model_manager
 
-        self.o_definition_manager = self._app._oproject.GetDefinitionManager()
-        self.o_symbol_manager = self.o_definition_manager.GetManager("Symbol")
-        self.o_component_manager = self.o_definition_manager.GetManager("Component")
+        self._o_definition_manager = self._app._oproject.GetDefinitionManager()
+        self._o_symbol_manager = self.o_definition_manager.GetManager("Symbol")
+        self._o_component_manager = self.o_definition_manager.GetManager("Component")
         self._oeditor = self._modeler.oeditor
         self._currentId = 0
         self.components = {}
@@ -60,6 +60,39 @@ class CircuitComponents(object):
         self.increment_mils = [1000, 1000]
         self.limits_mils = 20000
         pass
+
+    @property
+    def o_definition_manager(self):
+        """Aedt oDefinitionManager.
+
+        References
+        ----------
+
+        >>> oDefinitionManager = oProject.GetDefinitionManager()
+        """
+        return self._o_definition_manager
+
+    @property
+    def o_component_manager(self):
+        """Aedt oComponentManager.
+
+        References
+        ----------
+
+        >>> oComponentManager = oDefinitionManager.GetManager("Component")
+        """
+        return self._o_component_manager
+
+    @property
+    def o_symbol_manager(self):
+        """Aedt oSymbolManger.
+
+        References
+        ----------
+
+        >>> oSymbolManger = oDefinitionManager.GetManager("Symbol")
+        """
+        return self._o_symbol_manager
 
     @property
     def version(self):
@@ -137,6 +170,10 @@ class CircuitComponents(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.CreateWire
         """
         pointlist = [str(tuple(i)) for i in points_array]
         self._oeditor.CreateWire(
@@ -173,6 +210,10 @@ class CircuitComponents(object):
         :class:`pyaedt.modeler.Object3d.CircuitComponent`
             Circuit Component Object.
 
+        References
+        ----------
+
+        >>> oEditor.CreateIPort
         """
         posx, posy = self._get_location(location)
         id = self.create_unique_id()
@@ -206,6 +247,10 @@ class CircuitComponents(object):
         :class:`pyaedt.modeler.Object3d.CircuitComponent`
             Circuit Component Object.
 
+        References
+        ----------
+
+        >>> oEditor.CreatePagePort
         """
         xpos, ypos = self._get_location(location)
 
@@ -233,6 +278,10 @@ class CircuitComponents(object):
         :class:`pyaedt.modeler.Object3d.CircuitComponent`
             Circuit Component Object.
 
+        References
+        ----------
+
+        >>> oEditor.CreateGround
         """
         xpos, ypos = self._get_location(location)
         id = self.create_unique_id()
@@ -264,6 +313,11 @@ class CircuitComponents(object):
         str
             Model name when successfully created. ``False`` if something went wrong.
 
+        References
+        ----------
+
+        >>> oModelManager.Add
+        >>> oComponentManager.Add
         """
         if not model_name:
             model_name = os.path.splitext(os.path.basename(touchstone_full_path))[0]
@@ -533,6 +587,12 @@ class CircuitComponents(object):
         :class:`pyaedt.modeler.Object3d.CircuitComponent`
             Circuit Component Object.
 
+        References
+        ----------
+
+        >>> oModelManager.Add
+        >>> oComponentManager.Add
+        >>> oEditor.CreateComponent
         """
         xpos, ypos = self._get_location(location)
         id = self.create_unique_id()
@@ -581,6 +641,10 @@ class CircuitComponents(object):
         :class:`pyaedt.modeler.Object3d.CircuitComponent`
             Circuit Component Object.
 
+        References
+        ----------
+
+        >>> oEditor.CreateComponent
         """
         id = self.create_unique_id()
         if component_library:
@@ -617,6 +681,11 @@ class CircuitComponents(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oComponentManager.GetData
+        >>> oComponentManager.Edit
         """
         name = component_name
 
@@ -649,6 +718,11 @@ class CircuitComponents(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oComponentManager.GetData
+        >>> oComponentManager.Edit
         """
         name = component_name
 
@@ -684,6 +758,10 @@ class CircuitComponents(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oSymbolManager.Add
         """
 
         numpins = len(pin_lists)
@@ -815,6 +893,11 @@ class CircuitComponents(object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oComponentManager.Add
         """
         arg = [
             "NAME:" + symbol_name,
@@ -941,6 +1024,12 @@ class CircuitComponents(object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oComponentManager.GetData
+        >>> oComponentManager.Edit
         """
         if component_library:
             name = self.design_libray + "\\" + component_library + ":" + component_name
@@ -971,7 +1060,12 @@ class CircuitComponents(object):
 
     @aedt_exception_handler
     def refresh_all_ids(self):
-        """Refresh all IDs and return the number of components."""
+        """Refresh all IDs and return the number of components.
+
+        References
+        ----------
+
+        >>> oEditor.GetAllElements()"""
         obj = self._oeditor.GetAllElements()
         obj = [i for i in obj if "Wire" not in i[:4]]
         for el in obj:
@@ -1054,6 +1148,10 @@ class CircuitComponents(object):
         type
             Pin with properties.
 
+        References
+        ----------
+
+        >>> oEditor.GetComponentPins
         """
         if isinstance(partid, CircuitComponent):
             pins = _retry_ntimes(10, self._oeditor.GetComponentPins, partid.composed_name)
@@ -1081,6 +1179,10 @@ class CircuitComponents(object):
         List
             List of axis values ``[x, y]``.
 
+        References
+        ----------
+
+        >>> oEditor.GetComponentPinLocation
         """
         if isinstance(partid, str):
             x = _retry_ntimes(30, self._oeditor.GetComponentPinLocation, partid, pinname, True)

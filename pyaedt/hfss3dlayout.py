@@ -125,6 +125,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         type
             Name of the port when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.CreateEdgePort
         """
         listp = self.port_list
         self.modeler.oeditor.CreateEdgePort(
@@ -164,6 +168,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         type
             Name of the port when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.CreateEdgePort
         """
         if len(primivitivenames) == 2 and len(edgenumbers) == 2:
             listp = self.port_list
@@ -215,6 +223,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         str
             Name of the port when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.CreateEdgePort
         """
         listp = self.port_list
         if isinstance(layer, str):
@@ -282,6 +294,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.CreatePin
         """
         self.modeler.layers.refresh_all_layers()
         layers = self.modeler.layers.all_signal_layers
@@ -327,6 +343,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oModule.Delete
         """
         self.oexcitation.Delete(portname)
         return True
@@ -345,9 +365,12 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oModule.ImportEDB
         """
-        oTool = self.odesktop.GetTool("ImportExport")
-        oTool.ImportEDB(edb_full_path)
+        self.oimport_export.ImportEDB(edb_full_path)
         self.oproject = self.odesktop.GetActiveProject().GetName()
         self.odesign = self.odesktop.GetActiveProject().GetActiveDesign().GetName().split(";")[1]
         return True
@@ -370,6 +393,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         list of str
             List of validation messages.
 
+        References
+        ----------
+
+        >>> oDesign.ValidateDesign
         """
         if name is None:
             name = self.design_name
@@ -472,6 +499,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oModule.CreateReport
         """
         Families = ["Freq:=", ["All"]]
         if variations:
@@ -528,6 +559,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oDesign.ExportNetworkData
         """
         # normalize the save path
         if not filename:
@@ -593,6 +628,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oDesign.DesignOptions
         """
         settings = []
         if activate:
@@ -713,6 +752,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         :class:`pyaedt.modules.SetupTemplates.SweepHFSS3DLayout` or bool
             Sweep object if successful, ``False`` otherwise.
 
+        References
+        ----------
+
+        >>> oModule.AddSweep
         """
         if sweep_type not in ["Discrete", "Interpolating", "Fast"]:
             raise AttributeError("Invalid in `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'")
@@ -809,6 +852,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         :class:`pyaedt.modules.SetupTemplates.SweepHFSS3DLayout` or bool
             Sweep object if successful, ``False`` otherwise.
 
+        References
+        ----------
+
+        >>> oModule.AddSweep
         """
         if sweep_type not in ["Discrete", "Interpolating", "Fast"]:
             raise AttributeError("Invalid in `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'")
@@ -880,6 +927,11 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         -------
         :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or bool
             Sweep object if successful, ``False`` otherwise.
+
+        References
+        ----------
+
+        >>> oModule.AddSweep
         """
         if sweepname is None:
             sweepname = generate_unique_name("SinglePoint")
@@ -939,6 +991,11 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oModule.ImportGDSII
+        >>> oEditor.ImportStackupXML
         """
         active_project = self.project_name
         project_name = os.path.basename(gds_path)[:-4]
@@ -950,8 +1007,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             aedb_path = gds_path.replace(old_name + ".gds", project_name + ".aedb")
             self.logger.warning("aedb_exists. Renaming it to %s", project_name)
 
-        oTool = self.odesktop.GetTool("ImportExport")
-        oTool.ImportGDSII(gds_path, aedb_path, "", "")
+        self.oimport_export.ImportGDSII(gds_path, aedb_path, "", "")
         project = self.odesktop.SetActiveProject(project_name)
         oeditor = project.GetActiveDesign().SetActiveEditor("Layout")
         if xml_path:
@@ -1006,6 +1062,11 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         -------
         bool
             ``True`` if successful and ``False`` if failed.
+
+        References
+        ----------
+
+        >>> oDesign.EditCoSimulationOptions
 
         Examples
         --------

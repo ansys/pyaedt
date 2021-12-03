@@ -421,6 +421,11 @@ class Hfss(FieldAnalysis3D, object):
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
+        References
+        ----------
+
+        >>> oModule.AssignFiniteCond
+
         Examples
         --------
 
@@ -563,6 +568,11 @@ class Hfss(FieldAnalysis3D, object):
         :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or bool
             Sweep object if successful, ``False`` otherwise.
 
+        References
+        ----------
+
+        >>> oModule.InsertFrequencySweep
+
         Examples
         --------
 
@@ -656,6 +666,11 @@ class Hfss(FieldAnalysis3D, object):
         :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or bool
             Sweep object if successful, ``False`` otherwise.
 
+        References
+        ----------
+
+        >>> oModule.InsertFrequencySweep
+
         Examples
         --------
 
@@ -742,6 +757,11 @@ class Hfss(FieldAnalysis3D, object):
         -------
         :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or bool
             Sweep object if successful, ``False`` otherwise.
+
+        References
+        ----------
+
+        >>> oModule.InsertFrequencySweep
 
         Examples
         --------
@@ -842,6 +862,11 @@ class Hfss(FieldAnalysis3D, object):
              The default is ``True``.
         power_fraction : str, optional
              The default is ``"0.95"``.
+
+        References
+        ----------
+
+        >>> oEditor.InsertNativeComponent
 
         Examples
         --------
@@ -1130,6 +1155,11 @@ class Hfss(FieldAnalysis3D, object):
         :class:`pyaedt.modules.Boundary.NativeComponentObject`
             NativeComponentObject object.
 
+        References
+        ----------
+
+        >>> oEditor.InsertNativeComponent
+
         Examples
         --------
         >>> from pyaedt import Hfss
@@ -1213,6 +1243,7 @@ class Hfss(FieldAnalysis3D, object):
     ):
         """Create a linked antenna.
 
+
         Parameters
         ----------
         ffd_full_path : str
@@ -1237,6 +1268,11 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         :class:`pyaedt.modules.Boundary.NativeComponentObject`
+
+        References
+        ----------
+
+        >>> oEditor.InsertNativeComponent
 
         Examples
         --------
@@ -1279,9 +1315,10 @@ class Hfss(FieldAnalysis3D, object):
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
-        Examples
-        --------
+        References
+        ----------
 
+        >>> oModule.SetSBRTxRxSettings
         """
         if self.solution_type != "SBR+":
             self.logger.error("This Boundary only applies to SBR+ Solution")
@@ -1324,6 +1361,11 @@ class Hfss(FieldAnalysis3D, object):
         -------
         str
             Name of port created when successful, ``False`` otherwise.
+
+        References
+        ----------
+
+        >>> oModule.AssignCircuitPort
 
         Examples
         --------
@@ -1390,6 +1432,11 @@ class Hfss(FieldAnalysis3D, object):
         -------
         str
             Name of port created when successful, ``False`` otherwise.
+
+        References
+        ----------
+
+        >>> oModule.AssignLumpedPort
 
         Examples
         --------
@@ -1458,6 +1505,11 @@ class Hfss(FieldAnalysis3D, object):
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
+        References
+        ----------
+
+        >>> oModule.AssignVoltage
+
         Examples
         --------
 
@@ -1515,6 +1567,11 @@ class Hfss(FieldAnalysis3D, object):
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
+        References
+        ----------
+
+        >>> oModule.AssignCurrent
+
         Examples
         --------
 
@@ -1571,6 +1628,11 @@ class Hfss(FieldAnalysis3D, object):
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
+        References
+        ----------
+
+        >>> oModule.AssignVoltage
+        >>> oModule.AssignCurrent
         """
 
         props = OrderedDict({"Objects": [sheet_name], "Direction": OrderedDict({"Start": point1, "End": point2})})
@@ -1622,6 +1684,11 @@ class Hfss(FieldAnalysis3D, object):
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
+
+        References
+        ----------
+
+        >>> oModule.AssignWavePort
 
         Examples
         --------
@@ -1714,11 +1781,11 @@ class Hfss(FieldAnalysis3D, object):
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
-        Examples
-        --------
 
+        References
+        ----------
 
-
+        >>> oModule.AssignFloquetPort
         """
         face_id = self.modeler._convert_list_to_ids(face, True)
         props = OrderedDict({})
@@ -1791,6 +1858,10 @@ class Hfss(FieldAnalysis3D, object):
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
+        References
+        ----------
+
+        >>> oModule.AssignLatticePair
         """
         props = OrderedDict({})
         face_id = self.modeler._convert_list_to_ids(face_couple, True)
@@ -1827,6 +1898,11 @@ class Hfss(FieldAnalysis3D, object):
         -------
         list of str
             list of created pair names.
+
+        References
+        ----------
+
+        >>> oModule.AutoIdentifyLatticePair
         """
         objectname = self.modeler._convert_list_to_ids(object_to_assign, True)
         boundaries = list(self.oboundary.GetBoundaries())
@@ -1867,11 +1943,16 @@ class Hfss(FieldAnalysis3D, object):
         secondary_name : str, optional
             Boundary name.
 
+
         Returns
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
+        References
+        ----------
+
+        >>> oModule.AssignSecondary
         """
         props = OrderedDict({})
         face_id = self.modeler._convert_list_to_ids(face, True)
@@ -1925,6 +2006,10 @@ class Hfss(FieldAnalysis3D, object):
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
+        References
+        ----------
+
+        >>> oModule.AssignPrimary
         """
         props = OrderedDict({})
         face_id = self.modeler._convert_list_to_ids(face, True)
@@ -2013,6 +2098,11 @@ class Hfss(FieldAnalysis3D, object):
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Port object.
 
+        References
+        ----------
+
+        >>> oModule.AssignWavePort
+
         Examples
         --------
 
@@ -2084,6 +2174,11 @@ class Hfss(FieldAnalysis3D, object):
         :class:`pyaedt.modules.Boundary.BoundaryObject` or bool
             Boundary object if successful, ``False`` otherwise.
 
+        References
+        ----------
+
+        >>> oModule.AssignPerfectE
+
         Examples
         --------
 
@@ -2141,6 +2236,11 @@ class Hfss(FieldAnalysis3D, object):
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject` or bool
             Boundary object if successful, ``False`` otherwise.
+
+        References
+        ----------
+
+        >>> oModule.AssignPerfectH
 
         Examples
         --------
@@ -2209,6 +2309,10 @@ class Hfss(FieldAnalysis3D, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oDesign.SARSetup
         """
         self.odesign.SARSetup(TissueMass, MaterialDensity, Tissue_object_List_ID, voxel_size, Average_SAR_method)
         self.logger.info("SAR Settings correctly applied.")
@@ -2234,6 +2338,10 @@ class Hfss(FieldAnalysis3D, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oModule.CreateOpenRegion
         """
         vars = ["NAME:Settings", "OpFreq:=", Frequency, "Boundary:=", Boundary, "ApplyInfiniteGP:=", ApplyInfiniteGP]
         if ApplyInfiniteGP:
@@ -2291,6 +2399,11 @@ class Hfss(FieldAnalysis3D, object):
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject` or bool
             Boundary object if successful, ``False`` otherwise.
+
+        References
+        ----------
+
+        >>> oModule.AssignLumpedRLC
 
         Examples
         --------
@@ -2387,6 +2500,11 @@ class Hfss(FieldAnalysis3D, object):
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject` or bool
             Boundary object if successful, ``False`` otherwise.
+
+        References
+        ----------
+
+        >>> oModule.AssignImpedance
 
         Examples
         --------
@@ -2551,6 +2669,11 @@ class Hfss(FieldAnalysis3D, object):
         list
             List of names for the ports created when successful, ``False`` otherwise.
 
+        References
+        ----------
+
+        >>> oModule.AssignWavePort
+
         Examples
         --------
 
@@ -2631,6 +2754,11 @@ class Hfss(FieldAnalysis3D, object):
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
+        References
+        ----------
+
+        >>> oModule.AssignLumpedPort
+
         Examples
         --------
 
@@ -2709,6 +2837,11 @@ class Hfss(FieldAnalysis3D, object):
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
+        References
+        ----------
+
+        >>> oModule.AssignVoltage
+
         Examples
         --------
 
@@ -2749,6 +2882,11 @@ class Hfss(FieldAnalysis3D, object):
         -------
         str
             Name of the source created when successful, ``False`` otherwise.
+
+        References
+        ----------
+
+        >>> oModule.AssignCurrent
 
         Examples
         --------
@@ -2791,6 +2929,11 @@ class Hfss(FieldAnalysis3D, object):
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
+        References
+        ----------
+
+        >>> oModule.AssignPerfectE
+
         Examples
         --------
 
@@ -2827,6 +2970,11 @@ class Hfss(FieldAnalysis3D, object):
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
+
+        References
+        ----------
+
+        >>> oModule.AssignPerfectH
 
         Examples
         --------
@@ -2882,6 +3030,11 @@ class Hfss(FieldAnalysis3D, object):
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object if successful, ``False`` otherwise
+
+        References
+        ----------
+
+        >>> oModule.AssignLumpedRLC
 
         Examples
         --------
@@ -2949,6 +3102,11 @@ class Hfss(FieldAnalysis3D, object):
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object if successful, ``False`` otherwise.
+
+        References
+        ----------
+
+        >>> oModule.AssignImpedance
 
         Examples
         --------
@@ -3020,6 +3178,11 @@ class Hfss(FieldAnalysis3D, object):
         str
             Name of the port created when successful, ``False`` otherwise.
 
+        References
+        ----------
+
+        >>> oModule.AssignCircuitPort
+
         Examples
         --------
 
@@ -3076,6 +3239,11 @@ class Hfss(FieldAnalysis3D, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oModule.EditSources
+
         Examples
         --------
 
@@ -3129,6 +3297,11 @@ class Hfss(FieldAnalysis3D, object):
         -------
         list of int
             List of the port IDs where thickened sheets were created.
+
+        References
+        ----------
+
+        >>> oEditor.ThickenSheet
 
         Examples
         --------
@@ -3260,6 +3433,7 @@ class Hfss(FieldAnalysis3D, object):
     def validate_full_design(self, dname=None, outputdir=None, ports=None):
         """Validate a design based on an expected value and save information to the log file.
 
+
         Parameters
         ----------
         dname : str,  optional
@@ -3277,6 +3451,11 @@ class Hfss(FieldAnalysis3D, object):
             List of all the validation information for later use.
         bool
             Indicates if the validation was successful or not.
+
+        References
+        ----------
+
+        >>> oDesign.ValidateDesign
 
         Examples
         --------
@@ -3412,6 +3591,11 @@ class Hfss(FieldAnalysis3D, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oModule.CreateReport
+
         Examples
         --------
 
@@ -3487,6 +3671,11 @@ class Hfss(FieldAnalysis3D, object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.CreateReport
 
         """
         npath = os.path.normpath(project_dir)
@@ -3592,6 +3781,10 @@ class Hfss(FieldAnalysis3D, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oDesign.SetDesignSettings
         """
         settings = []
         if activate:
@@ -3622,6 +3815,11 @@ class Hfss(FieldAnalysis3D, object):
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
+
+        References
+        ----------
+
+        >>> oModule.AssignRadiation
 
         Examples
         --------
@@ -3658,6 +3856,11 @@ class Hfss(FieldAnalysis3D, object):
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
+
+        References
+        ----------
+
+        >>> oModule.AssignRadiation
 
         Examples
         --------
@@ -3795,6 +3998,11 @@ class Hfss(FieldAnalysis3D, object):
         (:class:`pyaedt.modules.SolveSetup.Setup`,
             :class:`pyaedt.modules.DesignXPloration.ParametericsSetups.Optimetrics`)
 
+        References
+        ----------
+
+        >>> oModule.InsertSetup
+
         """
         if self.solution_type != "SBR+":
             self.logger.error("Method Applies only to SBR+ Solution.")
@@ -3892,6 +4100,10 @@ class Hfss(FieldAnalysis3D, object):
         (:class:`pyaedt.modules.SolveSetup.Setup`,
             :class:`pyaedt.modules.DesignXPloration.ParametericsSetups.Optimetrics`)
 
+        References
+        ----------
+
+        >>> oModule.InsertSetup
         """
         if self.solution_type != "SBR+":
             self.logger.error("Method Applies only to SBR+ Solution.")
@@ -3983,6 +4195,10 @@ class Hfss(FieldAnalysis3D, object):
         (:class:`pyaedt.modules.SolveSetup.Setup`,
             :class:`pyaedt.modules.DesignXPloration.ParametericsSetups.Optimetrics`)
 
+        References
+        ----------
+
+        >>> oModule.InsertSetup
         """
         if self.solution_type != "SBR+":
             self.logger.error("Method Applies only to SBR+ Solution.")
@@ -4027,25 +4243,7 @@ class Hfss(FieldAnalysis3D, object):
     ):
         """Create an SBR+ radar from a JSON file.
 
-        Parameters
-        ----------
-        radar_file : str
-            Path to the directory with the radar file.
-        radar_name : str
-            Name of the radar file.
-        offset : list, optional
-            Offset relative to the global coordinate system.
-        speed : float, optional
-            Radar movement speed relative to the global coordinate system if greater than ``0``.
-        use_relative_cs : bool, optional
-            Whether the relative coordinate system must be used. The default is ``False``.
-        relative_cs_name : str
-            Name of the relative coordinate system to link the radar to.
-            The default is ``None``, in which case the global coordinate system is used.
-
-        Examples
-        --------
-        Create an SBR+ radar from a JSON file:
+        Example of input JSON file:
 
           .. code-block:: json
 
@@ -4079,9 +4277,34 @@ class Hfss(FieldAnalysis3D, object):
                 }
             }
 
-       Returns
+        Parameters
+        ----------
+        radar_file : str
+            Path to the directory with the radar file.
+        radar_name : str
+            Name of the radar file.
+        offset : list, optional
+            Offset relative to the global coordinate system.
+        speed : float, optional
+            Radar movement speed relative to the global coordinate system if greater than ``0``.
+        use_relative_cs : bool, optional
+            Whether the relative coordinate system must be used. The default is ``False``.
+        relative_cs_name : str
+            Name of the relative coordinate system to link the radar to.
+            The default is ``None``, in which case the global coordinate system is used.
+
+        Returns
         -------
         :class:`pyaedt.modeler.actors.Radar`
+            Radar Class object.
+
+        References
+        ----------
+        AEDT API Commands.
+
+        >>> oEditor.CreateRelativeCS
+        >>> oModule.SetSBRTxRxSettings
+        >>> oEditor.CreateGroup
         """
         self.modeler.primitives._initialize_multipart()
         if self.solution_type != "SBR+":
@@ -4116,6 +4339,11 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         bool
+
+        References
+        ----------
+
+        >>> oModule.EditGlobalCurrentSourcesOption
         """
         if self.solution_type != "SBR+":
             self.logger.error("Method Applies only to SBR+ Solution.")

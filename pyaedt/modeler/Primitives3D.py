@@ -66,6 +66,11 @@ class Primitives3D(Primitives, object):
         :class:`pyaedt.modeler.Object3d.Object3d`
             3D object.
 
+        References
+        ----------
+
+        >>> oEditor.CreateBox
+
         Examples
         --------
 
@@ -121,6 +126,11 @@ class Primitives3D(Primitives, object):
         -------
         :class:`pyaedt.modeler.Object3d.Object3d`
             3D object.
+
+        References
+        ----------
+
+        >>> oEditor.CreateCylinder
 
         Examples
         --------
@@ -179,6 +189,11 @@ class Primitives3D(Primitives, object):
         -------
         :class:`pyaedt.modeler.Object3d.Object3d`
             3D object.
+
+        References
+        ----------
+
+        >>> oEditor.CreateRegularPolyhedron
 
         Examples
         --------
@@ -239,6 +254,11 @@ class Primitives3D(Primitives, object):
         :class:`pyaedt.modeler.Object3d.Object3d`
             3D object.
 
+        References
+        ----------
+
+        >>> oEditor.CreateCone
+
         Examples
         --------
         >>> from pyaedt import Hfss
@@ -288,6 +308,11 @@ class Primitives3D(Primitives, object):
         -------
         :class:`pyaedt.modeler.Object3d.Object3d`
             3D object.
+
+        References
+        ----------
+
+        >>> oEditor.CreateSphere
 
         Examples
         --------
@@ -361,6 +386,11 @@ class Primitives3D(Primitives, object):
         -------
         :class:`pyaedt.modeler.Object3d.Object3d`
             3D object.
+
+        References
+        ----------
+
+        >>> oEditor.CreateBondwire
 
         Examples
         --------
@@ -438,6 +468,11 @@ class Primitives3D(Primitives, object):
         pyaedt.modeler.Object3d.Object3d
             3D object.
 
+        References
+        ----------
+
+        >>> oEditor.CreateRectangle
+
         """
         szAxis = GeometryOperators.cs_plane_to_axis_str(csPlane)
         XStart, YStart, ZStart = self._pos_with_arg(position)
@@ -483,6 +518,11 @@ class Primitives3D(Primitives, object):
         -------
         :class:`pyaedt.modeler.Object3d.Object3d`
             3D object.
+
+        References
+        ----------
+
+        >>> oEditor.CreateCircle
 
         """
         szAxis = GeometryOperators.cs_plane_to_axis_str(cs_plane)
@@ -530,6 +570,11 @@ class Primitives3D(Primitives, object):
         -------
         :class:`pyaedt.modeler.Object3d.Object3d`
             3D object.
+
+        References
+        ----------
+
+        >>> oEditor.CreateEllipse
 
         """
         szAxis = GeometryOperators.cs_plane_to_axis_str(cs_plane)
@@ -606,6 +651,11 @@ class Primitives3D(Primitives, object):
         :class:`pyaedt.modeler.Object3d.Object3d`
             3D object.
 
+        References
+        ----------
+
+        >>> oEditor.CreateEquationCurve
+
         """
         x_section = self._crosssection_arguments(type=xsection_type, orient=xsection_orient, width=xsection_width,
                                                  topwidth=xsection_topwidth, height=xsection_height,
@@ -641,6 +691,11 @@ class Primitives3D(Primitives, object):
         :class:`pyaedt.modeler.Object3d.Object3d`
             3D object.
 
+        References
+        ----------
+
+        >>> oEditor.CreateHelix
+
         """
         vArg1 = ["NAME:Selections"]
         vArg1.append("Selections:="), vArg1.append(o.name)
@@ -666,6 +721,11 @@ class Primitives3D(Primitives, object):
         -------
         :class:`pyaedt.modeler.Object3d.Object3d`
             3D object.
+
+        References
+        ----------
+
+        >>> oEditor.ChangeProperty
 
         """
         this_object = self._resolve_object(object_name)
@@ -708,6 +768,11 @@ class Primitives3D(Primitives, object):
         -------
         :class:`pyaedt.modeler.Object3d.Object3d`
             3D object.
+
+        References
+        ----------
+
+        >>> oEditor.CreateUserDefinedModel
 
         """
         vArg1 = ["NAME:UserDefinedModelParameters", ["NAME:Definition"], ["NAME:Options"]]
@@ -771,6 +836,10 @@ class Primitives3D(Primitives, object):
         str
             Name of the created 3D component.
 
+        References
+        ----------
+
+        >>> oEditor.Insert3DComponent
         """
         vArg1 = ["NAME:InsertComponentData"]
         sz_geo_params = ""
@@ -816,6 +885,10 @@ class Primitives3D(Primitives, object):
         List
             List of objects belonging to the 3D component.
 
+        References
+        ----------
+
+        >>> oeditor.GetChildObject
         """
         if self._app._is_object_oriented_enabled():
             compobj = self._oeditor.GetChildObject(componentname)
@@ -922,6 +995,11 @@ class Primitives3D(Primitives, object):
         Returns
         -------
         :class:`pyaedt.modeler.actors.Person`
+
+        References
+        ----------
+
+        >>> oEditor.Insert3DComponent
         """
         self._initialize_multipart()
         if not self._check_actor_folder(actor_folder):
@@ -998,6 +1076,10 @@ class Primitives3D(Primitives, object):
         -------
         :class:`pyaedt.modeler.actors.Vehicle`
 
+        References
+        ----------
+
+        >>> oEditor.Insert3DComponent
         """
         self._initialize_multipart()
 
@@ -1087,6 +1169,11 @@ class Primitives3D(Primitives, object):
         -------
         :class:`pyaedt.modeler.actors.Bird`
 
+        References
+        ----------
+
+        >>> oEditor.Insert3DComponent
+
         Examples
         --------
         >>> from pyaedt import Hfss
@@ -1156,6 +1243,11 @@ class Primitives3D(Primitives, object):
         Returns
         -------
         :class:`pyaedt.modeler.multiparts.Environment`
+
+        References
+        ----------
+
+        >>> oEditor.Insert3DComponent
 
         """
         self._initialize_multipart()
