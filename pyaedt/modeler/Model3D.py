@@ -66,7 +66,7 @@ class Modeler3D(GeometryModeler):
         References
         ----------
 
-        >>> oEditor. Create3DComponent
+        >>> oEditor.Create3DComponent
         """
         if self._app.design_type == "Icepak":
             exclude_region = True
