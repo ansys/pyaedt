@@ -72,10 +72,6 @@ class Primitives3DLayout(object):
         return self._app.modeler
 
     @property
-    def _oeditor(self):
-        return self._modeler.oeditor
-
-    @property
     def opadstackmanager(self):
         """Aedt oPadstackManager.
 
