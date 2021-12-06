@@ -56,11 +56,9 @@ class Primitives3DLayout(object):
                 return self.geometries[el]
         return None
 
-    def __init__(self, modeler):
+    def __init__(self, app):
         self.is_outside_desktop = sys.modules["__main__"].isoutsideDesktop
-        self._modeler = modeler
-        self._app = self._modeler._app
-        self._oeditor = self.modeler.oeditor
+        self._app = app
         self._opadstackmanager = self._app._oproject.GetDefinitionManager().GetManager("Padstack")
         self.padstacks = {}
         self._components = {}
@@ -68,6 +66,14 @@ class Primitives3DLayout(object):
         self._pins = {}
         self._nets = {}
         pass
+
+    @property
+    def _modeler(self):
+        return self._app.modeler
+
+    @property
+    def _oeditor(self):
+        return self._modeler.oeditor
 
     @property
     def opadstackmanager(self):
@@ -90,6 +96,9 @@ class Primitives3DLayout(object):
             List of components from EDB. If EDB is not present, ``None`` is returned.
 
         """
+        if self._primitivesDes == self._app.project_name + self._app.design_name and self._components:
+            return self._components
+        self._primitivesDes = self._app.project_name + self._app.design_name
         try:
             comps = list(self.modeler.edb.core_components.components.keys())
         except:
@@ -108,7 +117,9 @@ class Primitives3DLayout(object):
             List of geometries from EDB. If EDB is not present, ``None`` is returned.
 
         """
-
+        if self._primitivesDes == self._app.project_name + self._app.design_name and self._geometries:
+            return self._geometries
+        self._primitivesDes = self._app.project_name + self._app.design_name
         try:
             prims = self.modeler.edb.core_primitives.primitives
         except:
@@ -159,6 +170,9 @@ class Primitives3DLayout(object):
             List of pins from EDB. If EDB is not present, ``None`` is returned.
 
         """
+        if self._primitivesDes == self._app.project_name + self._app.design_name and self._pins:
+            return self._pins
+        self._primitivesDes = self._app.project_name + self._app.design_name
         try:
             pins_objs = list(self.modeler.edb.pins)
         except:
@@ -191,6 +205,9 @@ class Primitives3DLayout(object):
             List of nets from EDB. If EDB is not present, ``None`` is returned.
 
         """
+        if self._primitivesDes == self._app.project_name + self._app.design_name and self._nets:
+            return self._nets
+        self._primitivesDes = self._app.project_name + self._app.design_name
         try:
             nets_objs = list(self.modeler.edb.core_nets.nets)
         except:

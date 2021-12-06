@@ -849,7 +849,7 @@ class Primitives(object):
 
     Parameters
     ----------
-    modeler : :class:`pyaedt.modeler.Model3D.Modeler3D`, :class:`pyaedt.modeler.Model2D.Modeler2D`
+    application : :class:`pyaedt.modeler.Model3D.Modeler3D`, :class:`pyaedt.modeler.Model2D.Modeler2D`
         Pointer to the parent object.
 
     Examples
@@ -861,11 +861,12 @@ class Primitives(object):
     >>> prim = aedtapp.modeler.primitives
     """
 
-    def __init__(self, modeler):
-        self._modeler = modeler
-        self._app = modeler._app
-        self._oeditor = self.modeler.oeditor
+    def __init__(self):
         self.refresh()
+
+    @property
+    def _modeler(self):
+        return self._app.modeler
 
     @property
     def solid_objects(self):
