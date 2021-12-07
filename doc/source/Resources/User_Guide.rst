@@ -67,7 +67,7 @@ for the variable name, a project-wide variable is created.
 Variable Manager allows user to create advanced equations and manage them through PyAEDT.
 
 The Variable value can be set or get using application setter and getter but user can access
-more comprehensive set of function by accessing directly the variable_manager object.
+more comprehensive set of functions by accessing directly the variable_manager object.
 
 .. code:: python
 
