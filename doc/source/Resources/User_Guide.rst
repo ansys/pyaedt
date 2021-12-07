@@ -203,7 +203,7 @@ All setup operations are listed into setups list.
 Optimization
 ~~~~~~~~~~~~
 Optimetrics allows user to setup parametric analysis, sensitivity analysis, optimization and DOE.
-PyAEDT is able to read all optietrics setup already present in a design and create new ones.
+PyAEDT is able to read all optimetrics setup already present in a design and create new ones.
 
 .. code:: python
 
