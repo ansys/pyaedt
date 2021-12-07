@@ -232,6 +232,12 @@ class MatProperty(object):
         elif val is not None and val["property_type"] == "AnisoProperty":
             self.type = "anisotropic"
             self.value = [val["component1"], val["component2"], val["component3"]]
+        elif val is not None and val["property_type"] == "nonlinear":
+            self.type = "nonlinear"
+            for e, v in val.items():
+                if isinstance(v, (dict, OrderedDict)):
+                    self.value = v['Point']
+                    break
         if not isinstance(thermalmodifier, list):
             thermalmodifier = [thermalmodifier]
         for tm in thermalmodifier:
