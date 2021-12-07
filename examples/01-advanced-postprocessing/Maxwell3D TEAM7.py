@@ -1,8 +1,9 @@
 """
-Maxwell 2D  Coil Analysis
+TEAM Problem 7 'Asymmetrical Conductor with a Hole'
+Maxwell 3D Eddy Current Analysis
 -------------------------
 This example shows how you can use PyAEDT to create a project in
-Maxwell2D and run an eddy current simulation.
+Maxwell3D and run an eddy current simulation.
 
 To provide the advanced postprocessing features needed for this example, Matplotlib, NumPy, and
 PyVista must be installed on the machine.
