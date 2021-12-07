@@ -129,7 +129,7 @@ Next example shows how easily user can go deeper into edges and vertices of face
         print(edge.position)
 
 
-All objects allows to execute any modeler operations like union or subtraction.
+All objects allow to execute any modeler operations like union or subtraction.
 
 
 .. code:: python
