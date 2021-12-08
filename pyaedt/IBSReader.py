@@ -29,14 +29,19 @@ def read_project(fileName: str):
 
     # Read *.ibis file.
     with open(fileName,'r') as ts:
-        current_line = ts.readline()
-        # Component
-        if IsStartedWith(current_line, "[Component] ") == True:
-            read_component(current_line, ts)
-        elif IsStartedWith(current_line, "[Model] ") == True:
-            replace_model(current_line, ts)
-        elif IsStartedWith(current_line, "[Model Selector] ") == True:
-            read_model_selector(current_line, ts)
+        while True:
+            current_line = ts.readline()
+            print(current_line)
+            if not current_line:
+                break
+
+            if IsStartedWith(current_line, "[Component] ") == True:
+                read_component(current_line, ts)
+            elif IsStartedWith(current_line, "[Model] ") == True:
+                replace_model(current_line, ts)
+            elif IsStartedWith(current_line, "[Model Selector] ") == True:
+                read_model_selector(current_line, ts)
+            
 
 # Model
 def replace_model(current_line: str, ts: typing.TextIO):
@@ -45,11 +50,11 @@ def replace_model(current_line: str, ts: typing.TextIO):
         return
 
     model = Model()
-    model.name = current_line.split("]")(1).strip()
-    current_line = ts.ReadLine.replace("\t", "").strip()
+    model.name = current_line.split("]")[1].strip()
+    current_line = ts.readline().replace("\t", "").strip()
 
     while IsStartedWith(current_line, "Model_type") != True:
-        current_line = ts.ReadLine.replace("\t", "").strip()
+        current_line = ts.readline().replace("\t", "").strip()
 
     iStart = current_line.index(" ", 1)
 
@@ -57,8 +62,8 @@ def replace_model(current_line: str, ts: typing.TextIO):
         model.ModelType = current_line[iStart:].strip()
 
     # Clamp
-    while ts.AtEndOfStream != True:
-        current_line = ts.ReadLine.strip.replace("clamp", "Clamp")
+    while not current_line:
+        current_line = ts.readline().strip.replace("clamp", "Clamp")
 
         if IsStartedWith(current_line, "[GND Clamp]") == True:
             model.Clamp = True
@@ -81,18 +86,21 @@ def read_model_selector(current_line: str, ts: typing.TextIO):
         return
 
     model_selector = ModelSelector()
-    model_selector.name = current_line.split("]")(1).strip()
+    model_selector.ModelSelectorItems = []
+    model_selector.name = current_line.split("]")[1].strip()
 
-    while IsStartedWith(current_line, "|") == True:
-        current_line = ts.ReadLine
+    # while IsStartedWith(current_line, "|") == True:
+    #     current_line = ts.readline()
+
+    current_line = ts.readline()
 
     # Model Selector
     while (IsStartedWith(current_line, "|") is False and current_line.strip() != ""):
         model_selector.ModelSelectorItems.append(make_model(current_line.strip()))
-        current_line = ts.ReadLine
+        current_line = ts.readline()
 
     # ModelSelectorItem
-    model_selector.FillModelReference(Models)
+    #model_selector.FillModelReference(Models) @MAssimo: Is is it related to COM objects.
     ModelSelectors.append(model_selector)
 
 def make_model(current_line: str) -> ModelSelectorItem:
@@ -113,57 +121,66 @@ def read_component(current_line: str, ts: typing.TextIO):
 
     component = Component()
     component.name = get_component_name(current_line)
-    current_line = ts.ReadLine
+    current_line = ts.readline()
 
     if IsStartedWith(current_line, "[Manufacturer]") == True:
         component.Manufacturer = current_line.replace("[Manufacturer]", "").strip()
 
-    current_line = ts.ReadLine
+    current_line = ts.readline()
 
     while True:
-        current_line = ts.ReadLine
+        current_line = ts.readline()
         if IsStartedWith(current_line, "[Package]") == True:
             break
 
-    fill_packageI_info(component, current_line, ts)
+    fill_package_info(component, current_line, ts)
 
     # [pin]
     while IsStartedWith(current_line, "[Pin] ") == True:
-        current_line = ts.ReadLine
+        current_line = ts.readline()
 
-    # current_line = ts.ReadLine
+    # current_line = ts.readline()
 
     while True:
-        current_line = ts.ReadLine
+        current_line = ts.readline()
         if IsStartedWith(current_line, "|") == True:
             break
 
     while (current_line == ""):
-        current_line = ts.ReadLine
+        current_line = ts.readline()
 
     while IsStartedWith(current_line, "|") == False:
         component.Pins.append(make_pin_object(current_line))
-        current_line = ts.ReadLine
+        current_line = ts.readline()
         if current_line == "":
             break
 
     Components.append(component)
 
-def fill_packageI_info(component: Component, current_line: str, ts: typing.TextIO):
-    while IsStartedWith(current_line, "|") == True:
+def fill_package_info(component: Component, current_line: str, ts: typing.TextIO):
+    while IsStartedWith(current_line, "|") == True or IsStartedWith(current_line, "[") == True:
         current_line = ts.readline()
 
     # the component object must be created first.
-    component.R_pkg.FillData("R_pkg", current_line.strip())
-    current_line = ts.ReadLine
-    component.L_pkg.FillData("L_pkg", current_line.strip())
-    current_line = ts.ReadLine
-    component.C_pkg.FillData("C_pkg", current_line.strip())
+    # component.R_pkg.FillData("R_pkg", current_line.strip())
+    # current_line = ts.readline()
+    # component.L_pkg.FillData("L_pkg", current_line.strip())
+    # current_line = ts.readline()
+    # component.C_pkg.FillData("C_pkg", current_line.strip())
+
+    if IsStartedWith(current_line, "R_pkg") == True:
+        component.R_pkg = current_line.strip()
+        current_line = ts.readline()
+    elif IsStartedWith(current_line, "L_pkg") == True:
+        component.L_pkg = current_line.strip()
+        current_line = ts.readline()
+    elif IsStartedWith(current_line, "C_pkg") == True:
+        component.C_pkg = current_line.strip()
 
 def get_component_name(line: str) -> str:
     name = ""
     name = line.replace("[Component]", "")
-    return name.strip
+    return name.strip()
 
 # Pin
 def make_pin_object(line: str) -> Pin:
@@ -199,12 +216,12 @@ def get_first_parameter(line: str) ->str:
 
 def IsStartedWith(src: str, find: str, ignore_case: bool=True) -> bool:
     if ignore_case == True:
-        if src[:-len(find)].lower() == find.lower():
+        if src[:len(find)].lower() == find.lower():
             return True
         else:
             return False
     else:
-        if src[:-len(find)] == find:
+        if src[:len(find)] == find:
             return True
         else:
             return False
