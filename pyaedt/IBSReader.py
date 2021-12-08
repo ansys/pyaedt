@@ -1,274 +1,220 @@
 import io
 import os
 
-# VERSION 1.0 CLASS
-# BEGIN
-#   MultiUse = -1  'True
-#   Persistable = 0  'NotPersistable
-#   DataBindingBehavior = 0  'vbNone
-#   DataSourceBehavior  = 0  'vbNone
-#   MTSTransactionMode  = 0  'NotAnMTSObject
-# END
-# Attribute VB_Name = "IBSReader"
-# Attribute VB_GlobalNameSpace = False
-# Attribute VB_Creatable = True
-# Attribute VB_PredeclaredId = False
-# Attribute VB_Exposed = False
-# Attribute VB_Ext_KEY = "SavedWithClassBuilder6" ,"Yes"
-# Attribute VB_Ext_KEY = "Top_Level" ,"Yes"
-# Option Explicit
+Components = []
+ModelSelectors = []
+Models = []
 
-# Public Components As New cComponents
-# Public ModelSelectors As New cModelSelectors
-# Public Models As New cModels
-# Public ErrMsg As String
+class Component():
+    pass
 
-Private Const CONST_END_LINE_VALUE As String = "*   Format: HSPICE"
+class Pin():
+    pass
 
-def reset():
-    Components = cComponents()
-    ModelSelectors = cModelSelectors()
-    Models = cModels()
+class ModelSelector():
+    pass
 
-def read_project(fileName: str) ->bool:
-# On Error GoTo ErrHand
+class ModelSelectorItem():
+    pass
+
+class Model():
+    pass
+
+def read_project(fileName: str):
+    """Read .ibis file content."""
 
     if os.path.exists(fileName) == False:
         error_message = fileName + "does not exist."
-        ReadProject = False
         raise FileExistsError(error_message)
 
-    #Component Model
+    # Read *.ibis file.
     with open(fileName,'r') as ts:
         s_line = ts.readline()
         # Component
         if IsStartedWith(s_line, "[Component] ") == True:
-            ReadComponent(s_line, ts)
+            read_component(s_line, ts)
         elif IsStartedWith(s_line, "[Model] ") == True:
             replace_model(s_line, ts)
         elif IsStartedWith(s_line, "[Model Selector] ") == True:
-            ReadModelSelector(s_line, ts)
+            read_model_selector(s_line, ts)
 
-    ts = None
-    fso = None
-    ReadProject = True
-
-
-# ==============================================================
 # Model
-# ==============================================================
-def replace_model(sLine: str, ts: io.StringIO):
-
-    if IsStartedWith(sLine, "[Model] ") != True:
+def replace_model(current_line: str, ts: io.StringIO):
+    global Models
+    if IsStartedWith(current_line, "[Model] ") != True:
         return
 
-    curLine = sLine
-    oModel = cModel()
+    model = Model()
 
-    oModel.name = curLine.split("]")(1).strip()
-    curLine = ts.ReadLine.replace("\t", "").strip()
+    model.name = current_line.split("]")(1).strip()
+    current_line = ts.ReadLine.replace("\t", "").strip()
 
-    while IsStartedWith(curLine, "Model_type") != True and ts.AtEndOfStream != True:
-        curLine = ts.ReadLine.replace("\t", "").strip()
+    while IsStartedWith(current_line, "Model_type") != True:
+        current_line = ts.ReadLine.replace("\t", "").strip()
 
-    iStart = curLine.index(" ", 1)
+    iStart = current_line.index(" ", 1)
 
     if iStart > 0:
-        oModel.ModelType = curLine[iStart:].strip()
+        model.ModelType = current_line[iStart:].strip()
 
     # Clamp
     while ts.AtEndOfStream != True:
-        curLine = ts.ReadLine.strip.replace("clamp", "Clamp")
+        current_line = ts.ReadLine.strip.replace("clamp", "Clamp")
 
         # Clamp
-        if IsStartedWith(curLine, "[GND Clamp]") == True:
-            oModel.Clamp = True
+        if IsStartedWith(current_line, "[GND Clamp]") == True:
+            model.Clamp = True
             break
-        elif IsStartedWith(curLine, "[GND_Clamp]") == True:
-            oModel.Clamp = True
+        elif IsStartedWith(current_line, "[GND_Clamp]") == True:
+            model.Clamp = True
             break
 
         # Enable
-        elif IsStartedWith(curLine, "Enable ", True) == True:
-            oModel.Enable = curLine[len("Enable") + 1:].strip()
-        elif IsStartedWith(curLine, "[Rising Waveform]") == True:
+        elif IsStartedWith(current_line, "Enable ", True) == True:
+            model.Enable = current_line[len("Enable") + 1:].strip()
+        elif IsStartedWith(current_line, "[Rising Waveform]") == True:
             break
-        elif IsStartedWith(curLine, "[Ramp]") == True:
+        elif IsStartedWith(current_line, "[Ramp]") == True:
             break
 
-    Me.Models.append(oModel)
+    Models.append(model)
 
-
-# ==============================================================
 # Model Selector
-# ==============================================================
-def ReadModelSelector(s_line: str, ts: io.StringIO):
-
-    if IsStartedWith(s_line, "[Model Selector] ") != True :
+def read_model_selector(current_line: str, ts: io.StringIO):
+    if IsStartedWith(current_line, "[Model Selector] ") != True :
         return
 
-    curLine = s_line
-    oModelSelector = cModelSelector()
-    oModelSelector.name = curLine.split("]")(1).strip()
+    model_selector = ModelSelector()
+    model_selector.name = current_line.split("]")(1).strip()
 
-    while IsStartedWith(curLine, "|") == True and (ts.AtEndOfStream != True):
-        curLine = ts.ReadLine
+    while IsStartedWith(current_line, "|") == True:
+        current_line = ts.ReadLine
 
     if ts.AtEndOfStream == True:
         return
 
     # Model Selector
-    while (IsStartedWith(curLine, "|") is False and curLine.strip() != "") and ts.AtEndOfStream != True:
-        oModelSelector.ModelSelectorItems.append(MakeModel(curLine.strip()))
-        curLine = ts.ReadLine
+    while (IsStartedWith(current_line, "|") is False and current_line.strip() != ""):
+        model_selector.ModelSelectorItems.append(MakeModel(current_line.strip()))
+        current_line = ts.ReadLine
 
-    # DELETE IT
     # ModelSelectorItem
-    oModelSelector.FillModelReference(Me.Models)
-    Me.ModelSelectors.append(oModelSelector)
+    model_selector.FillModelReference(Models)
+    ModelSelectors.append(model_selector)
 
-def MakeModel(s_line: str) -> cModelSelectorItem:
-
-    Item = cModelSelectorItem()
+def MakeModel(s_line: str) -> ModelSelectorItem:
+    item = ModelSelectorItem()
     i_start = s_line.index(" ", 1)
 
     if i_start > 0:
-        Item.name = s_line[i_start:].strip()
-        Item.Description = s_line[i_start:].strip()
+        item.name = s_line[i_start:].strip()
+        item.Description = s_line[i_start:].strip()
 
-    return Item
+    return item
 
-
-# ==============================================================
 # Component
-# ==============================================================
-def ReadComponent(sLine: str, ts: io.StringIO):
+def read_component(current_line: str, ts: io.StringIO):
 
-    if IsStartedWith(sLine, "[Component] ") != True:
+    Components = []
+    if IsStartedWith(current_line, "[Component] ") != True:
         return
 
-    curLine = sLine
-    oComponent = cComponent()
-    oComponent.name = GetComponentName(sLine)
-    curLine = ts.ReadLine
+    component = Component()
+    component.name = GetComponentName(current_line)
+    current_line = ts.ReadLine
 
-    if IsStartedWith(curLine, "[Manufacturer]") == True:
-        oComponent.Manufacturer = curLine.replace("[Manufacturer]", "").strip()
+    if IsStartedWith(current_line, "[Manufacturer]") == True:
+        component.Manufacturer = current_line.replace("[Manufacturer]", "").strip()
 
-    curLine = ts.ReadLine
+    current_line = ts.ReadLine
 
     while True:
         curLine = ts.ReadLine
-        if IsStartedWith(curLine, "[Package]") == True or ts.AtEndOfStream == True:
+        if IsStartedWith(current_line, "[Package]") == True:
             break
 
     # '    If IsStartedWith(curLine, "[Package]") = True Then
-    # '        oComponent.Package = Trim(Replace(Replace$(curLine, "[Package]", ""), "|", ""))
+    # '        component.Package = Trim(Replace(Replace$(curLine, "[Package]", ""), "|", ""))
     # '    End If
 
-    FillPackageInfo(oComponent, ts)
+    FillPackageInfo(component, ts)
 
     # [pin]
-    while IsStartedWith(curLine, "[Pin] ") == True or ts.AtEndOfStream == True:
-        curLine = ts.ReadLine
+    while IsStartedWith(current_line, "[Pin] ") == True or ts.AtEndOfStream == True:
+        current_line = ts.ReadLine
 
     if ts.AtEndOfStream == True:
         return
 
-    curLine = ts.ReadLine
+    current_line = ts.ReadLine
 
     # [Pin]
     while True:
-        curLine = ts.ReadLine
-        if IsStartedWith(curLine, "|") == True and ts.AtEndOfStream != True:
+        current_line = ts.ReadLine
+        if IsStartedWith(current_line, "|") == True:
             break
 
-    while (curLine == "") and (ts.AtEndOfStream != True):
-        curLine = ts.ReadLine
+    while (current_line == ""):
+        current_line = ts.ReadLine
 
-    if ts.AtEndOfStream == True:
-        return
-
-    while IsStartedWith(curLine, "|") == False and ts.AtEndOfStream != True:
-        oComponent.Pins.append(MakePinObject(curLine))
-        curLine = ts.ReadLine
-        if curLine == "":
+    while IsStartedWith(current_line, "|") == False:
+        component.Pins.append(MakePinObject(current_line))
+        current_line = ts.ReadLine
+        if current_line == "":
             break
 
-    Components.append(oComponent)
+    Components.append(component)
 
+def FillPackageInfo(component: Component, ts3: io.StringIO):
 
-def FillPackageInfo(oComponent: cComponent, ts: io.StringIO):
+    with open(ts3) as ts:
+        while IsStartedWith(curLine, "|") == True:
+            curLine = ts.readline()
 
+    # the component object must be created first.
+    component.R_pkg.FillData("R_pkg", curLine.strip())
     curLine = ts.ReadLine
-
-    while IsStartedWith(curLine, "|") == True and ts.AtEndOfStream != True:
-        curLine = ts.ReadLine
-
-    oComponent.R_pkg.FillData("R_pkg", curLine.strip())
+    component.L_pkg.FillData("L_pkg", curLine.strip())
     curLine = ts.ReadLine
-    oComponent.L_pkg.FillData("L_pkg", curLine.strip())
-    curLine = ts.ReadLine
-    oComponent.C_pkg.FillData("C_pkg", curLine.strip())
+    component.C_pkg.FillData("C_pkg", curLine.strip())
 
-#     Do
-#         If IsStartedWith(curLine, "R_pkg ") = True Then
-#             oComponent.R_pkg.FillData "R_pkg", curLine
-#         ElseIf IsStartedWith(curLine, "L_pkg ") = True Then
-#             oComponent.L_pkg.FillData "L_pkg", curLine
-#         ElseIf IsStartedWith(curLine, "C_pkg ") = True Then
-#             oComponent.C_pkg.FillData "C_pkg", curLine
-#         End If
-#         curLine = ts.ReadLine
-#     Loop While IsStartedWith(curLine, "") = False
-
-def GetComponentName(sLine: str) -> str:
+def GetComponentName(line: str) -> str:
     name = ""
-    name = sLine.replace("[Component]", "")
+    name = line.replace("[Component]", "")
     return name.strip
 
-
-# cPin
-def MakePinObject(sLine: str) -> cPin:
-
-    oPin = cPin()
-    iStart = 0
-    iEnd = 0
-    iCurr = 0
+# Pin
+def MakePinObject(line: str) -> Pin:
+    pin = Pin()
     currString = ""
-    i = 0
 
-    currString = sLine.strip().Replace("\t", " ")
-    oPin.PinName = GetFirstParameter(currString)
+    currString = line.strip().Replace("\t", " ")
+    pin.PinName = GetFirstParameter(currString)
 
-    currString = currString[len(oPin.PinName) + 1:].strip()
-    oPin.SignalName = GetFirstParameter(currString)
+    currString = currString[len(pin.PinName) + 1:].strip()
+    pin.SignalName = GetFirstParameter(currString)
 
-    currString = currString[len(oPin.SignalName) + 1:].strip()
-    oPin.modelName = GetFirstParameter(currString)
+    currString = currString[len(pin.SignalName) + 1:].strip()
+    pin.modelName = GetFirstParameter(currString)
 
-    currString = currString[len(oPin.modelName) + 1:].strip()
-    oPin.R_pin = GetFirstParameter(currString)
+    currString = currString[len(pin.modelName) + 1:].strip()
+    pin.R_pin = GetFirstParameter(currString)
 
-    currString = currString[len(oPin.R_pin) + 1:].strip()
-    oPin.L_pin = GetFirstParameter(currString)
+    currString = currString[len(pin.R_pin) + 1:].strip()
+    pin.L_pin = GetFirstParameter(currString)
 
-    currString = currString[len(oPin.L_pin) + 1:].strip()
-    oPin.C_pin = GetFirstParameter(currString)
+    currString = currString[len(pin.L_pin) + 1:].strip()
+    pin.C_pin = GetFirstParameter(currString)
 
-    return oPin
+    return pin
 
 
 def GetFirstParameter(sString: str) ->str:
     if sString == "":
         return ""
 
-    param = ""
-    data = ""
     data = sString.split(" ")
-
     return data(0).strip()
-
 
 def IsStartedWith(src: str, find: str, ignore_case: bool=True) -> bool:
     if ignore_case == True:
@@ -276,7 +222,6 @@ def IsStartedWith(src: str, find: str, ignore_case: bool=True) -> bool:
             return True
         else:
             return False
-
     else:
         if src[:-len(find)] == find:
             return True
