@@ -126,7 +126,7 @@ def _arg2dict(arg, dict_out):
                     else:
                         dict_in[arg[i][:-2]] = list(arg[i + 1])
                 else:
-                    if arg[i][:-2] in list(dict_in.keys()):
+                    if arg[i][:-2] in dict_in:
                         dict_in[arg[i][:-2]].append(arg[i + 1])
                     else:
                         dict_in[arg[i][:-2]] = arg[i + 1]
