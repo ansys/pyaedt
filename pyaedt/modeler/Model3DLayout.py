@@ -150,7 +150,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         """Primitives.
 
         .. deprecated:: 0.4.15
-            No need to use primitives anymore. you can instantiate primitives methods directly from modeler instead.
+            No need to use primitives anymore. you can instanciate primitives methods directly from modeler instead.
 
         Returns
         -------
