@@ -67,7 +67,7 @@ for the variable name, a project-wide variable is created.
 Variable Manager allows user to create advanced equations and manage them through PyAEDT.
 
 The Variable value can be set or get using application setter and getter but user can access
-more comprehensive set of function by accessing directly the variable_manager object.
+more comprehensive set of functions by accessing directly the variable_manager object.
 
 .. code:: python
 
@@ -129,7 +129,7 @@ Next example shows how easily user can go deeper into edges and vertices of face
         print(edge.position)
 
 
-All objects allows to execute any modeler operations like union or subtraction.
+All objects allow to execute any modeler operations like union or subtraction.
 
 
 .. code:: python
@@ -198,7 +198,7 @@ All setup operations are listed into setups list.
 Optimization
 ~~~~~~~~~~~~
 Optimetrics allows user to setup parametric analysis, sensitivity analysis, optimization and DOE.
-PyAEDT is able to read all optietrics setup already present in a design and create new ones.
+PyAEDT is able to read all optimetrics setup already present in a design and create new ones.
 
 .. code:: python
 

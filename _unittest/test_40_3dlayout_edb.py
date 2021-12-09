@@ -27,7 +27,6 @@ class TestClass:
             )
         self.aedtapp = Hfss3dLayout(self.test_project)
 
-
     def teardown_class(self):
         self.aedtapp._desktop.ClearMessages("", "", 3)
         self.aedtapp.close_project(test_project_name, saveproject=False)
