@@ -1,7 +1,6 @@
 # standard imports
 import gc
 import os
-import time
 
 # Import required modules
 from pyaedt import Hfss, Icepak, Maxwell3d
