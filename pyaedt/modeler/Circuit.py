@@ -122,7 +122,7 @@ class ModelerNexxim(ModelerCircuit):
             self.layouteditor = self._odesign.SetActiveEditor("Layout")
             self._odesign.SetActiveEditor("SchematicEditor")
         self.layers = Layers(self, roughnessunits="um")
-        self._primitives = Primitives3DLayout(app)
+        self._primitives = Primitives3DLayout(self)
         self._primitivesDes = self._app.project_name + self._app.design_name
 
     @property
@@ -184,6 +184,9 @@ class ModelerNexxim(ModelerCircuit):
         """
         if self._app.design_type == "Twin Builder":
             return
+        if self._primitivesDes != self._app.project_name + self._app.design_name:
+            self._primitives = Primitives3DLayout(self)
+            self._primitivesDes = self._app.project_name + self._app.design_name
         return self._primitives
 
     @property

@@ -1,5 +1,4 @@
 import math
-from warnings import warn
 
 from pyaedt.generic.general_methods import aedt_exception_handler
 from pyaedt.modeler.Modeler import Modeler, GeometryModeler
@@ -29,7 +28,7 @@ class ModelerRMxprt(Modeler):
         return self._oeditor
 
 
-class Modeler2D(GeometryModeler, Primitives2D):
+class Modeler2D(GeometryModeler):
     """Provides the Modeler 2D application interface.
 
     This class is inherited in the caller application and is accessible through the modeler variable
@@ -48,8 +47,7 @@ class Modeler2D(GeometryModeler, Primitives2D):
 
     def __init__(self, application):
         GeometryModeler.__init__(self, application, is3d=False)
-        Primitives2D.__init__(self)
-        self._primitives = self
+        self._primitives = Primitives2D(self)
         self._primitivesDes = self._app.project_name + self._app.design_name
 
     def __get__(self, instance, owner):
@@ -60,17 +58,14 @@ class Modeler2D(GeometryModeler, Primitives2D):
     def primitives(self):
         """Primitives.
 
-        .. deprecated:: 0.4.15
-            No need to use primitives anymore. You can instantiate primitives methods directly from modeler instead.
-
         Returns
         -------
         :class:`pyaedt.modeler.Primitives2D.Primitives2D`
 
         """
-        mess = "`primitives` is deprecated.\n"
-        mess += " Use `app.modeler` directly to instantiate primitives methods."
-        warn(mess, DeprecationWarning)
+        if self._primitivesDes != self._app.project_name + self._app.design_name:
+            self._primitives.refresh()
+            self._primitivesDes = self._app.project_name + self._app.design_name
         return self._primitives
 
     @aedt_exception_handler
