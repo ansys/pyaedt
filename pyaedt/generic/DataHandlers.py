@@ -115,7 +115,7 @@ def _arg2dict(arg, dict_out):
     """
     if arg[0] == "NAME:DimUnits" or "NAME:Point" in arg[0]:
         if arg[0][5:] in list(dict_out.keys()):
-            if isinstance(dict_out[arg[0][5:]][0], (list,tuple)):
+            if isinstance(dict_out[arg[0][5:]][0], (list, tuple)):
                 dict_out[arg[0][5:]].append(list(arg[1:]))
             else:
                 dict_out[arg[0][5:]] = [dict_out[arg[0][5:]]]
