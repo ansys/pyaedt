@@ -19,7 +19,7 @@ run_dir = os.path.abspath(os.path.dirname(__file__))
 
 args_env = os.environ.get("RUN_UNITTESTS_ARGS", "")
 parser = argparse.ArgumentParser()
-parser.add_argument("--test-filter", "-t", default="test_03*.py", help="test filter")
+parser.add_argument("--test-filter", "-t", default="test_*.py", help="test filter")
 args = parser.parse_args(args_env.split())
 test_filter = args.test_filter
 
@@ -47,7 +47,6 @@ if is_ironpython and "oDesktop" in dir(sys.modules["__main__"]):
     pid = sys.modules["__main__"].oDesktop.GetProcessID()
     if pid > 0:
         try:
-            #os.kill(pid, 9)
-            pass
+            os.kill(pid, 9)
         except:
             successfully_closed = False

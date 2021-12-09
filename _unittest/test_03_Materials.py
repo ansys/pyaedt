@@ -22,9 +22,9 @@ class TestClass:
             self.aedtapp = Hfss(specified_version=desktop_version)
 
     def teardown_class(self):
-        #self.messages = self.aedtapp._desktop.ClearMessages("", "", 3)
-        #assert self.aedtapp.close_project(self.aedtapp.project_name, False)
-        #self.local_scratch.remove()
+        self.messages = self.aedtapp._desktop.ClearMessages("", "", 3)
+        assert self.aedtapp.close_project(self.aedtapp.project_name, False)
+        self.local_scratch.remove()
         gc.collect()
 
     def test_01_vaacum(self):
