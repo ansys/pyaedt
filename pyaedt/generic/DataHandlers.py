@@ -70,7 +70,15 @@ def _dict2arg(d, arg_out):
 
     """
     for k, v in d.items():
-        if isinstance(v, (OrderedDict, dict)):
+        if k == "Point":
+            if isinstance(v[0], (list, tuple)):
+                for e in v:
+                    arg = ["NAME:" + k, e[0], e[1]]
+                    arg_out.append(arg)
+            else:
+                arg = ["NAME:" + k, v[0], v[1]]
+                arg_out.append(arg)
+        elif isinstance(v, (OrderedDict, dict)):
             arg = ["NAME:" + k]
             _dict2arg(v, arg)
             arg_out.append(arg)
@@ -138,7 +146,13 @@ def _arg2dict(arg, dict_out):
                 i += 2
             else:
                 raise ValueError("Incorrect data argument format")
-        dict_out[top_key] = dict_in
+        if top_key in dict_out:
+            if isinstance(dict_out[top_key], list):
+                dict_out[top_key].append(dict_in)
+            else:
+                dict_out[top_key] = [dict_out[top_key], dict_in]
+        else:
+            dict_out[top_key] = dict_in
     else:
         raise ValueError("Incorrect data argument format")
 
