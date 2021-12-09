@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 This module contains the `Materials` class.
 """
@@ -485,6 +486,7 @@ class Materials(object):
         self.material_keys[matname] = newmat
         return True
 
+    @aedt_exception_handler
     def export_materials_to_file(self, full_json_path):
         """Export all materials to a JSON file.
 
@@ -553,6 +555,7 @@ class Materials(object):
             json.dump(json_dict, fp, indent=4)
         return True
 
+    @aedt_exception_handler
     def import_materials_from_file(self, full_json_path):
         """Import and create materials from a JSON file.
 
@@ -567,7 +570,7 @@ class Materials(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        with open(full_json_path) as json_file:
+        with open(full_json_path, 'r') as json_file:
             data = json.load(json_file)
 
         if "datasets" in list(data.keys()):
