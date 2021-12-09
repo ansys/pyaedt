@@ -62,7 +62,7 @@ class SolutionData(object):
         self._original_data = aedtdata
         self.number_of_variations = len(aedtdata)
         self._nominal_variation = None
-        self.nominal_variation = 0
+        self._nominal_variation = self._original_data[0]
         self._sweeps = None
         self._sweeps_names = list(self.nominal_variation.GetSweepNames())
         self.update_sweeps()
