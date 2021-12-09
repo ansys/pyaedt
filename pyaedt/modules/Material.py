@@ -987,14 +987,14 @@ class Material(CommonMaterial, object):
     @permittivity.setter
     def permittivity(self, value):
         if isinstance(value, list) and isinstance(value[0], list):
-            self._conductivity.set_non_linear(value)
+            self._permittivity.set_non_linear(value)
         elif isinstance(value, (str, float, int)):
-            self._conductivity.value = value
-            self._conductivity.type = "simple"
+            self._permittivity.value = value
+            self._permittivity.type = "simple"
             self._update_props("permittivity", value)
         else:
-            self._conductivity.value = value
-            self._conductivity.type = "anisotropic"
+            self._permittivity.value = value
+            self._permittivity.type = "anisotropic"
             self._update_props("permittivity", value)
 
     @property
@@ -1077,7 +1077,7 @@ class Material(CommonMaterial, object):
 
         Returns
         -------
-        str or float
+        :class:`pyaedt.modules.Material.MatProperty`
             Magnetic loss tangent of the material.
 
         References
@@ -1098,7 +1098,7 @@ class Material(CommonMaterial, object):
 
         Returns
         -------
-        str or float
+        :class:`pyaedt.modules.Material.MatProperty`
             Thermal conductivity of the material.
 
         References
@@ -1121,7 +1121,7 @@ class Material(CommonMaterial, object):
 
         Returns
         -------
-        str or float
+        :class:`pyaedt.modules.Material.MatProperty`
             Mass density of the material.
 
         References
@@ -1142,7 +1142,7 @@ class Material(CommonMaterial, object):
 
         Returns
         -------
-        str or float
+        :class:`pyaedt.modules.Material.MatProperty`
             Specific heat of the material.
 
         References
@@ -1163,7 +1163,7 @@ class Material(CommonMaterial, object):
 
         Returns
         -------
-        str or float
+        :class:`pyaedt.modules.Material.MatProperty`
             Thermal expansion coefficient of the material.
 
         References
@@ -1184,7 +1184,7 @@ class Material(CommonMaterial, object):
 
         Returns
         -------
-        str or float
+        :class:`pyaedt.modules.Material.MatProperty`
             Young's modulus of the material.
 
         References
@@ -1207,7 +1207,7 @@ class Material(CommonMaterial, object):
 
         Returns
         -------
-        str or float
+        :class:`pyaedt.modules.Material.MatProperty`
             Poisson's ratio of the material.
 
         References
@@ -1230,7 +1230,7 @@ class Material(CommonMaterial, object):
 
         Returns
         -------
-        str or float
+        :class:`pyaedt.modules.Material.MatProperty`
             Diffusivity of the material.
 
         References
@@ -1251,7 +1251,7 @@ class Material(CommonMaterial, object):
 
         Returns
         -------
-        str or float
+        :class:`pyaedt.modules.Material.MatProperty`
             Molecular mass of the material.
 
         References
@@ -1272,7 +1272,7 @@ class Material(CommonMaterial, object):
 
         Returns
         -------
-        str or float
+        :class:`pyaedt.modules.Material.MatProperty`
             Viscosity of the material.
 
         References
@@ -1293,7 +1293,7 @@ class Material(CommonMaterial, object):
 
         Returns
         -------
-        str or float
+        :class:`pyaedt.modules.Material.MatProperty`
             Core loss of the material in kilohertz.
 
         References
@@ -1314,7 +1314,7 @@ class Material(CommonMaterial, object):
 
         Returns
         -------
-        str or float
+        :class:`pyaedt.modules.Material.MatProperty`
             Core loss of the material in kilocalories.
 
         References
@@ -1335,7 +1335,7 @@ class Material(CommonMaterial, object):
 
         Returns
         -------
-        type
+        :class:`pyaedt.modules.Material.MatProperty`
             Core loss of the material in kinetic energy.
 
         References
@@ -1482,7 +1482,7 @@ class SurfaceMaterial(CommonMaterial, object):
 
         Returns
         -------
-        str or float
+        :class:`pyaedt.modules.Material.MatProperty`
             Emissivity of the surface material.
 
         References
@@ -1504,7 +1504,7 @@ class SurfaceMaterial(CommonMaterial, object):
 
         Returns
         -------
-        str or float
+        :class:`pyaedt.modules.Material.MatProperty`
             Surface diffuse absorptance of the surface material.
 
         References
@@ -1526,7 +1526,7 @@ class SurfaceMaterial(CommonMaterial, object):
 
         Returns
         -------
-        str or float
+        :class:`pyaedt.modules.Material.MatProperty`
             Surface incident absorptance of the surface material.
 
         References
@@ -1548,7 +1548,7 @@ class SurfaceMaterial(CommonMaterial, object):
 
         Returns
         -------
-        str or float
+        :class:`pyaedt.modules.Material.MatProperty`
             Surface roughness of the surface material.
 
         References
