@@ -167,11 +167,6 @@ All mesh operations are listed into mesh object.
   :width: 800
   :alt: Mesh object List
 
-Once an object is created or is present in the design (from a loaded project), user can
-simply get the related object using getters. Getter works either with object id or object name.
-Object returned has all features even if it has not been created in PyAEDT.
-Next example shows how easily user can go deeper into edges and vertices of faces or 3d objects.
-
 
 Setup
 ~~~~~
