@@ -1,6 +1,5 @@
 import os
 import time
-from warnings import warn
 
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.edb import Edb
@@ -11,7 +10,7 @@ from pyaedt.modeler.Modeler import Modeler
 from pyaedt.modeler.Primitives3DLayout import Geometries3DLayout, Primitives3DLayout
 
 
-class Modeler3DLayout(Modeler, Primitives3DLayout):
+class Modeler3DLayout(Modeler):
     """Manages Modeler 3D layouts.
 
     This class is inherited in the caller application and is accessible through the modeler variable
@@ -58,9 +57,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         self.logger.info("EDB loaded.")
         self.layers = Layers(self, roughnessunits="um")
         self.logger.info("Layers loaded.")
-        Primitives3DLayout.__init__(self, app)
-        self._primitives = self
-
+        self._primitives = Primitives3DLayout(self)
         self.logger.info("Primitives loaded.")
         self.layers.refresh_all_layers()
 
@@ -147,19 +144,10 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
     @property
     def primitives(self):
-        """Primitives.
-
-        .. deprecated:: 0.4.15
-            No need to use primitives anymore. you can instanciate primitives methods directly from modeler instead.
-
-        Returns
-        -------
-        :class:`pyaedt.modeler.Primitives3DLayout.Primitives3DLayout`
-
-        """
-        mess = "`primitives` is deprecated.\n"
-        mess += " Use `app.modeler` directly to instantiate primitives methods."
-        warn(mess, DeprecationWarning)
+        """Primitives."""
+        if self._primitivesDes != self._app.project_name + self._app.design_name:
+            self._primitives = Primitives3DLayout(self)
+            self._primitivesDes = self._app.project_name + self._app.design_name
         return self._primitives
 
     @property

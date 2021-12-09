@@ -16,8 +16,8 @@ class Primitives3D(Primitives, object):
 
     Parameters
     ----------
-    application : str
-        Name of the application.
+    modeler : str
+        Name of the modeler.
 
     Examples
     --------
@@ -28,8 +28,8 @@ class Primitives3D(Primitives, object):
     >>> prim = aedtapp.modeler.primitives
     """
 
-    def __init__(self):
-        Primitives.__init__(self)
+    def __init__(self, modeler):
+        Primitives.__init__(self, modeler)
         self.multiparts = []
 
     @aedt_exception_handler
