@@ -214,7 +214,7 @@ class Maxwell(object):
         object_list : list
             List of objects to assign the current source to.
         amplitude : float, optional
-            Voltage amplitude in mA. The default is ``1``.
+            Current amplitude in mA. The default is ``1``.
         phase : str, optional
             The default is ``"0deg"``.
         solid : bool, optional
