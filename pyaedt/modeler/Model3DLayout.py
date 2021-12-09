@@ -392,8 +392,7 @@ class Modeler3DLayout(Modeler):
         self._oimportexport.ImportExtracta(
             brd_filename, os.path.join(edb_path, edb_name + ".aedb"), os.path.join(edb_path, edb_name + ".xml")
         )
-        self._app.oproject = self._app._desktop.GetActiveProject().GetName()
-        self._app._odesign = None
+        self._app.__init__(self._app._desktop.GetActiveProject().GetName())
         return True
 
     @aedt_exception_handler
@@ -447,8 +446,7 @@ class Modeler3DLayout(Modeler):
         self._oimportexport.ImportIPC(
             ipc_filename, os.path.join(edb_path, edb_name + ".aedb"), os.path.join(edb_path, edb_name + ".xml")
         )
-        self._app.oproject = self._app._desktop.GetActiveProject().GetName()
-        self._app._odesign = None
+        self._app.__init__(self._app._desktop.GetActiveProject().GetName())
         return True
 
     @aedt_exception_handler
