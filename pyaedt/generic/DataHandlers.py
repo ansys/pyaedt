@@ -100,19 +100,6 @@ def _dict2arg(d, arg_out):
 
 @aedt_exception_handler
 def _arg2dict(arg, dict_out):
-    """
-
-    Parameters
-    ----------
-    arg :
-
-    dict_out :
-
-
-    Returns
-    -------
-
-    """
     if arg[0] == "NAME:DimUnits" or "NAME:Point" in arg[0]:
         if arg[0][5:] in list(dict_out.keys()):
             if isinstance(dict_out[arg[0][5:]][0], (list, tuple)):
