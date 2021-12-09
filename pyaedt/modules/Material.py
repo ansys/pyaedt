@@ -830,7 +830,7 @@ class CommonMaterial(object):
                 self._props[propname]["BTypeForSingleCurve"] = self.__dict__["_" + propname].btype_for_single_curve
                 self._props[propname]["HUnit"] = self.__dict__["_" + propname].hunit
                 self._props[propname]["BUnit"] = self.__dict__["_" + propname].bunit
-                self._props[propname]["IsTemperatureDependent"]= self.__dict__["_" + propname].is_temperature_dependent
+                self._props[propname]["IsTemperatureDependent"] = self.__dict__["_" + propname].is_temperature_dependent
                 self._props[propname]["BHCoordinates"] = bh
                 try:
                     self._props[propname]["BHCoordinates"]["Temperatures"] = self.__dict__["_" + propname].temperatures
@@ -1026,7 +1026,6 @@ class Material(CommonMaterial, object):
             self._permeability.type = "anisotropic"
             self._update_props("permeability", value)
 
-
     @property
     def conductivity(self):
         """Conductivity.
@@ -1055,7 +1054,6 @@ class Material(CommonMaterial, object):
             self._conductivity.value = value
             self._conductivity.type = "anisotropic"
             self._update_props("conductivity", value)
-
 
     @property
     def dielectric_loss_tangent(self):
