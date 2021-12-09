@@ -988,14 +988,15 @@ class Material(CommonMaterial, object):
     def permittivity(self, value):
         if isinstance(value, list) and isinstance(value[0], list):
             self._permittivity.set_non_linear(value)
-        elif isinstance(value, (str, float, int)):
-            self._permittivity.value = value
-            self._permittivity.type = "simple"
-            self._update_props("permittivity", value)
-        else:
+        elif isinstance(value, list):
             self._permittivity.value = value
             self._permittivity.type = "anisotropic"
             self._update_props("permittivity", value)
+        else:
+            self._permittivity.value = value
+            self._permittivity.type = "simple"
+            self._update_props("permittivity", value)
+
 
     @property
     def permeability(self):
@@ -1017,13 +1018,13 @@ class Material(CommonMaterial, object):
     def permeability(self, value):
         if isinstance(value, list) and isinstance(value[0], list):
             self._permeability.set_non_linear(value)
-        elif isinstance(value, (str, float, int)):
+        elif isinstance(value, list):
             self._permeability.value = value
-            self._permeability.type = "simple"
+            self._permeability.type = "anisotropic"
             self._update_props("permeability", value)
         else:
             self._permeability.value = value
-            self._permeability.type = "anisotropic"
+            self._permeability.type = "simple"
             self._update_props("permeability", value)
 
     @property
@@ -1046,14 +1047,15 @@ class Material(CommonMaterial, object):
     def conductivity(self, value):
         if isinstance(value, list) and isinstance(value[0], list):
             self._conductivity.set_non_linear(value)
-        elif isinstance(value, (str, float, int)):
-            self._conductivity.value = value
-            self._conductivity.type = "simple"
-            self._update_props("conductivity", value)
-        else:
+        elif isinstance(value, list):
             self._conductivity.value = value
             self._conductivity.type = "anisotropic"
             self._update_props("conductivity", value)
+        else:
+            self._conductivity.value = value
+            self._conductivity.type = "simple"
+            self._update_props("conductivity", value)
+
 
     @property
     def dielectric_loss_tangent(self):
