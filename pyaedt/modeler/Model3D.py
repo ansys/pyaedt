@@ -37,7 +37,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         """Primitives.
 
         .. deprecated:: 0.4.15
-            No need to use primitives anymore. you can instantiate primitives methods directly from modeler instead.
+            No need to use primitives anymore. You can instantiate primitives methods directly from modeler instead.
 
         Returns
         -------
@@ -72,7 +72,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         References
         ----------
 
-        >>> oEditor. Create3DComponent
+        >>> oEditor.Create3DComponent
         """
         if self._app.design_type == "Icepak":
             exclude_region = True

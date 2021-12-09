@@ -3,6 +3,9 @@ import sys
 
 from pyaedt import log_handler
 
+ENABLE_LOGGER = True
+# if LOGGER_FILE is defined, it will be taken as output log file
+LOGGER_FILE = None
 
 FORMATTER = logging.Formatter(
         "%(asctime)s:%(destination)s:%(extra)s%(levelname)-8s:%(message)s",
@@ -69,6 +72,11 @@ class AedtLogger(object):
         self._global = logging.getLogger('Global')
         self._file_handler = None
         self._std_out_handler = None
+
+        if not ENABLE_LOGGER:
+            self._global.addHandler(logging.NullHandler())
+            return
+
         if self._global.handlers:
             if 'messenger' in dir(self._global.handlers[0]):
                 self._global.removeHandler(self._global.handlers[0])
@@ -80,8 +88,8 @@ class AedtLogger(object):
             self._global.setLevel(level)
             self._global.addFilter(AppFilter())
 
-        if filename:
-            self._file_handler = logging.FileHandler(filename)
+        if LOGGER_FILE or filename:
+            self._file_handler = logging.FileHandler(LOGGER_FILE or filename)
             self._file_handler.setLevel(level)
             self._file_handler.setFormatter(FORMATTER)
             self._global.addHandler(self._file_handler)

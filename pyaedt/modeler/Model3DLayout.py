@@ -150,7 +150,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         """Primitives.
 
         .. deprecated:: 0.4.15
-            No need to use primitives anymore. you can instantiate primitives methods directly from modeler instead.
+            No need to use primitives anymore. You can instantiate primitives methods directly from modeler instead.
 
         Returns
         -------
@@ -404,8 +404,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         self._oimportexport.ImportExtracta(
             brd_filename, os.path.join(edb_path, edb_name + ".aedb"), os.path.join(edb_path, edb_name + ".xml")
         )
-        self._app.oproject = self._app._desktop.GetActiveProject().GetName()
-        self._app._odesign = None
+        self._app.__init__(self._app._desktop.GetActiveProject().GetName())
         return True
 
     @aedt_exception_handler
@@ -459,8 +458,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         self._oimportexport.ImportIPC(
             ipc_filename, os.path.join(edb_path, edb_name + ".aedb"), os.path.join(edb_path, edb_name + ".xml")
         )
-        self._app.oproject = self._app._desktop.GetActiveProject().GetName()
-        self._app._odesign = None
+        self._app.__init__(self._app._desktop.GetActiveProject().GetName())
         return True
 
     @aedt_exception_handler
