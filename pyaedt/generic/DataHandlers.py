@@ -101,7 +101,7 @@ def _dict2arg(d, arg_out):
 @aedt_exception_handler
 def _arg2dict(arg, dict_out):
     if arg[0] == "NAME:DimUnits" or "NAME:Point" in arg[0]:
-        if arg[0][5:] in list(dict_out.keys()):
+        if arg[0][5:] in dict_out:
             if isinstance(dict_out[arg[0][5:]][0], (list, tuple)):
                 dict_out[arg[0][5:]].append(list(arg[1:]))
             else:
@@ -114,13 +114,14 @@ def _arg2dict(arg, dict_out):
         dict_in = OrderedDict()
         i = 1
         while i < len(arg):
-            if (isinstance(arg[i], (list, tuple)) or str(type(arg[i])) == r"<type 'List'>") and arg[i][0][
-                                                                                                :5] == "NAME:":
+            if arg[i][0][:5] == "NAME:" and (
+                isinstance(arg[i], (list, tuple)) or str(type(arg[i])) == r"<type 'List'>"
+            ):
                 _arg2dict(list(arg[i]), dict_in)
                 i += 1
             elif arg[i][-2:] == ":=":
                 if str(type(arg[i+1])) == r"<type 'List'>":
-                    if arg[i][:-2] in list(dict_in.keys()):
+                    if arg[i][:-2] in dict_in:
                         dict_in[arg[i][:-2]].append(list(arg[i + 1]))
                     else:
                         dict_in[arg[i][:-2]] = list(arg[i + 1])
