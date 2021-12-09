@@ -25,10 +25,7 @@ class TestClass:
                 os.path.join(local_path, "example_models", original_project_name + ".aedb"),
                 os.path.join(self.local_scratch.path, test_project_name + ".aedb"),
             )
-            try:
-                self.aedtapp = Hfss3dLayout(self.test_project)
-            except:
-                self.aedtapp = None
+        self.aedtapp = Hfss3dLayout(self.test_project)
 
     def teardown_class(self):
         self.aedtapp._desktop.ClearMessages("", "", 3)
