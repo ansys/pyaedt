@@ -997,7 +997,6 @@ class Material(CommonMaterial, object):
             self._permittivity.type = "simple"
             self._update_props("permittivity", value)
 
-
     @property
     def permeability(self):
         """Permeability.
@@ -1055,7 +1054,6 @@ class Material(CommonMaterial, object):
             self._conductivity.value = value
             self._conductivity.type = "simple"
             self._update_props("conductivity", value)
-
 
     @property
     def dielectric_loss_tangent(self):
