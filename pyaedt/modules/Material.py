@@ -235,9 +235,19 @@ class MatProperty(object):
         elif val is not None and val["property_type"] == "nonlinear":
             self.type = "nonlinear"
             for e, v in val.items():
-                if isinstance(v, (dict, OrderedDict)):
+                if e == "BTypeForSingleCurve":
+                    self.btype_for_single_curve = v
+                elif e == "HUnit":
+                    self.hunit = v
+                elif e == "BUnit":
+                    self.bunit = v
+                elif e == "IsTemperatureDependent":
+                    self.is_temperature_dependent = v
+                elif e in ["BHCoordinates", "DECoordinates", "JECoordinates"]:
                     self.value = v['Point']
-                    break
+                    self._unit = v['DimUnits']
+                elif e == "Temperatures":
+                    self.temperatures = v
         if not isinstance(thermalmodifier, list):
             thermalmodifier = [thermalmodifier]
         for tm in thermalmodifier:
@@ -287,7 +297,9 @@ class MatProperty(object):
 
     @value.setter
     def value(self, val):
-        if isinstance(val, list):
+        if self.type == "nonlinear":
+            self._property_value[0].value = val
+        elif isinstance(val, list):
             i = 0
             for el in val:
                 if i >= len(self._property_value):
@@ -446,6 +458,7 @@ class MatProperty(object):
                         tmname].append(tm)
         return self._material.update()
 
+    @aedt_exception_handler
     def add_thermal_modifier_free_form(self, formula, index=0):
         """Add a thermal modifier to a material property using a free-form formula.
 
@@ -477,6 +490,7 @@ class MatProperty(object):
         self._property_value[index].thermalmodifier = formula
         return self._add_thermal_modifier(formula, index)
 
+    @aedt_exception_handler
     def add_thermal_modifier_dataset(self, dataset_name, index=0):
         """Add a thermal modifier to a material property using an existing dataset.
 
@@ -511,6 +525,7 @@ class MatProperty(object):
         self._property_value[index].thermalmodifier = formula
         self._add_thermal_modifier(formula, index)
 
+    @aedt_exception_handler
     def add_thermal_modifier_closed_form(
         self, tref=22, c1=0.0001, c2=1e-6, tl=-273.15, tu=1000, units="cel", auto_calc=True, tml=1000, tmu=1000, index=0
     ):
@@ -666,6 +681,54 @@ class MatProperty(object):
                     tml.append(tm_new)
         return self._material.update()
 
+    @aedt_exception_handler
+    def set_non_linear(self, point_list, x_unit=None, y_unit=None):
+        """Enable Non Linear Material.
+
+        Parameters
+        ----------
+        point_list : list of list
+            list of [x,y] nonlinear couple of points.
+        x_unit : str, optional
+            X units. Defaults will be used if `None`.
+        y_unit : str, optional
+            Y units. Defaults will be used if `None`.
+
+        Returns
+        -------
+        bool
+            `True` if succeeded.
+        """
+        if self.name not in ['permeability', 'conductivity', 'permittivity']:
+            self.logger.error(
+                "Non linear parameters are only supported for permeability, conductivity and permittivity.")
+            return False
+        self.type = 'nonlinear'
+        self.value = point_list
+        if self.name == "permeability":
+            if not x_unit:
+                x_unit = 'tesla'
+            if not y_unit:
+                y_unit = 'A_per_meter'
+            self.bunit = x_unit
+            self.hunit = y_unit
+            self.is_temperature_dependent = False
+            self.btype_for_single_curve = 'normal'
+            self.temperatures = OrderedDict({})
+        elif self.name == "permittivity":
+            if not x_unit:
+                x_unit = 'V_per_meter'
+            if not y_unit:
+                y_unit = 'C_per_m2'
+            self._unit = [x_unit, y_unit]
+        elif self.name == "conductivity":
+            if not x_unit:
+                x_unit = 'V_per_meter'
+            if not y_unit:
+                y_unit = 'A_per_m2'
+            self._unit = [x_unit, y_unit]
+        return self._material._update_props(self.name, self.value)
+
 
 class CommonMaterial(object):
     """Manages datasets with frequency-dependent materials.
@@ -755,8 +818,39 @@ class CommonMaterial(object):
             self._props[propname] = str(provpavlue)
             if update_aedt:
                 return self.update()
-        else:
-            return False
+        elif isinstance(provpavlue, list) and self.__dict__["_" + propname].type == "nonlinear":
+            if propname == "permeability":
+                bh = OrderedDict({"DimUnits": ["", ""]})
+                for point in provpavlue:
+                    if "Point" in bh:
+                        bh["Point"].append(point)
+                    else:
+                        bh["Point"] = [point]
+                self._props[propname] = OrderedDict({"property_type": "nonlinear"})
+                self._props[propname]["BTypeForSingleCurve"] = self.__dict__["_" + propname].btype_for_single_curve
+                self._props[propname]["HUnit"] = self.__dict__["_" + propname].hunit
+                self._props[propname]["BUnit"] = self.__dict__["_" + propname].bunit
+                self._props[propname]["IsTemperatureDependent"]= self.__dict__["_" + propname].is_temperature_dependent
+                self._props[propname]["BHCoordinates"] = bh
+                try:
+                    self._props[propname]["BHCoordinates"]["Temperatures"] = self.__dict__["_" + propname].temperatures
+                except:
+                    self._props[propname]["BHCoordinates"]["Temperatures"] = OrderedDict({})
+            else:
+                bh = OrderedDict({"DimUnits": [self.__dict__["_" + propname]._unit]})
+                for point in provpavlue:
+                    if "Point" in bh:
+                        bh["Point"].append(point)
+                    else:
+                        bh["Point"] = [point]
+                if propname == "conductivity":
+                    pr_name = "JECoordinates"
+                else:
+                    pr_name = "DECoordinates"
+                self._props[propname] = OrderedDict({"property_type": "nonlinear", pr_name: bh})
+            if update_aedt:
+                return self.update()
+        return False
 
 
 class Material(CommonMaterial, object):
@@ -880,7 +974,7 @@ class Material(CommonMaterial, object):
 
         Returns
         -------
-        str
+        :class:`pyaedt.modules.Material.MatProperty`
             Permittivity of the material.
 
         References
@@ -892,8 +986,16 @@ class Material(CommonMaterial, object):
 
     @permittivity.setter
     def permittivity(self, value):
-        self._permittivity.value = value
-        self._update_props("permittivity", value)
+        if isinstance(value, list) and isinstance(value[0], list):
+            self._conductivity.set_non_linear(value)
+        elif isinstance(value, (str, float, int)):
+            self._conductivity.value = value
+            self._conductivity.type = "simple"
+            self._update_props("permittivity", value)
+        else:
+            self._conductivity.value = value
+            self._conductivity.type = "anisotropic"
+            self._update_props("permittivity", value)
 
     @property
     def permeability(self):
@@ -901,7 +1003,7 @@ class Material(CommonMaterial, object):
 
         Returns
         -------
-        str or float
+        :class:`pyaedt.modules.Material.MatProperty`
             Permeability of the material.
 
         References
@@ -913,9 +1015,17 @@ class Material(CommonMaterial, object):
 
     @permeability.setter
     def permeability(self, value):
+        if isinstance(value, list) and isinstance(value[0], list):
+            self._permeability.set_non_linear(value)
+        elif isinstance(value, (str, float, int)):
+            self._permeability.value = value
+            self._permeability.type = "simple"
+            self._update_props("permeability", value)
+        else:
+            self._permeability.value = value
+            self._permeability.type = "anisotropic"
+            self._update_props("permeability", value)
 
-        self._permeability.value = value
-        self._update_props("permeability", value)
 
     @property
     def conductivity(self):
@@ -923,7 +1033,7 @@ class Material(CommonMaterial, object):
 
         Returns
         -------
-        str or float
+        :class:`pyaedt.modules.Material.MatProperty`
             Conductivity of the material.
 
         References
@@ -935,8 +1045,17 @@ class Material(CommonMaterial, object):
 
     @conductivity.setter
     def conductivity(self, value):
-        self._conductivity.value = value
-        self._update_props("conductivity", value)
+        if isinstance(value, list) and isinstance(value[0], list):
+            self._conductivity.set_non_linear(value)
+        elif isinstance(value, (str, float, int)):
+            self._conductivity.value = value
+            self._conductivity.type = "simple"
+            self._update_props("conductivity", value)
+        else:
+            self._conductivity.value = value
+            self._conductivity.type = "anisotropic"
+            self._update_props("conductivity", value)
+
 
     @property
     def dielectric_loss_tangent(self):
@@ -944,7 +1063,7 @@ class Material(CommonMaterial, object):
 
         Returns
         -------
-        str or float
+        :class:`pyaedt.modules.MatProperty`
             Dielectric loss tangent of the material.
         """
         return self._dielectric_loss_tangent

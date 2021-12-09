@@ -70,7 +70,7 @@ def _dict2arg(d, arg_out):
 
     """
     for k, v in d.items():
-        if k == "Point":
+        if k == "Point" or k == "DimUnits":
             if isinstance(v[0], (list, tuple)):
                 for e in v:
                     arg = ["NAME:" + k, e[0], e[1]]

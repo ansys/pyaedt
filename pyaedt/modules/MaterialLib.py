@@ -183,7 +183,7 @@ class Materials(object):
             )
             return self.material_keys[materialname]
         else:
-            material = Material(self._app, materialname, props)
+            material = Material(self, materialname, props)
             material.update()
             self.logger.info("Material has been added. Edit it to update in Desktop.")
             self.material_keys[materialname] = material
@@ -423,11 +423,12 @@ class Materials(object):
         >>> hfss.materials.remove_material("MyMaterial")
 
         """
-        if material not in list(self.material_keys.keys()):
-            self.logger.error("Material {} is not present".format(material))
+        mat = material.lower()
+        if mat not in list(self.material_keys.keys()):
+            self.logger.error("Material {} is not present".format(mat))
             return False
-        self.odefinition_manager.RemoveMaterial(material, True, "", library)
-        del self.material_keys[material]
+        self.odefinition_manager.RemoveMaterial(mat, True, "", library)
+        del self.material_keys[mat]
         return True
 
     @property

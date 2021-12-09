@@ -3,7 +3,7 @@ import gc
 import os
 
 # Import required modules
-from pyaedt import Hfss, Icepak
+from pyaedt import Hfss, Icepak, Maxwell3d
 from pyaedt.generic.filesystem import Scratch
 from pyaedt.modules.Material import MatProperties, SurfMatProperties
 
@@ -149,3 +149,22 @@ class TestClass:
     def test_09_add_material_sweep(self):
         assert self.aedtapp.materials.add_material_sweep(["copper3", "new_copper"], "sweep_copper")
         assert "sweep_copper" in list(self.aedtapp.materials.material_keys.keys())
+
+    def test_10_non_linear_materials(self):
+        app = Maxwell3d()
+        mat1 = app.materials.add_material("myMat")
+        assert mat1.permeability.set_non_linear([[0, 0], [1, 12], [10, 10]])
+        assert mat1.permittivity.set_non_linear([[0, 0], [2, 12], [10, 10]])
+        assert mat1.conductivity.set_non_linear([[0, 0], [3, 12], [10, 10]])
+        app.materials.export_materials_to_file(os.path.join(self.local_scratch.path, "non_linear.json"))
+        os.path.exists(os.path.join(self.local_scratch.path, "non_linear.json"))
+        app.materials.remove_material("myMat")
+        app.materials.import_materials_from_file(os.path.join(self.local_scratch.path, "non_linear.json"))
+        assert app.materials["myMat"].permeability.value == [[0, 0], [1, 12], [10, 10]]
+        assert app.materials["myMat"].permittivity.value == [[0, 0], [2, 12], [10, 10]]
+        assert app.materials["myMat"].conductivity.value == [[0, 0], [3, 12], [10, 10]]
+        assert app.materials["myMat"].permeability.type == 'nonlinear'
+        assert app.materials["myMat"].conductivity.type == 'nonlinear'
+        assert app.materials["myMat"].permittivity.type == 'nonlinear'
+        assert app.materials["myMat"].permeability.bunit == 'tesla'
+        assert app.modeler.create_box([0, 0, 0], [10, 10, 10], matname="myMat")
