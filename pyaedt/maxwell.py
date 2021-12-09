@@ -214,7 +214,7 @@ class Maxwell(object):
         object_list : list
             List of objects to assign the current source to.
         amplitude : float, optional
-            Voltage amplitude in mV. The default is ``1``.
+            Voltage amplitude in mA. The default is ``1``.
         phase : str, optional
             The default is ``"0deg"``.
         solid : bool, optional
@@ -234,6 +234,7 @@ class Maxwell(object):
 
         >>> oModule.AssignCurrent
         """
+
         if isinstance(amplitude, (int, float)):
             amplitude = str(amplitude) + "A"
 
@@ -247,20 +248,20 @@ class Maxwell(object):
                     {
                         "Faces": object_list,
                         "Current": amplitude,
-                        "IsSolid": solid,
-                        "Point out of terminal": swap_direction,
                     }
-                )
+                    )
             else:
                 props = OrderedDict(
                     {
                         "Objects": object_list,
                         "Current": amplitude,
-                        "Phase": phase,
-                        "IsSolid": solid,
-                        "Point out of terminal": swap_direction,
                     }
-                )
+                    )
+            if self.solution_type not in ["Magnetostatic", 'DCConduction', 'ElectricTransient']:
+                props["Phase"] = phase
+            if self.solution_type not in ['DCConduction', 'ElectricTransient']:
+                props["IsSolid"] = solid
+            props["Point out of terminal"] = swap_direction
         else:
             if type(object_list[0]) is str:
                 props = OrderedDict({"Objects": object_list, "Current": amplitude, "IsPositive": swap_direction})
@@ -269,7 +270,6 @@ class Maxwell(object):
                 return False
         bound = BoundaryObject(self, name, props, "Current")
         if bound.create():
-
             self.boundaries.append(bound)
             return bound
         return False
