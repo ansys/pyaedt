@@ -28,33 +28,33 @@ def read_project(fileName: str):
         raise FileExistsError(error_message)
 
     # Read *.ibis file.
-    with open(fileName,'r') as ts:
+    with open(fileName,'r') as f:
         while True:
-            current_line = ts.readline()
+            current_line = f.readline()
             print(current_line)
             if not current_line:
                 break
 
             if IsStartedWith(current_line, "[Component] ") == True:
-                read_component(current_line, ts)
+                read_component(current_line, f)
             elif IsStartedWith(current_line, "[Model] ") == True:
-                replace_model(current_line, ts)
+                replace_model(current_line, f)
             elif IsStartedWith(current_line, "[Model Selector] ") == True:
-                read_model_selector(current_line, ts)
+                read_model_selector(current_line, f)
             
 
 # Model
-def replace_model(current_line: str, ts: typing.TextIO):
+def replace_model(current_line: str, f: typing.TextIO):
     global Models
     if IsStartedWith(current_line, "[Model] ") != True:
         return
 
     model = Model()
     model.name = current_line.split("]")[1].strip()
-    current_line = ts.readline().replace("\t", "").strip()
+    current_line = f.readline().replace("\t", "").strip()
 
     while IsStartedWith(current_line, "Model_type") != True:
-        current_line = ts.readline().replace("\t", "").strip()
+        current_line = f.readline().replace("\t", "").strip()
 
     iStart = current_line.index(" ", 1)
 
@@ -63,7 +63,7 @@ def replace_model(current_line: str, ts: typing.TextIO):
 
     # Clamp
     while not current_line:
-        current_line = ts.readline().strip.replace("clamp", "Clamp")
+        current_line = f.readline().strip.replace("clamp", "Clamp")
 
         if IsStartedWith(current_line, "[GND Clamp]") == True:
             model.Clamp = True
@@ -81,7 +81,7 @@ def replace_model(current_line: str, ts: typing.TextIO):
     Models.append(model)
 
 # Model Selector
-def read_model_selector(current_line: str, ts: typing.TextIO):
+def read_model_selector(current_line: str, f: typing.TextIO):
     if IsStartedWith(current_line, "[Model Selector] ") != True :
         return
 
@@ -90,17 +90,17 @@ def read_model_selector(current_line: str, ts: typing.TextIO):
     model_selector.name = current_line.split("]")[1].strip()
 
     # while IsStartedWith(current_line, "|") == True:
-    #     current_line = ts.readline()
+    #     current_line = f.readline()
 
-    current_line = ts.readline()
+    current_line = f.readline()
 
     # Model Selector
     while (IsStartedWith(current_line, "|") is False and current_line.strip() != ""):
         model_selector.ModelSelectorItems.append(make_model(current_line.strip()))
-        current_line = ts.readline()
+        current_line = f.readline()
 
     # ModelSelectorItem
-    #model_selector.FillModelReference(Models) @MAssimo: Is is it related to COM objects.
+    #model_selector.FillModelReference(Models) @MAssimo: Is is it related to COM objecf.
     ModelSelectors.append(model_selector)
 
 def make_model(current_line: str) -> ModelSelectorItem:
@@ -114,66 +114,66 @@ def make_model(current_line: str) -> ModelSelectorItem:
     return item
 
 # Component
-def read_component(current_line: str, ts: typing.TextIO):
+def read_component(current_line: str, f: typing.TextIO):
     global Components
     if IsStartedWith(current_line, "[Component] ") != True:
         return
 
     component = Component()
     component.name = get_component_name(current_line)
-    current_line = ts.readline()
+    current_line = f.readline()
 
     if IsStartedWith(current_line, "[Manufacturer]") == True:
         component.Manufacturer = current_line.replace("[Manufacturer]", "").strip()
 
-    current_line = ts.readline()
+    current_line = f.readline()
 
     while True:
-        current_line = ts.readline()
+        current_line = f.readline()
         if IsStartedWith(current_line, "[Package]") == True:
             break
 
-    fill_package_info(component, current_line, ts)
+    fill_package_info(component, current_line, f)
 
     # [pin]
     while IsStartedWith(current_line, "[Pin] ") == True:
-        current_line = ts.readline()
+        current_line = f.readline()
 
-    # current_line = ts.readline()
+    # current_line = f.readline()
 
     while True:
-        current_line = ts.readline()
+        current_line = f.readline()
         if IsStartedWith(current_line, "|") == True:
             break
 
     while (current_line == ""):
-        current_line = ts.readline()
+        current_line = f.readline()
 
     while IsStartedWith(current_line, "|") == False:
         component.Pins.append(make_pin_object(current_line))
-        current_line = ts.readline()
+        current_line = f.readline()
         if current_line == "":
             break
 
     Components.append(component)
 
-def fill_package_info(component: Component, current_line: str, ts: typing.TextIO):
+def fill_package_info(component: Component, current_line: str, f: typing.TextIO):
     while IsStartedWith(current_line, "|") == True or IsStartedWith(current_line, "[") == True:
-        current_line = ts.readline()
+        current_line = f.readline()
 
     # the component object must be created first.
     # component.R_pkg.FillData("R_pkg", current_line.strip())
-    # current_line = ts.readline()
+    # current_line = f.readline()
     # component.L_pkg.FillData("L_pkg", current_line.strip())
-    # current_line = ts.readline()
+    # current_line = f.readline()
     # component.C_pkg.FillData("C_pkg", current_line.strip())
 
     if IsStartedWith(current_line, "R_pkg") == True:
         component.R_pkg = current_line.strip()
-        current_line = ts.readline()
+        current_line = f.readline()
     elif IsStartedWith(current_line, "L_pkg") == True:
         component.L_pkg = current_line.strip()
-        current_line = ts.readline()
+        current_line = f.readline()
     elif IsStartedWith(current_line, "C_pkg") == True:
         component.C_pkg = current_line.strip()
 
