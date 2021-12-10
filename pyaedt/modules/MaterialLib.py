@@ -51,6 +51,36 @@ class Materials(object):
         elif item in list(self.surface_material_keys.keys()):
             return self.surface_material_keys[item]
 
+    @property
+    def liquids(self):
+        """Return the fluids materials. A liquid is considered a fluid with density greather than 100Kg/m3.
+
+        Returns
+        -------
+        list
+            List of fluid materials.
+        """
+        mats = []
+        for el, val in self.material_keys.items():
+            if val.thermal_material_type == "Fluid" and val.mass_density.value and float(val.mass_density.value) >= 100:
+                mats.append(el)
+        return mats
+
+    @property
+    def gases(self):
+        """Return the gas materials. A gas is considered a fluid with density lower than 100Kg/m3.
+
+        Returns
+        -------
+        list
+            List of all Gas materials.
+        """
+        mats = []
+        for el, val in self.material_keys.items():
+            if val.thermal_material_type == "Fluid" and val.mass_density.value and float(val.mass_density.value) < 100:
+                mats.append(el)
+        return mats
+
     @aedt_exception_handler
     def _get_materials(self):
         """Get materials."""

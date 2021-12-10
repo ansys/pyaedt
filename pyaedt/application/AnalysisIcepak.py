@@ -1,5 +1,6 @@
 import csv
 import re
+import os
 
 from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, is_ironpython
 from pyaedt.application.Analysis import Analysis
@@ -253,7 +254,11 @@ class FieldAnalysisIcepak(Analysis, object):
             allObjects = object_list[:]
 
         self.logger.info("Exporting {} objects".format(len(allObjects)))
-
+        major = -1
+        minor = -1
+        if fileFormat in [".step", ".stp", ".sm3", ".sat", ".sab"]:
+            major = 29
+            minor = 0
         stringa = ",".join(allObjects)
         arg = [
             "NAME:ExportParameters",
@@ -264,11 +269,11 @@ class FieldAnalysisIcepak(Analysis, object):
             "Selections:=",
             stringa,
             "File Name:=",
-            str(filePath) + "/" + str(fileName) + str(fileFormat),
+            os.path.join(filePath, fileName + fileFormat),
             "Major Version:=",
-            -1,
+            major,
             "Minor Version:=",
-            -1,
+            minor,
         ]
 
         self.modeler.oeditor.Export(arg)

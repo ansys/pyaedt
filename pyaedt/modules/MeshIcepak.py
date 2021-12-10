@@ -278,7 +278,7 @@ class IcepakMesh(object):
 
         Returns
         -------
-        bool
+        list of :class:`pyaedt.modules.Mesh.MeshOperation`
             ``True`` when successful, ``False`` when failed.
 
         References
@@ -303,6 +303,54 @@ class IcepakMesh(object):
             self.meshoperations.append(mop)
             list_meshops.append(meshop_name)
         return list_meshops
+
+
+    @aedt_exception_handler
+    def assign_mesh_from_file(self, objects, filename, meshop_name=None):
+        """Assign a mesh from file to objects.
+
+        Parameters
+        ----------
+        objects : list
+            List of objects to which apply the mesh file.
+        filename :  str
+            Full path to .msh file.
+        filename :  str
+            Full path to .msh file.
+        meshop_name :  str, optional
+            Name of the mesh operations
+
+        Returns
+        -------
+         :class:`pyaedt.modules.Mesh.MeshOperation`
+            Mesh Operation object. ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.AssignMeshOperation
+        """
+        objs = self._app.modeler.convert_to_selections(objects,True)
+        if meshop_name:
+            meshop_name = generate_unique_name("MeshFile")
+        else:
+            meshop_name = generate_unique_name("MeshFile")
+        props = OrderedDict({"Enable": True, "MaxLevel": str(0), "MinLevel": str(0), "Objects": objs})
+        props["Local Mesh Parameters Enabled"]= False
+        props["Mesh Reuse Enabled"]= True
+        props["Mesh Reuse File"]= filename
+        props["Local Mesh Parameters Type"]= "3DPolygon Local Mesh Parameters"
+        props["Height count"]= "0"
+        props["Top height"]= "0mm"
+        props["Top ratio"]= "0"
+        props["Bottom height"]= "0mm"
+        props["Bottom ratio"]= "0"
+        mop = MeshOperation(self, meshop_name, props, "Icepak")
+        if mop.create():
+            self.meshoperations.append(mop)
+            return mop
+        return False
+
 
     @aedt_exception_handler
     def automatic_mesh_pcb(self, accuracy=2):
