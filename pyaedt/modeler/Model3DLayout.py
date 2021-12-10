@@ -1,5 +1,6 @@
 import os
 import time
+from warnings import warn
 
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.edb import Edb
@@ -10,7 +11,7 @@ from pyaedt.modeler.Modeler import Modeler
 from pyaedt.modeler.Primitives3DLayout import Geometries3DLayout, Primitives3DLayout
 
 
-class Modeler3DLayout(Modeler):
+class Modeler3DLayout(Modeler, Primitives3DLayout):
     """Manages Modeler 3D layouts.
 
     This class is inherited in the caller application and is accessible through the modeler variable
@@ -57,7 +58,9 @@ class Modeler3DLayout(Modeler):
         self.logger.info("EDB loaded.")
         self.layers = Layers(self, roughnessunits="um")
         self.logger.info("Layers loaded.")
-        self._primitives = Primitives3DLayout(self)
+        Primitives3DLayout.__init__(self, app)
+        self._primitives = self
+
         self.logger.info("Primitives loaded.")
         self.layers.refresh_all_layers()
 
@@ -144,10 +147,19 @@ class Modeler3DLayout(Modeler):
 
     @property
     def primitives(self):
-        """Primitives."""
-        if self._primitivesDes != self._app.project_name + self._app.design_name:
-            self._primitives = Primitives3DLayout(self)
-            self._primitivesDes = self._app.project_name + self._app.design_name
+        """Primitives.
+
+        .. deprecated:: 0.4.15
+            No need to use primitives anymore. You can instantiate primitives methods directly from modeler instead.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Primitives3DLayout.Primitives3DLayout`
+
+        """
+        mess = "`primitives` is deprecated.\n"
+        mess += " Use `app.modeler` directly to instantiate primitives methods."
+        warn(mess, DeprecationWarning)
         return self._primitives
 
     @property
@@ -392,8 +404,7 @@ class Modeler3DLayout(Modeler):
         self._oimportexport.ImportExtracta(
             brd_filename, os.path.join(edb_path, edb_name + ".aedb"), os.path.join(edb_path, edb_name + ".xml")
         )
-        self._app.oproject = self._app._desktop.GetActiveProject().GetName()
-        self._app._odesign = None
+        self._app.__init__(self._app._desktop.GetActiveProject().GetName())
         return True
 
     @aedt_exception_handler
@@ -447,8 +458,7 @@ class Modeler3DLayout(Modeler):
         self._oimportexport.ImportIPC(
             ipc_filename, os.path.join(edb_path, edb_name + ".aedb"), os.path.join(edb_path, edb_name + ".xml")
         )
-        self._app.oproject = self._app._desktop.GetActiveProject().GetName()
-        self._app._odesign = None
+        self._app.__init__(self._app._desktop.GetActiveProject().GetName())
         return True
 
     @aedt_exception_handler
