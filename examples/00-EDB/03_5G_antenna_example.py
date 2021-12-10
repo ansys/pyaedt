@@ -159,6 +159,9 @@ h3d = Hfss3dLayout(projectname=project, specified_version="2021.2", new_desktop_
 # Create Setup and Sweeps
 #
 setup = h3d.create_setup()
+setup.props['AdaptiveSettings']['SingleFrequencyDataList']['AdaptiveFrequencyData']['AdaptiveFrequency'] = '20GHz'
+setup.props['AdaptiveSettings']['SingleFrequencyDataList']['AdaptiveFrequencyData']['MaxPasses'] = 4
+setup.update()
 h3d.create_linear_count_sweep(
     setupname=setup.name,
     unit="GHz",
