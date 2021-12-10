@@ -4,11 +4,31 @@ import typing
 ibis
 
 class Component():
+    def __init__(self):
+        self.pins = {}
+        self.buffers = {}
+
+    @property
+    def pins(self):
+        return self.pins
+
+    @property
+    def buffers(self):
+        return self.buffers
+
     def create_symbols(self):
         pass
 
 class Pin(Component):
+    def create_symbol(self):  #difference create_symbol and add.
+        pass
+    def place_component(x: int, y: int, angle: int):
+        pass
+
+class Buffer(Component):
     def create_symbol(self):
+        pass
+    def place_component(x: int, y: int, angle: int):
         pass
 
 class ModelSelector():
