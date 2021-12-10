@@ -1,11 +1,5 @@
 import os
 from pyaedt.generic import ibs_reader
-try:
-    import pytest
-except ImportError:
-    import _unittest_ironpython.conf_unittest as pytest
-
-from pyaedt.generic.general_methods import is_ironpython
 
 
 class TestClass:
