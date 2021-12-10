@@ -1,7 +1,7 @@
 import os
 import typing
 
-ibis
+ibis = None
 
 class Component():
     def __init__(self):
@@ -51,13 +51,25 @@ class Ibis():
     def components(self):
         return self.components
 
+    @components.setter
+    def components(self, value):
+        self.components = value
+
     @property
     def model_selectors(self):
         return self.model_selectors
 
+    @model_selectors.setter
+    def model_selectors(self, value):
+        self.model_selectors = value
+
     @property
     def models(self):
         return self.models
+
+    @models.setter
+    def models(self, value):
+        self.models = value
 
 
 def read_project(fileName: str):
