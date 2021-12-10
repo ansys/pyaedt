@@ -1,9 +1,7 @@
 import os
 import typing
 
-Components = []
-ModelSelectors = []
-Models = []
+ibis
 
 class Component():
     def create_symbols(self):
@@ -23,12 +21,36 @@ class Model(Component):
     def create_symbol(self):
         pass
 
+class Ibis():
+    def __init__(self):
+        self.components = []
+        self.model_selectors = []
+        self.models = []
+
+    @property
+    def components(self):
+        return self.components
+
+    @property
+    def model_selectors(self):
+        return self.model_selectors
+
+    @property
+    def models(self):
+        return self.models
+
+
 def read_project(fileName: str):
     """Read .ibis file content."""
+
+    global ibis
 
     if os.path.exists(fileName) == False:
         error_message = fileName + "does not exist."
         raise FileExistsError(error_message)
+
+
+    ibis = Ibis()
 
     # Read *.ibis file.
     with open(fileName,'r') as f:
@@ -48,7 +70,7 @@ def read_project(fileName: str):
 
 # Model
 def replace_model(current_line: str, f: typing.TextIO):
-    global Models
+    global ibis
     if IsStartedWith(current_line, "[Model] ") != True:
         return
 
@@ -81,10 +103,11 @@ def replace_model(current_line: str, f: typing.TextIO):
         elif IsStartedWith(current_line, "[Ramp]") == True:
             break
 
-    Models.append(model)
+    ibis.models.append(model)
 
 # Model Selector
 def read_model_selector(current_line: str, f: typing.TextIO):
+    global ibis
     if IsStartedWith(current_line, "[Model Selector] ") != True :
         return
 
@@ -104,7 +127,7 @@ def read_model_selector(current_line: str, f: typing.TextIO):
 
     # ModelSelectorItem
     #model_selector.FillModelReference(Models) @MAssimo: Is is it related to COM objecf.
-    ModelSelectors.append(model_selector)
+    ibis.model_selectors.append(model_selector)
 
 def make_model(current_line: str) -> ModelSelectorItem:
     item = ModelSelectorItem()
@@ -118,7 +141,7 @@ def make_model(current_line: str) -> ModelSelectorItem:
 
 # Component
 def read_component(current_line: str, f: typing.TextIO):
-    global Components
+    global ibis
     if IsStartedWith(current_line, "[Component] ") != True:
         return
 
@@ -158,7 +181,7 @@ def read_component(current_line: str, f: typing.TextIO):
         if current_line == "":
             break
 
-    Components.append(component)
+    ibis.components.append(component)
 
 def fill_package_info(component: Component, current_line: str, f: typing.TextIO):
     while IsStartedWith(current_line, "|") == True or IsStartedWith(current_line, "[") == True:
