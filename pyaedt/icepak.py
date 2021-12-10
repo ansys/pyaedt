@@ -2363,6 +2363,14 @@ class Icepak(FieldAnalysisIcepak):
         sab_file_pointer = os.path.join(self.project_path, file_name + ".sab")
         mesh_file_pointer = os.path.join(self.project_path, file_name + ".msh")
         fl_uscript_file_pointer = os.path.join(self.project_path, "FLUscript.jou")
+        if os.path.exists(mesh_file_pointer):
+            os.remove(mesh_file_pointer)
+        if os.path.exists(sab_file_pointer):
+            os.remove(sab_file_pointer)
+        if os.path.exists(fl_uscript_file_pointer):
+            os.remove(fl_uscript_file_pointer)
+        if os.path.exists(mesh_file_pointer + ".trn"):
+            os.remove(mesh_file_pointer + ".trn")
         assert self.export_3d_model(file_name, self.project_path, '.sab', object_lists), "Failed to export .sab"
 
         # Building Fluent journal script file *.jou
