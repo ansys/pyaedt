@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 This module contains the `Materials` class.
 """
@@ -183,7 +184,7 @@ class Materials(object):
             )
             return self.material_keys[materialname]
         else:
-            material = Material(self._app, materialname, props)
+            material = Material(self, materialname, props)
             material.update()
             self.logger.info("Material has been added. Edit it to update in Desktop.")
             self.material_keys[materialname] = material
@@ -423,11 +424,12 @@ class Materials(object):
         >>> hfss.materials.remove_material("MyMaterial")
 
         """
-        if material not in list(self.material_keys.keys()):
-            self.logger.error("Material {} is not present".format(material))
+        mat = material.lower()
+        if mat not in list(self.material_keys.keys()):
+            self.logger.error("Material {} is not present".format(mat))
             return False
-        self.odefinition_manager.RemoveMaterial(material, True, "", library)
-        del self.material_keys[material]
+        self.odefinition_manager.RemoveMaterial(mat, True, "", library)
+        del self.material_keys[mat]
         return True
 
     @property
@@ -484,6 +486,7 @@ class Materials(object):
         self.material_keys[matname] = newmat
         return True
 
+    @aedt_exception_handler
     def export_materials_to_file(self, full_json_path):
         """Export all materials to a JSON file.
 
@@ -552,6 +555,7 @@ class Materials(object):
             json.dump(json_dict, fp, indent=4)
         return True
 
+    @aedt_exception_handler
     def import_materials_from_file(self, full_json_path):
         """Import and create materials from a JSON file.
 
@@ -566,7 +570,7 @@ class Materials(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        with open(full_json_path) as json_file:
+        with open(full_json_path, 'r') as json_file:
             data = json.load(json_file)
 
         if "datasets" in list(data.keys()):
