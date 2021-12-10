@@ -6,10 +6,12 @@ ModelSelectors = []
 Models = []
 
 class Component():
-    pass
+    def create_symbols(self):
+        pass
 
-class Pin():
-    pass
+class Pin(Component):
+    def create_symbol(self):
+        pass
 
 class ModelSelector():
     pass
@@ -17,8 +19,9 @@ class ModelSelector():
 class ModelSelectorItem():
     pass
 
-class Model():
-    pass
+class Model(Component):
+    def create_symbol(self):
+        pass
 
 def read_project(fileName: str):
     """Read .ibis file content."""
@@ -41,7 +44,7 @@ def read_project(fileName: str):
                 replace_model(current_line, f)
             elif IsStartedWith(current_line, "[Model Selector] ") == True:
                 read_model_selector(current_line, f)
-            
+
 
 # Model
 def replace_model(current_line: str, f: typing.TextIO):
