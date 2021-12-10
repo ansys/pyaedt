@@ -8,7 +8,7 @@ from pyaedt import Icepak
 from pyaedt.generic.filesystem import Scratch
 
 # Setup paths for module imports
-from _unittest.conftest import local_path, scratch_path, desktop_version
+from _unittest.conftest import local_path, scratch_path, desktop_version, config
 
 try:
     import pytest  # noqa: F401
@@ -32,6 +32,7 @@ group_name = "Group1"
 src_project_name = "USB_Connector_IPK"
 source_project = os.path.join(local_path, "example_models", src_project_name + ".aedt")
 source_project_path = os.path.join(local_path, "example_models", src_project_name)
+source_fluent = os.path.join(local_path, "example_models", "ColdPlateExample.aedt")
 
 
 class TestClass:
@@ -45,6 +46,7 @@ class TestClass:
 
             self.test_project = self.local_scratch.copyfile(example_project)
             self.test_src_project = self.local_scratch.copyfile(source_project)
+
             self.local_scratch.copyfolder(
                 os.path.join(local_path, "example_models", test_project_name + ".aedb"),
                 os.path.join(self.local_scratch.path, test_project_name + ".aedb"),
@@ -374,3 +376,11 @@ class TestClass:
         exp_bounding = [0.2, 0.2, 0.2, 0.5, 0.6, 0.4]
         real_bound = obj_2_bbox
         assert abs(sum([i - j for i, j in zip(exp_bounding, real_bound)])) < tol
+
+    @pytest.mark.skipif(config["build_machine"], reason="Needs Workbench to run.")
+    def test_90_export_fluent_mesh(self):
+        self.fluent = self.local_scratch.copyfile(source_fluent)
+        app = Icepak(self.fluent)
+        assert app.get_liquid_objects() == ['Liquid']
+        assert app.get_gas_objects() == ['Region']
+        assert app.generate_fluent_mesh()

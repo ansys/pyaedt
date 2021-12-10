@@ -2349,6 +2349,12 @@ class Icepak(FieldAnalysisIcepak):
         -------
         :class:`pyaedt.modules.Mesh.MeshOperation`
         """
+        version = self.aedt_version_id[-3:]
+        ansys_install_dir = os.environ.get("ANSYS{}_DIR".format(version), "")
+        if not ansys_install_dir:
+            ansys_install_dir = os.environ.get("AWP_ROOT{}".format(version), "")
+        assert ansys_install_dir, "Fluent {} has to be installed on to generate mesh.".format(version)
+        assert os.getenv("ANSYS{}_DIR".format(version))
         if not object_lists:
             object_lists = self.get_liquid_objects()
             assert object_lists, "No Fluids objects found."
@@ -2361,14 +2367,14 @@ class Icepak(FieldAnalysisIcepak):
 
         # Building Fluent journal script file *.jou
         fluent_script = open(fl_uscript_file_pointer, "w")
-        fluent_script.write("/file/start-transcript " + "\"" + mesh_file_pointer.replace("\\","/") + ".trn\"\n")
+        fluent_script.write("/file/start-transcript " + "\"" + mesh_file_pointer + ".trn\"\n")
         fluent_script.write(
             "/file/set-tui-version \"{}\"\n".format(self.aedt_version_id[-3:-1] + "." + self.aedt_version_id[-1:]))
         fluent_script.write("(enable-feature 'serial-hexcore-without-poly)\n")
         fluent_script.write("(cx-gui-do cx-activate-tab-index \"NavigationPane*Frame1(TreeTab)\" 0)\n")
         fluent_script.write("(%py-exec \"workflow.InitializeWorkflow(WorkflowType=r'Watertight Geometry')\")\n")
         cmd = "(%py-exec \"workflow.TaskObject['Import Geometry']."
-        cmd += "Arguments.setState({r'file_name': r'" + sab_file_pointer.replace("\\","/") + "',})\")\n"
+        cmd += "Arguments.setState({r'FileName': r'" + sab_file_pointer + "',})\")\n"
         fluent_script.write(cmd)
         fluent_script.write("(%py-exec \"workflow.TaskObject['Import Geometry'].Execute()\")\n")
         fluent_script.write("(%py-exec \"workflow.TaskObject['Add Local Sizing'].AddChildToTask()\")\n")
@@ -2414,5 +2420,15 @@ class Icepak(FieldAnalysisIcepak):
                       "3d", "-meshing", "-hidden", "-i" + "\"" + fl_uscript_file_pointer + "\""]
         self.logger.info("Fluent will be started in BG!")
         subprocess.call(fl_ucommand)
-        self.logger.info("\'" + mesh_file_pointer + "\' just became created.")
-        return self.mesh.assign_mesh_from_file(object_lists, mesh_file_pointer)
+        if os.path.exists(mesh_file_pointer + ".trn"):
+            os.remove(mesh_file_pointer + ".trn")
+        if os.path.exists(fl_uscript_file_pointer):
+            os.remove(fl_uscript_file_pointer)
+        if os.path.exists(sab_file_pointer):
+            os.remove(sab_file_pointer)
+        if os.path.exists(mesh_file_pointer):
+            self.logger.info("\'" + mesh_file_pointer + "\' has been created.")
+            return self.mesh.assign_mesh_from_file(object_lists, mesh_file_pointer)
+        self.logger.error("Failed to create msh file")
+
+        return False

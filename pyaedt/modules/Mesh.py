@@ -55,7 +55,8 @@ class MeshOperation(object):
 
         Returns
         -------
-        type
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         if self.type == "SurfApproxBased":
@@ -78,9 +79,9 @@ class MeshOperation(object):
             self._meshicepak.omeshmodule.AssignMeshOperation(self._get_args())
         elif self.type == "CurvatureExtraction":
             self._meshicepak.omeshmodule.AssignCurvatureExtractionOp(self._get_args())
-
         else:
             return False
+        return True
 
     @aedt_exception_handler
     def update(self):
