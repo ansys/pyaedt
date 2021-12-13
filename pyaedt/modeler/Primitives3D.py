@@ -847,7 +847,8 @@ class Primitives3D(Primitives, object):
         :class:`pyaedt.modeler.Object3d.Polyline`
             Polyline object.
         """
-        assert internal_radius > 0, "Internal Radius must be greater than 0"
+        assert internal_radius > 0, "Internal Radius must be greater than 0."
+        assert faces > 0, "Faces must be greater than 0."
         dtheta = 2 * pi / faces
         theta = pi / 2
         pts = [(internal_radius, 0, elevation), (internal_radius, internal_radius * tan(dtheta / 2), elevation)]
