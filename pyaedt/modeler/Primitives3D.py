@@ -832,7 +832,7 @@ class Primitives3D(Primitives, object):
         turns : int, optional
             Number of turns. Default is `10`.
         width : float, optional
-            spiral width. Default is `2`.
+            Spiral width. Default is `2`.
         thickness : float, optional
             Spiral thickness. Default is `1`.
         elevation : float, optional
