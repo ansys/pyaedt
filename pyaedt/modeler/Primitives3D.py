@@ -1,4 +1,6 @@
 import os
+from math import pi, cos, sin, tan, sqrt
+
 from pyaedt.generic.general_methods import aedt_exception_handler
 from pyaedt.modeler.Primitives import Primitives
 from pyaedt.modeler.GeometryOperators import GeometryOperators
@@ -813,6 +815,65 @@ class Primitives3D(Primitives, object):
             return True
         else:
             return False
+
+    @aedt_exception_handler
+    def create_spiral(self, internal_radius=10, spacing=1, faces=8, turns=10, width=2, thickness=1, elevation=0,
+                      material="copper", name=None):
+        """Creates a spiral inductor from a polyne.
+
+        Parameters
+        ----------
+        internal_radius : float, optional
+            internal starting point of spiral. Default is `10`.
+        spacing : float, optional
+            internal ptich between two turns. Default is `1`.
+        faces : int, optional
+            Number of faces per turn. Default is `8` as an octagon.
+        turns : int, optional
+            Number of turns. Default is `10`.
+        width : float, optional
+            spiral width. Default is `2`.
+        thickness : float, optional
+            spiral thickness. Default is `1`.
+        elevation : float, optional
+            Spiral elevation. Default is`0`.
+        material : str, optional
+            Spiral material. Default is `"copper"`.
+        name : str, optional
+            Spiral name.Default is `None`.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.Polyline`
+            Polyline object.
+        """
+        assert internal_radius > 0, "Internal Radius must be greather than 0"
+        dtheta = 2 * pi / faces
+        theta = pi / 2
+        pts = [(internal_radius, 0, elevation), (internal_radius, internal_radius * tan(dtheta / 2), elevation)]
+        rin = internal_radius * tan(dtheta / 2) * 2
+        x = rin
+        r = rin
+        for i in range(faces):
+            r += 1
+            theta += dtheta
+            x = x + r * cos(theta)
+            dr = (width + spacing) / (x - rin)
+
+        for i in range(turns * faces - int(faces / 2) - 1):
+            rin += dr
+            theta += dtheta
+            x0, y0 = pts[-1][:2]
+            x1, y1 = x0 + rin * cos(theta), y0 + rin * sin(theta)
+            pts.append((x1, y1, elevation))
+
+        pts.append((x1, 0, elevation))
+        p1 = self.create_polyline(pts, xsection_type='Rectangle', xsection_width=width, xsection_height=thickness,
+                                  matname=material)
+        if name:
+            p1.name = name
+        return p1
+
 
     @aedt_exception_handler
     def insert_3d_component(self, compFile, geoParams=None, szMatParams='', szDesignParams='', targetCS='Global'):
