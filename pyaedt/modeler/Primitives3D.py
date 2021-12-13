@@ -826,7 +826,7 @@ class Primitives3D(Primitives, object):
         internal_radius : float, optional
             Internal starting point of spiral. Default is `10`.
         spacing : float, optional
-            internal pitch between two turns. Default is `1`.
+            Internal pitch between two turns. Default is `1`.
         faces : int, optional
             Number of faces per turn. Default is `8` as an octagon.
         turns : int, optional
