@@ -35,7 +35,7 @@ Tsub = 6
 
 
 #############################################################
-# This method standardize the usage of polyline in this
+# This method standardizes the usage of polyline in this
 # example by fixing the width, thickness and material.
 #
 def create_line(pts):
