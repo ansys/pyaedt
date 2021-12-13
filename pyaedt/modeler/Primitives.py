@@ -257,7 +257,7 @@ class Polyline(Object3d):
 
     @property
     def points(self):
-        """Polyline Points"""
+        """Polyline Points."""
         return self._positions
 
     @property

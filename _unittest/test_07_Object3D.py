@@ -342,4 +342,4 @@ class TestClass:
         sp1 = self.aedtapp.modeler.create_spiral(name="ind")
         assert sp1
         assert sp1.name == "ind"
-        assert len(sp1.polyline_points) == 78
+        assert len(sp1.points) == 78

@@ -1,5 +1,5 @@
 import os
-from math import pi, cos, sin, tan, sqrt
+from math import pi, cos, sin, tan
 
 from pyaedt.generic.general_methods import aedt_exception_handler
 from pyaedt.modeler.Primitives import Primitives
@@ -819,7 +819,7 @@ class Primitives3D(Primitives, object):
     @aedt_exception_handler
     def create_spiral(self, internal_radius=10, spacing=1, faces=8, turns=10, width=2, thickness=1, elevation=0,
                       material="copper", name=None):
-        """Creates a spiral inductor from a polyne.
+        """Create a spiral inductor from a polyne.
 
         Parameters
         ----------
@@ -847,7 +847,7 @@ class Primitives3D(Primitives, object):
         :class:`pyaedt.modeler.Object3d.Polyline`
             Polyline object.
         """
-        assert internal_radius > 0, "Internal Radius must be greather than 0"
+        assert internal_radius > 0, "Internal Radius must be greater than 0"
         dtheta = 2 * pi / faces
         theta = pi / 2
         pts = [(internal_radius, 0, elevation), (internal_radius, internal_radius * tan(dtheta / 2), elevation)]
@@ -873,7 +873,6 @@ class Primitives3D(Primitives, object):
         if name:
             p1.name = name
         return p1
-
 
     @aedt_exception_handler
     def insert_3d_component(self, compFile, geoParams=None, szMatParams='', szDesignParams='', targetCS='Global'):
