@@ -819,7 +819,7 @@ class Primitives3D(Primitives, object):
     @aedt_exception_handler
     def create_spiral(self, internal_radius=10, spacing=1, faces=8, turns=10, width=2, thickness=1, elevation=0,
                       material="copper", name=None):
-        """Create a spiral inductor from a polyne.
+        """Create a spiral inductor from a polyline.
 
         Parameters
         ----------
