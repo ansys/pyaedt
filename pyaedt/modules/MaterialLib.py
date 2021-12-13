@@ -585,6 +585,7 @@ class Materials(object):
         """
         with open(full_json_path, 'r') as json_file:
             data = json.load(json_file)
+
         if "datasets" in list(data.keys()):
             for el, val in data["datasets"].items():
                 numcol = len(val["Coordinates"]["DimUnits"])
