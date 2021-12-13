@@ -6,8 +6,10 @@ from __future__ import absolute_import
 
 import json
 import copy
+import os
+
 from pyaedt.generic.DataHandlers import _arg2dict
-from pyaedt.generic.general_methods import aedt_exception_handler, _retry_ntimes, generate_unique_name
+from pyaedt.generic.general_methods import aedt_exception_handler, _retry_ntimes, generate_unique_name, is_ironpython
 from pyaedt.modules.Material import Material, SurfaceMaterial, MatProperties, OrderedDict
 
 
@@ -550,9 +552,20 @@ class Materials(object):
         json_dict["materials"] = output_dict
         if datasets:
             json_dict["datasets"] = datasets
-
-        with open(full_json_path, "w") as fp:
-            json.dump(json_dict, fp, indent=4)
+        if not is_ironpython:
+            with open(full_json_path, "w") as fp:
+                json.dump(json_dict, fp, indent=4)
+        else:
+            temp_path = full_json_path.replace(".json", "_temp.json")
+            with open(temp_path, "w") as fp:
+                json.dump(json_dict, fp, indent=4)
+            with open(temp_path, 'r') as file:
+                filedata = file.read()
+            filedata = filedata.replace('True', 'true')
+            filedata = filedata.replace('False', 'false')
+            with open(full_json_path, 'w') as file:
+                file.write(filedata)
+            os.remove(temp_path)
         return True
 
     @aedt_exception_handler
