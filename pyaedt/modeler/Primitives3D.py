@@ -834,7 +834,7 @@ class Primitives3D(Primitives, object):
         width : float, optional
             spiral width. Default is `2`.
         thickness : float, optional
-            spiral thickness. Default is `1`.
+            Spiral thickness. Default is `1`.
         elevation : float, optional
             Spiral elevation. Default is`0`.
         material : str, optional
