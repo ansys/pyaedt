@@ -840,7 +840,7 @@ class Primitives3D(Primitives, object):
         material : str, optional
             Spiral material. Default is `"copper"`.
         name : str, optional
-            Spiral name.Default is `None`.
+            Spiral name. Default is `None`.
 
         Returns
         -------
