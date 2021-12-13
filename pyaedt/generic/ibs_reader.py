@@ -5,16 +5,24 @@ ibis = None
 
 class Component():
     def __init__(self):
-        self.pins = {}
-        self.buffers = {}
+        self._pins = {}
+        self._buffers = {}
 
     @property
     def pins(self):
-        return self.pins
+        return self._pins
+
+    @pins.setter
+    def pins(self, value):
+        self._pins = value
 
     @property
     def buffers(self):
-        return self.buffers
+        return self._buffers
+
+    @buffers.setter
+    def buffers(self, value):
+        self._buffers = value
 
     def create_symbols(self):
         pass
@@ -43,33 +51,33 @@ class Model(Component):
 
 class Ibis():
     def __init__(self):
-        self.components = []
-        self.model_selectors = []
-        self.models = []
+        self._components = []
+        self._model_selectors = []
+        self._models = []
 
     @property
     def components(self):
-        return self.components
+        return self._components
 
     @components.setter
     def components(self, value):
-        self.components = value
+        self._components = value
 
     @property
     def model_selectors(self):
-        return self.model_selectors
+        return self._model_selectors
 
     @model_selectors.setter
     def model_selectors(self, value):
-        self.model_selectors = value
+        self._model_selectors = value
 
     @property
     def models(self):
-        return self.models
+        return self._models
 
     @models.setter
     def models(self, value):
-        self.models = value
+        self._models = value
 
 
 def read_project(fileName: str):
@@ -81,14 +89,12 @@ def read_project(fileName: str):
         error_message = fileName + "does not exist."
         raise FileExistsError(error_message)
 
-
     ibis = Ibis()
 
     # Read *.ibis file.
     with open(fileName,'r') as f:
         while True:
             current_line = f.readline()
-            print(current_line)
             if not current_line:
                 break
 
@@ -184,7 +190,7 @@ def read_component(current_line: str, f: typing.TextIO):
     if IsStartedWith(current_line, "[Manufacturer]") == True:
         component.Manufacturer = current_line.replace("[Manufacturer]", "").strip()
 
-    current_line = f.readline()
+    # current_line = f.readline()
 
     while True:
         current_line = f.readline()
