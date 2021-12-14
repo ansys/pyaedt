@@ -99,9 +99,7 @@ class ProgressBase(six.ABC):
             return None, None
         elapsed_time = datetime.datetime.now() - self._start_time
         time_each = (
-            elapsed_time.days * 24 * 60 * 60
-            + elapsed_time.seconds
-            + elapsed_time.microseconds / 1000000.0
+            elapsed_time.days * 24 * 60 * 60 + elapsed_time.seconds + elapsed_time.microseconds / 1000000.0
         ) / self.value
         time_remaining = time_each * (self.length - self.value)
         return elapsed_time, datetime.timedelta(0, time_remaining, 0)
@@ -112,9 +110,7 @@ class ProgressBase(six.ABC):
             return "Starting...                         "
         else:
             elapsed_time, time_remaining = list(map(str, self.time_remaining()))
-            return "{} completed, {} remaining".format(
-                elapsed_time.split(".")[0], time_remaining.split(".")[0]
-            )
+            return "{} completed, {} remaining".format(elapsed_time.split(".")[0], time_remaining.split(".")[0])
 
     @abstractmethod
     def done(self):
@@ -153,9 +149,7 @@ class Progress(ProgressBase):
 
         percent = max(self.value, 0) / self.length
         ending = " " + (
-            self.str_time_remaining()
-            if self.timer
-            else "{} of {} complete".format(self.value, self.length)
+            self.str_time_remaining() if self.timer else "{} of {} complete".format(self.value, self.length)
         )
         if width - len(ending) < 10 or self.has_output:
             self.width = 0
@@ -171,11 +165,7 @@ class Progress(ProgressBase):
 
         str_percent = " {:.0%} ".format(percent)
 
-        return (
-            pbar[: self.width // 2 - 2]
-            + str_percent
-            + pbar[self.width // 2 + len(str_percent) - 2 :]
-        )
+        return pbar[: self.width // 2 - 2] + str_percent + pbar[self.width // 2 + len(str_percent) - 2 :]
 
     def display(self):
         disptxt = str(self)
@@ -188,7 +178,9 @@ class Progress(ProgressBase):
 
 
 class ProgressIPy(ProgressBase):  # pragma: no cover
-    HTMLBOX = '<div class="widget-hbox widget-progress"><div class="widget-label" style="display:block;">{0}</div></div>'
+    HTMLBOX = (
+        '<div class="widget-hbox widget-progress"><div class="widget-label" style="display:block;">{0}</div></div>'
+    )
 
     def __init__(self, *args, **kargs):
 

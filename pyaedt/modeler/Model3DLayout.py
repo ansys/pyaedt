@@ -4,8 +4,13 @@ from warnings import warn
 
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.edb import Edb
-from pyaedt.generic.general_methods import aedt_exception_handler, _retry_ntimes, is_ironpython, _pythonver, \
-    inside_desktop
+from pyaedt.generic.general_methods import (
+    aedt_exception_handler,
+    _retry_ntimes,
+    is_ironpython,
+    _pythonver,
+    inside_desktop,
+)
 from pyaedt.modules.LayerStackup import Layers
 from pyaedt.modeler.Modeler import Modeler
 from pyaedt.modeler.Primitives3DLayout import Geometries3DLayout, Primitives3DLayout
@@ -227,13 +232,27 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         if isinstance(property_value, list) and len(property_value) == 3:
             xpos, ypos, zpos = self._pos_with_arg(property_value)
             self.oeditor.ChangeProperty(
-                ["NAME:AllTabs", ["NAME:" + property_tab, ["NAME:PropServers", property_object], ["NAME:ChangedProps", [
-                    "NAME:" + property_name, "X:=", xpos, "Y:=", ypos, "Z:=", zpos]]]])
+                [
+                    "NAME:AllTabs",
+                    [
+                        "NAME:" + property_tab,
+                        ["NAME:PropServers", property_object],
+                        ["NAME:ChangedProps", ["NAME:" + property_name, "X:=", xpos, "Y:=", ypos, "Z:=", zpos]],
+                    ],
+                ]
+            )
         elif isinstance(property_value, (str, float, int)):
             posx = self._arg_with_dim(property_value, self.model_units)
             self.oeditor.ChangeProperty(
-                ["NAME:AllTabs", ["NAME:"+property_tab, ["NAME:PropServers", property_object],
-                                  ["NAME:ChangedProps", ["NAME:"+property_name, "Value:=", posx]]]])
+                [
+                    "NAME:AllTabs",
+                    [
+                        "NAME:" + property_tab,
+                        ["NAME:PropServers", property_object],
+                        ["NAME:ChangedProps", ["NAME:" + property_name, "Value:=", posx]],
+                    ],
+                ]
+            )
         else:
             self.logger.error("Wrong Property Value")
             return False
@@ -597,11 +616,11 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
     @aedt_exception_handler
     def set_temperature_dependence(
-            self,
-            include_temperature_dependence=True,
-            enable_feedback=True,
-            ambient_temp=22,
-            create_project_var=False,
+        self,
+        include_temperature_dependence=True,
+        enable_feedback=True,
+        ambient_temp=22,
+        create_project_var=False,
     ):
         """Set the temperature dependence for the design.
 
@@ -635,9 +654,12 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
             var = str(ambient_temp) + "cel"
         vargs1 = [
             "NAME:TemperatureSettings",
-            "IncludeTempDependence:=", include_temperature_dependence,
-            "EnableFeedback:=", enable_feedback,
-            "Temperature:=", var,
+            "IncludeTempDependence:=",
+            include_temperature_dependence,
+            "EnableFeedback:=",
+            enable_feedback,
+            "Temperature:=",
+            var,
         ]
         try:
             self._odesign.SetTemperatureSettings(vargs1)

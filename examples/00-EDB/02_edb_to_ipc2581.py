@@ -29,7 +29,7 @@ if os.path.exists(targetfolder):
     shutil.rmtree(targetfolder)
 shutil.copytree(example_path[:-8], targetfolder)
 targetfile = os.path.join(targetfolder)
-ipc2581_file = os.path.join(temp_folder, 'Galileo.xml')
+ipc2581_file = os.path.join(temp_folder, "Galileo.xml")
 
 print(targetfile)
 
@@ -46,8 +46,9 @@ edb = Edb(edbpath=targetfile, edbversion="2021.2")
 ###############################################################################
 # Parametrize a Net
 
-edb.core_primitives.parametrize_trace_width("A0_N", parameter_name=generate_unique_name("Par"),
-                                            variable_value="0.4321mm")
+edb.core_primitives.parametrize_trace_width(
+    "A0_N", parameter_name=generate_unique_name("Par"), variable_value="0.4321mm"
+)
 
 ###############################################################################
 # Create IPC2581 File

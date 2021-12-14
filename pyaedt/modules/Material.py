@@ -220,6 +220,7 @@ class MatProperty(object):
     >>>app = Hfss()
     >>>matproperty = app.materials["copper"].conductivity
     """
+
     def __init__(self, material, name, val=None, thermalmodifier=None):
         self._material = material
         self.logger = self._material.logger
@@ -244,8 +245,8 @@ class MatProperty(object):
                 elif e == "IsTemperatureDependent":
                     self.is_temperature_dependent = v
                 elif e in ["BHCoordinates", "DECoordinates", "JECoordinates"]:
-                    self.value = v['Point']
-                    self._unit = v['DimUnits']
+                    self.value = v["Point"]
+                    self._unit = v["DimUnits"]
                 elif e == "Temperatures":
                     self.temperatures = v
         if not isinstance(thermalmodifier, list):
@@ -375,14 +376,21 @@ class MatProperty(object):
                     "free_form_value": formula,
                 }
             )
-            self._material._props["ModifierData"] = OrderedDict({"ThermalModifierData": OrderedDict(
-                {"modifier_data": "thermal_modifier_data",
-                 "all_thermal_modifiers": OrderedDict({"one_thermal_modifier": tm}), })})
+            self._material._props["ModifierData"] = OrderedDict(
+                {
+                    "ThermalModifierData": OrderedDict(
+                        {
+                            "modifier_data": "thermal_modifier_data",
+                            "all_thermal_modifiers": OrderedDict({"one_thermal_modifier": tm}),
+                        }
+                    )
+                }
+            )
         else:
             for tmname in self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"]:
                 if isinstance(
-                        self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname],
-                        list):
+                    self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname], list
+                ):
                     found = False
                     for tm in self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][
                         tmname
@@ -455,7 +463,8 @@ class MatProperty(object):
                         }
                     )
                     self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][
-                        tmname].append(tm)
+                        tmname
+                    ].append(tm)
         return self._material.update()
 
     @aedt_exception_handler
@@ -699,33 +708,34 @@ class MatProperty(object):
         bool
             `True` if succeeded.
         """
-        if self.name not in ['permeability', 'conductivity', 'permittivity']:
+        if self.name not in ["permeability", "conductivity", "permittivity"]:
             self.logger.error(
-                "Non linear parameters are only supported for permeability, conductivity and permittivity.")
+                "Non linear parameters are only supported for permeability, conductivity and permittivity."
+            )
             return False
-        self.type = 'nonlinear'
+        self.type = "nonlinear"
         self.value = point_list
         if self.name == "permeability":
             if not x_unit:
-                x_unit = 'tesla'
+                x_unit = "tesla"
             if not y_unit:
-                y_unit = 'A_per_meter'
+                y_unit = "A_per_meter"
             self.bunit = x_unit
             self.hunit = y_unit
             self.is_temperature_dependent = False
-            self.btype_for_single_curve = 'normal'
+            self.btype_for_single_curve = "normal"
             self.temperatures = OrderedDict({})
         elif self.name == "permittivity":
             if not x_unit:
-                x_unit = 'V_per_meter'
+                x_unit = "V_per_meter"
             if not y_unit:
-                y_unit = 'C_per_m2'
+                y_unit = "C_per_m2"
             self._unit = [x_unit, y_unit]
         elif self.name == "conductivity":
             if not x_unit:
-                x_unit = 'V_per_meter'
+                x_unit = "V_per_meter"
             if not y_unit:
-                y_unit = 'A_per_m2'
+                y_unit = "A_per_m2"
             self._unit = [x_unit, y_unit]
         return self._material._update_props(self.name, self.value)
 
@@ -743,6 +753,7 @@ class CommonMaterial(object):
         The default is ``None``.
 
     """
+
     def __init__(self, materials, name, props=None):
         self._materials = materials
         self.odefinition_manager = self._materials.odefinition_manager

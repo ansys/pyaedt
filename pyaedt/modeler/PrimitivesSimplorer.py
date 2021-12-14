@@ -1,4 +1,3 @@
-
 from pyaedt.generic.general_methods import aedt_exception_handler
 from pyaedt.modeler.PrimitivesCircuit import CircuitComponents
 
@@ -182,9 +181,7 @@ class SimplorerComponents(CircuitComponents):
         return id
 
     @aedt_exception_handler
-    def create_diode(
-        self, compname=None, model_name="required", location=[], angle=0, use_instance_id_netlist=False
-    ):
+    def create_diode(self, compname=None, model_name="required", location=[], angle=0, use_instance_id_netlist=False):
         """Create a diode.
 
         Parameters

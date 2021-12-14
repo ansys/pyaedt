@@ -14,6 +14,7 @@ import tempfile
 import datetime
 import logging
 import re
+
 try:
     import clr
     from System.Collections.Generic import List
@@ -28,7 +29,9 @@ from pyaedt.generic.general_methods import (
     env_path,
     env_path_student,
     env_value,
-    generate_unique_name, is_ironpython, inside_desktop,
+    generate_unique_name,
+    is_ironpython,
+    inside_desktop,
 )
 from pyaedt.aedt_logger import AedtLogger
 from pyaedt.generic.process import SiwaveSolve
@@ -93,15 +96,15 @@ class Edb(object):
     """
 
     def __init__(
-            self,
-            edbpath=None,
-            cellname=None,
-            isreadonly=False,
-            edbversion="2021.2",
-            isaedtowned=False,
-            oproject=None,
-            student_version=False,
-            use_ppe=False,
+        self,
+        edbpath=None,
+        cellname=None,
+        isreadonly=False,
+        edbversion="2021.2",
+        isaedtowned=False,
+        oproject=None,
+        student_version=False,
+        use_ppe=False,
     ):
         self._clean_variables()
         if is_ironpython and inside_desktop:
@@ -111,7 +114,7 @@ class Edb(object):
         if edb_initialized:
             self.oproject = oproject
             self._main = sys.modules["__main__"]
-            if isaedtowned and 'oMessenger' in dir(sys.modules["__main__"]):
+            if isaedtowned and "oMessenger" in dir(sys.modules["__main__"]):
                 _messenger = self._main.oMessenger
                 self._logger = self._main.aedt_logger
             else:
@@ -120,8 +123,8 @@ class Edb(object):
                 else:
                     project_dir = os.path.dirname(edbpath)
                 logfile = os.path.join(
-                        project_dir, "pyaedt{}.log".format(datetime.datetime.now().strftime("%Y%m%d_%H%M%S"))
-                    )
+                    project_dir, "pyaedt{}.log".format(datetime.datetime.now().strftime("%Y%m%d_%H%M%S"))
+                )
                 self._main.oMessenger = AEDTMessageManager()
                 self._logger = AedtLogger(self._main.oMessenger, filename=logfile, level=logging.DEBUG)
                 self._logger.info("Logger Started on %s", logfile)
@@ -155,9 +158,7 @@ class Edb(object):
                 self.edbpath = edbpath[:-4] + ".aedb"
                 working_dir = os.path.dirname(edbpath)
                 self.import_layout_pcb(edbpath, working_dir, use_ppe=use_ppe)
-                self.logger.info(
-                    "Edb %s Created Correctly from %s file", self.edbpath, edbpath[-2:]
-                )
+                self.logger.info("Edb %s Created Correctly from %s file", self.edbpath, edbpath[-2:])
             elif not os.path.exists(os.path.join(self.edbpath, "edb.def")):
                 self.create_edb()
                 self.logger.info("Edb %s Created Correctly", self.edbpath)
@@ -506,9 +507,10 @@ class Edb(object):
             ipc_path = self.edbpath[:-4] + "xml"
         self.logger.info("Export IPC 2581 is starting. This operation can take a while...")
         start = time.time()
-        result = self.edblib.IPC8521.IPCExporter.ExportIPC2581FromLayout(self.active_layout, self.edbversion, ipc_path,
-                                                             units.lower())
-        #result = self.layout_methods.ExportIPC2581FromBuilder(self.builder, ipc_path, units.lower())
+        result = self.edblib.IPC8521.IPCExporter.ExportIPC2581FromLayout(
+            self.active_layout, self.edbversion, ipc_path, units.lower()
+        )
+        # result = self.layout_methods.ExportIPC2581FromBuilder(self.builder, ipc_path, units.lower())
         end = time.time() - start
         if result:
             self.logger.info("Export IPC 2581 completed in %s sec.", end)
@@ -687,8 +689,8 @@ class Edb(object):
     def _is_file_existing_and_released(self, filename):
         if os.path.exists(filename):
             try:
-                os.rename(filename, filename + '_')
-                os.rename(filename + '_', filename)
+                os.rename(filename, filename + "_")
+                os.rename(filename + "_", filename)
                 return True
             except OSError as e:
                 return False
@@ -750,7 +752,7 @@ class Edb(object):
         start_time = time.time()
         self._wait_for_file_release()
         elapsed_time = time.time() - start_time
-        self.logger.info("EDB file release time: {0:.2f}ms".format(elapsed_time*1000.))
+        self.logger.info("EDB file release time: {0:.2f}ms".format(elapsed_time * 1000.0))
         self._clean_variables()
         timeout = 4
         while gc.collect() != 0 and timeout > 0:
@@ -829,7 +831,7 @@ class Edb(object):
 
         """
         if self.import_layout_pcb(
-                inputBrd, working_dir=WorkDir, anstranslator_full_path=anstranslator_full_path, use_ppe=use_ppe
+            inputBrd, working_dir=WorkDir, anstranslator_full_path=anstranslator_full_path, use_ppe=use_ppe
         ):
             return True
         else:
@@ -857,21 +859,21 @@ class Edb(object):
 
         """
         if self.import_layout_pcb(
-                inputGDS, working_dir=WorkDir, anstranslator_full_path=anstranslator_full_path, use_ppe=use_ppe
+            inputGDS, working_dir=WorkDir, anstranslator_full_path=anstranslator_full_path, use_ppe=use_ppe
         ):
             return True
         else:
             return False
 
     def create_cutout(
-            self,
-            signal_list,
-            reference_list=["GND"],
-            extent_type="Conforming",
-            expansion_size=0.002,
-            use_round_corner=False,
-            output_aedb_path=None,
-            open_cutout_at_end=True,
+        self,
+        signal_list,
+        reference_list=["GND"],
+        extent_type="Conforming",
+        expansion_size=0.002,
+        use_round_corner=False,
+        output_aedb_path=None,
+        open_cutout_at_end=True,
     ):
         """Create a cutout and save it to a new AEDB file.
 
@@ -1001,11 +1003,11 @@ class Edb(object):
 
     @aedt_exception_handler
     def create_cutout_on_point_list(
-            self,
-            point_list,
-            units="mm",
-            output_aedb_path=None,
-            open_cutout_at_end=True,
+        self,
+        point_list,
+        units="mm",
+        output_aedb_path=None,
+        open_cutout_at_end=True,
     ):
         """Create a cutout and save it to a new AEDB file.
 
@@ -1033,8 +1035,9 @@ class Edb(object):
         point_list = [[self.arg_with_dim(i[0], units), self.arg_with_dim(i[1], units)] for i in point_list]
         plane = self.core_primitives.Shape("polygon", points=point_list)
         polygonData = self.core_primitives.shape_to_polygon_data(plane)
-        self.core_primitives.create_polygon(plane, list(self.core_stackup.signal_layers.keys())[0],
-                                            net_name="DUMMY_CUTOUT")
+        self.core_primitives.create_polygon(
+            plane, list(self.core_stackup.signal_layers.keys())[0], net_name="DUMMY_CUTOUT"
+        )
         _signal_nets = []
 
         _ref_nets = []
@@ -1198,8 +1201,9 @@ class Edb(object):
         """
 
         siwave_s = SiwaveSolve(self.edbpath, aedt_installer_path=self.base_path)
-        return siwave_s.export_3d_cad("Q3D", path_to_output, net_list, num_cores=num_cores,
-                                      aedt_file_name=aedt_file_name)
+        return siwave_s.export_3d_cad(
+            "Q3D", path_to_output, net_list, num_cores=num_cores, aedt_file_name=aedt_file_name
+        )
 
     @aedt_exception_handler
     def export_maxwell(self, path_to_output, net_list=None, num_cores=None, aedt_file_name=None):
@@ -1236,8 +1240,9 @@ class Edb(object):
 
         """
         siwave_s = SiwaveSolve(self.edbpath, aedt_installer_path=self.base_path)
-        return siwave_s.export_3d_cad("Maxwell", path_to_output, net_list, num_cores=num_cores,
-                                      aedt_file_name=aedt_file_name)
+        return siwave_s.export_3d_cad(
+            "Maxwell", path_to_output, net_list, num_cores=num_cores, aedt_file_name=aedt_file_name
+        )
 
     @aedt_exception_handler
     def solve_siwave(self):

@@ -20,6 +20,7 @@ import gc
 import time
 import datetime
 import tempfile
+
 if os.name == "posix":
     try:
         import subprocessdotnet as subprocess
@@ -113,7 +114,7 @@ def _delete_objects():
     if "pyaedt_initialized" in dir(module):
         del module.pyaedt_initialized
     if "_aedt_handler" in dir(module):
-        _global = logging.getLogger('Global')
+        _global = logging.getLogger("Global")
         for i in range(len(module._aedt_handler) - 1, -1, -1):
             _global.removeHandler(module._aedt_handler[i])
     gc.collect()
@@ -275,8 +276,14 @@ class Desktop:
     pyaedt info: No project is defined. Project...
     """
 
-    def __init__(self, specified_version=None, non_graphical=False, new_desktop_session=True, close_on_exit=True,
-                 student_version=False):
+    def __init__(
+        self,
+        specified_version=None,
+        non_graphical=False,
+        new_desktop_session=True,
+        close_on_exit=True,
+        student_version=False,
+    ):
         """Initialize desktop."""
         self._main = sys.modules["__main__"]
         self._main.interpreter = _com
@@ -298,10 +305,10 @@ class Desktop:
             if "oDesktop" in dir(self._main):
                 del self._main.oDesktop
             version_student, version_key, version = self._set_version(specified_version, student_version)
-            if _com == 'ironpython':
+            if _com == "ironpython":
                 print("Launching PyAEDT outside Electronics Desktop with IronPython")
                 self._init_ironpython(non_graphical, new_desktop_session, version)
-            elif _com == 'pythonnet_v3':
+            elif _com == "pythonnet_v3":
                 print("Launching PyAEDT outside Electronics Desktop with CPython and Pythonnet")
                 self._init_cpython(non_graphical, new_desktop_session, version, student_version, version_key)
             else:
@@ -382,7 +389,7 @@ class Desktop:
         self._main.AEDTVersion = self._main.oDesktop.GetVersion()[0:6]
         self._main.oDesktop.RestoreWindow()
         self._main.oMessenger = AEDTMessageManager()
-        self._logger = aedt_logger.AedtLogger(self._main.oMessenger, filename = self.logfile, level = logging.DEBUG)
+        self._logger = aedt_logger.AedtLogger(self._main.oMessenger, filename=self.logfile, level=logging.DEBUG)
         self._logger.info("Logger Started on %s", self.logfile)
         self._main.aedt_logger = self._logger
         self._main.sDesktopinstallDirectory = self._main.oDesktop.GetExeDir()
@@ -440,7 +447,7 @@ class Desktop:
 
         p = subprocess.Popen('tasklist /FI "IMAGENAME eq {}" /v'.format(process), stdout=subprocess.PIPE)
         result = p.communicate()
-        output = result[0].decode(encoding="utf-8", errors='ignore').split(os.linesep)
+        output = result[0].decode(encoding="utf-8", errors="ignore").split(os.linesep)
 
         pattern = r"(?i)^(?:{})\s+?(\d+)\s+.+[\s|\\](?:{})\s+".format(process, username)
         for l in output:
@@ -998,12 +1005,10 @@ class Desktop:
         """
         try:
             self.change_registry_key("Desktop/ActiveDSOConfigurations/{}".format(product_name), config_name)
-            self.logger.info(
-                "Configuration Changed correctly to %s for %s.", config_name, product_name)
+            self.logger.info("Configuration Changed correctly to %s for %s.", config_name, product_name)
             return True
         except:
-            self.logger.warning(
-                "Error Setting Up Configuration %s for %s.", config_name, product_name)
+            self.logger.warning("Error Setting Up Configuration %s for %s.", config_name, product_name)
             return False
 
     def change_registry_from_file(self, registry_file, make_active=True):
@@ -1024,7 +1029,7 @@ class Desktop:
         try:
             self._main.oDesktop.SetRegistryFromFile(registry_file)
             if make_active:
-                with open(registry_file, 'r') as f:
+                with open(registry_file, "r") as f:
                     for line in f:
                         stripped_line = line.strip()
                         if "ConfigName" in stripped_line:

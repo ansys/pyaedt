@@ -5,6 +5,7 @@ from pyaedt.generic.general_methods import aedt_exception_handler, is_ironpython
 from pyaedt.modeler.Object3d import Padstack, Components3DLayout, Geometries3DLayout, Pins3DLayout, Nets3DLayout, _uname
 from pyaedt.modeler.Primitives import default_materials
 from pyaedt.modeler.GeometryOperators import GeometryOperators
+
 # import pkgutil
 # modules = [tup[1] for tup in pkgutil.iter_modules()]
 # if "clr" in modules or is_ironpython:

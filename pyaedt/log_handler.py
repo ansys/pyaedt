@@ -29,14 +29,14 @@ class LogHandler(logging.Handler):
             Contains information related to the event being logged.
         """
 
-        if record.levelname == 'DEBUG':
+        if record.levelname == "DEBUG":
             # Debug message does not exist for AEDT so we will log an info message.
             self.messenger.add_debug_message(self.format(record), self.destination)
-        elif record.levelname == 'INFO':
+        elif record.levelname == "INFO":
             self.messenger.add_info_message(self.format(record), self.destination)
-        elif record.levelname == 'WARNING':
+        elif record.levelname == "WARNING":
             self.messenger.add_warning_message(self.format(record), self.destination)
-        elif record.levelname == 'ERROR' or record.levelname == 'CRITICAL':
+        elif record.levelname == "ERROR" or record.levelname == "CRITICAL":
             self.messenger.add_error_message(self.format(record), self.destination)
         else:
             raise ValueError("The record level: {} is not supported.".format(record.level))

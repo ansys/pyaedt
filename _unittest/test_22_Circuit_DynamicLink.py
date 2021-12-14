@@ -163,12 +163,12 @@ class TestClass:
         assert "Excitation_2" in portname.composed_name
         portname = self.aedtapp.modeler.schematic.create_interface_port(
             "Port_1",
-            [hfss3Dlayout_pin2location["L3M1.2.USBH2_DP_CH"][0], hfss3Dlayout_pin2location["L3M1.2.USBH2_DP_CH"][1]]
+            [hfss3Dlayout_pin2location["L3M1.2.USBH2_DP_CH"][0], hfss3Dlayout_pin2location["L3M1.2.USBH2_DP_CH"][1]],
         )
         assert "Port_1" in portname.composed_name
         portname = self.aedtapp.modeler.schematic.create_interface_port(
             "Port_2",
-            [hfss3Dlayout_pin2location["J3B2.2.USBH2_DN_CH"][0], hfss3Dlayout_pin2location["J3B2.2.USBH2_DN_CH"][1]]
+            [hfss3Dlayout_pin2location["J3B2.2.USBH2_DN_CH"][0], hfss3Dlayout_pin2location["J3B2.2.USBH2_DN_CH"][1]],
         )
         assert "Port_2" in portname.composed_name
 

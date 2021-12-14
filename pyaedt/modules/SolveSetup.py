@@ -484,6 +484,7 @@ class SetupCircuit(object):
       If ``False``, access is to the existing setup.
 
     """
+
     def __init__(self, app, solutiontype, setupname="MySetupAuto", isnewsetup=True):
         self._app = None
         self.p_app = app
@@ -691,15 +692,23 @@ class SetupCircuit(object):
         for el in sweep_points:
 
             if isinstance(el, (int, float)):
-                sweeps.append(str(el)+units)
+                sweeps.append(str(el) + units)
             else:
                 sweeps.append(el)
         lin_data = " ".join(sweeps)
         return self._add_sweep(sweep_variable, lin_data, override_existing_sweep)
 
     @aedt_exception_handler
-    def add_sweep_count(self, sweep_variable="Freq", start_point=1, end_point=100, count=100, units="GHz",
-                        count_type="Linear", override_existing_sweep=True):
+    def add_sweep_count(
+        self,
+        sweep_variable="Freq",
+        start_point=1,
+        end_point=100,
+        count=100,
+        units="GHz",
+        count_type="Linear",
+        override_existing_sweep=True,
+    ):
         """Add a step sweep to existing Circuit Setup. It can be ``"Linear"``, ``"Decade"`` or ``"Octave"``.
 
         Parameters
@@ -735,9 +744,9 @@ class SetupCircuit(object):
         >>> oModule.EditAMIAnalysis
         """
         if isinstance(start_point, (int, float)):
-            start_point = str(start_point)+units
+            start_point = str(start_point) + units
         if isinstance(end_point, (int, float)):
-            end_point = str(end_point)+units
+            end_point = str(end_point) + units
         lin_in = "LINC"
         if count_type.lower() == "decade":
             lin_in = "DEC"
@@ -747,8 +756,15 @@ class SetupCircuit(object):
         return self._add_sweep(sweep_variable, lin_data, override_existing_sweep)
 
     @aedt_exception_handler
-    def add_sweep_step(self, sweep_variable="Freq", start_point=1, end_point=100, step_size=1, units="GHz",
-                       override_existing_sweep=True):
+    def add_sweep_step(
+        self,
+        sweep_variable="Freq",
+        start_point=1,
+        end_point=100,
+        step_size=1,
+        units="GHz",
+        override_existing_sweep=True,
+    ):
         """Add a linear count sweep to existing Circuit Setup.
 
         Parameters
@@ -782,9 +798,9 @@ class SetupCircuit(object):
         >>> oModule.EditAMIAnalysis
         """
         if isinstance(start_point, (int, float)):
-            start_point = str(start_point)+units
+            start_point = str(start_point) + units
         if isinstance(end_point, (int, float)):
-            end_point = str(end_point)+units
+            end_point = str(end_point) + units
         if isinstance(step_size, (int, float)):
             step_size = str(step_size) + units
         linc_data = "LIN {} {} {}".format(start_point, end_point, step_size)
@@ -1370,8 +1386,7 @@ class SetupHFSS(Setup, object):
         if sweepname in [sweep.name for sweep in self.sweeps]:
             oldname = sweepname
             sweepname = generate_unique_name(oldname)
-            self.logger.warning(
-                "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname)
+            self.logger.warning("Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname)
         sweepdata = self.add_sweep(sweepname, sweep_type)
         if not sweepdata:
             return False
@@ -1467,7 +1482,8 @@ class SetupHFSS(Setup, object):
                     oldname = sweepname
                     sweepname = generate_unique_name(oldname)
                     self.logger.warning(
-                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname)
+                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname
+                    )
                 sweepdata = setupdata.add_sweep(sweepname, sweep_type)
                 if not sweepdata:
                     return False
@@ -1577,7 +1593,8 @@ class SetupHFSS(Setup, object):
                     oldname = sweepname
                     sweepname = generate_unique_name(oldname)
                     self.logger.warning(
-                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname)
+                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname
+                    )
                 sweepdata = setupdata.add_sweep(sweepname, "Discrete")
                 sweepdata.props["RangeType"] = "SinglePoints"
                 sweepdata.props["RangeStart"] = str(freq0) + unit

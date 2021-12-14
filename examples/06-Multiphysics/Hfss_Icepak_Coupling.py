@@ -90,15 +90,9 @@ aedtapp["inner"] = "3mm"
 # Alternatively, the material can be assigned using the :func:`assign_material` function.
 
 # TODO: How does this work when two truesurfaces are defined?
-o1 = aedtapp.modeler.create_cylinder(
-    aedtapp.PLANE.XY, udp, "inner", "$coax_dimension", numSides=0, name="inner"
-)
-o2 = aedtapp.modeler.create_cylinder(
-    aedtapp.PLANE.XY, udp, 8, "$coax_dimension", numSides=0, matname="teflon_based"
-)
-o3 = aedtapp.modeler.create_cylinder(
-    aedtapp.PLANE.XY, udp, 10, "$coax_dimension", numSides=0, name="outer"
-)
+o1 = aedtapp.modeler.create_cylinder(aedtapp.PLANE.XY, udp, "inner", "$coax_dimension", numSides=0, name="inner")
+o2 = aedtapp.modeler.create_cylinder(aedtapp.PLANE.XY, udp, 8, "$coax_dimension", numSides=0, matname="teflon_based")
+o3 = aedtapp.modeler.create_cylinder(aedtapp.PLANE.XY, udp, 10, "$coax_dimension", numSides=0, name="outer")
 
 ###############################################################################
 # Assign a Material
@@ -348,5 +342,5 @@ plt.show()
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This example closes the project and then closes AEDT.
 
-#aedtapp.close_project(aedtapp.project_name)
+# aedtapp.close_project(aedtapp.project_name)
 aedtapp.release_desktop()
