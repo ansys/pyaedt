@@ -52,6 +52,7 @@ class Service(object):
        You can override ``_rpyc_getattr``, ``_rpyc_setattr`` and ``_rpyc_delattr``
        to change attribute lookup -- but beware of possible **security implications!**
     """
+
     __slots__ = ()
     ALIASES = ()
     _protocol = Connection
@@ -108,6 +109,7 @@ class Service(object):
 
 class VoidService(Service):
     """void service - an do-nothing service"""
+
     __slots__ = ()
 
 
@@ -171,21 +173,24 @@ class SlaveService(Slave, Service):
 
     This service is very useful in local, secure networks, but it exposes
     a **major security risk** otherwise."""
+
     __slots__ = ()
 
     def on_connect(self, conn):
         self._conn = conn
-        self._conn._config.update(dict(
-            allow_all_attrs=True,
-            allow_pickle=True,
-            allow_getattr=True,
-            allow_setattr=True,
-            allow_delattr=True,
-            allow_exposed_attrs=False,
-            import_custom_exceptions=True,
-            instantiate_custom_exceptions=True,
-            instantiate_oldstyle_exceptions=True,
-        ))
+        self._conn._config.update(
+            dict(
+                allow_all_attrs=True,
+                allow_pickle=True,
+                allow_getattr=True,
+                allow_setattr=True,
+                allow_delattr=True,
+                allow_exposed_attrs=False,
+                import_custom_exceptions=True,
+                instantiate_custom_exceptions=True,
+                instantiate_oldstyle_exceptions=True,
+            )
+        )
         super(SlaveService, self).on_connect(conn)
 
 
@@ -193,6 +198,7 @@ class FakeSlaveService(VoidService):
     """VoidService that can be used for connecting to peers that operate a
     :class:`MasterService`, :class:`ClassicService`, or the old
     ``SlaveService`` (pre v3.5) without exposing any functionality to them."""
+
     __slots__ = ()
     exposed_namespace = None
     exposed_execute = None
@@ -206,6 +212,7 @@ class MasterService(Service):
     """Peer for a new-style (>=v3.5) :class:`SlaveService`. Use this service
     if you want to connect to a ``SlaveService`` without exposing any
     functionality to them."""
+
     __slots__ = ()
 
     def on_connect(self, conn):
@@ -222,12 +229,14 @@ class MasterService(Service):
         conn.builtins = modules.builtins
         conn.builtin = modules.builtins  # TODO: cruft from py2 that requires cleanup elsewhere and CHANGELOG note
         from rpyc.utils.classic import teleport_function
+
         conn.teleport = partial(teleport_function, conn)
 
 
 class ClassicService(MasterService, SlaveService):
     """Full duplex master/slave service, i.e. both parties have full control
     over the other. Must be used by both parties."""
+
     __slots__ = ()
 
 
@@ -235,4 +244,5 @@ class ClassicClient(MasterService, FakeSlaveService):
     """MasterService that can be used for connecting to peers that operate a
     :class:`MasterService`, :class:`ClassicService` without exposing any
     functionality to them."""
+
     __slots__ = ()

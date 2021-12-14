@@ -13,7 +13,7 @@ import inspect
 import itertools
 
 try:
-    logger = logging.getLogger('Global')
+    logger = logging.getLogger("Global")
 except:
     logger = logging.getLogger(__name__)
 is_ironpython = "IronPython" in sys.version or ".NETFramework" in sys.version
@@ -30,6 +30,7 @@ except:
 
 is_remote_server = os.getenv("PYAEDT_IRONPYTHON_SERVER", "False").lower() in ("true", "1", "t")
 
+
 class MethodNotSupportedError(Exception):
     """ """
 
@@ -38,7 +39,7 @@ class MethodNotSupportedError(Exception):
 
 def _write_mes(mes_text):
     mes_text = str(mes_text)
-    parts = [mes_text[i:i + 250] for i in range(0, len(mes_text), 250)]
+    parts = [mes_text[i : i + 250] for i in range(0, len(mes_text), 250)]
     if logger:
         for el in parts:
             logger.error(el)
@@ -68,12 +69,12 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
 
     """
     message_to_print = ""
-    if "oDesktop" in dir(sys.modules['__main__']):
+    if "oDesktop" in dir(sys.modules["__main__"]):
         try:
-            messages = list(sys.modules['__main__'].oDesktop.GetMessages("", "", 2))
+            messages = list(sys.modules["__main__"].oDesktop.GetMessages("", "", 2))
         except:
             messages = []
-        if messages and '[error] Script macro error' in messages[-1]:
+        if messages and "[error] Script macro error" in messages[-1]:
             message_to_print = messages[-1]
     _write_mes("Method {} Failed:  {}. Please Check again".format(func.__name__, message))
     _write_mes(ex_info[1])
@@ -101,8 +102,9 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
         tblist = tb_trace[0].split("\n")
     for el in tblist:
         if func.__name__ in el:
-            _write_mes("Error in : "+el)
+            _write_mes("Error in : " + el)
     _write_mes("Check Online documentation on: https://aedtdocs.pyansys.com/search.html?q={}".format(func.__name__))
+
 
 def _check_types(arg):
     if "netref.builtins.list" in str(type(arg)):
@@ -159,6 +161,7 @@ def _remote_dict_conversion(args):
         new_kwargs = args
     return new_kwargs
 
+
 def _log_method(func, new_args, new_kwargs):
     if str(func.__name__)[0] != "_":
         line_begin = "    Implicit Arguments: "
@@ -169,8 +172,7 @@ def _log_method(func, new_args, new_kwargs):
             id = object_name.find(" object at ")
             if id >= 0:
                 object_name = object_name[1:id]
-                message.append(" '{}' has been exectuted.".format(
-                    object_name + "." + str(func.__name__)))
+                message.append(" '{}' has been exectuted.".format(object_name + "." + str(func.__name__)))
                 if new_args[1:]:
                     message.append(line_begin + str(new_args[1:])[1:-1])
                 if new_kwargs:
@@ -288,9 +290,12 @@ def env_path(input_version):
     >>> env_path_student("2021.2")
     "C:/Program Files/ANSYSEM/ANSYSEM2021.2/Win64"
     """
-    return os.getenv("ANSYSEM_ROOT{0}{1}".format(
-        get_version_and_release(input_version)[0],
-        get_version_and_release(input_version)[1]), "")
+    return os.getenv(
+        "ANSYSEM_ROOT{0}{1}".format(
+            get_version_and_release(input_version)[0], get_version_and_release(input_version)[1]
+        ),
+        "",
+    )
 
 
 @aedt_exception_handler
@@ -311,8 +316,8 @@ def env_value(input_version):
     "ANSYSEM_ROOT211"
     """
     return "ANSYSEM_ROOT{0}{1}".format(
-        get_version_and_release(input_version)[0],
-        get_version_and_release(input_version)[1])
+        get_version_and_release(input_version)[0], get_version_and_release(input_version)[1]
+    )
 
 
 @aedt_exception_handler
@@ -332,9 +337,12 @@ def env_path_student(input_version):
     >>> env_path_student("2021.2")
     "C:/Program Files/ANSYSEM/ANSYSEM2021.2/Win64"
     """
-    return os.getenv("ANSYSEMSV_ROOT{0}{1}".format(
-        get_version_and_release(input_version)[0],
-        get_version_and_release(input_version)[1]), "")
+    return os.getenv(
+        "ANSYSEMSV_ROOT{0}{1}".format(
+            get_version_and_release(input_version)[0], get_version_and_release(input_version)[1]
+        ),
+        "",
+    )
 
 
 @aedt_exception_handler
@@ -355,8 +363,8 @@ def env_value_student(input_version):
     "ANSYSEMSV_ROOT211"
     """
     return "ANSYSEMSV_ROOT{0}{1}".format(
-        get_version_and_release(input_version)[0],
-        get_version_and_release(input_version)[1])
+        get_version_and_release(input_version)[0], get_version_and_release(input_version)[1]
+    )
 
 
 @aedt_exception_handler
@@ -480,7 +488,8 @@ def is_project_locked(project_path):
     -------
     bool
     """
-    return os.path.exists(project_path[:-4]+"lock")
+    return os.path.exists(project_path[:-4] + "lock")
+
 
 @aedt_exception_handler
 def remove_project_lock(project_path):
@@ -502,12 +511,13 @@ def remove_project_lock(project_path):
         os.remove(project_path + ".lock")
     return True
 
+
 @aedt_exception_handler
 def write_csv(output, list_data, delimiter=",", quotechar="|", quoting=csv.QUOTE_MINIMAL):
     if is_ironpython:
-        f = open(output, 'wb')
+        f = open(output, "wb")
     else:
-        f = open(output, 'w', newline='')
+        f = open(output, "w", newline="")
     writer = csv.writer(f, delimiter=delimiter, quotechar=quotechar, quoting=quoting)
     for data in list_data:
         writer.writerow(data)

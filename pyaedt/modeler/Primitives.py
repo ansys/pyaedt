@@ -204,7 +204,7 @@ class Polyline(Object3d):
             self._segment_types = None
             if segment_type:
                 if isinstance(segment_type, (list, tuple)):
-                    #self._segment_types = copy(segment_type)
+                    # self._segment_types = copy(segment_type)
                     self._segment_types = [i for i in segment_type]
                 else:
                     self._segment_types = segment_type
@@ -810,9 +810,9 @@ class Polyline(Object3d):
             s_types = [self._segment_types]
         for el in s_types:
             if isinstance(s_types, PolylineSegment):
-                id_v += el.num_seg-1
+                id_v += el.num_seg - 1
                 if id_v > segment_index:
-                    id_v -= el.num_seg-1
+                    id_v -= el.num_seg - 1
                     break
         segment_index -= id_v
 
@@ -1815,27 +1815,27 @@ class Primitives(object):
         edge_stop_list = None
         if port_direction == 0:
             if start_obj.bottom_face_x:
-                edge_start_list =  start_obj.bottom_face_x.edges
+                edge_start_list = start_obj.bottom_face_x.edges
             if end_obj.bottom_face_x:
                 edge_stop_list = end_obj.bottom_face_x.edges
         elif port_direction == 3:
             if start_obj.top_face_x:
-                edge_start_list =  start_obj.top_face_x.edges
+                edge_start_list = start_obj.top_face_x.edges
             if end_obj.top_face_x:
                 edge_stop_list = end_obj.top_face_x.edges
         elif port_direction == 1:
             if start_obj.bottom_face_y:
-                edge_start_list =  start_obj.bottom_face_y.edges
+                edge_start_list = start_obj.bottom_face_y.edges
             if end_obj.bottom_face_y:
                 edge_stop_list = end_obj.bottom_face_y.edges
         elif port_direction == 4:
             if start_obj.top_face_y:
-                edge_start_list =  start_obj.top_face_y.edges
+                edge_start_list = start_obj.top_face_y.edges
             if end_obj.top_face_y:
                 edge_stop_list = end_obj.top_face_y.edges
         elif port_direction == 2:
             if start_obj.bottom_face_z:
-                edge_start_list =  start_obj.bottom_face_z.edges
+                edge_start_list = start_obj.bottom_face_z.edges
             if end_obj.bottom_face_z:
                 edge_stop_list = end_obj.bottom_face_z.edges
         elif port_direction == 5:
@@ -2971,8 +2971,7 @@ class Primitives(object):
                     return matname, True
 
             else:
-                self.logger.warning(
-                    "Material %s doesn not exists. Assigning default material", matname)
+                self.logger.warning("Material %s doesn not exists. Assigning default material", matname)
         if self._app._design_type == "HFSS":
             return defaultmatname, self._app.materials.material_keys[defaultmatname].is_dielectric()
         else:
@@ -3036,9 +3035,7 @@ class Primitives(object):
             return False
 
         try:
-            groups = self._app.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"]["Groups"][
-                "Group"
-            ]
+            groups = self._app.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"]["Groups"]["Group"]
         except KeyError:
             groups = []
         if not isinstance(groups, list):
@@ -3224,7 +3221,7 @@ class Primitives(object):
             objList.extend(objListSolids)
         for obj in objList:
             val = _retry_ntimes(10, self._oeditor.GetEdgeIDsFromObject, obj)
-            if not(isinstance(val, bool)) and str(lval) in list(val):
+            if not (isinstance(val, bool)) and str(lval) in list(val):
                 return obj
         return None
 

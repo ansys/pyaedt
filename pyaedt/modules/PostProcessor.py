@@ -55,6 +55,7 @@ orientation_to_view = {
     "back": "YZ",
 }
 
+
 class SolutionData(object):
     """Contains information from the :func:`GetSolutionDataPerVariation` method."""
 
@@ -746,15 +747,41 @@ class FieldPlot:
         list
             Field Plot Settings.
         """
-        return ["NAME:FieldsPlotItemSettings",
-                ["NAME:PlotOnSurfaceSettings", "Filled:=", self.Filled, "IsoValType:=", self.IsoVal, "AddGrid:=",
-                 self.AddGrid, "MapTransparency:=", self.MapTransparency, "Refinement:=", self.Refinement,
-                 "Transparency:=",
-                 self.Transparency, "SmoothingLevel:=", self.SmoothingLevel, "ShadingType:=", self.SmoothShade,
-                 ["NAME:Arrow3DSpacingSettings", "ArrowUniform:=", self.ArrowUniform, "ArrowSpacing:=",
-                  self.ArrowSpacing, "MinArrowSpacing:=", self.MinArrowSpacing, "MaxArrowSpacing:=",
-                  self.MaxArrowSpacing], "GridColor:=",
-                 self.GridColor]]
+        return [
+            "NAME:FieldsPlotItemSettings",
+            [
+                "NAME:PlotOnSurfaceSettings",
+                "Filled:=",
+                self.Filled,
+                "IsoValType:=",
+                self.IsoVal,
+                "AddGrid:=",
+                self.AddGrid,
+                "MapTransparency:=",
+                self.MapTransparency,
+                "Refinement:=",
+                self.Refinement,
+                "Transparency:=",
+                self.Transparency,
+                "SmoothingLevel:=",
+                self.SmoothingLevel,
+                "ShadingType:=",
+                self.SmoothShade,
+                [
+                    "NAME:Arrow3DSpacingSettings",
+                    "ArrowUniform:=",
+                    self.ArrowUniform,
+                    "ArrowSpacing:=",
+                    self.ArrowSpacing,
+                    "MinArrowSpacing:=",
+                    self.MinArrowSpacing,
+                    "MaxArrowSpacing:=",
+                    self.MaxArrowSpacing,
+                ],
+                "GridColor:=",
+                self.GridColor,
+            ],
+        ]
 
     @aedt_exception_handler
     def create(self):
@@ -829,10 +856,34 @@ class FieldPlot:
         >>> oModule.SetPlotFolderSettings
         """
         args = ["NAME:FieldsPlotSettings", "Real Time mode:=", True]
-        args += [["NAME:ColorMaPSettings", "ColorMapType:=", "Spectrum", "SpectrumType:=", "Rainbow", "UniformColor:=",
-                  [127, 255, 255], "RampColor:=", [255, 127, 127]]]
-        args += [["NAME:Scale3DSettings", "minvalue:=", minimum_value, "maxvalue:=", maximum_value, "log:=", not is_log,
-                 "dB:=", is_db, "ScaleType:=", 1]]
+        args += [
+            [
+                "NAME:ColorMaPSettings",
+                "ColorMapType:=",
+                "Spectrum",
+                "SpectrumType:=",
+                "Rainbow",
+                "UniformColor:=",
+                [127, 255, 255],
+                "RampColor:=",
+                [255, 127, 127],
+            ]
+        ]
+        args += [
+            [
+                "NAME:Scale3DSettings",
+                "minvalue:=",
+                minimum_value,
+                "maxvalue:=",
+                maximum_value,
+                "log:=",
+                not is_log,
+                "dB:=",
+                is_db,
+                "ScaleType:=",
+                1,
+            ]
+        ]
         self.oField.SetPlotFolderSettings(self.plotFolder, args)
         return True
 
@@ -870,16 +921,24 @@ class FieldPlot:
         self.oField.UpdateQuantityFieldsPlots(self.plotFolder)
         if not full_path:
             full_path = os.path.join(self._postprocessor._app.project_path, self.name + ".png")
-        status = self._postprocessor.export_field_jpg(full_path, self.name, self.plotFolder, orientation=orientation,
-                                                        width=width, height=height, display_wireframe=display_wireframe)
+        status = self._postprocessor.export_field_jpg(
+            full_path,
+            self.name,
+            self.plotFolder,
+            orientation=orientation,
+            width=width,
+            height=height,
+            display_wireframe=display_wireframe,
+        )
         if status:
             return full_path
         else:
             return False
 
     @aedt_exception_handler
-    def export_image_from_aedtplt(self, export_path=None, view="isometric", plot_mesh=False, scale_min=None,
-                                  scale_max=None):
+    def export_image_from_aedtplt(
+        self, export_path=None, view="isometric", plot_mesh=False, scale_min=None, scale_max=None
+    ):
         """Save an image of the active plot using PyVista.
 
         .. note::
@@ -915,18 +974,18 @@ class FieldPlot:
             export_path = self._postprocessor._app.project_path
         if sys.version_info.major > 2:
             return self._postprocessor.plot_field_from_fieldplot(
-                    self.name,
-                    project_path=export_path,
-                    meshplot=plot_mesh,
-                    setup_name=self.solutionName,
-                    intrinsic_dict=self.intrinsincList,
-                    imageformat="jpg",
-                    view=view,
-                    plot_label=self.quantityName,
-                    off_screen=True,
-                    scale_min=scale_min,
-                    scale_max=scale_max,
-                    )
+                self.name,
+                project_path=export_path,
+                meshplot=plot_mesh,
+                setup_name=self.solutionName,
+                intrinsic_dict=self.intrinsincList,
+                imageformat="jpg",
+                view=view,
+                plot_label=self.quantityName,
+                off_screen=True,
+                scale_min=scale_min,
+                scale_max=scale_max,
+            )
         else:
             self._postprocessor.logger.info("This method wors only on CPython with PyVista")
             return False
@@ -1336,7 +1395,8 @@ class PostProcessorCommon(object):
                 sweep_list.append([sweeps[el]])
 
         data = list(
-            self.oreportsetup.GetSolutionDataPerVariation(soltype, setup_sweep_name, ctxt, sweep_list, expression))
+            self.oreportsetup.GetSolutionDataPerVariation(soltype, setup_sweep_name, ctxt, sweep_list, expression)
+        )
         self.logger.info("Solution Data Correctly Loaded.")
         return SolutionData(data)
 
@@ -1592,29 +1652,29 @@ class PostProcessor(PostProcessorCommon, object):
     def _get_base_name(self, setup):
         setups_data = self._app.design_properties["FieldsReporter"]["FieldsPlotManagerID"]
         base_name = ""
-        if 'SimDataExtractors' in self._app.design_properties["SolutionManager"]:
-            sim_data = self._app.design_properties["SolutionManager"]['SimDataExtractors']
+        if "SimDataExtractors" in self._app.design_properties["SolutionManager"]:
+            sim_data = self._app.design_properties["SolutionManager"]["SimDataExtractors"]
         else:
             sim_data = self._app.design_properties["SolutionManager"]
-        if 'SimSetup' in sim_data:
+        if "SimSetup" in sim_data:
             if isinstance(sim_data["SimSetup"], list):
                 for solution in sim_data["SimSetup"]:
                     base_name = solution["Name"]
-                    for sol in solution['Solution']:
-                        if sol['ID'] == setups_data[setup]["SolutionId"]:
-                            base_name += " : " + sol['Name']
+                    for sol in solution["Solution"]:
+                        if sol["ID"] == setups_data[setup]["SolutionId"]:
+                            base_name += " : " + sol["Name"]
                             return base_name
             else:
                 base_name = sim_data["SimSetup"]["Name"]
-                if isinstance(sim_data["SimSetup"]['Solution'], list):
-                    for sol in sim_data["SimSetup"]['Solution']:
-                        if sol['ID'] == setups_data[setup]["SolutionId"]:
-                            base_name += " : " + sol['Name']
+                if isinstance(sim_data["SimSetup"]["Solution"], list):
+                    for sol in sim_data["SimSetup"]["Solution"]:
+                        if sol["ID"] == setups_data[setup]["SolutionId"]:
+                            base_name += " : " + sol["Name"]
                             return base_name
                 else:
-                    sol = sim_data["SimSetup"]['Solution']
-                    if sol['ID'] == setups_data[setup]["SolutionId"]:
-                        base_name += " : " + sol['Name']
+                    sol = sim_data["SimSetup"]["Solution"]
+                    if sol["ID"] == setups_data[setup]["SolutionId"]:
+                        base_name += " : " + sol["Name"]
                         return base_name
 
         return ""
@@ -1627,7 +1687,7 @@ class PostProcessor(PostProcessorCommon, object):
         if intrinsics:
             for intr in intrinsics:
                 if isinstance(intr, list) and len(intr) == 2:
-                    intr_dict[intr[0]] = intr[1].replace("\\", "").replace("\'", "")
+                    intr_dict[intr[0]] = intr[1].replace("\\", "").replace("'", "")
         return intr_dict
 
     @aedt_exception_handler
@@ -1635,8 +1695,7 @@ class PostProcessor(PostProcessorCommon, object):
         if self._app.solution_type not in ["HFSS3DLayout", "HFSS 3D Layout Design"]:
             obj_list = []
             for obj in list_objs[4:]:
-                obj_list.append(
-                    self._app._odesign.SetActiveEditor("3D Modeler").GetObjectNameByID(int(obj)))
+                obj_list.append(self._app._odesign.SetActiveEditor("3D Modeler").GetObjectNameByID(int(obj)))
         if obj_list:
             return obj_list
         else:
@@ -1665,9 +1724,9 @@ class PostProcessor(PostProcessorCommon, object):
                     if isinstance(cs[ds], (OrderedDict, dict)):
                         name = cs[ds]["Attributes"]["Name"]
                         cs_id = cs[ds]["XYPlaneID"]
-                        name2refid[cs_id] = name+":XY"
-                        name2refid[cs_id+1] = name+":YZ"
-                        name2refid[cs_id+2] = name+":XZ"
+                        name2refid[cs_id] = name + ":XY"
+                        name2refid[cs_id + 1] = name + ":YZ"
+                        name2refid[cs_id + 2] = name + ":XZ"
                     elif type(cs[ds]) is list:
                         for el in cs[ds]:
                             cs_id = el["XYPlaneID"]
@@ -1682,9 +1741,11 @@ class PostProcessor(PostProcessorCommon, object):
     @aedt_exception_handler
     def _get_fields_plot(self):
         plots = {}
-        if self._app.design_properties \
-                and "FieldsReporter" in self._app.design_properties and "FieldsPlotManagerID" in \
-                self._app.design_properties["FieldsReporter"]:
+        if (
+            self._app.design_properties
+            and "FieldsReporter" in self._app.design_properties
+            and "FieldsPlotManagerID" in self._app.design_properties["FieldsReporter"]
+        ):
             setups_data = self._app.design_properties["FieldsReporter"]["FieldsPlotManagerID"]
             for setup in setups_data:
                 try:
@@ -1694,7 +1755,8 @@ class PostProcessor(PostProcessorCommon, object):
                         plots[plot_name].faceIndexes = []
                         plots[plot_name].solutionName = self._get_base_name(setup)
                         plots[plot_name].quantityName = self.ofieldsreporter.GetFieldPlotQuantityName(
-                            setups_data[setup]["PlotName"])
+                            setups_data[setup]["PlotName"]
+                        )
                         plots[plot_name].intrinsincList = self._get_intrinsic(setup)
                         list_objs = setups_data[setup]["FieldPlotGeometry"]
                         if list_objs[1] == 64:
@@ -1705,23 +1767,24 @@ class PostProcessor(PostProcessorCommon, object):
                         else:
                             plots[plot_name].objtype = "Surface"
                             plots[plot_name].listtype, plots[plot_name].faceIndexes = self._get_surface_objects(
-                                list_objs)
+                                list_objs
+                            )
                         plots[plot_name].name = setups_data[setup]["PlotName"]
                         plots[plot_name].plotFolder = setups_data[setup]["PlotFolder"]
                         surf_setts = setups_data[setup]["PlotOnSurfaceSettings"]
-                        plots[plot_name].Filled = surf_setts['Filled']
-                        plots[plot_name].IsoVal = surf_setts['IsoValType']
-                        plots[plot_name].AddGrid = surf_setts['AddGrid']
-                        plots[plot_name].MapTransparency = surf_setts['MapTransparency']
-                        plots[plot_name].Refinement = surf_setts['Refinement']
-                        plots[plot_name].Transparency = surf_setts['Transparency']
-                        plots[plot_name].SmoothingLevel = surf_setts['SmoothingLevel']
-                        arrow_setts = surf_setts['Arrow3DSpacingSettings']
-                        plots[plot_name].ArrowUniform = arrow_setts['ArrowUniform']
-                        plots[plot_name].ArrowSpacing = arrow_setts['ArrowSpacing']
-                        plots[plot_name].MinArrowSpacing = arrow_setts['MinArrowSpacing']
-                        plots[plot_name].MaxArrowSpacing = arrow_setts['MaxArrowSpacing']
-                        plots[plot_name].GridColor = surf_setts['GridColor']
+                        plots[plot_name].Filled = surf_setts["Filled"]
+                        plots[plot_name].IsoVal = surf_setts["IsoValType"]
+                        plots[plot_name].AddGrid = surf_setts["AddGrid"]
+                        plots[plot_name].MapTransparency = surf_setts["MapTransparency"]
+                        plots[plot_name].Refinement = surf_setts["Refinement"]
+                        plots[plot_name].Transparency = surf_setts["Transparency"]
+                        plots[plot_name].SmoothingLevel = surf_setts["SmoothingLevel"]
+                        arrow_setts = surf_setts["Arrow3DSpacingSettings"]
+                        plots[plot_name].ArrowUniform = arrow_setts["ArrowUniform"]
+                        plots[plot_name].ArrowSpacing = arrow_setts["ArrowSpacing"]
+                        plots[plot_name].MinArrowSpacing = arrow_setts["MinArrowSpacing"]
+                        plots[plot_name].MaxArrowSpacing = arrow_setts["MaxArrowSpacing"]
+                        plots[plot_name].GridColor = surf_setts["GridColor"]
                 except:
                     pass
         return plots
@@ -1795,7 +1858,7 @@ class PostProcessor(PostProcessorCommon, object):
     def get_scalar_field_value(
         self,
         quantity_name,
-        scalar_function = "Maximum",
+        scalar_function="Maximum",
         solution=None,
         variation_dict=None,
         isvector=False,
@@ -1853,8 +1916,7 @@ class PostProcessor(PostProcessorCommon, object):
             try:
                 self.ofieldsreporter.EnterQty(quantity_name)
             except:
-                self.logger.info(
-                    "Quantity {} not present. Trying to get it from Stack".format(quantity_name))
+                self.logger.info("Quantity {} not present. Trying to get it from Stack".format(quantity_name))
                 self.ofieldsreporter.CopyNamedExprToStack(quantity_name)
         obj_list = "AllObjects"
         if scalar_function:
@@ -1878,7 +1940,7 @@ class PostProcessor(PostProcessorCommon, object):
         self.ofieldsreporter.CalculatorWrite(file_name, ["Solution:=", solution], variation_dict)
         value = None
         if os.path.exists(file_name):
-            with open(file_name, 'r') as f:
+            with open(file_name, "r") as f:
                 lines = f.readlines()
                 lines = [line.strip() for line in lines]
                 value = lines[-1]
@@ -2221,10 +2283,34 @@ class PostProcessor(PostProcessorCommon, object):
         >>> oModule.SetPlotFolderSettings
         """
         args = ["NAME:FieldsPlotSettings", "Real Time mode:=", True]
-        args += [["NAME:ColorMaPSettings", "ColorMapType:=", "Spectrum", "SpectrumType:=", "Rainbow", "UniformColor:=",
-                  [127, 255, 255], "RampColor:=", [255, 127, 127]]]
-        args += [["NAME:Scale3DSettings", "minvalue:=", minimum_value, "maxvalue:=", maximum_value, "log:=", not is_log,
-                 "dB:=", is_db, "ScaleType:=", 1]]
+        args += [
+            [
+                "NAME:ColorMaPSettings",
+                "ColorMapType:=",
+                "Spectrum",
+                "SpectrumType:=",
+                "Rainbow",
+                "UniformColor:=",
+                [127, 255, 255],
+                "RampColor:=",
+                [255, 127, 127],
+            ]
+        ]
+        args += [
+            [
+                "NAME:Scale3DSettings",
+                "minvalue:=",
+                minimum_value,
+                "maxvalue:=",
+                maximum_value,
+                "log:=",
+                not is_log,
+                "dB:=",
+                is_db,
+                "ScaleType:=",
+                1,
+            ]
+        ]
         self.ofieldsreporter.SetPlotFolderSettings(plot_name, args)
         return True
 
@@ -2290,8 +2376,9 @@ class PostProcessor(PostProcessorCommon, object):
         if plot_name and plot_name in list(self.field_plots.keys()):
             self.logger.info("Plot {} exists. returning the object.".format(plot_name))
             return self.field_plots[plot_name]
-        return self._create_fieldplot(objlist, quantityName, setup_name, intrinsincDict, "Surface", "FacesList",
-                                      plot_name)
+        return self._create_fieldplot(
+            objlist, quantityName, setup_name, intrinsincDict, "Surface", "FacesList", plot_name
+        )
 
     @aedt_exception_handler
     def create_fieldplot_cutplane(self, objlist, quantityName, setup_name=None, intrinsincDict={}, plot_name=None):
@@ -2326,8 +2413,9 @@ class PostProcessor(PostProcessorCommon, object):
         if plot_name and plot_name in list(self.field_plots.keys()):
             self.logger.info("Plot {} exists. returning the object.".format(plot_name))
             return self.field_plots[plot_name]
-        return self._create_fieldplot(objlist, quantityName, setup_name, intrinsincDict, "Surface", "CutPlane",
-                                      plot_name)
+        return self._create_fieldplot(
+            objlist, quantityName, setup_name, intrinsincDict, "Surface", "CutPlane", plot_name
+        )
 
     @aedt_exception_handler
     def create_fieldplot_volume(self, objlist, quantityName, setup_name=None, intrinsincDict={}, plot_name=None):
@@ -2365,8 +2453,9 @@ class PostProcessor(PostProcessorCommon, object):
         return self._create_fieldplot(objlist, quantityName, setup_name, intrinsincDict, "Volume", "ObjList", plot_name)
 
     @aedt_exception_handler
-    def export_field_jpg(self, fileName, plotName, foldername, orientation="isometric", width=1920, height=1080,
-                         display_wireframe=True):
+    def export_field_jpg(
+        self, fileName, plotName, foldername, orientation="isometric", width=1920, height=1080, display_wireframe=True
+    ):
         """Export a field plot and coordinate system to a JPG file.
 
         Parameters
@@ -2414,8 +2503,9 @@ class PostProcessor(PostProcessorCommon, object):
                 self.ofieldsreporter.ExportPlotImageToFile(fileName, foldername, plotName, cs.name)
                 cs.delete()
             else:
-                self.ofieldsreporter.ExportPlotImageWithViewToFile(fileName, foldername, plotName, width, height,
-                                                                   orientation)
+                self.ofieldsreporter.ExportPlotImageWithViewToFile(
+                    fileName, foldername, plotName, width, height, orientation
+                )
 
             for solid in wireframes:
                 self._primitives[solid].display_wireframe = False
@@ -2455,8 +2545,9 @@ class PostProcessor(PostProcessorCommon, object):
         >>> oModule.ExportPlotImageToFile
         >>> oModule.ExportPlotImageWithViewToFile
         """
-        return self.export_field_jpg(exportFilePath, plotName, foldername, orientation=view,
-                                     display_wireframe=wireframe)
+        return self.export_field_jpg(
+            exportFilePath, plotName, foldername, orientation=view, display_wireframe=wireframe
+        )
 
     @aedt_exception_handler
     def delete_field_plot(self, name):

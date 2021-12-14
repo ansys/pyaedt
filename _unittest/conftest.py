@@ -58,11 +58,20 @@ if os.path.exists(local_config_file):
         config = json.load(f)
 else:
     default_version = "2021.2"
-    if inside_desktop and "oDesktop" in dir(sys.modules['__main__']):
-        default_version = sys.modules['__main__'].oDesktop.GetVersion()[0:6]
-    config = {"desktopVersion": default_version, "NonGraphical": False, "NewThread": True, "test_desktops": False,
-              "build_machine": True, "skip_space_claim": False, "skip_circuits": False, "skip_edb": False,
-              "skip_debug": False, "local": False}
+    if inside_desktop and "oDesktop" in dir(sys.modules["__main__"]):
+        default_version = sys.modules["__main__"].oDesktop.GetVersion()[0:6]
+    config = {
+        "desktopVersion": default_version,
+        "NonGraphical": False,
+        "NewThread": True,
+        "test_desktops": False,
+        "build_machine": True,
+        "skip_space_claim": False,
+        "skip_circuits": False,
+        "skip_edb": False,
+        "skip_debug": False,
+        "local": False,
+    }
 
 
 class BasisTest:
@@ -143,6 +152,7 @@ def clean_desktop(desktop_init):
     """Close all projects, but don't close Desktop app."""
     desktop_init.release_desktop(close_projects=True, close_on_exit=False)
     return desktop_init
+
 
 @pytest.fixture
 def hfss():

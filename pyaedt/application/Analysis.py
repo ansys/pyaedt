@@ -23,7 +23,8 @@ from pyaedt.generic.constants import (
     CoordinateSystemPlane,
     CoordinateSystemAxis,
     Plane,
-    GravityDirection)
+    GravityDirection,
+)
 from pyaedt.modules.Boundary import NativeComponentObject
 from pyaedt.modules.DesignXPloration import (
     DOESetups,
@@ -572,8 +573,9 @@ class Analysis(Design, object):
         for report_name in reportnames:
             name_no_space = report_name.replace(" ", "_")
             self.post.oreportsetup.UpdateReports([str(report_name)])
-            export_path = os.path.join(export_folder,
-                                        "{0}_{1}_{2}.csv".format(self.project_name, self.design_name, name_no_space))
+            export_path = os.path.join(
+                export_folder, "{0}_{1}_{2}.csv".format(self.project_name, self.design_name, name_no_space)
+            )
             self.post.oreportsetup.ExportToFile(str(report_name), export_path)
             self.logger.info("Export Data: {}".format(export_path))
             exported_files.append(export_path)
@@ -581,7 +583,7 @@ class Analysis(Design, object):
         for s in setups:
             sweeps = self.oanalysis.GetSweeps(s)
             if len(sweeps) == 0:
-                sweeps = ['LastAdaptive']
+                sweeps = ["LastAdaptive"]
             else:
                 pass
             for sweep in sweeps:
@@ -597,12 +599,25 @@ class Analysis(Design, object):
                         exported_files.append(export_path)
                     if self.solution_type in ["HFSS3DLayout", "HFSS 3D Layout Design", "HFSS", "Circuit"]:
                         try:
-                            export_path = os.path.join(export_folder,
-                                                        "{0}.s{1}p".format(self.project_name, excitations))
-                            self.osolution.ExportNetworkData(variation_array[0], ["{0}:{1}".format(s, sweep)], 3,
-                                                             export_path, ["All"], True, 50, "S", -1, 0, 15, True,
-                                                             False,
-                                                             False)
+                            export_path = os.path.join(
+                                export_folder, "{0}.s{1}p".format(self.project_name, excitations)
+                            )
+                            self.osolution.ExportNetworkData(
+                                variation_array[0],
+                                ["{0}:{1}".format(s, sweep)],
+                                3,
+                                export_path,
+                                ["All"],
+                                True,
+                                50,
+                                "S",
+                                -1,
+                                0,
+                                15,
+                                True,
+                                False,
+                                False,
+                            )
                             exported_files.append(export_path)
                             self.logger.info("Exported Touchstone: %s", export_path)
                         except:
@@ -623,13 +638,26 @@ class Analysis(Design, object):
                             exported_files.append(export_path)
                         if self.solution_type in ["HFSS3DLayout", "HFSS 3D Layout Design", "HFSS", "Circuit"]:
                             try:
-                                export_path = os.path.join(export_folder,
-                                                            "{0}_{1}.s{2}p".format(self.project_name, varCount,
-                                                                                   excitations))
+                                export_path = os.path.join(
+                                    export_folder, "{0}_{1}.s{2}p".format(self.project_name, varCount, excitations)
+                                )
                                 self.logger.info("Export SnP: {}".format(export_path))
-                                self.osolution.ExportNetworkData(variation, ["{0}:{1}".format(s, sweep)], 3,
-                                                                 export_path,
-                                                                 ["All"], True, 50, "S", -1, 0, 15, True, False, False)
+                                self.osolution.ExportNetworkData(
+                                    variation,
+                                    ["{0}:{1}".format(s, sweep)],
+                                    3,
+                                    export_path,
+                                    ["All"],
+                                    True,
+                                    50,
+                                    "S",
+                                    -1,
+                                    0,
+                                    15,
+                                    True,
+                                    False,
+                                    False,
+                                )
                                 exported_files.append(export_path)
                                 self.logger.info("Exported Touchstone: %s", export_path)
                             except:
@@ -661,7 +689,7 @@ class Analysis(Design, object):
         >>> oModule.ExportConvergence
         """
         if not file_path:
-            file_path = os.path.join(self.project_path, generate_unique_name("Convergence")+".prop")
+            file_path = os.path.join(self.project_path, generate_unique_name("Convergence") + ".prop")
         self.odesign.ExportConvergence(setup_name, variation_string, file_path)
         self.logger.info("Export Convergence to  %s", file_path)
         return file_path
@@ -810,7 +838,7 @@ class Analysis(Design, object):
             families = []
             if self._app.design_type == "HFSS 3D Layout Design":
                 if self._app._is_object_oriented_enabled():
-                    listvar = list(self._app._odesign.GetChildObject('Variables').GetChildNames())
+                    listvar = list(self._app._odesign.GetChildObject("Variables").GetChildNames())
                 else:
                     listvar = list(self._app._odesign.GetVariables())
                 for el in listvar:
@@ -837,7 +865,7 @@ class Analysis(Design, object):
             families = {}
             if self._app.design_type == "HFSS 3D Layout Design":
                 if self._app._is_object_oriented_enabled():
-                    listvar = list(self._app._odesign.GetChildObject('Variables').GetChildNames())
+                    listvar = list(self._app._odesign.GetChildObject("Variables").GetChildNames())
                 else:
                     listvar = list(self._app._odesign.GetVariables())
                 for el in listvar:
@@ -1298,11 +1326,11 @@ class Analysis(Design, object):
         >>> oDesign.Analyze
         """
         set_custom_dso = False
-        active_config = self._desktop.GetRegistryString(r"Desktop/ActiveDSOConfigurations/"+self.design_type)
+        active_config = self._desktop.GetRegistryString(r"Desktop/ActiveDSOConfigurations/" + self.design_type)
         if acf_file:
             self._desktop.SetRegistryFromFile(acf_file)
             name = ""
-            with open(acf_file, 'r') as f:
+            with open(acf_file, "r") as f:
                 lines = f.readlines()
                 for line in lines:
                     if "ConfigName" in line:
@@ -1310,7 +1338,7 @@ class Analysis(Design, object):
                         break
             if name:
                 try:
-                    self.set_registry_key(r"Desktop/ActiveDSOConfigurations/"+self.design_type, name)
+                    self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, name)
                     set_custom_dso = True
                 except:
                     pass

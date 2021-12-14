@@ -18,7 +18,7 @@ class TestClass:
             test_projectfile = os.path.join(self.local_scratch.path, "test_object3d" + ".aedt")
             self.aedtapp = Hfss()
             self.aedtapp.save_project(project_file=test_projectfile)
-            #self.prim = self.aedtapp.modeler
+            # self.prim = self.aedtapp.modeler
 
     def teardown_class(self):
         self.aedtapp._desktop.ClearMessages("", "", 3)

@@ -44,9 +44,7 @@ def move(src, dst):
         if not dst.exists():
             dst.mkdir()
         elif not dst.is_dir():
-            raise ValueError(
-                "When using multiple sources, dst {!r} must be a directory".format(dst)
-            )
+            raise ValueError("When using multiple sources, dst {!r} must be a directory".format(dst))
         for src2 in src:
             move(src2, dst)
         return dst
@@ -82,9 +80,7 @@ def copy(src, dst):
         if not dst.exists():
             dst.mkdir()
         elif not dst.is_dir():
-            raise ValueError(
-                "When using multiple sources, dst {!r} must be a directory".format(dst)
-            )
+            raise ValueError("When using multiple sources, dst {!r} must be a directory".format(dst))
         for src2 in src:
             copy(src2, dst)
         return dst

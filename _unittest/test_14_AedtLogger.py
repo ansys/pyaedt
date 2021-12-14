@@ -5,6 +5,7 @@ import io
 import logging
 import shutil
 import sys
+
 try:
     import pytest
     import unittest.mock
@@ -12,9 +13,11 @@ except ImportError:
     import _unittest_ironpython.conf_unittest as pytest
 
 from pyaedt.generic.general_methods import is_ironpython
+
 # Import required modules
 from pyaedt.aedt_logger import AedtLogger
 from pyaedt import Hfss
+
 
 class TestClass:
     def setup_class(self):
@@ -25,6 +28,7 @@ class TestClass:
         self.aedtapp.close_project(self.aedtapp.project_name, saveproject=False)
         shutil.rmtree(os.path.join(tempfile.gettempdir(), "log_testing"))
         pass
+
     # @pytest.mark.xfail
     # def test_01_global(self, clean_desktop_messages, clean_desktop, hfss):
     #     logger = hfss.logger
@@ -108,12 +112,12 @@ class TestClass:
         logger.debug("Debug for Global")
         logger.warning("Warning for Global")
         logger.error("Error for Global")
-        project_logger = logger.add_logger('Project')
+        project_logger = logger.add_logger("Project")
         project_logger.info("Info for Project")
         project_logger.debug("Debug for Project")
         project_logger.warning("Warning for Project")
         project_logger.error("Error for Project")
-        design_logger = logger.add_logger('Design')
+        design_logger = logger.add_logger("Design")
         design_logger.info("Info for Design")
         design_logger.debug("Debug for Design")
         design_logger.warning("Warning for Design")
@@ -137,7 +141,7 @@ class TestClass:
                 handler.close()
                 design_logger.removeHandler(handler)
 
-        with open(path, 'r') as f:
+        with open(path, "r") as f:
             content = f.readlines()
 
         assert ":Global:INFO    :Info for Global" in content[0]
@@ -181,12 +185,12 @@ class TestClass:
         path = os.path.join(logging_dir, "test04.txt")
         logger = AedtLogger(self.aedtapp._messenger, filename=path)
         logger.info("Info for Global before disabling the log file handler.")
-        project_logger = logger.add_logger('Project')
+        project_logger = logger.add_logger("Project")
         project_logger.info("Info for Project before disabling the log file handler.")
-        design_logger = logger.add_logger('Design')
+        design_logger = logger.add_logger("Design")
         design_logger.info("Info for Design before disabling the log file handler.")
 
-        with open(path, 'r') as f:
+        with open(path, "r") as f:
             content = f.readlines()
 
         assert ":Global:INFO    :Info for Global" in content[0]
@@ -199,7 +203,7 @@ class TestClass:
         project_logger.info("Info for Project after disabling the log file handler.")
         design_logger.info("Info for Design after disabling the log file handler.")
 
-        with open(path, 'r') as f:
+        with open(path, "r") as f:
             content = f.readlines()
 
         disablement_succeeded = True
@@ -212,7 +216,7 @@ class TestClass:
         logger.enable_log_on_file()
         logger.info("Info for Global after re-enabling the log file handler.")
 
-        with open(path, 'r') as f:
+        with open(path, "r") as f:
             content = f.readlines()
 
         enablement_succeeded = False
@@ -251,9 +255,9 @@ class TestClass:
             logger = AedtLogger(self.aedtapp._messenger, to_stdout=True)
             logger.info("Info for Global")
             logger.disable_stdout_log()
-            logger.info ("Info after disabling the stdout handler.")
+            logger.info("Info after disabling the stdout handler.")
             logger.enable_stdout_log()
-            logger.info ("Info after re-enabling the stdout handler.")
+            logger.info("Info after re-enabling the stdout handler.")
 
             sys.stdout = sys.__stdout__
 
@@ -270,7 +274,7 @@ class TestClass:
         assert stream_content[1] == "pyaedt info: Info after re-enabling the stdout handler.\n"
 
 
-class CaptureStdOut():
+class CaptureStdOut:
     """Capture standard output with a context manager."""
 
     def __init__(self):

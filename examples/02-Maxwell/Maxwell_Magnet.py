@@ -90,9 +90,9 @@ m3d[magnet.name + "z"] = str(zval * 1e3) + "mm"
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Parametric Coordinate System is created
 
-cs1 = m3d.modeler.create_coordinate_system([magnet.name + "x", magnet.name + "y", magnet.name + "z"],
-                                           reference_cs="Global",
-                                           name=magnet.name + "CS")
+cs1 = m3d.modeler.create_coordinate_system(
+    [magnet.name + "x", magnet.name + "y", magnet.name + "z"], reference_cs="Global", name=magnet.name + "CS"
+)
 
 
 ###############################################################################

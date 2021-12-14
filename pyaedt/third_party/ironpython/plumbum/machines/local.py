@@ -117,9 +117,7 @@ class LocalCommand(ConcreteCommand):
     QUOTE_LEVEL = 2
 
     def __init__(self, executable, encoding="auto"):
-        ConcreteCommand.__init__(
-            self, executable, local.custom_encoding if encoding == "auto" else encoding
-        )
+        ConcreteCommand.__init__(self, executable, local.custom_encoding if encoding == "auto" else encoding)
 
     @property
     def machine(self):
@@ -164,9 +162,7 @@ class LocalMachine(BaseMachine):
         self._as_user_stack = []
 
     if IS_WIN32:
-        _EXTENSIONS = [""] + env.get("PATHEXT", ":.exe:.bat").lower().split(
-            os.path.pathsep
-        )
+        _EXTENSIONS = [""] + env.get("PATHEXT", ":.exe:.bat").lower().split(os.path.pathsep)
 
         @classmethod
         def _which(cls, progname):
@@ -251,24 +247,13 @@ class LocalMachine(BaseMachine):
             raise TypeError("cmd must not be a RemotePath: {!r}".format(cmd))
 
     def _popen(
-        self,
-        executable,
-        argv,
-        stdin=PIPE,
-        stdout=PIPE,
-        stderr=PIPE,
-        cwd=None,
-        env=None,
-        new_session=False,
-        **kwargs
+        self, executable, argv, stdin=PIPE, stdout=PIPE, stderr=PIPE, cwd=None, env=None, new_session=False, **kwargs
     ):
         if new_session:
             if has_new_subprocess:
                 kwargs["start_new_session"] = True
             elif IS_WIN32:
-                kwargs["creationflags"] = (
-                    kwargs.get("creationflags", 0) | subprocess.CREATE_NEW_PROCESS_GROUP
-                )
+                kwargs["creationflags"] = kwargs.get("creationflags", 0) | subprocess.CREATE_NEW_PROCESS_GROUP
             else:
 
                 def preexec_fn(prev_fn=kwargs.get("preexec_fn", lambda: None)):
@@ -285,20 +270,14 @@ class LocalMachine(BaseMachine):
                 sui = subprocess.STARTUPINFO()
                 kwargs["startupinfo"] = sui
                 if hasattr(subprocess, "_subprocess"):
-                    sui.dwFlags |= (
-                        subprocess._subprocess.STARTF_USESHOWWINDOW
-                    )  # @UndefinedVariable
-                    sui.wShowWindow = (
-                        subprocess._subprocess.SW_HIDE
-                    )  # @UndefinedVariable
+                    sui.dwFlags |= subprocess._subprocess.STARTF_USESHOWWINDOW  # @UndefinedVariable
+                    sui.wShowWindow = subprocess._subprocess.SW_HIDE  # @UndefinedVariable
                 else:
                     sui.dwFlags |= subprocess.STARTF_USESHOWWINDOW  # @UndefinedVariable
                     sui.wShowWindow = subprocess.SW_HIDE  # @UndefinedVariable
 
         if not has_new_subprocess and "close_fds" not in kwargs:
-            if IS_WIN32 and (
-                stdin is not None or stdout is not None or stderr is not None
-            ):
+            if IS_WIN32 and (stdin is not None or stdout is not None or stderr is not None):
                 # we can't close fds if we're on windows and we want to redirect any std handle
                 kwargs["close_fds"] = False
             else:
@@ -321,14 +300,7 @@ class LocalMachine(BaseMachine):
 
         logger.debug("Running %r", argv)
         proc = PlumbumLocalPopen(
-            argv,
-            executable=str(executable),
-            stdin=stdin,
-            stdout=stdout,
-            stderr=stderr,
-            cwd=str(cwd),
-            env=env,
-            **kwargs
+            argv, executable=str(executable), stdin=stdin, stdout=stdout, stderr=stderr, cwd=str(cwd), env=env, **kwargs
         )  # bufsize = 4096
         proc._start_time = time.time()
         proc.custom_encoding = self.custom_encoding
@@ -381,9 +353,7 @@ class LocalMachine(BaseMachine):
             statidx = header.index("Status")
             useridx = header.index("User Name")
             for row in rows:
-                yield ProcInfo(
-                    int(row[pididx]), row[useridx], row[statidx], row[imgidx]
-                )
+                yield ProcInfo(int(row[pididx]), row[useridx], row[statidx], row[imgidx])
 
     else:
 
@@ -398,9 +368,7 @@ class LocalMachine(BaseMachine):
             lines.pop(0)  # header
             for line in lines:
                 parts = line.strip().split()
-                yield ProcInfo(
-                    int(parts[0]), int(parts[1]), parts[2], " ".join(parts[3:])
-                )
+                yield ProcInfo(int(parts[0]), int(parts[1]), parts[2], " ".join(parts[3:]))
 
     def pgrep(self, pattern):
         """
@@ -453,9 +421,7 @@ class LocalMachine(BaseMachine):
             )
         else:
             if username is None:
-                self._as_user_stack.append(
-                    lambda argv: (["sudo"] + list(argv), self.which("sudo"))
-                )
+                self._as_user_stack.append(lambda argv: (["sudo"] + list(argv), self.which("sudo")))
             else:
                 self._as_user_stack.append(
                     lambda argv: (

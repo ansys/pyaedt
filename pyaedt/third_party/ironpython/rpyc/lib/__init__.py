@@ -24,6 +24,7 @@ class MissingModule(object):
 
     def __bool__(self):
         return False
+
     __nonzero__ = __bool__
 
 
@@ -44,11 +45,11 @@ def safe_import(name):
 def setup_logger(quiet=False, logfile=None):
     opts = {}
     if quiet:
-        opts['level'] = logging.ERROR
+        opts["level"] = logging.ERROR
     else:
-        opts['level'] = logging.DEBUG
+        opts["level"] = logging.DEBUG
     if logfile:
-        opts['filename'] = logfile
+        opts["filename"] = logfile
     logging.basicConfig(**opts)
 
 
@@ -84,20 +85,20 @@ def spawn_waitready(init, main):
     Returns a tuple ``(thread, init_result)``.
     """
     event = threading.Event()
-    stack = [event]     # used to exchange arguments with thread, so `event`
+    stack = [event]  # used to exchange arguments with thread, so `event`
     # can be deleted when it has fulfilled its purpose.
 
     def start():
         stack.append(init())
         stack.pop(0).set()
         return main()
+
     thread = spawn(start)
     event.wait()
     return thread, stack.pop()
 
 
 class Timeout(object):
-
     def __init__(self, timeout):
         if isinstance(timeout, Timeout):
             self.finite = timeout.finite
@@ -141,12 +142,12 @@ def socket_backoff_connect(family, socktype, proto, addr, timeout, attempts):
 
 
 def exp_backoff(collision):
-    """ Exponential backoff algorithm from
+    """Exponential backoff algorithm from
     Peterson, L.L., and Davie, B.S. Computer Networks: a systems approach. 5th ed. pp. 127
     """
     n = min(collision, 10)
     supremum_adjustment = 1 if n > 3 else 0
-    k = random.uniform(0, 2**n - supremum_adjustment)
+    k = random.uniform(0, 2 ** n - supremum_adjustment)
     return k * 0.0000512
 
 
@@ -159,35 +160,35 @@ def get_id_pack(obj):
 
     So, check thy assumptions regarding the given object when creating `id_pack`.
     """
-    if hasattr(obj, '____id_pack__'):
+    if hasattr(obj, "____id_pack__"):
         # netrefs are handled first since __class__ is a descriptor
         return obj.____id_pack__
-    elif inspect.ismodule(obj) or getattr(obj, '__name__', None) == 'module':
+    elif inspect.ismodule(obj) or getattr(obj, "__name__", None) == "module":
         # TODO: not sure about this, need to enumerate cases in units
         if isinstance(obj, type):  # module
             obj_cls = type(obj)
-            name_pack = '{0}.{1}'.format(obj_cls.__module__, obj_cls.__name__)
+            name_pack = "{0}.{1}".format(obj_cls.__module__, obj_cls.__name__)
             return (name_pack, id(type(obj)), id(obj))
         else:
-            if inspect.ismodule(obj) and obj.__name__ != 'module':
+            if inspect.ismodule(obj) and obj.__name__ != "module":
                 if obj.__name__ in sys.modules:
                     name_pack = obj.__name__
                 else:
-                    name_pack = '{0}.{1}'.format(obj.__class__.__module__, obj.__name__)
+                    name_pack = "{0}.{1}".format(obj.__class__.__module__, obj.__name__)
             elif inspect.ismodule(obj):
-                name_pack = '{0}.{1}'.format(obj.__module__, obj.__name__)
+                name_pack = "{0}.{1}".format(obj.__module__, obj.__name__)
                 print(name_pack)
-            elif hasattr(obj, '__module__'):
-                name_pack = '{0}.{1}'.format(obj.__module__, obj.__name__)
+            elif hasattr(obj, "__module__"):
+                name_pack = "{0}.{1}".format(obj.__module__, obj.__name__)
             else:
                 obj_cls = type(obj)
-                name_pack = '{0}'.format(obj.__name__)
+                name_pack = "{0}".format(obj.__name__)
             return (name_pack, id(type(obj)), id(obj))
     elif not inspect.isclass(obj):
-        name_pack = '{0}.{1}'.format(obj.__class__.__module__, obj.__class__.__name__)
+        name_pack = "{0}.{1}".format(obj.__class__.__module__, obj.__class__.__name__)
         return (name_pack, id(type(obj)), id(obj))
     else:
-        name_pack = '{0}.{1}'.format(obj.__module__, obj.__name__)
+        name_pack = "{0}.{1}".format(obj.__module__, obj.__name__)
         return (name_pack, id(obj), 0)
 
 
