@@ -4391,9 +4391,9 @@ class Hfss(FieldAnalysis3D, object):
             Local Coordinate System to be used for far field computation.
         use_slant_polarization : bool
             Define is Slant Polarization will be used. Default is `False`.
-        polarization_angle: float, str
+        polarization_angle : float, str
             Slant angle value.
-        name: str
+        name : str
             Sphere Name.
 
         Returns
