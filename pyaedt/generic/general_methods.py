@@ -258,6 +258,7 @@ def aedt_exception_handler(func):
 
     return inner_function
 
+
 @aedt_exception_handler
 def get_version_and_release(input_version):
     version = int(input_version[2:4])
