@@ -95,7 +95,7 @@ class NativeComponentObject(BoundaryCommon, object):
                 "MaterialDefinitionParameters": OrderedDict({"VariableOrders": OrderedDict({})}),
                 "MapInstanceParameters": "DesignVariable",
                 "UniqueDefinitionIdentifier": "89d26167-fb77-480e-a7ab-"
-                + random_string(12, char_set="abcdef0123456789"),
+                                              + random_string(12, char_set="abcdef0123456789"),
                 "OriginFilePath": "",
                 "IsLocal": False,
                 "ChecksumString": "",
