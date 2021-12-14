@@ -28,12 +28,16 @@ class Component():
         pass
 
 class Pin(Component):
-    def create_symbol(self):  #difference create_symbol and add.
+    def add(self):  #difference create_symbol() and add().
+        pass
+    def create_symbol(self):  #difference create_symbol() and add().
         pass
     def place_component(x: int, y: int, angle: int):
         pass
 
 class Buffer(Component):
+    def add(self):  #difference create_symbol() and add().
+        pass
     def create_symbol(self):
         pass
     def place_component(x: int, y: int, angle: int):
@@ -83,8 +87,6 @@ class Ibis():
 def read_project(fileName: str):
     """Read .ibis file content."""
 
-    global ibis
-
     if os.path.exists(fileName) == False:
         error_message = fileName + "does not exist."
         raise FileExistsError(error_message)
@@ -99,16 +101,18 @@ def read_project(fileName: str):
                 break
 
             if IsStartedWith(current_line, "[Component] ") == True:
-                read_component(current_line, f)
+                read_component(ibis, current_line, f)
             elif IsStartedWith(current_line, "[Model] ") == True:
-                replace_model(current_line, f)
+                replace_model(ibis, current_line, f)
             elif IsStartedWith(current_line, "[Model Selector] ") == True:
-                read_model_selector(current_line, f)
+                read_model_selector(ibis, current_line, f)
+
+    return ibis
 
 
 # Model
-def replace_model(current_line: str, f: typing.TextIO):
-    global ibis
+def replace_model(ibis: Ibis, current_line: str, f: typing.TextIO):
+
     if IsStartedWith(current_line, "[Model] ") != True:
         return
 
@@ -144,8 +148,8 @@ def replace_model(current_line: str, f: typing.TextIO):
     ibis.models.append(model)
 
 # Model Selector
-def read_model_selector(current_line: str, f: typing.TextIO):
-    global ibis
+def read_model_selector(ibis: Ibis, current_line: str, f: typing.TextIO):
+
     if IsStartedWith(current_line, "[Model Selector] ") != True :
         return
 
@@ -178,8 +182,8 @@ def make_model(current_line: str) -> ModelSelectorItem:
     return item
 
 # Component
-def read_component(current_line: str, f: typing.TextIO):
-    global ibis
+def read_component(ibis: Ibis, current_line: str, f: typing.TextIO):
+
     if IsStartedWith(current_line, "[Component] ") != True:
         return
 
