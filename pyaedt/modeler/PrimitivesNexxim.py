@@ -444,8 +444,6 @@ class NexximComponents(CircuitComponents):
             Resistance in ohms. The default is ``50``.
         location : list of float, optional
             Position on the X axis and Y axis.
-        ypos : float, optional
-            Position on the Y axis. The default is ``0``.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
