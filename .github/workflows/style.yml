@@ -21,7 +21,7 @@ jobs:
 
       - name: black style
         run: |
-          python -m black -l 120 .
+          python -m black --check -l 120 .
 
       - name: Codespell
         run: |
