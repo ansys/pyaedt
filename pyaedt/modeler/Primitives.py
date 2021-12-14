@@ -192,7 +192,6 @@ class Polyline(Object3d):
                 num_seg=xsection_num_seg,
                 bend_type=xsection_bend_type,
             )
-            #self._positions = copy(position_list)
             self._positions = [i for i in position_list]
             # When close surface or cover_surface are set to True, ensure the start point and end point are coincident,
             # and insert a line segment to achieve this if necessary
@@ -255,6 +254,11 @@ class Polyline(Object3d):
         """
         end_vertex_id = self._primitives.get_object_vertices(partID=self.id)[-1]
         return self._primitives.get_vertex_position(end_vertex_id)
+
+    @property
+    def points(self):
+        """Polyline Points."""
+        return self._positions
 
     @property
     def vertex_positions(self):
