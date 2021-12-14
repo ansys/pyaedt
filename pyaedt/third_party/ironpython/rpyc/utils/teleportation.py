@@ -50,14 +50,42 @@ def _export_codeobj(cobj):
 
     if is_py_gte38:
         # Constructor was changed in 3.8 to support "advanced" programming styles
-        exported = (cobj.co_argcount, cobj.co_posonlyargcount, cobj.co_kwonlyargcount, cobj.co_nlocals,
-                    cobj.co_stacksize, cobj.co_flags, cobj.co_code, tuple(consts2), cobj.co_names, cobj.co_varnames,
-                    cobj.co_filename, cobj.co_name, cobj.co_firstlineno, cobj.co_lnotab, cobj.co_freevars,
-                    cobj.co_cellvars)
+        exported = (
+            cobj.co_argcount,
+            cobj.co_posonlyargcount,
+            cobj.co_kwonlyargcount,
+            cobj.co_nlocals,
+            cobj.co_stacksize,
+            cobj.co_flags,
+            cobj.co_code,
+            tuple(consts2),
+            cobj.co_names,
+            cobj.co_varnames,
+            cobj.co_filename,
+            cobj.co_name,
+            cobj.co_firstlineno,
+            cobj.co_lnotab,
+            cobj.co_freevars,
+            cobj.co_cellvars,
+        )
     else:
-        exported = (cobj.co_argcount, cobj.co_kwonlyargcount, cobj.co_nlocals, cobj.co_stacksize, cobj.co_flags,
-                    cobj.co_code, tuple(consts2), cobj.co_names, cobj.co_varnames, cobj.co_filename,
-                    cobj.co_name, cobj.co_firstlineno, cobj.co_lnotab, cobj.co_freevars, cobj.co_cellvars)
+        exported = (
+            cobj.co_argcount,
+            cobj.co_kwonlyargcount,
+            cobj.co_nlocals,
+            cobj.co_stacksize,
+            cobj.co_flags,
+            cobj.co_code,
+            tuple(consts2),
+            cobj.co_names,
+            cobj.co_varnames,
+            cobj.co_filename,
+            cobj.co_name,
+            cobj.co_firstlineno,
+            cobj.co_lnotab,
+            cobj.co_freevars,
+            cobj.co_cellvars,
+        )
     assert brine.dumpable(exported)
 
     return (CODEOBJ_MAGIC, exported)
@@ -84,11 +112,42 @@ def export_function(func):
 def _import_codetup(codetup):
     # Handle tuples sent from 3.8 as well as 3 < version < 3.8.
     if len(codetup) == 16:
-        (argcount, posonlyargcount, kwonlyargcount, nlocals, stacksize, flags, code, consts, names, varnames,
-         filename, name, firstlineno, lnotab, freevars, cellvars) = codetup
+        (
+            argcount,
+            posonlyargcount,
+            kwonlyargcount,
+            nlocals,
+            stacksize,
+            flags,
+            code,
+            consts,
+            names,
+            varnames,
+            filename,
+            name,
+            firstlineno,
+            lnotab,
+            freevars,
+            cellvars,
+        ) = codetup
     else:
-        (argcount, kwonlyargcount, nlocals, stacksize, flags, code, consts, names, varnames,
-         filename, name, firstlineno, lnotab, freevars, cellvars) = codetup
+        (
+            argcount,
+            kwonlyargcount,
+            nlocals,
+            stacksize,
+            flags,
+            code,
+            consts,
+            names,
+            varnames,
+            filename,
+            name,
+            firstlineno,
+            lnotab,
+            freevars,
+            cellvars,
+        ) = codetup
         posonlyargcount = 0
 
     consts2 = []
@@ -99,11 +158,42 @@ def _import_codetup(codetup):
             consts2.append(const)
     consts = tuple(consts2)
     if is_py_gte38:
-        codetup = (argcount, posonlyargcount, kwonlyargcount, nlocals, stacksize, flags, code, consts, names, varnames,
-                   filename, name, firstlineno, lnotab, freevars, cellvars)
+        codetup = (
+            argcount,
+            posonlyargcount,
+            kwonlyargcount,
+            nlocals,
+            stacksize,
+            flags,
+            code,
+            consts,
+            names,
+            varnames,
+            filename,
+            name,
+            firstlineno,
+            lnotab,
+            freevars,
+            cellvars,
+        )
     else:
-        codetup = (argcount, kwonlyargcount, nlocals, stacksize, flags, code, consts, names, varnames, filename, name,
-                   firstlineno, lnotab, freevars, cellvars)
+        codetup = (
+            argcount,
+            kwonlyargcount,
+            nlocals,
+            stacksize,
+            flags,
+            code,
+            consts,
+            names,
+            varnames,
+            filename,
+            name,
+            firstlineno,
+            lnotab,
+            freevars,
+            cellvars,
+        )
     return CodeType(*codetup)
 
 
@@ -118,8 +208,9 @@ def import_function(functup, globals=None, def_=True):
     # function globals must be real dicts, sadly:
     if isinstance(globals, netref.BaseNetref):
         from rpyc.utils.classic import obtain
+
         globals = obtain(globals)
-    globals.setdefault('__builtins__', __builtins__)
+    globals.setdefault("__builtins__", __builtins__)
     codeobj = _import_codetup(codetup)
     funcobj = FunctionType(codeobj, globals, name, defaults)
     if kwdefaults is not None:

@@ -1230,13 +1230,13 @@ class SweepHFSS3DLayout(object):
     """
 
     def __init__(
-            self,
-            oanalysis,
-            setupname,
-            sweepname,
-            sweeptype="Interpolating",
-            save_fields=True,
-            props=None,
+        self,
+        oanalysis,
+        setupname,
+        sweepname,
+        sweeptype="Interpolating",
+        save_fields=True,
+        props=None,
     ):
         self.oanalysis = oanalysis
         self.props = {}
@@ -1357,13 +1357,13 @@ class SweepHFSS3DLayout(object):
                 raise AttributeError("Parameters 'end' and 'count' must be present.")
 
         if rangetype == "LinearCount":
-            sweep_range = " LINC " + str(start)+unit + " " + str(end)+unit + " " + str(count)
+            sweep_range = " LINC " + str(start) + unit + " " + str(end) + unit + " " + str(count)
         elif rangetype == "LinearStep":
-            sweep_range = " LIN " + str(start)+unit + " " + str(end)+unit + " " + str(count)+unit
+            sweep_range = " LIN " + str(start) + unit + " " + str(end) + unit + " " + str(count) + unit
         elif rangetype == "LogScale":
-            sweep_range = " DEC " + str(start)+unit + " " + str(end)+unit + " " + str(count)+unit
+            sweep_range = " DEC " + str(start) + unit + " " + str(end) + unit + " " + str(count) + unit
         elif rangetype == "SinglePoint":
-            sweep_range = " " + str(start)+unit
+            sweep_range = " " + str(start) + unit
         else:
             raise AttributeError('Allowed rangetype are "LinearCount", "SinglePoint", "LinearStep", and "LogScale".')
         self.props["Sweeps"]["Data"] += sweep_range
@@ -1396,13 +1396,13 @@ class SweepHFSS3DLayout(object):
 
         """
         if rangetype == "LinearCount":
-            sweep_range = "LINC " + str(start)+unit + " " + str(end)+unit + " " + str(count)
+            sweep_range = "LINC " + str(start) + unit + " " + str(end) + unit + " " + str(count)
         elif rangetype == "LinearStep":
-            sweep_range = "LIN " + str(start)+unit + " " + str(end)+unit + " " + str(count)+unit
+            sweep_range = "LIN " + str(start) + unit + " " + str(end) + unit + " " + str(count) + unit
         elif rangetype == "LogScale":
-            sweep_range = "DEC " + str(start)+unit + " " + str(end)+unit + " " + str(count)+unit
+            sweep_range = "DEC " + str(start) + unit + " " + str(end) + unit + " " + str(count) + unit
         elif rangetype == "SinglePoint":
-            sweep_range = str(start)+unit
+            sweep_range = str(start) + unit
         else:
             raise AttributeError('Allowed rangetype are "LinearCount", "SinglePoint", "LinearStep", and "LogScale".')
         self.props["Sweeps"]["Data"] = sweep_range

@@ -159,10 +159,10 @@ class TestClass:
         assert app.materials["myMat"].permeability.value == [[0, 0], [1, 12], [10, 30]]
         assert app.materials["myMat"].permittivity.value == [[0, 0], [2, 12], [10, 30]]
         assert app.materials["myMat"].conductivity.value == [[0, 0], [3, 12], [10, 30]]
-        assert app.materials["myMat"].permeability.type == 'nonlinear'
-        assert app.materials["myMat"].conductivity.type == 'nonlinear'
-        assert app.materials["myMat"].permittivity.type == 'nonlinear'
-        assert app.materials["myMat"].permeability.bunit == 'tesla'
+        assert app.materials["myMat"].permeability.type == "nonlinear"
+        assert app.materials["myMat"].conductivity.type == "nonlinear"
+        assert app.materials["myMat"].permittivity.type == "nonlinear"
+        assert app.materials["myMat"].permeability.bunit == "tesla"
         mat2 = app.materials.add_material("myMat2")
         assert mat2.permeability.set_non_linear([[0, 0], [1, 12], [10, 30]])
         assert app.modeler.create_box([0, 0, 0], [10, 10, 10], matname="myMat2")

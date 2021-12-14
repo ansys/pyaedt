@@ -28,22 +28,24 @@ class Part(object):
     """
 
     # List of known keys for a part and default values:
-    allowed_keys = {'comp_name': None,  # *.a3dcomp file name
-                     'offset': None,
-                     'rotation_cs': None,
-                     'rotation': 0.0,
-                     'compensation_angle': None,
-                     'rotation_axis': 'Z',
-                     'tire_radius': None,
-                     'duplicate_number': None,
-                     'duplicate_vector': None,
-                     'antenna_type': None,  # Antenna only
-                     'ffd_name': None,  # Antenna only
-                     'mode': None,  # Antenna only
-                     'aedt_name': None,
-                     'beamwidth_elevation': None,  # Antenna only
-                     'beamwidth_azimuth': None,  # Antenna only
-                     'polarization': None}  # Antenna only
+    allowed_keys = {
+        "comp_name": None,  # *.a3dcomp file name
+        "offset": None,
+        "rotation_cs": None,
+        "rotation": 0.0,
+        "compensation_angle": None,
+        "rotation_axis": "Z",
+        "tire_radius": None,
+        "duplicate_number": None,
+        "duplicate_vector": None,
+        "antenna_type": None,  # Antenna only
+        "ffd_name": None,  # Antenna only
+        "mode": None,  # Antenna only
+        "aedt_name": None,
+        "beamwidth_elevation": None,  # Antenna only
+        "beamwidth_azimuth": None,  # Antenna only
+        "polarization": None,
+    }  # Antenna only
 
     def __init__(self, part_folder, part_dict, parent=None, name=None):
 
@@ -54,7 +56,7 @@ class Part(object):
         # Extract the 3D component name and part folder
         # from the file name.
         # Use this as the default value for comp_name.  Ensure that the correct extension is used.
-        self._compdef['part_folder'] = part_folder
+        self._compdef["part_folder"] = part_folder
         for k in Part.allowed_keys:
             if k in part_dict:
                 self._compdef[k] = part_dict[k]
@@ -68,10 +70,10 @@ class Part(object):
         # make sure self._name is unique if it is not passed as an argument.
         if name:
             self._name = name  # Part name should be unique. No checking here.
-        elif 'name' in part_dict:
-            self._name = part_dict['name']
+        elif "name" in part_dict:
+            self._name = part_dict["name"]
         else:
-            self._name = 'radar'  # TODO: Need to fix this!
+            self._name = "radar"  # TODO: Need to fix this!
 
         # Update self._compdef from the library definition in the *.json file.
 
@@ -79,29 +81,29 @@ class Part(object):
             if kw in self._compdef:
                 self._compdef[kw] = val
             else:
-                raise KeyError('Key ' + kw + ' not allowed.')
+                raise KeyError("Key " + kw + " not allowed.")
 
         # Instantiate yaw, pitch and roll.  Might want to change
         # how this is handled. Make "rotation" a list instead of
         # using .yaw, .pitch, .roll properties?
         self.rot_axis = [False, False, False]  # [X, Y, Z] rotation Boolean
-        if self._compdef['rotation_axis']:
-            rotations_axis = self._compdef['rotation_axis'].split(',')
-            if self._compdef['rotation']:
-                rotations = self._compdef['rotation'].split(',')
+        if self._compdef["rotation_axis"]:
+            rotations_axis = self._compdef["rotation_axis"].split(",")
+            if self._compdef["rotation"]:
+                rotations = self._compdef["rotation"].split(",")
             else:
                 rotations = []
             y = "0"
             p = "0"
             r = "0"
             for a in rotations:
-                if rotations_axis[rotations.index(a)].lower() == 'x':  # roll
+                if rotations_axis[rotations.index(a)].lower() == "x":  # roll
                     r = a
                     self.rot_axis[2] = True
-                elif rotations_axis[rotations.index(a)].lower() == 'y':  # pitch
+                elif rotations_axis[rotations.index(a)].lower() == "y":  # pitch
                     p = a
                     self.rot_axis[1] = True
-                elif rotations_axis[rotations.index(a)].lower() == 'z':  # yaw
+                elif rotations_axis[rotations.index(a)].lower() == "z":  # yaw
                     y = a
                     self.rot_axis[0] = True
 
@@ -117,7 +119,7 @@ class Part(object):
         self._compdef[key] = value
 
     def __getitem__(self, key):
-        if key == 'rotation_cs':
+        if key == "rotation_cs":
             cs = self._compdef[key]
             if cs == "Global" or cs is None:
                 self._compdef[key] = ["0", "0", "0"]
@@ -140,7 +142,7 @@ class Part(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        if kw in ['offset', 'rotation_cs']:
+        if kw in ["offset", "rotation_cs"]:
             s = []
             if self[kw]:
                 s = [GeometryOperators.is_small(c) for c in self[kw]]
@@ -159,7 +161,7 @@ class Part(object):
         str
             Full name of the A3DCOMP file.
         """
-        return os.path.join(self._compdef['part_folder'], self['comp_name'])
+        return os.path.join(self._compdef["part_folder"], self["comp_name"])
 
     # Create a unique coordinate system name for the part.
     @property
@@ -171,8 +173,8 @@ class Part(object):
         str
             Name of the coordinate system.
         """
-        if self._motion or not self.zero_offset('offset') or not self.zero_offset('rotation_cs'):
-            return self.name + '_cs'
+        if self._motion or not self.zero_offset("offset") or not self.zero_offset("rotation_cs"):
+            return self.name + "_cs"
         else:
             return self._multiparts.cs_name
 
@@ -187,7 +189,7 @@ class Part(object):
             ame of the yaw variable.
 
         """
-        return self.name + '_yaw'
+        return self.name + "_yaw"
 
     @property
     def pitch_name(self):
@@ -198,7 +200,7 @@ class Part(object):
         str
             Name of the pitch variable.
         """
-        return self.name + '_pitch'
+        return self.name + "_pitch"
 
     @property
     def roll_name(self):
@@ -209,7 +211,7 @@ class Part(object):
         str
              Name of the roll variable.
         """
-        return self.name + '_roll'
+        return self.name + "_roll"
 
     # Always return the local origin as a list:
     @property
@@ -221,15 +223,15 @@ class Part(object):
         list
             List of offset values for the local part.
         """
-        if self['offset']:
-            if self.zero_offset('offset') or self['offset'] == 'Global':
+        if self["offset"]:
+            if self.zero_offset("offset") or self["offset"] == "Global":
                 return [0, 0, 0]
             else:
                 if self._multiparts._local_units:
                     units = self._multiparts._local_units
                 else:
                     units = self._multiparts.modeler_units
-                offset = [str(i)+units for i in self['offset']]
+                offset = [str(i) + units for i in self["offset"]]
 
                 return offset
         else:
@@ -244,11 +246,11 @@ class Part(object):
         list
             List of offset values for the rotation.
         """
-        if self['rotation_cs']:
-            if self.zero_offset('rotation_cs') or self['rotation_cs'] == 'Global':
+        if self["rotation_cs"]:
+            if self.zero_offset("rotation_cs") or self["rotation_cs"] == "Global":
                 return self.local_origin
             else:
-                return self['rotation_cs']
+                return self["rotation_cs"]
         else:
             return [0, 0, 0]
 
@@ -316,7 +318,7 @@ class Part(object):
         str
             Name of the part.
         """
-        return self._multiparts.name + '_' + self._name
+        return self._multiparts.name + "_" + self._name
 
     @aedt_exception_handler
     def set_relative_cs(self, app):
@@ -336,12 +338,14 @@ class Part(object):
         if self.cs_name not in app.modeler.oeditor.GetCoordinateSystems() and self.cs_name != "Global":
             x_pointing = [1, 0, 0]
             y_pointing = [0, 1, 0]
-            app.modeler.create_coordinate_system(origin=self.local_origin,
-                                                 x_pointing=x_pointing,
-                                                 y_pointing=y_pointing,
-                                                 reference_cs=self._multiparts.cs_name,
-                                                 mode="axis",
-                                                 name=self.cs_name)
+            app.modeler.create_coordinate_system(
+                origin=self.local_origin,
+                x_pointing=x_pointing,
+                y_pointing=y_pointing,
+                reference_cs=self._multiparts.cs_name,
+                mode="axis",
+                name=self.cs_name,
+            )
         return True
 
     @property
@@ -353,7 +357,7 @@ class Part(object):
         str
             Name of the rotation coordinate system.
         """
-        return self.name + '_rot_cs'
+        return self.name + "_rot_cs"
 
     @aedt_exception_handler
     def do_rotate(self, app, aedt_object):
@@ -372,21 +376,23 @@ class Part(object):
 
         x_pointing = [1, 0, 0]
         y_pointing = [0, 1, 0]
-        app.modeler.create_coordinate_system(origin=self.rotate_origin,
-                                             x_pointing=x_pointing,
-                                             y_pointing=y_pointing,
-                                             reference_cs=self._multiparts.cs_name,
-                                             mode="axis",
-                                             name=self.rot_cs_name)
+        app.modeler.create_coordinate_system(
+            origin=self.rotate_origin,
+            x_pointing=x_pointing,
+            y_pointing=y_pointing,
+            reference_cs=self._multiparts.cs_name,
+            mode="axis",
+            name=self.rot_cs_name,
+        )
         if self.rot_axis[0]:
             app[self.yaw_name] = self.yaw
-            app.modeler.rotate(aedt_object, 'Z', angle=self.yaw_name)
+            app.modeler.rotate(aedt_object, "Z", angle=self.yaw_name)
         if self.rot_axis[1]:
             app[self.pitch_name] = self.pitch
-            app.modeler.rotate(aedt_object, 'Y', angle=self.pitch_name)
+            app.modeler.rotate(aedt_object, "Y", angle=self.pitch_name)
         if self.rot_axis[2]:
             app[self.roll_name] = self.roll
-            app.modeler.rotate(aedt_object, 'X', angle=self.roll_name)
+            app.modeler.rotate(aedt_object, "X", angle=self.roll_name)
 
         return True
 
@@ -410,16 +416,18 @@ class Part(object):
             aedt_objects.append(app.modeler.primitives.insert_3d_component(self.file_name, targetCS=self.cs_name))
         else:
             aedt_objects.append(
-                app.modeler.primitives.insert_3d_component(self.file_name, targetCS=self._multiparts.cs_name))
+                app.modeler.primitives.insert_3d_component(self.file_name, targetCS=self._multiparts.cs_name)
+            )
         if self._do_rotate:
             self.do_rotate(app, aedt_objects[0])
 
         # Duplication occurs in parent coordinate system.
         app.modeler.set_working_coordinate_system(self._multiparts.cs_name)
-        if self['duplicate_vector']:
-            d_vect = [float(i) for i in self['duplicate_vector']]
-            duplicate_result = app.modeler.duplicate_along_line(aedt_objects[0], d_vect,
-                                                                nclones=int(self['duplicate_number']), is_3d_comp=True)
+        if self["duplicate_vector"]:
+            d_vect = [float(i) for i in self["duplicate_vector"]]
+            duplicate_result = app.modeler.duplicate_along_line(
+                aedt_objects[0], d_vect, nclones=int(self["duplicate_number"]), is_3d_comp=True
+            )
             if duplicate_result[0]:
                 for d in duplicate_result[1]:
                     aedt_objects.append(d)
@@ -443,14 +451,15 @@ class Antenna(Part, object):
         The default is ``None``.
 
     """
+
     def __init__(self, root_folder, ant_dict, parent=None, name=None):
         super(Antenna, self).__init__(root_folder, ant_dict, parent=parent, name=name)
 
     def _antenna_type(self, app):
-        if self._compdef['antenna_type'] == 'parametric':
+        if self._compdef["antenna_type"] == "parametric":
             return app.SbrAntennas.ParametricBeam
-        if self._compdef['antenna_type'] == 'ffd':
-            return 'file'
+        if self._compdef["antenna_type"] == "ffd":
+            return "file"
 
     @property
     def params(self):
@@ -462,10 +471,10 @@ class Antenna(Part, object):
             Dictionary of parameters for a multi-part component.
         """
         p = {}
-        if self._compdef['antenna_type'] == 'parametric':
-            p['Vertical BeamWidth'] = self._compdef['beamwidth_elevation']
-            p['Horizontal BeamWidth'] = self._compdef['beamwidth_azimuth']
-            p['Polarization'] = self._compdef['polarization']
+        if self._compdef["antenna_type"] == "parametric":
+            p["Vertical BeamWidth"] = self._compdef["beamwidth_elevation"]
+            p["Horizontal BeamWidth"] = self._compdef["beamwidth_azimuth"]
+            p["Polarization"] = self._compdef["polarization"]
         return p
 
     @aedt_exception_handler
@@ -477,18 +486,19 @@ class Antenna(Part, object):
                 units = self._multiparts._local_units
             else:
                 units = self._multiparts.units
-        if self._compdef['ffd_name']:
-            ffd = os.path.join(self._compdef['part_folder'], self._multiparts._name + ".ffd",
-                               self._compdef['ffd_name'])
-            a = app.create_sbr_file_based_antenna(ffd_full_path=ffd, model_units=units,
-                                       target_cs=target_cs,
-                                       antenna_name=self.name)
+        if self._compdef["ffd_name"]:
+            ffd = os.path.join(self._compdef["part_folder"], self._multiparts._name + ".ffd", self._compdef["ffd_name"])
+            a = app.create_sbr_file_based_antenna(
+                ffd_full_path=ffd, model_units=units, target_cs=target_cs, antenna_name=self.name
+            )
         else:
-            a = app.create_sbr_antenna(self._antenna_type(app),
-                                       model_units=units,
-                                       parameters_dict=self.params,
-                                       target_cs=target_cs,
-                                       antenna_name=self.name)
+            a = app.create_sbr_antenna(
+                self._antenna_type(app),
+                model_units=units,
+                parameters_dict=self.params,
+                target_cs=target_cs,
+                antenna_name=self.name,
+            )
         return a
 
     @aedt_exception_handler

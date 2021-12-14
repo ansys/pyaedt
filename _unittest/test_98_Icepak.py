@@ -242,7 +242,7 @@ class TestClass:
     def test_17_get_output_variable(self):
         value = self.aedtapp.get_output_variable("OutputVariable1")
         tol = 1e-9
-        assert abs(value  - 0.5235987755982988) < tol
+        assert abs(value - 0.5235987755982988) < tol
 
     def test_18_export_summary(self):
         assert self.aedtapp.export_summary()
@@ -335,9 +335,7 @@ class TestClass:
         )
 
     def test_37_surface_monitor(self):
-        self.aedtapp.modeler.primitives.create_rectangle(
-            self.aedtapp.PLANE.XY, [0, 0, 0], [10, 20], name="surf1"
-        )
+        self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.PLANE.XY, [0, 0, 0], [10, 20], name="surf1")
         assert self.aedtapp.assign_surface_monitor("surf1")
 
     def test_38_point_monitor(self):
@@ -346,10 +344,18 @@ class TestClass:
     def test_39_import_idf(self):
         self.aedtapp.insert_design("IDF")
         assert self.aedtapp.import_idf(os.path.join(local_path, "example_models", "brd_board.emn"))
-        assert self.aedtapp.import_idf(os.path.join(local_path, "example_models", "brd_board.emn"), filter_cap=True,
-                                       filter_ind=True, filter_res=True, filter_height_under=2,
-                                       filter_height_exclude_2d=False, internal_layer_coverage=20,
-                                       internal_layer_number=5, internal_thick=0.05, high_surface_thick="0.1in")
+        assert self.aedtapp.import_idf(
+            os.path.join(local_path, "example_models", "brd_board.emn"),
+            filter_cap=True,
+            filter_ind=True,
+            filter_res=True,
+            filter_height_under=2,
+            filter_height_exclude_2d=False,
+            internal_layer_coverage=20,
+            internal_layer_number=5,
+            internal_thick=0.05,
+            high_surface_thick="0.1in",
+        )
 
     def test_88_create_heat_sink(self):
         self.aedtapp.insert_design("HS")

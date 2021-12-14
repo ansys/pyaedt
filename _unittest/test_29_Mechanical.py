@@ -78,22 +78,16 @@ class TestClass:
         ipk = Icepak(solution_type=self.aedtapp.SOLUTIONS.Icepak.SteadyTemperatureAndFlow)
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 30
-        id1 = ipk.modeler.primitives.create_cylinder(
-            ipk.PLANE.XY, udp, 3, coax_dimension, 0, "MyCylinder", "brass"
-        )
+        id1 = ipk.modeler.primitives.create_cylinder(ipk.PLANE.XY, udp, 3, coax_dimension, 0, "MyCylinder", "brass")
         setup = ipk.create_setup()
         mech = Mechanical(solution_type=self.aedtapp.SOLUTIONS.Mechanical.Structural)
-        mech.modeler.primitives.create_cylinder(
-            mech.PLANE.XY, udp, 3, coax_dimension, 0, "MyCylinder", "brass"
-        )
+        mech.modeler.primitives.create_cylinder(mech.PLANE.XY, udp, 3, coax_dimension, 0, "MyCylinder", "brass")
         assert mech.assign_thermal_map("MyCylinder", ipk.design_name)
 
     def test_07_assign_mechanical_boundaries(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 30
         mech = Mechanical(solution_type=self.aedtapp.SOLUTIONS.Mechanical.Modal)
-        mech.modeler.primitives.create_cylinder(
-            mech.PLANE.XY, udp, 3, coax_dimension, 0, "MyCylinder", "brass"
-        )
+        mech.modeler.primitives.create_cylinder(mech.PLANE.XY, udp, 3, coax_dimension, 0, "MyCylinder", "brass")
         assert mech.assign_fixed_support(mech.modeler.primitives["MyCylinder"].faces[0].id)
         assert mech.assign_frictionless_support(mech.modeler.primitives["MyCylinder"].faces[1].id)

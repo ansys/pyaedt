@@ -16,6 +16,7 @@ from rpyc.core.async_ import AsyncResult
 
 class PingError(Exception):
     """The exception raised should :func:`Connection.ping` fail"""
+
     pass
 
 
@@ -25,21 +26,89 @@ DEFAULT_CONFIG = dict(
     allow_exposed_attrs=True,
     allow_public_attrs=False,
     allow_all_attrs=False,
-    safe_attrs=set(['__abs__', '__add__', '__and__', '__bool__', '__cmp__', '__contains__',
-                    '__delitem__', '__delslice__', '__div__', '__divmod__', '__doc__',
-                    '__eq__', '__float__', '__floordiv__', '__ge__', '__getitem__',
-                    '__getslice__', '__gt__', '__hash__', '__hex__', '__iadd__', '__iand__',
-                    '__idiv__', '__ifloordiv__', '__ilshift__', '__imod__', '__imul__',
-                    '__index__', '__int__', '__invert__', '__ior__', '__ipow__', '__irshift__',
-                    '__isub__', '__iter__', '__itruediv__', '__ixor__', '__le__', '__len__',
-                    '__long__', '__lshift__', '__lt__', '__mod__', '__mul__', '__ne__',
-                    '__neg__', '__new__', '__nonzero__', '__oct__', '__or__', '__pos__',
-                    '__pow__', '__radd__', '__rand__', '__rdiv__', '__rdivmod__', '__repr__',
-                    '__rfloordiv__', '__rlshift__', '__rmod__', '__rmul__', '__ror__',
-                    '__rpow__', '__rrshift__', '__rshift__', '__rsub__', '__rtruediv__',
-                    '__rxor__', '__setitem__', '__setslice__', '__str__', '__sub__',
-                    '__truediv__', '__xor__', 'next', '__length_hint__', '__enter__',
-                    '__exit__', '__next__', ]),
+    safe_attrs=set(
+        [
+            "__abs__",
+            "__add__",
+            "__and__",
+            "__bool__",
+            "__cmp__",
+            "__contains__",
+            "__delitem__",
+            "__delslice__",
+            "__div__",
+            "__divmod__",
+            "__doc__",
+            "__eq__",
+            "__float__",
+            "__floordiv__",
+            "__ge__",
+            "__getitem__",
+            "__getslice__",
+            "__gt__",
+            "__hash__",
+            "__hex__",
+            "__iadd__",
+            "__iand__",
+            "__idiv__",
+            "__ifloordiv__",
+            "__ilshift__",
+            "__imod__",
+            "__imul__",
+            "__index__",
+            "__int__",
+            "__invert__",
+            "__ior__",
+            "__ipow__",
+            "__irshift__",
+            "__isub__",
+            "__iter__",
+            "__itruediv__",
+            "__ixor__",
+            "__le__",
+            "__len__",
+            "__long__",
+            "__lshift__",
+            "__lt__",
+            "__mod__",
+            "__mul__",
+            "__ne__",
+            "__neg__",
+            "__new__",
+            "__nonzero__",
+            "__oct__",
+            "__or__",
+            "__pos__",
+            "__pow__",
+            "__radd__",
+            "__rand__",
+            "__rdiv__",
+            "__rdivmod__",
+            "__repr__",
+            "__rfloordiv__",
+            "__rlshift__",
+            "__rmod__",
+            "__rmul__",
+            "__ror__",
+            "__rpow__",
+            "__rrshift__",
+            "__rshift__",
+            "__rsub__",
+            "__rtruediv__",
+            "__rxor__",
+            "__setitem__",
+            "__setslice__",
+            "__str__",
+            "__sub__",
+            "__truediv__",
+            "__xor__",
+            "next",
+            "__length_hint__",
+            "__enter__",
+            "__exit__",
+            "__next__",
+        ]
+    ),
     exposed_prefix="exposed_",
     allow_getattr=True,
     allow_setattr=False,
@@ -301,7 +370,7 @@ class Connection(object):
         raise ValueError("invalid label %r" % (label,))
 
     def _netref_factory(self, id_pack):  # boxing
-        """id_pack is for remote, so when class id fails to directly match """
+        """id_pack is for remote, so when class id fails to directly match"""
         cls = None
         if id_pack[2] == 0 and id_pack in self._netref_classes_cache:
             cls = self._netref_classes_cache[id_pack]
@@ -338,22 +407,28 @@ class Connection(object):
             self._send(consts.MSG_REPLY, seq, self._box(res))
 
     def _box_exc(self, typ, val, tb):  # dispatch?
-        return vinegar.dump(typ, val, tb,
-                            include_local_traceback=self._config["include_local_traceback"],
-                            include_local_version=self._config["include_local_version"])
+        return vinegar.dump(
+            typ,
+            val,
+            tb,
+            include_local_traceback=self._config["include_local_traceback"],
+            include_local_version=self._config["include_local_version"],
+        )
 
     def _unbox_exc(self, raw):  # dispatch?
-        return vinegar.load(raw,
-                            import_custom_exceptions=self._config["import_custom_exceptions"],
-                            instantiate_custom_exceptions=self._config["instantiate_custom_exceptions"],
-                            instantiate_oldstyle_exceptions=self._config["instantiate_oldstyle_exceptions"])
+        return vinegar.load(
+            raw,
+            import_custom_exceptions=self._config["import_custom_exceptions"],
+            instantiate_custom_exceptions=self._config["instantiate_custom_exceptions"],
+            instantiate_oldstyle_exceptions=self._config["instantiate_oldstyle_exceptions"],
+        )
 
     def _seq_request_callback(self, msg, seq, is_exc, obj):
         _callback = self._request_callbacks.pop(seq, None)
         if _callback is not None:
             _callback(is_exc, obj)
         elif self._config["logger"] is not None:
-            debug_msg = 'Recieved {} seq {} and a related request callback did not exist'
+            debug_msg = "Recieved {} seq {} and a related request callback did not exist"
             self._config["logger"].debug(debug_msg.format(msg, seq))
 
     def _dispatch(self, data):  # serving---dispatch?
@@ -427,6 +502,7 @@ class Connection(object):
         opens a new connection would allow `ThreadedServer` to naturally avoid such multiplexing issues and
         is the preferred approach for threading procedures that invoke sync_request. See issue #345
         """
+
         def _thread_target():
             try:
                 while True:
@@ -438,8 +514,7 @@ class Connection(object):
                 pass
 
         try:
-            threads = [spawn(_thread_target)
-                       for _ in range(thread_count)]
+            threads = [spawn(_thread_target) for _ in range(thread_count)]
 
             for thread in threads:
                 thread.join()
@@ -578,7 +653,7 @@ class Connection(object):
     def _handle_str(self, obj):  # request handler
         return str(obj)
 
-    def _handle_cmp(self, obj, other, op='__cmp__'):  # request handler
+    def _handle_cmp(self, obj, other, op="__cmp__"):  # request handler
         # cmp() might enter recursive resonance... so use the underlying type and return cmp(obj, other)
         try:
             return self._access_attr(type(obj), op, (), "_rpyc_getattr", "allow_getattr", getattr)(obj, other)
@@ -595,7 +670,7 @@ class Connection(object):
         return tuple(dir(obj))
 
     def _handle_inspect(self, id_pack):  # request handler
-        if hasattr(self._local_objects[id_pack], '____conn__'):
+        if hasattr(self._local_objects[id_pack], "____conn__"):
             # When RPyC is chained (RPyC over RPyC), id_pack is cached in local objects as a netref
             # since __mro__ is not a safe attribute the request is forwarded using the proxy connection
             # see issue #346 or tests.test_rpyc_over_rpyc.Test_rpyc_over_rpyc
@@ -632,7 +707,7 @@ class Connection(object):
         #  + refactor cache instancecheck/inspect/class_factory
         #  + improve cache docs
 
-        if hasattr(obj, '____conn__'):  # keep unwrapping!
+        if hasattr(obj, "____conn__"):  # keep unwrapping!
             # When RPyC is chained (RPyC over RPyC), id_pack is cached in local objects as a netref
             # since __mro__ is not a safe attribute the request is forwarded using the proxy connection
             # relates to issue #346 or tests.test_netref_hierachy.Test_Netref_Hierarchy.test_StandardError

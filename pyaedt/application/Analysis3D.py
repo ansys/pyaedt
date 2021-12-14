@@ -12,6 +12,7 @@ if is_ironpython:
 else:
     from pyaedt.modules.AdvancedPostProcessing import PostProcessor
 
+
 class FieldAnalysis3D(Analysis, object):
     """Manages 3D field analysis setup in HFSS, Maxwell 3D, and Q3D.
 

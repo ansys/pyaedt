@@ -128,9 +128,7 @@ class ParamikoPopen(PopenAddons):
 
     def iter_lines(self, timeout=None, **kwargs):
         if timeout is not None:
-            raise NotImplementedError(
-                "The 'timeout' parameter is not supported with ParamikoMachine"
-            )
+            raise NotImplementedError("The 'timeout' parameter is not supported with ParamikoMachine")
         return iter_lines(self, _iter_lines=_iter_lines, **kwargs)
 
     __iter__ = iter_lines
@@ -291,9 +289,7 @@ class ParamikoMachine(BaseRemoteMachine):
         return self._sftp
 
     @_setdoc(BaseRemoteMachine)
-    def session(
-        self, isatty=False, term="vt100", width=80, height=24, new_session=False
-    ):
+    def session(self, isatty=False, term="vt100", width=80, height=24, new_session=False):
         # new_session is ignored for ParamikoMachine
         trans = self._client.get_transport()
         trans.set_keepalive(self._keep_alive)
