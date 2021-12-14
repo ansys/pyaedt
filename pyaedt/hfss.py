@@ -183,6 +183,8 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def _get_rad_fields(self):
+        if not self.design_properties:
+            return []
         fields = []
         if self.design_properties.get("RadField") and self.design_properties["RadField"].get("FarFieldSetups"):
             for val in self.design_properties["RadField"]["FarFieldSetups"]:
