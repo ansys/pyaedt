@@ -103,39 +103,12 @@ M3D.eddy_effects_on(["SearchCoil"], activate=False)
 ################################################################################
 # Add a linear parametric sweep for the two coil positions
 sweepname = "CoilSweep"
-M3D.opti_parametric.add_parametric_setup("Coil_Position", "LIN -20mm 0mm 20mm", parametricname=sweepname)
-
-################################################################################
-# For now we need to use Optimetrics module to tick 'Save Fields' box
-Opt = M3D.ooptimetrics
-Opt.EditSetup(
-    "CoilSweep",
-    [
-        "NAME:CoilSweep",
-        "IsEnabled:=",
-        True,
-        ["NAME:ProdOptiSetupDataV2", "SaveFields:=", True, "CopyMesh:=", False, "SolveWithCopiedMeshOnly:=", True],
-        ["NAME:StartingPoint"],
-        "Sim. Setups:=",
-        ["Setup1"],
-        [
-            "NAME:Sweeps",
-            [
-                "NAME:SweepDefinition",
-                "Variable:=",
-                "Coil_Position",
-                "Data:=",
-                "LIN -20mm 0mm 20mm",
-                "OffsetF1:=",
-                False,
-                "Synchronize:=",
-                0,
-            ],
-        ],
-        ["NAME:Sweep Operations"],
-        ["NAME:Goals"],
-    ],
-)
+param = M3D.opti_parametric.add_parametric_setup("Coil_Position", 
+                                                                                      "LIN -20mm 0mm 20mm", parametricname=sweepname)
+param.props["ProdOptiSetupDataV2"]["SaveFields"] = True
+param.props["ProdOptiSetupDataV2"]["CopyMesh"] = False
+param.props["ProdOptiSetupDataV2"]["SolveWithCopiedMeshOnly"] = True
+param.update()
 
 # Solve the model, we solve the parametric sweep directly so results of all variations are available.
 M3D.analyze_setup(sweepname)
