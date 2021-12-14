@@ -1327,6 +1327,8 @@ class Analysis(Design, object):
                 update_hpc_option(target_name, "NumEngines", num_tasks, False)
             update_hpc_option(target_name, "ConfigName", config_name, True)
             update_hpc_option(target_name, "DesignType", self.design_type, True)
+            if self.design_type == "Icepak":
+                update_hpc_option(target_name, "UseAutoSettings", self.design_type, False)
             try:
                 self._desktop.SetRegistryFromFile(target_name)
                 self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, config_name)
