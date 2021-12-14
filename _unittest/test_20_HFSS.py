@@ -614,4 +614,3 @@ class TestClass:
                                            polarization_angle=30)
         assert bound.azimuth_start == "2deg"
 
-
