@@ -95,7 +95,7 @@ class NativeComponentObject(BoundaryCommon, object):
                 "MaterialDefinitionParameters": OrderedDict({"VariableOrders": OrderedDict({})}),
                 "MapInstanceParameters": "DesignVariable",
                 "UniqueDefinitionIdentifier": "89d26167-fb77-480e-a7ab-"
-                                              + random_string(12, char_set="abcdef0123456789"),
+                + random_string(12, char_set="abcdef0123456789"),
                 "OriginFilePath": "",
                 "IsLocal": False,
                 "ChecksumString": "",
@@ -679,22 +679,40 @@ class FarFieldSetup(FieldSetup, object):
         defs = None
         if actual_value != value and value == "Theta-Phi":
             defs = ["ThetaStart", "ThetaStop", "ThetaStep", "PhiStart", "PhiStop", "PhiStep"]
-            actual_defs = ["AzimuthStart", "AzimuthStop", "AzimuthStep", "ElevationStart", "ElevationStop",
-                           "ElevationStep"]
+            actual_defs = [
+                "AzimuthStart",
+                "AzimuthStop",
+                "AzimuthStep",
+                "ElevationStart",
+                "ElevationStop",
+                "ElevationStep",
+            ]
         elif actual_value != value and value == "El Over Az":
             defs = ["AzimuthStart", "AzimuthStop", "AzimuthStep", "ElevationStart", "ElevationStop", "ElevationStep"]
             if actual_value == "Theta-Phi":
                 actual_defs = ["ThetaStart", "ThetaStop", "ThetaStep", "PhiStart", "PhiStop", "PhiStep"]
             else:
-                actual_defs = ["AzimuthStart", "AzimuthStop", "AzimuthStep", "ElevationStart", "ElevationStop",
-                               "ElevationStep"]
+                actual_defs = [
+                    "AzimuthStart",
+                    "AzimuthStop",
+                    "AzimuthStep",
+                    "ElevationStart",
+                    "ElevationStop",
+                    "ElevationStep",
+                ]
         elif actual_value != value:
             defs = ["ElevationStart", "ElevationStop", "ElevationStep", "AzimuthStart", "AzimuthStop", "AzimuthStep"]
             if actual_value == "Theta-Phi":
                 actual_defs = ["ThetaStart", "ThetaStop", "ThetaStep", "PhiStart", "PhiStop", "PhiStep"]
             else:
-                actual_defs = ["ElevationStart", "ElevationStop", "ElevationStep", "AzimuthStart", "AzimuthStop",
-                               "AzimuthStep"]
+                actual_defs = [
+                    "ElevationStart",
+                    "ElevationStop",
+                    "ElevationStep",
+                    "AzimuthStart",
+                    "AzimuthStop",
+                    "AzimuthStep",
+                ]
         if actual_defs != defs:
             self.props[defs[0]] = self.props[actual_defs[0]]
             self.props[defs[1]] = self.props[actual_defs[1]]

@@ -120,16 +120,16 @@ class Hfss(FieldAnalysis3D, object):
     #         return "HFSS Module"
 
     def __init__(
-            self,
-            projectname=None,
-            designname=None,
-            solution_type=None,
-            setup_name=None,
-            specified_version=None,
-            non_graphical=False,
-            new_desktop_session=False,
-            close_on_exit=False,
-            student_version=False,
+        self,
+        projectname=None,
+        designname=None,
+        solution_type=None,
+        setup_name=None,
+        specified_version=None,
+        non_graphical=False,
+        new_desktop_session=False,
+        close_on_exit=False,
+        student_version=False,
     ):
         FieldAnalysis3D.__init__(
             self,
@@ -290,15 +290,15 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def _create_waveport_driven(
-            self,
-            objectname,
-            int_line_start=None,
-            int_line_stop=None,
-            impedance=50,
-            portname="",
-            renorm=True,
-            nummodes=1,
-            deemb_distance=0,
+        self,
+        objectname,
+        int_line_start=None,
+        int_line_stop=None,
+        impedance=50,
+        portname="",
+        renorm=True,
+        nummodes=1,
+        deemb_distance=0,
     ):
         start = None
         stop = None
@@ -359,21 +359,21 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def assigncoating(
-            self,
-            obj,
-            mat=None,
-            cond=58000000,
-            perm=1,
-            usethickness=False,
-            thickness="0.1mm",
-            roughness="0um",
-            isinfgnd=False,
-            istwoside=False,
-            isInternal=True,
-            issheelElement=False,
-            usehuray=False,
-            radius="0.5um",
-            ratio="2.9",
+        self,
+        obj,
+        mat=None,
+        cond=58000000,
+        perm=1,
+        usethickness=False,
+        thickness="0.1mm",
+        roughness="0um",
+        isinfgnd=False,
+        istwoside=False,
+        isInternal=True,
+        issheelElement=False,
+        usehuray=False,
+        radius="0.5um",
+        ratio="2.9",
     ):
         """Assign finite conductivity to one or more objects of a given material.
 
@@ -402,21 +402,21 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def assign_coating(
-            self,
-            obj,
-            mat=None,
-            cond=58000000,
-            perm=1,
-            usethickness=False,
-            thickness="0.1mm",
-            roughness="0um",
-            isinfgnd=False,
-            istwoside=False,
-            isInternal=True,
-            issheelElement=False,
-            usehuray=False,
-            radius="0.5um",
-            ratio="2.9",
+        self,
+        obj,
+        mat=None,
+        cond=58000000,
+        perm=1,
+        usethickness=False,
+        thickness="0.1mm",
+        roughness="0um",
+        isinfgnd=False,
+        istwoside=False,
+        isInternal=True,
+        issheelElement=False,
+        usehuray=False,
+        radius="0.5um",
+        ratio="2.9",
     ):
         """Assign finite conductivity to one or more objects of a given material.
 
@@ -515,18 +515,18 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def create_frequency_sweep(
-            self,
-            setupname,
-            unit="GHz",
-            freqstart=1e-3,
-            freqstop=10,
-            sweepname=None,
-            num_of_freq_points=451,
-            sweeptype="Interpolating",
-            interpolation_tol=0.5,
-            interpolation_max_solutions=250,
-            save_fields=True,
-            save_rad_fields=False,
+        self,
+        setupname,
+        unit="GHz",
+        freqstart=1e-3,
+        freqstop=10,
+        sweepname=None,
+        num_of_freq_points=451,
+        sweeptype="Interpolating",
+        interpolation_tol=0.5,
+        interpolation_max_solutions=250,
+        save_fields=True,
+        save_rad_fields=False,
     ):
         """Create a frequency sweep.
 
@@ -555,18 +555,18 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def create_linear_count_sweep(
-            self,
-            setupname,
-            unit,
-            freqstart,
-            freqstop,
-            num_of_freq_points,
-            sweepname=None,
-            save_fields=True,
-            save_rad_fields=False,
-            sweep_type="Discrete",
-            interpolation_tol=0.5,
-            interpolation_max_solutions=250,
+        self,
+        setupname,
+        unit,
+        freqstart,
+        freqstop,
+        num_of_freq_points,
+        sweepname=None,
+        save_fields=True,
+        save_rad_fields=False,
+        sweep_type="Discrete",
+        interpolation_tol=0.5,
+        interpolation_max_solutions=250,
     ):
         """Create a sweep with the specified number of points.
 
@@ -662,16 +662,16 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def create_linear_step_sweep(
-            self,
-            setupname,
-            unit,
-            freqstart,
-            freqstop,
-            step_size,
-            sweepname=None,
-            save_fields=True,
-            save_rad_fields=False,
-            sweep_type="Discrete",
+        self,
+        setupname,
+        unit,
+        freqstart,
+        freqstop,
+        step_size,
+        sweepname=None,
+        save_fields=True,
+        save_rad_fields=False,
+        sweep_type="Discrete",
     ):
         """Create a Sweep with a specified frequency step.
 
@@ -761,14 +761,14 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def create_single_point_sweep(
-            self,
-            setupname,
-            unit,
-            freq,
-            sweepname=None,
-            save_single_field=True,
-            save_fields=False,
-            save_rad_fields=False,
+        self,
+        setupname,
+        unit,
+        freq,
+        sweepname=None,
+        save_single_field=True,
+        save_fields=False,
+        save_rad_fields=False,
     ):
         """Create a Sweep with a single frequency point.
 
@@ -867,16 +867,16 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def create_sbr_linked_antenna(
-            self,
-            source_object,
-            target_cs="Global",
-            solution=None,
-            fieldtype="nearfield",
-            use_composite_ports=False,
-            use_global_current=True,
-            current_conformance="Disable",
-            thin_sources=True,
-            power_fraction="0.95",
+        self,
+        source_object,
+        target_cs="Global",
+        solution=None,
+        fieldtype="nearfield",
+        use_composite_ports=False,
+        use_global_current=True,
+        current_conformance="Disable",
+        thin_sources=True,
+        power_fraction="0.95",
     ):
         """Create a linked antenna.
 
@@ -964,7 +964,7 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def _create_native_component(
-            self, antenna_type, target_cs=None, model_units=None, parameters_dict=None, antenna_name=None
+        self, antenna_type, target_cs=None, model_units=None, parameters_dict=None, antenna_name=None
     ):
         if antenna_name is None:
             antenna_name = generate_unique_name(antenna_type.replace(" ", "").replace("-", ""))
@@ -978,8 +978,8 @@ class Hfss(FieldAnalysis3D, object):
         if isinstance(parameters_dict, dict):
             for el in parameters_dict:
                 if (
-                        el not in ["antenna_type", "offset", "rotation", "rotation_axis", "mode"]
-                        and parameters_dict[el] is not None
+                    el not in ["antenna_type", "offset", "rotation", "rotation_axis", "mode"]
+                    and parameters_dict[el] is not None
                 ):
                     native_props["NativeComponentDefinitionProvider"][el.replace("_", " ").title()] = parameters_dict[
                         el
@@ -1156,14 +1156,14 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def create_sbr_antenna(
-            self,
-            antenna_type=SbrAntennas.ConicalHorn,
-            target_cs=None,
-            model_units=None,
-            parameters_dict=None,
-            use_current_source_representation=False,
-            is_array=False,
-            antenna_name=None,
+        self,
+        antenna_type=SbrAntennas.ConicalHorn,
+        target_cs=None,
+        model_units=None,
+        parameters_dict=None,
+        use_current_source_representation=False,
+        is_array=False,
+        antenna_name=None,
     ):
         """Create a parametric beam antenna in SBR+.
 
@@ -1270,14 +1270,14 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def create_sbr_file_based_antenna(
-            self,
-            ffd_full_path,
-            antenna_size="1mm",
-            antenna_impedance="50ohm",
-            representation_type="Far Field",
-            target_cs=None,
-            model_units=None,
-            antenna_name=None,
+        self,
+        ffd_full_path,
+        antenna_size="1mm",
+        antenna_impedance="50ohm",
+        representation_type="Far Field",
+        target_cs=None,
+        model_units=None,
+        antenna_name=None,
     ):
         """Create a linked antenna.
 
@@ -1370,8 +1370,7 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def create_circuit_port_between_objects(
-            self, startobj, endobject, axisdir=0, impedance=50, portname=None, renorm=True, renorm_impedance=50,
-            deemb=False
+        self, startobj, endobject, axisdir=0, impedance=50, portname=None, renorm=True, renorm_impedance=50, deemb=False
     ):
         """Create a circuit port taking the closest edges of two objects.
 
@@ -1424,7 +1423,7 @@ class Hfss(FieldAnalysis3D, object):
         """
 
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
-                endobject
+            endobject
         ):
             self.logger.error("One or both objects doesn't exists. Check and retry.")
             return False
@@ -1441,8 +1440,7 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def create_lumped_port_between_objects(
-            self, startobj, endobject, axisdir=0, impedance=50, portname=None, renorm=True, deemb=False,
-            port_on_plane=True
+        self, startobj, endobject, axisdir=0, impedance=50, portname=None, renorm=True, deemb=False, port_on_plane=True
     ):
         """Create a lumped port taking the closest edges of two objects.
 
@@ -1497,7 +1495,7 @@ class Hfss(FieldAnalysis3D, object):
         """
 
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
-                endobject
+            endobject
         ):
             self.logger.error("One or both objects do not exist. Check and retry.")
             return False
@@ -1568,7 +1566,7 @@ class Hfss(FieldAnalysis3D, object):
         """
 
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
-                endobject
+            endobject
         ):
             self.logger.error("One or both objects doesn't exists. Check and retry")
             return False
@@ -1630,7 +1628,7 @@ class Hfss(FieldAnalysis3D, object):
         """
 
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
-                endobject
+            endobject
         ):
             self.logger.error("One or both objects do not exist. Check and retry.")
             return False
@@ -1680,17 +1678,17 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def create_wave_port_between_objects(
-            self,
-            startobj,
-            endobject,
-            axisdir=0,
-            impedance=50,
-            nummodes=1,
-            portname=None,
-            renorm=True,
-            deembed_dist=0,
-            port_on_plane=True,
-            add_pec_cap=False,
+        self,
+        startobj,
+        endobject,
+        axisdir=0,
+        impedance=50,
+        nummodes=1,
+        portname=None,
+        renorm=True,
+        deembed_dist=0,
+        port_on_plane=True,
+        add_pec_cap=False,
     ):
         """Create a waveport taking the closest edges of two objects.
 
@@ -1748,7 +1746,7 @@ class Hfss(FieldAnalysis3D, object):
         """
 
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
-                endobject
+            endobject
         ):
             self.logger.error("One or both objects do not exist. Check and retry.")
             return False
@@ -1774,17 +1772,17 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def create_floquet_port(
-            self,
-            face,
-            lattice_origin=None,
-            lattice_a_end=None,
-            lattice_b_end=None,
-            nummodes=2,
-            portname=None,
-            renorm=True,
-            deembed_dist=0,
-            reporter_filter=True,
-            lattice_cs="Global",
+        self,
+        face,
+        lattice_origin=None,
+        lattice_a_end=None,
+        lattice_b_end=None,
+        nummodes=2,
+        portname=None,
+        renorm=True,
+        deembed_dist=0,
+        reporter_filter=True,
+        lattice_cs="Global",
     ):
         """Create a Floquet Port on a Face.
 
@@ -1872,13 +1870,13 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def assign_lattice_pair(
-            self,
-            face_couple,
-            reverse_v=False,
-            phase_delay="UseScanAngle",
-            phase_delay_param1="0deg",
-            phase_delay_param2="0deg",
-            pair_name=None,
+        self,
+        face_couple,
+        reverse_v=False,
+        phase_delay="UseScanAngle",
+        phase_delay_param1="0deg",
+        phase_delay_param2="0deg",
+        pair_name=None,
     ):
         """Assign Lattice Pair to a couple of faces.
 
@@ -1960,17 +1958,17 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def assign_secondary(
-            self,
-            face,
-            primary_name,
-            u_start,
-            u_end,
-            reverse_v=False,
-            phase_delay="UseScanAngle",
-            phase_delay_param1="0deg",
-            phase_delay_param2="0deg",
-            coord_name="Global",
-            secondary_name=None,
+        self,
+        face,
+        primary_name,
+        u_start,
+        u_end,
+        reverse_v=False,
+        phase_delay="UseScanAngle",
+        phase_delay_param1="0deg",
+        phase_delay_param2="0deg",
+        coord_name="Global",
+        secondary_name=None,
     ):
         """Assign Secondary Boundary Condition.
 
@@ -2110,17 +2108,17 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def create_wave_port_microstrip_between_objects(
-            self,
-            startobj,
-            endobject,
-            axisdir=0,
-            impedance=50,
-            nummodes=1,
-            portname=None,
-            renorm=True,
-            deembed_dist=0,
-            vfactor=3,
-            hfactor=5,
+        self,
+        startobj,
+        endobject,
+        axisdir=0,
+        impedance=50,
+        nummodes=1,
+        portname=None,
+        renorm=True,
+        deembed_dist=0,
+        vfactor=3,
+        hfactor=5,
     ):
         """Create a waveport taking the closest edges of two objects.
 
@@ -2178,7 +2176,7 @@ class Hfss(FieldAnalysis3D, object):
 
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
-                endobject
+            endobject
         ):
             self.logger.error("One or both objects do not exist. Check and retry.")
             return False
@@ -2203,7 +2201,7 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def create_perfecte_from_objects(
-            self, startobj, endobject, axisdir=0, sourcename=None, is_infinite_gnd=False, bound_on_plane=True
+        self, startobj, endobject, axisdir=0, sourcename=None, is_infinite_gnd=False, bound_on_plane=True
     ):
         """Create a Perfect E taking the closest edges of two objects.
 
@@ -2254,7 +2252,7 @@ class Hfss(FieldAnalysis3D, object):
         """
 
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
-                endobject
+            endobject
         ):
             self.logger.error("One or both objects do not exist. Check and retry.")
             return False
@@ -2317,7 +2315,7 @@ class Hfss(FieldAnalysis3D, object):
         """
 
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
-                endobject
+            endobject
         ):
             self.logger.error("One or both objects do not exist. Check and retry.")
             return False
@@ -2411,16 +2409,16 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def create_lumped_rlc_between_objects(
-            self,
-            startobj,
-            endobject,
-            axisdir=0,
-            sourcename=None,
-            rlctype="Parallel",
-            Rvalue=None,
-            Lvalue=None,
-            Cvalue=None,
-            bound_on_plane=True,
+        self,
+        startobj,
+        endobject,
+        axisdir=0,
+        sourcename=None,
+        rlctype="Parallel",
+        Rvalue=None,
+        Lvalue=None,
+        Cvalue=None,
+        bound_on_plane=True,
     ):
         """Create a lumped RLC taking the closest edges of two objects.
 
@@ -2480,12 +2478,12 @@ class Hfss(FieldAnalysis3D, object):
         """
 
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
-                endobject
+            endobject
         ):
             self.logger.error("One or both objects do not exist. Check and retry.")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"] and (
-                Rvalue or Lvalue or Cvalue
+            Rvalue or Lvalue or Cvalue
         ):
             sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(
                 startobj, endobject, axisdir, bound_on_plane
@@ -2517,15 +2515,15 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def create_impedance_between_objects(
-            self,
-            startobj,
-            endobject,
-            axisdir=0,
-            sourcename=None,
-            resistance=50,
-            reactance=0,
-            is_infground=False,
-            bound_on_plane=True,
+        self,
+        startobj,
+        endobject,
+        axisdir=0,
+        sourcename=None,
+        resistance=50,
+        reactance=0,
+        is_infground=False,
+        bound_on_plane=True,
     ):
         """Create an impedance taking the closest edges of two objects.
 
@@ -2580,7 +2578,7 @@ class Hfss(FieldAnalysis3D, object):
         """
 
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
-                endobject
+            endobject
         ):
             self.logger.error("One or both objects do not exist. Check and retry.")
             return False
@@ -2606,7 +2604,7 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def create_boundary(
-            self, boundary_type=BoundaryType.PerfectE, sheet_name=None, boundary_name="", is_infinite_gnd=False
+        self, boundary_type=BoundaryType.PerfectE, sheet_name=None, boundary_name="", is_infinite_gnd=False
     ):
         """Create a boundary given specific inputs.
 
@@ -2695,7 +2693,7 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def create_wave_port_from_sheet(
-            self, sheet, deemb=0, axisdir=0, impedance=50, nummodes=1, portname=None, renorm=True
+        self, sheet, deemb=0, axisdir=0, impedance=50, nummodes=1, portname=None, renorm=True
     ):
         """Create a waveport on sheet objects created starting from sheets.
 
@@ -2783,7 +2781,7 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def create_lumped_port_to_sheet(
-            self, sheet_name, axisdir=0, impedance=50, portname=None, renorm=True, deemb=False, reference_object_list=[]
+        self, sheet_name, axisdir=0, impedance=50, portname=None, renorm=True, deemb=False, reference_object_list=[]
     ):
         """Create a lumped port taking one sheet.
 
@@ -3057,7 +3055,7 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def assign_lumped_rlc_to_sheet(
-            self, sheet_name, axisdir=0, sourcename=None, rlctype="Parallel", Rvalue=None, Lvalue=None, Cvalue=None
+        self, sheet_name, axisdir=0, sourcename=None, rlctype="Parallel", Rvalue=None, Lvalue=None, Cvalue=None
     ):
         """Create a lumped RLC taking one sheet.
 
@@ -3110,7 +3108,7 @@ class Hfss(FieldAnalysis3D, object):
         """
 
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network", "SBR+"] and (
-                Rvalue or Lvalue or Cvalue
+            Rvalue or Lvalue or Cvalue
         ):
             point0, point1 = self.modeler.primitives.get_mid_points_on_dir(sheet_name, axisdir)
 
@@ -3198,14 +3196,14 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def create_circuit_port_from_edges(
-            self,
-            edge_signal,
-            edge_gnd,
-            port_name="",
-            port_impedance="50",
-            renormalize=False,
-            renorm_impedance="50",
-            deembed=False,
+        self,
+        edge_signal,
+        edge_gnd,
+        port_name="",
+        port_impedance="50",
+        renormalize=False,
+        renorm_impedance="50",
+        deembed=False,
     ):
         """Create a circuit port from two edges.
 
@@ -3439,9 +3437,9 @@ class Hfss(FieldAnalysis3D, object):
                         faceoriginal = [float(i) for i in faceCenter]
                         # dist = mat.sqrt(sum([(a*a-b*b) for a,b in zip(faceCenter, fc2)]))
                         if abs(fa2 - maxarea) < tol ** 2 and (
-                                abs(faceoriginal[2] - fc2[2]) > tol
-                                or abs(faceoriginal[1] - fc2[1]) > tol
-                                or abs(faceoriginal[0] - fc2[0]) > tol
+                            abs(faceoriginal[2] - fc2[2]) > tol
+                            or abs(faceoriginal[1] - fc2[1]) > tol
+                            or abs(faceoriginal[0] - fc2[0]) > tol
                         ):
                             ports_ID[el] = int(f)
 
@@ -3626,8 +3624,7 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def create_scattering(
-            self, plot_name="S Parameter Plot Nominal", sweep_name=None, port_names=None, port_excited=None,
-            variations=None
+        self, plot_name="S Parameter Plot Nominal", sweep_name=None, port_names=None, port_excited=None, variations=None
     ):
         """Create a scattering report.
 
@@ -3943,20 +3940,20 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def _create_sbr_doppler_setup(
-            self,
-            setup_type,
-            time_var,
-            center_freq,
-            resolution,
-            period,
-            velocity_resolution,
-            min_velocity,
-            max_velocity,
-            ray_density_per_wavelenght,
-            max_bounces,
-            setup_name,
-            include_coupling_effects=False,
-            doppler_ad_sampling_rate=20,
+        self,
+        setup_type,
+        time_var,
+        center_freq,
+        resolution,
+        period,
+        velocity_resolution,
+        min_velocity,
+        max_velocity,
+        ray_density_per_wavelenght,
+        max_bounces,
+        setup_name,
+        include_coupling_effects=False,
+        doppler_ad_sampling_rate=20,
     ):
         setup1 = self.create_setup(setup_name, "SBR+")
         setup1.props["IsSbrRangeDoppler"] = True
@@ -4002,20 +3999,20 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def create_sbr_chirp_i_doppler_setup(
-            self,
-            time_var=None,
-            sweep_time_duration=0,
-            center_freq=76.5,
-            resolution=1,
-            period=200,
-            velocity_resolution=0.4,
-            min_velocity=-20,
-            max_velocity=20,
-            ray_density_per_wavelenght=0.2,
-            max_bounces=5,
-            include_coupling_effects=False,
-            doppler_ad_sampling_rate=20,
-            setup_name=None,
+        self,
+        time_var=None,
+        sweep_time_duration=0,
+        center_freq=76.5,
+        resolution=1,
+        period=200,
+        velocity_resolution=0.4,
+        min_velocity=-20,
+        max_velocity=20,
+        ray_density_per_wavelenght=0.2,
+        max_bounces=5,
+        include_coupling_effects=False,
+        doppler_ad_sampling_rate=20,
+        setup_name=None,
     ):
         """Create an SBR+ Chirp IQ Setup.
 
@@ -4104,20 +4101,20 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def create_sbr_chirp_iq_doppler_setup(
-            self,
-            time_var=None,
-            sweep_time_duration=0,
-            center_freq=76.5,
-            resolution=1,
-            period=200,
-            velocity_resolution=0.4,
-            min_velocity=-20,
-            max_velocity=20,
-            ray_density_per_wavelenght=0.2,
-            max_bounces=5,
-            include_coupling_effects=False,
-            doppler_ad_sampling_rate=20,
-            setup_name=None,
+        self,
+        time_var=None,
+        sweep_time_duration=0,
+        center_freq=76.5,
+        resolution=1,
+        period=200,
+        velocity_resolution=0.4,
+        min_velocity=-20,
+        max_velocity=20,
+        ray_density_per_wavelenght=0.2,
+        max_bounces=5,
+        include_coupling_effects=False,
+        doppler_ad_sampling_rate=20,
+        setup_name=None,
     ):
         """Create an SBR+ Chirp IQ Setup.
 
@@ -4203,18 +4200,18 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def create_sbr_pulse_doppler_setup(
-            self,
-            time_var=None,
-            sweep_time_duration=0,
-            center_freq=76.5,
-            resolution=1,
-            period=200,
-            velocity_resolution=0.4,
-            min_velocity=-20,
-            max_velocity=20,
-            ray_density_per_wavelenght=0.2,
-            max_bounces=5,
-            setup_name=None,
+        self,
+        time_var=None,
+        sweep_time_duration=0,
+        center_freq=76.5,
+        resolution=1,
+        period=200,
+        velocity_resolution=0.4,
+        min_velocity=-20,
+        max_velocity=20,
+        ray_density_per_wavelenght=0.2,
+        max_bounces=5,
+        setup_name=None,
     ):
         """Create an SBR+ pulse doppler setup.
 
@@ -4297,7 +4294,7 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def create_sbr_radar_from_json(
-            self, radar_file, radar_name, offset=[0, 0, 0], speed=0.0, use_relative_cs=False, relative_cs_name=None
+        self, radar_file, radar_name, offset=[0, 0, 0], speed=0.0, use_relative_cs=False, relative_cs_name=None
     ):
         """Create an SBR+ radar from a JSON file.
 
@@ -4382,10 +4379,22 @@ class Hfss(FieldAnalysis3D, object):
         return r
 
     @aedt_exception_handler
-    def insert_infinite_sphere(self, definition=INFINITE_SPHERE_TYPE.ThetaPhi, x_start=0, x_stop=180, x_step=10,
-                               y_start=0, y_stop=180,
-                               y_step=10, units="deg", custom_radiation_faces=None, custom_coordinate_system=None,
-                               use_slant_polarization=False, polarization_angle=45, name=None):
+    def insert_infinite_sphere(
+        self,
+        definition=INFINITE_SPHERE_TYPE.ThetaPhi,
+        x_start=0,
+        x_stop=180,
+        x_step=10,
+        y_start=0,
+        y_stop=180,
+        y_step=10,
+        units="deg",
+        custom_radiation_faces=None,
+        custom_coordinate_system=None,
+        use_slant_polarization=False,
+        polarization_angle=45,
+        name=None,
+    ):
         """Create a new infinite Sphere.
 
         .. note::

@@ -60,17 +60,17 @@ class TestClass:
         [
             ("inner", {"mat": "copper"}),
             (
-                    "outer",
-                    {
-                        "mat": "aluminum",
-                        "usethickness": True,
-                        "thickness": "0.5mm",
-                        "istwoside": True,
-                        "issheelElement": True,
-                        "usehuray": True,
-                        "radius": "0.75um",
-                        "ratio": "3",
-                    },
+                "outer",
+                {
+                    "mat": "aluminum",
+                    "usethickness": True,
+                    "thickness": "0.5mm",
+                    "istwoside": True,
+                    "issheelElement": True,
+                    "usehuray": True,
+                    "radius": "0.75um",
+                    "ratio": "3",
+                },
             ),
             ("die", {}),
         ],
@@ -245,30 +245,30 @@ class TestClass:
 
         self.aedtapp.solution_type = "DrivenModal"
         assert (
-                self.aedtapp.create_circuit_port_from_edges(
-                    e1, e2, port_name="port10", port_impedance=50.1, renormalize=False, renorm_impedance="50"
-                )
-                == "port10"
+            self.aedtapp.create_circuit_port_from_edges(
+                e1, e2, port_name="port10", port_impedance=50.1, renormalize=False, renorm_impedance="50"
+            )
+            == "port10"
         )
         assert (
-                self.aedtapp.create_circuit_port_from_edges(
-                    e1, e2, port_name="port11", port_impedance="50+1i*55", renormalize=True, renorm_impedance=15.4
-                )
-                == "port11"
+            self.aedtapp.create_circuit_port_from_edges(
+                e1, e2, port_name="port11", port_impedance="50+1i*55", renormalize=True, renorm_impedance=15.4
+            )
+            == "port11"
         )
 
         self.aedtapp.solution_type = "DrivenTerminal"
         assert (
-                self.aedtapp.create_circuit_port_from_edges(
-                    e1, e2, port_name="port20", port_impedance=50.1, renormalize=False, renorm_impedance="50+1i*55"
-                )
-                == "port20"
+            self.aedtapp.create_circuit_port_from_edges(
+                e1, e2, port_name="port20", port_impedance=50.1, renormalize=False, renorm_impedance="50+1i*55"
+            )
+            == "port20"
         )
         assert (
-                self.aedtapp.create_circuit_port_from_edges(
-                    e1, e2, port_name="port21", port_impedance="50.1", renormalize=True
-                )
-                == "port21"
+            self.aedtapp.create_circuit_port_from_edges(
+                e1, e2, port_name="port21", port_impedance="50.1", renormalize=True
+            )
+            == "port21"
         )
 
         self.aedtapp.solution_type = "DrivenModal"
@@ -579,9 +579,17 @@ class TestClass:
         self.aedtapp.insert_design("InfSphere")
         air = self.aedtapp.modeler.create_box([0, 0, 0], [20, 20, 20], name="rad", matname="vacuum")
         self.aedtapp.assign_radiation_boundary_to_objects(air)
-        bound = self.aedtapp.insert_infinite_sphere(definition="El Over Az", x_start=1, x_stop=91, x_step=45, y_start=2,
-                                                    y_stop=92, y_step=10, use_slant_polarization=True,
-                                                    polarization_angle=30)
+        bound = self.aedtapp.insert_infinite_sphere(
+            definition="El Over Az",
+            x_start=1,
+            x_stop=91,
+            x_step=45,
+            y_start=2,
+            y_stop=92,
+            y_step=10,
+            use_slant_polarization=True,
+            polarization_angle=30,
+        )
         assert bound
         assert bound.azimuth_start == "1deg"
         assert bound.azimuth_stop == "91deg"
@@ -594,7 +602,15 @@ class TestClass:
         bound.azimuth_start = 20
         assert bound.azimuth_start == "20.0deg"
         assert bound.delete()
-        bound = self.aedtapp.insert_infinite_sphere(definition="Az Over El", x_start=1, x_stop=91, x_step=45, y_start=2,
-                                                    y_stop=92, y_step=10, use_slant_polarization=True,
-                                                    polarization_angle=30)
+        bound = self.aedtapp.insert_infinite_sphere(
+            definition="Az Over El",
+            x_start=1,
+            x_stop=91,
+            x_step=45,
+            y_start=2,
+            y_stop=92,
+            y_step=10,
+            use_slant_polarization=True,
+            polarization_angle=30,
+        )
         assert bound.azimuth_start == "2deg"
