@@ -783,7 +783,6 @@ class FarFieldSetup(FieldSetup, object):
     @property
     def polarization(self):
         """Set/Get the Far Field Polarization."""
-
         return self.props["Polarization"]
 
     @polarization.setter
