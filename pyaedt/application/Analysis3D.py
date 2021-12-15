@@ -430,7 +430,12 @@ class FieldAnalysis3D(Analysis, object):
             allObjects = object_list[:]
 
         self.logger.info("Exporting {} objects".format(len(allObjects)))
-
+        major = -1
+        minor = -1
+        # actual version supported by AEDT is 29.0
+        if fileFormat in [".step", ".stp", ".sm3", ".sat", ".sab"]:
+            major = 29
+            minor = 0
         stringa = ",".join(allObjects)
         arg = [
             "NAME:ExportParameters",
@@ -441,11 +446,11 @@ class FieldAnalysis3D(Analysis, object):
             "Selections:=",
             stringa,
             "File Name:=",
-            str(filePath) + "/" + str(fileName) + str(fileFormat),
+            os.path.join(filePath, fileName + fileFormat),
             "Major Version:=",
-            -1,
+            major,
             "Minor Version:=",
-            -1,
+            minor,
         ]
 
         self.modeler.oeditor.Export(arg)

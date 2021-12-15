@@ -256,6 +256,7 @@ class FieldAnalysisIcepak(Analysis, object):
         self.logger.info("Exporting {} objects".format(len(allObjects)))
         major = -1
         minor = -1
+        # actual version supported by AEDT is 29.0
         if fileFormat in [".step", ".stp", ".sm3", ".sat", ".sab"]:
             major = 29
             minor = 0
