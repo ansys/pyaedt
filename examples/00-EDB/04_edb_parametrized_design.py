@@ -126,6 +126,7 @@ class rectangle:
         var_value = var_server.get_variable_value(variable_name, value)
         return value.ToDouble()
 
+
 ####################
 # Layer stackup
 #
