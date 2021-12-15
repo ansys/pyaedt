@@ -39,7 +39,7 @@ EXC_STOP_ITERATION = 1
 
 # IO values
 # read/write chunk is 640KB, too large of a value will degrade response for other clients
-#TODO Check the best value to not affect performances
+# TODO Check the best value to not affect performances
 STREAM_CHUNK = 640000
 
 # DEBUG

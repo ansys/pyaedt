@@ -143,8 +143,7 @@ class Components(object):
 
     @aedt_exception_handler
     def refresh_components(self):
-        """Refresh the component dictionary.
-        """
+        """Refresh the component dictionary."""
         self._cmp = {}
         self._logger.info("Refreshing the Components dictionary.")
         if self._active_layout:
@@ -394,7 +393,7 @@ class Components(object):
 
         """
         if cmp is not None:
-            if not(isinstance(cmp, self._edb.Cell.Hierarchy.Component)):
+            if not (isinstance(cmp, self._edb.Cell.Hierarchy.Component)):
                 cmp = self.get_component_by_name(cmp)
             cmp_prop = cmp.GetComponentProperty().Clone()
             return cmp_prop.GetSolderBallProperty().GetHeight()
@@ -428,7 +427,7 @@ class Components(object):
 
         """
         if cmp is not None:
-            if not(isinstance(cmp, self._edb.Cell.Hierarchy.Component)):
+            if not (isinstance(cmp, self._edb.Cell.Hierarchy.Component)):
                 cmp = self.get_component_by_name(cmp)
             cmp_prop = cmp.GetComponentProperty().Clone()
             cmp_type = cmp.GetComponentType()
@@ -495,7 +494,7 @@ class Components(object):
                 pin.SetIsLayoutPin(True)
                 conv_pin = self._components_methods.PinToConnectable(pin)
                 add_result = new_group.AddMember(conv_pin)
-            #new_cmp.SetGroup(new_group)
+            # new_cmp.SetGroup(new_group)
             if not placement_layer:
                 new_cmp_layer_name = pins[0].GetPadstackDef().GetData().GetLayerNames()[0]
             else:
@@ -504,8 +503,8 @@ class Components(object):
                 self._active_layout.GetLayerCollection(), new_cmp_layer_name
             )
             new_cmp.SetPlacementLayer(new_cmp_placement_layer)
-            #cmp_transform = System.Activator.CreateInstance(self._edb.Utility.)
-            #new_cmp.SetTransform(cmp_transform)
+            # cmp_transform = System.Activator.CreateInstance(self._edb.Utility.)
+            # new_cmp.SetTransform(cmp_transform)
             return (True, new_cmp)
         except:
             return (False, None)
@@ -872,7 +871,8 @@ class Components(object):
         else:
             self._logger.warning(
                 "Component %s has not been assigned because either it is not present in the layout "
-                "or it contains a number of pins not equal to 2", componentname
+                "or it contains a number of pins not equal to 2",
+                componentname,
             )
             return False
         self._logger.warning("RLC properties for Component %s has been assigned.", componentname)

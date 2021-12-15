@@ -4,15 +4,15 @@ from unittest import TestCase
 
 class PytestMockup(TestCase):
     def assertRaises(self, excClass, callableObj, *args, **kwargs):
-        #try:
+        # try:
         TestCase.assertRaises(self, excClass, callableObj, *args, **kwargs)
         # except:
         #     print("\n    " + repr(sys.exc_info()[1]))
 
     def assertTrue(self, callableObj, *args, **kwargs):
-        #try:
+        # try:
         TestCase.assertTrue(self, callableObj, *args, **kwargs)
-        #except:
+        # except:
         #    print("\n    " + repr(sys.exc_info()[1]))
 
 

@@ -153,8 +153,7 @@ class Hfss(FieldAnalysis3D, object):
         return self._odesign.GetModule("ModelSetup")
 
     class BoundaryType(object):
-        """Creates and manages boundaries.
-        """
+        """Creates and manages boundaries."""
 
         (PerfectE, PerfectH, Aperture, Radiation, Impedance, LayeredImp, LumpedRLC, FiniteCond) = range(0, 8)
 
@@ -243,7 +242,7 @@ class Hfss(FieldAnalysis3D, object):
         if self.solution_type == "DrivenModal":
 
             if renorm:
-                if isinstance(renorm_impedance, (int , float)) or "i" not in renorm_impedance:
+                if isinstance(renorm_impedance, (int, float)) or "i" not in renorm_impedance:
                     renorm_imp = str(renorm_impedance) + "ohm"
                 else:
                     renorm_imp = "(" + renorm_impedance + ") ohm"
@@ -348,7 +347,7 @@ class Hfss(FieldAnalysis3D, object):
 
         """
 
-        warnings.warn('`assigncoating` is deprecated. Use `assign_coating` instead.', DeprecationWarning)
+        warnings.warn("`assigncoating` is deprecated. Use `assign_coating` instead.", DeprecationWarning)
         self.assign_coating(
             obj,
             mat,
@@ -363,7 +362,8 @@ class Hfss(FieldAnalysis3D, object):
             issheelElement,
             usehuray,
             radius,
-            ratio)
+            ratio,
+        )
 
     @aedt_exception_handler
     def assign_coating(
@@ -505,17 +505,17 @@ class Hfss(FieldAnalysis3D, object):
         )
 
         return self.create_linear_count_sweep(
-                setupname=setupname,
-                unit=unit,
-                freqstart=freqstart,
-                freqstop=freqstop,
-                num_of_freq_points=num_of_freq_points,
-                sweepname=sweepname,
-                save_fields=save_fields,
-                save_rad_fields=save_rad_fields,
-                sweep_type=sweeptype,
-                interpolation_tol=interpolation_tol,
-                interpolation_max_solutions=interpolation_max_solutions,
+            setupname=setupname,
+            unit=unit,
+            freqstart=freqstart,
+            freqstop=freqstop,
+            num_of_freq_points=num_of_freq_points,
+            sweepname=sweepname,
+            save_fields=save_fields,
+            save_rad_fields=save_rad_fields,
+            sweep_type=sweeptype,
+            interpolation_tol=interpolation_tol,
+            interpolation_max_solutions=interpolation_max_solutions,
         )
 
     @aedt_exception_handler
@@ -603,7 +603,8 @@ class Hfss(FieldAnalysis3D, object):
                     oldname = sweepname
                     sweepname = generate_unique_name(oldname)
                     self.logger.warning(
-                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname)
+                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname
+                    )
                 sweepdata = setupdata.add_sweep(sweepname, sweep_type)
                 if not sweepdata:
                     return False
@@ -700,7 +701,8 @@ class Hfss(FieldAnalysis3D, object):
                     oldname = sweepname
                     sweepname = generate_unique_name(oldname)
                     self.logger.warning(
-                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname)
+                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname
+                    )
                 sweepdata = setupdata.add_sweep(sweepname, sweep_type)
                 if not sweepdata:
                     return False
@@ -810,7 +812,8 @@ class Hfss(FieldAnalysis3D, object):
                     oldname = sweepname
                     sweepname = generate_unique_name(oldname)
                     self.logger.warning(
-                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname)
+                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname
+                    )
                 sweepdata = setupdata.add_sweep(sweepname, "Discrete")
                 sweepdata.props["RangeType"] = "SinglePoints"
                 sweepdata.props["RangeStart"] = str(freq0) + unit
@@ -1744,7 +1747,7 @@ class Hfss(FieldAnalysis3D, object):
         renorm=True,
         deembed_dist=0,
         reporter_filter=True,
-        lattice_cs = "Global"
+        lattice_cs="Global",
     ):
         """Create a Floquet Port on a Face.
 
@@ -1814,10 +1817,10 @@ class Hfss(FieldAnalysis3D, object):
         else:
             props["ReporterFilter"] = reporter_filter
         if not lattice_a_end or not lattice_origin or not lattice_b_end:
-           result, output = self.modeler._find_perpendicular_points(face_id[0])
-           lattice_origin = output[0]
-           lattice_a_end = output[1]
-           lattice_b_end = output[2]
+            result, output = self.modeler._find_perpendicular_points(face_id[0])
+            lattice_origin = output[0]
+            lattice_a_end = output[1]
+            lattice_b_end = output[2]
         props["LatticeAVector"] = OrderedDict({})
         props["LatticeAVector"]["Coordinate System"] = lattice_cs
         props["LatticeAVector"]["Start"] = lattice_origin
@@ -1831,8 +1834,15 @@ class Hfss(FieldAnalysis3D, object):
         return self._create_boundary(portname, props, "FloquetPort")
 
     @aedt_exception_handler
-    def assign_lattice_pair(self, face_couple, reverse_v=False, phase_delay="UseScanAngle", phase_delay_param1="0deg",
-                            phase_delay_param2="0deg", pair_name=None):
+    def assign_lattice_pair(
+        self,
+        face_couple,
+        reverse_v=False,
+        phase_delay="UseScanAngle",
+        phase_delay_param1="0deg",
+        phase_delay_param2="0deg",
+        pair_name=None,
+    ):
         """Assign Lattice Pair to a couple of faces.
 
         Parameters
@@ -1912,9 +1922,19 @@ class Hfss(FieldAnalysis3D, object):
         return bounds
 
     @aedt_exception_handler
-    def assign_secondary(self, face, primary_name, u_start, u_end, reverse_v=False, phase_delay="UseScanAngle",
-                         phase_delay_param1="0deg", phase_delay_param2="0deg", coord_name="Global",
-                         secondary_name=None):
+    def assign_secondary(
+        self,
+        face,
+        primary_name,
+        u_start,
+        u_end,
+        reverse_v=False,
+        phase_delay="UseScanAngle",
+        phase_delay_param1="0deg",
+        phase_delay_param2="0deg",
+        coord_name="Global",
+        secondary_name=None,
+    ):
         """Assign Secondary Boundary Condition.
 
         Parameters
@@ -2284,7 +2304,7 @@ class Hfss(FieldAnalysis3D, object):
            Use :func:`Hfss.sar_setup` instead.
 
         """
-        warnings.warn('`SARSetup` is deprecated. Use `sar_setup` instead.', DeprecationWarning)
+        warnings.warn("`SARSetup` is deprecated. Use `sar_setup` instead.", DeprecationWarning)
         self.sar_setup(Tissue_object_List_ID, TissueMass, MaterialDensity, voxel_size, Average_SAR_method)
 
     @aedt_exception_handler
@@ -2860,7 +2880,7 @@ class Hfss(FieldAnalysis3D, object):
                 sourcename = generate_unique_name("Voltage")
             elif sourcename + ":1" in self.modeler.get_excitations_name():
                 sourcename = generate_unique_name(sourcename)
-            return  self.create_source_excitation(sheet_name, point0, point1, sourcename, sourcetype="Voltage")
+            return self.create_source_excitation(sheet_name, point0, point1, sourcename, sourcetype="Voltage")
         return False
 
     @aedt_exception_handler

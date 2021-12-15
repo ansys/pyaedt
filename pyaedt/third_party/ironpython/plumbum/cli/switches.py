@@ -236,9 +236,7 @@ class SwitchAttr(object):
 
     ATTR_NAME = "__plumbum_switchattr_dict__"
 
-    def __init__(
-        self, names, argtype=str, default=None, list=False, argname=_("VALUE"), **kwargs
-    ):
+    def __init__(self, names, argtype=str, default=None, list=False, argname=_("VALUE"), **kwargs):
         self.__doc__ = "Sets an attribute"  # to prevent the help message from showing SwitchAttr's docstring
         if default and argtype is not None:
             defaultmsg = _("; the default is {0}").format(default)
@@ -293,9 +291,7 @@ class Flag(SwitchAttr):
     """
 
     def __init__(self, names, default=False, **kwargs):
-        SwitchAttr.__init__(
-            self, names, argtype=None, default=default, list=False, **kwargs
-        )
+        SwitchAttr.__init__(self, names, argtype=None, default=default, list=False, **kwargs)
 
     def __call__(self, inst):
         self.__set__(inst, not self._default_value)
@@ -317,9 +313,7 @@ class CountOf(SwitchAttr):
     """
 
     def __init__(self, names, default=0, **kwargs):
-        SwitchAttr.__init__(
-            self, names, argtype=None, default=default, list=True, **kwargs
-        )
+        SwitchAttr.__init__(self, names, argtype=None, default=default, list=True, **kwargs)
         self._default_value = default  # issue #118
 
     def __call__(self, inst, v):
@@ -439,9 +433,7 @@ class Range(Validator):
     def __call__(self, obj):
         obj = int(obj)
         if obj < self.start or obj > self.end:
-            raise ValueError(
-                _("Not in range [{0:d}..{1:d}]").format(self.start, self.end)
-            )
+            raise ValueError(_("Not in range [{0:d}..{1:d}]").format(self.start, self.end))
         return obj
 
     def choices(self, partial=""):
@@ -472,15 +464,11 @@ class Set(Validator):
         if self.csv is True:
             self.csv = ","
         if kwargs:
-            raise TypeError(
-                _("got unexpected keyword argument(s): {0}").format(kwargs.keys())
-            )
+            raise TypeError(_("got unexpected keyword argument(s): {0}").format(kwargs.keys()))
         self.values = values
 
     def __repr__(self):
-        return "{{{0}}}".format(
-            ", ".join(v if isinstance(v, str) else v.__name__ for v in self.values)
-        )
+        return "{{{0}}}".format(", ".join(v if isinstance(v, str) else v.__name__ for v in self.values))
 
     def __call__(self, value, check_csv=True):
         if self.csv and check_csv:
@@ -498,14 +486,10 @@ class Set(Validator):
                 return opt(value)
             except ValueError:
                 pass
-        raise ValueError(
-            "Invalid value: {} (Expected one of {})".format(value, self.values)
-        )
+        raise ValueError("Invalid value: {} (Expected one of {})".format(value, self.values))
 
     def choices(self, partial=""):
-        choices = {
-            opt if isinstance(opt, str) else "({})".format(opt) for opt in self.values
-        }
+        choices = {opt if isinstance(opt, str) else "({})".format(opt) for opt in self.values}
         if partial:
             choices = {opt for opt in choices if opt.lower().startswith(partial)}
         return choices
@@ -543,9 +527,7 @@ def ExistingDirectory(val):
 def MakeDirectory(val):
     p = local.path(val)
     if p.is_file():
-        raise ValueError(
-            "{} is a file, should be nonexistent, or a directory".format(val)
-        )
+        raise ValueError("{} is a file, should be nonexistent, or a directory".format(val))
     elif not p.exists():
         p.mkdir()
     return p

@@ -18,7 +18,7 @@ class TestClass:
             test_projectfile = os.path.join(self.local_scratch.path, "test_object3d" + ".aedt")
             self.aedtapp = Hfss()
             self.aedtapp.save_project(project_file=test_projectfile)
-            #self.prim = self.aedtapp.modeler
+            # self.prim = self.aedtapp.modeler
 
     def teardown_class(self):
         self.aedtapp._desktop.ClearMessages("", "", 3)
@@ -337,3 +337,9 @@ class TestClass:
     def test_17_section_object(self):
         o = self.aedtapp.modeler.primitives.create_box([-10, 0, 0], [10, 10, 5], "SectionBox", "Copper")
         o.section(plane="YZ", create_new=True, section_cross_object=False)
+
+    def test_18_create_spiral(self):
+        sp1 = self.aedtapp.modeler.create_spiral(name="ind")
+        assert sp1
+        assert sp1.name == "ind"
+        assert len(sp1.points) == 78

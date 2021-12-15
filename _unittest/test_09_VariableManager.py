@@ -339,7 +339,7 @@ class TestClass:
         assert decompose_variable_value("3.123456m") == (3.123456, "m")
         assert decompose_variable_value("3m") == (3, "m")
         assert decompose_variable_value("3") == (3, "")
-        assert decompose_variable_value("3.") == (3., "")
+        assert decompose_variable_value("3.") == (3.0, "")
         assert decompose_variable_value("3.123456m2") == (3.123456, "m2")
         assert decompose_variable_value("3.123456Nm-2") == (3.123456, "Nm-2")
         assert decompose_variable_value("3.123456kg2m2") == (3.123456, "kg2m2")

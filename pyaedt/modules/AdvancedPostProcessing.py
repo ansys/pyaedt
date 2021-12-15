@@ -574,6 +574,7 @@ class PostProcessor(Post):
             else:
                 plot.add_text("Full Plot", font_size=15)
                 if solution:
+
                     class MyCustomRoutine:
                         """ """
 
@@ -969,9 +970,7 @@ class PostProcessor(Post):
     @aedt_exception_handler
     def export_model_obj(self):
         """Export the model."""
-        assert self._app._aedt_version >= "2021.2", self.logger.error(
-            "Object is supported from AEDT 2021 R2."
-        )
+        assert self._app._aedt_version >= "2021.2", self.logger.error("Object is supported from AEDT 2021 R2.")
         project_path = self._app.project_path
         obj_list = self._app.modeler.primitives.object_names
         obj_list = [
@@ -979,9 +978,7 @@ class PostProcessor(Post):
             for i in obj_list
             if not self._app.modeler.primitives.objects[self._app.modeler.primitives.get_obj_id(i)].is3d
             or (
-                self._app.modeler.primitives.objects[
-                    self._app.modeler.primitives.get_obj_id(i)
-                ].material_name.lower()
+                self._app.modeler.primitives.objects[self._app.modeler.primitives.get_obj_id(i)].material_name.lower()
                 != "vacuum"
                 and self._app.modeler.primitives.objects[
                     self._app.modeler.primitives.get_obj_id(i)
@@ -1017,8 +1014,8 @@ class PostProcessor(Post):
         for el in obj_list:
             obj_id = self._app.modeler.primitives.get_obj_id(el)
             if not self._app.modeler.primitives.objects[obj_id].is3d or (
-                    self._app.modeler.primitives.objects[obj_id].material_name != "vacuum"
-                    and self._app.modeler.primitives.objects[obj_id].material_name != "air"
+                self._app.modeler.primitives.objects[obj_id].material_name != "vacuum"
+                and self._app.modeler.primitives.objects[obj_id].material_name != "air"
             ):
                 face_lists += self._app.modeler.primitives.get_object_faces(obj_id)
         plot = self.create_fieldplot_surface(face_lists, "Mesh", setup_name, intrinsic_dict)
@@ -1045,9 +1042,7 @@ class PostProcessor(Post):
         list
             List of plot files.
         """
-        assert self._app._aedt_version >= "2021.2", self.logger.error(
-            "Object is supported from AEDT 2021 R2."
-        )
+        assert self._app._aedt_version >= "2021.2", self.logger.error("Object is supported from AEDT 2021 R2.")
         files = [self.export_model_obj()]
         if export_afterplot:
             imageformat = "jpg"
@@ -1146,8 +1141,14 @@ class PostProcessor(Post):
                     if file_to_add:
                         files_to_add.append(file_to_add)
             file_list = self._plot_from_aedtplt(
-                files_to_add, imageformat=imageformat, view=view, plot_label=plot_label, off_screen=off_screen,
-                scale_min=scale_min, scale_max=scale_max)
+                files_to_add,
+                imageformat=imageformat,
+                view=view,
+                plot_label=plot_label,
+                off_screen=off_screen,
+                scale_min=scale_min,
+                scale_max=scale_max,
+            )
             endt = time.time() - start
             print("Field Generation, export and plot time: ", endt)
         return file_list

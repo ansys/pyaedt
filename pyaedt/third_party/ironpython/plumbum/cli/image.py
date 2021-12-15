@@ -87,9 +87,7 @@ class Image(object):
 
 class ShowImageApp(cli.Application):
     "Display an image on the terminal"
-    double = cli.Flag(
-        ["-d", "--double"], help="Double resolution (looks good only with some fonts)"
-    )
+    double = cli.Flag(["-d", "--double"], help="Double resolution (looks good only with some fonts)")
 
     @cli.switch(["-c", "--colors"], cli.Range(1, 4), help="Level of color, 1-4")
     def colors_set(self, n):
@@ -97,9 +95,7 @@ class ShowImageApp(cli.Application):
 
     size = cli.SwitchAttr(["-s", "--size"], help="Size, should be in the form 100x150")
 
-    ratio = cli.SwitchAttr(
-        ["--ratio"], float, default=2.45, help="Aspect ratio of the font"
-    )
+    ratio = cli.SwitchAttr(["--ratio"], float, default=2.45, help="Aspect ratio of the font")
 
     @cli.positional(cli.ExistingFile)
     def main(self, filename):

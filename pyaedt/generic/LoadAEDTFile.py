@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 import re
 from pyaedt.generic.general_methods import time_fn
+
 # --------------------------------------------------------------------
 # public interface
+
 
 def load_entire_aedt_file(filename):
     """Load the entire AEDT file and return the dictionary
@@ -57,7 +59,7 @@ _value_parse2 = re.compile(r"^'([^']*\s[^']*)(?=')")
 _begin_search = re.compile(r"\$begin '(.+)'")
 
 # set recognized keywords
-_recognized_keywords = ['CurvesInfo']
+_recognized_keywords = ["CurvesInfo"]
 
 # global variables
 _all_lines = []
@@ -163,7 +165,7 @@ def _decode_value_and_save(k, v, d):
 
 
 def _decode_recognized_key(keyword, l, d):
-    """ Special decodings for keys belonging to  _recognized_keywords
+    """Special decodings for keys belonging to  _recognized_keywords
 
     Parameters
     ----------
@@ -179,8 +181,8 @@ def _decode_recognized_key(keyword, l, d):
     -------
 
     """
-    if keyword == _recognized_keywords[0]:   # 'CurvesInfo'
-        m = re.search(r'\'(\d+)\'\((.*)\)$', l)
+    if keyword == _recognized_keywords[0]:  # 'CurvesInfo'
+        m = re.search(r"\'(\d+)\'\((.*)\)$", l)
         if m:
             k = m.group(1)
             v = m.group(2)
@@ -188,7 +190,7 @@ def _decode_recognized_key(keyword, l, d):
             v3 = _separate_list_elements(v2)
             d[k] = v3
     else:
-        raise AttributeError('Keyword {} is supposed to be in the recognized_keywords list'.format(keyword))
+        raise AttributeError("Keyword {} is supposed to be in the recognized_keywords list".format(keyword))
 
 
 def _decode_key(l, d):

@@ -50,7 +50,7 @@ TAG_FLOAT = "\x18"
 TAG_SLICE = "\x19"
 TAG_FSET = "\x1a"
 TAG_COMPLEX = "\x1b"
-IMM_INTS = dict((i, bytes([i + 0x50])) for i in range(-0x30, 0xa0))
+IMM_INTS = dict((i, bytes([i + 0x50])) for i in range(-0x30, 0xA0))
 
 I1 = Struct("!B")
 I4 = Struct("!L")
@@ -66,7 +66,9 @@ def register(coll, key):
     def deco(func):
         coll[key] = func
         return func
+
     return deco
+
 
 # ===============================================================================
 # dumping
@@ -118,15 +120,17 @@ def _dump_int(obj, stream):
         else:
             stream.append(TAG_INT_L4 + I4.pack(lenobj) + obj)
 
+
 @register(_dump_registry, long)
 def _dump_int(obj, stream):
-    str_obj = str(obj) if str(obj)[-1]!="L" else str(obj)[:-1]
+    str_obj = str(obj) if str(obj)[-1] != "L" else str(obj)[:-1]
     obj = BYTES_LITERAL(str(str_obj))
     lenobj = len(obj)
     if lenobj < 256:
         stream.append(TAG_INT_L1 + I1.pack(lenobj) + obj)
     else:
         stream.append(TAG_INT_L4 + I4.pack(lenobj) + obj)
+
 
 @register(_dump_registry, float)
 def _dump_float(obj, stream):
@@ -159,8 +163,8 @@ def _dump_bytes(obj, stream):
 
 @register(_dump_registry, type(unicode("")))
 def _dump_str(obj, stream):
-        stream.append(TAG_UNICODE)
-        _dump_bytes(obj.encode("utf8"), stream)
+    stream.append(TAG_UNICODE)
+    _dump_bytes(obj.encode("utf8"), stream)
 
 
 @register(_dump_registry, tuple)
@@ -183,12 +187,14 @@ def _dump_tuple(obj, stream):
     for item in obj:
         _dump(item, stream)
 
+
 def _undumpable(obj, stream):
     raise TypeError("cannot dump %r" % (obj,))
 
 
 def _dump(obj, stream):
     _dump_registry.get(type(obj), _undumpable)(obj, stream)
+
 
 # ===============================================================================
 # loading
@@ -261,13 +267,13 @@ def _load_str4(stream):
 
 @register(_load_registry, TAG_STR_L1)
 def _load_str_l1(stream):
-    l, = I1.unpack(stream.read(1))
+    (l,) = I1.unpack(stream.read(1))
     return stream.read(l)
 
 
 @register(_load_registry, TAG_STR_L4)
 def _load_str_l4(stream):
-    l, = I4.unpack(stream.read(4))
+    (l,) = I4.unpack(stream.read(4))
     return stream.read(l)
 
 
@@ -299,13 +305,13 @@ def _load_tup4(stream):
 
 @register(_load_registry, TAG_TUP_L1)
 def _load_tup_l1(stream):
-    l, = I1.unpack(stream.read(1))
+    (l,) = I1.unpack(stream.read(1))
     return tuple(_load(stream) for i in range(l))
 
 
 @register(_load_registry, TAG_TUP_L4)
 def _load_tup_l4(stream):
-    l, = I4.unpack(stream.read(4))
+    (l,) = I4.unpack(stream.read(4))
     return tuple(_load(stream) for i in range(l))
 
 
@@ -322,13 +328,13 @@ def _load_frozenset(stream):
 
 @register(_load_registry, TAG_INT_L1)
 def _load_int_l1(stream):
-    l, = I1.unpack(stream.read(1))
+    (l,) = I1.unpack(stream.read(1))
     return int(stream.read(l))
 
 
 @register(_load_registry, TAG_INT_L4)
 def _load_int_l4(stream):
-    l, = I4.unpack(stream.read(4))
+    (l,) = I4.unpack(stream.read(4))
     return int(stream.read(l))
 
 
@@ -337,6 +343,7 @@ def _load(stream):
     if tag in IMM_INTS_LOADER:
         return IMM_INTS_LOADER[tag]
     return _load_registry.get(tag)(stream)
+
 
 # ===============================================================================
 # API
@@ -366,7 +373,9 @@ def load(data):
     return _load(stream)
 
 
-simple_types = frozenset([type(None), int, bool, float, long, bytes, str, complex, type(NotImplemented), type(Ellipsis)])
+simple_types = frozenset(
+    [type(None), int, bool, float, long, bytes, str, complex, type(NotImplemented), type(Ellipsis)]
+)
 
 
 def dumpable(obj):
@@ -386,4 +395,5 @@ def dumpable(obj):
 
 if __name__ == "__main__":
     import doctest
+
     doctest.testmod()

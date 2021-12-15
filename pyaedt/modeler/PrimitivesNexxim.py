@@ -92,8 +92,8 @@ class NexximComponents(CircuitComponents):
                         break
         i = 0
         assert len(comps) > 1, "At least two components have to be passed."
-        while i < (len(comps)-1):
-            comps[i].pins[-1].connect_to_component(comps[i+1].pins[0])
+        while i < (len(comps) - 1):
+            comps[i].pins[-1].connect_to_component(comps[i + 1].pins[0])
             i += 1
         return True
 
@@ -168,8 +168,9 @@ class NexximComponents(CircuitComponents):
         >>> oEditor.PasteDesign
         """
         self._app._oproject.CopyDesign(sourcename)
-        self._oeditor.PasteDesign(0,
-                                  ["NAME:Attributes", "Page:=", 1, "X:=", 0, "Y:=", 0, "Angle:=", 0, "Flip:=", False])
+        self._oeditor.PasteDesign(
+            0, ["NAME:Attributes", "Page:=", 1, "X:=", 0, "Y:=", 0, "Angle:=", 0, "Flip:=", False]
+        )
         self.refresh_all_ids()
         for el in self.components:
             if sourcename in self.components[el].composed_name:
@@ -444,8 +445,6 @@ class NexximComponents(CircuitComponents):
             Resistance in ohms. The default is ``50``.
         location : list of float, optional
             Position on the X axis and Y axis.
-        ypos : float, optional
-            Position on the Y axis. The default is ``0``.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
@@ -591,9 +590,7 @@ class NexximComponents(CircuitComponents):
         return cmpid
 
     @aedt_exception_handler
-    def create_current_pulse(
-            self, compname=None, value_lists=[], location=[], angle=0, use_instance_id_netlist=False
-    ):
+    def create_current_pulse(self, compname=None, value_lists=[], location=[], angle=0, use_instance_id_netlist=False):
         """Create a current pulse.
 
         Parameters
@@ -647,9 +644,7 @@ class NexximComponents(CircuitComponents):
         return cmpid
 
     @aedt_exception_handler
-    def create_voltage_pulse(
-            self, compname=None, value_lists=[], location=[], angle=0, use_instance_id_netlist=False
-    ):
+    def create_voltage_pulse(self, compname=None, value_lists=[], location=[], angle=0, use_instance_id_netlist=False):
         """Create a voltage pulse.
 
         Parameters
@@ -742,9 +737,7 @@ class NexximComponents(CircuitComponents):
         cmpid.set_property("DC", value)
         return cmpid
 
-    def create_coupling_inductors(
-            self, compname, l1, l2, value=1, location=[], angle=0, use_instance_id_netlist=False
-    ):
+    def create_coupling_inductors(self, compname, l1, l2, value=1, location=[], angle=0, use_instance_id_netlist=False):
         """Create a coupling inductor.
 
         Parameters
@@ -790,9 +783,7 @@ class NexximComponents(CircuitComponents):
         return cmpid
 
     @aedt_exception_handler
-    def create_diode(
-            self, compname=None, model_name="required", location=[], angle=0, use_instance_id_netlist=False
-    ):
+    def create_diode(self, compname=None, model_name="required", location=[], angle=0, use_instance_id_netlist=False):
         """Create a diode.
 
         Parameters
@@ -914,7 +905,7 @@ class NexximComponents(CircuitComponents):
 
     @aedt_exception_handler
     def create_new_component_from_symbol(
-            self, symbol_name, pin_lists, Refbase="U", parameter_list=[], parameter_value=[]
+        self, symbol_name, pin_lists, Refbase="U", parameter_list=[], parameter_value=[]
     ):
         """Create a component from a symbol.
 
@@ -1057,7 +1048,7 @@ class NexximComponents(CircuitComponents):
 
     @aedt_exception_handler
     def get_comp_custom_settings(
-            self, toolNum, dc=0, interp=0, extrap=1, conv=0, passivity=0, reciprocal="False", opt="", data_type=1
+        self, toolNum, dc=0, interp=0, extrap=1, conv=0, passivity=0, reciprocal="False", opt="", data_type=1
     ):
         """Retrieve custom settings for a resistor.
 
@@ -1119,13 +1110,13 @@ class NexximComponents(CircuitComponents):
 
     @aedt_exception_handler
     def add_subcircuit_hfss_link(
-            self,
-            comp_name,
-            pin_names,
-            source_project_path,
-            source_design_name,
-            solution_name="Setup1 : Sweep",
-            image_subcircuit_path=None,
+        self,
+        comp_name,
+        pin_names,
+        source_project_path,
+        source_design_name,
+        solution_name="Setup1 : Sweep",
+        image_subcircuit_path=None,
     ):
         """Add a subcircuit HFSS link.
 
@@ -1166,12 +1157,11 @@ class NexximComponents(CircuitComponents):
             _, file_extension = os.path.splitext(image_subcircuit_path)
             if file_extension != ".gif" or file_extension != ".bmp" or file_extension != ".jpg":
                 image_subcircuit_path = None
-                warnings.warn(
-                    "Image extension is not valid. Use default image instead."
-                )
+                warnings.warn("Image extension is not valid. Use default image instead.")
         if not image_subcircuit_path:
-            image_subcircuit_path = os.path.normpath(os.path.join(self._modeler._app.desktop_install_dir, "syslib",
-                                                                  "Bitmaps", "hfss.bmp"))
+            image_subcircuit_path = os.path.normpath(
+                os.path.join(self._modeler._app.desktop_install_dir, "syslib", "Bitmaps", "hfss.bmp")
+            )
         filename = ""
         comp_name_aux = source_design_name
         WB_SystemID = source_design_name

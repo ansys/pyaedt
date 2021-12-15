@@ -475,9 +475,7 @@ class FieldAnalysisIcepak(Analysis, object):
         """
         mat = mat.lower()
         if mat not in self.materials.surface_material_keys:
-            self.logger.warning(
-                "Warning. The material is not the database. Use add_surface_material."
-            )
+            self.logger.warning("Warning. The material is not the database. Use add_surface_material.")
             return False
         else:
             for el in obj:
@@ -486,19 +484,11 @@ class FieldAnalysisIcepak(Analysis, object):
                         "NAME:AllTabs",
                         [
                             "NAME:Geometry3DAttributeTab",
-                            [
-                                "NAME:PropServers",
-                                el
-                            ],
-                            [
-                                "NAME:ChangedProps",
-                                [
-                                    "NAME:Surface Material",
-                                    "Value:=", "\"" + mat + "\""
-                                ]
-                            ]
-                        ]
-                    ])
+                            ["NAME:PropServers", el],
+                            ["NAME:ChangedProps", ["NAME:Surface Material", "Value:=", '"' + mat + '"']],
+                        ],
+                    ]
+                )
 
             return True
 

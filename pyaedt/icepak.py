@@ -450,9 +450,7 @@ class Icepak(FieldAnalysisIcepak):
         bound = BoundaryObject(self, boundary_name, props, "Block")
         if bound.create():
             self.boundaries.append(bound)
-            self.logger.info(
-                "Block on {} with {} Power, created correctly.".format(object_name, input_power)
-            )
+            self.logger.info("Block on {} with {} Power, created correctly.".format(object_name, input_power))
             return bound
         return None
 
@@ -837,7 +835,8 @@ class Icepak(FieldAnalysisIcepak):
                     )
                     if not status:
                         self.logger.warning(
-                            "Warning. Block %s skipped with %sW power.", component_data["Ref Des"][i], power)
+                            "Warning. Block %s skipped with %sW power.", component_data["Ref Des"][i], power
+                        )
                     else:
                         total_power += float(power)
                 elif component_data["Ref Des"][i] in all_objects:
@@ -846,7 +845,8 @@ class Icepak(FieldAnalysisIcepak):
                     )
                     if not status:
                         self.logger.warning(
-                            "Warning. Block %s skipped with %sW power.", component_data["Ref Des"][i], power)
+                            "Warning. Block %s skipped with %sW power.", component_data["Ref Des"][i], power
+                        )
                     else:
                         total_power += float(power)
             except:
@@ -891,8 +891,7 @@ class Icepak(FieldAnalysisIcepak):
                         name = line[id1 : id1 + id2]
                         if name not in priority_list:
                             priority_list.append(name)
-            self.logger.info(
-                "{} Intersections have been found. Applying Priorities".format(len(priority_list)))
+            self.logger.info("{} Intersections have been found. Applying Priorities".format(len(priority_list)))
             for objname in priority_list:
                 self.mesh.add_priority(1, [objname], priority=i)
                 i += 1
@@ -1140,32 +1139,33 @@ class Icepak(FieldAnalysisIcepak):
         return True
 
     @aedt_exception_handler
-    def import_idf(self,
-                   board_path,
-                   library_path=None,
-                   control_path=None,
-                   filter_cap=False,
-                   filter_ind=False,
-                   filter_res=False,
-                   filter_height_under=None,
-                   filter_height_exclude_2d=False,
-                   power_under=None,
-                   create_filtered_as_non_model=False,
-                   high_surface_thick="0.07mm",
-                   low_surface_thick="0.07mm",
-                   internal_thick="0.07mm",
-                   internal_layer_number=2,
-                   high_surface_coverage=30,
-                   low_surface_coverage=30,
-                   internal_layer_coverage=30,
-                   trace_material="Cu-Pure",
-                   substrate_material="FR-4",
-                   create_board=True,
-                   model_board_as_rect=False,
-                   model_device_as_rect=True,
-                   cutoff_height="5mm",
-                   component_lib=""
-                   ):
+    def import_idf(
+        self,
+        board_path,
+        library_path=None,
+        control_path=None,
+        filter_cap=False,
+        filter_ind=False,
+        filter_res=False,
+        filter_height_under=None,
+        filter_height_exclude_2d=False,
+        power_under=None,
+        create_filtered_as_non_model=False,
+        high_surface_thick="0.07mm",
+        low_surface_thick="0.07mm",
+        internal_thick="0.07mm",
+        internal_layer_number=2,
+        high_surface_coverage=30,
+        low_surface_coverage=30,
+        internal_layer_coverage=30,
+        trace_material="Cu-Pure",
+        substrate_material="FR-4",
+        create_board=True,
+        model_board_as_rect=False,
+        model_device_as_rect=True,
+        cutoff_height="5mm",
+        component_lib="",
+    ):
         """Import an IDF file to Icepak Design.
 
         Parameters
@@ -1229,9 +1229,9 @@ class Icepak(FieldAnalysisIcepak):
         >>> oDesign.ImportIDF
         """
         if not library_path:
-            library_path = board_path[:-3]+"emp"
-        if not control_path and os.path.exists(board_path[:-3]+"xml"):
-            control_path = board_path[:-3]+"xml"
+            library_path = board_path[:-3] + "emp"
+        if not control_path and os.path.exists(board_path[:-3] + "xml"):
+            control_path = board_path[:-3] + "xml"
         else:
             control_path = ""
         filters = []
@@ -1262,36 +1262,58 @@ class Icepak(FieldAnalysisIcepak):
         self.odesign.ImportIDF(
             [
                 "NAME:Settings",
-                "Board:=", board_path.replace("\\", "\\\\"),
-                "Library:=", library_path.replace("\\", "\\\\"),
-                "Control:=", control_path.replace("\\", "\\\\"),
-                "Filters:=", filters,
-                "CreateFilteredAsNonModel:=", create_filtered_as_non_model,
-                "HeightVal:=", self._arg_with_units(filter_height_under),
-                "PowerVal:=", self._arg_with_units(power_under, "mW"),
+                "Board:=",
+                board_path.replace("\\", "\\\\"),
+                "Library:=",
+                library_path.replace("\\", "\\\\"),
+                "Control:=",
+                control_path.replace("\\", "\\\\"),
+                "Filters:=",
+                filters,
+                "CreateFilteredAsNonModel:=",
+                create_filtered_as_non_model,
+                "HeightVal:=",
+                self._arg_with_units(filter_height_under),
+                "PowerVal:=",
+                self._arg_with_units(power_under, "mW"),
                 [
                     "NAME:definitionOverridesMap",
                 ],
-                [
-                    "NAME:instanceOverridesMap"
-                ],
-                "HighSurfThickness:=", self._arg_with_units(high_surface_thick),
-                "LowSurfThickness:=", self._arg_with_units(low_surface_thick),
-                "InternalLayerThickness:=", self._arg_with_units(internal_thick),
-                "NumInternalLayer:=", internal_layer_number,
-                "HighSurfaceCopper:=", high_surface_coverage,
-                "LowSurfaceCopper:=", low_surface_coverage,
-                "InternalLayerCopper:=", internal_layer_coverage,
-                "TraceMaterial:=", trace_material,
-                "SubstrateMaterial:=", substrate_material,
-                "CreateBoard:=", create_board,
-                "ModelBoardAsRect:=", model_board_as_rect,
-                "ModelDeviceAsRect:=", model_device_as_rect,
-                "Cutoff:=", cutoff,
-                "CutoffHeight:=", self._arg_with_units(cutoff_height),
-                "ReplaceDevices:=", replace_device,
-                "CompLibDir:=", component_lib
-            ])
+                ["NAME:instanceOverridesMap"],
+                "HighSurfThickness:=",
+                self._arg_with_units(high_surface_thick),
+                "LowSurfThickness:=",
+                self._arg_with_units(low_surface_thick),
+                "InternalLayerThickness:=",
+                self._arg_with_units(internal_thick),
+                "NumInternalLayer:=",
+                internal_layer_number,
+                "HighSurfaceCopper:=",
+                high_surface_coverage,
+                "LowSurfaceCopper:=",
+                low_surface_coverage,
+                "InternalLayerCopper:=",
+                internal_layer_coverage,
+                "TraceMaterial:=",
+                trace_material,
+                "SubstrateMaterial:=",
+                substrate_material,
+                "CreateBoard:=",
+                create_board,
+                "ModelBoardAsRect:=",
+                model_board_as_rect,
+                "ModelDeviceAsRect:=",
+                model_device_as_rect,
+                "Cutoff:=",
+                cutoff,
+                "CutoffHeight:=",
+                self._arg_with_units(cutoff_height),
+                "ReplaceDevices:=",
+                replace_device,
+                "CompLibDir:=",
+                component_lib,
+            ]
+        )
         self.modeler.primitives.add_new_objects()
         return True
 
@@ -1604,8 +1626,17 @@ class Icepak(FieldAnalysisIcepak):
             string += el + "='" + parameter_dict_with_values[el] + "' "
         filename = os.path.join(savedir, filename + ".csv")
         self.osolution.ExportFieldsSummary(
-            ["SolutionName:=", sweep_name, "DesignVariationKey:=", string, "ExportFileName:=", filename,
-             "IntrinsicValue:=", "", ])
+            [
+                "SolutionName:=",
+                sweep_name,
+                "DesignVariationKey:=",
+                string,
+                "ExportFileName:=",
+                filename,
+                "IntrinsicValue:=",
+                "",
+            ]
+        )
         return filename
 
     @aedt_exception_handler

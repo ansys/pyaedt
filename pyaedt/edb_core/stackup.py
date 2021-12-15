@@ -244,7 +244,7 @@ class EdbStackup(object):
         new_lc = self._edb.Cell.LayerCollection()
         max_elevation = 0.0
         for layer in lc.Layers(self._edb.Cell.LayerTypeSet.StackupLayerSet):
-            if not 'RadBox' in layer.GetName():  # Ignore RadBox
+            if not "RadBox" in layer.GetName():  # Ignore RadBox
                 lower_elevation = layer.GetLowerElevation() * 1.0e6
                 upper_elevation = layer.GetUpperElevation() * 1.0e6
                 max_elevation = max([max_elevation, lower_elevation, upper_elevation])
@@ -256,7 +256,7 @@ class EdbStackup(object):
                 non_stackup_layers.append(cloned_layer)
                 continue
 
-            if not 'RadBox' in layer.GetName():
+            if not "RadBox" in layer.GetName():
                 upper_elevation = layer.GetUpperElevation() * 1.0e6
                 updated_lower_el = max_elevation - upper_elevation
                 val = self._edb_value("{}um".format(updated_lower_el))
