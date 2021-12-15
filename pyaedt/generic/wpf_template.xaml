@@ -1,0 +1,16 @@
+<Window
+       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+       Title="WPF Template for AEDT" Height="300" Width="300">
+    <Grid Margin="0,0,-72.4,0.4">
+        <Button x:Name="run_method" Content="Run Method" HorizontalAlignment="Left" Margin="202,220,0,0" VerticalAlignment="Top" Width="75"/>
+        <StackPanel HorizontalAlignment="Left" Height="100" Margin="10,27,0,0" VerticalAlignment="Top" Width="175">
+            <Label x:Name="label_input1" Content="Input Quantity 1 [units]" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top" Height="26"/>
+            <Label x:Name="label_input2" Content="Input Quantity 2 [units]" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top" Height="26"/>
+        </StackPanel>
+        <StackPanel HorizontalAlignment="Left" Height="175" Margin="158,27,0,0" VerticalAlignment="Top" Width="129">
+            <TextBox x:Name="_input1" HorizontalAlignment="Left" Height="22" Margin="0,2" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" />
+            <TextBox x:Name="_input2" HorizontalAlignment="Left" Height="22" Margin="0,2" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" />
+        </StackPanel>
+    </Grid>
+</Window>
