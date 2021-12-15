@@ -2343,7 +2343,7 @@ class Icepak(FieldAnalysisIcepak):
 
     @aedt_exception_handler
     def get_liquid_objects(self):
-        """Return the fluids materials objects.
+        """Return the liquid materials objects.
 
         Returns
         -------
@@ -2371,7 +2371,7 @@ class Icepak(FieldAnalysisIcepak):
 
     @aedt_exception_handler
     def generate_fluent_mesh(self, object_lists=None):
-        """Generate a Fluent Mesh for selected object list and assign automatically to the objects.
+        """Generate a Fluent Mesh for selected objects list and assign it automatically to the objects.
 
         Parameters
         ----------

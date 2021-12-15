@@ -317,7 +317,7 @@ class IcepakMesh(object):
         filename :  str
             Full path to .msh file.
         meshop_name :  str, optional
-            Name of the mesh operations
+            Name of the mesh operations. Default is ``None``.
 
         Returns
         -------

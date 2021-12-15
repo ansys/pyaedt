@@ -56,7 +56,7 @@ class Materials(object):
 
     @property
     def liquids(self):
-        """Return the liquids materials. A liquid is considered a fluid with density greater than 100Kg/m3.
+        """Return the liquids materials. A liquid is a fluid with density greater or equal to 100Kg/m3.
 
         Returns
         -------
@@ -71,7 +71,7 @@ class Materials(object):
 
     @property
     def gases(self):
-        """Return the gas materials. A gas is considered a fluid with density lower than 100Kg/m3.
+        """Return the gas materials. A gas is a fluid with density lower than 100Kg/m3.
 
         Returns
         -------
