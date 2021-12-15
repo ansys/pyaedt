@@ -731,7 +731,6 @@ class FarFieldSetup(FieldSetup, object):
     @property
     def use_custom_radiation_surface(self):
         """Set/Get the Far Field Radiation Surface Enable."""
-
         return self.props["UseCustomRadiationSurface"]
 
     @use_custom_radiation_surface.setter
