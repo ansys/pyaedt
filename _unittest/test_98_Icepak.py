@@ -387,6 +387,6 @@ class TestClass:
     def test_90_export_fluent_mesh(self):
         self.fluent = self.local_scratch.copyfile(source_fluent)
         app = Icepak(self.fluent)
-        assert app.get_liquid_objects() == ['Liquid']
-        assert app.get_gas_objects() == ['Region']
+        assert app.get_liquid_objects() == ["Liquid"]
+        assert app.get_gas_objects() == ["Region"]
         assert app.generate_fluent_mesh()

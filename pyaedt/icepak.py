@@ -6,6 +6,7 @@ import math
 import os
 import re
 from collections import OrderedDict
+
 if os.name == "posix":
     try:
         import subprocessdotnet as subprocess
@@ -2402,15 +2403,16 @@ class Icepak(FieldAnalysisIcepak):
             os.remove(fl_uscript_file_pointer)
         if os.path.exists(mesh_file_pointer + ".trn"):
             os.remove(mesh_file_pointer + ".trn")
-        assert self.export_3d_model(file_name, self.project_path, '.sab', object_lists), "Failed to export .sab"
+        assert self.export_3d_model(file_name, self.project_path, ".sab", object_lists), "Failed to export .sab"
 
         # Building Fluent journal script file *.jou
         fluent_script = open(fl_uscript_file_pointer, "w")
-        fluent_script.write("/file/start-transcript " + "\"" + mesh_file_pointer + ".trn\"\n")
+        fluent_script.write("/file/start-transcript " + '"' + mesh_file_pointer + '.trn"\n')
         fluent_script.write(
-            "/file/set-tui-version \"{}\"\n".format(self.aedt_version_id[-3:-1] + "." + self.aedt_version_id[-1:]))
+            '/file/set-tui-version "{}"\n'.format(self.aedt_version_id[-3:-1] + "." + self.aedt_version_id[-1:])
+        )
         fluent_script.write("(enable-feature 'serial-hexcore-without-poly)\n")
-        fluent_script.write("(cx-gui-do cx-activate-tab-index \"NavigationPane*Frame1(TreeTab)\" 0)\n")
+        fluent_script.write('(cx-gui-do cx-activate-tab-index "NavigationPane*Frame1(TreeTab)" 0)\n')
         fluent_script.write("(%py-exec \"workflow.InitializeWorkflow(WorkflowType=r'Watertight Geometry')\")\n")
         cmd = "(%py-exec \"workflow.TaskObject['Import Geometry']."
         cmd += "Arguments.setState({r'FileName': r'" + sab_file_pointer + "',})\")\n"
@@ -2449,14 +2451,19 @@ class Icepak(FieldAnalysisIcepak):
         fluent_script.write(cmd)
         fluent_script.write("(%py-exec \"workflow.TaskObject['Generate the Volume Mesh'].Execute()\")\n")
         fluent_script.write("/file/hdf no\n")
-        fluent_script.write("/file/write-mesh \"" + mesh_file_pointer + "\"\n")
+        fluent_script.write('/file/write-mesh "' + mesh_file_pointer + '"\n')
         fluent_script.write("/file/stop-transcript\n")
         fluent_script.write("/exit,\n")
         fluent_script.close()
 
         # Fluent command line parameters: -meshing -i <journal> -hidden -tm<x> (# processors for meshing) -wait
-        fl_ucommand = [os.path.join(self.desktop_install_dir, "fluent", "ntbin", "win64", "fluent.exe"),
-                       "3d", "-meshing", "-hidden", "-i" + "\"" + fl_uscript_file_pointer + "\""]
+        fl_ucommand = [
+            os.path.join(self.desktop_install_dir, "fluent", "ntbin", "win64", "fluent.exe"),
+            "3d",
+            "-meshing",
+            "-hidden",
+            "-i" + '"' + fl_uscript_file_pointer + '"',
+        ]
         self.logger.info("Fluent will be started in BG!")
         subprocess.call(fl_ucommand)
         if os.path.exists(mesh_file_pointer + ".trn"):
@@ -2466,7 +2473,7 @@ class Icepak(FieldAnalysisIcepak):
         if os.path.exists(sab_file_pointer):
             os.remove(sab_file_pointer)
         if os.path.exists(mesh_file_pointer):
-            self.logger.info("\'" + mesh_file_pointer + "\' has been created.")
+            self.logger.info("'" + mesh_file_pointer + "' has been created.")
             return self.mesh.assign_mesh_from_file(object_lists, mesh_file_pointer)
         self.logger.error("Failed to create msh file")
 
