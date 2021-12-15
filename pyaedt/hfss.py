@@ -151,7 +151,7 @@ class Hfss(FieldAnalysis3D, object):
 
     @property
     def oradfield(self):
-        """AEDT Model Setup Object.
+        """AEDT Radiation Field Object.
 
         References
         ----------
