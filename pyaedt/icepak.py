@@ -5,6 +5,7 @@ import csv
 import math
 import os
 import re
+import warnings
 from collections import OrderedDict
 
 if os.name == "posix":
