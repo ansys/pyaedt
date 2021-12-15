@@ -540,7 +540,7 @@ class BoundaryObject(BoundaryCommon, object):
 
 
 class FieldSetup(BoundaryCommon, object):
-    """Manages Far Field Near and Far Field  Component data and execution.
+    """Manages Far Field and Near Field Component data and execution.
 
     Examples
     --------
@@ -650,7 +650,7 @@ class FieldSetup(BoundaryCommon, object):
 
 
 class FarFieldSetup(FieldSetup, object):
-    """Manages Far Field Near and Far Field  Component data and execution.
+    """Manages Far Field Component data and execution.
 
     Examples
     --------
