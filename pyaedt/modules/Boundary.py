@@ -757,7 +757,6 @@ class FarFieldSetup(FieldSetup, object):
     @property
     def use_local_coordinate_system(self):
         """Set/Get the usage of a custom Coordinate System."""
-
         return self.props["UseLocalCS"]
 
     @use_local_coordinate_system.setter
