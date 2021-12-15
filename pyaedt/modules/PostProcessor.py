@@ -58,6 +58,26 @@ orientation_to_view = {
 class SolutionData(object):
     """Contains information from the :func:`GetSolutionDataPerVariation` method."""
 
+    def __init__(self, aedtdata):
+        self._original_data = aedtdata
+        self.number_of_variations = len(aedtdata)
+        self._nominal_variation = None
+        self._nominal_variation = self._original_data[0]
+        self._sweeps = None
+        self._sweeps_names = list(self.nominal_variation.GetSweepNames())
+        self.update_sweeps()
+
+        self._primary_sweep = self._sweeps_names[0]
+        self.nominal_sweeps = {}
+        self.units_sweeps = {}
+        for e in self.sweeps.keys():
+            try:
+                self.nominal_sweeps[e] = self.sweeps[e][0]
+                self.units_sweeps[e] = self.nominal_variation.GetSweepUnits(e)
+            except:
+                self.nominal_sweeps[e] = None
+        self._init_solutions_data()
+
     @property
     def sweeps(self):
         """Sweeps."""
@@ -89,9 +109,9 @@ class SolutionData(object):
 
     @nominal_variation.setter
     def nominal_variation(self, val):
-
         if 0 <= val <= self.number_of_variations:
             self._nominal_variation = self._original_data[val]
+            self._init_solutions_data()
         else:
             print(str(val) + " not in Variations")
 
@@ -117,24 +137,8 @@ class SolutionData(object):
         mydata = [i for i in self._nominal_variation.GetDataExpressions()]
         return list(dict.fromkeys(mydata))
 
-    def __init__(self, Data):
-        self._original_data = Data
-        self.number_of_variations = len(Data)
-        self._nominal_variation = None
-        self.nominal_variation = 0
-        self._sweeps = None
-        self._sweeps_names = list(self.nominal_variation.GetSweepNames())
-        self.update_sweeps()
-
-        self._primary_sweep = self._sweeps_names[0]
-        self.nominal_sweeps = {}
-        self.units_sweeps = {}
-        for e in self.sweeps.keys():
-            try:
-                self.nominal_sweeps[e] = self.sweeps[e][0]
-                self.units_sweeps[e] = self.nominal_variation.GetSweepUnits(e)
-            except:
-                self.nominal_sweeps[e] = None
+    @aedt_exception_handler
+    def _init_solutions_data(self):
         self.solutions_data_real = self._solution_data_real()
         self.solutions_data_imag = self._solution_data_imag()
         self.solutions_data_mag = {}

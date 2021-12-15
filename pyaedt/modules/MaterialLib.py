@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 This module contains the `Materials` class.
 """
@@ -5,8 +6,10 @@ from __future__ import absolute_import
 
 import json
 import copy
+import os
+
 from pyaedt.generic.DataHandlers import _arg2dict
-from pyaedt.generic.general_methods import aedt_exception_handler, _retry_ntimes, generate_unique_name
+from pyaedt.generic.general_methods import aedt_exception_handler, _retry_ntimes, generate_unique_name, is_ironpython
 from pyaedt.modules.Material import Material, SurfaceMaterial, MatProperties, OrderedDict
 
 
@@ -183,7 +186,7 @@ class Materials(object):
             )
             return self.material_keys[materialname]
         else:
-            material = Material(self._app, materialname, props)
+            material = Material(self, materialname, props)
             material.update()
             self.logger.info("Material has been added. Edit it to update in Desktop.")
             self.material_keys[materialname] = material
@@ -423,11 +426,12 @@ class Materials(object):
         >>> hfss.materials.remove_material("MyMaterial")
 
         """
-        if material not in list(self.material_keys.keys()):
-            self.logger.error("Material {} is not present".format(material))
+        mat = material.lower()
+        if mat not in list(self.material_keys.keys()):
+            self.logger.error("Material {} is not present".format(mat))
             return False
-        self.odefinition_manager.RemoveMaterial(material, True, "", library)
-        del self.material_keys[material]
+        self.odefinition_manager.RemoveMaterial(mat, True, "", library)
+        del self.material_keys[mat]
         return True
 
     @property
@@ -484,6 +488,7 @@ class Materials(object):
         self.material_keys[matname] = newmat
         return True
 
+    @aedt_exception_handler
     def export_materials_to_file(self, full_json_path):
         """Export all materials to a JSON file.
 
@@ -547,11 +552,23 @@ class Materials(object):
         json_dict["materials"] = output_dict
         if datasets:
             json_dict["datasets"] = datasets
-
-        with open(full_json_path, "w") as fp:
-            json.dump(json_dict, fp, indent=4)
+        if not is_ironpython:
+            with open(full_json_path, "w") as fp:
+                json.dump(json_dict, fp, indent=4)
+        else:
+            temp_path = full_json_path.replace(".json", "_temp.json")
+            with open(temp_path, "w") as fp:
+                json.dump(json_dict, fp, indent=4)
+            with open(temp_path, 'r') as file:
+                filedata = file.read()
+            filedata = filedata.replace('True', 'true')
+            filedata = filedata.replace('False', 'false')
+            with open(full_json_path, 'w') as file:
+                file.write(filedata)
+            os.remove(temp_path)
         return True
 
+    @aedt_exception_handler
     def import_materials_from_file(self, full_json_path):
         """Import and create materials from a JSON file.
 
@@ -566,7 +583,7 @@ class Materials(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        with open(full_json_path) as json_file:
+        with open(full_json_path, 'r') as json_file:
             data = json.load(json_file)
 
         if "datasets" in list(data.keys()):

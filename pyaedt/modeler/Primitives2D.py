@@ -27,8 +27,8 @@ class Primitives2D(Primitives, object):
                 plane = "Y"
         return plane
 
-    def __init__(self, modeler):
-        Primitives.__init__(self, modeler)
+    def __init__(self):
+        Primitives.__init__(self)
 
     @aedt_exception_handler
     def create_circle(self, position, radius, num_sides=0, is_covered=True, name=None, matname=None):
