@@ -7,7 +7,7 @@ This example shows how to use HFSS 3D Layout to create and solve a parametric de
 
 ###############################################################################
 # Import the `Hfss3dlayout` Object
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This example imports the `Hfss3dlayout` object and initializes it on version
 # 2021.1.
 
@@ -192,7 +192,7 @@ seg1_p.place_line()
 path_port_1p = edb.core_primitives.primitives[-1]
 
 ####################
-# via placement #
+# via placement
 #
 
 via_instance(
@@ -200,8 +200,8 @@ via_instance(
 ).place_via(viadef1)
 
 ####################
-# line creation #
-
+# line creation
+#
 seg2_p = line(width="$line2_width", net_name=net_name, layer="sig1")
 seg2_p.point_list = [
     ["$pcb_len/3", "($line_width+$line_spacing+$via_spacing)/2"],
