@@ -7,7 +7,7 @@ import warnings
 from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, is_ironpython
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 import math
-from pyaedt.edb_core.EDB_Data import EDBPadstack
+from pyaedt.edb_core.EDB_Data import EDBPadstack, EDBPadstackInstance
 
 try:
     from System import Array
@@ -541,42 +541,74 @@ class EdbPadstacks(object):
         self.update_padstacks()
         return True
 
-    @aedt_exception_handler
-    def edit_antipad_from_padstack(self, padstack_name, layer_name=None, antipad_shape=None, antipad_diam=None,
-                                   x_size=None, y_size=None,
-                                   corner_radius=None, offset_x="0", offset_y="0", rotation="0"):
-        offset_x = self._edb_value(offset_x)
-        offset_y = self._edb_value(offset_y)
-        rotation = self._edb_value(rotation)
 
-        if antipad_shape == "Circle":
-            antipad_diam = self._edb_value(antipad_diam)
-            antipad_geo = self._edb.Definition.PadGeometryType.Circle
-            antipad_array = Array[type(antipad_diam)]([antipad_diam])
-        elif antipad_shape == "Bullet":
-            x_size = self._edb_value(x_size)
-            y_size = self._edb_value(y_size)
-            corner_radius = self._edb_value(corner_radius)
-            antipad_geo = self._edb.Definition.PadGeometryType.Bullet
-            antipad_array = Array[type(x_size)]([x_size, y_size, corner_radius])
-        else:
-            return False
+class EdbPadstackInstances:
+    """Manages EDB functionalities for padstack instances.
 
-        p1 = self.padstacks[padstack_name].edb_padstack.GetData()
-        newPadstackDefinitionData = self._edb.Definition.PadstackDefData(p1)
+    Examples
+    --------
+    >>> from pyaedt import Edb
+    >>> edbapp = Edb("myaedbfolder", edbversion="2021.2")
+    >>> edb_padstacks = edbapp.core_padstack_instance
+    """
 
-        if not layer_name:
-            layer_name = list(self._pedb.core_stackup.signal_layers.keys())
-        elif isinstance(layer_name, str):
-            layer_name = [layer_name]
+    def __init__(self, p_edb):
+        self._pedb = p_edb
+        self._padstack_instances = []
 
-        for lay in layer_name:
-            newPadstackDefinitionData.SetPadParameters(lay,
-                                                       self._edb.Definition.PadType.AntiPad,
-                                                       antipad_geo,
-                                                       antipad_array,
-                                                       offset_x, offset_y, rotation)
+    @property
+    def _builder(self):
+        """ """
+        return self._pedb.builder
 
-        self.padstacks[padstack_name].edb_padstack.SetData(newPadstackDefinitionData)
-        self.update_padstacks()
-        return True
+    @property
+    def _edb(self):
+        """ """
+        return self._pedb.edb
+
+    @property
+    def _edb_value(self):
+        """ """
+        return self._pedb.edb_value
+
+    @property
+    def _active_layout(self):
+        """ """
+        return self._pedb.active_layout
+
+    @property
+    def db(self):
+        """Db object."""
+        return self._pedb.db
+
+    @property
+    def _logger(self):
+        """ """
+        return self._pedb.logger
+
+    @property
+    def _layers(self):
+        """ """
+        return self._pedb.core_stackup.stackup_layers
+
+    @property
+    def padstack_instances(self):
+        if self._padstack_instances:
+            return self._padstack_instances
+        self.update_padstack_instances()
+        return self._padstack_instances
+
+    def update_padstack_instances(self):
+        layout_lobj_collection = self._active_layout.GetLayoutInstance().GetAllLayoutObjInstances()
+        self._padstack_instances = []
+        for obj in layout_lobj_collection.Items:
+            lobj = obj.GetLayoutObj()
+            if type(lobj) is self._edb.Cell.Primitive.PadstackInstance:
+                self._padstack_instances.append(EDBPadstackInstance(lobj, self._pedb))
+
+    def get_padstack_instance_by_net_name(self, net_name):
+        via_list = []
+        for inst in self.padstack_instances:
+            if inst.net_name == net_name:
+                via_list.append(inst)
+        return via_list

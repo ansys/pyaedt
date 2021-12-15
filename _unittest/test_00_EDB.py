@@ -531,3 +531,7 @@ class TestClass:
 
     def test_69_create_solder_balls_on_component(self):
         assert self.edbapp.core_components.set_solder_ball("U2A5")
+
+    def test_70_vias_creation(self):
+        via_list = self.edbapp.core_padstack_instance.get_padstack_instance_by_net_name("M_MA<5>")
+        assert via_list

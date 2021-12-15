@@ -20,7 +20,7 @@ try:
 except ImportError:
     warnings.warn("Pythonnet is needed to run pyaedt")
 from pyaedt.application.MessageManager import AEDTMessageManager
-from pyaedt.edb_core import Components, EdbNets, EdbPadstacks, EdbLayout, EdbHfss, EdbSiwave, EdbStackup
+from pyaedt.edb_core import Components, EdbNets, EdbPadstacks, EdbPadstackInstances, EdbLayout, EdbHfss, EdbSiwave, EdbStackup
 from pyaedt.edb_core.EDB_Data import EdbBuilder
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import (
@@ -185,6 +185,7 @@ class Edb(object):
         self._core_primitives = None
         self._stackup = None
         self._padstack = None
+        self._padstack_instance = None
         self._siwave = None
         self._hfss = None
         self._nets = None
@@ -205,6 +206,7 @@ class Edb(object):
         self._components = Components(self)
         self._stackup = EdbStackup(self)
         self._padstack = EdbPadstacks(self)
+        self._padstack_instance = EdbPadstackInstances(self)
         self._siwave = EdbSiwave(self)
         self._hfss = EdbHfss(self)
         self._nets = EdbNets(self)
@@ -449,6 +451,7 @@ class Edb(object):
         self._core_primitives = None
         self._stackup = None
         self._padstack = None
+        self._padstack_instance = None
         self._siwave = None
         self._hfss = None
         self._nets = None
@@ -567,6 +570,12 @@ class Edb(object):
         if not self._padstack and self.builder:
             self._padstack = EdbPadstacks(self)
         return self._padstack
+
+    @property
+    def core_padstack_instance(self):
+        if not self._padstack_instance and self.builder:
+            self._padstack_instance = EdbPadstackInstances(self)
+        return self._padstack_instance
 
     @property
     def core_siwave(self):
