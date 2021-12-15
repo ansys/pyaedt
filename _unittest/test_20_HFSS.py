@@ -574,3 +574,43 @@ class TestClass:
         assert self.aedtapp.assign_secondary(
             box1.faces[0], primary.name, [100, -100, 100], [100, 100, 100], reverse_v=True
         )
+
+    def test_44_create_infinite_sphere(self):
+        self.aedtapp.insert_design("InfSphere")
+        air = self.aedtapp.modeler.create_box([0, 0, 0], [20, 20, 20], name="rad", matname="vacuum")
+        self.aedtapp.assign_radiation_boundary_to_objects(air)
+        bound = self.aedtapp.insert_infinite_sphere(
+            definition="El Over Az",
+            x_start=1,
+            x_stop=91,
+            x_step=45,
+            y_start=2,
+            y_stop=92,
+            y_step=10,
+            use_slant_polarization=True,
+            polarization_angle=30,
+        )
+        assert bound
+        assert bound.azimuth_start == "1deg"
+        assert bound.azimuth_stop == "91deg"
+        assert bound.azimuth_step == "45deg"
+        assert bound.elevation_start == "2deg"
+        assert bound.elevation_stop == "92deg"
+        assert bound.elevation_step == "10deg"
+        assert bound.slant_angle == "30deg"
+        assert bound.polarization == "Slant"
+        bound.azimuth_start = 20
+        assert bound.azimuth_start == "20.0deg"
+        assert bound.delete()
+        bound = self.aedtapp.insert_infinite_sphere(
+            definition="Az Over El",
+            x_start=1,
+            x_stop=91,
+            x_step=45,
+            y_start=2,
+            y_stop=92,
+            y_step=10,
+            use_slant_polarization=True,
+            polarization_angle=30,
+        )
+        assert bound.azimuth_start == "2deg"
