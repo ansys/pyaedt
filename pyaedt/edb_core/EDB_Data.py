@@ -1293,8 +1293,23 @@ class EDBPadstack(object):
         newPadstackDefinitionData.SetMaterial(materialname)
         self.edb_padstack.SetData(newPadstackDefinitionData)
 
-class EDBPadstackInstance(object):
 
+class EDBPadstackInstance(object):
+    """Manages EDB functionalities for a padstack.
+
+    Parameters
+    ----------
+    edb_padstackinstance :
+
+    _pedb :
+        Inherited AEDT object.
+
+    Examples
+    --------
+    >>> from pyaedt import Edb
+    >>> edb = Edb(myedb, edbversion="2021.2")
+    >>> edb_padstack_instance = edb.core_padstack.padstack_instances[0]
+    """
     @property
     def padstack_definition(self):
         return self._edb_padstackinstance.GetPadstackDef().GetName()

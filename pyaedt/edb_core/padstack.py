@@ -593,12 +593,21 @@ class EdbPadstackInstances:
 
     @property
     def padstack_instances(self):
+        """List of padstack instances.
+
+        Returns
+        -------
+        list of :class:`Edb.Cell.Primitive.PadstackInstance`.
+        """
         if self._padstack_instances:
             return self._padstack_instances
         self.update_padstack_instances()
         return self._padstack_instances
 
     def update_padstack_instances(self):
+        """Update Padstack Instance List.
+
+        """
         layout_lobj_collection = self._active_layout.GetLayoutInstance().GetAllLayoutObjInstances()
         self._padstack_instances = []
         for obj in layout_lobj_collection.Items:
@@ -607,6 +616,16 @@ class EdbPadstackInstances:
                 self._padstack_instances.append(EDBPadstackInstance(lobj, self._pedb))
 
     def get_padstack_instance_by_net_name(self, net_name):
+        """Get a list padstack instances by net name.
+
+        Parameters
+        ----------
+        net_name : str
+            The net name to be used for filtering padstack instances.
+        Returns
+        -------
+        list of Edb.Cell.Primitive.PadstackInstance
+        """
         via_list = []
         for inst in self.padstack_instances:
             if inst.net_name == net_name:
