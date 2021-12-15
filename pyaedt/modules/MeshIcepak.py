@@ -316,8 +316,6 @@ class IcepakMesh(object):
             List of objects to which apply the mesh file.
         filename :  str
             Full path to .msh file.
-        filename :  str
-            Full path to .msh file.
         meshop_name :  str, optional
             Name of the mesh operations
 
