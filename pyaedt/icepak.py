@@ -2418,14 +2418,14 @@ class Icepak(FieldAnalysisIcepak):
         fluent_script.write(cmd)
         fluent_script.write("(%py-exec \"workflow.TaskObject['Generate the Volume Mesh'].Execute()\")\n")
         fluent_script.write("/file/hdf no\n")
-        fluent_script.write("/file/write-mesh \"" + mesh_file_pointer +"\"\n")
+        fluent_script.write("/file/write-mesh \"" + mesh_file_pointer + "\"\n")
         fluent_script.write("/file/stop-transcript\n")
         fluent_script.write("/exit,\n")
         fluent_script.close()
 
         # Fluent command line parameters: -meshing -i <journal> -hidden -tm<x> (# processors for meshing) -wait
         fl_ucommand = [os.path.join(self.desktop_install_dir, "fluent", "ntbin", "win64", "fluent.exe"),
-                      "3d", "-meshing", "-hidden", "-i" + "\"" + fl_uscript_file_pointer + "\""]
+                       "3d", "-meshing", "-hidden", "-i" + "\"" + fl_uscript_file_pointer + "\""]
         self.logger.info("Fluent will be started in BG!")
         subprocess.call(fl_ucommand)
         if os.path.exists(mesh_file_pointer + ".trn"):
