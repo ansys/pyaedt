@@ -30,7 +30,9 @@ except ImportError:
         from win32con import LOCKFILE_EXCLUSIVE_LOCK, LOCKFILE_FAIL_IMMEDIATELY
         from win32file import OVERLAPPED, LockFileEx, UnlockFile
     except ImportError:
-        raise ImportError("On Windows, we require Python for Windows Extensions (pywin32)")
+        raise ImportError(
+            "On Windows, we require Python for Windows Extensions (pywin32)"
+        )
 
     @contextmanager
     def locked_file(fileno, blocking=True):
@@ -38,7 +40,8 @@ except ImportError:
         try:
             LockFileEx(
                 hndl,
-                LOCKFILE_EXCLUSIVE_LOCK | (0 if blocking else LOCKFILE_FAIL_IMMEDIATELY),
+                LOCKFILE_EXCLUSIVE_LOCK
+                | (0 if blocking else LOCKFILE_FAIL_IMMEDIATELY),
                 0xFFFFFFFF,
                 0xFFFFFFFF,
                 OVERLAPPED(),
@@ -50,6 +53,7 @@ except ImportError:
             yield
         finally:
             UnlockFile(hndl, 0, 0, 0xFFFFFFFF, 0xFFFFFFFF)
+
 
 else:
     if hasattr(fcntl, "lockf"):
@@ -96,7 +100,11 @@ class AtomicFile(object):
         self.reopen()
 
     def __repr__(self):
-        return "<AtomicFile: {}>".format(self.path) if self._fileobj else "<AtomicFile: closed>"
+        return (
+            "<AtomicFile: {}>".format(self.path)
+            if self._fileobj
+            else "<AtomicFile: closed>"
+        )
 
     def __del__(self):
         self.close()
@@ -118,7 +126,9 @@ class AtomicFile(object):
         by a different process
         """
         self.close()
-        self._fileobj = os.fdopen(os.open(str(self.path), os.O_CREAT | os.O_RDWR, 384), "r+b", 0)
+        self._fileobj = os.fdopen(
+            os.open(str(self.path), os.O_CREAT | os.O_RDWR, 384), "r+b", 0
+        )
 
     @contextmanager
     def locked(self, blocking=True):
