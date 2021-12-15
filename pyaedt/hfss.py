@@ -4414,7 +4414,7 @@ class Hfss(FieldAnalysis3D, object):
         y_start : float, str
             Second angle start value.
         y_stop : float, str
-            Second angle start value.
+            Second angle stop value.
         y_step : float, str
             Second angle start value.
         units : str
