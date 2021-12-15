@@ -1,17 +1,4 @@
-"""
-Toolkit Module
-----------------
-
-Disclaimer
-==========
-
-**Copyright (c) 2019, ANSYS Inc. unauthorised use, distribution or duplication is prohibited**
-
-**This tool release is unofficial and not covered by standard Ansys Support license.**
-
-
-Description
-==========
+"""Toolkit Module.
 
 This module contains a number of classes designed to support development of WPF GUI-based toolkits for AEDT
 applications. The primary classes are:
@@ -20,43 +7,65 @@ applications. The primary classes are:
     AEDTToolkitSettings     : Class to support UI settings for testing purposes
     ToolkitBuilder          : Class to support generation of a zip package wth all needed dependencies
 
-:Example:
+Examples
+--------
 
 **Example 1**
-A toolkit is built by deriving a class called ApplicationWindow from AEDTToolkit. Parallel to this file, an xaml file
-should be present in the same directory.
+A toolkit is built by deriving a class called ApplicationWindow from AEDTToolkit.
+Parallel to this file, an xaml file should be present in the same directory.
 
-from pyaedt import Maxwell2d
-from pyaedt.generic.toolkit import AEDTToolkit, launch, select_directory
 
-class ApplicationWindow(AEDTToolkit):
+>>> from pyaedt import Maxwell2d
+>>> from pyaedt.generic.toolkit import AEDTToolkit, launch
 
-    def custom_callback(self):
-        pass
+>>> class ApplicationWindow(AEDTToolkit):
+>>>
+>>>     def __init__(self):
+>>>         AEDTToolkit.__init__(self, toolkit_file=__file__, aedt_design=Maxwell2d(), parent_design_name=None)
+>>>         # Copy Xaml template
+>>>         self.copy_xaml_template()
 
-    def __init__(self):
-        AEDTToolkit.__init__(self, toolkit_file=__file__, aedt_design=Maxwell2d(), parent_design_name=None)
-
-        # Setup Callbacks
-        # Textbox inputs with validation callbacks
-        self.set_callback('_input1', 'LostFocus', self.validate_positive_float)
-        self.set_callback('_input2', 'LostFocus', self.validate_positive_float_variable)
-
-        # Button click callback to toolkit-specific method self.custom_callback
-        self.set_callback('run_method', 'Click', self.custom_callback)
-
-        # Toolkit Function from here
-        value1 = self.ui.float_value("_input1")
-        value2 = self.ui.text_value("_input2")
-
-# Launch the toolkit
-if __name__ == '__main__':
-    launch(__file__, version="2019.3", autosave=False)
-
-================
-
+>>>         #Edit the UI
+>>>         self.add_label("label1", "Input Parameter 1", 10, 10)
+>>>         self.add_text_box("_input1", 150, 10)
+>>>         self.add_label("label2", "Design Name", 10, 50)
+>>>         self.add_text_box("_input2", 150, 50)
+>>>         self.add_check_box("_check1", "Save Project", 150, 80)
+>>>         self.add_combo_box("_combo1", 150, 120)
+>>>         self.add_button("run_method", "Click To Run", 300, 300)
+>>>         self.add_label("label3", "Design Type", 10, 150)
+>>>         self.add_text_box("_input3", 150, 150)
+>>>
+>>>         #Launch the UI
+>>>        self.launch_gui()
+>>>
+>>>         self.add_combo_items("_combo1", self.aedtdesign.design_list)
+>>>         # Setup Callbacks
+>>>         self.set_callback('_input1', 'LostFocus', self.validate_positive_float)
+>>>         self.set_callback('_input2', 'LostFocus', self.validate_string_no_spaces)
+>>>         self.set_callback('_combo1', 'SelectionChanged', self.print_design_name)
+>>>        self.set_callback('run_method', 'Click', self.custom_callback)
+>>>         self.set_text_value("_input2", self.aedtdesign.design_name)
+>>>
+>>>         # Get Values from UI
+>>>         value1 = self.ui.float_value("_input1")
+>>>         value2 = self.ui.text_value("_input2")
+>>>
+>>>     def custom_callback(self, sender, e):
+>>>         self.aedtdesign.design_name = self.ui.text_value("_input2")
+>>>         self.aedtdesign["param"] = self.ui.float_value("_input1")
+>>>         print(self.ui.float_value("_input1"))
+>>>         print(self.ui.text_value("_input2"))
+>>>
+>>>     def print_design_name(self, sender, e):
+>>>         self.set_text_value("_input3", self.aedtdesign.solution_type)
+>>>
+>>> # Launch the toolkit
+>>> if __name__ == '__main__':
+>>>     launch(__file__, specified_version="2021.2", new_desktop_session=False, autosave=False)
 """
 from __future__ import print_function
+
 import os
 import json
 import sys
@@ -66,8 +75,8 @@ import shutil
 from datetime import datetime
 from zipfile import ZipFile, ZIP_DEFLATED
 
-from pyaedt.desktop import Desktop, get_version_env_variable, force_close_desktop
-from pyaedt.generic.general_methods import env_value
+from pyaedt.desktop import Desktop
+from pyaedt.generic.general_methods import env_value, aedt_exception_handler
 
 if sys.implementation.name == 'ironpython':
     clr.AddReference("PresentationFramework")
@@ -96,18 +105,24 @@ from System.Drawing import Size, Point, Bitmap
 
 from System.Windows.Media.Imaging import BitmapImage, BitmapCacheOption, BitmapCreateOptions
 from System import Uri, UriKind, Environment
+from System.Windows.Media.Imaging import BitmapImage
 
-
+@aedt_exception_handler
 def select_file(initial_dir=None, filter=None):
-    '''
+    """Open File Dialog and select a file.
 
-    from AEDTLib.Toolkit import select_file
-    load_profile = select_file(filter="csv files (*.csv)|*.csv")
+    Parameters
+    ----------
+    initial_dir : str
+        Initial dir where to look for file.
+    filter : str
+        Filter for file search.
 
-    :param initial_dir:
-    :param filter:
-    :return:
-    '''
+    Returns
+    -------
+    str
+        File full path.
+    """
     browser = OpenFileDialog()
     browser.Title = "Select a file with optional filter and directory"
     if initial_dir:
@@ -121,7 +136,22 @@ def select_file(initial_dir=None, filter=None):
         return None
 
 
+@aedt_exception_handler
 def select_directory(initial_dir=None, description=None):
+    """Open File Dialog and select a directory.
+
+    Parameters
+    ----------
+    initial_dir : str
+        Initial dir where to look for.
+    description : str
+        Dialog description.
+
+    Returns
+    -------
+    str
+        Directory full path.
+    """
     browser = FolderBrowserDialog()
 
     if initial_dir:
@@ -138,37 +168,59 @@ def select_directory(initial_dir=None, description=None):
     else:
         return None
 
-
+@aedt_exception_handler
 def copy_files_mkdir(root, files_in_subdir):
+    """Copy all files from source to destination in a root path.
+
+    Parameters
+    ----------
+    root : str
+        Root Path where copy new files.
+    files_in_subdir : dict
+        Dictionary of source and destinations files. key is source, value is destination
+
+    Returns
+    -------
+    bool
+    """
     if not os.path.exists(root):
         os.mkdir(root)
     for src_file, dest_file in files_in_subdir.items():
         shutil.copyfile(src_file, dest_file)
+    return True
+
+@aedt_exception_handler
+def launch(workflow_module, specified_version=None, new_desktop_session=True, autosave=False,
+           close_desktop_on_exit=False):
+    """Launches the ApplicationWindow class for the given module name which must lie within the path scope of
+        the calling toolkit. Optionally the version can be specified in the form 20xx.y, e.g. 2021.2,
+        IronPython calls the run_application function of the ApplicationThread class.
+        For CPython, a Thread with Apartment State is generated to adhere to requirements of System.Windows
 
 
-def print_timelog(str):
-    time_value = datetime.now().time()
-    print("{0}: {1}".format(time_value, str))
-
-
-# def launch(workflow_module, version=None, autosave=False, close_desktop_on_exit=False):
-def launch(workflow_module, version=None, autosave=False, close_desktop_on_exit=False):
-    ''' Launches the ApplicationWindow class for the given module name which must lie within the path scope of
-        the calling toolkit. Optionally the version can be specified in the form 20xx.y, e.g. 2019.3
-
-        IronPython calls the run_application function of the ApplicationThread class. For CPython, a Thread with
-        Apartment State is generated to adhere to requirements of System.Windows
-    '''
-    app = ApplicationThread(workflow_module, version, autosave, close_desktop_on_exit)
+    Parameters
+    ----------
+    workflow_module : __file__
+    name of the module file containing the application.
+    specified_version : str
+        Specified version of Desktop to launch
+    new_desktop_session : bool
+        Define if new Desktop session has always to be opened.
+    autosave : bool
+        Enable or disable autosave.
+    close_desktop_on_exit : bool
+        Define if Desktop has to be closed on exit.
+    """
+    sys.path.append(os.path.dirname(workflow_module))
+    app = ApplicationThread(workflow_module, specified_version, new_desktop_session, autosave, close_desktop_on_exit)
 
     if sys.implementation.name != 'ironpython':
-        print(close_desktop_on_exit)
         thread = Thread(ThreadStart(app.run_application))
         thread.SetApartmentState(ApartmentState.STA)
         thread.Start()
         thread.Join()
     else:
-        if version:
+        if specified_version:
             app.run_application()
         else:
             app.open_form()
@@ -193,26 +245,21 @@ from lib.AEDTLib.Toolkit import launch
 launch('{}', version=specified_version)
 '''
 
-
+@aedt_exception_handler
 def message_box(text, caption=None, buttons=None, icon=None):
-    '''
-    :param text:        Main text of the message
-    :param caption:     Caption of the window
-    :param buttons:     Button type string (OK, OKCancel, YesNoCancel, YesNo)
-    :param icon:        Valid icon type string (see below)
-    :return:
+    """Display Message Box.
 
-    Valid types for the icon argument are :
-        Asterisk
-        Error
-        Exclamation
-        Hand
-        Information
-        None
-        Question
-        Stop
-        Warning
-    '''
+    Parameters
+    ----------
+    text : str
+        Main text of the message
+    caption : str
+        Caption of the window
+    buttons : str
+        Button type string (OK, OKCancel, YesNoCancel, YesNo).
+    icon : str
+        Valid icon type string.  Asterisk, Error, Exclamation, Hand, Information, None, Question, Stop, Warning
+    """
 
     if not icon:
         icon_object = getattr(MessageBoxIcon, 'Information')
@@ -231,20 +278,19 @@ def message_box(text, caption=None, buttons=None, icon=None):
     return result
 
 
-class ToolkitBuilder(object):
-    """
-    **Class ToolkitBuilder**
+class ToolkitBuilder:
+    """Class to help create a deployable zip file of the application and any dependencies that are not available via pip.
 
-    Class to help create a deployable zip file of the application and any dependencies that are not available via pip.
+    Examples
+    --------
 
-    Example: Build file placed in the Toolkit directory
+    Build file placed in the Toolkit directory
 
-        from AEDTLib.Toolkit import ToolkitBuilder
-        bld = ToolkitBuilder(__file__)
-        bld.copy_from_local(extension=['py', 'xaml'])
-        bld.copy_from_repo(sub_dir='AEDTLib')
-        bld.zip_archive()
-
+    >>> from pyaedt.generic.toolkit import ToolkitBuilder
+    >>>  bld = ToolkitBuilder(__file__)
+    >>>  bld.copy_from_local(extension=['py', 'xaml'])
+    >>>  bld.copy_from_repo(sub_dir='pyaedt')
+    >>>  bld.zip_archive()
     """
 
     def __init__(self, local_path, app_name=None):
@@ -384,109 +430,60 @@ class ToolkitBuilder(object):
         shutil.rmtree(self.commit_path)
 
 
-class ApplicationThread(object):
-    """
-    **Class ApplicationThread**
-
-    Class to allow data to be passed to the run_application member function in a new thread.
-        The run_application function connects to Desktop and instantiates an ApplicationWindow object of
-        the calling module
+class ApplicationThread:
+    """Class to allow data to be passed to the run_application member function in a new thread.
+    The run_application function connects to Desktop and instantiates an ApplicationWindow
+    object of the calling module
     """
 
-    def __init__(self, workflow_module, version, autosave=False, close_desktop_on_exit=False):
+    def __init__(self, workflow_module, version, new_desktop_session=True, autosave=False, close_desktop_on_exit=False):
         self.workflow_module = os.path.basename(workflow_module).replace('.py', '')
         self.version = version
         self.autosave = autosave
+        self.new_desktop = new_desktop_session
         self.close_desktop_on_exit = close_desktop_on_exit
 
+    @aedt_exception_handler
     def run_application(self):
-        with Desktop(self.version) as d:
-            if self.autosave:
-                d.enable_autosave()
+        """Starts the application and run WPF."""
+        d = Desktop(self.version, new_desktop_session=self.new_desktop)
+        if self.autosave:
+            d.enable_autosave()
+        else:
+            d.disable_autosave()
+        form_object = __import__(self.workflow_module)
+        with form_object.ApplicationWindow() as form:
+            form.display()
+            print(self.close_desktop_on_exit)
+            if self.close_desktop_on_exit:
+                d.release_desktop(True, True)
             else:
-                d.disable_autosave()
-            form_object = __import__(self.workflow_module)
-            with form_object.ApplicationWindow() as form:
-                form.display()
-                print(self.close_desktop_on_exit)
-                if self.close_desktop_on_exit:
-                    force_close_desktop()
+                d.release_desktop(False, False)
 
+    @aedt_exception_handler
     def open_form(self):
+        """Open the Application Windows Form."""
         form_object = __import__(self.workflow_module)
         with form_object.ApplicationWindow() as form:
             form.display()
 
 
 # Manages the settings data for the toolkit
-class AEDTToolkitSettings(object):
-    """ **AEDTToolkitSettings**
+class AEDTToolkitSettings:
+    """This class provides a minimal implementation of the Toolkit providing assess to the
+     settings file and allowing to call the toolkit_functionality without the
+     GUI to speed up debugging (or potentially to deploy the function in batch mode.
 
-        This class provides a minimal implementation of the Toolkit providing assess to the settings file and
-        allowing to call the toolkit_functionality without the GUI to speed up debugging (or potentially to
-        deploy the function in batch mode. Typical usage looks like this:
+     Examples
+     --------
 
-               with Desktop(version="2019.3") as d:
-                    app = AEDTToolkitTester(toolkit_file=__file__, aedt_app=Maxwell2D())
-                    # if the settings file (app.settings_file) is present, the data is read automatically, otherwise
-                    # GUI data can be generated by hand, e.g.
-                    app.settings_data = {'param 1': 3, 'param 2': 'house' }
-                    toolkit_function(app)
+     Typical usage looks like this
+
+     >>> with Desktop(version="2021.2") as d:
+     >>>    app = AEDTToolkitTester(toolkit_file=__file__, aedt_app=Maxwell2d())
+     >>>    app.settings_data = {'param 1': 3, 'param 2': 'house' }
+     >>>    toolkit_function(app)
     """
-
-    @property
-    def settings_file(self):
-        return os.path.join(self.settings_path, self.toolkit_name + "_Settings.json")
-
-    @property
-    def results_path(self):
-        return os.path.join(self._parent.working_directory, "_results")
-
-    @property
-    def data_path(self):
-        return os.path.join(self._working, "_data")
-
-    @property
-    def local_path(self):
-        if self._working:
-            return self._working
-        else:
-            return self._parent.working_directory
-
-    @property
-    def settings_path(self):
-        '''
-            Returns the working directory of the parent design - checks the current design settings
-            file for the key "parent" to find teh name of the parent design
-        '''
-        my_path = self.local_path
-        my_settings_file = os.path.join(self.local_path, self.toolkit_name + "_Settings.json")
-        if os.path.exists(my_settings_file):
-            settings_data = self.read_settings_file(my_settings_file)
-            if "parent" in settings_data:
-                if settings_data["parent"]:
-                    my_dir = os.path.basename(my_path)
-                    my_path = my_path.replace(my_dir, settings_data["parent"])
-        return my_path
-
-    def read_settings_file(self, filename):
-        with open(filename, 'r') as f:
-            try:
-                settings_data = json.load(f)
-            except ValueError:
-                if self._parent:
-                    msg_string = "Invalid json file {0} will be overwritten.".format(filename)
-                    self._parent._messenger.add_warning_message(msg_string)
-                return None
-        return settings_data
-
-    @property
-    def settings_data(self):
-        settings_file = self.settings_file
-        if os.path.exists(settings_file):
-            return self.read_settings_file(self.settings_file)
-        else:
-            return {"parent": None}
 
     def __init__(self, aedtdesign=None, working_directory=None, toolkit_name=None):
         if aedtdesign:
@@ -502,7 +499,69 @@ class AEDTToolkitSettings(object):
 
         self.toolkit_name = toolkit_name
 
+    @property
+    def settings_file(self):
+        """Settings json file path."""
+        return os.path.join(self.settings_path, self.toolkit_name + "_Settings.json")
+
+    @property
+    def results_path(self):
+        """Results folder path."""
+        return os.path.join(self._parent.working_directory, "_results")
+
+    @property
+    def data_path(self):
+        """Data folder path."""
+        return os.path.join(self._working, "_data")
+
+    @property
+    def local_path(self):
+        """Working folder path."""
+        if self._working:
+            return self._working
+        else:
+            return self._parent.working_directory
+
+    @property
+    def settings_path(self):
+        """ Working directory of the parent design - checks the current design settings
+        file for the key "parent" to find teh name of the parent design
+        """
+        my_path = self.local_path
+        my_settings_file = os.path.join(self.local_path, self.toolkit_name + "_Settings.json")
+        if os.path.exists(my_settings_file):
+            settings_data = self.read_settings_file(my_settings_file)
+            if "parent" in settings_data:
+                if settings_data["parent"]:
+                    my_dir = os.path.basename(my_path)
+                    my_path = my_path.replace(my_dir, settings_data["parent"])
+        return my_path
+
+    @aedt_exception_handler
+    def read_settings_file(self, filename):
+        """Read the json file and returns dictionary."""
+        with open(filename, 'r') as f:
+            try:
+                settings_data = json.load(f)
+            except ValueError:
+                if self._parent:
+                    msg_string = "Invalid json file {0} will be overwritten.".format(filename)
+                    self._parent.logger.warning(msg_string)
+                return None
+        return settings_data
+
+    @property
+    def settings_data(self):
+        """Read the json file and returns dictionary."""
+        settings_file = self.settings_file
+        if os.path.exists(settings_file):
+            return self.read_settings_file(self.settings_file)
+        else:
+            return {"parent": None}
+
+    @aedt_exception_handler
     def append_toolkit_dir(self):
+        """Append toolkit directory to sys.path."""
         assert os.path.exists(self.settings_file), "Settings File not defined!"
         try:
             toolkit_dir = self.settings_data["_toolkit_dir"]
@@ -571,15 +630,15 @@ class ListBoxForm(Form):
 
 
 class UIObjectGetter:
-    ''' Child class of a parent supplying a get_ui_object function returning a WPF GUI object.
-        The class implementa a __getitem__ method to allow for accessing the GUI objects from the parent class
-        through the syntax:
-        parent.UIObjectGetter[ui_object_name]
+    """Child class of a parent supplying a get_ui_object function returning a WPF GUI object.
+    The class implementa a __getitem__ method to allow for accessing the GUI objects from the parent class
+    through the syntax:
+    parent.UIObjectGetter[ui_object_name]
 
-        Additionally methods are provided to extraxt specific data types from the GUI object:
-        float_value
-        text_value
-        '''
+    Additionally methods are provided to extraxt specific data types from the GUI object:
+    float_value
+    text_value
+    """
 
     def __init__(self, parent):
         self.parent = parent
@@ -587,8 +646,19 @@ class UIObjectGetter:
     def __getitem__(self, ui_object_name):
         return self.parent.get_ui_object(ui_object_name)
 
+    @aedt_exception_handler
     def float_value(self, ui_object_name):
-        ''' Convert the text entry toa float and return teh value. If teh string is empty, return 0'''
+        """Convert the text entry to a float and return the value. If the string is empty, return 0
+
+        Parameters
+        ----------
+        ui_object_name : str
+            Name of ui object.
+
+        Returns
+        -------
+        float
+        """
         text_value = self[ui_object_name].Text
         if not text_value:
             return 0
@@ -596,19 +666,28 @@ class UIObjectGetter:
             return float(text_value)
 
     def text_value(self, ui_object_name):
+        """Convert the text entry to a string and return the value. If the string is empty, return 0
+
+        Parameters
+        ----------
+        ui_object_name : str
+            Name of ui object.
+
+        Returns
+        -------
+        str
+        """
         return self[ui_object_name].Text
 
 
 class AEDTToolkit(Window):
-    """ **Class AEDTToolkit**
-
-        This class provides a base class allowing the creation of a WPF-GUI-Based toolkit for AEDT. This class provides
-        functionality for launching the GUI, reading and writing to settings files, path handling and error handling.
-        Data validation functions are also provided as callbacks from the WPF GUI
-
+    """This class provides a base class allowing the creation of a WPF-GUI-Based toolkit for AEDT.
+    This class provides functionality for launching the GUI, reading and writing to settings
+    files, path handling and error handling.
+    Data validation functions are also provided as callbacks from the WPF GUI
     """
 
-    def __init__(self, toolkit_file, aedt_design=None, parent_design_name=None, launch_gui=True):
+    def __init__(self, toolkit_file, aedt_design=None, parent_design_name=None):
 
         my_path = os.path.abspath(os.path.dirname(__file__))
         self.aedtdesign = aedt_design
@@ -626,6 +705,7 @@ class AEDTToolkit(Window):
         self.aedtlib_directory = os.path.abspath(os.path.join(my_path, '..'))
         sys.path.append(self.toolkit_directory)
         sys.path.append(self.aedtlib_directory)
+        self.image_path = os.path.join(self.aedtlib_directory, "misc")
 
         if parent_design_name:
             self.parent_design_name = parent_design_name
@@ -648,68 +728,215 @@ class AEDTToolkit(Window):
         # LOCAL_INSTALL = self.aedtdesign.odesktop.GetExeDir()
         # self.desktopjob = os.path.join(LOCAL_INSTALL, "desktopjob.exe")
 
-        if launch_gui:
-            if sys.implementation.name == 'ironpython':
-                clr.AddReference('IronPython.wpf')
-                import wpf
-                wpf.LoadComponent(self, self.xaml_file)
-                self.window = self
-            else:
-                stream = StreamReader(self.xaml_file)
-                self.window = XamlReader.Load(stream.BaseStream)
-
-            workarea = __import__("System.Windows").Windows.SystemParameters.WorkArea
-            desktopWorkingArea = workarea
-            self.window.Left = desktopWorkingArea.Right - self.window.Width
-            self.window.Top = desktopWorkingArea.Top
-
-            self.SetText = self._get_objects_from_xaml_of_type('TextBox')
-            self.SetCombo = self._get_objects_from_xaml_of_type('ComboBox')
-            self.SetBool = self._get_objects_from_xaml_of_type(['RadioButton', 'CheckBox'])
-            self.read_settings()
-
-    @property
-    def aedt_version_id(self):
-        return self.aedtdesign.aedt_version_id
-
-    @property
-    def aedt_version_key(self):
-        version = self.aedtdesign.odesktop.GetVersion()
-        return env_value(version)
-
     @property
     def results_path(self):
+        """Results folder path."""
         return os.path.join(self.aedtdesign.working_directory, '_results')
 
     @property
     def data_path(self):
+        """Data folder path."""
         return os.path.join(self.aedtdesign.working_directory, '_data')
 
     @property
     def local_path(self):
+        """Local folder path."""
         return self.settings_manager.local_path
 
     @property
     def settings_file(self):
+        """Settings json file path."""
         return self.settings_manager.settings_file
 
     @property
     def settings_data(self):
+        """Settings json file data."""
         return self.settings_manager.settings_data
 
     @property
     def local_settings_file(self):
+        """Settings json file path."""
         return self.settings_manager.settings_file
 
     @property
     def settings_path(self):
+        """Settings json folder path."""
         return self.settings_manager.settings_path
 
     @property
     def xaml_file(self):
+        """Wpf xaml file path."""
         return os.path.join(self.toolkit_directory, self.toolkit_name + '.xaml')
 
+    @aedt_exception_handler
+    def copy_xaml_template(self):
+        """Copy the xaml template to local folder and rename it to be used with current application."""
+        local_path = os.path.abspath(os.path.dirname(__file__))
+        shutil.copy2(os.path.join(local_path, "wpf_template.xaml"), self.xaml_file)
+        return True
+
+    @aedt_exception_handler
+    def _add_line_to_xml(self, line_to_add):
+        with open(self.xaml_file, 'r') as file:
+            file = file.readlines()
+        with open(self.xaml_file[:-5] + "_tmp.xaml", 'w') as f:
+            for line in file:
+                if "</Grid>" in line:
+                    f.write(line_to_add + "\n")
+                f.write(line)
+        shutil.move(self.xaml_file[:-5] + "_tmp.xaml", self.xaml_file)
+
+    @aedt_exception_handler
+    def add_label(self, name, content, x_pos, y_pos):
+        """Add a label to Wpf.
+
+        Parameters
+        ----------
+        name : str
+            Name of the label.
+        content : str
+            Content of the label.
+        x_pos : float
+            Horizontal position in Ui.
+        y_pos : float
+            Vertical position in Ui.
+
+        Returns
+        -------
+        bool
+        """
+        new_label = '        <Label x:Name="{}" Content="{}" HorizontalAlignment="Left" '.format(name, content)
+        new_label += 'Margin="{},{},0,0" VerticalAlignment="Top"/>'.format(x_pos, y_pos)
+        self._add_line_to_xml(new_label)
+        return True
+
+    @aedt_exception_handler
+    def add_text_box(self, name, x_pos, y_pos, width=120):
+        """Add a text box to Wpf.
+
+        Parameters
+        ----------
+        name : str
+            Name of the text box.
+        x_pos : float
+            Horizontal position in Ui.
+        y_pos : float
+            Vertical position in Ui.
+        width : float
+            Width of the text box.
+
+        Returns
+        -------
+        bool
+        """
+        new_label = '        <TextBox x:Name="{}" HorizontalAlignment="Left" Height="23" '.format(name)
+        new_label += 'Margin="{},{},0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="{}"/>'.format(x_pos, y_pos,
+                                                                                                          width)
+        self._add_line_to_xml(new_label)
+        return True
+
+    @aedt_exception_handler
+    def add_combo_box(self, name, x_pos, y_pos, width=120):
+        """Add a combo box to Wpf.
+
+        Parameters
+        ----------
+        name : str
+            Name of the combo.
+        x_pos : float
+            Horizontal position in Ui.
+        y_pos : float
+            Vertical position in Ui.
+        width : float
+            Width of the combo box.
+
+        Returns
+        -------
+        bool
+        """
+        new_label = '        <ComboBox x:Name="{}" HorizontalAlignment="Left" Height="23" '.format(name)
+        new_label += 'Margin="{},{},0,0" VerticalAlignment="Top" Width="{}"/>'.format(x_pos, y_pos, width)
+        self._add_line_to_xml(new_label)
+        return True
+
+    @aedt_exception_handler
+    def add_check_box(self, name, content, x_pos, y_pos):
+        """Add a check box to Wpf.
+
+        Parameters
+        ----------
+        name : str
+            Name of the check.
+        content : str
+            Caption of the check box.
+        x_pos : float
+            Horizontal position in Ui.
+        y_pos : float
+            Vertical position in Ui.
+
+        Returns
+        -------
+        bool
+        """
+        new_label = '        <CheckBox x:Name="{}" Content="{}" HorizontalAlignment="Left" '.format(name, content)
+        new_label += 'Margin="{},{},0,0" VerticalAlignment="Top"/>'.format(x_pos, y_pos)
+        self._add_line_to_xml(new_label)
+        return True
+
+    @aedt_exception_handler
+    def add_button(self, name, content, x_pos, y_pos, width=120):
+        """Add a button Wpf.
+
+        Parameters
+        ----------
+        name : str
+            Name of the button.
+        content : str
+            Caption of the button box.
+        x_pos : float
+            Horizontal position in Ui.
+        y_pos : float
+            Vertical position in Ui.
+        width : float
+            Button width.
+
+        Returns
+        -------
+        bool
+        """
+        new_label = '        <Button x:Name="{}" Content="{}" HorizontalAlignment="Left" '.format(name, content)
+        new_label += 'Margin="{},{},0,0" VerticalAlignment="Top" Width="{}"/>'.format(x_pos, y_pos, width)
+        self._add_line_to_xml(new_label)
+        return True
+
+    @aedt_exception_handler
+    def launch_gui(self):
+        """Shows the Wpf UI."""
+        if sys.implementation.name == 'ironpython':
+            clr.AddReference('IronPython.wpf')
+            import wpf
+            wpf.LoadComponent(self, self.xaml_file)
+            self.window = self
+        else:
+            stream = StreamReader(self.xaml_file)
+            self.window = XamlReader.Load(stream.BaseStream)
+
+        workarea = __import__("System.Windows").Windows.SystemParameters.WorkArea
+        desktopWorkingArea = workarea
+        self.window.Left = desktopWorkingArea.Right - self.window.Width
+        self.window.Top = desktopWorkingArea.Top
+
+        self.SetText = self._get_objects_from_xaml_of_type('TextBox')
+        self.SetCombo = self._get_objects_from_xaml_of_type('ComboBox')
+        self.SetBool = self._get_objects_from_xaml_of_type(['RadioButton', 'CheckBox'])
+        self.read_settings()
+        uri = Uri(os.path.join(self.image_path, 'pyansys-logo-black-cropped.png'))
+        logo = self.get_ui_object("logo")
+        logo.Source = BitmapImage(uri)
+
+    @aedt_exception_handler
     def validate_object_name_prefix(self, sender, e):
+        """Validate the text box with object name prefix."""
         valid = False
         try:
             object_list = self.aedtdesign.modeler.get_matched_object_name(sender.Text + "*")
@@ -719,13 +946,19 @@ class AEDTToolkit(Window):
             pass
         self.update_textbox_status(sender, valid)
 
+    @aedt_exception_handler
     def validate_string_no_spaces(self, sender, e):
+        """Validate the text box with no spaces."""
+
         valid = False
         if sender.Text.find(" ") < 0:
             valid = True
         self.update_textbox_status(sender, valid)
 
+    @aedt_exception_handler
     def validate_integer(self, sender, e):
+        """Validate the text box with to integer."""
+
         valid = False
         try:
             value = int(sender.Text)
@@ -737,7 +970,10 @@ class AEDTToolkit(Window):
         self.update_textbox_status(sender, valid)
         return value
 
+    @aedt_exception_handler
     def validate_positive_odd_integer(self, sender, e):
+        """Validate the text box with to positive odd integer."""
+
         valid = False
         try:
             value = int(sender.Text)
@@ -751,7 +987,10 @@ class AEDTToolkit(Window):
         self.update_textbox_status(sender, valid)
         return value
 
+    @aedt_exception_handler
     def validate_positive_integer(self, sender, e):
+        """Validate the text box with to negative odd integer."""
+
         valid = False
         try:
             value = int(sender.Text)
@@ -766,6 +1005,8 @@ class AEDTToolkit(Window):
         return value
 
     def validate_non_negative_integer(self, sender, e):
+        """Validate the text box with to non negative integer."""
+
         valid = False
         try:
             value = int(sender.Text)
@@ -779,7 +1020,9 @@ class AEDTToolkit(Window):
         self.update_textbox_status(sender, valid)
         return value
 
+    @aedt_exception_handler
     def validate_negative_integer(self, sender, e):
+        """Validate the text box with to negative integer."""
         valid = False
         try:
             value = int(sender.Text)
@@ -792,7 +1035,10 @@ class AEDTToolkit(Window):
         self.update_textbox_status(sender, valid)
         return value
 
+    @aedt_exception_handler
     def validate_float(self, sender, e):
+        """Validate the text box with to float."""
+
         valid = False
         try:
             value = float(sender.Text)
@@ -803,42 +1049,59 @@ class AEDTToolkit(Window):
         self.update_textbox_status(sender, valid)
         return value
 
+    @aedt_exception_handler
     def validate_float_variable(self, sender, e):
+        """Validate the text box with to flaot variable."""
         proj_and_des_variables = self.aedtdesign.variable_manager.variable_names
         if sender.Text in proj_and_des_variables:
             self.update_textbox_status(sender, True)
         else:
             self.validate_float(sender, e)
 
+    @aedt_exception_handler
     def validate_positive_float_variable(self, sender, e):
+        """Validate the text box with to positive flaot variable."""
+
         proj_and_des_variables = self.aedtdesign.variable_manager.variable_names
         if sender.Text in proj_and_des_variables:
             self.update_textbox_status(sender, True)
         else:
             self.validate_positive_float(sender, e)
 
+    @aedt_exception_handler
     def validate_positive_integer_variable(self, sender, e):
+        """Validate the text box with to positive integer variable."""
+
         proj_and_des_variables = self.aedtdesign.variable_manager.variable_names
         if sender.Text in proj_and_des_variables:
             self.update_textbox_status(sender, True)
         else:
             self.validate_positive_integer(sender, e)
 
+    @aedt_exception_handler
     def validate_positive_integer_global(self, sender, e):
+        """Validate the text box with to positive integer global variable."""
+
         proj_variables = self.aedtdesign.variable_manager.project_variable_names
         if sender.Text in proj_variables:
             self.update_textbox_status(sender, True)
         else:
             self.validate_positive_integer(sender, e)
 
+    @aedt_exception_handler
     def validate_positive_float_global(self, sender, e):
+        """Validate the text box with to positive float global variable."""
+
         proj_variables = self.aedtdesign.variable_manager.project_variable_names
         if sender.Text in proj_variables:
             self.update_textbox_status(sender, True)
         else:
             self.validate_positive_float(sender, e)
 
+    @aedt_exception_handler
     def validate_positive_float(self, sender, e):
+        """Validate the text box with to positive flaot."""
+
         valid = False
         try:
             value = float(sender.Text)
@@ -851,7 +1114,10 @@ class AEDTToolkit(Window):
         self.update_textbox_status(sender, valid)
         return value
 
+    @aedt_exception_handler
     def validate_non_negative_float(self, sender, e):
+        """Validate the text box with to non-negative flaot."""
+
         valid = False
         try:
             value = float(sender.Text)
@@ -864,25 +1130,45 @@ class AEDTToolkit(Window):
         self.update_textbox_status(sender, valid)
         return value
 
+    @aedt_exception_handler
     def update_textbox_status_with_default_text(self, sender, valid, default_text):
+        """Update a text box with a default text value."""
+
         if not valid:
             sender.Text = default_text
             sender.BorderBrush = Brushes.Red
         else:
             sender.BorderBrush = Brushes.Green
 
+    @aedt_exception_handler
     def update_textbox_status(self, sender, valid):
+        """Update a text box status."""
+
         if not valid:
             sender.Text = ""
             sender.BorderBrush = Brushes.Red
         else:
             sender.BorderBrush = Brushes.Green
 
+    @aedt_exception_handler
     def create_child_design(self, design_name):
+        """Duplicates a design and makes a link to the parent design in teh settings file.
+
+        Parameters
+        ----------
+        design_name : str
+            Design name.
+
+        Returns
+        -------
+        bool
+        """
         ''' Duplicates a design and makes a link to the parent design in teh settings file '''
         self.aedtdesign.duplicate_design(design_name)
         self._write_parent_link()
+        bool
 
+    @aedt_exception_handler
     def _read_and_synch_settings_file(self):
         ''' reads in existing settings data and updates the path of the library directory in case the project was
             moved to a new location, file system or operating system '''
@@ -894,28 +1180,28 @@ class AEDTToolkit(Window):
                 settings_data["_toolkit_dir"] = self.toolkit_directory
                 json.dump(settings_data, f, indent=4)
 
+    @aedt_exception_handler
     def _write_parent_link(self):
         with open(self.local_settings_file, 'w') as f:
             settings_data = {"parent": self.parent_design_name}
             json.dump(settings_data, f, indent=4)
 
+    @aedt_exception_handler
     def dummy_callback(self, sender, e):
+        """Dummy callback."""
         pass
 
+    @aedt_exception_handler
     def display(self):
-        ''' Display the wpf application as a Dialoq (IronPython) or an Application (CPython)'''
+        """ Display the wpf application as a Dialoq (IronPython) or an Application (CPython)."""
         if sys.implementation.name == 'ironpython':
             Window.ShowDialog(self)
         else:
             Application().Run(self.window)
 
+    @aedt_exception_handler
     def open_explorer(self, sender, e):
-        """
-        Open a windows explorer window pointing to the selected path in the sender control
-
-        :param      sender: sender object from the wpf GUI
-                    e: error object from teh wpf GUI
-        :return:    None
+        """Open a windows explorer window pointing to the selected path in the sender control.
         """
         from platform import system
 
@@ -927,21 +1213,35 @@ class AEDTToolkit(Window):
                 subprocess.Popen(os_command_string)
             pass
 
+    @aedt_exception_handler
     def set_callback(self, control, callback, function):
-        '''
-        Sets up the callback functions from the xaml GUI
-        :param control: name of the control (Button, TextBox, etc) as a string
-        :param callback: Name of teh callback function, e.g. "Click", "LostFocus", etc
-        :param function: reference to the callback function (requires 2 arguments: sender, e)
-        '''
+        """ Sets up the callback functions from the xaml GUI.
+
+        Parameters
+        ----------
+        control : str
+            Name of the control (Button, TextBox, etc) as a string
+        callback : str
+            Name of teh callback function, e.g. "Click", "LostFocus", etc
+        function : func
+            Reference to the callback function (requires 2 arguments: sender, e)
+        """
         test_control = LogicalTreeHelper.FindLogicalNode(self.window, control)
         a = getattr(test_control, callback)
         a += function
 
+    @aedt_exception_handler
     def set_margin(self, object_name, margin):
-        ''' Sets the outer dimensions of the GUI window.
-        :param margin: vector of floats [left, top, bottom, right]
-        '''
+        """Sets the outer dimensions of the GUI window.
+
+        Parameters
+        ----------
+        object_name : str
+            Object name.
+        margin : list
+            vector of floats [left, top, bottom, right].
+        """
+
         myThickness = Thickness()
         myThickness.Bottom = margin[2]
         myThickness.Left = margin[0]
@@ -949,8 +1249,21 @@ class AEDTToolkit(Window):
         myThickness.Top = margin[1]
         self.get_ui_object(object_name).Margin = myThickness
 
+    @aedt_exception_handler
     def assign_image(self, ui_object_name, image_file):
-        print_timelog("Assign image {}".format(image_file))
+        """Assign an image to an object.
+
+        Parameters
+        ----------
+        ui_object_name : str
+            Object name.
+        image_file : str
+            Image full path.
+
+        Returns
+        -------
+
+        """
         bi = BitmapImage()
         bi.BeginInit()
         bi.CacheOption = BitmapCacheOption.OnLoad
@@ -959,29 +1272,54 @@ class AEDTToolkit(Window):
         bi.EndInit()
         self.ui[ui_object_name].Source = bi
 
+    @aedt_exception_handler
     def set_visible(self, object_list):
-        ''' Defines one or more GUI objects to be visible'''
+        """Defines one or more GUI objects to be visible.
+
+        Parameters
+        ----------
+        object_list : list
+            List of objects to make visible.
+
+        Returns
+        -------
+
+        """
         if isinstance(object_list, str):
             object_list = [object_list]
         for object_name in object_list:
             self.get_ui_object(object_name).Visibility = Visibility.Visible
 
+    @aedt_exception_handler
     def set_hidden(self, object_list):
-        ''' Defines one or more GUI objects to be hidden'''
+        """Defines one or more GUI objects to be hidden.
+
+        Parameters
+        ----------
+        object_list : list
+            List of objects to make hidden.
+
+        Returns
+        -------
+
+        """
         if isinstance(object_list, str):
             object_list = [object_list]
         for object_name in object_list:
             self.get_ui_object(object_name).Visibility = Visibility.Hidden
 
+    @aedt_exception_handler
     def wait_cursor(self):
-        ''' Turns on the "Wait" cursor and stores the current cursor'''
+        """Turns on the "Wait" cursor and stores the current cursor"""
         self.previous_cursor = self.Cursor
         self.Cursor = Input.Cursors.Wait
 
+    @aedt_exception_handler
     def standard_cursor(self):
-        ''' Restores the current cursor'''
+        """Restores the current cursor"""
         self.Cursor = self.previous_cursor
 
+    @aedt_exception_handler
     def _get_objects_from_xaml_of_type(self, type_list):
         if isinstance(type_list, str):
             type_list = [type_list]
@@ -997,9 +1335,12 @@ class AEDTToolkit(Window):
                     text_list.append(name)
         return text_list
 
+    @aedt_exception_handler
     def message_box(self, text, caption=None, buttons=None, icon=None):
+        """Message Box."""
         return message_box(text, caption, buttons, icon)
 
+    @aedt_exception_handler
     def ok_cancel_message_box(self, text, caption=None, icon=None):
         response = message_box(text, caption, "OKCancel", icon)
         if response == DialogResult.OK:
@@ -1007,13 +1348,23 @@ class AEDTToolkit(Window):
         else:
             return False
 
+    @aedt_exception_handler
     def add_combo_items(self, combo_box_name, options, default=None):
-        ''' Fills a combo box with a list of options and sets the selected value if nothing is present already
-        :param combo_box_name: name of the combo box object in xaml
-        :param options: list of entries to be set to the combobox
-        :param default: default value to be used if there is no selected value present
-        :return: None
-        '''
+        """Fills a combo box with a list of options and sets the selected value if nothing is present already.
+
+        Parameters
+        ----------
+        combo_box_name : str
+            Object name.
+        options : list
+            list of options.
+        default : str
+            Default value.
+
+        Returns
+        -------
+
+        """
         if not isinstance(options, list):
             options = [options]
         control = self.get_ui_object(combo_box_name)
@@ -1022,15 +1373,55 @@ class AEDTToolkit(Window):
         if default and not control.SelectedValue:
             control.SelectedValue = default
 
+    @aedt_exception_handler
+    def set_text_value(self, ui_object_name, text_val):
+        """Set a text box value.
+
+        Parameters
+        ----------
+        ui_object_name : str
+            Object name.
+        text_val : str
+            Text value to apply.
+        """
+        control = self.get_ui_object(ui_object_name)
+        control.Text = text_val
+
+    @aedt_exception_handler
+    def set_chechbox_status(self, ui_object_name, flag=True):
+        """Set a check box value.
+
+        Parameters
+        ----------
+        ui_object_name : str
+            Object name.
+        flag : bool
+            Check Box status.
+        """
+        control = self.get_ui_object(ui_object_name)
+        control.IsChecked = flag
+
+    @aedt_exception_handler
     def get_ui_object(self, control_name):
+        """Get an Ui object.
+
+        Parameters
+        ----------
+        control_name : str
+            Object name.
+        """
         wpf_control = LogicalTreeHelper.FindLogicalNode(self.window, control_name)
-        assert wpf_control, "WPF GUI object name {0} dies not exist !".format(control_name)
+        assert wpf_control, "WPF GUI object name {0} does not exist !".format(control_name)
         return wpf_control
 
+    @aedt_exception_handler
     def read_settings(self):
         """ Reads the setting data from the toolkit settings file in the parent design
 
-        :return: Dictionary of settings data
+        Returns
+        -------
+        dict
+            Dictionary of settings data
         """
         settings_data = self.settings_data
 
@@ -1052,7 +1443,7 @@ class AEDTToolkit(Window):
                     try:
                         txt_line = settings_data[wpf_control.Name]
                         wpf_control.SelectedValue = txt_line
-                        self.aedtdesign.messenger.add_info_message("Trying to set: " + txt_line)
+                        self.aedtdesign.logger.info("Trying to set: " + txt_line)
                         if txt_line:
                             wpf_control.BorderBrush = Brushes.Green
                     except KeyError:
@@ -1073,12 +1464,15 @@ class AEDTToolkit(Window):
 
         return settings_data
 
+    @aedt_exception_handler
     def write_settings(self, user_defined_data=None):
         """ Write UI settings Textbox, Checkbox, Combobox only at present
             also write any user defined data from a json-serializable dictionary
 
-        :param user_defined_data: dictionary with arbitrary user data (needs to be json serializable)
-        :return: None
+        Parameters
+        ----------
+        user_defined_data: dict
+            Dictionary with arbitrary user data (needs to be json serializable).
         """
         settings_data = self.settings_data
         with open(self.settings_file, 'w') as f:

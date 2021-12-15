@@ -37,9 +37,6 @@ class LogHandler(logging.Handler):
         elif record.levelname == "WARNING":
             self.messenger.add_warning_message(self.format(record), self.destination)
         elif record.levelname == "ERROR" or record.levelname == "CRITICAL":
-            try:
-                self.messenger.add_error_message(self.format(record), self.destination)
-            except:
-                pass
+            self.messenger.add_error_message(self.format(record), self.destination)
         else:
             raise ValueError("The record level: {} is not supported.".format(record.level))
