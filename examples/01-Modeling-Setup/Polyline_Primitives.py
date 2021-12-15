@@ -1,6 +1,6 @@
 """
-Polyline Example Analysis
--------------------------
+Polyline Creation
+-----------------
 This example shows how you can use PyAEDT to create and manipulate polylines.
 """
 

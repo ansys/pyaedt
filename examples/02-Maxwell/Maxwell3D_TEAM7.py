@@ -1,7 +1,6 @@
 """
-TEAM Problem 7 'Asymmetrical Conductor with a Hole'
-Maxwell 3D Eddy Current Analysis
--------------------------
+Asymmetrical Conductor with a Hole
+----------------------------------
 This example shows how you can use PyAEDT to create a project in
 Maxwell3D and run an eddy current simulation.
 
