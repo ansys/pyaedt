@@ -8,8 +8,8 @@ ibis = None
 
 class Component():
     def __init__(self):
-        self._pins = {}
-        self._buffers = {}
+        self._pins = []
+        self._buffers = []
 
     @property
     def pins(self):
@@ -101,14 +101,14 @@ class Buffer():
         self._name = name
         self._circuit = circuit
 
-    def add(self):
-        self._cricuit.modeler.schematic.create_component(
-                            fields[0],
-                            component_library=None,
-                            component_name=self.name,
-                            location=[xpos, ypos],
-                            use_instance_id_netlist=use_instance,
-                        )
+    # def add(self):
+    #     self._cricuit.modeler.schematic.create_component(
+    #                         fields[0],
+    #                         component_library=None,
+    #                         component_name=self.name,
+    #                         location=[xpos, ypos],
+    #                         use_instance_id_netlist=use_instance,
+    #                     )
 
     # def create_symbol(self):
     #     pass
@@ -132,7 +132,8 @@ class Model(Component):
 
 class Ibis():
 # Ibis reader must work independently or in Circuit.
-    def __init__(self, name):
+    def __init__(self, name, circuit):
+        self.circuit = circuit
         self._name = name
         self._components = []
         self._model_selectors = []
@@ -167,14 +168,14 @@ class Ibis():
         self._models = value
 
 
-def read_project(fileName: str, circuit: pyaedt.Circuit):
+def read_project(fileName: str, circuit):
     """Read .ibis file content."""
 
     if os.path.exists(fileName) == False:
         error_message = fileName + "does not exist."
         raise FileExistsError(error_message)
 
-    ibis_name = pyaedt.generic.get_filename_without_extension(fileName)
+    ibis_name = pyaedt.generic.general_methods.get_filename_without_extension(fileName)
     ibis = Ibis(ibis_name, circuit)
 
     # Read *.ibis file.
@@ -288,7 +289,7 @@ def read_component(ibis: Ibis, current_line: str, f: typing.TextIO):
     fill_package_info(component, current_line, f)
 
     # [pin]
-    while IsStartedWith(current_line, "[Pin] ") == True:
+    while IsStartedWith(current_line, "[Pin] ") != True:
         current_line = f.readline()
 
     # current_line = f.readline()
@@ -298,11 +299,10 @@ def read_component(ibis: Ibis, current_line: str, f: typing.TextIO):
         if IsStartedWith(current_line, "|") == True:
             break
 
-    while (current_line == ""):
-        current_line = f.readline()
+    current_line = f.readline()
 
     while IsStartedWith(current_line, "|") == False:
-        component.Pins.append(make_pin_object(component.name, ibis.name, current_line))
+        component.pins.append(make_pin_object(current_line, component.name, ibis))
         current_line = f.readline()
         if current_line == "":
             break
@@ -339,24 +339,24 @@ def make_pin_object(line: str, component_name: str, ibis: Ibis) -> Pin:
 
     current_string = ""
 
-    current_string = line.strip().Replace("\t", " ")
-    pin_name = get_first_parameter(current_string) + "_" + component_name +"_" + ibis.name
-    pin = Pin(pin_name)
+    current_string = line.strip().replace("\t", " ")
+    pin_name = get_first_parameter(current_string)
+    pin = Pin(pin_name + "_" + component_name + "_" + ibis.name, ibis.circuit)
 
-    current_string = current_string[len(pin.pin_name) + 1:].strip()
+    current_string = current_string[len(pin.name) + 1:].strip()
     pin.signal = get_first_parameter(current_string)
 
-    current_string = current_string[len(pin.signal_name) + 1:].strip()
+    current_string = current_string[len(pin.signal) + 1:].strip()
     pin.model = get_first_parameter(current_string)
 
-    current_string = current_string[len(pin.model_name) + 1:].strip()
-    pin.r_pin = get_first_parameter(current_string)
+    current_string = current_string[len(pin.model) + 1:].strip()
+    pin.r_value = get_first_parameter(current_string)
 
-    current_string = current_string[len(pin.r_pin) + 1:].strip()
-    pin.l_pin = get_first_parameter(current_string)
+    current_string = current_string[len(pin.r_value) + 1:].strip()
+    pin.l_value = get_first_parameter(current_string)
 
-    current_string = current_string[len(pin.l_pin) + 1:].strip()
-    pin.c_pin = get_first_parameter(current_string)
+    current_string = current_string[len(pin.l_value) + 1:].strip()
+    pin.c_value = get_first_parameter(current_string)
 
     return pin
 
@@ -365,7 +365,7 @@ def get_first_parameter(line: str) ->str:
         return ""
 
     data = line.split(" ")
-    return data(0).strip()
+    return data[0].strip()
 
 def IsStartedWith(src: str, find: str, ignore_case: bool=True) -> bool:
     if ignore_case == True:
