@@ -30,9 +30,7 @@ except ImportError:
         from win32con import LOCKFILE_EXCLUSIVE_LOCK, LOCKFILE_FAIL_IMMEDIATELY
         from win32file import OVERLAPPED, LockFileEx, UnlockFile
     except ImportError:
-        raise ImportError(
-            "On Windows, we require Python for Windows Extensions (pywin32)"
-        )
+        raise ImportError("On Windows, we require Python for Windows Extensions (pywin32)")
 
     @contextmanager
     def locked_file(fileno, blocking=True):
@@ -40,8 +38,7 @@ except ImportError:
         try:
             LockFileEx(
                 hndl,
-                LOCKFILE_EXCLUSIVE_LOCK
-                | (0 if blocking else LOCKFILE_FAIL_IMMEDIATELY),
+                LOCKFILE_EXCLUSIVE_LOCK | (0 if blocking else LOCKFILE_FAIL_IMMEDIATELY),
                 0xFFFFFFFF,
                 0xFFFFFFFF,
                 OVERLAPPED(),
@@ -81,11 +78,9 @@ class AtomicFile(object):
     """
     Atomic file operations implemented using file-system advisory locks (``flock`` on POSIX,
     ``LockFile`` on Windows).
-
     .. note::
         On Linux, the manpage says ``flock`` might have issues with NFS mounts. You should
         take this into account.
-
     .. versionadded:: 1.3
     """
 
@@ -100,11 +95,7 @@ class AtomicFile(object):
         self.reopen()
 
     def __repr__(self):
-        return (
-            "<AtomicFile: {}>".format(self.path)
-            if self._fileobj
-            else "<AtomicFile: closed>"
-        )
+        return "<AtomicFile: {}>".format(self.path) if self._fileobj else "<AtomicFile: closed>"
 
     def __del__(self):
         self.close()
@@ -126,16 +117,13 @@ class AtomicFile(object):
         by a different process
         """
         self.close()
-        self._fileobj = os.fdopen(
-            os.open(str(self.path), os.O_CREAT | os.O_RDWR, 384), "r+b", 0
-        )
+        self._fileobj = os.fdopen(os.open(str(self.path), os.O_CREAT | os.O_RDWR, 384), "r+b", 0)
 
     @contextmanager
     def locked(self, blocking=True):
         """
         A context manager that locks the file; this function is reentrant by the thread currently
         holding the lock.
-
         :param blocking: if ``True``, the call will block until we can grab the file system lock.
                          if ``False``, the call may fail immediately with the underlying exception
                          (``IOError`` or ``WindowsError``)
@@ -197,14 +185,11 @@ class AtomicCounterFile(object):
     """
     An atomic counter based on AtomicFile. Each time you call ``next()``, it will
     atomically read and increment the counter's value, returning its previous value
-
     Example::
-
         acf = AtomicCounterFile.open("/some/file")
         print acf.next()   # e.g., 7
         print acf.next()   # 8
         print acf.next()   # 9
-
     .. versionadded:: 1.3
     """
 
@@ -275,7 +260,6 @@ class PidFile(object):
     (the OS will clear the lock when the process exits). It is used to prevent two instances
     of the same process (normally a daemon) from running concurrently. The PID file holds its
     process' PID, so you know who's holding it.
-
     .. versionadded:: 1.3
     """
 
