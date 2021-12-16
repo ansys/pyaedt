@@ -323,7 +323,8 @@ class Desktop:
         self.odesktop = self._main.oDesktop
         if _com == "ironpython":
             sys.path.append(
-                os.path.join(self._main.sDesktopinstallDirectory, "common", "commonfiles", "IronPython", "DLLs"))
+                os.path.join(self._main.sDesktopinstallDirectory, "common", "commonfiles", "IronPython", "DLLs")
+            )
 
     def __enter__(self):
         return self

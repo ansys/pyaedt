@@ -83,7 +83,7 @@ from zipfile import ZipFile, ZIP_DEFLATED
 from pyaedt.desktop import Desktop
 from pyaedt.generic.general_methods import env_value, aedt_exception_handler
 
-if sys.implementation.name == 'ironpython':
+if sys.implementation.name == "ironpython":
     clr.AddReference("PresentationFramework")
     clr.AddReference("PresentationCore")
     clr.AddReference("System.Windows")
@@ -93,24 +93,32 @@ else:
     clr.AddReference("System.Xml")
     clr.AddReference("PresentationFramework, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35")
     clr.AddReference("PresentationCore, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35")
-    clr.AddReference('System.Windows.Forms')
-    clr.AddReference('System')
+    clr.AddReference("System.Windows.Forms")
+    clr.AddReference("System")
     from System.IO import StreamReader
     from System.Windows.Markup import XamlReader
-    clr.AddReference('System.Windows')
+
+    clr.AddReference("System.Windows")
 
 from System.Threading import Thread, ThreadStart, ApartmentState
 from System.Windows import LogicalTreeHelper
 from System.Windows import Window, Application, Controls, Visibility, Input, Thickness
 from System.Windows.Forms import Form, ListBox, DockStyle, Button, MessageBox, MessageBoxIcon, MessageBoxButtons
-from System.Windows.Forms import FormBorderStyle, StatusBar, SelectionMode, DialogResult, FolderBrowserDialog, \
-    OpenFileDialog
+from System.Windows.Forms import (
+    FormBorderStyle,
+    StatusBar,
+    SelectionMode,
+    DialogResult,
+    FolderBrowserDialog,
+    OpenFileDialog,
+)
 from System.Windows.Media import Brushes
 from System.Drawing import Size, Point, Bitmap
 
 from System.Windows.Media.Imaging import BitmapImage, BitmapCacheOption, BitmapCreateOptions
 from System import Uri, UriKind, Environment
 from System.Windows.Media.Imaging import BitmapImage
+
 
 @aedt_exception_handler
 def select_file(initial_dir=None, filter=None):
@@ -173,6 +181,7 @@ def select_directory(initial_dir=None, description=None):
     else:
         return None
 
+
 @aedt_exception_handler
 def copy_files_mkdir(root, files_in_subdir):
     """Copy all files from source to destination in a root path.
@@ -194,9 +203,11 @@ def copy_files_mkdir(root, files_in_subdir):
         shutil.copyfile(src_file, dest_file)
     return True
 
+
 @aedt_exception_handler
-def launch(workflow_module, specified_version=None, new_desktop_session=True, autosave=False,
-           close_desktop_on_exit=False):
+def launch(
+    workflow_module, specified_version=None, new_desktop_session=True, autosave=False, close_desktop_on_exit=False
+):
     """Launches the ApplicationWindow class for the given module name which must lie within the path scope of
         the calling toolkit. Optionally the version can be specified in the form 20xx.y, e.g. 2021.2,
         IronPython calls the run_application function of the ApplicationThread class.
@@ -219,7 +230,7 @@ def launch(workflow_module, specified_version=None, new_desktop_session=True, au
     sys.path.append(os.path.dirname(workflow_module))
     app = ApplicationThread(workflow_module, specified_version, new_desktop_session, autosave, close_desktop_on_exit)
 
-    if sys.implementation.name != 'ironpython':
+    if sys.implementation.name != "ironpython":
         thread = Thread(ThreadStart(app.run_application))
         thread.SetApartmentState(ApartmentState.STA)
         thread.Start()
@@ -231,7 +242,7 @@ def launch(workflow_module, specified_version=None, new_desktop_session=True, au
             app.open_form()
 
 
-launch_script = '''
+launch_script = """
 import os
 import sys
 
@@ -248,7 +259,8 @@ sys.path.append(toolkit_lib_directory)
 
 from lib.AEDTLib.Toolkit import launch
 launch('{}', version=specified_version)
-'''
+"""
+
 
 @aedt_exception_handler
 def message_box(text, caption=None, buttons=None, icon=None):
@@ -267,9 +279,9 @@ def message_box(text, caption=None, buttons=None, icon=None):
     """
 
     if not icon:
-        icon_object = getattr(MessageBoxIcon, 'Information')
+        icon_object = getattr(MessageBoxIcon, "Information")
     else:
-        icon_object = getattr(MessageBoxIcon, 'Information')
+        icon_object = getattr(MessageBoxIcon, "Information")
 
     if not caption:
         caption = ""
@@ -299,7 +311,7 @@ class ToolkitBuilder:
     """
 
     def __init__(self, local_path, app_name=None):
-        """ Instantiates a ToolkitBuilder object. This object manages the packaging of the WPF GUI to ensure
+        """Instantiates a ToolkitBuilder object. This object manages the packaging of the WPF GUI to ensure
             that any dependencies not available via pip are stored with the toolkit deployable asset
 
         :param local_path:  path of the top-level toolkit files containing the *.py and *.xaml files. Optionally a file
@@ -325,19 +337,19 @@ class ToolkitBuilder:
         # Extract the commit ID from the global repository
         self.global_lib_path = os.path.abspath(os.path.join(self.local_path, "..", "..", ".."))
         os.chdir(self.global_lib_path)
-        command = ['git', 'rev-parse', 'HEAD']
+        command = ["git", "rev-parse", "HEAD"]
         sh = False
         res = subprocess.check_output(command, shell=sh).rstrip()
 
         # Create a directory called 'build' in the xml directory
-        self.build_path = os.path.join(self.local_path, '.build')
+        self.build_path = os.path.join(self.local_path, ".build")
         if not os.path.isdir(self.build_path):
             os.mkdir(self.build_path)
 
         # Create a drectory named by the datetime (remove contents if already exists)
-        self.build_name = '{0}-{date:%Y%m%d_%H%M}'.format(self.py_name, date=datetime.now())
+        self.build_name = "{0}-{date:%Y%m%d_%H%M}".format(self.py_name, date=datetime.now())
         self.commit_path = os.path.join(self.build_path, self.build_name)
-        self.commit_lib_path = os.path.join(self.commit_path, 'lib')
+        self.commit_lib_path = os.path.join(self.commit_path, "lib")
         if os.path.isdir(self.commit_path):
             shutil.rmtree(self.commit_path)
         os.mkdir(self.commit_path)
@@ -345,18 +357,18 @@ class ToolkitBuilder:
 
         # Add the commit hash to the module __init__.py files
         init_files = []
-        init_files.append(os.path.join(self.commit_lib_path, '__init__.py'))
+        init_files.append(os.path.join(self.commit_lib_path, "__init__.py"))
         for file in init_files:
-            with open(file, 'w') as f:
-                f.write('#{0}\n'.format(res))
+            with open(file, "w") as f:
+                f.write("#{0}\n".format(res))
 
         # Create a launch file
         script_file = os.path.join(self.commit_path, "launch.py")
-        with open(script_file, 'w') as f:
+        with open(script_file, "w") as f:
             f.write(launch_script.format(self.py_name))
 
     def copy_from_local(self, extension=None, ignore_dir=None):
-        """ copy recursively all files in the local directory and all subdirectories of a given list of
+        """copy recursively all files in the local directory and all subdirectories of a given list of
             extensions
 
         :param extension: list of extensions to be copied, e.g. ['py', 'xaml']
@@ -365,7 +377,7 @@ class ToolkitBuilder:
         self.copy_from_repo(self.local_path, extension=extension, ignore_dir=ignore_dir)
 
     def copy_from_repo(self, root_dir=None, sub_dir=None, extension=None, ignore_dir=None):
-        """ copy recursively all files from a specfied root directory and all subdirectories of a given list of
+        """copy recursively all files from a specfied root directory and all subdirectories of a given list of
             extensions
 
         :param root_dir: optional root directory to copy from, default is the AnsysAutomation repository
@@ -374,13 +386,13 @@ class ToolkitBuilder:
         :param ignore_dir: boolean: ignore directories starting with "." or "_"
         """
         if not extension:
-            extension = ['py']
+            extension = ["py"]
         elif isinstance(extension, str):
             extension = [extension]
         assert isinstance(extension, list), "Extension input parameter must be a string or a list"
 
         if not ignore_dir:
-            ignore_dir = ['.', '_']
+            ignore_dir = [".", "_"]
         elif isinstance(ignore_dir, str):
             extension = [ignore_dir]
         assert isinstance(ignore_dir, list), "Extension input parameter must be a string or a list"
@@ -421,10 +433,10 @@ class ToolkitBuilder:
                 copy_files_mkdir(dest_dir, files_in_subdir)
 
     def zip_archive(self):
-        """ Zip the collected data in the buld path """
+        """Zip the collected data in the buld path"""
 
-        zip_archive = os.path.join(self.build_path, self.build_name + '.zip')
-        with ZipFile(zip_archive, 'w', ZIP_DEFLATED) as myzip:
+        zip_archive = os.path.join(self.build_path, self.build_name + ".zip")
+        with ZipFile(zip_archive, "w", ZIP_DEFLATED) as myzip:
             for root, dirs, files in os.walk(self.commit_path):
                 for filename in files:
                     abs_path = os.path.join(root, filename)
@@ -442,7 +454,7 @@ class ApplicationThread:
     """
 
     def __init__(self, workflow_module, version, new_desktop_session=True, autosave=False, close_desktop_on_exit=False):
-        self.workflow_module = os.path.basename(workflow_module).replace('.py', '')
+        self.workflow_module = os.path.basename(workflow_module).replace(".py", "")
         self.version = version
         self.autosave = autosave
         self.new_desktop = new_desktop_session
@@ -476,18 +488,18 @@ class ApplicationThread:
 # Manages the settings data for the toolkit
 class WPFToolkitSettings:
     """This class provides a minimal implementation of the Toolkit providing assess to the
-     settings file and allowing to call the toolkit_functionality without the
-     GUI to speed up debugging (or potentially to deploy the function in batch mode.
+    settings file and allowing to call the toolkit_functionality without the
+    GUI to speed up debugging (or potentially to deploy the function in batch mode.
 
-     Examples
-     --------
+    Examples
+    --------
 
-     Typical usage looks like this
+    Typical usage looks like this
 
-     >>> with Desktop(version="2021.2") as d:
-     >>>    app = WPFToolkitSettings(toolkit_file=__file__, aedt_app=Maxwell2d())
-     >>>    app.settings_data = {'param 1': 3, 'param 2': 'house' }
-     >>>    toolkit_function(app)
+    >>> with Desktop(version="2021.2") as d:
+    >>>    app = WPFToolkitSettings(toolkit_file=__file__, aedt_app=Maxwell2d())
+    >>>    app.settings_data = {'param 1': 3, 'param 2': 'house' }
+    >>>    toolkit_function(app)
     """
 
     def __init__(self, aedtdesign=None, working_directory=None, toolkit_name=None):
@@ -529,7 +541,7 @@ class WPFToolkitSettings:
 
     @property
     def settings_path(self):
-        """ Working directory of the parent design - checks the current design settings
+        """Working directory of the parent design - checks the current design settings
         file for the key "parent" to find teh name of the parent design
         """
         my_path = self.local_path
@@ -545,7 +557,7 @@ class WPFToolkitSettings:
     @aedt_exception_handler
     def read_settings_file(self, filename):
         """Read the json file and returns dictionary."""
-        with open(filename, 'r') as f:
+        with open(filename, "r") as f:
             try:
                 settings_data = json.load(f)
             except ValueError:
@@ -576,7 +588,6 @@ class WPFToolkitSettings:
 
 
 class ListBoxForm(Form):
-
     @property
     def ResultOK(self):
         if self.DialogResult == DialogResult.OK:
@@ -604,7 +615,7 @@ class ListBoxForm(Form):
         self.CenterToScreen()
 
         # Define the border style of the form to a dialog box.
-        self.FormBorderStyle = FormBorderStyle.FixedDialog;
+        self.FormBorderStyle = FormBorderStyle.FixedDialog
         button1 = Button()
         button2 = Button()
 
@@ -707,7 +718,7 @@ class WPFToolkit(Window):
         self.ui = UIObjectGetter(self)
         my_path = os.path.abspath(os.path.dirname(__file__))
         self.toolkit_directory = os.path.abspath(os.path.dirname(toolkit_file))
-        self.aedtlib_directory = os.path.abspath(os.path.join(my_path, '..'))
+        self.aedtlib_directory = os.path.abspath(os.path.join(my_path, ".."))
         sys.path.append(self.toolkit_directory)
         sys.path.append(self.aedtlib_directory)
         self.image_path = os.path.join(self.aedtlib_directory, "misc")
@@ -736,12 +747,12 @@ class WPFToolkit(Window):
     @property
     def results_path(self):
         """Results folder path."""
-        return os.path.join(self.aedtdesign.working_directory, '_results')
+        return os.path.join(self.aedtdesign.working_directory, "_results")
 
     @property
     def data_path(self):
         """Data folder path."""
-        return os.path.join(self.aedtdesign.working_directory, '_data')
+        return os.path.join(self.aedtdesign.working_directory, "_data")
 
     @property
     def local_path(self):
@@ -771,7 +782,7 @@ class WPFToolkit(Window):
     @property
     def xaml_file(self):
         """Wpf xaml file path."""
-        return os.path.join(self.toolkit_directory, self.toolkit_name + '.xaml')
+        return os.path.join(self.toolkit_directory, self.toolkit_name + ".xaml")
 
     @aedt_exception_handler
     def copy_xaml_template(self):
@@ -782,9 +793,9 @@ class WPFToolkit(Window):
 
     @aedt_exception_handler
     def _add_line_to_xml(self, line_to_add):
-        with open(self.xaml_file, 'r') as file:
+        with open(self.xaml_file, "r") as file:
             file = file.readlines()
-        with open(self.xaml_file[:-5] + "_tmp.xaml", 'w') as f:
+        with open(self.xaml_file[:-5] + "_tmp.xaml", "w") as f:
             for line in file:
                 if "</Grid>" in line:
                     f.write(line_to_add + "\n")
@@ -839,8 +850,9 @@ class WPFToolkit(Window):
         bool
         """
         new_label = '        <TextBox x:Name="{}" HorizontalAlignment="Left" Height="23" '.format(name)
-        new_label += 'Margin="{},{},0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="{}"/>'.format(x_pos, y_pos,
-                                                                                                          width)
+        new_label += 'Margin="{},{},0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="{}"/>'.format(
+            x_pos, y_pos, width
+        )
         if call_back_method:
             self._callbacks.append([name, call_back_action, call_back_method])
         self._add_line_to_xml(new_label)
@@ -936,13 +948,13 @@ class WPFToolkit(Window):
         self._add_line_to_xml(new_label)
         return True
 
-
     @aedt_exception_handler
     def launch_gui(self):
         """Shows the Wpf UI."""
-        if sys.implementation.name == 'ironpython':
-            clr.AddReference('IronPython.wpf')
+        if sys.implementation.name == "ironpython":
+            clr.AddReference("IronPython.wpf")
             import wpf
+
             wpf.LoadComponent(self, self.xaml_file)
             self.window = self
         else:
@@ -954,11 +966,11 @@ class WPFToolkit(Window):
         self.window.Left = desktopWorkingArea.Right - self.window.Width
         self.window.Top = desktopWorkingArea.Top
 
-        self.SetText = self._get_objects_from_xaml_of_type('TextBox')
-        self.SetCombo = self._get_objects_from_xaml_of_type('ComboBox')
-        self.SetBool = self._get_objects_from_xaml_of_type(['RadioButton', 'CheckBox'])
+        self.SetText = self._get_objects_from_xaml_of_type("TextBox")
+        self.SetCombo = self._get_objects_from_xaml_of_type("ComboBox")
+        self.SetBool = self._get_objects_from_xaml_of_type(["RadioButton", "CheckBox"])
         self.read_settings()
-        uri = Uri(os.path.join(self.image_path, 'pyansys-logo-black-cropped.png'))
+        uri = Uri(os.path.join(self.image_path, "pyansys-logo-black-cropped.png"))
         logo = self.get_ui_object("logo")
         logo.Source = BitmapImage(uri)
         if self._callbacks:
@@ -1195,26 +1207,26 @@ class WPFToolkit(Window):
         -------
         bool
         """
-        ''' Duplicates a design and makes a link to the parent design in teh settings file '''
+        """ Duplicates a design and makes a link to the parent design in teh settings file """
         self.aedtdesign.duplicate_design(design_name)
         self._write_parent_link()
         bool
 
     @aedt_exception_handler
     def _read_and_synch_settings_file(self):
-        ''' reads in existing settings data and updates the path of the library directory in case the project was
-            moved to a new location, file system or operating system '''
+        """reads in existing settings data and updates the path of the library directory in case the project was
+        moved to a new location, file system or operating system"""
         settings_file = self.settings_file
         if os.path.exists(settings_file):
             settings_data = self.settings_data
-            with open(settings_file, 'w') as f:
+            with open(settings_file, "w") as f:
                 settings_data["_lib_dir"] = self.aedtlib_directory
                 settings_data["_toolkit_dir"] = self.toolkit_directory
                 json.dump(settings_data, f, indent=4)
 
     @aedt_exception_handler
     def _write_parent_link(self):
-        with open(self.local_settings_file, 'w') as f:
+        with open(self.local_settings_file, "w") as f:
             settings_data = {"parent": self.parent_design_name}
             json.dump(settings_data, f, indent=4)
 
@@ -1225,20 +1237,19 @@ class WPFToolkit(Window):
 
     @aedt_exception_handler
     def display(self):
-        """ Display the wpf application as a Dialoq (IronPython) or an Application (CPython)."""
-        if sys.implementation.name == 'ironpython':
+        """Display the wpf application as a Dialoq (IronPython) or an Application (CPython)."""
+        if sys.implementation.name == "ironpython":
             Window.ShowDialog(self)
         else:
             Application().Run(self.window)
 
     @aedt_exception_handler
     def open_explorer(self, sender, e):
-        """Open a windows explorer window pointing to the selected path in the sender control.
-        """
+        """Open a windows explorer window pointing to the selected path in the sender control."""
         from platform import system
 
         os_type = os.name
-        if os_type == 'nt':
+        if os_type == "nt":
             selected_path = os.path.normpath(sender.Text)
             if os.path.exists(selected_path):
                 os_command_string = r'explorer "{}"'.format(selected_path)
@@ -1247,7 +1258,7 @@ class WPFToolkit(Window):
 
     @aedt_exception_handler
     def set_callback(self, control, callback, function):
-        """ Sets up the callback functions from the xaml GUI.
+        """Sets up the callback functions from the xaml GUI.
 
         Parameters
         ----------
@@ -1356,13 +1367,13 @@ class WPFToolkit(Window):
         if isinstance(type_list, str):
             type_list = [type_list]
         text_list = []
-        with open(self.xaml_file, 'r') as f:
+        with open(self.xaml_file, "r") as f:
             for line in f:
                 rstrip_line = line.lstrip()[1:]
                 pp = rstrip_line.find(" ")
                 object_type = rstrip_line[0:pp]
                 if object_type in type_list:
-                    attribute_list = rstrip_line.split(' ')
+                    attribute_list = rstrip_line.split(" ")
                     name = attribute_list[1].split('"')[1]
                     text_list.append(name)
         return text_list
@@ -1448,7 +1459,7 @@ class WPFToolkit(Window):
 
     @aedt_exception_handler
     def read_settings(self):
-        """ Reads the setting data from the toolkit settings file in the parent design
+        """Reads the setting data from the toolkit settings file in the parent design
 
         Returns
         -------
@@ -1498,7 +1509,7 @@ class WPFToolkit(Window):
 
     @aedt_exception_handler
     def write_settings(self, user_defined_data=None):
-        """ Write UI settings Textbox, Checkbox, Combobox only at present
+        """Write UI settings Textbox, Checkbox, Combobox only at present
             also write any user defined data from a json-serializable dictionary
 
         Parameters
@@ -1507,7 +1518,7 @@ class WPFToolkit(Window):
             Dictionary with arbitrary user data (needs to be json serializable).
         """
         settings_data = self.settings_data
-        with open(self.settings_file, 'w') as f:
+        with open(self.settings_file, "w") as f:
 
             for text_control in self.SetText:
                 wpf_control = self.get_ui_object(text_control)
@@ -1516,9 +1527,9 @@ class WPFToolkit(Window):
             for bool_control in self.SetBool:
                 wpf_control = self.get_ui_object(bool_control)
                 if wpf_control.IsChecked:
-                    settings_data[wpf_control.Name] = '1'
+                    settings_data[wpf_control.Name] = "1"
                 else:
-                    settings_data[wpf_control.Name] = '0'
+                    settings_data[wpf_control.Name] = "0"
 
             for combo_control in self.SetCombo:
                 wpf_control = self.get_ui_object(combo_control)

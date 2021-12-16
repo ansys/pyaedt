@@ -231,8 +231,3 @@ class TestClass:
 
     def test_25_change_registry_from_file(self):
         assert self.aedtapp.set_registry_from_file(os.path.join(local_path, "example_models", "Test.acf"))
-
-
-
-
-
