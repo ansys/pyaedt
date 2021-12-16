@@ -15,7 +15,7 @@ def read_info_fromcsv(projdir, name):
     projdir : str
         Full path to the file.
     name : str
-        Name of the file,
+        Name of the file.
 
     Returns
     -------
@@ -39,7 +39,7 @@ def clean_proj_folder(dir, name):
     Parameters
     ----------
     dir : str
-        Full path to the project directory
+        Full path to the project directory.
     name : str
         Name of the project.
 
@@ -177,7 +177,7 @@ def change_model_orientation(origfile, bottom_dir):
 
     if not os.path.isfile(origfile + ".lock"):  # check if the project is closed
 
-        # opening files
+        # Opening files
         with open(origfile, "rb") as f, open(newfile, "wb") as n:
 
             # Reading file content
@@ -193,12 +193,12 @@ def change_model_orientation(origfile, bottom_dir):
             # u": " + unicode(str(SolidList).strip("["))
             s = pattern.sub(r"\1" + OrientStr + r"\3", content)
 
-            # writing file content
+            # Writing file content
             n.write(str(s))
 
-        # renaming files and deleting temp
+        # Renaming files and deleting temp
         os.remove(origfile)
         os.rename(newfile, origfile)
 
-    else:  # project is locked
+    else:  # Project is locked
         print("change_model_orientation: Project %s is still locked." % origfile)
