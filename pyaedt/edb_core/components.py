@@ -408,7 +408,7 @@ class Components(object):
 
         Parameters
         ----------
-        cmp : str or self._edb.Cell.Hierarchy.Component
+        component : str or self._edb.Cell.Hierarchy.Component
             EDB component or str component name.
 
         net_list : str or list of string.
@@ -441,8 +441,8 @@ class Components(object):
         >>> port_type=SourceType.CoaxPort, do_pingroup=False, refnet="GND")
 
         """
-        if isinstance(cmp, self._edb.Cell.Hierarchy.Component):
-            cmp = cmp.GetName()
+        if isinstance(component, self._edb.Cell.Hierarchy.Component):
+            cmp = component.GetName()
         if not isinstance(net_list, list):
             net_list = [net_list]
         for net in net_list:
@@ -453,9 +453,9 @@ class Components(object):
                         net_list.append(net_name)
                 except:
                     pass
-        if refnet in net_list:
-            net_list.remove(refnet)
-        cmp_pins = self.get_pin_from_component(cmp, net_list)
+        if reference_net in net_list:
+            net_list.remove(reference_net)
+        cmp_pins = self.get_pin_from_component(component, net_list)
         if len(cmp_pins) == 0:
             return False
         pin_layers = cmp_pins[0].GetPadstackDef().GetData().GetLayerNames()
@@ -464,12 +464,12 @@ class Components(object):
             pad_params = self._padstack.get_pad_parameters(pin=cmp_pins[0], layername=pin_layers[0], pad_type=0)
             sball_diam = min([self._edb_value(val).ToDouble() for val in pad_params[1]])
             sb_height = sball_diam
-            self.set_solder_ball(cmp, sb_height, sball_diam)
+            self.set_solder_ball(component, sb_height, sball_diam)
             for pin in cmp_pins:
                 self._padstack.create_coax_port(pin)
 
         elif port_type == SourceType.CircPort:
-            ref_pins = self.get_pin_from_component(cmp, refnet)
+            ref_pins = self.get_pin_from_component(component, reference_net)
             if do_pingroup:
                 pingroups = []
                 if len(ref_pins) == 1:
