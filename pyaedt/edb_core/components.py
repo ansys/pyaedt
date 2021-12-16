@@ -7,7 +7,6 @@ import warnings
 from pyaedt import generate_unique_name, _retry_ntimes
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import aedt_exception_handler, get_filename_without_extension, is_ironpython
-from pyaedt.generic.constants import FlipChipOrientation
 from pyaedt.generic.constants import SourceType
 from pyaedt.edb_core.EDB_Data import EDBComponent
 from pyaedt.edb_core.padstack import EdbPadstacks
@@ -461,8 +460,6 @@ class Components(object):
         pin_layers = cmp_pins[0].GetPadstackDef().GetData().GetLayerNames()
 
         if port_type == SourceType.CoaxPort:
-            #pad_params = self._pedb.edblib.Layout.PadStackMethods.GetPadParametersValue(cmp_pins[0].GetPadstackDef(),
-                                                                                        #pin_layers[0], 0)
             pad_params = self._padstack.get_pad_parameters(pin=cmp_pins[0], layername=pin_layers[0], pad_type=0)
             sball_diam = min([self._edb_value(val).ToDouble() for val in pad_params[1]])
             sb_height = sball_diam
@@ -528,7 +525,8 @@ class Components(object):
         to_layer = self._edb.Cell.ILayerReadOnly
         pin.GetLayerRange(from_layer, to_layer)
         term_name = "{]_{}_{}".format(pin.GetComponent().GetName(), pin.GetNet().GetName(), pin.GetName())
-        term = self._edb.Cell.Terminal.PointTerminal.Create(pin.GetLayout(), pin.GetNet(), term_name, pin_pos, from_layer)
+        term = self._edb.Cell.Terminal.PointTerminal.Create(pin.GetLayout(), pin.GetNet(), term_name, pin_pos,
+                                                            from_layer)
         return term
 
     @aedt_exception_handler
@@ -581,7 +579,8 @@ class Components(object):
         cmp_name = pingroup.GetComponent().GetName()
         net_name = pingroup.GetNet().GetName()
         term_name = pingroup.GetUniqueName(layout, "Pingroup_{0}_{1}".format(cmp_name, net_name))
-        pingroup_term = self._edb.Cell.Terminal.PinGroupTerminal.Create(self._active_layout, pingroup.GetNet(), term_name, pingroup, isref)
+        pingroup_term = self._edb.Cell.Terminal.PinGroupTerminal.Create(self._active_layout, pingroup.GetNet(),
+                                                                        term_name, pingroup, isref)
         return pingroup_term
 
     @aedt_exception_handler
