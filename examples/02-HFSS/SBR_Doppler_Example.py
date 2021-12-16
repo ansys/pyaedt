@@ -1,6 +1,6 @@
 """
-SBR+ Doppler Example
---------------------
+SBR+ Doppler Setup
+------------------
 This example shows how you can use PyAEDT to create a Multipart Scenario in SBR+ and setup a doppler Analysis.
 """
 # sphinx_gallery_thumbnail_path = 'Resources/sherlock_doppler.png'

@@ -1,6 +1,6 @@
 """
-EDB  Analysis
---------------
+Siwave Analysis from EDB Setup
+------------------------------
 This example shows how to use EDB to interact with a layout.
 """
 # sphinx_gallery_thumbnail_path = 'Resources/edb.png'

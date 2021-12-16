@@ -1,6 +1,6 @@
 """
-Coordinate System Creation Example
-----------------------------------
+Coordinate System Creation
+--------------------------
 This example shows how you can use PyAEDT to create and modify coordinate systems in the modeler.
 """
 # sphinx_gallery_thumbnail_path = 'Resources/coordinate_system.png'
