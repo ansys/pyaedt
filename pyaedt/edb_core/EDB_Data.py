@@ -468,10 +468,10 @@ class EDBLayers(object):
         allLayers = list(list(self.layer_collection.Layers(self._edb.Cell.LayerTypeSet.AllLayerSet)))
         allStckuplayers = filter(
             lambda lyr: (lyr.GetLayerType() == self._edb.Cell.LayerType.DielectricLayer)
-            or (
-                lyr.GetLayerType() == self._edb.Cell.LayerType.SignalLayer
-                or lyr.GetLayerType() == self._edb.Cell.LayerType.ConductingLayer
-            ),
+                        or (
+                                lyr.GetLayerType() == self._edb.Cell.LayerType.SignalLayer
+                                or lyr.GetLayerType() == self._edb.Cell.LayerType.ConductingLayer
+                        ),
             allLayers,
         )
         return sorted(allStckuplayers, key=lambda lyr=self._edb.Cell.StackupLayer: lyr.GetLowerElevation())
@@ -488,8 +488,8 @@ class EDBLayers(object):
         self._signal_layers = {}
         for layer, edblayer in self.layers.items():
             if (
-                edblayer._layer_type == self._edb.Cell.LayerType.SignalLayer
-                or edblayer._layer_type == self._edb.Cell.LayerType.ConductingLayer
+                    edblayer._layer_type == self._edb.Cell.LayerType.SignalLayer
+                    or edblayer._layer_type == self._edb.Cell.LayerType.ConductingLayer
             ):
                 self._signal_layers[layer] = edblayer
         return self._signal_layers
@@ -597,14 +597,14 @@ class EDBLayers(object):
 
     @aedt_exception_handler
     def add_layer(
-        self,
-        layerName,
-        start_layer=None,
-        material="copper",
-        fillMaterial="",
-        thickness="35um",
-        layerType=0,
-        etchMap=None,
+            self,
+            layerName,
+            start_layer=None,
+            material="copper",
+            fillMaterial="",
+            thickness="35um",
+            layerType=0,
+            etchMap=None,
     ):
         """Add a layer after a specific layer.
 
@@ -928,7 +928,7 @@ class EDBPadProperties(object):
 
     @aedt_exception_handler
     def _update_pad_parameters_parameters(
-        self, layer_name=None, pad_type=None, geom_type=None, params=None, offsetx=None, offsety=None, rotation=None
+            self, layer_name=None, pad_type=None, geom_type=None, params=None, offsetx=None, offsety=None, rotation=None
     ):
         """Update padstack parameters.
 
@@ -1309,6 +1309,7 @@ class EDBPadstackInstance(object):
     >>> edb = Edb(myedb, edbversion="2021.2")
     >>> edb_padstack_instance = edb.core_padstack.padstack_instances[0]
     """
+
     @property
     def padstack_definition(self):
         return self._edb_padstackinstance.GetPadstackDef().GetName()
@@ -1317,7 +1318,7 @@ class EDBPadstackInstance(object):
     def backdrill_top(self):
         layer = self._pedb.edb.Cell.Layer("", 1)
         val = self._pedb.edb_value(0)
-        _, depth, diameter =self._edb_padstackinstance.GetBackDrillParametersLayerValue(layer, val, False)
+        _, depth, diameter = self._edb_padstackinstance.GetBackDrillParametersLayerValue(layer, val, False)
         return depth.GetName(), diameter.ToString()
 
     @property
@@ -1345,7 +1346,8 @@ class EDBPadstackInstance(object):
 
     def __init__(self, edb_padstackinstance, _pedb):
         self._edb_padstackinstance = edb_padstackinstance
-        self._pedb=_pedb
+        self._pedb = _pedb
+
 
 class EDBPinInstances(object):
     """Manages EDB functionalities in instances.
