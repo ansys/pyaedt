@@ -663,7 +663,6 @@ class Components(object):
         else:
             return False
 
-
     @aedt_exception_handler
     def create_component_from_pins(self, pins, component_name, placement_layer=None):
         """Create a component from pins.
