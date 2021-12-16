@@ -270,7 +270,7 @@ class EdbPadstacks(object):
                 return pinlist.Item2
 
     @aedt_exception_handler
-    def get_pad_parameters(self, pin, layername, pad_type=None):
+    def get_pad_parameters(self, pin, layername, pad_type=0):
         """Get Padstack Parameters from Pin or Padstack Definition.
 
         Parameters
