@@ -5,6 +5,7 @@ import os
 # Import required modules
 from pyaedt import Hfss, Desktop
 from pyaedt.generic.filesystem import Scratch
+from pyaedt.generic.toolkit import launch
 
 # Setup paths for module imports
 from _unittest.conftest import desktop_version, local_path, scratch_path
@@ -230,3 +231,8 @@ class TestClass:
 
     def test_25_change_registry_from_file(self):
         assert self.aedtapp.set_registry_from_file(os.path.join(local_path, "example_models", "Test.acf"))
+
+
+
+
+

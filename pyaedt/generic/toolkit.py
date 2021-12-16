@@ -3,49 +3,49 @@
 This module contains a number of classes designed to support development of WPF GUI-based toolkits for AEDT
 applications. The primary classes are:
 
-    AEDTToolkit             : Base Class to support UI Toolkit development
-    AEDTToolkitSettings     : Class to support UI settings for testing purposes
+    WPFToolkit             : Base Class to support UI Toolkit development
+    WPFToolkitSettings     : Class to support UI settings for testing purposes
     ToolkitBuilder          : Class to support generation of a zip package wth all needed dependencies
 
 Examples
 --------
 
 **Example 1**
-A toolkit is built by deriving a class called ApplicationWindow from AEDTToolkit.
+A toolkit is built by deriving a class called ApplicationWindow from WPFToolkit.
 Parallel to this file, an xaml file should be present in the same directory.
 
 
 >>> from pyaedt import Maxwell2d
->>> from pyaedt.generic.toolkit import AEDTToolkit, launch
+>>> from pyaedt.generic.toolkit import WPFToolkit, launch
 
->>> class ApplicationWindow(AEDTToolkit):
+>>> class ApplicationWindow(WPFToolkit):
 >>>
 >>>     def __init__(self):
->>>         AEDTToolkit.__init__(self, toolkit_file=__file__, aedt_design=Maxwell2d(), parent_design_name=None)
+>>>         WPFToolkit.__init__(self, toolkit_file=__file__, aedt_design=Maxwell2d(), parent_design_name=None)
 >>>         # Copy Xaml template
 >>>         self.copy_xaml_template()
 
 >>>         #Edit the UI
->>>         self.add_label("label1", "Input Parameter 1", 10, 10)
->>>         self.add_text_box("_input1", 150, 10)
->>>         self.add_label("label2", "Design Name", 10, 50)
->>>         self.add_text_box("_input2", 150, 50)
->>>         self.add_check_box("_check1", "Save Project", 150, 80)
->>>         self.add_combo_box("_combo1", 150, 120)
->>>         self.add_button("run_method", "Click To Run", 300, 300)
->>>         self.add_label("label3", "Design Type", 10, 150)
->>>         self.add_text_box("_input3", 150, 150)
+>>>        self.add_label("label1", "Input Parameter 1", 10, 10)
+>>>        self.add_text_box(name="_input1", x_pos=150, y_pos=10, call_back_method=self.validate_positive_float,
+>>>                          call_back_action='LostFocus')
+>>>        self.add_label("label2", "Design Name", 10, 50)
+>>>        self.add_text_box(name="_input2", x_pos=150, y_pos=50, call_back_method=self.validate_string_no_spaces,
+>>>                          call_back_action='LostFocus')
+>>>        self.add_check_box(name="_check1", content="Save Project", x_pos=150, y_pos=80,
+>>>                           call_back_method=self.enable_checkbox, call_back_action="Checked")
+>>>        self.add_combo_box(name="_combo1", x_pos=150,  y_pos=120, call_back_method=self.print_design_name)
+>>>        self.add_button("run_method", "Click To Run", x_pos=300,  y_pos=300, call_back_method=self.custom_callback)
+>>>        self.add_label("label3", "Design Type", 10, 150)
+>>>        self.add_text_box(name="_input3", x_pos=150, y_pos=150)
 >>>
 >>>         #Launch the UI
 >>>        self.launch_gui()
 >>>
 >>>         self.add_combo_items("_combo1", self.aedtdesign.design_list)
->>>         # Setup Callbacks
->>>         self.set_callback('_input1', 'LostFocus', self.validate_positive_float)
->>>         self.set_callback('_input2', 'LostFocus', self.validate_string_no_spaces)
->>>         self.set_callback('_combo1', 'SelectionChanged', self.print_design_name)
->>>        self.set_callback('run_method', 'Click', self.custom_callback)
->>>         self.set_text_value("_input2", self.aedtdesign.design_name)
+>>>         # Setup Additional Callbacks
+>>>         self.add_combo_items("_combo1", self.aedtdesign.design_list)
+
 >>>
 >>>         # Get Values from UI
 >>>         value1 = self.ui.float_value("_input1")
@@ -60,6 +60,11 @@ Parallel to this file, an xaml file should be present in the same directory.
 >>>     def print_design_name(self, sender, e):
 >>>         self.set_text_value("_input3", self.aedtdesign.solution_type)
 >>>
+>>>    def enable_checkbox(self, sender, e):
+>>>        print("Enabled")
+>>>
+>>>    def disable_checkbox(self, sender, e):
+>>>        print("Disabled")
 >>> # Launch the toolkit
 >>> if __name__ == '__main__':
 >>>     launch(__file__, specified_version="2021.2", new_desktop_session=False, autosave=False)
@@ -469,7 +474,7 @@ class ApplicationThread:
 
 
 # Manages the settings data for the toolkit
-class AEDTToolkitSettings:
+class WPFToolkitSettings:
     """This class provides a minimal implementation of the Toolkit providing assess to the
      settings file and allowing to call the toolkit_functionality without the
      GUI to speed up debugging (or potentially to deploy the function in batch mode.
@@ -480,7 +485,7 @@ class AEDTToolkitSettings:
      Typical usage looks like this
 
      >>> with Desktop(version="2021.2") as d:
-     >>>    app = AEDTToolkitTester(toolkit_file=__file__, aedt_app=Maxwell2d())
+     >>>    app = WPFToolkitSettings(toolkit_file=__file__, aedt_app=Maxwell2d())
      >>>    app.settings_data = {'param 1': 3, 'param 2': 'house' }
      >>>    toolkit_function(app)
     """
@@ -680,7 +685,7 @@ class UIObjectGetter:
         return self[ui_object_name].Text
 
 
-class AEDTToolkit(Window):
+class WPFToolkit(Window):
     """This class provides a base class allowing the creation of a WPF-GUI-Based toolkit for AEDT.
     This class provides functionality for launching the GUI, reading and writing to settings
     files, path handling and error handling.
@@ -693,9 +698,9 @@ class AEDTToolkit(Window):
         self.aedtdesign = aedt_design
         self.toolkit_name = os.path.basename(toolkit_file).replace(".py", "")
         if self.aedtdesign:
-            self.settings_manager = AEDTToolkitSettings(aedtdesign=self.aedtdesign, toolkit_name=self.toolkit_name)
+            self.settings_manager = WPFToolkitSettings(aedtdesign=self.aedtdesign, toolkit_name=self.toolkit_name)
         else:
-            self.settings_manager = AEDTToolkitSettings(working_directory=my_path, toolkit_name=self.toolkit_name)
+            self.settings_manager = WPFToolkitSettings(working_directory=my_path, toolkit_name=self.toolkit_name)
 
         self.window = None
 
@@ -724,7 +729,7 @@ class AEDTToolkit(Window):
 
         # Read existing settings and update the library path
         self._read_and_synch_settings_file()
-
+        self._callbacks = []
         # LOCAL_INSTALL = self.aedtdesign.odesktop.GetExeDir()
         # self.desktopjob = os.path.join(LOCAL_INSTALL, "desktopjob.exe")
 
@@ -811,7 +816,7 @@ class AEDTToolkit(Window):
         return True
 
     @aedt_exception_handler
-    def add_text_box(self, name, x_pos, y_pos, width=120):
+    def add_text_box(self, name, x_pos, y_pos, width=120, call_back_method=None, call_back_action="LostFocus"):
         """Add a text box to Wpf.
 
         Parameters
@@ -824,6 +829,10 @@ class AEDTToolkit(Window):
             Vertical position in Ui.
         width : float
             Width of the text box.
+        call_back_method : func
+            Name of the method assigned to the call back action. `None` to disable it.
+        call_back_action : str, optional
+            Call back action on which callback will be applied. Default is `"Click"`.
 
         Returns
         -------
@@ -832,11 +841,13 @@ class AEDTToolkit(Window):
         new_label = '        <TextBox x:Name="{}" HorizontalAlignment="Left" Height="23" '.format(name)
         new_label += 'Margin="{},{},0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="{}"/>'.format(x_pos, y_pos,
                                                                                                           width)
+        if call_back_method:
+            self._callbacks.append([name, call_back_action, call_back_method])
         self._add_line_to_xml(new_label)
         return True
 
     @aedt_exception_handler
-    def add_combo_box(self, name, x_pos, y_pos, width=120):
+    def add_combo_box(self, name, x_pos, y_pos, width=120, call_back_method=None, call_back_action="SelectionChanged"):
         """Add a combo box to Wpf.
 
         Parameters
@@ -849,18 +860,23 @@ class AEDTToolkit(Window):
             Vertical position in Ui.
         width : float
             Width of the combo box.
-
+        call_back_method : func
+            Name of the method assigned to the call back action. `None` to disable it.
+        call_back_action : str, optional
+            Call back action on which callback will be applied. Default is `"Click"`.
         Returns
         -------
         bool
         """
         new_label = '        <ComboBox x:Name="{}" HorizontalAlignment="Left" Height="23" '.format(name)
         new_label += 'Margin="{},{},0,0" VerticalAlignment="Top" Width="{}"/>'.format(x_pos, y_pos, width)
+        if call_back_method:
+            self._callbacks.append([name, call_back_action, call_back_method])
         self._add_line_to_xml(new_label)
         return True
 
     @aedt_exception_handler
-    def add_check_box(self, name, content, x_pos, y_pos):
+    def add_check_box(self, name, content, x_pos, y_pos, call_back_method=None, call_back_action="Checked"):
         """Add a check box to Wpf.
 
         Parameters
@@ -873,18 +889,23 @@ class AEDTToolkit(Window):
             Horizontal position in Ui.
         y_pos : float
             Vertical position in Ui.
-
+        call_back_method : func
+            Name of the method assigned to the call back action. `None` to disable it.
+        call_back_action : str, optional
+            Call back action on which callback will be applied. Default is `"Click"`.
         Returns
         -------
         bool
         """
         new_label = '        <CheckBox x:Name="{}" Content="{}" HorizontalAlignment="Left" '.format(name, content)
         new_label += 'Margin="{},{},0,0" VerticalAlignment="Top"/>'.format(x_pos, y_pos)
+        if call_back_method:
+            self._callbacks.append([name, call_back_action, call_back_method])
         self._add_line_to_xml(new_label)
         return True
 
     @aedt_exception_handler
-    def add_button(self, name, content, x_pos, y_pos, width=120):
+    def add_button(self, name, content, x_pos, y_pos, width=120, call_back_method=None, call_back_action="Click"):
         """Add a button Wpf.
 
         Parameters
@@ -899,6 +920,10 @@ class AEDTToolkit(Window):
             Vertical position in Ui.
         width : float
             Button width.
+        call_back_method : func
+            Name of the method assigned to the call back action. `None` to disable it.
+        call_back_action : str, optional
+            Call back action on which callback will be applied. Default is `"Click"`.
 
         Returns
         -------
@@ -906,8 +931,11 @@ class AEDTToolkit(Window):
         """
         new_label = '        <Button x:Name="{}" Content="{}" HorizontalAlignment="Left" '.format(name, content)
         new_label += 'Margin="{},{},0,0" VerticalAlignment="Top" Width="{}"/>'.format(x_pos, y_pos, width)
+        if call_back_method:
+            self._callbacks.append([name, call_back_action, call_back_method])
         self._add_line_to_xml(new_label)
         return True
+
 
     @aedt_exception_handler
     def launch_gui(self):
@@ -933,6 +961,10 @@ class AEDTToolkit(Window):
         uri = Uri(os.path.join(self.image_path, 'pyansys-logo-black-cropped.png'))
         logo = self.get_ui_object("logo")
         logo.Source = BitmapImage(uri)
+        if self._callbacks:
+            for el in self._callbacks:
+                self.set_callback(el[0], el[1], el[2])
+            self._callbacks = []
 
     @aedt_exception_handler
     def validate_object_name_prefix(self, sender, e):
