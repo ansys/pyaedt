@@ -10,6 +10,7 @@ import re
 from pyaedt.application.AnalysisNexxim import FieldAnalysisCircuit
 from pyaedt.generic.DataHandlers import from_rkm_to_aedt
 from pyaedt.generic.general_methods import aedt_exception_handler
+import pyaedt.generic.ibs_reader
 
 
 class Circuit(FieldAnalysisCircuit, object):
@@ -361,6 +362,11 @@ class Circuit(FieldAnalysisCircuit, object):
             self._desktop.EnableAutoSave(True)
         self.logger.info("Netlist correctly imported into %s", self.design_name)
         return True
+
+
+    @aedt_exception_handler
+    def read_ibis(self, path: str):
+        ibis = pyaedt.generic.ibs_reader.read_project(path, self)
 
     @aedt_exception_handler
     def create_schematic_from_mentor_netlist(self, file_to_import):

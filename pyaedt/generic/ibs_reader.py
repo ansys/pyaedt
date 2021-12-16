@@ -1,6 +1,9 @@
 import os
 import typing
 
+import pyaedt
+import pyaedt.generic
+
 ibis = None
 
 class Component():
@@ -24,24 +27,98 @@ class Component():
     def buffers(self, value):
         self._buffers = value
 
-    def create_symbols(self):
+    def add(self):
+        self.oEditor.CreateComponent()
         pass
 
 class Pin(Component):
-    def add(self):  #difference create_symbol() and add().
-        pass
-    def create_symbol(self):  #difference create_symbol() and add().
-        pass
+    def __init__(self, name, circuit):
+        self._name = name
+        self._circuit = circuit
+        self._signal = None
+        self._model = None
+        self._r_value = None
+        self._l_value = None
+        self._c_value = None
+
+    def add(self, x, y, angle):
+        self.circuit.modeler.schematic.create_component(
+                            component_name=self.name,
+                            location=[x, y],
+                            angle = angle,
+                            )
+
+    # def place_component(x: int, y: int, angle: int):
+    #     pass
+    
+    @property
+    def name(self):
+        return self._name
+    
+    @property
+    def signal(self):
+        return self._signal
+
+    @signal.setter
+    def signal(self, value):
+        self._signal = value
+
+    @property
+    def model(self):
+        return self._model
+
+    @model.setter
+    def model(self, value):
+        self._model = value
+
+    @property
+    def r_value(self):
+        return self._r_value
+
+    @model.setter
+    def r_value(self, value):
+        self._r_value = value
+
+    @property
+    def l_value(self):
+        return self._l_value
+
+    @model.setter
+    def l_value(self, value):
+        self._l_value = value
+
+    @property
+    def c_value(self):
+        return self._c_value
+
+    @model.setter
+    def c_value(self, value):
+        self._c_value = value
+
+
+class Buffer():
+    def __init__(self, name, circuit):
+        self._name = name
+        self._circuit = circuit
+
+    def add(self):
+        self._cricuit.modeler.schematic.create_component(
+                            fields[0],
+                            component_library=None,
+                            component_name=self.name,
+                            location=[xpos, ypos],
+                            use_instance_id_netlist=use_instance,
+                        )
+
+    # def create_symbol(self):
+    #     pass
+
     def place_component(x: int, y: int, angle: int):
         pass
 
-class Buffer(Component):
-    def add(self):  #difference create_symbol() and add().
-        pass
-    def create_symbol(self):
-        pass
-    def place_component(x: int, y: int, angle: int):
-        pass
+    @property
+    def name(self):
+        return self._name
 
 class ModelSelector():
     pass
@@ -54,10 +131,16 @@ class Model(Component):
         pass
 
 class Ibis():
-    def __init__(self):
+# Ibis reader must work independently or in Circuit.
+    def __init__(self, name):
+        self._name = name
         self._components = []
         self._model_selectors = []
         self._models = []
+
+    @property
+    def name(self):
+        return self._name
 
     @property
     def components(self):
@@ -84,14 +167,15 @@ class Ibis():
         self._models = value
 
 
-def read_project(fileName: str):
+def read_project(fileName: str, circuit: pyaedt.Circuit):
     """Read .ibis file content."""
 
     if os.path.exists(fileName) == False:
         error_message = fileName + "does not exist."
         raise FileExistsError(error_message)
 
-    ibis = Ibis()
+    ibis_name = pyaedt.generic.get_filename_without_extension(fileName)
+    ibis = Ibis(ibis_name, circuit)
 
     # Read *.ibis file.
     with open(fileName,'r') as f:
@@ -218,7 +302,7 @@ def read_component(ibis: Ibis, current_line: str, f: typing.TextIO):
         current_line = f.readline()
 
     while IsStartedWith(current_line, "|") == False:
-        component.Pins.append(make_pin_object(current_line))
+        component.Pins.append(make_pin_object(component.name, ibis.name, current_line))
         current_line = f.readline()
         if current_line == "":
             break
@@ -251,18 +335,19 @@ def get_component_name(line: str) -> str:
     return name.strip()
 
 # Pin
-def make_pin_object(line: str) -> Pin:
-    pin = Pin()
+def make_pin_object(line: str, component_name: str, ibis: Ibis) -> Pin:
+
     current_string = ""
 
     current_string = line.strip().Replace("\t", " ")
-    pin.pin_name = get_first_parameter(current_string)
+    pin_name = get_first_parameter(current_string) + "_" + component_name +"_" + ibis.name
+    pin = Pin(pin_name)
 
     current_string = current_string[len(pin.pin_name) + 1:].strip()
-    pin.signal_name = get_first_parameter(current_string)
+    pin.signal = get_first_parameter(current_string)
 
     current_string = current_string[len(pin.signal_name) + 1:].strip()
-    pin.model_name = get_first_parameter(current_string)
+    pin.model = get_first_parameter(current_string)
 
     current_string = current_string[len(pin.model_name) + 1:].strip()
     pin.r_pin = get_first_parameter(current_string)
