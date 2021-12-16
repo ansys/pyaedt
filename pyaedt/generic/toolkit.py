@@ -5,7 +5,7 @@ applications. The primary classes are:
 
     WPFToolkit             : Base Class to support UI Toolkit development
     WPFToolkitSettings     : Class to support UI settings for testing purposes
-    ToolkitBuilder          : Class to support generation of a zip package wth all needed dependencies
+    ToolkitBuilder          : Class to support generation of a zip package with all needed dependencies
 
 Examples
 --------
@@ -81,7 +81,7 @@ from datetime import datetime
 from zipfile import ZipFile, ZIP_DEFLATED
 
 from pyaedt.desktop import Desktop
-from pyaedt.generic.general_methods import env_value, aedt_exception_handler
+from pyaedt.generic.general_methods import aedt_exception_handler
 
 if sys.implementation.name == "ironpython":
     clr.AddReference("PresentationFramework")
@@ -102,8 +102,8 @@ else:
 
 from System.Threading import Thread, ThreadStart, ApartmentState
 from System.Windows import LogicalTreeHelper
-from System.Windows import Window, Application, Controls, Visibility, Input, Thickness
-from System.Windows.Forms import Form, ListBox, DockStyle, Button, MessageBox, MessageBoxIcon, MessageBoxButtons
+from System.Windows import Window, Application, Visibility, Input, Thickness
+from System.Windows.Forms import Form, ListBox, Button, MessageBox, MessageBoxIcon, MessageBoxButtons
 from System.Windows.Forms import (
     FormBorderStyle,
     StatusBar,
@@ -113,7 +113,7 @@ from System.Windows.Forms import (
     OpenFileDialog,
 )
 from System.Windows.Media import Brushes
-from System.Drawing import Size, Point, Bitmap
+from System.Drawing import Size, Point
 
 from System.Windows.Media.Imaging import BitmapImage, BitmapCacheOption, BitmapCreateOptions
 from System import Uri, UriKind, Environment
@@ -377,7 +377,7 @@ class ToolkitBuilder:
         self.copy_from_repo(self.local_path, extension=extension, ignore_dir=ignore_dir)
 
     def copy_from_repo(self, root_dir=None, sub_dir=None, extension=None, ignore_dir=None):
-        """copy recursively all files from a specfied root directory and all subdirectories of a given list of
+        """copy recursively all files from a specified root directory and all subdirectories of a given list of
             extensions
 
         :param root_dir: optional root directory to copy from, default is the AnsysAutomation repository
@@ -433,7 +433,7 @@ class ToolkitBuilder:
                 copy_files_mkdir(dest_dir, files_in_subdir)
 
     def zip_archive(self):
-        """Zip the collected data in the buld path"""
+        """Zip the collected data in the build path"""
 
         zip_archive = os.path.join(self.build_path, self.build_name + ".zip")
         with ZipFile(zip_archive, "w", ZIP_DEFLATED) as myzip:
@@ -542,7 +542,7 @@ class WPFToolkitSettings:
     @property
     def settings_path(self):
         """Working directory of the parent design - checks the current design settings
-        file for the key "parent" to find teh name of the parent design
+        file for the key "parent" to find the name of the parent design
         """
         my_path = self.local_path
         my_settings_file = os.path.join(self.local_path, self.toolkit_name + "_Settings.json")
@@ -651,7 +651,7 @@ class UIObjectGetter:
     through the syntax:
     parent.UIObjectGetter[ui_object_name]
 
-    Additionally methods are provided to extraxt specific data types from the GUI object:
+    Additionally methods are provided to extract specific data types from the GUI object:
     float_value
     text_value
     """
@@ -1095,7 +1095,7 @@ class WPFToolkit(Window):
 
     @aedt_exception_handler
     def validate_float_variable(self, sender, e):
-        """Validate the text box with to flaot variable."""
+        """Validate the text box with to float variable."""
         proj_and_des_variables = self.aedtdesign.variable_manager.variable_names
         if sender.Text in proj_and_des_variables:
             self.update_textbox_status(sender, True)
@@ -1104,7 +1104,7 @@ class WPFToolkit(Window):
 
     @aedt_exception_handler
     def validate_positive_float_variable(self, sender, e):
-        """Validate the text box with to positive flaot variable."""
+        """Validate the text box with to positive float variable."""
 
         proj_and_des_variables = self.aedtdesign.variable_manager.variable_names
         if sender.Text in proj_and_des_variables:
@@ -1144,7 +1144,7 @@ class WPFToolkit(Window):
 
     @aedt_exception_handler
     def validate_positive_float(self, sender, e):
-        """Validate the text box with to positive flaot."""
+        """Validate the text box with to positive float."""
 
         valid = False
         try:
@@ -1160,7 +1160,7 @@ class WPFToolkit(Window):
 
     @aedt_exception_handler
     def validate_non_negative_float(self, sender, e):
-        """Validate the text box with to non-negative flaot."""
+        """Validate the text box with to non-negative float."""
 
         valid = False
         try:
@@ -1196,7 +1196,7 @@ class WPFToolkit(Window):
 
     @aedt_exception_handler
     def create_child_design(self, design_name):
-        """Duplicates a design and makes a link to the parent design in teh settings file.
+        """Duplicates a design and makes a link to the parent design in the settings file.
 
         Parameters
         ----------
@@ -1207,7 +1207,7 @@ class WPFToolkit(Window):
         -------
         bool
         """
-        """ Duplicates a design and makes a link to the parent design in teh settings file """
+        """ Duplicates a design and makes a link to the parent design in the settings file """
         self.aedtdesign.duplicate_design(design_name)
         self._write_parent_link()
         bool
@@ -1246,8 +1246,6 @@ class WPFToolkit(Window):
     @aedt_exception_handler
     def open_explorer(self, sender, e):
         """Open a windows explorer window pointing to the selected path in the sender control."""
-        from platform import system
-
         os_type = os.name
         if os_type == "nt":
             selected_path = os.path.normpath(sender.Text)
@@ -1265,7 +1263,7 @@ class WPFToolkit(Window):
         control : str
             Name of the control (Button, TextBox, etc) as a string
         callback : str
-            Name of teh callback function, e.g. "Click", "LostFocus", etc
+            Name of the callback function, e.g. "Click", "LostFocus", etc
         function : func
             Reference to the callback function (requires 2 arguments: sender, e)
         """
@@ -1549,6 +1547,6 @@ class WPFToolkit(Window):
         # write the UI data to json
         self.write_settings()
 
-        # If an error occured in the context of this object, close the window to avoid AEDT crashing
+        # If an error occurred in the context of this object, close the window to avoid AEDT crashing
         if ex_type and self.window:
             self.Close()
