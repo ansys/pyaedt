@@ -465,7 +465,7 @@ class Components(object):
             sb_height = sball_diam
             self.set_solder_ball(cmp, sb_height, sball_diam)
             for pin in cmp_pins:
-               self._padstack.create_coax_port(pin)
+                self._padstack.create_coax_port(pin)
 
         elif port_type == SourceType.CircPort:
             ref_pins = self.get_pin_from_component(cmp, refnet)
@@ -525,8 +525,9 @@ class Components(object):
         to_layer = self._edb.Cell.ILayerReadOnly
         pin.GetLayerRange(from_layer, to_layer)
         term_name = "{]_{}_{}".format(pin.GetComponent().GetName(), pin.GetNet().GetName(), pin.GetName())
-        term = self._edb.Cell.Terminal.PointTerminal.Create(pin.GetLayout(), pin.GetNet(), term_name, pin_pos,
-                                                            from_layer)
+        term = self._edb.Cell.Terminal.PointTerminal.Create(
+            pin.GetLayout(), pin.GetNet(), term_name, pin_pos, from_layer
+        )
         return term
 
     @aedt_exception_handler
@@ -562,7 +563,7 @@ class Components(object):
 
     @aedt_exception_handler
     def _create_pin_group_terminal(self, pingroup, isref=False):
-        """ Creates edb pin group terminal from given edb pin group.
+        """Creates edb pin group terminal from given edb pin group.
 
         Parameters
         ----------
@@ -579,8 +580,9 @@ class Components(object):
         cmp_name = pingroup.GetComponent().GetName()
         net_name = pingroup.GetNet().GetName()
         term_name = pingroup.GetUniqueName(layout, "Pingroup_{0}_{1}".format(cmp_name, net_name))
-        pingroup_term = self._edb.Cell.Terminal.PinGroupTerminal.Create(self._active_layout, pingroup.GetNet(),
-                                                                        term_name, pingroup, isref)
+        pingroup_term = self._edb.Cell.Terminal.PinGroupTerminal.Create(
+            self._active_layout, pingroup.GetNet(), term_name, pingroup, isref
+        )
         return pingroup_term
 
     @aedt_exception_handler
@@ -1069,7 +1071,7 @@ class Components(object):
             rlcModel = self._edb.Cell.Hierarchy.PinPairModel()
             rlcModel.SetPinPairRlc(pinPair, rlc)
             if not edbRlcComponentProperty.SetModel(rlcModel) or not edbComponent.SetComponentProperty(
-                    edbRlcComponentProperty
+                edbRlcComponentProperty
             ):
                 self._logger.error("Failed to set RLC model on component")
                 return False
@@ -1085,7 +1087,7 @@ class Components(object):
 
     @aedt_exception_handler
     def update_rlc_from_bom(
-            self, bom_file, delimiter=";", valuefield="Func des", comptype="Prod name", refdes="Pos / Place"
+        self, bom_file, delimiter=";", valuefield="Func des", comptype="Prod name", refdes="Pos / Place"
     ):
         """Update the EDC core component values (RLCs) with values coming from a BOM file.
 
@@ -1175,9 +1177,9 @@ class Components(object):
         if netName:
             if not isinstance(netName, list):
                 netName = [netName]
-            #pins = []
-            #cmp_obj = list(cmp.LayoutObjs)
-            #for p in cmp_obj:
+            # pins = []
+            # cmp_obj = list(cmp.LayoutObjs)
+            # for p in cmp_obj:
             #    if p.GetObjType() == 1:
             #        if p.IsLayoutPin():
             #            pin_net_name = p.GetNet().GetName()
@@ -1186,9 +1188,7 @@ class Components(object):
             pins = [
                 p
                 for p in list(cmp.LayoutObjs)
-                if p.GetObjType() == 1
-                   and p.IsLayoutPin()
-                   and p.GetNet().GetName() in netName
+                if p.GetObjType() == 1 and p.IsLayoutPin() and p.GetNet().GetName() in netName
             ]
         elif pinName:
             if not isinstance(pinName, list):
@@ -1197,15 +1197,11 @@ class Components(object):
                 p
                 for p in list(cmp.LayoutObjs)
                 if p.GetObjType() == 1
-                   and p.IsLayoutPin()
-                   and (self.get_aedt_pin_name(p) == str(pinName) or p.GetName() in str(pinName))
+                and p.IsLayoutPin()
+                and (self.get_aedt_pin_name(p) == str(pinName) or p.GetName() in str(pinName))
             ]
         else:
-            pins = [
-                p
-                for p in list(cmp.LayoutObjs)
-                if p.GetObjType() == 1 and p.IsLayoutPin()
-            ]
+            pins = [p for p in list(cmp.LayoutObjs) if p.GetObjType() == 1 and p.IsLayoutPin()]
         return pins
 
     @aedt_exception_handler

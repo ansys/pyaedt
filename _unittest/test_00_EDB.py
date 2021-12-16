@@ -1,4 +1,5 @@
 import os
+
 # Setup paths for module imports
 import gc
 
@@ -535,6 +536,6 @@ class TestClass:
 
     def test_70_create_ports_on_component(self):
         net_list = ["M_DQ<1>", "M_DQ<2>", "M_DQ<3>", "M_DQ<4>", "M_DQ<5>"]
-        assert self.edbapp.core_components.create_port_on_component(cmp="U2A5", net_list=net_list,
-                                                                    port_type=SourceType.CoaxPort,
-                                                                    do_pingroup=False, refnet="GND")
+        assert self.edbapp.core_components.create_port_on_component(
+            cmp="U2A5", net_list=net_list, port_type=SourceType.CoaxPort, do_pingroup=False, refnet="GND"
+        )
