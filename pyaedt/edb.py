@@ -21,7 +21,8 @@ try:
 except ImportError:
     warnings.warn("Pythonnet is needed to run pyaedt")
 from pyaedt.application.MessageManager import AEDTMessageManager
-from pyaedt.edb_core import Components, EdbNets, EdbPadstacks, EdbPadstackInstances, EdbLayout, EdbHfss, EdbSiwave, EdbStackup
+from pyaedt.edb_core import Components, EdbNets, EdbPadstacks, EdbPadstackInstances, EdbLayout, EdbHfss, EdbSiwave, \
+    EdbStackup
 from pyaedt.edb_core.EDB_Data import EdbBuilder
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import (
@@ -96,15 +97,15 @@ class Edb(object):
     """
 
     def __init__(
-        self,
-        edbpath=None,
-        cellname=None,
-        isreadonly=False,
-        edbversion="2021.2",
-        isaedtowned=False,
-        oproject=None,
-        student_version=False,
-        use_ppe=False,
+            self,
+            edbpath=None,
+            cellname=None,
+            isreadonly=False,
+            edbversion="2021.2",
+            isaedtowned=False,
+            oproject=None,
+            student_version=False,
+            use_ppe=False,
     ):
         self._clean_variables()
         if is_ironpython and inside_desktop:
@@ -840,7 +841,7 @@ class Edb(object):
 
         """
         if self.import_layout_pcb(
-            inputBrd, working_dir=WorkDir, anstranslator_full_path=anstranslator_full_path, use_ppe=use_ppe
+                inputBrd, working_dir=WorkDir, anstranslator_full_path=anstranslator_full_path, use_ppe=use_ppe
         ):
             return True
         else:
@@ -868,21 +869,21 @@ class Edb(object):
 
         """
         if self.import_layout_pcb(
-            inputGDS, working_dir=WorkDir, anstranslator_full_path=anstranslator_full_path, use_ppe=use_ppe
+                inputGDS, working_dir=WorkDir, anstranslator_full_path=anstranslator_full_path, use_ppe=use_ppe
         ):
             return True
         else:
             return False
 
     def create_cutout(
-        self,
-        signal_list,
-        reference_list=["GND"],
-        extent_type="Conforming",
-        expansion_size=0.002,
-        use_round_corner=False,
-        output_aedb_path=None,
-        open_cutout_at_end=True,
+            self,
+            signal_list,
+            reference_list=["GND"],
+            extent_type="Conforming",
+            expansion_size=0.002,
+            use_round_corner=False,
+            output_aedb_path=None,
+            open_cutout_at_end=True,
     ):
         """Create a cutout and save it to a new AEDB file.
 
@@ -1012,11 +1013,11 @@ class Edb(object):
 
     @aedt_exception_handler
     def create_cutout_on_point_list(
-        self,
-        point_list,
-        units="mm",
-        output_aedb_path=None,
-        open_cutout_at_end=True,
+            self,
+            point_list,
+            units="mm",
+            output_aedb_path=None,
+            open_cutout_at_end=True,
     ):
         """Create a cutout and save it to a new AEDB file.
 
