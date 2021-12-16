@@ -50,7 +50,7 @@ class Pin(Component):
 
     # def place_component(x: int, y: int, angle: int):
     #     pass
-    
+
     @property
     def name(self):
         return self._name
