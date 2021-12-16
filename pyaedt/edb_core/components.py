@@ -402,7 +402,7 @@ class Components(object):
         return False
 
     @aedt_exception_handler
-    def create_port_on_component(self, cmp, net_list, port_type=SourceType.CoaxPort, do_pingroup=True, refnet="gnd"):
+    def create_port_on_component(self, component, net_list, port_type=SourceType.CoaxPort, do_pingroup=True, reference_net="gnd"):
         """Create ports on given component.
 
         Parameters
