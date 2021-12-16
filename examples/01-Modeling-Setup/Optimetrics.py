@@ -1,6 +1,6 @@
 """
-Optimetrics Example Analysis
-----------------------------
+Optimetrics Setup
+-----------------
 This example shows how you can use PyAEDT to create a project in HFSS and create all optimetrics setups.
 """
 # sphinx_gallery_thumbnail_path = 'Resources/optimetrics.png'

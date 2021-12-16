@@ -1,15 +1,16 @@
 """
-Example of fully parameterized design using edb.
--------------------------------------------------------
+Fully parameterized design
+--------------------------
 This example shows how to use HFSS 3D Layout to create and solve a parametric design.
 """
 # sphinx_gallery_thumbnail_path = 'Resources/parametrized_edb.png'
 
 ###############################################################################
-# # Import the `Hfss3dlayout` Object
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Import the `Hfss3dlayout` Object
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This example imports the `Hfss3dlayout` object and initializes it on version
 # 2021.1.
+
 import tempfile
 from pyaedt import Edb
 from pyaedt.generic.general_methods import generate_unique_name
@@ -126,7 +127,9 @@ class rectangle:
         return value.ToDouble()
 
 
-# layer stackup ####
+####################
+# Layer stackup
+#
 if edb:
     edb.core_stackup.stackup_layers.add_layer("bottom")
     edb.core_stackup.stackup_layers.add_layer(
@@ -175,7 +178,7 @@ net_name = "strip_line_p"
 net_name2 = "strip_line_n"
 
 ######################
-# line p
+# line placement
 #
 seg1_p = line(width="$line_width", net_name=net_name, layer="top")
 
@@ -188,12 +191,17 @@ seg1_p.point_list = [
 seg1_p.place_line()
 path_port_1p = edb.core_primitives.primitives[-1]
 
-# via placement ####
+####################
+# via placement
+#
+
 via_instance(
     pos_x="$pcb_len/3", pos_y="($line_width+$line_spacing+$via_spacing)/2", rotation=90, net_name=net_name
 ).place_via(viadef1)
 
-# line creation ####
+####################
+# line creation
+#
 seg2_p = line(width="$line2_width", net_name=net_name, layer="sig1")
 seg2_p.point_list = [
     ["$pcb_len/3", "($line_width+$line_spacing+$via_spacing)/2"],
@@ -212,7 +220,10 @@ via_instance(
     pos_x="2*$pcb_len/3", pos_y="($line_width+$line_spacing+$via_spacing)/2", rotation=90, net_name=net_name
 ).place_via(viadef1)
 
-# line creation ####
+####################
+# line creation
+#
+
 seg3_p = line(width="$line_width", net_name=net_name, layer="top")
 seg3_p.point_list = [
     ["2*$pcb_len/3", "($line_width+$line_spacing+$via_spacing)/2"],
@@ -226,7 +237,7 @@ path_port_2p = edb.core_primitives.primitives[-1]
 ##################
 # line n
 #
-# line creation ####
+# line creation
 seg1_n = line(width="$line_width", net_name=net_name2, layer="top")
 
 seg1_n.point_list = [
@@ -237,12 +248,18 @@ seg1_n.point_list = [
 ]
 seg1_n.place_line()
 
-# via placement ####
+##################
+# via placement
+#
+
 via_instance(
     pos_x="$pcb_len/3", pos_y="-($line_width+$line_spacing+$via_spacing)/2", rotation=-90, net_name=net_name2
 ).place_via(viadef1)
 
-# line creation ####
+##################
+# line creation
+#
+
 seg2_n = line(width="$line2_width", net_name=net_name2, layer="sig1")
 seg2_n.point_list = [
     ["$pcb_len/3", "-($line_width+$line_spacing+$via_spacing)/2"],
@@ -254,12 +271,17 @@ seg2_n.point_list = [
 ]
 seg2_n.place_line()
 
-# via placement ####
+##################
+# via placement
+#
+
 via_instance(
     pos_x="2*$pcb_len/3", pos_y="-($line_width+$line_spacing+$via_spacing)/2", rotation=-90, net_name=net_name2
 ).place_via(viadef1)
 
-# line creation ####
+####################
+# line creation
+
 seg3_p = line(width="$line_width", net_name=net_name2, layer="top")
 seg3_p.point_list = [
     ["2*$pcb_len/3", "-($line_width+$line_spacing+$via_spacing)/2"],
@@ -268,8 +290,10 @@ seg3_p.point_list = [
     ["$pcb_len", "-($line_width+$line_spacing)/2"],
 ]
 seg3_p.place_line()
+##########################
+# GND plane
+#
 
-# ####### GND plane #########
 rectangle(
     lower_left_corner=[0.0, "-$pcb_w/2"],
     upper_right_corner=["$pcb_len", "$pcb_w/2"],
@@ -291,18 +315,24 @@ rectangle(lower_left_corner=[0.0, "-$pcb_w/2"], upper_right_corner=["$pcb_len", 
     "bottom", "gnd"
 )
 
-# saving edb #####
+##########################
+# saving edb
 edb.save_edb()
 edb.close_edb()
 
-# opening edb in aedt ####
+##########################
+# opening edb in aedt
 h3d = Hfss3dLayout(projectname=os.path.join(aedb_path, "edb.def"), specified_version="2021.2", non_graphical=False)
 
-# creating wave ports ####
+##########################
+# creating wave ports
+
 h3d.create_wave_port_from_two_conductors(["line_0", "line_3"], [0, 0])
 h3d.create_wave_port_from_two_conductors(["line_5", "line_2"], [5, 5])
 
-# adding hfss simulation setup ####
+##########################
+# adding hfss simulation setup
+
 setup = h3d.create_setup()
 h3d.create_linear_count_sweep(
     setupname=setup.name,
@@ -317,6 +347,8 @@ h3d.create_linear_count_sweep(
     save_fields=False,
     use_q3d_for_dc=False,
 )
-# start hfss solver ####
+
+##########################
+# start hfss solver. Uncomment to solve
 # h3d.analyze_nominal()
 h3d.release_desktop()

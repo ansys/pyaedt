@@ -1,8 +1,9 @@
 """
-EDB Parametric Via Creation
----------------------------
+Parametric Via Creation
+-----------------------
 This example shows how to use EDB to create a layout.
 """
+# sphinx_gallery_thumbnail_path = 'Resources/viawizard.png'
 
 import os
 import numpy as np
