@@ -6,8 +6,8 @@ from ..generic.general_methods import aedt_exception_handler
 class EmitComponents(object):
     """EmitComponents class.
 
-     This is the class for managing all EMIT components.
-     """
+    This is the class for managing all EMIT components.
+    """
 
     @property
     def oeditor(self):
@@ -41,22 +41,37 @@ class EmitComponents(object):
 
     @property
     def o_model_manager(self):
-        """ """
+        """Aedt Model Manager"""
         return self.modeler.o_model_manager
 
     @property
     def o_definition_manager(self):
-        """ """
+        """Aedt Definition Manager.
+
+        References
+        ----------
+
+        >>> oDefinitionManager = oProject.GetDefinitionManager()"""
         return self._parent._oproject.GetDefinitionManager()
 
     @property
     def o_symbol_manager(self):
-        """ """
+        """Aedt Simbol Manager.
+
+        References
+        ----------
+
+        >>> oSymbolManager = oDefinitionManager.GetManager("Symbol")"""
         return self.o_definition_manager.GetManager("Symbol")
 
     @property
     def o_component_manager(self):
-        """ """
+        """Aedt Component Manager.
+
+        References
+        ----------
+
+        >>> oComponentManager = oDefinitionManager.GetManager("Component")"""
         return self.o_definition_manager.GetManager("Component")
 
     @property
@@ -116,6 +131,10 @@ class EmitComponents(object):
         EmitComponent
             The newly created component.
 
+        References
+        ----------
+
+        >>> oEditor.CreateComponent
         """
         # Pass an empty string to allow name to be automatically assigned.
         if name is None:
@@ -123,8 +142,7 @@ class EmitComponents(object):
         # Pass an empty string to use syslib EMIT library.
         if library is None:
             library = ""
-        new_comp_name = self.oeditor.CreateComponent(name, component_type,
-                                                     library)
+        new_comp_name = self.oeditor.CreateComponent(name, component_type, library)
         o = EmitComponent.create(self, new_comp_name)
         o.name = new_comp_name
         o_update = self.update_object_properties(o)
@@ -177,8 +195,8 @@ class EmitComponents(object):
 
         """
         o.update_property_tree()
-        comp_type = o.root_prop_node.props['Type']
-        o._add_property('Type', comp_type)
+        comp_type = o.root_prop_node.props["Type"]
+        o._add_property("Type", comp_type)
         return o
 
 
@@ -195,18 +213,18 @@ class EmitComponent(object):
         def decorator(subclass):
             cls.subclasses[root_node_type] = subclass
             return subclass
+
         return decorator
 
     @classmethod
     def create(cls, components, component_name):
         nodes = components.odesign.GetComponentNodeNames(component_name)
         root_node = nodes[0]
-        prop_list = components.odesign.GetComponentNodeProperties(
-            component_name, root_node)
-        props = dict(p.split('=') for p in prop_list)
-        root_node_type = props['Type']
-        if root_node_type.endswith('Node'):
-            root_node_type = root_node_type[:-len('Node')]
+        prop_list = components.odesign.GetComponentNodeProperties(component_name, root_node)
+        props = dict(p.split("=") for p in prop_list)
+        root_node_type = props["Type"]
+        if root_node_type.endswith("Node"):
+            root_node_type = root_node_type[: -len("Node")]
         if root_node_type not in cls.subclasses:
             return EmitComponent(components, component_name)
         return cls.subclasses[root_node_type](components, component_name)
@@ -244,6 +262,11 @@ class EmitComponent(object):
         -------
         List
             List of port names.
+
+        References
+        ----------
+
+        >>> oEditor.GetComponentPorts
         """
         return self.oeditor.GetComponentPorts(self.name)
 
@@ -264,6 +287,12 @@ class EmitComponent(object):
         str
             Port name on connected component. Returns None if no connection
             at given port.
+
+        References
+        ----------
+
+        >>> oEditor.GetWireAtPort
+        >>> oEditor.GetWireConnections
         """
         wire_name = self.oeditor.GetWireAtPort(self.name, port_name)
         wire_connections = self.oeditor.GetWireConnections(wire_name)
@@ -283,14 +312,18 @@ class EmitComponent(object):
         -------
         EmitComponentPropNode
             The root node of the updated property tree.
+
+        References
+        ----------
+
+        >>> oDesign.GetComponentNodeNames
         """
         node_names = sorted(self.odesign.GetComponentNodeNames(self.name))
         root_node_name = node_names[0]
         nodes = {}
         for node_name in node_names:
-            new_node = EmitComponentPropNode(self.oeditor, self.odesign, self,
-                                             node_name)
-            parent_name = node_name.rpartition('-*-')[0]
+            new_node = EmitComponentPropNode(self.oeditor, self.odesign, self, node_name)
+            parent_name = node_name.rpartition("-*-")[0]
             if parent_name in nodes:
                 parent_node = nodes[parent_name]
                 parent_node.children.append(new_node)
@@ -315,15 +348,19 @@ class EmitComponent(object):
         dict
             Dictionary of property names (keys) and property values.
 
+        References
+        ----------
+
+        >>> oDesign.GetComponentNodeNames
+        >>> oDesign.GetComponentNodeProperties
         """
         nodes = sorted(self.odesign.GetComponentNodeNames(self.name))
         root_node = nodes[0]
         node_name = root_node
         if node is not None:
-            node_name = root_node + '-*-' + '-*-'.join(node.split('/')[1:])
-        props_list = self.odesign.GetComponentNodeProperties(self.name,
-                                                             node_name)
-        props = dict(p.split('=') for p in props_list)
+            node_name = root_node + "-*-" + "-*-".join(node.split("/")[1:])
+        props_list = self.odesign.GetComponentNodeProperties(self.name, node_name)
+        props = dict(p.split("=") for p in props_list)
         return props
 
     @aedt_exception_handler
@@ -339,11 +376,16 @@ class EmitComponent(object):
 
         Returns
         -------
+        bool
 
+        References
+        ----------
+
+        >>> oEditor.ChangeProperty
         """
         if type(property_name) is list:
             for p, v in zip(property_name, property_value):
-                v_prop = ["NAME:"+p, "Value:=", v]
+                v_prop = ["NAME:" + p, "Value:=", v]
                 self.change_property(v_prop)
                 self.__dict__[p] = v
         else:
@@ -400,25 +442,23 @@ class EmitRadioComponent(EmitComponent):
         super(EmitRadioComponent, self).__init__(components, component_name)
 
     def bands(self):
-        band_nodes = self.get_prop_nodes({'Type': 'Band'})
+        band_nodes = self.get_prop_nodes({"Type": "Band"})
         return band_nodes
 
     def band_start_frequency_hz(self, band_node):
-        return float(band_node.props['StartFrequency'])
+        return float(band_node.props["StartFrequency"])
 
     def band_tx_power_dbm(self, band_node):
         for child in band_node.children:
-            if child.props['Type'] == 'TxSpectralProfNode':
-                return float(child.props['FundamentalAmplitude'])
+            if child.props["Type"] == "TxSpectralProfNode":
+                return float(child.props["FundamentalAmplitude"])
 
     def has_tx_channels(self):
-        nodes = self.get_prop_nodes({'Type': 'TxSpectralProfNode',
-                                     'Enabled': 'true'})
+        nodes = self.get_prop_nodes({"Type": "TxSpectralProfNode", "Enabled": "true"})
         return len(nodes) > 0
 
     def has_rx_channels(self):
-        nodes = self.get_prop_nodes({'Type': 'RxSusceptibilityProfNode',
-                                     'Enabled': 'true'})
+        nodes = self.get_prop_nodes({"Type": "RxSusceptibilityProfNode", "Enabled": "true"})
         return len(nodes) > 0
 
 
@@ -428,44 +468,37 @@ class EmitComponentPropNode(object):
         self.odesign = design
         self.parent_component = parent_component
         self.node_name = node_name
-        self.node_name_as_list = node_name.split('-*-')
+        self.node_name_as_list = node_name.split("-*-")
         self.children = []
         self.parent = None
 
     @property
     def props(self):
-        prop_list = self.odesign.GetComponentNodeProperties(
-            self.parent_component.name, self.node_name)
-        props = dict(p.split('=') for p in prop_list)
+        prop_list = self.odesign.GetComponentNodeProperties(self.parent_component.name, self.node_name)
+        props = dict(p.split("=") for p in prop_list)
         return props
 
     @property
     def enabled(self):
-        return self.props['Enabled'] == 'true'
+        return self.props["Enabled"] == "true"
 
     @aedt_exception_handler
     def _set_prop_value(self, props={}):
         comp_name = self.parent_component.name
         prop_list = ["NAME:properties"]
         for prop_name, value in props.items():
-            prop_list.append('{}:='.format(prop_name))
+            prop_list.append("{}:=".format(prop_name))
             if type(value) is not str:
-                raise TypeError(
-                    'Value for key {} is not a string.'.format(prop_name))
+                raise TypeError("Value for key {} is not a string.".format(prop_name))
             prop_list.append(value)
         properties_to_set = [
-                [
-                    "NAME:node",
-                    "fullname:=", self.node_name,
-                    prop_list
-                ],
-                []  # Property does not get set without this empty list
-            ]
+            ["NAME:node", "fullname:=", self.node_name, prop_list],
+            [],  # Property does not get set without this empty list
+        ]
         nodes_to_delete = []  # No nodes to delete
-        self.odesign.EditComponentNodes(comp_name, properties_to_set,
-                                        nodes_to_delete)
+        self.odesign.EditComponentNodes(comp_name, properties_to_set, nodes_to_delete)
 
     @enabled.setter
     def enabled(self, value):
-        str_value = 'true' if value else 'false'
-        self._set_prop_value({'Enabled': str_value})
+        str_value = "true" if value else "false"
+        self._set_prop_value({"Enabled": str_value})

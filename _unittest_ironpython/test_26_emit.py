@@ -1,5 +1,6 @@
 from conf_unittest import test_generator, PytestMockup
 import os
+
 if os.name != "posix":
     test_filter = "test_"
 

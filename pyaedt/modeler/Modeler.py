@@ -607,13 +607,24 @@ class GeometryModeler(Modeler, object):
 
     def __init__(self, app, is3d=True):
         self._app = app
-        self.oeditor = self._odesign.SetActiveEditor("3D Modeler")
+        self._oeditor = self._odesign.SetActiveEditor("3D Modeler")
         self._odefinition_manager = self._app.odefinition_manager
         self._omaterial_manager = self._app._oproject.GetDefinitionManager().GetManager("Material")
         Modeler.__init__(self, app)
         # TODO Refactor this as a dictionary with names as key
         self.coordinate_systems = self._get_coordinates_data()
         self._is3d = is3d
+
+    @property
+    def oeditor(self):
+        """Aedt oEditor Module.
+
+        References
+        ----------
+
+        >>> oEditor = oDesign.SetActiveEditor("3D Modeler")"""
+
+        return self._oeditor
 
     @property
     def materials(self):
@@ -690,36 +701,48 @@ class GeometryModeler(Modeler, object):
                 try:
                     cs.ref_cs = id2name[name2refid[cs.name]]
                     if cs.props["Mode"] == "Axis/Position":
-                        x1 = GeometryOperators.parse_dim_arg(cs.props["XAxisXvec"],
-                                                             variable_manager=self._app.variable_manager)
-                        x2 = GeometryOperators.parse_dim_arg(cs.props["XAxisYvec"],
-                                                             variable_manager=self._app.variable_manager)
-                        x3 = GeometryOperators.parse_dim_arg(cs.props["XAxisZvec"],
-                                                             variable_manager=self._app.variable_manager)
-                        y1 = GeometryOperators.parse_dim_arg(cs.props["YAxisXvec"],
-                                                             variable_manager=self._app.variable_manager)
-                        y2 = GeometryOperators.parse_dim_arg(cs.props["YAxisYvec"],
-                                                             variable_manager=self._app.variable_manager)
-                        y3 = GeometryOperators.parse_dim_arg(cs.props["YAxisZvec"],
-                                                             variable_manager=self._app.variable_manager)
+                        x1 = GeometryOperators.parse_dim_arg(
+                            cs.props["XAxisXvec"], variable_manager=self._app.variable_manager
+                        )
+                        x2 = GeometryOperators.parse_dim_arg(
+                            cs.props["XAxisYvec"], variable_manager=self._app.variable_manager
+                        )
+                        x3 = GeometryOperators.parse_dim_arg(
+                            cs.props["XAxisZvec"], variable_manager=self._app.variable_manager
+                        )
+                        y1 = GeometryOperators.parse_dim_arg(
+                            cs.props["YAxisXvec"], variable_manager=self._app.variable_manager
+                        )
+                        y2 = GeometryOperators.parse_dim_arg(
+                            cs.props["YAxisYvec"], variable_manager=self._app.variable_manager
+                        )
+                        y3 = GeometryOperators.parse_dim_arg(
+                            cs.props["YAxisZvec"], variable_manager=self._app.variable_manager
+                        )
                         x, y, z = GeometryOperators.pointing_to_axis([x1, x2, x3], [y1, y2, y3])
                         a, b, g = GeometryOperators.axis_to_euler_zyz(x, y, z)
                         cs.quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
                     elif cs.props["Mode"] == "Euler Angle ZXZ":
-                        a = GeometryOperators.parse_dim_arg(cs.props["Phi"],
-                                                            variable_manager=self._app.variable_manager)
-                        b = GeometryOperators.parse_dim_arg(cs.props["Theta"],
-                                                            variable_manager=self._app.variable_manager)
-                        g = GeometryOperators.parse_dim_arg(cs.props["Psi"],
-                                                            variable_manager=self._app.variable_manager)
+                        a = GeometryOperators.parse_dim_arg(
+                            cs.props["Phi"], variable_manager=self._app.variable_manager
+                        )
+                        b = GeometryOperators.parse_dim_arg(
+                            cs.props["Theta"], variable_manager=self._app.variable_manager
+                        )
+                        g = GeometryOperators.parse_dim_arg(
+                            cs.props["Psi"], variable_manager=self._app.variable_manager
+                        )
                         cs.quaternion = GeometryOperators.euler_zxz_to_quaternion(a, b, g)
                     elif cs.props["Mode"] == "Euler Angle ZYZ":
-                        a = GeometryOperators.parse_dim_arg(cs.props["Phi"],
-                                                            variable_manager=self._app.variable_manager)
-                        b = GeometryOperators.parse_dim_arg(cs.props["Theta"],
-                                                            variable_manager=self._app.variable_manager)
-                        g = GeometryOperators.parse_dim_arg(cs.props["Psi"],
-                                                            variable_manager=self._app.variable_manager)
+                        a = GeometryOperators.parse_dim_arg(
+                            cs.props["Phi"], variable_manager=self._app.variable_manager
+                        )
+                        b = GeometryOperators.parse_dim_arg(
+                            cs.props["Theta"], variable_manager=self._app.variable_manager
+                        )
+                        g = GeometryOperators.parse_dim_arg(
+                            cs.props["Psi"], variable_manager=self._app.variable_manager
+                        )
                         cs.quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
                 except:
                     pass
@@ -731,7 +754,14 @@ class GeometryModeler(Modeler, object):
 
     @property
     def model_units(self):
-        """Model units as a string. For example ``"mm"``."""
+        """Model units as a string. For example ``"mm"``.
+
+        References
+        ----------
+
+        >>> oEditor.GetModelUnits
+        >>> oEditor.SetModelUnits
+        """
         return _retry_ntimes(10, self.oeditor.GetModelUnits)
 
     @model_units.setter
@@ -741,17 +771,35 @@ class GeometryModeler(Modeler, object):
 
     @property
     def selections(self):
-        """Selections."""
+        """Selections.
+
+        References
+        ----------
+
+        >>> oEditor.GetSelections
+        """
         return self.oeditor.GetSelections()
 
     @property
     def obounding_box(self):
-        """Bounding box."""
+        """Bounding box.
+
+        References
+        ----------
+
+        >>> oEditor.GetModelBoundingBox
+        """
         return self.oeditor.GetModelBoundingBox()
 
     @aedt_exception_handler
     def fit_all(self):
-        """Fit all."""
+        """Fit all.
+
+        References
+        ----------
+
+        >>> oEditor.FitAll
+        """
         self.oeditor.FitAll()
 
     @property
@@ -763,6 +811,10 @@ class GeometryModeler(Modeler, object):
         str
             Dimensionality, which is either ``"2D"`` or ``"3D"``.
 
+        References
+        ----------
+
+        >>> oDesign.Is2D
         """
         try:
             if self._odesign.Is2D():
@@ -777,12 +829,23 @@ class GeometryModeler(Modeler, object):
 
     @property
     def design_type(self):
-        """Design type."""
+        """Design type.
+
+        References
+        ----------
+
+        >>> oDesign.GetDesignType
+        """
         return self._odesign.GetDesignType()
 
     @property
     def geometry_mode(self):
-        """Geometry mode."""
+        """Geometry mode.
+
+        References
+        ----------
+
+        >>> oDesign.GetGeometryMode"""
         return self._odesign.GetGeometryMode()
 
     @property
@@ -797,6 +860,10 @@ class GeometryModeler(Modeler, object):
         list os str
             List of object names with the object name as the key.
 
+        References
+        ----------
+
+        >>> oEditor.GetObjectsInGroup
         """
         if self.dimension == "3D":
             objects = self.oeditor.GetObjectsInGroup("Solids")
@@ -846,6 +913,11 @@ class GeometryModeler(Modeler, object):
         Returns
         -------
         bool
+
+        References
+        ----------
+
+        >>> oEditor.CoverLines
         """
         obj_to_cover = self.convert_to_selections(selection, False)
         self.oeditor.CoverLines(["NAME:Selections", "Selections:=", obj_to_cover, "NewPartsModelFlag:=", "Model"])
@@ -930,6 +1002,11 @@ class GeometryModeler(Modeler, object):
         -------
         :class:`pyaedt.modeler.Modeler.CoordinateSystem`
             Coordinate System Object.
+
+        References
+        ----------
+
+        >>> oEditor.CreateRelativeCS
         """
         if name:
             cs_names = [i.name for i in self.coordinate_systems]
@@ -988,12 +1065,21 @@ class GeometryModeler(Modeler, object):
         def get_total_transformation(p, cs):
             idx = cs_names.index(cs)
             q = self.coordinate_systems[idx].quaternion
-            ox = GeometryOperators.parse_dim_arg(self.coordinate_systems[idx].props["OriginX"], self.model_units,
-                                                 variable_manager=self._app.variable_manager)
-            oy = GeometryOperators.parse_dim_arg(self.coordinate_systems[idx].props["OriginY"], self.model_units,
-                                                 variable_manager=self._app.variable_manager)
-            oz = GeometryOperators.parse_dim_arg(self.coordinate_systems[idx].props["OriginZ"], self.model_units,
-                                                 variable_manager=self._app.variable_manager)
+            ox = GeometryOperators.parse_dim_arg(
+                self.coordinate_systems[idx].props["OriginX"],
+                self.model_units,
+                variable_manager=self._app.variable_manager,
+            )
+            oy = GeometryOperators.parse_dim_arg(
+                self.coordinate_systems[idx].props["OriginY"],
+                self.model_units,
+                variable_manager=self._app.variable_manager,
+            )
+            oz = GeometryOperators.parse_dim_arg(
+                self.coordinate_systems[idx].props["OriginZ"],
+                self.model_units,
+                variable_manager=self._app.variable_manager,
+            )
             o = [ox, oy, oz]
             refcs = self.coordinate_systems[idx].ref_cs
             if refcs == "Global":
@@ -1019,6 +1105,10 @@ class GeometryModeler(Modeler, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.SetWCS
         """
         self.oeditor.SetWCS(["NAME:SetWCS Parameter", "Working Coordinate System:=", name, "RegionDepCSOk:=", False])
         return True
@@ -1037,6 +1127,10 @@ class GeometryModeler(Modeler, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oDesign.SetObjectDeformation
         """
         self.logger.info("Enabling deformation feedback")
         try:
@@ -1069,6 +1163,10 @@ class GeometryModeler(Modeler, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oDesign.SetObjectTemperature
         """
         self.logger.info("Set model temperature and enabling Thermal Feedback")
         if create_project_var:
@@ -1219,6 +1317,10 @@ class GeometryModeler(Modeler, object):
         int
             ID of the sheet created.
 
+        References
+        ----------
+
+        >>> oEditor.CreatePolyline
         """
         if axisdir > 2:
             obj_cent = [-1e6, -1e6, -1e6]
@@ -1378,6 +1480,10 @@ class GeometryModeler(Modeler, object):
             List of excitation names. Excitations with multiple modes will return one
             excitation for each mode.
 
+        References
+        ----------
+
+        >>> oModule.GetExcitations
         """
         try:
             list_names = list(self._app.oboundary.GetExcitations())
@@ -1396,6 +1502,10 @@ class GeometryModeler(Modeler, object):
             List of boundary names. Boundaries with multiple modes will return one
             boundary for each mode.
 
+        References
+        ----------
+
+        >>> oModule.GetBoundaries
         """
         list_names = list(self._app.oboundary.GetBoundaries())
         del list_names[1::2]
@@ -1418,6 +1528,10 @@ class GeometryModeler(Modeler, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.ChangeProperty
         """
         selections = self.convert_to_selections(obj_list, True)
         for obj in selections:
@@ -1438,6 +1552,10 @@ class GeometryModeler(Modeler, object):
         list
             List of objects belonging to the group.
 
+        References
+        ----------
+
+        >>> oEditor.GetObjectsInGroup
         """
         if type(group) is not str:
             raise ValueError("Group name must be a string")
@@ -1461,6 +1579,11 @@ class GeometryModeler(Modeler, object):
             List of six float values representing the bounding box
             in the form ``[min_x, min_y, min_z, max_x, max_y, max_z]``.
 
+        References
+        ----------
+
+        >>> oEditor.GetObjectsInGroup
+        >>> oEditor.GetModelBoundingBox
         """
         if type(group) is not str:
             raise ValueError("Group name must be a string")
@@ -1545,6 +1668,10 @@ class GeometryModeler(Modeler, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.Split
         """
         planes = GeometryOperators.cs_plane_to_plane_str(plane)
         selections = self.convert_to_selections(objects)
@@ -1591,6 +1718,10 @@ class GeometryModeler(Modeler, object):
         list
             List of objects created or an empty list.
 
+        References
+        ----------
+
+        >>> oEditor.DuplicateMirror
         """
         selections = self.convert_to_selections(objid)
         Xpos, Ypos, Zpos = self.primitives._pos_with_arg(position)
@@ -1636,6 +1767,10 @@ class GeometryModeler(Modeler, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.Mirror
         """
         selections = self.convert_to_selections(objid)
         Xpos, Ypos, Zpos = self.primitives._pos_with_arg(position)
@@ -1678,6 +1813,10 @@ class GeometryModeler(Modeler, object):
         -------
         tuple
 
+        References
+        ----------
+
+        >>> oEditor.DuplicateAroundAxis
         """
         selections = self.convert_to_selections(objid)
 
@@ -1734,6 +1873,10 @@ class GeometryModeler(Modeler, object):
         -------
         tuple
 
+        References
+        ----------
+
+        >>> oEditor.DuplicateAlongLine
         """
         selections = self.convert_to_selections(objid)
         Xpos, Ypos, Zpos = self.primitives._pos_with_arg(vector)
@@ -1775,6 +1918,10 @@ class GeometryModeler(Modeler, object):
         -------
         pyaedt.modeler.Object3d.Object3d
 
+        References
+        ----------
+
+        >>> oEditor.ThickenSheet
         """
         selections = self.convert_to_selections(objid)
 
@@ -1803,6 +1950,10 @@ class GeometryModeler(Modeler, object):
         -------
         pyaedt.modeler.Object3d.Object3d
 
+        References
+        ----------
+
+        >>> oEditor.SweepFacesAlongNormal
         """
         selections = self.convert_to_selections(obj_name)
         vArg1 = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
@@ -1850,6 +2001,10 @@ class GeometryModeler(Modeler, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.SweepAlongVector
         """
         selections = self.convert_to_selections(objid)
         vectorx, vectory, vectorz = self.primitives._pos_with_arg(sweep_vector)
@@ -1892,6 +2047,10 @@ class GeometryModeler(Modeler, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.SweepAlongPath
         """
         selections = self.convert_to_selections(objid) + "," + self.convert_to_selections(sweep_object)
         vArg1 = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
@@ -1922,7 +2081,13 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
+        bool
+            ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.SweepAroundAxis
         """
         selections = self.convert_to_selections(objid)
 
@@ -1968,6 +2133,10 @@ class GeometryModeler(Modeler, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.Section
         """
         plane_ids = [0, 1, 2]
         plane_str = ["XY", "YZ", "ZX"]
@@ -2011,6 +2180,10 @@ class GeometryModeler(Modeler, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.SeparateBody
         """
         selections = self.convert_to_selections(object_list)
         self.oeditor.SeparateBody(
@@ -2042,6 +2215,10 @@ class GeometryModeler(Modeler, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.Rotate
         """
         selections = self.convert_to_selections(objid)
         vArg1 = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
@@ -2074,6 +2251,10 @@ class GeometryModeler(Modeler, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.Subtract
         """
         szList = self.convert_to_selections(blank_list)
         szList1 = self.convert_to_selections(tool_list)
@@ -2101,6 +2282,10 @@ class GeometryModeler(Modeler, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.PurgeHistory
         """
         szList = self.convert_to_selections(theList)
 
@@ -2120,6 +2305,10 @@ class GeometryModeler(Modeler, object):
             List of six float values representing the bounding box
             in the form ``[min_x, min_y, min_z, max_x, max_y, max_z]``.
 
+        References
+        ----------
+
+        >>> oEditor.GetModelBoundingBox
         """
         bb = list(self.oeditor.GetModelBoundingBox())
         bound = [float(b) for b in bb]
@@ -2139,6 +2328,10 @@ class GeometryModeler(Modeler, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.Unite
         """
         slice = min(20, len(theList))
         num_objects = len(theList)
@@ -2176,6 +2369,11 @@ class GeometryModeler(Modeler, object):
         str
             Name of objects cloned when successful.
 
+        References
+        ----------
+
+        >>> oEditor.Copy
+        >>> oEditor.Paste
         """
 
         szSelections = self.convert_to_selections(objid)
@@ -2202,6 +2400,10 @@ class GeometryModeler(Modeler, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.Intersect
         """
         unclassified = list(self.oeditor.GetObjectsInGroup("Unclassified"))
         szSelections = self.convert_to_selections(theList)
@@ -2233,6 +2435,10 @@ class GeometryModeler(Modeler, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.Connect
         """
         unclassified_before = list(self.primitives.unclassified_names)
         szSelections = self.convert_to_selections(theList)
@@ -2266,6 +2472,10 @@ class GeometryModeler(Modeler, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.Move
         """
         Xvec, Yvec, Zvec = self.primitives._pos_with_arg(vector)
         szSelections = self.convert_to_selections(objid)
@@ -2289,7 +2499,10 @@ class GeometryModeler(Modeler, object):
         chassis_part : str
             Name of the main chassis object.
 
+        References
+        ----------
 
+        >>> oEditor.Subtract
         """
         self.logger.info("Subtract all objects from Chassis object - exclude vacuum objs")
         mat_names = self._omaterial_manager.GetNames()
@@ -2312,9 +2525,7 @@ class GeometryModeler(Modeler, object):
         num_obj_end = self.oeditor.GetNumObjects()
         self.subtract(blank_part, tool_parts, True)
 
-        self.logger.info(
-            "Subtraction Objs - Initial: " + str(num_obj_start) + "  ,  Final: " + str(num_obj_end)
-        )
+        self.logger.info("Subtraction Objs - Initial: " + str(num_obj_start) + "  ,  Final: " + str(num_obj_end))
 
     @aedt_exception_handler
     def _offset_on_plane(self, i, offset):
@@ -2418,6 +2629,10 @@ class GeometryModeler(Modeler, object):
         str
             Name of the matched object.
 
+        References
+        ----------
+
+        >>> oEditor.GetMatchedObjectName
         """
         return self.oeditor.GetMatchedObjectName(search_string)
 
@@ -2435,6 +2650,10 @@ class GeometryModeler(Modeler, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.RenamePart
         """
         # import os.path
         # (CADPath, CADFilename) = os.path.split(CADFile)
@@ -2470,6 +2689,10 @@ class GeometryModeler(Modeler, object):
         int
             ID of the airbox created.
 
+        References
+        ----------
+
+        >>> oEditor.CreateBox
         """
         self.logger.info("Adding Airbox to the Bounding ")
 
@@ -2516,6 +2739,10 @@ class GeometryModeler(Modeler, object):
             List of ``[x_pos, y_pos, z_pos, x_neg, y_neg, z_neg]``
             coordinates for the region created.
 
+        References
+        ----------
+
+        >>> oEditor.CreateRegion
         """
         return self.primitives.create_region([x_pos, y_pos, z_pos, x_neg, y_neg, z_neg])
 
@@ -2561,6 +2788,13 @@ class GeometryModeler(Modeler, object):
         tuple
             Contains the inner, outer, and dielectric coax as
             :class:`pyaedt.modeler.Object3d.Object3d` objects.
+
+        References
+        ----------
+
+        >>> oEditor.CreateCylinder
+        >>> oEditor.AssignMaterial
+
 
         Examples
         --------
@@ -2639,6 +2873,13 @@ class GeometryModeler(Modeler, object):
         tuple
             Tuple of :class:`Object3d <pyaedt.modeler.Object3d.Object3d>`
             objects created by the waveguide.
+
+        References
+        ----------
+
+        >>> oEditor.CreateBox
+        >>> oEditor.AssignMaterial
+
 
         Examples
         --------
@@ -2780,6 +3021,10 @@ class GeometryModeler(Modeler, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.ChangeProperty
         """
         arg = ["NAME:AllTabs"]
         arg2 = ["NAME:Geometry3DCmdTab", ["NAME:PropServers", "Region:CreateRegion:1"]]
@@ -2813,6 +3058,10 @@ class GeometryModeler(Modeler, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.CreateEntityList
         """
         self.oeditor.CreateEntityList(
             ["NAME:GeometryEntityListParameters", "EntityType:=", "Face", "EntityList:=", fl],
@@ -2837,6 +3086,10 @@ class GeometryModeler(Modeler, object):
         int
             ID of the new object list.
 
+        References
+        ----------
+
+        >>> oEditor.CreateEntityList
         """
         listf = ",".join(fl)
         self.oeditor.CreateEntityList(
@@ -2861,6 +3114,10 @@ class GeometryModeler(Modeler, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.GenerateHistory
         """
         objectname = self.convert_to_selections(objectname)
         self.oeditor.GenerateHistory(
@@ -2889,7 +3146,6 @@ class GeometryModeler(Modeler, object):
         -------
         str
             Name of the bondwire created.
-
         """
         old_bondwire = self.primitives.get_object_from_name(bondname)
         if not old_bondwire:
@@ -3007,6 +3263,10 @@ class GeometryModeler(Modeler, object):
         int
             ID of the entity list.
 
+        References
+        ----------
+
+        >>> oEditor.GetEntityListIDByName
         """
         id = self.oeditor.GetEntityListIDByName(name)
         return id
@@ -3049,6 +3309,11 @@ class GeometryModeler(Modeler, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.Subtract
+        >>> oEditor.PurgeHistory
         """
         self.logger.info("Creating explicit subtraction between objects.")
         for el in diellist:
@@ -3132,6 +3397,10 @@ class GeometryModeler(Modeler, object):
         list
             List of the object names for the specified type.
 
+        References
+        ----------
+
+        >>> oEditor.GetObjectsInGroup
         """
         objNames = list(self.oeditor.GetObjectsInGroup(type))
         return objNames
@@ -3159,6 +3428,10 @@ class GeometryModeler(Modeler, object):
             List of six float values representing the bounding box
             in the form ``[min_x, min_y, min_z, max_x, max_y, max_z]``.
 
+        References
+        ----------
+
+        >>> oEditor.GetModelBoundingBox
         """
         oBoundingBox = list(self.oeditor.GetModelBoundingBox())
         dimensions = []
@@ -3181,6 +3454,10 @@ class GeometryModeler(Modeler, object):
         str
             Name of the edge if it exists, ``False`` otherwise.
 
+        References
+        ----------
+
+        >>> oEditor.GetEdgeIDsFromObject
         """
         for object in list(self.primitives.object_id_dict.keys()):
             try:
@@ -3200,6 +3477,10 @@ class GeometryModeler(Modeler, object):
         int
             ``1`` when successful, ``0`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.GetModelBoundingBox
         """
         bound = self.get_model_bounding_box()
         volume = abs(bound[3] - bound[0]) * abs(bound[4] - bound[1]) * abs(bound[5] - bound[2])
@@ -3245,6 +3526,10 @@ class GeometryModeler(Modeler, object):
         list
             List of the ``[x, y, (z)]`` coordinates for the 2D or 3D line object.
 
+        References
+        ----------
+
+        >>> oEditor.GetVertexIDsFromObject
         """
         position_list = []
 
@@ -3284,6 +3569,10 @@ class GeometryModeler(Modeler, object):
          bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.Import
         """
         vArg1 = ["NAME:NativeBodyParameters"]
         vArg1.append("HealOption:="), vArg1.append(healing)
@@ -3320,6 +3609,10 @@ class GeometryModeler(Modeler, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.CreateUserDefinedModel
         """
         environlist = os.environ
         latestversion = ""
@@ -3550,6 +3843,10 @@ class GeometryModeler(Modeler, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.BreakUDMConnection
         """
         args = ["NAME:Selections", "Selections:=", "SpaceClaim1"]
         self.oeditor.BreakUDMConnection(args)
@@ -3570,6 +3867,11 @@ class GeometryModeler(Modeler, object):
          bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.CreateUserDefinedModel
+        >>> oEditor.BreakUDMConnection
         """
         self.import_spaceclaim_document(SpaceClaimFile)
         self.break_spaceclaim_connection()
@@ -3590,6 +3892,10 @@ class GeometryModeler(Modeler, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.Import
         """
         self.import_3d_cad(cadfile, 1)
         return True
@@ -3609,6 +3915,11 @@ class GeometryModeler(Modeler, object):
         list
             List of all outer faces of the specified materials.
 
+        References
+        ----------
+
+        >>> oEditor.GetObjectsByMaterial
+        >>> oEditor.GetFaceIDs
         """
         self.logger.info("Selecting outer faces.")
 
@@ -3641,6 +3952,10 @@ class GeometryModeler(Modeler, object):
         list
             List of outer faces in the given list of objects.
 
+        References
+        ----------
+
+        >>> oEditor.GetFaceIDs
         """
         self.logger.info("Selecting outer faces.")
 
@@ -3663,6 +3978,10 @@ class GeometryModeler(Modeler, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.SetPropertyValue
         """
         oObjects = list(self.oeditor.GetObjectsInGroup("Solids"))
         for obj in oObjects:
@@ -3694,6 +4013,10 @@ class GeometryModeler(Modeler, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.ThickenSheet
         """
         aedt_bounding_box = self.get_model_bounding_box()
         directions = {}
@@ -3885,6 +4208,10 @@ class GeometryModeler(Modeler, object):
         str
            Name assigned to the new group.
 
+        References
+        ----------
+
+        >>> oEditor.CreateGroup
         """
         if components is None and groups is None and objects is None:
             raise AttributeError("At least one between ``objects``, ``components``, ``groups`` has to be defined.")
@@ -3944,6 +4271,10 @@ class GeometryModeler(Modeler, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.Ungroup
         """
         group_list = self.convert_to_selections(groups, return_list=True)
         arg = ["Groups:=", group_list]
@@ -3959,6 +4290,10 @@ class GeometryModeler(Modeler, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.FlattenGroup
         """
         self.oeditor.FlattenGroup(["Groups:=", ["Model"]])
         return True

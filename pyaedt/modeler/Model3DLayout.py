@@ -1,16 +1,22 @@
 import os
 import time
+from warnings import warn
 
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.edb import Edb
-from pyaedt.generic.general_methods import aedt_exception_handler, _retry_ntimes, is_ironpython, _pythonver, \
-    inside_desktop
+from pyaedt.generic.general_methods import (
+    aedt_exception_handler,
+    _retry_ntimes,
+    is_ironpython,
+    _pythonver,
+    inside_desktop,
+)
 from pyaedt.modules.LayerStackup import Layers
 from pyaedt.modeler.Modeler import Modeler
 from pyaedt.modeler.Primitives3DLayout import Geometries3DLayout, Primitives3DLayout
 
 
-class Modeler3DLayout(Modeler):
+class Modeler3DLayout(Modeler, Primitives3DLayout):
     """Manages Modeler 3D layouts.
 
     This class is inherited in the caller application and is accessible through the modeler variable
@@ -30,7 +36,7 @@ class Modeler3DLayout(Modeler):
 
     def __init__(self, app):
         self._app = app
-        self.oeditor = self._app._odesign.SetActiveEditor("Layout")
+        self._oeditor = self._app._odesign.SetActiveEditor("Layout")
         self.logger.info("Loading Modeler.")
         Modeler.__init__(self, app)
         self.logger.info("Modeler loaded.")
@@ -57,11 +63,23 @@ class Modeler3DLayout(Modeler):
         self.logger.info("EDB loaded.")
         self.layers = Layers(self, roughnessunits="um")
         self.logger.info("Layers loaded.")
-        self._primitives = Primitives3DLayout(self)
+        Primitives3DLayout.__init__(self, app)
+        self._primitives = self
+
         self.logger.info("Primitives loaded.")
         self.layers.refresh_all_layers()
 
         pass
+
+    @property
+    def oeditor(self):
+        """Oeditor Module.
+
+        References
+        ----------
+
+        >>> oEditor = oDesign.SetActiveEditor("Layout")"""
+        return self._oeditor
 
     @property
     def edb(self):
@@ -101,7 +119,13 @@ class Modeler3DLayout(Modeler):
 
     @aedt_exception_handler
     def fit_all(self):
-        """Fit all."""
+        """Fit all.
+
+        References
+        ----------
+
+        >>> oEditor.ZoomToFit()
+        """
         try:
             self._desktop.RestoreWindow()
             self.oeditor.ZoomToFit()
@@ -110,7 +134,14 @@ class Modeler3DLayout(Modeler):
 
     @property
     def model_units(self):
-        """Model units."""
+        """Model units.
+
+        References
+        ----------
+
+        >>> oEditor.GetActiveUnits
+        >>> oEditor.SetActivelUnits
+        """
         return _retry_ntimes(10, self.oeditor.GetActiveUnits)
 
     @model_units.setter
@@ -121,15 +152,30 @@ class Modeler3DLayout(Modeler):
 
     @property
     def primitives(self):
-        """Primitives."""
-        if self._primitivesDes != self._app.project_name + self._app.design_name:
-            self._primitives = Primitives3DLayout(self)
-            self._primitivesDes = self._app.project_name + self._app.design_name
+        """Primitives.
+
+        .. deprecated:: 0.4.15
+            No need to use primitives anymore. You can instantiate primitives methods directly from modeler instead.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Primitives3DLayout.Primitives3DLayout`
+
+        """
+        mess = "`primitives` is deprecated.\n"
+        mess += " Use `app.modeler` directly to instantiate primitives methods."
+        warn(mess, DeprecationWarning)
         return self._primitives
 
     @property
     def obounding_box(self):
-        """Bounding box."""
+        """Bounding box.
+
+        References
+        ----------
+
+        >>> oEditor.GetModelBoundingBox
+        """
         return self.oeditor.GetModelBoundingBox()
 
     @aedt_exception_handler
@@ -177,17 +223,36 @@ class Modeler3DLayout(Modeler):
         -------
         bool
             ``True`` if successful.
+
+        References
+        ----------
+
+        >>> oEditor.ChangeProperty
         """
         if isinstance(property_value, list) and len(property_value) == 3:
             xpos, ypos, zpos = self._pos_with_arg(property_value)
             self.oeditor.ChangeProperty(
-                ["NAME:AllTabs", ["NAME:" + property_tab, ["NAME:PropServers", property_object], ["NAME:ChangedProps", [
-                    "NAME:" + property_name, "X:=", xpos, "Y:=", ypos, "Z:=", zpos]]]])
+                [
+                    "NAME:AllTabs",
+                    [
+                        "NAME:" + property_tab,
+                        ["NAME:PropServers", property_object],
+                        ["NAME:ChangedProps", ["NAME:" + property_name, "X:=", xpos, "Y:=", ypos, "Z:=", zpos]],
+                    ],
+                ]
+            )
         elif isinstance(property_value, (str, float, int)):
             posx = self._arg_with_dim(property_value, self.model_units)
             self.oeditor.ChangeProperty(
-                ["NAME:AllTabs", ["NAME:"+property_tab, ["NAME:PropServers", property_object],
-                                  ["NAME:ChangedProps", ["NAME:"+property_name, "Value:=", posx]]]])
+                [
+                    "NAME:AllTabs",
+                    [
+                        "NAME:" + property_tab,
+                        ["NAME:PropServers", property_object],
+                        ["NAME:ChangedProps", ["NAME:" + property_name, "Value:=", posx]],
+                    ],
+                ]
+            )
         else:
             self.logger.error("Wrong Property Value")
             return False
@@ -209,6 +274,11 @@ class Modeler3DLayout(Modeler):
         -------
         bool
             ``True`` if successful.
+
+        References
+        ----------
+
+        >>> oEditor.ChangeProperty
         """
         return self.change_property(clip_name, "Location", position)
 
@@ -228,6 +298,13 @@ class Modeler3DLayout(Modeler):
         bool
              ``True`` when successful, ``False`` when failed.
 
+
+        References
+        ----------
+
+        >>> oEditor.Heal
+
+
         Examples
         --------
         >>> from pyaedt import Hfss3dLayout
@@ -238,7 +315,6 @@ class Modeler3DLayout(Modeler):
         >>> h3d.modeler.unite([l1,l2])
         >>> h3d.modeler.colinear_heal("poly_2", 0.25)
         True
-
         """
         if isinstance(selection, str):
             selection = [selection]
@@ -276,6 +352,12 @@ class Modeler3DLayout(Modeler):
         -------
         str
             Name of the object.
+
+        References
+        ----------
+
+        >>> oEditor.Expand
+
 
         Examples
         --------
@@ -327,6 +409,10 @@ class Modeler3DLayout(Modeler):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oImportExport.ImportExtracta
         """
         if not edb_path:
             edb_path = self.projdir
@@ -337,8 +423,7 @@ class Modeler3DLayout(Modeler):
         self._oimportexport.ImportExtracta(
             brd_filename, os.path.join(edb_path, edb_name + ".aedb"), os.path.join(edb_path, edb_name + ".xml")
         )
-        self._app.oproject = self._app._desktop.GetActiveProject().GetName()
-        self._app._odesign = None
+        self._app.__init__(self._app._desktop.GetActiveProject().GetName())
         return True
 
     @aedt_exception_handler
@@ -378,6 +463,10 @@ class Modeler3DLayout(Modeler):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oImportExport.ImportIPC
         """
         if not edb_path:
             edb_path = self.projdir
@@ -388,8 +477,7 @@ class Modeler3DLayout(Modeler):
         self._oimportexport.ImportIPC(
             ipc_filename, os.path.join(edb_path, edb_name + ".aedb"), os.path.join(edb_path, edb_name + ".xml")
         )
-        self._app.oproject = self._app._desktop.GetActiveProject().GetName()
-        self._app._odesign = None
+        self._app.__init__(self._app._desktop.GetActiveProject().GetName())
         return True
 
     @aedt_exception_handler
@@ -408,6 +496,10 @@ class Modeler3DLayout(Modeler):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.Subtract
         """
         vArg1 = ["NAME:primitives", blank]
         if isinstance(tool, list):
@@ -440,6 +532,10 @@ class Modeler3DLayout(Modeler):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.Unite
         """
         vArg1 = ["NAME:primitives"]
         if len(objectlists) >= 2:
@@ -469,6 +565,10 @@ class Modeler3DLayout(Modeler):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.Intersect
         """
         vArg1 = ["NAME:primitives"]
         if len(objectlists) >= 2:
@@ -502,6 +602,10 @@ class Modeler3DLayout(Modeler):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.Duplicate
         """
         if isinstance(objectlists, str):
             objectlists = [objectlists]
@@ -512,11 +616,11 @@ class Modeler3DLayout(Modeler):
 
     @aedt_exception_handler
     def set_temperature_dependence(
-            self,
-            include_temperature_dependence=True,
-            enable_feedback=True,
-            ambient_temp=22,
-            create_project_var=False,
+        self,
+        include_temperature_dependence=True,
+        enable_feedback=True,
+        ambient_temp=22,
+        create_project_var=False,
     ):
         """Set the temperature dependence for the design.
 
@@ -537,6 +641,10 @@ class Modeler3DLayout(Modeler):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oDesign.SetTemperatureSettings
         """
         self.logger.info("Set the temperature dependence for the design.")
         if create_project_var:
@@ -546,9 +654,12 @@ class Modeler3DLayout(Modeler):
             var = str(ambient_temp) + "cel"
         vargs1 = [
             "NAME:TemperatureSettings",
-            "IncludeTempDependence:=", include_temperature_dependence,
-            "EnableFeedback:=", enable_feedback,
-            "Temperature:=", var,
+            "IncludeTempDependence:=",
+            include_temperature_dependence,
+            "EnableFeedback:=",
+            enable_feedback,
+            "Temperature:=",
+            var,
         ]
         try:
             self._odesign.SetTemperatureSettings(vargs1)

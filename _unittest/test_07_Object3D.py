@@ -18,7 +18,7 @@ class TestClass:
             test_projectfile = os.path.join(self.local_scratch.path, "test_object3d" + ".aedt")
             self.aedtapp = Hfss()
             self.aedtapp.save_project(project_file=test_projectfile)
-            self.prim = self.aedtapp.modeler.primitives
+            # self.prim = self.aedtapp.modeler
 
     def teardown_class(self):
         self.aedtapp._desktop.ClearMessages("", "", 3)
@@ -224,7 +224,7 @@ class TestClass:
         assert not _to_boolean("no")
 
     def test_10_chamfer(self):
-        initial_object = self.prim.create_box([0, 0, 0], [10, 10, 5], "ChamferTest", "Copper")
+        initial_object = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "ChamferTest", "Copper")
         object_edges = initial_object.edges
         assert len(object_edges) == 12
         test = initial_object.edges[0].chamfer(left_distance=0.2)
@@ -242,7 +242,7 @@ class TestClass:
         self.aedtapp.modeler.primitives.delete(initial_object)
 
     def test_11_fillet(self):
-        initial_object = self.prim.create_box([0, 0, 0], [10, 10, 5], "FilletTest", "Copper")
+        initial_object = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "FilletTest", "Copper")
         object_edges = initial_object.edges
         assert len(object_edges) == 12
         test = initial_object.edges[0].fillet(radius=0.2)
@@ -252,7 +252,7 @@ class TestClass:
         self.aedtapp.modeler.primitives.delete(initial_object)
 
     def test_object_length(self):
-        initial_object = self.prim.create_box([0, 0, 0], [10, 10, 5], "FilletTest", "Copper")
+        initial_object = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "FilletTest", "Copper")
         test_edge = initial_object.edges[0]
         assert isinstance(test_edge.length, float)
 
@@ -265,7 +265,7 @@ class TestClass:
         self.aedtapp.modeler.primitives.delete(initial_object)
 
     def test_12_set_color(self):
-        initial_object = self.prim.create_box([0, 0, 0], [10, 10, 5], "ColorTest")
+        initial_object = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "ColorTest")
         initial_object.color = "Red"
         assert initial_object.color == (255, 0, 0)
         initial_object.color = "Green"
@@ -337,3 +337,9 @@ class TestClass:
     def test_17_section_object(self):
         o = self.aedtapp.modeler.primitives.create_box([-10, 0, 0], [10, 10, 5], "SectionBox", "Copper")
         o.section(plane="YZ", create_new=True, section_cross_object=False)
+
+    def test_18_create_spiral(self):
+        sp1 = self.aedtapp.modeler.create_spiral(name="ind")
+        assert sp1
+        assert sp1.name == "ind"
+        assert len(sp1.points) == 78

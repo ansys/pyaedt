@@ -15,6 +15,8 @@ from _setup_common import (
     classifiers,
 )
 
+is_ironpython = "IronPython" in sys.version or ".NETFramework" in sys.version
+
 
 def install(package):
     if hasattr(pip, "main"):
@@ -27,10 +29,16 @@ if sys.version_info >= (3, 9):
     install_requires = ["pywin32 >= 2.2.7;platform_system=='Windows'", "rpyc==5.0.1"]
     install("https://github.com/pyansys/PyAEDT/raw/release/0.3/pythonnet-2.5.2-cp39-cp39-win_amd64.whl")
 elif sys.version_info >= (3, 0):
-    install_requires = ["pywin32 >= 2.2.7;platform_system=='Windows'", "pythonnet >= 2.5.2;platform_system=='Windows'",
-                        "rpyc==5.0.1"]
+    install_requires = [
+        "pywin32 >= 2.2.7;platform_system=='Windows'",
+        "pythonnet >= 2.5.2;platform_system=='Windows'",
+        "rpyc==5.0.1",
+    ]
+elif not is_ironpython and sys.version_info < (3, 0):
+    install_requires = ["pywin32 == 228;platform_system=='Windows'", "pythonnet >= 2.5.2;platform_system=='Windows'"]
 else:
     install_requires = []
+
 
 setuptools.setup(
     name=name,

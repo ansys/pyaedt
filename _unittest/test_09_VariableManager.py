@@ -4,6 +4,7 @@ import gc
 import math
 
 from pyaedt.application.Variables import Variable
+from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.filesystem import Scratch
 from pyaedt.generic.general_methods import isclose
 from pyaedt.hfss import Hfss
@@ -333,3 +334,13 @@ class TestClass:
 
     def test_11_delete_variable(self):
         assert self.aedtapp.variable_manager.delete_variable("Var1")
+
+    def test_12_decompose_variable_value(self):
+        assert decompose_variable_value("3.123456m") == (3.123456, "m")
+        assert decompose_variable_value("3m") == (3, "m")
+        assert decompose_variable_value("3") == (3, "")
+        assert decompose_variable_value("3.") == (3.0, "")
+        assert decompose_variable_value("3.123456m2") == (3.123456, "m2")
+        assert decompose_variable_value("3.123456Nm-2") == (3.123456, "Nm-2")
+        assert decompose_variable_value("3.123456kg2m2") == (3.123456, "kg2m2")
+        assert decompose_variable_value("3.123456kgm2") == (3.123456, "kgm2")

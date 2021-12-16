@@ -146,8 +146,7 @@ class Components(object):
 
     @aedt_exception_handler
     def refresh_components(self):
-        """Refresh the component dictionary.
-        """
+        """Refresh the component dictionary."""
         self._cmp = {}
         self._logger.info("Refreshing the Components dictionary.")
         if self._active_layout:
@@ -1079,7 +1078,8 @@ class Components(object):
         else:
             self._logger.warning(
                 "Component %s has not been assigned because either it is not present in the layout "
-                "or it contains a number of pins not equal to 2", componentname
+                "or it contains a number of pins not equal to 2",
+                componentname,
             )
             return False
         self._logger.warning("RLC properties for Component %s has been assigned.", componentname)

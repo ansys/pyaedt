@@ -1,10 +1,12 @@
 from __future__ import absolute_import
+import warnings
+
 from pyaedt.generic.general_methods import aedt_exception_handler
 from pyaedt.modeler.Modeler import GeometryModeler
 from pyaedt.modeler.Primitives3D import Primitives3D
 
 
-class Modeler3D(GeometryModeler):
+class Modeler3D(GeometryModeler, Primitives3D, object):
     """Provides the Modeler 3D application interface.
 
     This class is inherited in the caller application and is accessible through the modeler variable
@@ -22,7 +24,8 @@ class Modeler3D(GeometryModeler):
 
     def __init__(self, application):
         GeometryModeler.__init__(self, application, is3d=True)
-        self._primitives = Primitives3D(self)
+        Primitives3D.__init__(self)
+        self._primitives = self
         self._primitivesDes = self._app.project_name + self._app.design_name
 
     def __get__(self, instance, owner):
@@ -33,14 +36,17 @@ class Modeler3D(GeometryModeler):
     def primitives(self):
         """Primitives.
 
+        .. deprecated:: 0.4.15
+            No need to use primitives anymore. You can instantiate primitives methods directly from modeler instead.
+
         Returns
         -------
         :class:`pyaedt.modeler.Primitives3D.Primitives3D`
 
         """
-        if self._primitivesDes != self._app.project_name + self._app.design_name:
-            self._primitives.refresh()
-            self._primitivesDes = self._app.project_name + self._app.design_name
+        mess = "The property `primitives` is deprecated.\n"
+        mess += " Use `app.modeler` directly to instantiate primitives methods."
+        warnings.warn(mess, DeprecationWarning)
         return self._primitives
 
     @aedt_exception_handler
@@ -63,6 +69,10 @@ class Modeler3D(GeometryModeler):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.Create3DComponent
         """
         if self._app.design_type == "Icepak":
             exclude_region = True

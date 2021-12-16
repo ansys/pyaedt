@@ -7,6 +7,7 @@ import socket
 from contextlib import closing
 from functools import partial
 import threading
+
 try:
     from thread import interrupt_main
 except ImportError:
@@ -15,6 +16,7 @@ except ImportError:
     except ImportError:
         # assume jython (#83)
         from java.lang import System
+
         interrupt_main = System.exit
 
 from rpyc.core.channel import Channel
@@ -22,6 +24,7 @@ from rpyc.core.stream import SocketStream, TunneledSocketStream, PipeStream
 from rpyc.core.service import VoidService, MasterService, SlaveService
 from rpyc.utils.registry import UDPRegistryClient
 from rpyc.lib import safe_import, spawn
+
 ssl = safe_import("ssl")
 
 
@@ -113,9 +116,20 @@ def unix_connect(path, service=VoidService, config={}):
     return connect_stream(s, service, config)
 
 
-def ssl_connect(host, port, keyfile=None, certfile=None, ca_certs=None,
-                cert_reqs=None, ssl_version=None, ciphers=None,
-                service=VoidService, config={}, ipv6=False, keepalive=False):
+def ssl_connect(
+    host,
+    port,
+    keyfile=None,
+    certfile=None,
+    ca_certs=None,
+    cert_reqs=None,
+    ssl_version=None,
+    ciphers=None,
+    service=VoidService,
+    config={},
+    ipv6=False,
+    keepalive=False,
+):
     """
     creates an SSL-wrapped connection to the given host (encrypted and
     authenticated).
@@ -258,6 +272,7 @@ def connect_subproc(args, service=VoidService, config={}):
     :param config: configuration dict
     """
     from subprocess import Popen, PIPE
+
     proc = Popen(args, stdin=PIPE, stdout=PIPE)
     conn = connect_pipes(proc.stdout, proc.stdin, service=service, config=config)
     conn.proc = proc  # just so you can have control over the process

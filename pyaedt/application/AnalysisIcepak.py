@@ -1,5 +1,6 @@
 import csv
 import re
+import os
 
 from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, is_ironpython
 from pyaedt.application.Analysis import Analysis
@@ -83,11 +84,33 @@ class FieldAnalysisIcepak(Analysis, object):
             close_on_exit,
             student_version,
         )
-        self.osolution = self._odesign.GetModule("Solutions")
-        self.oboundary = self._odesign.GetModule("BoundarySetup")
+        self._osolution = self._odesign.GetModule("Solutions")
+        self._oboundary = self._odesign.GetModule("BoundarySetup")
         self._modeler = Modeler3D(self)
         self._mesh = IcepakMesh(self)
         self._post = PostProcessor(self)
+
+    @property
+    def osolution(self):
+        """Solution Module.
+
+        References
+        ----------
+
+        >>> oModule = oDesign.GetModule("Solutions")
+        """
+        return self._osolution
+
+    @property
+    def oboundary(self):
+        """Boundary Module.
+
+        References
+        ----------
+
+        >>> oModule = oDesign.GetModule("BoundarySetup")
+        """
+        return self._oboundary
 
     @property
     def modeler(self):
@@ -105,7 +128,7 @@ class FieldAnalysisIcepak(Analysis, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.MeshIcepak.IcepakMesh'
+        :class:`pyaedt.modules.MeshIcepak.IcepakMesh`
         """
         return self._mesh
 
@@ -148,6 +171,10 @@ class FieldAnalysisIcepak(Analysis, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oDesign.SetDesignSettings
         """
 
         try:
@@ -210,6 +237,10 @@ class FieldAnalysisIcepak(Analysis, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.Export
         """
         if not object_list:
             allObjects = self.modeler.primitives.object_names
@@ -223,7 +254,12 @@ class FieldAnalysisIcepak(Analysis, object):
             allObjects = object_list[:]
 
         self.logger.info("Exporting {} objects".format(len(allObjects)))
-
+        major = -1
+        minor = -1
+        # actual version supported by AEDT is 29.0
+        if fileFormat in [".step", ".stp", ".sm3", ".sat", ".sab"]:
+            major = 29
+            minor = 0
         stringa = ",".join(allObjects)
         arg = [
             "NAME:ExportParameters",
@@ -234,11 +270,11 @@ class FieldAnalysisIcepak(Analysis, object):
             "Selections:=",
             stringa,
             "File Name:=",
-            str(filePath) + "/" + str(fileName) + str(fileFormat),
+            os.path.join(filePath, fileName + fileFormat),
             "Major Version:=",
-            -1,
+            major,
             "Minor Version:=",
-            -1,
+            minor,
         ]
 
         self.modeler.oeditor.Export(arg)
@@ -247,6 +283,7 @@ class FieldAnalysisIcepak(Analysis, object):
     @aedt_exception_handler
     def get_property_value(self, objectname, property, type=None):
         """Retrieve a design property value for an object.
+
 
         Parameters
         ----------
@@ -263,6 +300,11 @@ class FieldAnalysisIcepak(Analysis, object):
         -------
         type
             Value of the property.
+
+        References
+        ----------
+
+        >>> oDesign.GetPropertyValue
 
         Examples
         --------
@@ -329,6 +371,11 @@ class FieldAnalysisIcepak(Analysis, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.Copy
+        >>> oEditor.Paste
         """
         body_list = design.modeler.solid_bodies
         selection_list = []
@@ -367,6 +414,10 @@ class FieldAnalysisIcepak(Analysis, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.AssignMaterial
         """
         mat = mat.lower()
         selections = self.modeler.convert_to_selections(obj)
@@ -418,12 +469,14 @@ class FieldAnalysisIcepak(Analysis, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.ChangeProperty
         """
         mat = mat.lower()
         if mat not in self.materials.surface_material_keys:
-            self.logger.warning(
-                "Warning. The material is not the database. Use add_surface_material."
-            )
+            self.logger.warning("Warning. The material is not the database. Use add_surface_material.")
             return False
         else:
             for el in obj:
@@ -432,19 +485,11 @@ class FieldAnalysisIcepak(Analysis, object):
                         "NAME:AllTabs",
                         [
                             "NAME:Geometry3DAttributeTab",
-                            [
-                                "NAME:PropServers",
-                                el
-                            ],
-                            [
-                                "NAME:ChangedProps",
-                                [
-                                    "NAME:Surface Material",
-                                    "Value:=", "\"" + mat + "\""
-                                ]
-                            ]
-                        ]
-                    ])
+                            ["NAME:PropServers", el],
+                            ["NAME:ChangedProps", ["NAME:Surface Material", "Value:=", '"' + mat + '"']],
+                        ],
+                    ]
+                )
 
             return True
 
@@ -523,6 +568,10 @@ class FieldAnalysisIcepak(Analysis, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.AssignMaterial
         """
         with open(csv_material) as csvfile:
             csv_input = csv.reader(csvfile)
@@ -625,7 +674,6 @@ class FieldAnalysisIcepak(Analysis, object):
         -------
         list of str
             List of conductors.
-
         """
         cond = [i.lower() for i in list(self.materials.conductors)]
         obj_names = []

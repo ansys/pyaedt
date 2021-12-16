@@ -12,6 +12,7 @@ if is_ironpython:
 else:
     from pyaedt.modules.AdvancedPostProcessing import PostProcessor
 
+
 class FieldAnalysis3D(Analysis, object):
     """Manages 3D field analysis setup in HFSS, Maxwell 3D, and Q3D.
 
@@ -82,11 +83,33 @@ class FieldAnalysis3D(Analysis, object):
             close_on_exit,
             student_version,
         )
-        self.osolution = self._odesign.GetModule("Solutions")
-        self.oboundary = self._odesign.GetModule("BoundarySetup")
+        self._osolution = self._odesign.GetModule("Solutions")
+        self._oboundary = self._odesign.GetModule("BoundarySetup")
         self._modeler = Modeler3D(self)
         self._mesh = Mesh(self)
         self._post = PostProcessor(self)
+
+    @property
+    def osolution(self):
+        """Solution Module.
+
+        References
+        ----------
+
+        >>> oModule = oDesign.GetModule("Solutions")
+        """
+        return self._osolution
+
+    @property
+    def oboundary(self):
+        """Boundary Module.
+
+        References
+        ----------
+
+        >>> oModule = oDesign.GetModule("BoundarySetup")
+        """
+        return self._oboundary
 
     @property
     def modeler(self):
@@ -160,6 +183,11 @@ class FieldAnalysis3D(Analysis, object):
         -------
         str
             File Path.
+
+        References
+        ----------
+
+        >>> oDesign.ExportMeshStats
         """
         if not mesh_path:
             mesh_path = os.path.join(self.project_path, "meshstats.ms")
@@ -232,6 +260,10 @@ class FieldAnalysis3D(Analysis, object):
         type
             Value of the property.
 
+        References
+        ----------
+
+        >>> oDesign.GetPropertyValue
         """
 
         boundary = {"HFSS": "HfssTab", "Icepak": "Icepak", "Q3D": "Q3D", "Maxwell3D": "Maxwell3D"}
@@ -297,6 +329,11 @@ class FieldAnalysis3D(Analysis, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.Copy
+        >>> oEditor.Paste
         """
         body_list = design.modeler.primitives.solid_names
         if include_sheets:
@@ -346,6 +383,10 @@ class FieldAnalysis3D(Analysis, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.Export
         """
         warnings.warn("`export3DModel` is deprecated. Use `export_3d_model` instead.", DeprecationWarning)
         return self.export_3d_model(fileName, filePath, fileFormat, object_list, removed_objects)
@@ -372,6 +413,10 @@ class FieldAnalysis3D(Analysis, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.Export
         """
         if not object_list:
             allObjects = self.modeler.primitives.object_names
@@ -385,7 +430,12 @@ class FieldAnalysis3D(Analysis, object):
             allObjects = object_list[:]
 
         self.logger.info("Exporting {} objects".format(len(allObjects)))
-
+        major = -1
+        minor = -1
+        # actual version supported by AEDT is 29.0
+        if fileFormat in [".step", ".stp", ".sm3", ".sat", ".sab"]:
+            major = 29
+            minor = 0
         stringa = ",".join(allObjects)
         arg = [
             "NAME:ExportParameters",
@@ -396,11 +446,11 @@ class FieldAnalysis3D(Analysis, object):
             "Selections:=",
             stringa,
             "File Name:=",
-            str(filePath) + "/" + str(fileName) + str(fileFormat),
+            os.path.join(filePath, fileName + fileFormat),
             "Major Version:=",
-            -1,
+            major,
             "Minor Version:=",
-            -1,
+            minor,
         ]
 
         self.modeler.oeditor.Export(arg)
@@ -414,6 +464,11 @@ class FieldAnalysis3D(Analysis, object):
         -------
         list of str
             List of setup sources.
+
+        References
+        ----------
+
+        >>> oModule.GetAllSources
         """
         return list(self.osolution.GetAllSources())
 
@@ -433,6 +488,10 @@ class FieldAnalysis3D(Analysis, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oModule.SetSourceContexts
         """
 
         contexts = []
@@ -457,6 +516,11 @@ class FieldAnalysis3D(Analysis, object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.AssignMaterial
 
         Examples
         --------
@@ -531,6 +595,10 @@ class FieldAnalysis3D(Analysis, object):
         list of str
             List of all conductors.
 
+        References
+        ----------
+
+        >>> oEditor.GetObjectsByMaterial
         """
         cond = self.materials.conductors
         cond = [i.lower() for i in cond]
@@ -548,6 +616,10 @@ class FieldAnalysis3D(Analysis, object):
         list of str
            List of all dielectrics.
 
+        References
+        ----------
+
+        >>> oEditor.GetObjectsByMaterial
         """
         diel = self.materials.dielectrics
         diel = [i.lower() for i in diel]

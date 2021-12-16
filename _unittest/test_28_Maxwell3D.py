@@ -1,11 +1,13 @@
 # Setup paths for module imports
 from _unittest.conftest import scratch_path
 import os
+
 # Import required modules
 from pyaedt import Maxwell3d
 from pyaedt.generic.filesystem import Scratch
 from pyaedt.generic.constants import SOLUTIONS
 import gc
+
 try:
     import pytest
 except ImportError:
@@ -68,6 +70,9 @@ class TestClass:
         assert self.aedtapp.assign_current(["Coil_Section1"], amplitude=2472)
         self.aedtapp.solution_type = "Magnetostatic"
         volt = self.aedtapp.assign_voltage(self.aedtapp.modeler.primitives["Coil_Section1"].faces[0].id, amplitude=1)
+        cur2 = self.aedtapp.assign_current(["Coil_Section1"], amplitude=212)
+        assert cur2
+        assert cur2.delete()
         assert volt
         assert volt.delete()
         self.aedtapp.solution_type = "EddyCurrent"

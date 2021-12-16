@@ -23,7 +23,7 @@ import shutil
 import json
 import gc
 import sys
-from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import is_ironpython, inside_desktop
 
 if is_ironpython:
     import _unittest_ironpython.conf_unittest as pytest
@@ -57,9 +57,21 @@ if os.path.exists(local_config_file):
     with open(local_config_file) as f:
         config = json.load(f)
 else:
-    config = {"desktopVersion": "2021.2", "NonGraphical": False, "NewThread": True, "test_desktops": False,
-              "build_machine": True, "skip_space_claim": False, "skip_circuits": False, "skip_edb": False,
-              "skip_debug": False, "local": False}
+    default_version = "2021.2"
+    if inside_desktop and "oDesktop" in dir(sys.modules["__main__"]):
+        default_version = sys.modules["__main__"].oDesktop.GetVersion()[0:6]
+    config = {
+        "desktopVersion": default_version,
+        "NonGraphical": False,
+        "NewThread": True,
+        "test_desktops": False,
+        "build_machine": True,
+        "skip_space_claim": False,
+        "skip_circuits": False,
+        "skip_edb": False,
+        "skip_debug": False,
+        "local": False,
+    }
 
 
 class BasisTest:
@@ -140,6 +152,7 @@ def clean_desktop(desktop_init):
     """Close all projects, but don't close Desktop app."""
     desktop_init.release_desktop(close_projects=True, close_on_exit=False)
     return desktop_init
+
 
 @pytest.fixture
 def hfss():

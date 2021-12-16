@@ -1,4 +1,3 @@
-
 from pyaedt.generic.general_methods import aedt_exception_handler
 from pyaedt.modeler.PrimitivesCircuit import CircuitComponents
 
@@ -20,7 +19,7 @@ class SimplorerComponents(CircuitComponents):
 
     >>> from pyaedt import Simplorer
     >>> aedtapp = Simplorer()
-    >>> prim = aedtapp.modeler.components
+    >>> prim = aedtapp.modeler.schematic
     """
 
     @property
@@ -61,7 +60,6 @@ class SimplorerComponents(CircuitComponents):
         self._app = modeler._app
         self._modeler = modeler
         self._currentId = 0
-        self.components = {}
         pass
 
     @aedt_exception_handler
@@ -86,6 +84,10 @@ class SimplorerComponents(CircuitComponents):
         :class:`pyaedt.modeler.Object3d.CircuitComponent`
             Circuit Component Object.
 
+        References
+        ----------
+
+        >>> oEditor.CreateComponent
         """
         id = self.create_component(
             compname,
@@ -121,6 +123,11 @@ class SimplorerComponents(CircuitComponents):
         -------
         :class:`pyaedt.modeler.Object3d.CircuitComponent`
             Circuit Component Object.
+
+        References
+        ----------
+
+        >>> oEditor.CreateComponent
         """
         id = self.create_component(
             compname,
@@ -155,6 +162,11 @@ class SimplorerComponents(CircuitComponents):
         -------
         :class:`pyaedt.modeler.Object3d.CircuitComponent`
             Circuit Component Object.
+
+        References
+        ----------
+
+        >>> oEditor.CreateComponent
         """
         id = self.create_component(
             compname,
@@ -169,9 +181,7 @@ class SimplorerComponents(CircuitComponents):
         return id
 
     @aedt_exception_handler
-    def create_diode(
-        self, compname=None, model_name="required", location=[], angle=0, use_instance_id_netlist=False
-    ):
+    def create_diode(self, compname=None, model_name="required", location=[], angle=0, use_instance_id_netlist=False):
         """Create a diode.
 
         Parameters
@@ -192,6 +202,10 @@ class SimplorerComponents(CircuitComponents):
         :class:`pyaedt.modeler.Object3d.CircuitComponent`
             Circuit Component Object.
 
+        References
+        ----------
+
+        >>> oEditor.CreateComponent
         """
         id = self.create_component(
             compname,
@@ -223,6 +237,10 @@ class SimplorerComponents(CircuitComponents):
         :class:`pyaedt.modeler.Object3d.CircuitComponent`
             Circuit Component Object.
 
+        References
+        ----------
+
+        >>> oEditor.CreateComponent
         """
         id = self.create_component(
             compname,
@@ -254,6 +272,10 @@ class SimplorerComponents(CircuitComponents):
         :class:`pyaedt.modeler.Object3d.CircuitComponent`
             Circuit Component Object.
 
+        References
+        ----------
+
+        >>> oEditor.CreateComponent
         """
         id = self.create_component(
             compname,

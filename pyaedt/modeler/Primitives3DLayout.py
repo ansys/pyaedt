@@ -5,6 +5,7 @@ from pyaedt.generic.general_methods import aedt_exception_handler, is_ironpython
 from pyaedt.modeler.Object3d import Padstack, Components3DLayout, Geometries3DLayout, Pins3DLayout, Nets3DLayout, _uname
 from pyaedt.modeler.Primitives import default_materials
 from pyaedt.modeler.GeometryOperators import GeometryOperators
+
 # import pkgutil
 # modules = [tup[1] for tup in pkgutil.iter_modules()]
 # if "clr" in modules or is_ironpython:
@@ -56,18 +57,31 @@ class Primitives3DLayout(object):
                 return self.geometries[el]
         return None
 
-    def __init__(self, modeler):
+    def __init__(self, app):
         self.is_outside_desktop = sys.modules["__main__"].isoutsideDesktop
-        self._modeler = modeler
-        self._app = self._modeler._app
-        self._oeditor = self.modeler.oeditor
-        self.opadstackmanager = self._app._oproject.GetDefinitionManager().GetManager("Padstack")
+        self._app = app
+        self._opadstackmanager = self._app._oproject.GetDefinitionManager().GetManager("Padstack")
         self.padstacks = {}
         self._components = {}
         self._geometries = {}
         self._pins = {}
         self._nets = {}
         pass
+
+    @property
+    def _modeler(self):
+        return self._app.modeler
+
+    @property
+    def opadstackmanager(self):
+        """Aedt oPadstackManager.
+
+        References
+        ----------
+
+        >>> oPadstackManger = oDefinitionManager.GetManager("Padstack")
+        """
+        return self._opadstackmanager
 
     @property
     def components(self):
@@ -79,6 +93,9 @@ class Primitives3DLayout(object):
             List of components from EDB. If EDB is not present, ``None`` is returned.
 
         """
+        if self._primitivesDes == self._app.project_name + self._app.design_name and self._components:
+            return self._components
+        self._primitivesDes = self._app.project_name + self._app.design_name
         try:
             comps = list(self.modeler.edb.core_components.components.keys())
         except:
@@ -97,7 +114,9 @@ class Primitives3DLayout(object):
             List of geometries from EDB. If EDB is not present, ``None`` is returned.
 
         """
-
+        if self._primitivesDes == self._app.project_name + self._app.design_name and self._geometries:
+            return self._geometries
+        self._primitivesDes = self._app.project_name + self._app.design_name
         try:
             prims = self.modeler.edb.core_primitives.primitives
         except:
@@ -148,6 +167,9 @@ class Primitives3DLayout(object):
             List of pins from EDB. If EDB is not present, ``None`` is returned.
 
         """
+        if self._primitivesDes == self._app.project_name + self._app.design_name and self._pins:
+            return self._pins
+        self._primitivesDes = self._app.project_name + self._app.design_name
         try:
             pins_objs = list(self.modeler.edb.pins)
         except:
@@ -180,6 +202,9 @@ class Primitives3DLayout(object):
             List of nets from EDB. If EDB is not present, ``None`` is returned.
 
         """
+        if self._primitivesDes == self._app.project_name + self._app.design_name and self._nets:
+            return self._nets
+        self._primitivesDes = self._app.project_name + self._app.design_name
         try:
             nets_objs = list(self.modeler.edb.core_nets.nets)
         except:
@@ -348,6 +373,10 @@ class Primitives3DLayout(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        ----------
+
+        >>> oEditor.SetNetVisible
         """
         if not netlist:
             netlist = self.nets
@@ -407,6 +436,10 @@ class Primitives3DLayout(object):
         str
             Name of the via created when successful.
 
+        References
+        ----------
+
+        >>> oEditor.CreateVia
         """
         layers = self.modeler.layers.all_signal_layers
         if not top_layer:
@@ -469,6 +502,10 @@ class Primitives3DLayout(object):
         str
             Name of the circle created when successful.
 
+        References
+        ----------
+
+        >>> oEditor.CreateCircle
         """
         if not name:
             name = _uname()
@@ -520,6 +557,10 @@ class Primitives3DLayout(object):
         str
             Name of the rectangle created when successful.
 
+        References
+        ----------
+
+        >>> oEditor.CreateRectangle
         """
 
         if not name:
@@ -583,6 +624,10 @@ class Primitives3DLayout(object):
         str
             Name of the line created when successful.
 
+        References
+        ----------
+
+        >>> oEditor.CreateLine
         """
         if not name:
             name = _uname()

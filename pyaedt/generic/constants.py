@@ -327,6 +327,12 @@ UNIT_SYSTEM_OPERATIONS = {
 }
 
 
+class INFINITE_SPHERE_TYPE(object):
+    """INFINITE_SPHERE_TYPE Enumerator class."""
+
+    (ThetaPhi, AzOverEl, ElOverAz) = ("Theta-Phi", "Az Over El", "El Over Az")
+
+
 class FILLET(object):
     """FilletType Enumerator class."""
 
@@ -467,9 +473,9 @@ class SOLUTIONS(object):
             TransientTemperatureOnly,
             TransientFlowOnly,
         ) = (
-            "SteadyTemperatureAndFlow",
-            "SteadyTemperatureOnly",
-            "SteadyFlowOnly",
+            "SteadyStateTemperatureAndFlow",
+            "SteadyStateTemperatureOnly",
+            "SteadyStateFlowOnly",
             "TransientTemperatureAndFlow",
             "TransientTemperatureOnly",
             "TransientFlowOnly",

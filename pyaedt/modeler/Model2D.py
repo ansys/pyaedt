@@ -1,4 +1,5 @@
 import math
+from warnings import warn
 
 from pyaedt.generic.general_methods import aedt_exception_handler
 from pyaedt.modeler.Modeler import Modeler, GeometryModeler
@@ -15,10 +16,20 @@ class ModelerRMxprt(Modeler):
 
     def __init__(self, app):
         Modeler.__init__(self, app)
-        self.oeditor = self._odesign.SetActiveEditor("Machine")
+        self._oeditor = self._odesign.SetActiveEditor("Machine")
+
+    @property
+    def oeditor(self):
+        """oEditor Module.
+
+        References
+        ----------
+
+        >>> oEditor = oDesign.SetActiveEditor("Machine")"""
+        return self._oeditor
 
 
-class Modeler2D(GeometryModeler):
+class Modeler2D(GeometryModeler, Primitives2D):
     """Provides the Modeler 2D application interface.
 
     This class is inherited in the caller application and is accessible through the modeler variable
@@ -37,7 +48,8 @@ class Modeler2D(GeometryModeler):
 
     def __init__(self, application):
         GeometryModeler.__init__(self, application, is3d=False)
-        self._primitives = Primitives2D(self)
+        Primitives2D.__init__(self)
+        self._primitives = self
         self._primitivesDes = self._app.project_name + self._app.design_name
 
     def __get__(self, instance, owner):
@@ -48,14 +60,17 @@ class Modeler2D(GeometryModeler):
     def primitives(self):
         """Primitives.
 
+        .. deprecated:: 0.4.15
+            No need to use primitives anymore. You can instantiate primitives methods directly from modeler instead.
+
         Returns
         -------
         :class:`pyaedt.modeler.Primitives2D.Primitives2D`
 
         """
-        if self._primitivesDes != self._app.project_name + self._app.design_name:
-            self._primitives.refresh()
-            self._primitivesDes = self._app.project_name + self._app.design_name
+        mess = "`primitives` is deprecated.\n"
+        mess += " Use `app.modeler` directly to instantiate primitives methods."
+        warn(mess, DeprecationWarning)
         return self._primitives
 
     @aedt_exception_handler
@@ -113,7 +128,6 @@ class Modeler2D(GeometryModeler):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-
         """
         self.oeditor.CreateCircle(
             [

@@ -3,10 +3,14 @@ import sys
 
 from pyaedt import log_handler
 
+ENABLE_LOGGER = True
+# if LOGGER_FILE is defined, it will be taken as output log file
+LOGGER_FILE = None
 
 FORMATTER = logging.Formatter(
-        "%(asctime)s:%(destination)s:%(extra)s%(levelname)-8s:%(message)s",
-        datefmt='%Y/%m/%d %H.%M.%S')
+    "%(asctime)s:%(destination)s:%(extra)s%(levelname)-8s:%(message)s", datefmt="%Y/%m/%d %H.%M.%S"
+)
+
 
 class AppFilter(logging.Filter):
     """This filter will be used to specify the destination of the log
@@ -21,7 +25,7 @@ class AppFilter(logging.Filter):
         Name of the design or project. The default is an empty string.
     """
 
-    def __init__(self, destination='Global', extra=''):
+    def __init__(self, destination="Global", extra=""):
         self._destination = destination
         self._extra = extra
 
@@ -63,23 +67,30 @@ class AedtLogger(object):
     def __init__(self, messenger, level=logging.DEBUG, filename=None, to_stdout=False):
         main = sys.modules["__main__"]
 
+        self.level = level
+        self.filename = filename
         self._messenger = messenger
-        self._global = logging.getLogger('Global')
+        self._global = logging.getLogger("Global")
         self._file_handler = None
         self._std_out_handler = None
+
+        if not ENABLE_LOGGER:
+            self._global.addHandler(logging.NullHandler())
+            return
+
         if self._global.handlers:
-            if 'messenger' in dir(self._global.handlers[0]):
+            if "messenger" in dir(self._global.handlers[0]):
                 self._global.removeHandler(self._global.handlers[0])
                 if self._global.handlers:
                     self._global.removeHandler(self._global.handlers[0])
         if not self._global.handlers:
-            self._global.addHandler(log_handler.LogHandler(self._messenger, 'Global', logging.DEBUG))
+            self._global.addHandler(log_handler.LogHandler(self._messenger, "Global", logging.DEBUG))
             main._aedt_handler = self._global.handlers
             self._global.setLevel(level)
             self._global.addFilter(AppFilter())
 
-        if filename:
-            self._file_handler = logging.FileHandler(filename)
+        if LOGGER_FILE or filename:
+            self._file_handler = logging.FileHandler(LOGGER_FILE or filename)
             self._file_handler.setLevel(level)
             self._file_handler.setFormatter(FORMATTER)
             self._global.addHandler(self._file_handler)
@@ -101,24 +112,24 @@ class AedtLogger(object):
             Logging level enum.
         """
 
-        if destination == 'Project':
+        if destination == "Project":
             project_name = self._messenger._project_name
             self._project = logging.getLogger(project_name)
-            self._project.addHandler(log_handler.LogHandler(self._messenger, 'Project', level))
+            self._project.addHandler(log_handler.LogHandler(self._messenger, "Project", level))
             self._project.setLevel(level)
-            self._project.addFilter(AppFilter('Project', project_name))
+            self._project.addFilter(AppFilter("Project", project_name))
             if self._file_handler is not None:
                 self._project.addHandler(self._file_handler)
             if self._std_out_handler is not None:
                 self._project.addHandler(self._std_out_handler)
             return self._project
-        elif destination == 'Design':
+        elif destination == "Design":
             project_name = self._messenger._project_name
             design_name = self._messenger._design_name
             self._design = logging.getLogger(project_name + ":" + design_name)
-            self._design.addHandler(log_handler.LogHandler(self._messenger, 'Design', level))
+            self._design.addHandler(log_handler.LogHandler(self._messenger, "Design", level))
             self._design.setLevel(level)
-            self._design.addFilter(AppFilter('Design', design_name))
+            self._design.addFilter(AppFilter("Design", design_name))
             if self._file_handler is not None:
                 self._design.addHandler(self._file_handler)
             if self._std_out_handler is not None:
@@ -137,19 +148,26 @@ class AedtLogger(object):
 
     def disable_stdout_log(self):
         """Log will not be printed into stdout."""
-        self._messenger._log_on_desktop = False
+        self._messenger._log_on_screen = False
+        self._global.removeHandler(self._std_out_handler)
 
     def enable_stdout_log(self):
         """Log will be printed into stdout."""
-        self._messenger._log_on_stdout = True
+        self._messenger._log_on_screen = True
 
     def disable_log_on_file(self):
         """Log will be written into an output file."""
         self._messenger._log_on_file = False
+        self._file_handler.close()
+        self._global.removeHandler(self._file_handler)
 
     def enable_log_on_file(self):
         """Log will not be written into an output file."""
         self._messenger._log_on_file = True
+        self._file_handler = logging.FileHandler(self.filename)
+        self._file_handler.setLevel(self.level)
+        self._file_handler.setFormatter(FORMATTER)
+        self._global.addHandler(self._file_handler)
 
     def get_messages(self):
         """Get messages for the current design of the current project."""
@@ -178,7 +196,7 @@ class AedtLogger(object):
     @property
     def glb(self):
         """Global logger."""
-        self._global = logging.getLogger('Global')
+        self._global = logging.getLogger("Global")
         return self._global
 
     @property
