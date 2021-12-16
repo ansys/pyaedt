@@ -1,6 +1,6 @@
 """
-Multiphysics Simulation
----------------------------
+HFSS-Mechanical Multiphysics Analysis
+-------------------------------------
 This example shows how to use Pyaedt to create a multiphysics workflow that includes Circuit, Hfss and Mechanical.
 """
 # sphinx_gallery_thumbnail_path = 'Resources/Mechanical.png'
@@ -46,8 +46,7 @@ pin_names = hfss.modeler.get_excitations_name()
 # Starts Circuit and add Hfss dynamic link component to it.
 
 circuit = Circuit()
-hfss_comp = circuit.modeler.schematic.add_subcircuit_hfss_link("MyHfss", pin_names, hfss.project_file,
-                                                                              hfss.design_name)
+hfss_comp = circuit.modeler.schematic.add_subcircuit_hfss_link("MyHfss", pin_names, hfss.project_file, hfss.design_name)
 
 ###############################################################################
 # Dynamic Link Options
@@ -68,14 +67,18 @@ circuit.modeler.schematic.set_sim_solution_on_hfss_subcircuit(hfss_comp.composed
 # Voltage source on input port.
 
 
-circuit.modeler.schematic.create_interface_port("Excitation_1",
-                                                 [hfss_comp.pins[0].location[0], hfss_comp.pins[0].location[1]])
-circuit.modeler.schematic.create_interface_port("Excitation_2",
-                                                 [hfss_comp.pins[1].location[0], hfss_comp.pins[1].location[1]])
-circuit.modeler.schematic.create_interface_port("Port_1",
-                                                 [hfss_comp.pins[2].location[0], hfss_comp.pins[2].location[1]])
-circuit.modeler.schematic.create_interface_port("Port_2",
-                                                 [hfss_comp.pins[3].location[0], hfss_comp.pins[3].location[1]])
+circuit.modeler.schematic.create_interface_port(
+    "Excitation_1", [hfss_comp.pins[0].location[0], hfss_comp.pins[0].location[1]]
+)
+circuit.modeler.schematic.create_interface_port(
+    "Excitation_2", [hfss_comp.pins[1].location[0], hfss_comp.pins[1].location[1]]
+)
+circuit.modeler.schematic.create_interface_port(
+    "Port_1", [hfss_comp.pins[2].location[0], hfss_comp.pins[2].location[1]]
+)
+circuit.modeler.schematic.create_interface_port(
+    "Port_2", [hfss_comp.pins[3].location[0], hfss_comp.pins[3].location[1]]
+)
 
 voltage = 1
 phase = 0
@@ -124,12 +127,18 @@ mech.copy_solid_bodies_from(hfss)
 # Get losses from Hfss and assign Convection to Mechanical.
 
 
-mech.assign_em_losses(hfss.design_name, hfss.setups[0].name, "LastAdaptive", hfss.setups[0].props["Frequency"],
-                      surface_objects=hfss.get_all_conductors_names())
+mech.assign_em_losses(
+    hfss.design_name,
+    hfss.setups[0].name,
+    "LastAdaptive",
+    hfss.setups[0].props["Frequency"],
+    surface_objects=hfss.get_all_conductors_names(),
+)
 diels = ["1_pd", "2_pd", "3_pd", "4_pd", "5_pd"]
 for el in diels:
-    mech.assign_uniform_convection([mech.modeler.primitives[el].top_face_y, mech.modeler.primitives[el].bottom_face_y],
-                                   3)
+    mech.assign_uniform_convection(
+        [mech.modeler.primitives[el].top_face_y, mech.modeler.primitives[el].bottom_face_y], 3
+    )
 
 ###############################################################################
 # Solution

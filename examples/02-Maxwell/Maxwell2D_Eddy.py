@@ -1,6 +1,6 @@
 """
-Maxwell 2D  Coil Analysis
--------------------------
+2D  Coil Analysis
+-----------------
 This example shows how you can use PyAEDT to create a project in
 Maxwell2D and run an eddy current simulation.
 

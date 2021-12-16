@@ -26,9 +26,7 @@ class ColorFactory(object):
 
         # Adding the color name shortcuts for foreground colors
         for item in color_names[:16]:
-            setattr(
-                self, item, style.from_color(style.color_class.from_simple(item, fg=fg))
-            )
+            setattr(self, item, style.from_color(style.color_class.from_simple(item, fg=fg)))
 
     def __getattr__(self, item):
         """Full color names work, but do not populate __dir__."""
@@ -40,15 +38,11 @@ class ColorFactory(object):
     def full(self, name):
         """Gets the style for a color, using standard name procedure: either full
         color name, html code, or number."""
-        return self._style.from_color(
-            self._style.color_class.from_full(name, fg=self._fg)
-        )
+        return self._style.from_color(self._style.color_class.from_full(name, fg=self._fg))
 
     def simple(self, name):
         """Return the extended color scheme color for a value or name."""
-        return self._style.from_color(
-            self._style.color_class.from_simple(name, fg=self._fg)
-        )
+        return self._style.from_color(self._style.color_class.from_simple(name, fg=self._fg))
 
     def rgb(self, r, g=None, b=None):
         """Return the extended color scheme color for a value."""
@@ -59,9 +53,7 @@ class ColorFactory(object):
 
     def hex(self, hexcode):
         """Return the extended color scheme color for a value."""
-        return self._style.from_color(
-            self._style.color_class.from_hex(hexcode, fg=self._fg)
-        )
+        return self._style.from_color(self._style.color_class.from_hex(hexcode, fg=self._fg))
 
     def ansi(self, ansiseq):
         """Make a style from an ansi text sequence"""
@@ -93,9 +85,7 @@ class ColorFactory(object):
             return self._style(val_or_r)
         if isinstance(val_or_r, str) and "\033" in val_or_r:
             return self.ansi(val_or_r)
-        return self._style.from_color(
-            self._style.color_class(val_or_r, g, b, fg=self._fg)
-        )
+        return self._style.from_color(self._style.color_class(val_or_r, g, b, fg=self._fg))
 
     def __iter__(self):
         """Iterates through all colors in extended colorset."""

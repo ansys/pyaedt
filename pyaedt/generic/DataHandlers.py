@@ -120,7 +120,7 @@ def _arg2dict(arg, dict_out):
                 _arg2dict(list(arg[i]), dict_in)
                 i += 1
             elif arg[i][-2:] == ":=":
-                if str(type(arg[i+1])) == r"<type 'List'>":
+                if str(type(arg[i + 1])) == r"<type 'List'>":
                     if arg[i][:-2] in dict_in:
                         dict_in[arg[i][:-2]].append(list(arg[i + 1]))
                     else:

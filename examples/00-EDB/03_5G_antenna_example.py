@@ -1,6 +1,6 @@
 """
 5G linear array antenna
---------------------------------------
+-----------------------
 This example shows how to use HFSS 3D Layout to create and solve a 5G linear array antenna.
 """
 # sphinx_gallery_thumbnail_path = 'Resources/5gantenna.png'
@@ -24,8 +24,12 @@ class Patch:
 
     @property
     def points(self):
-        return [[self.position, -self.height / 2], [self.position + self.width, -self.height / 2],
-                [self.position + self.width, self.height / 2], [self.position, self.height / 2]]
+        return [
+            [self.position, -self.height / 2],
+            [self.position + self.width, -self.height / 2],
+            [self.position + self.width, self.height / 2],
+            [self.position, self.height / 2],
+        ]
 
 
 class Line:
@@ -36,8 +40,12 @@ class Line:
 
     @property
     def points(self):
-        return [[self.position, -self.width / 2], [self.position + self.length, -self.width / 2],
-                [self.position + self.length, self.width / 2], [self.position, self.width / 2]]
+        return [
+            [self.position, -self.width / 2],
+            [self.position + self.length, -self.width / 2],
+            [self.position + self.length, self.width / 2],
+            [self.position, self.width / 2],
+        ]
 
 
 class LinearArray:
@@ -48,9 +56,12 @@ class LinearArray:
 
     @property
     def points(self):
-        return [[-1e-3, -self.width / 2 - 1e-3], [self.length + 1e-3, -self.width / 2 - 1e-3],
-                [self.length + 1e-3, self.width / 2 + 1e-3],
-                [-1e-3, self.width / 2 + 1e-3]]
+        return [
+            [-1e-3, -self.width / 2 - 1e-3],
+            [self.length + 1e-3, -self.width / 2 - 1e-3],
+            [self.length + 1e-3, self.width / 2 + 1e-3],
+            [-1e-3, self.width / 2 + 1e-3],
+        ]
 
 
 tmpfold = tempfile.gettempdir()
@@ -117,8 +128,14 @@ edb.core_primitives.create_polygon(gnd_shape, "GND", net_name="GND")
 ###############################################################################
 # Connector central pin
 edb.core_padstack.create_padstack(padstackname="Connector_pin", holediam="100um", paddiam="0", antipaddiam="200um")
-con_pin = edb.core_padstack.place_padstack([first_patch.width / 4, 0], "Connector_pin", net_name="Array_antenna",
-                                           fromlayer="TOP", tolayer="GND", via_name="coax")
+con_pin = edb.core_padstack.place_padstack(
+    [first_patch.width / 4, 0],
+    "Connector_pin",
+    net_name="Array_antenna",
+    fromlayer="TOP",
+    tolayer="GND",
+    via_name="coax",
+)
 
 
 ###############################################################################
@@ -126,14 +143,34 @@ con_pin = edb.core_padstack.place_padstack([first_patch.width / 4, 0], "Connecto
 virt_gnd_shape = edb.core_primitives.Shape("polygon", points=first_patch.points)
 edb.core_primitives.create_polygon(virt_gnd_shape, "Virt_GND", net_name="GND")
 edb.core_padstack.create_padstack("gnd_via", "100um", "0", "0", "GND", "Virt_GND")
-con_ref1 = edb.core_padstack.place_padstack([first_patch.points[0][0] + 0.2e-3, first_patch.points[0][1] + 0.2e-3],
-                                            "gnd_via", fromlayer="GND", tolayer="Virt_GND", net_name="GND")
-con_ref2 = edb.core_padstack.place_padstack([first_patch.points[1][0] - 0.2e-3, first_patch.points[1][1] + 0.2e-3],
-                                            "gnd_via", fromlayer="GND", tolayer="Virt_GND", net_name="GND")
-con_ref3 = edb.core_padstack.place_padstack([first_patch.points[2][0] - 0.2e-3, first_patch.points[2][1] - 0.2e-3],
-                                            "gnd_via", fromlayer="GND", tolayer="Virt_GND", net_name="GND")
-con_ref4 = edb.core_padstack.place_padstack([first_patch.points[3][0] + 0.2e-3, first_patch.points[3][1] - 0.2e-3],
-                                            "gnd_via", fromlayer="GND", tolayer="Virt_GND", net_name="GND")
+con_ref1 = edb.core_padstack.place_padstack(
+    [first_patch.points[0][0] + 0.2e-3, first_patch.points[0][1] + 0.2e-3],
+    "gnd_via",
+    fromlayer="GND",
+    tolayer="Virt_GND",
+    net_name="GND",
+)
+con_ref2 = edb.core_padstack.place_padstack(
+    [first_patch.points[1][0] - 0.2e-3, first_patch.points[1][1] + 0.2e-3],
+    "gnd_via",
+    fromlayer="GND",
+    tolayer="Virt_GND",
+    net_name="GND",
+)
+con_ref3 = edb.core_padstack.place_padstack(
+    [first_patch.points[2][0] - 0.2e-3, first_patch.points[2][1] - 0.2e-3],
+    "gnd_via",
+    fromlayer="GND",
+    tolayer="Virt_GND",
+    net_name="GND",
+)
+con_ref4 = edb.core_padstack.place_padstack(
+    [first_patch.points[3][0] + 0.2e-3, first_patch.points[3][1] - 0.2e-3],
+    "gnd_via",
+    fromlayer="GND",
+    tolayer="Virt_GND",
+    net_name="GND",
+)
 
 
 ###############################################################################
@@ -159,6 +196,9 @@ h3d = Hfss3dLayout(projectname=project, specified_version="2021.2", new_desktop_
 # Create Setup and Sweeps
 #
 setup = h3d.create_setup()
+setup.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["AdaptiveFrequency"] = "20GHz"
+setup.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["MaxPasses"] = 4
+setup.update()
 h3d.create_linear_count_sweep(
     setupname=setup.name,
     unit="GHz",
@@ -178,7 +218,6 @@ h3d.create_linear_count_sweep(
 # Solve Setup
 #
 h3d.analyze_nominal()
-h3d.post.create_rectangular_plot(
-    ["db(S({0},{1}))".format(port_name, port_name)])
+h3d.post.create_rectangular_plot(["db(S({0},{1}))".format(port_name, port_name)])
 h3d.save_project()
 h3d.release_desktop()

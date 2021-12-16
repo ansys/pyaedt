@@ -102,11 +102,13 @@ class TestClass:
         vollist = ["NewObject_IJD39Q"]
         plot2 = self.aedtapp.post.create_fieldplot_volume(vollist, quantity_name2, setup_name, intrinsic)
 
-        self.aedtapp.post.export_field_image_with_view(plot2.name, plot2.plotFolder,
-                                                       os.path.join(self.local_scratch.path, "prova2.jpg"))
+        self.aedtapp.post.export_field_image_with_view(
+            plot2.name, plot2.plotFolder, os.path.join(self.local_scratch.path, "prova2.jpg")
+        )
         assert os.path.exists(os.path.join(self.local_scratch.path, "prova2.jpg"))
-        assert os.path.exists(plot2.export_image(os.path.join(self.local_scratch.path, "test_x.jpg"),
-                              orientation="top"))
+        assert os.path.exists(
+            plot2.export_image(os.path.join(self.local_scratch.path, "test_x.jpg"), orientation="top")
+        )
 
     def test_03_create_scattering(self):
         setup_name = "Setup1 : Sweep"
@@ -135,7 +137,7 @@ class TestClass:
         assert my_data.data_real(trace_names[0])
         assert my_data.data_magnitude(trace_names[0])
         assert my_data.export_data_to_csv(os.path.join(self.local_scratch.path, "output.csv"))
-        assert os.path.exists(os.path.join( self.local_scratch.path, "output.csv"))
+        assert os.path.exists(os.path.join(self.local_scratch.path, "output.csv"))
 
     def test_04_export_touchstone(self):
         self.aedtapp.export_touchstone("Setup1", "Sweep", os.path.join(self.local_scratch.path, "Setup1_Sweep.S2p"))

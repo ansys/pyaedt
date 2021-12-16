@@ -13,6 +13,7 @@ METER2MILES = 1609.344051499
 
 MILS2METER = 39370.078740157
 
+
 def db20(x, inverse=True):
     """Convert db20 to decimal and viceversa."""
     if inverse:
@@ -324,6 +325,12 @@ UNIT_SYSTEM_OPERATIONS = {
     "Length_divide_Time": "Speed",
     "Length_divide_Speed": "Time",
 }
+
+
+class INFINITE_SPHERE_TYPE(object):
+    """INFINITE_SPHERE_TYPE Enumerator class."""
+
+    (ThetaPhi, AzOverEl, ElOverAz) = ("Theta-Phi", "Az Over El", "El Over Az")
 
 
 class FILLET(object):

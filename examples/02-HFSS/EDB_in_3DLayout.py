@@ -1,6 +1,6 @@
 """
-HFSS 3D Layout Analysis
------------------------
+PCB and EDB in HFSS 3D Layout
+-----------------------------
 This example shows how to use HFSS 3D Layout combined with EDB to interact with a layout.
 """
 # sphinx_gallery_thumbnail_path = 'Resources/edb2.png'

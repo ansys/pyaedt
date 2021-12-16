@@ -10,7 +10,7 @@ from pyaedt.generic.DataHandlers import float_units
 from pyaedt.generic.general_methods import generate_unique_name, aedt_exception_handler
 from pyaedt.modules.Boundary import BoundaryObject
 from collections import OrderedDict
-from pyaedt.modeler.GeometryOperators import  GeometryOperators
+from pyaedt.modeler.GeometryOperators import GeometryOperators
 from pyaedt.generic.constants import SOLUTIONS
 
 
@@ -95,8 +95,14 @@ class Maxwell(object):
         >>> oDesign.SetDesignSettings
         """
         self.odesign.SetDesignSettings(
-            ["NAME:Design Settings Data", "ComputeTransientInductance:=", compute_transient_inductance,
-             "ComputeIncrementalMatrix:=", incremental_matrix])
+            [
+                "NAME:Design Settings Data",
+                "ComputeTransientInductance:=",
+                compute_transient_inductance,
+                "ComputeIncrementalMatrix:=",
+                incremental_matrix,
+            ]
+        )
         return True
 
     @aedt_exception_handler
@@ -249,17 +255,17 @@ class Maxwell(object):
                         "Faces": object_list,
                         "Current": amplitude,
                     }
-                    )
+                )
             else:
                 props = OrderedDict(
                     {
                         "Objects": object_list,
                         "Current": amplitude,
                     }
-                    )
-            if self.solution_type not in ["Magnetostatic", 'DCConduction', 'ElectricTransient']:
+                )
+            if self.solution_type not in ["Magnetostatic", "DCConduction", "ElectricTransient"]:
                 props["Phase"] = phase
-                if self.solution_type not in ['DCConduction', 'ElectricTransient']:
+                if self.solution_type not in ["DCConduction", "ElectricTransient"]:
                     props["IsSolid"] = solid
             props["Point out of terminal"] = swap_direction
         else:
@@ -276,21 +282,21 @@ class Maxwell(object):
 
     @aedt_exception_handler
     def assign_translate_motion(
-            self,
-            band_object,
-            coordinate_system="Global",
-            axis="Z",
-            positive_movement=True,
-            start_position= 0,
-            periodic_translate=True,
-            negative_limit = 0,
-            positive_limit=0,
-            velocity=0,
-            mechanical_transient=False,
-            mass=1,
-            damping=0,
-            load_force=0,
-            motion_name=None
+        self,
+        band_object,
+        coordinate_system="Global",
+        axis="Z",
+        positive_movement=True,
+        start_position=0,
+        periodic_translate=True,
+        negative_limit=0,
+        positive_limit=0,
+        velocity=0,
+        mechanical_transient=False,
+        mass=1,
+        damping=0,
+        load_force=0,
+        motion_name=None,
     ):
         """Assign a Translation Motion to an object container.
 
@@ -357,7 +363,6 @@ class Maxwell(object):
                 "Damping": str(damping),
                 "Load Force": self._arg_with_units(load_force, "newton"),
                 "Objects": object_list,
-
             }
         )
         bound = BoundaryObject(self, motion_name, props, "Band")
@@ -368,22 +373,22 @@ class Maxwell(object):
 
     @aedt_exception_handler
     def assign_rotate_motion(
-            self,
-            band_object,
-            coordinate_system="Global",
-            axis="Z",
-            positive_movement=True,
-            start_position=0,
-            has_rotation_limits=True,
-            negative_limit=0,
-            positive_limit=360,
-            non_cylindrical=False,
-            mechanical_transient=False,
-            angular_velocity="0rpm",
-            inertia="1",
-            damping=0,
-            load_torque="0newton",
-            motion_name=None
+        self,
+        band_object,
+        coordinate_system="Global",
+        axis="Z",
+        positive_movement=True,
+        start_position=0,
+        has_rotation_limits=True,
+        negative_limit=0,
+        positive_limit=360,
+        non_cylindrical=False,
+        mechanical_transient=False,
+        angular_velocity="0rpm",
+        inertia="1",
+        damping=0,
+        load_torque="0newton",
+        motion_name=None,
     ):
         """Assign a Rotation Motion to an object container.
 
@@ -452,7 +457,6 @@ class Maxwell(object):
                 "Damping": str(damping),
                 "Load Torque": self._arg_with_units(load_torque, "NewtonMeter"),
                 "Objects": object_list,
-
             }
         )
         bound = BoundaryObject(self, motion_name, props, "Band")
@@ -1297,8 +1301,9 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
         return False
 
     @aedt_exception_handler
-    def assign_master_slave(self, master_edge, slave_edge, reverse_master=False, reverse_slave=False,
-                            same_as_master=True, bound_name=None):
+    def assign_master_slave(
+        self, master_edge, slave_edge, reverse_master=False, reverse_slave=False, same_as_master=True, bound_name=None
+    ):
         """Assign master and slave boundary conditions to two edges of the same object.
 
         Parameters
@@ -1340,8 +1345,14 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
         if bound.create():
             self.boundaries.append(bound)
 
-            props2 = OrderedDict({"Edges": slave_edge, "ReverseU": reverse_slave, "Independent": bound_name_m,
-                                  "SameAsMaster": same_as_master})
+            props2 = OrderedDict(
+                {
+                    "Edges": slave_edge,
+                    "ReverseU": reverse_slave,
+                    "Independent": bound_name_m,
+                    "SameAsMaster": same_as_master,
+                }
+            )
             bound2 = BoundaryObject(self, bound_name_s, props2, "Dependent")
             if bound2.create():
                 self.boundaries.append(bound2)

@@ -1162,7 +1162,8 @@ class Design(object):
             self._oproject = self._desktop.GetActiveProject()
             if self._oproject:
                 self.logger.info(
-                    "No project is defined. Project {} exists and has been read.".format(self._oproject.GetName()))
+                    "No project is defined. Project {} exists and has been read.".format(self._oproject.GetName())
+                )
         else:
             if proj_name in self._desktop.GetProjectList():
                 self._oproject = self._desktop.SetActiveProject(proj_name)
@@ -1174,15 +1175,13 @@ class Design(object):
                     self._desktop.RestoreProjectArchive(proj_name, os.path.join(path, name), True, True)
                     time.sleep(0.5)
                     proj = self._desktop.GetActiveProject()
-                    self.logger.info(
-                        "Archive {} has been restored to project {}".format(proj_name, proj.GetName()))
+                    self.logger.info("Archive {} has been restored to project {}".format(proj_name, proj.GetName()))
                 elif ".def" in proj_name:
                     oTool = self._desktop.GetTool("ImportExport")
                     oTool.ImportEDB(proj_name)
                     proj = self._desktop.GetActiveProject()
                     proj.Save()
-                    self.logger.info(
-                        "EDB folder %s has been imported to project %s", proj_name, proj.GetName())
+                    self.logger.info("EDB folder %s has been imported to project %s", proj_name, proj.GetName())
                 else:
                     assert not os.path.exists(
                         proj_name + ".lock"
@@ -1239,7 +1238,7 @@ class Design(object):
         >>> oDesign.ExportProfile
         """
         if not file_path:
-            file_path = os.path.join(self.project_path, generate_unique_name("Profile")+".prop")
+            file_path = os.path.join(self.project_path, generate_unique_name("Profile") + ".prop")
         self.odesign.ExportProfile(setup_name, variation_string, file_path)
         self.logger.info("Exported Profile to file {}".format(file_path))
         return file_path
@@ -1588,12 +1587,10 @@ class Design(object):
         """
         try:
             self.set_registry_key("Desktop/ActiveDSOConfigurations/{}".format(product_name), config_name)
-            self.logger.info(
-                "Configuration Changed correctly to %s for %s.", config_name, product_name)
+            self.logger.info("Configuration Changed correctly to %s for %s.", config_name, product_name)
             return True
         except:
-            self.logger.warning(
-                "Error Setting Up Configuration %s for %s.", config_name, product_name)
+            self.logger.warning("Error Setting Up Configuration %s for %s.", config_name, product_name)
             return False
 
     @aedt_exception_handler
@@ -1620,7 +1617,7 @@ class Design(object):
         try:
             self.odesktop.SetRegistryFromFile(registry_file)
             if make_active:
-                with open(registry_file, 'r') as f:
+                with open(registry_file, "r") as f:
                     for line in f:
                         stripped_line = line.strip()
                         if "ConfigName" in stripped_line:
@@ -2955,13 +2952,13 @@ class Design(object):
         """
         design_info = self.project_properies["ProjectPreview"]["DesignInfo"]
         if not isinstance(design_info, dict):
-            #there are multiple designs, find the right one
-            #is self.design_name guaranteed to be there?
+            # there are multiple designs, find the right one
+            # is self.design_name guaranteed to be there?
             design_info = [design for design in design_info if design["DesignName"] == self.design_name][0]
         image_data_str = design_info["Image64"]
         with open(filename, "wb") as f:
             if sys.version_info.major == 2:
-                bytestring = bytes(image_data_str).decode('base64')
+                bytestring = bytes(image_data_str).decode("base64")
             else:
                 bytestring = base64.decodebytes(image_data_str.encode("ascii"))
             f.write(bytestring)

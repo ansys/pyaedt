@@ -1,6 +1,6 @@
 """
-HFSS-Icepack Coupling Analysis
-------------------------------
+HFSS-Icepack Multyphisics Analysis
+----------------------------------
 This example shows how to create a full project from scratch in HFSS and Icepak (linked to HFSS).
 The project creates a setup, solves it, and creates post-processing output. It includes several
 commands to show PyAEDT's capabilities.
@@ -90,15 +90,9 @@ aedtapp["inner"] = "3mm"
 # Alternatively, the material can be assigned using the :func:`assign_material` function.
 
 # TODO: How does this work when two truesurfaces are defined?
-o1 = aedtapp.modeler.primitives.create_cylinder(
-    aedtapp.PLANE.XY, udp, "inner", "$coax_dimension", numSides=0, name="inner"
-)
-o2 = aedtapp.modeler.primitives.create_cylinder(
-    aedtapp.PLANE.XY, udp, 8, "$coax_dimension", numSides=0, matname="teflon_based"
-)
-o3 = aedtapp.modeler.primitives.create_cylinder(
-    aedtapp.PLANE.XY, udp, 10, "$coax_dimension", numSides=0, name="outer"
-)
+o1 = aedtapp.modeler.create_cylinder(aedtapp.PLANE.XY, udp, "inner", "$coax_dimension", numSides=0, name="inner")
+o2 = aedtapp.modeler.create_cylinder(aedtapp.PLANE.XY, udp, 8, "$coax_dimension", numSides=0, matname="teflon_based")
+o3 = aedtapp.modeler.create_cylinder(aedtapp.PLANE.XY, udp, 10, "$coax_dimension", numSides=0, name="outer")
 
 ###############################################################################
 # Assign a Material
@@ -206,9 +200,9 @@ setup_ipk.update()
 # After a mesh is created, a mesh operation is accessible for
 # editing or reviewing parameters.
 
-airbox = ipkapp.modeler.primitives.get_obj_id("Region")
-ipkapp.modeler.primitives[airbox].display_wireframe = True
-airfaces = ipkapp.modeler.primitives.get_object_faces(airbox)
+airbox = ipkapp.modeler.get_obj_id("Region")
+ipkapp.modeler[airbox].display_wireframe = True
+airfaces = ipkapp.modeler.get_object_faces(airbox)
 ipkapp.assign_openings(airfaces)
 
 ################################################################################
@@ -249,7 +243,7 @@ setup_name = "MySetup : LastAdaptive"
 quantity_name = "ComplexMag_E"
 quantity_name2 = "ComplexMag_H"
 intrinsic = {"Freq": "1GHz", "Phase": "0deg"}
-surflist = aedtapp.modeler.primitives.get_object_faces("outer")
+surflist = aedtapp.modeler.get_object_faces("outer")
 plot1 = aedtapp.post.create_fieldplot_surface(surflist, quantity_name2, setup_name, intrinsic)
 
 results_folder = os.path.join(aedtapp.project_path, "Coaxial_Results_NG")
@@ -302,7 +296,7 @@ print("Total Time", endtime)
 quantity_name = "Temperature"
 setup_name = ipkapp.existing_analysis_sweeps[0]
 intrinsic = ""
-surflist = ipkapp.modeler.primitives.get_object_faces("inner")
+surflist = ipkapp.modeler.get_object_faces("inner")
 plot5 = ipkapp.post.create_fieldplot_surface(surflist, "SurfTemperature")
 
 ipkapp.post.plot_field_from_fieldplot(
@@ -348,5 +342,5 @@ plt.show()
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This example closes the project and then closes AEDT.
 
-#aedtapp.close_project(aedtapp.project_name)
+# aedtapp.close_project(aedtapp.project_name)
 aedtapp.release_desktop()

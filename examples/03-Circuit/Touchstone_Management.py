@@ -1,5 +1,5 @@
 """
-Manage Touchstone Objects
+Touchstone File Management
 --------------------------
 This example shows how to use Touchstone objects without opening AEDT.
 
