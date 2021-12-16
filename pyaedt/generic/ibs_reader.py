@@ -27,10 +27,6 @@ class Component():
     def buffers(self, value):
         self._buffers = value
 
-    def add(self):
-        self.oEditor.CreateComponent()
-        pass
-
 class Pin(Component):
     def __init__(self, name, circuit):
         self._name = name
@@ -41,8 +37,22 @@ class Pin(Component):
         self._l_value = None
         self._c_value = None
 
-    def add(self, x, y, angle):
-        self.circuit.modeler.schematic.create_component(
+    def add(self):
+        self._circuit.modeler.schematic.o_component_manager.AddSolverOnDemandModel(self._name,
+            [
+                "NAME:CosimDefinition",
+                "CosimulatorType:=" , 7,
+                "CosimDefName:="    , "DefaultIBISNetlist",
+                "IsDefinition:="    , True,
+                "Connect:="     , True,
+                "Data:="        , [],
+                "GRef:="        , []
+            ]
+                            )
+
+    def insert(self, x, y, angle):
+        self._circuit.modeler.schematic.create_component(
+                            component_library = None,
                             component_name=self.name,
                             location=[x, y],
                             angle = angle,
@@ -54,7 +64,7 @@ class Pin(Component):
     @property
     def name(self):
         return self._name
-    
+
     @property
     def signal(self):
         return self._signal
@@ -101,7 +111,7 @@ class Buffer():
         self._name = name
         self._circuit = circuit
 
-    # def add(self):
+    # def insert(self):
     #     self._cricuit.modeler.schematic.create_component(
     #                         fields[0],
     #                         component_library=None,
@@ -131,7 +141,7 @@ class Model(Component):
         pass
 
 class Ibis():
-# Ibis reader must work independently or in Circuit.
+    # Ibis reader must work independently or in Circuit.
     def __init__(self, name, circuit):
         self.circuit = circuit
         self._name = name
@@ -179,7 +189,7 @@ def read_project(fileName: str, circuit):
     ibis = Ibis(ibis_name, circuit)
 
     # Read *.ibis file.
-    with open(fileName,'r') as f:
+    with open(fileName, 'r') as f:
         while True:
             current_line = f.readline()
             if not current_line:
@@ -360,7 +370,7 @@ def make_pin_object(line: str, component_name: str, ibis: Ibis) -> Pin:
 
     return pin
 
-def get_first_parameter(line: str) ->str:
+def get_first_parameter(line: str) -> str:
     if line == "":
         return ""
 
