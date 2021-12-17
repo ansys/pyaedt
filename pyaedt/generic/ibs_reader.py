@@ -9,6 +9,7 @@ ibis = None
 class Component():
     def __init__(self):
         self._pins = []
+        self._name = None
         self._buffers = []
 
     @property
@@ -18,6 +19,22 @@ class Component():
     @pins.setter
     def pins(self, value):
         self._pins = value
+
+    @property
+    def name(self):
+        return self._name
+
+    @name.setter
+    def name(self, value):
+        self._name = value
+
+    @property
+    def manufacturer(self):
+        return self._manufacturer
+
+    @manufacturer.setter
+    def manufacturer(self, value):
+        self._manufacturer = value
 
     @property
     def buffers(self):
@@ -31,6 +48,7 @@ class Pin(Component):
     def __init__(self, name, circuit):
         self._name = name
         self._circuit = circuit
+        self._short_name = None
         self._signal = None
         self._model = None
         self._r_value = None
@@ -38,17 +56,7 @@ class Pin(Component):
         self._c_value = None
 
     def add(self):
-        self._circuit.modeler.schematic.o_component_manager.AddSolverOnDemandModel(self._name,
-            [
-                "NAME:CosimDefinition",
-                "CosimulatorType:=" , 7,
-                "CosimDefName:="    , "DefaultIBISNetlist",
-                "IsDefinition:="    , True,
-                "Connect:="     , True,
-                "Data:="        , [],
-                "GRef:="        , []
-            ]
-                            )
+        self._circuit.modeler.schematic.o_component_manager.AddSolverOnDemandModel(self._name,["NAME:CosimDefinition","CosimulatorType:=",7,"CosimDefName:=","DefaultIBISNetlist","IsDefinition:=",True,"Connect:=",True,"Data:=",[],"GRef:=",[]])
 
     def insert(self, x, y, angle):
         self._circuit.modeler.schematic.create_component(
@@ -64,6 +72,14 @@ class Pin(Component):
     @property
     def name(self):
         return self._name
+
+    @property
+    def short_name(self):
+        return self._short_name
+
+    @short_name.setter
+    def short_name(self, value):
+        self._short_name = value
 
     @property
     def signal(self):
@@ -202,6 +218,35 @@ def read_project(fileName: str, circuit):
             elif IsStartedWith(current_line, "[Model Selector] ") == True:
                 read_model_selector(ibis, current_line, f)
 
+
+    buffers = []
+    for model_selector in ibis.model_selectors:
+        buffer = Buffer(model_selector.name, circuit)
+        buffers.append(buffer)
+
+    for model in ibis.models:
+        buffer = Buffer(model.name, circuit)
+        buffers.append(buffer)
+
+    if circuit:
+        arg1 = ["NAME:Options", "Mode:=", 4, "Overwrite:=", False, "SupportsSimModels:=", False, "LoadOnly:=", False,]
+        arg_buffers = ["NAME:Buffers"]
+        for buffer in buffers:
+            arg_buffers.append(buffer.name+":=")
+            arg_buffers.append([False,"IbisSingleEnded"]) # WARNING DQS# is TRUE
+
+        arg_components = ["NAME:Components"]
+        for component in ibis.components:
+            arg_component = ["NAME:"+component.name]
+            for pin in component.pins:
+                arg_component.append(pin.short_name+":=")
+                arg_component.append([False,False])
+            arg_components.append(arg_component)
+
+        args = [arg1, arg_buffers, arg_components]
+
+        circuit.modeler.schematic.o_component_manager.ImportModelsFromFile(fileName,args)
+
     return ibis
 
 
@@ -287,7 +332,7 @@ def read_component(ibis: Ibis, current_line: str, f: typing.TextIO):
     current_line = f.readline()
 
     if IsStartedWith(current_line, "[Manufacturer]") == True:
-        component.Manufacturer = current_line.replace("[Manufacturer]", "").strip()
+        component.manufacturer = current_line.replace("[Manufacturer]", "").strip()
 
     # current_line = f.readline()
 
@@ -352,7 +397,7 @@ def make_pin_object(line: str, component_name: str, ibis: Ibis) -> Pin:
     current_string = line.strip().replace("\t", " ")
     pin_name = get_first_parameter(current_string)
     pin = Pin(pin_name + "_" + component_name + "_" + ibis.name, ibis.circuit)
-
+    pin.short_name = pin_name
     current_string = current_string[len(pin.name) + 1:].strip()
     pin.signal = get_first_parameter(current_string)
 
