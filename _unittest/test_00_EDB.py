@@ -7,7 +7,6 @@ import gc
 from pyaedt import Edb
 from pyaedt.edb_core.components import resistor_value_parser
 from pyaedt.generic.filesystem import Scratch
-from pyaedt.generic.constants import SourceType
 
 test_project_name = "Galileo_edb"
 bom_example = "bom_example.csv"
