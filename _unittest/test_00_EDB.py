@@ -535,7 +535,7 @@ class TestClass:
 
     def test_70_vias_creation(self):
         via_list = self.edbapp.core_padstack_instance.get_padstack_instance_by_net_name("M_MA<5>")
-        assert via_list
+        assert len(via_list)
         via = via_list[0]
         assert via.start_layer
         assert via.stop_layer
