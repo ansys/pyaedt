@@ -58,6 +58,12 @@ class TestClass:
         assert self.edbapp.core_padstack.get_via_instance_from_net("GND")
         assert not self.edbapp.core_padstack.get_via_instance_from_net(["GND2"])
 
+    def test_01C_create_ports_on_component(self):
+        net_list = ["M_DQ<1>", "M_DQ<2>", "M_DQ<3>", "M_DQ<4>", "M_DQ<5>"]
+        assert self.edbapp.core_components.create_port_on_component(
+            component="U2A5", net_list=net_list, port_type=SourceType.CoaxPort, do_pingroup=False, reference_net="GND"
+        )
+
     def test_02_get_properties(self):
         assert len(self.edbapp.core_components.components) > 0
         assert len(self.edbapp.core_components.inductors) > 0
@@ -533,9 +539,3 @@ class TestClass:
 
     def test_69_create_solder_balls_on_component(self):
         assert self.edbapp.core_components.set_solder_ball("U2A5")
-
-    def test_70_create_ports_on_component(self):
-        net_list = ["M_DQ<1>", "M_DQ<2>", "M_DQ<3>", "M_DQ<4>", "M_DQ<5>"]
-        assert self.edbapp.core_components.create_port_on_component(
-            component="U2A5", net_list=net_list, port_type=SourceType.CoaxPort, do_pingroup=False, reference_net="GND"
-        )
