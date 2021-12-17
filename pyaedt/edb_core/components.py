@@ -507,6 +507,7 @@ class Components(object):
                         term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
                         term.SetIsCircuitPort(True)
                         term.SetReferenceTerminal(ref_pin_term)
+        return True
 
     @aedt_exception_handler
     def _create_terminal(self, pin):
