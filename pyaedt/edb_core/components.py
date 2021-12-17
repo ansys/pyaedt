@@ -417,7 +417,7 @@ class Components(object):
             If net is not part of the component this one will be skipped.
 
         port_type : SourceType enumerator, CoaxPort or CircuitPort
-            define the type of port to be created. CoaxPort will auto generate solder balls.
+            Define the type of port to be created. CoaxPort will auto generate solder balls.
             CircuitPort will generate circuit ports on pins belonging to the net list.
 
         do_pingroup : bool
