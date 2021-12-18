@@ -602,22 +602,18 @@ class EdbPadstackInstances:
 
     @property
     def _builder(self):
-        """ """
         return self._pedb.builder
 
     @property
     def _edb(self):
-        """ """
         return self._pedb.edb
 
     @property
     def _edb_value(self):
-        """ """
         return self._pedb.edb_value
 
     @property
     def _active_layout(self):
-        """ """
         return self._pedb.active_layout
 
     @property
@@ -627,12 +623,10 @@ class EdbPadstackInstances:
 
     @property
     def _logger(self):
-        """ """
         return self._pedb.logger
 
     @property
     def layers(self):
-        """ """
         return self._pedb.core_stackup.stackup_layers
 
     @property
