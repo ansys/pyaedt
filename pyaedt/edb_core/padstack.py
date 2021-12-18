@@ -588,7 +588,10 @@ class EdbPadstacks(object):
 
 class EdbPadstackInstances:
     """Manages EDB functionalities for padstack instances.
-
+    Parameters
+    ----------
+    pedb :
+        Inherited AEDT object.
     Examples
     --------
     >>> from pyaedt import Edb
