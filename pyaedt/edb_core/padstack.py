@@ -658,7 +658,7 @@ class EdbPadstackInstances:
                 self._padstack_instances.append(EDBPadstackInstance(lobj, self._pedb))
 
     def get_padstack_instance_by_net_name(self, net_name):
-        """Get a list padstack instances by net name.
+        """Get a list of padstack instances by net name.
 
         Parameters
         ----------
