@@ -592,6 +592,7 @@ class Edb(object):
 
     @property
     def core_padstack_instance(self):
+        """Core padstack instance."""
         if not self._padstack_instance and self.builder:
             self._padstack_instance = EdbPadstackInstances(self)
         return self._padstack_instance
