@@ -631,7 +631,7 @@ class EdbPadstackInstances:
         return self._pedb.logger
 
     @property
-    def _layers(self):
+    def layers(self):
         """ """
         return self._pedb.core_stackup.stackup_layers
 
