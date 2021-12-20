@@ -549,8 +549,11 @@ class EdbLayout(object):
             ``True`` when successful, ``False`` when no changes were applied.
         """
         obj_list = self._active_layout.GetLayoutInstance().GetAllLayoutObjInstances()
-        circle_list = [obj.GetLayoutObj() for obj in list(obj_list.Items) if
-                         isinstance(obj.GetLayoutObj(), self._edb.Cell.Primitive.Circle)]
+        circle_list = [
+            obj.GetLayoutObj()
+            for obj in list(obj_list.Items)
+            if isinstance(obj.GetLayoutObj(), self._edb.Cell.Primitive.Circle)
+        ]
 
         void_circles = [circ for circ in circle_list if circ.IsVoid()]
         if len(void_circles) == 0:
@@ -559,12 +562,15 @@ class EdbLayout(object):
             if is_ironpython:
                 res, center_x, center_y, radius = void_circle.GetParameters()
             else:
-                res, center_x, center_y, radius = void_circle.GetParameters(0., 0., 0.)
-            cloned_circle = self._edb.Cell.Primitive.Circle.Create(self._active_layout,
-                                                                   void_circle.GetLayer().GetName(),
-                                                                   void_circle.GetNet(), self._edb_value(center_x),
-                                                                   self._edb_value(center_y),
-                                                                   self._edb_value(radius))
+                res, center_x, center_y, radius = void_circle.GetParameters(0.0, 0.0, 0.0)
+            cloned_circle = self._edb.Cell.Primitive.Circle.Create(
+                self._active_layout,
+                void_circle.GetLayer().GetName(),
+                void_circle.GetNet(),
+                self._edb_value(center_x),
+                self._edb_value(center_y),
+                self._edb_value(radius),
+            )
             if res:
                 cloned_circle.SetIsNegative(True)
                 void_circle.Delete()
