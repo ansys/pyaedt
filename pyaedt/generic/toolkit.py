@@ -42,7 +42,6 @@ Parallel to this file, an xaml file should be present in the same directory.
 >>>         #Launch the UI
 >>>        self.launch_gui()
 >>>
->>>         self.add_combo_items("_combo1", self.aedtdesign.design_list)
 >>>         # Setup Additional Callbacks
 >>>         self.add_combo_items("_combo1", self.aedtdesign.design_list)
 
