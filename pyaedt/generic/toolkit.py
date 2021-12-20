@@ -322,7 +322,7 @@ class ToolkitBuilder:
 
     def __init__(self, local_path, app_name=None):
         """Instantiates a ToolkitBuilder object. This object manages the packaging of the WPF GUI to ensure
-            that any dependencies not available via pip are stored with the toolkit deployable asset
+        that any dependencies not available via pip are stored with the toolkit deployable asset.
         """
 
         # if the local_path is defined as a file, take the path of that file
