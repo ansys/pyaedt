@@ -287,6 +287,7 @@ class Desktop:
         """Initialize desktop."""
         self._main = sys.modules["__main__"]
         self._main.interpreter = _com
+        self.release_on_exit = close_on_exit
         self.close_on_exit = close_on_exit
         self._main.pyaedt_version = pyaedtversion
         self._main.interpreter_ver = _pythonver
@@ -294,13 +295,13 @@ class Desktop:
             self._main.isoutsideDesktop = False
         else:
             self._main.isoutsideDesktop = True
-        self.releae_on_exit = True
+        self.release_on_exit = True
         self.logfile = None
         if "oDesktop" in dir():
-            self.releae_on_exit = False
+            self.release_on_exit = False
             self._main.oDesktop = oDesktop
         elif "oDesktop" in dir(self._main) and self._main.oDesktop is not None:
-            self.releae_on_exit = False
+            self.release_on_exit = False
         else:
             if "oDesktop" in dir(self._main):
                 del self._main.oDesktop
@@ -320,6 +321,10 @@ class Desktop:
         self._logger.info("pyaedt v%s", self._main.pyaedt_version)
         self._logger.info("Python version %s", sys.version)
         self.odesktop = self._main.oDesktop
+        if _com == "ironpython":
+            sys.path.append(
+                os.path.join(self._main.sDesktopinstallDirectory, "common", "commonfiles", "IronPython", "DLLs")
+            )
 
     def __enter__(self):
         return self
@@ -328,7 +333,7 @@ class Desktop:
         # Write the trace stack to the log file if an exception occurred in the main script.
         if ex_type:
             err = self._exception(ex_value, ex_traceback)
-        if self.releae_on_exit:
+        if self.close_on_exit:
             self.release_desktop(close_projects=self.close_on_exit, close_on_exit=self.close_on_exit)
 
     @property
@@ -435,6 +440,8 @@ class Desktop:
             os.environ["PYAEDT_DESKTOP_LOGS"] = "False"
         self._main.oDesktop = oAnsoftApp.GetAppDesktop()
         self._main.isoutsideDesktop = True
+        sys.path.append(os.path.join(base_path, "common", "commonfiles", "IronPython", "DLLs"))
+
         return True
 
     def _get_tasks_list_windows(self, student_version):
