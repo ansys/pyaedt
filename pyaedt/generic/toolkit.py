@@ -668,7 +668,7 @@ class UIObjectGetter:
         Parameters
         ----------
         ui_object_name : str
-            Name of ui object.
+            Name of UI object.
 
         Returns
         -------
@@ -686,7 +686,7 @@ class UIObjectGetter:
         Parameters
         ----------
         ui_object_name : str
-            Name of ui object.
+            Name of UI object.
 
         Returns
         -------
