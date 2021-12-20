@@ -1032,7 +1032,7 @@ class WPFToolkit(Window):
 
     @aedt_exception_handler
     def validate_positive_integer(self, sender, e):
-        """Validates the text box with to non null positive integer."""
+        """Validates the text box with to strictly positive integer."""
 
         valid = False
         try:
