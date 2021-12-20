@@ -1191,7 +1191,7 @@ class Components(object):
             pins = [
                 p
                 for p in list(cmp.LayoutObjs)
-                if p.GetObjType() == 1 and p.IsLayoutPin() and p.GetNet().GetName() in netName
+                if int(p.GetObjType()) == 1 and p.IsLayoutPin() and p.GetNet().GetName() in netName
             ]
         elif pinName:
             if not isinstance(pinName, list):
@@ -1199,12 +1199,12 @@ class Components(object):
             pins = [
                 p
                 for p in list(cmp.LayoutObjs)
-                if p.GetObjType() == 1
+                if int(p.GetObjType()) == 1
                 and p.IsLayoutPin()
                 and (self.get_aedt_pin_name(p) == str(pinName) or p.GetName() in str(pinName))
             ]
         else:
-            pins = [p for p in list(cmp.LayoutObjs) if p.GetObjType() == 1 and p.IsLayoutPin()]
+            pins = [p for p in list(cmp.LayoutObjs) if int(p.GetObjType() == 1) and p.IsLayoutPin()]
         return pins
 
     @aedt_exception_handler
