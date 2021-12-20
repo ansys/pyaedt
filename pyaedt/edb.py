@@ -1036,7 +1036,7 @@ class Edb(object):
         plane = self.core_primitives.Shape("polygon", points=point_list)
         polygonData = self.core_primitives.shape_to_polygon_data(plane)
         self.core_primitives.create_polygon(
-            plane, list(self.core_stackup.signal_layers.keys())[0], net_name="POLYGON_CUTOUT"
+            plane, list(self.core_stackup.signal_layers.keys())[0], net_name="DUMMY_CUTOUT"
         )
 
         _ref_nets = []
