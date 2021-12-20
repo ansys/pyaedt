@@ -562,7 +562,7 @@ class Primitives3D(Primitives, object):
         return self._create_object(new_object_name)
 
     @aedt_exception_handler
-    def create_ellipse(self, cs_plane, position, major_raidus, ratio, is_covered=True, name=None, matname=None):
+    def create_ellipse(self, cs_plane, position, major_radius, ratio, is_covered=True, name=None, matname=None):
         """Create an ellipse.
 
         Parameters
@@ -572,7 +572,7 @@ class Primitives3D(Primitives, object):
             :class:`pyaedt.constants.PLANE` Enumerator can be used as input.
         position : list
             List of ``[x, y, z]`` coordinates for the center point of the ellipse.
-        major_raidus : float
+        major_radius : float
             Base radius of the ellipse.
         ratio : float
             Aspect ratio of the secondary radius to the base radius.
@@ -601,7 +601,7 @@ class Primitives3D(Primitives, object):
         szAxis = GeometryOperators.cs_plane_to_axis_str(cs_plane)
         XStart, YStart, ZStart = self._pos_with_arg(position)
 
-        MajorRadius = self._arg_with_dim(major_raidus)
+        MajorRadius = self._arg_with_dim(major_radius)
         Ratio = self._arg_with_dim(ratio)
 
         vArg1 = ["NAME:EllipseParameters"]
