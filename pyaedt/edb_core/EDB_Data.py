@@ -466,7 +466,7 @@ class EDBLayers(object):
             List of EDB layers.
         """
         allLayers = list(list(self.layer_collection.Layers(self._edb.Cell.LayerTypeSet.AllLayerSet)))
-        allStckuplayers = filter(
+        allStackuplayers = filter(
             lambda lyr: (lyr.GetLayerType() == self._edb.Cell.LayerType.DielectricLayer)
             or (
                 lyr.GetLayerType() == self._edb.Cell.LayerType.SignalLayer
@@ -474,7 +474,7 @@ class EDBLayers(object):
             ),
             allLayers,
         )
-        return sorted(allStckuplayers, key=lambda lyr=self._edb.Cell.StackupLayer: lyr.GetLowerElevation())
+        return sorted(allStackuplayers, key=lambda lyr=self._edb.Cell.StackupLayer: lyr.GetLowerElevation())
 
     @property
     def signal_layers(self):
