@@ -121,7 +121,7 @@ from System.Windows.Media.Imaging import BitmapImage
 
 @aedt_exception_handler
 def select_file(initial_dir=None, filter=None):
-    """Open File Dialog and select a file.
+    """Opens File Dialog and select a file.
 
     Parameters
     ----------
@@ -150,7 +150,7 @@ def select_file(initial_dir=None, filter=None):
 
 @aedt_exception_handler
 def select_directory(initial_dir=None, description=None):
-    """Open File Dialog and select a directory.
+    """Opens File Dialog and select a directory.
 
     Parameters
     ----------
@@ -183,7 +183,7 @@ def select_directory(initial_dir=None, description=None):
 
 @aedt_exception_handler
 def copy_files_mkdir(root, files_in_subdir):
-    """Copy all files from source to destination in a root path.
+    """Copies all files from source to destination in a root path.
 
     Parameters
     ----------
@@ -263,7 +263,7 @@ launch('{}', version=specified_version)
 
 @aedt_exception_handler
 def message_box(text, caption=None, buttons=None, icon=None):
-    """Display Message Box.
+    """Displays Message Box.
 
     Parameters
     ----------
@@ -367,7 +367,7 @@ class ToolkitBuilder:
             f.write(launch_script.format(self.py_name))
 
     def copy_from_local(self, extension=None, ignore_dir=None):
-        """copy recursively all files in the local directory and all subdirectories of a given list of
+        """Copies recursively all files in the local directory and all subdirectories of a given list of
             extensions
 
         :param extension: list of extensions to be copied, e.g. ['py', 'xaml']
@@ -376,7 +376,7 @@ class ToolkitBuilder:
         self.copy_from_repo(self.local_path, extension=extension, ignore_dir=ignore_dir)
 
     def copy_from_repo(self, root_dir=None, sub_dir=None, extension=None, ignore_dir=None):
-        """copy recursively all files from a specified root directory and all subdirectories of a given list of
+        """Copies recursively all files from a specified root directory and all subdirectories of a given list of
             extensions
 
         :param root_dir: optional root directory to copy from, default is the AnsysAutomation repository
@@ -478,7 +478,7 @@ class ApplicationThread:
 
     @aedt_exception_handler
     def open_form(self):
-        """Open the Application Windows Form."""
+        """Opens the Application Windows Form."""
         form_object = __import__(self.workflow_module)
         with form_object.ApplicationWindow() as form:
             form.display()
@@ -568,7 +568,7 @@ class WPFToolkitSettings:
 
     @property
     def settings_data(self):
-        """Read the json file and returns dictionary."""
+        """Reads the json file and returns dictionary."""
         settings_file = self.settings_file
         if os.path.exists(settings_file):
             return self.read_settings_file(self.settings_file)
@@ -577,7 +577,7 @@ class WPFToolkitSettings:
 
     @aedt_exception_handler
     def append_toolkit_dir(self):
-        """Append toolkit directory to sys.path."""
+        """Appends toolkit directory to sys.path."""
         assert os.path.exists(self.settings_file), "Settings File not defined!"
         try:
             toolkit_dir = self.settings_data["_toolkit_dir"]
@@ -663,7 +663,7 @@ class UIObjectGetter:
 
     @aedt_exception_handler
     def float_value(self, ui_object_name):
-        """Convert the text entry to a float and return the value. If the string is empty, return 0
+        """Converts the text entry to a float and return the value. If the string is empty, return 0
 
         Parameters
         ----------
@@ -681,7 +681,7 @@ class UIObjectGetter:
             return float(text_value)
 
     def text_value(self, ui_object_name):
-        """Convert the text entry to a string and return the value. If the string is empty, return 0
+        """Converts the text entry to a string and return the value. If the string is empty, return 0
 
         Parameters
         ----------
@@ -785,7 +785,7 @@ class WPFToolkit(Window):
 
     @aedt_exception_handler
     def copy_xaml_template(self):
-        """Copy the xaml template to local folder and rename it to be used with current application."""
+        """Copies the xaml template to local folder and rename it to be used with current application."""
         local_path = os.path.abspath(os.path.dirname(__file__))
         shutil.copy2(os.path.join(local_path, "wpf_template.xaml"), self.xaml_file)
         return True
@@ -803,7 +803,7 @@ class WPFToolkit(Window):
 
     @aedt_exception_handler
     def add_label(self, name, content, x_pos, y_pos):
-        """Add a label to Wpf.
+        """Adds a label to Wpf.
 
         Parameters
         ----------
@@ -827,7 +827,7 @@ class WPFToolkit(Window):
 
     @aedt_exception_handler
     def add_text_box(self, name, x_pos, y_pos, width=120, callback_method=None, callback_action="LostFocus"):
-        """Add a text box to Wpf.
+        """Adds a text box to Wpf.
 
         Parameters
         ----------
@@ -859,7 +859,7 @@ class WPFToolkit(Window):
 
     @aedt_exception_handler
     def add_combo_box(self, name, x_pos, y_pos, width=120, callback_method=None, callback_action="SelectionChanged"):
-        """Add a combo box to Wpf.
+        """Adds a combo box to Wpf.
 
         Parameters
         ----------
@@ -888,7 +888,7 @@ class WPFToolkit(Window):
 
     @aedt_exception_handler
     def add_check_box(self, name, content, x_pos, y_pos, callback_method=None, callback_action="Checked"):
-        """Add a check box to Wpf.
+        """Adds a check box to Wpf.
 
         Parameters
         ----------
@@ -917,7 +917,7 @@ class WPFToolkit(Window):
 
     @aedt_exception_handler
     def add_button(self, name, content, x_pos, y_pos, width=120, callback_method=None, callback_action="Click"):
-        """Add a button Wpf.
+        """Adds a button Wpf.
 
         Parameters
         ----------
@@ -979,7 +979,7 @@ class WPFToolkit(Window):
 
     @aedt_exception_handler
     def validate_object_name_prefix(self, sender, e):
-        """Validate the text box with object name prefix."""
+        """Validates the text box with object name prefix."""
         valid = False
         try:
             object_list = self.aedtdesign.modeler.get_matched_object_name(sender.Text + "*")
@@ -991,7 +991,7 @@ class WPFToolkit(Window):
 
     @aedt_exception_handler
     def validate_string_no_spaces(self, sender, e):
-        """Validate the text box with no spaces."""
+        """Validates the text box with no spaces."""
 
         valid = False
         if sender.Text.find(" ") < 0:
@@ -1000,7 +1000,7 @@ class WPFToolkit(Window):
 
     @aedt_exception_handler
     def validate_integer(self, sender, e):
-        """Validate the text box with to integer."""
+        """Validates the text box with to integer."""
 
         valid = False
         try:
@@ -1015,7 +1015,7 @@ class WPFToolkit(Window):
 
     @aedt_exception_handler
     def validate_positive_odd_integer(self, sender, e):
-        """Validate the text box with to positive odd integer."""
+        """Validates the text box with to positive odd integer."""
 
         valid = False
         try:
@@ -1032,7 +1032,7 @@ class WPFToolkit(Window):
 
     @aedt_exception_handler
     def validate_positive_integer(self, sender, e):
-        """Validate the text box with to negative odd integer."""
+        """Validates the text box with to non null positive integer."""
 
         valid = False
         try:
@@ -1048,7 +1048,7 @@ class WPFToolkit(Window):
         return value
 
     def validate_non_negative_integer(self, sender, e):
-        """Validate the text box with to non negative integer."""
+        """Validates the text box with to non negative integer."""
 
         valid = False
         try:
@@ -1065,7 +1065,7 @@ class WPFToolkit(Window):
 
     @aedt_exception_handler
     def validate_negative_integer(self, sender, e):
-        """Validate the text box with to negative integer."""
+        """Validates the text box with to negative integer."""
         valid = False
         try:
             value = int(sender.Text)
@@ -1080,7 +1080,7 @@ class WPFToolkit(Window):
 
     @aedt_exception_handler
     def validate_float(self, sender, e):
-        """Validate the text box with to float."""
+        """Validates the text box with to float."""
 
         valid = False
         try:
@@ -1094,7 +1094,7 @@ class WPFToolkit(Window):
 
     @aedt_exception_handler
     def validate_float_variable(self, sender, e):
-        """Validate the text box with to float variable."""
+        """Validates the text box with to float variable."""
         proj_and_des_variables = self.aedtdesign.variable_manager.variable_names
         if sender.Text in proj_and_des_variables:
             self.update_textbox_status(sender, True)
@@ -1103,7 +1103,7 @@ class WPFToolkit(Window):
 
     @aedt_exception_handler
     def validate_positive_float_variable(self, sender, e):
-        """Validate the text box with to positive float variable."""
+        """Validates the text box with to positive float variable."""
 
         proj_and_des_variables = self.aedtdesign.variable_manager.variable_names
         if sender.Text in proj_and_des_variables:
@@ -1113,7 +1113,7 @@ class WPFToolkit(Window):
 
     @aedt_exception_handler
     def validate_positive_integer_variable(self, sender, e):
-        """Validate the text box with to positive integer variable."""
+        """Validates the text box with to positive integer variable."""
 
         proj_and_des_variables = self.aedtdesign.variable_manager.variable_names
         if sender.Text in proj_and_des_variables:
@@ -1123,7 +1123,7 @@ class WPFToolkit(Window):
 
     @aedt_exception_handler
     def validate_positive_integer_global(self, sender, e):
-        """Validate the text box with to positive integer global variable."""
+        """Validates the text box with to positive integer global variable."""
 
         proj_variables = self.aedtdesign.variable_manager.project_variable_names
         if sender.Text in proj_variables:
@@ -1133,7 +1133,7 @@ class WPFToolkit(Window):
 
     @aedt_exception_handler
     def validate_positive_float_global(self, sender, e):
-        """Validate the text box with to positive float global variable."""
+        """Validates the text box with to positive float global variable."""
 
         proj_variables = self.aedtdesign.variable_manager.project_variable_names
         if sender.Text in proj_variables:
@@ -1143,7 +1143,7 @@ class WPFToolkit(Window):
 
     @aedt_exception_handler
     def validate_positive_float(self, sender, e):
-        """Validate the text box with to positive float."""
+        """Validates the text box with to positive float."""
 
         valid = False
         try:
@@ -1159,7 +1159,7 @@ class WPFToolkit(Window):
 
     @aedt_exception_handler
     def validate_non_negative_float(self, sender, e):
-        """Validate the text box with to non-negative float."""
+        """Validates the text box with to non-negative float."""
 
         valid = False
         try:
@@ -1175,7 +1175,7 @@ class WPFToolkit(Window):
 
     @aedt_exception_handler
     def update_textbox_status_with_default_text(self, sender, valid, default_text):
-        """Update a text box with a default text value."""
+        """Updates a text box with a default text value."""
 
         if not valid:
             sender.Text = default_text
@@ -1185,7 +1185,7 @@ class WPFToolkit(Window):
 
     @aedt_exception_handler
     def update_textbox_status(self, sender, valid):
-        """Update a text box status."""
+        """Updates a text box status."""
 
         if not valid:
             sender.Text = ""
@@ -1213,7 +1213,7 @@ class WPFToolkit(Window):
 
     @aedt_exception_handler
     def _read_and_synch_settings_file(self):
-        """reads in existing settings data and updates the path of the library directory in case the project was
+        """Reads in existing settings data and updates the path of the library directory in case the project was
         moved to a new location, file system or operating system"""
         settings_file = self.settings_file
         if os.path.exists(settings_file):
@@ -1236,7 +1236,7 @@ class WPFToolkit(Window):
 
     @aedt_exception_handler
     def display(self):
-        """Display the wpf application as a Dialoq (IronPython) or an Application (CPython)."""
+        """Displays the wpf application as a Dialoq (IronPython) or an Application (CPython)."""
         if sys.implementation.name == "ironpython":
             Window.ShowDialog(self)
         else:
@@ -1244,7 +1244,7 @@ class WPFToolkit(Window):
 
     @aedt_exception_handler
     def open_explorer(self, sender, e):
-        """Open a windows explorer window pointing to the selected path in the sender control."""
+        """Opens a windows explorer window pointing to the selected path in the sender control."""
         os_type = os.name
         if os_type == "nt":
             selected_path = os.path.normpath(sender.Text)
@@ -1291,7 +1291,7 @@ class WPFToolkit(Window):
 
     @aedt_exception_handler
     def assign_image(self, ui_object_name, image_file):
-        """Assign an image to an object.
+        """Assigns an image to an object.
 
         Parameters
         ----------
@@ -1415,7 +1415,7 @@ class WPFToolkit(Window):
 
     @aedt_exception_handler
     def set_text_value(self, ui_object_name, text_val):
-        """Set a text box value.
+        """Sets a text box value.
 
         Parameters
         ----------
@@ -1429,7 +1429,7 @@ class WPFToolkit(Window):
 
     @aedt_exception_handler
     def set_chechbox_status(self, ui_object_name, flag=True):
-        """Set a check box value.
+        """Sets a check box value.
 
         Parameters
         ----------
@@ -1443,7 +1443,7 @@ class WPFToolkit(Window):
 
     @aedt_exception_handler
     def get_ui_object(self, control_name):
-        """Get an Ui object.
+        """Gets an Ui object.
 
         Parameters
         ----------
@@ -1506,7 +1506,7 @@ class WPFToolkit(Window):
 
     @aedt_exception_handler
     def write_settings(self, user_defined_data=None):
-        """Write UI settings Textbox, Checkbox, Combobox only at present
+        """Writes UI settings Textbox, Checkbox, Combobox only at present
             also write any user defined data from a json-serializable dictionary
 
         Parameters
