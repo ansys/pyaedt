@@ -34,8 +34,8 @@ Parallel to this file, an xaml file should be present in the same directory.
 >>>                          call_back_action='LostFocus')
 >>>        self.add_check_box(name="_check1", content="Save Project", x_pos=150, y_pos=80,
 >>>                           call_back_method=self.enable_checkbox, call_back_action="Checked")
->>>        self.add_combo_box(name="_combo1", x_pos=150,  y_pos=120, call_back_method=self.print_design_name)
->>>        self.add_button("run_method", "Click To Run", x_pos=300,  y_pos=300, call_back_method=self.custom_callback)
+>>>        self.add_combo_box(name="_combo1", x_pos=150, y_pos=120, call_back_method=self.print_design_name)
+>>>        self.add_button("run_method", "Click To Run", x_pos=300, y_pos=300, call_back_method=self.custom_callback)
 >>>        self.add_label("label3", "Design Type", 10, 150)
 >>>        self.add_text_box(name="_input3", x_pos=150, y_pos=150)
 >>>
