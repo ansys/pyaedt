@@ -295,7 +295,18 @@ def message_box(text, caption=None, buttons=None, icon=None):
 
 
 class ToolkitBuilder:
-    """Class to help create a deployable zip file of the application and any dependencies that are not available via pip.
+    """Helps to create a deployable zip file of the application and any dependencies that are not available via pip.
+
+    Parameters
+    ----------
+        local_path : str
+            Path of the top-level toolkit files containing the *.py and *.xaml files.
+            Optionally a file located in the toolkit directory (typically __file__)
+            can also be given.
+
+        app_name : str, optional
+            Name of the toolkit (optional).
+            If not defined, then the name of the parent directory is used.
 
     Examples
     --------
@@ -312,12 +323,6 @@ class ToolkitBuilder:
     def __init__(self, local_path, app_name=None):
         """Instantiates a ToolkitBuilder object. This object manages the packaging of the WPF GUI to ensure
             that any dependencies not available via pip are stored with the toolkit deployable asset
-
-        :param local_path:  path of the top-level toolkit files containing the *.py and *.xaml files. Optionally a file
-                            located in the toolkit directory (typically __file__) tcan also be given
-
-        :param app_name:    string name of the toolkit (optional) If not defined, tehn the name of the
-                            parent directory is used
         """
 
         # if the local_path is defined as a file, take the path of that file
