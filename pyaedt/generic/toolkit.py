@@ -1213,7 +1213,7 @@ class WPFToolkit(Window):
     @aedt_exception_handler
     def _read_and_synch_settings_file(self):
         """Reads in existing settings data and updates the path of the library directory in case the project was
-        moved to a new location, file system or operating system"""
+        moved to a new location, file system or operating system."""
         settings_file = self.settings_file
         if os.path.exists(settings_file):
             settings_data = self.settings_data
