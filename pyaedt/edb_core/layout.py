@@ -537,8 +537,9 @@ class EdbLayout(object):
 
     @aedt_exception_handler
     def fix_circle_void_for_clipping(self):
-        """Fix issues when circle void are clipped due to a bug in EDB.
-            Circle defined as void will be replaced as negative regular circles which preserve the layout integrity.
+        """
+        Fix issues when circle void are clipped due to a bug in EDB.
+        Circle defined as void will be replaced as negative regular circles which preserve the layout integrity.
 
         Parameters
         ----------
