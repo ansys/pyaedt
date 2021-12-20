@@ -10,6 +10,9 @@ try:
     import matplotlib.pyplot as plt
     from matplotlib.patches import PathPatch
     from matplotlib.path import Path
+    import matplotlib.path as mpath
+    import matplotlib.patches as mpatches
+    import numpy as np
 except ImportError:
     if not is_ironpython:
         warnings.warn(
@@ -116,7 +119,7 @@ class EdbNets(object):
         return nets
 
     @aedt_exception_handler
-    def plot(self, nets, layers=None, outline=None, color_by_layer=True, save_plot=None):
+    def plot(self, nets, layers=None, color_by_layer=True, save_plot=None, outline=None):
         """Plot a Net to Matplotlib 2D Chart.
 
         Parameters
@@ -125,15 +128,14 @@ class EdbNets(object):
             Name of the net or list of nets to plot. If `None` all nets will be plotted.
         layers : str, list
             Name of the layers on which plot. If `None` all the signal layers will be considered.
-        outline : list, optional
-            List of points of the outline to plot.
         color_by_layer : bool
             If `True` then the plot will be colored by layer.
             If `False` the plot will be colored by net.
         save_plot : str, optional
             If `None` the plot will be shown.
             If a path is entered the plot will be saved to such path.
-
+        outline : list, optional
+            List of points of the outline to plot.
         """
         start_time = time.time()
         if is_ironpython:
@@ -149,86 +151,93 @@ class EdbNets(object):
             x1 = [i[0] for i in outline]
             y1 = [i[1] for i in outline]
             plt.fill(x1, y1, c='b', label='Outline', alpha=.3)
+
         if isinstance(nets, str):
             nets = [nets]
-        for net_name in nets:
-            for path in self._pedb.core_primitives.paths:
-                if path.GetNet().GetName() == net_name and path.GetLayer().GetName() in layers:
-                    my_net_points = path.GetPolygonData().Points
-                    x = []
-                    y = []
-                    for point in list(my_net_points):
-                        if point.Y.ToDouble() < 1e100:
-                            x.append(point.X.ToDouble())
-                            y.append(point.Y.ToDouble())
-                    if not x:
-                        continue
-                    if color_by_layer:
-                        label = "Layer " + path.GetLayer().GetName()
-                        if label not in labels:
-                            color = path.GetLayer().GetColor()
-                            try:
-                                c = tuple([color.Item1 / 255, color.Item2 / 255, color.Item3 / 255])
-                            except:
-                                c = 'b'
-                            labels[label] = c
-                            plt.fill(x, y, c=labels[label], label=label, alpha=.3)
-                        else:
-                            plt.fill(x, y, c=labels[label], alpha=.3)
+        for path in self._pedb.core_primitives.paths:
+            net_name = path.GetNet().GetName()
+            layer_name = path.GetLayer().GetName()
+            if net_name in nets and layer_name in layers:
+                my_net_points = path.GetPolygonData().Points
+                x = []
+                y = []
+                for point in list(my_net_points):
+                    if point.Y.ToDouble() < 1e100:
+                        x.append(point.X.ToDouble())
+                        y.append(point.Y.ToDouble())
+                if not x:
+                    continue
+                if color_by_layer:
+                    label = "Layer " + layer_name
+                    if label not in labels:
+                        color = path.GetLayer().GetColor()
+                        try:
+                            c = tuple([color.Item1 / 255, color.Item2 / 255, color.Item3 / 255])
+                        except:
+                            c = 'b'
+                        labels[label] = c
+                        plt.fill(x, y, c=labels[label], label=label, alpha=.3)
                     else:
-                        label = "Net " + net_name
-                        if label not in labels:
-                            labels[label] = tuple([round(random.uniform(0, 1), 3), round(random.uniform(0, 1), 3),
-                                                   round(random.uniform(0, 1), 3)])
-                            plt.fill(x, y, c=labels[label], label=label, alpha=.3)
-                        else:
-                            plt.fill(x, y, c=labels[label], alpha=.3)
+                        plt.fill(x, y, c=labels[label], alpha=.3)
+                else:
+                    label = "Net " + net_name
+                    if label not in labels:
+                        labels[label] = tuple([round(random.uniform(0, 1), 3), round(random.uniform(0, 1), 3),
+                                               round(random.uniform(0, 1), 3)])
+                        plt.fill(x, y, c=labels[label], label=label, alpha=.3)
+                    else:
+                        plt.fill(x, y, c=labels[label], alpha=.3)
 
-            for poly in self._pedb.core_primitives.polygons:
-                if poly.GetNet().GetName() == net_name and poly.GetLayer().GetName() in layers:
-                    my_net_points = poly.GetPolygonData().Points
-                    x = []
-                    y = []
-                    for point in list(my_net_points):
-                        if point.Y.ToDouble() < 1e100:
-                            x.append(point.X.ToDouble())
-                            y.append(point.Y.ToDouble())
-                    if not x:
-                        continue
-                    if color_by_layer:
-                        label = "Layer " + poly.GetLayer().GetName()
-                        if label not in labels:
-                            color = poly.GetLayer().GetColor()
-                            try:
-                                c = tuple([color.Item1 / 255, color.Item2 / 255, color.Item3 / 255])
-                            except:
-                                c = 'b'
-                            labels[label] = c
-                            plt.fill(x, y, c=labels[label], label=label, alpha=.3)
-                        else:
-                            plt.fill(x, y, c=labels[label], alpha=.3)
+        for poly in self._pedb.core_primitives.polygons:
+            net_name = poly.GetNet().GetName()
+            layer_name = poly.GetLayer().GetName()
+            if net_name in nets and layer_name in layers:
+
+                my_net_points = poly.GetPolygonData().Points
+                x = []
+                y = []
+                for point in list(my_net_points):
+                    if point.Y.ToDouble() < 1e100:
+                        x.append(point.X.ToDouble())
+                        y.append(point.Y.ToDouble())
+                if not x:
+                    continue
+                if color_by_layer:
+                    label = "Layer " + layer_name
+                    if label not in labels:
+                        color = poly.GetLayer().GetColor()
+                        try:
+                            c = tuple([color.Item1 / 255, color.Item2 / 255, color.Item3 / 255])
+                        except:
+                            c = 'b'
+                        labels[label] = c
+                        plt.fill(x, y, c=labels[label], label=label, alpha=.3)
                     else:
-                        label = "Net " + net_name
-                        if label not in labels:
-                            labels[label] = tuple([round(random.uniform(0, 1), 3), round(random.uniform(0, 1), 3),
-                                                   round(random.uniform(0, 1), 3)])
-                            plt.fill(x, y, c=labels[label], label=label, alpha=.3)
+                        plt.fill(x, y, c=labels[label], alpha=.3)
+                else:
+                    label = "Net " + net_name
+                    if label not in labels:
+                        labels[label] = tuple([round(random.uniform(0, 1), 3), round(random.uniform(0, 1), 3),
+                                               round(random.uniform(0, 1), 3)])
+                        plt.fill(x, y, c=labels[label], label=label, alpha=.3)
+                    else:
+                        plt.fill(x, y, c=labels[label], alpha=.3)
+
+                for void in poly.Voids:
+                    v_points = void.GetPolygonData().Points
+                    x1 = []
+                    y1 = []
+                    for point in list(v_points):
+                        if point.Y.ToDouble() < 1e100:
+                            x1.append(point.X.ToDouble())
+                            y1.append(point.Y.ToDouble())
+                    if x1:
+                        if "Voids" not in labels:
+                            labels["Voids"] = "black"
+                            plt.fill(x1, y1, c="black", alpha=1, label="Voids")
                         else:
-                            plt.fill(x, y, c=labels[label], alpha=.3)
-                    for void in poly.Voids:
-                        v_points = void.GetPolygonData().Points
-                        x1 = []
-                        y1 = []
-                        for point in list(v_points):
-                            if point.Y.ToDouble() < 1e100:
-                                x1.append(point.X.ToDouble())
-                                y1.append(point.Y.ToDouble())
-                        if x1:
-                            if "Voids" not in labels:
-                                labels["Voids"] = "black"
-                                plt.fill(x1, y1, c="black", alpha=1, label="Voids")
-                            else:
-                                plt.fill(x1, y1, c="black", alpha=1)
+                            plt.fill(x1, y1, c="black", alpha=1)
+
         ax.set(xlabel="X (m)", ylabel="Y (m)", title=self._pedb.active_cell.GetName())
         ax.legend()
         end_time = time.time() - start_time
