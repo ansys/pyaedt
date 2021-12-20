@@ -27,15 +27,15 @@ Parallel to this file, an xaml file should be present in the same directory.
 
 >>>         #Edit the UI
 >>>        self.add_label("label1", "Input Parameter 1", 10, 10)
->>>        self.add_text_box(name="_input1", x_pos=150, y_pos=10, call_back_method=self.validate_positive_float,
->>>                          call_back_action='LostFocus')
+>>>        self.add_text_box(name="_input1", x_pos=150, y_pos=10, callback_method=self.validate_positive_float,
+>>>                          callback_action='LostFocus')
 >>>        self.add_label("label2", "Design Name", 10, 50)
->>>        self.add_text_box(name="_input2", x_pos=150, y_pos=50, call_back_method=self.validate_string_no_spaces,
->>>                          call_back_action='LostFocus')
+>>>        self.add_text_box(name="_input2", x_pos=150, y_pos=50, callback_method=self.validate_string_no_spaces,
+>>>                          callback_action='LostFocus')
 >>>        self.add_check_box(name="_check1", content="Save Project", x_pos=150, y_pos=80,
->>>                           call_back_method=self.enable_checkbox, call_back_action="Checked")
->>>        self.add_combo_box(name="_combo1", x_pos=150, y_pos=120, call_back_method=self.print_design_name)
->>>        self.add_button("run_method", "Click To Run", x_pos=300, y_pos=300, call_back_method=self.custom_callback)
+>>>                           callback_method=self.enable_checkbox, callback_action="Checked")
+>>>        self.add_combo_box(name="_combo1", x_pos=150, y_pos=120, callback_method=self.print_design_name)
+>>>        self.add_button("run_method", "Click To Run", x_pos=300, y_pos=300, callback_method=self.custom_callback)
 >>>        self.add_label("label3", "Design Type", 10, 150)
 >>>        self.add_text_box(name="_input3", x_pos=150, y_pos=150)
 >>>
@@ -826,7 +826,7 @@ class WPFToolkit(Window):
         return True
 
     @aedt_exception_handler
-    def add_text_box(self, name, x_pos, y_pos, width=120, call_back_method=None, call_back_action="LostFocus"):
+    def add_text_box(self, name, x_pos, y_pos, width=120, callback_method=None, callback_action="LostFocus"):
         """Add a text box to Wpf.
 
         Parameters
@@ -839,9 +839,9 @@ class WPFToolkit(Window):
             Vertical position in Ui.
         width : float
             Width of the text box.
-        call_back_method : func
+        callback_method : func
             Name of the method assigned to the call back action. `None` to disable it.
-        call_back_action : str, optional
+        callback_action : str, optional
             Call back action on which callback will be applied. Default is `"Click"`.
 
         Returns
@@ -852,13 +852,13 @@ class WPFToolkit(Window):
         new_label += 'Margin="{},{},0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="{}"/>'.format(
             x_pos, y_pos, width
         )
-        if call_back_method:
-            self._callbacks.append([name, call_back_action, call_back_method])
+        if callback_method:
+            self._callbacks.append([name, callback_action, callback_method])
         self._add_line_to_xml(new_label)
         return True
 
     @aedt_exception_handler
-    def add_combo_box(self, name, x_pos, y_pos, width=120, call_back_method=None, call_back_action="SelectionChanged"):
+    def add_combo_box(self, name, x_pos, y_pos, width=120, callback_method=None, callback_action="SelectionChanged"):
         """Add a combo box to Wpf.
 
         Parameters
@@ -871,9 +871,9 @@ class WPFToolkit(Window):
             Vertical position in Ui.
         width : float
             Width of the combo box.
-        call_back_method : func
+        callback_method : func
             Name of the method assigned to the call back action. `None` to disable it.
-        call_back_action : str, optional
+        callback_action : str, optional
             Call back action on which callback will be applied. Default is `"Click"`.
         Returns
         -------
@@ -881,13 +881,13 @@ class WPFToolkit(Window):
         """
         new_label = '        <ComboBox x:Name="{}" HorizontalAlignment="Left" Height="23" '.format(name)
         new_label += 'Margin="{},{},0,0" VerticalAlignment="Top" Width="{}"/>'.format(x_pos, y_pos, width)
-        if call_back_method:
-            self._callbacks.append([name, call_back_action, call_back_method])
+        if callback_method:
+            self._callbacks.append([name, callback_action, callback_method])
         self._add_line_to_xml(new_label)
         return True
 
     @aedt_exception_handler
-    def add_check_box(self, name, content, x_pos, y_pos, call_back_method=None, call_back_action="Checked"):
+    def add_check_box(self, name, content, x_pos, y_pos, callback_method=None, callback_action="Checked"):
         """Add a check box to Wpf.
 
         Parameters
@@ -900,9 +900,9 @@ class WPFToolkit(Window):
             Horizontal position in Ui.
         y_pos : float
             Vertical position in Ui.
-        call_back_method : func
+        callback_method : func
             Name of the method assigned to the call back action. `None` to disable it.
-        call_back_action : str, optional
+        callback_action : str, optional
             Call back action on which callback will be applied. Default is `"Click"`.
         Returns
         -------
@@ -910,13 +910,13 @@ class WPFToolkit(Window):
         """
         new_label = '        <CheckBox x:Name="{}" Content="{}" HorizontalAlignment="Left" '.format(name, content)
         new_label += 'Margin="{},{},0,0" VerticalAlignment="Top"/>'.format(x_pos, y_pos)
-        if call_back_method:
-            self._callbacks.append([name, call_back_action, call_back_method])
+        if callback_method:
+            self._callbacks.append([name, callback_action, callback_method])
         self._add_line_to_xml(new_label)
         return True
 
     @aedt_exception_handler
-    def add_button(self, name, content, x_pos, y_pos, width=120, call_back_method=None, call_back_action="Click"):
+    def add_button(self, name, content, x_pos, y_pos, width=120, callback_method=None, callback_action="Click"):
         """Add a button Wpf.
 
         Parameters
@@ -931,9 +931,9 @@ class WPFToolkit(Window):
             Vertical position in Ui.
         width : float
             Button width.
-        call_back_method : func
+        callback_method : func
             Name of the method assigned to the call back action. `None` to disable it.
-        call_back_action : str, optional
+        callback_action : str, optional
             Call back action on which callback will be applied. Default is `"Click"`.
 
         Returns
@@ -942,8 +942,8 @@ class WPFToolkit(Window):
         """
         new_label = '        <Button x:Name="{}" Content="{}" HorizontalAlignment="Left" '.format(name, content)
         new_label += 'Margin="{},{},0,0" VerticalAlignment="Top" Width="{}"/>'.format(x_pos, y_pos, width)
-        if call_back_method:
-            self._callbacks.append([name, call_back_action, call_back_method])
+        if callback_method:
+            self._callbacks.append([name, callback_action, callback_method])
         self._add_line_to_xml(new_label)
         return True
 
