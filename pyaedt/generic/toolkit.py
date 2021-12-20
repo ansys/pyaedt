@@ -812,9 +812,9 @@ class WPFToolkit(Window):
         content : str
             Content of the label.
         x_pos : float
-            Horizontal position in Ui.
+            Horizontal position in UI.
         y_pos : float
-            Vertical position in Ui.
+            Vertical position in UI.
 
         Returns
         -------
@@ -834,9 +834,9 @@ class WPFToolkit(Window):
         name : str
             Name of the text box.
         x_pos : float
-            Horizontal position in Ui.
+            Horizontal position in UI.
         y_pos : float
-            Vertical position in Ui.
+            Vertical position in UI.
         width : float
             Width of the text box.
         callback_method : func
@@ -866,9 +866,9 @@ class WPFToolkit(Window):
         name : str
             Name of the combo.
         x_pos : float
-            Horizontal position in Ui.
+            Horizontal position in UI.
         y_pos : float
-            Vertical position in Ui.
+            Vertical position in UI.
         width : float
             Width of the combo box.
         callback_method : func
@@ -897,9 +897,9 @@ class WPFToolkit(Window):
         content : str
             Caption of the check box.
         x_pos : float
-            Horizontal position in Ui.
+            Horizontal position in UI.
         y_pos : float
-            Vertical position in Ui.
+            Vertical position in UI.
         callback_method : func
             Name of the method assigned to the call back action. `None` to disable it.
         callback_action : str, optional
@@ -917,7 +917,7 @@ class WPFToolkit(Window):
 
     @aedt_exception_handler
     def add_button(self, name, content, x_pos, y_pos, width=120, callback_method=None, callback_action="Click"):
-        """Adds a button Wpf.
+        """Adds a button to Wpf.
 
         Parameters
         ----------
@@ -926,9 +926,9 @@ class WPFToolkit(Window):
         content : str
             Caption of the button box.
         x_pos : float
-            Horizontal position in Ui.
+            Horizontal position in UI.
         y_pos : float
-            Vertical position in Ui.
+            Vertical position in UI.
         width : float
             Button width.
         callback_method : func
@@ -1442,7 +1442,7 @@ class WPFToolkit(Window):
 
     @aedt_exception_handler
     def get_ui_object(self, control_name):
-        """Gets an Ui object.
+        """Gets a UI object.
 
         Parameters
         ----------
