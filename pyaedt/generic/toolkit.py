@@ -1206,7 +1206,6 @@ class WPFToolkit(Window):
         -------
         bool
         """
-        """ Duplicates a design and makes a link to the parent design in the settings file """
         self.aedtdesign.duplicate_design(design_name)
         self._write_parent_link()
         bool
