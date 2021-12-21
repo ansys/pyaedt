@@ -2,6 +2,7 @@ from __future__ import absolute_import
 import warnings
 import random
 import time
+import math
 
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name
@@ -113,8 +114,60 @@ class EdbNets(object):
                 nets[net] = value
         return nets
 
+    @staticmethod
+    def _eval_arc_points(p1, p2, h, n=6, tol=1e-12):
+        if abs(h) < tol:
+            return [], []
+        elif h > 0:
+            reverse = False
+            x1 = p1[0]
+            y1 = p1[1]
+            x2 = p2[0]
+            y2 = p2[1]
+        else:
+            reverse = True
+            x1 = p2[0]
+            y1 = p2[1]
+            x2 = p1[0]
+            y2 = p1[1]
+            h *= -1
+        xa = (x2-x1) / 2
+        ya = (y2-y1) / 2
+        xo = x1 + xa
+        yo = y1 + ya
+        a = math.sqrt(xa**2 + ya**2)
+        if a < tol:
+            return [], []
+        r = (a**2)/(2*h) + h/2
+        if abs(r-a) < tol:
+            b = 0
+            th = 2 * math.asin(1)  # chord angle
+        else:
+            b = math.sqrt(r**2 - a**2)
+            th = 2 * math.asin(a/r)  # chord angle
+
+        # center of the circle
+        xc = xo + b*ya/a
+        yc = yo - b*xa/a
+
+        alpha = math.atan2((y1-yc), (x1-xc))
+        xr = []
+        yr = []
+        for i in range(n):
+            i += 1
+            dth = (i/(n+1)) * th
+            xi = xc + r * math.cos(alpha-dth)
+            yi = yc + r * math.sin(alpha-dth)
+            xr.append(xi)
+            yr.append(yi)
+
+        if reverse:
+            xr.reverse()
+            yr.reverse()
+        return xr, yr
+
     @aedt_exception_handler
-    def plot(self, nets, layers=None, color_by_layer=True, save_plot=None, outline=None):
+    def plot(self, nets, layers=None, color_by_net=False, save_plot=None, outline=None):
         """Plot a Net to Matplotlib 2D Chart.
 
         Parameters
@@ -123,9 +176,9 @@ class EdbNets(object):
             Name of the net or list of nets to plot. If `None` all nets will be plotted.
         layers : str, list
             Name of the layers on which plot. If `None` all the signal layers will be considered.
-        color_by_layer : bool
-            If `True` then the plot will be colored by layer.
-            If `False` the plot will be colored by net.
+        color_by_net : bool
+            If `True` then the plot will be colored by net.
+            If `False` the plot will be colored by layer.
         save_plot : str, optional
             If `None` the plot will be shown.
             If a path is entered the plot will be saved to such path.
@@ -153,16 +206,29 @@ class EdbNets(object):
             net_name = path.GetNet().GetName()
             layer_name = path.GetLayer().GetName()
             if net_name in nets and layer_name in layers:
-                my_net_points = path.GetPolygonData().Points
+                my_net_points = list(path.GetPolygonData().Points)
                 x = []
                 y = []
-                for point in list(my_net_points):
-                    if point.Y.ToDouble() < 1e100:
+                for i in range(len(my_net_points)):
+                    point = my_net_points[i]
+                    if not point.IsArc():
                         x.append(point.X.ToDouble())
                         y.append(point.Y.ToDouble())
+                        i += 1
+                    else:
+                        arc_h = point.GetArcHeight().ToDouble()
+                        p1 = [my_net_points[i-1].X.ToDouble(), my_net_points[i-1].Y.ToDouble()]
+                        if i+1 < len(my_net_points):
+                            p2 = [my_net_points[i+1].X.ToDouble(), my_net_points[i+1].Y.ToDouble()]
+                        else:
+                            p2 = [my_net_points[0].X.ToDouble(), my_net_points[0].Y.ToDouble()]
+                        x_arc, y_arc = self._eval_arc_points(p1, p2, arc_h)
+                        x.extend(x_arc)
+                        y.extend(y_arc)
+                        i += 1
                 if not x:
                     continue
-                if color_by_layer:
+                if not color_by_net:
                     label = "Layer " + layer_name
                     if label not in labels:
                         color = path.GetLayer().GetColor()
@@ -192,17 +258,29 @@ class EdbNets(object):
             net_name = poly.GetNet().GetName()
             layer_name = poly.GetLayer().GetName()
             if net_name in nets and layer_name in layers:
-
-                my_net_points = poly.GetPolygonData().Points
+                my_net_points = list(poly.GetPolygonData().Points)
                 x = []
                 y = []
-                for point in list(my_net_points):
-                    if point.Y.ToDouble() < 1e100:
+                for i in range(len(my_net_points)):
+                    point = my_net_points[i]
+                    if not point.IsArc():
                         x.append(point.X.ToDouble())
                         y.append(point.Y.ToDouble())
+                        i += 1
+                    else:
+                        arc_h = point.GetArcHeight().ToDouble()
+                        p1 = [my_net_points[i-1].X.ToDouble(), my_net_points[i-1].Y.ToDouble()]
+                        if i+1 < len(my_net_points):
+                            p2 = [my_net_points[i+1].X.ToDouble(), my_net_points[i+1].Y.ToDouble()]
+                        else:
+                            p2 = [my_net_points[0].X.ToDouble(), my_net_points[0].Y.ToDouble()]
+                        x_arc, y_arc = self._eval_arc_points(p1, p2, arc_h)
+                        x.extend(x_arc)
+                        y.extend(y_arc)
+                        i += 1
                 if not x:
                     continue
-                if color_by_layer:
+                if not color_by_net:
                     label = "Layer " + layer_name
                     if label not in labels:
                         color = poly.GetLayer().GetColor()
@@ -229,22 +307,36 @@ class EdbNets(object):
                         plt.fill(x, y, c=labels[label], alpha=0.3)
 
                 for void in poly.Voids:
-                    v_points = void.GetPolygonData().Points
-                    x1 = []
-                    y1 = []
-                    for point in list(v_points):
-                        if point.Y.ToDouble() < 1e100:
-                            x1.append(point.X.ToDouble())
-                            y1.append(point.Y.ToDouble())
-                    if x1:
+                    void_points = list(void.GetPolygonData().Points)
+                    xv = []
+                    yv = []
+                    for i in range(len(void_points)):
+                        point = void_points[i]
+                        if not point.IsArc():
+                            xv.append(point.X.ToDouble())
+                            yv.append(point.Y.ToDouble())
+                            i += 1
+                        else:
+                            arc_h = point.GetArcHeight().ToDouble()
+                            p1 = [void_points[i - 1].X.ToDouble(), void_points[i - 1].Y.ToDouble()]
+                            if i + 1 < len(void_points):
+                                p2 = [void_points[i + 1].X.ToDouble(), void_points[i + 1].Y.ToDouble()]
+                            else:
+                                p2 = [void_points[0].X.ToDouble(), void_points[0].Y.ToDouble()]
+                            x_arc, y_arc = self._eval_arc_points(p1, p2, arc_h)
+                            xv.extend(x_arc)
+                            yv.extend(y_arc)
+                            i += 1
+                    if xv:
                         if "Voids" not in labels:
                             labels["Voids"] = "black"
-                            plt.fill(x1, y1, c="black", alpha=1, label="Voids")
+                            plt.fill(xv, yv, c="black", alpha=1, label="Voids")
                         else:
-                            plt.fill(x1, y1, c="black", alpha=1)
+                            plt.fill(xv, yv, c="black", alpha=1)
 
         ax.set(xlabel="X (m)", ylabel="Y (m)", title=self._pedb.active_cell.GetName())
         ax.legend()
+        ax.axis('equal')
         end_time = time.time() - start_time
         self._logger.info("Plot Generation time %s seconds", round(end_time, 3))
         if save_plot:
