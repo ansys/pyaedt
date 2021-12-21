@@ -10,8 +10,9 @@ class Component():
     """Component extracted from ibis model."""
 
     def __init__(self):
-        self._pins = []
         self._name = None
+        self._manufacturer = None
+        self._pins = []
         self._buffers = []
 
     @property
@@ -69,29 +70,6 @@ class Pin(Component):
         self._r_value = None
         self._l_value = None
         self._c_value = None
-
-    def add(self):
-        self._circuit.modeler.schematic.o_component_manager.AddSolverOnDemandModel(self._name,["NAME:CosimDefinition","CosimulatorType:=",7,"CosimDefName:=","DefaultIBISNetlist","IsDefinition:=",True,"Connect:=",True,"Data:=",[],"GRef:=",[]])
-
-    def insert(self, x, y, angle=0.):
-        """
-        Insert a pin at a defined location inside the graphical window.
-        
-        Parameters
-        ----------
-        x: float
-            X position of the pin.
-        y: float
-            Y position of the pin.
-        angle: float, optional
-            Angle of the pin.
-        """
-        self._circuit.modeler.schematic.create_component(
-                            component_library = None,
-                            component_name=self.name,
-                            location=[x, y],
-                            angle = angle,
-                            )
 
     @property
     def name(self):
@@ -151,12 +129,40 @@ class Pin(Component):
     def c_value(self, value):
         self._c_value = value
 
+    def add(self):
+        self._circuit.modeler.schematic.o_component_manager.AddSolverOnDemandModel(self._name,["NAME:CosimDefinition","CosimulatorType:=",7,"CosimDefName:=","DefaultIBISNetlist","IsDefinition:=",True,"Connect:=",True,"Data:=",[],"GRef:=",[]])
+
+    def insert(self, x, y, angle=0.):
+        """
+        Insert a pin at a defined location inside the graphical window.
+        
+        Parameters
+        ----------
+        x: float
+            X position of the pin.
+        y: float
+            Y position of the pin.
+        angle: float, optional
+            Angle of the pin.
+        """
+        self._circuit.modeler.schematic.create_component(
+                            component_library = None,
+                            component_name=self.name,
+                            location=[x, y],
+                            angle = angle,
+                            )
+
 
 class Buffer():
 
     def __init__(self, name, circuit):
         self._name = name
         self._circuit = circuit
+
+    @property
+    def name(self):
+        """Name of the buffer."""
+        return self._name
 
     def add(self):
         self._circuit.modeler.schematic.o_component_manager.AddSolverOnDemandModel(self._name,["NAME:CosimDefinition","CosimulatorType:=",7,"CosimDefName:=","DefaultIBISNetlist","IsDefinition:=",True,"Connect:=",True,"Data:=",[],"GRef:=",[]])
@@ -169,17 +175,6 @@ class Buffer():
                             angle = angle,
                             )
 
-    # def create_symbol(self):
-    #     pass
-
-    def place_component(x: int, y: int, angle: int):
-        pass
-
-    @property
-    def name(self):
-        """Name of the buffer."""
-        return self._name
-
 class ModelSelector():
     pass
 
@@ -187,7 +182,6 @@ class ModelSelectorItem():
     pass
 
 class Model(Component):
-    def create_symbol(self):
         pass
 
 class Ibis():
@@ -233,7 +227,7 @@ class Ibis():
 
     @property
     def models(self):
-        """List of all model included in the ibis file."""
+        """List of all models included in the ibis file."""
         return self._models
 
     @models.setter
@@ -280,7 +274,7 @@ def read_project(fileName: str, circuit):
         arg_buffers = ["NAME:Buffers"]
         for buffer in buffers:
             arg_buffers.append(buffer.name+":=")
-            arg_buffers.append([True,"IbisSingleEnded"]) # WARNING DQS# is TRUE
+            arg_buffers.append([True,"IbisSingleEnded"])
 
         arg_components = ["NAME:Components"]
         for component in ibis.components:
