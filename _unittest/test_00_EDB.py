@@ -10,7 +10,7 @@ from pyaedt.generic.filesystem import Scratch
 
 test_project_name = "Galileo_edb"
 bom_example = "bom_example.csv"
-from _unittest.conftest import config, desktop_version, local_path, scratch_path
+from _unittest.conftest import config, desktop_version, local_path, scratch_path, is_ironpython
 
 try:
     import pytest
@@ -533,5 +533,11 @@ class TestClass:
     def test_69_create_solder_balls_on_component(self):
         assert self.edbapp.core_components.set_solder_ball("U2A5")
 
-    def test_70_fix_circle_voids(self):
+    @pytest.mark.skipif(is_ironpython, reason="This Test uses Ironpython")
+    def test_70_plot_on_matplotlib(self):
+        local_png = os.path.join(self.local_scratch.path, "test.png")
+        self.edbapp.core_nets.plot(None, None, save_plot=local_png)
+        assert os.path.exists(local_png)
+
+    def test_71_fix_circle_voids(self):
         assert self.edbapp.core_primitives.fix_circle_void_for_clipping()
