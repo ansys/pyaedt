@@ -157,4 +157,4 @@ M3D.post.create_fieldplot_surface(surflist, "Mag_J", intrinsincDict=intrinsic_di
 
 ###############################################################################
 # The electronics desktop is released from the script engine, we leave the desktop and project open.
-M3D.release_desktop(False, False)
+M3D.release_desktop(True, True)
