@@ -116,6 +116,26 @@ class EdbNets(object):
 
     @staticmethod
     def _eval_arc_points(p1, p2, h, n=6, tol=1e-12):
+        """ Get the points of the arc
+
+        Parameters
+        ----------
+        p1 : list
+            Arc starting point.
+        p2 : list
+            Arc ending point.
+        h : float
+            Arc height.
+        n : int
+            Number of points to generate along the arc.
+        tol : float
+            Geometric tolerance.
+
+        Returns
+        -------
+        list
+            points generated along the arc.
+        """
         if abs(h) < tol:
             return [], []
         elif h > 0:
@@ -166,6 +186,32 @@ class EdbNets(object):
             yr.reverse()
         return xr, yr
 
+    def _get_points_for_plot(self, my_net_points):
+        """
+        Get the points to be plot
+        """
+        x = []
+        y = []
+        for i in range(len(my_net_points)):
+            point = my_net_points[i]
+            if not point.IsArc():
+                x.append(point.X.ToDouble())
+                y.append(point.Y.ToDouble())
+                i += 1
+            else:
+                arc_h = point.GetArcHeight().ToDouble()
+                p1 = [my_net_points[i - 1].X.ToDouble(), my_net_points[i - 1].Y.ToDouble()]
+                if i + 1 < len(my_net_points):
+                    p2 = [my_net_points[i + 1].X.ToDouble(), my_net_points[i + 1].Y.ToDouble()]
+                else:
+                    p2 = [my_net_points[0].X.ToDouble(), my_net_points[0].Y.ToDouble()]
+                x_arc, y_arc = self._eval_arc_points(p1, p2, arc_h)
+                x.extend(x_arc)
+                y.extend(y_arc)
+                i += 1
+        return x, y
+
+
     @aedt_exception_handler
     def plot(self, nets, layers=None, color_by_net=False, save_plot=None, outline=None):
         """Plot a Net to Matplotlib 2D Chart.
@@ -175,7 +221,7 @@ class EdbNets(object):
         nets : str, list
             Name of the net or list of nets to plot. If `None` all nets will be plotted.
         layers : str, list
-            Name of the layers on which plot. If `None` all the signal layers will be considered.
+            Name of the layers to include in the plot. If `None` all the signal layers will be considered.
         color_by_net : bool
             If `True` then the plot will be colored by net.
             If `False` the plot will be colored by layer.
@@ -207,25 +253,7 @@ class EdbNets(object):
             layer_name = path.GetLayer().GetName()
             if net_name in nets and layer_name in layers:
                 my_net_points = list(path.GetPolygonData().Points)
-                x = []
-                y = []
-                for i in range(len(my_net_points)):
-                    point = my_net_points[i]
-                    if not point.IsArc():
-                        x.append(point.X.ToDouble())
-                        y.append(point.Y.ToDouble())
-                        i += 1
-                    else:
-                        arc_h = point.GetArcHeight().ToDouble()
-                        p1 = [my_net_points[i-1].X.ToDouble(), my_net_points[i-1].Y.ToDouble()]
-                        if i+1 < len(my_net_points):
-                            p2 = [my_net_points[i+1].X.ToDouble(), my_net_points[i+1].Y.ToDouble()]
-                        else:
-                            p2 = [my_net_points[0].X.ToDouble(), my_net_points[0].Y.ToDouble()]
-                        x_arc, y_arc = self._eval_arc_points(p1, p2, arc_h)
-                        x.extend(x_arc)
-                        y.extend(y_arc)
-                        i += 1
+                x, y = self._get_points_for_plot(my_net_points)
                 if not x:
                     continue
                 if not color_by_net:
@@ -259,25 +287,7 @@ class EdbNets(object):
             layer_name = poly.GetLayer().GetName()
             if net_name in nets and layer_name in layers:
                 my_net_points = list(poly.GetPolygonData().Points)
-                x = []
-                y = []
-                for i in range(len(my_net_points)):
-                    point = my_net_points[i]
-                    if not point.IsArc():
-                        x.append(point.X.ToDouble())
-                        y.append(point.Y.ToDouble())
-                        i += 1
-                    else:
-                        arc_h = point.GetArcHeight().ToDouble()
-                        p1 = [my_net_points[i-1].X.ToDouble(), my_net_points[i-1].Y.ToDouble()]
-                        if i+1 < len(my_net_points):
-                            p2 = [my_net_points[i+1].X.ToDouble(), my_net_points[i+1].Y.ToDouble()]
-                        else:
-                            p2 = [my_net_points[0].X.ToDouble(), my_net_points[0].Y.ToDouble()]
-                        x_arc, y_arc = self._eval_arc_points(p1, p2, arc_h)
-                        x.extend(x_arc)
-                        y.extend(y_arc)
-                        i += 1
+                x, y = self._get_points_for_plot(my_net_points)
                 if not x:
                     continue
                 if not color_by_net:
@@ -308,25 +318,7 @@ class EdbNets(object):
 
                 for void in poly.Voids:
                     void_points = list(void.GetPolygonData().Points)
-                    xv = []
-                    yv = []
-                    for i in range(len(void_points)):
-                        point = void_points[i]
-                        if not point.IsArc():
-                            xv.append(point.X.ToDouble())
-                            yv.append(point.Y.ToDouble())
-                            i += 1
-                        else:
-                            arc_h = point.GetArcHeight().ToDouble()
-                            p1 = [void_points[i - 1].X.ToDouble(), void_points[i - 1].Y.ToDouble()]
-                            if i + 1 < len(void_points):
-                                p2 = [void_points[i + 1].X.ToDouble(), void_points[i + 1].Y.ToDouble()]
-                            else:
-                                p2 = [void_points[0].X.ToDouble(), void_points[0].Y.ToDouble()]
-                            x_arc, y_arc = self._eval_arc_points(p1, p2, arc_h)
-                            xv.extend(x_arc)
-                            yv.extend(y_arc)
-                            i += 1
+                    xv, yv = self._get_points_for_plot(void_points)
                     if xv:
                         if "Voids" not in labels:
                             labels["Voids"] = "black"
