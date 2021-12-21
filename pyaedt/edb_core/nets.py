@@ -7,12 +7,13 @@ from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name
 
 try:
-    import matplotlib.pyplot as plt
+    from matplotlib import pyplot as plt
 except ImportError:
     if not is_ironpython:
         warnings.warn(
             "The Matplotlib module is required to run some functionalities.\n" "Install with \npip install matplotlib"
         )
+    pass
 
 
 class EdbNets(object):
