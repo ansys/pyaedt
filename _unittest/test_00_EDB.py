@@ -532,3 +532,6 @@ class TestClass:
 
     def test_69_create_solder_balls_on_component(self):
         assert self.edbapp.core_components.set_solder_ball("U2A5")
+
+    def test_70_fix_circle_voids(self):
+        assert self.edbapp.core_primitives.fix_circle_void_for_clipping()
