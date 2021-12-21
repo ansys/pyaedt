@@ -7,21 +7,16 @@ import pyaedt.generic
 ibis = None
 
 class Component():
+    """Component extracted from ibis model."""
+
     def __init__(self):
         self._pins = []
         self._name = None
         self._buffers = []
 
     @property
-    def pins(self):
-        return self._pins
-
-    @pins.setter
-    def pins(self, value):
-        self._pins = value
-
-    @property
     def name(self):
+        """Name of the component."""
         return self._name
 
     @name.setter
@@ -30,6 +25,7 @@ class Component():
 
     @property
     def manufacturer(self):
+        """Manufacturer of the component."""
         return self._manufacturer
 
     @manufacturer.setter
@@ -37,7 +33,17 @@ class Component():
         self._manufacturer = value
 
     @property
+    def pins(self):
+        """Pins of the component."""
+        return self._pins
+
+    @pins.setter
+    def pins(self, value):
+        self._pins = value
+
+    @property
     def buffers(self):
+        """Buffers of the component."""
         return self._buffers
 
     @buffers.setter
@@ -45,6 +51,15 @@ class Component():
         self._buffers = value
 
 class Pin(Component):
+    """Pin from a component with all its data feature.
+
+    Parameters
+    ----------
+    name : str
+        Name of the pin.
+    circuit : class:`pyaedt.circuit.Circuit`
+        Circuit in which the pin will be added to.
+    """
     def __init__(self, name, circuit):
         self._name = name
         self._circuit = circuit
@@ -58,7 +73,19 @@ class Pin(Component):
     def add(self):
         self._circuit.modeler.schematic.o_component_manager.AddSolverOnDemandModel(self._name,["NAME:CosimDefinition","CosimulatorType:=",7,"CosimDefName:=","DefaultIBISNetlist","IsDefinition:=",True,"Connect:=",True,"Data:=",[],"GRef:=",[]])
 
-    def insert(self, x, y, angle):
+    def insert(self, x, y, angle=0.):
+        """
+        Insert a pin at a defined location inside the graphical window.
+        
+        Parameters
+        ----------
+        x: float
+            X position of the pin.
+        y: float
+            Y position of the pin.
+        angle: float, optional
+            Angle of the pin.
+        """
         self._circuit.modeler.schematic.create_component(
                             component_library = None,
                             component_name=self.name,
@@ -66,15 +93,14 @@ class Pin(Component):
                             angle = angle,
                             )
 
-    # def place_component(x: int, y: int, angle: int):
-    #     pass
-
     @property
     def name(self):
+        """Full name of the pin including the component name and the ibis filename."""
         return self._name
 
     @property
     def short_name(self):
+        """Name of the pin without the name of the component."""
         return self._short_name
 
     @short_name.setter
@@ -87,6 +113,7 @@ class Pin(Component):
 
     @signal.setter
     def signal(self, value):
+        """Signal of the pin."""
         self._signal = value
 
     @property
@@ -99,6 +126,7 @@ class Pin(Component):
 
     @property
     def r_value(self):
+        """Resitance value in ohms."""
         return self._r_value
 
     @model.setter
@@ -107,6 +135,7 @@ class Pin(Component):
 
     @property
     def l_value(self):
+        """Inductance value in H."""
         return self._l_value
 
     @model.setter
@@ -115,6 +144,7 @@ class Pin(Component):
 
     @property
     def c_value(self):
+        """Capacitance value in F."""
         return self._c_value
 
     @model.setter
@@ -123,18 +153,21 @@ class Pin(Component):
 
 
 class Buffer():
+
     def __init__(self, name, circuit):
         self._name = name
         self._circuit = circuit
 
-    # def insert(self):
-    #     self._cricuit.modeler.schematic.create_component(
-    #                         fields[0],
-    #                         component_library=None,
-    #                         component_name=self.name,
-    #                         location=[xpos, ypos],
-    #                         use_instance_id_netlist=use_instance,
-    #                     )
+    def add(self):
+        self._circuit.modeler.schematic.o_component_manager.AddSolverOnDemandModel(self._name,["NAME:CosimDefinition","CosimulatorType:=",7,"CosimDefName:=","DefaultIBISNetlist","IsDefinition:=",True,"Connect:=",True,"Data:=",[],"GRef:=",[]])
+
+    def insert(self, x, y, angle):
+        self._circuit.modeler.schematic.create_component(
+                            component_library = None,
+                            component_name=self.name,
+                            location=[x, y],
+                            angle = angle,
+                            )
 
     # def create_symbol(self):
     #     pass
@@ -144,6 +177,7 @@ class Buffer():
 
     @property
     def name(self):
+        """Name of the buffer."""
         return self._name
 
 class ModelSelector():
@@ -157,6 +191,15 @@ class Model(Component):
         pass
 
 class Ibis():
+    """Ibis model with all data extracted: name, components, models.
+
+    Parameters
+    ----------
+    name : str
+        Name of ibis model.
+    circuit : class:`pyaedt.circuit.Circuit`
+        Circuit in which the ibis components will be used.
+    """
     # Ibis reader must work independently or in Circuit.
     def __init__(self, name, circuit):
         self.circuit = circuit
@@ -167,10 +210,12 @@ class Ibis():
 
     @property
     def name(self):
+        """Name of the ibis model."""
         return self._name
 
     @property
     def components(self):
+        """List of all components included in the ibis file."""
         return self._components
 
     @components.setter
@@ -179,6 +224,7 @@ class Ibis():
 
     @property
     def model_selectors(self):
+        """List of all model selectors included in the ibis file."""
         return self._model_selectors
 
     @model_selectors.setter
@@ -187,6 +233,7 @@ class Ibis():
 
     @property
     def models(self):
+        """List of all model included in the ibis file."""
         return self._models
 
     @models.setter
@@ -214,7 +261,7 @@ def read_project(fileName: str, circuit):
             if IsStartedWith(current_line, "[Component] ") == True:
                 read_component(ibis, current_line, f)
             elif IsStartedWith(current_line, "[Model] ") == True:
-                replace_model(ibis, current_line, f)
+                read_model(ibis, current_line, f)
             elif IsStartedWith(current_line, "[Model Selector] ") == True:
                 read_model_selector(ibis, current_line, f)
 
@@ -229,21 +276,22 @@ def read_project(fileName: str, circuit):
         buffers.append(buffer)
 
     if circuit:
-        arg1 = ["NAME:Options", "Mode:=", 4, "Overwrite:=", False, "SupportsSimModels:=", False, "LoadOnly:=", False,]
+        args = ["NAME:Options", "Mode:=", 4, "Overwrite:=", False, "SupportsSimModels:=", False, "LoadOnly:=", False,]
         arg_buffers = ["NAME:Buffers"]
         for buffer in buffers:
             arg_buffers.append(buffer.name+":=")
-            arg_buffers.append([False,"IbisSingleEnded"]) # WARNING DQS# is TRUE
+            arg_buffers.append([True,"IbisSingleEnded"]) # WARNING DQS# is TRUE
 
         arg_components = ["NAME:Components"]
         for component in ibis.components:
             arg_component = ["NAME:"+component.name]
             for pin in component.pins:
                 arg_component.append(pin.short_name+":=")
-                arg_component.append([False,False])
+                arg_component.append([True,False])
             arg_components.append(arg_component)
 
-        args = [arg1, arg_buffers, arg_components]
+        args.append(arg_buffers)
+        args.append(arg_components)
 
         circuit.modeler.schematic.o_component_manager.ImportModelsFromFile(fileName,args)
 
@@ -251,7 +299,7 @@ def read_project(fileName: str, circuit):
 
 
 # Model
-def replace_model(ibis: Ibis, current_line: str, f: typing.TextIO):
+def read_model(ibis: Ibis, current_line: str, f: typing.TextIO):
 
     if IsStartedWith(current_line, "[Model] ") != True:
         return
@@ -367,13 +415,6 @@ def read_component(ibis: Ibis, current_line: str, f: typing.TextIO):
 def fill_package_info(component: Component, current_line: str, f: typing.TextIO):
     while IsStartedWith(current_line, "|") == True or IsStartedWith(current_line, "[") == True:
         current_line = f.readline()
-
-    # the component object must be created first.
-    # component.R_pkg.FillData("R_pkg", current_line.strip())
-    # current_line = f.readline()
-    # component.L_pkg.FillData("L_pkg", current_line.strip())
-    # current_line = f.readline()
-    # component.C_pkg.FillData("C_pkg", current_line.strip())
 
     if IsStartedWith(current_line, "R_pkg") == True:
         component.R_pkg = current_line.strip()
