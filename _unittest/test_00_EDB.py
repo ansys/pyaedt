@@ -535,5 +535,6 @@ class TestClass:
 
     @pytest.mark.skipif(is_ironpython, reason="This Test uses Ironpython")
     def test_70_plot_on_matplotlib(self):
-        local_png = os.path.join(self.local_scratch, "test.png")
-        assert os.path.exists(self.edbapp.core_nets.plot(None, None, save_plot=local_png))
+        local_png = os.path.join(self.local_scratch.path, "test.png")
+        self.edbapp.core_nets.plot(None, None, save_plot=local_png)
+        assert os.path.exists(local_png)

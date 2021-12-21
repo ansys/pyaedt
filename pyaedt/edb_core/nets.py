@@ -8,16 +8,10 @@ from pyaedt.generic.general_methods import aedt_exception_handler, generate_uniq
 
 try:
     import matplotlib.pyplot as plt
-    from matplotlib.patches import PathPatch
-    from matplotlib.path import Path
-    import matplotlib.path as mpath
-    import matplotlib.patches as mpatches
-    import numpy as np
 except ImportError:
     if not is_ironpython:
         warnings.warn(
-            "The Matplotlib module is required to run some functionalities.\n"
-            "Install with \npip install matplotlib"
+            "The Matplotlib module is required to run some functionalities.\n" "Install with \npip install matplotlib"
         )
 
 
@@ -150,7 +144,7 @@ class EdbNets(object):
         if outline:
             x1 = [i[0] for i in outline]
             y1 = [i[1] for i in outline]
-            plt.fill(x1, y1, c='b', label='Outline', alpha=.3)
+            plt.fill(x1, y1, c="b", label="Outline", alpha=0.3)
 
         if isinstance(nets, str):
             nets = [nets]
@@ -174,19 +168,24 @@ class EdbNets(object):
                         try:
                             c = tuple([color.Item1 / 255, color.Item2 / 255, color.Item3 / 255])
                         except:
-                            c = 'b'
+                            c = "b"
                         labels[label] = c
-                        plt.fill(x, y, c=labels[label], label=label, alpha=.3)
+                        plt.fill(x, y, c=labels[label], label=label, alpha=0.3)
                     else:
-                        plt.fill(x, y, c=labels[label], alpha=.3)
+                        plt.fill(x, y, c=labels[label], alpha=0.3)
                 else:
                     label = "Net " + net_name
                     if label not in labels:
-                        labels[label] = tuple([round(random.uniform(0, 1), 3), round(random.uniform(0, 1), 3),
-                                               round(random.uniform(0, 1), 3)])
-                        plt.fill(x, y, c=labels[label], label=label, alpha=.3)
+                        labels[label] = tuple(
+                            [
+                                round(random.uniform(0, 1), 3),
+                                round(random.uniform(0, 1), 3),
+                                round(random.uniform(0, 1), 3),
+                            ]
+                        )
+                        plt.fill(x, y, c=labels[label], label=label, alpha=0.3)
                     else:
-                        plt.fill(x, y, c=labels[label], alpha=.3)
+                        plt.fill(x, y, c=labels[label], alpha=0.3)
 
         for poly in self._pedb.core_primitives.polygons:
             net_name = poly.GetNet().GetName()
@@ -209,19 +208,24 @@ class EdbNets(object):
                         try:
                             c = tuple([color.Item1 / 255, color.Item2 / 255, color.Item3 / 255])
                         except:
-                            c = 'b'
+                            c = "b"
                         labels[label] = c
-                        plt.fill(x, y, c=labels[label], label=label, alpha=.3)
+                        plt.fill(x, y, c=labels[label], label=label, alpha=0.3)
                     else:
-                        plt.fill(x, y, c=labels[label], alpha=.3)
+                        plt.fill(x, y, c=labels[label], alpha=0.3)
                 else:
                     label = "Net " + net_name
                     if label not in labels:
-                        labels[label] = tuple([round(random.uniform(0, 1), 3), round(random.uniform(0, 1), 3),
-                                               round(random.uniform(0, 1), 3)])
-                        plt.fill(x, y, c=labels[label], label=label, alpha=.3)
+                        labels[label] = tuple(
+                            [
+                                round(random.uniform(0, 1), 3),
+                                round(random.uniform(0, 1), 3),
+                                round(random.uniform(0, 1), 3),
+                            ]
+                        )
+                        plt.fill(x, y, c=labels[label], label=label, alpha=0.3)
                     else:
-                        plt.fill(x, y, c=labels[label], alpha=.3)
+                        plt.fill(x, y, c=labels[label], alpha=0.3)
 
                 for void in poly.Voids:
                     v_points = void.GetPolygonData().Points
@@ -241,7 +245,7 @@ class EdbNets(object):
         ax.set(xlabel="X (m)", ylabel="Y (m)", title=self._pedb.active_cell.GetName())
         ax.legend()
         end_time = time.time() - start_time
-        self._logger.info("Plot Generation time %s seconds", round(end_time,3))
+        self._logger.info("Plot Generation time %s seconds", round(end_time, 3))
         if save_plot:
             plt.savefig(save_plot)
         else:
