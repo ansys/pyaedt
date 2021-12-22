@@ -116,7 +116,7 @@ class EdbNets(object):
 
     @staticmethod
     def _eval_arc_points(p1, p2, h, n=6, tol=1e-12):
-        """ Get the points of the arc
+        """Get the points of the arc
 
         Parameters
         ----------
@@ -151,33 +151,33 @@ class EdbNets(object):
             x2 = p1[0]
             y2 = p1[1]
             h *= -1
-        xa = (x2-x1) / 2
-        ya = (y2-y1) / 2
+        xa = (x2 - x1) / 2
+        ya = (y2 - y1) / 2
         xo = x1 + xa
         yo = y1 + ya
-        a = math.sqrt(xa**2 + ya**2)
+        a = math.sqrt(xa ** 2 + ya ** 2)
         if a < tol:
             return [], []
-        r = (a**2)/(2*h) + h/2
-        if abs(r-a) < tol:
+        r = (a ** 2) / (2 * h) + h / 2
+        if abs(r - a) < tol:
             b = 0
             th = 2 * math.asin(1)  # chord angle
         else:
-            b = math.sqrt(r**2 - a**2)
-            th = 2 * math.asin(a/r)  # chord angle
+            b = math.sqrt(r ** 2 - a ** 2)
+            th = 2 * math.asin(a / r)  # chord angle
 
         # center of the circle
-        xc = xo + b*ya/a
-        yc = yo - b*xa/a
+        xc = xo + b * ya / a
+        yc = yo - b * xa / a
 
-        alpha = math.atan2((y1-yc), (x1-xc))
+        alpha = math.atan2((y1 - yc), (x1 - xc))
         xr = []
         yr = []
         for i in range(n):
             i += 1
-            dth = (i/(n+1)) * th
-            xi = xc + r * math.cos(alpha-dth)
-            yi = yc + r * math.sin(alpha-dth)
+            dth = (i / (n + 1)) * th
+            xi = xc + r * math.cos(alpha - dth)
+            yi = yc + r * math.sin(alpha - dth)
             xr.append(xi)
             yr.append(yi)
 
@@ -327,7 +327,7 @@ class EdbNets(object):
 
         ax.set(xlabel="X (m)", ylabel="Y (m)", title=self._pedb.active_cell.GetName())
         ax.legend()
-        ax.axis('equal')
+        ax.axis("equal")
         end_time = time.time() - start_time
         self._logger.info("Plot Generation time %s seconds", round(end_time, 3))
         if save_plot:
