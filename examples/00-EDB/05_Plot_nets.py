@@ -36,19 +36,19 @@ shutil.copytree(example_path[:-8], targetfolder)
 edb = Edb(edbpath=targetfolder, edbversion="2021.2")
 
 ###############################################################################
-# Plot a custom set of nets colored by Nets.
+# Plot a custom set of nets colored by Layer (default).
 
-edb.core_nets.plot(["VREF", "V3P3_S0"], color_by_layer=False)
+edb.core_nets.plot("V3P3_S0")
 
 ###############################################################################
-# Plot a custom set of nets colored by Layer.
+# Plot a custom set of nets colored by Nets.
 
-edb.core_nets.plot("V3P3_S0", color_by_layer=True)
+edb.core_nets.plot(["VREF", "V3P3_S0"], color_by_net=True)
 
 ###############################################################################
 # Plot all nets on a layer colored by Nets.
 
-edb.core_nets.plot(None, ["TOP"], color_by_layer=False)
+edb.core_nets.plot(None, ["TOP"], color_by_net=True)
 
 ###############################################################################
 # Close Db
