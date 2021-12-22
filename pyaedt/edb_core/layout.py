@@ -7,6 +7,7 @@ import warnings
 
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.generic.general_methods import is_ironpython
 
 try:
     from System import Tuple
@@ -533,6 +534,42 @@ class EdbLayout(object):
                 else:
                     self._primitives_by_layer[layer_name] = [polygon]
             return polygon
+
+    @aedt_exception_handler
+    def fix_circle_void_for_clipping(self):
+        """Fix issues when circle void are clipped due to a bug in EDB.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when no changes were applied.
+        """
+        obj_list = self._active_layout.GetLayoutInstance().GetAllLayoutObjInstances()
+        circle_list = [
+            obj.GetLayoutObj()
+            for obj in list(obj_list.Items)
+            if isinstance(obj.GetLayoutObj(), self._edb.Cell.Primitive.Circle)
+        ]
+
+        void_circles = [circ for circ in circle_list if circ.IsVoid()]
+        if len(void_circles) > 0:
+            for void_circle in void_circles:
+                if is_ironpython:
+                    res, center_x, center_y, radius = void_circle.GetParameters()
+                else:
+                    res, center_x, center_y, radius = void_circle.GetParameters(0.0, 0.0, 0.0)
+                cloned_circle = self._edb.Cell.Primitive.Circle.Create(
+                    self._active_layout,
+                    void_circle.GetLayer().GetName(),
+                    void_circle.GetNet(),
+                    self._edb_value(center_x),
+                    self._edb_value(center_y),
+                    self._edb_value(radius),
+                )
+                if res:
+                    cloned_circle.SetIsNegative(True)
+                    void_circle.Delete()
+        return True
 
     @aedt_exception_handler
     def add_void(self, shape, void_shape):
