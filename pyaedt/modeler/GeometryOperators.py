@@ -1240,7 +1240,10 @@ class GeometryOperators(object):
             List of [x,y,z] coordinates for the centroid of the polygon.
 
         """
+        if len(pts) == 0:
+            raise AttributeError('pts must contain at list one point')
         sx = sy = sz = sl = sl2 = 0
+        x1, y1, z1 = pts[0]
         for i in range(len(pts)):  # counts from 0 to len(points)-1
             x0, y0, z0 = pts[i - 1]  # in Python points[-1] is last element of points
             x1, y1, z1 = pts[i]
@@ -1348,3 +1351,37 @@ class GeometryOperators(object):
                 return [GeometryOperators.get_numeric(s) if type(s) is str else s for s in cs_in]
             else:
                 return [0, 0, 0]
+
+    @staticmethod
+    @aedt_exception_handler
+    def orient_poligon(x, y, clockwise=True):
+        """
+        Orient a poligon clockwise or counterclockwise.
+        The poligon is represented by its vertices coordinates.
+
+        Parameters
+        ----------
+        x : list
+            List of x coordinates of the vertices. Length must be >= 3.
+        y : list
+            List of y coordinates of the vertices. Must be of the same length as x.
+        clockwise : bool
+            If `True` the is oriented colckwise, if `False` it is oriented counterclockwise.
+            Default is `True`.
+
+        Returns
+        -------
+        list, list
+            Lists of oriented vertices
+        """
+        # select a vertex on the hull
+        if len(x) < 3:
+            raise AttributeError('x length must be >= 3')
+        if len(y) != len(x):
+            raise AttributeError('y must be same length as x.')
+        xmin = min(x)
+        imin = x.index(xmin)
+        ymin = y[imin]
+
+
+

@@ -9,6 +9,8 @@ from pyaedt.generic.general_methods import aedt_exception_handler, generate_uniq
 
 try:
     from matplotlib import pyplot as plt
+    from matplotlib.path import Path
+    from matplotlib.patches import PathPatch
 except ImportError:
     if not is_ironpython:
         warnings.warn(
@@ -212,6 +214,7 @@ class EdbNets(object):
         return x, y
 
 
+
     @aedt_exception_handler
     def plot(self, nets, layers=None, color_by_net=False, save_plot=None, outline=None):
         """Plot a Net to Matplotlib 2D Chart.
@@ -290,41 +293,65 @@ class EdbNets(object):
                 x, y = self._get_points_for_plot(my_net_points)
                 if not x:
                     continue
-                if not color_by_net:
-                    label = "Layer " + layer_name
-                    if label not in labels:
-                        color = poly.GetLayer().GetColor()
-                        try:
-                            c = tuple([color.Item1 / 255, color.Item2 / 255, color.Item3 / 255])
-                        except:
-                            c = "b"
-                        labels[label] = c
-                        plt.fill(x, y, c=labels[label], label=label, alpha=0.3)
-                    else:
-                        plt.fill(x, y, c=labels[label], alpha=0.3)
-                else:
-                    label = "Net " + net_name
-                    if label not in labels:
-                        labels[label] = tuple(
-                            [
-                                round(random.uniform(0, 1), 3),
-                                round(random.uniform(0, 1), 3),
-                                round(random.uniform(0, 1), 3),
-                            ]
-                        )
-                        plt.fill(x, y, c=labels[label], label=label, alpha=0.3)
-                    else:
-                        plt.fill(x, y, c=labels[label], alpha=0.3)
+                vertices = [(i, j) for i, j in zip(x, y)]
+                codes = [Path.LINETO for _ in vertices]
+                codes[0] = Path.MOVETO
+                vertices.append((0, 0))
+                codes.append(Path.CLOSEPOLY)
+
+
+                # if not color_by_net:
+                #     label = "Layer " + layer_name
+                #     if label not in labels:
+                #         color = poly.GetLayer().GetColor()
+                #         try:
+                #             c = tuple([color.Item1 / 255, color.Item2 / 255, color.Item3 / 255])
+                #         except:
+                #             c = "b"
+                #         labels[label] = c
+                #         plt.fill(x, y, c=labels[label], label=label, alpha=0.3)
+                #     else:
+                #         plt.fill(x, y, c=labels[label], alpha=0.3)
+                # else:
+                #     label = "Net " + net_name
+                #     if label not in labels:
+                #         labels[label] = tuple(
+                #             [
+                #                 round(random.uniform(0, 1), 3),
+                #                 round(random.uniform(0, 1), 3),
+                #                 round(random.uniform(0, 1), 3),
+                #             ]
+                #         )
+                #         plt.fill(x, y, c=labels[label], label=label, alpha=0.3)
+                #     else:
+                #         plt.fill(x, y, c=labels[label], alpha=0.3)
 
                 for void in poly.Voids:
                     void_points = list(void.GetPolygonData().Points)
                     xv, yv = self._get_points_for_plot(void_points)
                     if xv:
-                        if "Voids" not in labels:
-                            labels["Voids"] = "black"
-                            plt.fill(xv, yv, c="black", alpha=1, label="Voids")
-                        else:
-                            plt.fill(xv, yv, c="black", alpha=1)
+                        tmpV = [(i, j) for i, j in zip(xv, yv)]
+                        tmpV.reverse()
+                        vertices.extend(tmpV)
+                        tmpC = [Path.LINETO for _ in tmpV]
+                        tmpC[0] = Path.MOVETO
+                        codes.extend(tmpC)
+                        vertices.append((0, 0))
+                        codes.append(Path.CLOSEPOLY)
+
+
+                        # if "Voids" not in labels:
+                        #     labels["Voids"] = "black"
+                        #     plt.fill(xv, yv, c="black", alpha=1, label="Voids")
+                        # else:
+                        #     plt.fill(xv, yv, c="black", alpha=1)
+
+                # create Path object from vertices and codes
+                path = Path(vertices, codes)
+                # create patch from path
+                patch = PathPatch(path, facecolor="#aa6677")
+                ax.add_patch(patch)
+
 
         ax.set(xlabel="X (m)", ylabel="Y (m)", title=self._pedb.active_cell.GetName())
         ax.legend()
