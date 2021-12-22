@@ -8,7 +8,7 @@ from pyaedt import Icepak
 from pyaedt.generic.filesystem import Scratch
 
 # Setup paths for module imports
-from _unittest.conftest import local_path, scratch_path, desktop_version
+from _unittest.conftest import local_path, scratch_path, desktop_version, config
 
 try:
     import pytest  # noqa: F401
@@ -32,6 +32,7 @@ group_name = "Group1"
 src_project_name = "USB_Connector_IPK"
 source_project = os.path.join(local_path, "example_models", src_project_name + ".aedt")
 source_project_path = os.path.join(local_path, "example_models", src_project_name)
+source_fluent = os.path.join(local_path, "example_models", "ColdPlateExample.aedt")
 
 
 class TestClass:
@@ -45,6 +46,7 @@ class TestClass:
 
             self.test_project = self.local_scratch.copyfile(example_project)
             self.test_src_project = self.local_scratch.copyfile(source_project)
+
             self.local_scratch.copyfolder(
                 os.path.join(local_path, "example_models", test_project_name + ".aedb"),
                 os.path.join(self.local_scratch.path, test_project_name + ".aedb"),
@@ -242,7 +244,7 @@ class TestClass:
     def test_17_get_output_variable(self):
         value = self.aedtapp.get_output_variable("OutputVariable1")
         tol = 1e-9
-        assert abs(value  - 0.5235987755982988) < tol
+        assert abs(value - 0.5235987755982988) < tol
 
     def test_18_export_summary(self):
         assert self.aedtapp.export_summary()
@@ -335,9 +337,7 @@ class TestClass:
         )
 
     def test_37_surface_monitor(self):
-        self.aedtapp.modeler.primitives.create_rectangle(
-            self.aedtapp.PLANE.XY, [0, 0, 0], [10, 20], name="surf1"
-        )
+        self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.PLANE.XY, [0, 0, 0], [10, 20], name="surf1")
         assert self.aedtapp.assign_surface_monitor("surf1")
 
     def test_38_point_monitor(self):
@@ -346,10 +346,18 @@ class TestClass:
     def test_39_import_idf(self):
         self.aedtapp.insert_design("IDF")
         assert self.aedtapp.import_idf(os.path.join(local_path, "example_models", "brd_board.emn"))
-        assert self.aedtapp.import_idf(os.path.join(local_path, "example_models", "brd_board.emn"), filter_cap=True,
-                                       filter_ind=True, filter_res=True, filter_height_under=2,
-                                       filter_height_exclude_2d=False, internal_layer_coverage=20,
-                                       internal_layer_number=5, internal_thick=0.05, high_surface_thick="0.1in")
+        assert self.aedtapp.import_idf(
+            os.path.join(local_path, "example_models", "brd_board.emn"),
+            filter_cap=True,
+            filter_ind=True,
+            filter_res=True,
+            filter_height_under=2,
+            filter_height_exclude_2d=False,
+            internal_layer_coverage=20,
+            internal_layer_number=5,
+            internal_thick=0.05,
+            high_surface_thick="0.1in",
+        )
 
     def test_88_create_heat_sink(self):
         self.aedtapp.insert_design("HS")
@@ -374,3 +382,11 @@ class TestClass:
         exp_bounding = [0.2, 0.2, 0.2, 0.5, 0.6, 0.4]
         real_bound = obj_2_bbox
         assert abs(sum([i - j for i, j in zip(exp_bounding, real_bound)])) < tol
+
+    @pytest.mark.skipif(config["build_machine"], reason="Needs Workbench to run.")
+    def test_90_export_fluent_mesh(self):
+        self.fluent = self.local_scratch.copyfile(source_fluent)
+        app = Icepak(self.fluent)
+        assert app.get_liquid_objects() == ["Liquid"]
+        assert app.get_gas_objects() == ["Region"]
+        assert app.generate_fluent_mesh()

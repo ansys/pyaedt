@@ -1,4 +1,5 @@
 import sys
+
 try:
     from pyaedt.hfss3dlayout import Hfss3dLayout
     from pyaedt.hfss import Hfss
@@ -44,8 +45,9 @@ app_map = {
     "EMIT": Emit,
     "EDB": Edb,
     "Desktop": Desktop,
-    "Siwave": Siwave
+    "Siwave": Siwave,
 }
+
 
 def get_pyaedt_app(project_name=None, design_name=None):
     """Returns the Pyaedt Object of specific projec_name and design_name.

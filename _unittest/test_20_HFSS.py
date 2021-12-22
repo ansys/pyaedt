@@ -39,22 +39,16 @@ class TestClass:
     def test_02_create_primitive(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 200
-        o1 = self.aedtapp.modeler.primitives.create_cylinder(
-            self.aedtapp.AXIS.X, udp, 3, coax_dimension, 0, "inner"
-        )
+        o1 = self.aedtapp.modeler.primitives.create_cylinder(self.aedtapp.AXIS.X, udp, 3, coax_dimension, 0, "inner")
         assert isinstance(o1.id, int)
-        o2 = self.aedtapp.modeler.primitives.create_cylinder(
-            self.aedtapp.AXIS.X, udp, 10, coax_dimension, 0, "outer"
-        )
+        o2 = self.aedtapp.modeler.primitives.create_cylinder(self.aedtapp.AXIS.X, udp, 10, coax_dimension, 0, "outer")
         assert isinstance(o2.id, int)
         assert self.aedtapp.modeler.subtract(o2, o1, True)
 
     def test_03_2_assign_material(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 200
-        cyl_1 = self.aedtapp.modeler.primitives.create_cylinder(
-            self.aedtapp.AXIS.X, udp, 10, coax_dimension, 0, "die"
-        )
+        cyl_1 = self.aedtapp.modeler.primitives.create_cylinder(self.aedtapp.AXIS.X, udp, 10, coax_dimension, 0, "die")
         self.aedtapp.modeler.subtract(cyl_1, "inner", True)
         self.aedtapp.modeler.primitives["inner"].material_name = "Copper"
         cyl_1.material_name = "teflon_based"
@@ -89,27 +83,21 @@ class TestClass:
 
     def test_05_create_wave_port_from_sheets(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
-        o5 = self.aedtapp.modeler.primitives.create_circle(
-            self.aedtapp.PLANE.YZ, udp, 10, name="sheet1"
-        )
+        o5 = self.aedtapp.modeler.primitives.create_circle(self.aedtapp.PLANE.YZ, udp, 10, name="sheet1")
         self.aedtapp.solution_type = "DrivenTerminal"
         ports = self.aedtapp.create_wave_port_from_sheet(o5, 5, self.aedtapp.AxisDir.XNeg, 40, 2, "sheet1_Port", True)
         assert ports[0].name == "sheet1_Port"
         assert ports[0].name in [i.name for i in self.aedtapp.boundaries]
         self.aedtapp.solution_type = "DrivenModal"
         udp = self.aedtapp.modeler.Position(200, 0, 0)
-        o6 = self.aedtapp.modeler.primitives.create_circle(
-            self.aedtapp.PLANE.YZ, udp, 10, name="sheet2"
-        )
+        o6 = self.aedtapp.modeler.primitives.create_circle(self.aedtapp.PLANE.YZ, udp, 10, name="sheet2")
         ports = self.aedtapp.create_wave_port_from_sheet(o6, 5, self.aedtapp.AxisDir.XPos, 40, 2, "sheet2_Port", True)
         assert ports[0].name == "sheet2_Port"
         assert ports[0].name in [i.name for i in self.aedtapp.boundaries]
 
         id6 = self.aedtapp.modeler.primitives.create_box([20, 20, 20], [10, 10, 2], matname="Copper", name="My_Box")
         id7 = self.aedtapp.modeler.primitives.create_box([20, 25, 30], [10, 2, 2], matname="Copper")
-        rect = self.aedtapp.modeler.primitives.create_rectangle(
-            self.aedtapp.PLANE.YZ, [20, 25, 20], [2, 10]
-        )
+        rect = self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.PLANE.YZ, [20, 25, 20], [2, 10])
         ports = self.aedtapp.create_wave_port_from_sheet(rect, 5, self.aedtapp.AxisDir.ZNeg, 40, 2, "sheet3_Port", True)
         assert ports[0].name in [i.name for i in self.aedtapp.boundaries]
         pass
@@ -199,7 +187,7 @@ class TestClass:
             freqstart=freq_start,
             freqstop=freq_stop,
             step_size=step_size,
-            sweep_type="Fast"
+            sweep_type="Fast",
         )
         assert sweep.props["RangeStep"] == str(step_size) + units
         assert sweep.props["RangeStart"] == str(freq_start) + units
@@ -209,33 +197,27 @@ class TestClass:
     def test_06d_create_single_point_sweep(self):
         assert self.aedtapp.create_single_point_sweep(
             setupname="MySetup",
-            unit='MHz',
+            unit="MHz",
             freq=1.2e3,
         )
         assert self.aedtapp.create_single_point_sweep(
             setupname="MySetup",
-            unit='GHz',
+            unit="GHz",
             freq=1.2,
             save_single_field=False,
         )
         assert self.aedtapp.create_single_point_sweep(
             setupname="MySetup",
-            unit='GHz',
+            unit="GHz",
             freq=[1.1, 1.2, 1.3],
         )
         assert self.aedtapp.create_single_point_sweep(
-            setupname="MySetup",
-            unit='GHz',
-            freq=[1.1e1, 1.2e1, 1.3e1],
-            save_single_field=[True, False, True]
+            setupname="MySetup", unit="GHz", freq=[1.1e1, 1.2e1, 1.3e1], save_single_field=[True, False, True]
         )
         os.environ["PYAEDT_ERROR_HANDLER"] = "True"
         assert not self.aedtapp.create_single_point_sweep(
-                setupname="MySetup",
-                unit='GHz',
-                freq=[1, 2e2, 3.4],
-                save_single_field=[True, False]
-            )
+            setupname="MySetup", unit="GHz", freq=[1, 2e2, 3.4], save_single_field=[True, False]
+        )
         os.environ["PYAEDT_ERROR_HANDLER"] = "False"
 
     def test_06e_delete_setup(self):
@@ -569,13 +551,15 @@ class TestClass:
     def test_42_floquet_port(self):
         self.aedtapp.insert_design("floquet")
         box1 = self.aedtapp.modeler.primitives.create_box([-100, -100, -100], [200, 200, 200], name="Rad_box2")
-        assert self.aedtapp.create_floquet_port(box1.faces[0], deembed_dist=1, nummodes=7,
-                                            reporter_filter=[False, True, False, False, False, False, False])
-        assert self.aedtapp.create_floquet_port(box1.faces[1], deembed_dist=1, nummodes=7,
-                                            reporter_filter=[False, True, False, False, False, False, False])
-        sheet = self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.PLANE.XY,
-                                                                 [-100, -100, -100], [200, 200],
-                                                                 name="RectangleForSource", matname="Copper")
+        assert self.aedtapp.create_floquet_port(
+            box1.faces[0], deembed_dist=1, nummodes=7, reporter_filter=[False, True, False, False, False, False, False]
+        )
+        assert self.aedtapp.create_floquet_port(
+            box1.faces[1], deembed_dist=1, nummodes=7, reporter_filter=[False, True, False, False, False, False, False]
+        )
+        sheet = self.aedtapp.modeler.primitives.create_rectangle(
+            self.aedtapp.PLANE.XY, [-100, -100, -100], [200, 200], name="RectangleForSource", matname="Copper"
+        )
         assert self.aedtapp.create_floquet_port(sheet, deembed_dist=1, nummodes=4, reporter_filter=False)
 
     def test_43_autoassign_pairs(self):
@@ -587,5 +571,46 @@ class TestClass:
         assert self.aedtapp.assign_lattice_pair([box1.faces[2], box1.faces[4]])
         primary = self.aedtapp.assign_primary(box1.faces[1], [100, -100, -100], [100, 100, -100])
         assert primary
-        assert self.aedtapp.assign_secondary(box1.faces[0], primary.name, [100, -100, 100], [100, 100, 100],
-                                             reverse_v=True)
+        assert self.aedtapp.assign_secondary(
+            box1.faces[0], primary.name, [100, -100, 100], [100, 100, 100], reverse_v=True
+        )
+
+    def test_44_create_infinite_sphere(self):
+        self.aedtapp.insert_design("InfSphere")
+        air = self.aedtapp.modeler.create_box([0, 0, 0], [20, 20, 20], name="rad", matname="vacuum")
+        self.aedtapp.assign_radiation_boundary_to_objects(air)
+        bound = self.aedtapp.insert_infinite_sphere(
+            definition="El Over Az",
+            x_start=1,
+            x_stop=91,
+            x_step=45,
+            y_start=2,
+            y_stop=92,
+            y_step=10,
+            use_slant_polarization=True,
+            polarization_angle=30,
+        )
+        assert bound
+        assert bound.azimuth_start == "1deg"
+        assert bound.azimuth_stop == "91deg"
+        assert bound.azimuth_step == "45deg"
+        assert bound.elevation_start == "2deg"
+        assert bound.elevation_stop == "92deg"
+        assert bound.elevation_step == "10deg"
+        assert bound.slant_angle == "30deg"
+        assert bound.polarization == "Slant"
+        bound.azimuth_start = 20
+        assert bound.azimuth_start == "20.0deg"
+        assert bound.delete()
+        bound = self.aedtapp.insert_infinite_sphere(
+            definition="Az Over El",
+            x_start=1,
+            x_stop=91,
+            x_step=45,
+            y_start=2,
+            y_stop=92,
+            y_step=10,
+            use_slant_polarization=True,
+            polarization_angle=30,
+        )
+        assert bound.azimuth_start == "2deg"

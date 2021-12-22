@@ -6,8 +6,10 @@ from __future__ import absolute_import
 
 import json
 import copy
+import os
+
 from pyaedt.generic.DataHandlers import _arg2dict
-from pyaedt.generic.general_methods import aedt_exception_handler, _retry_ntimes, generate_unique_name
+from pyaedt.generic.general_methods import aedt_exception_handler, _retry_ntimes, generate_unique_name, is_ironpython
 from pyaedt.modules.Material import Material, SurfaceMaterial, MatProperties, OrderedDict
 
 
@@ -25,6 +27,7 @@ class Materials(object):
     >>>app = Hfss()
     >>>materials = app.materials
     """
+
     def __init__(self, app):
         self._app = app
         self.odefinition_manager = self._app.odefinition_manager
@@ -50,6 +53,36 @@ class Materials(object):
             return self.material_keys[item]
         elif item in list(self.surface_material_keys.keys()):
             return self.surface_material_keys[item]
+
+    @property
+    def liquids(self):
+        """Return the liquids materials. A liquid is a fluid with density greater or equal to 100Kg/m3.
+
+        Returns
+        -------
+        list
+            List of fluid materials.
+        """
+        mats = []
+        for el, val in self.material_keys.items():
+            if val.thermal_material_type == "Fluid" and val.mass_density.value and float(val.mass_density.value) >= 100:
+                mats.append(el)
+        return mats
+
+    @property
+    def gases(self):
+        """Return the gas materials. A gas is a fluid with density lower than 100Kg/m3.
+
+        Returns
+        -------
+        list
+            List of all Gas materials.
+        """
+        mats = []
+        for el, val in self.material_keys.items():
+            if val.thermal_material_type == "Fluid" and val.mass_density.value and float(val.mass_density.value) < 100:
+                mats.append(el)
+        return mats
 
     @aedt_exception_handler
     def _get_materials(self):
@@ -179,9 +212,7 @@ class Materials(object):
         materialname = materialname.lower()
         self.logger.info("Adding new material to the Project Library: " + materialname)
         if materialname in self.material_keys:
-            self.logger.warning(
-                "Warning. The material is already in the database. Change or edit the name."
-            )
+            self.logger.warning("Warning. The material is already in the database. Change or edit the name.")
             return self.material_keys[materialname]
         else:
             material = Material(self, materialname, props)
@@ -226,9 +257,7 @@ class Materials(object):
         materialname = material_name.lower()
         self.logger.info("Adding a surface material to the project library: " + materialname)
         if materialname in self.surface_material_keys:
-            self.logger.warning(
-                "Warning. The material is already in the database. Change the name or edit it."
-            )
+            self.logger.warning("Warning. The material is already in the database. Change the name or edit it.")
             return self.surface_material_keys[materialname]
         else:
             material = SurfaceMaterial(self._app, materialname)
@@ -550,9 +579,20 @@ class Materials(object):
         json_dict["materials"] = output_dict
         if datasets:
             json_dict["datasets"] = datasets
-
-        with open(full_json_path, "w") as fp:
-            json.dump(json_dict, fp, indent=4)
+        if not is_ironpython:
+            with open(full_json_path, "w") as fp:
+                json.dump(json_dict, fp, indent=4)
+        else:
+            temp_path = full_json_path.replace(".json", "_temp.json")
+            with open(temp_path, "w") as fp:
+                json.dump(json_dict, fp, indent=4)
+            with open(temp_path, "r") as file:
+                filedata = file.read()
+            filedata = filedata.replace("True", "true")
+            filedata = filedata.replace("False", "false")
+            with open(full_json_path, "w") as file:
+                file.write(filedata)
+            os.remove(temp_path)
         return True
 
     @aedt_exception_handler
@@ -570,7 +610,7 @@ class Materials(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        with open(full_json_path, 'r') as json_file:
+        with open(full_json_path, "r") as json_file:
             data = json.load(json_file)
 
         if "datasets" in list(data.keys()):

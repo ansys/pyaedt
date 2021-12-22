@@ -24,20 +24,14 @@ def get_terminal_size(default=(80, 25)):
         if not size:
             # needed for window's python in cygwin's xterm!
             size = _get_terminal_size_tput()
-    elif current_os in ("Linux", "Darwin", "FreeBSD", "SunOS") or current_os.startswith(
-        "CYGWIN"
-    ):
+    elif current_os in ("Linux", "Darwin", "FreeBSD", "SunOS") or current_os.startswith("CYGWIN"):
         size = _get_terminal_size_linux()
 
     else:  # pragma: no cover
-        warnings.warn(
-            "Plumbum does not know the type of the current OS for term size, defaulting to UNIX"
-        )
+        warnings.warn("Plumbum does not know the type of the current OS for term size, defaulting to UNIX")
         size = _get_terminal_size_linux()
 
-    if (
-        size is None
-    ):  # we'll assume the standard 80x25 if for any reason we don't know the terminal size
+    if size is None:  # we'll assume the standard 80x25 if for any reason we don't know the terminal size
         size = default
     return size
 

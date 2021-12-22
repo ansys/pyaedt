@@ -8,6 +8,7 @@ import sys
 from pyaedt import generate_unique_name
 from pyaedt.generic.general_methods import env_path
 from pyaedt import is_ironpython
+
 if is_ironpython:
     import subprocessdotnet as subprocess
 else:
@@ -28,8 +29,7 @@ from pyaedt import Mechanical
 
 
 class PyaedtServiceWindows(rpyc.Service):
-    """Server Pyaedt rpyc Service.
-    """
+    """Server Pyaedt rpyc Service."""
 
     def on_connect(self, connection):
         # code that runs when a connection is created
@@ -58,7 +58,7 @@ class PyaedtServiceWindows(rpyc.Service):
         os.environ["ANSYSEM_FEATURE_SF159726_SCRIPTOBJECT_ENABLE"] = "1"
         if self._beta_options and not self.app:
             for opt in range(self._beta_options.__len__()):
-                os.environ["ANSYSEM_FEATURE_"+self._beta_options[opt]+"_ENABLE"] = "1"
+                os.environ["ANSYSEM_FEATURE_" + self._beta_options[opt] + "_ENABLE"] = "1"
 
     def exposed_run_script(self, script, aedt_version="2021.2", ansysem_path=None, non_graphical=True):
         """Run script on AEDT in the server.
@@ -79,10 +79,10 @@ class PyaedtServiceWindows(rpyc.Service):
         str
         """
         if isinstance(script, list):
-            script_file = os.path.join(tempfile.gettempdir(), generate_unique_name("pyaedt_script")+".py")
+            script_file = os.path.join(tempfile.gettempdir(), generate_unique_name("pyaedt_script") + ".py")
             with open(script_file, "w") as f:
                 for line in script:
-                    f.write(line+"\n")
+                    f.write(line + "\n")
         elif os.path.exists(script):
             script_file = script
         else:
@@ -109,7 +109,14 @@ class PyaedtServiceWindows(rpyc.Service):
         else:
             return "Ansys EM not found or wrong AEDT Version."
 
-    def exposed_edb(self, edbpath=None, cellname=None, isreadonly=False, edbversion="2021.2", use_ppe=False, ):
+    def exposed_edb(
+        self,
+        edbpath=None,
+        cellname=None,
+        isreadonly=False,
+        edbversion="2021.2",
+        use_ppe=False,
+    ):
         """Starts a new Hfss session.
 
         Parameters
@@ -130,13 +137,28 @@ class PyaedtServiceWindows(rpyc.Service):
         :class:`pyaedt.edb.Edb`
         """
         self._beta()
-        aedtapp = Edb(edbpath=edbpath, cellname=cellname, isreadonly=isreadonly, edbversion=edbversion,
-                      isaedtowned=False, oproject=None, student_version=False, use_ppe=use_ppe)
+        aedtapp = Edb(
+            edbpath=edbpath,
+            cellname=cellname,
+            isreadonly=isreadonly,
+            edbversion=edbversion,
+            isaedtowned=False,
+            oproject=None,
+            student_version=False,
+            use_ppe=use_ppe,
+        )
         self.app.append(aedtapp)
         return aedtapp
 
-    def exposed_hfss(self, projectname=None, designname=None, solution_type=None, setup_name=None,
-                     specified_version=None, non_graphical=True):
+    def exposed_hfss(
+        self,
+        projectname=None,
+        designname=None,
+        solution_type=None,
+        setup_name=None,
+        specified_version=None,
+        non_graphical=True,
+    ):
         """Starts a new Hfss session.
 
         Parameters
@@ -169,14 +191,29 @@ class PyaedtServiceWindows(rpyc.Service):
         :class:`pyaedt.hfss.Hfss`
         """
         self._beta()
-        aedtapp = Hfss(projectname=projectname, designname=designname, solution_type=solution_type,
-                    setup_name=setup_name, specified_version=specified_version, non_graphical=non_graphical,
-                    new_desktop_session=True, close_on_exit=True, student_version=False, )
+        aedtapp = Hfss(
+            projectname=projectname,
+            designname=designname,
+            solution_type=solution_type,
+            setup_name=setup_name,
+            specified_version=specified_version,
+            non_graphical=non_graphical,
+            new_desktop_session=True,
+            close_on_exit=True,
+            student_version=False,
+        )
         self.app.append(aedtapp)
         return aedtapp
 
-    def exposed_hfss3dlayout(self, projectname=None, designname=None, solution_type=None, setup_name=None,
-                     specified_version=None, non_graphical=True):
+    def exposed_hfss3dlayout(
+        self,
+        projectname=None,
+        designname=None,
+        solution_type=None,
+        setup_name=None,
+        specified_version=None,
+        non_graphical=True,
+    ):
         """Starts a new Hfss3dLayout session.
 
         Parameters
@@ -209,14 +246,29 @@ class PyaedtServiceWindows(rpyc.Service):
         :class:`pyaedt.hfss3dlayout.Hfss3dLayout`
         """
         self._beta()
-        aedtapp = Hfss3dLayout(projectname=projectname, designname=designname, solution_type=solution_type,
-                    setup_name=setup_name, specified_version=specified_version, non_graphical=non_graphical,
-                    new_desktop_session=True, close_on_exit=True, student_version=False, )
+        aedtapp = Hfss3dLayout(
+            projectname=projectname,
+            designname=designname,
+            solution_type=solution_type,
+            setup_name=setup_name,
+            specified_version=specified_version,
+            non_graphical=non_graphical,
+            new_desktop_session=True,
+            close_on_exit=True,
+            student_version=False,
+        )
         self.app.append(aedtapp)
         return aedtapp
 
-    def exposed_maxwell3d(self, projectname=None, designname=None, solution_type=None, setup_name=None,
-                          specified_version=None, non_graphical=True):
+    def exposed_maxwell3d(
+        self,
+        projectname=None,
+        designname=None,
+        solution_type=None,
+        setup_name=None,
+        specified_version=None,
+        non_graphical=True,
+    ):
         """Starts a new Maxwell3d session.
 
         Parameters
@@ -249,14 +301,29 @@ class PyaedtServiceWindows(rpyc.Service):
         :class:`pyaedt.maxwell.Maxwell3d`
         """
         self._beta()
-        aedtapp = Maxwell3d(projectname=projectname, designname=designname, solution_type=solution_type,
-                         setup_name=setup_name, specified_version=specified_version, non_graphical=non_graphical,
-                         new_desktop_session=True, close_on_exit=True, student_version=False, )
+        aedtapp = Maxwell3d(
+            projectname=projectname,
+            designname=designname,
+            solution_type=solution_type,
+            setup_name=setup_name,
+            specified_version=specified_version,
+            non_graphical=non_graphical,
+            new_desktop_session=True,
+            close_on_exit=True,
+            student_version=False,
+        )
         self.app.append(aedtapp)
         return aedtapp
 
-    def exposed_maxwell2d(self, projectname=None, designname=None, solution_type=None, setup_name=None,
-                          specified_version=None, non_graphical=True):
+    def exposed_maxwell2d(
+        self,
+        projectname=None,
+        designname=None,
+        solution_type=None,
+        setup_name=None,
+        specified_version=None,
+        non_graphical=True,
+    ):
         """Starts a new Maxwell32 session.
 
         Parameters
@@ -289,14 +356,29 @@ class PyaedtServiceWindows(rpyc.Service):
         :class:`pyaedt.maxwell.Maxwell32`
         """
         self._beta()
-        aedtapp = Maxwell2d(projectname=projectname, designname=designname, solution_type=solution_type,
-                         setup_name=setup_name, specified_version=specified_version, non_graphical=non_graphical,
-                         new_desktop_session=True, close_on_exit=True, student_version=False, )
+        aedtapp = Maxwell2d(
+            projectname=projectname,
+            designname=designname,
+            solution_type=solution_type,
+            setup_name=setup_name,
+            specified_version=specified_version,
+            non_graphical=non_graphical,
+            new_desktop_session=True,
+            close_on_exit=True,
+            student_version=False,
+        )
         self.app.append(aedtapp)
         return aedtapp
 
-    def exposed_icepak(self, projectname=None, designname=None, solution_type=None, setup_name=None,
-                       specified_version=None, non_graphical=True):
+    def exposed_icepak(
+        self,
+        projectname=None,
+        designname=None,
+        solution_type=None,
+        setup_name=None,
+        specified_version=None,
+        non_graphical=True,
+    ):
         """Starts a new Icepak session.
 
         Parameters
@@ -329,14 +411,29 @@ class PyaedtServiceWindows(rpyc.Service):
         :class:`pyaedt.icepak.Icepak`
         """
         self._beta()
-        aedtapp = Icepak(projectname=projectname, designname=designname, solution_type=solution_type,
-                      setup_name=setup_name, specified_version=specified_version, non_graphical=non_graphical,
-                      new_desktop_session=True, close_on_exit=True, student_version=False, )
+        aedtapp = Icepak(
+            projectname=projectname,
+            designname=designname,
+            solution_type=solution_type,
+            setup_name=setup_name,
+            specified_version=specified_version,
+            non_graphical=non_graphical,
+            new_desktop_session=True,
+            close_on_exit=True,
+            student_version=False,
+        )
         self.app.append(aedtapp)
         return aedtapp
 
-    def exposed_circuit(self, projectname=None, designname=None, solution_type=None, setup_name=None,
-                        specified_version=None, non_graphical=True):
+    def exposed_circuit(
+        self,
+        projectname=None,
+        designname=None,
+        solution_type=None,
+        setup_name=None,
+        specified_version=None,
+        non_graphical=True,
+    ):
         """Starts a new Circuit session.
 
         Parameters
@@ -369,14 +466,29 @@ class PyaedtServiceWindows(rpyc.Service):
         :class:`pyaedt.circuit.Circuit`
         """
         self._beta()
-        aedtapp = Circuit(projectname=projectname, designname=designname, solution_type=solution_type,
-                       setup_name=setup_name, specified_version=specified_version, non_graphical=non_graphical,
-                       new_desktop_session=True, close_on_exit=True, student_version=False, )
+        aedtapp = Circuit(
+            projectname=projectname,
+            designname=designname,
+            solution_type=solution_type,
+            setup_name=setup_name,
+            specified_version=specified_version,
+            non_graphical=non_graphical,
+            new_desktop_session=True,
+            close_on_exit=True,
+            student_version=False,
+        )
         self.app.append(aedtapp)
         return aedtapp
 
-    def exposed_mechanical(self, projectname=None, designname=None, solution_type=None, setup_name=None,
-                           specified_version=None, non_graphical=True):
+    def exposed_mechanical(
+        self,
+        projectname=None,
+        designname=None,
+        solution_type=None,
+        setup_name=None,
+        specified_version=None,
+        non_graphical=True,
+    ):
         """Starts a new Mechanical session.
 
         Parameters
@@ -409,14 +521,29 @@ class PyaedtServiceWindows(rpyc.Service):
         :class:`pyaedt.mechanical.Mechanical`
         """
         self._beta()
-        aedtapp = Mechanical(projectname=projectname, designname=designname, solution_type=solution_type,
-                          setup_name=setup_name, specified_version=specified_version, non_graphical=non_graphical,
-                          new_desktop_session=True, close_on_exit=True, student_version=False, )
+        aedtapp = Mechanical(
+            projectname=projectname,
+            designname=designname,
+            solution_type=solution_type,
+            setup_name=setup_name,
+            specified_version=specified_version,
+            non_graphical=non_graphical,
+            new_desktop_session=True,
+            close_on_exit=True,
+            student_version=False,
+        )
         self.app.append(aedtapp)
         return aedtapp
 
-    def exposed_q3d(self, projectname=None, designname=None, solution_type=None, setup_name=None,
-                    specified_version=None, non_graphical=True):
+    def exposed_q3d(
+        self,
+        projectname=None,
+        designname=None,
+        solution_type=None,
+        setup_name=None,
+        specified_version=None,
+        non_graphical=True,
+    ):
         """Starts a new Q3d session.
 
         Parameters
@@ -449,14 +576,29 @@ class PyaedtServiceWindows(rpyc.Service):
         :class:`pyaedt.q3d.Q3d`
         """
         self._beta()
-        aedtapp = Q3d(projectname=projectname, designname=designname, solution_type=solution_type,
-                   setup_name=setup_name, specified_version=specified_version, non_graphical=non_graphical,
-                   new_desktop_session=True, close_on_exit=True, student_version=False, )
+        aedtapp = Q3d(
+            projectname=projectname,
+            designname=designname,
+            solution_type=solution_type,
+            setup_name=setup_name,
+            specified_version=specified_version,
+            non_graphical=non_graphical,
+            new_desktop_session=True,
+            close_on_exit=True,
+            student_version=False,
+        )
         self.app.append(aedtapp)
         return aedtapp
 
-    def exposed_q2d(self, projectname=None, designname=None, solution_type=None, setup_name=None,
-                    specified_version=None, non_graphical=True):
+    def exposed_q2d(
+        self,
+        projectname=None,
+        designname=None,
+        solution_type=None,
+        setup_name=None,
+        specified_version=None,
+        non_graphical=True,
+    ):
         """Starts a new Q2d session.
 
         Parameters
@@ -489,16 +631,23 @@ class PyaedtServiceWindows(rpyc.Service):
         :class:`pyaedt.q3d.Q2d`
         """
         self._beta()
-        aedtapp = Q2d(projectname=projectname, designname=designname, solution_type=solution_type,
-                   setup_name=setup_name, specified_version=specified_version, non_graphical=non_graphical,
-                   new_desktop_session=True, close_on_exit=True, student_version=False, )
+        aedtapp = Q2d(
+            projectname=projectname,
+            designname=designname,
+            solution_type=solution_type,
+            setup_name=setup_name,
+            specified_version=specified_version,
+            non_graphical=non_graphical,
+            new_desktop_session=True,
+            close_on_exit=True,
+            student_version=False,
+        )
         self.app.append(aedtapp)
         return aedtapp
 
 
 class PyaedtServiceLinux(rpyc.Service):
-    """Server Pyaedt rpyc Service.
-    """
+    """Server Pyaedt rpyc Service."""
 
     def on_connect(self, connection):
         self.connection = connection
@@ -511,7 +660,7 @@ class PyaedtServiceLinux(rpyc.Service):
     def exposed_close_connection(self):
         return True
 
-    def exposed_run_script(self, script,  ansysem_path=None, non_graphical=True):
+    def exposed_run_script(self, script, ansysem_path=None, non_graphical=True):
         """Run script on AEDT in the server.
 
         Parameters
@@ -533,9 +682,9 @@ class PyaedtServiceLinux(rpyc.Service):
             with open(script_file, "w") as f:
                 f.write("import sys\n")
                 for pack_path in package_paths:
-                    f.write("sys.path.append(\"{}\")\n".format(pack_path))
+                    f.write('sys.path.append("{}")\n'.format(pack_path))
                 for line in script:
-                    f.write(line+"\n")
+                    f.write(line + "\n")
         elif os.path.exists(script):
             script_file = script
         else:
@@ -559,7 +708,7 @@ class PyaedtServiceLinux(rpyc.Service):
                     for opt in range(self._beta_options.__len__()):
                         if self._beta_options[opt] not in ng_feature:
                             ng_feature += "," + self._beta_options[opt]
-                command = [os.path.join(ansysem_path, executable),  ng_feature, "-RunScriptAndExit", script_file]
+                command = [os.path.join(ansysem_path, executable), ng_feature, "-RunScriptAndExit", script_file]
             p = subprocess.Popen(command)
             p.wait()
             return "Script Executed."
@@ -569,8 +718,8 @@ class PyaedtServiceLinux(rpyc.Service):
 
 
 class GlobalService(rpyc.Service):
-    """Global class to manage rpyc Server of PyAEDT.
-    """
+    """Global class to manage rpyc Server of PyAEDT."""
+
     def on_connect(self, connection):
         # code that runs when a connection is created
         # (to init the service, if needed)
@@ -602,7 +751,8 @@ class GlobalService(rpyc.Service):
                 executable = "ansysedt"
                 pyaedt_path = os.path.normpath(os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", ".."))
                 script_file = os.path.normpath(
-                    os.path.join(os.path.abspath(os.path.dirname(__file__)), "pyaedt_client_linux.py"))
+                    os.path.join(os.path.abspath(os.path.dirname(__file__)), "pyaedt_client_linux.py")
+                )
                 dest_file = os.path.join(tempfile.gettempdir(), "pyaedt_client_linux.py")
                 print(dest_file)
                 with open(dest_file, "w") as f:
@@ -619,8 +769,13 @@ class GlobalService(rpyc.Service):
                         for option in range(beta_options.__len__()):
                             if beta_options[option] not in ng_feature:
                                 ng_feature += "," + beta_options[option]
-                    command = [os.path.join(ansysem_path, executable), ng_feature, "-ng", "-RunScriptAndExit",
-                               dest_file]
+                    command = [
+                        os.path.join(ansysem_path, executable),
+                        ng_feature,
+                        "-ng",
+                        "-RunScriptAndExit",
+                        dest_file,
+                    ]
                 else:
                     ng_feature = "-features=SF159726_SCRIPTOBJECT"
                     if beta_options:
@@ -635,13 +790,24 @@ class GlobalService(rpyc.Service):
                 return "Error. Ansys EM Path has to be provided"
 
         elif os.name == "posix":
-            t = threading.Thread(target=ThreadedServer(PyaedtServiceLinux, hostname=hostname, port=port,
-                                 protocol_config={'sync_request_timeout': None, 'allow_public_attrs': True,
-                                                  'allow_setattr': True, 'allow_delattr': True}).start)
+            t = threading.Thread(
+                target=ThreadedServer(
+                    PyaedtServiceLinux,
+                    hostname=hostname,
+                    port=port,
+                    protocol_config={
+                        "sync_request_timeout": None,
+                        "allow_public_attrs": True,
+                        "allow_setattr": True,
+                        "allow_delattr": True,
+                    },
+                ).start
+            )
             t.start()
         else:
             name = os.path.normpath(
-                os.path.join(os.path.abspath(os.path.dirname(__file__)), "pyaedt_client_windows.py"))
+                os.path.join(os.path.abspath(os.path.dirname(__file__)), "pyaedt_client_windows.py")
+            )
             cmd_service = [sys.executable, name, str(port), hostname]
             print(" ".join(cmd_service))
             p = subprocess.Popen(" ".join(cmd_service))

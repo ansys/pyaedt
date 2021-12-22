@@ -114,11 +114,7 @@ class TypedEnv(MutableMapping):
 
     def __init__(self, env=os.environ):
         self._env = env
-        self._defined_keys = {
-            k
-            for (k, v) in inspect.getmembers(self.__class__)
-            if isinstance(v, self._BaseVar)
-        }
+        self._defined_keys = {k for (k, v) in inspect.getmembers(self.__class__) if isinstance(v, self._BaseVar)}
 
     def __iter__(self):
         return iter(dir(self))
@@ -153,9 +149,7 @@ class TypedEnv(MutableMapping):
         try:
             return self._raw_get(name)
         except EnvironmentVariableError:
-            raise AttributeError(
-                "{} has no attribute {!r}".format(self.__class__, name)
-            )
+            raise AttributeError("{} has no attribute {!r}".format(self.__class__, name))
 
     def __getitem__(self, key):
         return getattr(self, key)  # delegate through the descriptors

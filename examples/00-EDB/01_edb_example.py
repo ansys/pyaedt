@@ -1,6 +1,6 @@
 """
-EDB  Analysis
---------------
+Siwave Analysis from EDB Setup
+------------------------------
 This example shows how to use EDB to interact with a layout.
 """
 # sphinx_gallery_thumbnail_path = 'Resources/edb.png'
@@ -22,7 +22,7 @@ if os.path.exists(targetfolder):
     shutil.rmtree(targetfolder)
 shutil.copytree(example_path[:-8], targetfolder)
 targetfile = os.path.join(targetfolder)
-siwave_file = os.path.join(temp_folder, 'Galileo.siw')
+siwave_file = os.path.join(temp_folder, "Galileo.siw")
 print(targetfile)
 aedt_file = targetfile[:-4] + "aedt"
 
@@ -142,8 +142,8 @@ edb.core_hfss.create_coax_port_on_component("U2A5", "V1P0_S0")
 # THis example edits the stackup and the material. You can change stackup
 # properties with assignment. Materials can be created and assigned to layers.
 
-edb.core_stackup.stackup_layers.layers['TOP'].thickness = "75um"
-edb.core_stackup.stackup_layers.layers['Diel1'].material_name = "Fr4_epoxy"
+edb.core_stackup.stackup_layers.layers["TOP"].thickness = "75um"
+edb.core_stackup.stackup_layers.layers["Diel1"].material_name = "Fr4_epoxy"
 edb.core_stackup.create_debye_material("My_Debye", 5, 3, 0.02, 0.05, 1e5, 1e9)
 # edb.core_stackup.stackup_layers.layers['BOTTOM'].material_name = "My_Debye"
 edb.core_stackup.stackup_layers.remove_layer("Signal3")

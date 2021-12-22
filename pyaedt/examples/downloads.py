@@ -58,16 +58,28 @@ def _retrieve_file(url, filename, directory):
         versions = list_installed_ansysem()
         if versions:
             cpython = os.listdir(os.path.join(os.getenv(versions[0]), "commonfiles", "CPython"))
-            command = "\"" + os.path.join(os.getenv(versions[0]), "commonfiles", "CPython", cpython[0], "winx64",
-                                          "Release", "python", "python.exe") + "\""
+            command = (
+                '"'
+                + os.path.join(
+                    os.getenv(versions[0]),
+                    "commonfiles",
+                    "CPython",
+                    cpython[0],
+                    "winx64",
+                    "Release",
+                    "python",
+                    "python.exe",
+                )
+                + '"'
+            )
             commandargs = os.path.join(os.path.dirname(local_path), "download.py")
-            command += " \"" + commandargs + "\""
+            command += ' "' + commandargs + '"'
             with open(os.path.join(os.path.dirname(local_path), "download.py"), "w") as f:
                 f.write("import urllib.request\n")
                 f.write("urlretrieve = urllib.request.urlretrieve\n")
                 f.write("import urllib.request\n")
-                f.write("url = r\"{}\"\n".format(url))
-                f.write("local_path = r\"{}\"\n".format(local_path))
+                f.write('url = r"{}"\n'.format(url))
+                f.write('local_path = r"{}"\n'.format(local_path))
                 f.write("urlretrieve(url, local_path)\n")
             print(command)
             os.system(command)
@@ -206,6 +218,7 @@ def download_icepak():
 
     return _download_file("icepak", "Graphics_card.aedt")
 
+
 def download_via_wizard():
     """Download an example of Hfss Via Wizard and return the def path.
 
@@ -228,6 +241,7 @@ def download_via_wizard():
     """
 
     return _download_file("via_wizard", "viawizard_vacuum_FR4.aedt")
+
 
 def download_touchstone():
     """Download an example of touchstone File and return the def path.

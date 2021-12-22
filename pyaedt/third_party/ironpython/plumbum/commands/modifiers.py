@@ -45,9 +45,7 @@ class Future(object):
         :class:`plumbum.commands.ProcessExecutionError` in case of failure"""
         if self._returncode is not None:
             return
-        self._returncode, self._stdout, self._stderr = run_proc(
-            self.proc, self._expected_retcode, self._timeout
-        )
+        self._returncode, self._stdout, self._stderr = run_proc(self.proc, self._expected_retcode, self._timeout)
 
     @property
     def stdout(self):
@@ -322,9 +320,7 @@ class _RETCODE(ExecutionModifier):
 
     def __rand__(self, cmd):
         if self.foreground:
-            return cmd.run(
-                retcode=None, stdin=None, stdout=None, stderr=None, timeout=self.timeout
-            )[0]
+            return cmd.run(retcode=None, stdin=None, stdout=None, stderr=None, timeout=self.timeout)[0]
         else:
             return cmd.run(retcode=None, timeout=self.timeout)[0]
 
@@ -434,9 +430,7 @@ class PipeToLoggerMixin:
     DEFAULT_STDOUT = "INFO"
     DEFAULT_STDERR = "DEBUG"
 
-    def pipe(
-        self, out_level=None, err_level=None, prefix=None, line_timeout=None, **kw
-    ):
+    def pipe(self, out_level=None, err_level=None, prefix=None, line_timeout=None, **kw):
         """
         Pipe a command's stdout and stderr lines into this logger.
 
@@ -449,9 +443,7 @@ class PipeToLoggerMixin:
         class LogPipe(object):
             def __rand__(_, cmd):
                 popen = cmd if hasattr(cmd, "iter_lines") else cmd.popen()
-                for typ, lines in popen.iter_lines(
-                    line_timeout=line_timeout, mode=BY_TYPE, **kw
-                ):
+                for typ, lines in popen.iter_lines(line_timeout=line_timeout, mode=BY_TYPE, **kw):
                     if not lines:
                         continue
                     level = levels[typ]
@@ -494,6 +486,4 @@ class PipeToLoggerMixin:
         Pipe a command's stdout and stderr lines into this logger.
         Log levels for each stream are determined by ``DEFAULT_STDOUT`` and ``DEFAULT_STDERR``.
         """
-        return cmd & self.pipe(
-            getattr(self, self.DEFAULT_STDOUT), getattr(self, self.DEFAULT_STDERR)
-        )
+        return cmd & self.pipe(getattr(self, self.DEFAULT_STDOUT), getattr(self, self.DEFAULT_STDERR))

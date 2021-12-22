@@ -12,19 +12,56 @@ builtin_id_pack_cache = {}  # name_pack -> id_pack
 builtin_classes_cache = {}  # id_pack -> class
 # If these can be accessed, numpy will try to load the array from local memory,
 # resulting in exceptions and/or segfaults, see #236:
-DELETED_ATTRS = frozenset([
-    '__array_struct__', '__array_interface__',
-])
+DELETED_ATTRS = frozenset(
+    [
+        "__array_struct__",
+        "__array_interface__",
+    ]
+)
 
 """the set of attributes that are local to the netref object"""
-LOCAL_ATTRS = frozenset([
-    '____conn__', '____id_pack__', '____refcount__', '__class__', '__cmp__', '__del__', '__delattr__',
-    '__dir__', '__doc__', '__getattr__', '__getattribute__', '__hash__', '__instancecheck__',
-    '__init__', '__metaclass__', '__module__', '__new__', '__reduce__',
-    '__reduce_ex__', '__repr__', '__setattr__', '__slots__', '__str__',
-    '__weakref__', '__dict__', '__methods__', '__exit__',
-    '__eq__', '__ne__', '__lt__', '__gt__', '__le__', '__ge__', '__len__', '__iter__',
-]) | DELETED_ATTRS
+LOCAL_ATTRS = (
+    frozenset(
+        [
+            "____conn__",
+            "____id_pack__",
+            "____refcount__",
+            "__class__",
+            "__cmp__",
+            "__del__",
+            "__delattr__",
+            "__dir__",
+            "__doc__",
+            "__getattr__",
+            "__getattribute__",
+            "__hash__",
+            "__instancecheck__",
+            "__init__",
+            "__metaclass__",
+            "__module__",
+            "__new__",
+            "__reduce__",
+            "__reduce_ex__",
+            "__repr__",
+            "__setattr__",
+            "__slots__",
+            "__str__",
+            "__weakref__",
+            "__dict__",
+            "__methods__",
+            "__exit__",
+            "__eq__",
+            "__ne__",
+            "__lt__",
+            "__gt__",
+            "__le__",
+            "__ge__",
+            "__len__",
+            "__iter__",
+        ]
+    )
+    | DELETED_ATTRS
+)
 
 """a list of types considered built-in (shared between connections)
 this is needed because iterating the members of the builtins module is not enough,
@@ -32,17 +69,39 @@ some types (e.g NoneType) are not members of the builtins module.
 TODO: this list is not complete.
 """
 _builtin_types = [
-    type, object, bool, complex, dict, float, int, list, slice, str, tuple, set,
-    frozenset, BaseException, Exception, type(None), types.BuiltinFunctionType, types.GeneratorType,
-    types.MethodType, types.CodeType, types.FrameType, types.TracebackType,
-    types.ModuleType, types.FunctionType,
-
-    type(int.__add__),      # wrapper_descriptor
-    type((1).__add__),      # method-wrapper
-    type(iter([])),         # listiterator
-    type(iter(())),         # tupleiterator
-    type(iter(set())),      # setiterator
-    bytes, bytearray, type(iter(range(10))), memoryview
+    type,
+    object,
+    bool,
+    complex,
+    dict,
+    float,
+    int,
+    list,
+    slice,
+    str,
+    tuple,
+    set,
+    frozenset,
+    BaseException,
+    Exception,
+    type(None),
+    types.BuiltinFunctionType,
+    types.GeneratorType,
+    types.MethodType,
+    types.CodeType,
+    types.FrameType,
+    types.TracebackType,
+    types.ModuleType,
+    types.FunctionType,
+    type(int.__add__),  # wrapper_descriptor
+    type((1).__add__),  # method-wrapper
+    type(iter([])),  # listiterator
+    type(iter(())),  # tupleiterator
+    type(iter(set())),  # setiterator
+    bytes,
+    bytearray,
+    type(iter(range(10))),
+    memoryview,
 ]
 _normalized_builtin_types = {}
 
@@ -111,6 +170,7 @@ class BaseNetref(with_metaclass(NetrefMetaclass, object)):
                 remote-instance-id := id object instance (hits or misses on proxy cache)
         id_pack is usually created by rpyc.lib.get_id_pack
     """
+
     __slots__ = ["____conn__", "____id_pack__", "__weakref__", "____refcount__"]
 
     def __init__(self, conn, id_pack):
@@ -140,7 +200,7 @@ class BaseNetref(with_metaclass(NetrefMetaclass, object)):
                 raise AttributeError()
             else:
                 return object.__getattribute__(self, name)
-        elif name == "__call__":                          # IronPython issue #10
+        elif name == "__call__":  # IronPython issue #10
             return object.__getattribute__(self, "__call__")
         elif name == "__array__":
             return object.__getattribute__(self, "__array__")
@@ -172,25 +232,25 @@ class BaseNetref(with_metaclass(NetrefMetaclass, object)):
         return syncreq(self, consts.HANDLE_HASH)
 
     def __cmp__(self, other):
-        return syncreq(self, consts.HANDLE_CMP, other, '__cmp__')
+        return syncreq(self, consts.HANDLE_CMP, other, "__cmp__")
 
     def __eq__(self, other):
-        return syncreq(self, consts.HANDLE_CMP, other, '__eq__')
+        return syncreq(self, consts.HANDLE_CMP, other, "__eq__")
 
     def __ne__(self, other):
-        return syncreq(self, consts.HANDLE_CMP, other, '__ne__')
+        return syncreq(self, consts.HANDLE_CMP, other, "__ne__")
 
     def __lt__(self, other):
-        return syncreq(self, consts.HANDLE_CMP, other, '__lt__')
+        return syncreq(self, consts.HANDLE_CMP, other, "__lt__")
 
     def __gt__(self, other):
-        return syncreq(self, consts.HANDLE_CMP, other, '__gt__')
+        return syncreq(self, consts.HANDLE_CMP, other, "__gt__")
 
     def __le__(self, other):
-        return syncreq(self, consts.HANDLE_CMP, other, '__le__')
+        return syncreq(self, consts.HANDLE_CMP, other, "__le__")
 
     def __ge__(self, other):
-        return syncreq(self, consts.HANDLE_CMP, other, '__ge__')
+        return syncreq(self, consts.HANDLE_CMP, other, "__ge__")
 
     def __repr__(self):
         return syncreq(self, consts.HANDLE_REPR)
@@ -222,7 +282,7 @@ class BaseNetref(with_metaclass(NetrefMetaclass, object)):
             if self.____id_pack__[2] == 0:
                 # outside the context of `__instancecheck__`, `__class__` is expected to be type(self)
                 # within the context of `__instancecheck__`, `other` should be compared to the proxied class
-                return isinstance(other, type(self).__dict__['__class__'].instance)
+                return isinstance(other, type(self).__dict__["__class__"].instance)
             else:
                 raise TypeError("isinstance() arg 2 must be a class, type, or tuple of classes and types")
 
@@ -233,32 +293,40 @@ def _make_method(name, doc):
 
     slicers = {"__getslice__": "__getitem__", "__delslice__": "__delitem__", "__setslice__": "__setitem__"}
 
-    name = str(name)                                      # IronPython issue #10
+    name = str(name)  # IronPython issue #10
     if name == "__call__":
+
         def __call__(_self, *args, **kwargs):
             kwargs = tuple(kwargs.items())
             return syncreq(_self, consts.HANDLE_CALL, args, kwargs)
+
         __call__.__doc__ = doc
         return __call__
-    elif name in slicers:                                 # 32/64 bit issue #41
+    elif name in slicers:  # 32/64 bit issue #41
+
         def method(self, start, stop, *args):
             if stop == maxint:
                 stop = None
             return syncreq(self, consts.HANDLE_OLDSLICING, slicers[name], name, start, stop, args)
+
         method.__name__ = name
         method.__doc__ = doc
         return method
     elif name == "__array__":
+
         def __array__(self):
             # Note that protocol=-1 will only work between python
             # interpreters of the same version.
             return pickle.loads(syncreq(self, consts.HANDLE_PICKLE, -1))
+
         __array__.__doc__ = doc
         return __array__
     else:
+
         def method(_self, *args, **kwargs):
             kwargs = tuple(kwargs.items())
             return syncreq(_self, consts.HANDLE_CALLATTR, name, args, kwargs)
+
         method.__name__ = name
         method.__doc__ = doc
         return method
@@ -314,14 +382,14 @@ def class_factory(id_pack, methods):
             while cursor != -1:
                 _module = sys.modules.get(name_pack[:cursor])
                 if _module is None:
-                    cursor = name_pack[:cursor].rfind('.')
+                    cursor = name_pack[:cursor].rfind(".")
                     continue
-                _class_name = name_pack[cursor + 1:]
+                _class_name = name_pack[cursor + 1 :]
                 _class = getattr(_module, _class_name, None)
-                if _class is not None and hasattr(_class, '__class__'):
+                if _class is not None and hasattr(_class, "__class__"):
                     class_descriptor = NetrefClass(_class)
                 break
-    ns['__class__'] = class_descriptor
+    ns["__class__"] = class_descriptor
     netref_name = class_descriptor.owner.__name__ if class_descriptor is not None else name_pack
     # create methods that must perform a syncreq
     for name, doc in methods:

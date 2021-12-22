@@ -8,6 +8,7 @@ class AsyncResult(object):
     will eventually have a result. Use the :attr:`value` property to access the
     result (which will block if the result has not yet arrived).
     """
+
     __slots__ = ["_conn", "_is_ready", "_is_exc", "_callbacks", "_obj", "_ttl"]
 
     def __init__(self, conn):

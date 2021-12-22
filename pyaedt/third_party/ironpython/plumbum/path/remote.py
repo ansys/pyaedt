@@ -44,16 +44,10 @@ class RemotePath(Path):
         windows = remote.uname.lower() == "windows"
         normed = []
 
-        parts = tuple(
-            map(str, parts)
-        )  # force the paths into string, so subscription works properly
+        parts = tuple(map(str, parts))  # force the paths into string, so subscription works properly
         # Simple skip if path is absolute
         if parts[0] and parts[0][0] not in ("/", "\\"):
-            cwd = (
-                remote._cwd
-                if hasattr(remote, "_cwd")
-                else remote._session.run("pwd")[1].strip()
-            )
+            cwd = remote._cwd if hasattr(remote, "_cwd") else remote._session.run("pwd")[1].strip()
             parts = (cwd,) + parts
 
         for p in parts:
@@ -197,9 +191,7 @@ class RemotePath(Path):
 
     @_setdoc(Path)
     def glob(self, pattern):
-        fn = lambda pat: [
-            RemotePath(self.remote, m) for m in self.remote._path_glob(self, pat)
-        ]
+        fn = lambda pat: [RemotePath(self.remote, m) for m in self.remote._path_glob(self, pat)]
         return self._glob(pattern, fn)
 
     @_setdoc(Path)
@@ -216,10 +208,7 @@ class RemotePath(Path):
             if dst.remote is not self.remote:
                 raise TypeError("dst points to a different remote machine")
         elif not isinstance(dst, six.string_types):
-            raise TypeError(
-                "dst must be a string or a RemotePath (to the same remote machine), "
-                "got %r" % (dst,)
-            )
+            raise TypeError("dst must be a string or a RemotePath (to the same remote machine), " "got %r" % (dst,))
         self.remote._path_move(self, dst)
 
     @_setdoc(Path)
@@ -228,10 +217,7 @@ class RemotePath(Path):
             if dst.remote is not self.remote:
                 raise TypeError("dst points to a different remote machine")
         elif not isinstance(dst, six.string_types):
-            raise TypeError(
-                "dst must be a string or a RemotePath (to the same remote machine), "
-                "got %r" % (dst,)
-            )
+            raise TypeError("dst must be a string or a RemotePath (to the same remote machine), " "got %r" % (dst,))
         if override:
             if isinstance(dst, six.string_types):
                 dst = RemotePath(self.remote, dst)
@@ -257,9 +243,7 @@ class RemotePath(Path):
                 _, ex, _ = sys.exc_info()
                 if "File exists" in ex.stderr:
                     if not exist_ok:
-                        raise OSError(
-                            errno.EEXIST, "File exists (on remote end)", str(self)
-                        )
+                        raise OSError(errno.EEXIST, "File exists (on remote end)", str(self))
                 else:
                     raise
 
@@ -282,9 +266,7 @@ class RemotePath(Path):
 
     @_setdoc(Path)
     def chown(self, owner=None, group=None, recursive=None):
-        self.remote._path_chown(
-            self, owner, group, self.is_dir() if recursive is None else recursive
-        )
+        self.remote._path_chown(self, owner, group, self.is_dir() if recursive is None else recursive)
 
     @_setdoc(Path)
     def chmod(self, mode):
@@ -305,10 +287,7 @@ class RemotePath(Path):
             if dst.remote is not self.remote:
                 raise TypeError("dst points to a different remote machine")
         elif not isinstance(dst, six.string_types):
-            raise TypeError(
-                "dst must be a string or a RemotePath (to the same remote machine), "
-                "got %r" % (dst,)
-            )
+            raise TypeError("dst must be a string or a RemotePath (to the same remote machine), " "got %r" % (dst,))
         self.remote._path_link(self, dst, False)
 
     @_setdoc(Path)
@@ -317,10 +296,7 @@ class RemotePath(Path):
             if dst.remote is not self.remote:
                 raise TypeError("dst points to a different remote machine")
         elif not isinstance(dst, six.string_types):
-            raise TypeError(
-                "dst must be a string or a RemotePath (to the same remote machine), "
-                "got %r" % (dst,)
-            )
+            raise TypeError("dst must be a string or a RemotePath (to the same remote machine), " "got %r" % (dst,))
         self.remote._path_link(self, dst, True)
 
     def open(self, mode="r", bufsize=-1):
@@ -332,16 +308,11 @@ class RemotePath(Path):
         if hasattr(self.remote, "sftp") and hasattr(self.remote.sftp, "open"):
             return self.remote.sftp.open(self, mode, bufsize)
         else:
-            raise NotImplementedError(
-                "RemotePath.open only works for ParamikoMachine-associated "
-                "paths for now"
-            )
+            raise NotImplementedError("RemotePath.open only works for ParamikoMachine-associated " "paths for now")
 
     @_setdoc(Path)
     def as_uri(self, scheme="ssh"):
-        return "{}://{}{}".format(
-            scheme, self.remote._fqhost, urllib.pathname2url(str(self))
-        )
+        return "{}://{}{}".format(scheme, self.remote._fqhost, urllib.pathname2url(str(self)))
 
     @property  # type: ignore
     @_setdoc(Path)
@@ -363,9 +334,7 @@ class RemoteWorkdir(RemotePath):
     """Remote working directory manipulator"""
 
     def __new__(cls, remote):
-        self = super(RemoteWorkdir, cls).__new__(
-            cls, remote, remote._session.run("pwd")[1].strip()
-        )
+        self = super(RemoteWorkdir, cls).__new__(cls, remote, remote._session.run("pwd")[1].strip())
         return self
 
     def __hash__(self):

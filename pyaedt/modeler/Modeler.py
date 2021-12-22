@@ -701,36 +701,48 @@ class GeometryModeler(Modeler, object):
                 try:
                     cs.ref_cs = id2name[name2refid[cs.name]]
                     if cs.props["Mode"] == "Axis/Position":
-                        x1 = GeometryOperators.parse_dim_arg(cs.props["XAxisXvec"],
-                                                             variable_manager=self._app.variable_manager)
-                        x2 = GeometryOperators.parse_dim_arg(cs.props["XAxisYvec"],
-                                                             variable_manager=self._app.variable_manager)
-                        x3 = GeometryOperators.parse_dim_arg(cs.props["XAxisZvec"],
-                                                             variable_manager=self._app.variable_manager)
-                        y1 = GeometryOperators.parse_dim_arg(cs.props["YAxisXvec"],
-                                                             variable_manager=self._app.variable_manager)
-                        y2 = GeometryOperators.parse_dim_arg(cs.props["YAxisYvec"],
-                                                             variable_manager=self._app.variable_manager)
-                        y3 = GeometryOperators.parse_dim_arg(cs.props["YAxisZvec"],
-                                                             variable_manager=self._app.variable_manager)
+                        x1 = GeometryOperators.parse_dim_arg(
+                            cs.props["XAxisXvec"], variable_manager=self._app.variable_manager
+                        )
+                        x2 = GeometryOperators.parse_dim_arg(
+                            cs.props["XAxisYvec"], variable_manager=self._app.variable_manager
+                        )
+                        x3 = GeometryOperators.parse_dim_arg(
+                            cs.props["XAxisZvec"], variable_manager=self._app.variable_manager
+                        )
+                        y1 = GeometryOperators.parse_dim_arg(
+                            cs.props["YAxisXvec"], variable_manager=self._app.variable_manager
+                        )
+                        y2 = GeometryOperators.parse_dim_arg(
+                            cs.props["YAxisYvec"], variable_manager=self._app.variable_manager
+                        )
+                        y3 = GeometryOperators.parse_dim_arg(
+                            cs.props["YAxisZvec"], variable_manager=self._app.variable_manager
+                        )
                         x, y, z = GeometryOperators.pointing_to_axis([x1, x2, x3], [y1, y2, y3])
                         a, b, g = GeometryOperators.axis_to_euler_zyz(x, y, z)
                         cs.quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
                     elif cs.props["Mode"] == "Euler Angle ZXZ":
-                        a = GeometryOperators.parse_dim_arg(cs.props["Phi"],
-                                                            variable_manager=self._app.variable_manager)
-                        b = GeometryOperators.parse_dim_arg(cs.props["Theta"],
-                                                            variable_manager=self._app.variable_manager)
-                        g = GeometryOperators.parse_dim_arg(cs.props["Psi"],
-                                                            variable_manager=self._app.variable_manager)
+                        a = GeometryOperators.parse_dim_arg(
+                            cs.props["Phi"], variable_manager=self._app.variable_manager
+                        )
+                        b = GeometryOperators.parse_dim_arg(
+                            cs.props["Theta"], variable_manager=self._app.variable_manager
+                        )
+                        g = GeometryOperators.parse_dim_arg(
+                            cs.props["Psi"], variable_manager=self._app.variable_manager
+                        )
                         cs.quaternion = GeometryOperators.euler_zxz_to_quaternion(a, b, g)
                     elif cs.props["Mode"] == "Euler Angle ZYZ":
-                        a = GeometryOperators.parse_dim_arg(cs.props["Phi"],
-                                                            variable_manager=self._app.variable_manager)
-                        b = GeometryOperators.parse_dim_arg(cs.props["Theta"],
-                                                            variable_manager=self._app.variable_manager)
-                        g = GeometryOperators.parse_dim_arg(cs.props["Psi"],
-                                                            variable_manager=self._app.variable_manager)
+                        a = GeometryOperators.parse_dim_arg(
+                            cs.props["Phi"], variable_manager=self._app.variable_manager
+                        )
+                        b = GeometryOperators.parse_dim_arg(
+                            cs.props["Theta"], variable_manager=self._app.variable_manager
+                        )
+                        g = GeometryOperators.parse_dim_arg(
+                            cs.props["Psi"], variable_manager=self._app.variable_manager
+                        )
                         cs.quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
                 except:
                     pass
@@ -1053,12 +1065,21 @@ class GeometryModeler(Modeler, object):
         def get_total_transformation(p, cs):
             idx = cs_names.index(cs)
             q = self.coordinate_systems[idx].quaternion
-            ox = GeometryOperators.parse_dim_arg(self.coordinate_systems[idx].props["OriginX"], self.model_units,
-                                                 variable_manager=self._app.variable_manager)
-            oy = GeometryOperators.parse_dim_arg(self.coordinate_systems[idx].props["OriginY"], self.model_units,
-                                                 variable_manager=self._app.variable_manager)
-            oz = GeometryOperators.parse_dim_arg(self.coordinate_systems[idx].props["OriginZ"], self.model_units,
-                                                 variable_manager=self._app.variable_manager)
+            ox = GeometryOperators.parse_dim_arg(
+                self.coordinate_systems[idx].props["OriginX"],
+                self.model_units,
+                variable_manager=self._app.variable_manager,
+            )
+            oy = GeometryOperators.parse_dim_arg(
+                self.coordinate_systems[idx].props["OriginY"],
+                self.model_units,
+                variable_manager=self._app.variable_manager,
+            )
+            oz = GeometryOperators.parse_dim_arg(
+                self.coordinate_systems[idx].props["OriginZ"],
+                self.model_units,
+                variable_manager=self._app.variable_manager,
+            )
             o = [ox, oy, oz]
             refcs = self.coordinate_systems[idx].ref_cs
             if refcs == "Global":
@@ -2504,9 +2525,7 @@ class GeometryModeler(Modeler, object):
         num_obj_end = self.oeditor.GetNumObjects()
         self.subtract(blank_part, tool_parts, True)
 
-        self.logger.info(
-            "Subtraction Objs - Initial: " + str(num_obj_start) + "  ,  Final: " + str(num_obj_end)
-        )
+        self.logger.info("Subtraction Objs - Initial: " + str(num_obj_start) + "  ,  Final: " + str(num_obj_end))
 
     @aedt_exception_handler
     def _offset_on_plane(self, i, offset):

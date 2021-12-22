@@ -23,6 +23,7 @@ parser.add_argument("--test-filter", "-t", default="test_*.py", help="test filte
 args = parser.parse_args(args_env.split())
 test_filter = args.test_filter
 
+
 def discover_and_run(start_dir, pattern=None):
     """Discover and run tests cases. Return the tests result."""
     # use the default shared TestLoader instance
@@ -40,6 +41,7 @@ def discover_and_run(start_dir, pattern=None):
         result = runner.run(test_suite)
         f.write(str(result))
     return result
+
 
 tests_result = discover_and_run(run_dir, pattern=test_filter)
 
