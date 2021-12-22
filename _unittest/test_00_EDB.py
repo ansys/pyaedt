@@ -538,3 +538,6 @@ class TestClass:
         local_png = os.path.join(self.local_scratch.path, "test.png")
         self.edbapp.core_nets.plot(None, None, save_plot=local_png)
         assert os.path.exists(local_png)
+
+    def test_71_fix_circle_voids(self):
+        assert self.edbapp.core_primitives.fix_circle_void_for_clipping()
