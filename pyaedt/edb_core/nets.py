@@ -211,7 +211,6 @@ class EdbNets(object):
                 i += 1
         return x, y
 
-
     @aedt_exception_handler
     def plot(self, nets, layers=None, color_by_net=False, save_plot=None, outline=None):
         """Plot a Net to Matplotlib 2D Chart.
@@ -321,10 +320,10 @@ class EdbNets(object):
                     xv, yv = self._get_points_for_plot(void_points)
                     if xv:
                         if "Voids" not in labels:
-                            labels["Voids"] = "black"
-                            plt.fill(xv, yv, c="black", alpha=1, label="Voids")
+                            labels["Voids"] = "slategray"
+                            plt.fill(xv, yv, c="slategray", alpha=0.8, label="Voids")
                         else:
-                            plt.fill(xv, yv, c="black", alpha=1)
+                            plt.fill(xv, yv, c="slategray", alpha=0.8)
 
         ax.set(xlabel="X (m)", ylabel="Y (m)", title=self._pedb.active_cell.GetName())
         ax.legend()
