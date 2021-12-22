@@ -12,7 +12,7 @@ import warnings
 
 from pyaedt.generic.general_methods import aedt_exception_handler
 from pyaedt.modules.PostProcessor import PostProcessor as Post
-
+import random
 try:
     import numpy as np
 except ImportError:
@@ -350,10 +350,9 @@ class PostProcessor(Post):
             aedtplt_files = [aedtplt_files]
 
         plot = pv.Plotter(off_screen=off_screen)
-        # if not off_screen:
-        #     plot.enable_anti_aliasing()
-        # plot.enable_fly_to_right_click()
         lines = []
+        meshes = []
+        model_colors = []
         for file in aedtplt_files:
             if ".aedtplt" in file:
                 with open(file, "r") as f:
@@ -374,42 +373,44 @@ class PostProcessor(Post):
                             n_drawings = int(line[18:])
                             continue
             elif ".obj" in file:
-                mesh = pv.read(file)
+                meshes.append(pv.read(file))
+                if not model_color:
+                    model_colors.append("#"+str(hex(random.randint(0, 16777215)))[2:])
+                else:
+                    model_colors.append(model_color)
 
-                def create_object_mesh(opacity):
-                    """Create the mesh.
-
-                    Parameters
-                    ----------
-                    opacity :
-
-
-                    Returns
-                    -------
-
-                    """
-                    try:
-                        plot.remove_actor("Volumes")
-                    except:
-                        pass
+        if meshes and len(meshes) == 1:
+            def _create_object_mesh(opacity):
+                try:
+                    plot.remove_actor("Volumes")
+                except:
+                    pass
+                for m, c in zip(meshes, model_colors):
                     plot.add_mesh(
-                        mesh,
+                        m,
                         show_scalar_bar=False,
                         opacity=opacity,
-                        cmap=[model_color],
+                        cmap=[c],
                         name="3D Model",
                         show_edges=show_model_edge,
-                        edge_color=model_color,
+                        edge_color=c,
                     )
-
-                plot.add_slider_widget(
-                    create_object_mesh,
-                    [0, 1],
-                    style="modern",
-                    value=0.75,
-                    pointa=[0.81, 0.98],
-                    pointb=[0.95, 0.98],
-                    title="Opacity",
+            plot.add_slider_widget(
+                _create_object_mesh,
+                [0, 1],
+                style="modern",
+                value=0.75,
+                pointa=[0.81, 0.98],
+                pointb=[0.95, 0.98],
+                title="Opacity",
+            )
+        elif meshes:
+            for m, c in zip(meshes, model_colors):
+                plot.add_mesh(
+                    m,
+                    show_scalar_bar=False,
+                    opacity=0.3,
+                    color=c,
                 )
         filename = os.path.splitext(aedtplt_files[0])[0]
         for drawing_lines in lines:
@@ -667,41 +668,17 @@ class PostProcessor(Post):
         if plot:
             end = time.time() - start
             self.logger.info("PyVista plot generation took {} seconds.".format(end))
-            if off_screen:
-                if imageformat:
-                    plot.show(screenshot=filename + "." + imageformat)
-                    files_list.append(filename + "." + imageformat)
-                else:
-                    plot.show()
+            if imageformat:
+                plot.show(screenshot=filename + "." + imageformat, full_screen=True)
+                files_list.append(filename + "." + imageformat)
             else:
-
-                def show(screen=None, interactive=True):
-                    """
-
-                    Parameters
-                    ----------
-                    screen : optional
-                        The default is ``None``.
-                    interactive : bool, optional
-                        The default is ``True``.
-
-                    Returns
-                    -------
-
-                    """
-                    if screen:
-                        plot.show(screenshot=screen, interactive=interactive, full_screen=True)
-                    else:
-                        plot.show(interactive=interactive)
-
-                if imageformat:
-                    show(filename + "." + imageformat, True)
-                    files_list.append(filename + "." + imageformat)
-                else:
-                    show(filename + "." + imageformat, False)
-            for f in aedtplt_files:
-                os.remove(os.path.join(f))
-
+                plot.show()
+            if aedtplt_files:
+                for f in aedtplt_files:
+                    if os.path.exists(f):
+                        os.remove(f)
+                    if "obj" in f and os.path.exists(f[:-3] + "mtl"):
+                        os.remove(f[:-3] + "mtl")
         return files_list
 
     @aedt_exception_handler
@@ -968,26 +945,46 @@ class PostProcessor(Post):
         return gifname
 
     @aedt_exception_handler
-    def export_model_obj(self):
-        """Export the model."""
+    def export_model_obj(self, obj_list=None, export_path=None, export_as_single_objects=False):
+        """Export the model.
+
+        Parameters
+        ----------
+        obj_list : list
+            list of objects to export. None to export everything model except vacuum and air objects.
+
+        Returns
+        -------
+        list
+            Files obj path.
+        """
+
         assert self._app._aedt_version >= "2021.2", self.logger.error("Object is supported from AEDT 2021 R2.")
-        project_path = self._app.project_path
-        obj_list = self._app.modeler.primitives.object_names
-        obj_list = [
-            i
-            for i in obj_list
-            if not self._app.modeler.primitives.objects[self._app.modeler.primitives.get_obj_id(i)].is3d
-            or (
-                self._app.modeler.primitives.objects[self._app.modeler.primitives.get_obj_id(i)].material_name.lower()
-                != "vacuum"
-                and self._app.modeler.primitives.objects[
-                    self._app.modeler.primitives.get_obj_id(i)
-                ].material_name.lower()
-                != "air"
-            )
-        ]
-        self._app.modeler.oeditor.ExportModelMeshToFile(os.path.join(project_path, "Model.obj"), obj_list)
-        return os.path.join(project_path, "Model.obj")
+        if not export_path:
+            export_path = self._app.project_path
+        if not obj_list:
+            obj_list = self._app.modeler.primitives.object_names
+            obj_list = [
+                i
+                for i in obj_list
+                if not self._app.modeler[self._app.modeler.get_obj_id(i)].is3d
+                or (
+                    self._app.modeler[self._app.modeler.get_obj_id(i)].material_name.lower()
+                    != "vacuum"
+                    and self._app.modeler[self._app.modeler.get_obj_id(i)].material_name.lower()
+                    != "air"
+                )
+            ]
+        if export_as_single_objects:
+            files_exported = []
+            for el in obj_list:
+                filename = os.path.join(export_path, "Model{}.obj".format(el))
+                self._app.modeler.oeditor.ExportModelMeshToFile(filename, [el])
+                files_exported.append(filename)
+            return files_exported
+        else:
+            self._app.modeler.oeditor.ExportModelMeshToFile(os.path.join(export_path, "Model.obj"), obj_list)
+            return [os.path.join(export_path, "Model.obj")]
 
     @aedt_exception_handler
     def export_mesh_obj(self, setup_name=None, intrinsic_dict={}):
@@ -1026,7 +1023,7 @@ class PostProcessor(Post):
         return None
 
     @aedt_exception_handler
-    def plot_model_obj(self, export_afterplot=True, jupyter=False):
+    def plot_model_obj(self, export_afterplot=True, off_screen=False, plot_separate_objects=True):
         """Plot the model.
 
         Parameters
@@ -1034,8 +1031,6 @@ class PostProcessor(Post):
         export_afterplot : bool, optional
              Whether to export the plot after it is generated. The
              default is ``True``.
-        jupyter : bool, optional
-             Whether to generate the plot using Jupyter Notebook.  The default is ``False``.
 
         Returns
         -------
@@ -1043,18 +1038,19 @@ class PostProcessor(Post):
             List of plot files.
         """
         assert self._app._aedt_version >= "2021.2", self.logger.error("Object is supported from AEDT 2021 R2.")
-        files = [self.export_model_obj()]
+        files = self.export_model_obj(export_as_single_objects=plot_separate_objects)
         if export_afterplot:
             imageformat = "jpg"
         else:
             imageformat = None
+
         file_list = self._plot_from_aedtplt(
             files,
             imageformat=imageformat,
             plot_label="3D Model",
-            model_color="#8faf8f",
+            model_color=None,
             show_model_edge=False,
-            jupyter=jupyter,
+            off_screen=off_screen,
         )
         return file_list
 
@@ -1135,7 +1131,7 @@ class PostProcessor(Post):
             files_to_add.append(file_to_add)
             if meshplot:
                 if self._app._aedt_version >= "2021.2":
-                    files_to_add.append(self.export_model_obj())
+                    files_to_add.extend(self.export_model_obj())
                 else:
                     file_to_add = self.export_mesh_obj(setup_name, intrinsic_dict)
                     if file_to_add:
@@ -1211,7 +1207,7 @@ class PostProcessor(Post):
         files_to_add = []
         if meshplot:
             if self._app._aedt_version >= "2021.2":
-                files_to_add.append(self.export_model_obj())
+                files_to_add.extend(self.export_model_obj())
             else:
                 file_to_add = self.export_mesh_obj(setup_name, intrinsic_dict)
                 if file_to_add:
@@ -1298,7 +1294,7 @@ class PostProcessor(Post):
         files_to_add = []
         if meshplot:
             if self._app._aedt_version >= "2021.2":
-                files_to_add.append(self.export_model_obj())
+                files_to_add.extend(self.export_model_obj())
             else:
                 file_to_add = self.export_mesh_obj(setup_name, intrinsic_dict)
                 if file_to_add:
