@@ -1354,10 +1354,10 @@ class GeometryOperators(object):
 
     @staticmethod
     @aedt_exception_handler
-    def orient_poligon(x, y, clockwise=True):
+    def orient_polygon(x, y, clockwise=True):
         """
-        Orient a poligon clockwise or counterclockwise.
-        The poligon is represented by its vertices coordinates.
+        Orient a polygon clockwise or counterclockwise.
+        The polygon is represented by its vertices coordinates.
 
         Parameters
         ----------
@@ -1366,7 +1366,7 @@ class GeometryOperators(object):
         y : list
             List of y coordinates of the vertices. Must be of the same length as x.
         clockwise : bool
-            If `True` the is oriented colckwise, if `False` it is oriented counterclockwise.
+            If `True` the polygon is oriented colckwise, if `False` it is oriented counterclockwise.
             Default is `True`.
 
         Returns
@@ -1379,9 +1379,44 @@ class GeometryOperators(object):
             raise AttributeError('x length must be >= 3')
         if len(y) != len(x):
             raise AttributeError('y must be same length as x.')
+        # fmt: off
         xmin = min(x)
-        imin = x.index(xmin)
+        ixmin = [i for i, el in enumerate(x) if xmin == el]
+        if len(ixmin) == 1:
+            imin = ixmin[0]
+        else:  # searching for the minimum y
+            tmpy = [(i, el) for i, el in enumerate(y) if i in ixmin]
+            min_tmpy = min(tmpy, key=lambda t: t[1])
+            imin = min_tmpy[0]
         ymin = y[imin]
-
-
-
+        if imin == 0:  # the minimum is the first point of the polygon
+            xa = x[-1]
+            ya = y[-1]
+            xb = xmin
+            yb = ymin
+            xc = x[1]
+            yc = y[1]
+        elif imin == len(x)-1:  # the minimum is the last point of the polygon
+            xa = x[imin-1]
+            ya = y[imin-1]
+            xb = xmin
+            yb = ymin
+            xc = x[0]
+            yc = y[0]
+        else:
+            xa = x[imin-1]
+            ya = y[imin-1]
+            xb = xmin
+            yb = ymin
+            xc = x[imin+1]
+            yc = y[imin+1]
+        det = (xb-xa) * (yc-ya) - (xc-xa) * (yb-ya)
+        if det > 0:  # counterclockwise
+            is_CW = False
+        else:   # clockwise
+            is_CW = True
+        # fmt: on
+        if (clockwise and not is_CW) or (not clockwise and is_CW):
+            x.reverse()
+            y.reverse()
+        return x, y

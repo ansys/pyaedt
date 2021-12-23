@@ -6,6 +6,7 @@ import math
 
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name
+from pyaedt.modeler.GeometryOperators import GeometryOperators
 
 try:
     from matplotlib import pyplot as plt
@@ -138,6 +139,7 @@ class EdbNets(object):
         list
             points generated along the arc.
         """
+        # fmt: off
         if abs(h) < tol:
             return [], []
         elif h > 0:
@@ -186,53 +188,60 @@ class EdbNets(object):
         if reverse:
             xr.reverse()
             yr.reverse()
+        # fmt: on
         return xr, yr
 
     def _get_points_for_plot(self, my_net_points):
         """
         Get the points to be plot
         """
+        # fmt: off
         x = []
         y = []
-        for i in range(len(my_net_points)):
-            point = my_net_points[i]
+        for i, point in enumerate(my_net_points):
+            # point = my_net_points[i]
             if not point.IsArc():
                 x.append(point.X.ToDouble())
                 y.append(point.Y.ToDouble())
-                i += 1
+                # i += 1
             else:
                 arc_h = point.GetArcHeight().ToDouble()
-                p1 = [my_net_points[i - 1].X.ToDouble(), my_net_points[i - 1].Y.ToDouble()]
-                if i + 1 < len(my_net_points):
-                    p2 = [my_net_points[i + 1].X.ToDouble(), my_net_points[i + 1].Y.ToDouble()]
+                p1 = [my_net_points[i-1].X.ToDouble(), my_net_points[i-1].Y.ToDouble()]
+                if i+1 < len(my_net_points):
+                    p2 = [my_net_points[i+1].X.ToDouble(), my_net_points[i+1].Y.ToDouble()]
                 else:
                     p2 = [my_net_points[0].X.ToDouble(), my_net_points[0].Y.ToDouble()]
                 x_arc, y_arc = self._eval_arc_points(p1, p2, arc_h)
                 x.extend(x_arc)
                 y.extend(y_arc)
-                i += 1
+                # i += 1
+        # fmt: on
         return x, y
 
-
-
     @aedt_exception_handler
-    def plot(self, nets, layers=None, color_by_net=False, save_plot=None, outline=None):
+    def plot(self, nets, layers=None, color_by_net=False, show_legend=True, save_plot=None, outline=None,
+             size=(2000, 1000)):
         """Plot a Net to Matplotlib 2D Chart.
 
         Parameters
         ----------
         nets : str, list
             Name of the net or list of nets to plot. If `None` all nets will be plotted.
-        layers : str, list
+        layers : str, list, optional
             Name of the layers to include in the plot. If `None` all the signal layers will be considered.
-        color_by_net : bool
-            If `True` then the plot will be colored by net.
-            If `False` the plot will be colored by layer.
+        color_by_net : bool, optional
+            If `True`  the plot will be colored by net.
+            If `False` the plot will be colored by layer. (default)
+        show_legend : bool, optional
+            If `True` the legend is shown in the plot. (default)
+            If `False` the legend is not shown.
         save_plot : str, optional
             If `None` the plot will be shown.
-            If a path is entered the plot will be saved to such path.
+            If a file path is specified the plot will be saved to such file.
         outline : list, optional
             List of points of the outline to plot.
+        size : tuple, optional
+            Image size in pixel (width, height).
         """
         start_time = time.time()
         if is_ironpython:
@@ -242,8 +251,10 @@ class EdbNets(object):
             layers = list(self._pedb.core_stackup.signal_layers.keys())
         if not nets:
             nets = list(self.nets.keys())
-        labels = {}
-        fig, ax = plt.subplots(figsize=(20, 10))
+        label_colors = {}
+        dpi = 100.0
+        figsize = (size[0]/dpi, size[1]/dpi)
+        fig, ax = plt.subplots(figsize=figsize)
         if outline:
             x1 = [i[0] for i in outline]
             y1 = [i[1] for i in outline]
@@ -261,77 +272,51 @@ class EdbNets(object):
                     continue
                 if not color_by_net:
                     label = "Layer " + layer_name
-                    if label not in labels:
+                    if label not in label_colors:
                         color = path.GetLayer().GetColor()
                         try:
-                            c = tuple([color.Item1 / 255, color.Item2 / 255, color.Item3 / 255])
+                            c = (color.Item1 / 255, color.Item2 / 255, color.Item3 / 255)
                         except:
                             c = "b"
-                        labels[label] = c
-                        plt.fill(x, y, c=labels[label], label=label, alpha=0.3)
+                        label_colors[label] = c
+                        plt.fill(x, y, c=label_colors[label], label=label, alpha=0.4)
                     else:
-                        plt.fill(x, y, c=labels[label], alpha=0.3)
+                        plt.fill(x, y, c=label_colors[label], alpha=0.4)
                 else:
                     label = "Net " + net_name
-                    if label not in labels:
-                        labels[label] = tuple(
-                            [
-                                round(random.uniform(0, 1), 3),
-                                round(random.uniform(0, 1), 3),
-                                round(random.uniform(0, 1), 3),
-                            ]
+                    if label not in label_colors:
+                        label_colors[label] = (
+                            round(random.uniform(0, 1), 3),
+                            round(random.uniform(0, 1), 3),
+                            round(random.uniform(0, 1), 3),
                         )
-                        plt.fill(x, y, c=labels[label], label=label, alpha=0.3)
+                        plt.fill(x, y, c=label_colors[label], label=label, alpha=0.4)
                     else:
-                        plt.fill(x, y, c=labels[label], alpha=0.3)
+                        plt.fill(x, y, c=label_colors[label], alpha=0.4)
 
         for poly in self._pedb.core_primitives.polygons:
+            if poly.IsVoid():
+                continue
             net_name = poly.GetNet().GetName()
             layer_name = poly.GetLayer().GetName()
             if net_name in nets and layer_name in layers:
                 my_net_points = list(poly.GetPolygonData().Points)
-                x, y = self._get_points_for_plot(my_net_points)
-                if not x:
+                xt, yt = self._get_points_for_plot(my_net_points)
+                if not xt:
                     continue
+                x, y = GeometryOperators.orient_polygon(xt, yt, clockwise=True)
                 vertices = [(i, j) for i, j in zip(x, y)]
                 codes = [Path.LINETO for _ in vertices]
                 codes[0] = Path.MOVETO
                 vertices.append((0, 0))
                 codes.append(Path.CLOSEPOLY)
 
-
-                # if not color_by_net:
-                #     label = "Layer " + layer_name
-                #     if label not in labels:
-                #         color = poly.GetLayer().GetColor()
-                #         try:
-                #             c = tuple([color.Item1 / 255, color.Item2 / 255, color.Item3 / 255])
-                #         except:
-                #             c = "b"
-                #         labels[label] = c
-                #         plt.fill(x, y, c=labels[label], label=label, alpha=0.3)
-                #     else:
-                #         plt.fill(x, y, c=labels[label], alpha=0.3)
-                # else:
-                #     label = "Net " + net_name
-                #     if label not in labels:
-                #         labels[label] = tuple(
-                #             [
-                #                 round(random.uniform(0, 1), 3),
-                #                 round(random.uniform(0, 1), 3),
-                #                 round(random.uniform(0, 1), 3),
-                #             ]
-                #         )
-                #         plt.fill(x, y, c=labels[label], label=label, alpha=0.3)
-                #     else:
-                #         plt.fill(x, y, c=labels[label], alpha=0.3)
-
                 for void in poly.Voids:
                     void_points = list(void.GetPolygonData().Points)
-                    xv, yv = self._get_points_for_plot(void_points)
-                    if xv:
+                    xvt, yvt = self._get_points_for_plot(void_points)
+                    if xvt:
+                        xv, yv = GeometryOperators.orient_polygon(xvt, yvt, clockwise=False)
                         tmpV = [(i, j) for i, j in zip(xv, yv)]
-                        tmpV.reverse()
                         vertices.extend(tmpV)
                         tmpC = [Path.LINETO for _ in tmpV]
                         tmpC[0] = Path.MOVETO
@@ -339,22 +324,43 @@ class EdbNets(object):
                         vertices.append((0, 0))
                         codes.append(Path.CLOSEPOLY)
 
-
-                        # if "Voids" not in labels:
-                        #     labels["Voids"] = "black"
-                        #     plt.fill(xv, yv, c="black", alpha=1, label="Voids")
-                        # else:
-                        #     plt.fill(xv, yv, c="black", alpha=1)
-
                 # create Path object from vertices and codes
                 path = Path(vertices, codes)
-                # create patch from path
-                patch = PathPatch(path, facecolor="#aa6677")
+
+                if not color_by_net:
+                    label = "Layer " + layer_name
+                    if label not in label_colors:
+                        color = poly.GetLayer().GetColor()
+                        try:
+                            c = (color.Item1 / 255, color.Item2 / 255, color.Item3 / 255)
+                        except:
+                            c = "b"
+                        label_colors[label] = c
+                        # create patch from path
+                        patch = PathPatch(path, color=label_colors[label], alpha=0.4, label=label)
+                    else:
+                        # create patch from path
+                        patch = PathPatch(path, color=label_colors[label], alpha=0.4)
+                else:
+                    label = "Net " + net_name
+                    if label not in label_colors:
+                        label_colors[label] = (
+                            round(random.uniform(0, 1), 3),
+                            round(random.uniform(0, 1), 3),
+                            round(random.uniform(0, 1), 3),
+                        )
+                        # create patch from path
+                        patch = PathPatch(path, color=label_colors[label], alpha=0.4, label=label)
+                    else:
+                        # create patch from path
+                        patch = PathPatch(path, color=label_colors[label], alpha=0.4)
+
+                # plot the patch
                 ax.add_patch(patch)
 
-
         ax.set(xlabel="X (m)", ylabel="Y (m)", title=self._pedb.active_cell.GetName())
-        ax.legend()
+        if show_legend:
+            ax.legend()
         ax.axis('equal')
         end_time = time.time() - start_time
         self._logger.info("Plot Generation time %s seconds", round(end_time, 3))
