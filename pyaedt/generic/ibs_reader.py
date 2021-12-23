@@ -42,14 +42,6 @@ class Component():
     def pins(self, value):
         self._pins = value
 
-    @property
-    def buffers(self):
-        """Buffers of the component."""
-        return self._buffers
-
-    @buffers.setter
-    def buffers(self, value):
-        self._buffers = value
 
 class Pin(Component):
     """Pin from a component with all its data feature.
@@ -155,17 +147,23 @@ class Pin(Component):
 
 class Buffer():
 
-    def __init__(self, name, circuit):
-        self._name = name
+    def __init__(self, ibis_name, short_name, circuit):
+        self._ibis_name = ibis_name
+        self._short_name = short_name
         self._circuit = circuit
 
     @property
     def name(self):
-        """Name of the buffer."""
-        return self._name
+        """Full name of the buffer."""
+        return f"{self.short_name}_{self._ibis_name}"
+
+    @property
+    def short_name(self):
+        """short name of the buffer."""
+        return self._short_name
 
     def add(self):
-        self._circuit.modeler.schematic.o_component_manager.AddSolverOnDemandModel(self._name,["NAME:CosimDefinition","CosimulatorType:=",7,"CosimDefName:=","DefaultIBISNetlist","IsDefinition:=",True,"Connect:=",True,"Data:=",[],"GRef:=",[]])
+        self._circuit.modeler.schematic.o_component_manager.AddSolverOnDemandModel(self.name,["NAME:CosimDefinition","CosimulatorType:=",7,"CosimDefName:=","DefaultIBISNetlist","IsDefinition:=",True,"Connect:=",True,"Data:=",[],"GRef:=",[]])
 
     def insert(self, x, y, angle):
         self._circuit.modeler.schematic.create_component(
@@ -234,6 +232,15 @@ class Ibis():
     def models(self, value):
         self._models = value
 
+    @property
+    def buffers(self):
+        """Buffers included into the ibis model."""
+        return self._buffers
+
+    @buffers.setter
+    def buffers(self, value):
+        self._buffers = value
+
 
 def read_project(fileName: str, circuit):
     """Read .ibis file content."""
@@ -262,18 +269,20 @@ def read_project(fileName: str, circuit):
 
     buffers = []
     for model_selector in ibis.model_selectors:
-        buffer = Buffer(model_selector.name, circuit)
+        buffer = Buffer(ibis_name, model_selector.name, circuit)
         buffers.append(buffer)
 
     for model in ibis.models:
-        buffer = Buffer(model.name, circuit)
+        buffer = Buffer(ibis_name, model.name, circuit)
         buffers.append(buffer)
+
+    ibis.buffers = buffers
 
     if circuit:
         args = ["NAME:Options", "Mode:=", 4, "Overwrite:=", False, "SupportsSimModels:=", False, "LoadOnly:=", False,]
         arg_buffers = ["NAME:Buffers"]
         for buffer in buffers:
-            arg_buffers.append(buffer.name+":=")
+            arg_buffers.append(buffer.short_name+":=")
             arg_buffers.append([True,"IbisSingleEnded"])
 
         arg_components = ["NAME:Components"]
