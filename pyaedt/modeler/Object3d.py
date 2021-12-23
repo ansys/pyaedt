@@ -778,8 +778,38 @@ class Object3d(object):
                                                       air_objects=True,
                                                       background_color="grey",
                                                       object_selector=False,
-                                                      color="dodgerblue"
+                                                      color="dodgerblue",
+                                                      off_screen=False,
                                                       )
+    @aedt_exception_handler
+    def export_image(self, file_path=None):
+
+        """Export the model to path.
+
+        Parameters
+        ----------
+        file_path : str
+            File name with full path. If `None` Project directory will be used.
+
+        Returns
+        -------
+        str
+            File path.
+        """
+        if not is_ironpython:
+            files = self._primitives._app.post.plot_model_obj(objects=[self.name],
+                                                              export_afterplot=True,
+                                                              export_path=file_path,
+                                                              plot_separate_objects=True,
+                                                              air_objects=True,
+                                                              background_color="grey",
+                                                              object_selector=False,
+                                                              color="dodgerblue",
+                                                              off_screen=True,
+                                                              )
+            if files:
+                return files[0]
+        return False
 
     @property
     def faces(self):

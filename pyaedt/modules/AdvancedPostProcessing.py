@@ -781,7 +781,7 @@ class PostProcessor(Post):
 
     @aedt_exception_handler
     def _plot_on_pyvista(self, plot, meshes, model_color, materials, view, imageformat, aedtplt_files, show_axes=True,
-                         show_grid=True, show_legend=True):
+                         show_grid=True, show_legend=True, export_path=None):
         files_list =[]
         color = plot.background_color
         axes_color = [0 if i >= 0.5 else 1 for i in color]
@@ -804,9 +804,12 @@ class PostProcessor(Post):
         elif view == "top":
             plot.view_xy()
         if imageformat:
-            filename = os.path.splitext(aedtplt_files[0])[0]
-            plot.show(screenshot=filename + "." + imageformat, full_screen=True)
-            files_list.append(filename + "." + imageformat)
+            if export_path:
+                filename = export_path
+            else:
+                filename = os.path.splitext(aedtplt_files[0])[0] + "." + imageformat
+            plot.show(screenshot=filename , full_screen=True)
+            files_list.append(filename)
         else:
             plot.show()
         if aedtplt_files:
@@ -819,23 +822,24 @@ class PostProcessor(Post):
 
     @aedt_exception_handler
     def _plot_from_aedtplt(
-        self,
-        aedtplt_files=None,
-        imageformat="jpg",
-        view="isometric",
-        plot_type="Full",
-        plot_label="Temperature",
-        model_color="#8faf8f",
-        show_model_edge=False,
-        off_screen=False,
-        scale_min=None,
-        scale_max=None,
-        show_axes=True,
-        show_grid=True,
-        show_legend=True,
-        background_color=[0.6, 0.6, 0.6],
-        windows_size=None,
-        object_selector=True,
+            self,
+            aedtplt_files=None,
+            imageformat="jpg",
+            view="isometric",
+            plot_type="Full",
+            plot_label="Temperature",
+            model_color="#8faf8f",
+            show_model_edge=False,
+            off_screen=False,
+            scale_min=None,
+            scale_max=None,
+            show_axes=True,
+            show_grid=True,
+            show_legend=True,
+            background_color=[0.6, 0.6, 0.6],
+            windows_size=None,
+            object_selector=True,
+            export_path=None,
 
     ):
         """Export the 3D field solver mesh, fields, or both mesh and fields as images using Python Plotly.
@@ -889,13 +893,15 @@ class PostProcessor(Post):
         model_opacity = []
         materials = {}
         objects = []
-        self._read_mesh_files(aedtplt_files, model_color, lines, meshes, model_colors, model_opacity, materials, objects)
+        self._read_mesh_files(aedtplt_files, model_color, lines, meshes, model_colors, model_opacity, materials,
+                              objects)
         if lines:
             fields_exists = True
         else:
             fields_exists = False
-        self._add_model_meshes_to_plot(plot, meshes, model_colors, model_opacity, objects,object_selector=object_selector,
-                                              show_model_edge=show_model_edge, fields_exists=fields_exists)
+        self._add_model_meshes_to_plot(plot, meshes, model_colors, model_opacity, objects,
+                                       object_selector=object_selector,
+                                       show_model_edge=show_model_edge, fields_exists=fields_exists)
         if lines:
             self._add_fields_to_plot(plot, plot_label, plot_type, scale_min, scale_max, off_screen, lines)
 
@@ -903,7 +909,8 @@ class PostProcessor(Post):
         self.logger.info("PyVista plot generation took {} seconds.".format(end))
         print(plot.background_color)
         files_list = self._plot_on_pyvista(plot, meshes, model_color, materials, view, imageformat, aedtplt_files,
-                                           show_axes=show_axes, show_grid=show_grid, show_legend=show_legend)
+                                           show_axes=show_axes, show_grid=show_grid, show_legend=show_legend,
+                                           export_path=export_path)
 
         return files_list
 
@@ -1254,6 +1261,7 @@ class PostProcessor(Post):
     def plot_model_obj(self,
                        objects=None,
                        export_afterplot=True,
+                       export_path=None,
                        plot_separate_objects=True,
                        air_objects=False,
                        show_axes=True,
@@ -1273,6 +1281,8 @@ class PostProcessor(Post):
             Optional list of objects to plot. If `None` all objects will be exported.
         export_afterplot : bool
             Set to True if the image has to be exported after the plot is completed.
+        export_path : str
+            File name with full path. If `None` Project directory will be used.
         plot_separate_objects : bool
             Plot each object separately. It may require more time to export from AEDT.
         air_objects : bool
@@ -1305,13 +1315,14 @@ class PostProcessor(Post):
                                       export_as_single_objects=plot_separate_objects,
                                       air_objects=air_objects)
         if export_afterplot:
-            imageformat = "jpg"
+            imageformat = "png"
         else:
             imageformat = None
 
         file_list = self._plot_from_aedtplt(
             files,
             imageformat=imageformat,
+            export_path=export_path,
             plot_label="3D Model",
             model_color=color,
             show_model_edge=False,
