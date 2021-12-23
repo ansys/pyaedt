@@ -11,8 +11,7 @@ class Component:
     def __init__(self):
         self._name = None
         self._manufacturer = None
-        self._pins = []
-        self._buffers = []
+        self._pins = {}
 
     @property
     def name(self):
@@ -223,15 +222,96 @@ class Buffer:
 
 
 class ModelSelector:
-    pass
+
+    def __init__(self):
+        self._model_selector_items = []
+        self._name = None
+
+    @property
+    def model_selector_items(self):
+        """Model selector items."""
+        return self._model_selector_items
+
+    @model_selector_items.setter
+    def model_selector_items(self, value):
+        self._model_selector_items = value
+
+    @property
+    def name(self):
+        """Name of the model selector."""
+        return self._name
+
+    @name.setter
+    def name(self, value):
+        self._name = value
 
 
 class ModelSelectorItem:
-    pass
+    def __init__(self):
+        self._description = []
+        self._name = None
+
+    @property
+    def description(self):
+        """Description of the item."""
+        return self._description
+
+    @description.setter
+    def description(self, value):
+        self._description = value
+
+    @property
+    def name(self):
+        """Name of the item."""
+        return self._name
+
+    @name.setter
+    def name(self, value):
+        self._name = value
 
 
 class Model:
-    pass
+    def __init__(self):
+        self._description = []
+        self._name = None
+        self._clamp = None
+        self._enable = None
+
+    @property
+    def name(self):
+        """Name of the item."""
+        return self._name
+
+    @name.setter
+    def name(self, value):
+        self._name = value
+
+    @property
+    def model_type(self):
+        """Type of the model."""
+        return self._model_type
+
+    @model_type.setter
+    def model_type(self, value):
+        self._model_type = value
+
+    @property
+    def clamp(self):
+        """Clamp."""
+        return self._clamp
+
+    @clamp.setter
+    def clamp(self, value):
+        self._clamp = value
+
+    @property
+    def enable(self):
+        """Is model enabled or not."""
+        return self._enable
+
+    @enable.setter
+    def enable(self, value):
+        self._enable = value
 
 
 class Ibis:
@@ -249,7 +329,7 @@ class Ibis:
     def __init__(self, name, circuit):
         self.circuit = circuit
         self._name = name
-        self._components = []
+        self._components = {}
         self._model_selectors = []
         self._models = []
 
@@ -333,14 +413,14 @@ class IbisReader:
                 elif self.IsStartedWith(current_line, "[Model Selector] ") == True:
                     self.read_model_selector(ibis, current_line, file)
 
-        buffers = []
+        buffers = {}
         for model_selector in ibis.model_selectors:
             buffer = Buffer(ibis_name, model_selector.name, circuit)
-            buffers.append(buffer)
+            buffers[buffer.name] = buffer
 
         for model in ibis.models:
             buffer = Buffer(ibis_name, model.name, circuit)
-            buffers.append(buffer)
+            buffers[buffer.name] = buffer
 
         ibis.buffers = buffers
 
@@ -358,14 +438,14 @@ class IbisReader:
             ]
             arg_buffers = ["NAME:Buffers"]
             for buffer in buffers:
-                arg_buffers.append(f"{buffer.short_name}:=")
+                arg_buffers.append(f"{buffers[buffer].short_name}:=")
                 arg_buffers.append([True, "IbisSingleEnded"])
 
             arg_components = ["NAME:Components"]
             for component in ibis.components:
-                arg_component = [f"NAME:{component.name}"]
-                for pin in component.pins:
-                    arg_component.append(f"{pin.short_name}:=")
+                arg_component = [f"NAME:{ibis.components[component].name}"]
+                for pin in ibis.components[component].pins:
+                    arg_component.append(f"{ibis.components[component].pins[pin].short_name}:=")
                     arg_component.append([True, False])
                 arg_components.append(arg_component)
 
@@ -444,14 +524,14 @@ class IbisReader:
             return
 
         model_selector = ModelSelector()
-        model_selector.ModelSelectorItems = []
+        model_selector.model_selector_items = []
         model_selector.name = current_line.split("]")[1].strip()
 
         current_line = file.readline()
 
         # Model Selector
         while self.IsStartedWith(current_line, "|") is False and current_line.strip() != "":
-            model_selector.ModelSelectorItems.append(self.make_model(current_line.strip()))
+            model_selector.model_selector_items.append(self.make_model(current_line.strip()))
             current_line = file.readline()
 
         # ModelSelectorItem
@@ -477,7 +557,7 @@ class IbisReader:
 
         if i_start > 0:
             item.name = current_line[i_start:].strip()
-            item.Description = current_line[i_start:].strip()
+            item.description = current_line[i_start:].strip()
 
         return item
 
@@ -525,12 +605,13 @@ class IbisReader:
         current_line = file.readline()
 
         while self.IsStartedWith(current_line, "|") == False:
-            component.pins.append(self.make_pin_object(current_line, component.name, ibis))
+            pin = self.make_pin_object(current_line, component.name, ibis)
+            component.pins[pin.name] = pin
             current_line = file.readline()
             if current_line == "":
                 break
 
-        ibis.components.append(component)
+        ibis.components[component.name] = component
 
     def fill_package_info(self, component: Component, current_line: str, file: typing.TextIO):
         """Extracts model's info.
