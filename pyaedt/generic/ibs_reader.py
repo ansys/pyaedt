@@ -154,7 +154,7 @@ class Pin(Component):
         y: float
             Y position of the pin.
         angle: float, optional
-            Angle of the pin. The default value is 0.
+            Angle of the pin. The default value is ``"0.0"``.
         """
 
         self._circuit.modeler.schematic.create_component(
@@ -212,7 +212,7 @@ class Buffer:
         y: float
             Y position of the buffer.
         angle: float, optional
-            Angle of the buffer. The default value is 0.
+            Angle of the buffer. The default value is ``"0.0"``.
         """
         self._circuit.modeler.schematic.create_component(
             component_library=None,
@@ -558,7 +558,7 @@ class IbisReader:
             component.C_pkg = current_line.strip()
 
     def get_component_name(self, line: str) -> str:
-        """Gets the name of the components.
+        """Gets the name of the component.
 
         Parameters
         ----------
@@ -566,7 +566,7 @@ class IbisReader:
             Current line content.
 
         Returns
-        ----------
+        -------
         str
             Name of the component.
 
@@ -589,7 +589,7 @@ class IbisReader:
             ibis object containing all info.
 
         Returns
-        ----------
+        -------
         :class:`pyaedt.generic.Pin`
             Pin object.
 
@@ -627,9 +627,9 @@ class IbisReader:
             Current line content.
 
         Returns
-        ----------
+        -------
         str
-            First info from extracted from the current line.
+            First info extracted from the current line.
 
         """
 
@@ -649,12 +649,12 @@ class IbisReader:
         find : str
             Current line content.
         ignore_case : bool, optional
-            Case sensitive or not. The default value is `True`.
+            Case sensitive or not. The default value is ``True``.
 
         Returns
-        ----------
+        -------
         bool
-            `True` if the src string starts with the pattern.
+            ``True`` if the src string starts with the patern.
 
         """
 
