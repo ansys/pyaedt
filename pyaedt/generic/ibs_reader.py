@@ -4,8 +4,6 @@ import typing
 import pyaedt
 import pyaedt.generic
 
-ibis = None
-
 
 class Component:
     """Component extracted from ibis model."""
@@ -124,6 +122,7 @@ class Pin(Component):
         self._c_value = value
 
     def add(self):
+        """Add a pin to the list of components in the Project Manager."""
         self._circuit.modeler.schematic.o_component_manager.AddSolverOnDemandModel(
             self.name,
             [
@@ -173,15 +172,16 @@ class Buffer:
 
     @property
     def name(self):
-        """Full name of the buffer."""
+        """Full name of the buffer including the ibis filename."""
         return f"{self.short_name}_{self._ibis_name}"
 
     @property
     def short_name(self):
-        """short name of the buffer."""
+        """Short name of the buffer without the ibis filename included."""
         return self._short_name
 
     def add(self):
+        """Add a buffer to the list of components in the Project Manager."""
         self._circuit.modeler.schematic.o_component_manager.AddSolverOnDemandModel(
             self.name,
             [
