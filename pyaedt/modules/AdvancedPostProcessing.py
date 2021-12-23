@@ -951,7 +951,7 @@ class PostProcessor(Post):
         Parameters
         ----------
         obj_list : list
-            list of objects to export. None to export everything model except vacuum and air objects.
+            List of objects to export. None to export everything model except vacuum and air objects.
 
         Returns
         -------
