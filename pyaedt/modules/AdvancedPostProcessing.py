@@ -13,6 +13,7 @@ import warnings
 from pyaedt.generic.general_methods import aedt_exception_handler
 from pyaedt.modules.PostProcessor import PostProcessor as Post
 import random
+
 try:
     import numpy as np
 except ImportError:
@@ -375,11 +376,12 @@ class PostProcessor(Post):
             elif ".obj" in file:
                 meshes.append(pv.read(file))
                 if not model_color:
-                    model_colors.append("#"+str(hex(random.randint(0, 16777215)))[2:])
+                    model_colors.append("#" + str(hex(random.randint(0, 16777215)))[2:])
                 else:
                     model_colors.append(model_color)
 
         if meshes and len(meshes) == 1:
+
             def _create_object_mesh(opacity):
                 try:
                     plot.remove_actor("Volumes")
@@ -395,6 +397,7 @@ class PostProcessor(Post):
                         show_edges=show_model_edge,
                         edge_color=c,
                     )
+
             plot.add_slider_widget(
                 _create_object_mesh,
                 [0, 1],
@@ -969,10 +972,8 @@ class PostProcessor(Post):
                 for i in obj_list
                 if not self._app.modeler[self._app.modeler.get_obj_id(i)].is3d
                 or (
-                    self._app.modeler[self._app.modeler.get_obj_id(i)].material_name.lower()
-                    != "vacuum"
-                    and self._app.modeler[self._app.modeler.get_obj_id(i)].material_name.lower()
-                    != "air"
+                    self._app.modeler[self._app.modeler.get_obj_id(i)].material_name.lower() != "vacuum"
+                    and self._app.modeler[self._app.modeler.get_obj_id(i)].material_name.lower() != "air"
                 )
             ]
         if export_as_single_objects:
