@@ -26,11 +26,13 @@ def install(package):
 
 
 if sys.version_info >= (3, 9):
-    install_requires = ["pywin32 >= 2.2.7;platform_system=='Windows'",
-                        "rpyc==5.0.1",
-                        "pyvista>=0.32.0",
-                        "numpy",
-                        "matplotlib"]
+    install_requires = [
+        "pywin32 >= 2.2.7;platform_system=='Windows'",
+        "rpyc==5.0.1",
+        "pyvista>=0.32.0",
+        "numpy",
+        "matplotlib",
+    ]
     install("https://github.com/pyansys/PyAEDT/raw/release/0.3/pythonnet-2.5.2-cp39-cp39-win_amd64.whl")
 elif sys.version_info >= (3, 0):
     install_requires = [
@@ -39,7 +41,7 @@ elif sys.version_info >= (3, 0):
         "rpyc==5.0.1",
         "pyvista>=0.32.0",
         "numpy",
-        "matplotlib"
+        "matplotlib",
     ]
 elif not is_ironpython and sys.version_info < (3, 0):
     install_requires = ["pywin32 == 228;platform_system=='Windows'", "pythonnet >= 2.5.2;platform_system=='Windows'"]
