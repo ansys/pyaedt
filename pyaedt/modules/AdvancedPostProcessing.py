@@ -1029,7 +1029,7 @@ class PostProcessor(Post):
 
         Parameters
         ----------
-        export_afterplot: bool, optional
+        export_afterplot : bool, optional
              Whether to export the plot after it is generated. The
              default is ``True``.
         off_screen : bool, optional
