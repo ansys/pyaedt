@@ -6,7 +6,8 @@ import pyaedt.generic
 
 ibis = None
 
-class Component():
+
+class Component:
     """Component extracted from ibis model."""
 
     def __init__(self):
@@ -53,6 +54,7 @@ class Pin(Component):
     circuit : class:`pyaedt.circuit.Circuit`
         Circuit in which the pin will be added to.
     """
+
     def __init__(self, name, circuit):
         self._name = name
         self._circuit = circuit
@@ -122,12 +124,29 @@ class Pin(Component):
         self._c_value = value
 
     def add(self):
-        self._circuit.modeler.schematic.o_component_manager.AddSolverOnDemandModel(self._name,["NAME:CosimDefinition","CosimulatorType:=",7,"CosimDefName:=","DefaultIBISNetlist","IsDefinition:=",True,"Connect:=",True,"Data:=",[],"GRef:=",[]])
+        self._circuit.modeler.schematic.o_component_manager.AddSolverOnDemandModel(
+            self.name,
+            [
+                "NAME:CosimDefinition",
+                "CosimulatorType:=",
+                7,
+                "CosimDefName:=",
+                "DefaultIBISNetlist",
+                "IsDefinition:=",
+                True,
+                "Connect:=",
+                True,
+                "Data:=",
+                [],
+                "GRef:=",
+                [],
+            ],
+        )
 
-    def insert(self, x, y, angle=0.):
+    def insert(self, x, y, angle=0.0):
         """
         Insert a pin at a defined location inside the graphical window.
-        
+
         Parameters
         ----------
         x: float
@@ -135,18 +154,18 @@ class Pin(Component):
         y: float
             Y position of the pin.
         angle: float, optional
-            Angle of the pin.
+            Angle of the pin. The default value is 0.
         """
+
         self._circuit.modeler.schematic.create_component(
-                            component_library = None,
-                            component_name=self.name,
-                            location=[x, y],
-                            angle = angle,
-                            )
+            component_library=None,
+            component_name=self.name,
+            location=[x, y],
+            angle=angle,
+        )
 
 
-class Buffer():
-
+class Buffer:
     def __init__(self, ibis_name, short_name, circuit):
         self._ibis_name = ibis_name
         self._short_name = short_name
@@ -163,26 +182,59 @@ class Buffer():
         return self._short_name
 
     def add(self):
-        self._circuit.modeler.schematic.o_component_manager.AddSolverOnDemandModel(self.name,["NAME:CosimDefinition","CosimulatorType:=",7,"CosimDefName:=","DefaultIBISNetlist","IsDefinition:=",True,"Connect:=",True,"Data:=",[],"GRef:=",[]])
+        self._circuit.modeler.schematic.o_component_manager.AddSolverOnDemandModel(
+            self.name,
+            [
+                "NAME:CosimDefinition",
+                "CosimulatorType:=",
+                7,
+                "CosimDefName:=",
+                "DefaultIBISNetlist",
+                "IsDefinition:=",
+                True,
+                "Connect:=",
+                True,
+                "Data:=",
+                [],
+                "GRef:=",
+                [],
+            ],
+        )
 
-    def insert(self, x, y, angle):
+    def insert(self, x, y, angle=0.0):
+        """
+        Insert a buffer at a defined location inside the graphical window.
+
+        Parameters
+        ----------
+        x: float
+            X position of the buffer.
+        y: float
+            Y position of the buffer.
+        angle: float, optional
+            Angle of the buffer. The default value is 0.
+        """
         self._circuit.modeler.schematic.create_component(
-                            component_library = None,
-                            component_name=self.name,
-                            location=[x, y],
-                            angle = angle,
-                            )
+            component_library=None,
+            component_name=self.name,
+            location=[x, y],
+            angle=angle,
+        )
 
-class ModelSelector():
+
+class ModelSelector:
     pass
 
-class ModelSelectorItem():
+
+class ModelSelectorItem:
     pass
 
-class Model():
-        pass
 
-class Ibis():
+class Model:
+    pass
+
+
+class Ibis:
     """Ibis model with all data extracted: name, components, models.
 
     Parameters
@@ -192,6 +244,7 @@ class Ibis():
     circuit : class:`pyaedt.circuit.Circuit`
         Circuit in which the ibis components will be used.
     """
+
     # Ibis reader must work independently or in Circuit.
     def __init__(self, name, circuit):
         self.circuit = circuit
@@ -241,11 +294,11 @@ class Ibis():
     def buffers(self, value):
         self._buffers = value
 
-class IbisReader():
 
+class IbisReader:
     def read_project(self, filename: str, circuit):
         """Reads *.ibis file content.
-        
+
         Parameters
         ----------
         filename : str
@@ -267,18 +320,18 @@ class IbisReader():
         ibis = Ibis(ibis_name, circuit)
 
         # Read *.ibis file.
-        with open(filename, 'r') as f:
+        with open(filename, "r") as file:
             while True:
-                current_line = f.readline()
+                current_line = file.readline()
                 if not current_line:
                     break
 
                 if self.IsStartedWith(current_line, "[Component] ") == True:
-                    self.read_component(ibis, current_line, f)
+                    self.read_component(ibis, current_line, file)
                 elif self.IsStartedWith(current_line, "[Model] ") == True:
-                    self.read_model(ibis, current_line, f)
+                    self.read_model(ibis, current_line, file)
                 elif self.IsStartedWith(current_line, "[Model Selector] ") == True:
-                    self.read_model_selector(ibis, current_line, f)
+                    self.read_model_selector(ibis, current_line, file)
 
         buffers = []
         for model_selector in ibis.model_selectors:
@@ -292,32 +345,41 @@ class IbisReader():
         ibis.buffers = buffers
 
         if circuit:
-            args = ["NAME:Options", "Mode:=", 4, "Overwrite:=", False, "SupportsSimModels:=", False, "LoadOnly:=", False,]
+            args = [
+                "NAME:Options",
+                "Mode:=",
+                4,
+                "Overwrite:=",
+                False,
+                "SupportsSimModels:=",
+                False,
+                "LoadOnly:=",
+                False,
+            ]
             arg_buffers = ["NAME:Buffers"]
             for buffer in buffers:
-                arg_buffers.append(buffer.short_name+":=")
-                arg_buffers.append([True,"IbisSingleEnded"])
+                arg_buffers.append(f"{buffer.short_name}:=")
+                arg_buffers.append([True, "IbisSingleEnded"])
 
             arg_components = ["NAME:Components"]
             for component in ibis.components:
-                arg_component = ["NAME:"+component.name]
+                arg_component = [f"NAME:{component.name}"]
                 for pin in component.pins:
-                    arg_component.append(pin.short_name+":=")
-                    arg_component.append([True,False])
+                    arg_component.append(f"{pin.short_name}:=")
+                    arg_component.append([True, False])
                 arg_components.append(arg_component)
 
             args.append(arg_buffers)
             args.append(arg_components)
 
-            circuit.modeler.schematic.o_component_manager.ImportModelsFromFile(filename,args)
+            circuit.modeler.schematic.o_component_manager.ImportModelsFromFile(filename, args)
 
         return ibis
-
 
     # Model
     def read_model(self, ibis: Ibis, current_line: str, file: typing.TextIO):
         """Extracts model's info.
-        
+
         Parameters
         ----------
         ibis : :class:`pyaedt.generic.Ibis`
@@ -355,7 +417,7 @@ class IbisReader():
                 model.Clamp = True
                 break
             elif self.IsStartedWith(current_line, "Enable ", True) == True:
-                model.Enable = current_line[len("Enable") + 1:].strip()
+                model.Enable = current_line[len("Enable") + 1 :].strip()
             elif self.IsStartedWith(current_line, "[Rising Waveform]") == True:
                 break
             elif self.IsStartedWith(current_line, "[Ramp]") == True:
@@ -366,7 +428,7 @@ class IbisReader():
     # Model Selector
     def read_model_selector(self, ibis: Ibis, current_line: str, file: typing.TextIO):
         """Extracts model selector's info.
-        
+
         Parameters
         ----------
         ibis : :class:`pyaedt.generic.Ibis`
@@ -378,7 +440,7 @@ class IbisReader():
 
         """
 
-        if self.IsStartedWith(current_line, "[Model Selector] ") != True :
+        if self.IsStartedWith(current_line, "[Model Selector] ") != True:
             return
 
         model_selector = ModelSelector()
@@ -388,7 +450,7 @@ class IbisReader():
         current_line = file.readline()
 
         # Model Selector
-        while (self.IsStartedWith(current_line, "|") is False and current_line.strip() != ""):
+        while self.IsStartedWith(current_line, "|") is False and current_line.strip() != "":
             model_selector.ModelSelectorItems.append(self.make_model(current_line.strip()))
             current_line = file.readline()
 
@@ -397,7 +459,7 @@ class IbisReader():
 
     def make_model(self, current_line: str) -> ModelSelectorItem:
         """Creates model object.
-        
+
         Parameters
         ----------
         current_line : str
@@ -422,7 +484,7 @@ class IbisReader():
     # Component
     def read_component(self, ibis: Ibis, current_line: str, file: typing.TextIO):
         """Extracts component's info.
-        
+
         Parameters
         ----------
         ibis : :class:`pyaedt.generic.Ibis`
@@ -472,7 +534,7 @@ class IbisReader():
 
     def fill_package_info(self, component: Component, current_line: str, file: typing.TextIO):
         """Extracts model's info.
-        
+
         Parameters
         ----------
         component : :class:`pyaedt.generic.Component`
@@ -497,7 +559,7 @@ class IbisReader():
 
     def get_component_name(self, line: str) -> str:
         """Gets the name of the components.
-        
+
         Parameters
         ----------
         line : str
@@ -516,7 +578,7 @@ class IbisReader():
     # Pin
     def make_pin_object(self, line: str, component_name: str, ibis: Ibis) -> Pin:
         """Extracts model's info.
-        
+
         Parameters
         ----------
         line : str
@@ -539,26 +601,26 @@ class IbisReader():
         pin_name = self.get_first_parameter(current_string)
         pin = Pin(pin_name + "_" + component_name + "_" + ibis.name, ibis.circuit)
         pin.short_name = pin_name
-        current_string = current_string[len(pin.name) + 1:].strip()
+        current_string = current_string[len(pin.name) + 1 :].strip()
         pin.signal = self.get_first_parameter(current_string)
 
-        current_string = current_string[len(pin.signal) + 1:].strip()
+        current_string = current_string[len(pin.signal) + 1 :].strip()
         pin.model = self.get_first_parameter(current_string)
 
-        current_string = current_string[len(pin.model) + 1:].strip()
+        current_string = current_string[len(pin.model) + 1 :].strip()
         pin.r_value = self.get_first_parameter(current_string)
 
-        current_string = current_string[len(pin.r_value) + 1:].strip()
+        current_string = current_string[len(pin.r_value) + 1 :].strip()
         pin.l_value = self.get_first_parameter(current_string)
 
-        current_string = current_string[len(pin.l_value) + 1:].strip()
+        current_string = current_string[len(pin.l_value) + 1 :].strip()
         pin.c_value = self.get_first_parameter(current_string)
 
         return pin
 
     def get_first_parameter(self, line: str) -> str:
         """Gets first parameter string value.
-        
+
         Parameters
         ----------
         line : str
@@ -577,9 +639,9 @@ class IbisReader():
         data = line.split(" ")
         return data[0].strip()
 
-    def IsStartedWith(self, src: str, find: str, ignore_case: bool=True) -> bool:
+    def IsStartedWith(self, src: str, find: str, ignore_case: bool = True) -> bool:
         """Verifies if a string content starts with a specific string or not.
-        
+
         Parameters
         ----------
         src : str
@@ -595,14 +657,14 @@ class IbisReader():
             `True` if the src string starts with the pattern.
 
         """
-    
+
         if ignore_case == True:
-            if src[:len(find)].lower() == find.lower():
+            if src[: len(find)].lower() == find.lower():
                 return True
             else:
                 return False
         else:
-            if src[:len(find)] == find:
+            if src[: len(find)] == find:
                 return True
             else:
                 return False
