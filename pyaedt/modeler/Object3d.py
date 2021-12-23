@@ -771,7 +771,12 @@ class Object3d(object):
 
     @aedt_exception_handler
     def plot(self):
-        if not is_ironpython:
+        """Plot model with PyVista.
+
+        .. note::
+        Works from AEDT 2021.2 in CPython only. PyVista has to be installed.
+        """
+        if not is_ironpython and self._primitives._appp._aedt_version >= "2021.2":
             self._primitives._app.post.plot_model_obj(objects=[self.name],
                                                       export_afterplot=False,
                                                       plot_separate_objects=True,
@@ -786,6 +791,9 @@ class Object3d(object):
 
         """Export the model to path.
 
+        .. note::
+        Works from AEDT 2021.2 in CPython only. PyVista has to be installed.
+
         Parameters
         ----------
         file_path : str
@@ -796,7 +804,7 @@ class Object3d(object):
         str
             File path.
         """
-        if not is_ironpython:
+        if not is_ironpython and self._primitives._appp._aedt_version >= "2021.2":
             files = self._primitives._app.post.plot_model_obj(objects=[self.name],
                                                               export_afterplot=True,
                                                               export_path=file_path,
