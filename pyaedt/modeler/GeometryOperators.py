@@ -1241,7 +1241,7 @@ class GeometryOperators(object):
 
         """
         if len(pts) == 0:
-            raise AttributeError('pts must contain at list one point')
+            raise AttributeError("pts must contain at list one point")
         sx = sy = sz = sl = sl2 = 0
         x1, y1, z1 = pts[0]
         for i in range(len(pts)):  # counts from 0 to len(points)-1
@@ -1376,9 +1376,9 @@ class GeometryOperators(object):
         """
         # select a vertex on the hull
         if len(x) < 3:
-            raise AttributeError('x length must be >= 3')
+            raise AttributeError("x length must be >= 3")
         if len(y) != len(x):
-            raise AttributeError('y must be same length as x.')
+            raise AttributeError("y must be same length as x.")
         # fmt: off
         xmin = min(x)
         ixmin = [i for i, el in enumerate(x) if xmin == el]

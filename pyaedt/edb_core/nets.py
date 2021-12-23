@@ -119,7 +119,7 @@ class EdbNets(object):
 
     @staticmethod
     def _eval_arc_points(p1, p2, h, n=6, tol=1e-12):
-        """ Get the points of the arc
+        """Get the points of the arc
 
         Parameters
         ----------
@@ -219,8 +219,9 @@ class EdbNets(object):
         return x, y
 
     @aedt_exception_handler
-    def plot(self, nets, layers=None, color_by_net=False, show_legend=True, save_plot=None, outline=None,
-             size=(2000, 1000)):
+    def plot(
+        self, nets, layers=None, color_by_net=False, show_legend=True, save_plot=None, outline=None, size=(2000, 1000)
+    ):
         """Plot a Net to Matplotlib 2D Chart.
 
         Parameters
@@ -254,7 +255,7 @@ class EdbNets(object):
         label_colors = {}
         color_index = 0
         dpi = 100.0
-        figsize = (size[0]/dpi, size[1]/dpi)
+        figsize = (size[0] / dpi, size[1] / dpi)
         fig, ax = plt.subplots(figsize=figsize)
         if outline:
             x1 = [i[0] for i in outline]
@@ -366,7 +367,7 @@ class EdbNets(object):
         ax.set(xlabel="X (m)", ylabel="Y (m)", title=self._pedb.active_cell.GetName())
         if show_legend:
             ax.legend()
-        ax.axis('equal')
+        ax.axis("equal")
         end_time = time.time() - start_time
         self._logger.info("Plot Generation time %s seconds", round(end_time, 3))
         if save_plot:
