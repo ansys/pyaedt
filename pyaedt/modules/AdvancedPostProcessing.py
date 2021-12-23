@@ -1028,9 +1028,15 @@ class PostProcessor(Post):
 
         Parameters
         ----------
-        export_afterplot : bool, optional
+        export_afterplot: bool, optional
              Whether to export the plot after it is generated. The
              default is ``True``.
+        off_screen: bool, optional
+            Whether the renders are off screen or not.
+            The default is ``False``.
+        plot_separate_objects: bool, optional
+            Whether the objects will be plotted separately or not.
+            The default is ``True``.
 
         Returns
         -------
