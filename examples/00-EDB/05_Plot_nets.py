@@ -37,7 +37,6 @@ edb = Edb(edbpath=targetfolder, edbversion="2021.2")
 
 ###############################################################################
 # Plot a custom set of nets colored by Layer (default).
-edb.core_nets.plot(None, ["Signal3"])
 
 edb.core_nets.plot("V3P3_S0")
 

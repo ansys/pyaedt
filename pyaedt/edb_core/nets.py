@@ -7,6 +7,7 @@ import math
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name
 from pyaedt.modeler.GeometryOperators import GeometryOperators
+from pyaedt.generic.constants import CSS4_COLORS
 
 try:
     from matplotlib import pyplot as plt
@@ -252,6 +253,7 @@ class EdbNets(object):
         if not nets:
             nets = list(self.nets.keys())
         label_colors = {}
+        color_index = 0
         dpi = 100.0
         figsize = (size[0]/dpi, size[1]/dpi)
         fig, ax = plt.subplots(figsize=figsize)
@@ -276,20 +278,22 @@ class EdbNets(object):
                         color = path.GetLayer().GetColor()
                         try:
                             c = (color.Item1 / 255, color.Item2 / 255, color.Item3 / 255)
+                            label_colors[label] = c
                         except:
-                            c = "b"
-                        label_colors[label] = c
+                            label_colors[label] = list(CSS4_COLORS.keys())[color_index]
+                            color_index += 1
+                            if color_index >= len(CSS4_COLORS):
+                                color_index = 0
                         plt.fill(x, y, c=label_colors[label], label=label, alpha=0.4)
                     else:
                         plt.fill(x, y, c=label_colors[label], alpha=0.4)
                 else:
                     label = "Net " + net_name
                     if label not in label_colors:
-                        label_colors[label] = (
-                            round(random.uniform(0, 1), 3),
-                            round(random.uniform(0, 1), 3),
-                            round(random.uniform(0, 1), 3),
-                        )
+                        label_colors[label] = list(CSS4_COLORS.keys())[color_index]
+                        color_index += 1
+                        if color_index >= len(CSS4_COLORS):
+                            color_index = 0
                         plt.fill(x, y, c=label_colors[label], label=label, alpha=0.4)
                     else:
                         plt.fill(x, y, c=label_colors[label], alpha=0.4)
@@ -333,9 +337,12 @@ class EdbNets(object):
                         color = poly.GetLayer().GetColor()
                         try:
                             c = (color.Item1 / 255, color.Item2 / 255, color.Item3 / 255)
+                            label_colors[label] = c
                         except:
-                            c = "b"
-                        label_colors[label] = c
+                            label_colors[label] = list(CSS4_COLORS.keys())[color_index]
+                            color_index += 1
+                            if color_index >= len(CSS4_COLORS):
+                                color_index = 0
                         # create patch from path
                         patch = PathPatch(path, color=label_colors[label], alpha=0.4, label=label)
                     else:
@@ -344,11 +351,10 @@ class EdbNets(object):
                 else:
                     label = "Net " + net_name
                     if label not in label_colors:
-                        label_colors[label] = (
-                            round(random.uniform(0, 1), 3),
-                            round(random.uniform(0, 1), 3),
-                            round(random.uniform(0, 1), 3),
-                        )
+                        label_colors[label] = list(CSS4_COLORS.keys())[color_index]
+                        color_index += 1
+                        if color_index >= len(CSS4_COLORS):
+                            color_index = 0
                         # create patch from path
                         patch = PathPatch(path, color=label_colors[label], alpha=0.4, label=label)
                     else:
