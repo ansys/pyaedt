@@ -777,15 +777,17 @@ class Object3d(object):
         Works from AEDT 2021.2 in CPython only. PyVista has to be installed.
         """
         if not is_ironpython and self._primitives._appp._aedt_version >= "2021.2":
-            self._primitives._app.post.plot_model_obj(objects=[self.name],
-                                                      export_afterplot=False,
-                                                      plot_separate_objects=True,
-                                                      air_objects=True,
-                                                      background_color="grey",
-                                                      object_selector=False,
-                                                      color="dodgerblue",
-                                                      off_screen=False,
-                                                      )
+            self._primitives._app.post.plot_model_obj(
+                objects=[self.name],
+                export_afterplot=False,
+                plot_separate_objects=True,
+                air_objects=True,
+                background_color="grey",
+                object_selector=False,
+                color="dodgerblue",
+                off_screen=False,
+            )
+
     @aedt_exception_handler
     def export_image(self, file_path=None):
 
@@ -805,16 +807,17 @@ class Object3d(object):
             File path.
         """
         if not is_ironpython and self._primitives._appp._aedt_version >= "2021.2":
-            files = self._primitives._app.post.plot_model_obj(objects=[self.name],
-                                                              export_afterplot=True,
-                                                              export_path=file_path,
-                                                              plot_separate_objects=True,
-                                                              air_objects=True,
-                                                              background_color="grey",
-                                                              object_selector=False,
-                                                              color="dodgerblue",
-                                                              off_screen=True,
-                                                              )
+            files = self._primitives._app.post.plot_model_obj(
+                objects=[self.name],
+                export_afterplot=True,
+                export_path=file_path,
+                plot_separate_objects=True,
+                air_objects=True,
+                background_color="grey",
+                object_selector=False,
+                color="dodgerblue",
+                off_screen=True,
+            )
             if files:
                 return files[0]
         return False

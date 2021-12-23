@@ -13,7 +13,7 @@ import warnings
 from pyaedt.generic.general_methods import aedt_exception_handler
 from pyaedt.modules.PostProcessor import PostProcessor as Post
 from pyaedt.generic.constants import CSS4_COLORS
-import random
+
 try:
     import numpy as np
 except ImportError:
@@ -54,14 +54,14 @@ except ImportError:
 def isnotebook():
     try:
         shell = get_ipython().__class__.__name__
-        if shell == 'ZMQInteractiveShell':
-            return True   # Jupyter notebook or qtconsole
-        elif shell == 'TerminalInteractiveShell':
+        if shell == "ZMQInteractiveShell":
+            return True  # Jupyter notebook or qtconsole
+        elif shell == "TerminalInteractiveShell":
             return False  # Terminal running IPython
         else:
             return False  # Other type (?)
     except NameError:
-        return False      # Probably standard Python interpreter
+        return False  # Probably standard Python interpreter
 
 
 def is_float(istring):
@@ -309,8 +309,9 @@ class PostProcessor(Post):
         return trg_vertex
 
     @aedt_exception_handler
-    def _read_mesh_files(self, aedtplt_files, model_color, lines, meshes, model_colors, model_opacity, materials,
-                         objects):
+    def _read_mesh_files(
+        self, aedtplt_files, model_color, lines, meshes, model_colors, model_opacity, materials, objects
+    ):
         id = 0
         colors = list(CSS4_COLORS.keys())
         for file in aedtplt_files:
@@ -335,12 +336,12 @@ class PostProcessor(Post):
             elif ".obj" in file:
                 meshes.append(pv.read(file))
                 file_split = file.split("_")
-                objects.append(os.path.splitext(os.path.basename(file))[0].replace("Model_","").split(".")[0])
+                objects.append(os.path.splitext(os.path.basename(file))[0].replace("Model_", "").split(".")[0])
                 if len(file_split) >= 3:
                     model_opacity.append(0.6)
                     if "air.obj" in file or "vacuum.obj" in file:
-                        materials[file_split[-1]] = 'dodgerblue'
-                        model_colors.append( materials[file_split[-1]])
+                        materials[file_split[-1]] = "dodgerblue"
+                        model_colors.append(materials[file_split[-1]])
                     else:
                         if file_split[-1] in materials:
                             model_colors.append(materials[file_split[-1]])
@@ -355,8 +356,17 @@ class PostProcessor(Post):
                     model_colors[-1] = model_color
 
     @aedt_exception_handler
-    def _add_model_meshes_to_plot(self, plot, meshes, model_colors, model_opacity, objects, show_model_edge,
-                                  fields_exists=False, object_selector=True):
+    def _add_model_meshes_to_plot(
+        self,
+        plot,
+        meshes,
+        model_colors,
+        model_opacity,
+        objects,
+        show_model_edge,
+        fields_exists=False,
+        object_selector=True,
+    ):
 
         mesh = plot.add_mesh
 
@@ -402,26 +412,27 @@ class PostProcessor(Post):
                         self.i = 0
                         self.id = 0
                     callback = SetVisibilityCallback(self.actor[self.i])
-                    plot.add_checkbox_button_widget(callback,
-                                                    value=self.actor[self.i].GetVisibility() == 1,
-                                                    position=(5.0, startpos),
-                                                    size=self.size,
-                                                    border_size=1,
-                                                    color_on=self.colors[self.i],
-                                                    color_off='grey',
-                                                    background_color=None
-                                                    )
-                    self.text.append(plot.add_text(self.names[self.i],
-                                                   position=(25.0, startpos),
-                                                   font_size=self.size // 3,
-                                                   color=axes_color
-                                                   )
-                                     )
+                    plot.add_checkbox_button_widget(
+                        callback,
+                        value=self.actor[self.i].GetVisibility() == 1,
+                        position=(5.0, startpos),
+                        size=self.size,
+                        border_size=1,
+                        color_on=self.colors[self.i],
+                        color_off="grey",
+                        background_color=None,
+                    )
+                    self.text.append(
+                        plot.add_text(
+                            self.names[self.i], position=(25.0, startpos), font_size=self.size // 3, color=axes_color
+                        )
+                    )
                     startpos = startpos - self.size - (self.size // 10)
                     k += 1
                     self.i += 1
 
         if meshes and len(meshes) == 1:
+
             def _create_object_mesh(opacity):
                 try:
                     plot.remove_actor("Volumes")
@@ -465,21 +476,20 @@ class PostProcessor(Post):
                         actors.append(actor)
                         if el < max_elements:
                             callback = SetVisibilityCallback(actor)
-                            buttons.append(plot.add_checkbox_button_widget(callback, value=True,
-                                                                           position=(5.0, startpos + 50),
-                                                                           size=size,
-                                                                           border_size=1,
-                                                                           color_on=c,
-                                                                           color_off='grey',
-                                                                           background_color=None
-                                                                           )
-                                           )
+                            buttons.append(
+                                plot.add_checkbox_button_widget(
+                                    callback,
+                                    value=True,
+                                    position=(5.0, startpos + 50),
+                                    size=size,
+                                    border_size=1,
+                                    color_on=c,
+                                    color_off="grey",
+                                    background_color=None,
+                                )
+                            )
                             texts.append(
-                                plot.add_text(n,
-                                              position=(50.0, startpos + 50),
-                                              font_size=size // 3,
-                                              color=axes_color
-                                              )
+                                plot.add_text(n, position=(50.0, startpos + 50), font_size=size // 3, color=axes_color)
                             )
 
                             startpos = startpos - size - (size // 10)
@@ -487,54 +497,49 @@ class PostProcessor(Post):
 
             else:
                 for m, c, o, n in zip(meshes, model_colors, model_opacity, objects):
-                    actor = mesh(m,
-                                 show_scalar_bar=False,
-                                 opacity=o,
-                                 color=c,
-                                 )
+                    actor = mesh(
+                        m,
+                        show_scalar_bar=False,
+                        opacity=o,
+                        color=c,
+                    )
                     if object_selector:
                         actors.append(actor)
 
                         if el < max_elements:
                             callback = SetVisibilityCallback(actor)
-                            buttons.append(plot.add_checkbox_button_widget(callback, value=True,
-                                                                           position=(5.0, startpos),
-                                                                           size=size,
-                                                                           border_size=1,
-                                                                           color_on=c,
-                                                                           color_off='grey',
-                                                                           background_color=None
-                                                                           )
-                                           )
-                            texts.append(plot.add_text(n,
-                                                       position=(25.0, startpos),
-                                                       font_size=size // 3,
-                                                       color=axes_color
-                                                       )
-                                         )
+                            buttons.append(
+                                plot.add_checkbox_button_widget(
+                                    callback,
+                                    value=True,
+                                    position=(5.0, startpos),
+                                    size=size,
+                                    border_size=1,
+                                    color_on=c,
+                                    color_off="grey",
+                                    background_color=None,
+                                )
+                            )
+                            texts.append(
+                                plot.add_text(n, position=(25.0, startpos), font_size=size // 3, color=axes_color)
+                            )
                             startpos = startpos - size - (size // 10)
                             el += 1
             if object_selector and texts and len(texts) >= max_elements:
-                callback = ChangePageCallback(plot,
-                                              actors,
-                                              texts,
-                                              objects,
-                                              model_colors
-                                              )
-                plot.add_checkbox_button_widget(callback, value=True,
-                                                position=(5.0, plot.window_size[1]),
-                                                size=int(1.5 * size),
-                                                border_size=2,
-                                                color_on=axes_color,
-                                                color_off=axes_color,
-                                                )
-                plot.add_text("Next",
-                              position=(50.0, plot.window_size[1]),
-                              font_size=size // 3,
-                              color='grey'
-                              )
-                plot.button_widgets.insert(0,
-                                           plot.button_widgets.pop(plot.button_widgets.index(plot.button_widgets[-1])))
+                callback = ChangePageCallback(plot, actors, texts, objects, model_colors)
+                plot.add_checkbox_button_widget(
+                    callback,
+                    value=True,
+                    position=(5.0, plot.window_size[1]),
+                    size=int(1.5 * size),
+                    border_size=2,
+                    color_on=axes_color,
+                    color_off=axes_color,
+                )
+                plot.add_text("Next", position=(50.0, plot.window_size[1]), font_size=size // 3, color="grey")
+                plot.button_widgets.insert(
+                    0, plot.button_widgets.pop(plot.button_widgets.index(plot.button_widgets[-1]))
+                )
 
     @aedt_exception_handler
     def _add_fields_to_plot(self, plot, plot_label, plot_type, scale_min, scale_max, off_screen, lines):
@@ -780,9 +785,21 @@ class PostProcessor(Post):
                     )
 
     @aedt_exception_handler
-    def _plot_on_pyvista(self, plot, meshes, model_color, materials, view, imageformat, aedtplt_files, show_axes=True,
-                         show_grid=True, show_legend=True, export_path=None):
-        files_list =[]
+    def _plot_on_pyvista(
+        self,
+        plot,
+        meshes,
+        model_color,
+        materials,
+        view,
+        imageformat,
+        aedtplt_files,
+        show_axes=True,
+        show_grid=True,
+        show_legend=True,
+        export_path=None,
+    ):
+        files_list = []
         color = plot.background_color
         axes_color = [0 if i >= 0.5 else 1 for i in color]
         if show_axes:
@@ -808,7 +825,7 @@ class PostProcessor(Post):
                 filename = export_path
             else:
                 filename = os.path.splitext(aedtplt_files[0])[0] + "." + imageformat
-            plot.show(screenshot=filename , full_screen=True)
+            plot.show(screenshot=filename, full_screen=True)
             files_list.append(filename)
         else:
             plot.show()
@@ -822,25 +839,24 @@ class PostProcessor(Post):
 
     @aedt_exception_handler
     def _plot_from_aedtplt(
-            self,
-            aedtplt_files=None,
-            imageformat="jpg",
-            view="isometric",
-            plot_type="Full",
-            plot_label="Temperature",
-            model_color="#8faf8f",
-            show_model_edge=False,
-            off_screen=False,
-            scale_min=None,
-            scale_max=None,
-            show_axes=True,
-            show_grid=True,
-            show_legend=True,
-            background_color=[0.6, 0.6, 0.6],
-            windows_size=None,
-            object_selector=True,
-            export_path=None,
-
+        self,
+        aedtplt_files=None,
+        imageformat="jpg",
+        view="isometric",
+        plot_type="Full",
+        plot_label="Temperature",
+        model_color="#8faf8f",
+        show_model_edge=False,
+        off_screen=False,
+        scale_min=None,
+        scale_max=None,
+        show_axes=True,
+        show_grid=True,
+        show_legend=True,
+        background_color=[0.6, 0.6, 0.6],
+        windows_size=None,
+        object_selector=True,
+        export_path=None,
     ):
         """Export the 3D field solver mesh, fields, or both mesh and fields as images using Python Plotly.
 
@@ -893,24 +909,42 @@ class PostProcessor(Post):
         model_opacity = []
         materials = {}
         objects = []
-        self._read_mesh_files(aedtplt_files, model_color, lines, meshes, model_colors, model_opacity, materials,
-                              objects)
+        self._read_mesh_files(
+            aedtplt_files, model_color, lines, meshes, model_colors, model_opacity, materials, objects
+        )
         if lines:
             fields_exists = True
         else:
             fields_exists = False
-        self._add_model_meshes_to_plot(plot, meshes, model_colors, model_opacity, objects,
-                                       object_selector=object_selector,
-                                       show_model_edge=show_model_edge, fields_exists=fields_exists)
+        self._add_model_meshes_to_plot(
+            plot,
+            meshes,
+            model_colors,
+            model_opacity,
+            objects,
+            object_selector=object_selector,
+            show_model_edge=show_model_edge,
+            fields_exists=fields_exists,
+        )
         if lines:
             self._add_fields_to_plot(plot, plot_label, plot_type, scale_min, scale_max, off_screen, lines)
 
         end = time.time() - start
         self.logger.info("PyVista plot generation took {} seconds.".format(end))
         print(plot.background_color)
-        files_list = self._plot_on_pyvista(plot, meshes, model_color, materials, view, imageformat, aedtplt_files,
-                                           show_axes=show_axes, show_grid=show_grid, show_legend=show_legend,
-                                           export_path=export_path)
+        files_list = self._plot_on_pyvista(
+            plot,
+            meshes,
+            model_color,
+            materials,
+            view,
+            imageformat,
+            aedtplt_files,
+            show_axes=show_axes,
+            show_grid=show_grid,
+            show_legend=show_legend,
+            export_path=export_path,
+        )
 
         return files_list
 
@@ -1204,15 +1238,21 @@ class PostProcessor(Post):
         if not obj_list:
             obj_list = self._app.modeler.primitives.object_names
             if not air_objects:
-                obj_list = [i for i in obj_list if not self._app.modeler[i].is3d or (
-                        self._app.modeler[i].material_name.lower() != "vacuum" and self._app.modeler[
-                    i].material_name.lower() != "air")
-                            ]
+                obj_list = [
+                    i
+                    for i in obj_list
+                    if not self._app.modeler[i].is3d
+                    or (
+                        self._app.modeler[i].material_name.lower() != "vacuum"
+                        and self._app.modeler[i].material_name.lower() != "air"
+                    )
+                ]
         if export_as_single_objects:
             files_exported = []
             for el in obj_list:
-                fname = os.path.join(export_path,
-                                        "Model_{}_{}.obj".format(el, self._app.modeler[el].material_name.lower()))
+                fname = os.path.join(
+                    export_path, "Model_{}_{}.obj".format(el, self._app.modeler[el].material_name.lower())
+                )
                 self._app.modeler.oeditor.ExportModelMeshToFile(fname, [el])
                 files_exported.append(fname)
             return files_exported
@@ -1258,21 +1298,22 @@ class PostProcessor(Post):
         return None
 
     @aedt_exception_handler
-    def plot_model_obj(self,
-                       objects=None,
-                       export_afterplot=True,
-                       export_path=None,
-                       plot_separate_objects=True,
-                       air_objects=False,
-                       show_axes=True,
-                       show_grid=True,
-                       show_legend=True,
-                       background_color='white',
-                       object_selector=True,
-                       windows_size=None,
-                       off_screen=False,
-                       color=None,
-                       ):
+    def plot_model_obj(
+        self,
+        objects=None,
+        export_afterplot=True,
+        export_path=None,
+        plot_separate_objects=True,
+        air_objects=False,
+        show_axes=True,
+        show_grid=True,
+        show_legend=True,
+        background_color="white",
+        object_selector=True,
+        windows_size=None,
+        off_screen=False,
+        color=None,
+    ):
         """Plot the model or a substet of objects.
 
         Parameters
@@ -1311,9 +1352,9 @@ class PostProcessor(Post):
             List of plot files.
         """
         assert self._app._aedt_version >= "2021.2", self.logger.error("Object is supported from AEDT 2021 R2.")
-        files = self.export_model_obj(obj_list=objects,
-                                      export_as_single_objects=plot_separate_objects,
-                                      air_objects=air_objects)
+        files = self.export_model_obj(
+            obj_list=objects, export_as_single_objects=plot_separate_objects, air_objects=air_objects
+        )
         if export_afterplot:
             imageformat = "png"
         else:
