@@ -179,7 +179,7 @@ class ModelSelector():
 class ModelSelectorItem():
     pass
 
-class Model(Component):
+class Model():
         pass
 
 class Ibis():
@@ -241,239 +241,368 @@ class Ibis():
     def buffers(self, value):
         self._buffers = value
 
+class IbisReader():
 
-def read_project(fileName: str, circuit):
-    """Read .ibis file content."""
+    def read_project(self, filename: str, circuit):
+        """Reads *.ibis file content.
+        
+        Parameters
+        ----------
+        filename : str
+            Name of ibis model.
+        circuit : class:`pyaedt.circuit.Circuit`
+            Circuit in which the ibis components will be used.
 
-    if os.path.exists(fileName) == False:
-        error_message = fileName + "does not exist."
-        raise FileExistsError(error_message)
+        Returns
+        ----------
+        :class:`pyaedt.generic.Ibis`
+            Ibis object exposing all data from the ibis file.
+        """
 
-    ibis_name = pyaedt.generic.general_methods.get_filename_without_extension(fileName)
-    ibis = Ibis(ibis_name, circuit)
+        if os.path.exists(filename) == False:
+            error_message = filename + "does not exist."
+            raise FileExistsError(error_message)
 
-    # Read *.ibis file.
-    with open(fileName, 'r') as f:
-        while True:
-            current_line = f.readline()
-            if not current_line:
+        ibis_name = pyaedt.generic.general_methods.get_filename_without_extension(filename)
+        ibis = Ibis(ibis_name, circuit)
+
+        # Read *.ibis file.
+        with open(filename, 'r') as f:
+            while True:
+                current_line = f.readline()
+                if not current_line:
+                    break
+
+                if self.IsStartedWith(current_line, "[Component] ") == True:
+                    self.read_component(ibis, current_line, f)
+                elif self.IsStartedWith(current_line, "[Model] ") == True:
+                    self.read_model(ibis, current_line, f)
+                elif self.IsStartedWith(current_line, "[Model Selector] ") == True:
+                    self.read_model_selector(ibis, current_line, f)
+
+        buffers = []
+        for model_selector in ibis.model_selectors:
+            buffer = Buffer(ibis_name, model_selector.name, circuit)
+            buffers.append(buffer)
+
+        for model in ibis.models:
+            buffer = Buffer(ibis_name, model.name, circuit)
+            buffers.append(buffer)
+
+        ibis.buffers = buffers
+
+        if circuit:
+            args = ["NAME:Options", "Mode:=", 4, "Overwrite:=", False, "SupportsSimModels:=", False, "LoadOnly:=", False,]
+            arg_buffers = ["NAME:Buffers"]
+            for buffer in buffers:
+                arg_buffers.append(buffer.short_name+":=")
+                arg_buffers.append([True,"IbisSingleEnded"])
+
+            arg_components = ["NAME:Components"]
+            for component in ibis.components:
+                arg_component = ["NAME:"+component.name]
+                for pin in component.pins:
+                    arg_component.append(pin.short_name+":=")
+                    arg_component.append([True,False])
+                arg_components.append(arg_component)
+
+            args.append(arg_buffers)
+            args.append(arg_components)
+
+            circuit.modeler.schematic.o_component_manager.ImportModelsFromFile(filename,args)
+
+        return ibis
+
+
+    # Model
+    def read_model(self, ibis: Ibis, current_line: str, file: typing.TextIO):
+        """Extracts model's info.
+        
+        Parameters
+        ----------
+        ibis : :class:`pyaedt.generic.Ibis`
+            ibis object containing all info.
+        current_line : str
+            Current line content.
+        file : TextIO
+            File's stream.
+
+        """
+
+        if self.IsStartedWith(current_line, "[Model] ") != True:
+            return
+
+        model = Model()
+        model.name = current_line.split("]")[1].strip()
+        current_line = file.readline().replace("\t", "").strip()
+
+        while self.IsStartedWith(current_line, "Model_type") != True:
+            current_line = file.readline().replace("\t", "").strip()
+
+        iStart = current_line.index(" ", 1)
+
+        if iStart > 0:
+            model.ModelType = current_line[iStart:].strip()
+
+        # Clamp
+        while not current_line:
+            current_line = file.readline().strip.replace("clamp", "Clamp")
+
+            if self.IsStartedWith(current_line, "[GND Clamp]") == True:
+                model.Clamp = True
+                break
+            elif self.IsStartedWith(current_line, "[GND_Clamp]") == True:
+                model.Clamp = True
+                break
+            elif self.IsStartedWith(current_line, "Enable ", True) == True:
+                model.Enable = current_line[len("Enable") + 1:].strip()
+            elif self.IsStartedWith(current_line, "[Rising Waveform]") == True:
+                break
+            elif self.IsStartedWith(current_line, "[Ramp]") == True:
                 break
 
-            if IsStartedWith(current_line, "[Component] ") == True:
-                read_component(ibis, current_line, f)
-            elif IsStartedWith(current_line, "[Model] ") == True:
-                read_model(ibis, current_line, f)
-            elif IsStartedWith(current_line, "[Model Selector] ") == True:
-                read_model_selector(ibis, current_line, f)
-
-
-    buffers = []
-    for model_selector in ibis.model_selectors:
-        buffer = Buffer(ibis_name, model_selector.name, circuit)
-        buffers.append(buffer)
-
-    for model in ibis.models:
-        buffer = Buffer(ibis_name, model.name, circuit)
-        buffers.append(buffer)
-
-    ibis.buffers = buffers
-
-    if circuit:
-        args = ["NAME:Options", "Mode:=", 4, "Overwrite:=", False, "SupportsSimModels:=", False, "LoadOnly:=", False,]
-        arg_buffers = ["NAME:Buffers"]
-        for buffer in buffers:
-            arg_buffers.append(buffer.short_name+":=")
-            arg_buffers.append([True,"IbisSingleEnded"])
-
-        arg_components = ["NAME:Components"]
-        for component in ibis.components:
-            arg_component = ["NAME:"+component.name]
-            for pin in component.pins:
-                arg_component.append(pin.short_name+":=")
-                arg_component.append([True,False])
-            arg_components.append(arg_component)
-
-        args.append(arg_buffers)
-        args.append(arg_components)
-
-        circuit.modeler.schematic.o_component_manager.ImportModelsFromFile(fileName,args)
-
-    return ibis
-
-
-# Model
-def read_model(ibis: Ibis, current_line: str, f: typing.TextIO):
-
-    if IsStartedWith(current_line, "[Model] ") != True:
-        return
-
-    model = Model()
-    model.name = current_line.split("]")[1].strip()
-    current_line = f.readline().replace("\t", "").strip()
-
-    while IsStartedWith(current_line, "Model_type") != True:
-        current_line = f.readline().replace("\t", "").strip()
-
-    iStart = current_line.index(" ", 1)
-
-    if iStart > 0:
-        model.ModelType = current_line[iStart:].strip()
-
-    # Clamp
-    while not current_line:
-        current_line = f.readline().strip.replace("clamp", "Clamp")
-
-        if IsStartedWith(current_line, "[GND Clamp]") == True:
-            model.Clamp = True
-            break
-        elif IsStartedWith(current_line, "[GND_Clamp]") == True:
-            model.Clamp = True
-            break
-        elif IsStartedWith(current_line, "Enable ", True) == True:
-            model.Enable = current_line[len("Enable") + 1:].strip()
-        elif IsStartedWith(current_line, "[Rising Waveform]") == True:
-            break
-        elif IsStartedWith(current_line, "[Ramp]") == True:
-            break
-
-    ibis.models.append(model)
-
-# Model Selector
-def read_model_selector(ibis: Ibis, current_line: str, f: typing.TextIO):
-
-    if IsStartedWith(current_line, "[Model Selector] ") != True :
-        return
-
-    model_selector = ModelSelector()
-    model_selector.ModelSelectorItems = []
-    model_selector.name = current_line.split("]")[1].strip()
-
-    # while IsStartedWith(current_line, "|") == True:
-    #     current_line = f.readline()
-
-    current_line = f.readline()
+        ibis.models.append(model)
 
     # Model Selector
-    while (IsStartedWith(current_line, "|") is False and current_line.strip() != ""):
-        model_selector.ModelSelectorItems.append(make_model(current_line.strip()))
-        current_line = f.readline()
+    def read_model_selector(self, ibis: Ibis, current_line: str, file: typing.TextIO):
+        """Extracts model selector's info.
+        
+        Parameters
+        ----------
+        ibis : :class:`pyaedt.generic.Ibis`
+            ibis object containing all info.
+        current_line : str
+            Current line content.
+        file : TextIO
+            File's stream.
 
-    # ModelSelectorItem
-    #model_selector.FillModelReference(Models) @MAssimo: Is is it related to COM objecf.
-    ibis.model_selectors.append(model_selector)
+        """
 
-def make_model(current_line: str) -> ModelSelectorItem:
-    item = ModelSelectorItem()
-    i_start = current_line.index(" ", 1)
+        if self.IsStartedWith(current_line, "[Model Selector] ") != True :
+            return
 
-    if i_start > 0:
-        item.name = current_line[i_start:].strip()
-        item.Description = current_line[i_start:].strip()
+        model_selector = ModelSelector()
+        model_selector.ModelSelectorItems = []
+        model_selector.name = current_line.split("]")[1].strip()
 
-    return item
+        current_line = file.readline()
 
-# Component
-def read_component(ibis: Ibis, current_line: str, f: typing.TextIO):
+        # Model Selector
+        while (self.IsStartedWith(current_line, "|") is False and current_line.strip() != ""):
+            model_selector.ModelSelectorItems.append(self.make_model(current_line.strip()))
+            current_line = file.readline()
 
-    if IsStartedWith(current_line, "[Component] ") != True:
-        return
+        # ModelSelectorItem
+        ibis.model_selectors.append(model_selector)
 
-    component = Component()
-    component.name = get_component_name(current_line)
-    current_line = f.readline()
+    def make_model(self, current_line: str) -> ModelSelectorItem:
+        """Creates model object.
+        
+        Parameters
+        ----------
+        current_line : str
+            Current line content.
 
-    if IsStartedWith(current_line, "[Manufacturer]") == True:
-        component.manufacturer = current_line.replace("[Manufacturer]", "").strip()
+        Returns
+        -------
+        :class:`pyaedt.generic.ModelSelectorItem`
+            Model selector item.
 
-    # current_line = f.readline()
+        """
 
-    while True:
-        current_line = f.readline()
-        if IsStartedWith(current_line, "[Package]") == True:
-            break
+        item = ModelSelectorItem()
+        i_start = current_line.index(" ", 1)
 
-    fill_package_info(component, current_line, f)
+        if i_start > 0:
+            item.name = current_line[i_start:].strip()
+            item.Description = current_line[i_start:].strip()
 
-    # [pin]
-    while IsStartedWith(current_line, "[Pin] ") != True:
-        current_line = f.readline()
+        return item
 
-    # current_line = f.readline()
+    # Component
+    def read_component(self, ibis: Ibis, current_line: str, file: typing.TextIO):
+        """Extracts component's info.
+        
+        Parameters
+        ----------
+        ibis : :class:`pyaedt.generic.Ibis`
+            ibis object containing all info.
+        current_line : str
+            Current line content.
+        file : TextIO
+            File's stream.
 
-    while True:
-        current_line = f.readline()
-        if IsStartedWith(current_line, "|") == True:
-            break
+        """
 
-    current_line = f.readline()
+        if self.IsStartedWith(current_line, "[Component] ") != True:
+            return
 
-    while IsStartedWith(current_line, "|") == False:
-        component.pins.append(make_pin_object(current_line, component.name, ibis))
-        current_line = f.readline()
-        if current_line == "":
-            break
+        component = Component()
+        component.name = self.get_component_name(current_line)
+        current_line = file.readline()
 
-    ibis.components.append(component)
+        if self.IsStartedWith(current_line, "[Manufacturer]") == True:
+            component.manufacturer = current_line.replace("[Manufacturer]", "").strip()
 
-def fill_package_info(component: Component, current_line: str, f: typing.TextIO):
-    while IsStartedWith(current_line, "|") == True or IsStartedWith(current_line, "[") == True:
-        current_line = f.readline()
+        while True:
+            current_line = file.readline()
+            if self.IsStartedWith(current_line, "[Package]") == True:
+                break
 
-    if IsStartedWith(current_line, "R_pkg") == True:
-        component.R_pkg = current_line.strip()
-        current_line = f.readline()
-    elif IsStartedWith(current_line, "L_pkg") == True:
-        component.L_pkg = current_line.strip()
-        current_line = f.readline()
-    elif IsStartedWith(current_line, "C_pkg") == True:
-        component.C_pkg = current_line.strip()
+        self.fill_package_info(component, current_line, file)
 
-def get_component_name(line: str) -> str:
-    name = ""
-    name = line.replace("[Component]", "")
-    return name.strip()
+        # [pin]
+        while self.IsStartedWith(current_line, "[Pin] ") != True:
+            current_line = file.readline()
 
-# Pin
-def make_pin_object(line: str, component_name: str, ibis: Ibis) -> Pin:
+        while True:
+            current_line = file.readline()
+            if self.IsStartedWith(current_line, "|") == True:
+                break
 
-    current_string = ""
+        current_line = file.readline()
 
-    current_string = line.strip().replace("\t", " ")
-    pin_name = get_first_parameter(current_string)
-    pin = Pin(pin_name + "_" + component_name + "_" + ibis.name, ibis.circuit)
-    pin.short_name = pin_name
-    current_string = current_string[len(pin.name) + 1:].strip()
-    pin.signal = get_first_parameter(current_string)
+        while self.IsStartedWith(current_line, "|") == False:
+            component.pins.append(self.make_pin_object(current_line, component.name, ibis))
+            current_line = file.readline()
+            if current_line == "":
+                break
 
-    current_string = current_string[len(pin.signal) + 1:].strip()
-    pin.model = get_first_parameter(current_string)
+        ibis.components.append(component)
 
-    current_string = current_string[len(pin.model) + 1:].strip()
-    pin.r_value = get_first_parameter(current_string)
+    def fill_package_info(self, component: Component, current_line: str, file: typing.TextIO):
+        """Extracts model's info.
+        
+        Parameters
+        ----------
+        component : :class:`pyaedt.generic.Component`
+            Current line content.
+        current_line : str
+            Current line content.
+        file : TextIO
+            File's stream.
 
-    current_string = current_string[len(pin.r_value) + 1:].strip()
-    pin.l_value = get_first_parameter(current_string)
+        """
+        while self.IsStartedWith(current_line, "|") == True or self.IsStartedWith(current_line, "[") == True:
+            current_line = file.readline()
 
-    current_string = current_string[len(pin.l_value) + 1:].strip()
-    pin.c_value = get_first_parameter(current_string)
+        if self.IsStartedWith(current_line, "R_pkg") == True:
+            component.R_pkg = current_line.strip()
+            current_line = file.readline()
+        elif self.IsStartedWith(current_line, "L_pkg") == True:
+            component.L_pkg = current_line.strip()
+            current_line = file.readline()
+        elif self.IsStartedWith(current_line, "C_pkg") == True:
+            component.C_pkg = current_line.strip()
 
-    return pin
+    def get_component_name(self, line: str) -> str:
+        """Gets the name of the components.
+        
+        Parameters
+        ----------
+        line : str
+            Current line content.
 
-def get_first_parameter(line: str) -> str:
-    if line == "":
-        return ""
+        Returns
+        ----------
+        str
+            Name of the component.
 
-    data = line.split(" ")
-    return data[0].strip()
+        """
+        name = ""
+        name = line.replace("[Component]", "")
+        return name.strip()
 
-def IsStartedWith(src: str, find: str, ignore_case: bool=True) -> bool:
-    if ignore_case == True:
-        if src[:len(find)].lower() == find.lower():
-            return True
+    # Pin
+    def make_pin_object(self, line: str, component_name: str, ibis: Ibis) -> Pin:
+        """Extracts model's info.
+        
+        Parameters
+        ----------
+        line : str
+            Current line content.
+        component_name : str
+            Name of the component.
+        ibis : :class:`pyaedt.generic.Ibis`
+            ibis object containing all info.
+
+        Returns
+        ----------
+        :class:`pyaedt.generic.Pin`
+            Pin object.
+
+        """
+
+        current_string = ""
+
+        current_string = line.strip().replace("\t", " ")
+        pin_name = self.get_first_parameter(current_string)
+        pin = Pin(pin_name + "_" + component_name + "_" + ibis.name, ibis.circuit)
+        pin.short_name = pin_name
+        current_string = current_string[len(pin.name) + 1:].strip()
+        pin.signal = self.get_first_parameter(current_string)
+
+        current_string = current_string[len(pin.signal) + 1:].strip()
+        pin.model = self.get_first_parameter(current_string)
+
+        current_string = current_string[len(pin.model) + 1:].strip()
+        pin.r_value = self.get_first_parameter(current_string)
+
+        current_string = current_string[len(pin.r_value) + 1:].strip()
+        pin.l_value = self.get_first_parameter(current_string)
+
+        current_string = current_string[len(pin.l_value) + 1:].strip()
+        pin.c_value = self.get_first_parameter(current_string)
+
+        return pin
+
+    def get_first_parameter(self, line: str) -> str:
+        """Gets first parameter string value.
+        
+        Parameters
+        ----------
+        line : str
+            Current line content.
+
+        Returns
+        ----------
+        str
+            First info from extracted from the current line.
+
+        """
+
+        if line == "":
+            return ""
+
+        data = line.split(" ")
+        return data[0].strip()
+
+    def IsStartedWith(self, src: str, find: str, ignore_case: bool=True) -> bool:
+        """Verifies if a string content starts with a specific string or not.
+        
+        Parameters
+        ----------
+        src : str
+            Current line content.
+        find : str
+            Current line content.
+        ignore_case : bool, optional
+            Case sensitive or not. The default value is `True`.
+
+        Returns
+        ----------
+        bool
+            `True` if the src string starts with the pattern.
+
+        """
+    
+        if ignore_case == True:
+            if src[:len(find)].lower() == find.lower():
+                return True
+            else:
+                return False
         else:
-            return False
-    else:
-        if src[:len(find)] == find:
-            return True
-        else:
-            return False
+            if src[:len(find)] == find:
+                return True
+            else:
+                return False
