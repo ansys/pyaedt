@@ -427,16 +427,15 @@ class PostProcessor(Post):
                     plot.remove_actor("Volumes")
                 except:
                     pass
-                for m, c in zip(meshes, model_colors):
-                    mesh(
-                        m,
-                        show_scalar_bar=False,
-                        opacity=opacity,
-                        cmap=[c],
-                        name="3D Model",
-                        show_edges=show_model_edge,
-                        edge_color=c,
-                    )
+                mesh(
+                    meshes[0],
+                    show_scalar_bar=False,
+                    opacity=opacity,
+                    color=model_colors[0],
+                    name="3D Model",
+                    show_edges=show_model_edge,
+                    edge_color=model_colors[0],
+                )
 
             plot.add_slider_widget(
                 _create_object_mesh,
@@ -1264,6 +1263,7 @@ class PostProcessor(Post):
                        object_selector=True,
                        windows_size=None,
                        off_screen=False,
+                       color=None,
                        ):
         """Plot the model or a substet of objects.
 
@@ -1292,6 +1292,8 @@ class PostProcessor(Post):
             Windows Plot size.
         off_screen : bool
             Off Screen plot
+        color : str, list
+            Color of the object. Can be color name or list of RGB. If None automatic color.
 
         Returns
         -------
@@ -1311,7 +1313,7 @@ class PostProcessor(Post):
             files,
             imageformat=imageformat,
             plot_label="3D Model",
-            model_color=None,
+            model_color=color,
             show_model_edge=False,
             off_screen=off_screen,
             show_axes=show_axes,
@@ -1319,7 +1321,7 @@ class PostProcessor(Post):
             show_legend=show_legend,
             background_color=background_color,
             windows_size=windows_size,
-            object_selector = object_selector
+            object_selector=object_selector,
         )
         return file_list
 

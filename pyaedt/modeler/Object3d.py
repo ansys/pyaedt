@@ -20,6 +20,7 @@ from pyaedt import aedt_exception_handler, _retry_ntimes
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.constants import AEDT_UNITS, MILS2METER
+from pyaedt.generic.general_methods import is_ironpython
 
 clamp = lambda n, minn, maxn: max(min(maxn, n), minn)
 
@@ -767,6 +768,18 @@ class Object3d(object):
     def _odesign(self):
         """Design."""
         return self._primitives._modeler._app._odesign
+
+    @aedt_exception_handler
+    def plot(self):
+        if not is_ironpython:
+            self._primitives._app.post.plot_model_obj(objects=[self.name],
+                                                      export_afterplot=False,
+                                                      plot_separate_objects=True,
+                                                      air_objects=True,
+                                                      background_color="grey",
+                                                      object_selector=False,
+                                                      color="dodgerblue"
+                                                      )
 
     @property
     def faces(self):
