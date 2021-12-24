@@ -1,15 +1,18 @@
 # Configuration file for the Sphinx_PyAEDT documentation builder.
 
 # -- Project information -----------------------------------------------------
-import sys
+import datetime
 import os
 import pathlib
+import sys
 import warnings
+
 
 import pyvista
 import numpy as np
 import json
 from sphinx_gallery.sorting import FileNameSortKey
+from pyansys_sphinx_theme import pyansys_logo_black
 
 
 local_path = os.path.dirname(os.path.realpath(__file__))
@@ -20,7 +23,7 @@ sys.path.append(os.path.join(root_path))
 
 sys.path.append(os.path.join(root_path))
 project = "PyAEDT"
-copyright = "(c) 2021 ANSYS, Inc. All rights reserved"
+copyright = f"(c) {datetime.datetime.now().year} ANSYS, Inc. All rights reserved"
 author = "Ansys Inc."
 
 # Check for the local config file, otherwise use default desktop configuration
@@ -207,7 +210,7 @@ if os.name != "posix" and "PYAEDT_CI_NO_EXAMPLES" not in os.environ:
 # -- Options for HTML output -------------------------------------------------
 html_show_sourcelink = True
 html_theme = "pyansys_sphinx_theme"
-html_logo = "https://docs.pyansys.com/_static/pyansys-logo-black-cropped.png"
+html_logo = pyansys_logo_black
 
 html_theme_options = {
     "github_url": "https://github.com/pyansys/PyAEDT",
