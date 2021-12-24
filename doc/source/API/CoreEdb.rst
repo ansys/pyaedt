@@ -29,7 +29,6 @@ information to AEDB files.
 
 .. autosummary::
    :toctree: _autosummary
-   :template: custom-class-template.rst
    :nosignatures:
 
    components.Components
@@ -63,7 +62,6 @@ Those classes are the container of Data read from edb file.
 
 .. autosummary::
    :toctree: _autosummary
-   :template: custom-class-template.rst
    :nosignatures:
 
    EDB_Data.EDBLayer

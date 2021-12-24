@@ -33,7 +33,6 @@ design and project variables in the 3D tools.
 
 .. autosummary::
    :toctree: _autosummary
-   :template: custom-class-template.rst
    :nosignatures:
 
    CSVDataset
@@ -81,7 +80,6 @@ optimetrics setups.
 
 .. autosummary::
    :toctree: _autosummary
-   :template: custom-class-template.rst
    :nosignatures:
 
    DXSetups
@@ -102,7 +100,6 @@ and designs.
 
 .. autosummary::
    :toctree: _autosummary
-   :template: custom-class-template.rst
    :nosignatures:
 
    DesignCache
