@@ -1220,7 +1220,7 @@ class PostProcessor(Post):
         obj_list : list, optional
             List of objects to export. Export every model object except 3D ones, vacuum and air objects.
         export_path : str, optional
-            Full path to the export obj file.
+            Full path of the exported obj file.
         export_as_single_objects : bool, optional
             Define if the model will be exported as single obj or list of objs for each object.
         air_objects : bool, optional
