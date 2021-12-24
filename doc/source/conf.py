@@ -7,7 +7,6 @@ import pathlib
 import sys
 import warnings
 
-
 import pyvista
 import numpy as np
 import json
