@@ -14,7 +14,7 @@ class TestClass:
         assert ibis_components[1].name == "MT47H64M4BP_CLP-3_25"
         assert ibis_components[2].name == "MT47H32M8BP-3_25"
         assert ibis_components[5].name == "MT47H16M16BG_CLP-3_25"
-        
+
         ibis_models = ibis.models
         assert len(ibis_models) == 17
         assert ibis_models[0].name == 'DQ_FULL_800'
