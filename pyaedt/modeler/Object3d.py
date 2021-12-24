@@ -798,7 +798,7 @@ class Object3d(object):
 
         Parameters
         ----------
-        file_path : str
+        file_path : str, optional
             File name with full path. If `None` Project directory will be used.
 
         Returns
