@@ -1,11 +1,12 @@
 import os
-from pyaedt.generic import ibs_reader
+from pyaedt.generic import ibis_reader
 
 
 class TestClass:
 
     def test_01_read_ibis(self):
-        ibis = ibs_reader.read_project(os.path.join(os.getcwd(), "_unittest", "example_models", "u26a_800_modified.ibs" ))
+        reader = ibis_reader.IbisReader()
+        ibis = reader.read_project(os.path.join(os.getcwd(), "_unittest", "example_models", "u26a_800_modified.ibs" ))
 
         ibis_components = ibis.components
         assert len(ibis_components) == 6
