@@ -1223,7 +1223,7 @@ class PostProcessor(Post):
             Full path to the export obj file.
         export_as_single_objects : bool, optional
             Define if the model will be exported as single obj or list of objs for each object.
-        air_objects : bool
+        air_objects : bool, optional
             Define if air and vacuum objects will be exported.
 
         Returns
