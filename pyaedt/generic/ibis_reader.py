@@ -222,7 +222,6 @@ class Buffer:
 
 
 class ModelSelector:
-
     def __init__(self):
         self._model_selector_items = []
         self._name = None
