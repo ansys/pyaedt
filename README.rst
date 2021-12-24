@@ -1,6 +1,6 @@
 Introduction
 ------------
-PyAEDT is part of the larger `PyANSYS <https://docs.pyansys.com>`_
+PyAEDT is part of the larger `PyAnsys <https://docs.pyansys.com>`_
 effort to facilitate the use of Ansys technologies directly from Python.
 
 PyAEDT is intended to consolidate and extend all existing
