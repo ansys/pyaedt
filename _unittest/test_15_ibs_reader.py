@@ -16,11 +16,11 @@ class TestClass:
         reader = ibis_reader.IbisReader()
         if is_ironpython:
             ibis = reader.read_project(
-                os.path.join(os.getcwd(), "..", "_unittest", "example_models", "u26a_800_modified.ibs"), aedtapp
+                os.path.join(os.getcwd(), "..", "_unittest", "example_models", "u26a_800_modified.ibs"), self.aedtapp
             )
         else:
             ibis = reader.read_project(
-                os.path.join(os.getcwd(), "_unittest", "example_models", "u26a_800_modified.ibs"), aedtapp
+                os.path.join(os.getcwd(), "_unittest", "example_models", "u26a_800_modified.ibs"), self.aedtapp
             )
 
         ibis_components = ibis.components

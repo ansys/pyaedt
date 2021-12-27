@@ -23,11 +23,13 @@ jobs:
       - name: 'Run Unit Tests in Ironpython'
         timeout-minutes: 20
         run: |
-          $process = start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmode.cmd' -PassThru
+          $process = start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmode.cmd' -PassThru 2>stderr.txt
 
           $process.WaitForExit()
 
-          Write-Output $ExitCode
+          $err = get-content stderr.txt
+
+          Write-Output $err
 
           get-content .\_unittest_ironpython\runner_unittest.log
 
