@@ -375,7 +375,7 @@ class Ibis:
 
 
 class IbisReader:
-    def read_project(self, filename: str, circuit):
+    def read_project(self, filename, circuit):
         """Reads *.ibis file content.
 
         Parameters
@@ -456,7 +456,7 @@ class IbisReader:
         return ibis
 
     # Model
-    def read_model(self, ibis: Ibis, current_line: str, file: typing.TextIO):
+    def read_model(self, ibis, current_line, file):
         """Extracts model's info.
 
         Parameters
@@ -505,7 +505,7 @@ class IbisReader:
         ibis.models.append(model)
 
     # Model Selector
-    def read_model_selector(self, ibis: Ibis, current_line: str, file: typing.TextIO):
+    def read_model_selector(self, ibis, current_line, file):
         """Extracts model selector's info.
 
         Parameters
@@ -536,7 +536,7 @@ class IbisReader:
         # ModelSelectorItem
         ibis.model_selectors.append(model_selector)
 
-    def make_model(self, current_line: str) -> ModelSelectorItem:
+    def make_model(self, current_line):
         """Creates model object.
 
         Parameters
@@ -561,7 +561,7 @@ class IbisReader:
         return item
 
     # Component
-    def read_component(self, ibis: Ibis, current_line: str, file: typing.TextIO):
+    def read_component(self, ibis, current_line, file):
         """Extracts component's info.
 
         Parameters
@@ -612,7 +612,7 @@ class IbisReader:
 
         ibis.components[component.name] = component
 
-    def fill_package_info(self, component: Component, current_line: str, file: typing.TextIO):
+    def fill_package_info(self, component, current_line, file):
         """Extracts model's info.
 
         Parameters
@@ -637,7 +637,7 @@ class IbisReader:
         elif self.IsStartedWith(current_line, "C_pkg") == True:
             component.C_pkg = current_line.strip()
 
-    def get_component_name(self, line: str) -> str:
+    def get_component_name(self, line):
         """Gets the name of the component.
 
         Parameters
@@ -656,7 +656,7 @@ class IbisReader:
         return name.strip()
 
     # Pin
-    def make_pin_object(self, line: str, component_name: str, ibis: Ibis) -> Pin:
+    def make_pin_object(self, line, component_name, ibis):
         """Extracts model's info.
 
         Parameters
@@ -698,7 +698,7 @@ class IbisReader:
 
         return pin
 
-    def get_first_parameter(self, line: str) -> str:
+    def get_first_parameter(self, line):
         """Gets first parameter string value.
 
         Parameters
@@ -719,7 +719,7 @@ class IbisReader:
         data = line.split(" ")
         return data[0].strip()
 
-    def IsStartedWith(self, src: str, find: str, ignore_case: bool = True) -> bool:
+    def IsStartedWith(self, src, find, ignore_case=True):
         """Verifies if a string content starts with a specific string or not.
 
         Parameters
