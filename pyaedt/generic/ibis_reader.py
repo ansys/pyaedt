@@ -392,7 +392,7 @@ class IbisReader:
         """
 
         if os.path.exists(filename) == False:
-            error_message = filename + "does not exist."
+            error_message = filename + " does not exist."
             raise FileExistsError(error_message)
 
         ibis_name = pyaedt.generic.general_methods.get_filename_without_extension(filename)
@@ -734,7 +734,7 @@ class IbisReader:
         Returns
         -------
         bool
-            ``True`` if the src string starts with the patern.
+            ``True`` if the src string starts with the pattern.
 
         """
 
