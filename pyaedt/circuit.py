@@ -376,9 +376,10 @@ class Circuit(FieldAnalysisCircuit, object):
             Ibis object exposing all data from the ibis file.
         """
 
-        reader = ibis_reader.IbisReader()
-        ibis = reader.read_project(path, self)
-        return ibis
+        # reader = ibis_reader.IbisReader()
+        # ibis = reader.read_project(path, self)
+        # return ibis
+        pass
 
     @aedt_exception_handler
     def create_schematic_from_mentor_netlist(self, file_to_import):
