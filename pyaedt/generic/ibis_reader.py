@@ -1,5 +1,4 @@
 import os
-import typing
 
 import pyaedt
 import pyaedt.generic
