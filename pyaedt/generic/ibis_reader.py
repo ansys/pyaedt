@@ -463,7 +463,7 @@ class IbisReader:
             ibis object containing all info.
         current_line : str
             Current line content.
-        file : TextIO
+        file : str
             File's stream.
 
         """
@@ -512,7 +512,7 @@ class IbisReader:
             ibis object containing all info.
         current_line : str
             Current line content.
-        file : TextIO
+        file : str
             File's stream.
 
         """
@@ -568,7 +568,7 @@ class IbisReader:
             ibis object containing all info.
         current_line : str
             Current line content.
-        file : TextIO
+        file : str
             File's stream.
 
         """
@@ -619,7 +619,7 @@ class IbisReader:
             Current line content.
         current_line : str
             Current line content.
-        file : TextIO
+        file : str
             File's stream.
 
         """
