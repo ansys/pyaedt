@@ -15,7 +15,9 @@ class TestClass:
     def test_01_read_ibis(self):
         reader = ibis_reader.IbisReader()
         print(os.getcwd())
-        ibis = reader.read_project(os.path.join(os.getcwd(), "_unittest", "example_models", "u26a_800_modified.ibs"), aedtapp)
+        ibis = reader.read_project(
+            os.path.join(os.getcwd(), "_unittest", "example_models", "u26a_800_modified.ibs"), aedtapp
+        )
 
         ibis_components = ibis.components
         assert len(ibis_components) == 6
