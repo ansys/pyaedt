@@ -9,6 +9,7 @@ from pyaedt.generic import constants
 from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, _retry_ntimes
 from pyaedt.generic.general_methods import is_ironpython, _pythonver, inside_desktop, convert_remote_object
 from pyaedt.aedt_logger import AedtLogger
+from pyaedt.generic import ibis_reader
 try:
     from pyaedt.generic.design_types import Hfss3dLayout
 except:
