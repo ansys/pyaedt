@@ -660,7 +660,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         freqstop,
         num_of_freq_points,
         sweepname=None,
-        sweeptype="interpolating",
+        sweeptype="Interpolating",
         interpolation_tol_percent=0.5,
         interpolation_max_solutions=250,
         save_fields=True,
