@@ -14,7 +14,6 @@ class TestClass:
 
     def test_01_read_ibis(self):
         reader = ibis_reader.IbisReader()
-        print(os.getcwd())
         if is_ironpython:
             ibis = reader.read_project(
                 os.path.join(os.getcwd(), "..", "_unittest", "example_models", "u26a_800_modified.ibs"), aedtapp

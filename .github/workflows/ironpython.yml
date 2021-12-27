@@ -27,6 +27,8 @@ jobs:
 
           $process.WaitForExit()
 
+          Write-Output $ExitCode
+
           get-content .\_unittest_ironpython\runner_unittest.log
 
           $test_errors_failures = Select-String -Path .\_unittest_ironpython\runner_unittest.log -Pattern "errors=0 failures=0"
