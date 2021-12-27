@@ -385,7 +385,7 @@ class IbisReader:
 
         Returns
         ----------
-        :class:`pyaedt.generic.Ibis`
+        :class:`pyaedt.generic.ibis_reader.Ibis`
             Ibis object exposing all data from the ibis file.
         """
 
@@ -459,7 +459,7 @@ class IbisReader:
 
         Parameters
         ----------
-        ibis : :class:`pyaedt.generic.Ibis`
+        ibis : :class:`pyaedt.generic.ibis_reader.Ibis`
             ibis object containing all info.
         current_line : str
             Current line content.
@@ -508,7 +508,7 @@ class IbisReader:
 
         Parameters
         ----------
-        ibis : :class:`pyaedt.generic.Ibis`
+        ibis : :class:`pyaedt.generic.ibis_reader.Ibis`
             ibis object containing all info.
         current_line : str
             Current line content.
@@ -544,7 +544,7 @@ class IbisReader:
 
         Returns
         -------
-        :class:`pyaedt.generic.ModelSelectorItem`
+        :class:`pyaedt.generic.ibis_reader.ModelSelectorItem`
             Model selector item.
 
         """
@@ -564,7 +564,7 @@ class IbisReader:
 
         Parameters
         ----------
-        ibis : :class:`pyaedt.generic.Ibis`
+        ibis : :class:`pyaedt.generic.ibis_reader.Ibis`
             ibis object containing all info.
         current_line : str
             Current line content.
@@ -615,7 +615,7 @@ class IbisReader:
 
         Parameters
         ----------
-        component : :class:`pyaedt.generic.Component`
+        component : :class:`pyaedt.generic.ibis_reader.Component`
             Current line content.
         current_line : str
             Current line content.
@@ -663,12 +663,12 @@ class IbisReader:
             Current line content.
         component_name : str
             Name of the component.
-        ibis : :class:`pyaedt.generic.Ibis`
+        ibis : :class:`pyaedt.generic.ibis_reader.Ibis`
             ibis object containing all info.
 
         Returns
         -------
-        :class:`pyaedt.generic.Pin`
+        :class:`pyaedt.generic.ibis_reader.Pin`
             Pin object.
 
         """

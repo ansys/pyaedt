@@ -372,7 +372,7 @@ class Circuit(FieldAnalysisCircuit, object):
 
         Returns
         ----------
-        :class:`pyaedt.generic.Ibis`
+        :class:`pyaedt.generic.ibis_reader.Ibis`
             Ibis object exposing all data from the ibis file.
         """
 
