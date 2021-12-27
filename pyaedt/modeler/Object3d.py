@@ -20,6 +20,7 @@ from pyaedt import aedt_exception_handler, _retry_ntimes
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.constants import AEDT_UNITS, MILS2METER
+from pyaedt.generic.general_methods import is_ironpython
 
 clamp = lambda n, minn, maxn: max(min(maxn, n), minn)
 
@@ -767,6 +768,59 @@ class Object3d(object):
     def _odesign(self):
         """Design."""
         return self._primitives._modeler._app._odesign
+
+    @aedt_exception_handler
+    def plot(self):
+        """Plot model with PyVista.
+
+        .. note::
+        Works from AEDT 2021.2 in CPython only. PyVista has to be installed.
+        """
+        if not is_ironpython and self._primitives._appp._aedt_version >= "2021.2":
+            self._primitives._app.post.plot_model_obj(
+                objects=[self.name],
+                export_afterplot=False,
+                plot_separate_objects=True,
+                air_objects=True,
+                background_color="grey",
+                object_selector=False,
+                color="dodgerblue",
+                off_screen=False,
+            )
+
+    @aedt_exception_handler
+    def export_image(self, file_path=None):
+
+        """Export the model to path.
+
+        .. note::
+        Works from AEDT 2021.2 in CPython only. PyVista has to be installed.
+
+        Parameters
+        ----------
+        file_path : str, optional
+            File name with full path. If `None` Project directory will be used.
+
+        Returns
+        -------
+        str
+            File path.
+        """
+        if not is_ironpython and self._primitives._appp._aedt_version >= "2021.2":
+            files = self._primitives._app.post.plot_model_obj(
+                objects=[self.name],
+                export_afterplot=True,
+                export_path=file_path,
+                plot_separate_objects=True,
+                air_objects=True,
+                background_color="grey",
+                object_selector=False,
+                color="dodgerblue",
+                off_screen=True,
+            )
+            if files:
+                return files[0]
+        return False
 
     @property
     def faces(self):
