@@ -85,7 +85,7 @@ print("Created object with id {} and name {}.".format(P.id, prim3D.objects[P.id]
 ###############################################################################
 # Create a Spline Primitive
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
-# Here the segement is defined using a `PolylineSegment` object. This allows
+# Here the segment is defined using a `PolylineSegment` object. This allows
 # you to prove additional input parameters to define the spine, such as the
 # number of points (in this case 4). The parameter ``position_list``
 # must contain at least four position values.
