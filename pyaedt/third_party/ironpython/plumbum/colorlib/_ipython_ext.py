@@ -22,9 +22,7 @@ class OutputMagics(Magics):  # pragma: no cover
     @cell_magic
     def to(self, line, cell, local_ns=None):
         choice = line.strip()
-        assert choice in valid_choices, "Valid choices for '%%to' are: " + str(
-            valid_choices
-        )
+        assert choice in valid_choices, "Valid choices for '%%to' are: " + str(valid_choices)
         display_fn = getattr(IPython.display, "display_" + choice)
 
         "Captures stdout and renders it in the notebook with some ."

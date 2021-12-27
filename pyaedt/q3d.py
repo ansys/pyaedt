@@ -10,6 +10,7 @@ from pyaedt.generic.DataHandlers import _dict2arg
 import os
 import warnings
 
+
 class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
     """Extracts a 2D or 3D field analysis.
 
@@ -31,17 +32,17 @@ class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
         return design_file
 
     def __init__(
-            self,
-            Q3DType,
-            projectname=None,
-            designname=None,
-            solution_type=None,
-            setup_name=None,
-            specified_version=None,
-            non_graphical=False,
-            new_desktop_session=False,
-            close_on_exit=False,
-            student_version=False,
+        self,
+        Q3DType,
+        projectname=None,
+        designname=None,
+        solution_type=None,
+        setup_name=None,
+        specified_version=None,
+        non_graphical=False,
+        new_desktop_session=False,
+        close_on_exit=False,
+        student_version=False,
     ):
         if Q3DType == "Q3D Extractor":
             FieldAnalysis3D.__init__(
@@ -74,6 +75,7 @@ class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
 
     def __enter__(self):
         return self
+
 
 class Q3d(QExtractor, object):
     """Provides the Q3D application interface.
@@ -128,16 +130,16 @@ class Q3d(QExtractor, object):
     """
 
     def __init__(
-            self,
-            projectname=None,
-            designname=None,
-            solution_type=None,
-            setup_name=None,
-            specified_version=None,
-            non_graphical=False,
-            new_desktop_session=False,
-            close_on_exit=False,
-            student_version=False,
+        self,
+        projectname=None,
+        designname=None,
+        solution_type=None,
+        setup_name=None,
+        specified_version=None,
+        non_graphical=False,
+        new_desktop_session=False,
+        close_on_exit=False,
+        student_version=False,
     ):
         QExtractor.__init__(
             self,
@@ -381,8 +383,7 @@ class Q3d(QExtractor, object):
                 setupdata = i
                 for sw in setupdata.sweeps:
                     if sweepname == sw.name:
-                        self.logger.warning(
-                            "Sweep %s is already present. Rename and retry.", sweepname)
+                        self.logger.warning("Sweep %s is already present. Rename and retry.", sweepname)
                         return False
                 sweepdata = setupdata.add_sweep(sweepname, "Discrete")
                 sweepdata.props["RangeStart"] = str(freqstart) + "GHz"
@@ -404,7 +405,7 @@ class Q3d(QExtractor, object):
 
     @aedt_exception_handler
     def create_discrete_sweep(
-            self, setupname, freqstart, freqstop=None, freqstep=None, units="GHz", sweepname=None, savefields=False
+        self, setupname, freqstart, freqstop=None, freqstep=None, units="GHz", sweepname=None, savefields=False
     ):
         """Create a discrete sweep with a single frequency value.
 
@@ -448,8 +449,7 @@ class Q3d(QExtractor, object):
                 setupdata = i
                 for sw in setupdata.sweeps:
                     if sweepname == sw.name:
-                        self.logger.warning(
-                            "Sweep %s already present. Please rename and retry", sweepname)
+                        self.logger.warning("Sweep %s already present. Please rename and retry", sweepname)
                         return False
                 sweepdata = setupdata.add_sweep(sweepname, "Discrete")
                 sweepdata.props["RangeStart"] = str(freqstart) + "GHz"
@@ -540,16 +540,16 @@ class Q2d(QExtractor, object):
         return self.modeler.dimension
 
     def __init__(
-            self,
-            projectname=None,
-            designname=None,
-            solution_type=None,
-            setup_name=None,
-            specified_version=None,
-            non_graphical=False,
-            new_desktop_session=False,
-            close_on_exit=False,
-            student_version=False,
+        self,
+        projectname=None,
+        designname=None,
+        solution_type=None,
+        setup_name=None,
+        specified_version=None,
+        non_graphical=False,
+        new_desktop_session=False,
+        close_on_exit=False,
+        student_version=False,
     ):
         QExtractor.__init__(
             self,
@@ -591,8 +591,9 @@ class Q2d(QExtractor, object):
 
         >>> oEditor.CreateRectangle
         """
-        return self.modeler.primitives.create_rectangle(position, dimension_list=dimension_list, name=name,
-                                                        matname=matname)
+        return self.modeler.primitives.create_rectangle(
+            position, dimension_list=dimension_list, name=name, matname=matname
+        )
 
     def assign_single_signal_line(self, target_objects, name="", solve_option="SolveInside", thickness=None, unit="um"):
         """Assign conductor type to sheets.
@@ -620,13 +621,20 @@ class Q2d(QExtractor, object):
         >>> oModule.AssignSingleReferenceGround
         """
 
-        warnings.warn('`assign_single_signal_line` is deprecated. Use `assign_single_conductor` instead.',
-                      DeprecationWarning)
-        self.assign_single_conductor(target_objects, name, "SignalLine", solve_option,
-                                thickness, unit)
+        warnings.warn(
+            "`assign_single_signal_line` is deprecated. Use `assign_single_conductor` instead.", DeprecationWarning
+        )
+        self.assign_single_conductor(target_objects, name, "SignalLine", solve_option, thickness, unit)
 
-    def assign_single_conductor(self, target_objects, name="", conductor_type="SignalLine", solve_option="SolveInside",
-                                thickness=None, unit="um"):
+    def assign_single_conductor(
+        self,
+        target_objects,
+        name="",
+        conductor_type="SignalLine",
+        solve_option="SolveInside",
+        thickness=None,
+        unit="um",
+    ):
         """
         Assign conductor type to sheets.
 
@@ -677,11 +685,7 @@ class Q2d(QExtractor, object):
                 t_list.append(t_obj.faces[0].area / perimeter)
             thickness = sum(t_list) / len(t_list)
 
-        props = OrderedDict({"Objects": obj_names,
-                             "SolveOption": solve_option,
-                             "Thickness": str(thickness) + unit
-                             }
-                            )
+        props = OrderedDict({"Objects": obj_names, "SolveOption": solve_option, "Thickness": str(thickness) + unit})
 
         arg = ["NAME:" + name]
         _dict2arg(props, arg)
@@ -727,9 +731,7 @@ class Q2d(QExtractor, object):
 
         a = self.modeler._convert_list_to_ids(edges, convert_objects_ids_to_name=False)
 
-        props = OrderedDict(
-            {"Edges": a, "UseCoating": False, "Radius": ra, "Ratio": str(ratio)}
-        )
+        props = OrderedDict({"Edges": a, "UseCoating": False, "Radius": ra, "Ratio": str(ratio)})
 
         bound = BoundaryObject(self, name, props, "FiniteCond")
         if bound.create():

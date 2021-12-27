@@ -309,7 +309,10 @@ class AEDTMessageManager(object):
                 des_name = self._design_name
             if des_name and ";" in des_name:
                 des_name = des_name[des_name.find(";") + 1 :]
-            self._desktop.AddMessage(proj_name, des_name, type, message_text)
+            try:
+                self._desktop.AddMessage(proj_name, des_name, type, message_text)
+            except:
+                print("pyaedt info: Failed in Adding Desktop Message")
 
         if len(message_text) > 250:
             message_text = message_text[:250] + "..."

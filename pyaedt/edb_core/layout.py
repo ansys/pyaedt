@@ -7,6 +7,7 @@ import warnings
 
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.generic.general_methods import is_ironpython
 
 try:
     from System import Tuple
@@ -389,12 +390,8 @@ class EdbLayout(object):
                         xcoeff, ycoeff = calc_slope([point.X.ToDouble(), point.X.ToDouble()], origin)
 
                         new_points = self._edb.Geometry.PointData(
-                            self._edb_value(
-                                point.X.ToString() + "{}*{}".format(xcoeff, offset_name), var_server
-                            ),
-                            self._edb_value(
-                                point.Y.ToString() + "{}*{}".format(ycoeff, offset_name), var_server
-                            ),
+                            self._edb_value(point.X.ToString() + "{}*{}".format(xcoeff, offset_name), var_server),
+                            self._edb_value(point.Y.ToString() + "{}*{}".format(ycoeff, offset_name), var_server),
                         )
                         poligon_data.SetPoint(i, new_points)
                     prev_point = point
@@ -539,6 +536,42 @@ class EdbLayout(object):
             return polygon
 
     @aedt_exception_handler
+    def fix_circle_void_for_clipping(self):
+        """Fix issues when circle void are clipped due to a bug in EDB.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when no changes were applied.
+        """
+        obj_list = self._active_layout.GetLayoutInstance().GetAllLayoutObjInstances()
+        circle_list = [
+            obj.GetLayoutObj()
+            for obj in list(obj_list.Items)
+            if isinstance(obj.GetLayoutObj(), self._edb.Cell.Primitive.Circle)
+        ]
+
+        void_circles = [circ for circ in circle_list if circ.IsVoid()]
+        if len(void_circles) > 0:
+            for void_circle in void_circles:
+                if is_ironpython:
+                    res, center_x, center_y, radius = void_circle.GetParameters()
+                else:
+                    res, center_x, center_y, radius = void_circle.GetParameters(0.0, 0.0, 0.0)
+                cloned_circle = self._edb.Cell.Primitive.Circle.Create(
+                    self._active_layout,
+                    void_circle.GetLayer().GetName(),
+                    void_circle.GetNet(),
+                    self._edb_value(center_x),
+                    self._edb_value(center_y),
+                    self._edb_value(radius),
+                )
+                if res:
+                    cloned_circle.SetIsNegative(True)
+                    void_circle.Delete()
+        return True
+
+    @aedt_exception_handler
     def add_void(self, shape, void_shape):
         """Add a void into a shape.
 
@@ -572,9 +605,7 @@ class EdbLayout(object):
         elif shape.type == "rectangle":
             return self._createPolygonDataFromRectangle(shape)
         else:
-            self._logger.error(
-                "Unsupported shape type %s when creating a polygon primitive.", shape.type
-            )
+            self._logger.error("Unsupported shape type %s when creating a polygon primitive.", shape.type)
             return None
 
     @aedt_exception_handler
@@ -598,19 +629,32 @@ class EdbLayout(object):
             startPoint = [self._edb_value(i) for i in startPoint]
             endPoint = [self._edb_value(i) for i in endPoint]
             if len(endPoint) == 2:
-                is_parametric = is_parametric or startPoint[0].IsParametric() or startPoint[1].IsParametric() or \
-                                endPoint[0].IsParametric() or endPoint[1].IsParametric()
+                is_parametric = (
+                    is_parametric
+                    or startPoint[0].IsParametric()
+                    or startPoint[1].IsParametric()
+                    or endPoint[0].IsParametric()
+                    or endPoint[1].IsParametric()
+                )
                 arc = self._edb.Geometry.ArcData(
-                    self._edb.Geometry.PointData(self._edb_value(startPoint[0].ToDouble()),
-                                                 self._edb_value(startPoint[1].ToDouble())),
-                    self._edb.Geometry.PointData(self._edb_value(endPoint[0].ToDouble()),
-                                                 self._edb_value(endPoint[1].ToDouble())),
+                    self._edb.Geometry.PointData(
+                        self._edb_value(startPoint[0].ToDouble()), self._edb_value(startPoint[1].ToDouble())
+                    ),
+                    self._edb.Geometry.PointData(
+                        self._edb_value(endPoint[0].ToDouble()), self._edb_value(endPoint[1].ToDouble())
+                    ),
                 )
                 arcs.append(arc)
             elif len(endPoint) == 5:
-                is_parametric = is_parametric or startPoint[0].IsParametric() or startPoint[1].IsParametric() or \
-                                endPoint[0].IsParametric() or endPoint[1].IsParametric() or endPoint[
-                                    3].IsParametric() or endPoint[4].IsParametric()
+                is_parametric = (
+                    is_parametric
+                    or startPoint[0].IsParametric()
+                    or startPoint[1].IsParametric()
+                    or endPoint[0].IsParametric()
+                    or endPoint[1].IsParametric()
+                    or endPoint[3].IsParametric()
+                    or endPoint[4].IsParametric()
+                )
                 rotationDirection = self._edb.Geometry.RotationDirection.Colinear
                 if endPoint[2].ToString() == "cw":
                     rotationDirection = self._edb.Geometry.RotationDirection.CW
@@ -620,13 +664,16 @@ class EdbLayout(object):
                     self._logger.error("Invalid rotation direction %s is specified.", endPoint[2])
                     return None
                 arc = self._edb.Geometry.ArcData(
-                    self._edb.Geometry.PointData(self._edb_value(startPoint[0].ToDouble()),
-                                                 self._edb_value(startPoint[1].ToDouble())),
-                    self._edb.Geometry.PointData(self._edb_value(endPoint[0].ToDouble()),
-                                                 self._edb_value(endPoint[1].ToDouble())),
+                    self._edb.Geometry.PointData(
+                        self._edb_value(startPoint[0].ToDouble()), self._edb_value(startPoint[1].ToDouble())
+                    ),
+                    self._edb.Geometry.PointData(
+                        self._edb_value(endPoint[0].ToDouble()), self._edb_value(endPoint[1].ToDouble())
+                    ),
                     rotationDirection,
-                    self._edb.Geometry.PointData(self._edb_value(endPoint[3].ToDouble()),
-                                                 self._edb_value(endPoint[4].ToDouble())),
+                    self._edb.Geometry.PointData(
+                        self._edb_value(endPoint[3].ToDouble()), self._edb_value(endPoint[4].ToDouble())
+                    ),
                 )
                 arcs.append(arc)
         polygon = self._edb.Geometry.PolygonData.CreateFromArcs(convert_py_list_to_net_list(arcs), True)
@@ -674,9 +721,7 @@ class EdbLayout(object):
                 return False
             return True
         else:
-            self._logger.error(
-                "Arc point descriptor has incorrect number of elements (%s)", len(point)
-            )
+            self._logger.error("Arc point descriptor has incorrect number of elements (%s)", len(point))
             return False
 
     def _createPolygonDataFromRectangle(self, shape):
@@ -801,8 +846,9 @@ class EdbLayout(object):
                         for void in v:
                             if int(item.GetIntersectionType(void.GetPolygonData())) == 2:
                                 item.AddHole(void.GetPolygonData())
-                    poly = self._edb.Cell.Primitive.Polygon.Create(self._active_layout, lay,
-                                                                   self._pedb.core_nets.nets[net], item)
+                    poly = self._edb.Cell.Primitive.Polygon.Create(
+                        self._active_layout, lay, self._pedb.core_nets.nets[net], item
+                    )
                 list_to_delete = [i for i in poly_by_nets[net]]
                 for v in all_voids:
                     for void in v:

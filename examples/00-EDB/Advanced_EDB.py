@@ -1,8 +1,9 @@
 """
-EDB Parametric Via Creation
----------------------------
+Parametric Via Creation
+-----------------------
 This example shows how to use EDB to create a layout.
 """
+# sphinx_gallery_thumbnail_path = 'Resources/viawizard.png'
 
 import os
 import numpy as np
@@ -22,14 +23,16 @@ aedb_path = os.path.join(tmpfold, generate_unique_name("via_opt") + ".aedb")
 class StackupSimple:
     """Creates a typical PCB stackup"""
 
-    def __init__(self, _edb,
-                 layer_count,
-                 diel_material_name="FR4_epoxy",
-                 diel_thickness="0.15mm",
-                 cond_thickness_outer="0.05mm",
-                 cond_thickness_inner="0.017mm",
-                 soldermask_thickness="0.05mm"
-                 ):
+    def __init__(
+        self,
+        _edb,
+        layer_count,
+        diel_material_name="FR4_epoxy",
+        diel_thickness="0.15mm",
+        cond_thickness_outer="0.05mm",
+        cond_thickness_inner="0.017mm",
+        soldermask_thickness="0.05mm",
+    ):
         """
 
         Parameters
@@ -64,10 +67,7 @@ class StackupSimple:
         self.stackup_list = []
 
         # Create top soldermask layer
-        smt = {"layer_type": 1,
-               "layer_name": "SMT",
-               "material": "SolderMask",
-               "thickness": self.soldermask_thickness}
+        smt = {"layer_type": 1, "layer_name": "SMT", "material": "SolderMask", "thickness": self.soldermask_thickness}
         self.stackup_list.append(smt)
 
         for i in np.arange(1, self.layer_count + 1):
@@ -81,10 +81,12 @@ class StackupSimple:
             else:
                 thickness = self.cond_thickness_inner
 
-            cond_layer = {"layer_type": 0,
-                          "layer_name": "L{}".format(str(i)),
-                          "fill_material": fill_material,
-                          "thickness": thickness}
+            cond_layer = {
+                "layer_type": 0,
+                "layer_name": "L{}".format(str(i)),
+                "fill_material": fill_material,
+                "thickness": thickness,
+            }
             self.stackup_list.append(cond_layer)
 
             # Check if it is the last conductor layer
@@ -95,17 +97,16 @@ class StackupSimple:
             diel_material = self.diel_material_name
             diel_thickness = self.diel_thickness
 
-            dielectric_layer = {"layer_type": 1,
-                                "layer_name": "D{}".format(str(i)),
-                                "material": diel_material,
-                                "thickness": diel_thickness}
+            dielectric_layer = {
+                "layer_type": 1,
+                "layer_name": "D{}".format(str(i)),
+                "material": diel_material,
+                "thickness": diel_thickness,
+            }
             self.stackup_list.append(dielectric_layer)
 
         # Create bottom soldermask layer
-        smb = {"layer_type": 1,
-               "layer_name": "SMB",
-               "material": "SolderMask",
-               "thickness": self.soldermask_thickness}
+        smb = {"layer_type": 1, "layer_name": "SMB", "material": "SolderMask", "thickness": self.soldermask_thickness}
         self.stackup_list.append(smb)
 
     def _edb_create_stackup(self):
@@ -115,21 +116,24 @@ class StackupSimple:
             layer = self.stackup_list.pop(-1)
             if layer["layer_type"] == 1:
 
-                self._edb.core_stackup.stackup_layers.add_layer(layerName=layer["layer_name"],
-                                                                start_layer=base_layer,
-                                                                material=layer["material"],
-                                                                thickness=layer["thickness"],
-                                                                layerType=1)
+                self._edb.core_stackup.stackup_layers.add_layer(
+                    layerName=layer["layer_name"],
+                    start_layer=base_layer,
+                    material=layer["material"],
+                    thickness=layer["thickness"],
+                    layerType=1,
+                )
                 base_layer = layer["layer_name"]
             else:
 
-                self._edb.core_stackup.stackup_layers.add_layer(layerName=layer["layer_name"],
-                                                                start_layer=base_layer,
-                                                                material="copper",
-                                                                fillMaterial=layer["fill_material"],
-                                                                thickness=layer["thickness"],
-                                                                layerType=0
-                                                                )
+                self._edb.core_stackup.stackup_layers.add_layer(
+                    layerName=layer["layer_name"],
+                    start_layer=base_layer,
+                    material="copper",
+                    fillMaterial=layer["fill_material"],
+                    thickness=layer["thickness"],
+                    layerType=0,
+                )
                 base_layer = layer["layer_name"]
 
 
@@ -164,9 +168,15 @@ trace_out_layer = "L10"
 gvia_num = 10
 gvia_angle = 30
 
-StackupSimple(edb, layer_count=layout_count, diel_material_name=diel_material_name, diel_thickness=diel_thickness,
-              cond_thickness_outer=cond_thickness_outer, cond_thickness_inner=cond_thickness_inner,
-              soldermask_thickness=soldermask_thickness, ).create_stackup()
+StackupSimple(
+    edb,
+    layer_count=layout_count,
+    diel_material_name=diel_material_name,
+    diel_thickness=diel_thickness,
+    cond_thickness_outer=cond_thickness_outer,
+    cond_thickness_inner=cond_thickness_inner,
+    soldermask_thickness=soldermask_thickness,
+).create_stackup()
 
 ##################################################################################
 # Parameters Creation
@@ -188,10 +198,9 @@ edb.add_design_variable("trace_out_width", "0.1mm")
 # Here 2 padstacks will be created, one for ground and one for signal. The padstack
 # will be parametric.
 
-edb.core_padstack.create_padstack(padstackname="SVIA",
-                                  holediam="$via_hole_size",
-                                  antipaddiam="$antipaddiam",
-                                  paddiam="$paddiam")
+edb.core_padstack.create_padstack(
+    padstackname="SVIA", holediam="$via_hole_size", antipaddiam="$antipaddiam", paddiam="$paddiam"
+)
 edb.core_padstack.create_padstack(padstackname="GVIA", holediam="0.3mm", antipaddiam="0.7mm", paddiam="0.5mm")
 
 ##################################################################################
@@ -199,9 +208,7 @@ edb.core_padstack.create_padstack(padstackname="GVIA", holediam="0.3mm", antipad
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-edb.core_padstack.place_padstack([0, 0], "SVIA", net_name="RF",
-                                 fromlayer=trace_in_layer, tolayer=trace_out_layer
-                                 )
+edb.core_padstack.place_padstack([0, 0], "SVIA", net_name="RF", fromlayer=trace_in_layer, tolayer=trace_out_layer)
 
 ##################################################################################
 # Padstack Placement : ground
@@ -241,12 +248,19 @@ else:
 # Parametric Traces are generated and placed.
 
 path = edb.core_primitives.Shape("polygon", points=[[0, 0], [0, "-3mm"]])
-edb.core_primitives.create_path(path, layer_name=trace_in_layer, net_name="RF", width="trace_in_width",
-                                start_cap_style="Flat", end_cap_style="Flat")
+edb.core_primitives.create_path(
+    path, layer_name=trace_in_layer, net_name="RF", width="trace_in_width", start_cap_style="Flat", end_cap_style="Flat"
+)
 
 path = edb.core_primitives.Shape("polygon", points=[[0, 0], [0, "3mm"]])
-edb.core_primitives.create_path(path, layer_name=trace_out_layer, net_name="RF", width="trace_out_width",
-                                start_cap_style="Flat", end_cap_style="Flat")
+edb.core_primitives.create_path(
+    path,
+    layer_name=trace_out_layer,
+    net_name="RF",
+    width="trace_out_width",
+    start_cap_style="Flat",
+    end_cap_style="Flat",
+)
 
 ##################################################################################
 # Ground Placement

@@ -25,11 +25,13 @@ validate an incoming connection. Using them is pretty trivial ::
 """
 import sys
 from rpyc.lib import safe_import
+
 ssl = safe_import("ssl")
 
 
 class AuthenticationError(Exception):
     """raised to signal a failed authentication attempt"""
+
     pass
 
 
@@ -57,8 +59,7 @@ class SSLAuthenticator(object):
     service parameters.
     """
 
-    def __init__(self, keyfile, certfile, ca_certs=None, cert_reqs=None,
-                 ssl_version=ssl.PROTOCOL_TLSv1, ciphers=None):
+    def __init__(self, keyfile, certfile, ca_certs=None, cert_reqs=None, ssl_version=ssl.PROTOCOL_TLSv1, ciphers=None):
         self.keyfile = str(keyfile)
         self.certfile = str(certfile)
         self.ca_certs = str(ca_certs) if ca_certs else None
@@ -73,9 +74,14 @@ class SSLAuthenticator(object):
         self.ssl_version = ssl_version
 
     def __call__(self, sock):
-        kwargs = dict(keyfile=self.keyfile, certfile=self.certfile,
-                      server_side=True, ca_certs=self.ca_certs, cert_reqs=self.cert_reqs,
-                      ssl_version=self.ssl_version)
+        kwargs = dict(
+            keyfile=self.keyfile,
+            certfile=self.certfile,
+            server_side=True,
+            ca_certs=self.ca_certs,
+            cert_reqs=self.cert_reqs,
+            ssl_version=self.ssl_version,
+        )
         if self.ciphers is not None:
             kwargs["ciphers"] = self.ciphers
         try:

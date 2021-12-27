@@ -20,6 +20,7 @@ from pyaedt import aedt_exception_handler, _retry_ntimes
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.constants import AEDT_UNITS, MILS2METER
+from pyaedt.generic.general_methods import is_ironpython
 
 clamp = lambda n, minn, maxn: max(min(maxn, n), minn)
 
@@ -163,9 +164,7 @@ class EdgeTypePrimitive(object):
         self._object3d.m_Editor.Fillet(vArg1, ["NAME:Parameters", vArg2])
         if self._object3d.name in list(self._object3d.m_Editor.GetObjectsInGroup("UnClassified")):
             self._object3d._primitives._odesign.Undo()
-            self._object3d.logger.error(
-                "Operation failed, generating an unclassified object. Check and retry."
-            )
+            self._object3d.logger.error("Operation failed, generating an unclassified object. Check and retry.")
             return False
         return True
 
@@ -238,9 +237,7 @@ class EdgeTypePrimitive(object):
         self._object3d.m_Editor.Chamfer(vArg1, ["NAME:Parameters", vArg2])
         if self._object3d.name in list(self._object3d.m_Editor.GetObjectsInGroup("UnClassified")):
             self._object3d.odesign.Undo()
-            self._object3d.logger.error(
-                "Operation Failed generating Unclassified object. Check and retry"
-            )
+            self._object3d.logger.error("Operation Failed generating Unclassified object. Check and retry")
             return False
         return True
 
@@ -670,8 +667,7 @@ class FacePrimitive(object):
         inv_norm = [-i for i in normal]
         mv1 = GeometryOperators.v_sum(fc, normal)
         mv2 = GeometryOperators.v_sum(fc, inv_norm)
-        bb_center = GeometryOperators.get_mid_point(self._object3d.bounding_box[0:3],
-                                                    self._object3d.bounding_box[3:6])
+        bb_center = GeometryOperators.get_mid_point(self._object3d.bounding_box[0:3], self._object3d.bounding_box[3:6])
         d1 = GeometryOperators.points_distance(mv1, bb_center)
         d2 = GeometryOperators.points_distance(mv2, bb_center)
         if d1 > d2:
@@ -750,8 +746,9 @@ class Object3d(object):
         >>> oEditor.GetModelBoundingBox
 
         """
-        objs_to_unmodel = [val.name for i, val in self._primitives.objects.items() if
-                           val.model and val.name != self.name]
+        objs_to_unmodel = [
+            val.name for i, val in self._primitives.objects.items() if val.model and val.name != self.name
+        ]
         if objs_to_unmodel:
             vArg1 = ["NAME:Model", "Value:=", False]
             self._primitives._change_geometry_property(vArg1, objs_to_unmodel)
@@ -771,6 +768,59 @@ class Object3d(object):
     def _odesign(self):
         """Design."""
         return self._primitives._modeler._app._odesign
+
+    @aedt_exception_handler
+    def plot(self):
+        """Plot model with PyVista.
+
+        .. note::
+        Works from AEDT 2021.2 in CPython only. PyVista has to be installed.
+        """
+        if not is_ironpython and self._primitives._appp._aedt_version >= "2021.2":
+            self._primitives._app.post.plot_model_obj(
+                objects=[self.name],
+                export_afterplot=False,
+                plot_separate_objects=True,
+                air_objects=True,
+                background_color="grey",
+                object_selector=False,
+                color="dodgerblue",
+                off_screen=False,
+            )
+
+    @aedt_exception_handler
+    def export_image(self, file_path=None):
+
+        """Export the model to path.
+
+        .. note::
+        Works from AEDT 2021.2 in CPython only. PyVista has to be installed.
+
+        Parameters
+        ----------
+        file_path : str, optional
+            File name with full path. If `None` Project directory will be used.
+
+        Returns
+        -------
+        str
+            File path.
+        """
+        if not is_ironpython and self._primitives._appp._aedt_version >= "2021.2":
+            files = self._primitives._app.post.plot_model_obj(
+                objects=[self.name],
+                export_afterplot=True,
+                export_path=file_path,
+                plot_separate_objects=True,
+                air_objects=True,
+                background_color="grey",
+                object_selector=False,
+                color="dodgerblue",
+                off_screen=True,
+            )
+            if files:
+                return files[0]
+        return False
 
     @property
     def faces(self):
@@ -1574,7 +1624,7 @@ class Object3d(object):
 
     @aedt_exception_handler
     def sweep_along_path(
-            self, sweep_object, draft_angle=0, draft_type="Round", is_check_face_intersection=False, twist_angle=0
+        self, sweep_object, draft_angle=0, draft_type="Round", is_check_face_intersection=False, twist_angle=0
     ):
         """Sweep the selection along a vector.
 
@@ -1984,7 +2034,7 @@ class Padstack(object):
 
     @aedt_exception_handler
     def add_layer(
-            self, layername="Start", pad_hole=None, antipad_hole=None, thermal_hole=None, connx=0, conny=0, conndir=0
+        self, layername="Start", pad_hole=None, antipad_hole=None, thermal_hole=None, connx=0, conny=0, conndir=0
     ):
         """Create a layer in the padstack.
 
@@ -2129,8 +2179,8 @@ class Padstack(object):
 
 
 class CircuitPins(object):
-    """Class that manages circuit component pins.
-    """
+    """Class that manages circuit component pins."""
+
     def __init__(self, circuit_comp, pinname):
         self._circuit_comp = circuit_comp
         self.name = pinname
@@ -2146,8 +2196,13 @@ class CircuitPins(object):
         >>> oPadstackManager.GetComponentPinLocation
         """
         if "Port" in self._circuit_comp.composed_name:
-            pos1 = _retry_ntimes(30, self.m_Editor.GetPropertyValue, "BaseElementTab", self._circuit_comp.composed_name,
-                                 "Component Location")
+            pos1 = _retry_ntimes(
+                30,
+                self.m_Editor.GetPropertyValue,
+                "BaseElementTab",
+                self._circuit_comp.composed_name,
+                "Component Location",
+            )
             if isinstance(pos1, str):
                 pos1 = pos1.split(", ")
                 pos1 = [float(i.strip()[:-3]) * 0.0000254 for i in pos1]
@@ -2155,10 +2210,12 @@ class CircuitPins(object):
                     pos1[1] += 0.00254
                 return pos1
             return []
-        return [_retry_ntimes(30, self.m_Editor.GetComponentPinLocation, self._circuit_comp.composed_name, self.name,
-                              True),
-                _retry_ntimes(30, self.m_Editor.GetComponentPinLocation, self._circuit_comp.composed_name, self.name,
-                              False)]
+        return [
+            _retry_ntimes(30, self.m_Editor.GetComponentPinLocation, self._circuit_comp.composed_name, self.name, True),
+            _retry_ntimes(
+                30, self.m_Editor.GetComponentPinLocation, self._circuit_comp.composed_name, self.name, False
+            ),
+        ]
 
     @property
     def net(self):
@@ -2169,7 +2226,8 @@ class CircuitPins(object):
             conns = self.m_Editor.GetNetConnections(net)
             for conn in conns:
                 if conn.endswith(self.name) and (
-                        ";{};".format(self._circuit_comp.id) in conn or ";{} ".format(self._circuit_comp.id) in conn):
+                    ";{};".format(self._circuit_comp.id) in conn or ";{} ".format(self._circuit_comp.id) in conn
+                ):
                     return net
         return ""
 
@@ -2196,9 +2254,10 @@ class CircuitPins(object):
             component_pin = [component_pin]
         comp_angle = self._circuit_comp.angle * math.pi / 180
         if len(self._circuit_comp.pins) == 2:
-            comp_angle += math.pi/2
-        page_name = "{}_{}".format(self._circuit_comp.composed_name.replace("CompInst@", "").replace(";", "_"),
-                                   self.name)
+            comp_angle += math.pi / 2
+        page_name = "{}_{}".format(
+            self._circuit_comp.composed_name.replace("CompInst@", "").replace(";", "_"), self.name
+        )
 
         if "Port" in self._circuit_comp.composed_name:
             try:
@@ -2215,7 +2274,8 @@ class CircuitPins(object):
                         continue
         try:
             x_loc = AEDT_UNITS["Length"][decompose_variable_value(self._circuit_comp.location[0])[1]] * float(
-                decompose_variable_value(self._circuit_comp.location[1])[0])
+                decompose_variable_value(self._circuit_comp.location[1])[0]
+            )
         except:
             x_loc = float(self._circuit_comp.location[0])
         if self.location[0] < x_loc:
@@ -2226,7 +2286,8 @@ class CircuitPins(object):
         for cmp in component_pin:
             try:
                 x_loc = AEDT_UNITS["Length"][decompose_variable_value(cmp._circuit_comp.location[0])[1]] * float(
-                    decompose_variable_value(cmp._circuit_comp.location[0])[0])
+                    decompose_variable_value(cmp._circuit_comp.location[0])[0]
+                )
             except:
                 x_loc = float(self._circuit_comp.location[0])
             comp_pin_angle = cmp._circuit_comp.angle * math.pi / 180
@@ -2236,25 +2297,33 @@ class CircuitPins(object):
                 angle = comp_pin_angle
             else:
                 angle = math.pi + comp_pin_angle
-            ret2 = self._circuit_comp._circuit_components.create_page_port(page_name, location=cmp.location,
-                                                                           angle=angle)
+            ret2 = self._circuit_comp._circuit_components.create_page_port(
+                page_name, location=cmp.location, angle=angle
+            )
         if ret1 and ret2:
             return True
         else:
             return False
 
-class ComponentParameters(object):
-    """AEDT Circuit Component Internal Parameters.
 
-    """
+class ComponentParameters(object):
+    """AEDT Circuit Component Internal Parameters."""
+
     def __getitem__(self, key):
         return self.parameters[key]
 
     def __setitem__(self, key, value):
         try:
-            self._component.m_Editor.ChangeProperty([
-                "NAME:AllTabs", ["NAME:"+self._tab, ["NAME:PropServers", self._component.composed_name],
-                                 ["NAME:ChangedProps", ["NAME:"+key, "Value:=", str(value)]]]])
+            self._component.m_Editor.ChangeProperty(
+                [
+                    "NAME:AllTabs",
+                    [
+                        "NAME:" + self._tab,
+                        ["NAME:PropServers", self._component.composed_name],
+                        ["NAME:ChangedProps", ["NAME:" + key, "Value:=", str(value)]],
+                    ],
+                ]
+            )
             self.parameters[key] = value
         except:
             self._component._circuit_components.logger.warning("Property %s has not been edited", key)
@@ -2269,8 +2338,7 @@ class ComponentParameters(object):
 
 
 class CircuitComponent(object):
-    """Manages circuit components.
-    """
+    """Manages circuit components."""
 
     @property
     def composed_name(self):
@@ -2366,8 +2434,9 @@ class CircuitComponent(object):
         if self._location:
             return self._location
         try:
-            loc = _retry_ntimes(10, self.m_Editor.GetPropertyValue, "BaseElementTab", self.composed_name,
-                                'Component Location')
+            loc = _retry_ntimes(
+                10, self.m_Editor.GetPropertyValue, "BaseElementTab", self.composed_name, "Component Location"
+            )
             self._location = [loc.split(",")[0].strip(), loc.split(",")[1].strip()]
         except:
             self._location = []
@@ -2421,16 +2490,18 @@ class CircuitComponent(object):
             return self._angle
         self._angle = 0.0
         try:
-            self._angle = float(_retry_ntimes(10, self.m_Editor.GetPropertyValue, "BaseElementTab", self.composed_name,
-                                  'Component Angle').replace("°", ""))
+            self._angle = float(
+                _retry_ntimes(
+                    10, self.m_Editor.GetPropertyValue, "BaseElementTab", self.composed_name, "Component Angle"
+                ).replace("°", "")
+            )
         except:
             self._angle = 0.0
         return self._angle
 
     @angle.setter
     def angle(self, angle=None):
-        """Set the part angle.
-        """
+        """Set the part angle."""
         if not angle:
             angle = str(self._angle) + "°"
         else:
@@ -2451,8 +2522,12 @@ class CircuitComponent(object):
         if self._mirror is not None:
             return self._mirror
         try:
-            self._mirror = _retry_ntimes(10, self.m_Editor.GetPropertyValue, "BaseElementTab", self.composed_name,
-                                     'Component Mirror') == "true"
+            self._mirror = (
+                _retry_ntimes(
+                    10, self.m_Editor.GetPropertyValue, "BaseElementTab", self.composed_name, "Component Mirror"
+                )
+                == "true"
+            )
         except:
             self._mirror = False
         return self._mirror

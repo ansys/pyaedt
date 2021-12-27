@@ -30,9 +30,7 @@ class TestClass:
     def test_assign_model_resolution(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 200
-        o = self.aedtapp.modeler.primitives.create_cylinder(
-            self.aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, "inner"
-        )
+        o = self.aedtapp.modeler.primitives.create_cylinder(self.aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, "inner")
         self.aedtapp.mesh.assign_model_resolution(o, 1e-4, "ModelRes1")
         assert "ModelRes1" in [i.name for i in self.aedtapp.mesh.meshoperations]
         mr2 = self.aedtapp.mesh.assign_model_resolution(o.faces[0], 1e-4, "ModelRes2")
@@ -41,9 +39,7 @@ class TestClass:
     def test_assign_surface_mesh(self):
         udp = self.aedtapp.modeler.Position(10, 10, 0)
         coax_dimension = 200
-        o = self.aedtapp.modeler.primitives.create_cylinder(
-            self.aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, "surface"
-        )
+        o = self.aedtapp.modeler.primitives.create_cylinder(self.aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, "surface")
         surface = self.aedtapp.mesh.assign_surface_mesh(o.id, 3, "Surface")
         assert "Surface" in [i.name for i in self.aedtapp.mesh.meshoperations]
         assert surface.props["SliderMeshSettings"] == 3

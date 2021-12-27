@@ -49,19 +49,13 @@ class LocalPath(Path):
     CASE_SENSITIVE = not IS_WIN32
 
     def __new__(cls, *parts):
-        if (
-            len(parts) == 1
-            and isinstance(parts[0], cls)
-            and not isinstance(parts[0], LocalWorkdir)
-        ):
+        if len(parts) == 1 and isinstance(parts[0], cls) and not isinstance(parts[0], LocalWorkdir):
             return parts[0]
         if not parts:
             raise TypeError("At least one path part is required (none given)")
         if any(isinstance(path, RemotePath) for path in parts):
             raise TypeError("LocalPath cannot be constructed from {!r}".format(parts))
-        self = super(LocalPath, cls).__new__(
-            cls, os.path.normpath(os.path.join(*(str(p) for p in parts)))
-        )
+        self = super(LocalPath, cls).__new__(cls, os.path.normpath(os.path.join(*(str(p) for p in parts))))
         return self
 
     @property
@@ -262,16 +256,8 @@ class LocalPath(Path):
     def chown(self, owner=None, group=None, recursive=None):
         if not hasattr(os, "chown"):
             raise OSError("os.chown() not supported")
-        uid = (
-            self.uid
-            if owner is None
-            else (owner if isinstance(owner, int) else getpwnam(owner)[2])
-        )
-        gid = (
-            self.gid
-            if group is None
-            else (group if isinstance(group, int) else getgrnam(group)[2])
-        )
+        uid = self.uid if owner is None else (owner if isinstance(owner, int) else getpwnam(owner)[2])
+        gid = self.gid if group is None else (group if isinstance(group, int) else getgrnam(group)[2])
         os.chown(str(self), uid, gid)
         if recursive or (recursive is None and self.is_dir()):
             for subpath in self.walk():
@@ -290,9 +276,7 @@ class LocalPath(Path):
     @_setdoc(Path)
     def link(self, dst):
         if isinstance(dst, RemotePath):
-            raise TypeError(
-                "Cannot create a hardlink from local path {} to {!r}".format(self, dst)
-            )
+            raise TypeError("Cannot create a hardlink from local path {} to {!r}".format(self, dst))
         if hasattr(os, "link"):
             os.link(str(self), str(dst))
         else:
@@ -307,9 +291,7 @@ class LocalPath(Path):
     @_setdoc(Path)
     def symlink(self, dst):
         if isinstance(dst, RemotePath):
-            raise TypeError(
-                "Cannot create a symlink from local path {} to {!r}".format(self, dst)
-            )
+            raise TypeError("Cannot create a symlink from local path {} to {!r}".format(self, dst))
         if hasattr(os, "symlink"):
             os.symlink(str(self), str(dst))
         else:

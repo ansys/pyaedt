@@ -299,24 +299,15 @@ _grey_html = ["#" + format(x, "02x") * 3 for x in _grey_vals]
 
 _normals = [int(x, 16) for x in "0 5f 87 af d7 ff".split()]
 _normal_html = [
-    "#"
-    + format(_normals[n // 36], "02x")
-    + format(_normals[n // 6 % 6], "02x")
-    + format(_normals[n % 6], "02x")
+    "#" + format(_normals[n // 36], "02x") + format(_normals[n // 6 % 6], "02x") + format(_normals[n % 6], "02x")
     for n in range(16 - 16, 232 - 16)
 ]
 
 _base_pattern = [(n // 4, n // 2 % 2, n % 2) for n in range(8)]
 _base_html = (
-    [
-        "#{2:02x}{1:02x}{0:02x}".format(x[0] * 192, x[1] * 192, x[2] * 192)
-        for x in _base_pattern
-    ]
+    ["#{2:02x}{1:02x}{0:02x}".format(x[0] * 192, x[1] * 192, x[2] * 192) for x in _base_pattern]
     + ["#808080"]
-    + [
-        "#{2:02x}{1:02x}{0:02x}".format(x[0] * 255, x[1] * 255, x[2] * 255)
-        for x in _base_pattern
-    ][1:]
+    + ["#{2:02x}{1:02x}{0:02x}".format(x[0] * 255, x[1] * 255, x[2] * 255) for x in _base_pattern][1:]
 )
 color_html = _base_html + _normal_html + _grey_html
 
@@ -366,17 +357,11 @@ class FindNearest(object):
         # Compressed to linear_integers r,g,b
         # [[[0,1],[2,3]],[[4,5],[6,7]]]
         # r*1 + g*2 + b*4
-        return (
-            (self.r >= midlevel) * 1
-            + (self.g >= midlevel) * 2
-            + (self.b >= midlevel) * 4
-        )
+        return (self.r >= midlevel) * 1 + (self.g >= midlevel) * 2 + (self.b >= midlevel) * 4
 
     def all_slow(self, color_slice=slice(None, None, None)):
         """This is a slow way to find the nearest color."""
-        distances = [
-            self._distance_to_color(color) for color in color_html[color_slice]
-        ]
+        distances = [self._distance_to_color(color) for color in color_html[color_slice]]
         return min(range(len(distances)), key=distances.__getitem__)
 
     def _distance_to_color(self, color):
@@ -391,15 +376,9 @@ class FindNearest(object):
     def only_colorblock(self):
         """This finds the nearest color based on block system, only works
         for 17-232 color values."""
-        rint = min(
-            range(len(_normals)), key=[abs(x - self.r) for x in _normals].__getitem__
-        )
-        bint = min(
-            range(len(_normals)), key=[abs(x - self.b) for x in _normals].__getitem__
-        )
-        gint = min(
-            range(len(_normals)), key=[abs(x - self.g) for x in _normals].__getitem__
-        )
+        rint = min(range(len(_normals)), key=[abs(x - self.r) for x in _normals].__getitem__)
+        bint = min(range(len(_normals)), key=[abs(x - self.b) for x in _normals].__getitem__)
+        gint = min(range(len(_normals)), key=[abs(x - self.g) for x in _normals].__getitem__)
         return 16 + 36 * rint + 6 * gint + bint
 
     def only_simple(self):

@@ -31,9 +31,7 @@ try:
 except ImportError:
     from abc import ABCMeta  # type: ignore
 
-    ABC = ABCMeta(
-        "ABC", (object,), {"__module__": __name__, "__slots__": ("__weakref__")}
-    )  # type: ignore
+    ABC = ABCMeta("ABC", (object,), {"__module__": __name__, "__slots__": ("__weakref__")})  # type: ignore
 
 try:
     from typing import IO, Dict, Union
@@ -385,9 +383,7 @@ class Style(object):
         # Import sys repeated here to make calling this stable in atexit function
         import sys
 
-        return (
-            self.__class__._stdout if self.__class__._stdout is not None else sys.stdout
-        )
+        return self.__class__._stdout if self.__class__._stdout is not None else sys.stdout
 
     @stdout.setter
     def stdout(self, newout):
@@ -405,9 +401,7 @@ class Style(object):
         self.isreset = reset
         invalid_attributes = set(self.attributes) - set(self.attribute_names)
         if len(invalid_attributes) > 0:
-            raise AttributeNotFound(
-                "Attribute(s) not valid: " + ", ".join(invalid_attributes)
-            )
+            raise AttributeNotFound("Attribute(s) not valid: " + ", ".join(invalid_attributes))
 
     @classmethod
     def from_color(cls, color):
@@ -566,11 +560,7 @@ class Style(object):
                 codes.append(attributes_ansi[attribute])
             else:
                 # Fixing bold inverse being 22 instead of 21 on some terminals:
-                codes.append(
-                    attributes_ansi[attribute] + 20
-                    if attributes_ansi[attribute] != 1
-                    else 22
-                )
+                codes.append(attributes_ansi[attribute] + 20 if attributes_ansi[attribute] != 1 else 22)
 
         if self.fg:
             codes.extend(self.fg.ansi_codes)
@@ -593,9 +583,7 @@ class Style(object):
     def __repr__(self):
         name = self.__class__.__name__
         attributes = ", ".join(a for a in self.attributes if self.attributes[a])
-        neg_attributes = ", ".join(
-            "-" + a for a in self.attributes if not self.attributes[a]
-        )
+        neg_attributes = ", ".join("-" + a for a in self.attributes if not self.attributes[a])
         colors = ", ".join(repr(c) for c in [self.fg, self.bg] if c)
         string = "; ".join(s for s in [attributes, neg_attributes, colors] if s)
         if self.isreset:
@@ -608,11 +596,7 @@ class Style(object):
             if self.isreset:
                 return other.isreset
             else:
-                return (
-                    self.attributes == other.attributes
-                    and self.fg == other.fg
-                    and self.bg == other.bg
-                )
+                return self.attributes == other.attributes and self.fg == other.fg and self.bg == other.bg
         else:
             return str(self) == other
 

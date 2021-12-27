@@ -1,4 +1,5 @@
 import os
+
 # Setup paths for module imports
 import gc
 
@@ -9,7 +10,7 @@ from pyaedt.generic.filesystem import Scratch
 
 test_project_name = "Galileo_edb"
 bom_example = "bom_example.csv"
-from _unittest.conftest import config, desktop_version, local_path, scratch_path
+from _unittest.conftest import config, desktop_version, local_path, scratch_path, is_ironpython
 
 try:
     import pytest
@@ -46,8 +47,9 @@ class TestClass:
         assert comp is not None
         pin = self.edbapp.core_components.get_pin_from_component("J1", pinName="1")
         assert pin is not False
-        parameters = self.edbapp.core_padstack.get_pad_parameters(pin[0], "TOP",
-                                                                  self.edbapp.core_padstack.pad_type.RegularPad)
+        parameters = self.edbapp.core_padstack.get_pad_parameters(
+            pin[0], "TOP", self.edbapp.core_padstack.pad_type.RegularPad
+        )
         assert isinstance(parameters[1], list)
         assert isinstance(parameters[0], int)
 
@@ -79,8 +81,10 @@ class TestClass:
         assert len(stackup.layers) > 2
         assert self.edbapp.core_stackup.stackup_layers["TOP"]._builder
         assert self.edbapp.core_stackup.stackup_layers["TOP"].id
-        assert isinstance(self.edbapp.core_stackup.stackup_layers["TOP"].layer_type, int) or str(
-            type(self.edbapp.core_stackup.stackup_layers["TOP"].layer_type)) == "<type 'LayerType'>"
+        assert (
+            isinstance(self.edbapp.core_stackup.stackup_layers["TOP"].layer_type, int)
+            or str(type(self.edbapp.core_stackup.stackup_layers["TOP"].layer_type)) == "<type 'LayerType'>"
+        )
 
     def test_05_get_signal_layers(self):
         signal_layers = self.edbapp.core_stackup.signal_layers
@@ -161,20 +165,20 @@ class TestClass:
         assert self.edbapp.core_components.components["R1"].pinlist
         pinname = self.edbapp.core_components.components["R1"].pinlist[0].GetName()
         assert (
-                self.edbapp.core_components.components["R1"].pins[pinname].lower_elevation
-                == self.edbapp.core_components.components["R1"].lower_elevation
+            self.edbapp.core_components.components["R1"].pins[pinname].lower_elevation
+            == self.edbapp.core_components.components["R1"].lower_elevation
         )
         assert (
-                self.edbapp.core_components.components["R1"].pins[pinname].placement_layer
-                == self.edbapp.core_components.components["R1"].placement_layer
+            self.edbapp.core_components.components["R1"].pins[pinname].placement_layer
+            == self.edbapp.core_components.components["R1"].placement_layer
         )
         assert (
-                self.edbapp.core_components.components["R1"].pins[pinname].upper_elevation
-                == self.edbapp.core_components.components["R1"].upper_elevation
+            self.edbapp.core_components.components["R1"].pins[pinname].upper_elevation
+            == self.edbapp.core_components.components["R1"].upper_elevation
         )
         assert (
-                self.edbapp.core_components.components["R1"].pins[pinname].top_bottom_association
-                == self.edbapp.core_components.components["R1"].top_bottom_association
+            self.edbapp.core_components.components["R1"].pins[pinname].top_bottom_association
+            == self.edbapp.core_components.components["R1"].top_bottom_association
         )
         assert self.edbapp.core_components.components["R1"].pins[pinname].position
         assert self.edbapp.core_components.components["R1"].pins[pinname].rotation
@@ -258,8 +262,7 @@ class TestClass:
     def test_37_create_circuit_port(self):
         initial_len = len(self.edbapp.core_padstack.pingroups)
         assert (
-                self.edbapp.core_siwave.create_circuit_port_on_net("U2A5", "V1P5_S3", "U2A5", "GND", 50,
-                                                                   "test") == "test"
+            self.edbapp.core_siwave.create_circuit_port_on_net("U2A5", "V1P5_S3", "U2A5", "GND", 50, "test") == "test"
         )
         p2 = self.edbapp.core_siwave.create_circuit_port_on_net("U2A5", "V3P3_S0", "U2A5", "GND", 50, "test")
         assert p2 != "test" and "test" in p2
@@ -517,13 +520,11 @@ class TestClass:
         assert self.edbapp.core_components.set_solder_ball("U1A1")
 
     def test_67_add_void(self):
-        plane_shape = self.edbapp.core_primitives.Shape("rectangle", pointA=["-5mm", "-5mm"],
-                                                        pointB=["5mm", "5mm"])
+        plane_shape = self.edbapp.core_primitives.Shape("rectangle", pointA=["-5mm", "-5mm"], pointB=["5mm", "5mm"])
         plane = self.edbapp.core_primitives.create_polygon(plane_shape, "TOP", net_name="GND")
 
         path = self.edbapp.core_primitives.Shape("polygon", points=[["0", "0"], ["0", "1mm"]])
-        void = self.edbapp.core_primitives.create_path(path, layer_name="TOP",
-                                                       width="0.1mm")
+        void = self.edbapp.core_primitives.create_path(path, layer_name="TOP", width="0.1mm")
         assert self.edbapp.core_primitives.add_void(plane, void)
 
     def test_68_flip_layer_stackup(self):
@@ -531,3 +532,12 @@ class TestClass:
 
     def test_69_create_solder_balls_on_component(self):
         assert self.edbapp.core_components.set_solder_ball("U2A5")
+
+    @pytest.mark.skipif(is_ironpython, reason="This Test uses Ironpython")
+    def test_70_plot_on_matplotlib(self):
+        local_png = os.path.join(self.local_scratch.path, "test.png")
+        self.edbapp.core_nets.plot(None, None, save_plot=local_png)
+        assert os.path.exists(local_png)
+
+    def test_71_fix_circle_voids(self):
+        assert self.edbapp.core_primitives.fix_circle_void_for_clipping()

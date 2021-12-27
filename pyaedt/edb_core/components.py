@@ -7,8 +7,9 @@ import warnings
 from pyaedt import generate_unique_name, _retry_ntimes
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import aedt_exception_handler, get_filename_without_extension, is_ironpython
-from pyaedt.generic.constants import FlipChipOrientation
+from pyaedt.generic.constants import SourceType
 from pyaedt.edb_core.EDB_Data import EDBComponent
+from pyaedt.edb_core.padstack import EdbPadstacks
 
 try:
     import clr
@@ -71,6 +72,7 @@ class Components(object):
         self._pins = {}
         self._comps_by_part = {}
         self._init_parts()
+        self._padstack = EdbPadstacks(self._pedb)
 
     @property
     def _logger(self):
@@ -143,8 +145,7 @@ class Components(object):
 
     @aedt_exception_handler
     def refresh_components(self):
-        """Refresh the component dictionary.
-        """
+        """Refresh the component dictionary."""
         self._cmp = {}
         self._logger.info("Refreshing the Components dictionary.")
         if self._active_layout:
@@ -394,14 +395,201 @@ class Components(object):
 
         """
         if cmp is not None:
-            if not(isinstance(cmp, self._edb.Cell.Hierarchy.Component)):
+            if not (isinstance(cmp, self._edb.Cell.Hierarchy.Component)):
                 cmp = self.get_component_by_name(cmp)
             cmp_prop = cmp.GetComponentProperty().Clone()
             return cmp_prop.GetSolderBallProperty().GetHeight()
         return False
 
     @aedt_exception_handler
-    def set_solder_ball(self, cmp, sball_height=100e-6, sball_diam=150e-6, orientation=FlipChipOrientation.Up):
+    def create_port_on_component(
+        self, component, net_list, port_type=SourceType.CoaxPort, do_pingroup=True, reference_net="gnd"
+    ):
+        """Create ports on given component.
+
+        Parameters
+        ----------
+        component : str or self._edb.Cell.Hierarchy.Component
+            EDB component or str component name.
+
+        net_list : str or list of string.
+            The list of nets where ports have to be created on the component.
+            If net is not part of the component this one will be skipped.
+
+        port_type : SourceType enumerator, CoaxPort or CircuitPort
+            Define the type of port to be created. CoaxPort will auto generate solder balls.
+            CircuitPort will generate circuit ports on pins belonging to the net list.
+
+        do_pingroup : bool
+            True activate pingroup during port creation (only used with combination of CoaxPort),
+            False will take the closest reference pin and generate one port per signal pin.
+
+        refnet : string or list of string.
+            list of the reference net.
+
+        Returns
+        -------
+        double, bool
+            Salder ball height vale, ``False`` when failed.
+
+        Examples
+        --------
+
+        >>> from pyaedt import Edb
+        >>> edbapp = Edb("myaedbfolder")
+        >>> net_list = ["M_DQ<1>", "M_DQ<2>", "M_DQ<3>", "M_DQ<4>", "M_DQ<5>"]
+        >>> edbapp.core_components.create_port_on_component(cmp="U2A5", net_list=net_list,
+        >>> port_type=SourceType.CoaxPort, do_pingroup=False, refnet="GND")
+
+        """
+        if isinstance(component, self._edb.Cell.Hierarchy.Component):
+            cmp = component.GetName()
+        if not isinstance(net_list, list):
+            net_list = [net_list]
+        for net in net_list:
+            if not isinstance(net, str):
+                try:
+                    net_name = net.GetName()
+                    if net_name != "":
+                        net_list.append(net_name)
+                except:
+                    pass
+        if reference_net in net_list:
+            net_list.remove(reference_net)
+        cmp_pins = self.get_pin_from_component(component, net_list)
+        if len(cmp_pins) == 0:
+            return False
+        pin_layers = cmp_pins[0].GetPadstackDef().GetData().GetLayerNames()
+
+        if port_type == SourceType.CoaxPort:
+            pad_params = self._padstack.get_pad_parameters(pin=cmp_pins[0], layername=pin_layers[0], pad_type=0)
+            sball_diam = min([self._edb_value(val).ToDouble() for val in pad_params[1]])
+            sb_height = sball_diam
+            self.set_solder_ball(component, sb_height, sball_diam)
+            for pin in cmp_pins:
+                self._padstack.create_coax_port(pin)
+
+        elif port_type == SourceType.CircPort:
+            ref_pins = self.get_pin_from_component(component, reference_net)
+            if do_pingroup:
+                pingroups = []
+                if len(ref_pins) == 1:
+                    ref_pin_group_term = self._create_terminal(ref_pins[0])
+                else:
+                    ref_pin_group = self.create_pingroup_from_pins(ref_pins)
+                    ref_pin_group_term = self._create_pin_group_terminal(ref_pin_group[1])
+                    if not ref_pin_group[0]:
+                        return False
+                ref_pin_group_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
+                ref_pin_group_term.SetIsCircuitPort(True)
+                for net in net_list:
+                    pins = [pin for pin in cmp_pins if pin.GetNet().GetName() == net]
+                    pin_group = self.create_pingroup_from_pins(pins)
+                    if pin_group[0]:
+                        pingroups.append(pin_group[1])
+                pg_terminal = []
+                for pg in pingroups:
+                    pg_term = self._create_pin_group_terminal(pg)
+                    pg_terminal.append(pg_term)
+                for term in pg_terminal:
+                    term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
+                    term.SetIsCircuitPort(True)
+                    term.SetReferenceTerminal(ref_pin_group_term)
+            else:
+                for net in net_list:
+                    pins = [pin for pin in cmp_pins if pin.GetNet().GetName().lower() == net]
+                    for pin in pins:
+                        ref_pin = self._get_closest_pin_from(pin, ref_pins)
+                        ref_pin_term = self._create_terminal(ref_pin)
+                        term = self._create_terminal(pin)
+                        ref_pin_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
+                        ref_pin_term.SetIsCircuitPort(True)
+                        term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
+                        term.SetIsCircuitPort(True)
+                        term.SetReferenceTerminal(ref_pin_term)
+        return True
+
+    @aedt_exception_handler
+    def _create_terminal(self, pin):
+        """Create terminal on component pin.
+
+        Parameters
+        ----------
+        pin : Edb padstack instance.
+
+        Returns
+        -------
+        Edb terminal.
+        """
+
+        pin_pos = self._edb.Definition.Geometry.PointData()
+        pin_rot = 0.0
+        from_layer = self._edb.Cell.ILayerReadOnly
+        to_layer = self._edb.Cell.ILayerReadOnly
+        pin.GetLayerRange(from_layer, to_layer)
+        term_name = "{]_{}_{}".format(pin.GetComponent().GetName(), pin.GetNet().GetName(), pin.GetName())
+        term = self._edb.Cell.Terminal.PointTerminal.Create(
+            pin.GetLayout(), pin.GetNet(), term_name, pin_pos, from_layer
+        )
+        return term
+
+    @aedt_exception_handler
+    def _get_closest_pin_from(self, pin, ref_pinlist):
+        """Returns the closest pin from given pin among the list of reference pins.
+
+        Parameters
+        ----------
+        pin : Edb padstack instance.
+
+        ref_pinlist : list of reference edb pins.
+
+        Returns
+        -------
+        Edb pin.
+
+        """
+        pin_position = self._edb.Geometry.PointData()
+        pin_rot = 0.0
+        pin.GetPositionAndRotation(pin_position, pin_rot)
+
+        distance = 1e3
+        closest_pin = ref_pinlist[0]
+        ref_pin_pos = self._edb.Geometry.PointData()
+        ref_pin_rot = 0.0
+        for ref_pin in ref_pinlist:
+            ref_pin.GetPositionAndRotation(ref_pin_pos, ref_pin_rot)
+            temp_distance = pin_position.Distance(ref_pin_pos)
+            if temp_distance < distance:
+                distance = temp_distance
+                closest_pin = ref_pin
+        return closest_pin
+
+    @aedt_exception_handler
+    def _create_pin_group_terminal(self, pingroup, isref=False):
+        """Creates edb pin group terminal from given edb pin group.
+
+        Parameters
+        ----------
+        pingroup : Edb pin group.
+
+        isref : bool
+
+        Returns
+        -------
+        Edb pin group terminal.
+        """
+
+        layout = pingroup.GetLayout()
+        cmp_name = pingroup.GetComponent().GetName()
+        net_name = pingroup.GetNet().GetName()
+        term_name = pingroup.GetUniqueName(layout, "Pingroup_{0}_{1}".format(cmp_name, net_name))
+        pingroup_term = self._edb.Cell.Terminal.PinGroupTerminal.Create(
+            self._active_layout, pingroup.GetNet(), term_name, pingroup, isref
+        )
+        return pingroup_term
+
+    @aedt_exception_handler
+    def set_solder_ball(self, cmp, sball_height=100e-6, sball_diam=150e-6):
         """Define component solder ball ready for port assignment.
 
         Parameters
@@ -428,20 +616,18 @@ class Components(object):
 
         """
         if cmp is not None:
-            if not(isinstance(cmp, self._edb.Cell.Hierarchy.Component)):
+            if not (isinstance(cmp, self._edb.Cell.Hierarchy.Component)):
                 cmp = self.get_component_by_name(cmp)
             cmp_prop = cmp.GetComponentProperty().Clone()
             cmp_type = cmp.GetComponentType()
             if cmp_type == self._edb.Definition.ComponentType.IC:
                 die_prop = cmp_prop.GetDieProperty().Clone()
-                if orientation == FlipChipOrientation.Up:
-                    if not die_prop.SetOrientation(self._edb.Definition.DieOrientation.ChipUp):
-                        return False
-                else:
+                if self._is_top_component(cmp):
                     die_prop.SetOrientation(self._edb.Definition.DieOrientation.ChipDown)
+                else:
+                    die_prop.SetOrientation(self._edb.Definition.DieOrientation.ChipUp)
                 if not cmp_prop.SetDieProperty(die_prop):
                     return False
-
             solder_prop = cmp_prop.GetSolderBallProperty().Clone()
             if not solder_prop.SetDiameter(self._edb_value(sball_diam), self._edb_value(sball_diam)):
                 return False
@@ -456,6 +642,28 @@ class Components(object):
             if not cmp.SetComponentProperty(cmp_prop):
                 return False
 
+            return True
+        else:
+            return False
+
+    @aedt_exception_handler
+    def _is_top_component(self, cmp):
+        """Test the component placment layer.
+
+        Parameters
+        ----------
+        cmp : self._edb.Cell.Hierarchy.Component
+             Edb component.
+
+        Returns
+        -------
+        bool
+            ``True`` when component placed on top layer, ``False`` on bottom layer.
+
+
+        """
+        signal_layers = cmp.GetLayout().GetLayerCollection().Layers(self._edb.Cell.LayerTypeSet.SignalLayerSet)
+        if cmp.GetPlacementLayer() == signal_layers[0]:
             return True
         else:
             return False
@@ -495,7 +703,7 @@ class Components(object):
                 pin.SetIsLayoutPin(True)
                 conv_pin = self._components_methods.PinToConnectable(pin)
                 add_result = new_group.AddMember(conv_pin)
-            #new_cmp.SetGroup(new_group)
+            # new_cmp.SetGroup(new_group)
             if not placement_layer:
                 new_cmp_layer_name = pins[0].GetPadstackDef().GetData().GetLayerNames()[0]
             else:
@@ -504,8 +712,8 @@ class Components(object):
                 self._active_layout.GetLayerCollection(), new_cmp_layer_name
             )
             new_cmp.SetPlacementLayer(new_cmp_placement_layer)
-            #cmp_transform = System.Activator.CreateInstance(self._edb.Utility.)
-            #new_cmp.SetTransform(cmp_transform)
+            # cmp_transform = System.Activator.CreateInstance(self._edb.Utility.)
+            # new_cmp.SetTransform(cmp_transform)
             return (True, new_cmp)
         except:
             return (False, None)
@@ -642,6 +850,7 @@ class Components(object):
         if pingroup.IsNull():
             return (False, None)
         else:
+            pingroup.SetNet(pins[0].GetNet())
             return (True, pingroup)
 
     @aedt_exception_handler
@@ -872,7 +1081,8 @@ class Components(object):
         else:
             self._logger.warning(
                 "Component %s has not been assigned because either it is not present in the layout "
-                "or it contains a number of pins not equal to 2", componentname
+                "or it contains a number of pins not equal to 2",
+                componentname,
             )
             return False
         self._logger.warning("RLC properties for Component %s has been assigned.", componentname)
@@ -968,27 +1178,33 @@ class Components(object):
 
         cmp = self._edb.Cell.Hierarchy.Component.FindByName(self._active_layout, cmpName)
         if netName:
+            if not isinstance(netName, list):
+                netName = [netName]
+            # pins = []
+            # cmp_obj = list(cmp.LayoutObjs)
+            # for p in cmp_obj:
+            #    if p.GetObjType() == 1:
+            #        if p.IsLayoutPin():
+            #            pin_net_name = p.GetNet().GetName()
+            #            if pin_net_name in netName:
+            #                pins.append(p)
             pins = [
                 p
-                for p in cmp.LayoutObjs
-                if p.GetObjType() == self._edb.Cell.LayoutObjType.PadstackInstance
-                and p.IsLayoutPin()
-                and p.GetNet().GetName() == netName
+                for p in list(cmp.LayoutObjs)
+                if int(p.GetObjType()) == 1 and p.IsLayoutPin() and p.GetNet().GetName() in netName
             ]
         elif pinName:
+            if not isinstance(pinName, list):
+                pinName = [pinName]
             pins = [
                 p
-                for p in cmp.LayoutObjs
-                if p.GetObjType() == self._edb.Cell.LayoutObjType.PadstackInstance
+                for p in list(cmp.LayoutObjs)
+                if int(p.GetObjType()) == 1
                 and p.IsLayoutPin()
-                and (self.get_aedt_pin_name(p) == str(pinName) or p.GetName() == str(pinName))
+                and (self.get_aedt_pin_name(p) == str(pinName) or p.GetName() in str(pinName))
             ]
         else:
-            pins = [
-                p
-                for p in cmp.LayoutObjs
-                if p.GetObjType() == self._edb.Cell.LayoutObjType.PadstackInstance and p.IsLayoutPin()
-            ]
+            pins = [p for p in list(cmp.LayoutObjs) if int(p.GetObjType()) == 1 and p.IsLayoutPin()]
         return pins
 
     @aedt_exception_handler

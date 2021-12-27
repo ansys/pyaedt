@@ -100,14 +100,16 @@ class EdbPadstacks(object):
 
     @property
     def pad_type(self):
-        """Return a PadType Enumerator.
-        """
+        """Return a PadType Enumerator."""
 
         class PadType:
             (RegularPad, AntiPad, ThermalPad, Hole, UnknownGeomType) = (
-                self._edb.Definition.PadType.RegularPad, self._edb.Definition.PadType.AntiPad,
-                self._edb.Definition.PadType.ThermalPad, self._edb.Definition.PadType.Hole,
-                self._edb.Definition.PadType.UnknownGeomType)
+                self._edb.Definition.PadType.RegularPad,
+                self._edb.Definition.PadType.AntiPad,
+                self._edb.Definition.PadType.ThermalPad,
+                self._edb.Definition.PadType.Hole,
+                self._edb.Definition.PadType.UnknownGeomType,
+            )
 
         return PadType
 
@@ -128,8 +130,7 @@ class EdbPadstacks(object):
 
     @aedt_exception_handler
     def create_circular_padstack(
-            self, padstackname=None, holediam="300um", paddiam="400um", antipaddiam="600um",
-            startlayer=None, endlayer=None
+        self, padstackname=None, holediam="300um", paddiam="400um", antipaddiam="600um", startlayer=None, endlayer=None
     ):
         """Create a circular padstack.
 
@@ -184,8 +185,11 @@ class EdbPadstacks(object):
         newdefdata = self._edb.Definition.PadstackDefData(psdef.GetData())
         newdefdata.SetSolderBallShape(self._edb.Definition.SolderballShape.Cylinder)
         newdefdata.SetSolderBallParameter(self._edb_value(ballDiam), self._edb_value(ballDiam))
-        sball_placement = self._edb.Definition.SolderballPlacement.AbovePadstack \
-            if isTopPlaced else self._edb.Definition.SolderballPlacement.BelowPadstack
+        sball_placement = (
+            self._edb.Definition.SolderballPlacement.AbovePadstack
+            if isTopPlaced
+            else self._edb.Definition.SolderballPlacement.BelowPadstack
+        )
         newdefdata.SetSolderBallPlacement(sball_placement)
         psdef.SetData(newdefdata)
         sball_layer = [lay for lay in self._layers.edb_layers if lay.GetName() == sballLayer_name][0]
@@ -228,20 +232,16 @@ class EdbPadstacks(object):
 
         if not is_ironpython:
             res, fromlayer, tolayer = padstackinstance.GetLayerRange(None, None)
-            self._edb.Cell.Terminal.PadstackInstanceTerminal.Create(self._active_layout,
-                                                                    padstackinstance.GetNet(),
-                                                                    port_name,
-                                                                    padstackinstance,
-                                                                    tolayer)
+            self._edb.Cell.Terminal.PadstackInstanceTerminal.Create(
+                self._active_layout, padstackinstance.GetNet(), port_name, padstackinstance, tolayer
+            )
             if res:
                 return port_name
         else:
             res, fromlayer, tolayer = padstackinstance.GetLayerRange()
-            self._edb.Cell.Terminal.PadstackInstanceTerminal.Create(self._active_layout,
-                                                                    padstackinstance.GetNet(),
-                                                                    port_name,
-                                                                    padstackinstance,
-                                                                    tolayer)
+            self._edb.Cell.Terminal.PadstackInstanceTerminal.Create(
+                self._active_layout, padstackinstance.GetNet(), port_name, padstackinstance, tolayer
+            )
             if res:
                 return port_name
         return ""
@@ -270,7 +270,7 @@ class EdbPadstacks(object):
                 return pinlist.Item2
 
     @aedt_exception_handler
-    def get_pad_parameters(self, pin, layername, pad_type=None):
+    def get_pad_parameters(self, pin, layername, pad_type=0):
         """Get Padstack Parameters from Pin or Padstack Definition.
 
         Parameters
@@ -330,9 +330,20 @@ class EdbPadstacks(object):
 
     @aedt_exception_handler
     def create_padstack(
-            self, padstackname=None, holediam="300um", paddiam="400um", antipaddiam="600um",
-            startlayer=None, endlayer=None, antipad_shape="Circle", x_size="600um", y_size="600um",
-            corner_radius="300um", offset_x="0.0", offset_y="0.0", rotation="0.0"
+        self,
+        padstackname=None,
+        holediam="300um",
+        paddiam="400um",
+        antipaddiam="600um",
+        startlayer=None,
+        endlayer=None,
+        antipad_shape="Circle",
+        x_size="600um",
+        y_size="600um",
+        corner_radius="300um",
+        offset_x="0.0",
+        offset_y="0.0",
+        rotation="0.0",
     ):
         """Create a padstack.
 
@@ -432,8 +443,8 @@ class EdbPadstacks(object):
         padstackLayerIdMap = {k: v for k, v in zip(padstackData.GetLayerNames(), padstackData.GetLayerIds())}
         padstackLayerMap = self._edb.Utility.LayerMap(self._edb.Utility.UniqueDirection.ForwardUnique)
         for layer, padstackLayerName in zip(
-                self._active_layout.GetLayerCollection().Layers(self._edb.Cell.LayerTypeSet.SignalLayerSet),
-                [startlayer, "Default", endlayer],
+            self._active_layout.GetLayerCollection().Layers(self._edb.Cell.LayerTypeSet.SignalLayerSet),
+            [startlayer, "Default", endlayer],
         ):
             padstackLayerMap.SetMapping(layer.GetLayerId(), padstackLayerIdMap[padstackLayerName])
         padstackDefinition = self._edb.Definition.PadstackDef.Create(self.db, padstackname)
@@ -444,15 +455,15 @@ class EdbPadstacks(object):
 
     @aedt_exception_handler
     def place_padstack(
-            self,
-            position,
-            definition_name,
-            net_name="",
-            via_name="",
-            rotation=0.0,
-            fromlayer=None,
-            tolayer=None,
-            solderlayer=None,
+        self,
+        position,
+        definition_name,
+        net_name="",
+        via_name="",
+        rotation=0.0,
+        fromlayer=None,
+        tolayer=None,
+        solderlayer=None,
     ):
         """Place the padstack.
 

@@ -96,6 +96,7 @@ class Layer(object):
     >>>app = Hfss3dLayout()
     >>>layers = app.modeler.primitives.layers["Top"]
     """
+
     def __init__(self, app, layertype="signal", negative=False):
         self.LengthUnit = app.LengthUnit
         self.LengthUnitRough = app.LengthUnit
@@ -576,6 +577,7 @@ class Layers(object):
     >>>app = Hfss3dLayout()
     >>>layers = app.modeler.primitives.layers
     """
+
     def __init__(self, modeler, roughnessunits="um"):
         self._modeler = modeler
         self._app = self._modeler._app

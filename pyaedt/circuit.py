@@ -214,9 +214,7 @@ class Circuit(FieldAnalysisCircuit, object):
                         try:
                             float(fields[4])
                         except:
-                            self.logger.warning(
-                                "Component {} Not Imported. Check it and manually import".format(name)
-                            )
+                            self.logger.warning("Component {} Not Imported. Check it and manually import".format(name))
                             continue
                     if "{" in fields[3][0]:
                         value = fields[3].strip()[1:-1]
@@ -994,7 +992,8 @@ class Circuit(FieldAnalysisCircuit, object):
         ctxt = ["NAME:Context", "SimValueContext:=", [3, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0]]
         if subdesign_id:
             ctxt_temp = ["NUMLEVELS", False, "0", "SUBDESIGNID", False, str(subdesign_id)]
-            for el in ctxt_temp: ctxt[2].append(el)
+            for el in ctxt_temp:
+                ctxt[2].append(el)
 
         return self.post.create_rectangular_plot(
             curvenames, solution_name, variations, plotname=plot_name, context=ctxt

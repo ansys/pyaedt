@@ -3,6 +3,7 @@ rather than an endless stream of bytes, and adds support for compression.
 """
 from rpyc.lib import safe_import
 from rpyc.lib.compat import Struct, BYTES_LITERAL
+
 zlib = safe_import("zlib")
 
 # * 64 bit length field?
@@ -54,7 +55,7 @@ class Channel(object):
         """
         header = self.stream.read(self.FRAME_HEADER.size)
         length, compressed = self.FRAME_HEADER.unpack(header)
-        data = self.stream.read(length + len(self.FLUSHER))[:-len(self.FLUSHER)]
+        data = self.stream.read(length + len(self.FLUSHER))[: -len(self.FLUSHER)]
         if compressed:
             data = zlib.decompress(data)
         return data

@@ -1,6 +1,6 @@
 """
 EDB Geometry Creation
----------------------------
+---------------------
 This example shows how to use EDB to create a layout.
 """
 # sphinx_gallery_thumbnail_path = 'Resources/3dlayout.png'

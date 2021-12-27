@@ -178,10 +178,14 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             self.modeler.oeditor.CreateEdgePort(
                 [
                     "NAME:Contents",
-                    "edge:="	, [			"et:="			, "pe",			"prim:="		, primivitivenames[0],			"edge:="		, edgenumbers[0]],
-                    "edge:="		, [			"et:="			, "pe",			"prim:="		, primivitivenames[1],			"edge:="		, edgenumbers[1]],
-                    "external:="		, True,
-                    "btype:="		, 0
+                    "edge:=",
+                    ["et:=", "pe", "prim:=", primivitivenames[0], "edge:=", edgenumbers[0]],
+                    "edge:=",
+                    ["et:=", "pe", "prim:=", primivitivenames[1], "edge:=", edgenumbers[1]],
+                    "external:=",
+                    True,
+                    "btype:=",
+                    0,
                 ]
             )
             listnew = self.port_list
@@ -656,7 +660,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         freqstop,
         num_of_freq_points,
         sweepname=None,
-        sweeptype="interpolating",
+        sweeptype="Interpolating",
         interpolation_tol_percent=0.5,
         interpolation_max_solutions=250,
         save_fields=True,
@@ -676,24 +680,24 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         )
         if sweeptype == "interpolating":
             sweeptype = "Interpolating"
-        elif sweeptype == 'discrete':
+        elif sweeptype == "discrete":
             sweeptype = "Discrete"
-        elif sweeptype == 'fast':
+        elif sweeptype == "fast":
             sweeptype = "Fast"
 
         return self.create_linear_count_sweep(
-                setupname=setupname,
-                unit=unit,
-                freqstart=freqstart,
-                freqstop=freqstop,
-                num_of_freq_points=num_of_freq_points,
-                sweepname=sweepname,
-                save_fields=save_fields,
-                save_rad_fields_only=save_rad_fields_only,
-                sweep_type=sweeptype,
-                interpolation_tol_percent=interpolation_tol_percent,
-                interpolation_max_solutions=interpolation_max_solutions,
-                use_q3d_for_dc=use_q3d_for_dc,
+            setupname=setupname,
+            unit=unit,
+            freqstart=freqstart,
+            freqstop=freqstop,
+            num_of_freq_points=num_of_freq_points,
+            sweepname=sweepname,
+            save_fields=save_fields,
+            save_rad_fields_only=save_rad_fields_only,
+            sweep_type=sweeptype,
+            interpolation_tol_percent=interpolation_tol_percent,
+            interpolation_max_solutions=interpolation_max_solutions,
+            use_q3d_for_dc=use_q3d_for_dc,
         )
 
     @aedt_exception_handler
@@ -779,7 +783,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                     oldname = sweepname
                     sweepname = generate_unique_name(oldname)
                     self.logger.warning(
-                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname)
+                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname
+                    )
                 sweep = setupdata.add_sweep(sweepname=sweepname)
                 if not sweep:
                     return False
@@ -879,7 +884,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                     oldname = sweepname
                     sweepname = generate_unique_name(oldname)
                     self.logger.warning(
-                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname)
+                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname
+                    )
                 sweep = setupdata.add_sweep(sweepname=sweepname)
                 if not sweep:
                     return False
@@ -955,7 +961,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                     oldname = sweepname
                     sweepname = generate_unique_name(oldname)
                     self.logger.warning(
-                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname)
+                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname
+                    )
                 sweepdata = setupdata.add_sweep(sweepname, "Discrete")
                 sweepdata.change_range("SinglePoint", freq0, unit=unit)
                 sweepdata.props["GenerateSurfaceCurrent"] = save_fields

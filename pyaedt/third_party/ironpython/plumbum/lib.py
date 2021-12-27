@@ -27,9 +27,7 @@ class ProcInfo(object):
         self.args = args
 
     def __repr__(self):
-        return "ProcInfo({!r}, {!r}, {!r}, {!r})".format(
-            self.pid, self.uid, self.stat, self.args
-        )
+        return "ProcInfo({!r}, {!r}, {!r}, {!r})".format(self.pid, self.uid, self.stat, self.args)
 
 
 class six(object):
@@ -43,17 +41,13 @@ class six(object):
     except ImportError:
         from abc import ABCMeta  # type: ignore
 
-        ABC = ABCMeta(
-            "ABC", (object,), {"__module__": __name__, "__slots__": ()}
-        )  # type: ignore
+        ABC = ABCMeta("ABC", (object,), {"__module__": __name__, "__slots__": ()})  # type: ignore
 
     # Be sure to use named-tuple access, so that usage is not affected
     try:
         getfullargspec = staticmethod(inspect.getfullargspec)
     except AttributeError:
-        getfullargspec = staticmethod(
-            inspect.getargspec
-        )  # extra fields will not be available
+        getfullargspec = staticmethod(inspect.getargspec)  # extra fields will not be available
 
     if PY3:
         integer_types = (int,)

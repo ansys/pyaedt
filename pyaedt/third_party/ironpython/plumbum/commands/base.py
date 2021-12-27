@@ -342,12 +342,7 @@ class BoundEnvCommand(BaseCommand):
         return self.cmd.machine
 
     def popen(self, args=(), cwd=None, env={}, **kwargs):
-        return self.cmd.popen(
-            args,
-            cwd=self.cwd if cwd is None else cwd,
-            env=dict(self.env, **env),
-            **kwargs
-        )
+        return self.cmd.popen(args, cwd=self.cwd if cwd is None else cwd, env=dict(self.env, **env), **kwargs)
 
 
 class Pipeline(BaseCommand):
@@ -364,11 +359,7 @@ class Pipeline(BaseCommand):
         return self.srccmd._get_encoding() or self.dstcmd._get_encoding()
 
     def formulate(self, level=0, args=()):
-        return (
-            self.srccmd.formulate(level + 1)
-            + ["|"]
-            + self.dstcmd.formulate(level + 1, args)
-        )
+        return self.srccmd.formulate(level + 1) + ["|"] + self.dstcmd.formulate(level + 1, args)
 
     @property
     def machine(self):
@@ -579,9 +570,7 @@ class ConcreteCommand(BaseCommand):
                 else:
                     argv.extend(a.formulate(level + 1))
             elif isinstance(a, (list, tuple)):
-                argv.extend(
-                    shquote(b) if level >= self.QUOTE_LEVEL else six.str(b) for b in a
-                )
+                argv.extend(shquote(b) if level >= self.QUOTE_LEVEL else six.str(b) for b in a)
             else:
                 argv.append(shquote(a) if level >= self.QUOTE_LEVEL else six.str(a))
         # if self.custom_encoding:

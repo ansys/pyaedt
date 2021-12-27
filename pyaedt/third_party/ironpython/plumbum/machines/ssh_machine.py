@@ -149,9 +149,7 @@ class SshMachine(BaseRemoteMachine):
                 cmdline.extend(["cd", str(cwd), "&&"])
             if envdelta:
                 cmdline.append("env")
-                cmdline.extend(
-                    "{}={}".format(k, shquote(v)) for k, v in envdelta.items()
-                )
+                cmdline.extend("{}={}".format(k, shquote(v)) for k, v in envdelta.items())
             if isinstance(args, (tuple, list)):
                 cmdline.extend(args)
             else:
@@ -164,9 +162,7 @@ class SshMachine(BaseRemoteMachine):
         allowing the command to run "detached" from its controlling TTY or parent.
         Does not return anything. Depreciated (use command.nohup or daemonic_popen).
         """
-        warnings.warn(
-            "Use .nohup on the command or use daemonic_popen)", DeprecationWarning
-        )
+        warnings.warn("Use .nohup on the command or use daemonic_popen)", DeprecationWarning)
         self.daemonic_popen(command, cwd=".", stdout=None, stderr=None, append=False)
 
     def daemonic_popen(self, command, cwd=".", stdout=None, stderr=None, append=True):
@@ -200,9 +196,7 @@ class SshMachine(BaseRemoteMachine):
         rc = proc.wait()
         try:
             if rc != 0:
-                raise ProcessExecutionError(
-                    args, rc, proc.stdout.read(), proc.stderr.read()
-                )
+                raise ProcessExecutionError(args, rc, proc.stdout.read(), proc.stderr.read())
         finally:
             proc.stdin.close()
             proc.stdout.close()
@@ -211,17 +205,13 @@ class SshMachine(BaseRemoteMachine):
     @_setdoc(BaseRemoteMachine)
     def session(self, isatty=False, new_session=False):
         return ShellSession(
-            self.popen(
-                ["/bin/sh"], (["-tt"] if isatty else ["-T"]), new_session=new_session
-            ),
+            self.popen(["/bin/sh"], (["-tt"] if isatty else ["-T"]), new_session=new_session),
             self.custom_encoding,
             isatty,
             self.connect_timeout,
         )
 
-    def tunnel(
-        self, lport, dport, lhost="localhost", dhost="localhost", connect_timeout=5
-    ):
+    def tunnel(self, lport, dport, lhost="localhost", dhost="localhost", connect_timeout=5):
         r"""Creates an SSH tunnel from the TCP port (``lport``) of the local machine
         (``lhost``, defaults to ``"localhost"``, but it can be any IP you can ``bind()``)
         to the remote TCP port (``dport``) of the destination machine (``dhost``, defaults
@@ -270,11 +260,7 @@ class SshMachine(BaseRemoteMachine):
         """
         ssh_opts = ["-L", "[{}]:{}:[{}]:{}".format(lhost, lport, dhost, dport)]
         proc = self.popen((), ssh_opts=ssh_opts, new_session=True)
-        return SshTunnel(
-            ShellSession(
-                proc, self.custom_encoding, connect_timeout=self.connect_timeout
-            )
-        )
+        return SshTunnel(ShellSession(proc, self.custom_encoding, connect_timeout=self.connect_timeout))
 
     def _translate_drive_letter(self, path):
         # replace c:\some\path with /c/some/path

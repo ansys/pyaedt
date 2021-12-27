@@ -5,7 +5,16 @@ import csv
 import math
 import os
 import re
+import warnings
 from collections import OrderedDict
+
+if os.name == "posix":
+    try:
+        import subprocessdotnet as subprocess
+    except:
+        warnings.warn("Pythonnet is needed to run pyaedt within Linux")
+else:
+    import subprocess
 
 from pyaedt.application.AnalysisIcepak import FieldAnalysisIcepak
 from pyaedt.generic.general_methods import generate_unique_name, aedt_exception_handler
@@ -443,9 +452,7 @@ class Icepak(FieldAnalysisIcepak):
         bound = BoundaryObject(self, boundary_name, props, "Block")
         if bound.create():
             self.boundaries.append(bound)
-            self.logger.info(
-                "Block on {} with {} Power, created correctly.".format(object_name, input_power)
-            )
+            self.logger.info("Block on {} with {} Power, created correctly.".format(object_name, input_power))
             return bound
         return None
 
@@ -830,7 +837,8 @@ class Icepak(FieldAnalysisIcepak):
                     )
                     if not status:
                         self.logger.warning(
-                            "Warning. Block %s skipped with %sW power.", component_data["Ref Des"][i], power)
+                            "Warning. Block %s skipped with %sW power.", component_data["Ref Des"][i], power
+                        )
                     else:
                         total_power += float(power)
                 elif component_data["Ref Des"][i] in all_objects:
@@ -839,7 +847,8 @@ class Icepak(FieldAnalysisIcepak):
                     )
                     if not status:
                         self.logger.warning(
-                            "Warning. Block %s skipped with %sW power.", component_data["Ref Des"][i], power)
+                            "Warning. Block %s skipped with %sW power.", component_data["Ref Des"][i], power
+                        )
                     else:
                         total_power += float(power)
             except:
@@ -884,8 +893,7 @@ class Icepak(FieldAnalysisIcepak):
                         name = line[id1 : id1 + id2]
                         if name not in priority_list:
                             priority_list.append(name)
-            self.logger.info(
-                "{} Intersections have been found. Applying Priorities".format(len(priority_list)))
+            self.logger.info("{} Intersections have been found. Applying Priorities".format(len(priority_list)))
             for objname in priority_list:
                 self.mesh.add_priority(1, [objname], priority=i)
                 i += 1
@@ -1133,32 +1141,33 @@ class Icepak(FieldAnalysisIcepak):
         return True
 
     @aedt_exception_handler
-    def import_idf(self,
-                   board_path,
-                   library_path=None,
-                   control_path=None,
-                   filter_cap=False,
-                   filter_ind=False,
-                   filter_res=False,
-                   filter_height_under=None,
-                   filter_height_exclude_2d=False,
-                   power_under=None,
-                   create_filtered_as_non_model=False,
-                   high_surface_thick="0.07mm",
-                   low_surface_thick="0.07mm",
-                   internal_thick="0.07mm",
-                   internal_layer_number=2,
-                   high_surface_coverage=30,
-                   low_surface_coverage=30,
-                   internal_layer_coverage=30,
-                   trace_material="Cu-Pure",
-                   substrate_material="FR-4",
-                   create_board=True,
-                   model_board_as_rect=False,
-                   model_device_as_rect=True,
-                   cutoff_height="5mm",
-                   component_lib=""
-                   ):
+    def import_idf(
+        self,
+        board_path,
+        library_path=None,
+        control_path=None,
+        filter_cap=False,
+        filter_ind=False,
+        filter_res=False,
+        filter_height_under=None,
+        filter_height_exclude_2d=False,
+        power_under=None,
+        create_filtered_as_non_model=False,
+        high_surface_thick="0.07mm",
+        low_surface_thick="0.07mm",
+        internal_thick="0.07mm",
+        internal_layer_number=2,
+        high_surface_coverage=30,
+        low_surface_coverage=30,
+        internal_layer_coverage=30,
+        trace_material="Cu-Pure",
+        substrate_material="FR-4",
+        create_board=True,
+        model_board_as_rect=False,
+        model_device_as_rect=True,
+        cutoff_height="5mm",
+        component_lib="",
+    ):
         """Import an IDF file to Icepak Design.
 
         Parameters
@@ -1222,9 +1231,9 @@ class Icepak(FieldAnalysisIcepak):
         >>> oDesign.ImportIDF
         """
         if not library_path:
-            library_path = board_path[:-3]+"emp"
-        if not control_path and os.path.exists(board_path[:-3]+"xml"):
-            control_path = board_path[:-3]+"xml"
+            library_path = board_path[:-3] + "emp"
+        if not control_path and os.path.exists(board_path[:-3] + "xml"):
+            control_path = board_path[:-3] + "xml"
         else:
             control_path = ""
         filters = []
@@ -1255,36 +1264,58 @@ class Icepak(FieldAnalysisIcepak):
         self.odesign.ImportIDF(
             [
                 "NAME:Settings",
-                "Board:=", board_path.replace("\\", "\\\\"),
-                "Library:=", library_path.replace("\\", "\\\\"),
-                "Control:=", control_path.replace("\\", "\\\\"),
-                "Filters:=", filters,
-                "CreateFilteredAsNonModel:=", create_filtered_as_non_model,
-                "HeightVal:=", self._arg_with_units(filter_height_under),
-                "PowerVal:=", self._arg_with_units(power_under, "mW"),
+                "Board:=",
+                board_path.replace("\\", "\\\\"),
+                "Library:=",
+                library_path.replace("\\", "\\\\"),
+                "Control:=",
+                control_path.replace("\\", "\\\\"),
+                "Filters:=",
+                filters,
+                "CreateFilteredAsNonModel:=",
+                create_filtered_as_non_model,
+                "HeightVal:=",
+                self._arg_with_units(filter_height_under),
+                "PowerVal:=",
+                self._arg_with_units(power_under, "mW"),
                 [
                     "NAME:definitionOverridesMap",
                 ],
-                [
-                    "NAME:instanceOverridesMap"
-                ],
-                "HighSurfThickness:=", self._arg_with_units(high_surface_thick),
-                "LowSurfThickness:=", self._arg_with_units(low_surface_thick),
-                "InternalLayerThickness:=", self._arg_with_units(internal_thick),
-                "NumInternalLayer:=", internal_layer_number,
-                "HighSurfaceCopper:=", high_surface_coverage,
-                "LowSurfaceCopper:=", low_surface_coverage,
-                "InternalLayerCopper:=", internal_layer_coverage,
-                "TraceMaterial:=", trace_material,
-                "SubstrateMaterial:=", substrate_material,
-                "CreateBoard:=", create_board,
-                "ModelBoardAsRect:=", model_board_as_rect,
-                "ModelDeviceAsRect:=", model_device_as_rect,
-                "Cutoff:=", cutoff,
-                "CutoffHeight:=", self._arg_with_units(cutoff_height),
-                "ReplaceDevices:=", replace_device,
-                "CompLibDir:=", component_lib
-            ])
+                ["NAME:instanceOverridesMap"],
+                "HighSurfThickness:=",
+                self._arg_with_units(high_surface_thick),
+                "LowSurfThickness:=",
+                self._arg_with_units(low_surface_thick),
+                "InternalLayerThickness:=",
+                self._arg_with_units(internal_thick),
+                "NumInternalLayer:=",
+                internal_layer_number,
+                "HighSurfaceCopper:=",
+                high_surface_coverage,
+                "LowSurfaceCopper:=",
+                low_surface_coverage,
+                "InternalLayerCopper:=",
+                internal_layer_coverage,
+                "TraceMaterial:=",
+                trace_material,
+                "SubstrateMaterial:=",
+                substrate_material,
+                "CreateBoard:=",
+                create_board,
+                "ModelBoardAsRect:=",
+                model_board_as_rect,
+                "ModelDeviceAsRect:=",
+                model_device_as_rect,
+                "Cutoff:=",
+                cutoff,
+                "CutoffHeight:=",
+                self._arg_with_units(cutoff_height),
+                "ReplaceDevices:=",
+                replace_device,
+                "CompLibDir:=",
+                component_lib,
+            ]
+        )
         self.modeler.primitives.add_new_objects()
         return True
 
@@ -1597,8 +1628,17 @@ class Icepak(FieldAnalysisIcepak):
             string += el + "='" + parameter_dict_with_values[el] + "' "
         filename = os.path.join(savedir, filename + ".csv")
         self.osolution.ExportFieldsSummary(
-            ["SolutionName:=", sweep_name, "DesignVariationKey:=", string, "ExportFileName:=", filename,
-             "IntrinsicValue:=", "", ])
+            [
+                "SolutionName:=",
+                sweep_name,
+                "DesignVariationKey:=",
+                string,
+                "ExportFileName:=",
+                filename,
+                "IntrinsicValue:=",
+                "",
+            ]
+        )
         return filename
 
     @aedt_exception_handler
@@ -2300,3 +2340,142 @@ class Icepak(FieldAnalysisIcepak):
 
         self.modeler.oeditor.Delete(arg)
         return True
+
+    @aedt_exception_handler
+    def get_liquid_objects(self):
+        """Return the liquid materials objects.
+
+        Returns
+        -------
+        list
+            List of objects names
+        """
+        mats = []
+        for el in self.materials.liquids:
+            mats.extend(self.modeler.convert_to_selections(self.modeler.get_objects_by_material(el), True))
+        return mats
+
+    @aedt_exception_handler
+    def get_gas_objects(self):
+        """Return the gas materials objects.
+
+        Returns
+        -------
+        list
+            List of all Gas objects.
+        """
+        mats = []
+        for el in self.materials.gases:
+            mats.extend(self.modeler.convert_to_selections(self.modeler.get_objects_by_material(el), True))
+        return mats
+
+    @aedt_exception_handler
+    def generate_fluent_mesh(self, object_lists=None):
+        """Generate a Fluent Mesh for selected objects list and assign it automatically to the objects.
+
+        Parameters
+        ----------
+        object_lists : list, optional
+            Lis of objects on which compute Fluent Mesh. If `None` mesh will be done on fluids objects.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Mesh.MeshOperation`
+        """
+        version = self.aedt_version_id[-3:]
+        ansys_install_dir = os.environ.get("ANSYS{}_DIR".format(version), "")
+        if not ansys_install_dir:
+            ansys_install_dir = os.environ.get("AWP_ROOT{}".format(version), "")
+        assert ansys_install_dir, "Fluent {} has to be installed on to generate mesh.".format(version)
+        assert os.getenv("ANSYS{}_DIR".format(version))
+        if not object_lists:
+            object_lists = self.get_liquid_objects()
+            assert object_lists, "No Fluids objects found."
+        object_lists = self.modeler.convert_to_selections(object_lists, True)
+        file_name = self.project_name
+        sab_file_pointer = os.path.join(self.project_path, file_name + ".sab")
+        mesh_file_pointer = os.path.join(self.project_path, file_name + ".msh")
+        fl_uscript_file_pointer = os.path.join(self.project_path, "FLUscript.jou")
+        if os.path.exists(mesh_file_pointer):
+            os.remove(mesh_file_pointer)
+        if os.path.exists(sab_file_pointer):
+            os.remove(sab_file_pointer)
+        if os.path.exists(fl_uscript_file_pointer):
+            os.remove(fl_uscript_file_pointer)
+        if os.path.exists(mesh_file_pointer + ".trn"):
+            os.remove(mesh_file_pointer + ".trn")
+        assert self.export_3d_model(file_name, self.project_path, ".sab", object_lists), "Failed to export .sab"
+
+        # Building Fluent journal script file *.jou
+        fluent_script = open(fl_uscript_file_pointer, "w")
+        fluent_script.write("/file/start-transcript " + '"' + mesh_file_pointer + '.trn"\n')
+        fluent_script.write(
+            '/file/set-tui-version "{}"\n'.format(self.aedt_version_id[-3:-1] + "." + self.aedt_version_id[-1:])
+        )
+        fluent_script.write("(enable-feature 'serial-hexcore-without-poly)\n")
+        fluent_script.write('(cx-gui-do cx-activate-tab-index "NavigationPane*Frame1(TreeTab)" 0)\n')
+        fluent_script.write("(%py-exec \"workflow.InitializeWorkflow(WorkflowType=r'Watertight Geometry')\")\n")
+        cmd = "(%py-exec \"workflow.TaskObject['Import Geometry']."
+        cmd += "Arguments.setState({r'FileName': r'" + sab_file_pointer + "',})\")\n"
+        fluent_script.write(cmd)
+        fluent_script.write("(%py-exec \"workflow.TaskObject['Import Geometry'].Execute()\")\n")
+        fluent_script.write("(%py-exec \"workflow.TaskObject['Add Local Sizing'].AddChildToTask()\")\n")
+        fluent_script.write("(%py-exec \"workflow.TaskObject['Add Local Sizing'].Execute()\")\n")
+        fluent_script.write("(%py-exec \"workflow.TaskObject['Generate the Surface Mesh'].Execute()\")\n")
+        cmd = "(%py-exec \"workflow.TaskObject['Describe Geometry'].UpdateChildTasks(SetupTypeChanged=False)\")\n"
+        fluent_script.write(cmd)
+        cmd = "(%py-exec \"workflow.TaskObject['Describe Geometry']."
+        cmd += "Arguments.setState({r'SetupType': r'The geometry consists of only fluid regions with no voids',})\")\n"
+        fluent_script.write(cmd)
+        cmd = "(%py-exec \"workflow.TaskObject['Describe Geometry'].UpdateChildTasks(SetupTypeChanged=True)\")\n"
+        fluent_script.write(cmd)
+        cmd = "(%py-exec \"workflow.TaskObject['Describe Geometry'].Arguments.setState({r'InvokeShareTopology': r'Yes',"
+        cmd += "r'SetupType': r'The geometry consists of only fluid regions with no voids',r'WallToInternal': "
+        cmd += "r'Yes',})\")\n"
+        fluent_script.write(cmd)
+        cmd = "(%py-exec \"workflow.TaskObject['Describe Geometry'].UpdateChildTasks(SetupTypeChanged=False)\")\n"
+        fluent_script.write(cmd)
+        fluent_script.write("(%py-exec \"workflow.TaskObject['Describe Geometry'].Execute()\")\n")
+        fluent_script.write("(%py-exec \"workflow.TaskObject['Apply Share Topology'].Execute()\")\n")
+        fluent_script.write("(%py-exec \"workflow.TaskObject['Update Boundaries'].Execute()\")\n")
+        fluent_script.write("(%py-exec \"workflow.TaskObject['Update Regions'].Execute()\")\n")
+        fluent_script.write("(%py-exec \"workflow.TaskObject['Add Boundary Layers'].AddChildToTask()\")\n")
+        fluent_script.write("(%py-exec \"workflow.TaskObject['Add Boundary Layers'].InsertCompoundChildTask()\")\n")
+        cmd = "(%py-exec \"workflow.TaskObject['smooth-transition_1']."
+        cmd += "Arguments.setState({r'BLControlName': r'smooth-transition_1',})\")\n"
+        fluent_script.write(cmd)
+        fluent_script.write("(%py-exec \"workflow.TaskObject['Add Boundary Layers'].Arguments.setState({})\")\n")
+        fluent_script.write("(%py-exec \"workflow.TaskObject['smooth-transition_1'].Execute()\")\n")
+        # r'VolumeFill': r'hexcore' / r'tetrahedral'
+        cmd = "(%py-exec \"workflow.TaskObject['Generate the Volume Mesh'].Arguments.setState({r'VolumeFill': "
+        cmd += "r'hexcore', r'VolumeMeshPreferences': {r'MergeBodyLabels': r'yes',},})\")\n"
+        fluent_script.write(cmd)
+        fluent_script.write("(%py-exec \"workflow.TaskObject['Generate the Volume Mesh'].Execute()\")\n")
+        fluent_script.write("/file/hdf no\n")
+        fluent_script.write('/file/write-mesh "' + mesh_file_pointer + '"\n')
+        fluent_script.write("/file/stop-transcript\n")
+        fluent_script.write("/exit,\n")
+        fluent_script.close()
+
+        # Fluent command line parameters: -meshing -i <journal> -hidden -tm<x> (# processors for meshing) -wait
+        fl_ucommand = [
+            os.path.join(self.desktop_install_dir, "fluent", "ntbin", "win64", "fluent.exe"),
+            "3d",
+            "-meshing",
+            "-hidden",
+            "-i" + '"' + fl_uscript_file_pointer + '"',
+        ]
+        self.logger.info("Fluent will be started in BG!")
+        subprocess.call(fl_ucommand)
+        if os.path.exists(mesh_file_pointer + ".trn"):
+            os.remove(mesh_file_pointer + ".trn")
+        if os.path.exists(fl_uscript_file_pointer):
+            os.remove(fl_uscript_file_pointer)
+        if os.path.exists(sab_file_pointer):
+            os.remove(sab_file_pointer)
+        if os.path.exists(mesh_file_pointer):
+            self.logger.info("'" + mesh_file_pointer + "' has been created.")
+            return self.mesh.assign_mesh_from_file(object_lists, mesh_file_pointer)
+        self.logger.error("Failed to create msh file")
+
+        return False

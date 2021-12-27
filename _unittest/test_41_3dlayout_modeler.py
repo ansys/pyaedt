@@ -308,7 +308,7 @@ class TestClass:
             sweepname="RFBoardSingle",
             save_fields=False,
         )
-        assert sweep6.props["Sweeps"]["Data"] == '1GHz 2GHz 3GHz 4GHz'
+        assert sweep6.props["Sweeps"]["Data"] == "1GHz 2GHz 3GHz 4GHz"
 
     def test_18d_delete_setup(self):
         setup_name = "SetupToDelete"

@@ -247,8 +247,17 @@ class ModelerNexxim(ModelerCircuit):
 
         self.oeditor.Move(
             ["NAME:Selections", "Selections:=", sels],
-            ["NAME:MoveParameters", "xdelta:=", x_location, "ydelta:=", y_location, "Disconnect:=", False,
-             "Rubberband:=", False],
+            [
+                "NAME:MoveParameters",
+                "xdelta:=",
+                x_location,
+                "ydelta:=",
+                y_location,
+                "Disconnect:=",
+                False,
+                "Rubberband:=",
+                False,
+            ],
         )
         return True
 
@@ -281,8 +290,15 @@ class ModelerNexxim(ModelerCircuit):
 
         self.oeditor.Rotate(
             ["NAME:Selections", "Selections:=", sels],
-            ["NAME:RotateParameters", "Degrees:=", _dim_arg(degrees, "°"), "Disconnect:=", False, "Rubberband:=",
-             False],
+            [
+                "NAME:RotateParameters",
+                "Degrees:=",
+                _dim_arg(degrees, "°"),
+                "Disconnect:=",
+                False,
+                "Rubberband:=",
+                False,
+            ],
         )
         return True
 

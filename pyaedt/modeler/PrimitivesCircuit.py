@@ -8,6 +8,7 @@ from pyaedt.modeler.Object3d import CircuitComponent
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.TouchstoneParser import _parse_ports_name
 
+
 class CircuitComponents(object):
     """CircutComponents class.
 
@@ -324,10 +325,11 @@ class CircuitComponents(object):
         if model_name in list(self.o_model_manager.GetNames()):
             model_name = generate_unique_name(model_name, n=2)
         num_terminal = int(touchstone_full_path[-2:-1])
-        with open(touchstone_full_path, 'r') as f:
+        with open(touchstone_full_path, "r") as f:
             port_names = _parse_ports_name(f)
-        image_subcircuit_path = os.path.normpath(os.path.join(self._modeler._app.desktop_install_dir, "syslib",
-                                                              "Bitmaps", "nport.bmp"))
+        image_subcircuit_path = os.path.normpath(
+            os.path.join(self._modeler._app.desktop_install_dir, "syslib", "Bitmaps", "nport.bmp")
+        )
         if not port_names:
             port_names = ["Port" + str(i + 1) for i in range(num_terminal)]
         arg = [

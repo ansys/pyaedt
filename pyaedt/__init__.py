@@ -15,22 +15,20 @@ try:
 except:
     from pyaedt.generic.design_types import Hfss3dLayout
 
-from pyaedt.generic.design_types import (Hfss,
-                                         Circuit,
-                                         Q2d,
-                                         Q3d,
-                                         Siwave,
-                                         Icepak,
-                                         Edb,
-                                         Maxwell3d,
-                                         Maxwell2d,
-                                         Mechanical,
-                                         Rmxprt,
-                                         Simplorer,
-                                         Emit,
-                                         get_pyaedt_app,
-                                         Desktop)
-
-
-
-
+from pyaedt.generic.design_types import (
+    Hfss,
+    Circuit,
+    Q2d,
+    Q3d,
+    Siwave,
+    Icepak,
+    Edb,
+    Maxwell3d,
+    Maxwell2d,
+    Mechanical,
+    Rmxprt,
+    Simplorer,
+    Emit,
+    get_pyaedt_app,
+    Desktop,
+)
