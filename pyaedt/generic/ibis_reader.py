@@ -170,7 +170,7 @@ class Buffer:
     @property
     def name(self):
         """Full name of the buffer including the ibis filename."""
-        return f"{self.short_name}_{self._ibis_name}"
+        return "{}_{}".format(self.short_name, self._ibis_name)
 
     @property
     def short_name(self):
@@ -435,14 +435,14 @@ class IbisReader:
             ]
             arg_buffers = ["NAME:Buffers"]
             for buffer in buffers:
-                arg_buffers.append(f"{buffers[buffer].short_name}:=")
+                arg_buffers.append("{}:=".format(buffers[buffer].short_name))
                 arg_buffers.append([True, "IbisSingleEnded"])
 
             arg_components = ["NAME:Components"]
             for component in ibis.components:
-                arg_component = [f"NAME:{ibis.components[component].name}"]
+                arg_component = ["NAME:{}".format(ibis.components[component].name)]
                 for pin in ibis.components[component].pins:
-                    arg_component.append(f"{ibis.components[component].pins[pin].short_name}:=")
+                    arg_component.append("{}:=".format(ibis.components[component].pins[pin].short_name))
                     arg_component.append([True, False])
                 arg_components.append(arg_component)
 
