@@ -7,10 +7,11 @@ import tempfile
 
 from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.modeler.GeometryOperators import GeometryOperators
-from pyaedt.modules.Boundary import BoundaryObject, NativeComponentObject
+from pyaedt.modules.Boundary import BoundaryObject, NativeComponentObject, FarFieldSetup
 from pyaedt.generic.general_methods import generate_unique_name, aedt_exception_handler
 from collections import OrderedDict
 from pyaedt.modeler.actors import Radar
+from pyaedt.generic.constants import INFINITE_SPHERE_TYPE
 
 
 class Hfss(FieldAnalysis3D, object):
@@ -143,20 +144,53 @@ class Hfss(FieldAnalysis3D, object):
             close_on_exit,
             student_version,
         )
+        self.field_setups = self._get_rad_fields()
 
     def __enter__(self):
         return self
 
     @property
+    def oradfield(self):
+        """AEDT Radiation Field Object.
+
+        References
+        ----------
+
+        >>> oDesign.GetModule("RadField")
+        """
+        if self.solution_type not in ["EigenMode", "Characteristic Mode"]:
+            return self._odesign.GetModule("RadField")
+        else:
+            self.logger.warning("Solution %s does not support RadField.", self.solution_type)
+            return
+
+    @property
     def omodelsetup(self):
-        """AEDT Model Setup Object."""
+        """AEDT Model Setup Object.
+
+        References
+        ----------
+
+        >>> oDesign.GetModule("ModelSetup")
+        """
         return self._odesign.GetModule("ModelSetup")
 
     class BoundaryType(object):
-        """Creates and manages boundaries.
-        """
+        """Creates and manages boundaries."""
 
         (PerfectE, PerfectH, Aperture, Radiation, Impedance, LayeredImp, LumpedRLC, FiniteCond) = range(0, 8)
+
+    @aedt_exception_handler
+    def _get_rad_fields(self):
+        if not self.design_properties:
+            return []
+        fields = []
+        if self.design_properties.get("RadField") and self.design_properties["RadField"].get("FarFieldSetups"):
+            for val in self.design_properties["RadField"]["FarFieldSetups"]:
+                p = self.design_properties["RadField"]["FarFieldSetups"][val]
+                if isinstance(p, (dict, OrderedDict)) and p.get("Type") == "Infinite Sphere":
+                    fields.append(FarFieldSetup(self, val, p, "FarFieldSphere"))
+        return fields
 
     @aedt_exception_handler
     def _create_boundary(self, name, props, boundary_type):
@@ -243,7 +277,7 @@ class Hfss(FieldAnalysis3D, object):
         if self.solution_type == "DrivenModal":
 
             if renorm:
-                if isinstance(renorm_impedance, (int , float)) or "i" not in renorm_impedance:
+                if isinstance(renorm_impedance, (int, float)) or "i" not in renorm_impedance:
                     renorm_imp = str(renorm_impedance) + "ohm"
                 else:
                     renorm_imp = "(" + renorm_impedance + ") ohm"
@@ -348,7 +382,7 @@ class Hfss(FieldAnalysis3D, object):
 
         """
 
-        warnings.warn('`assigncoating` is deprecated. Use `assign_coating` instead.', DeprecationWarning)
+        warnings.warn("`assigncoating` is deprecated. Use `assign_coating` instead.", DeprecationWarning)
         self.assign_coating(
             obj,
             mat,
@@ -363,7 +397,8 @@ class Hfss(FieldAnalysis3D, object):
             issheelElement,
             usehuray,
             radius,
-            ratio)
+            ratio,
+        )
 
     @aedt_exception_handler
     def assign_coating(
@@ -505,17 +540,17 @@ class Hfss(FieldAnalysis3D, object):
         )
 
         return self.create_linear_count_sweep(
-                setupname=setupname,
-                unit=unit,
-                freqstart=freqstart,
-                freqstop=freqstop,
-                num_of_freq_points=num_of_freq_points,
-                sweepname=sweepname,
-                save_fields=save_fields,
-                save_rad_fields=save_rad_fields,
-                sweep_type=sweeptype,
-                interpolation_tol=interpolation_tol,
-                interpolation_max_solutions=interpolation_max_solutions,
+            setupname=setupname,
+            unit=unit,
+            freqstart=freqstart,
+            freqstop=freqstop,
+            num_of_freq_points=num_of_freq_points,
+            sweepname=sweepname,
+            save_fields=save_fields,
+            save_rad_fields=save_rad_fields,
+            sweep_type=sweeptype,
+            interpolation_tol=interpolation_tol,
+            interpolation_max_solutions=interpolation_max_solutions,
         )
 
     @aedt_exception_handler
@@ -603,7 +638,8 @@ class Hfss(FieldAnalysis3D, object):
                     oldname = sweepname
                     sweepname = generate_unique_name(oldname)
                     self.logger.warning(
-                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname)
+                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname
+                    )
                 sweepdata = setupdata.add_sweep(sweepname, sweep_type)
                 if not sweepdata:
                     return False
@@ -700,7 +736,8 @@ class Hfss(FieldAnalysis3D, object):
                     oldname = sweepname
                     sweepname = generate_unique_name(oldname)
                     self.logger.warning(
-                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname)
+                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname
+                    )
                 sweepdata = setupdata.add_sweep(sweepname, sweep_type)
                 if not sweepdata:
                     return False
@@ -810,7 +847,8 @@ class Hfss(FieldAnalysis3D, object):
                     oldname = sweepname
                     sweepname = generate_unique_name(oldname)
                     self.logger.warning(
-                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname)
+                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname
+                    )
                 sweepdata = setupdata.add_sweep(sweepname, "Discrete")
                 sweepdata.props["RangeType"] = "SinglePoints"
                 sweepdata.props["RangeStart"] = str(freq0) + unit
@@ -1744,7 +1782,7 @@ class Hfss(FieldAnalysis3D, object):
         renorm=True,
         deembed_dist=0,
         reporter_filter=True,
-        lattice_cs = "Global"
+        lattice_cs="Global",
     ):
         """Create a Floquet Port on a Face.
 
@@ -1814,10 +1852,10 @@ class Hfss(FieldAnalysis3D, object):
         else:
             props["ReporterFilter"] = reporter_filter
         if not lattice_a_end or not lattice_origin or not lattice_b_end:
-           result, output = self.modeler._find_perpendicular_points(face_id[0])
-           lattice_origin = output[0]
-           lattice_a_end = output[1]
-           lattice_b_end = output[2]
+            result, output = self.modeler._find_perpendicular_points(face_id[0])
+            lattice_origin = output[0]
+            lattice_a_end = output[1]
+            lattice_b_end = output[2]
         props["LatticeAVector"] = OrderedDict({})
         props["LatticeAVector"]["Coordinate System"] = lattice_cs
         props["LatticeAVector"]["Start"] = lattice_origin
@@ -1831,8 +1869,15 @@ class Hfss(FieldAnalysis3D, object):
         return self._create_boundary(portname, props, "FloquetPort")
 
     @aedt_exception_handler
-    def assign_lattice_pair(self, face_couple, reverse_v=False, phase_delay="UseScanAngle", phase_delay_param1="0deg",
-                            phase_delay_param2="0deg", pair_name=None):
+    def assign_lattice_pair(
+        self,
+        face_couple,
+        reverse_v=False,
+        phase_delay="UseScanAngle",
+        phase_delay_param1="0deg",
+        phase_delay_param2="0deg",
+        pair_name=None,
+    ):
         """Assign Lattice Pair to a couple of faces.
 
         Parameters
@@ -1912,9 +1957,19 @@ class Hfss(FieldAnalysis3D, object):
         return bounds
 
     @aedt_exception_handler
-    def assign_secondary(self, face, primary_name, u_start, u_end, reverse_v=False, phase_delay="UseScanAngle",
-                         phase_delay_param1="0deg", phase_delay_param2="0deg", coord_name="Global",
-                         secondary_name=None):
+    def assign_secondary(
+        self,
+        face,
+        primary_name,
+        u_start,
+        u_end,
+        reverse_v=False,
+        phase_delay="UseScanAngle",
+        phase_delay_param1="0deg",
+        phase_delay_param2="0deg",
+        coord_name="Global",
+        secondary_name=None,
+    ):
         """Assign Secondary Boundary Condition.
 
         Parameters
@@ -2284,7 +2339,7 @@ class Hfss(FieldAnalysis3D, object):
            Use :func:`Hfss.sar_setup` instead.
 
         """
-        warnings.warn('`SARSetup` is deprecated. Use `sar_setup` instead.', DeprecationWarning)
+        warnings.warn("`SARSetup` is deprecated. Use `sar_setup` instead.", DeprecationWarning)
         self.sar_setup(Tissue_object_List_ID, TissueMass, MaterialDensity, voxel_size, Average_SAR_method)
 
     @aedt_exception_handler
@@ -2860,7 +2915,7 @@ class Hfss(FieldAnalysis3D, object):
                 sourcename = generate_unique_name("Voltage")
             elif sourcename + ":1" in self.modeler.get_excitations_name():
                 sourcename = generate_unique_name(sourcename)
-            return  self.create_source_excitation(sheet_name, point0, point1, sourcename, sourcetype="Voltage")
+            return self.create_source_excitation(sheet_name, point0, point1, sourcename, sourcetype="Voltage")
         return False
 
     @aedt_exception_handler
@@ -3806,7 +3861,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        obj_names : str or list or int
+        obj_names : str or list or int or :class:`pyaedt.modeler.Object3d.Object3d`
              One or more object names or IDs.
         boundary_name : str, optional
              Name of the boundary. The default is ``""``.
@@ -4322,6 +4377,102 @@ class Hfss(FieldAnalysis3D, object):
         )
         r.insert(self, abs(speed) > 0)
         return r
+
+    @aedt_exception_handler
+    def insert_infinite_sphere(
+        self,
+        definition=INFINITE_SPHERE_TYPE.ThetaPhi,
+        x_start=0,
+        x_stop=180,
+        x_step=10,
+        y_start=0,
+        y_stop=180,
+        y_step=10,
+        units="deg",
+        custom_radiation_faces=None,
+        custom_coordinate_system=None,
+        use_slant_polarization=False,
+        polarization_angle=45,
+        name=None,
+    ):
+        """Create a new infinite Sphere.
+
+        .. note::
+           Not supported in all HFSS EigenMode and CharacteristicMode Solution Types.
+
+        Parameters
+        ----------
+        definition : str
+            Coordinate Definition Type. Default is "Theta-Phi".
+            It can be a ``pyaedt.generic.constants.INFINITE_SPHERE_TYPE`` Enumerator value.
+        x_start : float, str
+            First angle start value.
+        x_stop : float, str
+            First angle stop value.
+        x_step : float, str
+            First angle step value.
+        y_start : float, str
+            Second angle start value.
+        y_stop : float, str
+            Second angle stop value.
+        y_step : float, str
+            Second angle step value.
+        units : str
+            Angle units. Default is `"deg"`.
+        custom_radiation_faces : str
+            Radiation Face list to be used for far field computation.
+        custom_coordinate_system : str
+            Local Coordinate System to be used for far field computation.
+        use_slant_polarization : bool
+            Define if Slant Polarization will be used. Default is `False`.
+        polarization_angle : float, str
+            Slant angle value.
+        name : str
+            Sphere Name.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.FarFieldSetup`
+        """
+        if not self.oradfield:
+            self.logger.error("Radiation Field not available in this solution.")
+        if not name:
+            name = generate_unique_name("Infinite")
+
+        props = OrderedDict({"UseCustomRadiationSurface": custom_radiation_faces is not None})
+        if custom_radiation_faces:
+            props["CustomRadiationSurface"] = custom_radiation_faces
+        else:
+            props["CustomRadiationSurface"] = ""
+        props["CSDefinition"] = definition
+        if use_slant_polarization:
+            props["Polarization"] = "Slant"
+        else:
+            props["Polarization"] = "Linear"
+        props["SlantAngle"] = self.modeler._arg_with_dim(polarization_angle, units)
+
+        if definition == "Theta-Phi":
+            defs = ["ThetaStart", "ThetaStop", "ThetaStep", "PhiStart", "PhiStop", "PhiStep"]
+        elif definition == "El Over Az":
+            defs = ["AzimuthStart", "AzimuthStop", "AzimuthStep", "ElevationStart", "ElevationStop", "ElevationStep"]
+        else:
+            defs = ["ElevationStart", "ElevationStop", "ElevationStep", "AzimuthStart", "AzimuthStop", "AzimuthStep"]
+        props[defs[0]] = self.modeler._arg_with_dim(x_start, units)
+        props[defs[1]] = self.modeler._arg_with_dim(x_stop, units)
+        props[defs[2]] = self.modeler._arg_with_dim(x_step, units)
+        props[defs[3]] = self.modeler._arg_with_dim(y_start, units)
+        props[defs[4]] = self.modeler._arg_with_dim(y_stop, units)
+        props[defs[5]] = self.modeler._arg_with_dim(y_step, units)
+        props["UseLocalCS"] = custom_coordinate_system is not None
+        if custom_coordinate_system:
+            props["CoordSystem"] = custom_coordinate_system
+        else:
+            props["CoordSystem"] = ""
+        bound = FarFieldSetup(self, name, props, "FarFieldSphere", units)
+        if bound.create():
+            self.field_setups.append(bound)
+            return bound
+        return False
 
     @aedt_exception_handler
     def set_sbr_current_sources_options(self, conformance=False, thin_sources=False, power_fraction=0.95):

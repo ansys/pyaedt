@@ -28,6 +28,7 @@ REGISTRY_PORT = 18811
 # servers
 # ------------------------------------------------------------------------------
 
+
 class RegistryServer(object):
     """Base registry server"""
 
@@ -64,7 +65,7 @@ class RegistryServer(object):
             try:
                 self.on_service_added(name, addrinfo)
             except Exception:
-                self.logger.exception('error executing service add callback')
+                self.logger.exception("error executing service add callback")
 
     def _remove_service(self, name, addrinfo):
         """removes a single server of the given service"""
@@ -74,7 +75,7 @@ class RegistryServer(object):
         try:
             self.on_service_removed(name, addrinfo)
         except Exception:
-            self.logger.exception('error executing service remove callback')
+            self.logger.exception("error executing service remove callback")
 
     def cmd_query(self, host, name):
         """implementation of the ``query`` command"""
@@ -138,7 +139,7 @@ class RegistryServer(object):
             try:
                 reply = cmdfunc(addrinfo[0], *args)
             except Exception:
-                self.logger.exception('error executing function')
+                self.logger.exception("error executing function")
             else:
                 self._send(brine.dump(reply), addrinfo)
 
@@ -175,13 +176,11 @@ class UDPRegistryServer(RegistryServer):
     TIMEOUT = 1.0
 
     def __init__(self, host="0.0.0.0", port=REGISTRY_PORT, pruning_timeout=None, logger=None):
-        family, socktype, proto, _, sockaddr = socket.getaddrinfo(host, port, 0,
-                                                                  socket.SOCK_DGRAM)[0]
+        family, socktype, proto, _, sockaddr = socket.getaddrinfo(host, port, 0, socket.SOCK_DGRAM)[0]
         sock = socket.socket(family, socktype, proto)
         sock.bind(sockaddr)
         sock.settimeout(self.TIMEOUT)
-        RegistryServer.__init__(self, sock, pruning_timeout=pruning_timeout,
-                                logger=logger)
+        RegistryServer.__init__(self, sock, pruning_timeout=pruning_timeout, logger=logger)
 
     def _get_logger(self):
         return logging.getLogger("REGSRV/UDP/%d" % (self.port,))
@@ -203,11 +202,9 @@ class TCPRegistryServer(RegistryServer):
 
     TIMEOUT = 3.0
 
-    def __init__(self, host="0.0.0.0", port=REGISTRY_PORT, pruning_timeout=None,
-                 logger=None, reuse_addr=True):
+    def __init__(self, host="0.0.0.0", port=REGISTRY_PORT, pruning_timeout=None, logger=None, reuse_addr=True):
 
-        family, socktype, proto, _, sockaddr = socket.getaddrinfo(host, port, 0,
-                                                                  socket.SOCK_STREAM)[0]
+        family, socktype, proto, _, sockaddr = socket.getaddrinfo(host, port, 0, socket.SOCK_STREAM)[0]
         sock = socket.socket(family, socktype, proto)
         if reuse_addr and sys.platform != "win32":
             # warning: reuseaddr is not what you expect on windows!
@@ -215,8 +212,7 @@ class TCPRegistryServer(RegistryServer):
         sock.bind(sockaddr)
         sock.listen(10)
         sock.settimeout(self.TIMEOUT)
-        RegistryServer.__init__(self, sock, pruning_timeout=pruning_timeout,
-                                logger=logger)
+        RegistryServer.__init__(self, sock, pruning_timeout=pruning_timeout, logger=logger)
         self._connected_sockets = {}
 
     def _get_logger(self):
@@ -236,6 +232,7 @@ class TCPRegistryServer(RegistryServer):
                 sock2.send(data)
             except (socket.error, socket.timeout):
                 pass
+
 
 # ------------------------------------------------------------------------------
 # clients (registrars)
@@ -299,10 +296,8 @@ class UDPRegistryClient(RegistryClient):
        Consider using :func:`rpyc.utils.factory.discover` instead
     """
 
-    def __init__(self, ip="255.255.255.255", port=REGISTRY_PORT, timeout=2,
-                 bcast=None, logger=None, ipv6=False):
-        RegistryClient.__init__(self, ip=ip, port=port, timeout=timeout,
-                                logger=logger)
+    def __init__(self, ip="255.255.255.255", port=REGISTRY_PORT, timeout=2, bcast=None, logger=None, ipv6=False):
+        RegistryClient.__init__(self, ip=ip, port=port, timeout=timeout, logger=logger)
 
         if ipv6:
             self.sock_family = socket.AF_INET6
@@ -314,7 +309,7 @@ class UDPRegistryClient(RegistryClient):
             self.bcast = bcast
 
     def _get_logger(self):
-        return logging.getLogger('REGCLNT/UDP')
+        return logging.getLogger("REGCLNT/UDP")
 
     def discover(self, name):
         sock = socket.socket(self.sock_family, socket.SOCK_DGRAM)
@@ -390,11 +385,10 @@ class TCPRegistryClient(RegistryClient):
     """
 
     def __init__(self, ip, port=REGISTRY_PORT, timeout=2, logger=None):
-        RegistryClient.__init__(self, ip=ip, port=port, timeout=timeout,
-                                logger=logger)
+        RegistryClient.__init__(self, ip=ip, port=port, timeout=timeout, logger=logger)
 
     def _get_logger(self):
-        return logging.getLogger('REGCLNT/TCP')
+        return logging.getLogger("REGCLNT/TCP")
 
     def discover(self, name):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

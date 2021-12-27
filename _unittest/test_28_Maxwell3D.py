@@ -1,11 +1,13 @@
 # Setup paths for module imports
 from _unittest.conftest import scratch_path
 import os
+
 # Import required modules
 from pyaedt import Maxwell3d
 from pyaedt.generic.filesystem import Scratch
 from pyaedt.generic.constants import SOLUTIONS
 import gc
+
 try:
     import pytest
 except ImportError:

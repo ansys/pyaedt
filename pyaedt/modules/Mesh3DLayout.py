@@ -128,7 +128,7 @@ class Mesh3d(object):
 
         self.logger = self._app.logger
         self._odesign = self._app._odesign
-        self.modeler =  self._app._modeler
+        self.modeler = self._app._modeler
         self._omeshmodule = self._odesign.GetModule("SolveSetups")
         self.id = 0
 

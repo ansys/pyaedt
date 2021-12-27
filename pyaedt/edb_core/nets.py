@@ -1,6 +1,23 @@
 from __future__ import absolute_import
+import warnings
+import time
+import math
 
+from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name
+from pyaedt.modeler.GeometryOperators import GeometryOperators
+from pyaedt.generic.constants import CSS4_COLORS
+
+try:
+    from matplotlib import pyplot as plt
+    from matplotlib.path import Path
+    from matplotlib.patches import PathPatch
+except ImportError:
+    if not is_ironpython:
+        warnings.warn(
+            "The Matplotlib module is required to run some functionalities.\n" "Install with \npip install matplotlib"
+        )
+    pass
 
 
 class EdbNets(object):
@@ -99,6 +116,264 @@ class EdbNets(object):
             if value.IsPowerGround():
                 nets[net] = value
         return nets
+
+    @staticmethod
+    def _eval_arc_points(p1, p2, h, n=6, tol=1e-12):
+        """Get the points of the arc
+
+        Parameters
+        ----------
+        p1 : list
+            Arc starting point.
+        p2 : list
+            Arc ending point.
+        h : float
+            Arc height.
+        n : int
+            Number of points to generate along the arc.
+        tol : float
+            Geometric tolerance.
+
+        Returns
+        -------
+        list
+            points generated along the arc.
+        """
+        # fmt: off
+        if abs(h) < tol:
+            return [], []
+        elif h > 0:
+            reverse = False
+            x1 = p1[0]
+            y1 = p1[1]
+            x2 = p2[0]
+            y2 = p2[1]
+        else:
+            reverse = True
+            x1 = p2[0]
+            y1 = p2[1]
+            x2 = p1[0]
+            y2 = p1[1]
+            h *= -1
+        xa = (x2-x1) / 2
+        ya = (y2-y1) / 2
+        xo = x1 + xa
+        yo = y1 + ya
+        a = math.sqrt(xa**2 + ya**2)
+        if a < tol:
+            return [], []
+        r = (a**2)/(2*h) + h/2
+        if abs(r-a) < tol:
+            b = 0
+            th = 2 * math.asin(1)  # chord angle
+        else:
+            b = math.sqrt(r**2 - a**2)
+            th = 2 * math.asin(a/r)  # chord angle
+
+        # center of the circle
+        xc = xo + b*ya/a
+        yc = yo - b*xa/a
+
+        alpha = math.atan2((y1-yc), (x1-xc))
+        xr = []
+        yr = []
+        for i in range(n):
+            i += 1
+            dth = (i/(n+1)) * th
+            xi = xc + r * math.cos(alpha-dth)
+            yi = yc + r * math.sin(alpha-dth)
+            xr.append(xi)
+            yr.append(yi)
+
+        if reverse:
+            xr.reverse()
+            yr.reverse()
+        # fmt: on
+        return xr, yr
+
+    def _get_points_for_plot(self, my_net_points):
+        """
+        Get the points to be plot
+        """
+        # fmt: off
+        x = []
+        y = []
+        for i, point in enumerate(my_net_points):
+            # point = my_net_points[i]
+            if not point.IsArc():
+                x.append(point.X.ToDouble())
+                y.append(point.Y.ToDouble())
+                # i += 1
+            else:
+                arc_h = point.GetArcHeight().ToDouble()
+                p1 = [my_net_points[i-1].X.ToDouble(), my_net_points[i-1].Y.ToDouble()]
+                if i+1 < len(my_net_points):
+                    p2 = [my_net_points[i+1].X.ToDouble(), my_net_points[i+1].Y.ToDouble()]
+                else:
+                    p2 = [my_net_points[0].X.ToDouble(), my_net_points[0].Y.ToDouble()]
+                x_arc, y_arc = self._eval_arc_points(p1, p2, arc_h)
+                x.extend(x_arc)
+                y.extend(y_arc)
+                # i += 1
+        # fmt: on
+        return x, y
+
+    @aedt_exception_handler
+    def plot(
+        self, nets, layers=None, color_by_net=False, show_legend=True, save_plot=None, outline=None, size=(2000, 1000)
+    ):
+        """Plot a Net to Matplotlib 2D Chart.
+
+        Parameters
+        ----------
+        nets : str, list
+            Name of the net or list of nets to plot. If `None` all nets will be plotted.
+        layers : str, list, optional
+            Name of the layers to include in the plot. If `None` all the signal layers will be considered.
+        color_by_net : bool, optional
+            If `True`  the plot will be colored by net.
+            If `False` the plot will be colored by layer. (default)
+        show_legend : bool, optional
+            If `True` the legend is shown in the plot. (default)
+            If `False` the legend is not shown.
+        save_plot : str, optional
+            If `None` the plot will be shown.
+            If a file path is specified the plot will be saved to such file.
+        outline : list, optional
+            List of points of the outline to plot.
+        size : tuple, optional
+            Image size in pixel (width, height).
+        """
+        start_time = time.time()
+        if is_ironpython:
+            self._logger.warning("Plot functionalities are enabled only in CPython.")
+            return False
+        if not layers:
+            layers = list(self._pedb.core_stackup.signal_layers.keys())
+        if not nets:
+            nets = list(self.nets.keys())
+        label_colors = {}
+        color_index = 0
+        dpi = 100.0
+        figsize = (size[0] / dpi, size[1] / dpi)
+        fig, ax = plt.subplots(figsize=figsize)
+        if outline:
+            x1 = [i[0] for i in outline]
+            y1 = [i[1] for i in outline]
+            plt.fill(x1, y1, c="b", label="Outline", alpha=0.3)
+
+        if isinstance(nets, str):
+            nets = [nets]
+        for path in self._pedb.core_primitives.paths:
+            net_name = path.GetNet().GetName()
+            layer_name = path.GetLayer().GetName()
+            if net_name in nets and layer_name in layers:
+                my_net_points = list(path.GetPolygonData().Points)
+                x, y = self._get_points_for_plot(my_net_points)
+                if not x:
+                    continue
+                if not color_by_net:
+                    label = "Layer " + layer_name
+                    if label not in label_colors:
+                        color = path.GetLayer().GetColor()
+                        try:
+                            c = (color.Item1 / 255, color.Item2 / 255, color.Item3 / 255)
+                            label_colors[label] = c
+                        except:
+                            label_colors[label] = list(CSS4_COLORS.keys())[color_index]
+                            color_index += 1
+                            if color_index >= len(CSS4_COLORS):
+                                color_index = 0
+                        plt.fill(x, y, c=label_colors[label], label=label, alpha=0.4)
+                    else:
+                        plt.fill(x, y, c=label_colors[label], alpha=0.4)
+                else:
+                    label = "Net " + net_name
+                    if label not in label_colors:
+                        label_colors[label] = list(CSS4_COLORS.keys())[color_index]
+                        color_index += 1
+                        if color_index >= len(CSS4_COLORS):
+                            color_index = 0
+                        plt.fill(x, y, c=label_colors[label], label=label, alpha=0.4)
+                    else:
+                        plt.fill(x, y, c=label_colors[label], alpha=0.4)
+
+        for poly in self._pedb.core_primitives.polygons:
+            if poly.IsVoid():
+                continue
+            net_name = poly.GetNet().GetName()
+            layer_name = poly.GetLayer().GetName()
+            if net_name in nets and layer_name in layers:
+                my_net_points = list(poly.GetPolygonData().Points)
+                xt, yt = self._get_points_for_plot(my_net_points)
+                if not xt:
+                    continue
+                x, y = GeometryOperators.orient_polygon(xt, yt, clockwise=True)
+                vertices = [(i, j) for i, j in zip(x, y)]
+                codes = [Path.LINETO for _ in vertices]
+                codes[0] = Path.MOVETO
+                vertices.append((0, 0))
+                codes.append(Path.CLOSEPOLY)
+
+                for void in poly.Voids:
+                    void_points = list(void.GetPolygonData().Points)
+                    xvt, yvt = self._get_points_for_plot(void_points)
+                    if xvt:
+                        xv, yv = GeometryOperators.orient_polygon(xvt, yvt, clockwise=False)
+                        tmpV = [(i, j) for i, j in zip(xv, yv)]
+                        vertices.extend(tmpV)
+                        tmpC = [Path.LINETO for _ in tmpV]
+                        tmpC[0] = Path.MOVETO
+                        codes.extend(tmpC)
+                        vertices.append((0, 0))
+                        codes.append(Path.CLOSEPOLY)
+
+                # create Path object from vertices and codes
+                path = Path(vertices, codes)
+
+                if not color_by_net:
+                    label = "Layer " + layer_name
+                    if label not in label_colors:
+                        color = poly.GetLayer().GetColor()
+                        try:
+                            c = (color.Item1 / 255, color.Item2 / 255, color.Item3 / 255)
+                            label_colors[label] = c
+                        except:
+                            label_colors[label] = list(CSS4_COLORS.keys())[color_index]
+                            color_index += 1
+                            if color_index >= len(CSS4_COLORS):
+                                color_index = 0
+                        # create patch from path
+                        patch = PathPatch(path, color=label_colors[label], alpha=0.4, label=label)
+                    else:
+                        # create patch from path
+                        patch = PathPatch(path, color=label_colors[label], alpha=0.4)
+                else:
+                    label = "Net " + net_name
+                    if label not in label_colors:
+                        label_colors[label] = list(CSS4_COLORS.keys())[color_index]
+                        color_index += 1
+                        if color_index >= len(CSS4_COLORS):
+                            color_index = 0
+                        # create patch from path
+                        patch = PathPatch(path, color=label_colors[label], alpha=0.4, label=label)
+                    else:
+                        # create patch from path
+                        patch = PathPatch(path, color=label_colors[label], alpha=0.4)
+
+                # plot the patch
+                ax.add_patch(patch)
+
+        ax.set(xlabel="X (m)", ylabel="Y (m)", title=self._pedb.active_cell.GetName())
+        if show_legend:
+            ax.legend()
+        ax.axis("equal")
+        end_time = time.time() - start_time
+        self._logger.info("Plot Generation time %s seconds", round(end_time, 3))
+        if save_plot:
+            plt.savefig(save_plot)
+        else:
+            plt.show()
 
     @aedt_exception_handler
     def is_power_gound_net(self, netname_list):

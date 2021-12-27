@@ -69,24 +69,16 @@ class TestClass:
         assert sink.name == "Sink1"
 
     def test_07B_create_source_tosheet(self):
-        self.aedtapp.modeler.primitives.create_circle(
-            self.aedtapp.PLANE.XY, [0, 0, 0], 4, name="Source1"
-        )
-        self.aedtapp.modeler.primitives.create_circle(
-            self.aedtapp.PLANE.XY, [10, 10, 10], 4, name="Sink1"
-        )
+        self.aedtapp.modeler.primitives.create_circle(self.aedtapp.PLANE.XY, [0, 0, 0], 4, name="Source1")
+        self.aedtapp.modeler.primitives.create_circle(self.aedtapp.PLANE.XY, [10, 10, 10], 4, name="Sink1")
 
         source = self.aedtapp.assign_source_to_sheet("Source1", sourcename="Source3")
         sink = self.aedtapp.assign_sink_to_sheet("Sink1", sinkname="Sink3")
         assert source.name == "Source3"
         assert sink.name == "Sink3"
 
-        self.aedtapp.modeler.primitives.create_circle(
-            self.aedtapp.PLANE.XY, [0, 0, 0], 4, name="Source1"
-        )
-        self.aedtapp.modeler.primitives.create_circle(
-            self.aedtapp.PLANE.XY, [10, 10, 10], 4, name="Sink1"
-        )
+        self.aedtapp.modeler.primitives.create_circle(self.aedtapp.PLANE.XY, [0, 0, 0], 4, name="Source1")
+        self.aedtapp.modeler.primitives.create_circle(self.aedtapp.PLANE.XY, [10, 10, 10], 4, name="Sink1")
 
         source = self.aedtapp.assign_source_to_sheet("Source1", netname="GND", objectname="Cylinder1")
         sink = self.aedtapp.assign_sink_to_sheet("Sink1", netname="GND", objectname="Cylinder1")

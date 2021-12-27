@@ -315,3 +315,15 @@ class TestClass:
         p4 = [-1, -1, -1]
         c = go.get_polygon_centroid([p1, p2, p3, p4])
         assert is_vector_equal(c, [0, 0, 0])
+
+    def test_orient_polygon(self):
+        x = [3, 3, 2.5, 1, 1]
+        y = [1, 2, 1.5, 2, 1]
+        xo, yo = go.orient_polygon(x, y, clockwise=False)
+        assert x == xo
+        assert y == yo
+        xo, yo = go.orient_polygon(x, y, clockwise=True)
+        xo.reverse()
+        yo.reverse()
+        assert x == xo
+        assert y == yo

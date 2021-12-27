@@ -1,2 +1,2 @@
 [run]
-omit = examples/**/*, doc/**/*, testvenv/Lib/**/*, third_party/**/*
+omit = examples/**/*, doc/**/*, testvenv/Lib/**/*, third_party/**/*, generic/toolkit.py

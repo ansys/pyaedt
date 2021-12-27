@@ -35,8 +35,8 @@ class TestClass:
             touchstone_file = os.path.join(local_path, "example_models", touchstone)
             touchstone_file2 = os.path.join(local_path, "example_models", touchstone2)
             self.test_project = self.local_scratch.copyfile(
-                example_project, os.path.join(self.local_scratch.path,
-                                              test_project_name + ".aedt"))
+                example_project, os.path.join(self.local_scratch.path, test_project_name + ".aedt")
+            )
             self.local_scratch.copyfile(netlist_file1)
             self.local_scratch.copyfile(netlist_file2)
             self.local_scratch.copyfile(touchstone_file)
@@ -66,17 +66,17 @@ class TestClass:
     def test_01_create_inductor(self):
         myind = self.aedtapp.modeler.schematic.create_inductor(value=1e-9, location=[0.2, 0.2])
         assert type(myind.id) is int
-        assert myind.parameters["L"] == '1e-09'
+        assert myind.parameters["L"] == "1e-09"
 
     def test_02_create_resistor(self):
         myres = self.aedtapp.modeler.schematic.create_resistor(value=50, location=[0.4, 0.2])
         assert type(myres.id) is int
-        assert myres.parameters["R"] == '50'
+        assert myres.parameters["R"] == "50"
 
     def test_03_create_capacitor(self):
         mycap = self.aedtapp.modeler.schematic.create_capacitor(value=1e-12, location=[0.6, 0.2])
         assert type(mycap.id) is int
-        assert mycap.parameters["C"] == '1e-12'
+        assert mycap.parameters["C"] == "1e-12"
 
     def test_04_getpin_names(self):
         mycap2 = self.aedtapp.modeler.schematic.create_capacitor(value=1e-12)

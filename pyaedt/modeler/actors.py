@@ -48,10 +48,7 @@ class Generic(Actor, object):
     """
 
     def __init__(self, actor_folder, speed="0", relative_cs_name=None):
-        """Generic class.
-
-
-        """
+        """Generic class."""
         super(Generic, self).__init__(actor_folder, speed=speed, relative_cs_name=relative_cs_name)
 
 
@@ -108,10 +105,20 @@ class Person(Actor, object):
         for k, p in self.parts.items():
             if any(p.rot_axis):  # use this key to determine if there is motion of the part.
                 if p.rot_axis[1]:  # Make sure pitch rotation is True
-                    app[p.pitch_name] = p.pitch + "*sin(2*pi*(" + self.speed_name + \
-                                           "/" + self.stride + ") " \
-                                           + "*" + MultiPartComponent._t + ") + " + \
-                                           "(" + p['compensation_angle'] + ")rad"
+                    app[p.pitch_name] = (
+                        p.pitch
+                        + "*sin(2*pi*("
+                        + self.speed_name
+                        + "/"
+                        + self.stride
+                        + ") "
+                        + "*"
+                        + MultiPartComponent._t
+                        + ") + "
+                        + "("
+                        + p["compensation_angle"]
+                        + ")rad"
+                    )
 
     @aedt_exception_handler
     def insert(self, app, motion=True):
@@ -174,8 +181,9 @@ class Bird(Actor, object):
         for k, p in self.parts.items():
             if any(p.rot_axis):  # use this key to verify that there is local motion.
                 if p.rot_axis[2]:  # Flapping is roll
-                    app[p.roll_name] = p['rotation'] + '* sin(2*pi*' + str(self._flapping_rate) + '*' \
-                                        + MultiPartComponent._t + ")"
+                    app[p.roll_name] = (
+                        p["rotation"] + "* sin(2*pi*" + str(self._flapping_rate) + "*" + MultiPartComponent._t + ")"
+                    )
 
     @aedt_exception_handler
     def insert(self, app, motion=True):
@@ -232,9 +240,15 @@ class Vehicle(Actor, object):
         for k, p in self.parts.items():
             if any(p.rot_axis):  # use this key to determine if there is motion of the wheel.
                 if p.rot_axis[1]:  # Make sure pitch rotation is True
-                    app[p.pitch_name] = "(" + MultiPartComponent._t + "*" + \
-                                        self.speed_name + "/" + p['tire_radius'] \
-                                        + "meter)*(180/pi)*1deg"
+                    app[p.pitch_name] = (
+                        "("
+                        + MultiPartComponent._t
+                        + "*"
+                        + self.speed_name
+                        + "/"
+                        + p["tire_radius"]
+                        + "meter)*(180/pi)*1deg"
+                    )
 
     @aedt_exception_handler
     def insert(self, app, motion=True):
@@ -284,15 +298,29 @@ class Radar(MultiPartComponent, object):
 
     """
 
-    def __init__(self, radar_folder, name=None, motion=False,
-                 use_relative_cs=False, offset=("0", "0", "0"), speed=0, relative_cs_name=None):
+    def __init__(
+        self,
+        radar_folder,
+        name=None,
+        motion=False,
+        use_relative_cs=False,
+        offset=("0", "0", "0"),
+        speed=0,
+        relative_cs_name=None,
+    ):
 
         self.aedt_antenna_names = []  # List of Antenna Names
-        name = name.split('.')[0] if name else name  # remove suffix if any
-        self._component_class = 'radar'
-        super(Radar, self).__init__(radar_folder, name=name, use_relative_cs=use_relative_cs, motion=motion,
-                                    offset=offset, relative_cs_name=relative_cs_name)
-        self._speed_expression = str(speed) + 'm_per_sec'
+        name = name.split(".")[0] if name else name  # remove suffix if any
+        self._component_class = "radar"
+        super(Radar, self).__init__(
+            radar_folder,
+            name=name,
+            use_relative_cs=use_relative_cs,
+            motion=motion,
+            offset=offset,
+            relative_cs_name=relative_cs_name,
+        )
+        self._speed_expression = str(speed) + "m_per_sec"
         self.pair = []
 
     @property
@@ -315,7 +343,7 @@ class Radar(MultiPartComponent, object):
         str
             Name of the speed variable.
         """
-        return self.name + '_speed'
+        return self.name + "_speed"
 
     @property
     def speed_expression(self):
@@ -334,17 +362,17 @@ class Radar(MultiPartComponent, object):
 
     @aedt_exception_handler
     def _add_speed(self, app):
-        app.variable_manager.set_variable(variable_name=self.speed_name,
-                                          expression=self.speed_expression,
-                                          description="radar speed")
+        app.variable_manager.set_variable(
+            variable_name=self.speed_name, expression=self.speed_expression, description="radar speed"
+        )
         # Update expressions for x and y position in app:
-        app[self.offset_names[0]] = str(self.offset[0]) + '+' \
-                                    + self.speed_name + ' * ' + MultiPartComponent._t \
-                                    + '* cos(' + self.yaw_name + ')'
+        app[self.offset_names[0]] = (
+            str(self.offset[0]) + "+" + self.speed_name + " * " + MultiPartComponent._t + "* cos(" + self.yaw_name + ")"
+        )
 
-        app[self.offset_names[1]] = str(self.offset[1]) + '+' \
-                                    + self.speed_name + ' * ' + MultiPartComponent._t \
-                                    + '* sin(' + self.yaw_name + ')'
+        app[self.offset_names[1]] = (
+            str(self.offset[1]) + "+" + self.speed_name + " * " + MultiPartComponent._t + "* sin(" + self.yaw_name + ")"
+        )
 
     @aedt_exception_handler
     def insert(self, app, motion=False):
@@ -365,7 +393,7 @@ class Radar(MultiPartComponent, object):
         if self.use_global_cs or self.cs_name in app.modeler.oeditor.GetCoordinateSystems():
             app.modeler.set_working_coordinate_system(self.cs_name)
             if self.use_relative_cs:
-                self._relative_cs_name = self.name + '_cs'
+                self._relative_cs_name = self.name + "_cs"
         self.position_in_app(app)
         tx_names = []
         rx_names = []
@@ -373,23 +401,22 @@ class Radar(MultiPartComponent, object):
             antenna_object = self.parts[p].insert(app, units=self._local_units)
             self.aedt_components.append(antenna_object.antennaname)
             self.aedt_antenna_names.append(antenna_object.excitation_name)
-            if p.startswith('tx'):
+            if p.startswith("tx"):
                 tx_names.append(antenna_object.excitation_name)
-            elif p.startswith('rx'):
+            elif p.startswith("rx"):
                 rx_names.append(antenna_object.excitation_name)
 
         # Define tx/rx pairs:
         self.pair = {}
         for tx in tx_names:
-            rx_string = ''
+            rx_string = ""
             for rx in rx_names:
-                rx_string += rx + ','
-            self.pair[tx] = rx_string.strip(',')
+                rx_string += rx + ","
+            self.pair[tx] = rx_string.strip(",")
 
         app.set_sbr_txrx_settings(self.pair)
 
-        app.modeler.create_group(components=self.aedt_components,
-                                 group_name=self.name)
+        app.modeler.create_group(components=self.aedt_components, group_name=self.name)
         app.logger.info("Group Created:  " + self.name)
         if motion:
             self._add_speed(app)

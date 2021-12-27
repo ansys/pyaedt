@@ -1,6 +1,6 @@
 """
-Netlist Example Analysis
-------------------------
+Netlist to Schematic Import
+---------------------------
 # This example shows how to import Netlist data into a
 # Circuit design. Supported Netlist files are HSPICE and,
 # partially, Mentor.
@@ -16,6 +16,7 @@ import os
 
 from pyaedt import examples
 import tempfile
+
 netlist = examples.download_netlist()
 from pyaedt import generate_unique_name
 

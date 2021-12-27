@@ -203,9 +203,7 @@ class Application(object):
                 if isinstance(obj, Subcommand):
                     name = colors.filter(obj.name)
                     if name.startswith("-"):
-                        raise SubcommandError(
-                            T_("Sub-command names cannot start with '-'")
-                        )
+                        raise SubcommandError(T_("Sub-command names cannot start with '-'"))
                     # it's okay for child classes to override sub-commands set by their parents
                     self._subcommands[name] = obj
                     continue
@@ -216,15 +214,8 @@ class Application(object):
                 for name in swinfo.names:
                     if name in self._unbound_switches:
                         continue
-                    if (
-                        name in self._switches_by_name
-                        and not self._switches_by_name[name].overridable
-                    ):
-                        raise SwitchError(
-                            T_(
-                                "Switch {name} already defined and is not overridable"
-                            ).format(name=name)
-                        )
+                    if name in self._switches_by_name and not self._switches_by_name[name].overridable:
+                        raise SwitchError(T_("Switch {name} already defined and is not overridable").format(name=name))
                     self._switches_by_name[name] = swinfo
                     self._switches_by_func[swinfo.func] = swinfo
                     if swinfo.envname:
@@ -245,9 +236,7 @@ class Application(object):
             MyApp.unbind_switches("--version")
 
         """
-        cls._unbound_switches += tuple(
-            name.lstrip("-") for name in switch_names if name
-        )
+        cls._unbound_switches += tuple(name.lstrip("-") for name in switch_names if name)
 
     @classmethod
     def subcommand(cls, name, subapp=None):
@@ -273,9 +262,7 @@ class Application(object):
         """
 
         def wrapper(subapp):
-            attrname = "_subcommand_{}".format(
-                subapp if isinstance(subapp, str) else subapp.__name__
-            )
+            attrname = "_subcommand_{}".format(subapp if isinstance(subapp, str) else subapp.__name__)
             setattr(cls, attrname, Subcommand(name, subapp))
             return subapp
 
@@ -327,9 +314,7 @@ class Application(object):
                     if len(partials) == 1:
                         name = partials[0]
                     elif len(partials) > 1:
-                        raise UnknownSwitch(
-                            T_("Ambiguous partial switch {0}").format("--" + name)
-                        )
+                        raise UnknownSwitch(T_("Ambiguous partial switch {0}").format("--" + name))
 
                 swname = "--" + name
                 if name not in self._switches_by_name:
@@ -337,18 +322,14 @@ class Application(object):
                 swinfo = self._switches_by_name[name]
                 if swinfo.argtype:
                     if not argv:
-                        raise MissingArgument(
-                            T_("Switch {0} requires an argument").format(swname)
-                        )
+                        raise MissingArgument(T_("Switch {0} requires an argument").format(swname))
                     a = argv.pop(0)
                     if a and a[0] == "=":
                         if len(a) >= 2:
                             val = a[1:]
                         else:
                             if not argv:
-                                raise MissingArgument(
-                                    T_("Switch {0} requires an argument").format(swname)
-                                )
+                                raise MissingArgument(T_("Switch {0} requires an argument").format(swname))
                             val = argv.pop(0)
                     else:
                         val = a
@@ -365,9 +346,7 @@ class Application(object):
                         val = a[2:]
                     else:
                         if not argv:
-                            raise MissingArgument(
-                                T_("Switch {0} requires an argument").format(swname)
-                            )
+                            raise MissingArgument(T_("Switch {0} requires an argument").format(swname))
                         val = argv.pop(0)
                 elif len(a) >= 3:
                     argv.insert(0, "-" + a[2:])
@@ -438,9 +417,9 @@ class Application(object):
             except (TypeError, ValueError):
                 ex = sys.exc_info()[1]  # compat
                 raise WrongArgumentType(
-                    T_(
-                        "Argument of {name} expected to be {argtype}, not {val!r}:\n    {ex!r}"
-                    ).format(name=name, argtype=argtype, val=val, ex=ex)
+                    T_("Argument of {name} expected to be {argtype}, not {val!r}:\n    {ex!r}").format(
+                        name=name, argtype=argtype, val=val, ex=ex
+                    )
                 )
         else:
             return NotImplemented
@@ -459,17 +438,11 @@ class Application(object):
             if swinfo.mandatory and not swinfo.func in swfuncs:
                 raise MissingMandatorySwitch(
                     T_("Switch {0} is mandatory").format(
-                        "/".join(
-                            ("-" if len(n) == 1 else "--") + n for n in swinfo.names
-                        )
+                        "/".join(("-" if len(n) == 1 else "--") + n for n in swinfo.names)
                     )
                 )
-            requirements[swinfo.func] = {
-                self._switches_by_name[req] for req in swinfo.requires
-            }
-            exclusions[swinfo.func] = {
-                self._switches_by_name[exc] for exc in swinfo.excludes
-            }
+            requirements[swinfo.func] = {self._switches_by_name[req] for req in swinfo.requires}
+            exclusions[swinfo.func] = {self._switches_by_name[exc] for exc in swinfo.excludes}
 
         # TODO: compute topological order
 
@@ -533,14 +506,9 @@ class Application(object):
                 elif item != "return":
                     positional[args_names.index(item)] = m.annotations[item]
 
-            tailargs = self._positional_validate(
-                tailargs, positional, varargs, m.args[1:], m.varargs
-            )
+            tailargs = self._positional_validate(tailargs, positional, varargs, m.args[1:], m.varargs)
 
-        ordered = [
-            (f, a)
-            for _, f, a in sorted([(sf.index, f, sf.val) for f, sf in swfuncs.items()])
-        ]
+        ordered = [(f, a) for _, f, a in sorted([(sf.index, f, sf.val) for f, sf in swfuncs.items()])]
         return ordered, tailargs
 
     def _positional_validate(self, args, validator_list, varargs, argnames, varargname):
@@ -550,15 +518,12 @@ class Application(object):
         for i in range(min(len(args), len(validator_list))):
 
             if validator_list[i] is not None:
-                out_args[i] = self._handle_argument(
-                    args[i], validator_list[i], argnames[i]
-                )
+                out_args[i] = self._handle_argument(args[i], validator_list[i], argnames[i])
 
         if len(args) > len(validator_list):
             if varargs is not None:
                 out_args[len(validator_list) :] = [
-                    self._handle_argument(a, varargs, varargname)
-                    for a in args[len(validator_list) :]
+                    self._handle_argument(a, varargs, varargname) for a in args[len(validator_list) :]
                 ]
             else:
                 out_args[len(validator_list) :] = args[len(validator_list) :]
@@ -665,9 +630,7 @@ class Application(object):
             if isinstance(switch, CountOf):
                 p = (range(val),)
             elif swinfo.list and not hasattr(val, "__iter__"):
-                raise SwitchError(
-                    T_("Switch {0} must be a sequence (iterable)").format(swname)
-                )
+                raise SwitchError(T_("Switch {0} must be a sequence (iterable)").format(swname))
             elif not swinfo.argtype:
                 # a flag
                 if val not in (True, False, None, Flag):
@@ -859,16 +822,10 @@ class Application(object):
             print(T_("Usage:"))
             if not self.USAGE:
                 if self._subcommands:
-                    self.USAGE = T_(
-                        "    {progname} [SWITCHES] [SUBCOMMAND [SWITCHES]] {tailargs}\n"
-                    )
+                    self.USAGE = T_("    {progname} [SWITCHES] [SUBCOMMAND [SWITCHES]] {tailargs}\n")
                 else:
                     self.USAGE = T_("    {progname} [SWITCHES] {tailargs}\n")
-            print(
-                self.USAGE.format(
-                    progname=colors.filter(self.PROGNAME), tailargs=tailargs
-                )
-            )
+            print(self.USAGE.format(progname=colors.filter(self.PROGNAME), tailargs=tailargs))
 
         by_groups = {}
         for si in self._switches_by_func.values():
@@ -886,8 +843,7 @@ class Application(object):
                     swnames = ", ".join(
                         ("-" if len(n) == 1 else "--") + n
                         for n in si.names
-                        if n in self._switches_by_name
-                        and self._switches_by_name[n] == si
+                        if n in self._switches_by_name and self._switches_by_name[n] == si
                     )
                     if si.argtype:
                         if hasattr(si.argtype, "__name__"):
@@ -903,9 +859,7 @@ class Application(object):
                 if show_groups:
                     print("")
 
-        sw_width = (
-            max(len(prefix) for si, prefix, color in switches(by_groups, False)) + 4
-        )
+        sw_width = max(len(prefix) for si, prefix, color in switches(by_groups, False)) + 4
         description_indent = "    {0}{1}{2}"
         wrapper = TextWrapper(width=max(cols - min(sw_width, 60), 50) - 6)
         indentation = "\n" + " " * (cols - wrapper.width)
@@ -918,22 +872,14 @@ class Application(object):
                 help += T_("; required")
             if switch_info.requires:
                 help += T_("; requires {0}").format(
-                    ", ".join(
-                        (("-" if len(switch) == 1 else "--") + switch)
-                        for switch in switch_info.requires
-                    )
+                    ", ".join((("-" if len(switch) == 1 else "--") + switch) for switch in switch_info.requires)
                 )
             if switch_info.excludes:
                 help += T_("; excludes {0}").format(
-                    ", ".join(
-                        (("-" if len(switch) == 1 else "--") + switch)
-                        for switch in switch_info.excludes
-                    )
+                    ", ".join((("-" if len(switch) == 1 else "--") + switch) for switch in switch_info.excludes)
                 )
 
-            msg = indentation.join(
-                wrapper.wrap(" ".join(l.strip() for l in help.splitlines()))
-            )
+            msg = indentation.join(wrapper.wrap(" ".join(l.strip() for l in help.splitlines())))
 
             if len(prefix) + wrapper.width >= cols:
                 padding = indentation
@@ -950,15 +896,11 @@ class Application(object):
                     doc = subapp.DESCRIPTION if subapp.DESCRIPTION else getdoc(subapp)
                     if self.SUBCOMMAND_HELPMSG:
                         help = doc + "; " if doc else ""  # @ReservedAssignment
-                        help += self.SUBCOMMAND_HELPMSG.format(
-                            parent=self.PROGNAME, sub=name
-                        )
+                        help += self.SUBCOMMAND_HELPMSG.format(parent=self.PROGNAME, sub=name)
                     else:
                         help = doc if doc else ""  # @ReservedAssignment
 
-                    msg = indentation.join(
-                        wrapper.wrap(" ".join(l.strip() for l in help.splitlines()))
-                    )
+                    msg = indentation.join(wrapper.wrap(" ".join(l.strip() for l in help.splitlines())))
 
                     if len(name) + wrapper.width >= cols:
                         padding = indentation
@@ -969,11 +911,7 @@ class Application(object):
                     else:
                         bodycolor = gc
 
-                    print(
-                        description_indent.format(
-                            subcls.name, padding, bodycolor | colors.filter(msg)
-                        )
-                    )
+                    print(description_indent.format(subcls.name, padding, bodycolor | colors.filter(msg)))
 
     def _get_prog_version(self):
         ver = None

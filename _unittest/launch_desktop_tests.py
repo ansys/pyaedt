@@ -54,5 +54,5 @@ def run_desktop_tests():
     aedtapp.close_desktop()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     run_desktop_tests()

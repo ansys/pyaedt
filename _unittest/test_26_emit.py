@@ -36,12 +36,10 @@ class TestClass:
 
     @pytest.mark.skipif(config["build_machine"], reason="Not functional in non-graphical mode")
     def test_create_components(self):
-        radio = self.aedtapp.modeler.components.create_component(
-            "New Radio", "TestRadio")
+        radio = self.aedtapp.modeler.components.create_component("New Radio", "TestRadio")
         assert radio.name == "TestRadio"
         assert isinstance(radio, EmitComponent)
-        antenna = self.aedtapp.modeler.components.create_component(
-            "Antenna", "TestAntenna")
+        antenna = self.aedtapp.modeler.components.create_component("Antenna", "TestAntenna")
         assert antenna.name == "TestAntenna"
         assert isinstance(antenna, EmitComponent)
 

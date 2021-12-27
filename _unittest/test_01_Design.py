@@ -23,7 +23,8 @@ class TestClass:
         with Scratch(scratch_path) as self.local_scratch:
             self.test_project = self.local_scratch.copyfile(example_project)
             self.aedtapp = Hfss(
-                projectname=self.test_project, specified_version=desktop_version,
+                projectname=self.test_project,
+                specified_version=desktop_version,
             )
             # self.aedtapp.save_project()
             # self.cache = DesignCache(self.aedtapp)
@@ -205,7 +206,7 @@ class TestClass:
         props = self.aedtapp.get_components3d_vars("Dipole_Antenna_DM")
         assert len(props) == 3
 
-    @pytest.mark.skipif(os.name == "posix", reason= "Not needed in Linux.")
+    @pytest.mark.skipif(os.name == "posix", reason="Not needed in Linux.")
     def test_21_generate_temp_project_directory(self):
         proj_dir1 = self.aedtapp.generate_temp_project_directory("Example")
         assert os.path.exists(proj_dir1)

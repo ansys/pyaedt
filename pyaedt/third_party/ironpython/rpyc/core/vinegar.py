@@ -10,6 +10,7 @@ non-secure. Keep this in mind.
 """
 import sys
 import traceback
+
 try:
     import exceptions as exceptions_module
 except ImportError:
@@ -154,13 +155,13 @@ def load(val, import_custom_exceptions, instantiate_custom_exceptions, instantia
     for name, attrval in attrs:
         try:
             setattr(exc, name, attrval)
-        except AttributeError:      # handle immutable attrs (@property)
+        except AttributeError:  # handle immutable attrs (@property)
             pass
 
     # When possible and relevant, warn the user about mismatch in major versions between remote and local
     remote_ver = getattr(exc, "_remote_version", "<version denied>")
-    if remote_ver != "<version denied>" and remote_ver.split('.')[0] != str(version.version[0]):
-        _warn = '\nWARNING: Remote is on RPyC {} and local is on RPyC {}.\n\n'
+    if remote_ver != "<version denied>" and remote_ver.split(".")[0] != str(version.version[0]):
+        _warn = "\nWARNING: Remote is on RPyC {} and local is on RPyC {}.\n\n"
         tbtext += _warn.format(remote_ver, version.version_string)
 
     exc._remote_tb = tbtext
@@ -170,6 +171,7 @@ def load(val, import_custom_exceptions, instantiate_custom_exceptions, instantia
 class GenericException(Exception):
     """A 'generic exception' that is raised when the exception the gotten from
     the other party cannot be instantiated locally"""
+
     pass
 
 
