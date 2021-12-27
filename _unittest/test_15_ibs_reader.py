@@ -4,8 +4,6 @@ from pyaedt.generic import ibis_reader
 from pyaedt import Circuit
 from pyaedt.generic.general_methods import is_ironpython
 
-aedtapp = Circuit()
-
 
 class TestClass:
     def setup_class(self):
