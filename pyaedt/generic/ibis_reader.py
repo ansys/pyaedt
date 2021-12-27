@@ -1,7 +1,6 @@
 import os
 
 import pyaedt
-import pyaedt.generic
 
 
 class Component:
