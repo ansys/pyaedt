@@ -1,6 +1,8 @@
 import os
+
 from pyaedt.generic import ibis_reader
 from pyaedt import Circuit
+from pyaedt.generic.general_methods import is_ironpython
 
 aedtapp = Circuit()
 
@@ -15,9 +17,14 @@ class TestClass:
     def test_01_read_ibis(self):
         reader = ibis_reader.IbisReader()
         print(os.getcwd())
-        ibis = reader.read_project(
-            os.path.join(os.getcwd(), "_unittest", "example_models", "u26a_800_modified.ibs"), aedtapp
-        )
+        if is_ironpython:
+            ibis = reader.read_project(
+                os.path.join(os.getcwd(), "..", "_unittest", "example_models", "u26a_800_modified.ibs"), aedtapp
+            )
+        else:
+            ibis = reader.read_project(
+                os.path.join(os.getcwd(), "_unittest", "example_models", "u26a_800_modified.ibs"), aedtapp
+            )
 
         ibis_components = ibis.components
         assert len(ibis_components) == 6
