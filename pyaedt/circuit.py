@@ -364,7 +364,7 @@ class Circuit(FieldAnalysisCircuit, object):
         return True
 
     @aedt_exception_handler
-    def read_ibis(self, path: str):
+    def read_ibis(self, path):
         """Create an IBIS model based on the data contained into an *.ibs file.
 
         Parameters
