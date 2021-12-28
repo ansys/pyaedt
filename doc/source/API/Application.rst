@@ -36,7 +36,6 @@ Example without Desktop:
 
 .. autosummary::
    :toctree: _autosummary
-   :template: custom-class-template.rst
 
    Desktop
    Hfss

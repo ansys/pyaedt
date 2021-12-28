@@ -57,7 +57,6 @@ modeler, including all primitives methods and properties.
 
 .. autosummary::
    :toctree: _autosummary
-   :template: custom-class-template.rst
    :nosignatures:
 
    Model2D.Modeler2D
@@ -99,7 +98,6 @@ EM Solver and ``modeler.components`` for circuit solvers.
 
 .. autosummary::
    :toctree: _autosummary
-   :template: custom-class-template.rst
    :nosignatures:
 
 
@@ -146,7 +144,6 @@ It contains all getter and setter to simplify object manipulation.
 
 .. autosummary::
    :toctree: _autosummary
-   :template: custom-class-template.rst
    :nosignatures:
 
    Object3d.Object3d
@@ -190,7 +187,6 @@ It contains all getter and setter to simplify object manipulation.
 
 .. autosummary::
    :toctree: _autosummary
-   :template: custom-class-template.rst
    :nosignatures:
 
    Object3d.CircuitComponent
@@ -229,7 +225,6 @@ It contains all getter and setter to simplify object manipulation.
 
 .. autosummary::
    :toctree: _autosummary
-   :template: custom-class-template.rst
    :nosignatures:
 
    Object3d.Objec3DLayout
@@ -269,7 +264,6 @@ GeometryOperators can be imported and used as it is made by static methods.
 
 .. autosummary::
    :toctree: _autosummary
-   :template: custom-class-template.rst
    :nosignatures:
 
    Modeler.CoordinateSystem

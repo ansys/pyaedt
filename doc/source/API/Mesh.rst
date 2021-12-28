@@ -24,7 +24,6 @@ They are accessible through the mesh property:
 
 .. autosummary::
    :toctree: _autosummary
-   :template: custom-class-template.rst
    :nosignatures:
 
    Mesh.Mesh
