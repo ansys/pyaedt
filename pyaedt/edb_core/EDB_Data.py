@@ -6,6 +6,7 @@ import math
 from pyaedt.generic.general_methods import aedt_exception_handler, is_ironpython
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.modeler.GeometryOperators import GeometryOperators
+
 try:
     from System import Array
     from System.Collections.Generic import List
@@ -69,7 +70,6 @@ class EDBNetsData(object):
         """
         return self.net_object.GetName()
 
-
     @name.setter
     def name(self, val):
         self.net_object.SetName(val)
@@ -120,9 +120,7 @@ class EDBNetsData(object):
         return comps
 
     @aedt_exception_handler
-    def plot(
-        self, layers=None, show_legend=True, save_plot=None, outline=None, size=(2000, 1000)
-    ):
+    def plot(self, layers=None, show_legend=True, save_plot=None, outline=None, size=(2000, 1000)):
         """Plot a Net to Matplotlib 2D Chart.
 
         Parameters
@@ -141,8 +139,10 @@ class EDBNetsData(object):
             Image size in pixel (width, height).
         """
 
-        self._app.core_nets.plot(self.name, layers=layers, show_legend=show_legend, save_plot=save_plot,
-                                 outline=outline, size=size)
+        self._app.core_nets.plot(
+            self.name, layers=layers, show_legend=show_legend, save_plot=save_plot, outline=outline, size=size
+        )
+
 
 class EDBPrimitives(object):
     """Manages EDB functionalities for a primitives.
@@ -353,7 +353,7 @@ class EDBPrimitives(object):
         try:
             my_net_points = list(self.primitive_object.GetPolygonData().Points)
             for i, point in enumerate(my_net_points):
-                    points.append([point.X.ToDouble(), point.Y.ToDouble()])
+                points.append([point.X.ToDouble(), point.Y.ToDouble()])
             return points
         except:
             points = []
@@ -414,8 +414,7 @@ class EDBPrimitives(object):
 
     @property
     def layer(self):
-        """Get the primitive edb layer object.
-        """
+        """Get the primitive edb layer object."""
         return self.primitive_object.GetLayer()
 
     @property

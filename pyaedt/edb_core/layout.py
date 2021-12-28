@@ -93,7 +93,7 @@ class EdbLayout(object):
             layoutObjectInstances = layoutInstance.GetAllLayoutObjInstances()
             for el in layoutObjectInstances.Items:
                 try:
-                    #self._prims.append(el.GetLayoutObj())
+                    # self._prims.append(el.GetLayoutObj())
                     self._prims.append(EDBPrimitives(el.GetLayoutObj(), self._pedb))
                 except:
                     pass
