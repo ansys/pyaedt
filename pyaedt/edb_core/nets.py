@@ -9,16 +9,17 @@ from pyaedt.modeler.GeometryOperators import GeometryOperators
 from pyaedt.generic.constants import CSS4_COLORS
 from pyaedt.edb_core.EDB_Data import EDBNetsData
 
-try:
-    from matplotlib import pyplot as plt
-    from matplotlib.path import Path
-    from matplotlib.patches import PathPatch
-except ImportError:
-    if not is_ironpython:
-        warnings.warn(
-            "The Matplotlib module is required to run some functionalities.\n" "Install with \npip install matplotlib"
-        )
-    pass
+if not is_ironpython:
+    try:
+        from matplotlib import pyplot as plt
+        from matplotlib.path import Path
+        from matplotlib.patches import PathPatch
+    except ImportError:
+        if not is_ironpython:
+            mess = "The Matplotlib module is required to run some functionalities.\n"
+            mess += "Install with \npip install matplotlib"
+            warnings.warn(mess)
+        pass
 
 
 class EdbNets(object):
