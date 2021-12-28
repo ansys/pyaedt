@@ -649,9 +649,7 @@ class IbisReader:
             Name of the component.
 
         """
-        name = ""
-        name = line.replace("[Component]", "")
-        return name.strip()
+        return line.replace("[Component]", "").strip()
 
     # Pin
     def make_pin_object(self, line, component_name, ibis):
