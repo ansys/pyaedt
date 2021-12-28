@@ -8,6 +8,7 @@ import warnings
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import aedt_exception_handler
 from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.edb_core.EDB_Data import EDBPrimitives
 
 try:
     from System import Tuple
@@ -92,7 +93,8 @@ class EdbLayout(object):
             layoutObjectInstances = layoutInstance.GetAllLayoutObjInstances()
             for el in layoutObjectInstances.Items:
                 try:
-                    self._prims.append(el.GetLayoutObj())
+                    #self._prims.append(el.GetLayoutObj())
+                    self._prims.append(EDBPrimitives(el.GetLayoutObj(), self._pedb))
                 except:
                     pass
             for lay in self.layers:
@@ -140,7 +142,7 @@ class EdbLayout(object):
         prims = []
         for el in self.primitives:
             try:
-                if "Rectangle" in el.ToString():
+                if "Rectangle" in el.primitive_object.ToString():
                     prims.append(el)
             except:
                 pass
@@ -159,7 +161,7 @@ class EdbLayout(object):
         prims = []
         for el in self.primitives:
             try:
-                if "Circle" in el.ToString():
+                if "Circle" in el.primitive_object.ToString():
                     prims.append(el)
             except:
                 pass
@@ -177,7 +179,7 @@ class EdbLayout(object):
         prims = []
         for el in self.primitives:
             try:
-                if "Path" in el.ToString():
+                if "Path" in el.primitive_object.ToString():
                     prims.append(el)
             except:
                 pass
@@ -195,7 +197,7 @@ class EdbLayout(object):
         prims = []
         for el in self.primitives:
             try:
-                if "Bondwire" in el.ToString():
+                if "Bondwire" in el.primitive_object.ToString():
                     prims.append(el)
             except:
                 pass
@@ -207,13 +209,13 @@ class EdbLayout(object):
 
         Returns
         -------
-        list
+        list of :class:`pyaedt.edb_core.EDB_Data.EDBPrimitives`
             List of polygons.
         """
         prims = []
         for el in self.primitives:
             try:
-                if "Polygon" in el.ToString():
+                if "Polygon" in el.primitive_object.ToString():
                     prims.append(el)
             except:
                 pass
