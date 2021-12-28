@@ -389,7 +389,7 @@ class IbisReader:
             Ibis object exposing all data from the ibis file.
         """
 
-        if os.path.exists(filename) == False:
+        if not os.path.exists(filename):
             error_message = filename + " does not exist."
             raise FileExistsError(error_message)
 
