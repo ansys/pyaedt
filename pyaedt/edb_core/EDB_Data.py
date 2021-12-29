@@ -314,24 +314,22 @@ class EDBPrimitives(object):
         return voids
 
     @aedt_exception_handler
-    def points_with_arcs(self):
-        """Return a list of points in [x,y] coordinate.
-        For arc, y is infinite and the arc height is represented with x coordinate.
+    def points_raw(self):
+        """Return a list of Edb points.
 
         Returns
         -------
-        list of list
-            list of [x,y] couple of data.
+        list
+            Edb Points.
         """
         points = []
         try:
             my_net_points = list(self.primitive_object.GetPolygonData().Points)
             for i, point in enumerate(my_net_points):
-                points.append([point.X.ToDouble(), point.Y.ToDouble()])
+                points.append(point)
             return points
         except:
-            points = []
-        return points
+            return points
 
     @aedt_exception_handler
     def is_arc(self, point):
@@ -650,6 +648,36 @@ class EDBLayer(object):
         if self._layer_type == 0 or self._layer_type == 2:
             self._etch_factor = value
             self.update_layers()
+
+    @aedt_exception_handler
+    def plot(self, nets=None, show_legend=True, save_plot=None, outline=None, size=(2000, 1000)):
+        """Plot a Layer to Matplotlib 2D Chart.
+
+        Parameters
+        ----------
+        nets : str, list, optional
+            Name of the nets to include in the plot. If `None` all the nets will be considered.
+        show_legend : bool, optional
+            If `True` the legend is shown in the plot. (default)
+            If `False` the legend is not shown.
+        save_plot : str, optional
+            If `None` the plot will be shown.
+            If a file path is specified the plot will be saved to such file.
+        outline : list, optional
+            List of points of the outline to plot.
+        size : tuple, optional
+            Image size in pixel (width, height).
+        """
+
+        self._pedblayers._pedbstackup._pedb.core_nets.plot(nets=nets,
+                                                           layers=self.name,
+                                                           color_by_net=True,
+                                                           show_legend=show_legend,
+                                                           save_plot=save_plot,
+                                                           outline=outline,
+                                                           size=size)
+
+
 
     @aedt_exception_handler
     def init_vals(self):
