@@ -42,18 +42,6 @@ class EDBNetsData(object):
             except:
                 raise AttributeError("Attribute not present")
 
-    # def __setattr__(self, key, value):
-    #     if key in dir(self):
-    #         try:
-    #             return setattr(self, key, value)
-    #         except:
-    #             raise AttributeError("Attribute not present")
-    #     else:
-    #         try:
-    #             return setattr(self.rimitive, key, value)
-    #         except:
-    #             raise AttributeError("Attribute not present")
-
     def __init__(self, raw_net, core_app):
         self._app = core_app
         self._core_components = core_app.core_components
@@ -170,18 +158,6 @@ class EDBPrimitives(object):
             except:
                 raise AttributeError("Attribute not present")
 
-    # def __setattr__(self, key, value):
-    #     if key in dir(self):
-    #         try:
-    #             return setattr(self, key, value)
-    #         except:
-    #             raise AttributeError("Attribute not present")
-    #     else:
-    #         try:
-    #             return setattr(self.rimitive, key, value)
-    #         except:
-    #             raise AttributeError("Attribute not present")
-
     def __init__(self, raw_primitive, core_app):
         self._app = core_app
         self._core_stackup = core_app.core_stackup
@@ -217,8 +193,8 @@ class EDBPrimitives(object):
 
         Returns
         -------
-        list
-            points generated along the arc.
+        list, list
+            Points generated along the arc.
         """
         # fmt: off
         if abs(h) < tol:
@@ -274,14 +250,13 @@ class EDBPrimitives(object):
 
     def _get_points_for_plot(self, my_net_points, num):
         """
-        Get the points to be plot
+        Get the points to be plotted.
         """
         # fmt: off
         x = []
         y = []
         for i, point in enumerate(my_net_points):
-            # point = my_net_points[i]
-            if not point.IsArc():
+            if not self.is_arc(point):
                 x.append(point.X.ToDouble())
                 y.append(point.Y.ToDouble())
                 # i += 1
@@ -307,7 +282,6 @@ class EDBPrimitives(object):
         ----------
         arc_segments : int
             Number of facets to convert an arc. Default is `6`.
-
 
         Returns
         -------
@@ -367,7 +341,7 @@ class EDBPrimitives(object):
         -------
         bool
         """
-        return not point.IsArc()
+        return point.IsArc()
 
     @property
     def type(self):
