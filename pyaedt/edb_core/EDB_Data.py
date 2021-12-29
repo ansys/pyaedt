@@ -669,15 +669,15 @@ class EDBLayer(object):
             Image size in pixel (width, height).
         """
 
-        self._pedblayers._pedbstackup._pedb.core_nets.plot(nets=nets,
-                                                           layers=self.name,
-                                                           color_by_net=True,
-                                                           show_legend=show_legend,
-                                                           save_plot=save_plot,
-                                                           outline=outline,
-                                                           size=size)
-
-
+        self._pedblayers._pedbstackup._pedb.core_nets.plot(
+            nets=nets,
+            layers=self.name,
+            color_by_net=True,
+            show_legend=show_legend,
+            save_plot=save_plot,
+            outline=outline,
+            size=size,
+        )
 
     @aedt_exception_handler
     def init_vals(self):

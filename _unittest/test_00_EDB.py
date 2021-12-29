@@ -134,7 +134,6 @@ class TestClass:
         assert not signalnets[list(signalnets.keys())[0]].IsPowerGround()
         assert len(list(signalnets[list(signalnets.keys())[0]].primitives)) > 0
 
-
     def test_09_assign_rlc(self):
         assert self.edbapp.core_components.set_component_rlc(
             "C3B14", res_value=1e-3, cap_value="10e-6", isparallel=False
