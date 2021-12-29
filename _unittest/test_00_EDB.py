@@ -81,8 +81,8 @@ class TestClass:
         assert isinstance(poly0.points_raw(), list)
         assert isinstance(poly0.points(), tuple)
         assert isinstance(poly0.points()[0], list)
-        assert poly0.points()[0][0] > 0.0
-        assert poly0.points_raw()[0].X.ToDouble() == 0.0
+        assert poly0.points()[0][0] >= 0.0
+        assert poly0.points_raw()[0].X.ToDouble() >= 0.0
         assert poly0.type == "Polygon"
         assert self.edbapp.core_primitives.paths[0].type == "Path"
         assert self.edbapp.core_primitives.rectangles[0].type == "Rectangle"
