@@ -140,16 +140,15 @@ class Pin(Component):
         )
 
     def insert(self, x, y, angle=0.0):
-        """
-        Insert a pin at a defined location inside the graphical window.
+        """Insert a pin at a defined location inside the graphical window.
 
         Parameters
         ----------
-        x: float
+        x : float
             X position of the pin.
-        y: float
+        y : float
             Y position of the pin.
-        angle: float, optional
+        angle : float, optional
             Angle of the pin. The default value is ``"0.0"``.
         """
 
@@ -199,16 +198,15 @@ class Buffer:
         )
 
     def insert(self, x, y, angle=0.0):
-        """
-        Insert a buffer at a defined location inside the graphical window.
+        """Insert a buffer at a defined location inside the graphical window.
 
         Parameters
         ----------
-        x: float
+        x : float
             X position of the buffer.
-        y: float
+        y : float
             Y position of the buffer.
-        angle: float, optional
+        angle : float, optional
             Angle of the buffer. The default value is ``"0.0"``.
         """
         self._circuit.modeler.schematic.create_component(
@@ -390,25 +388,24 @@ class IbisReader:
         """
 
         if not os.path.exists(filename):
-            error_message = filename + " does not exist."
-            raise FileExistsError(error_message)
+            raise Exception("{} does not exist.".format(filename))
 
         ibis_name = pyaedt.generic.general_methods.get_filename_without_extension(filename)
         ibis = Ibis(ibis_name, circuit)
 
         # Read *.ibis file.
-        with open(filename, "r") as file:
+        with open(filename, "r") as ibis_file:
             while True:
-                current_line = file.readline()
+                current_line = ibis_file.readline()
                 if not current_line:
                     break
 
-                if self.IsStartedWith(current_line, "[Component] ") == True:
-                    self.read_component(ibis, current_line, file)
-                elif self.IsStartedWith(current_line, "[Model] ") == True:
-                    self.read_model(ibis, current_line, file)
-                elif self.IsStartedWith(current_line, "[Model Selector] ") == True:
-                    self.read_model_selector(ibis, current_line, file)
+                if is_started_with(current_line, "[Component] "):
+                    self.read_component(ibis, current_line, ibis_file)
+                elif is_started_with(current_line, "[Model] "):
+                    self.read_model(ibis, current_line, ibis_file)
+                elif is_started_with(current_line, "[Model Selector] "):
+                    self.read_model_selector(ibis, current_line, ibis_file)
 
         buffers = {}
         for model_selector in ibis.model_selectors:
@@ -454,7 +451,7 @@ class IbisReader:
         return ibis
 
     # Model
-    def read_model(self, ibis, current_line, file):
+    def read_model(self, ibis, current_line, ibis_file):
         """Extracts model's info.
 
         Parameters
@@ -463,20 +460,20 @@ class IbisReader:
             ibis object containing all info.
         current_line : str
             Current line content.
-        file : TextIO
+        ibis_file : TextIO
             File's stream.
 
         """
 
-        if self.IsStartedWith(current_line, "[Model] ") != True:
+        if is_started_with(current_line, "[Model] ") != True:
             return
 
         model = Model()
         model.name = current_line.split("]")[1].strip()
-        current_line = file.readline().replace("\t", "").strip()
+        current_line = ibis_file.readline().replace("\t", "").strip()
 
-        while self.IsStartedWith(current_line, "Model_type") != True:
-            current_line = file.readline().replace("\t", "").strip()
+        while is_started_with(current_line, "Model_type") != True:
+            current_line = ibis_file.readline().replace("\t", "").strip()
 
         iStart = current_line.index(" ", 1)
 
@@ -485,25 +482,25 @@ class IbisReader:
 
         # Clamp
         while not current_line:
-            current_line = file.readline().strip.replace("clamp", "Clamp")
+            current_line = ibis_file.readline().strip.replace("clamp", "Clamp")
 
-            if self.IsStartedWith(current_line, "[GND Clamp]") == True:
+            if is_started_with(current_line, "[GND Clamp]"):
                 model.Clamp = True
                 break
-            elif self.IsStartedWith(current_line, "[GND_Clamp]") == True:
+            elif is_started_with(current_line, "[GND_Clamp]"):
                 model.Clamp = True
                 break
-            elif self.IsStartedWith(current_line, "Enable ", True) == True:
+            elif is_started_with(current_line, "Enable ", True):
                 model.Enable = current_line[len("Enable") + 1 :].strip()
-            elif self.IsStartedWith(current_line, "[Rising Waveform]") == True:
+            elif is_started_with(current_line, "[Rising Waveform]"):
                 break
-            elif self.IsStartedWith(current_line, "[Ramp]") == True:
+            elif is_started_with(current_line, "[Ramp]"):
                 break
 
         ibis.models.append(model)
 
     # Model Selector
-    def read_model_selector(self, ibis, current_line, file):
+    def read_model_selector(self, ibis, current_line, ibis_file):
         """Extracts model selector's info.
 
         Parameters
@@ -512,24 +509,24 @@ class IbisReader:
             ibis object containing all info.
         current_line : str
             Current line content.
-        file : TextIO
+        ibis_file : TextIO
             File's stream.
 
         """
 
-        if self.IsStartedWith(current_line, "[Model Selector] ") != True:
+        if is_started_with(current_line, "[Model Selector] ") != True:
             return
 
         model_selector = ModelSelector()
         model_selector.model_selector_items = []
         model_selector.name = current_line.split("]")[1].strip()
 
-        current_line = file.readline()
+        current_line = ibis_file.readline()
 
         # Model Selector
-        while self.IsStartedWith(current_line, "|") is False and current_line.strip() != "":
+        while is_started_with(current_line, "|") is False and current_line.strip() != "":
             model_selector.model_selector_items.append(self.make_model(current_line.strip()))
-            current_line = file.readline()
+            current_line = ibis_file.readline()
 
         # ModelSelectorItem
         ibis.model_selectors.append(model_selector)
@@ -559,7 +556,7 @@ class IbisReader:
         return item
 
     # Component
-    def read_component(self, ibis, current_line, file):
+    def read_component(self, ibis, current_line, ibis_file):
         """Extracts component's info.
 
         Parameters
@@ -568,49 +565,49 @@ class IbisReader:
             ibis object containing all info.
         current_line : str
             Current line content.
-        file : TextIO
+        ibis_file : TextIO
             File's stream.
 
         """
 
-        if self.IsStartedWith(current_line, "[Component] ") != True:
+        if is_started_with(current_line, "[Component] ") != True:
             return
 
         component = Component()
         component.name = self.get_component_name(current_line)
-        current_line = file.readline()
+        current_line = ibis_file.readline()
 
-        if self.IsStartedWith(current_line, "[Manufacturer]") == True:
+        if is_started_with(current_line, "[Manufacturer]"):
             component.manufacturer = current_line.replace("[Manufacturer]", "").strip()
 
         while True:
-            current_line = file.readline()
-            if self.IsStartedWith(current_line, "[Package]") == True:
+            current_line = ibis_file.readline()
+            if is_started_with(current_line, "[Package]"):
                 break
 
-        self.fill_package_info(component, current_line, file)
+        self.fill_package_info(component, current_line, ibis_file)
 
         # [pin]
-        while self.IsStartedWith(current_line, "[Pin] ") != True:
-            current_line = file.readline()
+        while is_started_with(current_line, "[Pin] ") != True:
+            current_line = ibis_file.readline()
 
         while True:
-            current_line = file.readline()
-            if self.IsStartedWith(current_line, "|") == True:
+            current_line = ibis_file.readline()
+            if is_started_with(current_line, "|"):
                 break
 
-        current_line = file.readline()
+        current_line = ibis_file.readline()
 
-        while self.IsStartedWith(current_line, "|") == False:
+        while is_started_with(current_line, "|") == False:
             pin = self.make_pin_object(current_line, component.name, ibis)
             component.pins[pin.name] = pin
-            current_line = file.readline()
+            current_line = ibis_file.readline()
             if current_line == "":
                 break
 
         ibis.components[component.name] = component
 
-    def fill_package_info(self, component, current_line, file):
+    def fill_package_info(self, component, current_line, ibis_file):
         """Extracts model's info.
 
         Parameters
@@ -619,23 +616,24 @@ class IbisReader:
             Current line content.
         current_line : str
             Current line content.
-        file : TextIO
+        ibis_file : TextIO
             File's stream.
 
         """
-        while self.IsStartedWith(current_line, "|") == True or self.IsStartedWith(current_line, "[") == True:
-            current_line = file.readline()
+        while is_started_with(current_line, "|") or is_started_with(current_line, "["):
+            current_line = ibis_file.readline()
 
-        if self.IsStartedWith(current_line, "R_pkg") == True:
+        if is_started_with(current_line, "R_pkg"):
             component.R_pkg = current_line.strip()
-            current_line = file.readline()
-        elif self.IsStartedWith(current_line, "L_pkg") == True:
+            current_line = ibis_file.readline()
+        elif is_started_with(current_line, "L_pkg"):
             component.L_pkg = current_line.strip()
-            current_line = file.readline()
-        elif self.IsStartedWith(current_line, "C_pkg") == True:
+            current_line = ibis_file.readline()
+        elif is_started_with(current_line, "C_pkg"):
             component.C_pkg = current_line.strip()
 
-    def get_component_name(self, line):
+    @classmethod
+    def get_component_name(cls, line):
         """Gets the name of the component.
 
         Parameters
@@ -694,7 +692,8 @@ class IbisReader:
 
         return pin
 
-    def get_first_parameter(self, line):
+    @classmethod
+    def get_first_parameter(cls, line):
         """Gets first parameter string value.
 
         Parameters
@@ -715,32 +714,26 @@ class IbisReader:
         data = line.split(" ")
         return data[0].strip()
 
-    def IsStartedWith(self, src, find, ignore_case=True):
-        """Verifies if a string content starts with a specific string or not.
 
-        Parameters
-        ----------
-        src : str
-            Current line content.
-        find : str
-            Current line content.
-        ignore_case : bool, optional
-            Case sensitive or not. The default value is ``True``.
+def is_started_with(src, find, ignore_case=True):
+    """Verifies if a string content starts with a specific string or not.
 
-        Returns
-        -------
-        bool
-            ``True`` if the src string starts with the pattern.
+    Parameters
+    ----------
+    src : str
+        Current line content.
+    find : str
+        Current line content.
+    ignore_case : bool, optional
+        Case sensitive or not. The default value is ``True``.
 
-        """
+    Returns
+    -------
+    bool
+        ``True`` if the src string starts with the pattern.
 
-        if ignore_case == True:
-            if src[: len(find)].lower() == find.lower():
-                return True
-            else:
-                return False
-        else:
-            if src[: len(find)] == find:
-                return True
-            else:
-                return False
+    """
+
+    if ignore_case:
+        return src.lower().startswith(find.lower())
+    return src.startswith(find)
