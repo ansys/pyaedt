@@ -485,7 +485,7 @@ class TestClass:
 
     @pytest.mark.skipif(config["build_machine"], reason="Not running in non-graphical mode")
     def test_62_export_to_hfss(self):
-        edb = Edb(edbpath=os.path.join(local_path, "example_models", "simple.aedb"), edbversion="2021.2")
+        edb = Edb(edbpath=os.path.join(local_path, "example_models", "simple.aedb"), edbversion=desktop_version)
         options_config = {"UNITE_NETS": 1, "LAUNCH_Q3D": 0}
         out = edb.write_export3d_option_config_file(scratch_path, options_config)
         assert os.path.exists(out)
@@ -495,7 +495,7 @@ class TestClass:
 
     @pytest.mark.skipif(config["build_machine"], reason="Not running in non-graphical mode")
     def test_63_export_to_q3d(self):
-        edb = Edb(edbpath=os.path.join(local_path, "example_models", "simple.aedb"), edbversion="2021.2")
+        edb = Edb(edbpath=os.path.join(local_path, "example_models", "simple.aedb"), edbversion=desktop_version)
         options_config = {"UNITE_NETS": 1, "LAUNCH_Q3D": 0}
         out = edb.write_export3d_option_config_file(scratch_path, options_config)
         assert os.path.exists(out)
@@ -505,7 +505,7 @@ class TestClass:
 
     @pytest.mark.skipif(config["build_machine"], reason="Not running in non-graphical mode")
     def test_64_export_to_maxwell(self):
-        edb = Edb(edbpath=os.path.join(local_path, "example_models", "simple.aedb"), edbversion="2021.2")
+        edb = Edb(edbpath=os.path.join(local_path, "example_models", "simple.aedb"), edbversion=desktop_version)
         options_config = {"UNITE_NETS": 1, "LAUNCH_MAXWELL": 0}
         out = edb.write_export3d_option_config_file(scratch_path, options_config)
         assert os.path.exists(out)
