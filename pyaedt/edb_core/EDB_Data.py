@@ -325,7 +325,7 @@ class EDBPrimitives(object):
         points = []
         try:
             my_net_points = list(self.primitive_object.GetPolygonData().Points)
-            for i, point in enumerate(my_net_points):
+            for point in my_net_points:
                 points.append(point)
             return points
         except:
