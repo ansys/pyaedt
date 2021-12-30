@@ -7,7 +7,7 @@ from pyaedt import is_ironpython
 
 if is_ironpython:
     pyaedt_path = os.path.normpath(os.path.abspath(os.path.dirname(__file__)))
-    sys.path.append(os.path.join(pyaedt_path, "third_party", "ironpython"))
+    sys.path.insert(0, os.path.join(pyaedt_path, "third_party", "ironpython"))
 
 import rpyc
 from rpyc.utils.server import ThreadedServer

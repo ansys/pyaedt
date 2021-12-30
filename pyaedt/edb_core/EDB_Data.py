@@ -1,8 +1,11 @@
 import time
 import warnings
+import math
+
 
 from pyaedt.generic.general_methods import aedt_exception_handler, is_ironpython
 from pyaedt.edb_core.general import convert_py_list_to_net_list
+from pyaedt.modeler.GeometryOperators import GeometryOperators
 
 try:
     from System import Array
@@ -11,6 +14,403 @@ except ImportError:
     warnings.warn(
         "The clr is missing. Install Python.NET or use an IronPython version if you want to use the EDB module."
     )
+
+
+class EDBNetsData(object):
+    """Manages EDB functionalities for a primitives.
+    It Inherits EDB Object properties.
+
+    Examples
+    --------
+    >>> from pyaedt import Edb
+    >>> edb = Edb(myedb, edbversion="2021.2")
+    >>> edb_net = edb.core_nets.nets["GND"]
+    >>> edb_net.name # Class Property
+    >>> edb_net.GetName() # EDB Object Property
+    """
+
+    def __getattr__(self, key):
+        if key in dir(self):
+            try:
+                return getattr(self, key)
+            except:
+                raise AttributeError("Attribute not present")
+
+        if key in dir(self.net_object):
+            try:
+                return getattr(self.net_object, key)
+            except:
+                raise AttributeError("Attribute not present")
+
+    def __init__(self, raw_net, core_app):
+        self._app = core_app
+        self._core_components = core_app.core_components
+        self._core_primitive = core_app.core_primitives
+        self.net_object = raw_net
+
+    @property
+    def name(self):
+        """Return the Net Name.
+
+        Returns
+        -------
+        str
+        """
+        return self.net_object.GetName()
+
+    @name.setter
+    def name(self, val):
+        self.net_object.SetName(val)
+
+    @property
+    def primitives(self):
+        """Return the list of primitives that belongs to the net.
+
+        Returns
+        -------
+        list of :class:`pyaedt.edb_core.EDB_Data.EDBPrimitives`
+        """
+        prims = []
+        for el in self._core_primitive.primitives:
+            if self.name == el.net_name:
+                prims.append(el)
+        return prims
+
+    @property
+    def is_power_ground(self):
+        """Either to get/set boolean for power/ground net.
+
+        Returns
+        -------
+        bool
+        """
+        return self.net_object.IsPowerGround()
+
+    @is_power_ground.setter
+    def is_power_ground(self, val):
+        if isinstance(val, bool):
+            self.net_object.SetIsPowerGround(val)
+        else:
+            raise AttributeError("Value has to be a boolean.")
+
+    @property
+    def components(self):
+        """Return the list of components that touch the net.
+
+        Returns
+        -------
+        dict[str, :class:`pyaedt.edb_core.EDB_Data.EDBComponent`]
+        """
+        comps = {}
+        for el, val in self._core_components.components.items():
+            if self.name in val.nets:
+                comps[el] = val
+        return comps
+
+    @aedt_exception_handler
+    def plot(self, layers=None, show_legend=True, save_plot=None, outline=None, size=(2000, 1000)):
+        """Plot a Net to Matplotlib 2D Chart.
+
+        Parameters
+        ----------
+        layers : str, list, optional
+            Name of the layers to include in the plot. If `None` all the signal layers will be considered.
+        show_legend : bool, optional
+            If `True` the legend is shown in the plot. (default)
+            If `False` the legend is not shown.
+        save_plot : str, optional
+            If `None` the plot will be shown.
+            If a file path is specified the plot will be saved to such file.
+        outline : list, optional
+            List of points of the outline to plot.
+        size : tuple, optional
+            Image size in pixel (width, height).
+        """
+
+        self._app.core_nets.plot(
+            self.name, layers=layers, show_legend=show_legend, save_plot=save_plot, outline=outline, size=size
+        )
+
+
+class EDBPrimitives(object):
+    """Manages EDB functionalities for a primitives.
+    It Inherits EDB Object properties.
+
+    Examples
+    --------
+    >>> from pyaedt import Edb
+    >>> edb = Edb(myedb, edbversion="2021.2")
+    >>> edb_prim = edb.core_primitives.primitives[0]
+    >>> edb_prim.is_void # Class Property
+    >>> edb_prim.IsVoid() # EDB Object Property
+    """
+
+    def __getattr__(self, key):
+        if key in dir(self):
+            try:
+                return getattr(self, key)
+            except:
+                raise AttributeError("Attribute not present")
+
+        if key in dir(self.primitive_object):
+            try:
+                return getattr(self.primitive_object, key)
+            except:
+                raise AttributeError("Attribute not present")
+
+    def __init__(self, raw_primitive, core_app):
+        self._app = core_app
+        self._core_stackup = core_app.core_stackup
+        self._core_net = core_app.core_nets
+        self.primitive_object = raw_primitive
+
+    @property
+    def is_void(self):
+        """Either if the primitive is a void or not.
+
+        Returns
+        -------
+        bool
+        """
+        return self.primitive_object.IsVoid()
+
+    @staticmethod
+    def _eval_arc_points(p1, p2, h, n=6, tol=1e-12):
+        """Get the points of the arc
+
+        Parameters
+        ----------
+        p1 : list
+            Arc starting point.
+        p2 : list
+            Arc ending point.
+        h : float
+            Arc height.
+        n : int
+            Number of points to generate along the arc.
+        tol : float
+            Geometric tolerance.
+
+        Returns
+        -------
+        list, list
+            Points generated along the arc.
+        """
+        # fmt: off
+        if abs(h) < tol:
+            return [], []
+        elif h > 0:
+            reverse = False
+            x1 = p1[0]
+            y1 = p1[1]
+            x2 = p2[0]
+            y2 = p2[1]
+        else:
+            reverse = True
+            x1 = p2[0]
+            y1 = p2[1]
+            x2 = p1[0]
+            y2 = p1[1]
+            h *= -1
+        xa = (x2-x1) / 2
+        ya = (y2-y1) / 2
+        xo = x1 + xa
+        yo = y1 + ya
+        a = math.sqrt(xa**2 + ya**2)
+        if a < tol:
+            return [], []
+        r = (a**2)/(2*h) + h/2
+        if abs(r-a) < tol:
+            b = 0
+            th = 2 * math.asin(1)  # chord angle
+        else:
+            b = math.sqrt(r**2 - a**2)
+            th = 2 * math.asin(a/r)  # chord angle
+
+        # center of the circle
+        xc = xo + b*ya/a
+        yc = yo - b*xa/a
+
+        alpha = math.atan2((y1-yc), (x1-xc))
+        xr = []
+        yr = []
+        for i in range(n):
+            i += 1
+            dth = (i/(n+1)) * th
+            xi = xc + r * math.cos(alpha-dth)
+            yi = yc + r * math.sin(alpha-dth)
+            xr.append(xi)
+            yr.append(yi)
+
+        if reverse:
+            xr.reverse()
+            yr.reverse()
+        # fmt: on
+        return xr, yr
+
+    def _get_points_for_plot(self, my_net_points, num):
+        """
+        Get the points to be plotted.
+        """
+        # fmt: off
+        x = []
+        y = []
+        for i, point in enumerate(my_net_points):
+            if not self.is_arc(point):
+                x.append(point.X.ToDouble())
+                y.append(point.Y.ToDouble())
+                # i += 1
+            else:
+                arc_h = point.GetArcHeight().ToDouble()
+                p1 = [my_net_points[i-1].X.ToDouble(), my_net_points[i-1].Y.ToDouble()]
+                if i+1 < len(my_net_points):
+                    p2 = [my_net_points[i+1].X.ToDouble(), my_net_points[i+1].Y.ToDouble()]
+                else:
+                    p2 = [my_net_points[0].X.ToDouble(), my_net_points[0].Y.ToDouble()]
+                x_arc, y_arc = self._eval_arc_points(p1, p2, arc_h, num)
+                x.extend(x_arc)
+                y.extend(y_arc)
+                # i += 1
+        # fmt: on
+        return x, y
+
+    @aedt_exception_handler
+    def points(self, arc_segments=6):
+        """Return the list of points with arcs converted to segments.
+
+        Parameters
+        ----------
+        arc_segments : int
+            Number of facets to convert an arc. Default is `6`.
+
+        Returns
+        -------
+        list, list
+            x and y list of points.
+        """
+        try:
+            my_net_points = list(self.primitive_object.GetPolygonData().Points)
+            xt, yt = self._get_points_for_plot(my_net_points, arc_segments)
+            if not xt:
+                return []
+            x, y = GeometryOperators.orient_polygon(xt, yt, clockwise=True)
+            return x, y
+        except:
+            x = []
+            y = []
+        return x, y
+
+    @property
+    def voids(self):
+        """Return a list of voids of the given primitive if any.
+
+        Returns
+        -------
+        list of :class:`pyaedt.edb_core.EDB_Data.EDBPrimitives`
+        """
+        voids = []
+        for void in self.primitive_object.Voids:
+            voids.append(EDBPrimitives(void, self._app))
+        return voids
+
+    @aedt_exception_handler
+    def points_raw(self):
+        """Return a list of Edb points.
+
+        Returns
+        -------
+        list
+            Edb Points.
+        """
+        points = []
+        try:
+            my_net_points = list(self.primitive_object.GetPolygonData().Points)
+            for point in my_net_points:
+                points.append(point)
+            return points
+        except:
+            return points
+
+    @aedt_exception_handler
+    def is_arc(self, point):
+        """Either if a point is an arc or not.
+
+        Returns
+        -------
+        bool
+        """
+        return point.IsArc()
+
+    @property
+    def type(self):
+        """Return the type of the primitive.
+        Allowed outputs are `"Circle"`, `"Rectangle"`,`"Polygon"`,`"Path"`,`"Bondwire"`.
+
+        Returns
+        -------
+        str
+        """
+        types = ["Circle", "Path", "Polygon", "Rectangle", "Bondwire"]
+        str_type = self.primitive_object.ToString().split(".")
+        if str_type[-1] in types:
+            return str_type[-1]
+        return None
+
+    @property
+    def net(self):
+        """Return EDB Net Object."""
+        return self.primitive_object.GetNet()
+
+    @property
+    def net_name(self):
+        """Get or Set the primitive net name.
+
+        Returns
+        -------
+        str
+        """
+        return self.net.GetName()
+
+    @net_name.setter
+    def net_name(self, val):
+        if val in self._core_net.nets:
+            net = self._core_net.nets[val].net_object
+            self.primitive_object.SetNet(net)
+        elif not isinstance(val, str):
+            try:
+                self.primitive_object.SetNet(val)
+            except:
+                raise AttributeError("Value inserted not found. Input has to be layer name or net object.")
+        else:
+            raise AttributeError("Value inserted not found. Input has to be layer name or net object.")
+
+    @property
+    def layer(self):
+        """Get the primitive edb layer object."""
+        return self.primitive_object.GetLayer()
+
+    @property
+    def layer_name(self):
+        """Get or Set the primitive layer name.
+
+        Returns
+        -------
+        str
+        """
+        return self.layer.GetName()
+
+    @layer_name.setter
+    def layer_name(self, val):
+        if val in self._core_stackup.stackup_layers.layers:
+            lay = self._core_stackup.stackup_layers.layers[val]._layer
+            self.primitive_object.SetLayer(lay)
+        elif not isinstance(val, str):
+            try:
+                self.primitive_object.SetLayer(val)
+            except:
+                raise AttributeError("Value inserted not found. Input has to be layer name or layer object.")
+        else:
+            raise AttributeError("Value inserted not found. Input has to be layer name or layer object.")
 
 
 class EDBLayer(object):
@@ -248,6 +648,36 @@ class EDBLayer(object):
         if self._layer_type == 0 or self._layer_type == 2:
             self._etch_factor = value
             self.update_layers()
+
+    @aedt_exception_handler
+    def plot(self, nets=None, show_legend=True, save_plot=None, outline=None, size=(2000, 1000)):
+        """Plot a Layer to Matplotlib 2D Chart.
+
+        Parameters
+        ----------
+        nets : str, list, optional
+            Name of the nets to include in the plot. If `None` all the nets will be considered.
+        show_legend : bool, optional
+            If `True` the legend is shown in the plot. (default)
+            If `False` the legend is not shown.
+        save_plot : str, optional
+            If `None` the plot will be shown.
+            If a file path is specified the plot will be saved to such file.
+        outline : list, optional
+            List of points of the outline to plot.
+        size : tuple, optional
+            Image size in pixel (width, height).
+        """
+
+        self._pedblayers._pedbstackup._pedb.core_nets.plot(
+            nets=nets,
+            layers=self.name,
+            color_by_net=True,
+            show_legend=show_legend,
+            save_plot=save_plot,
+            outline=outline,
+            size=size,
+        )
 
     @aedt_exception_handler
     def init_vals(self):
