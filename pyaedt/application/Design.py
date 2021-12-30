@@ -3101,6 +3101,8 @@ class Design(object):
     @aedt_exception_handler
     def _check_solution_consistency(self):
         """Check solution consistency."""
+        if self.design_type in ["Circuit Design", "Twin Builder", "HFSS 3D Layout Design", "EMIT", "Q3D Extractor"]:
+            return True
         if self.design_solutions:
             return self.design_solutions._solution_type in self._odesign.GetSolutionType()
         else:

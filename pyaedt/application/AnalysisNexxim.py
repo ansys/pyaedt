@@ -32,7 +32,6 @@ class FieldAnalysisCircuit(Analysis):
         close_on_exit=False,
         student_version=False,
     ):
-        self.solution_type = solution_type
         Analysis.__init__(
             self,
             application,

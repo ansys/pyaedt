@@ -1,4 +1,5 @@
 import copy
+import warnings
 
 from pyaedt.generic.general_methods import aedt_exception_handler
 
@@ -244,9 +245,7 @@ class DesignSolution(object):
     @solution_type.setter
     @aedt_exception_handler
     def solution_type(self, soltype):
-        if not soltype:
-            soltype = list(self._solution_options.keys())[0]
-        if soltype in self._solution_options and self._solution_options[soltype]["name"]:
+        if soltype and soltype in self._solution_options and self._solution_options[soltype]["name"]:
             self._solution_type = soltype
             try:
                 self._odesign.SetSolutionType(self._solution_options[soltype]["name"],
@@ -342,6 +341,30 @@ class Maxwell2DDesignSolution(DesignSolution, object):
         self._solution_options[self._solution_type]["options"] = self._geometry_mode
         self.solution_type = self._solution_type
 
+    @property
+    def solution_type(self):
+        return self._solution_type
+
+    @solution_type.setter
+    @aedt_exception_handler
+    def solution_type(self, soltype):
+        if not soltype:
+            soltype = list(self._solution_options.keys())[0]
+        if soltype[-1] == "Z":
+            self._solution_options[self._solution_type]["options"] = "about Z"
+            self._geometry_mode = "about Z"
+            soltype = soltype[:-1]
+        elif soltype[-2] == "XY":
+            self._solution_options[self._solution_type]["options"] = "XY"
+            self._geometry_mode = "XY"
+            soltype = soltype[:-2]
+        if soltype in self._solution_options and self._solution_options[soltype]["name"]:
+            self._solution_type = soltype
+            try:
+                self._odesign.SetSolutionType(self._solution_options[soltype]["name"],
+                                              self._solution_options[soltype]["options"])
+            except:
+                pass
 
 class IcepakDesignSolution(DesignSolution, object):
     def __init__(self, odesign, design_type, aedt_version):
@@ -408,13 +431,12 @@ class RmXprtDesignSolution(DesignSolution, object):
     @solution_type.setter
     @aedt_exception_handler
     def solution_type(self, soltype):
-        if not soltype:
-            soltype = list(self._solution_options.keys())[0]
-        try:
-            self._odesign.SetDesignFlow(self._design_type, soltype)
-            self._solution_type = soltype
-        except:
-            pass
+        if soltype:
+            try:
+                self._odesign.SetDesignFlow(self._design_type, soltype)
+                self._solution_type = soltype
+            except:
+                pass
 
     @property
     def design_type(self):

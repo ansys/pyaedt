@@ -1282,7 +1282,7 @@ class PostProcessorCommon(object):
             expression = [expression]
         if not setup_sweep_name:
             setup_sweep_name = self._app.nominal_sweep
-        if self.post_solution_type not in self._app.design_solutions.report_type:
+        if not report_category and  not self._app.design_solutions.report_type:
             self.logger.info("Solution not supported")
             return False
         if not report_category:
@@ -1307,7 +1307,6 @@ class PostProcessorCommon(object):
                 families_input.append(families_dict[el])
             else:
                 families_input.append([families_dict[el]])
-
         self.oreportsetup.CreateReport(
             plotname,
             modal_data,
