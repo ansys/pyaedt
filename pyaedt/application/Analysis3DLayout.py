@@ -412,7 +412,7 @@ class FieldAnalysis3DLayout(Analysis):
         >>> oModule.Add
         """
         if setuptype is None:
-            setuptype = SetupKeys.defaultSetups[self.solution_type]
+            setuptype = self.design_solutions.default_setup
         name = self.generate_unique_setup_name(setupname)
         setup = Setup3DLayout(self, setuptype, name)
         setup.create()
@@ -443,7 +443,7 @@ class FieldAnalysis3DLayout(Analysis):
 
         """
         if setuptype is None:
-            setuptype = SetupKeys.defaultSetups[self.solution_type]
+            setuptype = self.design_solutions.default_setup
         for setup in self.setups:
             if setupname == setup.name:
                 return setup

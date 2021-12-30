@@ -1,7 +1,6 @@
 from pyaedt.generic.general_methods import aedt_exception_handler
 from pyaedt.modeler.Model2D import ModelerRMxprt
 from pyaedt.application.Analysis import Analysis
-from pyaedt.application.Design import design_solutions
 from pyaedt.modules.PostProcessor import CircuitPostProcessor
 
 
@@ -19,23 +18,6 @@ class FieldAnalysisRMxprt(Analysis):
 
     """
 
-    @property
-    def solution_type(self):
-        """Solution type."""
-        return self._solution_type
-
-    @solution_type.setter
-    def solution_type(self, soltype):
-        sol = design_solutions[self._design_type]
-        if not soltype:
-            soltype = sol[0]
-        elif soltype not in sol:
-            soltype = sol[0]
-        try:
-            self.odesign.SetDesignFlow(self._design_type, soltype)
-            self._solution_type = soltype
-        except:
-            pass
 
     def __init__(
         self,
@@ -127,8 +109,8 @@ class FieldAnalysisRMxprt(Analysis):
     @aedt_exception_handler
     def _check_solution_consistency(self):
         """Check solution consistency."""
-        if self._solution_type:
-            return self._odesign.GetSolutionType() == self._solution_type
+        if self.design_solutions:
+            return self._odesign.GetSolutionType() == self.design_solutions._solution_type
         else:
             return True
 

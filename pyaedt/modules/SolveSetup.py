@@ -58,7 +58,7 @@ class Setup(object):
         if isinstance(solutiontype, int):
             self.setuptype = solutiontype
         else:
-            self.setuptype = SetupKeys.defaultSetups[solutiontype]
+            self.setuptype = self.design_solutions.default_setup
 
         self.name = setupname
         self.props = {}
@@ -491,7 +491,7 @@ class SetupCircuit(object):
         if isinstance(solutiontype, int):
             self.setuptype = solutiontype
         else:
-            self.setuptype = SetupKeys.defaultSetups[solutiontype]
+            self.setuptype = self.design_solutions.default_setup
         self._Name = "LinearFrequency"
         self.props = {}
         if isnewsetup:
@@ -1100,7 +1100,7 @@ class Setup3DLayout(object):
         if isinstance(solutiontype, int):
             self._solutiontype = solutiontype
         else:
-            self._solutiontype = SetupKeys.defaultSetups[self._solutiontype]
+            self._solutiontype = self.design_solutions.default_setup
         self.name = setupname
         self.props = OrderedDict()
         self.sweeps = []

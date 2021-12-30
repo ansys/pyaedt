@@ -3,7 +3,6 @@ from pyaedt.modeler.Circuit import ModelerNexxim
 from pyaedt.modules.PostProcessor import CircuitPostProcessor
 from pyaedt.modules.SolveSetup import SetupCircuit
 from pyaedt.application.Analysis import Analysis
-from pyaedt.application.Design import solutions_settings
 
 
 class FieldAnalysisCircuit(Analysis):
@@ -63,17 +62,6 @@ class FieldAnalysisCircuit(Analysis):
         """
         return self._post
 
-    @property
-    def solution_type(self):
-        """Solution type."""
-        return self._solution_type
-
-    @solution_type.setter
-    def solution_type(self, soltype):
-        if soltype:
-            self._solution_type = solutions_settings[soltype]
-        else:
-            self._solution_type = "NexximLNA"
 
     @property
     def existing_analysis_setups(self):

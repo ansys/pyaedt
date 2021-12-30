@@ -19,7 +19,12 @@ import logging
 import gc
 import warnings
 from collections import OrderedDict
-
+from pyaedt.application.DesignSolutions import (DesignSolution,
+                                                IcepakDesignSolution,
+                                                Maxwell2DDesignSolution,
+                                                HFSSDesignSolution,
+                                                RmXprtDesignSolution
+                                                )
 from pyaedt.application.Variables import VariableManager, DataSet
 from pyaedt.generic.constants import AEDT_UNITS, unit_system
 from pyaedt.desktop import Desktop
@@ -34,206 +39,6 @@ from pyaedt.generic.general_methods import generate_unique_name
 if sys.version_info.major > 2:
     import base64
 
-design_solutions = {
-    "Maxwell 2D": [
-        "MagnetostaticXY",
-        "MagnetostaticZ",
-        "EddyCurrentXY",
-        "EddyCurrentZ",
-        "TransientXY",
-        "TransientZ",
-        "ElectrostaticXY",
-        "ElectrostaticZ",
-        "ElectricTransientXY",
-        "ElectricTransientZ",
-        "ElectroDCConductionXY",
-        "ElectroDCConductionZ",
-    ],
-    "Maxwell 3D": [
-        "Magnetostatic",
-        "EddyCurrent",
-        "Transient",
-        "Electrostatic",
-        "DCConduction",
-        "ElectroDCConduction",
-        "ElectricTransient",
-    ],
-    "Twin Builder": ["TR", "AC", "DC"],
-    "Circuit Design": ["NexximLNA"],
-    "2D Extractor": ["Open", "Closed"],
-    "Q3D Extractor": ["Q3D Extractor"],
-    "HFSS": ["DrivenModal", "DrivenTerminal", "Transient Network", "Eigenmode", "Characteristic Mode", "SBR+"],
-    "Icepak": [
-        "SteadyStateTemperatureAndFlow",
-        "SteadyStateTemperatureOnly",
-        "SteadyStateFlowOnly",
-        "TransientTemperatureAndFlow",
-        "TransientTemperatureOnly",
-        "TransientFlowOnly",
-    ],
-    "RMxprtSolution": [
-        "IRIM",
-        "ORIM",
-        "SRIM",
-        "WRIM",
-        "DFIG",
-        "AFIM",
-        "HM",
-        "RFSM",
-        "RASM",
-        "RSM",
-        "ISM",
-        "APSM",
-        "IBDM",
-        "ABDM",
-        "TPIM",
-        "SPIM",
-        "TPSM",
-        "BLDC",
-        "ASSM",
-        "PMDC",
-        "SRM",
-        "LSSM",
-        "UNIM",
-        "DCM",
-        "CPSM",
-        "NSSM",
-    ],
-    "ModelCreation": [
-        "IRIM",
-        "ORIM",
-        "SRIM",
-        "WRIM",
-        "DFIG",
-        "AFIM",
-        "HM",
-        "RFSM",
-        "RASM",
-        "RSM",
-        "ISM",
-        "APSM",
-        "IBDM",
-        "ABDM",
-    ],
-    "HFSS 3D Layout Design": [""],
-    "Mechanical": ["Thermal", "Modal", "Structural"],
-    "EMIT": ["EMIT"],
-}
-
-solutions_settings = {
-    "DrivenModal": "DrivenModal",
-    "DrivenTerminal": "DrivenTerminal",
-    "EigenMode": "EigenMode",
-    "Transient Network": "Transient Network",
-    "SBR+": "SBR+",
-    "Transient": "Transient",
-    "Magnetostatic": "Magnetostatic",
-    "EddyCurrent": "EddyCurrent",
-    "Electrostatic": "Electrostatic",
-    "ElectroDCConduction": "ElectroDCConduction",
-    "ElectricTransient": "ElectricTransient",
-    "Matrix": "Matrix",
-    "SteadyStateTemperatureAndFlow": [
-        "NAME:SolutionTypeOption",
-        "SolutionTypeOption:=",
-        "SteadyState",
-        "ProblemOption:=",
-        "TemperatureAndFlow",
-    ],
-    "SteadyStateTemperatureOnly": [
-        "NAME:SolutionTypeOption",
-        "SolutionTypeOption:=",
-        "SteadyState",
-        "ProblemOption:=",
-        "TemperatureOnly",
-    ],
-    "SteadyStateFlowOnly": [
-        "NAME:SolutionTypeOption",
-        "SolutionTypeOption:=",
-        "SteadyState",
-        "ProblemOption:=",
-        "FlowOnly",
-    ],
-    "TransientTemperatureAndFlow": [
-        "NAME:SolutionTypeOption",
-        "SolutionTypeOption:=",
-        "Transient",
-        "ProblemOption:=",
-        "TemperatureAndFlow",
-    ],
-    "TransientTemperatureOnly": [
-        "NAME:SolutionTypeOption",
-        "SolutionTypeOption:=",
-        "Transient",
-        "ProblemOption:=",
-        "TemperatureOnly",
-    ],
-    "TransientFlowOnly": [
-        "NAME:SolutionTypeOption",
-        "SolutionTypeOption:=",
-        "Transient",
-        "ProblemOption:=",
-        "FlowOnly",
-    ],
-    "NexximLNA": "NexximLNA",
-    "NexximDC": "NexximDC",
-    "NexximTransient": "NexximTransient",
-    "NexximQuickEye": "NexximQuickEye",
-    "NexximVerifEye": "NexximVerifEye",
-    "NexximAMI": "NexximAMI",
-    "NexximOscillatorRSF": "NexximOscillatorRSF",
-    "NexximOscillator1T": "NexximOscillator1T",
-    "NexximOscillatorNT": "NexximOscillatorNT",
-    "NexximHarmonicBalance1T": "NexximHarmonicBalance1T",
-    "NexximHarmonicBalanceNT": "NexximHarmonicBalanceNT",
-    "NexximSystem": "NexximSystem",
-    "NexximTVNoise": "NexximTVNoise",
-    "HSPICE": "HSPICE",
-    "TR": "TR",
-    "Open": "Open",
-    "Closed": "Closed",
-    "TransientXY": ["Transient", "XY"],
-    "TransientZ": ["Transient", "about Z"],
-    "MagnetostaticXY": ["Magnetostatic", "XY"],
-    "MagnetostaticZ": ["Magnetostatic", "about Z"],
-    "EddyCurrentXY": ["EddyCurrent", "XY"],
-    "EddyCurrentZ": ["EddyCurrent", "about Z"],
-    "ElectrostaticXY": ["Electrostatic", "XY"],
-    "ElectrostaticZ": ["Electrostatic", "about Z"],
-    "ElectroDCConductionXY": ["ElectroDCConduction", "XY"],
-    "ElectroDCConductionZ": ["ElectroDCConduction", "about Z"],
-    "ElectricTransientXY": ["ElectricTransient", "XY"],
-    "ElectricTransientZ": ["ElectricTransient", "about Z"],
-    "Modal": "Modal",
-    "Thermal": "Thermal",
-    "Structural": "Structural",
-    "IRIM": "IRIM",
-    "ORIM": "ORIM",
-    "SRIM": "SRIM",
-    "WRIM": "WRIM",
-    "DFIG": "DFIG",
-    "AFIM": "AFIM",
-    "HM": "HM",
-    "RFSM": "RFSM",
-    "RASM": "RASM",
-    "RSM": "RSM",
-    "ISM": "ISM",
-    "APSM": "APSM",
-    "IBDM": "IBDM",
-    "ABDM": "ABDM",
-    "TPIM": "TPIM",
-    "SPIM": "SPIM",
-    "TPSM": "TPSM",
-    "BLDC": "BLDC",
-    "ASSM": "ASSM",
-    "PMDC": "PMDC",
-    "SRM": "SRM",
-    "LSSM": "LSSM",
-    "UNIM": "UNIM",
-    "DCM": "DCM",
-    "CPSM": "CPSM",
-    "NSSM": "NSSM",
-}
 
 model_names = {
     "Maxwell 2D": "Maxwell2DModel",
@@ -568,29 +373,34 @@ class Design(object):
             self.release_on_exit = False
 
         self._mttime = None
-        assert design_type in design_solutions, "Invalid design type is specified: {}.".format(design_type)
         self._design_type = design_type
         self._desktop = main_module.oDesktop
         self._desktop_install_dir = main_module.sDesktopinstallDirectory
         self._messenger = self._logger._messenger
         self._aedt_version = self._desktop.GetVersion()[0:6]
-
-        if solution_type:
-            assert (
-                solution_type in design_solutions[design_type]
-            ), "Invalid solution type {0} exists for design type {1}.".format(solution_type, design_type)
-        self._solution_type = solution_type
         self._odesign = None
         self._oproject = None
         self._design_type = design_type
+
+        if design_type == "HFSS":
+            self.design_solutions = HFSSDesignSolution(None, design_type, self._aedt_version)
+        elif design_type == "Icepak":
+            self.design_solutions = IcepakDesignSolution(None, design_type, self._aedt_version)
+        elif design_type == "Maxwell 2D":
+            self.design_solutions = Maxwell2DDesignSolution(None, design_type, self._aedt_version)
+        elif design_type == "RMxprtSolution" or design_type == "ModelCreation":
+            self.design_solutions = RmXprtDesignSolution(None, design_type, self._aedt_version)
+        else:
+            self.design_solutions = DesignSolution(None, design_type, self._aedt_version)
         self.oproject = project_name
         self.odesign = design_name
+        self.design_solutions._odesign = self.odesign
+        self.design_solutions.solution_type = solution_type
         self._oimport_export = self._desktop.GetTool("ImportExport")
         self._odefinition_manager = self._oproject.GetDefinitionManager()
         self._omaterial_manager = self.odefinition_manager.GetManager("Material")
         self.odesktop = self._desktop
         self._variable_manager = VariableManager(self)
-        self.solution_type = self._solution_type
         self.project_datasets = self._get_project_datasets()
         self.design_datasets = self._get_design_datasets()
 
@@ -908,29 +718,14 @@ class Design(object):
         >>> oDesign.GetSolutionType
         >>> oDesign.SetSolutionType
         """
-        try:
-            return self._odesign.GetSolutionType()
-        except:
-            if self.design_type == "Q3D Extractor":
-                return "Matrix"
-            elif self.design_type == "HFSS 3D Layout Design":
-                return "HFSS3DLayout"
-            else:
-                return None
+        return self.design_solutions.solution_type
+
 
     @solution_type.setter
     @aedt_exception_handler
     def solution_type(self, soltype):
-        self._solution_type = soltype
-        if soltype:
-            sol = solutions_settings[soltype]
-            try:
-                if self.design_type == "Maxwell 2D":
-                    self.odesign.SetSolutionType(sol[0], sol[1])
-                else:
-                    self.odesign.SetSolutionType(sol)
-            except:
-                pass
+        self.design_solutions.solution_type = soltype
+
 
     @property
     def valid_design(self):
@@ -1085,7 +880,7 @@ class Design(object):
            Default for the solution type.
 
         """
-        return design_solutions[self._design_type][0]
+        return self.design_solutions.solution_types[0]
 
     @property
     def odesign(self):
@@ -1111,7 +906,7 @@ class Design(object):
         activedes = des_name
         if des_name:
             if self._assert_consistent_design_type(des_name) == des_name:
-                self._insert_design(self._design_type, design_name=des_name, solution_type=self._solution_type)
+                self._insert_design(self._design_type, design_name=des_name)
         else:
             if self.design_list:
                 self._odesign = self._oproject.GetDesign(self.design_list[0])
@@ -1135,7 +930,7 @@ class Design(object):
 
             if warning_msg:
                 self.logger.info(warning_msg)
-                self._insert_design(self._design_type, solution_type=self._solution_type)
+                self._insert_design(self._design_type)
         self.boundaries = self._get_boundaries_data()
 
     @property
@@ -2734,34 +2529,18 @@ class Design(object):
             self.__init__(projectname=generate_unique_name("Project"), designname=design_name)
 
     def _insert_design(self, design_type, design_name=None, solution_type=None):
-        assert design_type in design_solutions, "Invalid design type for insert: {}".format(design_type)
+        assert design_type in self.design_solutions.design_types, "Invalid design type for insert: {}".format(design_type)
         # self.save_project() ## Commented because it saves a Projectxxx.aedt when launched on an empty Desktop
         unique_design_name = self._generate_unique_design_name(design_name)
-        if solution_type:
-            assert (
-                solution_type in design_solutions[self._design_type]
-            ), "Solution type {0} is invalid for design type {1}.".format(solution_type, self._design_type)
-        else:
-            solution_type = self.default_solution_type
-        try:
-            sol = solutions_settings[solution_type]
-        except:
-            sol = solution_type
-        if isinstance(sol, str):
-            sol = [sol, ""]
-        elif design_type == "Icepak":
-            if self._aedt_version > "2021.1":
-                sol = ["SteadyState TemperatureAndFlow", ""]
-            else:
-                sol = ["TemperatureAndFlow", ""]
+
         if design_type == "RMxprtSolution":
             new_design = self._oproject.InsertDesign("RMxprt", unique_design_name, "Inner-Rotor Induction Machine", "")
         elif design_type == "ModelCreation":
             new_design = self._oproject.InsertDesign(
-                "RMxprt", unique_design_name, "Model Creation Inner-Rotor Induction Machine", ""
-            )
+                "RMxprt", unique_design_name, "Model Creation Inner-Rotor Induction Machine", "")
         else:
-            new_design = self._oproject.InsertDesign(design_type, unique_design_name, sol[0], "")
+            new_design = self._oproject.InsertDesign(design_type, unique_design_name,
+                                                     self.default_solution_type, "")
         logging.getLogger().info("Added design '%s' of type %s.", unique_design_name, design_type)
         name = new_design.GetName()
         if ";" in name:
@@ -3322,8 +3101,8 @@ class Design(object):
     @aedt_exception_handler
     def _check_solution_consistency(self):
         """Check solution consistency."""
-        if self._solution_type:
-            return self._odesign.GetSolutionType() in self._solution_type
+        if self.design_solutions:
+            return self.design_solutions._solution_type in self._odesign.GetSolutionType()
         else:
             return True
 

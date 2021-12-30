@@ -19,31 +19,6 @@ from pyaedt.generic.constants import AEDT_UNITS, db10, db20
 from pyaedt.generic.filesystem import Scratch
 from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, _retry_ntimes, write_csv
 
-report_type = {
-    "DrivenModal": "Modal Solution Data",
-    "DrivenTerminal": "Terminal Solution Data",
-    "Eigenmode": "EigenMode Parameters",
-    "Transient Network": "Terminal Solution Data",
-    "SBR+": "Modal Solution Data",
-    "Transient": "Transient",
-    "EddyCurrent": "EddyCurrent",
-    "SteadyStateTemperatureAndFlow": "Monitor",
-    "SteadyStateTemperatureOnly": "Monitor",
-    "SteadyStateFlowOnly": "Monitor",
-    "SteadyState": "Monitor",
-    "NexximLNA": "Standard",
-    "NexximDC": "Standard",
-    "Magnetostatic": "Magnetostatic",
-    "Electrostatic": "Electrostatic",
-    "Circuit Design": "Standard",
-    "NexximTransient": "Standard",
-    "HFSS3DLayout": "Terminal Solution Data",
-    "Matrix": "Matrix",
-    "HFSS 3D Layout Design": "Standard",
-    "Q3D Extractor": "Matrix",
-    "2D Extractor": "Matrix",
-}
-
 
 orientation_to_view = {
     "isometric": "iso",
@@ -1228,7 +1203,7 @@ class PostProcessorCommon(object):
             setup_sweep_name = self._app.nominal_sweep
 
         if not report_input_type:
-            report_input_type = report_type[self.post_solution_type]
+            report_input_type = self._app.design_solutions.report_type
 
         if families_dict is None:
             families_dict = {"Freq": ["All"]}
@@ -1307,11 +1282,11 @@ class PostProcessorCommon(object):
             expression = [expression]
         if not setup_sweep_name:
             setup_sweep_name = self._app.nominal_sweep
-        if self.post_solution_type not in report_type:
+        if self.post_solution_type not in self._app.design_solutions.report_type:
             self.logger.info("Solution not supported")
             return False
         if not report_category:
-            modal_data = report_type[self.post_solution_type]
+            modal_data = self._app.design_solutions.report_type
         else:
             modal_data = report_category
         if not plotname:

@@ -371,8 +371,8 @@ class Analysis(Design, object):
             for el in setup_list:
                 if self.solution_type == "HFSS3DLayout" or self.solution_type == "HFSS 3D Layout Design":
                     sweeps = self.oanalysis.GelAllSolutionNames()
-                elif self.solution_type in SetupKeys.defaultAdaptive.keys():
-                    setuptype = SetupKeys.defaultAdaptive[self.solution_type]
+                else:
+                    setuptype = self.design_solutions.default_adaptive
                     if setuptype:
                         sweep_list.append(el + " : " + setuptype)
                 try:
@@ -1095,10 +1095,7 @@ class Analysis(Design, object):
         pyaedt info: Sweep was created correctly.
         """
         if setuptype is None:
-            if self.design_type == "Icepak" and self.solution_type == "Transient":
-                setuptype = SetupKeys.defaultSetups["TransientTemperatureAndFlow"]
-            else:
-                setuptype = SetupKeys.defaultSetups[self.solution_type]
+            setuptype = self.design_solutions.default_setup
         name = self.generate_unique_setup_name(setupname)
         setup = Setup(self, setuptype, name)
         setup.create()
@@ -1169,7 +1166,8 @@ class Analysis(Design, object):
 
         >>> oModule.EditSetup
         """
-        setuptype = SetupKeys.defaultSetups[self.solution_type]
+
+        setuptype = self.design_solutions.default_setup
         setup = Setup(self, setuptype, setupname, isnewsetup=False)
         setup.update(properties_dict)
         self.analysis_setup = setupname
@@ -1190,7 +1188,7 @@ class Analysis(Design, object):
 
         """
 
-        setuptype = SetupKeys.defaultSetups[self.solution_type]
+        setuptype = self.design_solutions.default_setup
         setup = Setup(self, setuptype, setupname, isnewsetup=False)
         if setup.props:
             self.analysis_setup = setupname

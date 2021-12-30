@@ -274,7 +274,7 @@ class Hfss(FieldAnalysis3D, object):
             }
         )
 
-        if self.solution_type == "DrivenModal":
+        if self.solution_type == "Modal":
 
             if renorm:
                 if isinstance(renorm_impedance, (int, float)) or "i" not in renorm_impedance:
@@ -1427,7 +1427,7 @@ class Hfss(FieldAnalysis3D, object):
         ):
             self.logger.error("One or both objects doesn't exists. Check and retry.")
             return False
-        if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
+        if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
             out, parallel = self.modeler.primitives.find_closest_edges(startobj, endobject, axisdir)
             port_edges = []
             if not portname:
@@ -1500,7 +1500,7 @@ class Hfss(FieldAnalysis3D, object):
             self.logger.error("One or both objects do not exist. Check and retry.")
             return False
 
-        if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
+        if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
             sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(
                 startobj, endobject, axisdir, port_on_plane
             )
@@ -1509,7 +1509,7 @@ class Hfss(FieldAnalysis3D, object):
                 portname = generate_unique_name("Port")
             elif portname + ":1" in self.modeler.get_excitations_name():
                 portname = generate_unique_name(portname)
-            if self.solution_type == "DrivenModal":
+            if self.solution_type == "Modal":
                 self._create_lumped_driven(sheet_name, point0, point1, impedance, portname, renorm, deemb)
             else:
                 faces = self.modeler.primitives.get_object_faces(sheet_name)
@@ -1570,7 +1570,7 @@ class Hfss(FieldAnalysis3D, object):
         ):
             self.logger.error("One or both objects doesn't exists. Check and retry")
             return False
-        if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
+        if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
             sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(
                 startobj, endobject, axisdir, source_on_plane
             )
@@ -1632,7 +1632,7 @@ class Hfss(FieldAnalysis3D, object):
         ):
             self.logger.error("One or both objects do not exist. Check and retry.")
             return False
-        if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
+        if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
             sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(
                 startobj, endobject, axisdir, source_on_plane
             )
@@ -1750,7 +1750,7 @@ class Hfss(FieldAnalysis3D, object):
         ):
             self.logger.error("One or both objects do not exist. Check and retry.")
             return False
-        if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
+        if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
             sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(
                 startobj, endobject, axisdir, port_on_plane
             )
@@ -1761,7 +1761,7 @@ class Hfss(FieldAnalysis3D, object):
                 portname = generate_unique_name("Port")
             elif portname + ":1" in self.modeler.get_excitations_name():
                 portname = generate_unique_name(portname)
-            if self.solution_type == "DrivenModal":
+            if self.solution_type == "Modal":
                 return self._create_waveport_driven(
                     sheet_name, point0, point1, impedance, portname, renorm, nummodes, deembed_dist
                 )
@@ -2180,7 +2180,7 @@ class Hfss(FieldAnalysis3D, object):
         ):
             self.logger.error("One or both objects do not exist. Check and retry.")
             return False
-        if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
+        if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
             sheet_name, point0, point1 = self.modeler._create_microstrip_sheet_from_object_closest_edge(
                 startobj, endobject, axisdir, vfactor, hfactor
             )
@@ -2190,7 +2190,7 @@ class Hfss(FieldAnalysis3D, object):
                 portname = generate_unique_name("Port")
             elif portname + ":1" in self.modeler.get_excitations_name():
                 portname = generate_unique_name(portname)
-            if self.solution_type == "DrivenModal":
+            if self.solution_type == "Modal":
                 return self._create_waveport_driven(
                     sheet_name, point0, point1, impedance, portname, renorm, nummodes, deembed_dist
                 )
@@ -2256,7 +2256,7 @@ class Hfss(FieldAnalysis3D, object):
         ):
             self.logger.error("One or both objects do not exist. Check and retry.")
             return False
-        if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
+        if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
             sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(
                 startobj, endobject, axisdir, bound_on_plane
             )
@@ -2319,7 +2319,7 @@ class Hfss(FieldAnalysis3D, object):
         ):
             self.logger.error("One or both objects do not exist. Check and retry.")
             return False
-        if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
+        if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
             sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(
                 startobj, endobject, axisdir, bound_on_plane
             )
@@ -2482,7 +2482,7 @@ class Hfss(FieldAnalysis3D, object):
         ):
             self.logger.error("One or both objects do not exist. Check and retry.")
             return False
-        if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"] and (
+        if self.solution_type in ["Modal", "Terminal", "Transient Network"] and (
             Rvalue or Lvalue or Cvalue
         ):
             sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(
@@ -2582,7 +2582,7 @@ class Hfss(FieldAnalysis3D, object):
         ):
             self.logger.error("One or both objects do not exist. Check and retry.")
             return False
-        if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
+        if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
             sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(
                 startobj, endobject, axisdir, bound_on_plane
             )
@@ -2738,7 +2738,7 @@ class Hfss(FieldAnalysis3D, object):
         >>> origin_position = hfss.modeler.Position(0, 0, 0)
         >>> circle = hfss.modeler.primitives.create_circle(hfss.PLANE.YZ,
         ...                                                origin_position, 10, name="WaveCircle")
-        >>> hfss.solution_type = "DrivenModal"
+        >>> hfss.solution_type = "Modal"
         >>> port = hfss.create_wave_port_from_sheet(circle, 5, hfss.AxisDir.XNeg, 40, 2,
         ...                                         "WavePortFromSheet", True)
         >>> port[0].name
@@ -2764,7 +2764,7 @@ class Hfss(FieldAnalysis3D, object):
                 portname = generate_unique_name("Port")
             elif portname + ":1" in self.modeler.get_excitations_name():
                 portname = generate_unique_name(portname)
-            if self.solution_type == "DrivenModal":
+            if self.solution_type == "Modal":
                 b = self._create_waveport_driven(obj, int_start, int_stop, impedance, portname, renorm, nummodes, deemb)
                 if b:
                     portnames.append(b)
@@ -2828,7 +2828,7 @@ class Hfss(FieldAnalysis3D, object):
 
         """
 
-        if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
+        if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
             point0, point1 = self.modeler.primitives.get_mid_points_on_dir(sheet_name, axisdir)
 
             cond = self.get_all_conductors_names()
@@ -2842,7 +2842,7 @@ class Hfss(FieldAnalysis3D, object):
                 portname = generate_unique_name("Port")
             elif portname + ":1" in self.modeler.get_excitations_name():
                 portname = generate_unique_name(portname)
-            if self.solution_type == "DrivenModal":
+            if self.solution_type == "Modal":
                 port = self._create_lumped_driven(sheet_name, point0, point1, impedance, portname, renorm, deemb)
             else:
                 if not reference_object_list:
@@ -2909,7 +2909,7 @@ class Hfss(FieldAnalysis3D, object):
 
         """
 
-        if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
+        if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
             point0, point1 = self.modeler.primitives.get_mid_points_on_dir(sheet_name, axisdir)
             if not sourcename:
                 sourcename = generate_unique_name("Voltage")
@@ -2955,7 +2955,7 @@ class Hfss(FieldAnalysis3D, object):
 
         """
 
-        if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
+        if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
             point0, point1 = self.modeler.primitives.get_mid_points_on_dir(sheet_name, axisdir)
             if not sourcename:
                 sourcename = generate_unique_name("Current")
@@ -3002,7 +3002,7 @@ class Hfss(FieldAnalysis3D, object):
 
         """
 
-        if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network", "SBR+"]:
+        if self.solution_type in ["Modal", "Terminal", "Transient Network", "SBR+"]:
             if not sourcename:
                 sourcename = generate_unique_name("PerfE")
             elif sourcename in self.modeler.get_boundaries_name():
@@ -3044,7 +3044,7 @@ class Hfss(FieldAnalysis3D, object):
 
         """
 
-        if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network", "SBR+"]:
+        if self.solution_type in ["Modal", "Terminal", "Transient Network", "SBR+"]:
 
             if not sourcename:
                 sourcename = generate_unique_name("PerfH")
@@ -3107,7 +3107,7 @@ class Hfss(FieldAnalysis3D, object):
 
         """
 
-        if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network", "SBR+"] and (
+        if self.solution_type in ["Modal", "Terminal", "Transient Network", "SBR+"] and (
             Rvalue or Lvalue or Cvalue
         ):
             point0, point1 = self.modeler.primitives.get_mid_points_on_dir(sheet_name, axisdir)
@@ -3177,7 +3177,7 @@ class Hfss(FieldAnalysis3D, object):
 
         """
 
-        if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
+        if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
 
             if not sourcename:
                 sourcename = generate_unique_name("Imped")
@@ -3255,7 +3255,7 @@ class Hfss(FieldAnalysis3D, object):
         ...                                                       name="rectangle2_for_port")
         >>> edges2 = hfss.modeler.primitives.get_object_edges(rectangle2.id)
         >>> second_edge = edges2[0]
-        >>> hfss.solution_type = "DrivenModal"
+        >>> hfss.solution_type = "Modal"
         >>> hfss.create_circuit_port_from_edges(first_edge, second_edge, port_name="PortExample",
         ...                                     port_impedance=50.1, renormalize=False,
         ...                                     renorm_impedance="50")
@@ -3308,7 +3308,7 @@ class Hfss(FieldAnalysis3D, object):
         >>> sheet = hfss.modeler.primitives.create_circle(hfss.PLANE.YZ,
         ...                                               [-20, 0, 0], 10,
         ...                                               name="sheet_for_source")
-        >>> hfss.solution_type = "DrivenModal"
+        >>> hfss.solution_type = "Modal"
         >>> wave_port = hfss.create_wave_port_from_sheet(sheet, 5, hfss.AxisDir.XNeg, 40,
         ...                                              2, "SheetWavePort", True)
         >>> hfss.edit_source("SheetWavePort" + ":1", "10W")
@@ -3573,7 +3573,7 @@ class Hfss(FieldAnalysis3D, object):
         if self.solution_type != "Eigenmode":
             detected_excitations = self.modeler.get_excitations_name()
             if ports:
-                if self.solution_type == "DrivenTerminal":
+                if self.solution_type == "Terminal":
                     # For each port, there is terminal and reference excitations.
                     ports_t = ports * 2
                 else:
@@ -3692,9 +3692,9 @@ class Hfss(FieldAnalysis3D, object):
 
         Trace = ["X Component:=", "Freq", "Y Component:=", list_y]
         solution_data = ""
-        if self.solution_type == "DrivenModal":
+        if self.solution_type == "Modal":
             solution_data = "Modal Solution Data"
-        elif self.solution_type == "DrivenTerminal":
+        elif self.solution_type == "Terminal":
             solution_data = "Terminal Solution Data"
         if solution_data != "":
             # run CreateReport function

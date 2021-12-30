@@ -13,24 +13,6 @@ class FieldAnalysisEmit(Design):
     """
 
     @property
-    def solution_type(self):
-        """Solution type.
-
-        Parameters
-        ----------
-        soltype :
-            SOLUTIONS object.
-        """
-        return self._solution_type
-
-    @solution_type.setter
-    def solution_type(self, soltype):
-        if soltype:
-            self._solution_type = "EMIT"
-        else:
-            self._solution_type = "EMIT"
-
-    @property
     def existing_analysis_setups(self):
         """Existing analysis setups."""
         return []
