@@ -95,7 +95,7 @@ class EdbNets(object):
 
         Returns
         -------
-        dict
+        dict[str, :class:`pyaedt.edb_core.EDB_Data.EDBNets`]
             Dictionary of signal nets.
         """
         nets = {}
@@ -110,7 +110,7 @@ class EdbNets(object):
 
         Returns
         -------
-        dict
+        dict[str, :class:`pyaedt.edb_core.EDB_Data.EDBNets`]
             Dictionary of power nets.
         """
         nets = {}
