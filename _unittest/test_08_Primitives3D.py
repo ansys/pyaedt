@@ -71,6 +71,15 @@ class TestClass(BasisTest):
         plane = self.aedtapp.PLANE.XY
         return self.aedtapp.modeler.primitives.create_rectangle(plane, [5, 3, 8], [4, 5], name=name)
 
+    def create_copper_torus(self, name=None):
+        if not name:
+            name = "MyTorus"
+        if self.aedtapp.modeler.primitives[name]:
+            self.aedtapp.modeler.primitives.delete(name)
+        return self.aedtapp.modeler.primitives.create_torus(
+            [30, 30, 0], major_radius=1.2, minor_radius=0.5, axis='Z', name=name, matname="Copper"
+        )
+
     def create_polylines(self, name=None):
         if not name:
             name = "Poly_"
