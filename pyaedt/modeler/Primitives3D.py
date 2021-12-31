@@ -386,7 +386,7 @@ class Primitives3D(Primitives, object):
         >>> hfss = Hfss()
         >>> origin = [0,0,0]
         >>> torus = hfss.modeler.primitives.create_torus(origin, major_radius=1,
-        ...                                             minor_radius=0.5, axis='Z',
+        ...                                             minor_radius=0.5, axis="Z",
         ...                                             name="mytorus", material_name="copper")
 
         """
