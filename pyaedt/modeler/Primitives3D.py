@@ -359,10 +359,10 @@ class Primitives3D(Primitives, object):
         minor_radius : float
            Minor radius of the torus.
         axis : str, optional
-            Axis of Revolution.
+            Axis of revolution.
             The default is ``None``, in which case the Z axis is used.
         name : str, optional
-            Name of the box. The default is ``None``, in which case the
+            Name of the torus. The default is ``None``, in which case the
             default name is assigned.
         material_name : str, optional
             Name of the material.  The default is ``None``, in which case the
@@ -390,9 +390,9 @@ class Primitives3D(Primitives, object):
         ...                                             name="mytorus", material_name="copper")
 
         """
-        assert len(center) == 3, "Center Argument must be a valid 3 elements List."
+        assert len(center) == 3, "Center argument must be a valid 3 elements List."
+        assert major_radius > 0 and minor_radius > 0, "Both major and minor radius must be greater than 0."
         assert minor_radius < major_radius, "Major radius must be greater than minor radius."
-        assert minor_radius > 0, "Major radius must be greater than minor radius."
 
         x_center, y_center, z_center = self._pos_with_arg(center)
         axis = GeometryOperators.cs_axis_str(axis)
