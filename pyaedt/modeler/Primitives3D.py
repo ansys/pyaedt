@@ -77,7 +77,7 @@ class Primitives3D(Primitives, object):
         --------
 
         >>> from pyaedt import hfss
-        >>> hfss = HFSS()
+        >>> hfss = Hfss()
         >>> origin = [0,0,0]
         >>> dimensions = [10,5,20]
         >>> #Material and name are not mandatory fields
@@ -241,7 +241,8 @@ class Primitives3D(Primitives, object):
 
         Parameters
         ----------
-        Axis of rotation of the starting point around the center point.
+        cs_axis : str
+            Axis of rotation of the starting point around the center point.
             The default is ``None``, in which case the Z axis is used.
         center_position : list, optional
             List of ``[x, y, z]`` coordinates for the center position
@@ -329,7 +330,7 @@ class Primitives3D(Primitives, object):
         >>> from pyaedt import Hfss
         >>> aedtapp = Hfss()
         >>> ret_object = aedtapp.modeler.primitives.create_sphere(position=[0,0,0], radius=2,
-        ...                                                      name="mybox", matname="copper")
+        ...                                                      name="mysphere", matname="copper")
 
         """
         XCenter, YCenter, ZCenter = self._pos_with_arg(position)
@@ -343,6 +344,70 @@ class Primitives3D(Primitives, object):
         vArg1.append("Radius:="), vArg1.append(Radius)
         vArg2 = self._default_object_attributes(name=name, matname=matname)
         new_object_name = self._oeditor.CreateSphere(vArg1, vArg2)
+        return self._create_object(new_object_name)
+
+    @aedt_exception_handler
+    def create_torus(self, center, major_radius, minor_radius, axis=None, name=None, material_name=None):
+        """Create a torus.
+
+        Parameters
+        ----------
+        center : list
+            Center point for the torus in a list of ``[x, y, z]`` coordinates.
+        major_radius : float
+           Major radius of the torus.
+        minor_radius : float
+           Minor radius of the torus.
+        axis : str, optional
+            Axis of Revolution.
+            The default is ``None``, in which case the Z axis is used.
+        name : str, optional
+            Name of the box. The default is ``None``, in which case the
+            default name is assigned.
+        material_name : str, optional
+            Name of the material.  The default is ``None``, in which case the
+            default material is assigned. If the material name supplied is
+            invalid, the default material is assigned.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.Object3d`
+            3D object.
+
+        References
+        ----------
+
+        >>> oEditor.CreateTorus
+
+        Examples
+        --------
+
+        >>> from pyaedt import Hfss
+        >>> hfss = Hfss()
+        >>> origin = [0,0,0]
+        >>> torus = hfss.modeler.primitives.create_torus(origin, major_radius=1,
+        ...                                             minor_radius=0.5, axis='Z',
+        ...                                             name="mytorus", material_name="copper")
+
+        """
+        assert len(center) == 3, "Center Argument must be a valid 3 elements List."
+        assert minor_radius < major_radius, "Major radius must be greater than minor radius."
+        assert minor_radius > 0, "Major radius must be greater than minor radius."
+
+        x_center, y_center, z_center = self._pos_with_arg(center)
+        axis = GeometryOperators.cs_axis_str(axis)
+        major_radius = self._arg_with_dim(major_radius)
+        minor_radius = self._arg_with_dim(minor_radius)
+
+        vArg1 = ["NAME:TorusParameters"]
+        vArg1.append("XCenter:="), vArg1.append(x_center)
+        vArg1.append("YCenter:="), vArg1.append(y_center)
+        vArg1.append("ZCenter:="), vArg1.append(z_center)
+        vArg1.append("MajorRadius:="), vArg1.append(major_radius)
+        vArg1.append("MinorRadius:="), vArg1.append(minor_radius)
+        vArg1.append("WhichAxis:="), vArg1.append(axis)
+        vArg2 = self._default_object_attributes(name=name, matname=material_name)
+        new_object_name = _retry_ntimes(10, self._oeditor.CreateTorus, vArg1, vArg2)
         return self._create_object(new_object_name)
 
     @aedt_exception_handler
