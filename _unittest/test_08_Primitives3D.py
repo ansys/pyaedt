@@ -77,7 +77,7 @@ class TestClass(BasisTest):
         if self.aedtapp.modeler.primitives[name]:
             self.aedtapp.modeler.primitives.delete(name)
         return self.aedtapp.modeler.primitives.create_torus(
-            [30, 30, 0], major_radius=1.2, minor_radius=0.5, axis="Z", name=name, matname="Copper"
+            [30, 30, 0], major_radius=1.2, minor_radius=0.5, axis="Z", name=name, material_name="Copper"
         )
 
     def create_polylines(self, name=None):
