@@ -138,8 +138,9 @@ class Primitives3D(Primitives, object):
         --------
         >>> from pyaedt import Hfss
         >>> aedtapp = Hfss()
-        >>> cylinder_object = aedtapp.modeler.primitives.create_cylinder(cs_axis='Z', position=[0,0,0], radius=2, height=3,
-        ...                                                name="mycyl", matname="vacuum")
+        >>> cylinder_object = aedtapp.modeler.primitives.create_cylinder(cs_axis='Z', position=[0,0,0],
+        ...                                                              radius=2, height=3, name="mycyl",
+        ...                                                              matname="vacuum")
 
         """
         assert radius > 0, "Radius must be greater than 0."
