@@ -81,7 +81,7 @@ class Primitives3D(Primitives, object):
         >>> origin = [0,0,0]
         >>> dimensions = [10,5,20]
         >>> #Material and name are not mandatory fields
-        >>> object_id = hfss.modeler.primivites.create_box(origin, dimensions, name="mybox", matname="copper")
+        >>> box_object = hfss.modeler.primivites.create_box(origin, dimensions, name="mybox", matname="copper")
 
         """
         assert len(position) == 3, "Position Argument must be a valid 3 Element List"
@@ -138,10 +138,12 @@ class Primitives3D(Primitives, object):
         --------
         >>> from pyaedt import Hfss
         >>> aedtapp = Hfss()
-        >>> ret_object = aedtapp.modeler.primitives.create_cylinder(cs_axis='Z', position=[0,0,0], radius=2, height=3,
+        >>> cylinder_object = aedtapp.modeler.primitives.create_cylinder(cs_axis='Z', position=[0,0,0], radius=2, height=3,
         ...                                                name="mycyl", matname="vacuum")
 
         """
+        assert radius > 0, "Radius must be greater than 0."
+
         szAxis = GeometryOperators.cs_axis_str(cs_axis)
         XCenter, YCenter, ZCenter = self._pos_with_arg(position)
 
@@ -273,11 +275,16 @@ class Primitives3D(Primitives, object):
         --------
         >>> from pyaedt import Hfss
         >>> aedtapp = Hfss()
-        >>> ret_object = aedtapp.modeler.primitives.create_cone(cs_axis='Z', position=[0,0,0],
+        >>> cone_object = aedtapp.modeler.primitives.create_cone(cs_axis='Z', position=[0,0,0],
         ...                                                    bottom_radius=2, top_radius=3, height=4,
         ...                                                    name="mybox", matname="copper")
 
         """
+        assert bottom_radius != top_radius, "Bottom radius and top radius must have different values."
+        assert bottom_radius >= 0, "Bottom radius must be greater than 0."
+        assert top_radius >= 0, "Top radius must be greater than 0."
+        assert height > 0, "Height must be greater than 0."
+
         XCenter, YCenter, ZCenter = self._pos_with_arg(position)
         szAxis = GeometryOperators.cs_axis_str(cs_axis)
         Height = self._arg_with_dim(height)
@@ -332,6 +339,9 @@ class Primitives3D(Primitives, object):
         ...                                                      name="mybox", matname="copper")
 
         """
+        assert len(position) == 3, "Position argument must be a valid 3 elements List."
+        assert radius > 0, "Radius must be greater than 0."
+
         XCenter, YCenter, ZCenter = self._pos_with_arg(position)
 
         Radius = self._arg_with_dim(radius)
