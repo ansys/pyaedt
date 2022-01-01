@@ -72,7 +72,7 @@ aedtapp = Hfss(specified_version=desktopVersion, non_graphical=NonGraphical, new
 
 ###############################################################################
 # Initialize Variable Settings
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # A variable can be initialized simply by creating it as a list object.
 # If you enter the prefix ``$``, the variable is created for the project.
 # Otherwise, the variable is created for the design.
