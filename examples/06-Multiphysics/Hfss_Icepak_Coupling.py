@@ -71,9 +71,9 @@ project_file = os.path.join(project_dir, project_name + ".aedt")
 aedtapp = Hfss(specified_version=desktopVersion, non_graphical=NonGraphical, new_desktop_session=NewThread)
 
 ###############################################################################
-# Intitialize Variable Settings
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# A variable can be initialized simpy by creating it as a list object.
+# Initialize Variable Settings
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# A variable can be initialized simply by creating it as a list object.
 # If you enter the prefix ``$``, the variable is created for the project.
 # Otherwise, the variable is created for the design.
 
