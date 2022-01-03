@@ -4,14 +4,10 @@ This module contains the `EdbPadstacks` class.
 
 import warnings
 
-from pyaedt.generic.general_methods import (
-    aedt_exception_handler,
-    generate_unique_name,
-    is_ironpython,
-)
+from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, is_ironpython
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 import math
-from pyaedt.edb_core.EDB_Data import EDBPadstack, EDBPadstackInstance
+from pyaedt.edb_core.EDB_Data import EDBPadstack
 
 try:
     from System import Array
@@ -90,19 +86,6 @@ class EdbPadstacks(object):
         return self._padstacks
 
     @property
-    def padstack_instances(self):
-        """List of padstack instances.
-
-        Returns
-        -------
-        list of :class:`Edb.Cell.Primitive.PadstackInstance`.
-        """
-        if self._padstack_instances:
-            return self._padstack_instances
-        self.update_padstack_instances()
-        return self._padstack_instances
-
-    @property
     def pingroups(self):
         """All Layout Pin groups.
 
@@ -148,13 +131,7 @@ class EdbPadstacks(object):
 
     @aedt_exception_handler
     def create_circular_padstack(
-        self,
-        padstackname=None,
-        holediam="300um",
-        paddiam="400um",
-        antipaddiam="600um",
-        startlayer=None,
-        endlayer=None,
+        self, padstackname=None, holediam="300um", paddiam="400um", antipaddiam="600um", startlayer=None, endlayer=None
     ):
         """Create a circular padstack.
 
@@ -181,13 +158,7 @@ class EdbPadstacks(object):
             Name of the padstack if the operation is successful.
         """
         pad = self._padstack_methods.CreateCircularPadStackDef(
-            self._builder,
-            padstackname,
-            holediam,
-            paddiam,
-            antipaddiam,
-            startlayer,
-            endlayer,
+            self._builder, padstackname, holediam, paddiam, antipaddiam, startlayer, endlayer
         )
         self.update_padstacks()
 
@@ -263,22 +234,14 @@ class EdbPadstacks(object):
         if not is_ironpython:
             res, fromlayer, tolayer = padstackinstance.GetLayerRange(None, None)
             self._edb.Cell.Terminal.PadstackInstanceTerminal.Create(
-                self._active_layout,
-                padstackinstance.GetNet(),
-                port_name,
-                padstackinstance,
-                tolayer,
+                self._active_layout, padstackinstance.GetNet(), port_name, padstackinstance, tolayer
             )
             if res:
                 return port_name
         else:
             res, fromlayer, tolayer = padstackinstance.GetLayerRange()
             self._edb.Cell.Terminal.PadstackInstanceTerminal.Create(
-                self._active_layout,
-                padstackinstance.GetNet(),
-                port_name,
-                padstackinstance,
-                tolayer,
+                self._active_layout, padstackinstance.GetNet(), port_name, padstackinstance, tolayer
             )
             if res:
                 return port_name
@@ -550,16 +513,7 @@ class EdbPadstacks(object):
             solderlayer = self._pedb.core_stackup.signal_layers[solderlayer]._layer
         if padstack:
             via = self._edb.Cell.Primitive.PadstackInstance.Create(
-                self._active_layout,
-                net,
-                via_name,
-                padstack,
-                position,
-                rotation,
-                fromlayer,
-                tolayer,
-                solderlayer,
-                None,
+                self._active_layout, net, via_name, padstack, position, rotation, fromlayer, tolayer, solderlayer, None
             )
             return via
         else:

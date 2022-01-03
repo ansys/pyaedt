@@ -21,15 +21,7 @@ try:
 except ImportError:
     warnings.warn("Pythonnet is needed to run pyaedt")
 from pyaedt.application.MessageManager import AEDTMessageManager
-from pyaedt.edb_core import (
-    Components,
-    EdbNets,
-    EdbPadstacks,
-    EdbLayout,
-    EdbHfss,
-    EdbSiwave,
-    EdbStackup,
-)
+from pyaedt.edb_core import Components, EdbNets, EdbPadstacks, EdbLayout, EdbHfss, EdbSiwave, EdbStackup
 from pyaedt.edb_core.EDB_Data import EdbBuilder
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import (
@@ -131,8 +123,7 @@ class Edb(object):
                 else:
                     project_dir = os.path.dirname(edbpath)
                 logfile = os.path.join(
-                    project_dir,
-                    "pyaedt{}.log".format(datetime.datetime.now().strftime("%Y%m%d_%H%M%S")),
+                    project_dir, "pyaedt{}.log".format(datetime.datetime.now().strftime("%Y%m%d_%H%M%S"))
                 )
                 self._main.oMessenger = AEDTMessageManager()
                 self._logger = AedtLogger(self._main.oMessenger, filename=logfile, level=logging.DEBUG)
@@ -195,7 +186,6 @@ class Edb(object):
         self._core_primitives = None
         self._stackup = None
         self._padstack = None
-        self._padstack_instance = None
         self._siwave = None
         self._hfss = None
         self._nets = None
@@ -434,14 +424,7 @@ class Edb(object):
         return None
 
     @aedt_exception_handler
-    def import_layout_pcb(
-        self,
-        input_file,
-        working_dir,
-        init_dlls=False,
-        anstranslator_full_path="",
-        use_ppe=False,
-    ):
+    def import_layout_pcb(self, input_file, working_dir, init_dlls=False, anstranslator_full_path="", use_ppe=False):
         """Import a BRD file and generate an ``edb.def`` file in the working directory.
 
         Parameters
@@ -467,7 +450,6 @@ class Edb(object):
         self._core_primitives = None
         self._stackup = None
         self._padstack = None
-        self._padstack_instance = None
         self._siwave = None
         self._hfss = None
         self._nets = None
@@ -589,13 +571,6 @@ class Edb(object):
         return self._padstack
 
     @property
-    def core_padstack_instance(self):
-        """Core padstack instance."""
-        if not self._padstack_instance and self.builder:
-            self._padstack_instance = EdbPadstackInstances(self)
-        return self._padstack_instance
-
-    @property
     def core_siwave(self):
         """Core SI Wave."""
         if not self._siwave and self.builder:
@@ -678,17 +653,7 @@ class Edb(object):
 
         """
 
-        (
-            Port,
-            Pec,
-            RLC,
-            CurrentSource,
-            VoltageSource,
-            NexximGround,
-            NexximPort,
-            DcTerminal,
-            VoltageProbe,
-        ) = range(0, 9)
+        (Port, Pec, RLC, CurrentSource, VoltageSource, NexximGround, NexximPort, DcTerminal, VoltageProbe) = range(0, 9)
 
     @aedt_exception_handler
     def edb_value(self, val):
@@ -866,10 +831,7 @@ class Edb(object):
 
         """
         if self.import_layout_pcb(
-            inputBrd,
-            working_dir=WorkDir,
-            anstranslator_full_path=anstranslator_full_path,
-            use_ppe=use_ppe,
+            inputBrd, working_dir=WorkDir, anstranslator_full_path=anstranslator_full_path, use_ppe=use_ppe
         ):
             return True
         else:
@@ -897,10 +859,7 @@ class Edb(object):
 
         """
         if self.import_layout_pcb(
-            inputGDS,
-            working_dir=WorkDir,
-            anstranslator_full_path=anstranslator_full_path,
-            use_ppe=use_ppe,
+            inputGDS, working_dir=WorkDir, anstranslator_full_path=anstranslator_full_path, use_ppe=use_ppe
         ):
             return True
         else:
@@ -962,21 +921,11 @@ class Edb(object):
         net_signals = convert_py_list_to_net_list(_signal_nets)
         if extent_type == "Conforming":
             _poly = self.active_layout.GetExpandedExtentFromNets(
-                net_signals,
-                self.edb.Geometry.ExtentType.Conforming,
-                expansion_size,
-                False,
-                use_round_corner,
-                1,
+                net_signals, self.edb.Geometry.ExtentType.Conforming, expansion_size, False, use_round_corner, 1
             )
         else:
             _poly = self.active_layout.GetExpandedExtentFromNets(
-                net_signals,
-                self.edb.Geometry.ExtentType.BoundingBox,
-                expansion_size,
-                False,
-                use_round_corner,
-                1,
+                net_signals, self.edb.Geometry.ExtentType.BoundingBox, expansion_size, False, use_round_corner, 1
             )
 
         # Create new cutout cell/design
@@ -1087,9 +1036,7 @@ class Edb(object):
         plane = self.core_primitives.Shape("polygon", points=point_list)
         polygonData = self.core_primitives.shape_to_polygon_data(plane)
         self.core_primitives.create_polygon(
-            plane,
-            list(self.core_stackup.signal_layers.keys())[0],
-            net_name="DUMMY_CUTOUT",
+            plane, list(self.core_stackup.signal_layers.keys())[0], net_name="DUMMY_CUTOUT"
         )
 
         _ref_nets = []
@@ -1254,11 +1201,7 @@ class Edb(object):
 
         siwave_s = SiwaveSolve(self.edbpath, aedt_installer_path=self.base_path)
         return siwave_s.export_3d_cad(
-            "Q3D",
-            path_to_output,
-            net_list,
-            num_cores=num_cores,
-            aedt_file_name=aedt_file_name,
+            "Q3D", path_to_output, net_list, num_cores=num_cores, aedt_file_name=aedt_file_name
         )
 
     @aedt_exception_handler
@@ -1297,11 +1240,7 @@ class Edb(object):
         """
         siwave_s = SiwaveSolve(self.edbpath, aedt_installer_path=self.base_path)
         return siwave_s.export_3d_cad(
-            "Maxwell",
-            path_to_output,
-            net_list,
-            num_cores=num_cores,
-            aedt_file_name=aedt_file_name,
+            "Maxwell", path_to_output, net_list, num_cores=num_cores, aedt_file_name=aedt_file_name
         )
 
     @aedt_exception_handler
@@ -1361,7 +1300,4 @@ class Edb(object):
             The bounding box as a [lower-left X, lower-left Y], [upper-right X, upper-right Y]) pair in meter.
         """
         bbox = self.edbutils.HfssUtilities.GetBBox(self.active_layout)
-        return [
-            [bbox.Item1.X.ToDouble(), bbox.Item1.Y.ToDouble()],
-            [bbox.Item2.X.ToDouble(), bbox.Item2.Y.ToDouble()],
-        ]
+        return [[bbox.Item1.X.ToDouble(), bbox.Item1.Y.ToDouble()], [bbox.Item2.X.ToDouble(), bbox.Item2.Y.ToDouble()]]

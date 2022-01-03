@@ -697,16 +697,7 @@ class EDBLayer(object):
             pass
 
     @aedt_exception_handler
-    def update_layer_vals(
-        self,
-        layerName,
-        newLayer,
-        etchMap,
-        materialMap,
-        fillMaterialMap,
-        thicknessMap,
-        layerTypeMap,
-    ):
+    def update_layer_vals(self, layerName, newLayer, etchMap, materialMap, fillMaterialMap, thicknessMap, layerTypeMap):
         """Update layer properties.
 
         Parameters
@@ -1090,13 +1081,7 @@ class EDBLayers(object):
                 newLayers.Add(newLayer)
                 self._edb_object[layerName] = EDBLayer(newLayer, self._pedbstackup)
                 newLayer = self._edb_object[layerName].update_layer_vals(
-                    layerName,
-                    newLayer,
-                    etchMap,
-                    material,
-                    fillMaterial,
-                    thickness,
-                    self._int_to_layer_types(layerType),
+                    layerName, newLayer, etchMap, material, fillMaterial, thickness, self._int_to_layer_types(layerType)
                 )
                 newLayer = self._edb_object[layerName].set_elevation(newLayer, el)
                 el += newLayer.GetThickness()
@@ -1373,14 +1358,7 @@ class EDBPadProperties(object):
 
     @aedt_exception_handler
     def _update_pad_parameters_parameters(
-        self,
-        layer_name=None,
-        pad_type=None,
-        geom_type=None,
-        params=None,
-        offsetx=None,
-        offsety=None,
-        rotation=None,
+        self, layer_name=None, pad_type=None, geom_type=None, params=None, offsetx=None, offsety=None, rotation=None
     ):
         """Update padstack parameters.
 
@@ -1579,11 +1557,7 @@ class EDBPadstack(object):
             rotation = self.hole_rotation
         if is_ironpython:
             newPadstackDefinitionData.SetHoleParameters(
-                hole_type,
-                params,
-                self._edb_value(offsetx),
-                self._edb_value(offsety),
-                self._edb_value(rotation),
+                hole_type, params, self._edb_value(offsetx), self._edb_value(offsety), self._edb_value(rotation)
             )
         else:
             newPadstackDefinitionData.SetHoleParameters(
@@ -1872,8 +1846,7 @@ class EDBPinInstances(object):
         else:
             out = self.pin.GetPositionAndRotationValue(
                 self._pedbcomponents._edb.Geometry.PointData(
-                    self._pedbcomponents._edb_value(0.0),
-                    self._pedbcomponents._edb_value(0.0),
+                    self._pedbcomponents._edb_value(0.0), self._pedbcomponents._edb_value(0.0)
                 ),
                 self._pedbcomponents._edb_value(0.0),
             )
@@ -1897,8 +1870,7 @@ class EDBPinInstances(object):
         else:
             out = self.pin.GetPositionAndRotationValue(
                 self._pedbcomponents._edb.Geometry.PointData(
-                    self._pedbcomponents._edb_value(0.0),
-                    self._pedbcomponents._edb_value(0.0),
+                    self._pedbcomponents._edb_value(0.0), self._pedbcomponents._edb_value(0.0)
                 ),
                 self._pedbcomponents._edb_value(0.0),
             )
