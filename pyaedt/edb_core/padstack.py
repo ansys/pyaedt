@@ -7,7 +7,7 @@ import warnings
 from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, is_ironpython
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 import math
-from pyaedt.edb_core.EDB_Data import EDBPadstack
+from pyaedt.edb_core.EDB_Data import EDBPadstack, EDBPadstackInstance
 
 try:
     from System import Array
@@ -84,6 +84,21 @@ class EdbPadstacks(object):
             return self._padstacks
         self.update_padstacks()
         return self._padstacks
+
+    @property
+    def padstack_instances(self):
+        """List of padstack instances.
+
+        Returns
+        -------
+        dict of :class:`pyaedt.edb_core.Edb_Data.EdbPadstackInstance`
+            List of padstack instances.
+
+        """
+        if self._padstack_instances:
+            return self._padstack_instances
+        self.update_padstack_instances()
+        return self._padstack_instances
 
     @property
     def pingroups(self):
