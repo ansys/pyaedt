@@ -567,4 +567,3 @@ class TestClass:
     def test_72_vias_creation(self):
         via_list = self.edbapp.core_padstack_instance.get_padstack_instance_by_net_name("GND")
         assert len(via_list)
-
