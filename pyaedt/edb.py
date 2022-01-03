@@ -25,7 +25,6 @@ from pyaedt.edb_core import (
     Components,
     EdbNets,
     EdbPadstacks,
-    EdbPadstackInstances,
     EdbLayout,
     EdbHfss,
     EdbSiwave,
@@ -217,7 +216,6 @@ class Edb(object):
         self._components = Components(self)
         self._stackup = EdbStackup(self)
         self._padstack = EdbPadstacks(self)
-        self._padstack_instance = EdbPadstackInstances(self)
         self._siwave = EdbSiwave(self)
         self._hfss = EdbHfss(self)
         self._nets = EdbNets(self)

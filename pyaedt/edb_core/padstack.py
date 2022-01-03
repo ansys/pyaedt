@@ -32,6 +32,7 @@ class EdbPadstacks(object):
     def __init__(self, p_edb):
         self._pedb = p_edb
         self._padstacks = {}
+        self._padstack_instances = []
 
     @property
     def _builder(self):
@@ -87,6 +88,19 @@ class EdbPadstacks(object):
             return self._padstacks
         self.update_padstacks()
         return self._padstacks
+
+    @property
+    def padstack_instances(self):
+        """List of padstack instances.
+
+        Returns
+        -------
+        list of :class:`Edb.Cell.Primitive.PadstackInstance`.
+        """
+        if self._padstack_instances:
+            return self._padstack_instances
+        self.update_padstack_instances()
+        return self._padstack_instances
 
     @property
     def pingroups(self):
@@ -585,66 +599,7 @@ class EdbPadstacks(object):
         self.update_padstacks()
         return True
 
-
-class EdbPadstackInstances:
-    """Manages EDB functionalities for padstack instances.
-    Parameters
-    ----------
-    pedb :
-        Inherited AEDT object.
-    Examples
-    --------
-    >>> from pyaedt import Edb
-    >>> edbapp = Edb("myaedbfolder", edbversion="2021.2")
-    >>> edb_padstacks = edbapp.core_padstack_instance
-    """
-
-    def __init__(self, p_edb):
-        self._pedb = p_edb
-        self._padstack_instances = []
-
-    @property
-    def _builder(self):
-        return self._pedb.builder
-
-    @property
-    def _edb(self):
-        return self._pedb.edb
-
-    @property
-    def _edb_value(self):
-        return self._pedb.edb_value
-
-    @property
-    def _active_layout(self):
-        return self._pedb.active_layout
-
-    @property
-    def db(self):
-        """Db object."""
-        return self._pedb.db
-
-    @property
-    def _logger(self):
-        return self._pedb.logger
-
-    @property
-    def layers(self):
-        return self._pedb.core_stackup.stackup_layers
-
-    @property
-    def padstack_instances(self):
-        """List of padstack instances.
-
-        Returns
-        -------
-        list of :class:`Edb.Cell.Primitive.PadstackInstance`.
-        """
-        if self._padstack_instances:
-            return self._padstack_instances
-        self.update_padstack_instances()
-        return self._padstack_instances
-
+    @aedt_exception_handler
     def update_padstack_instances(self):
         """Update Padstack Instance List."""
         layout_lobj_collection = self._active_layout.GetLayoutInstance().GetAllLayoutObjInstances()
@@ -654,6 +609,7 @@ class EdbPadstackInstances:
             if type(lobj) is self._edb.Cell.Primitive.PadstackInstance:
                 self._padstack_instances.append(EDBPadstackInstance(lobj, self._pedb))
 
+    @aedt_exception_handler
     def get_padstack_instance_by_net_name(self, net_name):
         """Get a list of padstack instances by net name.
 
