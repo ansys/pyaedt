@@ -26,7 +26,6 @@ Setup object is accessible through the ``create_setup`` method and ``setups`` ob
 
 .. autosummary::
    :toctree: _autosummary
-   :template: custom-class-template.rst
    :nosignatures:
 
    Setup
@@ -46,7 +45,6 @@ Setup object is accessible through the methods available for sweep creation.
 
 .. autosummary::
    :toctree: _autosummary
-   :template: custom-class-template.rst
    :nosignatures:
 
    SweepHFSS

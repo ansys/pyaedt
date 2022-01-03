@@ -8,7 +8,6 @@ The PyAEDT API includes these classes for AEDT and EDB Message managers:
 
 .. autosummary::
    :toctree: _autosummary
-   :template: custom-class-template.rst
    :nosignatures:
 
    AEDTMessageManager
@@ -39,7 +38,6 @@ pyaedt log files.
 
 .. autosummary::
    :toctree: _autosummary
-   :template: custom-class-template.rst
    :nosignatures:
 
    AedtLogger

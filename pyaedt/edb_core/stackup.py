@@ -90,7 +90,7 @@ class EdbStackup(object):
 
         Returns
         -------
-        list
+        dict[str, :class:`pyaedt.edb_core.EDB_Data.EDBLayer`]
             List of signal layers.
         """
         return self.stackup_layers.signal_layers

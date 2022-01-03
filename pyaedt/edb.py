@@ -1093,7 +1093,6 @@ class Edb(object):
             list(self.core_stackup.signal_layers.keys())[0],
             net_name="DUMMY_CUTOUT",
         )
-        _signal_nets = []
 
         _ref_nets = []
         # validate references in layout

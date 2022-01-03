@@ -3,7 +3,7 @@ import os
 
 os.environ["PYAEDT_IRONPYTHON_SERVER"] = "1"
 sys.path.append(pyaedt_path)
-sys.path.append(os.path.join(pyaedt_path, "pyaedt", "third_party", "ironpython"))
+sys.path.insert(0, os.path.join(pyaedt_path, "pyaedt", "third_party", "ironpython"))
 
 from pyaedt.rpc.rpyc_services import PyaedtServiceWindows
 from rpyc import OneShotServer

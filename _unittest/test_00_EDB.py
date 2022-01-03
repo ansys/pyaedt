@@ -10,7 +10,7 @@ from pyaedt.generic.filesystem import Scratch
 
 test_project_name = "Galileo_edb"
 bom_example = "bom_example.csv"
-from _unittest.conftest import config, desktop_version, local_path, scratch_path
+from _unittest.conftest import config, desktop_version, local_path, scratch_path, is_ironpython
 
 try:
     import pytest
@@ -75,6 +75,20 @@ class TestClass:
         assert "TOP" in self.edbapp.core_primitives.polygons_by_layer.keys()
         assert len(self.edbapp.core_primitives.polygons_by_layer["TOP"]) > 0
         assert len(self.edbapp.core_primitives.polygons_by_layer["UNNAMED_000"]) == 0
+        assert self.edbapp.core_primitives.polygons[0].is_void == self.edbapp.core_primitives.polygons[0].IsVoid()
+        poly0 = self.edbapp.core_primitives.polygons[0]
+        assert isinstance(poly0.voids, list)
+        assert isinstance(poly0.points_raw(), list)
+        assert isinstance(poly0.points(), tuple)
+        assert isinstance(poly0.points()[0], list)
+        assert poly0.points()[0][0] >= 0.0
+        assert poly0.points_raw()[0].X.ToDouble() >= 0.0
+        assert poly0.type == "Polygon"
+        assert self.edbapp.core_primitives.paths[0].type == "Path"
+        assert self.edbapp.core_primitives.rectangles[0].type == "Rectangle"
+        assert self.edbapp.core_primitives.circles[0].type == "Circle"
+        assert not poly0.is_arc(poly0.points_raw()[0])
+        assert isinstance(poly0.voids, list)
 
     def test_04_get_stackup(self):
         stackup = self.edbapp.core_stackup.stackup_layers
@@ -111,6 +125,14 @@ class TestClass:
         powernets = self.edbapp.core_nets.power_nets
         assert len(signalnets) > 2
         assert len(powernets) > 2
+        assert powernets["V3P3_S0"].is_power_ground
+        assert powernets["V3P3_S0"].IsPowerGround()
+        assert len(list(powernets["V3P3_S0"].components.keys())) > 0
+        assert len(powernets["V3P3_S0"].primitives) > 0
+
+        assert not signalnets[list(signalnets.keys())[0]].is_power_ground
+        assert not signalnets[list(signalnets.keys())[0]].IsPowerGround()
+        assert len(list(signalnets[list(signalnets.keys())[0]].primitives)) > 0
 
     def test_09_assign_rlc(self):
         assert self.edbapp.core_components.set_component_rlc(
@@ -533,6 +555,16 @@ class TestClass:
     def test_69_create_solder_balls_on_component(self):
         assert self.edbapp.core_components.set_solder_ball("U2A5")
 
-    def test_70_vias_creation(self):
+    @pytest.mark.skipif(is_ironpython, reason="This Test uses Ironpython")
+    def test_70_plot_on_matplotlib(self):
+        local_png = os.path.join(self.local_scratch.path, "test.png")
+        self.edbapp.core_nets.plot(None, None, save_plot=local_png)
+        assert os.path.exists(local_png)
+
+    def test_71_fix_circle_voids(self):
+        assert self.edbapp.core_primitives.fix_circle_void_for_clipping()
+
+    def test_72_vias_creation(self):
         via_list = self.edbapp.core_padstack_instance.get_padstack_instance_by_net_name("GND")
         assert len(via_list)
+

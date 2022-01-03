@@ -34,7 +34,6 @@ They are accessible through the ``post`` property:
 
 .. autosummary::
    :toctree: _autosummary
-   :template: custom-class-template.rst
    :nosignatures:
 
    AdvancedPostProcessing.PostProcessor
