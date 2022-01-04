@@ -6,8 +6,10 @@ import gc
 
 try:
     import pytest
-except:
+except ImportError:
     import _unittest_ironpython.conf_unittest as pytest
+
+from pyaedt.generic.general_methods import is_ironpython
 
 # Setup paths for module imports
 from _unittest.conftest import scratch_path, local_path, BasisTest, pyaedt_unittest_check_desktop_error, config
@@ -918,6 +920,10 @@ class TestClass(BasisTest):
         assert torus.name.startswith("MyTorus")
         assert torus.object_type == "Solid"
         assert torus.is3d is True
+
+    @pytest.mark.skipif(is_ironpython, reason="pytest is not supported with IronPython.")
+    @pyaedt_unittest_check_desktop_error
+    def test_69_create_torus_exceptions(self):
 
         with pytest.raises(ValueError) as excinfo:
             self.aedtapp.modeler.primitives.create_torus(
