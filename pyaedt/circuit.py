@@ -377,8 +377,7 @@ class Circuit(FieldAnalysisCircuit, object):
         """
 
         reader = ibis_reader.IbisReader()
-        ibis = reader.read_project(path, self)
-        return ibis
+        return reader.read_project(path, self)
 
     @aedt_exception_handler
     def create_schematic_from_mentor_netlist(self, file_to_import):

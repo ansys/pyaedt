@@ -76,15 +76,16 @@ class Pin(Component):
 
     @property
     def signal(self):
+        """Signal of the pin."""
         return self._signal
 
     @signal.setter
     def signal(self, value):
-        """Signal of the pin."""
         self._signal = value
 
     @property
     def model(self):
+        """Model of the pin."""
         return self._model
 
     @model.setter
@@ -385,6 +386,19 @@ class IbisReader:
         ----------
         :class:`pyaedt.generic.ibis_reader.Ibis`
             Ibis object exposing all data from the ibis file.
+
+        Examples
+        --------
+        Read u26a_800.ibs file provided in the AEDT suit installation.
+        >>> import os
+        >>> from pyaedt import Desktop
+        >>> from pyaedt.circuit import Circuit
+        >>> from pyaedt.generic import ibis_reader
+        >>> desktop = Desktop()
+        >>> circuit = Circuit()
+        >>> reader = ibis_reader.IbisReader()
+        >>> ibis = reader.read_project(os.path.join(desktop.install_path, "buflib", "IBIS", "u26a_800.ibs"), circuit)
+
         """
 
         if not os.path.exists(filename):
@@ -465,14 +479,14 @@ class IbisReader:
 
         """
 
-        if is_started_with(current_line, "[Model] ") != True:
+        if not is_started_with(current_line, "[Model] "):
             return
 
         model = Model()
         model.name = current_line.split("]")[1].strip()
         current_line = ibis_file.readline().replace("\t", "").strip()
 
-        while is_started_with(current_line, "Model_type") != True:
+        while not is_started_with(current_line, "Model_type"):
             current_line = ibis_file.readline().replace("\t", "").strip()
 
         iStart = current_line.index(" ", 1)
@@ -514,7 +528,7 @@ class IbisReader:
 
         """
 
-        if is_started_with(current_line, "[Model Selector] ") != True:
+        if not is_started_with(current_line, "[Model Selector] "):
             return
 
         model_selector = ModelSelector()
@@ -524,7 +538,7 @@ class IbisReader:
         current_line = ibis_file.readline()
 
         # Model Selector
-        while is_started_with(current_line, "|") is False and current_line.strip() != "":
+        while not is_started_with(current_line, "|") and current_line.strip() != "":
             model_selector.model_selector_items.append(self.make_model(current_line.strip()))
             current_line = ibis_file.readline()
 
@@ -570,7 +584,7 @@ class IbisReader:
 
         """
 
-        if is_started_with(current_line, "[Component] ") != True:
+        if not is_started_with(current_line, "[Component] "):
             return
 
         component = Component()
@@ -588,7 +602,7 @@ class IbisReader:
         self.fill_package_info(component, current_line, ibis_file)
 
         # [pin]
-        while is_started_with(current_line, "[Pin] ") != True:
+        while not is_started_with(current_line, "[Pin] "):
             current_line = ibis_file.readline()
 
         while True:
@@ -598,7 +612,7 @@ class IbisReader:
 
         current_line = ibis_file.readline()
 
-        while is_started_with(current_line, "|") == False:
+        while not is_started_with(current_line, "|"):
             pin = self.make_pin_object(current_line, component.name, ibis)
             component.pins[pin.name] = pin
             current_line = ibis_file.readline()
@@ -717,6 +731,9 @@ class IbisReader:
 
 def is_started_with(src, find, ignore_case=True):
     """Verifies if a string content starts with a specific string or not.
+
+    This is identical to ``str.startswith``, except that it includes
+    the ``ignore_case`` parameter.
 
     Parameters
     ----------
