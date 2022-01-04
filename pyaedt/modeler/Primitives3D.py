@@ -381,33 +381,37 @@ class Primitives3D(Primitives, object):
 
         Examples
         --------
-
+        Create a torus named ``"mytorus"`` about the Z axis with a major
+        radius of 1, minor radius of 0.5, and a material of ``"copper"``.
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
-        >>> origin = [0,0,0]
+        >>> origin = [0, 0, 0]
         >>> torus = hfss.modeler.primitives.create_torus(origin, major_radius=1,
-        ...                                             minor_radius=0.5, axis="Z",
-        ...                                             name="mytorus", material_name="copper")
+        ...                                              minor_radius=0.5, axis="Z",
+        ...                                              name="mytorus", material_name="copper")
 
         """
-        assert len(center) == 3, "Center argument must be a valid 3 elements List."
-        assert major_radius > 0 and minor_radius > 0, "Both major and minor radius must be greater than 0."
-        assert minor_radius < major_radius, "Major radius must be greater than minor radius."
+        if len(center) != 3:
+            raise ValueError("Center argument must be a valid 3 element sequence.")
+        if major_radius <= 0 or minor_radius <= 0:
+            raise ValueError("Both major and minor radius must be greater than 0.")
+        if minor_radius >= major_radius:
+            raise ValueError("Major radius must be greater than minor radius.")
 
         x_center, y_center, z_center = self._pos_with_arg(center)
         axis = GeometryOperators.cs_axis_str(axis)
         major_radius = self._arg_with_dim(major_radius)
         minor_radius = self._arg_with_dim(minor_radius)
 
-        vArg1 = ["NAME:TorusParameters"]
-        vArg1.append("XCenter:="), vArg1.append(x_center)
-        vArg1.append("YCenter:="), vArg1.append(y_center)
-        vArg1.append("ZCenter:="), vArg1.append(z_center)
-        vArg1.append("MajorRadius:="), vArg1.append(major_radius)
-        vArg1.append("MinorRadius:="), vArg1.append(minor_radius)
-        vArg1.append("WhichAxis:="), vArg1.append(axis)
-        vArg2 = self._default_object_attributes(name=name, matname=material_name)
-        new_object_name = _retry_ntimes(10, self._oeditor.CreateTorus, vArg1, vArg2)
+        first_argument = ["NAME:TorusParameters"]
+        first_argument.append("XCenter:="), first_argument.append(x_center)
+        first_argument.append("YCenter:="), first_argument.append(y_center)
+        first_argument.append("ZCenter:="), first_argument.append(z_center)
+        first_argument.append("MajorRadius:="), first_argument.append(major_radius)
+        first_argument.append("MinorRadius:="), first_argument.append(minor_radius)
+        first_argument.append("WhichAxis:="), first_argument.append(axis)
+        second_argument = self._default_object_attributes(name=name, matname=material_name)
+        new_object_name = _retry_ntimes(10, self._oeditor.CreateTorus, first_argument, second_argument)
         return self._create_object(new_object_name)
 
     @aedt_exception_handler
