@@ -284,11 +284,11 @@ class Primitives3D(Primitives, object):
         """
         if bottom_radius == top_radius:
             raise ValueError("Bottom radius and top radius must have different values.")
-        if bottom_radius <= 0:
+        if bottom_radius < 0:
             raise ValueError("Bottom radius must be greater than 0.")
-        if top_radius <= 0:
+        if top_radius < 0:
             raise ValueError("Top radius must be greater than 0.")
-        if height < 0:
+        if height <= 0:
             raise ValueError("Height must be greater than 0.")
 
         XCenter, YCenter, ZCenter = self._pos_with_arg(position)
