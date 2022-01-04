@@ -776,7 +776,7 @@ class Object3d(object):
         .. note::
         Works from AEDT 2021.2 in CPython only. PyVista has to be installed.
         """
-        if not is_ironpython and self._primitives._appp._aedt_version >= "2021.2":
+        if not is_ironpython and self._primitives._app._aedt_version >= "2021.2":
             self._primitives._app.post.plot_model_obj(
                 objects=[self.name],
                 export_afterplot=False,
@@ -806,7 +806,7 @@ class Object3d(object):
         str
             File path.
         """
-        if not is_ironpython and self._primitives._appp._aedt_version >= "2021.2":
+        if not is_ironpython and self._primitives._app._aedt_version >= "2021.2":
             files = self._primitives._app.post.plot_model_obj(
                 objects=[self.name],
                 export_afterplot=True,

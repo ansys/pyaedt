@@ -77,11 +77,11 @@ class Primitives3D(Primitives, object):
         --------
 
         >>> from pyaedt import hfss
-        >>> hfss = HFSS()
+        >>> hfss = Hfss()
         >>> origin = [0,0,0]
         >>> dimensions = [10,5,20]
         >>> #Material and name are not mandatory fields
-        >>> object_id = hfss.modeler.primivites.create_box(origin, dimensions, name="mybox", matname="copper")
+        >>> box_object = hfss.modeler.primivites.create_box(origin, dimensions, name="mybox", matname="copper")
 
         """
         assert len(position) == 3, "Position Argument must be a valid 3 Element List"
@@ -138,10 +138,14 @@ class Primitives3D(Primitives, object):
         --------
         >>> from pyaedt import Hfss
         >>> aedtapp = Hfss()
-        >>> ret_object = aedtapp.modeler.primitives.create_cylinder(cs_axis='Z', position=[0,0,0], radius=2, height=3,
-        ...                                                name="mycyl", matname="vacuum")
+        >>> cylinder_object = aedtapp.modeler.primitives.create_cylinder(cs_axis='Z', position=[0,0,0],
+        ...                                                              radius=2, height=3, name="mycyl",
+        ...                                                              matname="vacuum")
 
         """
+        if radius < 0:
+            raise ValueError("Radius must be greater than 0.")
+
         szAxis = GeometryOperators.cs_axis_str(cs_axis)
         XCenter, YCenter, ZCenter = self._pos_with_arg(position)
 
@@ -241,7 +245,8 @@ class Primitives3D(Primitives, object):
 
         Parameters
         ----------
-        Axis of rotation of the starting point around the center point.
+        cs_axis : str
+            Axis of rotation of the starting point around the center point.
             The default is ``None``, in which case the Z axis is used.
         center_position : list, optional
             List of ``[x, y, z]`` coordinates for the center position
@@ -273,11 +278,20 @@ class Primitives3D(Primitives, object):
         --------
         >>> from pyaedt import Hfss
         >>> aedtapp = Hfss()
-        >>> ret_object = aedtapp.modeler.primitives.create_cone(cs_axis='Z', position=[0,0,0],
-        ...                                                    bottom_radius=2, top_radius=3, height=4,
-        ...                                                    name="mybox", matname="copper")
+        >>> cone_object = aedtapp.modeler.primitives.create_cone(cs_axis='Z', position=[0, 0, 0],
+        ...                                                      bottom_radius=2, top_radius=3, height=4,
+        ...                                                      name="mybox", matname="copper")
 
         """
+        if bottom_radius == top_radius:
+            raise ValueError("Bottom radius and top radius must have different values.")
+        if bottom_radius < 0:
+            raise ValueError("Bottom radius must be greater than 0.")
+        if top_radius < 0:
+            raise ValueError("Top radius must be greater than 0.")
+        if height <= 0:
+            raise ValueError("Height must be greater than 0.")
+
         XCenter, YCenter, ZCenter = self._pos_with_arg(position)
         szAxis = GeometryOperators.cs_axis_str(cs_axis)
         Height = self._arg_with_dim(height)
@@ -329,9 +343,14 @@ class Primitives3D(Primitives, object):
         >>> from pyaedt import Hfss
         >>> aedtapp = Hfss()
         >>> ret_object = aedtapp.modeler.primitives.create_sphere(position=[0,0,0], radius=2,
-        ...                                                      name="mybox", matname="copper")
+        ...                                                      name="mysphere", matname="copper")
 
         """
+        if len(position) != 3:
+            raise ValueError("Position argument must be a valid 3 elements List.")
+        if radius < 0:
+            raise ValueError("Radius must be greater than 0.")
+
         XCenter, YCenter, ZCenter = self._pos_with_arg(position)
 
         Radius = self._arg_with_dim(radius)
@@ -343,6 +362,74 @@ class Primitives3D(Primitives, object):
         vArg1.append("Radius:="), vArg1.append(Radius)
         vArg2 = self._default_object_attributes(name=name, matname=matname)
         new_object_name = self._oeditor.CreateSphere(vArg1, vArg2)
+        return self._create_object(new_object_name)
+
+    @aedt_exception_handler
+    def create_torus(self, center, major_radius, minor_radius, axis=None, name=None, material_name=None):
+        """Create a torus.
+
+        Parameters
+        ----------
+        center : list
+            Center point for the torus in a list of ``[x, y, z]`` coordinates.
+        major_radius : float
+           Major radius of the torus.
+        minor_radius : float
+           Minor radius of the torus.
+        axis : str, optional
+            Axis of revolution.
+            The default is ``None``, in which case the Z axis is used.
+        name : str, optional
+            Name of the torus. The default is ``None``, in which case the
+            default name is assigned.
+        material_name : str, optional
+            Name of the material.  The default is ``None``, in which case the
+            default material is assigned. If the material name supplied is
+            invalid, the default material is assigned.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.Object3d`
+            3D object.
+
+        References
+        ----------
+
+        >>> oEditor.CreateTorus
+
+        Examples
+        --------
+        Create a torus named ``"mytorus"`` about the Z axis with a major
+        radius of 1, minor radius of 0.5, and a material of ``"copper"``.
+        >>> from pyaedt import Hfss
+        >>> hfss = Hfss()
+        >>> origin = [0, 0, 0]
+        >>> torus = hfss.modeler.primitives.create_torus(origin, major_radius=1,
+        ...                                              minor_radius=0.5, axis="Z",
+        ...                                              name="mytorus", material_name="copper")
+
+        """
+        if len(center) != 3:
+            raise ValueError("Center argument must be a valid 3 element sequence.")
+        if major_radius <= 0 or minor_radius <= 0:
+            raise ValueError("Both major and minor radius must be greater than 0.")
+        if minor_radius >= major_radius:
+            raise ValueError("Major radius must be greater than minor radius.")
+
+        x_center, y_center, z_center = self._pos_with_arg(center)
+        axis = GeometryOperators.cs_axis_str(axis)
+        major_radius = self._arg_with_dim(major_radius)
+        minor_radius = self._arg_with_dim(minor_radius)
+
+        first_argument = ["NAME:TorusParameters"]
+        first_argument.append("XCenter:="), first_argument.append(x_center)
+        first_argument.append("YCenter:="), first_argument.append(y_center)
+        first_argument.append("ZCenter:="), first_argument.append(z_center)
+        first_argument.append("MajorRadius:="), first_argument.append(major_radius)
+        first_argument.append("MinorRadius:="), first_argument.append(minor_radius)
+        first_argument.append("WhichAxis:="), first_argument.append(axis)
+        second_argument = self._default_object_attributes(name=name, matname=material_name)
+        new_object_name = _retry_ntimes(10, self._oeditor.CreateTorus, first_argument, second_argument)
         return self._create_object(new_object_name)
 
     @aedt_exception_handler
