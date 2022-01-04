@@ -6,8 +6,10 @@ import gc
 
 try:
     import pytest
-except:
+except ImportError:
     import _unittest_ironpython.conf_unittest as pytest
+
+from pyaedt.generic.general_methods import is_ironpython
 
 # Setup paths for module imports
 from _unittest.conftest import scratch_path, local_path, BasisTest, pyaedt_unittest_check_desktop_error, config
@@ -70,6 +72,15 @@ class TestClass(BasisTest):
             self.aedtapp.modeler.primitives.delete(name)
         plane = self.aedtapp.PLANE.XY
         return self.aedtapp.modeler.primitives.create_rectangle(plane, [5, 3, 8], [4, 5], name=name)
+
+    def create_copper_torus(self, name=None):
+        if not name:
+            name = "MyTorus"
+        if self.aedtapp.modeler.primitives[name]:
+            self.aedtapp.modeler.primitives.delete(name)
+        return self.aedtapp.modeler.primitives.create_torus(
+            [30, 30, 0], major_radius=1.2, minor_radius=0.5, axis="Z", name=name, material_name="Copper"
+        )
 
     def create_polylines(self, name=None):
         if not name:
@@ -901,3 +912,39 @@ class TestClass(BasisTest):
     def test_67_cover_lines(self):
         P1 = self.aedtapp.modeler.primitives.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]], close_surface=True)
         assert self.aedtapp.modeler.cover_lines(P1)
+
+    @pyaedt_unittest_check_desktop_error
+    def test_68_create_torus(self):
+        torus = self.create_copper_torus()
+        assert torus.id > 0
+        assert torus.name.startswith("MyTorus")
+        assert torus.object_type == "Solid"
+        assert torus.is3d is True
+
+    @pytest.mark.skipif(is_ironpython, reason="pytest is not supported with IronPython.")
+    @pyaedt_unittest_check_desktop_error
+    def test_69_create_torus_exceptions(self):
+
+        with pytest.raises(ValueError) as excinfo:
+            self.aedtapp.modeler.primitives.create_torus(
+                [30, 30], major_radius=-0.3, minor_radius=0.5, axis="Z", name="torus", material_name="Copper"
+            )
+            assert "Center argument must be a valid 3 element sequence." in str(excinfo.value)
+
+        with pytest.raises(ValueError) as excinfo:
+            self.aedtapp.modeler.primitives.create_torus(
+                [30, 30, 0], major_radius=-0.3, minor_radius=0.5, axis="Z", name="torus", material_name="Copper"
+            )
+            assert "Both major and minor radius must be greater than 0" in str(excinfo.value)
+
+        with pytest.raises(ValueError) as excinfo:
+            self.aedtapp.modeler.primitives.create_torus(
+                [30, 30, 0], major_radius=1, minor_radius=0, axis="Z", name="torus", material_name="Copper"
+            )
+            assert "Both major and minor radius must be greater than 0" in str(excinfo.value)
+
+        with pytest.raises(ValueError) as excinfo:
+            self.aedtapp.modeler.primitives.create_torus(
+                [30, 30, 0], major_radius=1, minor_radius=1.2, axis="Z", name="torus", material_name="Copper"
+            )
+            assert "Major radius must be greater than minor radius." in str(excinfo.value)
