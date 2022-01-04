@@ -143,7 +143,8 @@ class Primitives3D(Primitives, object):
         ...                                                              matname="vacuum")
 
         """
-        assert radius > 0, "Radius must be greater than 0."
+        if radius < 0:
+            raise ValueError("Radius must be greater than 0.")
 
         szAxis = GeometryOperators.cs_axis_str(cs_axis)
         XCenter, YCenter, ZCenter = self._pos_with_arg(position)
