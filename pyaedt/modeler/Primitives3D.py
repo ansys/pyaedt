@@ -277,9 +277,9 @@ class Primitives3D(Primitives, object):
         --------
         >>> from pyaedt import Hfss
         >>> aedtapp = Hfss()
-        >>> cone_object = aedtapp.modeler.primitives.create_cone(cs_axis='Z', position=[0,0,0],
-        ...                                                    bottom_radius=2, top_radius=3, height=4,
-        ...                                                    name="mybox", matname="copper")
+        >>> cone_object = aedtapp.modeler.primitives.create_cone(cs_axis='Z', position=[0, 0, 0],
+        ...                                                      bottom_radius=2, top_radius=3, height=4,
+        ...                                                      name="mybox", matname="copper")
 
         """
         assert bottom_radius != top_radius, "Bottom radius and top radius must have different values."
