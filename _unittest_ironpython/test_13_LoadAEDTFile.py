@@ -11,11 +11,11 @@ mymodule = __import__("_unittest." + test_name, fromlist=fromlist)
 def make_test_sequence_functions_generate_class(test_obj):
     class TestSequenceFunctionsGenerate(PytestMockup):
         @classmethod
-        def setUpClass(cls):
+        def setup_class(cls):
             test_obj.setup_class()
 
         @classmethod
-        def tearDownClass(cls):
+        def teardown_class(cls):
             test_obj.teardown_class()
 
     return TestSequenceFunctionsGenerate

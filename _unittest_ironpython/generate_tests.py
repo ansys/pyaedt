@@ -15,11 +15,11 @@ test_obj = mymodule.TestClass()
 
 class TestSequenceFunctionsGenerate(PytestMockup):
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         test_obj.setup_class()
 
     @classmethod
-    def tearDownClass(cls):
+    def teardown_class(cls):
         test_obj.teardown_class()
 
 test_names = [name for name in dir(test_obj) if name.startswith(test_filter)]
