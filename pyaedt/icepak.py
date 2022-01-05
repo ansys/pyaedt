@@ -2093,36 +2093,65 @@ class Icepak(FieldAnalysisIcepak):
     @aedt_exception_handler
     def globalMeshSettings(
         self,
-        meshtype,
+        xsize="5",
+        ysize="5",
+        zsize="5",
         gap_min_elements="1",
-        noOgrids=False,
-        MLM_en=True,
-        MLM_Type="3D",
-        stairStep_en=False,
         edge_min_elements="1",
-        object="Region",
+        MaxSizeRatio="3",
+        noOgrids=True,
+        stairStep_en=False,
+        min_gap_override=True,
+        min_gap_x="0.1",
+        min_gap_y="0.1",
+        min_gap_z="0.1",
+        MLM_en=True,
+        max_levels="3",
+        buff_layers="1",
+        MLM_Type: str = "3D",
+        uniform_mesh_params: str = "Average",
+        facet_level="5"
     ):
-        """Create a custom mesh tailored on a PCB design.
+        """Apply custom mesh settings for the global region.
 
         Parameters
         ----------
-        meshtype : int
-            Type of the mesh. Options are ``1``, ``2``, and ``3``, which represent
-            respectively a coarse, standard, or very accurate mesh.
+        xsize : str, optional
+            The default is ``"5"``.
+        ysize : str, optional
+            The default is ``"5"``.
+        zsize : str, optional
+            The default is ``"5"``.
         gap_min_elements : str, optional
             The default is ``"1"``.
-        noOgrids : bool, optional
-            The default is ``False``.
-        MLM_en : bool, optional
-            The default is ``True``.
-        MLM_Type : str, optional
-            The default is ``"3D"``.
-        stairStep_en : bool, optional
-            The default is ``False``.
         edge_min_elements : str, optional
             The default is ``"1"``.
-        object : str, optional
-            The default is ``"Region"``.
+        MaxSizeRatio : str, optional
+            The default is ``"3"``.
+        noOgrids : bool, optional
+            The default is ``True``.
+        stairStep_en : bool, optional
+            The default is ``False``.
+        min_gap_override : bool, optional
+            The default is ``True``.
+        min_gap_x : str, optional
+            The default is ``"0.1"``.
+        min_gap_y : str, optional
+            The default is ``"0.1"``.
+        min_gap_z : str, optional
+            The default is ``"0.1"``.
+        MLM_en : bool, optional
+            The default is ``True``.
+        max_levels : str, optional
+            The default is ``"3"``.
+        buff_layers : str, optional
+            The default is ``"1"``.
+        MLM_Type : str, optional
+            The default is ``"3D"``, only other option is ``"2D"``.
+        uniform_mesh_params : str, optional
+            The default is ``"Average"``, only other option is ``"XYZ Max Sizes"``.
+        facet_level : str, optional
+            The default is ``"5"``.
 
         Returns
         -------
@@ -2136,12 +2165,6 @@ class Icepak(FieldAnalysisIcepak):
         """
         oModule = self.odesign.GetModule("MeshRegion")
 
-        oBoundingBox = self.modeler.oeditor.GetModelBoundingBox()
-        xsize = abs(float(oBoundingBox[0]) - float(oBoundingBox[3])) / (15 * meshtype * meshtype)
-        ysize = abs(float(oBoundingBox[1]) - float(oBoundingBox[4])) / (15 * meshtype * meshtype)
-        zsize = abs(float(oBoundingBox[2]) - float(oBoundingBox[5])) / (10 * meshtype)
-        MaxSizeRatio = 1 + (meshtype / 2)
-
         oModule.EditGlobalMeshRegion(
             [
                 "NAME:Settings",
@@ -2150,7 +2173,7 @@ class Icepak(FieldAnalysisIcepak):
                 "UserSpecifiedSettings:=",
                 True,
                 "ComputeGap:=",
-                True,
+                min_gap_override,
                 "MaxElementSizeX:=",
                 str(xsize) + self.modeler.model_units,
                 "MaxElementSizeY:=",
@@ -2162,7 +2185,7 @@ class Icepak(FieldAnalysisIcepak):
                 "MinElementsOnEdge:=",
                 edge_min_elements,
                 "MaxSizeRatio:=",
-                str(MaxSizeRatio),
+                MaxSizeRatio,
                 "NoOGrids:=",
                 noOgrids,
                 "EnableMLM:=",
@@ -2170,21 +2193,23 @@ class Icepak(FieldAnalysisIcepak):
                 "EnforeMLMType:=",
                 MLM_Type,
                 "MaxLevels:=",
-                "5",
+                max_levels,
                 "BufferLayers:=",
-                "0",
+                buff_layers,
                 "UniformMeshParametersType:=",
-                "Average",
+                uniform_mesh_params,
                 "StairStepMeshing:=",
                 stairStep_en,
                 "MinGapX:=",
-                str(xsize / 10) + self.modeler.model_units,
+                str(min_gap_x) + self.modeler.model_units,
                 "MinGapY:=",
-                str(xsize / 10) + self.modeler.model_units,
+                str(min_gap_y) + self.modeler.model_units,
                 "MinGapZ:=",
-                str(xsize / 10) + self.modeler.model_units,
+                str(min_gap_z) + self.modeler.model_units,
                 "Objects:=",
-                [object],
+                ["Region"],
+                "FacetLevel:=",
+                facet_level
             ]
         )
         return True
