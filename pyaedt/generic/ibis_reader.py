@@ -13,7 +13,16 @@ class Component:
 
     @property
     def name(self):
-        """Name of the component."""
+        """Name of the component.
+        
+        Examples
+        --------
+        >>> ibis = ibis_reader.IbisReader(os.path.join(path_to_ibis_files, "u26a_800_modified.ibs"), circuit)
+        >>> ibis.components["MT47H64M4BP-3_25"].name
+        'MT47H64M4BP-3_25'
+
+        """
+
         return self._name
 
     @name.setter
@@ -22,7 +31,16 @@ class Component:
 
     @property
     def manufacturer(self):
-        """Manufacturer of the component."""
+        """Manufacturer of the component.
+
+        Examples
+        --------
+        >>> ibis = ibis_reader.IbisReader(os.path.join(path_to_ibis_files, "u26a_800_modified.ibs"), circuit)
+        >>> ibis.components["MT47H64M4BP-3_25"].manufacturer
+        'Micron Technology, Inc.'
+
+        """
+
         return self._manufacturer
 
     @manufacturer.setter
@@ -31,7 +49,15 @@ class Component:
 
     @property
     def pins(self):
-        """Pins of the component."""
+        """Pins of the component.
+
+        Examples
+        --------
+        >>> ibis = ibis_reader.IbisReader(os.path.join(path_to_ibis_files, "u26a_800_modified.ibs"), circuit)
+        >>> pins = ibis.components["MT47H64M4BP-3_25"].pins
+
+        """
+
         return self._pins
 
     @pins.setter
@@ -62,12 +88,28 @@ class Pin(Component):
 
     @property
     def name(self):
-        """Full name of the pin including the component name and the ibis filename."""
+        """Full name of the pin including the component name and the ibis filename.
+
+        Examples
+        --------
+        >>> ibis = ibis_reader.IbisReader(os.path.join(path_to_ibis_files, "u26a_800_modified.ibs"), circuit)
+        >>> ibis.components["MT47H64M4BP-3_25"].pins["A1_MT47H64M4BP-3_25_u26a_800"].name
+        'A1_MT47H64M4BP-3_25_u26a_800'
+
+        """
         return self._name
 
     @property
     def short_name(self):
-        """Name of the pin without the name of the component."""
+        """Name of the pin without the name of the component.
+
+        Examples
+        --------
+        >>> ibis = ibis_reader.IbisReader(os.path.join(path_to_ibis_files, "u26a_800_modified.ibs"), circuit)
+        >>> ibis.components["MT47H64M4BP-3_25"].pins["A1_MT47H64M4BP-3_25_u26a_800"].short_name
+        'A1'
+
+        """
         return self._short_name
 
     @short_name.setter
@@ -76,7 +118,15 @@ class Pin(Component):
 
     @property
     def signal(self):
-        """Signal of the pin."""
+        """Signal of the pin.
+
+        Examples
+        --------
+        >>> ibis = ibis_reader.IbisReader(os.path.join(path_to_ibis_files, "u26a_800_modified.ibs"), circuit)
+        >>> ibis.components["MT47H64M4BP-3_25"].pins["A1_MT47H64M4BP-3_25_u26a_800"].signal
+        'VDD'
+
+        """
         return self._signal
 
     @signal.setter
@@ -85,7 +135,15 @@ class Pin(Component):
 
     @property
     def model(self):
-        """Model of the pin."""
+        """Model of the pin.
+
+        Examples
+        --------
+        >>> ibis = ibis_reader.IbisReader(os.path.join(path_to_ibis_files, "u26a_800_modified.ibs"), circuit)
+        >>> ibis.components["MT47H64M4BP-3_25"].pins["A1_MT47H64M4BP-3_25_u26a_800"].signal
+        'POWER'
+
+        """
         return self._model
 
     @model.setter
@@ -94,28 +152,53 @@ class Pin(Component):
 
     @property
     def r_value(self):
-        """Resitance value in ohms."""
+        """Resitance value in ohms.
+
+        Examples
+        --------
+        >>> ibis = ibis_reader.IbisReader(os.path.join(path_to_ibis_files, "u26a_800_modified.ibs"), circuit)
+        >>> ibis.components["MT47H64M4BP-3_25"].pins["A1_MT47H64M4BP-3_25_u26a_800"].r_value
+        '44.3m'
+
+        """
+
         return self._r_value
 
-    @model.setter
+    @r_value.setter
     def r_value(self, value):
         self._r_value = value
 
     @property
     def l_value(self):
-        """Inductance value in H."""
+        """Inductance value in H.
+
+        Examples
+        --------
+        >>> ibis = ibis_reader.IbisReader(os.path.join(path_to_ibis_files, "u26a_800_modified.ibs"), circuit)
+        >>> ibis.components["MT47H64M4BP-3_25"].pins["A1_MT47H64M4BP-3_25_u26a_800"].l_value
+        '1.99nH'
+
+        """
         return self._l_value
 
-    @model.setter
+    @l_value.setter
     def l_value(self, value):
         self._l_value = value
 
     @property
     def c_value(self):
-        """Capacitance value in F."""
+        """Capacitance value in F.
+
+        Examples
+        --------
+        >>> ibis = ibis_reader.IbisReader(os.path.join(path_to_ibis_files, "u26a_800_modified.ibs"), circuit)
+        >>> ibis.components["MT47H64M4BP-3_25"].pins["A1_MT47H64M4BP-3_25_u26a_800"].c_value
+        '0.59pF'
+
+        """
         return self._c_value
 
-    @model.setter
+    @c_value.setter
     def c_value(self, value):
         self._c_value = value
 
@@ -690,7 +773,7 @@ class IbisReader:
         pin_name = self.get_first_parameter(current_string)
         pin = Pin(pin_name + "_" + component_name + "_" + ibis.name, ibis.circuit)
         pin.short_name = pin_name
-        current_string = current_string[len(pin.name) + 1 :].strip()
+        current_string = current_string[len(pin.short_name) + 1 :].strip()
         pin.signal = self.get_first_parameter(current_string)
 
         current_string = current_string[len(pin.signal) + 1 :].strip()
