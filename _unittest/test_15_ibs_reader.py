@@ -4,8 +4,6 @@ from pyaedt.generic import ibis_reader
 from pyaedt import Circuit
 from _unittest.conftest import local_path
 
-from pyaedt.generic.general_methods import is_ironpython
-
 
 class TestClass:
     def setup_class(self):
