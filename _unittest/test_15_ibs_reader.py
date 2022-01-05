@@ -17,7 +17,9 @@ class TestClass:
     def test_01_read_ibis(self):
         if is_ironpython:
             ibis = ibis_reader.IbisReader.__new__(
-                os.path.join(local_path, "example_models", "u26a_800_modified.ibs"), self.aedtapp
+                ibis_reader.IbisReader,
+                os.path.join(local_path, "example_models", "u26a_800_modified.ibs"),
+                self.aedtapp,
             )
         else:
             ibis = ibis_reader.IbisReader(
