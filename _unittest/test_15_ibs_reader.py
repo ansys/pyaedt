@@ -13,8 +13,7 @@ class TestClass:
         self.aedtapp.close_project(self.aedtapp.project_name, saveproject=False)
 
     def test_01_read_ibis(self):
-        reader = ibis_reader.IbisReader()
-        ibis = reader.read_project(os.path.join(local_path, "example_models", "u26a_800_modified.ibs"), self.aedtapp)
+        ibis = ibis_reader.IbisReader(os.path.join(local_path, "example_models", "u26a_800_modified.ibs"), self.aedtapp)
 
         ibis_components = ibis.components
         assert len(ibis_components) == 6
