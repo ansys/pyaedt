@@ -509,12 +509,11 @@ class Primitives3D(Primitives, object):
         >>> object_id = hfss.modeler.primivites.create_bondwire(origin, endpos,h1=0.5, h2=0.1, alpha=75, beta=4,
         ...                                                     bond_type=0, name="mybox", matname="copper")
         """
-        XPosition, YPosition, ZPosition = self._pos_with_arg(start_position)
-        if XPosition is None or YPosition is None or ZPosition is None:
+        x_position, y_position, z_position = self._pos_with_arg(start_position)
+        if x_position is None or y_position is None or z_position is None:
             raise AttributeError("Position Argument must be a valid 3 Element List")
-        #XSize, YSize, ZSize = self._pos_with_arg(end_position)
-        XSize, YSize, ZSize = self._pos_with_arg([n-m for m, n in zip(start_position, end_position)])
-        if XSize is None or YSize is None or YSize is None:
+        x_length, y_length, z_length = self._pos_with_arg([n-m for m, n in zip(start_position, end_position)])
+        if x_length is None or y_length is None or z_length is None:
             raise AttributeError("Dimension Argument must be a valid 3 Element List")
         if bond_type == 0:
             bondwire = "JEDEC_5Points"
@@ -529,12 +528,12 @@ class Primitives3D(Primitives, object):
         first_argument.append("WireType:="), first_argument.append(bondwire)
         first_argument.append("WireDiameter:="), first_argument.append(self._arg_with_dim(diameter))
         first_argument.append("NumSides:="), first_argument.append(str(facets))
-        first_argument.append("XPadPos:="), first_argument.append(XPosition)
-        first_argument.append("YPadPos:="), first_argument.append(YPosition)
-        first_argument.append("ZPadPos:="), first_argument.append(ZPosition)
-        first_argument.append("XDir:="), first_argument.append(XSize)
-        first_argument.append("YDir:="), first_argument.append(YSize)
-        first_argument.append("ZDir:="), first_argument.append(ZSize)
+        first_argument.append("XPadPos:="), first_argument.append(x_position)
+        first_argument.append("YPadPos:="), first_argument.append(y_position)
+        first_argument.append("ZPadPos:="), first_argument.append(z_position)
+        first_argument.append("XDir:="), first_argument.append(x_length)
+        first_argument.append("YDir:="), first_argument.append(y_length)
+        first_argument.append("ZDir:="), first_argument.append(z_length)
         first_argument.append("Distance:="), first_argument.append(
             self._arg_with_dim(GeometryOperators.points_distance(start_position, end_position))
         )
