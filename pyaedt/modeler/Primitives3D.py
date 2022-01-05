@@ -512,14 +512,14 @@ class Primitives3D(Primitives, object):
         XPosition, YPosition, ZPosition = self._pos_with_arg(start_position)
         if XPosition is None or YPosition is None or ZPosition is None:
             raise AttributeError("Position Argument must be a valid 3 Element List")
-        XSize, YSize, ZSize = self._pos_with_arg(end_position)
+        #XSize, YSize, ZSize = self._pos_with_arg(end_position)
+        XSize, YSize, ZSize = self._pos_with_arg([n-m for m, n in zip(start_position, end_position)])
         if XSize is None or YSize is None or YSize is None:
             raise AttributeError("Dimension Argument must be a valid 3 Element List")
         if bond_type == 0:
             bondwire = "JEDEC_5Points"
         elif bond_type == 1:
             bondwire = "JEDEC_4Points"
-
         elif bond_type == 2:
             bondwire = "LOW"
         else:
