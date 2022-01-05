@@ -454,8 +454,29 @@ class Ibis:
         self._buffers = value
 
 
-class IbisReader:
-    def __new__(cls, filename, circuit):
+class IbisReader(object):
+    """Reads *.ibis file content.
+    Setup an Ibis object exposing all the extracted data.
+
+    Parameters
+    ----------
+    filename : str
+        Name of ibis model.
+    circuit : class:`pyaedt.circuit.Circuit`
+        Circuit in which the ibis components will be used.
+    """
+
+    def __init__(self, filename, circuit):
+        self._filename = filename
+        self._circuit = circuit
+        self._ibis_model = None
+
+    @property
+    def ibis_model(self):
+        "Ibis model gathering the entire set of data extracted from the *.ibis file."
+        return self._ibis_model
+
+    def parse_ibis_file(self):
         """Reads *.ibis file content.
 
         Parameters
@@ -483,38 +504,38 @@ class IbisReader:
 
         """
 
-        if not os.path.exists(filename):
-            raise Exception("{} does not exist.".format(filename))
+        if not os.path.exists(self._filename):
+            raise Exception("{} does not exist.".format(self._filename))
 
-        ibis_name = pyaedt.generic.general_methods.get_filename_without_extension(filename)
-        ibis = Ibis(ibis_name, circuit)
+        ibis_name = pyaedt.generic.general_methods.get_filename_without_extension(self._filename)
+        ibis = Ibis(ibis_name, self._circuit)
 
         # Read *.ibis file.
-        with open(filename, "r") as ibis_file:
+        with open(self._filename, "r") as ibis_file:
             while True:
                 current_line = ibis_file.readline()
                 if not current_line:
                     break
 
                 if is_started_with(current_line, "[Component] "):
-                    cls.read_component(cls, ibis, current_line, ibis_file)
+                    self.read_component(ibis, current_line, ibis_file)
                 elif is_started_with(current_line, "[Model] "):
-                    cls.read_model(cls, ibis, current_line, ibis_file)
+                    self.read_model(ibis, current_line, ibis_file)
                 elif is_started_with(current_line, "[Model Selector] "):
-                    cls.read_model_selector(cls, ibis, current_line, ibis_file)
+                    self.read_model_selector(ibis, current_line, ibis_file)
 
         buffers = {}
         for model_selector in ibis.model_selectors:
-            buffer = Buffer(ibis_name, model_selector.name, circuit)
+            buffer = Buffer(ibis_name, model_selector.name, self._circuit)
             buffers[buffer.name] = buffer
 
         for model in ibis.models:
-            buffer = Buffer(ibis_name, model.name, circuit)
+            buffer = Buffer(ibis_name, model.name, self._circuit)
             buffers[buffer.name] = buffer
 
         ibis.buffers = buffers
 
-        if circuit:
+        if self._circuit:
             args = [
                 "NAME:Options",
                 "Mode:=",
@@ -542,9 +563,9 @@ class IbisReader:
             args.append(arg_buffers)
             args.append(arg_components)
 
-            circuit.modeler.schematic.o_component_manager.ImportModelsFromFile(filename, args)
+            self._circuit.modeler.schematic.o_component_manager.ImportModelsFromFile(self._filename, args)
 
-        return ibis
+        self._ibis_model = ibis
 
     # Model
     def read_model(self, ibis, current_line, ibis_file):
@@ -628,7 +649,7 @@ class IbisReader:
         ibis.model_selectors.append(model_selector)
 
     @classmethod
-    def make_model(self, current_line):
+    def make_model(cls, current_line):
         """Creates model object.
 
         Parameters
@@ -696,7 +717,7 @@ class IbisReader:
         current_line = ibis_file.readline()
 
         while not is_started_with(current_line, "|"):
-            pin = self.make_pin_object(self, current_line, component.name, ibis)
+            pin = self.make_pin_object(current_line, component.name, ibis)
             component.pins[pin.name] = pin
             current_line = ibis_file.readline()
             if current_line == "":
@@ -705,7 +726,7 @@ class IbisReader:
         ibis.components[component.name] = component
 
     @classmethod
-    def fill_package_info(self, component, current_line, ibis_file):
+    def fill_package_info(cls, component, current_line, ibis_file):
         """Extracts model's info.
 
         Parameters
@@ -731,7 +752,7 @@ class IbisReader:
             component.C_pkg = current_line.strip()
 
     @classmethod
-    def get_component_name(self, line):
+    def get_component_name(cls, line):
         """Gets the name of the component.
 
         Parameters

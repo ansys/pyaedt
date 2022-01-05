@@ -15,17 +15,11 @@ class TestClass:
         self.aedtapp.close_project(self.aedtapp.project_name, saveproject=False)
 
     def test_01_read_ibis(self):
-        if is_ironpython:
-            ibis = ibis_reader.IbisReader.__new__(
-                ibis_reader.IbisReader(),
-                os.path.join(local_path, "example_models", "u26a_800_modified.ibs"),
-                self.aedtapp,
-            )
-        else:
-            ibis = ibis_reader.IbisReader(
-                os.path.join(local_path, "example_models", "u26a_800_modified.ibs"), self.aedtapp
-            )
-
+        reader = ibis_reader.IbisReader(
+            os.path.join(local_path, "example_models", "u26a_800_modified.ibs"), self.aedtapp
+        )
+        reader.parse_ibis_file()
+        ibis = reader.ibis_model
         ibis_components = ibis.components
         assert len(ibis_components) == 6
         assert ibis_components["MT47H64M4BP-3_25"].name == "MT47H64M4BP-3_25"
