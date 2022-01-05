@@ -14,7 +14,7 @@ class Component:
     @property
     def name(self):
         """Name of the component.
-        
+
         Examples
         --------
         >>> ibis = ibis_reader.IbisReader(os.path.join(path_to_ibis_files, "u26a_800_modified.ibs"), circuit)

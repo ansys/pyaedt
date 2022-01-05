@@ -4,6 +4,8 @@ from pyaedt.generic import ibis_reader
 from pyaedt import Circuit
 from _unittest.conftest import local_path
 
+from pyaedt.generic.general_methods import is_ironpython
+
 
 class TestClass:
     def setup_class(self):
@@ -13,7 +15,14 @@ class TestClass:
         self.aedtapp.close_project(self.aedtapp.project_name, saveproject=False)
 
     def test_01_read_ibis(self):
-        ibis = ibis_reader.IbisReader(os.path.join(local_path, "example_models", "u26a_800_modified.ibs"), self.aedtapp)
+        if is_ironpython:
+            ibis = ibis_reader.IbisReader.__new__(
+                os.path.join(local_path, "example_models", "u26a_800_modified.ibs"), self.aedtapp
+            )
+        else:
+            ibis = ibis_reader.IbisReader(
+                os.path.join(local_path, "example_models", "u26a_800_modified.ibs"), self.aedtapp
+            )
 
         ibis_components = ibis.components
         assert len(ibis_components) == 6
@@ -29,7 +38,10 @@ class TestClass:
         assert ibis_models[16].name == "NF_IN_800"
 
         # Test pin caracteristics
-        assert ibis.components["MT47H64M4BP-3_25"].pins["A1_MT47H64M4BP-3_25_u26a_800_modified"].name == "A1_MT47H64M4BP-3_25_u26a_800_modified"
+        assert (
+            ibis.components["MT47H64M4BP-3_25"].pins["A1_MT47H64M4BP-3_25_u26a_800_modified"].name
+            == "A1_MT47H64M4BP-3_25_u26a_800_modified"
+        )
         assert ibis.components["MT47H64M4BP-3_25"].pins["A1_MT47H64M4BP-3_25_u26a_800_modified"].short_name == "A1"
         assert ibis.components["MT47H64M4BP-3_25"].pins["A1_MT47H64M4BP-3_25_u26a_800_modified"].signal == "VDD"
         assert ibis.components["MT47H64M4BP-3_25"].pins["A1_MT47H64M4BP-3_25_u26a_800_modified"].model == "POWER"
