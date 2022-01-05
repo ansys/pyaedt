@@ -458,7 +458,7 @@ class Primitives3D(Primitives, object):
             List of ``[x, y, z]`` coordinates for the ending position
             of the bond pad.
         h1 : float, optional
-            Height between the IC  die I/O pad and the top of the bondwire.
+            Height between the IC die I/O pad and the top of the bondwire.
             The default is ``0.2``.
         h2 : float, optional
             Height of the IC die I/O pad above the lead frame. The default
@@ -525,27 +525,27 @@ class Primitives3D(Primitives, object):
         else:
             self.logger.error("Wrong Profile Type")
             return False
-        vArg1 = ["NAME:BondwireParameters"]
-        vArg1.append("WireType:="), vArg1.append(bondwire)
-        vArg1.append("WireDiameter:="), vArg1.append(self._arg_with_dim(diameter))
-        vArg1.append("NumSides:="), vArg1.append(str(facets))
-        vArg1.append("XPadPos:="), vArg1.append(XPosition)
-        vArg1.append("YPadPos:="), vArg1.append(YPosition)
-        vArg1.append("ZPadPos:="), vArg1.append(ZPosition)
-        vArg1.append("XDir:="), vArg1.append(XSize)
-        vArg1.append("YDir:="), vArg1.append(YSize)
-        vArg1.append("ZDir:="), vArg1.append(ZSize)
-        vArg1.append("Distance:="), vArg1.append(
+        first_argument = ["NAME:BondwireParameters"]
+        first_argument.append("WireType:="), first_argument.append(bondwire)
+        first_argument.append("WireDiameter:="), first_argument.append(self._arg_with_dim(diameter))
+        first_argument.append("NumSides:="), first_argument.append(str(facets))
+        first_argument.append("XPadPos:="), first_argument.append(XPosition)
+        first_argument.append("YPadPos:="), first_argument.append(YPosition)
+        first_argument.append("ZPadPos:="), first_argument.append(ZPosition)
+        first_argument.append("XDir:="), first_argument.append(XSize)
+        first_argument.append("YDir:="), first_argument.append(YSize)
+        first_argument.append("ZDir:="), first_argument.append(ZSize)
+        first_argument.append("Distance:="), first_argument.append(
             self._arg_with_dim(GeometryOperators.points_distance(start_position, end_position))
         )
-        vArg1.append("h1:="), vArg1.append(self._arg_with_dim(h1))
-        vArg1.append("h2:="), vArg1.append(self._arg_with_dim(h2))
-        vArg1.append("alpha:="), vArg1.append(self._arg_with_dim(alpha, "deg"))
-        vArg1.append("beta:="), vArg1.append(self._arg_with_dim(beta, "deg"))
-        vArg1.append("WhichAxis:="), vArg1.append("Z")
-        vArg1.append("ReverseDirection:="), vArg1.append(False)
-        vArg2 = self._default_object_attributes(name=name, matname=matname)
-        new_object_name = self._oeditor.CreateBondwire(vArg1, vArg2)
+        first_argument.append("h1:="), first_argument.append(self._arg_with_dim(h1))
+        first_argument.append("h2:="), first_argument.append(self._arg_with_dim(h2))
+        first_argument.append("alpha:="), first_argument.append(self._arg_with_dim(alpha, "deg"))
+        first_argument.append("beta:="), first_argument.append(self._arg_with_dim(beta, "deg"))
+        first_argument.append("WhichAxis:="), first_argument.append("Z")
+        first_argument.append("ReverseDirection:="), first_argument.append(False)
+        second_argument = self._default_object_attributes(name=name, matname=matname)
+        new_object_name = self._oeditor.CreateBondwire(first_argument, second_argument)
         return self._create_object(new_object_name)
 
     @aedt_exception_handler
