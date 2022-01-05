@@ -805,7 +805,7 @@ class TestClass(BasisTest):
         )
         assert not b3
         b4 = self.aedtapp.modeler.primitives.create_bondwire(
-            (2,2,0), (0,0,0), h1=0.15, h2=0, diameter=0.034, bond_type=1, matname="copper", name="jedec41"
+            (2, 2, 0), (0, 0, 0), h1=0.15, h2=0, diameter=0.034, bond_type=1, matname="copper", name="jedec41"
         )
         assert b4
 
