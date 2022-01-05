@@ -2170,7 +2170,7 @@ class Icepak(FieldAnalysisIcepak):
                 "EnforeMLMType:=",
                 MLM_Type,
                 "MaxLevels:=",
-                "0",
+                "5",
                 "BufferLayers:=",
                 "0",
                 "UniformMeshParametersType:=",
