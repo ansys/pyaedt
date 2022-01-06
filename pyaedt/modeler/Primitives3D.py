@@ -458,7 +458,7 @@ class Primitives3D(Primitives, object):
             List of ``[x, y, z]`` coordinates for the ending position
             of the bond pad.
         h1 : float, optional
-            Height between the IC  die I/O pad and the top of the bondwire.
+            Height between the IC die I/O pad and the top of the bondwire.
             The default is ``0.2``.
         h2 : float, optional
             Height of the IC die I/O pad above the lead frame. The default
@@ -509,43 +509,42 @@ class Primitives3D(Primitives, object):
         >>> object_id = hfss.modeler.primivites.create_bondwire(origin, endpos,h1=0.5, h2=0.1, alpha=75, beta=4,
         ...                                                     bond_type=0, name="mybox", matname="copper")
         """
-        XPosition, YPosition, ZPosition = self._pos_with_arg(start_position)
-        if XPosition is None or YPosition is None or ZPosition is None:
+        x_position, y_position, z_position = self._pos_with_arg(start_position)
+        if x_position is None or y_position is None or z_position is None:
             raise AttributeError("Position Argument must be a valid 3 Element List")
-        XSize, YSize, ZSize = self._pos_with_arg(end_position)
-        if XSize is None or YSize is None or YSize is None:
+        x_length, y_length, z_length = self._pos_with_arg([n - m for m, n in zip(start_position, end_position)])
+        if x_length is None or y_length is None or z_length is None:
             raise AttributeError("Dimension Argument must be a valid 3 Element List")
         if bond_type == 0:
             bondwire = "JEDEC_5Points"
         elif bond_type == 1:
             bondwire = "JEDEC_4Points"
-
         elif bond_type == 2:
             bondwire = "LOW"
         else:
             self.logger.error("Wrong Profile Type")
             return False
-        vArg1 = ["NAME:BondwireParameters"]
-        vArg1.append("WireType:="), vArg1.append(bondwire)
-        vArg1.append("WireDiameter:="), vArg1.append(self._arg_with_dim(diameter))
-        vArg1.append("NumSides:="), vArg1.append(str(facets))
-        vArg1.append("XPadPos:="), vArg1.append(XPosition)
-        vArg1.append("YPadPos:="), vArg1.append(YPosition)
-        vArg1.append("ZPadPos:="), vArg1.append(ZPosition)
-        vArg1.append("XDir:="), vArg1.append(XSize)
-        vArg1.append("YDir:="), vArg1.append(YSize)
-        vArg1.append("ZDir:="), vArg1.append(ZSize)
-        vArg1.append("Distance:="), vArg1.append(
+        first_argument = ["NAME:BondwireParameters"]
+        first_argument.append("WireType:="), first_argument.append(bondwire)
+        first_argument.append("WireDiameter:="), first_argument.append(self._arg_with_dim(diameter))
+        first_argument.append("NumSides:="), first_argument.append(str(facets))
+        first_argument.append("XPadPos:="), first_argument.append(x_position)
+        first_argument.append("YPadPos:="), first_argument.append(y_position)
+        first_argument.append("ZPadPos:="), first_argument.append(z_position)
+        first_argument.append("XDir:="), first_argument.append(x_length)
+        first_argument.append("YDir:="), first_argument.append(y_length)
+        first_argument.append("ZDir:="), first_argument.append(z_length)
+        first_argument.append("Distance:="), first_argument.append(
             self._arg_with_dim(GeometryOperators.points_distance(start_position, end_position))
         )
-        vArg1.append("h1:="), vArg1.append(self._arg_with_dim(h1))
-        vArg1.append("h2:="), vArg1.append(self._arg_with_dim(h2))
-        vArg1.append("alpha:="), vArg1.append(self._arg_with_dim(alpha, "deg"))
-        vArg1.append("beta:="), vArg1.append(self._arg_with_dim(beta, "deg"))
-        vArg1.append("WhichAxis:="), vArg1.append("Z")
-        vArg1.append("ReverseDirection:="), vArg1.append(False)
-        vArg2 = self._default_object_attributes(name=name, matname=matname)
-        new_object_name = self._oeditor.CreateBondwire(vArg1, vArg2)
+        first_argument.append("h1:="), first_argument.append(self._arg_with_dim(h1))
+        first_argument.append("h2:="), first_argument.append(self._arg_with_dim(h2))
+        first_argument.append("alpha:="), first_argument.append(self._arg_with_dim(alpha, "deg"))
+        first_argument.append("beta:="), first_argument.append(self._arg_with_dim(beta, "deg"))
+        first_argument.append("WhichAxis:="), first_argument.append("Z")
+        first_argument.append("ReverseDirection:="), first_argument.append(False)
+        second_argument = self._default_object_attributes(name=name, matname=matname)
+        new_object_name = self._oeditor.CreateBondwire(first_argument, second_argument)
         return self._create_object(new_object_name)
 
     @aedt_exception_handler

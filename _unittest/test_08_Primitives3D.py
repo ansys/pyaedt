@@ -788,22 +788,26 @@ class TestClass(BasisTest):
     @pyaedt_unittest_check_desktop_error
     def test_54_create_bond_wires(self):
         self.cache.ignore_error_message_local("Wrong Profile Type")
-        b1 = self.aedtapp.modeler.primitives.create_bondwire(
+        b0 = self.aedtapp.modeler.primitives.create_bondwire(
             [0, 0, 0], [10, 10, 2], h1=0.15, h2=0, diameter=0.034, facets=8, matname="copper", name="jedec51"
+        )
+        assert b0
+        b1 = self.aedtapp.modeler.primitives.create_bondwire(
+            [0, 0, 0], [10, 10, 2], h1=0.15, h2=0, diameter=0.034, bond_type=1, matname="copper", name="jedec41"
         )
         assert b1
         b2 = self.aedtapp.modeler.primitives.create_bondwire(
-            [0, 0, 0], [10, 10, 2], h1=0.15, h2=0, diameter=0.034, bond_type=1, matname="copper", name="jedec41"
+            [0, 0, 0], [10, 10, 2], h1=0.15, h2=0, diameter=0.034, bond_type=2, matname="copper", name="low"
         )
         assert b2
-        b2 = self.aedtapp.modeler.primitives.create_bondwire(
-            [0, 0, 0], [10, 10, 2], h1=0.15, h2=0, diameter=0.034, bond_type=2, matname="copper", name="jedec41"
-        )
-        assert b2
-        b2 = self.aedtapp.modeler.primitives.create_bondwire(
+        b3 = self.aedtapp.modeler.primitives.create_bondwire(
             [0, 0, 0], [10, 10, 2], h1=0.15, h2=0, diameter=0.034, bond_type=3, matname="copper", name="jedec41"
         )
-        assert not b2
+        assert not b3
+        b4 = self.aedtapp.modeler.primitives.create_bondwire(
+            (2, 2, 0), (0, 0, 0), h1=0.15, h2=0, diameter=0.034, bond_type=1, matname="copper", name="jedec41"
+        )
+        assert b4
 
     @pyaedt_unittest_check_desktop_error
     def test_56_create_group(self):
