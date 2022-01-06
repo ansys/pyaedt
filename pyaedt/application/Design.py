@@ -595,6 +595,7 @@ class Design(object):
 
     @property
     def odesktop(self):
+        """Desktop instance containing all projects and designs."""
         return self._desktop
 
     @property
