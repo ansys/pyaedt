@@ -580,14 +580,12 @@ class Design(object):
                 solution_type in design_solutions[design_type]
             ), "Invalid solution type {0} exists for design type {1}.".format(solution_type, design_type)
         self._solution_type = solution_type
-        self._odesign = None
         self._oproject = None
+        self._odesign = None
         self._design_type = design_type
         self.oproject = project_name
         self.odesign = design_name
         self._oimport_export = self._desktop.GetTool("ImportExport")
-        self._odefinition_manager = self._oproject.GetDefinitionManager()
-        self._omaterial_manager = self.odefinition_manager.GetManager("Material")
         self.odesktop = self._desktop
         self._variable_manager = VariableManager(self)
         self.solution_type = self._solution_type
@@ -612,7 +610,7 @@ class Design(object):
         ----------
 
         >>> oDefinitionManager = oProject.GetDefinitionManager()"""
-        return self._odefinition_manager
+        return self.oproject.GetDefinitionManager()
 
     @property
     def omaterial_manager(self):
@@ -622,7 +620,7 @@ class Design(object):
         ----------
 
         >>> oMaterialManager = oDefinitionManager.GetManager("Material")"""
-        return self._omaterial_manager
+        return self.odefinition_manager.GetManager("Material")
 
     @aedt_exception_handler
     def __delitem__(self, key):
