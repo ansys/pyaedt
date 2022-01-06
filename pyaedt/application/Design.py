@@ -573,7 +573,7 @@ class Design(object):
         self._desktop = main_module.oDesktop
         self._desktop_install_dir = main_module.sDesktopinstallDirectory
         self._messenger = self._logger._messenger
-        self._aedt_version = self.odesktop.GetVersion()[0:6]
+        self._aedt_version = self._desktop.GetVersion()[0:6]
 
         if solution_type:
             assert (
@@ -1214,7 +1214,7 @@ class Design(object):
             AEDT installation directory.
 
         """
-        return self.odesktop_install_dir
+        return self._desktop_install_dir
 
     @aedt_exception_handler
     def export_profile(self, setup_name, variation_string="", file_path=None):
