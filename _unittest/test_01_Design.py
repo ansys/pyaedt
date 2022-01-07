@@ -14,6 +14,8 @@ try:
 except ImportError:
     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
+from pyaedt.generic.general_methods import is_ironpython
+
 test_project_name = "Coax_HFSS"
 example_project = os.path.join(local_path, "example_models", test_project_name + ".aedt")
 
@@ -236,5 +238,7 @@ class TestClass:
         assert self.aedtapp.omaterial_manager
 
     def test_27_odesktop(self):
-        print(type(self.aedtapp.odesktop))
-        assert str(type(self.aedtapp.odesktop)) == "<class 'win32com.client.CDispatch'>"
+        if is_ironpython:
+            assert str(type(self.aedtapp.odesktop)) == "<type 'ADesktopWrapper'>"
+        else:
+            assert str(type(self.aedtapp.odesktop)) == "<class 'win32com.client.CDispatch'>"
