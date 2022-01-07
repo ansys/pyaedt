@@ -593,7 +593,18 @@ class Design(object):
 
     @property
     def odesktop(self):
-        """Desktop instance containing all projects and designs."""
+        """Desktop instance containing all projects and designs.
+        
+        
+        Examples
+        --------
+        Get the COM object representing the desktop.
+
+        >>> from pyaedt import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.odesktop
+        <class 'win32com.client.CDispatch'>
+        """
         return self._desktop
 
     @property
