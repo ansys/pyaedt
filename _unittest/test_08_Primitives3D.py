@@ -357,6 +357,7 @@ class TestClass(BasisTest):
     @pyaedt_unittest_check_desktop_error
     def test_23_create_rectangle(self):
         udp = self.aedtapp.modeler.Position(5, 3, 8)
+        udp = self.aedtapp.modeler.Position(5, 3, 8)
         plane = self.aedtapp.PLANE.XY
         o = self.aedtapp.modeler.primitives.create_rectangle(plane, udp, [4, 5], name="MyRectangle", matname="Copper")
         assert o.id > 0
@@ -857,6 +858,7 @@ class TestClass(BasisTest):
         assert eq_xsection.name in self.aedtapp.modeler.primitives.solid_names
 
     def test_65_create_3dcomponent(self):
+        self.aedtapp.solution_type = "Modal"
         self.aedtapp["l_dipole"] = "13.5cm"
 
         compfile = self.aedtapp.components3d["Dipole_Antenna_DM"]

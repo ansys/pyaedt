@@ -1007,6 +1007,123 @@ HFSS3DLayout = [
 ]
 """HFSS 3D Layout setup properties and default values."""
 
+HFSS3DLayout_SweepDataList = []
+HFSS3DLayout_SIWAdvancedSettings = [("IncludeCoPlaneCoupling", True),
+                                    ("IncludeInterPlaneCoupling:=", False),
+                                    ("IncludeSplitPlaneCoupling:=", True),
+                                    ("IncludeFringeCoupling", True),
+                                    ("IncludeTraceCoupling", True),
+                                    ("XtalkThreshold", "-34"),
+                                    ("MaxCoupledLines", 12),
+                                    ("MinVoidArea", "2mm2"),
+                                    ("MinPadAreaToMesh", "1mm2"),
+                                    ("MinPlaneAreaToMesh", "6.25e-6mm2"),
+                                    ("SnapLengthThreshold", "2.5um"),
+                                    ("MeshAutoMatic", True),
+                                    ("MeshFrequency", "4GHz"),
+                                    ("ReturnCurrentDistribution", False),
+                                    ("IncludeVISources", False),
+                                    ("IncludeInfGnd", False),
+                                    ("InfGndLocation", "0mm"),
+                                    ("PerformERC", False),
+                                    ("IgnoreNonFunctionalPads", True)]
+HFSS3DLayout_SIWDCSettings = [("UseDCCustomSettings", False),
+                              ("PlotJV", True),
+                              ("ComputeInductance", False),
+                              ("ContactRadius", "0.1mm"),
+                              ("DCSliderPos", 1)]
+HFSS3DLayout_SIWDCAdvancedSettings = [("DcMinPlaneAreaToMesh", "0.25mm2"),
+                                      ("DcMinVoidAreaToMesh", "0.01mm2"),
+                                      ("MaxInitMeshEdgeLength", "2.5mm"),
+                                      ("PerformAdaptiveRefinement", True),
+                                      ("MaxNumPasses", 5),
+                                      ("MinNumPasses", 1),
+                                      ("PercentLocalRefinement", 20),
+                                      ("EnergyError", 2),
+                                      ("MeshBws", True),
+                                      ("RefineBws", False),
+                                      ("MeshVias", True),
+                                      ("RefineVias", False),
+                                      ("NumBwSides", 8),
+                                      ("NumViaSides", 8)
+                                      ]
+HFSS3DLayout_SIWDCIRSettings = [("IcepakTempFile", "D:/Program Files/AnsysEM/AnsysEM21.2/Win64/"),
+                                ("SourceTermsToGround", []),
+                                ("ExportDCThermalData", False),
+                                ("ImportThermalData", False),
+                                ("FullDCReportPath", ""),
+                                ("ViaReportPath", ""),
+                                ("PerPinResPath", ""),
+                                ("DCReportConfigFile", ""),
+                                ("DCReportShowActiveDevices", False),
+                                ("PerPinUsePinFormat", False),
+                                ("UseLoopResForPerPin", False)
+                                ]
+
+HFSS3DLayout_SimulationSettings = [("Enabled", True), ("UseSISettings", True),
+                                   ("UseCustomSettings", False),
+                                   ("SISliderPos", 1),
+                                   ("PISliderPos", 1),
+                                   ("SIWAdvancedSettings", HFSS3DLayout_SIWAdvancedSettings),
+                                   ("SIWDCSettings", HFSS3DLayout_SIWDCSettings),
+                                   ("SIWDCAdvancedSettings", HFSS3DLayout_SIWDCAdvancedSettings),
+                                   ("SIWDCIRSettings", HFSS3DLayout_SIWDCIRSettings),
+                                   ]
+
+HFSS3DLayout_ACSimulationSettings = [("Enabled", True), ("UseSISettings", True),
+                                   ("UseCustomSettings", False),
+                                   ("SISliderPos", 1),
+                                   ("PISliderPos", 1),
+                                   ("SIWAdvancedSettings", HFSS3DLayout_SIWAdvancedSettings),
+                                   ("SIWDCSettings", HFSS3DLayout_SIWDCSettings),
+                                   ("SIWDCAdvancedSettings", HFSS3DLayout_SIWDCAdvancedSettings),
+                                   ]
+SiwaveDC3DLayout = [
+    ("Properties", HFSS3DLayout_Properties),
+    ("CustomSetup", False),
+    ("SolveSetupType", "SIwave"),
+    ("Color", ["R:=", 0,"G:=", 0,"B:=", 0]),
+    ("Position", 0),
+    ("SimSetupType", "kSIwave"),
+    ("SimulationSettings", HFSS3DLayout_SimulationSettings),
+    ("SweepDataList", HFSS3DLayout_SweepDataList),
+]
+
+SiwaveAC3DLayout = [
+    ("Properties", HFSS3DLayout_Properties),
+    ("CustomSetup", False),
+    ("SolveSetupType", "SIwaveDCIR"),
+    ("Position", 0),
+    ("SimSetupType", "kSIwaveDCIR"),
+    ("SimulationSettings", HFSS3DLayout_ACSimulationSettings),
+    ("SweepDataList", HFSS3DLayout_SweepDataList),
+]
+
+HFSS3DLayout_LNASimulationSettings = [("Enabled", True),
+                                      ("GroupDelay", False),
+                                      ("Perturbation", 0.1),
+                                      ("Noise", False),
+                                      ("Skip_DC", False),
+                                      ("AdditionalOptions", ""),
+                                      ("BaseOptionName", "(Default Options)"),
+                                      ("FilterText", "")
+                                      ]
+LNA_Sweep = [("DataId", "Sweep0"),
+             ("Properties", HFSS3DLayout_Properties),
+             ("Sweep", SweepDefinition),
+             ("SolutionID", -1)
+             ]
+HFSS3DLayout_LNAData = [("LNA Sweep 1", LNA_Sweep)]
+LNA3DLayout = [
+    ("Properties", HFSS3DLayout_Properties),
+    ("CustomSetup", False),
+    ("SolveSetupType", "LNA"),
+    ("Position", 0),
+    ("SimSetupType", "kLNA"),
+    ("SimulationSettings", HFSS3DLayout_LNASimulationSettings),
+    ("SweepDataList", HFSS3DLayout_SweepDataList),
+    ("Data", HFSS3DLayout_LNAData),
+]
 MechTerm = [
     ("Enabled", True),
     ("MeshLink", meshlink),
@@ -1642,6 +1759,9 @@ class SetupKeys(object):
         37: TransientTemperatureOnly,
         38: TransientFlowOnly,
         39: MechStructural,
+        40: SiwaveDC3DLayout,
+        41: SiwaveAC3DLayout,
+        42: LNA3DLayout,
     }
 
     SetupNames = [
@@ -1685,4 +1805,8 @@ class SetupKeys(object):
         "IcepakTransient",
         "IcepakTransient",
         "MechStructural",
+        "SiwaveDC3DLayout",
+        "SiwaveAC3DLayout",
+        "LNA3DLayout",
+
     ]

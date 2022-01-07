@@ -104,6 +104,17 @@ solutions_types = {
                          'default_setup': 1,
                          'default_adaptive': 'LastAdaptive'
                          },
+            'DrivenModal': {'name': 'DrivenModal',
+                            'options': None,
+                            'report_type': 'Modal Solution Data',
+                            'default_setup': 1,
+                            'default_adaptive': 'LastAdaptive'},
+            'DrivenTerminal': {'name': 'DrivenTerminal',
+                               'options': None,
+                               'report_type': 'Terminal Solution Data',
+                               'default_setup': 1,
+                               'default_adaptive': 'LastAdaptive'
+                               },
             'Transient': {'name': 'Transient Network',
                           'options': None,
                           'report_type': 'Terminal Solution Data',
@@ -217,7 +228,13 @@ solutions_types = {
     'HFSS 3D Layout Design':
         {
             'HFSS3DLayout': {'name': None, 'options': None, 'report_type': None, 'default_setup': 29,
-                                      'default_adaptive': None}
+                             'default_adaptive': None},
+            'SiwaveDC3DLayout': {'name': None, 'options': None, 'report_type': None, 'default_setup': 40,
+                                 'default_adaptive': None},
+            'SiwaveAC3DLayout': {'name': None, 'options': None, 'report_type': None, 'default_setup': 41,
+                                 'default_adaptive': None},
+            'LNA3DLayout': {'name': None, 'options': None, 'report_type': None, 'default_setup': 42,
+                            'default_adaptive': None},
         },
     'Mechanical':
         {

@@ -1106,7 +1106,7 @@ class Setup3DLayout(object):
         elif isinstance(solutiontype, int):
             self._solutiontype = solutiontype
         else:
-            self.setuptype = self._app.design_solutions._solution_options[solutiontype]["default_setup"]
+            self._solutiontype = self._app.design_solutions._solution_options[solutiontype]["default_setup"]
         self.name = setupname
         self.props = OrderedDict()
         self.sweeps = []

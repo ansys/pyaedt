@@ -550,6 +550,8 @@ class TestClass:
 
     def test_42_floquet_port(self):
         self.aedtapp.insert_design("floquet")
+        self.aedtapp.solution_type = "Modal"
+
         box1 = self.aedtapp.modeler.primitives.create_box([-100, -100, -100], [200, 200, 200], name="Rad_box2")
         assert self.aedtapp.create_floquet_port(
             box1.faces[0], deembed_dist=1, nummodes=7, reporter_filter=[False, True, False, False, False, False, False]
