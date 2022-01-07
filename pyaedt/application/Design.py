@@ -609,7 +609,8 @@ class Design(object):
         References
         ----------
 
-        >>> oDefinitionManager = oProject.GetDefinitionManager()"""
+        >>> oDefinitionManager = oProject.GetDefinitionManager()
+        """
         return self.oproject.GetDefinitionManager()
 
     @property
@@ -619,7 +620,8 @@ class Design(object):
         References
         ----------
 
-        >>> oMaterialManager = oDefinitionManager.GetManager("Material")"""
+        >>> oMaterialManager = oDefinitionManager.GetManager("Material")
+        """
         return self.odefinition_manager.GetManager("Material")
 
     @aedt_exception_handler
