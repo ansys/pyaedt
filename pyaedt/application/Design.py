@@ -586,11 +586,25 @@ class Design(object):
         self.oproject = project_name
         self.odesign = design_name
         self._oimport_export = self._desktop.GetTool("ImportExport")
-        self.odesktop = self._desktop
         self._variable_manager = VariableManager(self)
         self.solution_type = self._solution_type
         self.project_datasets = self._get_project_datasets()
         self.design_datasets = self._get_design_datasets()
+
+    @property
+    def odesktop(self):
+        """Desktop instance containing all projects and designs.
+
+        Examples
+        --------
+        Get the COM object representing the desktop.
+
+        >>> from pyaedt import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.odesktop
+        <class 'win32com.client.CDispatch'>
+        """
+        return self._desktop
 
     @property
     def oimport_export(self):
@@ -839,7 +853,7 @@ class Design(object):
 
         >>> oDesktop.GetProjectList
         """
-        return list(self._desktop.GetProjectList())
+        return list(self.odesktop.GetProjectList())
 
     @property
     def project_path(self):
@@ -961,7 +975,7 @@ class Design(object):
 
         >>> oDesktop.GetPersonalLibDirectory
         """
-        return os.path.normpath(self._desktop.GetPersonalLibDirectory())
+        return os.path.normpath(self.odesktop.GetPersonalLibDirectory())
 
     @property
     def userlib(self):
@@ -977,7 +991,7 @@ class Design(object):
 
         >>> oDesktop.GetUserLibDirectory
         """
-        return os.path.normpath(self._desktop.GetUserLibDirectory())
+        return os.path.normpath(self.odesktop.GetUserLibDirectory())
 
     @property
     def syslib(self):
@@ -993,7 +1007,7 @@ class Design(object):
 
         >>> oDesktop.GetLibraryDirectory
         """
-        return os.path.normpath(self._desktop.GetLibraryDirectory())
+        return os.path.normpath(self.odesktop.GetLibraryDirectory())
 
     @property
     def src_dir(self):
@@ -1041,7 +1055,7 @@ class Design(object):
             Full absolute path for the ``temp`` directory.
 
         """
-        return os.path.normpath(self._desktop.GetTempDirectory())
+        return os.path.normpath(self.odesktop.GetTempDirectory())
 
     @property
     def toolkit_directory(self):
@@ -1159,46 +1173,46 @@ class Design(object):
     @aedt_exception_handler
     def oproject(self, proj_name=None):
         if not proj_name:
-            self._oproject = self._desktop.GetActiveProject()
+            self._oproject = self.odesktop.GetActiveProject()
             if self._oproject:
                 self.logger.info(
                     "No project is defined. Project {} exists and has been read.".format(self._oproject.GetName())
                 )
         else:
-            if proj_name in self._desktop.GetProjectList():
-                self._oproject = self._desktop.SetActiveProject(proj_name)
+            if proj_name in self.odesktop.GetProjectList():
+                self._oproject = self.odesktop.SetActiveProject(proj_name)
             elif os.path.exists(proj_name):
                 if ".aedtz" in proj_name:
                     name = self._generate_unique_project_name()
 
                     path = os.path.dirname(proj_name)
-                    self._desktop.RestoreProjectArchive(proj_name, os.path.join(path, name), True, True)
+                    self.odesktop.RestoreProjectArchive(proj_name, os.path.join(path, name), True, True)
                     time.sleep(0.5)
-                    proj = self._desktop.GetActiveProject()
+                    proj = self.odesktop.GetActiveProject()
                     self.logger.info("Archive {} has been restored to project {}".format(proj_name, proj.GetName()))
                 elif ".def" in proj_name:
-                    oTool = self._desktop.GetTool("ImportExport")
+                    oTool = self.odesktop.GetTool("ImportExport")
                     oTool.ImportEDB(proj_name)
-                    proj = self._desktop.GetActiveProject()
+                    proj = self.odesktop.GetActiveProject()
                     proj.Save()
                     self.logger.info("EDB folder %s has been imported to project %s", proj_name, proj.GetName())
                 else:
                     assert not os.path.exists(
                         proj_name + ".lock"
                     ), "Project is locked. Close or remove the lock before proceeding."
-                    proj = self._desktop.OpenProject(proj_name)
+                    proj = self.odesktop.OpenProject(proj_name)
                     self.logger.info("Project %s has been opened.", proj.GetName())
                     time.sleep(0.5)
                 self._oproject = proj
             else:
-                self._oproject = self._desktop.NewProject()
+                self._oproject = self.odesktop.NewProject()
                 if ".aedt" in proj_name:
                     self._oproject.Rename(proj_name, True)
                 else:
                     self._oproject.Rename(os.path.join(self.project_path, proj_name + ".aedt"), True)
                 self.logger.info("Project %s has been created.", self._oproject.GetName())
         if not self._oproject:
-            self._oproject = self._desktop.NewProject()
+            self._oproject = self.odesktop.NewProject()
             self.logger.info("Project %s has been created.", self._oproject.GetName())
 
     @property
@@ -2556,7 +2570,7 @@ class Design(object):
         >>> oDesktop.NewProject
         """
         self.logger.info("Creating new Project ")
-        prj = self._desktop.NewProject(proj_name)
+        prj = self.odesktop.NewProject(proj_name)
         prj_name = prj.GetName()
         self.oproject = prj_name
         self.odesign = None
@@ -2869,7 +2883,7 @@ class Design(object):
         active_design = self.design_name
         # open the origin project
         if os.path.exists(project_fullname):
-            proj_from = self._desktop.OpenProject(project_fullname)
+            proj_from = self.odesktop.OpenProject(project_fullname)
             proj_from_name = proj_from.GetName()
         else:
             return None
@@ -2884,7 +2898,7 @@ class Design(object):
         if self._oproject.GetActiveDesign().GetDesignType() == "HFSS 3D Layout Design":
             new_designname = new_designname[2:]  # name is returned as '2;EMDesign3'
         # close the source project
-        self._desktop.CloseProject(proj_from_name)
+        self.odesktop.CloseProject(proj_from_name)
         # reset the active design (very important)
         self.save_project()
         self._close_edb()
@@ -3123,7 +3137,7 @@ class Design(object):
         >>> oDesktop.DeleteProject
         """
         assert self.project_name != project_name, "You cannot delete the active project."
-        self._desktop.DeleteProject(project_name)
+        self.odesktop.DeleteProject(project_name)
         return True
 
     @aedt_exception_handler
