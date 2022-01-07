@@ -393,10 +393,11 @@ class Design(object):
             self.design_solutions = RmXprtDesignSolution(None, design_type, self._aedt_version)
         else:
             self.design_solutions = DesignSolution(None, design_type, self._aedt_version)
+        self.design_solutions._solution_type = solution_type
         self.oproject = project_name
         self.odesign = design_name
-        self.design_solutions._odesign = self.odesign
         self.design_solutions.solution_type = solution_type
+        self.design_solutions._odesign = self.odesign
         self._oimport_export = self._desktop.GetTool("ImportExport")
         self._odefinition_manager = self._oproject.GetDefinitionManager()
         self._omaterial_manager = self.odefinition_manager.GetManager("Material")
@@ -3106,7 +3107,7 @@ class Design(object):
         """Check solution consistency."""
         if self.design_type in ["Circuit Design", "Twin Builder", "HFSS 3D Layout Design", "EMIT", "Q3D Extractor"]:
             return True
-        if self.design_solutions:
+        if self.design_solutions and self.design_solutions._solution_type:
             return self.design_solutions._solution_type in self._odesign.GetSolutionType()
         else:
             return True
