@@ -1,5 +1,4 @@
 import copy
-import warnings
 
 from pyaedt.generic.general_methods import aedt_exception_handler
 

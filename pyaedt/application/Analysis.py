@@ -35,7 +35,6 @@ from pyaedt.modules.DesignXPloration import (
     StatisticalSetups,
 )
 from pyaedt.modules.MaterialLib import Materials
-from pyaedt.modules.SetupTemplates import SetupKeys
 from pyaedt.modules.SolveSetup import Setup
 from pyaedt.application.Design import Design
 from pyaedt.application.JobManager import update_hpc_option
