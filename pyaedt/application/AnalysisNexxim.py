@@ -61,7 +61,6 @@ class FieldAnalysisCircuit(Analysis):
         """
         return self._post
 
-
     @property
     def existing_analysis_setups(self):
         """Analysis setups.

@@ -2482,9 +2482,7 @@ class Hfss(FieldAnalysis3D, object):
         ):
             self.logger.error("One or both objects do not exist. Check and retry.")
             return False
-        if self.solution_type in ["Modal", "Terminal", "Transient Network"] and (
-            Rvalue or Lvalue or Cvalue
-        ):
+        if self.solution_type in ["Modal", "Terminal", "Transient Network"] and (Rvalue or Lvalue or Cvalue):
             sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(
                 startobj, endobject, axisdir, bound_on_plane
             )
@@ -3107,9 +3105,7 @@ class Hfss(FieldAnalysis3D, object):
 
         """
 
-        if self.solution_type in ["Modal", "Terminal", "Transient Network", "SBR+"] and (
-            Rvalue or Lvalue or Cvalue
-        ):
+        if self.solution_type in ["Modal", "Terminal", "Transient Network", "SBR+"] and (Rvalue or Lvalue or Cvalue):
             point0, point1 = self.modeler.primitives.get_mid_points_on_dir(sheet_name, axisdir)
 
             if not sourcename:

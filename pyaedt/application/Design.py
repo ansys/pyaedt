@@ -19,12 +19,13 @@ import logging
 import gc
 import warnings
 from collections import OrderedDict
-from pyaedt.application.DesignSolutions import (DesignSolution,
-                                                IcepakDesignSolution,
-                                                Maxwell2DDesignSolution,
-                                                HFSSDesignSolution,
-                                                RmXprtDesignSolution
-                                                )
+from pyaedt.application.DesignSolutions import (
+    DesignSolution,
+    IcepakDesignSolution,
+    Maxwell2DDesignSolution,
+    HFSSDesignSolution,
+    RmXprtDesignSolution,
+)
 from pyaedt.application.Variables import VariableManager, DataSet
 from pyaedt.generic.constants import AEDT_UNITS, unit_system
 from pyaedt.desktop import Desktop
@@ -722,12 +723,10 @@ class Design(object):
         """
         return self.design_solutions.solution_type
 
-
     @solution_type.setter
     @aedt_exception_handler
     def solution_type(self, soltype):
         self.design_solutions.solution_type = soltype
-
 
     @property
     def valid_design(self):
@@ -2531,7 +2530,9 @@ class Design(object):
             self.__init__(projectname=generate_unique_name("Project"), designname=design_name)
 
     def _insert_design(self, design_type, design_name=None, solution_type=None):
-        assert design_type in self.design_solutions.design_types, "Invalid design type for insert: {}".format(design_type)
+        assert design_type in self.design_solutions.design_types, "Invalid design type for insert: {}".format(
+            design_type
+        )
         # self.save_project() ## Commented because it saves a Projectxxx.aedt when launched on an empty Desktop
         unique_design_name = self._generate_unique_design_name(design_name)
 
@@ -2539,10 +2540,10 @@ class Design(object):
             new_design = self._oproject.InsertDesign("RMxprt", unique_design_name, "Inner-Rotor Induction Machine", "")
         elif design_type == "ModelCreation":
             new_design = self._oproject.InsertDesign(
-                "RMxprt", unique_design_name, "Model Creation Inner-Rotor Induction Machine", "")
+                "RMxprt", unique_design_name, "Model Creation Inner-Rotor Induction Machine", ""
+            )
         else:
-            new_design = self._oproject.InsertDesign(design_type, unique_design_name,
-                                                     self.default_solution_type, "")
+            new_design = self._oproject.InsertDesign(design_type, unique_design_name, self.default_solution_type, "")
         logging.getLogger().info("Added design '%s' of type %s.", unique_design_name, design_type)
         name = new_design.GetName()
         if ";" in name:

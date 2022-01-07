@@ -1282,7 +1282,7 @@ class PostProcessorCommon(object):
             expression = [expression]
         if not setup_sweep_name:
             setup_sweep_name = self._app.nominal_sweep
-        if not report_category and  not self._app.design_solutions.report_type:
+        if not report_category and not self._app.design_solutions.report_type:
             self.logger.info("Solution not supported")
             return False
         if not report_category:

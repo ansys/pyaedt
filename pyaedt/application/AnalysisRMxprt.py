@@ -18,7 +18,6 @@ class FieldAnalysisRMxprt(Analysis):
 
     """
 
-
     def __init__(
         self,
         application,
