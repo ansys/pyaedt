@@ -566,8 +566,7 @@ class Maxwell2DDesignSolution(DesignSolution, object):
             self._solution_type = soltype[:-2]
             self._solution_options[self._solution_type]["options"] = "XY"
             self._geometry_mode = "XY"
-        if self._solution_type in self._solution_options and self._solution_options[soltype]["name"]:
-            self._solution_type = soltype
+        if self._solution_type in self._solution_options and self._solution_options[self._solution_type]["name"]:
             try:
                 opts = (
                     ""
@@ -622,19 +621,30 @@ class IcepakDesignSolution(DesignSolution, object):
     @solution_type.setter
     @aedt_exception_handler
     def solution_type(self, soltype):
-        if soltype in self._solution_options and self._solution_options[soltype]["name"]:
-            self._solution_type = soltype
-            options = [
-                "NAME:SolutionTypeOption",
-                "SolutionTypeOption:=",
-                soltype,
-                "ProblemOption:=",
-                self._problem_type,
-            ]
-            try:
-                self._odesign.SetSolutionType(options)
-            except:
-                pass
+        if soltype:
+            if "SteadyState" in soltype:
+                self._solution_type = "SteadyState"
+            else:
+                self._solution_type = "Transient"
+            if "TemperatureAndFlow" in soltype:
+                self._problem_type = "TemperatureAndFlow"
+            elif "TemperatureOnly" in soltype:
+                self._solution_type = "TemperatureOnly"
+            else:
+                self._solution_type = "FlowOnly"
+            if self._solution_options[soltype]["name"]:
+                self._solution_type = soltype
+                options = [
+                    "NAME:SolutionTypeOption",
+                    "SolutionTypeOption:=",
+                    self._solution_type,
+                    "ProblemOption:=",
+                    self._problem_type,
+                ]
+                try:
+                    self._odesign.SetSolutionType(options)
+                except:
+                    pass
 
 
 class RmXprtDesignSolution(DesignSolution, object):
