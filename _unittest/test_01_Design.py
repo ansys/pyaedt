@@ -236,4 +236,4 @@ class TestClass:
         assert self.aedtapp.omaterial_manager
 
     def test_27_odesktop(self):
-        assert self.aedtapp.odesktop
+        assert str(type(self.aedtapp.odesktop)) == "<class 'win32com.client.CDispatch'>"
