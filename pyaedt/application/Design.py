@@ -421,8 +421,9 @@ class Design(object):
         References
         ----------
 
-        >>> oDefinitionManager = oProject.GetDefinitionManager()"""
-        return self._odefinition_manager
+        >>> oDefinitionManager = oProject.GetDefinitionManager()
+        """
+        return self.oproject.GetDefinitionManager()
 
     @property
     def omaterial_manager(self):
@@ -431,8 +432,9 @@ class Design(object):
         References
         ----------
 
-        >>> oMaterialManager = oDefinitionManager.GetManager("Material")"""
-        return self._omaterial_manager
+        >>> oMaterialManager = oDefinitionManager.GetManager("Material")
+        """
+        return self.odefinition_manager.GetManager("Material")
 
     @aedt_exception_handler
     def __delitem__(self, key):

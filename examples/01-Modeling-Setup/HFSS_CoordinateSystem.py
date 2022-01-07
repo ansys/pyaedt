@@ -135,7 +135,7 @@ print(names)
 ###############################################################################
 # Select a Coordinate System
 # --------------------------
-# This example selects an exisitng coordinate system.
+# This example selects an existing coordinate system.
 
 css = hfss.modeler.coordinate_systems
 cs_selected = css[0]

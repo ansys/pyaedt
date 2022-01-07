@@ -58,7 +58,7 @@ print("elapsed time = ", time.time() - start)
 # This example gets the position for a specific pin.
 # The next example shows how to get all pins for a specific component and get
 # the positions of each of them.
-# Each pin is a list of ``[X, Y]`` coordinate postions.
+# Each pin is a list of ``[X, Y]`` coordinate positions.
 
 pins = edb.core_components.get_pin_from_component("U2")
 for pin in pins:
@@ -74,7 +74,7 @@ edb.core_components.get_component_net_connection_info("U2")
 ###############################################################################
 # Compute Rats
 # ~~~~~~~~~~~~
-# This comman computes rats.
+# This command computes rats.
 
 rats = edb.core_components.get_rats()
 

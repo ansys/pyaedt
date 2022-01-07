@@ -179,7 +179,7 @@ Otherwise, if running Windows, build the documentation by running:
    cd doc
    make.bat html
 
-After the documentation builds successfully, you can open the local build by opening in your brower the file ``index.html`` in ``doc/_build/html/``.
+After the documentation builds successfully, you can open the local build by opening in your browser the file ``index.html`` in ``doc/_build/html/``.
 
 Continuous Integration and Continuous Delivery (CI/CD)
 ------------------------------------------------------
