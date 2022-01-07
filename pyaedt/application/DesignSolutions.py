@@ -49,7 +49,35 @@ solutions_types = {
     'Circuit Design':
         {
             'NexximLNA': {'name': None, 'options': None, 'report_type': 'Standard',
-                          'default_setup': 15, 'default_adaptive': None}
+                          'default_setup': 15, 'default_adaptive': None},
+            'NexximDC': {'name': None, 'options': None, 'report_type': 'Standard',
+                         'default_setup': 16, 'default_adaptive': None},
+            'NexximTransient': {'name': None, 'options': None, 'report_type': 'Standard',
+                         'default_setup': 17, 'default_adaptive': None},
+            'NexximVerifEye': {'name': None, 'options': None, 'report_type': 'Standard',
+                          'default_setup': 19, 'default_adaptive': None},
+            'NexximQuickEye': {'name': None, 'options': None, 'report_type': 'Standard',
+                          'default_setup': 18, 'default_adaptive': None},
+            'NexximAMI': {'name': None, 'options': None, 'report_type': 'Standard',
+                          'default_setup': 20, 'default_adaptive': None},
+            'NexximOscillatorRSF': {'name': None, 'options': None, 'report_type': 'Standard',
+                               'default_setup': 21, 'default_adaptive': None},
+            'NexximOscillator1T': {'name': None, 'options': None, 'report_type': 'Standard',
+                               'default_setup': 22, 'default_adaptive': None},
+            'NexximOscillatorNT': {'name': None, 'options': None, 'report_type': 'Standard',
+                          'default_setup': 23, 'default_adaptive': None},
+            'NexximHarmonicBalance1T': {'name': None, 'options': None, 'report_type': 'Standard',
+                                    'default_setup': 24, 'default_adaptive': None},
+            'NexximHarmonicBalanceNT': {'name': None, 'options': None, 'report_type': 'Standard',
+                                   'default_setup': 25, 'default_adaptive': None},
+            'NexximSystem': {'name': None, 'options': None, 'report_type': 'Standard',
+                                   'default_setup': 26, 'default_adaptive': None},
+            'NexximTVNoise': {'name': None, 'options': None, 'report_type': 'Standard',
+                                        'default_setup': 27, 'default_adaptive': None},
+            'HSPICE': {'name': None, 'options': None, 'report_type': 'Standard',
+                                        'default_setup': 28, 'default_adaptive': None},
+            'TR': {'name': None, 'options': None, 'report_type': 'Standard',
+                             'default_setup': 17, 'default_adaptive': None},
         },
     '2D Extractor':
         {
@@ -60,7 +88,7 @@ solutions_types = {
         },
     'Q3D Extractor':
         {
-            'Q3D Extractor': {'name': None, 'options': None, 'report_type': 'Matrix', 'default_setup': None,
+            'Q3D Extractor': {'name': None, 'options': None, 'report_type': 'Matrix', 'default_setup': 14,
                               'default_adaptive': None}
         },
     'HFSS':
@@ -188,7 +216,7 @@ solutions_types = {
         },
     'HFSS 3D Layout Design':
         {
-            'HFSS 3D Layout Design': {'name': None, 'options': None, 'report_type': None, 'default_setup': None,
+            'HFSS3DLayout': {'name': None, 'options': None, 'report_type': None, 'default_setup': 29,
                                       'default_adaptive': None}
         },
     'Mechanical':
@@ -221,6 +249,7 @@ model_names = {
     "ModelCreation": "RMxprtDesign",
     "HFSS 3D Layout Design": "PlanarEMCircuit",
     "EMIT Design": "EMIT Design",
+    "EMIT": "EMIT",
 }
 
 
@@ -245,13 +274,24 @@ class DesignSolution(object):
     @solution_type.setter
     @aedt_exception_handler
     def solution_type(self, soltype):
-        if soltype and soltype in self._solution_options and self._solution_options[soltype]["name"]:
+        if soltype is None:
+            if "GetSolutionType" in dir(self._odesign):
+                self._solution_type = self._odesign.GetSolutionType()
+                if "Modal" in self._solution_type:
+                    self._solution_type = "Modal"
+                elif "Terminal" in self._solution_type:
+                    self._solution_type = "Terminal"
+        elif soltype and soltype in self._solution_options and self._solution_options[soltype]["name"]:
             self._solution_type = soltype
-            try:
+            if self._solution_options[soltype]["options"]:
                 self._odesign.SetSolutionType(self._solution_options[soltype]["name"],
                                               self._solution_options[soltype]["options"])
-            except:
-                pass
+
+            else:
+                try:
+                    self._odesign.SetSolutionType(self._solution_options[soltype]["name"])
+                except:
+                    self._odesign.SetSolutionType(self._solution_options[soltype]["name"], "")
 
     @property
     def report_type(self):
@@ -272,6 +312,7 @@ class DesignSolution(object):
     @property
     def design_types(self):
         return list(solutions_types.keys())
+
 
 class HFSSDesignSolution(DesignSolution, object):
     def __init__(self, odesign, design_type, aedt_version):
@@ -348,21 +389,28 @@ class Maxwell2DDesignSolution(DesignSolution, object):
     @solution_type.setter
     @aedt_exception_handler
     def solution_type(self, soltype):
-        if not soltype:
-            soltype = list(self._solution_options.keys())[0]
-        if soltype[-1] == "Z":
+        if soltype is None:
+            if "GetSolutionType" in dir(self._odesign):
+                self._solution_type = self._odesign.GetSolutionType()
+                if "Modal" in self._solution_type:
+                    self._solution_type = "Modal"
+                elif "Terminal" in self._solution_type:
+                    self._solution_type = "Terminal"
+            return
+        if soltype[-1:] == "Z":
             self._solution_options[self._solution_type]["options"] = "about Z"
             self._geometry_mode = "about Z"
             soltype = soltype[:-1]
-        elif soltype[-2] == "XY":
+        elif soltype[-2:] == "XY":
             self._solution_options[self._solution_type]["options"] = "XY"
             self._geometry_mode = "XY"
             soltype = soltype[:-2]
         if soltype in self._solution_options and self._solution_options[soltype]["name"]:
             self._solution_type = soltype
             try:
-                self._odesign.SetSolutionType(self._solution_options[soltype]["name"],
-                                              self._solution_options[soltype]["options"])
+                opts = "" if self._solution_options[soltype]["options"] is None else self._solution_options[soltype][
+                    "options"]
+                self._odesign.SetSolutionType(self._solution_options[soltype]["name"], opts)
             except:
                 pass
 

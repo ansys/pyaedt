@@ -35,8 +35,6 @@ class FieldAnalysisEmit(Design):
         close_on_exit=True,
         student_version=False,
     ):
-        self.solution_type = solution_type
-        self.oanalysis = None
         Design.__init__(
             self,
             application,
@@ -49,6 +47,8 @@ class FieldAnalysisEmit(Design):
             close_on_exit,
             student_version,
         )
+        self.solution_type = solution_type
+        self.oanalysis = None
         self._modeler = ModelerEmit(self)
 
     @property

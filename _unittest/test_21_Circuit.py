@@ -107,6 +107,7 @@ class TestClass:
     def test_07a_push_excitation(self):
         setup_name = "LNA"
         LNA_setup = self.aedtapp.create_setup(setup_name)
+        assert LNA_setup
         assert self.aedtapp.push_excitations(instance_name="U1", setup_name="LNA", thevenin_calculation=False)
         assert self.aedtapp.push_excitations(instance_name="U1", setup_name="LNA", thevenin_calculation=True)
 

@@ -844,7 +844,6 @@ class TestClass(BasisTest):
         assert self.aedtapp.modeler.import_3d_cad(self.step_file)
         assert len(self.aedtapp.modeler.primitives.object_names) == 1
 
-    @pyaedt_unittest_check_desktop_error
     def test_64_create_equationbased_curve(self):
         self.aedtapp.insert_design("Equations")
         eq_line = self.aedtapp.modeler.primitives.create_equationbased_curve(x_t="_t", y_t="_t*2", num_points=0)
@@ -876,7 +875,6 @@ class TestClass(BasisTest):
         name2 = self.aedtapp.modeler.primitives.insert_3d_component(compfile, geometryparams)
         assert self.aedtapp.modeler.create_group(components=[name, name2], group_name="test_group") == "test_group"
 
-    @pyaedt_unittest_check_desktop_error
     def test_66_assign_material(self):
         box1 = self.aedtapp.modeler.primitives.create_box([60, 60, 60], [4, 5, 5])
         box2 = self.aedtapp.modeler.primitives.create_box([50, 50, 50], [2, 3, 4])
@@ -897,7 +895,6 @@ class TestClass(BasisTest):
         assert self.aedtapp.modeler.primitives[cyl1].material_name == "aluminum"
         assert self.aedtapp.modeler.primitives[cyl2].material_name == "aluminum"
 
-    @pyaedt_unittest_check_desktop_error
     def test_67_cover_lines(self):
         P1 = self.aedtapp.modeler.primitives.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]], close_surface=True)
         assert self.aedtapp.modeler.cover_lines(P1)
