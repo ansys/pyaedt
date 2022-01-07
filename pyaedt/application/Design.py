@@ -396,8 +396,11 @@ class Design(object):
         self.design_solutions._solution_type = solution_type
         self.oproject = project_name
         self.odesign = design_name
-        self.design_solutions.solution_type = solution_type
         self.design_solutions._odesign = self.odesign
+        if not solution_type:
+            self.design_solutions._solution_type = self.design_solutions.solution_types[0]
+        else:
+            self.design_solutions.solution_type = solution_type
         self._oimport_export = self._desktop.GetTool("ImportExport")
         self._odefinition_manager = self._oproject.GetDefinitionManager()
         self._omaterial_manager = self.odefinition_manager.GetManager("Material")

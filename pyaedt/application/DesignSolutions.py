@@ -559,14 +559,14 @@ class Maxwell2DDesignSolution(DesignSolution, object):
                     self._solution_type = "Terminal"
             return
         if soltype[-1:] == "Z":
+            self._solution_type = soltype[:-1]
             self._solution_options[self._solution_type]["options"] = "about Z"
             self._geometry_mode = "about Z"
-            soltype = soltype[:-1]
         elif soltype[-2:] == "XY":
+            self._solution_type = soltype[:-2]
             self._solution_options[self._solution_type]["options"] = "XY"
             self._geometry_mode = "XY"
-            soltype = soltype[:-2]
-        if soltype in self._solution_options and self._solution_options[soltype]["name"]:
+        if self._solution_type in self._solution_options and self._solution_options[soltype]["name"]:
             self._solution_type = soltype
             try:
                 opts = (
