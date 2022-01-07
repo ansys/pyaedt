@@ -231,5 +231,9 @@ class TestClass:
     def test_25_change_registry_from_file(self):
         assert self.aedtapp.set_registry_from_file(os.path.join(local_path, "example_models", "Test.acf"))
 
+    def test_26_odefinition_manager(self):
+        assert self.aedtapp.odefinition_manager
+        assert self.aedtapp.omaterial_manager
+
     def test_27_odesktop(self):
         assert self.aedtapp.odesktop
