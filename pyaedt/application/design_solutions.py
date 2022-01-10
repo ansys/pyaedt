@@ -530,7 +530,7 @@ class HFSSDesignSolution(DesignSolution, object):
             self._solution_options[self.solution_type]["name"] = self._solution_options[self.solution_type][
                 "name"
             ].replace("HFSS Hybrid", "HFSS")
-        self._composite = val
+        self._hybrid = val
         self.solution_type = self.solution_type
 
     @property
