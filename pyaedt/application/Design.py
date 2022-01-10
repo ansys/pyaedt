@@ -19,7 +19,7 @@ import logging
 import gc
 import warnings
 from collections import OrderedDict
-from pyaedt.application.DesignSolutions import (
+from pyaedt.application.design_solutions import (
     DesignSolution,
     IcepakDesignSolution,
     Maxwell2DDesignSolution,
