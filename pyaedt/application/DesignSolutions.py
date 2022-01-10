@@ -298,6 +298,7 @@ solutions_types = {
         },
     },
     "RMxprtSolution": {
+        "GRM": {"name": "GRM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
         "IRIM": {"name": "IRIM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
         "ORIM": {"name": "ORIM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
         "SRIM": {"name": "SRIM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
@@ -326,6 +327,7 @@ solutions_types = {
         "NSSM": {"name": "NSSM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
     },
     "ModelCreation": {
+        "GRM": {"name": "GRM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
         "IRIM": {"name": "IRIM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
         "ORIM": {"name": "ORIM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
         "SRIM": {"name": "SRIM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
@@ -422,10 +424,17 @@ class DesignSolution(object):
         if design_type == "HFSS" and aedt_version >= "2021.2":
             self._solution_options["Modal"]["name"] = "HFSS Hybrid Modal Network"
             self._solution_options["Terminal"]["name"] = "HFSS Hybrid Terminal Network"
-        self._solution_type = self.solution_types[0]
+        self._solution_type = None
 
     @property
     def solution_type(self):
+        if self._solution_type is None:
+            if "GetSolutionType" in dir(self._odesign):
+                self._solution_type = self._odesign.GetSolutionType()
+                if "Modal" in self._solution_type:
+                    self._solution_type = "Modal"
+                elif "Terminal" in self._solution_type:
+                    self._solution_type = "Terminal"
         return self._solution_type
 
     @solution_type.setter
@@ -453,15 +462,15 @@ class DesignSolution(object):
 
     @property
     def report_type(self):
-        return self._solution_options[self._solution_type]["report_type"]
+        return self._solution_options[self.solution_type]["report_type"]
 
     @property
     def default_setup(self):
-        return self._solution_options[self._solution_type]["default_setup"]
+        return self._solution_options[self.solution_type]["default_setup"]
 
     @property
     def default_adaptive(self):
-        return self._solution_options[self._solution_type]["default_adaptive"]
+        return self._solution_options[self.solution_type]["default_adaptive"]
 
     @property
     def solution_types(self):
@@ -475,44 +484,48 @@ class DesignSolution(object):
 class HFSSDesignSolution(DesignSolution, object):
     def __init__(self, odesign, design_type, aedt_version):
         DesignSolution.__init__(self, odesign, design_type, aedt_version)
-        self._composite = "Composite" in self._solution_options[self._solution_type]["name"]
-        self._hybrid = "Hybrid" in self._solution_options[self._solution_type]["name"]
+        self._composite = None
+        self._hybrid = None
 
     @property
     def hybrid(self):
+        if self._hybrid is None and self.solution_type is not None:
+            self._hybrid = "Hybrid" in self._solution_options[self.solution_type]["name"]
         return self._hybrid
 
     @hybrid.setter
     @aedt_exception_handler
     def hybrid(self, val):
         if val:
-            self._solution_options[self._solution_type]["name"] = self._solution_options[self._solution_type][
+            self._solution_options[self.solution_type]["name"] = self._solution_options[self.solution_type][
                 "name"
             ].replace("HFSS", "HFSS Hybrid")
         else:
-            self._solution_options[self._solution_type]["name"] = self._solution_options[self._solution_type][
+            self._solution_options[self.solution_type]["name"] = self._solution_options[self.solution_type][
                 "name"
             ].replace("HFSS Hybrid", "HFSS")
         self._composite = val
-        self.solution_type = self._solution_type
+        self.solution_type = self.solution_type
 
     @property
     def composite(self):
+        if self._composite is None and self.solution_type is not None:
+            self._composite = "Composite" in self._solution_options[self.solution_type]["name"]
         return self._composite
 
     @composite.setter
     @aedt_exception_handler
     def composite(self, val):
         if val:
-            self._solution_options[self._solution_type]["name"] = self._solution_options[self._solution_type][
+            self._solution_options[self.solution_type]["name"] = self._solution_options[self.solution_type][
                 "name"
             ].replace("Network", "Composite")
         else:
-            self._solution_options[self._solution_type]["name"] = self._solution_options[self._solution_type][
+            self._solution_options[self.solution_type]["name"] = self._solution_options[self.solution_type][
                 "name"
             ].replace("Composite", "Network")
         self._composite = val
-        self.solution_type = self._solution_type
+        self.solution_type = self.solution_type
 
     @aedt_exception_handler
     def set_auto_open(self, enable=True, boundary_type="Radiation"):
@@ -520,8 +533,8 @@ class HFSSDesignSolution(DesignSolution, object):
         if enable:
             options.append("BoundaryType:=")
             options.append(boundary_type)
-        self._solution_options[self._solution_type]["options"] = options
-        self.solution_type = self._solution_type
+        self._solution_options[self.solution_type]["options"] = options
+        self.solution_type = self.solution_type
 
 
 class Maxwell2DDesignSolution(DesignSolution, object):
@@ -540,11 +553,14 @@ class Maxwell2DDesignSolution(DesignSolution, object):
             self._geometry_mode = "XY"
         else:
             self._geometry_mode = "about Z"
-        self._solution_options[self._solution_type]["options"] = self._geometry_mode
-        self.solution_type = self._solution_type
+        self._solution_options[self.solution_type]["options"] = self._geometry_mode
+        self.solution_type = self.solution_type
 
     @property
     def solution_type(self):
+        if self._solution_type is None:
+            if "GetSolutionType" in dir(self._odesign):
+                self._solution_type = self._odesign.GetSolutionType()
         return self._solution_type
 
     @solution_type.setter
@@ -568,12 +584,11 @@ class Maxwell2DDesignSolution(DesignSolution, object):
             self._geometry_mode = "XY"
         if self._solution_type in self._solution_options and self._solution_options[self._solution_type]["name"]:
             try:
-                opts = (
-                    ""
-                    if self._solution_options[soltype]["options"] is None
-                    else self._solution_options[soltype]["options"]
-                )
-                self._odesign.SetSolutionType(self._solution_options[soltype]["name"], opts)
+                if self._solution_options[self._solution_type]["options"]:
+                    opts = self._solution_options[self._solution_type]["options"]
+                else:
+                    opts = ""
+                self._odesign.SetSolutionType(self._solution_options[self._solution_type]["name"], opts)
             except:
                 pass
 
@@ -592,30 +607,33 @@ class IcepakDesignSolution(DesignSolution, object):
     def problem_type(self, val="TemperatureAndFlow"):
         if val == "TemperatureAndFlow":
             self._problem_type = val
-            self._solution_options[self._solution_type]["options"] = self._problem_type
-            if self._solution_type == "SteadyState":
-                self._solution_options[self._solution_type]["default_setup"] = 11
+            self._solution_options[self.solution_type]["options"] = self._problem_type
+            if self.solution_type == "SteadyState":
+                self._solution_options[self.solution_type]["default_setup"] = 11
             else:
-                self._solution_options[self._solution_type]["default_setup"] = 36
+                self._solution_options[self.solution_type]["default_setup"] = 36
         elif val == "TemperatureOnly":
             self._problem_type = val
-            self._solution_options[self._solution_type]["options"] = self._problem_type
-            if self._solution_type == "SteadyState":
-                self._solution_options[self._solution_type]["default_setup"] = 12
+            self._solution_options[self.solution_type]["options"] = self._problem_type
+            if self.solution_type == "SteadyState":
+                self._solution_options[self.solution_type]["default_setup"] = 12
             else:
-                self._solution_options[self._solution_type]["default_setup"] = 37
+                self._solution_options[self.solution_type]["default_setup"] = 37
         elif val == "FlowOnly":
             self._problem_type = val
-            self._solution_options[self._solution_type]["options"] = self._problem_type
-            if self._solution_type == "SteadyState":
-                self._solution_options[self._solution_type]["default_setup"] = 13
+            self._solution_options[self.solution_type]["options"] = self._problem_type
+            if self.solution_type == "SteadyState":
+                self._solution_options[self.solution_type]["default_setup"] = 13
             else:
-                self._solution_options[self._solution_type]["default_setup"] = 38
+                self._solution_options[self.solution_type]["default_setup"] = 38
         else:
             raise AttributeError("Wrong input. Expected values are TemperatureAndFlow, TemperatureOnly and FlowOnly.")
 
     @property
     def solution_type(self):
+        if self._solution_type is None:
+            if "GetSolutionType" in dir(self._odesign):
+                self._solution_type = self._odesign.GetSolutionType()
         return self._solution_type
 
     @solution_type.setter
@@ -629,11 +647,10 @@ class IcepakDesignSolution(DesignSolution, object):
             if "TemperatureAndFlow" in soltype:
                 self._problem_type = "TemperatureAndFlow"
             elif "TemperatureOnly" in soltype:
-                self._solution_type = "TemperatureOnly"
+                self._problem_type = "TemperatureOnly"
             else:
-                self._solution_type = "FlowOnly"
-            if self._solution_options[soltype]["name"]:
-                self._solution_type = soltype
+                self._problem_type = "FlowOnly"
+            if self._solution_options[self._solution_type]["name"]:
                 options = [
                     "NAME:SolutionTypeOption",
                     "SolutionTypeOption:=",
@@ -654,6 +671,8 @@ class RmXprtDesignSolution(DesignSolution, object):
 
     @property
     def solution_type(self):
+        if self._solution_type is None and "GetMachineType" in dir(self._odesign):
+            self._solution_type = self._odesign.GetMachineType()
         return self._solution_type
 
     @solution_type.setter

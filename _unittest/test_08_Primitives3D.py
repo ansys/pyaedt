@@ -849,7 +849,6 @@ class TestClass(BasisTest):
         pass
 
     @pytest.mark.skipif(config["build_machine"] or is_ironpython, reason="Not running in non-graphical mode")
-    @pyaedt_unittest_check_desktop_error
     def test_62_import_space_claim(self):
         self.aedtapp.insert_design("SCImport")
         assert self.aedtapp.modeler.import_spaceclaim_document(os.path.join(self.local_scratch.path, scdoc))
