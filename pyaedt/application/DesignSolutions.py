@@ -435,6 +435,8 @@ class DesignSolution(object):
                     self._solution_type = "Modal"
                 elif "Terminal" in self._solution_type:
                     self._solution_type = "Terminal"
+        else:
+            self._solution_type = self.solution_types[0]
         return self._solution_type
 
     @solution_type.setter
