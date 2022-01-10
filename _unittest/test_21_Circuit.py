@@ -148,49 +148,26 @@ class TestClass:
         mycap = self.aedtapp.modeler.schematic.create_capacitor("C100", 1e-12)
         portname = self.aedtapp.modeler.schematic.create_interface_port("Port1")
         assert "Port1" in portname.name
-
-        assert self.aedtapp.modeler.connect_schematic_components(myind.id, myind.id, pinnum_second=2)
+        assert myind.pins[0].connect_to_component(portname.pins[0])
+        assert myind.pins[1].connect_to_component(myres.pins[1])
         assert self.aedtapp.modeler.connect_schematic_components(myres.id, mycap.id, pinnum_first=1)
-
+        gnd = self.aedtapp.modeler.schematic.create_gnd()
+        assert mycap.pins[1].connect_to_component(gnd.pins[0])
         # create_interface_port
         L1_pins = myind.pins
         L1_pin2location = {}
         for pin in L1_pins:
             L1_pin2location[pin.name] = pin.location
 
-        C1_pins = mycap.pins
-        C1_pin2location = {}
-        for pin in C1_pins:
-            C1_pin2location[pin.name] = pin.location
-
-        portname = self.aedtapp.modeler.schematic.create_interface_port(
-            "P1_1", [L1_pin2location["n1"][0], L1_pin2location["n1"][1]]
-        )
-        assert "P1_1" in portname.name
-        portname = self.aedtapp.modeler.schematic.create_interface_port(
-            "P2_2", [C1_pin2location["negative"][0], C1_pin2location["negative"][1]]
-        )
-        assert "P2_2" in portname.name
-
-        # create_page_port
-        portname = self.aedtapp.modeler.schematic.create_page_port(
-            "Link_1", [L1_pin2location["n2"][0], L1_pin2location["n2"][1]]
-        )
-        assert "Link_1" in portname.name
-        portname = self.aedtapp.modeler.schematic.create_page_port(
-            "Link_2", [C1_pin2location["positive"][0], C1_pin2location["positive"][1]], 180
-        )
-        assert "Link_2" in portname.name
-
     def test_13_properties(self):
         assert self.aedtapp.modeler.model_units
 
     def test_14_move(self):
-        assert self.aedtapp.modeler.move("L100", [0.00508, 0.00508])
-        assert self.aedtapp.modeler.move("L100", [200, 200], "mil")
+        assert self.aedtapp.modeler.move("L100", [0, -0.00508])
+        assert self.aedtapp.modeler.move("L100", [0, 200], "mil")
 
     def test_15_rotate(self):
-        assert self.aedtapp.modeler.rotate("L100")
+        assert self.aedtapp.modeler.rotate("Port1")
 
     def test_16_read_touchstone(self):
         data = read_touchstone(os.path.join(self.local_scratch.path, touchstone))

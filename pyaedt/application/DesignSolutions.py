@@ -1,6 +1,21 @@
 import copy
-
 from pyaedt.generic.general_methods import aedt_exception_handler
+
+solutions_defaults = {
+    "Maxwell 2D": "Magnetostatic",
+    "Maxwell 3D": "Magnetostatic",
+    "Twin Builder":  "TR",
+    "Circuit Design": "NexximLNA",
+    "2D Extractor": "Open",
+    "Q3D Extractor": "Q3D Extractor",
+    "HFSS": "Modal",
+    "Icepak": "SteadyState",
+    "RMxprtSolution":  "GRM",
+    "ModelCreation":  "GRM",
+    "HFSS 3D Layout Design":  "HFSS3DLayout",
+    "Mechanical": "Thermal",
+    "EMIT":  "EMIT",
+}
 
 solutions_types = {
     "Maxwell 2D": {
@@ -421,6 +436,7 @@ class DesignSolution(object):
         assert design_type in solutions_types, "Wrong Design Type"
         # deepcopy doesn't work on remote
         self._solution_options = copy.deepcopy(solutions_types[design_type])
+        self.design_type = design_type
         if design_type == "HFSS" and aedt_version >= "2021.2":
             self._solution_options["Modal"]["name"] = "HFSS Hybrid Modal Network"
             self._solution_options["Terminal"]["name"] = "HFSS Hybrid Terminal Network"
@@ -428,33 +444,34 @@ class DesignSolution(object):
 
     @property
     def solution_type(self):
-        if "GetSolutionType" in dir(self._odesign):
+        if  self._odesign and  "GetSolutionType" in dir(self._odesign):
             self._solution_type = self._odesign.GetSolutionType()
             if "Modal" in self._solution_type:
                 self._solution_type = "Modal"
             elif "Terminal" in self._solution_type:
                 self._solution_type = "Terminal"
-        else:
-            self._solution_type = self.solution_types[0]
+        elif self._solution_type is None:
+            self._solution_type = solutions_defaults[self.design_type]
         return self._solution_type
 
     @solution_type.setter
     @aedt_exception_handler
     def solution_type(self, soltype):
         if soltype is None:
-            if "GetSolutionType" in dir(self._odesign):
+            if self._odesign and "GetSolutionType" in dir(self._odesign):
                 self._solution_type = self._odesign.GetSolutionType()
                 if "Modal" in self._solution_type:
                     self._solution_type = "Modal"
                 elif "Terminal" in self._solution_type:
                     self._solution_type = "Terminal"
+            else:
+                self._solution_type = solutions_defaults[self.design_type]
         elif soltype and soltype in self._solution_options and self._solution_options[soltype]["name"]:
             self._solution_type = soltype
             if self._solution_options[soltype]["options"]:
                 self._odesign.SetSolutionType(
                     self._solution_options[soltype]["name"], self._solution_options[soltype]["options"]
                 )
-
             else:
                 try:
                     self._odesign.SetSolutionType(self._solution_options[soltype]["name"])
@@ -559,7 +576,7 @@ class Maxwell2DDesignSolution(DesignSolution, object):
 
     @property
     def solution_type(self):
-        if "GetSolutionType" in dir(self._odesign):
+        if self._odesign and "GetSolutionType" in dir(self._odesign):
             self._solution_type = self._odesign.GetSolutionType()
         return self._solution_type
 
@@ -567,7 +584,7 @@ class Maxwell2DDesignSolution(DesignSolution, object):
     @aedt_exception_handler
     def solution_type(self, soltype):
         if soltype is None:
-            if "GetSolutionType" in dir(self._odesign):
+            if self._odesign and "GetSolutionType" in dir(self._odesign):
                 self._solution_type = self._odesign.GetSolutionType()
                 if "Modal" in self._solution_type:
                     self._solution_type = "Modal"
@@ -631,7 +648,7 @@ class IcepakDesignSolution(DesignSolution, object):
 
     @property
     def solution_type(self):
-        if "GetSolutionType" in dir(self._odesign):
+        if self._odesign and "GetSolutionType" in dir(self._odesign):
             self._solution_type = self._odesign.GetSolutionType()
         return self._solution_type
 
