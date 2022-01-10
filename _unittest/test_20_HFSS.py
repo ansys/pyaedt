@@ -244,6 +244,15 @@ class TestClass:
         e2 = edges2[0]
 
         self.aedtapp.solution_type = "Modal"
+        assert self.aedtapp.composite is False
+        self.aedtapp.composite = True
+        assert self.aedtapp.composite is True
+        self.aedtapp.composite = False
+        self.aedtapp.hybrid = False
+        assert self.aedtapp.hybrid is False
+        self.aedtapp.hybrid = True
+        assert self.aedtapp.hybrid is True
+
         assert (
             self.aedtapp.create_circuit_port_from_edges(
                 e1, e2, port_name="port10", port_impedance=50.1, renormalize=False, renorm_impedance="50"
@@ -616,3 +625,6 @@ class TestClass:
             polarization_angle=30,
         )
         assert bound.azimuth_start == "2deg"
+
+    def test_45_set_autoopen(self):
+        assert self.aedtapp.set_auto_open(True, "PML")

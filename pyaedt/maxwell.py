@@ -1146,6 +1146,19 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
         )
         Maxwell.__init__(self)
 
+    @property
+    def xy_plane(self):
+        """Get/Set Maxwell 2d plane between `"XY"` and `"about Z"`"""
+        if self.design_solutions.xy_plane is "XY":
+            return True
+        else:
+            return False
+
+    @xy_plane.setter
+    @aedt_exception_handler
+    def xy_plane(self, val=True):
+        self.design_solutions.xy_plane = val
+
     @aedt_exception_handler
     def get_model_depth(self):
         """Get model depth."""

@@ -522,7 +522,7 @@ class HFSSDesignSolution(DesignSolution, object):
     @hybrid.setter
     @aedt_exception_handler
     def hybrid(self, val):
-        if val:
+        if val and "Hybrid" not in self._solution_options[self.solution_type]["name"]:
             self._solution_options[self.solution_type]["name"] = self._solution_options[self.solution_type][
                 "name"
             ].replace("HFSS", "HFSS Hybrid")
@@ -569,7 +569,6 @@ class HFSSDesignSolution(DesignSolution, object):
         -------
         bool
         """
-        """Set Hfss hybrid mode for the active solution."""
         options = ["NAME:Options", "EnableAutoOpen:=", enable]
         if enable:
             options.append("BoundaryType:=")
@@ -617,7 +616,7 @@ class Maxwell2DDesignSolution(DesignSolution, object):
                 elif "Terminal" in self._solution_type:
                     self._solution_type = "Terminal"
             return
-        if soltype[-1:] == "Z":
+        elif soltype[-1:] == "Z":
             self._solution_type = soltype[:-1]
             self._solution_options[self._solution_type]["options"] = "about Z"
             self._geometry_mode = "about Z"
@@ -625,6 +624,8 @@ class Maxwell2DDesignSolution(DesignSolution, object):
             self._solution_type = soltype[:-2]
             self._solution_options[self._solution_type]["options"] = "XY"
             self._geometry_mode = "XY"
+        else:
+            self._solution_type = soltype
         if self._solution_type in self._solution_options and self._solution_options[self._solution_type]["name"]:
             try:
                 if self._solution_options[self._solution_type]["options"]:
@@ -646,6 +647,8 @@ class IcepakDesignSolution(DesignSolution, object):
         """Get/Set the problem type of the icepak Design between
         `"TemperatureAndFlow"`, `"TemperatureOnly"`,`"FlowOnly"`.
         """
+        if self._odesign:
+            self._problem_type = self._odesign.GetProblemType()
         return self._problem_type
 
     @problem_type.setter
@@ -674,6 +677,7 @@ class IcepakDesignSolution(DesignSolution, object):
                 self._solution_options[self.solution_type]["default_setup"] = 38
         else:
             raise AttributeError("Wrong input. Expected values are TemperatureAndFlow, TemperatureOnly and FlowOnly.")
+        self.solution_type = self.solution_type
 
     @property
     def solution_type(self):
@@ -694,7 +698,7 @@ class IcepakDesignSolution(DesignSolution, object):
                 self._problem_type = "TemperatureAndFlow"
             elif "TemperatureOnly" in soltype:
                 self._problem_type = "TemperatureOnly"
-            else:
+            elif "FlowOnly" in soltype:
                 self._problem_type = "FlowOnly"
             if self._solution_options[self._solution_type]["name"]:
                 options = [

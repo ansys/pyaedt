@@ -180,6 +180,48 @@ class Hfss(FieldAnalysis3D, object):
 
         (PerfectE, PerfectH, Aperture, Radiation, Impedance, LayeredImp, LumpedRLC, FiniteCond) = range(0, 8)
 
+    @property
+    def hybrid(self):
+        """Get/Set Hfss hybrid mode for the active solution."""
+        return self.design_solutions.hybrid
+
+    @hybrid.setter
+    @aedt_exception_handler
+    def hybrid(self, val):
+        self.design_solutions.hybrid = val
+
+    @property
+    def composite(self):
+        """Get/Set Hfss composite mode for the active solution."""
+        return self.design_solutions.composite
+
+    @composite.setter
+    @aedt_exception_handler
+    def composite(self, val):
+        self.design_solutions.composite = val
+
+    @aedt_exception_handler
+    def set_auto_open(self, enable=True, boundary_type="Radiation"):
+        """Set Hfss auto open type.
+
+        Parameters
+        ----------
+        enable : bool
+            Either to enable or not auto open.
+        boundary_type : str, optional
+            Boundary Type to be used with auto open. Default is `"Radiation"`.
+            Other options are `"FEBI"` and `"PML"`.
+
+        Returns
+        -------
+        bool
+        """
+        if enable and boundary_type not in ["Radiation", "FEBI", "PML"]:
+            raise AttributeError("Wrong boundary type. Check Documentation for valid inputs")
+        return self.design_solutions.set_auto_open(enable=enable, boundary_type=boundary_type)
+
+
+
     @aedt_exception_handler
     def _get_rad_fields(self):
         if not self.design_properties:

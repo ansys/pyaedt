@@ -136,6 +136,18 @@ class Icepak(FieldAnalysisIcepak):
         return self
 
     @property
+    def problem_type(self):
+        """Get/Set the problem type of the icepak Design between
+        `"TemperatureAndFlow"`, `"TemperatureOnly"`,`"FlowOnly"`.
+        """
+        return self.design_solutions.problem_type
+
+    @problem_type.setter
+    @aedt_exception_handler
+    def problem_type(self, val="TemperatureAndFlow"):
+        self.design_solutions.problem_type = val
+
+    @property
     def omodelsetup(self):
         """AEDT Model Setup Object."""
         return self._odesign.GetModule("ModelSetup")
