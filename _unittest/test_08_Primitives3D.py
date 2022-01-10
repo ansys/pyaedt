@@ -368,7 +368,6 @@ class TestClass(BasisTest):
     @pyaedt_unittest_check_desktop_error
     def test_23_create_rectangle(self):
         udp = self.aedtapp.modeler.Position(5, 3, 8)
-        udp = self.aedtapp.modeler.Position(5, 3, 8)
         plane = self.aedtapp.PLANE.XY
         o = self.aedtapp.modeler.primitives.create_rectangle(plane, udp, [4, 5], name="MyRectangle", matname="Copper")
         assert o.id > 0
