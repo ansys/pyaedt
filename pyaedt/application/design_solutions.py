@@ -4,17 +4,17 @@ from pyaedt.generic.general_methods import aedt_exception_handler
 solutions_defaults = {
     "Maxwell 2D": "Magnetostatic",
     "Maxwell 3D": "Magnetostatic",
-    "Twin Builder":  "TR",
+    "Twin Builder": "TR",
     "Circuit Design": "NexximLNA",
     "2D Extractor": "Open",
     "Q3D Extractor": "Q3D Extractor",
     "HFSS": "Modal",
     "Icepak": "SteadyState",
-    "RMxprtSolution":  "GRM",
-    "ModelCreation":  "GRM",
-    "HFSS 3D Layout Design":  "HFSS3DLayout",
+    "RMxprtSolution": "GRM",
+    "ModelCreation": "GRM",
+    "HFSS 3D Layout Design": "HFSS3DLayout",
     "Mechanical": "Thermal",
-    "EMIT":  "EMIT",
+    "EMIT": "EMIT",
 }
 
 solutions_types = {
@@ -444,8 +444,7 @@ class DesignSolution(object):
 
     @property
     def solution_type(self):
-        """Get/Set the Solution Type of the active Design.
-        """
+        """Get/Set the Solution Type of the active Design."""
         if self._odesign and "GetSolutionType" in dir(self._odesign):
             self._solution_type = self._odesign.GetSolutionType()
             if "Modal" in self._solution_type:
@@ -602,8 +601,7 @@ class Maxwell2DDesignSolution(DesignSolution, object):
 
     @property
     def solution_type(self):
-        """Get/Set the Solution Type of the active Design.
-        """
+        """Get/Set the Solution Type of the active Design."""
         if self._odesign and "GetSolutionType" in dir(self._odesign):
             self._solution_type = self._odesign.GetSolutionType()
         return self._solution_type
@@ -679,8 +677,7 @@ class IcepakDesignSolution(DesignSolution, object):
 
     @property
     def solution_type(self):
-        """Get/Set the Solution Type of the active Design.
-        """
+        """Get/Set the Solution Type of the active Design."""
         if self._odesign and "GetSolutionType" in dir(self._odesign):
             self._solution_type = self._odesign.GetSolutionType()
         return self._solution_type
@@ -719,8 +716,7 @@ class RmXprtDesignSolution(DesignSolution, object):
 
     @property
     def solution_type(self):
-        """Get/Set the Machine Type of the active Design.
-        """
+        """Get/Set the Machine Type of the active Design."""
         if self._solution_type is None and "GetMachineType" in dir(self._odesign):
             self._solution_type = self._odesign.GetMachineType()
         return self._solution_type
@@ -737,8 +733,7 @@ class RmXprtDesignSolution(DesignSolution, object):
 
     @property
     def design_type(self):
-        """Get/Set the Machine Design Type.
-        """
+        """Get/Set the Machine Design Type."""
         return self._design_type
 
     @design_type.setter
