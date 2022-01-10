@@ -436,7 +436,7 @@ class DesignSolution(object):
         assert design_type in solutions_types, "Wrong Design Type"
         # deepcopy doesn't work on remote
         self._solution_options = copy.deepcopy(solutions_types[design_type])
-        self.design_type = design_type
+        self._design_type = design_type
         if design_type == "HFSS" and aedt_version >= "2021.2":
             self._solution_options["Modal"]["name"] = "HFSS Hybrid Modal Network"
             self._solution_options["Terminal"]["name"] = "HFSS Hybrid Terminal Network"
@@ -444,14 +444,16 @@ class DesignSolution(object):
 
     @property
     def solution_type(self):
-        if  self._odesign and  "GetSolutionType" in dir(self._odesign):
+        """Get/Set the Solution Type of the active Design.
+        """
+        if self._odesign and "GetSolutionType" in dir(self._odesign):
             self._solution_type = self._odesign.GetSolutionType()
             if "Modal" in self._solution_type:
                 self._solution_type = "Modal"
             elif "Terminal" in self._solution_type:
                 self._solution_type = "Terminal"
         elif self._solution_type is None:
-            self._solution_type = solutions_defaults[self.design_type]
+            self._solution_type = solutions_defaults[self._design_type]
         return self._solution_type
 
     @solution_type.setter
@@ -465,7 +467,7 @@ class DesignSolution(object):
                 elif "Terminal" in self._solution_type:
                     self._solution_type = "Terminal"
             else:
-                self._solution_type = solutions_defaults[self.design_type]
+                self._solution_type = solutions_defaults[self._design_type]
         elif soltype and soltype in self._solution_options and self._solution_options[soltype]["name"]:
             self._solution_type = soltype
             if self._solution_options[soltype]["options"]:
@@ -480,22 +482,27 @@ class DesignSolution(object):
 
     @property
     def report_type(self):
+        """Return the default report type of the selected solution if present."""
         return self._solution_options[self.solution_type]["report_type"]
 
     @property
     def default_setup(self):
+        """Return the default setup id of the selected solution if present."""
         return self._solution_options[self.solution_type]["default_setup"]
 
     @property
     def default_adaptive(self):
+        """Return the default adaptive name of the selected solution if present."""
         return self._solution_options[self.solution_type]["default_adaptive"]
 
     @property
     def solution_types(self):
+        """Return the list of all available solutions."""
         return list(self._solution_options.keys())
 
     @property
     def design_types(self):
+        """Return the list of all available designs."""
         return list(solutions_types.keys())
 
 
@@ -507,6 +514,8 @@ class HFSSDesignSolution(DesignSolution, object):
 
     @property
     def hybrid(self):
+        """Get/Set Hfss hybrid mode for the active solution."""
+
         if self._hybrid is None and self.solution_type is not None:
             self._hybrid = "Hybrid" in self._solution_options[self.solution_type]["name"]
         return self._hybrid
@@ -527,6 +536,7 @@ class HFSSDesignSolution(DesignSolution, object):
 
     @property
     def composite(self):
+        """Get/Set Hfss composite mode for the active solution."""
         if self._composite is None and self.solution_type is not None:
             self._composite = "Composite" in self._solution_options[self.solution_type]["name"]
         return self._composite
@@ -547,12 +557,27 @@ class HFSSDesignSolution(DesignSolution, object):
 
     @aedt_exception_handler
     def set_auto_open(self, enable=True, boundary_type="Radiation"):
+        """Set Hfss auto open type.
+
+        Parameters
+        ----------
+        enable : bool
+            Either to enable or not auto open.
+        boundary_type : str, optional
+            Boundary Type to be used with auto open. Default is `"Radiation"`.
+
+        Returns
+        -------
+        bool
+        """
+        """Set Hfss hybrid mode for the active solution."""
         options = ["NAME:Options", "EnableAutoOpen:=", enable]
         if enable:
             options.append("BoundaryType:=")
             options.append(boundary_type)
         self._solution_options[self.solution_type]["options"] = options
         self.solution_type = self.solution_type
+        return True
 
 
 class Maxwell2DDesignSolution(DesignSolution, object):
@@ -562,6 +587,7 @@ class Maxwell2DDesignSolution(DesignSolution, object):
 
     @property
     def xy_plane(self):
+        """Get/Set Maxwell 2d plane between `"XY"` and `"about Z"`"""
         return self._geometry_mode == "XY"
 
     @xy_plane.setter
@@ -576,6 +602,8 @@ class Maxwell2DDesignSolution(DesignSolution, object):
 
     @property
     def solution_type(self):
+        """Get/Set the Solution Type of the active Design.
+        """
         if self._odesign and "GetSolutionType" in dir(self._odesign):
             self._solution_type = self._odesign.GetSolutionType()
         return self._solution_type
@@ -617,6 +645,9 @@ class IcepakDesignSolution(DesignSolution, object):
 
     @property
     def problem_type(self):
+        """Get/Set the problem type of the icepak Design between
+        `"TemperatureAndFlow"`, `"TemperatureOnly"`,`"FlowOnly"`.
+        """
         return self._problem_type
 
     @problem_type.setter
@@ -648,6 +679,8 @@ class IcepakDesignSolution(DesignSolution, object):
 
     @property
     def solution_type(self):
+        """Get/Set the Solution Type of the active Design.
+        """
         if self._odesign and "GetSolutionType" in dir(self._odesign):
             self._solution_type = self._odesign.GetSolutionType()
         return self._solution_type
@@ -683,10 +716,11 @@ class IcepakDesignSolution(DesignSolution, object):
 class RmXprtDesignSolution(DesignSolution, object):
     def __init__(self, odesign, design_type, aedt_version):
         DesignSolution.__init__(self, odesign, design_type, aedt_version)
-        self._design_type = design_type
 
     @property
     def solution_type(self):
+        """Get/Set the Machine Type of the active Design.
+        """
         if self._solution_type is None and "GetMachineType" in dir(self._odesign):
             self._solution_type = self._odesign.GetMachineType()
         return self._solution_type
@@ -703,6 +737,8 @@ class RmXprtDesignSolution(DesignSolution, object):
 
     @property
     def design_type(self):
+        """Get/Set the Machine Design Type.
+        """
         return self._design_type
 
     @design_type.setter
