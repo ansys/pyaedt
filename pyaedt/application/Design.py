@@ -400,8 +400,6 @@ class Design(object):
         if solution_type:
             self.design_solutions.solution_type = solution_type
         self._oimport_export = self._desktop.GetTool("ImportExport")
-        self._odefinition_manager = self._oproject.GetDefinitionManager()
-        self._omaterial_manager = self.odefinition_manager.GetManager("Material")
         self._variable_manager = VariableManager(self)
         self.project_datasets = self._get_project_datasets()
         self.design_datasets = self._get_design_datasets()
