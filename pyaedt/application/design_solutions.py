@@ -585,7 +585,7 @@ class Maxwell2DDesignSolution(DesignSolution, object):
 
     @property
     def xy_plane(self):
-        """Get/Set Maxwell 2d plane between `"XY"` and `"about Z"`"""
+        """Get/Set Maxwell 2d plane between `"XY"` and `"about Z"`."""
         return self._geometry_mode == "XY"
 
     @xy_plane.setter
@@ -644,8 +644,8 @@ class IcepakDesignSolution(DesignSolution, object):
 
     @property
     def problem_type(self):
-        """Get/Set the problem type of the icepak Design between
-        `"TemperatureAndFlow"`, `"TemperatureOnly"`,`"FlowOnly"`.
+        """Get/Set the problem type of the icepak Design.
+        It can be any of`"TemperatureAndFlow"`, `"TemperatureOnly"`,`"FlowOnly"`.
         """
         if self._odesign:
             self._problem_type = self._odesign.GetProblemType()

@@ -97,14 +97,6 @@ class FieldAnalysisRMxprt(Analysis):
         self.solution_type = solution_type
         return True
 
-    # @property
-    # def mesh(self):
-    #     return self._mesh
-    #
-    # @property
-    # def post(self):
-    #     return self._post
-
     @aedt_exception_handler
     def _check_solution_consistency(self):
         """Check solution consistency."""

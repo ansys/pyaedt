@@ -217,4 +217,3 @@ class Rmxprt(FieldAnalysisRMxprt):
     @aedt_exception_handler
     def design_type(self, destype):
         self.design_solutions.design_type = destype
-

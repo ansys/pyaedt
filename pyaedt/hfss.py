@@ -220,8 +220,6 @@ class Hfss(FieldAnalysis3D, object):
             raise AttributeError("Wrong boundary type. Check Documentation for valid inputs")
         return self.design_solutions.set_auto_open(enable=enable, boundary_type=boundary_type)
 
-
-
     @aedt_exception_handler
     def _get_rad_fields(self):
         if not self.design_properties:
