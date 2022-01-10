@@ -428,13 +428,12 @@ class DesignSolution(object):
 
     @property
     def solution_type(self):
-        if self._solution_type is None:
-            if "GetSolutionType" in dir(self._odesign):
-                self._solution_type = self._odesign.GetSolutionType()
-                if "Modal" in self._solution_type:
-                    self._solution_type = "Modal"
-                elif "Terminal" in self._solution_type:
-                    self._solution_type = "Terminal"
+        if "GetSolutionType" in dir(self._odesign):
+            self._solution_type = self._odesign.GetSolutionType()
+            if "Modal" in self._solution_type:
+                self._solution_type = "Modal"
+            elif "Terminal" in self._solution_type:
+                self._solution_type = "Terminal"
         else:
             self._solution_type = self.solution_types[0]
         return self._solution_type
@@ -560,9 +559,8 @@ class Maxwell2DDesignSolution(DesignSolution, object):
 
     @property
     def solution_type(self):
-        if self._solution_type is None:
-            if "GetSolutionType" in dir(self._odesign):
-                self._solution_type = self._odesign.GetSolutionType()
+        if "GetSolutionType" in dir(self._odesign):
+            self._solution_type = self._odesign.GetSolutionType()
         return self._solution_type
 
     @solution_type.setter
@@ -633,9 +631,8 @@ class IcepakDesignSolution(DesignSolution, object):
 
     @property
     def solution_type(self):
-        if self._solution_type is None:
-            if "GetSolutionType" in dir(self._odesign):
-                self._solution_type = self._odesign.GetSolutionType()
+        if "GetSolutionType" in dir(self._odesign):
+            self._solution_type = self._odesign.GetSolutionType()
         return self._solution_type
 
     @solution_type.setter
