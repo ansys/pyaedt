@@ -92,9 +92,9 @@ class Layer(object):
 
     Examples
     --------
-    >>>from pyaedt import Hfss3dLayout
-    >>>app = Hfss3dLayout()
-    >>>layers = app.modeler.primitives.layers["Top"]
+    >>> from pyaedt import Hfss3dLayout
+    >>> app = Hfss3dLayout()
+    >>> layers = app.modeler.primitives.layers["Top"]
     """
 
     def __init__(self, app, layertype="signal", negative=False):
@@ -573,9 +573,9 @@ class Layers(object):
 
     Examples
     --------
-    >>>from pyaedt import Hfss3dLayout
-    >>>app = Hfss3dLayout()
-    >>>layers = app.modeler.primitives.layers
+    >>> from pyaedt import Hfss3dLayout
+    >>> app = Hfss3dLayout()
+    >>> layers = app.modeler.primitives.layers
     """
 
     def __init__(self, modeler, roughnessunits="um"):
