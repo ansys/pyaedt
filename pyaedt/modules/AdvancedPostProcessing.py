@@ -1353,6 +1353,10 @@ class PostProcessor(Post):
         files = self.export_model_obj(
             obj_list=objects, export_as_single_objects=plot_separate_objects, air_objects=air_objects
         )
+
+        if not files:
+            self.logger.warning("No Objects exported. Try other options or include Air objects.")
+            return False
         if export_afterplot:
             imageformat = "png"
         else:

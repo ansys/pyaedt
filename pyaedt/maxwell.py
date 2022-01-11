@@ -1149,7 +1149,7 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
     @property
     def xy_plane(self):
         """Get/Set Maxwell 2d plane between `"XY"` and `"about Z"`."""
-        if self.design_solutions.xy_plane is "XY":
+        if self.design_solutions.xy_plane == "XY":
             return True
         else:
             return False
