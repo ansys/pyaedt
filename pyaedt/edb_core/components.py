@@ -523,7 +523,8 @@ class Components(object):
         """
 
         res, pin_position, pin_rot = pin.GetPositionAndRotation(
-            self._edb.Geometry.PointData(self._edb_value(0.0), self._edb_value(0.0)), 0.0)
+            self._edb.Geometry.PointData(self._edb_value(0.0), self._edb_value(0.0)), 0.0
+        )
         if not is_ironpython:
             res, from_layer, to_layer = pin.GetLayerRange(None, None)
         else:
@@ -553,12 +554,14 @@ class Components(object):
 
         """
         res, pin_position, pin_rot = pin.GetPositionAndRotation(
-            self._edb.Geometry.PointData(self._edb_value(0.0), self._edb_value(0.0)), 0.0)
+            self._edb.Geometry.PointData(self._edb_value(0.0), self._edb_value(0.0)), 0.0
+        )
         distance = 1e3
         closest_pin = ref_pinlist[0]
         for ref_pin in ref_pinlist:
             res, ref_pin_position, ref_pin_rot = ref_pin.GetPositionAndRotation(
-                self._edb.Geometry.PointData(self._edb_value(0.0), self._edb_value(0.0)), 0.0)
+                self._edb.Geometry.PointData(self._edb_value(0.0), self._edb_value(0.0)), 0.0
+            )
             temp_distance = pin_position.Distance(ref_pin_position)
             if temp_distance < distance:
                 distance = temp_distance
