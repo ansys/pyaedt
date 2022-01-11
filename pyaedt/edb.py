@@ -940,14 +940,13 @@ class Edb(object):
             if "GetSimSetupInfo" in dir(_setup):
                 # setup is an Ansys.Ansoft.Edb.Utility.HFSSSimulationSetup object
                 _hfssSimSetupInfo = _setup.GetSimSetupInfo()
-                _hfssSimSetupInfo.Name = "HFSS Setup "+str(id)  # Set name of analysis setup
+                _hfssSimSetupInfo.Name = "HFSS Setup " + str(id)  # Set name of analysis setup
                 # Write the simulation setup info into the cell/design setup
                 _setup.SetSimSetupInfo(_hfssSimSetupInfo)
                 _cutout.AddSimulationSetup(_setup)  # Add simulation setup to the cutout design
                 id += 1
             else:
                 _cutout.AddSimulationSetup(_setup)  # Add simulation setup to the cutout design
-
 
         _dbCells = [_cutout]
 
@@ -979,11 +978,11 @@ class Edb(object):
                         shutil.copy(source, target)
                     except:
                         pass
-        #else:
-            #cells = self.db.CopyCells(convert_py_list_to_net_list(_dbCells))
+        # else:
+        # cells = self.db.CopyCells(convert_py_list_to_net_list(_dbCells))
         elif open_cutout_at_end:
-                self._active_cell = _cutout
-                self._init_objects()
+            self._active_cell = _cutout
+            self._init_objects()
         return True
 
     @aedt_exception_handler
@@ -1063,7 +1062,7 @@ class Edb(object):
             if "GetSimSetupInfo" in dir(_setup):
                 # setup is an Ansys.Ansoft.Edb.Utility.HFSSSimulationSetup object
                 _hfssSimSetupInfo = _setup.GetSimSetupInfo()
-                _hfssSimSetupInfo.Name = "HFSS Setup "+str(id)  # Set name of analysis setup
+                _hfssSimSetupInfo.Name = "HFSS Setup " + str(id)  # Set name of analysis setup
                 # Write the simulation setup info into the cell/design setup
                 _setup.SetSimSetupInfo(_hfssSimSetupInfo)
                 _cutout.AddSimulationSetup(_setup)  # Add simulation setup to the cutout design
