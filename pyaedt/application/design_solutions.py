@@ -727,11 +727,11 @@ class RmXprtDesignSolution(DesignSolution, object):
 
     @solution_type.setter
     @aedt_exception_handler
-    def solution_type(self, soltype):
-        if soltype:
+    def solution_type(self, solution_type):
+        if solution_type:
             try:
-                self._odesign.SetDesignFlow(self._design_type, soltype)
-                self._solution_type = soltype
+                self._odesign.SetDesignFlow(self._design_type, solution_type)
+                self._solution_type = solution_type
             except:
                 pass
 
