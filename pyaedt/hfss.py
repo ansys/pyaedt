@@ -215,6 +215,12 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        Enable auto open type for PML boundary.
+
+        >>> hfss.set_auto_open(True, "PML")
         """
         if enable and boundary_type not in ["Radiation", "FEBI", "PML"]:
             raise AttributeError("Wrong boundary type. Check Documentation for valid inputs")
