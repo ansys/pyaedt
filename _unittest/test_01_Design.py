@@ -88,10 +88,10 @@ class TestClass:
         assert os.path.exists(self.aedtapp.results_directory)
 
     def test_05_solution_type(self):
-        assert self.aedtapp.solution_type == "DrivenModal"
-        self.aedtapp.solution_type = "DrivenTerminal"
-        assert self.aedtapp.solution_type == "DrivenTerminal"
-        self.aedtapp.solution_type = "DrivenModal"
+        assert "Modal" in self.aedtapp.solution_type
+        self.aedtapp.solution_type = "Terminal"
+        assert "Terminal" in self.aedtapp.solution_type
+        self.aedtapp.solution_type = "Modal"
 
     def test_06_libs(self):
         assert os.path.exists(self.aedtapp.personallib)

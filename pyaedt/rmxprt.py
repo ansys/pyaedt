@@ -207,3 +207,13 @@ class Rmxprt(FieldAnalysisRMxprt):
 
     def __enter__(self):
         return self
+
+    @property
+    def design_type(self):
+        """Get/Set the Machine Design Type."""
+        return self.design_solutions.design_type
+
+    @design_type.setter
+    @aedt_exception_handler
+    def design_type(self, value):
+        self.design_solutions.design_type = value
