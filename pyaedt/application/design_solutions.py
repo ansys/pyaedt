@@ -653,23 +653,23 @@ class IcepakDesignSolution(DesignSolution, object):
 
     @problem_type.setter
     @aedt_exception_handler
-    def problem_type(self, val="TemperatureAndFlow"):
-        if val == "TemperatureAndFlow":
-            self._problem_type = val
+    def problem_type(self, value="TemperatureAndFlow"):
+        if value == "TemperatureAndFlow":
+            self._problem_type = value
             self._solution_options[self.solution_type]["options"] = self._problem_type
             if self.solution_type == "SteadyState":
                 self._solution_options[self.solution_type]["default_setup"] = 11
             else:
                 self._solution_options[self.solution_type]["default_setup"] = 36
-        elif val == "TemperatureOnly":
-            self._problem_type = val
+        elif value == "TemperatureOnly":
+            self._problem_type = value
             self._solution_options[self.solution_type]["options"] = self._problem_type
             if self.solution_type == "SteadyState":
                 self._solution_options[self.solution_type]["default_setup"] = 12
             else:
                 self._solution_options[self.solution_type]["default_setup"] = 37
-        elif val == "FlowOnly":
-            self._problem_type = val
+        elif value == "FlowOnly":
+            self._problem_type = value
             self._solution_options[self.solution_type]["options"] = self._problem_type
             if self.solution_type == "SteadyState":
                 self._solution_options[self.solution_type]["default_setup"] = 13
