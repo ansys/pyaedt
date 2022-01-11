@@ -12,6 +12,7 @@ try:
     from pyaedt.mechanical import Mechanical
     from pyaedt.rmxprt import Rmxprt
     from pyaedt.simplorer import Simplorer
+    from pyaedt.twinbuilder import TwinBuilder
     from pyaedt.emit import Emit
     from pyaedt.desktop import Desktop
 except ImportError:
@@ -26,6 +27,7 @@ except ImportError:
     from pyaedt.mechanical import Mechanical
     from pyaedt.rmxprt import Rmxprt
     from pyaedt.simplorer import Simplorer
+    from pyaedt.twinbuilder import TwinBuilder    
     from pyaedt.emit import Emit
     from pyaedt.desktop import Desktop
 

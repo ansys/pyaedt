@@ -19,6 +19,7 @@ PyAEDT includes functionality for interacting with the following AEDT tools and 
 - Nexxim
 - Simplorer
 - EDB Database
+- Twin Builder
 
 What is PyAEDT?
 ---------------
