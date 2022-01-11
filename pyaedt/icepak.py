@@ -144,8 +144,8 @@ class Icepak(FieldAnalysisIcepak):
 
     @problem_type.setter
     @aedt_exception_handler
-    def problem_type(self, val="TemperatureAndFlow"):
-        self.design_solutions.problem_type = val
+    def problem_type(self, value="TemperatureAndFlow"):
+        self.design_solutions.problem_type = value
 
     @property
     def omodelsetup(self):
