@@ -197,8 +197,8 @@ class Hfss(FieldAnalysis3D, object):
 
     @composite.setter
     @aedt_exception_handler
-    def composite(self, val):
-        self.design_solutions.composite = val
+    def composite(self, value):
+        self.design_solutions.composite = value
 
     @aedt_exception_handler
     def set_auto_open(self, enable=True, boundary_type="Radiation"):
