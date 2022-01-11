@@ -521,8 +521,8 @@ class HFSSDesignSolution(DesignSolution, object):
 
     @hybrid.setter
     @aedt_exception_handler
-    def hybrid(self, val):
-        if val and "Hybrid" not in self._solution_options[self.solution_type]["name"]:
+    def hybrid(self, value):
+        if value and "Hybrid" not in self._solution_options[self.solution_type]["name"]:
             self._solution_options[self.solution_type]["name"] = self._solution_options[self.solution_type][
                 "name"
             ].replace("HFSS", "HFSS Hybrid")
@@ -530,7 +530,7 @@ class HFSSDesignSolution(DesignSolution, object):
             self._solution_options[self.solution_type]["name"] = self._solution_options[self.solution_type][
                 "name"
             ].replace("HFSS Hybrid", "HFSS")
-        self._hybrid = val
+        self._hybrid = value
         self.solution_type = self.solution_type
 
     @property
