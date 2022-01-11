@@ -561,7 +561,7 @@ class HFSSDesignSolution(DesignSolution, object):
         Parameters
         ----------
         enable : bool
-            Either to enable or not auto open.
+            Either to enable or not auto open. The default is ``True``.
         boundary_type : str, optional
             Boundary Type to be used with auto open. Default is `"Radiation"`.
 
