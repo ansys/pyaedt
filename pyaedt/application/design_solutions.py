@@ -457,8 +457,8 @@ class DesignSolution(object):
 
     @solution_type.setter
     @aedt_exception_handler
-    def solution_type(self, soltype):
-        if soltype is None:
+    def solution_type(self, value):
+        if value is None:
             if self._odesign and "GetSolutionType" in dir(self._odesign):
                 self._solution_type = self._odesign.GetSolutionType()
                 if "Modal" in self._solution_type:
@@ -467,17 +467,17 @@ class DesignSolution(object):
                     self._solution_type = "Terminal"
             else:
                 self._solution_type = solutions_defaults[self._design_type]
-        elif soltype and soltype in self._solution_options and self._solution_options[soltype]["name"]:
-            self._solution_type = soltype
-            if self._solution_options[soltype]["options"]:
+        elif value and value in self._solution_options and self._solution_options[value]["name"]:
+            self._solution_type = value
+            if self._solution_options[value]["options"]:
                 self._odesign.SetSolutionType(
-                    self._solution_options[soltype]["name"], self._solution_options[soltype]["options"]
+                    self._solution_options[value]["name"], self._solution_options[value]["options"]
                 )
             else:
                 try:
-                    self._odesign.SetSolutionType(self._solution_options[soltype]["name"])
+                    self._odesign.SetSolutionType(self._solution_options[value]["name"])
                 except:
-                    self._odesign.SetSolutionType(self._solution_options[soltype]["name"], "")
+                    self._odesign.SetSolutionType(self._solution_options[value]["name"], "")
 
     @property
     def report_type(self):
