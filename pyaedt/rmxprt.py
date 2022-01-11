@@ -215,5 +215,5 @@ class Rmxprt(FieldAnalysisRMxprt):
 
     @design_type.setter
     @aedt_exception_handler
-    def design_type(self, destype):
-        self.design_solutions.design_type = destype
+    def design_type(self, value):
+        self.design_solutions.design_type = value
