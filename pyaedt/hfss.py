@@ -187,8 +187,8 @@ class Hfss(FieldAnalysis3D, object):
 
     @hybrid.setter
     @aedt_exception_handler
-    def hybrid(self, val):
-        self.design_solutions.hybrid = val
+    def hybrid(self, value):
+        self.design_solutions.hybrid = value
 
     @property
     def composite(self):
