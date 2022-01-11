@@ -207,7 +207,7 @@ class Hfss(FieldAnalysis3D, object):
         Parameters
         ----------
         enable : bool
-            Either to enable or not auto open.
+            Either to enable or not auto open. The default is ``True``.
         boundary_type : str, optional
             Boundary Type to be used with auto open. Default is `"Radiation"`.
             Other options are `"FEBI"` and `"PML"`.
