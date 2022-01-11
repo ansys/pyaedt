@@ -742,7 +742,7 @@ class RmXprtDesignSolution(DesignSolution, object):
 
     @design_type.setter
     @aedt_exception_handler
-    def design_type(self, destype):
-        if destype:
-            self._design_type = destype
+    def design_type(self, value):
+        if value:
+            self._design_type = value
             self.solution_type = self._solution_type
