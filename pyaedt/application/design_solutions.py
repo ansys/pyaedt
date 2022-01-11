@@ -590,8 +590,8 @@ class Maxwell2DDesignSolution(DesignSolution, object):
 
     @xy_plane.setter
     @aedt_exception_handler
-    def xy_plane(self, val=True):
-        if val:
+    def xy_plane(self, value=True):
+        if value:
             self._geometry_mode = "XY"
         else:
             self._geometry_mode = "about Z"
