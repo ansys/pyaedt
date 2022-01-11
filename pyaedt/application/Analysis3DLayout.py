@@ -3,7 +3,6 @@ import os
 from pyaedt.generic.general_methods import aedt_exception_handler, is_ironpython
 from pyaedt.modeler.Model3DLayout import Modeler3DLayout
 from pyaedt.modules.Mesh3DLayout import Mesh3d
-from pyaedt.modules.SetupTemplates import SetupKeys
 from pyaedt.modules.SolveSetup import Setup3DLayout
 from pyaedt.application.Analysis import Analysis
 
@@ -412,7 +411,7 @@ class FieldAnalysis3DLayout(Analysis):
         >>> oModule.Add
         """
         if setuptype is None:
-            setuptype = SetupKeys.defaultSetups[self.solution_type]
+            setuptype = self.design_solutions.default_setup
         name = self.generate_unique_setup_name(setupname)
         setup = Setup3DLayout(self, setuptype, name)
         setup.create()
@@ -443,7 +442,7 @@ class FieldAnalysis3DLayout(Analysis):
 
         """
         if setuptype is None:
-            setuptype = SetupKeys.defaultSetups[self.solution_type]
+            setuptype = self.design_solutions.default_setup
         for setup in self.setups:
             if setupname == setup.name:
                 return setup

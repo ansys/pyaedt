@@ -412,8 +412,8 @@ class SOLUTIONS(object):
         """Provides HFSS solution types."""
 
         (DrivenModal, DrivenTerminal, EigenMode, Transient, SBR) = (
-            "DrivenModal",
-            "DrivenTerminal",
+            "Modal",
+            "Terminal",
             "EigenMode",
             "Transient Network",
             "SBR+",

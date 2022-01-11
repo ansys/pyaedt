@@ -95,7 +95,8 @@ class TestClass(BasisTest):
     @pyaedt_unittest_check_desktop_error
     def test_15_assign_movement(self):
         self.aedtapp.insert_design("Motion")
-        self.aedtapp.solution_type = SOLUTIONS.Maxwell2d.TransientXY
+        self.aedtapp.solution_type = SOLUTIONS.Maxwell2d.TransientZ
+        self.aedtapp.xy_plane = True
         self.aedtapp.modeler.primitives.create_circle([0, 0, 0], 10, name="Circle_inner")
         self.aedtapp.modeler.primitives.create_circle([0, 0, 0], 30, name="Circle_outer")
         bound = self.aedtapp.assign_rotate_motion("Circle_outer", positive_limit=300, mechanical_transient=True)

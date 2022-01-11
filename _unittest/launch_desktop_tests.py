@@ -45,7 +45,7 @@ def run_desktop_tests():
 
     aedtapp = Hfss(specified_version="2021.2")
     assert aedtapp.design_type == "HFSS"
-    assert aedtapp.solution_type == "DrivenModal"
+    assert "Modal" in aedtapp.solution_type
     aedtapp.close_desktop()
 
     aedtapp = Maxwell3d(specified_version="2021.2")

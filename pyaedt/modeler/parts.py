@@ -487,7 +487,7 @@ class Antenna(Part, object):
             else:
                 units = self._multiparts.units
         if self._compdef["ffd_name"]:
-            ffd = os.path.join(self._compdef["part_folder"], self._multiparts._name + ".ffd", self._compdef["ffd_name"])
+            ffd = os.path.join(self._compdef["part_folder"], self._compdef["ffd_name"] + ".ffd")
             a = app.create_sbr_file_based_antenna(
                 ffd_full_path=ffd, model_units=units, target_cs=target_cs, antenna_name=self.name
             )

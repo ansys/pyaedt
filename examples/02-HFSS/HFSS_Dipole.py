@@ -30,7 +30,7 @@ d = Desktop("2021.2", non_graphical=nongraphical, new_desktop_session=True)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This examples launches HFSS 2021.2 in graphical mode.
 
-hfss = Hfss()
+hfss = Hfss(solution_type="Modal")
 
 ###############################################################################
 # Define a Dipole Length Variable

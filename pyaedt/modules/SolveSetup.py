@@ -55,10 +55,12 @@ class Setup(object):
 
         self._app = None
         self.p_app = app
-        if isinstance(solutiontype, int):
+        if not solutiontype:
+            self.setuptype = self.p_app.design_solutions.default_setup
+        elif isinstance(solutiontype, int):
             self.setuptype = solutiontype
         else:
-            self.setuptype = SetupKeys.defaultSetups[solutiontype]
+            self.setuptype = self.p_app.design_solutions._solution_options[solutiontype]["default_setup"]
 
         self.name = setupname
         self.props = {}
@@ -488,10 +490,12 @@ class SetupCircuit(object):
     def __init__(self, app, solutiontype, setupname="MySetupAuto", isnewsetup=True):
         self._app = None
         self.p_app = app
-        if isinstance(solutiontype, int):
+        if not solutiontype:
+            self.setuptype = self.p_app.design_solutions.default_setup
+        elif isinstance(solutiontype, int):
             self.setuptype = solutiontype
         else:
-            self.setuptype = SetupKeys.defaultSetups[solutiontype]
+            self.setuptype = self.p_app.design_solutions._solution_options[solutiontype]["default_setup"]
         self._Name = "LinearFrequency"
         self.props = {}
         if isnewsetup:
@@ -1097,10 +1101,12 @@ class Setup3DLayout(object):
 
     def __init__(self, app, solutiontype, setupname="MySetupAuto", isnewsetup=True):
         self._app = app
-        if isinstance(solutiontype, int):
+        if not solutiontype:
+            self._solutiontype = self._app.design_solutions.default_setup
+        elif isinstance(solutiontype, int):
             self._solutiontype = solutiontype
         else:
-            self._solutiontype = SetupKeys.defaultSetups[self._solutiontype]
+            self._solutiontype = self._app.design_solutions._solution_options[solutiontype]["default_setup"]
         self.name = setupname
         self.props = OrderedDict()
         self.sweeps = []
