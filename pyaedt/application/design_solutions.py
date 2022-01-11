@@ -607,8 +607,8 @@ class Maxwell2DDesignSolution(DesignSolution, object):
 
     @solution_type.setter
     @aedt_exception_handler
-    def solution_type(self, soltype):
-        if soltype is None:
+    def solution_type(self, value):
+        if value is None:
             if self._odesign and "GetSolutionType" in dir(self._odesign):
                 self._solution_type = self._odesign.GetSolutionType()
                 if "Modal" in self._solution_type:
@@ -616,16 +616,16 @@ class Maxwell2DDesignSolution(DesignSolution, object):
                 elif "Terminal" in self._solution_type:
                     self._solution_type = "Terminal"
             return
-        elif soltype[-1:] == "Z":
-            self._solution_type = soltype[:-1]
+        elif value[-1:] == "Z":
+            self._solution_type = value[:-1]
             self._solution_options[self._solution_type]["options"] = "about Z"
             self._geometry_mode = "about Z"
-        elif soltype[-2:] == "XY":
-            self._solution_type = soltype[:-2]
+        elif value[-2:] == "XY":
+            self._solution_type = value[:-2]
             self._solution_options[self._solution_type]["options"] = "XY"
             self._geometry_mode = "XY"
         else:
-            self._solution_type = soltype
+            self._solution_type = value
         if self._solution_type in self._solution_options and self._solution_options[self._solution_type]["name"]:
             try:
                 if self._solution_options[self._solution_type]["options"]:
