@@ -784,7 +784,7 @@ class Object3d(object):
                 air_objects=True,
                 background_color="grey",
                 object_selector=False,
-                color=self.color,
+                color=[i/256 for i in self.color],
                 off_screen=False,
                 color_by_material=False,
                 opacity=1-self.transparency
