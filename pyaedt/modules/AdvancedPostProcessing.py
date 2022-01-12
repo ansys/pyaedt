@@ -308,8 +308,17 @@ class PostProcessor(Post):
 
     @aedt_exception_handler
     def _read_mesh_files(
-            self, aedtplt_files, model_color, model_opacity, lines, meshes, model_colors, model_opacities, materials,
-            objects):
+        self,
+        aedtplt_files,
+        model_color,
+        model_opacity,
+        lines,
+        meshes,
+        model_colors,
+        model_opacities,
+        materials,
+        objects,
+    ):
         id = 0
         k = 0
         colors = list(CSS4_COLORS.keys())
@@ -361,8 +370,11 @@ class PostProcessor(Post):
                     model_colors.append(colors[id % len(colors)])
                     id += 1
                 if model_color:
-                    if isinstance(model_color, list) and isinstance(model_color[0], (int, float)) or isinstance(
-                            model_color, str):
+                    if (
+                        isinstance(model_color, list)
+                        and isinstance(model_color[0], (int, float))
+                        or isinstance(model_color, str)
+                    ):
                         model_colors[-1] = model_color
                     else:
                         model_colors[-1] = model_color[k]
@@ -1393,9 +1405,9 @@ class PostProcessor(Post):
                 objects = self._app.modeler.primitives.object_names
             for el in objects:
                 try:
-                    color.append([i/256 for i in self._app.modeler[el].color])
+                    color.append([i / 256 for i in self._app.modeler[el].color])
                     if include_opacity:
-                        opacity.append(1-self._app.modeler[el].transparency)
+                        opacity.append(1 - self._app.modeler[el].transparency)
                 except KeyError:
                     color.append("dodgerblue")
                     if include_opacity:
