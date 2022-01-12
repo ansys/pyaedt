@@ -51,15 +51,13 @@ except ImportError:
     )
 
 
-def isnotebook():
+def is_notebook():
     try:
         shell = get_ipython().__class__.__name__
         if shell == "ZMQInteractiveShell":
             return True  # Jupyter notebook or qtconsole
-        elif shell == "TerminalInteractiveShell":
-            return False  # Terminal running IPython
         else:
-            return False  # Other type (?)
+            return False
     except NameError:
         return False  # Probably standard Python interpreter
 
@@ -819,7 +817,7 @@ class PostProcessor(Post):
         axes_color = [0 if i >= 0.5 else 1 for i in color]
         if show_axes:
             plot.show_axes()
-        if show_grid and not isnotebook():
+        if show_grid and not is_notebook():
             plot.show_grid(color=tuple(axes_color))
         plot.add_bounding_box(color=tuple(axes_color))
         if show_legend and meshes and len(meshes) > 1 and not model_color:
@@ -919,7 +917,7 @@ class PostProcessor(Post):
         if not windows_size:
             windows_size = [1024, 768]
 
-        plot = pv.Plotter(notebook=isnotebook(), off_screen=off_screen, window_size=windows_size)
+        plot = pv.Plotter(notebook=is_notebook(), off_screen=off_screen, window_size=windows_size)
         plot.background_color = background_color
         lines = []
         meshes = []
@@ -1235,13 +1233,13 @@ class PostProcessor(Post):
 
         Parameters
         ----------
-        obj_list : list
-            list of objects to export. Export every model object except 3D ones, vacuum and air objects.
-        export_path : str
-            Full path to the export obj file.
-        export_as_single_objects : bool
+        obj_list : list, optional
+            List of objects to export. Export every model object except 3D ones, vacuum and air objects.
+        export_path : str, optional
+            Full path of the exported obj file.
+        export_as_single_objects : bool, optional
             Define if the model will be exported as single obj or list of objs for each object.
-        air_objects : bool
+        air_objects : bool, optional
             Define if air and vacuum objects will be exported.
 
         Returns
@@ -1338,33 +1336,33 @@ class PostProcessor(Post):
 
         Parameters
         ----------
-        objects : list
+        objects : list, optional
             Optional list of objects to plot. If `None` all objects will be exported.
-        export_afterplot : bool
+        export_afterplot : bool, optional
             Set to True if the image has to be exported after the plot is completed.
-        export_path : str
+        export_path : str, optional
             File name with full path. If `None` Project directory will be used.
-        plot_separate_objects : bool
+        plot_separate_objects : bool, optional
             Plot each object separately. It may require more time to export from AEDT.
-        air_objects : bool
+        air_objects : bool, optional
             Plot also air and vacuum objects.
-        show_axes : bool
-            Define if axis will be visible or not.
-        show_grid : bool
+        show_axes : bool, optional
+            Define if axes will be visible or not.
+        show_grid : bool, optional
             Define if grid will be visible or not.
-        show_legend : bool
+        show_legend : bool, optional
             Define if legend is visible or not.
-        background_color : str, list
+        background_color : str, list, optional
             Define the plot background color. Default is `"white"`.
             One of the keys of `pyaedt.generic.constants.CSS4_COLORS` can be used.
-        object_selector : bool
+        object_selector : bool, optional
             Enable the list of object to hide show objects.
-        windows_size : list
+        windows_size : list, optional
             Windows Plot size.
-        off_screen : bool
-            Off Screen plot
+        off_screen : bool, optional
+            Off Screen plot.
         color : str, list
-            Color of the object. Can be color name or list of RGB. If None automatic color.
+            Color of the object. Can be color name or list of RGB.
         color_by_material : bool
             Either to color object by material or by their AEDT value.
 
@@ -1377,6 +1375,9 @@ class PostProcessor(Post):
         files = self.export_model_obj(
             obj_list=objects, export_as_single_objects=plot_separate_objects, air_objects=air_objects
         )
+        if not files:
+            self.logger.warning("No Objects exported. Try other options or include Air objects.")
+            return False
         if export_afterplot:
             imageformat = "png"
         else:
