@@ -1723,6 +1723,112 @@ class EDBPadstack(object):
         self.edb_padstack.SetData(newPadstackDefinitionData)
 
 
+class EDBPadstackInstance(object):
+    """Manages EDB functionalities for a padstack.
+
+    Parameters
+    ----------
+    edb_padstackinstance :
+
+    _pedb :
+        Inherited AEDT object.
+
+    Examples
+    --------
+    >>> from pyaedt import Edb
+    >>> edb = Edb(myedb, edbversion="2021.2")
+    >>> edb_padstack_instance = edb.core_padstack.padstack_instances[0]
+    """
+
+    @property
+    def padstack_definition(self):
+        """Padstack definition.
+
+        Returns
+        -------
+        str
+            Name of the padstack definition.
+        """
+        return self._edb_padstackinstance.GetPadstackDef().GetName()
+
+    @property
+    def backdrill_top(self):
+        """Backdrill layer from top.
+
+        Returns
+        -------
+        tuple
+            Tuple of the layer name and drill diameter.
+        """
+        layer = self._pedb.edb.Cell.Layer("", 1)
+        val = self._pedb.edb_value(0)
+        (
+            _,
+            depth,
+            diameter,
+        ) = self._edb_padstackinstance.GetBackDrillParametersLayerValue(layer, val, False)
+        return depth.GetName(), diameter.ToString()
+
+    @property
+    def backdrill_bottom(self):
+        """Backdrill layer from bottom.
+
+        Returns
+        -------
+        tuple
+            Tuple of the layer name and drill diameter.
+        """
+        layer = self._pedb.edb.Cell.Layer("", 1)
+        val = self._pedb.edb_value(0)
+        (
+            _,
+            depth,
+            diameter,
+        ) = self._edb_padstackinstance.GetBackDrillParametersLayerValue(layer, val, True)
+        return depth.GetName(), diameter.ToString()
+
+    @property
+    def start_layer(self):
+        """Starting layer.
+
+        Returns
+        -------
+        str
+            Name of the starting layer.
+        """
+        layer = self._pedb.edb.Cell.Layer("", 1)
+        _, start_layer, stop_layer = self._edb_padstackinstance.GetLayerRange(layer, layer)
+        return start_layer.GetName()
+
+    @property
+    def stop_layer(self):
+        """Stopping layer.
+
+        Returns
+        -------
+        str
+            Name of the stopping layer.
+        """
+        layer = self._pedb.edb.Cell.Layer("", 1)
+        _, start_layer, stop_layer = self._edb_padstackinstance.GetLayerRange(layer, layer)
+        return stop_layer.GetName()
+
+    @property
+    def net_name(self):
+        """Net name.
+
+        Returns
+        -------
+        str
+            Name of the net.
+        """
+        return self._edb_padstackinstance.GetNet().GetName()
+
+    def __init__(self, edb_padstackinstance, _pedb):
+        self._edb_padstackinstance = edb_padstackinstance
+        self._pedb = _pedb
+
+
 class EDBPinInstances(object):
     """Manages EDB functionalities in instances.
 

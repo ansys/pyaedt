@@ -7,7 +7,7 @@ import warnings
 from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, is_ironpython
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 import math
-from pyaedt.edb_core.EDB_Data import EDBPadstack
+from pyaedt.edb_core.EDB_Data import EDBPadstack, EDBPadstackInstance
 
 try:
     from System import Array
@@ -28,6 +28,7 @@ class EdbPadstacks(object):
     def __init__(self, p_edb):
         self._pedb = p_edb
         self._padstacks = {}
+        self._padstack_instances = []
 
     @property
     def _builder(self):
@@ -83,6 +84,21 @@ class EdbPadstacks(object):
             return self._padstacks
         self.update_padstacks()
         return self._padstacks
+
+    @property
+    def padstack_instances(self):
+        """List of padstack instances.
+
+        Returns
+        -------
+        dict of :class:`pyaedt.edb_core.Edb_Data.EdbPadstackInstance`
+            List of padstack instances.
+
+        """
+        if self._padstack_instances:
+            return self._padstack_instances
+        self.update_padstack_instances()
+        return self._padstack_instances
 
     @property
     def pingroups(self):
@@ -551,3 +567,31 @@ class EdbPadstacks(object):
         self.padstacks[padstack_name].edb_padstack.SetData(newPadstackDefinitionData)
         self.update_padstacks()
         return True
+
+    @aedt_exception_handler
+    def update_padstack_instances(self):
+        """Update Padstack Instance List."""
+        layout_lobj_collection = self._active_layout.GetLayoutInstance().GetAllLayoutObjInstances()
+        self._padstack_instances = []
+        for obj in layout_lobj_collection.Items:
+            lobj = obj.GetLayoutObj()
+            if type(lobj) is self._edb.Cell.Primitive.PadstackInstance:
+                self._padstack_instances.append(EDBPadstackInstance(lobj, self._pedb))
+
+    @aedt_exception_handler
+    def get_padstack_instance_by_net_name(self, net_name):
+        """Get a list of padstack instances by net name.
+
+        Parameters
+        ----------
+        net_name : str
+            The net name to be used for filtering padstack instances.
+        Returns
+        -------
+        list of Edb.Cell.Primitive.PadstackInstance
+        """
+        via_list = []
+        for inst in self.padstack_instances:
+            if inst.net_name == net_name:
+                via_list.append(inst)
+        return via_list
