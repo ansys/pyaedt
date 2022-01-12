@@ -14,11 +14,11 @@ on:
   workflow_dispatch:
     inputs:
       logLevel:
-        description: 'Log level'     
+        description: 'Log level'
         required: true
         default: 'warning'
       tags:
-        description: 'Test scenario tags'     
+        description: 'Test scenario tags'
      
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -32,6 +32,15 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - uses: actions/checkout@v2
+
+      # used for documentation deployment
+      - name: Get Bot Application Token
+        id: get_workflow_token
+        uses: peter-murray/workflow-application-token-action@v1
+        with:
+          application_id: ${{ secrets.BOT_APPLICATION_ID }}
+          application_private_key: ${{ secrets.BOT_APPLICATION_PRIVATE_KEY }}
+
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
         with:
@@ -54,7 +63,7 @@ jobs:
  
         #if: startsWith(github.event.ref, 'refs/heads/main') != true
       
-      - name: 'Create Documentations'      
+      - name: 'Create Documentations'
         run: |
           testenv\Scripts\Activate.ps1
           sphinx-build -j auto -b html -a doc/source doc/_build/html 
@@ -90,5 +99,5 @@ jobs:
       #  repository-name: pyansys/pyaedt-docs
       #   branch: master
       #    folder: doc/_build/html/
-      #    token: ${{ secrets.PYANSYS_CI_BOT_TOKEN }}
+      #    token: ${{ steps.get_workflow_token.outputs.token }}
       #    clean: true
