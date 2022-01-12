@@ -569,6 +569,7 @@ class TestClass:
         assert len(via_list)
 
     def test_73_duplicate_padstack(self):
-        self.edbapp.core_padstack.duplicate_padstack(target_padstack_name="VIA_20-10-28_SMB",
-                                                     new_padstack_name="VIA_20-10-28_SMB_NEW")
+        self.edbapp.core_padstack.duplicate_padstack(
+            target_padstack_name="VIA_20-10-28_SMB", new_padstack_name="VIA_20-10-28_SMB_NEW"
+        )
         assert self.edbapp.core_padstack.padstacks["VIA_20-10-28_SMB_NEW"]
