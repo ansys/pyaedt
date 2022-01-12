@@ -776,7 +776,7 @@ class Object3d(object):
         .. note::
         Works from AEDT 2021.2 in CPython only. PyVista has to be installed.
         """
-        if not is_ironpython and self._primitives._appp._aedt_version >= "2021.2":
+        if not is_ironpython and self._primitives._app._aedt_version >= "2021.2":
             self._primitives._app.post.plot_model_obj(
                 objects=[self.name],
                 export_afterplot=False,
@@ -784,8 +784,10 @@ class Object3d(object):
                 air_objects=True,
                 background_color="grey",
                 object_selector=False,
-                color="dodgerblue",
+                color=self.color,
                 off_screen=False,
+                color_by_material=False,
+                opacity=1-self.transparency
             )
 
     @aedt_exception_handler
