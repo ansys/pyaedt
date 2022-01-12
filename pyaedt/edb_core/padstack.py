@@ -481,7 +481,7 @@ class EdbPadstacks(object):
             Name of the new padstack.
         Returns
         -------
-
+        bool
         """
         p1 = self.padstacks[target_padstack_name].edb_padstack.GetData()
         newPadstackDefinitionData = self._edb.Definition.PadstackDefData(p1)
