@@ -20,7 +20,6 @@ jobs:
           application_id: ${{ secrets.BOT_APPLICATION_ID }}
           application_private_key: ${{ secrets.BOT_APPLICATION_PRIVATE_KEY }}
 
-
       - name: Setup Python
         uses: actions/setup-python@v2.2.2
         with:
