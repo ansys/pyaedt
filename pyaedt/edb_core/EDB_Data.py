@@ -1742,10 +1742,24 @@ class EDBPadstackInstance(object):
 
     @property
     def padstack_definition(self):
+        """Padstack definition.
+
+        Returns
+        -------
+        str
+            Name of the padstack definition.
+        """
         return self._edb_padstackinstance.GetPadstackDef().GetName()
 
     @property
     def backdrill_top(self):
+        """Backdrill layer from top.
+
+        Returns
+        -------
+        tuple
+            Tuple of the layer name and drill diameter.
+        """
         layer = self._pedb.edb.Cell.Layer("", 1)
         val = self._pedb.edb_value(0)
         (
@@ -1757,6 +1771,13 @@ class EDBPadstackInstance(object):
 
     @property
     def backdrill_bottom(self):
+        """Backdrill layer from bottom.
+
+        Returns
+        -------
+        tuple
+            Tuple of the layer name and drill diameter.
+        """
         layer = self._pedb.edb.Cell.Layer("", 1)
         val = self._pedb.edb_value(0)
         (
@@ -1768,18 +1789,39 @@ class EDBPadstackInstance(object):
 
     @property
     def start_layer(self):
+        """Starting layer.
+
+        Returns
+        -------
+        str
+            Name of the starting layer.
+        """
         layer = self._pedb.edb.Cell.Layer("", 1)
         _, start_layer, stop_layer = self._edb_padstackinstance.GetLayerRange(layer, layer)
         return start_layer.GetName()
 
     @property
     def stop_layer(self):
+        """Stopping layer.
+
+        Returns
+        -------
+        str
+            Name of the stopping layer.
+        """
         layer = self._pedb.edb.Cell.Layer("", 1)
         _, start_layer, stop_layer = self._edb_padstackinstance.GetLayerRange(layer, layer)
         return stop_layer.GetName()
 
     @property
     def net_name(self):
+        """Net name.
+
+        Returns
+        -------
+        str
+            Name of the net.
+        """
         return self._edb_padstackinstance.GetNet().GetName()
 
     def __init__(self, edb_padstackinstance, _pedb):
