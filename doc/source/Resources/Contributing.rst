@@ -1,17 +1,19 @@
+.. _contributing:
+
 ============
 Contributing
 ============
-
 Overall guidance on contributing to a PyAnsys library appears in the
 `Contributing <https://dev.docs.pyansys.com/overview/contributing.html>`_ topic
 in the *PyAnsys Developer's Guide*. Ensure that you are thoroughly familiar
-with it and all `Guidelines and Best Practices <https://dev.docs.pyansys.com/guidelines/index.html>`_.
+with it and all `Guidelines and Best Practices <https://dev.docs.pyansys.com/guidelines/index.html>`_
+before attempting to contribute to PyAEDT.
  
 The following contribution information is specific to PyAEDT.
 
 Cloning the PyAEDT Repository
 -----------------------------
-Run this code to clone and install the latest AEDT version in development mode:
+Run this code to clone and install the latest version of AEDT in development mode:
 
 .. code::
 
@@ -19,6 +21,12 @@ Run this code to clone and install the latest AEDT version in development mode:
     cd pyaedt
     pip install -e .
 
+Posting Issues
+--------------
+Use the `PyAEDTL Issues <https://github.com/pyansys/pyaedt/issues>`_
+page to submit questions, report bugs, and request new features.
+
+To reach the project support team, email `massimo.capodiferro@ansys.com <massimo.capodiferro@ansys.com>`_.
 
 Viewing PyAEDT Documentation
 -----------------------------
