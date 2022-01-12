@@ -7,17 +7,19 @@ from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 from pyaedt.generic.constants import CSS4_COLORS
+from pyaedt.edb_core.EDB_Data import EDBNetsData
 
-try:
-    from matplotlib import pyplot as plt
-    from matplotlib.path import Path
-    from matplotlib.patches import PathPatch
-except ImportError:
-    if not is_ironpython:
-        warnings.warn(
-            "The Matplotlib module is required to run some functionalities.\n" "Install with \npip install matplotlib"
-        )
-    pass
+if not is_ironpython:
+    try:
+        from matplotlib import pyplot as plt
+        from matplotlib.path import Path
+        from matplotlib.patches import PathPatch
+    except ImportError:
+        if not is_ironpython:
+            mess = "The Matplotlib module is required to run some functionalities.\n"
+            mess += "Install with \npip install matplotlib"
+            warnings.warn(mess)
+        pass
 
 
 class EdbNets(object):
@@ -79,12 +81,12 @@ class EdbNets(object):
 
         Returns
         -------
-        dict
+        dict[str, :class:`pyaedt.edb_core.EDB_Data.EDBNets`]
             Dictionary of nets.
         """
         nets = {}
         for net in self._active_layout.Nets:
-            nets[net.GetName()] = net
+            nets[net.GetName()] = EDBNetsData(net, self._pedb)
         return nets
 
     @property
@@ -93,7 +95,7 @@ class EdbNets(object):
 
         Returns
         -------
-        dict
+        dict[str, :class:`pyaedt.edb_core.EDB_Data.EDBNets`]
             Dictionary of signal nets.
         """
         nets = {}
@@ -108,7 +110,7 @@ class EdbNets(object):
 
         Returns
         -------
-        dict
+        dict[str, :class:`pyaedt.edb_core.EDB_Data.EDBNets`]
             Dictionary of power nets.
         """
         nets = {}
@@ -264,18 +266,18 @@ class EdbNets(object):
 
         if isinstance(nets, str):
             nets = [nets]
+
         for path in self._pedb.core_primitives.paths:
-            net_name = path.GetNet().GetName()
-            layer_name = path.GetLayer().GetName()
+            net_name = path.net_name
+            layer_name = path.layer_name
             if net_name in nets and layer_name in layers:
-                my_net_points = list(path.GetPolygonData().Points)
-                x, y = self._get_points_for_plot(my_net_points)
+                x, y = path.points()
                 if not x:
                     continue
                 if not color_by_net:
                     label = "Layer " + layer_name
                     if label not in label_colors:
-                        color = path.GetLayer().GetColor()
+                        color = path.layer.GetColor()
                         try:
                             c = (color.Item1 / 255, color.Item2 / 255, color.Item3 / 255)
                             label_colors[label] = c
@@ -299,13 +301,12 @@ class EdbNets(object):
                         plt.fill(x, y, c=label_colors[label], alpha=0.4)
 
         for poly in self._pedb.core_primitives.polygons:
-            if poly.IsVoid():
+            if poly.is_void:
                 continue
-            net_name = poly.GetNet().GetName()
-            layer_name = poly.GetLayer().GetName()
+            net_name = poly.net_name
+            layer_name = poly.layer_name
             if net_name in nets and layer_name in layers:
-                my_net_points = list(poly.GetPolygonData().Points)
-                xt, yt = self._get_points_for_plot(my_net_points)
+                xt, yt = poly.points()
                 if not xt:
                     continue
                 x, y = GeometryOperators.orient_polygon(xt, yt, clockwise=True)
@@ -315,9 +316,8 @@ class EdbNets(object):
                 vertices.append((0, 0))
                 codes.append(Path.CLOSEPOLY)
 
-                for void in poly.Voids:
-                    void_points = list(void.GetPolygonData().Points)
-                    xvt, yvt = self._get_points_for_plot(void_points)
+                for void in poly.voids:
+                    xvt, yvt = void.points()
                     if xvt:
                         xv, yv = GeometryOperators.orient_polygon(xvt, yvt, clockwise=False)
                         tmpV = [(i, j) for i, j in zip(xv, yv)]

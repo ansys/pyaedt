@@ -526,9 +526,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             ["dB(S(" + p + "," + q + "))" for p, q in zip(list(port_names), list(port_excited))],
         ]
         solution_data = ""
-        if self.solution_type == "DrivenModal":
+        if self.solution_type == "Modal":
             solution_data = "Modal Solution Data"
-        elif self.solution_type == "DrivenTerminal":
+        elif self.solution_type == "Terminal":
             solution_data = "Terminal Solution Data"
         elif self.solution_type == "HFSS3DLayout":
             solution_data = "Standard"
@@ -660,7 +660,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         freqstop,
         num_of_freq_points,
         sweepname=None,
-        sweeptype="interpolating",
+        sweeptype="Interpolating",
         interpolation_tol_percent=0.5,
         interpolation_max_solutions=250,
         save_fields=True,

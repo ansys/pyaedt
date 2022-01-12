@@ -84,11 +84,11 @@ class TestClass:
     def test_05_create_wave_port_from_sheets(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         o5 = self.aedtapp.modeler.primitives.create_circle(self.aedtapp.PLANE.YZ, udp, 10, name="sheet1")
-        self.aedtapp.solution_type = "DrivenTerminal"
+        self.aedtapp.solution_type = "Terminal"
         ports = self.aedtapp.create_wave_port_from_sheet(o5, 5, self.aedtapp.AxisDir.XNeg, 40, 2, "sheet1_Port", True)
         assert ports[0].name == "sheet1_Port"
         assert ports[0].name in [i.name for i in self.aedtapp.boundaries]
-        self.aedtapp.solution_type = "DrivenModal"
+        self.aedtapp.solution_type = "Modal"
         udp = self.aedtapp.modeler.Position(200, 0, 0)
         o6 = self.aedtapp.modeler.primitives.create_circle(self.aedtapp.PLANE.YZ, udp, 10, name="sheet2")
         ports = self.aedtapp.create_wave_port_from_sheet(o6, 5, self.aedtapp.AxisDir.XPos, 40, 2, "sheet2_Port", True)
@@ -243,7 +243,16 @@ class TestClass:
         edges2 = self.aedtapp.modeler.primitives.get_object_edges(rect_2.id)
         e2 = edges2[0]
 
-        self.aedtapp.solution_type = "DrivenModal"
+        self.aedtapp.solution_type = "Modal"
+        assert self.aedtapp.composite is False
+        self.aedtapp.composite = True
+        assert self.aedtapp.composite is True
+        self.aedtapp.composite = False
+        self.aedtapp.hybrid = False
+        assert self.aedtapp.hybrid is False
+        self.aedtapp.hybrid = True
+        assert self.aedtapp.hybrid is True
+
         assert (
             self.aedtapp.create_circuit_port_from_edges(
                 e1, e2, port_name="port10", port_impedance=50.1, renormalize=False, renorm_impedance="50"
@@ -257,7 +266,7 @@ class TestClass:
             == "port11"
         )
 
-        self.aedtapp.solution_type = "DrivenTerminal"
+        self.aedtapp.solution_type = "Terminal"
         assert (
             self.aedtapp.create_circuit_port_from_edges(
                 e1, e2, port_name="port20", port_impedance=50.1, renormalize=False, renorm_impedance="50+1i*55"
@@ -271,7 +280,7 @@ class TestClass:
             == "port21"
         )
 
-        self.aedtapp.solution_type = "DrivenModal"
+        self.aedtapp.solution_type = "Modal"
 
     def test_09_create_waveport_on_objects(self):
         box1 = self.aedtapp.modeler.primitives.create_box([0, 0, 0], [10, 10, 5], "BoxWG1", "Copper")
@@ -550,6 +559,8 @@ class TestClass:
 
     def test_42_floquet_port(self):
         self.aedtapp.insert_design("floquet")
+        self.aedtapp.solution_type = "Modal"
+
         box1 = self.aedtapp.modeler.primitives.create_box([-100, -100, -100], [200, 200, 200], name="Rad_box2")
         assert self.aedtapp.create_floquet_port(
             box1.faces[0], deembed_dist=1, nummodes=7, reporter_filter=[False, True, False, False, False, False, False]
@@ -614,3 +625,6 @@ class TestClass:
             polarization_angle=30,
         )
         assert bound.azimuth_start == "2deg"
+
+    def test_45_set_autoopen(self):
+        assert self.aedtapp.set_auto_open(True, "PML")

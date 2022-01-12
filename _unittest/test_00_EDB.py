@@ -75,6 +75,20 @@ class TestClass:
         assert "TOP" in self.edbapp.core_primitives.polygons_by_layer.keys()
         assert len(self.edbapp.core_primitives.polygons_by_layer["TOP"]) > 0
         assert len(self.edbapp.core_primitives.polygons_by_layer["UNNAMED_000"]) == 0
+        assert self.edbapp.core_primitives.polygons[0].is_void == self.edbapp.core_primitives.polygons[0].IsVoid()
+        poly0 = self.edbapp.core_primitives.polygons[0]
+        assert isinstance(poly0.voids, list)
+        assert isinstance(poly0.points_raw(), list)
+        assert isinstance(poly0.points(), tuple)
+        assert isinstance(poly0.points()[0], list)
+        assert poly0.points()[0][0] >= 0.0
+        assert poly0.points_raw()[0].X.ToDouble() >= 0.0
+        assert poly0.type == "Polygon"
+        assert self.edbapp.core_primitives.paths[0].type == "Path"
+        assert self.edbapp.core_primitives.rectangles[0].type == "Rectangle"
+        assert self.edbapp.core_primitives.circles[0].type == "Circle"
+        assert not poly0.is_arc(poly0.points_raw()[0])
+        assert isinstance(poly0.voids, list)
 
     def test_04_get_stackup(self):
         stackup = self.edbapp.core_stackup.stackup_layers
@@ -111,6 +125,14 @@ class TestClass:
         powernets = self.edbapp.core_nets.power_nets
         assert len(signalnets) > 2
         assert len(powernets) > 2
+        assert powernets["V3P3_S0"].is_power_ground
+        assert powernets["V3P3_S0"].IsPowerGround()
+        assert len(list(powernets["V3P3_S0"].components.keys())) > 0
+        assert len(powernets["V3P3_S0"].primitives) > 0
+
+        assert not signalnets[list(signalnets.keys())[0]].is_power_ground
+        assert not signalnets[list(signalnets.keys())[0]].IsPowerGround()
+        assert len(list(signalnets[list(signalnets.keys())[0]].primitives)) > 0
 
     def test_09_assign_rlc(self):
         assert self.edbapp.core_components.set_component_rlc(
@@ -485,7 +507,7 @@ class TestClass:
 
     @pytest.mark.skipif(config["build_machine"], reason="Not running in non-graphical mode")
     def test_62_export_to_hfss(self):
-        edb = Edb(edbpath=os.path.join(local_path, "example_models", "simple.aedb"), edbversion="2021.2")
+        edb = Edb(edbpath=os.path.join(local_path, "example_models", "simple.aedb"), edbversion=desktop_version)
         options_config = {"UNITE_NETS": 1, "LAUNCH_Q3D": 0}
         out = edb.write_export3d_option_config_file(scratch_path, options_config)
         assert os.path.exists(out)
@@ -495,7 +517,7 @@ class TestClass:
 
     @pytest.mark.skipif(config["build_machine"], reason="Not running in non-graphical mode")
     def test_63_export_to_q3d(self):
-        edb = Edb(edbpath=os.path.join(local_path, "example_models", "simple.aedb"), edbversion="2021.2")
+        edb = Edb(edbpath=os.path.join(local_path, "example_models", "simple.aedb"), edbversion=desktop_version)
         options_config = {"UNITE_NETS": 1, "LAUNCH_Q3D": 0}
         out = edb.write_export3d_option_config_file(scratch_path, options_config)
         assert os.path.exists(out)
@@ -505,7 +527,7 @@ class TestClass:
 
     @pytest.mark.skipif(config["build_machine"], reason="Not running in non-graphical mode")
     def test_64_export_to_maxwell(self):
-        edb = Edb(edbpath=os.path.join(local_path, "example_models", "simple.aedb"), edbversion="2021.2")
+        edb = Edb(edbpath=os.path.join(local_path, "example_models", "simple.aedb"), edbversion=desktop_version)
         options_config = {"UNITE_NETS": 1, "LAUNCH_MAXWELL": 0}
         out = edb.write_export3d_option_config_file(scratch_path, options_config)
         assert os.path.exists(out)

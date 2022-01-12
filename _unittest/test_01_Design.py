@@ -14,6 +14,8 @@ try:
 except ImportError:
     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
+from pyaedt.generic.general_methods import is_ironpython
+
 test_project_name = "Coax_HFSS"
 example_project = os.path.join(local_path, "example_models", test_project_name + ".aedt")
 
@@ -86,10 +88,10 @@ class TestClass:
         assert os.path.exists(self.aedtapp.results_directory)
 
     def test_05_solution_type(self):
-        assert self.aedtapp.solution_type == "DrivenModal"
-        self.aedtapp.solution_type = "DrivenTerminal"
-        assert self.aedtapp.solution_type == "DrivenTerminal"
-        self.aedtapp.solution_type = "DrivenModal"
+        assert "Modal" in self.aedtapp.solution_type
+        self.aedtapp.solution_type = "Terminal"
+        assert "Terminal" in self.aedtapp.solution_type
+        self.aedtapp.solution_type = "Modal"
 
     def test_06_libs(self):
         assert os.path.exists(self.aedtapp.personallib)
@@ -230,3 +232,13 @@ class TestClass:
 
     def test_25_change_registry_from_file(self):
         assert self.aedtapp.set_registry_from_file(os.path.join(local_path, "example_models", "Test.acf"))
+
+    def test_26_odefinition_manager(self):
+        assert self.aedtapp.odefinition_manager
+        assert self.aedtapp.omaterial_manager
+
+    def test_27_odesktop(self):
+        if is_ironpython:
+            assert str(type(self.aedtapp.odesktop)) == "<type 'ADesktopWrapper'>"
+        else:
+            assert str(type(self.aedtapp.odesktop)) == "<class 'win32com.client.CDispatch'>"

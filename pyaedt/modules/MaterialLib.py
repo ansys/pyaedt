@@ -23,9 +23,9 @@ class Materials(object):
 
     Examples
     --------
-    >>>from pyaedt import Hfss
-    >>>app = Hfss()
-    >>>materials = app.materials
+    >>> from pyaedt import Hfss
+    >>> app = Hfss()
+    >>> materials = app.materials
     """
 
     def __init__(self, app):
@@ -484,7 +484,7 @@ class Materials(object):
         Returns
         -------
         list
-            List of dielctrics in the material database.
+            List of dielectrics in the material database.
 
         """
         data = []

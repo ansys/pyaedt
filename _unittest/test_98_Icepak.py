@@ -220,7 +220,10 @@ class TestClass:
 
     def test_15_insert_new_icepak(self):
         self.aedtapp.insert_design("Solve")
-        self.aedtapp.solution_type = self.aedtapp.SOLUTIONS.Icepak.SteadyTemperatureAndFlow
+        self.aedtapp.solution_type = self.aedtapp.SOLUTIONS.Icepak.SteadyFlowOnly
+        assert self.aedtapp.problem_type == "FlowOnly"
+        self.aedtapp.problem_type = "TemperatureAndFlow"
+        assert self.aedtapp.problem_type == "TemperatureAndFlow"
         self.aedtapp.modeler.primitives.create_box([0, 0, 0], [10, 10, 10], "box", "copper")
         self.aedtapp.modeler.primitives.create_box([9, 9, 9], [5, 5, 5], "box2", "copper")
         self.aedtapp.create_source_block("box", "1W", False)
