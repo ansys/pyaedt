@@ -11,7 +11,7 @@ in the *PyAnsys Developer's Guide*. Ensure that you are thoroughly familiar
 
 Cloning the PyAEDT Repository
 -----------------------------
-Run this code to clone and install the latest AEDT version in development:
+Run this code to clone and install the latest AEDT version in development mode:
 
 .. code::
 
