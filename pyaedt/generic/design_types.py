@@ -12,7 +12,7 @@ try:
     from pyaedt.mechanical import Mechanical
     from pyaedt.rmxprt import Rmxprt
     from pyaedt.twinbuilder import TwinBuilder
-    from pyaedt.twinbuilder import TwinBuilder as Simplorer   
+    from pyaedt.twinbuilder import TwinBuilder as Simplorer
     from pyaedt.emit import Emit
     from pyaedt.desktop import Desktop
 except ImportError:
@@ -26,8 +26,8 @@ except ImportError:
     from pyaedt.maxwell import Maxwell2d, Maxwell3d
     from pyaedt.mechanical import Mechanical
     from pyaedt.rmxprt import Rmxprt
-    from pyaedt.twinbuilder import TwinBuilder   
-    from pyaedt.twinbuilder import TwinBuilder as Simplorer 
+    from pyaedt.twinbuilder import TwinBuilder
+    from pyaedt.twinbuilder import TwinBuilder as Simplorer
     from pyaedt.emit import Emit
     from pyaedt.desktop import Desktop
 

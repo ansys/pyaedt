@@ -8,7 +8,7 @@ from pyaedt.modules.PostProcessor import CircuitPostProcessor
 class AnalysisTwinBuilder(Analysis):
     """Class for Twin Builder Analysis Setup (TwinBuilder)
 
-    It is automatically initialized by Application call (Twin Builder). 
+    It is automatically initialized by Application call (Twin Builder).
     Refer to Application function for inputs definition
 
     Parameters

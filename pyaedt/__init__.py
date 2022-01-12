@@ -28,7 +28,7 @@ from pyaedt.generic.design_types import (
     Mechanical,
     Rmxprt,
     TwinBuilder,
-    Simplorer,   
+    Simplorer,
     Emit,
     get_pyaedt_app,
     Desktop,
