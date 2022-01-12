@@ -1405,7 +1405,10 @@ class PostProcessor(Post):
                 objects = self._app.modeler.primitives.object_names
             for el in objects:
                 try:
-                    color.append([i / 256 for i in self._app.modeler[el].color])
+                    if isinstance(self._app.modeler[el].color, (tuple, list)):
+                        color.append([i / 256 for i in self._app.modeler[el].color])
+                    else:
+                        color.append(self._app.modeler[el].color)
                     if include_opacity:
                         opacity.append(1 - self._app.modeler[el].transparency)
                 except KeyError:
