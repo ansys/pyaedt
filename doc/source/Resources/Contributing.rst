@@ -13,7 +13,7 @@ The following contribution information is specific to PyAEDT.
 
 Cloning the PyAEDT Repository
 -----------------------------
-Run this code to clone and install the latest version of AEDT in development mode:
+Run this code to clone and install the latest version of PyAEDT in development mode:
 
 .. code::
 
