@@ -43,7 +43,7 @@ To post issues, questions, and code, go to `PyAEDT Issues
 Dependencies
 ------------
 To run PyAEDT, you must have a local licenced copy of AEDT.
-PyAEDT supports AEDT versions 2021 R1 or later.
+PyAEDT supports AEDT versions 2021 R1 or newer.
 
 Student Version
 ---------------
