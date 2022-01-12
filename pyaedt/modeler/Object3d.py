@@ -800,7 +800,7 @@ class Object3d(object):
 
         Parameters
         ----------
-        file_path : str
+        file_path : str, optional
             File name with full path. If `None` Project directory will be used.
 
         Returns
@@ -808,7 +808,7 @@ class Object3d(object):
         str
             File path.
         """
-        if not is_ironpython and self._primitives._appp._aedt_version >= "2021.2":
+        if not is_ironpython and self._primitives._app._aedt_version >= "2021.2":
             files = self._primitives._app.post.plot_model_obj(
                 objects=[self.name],
                 export_afterplot=True,
