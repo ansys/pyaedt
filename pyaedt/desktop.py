@@ -405,12 +405,12 @@ class Desktop:
         if specified_version:
             if float(specified_version) < 2021:
                 if float(specified_version) < 2019:
+                    raise ValueError("PyAEDT supports AEDT versions 2021 R1 and newers.")
+                else:
                     warnings.warn(
                         """PyAEDT have limited capabilities when used with an AEDT version older than 2021 R1.
                         PyAEDT officially supports AEDT versions 2021 R1 and newers."""
                     )
-                else:
-                    raise ValueError("PyAEDT supports AEDT versions 2021 R1 and newers.")
             if student_version:
                 specified_version += "SV"
                 version_student = True
