@@ -403,7 +403,7 @@ class Desktop:
     def _set_version(self, specified_version, student_version):
         version_student = False
         if specified_version:
-            if int(str(specified_version).split(".")[0])<2021:
+            if int(str(specified_version).split(".")[0]) < 2021:
                 raise ValueError("PyAEDT supports AEDT versions 2021 R1 and newers.")
             if student_version:
                 specified_version += "SV"
