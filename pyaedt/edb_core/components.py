@@ -522,14 +522,19 @@ class Components(object):
         Edb terminal.
         """
 
-        pin_pos = self._edb.Definition.Geometry.PointData()
-        pin_rot = 0.0
-        from_layer = self._edb.Cell.ILayerReadOnly
-        to_layer = self._edb.Cell.ILayerReadOnly
-        pin.GetLayerRange(from_layer, to_layer)
-        term_name = "{]_{}_{}".format(pin.GetComponent().GetName(), pin.GetNet().GetName(), pin.GetName())
+        res, pin_position, pin_rot = pin.GetPositionAndRotation(
+            self._edb.Geometry.PointData(self._edb_value(0.0), self._edb_value(0.0)), 0.0
+        )
+        if not is_ironpython:
+            res, from_layer, to_layer = pin.GetLayerRange(None, None)
+        else:
+            res, from_layer, to_layer = pin.GetLayerRange()
+        cmp_name = pin.GetComponent().GetName()
+        net_name = pin.GetNet().GetName()
+        pin_name = pin.GetName()
+        term_name = "{}_{}_{}".format(cmp_name, net_name, pin_name)
         term = self._edb.Cell.Terminal.PointTerminal.Create(
-            pin.GetLayout(), pin.GetNet(), term_name, pin_pos, from_layer
+            pin.GetLayout(), pin.GetNet(), term_name, pin_position, from_layer
         )
         return term
 
@@ -548,17 +553,16 @@ class Components(object):
         Edb pin.
 
         """
-        pin_position = self._edb.Geometry.PointData()
-        pin_rot = 0.0
-        pin.GetPositionAndRotation(pin_position, pin_rot)
-
+        res, pin_position, pin_rot = pin.GetPositionAndRotation(
+            self._edb.Geometry.PointData(self._edb_value(0.0), self._edb_value(0.0)), 0.0
+        )
         distance = 1e3
         closest_pin = ref_pinlist[0]
-        ref_pin_pos = self._edb.Geometry.PointData()
-        ref_pin_rot = 0.0
         for ref_pin in ref_pinlist:
-            ref_pin.GetPositionAndRotation(ref_pin_pos, ref_pin_rot)
-            temp_distance = pin_position.Distance(ref_pin_pos)
+            res, ref_pin_position, ref_pin_rot = ref_pin.GetPositionAndRotation(
+                self._edb.Geometry.PointData(self._edb_value(0.0), self._edb_value(0.0)), 0.0
+            )
+            temp_distance = pin_position.Distance(ref_pin_position)
             if temp_distance < distance:
                 distance = temp_distance
                 closest_pin = ref_pin
