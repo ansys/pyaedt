@@ -2,7 +2,7 @@
 from _unittest.conftest import local_path, scratch_path
 
 # Import required modules
-from pyaedt import Simplorer
+from pyaedt import TwinBuilder
 from pyaedt.generic.filesystem import Scratch
 import gc
 import os
@@ -12,13 +12,13 @@ netlist1 = "netlist_small.cir"
 
 class TestClass:
     def setup_class(self):
-        project_name = "SimplorerProject"
-        design_name = "SimplorerDesign1"
+        project_name = "TwinBuilderProject"
+        design_name = "TwinBuilderDesign1"
         # set a scratch directory and the environment / test data
         with Scratch(scratch_path) as self.local_scratch:
             netlist_file1 = os.path.join(local_path, "example_models", netlist1)
             self.local_scratch.copyfile(netlist_file1)
-            self.aedtapp = Simplorer(project_name, design_name)
+            self.aedtapp = TwinBuilder(project_name, design_name)
 
     def teardown_class(self):
         self.aedtapp._desktop.ClearMessages("", "", 3)
