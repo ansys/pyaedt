@@ -1362,7 +1362,7 @@ class PostProcessor(Post):
         off_screen : bool, optional
             Off Screen plot.
         color : str, list
-            Color of the object. Can be color name or list of RGB.
+            Color of the object. Can be color name or list of RGB. If None automatic color from model or material.
         color_by_material : bool
             Either to color object by material or by their AEDT value.
 
