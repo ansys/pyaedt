@@ -477,7 +477,7 @@ class EdbPadstacks(object):
         ----------
         target_padstack_name : str
             Name of the padstack to be duplicated.
-        new_padstack_name : str
+        new_padstack_name : str, optional
             Name of the new padstack.
         Returns
         -------
