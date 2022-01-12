@@ -481,7 +481,8 @@ class EdbPadstacks(object):
             Name of the new padstack.
         Returns
         -------
-        bool
+        str
+            Name of the new padstack
         """
         p1 = self.padstacks[target_padstack_name].edb_padstack.GetData()
         newPadstackDefinitionData = self._edb.Definition.PadstackDefData(p1)
@@ -493,7 +494,7 @@ class EdbPadstacks(object):
         padstackDefinition.SetData(newPadstackDefinitionData)
         self.update_padstacks()
 
-        return True
+        return new_padstack_name
 
     @aedt_exception_handler
     def place_padstack(
