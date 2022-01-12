@@ -20,6 +20,8 @@ if not is_ironpython:
             mess += "Install with \npip install matplotlib"
             warnings.warn(mess)
         pass
+    except:
+        pass
 
 
 class EdbNets(object):
