@@ -86,6 +86,8 @@ jobs:
 
 
       - name: Upload Documentation
+        continue-on-error: true
+        id: upload
         uses: actions/upload-artifact@v2.2.3
         with:
           name: Documentation
@@ -94,6 +96,18 @@ jobs:
 
       - name: Deploy
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+        uses: JamesIves/github-pages-deploy-action@4.1.4
+        with:
+          repository-name: pyansys/pyaedt-docs
+          branch: gh-pages
+          folder: doc/_build/html/
+          token: ${{ steps.get_workflow_token.outputs.token }}
+          clean: true
+
+        # Retry the deployment in case some network issue prevented git to push
+        # the modifications properly. It happened in the past.
+      - name: Deploy Second try
+        if: steps.deploy.outcome!='success' && github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
         uses: JamesIves/github-pages-deploy-action@4.1.4
         with:
           repository-name: pyansys/pyaedt-docs
