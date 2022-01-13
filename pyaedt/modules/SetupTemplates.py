@@ -1248,7 +1248,7 @@ class SweepHFSS(object):
         ----------
         rangetype : str
             Type of the subrange. Options are ``"LinearCount"``,
-            ``"LinearStep"``, ``"LogScale"``, and ``"SinglePoints"``.
+            ``"LinearStep"``, ``"LogScale"`` and ``"SinglePoints"``.
         start : float
             Starting frequency.
         end : float, optional
@@ -1280,7 +1280,7 @@ class SweepHFSS(object):
             range["RangeEnd"] = str(end) + unit
             range["RangeStep"] = str(count) + unit
         elif rangetype == "LogScale":
-            range["RangeEnd"] = end
+            range["RangeEnd"] = str(end) + unit
             range["RangeCount"] = self.props["RangeCount"]
             range["RangeSamples"] = count
         elif rangetype == "SinglePoints":
