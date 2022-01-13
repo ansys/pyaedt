@@ -58,7 +58,6 @@ class TestClass:
             plot1.name,
             project_path=self.local_scratch.path,
             meshplot=False,
-            setup_name=setup_name,
             imageformat="jpg",
             view="isometric",
             off_screen=True,

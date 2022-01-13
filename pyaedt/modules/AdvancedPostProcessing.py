@@ -157,6 +157,8 @@ class ModelPlotter(object):
         self.units = "meter"
         self.frame_per_seconds = 1
         self._plot_meshes = []
+        self.range_min = None
+        self.range_max = None
 
     @property
     def background_color(self):
@@ -559,7 +561,7 @@ class ModelPlotter(object):
                     self.i += 1
 
         el = 1
-        for actor in self._objects:
+        for actor in self.objects:
             if el < max_elements:
                 callback = SetVisibilityCallback(actor._cached_mesh)
                 buttons.append(
@@ -569,7 +571,7 @@ class ModelPlotter(object):
                         position=(5.0, startpos + 50),
                         size=size,
                         border_size=1,
-                        color_on=actor._cached_mesh.color,
+                        color_on=actor.color,
                         color_off="grey",
                         background_color=None,
                     )
@@ -650,12 +652,20 @@ class ModelPlotter(object):
             vertical=False,
         )
         for field in self._fields:
-            field._cached_mesh = self.pv.add_mesh(field._cached_polydata, scalars=field.label,
-                                                  log_scale=field.log_scale,
-                                                  scalar_bar_args=sargs,
-                                                  cmap=field.color_map,
-                                                  opacity=field.opacity)
-
+            if self.range_max is not None and self.range_min is not None:
+                field._cached_mesh = self.pv.add_mesh(field._cached_polydata, scalars=field.label,
+                                                      log_scale=field.log_scale,
+                                                      scalar_bar_args=sargs,
+                                                      cmap=field.color_map,
+                                                      clim=[self.range_min, self.range_max],
+                                                      opacity=field.opacity)
+            else:
+                field._cached_mesh = self.pv.add_mesh(field._cached_polydata, scalars=field.label,
+                                                      log_scale=field.log_scale,
+                                                      scalar_bar_args=sargs,
+                                                      cmap=field.color_map,
+                                                      clim=[self.range_min, self.range_max],
+                                                      opacity=field.opacity)
         self._add_buttons()
         end = time.time() - start
         files_list = []
@@ -697,14 +707,14 @@ class ModelPlotter(object):
         if remove_objs:
             for el in self.objects:
                 if os.path.exists(el.path):
-                    os.remove(el)
+                    os.remove(el.path)
                 if clean_cache:
                     el._cached_mesh = None
                     el._cached_polydata = None
         if remove_fields:
             for el in self.fields:
                 if os.path.exists(el.path):
-                    os.remove(el)
+                    os.remove(el.path)
                 if clean_cache:
                     el._cached_mesh = None
                     el._cached_polydata = None
@@ -719,7 +729,7 @@ class ModelPlotter(object):
         bool
         """
         start = time.time()
-        assert len(self._fields) > 0, "Number of Fields have to be greater than 1 to do an animation."
+        assert len(self.frames) > 0, "Number of Fields have to be greater than 1 to do an animation."
         self.pv = pv.Plotter(notebook=is_notebook(), off_screen=self.off_screen, window_size=self.windows_size)
         self.pv.background_color = self.background_color
         self._read_mesh_files(read_frames=True)
@@ -734,9 +744,9 @@ class ModelPlotter(object):
         self.pv.add_bounding_box(color=tuple(axes_color))
         if self.show_legend:
             labels = []
-            for m in self._objects:
-                labels.append([m.name, m._cached_mesh.color])
-            for m in self._fields:
+            for m in self.objects:
+                labels.append([m.name, m.color])
+            for m in self.frames:
                 labels.append([m.name, "red"])
             self.pv.add_legend(labels=labels, bcolor=None, face="circle", size=[0.15, 0.15])
         if self.view == "isometric":
@@ -788,14 +798,17 @@ class ModelPlotter(object):
 
         cpos = self.pv.show(interactive=False, auto_close=False, interactive_update=not self.off_screen)
 
-
-        mins = 1e20
-        maxs = -1e20
-        for el in self.fields:
-            if np.min(el._cached_polydata.point_data[el.label]) < mins:
-                mins = np.min(el._cached_polydata.point_data[el.label])
-            if np.max(el._cached_polydata.point_data[el.label]) > maxs:
-                maxs = np.max(el._cached_polydata.point_data[el.label])
+        if self.range_min is not None and self.range_max is not None:
+            mins = self.range_min
+            maxs = self.range_max
+        else:
+            mins = 1e20
+            maxs = -1e20
+            for el in self.frames:
+                if np.min(el._cached_polydata.point_data[el.label]) < mins:
+                    mins = np.min(el._cached_polydata.point_data[el.label])
+                if np.max(el._cached_polydata.point_data[el.label]) > maxs:
+                    maxs = np.max(el._cached_polydata.point_data[el.label])
 
         self.frames[0]._cached_mesh=self.pv.add_mesh(
             self.frames[0]._cached_polydata,
@@ -1052,12 +1065,12 @@ class PostProcessor(Post):
                     export_path, "Model_{}_{}.obj".format(el, self._app.modeler[el].material_name.lower())
                 )
                 self._app.modeler.oeditor.ExportModelMeshToFile(fname, [el])
-                files_exported.append(fname)
+                files_exported.append([fname, self._app.modeler[el].color, 1-self._app.modeler[el].transparency])
             return files_exported
         else:
             fname = os.path.join(export_path, "Model_AllObjs_AllMats.obj")
             self._app.modeler.oeditor.ExportModelMeshToFile(fname, obj_list)
-            return [fname]
+            return [fname, "grey", 0.6]
 
     @aedt_exception_handler
     def export_mesh_obj(self, setup_name=None, intrinsic_dict={}):
@@ -1159,44 +1172,11 @@ class PostProcessor(Post):
             self.logger.warning("No Objects exported. Try other options or include Air objects.")
             return False
 
-        if plot_separate_objects and not color and not color_by_material:
-            color = []
-            include_opacity = False
-            if opacity is None:
-                opacity = []
-                include_opacity = True
-            if not objects:
-                objects = self._app.modeler.primitives.object_names
-            for el in objects:
-                try:
-                    if isinstance(self._app.modeler[el].color, (tuple, list)):
-                        color.append([i for i in self._app.modeler[el].color])
-                    else:
-                        color.append(self._app.modeler[el].color)
-                    if include_opacity:
-                        opacity.append(1 - self._app.modeler[el].transparency)
-                except KeyError:
-                    color.append("dodgerblue")
-                    if include_opacity:
-                        opacity.append(0.6)
-
         model = ModelPlotter()
+
         for file in files:
-            if color:
-                if isinstance(color, list):
-                    c = color[files.index(file)]
-                else:
-                    c = color
-            else:
-                c = "dodgerblue"
             if opacity:
-                if isinstance(opacity, list):
-                    o = opacity[files.index(file)]
-                else:
-                    o = opacity
-            else:
-                o = 0.6
-            model.add_object(file, c, o, self.modeler.model_units)
+                model.add_object(file[0], file[1], opacity, self.modeler.model_units)
         model.background_color = background_color
         model.off_screen = off_screen
         model.show_axes = show_axes
@@ -1218,8 +1198,6 @@ class PostProcessor(Post):
         plotname,
         project_path="",
         meshplot=False,
-        setup_name=None,
-        intrinsic_dict={},
         imageformat="jpg",
         view="isometric",
         plot_label="Temperature",
@@ -1242,11 +1220,6 @@ class PostProcessor(Post):
         meshplot : bool, optional
             Whether to create and plot the mesh over the fields. The
             default is ``False``.
-        setup_name : str, optional
-            Name of the setup or sweep to use for the export. The default is ``None``.
-        intrinsic_dict : dict, optional
-            Intrinsic dictionary that is needed for the export when ``meshplot="True"``.
-            The default is ``{}``.
         imageformat : str, optional
             Format of the image file. Options are ``"jpg"``,
             ``"png"``, ``"svg"``, and ``"webp"``. The default is
@@ -1278,35 +1251,32 @@ class PostProcessor(Post):
             self.ofieldsreporter.UpdateQuantityFieldsPlots(plot_folder)
 
         start = time.time()
-        files_to_add = []
         if not project_path:
             project_path = self._app.project_path
         file_to_add = self.export_field_plot(plotname, project_path)
-        file_list = None
         if not file_to_add:
             return False
         else:
-            for file in files_to_add:
-                c = "dodgerblue"
-                o = 0.6
-
-            file_name = os.path.join(self._app.project_path, self._app.project_name + "."+ imageformat)
             if meshplot:
                 if self._app._aedt_version >= "2021.2":
-                    models = self.export_model_obj()
+                    models = self.export_model_obj(export_as_single_objects=True, air_objects=False)
 
         model =ModelPlotter()
         model.off_screen = off_screen
 
         if file_to_add:
             model.add_field_from_file(file_to_add, coordinate_units=self.modeler.model_units)
+            if plot_label:
+                model.fields[0].label = plot_label
         if models:
             for m in models:
-                c = "dodgerblue"
-                o = 0.6
-                model.add_object(m, c, o)
-        if project_path:
-            model.plot(project_path)
+                model.add_object(m[0], m[1], m[2])
+        model.view = view
+
+        if scale_min and scale_max:
+            model.range_min = scale_min
+            model.range_max = scale_max
+        model.plot(os.path.join(project_path, self._app.project_name+"." +imageformat))
         model.clean_cache_and_files(clean_cache=False)
 
         return model
@@ -1317,8 +1287,6 @@ class PostProcessor(Post):
         plotname,
         plot_folder=None,
         meshplot=False,
-        setup_name=None,
-        intrinsic_dict={},
         variation_variable="Phi",
         variation_list=["0deg"],
         project_path="",
@@ -1337,12 +1305,6 @@ class PostProcessor(Post):
         plot_folder : str, optional
             Name of the folder in which the plot resides. The default
             is ``None``.
-        setup_name : str, optional
-            Name of the setup (sweep) to use for the export. The
-            default is ``None``.
-        intrinsic_dict : dict, optional
-            Intrinsic dictionary that is needed for the export. The default
-            is ``{}``.
         variation_variable : str, optional
             Variable to vary. The default is ``"Phi"``.
         variation_list : list, optional
@@ -1351,7 +1313,7 @@ class PostProcessor(Post):
         project_path : str, optional
             Path for the export. The default is ``""``.
         meshplot : bool, optional
-             The default is ``False``.
+             The default is ``False``. Valid from Version 2021.2.
         export_gif : bool, optional
              The default is ``False``.
         off_screen : bool, optional
@@ -1369,8 +1331,10 @@ class PostProcessor(Post):
         models_to_add = []
         if meshplot:
             if self._app._aedt_version >= "2021.2":
-                models_to_add.extend(self.export_model_obj())
+                models_to_add.extend(self.export_model_obj(export_as_single_objects=True, air_objects=False))
         fields_to_add=[]
+        if not project_path:
+            project_path = self._app.project_path
         for el in variation_list:
             self._app._odesign.ChangeProperty(
                 [
@@ -1382,16 +1346,18 @@ class PostProcessor(Post):
                     ],
                 ]
             )
-            files_to_add.append(self.export_field_plot(plotname, project_path, plotname + variation_variable + str(el)))
+            fields_to_add.append(self.export_field_plot(plotname, project_path, plotname + variation_variable + str(el)))
 
         model =ModelPlotter()
+        model.off_screen = off_screen
         if models_to_add:
-            model.add_object(models_to_add[0])
+            for m in models_to_add:
+                model.add_object(m[0], cad_color=m[1], opacity=m[2])
         if fields_to_add:
             model.add_frames_from_file(fields_to_add)
         if export_gif:
             model.gif_file = os.path.join(self._app.project_path, self._app.project_name+".gif")
-            model.animate()
+        model.animate()
         model.clean_cache_and_files(clean_cache=False)
 
         return model
@@ -1460,8 +1426,7 @@ class PostProcessor(Post):
         models_to_add = []
         if meshplot:
             if self._app._aedt_version >= "2021.2":
-                models_to_add.extend(self.export_model_obj())
-
+                models_to_add.extend(self.export_model_obj(export_as_single_objects=True, air_objects=False))
         v = 0
         fields_to_add = []
         for el in variation_list:
@@ -1479,8 +1444,10 @@ class PostProcessor(Post):
                 plotf.delete()
             v += 1
         model = ModelPlotter()
+        model.off_screen = off_screen
         if models_to_add:
-            model.add_object(models_to_add[0])
+            for m in models_to_add:
+                model.add_object(m[0],cad_color=m[1], opacity=m[2])
         if fields_to_add:
             model.add_frames_from_file(fields_to_add)
         if export_gif:

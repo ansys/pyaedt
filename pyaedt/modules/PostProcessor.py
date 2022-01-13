@@ -952,8 +952,6 @@ class FieldPlot:
                 self.name,
                 project_path=export_path,
                 meshplot=plot_mesh,
-                setup_name=self.solutionName,
-                intrinsic_dict=self.intrinsincList,
                 imageformat="jpg",
                 view=view,
                 plot_label=self.quantityName,
