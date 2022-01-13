@@ -45,7 +45,7 @@ class TestClass:
         self.local_scratch.remove()
         gc.collect()
 
-    @pytest.mark.skipif(config["build_machine"] == True or is_ironpython, reason="Not running in non-graphical mode")
+    @pytest.mark.skipif(is_ironpython, reason="Not running in non-graphical mode")
     def test_01_Field_Ploton_cutplanedesignname(self):
         cutlist = ["Global:XY", "Global:XZ", "Global:YZ"]
         setup_name = self.aedtapp.existing_analysis_sweeps[0]
@@ -54,7 +54,7 @@ class TestClass:
         plot1 = self.aedtapp.post.create_fieldplot_cutplane(cutlist, quantity_name, setup_name, intrinsic)
         plot1.IsoVal = "Tone"
         assert plot1.update_field_plot_settings()
-        image_file = self.aedtapp.post.plot_field_from_fieldplot(
+        plot_obj = self.aedtapp.post.plot_field_from_fieldplot(
             plot1.name,
             project_path=self.local_scratch.path,
             meshplot=False,
@@ -62,7 +62,7 @@ class TestClass:
             view="isometric",
             off_screen=True,
         )
-        assert os.path.exists(image_file[0])
+        assert os.path.exists(plot_obj.image_file)
 
     def test_01B_Field_Plot(self):
         cutlist = ["Global:XY", "Global:XZ", "Global:YZ"]
@@ -74,11 +74,11 @@ class TestClass:
         plot1.IsoVal = "Tone"
         assert plot1.change_plot_scale(min_value, "30000")
 
-    @pytest.mark.skipif(config["build_machine"] == True or is_ironpython, reason="Not running in non-graphical mode")
+    @pytest.mark.skipif(is_ironpython, reason="Not running in non-graphical mode")
     def test_01_Animate_plt(self):
         cutlist = ["Global:XY"]
         phases = [str(i * 5) + "deg" for i in range(2)]
-        gif_file = self.aedtapp.post.animate_fields_from_aedtplt_2(
+        model_gif = self.aedtapp.post.animate_fields_from_aedtplt_2(
             quantityname="Mag_E",
             object_list=cutlist,
             plottype="CutPlane",
@@ -91,7 +91,7 @@ class TestClass:
             off_screen=True,
             export_gif=True,
         )
-        assert os.path.exists(gif_file)
+        assert os.path.exists(model_gif.gif_file)
 
     @pytest.mark.skipif(config["build_machine"] == True, reason="Not running in non-graphical mode")
     def test_02_export_fields(self):

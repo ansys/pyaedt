@@ -151,6 +151,7 @@ class ModelPlotter(object):
         self._plot_meshes = []
         self.range_min = None
         self.range_max = None
+        self.image_file = None
 
     @property
     def background_color(self):
@@ -692,6 +693,7 @@ class ModelPlotter(object):
             self.pv.show()
         else:
             self.pv.show(full_screen=True)
+        self.image_file = export_image_path
         return True
 
     @aedt_exception_handler
@@ -1248,8 +1250,8 @@ class PostProcessor(Post):
 
         Returns
         -------
-        type
-            List of exported files.
+        :class:`pyaedt.modules.AdvancedPostProcessing.ModelPlotter`
+            Model Object.
         """
         if not plot_folder:
             self.ofieldsreporter.UpdateAllFieldsPlots()
@@ -1327,8 +1329,8 @@ class PostProcessor(Post):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        :class:`pyaedt.modules.AdvancedPostProcessing.ModelPlotter`
+            Model Object.
         """
         if not plot_folder:
             self.ofieldsreporter.UpdateAllFieldsPlots()
@@ -1426,8 +1428,8 @@ class PostProcessor(Post):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        :class:`pyaedt.modules.AdvancedPostProcessing.ModelPlotter`
+            Model Object.
         """
         if not project_path:
             project_path = self._app.project_path
