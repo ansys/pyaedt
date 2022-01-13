@@ -784,8 +784,10 @@ class Object3d(object):
                 air_objects=True,
                 background_color="grey",
                 object_selector=False,
-                color="dodgerblue",
+                color=[i / 256 for i in self.color],
                 off_screen=False,
+                color_by_material=False,
+                opacity=1 - self.transparency,
             )
 
     @aedt_exception_handler
@@ -815,8 +817,10 @@ class Object3d(object):
                 air_objects=True,
                 background_color="grey",
                 object_selector=False,
-                color="dodgerblue",
+                color=[i / 256 for i in self.color],
                 off_screen=True,
+                color_by_material=False,
+                opacity=1 - self.transparency,
             )
             if files:
                 return files[0]
