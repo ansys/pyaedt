@@ -12,7 +12,7 @@ import warnings
 
 from pyaedt.generic.general_methods import aedt_exception_handler
 from pyaedt.modules.PostProcessor import PostProcessor as Post
-from pyaedt.generic.constants import CSS4_COLORS
+from pyaedt.generic.constants import CSS4_COLORS, AEDT_UNITS
 
 try:
     import numpy as np
@@ -52,6 +52,12 @@ except ImportError:
 
 
 def is_notebook():
+    """Check if pyaedt is running in Jupyter or not.
+
+    Returns
+    -------
+    bool
+    """
     try:
         shell = get_ipython().__class__.__name__
         if shell == "ZMQInteractiveShell":
@@ -79,6 +85,772 @@ def is_float(istring):
         return float(istring.strip())
     except Exception:
         return 0
+
+
+class ObjClass(object):
+    """Class that manages mesh files to be plotted in pyvista."""
+
+    def __init__(self,
+                 path,
+                 color,
+                 opacity,
+                 units):
+        self.path = path
+        self._color = (0, 0, 0)
+        self.color = color
+        self.opacity = opacity
+        self.units = units
+        self._cached_mesh = None
+        self._cached_polydata = None
+        self.name = os.path.splitext(self.path)[0]
+
+    @property
+    def color(self):
+        return self._color
+
+    @color.setter
+    def color(self, value):
+        if isinstance(value, (tuple, list)):
+            self._color = value
+        elif value in CSS4_COLORS:
+            h = CSS4_COLORS[value].lstrip('#')
+            self._color = tuple(int(h[i:i+2], 16) for i in (0, 2, 4))
+
+class FieldClass(object):
+    """Class to manage Field data to be plotted in pyvista."""
+
+    def __init__(self,
+                 path,
+                 log_scale=True,
+                 coordinate_units="meter",
+                 opacity=1,
+                 color_map="rainbow",
+                 label="Field"):
+        self.path = path
+        self.log_scale = log_scale
+        self.units = coordinate_units
+        self.opacity = opacity
+        self.color_map = color_map
+        self._cached_mesh = None
+        self._cached_polydata = None
+        self.label = label
+        self.name = os.path.splitext(self.path)[0]
+
+
+class ModelPlotter(object):
+    """Class that manage the plot data."""
+    def __init__(self):
+        self._objects = []
+        self._fields = []
+        self._frames = []
+        self.show_axes = True
+        self.show_legend = True
+        self.show_grid = True
+        self.is_notebook = is_notebook()
+        self.gif_file = None
+        self.legend = True
+        self._background_color = (255, 255, 255)
+        self.off_screen = False
+        self.windows_size = [1024, 768]
+        self.pv = None
+        self.view = "isometric"
+        self.units = "meter"
+        self.frame_per_seconds = 1
+        self._plot_meshes = []
+
+    @property
+    def background_color(self):
+        return self._background_color
+
+    @background_color.setter
+    def background_color(self, value):
+        if isinstance(value, (tuple, list)):
+            self._background_color = value
+        elif value in CSS4_COLORS:
+            h = CSS4_COLORS[value].lstrip('#')
+            self._background_color = tuple(int(h[i:i+2], 16) for i in (0, 2, 4))
+
+    @property
+    def fields(self):
+        """Field Object.
+
+        Returns
+        -------
+        list of :class:`pyaedt.modules.AdvancedPostProcessing.FieldClass`
+        """
+        return self._fields
+
+    @property
+    def frames(self):
+        """Frames list for animation.
+
+        Returns
+        -------
+        list of :class:`pyaedt.modules.AdvancedPostProcessing.FieldClass`
+        """
+        return self._frames
+
+    @property
+    def objects(self):
+        """Field Object.
+
+        Returns
+        -------
+        list of :class:`pyaedt.modules.AdvancedPostProcessing.ObjClass`
+        """
+        return self._objects
+
+    @aedt_exception_handler
+    def add_object(self, cad_path, cad_color="dodgerblue", opacity=1, units="mm"):
+        """Add an mesh file to the scenario. It can be obj or any of pyvista supported files.
+
+        Parameters
+        ----------
+        cad_path : str
+            Full path to the file.
+        cad_color : str or tuple
+            Can be a string with color name or a tuple with (r,g,b) values.
+        opacity : float
+            Value between 0 to 1 of opacity.
+        units : str
+            Model units.
+
+        Returns
+        -------
+        bool
+        """
+        self._objects.append(ObjClass(cad_path, cad_color, opacity, units))
+        self.units = units
+        return True
+
+    @aedt_exception_handler
+    def add_field_from_file(self,
+                            field_path,
+                            log_scale=True,
+                            coordinate_units="meter",
+                            opacity=1,
+                            color_map="rainbow",
+                            ):
+        """Add a field file to the scenario. It can be aedtplt, fld or csv file.
+
+        Parameters
+        ----------
+        field_path : str
+            Full path to the file.
+        log_scale : bool
+            Either if the field has to be plotted log or not.
+        coordinate_units : str
+            Fields coordinates units.
+        opacity : float
+            Value between 0 to 1 of opacity.
+        color_map : str
+            Color map of field plot. Default rainbow.
+        Returns
+        -------
+        bool
+        """
+        self._fields.append(FieldClass(field_path, log_scale, coordinate_units, opacity, color_map))
+
+    @aedt_exception_handler
+    def add_frames_from_file(self,
+                            field_files,
+                            log_scale=True,
+                            coordinate_units="meter",
+                            opacity=1,
+                            color_map="rainbow",
+                            ):
+        """Add a field file to the scenario. It can be aedtplt, fld or csv file.
+
+        Parameters
+        ----------
+        field_files : list
+            list of full path to frame file.
+        log_scale : bool
+            Either if the field has to be plotted log or not.
+        coordinate_units : str
+            Fields coordinates units.
+        opacity : float
+            Value between 0 to 1 of opacity.
+        color_map : str
+            Color map of field plot. Default rainbow.
+        Returns
+        -------
+        bool
+        """
+        for field in field_files:
+            self._frames.append(FieldClass(field, log_scale, coordinate_units, opacity, color_map))
+
+    @aedt_exception_handler
+    def add_field_from_data(self, coordinates, fields_data, log_scale=True, coordinate_units="meter", opacity=1,
+                            color_map="rainbow"):
+        """Add field data to the scenario.
+
+        Parameters
+        ----------
+        coordinates : list of list
+            List of list [x,y,z] coordinates.
+        fields_data : list
+            List of list Fields Value.
+        log_scale : bool
+            Either if the field has to be plotted log or not.
+        coordinate_units : str
+            Fields coordinates units.
+        opacity : float
+            Value between 0 to 1 of opacity.
+        color_map : str
+            Color map of field plot. Default rainbow.
+
+        Returns
+        -------
+        bool
+        """
+        self._fields.append(FieldClass(None, log_scale, coordinate_units, opacity, color_map))
+        vertices = np.array(coordinates)
+        filedata = pv.PolyData(vertices)
+        filedata = filedata.delaunay_2d()
+        filedata.point_data[self.fields[-1].label] = np.array(fields_data)
+        self.fields[-1]._cached_polydata = filedata
+
+    @aedt_exception_handler
+    def _triangle_vertex(self, elements_nodes, num_nodes_per_element, take_all_nodes=True):
+        trg_vertex = []
+        if num_nodes_per_element == 10 and take_all_nodes:
+            for e in elements_nodes:
+                trg_vertex.append([e[0], e[1], e[3]])
+                trg_vertex.append([e[1], e[2], e[4]])
+                trg_vertex.append([e[1], e[4], e[3]])
+                trg_vertex.append([e[3], e[4], e[5]])
+
+                trg_vertex.append([e[9], e[6], e[8]])
+                trg_vertex.append([e[6], e[0], e[3]])
+                trg_vertex.append([e[6], e[3], e[8]])
+                trg_vertex.append([e[8], e[3], e[5]])
+
+                trg_vertex.append([e[9], e[7], e[8]])
+                trg_vertex.append([e[7], e[2], e[4]])
+                trg_vertex.append([e[7], e[4], e[8]])
+                trg_vertex.append([e[8], e[4], e[5]])
+
+                trg_vertex.append([e[9], e[7], e[6]])
+                trg_vertex.append([e[7], e[2], e[1]])
+                trg_vertex.append([e[7], e[1], e[6]])
+                trg_vertex.append([e[6], e[1], e[0]])
+        elif num_nodes_per_element == 10 and not take_all_nodes:
+            for e in elements_nodes:
+                trg_vertex.append([e[0], e[2], e[5]])
+                trg_vertex.append([e[9], e[0], e[5]])
+                trg_vertex.append([e[9], e[2], e[0]])
+                trg_vertex.append([e[9], e[2], e[5]])
+
+        elif num_nodes_per_element == 6 and not take_all_nodes:
+            for e in elements_nodes:
+                trg_vertex.append([e[0], e[2], e[5]])
+
+        elif num_nodes_per_element == 6 and take_all_nodes:
+            for e in elements_nodes:
+                trg_vertex.append([e[0], e[1], e[3]])
+                trg_vertex.append([e[1], e[2], e[4]])
+                trg_vertex.append([e[1], e[4], e[3]])
+                trg_vertex.append([e[3], e[4], e[5]])
+
+        elif num_nodes_per_element == 4 and take_all_nodes:
+            for e in elements_nodes:
+                trg_vertex.append([e[0], e[1], e[3]])
+                trg_vertex.append([e[1], e[2], e[3]])
+                trg_vertex.append([e[0], e[1], e[2]])
+                trg_vertex.append([e[0], e[2], e[3]])
+
+        elif num_nodes_per_element == 3:
+            trg_vertex = elements_nodes
+
+        return trg_vertex
+
+    @aedt_exception_handler
+    def _read_mesh_files(self, read_frames=False):
+        for cad in self.objects:
+            if not cad._cached_polydata:
+                filedata = pv.read(cad.path)
+                cad._cached_polydata = filedata
+            color_cad = [i / 256 for i in cad.color]
+            cad._cached_mesh = self.pv.add_mesh(cad._cached_polydata, color=color_cad, opacity=cad.opacity)
+        obj_to_iterate = [i for i in self._fields]
+        if read_frames:
+            for i in self.frames:
+                obj_to_iterate.append(i)
+        for field in obj_to_iterate:
+            if field.path and not field._cached_polydata:
+                if ".fld" in field.path:
+                    points = []
+                    with open(field.path, "r") as f:
+                        lines = f.readlines()
+                        id = 0
+                        for line in lines:
+                            if id > 1:
+                                points.append([float(i) for i in line.split(" ")])
+                            else:
+                                id +=1
+                    fields = [i[-1] for i in points]
+                    try:
+                        conv = 1/AEDT_UNITS["Length"][self.units]
+                    except:
+                        conv = 1
+                    nodes = [[i[0] * conv, i[1] * conv, i[2] * conv] for i in points]
+                    vertices = np.array(nodes)
+                    filedata = pv.PolyData(vertices)
+                    filedata = filedata.delaunay_2d()
+                    filedata.point_data[field.label] = np.array(fields)
+                    field._cached_polydata = filedata
+                elif ".aedtplt" in field.path:
+                    lines = []
+                    with open(field.path, "r") as f:
+                        drawing_found = False
+                        for line in f:
+                            if "$begin Drawing" in line:
+                                drawing_found = True
+                                l_tmp = []
+                                continue
+                            if "$end Drawing" in line:
+                                lines.append(l_tmp)
+                                drawing_found = False
+                                continue
+                            if drawing_found:
+                                l_tmp.append(line)
+                                continue
+                    surf = None
+                    for drawing_lines in lines:
+                        bounding = []
+                        elements = []
+                        nodes_list = []
+                        solution = []
+                        for l in drawing_lines:
+                            if "BoundingBox(" in l:
+                                bounding = l[l.find("(") + 1: -2].split(",")
+                                bounding = [i.strip() for i in bounding]
+                            if "Elements(" in l:
+                                elements = l[l.find("(") + 1: -2].split(",")
+                                elements = [int(i.strip()) for i in elements]
+                            if "Nodes(" in l:
+                                nodes_list = l[l.find("(") + 1: -2].split(",")
+                                nodes_list = [float(i.strip()) for i in nodes_list]
+                            if "ElemSolution(" in l:
+                                # convert list of strings to list of floats
+                                sols = l[l.find("(") + 1: -2].split(",")
+                                sols = [is_float(value) for value in sols]
+
+                                # sols = [float(i.strip()) for i in sols]
+                                num_solution_per_element = int(sols[2])
+                                sols = sols[3:]
+                                sols = [
+                                    sols[i: i + num_solution_per_element] for i in range(0, len(sols), num_solution_per_element)
+                                ]
+                                solution = [sum(i) / num_solution_per_element for i in sols]
+
+                        nodes = [[nodes_list[i], nodes_list[i + 1], nodes_list[i + 2]] for i in range(0, len(nodes_list), 3)]
+                        num_nodes = elements[0]
+                        num_elements = elements[1]
+                        elements = elements[2:]
+                        element_type = elements[0]
+                        num_nodes_per_element = elements[4]
+                        hl = 5  # header length
+                        elements_nodes = []
+                        for i in range(0, len(elements), num_nodes_per_element + hl):
+                            elements_nodes.append([elements[i + hl + n] for n in range(num_nodes_per_element)])
+                        if solution:
+                            take_all_nodes = True  # solution case
+                        else:
+                            take_all_nodes = False  # mesh case
+                        trg_vertex = self._triangle_vertex(elements_nodes, num_nodes_per_element, take_all_nodes)
+                        # remove duplicates
+                        nodup_list = [list(i) for i in list(set([frozenset(t) for t in trg_vertex]))]
+                        sols_vertex = []
+                        if solution:
+                            sv = {}
+                            for els, s in zip(elements_nodes, solution):
+                                for el in els:
+                                    if el in sv:
+                                        sv[el] = (sv[el] + s) / 2
+                                    else:
+                                        sv[el] = s
+                            sols_vertex = [sv[v] for v in sorted(sv.keys())]
+                        array = [[3] + [j - 1 for j in i] for i in nodup_list]
+                        faces = np.hstack(array)
+                        vertices = np.array(nodes)
+                        surf = pv.PolyData(vertices, faces)
+                        if sols_vertex:
+                            temps = np.array(sols_vertex)
+                            mean = np.mean(temps)
+                            std = np.std(temps)
+                            if np.min(temps) > 0:
+                                log = True
+                            else:
+                                log = False
+                            surf.point_data[field.label] = temps
+                    field.log = log
+                    field._cached_polydata = surf
+
+    @aedt_exception_handler
+    def _add_buttons(self):
+        size = int(self.pv.window_size[1] / 40)
+        startpos = self.pv.window_size[1] - 2 * size
+        endpos = 100
+        color = self.pv.background_color
+        axes_color = [0 if i >= 128 else 1 for i in color]
+        buttons = []
+        texts = []
+        max_elements = (startpos - endpos) // (size + (size // 10))
+
+        class SetVisibilityCallback:
+            """Helper callback to keep a reference to the actor being modified."""
+
+            def __init__(self, actor):
+                self.actor = actor
+
+            def __call__(self, state):
+                self.actor.SetVisibility(state)
+
+        class ChangePageCallback:
+            """Helper callback to keep a reference to the actor being modified."""
+
+            def __init__(self, plot, actor):
+                self.plot = plot
+                self.actors = actor
+                self.id = 0
+                self.endpos = 100
+                self.size = int(plot.window_size[1] / 40)
+                self.startpos = plot.window_size[1] - 2 * self.size
+                self.max_elements = (self.startpos - self.endpos) // (self.size + (self.size // 10))
+                self.i = self.max_elements
+
+            def __call__(self, state):
+                self.plot.button_widgets = [self.plot.button_widgets[0]]
+                self.id += 1
+                k = 0
+                startpos = self.startpos
+                while k < self.max_elements:
+                    if len(self.text) > k:
+                        self.plot.remove_actor(self.text[k])
+                    k += 1
+                self.text = []
+                k = 0
+
+                while k < self.max_elements:
+                    if self.i >= len(self.actors):
+                        self.i = 0
+                        self.id = 0
+                    callback = SetVisibilityCallback(self.actors[self.i])
+                    self.plot.add_checkbox_button_widget(
+                        callback,
+                        value=self.actors[self.i]._cached_mesh.GetVisibility() == 1,
+                        position=(5.0, startpos),
+                        size=self.size,
+                        border_size=1,
+                        color_on=self.actors[self.i]._cached_mesh.color,
+                        color_off="grey",
+                        background_color=None,
+                    )
+                    self.text.append(
+                        self.plot.add_text(
+                            self.actors[self.i].name, position=(25.0, startpos), font_size=self.size // 3,
+                            color=self.actors[self.i]._cached_mesh.color
+                        )
+                    )
+                    startpos = startpos - self.size - (self.size // 10)
+                    k += 1
+                    self.i += 1
+
+        el = 1
+        for actor in self._objects:
+            if el < max_elements:
+                callback = SetVisibilityCallback(actor._cached_mesh)
+                buttons.append(
+                    self.pv.add_checkbox_button_widget(
+                        callback,
+                        value=True,
+                        position=(5.0, startpos + 50),
+                        size=size,
+                        border_size=1,
+                        color_on=actor._cached_mesh.color,
+                        color_off="grey",
+                        background_color=None,
+                    )
+                )
+                texts.append(
+                    self.pv.add_text(actor.name, position=(50.0, startpos + 50), font_size=size // 3, color=axes_color)
+                )
+                startpos = startpos - size - (size // 10)
+                el += 1
+        el = 1
+        for actor in self._fields:
+            if actor._cached_mesh and el < max_elements:
+                callback = SetVisibilityCallback(actor._cached_mesh)
+                buttons.append(
+                    self.pv.add_checkbox_button_widget(
+                        callback,
+                        value=True,
+                        position=(5.0, startpos + 50),
+                        size=size,
+                        border_size=1,
+                        color_on="blue",
+                        color_off="grey",
+                        background_color=None,
+                    )
+                )
+                texts.append(
+                    self.pv.add_text(actor.name, position=(50.0, startpos + 50), font_size=size // 3, color=axes_color)
+                )
+                startpos = startpos - size - (size // 10)
+                el += 1
+        actors = [i for i in self._fields if i._cached_mesh]+self._objects
+        if texts and len(texts) >= max_elements:
+            callback = ChangePageCallback(self.pv, actors)
+            self.pv.add_checkbox_button_widget(
+                callback,
+                value=True,
+                position=(5.0, self.pv.window_size[1]),
+                size=int(1.5 * size),
+                border_size=2,
+                color_on=axes_color,
+                color_off=axes_color,
+            )
+            plot.add_text("Next", position=(50.0, plot.window_size[1]), font_size=size // 3, color="grey")
+            plot.button_widgets.insert(
+                0, plot.button_widgets.pop(plot.button_widgets.index(plot.button_widgets[-1]))
+            )
+
+    @aedt_exception_handler
+    def plot(self, export_image_path=None):
+        """Plot the current available Data.
+
+        Parameters
+        ----------
+
+        export_image_path : str
+            Path to image to save.
+
+        Returns
+        -------
+        bool
+        """
+        start = time.time()
+        self.pv = pv.Plotter(notebook=is_notebook(), off_screen=self.off_screen, window_size=self.windows_size)
+        self.pv.background_color = self.background_color
+        self._read_mesh_files()
+
+        axes_color = [0 if i >= 128 else 1 for i in self.background_color]
+        sargs = dict(
+            title_font_size=10,
+            label_font_size=10,
+            shadow=True,
+            n_labels=9,
+            italic=True,
+            fmt="%.1f",
+            font_family="arial",
+            interactive=True,
+            color=axes_color,
+            vertical=False,
+        )
+        for field in self._fields:
+            field._cached_mesh = self.pv.add_mesh(field._cached_polydata, scalars=field.label,
+                                                  log_scale=field.log_scale,
+                                                  scalar_bar_args=sargs,
+                                                  cmap=field.color_map,
+                                                  opacity=field.opacity)
+
+        self._add_buttons()
+        end = time.time() - start
+        files_list = []
+        if self.show_axes:
+            self.pv.show_axes()
+        if self.show_grid and not self.is_notebook:
+            self.pv.show_grid(color=tuple(axes_color))
+        self.pv.add_bounding_box(color=tuple(axes_color))
+        if self.view == "isometric":
+            self.pv.view_isometric()
+        elif self.view == "top":
+            self.pv.view_yz()
+        elif self.view == "front":
+            self.pv.view_xz()
+        elif self.view == "top":
+            self.pv.view_xy()
+        if export_image_path:
+            self.pv.show(screenshot=export_image_path, full_screen=True)
+        elif self.is_notebook:
+            self.pv.show()
+        else:
+            self.pv.show(full_screen=True)
+        return True
+
+    @aedt_exception_handler
+    def clean_cache_and_files(self, remove_objs=True, remove_fields=True, clean_cache=True):
+        """
+
+        Parameters
+        ----------
+        remove_objs
+        remove_fields
+        clean_cache
+
+        Returns
+        -------
+
+        """
+        if remove_objs:
+            for el in self.objects:
+                if os.path.exists(el.path):
+                    os.remove(el)
+                if clean_cache:
+                    el._cached_mesh = None
+                    el._cached_polydata = None
+        if remove_fields:
+            for el in self.fields:
+                if os.path.exists(el.path):
+                    os.remove(el)
+                if clean_cache:
+                    el._cached_mesh = None
+                    el._cached_polydata = None
+        return True
+
+    @aedt_exception_handler
+    def animate(self):
+        """Animate the current field plot.
+
+        Returns
+        -------
+        bool
+        """
+        start = time.time()
+        assert len(self._fields) > 0, "Number of Fields have to be greater than 1 to do an animation."
+        self.pv = pv.Plotter(notebook=is_notebook(), off_screen=self.off_screen, window_size=self.windows_size)
+        self.pv.background_color = self.background_color
+        self._read_mesh_files(read_frames=True)
+        end = time.time() - start
+        files_list = []
+        axes_color = [0 if i >= 0.5 else 1 for i in self.background_color]
+
+        if self.show_axes:
+            self.pv.show_axes()
+        if self.show_grid and not self.is_notebook:
+            self.pv.show_grid(color=tuple(axes_color))
+        self.pv.add_bounding_box(color=tuple(axes_color))
+        if self.show_legend:
+            labels = []
+            for m in self._objects:
+                labels.append([m.name, m._cached_mesh.color])
+            for m in self._fields:
+                labels.append([m.name, "red"])
+            self.pv.add_legend(labels=labels, bcolor=None, face="circle", size=[0.15, 0.15])
+        if self.view == "isometric":
+            self.pv.view_isometric()
+        elif self.view == "top":
+            self.pv.view_yz()
+        elif self.view == "front":
+            self.pv.view_xz()
+        elif self.view == "top":
+            self.pv.view_xy()
+
+        self._animating = True
+
+        if self.gif_file:
+            self.pv.open_gif(self.gif_file)
+
+        def q_callback():
+            """exit when user wants to leave"""
+            self._animating = False
+
+        self._pause = False
+        def p_callback():
+            """exit when user wants to leave"""
+            self._pause = not self._pause
+
+        self.pv.add_text("Press p for Play/Pause, Press q to exit ", font_size=8, position="upper_left")
+        self.pv.add_text(" ", font_size=10, position=[0, 0])
+        self.pv.add_key_event("q", q_callback)
+        self.pv.add_key_event("p", p_callback)
+
+
+        sargs = dict(
+            title_font_size=10,
+            label_font_size=10,
+            shadow=True,
+            n_labels=9,
+            italic=True,
+            fmt="%.1f",
+            font_family="arial",
+        )
+
+        for field in self._fields:
+            field._cached_mesh = self.pv.add_mesh(field._cached_polydata, scalars=field.label,
+                                                  log_scale=field.log_scale,
+                                                  scalar_bar_args=sargs,
+                                                  cmap=field.color_map,
+                                                  opacity=field.opacity)
+        # run until q is pressed
+
+        cpos = self.pv.show(interactive=False, auto_close=False, interactive_update=not self.off_screen)
+
+
+        mins = 1e20
+        maxs = -1e20
+        for el in self.fields:
+            if np.min(el._cached_polydata.point_data[el.label]) < mins:
+                mins = np.min(el._cached_polydata.point_data[el.label])
+            if np.max(el._cached_polydata.point_data[el.label]) > maxs:
+                maxs = np.max(el._cached_polydata.point_data[el.label])
+
+        self.frames[0]._cached_mesh=self.pv.add_mesh(
+            self.frames[0]._cached_polydata,
+            scalars=self.frames[0].label,
+            log_scale=self.frames[0].log_scale,
+            scalar_bar_args=sargs,
+            cmap=self.frames[0].color_map,
+            clim=[mins, maxs],
+            show_edges=False,
+            pickable=True,
+            smooth_shading=True,
+            name="FieldPlot",
+        )
+        start = time.time()
+
+        self.pv.update(1, force_redraw=True)
+        if self.gif_file:
+            first_loop = True
+            self.pv.write_frame()
+        else:
+            first_loop = False
+        i = 1
+        while self._animating:
+            if self._pause:
+                time.sleep(1)
+                self.pv.update(1, force_redraw=True)
+                continue
+            # p.remove_actor("FieldPlot")
+            if i >= len(self.frames):
+                if self.off_screen:
+                    break
+                i = 0
+                first_loop = False
+            scalars = self.frames[i]._cached_polydata.point_data[self.frames[i].label]
+            self.pv.update_scalars(scalars, render=False)
+            # p.add_mesh(surfs[i], scalars=plot_label, log_scale=log, scalar_bar_args=sargs, cmap='rainbow',
+            #            show_edges=False, pickable=True, smooth_shading=True, name="FieldPlot")
+            if not hasattr(self.pv, "ren_win"):
+                break
+            # p.update(1, force_redraw=True)
+            time.sleep(max(0, self.frame_per_seconds - (time.time() - start)))
+            start = time.time()
+            if self.off_screen:
+                self.pv.render()
+            else:
+                self.pv.update(1, force_redraw=True)
+            if first_loop:
+                self.pv.write_frame()
+
+            time.sleep(0.2)
+            i += 1
+        self.pv.close()
+
+        return True
+
 
 
 class PostProcessor(Post):
@@ -238,1008 +1010,6 @@ class PostProcessor(Post):
         return True
 
     @aedt_exception_handler
-    def _triangle_vertex(self, elements_nodes, num_nodes_per_element, take_all_nodes=True):
-        """
-
-        Parameters
-        ----------
-        elements_nodes :
-
-        num_nodes_per_element :
-
-        take_all_nodes : bool, optional
-            The default is ``True``.
-
-        Returns
-        -------
-
-        """
-        trg_vertex = []
-        if num_nodes_per_element == 10 and take_all_nodes:
-            for e in elements_nodes:
-                trg_vertex.append([e[0], e[1], e[3]])
-                trg_vertex.append([e[1], e[2], e[4]])
-                trg_vertex.append([e[1], e[4], e[3]])
-                trg_vertex.append([e[3], e[4], e[5]])
-
-                trg_vertex.append([e[9], e[6], e[8]])
-                trg_vertex.append([e[6], e[0], e[3]])
-                trg_vertex.append([e[6], e[3], e[8]])
-                trg_vertex.append([e[8], e[3], e[5]])
-
-                trg_vertex.append([e[9], e[7], e[8]])
-                trg_vertex.append([e[7], e[2], e[4]])
-                trg_vertex.append([e[7], e[4], e[8]])
-                trg_vertex.append([e[8], e[4], e[5]])
-
-                trg_vertex.append([e[9], e[7], e[6]])
-                trg_vertex.append([e[7], e[2], e[1]])
-                trg_vertex.append([e[7], e[1], e[6]])
-                trg_vertex.append([e[6], e[1], e[0]])
-        elif num_nodes_per_element == 10 and not take_all_nodes:
-            for e in elements_nodes:
-                trg_vertex.append([e[0], e[2], e[5]])
-                trg_vertex.append([e[9], e[0], e[5]])
-                trg_vertex.append([e[9], e[2], e[0]])
-                trg_vertex.append([e[9], e[2], e[5]])
-
-        elif num_nodes_per_element == 6 and not take_all_nodes:
-            for e in elements_nodes:
-                trg_vertex.append([e[0], e[2], e[5]])
-
-        elif num_nodes_per_element == 6 and take_all_nodes:
-            for e in elements_nodes:
-                trg_vertex.append([e[0], e[1], e[3]])
-                trg_vertex.append([e[1], e[2], e[4]])
-                trg_vertex.append([e[1], e[4], e[3]])
-                trg_vertex.append([e[3], e[4], e[5]])
-
-        elif num_nodes_per_element == 4 and take_all_nodes:
-            for e in elements_nodes:
-                trg_vertex.append([e[0], e[1], e[3]])
-                trg_vertex.append([e[1], e[2], e[3]])
-                trg_vertex.append([e[0], e[1], e[2]])
-                trg_vertex.append([e[0], e[2], e[3]])
-
-        elif num_nodes_per_element == 3:
-            trg_vertex = elements_nodes
-
-        return trg_vertex
-
-    @aedt_exception_handler
-    def _read_mesh_files(
-        self,
-        aedtplt_files,
-        model_color,
-        model_opacity,
-        lines,
-        meshes,
-        model_colors,
-        model_opacities,
-        materials,
-        objects,
-    ):
-        id = 0
-        k = 0
-        colors = list(CSS4_COLORS.keys())
-        for file in aedtplt_files:
-            if ".aedtplt" in file:
-                with open(file, "r") as f:
-                    drawing_found = False
-                    for line in f:
-                        if "$begin Drawing" in line:
-                            drawing_found = True
-                            l_tmp = []
-                            continue
-                        if "$end Drawing" in line:
-                            lines.append(l_tmp)
-                            drawing_found = False
-                            continue
-                        if drawing_found:
-                            l_tmp.append(line)
-                            continue
-                        if "Number of drawing:" in line:
-                            n_drawings = int(line[18:])
-                            continue
-            elif ".obj" in file:
-                meshes.append(pv.read(file))
-                file_split = file.split("_")
-                objects.append(os.path.splitext(os.path.basename(file))[0].replace("Model_", "").split(".")[0])
-                if len(file_split) >= 3:
-                    if model_opacity is not None:
-                        if isinstance(model_opacity, (int, float)):
-                            model_opacities.append(model_opacity)
-                        else:
-                            try:
-                                model_opacities.append(model_opacity[len(model_opacities)])
-                            except:
-                                model_opacities.append(0.6)
-                    else:
-                        model_opacities.append(0.6)
-                    if "air.obj" in file or "vacuum.obj" in file:
-                        materials[file_split[-1]] = "dodgerblue"
-                        model_colors.append(materials[file_split[-1]])
-                    else:
-                        if file_split[-1] in materials:
-                            model_colors.append(materials[file_split[-1]])
-                        else:
-                            materials[file_split[-1]] = colors[id % len(colors)]
-                            id += 1
-                            model_colors.append(materials[file_split[-1]])
-                else:
-                    model_colors.append(colors[id % len(colors)])
-                    id += 1
-                if model_color:
-                    if (
-                        isinstance(model_color, list)
-                        and isinstance(model_color[0], (int, float))
-                        or isinstance(model_color, str)
-                    ):
-                        model_colors[-1] = model_color
-                    else:
-                        model_colors[-1] = model_color[k]
-                        k += 1
-
-    @aedt_exception_handler
-    def _add_model_meshes_to_plot(
-        self,
-        plot,
-        meshes,
-        model_colors,
-        model_opacities,
-        objects,
-        show_model_edge,
-        fields_exists=False,
-        object_selector=True,
-    ):
-
-        mesh = plot.add_mesh
-
-        class SetVisibilityCallback:
-            """Helper callback to keep a reference to the actor being modified."""
-
-            def __init__(self, actor):
-                self.actor = actor
-
-            def __call__(self, state):
-                self.actor.SetVisibility(state)
-
-        class ChangePageCallback:
-            """Helper callback to keep a reference to the actor being modified."""
-
-            def __init__(self, plot, actor, text, names, colors):
-                self.plot = plot
-                self.actor = actor
-                self.text = text
-                self.names = names
-                self.colors = colors
-                self.id = 0
-                self.endpos = 100
-                self.size = int(plot.window_size[1] / 40)
-                self.startpos = plot.window_size[1] - 2 * self.size
-                self.max_elements = (self.startpos - self.endpos) // (self.size + (self.size // 10))
-                self.i = self.max_elements
-
-            def __call__(self, state):
-                self.plot.button_widgets = [self.plot.button_widgets[0]]
-                self.id += 1
-                k = 0
-                startpos = self.startpos
-                while k < max_elements:
-                    if len(self.text) > k:
-                        self.plot.remove_actor(self.text[k])
-                    k += 1
-                self.text = []
-                k = 0
-
-                while k < self.max_elements:
-                    if self.i >= len(self.actor):
-                        self.i = 0
-                        self.id = 0
-                    callback = SetVisibilityCallback(self.actor[self.i])
-                    plot.add_checkbox_button_widget(
-                        callback,
-                        value=self.actor[self.i].GetVisibility() == 1,
-                        position=(5.0, startpos),
-                        size=self.size,
-                        border_size=1,
-                        color_on=self.colors[self.i],
-                        color_off="grey",
-                        background_color=None,
-                    )
-                    self.text.append(
-                        plot.add_text(
-                            self.names[self.i], position=(25.0, startpos), font_size=self.size // 3, color=axes_color
-                        )
-                    )
-                    startpos = startpos - self.size - (self.size // 10)
-                    k += 1
-                    self.i += 1
-
-        if meshes and len(meshes) == 1:
-
-            def _create_object_mesh(opacity):
-                try:
-                    plot.remove_actor("Volumes")
-                except:
-                    pass
-                mesh(
-                    meshes[0],
-                    show_scalar_bar=False,
-                    opacity=opacity,
-                    color=model_colors[0],
-                    name="3D Model",
-                    show_edges=show_model_edge,
-                    edge_color=model_colors[0],
-                )
-
-            plot.add_slider_widget(
-                _create_object_mesh,
-                [0, 1],
-                style="modern",
-                value=0.75,
-                pointa=[0.81, 0.98],
-                pointb=[0.95, 0.98],
-                title="Opacity",
-            )
-        elif meshes:
-
-            size = int(plot.window_size[1] / 40)
-            startpos = plot.window_size[1] - 2 * size
-            endpos = 100
-            color = plot.background_color
-            axes_color = [0 if i >= 0.5 else 1 for i in color]
-            buttons = []
-            texts = []
-            max_elements = (startpos - endpos) // (size + (size // 10))
-            actors = []
-            el = 0
-            if fields_exists:
-                for m, c, n in zip(meshes, model_colors, objects):
-                    actor = mesh(m, show_scalar_bar=False, opacity=0.3, color="#8faf8f")
-                    if object_selector:
-                        actors.append(actor)
-                        if el < max_elements:
-                            callback = SetVisibilityCallback(actor)
-                            buttons.append(
-                                plot.add_checkbox_button_widget(
-                                    callback,
-                                    value=True,
-                                    position=(5.0, startpos + 50),
-                                    size=size,
-                                    border_size=1,
-                                    color_on=c,
-                                    color_off="grey",
-                                    background_color=None,
-                                )
-                            )
-                            texts.append(
-                                plot.add_text(n, position=(50.0, startpos + 50), font_size=size // 3, color=axes_color)
-                            )
-
-                            startpos = startpos - size - (size // 10)
-                            el += 1
-
-            else:
-                for m, c, o, n in zip(meshes, model_colors, model_opacities, objects):
-                    actor = mesh(
-                        m,
-                        show_scalar_bar=False,
-                        opacity=o,
-                        color=c,
-                    )
-                    if object_selector:
-                        actors.append(actor)
-
-                        if el < max_elements:
-                            callback = SetVisibilityCallback(actor)
-                            buttons.append(
-                                plot.add_checkbox_button_widget(
-                                    callback,
-                                    value=True,
-                                    position=(5.0, startpos),
-                                    size=size,
-                                    border_size=1,
-                                    color_on=c,
-                                    color_off="grey",
-                                    background_color=None,
-                                )
-                            )
-                            texts.append(
-                                plot.add_text(n, position=(25.0, startpos), font_size=size // 3, color=axes_color)
-                            )
-                            startpos = startpos - size - (size // 10)
-                            el += 1
-            if object_selector and texts and len(texts) >= max_elements:
-                callback = ChangePageCallback(plot, actors, texts, objects, model_colors)
-                plot.add_checkbox_button_widget(
-                    callback,
-                    value=True,
-                    position=(5.0, plot.window_size[1]),
-                    size=int(1.5 * size),
-                    border_size=2,
-                    color_on=axes_color,
-                    color_off=axes_color,
-                )
-                plot.add_text("Next", position=(50.0, plot.window_size[1]), font_size=size // 3, color="grey")
-                plot.button_widgets.insert(
-                    0, plot.button_widgets.pop(plot.button_widgets.index(plot.button_widgets[-1]))
-                )
-
-    @aedt_exception_handler
-    def _add_fields_to_plot(self, plot, plot_label, plot_type, scale_min, scale_max, off_screen, lines):
-        for drawing_lines in lines:
-            bounding = []
-            elements = []
-            nodes_list = []
-            solution = []
-            for l in drawing_lines:
-                if "BoundingBox(" in l:
-                    bounding = l[l.find("(") + 1 : -2].split(",")
-                    bounding = [i.strip() for i in bounding]
-                if "Elements(" in l:
-                    elements = l[l.find("(") + 1 : -2].split(",")
-                    elements = [int(i.strip()) for i in elements]
-                if "Nodes(" in l:
-                    nodes_list = l[l.find("(") + 1 : -2].split(",")
-                    nodes_list = [float(i.strip()) for i in nodes_list]
-                if "ElemSolution(" in l:
-                    # convert list of strings to list of floats
-                    sols = l[l.find("(") + 1 : -2].split(",")
-                    sols = [is_float(value) for value in sols]
-
-                    # sols = [float(i.strip()) for i in sols]
-                    num_solution_per_element = int(sols[2])
-                    sols = sols[3:]
-                    sols = [
-                        sols[i : i + num_solution_per_element] for i in range(0, len(sols), num_solution_per_element)
-                    ]
-                    solution = [sum(i) / num_solution_per_element for i in sols]
-
-            nodes = [[nodes_list[i], nodes_list[i + 1], nodes_list[i + 2]] for i in range(0, len(nodes_list), 3)]
-            num_nodes = elements[0]
-            num_elements = elements[1]
-            elements = elements[2:]
-            element_type = elements[0]
-            num_nodes_per_element = elements[4]
-            hl = 5  # header length
-            elements_nodes = []
-            for i in range(0, len(elements), num_nodes_per_element + hl):
-                elements_nodes.append([elements[i + hl + n] for n in range(num_nodes_per_element)])
-            if solution:
-                take_all_nodes = True  # solution case
-            else:
-                take_all_nodes = False  # mesh case
-            trg_vertex = self._triangle_vertex(elements_nodes, num_nodes_per_element, take_all_nodes)
-            # remove duplicates
-            nodup_list = [list(i) for i in list(set([frozenset(t) for t in trg_vertex]))]
-            sols_vertex = []
-            if solution:
-                sv = {}
-                for els, s in zip(elements_nodes, solution):
-                    for el in els:
-                        if el in sv:
-                            sv[el] = (sv[el] + s) / 2
-                        else:
-                            sv[el] = s
-                sols_vertex = [sv[v] for v in sorted(sv.keys())]
-            array = [[3] + [j - 1 for j in i] for i in nodup_list]
-            faces = np.hstack(array)
-            vertices = np.array(nodes)
-            surf = pv.PolyData(vertices, faces)
-            if sols_vertex:
-                temps = np.array(sols_vertex)
-                mean = np.mean(temps)
-                std = np.std(temps)
-                if np.min(temps) > 0:
-                    log = True
-                else:
-                    log = False
-                surf.point_data[plot_label] = temps
-
-            sargs = dict(
-                title_font_size=10,
-                label_font_size=10,
-                shadow=True,
-                n_labels=9,
-                italic=True,
-                fmt="%.1f",
-                font_family="arial",
-            )
-            if plot_type == "Clip":
-                plot.add_text("Full Plot", font_size=15)
-                if solution:
-
-                    class MyCustomRoutine:
-                        """ """
-
-                        def __init__(self, mesh):
-                            self.output = mesh  # Expected PyVista mesh type
-                            # default parameters
-                            self.kwargs = {
-                                "min_val": 0.5,
-                                "max_val": 30,
-                            }
-
-                        def __call__(self, param, value):
-                            self.kwargs[param] = value
-                            self.update()
-
-                        def update(self):
-                            """ """
-                            # This is where you call your simulation
-                            try:
-                                plot.remove_actor("FieldPlot")
-                            except:
-                                pass
-                            plot.add_mesh(
-                                surf,
-                                scalars=plot_label,
-                                log_scale=log,
-                                scalar_bar_args=sargs,
-                                cmap="rainbow",
-                                show_edges=False,
-                                clim=[self.kwargs["min_val"], self.kwargs["max_val"]],
-                                pickable=True,
-                                smooth_shading=True,
-                                name="FieldPlot",
-                            )
-                            return
-
-                    engine = MyCustomRoutine(surf)
-                    plot.add_box_widget(
-                        surf,
-                        show_edges=False,
-                        scalars=plot_label,
-                        log_scale=log,
-                        scalar_bar_args=sargs,
-                        cmap="rainbow",
-                        pickable=True,
-                        smooth_shading=True,
-                        name="FieldPlot",
-                    )
-                    if not off_screen:
-                        plot.add_slider_widget(
-                            callback=lambda value: engine("min_val", value),
-                            rng=[np.min(temps), np.max(temps)],
-                            title="Lower",
-                            style="modern",
-                            value=np.min(temps),
-                            pointa=(0.5, 0.98),
-                            pointb=(0.65, 0.98),
-                        )
-
-                        plot.add_slider_widget(
-                            callback=lambda value: engine("max_val", value),
-                            rng=[np.min(temps), np.max(temps)],
-                            title="Upper",
-                            style="modern",
-                            value=np.max(temps),
-                            pointa=(0.66, 0.98),
-                            pointb=(0.8, 0.98),
-                        )
-                    else:
-                        if isinstance(scale_max, float):
-                            engine("max_val", scale_max)
-                        if isinstance(scale_min, float):
-                            engine("min_val", scale_min)
-                else:
-                    plot.add_box_widget(
-                        surf, show_edges=True, line_width=0.1, color="grey", pickable=True, smooth_shading=True
-                    )
-            else:
-                plot.add_text("Full Plot", font_size=15)
-                if solution:
-
-                    class MyCustomRoutine:
-                        """ """
-
-                        def __init__(self, mesh):
-                            self.output = mesh  # Expected PyVista mesh type
-                            # default parameters
-                            self.kwargs = {
-                                "min_val": 0.5,
-                                "max_val": 30,
-                            }
-
-                        def __call__(self, param, value):
-                            self.kwargs[param] = value
-                            self.update()
-
-                        def update(self):
-                            """ """
-                            # This is where you call your simulation
-                            try:
-                                plot.remove_actor("FieldPlot")
-                            except:
-                                pass
-                            plot.add_mesh(
-                                surf,
-                                scalars=plot_label,
-                                log_scale=log,
-                                scalar_bar_args=sargs,
-                                cmap="rainbow",
-                                show_edges=False,
-                                clim=[self.kwargs["min_val"], self.kwargs["max_val"]],
-                                pickable=True,
-                                smooth_shading=True,
-                                name="FieldPlot",
-                            )
-                            return
-
-                    engine = MyCustomRoutine(surf)
-                    plot.add_mesh(
-                        surf,
-                        show_edges=False,
-                        scalars=plot_label,
-                        log_scale=log,
-                        scalar_bar_args=sargs,
-                        cmap="rainbow",
-                        pickable=True,
-                        smooth_shading=True,
-                        name="FieldPlot",
-                    )
-                    if not off_screen:
-                        plot.add_slider_widget(
-                            callback=lambda value: engine("min_val", value),
-                            rng=[np.min(temps), np.max(temps)],
-                            title="Lower",
-                            style="modern",
-                            value=np.min(temps),
-                            pointa=(0.5, 0.98),
-                            pointb=(0.65, 0.98),
-                        )
-
-                        plot.add_slider_widget(
-                            callback=lambda value: engine("max_val", value),
-                            rng=[np.min(temps), np.max(temps)],
-                            title="Upper",
-                            style="modern",
-                            value=np.max(temps),
-                            pointa=(0.66, 0.98),
-                            pointb=(0.8, 0.98),
-                        )
-                    else:
-                        if isinstance(scale_max, (int, float)):
-                            engine("max_val", scale_max)
-                        if isinstance(scale_min, (int, float)):
-                            engine("min_val", scale_min)
-                else:
-                    plot.add_mesh(
-                        surf, show_edges=True, line_width=0.1, color="grey", pickable=True, smooth_shading=True
-                    )
-
-    @aedt_exception_handler
-    def _plot_on_pyvista(
-        self,
-        plot,
-        meshes,
-        model_color,
-        materials,
-        view,
-        imageformat,
-        aedtplt_files,
-        show_axes=True,
-        show_grid=True,
-        show_legend=True,
-        export_path=None,
-    ):
-        files_list = []
-        color = plot.background_color
-        axes_color = [0 if i >= 0.5 else 1 for i in color]
-        if show_axes:
-            plot.show_axes()
-        if show_grid and not is_notebook():
-            plot.show_grid(color=tuple(axes_color))
-        plot.add_bounding_box(color=tuple(axes_color))
-        if show_legend and meshes and len(meshes) > 1 and not model_color:
-            labels = []
-            for m in list(materials.keys()):
-                labels.append([m[:-4], materials[m]])
-            plot.add_legend(labels=labels, bcolor=None, size=[0.1, 0.1])
-        if view == "isometric":
-            plot.view_isometric()
-        elif view == "top":
-            plot.view_yz()
-        elif view == "front":
-            plot.view_xz()
-        elif view == "top":
-            plot.view_xy()
-        if imageformat:
-            if export_path:
-                filename = export_path
-            else:
-                filename = os.path.splitext(aedtplt_files[0])[0] + "." + imageformat
-            plot.show(screenshot=filename, full_screen=True)
-            files_list.append(filename)
-        else:
-            plot.show()
-        if aedtplt_files:
-            for f in aedtplt_files:
-                if os.path.exists(f):
-                    os.remove(f)
-                if "obj" in f and os.path.exists(f[:-3] + "mtl"):
-                    os.remove(f[:-3] + "mtl")
-        return files_list
-
-    @aedt_exception_handler
-    def _plot_from_aedtplt(
-        self,
-        aedtplt_files=None,
-        imageformat="jpg",
-        view="isometric",
-        plot_type="Full",
-        plot_label="Temperature",
-        model_color="#8faf8f",
-        show_model_edge=False,
-        off_screen=False,
-        scale_min=None,
-        scale_max=None,
-        show_axes=True,
-        show_grid=True,
-        show_legend=True,
-        background_color=[0.6, 0.6, 0.6],
-        windows_size=None,
-        object_selector=True,
-        export_path=None,
-        model_opacity=0.6,
-    ):
-        """Export the 3D field solver mesh, fields, or both mesh and fields as images using Python Plotly.
-
-        .. note::
-           This method is currently supported only on Windows using CPython.
-
-        Parameters
-        ----------
-        aedtplt_files : str or list, optional
-            Names of the one or more AEDTPLT files generated by AEDT. The default is ``None``.
-        imageformat : str, optional
-            Format of the image file. Options are ``"jpg"``, ``"png"``, ``"svg"``, and
-            ``"webp"``. The default is ``"jpg"``.
-        view : str, optional
-            View to export. Options are `Options are ``isometric``,
-            ``top``, ``front``, ``left``, ``all``.
-            The ``"all"`` option exports all views.
-        plot_type : str, optional
-            Type of the plot. The default is ``"Full"``.
-        plot_label : str, optional
-            Label for the plot. The default is ``"Temperature"``.
-        model_color : str, optional
-            Color scheme for the 3D model. The default is ``"#8faf8f"``, which is silver.
-        show_model_edge : bool, optional
-            Whether to return a list of the files that are generated. The default
-            is ``False``.
-        off_screen : bool, optional
-             The default is ``False``.
-        scale_min : float, optional
-            Fix the Scale Minimum value.
-        scale_max : float, optional
-            Fix the Scale Maximum value.
-        model_opacity : float, list optional
-            Model opacity. Value from 0 to 1.
-
-        Returns
-        -------
-        list
-            List of exported files.
-        """
-        start = time.time()
-        if type(aedtplt_files) is str:
-            aedtplt_files = [aedtplt_files]
-        if not windows_size:
-            windows_size = [1024, 768]
-
-        plot = pv.Plotter(notebook=is_notebook(), off_screen=off_screen, window_size=windows_size)
-        plot.background_color = background_color
-        lines = []
-        meshes = []
-        model_colors = []
-        model_opacities = []
-        materials = {}
-        objects = []
-        self._read_mesh_files(
-            aedtplt_files, model_color, model_opacity, lines, meshes, model_colors, model_opacities, materials, objects
-        )
-        if lines:
-            fields_exists = True
-        else:
-            fields_exists = False
-        self._add_model_meshes_to_plot(
-            plot,
-            meshes,
-            model_colors,
-            model_opacities,
-            objects,
-            object_selector=object_selector,
-            show_model_edge=show_model_edge,
-            fields_exists=fields_exists,
-        )
-        if lines:
-            self._add_fields_to_plot(plot, plot_label, plot_type, scale_min, scale_max, off_screen, lines)
-
-        end = time.time() - start
-        self.logger.info("PyVista plot generation took {} seconds.".format(end))
-        print(plot.background_color)
-        files_list = self._plot_on_pyvista(
-            plot,
-            meshes,
-            model_color,
-            materials,
-            view,
-            imageformat,
-            aedtplt_files,
-            show_axes=show_axes,
-            show_grid=show_grid,
-            show_legend=show_legend,
-            export_path=export_path,
-        )
-
-        return files_list
-
-    @aedt_exception_handler
-    def _animation_from_aedtflt(
-        self,
-        aedtplt_files=None,
-        variation_var="Time",
-        variation_list=[],
-        plot_label="Temperature",
-        model_color="#8faf8f",
-        export_gif=False,
-        off_screen=False,
-    ):
-        """Export the 3D field solver mesh, fields, or both mesh and fields as images using Python Plotly.
-
-          .. note::
-           This method is currently supported only on Windows using CPython.
-
-        Parameters
-        ----------
-        aedtplt_files : str or list, optional
-            Names of the one or more AEDTPLT files generated by AEDT. The default is ``None``.
-        variation_var : str, optional
-             Variable to vary. The default is ``"Time"``.
-        variation_list : list, optional
-             List of variation values. The default is ``[]``.
-        plot_label : str, optional
-            Label for the plot. The default is ``"Temperature"``.
-        model_color : str, optional
-            Color scheme for the 3D model. The default is ``"#8faf8f"``, which is silver.
-        export_gif : bool, optional
-             Whether to export the animation as a GIF file. The default is ``False``.
-        off_screen : bool, optional
-             The default is ``False``.
-
-        Returns
-        -------
-        str
-            Name of the GIF file.
-        """
-        frame_per_seconds = 0.5
-        start = time.time()
-        if type(aedtplt_files) is str:
-            aedtplt_files = [aedtplt_files]
-        plot = pv.Plotter(notebook=False, off_screen=off_screen)
-        if not off_screen:
-            plot.enable_anti_aliasing()
-        plot.enable_fly_to_right_click()
-        lines = []
-        for file in aedtplt_files:
-            if ".aedtplt" in file:
-                with open(file, "r") as f:
-                    drawing_found = False
-                    for line in f:
-                        if "$begin Drawing" in line:
-                            drawing_found = True
-                            l_tmp = []
-                            continue
-                        if "$end Drawing" in line:
-                            lines.append(l_tmp)
-                            drawing_found = False
-                            continue
-                        if drawing_found:
-                            l_tmp.append(line)
-                            continue
-                        if "Number of drawing:" in line:
-                            n_drawings = int(line[18:])
-                            continue
-            elif ".obj" in file:
-                mesh = pv.read(file)
-                plot.add_mesh(
-                    mesh,
-                    show_scalar_bar=False,
-                    opacity=0.75,
-                    cmap=[model_color],
-                    name="3D Model",
-                    show_edges=False,
-                    edge_color=model_color,
-                )
-                # def create_object_mesh(opacity):
-                #     try:
-                #         p.remove_actor("Volumes")
-                #     except:
-                #         pass
-                #     p.add_mesh(mesh, show_scalar_bar=False, opacity=opacity, cmap=[model_color], name="3D Model",
-                #                show_edges=False, edge_color=model_color)
-                # p.add_slider_widget(
-                #   create_object_mesh,
-                #   [0,1], style='modern',
-                #   value=0.75,pointa=[0.81,0.98],
-                #   pointb=[0.95,0.98],title="Opacity"
-                # )
-        filename = os.path.splitext(aedtplt_files[0])[0]
-        print(filename)
-        surfs = []
-        log = False
-        mins = 1e12
-        maxs = -1e12
-        log = True
-        for drawing_lines in lines:
-            bounding = []
-            elements = []
-            nodes_list = []
-            solution = []
-            for l in drawing_lines:
-                if "BoundingBox(" in l:
-                    bounding = l[l.find("(") + 1 : -2].split(",")
-                    bounding = [i.strip() for i in bounding]
-                if "Elements(" in l:
-                    elements = l[l.find("(") + 1 : -2].split(",")
-                    elements = [int(i.strip()) for i in elements]
-                if "Nodes(" in l:
-                    nodes_list = l[l.find("(") + 1 : -2].split(",")
-                    nodes_list = [float(i.strip()) for i in nodes_list]
-                if "ElemSolution(" in l:
-                    # convert list of strings to list of floats
-                    sols = l[l.find("(") + 1 : -2].split(",")
-                    sols = [is_float(value) for value in sols]
-
-                    num_solution_per_element = int(sols[2])
-                    sols = sols[3:]
-                    sols = [
-                        sols[i : i + num_solution_per_element] for i in range(0, len(sols), num_solution_per_element)
-                    ]
-                    solution = [sum(i) / num_solution_per_element for i in sols]
-
-            nodes = [[nodes_list[i], nodes_list[i + 1], nodes_list[i + 2]] for i in range(0, len(nodes_list), 3)]
-            num_nodes = elements[0]
-            num_elements = elements[1]
-            elements = elements[2:]
-            element_type = elements[0]
-            num_nodes_per_element = elements[4]
-            hl = 5  # header length
-            elements_nodes = []
-            for i in range(0, len(elements), num_nodes_per_element + hl):
-                elements_nodes.append([elements[i + hl + n] for n in range(num_nodes_per_element)])
-            if solution:
-                take_all_nodes = True  # solution case
-            else:
-                take_all_nodes = False  # mesh case
-            trg_vertex = self._triangle_vertex(elements_nodes, num_nodes_per_element, take_all_nodes)
-            # remove duplicates
-            nodup_list = [list(i) for i in list(set([frozenset(t) for t in trg_vertex]))]
-            sols_vertex = []
-            if solution:
-                sv = {}
-                for els, s in zip(elements_nodes, solution):
-                    for el in els:
-                        if el in sv:
-                            sv[el] = (sv[el] + s) / 2
-                        else:
-                            sv[el] = s
-                sols_vertex = [sv[v] for v in sorted(sv.keys())]
-            array = [[3] + [j - 1 for j in i] for i in nodup_list]
-            faces = np.hstack(array)
-            vertices = np.array(nodes)
-            surf = pv.PolyData(vertices, faces)
-
-            if sols_vertex:
-                temps = np.array(sols_vertex)
-                mean = np.mean(temps)
-                std = np.std(temps)
-                if np.min(temps) <= 0:
-                    log = False
-                surf.point_data[plot_label] = temps
-            if solution:
-                surfs.append(surf)
-                if np.min(temps) < mins:
-                    mins = np.min(temps)
-                if np.max(temps) > maxs:
-                    maxs = np.max(temps)
-
-        self._animating = True
-        gifname = None
-        if export_gif:
-            gifname = os.path.splitext(aedtplt_files[0])[0] + ".gif"
-            plot.open_gif(gifname)
-
-        def q_callback():
-            """exit when user wants to leave"""
-            self._animating = False
-
-        self._pause = False
-
-        def p_callback():
-            """exit when user wants to leave"""
-            self._pause = not self._pause
-
-        plot.add_text("Press p for Play/Pause, Press q to exit ", font_size=8, position="upper_left")
-        plot.add_text(" ", font_size=10, position=[0, 0])
-        plot.add_key_event("q", q_callback)
-        plot.add_key_event("p", p_callback)
-
-        # run until q is pressed
-        plot.show_axes()
-        plot.show_grid()
-        cpos = plot.show(interactive=False, auto_close=False, interactive_update=not off_screen)
-
-        sargs = dict(
-            title_font_size=10,
-            label_font_size=10,
-            shadow=True,
-            n_labels=9,
-            italic=True,
-            fmt="%.1f",
-            font_family="arial",
-        )
-        plot.add_mesh(
-            surfs[0],
-            scalars=plot_label,
-            log_scale=log,
-            scalar_bar_args=sargs,
-            cmap="rainbow",
-            clim=[mins, maxs],
-            show_edges=False,
-            pickable=True,
-            smooth_shading=True,
-            name="FieldPlot",
-        )
-        plot.isometric_view()
-        start = time.time()
-
-        plot.update(1, force_redraw=True)
-        first_loop = True
-        if export_gif:
-            first_loop = True
-            plot.write_frame()
-        else:
-            first_loop = False
-        i = 1
-        while self._animating:
-            if self._pause:
-                time.sleep(1)
-                plot.update(1, force_redraw=True)
-                continue
-            # p.remove_actor("FieldPlot")
-            if i >= len(surfs):
-                if off_screen:
-                    break
-                i = 0
-                first_loop = False
-            scalars = surfs[i].point_data[plot_label]
-            plot.update_scalars(scalars, render=False)
-            # p.add_mesh(surfs[i], scalars=plot_label, log_scale=log, scalar_bar_args=sargs, cmap='rainbow',
-            #            show_edges=False, pickable=True, smooth_shading=True, name="FieldPlot")
-            plot.textActor.SetInput(variation_var + " = " + variation_list[i])
-            if not hasattr(plot, "ren_win"):
-                break
-            # p.update(1, force_redraw=True)
-            time.sleep(max(0, frame_per_seconds - (time.time() - start)))
-            start = time.time()
-            if off_screen:
-                plot.render()
-            else:
-                plot.update(1, force_redraw=True)
-            if first_loop:
-                plot.write_frame()
-
-            time.sleep(0.2)
-            i += 1
-        plot.close()
-        for el in aedtplt_files:
-            os.remove(el)
-        return gifname
-
-    @aedt_exception_handler
     def export_model_obj(self, obj_list=None, export_path=None, export_as_single_objects=False, air_objects=False):
         """Export the model.
 
@@ -1335,9 +1105,7 @@ class PostProcessor(Post):
         air_objects=False,
         show_axes=True,
         show_grid=True,
-        show_legend=True,
         background_color="white",
-        object_selector=True,
         windows_size=None,
         off_screen=False,
         color=None,
@@ -1390,10 +1158,6 @@ class PostProcessor(Post):
         if not files:
             self.logger.warning("No Objects exported. Try other options or include Air objects.")
             return False
-        if export_afterplot:
-            imageformat = "png"
-        else:
-            imageformat = None
 
         if plot_separate_objects and not color and not color_by_material:
             color = []
@@ -1406,7 +1170,7 @@ class PostProcessor(Post):
             for el in objects:
                 try:
                     if isinstance(self._app.modeler[el].color, (tuple, list)):
-                        color.append([i / 256 for i in self._app.modeler[el].color])
+                        color.append([i for i in self._app.modeler[el].color])
                     else:
                         color.append(self._app.modeler[el].color)
                     if include_opacity:
@@ -1416,23 +1180,37 @@ class PostProcessor(Post):
                     if include_opacity:
                         opacity.append(0.6)
 
-        file_list = self._plot_from_aedtplt(
-            files,
-            imageformat=imageformat,
-            export_path=export_path,
-            plot_label="3D Model",
-            model_color=color,
-            show_model_edge=False,
-            off_screen=off_screen,
-            show_axes=show_axes,
-            show_grid=show_grid,
-            show_legend=show_legend,
-            background_color=background_color,
-            windows_size=windows_size,
-            object_selector=object_selector,
-            model_opacity=opacity,
-        )
-        return file_list
+        model = ModelPlotter()
+        for file in files:
+            if color:
+                if isinstance(color, list):
+                    c = color[files.index(file)]
+                else:
+                    c = color
+            else:
+                c = "dodgerblue"
+            if opacity:
+                if isinstance(opacity, list):
+                    o = opacity[files.index(file)]
+                else:
+                    o = opacity
+            else:
+                o = 0.6
+            model.add_object(file, c, o, self.modeler.model_units)
+        model.background_color = background_color
+        model.off_screen = off_screen
+        model.show_axes = show_axes
+        model.show_grid = show_grid
+        if export_afterplot:
+            if export_path:
+                model.plot(export_path)
+            else:
+                file_name = os.path.join(self._app.project_path, self._app.project_name +".png")
+                model.plot(file_name)
+        else:
+            model.plot()
+        model.clean_cache_and_files(clean_cache=False)
+        return model
 
     @aedt_exception_handler
     def plot_field_from_fieldplot(
@@ -1508,26 +1286,30 @@ class PostProcessor(Post):
         if not file_to_add:
             return False
         else:
-            files_to_add.append(file_to_add)
+            for file in files_to_add:
+                c = "dodgerblue"
+                o = 0.6
+
+            file_name = os.path.join(self._app.project_path, self._app.project_name + "."+ imageformat)
             if meshplot:
                 if self._app._aedt_version >= "2021.2":
-                    files_to_add.extend(self.export_model_obj())
-                else:
-                    file_to_add = self.export_mesh_obj(setup_name, intrinsic_dict)
-                    if file_to_add:
-                        files_to_add.append(file_to_add)
-            file_list = self._plot_from_aedtplt(
-                files_to_add,
-                imageformat=imageformat,
-                view=view,
-                plot_label=plot_label,
-                off_screen=off_screen,
-                scale_min=scale_min,
-                scale_max=scale_max,
-            )
-            endt = time.time() - start
-            print("Field Generation, export and plot time: ", endt)
-        return file_list
+                    models = self.export_model_obj()
+
+        model =ModelPlotter()
+        model.off_screen = off_screen
+
+        if file_to_add:
+            model.add_field_from_file(file_to_add, coordinate_units=self.modeler.model_units)
+        if models:
+            for m in models:
+                c = "dodgerblue"
+                o = 0.6
+                model.add_object(m, c, o)
+        if project_path:
+            model.plot(project_path)
+        model.clean_cache_and_files(clean_cache=False)
+
+        return model
 
     @aedt_exception_handler
     def animate_fields_from_aedtplt(
@@ -1584,14 +1366,11 @@ class PostProcessor(Post):
             self.ofieldsreporter.UpdateAllFieldsPlots()
         else:
             self.ofieldsreporter.UpdateQuantityFieldsPlots(plot_folder)
-        files_to_add = []
+        models_to_add = []
         if meshplot:
             if self._app._aedt_version >= "2021.2":
-                files_to_add.extend(self.export_model_obj())
-            else:
-                file_to_add = self.export_mesh_obj(setup_name, intrinsic_dict)
-                if file_to_add:
-                    files_to_add.append(file_to_add)
+                models_to_add.extend(self.export_model_obj())
+        fields_to_add=[]
         for el in variation_list:
             self._app._odesign.ChangeProperty(
                 [
@@ -1605,10 +1384,17 @@ class PostProcessor(Post):
             )
             files_to_add.append(self.export_field_plot(plotname, project_path, plotname + variation_variable + str(el)))
 
-        self._animation_from_aedtflt(
-            files_to_add, variation_variable, variation_list, export_gif=export_gif, off_screen=off_screen
-        )
-        return True
+        model =ModelPlotter()
+        if models_to_add:
+            model.add_object(models_to_add[0])
+        if fields_to_add:
+            model.add_frames_from_file(fields_to_add)
+        if export_gif:
+            model.gif_file = os.path.join(self._app.project_path, self._app.project_name+".gif")
+            model.animate()
+        model.clean_cache_and_files(clean_cache=False)
+
+        return model
 
     @aedt_exception_handler
     def animate_fields_from_aedtplt_2(
@@ -1671,15 +1457,13 @@ class PostProcessor(Post):
         """
         if not project_path:
             project_path = self._app.project_path
-        files_to_add = []
+        models_to_add = []
         if meshplot:
             if self._app._aedt_version >= "2021.2":
-                files_to_add.extend(self.export_model_obj())
-            else:
-                file_to_add = self.export_mesh_obj(setup_name, intrinsic_dict)
-                if file_to_add:
-                    files_to_add.append(file_to_add)
+                models_to_add.extend(self.export_model_obj())
+
         v = 0
+        fields_to_add = []
         for el in variation_list:
             intrinsic_dict[variation_variable] = el
             if plottype == "Surface":
@@ -1691,13 +1475,20 @@ class PostProcessor(Post):
             if plotf:
                 file_to_add = self.export_field_plot(plotf.name, project_path, plotf.name + str(v))
                 if file_to_add:
-                    files_to_add.append(file_to_add)
+                    fields_to_add.append(file_to_add)
                 plotf.delete()
             v += 1
+        model = ModelPlotter()
+        if models_to_add:
+            model.add_object(models_to_add[0])
+        if fields_to_add:
+            model.add_frames_from_file(fields_to_add)
+        if export_gif:
+            model.gif_file = os.path.join(self._app.project_path, self._app.project_name+".gif")
+            model.animate()
+        model.clean_cache_and_files(clean_cache=False)
 
-        return self._animation_from_aedtflt(
-            files_to_add, variation_variable, variation_list, export_gif=export_gif, off_screen=off_screen
-        )
+        return model
 
     @aedt_exception_handler
     def far_field_plot(self, ff_data, x=0, y=0, qty="rETotal", dB=True, array_size=[4, 4]):
