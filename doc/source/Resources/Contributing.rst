@@ -26,7 +26,7 @@ Posting Issues
 Use the `PyAEDTL Issues <https://github.com/pyansys/pyaedt/issues>`_
 page to submit questions, report bugs, and request new features.
 
-To reach the project support team, email `massimo.capodiferro@ansys.com <massimo.capodiferro@ansys.com>`_.
+To reach the project support team, email `pyansys.support@ansys.com <pyansys.support@ansys.com>`_.
 
 Viewing PyAEDT Documentation
 -----------------------------
