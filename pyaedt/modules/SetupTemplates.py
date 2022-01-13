@@ -1287,6 +1287,7 @@ class SweepHFSS(object):
             range["RangeEnd"] = str(start) + unit
             range["SaveSingleField"] = save_single_fields
         self.props["SweepRanges"]["Subrange"].append(range)
+        return True
 
     @aedt_exception_handler
     def create(self):
