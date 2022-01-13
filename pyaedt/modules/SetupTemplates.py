@@ -1266,6 +1266,16 @@ class SweepHFSS(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        Example
+        -------
+
+        setup = self.aedtapp.create_setup(setupname="MySetup")
+        sweep = setup.add_sweep()
+        sweep.change_type("Interpolating")
+        sweep.change_range("LinearStep", 1.1, 2.1, 0.4, "GHz")
+        sweep.add_subrange("LinearCount", 1, 1.5, 3, "MHz")
+        sweep.add_subrange("LogScale", 1.1, 1.1, "GHz")
+
         """
         if rangetype == "LinearCount" or rangetype == "LinearStep" or rangetype == "LogScale":
             if not end or not count:
