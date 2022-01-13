@@ -490,8 +490,8 @@ class EdbPadstacks(object):
         if not new_padstack_name:
             new_padstack_name = generate_unique_name(target_padstack_name)
 
-        padstackDefinition = self._edb.Definition.PadstackDef.Create(self.db, new_padstack_name)
-        padstackDefinition.SetData(newPadstackDefinitionData)
+        padstack_definition = self._edb.Definition.PadstackDef.Create(self.db, new_padstack_name)
+        padstack_definition.SetData(new_padstack_definition_data)
         self.update_padstacks()
 
         return new_padstack_name
