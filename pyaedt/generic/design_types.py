@@ -11,7 +11,8 @@ try:
     from pyaedt.maxwell import Maxwell2d, Maxwell3d
     from pyaedt.mechanical import Mechanical
     from pyaedt.rmxprt import Rmxprt
-    from pyaedt.simplorer import Simplorer
+    from pyaedt.twinbuilder import TwinBuilder
+    from pyaedt.twinbuilder import TwinBuilder as Simplorer  # noqa: F401 # namespace only for backward compatibility
     from pyaedt.emit import Emit
     from pyaedt.desktop import Desktop
 except ImportError:
@@ -25,7 +26,8 @@ except ImportError:
     from pyaedt.maxwell import Maxwell2d, Maxwell3d
     from pyaedt.mechanical import Mechanical
     from pyaedt.rmxprt import Rmxprt
-    from pyaedt.simplorer import Simplorer
+    from pyaedt.twinbuilder import TwinBuilder
+    from pyaedt.twinbuilder import TwinBuilder as Simplorer  # noqa: F401 # namespace only for backward compatibility
     from pyaedt.emit import Emit
     from pyaedt.desktop import Desktop
 
@@ -33,7 +35,7 @@ except ImportError:
 app_map = {
     "Maxwell 2D": Maxwell2d,
     "Maxwell 3D": Maxwell3d,
-    "Twin Builder": Simplorer,
+    "Twin Builder": TwinBuilder,
     "Circuit Design": Circuit,
     "2D Extractor": Q2d,
     "Q3D Extractor": Q3d,

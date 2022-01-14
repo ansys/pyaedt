@@ -5,13 +5,11 @@ from pyaedt.application.Analysis import Analysis
 from pyaedt.modules.PostProcessor import CircuitPostProcessor
 
 
-class FieldAnalysisSimplorer(Analysis):
-    """**AEDT_CircuitAnalysis**
+class AnalysisTwinBuilder(Analysis):
+    """Class for Twin Builder Analysis Setup (TwinBuilder)
 
-    Class for Simplorer Analysis Setup (Simplorer)
-
-    It is automatically initialized by Application call (like HFSS,
-    Q3D...). Refer to Application function for inputs definition
+    It is automatically initialized by Application call (Twin Builder).
+    Refer to Application function for inputs definition
 
     Parameters
     ----------

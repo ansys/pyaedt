@@ -1248,7 +1248,7 @@ class SweepHFSS(object):
         ----------
         rangetype : str
             Type of the subrange. Options are ``"LinearCount"``,
-            ``"LinearStep"``, ``"LogScale"``, and ``"SinglePoints"``.
+            ``"LinearStep"``, ``"LogScale"`` and ``"SinglePoints"``.
         start : float
             Starting frequency.
         end : float, optional
@@ -1266,6 +1266,17 @@ class SweepHFSS(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        Examples
+        --------
+        Create a setup in an HFSS design and add multiple sweep ranges.
+
+        >>> setup = hfss.create_setup(setupname="MySetup")
+        >>> sweep = setup.add_sweep()
+        >>> sweep.change_type("Interpolating")
+        >>> sweep.change_range("LinearStep", 1.1, 2.1, 0.4, "GHz")
+        >>> sweep.add_subrange("LinearCount", 1, 1.5, 5, "MHz")
+        >>> sweep.add_subrange("LogScale", 1, 3, 10, "GHz")
+
         """
         if rangetype == "LinearCount" or rangetype == "LinearStep" or rangetype == "LogScale":
             if not end or not count:
@@ -1280,13 +1291,14 @@ class SweepHFSS(object):
             range["RangeEnd"] = str(end) + unit
             range["RangeStep"] = str(count) + unit
         elif rangetype == "LogScale":
-            range["RangeEnd"] = end
+            range["RangeEnd"] = str(end) + unit
             range["RangeCount"] = self.props["RangeCount"]
             range["RangeSamples"] = count
         elif rangetype == "SinglePoints":
             range["RangeEnd"] = str(start) + unit
             range["SaveSingleField"] = save_single_fields
         self.props["SweepRanges"]["Subrange"].append(range)
+        return True
 
     @aedt_exception_handler
     def create(self):

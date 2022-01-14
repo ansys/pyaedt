@@ -470,6 +470,33 @@ class EdbPadstacks(object):
         return padstackname
 
     @aedt_exception_handler
+    def duplicate_padstack(self, target_padstack_name, new_padstack_name=""):
+        """Duplicate a padstack.
+
+        Parameters
+        ----------
+        target_padstack_name : str
+            Name of the padstack to be duplicated.
+        new_padstack_name : str, optional
+            Name of the new padstack.
+        Returns
+        -------
+        str
+            Name of the new padstack.
+        """
+        p1 = self.padstacks[target_padstack_name].edb_padstack.GetData()
+        new_padstack_definition_data = self._edb.Definition.PadstackDefData(p1)
+
+        if not new_padstack_name:
+            new_padstack_name = generate_unique_name(target_padstack_name)
+
+        padstack_definition = self._edb.Definition.PadstackDef.Create(self.db, new_padstack_name)
+        padstack_definition.SetData(new_padstack_definition_data)
+        self.update_padstacks()
+
+        return new_padstack_name
+
+    @aedt_exception_handler
     def place_padstack(
         self,
         position,
