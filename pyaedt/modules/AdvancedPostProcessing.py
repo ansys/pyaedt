@@ -585,7 +585,7 @@ class ModelPlotter(object):
                             else:
                                 delimiter = " "
                             if len(lines) > 2000 and not field._is_frame:
-                                lines = list(set(lines))
+                                lines = list(dict.fromkeys(lines))
                                 decimate = 2
                                 del lines[decimate - 1 :: decimate]
                         except:
@@ -749,7 +749,7 @@ class ModelPlotter(object):
         bool
         """
         start = time.time()
-        self.pv = pv.Plotter(notebook=is_notebook(), off_screen=self.off_screen, window_size=self.windows_size)
+        self.pv = pv.Plotter(notebook=self.is_notebook, off_screen=self.off_screen, window_size=self.windows_size)
         self.pv.background_color = [i / 255 for i in self.background_color]
         self._read_mesh_files()
 

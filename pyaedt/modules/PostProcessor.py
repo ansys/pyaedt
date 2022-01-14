@@ -2214,8 +2214,8 @@ class PostProcessor(PostProcessorCommon, object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        str
+            File Path when succeded.
 
         References
         ----------
