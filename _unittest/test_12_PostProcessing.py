@@ -60,7 +60,7 @@ class TestClass:
             meshplot=False,
             imageformat="jpg",
             view="isometric",
-            off_screen=True,
+            show=False,
         )
         assert os.path.exists(plot_obj.image_file)
 

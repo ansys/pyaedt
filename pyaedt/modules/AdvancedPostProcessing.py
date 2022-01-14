@@ -1310,7 +1310,7 @@ class PostProcessor(Post):
         view="isometric",
         plot_label="Temperature",
         plot_folder=None,
-        off_screen=False,
+        show=True,
         scale_min=None,
         scale_max=None,
     ):
@@ -1371,7 +1371,7 @@ class PostProcessor(Post):
                     models = self.export_model_obj(export_as_single_objects=True, air_objects=False)
 
         model = ModelPlotter()
-        model.off_screen = off_screen
+        model.off_screen = not show
 
         if file_to_add:
             model.add_field_from_file(file_to_add, coordinate_units=self.modeler.model_units)
@@ -1385,8 +1385,9 @@ class PostProcessor(Post):
         if scale_min and scale_max:
             model.range_min = scale_min
             model.range_max = scale_max
-        model.plot(os.path.join(project_path, self._app.project_name + "." + imageformat))
-        model.clean_cache_and_files(clean_cache=False)
+        if show:
+            model.plot(os.path.join(project_path, self._app.project_name + "." + imageformat))
+            model.clean_cache_and_files(clean_cache=False)
 
         return model
 

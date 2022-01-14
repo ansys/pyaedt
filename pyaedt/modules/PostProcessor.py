@@ -955,7 +955,7 @@ class FieldPlot:
                 imageformat="jpg",
                 view=view,
                 plot_label=self.quantityName,
-                off_screen=True,
+                show=False,
                 scale_min=scale_min,
                 scale_max=scale_max,
             )

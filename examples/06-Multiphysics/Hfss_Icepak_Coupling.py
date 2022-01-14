@@ -256,7 +256,7 @@ aedtapp.post.plot_field_from_fieldplot(
     meshplot=False,
     imageformat="jpg",
     view="isometric",
-    off_screen=True,
+    show=False,
 )
 
 ################################################################################
@@ -303,7 +303,7 @@ ipkapp.post.plot_field_from_fieldplot(
     meshplot=False,
     imageformat="jpg",
     view="isometric",
-    off_screen=True,
+    show=False,
 )
 
 aedtapp.save_project()

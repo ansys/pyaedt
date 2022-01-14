@@ -113,7 +113,7 @@ id_list = [f.id for f in face_lists]
 #   intrinsic_dict={'Time': '0s'},
 #   variation_variable="Time",
 #   variation_list=timesteps,
-#   off_screen=True,
+#   show=True,
 #   export_gif=True
 # )
 
