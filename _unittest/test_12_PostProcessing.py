@@ -206,8 +206,9 @@ class TestClass:
 
     @pytest.mark.skipif(is_ironpython, reason="Not running in ironpython")
     def test_15_export_plot(self):
-        obj = self.aedtapp.post.plot_model_obj(show=False,
-                                               export_path=os.path.join(self.local_scratch.path, "image.jpg"))
+        obj = self.aedtapp.post.plot_model_obj(
+            show=False, export_path=os.path.join(self.local_scratch.path, "image.jpg")
+        )
         assert os.path.exists(obj.image_file)
 
     def test_51_get_efields(self):

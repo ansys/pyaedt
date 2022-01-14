@@ -623,8 +623,8 @@ class ModelPlotter(object):
                                 delimiter = " "
                             if len(lines) > 2000 and not field._is_frame:
                                 lines = list(dict.fromkeys(lines))
-                                #decimate = 2
-                                #del lines[decimate - 1 :: decimate]
+                                # decimate = 2
+                                # del lines[decimate - 1 :: decimate]
                         except:
                             lines = []
                         for line in lines:
@@ -1210,7 +1210,7 @@ class PostProcessor(Post):
 
         assert self._app._aedt_version >= "2021.2", self.logger.error("Object is supported from AEDT 2021 R2.")
         if not export_path:
-            export_path = os.path.join(self._app.project_path, self._app.project_name + ".pyaedt")
+            export_path = os.path.join(self._app.project_path, self._app.project_name + "_pyaedt")
             if not os.path.exists(export_path):
                 os.mkdir(export_path)
         if not obj_list:
