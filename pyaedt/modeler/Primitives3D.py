@@ -143,7 +143,7 @@ class Primitives3D(Primitives, object):
         ...                                                              matname="vacuum")
 
         """
-        if radius < 0:
+        if isinstance(radius, (int, float)) and radius < 0:
             raise ValueError("Radius must be greater than 0.")
 
         szAxis = GeometryOperators.cs_axis_str(cs_axis)
@@ -285,11 +285,11 @@ class Primitives3D(Primitives, object):
         """
         if bottom_radius == top_radius:
             raise ValueError("Bottom radius and top radius must have different values.")
-        if bottom_radius < 0:
+        if isinstance(bottom_radius, (int, float)) and bottom_radius < 0:
             raise ValueError("Bottom radius must be greater than 0.")
-        if top_radius < 0:
+        if isinstance(top_radius, (int, float)) and top_radius < 0:
             raise ValueError("Top radius must be greater than 0.")
-        if height <= 0:
+        if isinstance(height, (int, float)) and height <= 0:
             raise ValueError("Height must be greater than 0.")
 
         XCenter, YCenter, ZCenter = self._pos_with_arg(position)
@@ -348,7 +348,7 @@ class Primitives3D(Primitives, object):
         """
         if len(position) != 3:
             raise ValueError("Position argument must be a valid 3 elements List.")
-        if radius < 0:
+        if isinstance(radius, (int, float)) and radius < 0:
             raise ValueError("Radius must be greater than 0.")
 
         XCenter, YCenter, ZCenter = self._pos_with_arg(position)
@@ -411,10 +411,10 @@ class Primitives3D(Primitives, object):
         """
         if len(center) != 3:
             raise ValueError("Center argument must be a valid 3 element sequence.")
-        if major_radius <= 0 or minor_radius <= 0:
-            raise ValueError("Both major and minor radius must be greater than 0.")
-        if minor_radius >= major_radius:
-            raise ValueError("Major radius must be greater than minor radius.")
+        # if major_radius <= 0 or minor_radius <= 0:
+        #     raise ValueError("Both major and minor radius must be greater than 0.")
+        # if minor_radius >= major_radius:
+        #     raise ValueError("Major radius must be greater than minor radius.")
 
         x_center, y_center, z_center = self._pos_with_arg(center)
         axis = GeometryOperators.cs_axis_str(axis)
