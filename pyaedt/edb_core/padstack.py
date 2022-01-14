@@ -507,6 +507,7 @@ class EdbPadstacks(object):
         fromlayer=None,
         tolayer=None,
         solderlayer=None,
+        is_pin=False
     ):
         """Place the padstack.
 
@@ -554,10 +555,11 @@ class EdbPadstacks(object):
         if solderlayer:
             solderlayer = self._pedb.core_stackup.signal_layers[solderlayer]._layer
         if padstack:
-            via = self._edb.Cell.Primitive.PadstackInstance.Create(
+            padstack_instance = self._edb.Cell.Primitive.PadstackInstance.Create(
                 self._active_layout, net, via_name, padstack, position, rotation, fromlayer, tolayer, solderlayer, None
             )
-            return via
+            padstack_instance.SetIsLayoutPin(is_pin)
+            return padstack_instance
         else:
             return False
 
