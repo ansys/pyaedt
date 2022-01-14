@@ -401,15 +401,11 @@ class ModelPlotter(object):
         -------
         bool
         """
-        self._fields.append(FieldClass(None,
-                                       log_scale,
-                                       coordinate_units,
-                                       opacity,
-                                       color_map,
-                                       label_name,
-                                       surface_mapping_tolerance,
-                                       show_edges)
-                            )
+        self._fields.append(
+            FieldClass(
+                None, log_scale, coordinate_units, opacity, color_map, label_name, surface_mapping_tolerance, show_edges
+            )
+        )
         vertices = np.array(coordinates)
         filedata = pv.PolyData(vertices)
         filedata = filedata.delaunay_2d(tol=surface_mapping_tolerance)
@@ -577,10 +573,10 @@ class ModelPlotter(object):
                 else:
                     points = []
                     nodes = []
-                    values =[]
+                    values = []
                     with open(field.path, "r") as f:
                         try:
-                            lines = f.read().splitlines()[field.header_lines:]
+                            lines = f.read().splitlines()[field.header_lines :]
                             if ".csv" in field.path:
                                 sniffer = csv.Sniffer()
                                 delimiter = sniffer.sniff(lines[0]).delimiter
@@ -589,7 +585,7 @@ class ModelPlotter(object):
                             if len(lines) > 2000 and not field._is_frame:
                                 lines = list(set(lines))
                                 decimate = 2
-                                del lines[decimate - 1::decimate]
+                                del lines[decimate - 1 :: decimate]
                         except:
                             lines = []
                         for line in lines:
@@ -789,7 +785,6 @@ class ModelPlotter(object):
                     cmap=field.color_map,
                     opacity=field.opacity,
                     show_edges=field.show_edge,
-
                 )
         self._add_buttons()
         end = time.time() - start
@@ -981,7 +976,7 @@ class ModelPlotter(object):
             self.pv.update_scalars(scalars, render=False)
             if not hasattr(self.pv, "ren_win"):
                 break
-            time.sleep(max(0, (1/self.frame_per_seconds) - (time.time() - start)))
+            time.sleep(max(0, (1 / self.frame_per_seconds) - (time.time() - start)))
             start = time.time()
             if self.off_screen:
                 self.pv.render()
