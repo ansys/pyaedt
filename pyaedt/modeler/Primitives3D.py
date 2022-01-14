@@ -285,7 +285,7 @@ class Primitives3D(Primitives, object):
         """
         if bottom_radius == top_radius:
             raise ValueError("Bottom radius and top radius must have different values.")
-        if isinstance(bottom_radius, (int, float)) and  bottom_radius < 0:
+        if isinstance(bottom_radius, (int, float)) and bottom_radius < 0:
             raise ValueError("Bottom radius must be greater than 0.")
         if isinstance(top_radius, (int, float)) and top_radius < 0:
             raise ValueError("Top radius must be greater than 0.")

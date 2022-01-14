@@ -220,11 +220,13 @@ solutions_types = {
         "TR": {"name": None, "options": None, "report_type": "Standard", "default_setup": 17, "default_adaptive": None},
     },
     "2D Extractor": {
-        "Open": {"name": "Open",
-                 "options": None,
-                 "report_type": None,
-                 "default_setup": 30,
-                 "default_adaptive": "LastAdaptive"},
+        "Open": {
+            "name": "Open",
+            "options": None,
+            "report_type": None,
+            "default_setup": 30,
+            "default_adaptive": "LastAdaptive",
+        },
         "Closed": {
             "name": "Closed",
             "options": None,
