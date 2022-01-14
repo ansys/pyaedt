@@ -1830,12 +1830,12 @@ class EDBPadstackInstance(object):
 
     @property
     def is_pin(self):
-        """Type of padstack.
+        """Determines whether this padstack instance is a layout pin.
 
         Returns
         -------
         bool
-            True if padstack type is pin, False otherwise.
+            True if this padstack type is a layout pin, False otherwise.
         """
         return self._edb_padstackinstance.IsLayoutPin()
 
