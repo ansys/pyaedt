@@ -1266,8 +1266,8 @@ class SweepHFSS(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
-        Example
-        -------
+        Examples
+        --------
         Create a setup in an HFSS design and add multiple sweep ranges.
 
         >>> setup = hfss.create_setup(setupname="MySetup")
