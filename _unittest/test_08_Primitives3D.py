@@ -932,20 +932,20 @@ class TestClass(BasisTest):
             )
             assert "Center argument must be a valid 3 element sequence." in str(excinfo.value)
 
-        with pytest.raises(ValueError) as excinfo:
-            self.aedtapp.modeler.primitives.create_torus(
-                [30, 30, 0], major_radius=-0.3, minor_radius=0.5, axis="Z", name="torus", material_name="Copper"
-            )
-            assert "Both major and minor radius must be greater than 0" in str(excinfo.value)
+        # with pytest.raises(ValueError) as excinfo:
+        #     self.aedtapp.modeler.primitives.create_torus(
+        #         [30, 30, 0], major_radius=-0.3, minor_radius=0.5, axis="Z", name="torus", material_name="Copper"
+        #     )
+        #     assert "Both major and minor radius must be greater than 0" in str(excinfo.value)
 
-        with pytest.raises(ValueError) as excinfo:
-            self.aedtapp.modeler.primitives.create_torus(
-                [30, 30, 0], major_radius=1, minor_radius=0, axis="Z", name="torus", material_name="Copper"
-            )
-            assert "Both major and minor radius must be greater than 0" in str(excinfo.value)
+        # with pytest.raises(ValueError) as excinfo:
+        #     self.aedtapp.modeler.primitives.create_torus(
+        #         [30, 30, 0], major_radius=1, minor_radius=0, axis="Z", name="torus", material_name="Copper"
+        #     )
+        #     assert "Both major and minor radius must be greater than 0" in str(excinfo.value)
 
-        with pytest.raises(ValueError) as excinfo:
-            self.aedtapp.modeler.primitives.create_torus(
-                [30, 30, 0], major_radius=1, minor_radius=1.2, axis="Z", name="torus", material_name="Copper"
-            )
-            assert "Major radius must be greater than minor radius." in str(excinfo.value)
+        # with pytest.raises(ValueError) as excinfo:
+        #     self.aedtapp.modeler.primitives.create_torus(
+        #         [30, 30, 0], major_radius=1, minor_radius=1.2, axis="Z", name="torus", material_name="Copper"
+        #     )
+        #     assert "Major radius must be greater than minor radius." in str(excinfo.value)
