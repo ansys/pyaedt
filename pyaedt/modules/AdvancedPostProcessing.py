@@ -812,18 +812,18 @@ class ModelPlotter(object):
         return True
 
     @aedt_exception_handler
-    def clean_cache_and_files(self, remove_objs=True, remove_fields=True, clean_cache=True):
-        """
+    def clean_cache_and_files(self, remove_objs=True, remove_fields=True, clean_cache=False):
+        """Clean downloaded files, and, on demand, also the cached meshes.
 
         Parameters
         ----------
-        remove_objs
-        remove_fields
-        clean_cache
+        remove_objs : bool
+        remove_fields : bool
+        clean_cache : bool
 
         Returns
         -------
-
+        bool
         """
         if remove_objs:
             for el in self.objects:
