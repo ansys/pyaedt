@@ -1496,7 +1496,10 @@ class Primitives(object):
                 vArgParamVector.append(["NAME:Pair", "Name:=", pair.Name, "Value:=", pair.Value])
 
         vArg1.append(vArgParamVector)
-        obj_name, ext = os.path.splitext(os.path.basename(udp_dll_name))
+        if name:
+            obj_name = name
+        else:
+            obj_name, ext = os.path.splitext(os.path.basename(udp_dll_name))
         vArg2 = self._default_object_attributes(name=obj_name)
         obj_name = self._oeditor.CreateUserDefinedPart(vArg1, vArg2)
         return self._create_object(obj_name)
