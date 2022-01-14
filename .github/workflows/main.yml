@@ -69,7 +69,6 @@ jobs:
           sphinx-build -j auto -b html -a doc/source doc/_build/html 
 
       - name: Upload Documentation
-        continue-on-error: true
         id: upload
         uses: actions/upload-artifact@v2.2.3
         with:
