@@ -507,7 +507,7 @@ class EdbPadstacks(object):
         fromlayer=None,
         tolayer=None,
         solderlayer=None,
-        is_pin=False
+        is_pin=False,
     ):
         """Place the padstack.
 
