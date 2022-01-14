@@ -1366,11 +1366,11 @@ class EDBPadProperties(object):
         ----------
         layer_name : str, optional
             Name of the layer. The default is ``None``.
-        pad_type :
+        pad_type : int, optional
             Type of the pad. The default is ``None``.
-        geom_type :
+        geom_type : int, optional
             Type of the geometry. The default is ``None``.
-        params :
+        params : list, optional
             The default is ``None``.
         offsetx : float, optional
             Offset value for the X axis. The default is ``None``.
@@ -1392,6 +1392,8 @@ class EDBPadProperties(object):
             geom_type = self.geometry_type
         if not params:
             params = [self._edb_value(i) for i in self.parameters]
+        else:
+            params = [self._edb_value(i) for i in params]
         if not offsetx:
             offsetx = self.offset_x
         if not offsety:
