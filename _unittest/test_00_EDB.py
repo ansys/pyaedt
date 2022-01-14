@@ -120,6 +120,10 @@ class TestClass:
         assert self.edbapp.core_padstack.place_padstack(["via_x", "via_x+via_y"], "myVia")
         assert self.edbapp.core_padstack.place_padstack(["via_x", "via_x+via_y*2"], "myVia_bullet")
 
+        pin1 = self.edbapp.core_padstack.place_padstack(["via_x", "via_x+via_y*3"], "myVia", is_pin=True)
+        assert pin1.IsLayoutPin()
+
+
     def test_08_nets_query(self):
         signalnets = self.edbapp.core_nets.signal_nets
         powernets = self.edbapp.core_nets.power_nets
