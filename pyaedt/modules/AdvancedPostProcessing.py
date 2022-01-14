@@ -90,7 +90,20 @@ def is_float(istring):
 
 
 class ObjClass(object):
-    """Class that manages mesh files to be plotted in pyvista."""
+    """Class that manages mesh files to be plotted in pyvista.
+
+    Parameters
+    ----------
+    path : str
+        Full path to the file.
+    color : str or tuple
+        Can be a string with color name or a tuple with (r,g,b) values.
+    opacity : float
+        Value between 0 to 1 of opacity.
+    units : str
+        Model units.
+
+    """
 
     def __init__(self, path, color, opacity, units):
         self.path = path
@@ -116,7 +129,28 @@ class ObjClass(object):
 
 
 class FieldClass(object):
-    """Class to manage Field data to be plotted in pyvista."""
+    """Class to manage Field data to be plotted in pyvista.
+
+    Parameters
+    ----------
+    path : str
+        Full path to the file.
+    log_scale : bool, optional
+        Either if the field has to be plotted log or not. The default value is ``True``.
+    coordinate_units : str, optional
+        Fields coordinates units. The default value is ``"meter"``.
+    opacity : float, optional
+        Value between 0 to 1 of opacity. The default value is ``1``.
+    color_map : str, optional
+        Color map of field plot. The default value is ``"rainbow"``.
+    label : str, optional
+        Name of the field. The default value is ``"Field"``.
+    tolerance : float, optional
+        Delauny tolerance value used for interpolating points. The default value is ``1e-3``.
+    headers : int, optional
+        Number of lines to of the file containing header info that has to be removed.
+        The default value is ``2``.
+    """
 
     def __init__(
         self,
@@ -126,7 +160,7 @@ class FieldClass(object):
         opacity=1,
         color_map="rainbow",
         label="Field",
-        tol=1e-3,
+        tolerance=1e-3,
         headers=2,
         show_edge=True,
     ):
@@ -140,7 +174,7 @@ class FieldClass(object):
         self.label = label
         self.name = os.path.splitext(self.path)[0]
         self.color = (255, 0, 0)
-        self.surface_mapping_tolerance = tol
+        self.surface_mapping_tolerance = tolerance
         self.header_lines = headers
         self.show_edge = show_edge
         self._is_frame = False
@@ -153,7 +187,7 @@ class ModelPlotter(object):
     --------
     This Class can be instantiated within Pyaedt (with plot_model_object or different field plots
     and standalone.
-    Hera an example of standalone project
+    Here an example of standalone project
 
     >>> model = ModelPlotter()
     >>> model.add_object(r'D:\Simulation\antenna.obj', (200,20,255), 0.6, "in")
@@ -212,7 +246,7 @@ class ModelPlotter(object):
 
     @property
     def fields(self):
-        """Field Object.
+        """List of fields object.
 
         Returns
         -------
@@ -232,7 +266,7 @@ class ModelPlotter(object):
 
     @property
     def objects(self):
-        """Field Object.
+        """List of class objects.
 
         Returns
         -------
@@ -250,10 +284,11 @@ class ModelPlotter(object):
             Full path to the file.
         cad_color : str or tuple
             Can be a string with color name or a tuple with (r,g,b) values.
+            The default value is ``"dodgerblue"``.
         opacity : float
-            Value between 0 to 1 of opacity.
+            Value between 0 to 1 of opacity. The default value is ``1``.
         units : str
-            Model units.
+            Model units. The default value is ``"mm"``.
 
         Returns
         -------
@@ -296,6 +331,7 @@ class ModelPlotter(object):
             Delauny tolerance value used for interpolating points.
         header_lines : int
             Number of lines to of the file containing header info that has to be removed.
+
         Returns
         -------
         bool
@@ -331,7 +367,7 @@ class ModelPlotter(object):
         Parameters
         ----------
         field_files : list
-            list of full path to frame file.
+            List of full path to frame file.
         log_scale : bool
             Either if the field has to be plotted log or not.
         coordinate_units : str
@@ -399,6 +435,7 @@ class ModelPlotter(object):
             Name of the field.
         surface_mapping_tolerance : float, optional
             Delauny tolerance value used for interpolating points.
+
         Returns
         -------
         bool

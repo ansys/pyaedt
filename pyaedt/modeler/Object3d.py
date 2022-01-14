@@ -780,7 +780,7 @@ class Object3d(object):
         Parameters
         ----------
         show : bool, optional
-            Show the plot after generation.
+            Show the plot after generation.  The default value is ``True``.
 
         Returns
         -------
