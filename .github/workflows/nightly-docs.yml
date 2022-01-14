@@ -50,7 +50,7 @@ jobs:
         uses: JamesIves/github-pages-deploy-action@4.1.4
         with:
           repository-name: pyansys/pyaedt-dev-docs
-          branch: gh-pages
+          branch: master
           folder: doc/_build/html/
           token: ${{ steps.get_workflow_token.outputs.token }}
           clean: true
