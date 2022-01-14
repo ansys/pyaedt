@@ -45,7 +45,7 @@ class TestClass:
         self.local_scratch.remove()
         gc.collect()
 
-    @pytest.mark.skipif(config["build_machine"] oris_ironpython, reason="Not running in non-graphical mode")
+    @pytest.mark.skipif(config["build_machine"] or is_ironpython, reason="Not running in non-graphical mode")
     def test_01_Field_Ploton_cutplanedesignname(self):
         cutlist = ["Global:XY", "Global:XZ", "Global:YZ"]
         setup_name = self.aedtapp.existing_analysis_sweeps[0]
