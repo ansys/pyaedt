@@ -1824,6 +1824,28 @@ class EDBPadstackInstance(object):
         """
         return self._edb_padstackinstance.GetNet().GetName()
 
+    @property
+    def is_pin(self):
+        """Type of padstack.
+
+        Returns
+        -------
+        bool
+            True if padstack type is pin, False otherwise.
+        """
+        return self._edb_padstackinstance.IsLayoutPin()
+
+    @is_pin.setter
+    def is_pin(self, pin):
+        """Set padstack type
+
+        Parameters
+        ----------
+        pin : bool
+            True if set this padstack instance as pin, False otherwise
+        """
+        self._edb_padstackinstance.SetIsLayoutPin(pin)
+
     def __init__(self, edb_padstackinstance, _pedb):
         self._edb_padstackinstance = edb_padstackinstance
         self._pedb = _pedb
