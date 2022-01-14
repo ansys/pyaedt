@@ -1341,7 +1341,7 @@ class PostProcessor(Post):
             Plot folder to update before exporting the field.
             The default is ``None``, in which case all plot
             folders are updated.
-        off_screen : bool, optional
+        show : bool, optional
             Export Image without plotting on UI.
         scale_min : float, optional
             Fix the Scale Minimum value.
@@ -1359,9 +1359,7 @@ class PostProcessor(Post):
             self.ofieldsreporter.UpdateQuantityFieldsPlots(plot_folder)
 
         start = time.time()
-        if not project_path:
-            project_path = self._app.project_path
-        file_to_add = self.export_field_plot(plotname, project_path)
+        file_to_add = self.export_field_plot(plotname, self._app.project_path)
         models = None
         if not file_to_add:
             return False
@@ -1385,7 +1383,7 @@ class PostProcessor(Post):
         if scale_min and scale_max:
             model.range_min = scale_min
             model.range_max = scale_max
-        if show:
+        if show or project_path:
             model.plot(os.path.join(project_path, self._app.project_name + "." + imageformat))
             model.clean_cache_and_files(clean_cache=False)
 
