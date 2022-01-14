@@ -621,7 +621,7 @@ class EdbPadstacks(object):
         list of Edb.Cell.Primitive.PadstackInstance
         """
         via_list = []
-        for inst in self.padstack_instances:
+        for _, inst in self.padstack_instances.items():
             if inst.net_name == net_name:
                 via_list.append(inst)
         return via_list

@@ -121,7 +121,10 @@ class TestClass:
         assert self.edbapp.core_padstack.place_padstack(["via_x", "via_x+via_y*2"], "myVia_bullet")
 
         padstack_id = self.edbapp.core_padstack.place_padstack(["via_x", "via_x+via_y*3"], "myVia", is_pin=True)
-        assert self.edbapp.core_padstack.padstack_instances[padstack_id].is_pin
+        padstack_instance = self.edbapp.core_padstack.padstack_instances[padstack_id]
+        assert padstack_instance.is_pin
+        assert padstack_instance.position
+        assert isinstance(padstack_instance.rotation, float)
 
     def test_08_nets_query(self):
         signalnets = self.edbapp.core_nets.signal_nets
