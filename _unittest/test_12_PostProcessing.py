@@ -88,7 +88,7 @@ class TestClass:
             project_path=self.local_scratch.path,
             variation_variable="Phase",
             variation_list=phases,
-            off_screen=True,
+            show=False,
             export_gif=True,
         )
         assert os.path.exists(model_gif.gif_file)
