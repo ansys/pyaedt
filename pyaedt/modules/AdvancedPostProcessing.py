@@ -9,6 +9,7 @@ import math
 import os
 import time
 import warnings
+import csv
 
 from pyaedt.generic.general_methods import aedt_exception_handler
 from pyaedt.modules.PostProcessor import PostProcessor as Post
@@ -117,9 +118,16 @@ class ObjClass(object):
 class FieldClass(object):
     """Class to manage Field data to be plotted in pyvista."""
 
-    def __init__(
-        self, path, log_scale=True, coordinate_units="meter", opacity=1, color_map="rainbow", label="Field", tol=1e-3
-    ):
+    def __init__(self,
+                 path,
+                 log_scale=True,
+                 coordinate_units="meter",
+                 opacity=1,
+                 color_map="rainbow",
+                 label="Field",
+                 tol=1e-3,
+                 headers=2,
+                 ):
         self.path = path
         self.log_scale = log_scale
         self.units = coordinate_units
@@ -131,6 +139,7 @@ class FieldClass(object):
         self.name = os.path.splitext(self.path)[0]
         self.color = (255, 0, 0)
         self.surface_mapping_tolerance = tol
+        self.header_lines = headers
 
 
 class ModelPlotter(object):
@@ -233,6 +242,7 @@ class ModelPlotter(object):
         color_map="rainbow",
         label_name="Field",
         surface_mapping_tolerance=1e-3,
+        header_lines=2,
     ):
         """Add a field file to the scenario. It can be aedtplt, fld or csv file.
 
@@ -248,15 +258,26 @@ class ModelPlotter(object):
             Value between 0 to 1 of opacity.
         color_map : str
             Color map of field plot. Default rainbow.
+        label_name : str, optional
+            Name of the field.
+        surface_mapping_tolerance : float, optional
+            Delauny tolerance value used for interpolating points.
+        header_lines : int
+            Number of lines to of the file containing header info that has to be removed.
         Returns
         -------
         bool
         """
-        self._fields.append(
-            FieldClass(
-                field_path, log_scale, coordinate_units, opacity, color_map, label_name, surface_mapping_tolerance
-            )
-        )
+        self._fields.append(FieldClass(field_path,
+                                       log_scale,
+                                       coordinate_units,
+                                       opacity,
+                                       color_map,
+                                       label_name,
+                                       surface_mapping_tolerance,
+                                       header_lines
+                                       )
+                            )
 
     @aedt_exception_handler
     def add_frames_from_file(
@@ -268,6 +289,7 @@ class ModelPlotter(object):
         color_map="rainbow",
         label_name="Field",
         surface_mapping_tolerance=1e-3,
+        header_lines=2,
     ):
         """Add a field file to the scenario. It can be aedtplt, fld or csv file.
 
@@ -283,16 +305,27 @@ class ModelPlotter(object):
             Value between 0 to 1 of opacity.
         color_map : str
             Color map of field plot. Default rainbow.
+        label_name : str, optional
+            Name of the field.
+        surface_mapping_tolerance : float, optional
+            Delauny tolerance value used for interpolating points.
+        header_lines : int
+            Number of lines to of the file containing header info that has to be removed.
         Returns
         -------
         bool
         """
         for field in field_files:
-            self._frames.append(
-                FieldClass(
-                    field, log_scale, coordinate_units, opacity, color_map, label_name, surface_mapping_tolerance
-                )
-            )
+            self._frames.append(FieldClass(field,
+                                       log_scale,
+                                       coordinate_units,
+                                       opacity,
+                                       color_map,
+                                       label_name,
+                                       surface_mapping_tolerance,
+                                       header_lines
+                                       )
+                                )
 
     @aedt_exception_handler
     def add_field_from_data(
@@ -322,14 +355,23 @@ class ModelPlotter(object):
             Value between 0 to 1 of opacity.
         color_map : str
             Color map of field plot. Default rainbow.
-
+        label_name : str, optional
+            Name of the field.
+        surface_mapping_tolerance : float, optional
+            Delauny tolerance value used for interpolating points.
         Returns
         -------
         bool
         """
-        self._fields.append(
-            FieldClass(None, log_scale, coordinate_units, opacity, color_map, label_name, surface_mapping_tolerance)
-        )
+        self._fields.append(FieldClass(None,
+                                       log_scale,
+                                       coordinate_units,
+                                       opacity,
+                                       color_map,
+                                       label_name,
+                                       surface_mapping_tolerance
+                                       )
+                            )
         vertices = np.array(coordinates)
         filedata = pv.PolyData(vertices)
         filedata = filedata.delaunay_2d(tol=surface_mapping_tolerance)
@@ -404,28 +446,7 @@ class ModelPlotter(object):
                 obj_to_iterate.append(i)
         for field in obj_to_iterate:
             if field.path and not field._cached_polydata:
-                if ".fld" in field.path:
-                    points = []
-                    with open(field.path, "r") as f:
-                        lines = f.readlines()
-                        id = 0
-                        for line in lines:
-                            if id > 1:
-                                points.append([float(i) for i in line.split(" ")])
-                            else:
-                                id += 1
-                    fields = [i[-1] for i in points]
-                    try:
-                        conv = 1 / AEDT_UNITS["Length"][self.units]
-                    except:
-                        conv = 1
-                    nodes = [[i[0] * conv, i[1] * conv, i[2] * conv] for i in points]
-                    vertices = np.array(nodes)
-                    filedata = pv.PolyData(vertices)
-                    filedata = filedata.delaunay_2d(tol=field.surface_mapping_tolerance)
-                    filedata.point_data[field.label] = np.array(fields)
-                    field._cached_polydata = filedata
-                elif ".aedtplt" in field.path:
+                if ".aedtplt" in field.path:
                     lines = []
                     with open(field.path, "r") as f:
                         drawing_found = False
@@ -515,6 +536,32 @@ class ModelPlotter(object):
                             surf.point_data[field.label] = temps
                     field.log = log
                     field._cached_polydata = surf
+                else:
+                    points = []
+                    with open(field.path, "r") as f:
+                        try:
+                            lines = f.readlines()[field.header_lines:]
+                            if ".csv" in field.path:
+                                sniffer = csv.Sniffer()
+                                delimiter = sniffer.sniff(lines[0]).delimiter
+                            else:
+                                 delimiter = " "
+                        except:
+                            lines = []
+                        for line in lines:
+                            points.append([float(i) for i in line.split(delimiter)])
+                    if points:
+                        fields = [i[-1] for i in points]
+                        try:
+                            conv = 1 / AEDT_UNITS["Length"][self.units]
+                        except:
+                            conv = 1
+                        nodes = [[i[0] * conv, i[1] * conv, i[2] * conv] for i in points]
+                        vertices = np.array(nodes)
+                        filedata = pv.PolyData(vertices)
+                        filedata = filedata.delaunay_2d(tol=field.surface_mapping_tolerance)
+                        filedata.point_data[field.label] = np.array(fields)
+                        field._cached_polydata = filedata
 
     @aedt_exception_handler
     def _add_buttons(self):
@@ -809,8 +856,9 @@ class ModelPlotter(object):
             """exit when user wants to leave"""
             self._pause = not self._pause
 
-        self.pv.add_text("Press p for Play/Pause, Press q to exit ", font_size=8, position="upper_left")
-        self.pv.add_text(" ", font_size=10, position=[0, 0])
+        self.pv.add_text("Press p for Play/Pause, Press q to exit ", font_size=8, position="upper_left",
+                         color=tuple(axes_color))
+        self.pv.add_text(" ", font_size=10, position=[0, 0], color=tuple(axes_color))
         self.pv.add_key_event("q", q_callback)
         self.pv.add_key_event("p", p_callback)
 
