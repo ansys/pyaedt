@@ -118,16 +118,17 @@ class ObjClass(object):
 class FieldClass(object):
     """Class to manage Field data to be plotted in pyvista."""
 
-    def __init__(self,
-                 path,
-                 log_scale=True,
-                 coordinate_units="meter",
-                 opacity=1,
-                 color_map="rainbow",
-                 label="Field",
-                 tol=1e-3,
-                 headers=2,
-                 ):
+    def __init__(
+        self,
+        path,
+        log_scale=True,
+        coordinate_units="meter",
+        opacity=1,
+        color_map="rainbow",
+        label="Field",
+        tol=1e-3,
+        headers=2,
+    ):
         self.path = path
         self.log_scale = log_scale
         self.units = coordinate_units
@@ -268,16 +269,18 @@ class ModelPlotter(object):
         -------
         bool
         """
-        self._fields.append(FieldClass(field_path,
-                                       log_scale,
-                                       coordinate_units,
-                                       opacity,
-                                       color_map,
-                                       label_name,
-                                       surface_mapping_tolerance,
-                                       header_lines
-                                       )
-                            )
+        self._fields.append(
+            FieldClass(
+                field_path,
+                log_scale,
+                coordinate_units,
+                opacity,
+                color_map,
+                label_name,
+                surface_mapping_tolerance,
+                header_lines,
+            )
+        )
 
     @aedt_exception_handler
     def add_frames_from_file(
@@ -316,16 +319,18 @@ class ModelPlotter(object):
         bool
         """
         for field in field_files:
-            self._frames.append(FieldClass(field,
-                                       log_scale,
-                                       coordinate_units,
-                                       opacity,
-                                       color_map,
-                                       label_name,
-                                       surface_mapping_tolerance,
-                                       header_lines
-                                       )
-                                )
+            self._frames.append(
+                FieldClass(
+                    field,
+                    log_scale,
+                    coordinate_units,
+                    opacity,
+                    color_map,
+                    label_name,
+                    surface_mapping_tolerance,
+                    header_lines,
+                )
+            )
 
     @aedt_exception_handler
     def add_field_from_data(
@@ -363,15 +368,9 @@ class ModelPlotter(object):
         -------
         bool
         """
-        self._fields.append(FieldClass(None,
-                                       log_scale,
-                                       coordinate_units,
-                                       opacity,
-                                       color_map,
-                                       label_name,
-                                       surface_mapping_tolerance
-                                       )
-                            )
+        self._fields.append(
+            FieldClass(None, log_scale, coordinate_units, opacity, color_map, label_name, surface_mapping_tolerance)
+        )
         vertices = np.array(coordinates)
         filedata = pv.PolyData(vertices)
         filedata = filedata.delaunay_2d(tol=surface_mapping_tolerance)
@@ -540,7 +539,7 @@ class ModelPlotter(object):
                     points = []
                     with open(field.path, "r") as f:
                         try:
-                            lines = f.readlines()[field.header_lines:]
+                            lines = f.readlines()[field.header_lines :]
                             sniffer = csv.Sniffer()
                             delimiter = sniffer.sniff(lines[0]).delimiter
                         except:
@@ -853,8 +852,9 @@ class ModelPlotter(object):
             """exit when user wants to leave"""
             self._pause = not self._pause
 
-        self.pv.add_text("Press p for Play/Pause, Press q to exit ", font_size=8, position="upper_left",
-                         color=tuple(axes_color))
+        self.pv.add_text(
+            "Press p for Play/Pause, Press q to exit ", font_size=8, position="upper_left", color=tuple(axes_color)
+        )
         self.pv.add_text(" ", font_size=10, position=[0, 0], color=tuple(axes_color))
         self.pv.add_key_event("q", q_callback)
         self.pv.add_key_event("p", p_callback)
