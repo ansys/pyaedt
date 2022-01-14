@@ -128,6 +128,7 @@ class FieldClass(object):
         label="Field",
         tol=1e-3,
         headers=2,
+        show_edge=True,
     ):
         self.path = path
         self.log_scale = log_scale
@@ -141,10 +142,37 @@ class FieldClass(object):
         self.color = (255, 0, 0)
         self.surface_mapping_tolerance = tol
         self.header_lines = headers
+        self.show_edge = show_edge
+        self._is_frame = False
 
 
 class ModelPlotter(object):
-    """Class that manage the plot data."""
+    """Class that manage the plot data.
+
+    Examples
+    --------
+    This Class can be instantiated within Pyaedt (with plot_model_object or different field plots
+    and standalone.
+    Hera an example of standalone project
+
+    >>> model = ModelPlotter()
+    >>> model.add_object(r'D:\Simulation\antenna.obj', (200,20,255), 0.6, "in")
+    >>> model.add_object(r'D:\Simulation\helix.obj', (0,255,0), 0.5, "in")
+    >>> model.add_field_from_file(r'D:\Simulation\helic_antenna.csv', True, "meter", 1)
+    >>> model.background_color = (0,0,0)
+    >>> model.plot()
+
+    And here an example of animation:
+
+    >>> model = ModelPlotter()
+    >>> model.add_object(r'D:\Simulation\antenna.obj', (200,20,255), 0.6, "in")
+    >>> model.add_object(r'D:\Simulation\helix.obj', (0,255,0), 0.5, "in")
+    >>> frames = [r'D:\Simulation\helic_antenna.csv', r'D:\Simulation\helic_antenna_10.fld',
+    >>>           r'D:\Simulation\helic_antenna_20.fld', r'D:\Simulation\helic_antenna_30.fld',
+    >>>           r'D:\Simulation\helic_antenna_40.fld']
+    >>> model.gif_file = r"D:\Simulation\animation.gif"
+    >>> model.animate()
+    """
 
     def __init__(self):
         self._objects = []
@@ -162,7 +190,7 @@ class ModelPlotter(object):
         self.pv = None
         self.view = "isometric"
         self.units = "meter"
-        self.frame_per_seconds = 1
+        self.frame_per_seconds = 3
         self._plot_meshes = []
         self.range_min = None
         self.range_max = None
@@ -244,6 +272,7 @@ class ModelPlotter(object):
         label_name="Field",
         surface_mapping_tolerance=1e-3,
         header_lines=2,
+        show_edges=True,
     ):
         """Add a field file to the scenario. It can be aedtplt, fld or csv file.
 
@@ -279,6 +308,7 @@ class ModelPlotter(object):
                 label_name,
                 surface_mapping_tolerance,
                 header_lines,
+                show_edges,
             )
         )
 
@@ -329,8 +359,10 @@ class ModelPlotter(object):
                     label_name,
                     surface_mapping_tolerance,
                     header_lines,
+                    False,
                 )
             )
+            self._frames[-1]._is_frame = True
 
     @aedt_exception_handler
     def add_field_from_data(
@@ -343,6 +375,7 @@ class ModelPlotter(object):
         color_map="rainbow",
         label_name="Field",
         surface_mapping_tolerance=1e-3,
+        show_edges=True,
     ):
         """Add field data to the scenario.
 
@@ -368,9 +401,15 @@ class ModelPlotter(object):
         -------
         bool
         """
-        self._fields.append(
-            FieldClass(None, log_scale, coordinate_units, opacity, color_map, label_name, surface_mapping_tolerance)
-        )
+        self._fields.append(FieldClass(None,
+                                       log_scale,
+                                       coordinate_units,
+                                       opacity,
+                                       color_map,
+                                       label_name,
+                                       surface_mapping_tolerance,
+                                       show_edges)
+                            )
         vertices = np.array(coordinates)
         filedata = pv.PolyData(vertices)
         filedata = filedata.delaunay_2d(tol=surface_mapping_tolerance)
@@ -537,26 +576,35 @@ class ModelPlotter(object):
                     field._cached_polydata = surf
                 else:
                     points = []
+                    nodes = []
+                    values =[]
                     with open(field.path, "r") as f:
                         try:
-                            lines = f.readlines()[field.header_lines :]
-                            sniffer = csv.Sniffer()
-                            delimiter = sniffer.sniff(lines[0]).delimiter
+                            lines = f.read().splitlines()[field.header_lines:]
+                            if ".csv" in field.path:
+                                sniffer = csv.Sniffer()
+                                delimiter = sniffer.sniff(lines[0]).delimiter
+                            else:
+                                delimiter = " "
+                            if len(lines) > 2000 and not field._is_frame:
+                                lines = list(set(lines))
+                                decimate = 2
+                                del lines[decimate - 1::decimate]
                         except:
                             lines = []
                         for line in lines:
-                            points.append([float(i) for i in line.split(delimiter)])
-                    if points:
-                        fields = [i[-1] for i in points]
+                            tmp = line.split(delimiter)
+                            nodes.append([float(tmp[0]), float(tmp[1]), float(tmp[2])])
+                            values.append(float(tmp[3]))
+                    if nodes:
                         try:
                             conv = 1 / AEDT_UNITS["Length"][self.units]
                         except:
                             conv = 1
-                        nodes = [[i[0] * conv, i[1] * conv, i[2] * conv] for i in points]
-                        vertices = np.array(nodes)
+                        vertices = np.array(nodes) * conv
                         filedata = pv.PolyData(vertices)
                         filedata = filedata.delaunay_2d(tol=field.surface_mapping_tolerance)
-                        filedata.point_data[field.label] = np.array(fields)
+                        filedata.point_data[field.label] = np.array(values)
                         field._cached_polydata = filedata
 
     @aedt_exception_handler
@@ -730,6 +778,7 @@ class ModelPlotter(object):
                     cmap=field.color_map,
                     clim=[self.range_min, self.range_max],
                     opacity=field.opacity,
+                    show_edges=field.show_edge,
                 )
             else:
                 field._cached_mesh = self.pv.add_mesh(
@@ -739,6 +788,8 @@ class ModelPlotter(object):
                     scalar_bar_args=sargs,
                     cmap=field.color_map,
                     opacity=field.opacity,
+                    show_edges=field.show_edge,
+
                 )
         self._add_buttons()
         end = time.time() - start
@@ -930,7 +981,7 @@ class ModelPlotter(object):
             self.pv.update_scalars(scalars, render=False)
             if not hasattr(self.pv, "ren_win"):
                 break
-            time.sleep(max(0, self.frame_per_seconds - (time.time() - start)))
+            time.sleep(max(0, (1/self.frame_per_seconds) - (time.time() - start)))
             start = time.time()
             if self.off_screen:
                 self.pv.render()
@@ -938,8 +989,6 @@ class ModelPlotter(object):
                 self.pv.update(1, force_redraw=True)
             if first_loop:
                 self.pv.write_frame()
-
-            time.sleep(0.2)
             i += 1
         self.pv.close()
         if self.gif_file:

@@ -39,3 +39,5 @@ They are accessible through the ``post`` property:
    AdvancedPostProcessing.PostProcessor
    PostProcessor.SolutionData
    PostProcessor.FieldPlot
+   AdvancedPostProcessing.ModelPlotter
+
