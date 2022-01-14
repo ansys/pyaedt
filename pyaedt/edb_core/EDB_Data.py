@@ -1739,6 +1739,7 @@ class EDBPadstackInstance(object):
     >>> edb = Edb(myedb, edbversion="2021.2")
     >>> edb_padstack_instance = edb.core_padstack.padstack_instances[0]
     """
+
     def __init__(self, edb_padstackinstance, _pedb):
         self._edb_padstackinstance = edb_padstackinstance
         self._pedb = _pedb
@@ -1887,6 +1888,7 @@ class EDBPadstackInstance(object):
     @property
     def id(self):
         return self._edb_padstackinstance.GetId()
+
 
 class EDBPinInstances(object):
     """Manages EDB functionalities in instances.
