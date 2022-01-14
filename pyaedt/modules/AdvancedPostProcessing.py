@@ -623,8 +623,8 @@ class ModelPlotter(object):
                                 delimiter = " "
                             if len(lines) > 2000 and not field._is_frame:
                                 lines = list(dict.fromkeys(lines))
-                                decimate = 2
-                                del lines[decimate - 1 :: decimate]
+                                #decimate = 2
+                                #del lines[decimate - 1 :: decimate]
                         except:
                             lines = []
                         for line in lines:

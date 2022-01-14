@@ -45,27 +45,6 @@ class TestClass:
         self.local_scratch.remove()
         gc.collect()
 
-    @pytest.mark.skipif(is_ironpython, reason="Not running in non-graphical mode")
-    def test_01_Field_Ploton_cutplanedesignname(self):
-        cutlist = ["Global:XY", "Global:XZ", "Global:YZ"]
-        setup_name = self.aedtapp.existing_analysis_sweeps[0]
-        quantity_name = "ComplexMag_E"
-        intrinsic = {"Freq": "5GHz", "Phase": "180deg"}
-        self.aedtapp.logger.info("Generating the plot")
-        plot1 = self.aedtapp.post.create_fieldplot_cutplane(cutlist, quantity_name, setup_name, intrinsic)
-        plot1.IsoVal = "Tone"
-        assert plot1.update_field_plot_settings()
-        self.aedtapp.logger.info("Generating the image")
-        plot_obj = self.aedtapp.post.plot_field_from_fieldplot(
-            plot1.name,
-            project_path=self.local_scratch.path,
-            meshplot=False,
-            imageformat="jpg",
-            view="isometric",
-            show=False,
-        )
-        assert os.path.exists(plot_obj.image_file)
-
     def test_01B_Field_Plot(self):
         cutlist = ["Global:XY", "Global:XZ", "Global:YZ"]
         setup_name = self.aedtapp.existing_analysis_sweeps[0]
@@ -76,7 +55,7 @@ class TestClass:
         plot1.IsoVal = "Tone"
         assert plot1.change_plot_scale(min_value, "30000")
 
-    @pytest.mark.skipif(is_ironpython, reason="Not running in non-graphical mode")
+    @pytest.mark.skipif(is_ironpython, reason="Not running in ironpython")
     def test_01_Animate_plt(self):
         cutlist = ["Global:XY"]
         phases = [str(i * 5) + "deg" for i in range(2)]
@@ -204,7 +183,34 @@ class TestClass:
         path = self.aedtapp.post.export_model_picture(picturename="test_picture")
         assert path
 
-    def test_11_get_efields(self):
+    @pytest.mark.skipif(is_ironpython, reason="Not running in ironpython")
+    def test_14_Field_Ploton_cutplanedesignname(self):
+        cutlist = ["Global:XY"]
+        setup_name = self.aedtapp.existing_analysis_sweeps[0]
+        quantity_name = "ComplexMag_E"
+        intrinsic = {"Freq": "5GHz", "Phase": "180deg"}
+        self.aedtapp.logger.info("Generating the plot")
+        plot1 = self.aedtapp.post.create_fieldplot_cutplane(cutlist, quantity_name, setup_name, intrinsic)
+        plot1.IsoVal = "Tone"
+        assert plot1.update_field_plot_settings()
+        self.aedtapp.logger.info("Generating the image")
+        plot_obj = self.aedtapp.post.plot_field_from_fieldplot(
+            plot1.name,
+            project_path=self.local_scratch.path,
+            meshplot=False,
+            imageformat="jpg",
+            view="isometric",
+            show=False,
+        )
+        assert os.path.exists(plot_obj.image_file)
+
+    @pytest.mark.skipif(is_ironpython, reason="Not running in ironpython")
+    def test_15_export_plot(self):
+        obj = self.aedtapp.post.plot_model_obj(show=False,
+                                               export_path=os.path.join(self.local_scratch.path, "image.jpg"))
+        assert os.path.exists(obj.image_file)
+
+    def test_51_get_efields(self):
         if is_ironpython:
 
             assert True
@@ -214,6 +220,6 @@ class TestClass:
             app2.close_project(saveproject=False)
 
     @pytest.mark.skipif(not ipython_available, reason="Skipped because ipython not available")
-    def test_nb_display(self):
+    def test_52_display(self):
         img = self.aedtapp.post.nb_display(show_axis=True, show_grid=True, show_ruler=True)
         assert isinstance(img, Image)
