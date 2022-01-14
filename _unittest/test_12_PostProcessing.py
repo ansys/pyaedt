@@ -45,16 +45,17 @@ class TestClass:
         self.local_scratch.remove()
         gc.collect()
 
-    @pytest.mark.skipif(config["build_machine"] or is_ironpython, reason="Not running in non-graphical mode")
+    @pytest.mark.skipif(is_ironpython, reason="Not running in non-graphical mode")
     def test_01_Field_Ploton_cutplanedesignname(self):
         cutlist = ["Global:XY", "Global:XZ", "Global:YZ"]
         setup_name = self.aedtapp.existing_analysis_sweeps[0]
         quantity_name = "ComplexMag_E"
         intrinsic = {"Freq": "5GHz", "Phase": "180deg"}
+        self.aedtapp.logger.info("Generating the plot")
         plot1 = self.aedtapp.post.create_fieldplot_cutplane(cutlist, quantity_name, setup_name, intrinsic)
         plot1.IsoVal = "Tone"
         assert plot1.update_field_plot_settings()
-        print("Generating the plot")
+        self.aedtapp.logger.info("Generating the image")
         plot_obj = self.aedtapp.post.plot_field_from_fieldplot(
             plot1.name,
             project_path=self.local_scratch.path,

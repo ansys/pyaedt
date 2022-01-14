@@ -2215,7 +2215,7 @@ class PostProcessor(PostProcessorCommon, object):
         Returns
         -------
         str
-            File Path when succeded.
+            File Path when succeeded.
 
         References
         ----------
