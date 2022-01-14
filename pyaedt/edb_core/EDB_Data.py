@@ -1859,9 +1859,7 @@ class EDBPadstackInstance(object):
         list
             List of ``[x, y]``` coordinates for the padstack instance position.
         """
-        point_data = self._pedb.edb.Geometry.PointData(
-            self._pedb.edb_value(0.0), self._pedb.edb_value(0.0)
-        )
+        point_data = self._pedb.edb.Geometry.PointData(self._pedb.edb_value(0.0), self._pedb.edb_value(0.0))
 
         out = self._edb_padstackinstance.GetPositionAndRotationValue(
             point_data,
@@ -1879,9 +1877,7 @@ class EDBPadstackInstance(object):
         float
             Rotatation value for the padstack instance.
         """
-        point_data = self._pedb.edb.Geometry.PointData(
-            self._pedb.edb_value(0.0), self._pedb.edb_value(0.0)
-        )
+        point_data = self._pedb.edb.Geometry.PointData(self._pedb.edb_value(0.0), self._pedb.edb_value(0.0))
         out = self._edb_padstackinstance.GetPositionAndRotationValue(
             point_data,
             self._pedb.edb_value(0.0),
