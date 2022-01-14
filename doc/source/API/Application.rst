@@ -49,12 +49,12 @@ Example without Desktop:
    Mechanical
    Rmxprt
    Circuit
-   Simplorer
    Emit
+   Twin Builder
 
 
 Inheritance Diagram
 ~~~~~~~~~~~~~~~~~~~
 
-.. inheritance-diagram:: pyaedt.hfss pyaedt.q3d pyaedt.icepak pyaedt.circuit pyaedt.edb pyaedt.hfss3dlayout  pyaedt.maxwell pyaedt.mechanical pyaedt.simplorer pyaedt.rmxprt
+.. inheritance-diagram:: pyaedt.hfss pyaedt.q3d pyaedt.icepak pyaedt.circuit pyaedt.edb pyaedt.hfss3dlayout  pyaedt.maxwell pyaedt.mechanical pyaedt.twinbuilder pyaedt.rmxprt
     :parts: 1

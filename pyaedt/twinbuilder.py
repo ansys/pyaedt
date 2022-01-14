@@ -1,15 +1,15 @@
-"""This module contains the `Simplorer` class."""
+"""This module contains the `TwinBuilder` class."""
 
 from __future__ import absolute_import
 import math
 
-from pyaedt.application.AnalysisSimplorer import FieldAnalysisSimplorer
+from pyaedt.application.AnalysisTwinBuilder import AnalysisTwinBuilder
 from pyaedt.application.Variables import Variable
 from pyaedt.generic.general_methods import aedt_exception_handler, is_number
 
 
-class Simplorer(FieldAnalysisSimplorer, object):
-    """Provides the Simplorer application interface.
+class TwinBuilder(AnalysisTwinBuilder, object):
+    """Provides the Twin Builder application interface.
 
     Parameters
     ----------
@@ -47,28 +47,28 @@ class Simplorer(FieldAnalysisSimplorer, object):
 
     Examples
     --------
-    Create an instance of Simplorer and connect to an existing
+    Create an instance of Twin Builder and connect to an existing
     Maxwell design or create a new Maxwell design if one does not
     exist.
 
-    >>> from pyaedt import Simplorer
-    >>> app = Simplorer()
+    >>> from pyaedt import TwinBuilder
+    >>> app = TwinBuilder()
 
-    Create a instance of Simplorer and link to a project named
+    Create a instance of Twin Builder and link to a project named
     ``"projectname"``. If this project does not exist, create one with
     this name.
 
-    >>> app = Simplorer(projectname)
+    >>> app = TwinBuilder(projectname)
 
-    Create an instance of Simplorer and link to a design named
+    Create an instance of Twin Builder and link to a design named
     ``"designname"`` in a project named ``"projectname"``.
 
-    >>> app = Simplorer(projectname, designame)
+    >>> app = TwinBuilder(projectname, designame)
 
-    Create an instance of Simplorer and open the specified
+    Create an instance of Twin Builder and open the specified
     project, which is named ``"myfile.aedt"``.
 
-    >>> app = Simplorer("myfile.aedt")
+    >>> app = TwinBuilder("myfile.aedt")
     """
 
     def __init__(
@@ -84,7 +84,7 @@ class Simplorer(FieldAnalysisSimplorer, object):
         student_version=False,
     ):
         """Constructor."""
-        FieldAnalysisSimplorer.__init__(
+        AnalysisTwinBuilder.__init__(
             self,
             "Twin Builder",
             projectname,

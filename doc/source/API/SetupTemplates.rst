@@ -67,7 +67,7 @@ Icepak Templates
    TransientTemperatureAndFlow
 
 
-Nexxim Analsyis
+Nexxim Analysis
 ===============
 
 .. autosummary::

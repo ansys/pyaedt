@@ -1016,7 +1016,10 @@ class Variable(object):
             self._units = specified_units
 
         if is_number(self._value):
-            scale = AEDT_UNITS[self.unit_system][self._units]
+            try:
+                scale = AEDT_UNITS[self.unit_system][self._units]
+            except KeyError:
+                scale = 1
             if isinstance(scale, tuple):
                 self._value = scale[0](self._value, inverse=False)
             else:
@@ -1041,7 +1044,10 @@ class Variable(object):
     def numeric_value(self):
         """Numeric part of the expression as a float value."""
         if is_number(self._value):
-            scale = AEDT_UNITS[self.unit_system][self._units]
+            try:
+                scale = AEDT_UNITS[self.unit_system][self._units]
+            except KeyError:
+                scale = 1
         if isinstance(scale, tuple):
             return scale[0](self._value, True)
         else:

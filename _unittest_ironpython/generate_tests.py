@@ -1,5 +1,5 @@
-""" Generate automatically launch files for all pytest test modules with filenames startign with "_test"
-This overwrites any existign files that may have been modified
+""" Generate automatically launch files for all pytest test modules with filenames starting with "_test".
+This overwrites any existing file that may have been modified.
 """
 import os
 

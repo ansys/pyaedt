@@ -308,9 +308,19 @@ class PostProcessor(Post):
 
     @aedt_exception_handler
     def _read_mesh_files(
-        self, aedtplt_files, model_color, lines, meshes, model_colors, model_opacity, materials, objects
+        self,
+        aedtplt_files,
+        model_color,
+        model_opacity,
+        lines,
+        meshes,
+        model_colors,
+        model_opacities,
+        materials,
+        objects,
     ):
         id = 0
+        k = 0
         colors = list(CSS4_COLORS.keys())
         for file in aedtplt_files:
             if ".aedtplt" in file:
@@ -336,7 +346,16 @@ class PostProcessor(Post):
                 file_split = file.split("_")
                 objects.append(os.path.splitext(os.path.basename(file))[0].replace("Model_", "").split(".")[0])
                 if len(file_split) >= 3:
-                    model_opacity.append(0.6)
+                    if model_opacity is not None:
+                        if isinstance(model_opacity, (int, float)):
+                            model_opacities.append(model_opacity)
+                        else:
+                            try:
+                                model_opacities.append(model_opacity[len(model_opacities)])
+                            except:
+                                model_opacities.append(0.6)
+                    else:
+                        model_opacities.append(0.6)
                     if "air.obj" in file or "vacuum.obj" in file:
                         materials[file_split[-1]] = "dodgerblue"
                         model_colors.append(materials[file_split[-1]])
@@ -351,7 +370,15 @@ class PostProcessor(Post):
                     model_colors.append(colors[id % len(colors)])
                     id += 1
                 if model_color:
-                    model_colors[-1] = model_color
+                    if (
+                        isinstance(model_color, list)
+                        and isinstance(model_color[0], (int, float))
+                        or isinstance(model_color, str)
+                    ):
+                        model_colors[-1] = model_color
+                    else:
+                        model_colors[-1] = model_color[k]
+                        k += 1
 
     @aedt_exception_handler
     def _add_model_meshes_to_plot(
@@ -359,7 +386,7 @@ class PostProcessor(Post):
         plot,
         meshes,
         model_colors,
-        model_opacity,
+        model_opacities,
         objects,
         show_model_edge,
         fields_exists=False,
@@ -494,7 +521,7 @@ class PostProcessor(Post):
                             el += 1
 
             else:
-                for m, c, o, n in zip(meshes, model_colors, model_opacity, objects):
+                for m, c, o, n in zip(meshes, model_colors, model_opacities, objects):
                     actor = mesh(
                         m,
                         show_scalar_bar=False,
@@ -855,6 +882,7 @@ class PostProcessor(Post):
         windows_size=None,
         object_selector=True,
         export_path=None,
+        model_opacity=0.6,
     ):
         """Export the 3D field solver mesh, fields, or both mesh and fields as images using Python Plotly.
 
@@ -887,6 +915,8 @@ class PostProcessor(Post):
             Fix the Scale Minimum value.
         scale_max : float, optional
             Fix the Scale Maximum value.
+        model_opacity : float, list optional
+            Model opacity. Value from 0 to 1.
 
         Returns
         -------
@@ -904,11 +934,11 @@ class PostProcessor(Post):
         lines = []
         meshes = []
         model_colors = []
-        model_opacity = []
+        model_opacities = []
         materials = {}
         objects = []
         self._read_mesh_files(
-            aedtplt_files, model_color, lines, meshes, model_colors, model_opacity, materials, objects
+            aedtplt_files, model_color, model_opacity, lines, meshes, model_colors, model_opacities, materials, objects
         )
         if lines:
             fields_exists = True
@@ -918,7 +948,7 @@ class PostProcessor(Post):
             plot,
             meshes,
             model_colors,
-            model_opacity,
+            model_opacities,
             objects,
             object_selector=object_selector,
             show_model_edge=show_model_edge,
@@ -1311,6 +1341,8 @@ class PostProcessor(Post):
         windows_size=None,
         off_screen=False,
         color=None,
+        color_by_material=False,
+        opacity=None,
     ):
         """Plot the model or a substet of objects.
 
@@ -1342,7 +1374,9 @@ class PostProcessor(Post):
         off_screen : bool, optional
             Off Screen plot.
         color : str, list
-            Color of the object. Can be color name or list of RGB. If None automatic color.
+            Color of the object. Can be color name or list of RGB. If None automatic color from model or material.
+        color_by_material : bool
+            Either to color object by material or by their AEDT value.
 
         Returns
         -------
@@ -1353,10 +1387,34 @@ class PostProcessor(Post):
         files = self.export_model_obj(
             obj_list=objects, export_as_single_objects=plot_separate_objects, air_objects=air_objects
         )
+        if not files:
+            self.logger.warning("No Objects exported. Try other options or include Air objects.")
+            return False
         if export_afterplot:
             imageformat = "png"
         else:
             imageformat = None
+
+        if plot_separate_objects and not color and not color_by_material:
+            color = []
+            include_opacity = False
+            if opacity is None:
+                opacity = []
+                include_opacity = True
+            if not objects:
+                objects = self._app.modeler.primitives.object_names
+            for el in objects:
+                try:
+                    if isinstance(self._app.modeler[el].color, (tuple, list)):
+                        color.append([i / 256 for i in self._app.modeler[el].color])
+                    else:
+                        color.append(self._app.modeler[el].color)
+                    if include_opacity:
+                        opacity.append(1 - self._app.modeler[el].transparency)
+                except KeyError:
+                    color.append("dodgerblue")
+                    if include_opacity:
+                        opacity.append(0.6)
 
         file_list = self._plot_from_aedtplt(
             files,
@@ -1372,6 +1430,7 @@ class PostProcessor(Post):
             background_color=background_color,
             windows_size=windows_size,
             object_selector=object_selector,
+            model_opacity=opacity,
         )
         return file_list
 

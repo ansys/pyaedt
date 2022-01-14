@@ -2,17 +2,14 @@ from pyaedt.generic.general_methods import aedt_exception_handler
 from pyaedt.modeler.Circuit import ModelerSimplorer
 from pyaedt.modules.SolveSetup import SetupCircuit
 from pyaedt.application.Analysis import Analysis
-from pyaedt.application.Design import solutions_settings
 from pyaedt.modules.PostProcessor import CircuitPostProcessor
 
 
-class FieldAnalysisSimplorer(Analysis):
-    """**AEDT_CircuitAnalysis**
+class AnalysisTwinBuilder(Analysis):
+    """Class for Twin Builder Analysis Setup (TwinBuilder)
 
-    Class for Simplorer Analysis Setup (Simplorer)
-
-    It is automatically initialized by Application call (like HFSS,
-    Q3D...). Refer to Application function for inputs definition
+    It is automatically initialized by Application call (Twin Builder).
+    Refer to Application function for inputs definition
 
     Parameters
     ----------
@@ -21,18 +18,6 @@ class FieldAnalysisSimplorer(Analysis):
     -------
 
     """
-
-    @property
-    def solution_type(self):
-        """Solution Type."""
-        return self._solution_type
-
-    @solution_type.setter
-    def solution_type(self, soltype):
-        if soltype:
-            self._solution_type = solutions_settings[soltype]
-        else:
-            self._solution_type = "TR"
 
     @property
     def existing_analysis_setups(self):

@@ -216,9 +216,9 @@ class MatProperty(object):
 
     Examples
     --------
-    >>>from pyaedt import Hfss
-    >>>app = Hfss()
-    >>>matproperty = app.materials["copper"].conductivity
+    >>> from pyaedt import Hfss
+    >>> app = Hfss()
+    >>> matproperty = app.materials["copper"].conductivity
     """
 
     def __init__(self, material, name, val=None, thermalmodifier=None):
@@ -878,9 +878,9 @@ class Material(CommonMaterial, object):
 
     Examples
     --------
-    >>>from pyaedt import Hfss
-    >>>app = Hfss()
-    >>>material = app.materials["copper"]
+    >>> from pyaedt import Hfss
+    >>> app = Hfss()
+    >>> material = app.materials["copper"]
     """
 
     def __init__(self, materiallib, name, props=None):

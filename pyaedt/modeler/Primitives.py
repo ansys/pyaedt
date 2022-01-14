@@ -3073,7 +3073,10 @@ class Primitives(object):
                     groupname = group["Attributes"]["Name"]
 
             o._m_groupName = groupname
-            o._color = attribs["Color"]
+            try:
+                o._color = tuple(int(x) for x in attribs["Color"][1:-1].split(" "))
+            except:
+                o._color = None
             o._surface_material = attribs.get("SurfaceMaterialValue", None)
             if o._surface_material:
                 o._surface_material = o._surface_material[1:-1].lower()

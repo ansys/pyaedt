@@ -507,7 +507,7 @@ class TestClass:
 
     @pytest.mark.skipif(config["build_machine"], reason="Not running in non-graphical mode")
     def test_62_export_to_hfss(self):
-        edb = Edb(edbpath=os.path.join(local_path, "example_models", "simple.aedb"), edbversion="2021.2")
+        edb = Edb(edbpath=os.path.join(local_path, "example_models", "simple.aedb"), edbversion=desktop_version)
         options_config = {"UNITE_NETS": 1, "LAUNCH_Q3D": 0}
         out = edb.write_export3d_option_config_file(scratch_path, options_config)
         assert os.path.exists(out)
@@ -517,7 +517,7 @@ class TestClass:
 
     @pytest.mark.skipif(config["build_machine"], reason="Not running in non-graphical mode")
     def test_63_export_to_q3d(self):
-        edb = Edb(edbpath=os.path.join(local_path, "example_models", "simple.aedb"), edbversion="2021.2")
+        edb = Edb(edbpath=os.path.join(local_path, "example_models", "simple.aedb"), edbversion=desktop_version)
         options_config = {"UNITE_NETS": 1, "LAUNCH_Q3D": 0}
         out = edb.write_export3d_option_config_file(scratch_path, options_config)
         assert os.path.exists(out)
@@ -527,7 +527,7 @@ class TestClass:
 
     @pytest.mark.skipif(config["build_machine"], reason="Not running in non-graphical mode")
     def test_64_export_to_maxwell(self):
-        edb = Edb(edbpath=os.path.join(local_path, "example_models", "simple.aedb"), edbversion="2021.2")
+        edb = Edb(edbpath=os.path.join(local_path, "example_models", "simple.aedb"), edbversion=desktop_version)
         options_config = {"UNITE_NETS": 1, "LAUNCH_MAXWELL": 0}
         out = edb.write_export3d_option_config_file(scratch_path, options_config)
         assert os.path.exists(out)
@@ -563,3 +563,13 @@ class TestClass:
 
     def test_71_fix_circle_voids(self):
         assert self.edbapp.core_primitives.fix_circle_void_for_clipping()
+
+    def test_72_vias_creation(self):
+        via_list = self.edbapp.core_padstack.get_padstack_instance_by_net_name("GND")
+        assert len(via_list)
+
+    def test_73_duplicate_padstack(self):
+        self.edbapp.core_padstack.duplicate_padstack(
+            target_padstack_name="VIA_20-10-28_SMB", new_padstack_name="VIA_20-10-28_SMB_NEW"
+        )
+        assert self.edbapp.core_padstack.padstacks["VIA_20-10-28_SMB_NEW"]

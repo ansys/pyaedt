@@ -27,6 +27,7 @@ from pyaedt.generic.design_types import (
     Maxwell2d,
     Mechanical,
     Rmxprt,
+    TwinBuilder,
     Simplorer,
     Emit,
     get_pyaedt_app,

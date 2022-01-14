@@ -216,7 +216,10 @@ class CircuitComponents(object):
 
         >>> oEditor.CreateIPort
         """
-        posx, posy = self._get_location(location)
+        if location:
+            posx, posy = location[0], location[1]
+        else:
+            posx, posy = self._get_location(location)
         id = self.create_unique_id()
         arg1 = ["NAME:IPortProps", "Name:=", name, "Id:=", id]
         arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", posx, "Y:=", posy, "Angle:=", angle, "Flip:=", False]
@@ -253,7 +256,10 @@ class CircuitComponents(object):
 
         >>> oEditor.CreatePagePort
         """
-        xpos, ypos = self._get_location(location)
+        if location:
+            xpos, ypos = location[0], location[1]
+        else:
+            xpos, ypos = self._get_location(location)
 
         id = self.create_unique_id()
         id = self._oeditor.CreatePagePort(

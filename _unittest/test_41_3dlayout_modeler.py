@@ -415,3 +415,14 @@ class TestClass:
             create_project_var=True,
         )
         pass
+
+    def test_34_create_additional_setup(self):
+        setup_name = "SiwaveDC"
+        setup = self.aedtapp.create_setup(setupname=setup_name, setuptype="SiwaveDC3DLayout")
+        assert setup_name == setup.name
+        setup_name = "SiwaveAC"
+        setup = self.aedtapp.create_setup(setupname=setup_name, setuptype="SiwaveAC3DLayout")
+        assert setup_name == setup.name
+        setup_name = "LNA"
+        setup = self.aedtapp.create_setup(setupname=setup_name, setuptype="LNA3DLayout")
+        assert setup_name == setup.name
