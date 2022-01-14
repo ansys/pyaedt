@@ -1883,6 +1883,7 @@ class EDBPadstackInstance(object):
         )
         if out[0]:
             return out[2].ToDouble()
+
     @property
     def id(self):
         return self._edb_padstackinstance.GetId()
