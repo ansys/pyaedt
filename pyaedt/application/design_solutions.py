@@ -223,14 +223,14 @@ solutions_types = {
         "Open": {
             "name": "Open",
             "options": None,
-            "report_type": None,
+            "report_type": "Matrix",
             "default_setup": 30,
             "default_adaptive": "LastAdaptive",
         },
         "Closed": {
             "name": "Closed",
             "options": None,
-            "report_type": None,
+            "report_type": "Matrix",
             "default_setup": 31,
             "default_adaptive": "LastAdaptive",
         },
