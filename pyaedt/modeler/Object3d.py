@@ -788,12 +788,13 @@ class Object3d(object):
             Model Object.
         """
         if not is_ironpython and self._primitives._app._aedt_version >= "2021.2":
-            return self._primitives._app.post.plot_model_obj(objects=[self.name],
-                                                             plot=True,
-                                                             plot_as_separate_objects=True,
-                                                             plot_air_objects=True,
-                                                             show=show,
-                                                             )
+            return self._primitives._app.post.plot_model_obj(
+                objects=[self.name],
+                plot=True,
+                plot_as_separate_objects=True,
+                plot_air_objects=True,
+                show=show,
+            )
 
     @aedt_exception_handler
     def export_image(self, file_path=None):
@@ -815,13 +816,14 @@ class Object3d(object):
         """
         if not is_ironpython and self._primitives._app._aedt_version >= "2021.2":
             if not file_path:
-                file_path = os.path.join(self._primitives._app.project_path, self.name+".png")
-            model_obj = self._primitives._app.post.plot_model_obj(objects=[self.name],
-                                                                  plot=False,
-                                                                  export_path=file_path,
-                                                                  plot_as_separate_objects=True,
-                                                                  clean_files=True,
-                                                                  )
+                file_path = os.path.join(self._primitives._app.project_path, self.name + ".png")
+            model_obj = self._primitives._app.post.plot_model_obj(
+                objects=[self.name],
+                plot=False,
+                export_path=file_path,
+                plot_as_separate_objects=True,
+                clean_files=True,
+            )
             if model_obj:
                 return model_obj.image_file
         return False
