@@ -571,8 +571,8 @@ class TestClass:
         assert self.edbapp.core_primitives.fix_circle_void_for_clipping()
 
     def test_72_vias_creation(self):
-        via_list = self.edbapp.core_padstack.get_padstack_instance_by_net_name("GND")
-        assert len(via_list)
+        padstack_instances = self.edbapp.core_padstack.get_padstack_instance_by_net_name("GND")
+        assert len(padstack_instances)
 
     def test_73_duplicate_padstack(self):
         self.edbapp.core_padstack.duplicate_padstack(
