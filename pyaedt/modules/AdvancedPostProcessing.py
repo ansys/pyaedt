@@ -1438,7 +1438,7 @@ class PostProcessor(Post):
         variation_list=["0deg"],
         project_path="",
         export_gif=False,
-        show=False,
+        show=True,
     ):
         """Generate a field plot to an image file (JPG or PNG) using PyVista.
 
