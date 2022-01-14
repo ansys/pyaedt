@@ -126,6 +126,7 @@ class FieldClass(object):
         self._cached_polydata = None
         self.label = label
         self.name = os.path.splitext(self.path)[0]
+        self.color = (255, 0, 0)
 
 
 class ModelPlotter(object):
@@ -545,7 +546,7 @@ class ModelPlotter(object):
                         position=(5.0, startpos),
                         size=self.size,
                         border_size=1,
-                        color_on=self.actors[self.i]._cached_mesh.color,
+                        color_on=self.actors[self.i].color,
                         color_off="grey",
                         background_color=None,
                     )
@@ -554,7 +555,7 @@ class ModelPlotter(object):
                             self.actors[self.i].name,
                             position=(25.0, startpos),
                             font_size=self.size // 3,
-                            color=self.actors[self.i]._cached_mesh.color,
+                            color=self.actors[self.i].color,
                         )
                     )
                     startpos = startpos - self.size - (self.size // 10)
@@ -668,7 +669,6 @@ class ModelPlotter(object):
                     log_scale=field.log_scale,
                     scalar_bar_args=sargs,
                     cmap=field.color_map,
-                    clim=[self.range_min, self.range_max],
                     opacity=field.opacity,
                 )
         self._add_buttons()
@@ -752,7 +752,7 @@ class ModelPlotter(object):
             labels = []
             for m in self.objects:
                 labels.append([m.name, m.color])
-            for m in self.frames:
+            for m in self.fields:
                 labels.append([m.name, "red"])
             self.pv.add_legend(labels=labels, bcolor=None, face="circle", size=[0.15, 0.15])
         if self.view == "isometric":
@@ -853,11 +853,8 @@ class ModelPlotter(object):
                 first_loop = False
             scalars = self.frames[i]._cached_polydata.point_data[self.frames[i].label]
             self.pv.update_scalars(scalars, render=False)
-            # p.add_mesh(surfs[i], scalars=plot_label, log_scale=log, scalar_bar_args=sargs, cmap='rainbow',
-            #            show_edges=False, pickable=True, smooth_shading=True, name="FieldPlot")
             if not hasattr(self.pv, "ren_win"):
                 break
-            # p.update(1, force_redraw=True)
             time.sleep(max(0, self.frame_per_seconds - (time.time() - start)))
             start = time.time()
             if self.off_screen:
