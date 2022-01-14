@@ -113,7 +113,7 @@ class ObjClass(object):
         self.units = units
         self._cached_mesh = None
         self._cached_polydata = None
-        self.name = os.path.splitext(self.path)[0]
+        self.name = os.path.splitext(os.path.basename(self.path))[0]
 
     @property
     def color(self):
@@ -172,7 +172,7 @@ class FieldClass(object):
         self._cached_mesh = None
         self._cached_polydata = None
         self.label = label
-        self.name = os.path.splitext(self.path)[0]
+        self.name = os.path.splitext(os.path.basename(self.path))[0]
         self.color = (255, 0, 0)
         self.surface_mapping_tolerance = tolerance
         self.header_lines = headers
