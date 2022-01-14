@@ -28,7 +28,7 @@ class EdbPadstacks(object):
     def __init__(self, p_edb):
         self._pedb = p_edb
         self._padstacks = {}
-        self._padstack_instances = []
+        self._padstack_instances = {}
 
     @property
     def _builder(self):
@@ -559,7 +559,8 @@ class EdbPadstacks(object):
                 self._active_layout, net, via_name, padstack, position, rotation, fromlayer, tolayer, solderlayer, None
             )
             padstack_instance.SetIsLayoutPin(is_pin)
-            return padstack_instance
+            self.update_padstack_instances()
+            return padstack_instance.GetId()
         else:
             return False
 
@@ -601,11 +602,11 @@ class EdbPadstacks(object):
     def update_padstack_instances(self):
         """Update Padstack Instance List."""
         layout_lobj_collection = self._active_layout.GetLayoutInstance().GetAllLayoutObjInstances()
-        self._padstack_instances = []
+        self._padstack_instances = {}
         for obj in layout_lobj_collection.Items:
             lobj = obj.GetLayoutObj()
             if type(lobj) is self._edb.Cell.Primitive.PadstackInstance:
-                self._padstack_instances.append(EDBPadstackInstance(lobj, self._pedb))
+                self._padstack_instances[lobj.GetId()] = EDBPadstackInstance(lobj, self._pedb)
 
     @aedt_exception_handler
     def get_padstack_instance_by_net_name(self, net_name):
