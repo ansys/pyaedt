@@ -541,11 +541,8 @@ class ModelPlotter(object):
                     with open(field.path, "r") as f:
                         try:
                             lines = f.readlines()[field.header_lines:]
-                            if ".csv" in field.path:
-                                sniffer = csv.Sniffer()
-                                delimiter = sniffer.sniff(lines[0]).delimiter
-                            else:
-                                 delimiter = " "
+                            sniffer = csv.Sniffer()
+                            delimiter = sniffer.sniff(lines[0]).delimiter
                         except:
                             lines = []
                         for line in lines:
