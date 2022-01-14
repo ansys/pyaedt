@@ -16,7 +16,7 @@ from pyaedt import Q3d
 # You can change the Boolean parameter ``NonGraphical`` to ``False`` to launch
 # AEDT in graphical mode.
 
-NonGraphical = True
+NonGraphical = False
 
 ###############################################################################
 # Launch AEDT and Q3D
