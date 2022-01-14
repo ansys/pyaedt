@@ -1860,11 +1860,13 @@ class EDBPadstackInstance(object):
             List of ``[x, y]``` coordinates for the padstack instance position.
         """
         point_data = self._pedb.edb.Geometry.PointData(self._pedb.edb_value(0.0), self._pedb.edb_value(0.0))
-
-        out = self._edb_padstackinstance.GetPositionAndRotationValue(
-            point_data,
-            self._pedb.edb_value(0.0),
-        )
+        if is_ironpython:
+            out = self._edb_padstackinstance.GetPositionAndRotationValue()
+        else:
+            out = self._edb_padstackinstance.GetPositionAndRotationValue(
+                point_data,
+                self._pedb.edb_value(0.0),
+            )
         if out[0]:
             return [out[1].X.ToDouble(), out[1].Y.ToDouble()]
 
@@ -1878,10 +1880,13 @@ class EDBPadstackInstance(object):
             Rotatation value for the padstack instance.
         """
         point_data = self._pedb.edb.Geometry.PointData(self._pedb.edb_value(0.0), self._pedb.edb_value(0.0))
-        out = self._edb_padstackinstance.GetPositionAndRotationValue(
-            point_data,
-            self._pedb.edb_value(0.0),
-        )
+        if is_ironpython:
+            out = self._edb_padstackinstance.GetPositionAndRotationValue()
+        else:
+            out = self._edb_padstackinstance.GetPositionAndRotationValue(
+                point_data,
+                self._pedb.edb_value(0.0),
+            )
         if out[0]:
             return out[2].ToDouble()
 
