@@ -15,6 +15,7 @@ from __future__ import absolute_import
 import random
 import string
 import math
+import os
 
 from pyaedt import aedt_exception_handler, _retry_ntimes
 from pyaedt.modeler.GeometryOperators import GeometryOperators
@@ -777,17 +778,11 @@ class Object3d(object):
         Works from AEDT 2021.2 in CPython only. PyVista has to be installed.
         """
         if not is_ironpython and self._primitives._app._aedt_version >= "2021.2":
-            self._primitives._app.post.plot_model_obj(
-                objects=[self.name],
-                export_afterplot=False,
-                plot_separate_objects=True,
-                air_objects=True,
-                background_color="grey",
-                color=[i for i in self.color],
-                off_screen=False,
-                color_by_material=False,
-                opacity=1 - self.transparency,
-            )
+            return self._primitives._app.post.plot_model_obj(objects=[self.name],
+                                                             plot=True,
+                                                             plot_as_separate_objects=True,
+                                                             plot_air_objects=True,
+                                                             )
 
     @aedt_exception_handler
     def export_image(self, file_path=None):
@@ -808,20 +803,16 @@ class Object3d(object):
             File path.
         """
         if not is_ironpython and self._primitives._app._aedt_version >= "2021.2":
-            files = self._primitives._app.post.plot_model_obj(
-                objects=[self.name],
-                export_afterplot=True,
-                export_path=file_path,
-                plot_separate_objects=True,
-                air_objects=True,
-                background_color="grey",
-                color=[i / 256 for i in self.color],
-                off_screen=True,
-                color_by_material=False,
-                opacity=1 - self.transparency,
-            )
-            if files:
-                return files[0]
+            if not file_path:
+                file_path = os.path.join(self._primitives._app.project_path, self.name+".png")
+            model_obj = self._primitives._app.post.plot_model_obj(objects=[self.name],
+                                                                  plot=False,
+                                                                  export_path=file_path,
+                                                                  plot_as_separate_objects=True,
+                                                                  clean_files=True,
+                                                                  )
+            if model_obj:
+                return model_obj.image_file
         return False
 
     @property

@@ -44,6 +44,8 @@ except ImportError:
 
 try:
     import matplotlib.pyplot as plt
+    import matplotlib.image as mpimg
+
 except ImportError:
     warnings.warn(
         "The Matplotlib module is required to run some functionalities of PostProcess.\n"
@@ -110,13 +112,15 @@ class ObjClass(object):
             self._color = value
         elif value in CSS4_COLORS:
             h = CSS4_COLORS[value].lstrip("#")
-            self._color = tuple(int(h[i: i + 2], 16) for i in (0, 2, 4))
+            self._color = tuple(int(h[i : i + 2], 16) for i in (0, 2, 4))
 
 
 class FieldClass(object):
     """Class to manage Field data to be plotted in pyvista."""
 
-    def __init__(self, path, log_scale=True, coordinate_units="meter", opacity=1, color_map="rainbow", label="Field"):
+    def __init__(
+        self, path, log_scale=True, coordinate_units="meter", opacity=1, color_map="rainbow", label="Field", tol=1e-3
+    ):
         self.path = path
         self.log_scale = log_scale
         self.units = coordinate_units
@@ -127,6 +131,7 @@ class FieldClass(object):
         self.label = label
         self.name = os.path.splitext(self.path)[0]
         self.color = (255, 0, 0)
+        self.surface_mapping_tolerance = tol
 
 
 class ModelPlotter(object):
@@ -164,7 +169,7 @@ class ModelPlotter(object):
             self._background_color = value
         elif value in CSS4_COLORS:
             h = CSS4_COLORS[value].lstrip("#")
-            self._background_color = tuple(int(h[i: i + 2], 16) for i in (0, 2, 4))
+            self._background_color = tuple(int(h[i : i + 2], 16) for i in (0, 2, 4))
 
     @property
     def fields(self):
@@ -221,12 +226,14 @@ class ModelPlotter(object):
 
     @aedt_exception_handler
     def add_field_from_file(
-            self,
-            field_path,
-            log_scale=True,
-            coordinate_units="meter",
-            opacity=1,
-            color_map="rainbow",
+        self,
+        field_path,
+        log_scale=True,
+        coordinate_units="meter",
+        opacity=1,
+        color_map="rainbow",
+        label_name="Field",
+        surface_mapping_tolerance=1e-3,
     ):
         """Add a field file to the scenario. It can be aedtplt, fld or csv file.
 
@@ -246,16 +253,22 @@ class ModelPlotter(object):
         -------
         bool
         """
-        self._fields.append(FieldClass(field_path, log_scale, coordinate_units, opacity, color_map))
+        self._fields.append(
+            FieldClass(
+                field_path, log_scale, coordinate_units, opacity, color_map, label_name, surface_mapping_tolerance
+            )
+        )
 
     @aedt_exception_handler
     def add_frames_from_file(
-            self,
-            field_files,
-            log_scale=True,
-            coordinate_units="meter",
-            opacity=1,
-            color_map="rainbow",
+        self,
+        field_files,
+        log_scale=True,
+        coordinate_units="meter",
+        opacity=1,
+        color_map="rainbow",
+        label_name="Field",
+        surface_mapping_tolerance=1e-3,
     ):
         """Add a field file to the scenario. It can be aedtplt, fld or csv file.
 
@@ -276,11 +289,23 @@ class ModelPlotter(object):
         bool
         """
         for field in field_files:
-            self._frames.append(FieldClass(field, log_scale, coordinate_units, opacity, color_map))
+            self._frames.append(
+                FieldClass(
+                    field, log_scale, coordinate_units, opacity, color_map, label_name, surface_mapping_tolerance
+                )
+            )
 
     @aedt_exception_handler
     def add_field_from_data(
-            self, coordinates, fields_data, log_scale=True, coordinate_units="meter", opacity=1, color_map="rainbow"
+        self,
+        coordinates,
+        fields_data,
+        log_scale=True,
+        coordinate_units="meter",
+        opacity=1,
+        color_map="rainbow",
+        label_name="Field",
+        surface_mapping_tolerance=1e-3,
     ):
         """Add field data to the scenario.
 
@@ -303,10 +328,12 @@ class ModelPlotter(object):
         -------
         bool
         """
-        self._fields.append(FieldClass(None, log_scale, coordinate_units, opacity, color_map))
+        self._fields.append(
+            FieldClass(None, log_scale, coordinate_units, opacity, color_map, label_name, surface_mapping_tolerance)
+        )
         vertices = np.array(coordinates)
         filedata = pv.PolyData(vertices)
-        filedata = filedata.delaunay_2d()
+        filedata = filedata.delaunay_2d(tol=surface_mapping_tolerance)
         filedata.point_data[self.fields[-1].label] = np.array(fields_data)
         self.fields[-1]._cached_polydata = filedata
 
@@ -370,7 +397,7 @@ class ModelPlotter(object):
             if not cad._cached_polydata:
                 filedata = pv.read(cad.path)
                 cad._cached_polydata = filedata
-            color_cad = [i / 256 for i in cad.color]
+            color_cad = [i / 255 for i in cad.color]
             cad._cached_mesh = self.pv.add_mesh(cad._cached_polydata, color=color_cad, opacity=cad.opacity)
         obj_to_iterate = [i for i in self._fields]
         if read_frames:
@@ -396,7 +423,7 @@ class ModelPlotter(object):
                     nodes = [[i[0] * conv, i[1] * conv, i[2] * conv] for i in points]
                     vertices = np.array(nodes)
                     filedata = pv.PolyData(vertices)
-                    filedata = filedata.delaunay_2d()
+                    filedata = filedata.delaunay_2d(tol=field.surface_mapping_tolerance)
                     filedata.point_data[field.label] = np.array(fields)
                     field._cached_polydata = filedata
                 elif ".aedtplt" in field.path:
@@ -423,24 +450,24 @@ class ModelPlotter(object):
                         solution = []
                         for l in drawing_lines:
                             if "BoundingBox(" in l:
-                                bounding = l[l.find("(") + 1: -2].split(",")
+                                bounding = l[l.find("(") + 1 : -2].split(",")
                                 bounding = [i.strip() for i in bounding]
                             if "Elements(" in l:
-                                elements = l[l.find("(") + 1: -2].split(",")
+                                elements = l[l.find("(") + 1 : -2].split(",")
                                 elements = [int(i.strip()) for i in elements]
                             if "Nodes(" in l:
-                                nodes_list = l[l.find("(") + 1: -2].split(",")
+                                nodes_list = l[l.find("(") + 1 : -2].split(",")
                                 nodes_list = [float(i.strip()) for i in nodes_list]
                             if "ElemSolution(" in l:
                                 # convert list of strings to list of floats
-                                sols = l[l.find("(") + 1: -2].split(",")
+                                sols = l[l.find("(") + 1 : -2].split(",")
                                 sols = [is_float(value) for value in sols]
 
                                 # sols = [float(i.strip()) for i in sols]
                                 num_solution_per_element = int(sols[2])
                                 sols = sols[3:]
                                 sols = [
-                                    sols[i: i + num_solution_per_element]
+                                    sols[i : i + num_solution_per_element]
                                     for i in range(0, len(sols), num_solution_per_element)
                                 ]
                                 solution = [sum(i) / num_solution_per_element for i in sols]
@@ -496,7 +523,7 @@ class ModelPlotter(object):
         startpos = self.pv.window_size[1] - 2 * size
         endpos = 100
         color = self.pv.background_color
-        axes_color = [0 if i >= 128 else 1 for i in color]
+        axes_color = [0 if i >= 0.5 else 1 for i in color]
         buttons = []
         texts = []
         max_elements = (startpos - endpos) // (size + (size // 10))
@@ -513,7 +540,7 @@ class ModelPlotter(object):
         class ChangePageCallback:
             """Helper callback to keep a reference to the actor being modified."""
 
-            def __init__(self, plot, actor):
+            def __init__(self, plot, actor, axes_color):
                 self.plot = plot
                 self.actors = actor
                 self.id = 0
@@ -522,6 +549,7 @@ class ModelPlotter(object):
                 self.startpos = plot.window_size[1] - 2 * self.size
                 self.max_elements = (self.startpos - self.endpos) // (self.size + (self.size // 10))
                 self.i = self.max_elements
+                self.axes_color = axes_color
 
             def __call__(self, state):
                 self.plot.button_widgets = [self.plot.button_widgets[0]]
@@ -546,7 +574,7 @@ class ModelPlotter(object):
                         position=(5.0, startpos),
                         size=self.size,
                         border_size=1,
-                        color_on=self.actors[self.i].color,
+                        color_on=[i / 255 for i in self.actors[self.i].color],
                         color_off="grey",
                         background_color=None,
                     )
@@ -555,7 +583,7 @@ class ModelPlotter(object):
                             self.actors[self.i].name,
                             position=(25.0, startpos),
                             font_size=self.size // 3,
-                            color=self.actors[self.i].color,
+                            color=self.axes_color,
                         )
                     )
                     startpos = startpos - self.size - (self.size // 10)
@@ -573,7 +601,7 @@ class ModelPlotter(object):
                         position=(5.0, startpos + 50),
                         size=size,
                         border_size=1,
-                        color_on=actor.color,
+                        color_on=[i / 255 for i in actor.color],
                         color_off="grey",
                         background_color=None,
                     )
@@ -583,8 +611,7 @@ class ModelPlotter(object):
                 )
                 startpos = startpos - size - (size // 10)
                 el += 1
-        el = 1
-        for actor in self._fields:
+        for actor in self.fields:
             if actor._cached_mesh and el < max_elements:
                 callback = SetVisibilityCallback(actor._cached_mesh)
                 buttons.append(
@@ -606,7 +633,7 @@ class ModelPlotter(object):
                 el += 1
         actors = [i for i in self._fields if i._cached_mesh] + self._objects
         if texts and len(texts) >= max_elements:
-            callback = ChangePageCallback(self.pv, actors)
+            callback = ChangePageCallback(self.pv, actors, axes_color)
             self.pv.add_checkbox_button_widget(
                 callback,
                 value=True,
@@ -635,7 +662,7 @@ class ModelPlotter(object):
         """
         start = time.time()
         self.pv = pv.Plotter(notebook=is_notebook(), off_screen=self.off_screen, window_size=self.windows_size)
-        self.pv.background_color = [i/256 for i in self.background_color]
+        self.pv.background_color = [i / 255 for i in self.background_color]
         self._read_mesh_files()
 
         axes_color = [0 if i >= 128 else 1 for i in self.background_color]
@@ -736,8 +763,12 @@ class ModelPlotter(object):
         """
         start = time.time()
         assert len(self.frames) > 0, "Number of Fields have to be greater than 1 to do an animation."
-        self.pv = pv.Plotter(notebook=is_notebook(), off_screen=self.off_screen, window_size=self.windows_size)
-        self.pv.background_color = [i/256 for i in self.background_color]
+        if self.is_notebook:
+            self.pv = pv.Plotter(notebook=self.is_notebook, off_screen=True, window_size=self.windows_size)
+        else:
+            self.pv = pv.Plotter(notebook=self.is_notebook, off_screen=self.off_screen, window_size=self.windows_size)
+
+        self.pv.background_color = [i / 255 for i in self.background_color]
         self._read_mesh_files(read_frames=True)
         end = time.time() - start
         files_list = []
@@ -751,7 +782,7 @@ class ModelPlotter(object):
         if self.show_legend:
             labels = []
             for m in self.objects:
-                labels.append([m.name, m.color])
+                labels.append([m.name, [i / 255 for i in m.color]])
             for m in self.fields:
                 labels.append([m.name, "red"])
             self.pv.add_legend(labels=labels, bcolor=None, face="circle", size=[0.15, 0.15])
@@ -847,7 +878,7 @@ class ModelPlotter(object):
                 continue
             # p.remove_actor("FieldPlot")
             if i >= len(self.frames):
-                if self.off_screen:
+                if self.off_screen or self.is_notebook:
                     break
                 i = 0
                 first_loop = False
@@ -867,8 +898,10 @@ class ModelPlotter(object):
             time.sleep(0.2)
             i += 1
         self.pv.close()
-
-        return True
+        if self.gif_file:
+            return self.gif_file
+        else:
+            return True
 
 
 class PostProcessor(Post):
@@ -1050,7 +1083,9 @@ class PostProcessor(Post):
 
         assert self._app._aedt_version >= "2021.2", self.logger.error("Object is supported from AEDT 2021 R2.")
         if not export_path:
-            export_path = self._app.project_path
+            export_path = os.path.join(self._app.project_path, self._app.project_name+".pyaedt")
+            if not os.path.exists(export_path):
+                os.mkdir(export_path)
         if not obj_list:
             obj_list = self._app.modeler.primitives.object_names
             if not air_objects:
@@ -1058,10 +1093,10 @@ class PostProcessor(Post):
                     i
                     for i in obj_list
                     if not self._app.modeler[i].is3d
-                       or (
-                               self._app.modeler[i].material_name.lower() != "vacuum"
-                               and self._app.modeler[i].material_name.lower() != "air"
-                       )
+                    or (
+                        self._app.modeler[i].material_name.lower() != "vacuum"
+                        and self._app.modeler[i].material_name.lower() != "air"
+                    )
                 ]
         if export_as_single_objects:
             files_exported = []
@@ -1102,8 +1137,8 @@ class PostProcessor(Post):
         for el in obj_list:
             obj_id = self._app.modeler.primitives.get_obj_id(el)
             if not self._app.modeler.primitives.objects[obj_id].is3d or (
-                    self._app.modeler.primitives.objects[obj_id].material_name != "vacuum"
-                    and self._app.modeler.primitives.objects[obj_id].material_name != "air"
+                self._app.modeler.primitives.objects[obj_id].material_name != "vacuum"
+                and self._app.modeler.primitives.objects[obj_id].material_name != "air"
             ):
                 face_lists += self._app.modeler.primitives.get_object_faces(obj_id)
         plot = self.create_fieldplot_surface(face_lists, "Mesh", setup_name, intrinsic_dict)
@@ -1115,20 +1150,14 @@ class PostProcessor(Post):
 
     @aedt_exception_handler
     def plot_model_obj(
-            self,
-            objects=None,
-            export_afterplot=True,
-            export_path=None,
-            plot_separate_objects=True,
-            air_objects=False,
-            show_axes=True,
-            show_grid=True,
-            background_color="white",
-            windows_size=None,
-            off_screen=False,
-            color=None,
-            color_by_material=False,
-            opacity=None,
+        self,
+        objects=None,
+        plot=True,
+        export_path=None,
+        plot_as_separate_objects=True,
+        plot_air_objects=False,
+        force_opacity_value=None,
+        clean_files=False
     ):
         """Plot the model or a substet of objects.
 
@@ -1136,43 +1165,31 @@ class PostProcessor(Post):
         ----------
         objects : list, optional
             Optional list of objects to plot. If `None` all objects will be exported.
-        export_afterplot : bool, optional
-            Set to True if the image has to be exported after the plot is completed.
+        plots : bool, optional
+            Plot the model after generation or simply return the
+            generated Class for more customization before plot.
         export_path : str, optional
-            File name with full path. If `None` Project directory will be used.
-        plot_separate_objects : bool, optional
+            If available, an image is saved to file. If `None` no image will be saved.
+        plot_as_separate_objects : bool, optional
             Plot each object separately. It may require more time to export from AEDT.
-        air_objects : bool, optional
+        plot_air_objects : bool, optional
             Plot also air and vacuum objects.
-        show_axes : bool, optional
-            Define if axes will be visible or not.
-        show_grid : bool, optional
-            Define if grid will be visible or not.
-        show_legend : bool, optional
-            Define if legend is visible or not.
-        background_color : str, list, optional
-            Define the plot background color. Default is `"white"`.
-            One of the keys of `pyaedt.generic.constants.CSS4_COLORS` can be used.
-        object_selector : bool, optional
-            Enable the list of object to hide show objects.
-        windows_size : list, optional
-            Windows Plot size.
-        off_screen : bool, optional
-            Off Screen plot.
-        color : str, list
-            Color of the object. Can be color name or list of RGB. If None automatic color from model or material.
-        color_by_material : bool
-            Either to color object by material or by their AEDT value.
+        force_opacity_value : float, optional
+            Opacity value between 0 and 1 to be applied to all model.
+            If `None` aedt opacity will be applied to each object.
+        clean_files : bool, optional
+            Clean created files after plot. Cache is mainteined into the model object returned.
 
         Returns
         -------
-        list
-            List of plot files.
+        :class:`pyaedt.modules.AdvancedPostProcessing.ModelPlotter`
+            Model Object.
         """
         assert self._app._aedt_version >= "2021.2", self.logger.error("Object is supported from AEDT 2021 R2.")
-        files = self.export_model_obj(
-            obj_list=objects, export_as_single_objects=plot_separate_objects, air_objects=air_objects
-        )
+        files = self.export_model_obj(obj_list=objects,
+                                      export_as_single_objects=plot_as_separate_objects,
+                                      air_objects=plot_air_objects,
+                                      )
         if not files:
             self.logger.warning("No Objects exported. Try other options or include Air objects.")
             return False
@@ -1180,36 +1197,33 @@ class PostProcessor(Post):
         model = ModelPlotter()
 
         for file in files:
-            if opacity:
-                model.add_object(file[0], file[1], opacity, self.modeler.model_units)
-        model.background_color = background_color
-        model.off_screen = off_screen
-        model.show_axes = show_axes
-        model.show_grid = show_grid
-        if export_afterplot:
-            if export_path:
-                model.plot(export_path)
+            if force_opacity_value:
+                model.add_object(file[0], file[1], force_opacity_value, self.modeler.model_units)
             else:
-                file_name = os.path.join(self._app.project_path, self._app.project_name + ".png")
-                model.plot(file_name)
-        else:
+                model.add_object(file[0], file[1], file[2], self.modeler.model_units)
+        if not plot:
+            model.off_screen = True
+        if export_path:
+                model.plot(export_path)
+        elif plot:
             model.plot()
-        model.clean_cache_and_files(clean_cache=False)
+        if clean_files:
+            model.clean_cache_and_files(clean_cache=False)
         return model
 
     @aedt_exception_handler
     def plot_field_from_fieldplot(
-            self,
-            plotname,
-            project_path="",
-            meshplot=False,
-            imageformat="jpg",
-            view="isometric",
-            plot_label="Temperature",
-            plot_folder=None,
-            off_screen=False,
-            scale_min=None,
-            scale_max=None,
+        self,
+        plotname,
+        project_path="",
+        meshplot=False,
+        imageformat="jpg",
+        view="isometric",
+        plot_label="Temperature",
+        plot_folder=None,
+        off_screen=False,
+        scale_min=None,
+        scale_max=None,
     ):
         """Export a field plot to an image file (JPG or PNG) using Python Plotly.
 
@@ -1289,15 +1303,15 @@ class PostProcessor(Post):
 
     @aedt_exception_handler
     def animate_fields_from_aedtplt(
-            self,
-            plotname,
-            plot_folder=None,
-            meshplot=False,
-            variation_variable="Phi",
-            variation_list=["0deg"],
-            project_path="",
-            export_gif=False,
-            off_screen=False,
+        self,
+        plotname,
+        plot_folder=None,
+        meshplot=False,
+        variation_variable="Phi",
+        variation_list=["0deg"],
+        project_path="",
+        export_gif=False,
+        off_screen=False,
     ):
         """Generate a field plot to an image file (JPG or PNG) using PyVista.
 
@@ -1372,20 +1386,20 @@ class PostProcessor(Post):
 
     @aedt_exception_handler
     def animate_fields_from_aedtplt_2(
-            self,
-            quantityname,
-            object_list,
-            plottype,
-            meshplot=False,
-            setup_name=None,
-            intrinsic_dict={},
-            variation_variable="Phi",
-            variation_list=["0deg"],
-            project_path="",
-            export_gif=False,
-            off_screen=False,
+        self,
+        quantityname,
+        object_list,
+        plottype,
+        meshplot=False,
+        setup_name=None,
+        intrinsic_dict={},
+        variation_variable="Phi",
+        variation_list=["0deg"],
+        project_path="",
+        export_gif=False,
+        off_screen=False,
     ):
-        """Generate a field plot to an image file (JPG or PNG) using PyVista.
+        """Generate a field plot to an animated gif file using PyVista.
 
          .. note::
             The PyVista module rebuilds the mesh and the overlap fields on the mesh.
@@ -1574,7 +1588,7 @@ class PostProcessor(Post):
 
     @aedt_exception_handler
     def create_3d_plot(
-            self, solution_data, nominal_sweep="Freq", nominal_value=1, primary_sweep="Theta", secondary_sweep="Phi"
+        self, solution_data, nominal_sweep="Freq", nominal_value=1, primary_sweep="Theta", secondary_sweep="Phi"
     ):
         """Create a 3D plot using Matplotlib.
 
