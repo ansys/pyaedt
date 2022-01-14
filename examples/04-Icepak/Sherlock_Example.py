@@ -109,6 +109,14 @@ ipk.modeler.import_3d_cad(file_path, refresh_all_ids=False)
 
 ipk.save_project(project_name, refresh_obj_ids_after_save=True)
 
+
+###############################################################################
+# Plot the model
+# ~~~~~~~~~~~~~~
+
+ipk.plot()
+
+
 ###############################################################################
 # Remove PCB Objects
 # ~~~~~~~~~~~~~~~~~~

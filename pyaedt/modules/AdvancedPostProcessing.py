@@ -1479,7 +1479,7 @@ class PostProcessor(Post):
         models_to_add = []
         if meshplot:
             if self._app._aedt_version >= "2021.2":
-                models_to_add.extend(self.export_model_obj(export_as_single_objects=True, air_objects=False))
+                 models_to_add = self.export_model_obj(export_as_single_objects=True, air_objects=False)
         fields_to_add = []
         if not project_path:
             project_path = self._app.project_path
@@ -1577,7 +1577,7 @@ class PostProcessor(Post):
         models_to_add = []
         if meshplot:
             if self._app._aedt_version >= "2021.2":
-                models_to_add.extend(self.export_model_obj(export_as_single_objects=True, air_objects=False))
+                models_to_add = self.export_model_obj(export_as_single_objects=True, air_objects=False)
         v = 0
         fields_to_add = []
         for el in variation_list:

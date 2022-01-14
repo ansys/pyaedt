@@ -106,6 +106,14 @@ hfss.assign_radiation_boundary_to_objects("airbox")
 #
 hfss.change_material_override()
 
+
+###############################################################################
+# Plot the model
+# ~~~~~~~~~~~~~~
+
+hfss.plot()
+
+
 ################################################################
 # Create a setup and define a frequency sweep.
 # Project will be solved after that.

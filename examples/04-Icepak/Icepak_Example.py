@@ -38,6 +38,12 @@ ipk.save_project(os.path.join(temp_folder, "Graphics_card.aedt"))
 ipk.autosave_disable()
 
 ###############################################################################
+# Plot the model
+# ~~~~~~~~~~~~~~
+
+ipk.plot()
+
+###############################################################################
 # Create Source Blocks
 # ~~~~~~~~~~~~~~~~~~~~
 # Create Source block on CPU and MEMORIES

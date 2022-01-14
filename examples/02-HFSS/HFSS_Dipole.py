@@ -58,6 +58,13 @@ hfss.modeler.primitives.insert_3d_component(compfile, geometryparams)
 
 hfss.create_open_region(Frequency="1GHz")
 
+
+###############################################################################
+# Plot the model
+# ~~~~~~~~~~~~~~
+
+hfss.plot()
+
 ###############################################################################
 # Create the Setup
 # ----------------

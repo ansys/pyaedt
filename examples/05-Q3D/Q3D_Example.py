@@ -62,6 +62,8 @@ q.modeler.primitives.create_polyline(
 
 q.modeler.primitives.create_box([50, 30, -0.5], [-250, -100, -3], name="substrate", matname="FR4_epoxy")
 
+q.plot()
+
 ###############################################################################
 # Set Up Boundaries
 # ~~~~~~~~~~~~~~~~~

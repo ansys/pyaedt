@@ -82,6 +82,14 @@ P1 = primitives.create_polyline(Line_Points, name="Line_AB")
 P2 = primitives.create_polyline(Line_Points, name="Line_AB_MeshRefinement")
 P2.set_crosssection_properties(type="Circle", width="0.5mm")
 
+
+###############################################################################
+# Plot the model
+# ~~~~~~~~~~~~~~
+
+M3D.plot()
+
+
 ###############################################################################
 # Setup Maxwell 3D Model
 # ~~~~~~~~~~~~~~~~~~~~~~

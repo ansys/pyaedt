@@ -140,6 +140,13 @@ for el in diels:
         [mech.modeler.primitives[el].top_face_y, mech.modeler.primitives[el].bottom_face_y], 3
     )
 
+
+###############################################################################
+# Plot the model
+# ~~~~~~~~~~~~~~
+
+mech.plot()
+
 ###############################################################################
 # Solution
 # ~~~~~~~~
