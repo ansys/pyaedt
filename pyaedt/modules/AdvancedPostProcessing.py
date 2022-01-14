@@ -634,7 +634,7 @@ class ModelPlotter(object):
         """
         start = time.time()
         self.pv = pv.Plotter(notebook=is_notebook(), off_screen=self.off_screen, window_size=self.windows_size)
-        self.pv.background_color = self.background_color
+        self.pv.background_color = [i/256 for i in self.background_color]
         self._read_mesh_files()
 
         axes_color = [0 if i >= 128 else 1 for i in self.background_color]
@@ -737,11 +737,11 @@ class ModelPlotter(object):
         start = time.time()
         assert len(self.frames) > 0, "Number of Fields have to be greater than 1 to do an animation."
         self.pv = pv.Plotter(notebook=is_notebook(), off_screen=self.off_screen, window_size=self.windows_size)
-        self.pv.background_color = self.background_color
+        self.pv.background_color = [i/256 for i in self.background_color]
         self._read_mesh_files(read_frames=True)
         end = time.time() - start
         files_list = []
-        axes_color = [0 if i >= 0.5 else 1 for i in self.background_color]
+        axes_color = [0 if i >= 128 else 1 for i in self.background_color]
 
         if self.show_axes:
             self.pv.show_axes()
@@ -1262,6 +1262,7 @@ class PostProcessor(Post):
         if not project_path:
             project_path = self._app.project_path
         file_to_add = self.export_field_plot(plotname, project_path)
+        models = None
         if not file_to_add:
             return False
         else:
