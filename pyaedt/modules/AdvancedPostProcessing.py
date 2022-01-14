@@ -44,7 +44,6 @@ except ImportError:
 
 try:
     import matplotlib.pyplot as plt
-    import matplotlib.image as mpimg
 
 except ImportError:
     warnings.warn(
@@ -1083,7 +1082,7 @@ class PostProcessor(Post):
 
         assert self._app._aedt_version >= "2021.2", self.logger.error("Object is supported from AEDT 2021 R2.")
         if not export_path:
-            export_path = os.path.join(self._app.project_path, self._app.project_name+".pyaedt")
+            export_path = os.path.join(self._app.project_path, self._app.project_name + ".pyaedt")
             if not os.path.exists(export_path):
                 os.mkdir(export_path)
         if not obj_list:
@@ -1152,12 +1151,12 @@ class PostProcessor(Post):
     def plot_model_obj(
         self,
         objects=None,
-        plot=True,
+        show=True,
         export_path=None,
         plot_as_separate_objects=True,
         plot_air_objects=False,
         force_opacity_value=None,
-        clean_files=False
+        clean_files=False,
     ):
         """Plot the model or a substet of objects.
 
@@ -1165,8 +1164,8 @@ class PostProcessor(Post):
         ----------
         objects : list, optional
             Optional list of objects to plot. If `None` all objects will be exported.
-        plots : bool, optional
-            Plot the model after generation or simply return the
+        show : bool, optional
+            Show the plot after generation or simply return the
             generated Class for more customization before plot.
         export_path : str, optional
             If available, an image is saved to file. If `None` no image will be saved.
@@ -1186,10 +1185,11 @@ class PostProcessor(Post):
             Model Object.
         """
         assert self._app._aedt_version >= "2021.2", self.logger.error("Object is supported from AEDT 2021 R2.")
-        files = self.export_model_obj(obj_list=objects,
-                                      export_as_single_objects=plot_as_separate_objects,
-                                      air_objects=plot_air_objects,
-                                      )
+        files = self.export_model_obj(
+            obj_list=objects,
+            export_as_single_objects=plot_as_separate_objects,
+            air_objects=plot_air_objects,
+        )
         if not files:
             self.logger.warning("No Objects exported. Try other options or include Air objects.")
             return False
@@ -1201,11 +1201,11 @@ class PostProcessor(Post):
                 model.add_object(file[0], file[1], force_opacity_value, self.modeler.model_units)
             else:
                 model.add_object(file[0], file[1], file[2], self.modeler.model_units)
-        if not plot:
+        if not show:
             model.off_screen = True
         if export_path:
-                model.plot(export_path)
-        elif plot:
+            model.plot(export_path)
+        elif show:
             model.plot()
         if clean_files:
             model.clean_cache_and_files(clean_cache=False)
@@ -1311,7 +1311,7 @@ class PostProcessor(Post):
         variation_list=["0deg"],
         project_path="",
         export_gif=False,
-        off_screen=False,
+        show=False,
     ):
         """Generate a field plot to an image file (JPG or PNG) using PyVista.
 
@@ -1336,8 +1336,9 @@ class PostProcessor(Post):
              The default is ``False``. Valid from Version 2021.2.
         export_gif : bool, optional
              The default is ``False``.
-        off_screen : bool, optional
-             Generate the animation without showing an interactive plot.  The default is ``False``.
+                show=False,
+        show : bool, optional
+             Generate the animation without showing an interactive plot.  The default is ``True``.
 
         Returns
         -------
@@ -1371,7 +1372,7 @@ class PostProcessor(Post):
             )
 
         model = ModelPlotter()
-        model.off_screen = off_screen
+        model.off_screen = not show
         if models_to_add:
             for m in models_to_add:
                 model.add_object(m[0], cad_color=m[1], opacity=m[2])
@@ -1379,9 +1380,10 @@ class PostProcessor(Post):
             model.add_frames_from_file(fields_to_add)
         if export_gif:
             model.gif_file = os.path.join(self._app.project_path, self._app.project_name + ".gif")
-        model.animate()
-        model.clean_cache_and_files(clean_cache=False)
 
+        if show or export_gif:
+            model.animate()
+            model.clean_cache_and_files(clean_cache=False)
         return model
 
     @aedt_exception_handler
@@ -1397,7 +1399,7 @@ class PostProcessor(Post):
         variation_list=["0deg"],
         project_path="",
         export_gif=False,
-        off_screen=False,
+        show=True,
     ):
         """Generate a field plot to an animated gif file using PyVista.
 
@@ -1435,8 +1437,8 @@ class PostProcessor(Post):
         export_gif : bool, optional
              Whether to export to a GIF file. The default is ``False``,
              in which case the plot is exported to a JPG file.
-        off_screen : bool, optional
-             The default is ``False``.
+        show : bool, optional
+             Generate the animation without showing an interactive plot.  The default is ``True``.
 
         Returns
         -------
@@ -1466,7 +1468,7 @@ class PostProcessor(Post):
                 plotf.delete()
             v += 1
         model = ModelPlotter()
-        model.off_screen = off_screen
+        model.off_screen = not show
         if models_to_add:
             for m in models_to_add:
                 model.add_object(m[0], cad_color=m[1], opacity=m[2])
@@ -1474,8 +1476,9 @@ class PostProcessor(Post):
             model.add_frames_from_file(fields_to_add)
         if export_gif:
             model.gif_file = os.path.join(self._app.project_path, self._app.project_name + ".gif")
+        if show or export_gif:
             model.animate()
-        model.clean_cache_and_files(clean_cache=False)
+            model.clean_cache_and_files(clean_cache=False)
 
         return model
 

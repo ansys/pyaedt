@@ -279,7 +279,7 @@ aedtapp.post.animate_fields_from_aedtplt_2(
     project_path=results_folder,
     variation_variable="Phase",
     variation_list=phases,
-    off_screen=True,
+    show=True,
     export_gif=True,
 )
 endtime = time.time() - start

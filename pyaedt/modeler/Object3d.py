@@ -771,17 +771,28 @@ class Object3d(object):
         return self._primitives._modeler._app._odesign
 
     @aedt_exception_handler
-    def plot(self):
+    def plot(self, show=True):
         """Plot model with PyVista.
 
         .. note::
         Works from AEDT 2021.2 in CPython only. PyVista has to be installed.
+
+        Parameters
+        ----------
+        show : bool, optional
+            Show the plot after generation.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.AdvancedPostProcessing.ModelPlotter`
+            Model Object.
         """
         if not is_ironpython and self._primitives._app._aedt_version >= "2021.2":
             return self._primitives._app.post.plot_model_obj(objects=[self.name],
                                                              plot=True,
                                                              plot_as_separate_objects=True,
                                                              plot_air_objects=True,
+                                                             show=show,
                                                              )
 
     @aedt_exception_handler
