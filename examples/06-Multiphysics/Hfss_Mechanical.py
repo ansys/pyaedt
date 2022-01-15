@@ -145,7 +145,7 @@ for el in diels:
 # Plot the model
 # ~~~~~~~~~~~~~~
 
-mech.plot()
+mech.plot(show=False, export_path=os.path.join(mech.project_path, "Mech.jpg"))
 
 ###############################################################################
 # Solution

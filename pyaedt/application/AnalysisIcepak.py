@@ -132,10 +132,55 @@ class FieldAnalysisIcepak(Analysis, object):
         """
         return self._mesh
 
-    # @property
-    # @aedt_exception_handler
-    # def post(self):
-    #     return self._post
+    @aedt_exception_handler
+    def plot(
+        self,
+        objects=None,
+        show=True,
+        export_path=None,
+        plot_as_separate_objects=True,
+        plot_air_objects=True,
+        force_opacity_value=None,
+        clean_files=False,
+    ):
+        """Plot the model or a substet of objects.
+
+        Parameters
+        ----------
+        objects : list, optional
+            Optional list of objects to plot. If `None` all objects will be exported.
+        show : bool, optional
+            Show the plot after generation or simply return the
+            generated Class for more customization before plot.
+        export_path : str, optional
+            If available, an image is saved to file. If `None` no image will be saved.
+        plot_as_separate_objects : bool, optional
+            Plot each object separately. It may require more time to export from AEDT.
+        plot_air_objects : bool, optional
+            Plot also air and vacuum objects.
+        force_opacity_value : float, optional
+            Opacity value between 0 and 1 to be applied to all model.
+            If `None` aedt opacity will be applied to each object.
+        clean_files : bool, optional
+            Clean created files after plot. Cache is mainteined into the model object returned.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.AdvancedPostProcessing.ModelPlotter`
+            Model Object.
+        """
+        if is_ironpython:
+            self.logger.warning("Plot is available only on CPython")
+        elif self._aedt_version < "2021.2":
+            self.logger.warning("Plot is supported from AEDT 2021 R2.")
+        else:
+            return self.post.plot_model_obj(objects=objects,
+                                            show=show,
+                                            export_path=export_path,
+                                            plot_as_separate_objects=plot_as_separate_objects,
+                                            plot_air_objects=plot_air_objects,
+                                            force_opacity_value=force_opacity_value,
+                                            clean_files=clean_files,)
 
     @aedt_exception_handler
     def apply_icepak_settings(

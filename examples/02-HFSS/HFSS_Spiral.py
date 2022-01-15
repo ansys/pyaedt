@@ -111,7 +111,7 @@ hfss.change_material_override()
 # Plot the model
 # ~~~~~~~~~~~~~~
 
-hfss.plot()
+hfss.plot(show=False, export_path=os.path.join(hfss.project_path, "Image.jpg"))
 
 
 ################################################################

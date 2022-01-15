@@ -205,7 +205,7 @@ class FieldAnalysis3D(Analysis, object):
         """
         if is_ironpython:
             self.logger.warning("Plot is available only on CPython")
-        elif self._app._aedt_version < "2021.2":
+        elif self._aedt_version < "2021.2":
             self.logger.warning("Plot is supported from AEDT 2021 R2.")
         else:
             return self.post.plot_model_obj(objects=objects,

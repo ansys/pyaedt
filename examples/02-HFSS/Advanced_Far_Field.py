@@ -56,6 +56,13 @@ remove_project_lock(project_name)
 
 hfss = Hfss(project_name, "4X4_MultiCell_CA-Array")
 
+
+###############################################################################
+# Plot the model
+# ~~~~~~~~~~~~~~
+
+hfss.plot(show=False, export_path=os.path.join(hfss.project_path, "Image.jpg"))
+
 ###############################################################################
 # Solve the HFSS Project
 # ~~~~~~~~~~~~~~~~~~~~~~

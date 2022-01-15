@@ -6,6 +6,7 @@ This is solved using the Maxwell 3D Eddy Current solver
 """
 
 # sphinx_gallery_thumbnail_path = 'Resources/Maxwell3DTeam3.png'
+import os
 
 from pyaedt import Maxwell3d
 
@@ -87,7 +88,7 @@ P2.set_crosssection_properties(type="Circle", width="0.5mm")
 # Plot the model
 # ~~~~~~~~~~~~~~
 
-M3D.plot()
+M3D.plot(show=False, export_path=os.path.join(M3D.project_path, "Image.jpg"))
 
 
 ###############################################################################

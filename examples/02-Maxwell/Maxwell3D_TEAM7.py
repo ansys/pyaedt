@@ -101,7 +101,7 @@ M3D.eddy_effects_on(["Plate"])
 # Plot the model
 # ~~~~~~~~~~~~~~
 
-M3D.plot()
+M3D.plot(show=False, export_path=os.path.join(M3D.project_path, "Image.jpg"))
 
 
 

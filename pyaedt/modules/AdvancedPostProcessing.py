@@ -1214,6 +1214,7 @@ class PostProcessor(Post):
             if not os.path.exists(export_path):
                 os.mkdir(export_path)
         if not obj_list:
+            self._app.modeler.refresh_all_ids()
             obj_list = self._app.modeler.primitives.object_names
             if not air_objects:
                 obj_list = [
@@ -1229,10 +1230,13 @@ class PostProcessor(Post):
             files_exported = []
             for el in obj_list:
                 fname = os.path.join(
-                    export_path, "Model_{}_{}.obj".format(el, self._app.modeler[el].material_name.lower())
+                    export_path, "Model_{}.obj".format(el)
                 )
                 self._app.modeler.oeditor.ExportModelMeshToFile(fname, [el])
-                files_exported.append([fname, self._app.modeler[el].color, 1 - self._app.modeler[el].transparency])
+                if not self._app.modeler[el].display_wireframe:
+                    files_exported.append([fname, self._app.modeler[el].color, 1 - self._app.modeler[el].transparency])
+                else:
+                    files_exported.append([fname, self._app.modeler[el].color, 0.05])
             return files_exported
         else:
             fname = os.path.join(export_path, "Model_AllObjs_AllMats.obj")
