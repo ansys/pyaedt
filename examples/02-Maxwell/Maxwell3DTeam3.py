@@ -28,6 +28,7 @@ M3D = Maxwell3d(
     solution_type=Solver,
     specified_version=DesktopVersion,
     non_graphical=NonGraphical,
+    new_desktop_session=True,
 )
 uom = M3D.modeler.model_units = "mm"
 primitives = M3D.modeler.primitives
@@ -88,7 +89,7 @@ P2.set_crosssection_properties(type="Circle", width="0.5mm")
 # Plot the model
 # ~~~~~~~~~~~~~~
 
-M3D.plot(show=False, export_path=os.path.join(M3D.project_path, "Image.jpg"))
+M3D.plot(show=False, export_path=os.path.join(M3D.project_path, "Image.jpg"), plot_air_objects=False)
 
 
 ###############################################################################

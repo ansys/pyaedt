@@ -67,7 +67,7 @@ q.modeler.primitives.create_box([50, 30, -0.5], [-250, -100, -3], name="substrat
 q.modeler["substrate"].color = (128, 128, 128)
 q.modeler["substrate"].transparency = 0.8
 
-q.plot(show=False, export_path=os.path.join(q.project_path, "Q3D.jpg"))
+q.plot(show=False, export_path=os.path.join(q.project_path, "Q3D.jpg"), plot_air_objects=False)
 
 ###############################################################################
 # Set Up Boundaries

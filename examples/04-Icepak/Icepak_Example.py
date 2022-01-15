@@ -41,7 +41,7 @@ ipk.autosave_disable()
 # Plot the model
 # ~~~~~~~~~~~~~~
 
-ipk.plot(show=False, export_path=os.path.join(temp_folder, "Graphics_card.jpg"))
+ipk.plot(show=False, export_path=os.path.join(temp_folder, "Graphics_card.jpg"), plot_air_objects=False)
 
 ###############################################################################
 # Create Source Blocks

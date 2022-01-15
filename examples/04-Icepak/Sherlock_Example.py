@@ -114,7 +114,7 @@ ipk.save_project(project_name, refresh_obj_ids_after_save=True)
 # Plot the model
 # ~~~~~~~~~~~~~~
 
-ipk.plot(show=False, export_path=os.path.join(temp_folder, "Sherlock_Example.jpg"))
+ipk.plot(show=False, export_path=os.path.join(temp_folder, "Sherlock_Example.jpg"), plot_air_objects=False)
 
 
 ###############################################################################
