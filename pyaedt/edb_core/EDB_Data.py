@@ -1244,6 +1244,28 @@ class EDBPadProperties(object):
         padparams = self._padstack_methods.GetPadParametersValue(self._edb_padstack, self.layer_name, self.pad_type)
         return int(padparams.Item1)
 
+    @geometry_type.setter
+    def geometry_type(self, geom_type):
+        """0, NoGeometry. 1, Circle. 2 Square. 3, Rectangle. 4, Oval. 5, Bullet. 6, N-sided polygon. 7, Polygonal
+        shape.8, Round gap with 45 degree thermal ties. 9, Round gap with 90 degree thermal ties.10, Square gap
+        with 45 degree thermal ties. 11, Square gap with 90 degree thermal ties.
+        """
+        val = self._edb_value(0)
+        params = []
+        if geom_type == 0:
+            pass
+        elif geom_type == 1:
+            params = [val]
+        elif geom_type == 2:
+            params = [val]
+        elif geom_type == 3:
+            params = [val, val]
+        elif geom_type == 4:
+            params = [val, val, val]
+        elif geom_type == 5:
+            params = [val, val, val]
+        self._update_pad_parameters_parameters(geom_type=geom_type, params=params)
+
     @property
     def parameters(self):
         """Parameters.
@@ -1392,8 +1414,6 @@ class EDBPadProperties(object):
             geom_type = self.geometry_type
         if not params:
             params = [self._edb_value(i) for i in self.parameters]
-        else:
-            params = [self._edb_value(i) for i in params]
         if not offsetx:
             offsetx = self.offset_x
         if not offsety:
