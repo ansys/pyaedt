@@ -1494,7 +1494,9 @@ class Material(CommonMaterial, object):
         -------
         str
         """
-        return self._props.get("core_loss_type", None)
+        if self._props.get("core_loss_type", None):
+            return self._props["core_loss_type"].get("Choice", None)
+        return None
 
     @aedt_exception_handler
     def get_curve_coreloss_values(self):
@@ -1505,29 +1507,30 @@ class Material(CommonMaterial, object):
         dict
         """
         out = {}
-        if self._props.get("core_loss_type", None) == "Electrical Steel":
+        if self._props.get("core_loss_type", None):
+            if self._props["core_loss_type"].get("Choice", None) == "Electrical Steel":
 
-            out["core_loss_kh"] = self._props["core_loss_kh"]
-            out["core_loss_kc"] = self._props["core_loss_kc"]
-            out["core_loss_ke"] = self._props["core_loss_ke"]
-            out["core_loss_kdc"] = self._props["core_loss_kdc"]
-            out["core_loss_equiv_cut_depth"] = self._props["core_loss_equiv_cut_depth"]
-        elif self._props.get("core_loss_type", None) == "B-P Curve":
-            out["core_loss_curves"] = self._props["core_loss_curves"]
-            out["core_loss_kdc"] = self._props["core_loss_kdc"]
-            out["core_loss_equiv_cut_depth"] = self._props["core_loss_equiv_cut_depth"]
-        if self._props.get("core_loss_type", None) == "Power Ferrite":
-            out["core_loss_cm"] = self._props["core_loss_cm"]
-            out["core_loss_x"] = self._props["core_loss_x"]
-            out["core_loss_y"] = self._props["core_loss_y"]
-            out["core_loss_kdc"] = self._props["core_loss_kdc"]
-            out["core_loss_equiv_cut_depth"] = self._props["core_loss_equiv_cut_depth"]
-        elif self._props.get("core_loss_type", None) == "Hysteresis Model":
-            out["core_loss_hci"] = self._props["core_loss_hci"]
-            out["core_loss_br"] = self._props["core_loss_br"]
-            out["core_loss_hkc"] = self._props["core_loss_hkc"]
-            out["core_loss_kdc"] = self._props["core_loss_kdc"]
-            out["core_loss_equiv_cut_depth"] = self._props["core_loss_equiv_cut_depth"]
+                out["core_loss_kh"] = self._props["core_loss_kh"]
+                out["core_loss_kc"] = self._props["core_loss_kc"]
+                out["core_loss_ke"] = self._props["core_loss_ke"]
+                out["core_loss_kdc"] = self._props["core_loss_kdc"]
+                out["core_loss_equiv_cut_depth"] = self._props["core_loss_equiv_cut_depth"]
+            elif self._props["core_loss_type"].get("Choice", None) == "B-P Curve":
+                out["core_loss_curves"] = self._props["core_loss_curves"]
+                out["core_loss_kdc"] = self._props["core_loss_kdc"]
+                out["core_loss_equiv_cut_depth"] = self._props["core_loss_equiv_cut_depth"]
+            if self._props["core_loss_type"].get("Choice", None) == "Power Ferrite":
+                out["core_loss_cm"] = self._props["core_loss_cm"]
+                out["core_loss_x"] = self._props["core_loss_x"]
+                out["core_loss_y"] = self._props["core_loss_y"]
+                out["core_loss_kdc"] = self._props["core_loss_kdc"]
+                out["core_loss_equiv_cut_depth"] = self._props["core_loss_equiv_cut_depth"]
+            elif self._props["core_loss_type"].get("Choice", None) == "Hysteresis Model":
+                out["core_loss_hci"] = self._props["core_loss_hci"]
+                out["core_loss_br"] = self._props["core_loss_br"]
+                out["core_loss_hkc"] = self._props["core_loss_hkc"]
+                out["core_loss_kdc"] = self._props["core_loss_kdc"]
+                out["core_loss_equiv_cut_depth"] = self._props["core_loss_equiv_cut_depth"]
         return out
 
     @aedt_exception_handler
@@ -1544,7 +1547,7 @@ class Material(CommonMaterial, object):
                 self._props["magnetic_coercivity"]["Magnitude"],
                 self._props["magnetic_coercivity"]["DirComp1"],
                 self._props["magnetic_coercivity"]["DirComp2"],
-                self._props["magnetic_coercivity"]["DirComp2"],
+                self._props["magnetic_coercivity"]["DirComp3"],
             )
         return False
 
