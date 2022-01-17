@@ -902,15 +902,19 @@ class Material(CommonMaterial, object):
         else:
             vals = list(CSS4_COLORS.values())
             h = vals[materiallib._color_id].lstrip("#")
-            self._material_appearance = tuple(int(h[i: i + 2], 16) for i in (0, 2, 4))
+            self._material_appearance = tuple(int(h[i : i + 2], 16) for i in (0, 2, 4))
             materiallib._color_id += 1
-            self._props["AttachedData"] = OrderedDict({
-                "MatAppearanceData": OrderedDict({"property_data": "appearance_data",
-                                                  "Red": self._material_appearance[0],
-                                                  "Green": self._material_appearance[1],
-                                                  "Blue": self._material_appearance[2]}
-                                                 )
-            }
+            self._props["AttachedData"] = OrderedDict(
+                {
+                    "MatAppearanceData": OrderedDict(
+                        {
+                            "property_data": "appearance_data",
+                            "Red": self._material_appearance[0],
+                            "Green": self._material_appearance[1],
+                            "Blue": self._material_appearance[2],
+                        }
+                    )
+                }
             )
         for property in MatProperties.aedtname:
             if property in self._props:

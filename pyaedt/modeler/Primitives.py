@@ -3105,7 +3105,7 @@ class Primitives(object):
             color = str(tuple(self._app.materials.material_keys[material].material_appearance)).replace(",", " ")
         except:
             color = "(132 132 193)"
-        if material in ["vacuum", "air", "glass", "water_distilled","water_fresh", "water_sea"]:
+        if material in ["vacuum", "air", "glass", "water_distilled", "water_fresh", "water_sea"]:
             transparency = 0.8
         else:
             transparency = 0.2
