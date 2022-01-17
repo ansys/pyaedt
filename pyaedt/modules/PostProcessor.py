@@ -1046,7 +1046,6 @@ class PostProcessorCommon(object):
         """
         return self._app.solution_type
 
-
     @property
     def all_report_names(self):
         """List of all report names.

@@ -115,10 +115,20 @@ solutions_types = {
     },
     "Twin Builder": {
         "TR": {"name": None, "options": None, "report_type": "Standard", "default_setup": 35, "default_adaptive": None},
-        "AC": {"name": None, "options": None, "report_type": "Standard", "default_setup": None,
-               "default_adaptive": None},
-        "DC": {"name": None, "options": None, "report_type": "Standard", "default_setup": None,
-               "default_adaptive": None},
+        "AC": {
+            "name": None,
+            "options": None,
+            "report_type": "Standard",
+            "default_setup": None,
+            "default_adaptive": None,
+        },
+        "DC": {
+            "name": None,
+            "options": None,
+            "report_type": "Standard",
+            "default_setup": None,
+            "default_adaptive": None,
+        },
     },
     "Circuit Design": {
         "NexximLNA": {
