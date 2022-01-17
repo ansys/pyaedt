@@ -904,7 +904,7 @@ class Material(CommonMaterial, object):
             if (materiallib._color_id) > len(vals):
                 materiallib._color_id = 0
             h = vals[materiallib._color_id].lstrip("#")
-            self._material_appearance = tuple(int(h[i : i + 2], 16) for i in (0, 2, 4))
+            self._material_appearance = list(int(h[i : i + 2], 16) for i in (0, 2, 4))
             materiallib._color_id += 1
             self._props["AttachedData"] = OrderedDict(
                 {
