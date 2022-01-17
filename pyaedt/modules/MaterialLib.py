@@ -40,7 +40,6 @@ class Materials(object):
         self.material_keys = self._get_materials()
         self.surface_material_keys = self._get_surface_materials()
         self._load_from_project()
-        self._color_id = 0
         pass
 
     def __len__(self):
