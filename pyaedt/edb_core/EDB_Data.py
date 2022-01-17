@@ -1925,10 +1925,9 @@ class EDBPadstackInstance(object):
 
     @aedt_exception_handler
     def delete_padstack_instance(self):
-        """Delete this padstack instance.
-
-        """
+        """Delete this padstack instance."""
         self._edb_padstackinstance.Delete()
+
 
 class EDBPinInstances(object):
     """Manages EDB functionalities in instances.
