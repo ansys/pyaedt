@@ -229,13 +229,14 @@ class ModelPlotter(object):
         self.range_min = None
         self.range_max = None
         self.image_file = None
-        self.camera_position = "xy"
+        self.camera_position = "yz"
         self.roll_angle = 0
         self.azimuth_angle = 45
-        self.elevation_angle = 45
+        self.elevation_angle = 20
+        self.zoom = 1.3
 
     @aedt_exception_handler
-    def orientation(self, camera_position="xy", roll_angle=45, azimuth_angle=45, elevation_angle=45):
+    def orientation(self, camera_position="xy", roll_angle=0, azimuth_angle=45, elevation_angle=20):
         """Change the plot default orientation
 
         Parameters
@@ -243,11 +244,11 @@ class ModelPlotter(object):
         camera_position : str
             Camera view. Default is `"xy"`. Options are `"xz"` and `"yz"`.
         roll_angle : int, float
-            Roll camera angle.
+            Roll camera angle on the specified the camera_position.
         azimuth_angle : int, float
-            Azimuth angle of camera.
+            Azimuth angle of camera on the specified the camera_position.
         elevation_angle : int, float
-            Elevation camera angle.
+            Elevation camera angle on the specified the camera_position.
 
         Returns
         -------
@@ -868,9 +869,10 @@ class ModelPlotter(object):
             self.pv.show_grid(color=tuple(axes_color))
         self.pv.add_bounding_box(color=tuple(axes_color))
         self.pv.camera_position = self.camera_position
-        self.pv.azimuth = self.azimuth_angle
-        self.pv.roll = self.roll_angle
-        self.pv.elevation = self.elevation_angle
+        self.pv.camera.azimuth += self.azimuth_angle
+        self.pv.camera.roll += self.roll_angle
+        self.pv.camera.elevation += self.elevation_angle
+        self.pv.camera.zoom(self.zoom)
 
         if export_image_path:
             self.pv.show(screenshot=export_image_path, full_screen=True)
@@ -945,10 +947,10 @@ class ModelPlotter(object):
                 labels.append([m.name, "red"])
             self.pv.add_legend(labels=labels, bcolor=None, face="circle", size=[0.15, 0.15])
         self.pv.camera_position = self.camera_position
-        self.pv.azimuth = self.azimuth_angle
-        self.pv.roll = self.roll_angle
-        self.pv.elevation = self.elevation_angle
-
+        self.pv.camera.azimuth += self.azimuth_angle
+        self.pv.camera.roll += self.roll_angle
+        self.pv.camera.elevation += self.elevation_angle
+        self.pv.zoom = self.zoom
         self._animating = True
 
         if self.gif_file:
