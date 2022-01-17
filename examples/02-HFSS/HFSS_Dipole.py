@@ -3,7 +3,6 @@ Dipole Antenna
 --------------
 This example shows how you can use PyAEDT to create an antenna setup in HFSS and postprocess results.
 """
-# sphinx_gallery_thumbnail_path = 'Resources/Dipole.png'
 
 import os
 import tempfile

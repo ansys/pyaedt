@@ -3,7 +3,6 @@ HFSS-Mechanical Multiphysics Analysis
 -------------------------------------
 This example shows how to use Pyaedt to create a multiphysics workflow that includes Circuit, Hfss and Mechanical.
 """
-# sphinx_gallery_thumbnail_path = 'Resources/Mechanical.png'
 
 ###############################################################################
 # Import packages

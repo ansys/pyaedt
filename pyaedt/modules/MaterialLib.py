@@ -39,6 +39,7 @@ class Materials(object):
         self.material_keys = self._get_materials()
         self.surface_material_keys = self._get_surface_materials()
         self._load_from_project()
+        self._color_id = 0
         pass
 
     def __len__(self):
@@ -336,7 +337,7 @@ class Materials(object):
 
         mat_dict = self._create_mat_project_vars(matsweep)
 
-        newmat = Material(self._app, matname)
+        newmat = Material(self, matname)
         index = "$ID" + matname
         self._app[index] = 0
         for el in mat_dict:

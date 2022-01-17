@@ -43,7 +43,7 @@ import math
 # This example launches AEDT 2021.2 in graphical mode.
 
 desktopVersion = "2021.2"
-NonGraphical = True
+NonGraphical = False
 NewThread = False
 desktop = Desktop(desktopVersion, NonGraphical, NewThread)
 
@@ -56,12 +56,6 @@ remove_project_lock(project_name)
 
 hfss = Hfss(project_name, "4X4_MultiCell_CA-Array")
 
-
-###############################################################################
-# Plot the model
-# ~~~~~~~~~~~~~~
-
-hfss.plot(show=False, export_path=os.path.join(hfss.project_path, "Image.jpg"))
 
 ###############################################################################
 # Solve the HFSS Project

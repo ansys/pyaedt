@@ -5,7 +5,6 @@ This example uses PyAEDT to setup the TEAM3 problem set by COMPUMAG.
 This is solved using the Maxwell 3D Eddy Current solver
 """
 
-# sphinx_gallery_thumbnail_path = 'Resources/Maxwell3DTeam3.png'
 import os
 
 from pyaedt import Maxwell3d

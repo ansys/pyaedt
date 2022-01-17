@@ -3,7 +3,6 @@ Spiral Inductor
 ---------------
 This example shows how you can use PyAEDT to create a spiral inductor, solve it and plot results.
 """
-# sphinx_gallery_thumbnail_path = 'Resources/spiral.png'
 
 #############################################################
 # Import packages

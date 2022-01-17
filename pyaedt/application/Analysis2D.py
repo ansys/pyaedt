@@ -238,41 +238,23 @@ class FieldAnalysis2D(Analysis):
         >>> oEditor.AssignMaterial
         """
         mat = mat.lower()
-        selections = self.modeler.convert_to_selections(obj)
-        arg1 = ["NAME:Selections"]
-        arg1.append("Selections:="), arg1.append(selections)
-        arg2 = ["NAME:Attributes"]
-        arg2.append("MaterialValue:="), arg2.append(chr(34) + mat + chr(34))
-        if mat in self.materials.material_keys:
-            Mat = self.materials.material_keys[mat]
-            Mat.update()
-            if Mat.is_dielectric():
-                arg2.append("SolveInside:="), arg2.append(True)
-            else:
-                arg2.append("SolveInside:="), arg2.append(False)
-            self.modeler.oeditor.AssignMaterial(arg1, arg2)
-            self.logger.info("Assign Material " + mat + " to object " + selections)
-            if isinstance(obj, list):
-                for el in obj:
-                    self.modeler.primitives[el].material_name = mat
-            else:
-                self.modeler.primitives[obj].material_name = mat
-            return True
-        elif self.materials.checkifmaterialexists(mat):
-            self.materials._aedmattolibrary(mat)
-            Mat = self.materials.material_keys[mat]
-            if Mat.is_dielectric():
-                arg2.append("SolveInside:="), arg2.append(True)
-            else:
-                arg2.append("SolveInside:="), arg2.append(False)
-            self.modeler.oeditor.AssignMaterial(arg1, arg2)
-            self.logger.info("Assign Material " + mat + " to object " + selections)
-            if isinstance(obj, list):
-                for el in obj:
-                    self.modeler.primitives[el].material_name = mat
-            else:
-                self.modeler.primitives[obj].material_name = mat
+        selections = self.modeler.convert_to_selections(obj, True)
 
+        mat_exists = False
+        if mat in self.materials.material_keys:
+            mat_exists = True
+        if mat_exists or self.materials.checkifmaterialexists(mat):
+            Mat = self.materials.material_keys[mat]
+            if mat_exists:
+                Mat.update()
+            self.logger.info("Assign Material " + mat + " to object " + selections)
+            for el in selections:
+                self.modeler.primitives[el].material_name = mat
+                self.modeler.primitives[el].color = self.materials.material_keys[mat].material_appearance
+                if Mat.is_dielectric():
+                    self.modeler.primitives[el].solve_inside = True
+                else:
+                    self.modeler.primitives[el].solve_inside = False
             return True
         else:
             self.logger.error("Material does not exist.")

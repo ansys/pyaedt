@@ -136,6 +136,7 @@ aedtapp.create_wave_port_between_objects("inner", "outer", axisdir=3, add_pec_ca
 portnames = aedtapp.get_all_sources()
 aedtapp.modeler.fit_all()
 
+
 ###############################################################################
 # Generate a Setup
 # ~~~~~~~~~~~~~~~~
