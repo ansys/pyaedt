@@ -870,7 +870,8 @@ class ModelPlotter(object):
         if self.show_grid and not self.is_notebook:
             self.pv.show_grid(color=tuple(axes_color))
         self.pv.add_bounding_box(color=tuple(axes_color))
-        # self.pv.set_focus(self.pv.mesh.center)
+        if not self.pv.off_screen:
+            self.pv.set_focus(self.pv.mesh.center)
         self.pv.camera_position = self.camera_position
         self.pv.camera.azimuth += self.azimuth_angle
         self.pv.camera.roll += self.roll_angle
