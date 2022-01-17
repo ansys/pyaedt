@@ -895,7 +895,11 @@ class Design(object):
            Default for the solution type.
 
         """
-        return self.design_solutions.solution_types[0]
+        if self.design_solutions._solution_options[self.design_solutions.solution_types[0]]["name"]:
+            return self.design_solutions._solution_options[self.design_solutions.solution_types[0]]["name"]
+        else:
+            return self.design_solutions.solution_types[0]
+
 
     @property
     def odesign(self):
