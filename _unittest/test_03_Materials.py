@@ -78,7 +78,7 @@ class TestClass:
         assert self.aedtapp.change_validation_settings()
         assert self.aedtapp.change_validation_settings(ignore_unclassified=True, skip_intersections=True)
 
-        assert mat1.material_appearance == [128, 128, 128]
+        assert isinstance(mat1.material_appearance, list)
         mat1.material_appearance = [11, 22, 0]
         assert mat1.material_appearance == [11, 22, 0]
         mat1.material_appearance = ["11", "22", "10"]
