@@ -15,6 +15,7 @@ This module contains these data classes for creating a material library:
 from collections import OrderedDict
 from pyaedt.generic.general_methods import aedt_exception_handler
 from pyaedt.generic.DataHandlers import _dict2arg
+from pyaedt.generic.constants import CSS4_COLORS
 
 
 class MatProperties(object):
@@ -896,15 +897,24 @@ class Material(CommonMaterial, object):
             self._material_appearance.append(self._props["AttachedData"]["MatAppearanceData"]["Green"])
             self._material_appearance.append(self._props["AttachedData"]["MatAppearanceData"]["Blue"])
         else:
-            self._material_appearance = [128, 128, 128]
+            vals = list(CSS4_COLORS.values())
+            if (materiallib._color_id) > len(vals):
+                materiallib._color_id = 0
+            h = vals[materiallib._color_id].lstrip("#")
+            self._material_appearance = list(int(h[i : i + 2], 16) for i in (0, 2, 4))
+            materiallib._color_id += 1
             self._props["AttachedData"] = OrderedDict(
                 {
                     "MatAppearanceData": OrderedDict(
-                        {"property_data": "appearance_data", "Red": 128, "Green": 128, "Blue": 128}
+                        {
+                            "property_data": "appearance_data",
+                            "Red": self._material_appearance[0],
+                            "Green": self._material_appearance[1],
+                            "Blue": self._material_appearance[2],
+                        }
                     )
                 }
             )
-
         for property in MatProperties.aedtname:
             if property in self._props:
                 mods = None

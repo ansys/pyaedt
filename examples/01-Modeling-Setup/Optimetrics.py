@@ -3,7 +3,6 @@ Optimetrics Setup
 -----------------
 This example shows how you can use PyAEDT to create a project in HFSS and create all optimetrics setups.
 """
-# sphinx_gallery_thumbnail_path = 'Resources/optimetrics.png'
 
 from pyaedt import Hfss
 from pyaedt import Desktop
@@ -41,6 +40,9 @@ wg1, p1, p2 = hfss.modeler.create_waveguide(
     wg_length="w2",
     create_sheets_on_openings=True,
 )
+
+hfss.plot(show=False, export_path=os.path.join(hfss.project_path, "Image.jpg"))
+
 
 ###############################################################################
 # Create Wave Ports on the Sheets

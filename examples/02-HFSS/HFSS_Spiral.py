@@ -3,7 +3,6 @@ Spiral Inductor
 ---------------
 This example shows how you can use PyAEDT to create a spiral inductor, solve it and plot results.
 """
-# sphinx_gallery_thumbnail_path = 'Resources/spiral.png'
 
 #############################################################
 # Import packages
@@ -105,6 +104,14 @@ hfss.assign_radiation_boundary_to_objects("airbox")
 # Material override is needed to avoid validation check to fail.
 #
 hfss.change_material_override()
+
+
+###############################################################################
+# Plot the model
+# ~~~~~~~~~~~~~~
+
+hfss.plot(show=False, export_path=os.path.join(hfss.project_path, "Image.jpg"))
+
 
 ################################################################
 # Create a setup and define a frequency sweep.

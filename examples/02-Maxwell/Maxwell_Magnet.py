@@ -42,6 +42,12 @@ m3d.create_setup()
 
 
 ###############################################################################
+# Plot the model
+# ~~~~~~~~~~~~~~
+
+m3d.plot(show=False, export_path=os.path.join(m3d.project_path, "Image.jpg"), plot_air_objects=True)
+
+###############################################################################
 # Solve Setup
 # ~~~~~~~~~~~
 m3d.analyze_nominal()

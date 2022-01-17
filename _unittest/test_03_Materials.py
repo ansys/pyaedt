@@ -83,7 +83,8 @@ class TestClass:
         assert mat1.get_curve_coreloss_type() == "B-P Curve"
         assert mat1.set_power_ferrite_coreloss()
         assert mat1.get_curve_coreloss_type() == "Power Ferrite"
-        assert mat1.material_appearance == [128, 128, 128]
+        assert isinstance(mat1.material_appearance, list)
+
         mat1.material_appearance = [11, 22, 0]
         assert mat1.material_appearance == [11, 22, 0]
         mat1.material_appearance = ["11", "22", "10"]

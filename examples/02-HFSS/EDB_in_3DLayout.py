@@ -62,12 +62,6 @@ if os.path.exists(aedt_file):
 h3d = Hfss3dLayout(targetfile)
 h3d.save_project(os.path.join(temp_folder, "edb_demo.aedt"))
 
-###############################################################################
-# Print Setups
-# ~~~~~~~~~~~~
-# The example prints setups from the `setups` object.
-
-h3d.setups[0].props
 
 ###############################################################################
 # Print boundaries from the `setups` object.

@@ -4,7 +4,6 @@ Icepack Setup from Sherlock Inputs
 This example shows how to create an Icepak project starting from Sherlock
 # files (STEP and CSV) and an AEDB board.
 """
-# sphinx_gallery_thumbnail_path = 'Resources/sherlock.png'
 
 import time
 import os
@@ -108,6 +107,14 @@ ipk.modeler.import_3d_cad(file_path, refresh_all_ids=False)
 # parsing.
 
 ipk.save_project(project_name, refresh_obj_ids_after_save=True)
+
+
+###############################################################################
+# Plot the model
+# ~~~~~~~~~~~~~~
+
+ipk.plot(show=False, export_path=os.path.join(temp_folder, "Sherlock_Example.jpg"), plot_air_objects=False)
+
 
 ###############################################################################
 # Remove PCB Objects

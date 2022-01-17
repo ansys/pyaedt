@@ -15,6 +15,7 @@ from __future__ import absolute_import
 import random
 import string
 import math
+import os
 
 from pyaedt import aedt_exception_handler, _retry_ntimes
 from pyaedt.modeler.GeometryOperators import GeometryOperators
@@ -770,24 +771,28 @@ class Object3d(object):
         return self._primitives._modeler._app._odesign
 
     @aedt_exception_handler
-    def plot(self):
+    def plot(self, show=True):
         """Plot model with PyVista.
 
         .. note::
         Works from AEDT 2021.2 in CPython only. PyVista has to be installed.
+
+        Parameters
+        ----------
+        show : bool, optional
+            Show the plot after generation.  The default value is ``True``.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.AdvancedPostProcessing.ModelPlotter`
+            Model Object.
         """
         if not is_ironpython and self._primitives._app._aedt_version >= "2021.2":
-            self._primitives._app.post.plot_model_obj(
+            return self._primitives._app.post.plot_model_obj(
                 objects=[self.name],
-                export_afterplot=False,
-                plot_separate_objects=True,
-                air_objects=True,
-                background_color="grey",
-                object_selector=False,
-                color=[i / 256 for i in self.color],
-                off_screen=False,
-                color_by_material=False,
-                opacity=1 - self.transparency,
+                plot_as_separate_objects=True,
+                plot_air_objects=True,
+                show=show,
             )
 
     @aedt_exception_handler
@@ -809,21 +814,17 @@ class Object3d(object):
             File path.
         """
         if not is_ironpython and self._primitives._app._aedt_version >= "2021.2":
-            files = self._primitives._app.post.plot_model_obj(
+            if not file_path:
+                file_path = os.path.join(self._primitives._app.project_path, self.name + ".png")
+            model_obj = self._primitives._app.post.plot_model_obj(
                 objects=[self.name],
-                export_afterplot=True,
+                show=False,
                 export_path=file_path,
-                plot_separate_objects=True,
-                air_objects=True,
-                background_color="grey",
-                object_selector=False,
-                color=[i / 256 for i in self.color],
-                off_screen=True,
-                color_by_material=False,
-                opacity=1 - self.transparency,
+                plot_as_separate_objects=True,
+                clean_files=True,
             )
-            if files:
-                return files[0]
+            if model_obj:
+                return model_obj.image_file
         return False
 
     @property

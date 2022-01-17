@@ -3,7 +3,6 @@ Dipole Antenna
 --------------
 This example shows how you can use PyAEDT to create an antenna setup in HFSS and postprocess results.
 """
-# sphinx_gallery_thumbnail_path = 'Resources/Dipole.png'
 
 import os
 import tempfile
@@ -57,6 +56,12 @@ hfss.modeler.primitives.insert_3d_component(compfile, geometryparams)
 # A region with openings is needed to run the analysis.
 
 hfss.create_open_region(Frequency="1GHz")
+
+###############################################################################
+# Plot the model
+# ~~~~~~~~~~~~~~
+
+hfss.plot(show=False, export_path=os.path.join(hfss.project_path, "Image.jpg"), plot_air_objects=False)
 
 ###############################################################################
 # Create the Setup
