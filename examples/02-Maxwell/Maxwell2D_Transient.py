@@ -63,6 +63,14 @@ region = maxwell_2d.modeler.primitives.create_region([100, 100, 100, 100, 100, 1
 maxwell_2d.assign_winding([rect1.name, rect2.name], name="PHA")
 maxwell_2d.assign_balloon(region.edges)
 
+
+###############################################################################
+# Plot the model
+# ~~~~~~~~~~~~~~
+
+maxwell_2d.plot(show=False, export_path=os.path.join(maxwell_2d.project_path, "Image.jpg"), plot_air_objects=True)
+
+
 ###############################################################################
 # Add a Transient Setup
 # ~~~~~~~~~~~~~~~~~~~~~
@@ -113,7 +121,7 @@ id_list = [f.id for f in face_lists]
 #   intrinsic_dict={'Time': '0s'},
 #   variation_variable="Time",
 #   variation_list=timesteps,
-#   off_screen=True,
+#   show=True,
 #   export_gif=True
 # )
 

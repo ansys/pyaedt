@@ -1178,7 +1178,7 @@ class Primitives(object):
             "Color:=",
             "(143 175 143)",
             "Transparency:=",
-            0,
+            0.75,
             "PartCoordinateSystem:=",
             "Global",
             "UDMId:=",
@@ -3101,7 +3101,14 @@ class Primitives(object):
 
         if not name:
             name = _uname()
-
+        try:
+            color = str(tuple(self._app.materials.material_keys[material].material_appearance)).replace(",", " ")
+        except:
+            color = "(132 132 193)"
+        if material in ["vacuum", "air", "glass", "water_distilled", "water_fresh", "water_sea"]:
+            transparency = 0.8
+        else:
+            transparency = 0.2
         args = [
             "NAME:Attributes",
             "Name:=",
@@ -3109,9 +3116,9 @@ class Primitives(object):
             "Flags:=",
             "",
             "Color:=",
-            "(132 132 193)",
+            color,
             "Transparency:=",
-            0.3,
+            transparency,
             "PartCoordinateSystem:=",
             "Global",
             "SolveInside:=",
