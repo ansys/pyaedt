@@ -72,6 +72,17 @@ class TestClass:
         assert self.aedtapp.change_validation_settings()
         assert self.aedtapp.change_validation_settings(ignore_unclassified=True, skip_intersections=True)
 
+        assert mat1.set_magnetic_coercitivity(1, 2, 3, 4)
+        assert mat1.get_magnetic_coercitivity == (1, 2, 3, 4)
+        assert mat1.set_electrical_steel_coreloss(1, 2, 3, 4, 0.002)
+        assert mat1.get_curve_coreloss_type() == "Electrical Steel"
+        assert mat1.get_curve_coreloss_values()["core_loss_equiv_cut_depth"] == "0.002meter"
+        assert mat1.set_hysteresis_coreloss(1, 2, 3, 4, 0.002)
+        assert mat1.get_curve_coreloss_type() == "Hysteresis Model"
+        assert mat1.set_bp_curve_coreloss([[0, 0], [10, 10], [20, 20]])
+        assert mat1.get_curve_coreloss_type() == "B-P Curve"
+        assert mat1.set_power_ferrite_coreloss()
+        assert mat1.get_curve_coreloss_type() == "Power Ferrite"
         assert mat1.material_appearance == [128, 128, 128]
         mat1.material_appearance = [11, 22, 0]
         assert mat1.material_appearance == [11, 22, 0]
