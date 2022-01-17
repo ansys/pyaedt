@@ -1301,14 +1301,14 @@ class Material(CommonMaterial, object):
 
         Parameters
         ----------
-        value : float
-            Magnitude in A_per_meter.
-        x : float
-            Vector x component.
-        y : float
-            Vector y component.
-        z : float
-            Vector z component.
+        value : float, optional
+            Magnitude in A_per_meter. Default value is ``0``.
+        x : float, optional
+            Vector x component. Default value is ``1``.
+        y : float, optional
+            Vector y component. Default value is ``0``.
+        z : float, optional
+            Vector z component. Default value is ``0``.
 
         Returns
         -------
@@ -1450,9 +1450,12 @@ class Material(CommonMaterial, object):
         kdc : float
         cut_depth : float
         punit : str
+            Core loss unit. The default is ``"kw/m^3"``.
         bunit : str
+            Magnetic field unit. The default is ``"tesla"``.
         frequency : float
-        thickness : str
+        thickness : str, optional
+            Lamination thickness. The default is ``"0.5mm"``.
 
         Returns
         -------
@@ -1500,7 +1503,7 @@ class Material(CommonMaterial, object):
 
     @aedt_exception_handler
     def get_curve_coreloss_values(self):
-        """Return the curve core loss type assigned to material.
+        """Return the curve core values type assigned to material.
 
         Returns
         -------
