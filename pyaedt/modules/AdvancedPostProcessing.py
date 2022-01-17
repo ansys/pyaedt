@@ -236,6 +236,23 @@ class ModelPlotter(object):
 
     @aedt_exception_handler
     def orientation(self, camera_position="xy", roll_angle=45, azimuth_angle=45, elevation_angle=45):
+        """Change the plot default orientation
+
+        Parameters
+        ----------
+        camera_position : str
+            Camera view. Default is `"xy"`. Options are `"xz"` and `"yz"`.
+        roll_angle : int, float
+            Roll camera angle.
+        azimuth_angle : int, float
+            Azimuth angle of camera.
+        elevation_angle : int, float
+            Elevation camera angle.
+
+        Returns
+        -------
+        bool
+        """
         if camera_position in ["xy", "yz", "xz"]:
             self.camera_position = camera_position
         else:
@@ -243,6 +260,7 @@ class ModelPlotter(object):
         self.roll_angle = roll_angle
         self.azimuth_angle = azimuth_angle
         self.elevation_angle = elevation_angle
+        return True
 
     @property
     def background_color(self):
