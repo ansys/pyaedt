@@ -124,8 +124,8 @@ class TestClass(BasisTest):
 
     @pytest.mark.skipif(is_ironpython, reason="Not running in ironpython")
     def test_plot(self):
-        pg1 = self.aedtapp.modeler.primitives.create_regular_polygon([0, 0, 0], [0, 2, 0])
-        pg2 = self.aedtapp.modeler.primitives.create_regular_polygon(
+        self.aedtapp.modeler.primitives.create_regular_polygon([0, 0, 0], [0, 2, 0])
+        self.aedtapp.modeler.primitives.create_regular_polygon(
             position=[0, 0, 0], start_point=[0, 2, 0], num_sides=3, name="MyPolygon", matname="Copper"
         )
         obj = self.aedtapp.plot(show=False, export_path=os.path.join(self.local_scratch.path, "image.jpg"))
