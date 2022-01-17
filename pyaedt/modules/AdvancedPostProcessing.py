@@ -222,13 +222,29 @@ class ModelPlotter(object):
         self.off_screen = False
         self.windows_size = [1024, 768]
         self.pv = None
-        self.view = "isometric"
+        self._orientation = ['xy', 0, 0, 0]
         self.units = "meter"
         self.frame_per_seconds = 3
         self._plot_meshes = []
         self.range_min = None
         self.range_max = None
         self.image_file = None
+        self.camera_position = "xy"
+        self.roll_angle = 0
+        self.azimuth_angle = 45
+        self.elevation_angle = 45
+
+
+    @aedt_exception_handler
+    def orientation(self, camera_position="xy",  roll_angle=45, azimuth_angle=45, elevation_angle=45):
+        if camera_position in ["xy", "yz", "xz"]:
+            self.camera_position = camera_position
+        else:
+            warnings.warn("Plane has to be one of xy, xz, yz.")
+        self.roll_angle = roll_angle
+        self.azimuth_angle = azimuth_angle
+        self.elevation_angle = elevation_angle
+
 
     @property
     def background_color(self):
@@ -768,8 +784,9 @@ class ModelPlotter(object):
                 color_on=axes_color,
                 color_off=axes_color,
             )
-            plot.add_text("Next", position=(50.0, plot.window_size[1]), font_size=size // 3, color="grey")
-            plot.button_widgets.insert(0, plot.button_widgets.pop(plot.button_widgets.index(plot.button_widgets[-1])))
+            self.pv.add_text("Next", position=(50.0, self.pv.window_size[1]), font_size=size // 3, color="grey")
+            self.pv.button_widgets.insert(0, self.pv.button_widgets.pop(
+                self.pv.button_widgets.index(self.pv.button_widgets[-1])))
 
     @aedt_exception_handler
     def plot(self, export_image_path=None):
@@ -833,14 +850,11 @@ class ModelPlotter(object):
         if self.show_grid and not self.is_notebook:
             self.pv.show_grid(color=tuple(axes_color))
         self.pv.add_bounding_box(color=tuple(axes_color))
-        if self.view == "isometric":
-            self.pv.view_isometric()
-        elif self.view == "top":
-            self.pv.view_yz()
-        elif self.view == "front":
-            self.pv.view_xz()
-        elif self.view == "top":
-            self.pv.view_xy()
+        self.pv.camera_position = self.camera_position
+        self.pv.azimuth = self.azimuth_angle
+        self.pv.roll = self.roll_angle
+        self.pv.elevation = self.elevation_angle
+
         if export_image_path:
             self.pv.show(screenshot=export_image_path, full_screen=True)
         elif self.is_notebook:
@@ -913,14 +927,10 @@ class ModelPlotter(object):
             for m in self.fields:
                 labels.append([m.name, "red"])
             self.pv.add_legend(labels=labels, bcolor=None, face="circle", size=[0.15, 0.15])
-        if self.view == "isometric":
-            self.pv.view_isometric()
-        elif self.view == "top":
-            self.pv.view_yz()
-        elif self.view == "front":
-            self.pv.view_xz()
-        elif self.view == "top":
-            self.pv.view_xy()
+        self.pv.camera_position = self.camera_position
+        self.pv.azimuth = self.azimuth_angle
+        self.pv.roll = self.roll_angle
+        self.pv.elevation = self.elevation_angle
 
         self._animating = True
 
