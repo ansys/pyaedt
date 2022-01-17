@@ -1914,6 +1914,13 @@ class EDBPadstackInstance(object):
 
     @property
     def id(self):
+        """Id of this padstack instance.
+
+        Returns
+        -------
+        str
+            Padstack instance id.
+        """
         return self._edb_padstackinstance.GetId()
 
 
