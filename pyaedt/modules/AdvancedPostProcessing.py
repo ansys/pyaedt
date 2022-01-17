@@ -236,7 +236,7 @@ class ModelPlotter(object):
         self.zoom = 1.3
 
     @aedt_exception_handler
-    def orientation(self, camera_position="xy", roll_angle=0, azimuth_angle=45, elevation_angle=20):
+    def set_orientation(self, camera_position="xy", roll_angle=0, azimuth_angle=45, elevation_angle=20):
         """Change the plot default orientation.
 
         Parameters
@@ -344,7 +344,9 @@ class ModelPlotter(object):
         header_lines=2,
         show_edges=True,
     ):
-        """Add a field file to the scenario. It can be aedtplt, fld or csv file.
+        """Add a field file to the scenario.
+        It can be aedtplt, fld or csv file or any txt file with 4 column [x,y,z,field].
+        If text file they have to be space separated column.
 
         Parameters
         ----------
@@ -868,12 +870,12 @@ class ModelPlotter(object):
         if self.show_grid and not self.is_notebook:
             self.pv.show_grid(color=tuple(axes_color))
         self.pv.add_bounding_box(color=tuple(axes_color))
+        self.pv.set_focus( self.pv.mesh.center)
         self.pv.camera_position = self.camera_position
         self.pv.camera.azimuth += self.azimuth_angle
         self.pv.camera.roll += self.roll_angle
         self.pv.camera.elevation += self.elevation_angle
         self.pv.camera.zoom(self.zoom)
-
         if export_image_path:
             self.pv.show(screenshot=export_image_path, full_screen=True)
         elif self.is_notebook:
