@@ -949,6 +949,8 @@ class ModelPlotter(object):
             for m in self.fields:
                 labels.append([m.name, "red"])
             self.pv.add_legend(labels=labels, bcolor=None, face="circle", size=[0.15, 0.15])
+        if not self.pv.off_screen:
+            self.pv.set_focus(self.pv.mesh.center)
         self.pv.camera_position = self.camera_position
         self.pv.camera.azimuth += self.azimuth_angle
         self.pv.camera.roll += self.roll_angle
