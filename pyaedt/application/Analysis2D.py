@@ -177,13 +177,15 @@ class FieldAnalysis2D(Analysis):
         elif self._aedt_version < "2021.2":
             self.logger.warning("Plot is supported from AEDT 2021 R2.")
         else:
-            return self.post.plot_model_obj(objects=objects,
-                                            show=show,
-                                            export_path=export_path,
-                                            plot_as_separate_objects=plot_as_separate_objects,
-                                            plot_air_objects=plot_air_objects,
-                                            force_opacity_value=force_opacity_value,
-                                            clean_files=clean_files,)
+            return self.post.plot_model_obj(
+                objects=objects,
+                show=show,
+                export_path=export_path,
+                plot_as_separate_objects=plot_as_separate_objects,
+                plot_air_objects=plot_air_objects,
+                force_opacity_value=force_opacity_value,
+                clean_files=clean_files,
+            )
 
     @aedt_exception_handler
     def export_mesh_stats(self, setup_name, variation_string="", mesh_path=None):

@@ -33,7 +33,7 @@ q = Q3d(specified_version="2021.2", non_graphical=NonGraphical, new_desktop_sess
 # ~~~~~~~~~~~~~~~~~
 # Create polylines for three busbars and a box for the substrate.
 
-b1=q.modeler.primitives.create_polyline(
+b1 = q.modeler.primitives.create_polyline(
     [[0, 0, 0], [-100, 0, 0]],
     name="Bar1",
     matname="copper",

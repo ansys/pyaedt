@@ -222,7 +222,7 @@ class ModelPlotter(object):
         self.off_screen = False
         self.windows_size = [1024, 768]
         self.pv = None
-        self._orientation = ['xy', 0, 0, 0]
+        self._orientation = ["xy", 0, 0, 0]
         self.units = "meter"
         self.frame_per_seconds = 3
         self._plot_meshes = []
@@ -234,9 +234,8 @@ class ModelPlotter(object):
         self.azimuth_angle = 45
         self.elevation_angle = 45
 
-
     @aedt_exception_handler
-    def orientation(self, camera_position="xy",  roll_angle=45, azimuth_angle=45, elevation_angle=45):
+    def orientation(self, camera_position="xy", roll_angle=45, azimuth_angle=45, elevation_angle=45):
         if camera_position in ["xy", "yz", "xz"]:
             self.camera_position = camera_position
         else:
@@ -244,7 +243,6 @@ class ModelPlotter(object):
         self.roll_angle = roll_angle
         self.azimuth_angle = azimuth_angle
         self.elevation_angle = elevation_angle
-
 
     @property
     def background_color(self):
@@ -785,8 +783,9 @@ class ModelPlotter(object):
                 color_off=axes_color,
             )
             self.pv.add_text("Next", position=(50.0, self.pv.window_size[1]), font_size=size // 3, color="grey")
-            self.pv.button_widgets.insert(0, self.pv.button_widgets.pop(
-                self.pv.button_widgets.index(self.pv.button_widgets[-1])))
+            self.pv.button_widgets.insert(
+                0, self.pv.button_widgets.pop(self.pv.button_widgets.index(self.pv.button_widgets[-1]))
+            )
 
     @aedt_exception_handler
     def plot(self, export_image_path=None):
@@ -1239,9 +1238,7 @@ class PostProcessor(Post):
         if export_as_single_objects:
             files_exported = []
             for el in obj_list:
-                fname = os.path.join(
-                    export_path, "Model_{}.obj".format(el)
-                )
+                fname = os.path.join(export_path, "Model_{}.obj".format(el))
                 self._app.modeler.oeditor.ExportModelMeshToFile(fname, [el])
                 if not self._app.modeler[el].display_wireframe:
                     files_exported.append([fname, self._app.modeler[el].color, 1 - self._app.modeler[el].transparency])
@@ -1493,7 +1490,7 @@ class PostProcessor(Post):
         models_to_add = []
         if meshplot:
             if self._app._aedt_version >= "2021.2":
-                 models_to_add = self.export_model_obj(export_as_single_objects=True, air_objects=False)
+                models_to_add = self.export_model_obj(export_as_single_objects=True, air_objects=False)
         fields_to_add = []
         if not project_path:
             project_path = self._app.project_path
