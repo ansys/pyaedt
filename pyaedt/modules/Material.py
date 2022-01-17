@@ -39,9 +39,6 @@ class MatProperties(object):
         "diffusivity",
         "molecular_mass",
         "viscosity",
-        "core_loss_kh",
-        "core_loss_kc",
-        "core_loss_ke",
     ]
     defaultvalue = [1.0, 1.0, 0, 0, 0, 0.01, 0, 0, 0, 0, 0, 0.8, 0, 0, 0, 0, 0, 0]
     defaultunit = [
@@ -1298,69 +1295,260 @@ class Material(CommonMaterial, object):
         self._viscosity.value = value
         self._update_props("viscosity", value)
 
-    @property
-    def core_loss_kh(self):
-        """Core loss in kilohertz.
+    @aedt_exception_handler
+    def set_magnetic_coercitivity(self, value=0, x=1, y=0, z=0):
+        """Set Magnetic Coercitivity for material.
+
+        Parameters
+        ----------
+        value : float
+            Magnitude in A_per_meter.
+        x : float
+            Vector x component.
+        y : float
+            Vector y component.
+        z : float
+            Vector z component.
 
         Returns
         -------
-        :class:`pyaedt.modules.Material.MatProperty`
-            Core loss of the material in kilohertz.
-
-        References
-        ----------
-
-        >>> oDefinitionManager.EditMaterial
+        bool
         """
-        return self._core_loss_kh
+        self._props["magnetic_coercivity"] = OrderedDict(
+            {
+                "property_type": "VectorProperty",
+                "Magnitude": "{}A_per_meter".format(value),
+                "DirComp1": str(x),
+                "DirComp2": str(y),
+                "DirComp3": str(z),
+            }
+        )
+        return self.update()
 
-    @core_loss_kh.setter
-    def core_loss_kh(self, value):
-        self._core_loss_kh.value = value
-        self._update_props("core_loss_kh", value)
+    @aedt_exception_handler
+    def set_electrical_steel_coreloss(self, kh=0, kc=0, ke=0, kdc=0, cut_depth=0.0001):
+        """Set Electrical Steel Type Core Loss.
 
-    @property
-    def core_loss_kc(self):
-        """Core loss in kilocalories.
+        Parameters
+        ----------
+        kh : float
+        kc : float
+        ke : float
+        kdc : float
+        cut_depth : float
 
         Returns
         -------
-        :class:`pyaedt.modules.Material.MatProperty`
-            Core loss of the material in kilocalories.
-
-        References
-        ----------
-
-        >>> oDefinitionManager.EditMaterial
+        bool
         """
-        return self._core_loss_kc
+        if "core_loss_type" not in self._props:
+            self._props["core_loss_type"] = OrderedDict(
+                {"property_type": "ChoiceProperty", "Choice": "Electrical Steel"}
+            )
+        else:
+            self._props.pop("core_loss_cm", None)
+            self._props.pop("core_loss_x", None)
+            self._props.pop("core_loss_y", None)
+            self._props.pop("core_loss_hci", None)
+            self._props.pop("core_loss_br", None)
+            self._props.pop("core_loss_hkc", None)
+            self._props.pop("core_loss_curves", None)
+            self._props["core_loss_type"]["Choice"] = "Electrical Steel"
+        self._props["core_loss_kh"] = str(kh)
+        self._props["core_loss_kc"] = str(kc)
+        self._props["core_loss_ke"] = str(ke)
+        self._props["core_loss_kdc"] = str(kdc)
+        self._props["core_loss_equiv_cut_depth"] = "{}meter".format(cut_depth)
+        return self.update()
 
-    @core_loss_kc.setter
-    def core_loss_kc(self, value):
-        self._core_loss_kc.value = value
-        self._update_props("core_loss_kc", value)
+    @aedt_exception_handler
+    def set_hysteresis_coreloss(self, kdc=0, hci=0, br=0, hkc=0, cut_depth=0.0001):
+        """Set Hysteresys Type Core Loss.
 
-    @property
-    def core_loss_ke(self):
-        """Core loss in kinetic energy.
+        Parameters
+        ----------
+        kdc : float
+        hci : float
+        br : float
+        hkc : float
+        cut_depth : float
 
         Returns
         -------
-        :class:`pyaedt.modules.Material.MatProperty`
-            Core loss of the material in kinetic energy.
-
-        References
-        ----------
-
-        >>> oDefinitionManager.EditMaterial
+        bool
         """
-        return self._core_loss_ke
+        if "core_loss_type" not in self._props:
+            self._props["core_loss_type"] = OrderedDict(
+                {"property_type": "ChoiceProperty", "Choice": "Hysteresis Model"}
+            )
+        else:
+            self._props.pop("core_loss_kh", None)
+            self._props.pop("core_loss_kc", None)
+            self._props.pop("core_loss_ke", None)
+            self._props.pop("core_loss_cm", None)
+            self._props.pop("core_loss_x", None)
+            self._props.pop("core_loss_y", None)
+            self._props.pop("core_loss_hci", None)
+            self._props.pop("core_loss_br", None)
+            self._props.pop("core_loss_hkc", None)
+            self._props.pop("core_loss_curves", None)
+            self._props["core_loss_type"]["Choice"] = "Hysteresis Model"
+        self._props["core_loss_hci"] = "{}A_per_meter".format(hci)
+        self._props["core_loss_br"] = "{}tesla".format(br)
+        self._props["core_loss_hkc"] = str(hkc)
+        self._props["core_loss_kdc"] = str(kdc)
+        self._props["core_loss_equiv_cut_depth"] = "{}meter".format(cut_depth)
+        return self.update()
 
-    @core_loss_ke.setter
-    def core_loss_ke(self, value):
-        self._core_loss_ke.value = value
-        self._update_props("core_loss_ke", value)
+    @aedt_exception_handler
+    def set_power_ferrite_coreloss(self, cm=0, x=0, y=0, kdc=0, cut_depth=0.0001):
+        """Set Power Ferrite Type Core Loss.
 
+        Parameters
+        ----------
+        cm : float
+        x : float
+        y : float
+        kdc : float
+        cut_depth : float
+
+        Returns
+        -------
+        bool
+        """
+        if "core_loss_type" not in self._props:
+            self._props["core_loss_type"] = OrderedDict({"property_type": "ChoiceProperty", "Choice": "Power Ferrite"})
+        else:
+            self._props.pop("core_loss_kh", None)
+            self._props.pop("core_loss_kc", None)
+            self._props.pop("core_loss_ke", None)
+            self._props.pop("core_loss_cm", None)
+            self._props.pop("core_loss_x", None)
+            self._props.pop("core_loss_y", None)
+            self._props.pop("core_loss_hci", None)
+            self._props.pop("core_loss_br", None)
+            self._props.pop("core_loss_hkc", None)
+            self._props.pop("core_loss_curves", None)
+            self._props["core_loss_type"]["Choice"] = "Power Ferrite"
+        self._props["core_loss_cm"] = "{}A_per_meter".format(cm)
+        self._props["core_loss_x"] = "{}tesla".format(x)
+        self._props["core_loss_y"] = str(y)
+        self._props["core_loss_kdc"] = str(kdc)
+        self._props["core_loss_equiv_cut_depth"] = "{}meter".format(cut_depth)
+        return self.update()
+
+    @aedt_exception_handler
+    def set_bp_curve_coreloss(
+        self, point_list, kdc=0, cut_depth=0.0001, punit="kw/m^3", bunit="tesla", frequency=60, thickness="0.5mm"
+    ):
+        """Set B-P Type Core Loss.
+
+        Parameters
+        ----------
+        point_list : list of list
+            List of [x,y] points.
+        kdc : float
+        cut_depth : float
+        punit : str
+        bunit : str
+        frequency : float
+        thickness : str
+
+        Returns
+        -------
+        bool
+        """
+        if "core_loss_type" not in self._props:
+            self._props["core_loss_type"] = OrderedDict({"property_type": "ChoiceProperty", "Choice": "B-P Curve"})
+        else:
+            self._props.pop("core_loss_kh", None)
+            self._props.pop("core_loss_kc", None)
+            self._props.pop("core_loss_ke", None)
+            self._props.pop("core_loss_cm", None)
+            self._props.pop("core_loss_x", None)
+            self._props.pop("core_loss_y", None)
+            self._props.pop("core_loss_hci", None)
+            self._props.pop("core_loss_br", None)
+            self._props.pop("core_loss_hkc", None)
+            self._props.pop("core_loss_curves", None)
+            self._props["core_loss_type"]["Choice"] = "B-P Curve"
+        self._props["core_loss_kdc"] = str(kdc)
+        self._props["core_loss_equiv_cut_depth"] = "{}meter".format(cut_depth)
+        self._props["core_loss_curves"] = OrderedDict({})
+        self._props["core_loss_curves"]["property_type"] = "nonlinear"
+        self._props["core_loss_curves"]["PUnit"] = punit
+        self._props["core_loss_curves"]["BUnit"] = bunit
+        self._props["core_loss_curves"]["Frequency"] = "{}Hz".format(frequency)
+        self._props["core_loss_curves"]["Thickness"] = thickness
+        self._props["core_loss_curves"]["IsTemperatureDependent"] = False
+        self._props["core_loss_curves"]["Point"] = []
+        for points in point_list:
+            self._props["core_loss_curves"]["Point"].append(points)
+        return self.update()
+
+    @aedt_exception_handler
+    def get_curve_coreloss_type(self):
+        """Return the curve core loss type assigned to material.
+
+        Returns
+        -------
+        str
+        """
+        return self._props.get("core_loss_type", None)
+
+    @aedt_exception_handler
+    def get_curve_coreloss_values(self):
+        """Return the curve core loss type assigned to material.
+
+        Returns
+        -------
+        dict
+        """
+        out = {}
+        if self._props.get("core_loss_type", None) == "Electrical Steel":
+
+            out["core_loss_kh"] = self._props["core_loss_kh"]
+            out["core_loss_kc"] = self._props["core_loss_kc"]
+            out["core_loss_ke"] = self._props["core_loss_ke"]
+            out["core_loss_kdc"] = self._props["core_loss_kdc"]
+            out["core_loss_equiv_cut_depth"] = self._props["core_loss_equiv_cut_depth"]
+        elif self._props.get("core_loss_type", None) == "B-P Curve":
+            out["core_loss_curves"] = self._props["core_loss_curves"]
+            out["core_loss_kdc"] = self._props["core_loss_kdc"]
+            out["core_loss_equiv_cut_depth"] = self._props["core_loss_equiv_cut_depth"]
+        if self._props.get("core_loss_type", None) == "Power Ferrite":
+            out["core_loss_cm"] = self._props["core_loss_cm"]
+            out["core_loss_x"] = self._props["core_loss_x"]
+            out["core_loss_y"] = self._props["core_loss_y"]
+            out["core_loss_kdc"] = self._props["core_loss_kdc"]
+            out["core_loss_equiv_cut_depth"] = self._props["core_loss_equiv_cut_depth"]
+        elif self._props.get("core_loss_type", None) == "Hysteresis Model":
+            out["core_loss_hci"] = self._props["core_loss_hci"]
+            out["core_loss_br"] = self._props["core_loss_br"]
+            out["core_loss_hkc"] = self._props["core_loss_hkc"]
+            out["core_loss_kdc"] = self._props["core_loss_kdc"]
+            out["core_loss_equiv_cut_depth"] = self._props["core_loss_equiv_cut_depth"]
+        return out
+
+    @aedt_exception_handler
+    def get_magnetic_coercitivity(self):
+        """Get the magnetic coercitivity values.
+
+        Returns
+        -------
+        tuple
+            Tuple of (Magnitude, x, y, z)
+        """
+        if "magnetic_coercivity" in self._props:
+            return (
+                self._props["magnetic_coercivity"]["Magnitude"],
+                self._props["magnetic_coercivity"]["DirComp1"],
+                self._props["magnetic_coercivity"]["DirComp2"],
+                self._props["magnetic_coercivity"]["DirComp2"],
+            )
+        return False
+
+    @aedt_exception_handler
     def is_conductor(self, threshold=100000):
         """Check if the material is a conductor.
 

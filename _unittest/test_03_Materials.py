@@ -56,18 +56,12 @@ class TestClass:
         assert mat1.diffusivity.value == MatProperties.get_defaultvalue(aedtname="diffusivity")
 
         assert "Electromagnetic" in mat1.physics_type
-        mat1.core_loss_kc.value = MatProperties.get_defaultvalue(aedtname="core_loss_kc")
-        mat1.core_loss_kh.value = MatProperties.get_defaultvalue(aedtname="core_loss_kh")
-        mat1.core_loss_ke.value = MatProperties.get_defaultvalue(aedtname="core_loss_ke")
         mat1.molecular_mass.value = MatProperties.get_defaultvalue(aedtname="molecular_mass")
         mat1.specific_heat.value = MatProperties.get_defaultvalue(aedtname="specific_heat")
         mat1.thermal_expansion_coefficient.value = MatProperties.get_defaultvalue(
             aedtname="thermal_expansion_coefficient"
         )
 
-        assert mat1.core_loss_kc.value == MatProperties.get_defaultvalue(aedtname="core_loss_kc")
-        assert mat1.core_loss_kh.value == MatProperties.get_defaultvalue(aedtname="core_loss_kh")
-        assert mat1.core_loss_ke.value == MatProperties.get_defaultvalue(aedtname="core_loss_ke")
         assert mat1.coordinate_system == "Cartesian"
         assert mat1.name == "new_copper2"
         assert mat1.molecular_mass.value == MatProperties.get_defaultvalue(aedtname="molecular_mass")
