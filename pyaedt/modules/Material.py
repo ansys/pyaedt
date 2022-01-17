@@ -1363,7 +1363,7 @@ class Material(CommonMaterial, object):
 
     @aedt_exception_handler
     def set_hysteresis_coreloss(self, kdc=0, hci=0, br=0, hkc=0, cut_depth=0.0001):
-        """Set Hysteresys Type Core Loss.
+        """Set Hysteresis Type Core Loss.
 
         Parameters
         ----------
