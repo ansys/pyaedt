@@ -476,7 +476,7 @@ class FieldAnalysisIcepak(Analysis, object):
             Mat = self.materials.material_keys[mat]
             if mat_exists:
                 Mat.update()
-            self.logger.info("Assign Material " + mat + " to object " + selections)
+            self.logger.info("Assign Material " + mat + " to object " + str(selections))
             for el in selections:
                 self.modeler.primitives[el].material_name = mat
                 self.modeler.primitives[el].color = self.materials.material_keys[mat].material_appearance

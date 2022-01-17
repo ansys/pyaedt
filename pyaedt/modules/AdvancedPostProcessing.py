@@ -237,7 +237,7 @@ class ModelPlotter(object):
 
     @aedt_exception_handler
     def orientation(self, camera_position="xy", roll_angle=0, azimuth_angle=45, elevation_angle=20):
-        """Change the plot default orientation
+        """Change the plot default orientation.
 
         Parameters
         ----------

@@ -30,6 +30,7 @@ class Materials(object):
 
     def __init__(self, app):
         self._app = app
+        self._color_id = 0
         self.odefinition_manager = self._app.odefinition_manager
         self.omaterial_manager = self._app.omaterial_manager
         self._desktop = self._app.odesktop
