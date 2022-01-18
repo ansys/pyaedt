@@ -114,9 +114,21 @@ solutions_types = {
         },
     },
     "Twin Builder": {
-        "TR": {"name": None, "options": None, "report_type": None, "default_setup": 35, "default_adaptive": None},
-        "AC": {"name": None, "options": None, "report_type": None, "default_setup": None, "default_adaptive": None},
-        "DC": {"name": None, "options": None, "report_type": None, "default_setup": None, "default_adaptive": None},
+        "TR": {"name": None, "options": None, "report_type": "Standard", "default_setup": 35, "default_adaptive": None},
+        "AC": {
+            "name": None,
+            "options": None,
+            "report_type": "Standard",
+            "default_setup": None,
+            "default_adaptive": None,
+        },
+        "DC": {
+            "name": None,
+            "options": None,
+            "report_type": "Standard",
+            "default_setup": None,
+            "default_adaptive": None,
+        },
     },
     "Circuit Design": {
         "NexximLNA": {
@@ -220,13 +232,19 @@ solutions_types = {
         "TR": {"name": None, "options": None, "report_type": "Standard", "default_setup": 17, "default_adaptive": None},
     },
     "2D Extractor": {
-        "Open": {"name": "Open", "options": None, "report_type": None, "default_setup": 30, "default_adaptive": None},
+        "Open": {
+            "name": "Open",
+            "options": None,
+            "report_type": "Matrix",
+            "default_setup": 30,
+            "default_adaptive": "LastAdaptive",
+        },
         "Closed": {
             "name": "Closed",
             "options": None,
-            "report_type": None,
+            "report_type": "Matrix",
             "default_setup": 31,
-            "default_adaptive": None,
+            "default_adaptive": "LastAdaptive",
         },
     },
     "Q3D Extractor": {
@@ -235,7 +253,7 @@ solutions_types = {
             "options": None,
             "report_type": "Matrix",
             "default_setup": 14,
-            "default_adaptive": None,
+            "default_adaptive": "LastAdaptive",
         }
     },
     "HFSS": {

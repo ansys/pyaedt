@@ -30,6 +30,7 @@ class Materials(object):
 
     def __init__(self, app):
         self._app = app
+        self._color_id = 0
         self.odefinition_manager = self._app.odefinition_manager
         self.omaterial_manager = self._app.omaterial_manager
         self._desktop = self._app.odesktop
@@ -336,7 +337,7 @@ class Materials(object):
 
         mat_dict = self._create_mat_project_vars(matsweep)
 
-        newmat = Material(self._app, matname)
+        newmat = Material(self, matname)
         index = "$ID" + matname
         self._app[index] = 0
         for el in mat_dict:

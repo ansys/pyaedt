@@ -136,6 +136,7 @@ aedtapp.create_wave_port_between_objects("inner", "outer", axisdir=3, add_pec_ca
 portnames = aedtapp.get_all_sources()
 aedtapp.modeler.fit_all()
 
+
 ###############################################################################
 # Generate a Setup
 # ~~~~~~~~~~~~~~~~
@@ -254,11 +255,9 @@ aedtapp.post.plot_field_from_fieldplot(
     plot1.name,
     project_path=results_folder,
     meshplot=False,
-    setup_name=setup_name,
-    intrinsic_dict=intrinsic,
     imageformat="jpg",
     view="isometric",
-    off_screen=True,
+    show=False,
 )
 
 ################################################################################
@@ -281,7 +280,7 @@ aedtapp.post.animate_fields_from_aedtplt_2(
     project_path=results_folder,
     variation_variable="Phase",
     variation_list=phases,
-    off_screen=True,
+    show=False,
     export_gif=True,
 )
 endtime = time.time() - start
@@ -303,10 +302,9 @@ ipkapp.post.plot_field_from_fieldplot(
     plot5.name,
     project_path=results_folder,
     meshplot=False,
-    setup_name=setup_name,
     imageformat="jpg",
     view="isometric",
-    off_screen=True,
+    show=False,
 )
 
 aedtapp.save_project()
