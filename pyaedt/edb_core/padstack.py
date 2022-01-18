@@ -599,6 +599,47 @@ class EdbPadstacks(object):
         return True
 
     @aedt_exception_handler
+    def set_pad_property(self, padstack_name, layer_name=None, pad_shape="Circle", pad_params=0,
+                          pad_x_offset=0, pad_y_offset=0, pad_rotation=0, antipad_shape="Circle",
+                         antipad_params=0, antipad_x_offset=0, antipad_y_offset=0, antipad_rotation=0):
+        shape_dict = {"Circle": 1,
+                      "Square": 2,
+                      "Rectangle": 3,
+                      "Oval": 4,
+                      "Bullet": 5,
+                      }
+        pad_shape = shape_dict[pad_shape]
+        if not isinstance(pad_params, list):
+            pad_params = [pad_params]
+        pad_params = convert_py_list_to_net_list([self._edb_value(i) for i in pad_params])
+        pad_x_offset = self._edb_value(pad_x_offset)
+        pad_y_offset = self._edb_value(pad_y_offset)
+        pad_rotation = self._edb_value(pad_rotation)
+
+        antipad_shape = shape_dict[antipad_shape]
+        if not isinstance(antipad_params, list):
+            antipad_params = [antipad_params]
+        antipad_params = convert_py_list_to_net_list([self._edb_value(i) for i in antipad_params])
+        antipad_x_offset = self._edb_value(antipad_x_offset)
+        antipad_y_offset = self._edb_value(antipad_y_offset)
+        antipad_rotation = self._edb_value(antipad_rotation)
+
+        p1 = self.padstacks[padstack_name].edb_padstack.GetData()
+        new_padstack_def = self._edb.Definition.PadstackDefData(p1)
+        if not layer_name:
+            layer_name = list(self._pedb.core_stackup.signal_layers.keys())
+        elif isinstance(layer_name, str):
+            layer_name = [layer_name]
+        for layer in layer_name:
+            new_padstack_def.SetPadParameters(layer, 0, pad_shape, pad_params,
+                                              pad_x_offset, pad_y_offset, pad_rotation)
+            new_padstack_def.SetPadParameters(layer, 1, antipad_shape, antipad_params,
+                                              antipad_x_offset, antipad_y_offset, antipad_rotation)
+        self.padstacks[padstack_name].edb_padstack.SetData(new_padstack_def)
+        self.update_padstacks()
+        return True
+
+    @aedt_exception_handler
     def update_padstack_instances(self):
         """Update Padstack Instance List."""
         layout_lobj_collection = self._active_layout.GetLayoutInstance().GetAllLayoutObjInstances()
