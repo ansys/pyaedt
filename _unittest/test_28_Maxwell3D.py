@@ -164,8 +164,8 @@ class TestClass:
             udptye="Solid",
         )
         assert udp
-        assert udp.name == 'MyClawPoleCore'
-        assert 'MyClawPoleCore' in udp._primitives.object_names
+        assert udp.name == "MyClawPoleCore"
+        assert "MyClawPoleCore" in udp._primitives.object_names
 
         # Test udp with default name -None-.
         second_udp = self.aedtapp.modeler.primitives.create_udp(
@@ -175,8 +175,8 @@ class TestClass:
             udptye="Solid",
         )
         assert second_udp
-        assert second_udp.name == 'ClawPoleCore'
-        assert 'ClawPoleCore' in udp._primitives.object_names
+        assert second_udp.name == "ClawPoleCore"
+        assert "ClawPoleCore" in udp._primitives.object_names
 
     @pytest.mark.skipif(os.name == "posix", reason="Feature not supported in Linux")
     def test_27_create_udm(self):
