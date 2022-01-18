@@ -614,6 +614,27 @@ class EdbPadstacks(object):
         antipad_y_offset=0,
         antipad_rotation=0,
     ):
+        """Set pad and antipad properites of the padstack.
+
+        Parameters
+        ----------
+        padstack_name :
+        layer_name :
+        pad_shape :
+        pad_params :
+        pad_x_offset :
+        pad_y_offset :
+        pad_rotation :
+        antipad_shape :
+        antipad_params :
+        antipad_x_offset :
+        antipad_y_offset :
+        antipad_rotation :
+
+        Returns
+        -------
+
+        """
         shape_dict = {
             "Circle": 1,
             "Square": 2,
