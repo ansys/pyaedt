@@ -167,6 +167,58 @@ class FieldAnalysis3D(Analysis, object):
         return components_dict
 
     @aedt_exception_handler
+    def plot(
+        self,
+        objects=None,
+        show=True,
+        export_path=None,
+        plot_as_separate_objects=True,
+        plot_air_objects=True,
+        force_opacity_value=None,
+        clean_files=False,
+    ):
+        """Plot the model or a substet of objects.
+
+        Parameters
+        ----------
+        objects : list, optional
+            Optional list of objects to plot. If `None` all objects will be exported.
+        show : bool, optional
+            Show the plot after generation or simply return the
+            generated Class for more customization before plot.
+        export_path : str, optional
+            If available, an image is saved to file. If `None` no image will be saved.
+        plot_as_separate_objects : bool, optional
+            Plot each object separately. It may require more time to export from AEDT.
+        plot_air_objects : bool, optional
+            Plot also air and vacuum objects.
+        force_opacity_value : float, optional
+            Opacity value between 0 and 1 to be applied to all model.
+            If `None` aedt opacity will be applied to each object.
+        clean_files : bool, optional
+            Clean created files after plot. Cache is mainteined into the model object returned.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.AdvancedPostProcessing.ModelPlotter`
+            Model Object.
+        """
+        if is_ironpython:
+            self.logger.warning("Plot is available only on CPython")
+        elif self._aedt_version < "2021.2":
+            self.logger.warning("Plot is supported from AEDT 2021 R2.")
+        else:
+            return self.post.plot_model_obj(
+                objects=objects,
+                show=show,
+                export_path=export_path,
+                plot_as_separate_objects=plot_as_separate_objects,
+                plot_air_objects=plot_air_objects,
+                force_opacity_value=force_opacity_value,
+                clean_files=clean_files,
+            )
+
+    @aedt_exception_handler
     def export_mesh_stats(self, setup_name, variation_string="", mesh_path=None):
         """Export mesh statistics to a file.
 
@@ -546,41 +598,23 @@ class FieldAnalysis3D(Analysis, object):
         >>> hfss.assign_material(obj_names_list, "aluminum")
         """
         mat = mat.lower()
-        selections = self.modeler.convert_to_selections(obj)
-        arg1 = ["NAME:Selections"]
-        arg1.append("Selections:="), arg1.append(selections)
-        arg2 = ["NAME:Attributes"]
-        arg2.append("MaterialValue:="), arg2.append(chr(34) + mat + chr(34))
-        if mat in self.materials.material_keys:
-            Mat = self.materials.material_keys[mat]
-            Mat.update()
-            if Mat.is_dielectric():
-                arg2.append("SolveInside:="), arg2.append(True)
-            else:
-                arg2.append("SolveInside:="), arg2.append(False)
-            self.modeler.oeditor.AssignMaterial(arg1, arg2)
-            self.logger.info("Assign Material " + mat + " to object " + selections)
-            if isinstance(obj, list):
-                for el in obj:
-                    self.modeler.primitives[el].material_name = mat
-            else:
-                self.modeler.primitives[obj].material_name = mat
-            return True
-        elif self.materials.checkifmaterialexists(mat):
-            self.materials._aedmattolibrary(mat)
-            Mat = self.materials.material_keys[mat]
-            if Mat.is_dielectric():
-                arg2.append("SolveInside:="), arg2.append(True)
-            else:
-                arg2.append("SolveInside:="), arg2.append(False)
-            self.modeler.oeditor.AssignMaterial(arg1, arg2)
-            self.logger.info("Assign Material " + mat + " to object " + selections)
-            if isinstance(obj, list):
-                for el in obj:
-                    self.modeler.primitives[el].material_name = mat
-            else:
-                self.modeler.primitives[obj].material_name = mat
+        selections = self.modeler.convert_to_selections(obj, True)
 
+        mat_exists = False
+        if mat in self.materials.material_keys:
+            mat_exists = True
+        if mat_exists or self.materials.checkifmaterialexists(mat):
+            Mat = self.materials.material_keys[mat]
+            if mat_exists:
+                Mat.update()
+            self.logger.info("Assign Material " + mat + " to object " + str(selections))
+            for el in selections:
+                self.modeler.primitives[el].material_name = mat
+                self.modeler.primitives[el].color = self.materials.material_keys[mat].material_appearance
+                if Mat.is_dielectric():
+                    self.modeler.primitives[el].solve_inside = True
+                else:
+                    self.modeler.primitives[el].solve_inside = False
             return True
         else:
             self.logger.error("Material does not exist.")

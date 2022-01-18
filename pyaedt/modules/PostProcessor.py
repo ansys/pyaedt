@@ -952,12 +952,10 @@ class FieldPlot:
                 self.name,
                 project_path=export_path,
                 meshplot=plot_mesh,
-                setup_name=self.solutionName,
-                intrinsic_dict=self.intrinsincList,
                 imageformat="jpg",
                 view=view,
                 plot_label=self.quantityName,
-                off_screen=True,
+                show=False,
                 scale_min=scale_min,
                 scale_max=scale_max,
             )
@@ -2216,8 +2214,8 @@ class PostProcessor(PostProcessorCommon, object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        str
+            File Path when succeeded.
 
         References
         ----------

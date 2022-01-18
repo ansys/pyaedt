@@ -28,7 +28,7 @@ class EdbPadstacks(object):
     def __init__(self, p_edb):
         self._pedb = p_edb
         self._padstacks = {}
-        self._padstack_instances = []
+        self._padstack_instances = {}
 
     @property
     def _builder(self):
@@ -507,6 +507,7 @@ class EdbPadstacks(object):
         fromlayer=None,
         tolayer=None,
         solderlayer=None,
+        is_pin=False,
     ):
         """Place the padstack.
 
@@ -554,10 +555,12 @@ class EdbPadstacks(object):
         if solderlayer:
             solderlayer = self._pedb.core_stackup.signal_layers[solderlayer]._layer
         if padstack:
-            via = self._edb.Cell.Primitive.PadstackInstance.Create(
+            padstack_instance = self._edb.Cell.Primitive.PadstackInstance.Create(
                 self._active_layout, net, via_name, padstack, position, rotation, fromlayer, tolayer, solderlayer, None
             )
-            return via
+            padstack_instance.SetIsLayoutPin(is_pin)
+            self.update_padstack_instances()
+            return padstack_instance.GetId()
         else:
             return False
 
@@ -599,11 +602,11 @@ class EdbPadstacks(object):
     def update_padstack_instances(self):
         """Update Padstack Instance List."""
         layout_lobj_collection = self._active_layout.GetLayoutInstance().GetAllLayoutObjInstances()
-        self._padstack_instances = []
+        self._padstack_instances = {}
         for obj in layout_lobj_collection.Items:
             lobj = obj.GetLayoutObj()
             if type(lobj) is self._edb.Cell.Primitive.PadstackInstance:
-                self._padstack_instances.append(EDBPadstackInstance(lobj, self._pedb))
+                self._padstack_instances[lobj.GetId()] = EDBPadstackInstance(lobj, self._pedb)
 
     @aedt_exception_handler
     def get_padstack_instance_by_net_name(self, net_name):
@@ -617,8 +620,8 @@ class EdbPadstacks(object):
         -------
         list of Edb.Cell.Primitive.PadstackInstance
         """
-        via_list = []
-        for inst in self.padstack_instances:
+        padstack_instances = {}
+        for inst_id, inst in self.padstack_instances.items():
             if inst.net_name == net_name:
-                via_list.append(inst)
-        return via_list
+                padstack_instances[inst_id] = inst
+        return padstack_instances

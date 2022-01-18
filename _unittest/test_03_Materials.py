@@ -56,18 +56,12 @@ class TestClass:
         assert mat1.diffusivity.value == MatProperties.get_defaultvalue(aedtname="diffusivity")
 
         assert "Electromagnetic" in mat1.physics_type
-        mat1.core_loss_kc.value = MatProperties.get_defaultvalue(aedtname="core_loss_kc")
-        mat1.core_loss_kh.value = MatProperties.get_defaultvalue(aedtname="core_loss_kh")
-        mat1.core_loss_ke.value = MatProperties.get_defaultvalue(aedtname="core_loss_ke")
         mat1.molecular_mass.value = MatProperties.get_defaultvalue(aedtname="molecular_mass")
         mat1.specific_heat.value = MatProperties.get_defaultvalue(aedtname="specific_heat")
         mat1.thermal_expansion_coefficient.value = MatProperties.get_defaultvalue(
             aedtname="thermal_expansion_coefficient"
         )
 
-        assert mat1.core_loss_kc.value == MatProperties.get_defaultvalue(aedtname="core_loss_kc")
-        assert mat1.core_loss_kh.value == MatProperties.get_defaultvalue(aedtname="core_loss_kh")
-        assert mat1.core_loss_ke.value == MatProperties.get_defaultvalue(aedtname="core_loss_ke")
         assert mat1.coordinate_system == "Cartesian"
         assert mat1.name == "new_copper2"
         assert mat1.molecular_mass.value == MatProperties.get_defaultvalue(aedtname="molecular_mass")
@@ -78,7 +72,19 @@ class TestClass:
         assert self.aedtapp.change_validation_settings()
         assert self.aedtapp.change_validation_settings(ignore_unclassified=True, skip_intersections=True)
 
-        assert mat1.material_appearance == [128, 128, 128]
+        assert mat1.set_magnetic_coercitivity(1, 2, 3, 4)
+        assert mat1.get_magnetic_coercitivity() == ("1A_per_meter", "2", "3", "4")
+        assert mat1.set_electrical_steel_coreloss(1, 2, 3, 4, 0.002)
+        assert mat1.get_curve_coreloss_type() == "Electrical Steel"
+        assert mat1.get_curve_coreloss_values()["core_loss_equiv_cut_depth"] == "0.002meter"
+        assert mat1.set_hysteresis_coreloss(1, 2, 3, 4, 0.002)
+        assert mat1.get_curve_coreloss_type() == "Hysteresis Model"
+        assert mat1.set_bp_curve_coreloss([[0, 0], [10, 10], [20, 20]])
+        assert mat1.get_curve_coreloss_type() == "B-P Curve"
+        assert mat1.set_power_ferrite_coreloss()
+        assert mat1.get_curve_coreloss_type() == "Power Ferrite"
+        assert isinstance(mat1.material_appearance, list)
+
         mat1.material_appearance = [11, 22, 0]
         assert mat1.material_appearance == [11, 22, 0]
         mat1.material_appearance = ["11", "22", "10"]

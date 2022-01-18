@@ -2337,7 +2337,7 @@ class GeometryModeler(Modeler, object):
         num_objects = len(theList)
         remaining = num_objects
         objs_groups = []
-        while remaining > 0:
+        while remaining > 1:
             objs = theList[:slice]
             szSelections = self.convert_to_selections(objs)
             vArg1 = ["NAME:Selections", "Selections:=", szSelections]
@@ -2347,6 +2347,8 @@ class GeometryModeler(Modeler, object):
             remaining -= slice
             if remaining > 0:
                 theList = theList[slice:]
+        if remaining > 0:
+            objs_groups.extend(theList)
         self.primitives.cleanup_objects()
         if len(objs_groups) > 1:
             return self.unite(objs_groups)
