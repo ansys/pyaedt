@@ -1244,6 +1244,28 @@ class EDBPadProperties(object):
         padparams = self._padstack_methods.GetPadParametersValue(self._edb_padstack, self.layer_name, self.pad_type)
         return int(padparams.Item1)
 
+    @geometry_type.setter
+    def geometry_type(self, geom_type):
+        """0, NoGeometry. 1, Circle. 2 Square. 3, Rectangle. 4, Oval. 5, Bullet. 6, N-sided polygon. 7, Polygonal
+        shape.8, Round gap with 45 degree thermal ties. 9, Round gap with 90 degree thermal ties.10, Square gap
+        with 45 degree thermal ties. 11, Square gap with 90 degree thermal ties.
+        """
+        val = self._edb_value(0)
+        params = []
+        if geom_type == 0:
+            pass
+        elif geom_type == 1:
+            params = [val]
+        elif geom_type == 2:
+            params = [val]
+        elif geom_type == 3:
+            params = [val, val]
+        elif geom_type == 4:
+            params = [val, val, val]
+        elif geom_type == 5:
+            params = [val, val, val]
+        self._update_pad_parameters_parameters(geom_type=geom_type, params=params)
+
     @property
     def parameters(self):
         """Parameters.
@@ -1366,11 +1388,11 @@ class EDBPadProperties(object):
         ----------
         layer_name : str, optional
             Name of the layer. The default is ``None``.
-        pad_type :
+        pad_type : int, optional
             Type of the pad. The default is ``None``.
-        geom_type :
+        geom_type : int, optional
             Type of the geometry. The default is ``None``.
-        params :
+        params : list, optional
             The default is ``None``.
         offsetx : float, optional
             Offset value for the X axis. The default is ``None``.
@@ -1740,6 +1762,10 @@ class EDBPadstackInstance(object):
     >>> edb_padstack_instance = edb.core_padstack.padstack_instances[0]
     """
 
+    def __init__(self, edb_padstackinstance, _pedb):
+        self._edb_padstackinstance = edb_padstackinstance
+        self._pedb = _pedb
+
     @property
     def padstack_definition(self):
         """Padstack definition.
@@ -1824,9 +1850,83 @@ class EDBPadstackInstance(object):
         """
         return self._edb_padstackinstance.GetNet().GetName()
 
-    def __init__(self, edb_padstackinstance, _pedb):
-        self._edb_padstackinstance = edb_padstackinstance
-        self._pedb = _pedb
+    @property
+    def is_pin(self):
+        """Determines whether this padstack instance is a layout pin.
+
+        Returns
+        -------
+        bool
+            True if this padstack type is a layout pin, False otherwise.
+        """
+        return self._edb_padstackinstance.IsLayoutPin()
+
+    @is_pin.setter
+    def is_pin(self, pin):
+        """Set padstack type
+
+        Parameters
+        ----------
+        pin : bool
+            True if set this padstack instance as pin, False otherwise
+        """
+        self._edb_padstackinstance.SetIsLayoutPin(pin)
+
+    @property
+    def position(self):
+        """padstack instance position.
+
+        Returns
+        -------
+        list
+            List of ``[x, y]``` coordinates for the padstack instance position.
+        """
+        point_data = self._pedb.edb.Geometry.PointData(self._pedb.edb_value(0.0), self._pedb.edb_value(0.0))
+        if is_ironpython:
+            out = self._edb_padstackinstance.GetPositionAndRotationValue()
+        else:
+            out = self._edb_padstackinstance.GetPositionAndRotationValue(
+                point_data,
+                self._pedb.edb_value(0.0),
+            )
+        if out[0]:
+            return [out[1].X.ToDouble(), out[1].Y.ToDouble()]
+
+    @property
+    def rotation(self):
+        """padstack instance rotation.
+
+        Returns
+        -------
+        float
+            Rotatation value for the padstack instance.
+        """
+        point_data = self._pedb.edb.Geometry.PointData(self._pedb.edb_value(0.0), self._pedb.edb_value(0.0))
+        if is_ironpython:
+            out = self._edb_padstackinstance.GetPositionAndRotationValue()
+        else:
+            out = self._edb_padstackinstance.GetPositionAndRotationValue(
+                point_data,
+                self._pedb.edb_value(0.0),
+            )
+        if out[0]:
+            return out[2].ToDouble()
+
+    @property
+    def id(self):
+        """Id of this padstack instance.
+
+        Returns
+        -------
+        str
+            Padstack instance id.
+        """
+        return self._edb_padstackinstance.GetId()
+
+    @aedt_exception_handler
+    def delete_padstack_instance(self):
+        """Delete this padstack instance."""
+        self._edb_padstackinstance.Delete()
 
 
 class EDBPinInstances(object):
