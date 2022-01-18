@@ -900,7 +900,6 @@ class Design(object):
         else:
             return self.design_solutions.solution_types[0]
 
-
     @property
     def odesign(self):
         """Design.

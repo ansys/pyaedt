@@ -61,10 +61,12 @@ hfss.create_open_region(Frequency="1GHz")
 # Plot the model
 # ~~~~~~~~~~~~~~
 
-my_plot = hfss.plot(show=False,  plot_air_objects=False)
+my_plot = hfss.plot(show=False, plot_air_objects=False)
 my_plot.show_axes = False
 my_plot.show_grid = False
-my_plot.plot(os.path.join(hfss.project_path, "Image.jpg"),)
+my_plot.plot(
+    os.path.join(hfss.project_path, "Image.jpg"),
+)
 
 ###############################################################################
 # Create the Setup

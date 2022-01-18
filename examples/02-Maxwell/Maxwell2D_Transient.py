@@ -118,11 +118,11 @@ animatedGif = maxwell_2d.post.animate_fields_from_aedtplt_2(
     "Mag_B",
     id_list,
     "Surface",
-    intrinsic_dict={'Time': '0s'},
+    intrinsic_dict={"Time": "0s"},
     variation_variable="Time",
     variation_list=timesteps,
     show=False,
-    export_gif=True
+    export_gif=True,
 )
 
 
