@@ -233,7 +233,7 @@ class ModelPlotter(object):
         self.roll_angle = 0
         self.azimuth_angle = 45
         self.elevation_angle = 20
-        self.zoom = 1.3
+        self.zoom = 1
 
     @aedt_exception_handler
     def set_orientation(self, camera_position="xy", roll_angle=0, azimuth_angle=45, elevation_angle=20):
