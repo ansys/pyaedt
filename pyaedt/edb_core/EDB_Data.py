@@ -1851,7 +1851,6 @@ class EDBPadstackInstance(object):
         layer = self._pedb.core_stackup.signal_layers[layer_name]._layer
         self._edb_padstackinstance.SetLayerRange(start_layer, layer)
 
-
     @property
     def net_name(self):
         """Net name.
