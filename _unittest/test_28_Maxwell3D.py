@@ -154,6 +154,7 @@ class TestClass:
         mypair = ["InfoCore", "0"]
         my_udpPairs.append(mypair)
 
+        # Test udp with a custom name.
         my_udpName = "MyClawPoleCore"
         udp = self.aedtapp.modeler.primitives.create_udp(
             udp_dll_name="RMxprt/ClawPoleCore",
@@ -163,6 +164,19 @@ class TestClass:
             udptye="Solid",
         )
         assert udp
+        assert udp.name == "MyClawPoleCore"
+        assert "MyClawPoleCore" in udp._primitives.object_names
+
+        # Test udp with default name -None-.
+        second_udp = self.aedtapp.modeler.primitives.create_udp(
+            udp_dll_name="RMxprt/ClawPoleCore",
+            udp_parameters_list=my_udpPairs,
+            upd_library="syslib",
+            udptye="Solid",
+        )
+        assert second_udp
+        assert second_udp.name == "ClawPoleCore"
+        assert "ClawPoleCore" in udp._primitives.object_names
 
     @pytest.mark.skipif(os.name == "posix", reason="Feature not supported in Linux")
     def test_27_create_udm(self):
