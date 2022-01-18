@@ -1042,10 +1042,7 @@ class PostProcessorCommon(object):
         type
             Design solution type.
         """
-        try:
-            return self._odesign.GetSolutionType()
-        except:
-            return self._app._design_type
+        return self._app.solution_type
 
     @property
     def all_report_names(self):
@@ -1180,7 +1177,7 @@ class PostProcessorCommon(object):
         >>> m3d.post.get_report_data("Wind(LoadA,LaodA)")    # TransientAnalsysis
 
         """
-        if self.post_solution_type in ["3DLayout", "NexximLNA", "NexximTransient"]:
+        if self.post_solution_type in ["HFSS3DLayout", "NexximLNA", "NexximTransient", "TR", "AC", "DC"]:
             if domain == "Sweep":
                 did = 3
             else:
@@ -1194,7 +1191,9 @@ class PostProcessorCommon(object):
             ctxt = domain
         else:
             ctxt = ["Domain:=", domain]
-
+        if self.post_solution_type in ["TR", "AC", "DC"]:
+            ctxt[2] = ctxt[2][:-3]
+            setup_sweep_name = self.post_solution_type
         if not isinstance(expression, list):
             expression = [expression]
         if not setup_sweep_name:
@@ -1204,7 +1203,10 @@ class PostProcessorCommon(object):
             report_input_type = self._app.design_solutions.report_type
 
         if families_dict is None:
-            families_dict = {"Freq": ["All"]}
+            if domain == "Time":
+                families_dict = {"Time": ["All"]}
+            else:
+                families_dict = {"Freq": ["All"]}
 
         solution_data = self.get_solution_data_per_variation(
             report_input_type, setup_sweep_name, ctxt, families_dict, expression
@@ -1260,7 +1262,7 @@ class PostProcessorCommon(object):
         ctxt = []
         if not setup_sweep_name:
             setup_sweep_name = self._app.nominal_sweep
-        if self.post_solution_type in ["HFSS 3D Layout Design", "NexximLNA", "NexximTransient"]:
+        if self.post_solution_type in ["HFSS3DLayout", "NexximLNA", "NexximTransient", "TR", "AC", "DC"]:
             if "Freq" == primary_sweep_variable or "Freq" in list(families_dict.keys()):
                 did = 3
             else:
@@ -1275,7 +1277,9 @@ class PostProcessorCommon(object):
                 ctxt = context
             else:
                 ctxt = ["Context:=", context]
-
+        if self.post_solution_type in ["TR", "AC", "DC"]:
+            ctxt[2] = ctxt[2][:-3]
+            setup_sweep_name = self.post_solution_type
         if not isinstance(expression, list):
             expression = [expression]
         if not setup_sweep_name:
