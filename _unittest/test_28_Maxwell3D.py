@@ -154,7 +154,7 @@ class TestClass:
         mypair = ["InfoCore", "0"]
         my_udpPairs.append(mypair)
 
-        # Test udp with default with a custom name.
+        # Test udp with a custom name.
         my_udpName = "MyClawPoleCore"
         udp = self.aedtapp.modeler.primitives.create_udp(
             udp_dll_name="RMxprt/ClawPoleCore",
