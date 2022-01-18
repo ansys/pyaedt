@@ -599,15 +599,28 @@ class EdbPadstacks(object):
         return True
 
     @aedt_exception_handler
-    def set_pad_property(self, padstack_name, layer_name=None, pad_shape="Circle", pad_params=0,
-                          pad_x_offset=0, pad_y_offset=0, pad_rotation=0, antipad_shape="Circle",
-                         antipad_params=0, antipad_x_offset=0, antipad_y_offset=0, antipad_rotation=0):
-        shape_dict = {"Circle": 1,
-                      "Square": 2,
-                      "Rectangle": 3,
-                      "Oval": 4,
-                      "Bullet": 5,
-                      }
+    def set_pad_property(
+        self,
+        padstack_name,
+        layer_name=None,
+        pad_shape="Circle",
+        pad_params=0,
+        pad_x_offset=0,
+        pad_y_offset=0,
+        pad_rotation=0,
+        antipad_shape="Circle",
+        antipad_params=0,
+        antipad_x_offset=0,
+        antipad_y_offset=0,
+        antipad_rotation=0,
+    ):
+        shape_dict = {
+            "Circle": 1,
+            "Square": 2,
+            "Rectangle": 3,
+            "Oval": 4,
+            "Bullet": 5,
+        }
         pad_shape = shape_dict[pad_shape]
         if not isinstance(pad_params, list):
             pad_params = [pad_params]
@@ -631,10 +644,10 @@ class EdbPadstacks(object):
         elif isinstance(layer_name, str):
             layer_name = [layer_name]
         for layer in layer_name:
-            new_padstack_def.SetPadParameters(layer, 0, pad_shape, pad_params,
-                                              pad_x_offset, pad_y_offset, pad_rotation)
-            new_padstack_def.SetPadParameters(layer, 1, antipad_shape, antipad_params,
-                                              antipad_x_offset, antipad_y_offset, antipad_rotation)
+            new_padstack_def.SetPadParameters(layer, 0, pad_shape, pad_params, pad_x_offset, pad_y_offset, pad_rotation)
+            new_padstack_def.SetPadParameters(
+                layer, 1, antipad_shape, antipad_params, antipad_x_offset, antipad_y_offset, antipad_rotation
+            )
         self.padstacks[padstack_name].edb_padstack.SetData(new_padstack_def)
         self.update_padstacks()
         return True
