@@ -199,8 +199,6 @@ class CommonOptimetrics(object):
                     _arg2dict(calculation, arg1)
                     self.props["Goals"] = arg1
 
-
-
     @aedt_exception_handler
     def update(self, update_dictionary=None):
         """Update the setup based on stored properties.
