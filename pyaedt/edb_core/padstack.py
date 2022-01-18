@@ -618,22 +618,36 @@ class EdbPadstacks(object):
 
         Parameters
         ----------
-        padstack_name :
-        layer_name :
-        pad_shape :
-        pad_params :
-        pad_x_offset :
-        pad_y_offset :
-        pad_rotation :
-        antipad_shape :
-        antipad_params :
-        antipad_x_offset :
-        antipad_y_offset :
-        antipad_rotation :
+        padstack_name : str
+            Name of the padstack.
+        layer_name : str, optional
+            Name of the layer. If None, all layers will be taken.
+        pad_shape : str, optional
+            Shape of the pad. The default is ``"Circle"``. Options are ``"Circle"``,  ``"Square"``, ``"Rectangle"``,
+            ``"Oval"`` and ``"Bullet"``.
+        pad_params : str, optional
+            Dimension of the pad. The default is ``"0"``.
+        pad_x_offset : str, optional
+            X offset of the pad. The default is ``"0"``.
+        pad_y_offset : str, optional
+            Y offset of the pad. The default is ``"0"``.
+        pad_rotation : str, optional
+            Rotation of the pad. The default is ``"0"``.
+        antipad_shape : str, optional
+            Shape of the antipad. The default is ``"0"``.
+        antipad_params : str, optional
+            Dimension of the antipad. The default is ``"0"``.
+        antipad_x_offset : str, optional
+            X offset of the antipad. The default is ``"0"``.
+        antipad_y_offset : str, optional
+            Y offset of the antipad. The default is ``"0"``.
+        antipad_rotation : str, optional
+            Rotation of the antipad. The default is ``"0"``.
 
         Returns
         -------
-
+        bool
+            ``True`` if successful.
         """
         shape_dict = {
             "Circle": 1,
