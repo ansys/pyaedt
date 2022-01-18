@@ -49,7 +49,6 @@ jobs:
           pip install . --use-feature=in-tree-build
           pip install -r requirements_test.txt
           pip install pytest-azurepipelines
-          Copy-Item -Path "C:\actions-runner\opengl32.dll" -Destination "testenv\Lib\site-packages\vtkmodules" -Force
           mkdir tmp
           cd tmp
           python -c "import pyaedt; print('Imported pyaedt')"
