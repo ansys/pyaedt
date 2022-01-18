@@ -229,7 +229,7 @@ class FieldAnalysis3D(Analysis, object):
         variation_string : str, optional
             Variation List.
         mesh_path : str, optional
-            Full path to mesh statistics file.
+            Full path to mesh statistics file. If `None` working_directory will be used.
 
         Returns
         -------
@@ -242,7 +242,7 @@ class FieldAnalysis3D(Analysis, object):
         >>> oDesign.ExportMeshStats
         """
         if not mesh_path:
-            mesh_path = os.path.join(self.project_path, "meshstats.ms")
+            mesh_path = os.path.join(self.working_directory, "meshstats.ms")
         self.odesign.ExportMeshStats(setup_name, variation_string, mesh_path)
         return mesh_path
 

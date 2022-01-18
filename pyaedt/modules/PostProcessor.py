@@ -871,6 +871,7 @@ class FieldPlot:
 
         full_path : str, optional
             Path for saving the image file. PNG and GIF formats are supported.
+            The default is ``None`` which export file in working_directory.
         width : int, optional
             Plot Width.
         height : int, optional
@@ -895,7 +896,7 @@ class FieldPlot:
         """
         self.oField.UpdateQuantityFieldsPlots(self.plotFolder)
         if not full_path:
-            full_path = os.path.join(self._postprocessor._app.project_path, self.name + ".png")
+            full_path = os.path.join(self._postprocessor._app.working_directory, self.name + ".png")
         status = self._postprocessor.export_field_jpg(
             full_path,
             self.name,
@@ -922,7 +923,8 @@ class FieldPlot:
         Parameters
         ----------
         export_path : str, optional
-            Path where image will be saved
+            Path where image will be saved.
+            The default is ``None`` which export file in working_directory.
         view : str, optional
             View of the exported plot. Options are ``isometric``,
             ``top``, ``front``, ``left``, and ``all``.
@@ -946,7 +948,7 @@ class FieldPlot:
         >>> oModule.ExportFieldPlot
         """
         if not export_path:
-            export_path = self._postprocessor._app.project_path
+            export_path = self._postprocessor._app.working_directory
         if sys.version_info.major > 2:
             return self._postprocessor.plot_field_from_fieldplot(
                 self.name,
@@ -1908,7 +1910,7 @@ class PostProcessor(PostProcessorCommon, object):
                     variation_dict.append(phase)
                 else:
                     variation_dict.append("0deg")
-        file_name = os.path.join(self._app.project_path, generate_unique_name("temp_fld") + ".fld")
+        file_name = os.path.join(self._app.working_directory, generate_unique_name("temp_fld") + ".fld")
         self.ofieldsreporter.CalculatorWrite(file_name, ["Solution:=", solution], variation_dict)
         value = None
         if os.path.exists(file_name):
@@ -1949,7 +1951,7 @@ class PostProcessor(PostProcessorCommon, object):
             The default is ``None``.
         filename : str, optional
             Full path and name to save the file to.
-            The default is ``None``.
+            The default is ``None`` which export file in working_directory.
         gridtype : str, optional
             Type of the grid to export. The default is ``"Cartesian"``.
         grid_center : list, optional
@@ -1994,7 +1996,7 @@ class PostProcessor(PostProcessorCommon, object):
         if not filename:
             appendix = ""
             ext = ".fld"
-            filename = os.path.join(self._app.project_path, solution.replace(" : ", "_") + appendix + ext)
+            filename = os.path.join(self._app.working_directory, solution.replace(" : ", "_") + appendix + ext)
         else:
             filename = filename.replace("//", "/").replace("\\", "/")
         self.ofieldsreporter.CalcStack("clear")
@@ -2087,7 +2089,7 @@ class PostProcessor(PostProcessorCommon, object):
             The default is ``None``.
         filename : str, optional
             Full path and name to save the file to.
-            The default is ``None``.
+            The default is ``None`` which export file in working_directory.
         obj_list : str, optional
             List of objects to export. The default is ``"AllObjects"``.
         obj_type : str, optional
@@ -2128,7 +2130,7 @@ class PostProcessor(PostProcessorCommon, object):
         if not filename:
             appendix = ""
             ext = ".fld"
-            filename = os.path.join(self._app.project_path, solution.replace(" : ", "_") + appendix + ext)
+            filename = os.path.join(self._app.working_directory, solution.replace(" : ", "_") + appendix + ext)
         else:
             filename = filename.replace("//", "/").replace("\\", "/")
         self.ofieldsreporter.CalcStack("clear")
@@ -2178,7 +2180,7 @@ class PostProcessor(PostProcessorCommon, object):
                 export_with_sample_points,
             )
         else:
-            sample_points_file = os.path.join(self._app.project_path, "temp_points.pts")
+            sample_points_file = os.path.join(self._app.working_directory, "temp_points.pts")
             with open(sample_points_file, "w") as f:
                 for point in sample_points_lists:
                     f.write(" ".join([str(i) for i in point]) + "\n")

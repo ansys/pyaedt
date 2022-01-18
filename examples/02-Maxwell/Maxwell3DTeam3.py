@@ -88,7 +88,7 @@ P2.set_crosssection_properties(type="Circle", width="0.5mm")
 # Plot the model
 # ~~~~~~~~~~~~~~
 
-M3D.plot(show=False, export_path=os.path.join(M3D.project_path, "Image.jpg"), plot_air_objects=False)
+M3D.plot(show=False, export_path=os.path.join(M3D.working_directory, "Image.jpg"), plot_air_objects=False)
 
 
 ###############################################################################
