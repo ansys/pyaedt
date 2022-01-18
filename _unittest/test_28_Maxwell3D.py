@@ -176,7 +176,6 @@ class TestClass:
         )
         assert second_udp
         assert second_udp.name == "ClawPoleCore"
-
         assert "ClawPoleCore" in udp._primitives.object_names
 
     @pytest.mark.skipif(os.name == "posix", reason="Feature not supported in Linux")
