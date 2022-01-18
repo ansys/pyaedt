@@ -192,14 +192,14 @@ class CommonOptimetrics(object):
             if inputd.get("Goals", None):
                 if self._app._is_object_oriented_enabled():
                     oparams = self.omodule.GetChildObject(self.name).GetCalculationInfo()
-                else:
-                    oparams = []
-                oparam = [i for i in oparams[0]]
-                calculation = ["NAME:Goal"]
-                calculation.extend(oparam)
-                arg1 = OrderedDict()
-                _arg2dict(calculation, arg1)
-                self.props["Goals"] = arg1
+                    oparam = [i for i in oparams[0]]
+                    calculation = ["NAME:Goal"]
+                    calculation.extend(oparam)
+                    arg1 = OrderedDict()
+                    _arg2dict(calculation, arg1)
+                    self.props["Goals"] = arg1
+
+
 
     @aedt_exception_handler
     def update(self, update_dictionary=None):
