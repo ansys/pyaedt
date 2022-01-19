@@ -306,7 +306,30 @@ class Hfss(FieldAnalysis3D, object):
         props["IsWavePort"] = iswaveport
         props["ReferenceConductors"] = ref_conductors
         props["RenormalizeModes"] = True
-        return self._create_boundary(portname, props, "AutoIdentify")
+        ports = list(self.oboundary.GetExcitationsOfType("Terminal"))
+        boundary = self._create_boundary(portname, props, "AutoIdentify")
+        if boundary:
+            new_ports = list(self.oboundary.GetExcitationsOfType("Terminal"))
+            terminals = [i for i in new_ports if i not in ports]
+            for terminal in terminals:
+                name_split = terminal.split("_")
+                try:
+                    new_name = portname + "_" + name_split[1]
+                except:
+                    new_name = portname + "_T1"
+                properties = [
+                    "NAME:AllTabs",
+                    [
+                        "NAME:HfssTab",
+                        ["NAME:PropServers", "BoundarySetup:" + terminal],
+                        ["NAME:ChangedProps", ["NAME:Name", "Value:=", new_name]],
+                    ],
+                ]
+                try:
+                    self.odesign.ChangeProperty(properties)
+                except:
+                    self.logger.warning("Failed To rename Terminals")
+        return boundary
 
     @aedt_exception_handler
     def _create_circuit_port(self, edgelist, impedance, name, renorm, deemb, renorm_impedance=""):
@@ -1539,7 +1562,8 @@ class Hfss(FieldAnalysis3D, object):
         'LumpedPort'
 
         """
-
+        startobj = self.modeler.convert_to_selections(startobj)
+        endobject = self.modeler.convert_to_selections(endobject)
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
             endobject
         ):
