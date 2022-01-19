@@ -85,8 +85,9 @@ class TestClass:
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         o5 = self.aedtapp.modeler.primitives.create_circle(self.aedtapp.PLANE.YZ, udp, 10, name="sheet1")
         self.aedtapp.solution_type = "Terminal"
-        port = self.aedtapp.create_wave_port_from_sheet(o5, 5, self.aedtapp.AxisDir.XNeg, 40, 2, "sheet1_Port", True,
-                                                        terminal_references=["outer"])
+        port = self.aedtapp.create_wave_port_from_sheet(
+            o5, 5, self.aedtapp.AxisDir.XNeg, 40, 2, "sheet1_Port", True, terminal_references=["outer"]
+        )
         assert port.name == "sheet1_Port"
         assert port.name in [i.name for i in self.aedtapp.boundaries]
         self.aedtapp.solution_type = "Modal"
