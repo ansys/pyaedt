@@ -238,10 +238,6 @@ class ModelPlotter(object):
 
     @property
     def isometric_view(self):
-        return self._isometric_view
-
-    @isometric_view.setter
-    def isometric_view(self, value=True):
         """Enable or disable the default iso view.
 
         Parameters
@@ -253,30 +249,14 @@ class ModelPlotter(object):
         -------
         bool
         """
+        return self._isometric_view
+
+    @isometric_view.setter
+    def isometric_view(self, value=True):
         self._isometric_view = value
 
     @property
     def camera_position(self):
-        return self._camera_position
-
-    @property
-    def roll_angle(self):
-        return self._roll_angle
-
-    @property
-    def azimuth_angle(self):
-        return self._azimuth_angle
-
-    @property
-    def elevation_angle(self):
-        return self._elevation_angle
-
-    @property
-    def zoom(self):
-        return self._zoom
-
-    @camera_position.setter
-    def camera_position(self, value):
         """Get/Set the camera position value. It disables the default iso view.
 
         Parameters
@@ -288,11 +268,15 @@ class ModelPlotter(object):
         -------
         str
         """
+        return self._camera_position
+
+    @camera_position.setter
+    def camera_position(self, value):
         self._camera_position = value
         self.isometric_view = False
 
-    @roll_angle.setter
-    def roll_angle(self, value=20):
+    @property
+    def roll_angle(self):
         """Get/Set the roll angle value. It disables the default iso view.
 
         Parameters
@@ -304,11 +288,15 @@ class ModelPlotter(object):
         -------
         float
         """
+        return self._roll_angle
+
+    @roll_angle.setter
+    def roll_angle(self, value=20):
         self._roll_angle = value
         self.isometric_view = False
 
-    @azimuth_angle.setter
-    def azimuth_angle(self, value=45):
+    @property
+    def azimuth_angle(self):
         """Get/Set the azimuth angle value. It disables the default iso view.
 
         Parameters
@@ -320,11 +308,15 @@ class ModelPlotter(object):
         -------
         float
         """
+        return self._azimuth_angle
+
+    @azimuth_angle.setter
+    def azimuth_angle(self, value=45):
         self._azimuth_angle = value
         self.use_default_iso_view = False
 
-    @elevation_angle.setter
-    def elevation_angle(self, value=45):
+    @property
+    def elevation_angle(self):
         """Get/Set the elevation angle value. It disables the default iso view.
 
         Parameters
@@ -336,11 +328,15 @@ class ModelPlotter(object):
         -------
         float
         """
+        return self._elevation_angle
+
+    @elevation_angle.setter
+    def elevation_angle(self, value=45):
         self._elevation_angle = value
         self.use_default_iso_view = False
 
-    @zoom.setter
-    def zoom(self, value=1):
+    @property
+    def zoom(self):
         """Get/Set the zoom value.
 
         Parameters
@@ -352,6 +348,10 @@ class ModelPlotter(object):
         -------
         float
         """
+        return self._zoom
+
+    @zoom.setter
+    def zoom(self, value=1):
         self._zoom = value
 
     @aedt_exception_handler
@@ -1071,7 +1071,6 @@ class ModelPlotter(object):
             for m in self.fields:
                 labels.append([m.name, "red"])
             self.pv.add_legend(labels=labels, bcolor=None, face="circle", size=[0.15, 0.15])
-        self.pv.set_focus(self.pv.mesh.center)
         if not self.isometric_view:
             self.pv.camera_position = self.camera_position
             self.pv.camera.azimuth += self.azimuth_angle
@@ -1122,6 +1121,8 @@ class ModelPlotter(object):
                 opacity=field.opacity,
             )
         # run until q is pressed
+        if self.pv.mesh:
+            self.pv.set_focus(self.pv.mesh.center)
 
         cpos = self.pv.show(interactive=False, auto_close=False, interactive_update=not self.off_screen)
 
