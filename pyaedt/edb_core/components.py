@@ -468,7 +468,7 @@ class Components(object):
             solder_ball_height = self.get_solder_ball_height(mounted_component)
             if solder_ball_height == 0.0:
                 solder_ball_height = 150e-6
-            #mounted_component_name = mounted_component.GetName()
+            # mounted_component_name = mounted_component.GetName()
             self.set_solder_ball(component=mounted_component, sball_height=solder_ball_height)
             return True, vector, rotation, solder_ball_height
         return False
@@ -686,8 +686,8 @@ class Components(object):
         )
         return pingroup_term
 
-    #@aedt_exception_handler
-    #def set_solder_ball(self, cmp, sball_height=100e-6, sball_diam=150e-6):
+        # @aedt_exception_handler
+        # def set_solder_ball(self, cmp, sball_height=100e-6, sball_diam=150e-6):
         """Define component solder ball ready for port assignment.
 
         Parameters
@@ -713,36 +713,37 @@ class Components(object):
      #   >>> set_solder_ball = edbapp.core_components.set_solder_ball("A1")
 
      #   """
-     #   if cmp is not None:
-     #       if not (isinstance(cmp, self._edb.Cell.Hierarchy.Component)):
-     #           cmp = self.get_component_by_name(cmp)
-     #       cmp_prop = cmp.GetComponentProperty().Clone()
-     #       cmp_type = cmp.GetComponentType()
-     #       if cmp_type == self._edb.Definition.ComponentType.IC:
-     #           die_prop = cmp_prop.GetDieProperty().Clone()
-     #           if self._is_top_component(cmp):
-     #               die_prop.SetOrientation(self._edb.Definition.DieOrientation.ChipDown)
-     #           else:
-     #               die_prop.SetOrientation(self._edb.Definition.DieOrientation.ChipUp)
-     #           if not cmp_prop.SetDieProperty(die_prop):
-     #               return False
-     #       solder_prop = cmp_prop.GetSolderBallProperty().Clone()
-     #       if not solder_prop.SetDiameter(self._edb_value(sball_diam), self._edb_value(sball_diam)):
-     #           return False
-     #       if not solder_prop.SetHeight(self._edb_value(sball_height)):
-     #           return False
-     #       if not cmp_prop.SetSolderBallProperty(solder_prop):
-     #           return False
 
-     #       port_prop = cmp_prop.GetPortProperty().Clone()
-     #       port_prop.SetReferenceSizeAuto(True)
-     #       cmp_prop.SetPortProperty(port_prop)
-     #       if not cmp.SetComponentProperty(cmp_prop):
-     #           return False
+    #   if cmp is not None:
+    #       if not (isinstance(cmp, self._edb.Cell.Hierarchy.Component)):
+    #           cmp = self.get_component_by_name(cmp)
+    #       cmp_prop = cmp.GetComponentProperty().Clone()
+    #       cmp_type = cmp.GetComponentType()
+    #       if cmp_type == self._edb.Definition.ComponentType.IC:
+    #           die_prop = cmp_prop.GetDieProperty().Clone()
+    #           if self._is_top_component(cmp):
+    #               die_prop.SetOrientation(self._edb.Definition.DieOrientation.ChipDown)
+    #           else:
+    #               die_prop.SetOrientation(self._edb.Definition.DieOrientation.ChipUp)
+    #           if not cmp_prop.SetDieProperty(die_prop):
+    #               return False
+    #       solder_prop = cmp_prop.GetSolderBallProperty().Clone()
+    #       if not solder_prop.SetDiameter(self._edb_value(sball_diam), self._edb_value(sball_diam)):
+    #           return False
+    #       if not solder_prop.SetHeight(self._edb_value(sball_height)):
+    #           return False
+    #       if not cmp_prop.SetSolderBallProperty(solder_prop):
+    #           return False
 
-     #      return True
-     #  else:
-     #       return False
+    #       port_prop = cmp_prop.GetPortProperty().Clone()
+    #       port_prop.SetReferenceSizeAuto(True)
+    #       cmp_prop.SetPortProperty(port_prop)
+    #       if not cmp.SetComponentProperty(cmp_prop):
+    #           return False
+
+    #      return True
+    #  else:
+    #       return False
 
     @aedt_exception_handler
     def _is_top_component(self, cmp):
