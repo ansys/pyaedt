@@ -1433,6 +1433,70 @@ class Primitives(object):
         return new_polyline
 
     @aedt_exception_handler
+    def create_spiral_on_face(self, face, poly_width, filling_factor=1.5):
+        """Create a Spiral Polyline inside a face.
+
+        Parameters
+        ----------
+        face : int or str or :class:`pyaedt.modeler.Object3d.FacePrimitive`
+        poly_width : float
+        filling_factor : float
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.Polyline`
+        """
+        # fmt: off
+
+        if isinstance(face, FacePrimitive):
+            face_id = face.id
+        elif isinstance(face, int):
+            face_id = face
+        else:
+            face_id = self.get_object_faces(face)[0]
+
+        vertices = self.get_face_vertices(face_id)
+        vertex_coordinates = []
+        for v in vertices:
+            vertex_coordinates.append(self.get_vertex_position(v))
+
+        centroid = self.get_face_center(face_id)
+
+        segments_lengths = []
+        for vc in vertex_coordinates:
+            segments_lengths.append(GeometryOperators.points_distance(vc, centroid))
+
+        n = math.floor(min(segments_lengths) / (poly_width * filling_factor))
+
+        if n % 2 == 0:
+            n_points = int(n / 2 - 1)
+        else:
+            n_points = int((n - 1) / 2)
+
+        if n_points < 1:
+            raise Exception
+
+        inner_points = []
+        for vc in vertex_coordinates:
+            temp = [[] for i in range(n_points)]
+            for i in range(3):  # loop for x, y, z
+                delta = (centroid[i] - vc[i]) / (n_points + 1)
+                for j in range(1, n_points + 1):
+                    temp[j - 1].append(vc[i] + delta * j)
+            inner_points.append(temp)
+
+        poly_points_list = []
+        for p in range(n_points):
+            for v in inner_points:
+                poly_points_list.append(v[p])
+
+        del poly_points_list[-1]
+
+        return self.create_polyline(poly_points_list, xsection_type='Line', xsection_width=poly_width)
+
+        # fmt: on
+
+    @aedt_exception_handler
     def get_existing_polyline(self, object):
         """Retrieve a polyline object to manipulate it.
 

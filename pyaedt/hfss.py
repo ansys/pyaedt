@@ -1603,43 +1603,18 @@ class Hfss(FieldAnalysis3D, object):
 
         if abs(abs(closest_faces[0].normal[0]) + abs(closest_faces[1].normal[0]) - 2.0) < 1e-6:
             plane = 0
-            x = [i.position[1] for i in closest_faces[0].vertices]
-            y = [i.position[2] for i in closest_faces[0].vertices]
-            coords_center = [(closest_faces[0].center[0] + closest_faces[1].center[0]) / 2, i, j]
         elif abs(abs(closest_faces[0].normal[1]) + abs(closest_faces[1].normal[1]) - 2.0) < 1e-6:
             plane = 1
-            x = [i.position[0] for i in closest_faces[0].vertices]
-            y = [i.position[2] for i in closest_faces[0].vertices]
         elif abs(abs(closest_faces[0].normal[2]) + abs(closest_faces[1].normal[2]) - 2.0) < 1e-6:
             plane = 2
-            x = [i.position[0] for i in closest_faces[0].vertices]
-            y = [i.position[1] for i in closest_faces[0].vertices]
-        thick = 1
-        delta =0.1
-        coords_center = [(closest_faces[0].center[0] + closest_faces[1].center[0]) / 2,
-                         (closest_faces[0].center[1] + closest_faces[1].center[1]) / 2,
-                         (closest_faces[0].center[2] + closest_faces[1].center[2]) / 2]
 
-        x, y = GeometryOperators.orient_polygon(x, y)
-        distance = 1e9
-        coords = []
+        objects_center = [(j - i) / 2 for i, j in zip(closest_faces[0].center, closest_faces[1].center)]
 
-        for i, j in zip(x, y):
-            if plane == 0:
-                coords.append([(closest_faces[0].center[0] + closest_faces[1].center[0]) / 2, i, j])
-                orient = "Y"
-            elif plane == 1:
-                coords.append([i, (closest_faces[0].center[1] + closest_faces[1].center[1]) / 2, j])
-                orient = "Z"
-            elif plane == 2:
-                coords.append([i,  j, (closest_faces[0].center[2] + closest_faces[1].center[2]) / 2])
-                orient = "X"
-            if GeometryOperators.points_distance(coords[-1], coords_center) < distance:
-                distance = GeometryOperators.points_distance(coords[-1], coords_center)
+        distance = 1e-1
 
-        poly = self.modeler.create_polyline(coords, xsection_type="Line", xsection_width=distance/10)
-        vert_position_x =[]
-        vert_position_y =[]
+        poly = self.modeler.create_spiral_on_face(closest_faces[0], distance)
+        vert_position_x = []
+        vert_position_y = []
 
         for vert in poly.vertices:
             if plane == 0:
@@ -1653,17 +1628,16 @@ class Hfss(FieldAnalysis3D, object):
                 vert_position_y.append(vert.position[1])
 
         x, y = GeometryOperators.orient_polygon(vert_position_x, vert_position_y)
-
+        poly.translate(objects_center)
         list_a_val = False
         x1 = []
         y1 = []
         x2 = []
         y2 = []
-        for i in range(len(x)-1):
+        for i in range(len(x) - 1):
             dist = GeometryOperators.points_distance([x[i], y[i], 0], [x[i + 1], y[i + 1], 0])
-            if abs(abs(dist) - distance / 10) < 1e-6:
+            if abs(abs(dist) - distance) < 1e-6:
                 list_a_val = not list_a_val
-
             else:
                 if list_a_val:
                     x1.append(x[i])
@@ -1673,32 +1647,75 @@ class Hfss(FieldAnalysis3D, object):
                     y2.append(y[i])
 
         if list_a_val:
-            x1.append(x[i])
-            y1.append(y[i])
+            x1.append(x[i + 1])
+            y1.append(y[i + 1])
         else:
-            x2.append(x[i])
-            y2.append(y[i])
+            x2.append(x[i + 1])
+            y2.append(y[i + 1])
         x1, y1 = GeometryOperators.orient_polygon(x1, y1)
         coords = []
         for x, y in zip(x1, y1):
             if plane == 0:
-                coords.append([(closest_faces[0].center[0] + closest_faces[1].center[0]) * 0.75, x, y])
+                coords.append([(closest_faces[0].center[0] + closest_faces[1].center[0]) / 2 - facecenter / 4, x, y])
             elif plane == 1:
-                coords.append([x, (closest_faces[0].center[1] + closest_faces[1].center[1]) * 0.75, y])
+                coords.append([x, (closest_faces[0].center[1] + closest_faces[1].center[1]) / 2 - facecenter / 4, y])
             elif plane == 2:
-                coords.append([x, y, (closest_faces[0].center[2] + closest_faces[1].center[2]) * 0.75])
+                coords.append([x, y, (closest_faces[0].center[2] + closest_faces[1].center[2]) / 2 - facecenter / 4])
+        dx = abs(coords[0][0] - coords[1][0])
+        dy = abs(coords[0][1] - coords[1][1])
+        dz = abs(coords[0][2] - coords[1][2])
+        v1 = GeometryOperators.v_points(coords[0], coords[1])
+        v2 = GeometryOperators.v_points(coords[0], coords[2])
+        norm = GeometryOperators.v_cross(v1, v2)
+
+        if abs(norm[0]) > 1e-12:
+            if dy < dz:
+                orient = "Y"
+            else:
+                orient = "Z"
+        elif abs(norm[1]) > 1e-12:
+            if dx < dz:
+                orient = "X"
+            else:
+                orient = "Z"
+        else:
+            if dx < dy:
+                orient = "X"
+            else:
+                orient = "Y"
+
         poly1 = self.modeler.create_polyline(coords, xsection_type="Line", xsection_orient=orient,
                                              xsection_width=facecenter / 2)
         x2, y2 = GeometryOperators.orient_polygon(x2, y2)
         coords = []
         for x, y in zip(x2, y2):
             if plane == 0:
-                coords.append([(closest_faces[0].center[0] + closest_faces[1].center[0]) * 0.25, x, y])
+                coords.append([(closest_faces[0].center[0] + closest_faces[1].center[0]) / 2 + facecenter / 4, x, y])
             elif plane == 1:
-                coords.append([x, (closest_faces[0].center[1] + closest_faces[1].center[1]) * 0.25, y])
+                coords.append([x, (closest_faces[0].center[1] + closest_faces[1].center[1]) / 2 + facecenter / 4, y])
             elif plane == 2:
-                coords.append([x, y, (closest_faces[0].center[2] + closest_faces[1].center[2]) * 0.25])
-
+                coords.append([x, y, (closest_faces[0].center[2] + closest_faces[1].center[2]) / 2 + facecenter / 4])
+        dx = abs(coords[0][0] - coords[1][0])
+        dy = abs(coords[0][1] - coords[1][1])
+        dz = abs(coords[0][2] - coords[1][2])
+        v1 = GeometryOperators.v_points(coords[0], coords[1])
+        v2 = GeometryOperators.v_points(coords[0], coords[2])
+        norm = GeometryOperators.v_cross(v1, v2)
+        if abs(norm[0]) > 1e-12:
+            if dy < dz:
+                orient = "Y"
+            else:
+                orient = "Z"
+        elif abs(norm[1]) > 1e-12:
+            if dx < dz:
+                orient = "X"
+            else:
+                orient = "Z"
+        else:
+            if dx < dy:
+                orient = "X"
+            else:
+                orient = "Y"
         poly12 = self.modeler.create_polyline(coords, xsection_type="Line", xsection_orient=orient,
                                               xsection_width=facecenter / 2)
         return closest_faces, plane
