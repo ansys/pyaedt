@@ -41,7 +41,7 @@ wg1, p1, p2 = hfss.modeler.create_waveguide(
     create_sheets_on_openings=True,
 )
 
-hfss.plot(show=False, export_path=os.path.join(hfss.project_path, "Image.jpg"))
+hfss.plot(show=False, export_path=os.path.join(hfss.working_directory, "Image.jpg"))
 
 
 ###############################################################################

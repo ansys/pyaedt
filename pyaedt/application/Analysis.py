@@ -542,7 +542,7 @@ class Analysis(Design, object):
         analyze : bool
             Either to Analyze before export or not. Solutions have to be present for the design.
         export_folder : str, optional
-            Full path to project folder.
+            Full path to project folder. If `None` working_directory will be used.
 
         Returns
         -------
@@ -560,7 +560,7 @@ class Analysis(Design, object):
         """
         exported_files = []
         if not export_folder:
-            export_folder = self.project_path
+            export_folder = self.working_directory
         if analyze:
             self.analyze_all()
         setups = self.oanalysis.GetSetups()
@@ -674,7 +674,7 @@ class Analysis(Design, object):
         variation_string : str
             Variation string with values. Eg ``'radius=3mm'``
         file_path : str, optional
-            full path to .prof file.
+            full path to .prof file. If `None` working_directory will be used.
 
 
         Returns
@@ -688,7 +688,7 @@ class Analysis(Design, object):
         >>> oModule.ExportConvergence
         """
         if not file_path:
-            file_path = os.path.join(self.project_path, generate_unique_name("Convergence") + ".prop")
+            file_path = os.path.join(self.working_directory, generate_unique_name("Convergence") + ".prop")
         self.odesign.ExportConvergence(setup_name, variation_string, file_path)
         self.logger.info("Export Convergence to  %s", file_path)
         return file_path
@@ -1342,7 +1342,7 @@ class Analysis(Design, object):
         elif num_gpu or num_tasks or num_cores:
             config_name = "pyaedt_config"
             source_name = os.path.join(self.pyaedt_dir, "misc", "pyaedt_local_config.acf")
-            target_name = os.path.join(self.project_path, config_name + ".acf")
+            target_name = os.path.join(self.working_directory, config_name + ".acf")
             shutil.copy2(source_name, target_name)
             if num_cores:
                 update_hpc_option(target_name, "NumCores", num_cores, False)

@@ -815,7 +815,7 @@ class Object3d(object):
         """
         if not is_ironpython and self._primitives._app._aedt_version >= "2021.2":
             if not file_path:
-                file_path = os.path.join(self._primitives._app.project_path, self.name + ".png")
+                file_path = os.path.join(self._primitives._app.working_directory, self.name + ".png")
             model_obj = self._primitives._app.post.plot_model_obj(
                 objects=[self.name],
                 show=False,

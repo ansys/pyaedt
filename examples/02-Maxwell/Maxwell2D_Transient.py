@@ -68,7 +68,7 @@ maxwell_2d.assign_balloon(region.edges)
 # Plot the model
 # ~~~~~~~~~~~~~~
 
-maxwell_2d.plot(show=False, export_path=os.path.join(maxwell_2d.project_path, "Image.jpg"), plot_air_objects=True)
+maxwell_2d.plot(show=False, export_path=os.path.join(maxwell_2d.working_directory, "Image.jpg"), plot_air_objects=True)
 
 
 ###############################################################################

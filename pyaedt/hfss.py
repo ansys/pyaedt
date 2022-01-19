@@ -3573,7 +3573,7 @@ class Hfss(FieldAnalysis3D, object):
         if not dname:
             dname = self.design_name
         if not outputdir:
-            outputdir = self.project_path
+            outputdir = self.working_directory
         pname = self.project_name
         validation_log_file = os.path.join(outputdir, pname + "_" + dname + "_validation.log")
 
@@ -3797,7 +3797,9 @@ class Hfss(FieldAnalysis3D, object):
         sweepname : str
              Name of the sweep that has been solved.
         filename : str, optional
-             Full path and name for the output file. The default is ``None``.
+             Full path and name for the output file.
+             The default is ``None`` which export file in working_directory.
+
         variation : list, optional
              List of all parameter variations. For example, ``["$AmbientTemp", "$PowerIn"]``.
              The default is ``[]``.
@@ -3817,7 +3819,7 @@ class Hfss(FieldAnalysis3D, object):
             for v, vv in zip(variation, variations_value):
                 appendix += "_" + v + vv.replace("'", "")
             ext = ".S" + str(self.oboundary.GetNumExcitations()) + "p"
-            filename = os.path.join(self.project_path, solutionname + "_" + sweepname + appendix + ext)
+            filename = os.path.join(self.working_directory, solutionname + "_" + sweepname + appendix + ext)
         else:
             filename = filename.replace("//", "/").replace("\\", "/")
         print("Exporting Touchstone " + filename)
