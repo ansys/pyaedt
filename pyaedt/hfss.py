@@ -1634,7 +1634,7 @@ class Hfss(FieldAnalysis3D, object):
             if GeometryOperators.points_distance(coords[-1], coords_center) < distance:
                 distance = GeometryOperators.points_distance(coords[-1], coords_center)
 
-        self.modeler.create_polyline(coords,xsection_type="Line", xsection_width=distance/10 )
+        self.modeler.create_polyline(coords, xsection_type="Line", xsection_width=distance/10)
         return closest_faces, plane
 
     @aedt_exception_handler
