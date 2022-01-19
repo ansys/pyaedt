@@ -13,13 +13,12 @@ import os
 from math import radians, sin, cos, sqrt
 from pyaedt import Hfss
 
-hfss = Hfss(specified_version='2021.2', solution_type="DrivenTerminal")
+hfss = Hfss(specified_version="2021.2", solution_type="DrivenTerminal")
 hfss.change_material_override(True)
 hfss.change_automatically_use_causal_materials(True)
-hfss.create_open_region('100GHz')
-hfss.modeler.model_units = 'mil'
+hfss.create_open_region("100GHz")
+hfss.modeler.model_units = "mil"
 hfss.mesh.assign_initial_mesh_from_slider(applycurvilinear=True)
-
 
 
 ###############################################################################
@@ -44,6 +43,7 @@ xt = (total_length - r * radians(theta)) / 2
 # This method creates a list of points for the bend based
 # on the curvature radius and extension.
 
+
 def create_bending(radius, extension=0):
     position_list = [(-xt, 0, -radius), (0, 0, -radius)]
 
@@ -66,11 +66,13 @@ def create_bending(radius, extension=0):
 # This part creates a bended signal wire.
 
 position_list = create_bending(r, 1)
-line = hfss.modeler.create_polyline(position_list=position_list,
-                                    xsection_type='Rectangle',
-                                    xsection_width=height,
-                                    xsection_height=width,
-                                    matname='copper')
+line = hfss.modeler.create_polyline(
+    position_list=position_list,
+    xsection_type="Rectangle",
+    xsection_width=height,
+    xsection_height=width,
+    matname="copper",
+)
 
 ###############################################################################
 # Draw Ground line
@@ -82,11 +84,9 @@ gnd_l = [(x, -y, z) for x, y, z in gnd_r]
 
 gnd_objs = []
 for gnd in [gnd_r, gnd_l]:
-    x = hfss.modeler.create_polyline(position_list=gnd,
-                                     xsection_type='Rectangle',
-                                     xsection_width=height,
-                                     xsection_height=gnd_width,
-                                     matname='copper')
+    x = hfss.modeler.create_polyline(
+        position_list=gnd, xsection_type="Rectangle", xsection_width=height, xsection_height=gnd_width, matname="copper"
+    )
     x.color = (255, 0, 0)
     gnd_objs.append(x)
 
@@ -96,11 +96,13 @@ for gnd in [gnd_r, gnd_l]:
 # This part creates dielectric cable.
 position_list = create_bending(r + (height + gnd_thickness) / 2)
 
-fr4 = hfss.modeler.create_polyline(position_list=position_list,
-                                   xsection_type='Rectangle',
-                                   xsection_width=gnd_thickness,
-                                   xsection_height=width + 2 * spacing + 2 * gnd_width,
-                                   matname='FR4_epoxy')
+fr4 = hfss.modeler.create_polyline(
+    position_list=position_list,
+    xsection_type="Rectangle",
+    xsection_width=gnd_thickness,
+    xsection_height=width + 2 * spacing + 2 * gnd_width,
+    matname="FR4_epoxy",
+)
 
 ###############################################################################
 # Bottom metals
@@ -109,11 +111,13 @@ fr4 = hfss.modeler.create_polyline(position_list=position_list,
 
 position_list = create_bending(r + height + gnd_thickness, 1)
 
-bot = hfss.modeler.create_polyline(position_list=position_list,
-                                   xsection_type='Rectangle',
-                                   xsection_width=height,
-                                   xsection_height=width + 2 * spacing + 2 * gnd_width,
-                                   matname='copper')
+bot = hfss.modeler.create_polyline(
+    position_list=position_list,
+    xsection_type="Rectangle",
+    xsection_width=height,
+    xsection_height=width + 2 * spacing + 2 * gnd_width,
+    matname="copper",
+)
 
 
 ###############################################################################
@@ -122,7 +126,7 @@ bot = hfss.modeler.create_polyline(position_list=position_list,
 # This part creates port PEC Enclosures.
 
 port_faces = []
-for face, blockname in zip(fr4.faces[-2:], ['b1', 'b2']):
+for face, blockname in zip(fr4.faces[-2:], ["b1", "b2"]):
     xc, yc, zc = face.center
     positions = [i.position for i in face.vertices]
 
@@ -137,7 +141,7 @@ for face, blockname in zip(fr4.faces[-2:], ['b1', 'b2']):
         if [round(i, 6) for i in f.center] == center:
             port_faces.append(f)
 
-    port_block.material_name = 'PEC'
+    port_block.material_name = "PEC"
 
     for i in [line, bot] + gnd_objs:
         i.subtract([port_block], True)
@@ -160,7 +164,7 @@ for face in [fr4.top_face_y, fr4.bottom_face_y]:
 # ~~~~~
 # This part creates ports.
 for s, port_name in zip(port_faces, ["1", "2"]):
-    reference = [i.name for i in gnd_objs + boundary + [bot]] + ['b1', 'b2']
+    reference = [i.name for i in gnd_objs + boundary + [bot]] + ["b1", "b2"]
 
     hfss.create_wave_port_from_sheet(s.id, portname=port_name, terminal_references=reference)
 
@@ -169,19 +173,21 @@ for s, port_name in zip(port_faces, ["1", "2"]):
 # Setup and Sweep
 # ~~~~~~~~~~~~~~~
 # This part creates setup and sweep.
-setup = hfss.create_setup('setup1')
-setup.props['Frequency'] = '2GHz'
-setup.props['MaximumPasses'] = 10
-setup.props['MinimumConvergedPasses'] = 2
+setup = hfss.create_setup("setup1")
+setup.props["Frequency"] = "2GHz"
+setup.props["MaximumPasses"] = 10
+setup.props["MinimumConvergedPasses"] = 2
 setup.update()
-hfss.create_linear_count_sweep(setupname='setup1',
-                               unit='GHz',
-                               freqstart=1e-1,
-                               freqstop=4,
-                               num_of_freq_points=101,
-                               sweepname='sweep1',
-                               save_fields=False,
-                               sweep_type='Interpolating')
+hfss.create_linear_count_sweep(
+    setupname="setup1",
+    unit="GHz",
+    freqstart=1e-1,
+    freqstop=4,
+    num_of_freq_points=101,
+    sweepname="sweep1",
+    save_fields=False,
+    sweep_type="Interpolating",
+)
 
 ###############################################################################
 # Plot the model
