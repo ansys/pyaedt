@@ -480,6 +480,28 @@ class Analysis(Design, object):
         return SOLUTIONS()
 
     @aedt_exception_handler
+    def get_excitations_name(self):
+        """Get all excitation names.
+
+        Returns
+        -------
+        list
+            List of excitation names. Excitations with multiple modes will return one
+            excitation for each mode.
+
+        References
+        ----------
+
+        >>> oModule.GetExcitations
+        """
+        try:
+            list_names = list(self.oboundary.GetExcitations())
+            del list_names[1::2]
+            return list_names
+        except:
+            return []
+
+    @aedt_exception_handler
     def analyze_all(self):
         """Analyze all setup in an actual design.
 

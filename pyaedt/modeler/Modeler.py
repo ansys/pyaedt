@@ -1485,12 +1485,7 @@ class GeometryModeler(Modeler, object):
 
         >>> oModule.GetExcitations
         """
-        try:
-            list_names = list(self._app.oboundary.GetExcitations())
-            del list_names[1::2]
-            return list_names
-        except:
-            return []
+        return self._app.get_excitations_name()
 
     @aedt_exception_handler
     def get_boundaries_name(self):

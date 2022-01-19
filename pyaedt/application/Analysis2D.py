@@ -131,10 +131,6 @@ class FieldAnalysis2D(Analysis):
         """
         return self._mesh
 
-    # @property
-    # def post(self):
-    #     return self._post
-
     @aedt_exception_handler
     def plot(
         self,
