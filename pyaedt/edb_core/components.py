@@ -380,6 +380,17 @@ class Components(object):
         return cmp_list
 
     @aedt_exception_handler
+    def _get_edb_pin_from_pin_name(self, component, pin):
+        if not isinstance(component, self._edb.Cell.Hierarchy.Component):
+            return False
+        if not isinstance(pin, str):
+            pin = pin.GetName()
+        pins = self.get_pin_from_component(component=component, pin_name=pin)
+        if pins:
+            return pins[0]
+        return False
+
+    @aedt_exception_handler
     def get_component_placement_vector(
         self,
         mounted_component,
