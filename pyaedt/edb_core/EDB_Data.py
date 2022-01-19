@@ -412,6 +412,11 @@ class EDBPrimitives(object):
         else:
             raise AttributeError("Value inserted not found. Input has to be layer name or layer object.")
 
+    @aedt_exception_handler
+    def delete(self):
+        """Delete this primtive."""
+        self.primitive_object.Delete()
+
 
 class EDBLayer(object):
     """Manages EDB functionalities for a layer.
@@ -1826,6 +1831,12 @@ class EDBPadstackInstance(object):
         _, start_layer, stop_layer = self._edb_padstackinstance.GetLayerRange(layer, layer)
         return start_layer.GetName()
 
+    @start_layer.setter
+    def start_layer(self, layer_name):
+        stop_layer = self._pedb.core_stackup.signal_layers[self.stop_layer]._layer
+        layer = self._pedb.core_stackup.signal_layers[layer_name]._layer
+        self._edb_padstackinstance.SetLayerRange(layer, stop_layer)
+
     @property
     def stop_layer(self):
         """Stopping layer.
@@ -1838,6 +1849,12 @@ class EDBPadstackInstance(object):
         layer = self._pedb.edb.Cell.Layer("", 1)
         _, start_layer, stop_layer = self._edb_padstackinstance.GetLayerRange(layer, layer)
         return stop_layer.GetName()
+
+    @stop_layer.setter
+    def stop_layer(self, layer_name):
+        start_layer = self._pedb.core_stackup.signal_layers[self.start_layer]._layer
+        layer = self._pedb.core_stackup.signal_layers[layer_name]._layer
+        self._edb_padstackinstance.SetLayerRange(start_layer, layer)
 
     @property
     def net_name(self):
@@ -1923,10 +1940,44 @@ class EDBPadstackInstance(object):
         """
         return self._edb_padstackinstance.GetId()
 
+    @property
+    def name(self):
+        if self.is_pin:
+            comp_name = self._edb_padstackinstance.GetComponent().GetName()
+            pin_name = self._edb_padstackinstance.GetName()
+            return "-".join([comp_name, pin_name])
+        else:
+            return None
+
     @aedt_exception_handler
     def delete_padstack_instance(self):
         """Delete this padstack instance."""
         self._edb_padstackinstance.Delete()
+
+    @aedt_exception_handler
+    def in_voids(self, net_name=None, layer_name=None):
+        """Check if this padstack instance is in any void.
+
+        Parameters
+        ----------
+        net_name : str
+            Net name of the voids to be checked.
+        layer_name : str
+            Layer name of the voids to be checked.
+        Returns
+        -------
+        list
+            List of the voids includes this padstack instance.
+        """
+        x_pos = self._pedb.edb_value(self.position[0])
+        y_pos = self._pedb.edb_value(self.position[1])
+        point_data = self._pedb.core_primitives._edb.Geometry.PointData(x_pos, y_pos)
+
+        voids = []
+        for prim in self._pedb.core_primitives.get_primitives(net_name, layer_name, is_void=True):
+            if prim.primitive_object.GetPolygonData().PointInPolygon(point_data):
+                voids.append(prim)
+        return voids
 
 
 class EDBPinInstances(object):

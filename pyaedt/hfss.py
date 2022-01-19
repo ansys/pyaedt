@@ -272,41 +272,61 @@ class Hfss(FieldAnalysis3D, object):
     def _create_lumped_driven(self, objectname, int_line_start, int_line_stop, impedance, portname, renorm, deemb):
         start = [str(i) + self.modeler.primitives.model_units for i in int_line_start]
         stop = [str(i) + self.modeler.primitives.model_units for i in int_line_stop]
-        props = OrderedDict(
+        props = OrderedDict({})
+        if isinstance(objectname, str):
+            props["Objects"] = [objectname]
+        else:
+            props["Faces"] = [objectname]
+        props["DoDeembed"] = deemb
+        props["RenormalizeAllTerminals"] = renorm
+        props["Modes"] = OrderedDict(
             {
-                "Objects": [objectname],
-                "DoDeembed": deemb,
-                "RenormalizeAllTerminals": renorm,
-                "Modes": OrderedDict(
+                "Mode1": OrderedDict(
                     {
-                        "Mode1": OrderedDict(
-                            {
-                                "ModeNum": 1,
-                                "UseIntLine": True,
-                                "IntLine": OrderedDict({"Start": start, "End": stop}),
-                                "AlignmentGroup": 0,
-                                "CharImp": "Zpi",
-                                "RenormImp": str(impedance) + "ohm",
-                            }
-                        )
+                        "ModeNum": 1,
+                        "UseIntLine": True,
+                        "IntLine": OrderedDict({"Start": start, "End": stop}),
+                        "AlignmentGroup": 0,
+                        "CharImp": "Zpi",
+                        "RenormImp": str(impedance) + "ohm",
                     }
-                ),
-                "ShowReporterFilter": False,
-                "ReporterFilter": [True],
-                "Impedance": str(impedance) + "ohm",
+                )
             }
         )
+        props["ShowReporterFilter"] = False
+        props["ReporterFilter"] = [True]
+        props["Impedance"] = str(impedance) + "ohm"
         return self._create_boundary(portname, props, "LumpedPort")
 
     @aedt_exception_handler
     def _create_port_terminal(self, objectname, int_line_stop, portname, iswaveport=False):
-        ref_conductors = self.modeler.convert_to_selections(int_line_stop, False)
+        ref_conductors = self.modeler.convert_to_selections(int_line_stop, True)
         props = OrderedDict({})
         props["Faces"] = int(objectname)
         props["IsWavePort"] = iswaveport
         props["ReferenceConductors"] = ref_conductors
         props["RenormalizeModes"] = True
-        return self._create_boundary(portname, props, "AutoIdentify")
+        ports = list(self.oboundary.GetExcitationsOfType("Terminal"))
+        boundary = self._create_boundary(portname, props, "AutoIdentify")
+        if boundary:
+            new_ports = list(self.oboundary.GetExcitationsOfType("Terminal"))
+            terminals = [i for i in new_ports if i not in ports]
+            for terminal in terminals:
+                name_split = terminal.split("_")
+                new_name = portname + "_" + name_split[-1]
+                properties = [
+                    "NAME:AllTabs",
+                    [
+                        "NAME:HfssTab",
+                        ["NAME:PropServers", "BoundarySetup:" + terminal],
+                        ["NAME:ChangedProps", ["NAME:Name", "Value:=", new_name]],
+                    ],
+                ]
+                try:
+                    self.odesign.ChangeProperty(properties)
+                except:
+                    self.logger.warning("Failed To rename Terminals")
+        return boundary
 
     @aedt_exception_handler
     def _create_circuit_port(self, edgelist, impedance, name, renorm, deemb, renorm_impedance=""):
@@ -1539,7 +1559,8 @@ class Hfss(FieldAnalysis3D, object):
         'LumpedPort'
 
         """
-
+        startobj = self.modeler.convert_to_selections(startobj)
+        endobject = self.modeler.convert_to_selections(endobject)
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
             endobject
         ):
@@ -2737,20 +2758,28 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def create_wave_port_from_sheet(
-        self, sheet, deemb=0, axisdir=0, impedance=50, nummodes=1, portname=None, renorm=True
+        self,
+        sheet,
+        deemb=0,
+        axisdir=0,
+        impedance=50,
+        nummodes=1,
+        portname=None,
+        renorm=True,
+        terminal_references=None,
     ):
         """Create a waveport on sheet objects created starting from sheets.
 
         Parameters
         ----------
-        sheet : list
-            List of input sheets to create the waveport from.
+        sheet : str or int or :class:`pyaedt.modeler.Object3d.Object3d`
+            Name of the sheet.
         deemb : float, optional
             Deembedding value distance in model units. The default is ``0``.
         axisdir : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
-            The default is ``Application.AxisDir.XNeg``.
+            The default is 0 for ``Application.AxisDir.XNeg``.
         impedance : float, optional
             Port impedance. The default is ``50``.
         nummodes : int, optional
@@ -2759,14 +2788,13 @@ class Hfss(FieldAnalysis3D, object):
             Name of the port. The default is ``None``.
         renorm : bool, optional
             Whether to renormalize the mode. The default is ``True``.
-        deembed_dist : float, optional
-            Deembed distance in millimeters. The default is ``0``,
-            in which case deembed is disabled.
+        terminal_references : list, optional
+            In Driven Terminal Simulation it is the list of conductors for Port Terminal Definitions.
 
         Returns
         -------
-        list
-            List of names for the ports created when successful, ``False`` otherwise.
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
 
         References
         ----------
@@ -2790,38 +2818,40 @@ class Hfss(FieldAnalysis3D, object):
 
         """
 
-        sheet = self.modeler.convert_to_selections(sheet, True)
-        obj_names = []
-        for sh in sheet:
-            if isinstance(sh, int):
-                try:
-                    obj_names.append(self.modeler.oeditor.GetObjectNameByFaceID(sh))
-                except:
-                    obj_names.append("")
-            else:
-                obj_names.append("")
-        portnames = []
-        for obj, oname in zip(sheet, obj_names):
-            refid, int_start, int_stop = self._get_reference_and_integration_points(obj, axisdir, oname)
+        sheet = self.modeler.convert_to_selections(sheet, True)[0]
+        if terminal_references:
+            terminal_references = self.modeler.convert_to_selections(terminal_references, True)
+        if isinstance(sheet, int):
+            try:
+                oname = self.modeler.oeditor.GetObjectNameByFaceID(sheet)
+            except:
+                oname = ""
+        else:
+            oname = ""
+        if "Modal" in self.solution_type:
+
+            refid, int_start, int_stop = self._get_reference_and_integration_points(sheet, axisdir, oname)
 
             if not portname:
                 portname = generate_unique_name("Port")
             elif portname + ":1" in self.modeler.get_excitations_name():
                 portname = generate_unique_name(portname)
-            if "Modal" in self.solution_type:
-                b = self._create_waveport_driven(obj, int_start, int_stop, impedance, portname, renorm, nummodes, deemb)
-                if b:
-                    portnames.append(b)
+            return self._create_waveport_driven(
+                sheet, int_start, int_stop, impedance, portname, renorm, nummodes, deemb
+            )
+        else:
+            if isinstance(sheet, int):
+                faces = sheet
             else:
-                faces = self.modeler.primitives.get_object_faces(obj)
-                if len(refid) > 0:
-                    b = self._create_port_terminal(faces[0], refid, portname, iswaveport=True)
-                    if b:
-                        portnames.append(b)
-
-                else:
-                    return False
-        return portnames
+                faces = self.modeler.primitives.get_object_faces(sheet)[0]
+            if not faces:
+                self.logger.error("Wrong Input object. it has to be a face id or a sheet.")
+                return False
+            if terminal_references:
+                return self._create_port_terminal(faces, terminal_references, portname, iswaveport=True)
+            else:
+                self.logger.error("Reference Conductors are missed.")
+                return False
 
     @aedt_exception_handler
     def create_lumped_port_to_sheet(
@@ -2871,7 +2901,14 @@ class Hfss(FieldAnalysis3D, object):
         ...                                  "LumpedPortFromSheet", True, False)
 
         """
-
+        sheet_name = self.modeler.convert_to_selections(sheet_name, True)[0]
+        if isinstance(sheet_name, int):
+            try:
+                oname = self.modeler.oeditor.GetObjectNameByFaceID(sheet_name)
+            except:
+                oname = ""
+        else:
+            oname = ""
         if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
             point0, point1 = self.modeler.primitives.get_mid_points_on_dir(sheet_name, axisdir)
 
@@ -2886,6 +2923,7 @@ class Hfss(FieldAnalysis3D, object):
                 portname = generate_unique_name("Port")
             elif portname + ":1" in self.modeler.get_excitations_name():
                 portname = generate_unique_name(portname)
+            port = False
             if "Modal" in self.solution_type:
                 port = self._create_lumped_driven(sheet_name, point0, point1, impedance, portname, renorm, deemb)
             else:
@@ -2896,8 +2934,15 @@ class Hfss(FieldAnalysis3D, object):
                     for el in touching:
                         if el in cond:
                             reference_object_list.append(el)
-                faces = self.modeler.primitives.get_object_faces(sheet_name)
-                port = self._create_port_terminal(faces[0], reference_object_list, portname, iswaveport=False)
+                if isinstance(sheet_name, int):
+                    faces = sheet_name
+                else:
+                    faces = self.modeler.primitives.get_object_faces(sheet_name)[0]
+                if not faces:
+                    self.logger.error("Wrong Input object. it has to be a face id or a sheet.")
+                    return False
+                port = self._create_port_terminal(faces, reference_object_list, portname, iswaveport=False)
+
             return port
         return False
 
