@@ -470,7 +470,7 @@ class Components(object):
                 solder_ball_height = 150e-6
             #mounted_component_name = mounted_component.GetName()
             self.set_solder_ball(component=mounted_component, sball_height=solder_ball_height)
-            return vector, rotation, solder_ball_height
+            return True, vector, rotation, solder_ball_height
         return False
 
     @aedt_exception_handler
