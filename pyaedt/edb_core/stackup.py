@@ -253,6 +253,11 @@ class EdbStackup(object):
             Solder Ball or Bumps eight.
             This value will be added to the elevation to align the two layouts.
 
+        Returns
+        -------
+        bool
+            ``True`` when succeed ``False`` if not.
+
         Examples
         --------
         >>> edb1 = Edb(edbpath=targetfile1,  edbversion="2021.2")
@@ -271,11 +276,6 @@ class EdbStackup(object):
         >>> edb2.core_stackup.place_in_layout(edb1.active_cell, angle=0.0, offset_x=vector[0],
         >>>                                   offset_y=vector[1], flipped_stackup=False, place_on_top=True,
         >>>                                   solder_height=solder_ball_height)
-
-        Returns
-        -------
-        bool
-            ``True`` when succeed ``False`` if not.
         """
         if flipped_stackup and place_on_top or (not flipped_stackup and not place_on_top):
             model_flip = True
