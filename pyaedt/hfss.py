@@ -2941,7 +2941,7 @@ class Hfss(FieldAnalysis3D, object):
                 if not faces:
                     self.logger.error("Wrong Input object. it has to be a face id or a sheet.")
                     return False
-                port = self._create_port_terminal(sheet_name, reference_object_list, portname, iswaveport=False)
+                port = self._create_port_terminal(faces, reference_object_list, portname, iswaveport=False)
 
             return port
         return False
