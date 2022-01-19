@@ -537,7 +537,7 @@ class EdbLayout(object):
             return polygon
 
     @aedt_exception_handler
-    def get_primitive(self, net_name=None, layer_name=None, prim_type=None, is_void=False):
+    def get_primitives(self, net_name=None, layer_name=None, prim_type=None, is_void=False):
         """Get primitives by conditions.
 
         Parameters

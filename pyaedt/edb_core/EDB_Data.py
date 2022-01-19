@@ -1955,7 +1955,7 @@ class EDBPadstackInstance(object):
         self._edb_padstackinstance.Delete()
 
     @aedt_exception_handler
-    def in_void(self, net_name=None, layer_name=None):
+    def in_voids(self, net_name=None, layer_name=None):
         """Check if this padstack instance is in any void.
 
         Parameters
@@ -1974,7 +1974,7 @@ class EDBPadstackInstance(object):
         point_data = self._pedb.core_primitives._edb.Geometry.PointData(x_pos, y_pos)
 
         voids = []
-        for prim in self._pedb.core_primitives.get_primitive(net_name, layer_name, is_void=True):
+        for prim in self._pedb.core_primitives.get_primitives(net_name, layer_name, is_void=True):
             if prim.primitive_object.GetPolygonData().PointInPolygon(point_data):
                 voids.append(prim)
         return voids
