@@ -380,9 +380,15 @@ class Components(object):
         return cmp_list
 
     @aedt_exception_handler
-    def get_component_placement_vector(self, mounted_component, hosting_component,
-                                        mounted_component_pin1=None, mounted_component_pin2=None,
-                                        hosting_component_pin1=None, hosting_component_pin2=None):
+    def get_component_placement_vector(
+        self,
+        mounted_component,
+        hosting_component,
+        mounted_component_pin1=None,
+        mounted_component_pin2=None,
+        hosting_component_pin1=None,
+        hosting_component_pin2=None,
+    ):
         """Get the placement vector between 2 components.
 
         Parameters
@@ -439,10 +445,12 @@ class Components(object):
             h_pin2 = self._get_edb_pin_from_pin_name(hosting_component, hosting_component_pin2)
             h_pin2_pos = self.get_pin_position(h_pin2)
         vector = [h_pin1_pos[0] - m_pin1_pos[0], h_pin1_pos[1] - m_pin1_pos[1]]
-        d_m_pin1_h_pin2 = math.sqrt(math.pow(h_pin2_pos[0] - m_pin1_pos[0], 2) + math.pow(h_pin2_pos[1] - m_pin1_pos[1],
-                                                                                          2))
-        d_m_pin2_h_pin2 = math.sqrt(math.pow(h_pin2_pos[0] - m_pin2_pos[0], 2) + math.pow(h_pin2_pos[1] - m_pin2_pos[1],
-                                                                                          2))
+        d_m_pin1_h_pin2 = math.sqrt(
+            math.pow(h_pin2_pos[0] - m_pin1_pos[0], 2) + math.pow(h_pin2_pos[1] - m_pin1_pos[1], 2)
+        )
+        d_m_pin2_h_pin2 = math.sqrt(
+            math.pow(h_pin2_pos[0] - m_pin2_pos[0], 2) + math.pow(h_pin2_pos[1] - m_pin2_pos[1], 2)
+        )
         rotation = math.atan(d_m_pin2_h_pin2 / d_m_pin1_h_pin2)
         if vector:
             solder_ball_height = self.get_solder_ball_height(mounted_component)

@@ -221,8 +221,16 @@ class EdbStackup(object):
         return self._add_dielectric_material_model(name, material_def)
 
     @aedt_exception_handler
-    def place_in_layout(self, edb_cell=None, angle=0.0, offset_x=0.0, offset_y=0.0, flipped_stackup=True,
-                        place_on_top=True, solder_height=0):
+    def place_in_layout(
+        self,
+        edb_cell=None,
+        angle=0.0,
+        offset_x=0.0,
+        offset_y=0.0,
+        flipped_stackup=True,
+        place_on_top=True,
+        solder_height=0,
+    ):
         """Place current Cell into another cell.
         Flip the current layer stackup of a layout if requested. Transform parameters currently not supported.
 
@@ -278,7 +286,7 @@ class EdbStackup(object):
             new_lc = self._edb.Cell.LayerCollection()
             max_elevation = 0.0
             for layer in lc.Layers(self._edb.Cell.LayerTypeSet.StackupLayerSet):
-                if not 'RadBox' in layer.GetName():  # Ignore RadBox
+                if not "RadBox" in layer.GetName():  # Ignore RadBox
                     lower_elevation = layer.GetLowerElevation() * 1.0e6
                     upper_elevation = layer.GetUpperElevation() * 1.0e6
                     max_elevation = max([max_elevation, lower_elevation, upper_elevation])
@@ -290,7 +298,7 @@ class EdbStackup(object):
                     non_stackup_layers.append(cloned_layer)
                     continue
 
-                if not 'RadBox' in layer.GetName():
+                if not "RadBox" in layer.GetName():
                     upper_elevation = layer.GetUpperElevation() * 1.0e6
                     updated_lower_el = max_elevation - upper_elevation
                     val = self._edb_value("{}um".format(updated_lower_el))
@@ -326,17 +334,17 @@ class EdbStackup(object):
             self._active_layout.GetCell().SetName(cell_name + "_Transform")
             edb_cell = self._edb.Cell.Cell.Create(self._db, self._edb.Cell.CellType.CircuitCell, cell_name)
             edb_was_none = True
-            cell_inst2 = self._edb.Cell.Hierarchy.CellInstance.Create(edb_cell.GetLayout(),
-                                                                      edb_cell.GetName() + "_Transform",
-                                                                      self._active_layout)
+            cell_inst2 = self._edb.Cell.Hierarchy.CellInstance.Create(
+                edb_cell.GetLayout(), edb_cell.GetName() + "_Transform", self._active_layout
+            )
         else:
             if edb_cell.GetName() not in self._pedb.cell_names:
                 _dbCell = convert_py_list_to_net_list([edb_cell])
                 list_cells = self._pedb.db.CopyCells(_dbCell)
                 edb_cell = list_cells[0]
-            cell_inst2 = self._edb.Cell.Hierarchy.CellInstance.Create(edb_cell.GetLayout(),
-                                                                      self._active_layout.GetCell().GetName(),
-                                                                      self._active_layout)
+            cell_inst2 = self._edb.Cell.Hierarchy.CellInstance.Create(
+                edb_cell.GetLayout(), self._active_layout.GetCell().GetName(), self._active_layout
+            )
 
         cell_trans = cell_inst2.GetTransform()
         cell_trans.SetRotationValue(_angle)
@@ -375,9 +383,9 @@ class EdbStackup(object):
             )
 
         if place_on_top:
-            h_stackup = self._edb_value(topz+solder_height-bottomz_s)
+            h_stackup = self._edb_value(topz + solder_height - bottomz_s)
         else:
-            h_stackup = self._edb_value(bottomz-solder_height-topz_s)
+            h_stackup = self._edb_value(bottomz - solder_height - topz_s)
 
         zero_data = self._edb_value(0.0)
         one_data = self._edb_value(1.0)
@@ -389,7 +397,6 @@ class EdbStackup(object):
         if edb_was_none:
             edb_cell.GetLayout().SetLayerCollection(self._active_layout.GetLayerCollection())
         return True
-
 
     @aedt_exception_handler
     def create_djordjevicsarkar_material(self, name, relative_permittivity, loss_tangent, test_frequency):
