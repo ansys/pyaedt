@@ -1600,12 +1600,41 @@ class Hfss(FieldAnalysis3D, object):
                     closest_faces = [face, face2]
 
         plane = None
+
         if abs(abs(closest_faces[0].normal[0]) + abs(closest_faces[1].normal[0]) - 2.0) < 1e-6:
-            plane = "yz"
+            plane = 0
+            x = [i.position[1] for i in closest_faces[0].vertices]
+            y = [i.position[2] for i in closest_faces[0].vertices]
+            coords_center = [(closest_faces[0].center[0] + closest_faces[1].center[0]) / 2, i, j]
         elif abs(abs(closest_faces[0].normal[1]) + abs(closest_faces[1].normal[1]) - 2.0) < 1e-6:
-            plane = "xz"
+            plane = 1
+            x = [i.position[0] for i in closest_faces[0].vertices]
+            y = [i.position[2] for i in closest_faces[0].vertices]
         elif abs(abs(closest_faces[0].normal[2]) + abs(closest_faces[1].normal[2]) - 2.0) < 1e-6:
-            plane = "xy"
+            plane = 2
+            x = [i.position[0] for i in closest_faces[0].vertices]
+            y = [i.position[1] for i in closest_faces[0].vertices]
+        thick = 1
+        delta =0.1
+        coords_center = [(closest_faces[0].center[0] + closest_faces[1].center[0]) / 2,
+                         (closest_faces[0].center[1] + closest_faces[1].center[1]) / 2,
+                         (closest_faces[0].center[2] + closest_faces[1].center[2]) / 2]
+
+        x, y = GeometryOperators.orient_polygon(x, y)
+        distance = 1e9
+        coords = []
+
+        for i, j in zip(x, y):
+            if plane == 0:
+                coords.append([(closest_faces[0].center[0] + closest_faces[1].center[0]) / 2, i, j])
+            elif plane == 1:
+                coords.append([i, (closest_faces[0].center[1] + closest_faces[1].center[1]) / 2, j])
+            elif plane == 2:
+                coords.append([i,  j, (closest_faces[0].center[2] + closest_faces[1].center[2]) / 2])
+            if GeometryOperators.points_distance(coords[-1], coords_center) < distance:
+                distance = GeometryOperators.points_distance(coords[-1], coords_center)
+
+        self.modeler.create_polyline(coords,xsection_type="Line", xsection_width=distance/10 )
         return closest_faces, plane
 
     @aedt_exception_handler
