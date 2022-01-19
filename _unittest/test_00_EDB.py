@@ -556,12 +556,12 @@ class TestClass:
         assert self.edbapp.core_primitives.add_void(plane, void)
 
     def test_68_flip_layer_stackup(self):
-        assert self.edbapp.core_stackup.flip_stackup_and_apply_transform()
+        assert self.edbapp.core_stackup.place_in_layout()
 
     def test_69_create_solder_balls_on_component(self):
         assert self.edbapp.core_components.set_solder_ball("U2A5")
 
-    @pytest.mark.skipif(is_ironpython, reason="This Test uses Ironpython")
+    @pytest.mark.skipif(is_ironpython, reason="This Test uses Matplotlib that is not supported by Ironpython")
     def test_70_plot_on_matplotlib(self):
         local_png = os.path.join(self.local_scratch.path, "test.png")
         self.edbapp.core_nets.plot(None, None, save_plot=local_png)

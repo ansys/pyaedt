@@ -380,6 +380,79 @@ class Components(object):
         return cmp_list
 
     @aedt_exception_handler
+    def get_component_placement_vector(self, mounted_component, hosting_component,
+                                        mounted_component_pin1=None, mounted_component_pin2=None,
+                                        hosting_component_pin1=None, hosting_component_pin2=None):
+        """Get the placement vector between 2 components.
+
+        Parameters
+        ----------
+        mounted_component : str
+            Mounted component name.
+        hosting_component : str
+            Hosting component name.
+        mounted_component_pin1 : str
+            Mounted component Pin 1 name.
+        mounted_component_pin2 : str
+            Mounted component Pin 2 name.
+        hosting_component_pin1 : str
+            Hosted component Pin 1 name.
+        hosting_component_pin2 : str
+            Hosted component Pin 2 name.
+
+        Examples
+        --------
+        >>> edb1 = Edb(edbpath=targetfile1,  edbversion="2021.2")
+        >>> hosting_cmp = edb1.core_components.get_component_by_name("U100")
+        >>> mounted_cmp = edb2.core_components.get_component_by_name("BGA")
+        >>> vector, rotation, solder_ball_height = edb1.core_components.get_component_placement_vector(
+        >>>                                             mounted_component=mounted_cmp,
+        >>>                                             hosting_component=hosting_cmp,
+        >>>                                             mounted_component_pin1="A12",
+        >>>                                             mounted_component_pin2="A14",
+        >>>                                             hosting_component_pin1="A12",
+        >>>                                             hosting_component_pin2="A14")
+
+        Returns
+        -------
+        tuple
+            Tuple of Vector offset, rotation and solder height.
+        """
+        m_pin1_pos = [0.0, 0.0]
+        m_pin2_pos = [0.0, 0.0]
+        h_pin1_pos = [0.0, 0.0]
+        h_pin2_pos = [0.0, 0.0]
+        if not isinstance(mounted_component, self._edb.Cell.Hierarchy.Component):
+            return False
+        if not isinstance(hosting_component, self._edb.Cell.Hierarchy.Component):
+            return False
+        if mounted_component_pin1:
+            m_pin1 = self._get_edb_pin_from_pin_name(mounted_component, mounted_component_pin1)
+            m_pin1_pos = self.get_pin_position(m_pin1)
+        if mounted_component_pin2:
+            m_pin2 = self._get_edb_pin_from_pin_name(mounted_component, mounted_component_pin2)
+            m_pin2_pos = self.get_pin_position(m_pin2)
+        if hosting_component_pin1:
+            h_pin1 = self._get_edb_pin_from_pin_name(hosting_component, hosting_component_pin1)
+            h_pin1_pos = self.get_pin_position(h_pin1)
+        if hosting_component_pin2:
+            h_pin2 = self._get_edb_pin_from_pin_name(hosting_component, hosting_component_pin2)
+            h_pin2_pos = self.get_pin_position(h_pin2)
+        vector = [h_pin1_pos[0] - m_pin1_pos[0], h_pin1_pos[1] - m_pin1_pos[1]]
+        d_m_pin1_h_pin2 = math.sqrt(math.pow(h_pin2_pos[0] - m_pin1_pos[0], 2) + math.pow(h_pin2_pos[1] - m_pin1_pos[1],
+                                                                                          2))
+        d_m_pin2_h_pin2 = math.sqrt(math.pow(h_pin2_pos[0] - m_pin2_pos[0], 2) + math.pow(h_pin2_pos[1] - m_pin2_pos[1],
+                                                                                          2))
+        rotation = math.atan(d_m_pin2_h_pin2 / d_m_pin1_h_pin2)
+        if vector:
+            solder_ball_height = self.get_solder_ball_height(mounted_component)
+            if solder_ball_height == 0.0:
+                solder_ball_height = 150e-6
+            self.set_solder_ball(component=mounted_component, sball_height=solder_ball_height)
+            return vector, rotation, solder_ball_height
+        return False
+
+    @aedt_exception_handler
     def get_solder_ball_height(self, cmp):
         """Get component solder ball height.
 
