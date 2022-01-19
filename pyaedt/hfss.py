@@ -1627,14 +1627,80 @@ class Hfss(FieldAnalysis3D, object):
         for i, j in zip(x, y):
             if plane == 0:
                 coords.append([(closest_faces[0].center[0] + closest_faces[1].center[0]) / 2, i, j])
+                orient = "Y"
             elif plane == 1:
                 coords.append([i, (closest_faces[0].center[1] + closest_faces[1].center[1]) / 2, j])
+                orient = "Z"
             elif plane == 2:
                 coords.append([i,  j, (closest_faces[0].center[2] + closest_faces[1].center[2]) / 2])
+                orient = "X"
             if GeometryOperators.points_distance(coords[-1], coords_center) < distance:
                 distance = GeometryOperators.points_distance(coords[-1], coords_center)
 
-        self.modeler.create_polyline(coords, xsection_type="Line", xsection_width=distance/10)
+        poly = self.modeler.create_polyline(coords, xsection_type="Line", xsection_width=distance/10)
+        vert_position_x =[]
+        vert_position_y =[]
+
+        for vert in poly.vertices:
+            if plane == 0:
+                vert_position_x.append(vert.position[1])
+                vert_position_y.append(vert.position[2])
+            elif plane == 1:
+                vert_position_x.append(vert.position[0])
+                vert_position_y.append(vert.position[2])
+            elif plane == 2:
+                vert_position_x.append(vert.position[0])
+                vert_position_y.append(vert.position[1])
+
+        x, y = GeometryOperators.orient_polygon(vert_position_x, vert_position_y)
+
+        list_a_val = False
+        x1 = []
+        y1 = []
+        x2 = []
+        y2 = []
+        for i in range(len(x)-1):
+            dist = GeometryOperators.points_distance([x[i], y[i], 0], [x[i + 1], y[i + 1], 0])
+            if abs(abs(dist) - distance / 10) < 1e-6:
+                list_a_val = not list_a_val
+
+            else:
+                if list_a_val:
+                    x1.append(x[i])
+                    y1.append(y[i])
+                else:
+                    x2.append(x[i])
+                    y2.append(y[i])
+
+        if list_a_val:
+            x1.append(x[i])
+            y1.append(y[i])
+        else:
+            x2.append(x[i])
+            y2.append(y[i])
+        x1, y1 = GeometryOperators.orient_polygon(x1, y1)
+        coords = []
+        for x, y in zip(x1, y1):
+            if plane == 0:
+                coords.append([(closest_faces[0].center[0] + closest_faces[1].center[0]) * 0.75, x, y])
+            elif plane == 1:
+                coords.append([x, (closest_faces[0].center[1] + closest_faces[1].center[1]) * 0.75, y])
+            elif plane == 2:
+                coords.append([x, y, (closest_faces[0].center[2] + closest_faces[1].center[2]) * 0.75])
+        poly1 = self.modeler.create_polyline(coords, xsection_type="Line", xsection_orient=orient,
+                                             xsection_width=facecenter / 2)
+        x2, y2 = GeometryOperators.orient_polygon(x2, y2)
+        coords = []
+        for x, y in zip(x2, y2):
+            if plane == 0:
+                coords.append([(closest_faces[0].center[0] + closest_faces[1].center[0]) * 0.25, x, y])
+            elif plane == 1:
+                coords.append([x, (closest_faces[0].center[1] + closest_faces[1].center[1]) * 0.25, y])
+            elif plane == 2:
+                coords.append([x, y, (closest_faces[0].center[2] + closest_faces[1].center[2]) * 0.25])
+
+        poly12 = self.modeler.create_polyline(coords, xsection_type="Line", xsection_orient=orient,
+                                              xsection_width=facecenter / 2)
         return closest_faces, plane
 
     @aedt_exception_handler
