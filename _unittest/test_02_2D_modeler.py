@@ -1,11 +1,12 @@
 # standard imports
 import math
+import os
 
-from pyaedt.generic.general_methods import isclose
+from pyaedt.generic.general_methods import isclose, is_ironpython
 from pyaedt.maxwell import Maxwell2d
 
 # Setup paths for module imports
-from _unittest.conftest import BasisTest, desktop_version
+from _unittest.conftest import BasisTest, desktop_version, config
 
 try:
     import pytest  # noqa: F401
@@ -120,3 +121,12 @@ class TestClass(BasisTest):
         assert pg2.model
         assert pg2.material_name == "copper"
         assert isclose(pg2.faces[0].area, 5.196152422706631)
+
+    @pytest.mark.skipif(config["build_machine"] or is_ironpython, reason="Not running in ironpython")
+    def test_plot(self):
+        self.aedtapp.modeler.primitives.create_regular_polygon([0, 0, 0], [0, 2, 0])
+        self.aedtapp.modeler.primitives.create_regular_polygon(
+            position=[0, 0, 0], start_point=[0, 2, 0], num_sides=3, name="MyPolygon", matname="Copper"
+        )
+        obj = self.aedtapp.plot(show=False, export_path=os.path.join(self.local_scratch.path, "image.jpg"))
+        assert os.path.exists(obj.image_file)

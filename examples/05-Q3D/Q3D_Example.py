@@ -33,7 +33,7 @@ q = Q3d(specified_version="2021.2", non_graphical=NonGraphical, new_desktop_sess
 # ~~~~~~~~~~~~~~~~~
 # Create polylines for three busbars and a box for the substrate.
 
-q.modeler.primitives.create_polyline(
+b1 = q.modeler.primitives.create_polyline(
     [[0, 0, 0], [-100, 0, 0]],
     name="Bar1",
     matname="copper",
@@ -41,6 +41,7 @@ q.modeler.primitives.create_polyline(
     xsection_width="5mm",
     xsection_height="1mm",
 )
+q.modeler["Bar1"].color = (255, 0, 0)
 
 q.modeler.primitives.create_polyline(
     [[0, -15, 0], [-150, -15, 0]],
@@ -50,6 +51,7 @@ q.modeler.primitives.create_polyline(
     xsection_width="5mm",
     xsection_height="1mm",
 )
+q.modeler["Bar2"].color = (0, 255, 0)
 
 q.modeler.primitives.create_polyline(
     [[0, -30, 0], [-175, -30, 0], [-175, -10, 0]],
@@ -59,8 +61,13 @@ q.modeler.primitives.create_polyline(
     xsection_width="5mm",
     xsection_height="1mm",
 )
+q.modeler["Bar3"].color = (0, 0, 255)
 
 q.modeler.primitives.create_box([50, 30, -0.5], [-250, -100, -3], name="substrate", matname="FR4_epoxy")
+q.modeler["substrate"].color = (128, 128, 128)
+q.modeler["substrate"].transparency = 0.8
+
+q.plot(show=False, export_path=os.path.join(q.working_directory, "Q3D.jpg"), plot_air_objects=False)
 
 ###############################################################################
 # Set Up Boundaries

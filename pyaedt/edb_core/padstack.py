@@ -28,7 +28,7 @@ class EdbPadstacks(object):
     def __init__(self, p_edb):
         self._pedb = p_edb
         self._padstacks = {}
-        self._padstack_instances = []
+        self._padstack_instances = {}
 
     @property
     def _builder(self):
@@ -507,6 +507,7 @@ class EdbPadstacks(object):
         fromlayer=None,
         tolayer=None,
         solderlayer=None,
+        is_pin=False,
     ):
         """Place the padstack.
 
@@ -554,10 +555,12 @@ class EdbPadstacks(object):
         if solderlayer:
             solderlayer = self._pedb.core_stackup.signal_layers[solderlayer]._layer
         if padstack:
-            via = self._edb.Cell.Primitive.PadstackInstance.Create(
+            padstack_instance = self._edb.Cell.Primitive.PadstackInstance.Create(
                 self._active_layout, net, via_name, padstack, position, rotation, fromlayer, tolayer, solderlayer, None
             )
-            return via
+            padstack_instance.SetIsLayoutPin(is_pin)
+            self.update_padstack_instances()
+            return padstack_instance.GetId()
         else:
             return False
 
@@ -596,14 +599,103 @@ class EdbPadstacks(object):
         return True
 
     @aedt_exception_handler
+    def set_pad_property(
+        self,
+        padstack_name,
+        layer_name=None,
+        pad_shape="Circle",
+        pad_params=0,
+        pad_x_offset=0,
+        pad_y_offset=0,
+        pad_rotation=0,
+        antipad_shape="Circle",
+        antipad_params=0,
+        antipad_x_offset=0,
+        antipad_y_offset=0,
+        antipad_rotation=0,
+    ):
+        """Set pad and antipad properites of the padstack.
+
+        Parameters
+        ----------
+        padstack_name : str
+            Name of the padstack.
+        layer_name : str, optional
+            Name of the layer. If None, all layers will be taken.
+        pad_shape : str, optional
+            Shape of the pad. The default is ``"Circle"``. Options are ``"Circle"``,  ``"Square"``, ``"Rectangle"``,
+            ``"Oval"`` and ``"Bullet"``.
+        pad_params : str, optional
+            Dimension of the pad. The default is ``"0"``.
+        pad_x_offset : str, optional
+            X offset of the pad. The default is ``"0"``.
+        pad_y_offset : str, optional
+            Y offset of the pad. The default is ``"0"``.
+        pad_rotation : str, optional
+            Rotation of the pad. The default is ``"0"``.
+        antipad_shape : str, optional
+            Shape of the antipad. The default is ``"0"``.
+        antipad_params : str, optional
+            Dimension of the antipad. The default is ``"0"``.
+        antipad_x_offset : str, optional
+            X offset of the antipad. The default is ``"0"``.
+        antipad_y_offset : str, optional
+            Y offset of the antipad. The default is ``"0"``.
+        antipad_rotation : str, optional
+            Rotation of the antipad. The default is ``"0"``.
+
+        Returns
+        -------
+        bool
+            ``True`` if successful.
+        """
+        shape_dict = {
+            "Circle": 1,
+            "Square": 2,
+            "Rectangle": 3,
+            "Oval": 4,
+            "Bullet": 5,
+        }
+        pad_shape = shape_dict[pad_shape]
+        if not isinstance(pad_params, list):
+            pad_params = [pad_params]
+        pad_params = convert_py_list_to_net_list([self._edb_value(i) for i in pad_params])
+        pad_x_offset = self._edb_value(pad_x_offset)
+        pad_y_offset = self._edb_value(pad_y_offset)
+        pad_rotation = self._edb_value(pad_rotation)
+
+        antipad_shape = shape_dict[antipad_shape]
+        if not isinstance(antipad_params, list):
+            antipad_params = [antipad_params]
+        antipad_params = convert_py_list_to_net_list([self._edb_value(i) for i in antipad_params])
+        antipad_x_offset = self._edb_value(antipad_x_offset)
+        antipad_y_offset = self._edb_value(antipad_y_offset)
+        antipad_rotation = self._edb_value(antipad_rotation)
+
+        p1 = self.padstacks[padstack_name].edb_padstack.GetData()
+        new_padstack_def = self._edb.Definition.PadstackDefData(p1)
+        if not layer_name:
+            layer_name = list(self._pedb.core_stackup.signal_layers.keys())
+        elif isinstance(layer_name, str):
+            layer_name = [layer_name]
+        for layer in layer_name:
+            new_padstack_def.SetPadParameters(layer, 0, pad_shape, pad_params, pad_x_offset, pad_y_offset, pad_rotation)
+            new_padstack_def.SetPadParameters(
+                layer, 1, antipad_shape, antipad_params, antipad_x_offset, antipad_y_offset, antipad_rotation
+            )
+        self.padstacks[padstack_name].edb_padstack.SetData(new_padstack_def)
+        self.update_padstacks()
+        return True
+
+    @aedt_exception_handler
     def update_padstack_instances(self):
         """Update Padstack Instance List."""
         layout_lobj_collection = self._active_layout.GetLayoutInstance().GetAllLayoutObjInstances()
-        self._padstack_instances = []
+        self._padstack_instances = {}
         for obj in layout_lobj_collection.Items:
             lobj = obj.GetLayoutObj()
             if type(lobj) is self._edb.Cell.Primitive.PadstackInstance:
-                self._padstack_instances.append(EDBPadstackInstance(lobj, self._pedb))
+                self._padstack_instances[lobj.GetId()] = EDBPadstackInstance(lobj, self._pedb)
 
     @aedt_exception_handler
     def get_padstack_instance_by_net_name(self, net_name):
@@ -617,8 +709,8 @@ class EdbPadstacks(object):
         -------
         list of Edb.Cell.Primitive.PadstackInstance
         """
-        via_list = []
-        for inst in self.padstack_instances:
+        padstack_instances = {}
+        for inst_id, inst in self.padstack_instances.items():
             if inst.net_name == net_name:
-                via_list.append(inst)
-        return via_list
+                padstack_instances[inst_id] = inst
+        return padstack_instances

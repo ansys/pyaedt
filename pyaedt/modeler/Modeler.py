@@ -1485,12 +1485,7 @@ class GeometryModeler(Modeler, object):
 
         >>> oModule.GetExcitations
         """
-        try:
-            list_names = list(self._app.oboundary.GetExcitations())
-            del list_names[1::2]
-            return list_names
-        except:
-            return []
+        return self._app.get_excitations_name()
 
     @aedt_exception_handler
     def get_boundaries_name(self):
@@ -2337,7 +2332,7 @@ class GeometryModeler(Modeler, object):
         num_objects = len(theList)
         remaining = num_objects
         objs_groups = []
-        while remaining > 0:
+        while remaining > 1:
             objs = theList[:slice]
             szSelections = self.convert_to_selections(objs)
             vArg1 = ["NAME:Selections", "Selections:=", szSelections]
@@ -2347,6 +2342,8 @@ class GeometryModeler(Modeler, object):
             remaining -= slice
             if remaining > 0:
                 theList = theList[slice:]
+        if remaining > 0:
+            objs_groups.extend(theList)
         self.primitives.cleanup_objects()
         if len(objs_groups) > 1:
             return self.unite(objs_groups)

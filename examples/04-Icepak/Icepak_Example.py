@@ -4,7 +4,6 @@ Graphic Card Thermal Analysis
 This example shows how you can use PyAEDT to create an Graphic Card setup in Icepak and postprocess results.
 The example file is an Icepak Project with a model already created and with materials assigned.
 """
-# sphinx_gallery_thumbnail_path = 'Resources/Icepak.png'
 
 ###############################################################################
 # Launch AEDT in Graphical Mode
@@ -36,6 +35,12 @@ shutil.copy2(project_full_name, project_temp_name)
 ipk = Icepak(project_temp_name, specified_version="2021.2", new_desktop_session=True)
 ipk.save_project(os.path.join(temp_folder, "Graphics_card.aedt"))
 ipk.autosave_disable()
+
+###############################################################################
+# Plot the model
+# ~~~~~~~~~~~~~~
+
+ipk.plot(show=False, export_path=os.path.join(temp_folder, "Graphics_card.jpg"), plot_air_objects=False)
 
 ###############################################################################
 # Create Source Blocks

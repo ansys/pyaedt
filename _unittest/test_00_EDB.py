@@ -120,6 +120,12 @@ class TestClass:
         assert self.edbapp.core_padstack.place_padstack(["via_x", "via_x+via_y"], "myVia")
         assert self.edbapp.core_padstack.place_padstack(["via_x", "via_x+via_y*2"], "myVia_bullet")
 
+        padstack_id = self.edbapp.core_padstack.place_padstack(["via_x", "via_x+via_y*3"], "myVia", is_pin=True)
+        padstack_instance = self.edbapp.core_padstack.padstack_instances[padstack_id]
+        assert padstack_instance.is_pin
+        assert padstack_instance.position
+        assert isinstance(padstack_instance.rotation, float)
+
     def test_08_nets_query(self):
         signalnets = self.edbapp.core_nets.signal_nets
         powernets = self.edbapp.core_nets.power_nets
@@ -564,12 +570,20 @@ class TestClass:
     def test_71_fix_circle_voids(self):
         assert self.edbapp.core_primitives.fix_circle_void_for_clipping()
 
-    def test_72_vias_creation(self):
-        via_list = self.edbapp.core_padstack.get_padstack_instance_by_net_name("GND")
-        assert len(via_list)
+    def test_72_padstack_instance(self):
+        padstack_instances = self.edbapp.core_padstack.get_padstack_instance_by_net_name("GND")
+        assert len(padstack_instances)
+        padstack_1 = list(padstack_instances.values())[0]
+        assert padstack_1.id
 
     def test_73_duplicate_padstack(self):
         self.edbapp.core_padstack.duplicate_padstack(
             target_padstack_name="VIA_20-10-28_SMB", new_padstack_name="VIA_20-10-28_SMB_NEW"
         )
         assert self.edbapp.core_padstack.padstacks["VIA_20-10-28_SMB_NEW"]
+
+    def test74_set_padstack_property(self):
+        self.edbapp.core_padstack.set_pad_property(
+            padstack_name="VIA_18-10-28_SMB", layer_name="new", pad_shape="Circle", pad_params="800um"
+        )
+        assert self.edbapp.core_padstack.padstacks["VIA_18-10-28_SMB"].pad_by_layer["new"]

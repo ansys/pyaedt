@@ -4,7 +4,6 @@ Icepack Setup from Sherlock Inputs
 This example shows how to create an Icepak project starting from Sherlock
 # files (STEP and CSV) and an AEDB board.
 """
-# sphinx_gallery_thumbnail_path = 'Resources/sherlock.png'
 
 import time
 import os
@@ -109,6 +108,14 @@ ipk.modeler.import_3d_cad(file_path, refresh_all_ids=False)
 
 ipk.save_project(project_name, refresh_obj_ids_after_save=True)
 
+
+###############################################################################
+# Plot the model
+# ~~~~~~~~~~~~~~
+
+ipk.plot(show=False, export_path=os.path.join(temp_folder, "Sherlock_Example.jpg"), plot_air_objects=False)
+
+
 ###############################################################################
 # Remove PCB Objects
 # ~~~~~~~~~~~~~~~~~~
@@ -152,6 +159,15 @@ all_objects = ipk.modeler.primitives.object_names
 # This command assigns power blocks from the Sherlock file.
 
 total_power = ipk.assign_block_from_sherlock_file(component_list)
+
+
+###############################################################################
+# Plot the model
+# ~~~~~~~~~~~~~~
+# We do the same plot after the material assignment
+
+ipk.plot(show=False, export_path=os.path.join(temp_folder, "Sherlock_Example.jpg"), plot_air_objects=False)
+
 
 ###############################################################################
 # Set Up Boundaries

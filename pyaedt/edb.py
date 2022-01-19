@@ -1049,7 +1049,7 @@ class Edb(object):
         _ref_nets = []
         # validate references in layout
         for _ref in self.core_nets.nets:
-            _ref_nets.append(self.core_nets.nets[_ref])
+            _ref_nets.append(self.core_nets.nets[_ref].net_object)
         _netsClip = convert_py_list_to_net_list(_ref_nets)
         net_signals = List[type(_ref_nets[0])]()
         # Create new cutout cell/design

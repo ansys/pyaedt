@@ -5,7 +5,7 @@ This example uses PyAEDT to setup the TEAM3 problem set by COMPUMAG.
 This is solved using the Maxwell 3D Eddy Current solver
 """
 
-# sphinx_gallery_thumbnail_path = 'Resources/Maxwell3DTeam3.png'
+import os
 
 from pyaedt import Maxwell3d
 
@@ -27,6 +27,7 @@ M3D = Maxwell3d(
     solution_type=Solver,
     specified_version=DesktopVersion,
     non_graphical=NonGraphical,
+    new_desktop_session=True,
 )
 uom = M3D.modeler.model_units = "mm"
 primitives = M3D.modeler.primitives
@@ -81,6 +82,14 @@ Line_Points = [["0mm", "-55mm", "0.5mm"], ["0mm", "55mm", "0.5mm"]]
 P1 = primitives.create_polyline(Line_Points, name="Line_AB")
 P2 = primitives.create_polyline(Line_Points, name="Line_AB_MeshRefinement")
 P2.set_crosssection_properties(type="Circle", width="0.5mm")
+
+
+###############################################################################
+# Plot the model
+# ~~~~~~~~~~~~~~
+
+M3D.plot(show=False, export_path=os.path.join(M3D.working_directory, "Image.jpg"), plot_air_objects=False)
+
 
 ###############################################################################
 # Setup Maxwell 3D Model

@@ -306,7 +306,30 @@ class Hfss(FieldAnalysis3D, object):
         props["IsWavePort"] = iswaveport
         props["ReferenceConductors"] = ref_conductors
         props["RenormalizeModes"] = True
-        return self._create_boundary(portname, props, "AutoIdentify")
+        ports = list(self.oboundary.GetExcitationsOfType("Terminal"))
+        boundary = self._create_boundary(portname, props, "AutoIdentify")
+        if boundary:
+            new_ports = list(self.oboundary.GetExcitationsOfType("Terminal"))
+            terminals = [i for i in new_ports if i not in ports]
+            for terminal in terminals:
+                name_split = terminal.split("_")
+                try:
+                    new_name = portname + "_" + name_split[1]
+                except:
+                    new_name = portname + "_T1"
+                properties = [
+                    "NAME:AllTabs",
+                    [
+                        "NAME:HfssTab",
+                        ["NAME:PropServers", "BoundarySetup:" + terminal],
+                        ["NAME:ChangedProps", ["NAME:Name", "Value:=", new_name]],
+                    ],
+                ]
+                try:
+                    self.odesign.ChangeProperty(properties)
+                except:
+                    self.logger.warning("Failed To rename Terminals")
+        return boundary
 
     @aedt_exception_handler
     def _create_circuit_port(self, edgelist, impedance, name, renorm, deemb, renorm_impedance=""):
@@ -320,7 +343,7 @@ class Hfss(FieldAnalysis3D, object):
             }
         )
 
-        if self.solution_type == "Modal":
+        if "Modal" in self.solution_type:
 
             if renorm:
                 if isinstance(renorm_impedance, (int, float)) or "i" not in renorm_impedance:
@@ -1539,7 +1562,8 @@ class Hfss(FieldAnalysis3D, object):
         'LumpedPort'
 
         """
-
+        startobj = self.modeler.convert_to_selections(startobj)
+        endobject = self.modeler.convert_to_selections(endobject)
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
             endobject
         ):
@@ -1555,7 +1579,7 @@ class Hfss(FieldAnalysis3D, object):
                 portname = generate_unique_name("Port")
             elif portname + ":1" in self.modeler.get_excitations_name():
                 portname = generate_unique_name(portname)
-            if self.solution_type == "Modal":
+            if "Modal" in self.solution_type:
                 self._create_lumped_driven(sheet_name, point0, point1, impedance, portname, renorm, deemb)
             else:
                 faces = self.modeler.primitives.get_object_faces(sheet_name)
@@ -1807,7 +1831,7 @@ class Hfss(FieldAnalysis3D, object):
                 portname = generate_unique_name("Port")
             elif portname + ":1" in self.modeler.get_excitations_name():
                 portname = generate_unique_name(portname)
-            if self.solution_type == "Modal":
+            if "Modal" in self.solution_type:
                 return self._create_waveport_driven(
                     sheet_name, point0, point1, impedance, portname, renorm, nummodes, deembed_dist
                 )
@@ -2236,7 +2260,7 @@ class Hfss(FieldAnalysis3D, object):
                 portname = generate_unique_name("Port")
             elif portname + ":1" in self.modeler.get_excitations_name():
                 portname = generate_unique_name(portname)
-            if self.solution_type == "Modal":
+            if "Modal" in self.solution_type:
                 return self._create_waveport_driven(
                     sheet_name, point0, point1, impedance, portname, renorm, nummodes, deembed_dist
                 )
@@ -2808,7 +2832,7 @@ class Hfss(FieldAnalysis3D, object):
                 portname = generate_unique_name("Port")
             elif portname + ":1" in self.modeler.get_excitations_name():
                 portname = generate_unique_name(portname)
-            if self.solution_type == "Modal":
+            if "Modal" in self.solution_type:
                 b = self._create_waveport_driven(obj, int_start, int_stop, impedance, portname, renorm, nummodes, deemb)
                 if b:
                     portnames.append(b)
@@ -2886,7 +2910,7 @@ class Hfss(FieldAnalysis3D, object):
                 portname = generate_unique_name("Port")
             elif portname + ":1" in self.modeler.get_excitations_name():
                 portname = generate_unique_name(portname)
-            if self.solution_type == "Modal":
+            if "Modal" in self.solution_type:
                 port = self._create_lumped_driven(sheet_name, point0, point1, impedance, portname, renorm, deemb)
             else:
                 if not reference_object_list:
@@ -3573,7 +3597,7 @@ class Hfss(FieldAnalysis3D, object):
         if not dname:
             dname = self.design_name
         if not outputdir:
-            outputdir = self.project_path
+            outputdir = self.working_directory
         pname = self.project_name
         validation_log_file = os.path.join(outputdir, pname + "_" + dname + "_validation.log")
 
@@ -3615,7 +3639,7 @@ class Hfss(FieldAnalysis3D, object):
         if self.solution_type != "Eigenmode":
             detected_excitations = self.modeler.get_excitations_name()
             if ports:
-                if self.solution_type == "Terminal":
+                if "Terminal" in self.solution_type:
                     # For each port, there is terminal and reference excitations.
                     ports_t = ports * 2
                 else:
@@ -3734,9 +3758,9 @@ class Hfss(FieldAnalysis3D, object):
 
         Trace = ["X Component:=", "Freq", "Y Component:=", list_y]
         solution_data = ""
-        if self.solution_type == "Modal":
+        if "Modal" in self.solution_type:
             solution_data = "Modal Solution Data"
-        elif self.solution_type == "Terminal":
+        elif "Terminal" in self.solution_type:
             solution_data = "Terminal Solution Data"
         if solution_data != "":
             # run CreateReport function
@@ -3797,7 +3821,9 @@ class Hfss(FieldAnalysis3D, object):
         sweepname : str
              Name of the sweep that has been solved.
         filename : str, optional
-             Full path and name for the output file. The default is ``None``.
+             Full path and name for the output file.
+             The default is ``None`` which export file in working_directory.
+
         variation : list, optional
              List of all parameter variations. For example, ``["$AmbientTemp", "$PowerIn"]``.
              The default is ``[]``.
@@ -3817,7 +3843,7 @@ class Hfss(FieldAnalysis3D, object):
             for v, vv in zip(variation, variations_value):
                 appendix += "_" + v + vv.replace("'", "")
             ext = ".S" + str(self.oboundary.GetNumExcitations()) + "p"
-            filename = os.path.join(self.project_path, solutionname + "_" + sweepname + appendix + ext)
+            filename = os.path.join(self.working_directory, solutionname + "_" + sweepname + appendix + ext)
         else:
             filename = filename.replace("//", "/").replace("\\", "/")
         print("Exporting Touchstone " + filename)

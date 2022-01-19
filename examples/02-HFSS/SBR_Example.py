@@ -54,6 +54,14 @@ target.create_sbr_linked_antenna(source, target_cs="feederPosition", fieldtype="
 target.assign_perfecte_to_sheets(["Reflector", "Subreflector"])
 target.mesh.assign_curvilinear_elements(["Reflector", "Subreflector"])
 
+
+###############################################################################
+# Plot the model
+# ~~~~~~~~~~~~~~
+
+source.plot(show=False, export_path=os.path.join(target.working_directory, "Image.jpg"), plot_air_objects=True)
+
+
 ###############################################################################
 # Create a Setup and Solve
 # ~~~~~~~~~~~~~~~~~~~~~~~~

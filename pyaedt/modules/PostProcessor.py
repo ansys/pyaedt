@@ -871,6 +871,7 @@ class FieldPlot:
 
         full_path : str, optional
             Path for saving the image file. PNG and GIF formats are supported.
+            The default is ``None`` which export file in working_directory.
         width : int, optional
             Plot Width.
         height : int, optional
@@ -895,7 +896,7 @@ class FieldPlot:
         """
         self.oField.UpdateQuantityFieldsPlots(self.plotFolder)
         if not full_path:
-            full_path = os.path.join(self._postprocessor._app.project_path, self.name + ".png")
+            full_path = os.path.join(self._postprocessor._app.working_directory, self.name + ".png")
         status = self._postprocessor.export_field_jpg(
             full_path,
             self.name,
@@ -922,7 +923,8 @@ class FieldPlot:
         Parameters
         ----------
         export_path : str, optional
-            Path where image will be saved
+            Path where image will be saved.
+            The default is ``None`` which export file in working_directory.
         view : str, optional
             View of the exported plot. Options are ``isometric``,
             ``top``, ``front``, ``left``, and ``all``.
@@ -946,18 +948,16 @@ class FieldPlot:
         >>> oModule.ExportFieldPlot
         """
         if not export_path:
-            export_path = self._postprocessor._app.project_path
+            export_path = self._postprocessor._app.working_directory
         if sys.version_info.major > 2:
             return self._postprocessor.plot_field_from_fieldplot(
                 self.name,
                 project_path=export_path,
                 meshplot=plot_mesh,
-                setup_name=self.solutionName,
-                intrinsic_dict=self.intrinsincList,
                 imageformat="jpg",
                 view=view,
                 plot_label=self.quantityName,
-                off_screen=True,
+                show=False,
                 scale_min=scale_min,
                 scale_max=scale_max,
             )
@@ -1044,10 +1044,7 @@ class PostProcessorCommon(object):
         type
             Design solution type.
         """
-        try:
-            return self._odesign.GetSolutionType()
-        except:
-            return self._app._design_type
+        return self._app.solution_type
 
     @property
     def all_report_names(self):
@@ -1182,7 +1179,7 @@ class PostProcessorCommon(object):
         >>> m3d.post.get_report_data("Wind(LoadA,LaodA)")    # TransientAnalsysis
 
         """
-        if self.post_solution_type in ["3DLayout", "NexximLNA", "NexximTransient"]:
+        if self.post_solution_type in ["HFSS3DLayout", "NexximLNA", "NexximTransient", "TR", "AC", "DC"]:
             if domain == "Sweep":
                 did = 3
             else:
@@ -1196,7 +1193,9 @@ class PostProcessorCommon(object):
             ctxt = domain
         else:
             ctxt = ["Domain:=", domain]
-
+        if self.post_solution_type in ["TR", "AC", "DC"]:
+            ctxt[2] = ctxt[2][:-3]
+            setup_sweep_name = self.post_solution_type
         if not isinstance(expression, list):
             expression = [expression]
         if not setup_sweep_name:
@@ -1206,7 +1205,10 @@ class PostProcessorCommon(object):
             report_input_type = self._app.design_solutions.report_type
 
         if families_dict is None:
-            families_dict = {"Freq": ["All"]}
+            if domain == "Time":
+                families_dict = {"Time": ["All"]}
+            else:
+                families_dict = {"Freq": ["All"]}
 
         solution_data = self.get_solution_data_per_variation(
             report_input_type, setup_sweep_name, ctxt, families_dict, expression
@@ -1262,7 +1264,7 @@ class PostProcessorCommon(object):
         ctxt = []
         if not setup_sweep_name:
             setup_sweep_name = self._app.nominal_sweep
-        if self.post_solution_type in ["HFSS 3D Layout Design", "NexximLNA", "NexximTransient"]:
+        if self.post_solution_type in ["HFSS3DLayout", "NexximLNA", "NexximTransient", "TR", "AC", "DC"]:
             if "Freq" == primary_sweep_variable or "Freq" in list(families_dict.keys()):
                 did = 3
             else:
@@ -1277,7 +1279,9 @@ class PostProcessorCommon(object):
                 ctxt = context
             else:
                 ctxt = ["Context:=", context]
-
+        if self.post_solution_type in ["TR", "AC", "DC"]:
+            ctxt[2] = ctxt[2][:-3]
+            setup_sweep_name = self.post_solution_type
         if not isinstance(expression, list):
             expression = [expression]
         if not setup_sweep_name:
@@ -1910,7 +1914,7 @@ class PostProcessor(PostProcessorCommon, object):
                     variation_dict.append(phase)
                 else:
                     variation_dict.append("0deg")
-        file_name = os.path.join(self._app.project_path, generate_unique_name("temp_fld") + ".fld")
+        file_name = os.path.join(self._app.working_directory, generate_unique_name("temp_fld") + ".fld")
         self.ofieldsreporter.CalculatorWrite(file_name, ["Solution:=", solution], variation_dict)
         value = None
         if os.path.exists(file_name):
@@ -1951,7 +1955,7 @@ class PostProcessor(PostProcessorCommon, object):
             The default is ``None``.
         filename : str, optional
             Full path and name to save the file to.
-            The default is ``None``.
+            The default is ``None`` which export file in working_directory.
         gridtype : str, optional
             Type of the grid to export. The default is ``"Cartesian"``.
         grid_center : list, optional
@@ -1996,7 +2000,7 @@ class PostProcessor(PostProcessorCommon, object):
         if not filename:
             appendix = ""
             ext = ".fld"
-            filename = os.path.join(self._app.project_path, solution.replace(" : ", "_") + appendix + ext)
+            filename = os.path.join(self._app.working_directory, solution.replace(" : ", "_") + appendix + ext)
         else:
             filename = filename.replace("//", "/").replace("\\", "/")
         self.ofieldsreporter.CalcStack("clear")
@@ -2089,7 +2093,7 @@ class PostProcessor(PostProcessorCommon, object):
             The default is ``None``.
         filename : str, optional
             Full path and name to save the file to.
-            The default is ``None``.
+            The default is ``None`` which export file in working_directory.
         obj_list : str, optional
             List of objects to export. The default is ``"AllObjects"``.
         obj_type : str, optional
@@ -2130,7 +2134,7 @@ class PostProcessor(PostProcessorCommon, object):
         if not filename:
             appendix = ""
             ext = ".fld"
-            filename = os.path.join(self._app.project_path, solution.replace(" : ", "_") + appendix + ext)
+            filename = os.path.join(self._app.working_directory, solution.replace(" : ", "_") + appendix + ext)
         else:
             filename = filename.replace("//", "/").replace("\\", "/")
         self.ofieldsreporter.CalcStack("clear")
@@ -2180,7 +2184,7 @@ class PostProcessor(PostProcessorCommon, object):
                 export_with_sample_points,
             )
         else:
-            sample_points_file = os.path.join(self._app.project_path, "temp_points.pts")
+            sample_points_file = os.path.join(self._app.working_directory, "temp_points.pts")
             with open(sample_points_file, "w") as f:
                 for point in sample_points_lists:
                     f.write(" ".join([str(i) for i in point]) + "\n")
@@ -2216,8 +2220,8 @@ class PostProcessor(PostProcessorCommon, object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        str
+            File Path when succeeded.
 
         References
         ----------

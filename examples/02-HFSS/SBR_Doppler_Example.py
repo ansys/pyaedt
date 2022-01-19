@@ -3,7 +3,6 @@ SBR+ Doppler Setup
 ------------------
 This example shows how you can use PyAEDT to create a Multipart Scenario in SBR+ and setup a doppler Analysis.
 """
-# sphinx_gallery_thumbnail_path = 'Resources/sherlock_doppler.png'
 
 ###############################################################################
 # Launch AEDT in Graphical Mode
@@ -127,6 +126,12 @@ radar1 = app.create_sbr_radar_from_json(
 setup, sweep = app.create_sbr_pulse_doppler_setup(sweep_time_duration=2)
 app.set_sbr_current_sources_options()
 app.validate_simple()
+
+###############################################################################
+# Plot the model
+# ~~~~~~~~~~~~~~
+
+app.plot(show=False, export_path=os.path.join(app.working_directory, "Image.jpg"), plot_air_objects=True)
 
 ###############################################################################
 # Solve and release desktop

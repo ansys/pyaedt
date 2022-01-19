@@ -3,7 +3,6 @@ HFSS-Mechanical Multiphysics Analysis
 -------------------------------------
 This example shows how to use Pyaedt to create a multiphysics workflow that includes Circuit, Hfss and Mechanical.
 """
-# sphinx_gallery_thumbnail_path = 'Resources/Mechanical.png'
 
 ###############################################################################
 # Import packages
@@ -139,6 +138,13 @@ for el in diels:
     mech.assign_uniform_convection(
         [mech.modeler.primitives[el].top_face_y, mech.modeler.primitives[el].bottom_face_y], 3
     )
+
+
+###############################################################################
+# Plot the model
+# ~~~~~~~~~~~~~~
+
+mech.plot(show=False, export_path=os.path.join(mech.working_directory, "Mech.jpg"), plot_air_objects=False)
 
 ###############################################################################
 # Solution
