@@ -537,6 +537,43 @@ class EdbLayout(object):
             return polygon
 
     @aedt_exception_handler
+    def get_primitive(self, net_name=None, layer_name=None, prim_type=None, is_void=False):
+        """Get primitives by conditions.
+
+        Parameters
+        ----------
+        net_name : str, optional
+            Set filter on net_name. Default is `None"`.
+        layer_name : str, optional
+            Set filter on layer_name. Default is `None"`.
+        prim_type :  str, optional
+            Set filter on primitive type. Default is `None"`.
+        is_void : bool
+            Set filter on is_void. Default is 'False'
+        Returns
+        -------
+        list
+            List of filtered primitives
+        """
+        prims = []
+        for el in self.primitives:
+            if not el.type:
+                continue
+            if net_name:
+                if not el.net_name == net_name:
+                    continue
+            if layer_name:
+                if not el.layer_name == layer_name:
+                    continue
+            if prim_type:
+                if not el.type == prim_type:
+                    continue
+            if not el.is_void == is_void:
+                continue
+            prims.append(el)
+        return prims
+
+    @aedt_exception_handler
     def fix_circle_void_for_clipping(self):
         """Fix issues when circle void are clipped due to a bug in EDB.
 
