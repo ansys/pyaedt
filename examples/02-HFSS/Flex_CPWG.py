@@ -13,7 +13,7 @@ import os
 from math import radians, sin, cos, sqrt
 from pyaedt import Hfss
 
-hfss = Hfss(specified_version="2021.2", solution_type="DrivenTerminal")
+hfss = Hfss(specified_version="2021.2", solution_type="DrivenTerminal", new_desktop_session=True)
 hfss.change_material_override(True)
 hfss.change_automatically_use_causal_materials(True)
 hfss.create_open_region("100GHz")
