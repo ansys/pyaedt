@@ -468,8 +468,8 @@ class Components(object):
             solder_ball_height = self.get_solder_ball_height(mounted_component)
             if solder_ball_height == 0.0:
                 solder_ball_height = 150e-6
-            mounted_component_name = mounted_component.GetName()
-            self.set_solder_ball(mounted_component_name, sball_height=solder_ball_height)
+            #mounted_component_name = mounted_component.GetName()
+            self.set_solder_ball(component=mounted_component, sball_height=solder_ball_height)
             return vector, rotation, solder_ball_height
         return False
 
@@ -1049,13 +1049,13 @@ class Components(object):
         return False
 
     @aedt_exception_handler
-    def set_solder_ball(self, componentname="", sball_diam="100um", sball_height="150um"):
+    def set_solder_ball(self, component="", sball_diam="100um", sball_height="150um"):
         """Set cylindrical solder balls on a given component.
 
         Parameters
         ----------
-        componentname : str
-            Name of the discret component or the EDB component object.
+        componentname : str or EDB component
+            Name of the discret component.
 
         sball_diam  : str, float
             Diameter of the solder ball.
@@ -1076,7 +1076,10 @@ class Components(object):
         >>> edbapp.core_components.set_solder_ball("A1")
 
         """
-        edb_cmp = self.get_component_by_name(componentname)
+        if not isinstance(component, self._edb.Cell.Hierarchy.Component):
+            edb_cmp = self.get_component_by_name(component)
+        else:
+            edb_cmp = component
         if edb_cmp:
             cmp_type = edb_cmp.GetComponentType()
             if cmp_type == self._edb.Definition.ComponentType.IC:
@@ -1110,6 +1113,17 @@ class Components(object):
                 io_cmp_prop.SetPortProperty(io_port_prop)
                 edb_cmp.SetComponentProperty(io_cmp_prop)
                 return True
+            elif cmp_type == self._edb.Definition.ComponentType.Other:
+                other_cmp_prop = edb_cmp.GetComponentProperty().Clone()
+                other_solder_ball_prop = other_cmp_prop.GetSolderBallProperty().Clone()
+                other_solder_ball_prop.SetDiameter(self._edb_value(sball_diam), self._edb_value(sball_diam))
+                other_solder_ball_prop.SetHeight(self._edb_value(sball_height))
+                other_solder_ball_prop.SetShape(self._edb.Definition.SolderballShape.Cylinder)
+                other_cmp_prop.SetSolderBallProperty(other_solder_ball_prop)
+                other_port_prop = other_cmp_prop.GetPortProperty().Clone()
+                other_port_prop.SetReferenceSizeAuto(True)
+                other_cmp_prop.SetPortProperty(other_port_prop)
+                edb_cmp.SetComponentProperty(other_port_prop)
             else:
                 return False
         else:
