@@ -59,7 +59,7 @@ target.mesh.assign_curvilinear_elements(["Reflector", "Subreflector"])
 # Plot the model
 # ~~~~~~~~~~~~~~
 
-source.plot(show=False, export_path=os.path.join(target.project_path, "Image.jpg"), plot_air_objects=True)
+source.plot(show=False, export_path=os.path.join(target.working_directory, "Image.jpg"), plot_air_objects=True)
 
 
 ###############################################################################

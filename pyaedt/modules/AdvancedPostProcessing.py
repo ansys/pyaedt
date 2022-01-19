@@ -1244,9 +1244,7 @@ class PostProcessor(Post):
 
         assert self._app._aedt_version >= "2021.2", self.logger.error("Object is supported from AEDT 2021 R2.")
         if not export_path:
-            export_path = os.path.join(self._app.project_path, self._app.project_name + "_pyaedt")
-            if not os.path.exists(export_path):
-                os.mkdir(export_path)
+            export_path = self._app.working_directory
         if not obj_list:
             self._app.modeler.refresh_all_ids()
             obj_list = self._app.modeler.primitives.object_names
@@ -1263,7 +1261,7 @@ class PostProcessor(Post):
         if export_as_single_objects:
             files_exported = []
             for el in obj_list:
-                fname = os.path.join(export_path, "Model_{}.obj".format(el))
+                fname = os.path.join(export_path, "{}.obj".format(el))
                 self._app.modeler.oeditor.ExportModelMeshToFile(fname, [el])
                 if not self._app.modeler[el].display_wireframe:
                     files_exported.append([fname, self._app.modeler[el].color, 1 - self._app.modeler[el].transparency])
@@ -1291,7 +1289,7 @@ class PostProcessor(Post):
         -------
 
         """
-        project_path = self._app.project_path
+        project_path = self._app.working_directory
 
         if not setup_name:
             setup_name = self._app.nominal_adaptive
@@ -1434,7 +1432,7 @@ class PostProcessor(Post):
             self.ofieldsreporter.UpdateQuantityFieldsPlots(plot_folder)
 
         start = time.time()
-        file_to_add = self.export_field_plot(plotname, self._app.project_path)
+        file_to_add = self.export_field_plot(plotname, self._app.working_directory)
         models = None
         if not file_to_add:
             return False
@@ -1494,7 +1492,7 @@ class PostProcessor(Post):
             List of variation values with units. The default is
             ``["0deg"]``.
         project_path : str, optional
-            Path for the export. The default is ``""``.
+            Path for the export. The default is ``""`` which export file in working_directory.
         meshplot : bool, optional
              The default is ``False``. Valid from Version 2021.2.
         export_gif : bool, optional
@@ -1518,7 +1516,7 @@ class PostProcessor(Post):
                 models_to_add = self.export_model_obj(export_as_single_objects=True, air_objects=False)
         fields_to_add = []
         if not project_path:
-            project_path = self._app.project_path
+            project_path = self._app.working_directory
         for el in variation_list:
             self._app._odesign.ChangeProperty(
                 [
@@ -1542,7 +1540,7 @@ class PostProcessor(Post):
         if fields_to_add:
             model.add_frames_from_file(fields_to_add)
         if export_gif:
-            model.gif_file = os.path.join(self._app.project_path, self._app.project_name + ".gif")
+            model.gif_file = os.path.join(self._app.working_directory, self._app.project_name + ".gif")
 
         if show or export_gif:
             model.animate()
@@ -1596,7 +1594,7 @@ class PostProcessor(Post):
             List of variation values with units. The default is
             ``["0deg"]``.
         project_path : str, optional
-            Path for the export. The default is ``""``.
+            Path for the export. The default is ``""`` which export file in working_directory.
         export_gif : bool, optional
              Whether to export to a GIF file. The default is ``False``,
              in which case the plot is exported to a JPG file.
@@ -1609,7 +1607,7 @@ class PostProcessor(Post):
             Model Object.
         """
         if not project_path:
-            project_path = self._app.project_path
+            project_path = self._app.working_directory
         models_to_add = []
         if meshplot:
             if self._app._aedt_version >= "2021.2":
@@ -1638,7 +1636,7 @@ class PostProcessor(Post):
         if fields_to_add:
             model.add_frames_from_file(fields_to_add)
         if export_gif:
-            model.gif_file = os.path.join(self._app.project_path, self._app.project_name + ".gif")
+            model.gif_file = os.path.join(self._app.working_directory, self._app.project_name + ".gif")
         if show or export_gif:
             model.animate()
             model.clean_cache_and_files(clean_cache=False)

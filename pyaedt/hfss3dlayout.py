@@ -388,7 +388,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         name : str, optional
             Name of the design to validate. The default is ``None``.
         outputdir : str, optional
-            Output directory to save the log file to. The default is ``None``.
+            Output directory to save the log file to.
+            The default is ``None`` which export file in working_directory.
+
         ports : str, optional
             Number of excitations that are expected. The default is ``None``.
 
@@ -405,7 +407,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         if name is None:
             name = self.design_name
         if outputdir is None:
-            outputdir = self.project_path
+            outputdir = self.working_directory
 
         self.logger.info("#### Design Validation Checks###")
         #
@@ -553,6 +555,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             Name of the sweep that has been solved.
         filename : str
             Full path for the Touchstone file.
+            The default is ``None`` which export file in working_directory.
         variation : list
             List of all parameter variations, such  as ``["$AmbientTemp", "$PowerIn"]``.
         variations_value : list
@@ -574,7 +577,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             for v, vv in zip(variation, variations_value):
                 appendix += "_" + v + vv.replace("'", "")
             ext = ".S" + str(len(self.port_list)) + "p"
-            filename = os.path.join(self.project_path, solutionname + "_" + sweepname + appendix + ext)
+            filename = os.path.join(self.working_directory, solutionname + "_" + sweepname + appendix + ext)
         else:
             filename = filename.replace("//", "/").replace("\\", "/")
         print("Exporting Touchstone " + filename)

@@ -857,14 +857,15 @@ class Design(object):
     def toolkit_directory(self):
         """Path to the toolkit directory.
 
+
         Returns
         -------
         str
-            Full absolute path for the ``toolkit`` directory for this project.
+            Full absolute path for the ``pyaedt`` directory for this project.
             If this directory does not exist, it is created.
-
         """
-        toolkit_directory = os.path.join(self.project_path, self.project_name + ".toolkit")
+
+        toolkit_directory = os.path.join(self.project_path, self.project_name + ".pyaedt")
         if not os.path.isdir(toolkit_directory):
             os.mkdir(toolkit_directory)
         return toolkit_directory
@@ -1037,7 +1038,7 @@ class Design(object):
         variation_string : str
             Variation string with values. Eg ``'radius=3mm'``
         file_path : str, optional
-            full path to .prof file.
+            full path to .prof file. If `None`, working_directory will be used.
 
 
         Returns
@@ -1051,7 +1052,7 @@ class Design(object):
         >>> oDesign.ExportProfile
         """
         if not file_path:
-            file_path = os.path.join(self.project_path, generate_unique_name("Profile") + ".prop")
+            file_path = os.path.join(self.working_directory, generate_unique_name("Profile") + ".prop")
         self.odesign.ExportProfile(setup_name, variation_string, file_path)
         self.logger.info("Exported Profile to file {}".format(file_path))
         return file_path

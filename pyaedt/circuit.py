@@ -750,7 +750,8 @@ class Circuit(FieldAnalysisCircuit, object):
         sweepname : str
              Name of the sweep that has been solved.
         filename : str, optional
-             Full path and name for the Touchstone file. The default is ``None``.
+             Full path and name for the Touchstone file.
+             The default is ``None`` which export file in working_directory.
         variation : list, optional
              List of all parameter variations. For example, ``["$AmbientTemp", "$PowerIn"]``.
              The default is ``[]``.
@@ -774,7 +775,7 @@ class Circuit(FieldAnalysisCircuit, object):
             for v, vv in zip(variation, variations_value):
                 appendix += "_" + v + vv.replace("'", "")
             ext = ".S" + str(self.oboundary.GetNumExcitations()) + "p"
-            filename = os.path.join(self.project_path, solutionname + "_" + sweepname + appendix + ext)
+            filename = os.path.join(self.working_directory, solutionname + "_" + sweepname + appendix + ext)
         else:
             filename = filename.replace("//", "/").replace("\\", "/")
         self.logger.info("Exporting Touchstone " + filename)
@@ -850,7 +851,8 @@ class Circuit(FieldAnalysisCircuit, object):
         is_solution_file : bool, optional
             Whether it is an imported solution file. The default is ``False``.
         filename : str, optional
-            Full path and name for exporting the HSpice file. The default is ``None``.
+            Full path and name for exporting the HSpice file.
+            The default is ``None`` which export file in working_directory.
         passivity : bool, optional
             Whether to compute the passivity. The default is ``False``.
         causality : bool, optional
@@ -878,7 +880,7 @@ class Circuit(FieldAnalysisCircuit, object):
         if not designname:
             designname = self.design_name
         if not filename:
-            filename = os.path.join(self.project_path, self.design_name + ".sp")
+            filename = os.path.join(self.working_directory, self.design_name + ".sp")
         if is_solution_file:
             setupname = designname
             designname = ""
