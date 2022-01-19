@@ -51,6 +51,8 @@ except ImportError:
         "The Matplotlib module is required to run some functionalities of PostProcess.\n"
         "Install with \n\npip install matplotlib\n\nRequires CPython."
     )
+except:
+    pass
 
 
 def is_notebook():
