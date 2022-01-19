@@ -1466,8 +1466,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        str
-            Name of port created when successful, ``False`` otherwise.
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
 
         References
         ----------
@@ -1503,8 +1503,7 @@ class Hfss(FieldAnalysis3D, object):
                 portname = generate_unique_name("Port")
             elif portname + ":1" in self.modeler.get_excitations_name():
                 portname = generate_unique_name(portname)
-            if self._create_circuit_port(out, impedance, portname, renorm, deemb, renorm_impedance=renorm_impedance):
-                return portname
+            return self._create_circuit_port(out, impedance, portname, renorm, deemb, renorm_impedance=renorm_impedance)
         return False
 
     @aedt_exception_handler
@@ -1537,8 +1536,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        str
-            Name of port created when successful, ``False`` otherwise.
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
 
         References
         ----------
@@ -1580,24 +1579,43 @@ class Hfss(FieldAnalysis3D, object):
             elif portname + ":1" in self.modeler.get_excitations_name():
                 portname = generate_unique_name(portname)
             if "Modal" in self.solution_type:
-                self._create_lumped_driven(sheet_name, point0, point1, impedance, portname, renorm, deemb)
+                return self._create_lumped_driven(sheet_name, point0, point1, impedance, portname, renorm, deemb)
             else:
                 faces = self.modeler.primitives.get_object_faces(sheet_name)
-                self._create_port_terminal(faces[0], endobject, portname, iswaveport=False)
-            return portname
+                return self._create_port_terminal(faces[0], endobject, portname, iswaveport=False)
         return False
 
     @aedt_exception_handler
-    def create_meandered_lumped_port(self, start_object, end_object):
+    def create_spiral_lumped_port(self, start_object, end_object):
+        """Created a spiral lumped port between two adjacent objects.
+        The two objects needs to be two adiacent identical faces and faces have to be polygon (not circle).
+
+        Parameters
+        ----------
+        start_object : str or int or :class:`pyaedt.modeler.Object3d.Object3d`
+        end_object
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
+
+        """
+
         start_object = self.modeler.convert_to_selections(start_object)
         end_object = self.modeler.convert_to_selections(end_object)
         facecenter = 1e9
         closest_faces = []
+        sum = 0
+        count = 0
         for face in self.modeler[start_object].faces:
             for face2 in self.modeler[end_object].faces:
                 if GeometryOperators.points_distance(face.center, face2.center) <= facecenter:
                     facecenter = GeometryOperators.points_distance(face.center, face2.center)
                     closest_faces = [face, face2]
+            for edge in face.edges:
+                count += 1
+                sum += edge.length
 
         plane = None
 
@@ -1610,9 +1628,11 @@ class Hfss(FieldAnalysis3D, object):
 
         objects_center = [(j - i) / 2 for i, j in zip(closest_faces[0].center, closest_faces[1].center)]
 
-        distance = 1e-1
+        distance = sum / (10 * count)
+        name= generate_unique_name("P", n=3)
 
         poly = self.modeler.create_spiral_on_face(closest_faces[0], distance)
+        poly.name = name
         vert_position_x = []
         vert_position_y = []
 
@@ -1683,9 +1703,9 @@ class Hfss(FieldAnalysis3D, object):
                 orient = "X"
             else:
                 orient = "Y"
-
         poly1 = self.modeler.create_polyline(coords, xsection_type="Line", xsection_orient=orient,
-                                             xsection_width=facecenter / 2)
+                                             xsection_width=facecenter / 2, name=start_object+"_sheet")
+        self.assign_perfecte_to_sheets(poly1, sourcename=start_object)
         x2, y2 = GeometryOperators.orient_polygon(x2, y2)
         coords = []
         for x, y in zip(x2, y2):
@@ -1716,8 +1736,12 @@ class Hfss(FieldAnalysis3D, object):
                 orient = "X"
             else:
                 orient = "Y"
-        poly12 = self.modeler.create_polyline(coords, xsection_type="Line", xsection_orient=orient,
-                                              xsection_width=facecenter / 2)
+        poly2 = self.modeler.create_polyline(coords, xsection_type="Line", xsection_orient=orient,
+                                              xsection_width=facecenter / 2, name=end_object+"_sheet")
+
+        self.assign_perfecte_to_sheets(poly2, sourcename=end_object)
+        self.create_lumped_port_to_sheet(poly,reference_object_list=[poly2.name], portname=name)
+
         return closest_faces, plane
 
     @aedt_exception_handler
@@ -3028,16 +3052,9 @@ class Hfss(FieldAnalysis3D, object):
         ...                                  "LumpedPortFromSheet", True, False)
 
         """
-
+        sheet_name = self.modeler.convert_to_selections(sheet_name, False)
         if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
             point0, point1 = self.modeler.primitives.get_mid_points_on_dir(sheet_name, axisdir)
-
-            cond = self.get_all_conductors_names()
-            touching = self.modeler.primitives.get_bodynames_from_position(point0)
-            listcond = []
-            for el in touching:
-                if el in cond:
-                    listcond.append(el)
 
             if not portname:
                 portname = generate_unique_name("Port")
@@ -3202,7 +3219,7 @@ class Hfss(FieldAnalysis3D, object):
         <class 'pyaedt.modules.Boundary.BoundaryObject'>
 
         """
-
+        sheet_list = self.modeler.convert_to_selections(sheet_list)
         if self.solution_type in ["Modal", "Terminal", "Transient Network", "SBR+"]:
             if not sourcename:
                 sourcename = generate_unique_name("PerfE")
