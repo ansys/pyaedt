@@ -85,7 +85,8 @@ class TestClass:
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         o5 = self.aedtapp.modeler.primitives.create_circle(self.aedtapp.PLANE.YZ, udp, 10, name="sheet1")
         self.aedtapp.solution_type = "Terminal"
-        port = self.aedtapp.create_wave_port_from_sheet(o5, 5, self.aedtapp.AxisDir.XNeg, 40, 2, "sheet1_Port", True)
+        port = self.aedtapp.create_wave_port_from_sheet(o5, 5, self.aedtapp.AxisDir.XNeg, 40, 2, "sheet1_Port", True,
+                                                        terminal_references=["outer"])
         assert port.name == "sheet1_Port"
         assert port.name in [i.name for i in self.aedtapp.boundaries]
         self.aedtapp.solution_type = "Modal"
@@ -99,7 +100,7 @@ class TestClass:
         id7 = self.aedtapp.modeler.primitives.create_box([20, 25, 30], [10, 2, 2], matname="Copper")
         rect = self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.PLANE.YZ, [20, 25, 20], [2, 10])
         ports = self.aedtapp.create_wave_port_from_sheet(rect, 5, self.aedtapp.AxisDir.ZNeg, 40, 2, "sheet3_Port", True)
-        assert ports[0].name in [i.name for i in self.aedtapp.boundaries]
+        assert ports.name in [i.name for i in self.aedtapp.boundaries]
         pass
 
     def test_06a_create_linear_count_sweep(self):
@@ -642,6 +643,6 @@ class TestClass:
         )
         assert "Lump1_T1" in self.aedtapp.get_excitations_name()
         port2 = self.aedtapp.create_lumped_port_to_sheet(
-            sheet.name, self.aedtapp.AxisDir.XNeg, 50, "Lump_sheet", True, False
+            sheet.name, self.aedtapp.AxisDir.XNeg, 50, "Lump_sheet", True, False, reference_object_list=[box1]
         )
         assert port2.name + "_T1" in self.aedtapp.modeler.get_excitations_name()

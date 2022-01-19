@@ -2772,7 +2772,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        sheet : str
+        sheet : str or int or :class:`pyaedt.modeler.Object3d.Object3d`
             Name of the sheet.
         deemb : float, optional
             Deembedding value distance in model units. The default is ``0``.
@@ -2819,6 +2819,8 @@ class Hfss(FieldAnalysis3D, object):
         """
 
         sheet = self.modeler.convert_to_selections(sheet, False)
+        if terminal_references:
+            terminal_references = self.modeler.convert_to_selections(terminal_references, True)
         if isinstance(sheet, int):
             try:
                 oname = self.modeler.oeditor.GetObjectNameByFaceID(sheet)
@@ -2838,11 +2840,15 @@ class Hfss(FieldAnalysis3D, object):
                 sheet, int_start, int_stop, impedance, portname, renorm, nummodes, deemb
             )
         else:
-            faces = self.modeler.primitives.get_object_faces(sheet)
-            if not faces:
+            if isinstance(sheet, int):
                 faces = sheet
+            else:
+                faces = self.modeler.primitives.get_object_faces(sheet)[0]
+            if not faces:
+                self.logger.error("Wrong Input object. it has to be a face id or a sheet.")
+                return False
             if terminal_references:
-                return self._create_port_terminal(faces[0], terminal_references, portname, iswaveport=True)
+                return self._create_port_terminal(faces, terminal_references, portname, iswaveport=True)
             else:
                 self.logger.error("Reference Conductors are missed.")
                 return False
@@ -2920,7 +2926,7 @@ class Hfss(FieldAnalysis3D, object):
             port = False
             if "Modal" in self.solution_type:
                 port = self._create_lumped_driven(sheet_name, point0, point1, impedance, portname, renorm, deemb)
-            elif isinstance(sheet_name, int):
+            else:
                 if not reference_object_list:
                     cond = self.get_all_conductors_names()
                     touching = self.modeler.primitives.get_bodynames_from_position(point0)
@@ -2928,7 +2934,15 @@ class Hfss(FieldAnalysis3D, object):
                     for el in touching:
                         if el in cond:
                             reference_object_list.append(el)
+                if isinstance(sheet_name, int):
+                    faces = sheet_name
+                else:
+                    faces = self.modeler.primitives.get_object_faces(sheet_name)[0]
+                if not faces:
+                    self.logger.error("Wrong Input object. it has to be a face id or a sheet.")
+                    return False
                 port = self._create_port_terminal(sheet_name, reference_object_list, portname, iswaveport=False)
+
             return port
         return False
 
