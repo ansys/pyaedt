@@ -1826,6 +1826,12 @@ class EDBPadstackInstance(object):
         _, start_layer, stop_layer = self._edb_padstackinstance.GetLayerRange(layer, layer)
         return start_layer.GetName()
 
+    @start_layer.setter
+    def start_layer(self, layer_name):
+        stop_layer = self._pedb.core_stackup.signal_layers[self.stop_layer]._layer
+        layer = self._pedb.core_stackup.signal_layers[layer_name]._layer
+        self._edb_padstackinstance.SetLayerRange(layer, stop_layer)
+
     @property
     def stop_layer(self):
         """Stopping layer.
@@ -1838,6 +1844,12 @@ class EDBPadstackInstance(object):
         layer = self._pedb.edb.Cell.Layer("", 1)
         _, start_layer, stop_layer = self._edb_padstackinstance.GetLayerRange(layer, layer)
         return stop_layer.GetName()
+
+    @stop_layer.setter
+    def stop_layer(self, layer_name):
+        start_layer = self._pedb.core_stackup.signal_layers[self.start_layer]._layer
+        layer = self._pedb.core_stackup.signal_layers[layer_name]._layer
+        self._edb_padstackinstance.SetLayerRange(start_layer, layer)
 
     @property
     def net_name(self):
@@ -1922,6 +1934,15 @@ class EDBPadstackInstance(object):
             Padstack instance id.
         """
         return self._edb_padstackinstance.GetId()
+
+    @property
+    def name(self):
+        if self.is_pin:
+            comp_name = self._edb_padstackinstance.GetComponent().GetName()
+            pin_name = self._edb_padstackinstance.GetName()
+            return "-".join([comp_name, pin_name])
+        else:
+            return None
 
     @aedt_exception_handler
     def delete_padstack_instance(self):
