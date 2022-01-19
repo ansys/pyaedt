@@ -127,7 +127,11 @@ def _arg2dict(arg, dict_out):
                         dict_in[arg[i][:-2]] = list(arg[i + 1])
                 else:
                     if arg[i][:-2] in dict_in:
-                        dict_in[arg[i][:-2]].append(arg[i + 1])
+                        if isinstance(dict_in[arg[i][:-2]], list):
+                            dict_in[arg[i][:-2]].append(arg[i + 1])
+                        else:
+                            dict_in[arg[i][:-2]] = [dict_in[arg[i][:-2]]]
+                            dict_in[arg[i][:-2]].append(arg[i + 1])
                     else:
                         dict_in[arg[i][:-2]] = arg[i + 1]
 

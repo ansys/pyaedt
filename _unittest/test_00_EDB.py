@@ -583,8 +583,7 @@ class TestClass:
         assert self.edbapp.core_padstack.padstacks["VIA_20-10-28_SMB_NEW"]
 
     def test74_set_padstack_property(self):
-        padstack_name = self.edbapp.core_padstack.create_padstack()
         self.edbapp.core_padstack.set_pad_property(
-            padstack_name, layer_name="new", pad_shape="Circle", pad_params="800um"
+            padstack_name="VIA_18-10-28_SMB", layer_name="new", pad_shape="Circle", pad_params="800um"
         )
-        assert self.edbapp.core_padstack.padstacks[padstack_name].pad_by_layer["new"]
+        assert self.edbapp.core_padstack.padstacks["VIA_18-10-28_SMB"].pad_by_layer["new"]

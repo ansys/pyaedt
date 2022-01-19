@@ -131,7 +131,7 @@ app.validate_simple()
 # Plot the model
 # ~~~~~~~~~~~~~~
 
-app.plot(show=False, export_path=os.path.join(app.project_path, "Image.jpg"), plot_air_objects=True)
+app.plot(show=False, export_path=os.path.join(app.working_directory, "Image.jpg"), plot_air_objects=True)
 
 ###############################################################################
 # Solve and release desktop

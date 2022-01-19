@@ -890,7 +890,7 @@ class Icepak(FieldAnalysisIcepak):
 
         >>> oEditor.UpdatePriorityList
         """
-        temp_log = os.path.join(self.project_path, "validation.log")
+        temp_log = os.path.join(self.working_directory, "validation.log")
         validate = self.odesign.ValidateDesign(temp_log)
         self.save_project()
         i = 2
@@ -1533,7 +1533,8 @@ class Icepak(FieldAnalysisIcepak):
         quantity_name : str, optional
             Name of the quantity to export. The default is ``"HeatTransCoeff"``.
         savedir : str, optional
-            Directory to save the CSV file to. The default is ``None``.
+            Directory to save the CSV file to.
+            The default is ``None`` which export file in working_directory.
         filename : str, optional
             Name of the CSV file. The default is ``None``.
         sweep_name : str, optional
@@ -1555,7 +1556,7 @@ class Icepak(FieldAnalysisIcepak):
         name = generate_unique_name(quantity_name)
         self.modeler.create_face_list(faces_list, name)
         if not savedir:
-            savedir = self.project_path
+            savedir = self.working_directory
         if not filename:
             filename = generate_unique_name(self.project_name + quantity_name)
         if not sweep_name:
@@ -1604,7 +1605,8 @@ class Icepak(FieldAnalysisIcepak):
         quantity_name : str, optional
             Name of the quantity to export. The default is ``"HeatTransCoeff"``.
         savedir : str, optional
-            Directory to save the CSV file to. The default is ``None``.
+            Directory to save the CSV file to.
+            The default is ``None`` which export file in working_directory.
         filename :  str, optional
             Name of the CSV file. The default is ``None``.
         sweep_name :
@@ -1624,7 +1626,7 @@ class Icepak(FieldAnalysisIcepak):
         >>> oModule.ExportFieldsSummary
         """
         if not savedir:
-            savedir = self.project_path
+            savedir = self.working_directory
         if not filename:
             filename = generate_unique_name(self.project_name + quantity_name)
         if not sweep_name:
@@ -1724,7 +1726,8 @@ class Icepak(FieldAnalysisIcepak):
         Parameters
         ----------
         output_dir : str, optional
-             Name of directory for exporting the fields summary. The default is ``None``.
+             Name of directory for exporting the fields summary.
+             The default is ``None`` which export file in working_directory.
         solution_name : str, optional
              Name of the solution. The default is ``None``.
         type : string, optional
@@ -1765,7 +1768,7 @@ class Icepak(FieldAnalysisIcepak):
                 self.logger.error("Object " + el + " not added.")
                 self.logger.error(str(e))
         if not output_dir:
-            output_dir = self.project_path
+            output_dir = self.working_directory
         self.osolution.EditFieldsSummarySetting(arg)
         if not os.path.exists(output_dir):
             os.mkdir(output_dir)
@@ -2405,9 +2408,9 @@ class Icepak(FieldAnalysisIcepak):
             assert object_lists, "No Fluids objects found."
         object_lists = self.modeler.convert_to_selections(object_lists, True)
         file_name = self.project_name
-        sab_file_pointer = os.path.join(self.project_path, file_name + ".sab")
-        mesh_file_pointer = os.path.join(self.project_path, file_name + ".msh")
-        fl_uscript_file_pointer = os.path.join(self.project_path, "FLUscript.jou")
+        sab_file_pointer = os.path.join(self.working_directory, file_name + ".sab")
+        mesh_file_pointer = os.path.join(self.working_directory, file_name + ".msh")
+        fl_uscript_file_pointer = os.path.join(self.working_directory, "FLUscript.jou")
         if os.path.exists(mesh_file_pointer):
             os.remove(mesh_file_pointer)
         if os.path.exists(sab_file_pointer):
@@ -2416,7 +2419,7 @@ class Icepak(FieldAnalysisIcepak):
             os.remove(fl_uscript_file_pointer)
         if os.path.exists(mesh_file_pointer + ".trn"):
             os.remove(mesh_file_pointer + ".trn")
-        assert self.export_3d_model(file_name, self.project_path, ".sab", object_lists), "Failed to export .sab"
+        assert self.export_3d_model(file_name, self.working_directory, ".sab", object_lists), "Failed to export .sab"
 
         # Building Fluent journal script file *.jou
         fluent_script = open(fl_uscript_file_pointer, "w")

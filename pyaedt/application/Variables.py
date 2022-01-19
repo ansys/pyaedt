@@ -1605,7 +1605,7 @@ class DataSet(object):
         ----------
         dataset_path : str, optional
             Path to export the dataset to. The default is ``None``, in which
-            case the dataset is exported to the project path.
+            case the dataset is exported to the working_directory path.
 
         Returns
         -------
@@ -1619,7 +1619,7 @@ class DataSet(object):
         >>> oDesign.ExportDataset
         """
         if not dataset_path:
-            dataset_path = os.path.join(self._app.project_path, self.name + ".tab")
+            dataset_path = os.path.join(self._app.working_directory, self.name + ".tab")
         if self.name[0] == "$":
             self._app._oproject.ExportDataset(self.name, dataset_path)
         else:

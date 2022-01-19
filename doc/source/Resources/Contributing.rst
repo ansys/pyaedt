@@ -3,7 +3,7 @@
 ============
 Contributing
 ============
-Overall guidance on contributing to a PyAnsys library appears in the
+Overall guidance on contributing to a PyAnsys repository appears in the
 `Contributing <https://dev.docs.pyansys.com/overview/contributing.html>`_ topic
 in the *PyAnsys Developer's Guide*. Ensure that you are thoroughly familiar
 with it and all `Guidelines and Best Practices <https://dev.docs.pyansys.com/guidelines/index.html>`_
@@ -23,7 +23,7 @@ Run this code to clone and install the latest version of PyAEDT in development m
 
 Posting Issues
 --------------
-Use the `PyAEDTL Issues <https://github.com/pyansys/pyaedt/issues>`_
+Use the `PyAEDT Issues <https://github.com/pyansys/pyaedt/issues>`_
 page to submit questions, report bugs, and request new features.
 
 To reach the project support team, email `pyansys.support@ansys.com <pyansys.support@ansys.com>`_.
