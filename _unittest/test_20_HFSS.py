@@ -633,8 +633,10 @@ class TestClass:
         self.aedtapp.insert_design("Design_Terminal")
         self.aedtapp.solution_type = "Terminal"
         box1 = self.aedtapp.modeler.primitives.create_box([-100, -100, 0], [200, 200, 5], name="gnd", matname="copper")
-        box2 = self.aedtapp.modeler.primitives.create_box([-100, -100, 20], [200, 200, 25], name="sig", matname="copper")
-        sheet = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.YZ,[-100,-100,5], [200,15], "port")
+        box2 = self.aedtapp.modeler.primitives.create_box(
+            [-100, -100, 20], [200, 200, 25], name="sig", matname="copper"
+        )
+        sheet = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.YZ, [-100, -100, 5], [200, 15], "port")
         port = self.aedtapp.create_lumped_port_between_objects(
             box1, box2.name, self.aedtapp.AxisDir.XNeg, 50, "Lump1", True, False
         )
@@ -643,5 +645,3 @@ class TestClass:
             sheet.name, self.aedtapp.AxisDir.XNeg, 50, "Lump_sheet", True, False
         )
         assert port2.name + "_T1" in self.aedtapp.modeler.get_excitations_name()
-
-

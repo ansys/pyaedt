@@ -317,9 +317,14 @@ class Hfss(FieldAnalysis3D, object):
                     new_name = portname + "_" + name_split[1]
                 except:
                     new_name = portname + "_T1"
-                properties = ["NAME:AllTabs", ["NAME:HfssTab",
-                              ["NAME:PropServers", "BoundarySetup:" + terminal],
-                              ["NAME:ChangedProps", ["NAME:Name", "Value:=", new_name]]]]
+                properties = [
+                    "NAME:AllTabs",
+                    [
+                        "NAME:HfssTab",
+                        ["NAME:PropServers", "BoundarySetup:" + terminal],
+                        ["NAME:ChangedProps", ["NAME:Name", "Value:=", new_name]],
+                    ],
+                ]
                 try:
                     self.odesign.ChangeProperty(properties)
                 except:
