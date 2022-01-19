@@ -222,6 +222,19 @@ class Edb(object):
         """
         return self._logger
 
+    @property
+    def cell_names(self):
+        """
+        Returns
+        -------
+        list of str
+            List of Cell names.
+        """
+        names = []
+        for cell in list(self._db.TopCircuitCells):
+            names.append(cell.GetName())
+        return names
+
     @aedt_exception_handler
     def _init_dlls(self):
         """Initialize DLLs."""
