@@ -526,9 +526,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             ["dB(S(" + p + "," + q + "))" for p, q in zip(list(port_names), list(port_excited))],
         ]
         solution_data = ""
-        if self.solution_type == "Modal":
+        if "Modal" in self.solution_type:
             solution_data = "Modal Solution Data"
-        elif self.solution_type == "Terminal":
+        elif "Terminal" in self.solution_type:
             solution_data = "Terminal Solution Data"
         elif self.solution_type == "HFSS3DLayout":
             solution_data = "Standard"

@@ -420,7 +420,7 @@ class Mechanical(FieldAnalysis3D, object):
         >>> oModule.AssignFrictionlessSupport
         """
 
-        if not (self.solution_type == "Structural" or self.solution_type == "Modal"):
+        if not (self.solution_type == "Structural" or "Modal" in self.solution_type):
             self.logger.error("This method works only in Mechanical Structural Solution")
             return False
         props = {}
@@ -464,7 +464,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         >>> oModule.AssignFixedSupport
         """
-        if not (self.solution_type == "Structural" or self.solution_type == "Modal"):
+        if not (self.solution_type == "Structural" or "Modal" in self.solution_type):
             self.logger.error("This method works only in a Mechanical structural solution.")
             return False
         props = {}
