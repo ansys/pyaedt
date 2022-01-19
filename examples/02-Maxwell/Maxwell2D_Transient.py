@@ -114,16 +114,16 @@ face_lists = rect1.faces
 face_lists += rect2.faces
 timesteps = [str(i * 1e-3) + "s" for i in range(21)]
 id_list = [f.id for f in face_lists]
-# animatedGif=maxwell_2d.post.animate_fields_from_aedtplt_2(
-#   "Mag_B",
-#   id_list,
-#   "Surface",
-#   intrinsic_dict={'Time': '0s'},
-#   variation_variable="Time",
-#   variation_list=timesteps,
-#   show=True,
-#   export_gif=True
-# )
+animatedGif = maxwell_2d.post.animate_fields_from_aedtplt_2(
+    "Mag_B",
+    id_list,
+    "Surface",
+    intrinsic_dict={"Time": "0s"},
+    variation_variable="Time",
+    variation_list=timesteps,
+    show=False,
+    export_gif=True,
+)
 
 
 ###############################################

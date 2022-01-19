@@ -160,6 +160,15 @@ all_objects = ipk.modeler.primitives.object_names
 
 total_power = ipk.assign_block_from_sherlock_file(component_list)
 
+
+###############################################################################
+# Plot the model
+# ~~~~~~~~~~~~~~
+# We do the same plot after the material assignment
+
+ipk.plot(show=False, export_path=os.path.join(temp_folder, "Sherlock_Example.jpg"), plot_air_objects=False)
+
+
 ###############################################################################
 # Set Up Boundaries
 # ~~~~~~~~~~~~~~~~~
