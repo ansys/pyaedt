@@ -1588,6 +1588,27 @@ class Hfss(FieldAnalysis3D, object):
         return False
 
     @aedt_exception_handler
+    def create_meandered_lumped_port(self, start_object, end_object):
+        start_object = self.modeler.convert_to_selections(start_object)
+        end_object = self.modeler.convert_to_selections(end_object)
+        facecenter = 1e9
+        closest_faces = []
+        for face in self.modeler[start_object].faces:
+            for face2 in self.modeler[end_object].faces:
+                if GeometryOperators.points_distance(face.center, face2.center) <= facecenter:
+                    facecenter = GeometryOperators.points_distance(face.center, face2.center)
+                    closest_faces = [face, face2]
+
+        plane = None
+        if abs(abs(closest_faces[0].normal[0]) + abs(closest_faces[1].normal[0]) - 2.0) < 1e-6:
+            plane = "yz"
+        elif abs(abs(closest_faces[0].normal[1]) + abs(closest_faces[1].normal[1]) - 2.0) < 1e-6:
+            plane = "xz"
+        elif abs(abs(closest_faces[0].normal[2]) + abs(closest_faces[1].normal[2]) - 2.0) < 1e-6:
+            plane = "xy"
+        return closest_faces, plane
+
+    @aedt_exception_handler
     def create_voltage_source_from_objects(self, startobj, endobject, axisdir=0, sourcename=None, source_on_plane=True):
         """Create a voltage source taking the closest edges of two objects.
 
