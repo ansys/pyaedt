@@ -313,10 +313,7 @@ class Hfss(FieldAnalysis3D, object):
             terminals = [i for i in new_ports if i not in ports]
             for terminal in terminals:
                 name_split = terminal.split("_")
-                try:
-                    new_name = portname + "_" + name_split[1]
-                except:
-                    new_name = portname + "_T1"
+                new_name = portname + "_" + name_split[-1]
                 properties = [
                     "NAME:AllTabs",
                     [
