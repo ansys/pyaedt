@@ -417,6 +417,11 @@ class Components(object):
         hosting_component_pin2 : str
             Hosted component Pin 2 name.
 
+        Returns
+        -------
+        tuple
+            Tuple of Vector offset, rotation and solder height.
+
         Examples
         --------
         >>> edb1 = Edb(edbpath=targetfile1,  edbversion="2021.2")
@@ -429,11 +434,6 @@ class Components(object):
         >>>                                             mounted_component_pin2="A14",
         >>>                                             hosting_component_pin1="A12",
         >>>                                             hosting_component_pin2="A14")
-
-        Returns
-        -------
-        tuple
-            Tuple of Vector offset, rotation and solder height.
         """
         m_pin1_pos = [0.0, 0.0]
         m_pin2_pos = [0.0, 0.0]
