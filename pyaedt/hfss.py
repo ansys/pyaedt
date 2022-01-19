@@ -2818,7 +2818,7 @@ class Hfss(FieldAnalysis3D, object):
 
         """
 
-        sheet = self.modeler.convert_to_selections(sheet, False)
+        sheet = self.modeler.convert_to_selections(sheet, True)[0]
         if terminal_references:
             terminal_references = self.modeler.convert_to_selections(terminal_references, True)
         if isinstance(sheet, int):
@@ -2901,7 +2901,7 @@ class Hfss(FieldAnalysis3D, object):
         ...                                  "LumpedPortFromSheet", True, False)
 
         """
-        sheet_name = self.modeler.convert_to_selections(sheet_name, False)
+        sheet_name = self.modeler.convert_to_selections(sheet_name, True)[0]
         if isinstance(sheet_name, int):
             try:
                 oname = self.modeler.oeditor.GetObjectNameByFaceID(sheet_name)
