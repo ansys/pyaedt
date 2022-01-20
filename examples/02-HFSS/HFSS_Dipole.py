@@ -9,12 +9,16 @@ import tempfile
 from pyaedt import Hfss
 from pyaedt import Desktop
 from pyaedt import generate_unique_name
+import pyaedt
 
 tmpfold = tempfile.gettempdir()
 
 temp_folder = os.path.join(tmpfold, generate_unique_name("Example"))
 if not os.path.exists(temp_folder):
     os.mkdir(temp_folder)
+
+pyaedt.PYAEDTLOG = os.path.join(temp_folder, "dipole.log")
+pyaedt.__version__
 
 ###############################################################################
 # Launch AEDT in Graphical Mode
