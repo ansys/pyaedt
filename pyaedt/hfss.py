@@ -1601,7 +1601,7 @@ class Hfss(FieldAnalysis3D, object):
         return False
 
     @aedt_exception_handler
-    def create_spiral_lumped_port(self, start_object, end_object):
+    def create_spiral_lumped_port(self, start_object, end_object, port_width=None):
         """Created a spiral lumped port between two adjacent objects.
         The two objects needs to be two adjacent identical faces and faces have to be polygon (not circle).
 
@@ -1621,7 +1621,7 @@ class Hfss(FieldAnalysis3D, object):
         end_object = self.modeler.convert_to_selections(end_object)
         facecenter = 1e9
         closest_faces = []
-        sum = 0
+        length = 1e9
         count = 0
         for face in self.modeler[start_object].faces:
             for face2 in self.modeler[end_object].faces:
@@ -1629,8 +1629,8 @@ class Hfss(FieldAnalysis3D, object):
                     facecenter = GeometryOperators.points_distance(face.center, face2.center)
                     closest_faces = [face, face2]
             for edge in face.edges:
-                count += 1
-                sum += edge.length
+                if edge.length<length:
+                    length = edge.length
 
         plane = None
 
@@ -1643,7 +1643,10 @@ class Hfss(FieldAnalysis3D, object):
 
         objects_center = [(j - i) / 2 for i, j in zip(closest_faces[0].center, closest_faces[1].center)]
 
-        distance = sum / (10 * count)
+        if port_width:
+            distance = port_width
+        else:
+            distance = length / 7
         name = generate_unique_name("P", n=3)
 
         poly = self.modeler.create_spiral_on_face(closest_faces[0], distance)

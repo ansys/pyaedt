@@ -1750,8 +1750,8 @@ class Primitives(object):
         self.objects = {}
         self.object_id_dict = {}
         self._currentId = 0
+        self.refresh_all_ids()
         self._refresh_all_ids_from_aedt_file()
-        self.add_new_objects()
 
     def cleanup_objects(self):
         """Clean up objects that no longer exist in the modeler because
@@ -3122,37 +3122,36 @@ class Primitives(object):
                 attribs = self._app.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"][
                     "ToplevelParts"
                 ]["GeometryPart"]["Attributes"]
+            if attribs["Name"] in self._all_object_names:
+                o = self._create_object(name=attribs["Name"])
+                o._part_coordinate_system = attribs["PartCoordinateSystem"]
+                if "NonModel" in attribs["Flags"]:
+                    o._model = False
+                else:
+                    o._model = True
+                if "Wireframe" in attribs["Flags"]:
+                    o._wireframe = True
+                else:
+                    o._wireframe = False
+                groupname = ""
+                for group in groups:
+                    if attribs["GroupId"] == group["GroupID"]:
+                        groupname = group["Attributes"]["Name"]
 
-            o = self._create_object(name=attribs["Name"])
+                o._m_groupName = groupname
+                try:
+                    o._color = tuple(int(x) for x in attribs["Color"][1:-1].split(" "))
+                except:
+                    o._color = None
+                o._surface_material = attribs.get("SurfaceMaterialValue", None)
+                if o._surface_material:
+                    o._surface_material = o._surface_material[1:-1].lower()
+                if "MaterialValue" in attribs:
+                    o._material_name = attribs["MaterialValue"][1:-1].lower()
+                else:
+                    o._material_name = attribs.get("MaterialName", None)
 
-            o._part_coordinate_system = attribs["PartCoordinateSystem"]
-            if "NonModel" in attribs["Flags"]:
-                o._model = False
-            else:
-                o._model = True
-            if "Wireframe" in attribs["Flags"]:
-                o._wireframe = True
-            else:
-                o._wireframe = False
-            groupname = ""
-            for group in groups:
-                if attribs["GroupId"] == group["GroupID"]:
-                    groupname = group["Attributes"]["Name"]
-
-            o._m_groupName = groupname
-            try:
-                o._color = tuple(int(x) for x in attribs["Color"][1:-1].split(" "))
-            except:
-                o._color = None
-            o._surface_material = attribs.get("SurfaceMaterialValue", None)
-            if o._surface_material:
-                o._surface_material = o._surface_material[1:-1].lower()
-            if "MaterialValue" in attribs:
-                o._material_name = attribs["MaterialValue"][1:-1].lower()
-            else:
-                o._material_name = attribs.get("MaterialName", None)
-
-            o._is_updated = True
+                o._is_updated = True
         return len(self.objects)
 
     def _default_object_attributes(self, name=None, matname=None):
