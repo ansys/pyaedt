@@ -1638,7 +1638,7 @@ class Hfss(FieldAnalysis3D, object):
         elif GeometryOperators.is_collinear(closest_faces[0].normal, [0, 0, 1]):
             plane = 2
         else:
-            raise AttributeError('The two object must have the adjacent faces alligned with the main planes.')
+            raise AttributeError('The two object must have the adjacent faces aligned with the main planes.')
 
         move_vector = GeometryOperators.v_sub(closest_faces[1].center, closest_faces[0].center)
         move_vector = GeometryOperators.v_prod(0.5, move_vector)
