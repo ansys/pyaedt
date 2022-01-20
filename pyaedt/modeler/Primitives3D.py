@@ -46,6 +46,48 @@ class Primitives3D(Primitives, object):
         """
 
     @aedt_exception_handler
+    def create_point(self, position, name=None,):
+        """Create a point.
+
+        Parameters
+        ----------
+        position : list
+            List of ``[x, y, z]`` coordinates.
+        name : str, optional
+            Name of the point. The default is ``None``, in which case the
+            default name is assigned.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.Object3d`
+            3D object.
+
+        References
+        ----------
+
+        >>> oEditor.CreateBox
+
+        Examples
+        --------
+
+        >>> from pyaedt import hfss
+        >>> hfss = Hfss()
+        >>> point_object = hfss.modeler.primivites.create_point([0,0,0], name="mypoint")
+
+        """
+        assert len(position) == 3, "Position rrgument must be a valid 3 elements list"
+        x_position, y_position, z_position = self._pos_with_arg(position)
+        parameters = ["NAME:PointParameters"]
+        parameters.append("PointX:="), parameters.append(x_position)
+        parameters.append("PointY:="), parameters.append(y_position)
+        parameters.append("PointZ:="), parameters.append(z_position)
+
+        attributes = self._default_object_attributes(name=name)
+        new_object_name = _retry_ntimes(10, self._oeditor.CreatePoint, parameters, attributes)
+        return self._create_object(new_object_name)
+
+
+    @aedt_exception_handler
     def create_box(self, position, dimensions_list, name=None, matname=None):
         """Create a box.
 
