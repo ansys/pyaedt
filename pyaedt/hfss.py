@@ -1622,14 +1622,13 @@ class Hfss(FieldAnalysis3D, object):
         facecenter = 1e9
         closest_faces = []
         length = 1e9
-        count = 0
         for face in self.modeler[start_object].faces:
             for face2 in self.modeler[end_object].faces:
                 if GeometryOperators.points_distance(face.center, face2.center) <= facecenter:
                     facecenter = GeometryOperators.points_distance(face.center, face2.center)
                     closest_faces = [face, face2]
             for edge in face.edges:
-                if edge.length<length:
+                if edge.length < length:
                     length = edge.length
 
         plane = None
