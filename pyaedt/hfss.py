@@ -1602,8 +1602,8 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def create_spiral_lumped_port(self, start_object, end_object, port_width=None):
-        """Created a spiral lumped port between two adjacent objects.
-        The two objects needs to be two adjacent identical faces and faces have to be polygon (not circle).
+        """Create a spiral lumped port between two adjacent objects.
+        The two objects must be two adjacent identical faces and faces have to be polygon (not circle).
 
         Parameters
         ----------
