@@ -1324,18 +1324,4 @@ class Edb(object):
             The bounding box as a [lower-left X, lower-left Y], [upper-right X, upper-right Y]) pair in meter.
         """
         bbox = self.edbutils.HfssUtilities.GetBBox(self.active_layout)
-        return [[bbox.Item1.X.ToDouble(), bbox.Item1.Y.ToDouble()], [bbox.Item2.X.ToDouble(), bbox.Item2.Y.ToDouble()]]
-
-    @property
-    def cell_names(self):
-        """
-        Returns
-        -------
-        list of str
-            List of Cell names.
-        """
-
-        names = []
-        for cell in list(self._db.TopCircuitCells):
-            names.append(cell.GetName())
-        return names
+        return [[bbox.Item1.X.ToDouble(), bbox.Item1.Y.ToDouble()], [bbox.Item2.X.ToDouble(), bbox.Item2.Y.ToDouble()]]de
