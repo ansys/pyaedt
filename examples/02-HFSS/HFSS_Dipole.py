@@ -18,7 +18,6 @@ if not os.path.exists(temp_folder):
     os.mkdir(temp_folder)
 
 pyaedt.PYAEDTLOG = os.path.join(temp_folder, "dipole.log")
-pyaedt.__version__
 
 ###############################################################################
 # Launch AEDT in Graphical Mode
