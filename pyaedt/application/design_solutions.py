@@ -463,12 +463,15 @@ class DesignSolution(object):
     @property
     def solution_type(self):
         """Get/Set the Solution Type of the active Design."""
-        if self._odesign and "GetSolutionType" in dir(self._odesign):
-            self._solution_type = self._odesign.GetSolutionType()
-            if "Modal" in self._solution_type:
-                self._solution_type = "Modal"
-            elif "Terminal" in self._solution_type:
-                self._solution_type = "Terminal"
+        if self._odesign:
+            try:
+                self._solution_type = self._odesign.GetSolutionType()
+                if "Modal" in self._solution_type:
+                    self._solution_type = "Modal"
+                elif "Terminal" in self._solution_type:
+                    self._solution_type = "Terminal"
+            except:
+                self._solution_type = solutions_defaults[self._design_type]
         elif self._solution_type is None:
             self._solution_type = solutions_defaults[self._design_type]
         return self._solution_type
@@ -477,12 +480,15 @@ class DesignSolution(object):
     @aedt_exception_handler
     def solution_type(self, value):
         if value is None:
-            if self._odesign and "GetSolutionType" in dir(self._odesign):
-                self._solution_type = self._odesign.GetSolutionType()
-                if "Modal" in self._solution_type:
-                    self._solution_type = "Modal"
-                elif "Terminal" in self._solution_type:
-                    self._solution_type = "Terminal"
+            if self._odesign:
+                try:
+                    self._solution_type = self._odesign.GetSolutionType()
+                    if "Modal" in self._solution_type:
+                        self._solution_type = "Modal"
+                    elif "Terminal" in self._solution_type:
+                        self._solution_type = "Terminal"
+                except:
+                    self._solution_type = solutions_defaults[self._design_type]
             else:
                 self._solution_type = solutions_defaults[self._design_type]
         elif value and value in self._solution_options and self._solution_options[value]["name"]:
