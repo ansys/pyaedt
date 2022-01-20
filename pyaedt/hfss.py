@@ -309,7 +309,6 @@ class Hfss(FieldAnalysis3D, object):
         ports = list(self.oboundary.GetExcitationsOfType("Terminal"))
         boundary = self._create_boundary(portname, props, "AutoIdentify")
         if boundary:
-
             new_ports = list(self.oboundary.GetExcitationsOfType("Terminal"))
             terminals = [i for i in new_ports if i not in ports]
             id = 1
@@ -1603,7 +1602,8 @@ class Hfss(FieldAnalysis3D, object):
     @aedt_exception_handler
     def create_spiral_lumped_port(self, start_object, end_object, port_width=None):
         """Created a spiral lumped port between two adjacent objects.
-        The two objects needs to be two adjacent identical faces and faces have to be polygon (not circle).
+        The two objects needs to be two adjacent identical and parallel faces
+        and the faces must be a polygon (not a circle).
 
         Parameters
         ----------
@@ -1616,43 +1616,69 @@ class Hfss(FieldAnalysis3D, object):
             Boundary object.
 
         """
+        # fmt: off
         assert "Terminal" in self.solution_type, "This method can be used only in Terminal Solutions."
         start_object = self.modeler.convert_to_selections(start_object)
         end_object = self.modeler.convert_to_selections(end_object)
-        facecenter = 1e9
+        closest_distance = 1e9
         closest_faces = []
-        length = 1e9
-        for face in self.modeler[start_object].faces:
+        for face1 in self.modeler[start_object].faces:
             for face2 in self.modeler[end_object].faces:
-                if GeometryOperators.points_distance(face.center, face2.center) <= facecenter:
-                    facecenter = GeometryOperators.points_distance(face.center, face2.center)
-                    closest_faces = [face, face2]
-            for edge in face.edges:
-                if edge.length < length:
-                    length = edge.length
+                facecenter_distance = GeometryOperators.points_distance(face1.center, face2.center)
+                if facecenter_distance <= closest_distance:
+                    closest_distance = facecenter_distance
+                    closest_faces = [face1, face2]
 
-        plane = None
-
-        if abs(abs(closest_faces[0].normal[0]) + abs(closest_faces[1].normal[0]) - 2.0) < 1e-6:
+        if not GeometryOperators.is_collinear(closest_faces[0].normal, closest_faces[1].normal):
+            raise AttributeError('The two object must have parallel adjacent faces.')
+        if GeometryOperators.is_collinear(closest_faces[0].normal, [1, 0, 0]):
             plane = 0
-        elif abs(abs(closest_faces[0].normal[1]) + abs(closest_faces[1].normal[1]) - 2.0) < 1e-6:
+        elif GeometryOperators.is_collinear(closest_faces[0].normal, [0, 1, 0]):
             plane = 1
-        elif abs(abs(closest_faces[0].normal[2]) + abs(closest_faces[1].normal[2]) - 2.0) < 1e-6:
+        elif GeometryOperators.is_collinear(closest_faces[0].normal, [0, 0, 1]):
             plane = 2
+        else:
+            raise AttributeError('The two object must have the adjacent faces alligned with the main planes.')
 
-        objects_center = [(j - i) / 2 for i, j in zip(closest_faces[0].center, closest_faces[1].center)]
+        move_vector = GeometryOperators.v_sub(closest_faces[1].center, closest_faces[0].center)
+        move_vector = GeometryOperators.v_prod(0.5, move_vector)
 
         if port_width:
-            distance = port_width
+            spiral_width = port_width
+            filling = 1.5
         else:
-            distance = length / 7
+            # get face bounding box
+            face_bb = [1e15, 1e15, 1e15, -1e15, -1e15, -1e15]
+            for i in range(3):
+                for v in closest_faces[0].vertices:
+                    face_bb[i] = min(face_bb[i], v.position[i])
+                    face_bb[i+3] = max(face_bb[i+3], v.position[i])
+            # get the ratio in 2D
+            bb_dim = [abs(face_bb[i]-face_bb[i+3]) for i in range(3) if abs(face_bb[i]-face_bb[i+3]) > 1e-12]
+            bb_ratio = max(bb_dim)/min(bb_dim)
+            if bb_ratio > 2:
+                spiral_width = min(bb_dim) / 12
+                filling = -0.2828*bb_ratio**2 + 3.4141*bb_ratio - 4.197
+                print(filling)
+            else:
+                vertex_coordinates = []
+                for v in closest_faces[0].vertices:
+                    vertex_coordinates.append(v.position)
+                segments_lengths = []
+                for vc in vertex_coordinates:
+                    segments_lengths.append(GeometryOperators.points_distance(vc, closest_faces[0].center))
+                spiral_width = min(segments_lengths) / 15
+                filling = 1.5
+                print(filling)
+
         name = generate_unique_name("P", n=3)
 
-        poly = self.modeler.create_spiral_on_face(closest_faces[0], distance)
+        poly = self.modeler.create_spiral_on_face(closest_faces[0], spiral_width, filling_factor=filling)
         poly.name = name
+        poly.translate(move_vector)
+
         vert_position_x = []
         vert_position_y = []
-
         for vert in poly.vertices:
             if plane == 0:
                 vert_position_x.append(vert.position[1])
@@ -1665,7 +1691,7 @@ class Hfss(FieldAnalysis3D, object):
                 vert_position_y.append(vert.position[1])
 
         x, y = GeometryOperators.orient_polygon(vert_position_x, vert_position_y)
-        poly.translate(objects_center)
+
         list_a_val = False
         x1 = []
         y1 = []
@@ -1673,31 +1699,33 @@ class Hfss(FieldAnalysis3D, object):
         y2 = []
         for i in range(len(x) - 1):
             dist = GeometryOperators.points_distance([x[i], y[i], 0], [x[i + 1], y[i + 1], 0])
-            if abs(abs(dist) - distance) < 1e-6:
-                list_a_val = not list_a_val
+            if list_a_val:
+                x1.append(x[i])
+                y1.append(y[i])
             else:
-                if list_a_val:
-                    x1.append(x[i])
-                    y1.append(y[i])
-                else:
-                    x2.append(x[i])
-                    y2.append(y[i])
-
+                x2.append(x[i])
+                y2.append(y[i])
+            if abs(dist - spiral_width) < 1e-6:
+                list_a_val = not list_a_val
+        # set the last point
         if list_a_val:
-            x1.append(x[i + 1])
-            y1.append(y[i + 1])
+            x1.append(x[-1])
+            y1.append(y[-1])
         else:
-            x2.append(x[i + 1])
-            y2.append(y[i + 1])
+            x2.append(x[-1])
+            y2.append(y[-1])
+
+        faces_mid_point = GeometryOperators.get_mid_point(closest_faces[1].center, closest_faces[0].center)
+
         x1, y1 = GeometryOperators.orient_polygon(x1, y1)
         coords = []
         for x, y in zip(x1, y1):
             if plane == 0:
-                coords.append([(closest_faces[0].center[0] + closest_faces[1].center[0]) / 2 - facecenter / 4, x, y])
+                coords.append([faces_mid_point[0] - closest_distance/4, x, y])
             elif plane == 1:
-                coords.append([x, (closest_faces[0].center[1] + closest_faces[1].center[1]) / 2 - facecenter / 4, y])
+                coords.append([x, faces_mid_point[1] - closest_distance/4, y])
             elif plane == 2:
-                coords.append([x, y, (closest_faces[0].center[2] + closest_faces[1].center[2]) / 2 - facecenter / 4])
+                coords.append([x, y, faces_mid_point[2] - closest_distance/4])
         dx = abs(coords[0][0] - coords[1][0])
         dy = abs(coords[0][1] - coords[1][1])
         dz = abs(coords[0][2] - coords[1][2])
@@ -1724,19 +1752,21 @@ class Hfss(FieldAnalysis3D, object):
             coords,
             xsection_type="Line",
             xsection_orient=orient,
-            xsection_width=facecenter / 2,
+            xsection_width=closest_distance / 2,
             name=start_object + "_sheet",
         )
         self.assign_perfecte_to_sheets(poly1, sourcename=start_object)
+
         x2, y2 = GeometryOperators.orient_polygon(x2, y2)
         coords = []
+        faces_mid_point = GeometryOperators.get_mid_point(closest_faces[1].center, closest_faces[0].center)
         for x, y in zip(x2, y2):
             if plane == 0:
-                coords.append([(closest_faces[0].center[0] + closest_faces[1].center[0]) / 2 + facecenter / 4, x, y])
+                coords.append([faces_mid_point[0] + closest_distance/4, x, y])
             elif plane == 1:
-                coords.append([x, (closest_faces[0].center[1] + closest_faces[1].center[1]) / 2 + facecenter / 4, y])
+                coords.append([x, faces_mid_point[1] + closest_distance/4, y])
             elif plane == 2:
-                coords.append([x, y, (closest_faces[0].center[2] + closest_faces[1].center[2]) / 2 + facecenter / 4])
+                coords.append([x, y, faces_mid_point[2] + closest_distance/4])
         dx = abs(coords[0][0] - coords[1][0])
         dy = abs(coords[0][1] - coords[1][1])
         dz = abs(coords[0][2] - coords[1][2])
@@ -1762,13 +1792,13 @@ class Hfss(FieldAnalysis3D, object):
             coords,
             xsection_type="Line",
             xsection_orient=orient,
-            xsection_width=facecenter / 2,
+            xsection_width=closest_distance / 2,
             name=end_object + "_sheet",
         )
 
         self.assign_perfecte_to_sheets(poly2, sourcename=end_object)
         port = self.create_lumped_port_to_sheet(poly, reference_object_list=[poly2.name], portname=name)
-
+        # fmt: on
         return port
 
     @aedt_exception_handler

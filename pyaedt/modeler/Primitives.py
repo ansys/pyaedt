@@ -1447,7 +1447,6 @@ class Primitives(object):
         :class:`pyaedt.modeler.Object3d.Polyline`
         """
         # fmt: off
-
         if isinstance(face, FacePrimitive):
             face_id = face.id
         elif isinstance(face, int):
@@ -1492,9 +1491,8 @@ class Primitives(object):
 
         del poly_points_list[-1]
 
-        return self.create_polyline(poly_points_list, xsection_type='Line', xsection_width=poly_width)
-
         # fmt: on
+        return self.create_polyline(poly_points_list, xsection_type='Line', xsection_width=poly_width)
 
     @aedt_exception_handler
     def get_existing_polyline(self, object):
