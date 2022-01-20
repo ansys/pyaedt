@@ -1492,7 +1492,7 @@ class Primitives(object):
         del poly_points_list[-1]
 
         # fmt: on
-        return self.create_polyline(poly_points_list, xsection_type='Line', xsection_width=poly_width)
+        return self.create_polyline(poly_points_list, xsection_type="Line", xsection_width=poly_width)
 
     @aedt_exception_handler
     def get_existing_polyline(self, object):
