@@ -44,9 +44,6 @@ wg1, p1, p2 = hfss.modeler.create_waveguide(
 model = hfss.plot(show=False)
 
 model.show_grid = False
-model.zoom = 0.7
-model.azimuth_angle = 25
-model.elevation_angle = 34
 model.plot(os.path.join(hfss.working_directory, "Image.jpg"))
 
 ###############################################################################

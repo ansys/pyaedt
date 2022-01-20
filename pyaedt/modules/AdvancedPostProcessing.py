@@ -51,6 +51,8 @@ except ImportError:
         "The Matplotlib module is required to run some functionalities of PostProcess.\n"
         "Install with \n\npip install matplotlib\n\nRequires CPython."
     )
+except:
+    pass
 
 
 def is_notebook():
@@ -229,11 +231,130 @@ class ModelPlotter(object):
         self.range_min = None
         self.range_max = None
         self.image_file = None
-        self.camera_position = "yz"
-        self.roll_angle = 0
-        self.azimuth_angle = 45
-        self.elevation_angle = 20
-        self.zoom = 1
+        self._camera_position = "yz"
+        self._roll_angle = 0
+        self._azimuth_angle = 45
+        self._elevation_angle = 20
+        self._zoom = 1
+        self._isometric_view = True
+
+    @property
+    def isometric_view(self):
+        """Enable or disable the default iso view.
+
+        Parameters
+        ----------
+        value : bool
+            Either if iso view is enabled or disabled.
+
+        Returns
+        -------
+        bool
+        """
+        return self._isometric_view
+
+    @isometric_view.setter
+    def isometric_view(self, value=True):
+        self._isometric_view = value
+
+    @property
+    def camera_position(self):
+        """Get/Set the camera position value. It disables the default iso view.
+
+        Parameters
+        ----------
+        value : str
+            Value of camera position. One of `"xy"`, `"xz"`,`"yz"`.
+
+        Returns
+        -------
+        str
+        """
+        return self._camera_position
+
+    @camera_position.setter
+    def camera_position(self, value):
+        self._camera_position = value
+        self.isometric_view = False
+
+    @property
+    def roll_angle(self):
+        """Get/Set the roll angle value. It disables the default iso view.
+
+        Parameters
+        ----------
+        value : float
+            Value of roll angle in degrees.
+
+        Returns
+        -------
+        float
+        """
+        return self._roll_angle
+
+    @roll_angle.setter
+    def roll_angle(self, value=20):
+        self._roll_angle = value
+        self.isometric_view = False
+
+    @property
+    def azimuth_angle(self):
+        """Get/Set the azimuth angle value. It disables the default iso view.
+
+        Parameters
+        ----------
+        value : float
+            Value of azimuth angle in degrees.
+
+        Returns
+        -------
+        float
+        """
+        return self._azimuth_angle
+
+    @azimuth_angle.setter
+    def azimuth_angle(self, value=45):
+        self._azimuth_angle = value
+        self.use_default_iso_view = False
+
+    @property
+    def elevation_angle(self):
+        """Get/Set the elevation angle value. It disables the default iso view.
+
+        Parameters
+        ----------
+        value : float
+            Value of elevation angle in degrees.
+
+        Returns
+        -------
+        float
+        """
+        return self._elevation_angle
+
+    @elevation_angle.setter
+    def elevation_angle(self, value=45):
+        self._elevation_angle = value
+        self.use_default_iso_view = False
+
+    @property
+    def zoom(self):
+        """Get/Set the zoom value.
+
+        Parameters
+        ----------
+        value : float
+            Value of zoom in degrees.
+
+        Returns
+        -------
+        float
+        """
+        return self._zoom
+
+    @zoom.setter
+    def zoom(self, value=1):
+        self._zoom = value
 
     @aedt_exception_handler
     def set_orientation(self, camera_position="xy", roll_angle=0, azimuth_angle=45, elevation_angle=20):
@@ -261,6 +382,7 @@ class ModelPlotter(object):
         self.roll_angle = roll_angle
         self.azimuth_angle = azimuth_angle
         self.elevation_angle = elevation_angle
+        self.use_default_iso_view = False
         return True
 
     @property
@@ -870,12 +992,14 @@ class ModelPlotter(object):
         if self.show_grid and not self.is_notebook:
             self.pv.show_grid(color=tuple(axes_color))
         self.pv.add_bounding_box(color=tuple(axes_color))
-        if not self.pv.off_screen:
-            self.pv.set_focus(self.pv.mesh.center)
-        self.pv.camera_position = self.camera_position
-        self.pv.camera.azimuth += self.azimuth_angle
-        self.pv.camera.roll += self.roll_angle
-        self.pv.camera.elevation += self.elevation_angle
+        self.pv.set_focus(self.pv.mesh.center)
+        if not self.isometric_view:
+            self.pv.camera_position = self.camera_position
+            self.pv.camera.azimuth += self.azimuth_angle
+            self.pv.camera.roll += self.roll_angle
+            self.pv.camera.elevation += self.elevation_angle
+        else:
+            self.pv.isometric_view()
         self.pv.camera.zoom(self.zoom)
         if export_image_path:
             self.pv.show(screenshot=export_image_path, full_screen=True)
@@ -949,12 +1073,13 @@ class ModelPlotter(object):
             for m in self.fields:
                 labels.append([m.name, "red"])
             self.pv.add_legend(labels=labels, bcolor=None, face="circle", size=[0.15, 0.15])
-        if not self.pv.off_screen:
-            self.pv.set_focus(self.pv.mesh.center)
-        self.pv.camera_position = self.camera_position
-        self.pv.camera.azimuth += self.azimuth_angle
-        self.pv.camera.roll += self.roll_angle
-        self.pv.camera.elevation += self.elevation_angle
+        if not self.isometric_view:
+            self.pv.camera_position = self.camera_position
+            self.pv.camera.azimuth += self.azimuth_angle
+            self.pv.camera.roll += self.roll_angle
+            self.pv.camera.elevation += self.elevation_angle
+        else:
+            self.pv.isometric_view()
         self.pv.zoom = self.zoom
         self._animating = True
 
@@ -998,6 +1123,8 @@ class ModelPlotter(object):
                 opacity=field.opacity,
             )
         # run until q is pressed
+        if self.pv.mesh:
+            self.pv.set_focus(self.pv.mesh.center)
 
         cpos = self.pv.show(interactive=False, auto_close=False, interactive_update=not self.off_screen)
 
