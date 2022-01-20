@@ -71,7 +71,6 @@ jobs:
       - name: ' Deploy on aedtdocs.pyansys.com'
         id: deploy
         continue-on-error: true
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
         working-directory: doc/_build/html
         run: |
           git init
