@@ -33,17 +33,11 @@ from pyaedt.misc import list_installed_ansysem
 from pyaedt import aedt_exception_handler
 from pyaedt.generic.general_methods import is_ironpython, _pythonver, inside_desktop
 
-from pyaedt import aedt_logger
+from pyaedt import aedt_logger, __version__
 
 pathname = os.path.dirname(__file__)
-if os.path.exists(os.path.join(pathname, "version.txt")):
-    with open(os.path.join(pathname, "version.txt"), "r") as f:
-        pyaedtversion = f.readline().strip()
-elif os.path.exists(os.path.join(pathname, "..", "version.txt")):
-    with open(os.path.join(pathname, "..", "version.txt"), "r") as f:
-        pyaedtversion = f.readline().strip()
-else:
-    pyaedtversion = "X"
+
+pyaedtversion = __version__
 
 
 if os.name == "nt":
