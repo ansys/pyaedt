@@ -545,14 +545,15 @@ class Desktop:
         else:
             project_dir = tempfile.gettempdir()
         log_file = os.path.join(project_dir, "pyaedt{}.log".format(datetime.datetime.now().strftime("%Y%m%d_%H%M%S")))
-        if pyaedt.PYAEDTLOG:
-            if os.path.exists(pyaedt.PYAEDTLOG) and os.path.isdir(pyaedt.PYAEDTLOG):
-                log_file = os.path.join(pyaedt.PYAEDTLOG,
-                                        "pyaedt{}.log".format(datetime.datetime.now().strftime("%Y%m%d_%H%M%S")))
-            elif os.path.exists(os.path.dirname(pyaedt.PYAEDTLOG)):
-                log_file = pyaedt.PYAEDTLOG
+        if pyaedt.LOG:
+            if os.path.exists(pyaedt.LOG) and os.path.isdir(pyaedt.LOG):
+                log_file = os.path.join(
+                    pyaedt.LOG, "pyaedt{}.log".format(datetime.datetime.now().strftime("%Y%m%d_%H%M%S"))
+                )
+            elif os.path.exists(os.path.dirname(pyaedt.LOG)):
+                log_file = pyaedt.LOG
         else:
-            pyaedt.PYAEDTLOG = log_file
+            pyaedt.LOG = log_file
         self.logfile = os.path.join(project_dir, log_file)
 
         return True
