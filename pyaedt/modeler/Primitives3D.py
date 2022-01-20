@@ -75,7 +75,7 @@ class Primitives3D(Primitives, object):
         >>> point_object = hfss.modeler.primivites.create_point([0,0,0], name="mypoint")
 
         """
-        assert len(position) == 3, "Position rrgument must be a valid 3 elements list"
+        assert len(position) == 3, "Position argument must be a valid 3 elements list."
         x_position, y_position, z_position = self._pos_with_arg(position)
         parameters = ["NAME:PointParameters"]
         parameters.append("PointX:="), parameters.append(x_position)
