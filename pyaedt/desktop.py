@@ -32,7 +32,7 @@ from pyaedt.application.MessageManager import AEDTMessageManager
 from pyaedt.misc import list_installed_ansysem
 from pyaedt import aedt_exception_handler
 from pyaedt.generic.general_methods import is_ironpython, _pythonver, inside_desktop
-
+import pyaedt
 from pyaedt import aedt_logger
 
 pathname = os.path.dirname(__file__)
@@ -544,9 +544,16 @@ class Desktop:
             project_dir = self._main.oDesktop.GetProjectDirectory()
         else:
             project_dir = tempfile.gettempdir()
-        self.logfile = os.path.join(
-            project_dir, "pyaedt{}.log".format(datetime.datetime.now().strftime("%Y%m%d_%H%M%S"))
-        )
+        log_file = os.path.join(project_dir, "pyaedt{}.log".format(datetime.datetime.now().strftime("%Y%m%d_%H%M%S")))
+        if pyaedt.PYAEDTLOG:
+            if os.path.exists(pyaedt.PYAEDTLOG) and os.path.isdir(pyaedt.PYAEDTLOG):
+                log_file = os.path.join(pyaedt.PYAEDTLOG,
+                                        "pyaedt{}.log".format(datetime.datetime.now().strftime("%Y%m%d_%H%M%S")))
+            elif os.path.exists(os.path.dirname(pyaedt.PYAEDTLOG)):
+                log_file = pyaedt.PYAEDTLOG
+        else:
+            pyaedt.PYAEDTLOG = log_file
+        self.logfile = os.path.join(project_dir, log_file)
 
         return True
 

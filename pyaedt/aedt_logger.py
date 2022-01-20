@@ -5,8 +5,7 @@ from pyaedt import log_handler
 
 ENABLE_LOGGER = True
 # if LOGGER_FILE is defined, it will be taken as output log file
-LOGGER_FILE = None
-
+import pyaedt
 FORMATTER = logging.Formatter(
     "%(asctime)s:%(destination)s:%(extra)s%(levelname)-8s:%(message)s", datefmt="%Y/%m/%d %H.%M.%S"
 )
@@ -89,8 +88,10 @@ class AedtLogger(object):
             self._global.setLevel(level)
             self._global.addFilter(AppFilter())
 
-        if LOGGER_FILE or filename:
-            self._file_handler = logging.FileHandler(LOGGER_FILE or filename)
+        if pyaedt.PYAEDTLOG or filename:
+            if not pyaedt.PYAEDTLOG:
+                pyaedt.PYAEDTLOG = filename
+            self._file_handler = logging.FileHandler(pyaedt.PYAEDTLOG or filename)
             self._file_handler.setLevel(level)
             self._file_handler.setFormatter(FORMATTER)
             self._global.addHandler(self._file_handler)
