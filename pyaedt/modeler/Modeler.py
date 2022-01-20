@@ -1750,7 +1750,7 @@ class GeometryModeler(Modeler, object):
         ----------
         objid : str, int, or Object3d
             Name or ID of the object.
-        position : float
+        position : int or float
             List of the ``[x, y, z]`` coordinates or the
             Application.Position object for the selection.
         vector : float
@@ -1782,6 +1782,34 @@ class GeometryModeler(Modeler, object):
 
         self.oeditor.Mirror(vArg1, vArg2)
 
+        return True
+
+    @aedt_exception_handler
+    def move(self, objid, vector):
+        """Move a selection
+
+        Parameters
+        ----------
+        objid : str, int, or Object3d
+            Name or ID of the object.
+        vector : float
+            List of the ``[x1, y1, z1]`` coordinates or
+            the Application.Position object for the vector. For 2D Extractor designs, 'z1' should be set to "0".
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        selections = self.convert_to_selections(objid)
+        Xvec, Yvec, Zvec = self.primitives._pos_with_arg(vector)
+
+        vArg1 = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
+        vArg2 = ["NAME:TranslateParameters"]
+        vArg2.append("TranslateVectorX:="), vArg2.append(Xvec)
+        vArg2.append("TranslateVectorY:="), vArg2.append(Yvec)
+        vArg2.append("TranslateVectorZ:="), vArg2.append(Zvec)
+        self.oeditor.Move(vArg1, vArg2)
         return True
 
     @aedt_exception_handler
