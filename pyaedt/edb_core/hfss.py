@@ -478,3 +478,12 @@ class EdbHfss(object):
             return True
         else:
             return False
+
+    @aedt_exception_handler
+    def create_lumped_port_on_trace(self, net=None, reference_layer=None):
+        if isinstance(net, str):
+            net = self._edb.Cell.Net.FindByName(self._active_layout, net)
+        if not isinstance(net, self._edb.Cell.Net):
+            return False
+        if isinstance(reference_layer, str):
+            reference_layer = self._edb.core
