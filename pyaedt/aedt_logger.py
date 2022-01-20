@@ -90,9 +90,9 @@ class AedtLogger(object):
             self._global.addFilter(AppFilter())
 
         if pyaedt.LOG or filename:
-            if not pyaedt.LOG:
+            if filename:
                 pyaedt.LOG = filename
-            self._file_handler = logging.FileHandler(pyaedt.LOG or filename)
+            self._file_handler = logging.FileHandler(pyaedt.LOG)
             self._file_handler.setLevel(level)
             self._file_handler.setFormatter(FORMATTER)
             self._global.addHandler(self._file_handler)
