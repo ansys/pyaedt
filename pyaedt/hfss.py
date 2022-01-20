@@ -309,11 +309,13 @@ class Hfss(FieldAnalysis3D, object):
         ports = list(self.oboundary.GetExcitationsOfType("Terminal"))
         boundary = self._create_boundary(portname, props, "AutoIdentify")
         if boundary:
+
             new_ports = list(self.oboundary.GetExcitationsOfType("Terminal"))
             terminals = [i for i in new_ports if i not in ports]
+            id = 1
             for terminal in terminals:
-                name_split = terminal.split("_")
-                new_name = portname + "_" + name_split[-1]
+                new_name = portname + "_T" + str(id)
+                id += 1
                 properties = [
                     "NAME:AllTabs",
                     [
@@ -326,6 +328,22 @@ class Hfss(FieldAnalysis3D, object):
                     self.odesign.ChangeProperty(properties)
                 except:
                     self.logger.warning("Failed To rename Terminals")
+            if iswaveport:
+                boundary.type = "WavePort"
+            else:
+                boundary.type = "LumpedPort"
+            props["Faces"] = [objectname]
+            if iswaveport:
+                props["NumModes"] = 1
+                props["UseLineModeAlignment"] = 1
+            props["DoDeembed"] = True
+            if iswaveport:
+                props["DeembedDist"] = "0mm"
+            props["RenormalizeAllTerminals"] = True
+            props["ShowReporterFilter"] = False
+            props["UseAnalyticAlignment"] = False
+            boundary.props = props
+            boundary.update()
         return boundary
 
     @aedt_exception_handler
@@ -1626,7 +1644,7 @@ class Hfss(FieldAnalysis3D, object):
         objects_center = [(j - i) / 2 for i, j in zip(closest_faces[0].center, closest_faces[1].center)]
 
         distance = sum / (10 * count)
-        name= generate_unique_name("P", n=3)
+        name = generate_unique_name("P", n=3)
 
         poly = self.modeler.create_spiral_on_face(closest_faces[0], distance)
         poly.name = name
@@ -1700,8 +1718,13 @@ class Hfss(FieldAnalysis3D, object):
                 orient = "X"
             else:
                 orient = "Y"
-        poly1 = self.modeler.create_polyline(coords, xsection_type="Line", xsection_orient=orient,
-                                             xsection_width=facecenter / 2, name=start_object+"_sheet")
+        poly1 = self.modeler.create_polyline(
+            coords,
+            xsection_type="Line",
+            xsection_orient=orient,
+            xsection_width=facecenter / 2,
+            name=start_object + "_sheet",
+        )
         self.assign_perfecte_to_sheets(poly1, sourcename=start_object)
         x2, y2 = GeometryOperators.orient_polygon(x2, y2)
         coords = []
@@ -1733,13 +1756,18 @@ class Hfss(FieldAnalysis3D, object):
                 orient = "X"
             else:
                 orient = "Y"
-        poly2 = self.modeler.create_polyline(coords, xsection_type="Line", xsection_orient=orient,
-                                              xsection_width=facecenter / 2, name=end_object+"_sheet")
+        poly2 = self.modeler.create_polyline(
+            coords,
+            xsection_type="Line",
+            xsection_orient=orient,
+            xsection_width=facecenter / 2,
+            name=end_object + "_sheet",
+        )
 
         self.assign_perfecte_to_sheets(poly2, sourcename=end_object)
-        self.create_lumped_port_to_sheet(poly,reference_object_list=[poly2.name], portname=name)
+        port = self.create_lumped_port_to_sheet(poly, reference_object_list=[poly2.name], portname=name)
 
-        return closest_faces, plane
+        return port
 
     @aedt_exception_handler
     def create_voltage_source_from_objects(self, startobj, endobject, axisdir=0, sourcename=None, source_on_plane=True):
@@ -3004,6 +3032,10 @@ class Hfss(FieldAnalysis3D, object):
             if not faces:
                 self.logger.error("Wrong Input object. it has to be a face id or a sheet.")
                 return False
+            if not portname:
+                portname = generate_unique_name("Port")
+            elif portname in self.modeler.get_excitations_name():
+                portname = generate_unique_name(portname)
             if terminal_references:
                 return self._create_port_terminal(faces, terminal_references, portname, iswaveport=True)
             else:
@@ -3167,8 +3199,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        str
-            Name of the source created when successful, ``False`` otherwise.
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
 
         References
         ----------
@@ -3193,9 +3225,7 @@ class Hfss(FieldAnalysis3D, object):
                 sourcename = generate_unique_name("Current")
             elif sourcename + ":1" in self.modeler.get_excitations_name():
                 sourcename = generate_unique_name(sourcename)
-            status = self.create_source_excitation(sheet_name, point0, point1, sourcename, sourcetype="Current")
-            if status:
-                return sourcename
+            return self.create_source_excitation(sheet_name, point0, point1, sourcename, sourcetype="Current")
         return False
 
     @aedt_exception_handler
@@ -3460,8 +3490,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        str
-            Name of the port created when successful, ``False`` otherwise.
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
 
         References
         ----------
@@ -3499,12 +3529,9 @@ class Hfss(FieldAnalysis3D, object):
         elif port_name + ":1" in self.modeler.get_excitations_name():
             port_name = generate_unique_name(port_name)
 
-        result = self._create_circuit_port(
+        return self._create_circuit_port(
             edge_list, port_impedance, port_name, renormalize, deembed, renorm_impedance=renorm_impedance
         )
-        if result:
-            return port_name
-        return False
 
     @aedt_exception_handler
     def edit_source(self, portandmode, powerin, phase="0deg"):
