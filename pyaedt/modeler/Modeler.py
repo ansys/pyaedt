@@ -1786,7 +1786,7 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def move(self, objid, vector):
-        """Move a selection
+        """Move a selection.
 
         Parameters
         ----------
