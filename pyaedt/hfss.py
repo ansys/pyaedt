@@ -1601,7 +1601,7 @@ class Hfss(FieldAnalysis3D, object):
             Boundary object.
 
         """
-
+        assert "Terminal" in self.solution_type, "This method can be used only in Terminal Solutions."
         start_object = self.modeler.convert_to_selections(start_object)
         end_object = self.modeler.convert_to_selections(end_object)
         facecenter = 1e9

@@ -652,5 +652,5 @@ class TestClass:
         )
         boundaries = len(self.aedtapp.boundaries)
         assert self.aedtapp.create_spiral_lumped_port(box1, box2)
-        assert len(self.aedtapp.boundaries)-boundaries == 2
+        assert len(self.aedtapp.boundaries)-boundaries == 3
 
