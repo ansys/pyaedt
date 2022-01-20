@@ -5,6 +5,7 @@ import random
 import re
 import string
 import warnings
+import os
 from collections import OrderedDict
 from decimal import Decimal
 
@@ -20,7 +21,8 @@ try:
     clr.AddReference("System")
     from System import Double
 except ImportError:
-    warnings.warn("Pythonnet is needed to run pyaedt")
+    if os.name != "posix":
+        warnings.warn("Pythonnet is needed to run pyaedt")
 
 
 @aedt_exception_handler

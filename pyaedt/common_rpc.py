@@ -17,6 +17,13 @@ import rpyc.core.consts
 # Maximum Stream message size. Set to 256MB
 rpyc.core.consts.STREAM_CHUNK = 256000000
 
+from pyaedt import is_ironpython
+
+if os.name == "posix" and is_ironpython:
+    import subprocessdotnet as subprocess
+else:
+    import subprocess
+    import socket
 
 def launch_server(port=18000, ansysem_path=None, non_graphical=False):
     """Starts an rpyc servers an start listening on specified port. This method has to run on server machine.
@@ -217,7 +224,7 @@ def client(server_name, server_port=18000, beta_options=None):
     print("Connecting to new session of Electronics Desktop on port {}. Please Wait.".format(port))
     if port:
         time.sleep(20)
-        timeout = 30
+        timeout = 60
         while timeout > 0:
             try:
                 c1 = rpyc.connect(server_name, port, config={"sync_request_timeout": None})
@@ -231,8 +238,6 @@ def client(server_name, server_port=18000, beta_options=None):
         return "Error. No connection."
     else:
         return "Error. No connection."
-    # else:
-    #    return rpyc.connect(server_name, port, config={'sync_request_timeout': None})
 
 
 def upload(localpath, remotepath, server_name, server_port=18000):
@@ -320,3 +325,31 @@ def _download_dir(remotepath, localpath, server_name, server_port=18000):
         lfn = os.path.join(localpath, fn)
         rfn = os.path.join(remotepath, fn)
         _download_file(rfn, lfn, server_name, server_port=18000)
+
+
+def launch_local_ironpython_server(aedt_path, non_graphical=False, port=18000, launch_client=True):
+    """Given Linux Aedt Path it will start a process in Ironpython and launch rpc server on specified port.
+
+    Parameters
+    ----------
+    aedt_path : str
+    non_graphical : bool
+    port : int
+    launch_client : bool
+
+    Returns
+    -------
+    rpyc object.
+
+    """
+    DETACHED_PROCESS = 0x00000008
+    if non_graphical:
+        val = 0
+    else:
+        val = 1
+    command = [os.path.join(aedt_path, "bin", "mono"), os.path.join(aedt_path, "common", "IronPython", "ipy64.exe"),
+               os.path.join(os.path.dirname(__file__), "rpc", "local_server.py"), aedt_path, str(val), str(port)]
+    pid = subprocess.Popen(command, creationflags=DETACHED_PROCESS, stdout=subprocess.PIPE, stderr=subprocess.PIPE).pid
+    if pid and launch_client:
+        return client(server_name=socket.getfqdn(), server_port=port)
+    return False
