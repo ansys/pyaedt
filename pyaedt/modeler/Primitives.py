@@ -1413,7 +1413,7 @@ class Primitives(object):
         >>> segment_def = PolylineSegment(type="AngularArc", arc_center=center_point, arc_angle="90deg", arc_plane="XY")
         >>> primitives.create_polyline(start_point, segment_type=segment_def, name="PL_center_point_arc")
 
-        Create a spline using a list of variables for the points' coordinates.
+        Create a spline using a list of variables for the coordinates of the points.
 
         >>> x0, y0, z0 = "0", "0", "1"
         >>> x1, y1, z1 = "1", "3", "1"
