@@ -200,7 +200,7 @@ class SimplorerComponents(CircuitComponents):
         location : list of float, optional
             Position on the X axis and Y axis.
         angle : float, optional
-            Angle rotation in degrees. The default is ``0``.
+            Angle of rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
             Whether to use the instance ID in the net list or not. The default is ``False``.
 
