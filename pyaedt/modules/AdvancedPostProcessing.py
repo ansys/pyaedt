@@ -219,7 +219,6 @@ class ModelPlotter(object):
         self.show_grid = True
         self.is_notebook = is_notebook()
         self.gif_file = None
-        self.legend = True
         self._background_color = (255, 255, 255)
         self.off_screen = False
         self.windows_size = [1024, 768]
@@ -984,7 +983,8 @@ class ModelPlotter(object):
                     opacity=field.opacity,
                     show_edges=field.show_edge,
                 )
-        self._add_buttons()
+        if self.show_legend:
+            self._add_buttons()
         end = time.time() - start
         files_list = []
         if self.show_axes:
