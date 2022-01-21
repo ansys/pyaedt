@@ -182,7 +182,14 @@ class SimplorerComponents(CircuitComponents):
         return id
 
     @aedt_exception_handler
-    def create_voltage_source(self, compname=None, type="E", amplitude=326, freq=50, location=[], angle=0, use_instance_id_netlist=False):
+    def create_voltage_source(self,
+            compname=None,
+            type="E",
+            amplitude=326,
+            freq=50,
+            location=[],
+            angle=0,
+            use_instance_id_netlist=False):
         """Create a voltage source.
 
         Parameters

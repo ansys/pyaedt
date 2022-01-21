@@ -40,7 +40,7 @@ new_thread = True
 desktop = Desktop(desktop_version, non_graphical, new_thread)
 
 # Add a new Twin Builder design with a default setup
- 
+
 tb = TwinBuilder()
 
 
@@ -50,7 +50,7 @@ tb = TwinBuilder()
 
 # Define the Grid Distance
 
-G = 0.00254 
+G = 0.00254
 
 # These methods create components, such as voltage source, resistors, and capacitors.
 
