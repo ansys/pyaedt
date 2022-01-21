@@ -44,6 +44,7 @@ else:
 try:
     import clr
     from System import Convert
+
     edb_initialized = True
 except ImportError:
     if os.name != "posix":

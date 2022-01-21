@@ -26,6 +26,7 @@ else:
     import subprocess
     import socket
 
+
 def launch_server(port=18000, ansysem_path=None, non_graphical=False):
     """Starts an rpyc servers an start listening on specified port. This method has to run on server machine.
 
@@ -361,9 +362,14 @@ def launch_ironpython_server(aedt_path, non_graphical=False, port=18000, launch_
         val = 1
     else:
         val = 0
-    command = [os.path.join(aedt_path, "common", "mono", "Linux64", "bin", "mono"),
-               os.path.join(aedt_path, "common", "IronPython", "ipy64.exe"),
-               os.path.join(os.path.dirname(__file__), "rpc", "local_server.py"), aedt_path, str(val), str(port)]
+    command = [
+        os.path.join(aedt_path, "common", "mono", "Linux64", "bin", "mono"),
+        os.path.join(aedt_path, "common", "IronPython", "ipy64.exe"),
+        os.path.join(os.path.dirname(__file__), "rpc", "local_server.py"),
+        aedt_path,
+        str(val),
+        str(port),
+    ]
     proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=non_graphical)
     print("Process {} started on {}".format(proc.pid, socket.getfqdn()))
     print("Warning: Remote CPython to Ironpython may have some limitations.")
