@@ -388,7 +388,7 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.AutoIdentifyPorts(
                 ["NAME:Faces", self.props["Faces"]],
                 self.props["IsWavePort"],
-                ["NAME:ReferenceConductors", self.props["ReferenceConductors"]],
+                ["NAME:ReferenceConductors"] + self.props["ReferenceConductors"],
                 self.name,
                 self.props["RenormalizeModes"],
             )

@@ -1,7 +1,7 @@
 import time
 import warnings
 import math
-
+import os
 
 from pyaedt.generic.general_methods import aedt_exception_handler, is_ironpython
 from pyaedt.edb_core.general import convert_py_list_to_net_list
@@ -11,9 +11,10 @@ try:
     from System import Array
     from System.Collections.Generic import List
 except ImportError:
-    warnings.warn(
-        "The clr is missing. Install Python.NET or use an IronPython version if you want to use the EDB module."
-    )
+    if os.name != "posix":
+        warnings.warn(
+            "The clr is missing. Install Python.NET or use an IronPython version if you want to use the EDB module."
+        )
 
 
 class EDBNetsData(object):
@@ -411,6 +412,11 @@ class EDBPrimitives(object):
                 raise AttributeError("Value inserted not found. Input has to be layer name or layer object.")
         else:
             raise AttributeError("Value inserted not found. Input has to be layer name or layer object.")
+
+    @aedt_exception_handler
+    def delete(self):
+        """Delete this primtive."""
+        self.primitive_object.Delete()
 
 
 class EDBLayer(object):
@@ -1948,6 +1954,31 @@ class EDBPadstackInstance(object):
     def delete_padstack_instance(self):
         """Delete this padstack instance."""
         self._edb_padstackinstance.Delete()
+
+    @aedt_exception_handler
+    def in_voids(self, net_name=None, layer_name=None):
+        """Check if this padstack instance is in any void.
+
+        Parameters
+        ----------
+        net_name : str
+            Net name of the voids to be checked.
+        layer_name : str
+            Layer name of the voids to be checked.
+        Returns
+        -------
+        list
+            List of the voids includes this padstack instance.
+        """
+        x_pos = self._pedb.edb_value(self.position[0])
+        y_pos = self._pedb.edb_value(self.position[1])
+        point_data = self._pedb.core_primitives._edb.Geometry.PointData(x_pos, y_pos)
+
+        voids = []
+        for prim in self._pedb.core_primitives.get_primitives(net_name, layer_name, is_void=True):
+            if prim.primitive_object.GetPolygonData().PointInPolygon(point_data):
+                voids.append(prim)
+        return voids
 
 
 class EDBPinInstances(object):

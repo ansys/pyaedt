@@ -272,35 +272,35 @@ class Hfss(FieldAnalysis3D, object):
     def _create_lumped_driven(self, objectname, int_line_start, int_line_stop, impedance, portname, renorm, deemb):
         start = [str(i) + self.modeler.primitives.model_units for i in int_line_start]
         stop = [str(i) + self.modeler.primitives.model_units for i in int_line_stop]
-        props = OrderedDict(
+        props = OrderedDict({})
+        if isinstance(objectname, str):
+            props["Objects"] = [objectname]
+        else:
+            props["Faces"] = [objectname]
+        props["DoDeembed"] = deemb
+        props["RenormalizeAllTerminals"] = renorm
+        props["Modes"] = OrderedDict(
             {
-                "Objects": [objectname],
-                "DoDeembed": deemb,
-                "RenormalizeAllTerminals": renorm,
-                "Modes": OrderedDict(
+                "Mode1": OrderedDict(
                     {
-                        "Mode1": OrderedDict(
-                            {
-                                "ModeNum": 1,
-                                "UseIntLine": True,
-                                "IntLine": OrderedDict({"Start": start, "End": stop}),
-                                "AlignmentGroup": 0,
-                                "CharImp": "Zpi",
-                                "RenormImp": str(impedance) + "ohm",
-                            }
-                        )
+                        "ModeNum": 1,
+                        "UseIntLine": True,
+                        "IntLine": OrderedDict({"Start": start, "End": stop}),
+                        "AlignmentGroup": 0,
+                        "CharImp": "Zpi",
+                        "RenormImp": str(impedance) + "ohm",
                     }
-                ),
-                "ShowReporterFilter": False,
-                "ReporterFilter": [True],
-                "Impedance": str(impedance) + "ohm",
+                )
             }
         )
+        props["ShowReporterFilter"] = False
+        props["ReporterFilter"] = [True]
+        props["Impedance"] = str(impedance) + "ohm"
         return self._create_boundary(portname, props, "LumpedPort")
 
     @aedt_exception_handler
     def _create_port_terminal(self, objectname, int_line_stop, portname, iswaveport=False):
-        ref_conductors = self.modeler.convert_to_selections(int_line_stop, False)
+        ref_conductors = self.modeler.convert_to_selections(int_line_stop, True)
         props = OrderedDict({})
         props["Faces"] = int(objectname)
         props["IsWavePort"] = iswaveport
@@ -311,12 +311,10 @@ class Hfss(FieldAnalysis3D, object):
         if boundary:
             new_ports = list(self.oboundary.GetExcitationsOfType("Terminal"))
             terminals = [i for i in new_ports if i not in ports]
+            id = 1
             for terminal in terminals:
-                name_split = terminal.split("_")
-                try:
-                    new_name = portname + "_" + name_split[1]
-                except:
-                    new_name = portname + "_T1"
+                new_name = portname + "_T" + str(id)
+                id += 1
                 properties = [
                     "NAME:AllTabs",
                     [
@@ -329,6 +327,22 @@ class Hfss(FieldAnalysis3D, object):
                     self.odesign.ChangeProperty(properties)
                 except:
                     self.logger.warning("Failed To rename Terminals")
+            if iswaveport:
+                boundary.type = "WavePort"
+            else:
+                boundary.type = "LumpedPort"
+            props["Faces"] = [objectname]
+            if iswaveport:
+                props["NumModes"] = 1
+                props["UseLineModeAlignment"] = 1
+            props["DoDeembed"] = True
+            if iswaveport:
+                props["DeembedDist"] = "0mm"
+            props["RenormalizeAllTerminals"] = True
+            props["ShowReporterFilter"] = False
+            props["UseAnalyticAlignment"] = False
+            boundary.props = props
+            boundary.update()
         return boundary
 
     @aedt_exception_handler
@@ -1466,8 +1480,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        str
-            Name of port created when successful, ``False`` otherwise.
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
 
         References
         ----------
@@ -1503,8 +1517,7 @@ class Hfss(FieldAnalysis3D, object):
                 portname = generate_unique_name("Port")
             elif portname + ":1" in self.modeler.get_excitations_name():
                 portname = generate_unique_name(portname)
-            if self._create_circuit_port(out, impedance, portname, renorm, deemb, renorm_impedance=renorm_impedance):
-                return portname
+            return self._create_circuit_port(out, impedance, portname, renorm, deemb, renorm_impedance=renorm_impedance)
         return False
 
     @aedt_exception_handler
@@ -1537,8 +1550,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        str
-            Name of port created when successful, ``False`` otherwise.
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
 
         References
         ----------
@@ -1580,12 +1593,213 @@ class Hfss(FieldAnalysis3D, object):
             elif portname + ":1" in self.modeler.get_excitations_name():
                 portname = generate_unique_name(portname)
             if "Modal" in self.solution_type:
-                self._create_lumped_driven(sheet_name, point0, point1, impedance, portname, renorm, deemb)
+                return self._create_lumped_driven(sheet_name, point0, point1, impedance, portname, renorm, deemb)
             else:
                 faces = self.modeler.primitives.get_object_faces(sheet_name)
-                self._create_port_terminal(faces[0], endobject, portname, iswaveport=False)
-            return portname
+                return self._create_port_terminal(faces[0], endobject, portname, iswaveport=False)
         return False
+
+    @aedt_exception_handler
+    def create_spiral_lumped_port(self, start_object, end_object, port_width=None):
+        """Create a spiral lumped port between two adjacent objects.
+        The two objects must have two adjacent, parallel and identical faces
+        and the faces must be a polygon (not a circle).
+
+        Parameters
+        ----------
+        start_object : str or int or :class:`pyaedt.modeler.Object3d.Object3d`
+        end_object: str or int or :class:`pyaedt.modeler.Object3d.Object3d`
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
+
+        """
+        # fmt: off
+        if not "Terminal" in self.solution_type:
+            raise Exception("This method can be used only in Terminal Solutions.")
+        start_object = self.modeler.convert_to_selections(start_object)
+        end_object = self.modeler.convert_to_selections(end_object)
+        closest_distance = 1e9
+        closest_faces = []
+        for face1 in self.modeler[start_object].faces:
+            for face2 in self.modeler[end_object].faces:
+                facecenter_distance = GeometryOperators.points_distance(face1.center, face2.center)
+                if facecenter_distance <= closest_distance:
+                    closest_distance = facecenter_distance
+                    closest_faces = [face1, face2]
+
+        if not GeometryOperators.is_collinear(closest_faces[0].normal, closest_faces[1].normal):
+            raise AttributeError('The two object must have parallel adjacent faces.')
+        if GeometryOperators.is_collinear(closest_faces[0].normal, [1, 0, 0]):
+            plane = 0
+        elif GeometryOperators.is_collinear(closest_faces[0].normal, [0, 1, 0]):
+            plane = 1
+        elif GeometryOperators.is_collinear(closest_faces[0].normal, [0, 0, 1]):
+            plane = 2
+        else:
+            raise AttributeError('The two object must have the adjacent faces aligned with the main planes.')
+
+        move_vector = GeometryOperators.v_sub(closest_faces[1].center, closest_faces[0].center)
+        move_vector = GeometryOperators.v_prod(0.5, move_vector)
+
+        if port_width:
+            spiral_width = port_width
+            filling = 1.5
+        else:
+            # get face bounding box
+            face_bb = [1e15, 1e15, 1e15, -1e15, -1e15, -1e15]
+            for i in range(3):
+                for v in closest_faces[0].vertices:
+                    face_bb[i] = min(face_bb[i], v.position[i])
+                    face_bb[i+3] = max(face_bb[i+3], v.position[i])
+            # get the ratio in 2D
+            bb_dim = [abs(face_bb[i]-face_bb[i+3]) for i in range(3) if abs(face_bb[i]-face_bb[i+3]) > 1e-12]
+            bb_ratio = max(bb_dim)/min(bb_dim)
+            if bb_ratio > 2:
+                spiral_width = min(bb_dim) / 12
+                filling = -0.2828*bb_ratio**2 + 3.4141*bb_ratio - 4.197
+                print(filling)
+            else:
+                vertex_coordinates = []
+                for v in closest_faces[0].vertices:
+                    vertex_coordinates.append(v.position)
+                segments_lengths = []
+                for vc in vertex_coordinates:
+                    segments_lengths.append(GeometryOperators.points_distance(vc, closest_faces[0].center))
+                spiral_width = min(segments_lengths) / 15
+                filling = 1.5
+
+        name = generate_unique_name("P", n=3)
+
+        poly = self.modeler.create_spiral_on_face(closest_faces[0], spiral_width, filling_factor=filling)
+        poly.name = name
+        poly.translate(move_vector)
+
+        vert_position_x = []
+        vert_position_y = []
+        for vert in poly.vertices:
+            if plane == 0:
+                vert_position_x.append(vert.position[1])
+                vert_position_y.append(vert.position[2])
+            elif plane == 1:
+                vert_position_x.append(vert.position[0])
+                vert_position_y.append(vert.position[2])
+            elif plane == 2:
+                vert_position_x.append(vert.position[0])
+                vert_position_y.append(vert.position[1])
+
+        x, y = GeometryOperators.orient_polygon(vert_position_x, vert_position_y)
+
+        list_a_val = False
+        x1 = []
+        y1 = []
+        x2 = []
+        y2 = []
+        for i in range(len(x) - 1):
+            dist = GeometryOperators.points_distance([x[i], y[i], 0], [x[i + 1], y[i + 1], 0])
+            if list_a_val:
+                x1.append(x[i])
+                y1.append(y[i])
+            else:
+                x2.append(x[i])
+                y2.append(y[i])
+            if abs(dist - spiral_width) < 1e-6:
+                list_a_val = not list_a_val
+        # set the last point
+        if list_a_val:
+            x1.append(x[-1])
+            y1.append(y[-1])
+        else:
+            x2.append(x[-1])
+            y2.append(y[-1])
+
+        faces_mid_point = GeometryOperators.get_mid_point(closest_faces[1].center, closest_faces[0].center)
+
+        x1, y1 = GeometryOperators.orient_polygon(x1, y1)
+        coords = []
+        for x, y in zip(x1, y1):
+            if plane == 0:
+                coords.append([faces_mid_point[0] - closest_distance/4, x, y])
+            elif plane == 1:
+                coords.append([x, faces_mid_point[1] - closest_distance/4, y])
+            elif plane == 2:
+                coords.append([x, y, faces_mid_point[2] - closest_distance/4])
+        dx = abs(coords[0][0] - coords[1][0])
+        dy = abs(coords[0][1] - coords[1][1])
+        dz = abs(coords[0][2] - coords[1][2])
+        v1 = GeometryOperators.v_points(coords[0], coords[1])
+        v2 = GeometryOperators.v_points(coords[0], coords[2])
+        norm = GeometryOperators.v_cross(v1, v2)
+
+        if abs(norm[0]) > 1e-12:
+            if dy < dz:
+                orient = "Y"
+            else:
+                orient = "Z"
+        elif abs(norm[1]) > 1e-12:
+            if dx < dz:
+                orient = "X"
+            else:
+                orient = "Z"
+        else:
+            if dx < dy:
+                orient = "X"
+            else:
+                orient = "Y"
+        poly1 = self.modeler.create_polyline(
+            coords,
+            xsection_type="Line",
+            xsection_orient=orient,
+            xsection_width=closest_distance / 2,
+            name=start_object + "_sheet",
+        )
+        self.assign_perfecte_to_sheets(poly1, sourcename=start_object)
+
+        x2, y2 = GeometryOperators.orient_polygon(x2, y2)
+        coords = []
+        faces_mid_point = GeometryOperators.get_mid_point(closest_faces[1].center, closest_faces[0].center)
+        for x, y in zip(x2, y2):
+            if plane == 0:
+                coords.append([faces_mid_point[0] + closest_distance/4, x, y])
+            elif plane == 1:
+                coords.append([x, faces_mid_point[1] + closest_distance/4, y])
+            elif plane == 2:
+                coords.append([x, y, faces_mid_point[2] + closest_distance/4])
+        dx = abs(coords[0][0] - coords[1][0])
+        dy = abs(coords[0][1] - coords[1][1])
+        dz = abs(coords[0][2] - coords[1][2])
+        v1 = GeometryOperators.v_points(coords[0], coords[1])
+        v2 = GeometryOperators.v_points(coords[0], coords[2])
+        norm = GeometryOperators.v_cross(v1, v2)
+        if abs(norm[0]) > 1e-12:
+            if dy < dz:
+                orient = "Y"
+            else:
+                orient = "Z"
+        elif abs(norm[1]) > 1e-12:
+            if dx < dz:
+                orient = "X"
+            else:
+                orient = "Z"
+        else:
+            if dx < dy:
+                orient = "X"
+            else:
+                orient = "Y"
+        poly2 = self.modeler.create_polyline(
+            coords,
+            xsection_type="Line",
+            xsection_orient=orient,
+            xsection_width=closest_distance / 2,
+            name=end_object + "_sheet",
+        )
+
+        self.assign_perfecte_to_sheets(poly2, sourcename=end_object)
+        port = self.create_lumped_port_to_sheet(poly, reference_object_list=[poly2.name], portname=name)
+        # fmt: on
+        return port
 
     @aedt_exception_handler
     def create_voltage_source_from_objects(self, startobj, endobject, axisdir=0, sourcename=None, source_on_plane=True):
@@ -2761,20 +2975,28 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def create_wave_port_from_sheet(
-        self, sheet, deemb=0, axisdir=0, impedance=50, nummodes=1, portname=None, renorm=True
+        self,
+        sheet,
+        deemb=0,
+        axisdir=0,
+        impedance=50,
+        nummodes=1,
+        portname=None,
+        renorm=True,
+        terminal_references=None,
     ):
         """Create a waveport on sheet objects created starting from sheets.
 
         Parameters
         ----------
-        sheet : list
-            List of input sheets to create the waveport from.
+        sheet : str or int or :class:`pyaedt.modeler.Object3d.Object3d`
+            Name of the sheet.
         deemb : float, optional
             Deembedding value distance in model units. The default is ``0``.
         axisdir : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
-            The default is ``Application.AxisDir.XNeg``.
+            The default is 0 for ``Application.AxisDir.XNeg``.
         impedance : float, optional
             Port impedance. The default is ``50``.
         nummodes : int, optional
@@ -2783,14 +3005,13 @@ class Hfss(FieldAnalysis3D, object):
             Name of the port. The default is ``None``.
         renorm : bool, optional
             Whether to renormalize the mode. The default is ``True``.
-        deembed_dist : float, optional
-            Deembed distance in millimeters. The default is ``0``,
-            in which case deembed is disabled.
+        terminal_references : list, optional
+            In Driven Terminal Simulation it is the list of conductors for Port Terminal Definitions.
 
         Returns
         -------
-        list
-            List of names for the ports created when successful, ``False`` otherwise.
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
 
         References
         ----------
@@ -2814,38 +3035,44 @@ class Hfss(FieldAnalysis3D, object):
 
         """
 
-        sheet = self.modeler.convert_to_selections(sheet, True)
-        obj_names = []
-        for sh in sheet:
-            if isinstance(sh, int):
-                try:
-                    obj_names.append(self.modeler.oeditor.GetObjectNameByFaceID(sh))
-                except:
-                    obj_names.append("")
-            else:
-                obj_names.append("")
-        portnames = []
-        for obj, oname in zip(sheet, obj_names):
-            refid, int_start, int_stop = self._get_reference_and_integration_points(obj, axisdir, oname)
+        sheet = self.modeler.convert_to_selections(sheet, True)[0]
+        if terminal_references:
+            terminal_references = self.modeler.convert_to_selections(terminal_references, True)
+        if isinstance(sheet, int):
+            try:
+                oname = self.modeler.oeditor.GetObjectNameByFaceID(sheet)
+            except:
+                oname = ""
+        else:
+            oname = ""
+        if "Modal" in self.solution_type:
+
+            refid, int_start, int_stop = self._get_reference_and_integration_points(sheet, axisdir, oname)
 
             if not portname:
                 portname = generate_unique_name("Port")
             elif portname + ":1" in self.modeler.get_excitations_name():
                 portname = generate_unique_name(portname)
-            if "Modal" in self.solution_type:
-                b = self._create_waveport_driven(obj, int_start, int_stop, impedance, portname, renorm, nummodes, deemb)
-                if b:
-                    portnames.append(b)
+            return self._create_waveport_driven(
+                sheet, int_start, int_stop, impedance, portname, renorm, nummodes, deemb
+            )
+        else:
+            if isinstance(sheet, int):
+                faces = sheet
             else:
-                faces = self.modeler.primitives.get_object_faces(obj)
-                if len(refid) > 0:
-                    b = self._create_port_terminal(faces[0], refid, portname, iswaveport=True)
-                    if b:
-                        portnames.append(b)
-
-                else:
-                    return False
-        return portnames
+                faces = self.modeler.primitives.get_object_faces(sheet)[0]
+            if not faces:
+                self.logger.error("Wrong Input object. it has to be a face id or a sheet.")
+                return False
+            if not portname:
+                portname = generate_unique_name("Port")
+            elif portname in self.modeler.get_excitations_name():
+                portname = generate_unique_name(portname)
+            if terminal_references:
+                return self._create_port_terminal(faces, terminal_references, portname, iswaveport=True)
+            else:
+                self.logger.error("Reference Conductors are missed.")
+                return False
 
     @aedt_exception_handler
     def create_lumped_port_to_sheet(
@@ -2895,21 +3122,15 @@ class Hfss(FieldAnalysis3D, object):
         ...                                  "LumpedPortFromSheet", True, False)
 
         """
-
+        sheet_name = self.modeler.convert_to_selections(sheet_name, False)
         if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
             point0, point1 = self.modeler.primitives.get_mid_points_on_dir(sheet_name, axisdir)
-
-            cond = self.get_all_conductors_names()
-            touching = self.modeler.primitives.get_bodynames_from_position(point0)
-            listcond = []
-            for el in touching:
-                if el in cond:
-                    listcond.append(el)
 
             if not portname:
                 portname = generate_unique_name("Port")
             elif portname + ":1" in self.modeler.get_excitations_name():
                 portname = generate_unique_name(portname)
+            port = False
             if "Modal" in self.solution_type:
                 port = self._create_lumped_driven(sheet_name, point0, point1, impedance, portname, renorm, deemb)
             else:
@@ -2920,8 +3141,15 @@ class Hfss(FieldAnalysis3D, object):
                     for el in touching:
                         if el in cond:
                             reference_object_list.append(el)
-                faces = self.modeler.primitives.get_object_faces(sheet_name)
-                port = self._create_port_terminal(faces[0], reference_object_list, portname, iswaveport=False)
+                if isinstance(sheet_name, int):
+                    faces = sheet_name
+                else:
+                    faces = self.modeler.primitives.get_object_faces(sheet_name)[0]
+                if not faces:
+                    self.logger.error("Wrong Input object. it has to be a face id or a sheet.")
+                    return False
+                port = self._create_port_terminal(faces, reference_object_list, portname, iswaveport=False)
+
             return port
         return False
 
@@ -3003,8 +3231,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        str
-            Name of the source created when successful, ``False`` otherwise.
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
 
         References
         ----------
@@ -3029,9 +3257,7 @@ class Hfss(FieldAnalysis3D, object):
                 sourcename = generate_unique_name("Current")
             elif sourcename + ":1" in self.modeler.get_excitations_name():
                 sourcename = generate_unique_name(sourcename)
-            status = self.create_source_excitation(sheet_name, point0, point1, sourcename, sourcetype="Current")
-            if status:
-                return sourcename
+            return self.create_source_excitation(sheet_name, point0, point1, sourcename, sourcetype="Current")
         return False
 
     @aedt_exception_handler
@@ -3069,7 +3295,7 @@ class Hfss(FieldAnalysis3D, object):
         <class 'pyaedt.modules.Boundary.BoundaryObject'>
 
         """
-
+        sheet_list = self.modeler.convert_to_selections(sheet_list)
         if self.solution_type in ["Modal", "Terminal", "Transient Network", "SBR+"]:
             if not sourcename:
                 sourcename = generate_unique_name("PerfE")
@@ -3296,8 +3522,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        str
-            Name of the port created when successful, ``False`` otherwise.
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
 
         References
         ----------
@@ -3335,12 +3561,9 @@ class Hfss(FieldAnalysis3D, object):
         elif port_name + ":1" in self.modeler.get_excitations_name():
             port_name = generate_unique_name(port_name)
 
-        result = self._create_circuit_port(
+        return self._create_circuit_port(
             edge_list, port_impedance, port_name, renormalize, deembed, renorm_impedance=renorm_impedance
         )
-        if result:
-            return port_name
-        return False
 
     @aedt_exception_handler
     def edit_source(self, portandmode, powerin, phase="0deg"):

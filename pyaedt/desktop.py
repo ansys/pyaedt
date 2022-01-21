@@ -21,29 +21,23 @@ import time
 import datetime
 import tempfile
 
-if os.name == "posix":
-    try:
-        import subprocessdotnet as subprocess
-    except:
-        warnings.warn("Pythonnet is needed to run pyaedt within Linux")
+from pyaedt import is_ironpython
+
+if os.name == "posix" and is_ironpython:
+    import subprocessdotnet as subprocess
 else:
     import subprocess
+
 from pyaedt.application.MessageManager import AEDTMessageManager
 from pyaedt.misc import list_installed_ansysem
 from pyaedt import aedt_exception_handler
 from pyaedt.generic.general_methods import is_ironpython, _pythonver, inside_desktop
 
-from pyaedt import aedt_logger
+from pyaedt import aedt_logger, __version__
 
 pathname = os.path.dirname(__file__)
-if os.path.exists(os.path.join(pathname, "version.txt")):
-    with open(os.path.join(pathname, "version.txt"), "r") as f:
-        pyaedtversion = f.readline().strip()
-elif os.path.exists(os.path.join(pathname, "..", "version.txt")):
-    with open(os.path.join(pathname, "..", "version.txt"), "r") as f:
-        pyaedtversion = f.readline().strip()
-else:
-    pyaedtversion = "X"
+
+pyaedtversion = __version__
 
 
 if os.name == "nt":

@@ -130,3 +130,8 @@ class TestClass(BasisTest):
         )
         obj = self.aedtapp.plot(show=False, export_path=os.path.join(self.local_scratch.path, "image.jpg"))
         assert os.path.exists(obj.image_file)
+
+    def test_edit_menu_commands(self):
+        rect1 = self.aedtapp.modeler.primitives.create_rectangle([1, 0, -2], [8, 3])
+        assert self.aedtapp.modeler.mirror(rect1, [1, 0, 0], [1, 0, 0])
+        assert self.aedtapp.modeler.move(rect1, [1, 1, 0])

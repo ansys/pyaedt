@@ -6,6 +6,7 @@ from __future__ import absolute_import
 
 import math
 import warnings
+import os
 
 from pyaedt.edb_core.EDB_Data import EDBLayers
 from pyaedt.edb_core.general import convert_py_list_to_net_list
@@ -14,7 +15,8 @@ from pyaedt.generic.general_methods import aedt_exception_handler, is_ironpython
 try:
     from System import Double
 except ImportError:
-    warnings.warn('This module requires the "pythonnet" package.')
+    if os.name != "posix":
+        warnings.warn('This module requires the "pythonnet" package.')
 
 
 class EdbStackup(object):

@@ -4,6 +4,7 @@ This module contains these classes: `EdbLayout` and `Shape`.
 
 import math
 import warnings
+import os
 
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import aedt_exception_handler
@@ -14,7 +15,8 @@ try:
     from System import Tuple
 
 except ImportError:
-    warnings.warn('This module requires the "pythonnet" package.')
+    if os.name != "posix":
+        warnings.warn('This module requires the "pythonnet" package.')
 
 
 class EdbLayout(object):
@@ -535,6 +537,43 @@ class EdbLayout(object):
                 else:
                     self._primitives_by_layer[layer_name] = [polygon]
             return polygon
+
+    @aedt_exception_handler
+    def get_primitives(self, net_name=None, layer_name=None, prim_type=None, is_void=False):
+        """Get primitives by conditions.
+
+        Parameters
+        ----------
+        net_name : str, optional
+            Set filter on net_name. Default is `None"`.
+        layer_name : str, optional
+            Set filter on layer_name. Default is `None"`.
+        prim_type :  str, optional
+            Set filter on primitive type. Default is `None"`.
+        is_void : bool
+            Set filter on is_void. Default is 'False'
+        Returns
+        -------
+        list
+            List of filtered primitives
+        """
+        prims = []
+        for el in self.primitives:
+            if not el.type:
+                continue
+            if net_name:
+                if not el.net_name == net_name:
+                    continue
+            if layer_name:
+                if not el.layer_name == layer_name:
+                    continue
+            if prim_type:
+                if not el.type == prim_type:
+                    continue
+            if not el.is_void == is_void:
+                continue
+            prims.append(el)
+        return prims
 
     @aedt_exception_handler
     def fix_circle_void_for_clipping(self):
