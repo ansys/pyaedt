@@ -1,5 +1,5 @@
 """
-RC Circuit Schematic Creation and Analysis in Twin Builder
+RC Circuit Design in Twin Builder
 ------------------------------------------
 This example shows how you can use PyAEDT to create a Twin Builder design
 and run a Twin Builder time-domain simulation.
@@ -40,7 +40,6 @@ desktop = Desktop(desktop_version, non_graphical, new_thread)
 # Add a new Twin Builder design with a default setup
 
 tb = TwinBuilder()
-
 
 ###############################################################################
 # Create Components for a RC circuit driven by a pulse voltage source
