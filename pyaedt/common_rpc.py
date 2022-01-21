@@ -329,7 +329,7 @@ def _download_dir(remotepath, localpath, server_name, server_port=18000):
         _download_file(rfn, lfn, server_name, server_port=18000)
 
 
-def launch_local_ironpython_server(aedt_path, non_graphical=False, port=18000, launch_client=True):
+def initialize_ironpython_server(aedt_path, non_graphical=False, port=18000, launch_client=True):
     """Given Linux Aedt Path it will start a process in Ironpython and launch rpc server on specified port.
 
     Parameters
