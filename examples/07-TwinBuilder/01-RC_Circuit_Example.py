@@ -55,15 +55,15 @@ G = 0.00254
 # These methods create components, such as voltage source, resistors, and capacitors.
 
 source = tb.modeler.schematic.create_voltage_source("E1", "EPULSE", 10, 10, [0, 0])
-resistor = tb.modeler.schematic.create_resistor("R1", 10000, [10*G, 10*G], 90)
-capacitor = tb.modeler.schematic.create_capacitor("C1", 1e-6, [20*G, 0])
+resistor = tb.modeler.schematic.create_resistor("R1", 10000, [10 * G, 10 * G], 90)
+capacitor = tb.modeler.schematic.create_capacitor("C1", 1e-6, [20 * G, 0])
 
 ###############################################################################
 # Create a Ground
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This method create a ground, which is needed for a twin builder analog analysis.
 
-gnd = tb.modeler.components.create_gnd([0, -10*G])
+gnd = tb.modeler.components.create_gnd([0, -10 * G])
 
 ###############################################################################
 # Connect Components

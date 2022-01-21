@@ -182,14 +182,9 @@ class SimplorerComponents(CircuitComponents):
         return id
 
     @aedt_exception_handler
-    def create_voltage_source(self,
-            compname=None,
-            type="E",
-            amplitude=326,
-            freq=50,
-            location=[],
-            angle=0,
-            use_instance_id_netlist=False):
+    def create_voltage_source(
+        self, compname=None, type="E", amplitude=326, freq=50, location=[], angle=0, use_instance_id_netlist=False
+    ):
         """Create a voltage source.
 
         Parameters
@@ -232,7 +227,7 @@ class SimplorerComponents(CircuitComponents):
 
         if type == "E":
             id.set_property("EMF", amplitude)
-        if type == "ESINE" or type == "EPULSE" or type == "ETRIANG" :
+        if type == "ESINE" or type == "EPULSE" or type == "ETRIANG":
             id.set_property("AMPL", amplitude)
             id.set_property("FREQ", freq)
             id.set_property("TPERIO", "Tend+1")
