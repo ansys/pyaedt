@@ -763,6 +763,9 @@ class Object3d(object):
             self._odesign.Undo()
         if not modeled:
             self._odesign.Undo()
+        self._primitives._app.odesktop.ClearMessages(
+            self._primitives._app.project_name, self._primitives._app.design_name, 1
+        )
         return bounding
 
     @property
