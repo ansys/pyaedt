@@ -1608,7 +1608,7 @@ class Hfss(FieldAnalysis3D, object):
         Parameters
         ----------
         start_object : str or int or :class:`pyaedt.modeler.Object3d.Object3d`
-        end_object
+        end_object: str or int or :class:`pyaedt.modeler.Object3d.Object3d`
 
         Returns
         -------
