@@ -196,7 +196,7 @@ class SimplorerComponents(CircuitComponents):
         amplitude : float, optional
             Amplitude of the waveform if periodic. The default is ``326V``
         freq : float, optional
-            frequency of the periodic waveform. The default is ``50Hz``.
+            Frequency of the periodic waveform. The default is ``50Hz``.
         location : list of float, optional
             Position on the X axis and Y axis.
         angle : float, optional
