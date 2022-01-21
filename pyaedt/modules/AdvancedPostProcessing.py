@@ -993,6 +993,7 @@ class ModelPlotter(object):
             self.pv.show_grid(color=tuple(axes_color))
         self.pv.add_bounding_box(color=tuple(axes_color))
         self.pv.set_focus(self.pv.mesh.center)
+
         if not self.isometric_view:
             self.pv.camera_position = self.camera_position
             self.pv.camera.azimuth += self.azimuth_angle

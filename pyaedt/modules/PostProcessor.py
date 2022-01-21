@@ -2764,6 +2764,7 @@ class PostProcessor(PostProcessorCommon, object):
             return file_to_add
         return None
 
+
 class CircuitPostProcessor(PostProcessorCommon, object):
     """Manages the main AEDT Nexxim postprocessing functions.
 
@@ -3091,4 +3092,3 @@ class CircuitPostProcessor(PostProcessorCommon, object):
             ["X Component:=", "__UnitInterval", "Y Component:=", "__Amplitude", "Eye Diagram Component:=", ycomponents],
         )
         return plotname
-
