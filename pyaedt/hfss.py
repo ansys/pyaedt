@@ -1617,7 +1617,8 @@ class Hfss(FieldAnalysis3D, object):
 
         """
         # fmt: off
-        assert "Terminal" in self.solution_type, "This method can be used only in Terminal Solutions."
+        if not "Terminal" in self.solution_type:
+            raise Exception("This method can be used only in Terminal Solutions.")
         start_object = self.modeler.convert_to_selections(start_object)
         end_object = self.modeler.convert_to_selections(end_object)
         closest_distance = 1e9
