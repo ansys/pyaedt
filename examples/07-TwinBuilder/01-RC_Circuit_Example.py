@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 ###############################################################################
 # Launch Twin Builder
 # ~~~~~~~~~~~~~~~~~~~~~~~
-# This examples launches Twin Builder 2021.2 in graphical mode.
+# This example launches Twin Builder 2021.2 in graphical mode.
 
 # This example uses SI units.
 
