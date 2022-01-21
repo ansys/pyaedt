@@ -1669,7 +1669,6 @@ class Hfss(FieldAnalysis3D, object):
                     segments_lengths.append(GeometryOperators.points_distance(vc, closest_faces[0].center))
                 spiral_width = min(segments_lengths) / 15
                 filling = 1.5
-                print(filling)
 
         name = generate_unique_name("P", n=3)
 
