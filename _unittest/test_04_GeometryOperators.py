@@ -327,3 +327,10 @@ class TestClass:
         yo.reverse()
         assert x == xo
         assert y == yo
+
+    def test_is_collinear(self):
+        assert go.is_collinear([1, 0, 0], [1, 0, 0])
+        assert go.is_collinear([1.0, 0.0, 0.0], [-1.0, 0.0, 0.0])
+        assert not go.is_collinear([1, 0, 0], [0, 1, 0])
+        assert go.is_collinear([1, 1, 1], [-2, -2, -2])
+        assert not go.is_collinear([1, 2, 3], [3.0, 2.0, 1.0])
