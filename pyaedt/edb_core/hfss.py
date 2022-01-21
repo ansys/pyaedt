@@ -2,6 +2,7 @@
 This module contains the `EdbHfss` class.
 """
 from pyaedt.edb_core.general import convert_netdict_to_pydict
+from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, is_ironpython
 
 
@@ -206,13 +207,13 @@ class EdbHfss(object):
 
     @aedt_exception_handler
     def create_circuit_port_on_net(
-        self,
-        positive_component_name,
-        positive_net_name,
-        negative_component_name=None,
-        negative_net_name="GND",
-        impedance_value=50,
-        port_name="",
+            self,
+            positive_component_name,
+            positive_net_name,
+            negative_component_name=None,
+            negative_net_name="GND",
+            impedance_value=50,
+            port_name="",
     ):
         """Create a circuit port on a NET.
         It groups all pins belonging to the specified net and then applies the port on PinGroups.
@@ -255,14 +256,14 @@ class EdbHfss(object):
 
     @aedt_exception_handler
     def create_voltage_source_on_net(
-        self,
-        positive_component_name,
-        positive_net_name,
-        negative_component_name=None,
-        negative_net_name="GND",
-        voltage_value=3.3,
-        phase_value=0,
-        source_name="",
+            self,
+            positive_component_name,
+            positive_net_name,
+            negative_component_name=None,
+            negative_net_name="GND",
+            voltage_value=3.3,
+            phase_value=0,
+            source_name="",
     ):
         """Create a voltage source.
 
@@ -308,14 +309,14 @@ class EdbHfss(object):
 
     @aedt_exception_handler
     def create_current_source_on_net(
-        self,
-        positive_component_name,
-        positive_net_name,
-        negative_component_name=None,
-        negative_net_name="GND",
-        current_value=0.1,
-        phase_value=0,
-        source_name="",
+            self,
+            positive_component_name,
+            positive_net_name,
+            negative_component_name=None,
+            negative_net_name="GND",
+            current_value=0.1,
+            phase_value=0,
+            source_name="",
     ):
         """Create a current source.
 
@@ -361,13 +362,13 @@ class EdbHfss(object):
 
     @aedt_exception_handler
     def create_resistor_on_net(
-        self,
-        positive_component_name,
-        positive_net_name,
-        negative_component_name=None,
-        negative_net_name="GND",
-        rvalue=1,
-        resistor_name="",
+            self,
+            positive_component_name,
+            positive_net_name,
+            negative_component_name=None,
+            negative_net_name="GND",
+            rvalue=1,
+            resistor_name="",
     ):
         """Create a voltage source.
 
@@ -443,7 +444,7 @@ class EdbHfss(object):
                     else:
                         res, fromLayer_pos, toLayer_pos = pin.pin.GetLayerRange(None, None)
                     if self._edb.Cell.Terminal.PadstackInstanceTerminal.Create(
-                        self._active_layout, pin.pin.GetNet(), port_name, pin.pin, toLayer_pos
+                            self._active_layout, pin.pin.GetNet(), port_name, pin.pin, toLayer_pos
                     ):
                         coax.append(port_name)
         return coax
@@ -480,10 +481,63 @@ class EdbHfss(object):
             return False
 
     @aedt_exception_handler
-    def create_lumped_port_on_trace(self, net=None, reference_layer=None):
-        if isinstance(net, str):
-            net = self._edb.Cell.Net.FindByName(self._active_layout, net)
-        if not isinstance(net, self._edb.Cell.Net):
+    def create_lumped_port_on_trace(self, nets=None, reference_layer=None):
+        if not isinstance(nets, list):
+            if isinstance(nets, str):
+                nets = [self._edb.Cell.Net.FindByName(self._active_layout, nets)]
+            elif isinstance(nets, self._edb.Cell.Net):
+                nets = [nets]
+        else:
+            temp_nets = []
+            for nn in nets:
+                if isinstance(nn, str):
+                    temp_nets.append(self._edb.Cell.Net.FindByName(self._active_layout, nn))
+                elif isinstance(nn, self._edb.Cell.Net):
+                    temp_nets.append(nn)
+            nets = temp_nets
+        if nets:
+            if isinstance(reference_layer, str):
+                reference_layer = self._pedb.core_stackup.signal_layers[reference_layer]._layer
+            if not isinstance(reference_layer, self._edb.Cell.ILayerReadOnly):
+                return False
+            layout = nets[0].GetLayout()
+            layout_bbox = self.get_layout_bounding_box(layout)
+            for net in nets:
+                net_primitives = list(net.Primitives)
+                net_paths = [pp for pp in net_primitives if pp.GetPrimitiveType() ==
+                             self._edb.Cell.Primitive.PrimitiveType.Path]
+                for path in net_paths:
+                    trace_path_pts = list(path.GetCenterLine().Points)
+                    for pt in trace_path_pts:
+                        _pt = [pt.X.ToDouble(), pt.Y.ToDouble()]
+                        if bool(set(_pt) & set(layout_bbox)):
+                            edge = self._edb.Cell.Terminal.PrimitiveEdge.Create(path, pt)
+                            edge = convert_py_list_to_net_list(edge)
+                            edge_term = self._edb.Cell.Terminal.EdgeTerminal.Create(layout, net, "test", edge)
+                            edge_term.SetReferenceLayer(reference_layer)
+
+    @aedt_exception_handler
+    def get_layout_bounding_box(self, layout=None):
+        """Evaluate the layout bounding box.
+
+                Parameters
+                ----------
+                layout :
+                    Edb layout.
+
+                Returns
+                -------
+                list
+                    [lower left corner X, lower left corner, upper right corner X, upper right corner Y]
+                """
+        if layout == None:
             return False
-        if isinstance(reference_layer, str):
-            reference_layer = self._edb.core
+        layout_obj_instances = layout.GetLayoutInstance().GetAllLayoutObjInstances()
+        tuple_list = []
+        for lobj in layout_obj_instances.Items:
+            lobj_bbox = lobj.GetLayoutInstanceContext().GetBBox(False)
+            tuple_list.append(lobj_bbox)
+        _bbox = self._edb.Geometry.PolygonData.GetBBoxOfBoxes(convert_py_list_to_net_list(tuple_list))
+        layout_bbox = [_bbox.Item1.X.ToDouble(), _bbox.Item1.Y.ToDouble(),
+                       _bbox.Item2.X.ToDouble(), _bbox.Item2.Y.ToDouble()]
+        return layout_bbox
