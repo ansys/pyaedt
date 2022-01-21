@@ -15,11 +15,9 @@ if not is_ironpython:
         from matplotlib.path import Path
         from matplotlib.patches import PathPatch
     except ImportError:
-        if not is_ironpython:
-            mess = "The Matplotlib module is required to run some functionalities.\n"
-            mess += "Install with \npip install matplotlib"
-            warnings.warn(mess)
-        pass
+        mess = "The Matplotlib module is required to run some functionalities.\n"
+        mess += "Install with \npip install matplotlib"
+        warnings.warn(mess)
     except:
         pass
 

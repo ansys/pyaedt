@@ -6,6 +6,7 @@ from __future__ import absolute_import
 
 import logging
 import warnings
+import os
 
 from pyaedt.generic.general_methods import aedt_exception_handler
 
@@ -15,7 +16,8 @@ try:
     clr.AddReference("System.Collections")
     from System.Collections.Generic import List
 except ImportError:
-    warnings.warn("This module requires pythonnet.")
+    if os.name != "posix":
+        warnings.warn("This module requires pythonnet.")
 
 logger = logging.getLogger(__name__)
 

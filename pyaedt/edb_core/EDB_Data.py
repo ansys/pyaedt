@@ -1,7 +1,7 @@
 import time
 import warnings
 import math
-
+import os
 
 from pyaedt.generic.general_methods import aedt_exception_handler, is_ironpython
 from pyaedt.edb_core.general import convert_py_list_to_net_list
@@ -11,9 +11,10 @@ try:
     from System import Array
     from System.Collections.Generic import List
 except ImportError:
-    warnings.warn(
-        "The clr is missing. Install Python.NET or use an IronPython version if you want to use the EDB module."
-    )
+    if os.name != "posix":
+        warnings.warn(
+            "The clr is missing. Install Python.NET or use an IronPython version if you want to use the EDB module."
+        )
 
 
 class EDBNetsData(object):
