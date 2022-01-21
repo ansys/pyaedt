@@ -1368,7 +1368,7 @@ class Primitives(object):
         Set up the desktop environment.
 
         >>> from pyaedt.desktop import Desktop
-        >>> from pyaedt.Maxwell import Maxwell3d
+        >>> from pyaedt.maxwell import Maxwell3d
         >>> from pyaedt.modeler.Primitives import PolylineSegment
         >>> desktop=Desktop(specified_version="2021.2", new_desktop_session=False)
         >>> aedtapp = Maxwell3D()
@@ -1412,6 +1412,14 @@ class Primitives(object):
         >>> center_point = test_points[0]
         >>> segment_def = PolylineSegment(type="AngularArc", arc_center=center_point, arc_angle="90deg", arc_plane="XY")
         >>> primitives.create_polyline(start_point, segment_type=segment_def, name="PL_center_point_arc")
+
+        Create a spline using a list of variables for the points' coordinates.
+
+        >>> x0, y0, z0 = "0", "0", "1"
+        >>> x1, y1, z1 = "1", "3", "1"
+        >>> x2, y2, z2 = "2", "2", "1"
+        >>> P5 = primitives.create_polyline(position_list = [[x0, y0, z0], [x1, y1, z1], [x2, y2, z2]],
+        ...                                 segment_type="Spline", name="polyline_with_variables")
 
         """
         new_polyline = Polyline(
