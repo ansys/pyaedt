@@ -192,7 +192,7 @@ class SimplorerComponents(CircuitComponents):
         compname : str, optional
             Name of the voltage source. The default is ``None``.
         type  : str, optional
-            Type of the source. The default is ``E``
+            Type of the source. The default is ``E``.
         amplitude : float, optional
             Amplitude of the waveform if periodic. The default is ``326V``
         freq : float, optional
