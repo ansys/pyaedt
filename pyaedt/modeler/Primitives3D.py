@@ -46,7 +46,7 @@ class Primitives3D(Primitives, object):
         """
 
     @aedt_exception_handler
-    def create_point(self, position, name=None,):
+    def create_point(self, position, name=None, color="(143 175 143)"):
         """Create a point.
 
         Parameters
@@ -56,6 +56,8 @@ class Primitives3D(Primitives, object):
         name : str, optional
             Name of the point. The default is ``None``, in which case the
             default name is assigned.
+        color : str, optional
+            String exposing 3 int values such as "(value1 value2 value3)". Default value is ``"(143 175 143)"``.
 
         Returns
         -------
@@ -77,14 +79,21 @@ class Primitives3D(Primitives, object):
         """
         assert len(position) == 3, "Position argument must be a valid 3 elements list."
         x_position, y_position, z_position = self._pos_with_arg(position)
+
+        if not name:
+            name = self._uname()
+
         parameters = ["NAME:PointParameters"]
         parameters.append("PointX:="), parameters.append(x_position)
         parameters.append("PointY:="), parameters.append(y_position)
         parameters.append("PointZ:="), parameters.append(z_position)
 
-        attributes = self._default_object_attributes(name=name)
-        new_object_name = _retry_ntimes(10, self._oeditor.CreatePoint, parameters, attributes)
-        return self._create_object(new_object_name)
+        attributes = ["NAME:Attributes"]
+        attributes.append("Name:="), attributes.append(name)
+        attributes.append("Color:="), attributes.append(color)
+
+        point = _retry_ntimes(10, self._oeditor.CreatePoint, parameters, attributes)
+        return self._create_object(name)
 
 
     @aedt_exception_handler

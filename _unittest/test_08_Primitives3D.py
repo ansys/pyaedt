@@ -952,19 +952,18 @@ class TestClass(BasisTest):
 
     @pyaedt_unittest_check_desktop_error
     def test_70_create_point(self):
-        name = "testing_point"
+        name = "mypoint"
         if self.aedtapp.modeler.primitives[name]:
             self.aedtapp.modeler.primitives.delete(name)
         point = self.aedtapp.modeler.primitives.create_point([30, 30, 0], name)
 
-        assert point.id > 0
-        assert point.name.startswith("testing_point")
+        assert point.name.startswith("mypoint")
         assert point.object_type == "Point"
         assert point.is3d is True
 
     @pytest.mark.skipif(is_ironpython, reason="pytest is not supported with IronPython.")
     @pyaedt_unittest_check_desktop_error
-    def test_69_create_point_exceptions(self):
+    def test_71_create_point_exceptions(self):
 
         with pytest.raises(ValueError) as excinfo:
             self.aedtapp.modeler.primitives.create_point(
