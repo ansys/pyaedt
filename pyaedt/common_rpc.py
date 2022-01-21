@@ -4,6 +4,7 @@ import sys
 import time
 
 from pyaedt import is_ironpython
+from pyaedt.generic.general_methods import convert_remote_object
 
 if is_ironpython:
     pyaedt_path = os.path.normpath(os.path.abspath(os.path.dirname(__file__)))
@@ -228,6 +229,7 @@ def client(server_name, server_port=18000, beta_options=None):
         while timeout > 0:
             try:
                 c1 = rpyc.connect(server_name, port, config={"sync_request_timeout": None})
+                c1.convert_remote_object = convert_remote_object
                 if c1:
                     if beta_options:
                         c1._beta_options = beta_options
@@ -342,14 +344,16 @@ def launch_local_ironpython_server(aedt_path, non_graphical=False, port=18000, l
     rpyc object.
 
     """
-    DETACHED_PROCESS = 0x00000008
     if non_graphical:
-        val = 0
-    else:
         val = 1
-    command = [os.path.join(aedt_path, "bin", "mono"), os.path.join(aedt_path, "common", "IronPython", "ipy64.exe"),
+    else:
+        val = 0
+    command = [os.path.join(aedt_path, "common", "mono", "Linux64", "bin", "mono"),
+               os.path.join(aedt_path, "common", "IronPython", "ipy64.exe"),
                os.path.join(os.path.dirname(__file__), "rpc", "local_server.py"), aedt_path, str(val), str(port)]
-    pid = subprocess.Popen(command, creationflags=DETACHED_PROCESS, stdout=subprocess.PIPE, stderr=subprocess.PIPE).pid
-    if pid and launch_client:
+    proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=non_graphical)
+    print("Process {} started on {}".format(proc.pid, socket.getfqdn()))
+    time.sleep(5)
+    if proc and launch_client:
         return client(server_name=socket.getfqdn(), server_port=port)
     return False

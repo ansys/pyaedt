@@ -827,6 +827,7 @@ class Object3d(object):
                 return model_obj.image_file
         return False
 
+    @aedt_exception_handler
     @property
     def faces(self):
         """Information for each face in the given part.
