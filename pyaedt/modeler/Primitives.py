@@ -1307,7 +1307,7 @@ class Primitives(object):
             position is a list of 2D or 3D coordinates. Position
             coordinate values can be numbers or valid AEDT string
             expressions. For example, ``[0, 1, 2]``, ``["0mm", "5mm",
-            "1mm"]``, or ``["x1", "y1"]``.
+            "1mm"]``, or ``["x1", "y1", "z1"]``.
         segment_type : str or PolylineSegment or list, optional
             The default behavior is to connect all points as
             ``"Line"`` segments. The default is ``None``. For a
