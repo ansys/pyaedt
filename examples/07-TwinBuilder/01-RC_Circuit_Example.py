@@ -7,12 +7,11 @@ and run a Twin Builder time-domain simulation.
 
 ###############################################################################
 # Import Required Packages for Twin Builder
-# ~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-from pyaedt import TwinBuilder
-from pyaedt import Desktop
 import os
 import matplotlib.pyplot as plt
+from pyaedt import TwinBuilder
 
 ###############################################################################
 # Select Version and Launch Options
@@ -31,22 +30,18 @@ new_thread = True
 ###############################################################################
 # Launch Twin Builder
 # ~~~~~~~~~~~~~~~~~~~
-# The :class:`pyaedt.Desktop` class initializes AEDT and starts it on a specified version in
-# a specified graphical mode. The Boolean parameter ``new_thread`` defines whether
-# to create a new instance of AEDT or try to connect to existing instance of it.
-
-desktop = Desktop(desktop_version, non_graphical, new_thread)
+# Use implicit declaration to launch Twin Builder Application
 
 # Add a new Twin Builder design with a default setup
 
-tb = TwinBuilder()
+tb = TwinBuilder(specified_version=desktop_version, non_graphical=non_graphical, new_desktop_session=new_thread)
 
 ###############################################################################
 # Create Components for a RC circuit driven by a pulse voltage source
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
 
-# Define the Grid Distance
+# Define the Grid Distance for ease in calculations
 
 G = 0.00254
 
@@ -88,9 +83,9 @@ tb.set_end_time("300ms")
 tb.analyze_setup("TR")
 
 
-################################################################
-# Get Report Data and plot it on matplotlib.
-# ~~~~~~~~~~~~~~~~~~~~~~~~~
+###############################################################################
+# Get Report Data and plot it on matplotlib
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Get the values for the voltage on the Pulse voltage source
 # Get the values for the voltage on the capacitor in the RC Circuit
 
@@ -114,4 +109,4 @@ plt.show()
 # All methods provide for saving the project before exiting.
 
 if os.name != "posix":
-    desktop.release_desktop()
+    tb.release_desktop()
