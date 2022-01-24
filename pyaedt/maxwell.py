@@ -106,6 +106,29 @@ class Maxwell(object):
         return True
 
     @aedt_exception_handler
+    def set_core_losses(self, objects, value=True):
+        """Enable/Disable core losses for a set of ojects.
+        It works only on `EddyCurrent` and `Transient` solutions.
+
+        Parameters
+        ----------
+        objects : list, str
+            List of object to apply core losses.
+        value : bool
+            Either to enable or disable core losses for given list.
+
+        Returns
+        -------
+        bool
+            `True` if suceeded.
+        """
+        if self.solution_type in ["EddyCurrent", "Transient"]:
+            objects = self.modeler.convert_to_selections(objects, True)
+            self.oboundary.SetCoreLoss(objects, value)
+            return True
+        return False
+
+    @aedt_exception_handler
     def setup_ctrlprog(
         self, setupname, file_str=None, keep_modifications=False, python_interpreter=None, aedt_lib_dir=None
     ):
