@@ -4,6 +4,7 @@
 import math
 import re
 import warnings
+import os
 
 from pyaedt import generate_unique_name, _retry_ntimes
 from pyaedt.edb_core.general import convert_py_list_to_net_list
@@ -18,7 +19,8 @@ try:
     clr.AddReference("System")
     from System import String
 except ImportError:
-    warnings.warn("This module requires PythonNet.")
+    if os.name != "posix":
+        warnings.warn("This module requires PythonNet.")
 
 
 def resistor_value_parser(RValue):

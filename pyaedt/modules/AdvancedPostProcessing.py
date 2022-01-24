@@ -219,7 +219,6 @@ class ModelPlotter(object):
         self.show_grid = True
         self.is_notebook = is_notebook()
         self.gif_file = None
-        self.legend = True
         self._background_color = (255, 255, 255)
         self.off_screen = False
         self.windows_size = [1024, 768]
@@ -984,7 +983,8 @@ class ModelPlotter(object):
                     opacity=field.opacity,
                     show_edges=field.show_edge,
                 )
-        self._add_buttons()
+        if self.show_legend:
+            self._add_buttons()
         end = time.time() - start
         files_list = []
         if self.show_axes:
@@ -993,6 +993,7 @@ class ModelPlotter(object):
             self.pv.show_grid(color=tuple(axes_color))
         self.pv.add_bounding_box(color=tuple(axes_color))
         self.pv.set_focus(self.pv.mesh.center)
+
         if not self.isometric_view:
             self.pv.camera_position = self.camera_position
             self.pv.camera.azimuth += self.azimuth_angle
@@ -1347,94 +1348,6 @@ class PostProcessor(Post):
                 ang = np.radians(xphase * m) + np.radians(yphase * n)
                 weight[m][n] = np.sqrt(mag) * np.exp(1 * ang)
         return True
-
-    @aedt_exception_handler
-    def export_model_obj(self, obj_list=None, export_path=None, export_as_single_objects=False, air_objects=False):
-        """Export the model.
-
-        Parameters
-        ----------
-        obj_list : list, optional
-            List of objects to export. Export every model object except 3D ones, vacuum and air objects.
-        export_path : str, optional
-            Full path of the exported obj file.
-        export_as_single_objects : bool, optional
-            Define if the model will be exported as single obj or list of objs for each object.
-        air_objects : bool, optional
-            Define if air and vacuum objects will be exported.
-
-        Returns
-        -------
-        list
-            Files obj path.
-        """
-
-        assert self._app._aedt_version >= "2021.2", self.logger.error("Object is supported from AEDT 2021 R2.")
-        if not export_path:
-            export_path = self._app.working_directory
-        if not obj_list:
-            self._app.modeler.refresh_all_ids()
-            obj_list = self._app.modeler.primitives.object_names
-            if not air_objects:
-                obj_list = [
-                    i
-                    for i in obj_list
-                    if not self._app.modeler[i].is3d
-                    or (
-                        self._app.modeler[i].material_name.lower() != "vacuum"
-                        and self._app.modeler[i].material_name.lower() != "air"
-                    )
-                ]
-        if export_as_single_objects:
-            files_exported = []
-            for el in obj_list:
-                fname = os.path.join(export_path, "{}.obj".format(el))
-                self._app.modeler.oeditor.ExportModelMeshToFile(fname, [el])
-                if not self._app.modeler[el].display_wireframe:
-                    files_exported.append([fname, self._app.modeler[el].color, 1 - self._app.modeler[el].transparency])
-                else:
-                    files_exported.append([fname, self._app.modeler[el].color, 0.05])
-            return files_exported
-        else:
-            fname = os.path.join(export_path, "Model_AllObjs_AllMats.obj")
-            self._app.modeler.oeditor.ExportModelMeshToFile(fname, obj_list)
-            return [fname, "grey", 0.6]
-
-    @aedt_exception_handler
-    def export_mesh_obj(self, setup_name=None, intrinsic_dict={}):
-        """Export the mesh.
-
-        Parameters
-        ----------
-        setup_name : str, optional
-            Name of the setup. The default is ``None``.
-        intrinsic_dict : dict, optipnal.
-            Intrinsic dictionary that is needed for the export.
-            The default is ``{}``.
-
-        Returns
-        -------
-
-        """
-        project_path = self._app.working_directory
-
-        if not setup_name:
-            setup_name = self._app.nominal_adaptive
-        face_lists = []
-        obj_list = self._app.modeler.primitives.object_names
-        for el in obj_list:
-            obj_id = self._app.modeler.primitives.get_obj_id(el)
-            if not self._app.modeler.primitives.objects[obj_id].is3d or (
-                self._app.modeler.primitives.objects[obj_id].material_name != "vacuum"
-                and self._app.modeler.primitives.objects[obj_id].material_name != "air"
-            ):
-                face_lists += self._app.modeler.primitives.get_object_faces(obj_id)
-        plot = self.create_fieldplot_surface(face_lists, "Mesh", setup_name, intrinsic_dict)
-        if plot:
-            file_to_add = self.export_field_plot(plot.name, project_path)
-            plot.delete()
-            return file_to_add
-        return None
 
     @aedt_exception_handler
     def plot_model_obj(

@@ -133,7 +133,13 @@ def convert_remote_object(arg):
     dict or list
     """
     if _check_types(arg) == "list":
-        return list(eval(str(arg)))
+        if arg.__len__() > 0:
+            if isinstance(arg[0], (int, float, str, dict)):
+                return list(eval(str(arg)))
+            else:
+                return [arg[i] for i in range(arg.__len__())]
+        else:
+            return []
     elif _check_types(arg) == "dict":
         return dict(eval(str(arg)))
     return arg
@@ -218,7 +224,8 @@ def aedt_exception_handler(func):
                 _log_method(func, new_args, new_kwargs)
                 return out
             except TypeError:
-                _exception(sys.exc_info(), func, args, kwargs, "Type Error")
+                if not is_remote_server:
+                    _exception(sys.exc_info(), func, args, kwargs, "Type Error")
                 return False
             except ValueError:
                 _exception(sys.exc_info(), func, args, kwargs, "Value Error")
@@ -230,8 +237,9 @@ def aedt_exception_handler(func):
                 _exception(sys.exc_info(), func, args, kwargs, "Key Error")
                 return False
             except IndexError:
-                _exception(sys.exc_info(), func, args, kwargs, "Index Error")
-                return False
+                if not is_remote_server:
+                    _exception(sys.exc_info(), func, args, kwargs, "Index Error")
+                    return False
             except AssertionError:
                 _exception(sys.exc_info(), func, args, kwargs, "Assertion Error")
                 return False

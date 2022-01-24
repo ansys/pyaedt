@@ -3,16 +3,18 @@ This module contains the `EdbPadstacks` class.
 """
 
 import warnings
+import os
+import math
 
 from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, is_ironpython
 from pyaedt.edb_core.general import convert_py_list_to_net_list
-import math
 from pyaedt.edb_core.EDB_Data import EDBPadstack, EDBPadstackInstance
 
 try:
     from System import Array
 except ImportError:
-    warnings.warn('This module requires the "pythonnet" package.')
+    if os.name != "posix":
+        warnings.warn('This module requires the "pythonnet" package.')
 
 
 class EdbPadstacks(object):

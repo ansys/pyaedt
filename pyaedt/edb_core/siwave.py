@@ -13,7 +13,8 @@ try:
     from System import String
     from System.Collections.Generic import Dictionary
 except ImportError:
-    warnings.warn("This module requires pythonnet.")
+    if os.name != "posix":
+        warnings.warn("This module requires pythonnet.")
 
 
 class SiwaveDCSetupTemplate(object):

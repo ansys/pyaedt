@@ -182,7 +182,10 @@ class TestClass:
         logging_dir = os.path.join(temp_dir, "log_testing")
         if not os.path.exists(logging_dir):
             os.makedirs(logging_dir)
+
         path = os.path.join(logging_dir, "test04.txt")
+        if os.path.exists(path):
+            os.remove(path)
         logger = AedtLogger(self.aedtapp._messenger, filename=path)
         logger.info("Info for Global before disabling the log file handler.")
         project_logger = logger.add_logger("Project")
