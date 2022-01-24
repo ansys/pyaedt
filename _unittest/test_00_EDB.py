@@ -57,6 +57,9 @@ class TestClass:
         assert self.edbapp.core_padstack.get_via_instance_from_net("GND")
         assert not self.edbapp.core_padstack.get_via_instance_from_net(["GND2"])
 
+    def tesCt_01_flip_layer_stackup(self):
+        assert self.edbapp.core_stackup.place_in_layout()
+
     def test_02_get_properties(self):
         assert len(self.edbapp.core_components.components) > 0
         assert len(self.edbapp.core_components.inductors) > 0
@@ -555,13 +558,10 @@ class TestClass:
         void = self.edbapp.core_primitives.create_path(path, layer_name="TOP", width="0.1mm")
         assert self.edbapp.core_primitives.add_void(plane, void)
 
-    def test_68_flip_layer_stackup(self):
-        assert self.edbapp.core_stackup.flip_stackup_and_apply_transform()
-
     def test_69_create_solder_balls_on_component(self):
         assert self.edbapp.core_components.set_solder_ball("U2A5")
 
-    @pytest.mark.skipif(is_ironpython, reason="This Test uses Ironpython")
+    @pytest.mark.skipif(is_ironpython, reason="This Test uses Matplotlib that is not supported by Ironpython")
     def test_70_plot_on_matplotlib(self):
         local_png = os.path.join(self.local_scratch.path, "test.png")
         self.edbapp.core_nets.plot(None, None, save_plot=local_png)
