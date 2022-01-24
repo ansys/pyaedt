@@ -1186,6 +1186,7 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
             return None
 
     @model_depth.setter
+    @aedt_exception_handler
     def model_depth(self, value):
         """Set model depth.
 
@@ -1201,12 +1202,13 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
         0.09
         """
 
-        try:
-            depth_value = float_units(value)
-        except:
-            depth_value = self.variable_manager[value].value
-
-        self.design_properties["ModelDepth"] = depth_value
+        self.odesign.SetDesignSettings(
+            [
+                "NAME:Design Settings Data",
+                "ModelDepth:=",
+                value,
+            ]
+        )
 
     @aedt_exception_handler
     def generate_design_data(self, linefilter=None, objectfilter=None):
