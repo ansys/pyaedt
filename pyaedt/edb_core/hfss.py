@@ -481,7 +481,8 @@ class EdbHfss(object):
             return False
 
     @aedt_exception_handler
-    def create_lumped_port_on_trace(self, nets=None, reference_layer=None, return_points_only=False):
+    def create_lumped_port_on_trace(self, nets=None, reference_layer=None, return_points_only=False,
+                                    polygon_trace_threshhold=300e-6):
         if not isinstance(nets, list):
             if isinstance(nets, str):
                 nets = [self._edb.Cell.Net.FindByName(self._active_layout, nets)]
@@ -506,13 +507,17 @@ class EdbHfss(object):
                 net_primitives = list(net.Primitives)
                 net_paths = [pp for pp in net_primitives if pp.GetPrimitiveType() ==
                              self._edb.Cell.Primitive.PrimitiveType.Path]
+                net_poly = [pp for pp in net_primitives if pp.GetPrimitiveType() ==
+                             self._edb.Cell.Primitive.PrimitiveType.Polygon]
                 for path in net_paths:
                     trace_path_pts = list(path.GetCenterLine().Points)
                     for pt in trace_path_pts:
                         _pt = [pt.X.ToDouble(), pt.Y.ToDouble()]
                         if bool(set(_pt) & set(layout_bbox)):
                             port_name = generate_unique_name("port")
-                            res = self._hfss_terminals.CreateEdgePort(path, pt, reference_layer, port_name)
+                            if not self._hfss_terminals.CreateEdgePort(path, pt, reference_layer, port_name):
+                                aedt_exception_handler("edge port creation failed on point {}, {}".
+                                                       format(str(pt[0]), str(_pt[1])))
 
     @aedt_exception_handler
     def get_layout_bounding_box(self, layout=None):
