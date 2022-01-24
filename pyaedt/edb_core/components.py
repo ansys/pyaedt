@@ -431,12 +431,12 @@ class Components(object):
         >>> hosting_cmp = edb1.core_components.get_component_by_name("U100")
         >>> mounted_cmp = edb2.core_components.get_component_by_name("BGA")
         >>> vector, rotation, solder_ball_height = edb1.core_components.get_component_placement_vector(
-        >>>                                             mounted_component=mounted_cmp,
-        >>>                                             hosting_component=hosting_cmp,
-        >>>                                             mounted_component_pin1="A12",
-        >>>                                             mounted_component_pin2="A14",
-        >>>                                             hosting_component_pin1="A12",
-        >>>                                             hosting_component_pin2="A14")
+        ...                                             mounted_component=mounted_cmp,
+        ...                                             hosting_component=hosting_cmp,
+        ...                                             mounted_component_pin1="A12",
+        ...                                             mounted_component_pin2="A14",
+        ...                                             hosting_component_pin1="A12",
+        ...                                             hosting_component_pin2="A14")
         """
         m_pin1_pos = [0.0, 0.0]
         m_pin2_pos = [0.0, 0.0]
