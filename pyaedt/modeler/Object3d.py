@@ -2703,7 +2703,7 @@ class CircuitComponent(object):
 
 
 class Objec3DLayout(object):
-    """Manages properties of objects in HFSS 3D Layout.
+    """Manages properties of objects in HFSS 3D Lauout.
 
     Parameters
     -----------
