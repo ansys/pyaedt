@@ -106,6 +106,85 @@ class Maxwell(object):
         return True
 
     @aedt_exception_handler
+    def set_core_losses(self, objects, value=True):
+        """Enable/Disable core losses for a set of objects.
+        It works only on `EddyCurrent` and `Transient` solutions.
+
+        Parameters
+        ----------
+        objects : list, str
+            List of object to apply core losses to.
+        value : bool
+            Either to enable or disable core losses for given list.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.SetCoreLoss
+
+        Examples
+        --------
+        Set Core Losses in Maxwell 3d.
+
+        >>> from pyaedt import Maxwell3d
+        >>> maxwell_3d = Maxwell3d()
+        >>> maxwell_3d.set_core_losses(["PQ_Core_Bottom", "PQ_Core_Top"], True)
+
+        """
+        if self.solution_type in ["EddyCurrent", "Transient"]:
+            objects = self.modeler.convert_to_selections(objects, True)
+            self.oboundary.SetCoreLoss(objects, value)
+            return True
+        else:
+            raise Exception("Core losses is only available with `EddyCurrent` and `Transient` solutions.")
+        return False
+
+    @aedt_exception_handler
+    def assign_matrix(self, objects, matrix_name=None):
+        """Assign a Matrix to the selection.
+
+        Parameters
+        ----------
+        objects : list, str
+            List of objects to apply core losses.
+        matrix_name : str, optional
+            Boundary condition name.
+
+        Returns
+        -------
+        str
+            The matrix name when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.AssignMatrix
+
+        Examples
+        --------
+        Set Matrix in Maxwell 3d analysis.
+
+        >>> from pyaedt import Maxwell3d
+        >>> maxwell_3d = Maxwell3d()
+        >>> maxwell_3d.assign_matrix(["pri", "sec"])
+        """
+        if self.solution_type in ["EddyCurrent", "Magnetostatic"]:
+            objects = self.modeler._convert_list_to_ids(objects, True)
+            if not matrix_name:
+                matrix_name = generate_unique_name("Matrix")
+            args = ["NAME:" + matrix_name, ["NAME:MatrixEntry"]]
+            for object in objects:
+                args[1].append(["NAME:MatrixEntry", "Source:=", object])
+            self.o_maxwell_parameters.AssignMatrix(args)
+            return matrix_name
+        return False
+
+    @aedt_exception_handler
     def setup_ctrlprog(
         self, setupname, file_str=None, keep_modifications=False, python_interpreter=None, aedt_lib_dir=None
     ):
