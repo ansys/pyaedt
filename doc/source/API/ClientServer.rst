@@ -120,3 +120,36 @@ As an alternative, the user can upload the script to run to the server and run i
     upload(local_script, remote_script, "servername")
     ansysem = "/path/to/AnsysEMxxx/Linux64"
     my_client.root.run_script(remote_script, ansysem_path=ansysem)
+
+
+CPython on Linux with client-server
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Pyaedt can also be launched on a linux machine, locally to bypass current Ironpython limits. To do this,
+the steps are:
+
+1. Install pyaedt on linux using pip  (minimum version 0.4.23)
+2. Launche CPython and run pyaedt
+
+.. code:: python
+
+    # Launch the latest installed version of AEDT in graphical mode.
+
+    from pyaedt.common_rpc import launch_ironpython_server
+    client = launch_ironpython_server(ansysem_path="/path/to/ansys/executable/folder", non_graphical=True, port=18000)
+    hfss = client.root.hfss()
+    # put your code here
+
+3. In case the method returns a list or dictionary there may be issue in handling with CPython.
+   In this case use the following method to workaround the problem.
+
+.. code:: python
+
+    box1 = hfss.modeler.create_box([0,0,0],[1,1,])
+    # convert_remote_object method convert remote ironpython list to local cpython.
+    faces = client.convert_remote_object(box1.faces)
+
+
+.. image:: Resources/IronPython2Cpython.png
+  :width: 800
+  :alt: Electronics Desktop Launched
