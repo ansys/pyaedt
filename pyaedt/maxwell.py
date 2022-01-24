@@ -183,7 +183,6 @@ class Maxwell(object):
             return matrix_name
         return False
 
-
     @aedt_exception_handler
     def setup_ctrlprog(
         self, setupname, file_str=None, keep_modifications=False, python_interpreter=None, aedt_lib_dir=None
