@@ -90,7 +90,7 @@ class TestClass:
         )
         assert port.name == "sheet1_Port"
         assert port.name in [i.name for i in self.aedtapp.boundaries]
-        assert port.props['RenormalizeAllTerminals'] is False
+        assert port.props["RenormalizeAllTerminals"] is False
 
         self.aedtapp.solution_type = "Modal"
         udp = self.aedtapp.modeler.Position(200, 0, 0)
@@ -98,7 +98,7 @@ class TestClass:
         port = self.aedtapp.create_wave_port_from_sheet(o6, 5, self.aedtapp.AxisDir.XPos, 40, 2, "sheet2_Port", True)
         assert port.name == "sheet2_Port"
         assert port.name in [i.name for i in self.aedtapp.boundaries]
-        assert port.props['RenormalizeAllTerminals'] is True
+        assert port.props["RenormalizeAllTerminals"] is True
 
         id6 = self.aedtapp.modeler.primitives.create_box([20, 20, 20], [10, 10, 2], matname="Copper", name="My_Box")
         id7 = self.aedtapp.modeler.primitives.create_box([20, 25, 30], [10, 2, 2], matname="Copper")
