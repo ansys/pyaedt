@@ -335,6 +335,7 @@ class EdbStackup(object):
             cell_name = self._active_layout.GetCell().GetName()
             self._active_layout.GetCell().SetName(cell_name + "_Transform")
             edb_cell = self._edb.Cell.Cell.Create(self._db, self._edb.Cell.CellType.CircuitCell, cell_name)
+            edb_cell.GetLayout().SetLayerCollection(self._active_layout.GetLayerCollection())
             edb_was_none = True
             cell_inst2 = self._edb.Cell.Hierarchy.CellInstance.Create(
                 edb_cell.GetLayout(), edb_cell.GetName() + "_Transform", self._active_layout
@@ -396,8 +397,6 @@ class EdbStackup(object):
         point_from = self._edb.Geometry.Point3DData(zero_data, one_data, zero_data)
         point_to = self._edb.Geometry.Point3DData(zero_data, one_data, zero_data)
         cell_inst2.Set3DTransformation(point_loc, point_from, point_to, _angle, point3d_t)
-        if edb_was_none:
-            edb_cell.GetLayout().SetLayerCollection(self._active_layout.GetLayerCollection())
         return True
 
     @aedt_exception_handler
