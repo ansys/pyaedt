@@ -294,3 +294,10 @@ class TestClass:
         assert len(t1.pins) == 6
         t2 = self.aedtapp.modeler.schematic.create_touchsthone_component(touch)
         assert t2
+
+    def test_25_zoom_to_fit(self):
+        self.aedtapp.insert_design("zoom_test")
+        myind = self.aedtapp.modeler.schematic.create_inductor("L100", 1e-9)
+        myres = self.aedtapp.modeler.components.create_resistor("R100", 50)
+        mycap = self.aedtapp.modeler.components.create_capacitor("C100", 1e-12)
+        self.aedtapp.modeler.zoom_to_fit()
