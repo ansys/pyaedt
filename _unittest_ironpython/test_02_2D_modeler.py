@@ -7,6 +7,7 @@ test_name = os.path.basename(__file__).replace(".py", "")
 mymodule = __import__("_unittest." + test_name, fromlist=["TestClass"])
 test_obj = mymodule.TestClass()
 
+
 class TestSequenceFunctionsGenerate(PytestMockup):
     @classmethod
     def setUpClass(cls):
