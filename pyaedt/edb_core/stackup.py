@@ -269,15 +269,15 @@ class EdbStackup(object):
         >>> mounted_cmp = edb2.core_components.get_component_by_name("BGA")
 
         >>> vector, rotation, solder_ball_height = edb1.core_components.get_component_placement_vector(
-        >>>                                                     mounted_component=mounted_cmp,
-        >>>                                                     hosting_component=hosting_cmp,
-        >>>                                                     mounted_component_pin1="A12",
-        >>>                                                     mounted_component_pin2="A14",
-        >>>                                                     hosting_component_pin1="A12",
-        >>>                                                     hosting_component_pin2="A14")
+        ...                                                     mounted_component=mounted_cmp,
+        ...                                                     hosting_component=hosting_cmp,
+        ...                                                     mounted_component_pin1="A12",
+        ...                                                     mounted_component_pin2="A14",
+        ...                                                     hosting_component_pin1="A12",
+        ...                                                     hosting_component_pin2="A14")
         >>> edb2.core_stackup.place_in_layout(edb1.active_cell, angle=0.0, offset_x=vector[0],
-        >>>                                   offset_y=vector[1], flipped_stackup=False, place_on_top=True,
-        >>>                                   solder_height=solder_ball_height)
+        ...                                   offset_y=vector[1], flipped_stackup=False, place_on_top=True,
+        ...                                   solder_height=solder_ball_height)
         """
         if flipped_stackup and place_on_top or (not flipped_stackup and not place_on_top):
             model_flip = True
