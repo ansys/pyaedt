@@ -123,7 +123,7 @@ As an alternative, the user can upload the script to run to the server and run i
 
 
 CPython on Linux with client-server
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Pyaedt can also be launched on a linux machine, locally to bypass current Ironpython limits. To do this,
 the steps are:
@@ -136,11 +136,11 @@ the steps are:
     # Launch the latest installed version of AEDT in graphical mode.
 
     from pyaedt.common_rpc import launch_ironpython_server
-    client = launch_ironpython_server(ansysem_path="/path/to/ansys/executable/folder", non_graphical=True, port=18000)
+    client = launch_ironpython_server(ansysem_path="/path/to/AnsysEMxxx/Linux64", non_graphical=True, port=18000)
     hfss = client.root.hfss()
     # put your code here
 
-3. In case the method returns a list or dictionary there may be issue in handling with CPython.
+3. In case the method returns a list or dictionary there may be an issue in handling with CPython.
    In this case use the following method to workaround the problem.
 
 .. code:: python
