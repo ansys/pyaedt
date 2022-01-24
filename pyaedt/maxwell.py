@@ -120,13 +120,47 @@ class Maxwell(object):
         Returns
         -------
         bool
-            `True` if succeeded.
+            ``True`` when successful, ``False`` when failed.
         """
         if self.solution_type in ["EddyCurrent", "Transient"]:
             objects = self.modeler.convert_to_selections(objects, True)
             self.oboundary.SetCoreLoss(objects, value)
             return True
         return False
+
+    @aedt_exception_handler
+    def assign_matrix(self, objects, matrix_name=None):
+        """Assign a Matrix to the selection.
+
+        Parameters
+        ----------
+        objects : list, str
+            List of object to apply core losses.
+        matrix_name : str, optional
+            Boundary condition name.
+
+        Returns
+        -------
+        str
+            The matrix name when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.AssignMatrix
+        """
+        if self.solution_type in ["EddyCurrent", "Magnetostatic"]:
+
+            objects = self.modeler._convert_list_to_ids(objects, True)
+            if not matrix_name:
+                matrix_name = generate_unique_name("Matrix")
+            args = ["NAME:" + matrix_name, ["NAME:MatrixEntry"]]
+            for object in objects:
+                args[1].append(["NAME:MatrixEntry", "Source:=", object])
+            self.o_maxwell_parameters.AssignMatrix(args)
+            return matrix_name
+        return False
+
 
     @aedt_exception_handler
     def setup_ctrlprog(
