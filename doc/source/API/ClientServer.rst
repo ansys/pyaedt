@@ -127,7 +127,7 @@ CPython on Linux with Client-Server
 
 To bypass current IronPython limits, you can launch PyAEDT on a Linux machine:
 
-1. Using pip, install PyAEDT 0.4.23 or later on a Linux machine. 
+1. Using pip, install PyAEDT 0.4.23 or later on a Linux machine.
 2. Launche CPython and run PyAEDT.
 
 .. code:: python
