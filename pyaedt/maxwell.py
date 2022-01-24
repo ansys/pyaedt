@@ -113,7 +113,7 @@ class Maxwell(object):
         Parameters
         ----------
         objects : list, str
-            List of object to apply core losses.
+            List of object to apply core losses to.
         value : bool
             Either to enable or disable core losses for given list.
 
@@ -140,6 +140,8 @@ class Maxwell(object):
             objects = self.modeler.convert_to_selections(objects, True)
             self.oboundary.SetCoreLoss(objects, value)
             return True
+        else:
+            raise Exception("Core losses is only available with `EddyCurrent` and `Transient` solutions.")
         return False
 
     @aedt_exception_handler
@@ -149,7 +151,7 @@ class Maxwell(object):
         Parameters
         ----------
         objects : list, str
-            List of object to apply core losses.
+            List of objects to apply core losses.
         matrix_name : str, optional
             Boundary condition name.
 
@@ -172,7 +174,6 @@ class Maxwell(object):
         >>> maxwell_3d.assign_matrix(["pri", "sec"])
         """
         if self.solution_type in ["EddyCurrent", "Magnetostatic"]:
-
             objects = self.modeler._convert_list_to_ids(objects, True)
             if not matrix_name:
                 matrix_name = generate_unique_name("Matrix")
