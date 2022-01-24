@@ -121,6 +121,20 @@ class Maxwell(object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.SetCoreLoss
+
+        Example
+        -------
+        Set Core Losses in Maxwell 3d.
+
+        >>> from pyaedt import Maxwell3d
+        >>> maxwell_3d = Maxwell3d()
+        >>> maxwell_3d.set_core_losses(["PQ_Core_Bottom", "PQ_Core_Top"], True)
+
         """
         if self.solution_type in ["EddyCurrent", "Transient"]:
             objects = self.modeler.convert_to_selections(objects, True)
@@ -148,6 +162,14 @@ class Maxwell(object):
         ----------
 
         >>> oModule.AssignMatrix
+
+        Example
+        -------
+        Set Matrix in Maxwell 3d analysis.
+
+        >>> from pyaedt import Maxwell3d
+        >>> maxwell_3d = Maxwell3d()
+        >>> maxwell_3d.assign_matrix(["pri", "sec"])
         """
         if self.solution_type in ["EddyCurrent", "Magnetostatic"]:
 
