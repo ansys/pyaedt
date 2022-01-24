@@ -1184,7 +1184,7 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
         #     finally:
         #         return a
         # else:
-            return None
+        return None
 
     @model_depth.setter
     def model_depth(self, value):
