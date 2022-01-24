@@ -107,7 +107,7 @@ class Maxwell(object):
 
     @aedt_exception_handler
     def set_core_losses(self, objects, value=True):
-        """Enable/Disable core losses for a set of ojects.
+        """Enable/Disable core losses for a set of objects.
         It works only on `EddyCurrent` and `Transient` solutions.
 
         Parameters
@@ -120,7 +120,7 @@ class Maxwell(object):
         Returns
         -------
         bool
-            `True` if suceeded.
+            `True` if succeeded.
         """
         if self.solution_type in ["EddyCurrent", "Transient"]:
             objects = self.modeler.convert_to_selections(objects, True)
