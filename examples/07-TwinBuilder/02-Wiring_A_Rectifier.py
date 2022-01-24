@@ -97,6 +97,9 @@ tb.modeler.schematic.create_wire([resistor.pins[1].location, [40 * G, -15 * G], 
 tb.modeler.schematic.create_wire([capacitor.pins[1].location, [30 * G, -15 * G]])
 tb.modeler.schematic.create_wire([gnd.pins[0].location, [5 * G, 0], [8 * G, 0]])
 
+# Zoom to Fit the schematic
+tb.modeler.zoom_to_fit()
+
 ###############################################################################
 # Parametrize a Transient Setup
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
