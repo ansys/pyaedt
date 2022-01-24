@@ -1206,7 +1206,7 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
         except:
             depth_value = self.variable_manager[value].value
 
-        self.design_properties["ModelDepth"] = value
+        self.design_properties["ModelDepth"] = depth_value
 
     @aedt_exception_handler
     def generate_design_data(self, linefilter=None, objectfilter=None):
