@@ -1186,7 +1186,6 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
             return None
 
     @model_depth.setter
-    @aedt_exception_handler
     def model_depth(self, value):
         """Set model depth.
 
