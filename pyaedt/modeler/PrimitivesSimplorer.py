@@ -236,15 +236,13 @@ class SimplorerComponents(CircuitComponents):
         return id
 
     @aedt_exception_handler
-    def create_diode(self, compname=None, model_name="required", location=[], angle=0, use_instance_id_netlist=False):
+    def create_diode(self, compname=None, location=[], angle=0, use_instance_id_netlist=False):
         """Create a diode.
 
         Parameters
         ----------
         compname : str, optional
             Name of the diode. The default is ``None``.
-        model_name : str, optional
-            Name of the model. The default is ``"required"``.
         location : list of float, optional
             Position on the X axis and Y axis.
         angle : float, optional
