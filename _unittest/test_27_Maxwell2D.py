@@ -112,11 +112,11 @@ class TestClass(BasisTest):
     @pyaedt_unittest_check_desktop_error
     def test_17_enable_inductance_computation(self):
         # Get default model depth
-        assert self.aedtapp.model_depth ==0.0838
+        assert self.aedtapp.model_depth == 0.0838
         # Set a new value for model depth
-        self.aedtapp.model_depth="90 mm"
-        assert self.aedtapp.model_depth ==0.09
-        self.aedtapp.model_depth="1.3"
-        assert self.aedtapp.model_depth ==1.3
+        self.aedtapp.model_depth = "90 mm"
+        assert self.aedtapp.model_depth == 0.09
+        self.aedtapp.model_depth = "1.3"
+        assert self.aedtapp.model_depth == 1.3
         # Generate design data
         assert self.aedtapp.generate_design_data()
