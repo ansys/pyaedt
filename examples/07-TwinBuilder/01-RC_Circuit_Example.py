@@ -1,55 +1,47 @@
 """
-RC Circuit Schematic Creation and Analysis
-------------------------------------------
+RC Circuit Design in Twin Builder
+---------------------------------
 This example shows how you can use PyAEDT to create a Twin Builder design
 and run a Twin Builder time-domain simulation.
 """
 
-from pyaedt import TwinBuilder
-from pyaedt import Desktop
+###############################################################################
+# Import Required Packages for Twin Builder
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 import os
 import matplotlib.pyplot as plt
+from pyaedt import TwinBuilder
 
 ###############################################################################
-# Launch Twin Builder
-# ~~~~~~~~~~~~~~~~~~~
+# Select Version and Launch Options
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This example launches Twin Builder 2021.2 in graphical mode.
 
-# This example uses SI units.
-
-desktop_version = "2021.2"
-
-###############################################################################
-# Launch Twin Builder in Non-Graphical Mode
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# You can change the Boolean parameter ``non_graphical`` to ``False`` to launch
-# Twin Builder in graphical mode.
+# You can change the Boolean parameter ``non_graphical`` to ``True`` to launch
+# Twin Builder in non graphical mode.
 # You can change the Boolean parameter ``new_thread`` to ``False`` to launch
 # Twin Builder in existing Desktop Session, if any.
 
+desktop_version = "2021.2"
 non_graphical = False
 new_thread = True
 
 ###############################################################################
 # Launch Twin Builder
 # ~~~~~~~~~~~~~~~~~~~
-# The :class:`pyaedt.Desktop` class initializes AEDT and starts it on a specified version in
-# a specified graphical mode. The Boolean parameter ``new_thread`` defines whether
-# to create a new instance of AEDT or try to connect to existing instance of it.
-
-desktop = Desktop(desktop_version, non_graphical, new_thread)
+# Use implicit declaration to launch Twin Builder Application
 
 # Add a new Twin Builder design with a default setup
 
-tb = TwinBuilder()
-
+tb = TwinBuilder(specified_version=desktop_version, non_graphical=non_graphical, new_desktop_session=new_thread)
 
 ###############################################################################
 # Create Components for a RC circuit driven by a pulse voltage source
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
 
-# Define the Grid Distance
+# Define the Grid Distance for ease in calculations
 
 G = 0.00254
 
@@ -62,14 +54,14 @@ capacitor = tb.modeler.schematic.create_capacitor("C1", 1e-6, [20 * G, 0])
 ###############################################################################
 # Create a Ground
 # ~~~~~~~~~~~~~~~
-# This method create a ground, which is needed for a twin builder analog analysis.
+# This method creates a ground, which is needed for a twin builder analog analysis.
 
 gnd = tb.modeler.components.create_gnd([0, -10 * G])
 
 ###############################################################################
 # Connect Components
 # ~~~~~~~~~~~~~~~~~~
-# This method connects components with wires.
+# This method connects components with pageports.
 
 source.pins[1].connect_to_component(resistor.pins[0])
 resistor.pins[1].connect_to_component(capacitor.pins[0])
@@ -91,35 +83,30 @@ tb.set_end_time("300ms")
 tb.analyze_setup("TR")
 
 
-################################################################
-# Get Report Data and plot it on matplotlib.
-#
+###############################################################################
+# Get Report Data and plot it on matplotlib
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Get the values for the voltage on the Pulse voltage source
+# Get the values for the voltage on the capacitor in the RC Circuit
+
 E_Value = "E1.V"
 x = tb.post.get_report_data(E_Value, "TR", "Time", {"Time": ["All"]})
 plt.plot(x.sweeps["Time"], x.data_real(E_Value))
-
-################################################################
-# Get the values for the voltage on the capacitor in the RC Circuit
 
 C_Value = "C1.V"
 x = tb.post.get_report_data(C_Value, "TR", "Time", {"Time": ["All"]})
 plt.plot(x.sweeps["Time"], x.data_real(C_Value))
 
-
 plt.grid()
 plt.xlabel("Time")
-plt.ylabel("C1.V vs E1.V")
+plt.ylabel("Capacitor Voltage vs Input Pulse")
 plt.show()
-
-plt.clf()
 
 ###############################################################################
 # Close Twin Builder
 # ~~~~~~~~~~~~~~~~~~
-# After the simulaton is completed, you can close Twin Builder or release it using the
-# :func:`pyaedt.Desktop.force_close_desktop` method.
+# After the simulaton is completed, you can close Twin Builder or release it
 # All methods provide for saving the project before exiting.
 
 if os.name != "posix":
-    desktop.release_desktop()
+    tb.release_desktop()
