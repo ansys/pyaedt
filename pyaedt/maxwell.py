@@ -1161,46 +1161,22 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
 
     @property
     def model_depth(self):
-        """Get model depth.
+        """Get model depth."""
 
-        Example
-        -------
-
-        Set and get the model depth for a 2D Maxwell analysis.
-
-        >>> from pyaedt import Maxwell2d
-        >>> maxwell_2d = Maxwell2d()
-        >>> maxwell_2d.model_depth = "90 mm"
-        >>> maxwell_2d.model_depth
-        0.09
-        """
-
-        # if "ModelDepth" in self.design_properties:
-        #     value_str = self.design_properties["ModelDepth"]
-        #     try:
-        #         a = float_units(value_str)
-        #     except:
-        #         a = self.variable_manager[value_str].value
-        #     finally:
-        #         return a
-        # else:
-        return None
+        if "ModelDepth" in self.design_properties:
+            value_str = self.design_properties["ModelDepth"]
+            try:
+                a = float_units(value_str)
+            except:
+                a = self.variable_manager[value_str].value
+            finally:
+                return a
+        else:
+            return None
 
     @model_depth.setter
     def model_depth(self, value):
-        """Set model depth.
-
-        Example
-        -------
-
-        Set and get the model depth for a 2D Maxwell analysis.
-
-        >>> from pyaedt import Maxwell2d
-        >>> maxwell_2d = Maxwell2d()
-        >>> maxwell_2d.model_depth = "90 mm"
-        >>> maxwell_2d.model_depth
-        0.09
-        """
+        """Set model depth."""
 
         self.odesign.SetDesignSettings(
             [
