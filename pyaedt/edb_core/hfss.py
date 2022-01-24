@@ -511,10 +511,8 @@ class EdbHfss(object):
                     for pt in trace_path_pts:
                         _pt = [pt.X.ToDouble(), pt.Y.ToDouble()]
                         if bool(set(_pt) & set(layout_bbox)):
-                            edge = self._edb.Cell.Terminal.PrimitiveEdge.Create(path, pt)
-                            edge = convert_py_list_to_net_list(edge)
-                            edge_term = self._edb.Cell.Terminal.EdgeTerminal.Create(layout, net, "test", edge)
-                            edge_term.SetReferenceLayer(reference_layer)
+                            port_name = generate_unique_name("port")
+                            res = self._hfss_terminals.CreateEdgePort(path, pt, reference_layer, port_name)
 
     @aedt_exception_handler
     def get_layout_bounding_box(self, layout=None):
