@@ -481,7 +481,7 @@ class EdbHfss(object):
             return False
 
     @aedt_exception_handler
-    def create_lumped_port_on_trace(self, nets=None, reference_layer=None):
+    def create_lumped_port_on_trace(self, nets=None, reference_layer=None, return_points_only=False):
         if not isinstance(nets, list):
             if isinstance(nets, str):
                 nets = [self._edb.Cell.Net.FindByName(self._active_layout, nets)]
