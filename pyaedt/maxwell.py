@@ -1175,15 +1175,15 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
         0.09
         """
 
-        if "ModelDepth" in self.design_properties:
-            value_str = self.design_properties["ModelDepth"]
-            try:
-                a = float_units(value_str)
-            except:
-                a = self.variable_manager[value_str].value
-            finally:
-                return a
-        else:
+        # if "ModelDepth" in self.design_properties:
+        #     value_str = self.design_properties["ModelDepth"]
+        #     try:
+        #         a = float_units(value_str)
+        #     except:
+        #         a = self.variable_manager[value_str].value
+        #     finally:
+        #         return a
+        # else:
             return None
 
     @model_depth.setter
