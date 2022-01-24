@@ -127,8 +127,8 @@ class Maxwell(object):
 
         >>> oModule.SetCoreLoss
 
-        Example
-        -------
+        Examples
+        --------
         Set Core Losses in Maxwell 3d.
 
         >>> from pyaedt import Maxwell3d
@@ -163,8 +163,8 @@ class Maxwell(object):
 
         >>> oModule.AssignMatrix
 
-        Example
-        -------
+        Examples
+        --------
         Set Matrix in Maxwell 3d analysis.
 
         >>> from pyaedt import Maxwell3d
