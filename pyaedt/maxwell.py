@@ -1159,9 +1159,22 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
     def xy_plane(self, value=True):
         self.design_solutions.xy_plane = value
 
-    @aedt_exception_handler
-    def get_model_depth(self):
-        """Get model depth."""
+    @property
+    def model_depth(self):
+        """Get model depth.
+
+        Example
+        -------
+
+        Set and get the model depth for a 2D Maxwell analysis.
+
+        >>> from pyaedt import Maxwell2d
+        >>> maxwell_2d = Maxwell2d()
+        >>> maxwell_2d.model_depth="90 mm"
+        >>> maxwell_2d.model_depth
+        0.09
+        """
+
         if "ModelDepth" in self.design_properties:
             value_str = self.design_properties["ModelDepth"]
             try:
@@ -1171,6 +1184,29 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
             return a
         else:
             return None
+
+    @model_depth.setter
+    def model_depth(self, value):
+        """Set model depth.
+
+        Example
+        -------
+
+        Set and get the model depth for a 2D Maxwell analysis.
+
+        >>> from pyaedt import Maxwell2d
+        >>> maxwell_2d = Maxwell2d()
+        >>> maxwell_2d.model_depth="90 mm"
+        >>> maxwell_2d.model_depth
+        0.09
+        """
+
+        try:
+            depth_value = float_units(value)
+        except:
+            depth_value = self.variable_manager[value].value
+
+        self.design_properties["ModelDepth"] = value
 
     @aedt_exception_handler
     def generate_design_data(self, linefilter=None, objectfilter=None):
@@ -1204,7 +1240,6 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
             solid_ids = [i for i, j in self.modeler.primitives.object_id_dict.items() if j.name in objectfilter]
         else:
             solid_ids = [i for i in list(self.modeler.primitives.object_id_dict.keys())]
-        model_depth = self.get_model_depth()
         self.design_data = {
             "Project Directory": self.project_path,
             "Working Directory": self.working_directory,
@@ -1213,7 +1248,7 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
             "GeoMode": self.geometry_mode,
             "ModelUnits": self.modeler.model_units,
             "Symmetry": self.symmetry_multiplier,
-            "ModelDepth": model_depth,
+            "ModelDepth": self.model_depth,
             "ObjectList": solid_ids,
             "LineList": self.modeler.vertex_data_of_lines(linefilter),
             "VarList": self.variable_manager.variable_names,
