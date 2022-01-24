@@ -1186,29 +1186,29 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
         # else:
         #     return None
 
-    @model_depth.setter
-    def model_depth(self, value):
-        """Set model depth.
+    # @model_depth.setter
+    # def model_depth(self, value):
+    #     """Set model depth.
 
-        Example
-        -------
+    #     Example
+    #     -------
 
-        Set and get the model depth for a 2D Maxwell analysis.
+    #     Set and get the model depth for a 2D Maxwell analysis.
 
-        >>> from pyaedt import Maxwell2d
-        >>> maxwell_2d = Maxwell2d()
-        >>> maxwell_2d.model_depth="90 mm"
-        >>> maxwell_2d.model_depth
-        0.09
-        """
+    #     >>> from pyaedt import Maxwell2d
+    #     >>> maxwell_2d = Maxwell2d()
+    #     >>> maxwell_2d.model_depth="90 mm"
+    #     >>> maxwell_2d.model_depth
+    #     0.09
+    #     """
 
-        self.odesign.SetDesignSettings(
-            [
-                "NAME:Design Settings Data",
-                "ModelDepth:=",
-                value,
-            ]
-        )
+    #     self.odesign.SetDesignSettings(
+    #         [
+    #             "NAME:Design Settings Data",
+    #             "ModelDepth:=",
+    #             value,
+    #         ]
+    #     )
 
     @aedt_exception_handler
     def generate_design_data(self, linefilter=None, objectfilter=None):
