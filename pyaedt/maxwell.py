@@ -1160,7 +1160,6 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
         self.design_solutions.xy_plane = value
 
     @property
-    @aedt_exception_handler
     def model_depth(self):
         """Get model depth.
 
