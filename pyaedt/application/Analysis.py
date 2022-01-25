@@ -1121,7 +1121,7 @@ class Analysis(Design, object):
         setup = Setup(self, setuptype, name)
         if self.design_type == "HFSS" and not self.get_excitations_name() and "MaxDeltaS" in setup.props:
             new_dict = OrderedDict()
-            for k,v in setup.props.items():
+            for k, v in setup.props.items():
                 if k == "MaxDeltaS":
                     new_dict["MaxDeltaE"] = 0.01
                 else:
