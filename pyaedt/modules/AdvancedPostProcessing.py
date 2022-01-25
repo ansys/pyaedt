@@ -1167,6 +1167,7 @@ class ModelPlotter(object):
             pickable=True,
             smooth_shading=True,
             name="FieldPlot",
+            opacity=self.frames[0].opacity,
         )
         start = time.time()
 
