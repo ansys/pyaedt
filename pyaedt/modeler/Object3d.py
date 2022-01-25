@@ -748,20 +748,17 @@ class Object3d(object):
         """
         if self._primitives._app._aedt_version >= "2021.2":
             model_obj = self._primitives._app.post.export_model_obj(
-                obj_list=[self.name],
-                export_path=None,
-                export_as_single_objects=True,
-                air_objects=True
+                obj_list=[self.name], export_path=None, export_as_single_objects=True, air_objects=True
             )
             if model_obj:
                 x = []
                 y = []
                 z = []
-                with open(model_obj[0][0], 'r') as f:
+                with open(model_obj[0][0], "r") as f:
                     lines = f.read().splitlines()
                     for line in lines:
                         l = line.split(" ")
-                        if l[0] and l[0] == "v" and len(l)>3:
+                        if l[0] and l[0] == "v" and len(l) > 3:
                             x.append(float(l[1]))
                             y.append(float(l[2]))
                             z.append(float(l[3]))
