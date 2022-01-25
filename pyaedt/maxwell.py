@@ -1238,18 +1238,32 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
     def xy_plane(self, value=True):
         self.design_solutions.xy_plane = value
 
-    @aedt_exception_handler
-    def get_model_depth(self):
+    @property
+    def model_depth(self):
         """Get model depth."""
+
         if "ModelDepth" in self.design_properties:
             value_str = self.design_properties["ModelDepth"]
             try:
                 a = float_units(value_str)
             except:
                 a = self.variable_manager[value_str].value
-            return a
+            finally:
+                return a
         else:
             return None
+
+    @model_depth.setter
+    def model_depth(self, value):
+        """Set model depth."""
+
+        self.odesign.SetDesignSettings(
+            [
+                "NAME:Design Settings Data",
+                "ModelDepth:=",
+                value,
+            ]
+        )
 
     @aedt_exception_handler
     def generate_design_data(self, linefilter=None, objectfilter=None):
@@ -1283,7 +1297,6 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
             solid_ids = [i for i, j in self.modeler.primitives.object_id_dict.items() if j.name in objectfilter]
         else:
             solid_ids = [i for i in list(self.modeler.primitives.object_id_dict.keys())]
-        model_depth = self.get_model_depth()
         self.design_data = {
             "Project Directory": self.project_path,
             "Working Directory": self.working_directory,
@@ -1292,7 +1305,7 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
             "GeoMode": self.geometry_mode,
             "ModelUnits": self.modeler.model_units,
             "Symmetry": self.symmetry_multiplier,
-            "ModelDepth": model_depth,
+            "ModelDepth": self.model_depth,
             "ObjectList": solid_ids,
             "LineList": self.modeler.vertex_data_of_lines(linefilter),
             "VarList": self.variable_manager.variable_names,
