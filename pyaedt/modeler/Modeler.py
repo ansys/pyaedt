@@ -3459,8 +3459,8 @@ class GeometryModeler(Modeler, object):
         Returns
         -------
         list
-            List of six float values representing the bounding box
-            in the form ``[min_x, min_y, min_z, max_x, max_y, max_z]``.
+            List of three float values representing the bounding box dimensions
+            in the form ``[dim_x, dim_y, dim_z]``.
 
         References
         ----------

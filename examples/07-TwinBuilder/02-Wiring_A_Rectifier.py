@@ -1,6 +1,6 @@
 """
-RC Circuit Design in Twin Builder
----------------------------------
+Wiring a Rectifier with Capacitive Filter in Twin Builder
+------------------------------------------
 This example shows how you can use PyAEDT to create a Twin Builder design
 and run a Twin Builder time-domain simulation.
 """
@@ -10,6 +10,7 @@ and run a Twin Builder time-domain simulation.
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 import os
+import math
 import matplotlib.pyplot as plt
 from pyaedt import TwinBuilder
 
@@ -37,43 +38,74 @@ new_thread = True
 tb = TwinBuilder(specified_version=desktop_version, non_graphical=non_graphical, new_desktop_session=new_thread)
 
 ###############################################################################
-# Create Components for a RC circuit driven by a pulse voltage source
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create Components for a bridge rectifier with capacitor filter
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
 
-# Define the Grid Distance for ease in calculations
+# Define the Grid Distance for ease of calculations
 
 G = 0.00254
 
-# These methods create components, such as voltage source, resistors, and capacitors.
+# Place an AC sinosoidal source component
 
-source = tb.modeler.schematic.create_voltage_source("E1", "EPULSE", 10, 10, [0, 0])
-resistor = tb.modeler.schematic.create_resistor("R1", 10000, [10 * G, 10 * G], 90)
-capacitor = tb.modeler.schematic.create_capacitor("C1", 1e-6, [20 * G, 0])
+source = tb.modeler.schematic.create_voltage_source("V_AC", "ESINE", 100, 50, [-1 * G, 0])
 
-###############################################################################
-# Create a Ground
-# ~~~~~~~~~~~~~~~
-# This method creates a ground, which is needed for a twin builder analog analysis.
+# Place four diodes of the bridge rectifier
 
-gnd = tb.modeler.components.create_gnd([0, -10 * G])
+diode1 = tb.modeler.schematic.create_diode("D1", [10 * G, 6 * G], 3 * math.pi / 2)
+diode2 = tb.modeler.schematic.create_diode("D2", [20 * G, 6 * G], 3 * math.pi / 2)
+diode3 = tb.modeler.schematic.create_diode("D3", [10 * G, -4 * G], 3 * math.pi / 2)
+diode4 = tb.modeler.schematic.create_diode("D4", [20 * G, -4 * G], 3 * math.pi / 2)
+
+# Place capacitor filter
+
+capacitor = tb.modeler.schematic.create_capacitor("C_FILTER", 1e-6, [29 * G, -10 * G])
+
+# Place load resistor
+
+resistor = tb.modeler.schematic.create_resistor("RL", 100000, [39 * G, -10 * G])
+
+# Place a ground
+
+gnd = tb.modeler.components.create_gnd([5 * G, -16 * G])
 
 ###############################################################################
 # Connect Components
 # ~~~~~~~~~~~~~~~~~~
-# This method connects components with pageports.
+# This method connects components with wires.
 
-source.pins[1].connect_to_component(resistor.pins[0])
-resistor.pins[1].connect_to_component(capacitor.pins[0])
-capacitor.pins[1].connect_to_component(source.pins[0])
-source.pins[0].connect_to_component(gnd.pins[0])
+# Wire the diode bridge
+
+tb.modeler.schematic.create_wire([diode1.pins[0].location, diode3.pins[0].location])
+tb.modeler.schematic.create_wire([diode2.pins[1].location, diode4.pins[1].location])
+tb.modeler.schematic.create_wire([diode1.pins[1].location, diode2.pins[0].location])
+tb.modeler.schematic.create_wire([diode3.pins[1].location, diode4.pins[0].location])
+
+# Wire the AC Source
+
+tb.modeler.schematic.create_wire([source.pins[1].location, [0, 10 * G], [15 * G, 10 * G], [15 * G, 5 * G]])
+tb.modeler.schematic.create_wire([source.pins[0].location, [0, -10 * G], [15 * G, -10 * G], [15 * G, -5 * G]])
+
+# Wire the Filter Capacitor and Load Resistor
+
+tb.modeler.schematic.create_wire([resistor.pins[0].location, [40 * G, 0], [22 * G, 0]])
+tb.modeler.schematic.create_wire([capacitor.pins[0].location, [30 * G, 0]])
+
+# Wire the ground
+
+tb.modeler.schematic.create_wire([resistor.pins[1].location, [40 * G, -15 * G], gnd.pins[0].location])
+tb.modeler.schematic.create_wire([capacitor.pins[1].location, [30 * G, -15 * G]])
+tb.modeler.schematic.create_wire([gnd.pins[0].location, [5 * G, 0], [8 * G, 0]])
+
+# Zoom to Fit the schematic
+tb.modeler.zoom_to_fit()
 
 ###############################################################################
 # Parametrize a Transient Setup
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This method setup the end time for the default transient setup.
 
-tb.set_end_time("300ms")
+tb.set_end_time("100ms")
 
 ###############################################################################
 # Solve the Transient Setup
@@ -89,17 +121,17 @@ tb.analyze_setup("TR")
 # Get the values for the voltage on the Pulse voltage source
 # Get the values for the voltage on the capacitor in the RC Circuit
 
-E_Value = "E1.V"
+E_Value = "V_AC.V"
 x = tb.post.get_report_data(E_Value, "TR", "Time", {"Time": ["All"]})
 plt.plot(x.sweeps["Time"], x.data_real(E_Value))
 
-C_Value = "C1.V"
-x = tb.post.get_report_data(C_Value, "TR", "Time", {"Time": ["All"]})
-plt.plot(x.sweeps["Time"], x.data_real(C_Value))
+R_Value = "RL.V"
+x = tb.post.get_report_data(R_Value, "TR", "Time", {"Time": ["All"]})
+plt.plot(x.sweeps["Time"], x.data_real(R_Value))
 
 plt.grid()
 plt.xlabel("Time")
-plt.ylabel("Capacitor Voltage vs Input Pulse")
+plt.ylabel("AC to DC Conversion using Rectifier")
 plt.show()
 
 ###############################################################################

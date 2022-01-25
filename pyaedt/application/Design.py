@@ -485,6 +485,8 @@ class Design(object):
         """
         return self._logger
 
+    # TODO Project Properties are set at the beginning
+    # but after they are never updated along the different project steps.
     @property
     def project_properies(self):
         """Project properties.

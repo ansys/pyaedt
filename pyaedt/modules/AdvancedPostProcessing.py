@@ -236,6 +236,8 @@ class ModelPlotter(object):
         self._elevation_angle = 20
         self._zoom = 1
         self._isometric_view = True
+        self.bounding_box = True
+        self.color_bar = True
 
     @property
     def isometric_view(self):
@@ -949,18 +951,24 @@ class ModelPlotter(object):
         self._read_mesh_files()
 
         axes_color = [0 if i >= 128 else 1 for i in self.background_color]
-        sargs = dict(
-            title_font_size=10,
-            label_font_size=10,
-            shadow=True,
-            n_labels=9,
-            italic=True,
-            fmt="%.1f",
-            font_family="arial",
-            interactive=True,
-            color=axes_color,
-            vertical=False,
-        )
+        if self.color_bar:
+            sargs = dict(
+                title_font_size=10,
+                label_font_size=10,
+                shadow=True,
+                n_labels=9,
+                italic=True,
+                fmt="%.1f",
+                font_family="arial",
+                interactive=True,
+                color=axes_color,
+                vertical=False,
+            )
+        else:
+            sargs = dict(
+                position_x=2,
+                position_y=2,
+            )
         for field in self._fields:
             if self.range_max is not None and self.range_min is not None:
                 field._cached_mesh = self.pv.add_mesh(
@@ -991,7 +999,8 @@ class ModelPlotter(object):
             self.pv.show_axes()
         if self.show_grid and not self.is_notebook:
             self.pv.show_grid(color=tuple(axes_color))
-        self.pv.add_bounding_box(color=tuple(axes_color))
+        if self.bounding_box:
+            self.pv.add_bounding_box(color=tuple(axes_color))
         self.pv.set_focus(self.pv.mesh.center)
 
         if not self.isometric_view:
@@ -1066,7 +1075,8 @@ class ModelPlotter(object):
             self.pv.show_axes()
         if self.show_grid and not self.is_notebook:
             self.pv.show_grid(color=tuple(axes_color))
-        self.pv.add_bounding_box(color=tuple(axes_color))
+        if self.bounding_box:
+            self.pv.add_bounding_box(color=tuple(axes_color))
         if self.show_legend:
             labels = []
             for m in self.objects:
@@ -1103,16 +1113,21 @@ class ModelPlotter(object):
         self.pv.add_text(" ", font_size=10, position=[0, 0], color=tuple(axes_color))
         self.pv.add_key_event("q", q_callback)
         self.pv.add_key_event("p", p_callback)
-
-        sargs = dict(
-            title_font_size=10,
-            label_font_size=10,
-            shadow=True,
-            n_labels=9,
-            italic=True,
-            fmt="%.1f",
-            font_family="arial",
-        )
+        if self.color_bar:
+            sargs = dict(
+                title_font_size=10,
+                label_font_size=10,
+                shadow=True,
+                n_labels=9,
+                italic=True,
+                fmt="%.1f",
+                font_family="arial",
+            )
+        else:
+            sargs = dict(
+                position_x=2,
+                position_y=2,
+            )
 
         for field in self._fields:
             field._cached_mesh = self.pv.add_mesh(
@@ -1152,6 +1167,7 @@ class ModelPlotter(object):
             pickable=True,
             smooth_shading=True,
             name="FieldPlot",
+            opacity=self.frames[0].opacity,
         )
         start = time.time()
 

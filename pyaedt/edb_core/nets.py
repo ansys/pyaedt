@@ -488,7 +488,7 @@ class EdbNets(object):
 
             comp_partname = self._pedb.core_components._cmp[refdes].partname
             el.append(comp_partname)
-            pins = self._pedb.core_components.get_pin_from_component(cmpName=refdes, netName=el[2])
+            pins = self._pedb.core_components.get_pin_from_component(component=refdes, netName=el[2])
             el.append("-".join([i.GetName() for i in pins]))
 
         component_list_columns = ["refdes", "pin_name", "net_name", "component_type", "component_partname", "pin_list"]
