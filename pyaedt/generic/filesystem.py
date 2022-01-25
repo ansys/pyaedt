@@ -91,7 +91,7 @@ class Scratch:
             dst_file = os.path.join(self.path, dst_filename)
         else:
             dst_file = os.path.join(self.path, os.path.basename(src_file))
-        shutil.copyfile(src_file, dst_file)
+        shutil.copy2(src_file, dst_file)
         return dst_file
 
     def copyfolder(self, src_folder, destfolder):
