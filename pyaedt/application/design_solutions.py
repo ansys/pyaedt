@@ -285,8 +285,15 @@ solutions_types = {
             "default_setup": 1,
             "default_adaptive": "LastAdaptive",
         },
-        "Transient": {
+        "Transient Network": {
             "name": "Transient Network",
+            "options": None,
+            "report_type": "Terminal Solution Data",
+            "default_setup": 3,
+            "default_adaptive": "Transient",
+        },
+        "Transient": {
+            "name": "Transient",
             "options": None,
             "report_type": "Terminal Solution Data",
             "default_setup": 3,
