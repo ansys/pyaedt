@@ -285,9 +285,16 @@ class Edb(object):
         if not self._edblib:
             if os.name == "posix":
                 clr.AddReferenceToFile("EdbLib.dll")
+                clr.AddReferenceToFile("DataModel.dll")
             else:
                 clr.AddReference("EdbLib")
+                clr.AddReferenceToFile("DataModel")
             self._edblib = __import__("EdbLib")
+            dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib")
+            try:
+                self._edblib.Layout.LayoutMethods.LoadDataModel(dllpath, self.edbversion)
+            except:
+                pass
         return self._edblib
 
     @aedt_exception_handler
