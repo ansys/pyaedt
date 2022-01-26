@@ -453,7 +453,8 @@ class TestClass:
 
     def test_54_create_component_from_pins(self):
         pins = self.edbapp.core_components.get_pin_from_component("R13")
-        assert self.edbapp.core_components.create_component_from_pins(pins, "newcomp")
+        assert self.edbapp.core_components.create_component_from_pins(pins, "newcomp")[0]
+        assert self.edbapp.core_components.create_component_from_pins(pins, "newcomp")[1].Name == "Foo"
 
     def test_55b_create_cutout(self):
         output = os.path.join(self.local_scratch.path, "cutout.aedb")
