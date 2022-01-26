@@ -744,8 +744,9 @@ class Components(object):
             for pin in pins:
                 pin.SetIsLayoutPin(True)
                 if not self._components_methods.AddPinToGroup(new_group, pin):
-                    aedt_exception_handler("Failed to add pin {} to the group {}".format(pin.GetName(),
-                                                                                         new_group.GetName()))
+                    aedt_exception_handler(
+                        "Failed to add pin {} to the group {}".format(pin.GetName(), new_group.GetName())
+                    )
             if not placement_layer:
                 new_cmp_layer_name = pins[0].GetPadstackDef().GetData().GetLayerNames()[0]
             else:
