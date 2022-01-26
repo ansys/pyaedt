@@ -8,7 +8,7 @@ solutions_defaults = {
     "Circuit Design": "NexximLNA",
     "2D Extractor": "Open",
     "Q3D Extractor": "Q3D Extractor",
-    "HFSS": "DrivenModal",
+    "HFSS": "HFSS Modal Network",
     "Icepak": "SteadyState",
     "RMxprtSolution": "GRM",
     "ModelCreation": "GRM",
@@ -258,14 +258,14 @@ solutions_types = {
     },
     "HFSS": {
         "Modal": {
-            "name": "DrivenModal",
+            "name": "HFSS Modal Network",
             "options": None,
             "report_type": "Modal Solution Data",
             "default_setup": 1,
             "default_adaptive": "LastAdaptive",
         },
         "Terminal": {
-            "name": "DrivenTerminal",
+            "name": "HFSS Hybrid Terminal Network",
             "options": None,
             "report_type": "Terminal Solution Data",
             "default_setup": 1,
