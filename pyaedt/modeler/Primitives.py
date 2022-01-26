@@ -1307,7 +1307,7 @@ class Primitives(object):
             position is a list of 2D or 3D coordinates. Position
             coordinate values can be numbers or valid AEDT string
             expressions. For example, ``[0, 1, 2]``, ``["0mm", "5mm",
-            "1mm"]``, or ``["x1", "y1"]``.
+            "1mm"]``, or ``["x1", "y1", "z1"]``.
         segment_type : str or PolylineSegment or list, optional
             The default behavior is to connect all points as
             ``"Line"`` segments. The default is ``None``. For a
@@ -1368,7 +1368,7 @@ class Primitives(object):
         Set up the desktop environment.
 
         >>> from pyaedt.desktop import Desktop
-        >>> from pyaedt.Maxwell import Maxwell3d
+        >>> from pyaedt.maxwell import Maxwell3d
         >>> from pyaedt.modeler.Primitives import PolylineSegment
         >>> desktop=Desktop(specified_version="2021.2", new_desktop_session=False)
         >>> aedtapp = Maxwell3D()
@@ -1413,6 +1413,14 @@ class Primitives(object):
         >>> segment_def = PolylineSegment(type="AngularArc", arc_center=center_point, arc_angle="90deg", arc_plane="XY")
         >>> primitives.create_polyline(start_point, segment_type=segment_def, name="PL_center_point_arc")
 
+        Create a spline using a list of variables for the coordinates of the points.
+
+        >>> x0, y0, z0 = "0", "0", "1"
+        >>> x1, y1, z1 = "1", "3", "1"
+        >>> x2, y2, z2 = "2", "2", "1"
+        >>> P5 = primitives.create_polyline(position_list = [[x0, y0, z0], [x1, y1, z1], [x2, y2, z2]],
+        ...                                 segment_type="Spline", name="polyline_with_variables")
+
         """
         new_polyline = Polyline(
             primitives=self,
@@ -1431,6 +1439,68 @@ class Primitives(object):
             xsection_bend_type=xsection_bend_type,
         )
         return new_polyline
+
+    @aedt_exception_handler
+    def create_spiral_on_face(self, face, poly_width, filling_factor=1.5):
+        """Create a Spiral Polyline inside a face.
+
+        Parameters
+        ----------
+        face : int or str or :class:`pyaedt.modeler.Object3d.FacePrimitive`
+        poly_width : float
+        filling_factor : float
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.Polyline`
+        """
+        # fmt: off
+        if isinstance(face, FacePrimitive):
+            face_id = face.id
+        elif isinstance(face, int):
+            face_id = face
+        else:
+            face_id = self.get_object_faces(face)[0]
+
+        vertices = self.get_face_vertices(face_id)
+        vertex_coordinates = []
+        for v in vertices:
+            vertex_coordinates.append(self.get_vertex_position(v))
+
+        centroid = self.get_face_center(face_id)
+
+        segments_lengths = []
+        for vc in vertex_coordinates:
+            segments_lengths.append(GeometryOperators.points_distance(vc, centroid))
+
+        n = math.floor(min(segments_lengths) / (poly_width * filling_factor))
+
+        if n % 2 == 0:
+            n_points = int(n / 2 - 1)
+        else:
+            n_points = int((n - 1) / 2)
+
+        if n_points < 1:
+            raise Exception
+
+        inner_points = []
+        for vc in vertex_coordinates:
+            temp = [[] for i in range(n_points)]
+            for i in range(3):  # loop for x, y, z
+                delta = (centroid[i] - vc[i]) / (n_points + 1)
+                for j in range(1, n_points + 1):
+                    temp[j - 1].append(vc[i] + delta * j)
+            inner_points.append(temp)
+
+        poly_points_list = []
+        for p in range(n_points):
+            for v in inner_points:
+                poly_points_list.append(v[p])
+
+        del poly_points_list[-1]
+
+        # fmt: on
+        return self.create_polyline(poly_points_list, xsection_type="Line", xsection_width=poly_width)
 
     @aedt_exception_handler
     def get_existing_polyline(self, object):
@@ -1686,8 +1756,8 @@ class Primitives(object):
         self.objects = {}
         self.object_id_dict = {}
         self._currentId = 0
+        self.refresh_all_ids()
         self._refresh_all_ids_from_aedt_file()
-        self.add_new_objects()
 
     def cleanup_objects(self):
         """Clean up objects that no longer exist in the modeler because
@@ -3058,37 +3128,36 @@ class Primitives(object):
                 attribs = self._app.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"][
                     "ToplevelParts"
                 ]["GeometryPart"]["Attributes"]
+            if attribs["Name"] in self._all_object_names:
+                o = self._create_object(name=attribs["Name"])
+                o._part_coordinate_system = attribs["PartCoordinateSystem"]
+                if "NonModel" in attribs["Flags"]:
+                    o._model = False
+                else:
+                    o._model = True
+                if "Wireframe" in attribs["Flags"]:
+                    o._wireframe = True
+                else:
+                    o._wireframe = False
+                groupname = ""
+                for group in groups:
+                    if attribs["GroupId"] == group["GroupID"]:
+                        groupname = group["Attributes"]["Name"]
 
-            o = self._create_object(name=attribs["Name"])
+                o._m_groupName = groupname
+                try:
+                    o._color = tuple(int(x) for x in attribs["Color"][1:-1].split(" "))
+                except:
+                    o._color = None
+                o._surface_material = attribs.get("SurfaceMaterialValue", None)
+                if o._surface_material:
+                    o._surface_material = o._surface_material[1:-1].lower()
+                if "MaterialValue" in attribs:
+                    o._material_name = attribs["MaterialValue"][1:-1].lower()
+                else:
+                    o._material_name = attribs.get("MaterialName", None)
 
-            o._part_coordinate_system = attribs["PartCoordinateSystem"]
-            if "NonModel" in attribs["Flags"]:
-                o._model = False
-            else:
-                o._model = True
-            if "Wireframe" in attribs["Flags"]:
-                o._wireframe = True
-            else:
-                o._wireframe = False
-            groupname = ""
-            for group in groups:
-                if attribs["GroupId"] == group["GroupID"]:
-                    groupname = group["Attributes"]["Name"]
-
-            o._m_groupName = groupname
-            try:
-                o._color = tuple(int(x) for x in attribs["Color"][1:-1].split(" "))
-            except:
-                o._color = None
-            o._surface_material = attribs.get("SurfaceMaterialValue", None)
-            if o._surface_material:
-                o._surface_material = o._surface_material[1:-1].lower()
-            if "MaterialValue" in attribs:
-                o._material_name = attribs["MaterialValue"][1:-1].lower()
-            else:
-                o._material_name = attribs.get("MaterialName", None)
-
-            o._is_updated = True
+                o._is_updated = True
         return len(self.objects)
 
     def _default_object_attributes(self, name=None, matname=None):

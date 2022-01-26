@@ -74,15 +74,19 @@ import os
 import json
 import sys
 import clr
-import subprocess
 import shutil
 from datetime import datetime
 from zipfile import ZipFile, ZIP_DEFLATED
-
+from pyaedt import is_ironpython
 from pyaedt.desktop import Desktop
 from pyaedt.generic.general_methods import aedt_exception_handler
 
-if sys.implementation.name == "ironpython":
+if os.name == "posix" and is_ironpython:
+    import subprocessdotnet as subprocess
+else:
+    import subprocess
+
+if is_ironpython:
     clr.AddReference("PresentationFramework")
     clr.AddReference("PresentationCore")
     clr.AddReference("System.Windows")

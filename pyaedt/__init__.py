@@ -5,6 +5,13 @@ import os
 os.environ["ANSYSEM_FEATURE_SF6694_NON_GRAPHICAL_COMMAND_EXECUTION_ENABLE"] = "1"
 os.environ["ANSYSEM_FEATURE_SF159726_SCRIPTOBJECT_ENABLE"] = "1"
 
+
+try:
+    with open(os.path.join(os.path.dirname(__file__), "version.txt"), "r") as f:
+        __version__ = f.read().strip()
+except:
+    __version__ = ""
+
 from pyaedt.generic import constants
 from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, _retry_ntimes
 from pyaedt.generic.general_methods import is_ironpython, _pythonver, inside_desktop, convert_remote_object

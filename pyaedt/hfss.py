@@ -299,7 +299,7 @@ class Hfss(FieldAnalysis3D, object):
         return self._create_boundary(portname, props, "LumpedPort")
 
     @aedt_exception_handler
-    def _create_port_terminal(self, objectname, int_line_stop, portname, iswaveport=False):
+    def _create_port_terminal(self, objectname, int_line_stop, portname, renorm=True, iswaveport=False):
         ref_conductors = self.modeler.convert_to_selections(int_line_stop, True)
         props = OrderedDict({})
         props["Faces"] = int(objectname)
@@ -311,9 +311,10 @@ class Hfss(FieldAnalysis3D, object):
         if boundary:
             new_ports = list(self.oboundary.GetExcitationsOfType("Terminal"))
             terminals = [i for i in new_ports if i not in ports]
+            id = 1
             for terminal in terminals:
-                name_split = terminal.split("_")
-                new_name = portname + "_" + name_split[-1]
+                new_name = portname + "_T" + str(id)
+                id += 1
                 properties = [
                     "NAME:AllTabs",
                     [
@@ -326,6 +327,22 @@ class Hfss(FieldAnalysis3D, object):
                     self.odesign.ChangeProperty(properties)
                 except:
                     self.logger.warning("Failed To rename Terminals")
+            if iswaveport:
+                boundary.type = "WavePort"
+            else:
+                boundary.type = "LumpedPort"
+            props["Faces"] = [objectname]
+            if iswaveport:
+                props["NumModes"] = 1
+                props["UseLineModeAlignment"] = 1
+            props["DoDeembed"] = True
+            if iswaveport:
+                props["DeembedDist"] = "0mm"
+            props["RenormalizeAllTerminals"] = renorm
+            props["ShowReporterFilter"] = False
+            props["UseAnalyticAlignment"] = False
+            boundary.props = props
+            boundary.update()
         return boundary
 
     @aedt_exception_handler
@@ -1463,8 +1480,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        str
-            Name of port created when successful, ``False`` otherwise.
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
 
         References
         ----------
@@ -1500,8 +1517,7 @@ class Hfss(FieldAnalysis3D, object):
                 portname = generate_unique_name("Port")
             elif portname + ":1" in self.modeler.get_excitations_name():
                 portname = generate_unique_name(portname)
-            if self._create_circuit_port(out, impedance, portname, renorm, deemb, renorm_impedance=renorm_impedance):
-                return portname
+            return self._create_circuit_port(out, impedance, portname, renorm, deemb, renorm_impedance=renorm_impedance)
         return False
 
     @aedt_exception_handler
@@ -1534,8 +1550,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        str
-            Name of port created when successful, ``False`` otherwise.
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
 
         References
         ----------
@@ -1577,12 +1593,213 @@ class Hfss(FieldAnalysis3D, object):
             elif portname + ":1" in self.modeler.get_excitations_name():
                 portname = generate_unique_name(portname)
             if "Modal" in self.solution_type:
-                self._create_lumped_driven(sheet_name, point0, point1, impedance, portname, renorm, deemb)
+                return self._create_lumped_driven(sheet_name, point0, point1, impedance, portname, renorm, deemb)
             else:
                 faces = self.modeler.primitives.get_object_faces(sheet_name)
-                self._create_port_terminal(faces[0], endobject, portname, iswaveport=False)
-            return portname
+                return self._create_port_terminal(faces[0], endobject, portname, renorm=renorm, iswaveport=False)
         return False
+
+    @aedt_exception_handler
+    def create_spiral_lumped_port(self, start_object, end_object, port_width=None):
+        """Create a spiral lumped port between two adjacent objects.
+        The two objects must have two adjacent, parallel and identical faces
+        and the faces must be a polygon (not a circle).
+
+        Parameters
+        ----------
+        start_object : str or int or :class:`pyaedt.modeler.Object3d.Object3d`
+        end_object: str or int or :class:`pyaedt.modeler.Object3d.Object3d`
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
+
+        """
+        # fmt: off
+        if not "Terminal" in self.solution_type:
+            raise Exception("This method can be used only in Terminal Solutions.")
+        start_object = self.modeler.convert_to_selections(start_object)
+        end_object = self.modeler.convert_to_selections(end_object)
+        closest_distance = 1e9
+        closest_faces = []
+        for face1 in self.modeler[start_object].faces:
+            for face2 in self.modeler[end_object].faces:
+                facecenter_distance = GeometryOperators.points_distance(face1.center, face2.center)
+                if facecenter_distance <= closest_distance:
+                    closest_distance = facecenter_distance
+                    closest_faces = [face1, face2]
+
+        if not GeometryOperators.is_collinear(closest_faces[0].normal, closest_faces[1].normal):
+            raise AttributeError('The two object must have parallel adjacent faces.')
+        if GeometryOperators.is_collinear(closest_faces[0].normal, [1, 0, 0]):
+            plane = 0
+        elif GeometryOperators.is_collinear(closest_faces[0].normal, [0, 1, 0]):
+            plane = 1
+        elif GeometryOperators.is_collinear(closest_faces[0].normal, [0, 0, 1]):
+            plane = 2
+        else:
+            raise AttributeError('The two object must have the adjacent faces aligned with the main planes.')
+
+        move_vector = GeometryOperators.v_sub(closest_faces[1].center, closest_faces[0].center)
+        move_vector = GeometryOperators.v_prod(0.5, move_vector)
+
+        if port_width:
+            spiral_width = port_width
+            filling = 1.5
+        else:
+            # get face bounding box
+            face_bb = [1e15, 1e15, 1e15, -1e15, -1e15, -1e15]
+            for i in range(3):
+                for v in closest_faces[0].vertices:
+                    face_bb[i] = min(face_bb[i], v.position[i])
+                    face_bb[i+3] = max(face_bb[i+3], v.position[i])
+            # get the ratio in 2D
+            bb_dim = [abs(face_bb[i]-face_bb[i+3]) for i in range(3) if abs(face_bb[i]-face_bb[i+3]) > 1e-12]
+            bb_ratio = max(bb_dim)/min(bb_dim)
+            if bb_ratio > 2:
+                spiral_width = min(bb_dim) / 12
+                filling = -0.2828*bb_ratio**2 + 3.4141*bb_ratio - 4.197
+                print(filling)
+            else:
+                vertex_coordinates = []
+                for v in closest_faces[0].vertices:
+                    vertex_coordinates.append(v.position)
+                segments_lengths = []
+                for vc in vertex_coordinates:
+                    segments_lengths.append(GeometryOperators.points_distance(vc, closest_faces[0].center))
+                spiral_width = min(segments_lengths) / 15
+                filling = 1.5
+
+        name = generate_unique_name("P", n=3)
+
+        poly = self.modeler.create_spiral_on_face(closest_faces[0], spiral_width, filling_factor=filling)
+        poly.name = name
+        poly.translate(move_vector)
+
+        vert_position_x = []
+        vert_position_y = []
+        for vert in poly.vertices:
+            if plane == 0:
+                vert_position_x.append(vert.position[1])
+                vert_position_y.append(vert.position[2])
+            elif plane == 1:
+                vert_position_x.append(vert.position[0])
+                vert_position_y.append(vert.position[2])
+            elif plane == 2:
+                vert_position_x.append(vert.position[0])
+                vert_position_y.append(vert.position[1])
+
+        x, y = GeometryOperators.orient_polygon(vert_position_x, vert_position_y)
+
+        list_a_val = False
+        x1 = []
+        y1 = []
+        x2 = []
+        y2 = []
+        for i in range(len(x) - 1):
+            dist = GeometryOperators.points_distance([x[i], y[i], 0], [x[i + 1], y[i + 1], 0])
+            if list_a_val:
+                x1.append(x[i])
+                y1.append(y[i])
+            else:
+                x2.append(x[i])
+                y2.append(y[i])
+            if abs(dist - spiral_width) < 1e-6:
+                list_a_val = not list_a_val
+        # set the last point
+        if list_a_val:
+            x1.append(x[-1])
+            y1.append(y[-1])
+        else:
+            x2.append(x[-1])
+            y2.append(y[-1])
+
+        faces_mid_point = GeometryOperators.get_mid_point(closest_faces[1].center, closest_faces[0].center)
+
+        x1, y1 = GeometryOperators.orient_polygon(x1, y1)
+        coords = []
+        for x, y in zip(x1, y1):
+            if plane == 0:
+                coords.append([faces_mid_point[0] - closest_distance/4, x, y])
+            elif plane == 1:
+                coords.append([x, faces_mid_point[1] - closest_distance/4, y])
+            elif plane == 2:
+                coords.append([x, y, faces_mid_point[2] - closest_distance/4])
+        dx = abs(coords[0][0] - coords[1][0])
+        dy = abs(coords[0][1] - coords[1][1])
+        dz = abs(coords[0][2] - coords[1][2])
+        v1 = GeometryOperators.v_points(coords[0], coords[1])
+        v2 = GeometryOperators.v_points(coords[0], coords[2])
+        norm = GeometryOperators.v_cross(v1, v2)
+
+        if abs(norm[0]) > 1e-12:
+            if dy < dz:
+                orient = "Y"
+            else:
+                orient = "Z"
+        elif abs(norm[1]) > 1e-12:
+            if dx < dz:
+                orient = "X"
+            else:
+                orient = "Z"
+        else:
+            if dx < dy:
+                orient = "X"
+            else:
+                orient = "Y"
+        poly1 = self.modeler.create_polyline(
+            coords,
+            xsection_type="Line",
+            xsection_orient=orient,
+            xsection_width=closest_distance / 2,
+            name=start_object + "_sheet",
+        )
+        self.assign_perfecte_to_sheets(poly1, sourcename=start_object)
+
+        x2, y2 = GeometryOperators.orient_polygon(x2, y2)
+        coords = []
+        faces_mid_point = GeometryOperators.get_mid_point(closest_faces[1].center, closest_faces[0].center)
+        for x, y in zip(x2, y2):
+            if plane == 0:
+                coords.append([faces_mid_point[0] + closest_distance/4, x, y])
+            elif plane == 1:
+                coords.append([x, faces_mid_point[1] + closest_distance/4, y])
+            elif plane == 2:
+                coords.append([x, y, faces_mid_point[2] + closest_distance/4])
+        dx = abs(coords[0][0] - coords[1][0])
+        dy = abs(coords[0][1] - coords[1][1])
+        dz = abs(coords[0][2] - coords[1][2])
+        v1 = GeometryOperators.v_points(coords[0], coords[1])
+        v2 = GeometryOperators.v_points(coords[0], coords[2])
+        norm = GeometryOperators.v_cross(v1, v2)
+        if abs(norm[0]) > 1e-12:
+            if dy < dz:
+                orient = "Y"
+            else:
+                orient = "Z"
+        elif abs(norm[1]) > 1e-12:
+            if dx < dz:
+                orient = "X"
+            else:
+                orient = "Z"
+        else:
+            if dx < dy:
+                orient = "X"
+            else:
+                orient = "Y"
+        poly2 = self.modeler.create_polyline(
+            coords,
+            xsection_type="Line",
+            xsection_orient=orient,
+            xsection_width=closest_distance / 2,
+            name=end_object + "_sheet",
+        )
+
+        self.assign_perfecte_to_sheets(poly2, sourcename=end_object)
+        port = self.create_lumped_port_to_sheet(poly, reference_object_list=[poly2.name], portname=name)
+        # fmt: on
+        return port
 
     @aedt_exception_handler
     def create_voltage_source_from_objects(self, startobj, endobject, axisdir=0, sourcename=None, source_on_plane=True):
@@ -1834,7 +2051,7 @@ class Hfss(FieldAnalysis3D, object):
                 )
             else:
                 faces = self.modeler.primitives.get_object_faces(sheet_name)
-                return self._create_port_terminal(faces[0], endobject, portname, iswaveport=True)
+                return self._create_port_terminal(faces[0], endobject, portname, renorm=renorm, iswaveport=True)
         return False
 
     @aedt_exception_handler
@@ -2263,7 +2480,7 @@ class Hfss(FieldAnalysis3D, object):
                 )
             else:
                 faces = self.modeler.primitives.get_object_faces(sheet_name)
-                return self._create_port_terminal(faces[0], endobject, portname, iswaveport=True)
+                return self._create_port_terminal(faces[0], endobject, portname, renorm=renorm, iswaveport=True)
         return False
 
     @aedt_exception_handler
@@ -2847,8 +3064,12 @@ class Hfss(FieldAnalysis3D, object):
             if not faces:
                 self.logger.error("Wrong Input object. it has to be a face id or a sheet.")
                 return False
+            if not portname:
+                portname = generate_unique_name("Port")
+            elif portname in self.modeler.get_excitations_name():
+                portname = generate_unique_name(portname)
             if terminal_references:
-                return self._create_port_terminal(faces, terminal_references, portname, iswaveport=True)
+                return self._create_port_terminal(faces, terminal_references, portname, renorm=renorm, iswaveport=True)
             else:
                 self.logger.error("Reference Conductors are missed.")
                 return False
@@ -2901,23 +3122,9 @@ class Hfss(FieldAnalysis3D, object):
         ...                                  "LumpedPortFromSheet", True, False)
 
         """
-        sheet_name = self.modeler.convert_to_selections(sheet_name, True)[0]
-        if isinstance(sheet_name, int):
-            try:
-                oname = self.modeler.oeditor.GetObjectNameByFaceID(sheet_name)
-            except:
-                oname = ""
-        else:
-            oname = ""
+        sheet_name = self.modeler.convert_to_selections(sheet_name, False)
         if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
             point0, point1 = self.modeler.primitives.get_mid_points_on_dir(sheet_name, axisdir)
-
-            cond = self.get_all_conductors_names()
-            touching = self.modeler.primitives.get_bodynames_from_position(point0)
-            listcond = []
-            for el in touching:
-                if el in cond:
-                    listcond.append(el)
 
             if not portname:
                 portname = generate_unique_name("Port")
@@ -2941,7 +3148,9 @@ class Hfss(FieldAnalysis3D, object):
                 if not faces:
                     self.logger.error("Wrong Input object. it has to be a face id or a sheet.")
                     return False
-                port = self._create_port_terminal(faces, reference_object_list, portname, iswaveport=False)
+                port = self._create_port_terminal(
+                    faces, reference_object_list, portname, renorm=renorm, iswaveport=False
+                )
 
             return port
         return False
@@ -2959,7 +3168,7 @@ class Hfss(FieldAnalysis3D, object):
             "`assig_voltage_source_to_sheet` is deprecated. Use `assign_voltage_source_to_sheet` instead.",
             DeprecationWarning,
         )
-        self.assign_voltage_source_to_sheet(sheet_name, axisdir=0, sourcename=None)
+        self.assign_voltage_source_to_sheet(sheet_name, axisdir, sourcename)
 
     @aedt_exception_handler
     def assign_voltage_source_to_sheet(self, sheet_name, axisdir=0, sourcename=None):
@@ -3024,8 +3233,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        str
-            Name of the source created when successful, ``False`` otherwise.
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
 
         References
         ----------
@@ -3050,9 +3259,7 @@ class Hfss(FieldAnalysis3D, object):
                 sourcename = generate_unique_name("Current")
             elif sourcename + ":1" in self.modeler.get_excitations_name():
                 sourcename = generate_unique_name(sourcename)
-            status = self.create_source_excitation(sheet_name, point0, point1, sourcename, sourcetype="Current")
-            if status:
-                return sourcename
+            return self.create_source_excitation(sheet_name, point0, point1, sourcename, sourcetype="Current")
         return False
 
     @aedt_exception_handler
@@ -3090,7 +3297,7 @@ class Hfss(FieldAnalysis3D, object):
         <class 'pyaedt.modules.Boundary.BoundaryObject'>
 
         """
-
+        sheet_list = self.modeler.convert_to_selections(sheet_list)
         if self.solution_type in ["Modal", "Terminal", "Transient Network", "SBR+"]:
             if not sourcename:
                 sourcename = generate_unique_name("PerfE")
@@ -3317,8 +3524,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        str
-            Name of the port created when successful, ``False`` otherwise.
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
 
         References
         ----------
@@ -3356,12 +3563,9 @@ class Hfss(FieldAnalysis3D, object):
         elif port_name + ":1" in self.modeler.get_excitations_name():
             port_name = generate_unique_name(port_name)
 
-        result = self._create_circuit_port(
+        return self._create_circuit_port(
             edge_list, port_impedance, port_name, renormalize, deembed, renorm_impedance=renorm_impedance
         )
-        if result:
-            return port_name
-        return False
 
     @aedt_exception_handler
     def edit_source(self, portandmode, powerin, phase="0deg"):

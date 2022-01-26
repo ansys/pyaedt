@@ -7,6 +7,7 @@ This modules provides functionalities for the 3D Modeler, 2D Modeler,
 """
 from __future__ import absolute_import
 import os
+import warnings
 
 from collections import OrderedDict
 from pyaedt.modeler.GeometryOperators import GeometryOperators
@@ -1750,7 +1751,7 @@ class GeometryModeler(Modeler, object):
         ----------
         objid : str, int, or Object3d
             Name or ID of the object.
-        position : float
+        position : int or float
             List of the ``[x, y, z]`` coordinates or the
             Application.Position object for the selection.
         vector : float
@@ -1782,6 +1783,41 @@ class GeometryModeler(Modeler, object):
 
         self.oeditor.Mirror(vArg1, vArg2)
 
+        return True
+
+    @aedt_exception_handler
+    def move(self, objid, vector):
+        """Move objects from a list.
+
+        Parameters
+        ----------
+        objid : list, Position object
+            List of object IDs.
+        vector : list
+            Vector of the direction move. It can be a list of the ``[x, y, z]``
+            coordinates or a Position object.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.Move
+        """
+        Xvec, Yvec, Zvec = self.primitives._pos_with_arg(vector)
+        szSelections = self.convert_to_selections(objid)
+
+        vArg1 = ["NAME:Selections", "Selections:=", szSelections, "NewPartsModelFlag:=", "Model"]
+        vArg2 = ["NAME:TranslateParameters"]
+        vArg2.append("TranslateVectorX:="), vArg2.append(Xvec)
+        vArg2.append("TranslateVectorY:="), vArg2.append(Yvec)
+        vArg2.append("TranslateVectorZ:="), vArg2.append(Zvec)
+
+        if self.oeditor is not None:
+            self.oeditor.Move(vArg1, vArg2)
         return True
 
     @aedt_exception_handler
@@ -2474,6 +2510,7 @@ class GeometryModeler(Modeler, object):
 
         >>> oEditor.Move
         """
+        warnings.warn("`translate` is deprecated. Use `move` instead.", DeprecationWarning)
         Xvec, Yvec, Zvec = self.primitives._pos_with_arg(vector)
         szSelections = self.convert_to_selections(objid)
 
@@ -3422,8 +3459,8 @@ class GeometryModeler(Modeler, object):
         Returns
         -------
         list
-            List of six float values representing the bounding box
-            in the form ``[min_x, min_y, min_z, max_x, max_y, max_z]``.
+            List of three float values representing the bounding box dimensions
+            in the form ``[dim_x, dim_y, dim_z]``.
 
         References
         ----------

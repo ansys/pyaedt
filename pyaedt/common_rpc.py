@@ -4,6 +4,7 @@ import sys
 import time
 
 from pyaedt import is_ironpython
+from pyaedt.generic.general_methods import convert_remote_object
 
 if is_ironpython:
     pyaedt_path = os.path.normpath(os.path.abspath(os.path.dirname(__file__)))
@@ -16,6 +17,14 @@ import rpyc.core.consts
 
 # Maximum Stream message size. Set to 256MB
 rpyc.core.consts.STREAM_CHUNK = 256000000
+
+from pyaedt import is_ironpython
+
+if os.name == "posix" and is_ironpython:
+    import subprocessdotnet as subprocess
+else:
+    import subprocess
+    import socket
 
 
 def launch_server(port=18000, ansysem_path=None, non_graphical=False):
@@ -217,10 +226,11 @@ def client(server_name, server_port=18000, beta_options=None):
     print("Connecting to new session of Electronics Desktop on port {}. Please Wait.".format(port))
     if port:
         time.sleep(20)
-        timeout = 30
+        timeout = 60
         while timeout > 0:
             try:
                 c1 = rpyc.connect(server_name, port, config={"sync_request_timeout": None})
+                c1.convert_remote_object = convert_remote_object
                 if c1:
                     if beta_options:
                         c1._beta_options = beta_options
@@ -231,8 +241,6 @@ def client(server_name, server_port=18000, beta_options=None):
         return "Error. No connection."
     else:
         return "Error. No connection."
-    # else:
-    #    return rpyc.connect(server_name, port, config={'sync_request_timeout': None})
 
 
 def upload(localpath, remotepath, server_name, server_port=18000):
@@ -320,3 +328,54 @@ def _download_dir(remotepath, localpath, server_name, server_port=18000):
         lfn = os.path.join(localpath, fn)
         rfn = os.path.join(remotepath, fn)
         _download_file(rfn, lfn, server_name, server_port=18000)
+
+
+def launch_ironpython_server(aedt_path, non_graphical=False, port=18000, launch_client=True):
+    """Given Linux Aedt Path it will start a process in Ironpython and launch rpc server on specified port.
+
+    .. note::
+        Warning: Remote CPython to Ironpython may have some limitations.
+        Known Issues are on returned list and dict.
+        For those it is recommended to use `client.conver_remote_object` method.
+
+    Parameters
+    ----------
+    aedt_path : str
+    non_graphical : bool
+    port : int
+    launch_client : bool
+
+    Returns
+    -------
+    rpyc object.
+
+    Examples
+    --------
+    >>> from pyaedt.common_rpc import launch_ironpython_server
+    >>> client = launch_ironpython_server("/path/to/AEDT/Linux64")
+    >>> hfss = client.root.hfss()
+    >>> box = hfss.modeler.create_box([0,0,0], [1,1,1])
+    >>> my_face_list = client.convert_remote_object(box.faces)
+
+    """
+    if non_graphical:
+        val = 1
+    else:
+        val = 0
+    command = [
+        os.path.join(aedt_path, "common", "mono", "Linux64", "bin", "mono"),
+        os.path.join(aedt_path, "common", "IronPython", "ipy64.exe"),
+        os.path.join(os.path.dirname(__file__), "rpc", "local_server.py"),
+        aedt_path,
+        str(val),
+        str(port),
+    ]
+    proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=non_graphical)
+    print("Process {} started on {}".format(proc.pid, socket.getfqdn()))
+    print("Warning: Remote CPython to Ironpython may have some limitations.")
+    print("Known Issues are on returned list and dict. ")
+    print("For those it is recommended to use client.conver_remote_object method.")
+    time.sleep(5)
+    if proc and launch_client:
+        return client(server_name=socket.getfqdn(), server_port=port)
+    return False

@@ -106,6 +106,85 @@ class Maxwell(object):
         return True
 
     @aedt_exception_handler
+    def set_core_losses(self, objects, value=True):
+        """Enable/Disable core losses for a set of objects.
+        It works only on `EddyCurrent` and `Transient` solutions.
+
+        Parameters
+        ----------
+        objects : list, str
+            List of object to apply core losses to.
+        value : bool
+            Either to enable or disable core losses for given list.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.SetCoreLoss
+
+        Examples
+        --------
+        Set Core Losses in Maxwell 3d.
+
+        >>> from pyaedt import Maxwell3d
+        >>> maxwell_3d = Maxwell3d()
+        >>> maxwell_3d.set_core_losses(["PQ_Core_Bottom", "PQ_Core_Top"], True)
+
+        """
+        if self.solution_type in ["EddyCurrent", "Transient"]:
+            objects = self.modeler.convert_to_selections(objects, True)
+            self.oboundary.SetCoreLoss(objects, value)
+            return True
+        else:
+            raise Exception("Core losses is only available with `EddyCurrent` and `Transient` solutions.")
+        return False
+
+    @aedt_exception_handler
+    def assign_matrix(self, objects, matrix_name=None):
+        """Assign a Matrix to the selection.
+
+        Parameters
+        ----------
+        objects : list, str
+            List of objects to apply core losses.
+        matrix_name : str, optional
+            Boundary condition name.
+
+        Returns
+        -------
+        str
+            The matrix name when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.AssignMatrix
+
+        Examples
+        --------
+        Set Matrix in Maxwell 3d analysis.
+
+        >>> from pyaedt import Maxwell3d
+        >>> maxwell_3d = Maxwell3d()
+        >>> maxwell_3d.assign_matrix(["pri", "sec"])
+        """
+        if self.solution_type in ["EddyCurrent", "Magnetostatic"]:
+            objects = self.modeler._convert_list_to_ids(objects, True)
+            if not matrix_name:
+                matrix_name = generate_unique_name("Matrix")
+            args = ["NAME:" + matrix_name, ["NAME:MatrixEntry"]]
+            for object in objects:
+                args[1].append(["NAME:MatrixEntry", "Source:=", object])
+            self.o_maxwell_parameters.AssignMatrix(args)
+            return matrix_name
+        return False
+
+    @aedt_exception_handler
     def setup_ctrlprog(
         self, setupname, file_str=None, keep_modifications=False, python_interpreter=None, aedt_lib_dir=None
     ):
@@ -1159,18 +1238,32 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
     def xy_plane(self, value=True):
         self.design_solutions.xy_plane = value
 
-    @aedt_exception_handler
-    def get_model_depth(self):
+    @property
+    def model_depth(self):
         """Get model depth."""
+
         if "ModelDepth" in self.design_properties:
             value_str = self.design_properties["ModelDepth"]
             try:
                 a = float_units(value_str)
             except:
                 a = self.variable_manager[value_str].value
-            return a
+            finally:
+                return a
         else:
             return None
+
+    @model_depth.setter
+    def model_depth(self, value):
+        """Set model depth."""
+
+        self.odesign.SetDesignSettings(
+            [
+                "NAME:Design Settings Data",
+                "ModelDepth:=",
+                value,
+            ]
+        )
 
     @aedt_exception_handler
     def generate_design_data(self, linefilter=None, objectfilter=None):
@@ -1204,7 +1297,6 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
             solid_ids = [i for i, j in self.modeler.primitives.object_id_dict.items() if j.name in objectfilter]
         else:
             solid_ids = [i for i in list(self.modeler.primitives.object_id_dict.keys())]
-        model_depth = self.get_model_depth()
         self.design_data = {
             "Project Directory": self.project_path,
             "Working Directory": self.working_directory,
@@ -1213,7 +1305,7 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
             "GeoMode": self.geometry_mode,
             "ModelUnits": self.modeler.model_units,
             "Symmetry": self.symmetry_multiplier,
-            "ModelDepth": model_depth,
+            "ModelDepth": self.model_depth,
             "ObjectList": solid_ids,
             "LineList": self.modeler.vertex_data_of_lines(linefilter),
             "VarList": self.variable_manager.variable_names,

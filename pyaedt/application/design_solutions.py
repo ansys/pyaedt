@@ -8,7 +8,7 @@ solutions_defaults = {
     "Circuit Design": "NexximLNA",
     "2D Extractor": "Open",
     "Q3D Extractor": "Q3D Extractor",
-    "HFSS": "Modal",
+    "HFSS": "HFSS Modal Network",
     "Icepak": "SteadyState",
     "RMxprtSolution": "GRM",
     "ModelCreation": "GRM",
@@ -258,14 +258,14 @@ solutions_types = {
     },
     "HFSS": {
         "Modal": {
-            "name": "DrivenModal",
+            "name": "HFSS Modal Network",
             "options": None,
             "report_type": "Modal Solution Data",
             "default_setup": 1,
             "default_adaptive": "LastAdaptive",
         },
         "Terminal": {
-            "name": "DrivenTerminal",
+            "name": "HFSS Hybrid Terminal Network",
             "options": None,
             "report_type": "Terminal Solution Data",
             "default_setup": 1,
@@ -285,8 +285,15 @@ solutions_types = {
             "default_setup": 1,
             "default_adaptive": "LastAdaptive",
         },
-        "Transient": {
+        "Transient Network": {
             "name": "Transient Network",
+            "options": None,
+            "report_type": "Terminal Solution Data",
+            "default_setup": 3,
+            "default_adaptive": "Transient",
+        },
+        "Transient": {
+            "name": "Transient",
             "options": None,
             "report_type": "Terminal Solution Data",
             "default_setup": 3,
@@ -463,12 +470,15 @@ class DesignSolution(object):
     @property
     def solution_type(self):
         """Get/Set the Solution Type of the active Design."""
-        if self._odesign and "GetSolutionType" in dir(self._odesign):
-            self._solution_type = self._odesign.GetSolutionType()
-            if "Modal" in self._solution_type:
-                self._solution_type = "Modal"
-            elif "Terminal" in self._solution_type:
-                self._solution_type = "Terminal"
+        if self._odesign:
+            try:
+                self._solution_type = self._odesign.GetSolutionType()
+                if "Modal" in self._solution_type:
+                    self._solution_type = "Modal"
+                elif "Terminal" in self._solution_type:
+                    self._solution_type = "Terminal"
+            except:
+                self._solution_type = solutions_defaults[self._design_type]
         elif self._solution_type is None:
             self._solution_type = solutions_defaults[self._design_type]
         return self._solution_type
@@ -477,12 +487,15 @@ class DesignSolution(object):
     @aedt_exception_handler
     def solution_type(self, value):
         if value is None:
-            if self._odesign and "GetSolutionType" in dir(self._odesign):
-                self._solution_type = self._odesign.GetSolutionType()
-                if "Modal" in self._solution_type:
-                    self._solution_type = "Modal"
-                elif "Terminal" in self._solution_type:
-                    self._solution_type = "Terminal"
+            if self._odesign:
+                try:
+                    self._solution_type = self._odesign.GetSolutionType()
+                    if "Modal" in self._solution_type:
+                        self._solution_type = "Modal"
+                    elif "Terminal" in self._solution_type:
+                        self._solution_type = "Terminal"
+                except:
+                    self._solution_type = solutions_defaults[self._design_type]
             else:
                 self._solution_type = solutions_defaults[self._design_type]
         elif value and value in self._solution_options and self._solution_options[value]["name"]:

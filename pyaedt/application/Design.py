@@ -35,27 +35,10 @@ from pyaedt.generic.general_methods import aedt_exception_handler, write_csv
 from pyaedt.generic.DataHandlers import variation_string_to_dict
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.generic.general_methods import generate_unique_name
-
+from pyaedt.application.design_solutions import model_names, solutions_defaults
 
 if sys.version_info.major > 2:
     import base64
-
-
-model_names = {
-    "Maxwell 2D": "Maxwell2DModel",
-    "Maxwell 3D": "Maxwell3DModel",
-    "Twin Builder": "SimplorerCircuit",
-    "Circuit Design": "NexximCircuit",
-    "2D Extractor": "2DExtractorModel",
-    "Q3D Extractor": "Q3DModel",
-    "HFSS": "HFSSModel",
-    "Mechanical": "MechanicalModel",
-    "Icepak": "IcepakModel",
-    "RMxprtSolution": "RMxprtDesign",
-    "ModelCreation": "RMxprtDesign",
-    "HFSS 3D Layout Design": "PlanarEMCircuit",
-    "EMIT Design": "EMIT Design",
-}
 
 
 def list_difference(list1, list2):
@@ -485,6 +468,8 @@ class Design(object):
         """
         return self._logger
 
+    # TODO Project Properties are set at the beginning
+    # but after they are never updated along the different project steps.
     @property
     def project_properies(self):
         """Project properties.
@@ -896,10 +881,7 @@ class Design(object):
            Default for the solution type.
 
         """
-        if self.design_solutions._solution_options[self.design_solutions.solution_types[0]]["name"]:
-            return self.design_solutions._solution_options[self.design_solutions.solution_types[0]]["name"]
-        else:
-            return self.design_solutions.solution_types[0]
+        return solutions_defaults[self._design_type]
 
     @property
     def odesign(self):
@@ -2561,7 +2543,12 @@ class Design(object):
                 "RMxprt", unique_design_name, "Model Creation Inner-Rotor Induction Machine", ""
             )
         else:
-            new_design = self._oproject.InsertDesign(design_type, unique_design_name, self.default_solution_type, "")
+            if design_type == "HFSS" and self._aedt_version < "2021.2":
+                new_design = self._oproject.InsertDesign(design_type, unique_design_name, "DrivenModal", "")
+            else:
+                new_design = self._oproject.InsertDesign(
+                    design_type, unique_design_name, self.default_solution_type, ""
+                )
         logging.getLogger().info("Added design '%s' of type %s.", unique_design_name, design_type)
         name = new_design.GetName()
         if ";" in name:
@@ -2855,6 +2842,7 @@ class Design(object):
         else:
             self.oproject.Save()
         if refresh_obj_ids_after_save:
+            self.modeler.refresh_all_ids()
             self.modeler.primitives._refresh_all_ids_from_aedt_file()
         return True
 

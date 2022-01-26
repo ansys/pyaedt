@@ -178,18 +178,71 @@ class SimplorerComponents(CircuitComponents):
         )
 
         id.set_property("C", value)
+        id.set_property("UseInitialConditions", True)
         return id
 
     @aedt_exception_handler
-    def create_diode(self, compname=None, model_name="required", location=[], angle=0, use_instance_id_netlist=False):
+    def create_voltage_source(
+        self, compname=None, type="E", amplitude=326, freq=50, location=[], angle=0, use_instance_id_netlist=False
+    ):
+        """Create a voltage source.
+
+        Parameters
+        ----------
+        compname : str, optional
+            Name of the voltage source. The default is ``None``.
+        type  : str, optional
+            Type of the source. The default is ``E``.
+        amplitude : float, optional
+            Amplitude of the waveform if periodic. The default is ``326V``
+        freq : float, optional
+            Frequency of the periodic waveform. The default is ``50Hz``.
+        location : list of float, optional
+            Position on the X axis and Y axis.
+        angle : float, optional
+            Angle of rotation in degrees. The default is ``0``.
+        use_instance_id_netlist : bool, optional
+            Whether to use the instance ID in the net list or not. The default is ``False``.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+            Circuit Component Object.
+
+        References
+        ----------
+
+        >>> oEditor.CreateComponent
+        """
+        id = self.create_component(
+            compname,
+            component_library="Basic Elements\\Circuit\\Sources",
+            component_name="E",
+            location=location,
+            angle=angle,
+            use_instance_id_netlist=use_instance_id_netlist,
+        )
+
+        id.set_property("Type", type)
+
+        if type == "E":
+            id.set_property("EMF", amplitude)
+        if type == "ESINE" or type == "EPULSE" or type == "ETRIANG":
+            id.set_property("AMPL", amplitude)
+            id.set_property("FREQ", freq)
+            id.set_property("TPERIO", "Tend+1")
+            id.set_property("PERIO", 1)
+
+        return id
+
+    @aedt_exception_handler
+    def create_diode(self, compname=None, location=[], angle=0, use_instance_id_netlist=False):
         """Create a diode.
 
         Parameters
         ----------
         compname : str, optional
             Name of the diode. The default is ``None``.
-        model_name : str, optional
-            Name of the model. The default is ``"required"``.
         location : list of float, optional
             Position on the X axis and Y axis.
         angle : float, optional

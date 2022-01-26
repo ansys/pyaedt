@@ -716,7 +716,6 @@ class Object3d(object):
         self._primitives = primitives
         self.flags = ""
         self._part_coordinate_system = "Global"
-        self._bounding_box = None
         self._material_name = None
         self._transparency = None
         self._solve_inside = None
@@ -747,6 +746,29 @@ class Object3d(object):
         >>> oEditor.GetModelBoundingBox
 
         """
+        if self._primitives._app._aedt_version >= "2021.2":
+            model_obj = self._primitives._app.post.export_model_obj(
+                obj_list=[self.name], export_path=None, export_as_single_objects=True, air_objects=True
+            )
+            if model_obj:
+                x = []
+                y = []
+                z = []
+                with open(model_obj[0][0], "r") as f:
+                    lines = f.read().splitlines()
+                    for line in lines:
+                        l = line.split(" ")
+                        if l[0] and l[0] == "v" and len(l) > 3:
+                            x.append(float(l[1]))
+                            y.append(float(l[2]))
+                            z.append(float(l[3]))
+                bounds = [min(x), min(y), min(z), max(x), max(y), max(z)]
+                if os.path.exists(model_obj[0][0]):
+                    try:
+                        os.remove(model_obj[0][0])
+                    except:
+                        pass
+                return bounds
         objs_to_unmodel = [
             val.name for i, val in self._primitives.objects.items() if val.model and val.name != self.name
         ]
@@ -763,7 +785,32 @@ class Object3d(object):
             self._odesign.Undo()
         if not modeled:
             self._odesign.Undo()
+        self._primitives._app.odesktop.ClearMessages(
+            self._primitives._app.project_name, self._primitives._app.design_name, 1
+        )
         return bounding
+
+    @property
+    def bounding_dimension(self):
+        """Retrieve the dimension array of the bounding box.
+
+        Returns
+        -------
+        list
+            List of three float values representing the bounding box dimensions
+            in the form ``[dim_x, dim_y, dim_z]``.
+
+        References
+        ----------
+
+        >>> oEditor.GetModelBoundingBox
+        """
+        oBoundingBox = self.bounding_box
+        dimensions = []
+        dimensions.append(abs(float(oBoundingBox[0]) - float(oBoundingBox[3])))
+        dimensions.append(abs(float(oBoundingBox[1]) - float(oBoundingBox[4])))
+        dimensions.append(abs(float(oBoundingBox[2]) - float(oBoundingBox[5])))
+        return dimensions
 
     @property
     def _odesign(self):
@@ -2700,7 +2747,7 @@ class CircuitComponent(object):
 
 
 class Objec3DLayout(object):
-    """Manages properties of objects in HFSS 3D Lauout.
+    """Manages properties of objects in HFSS 3D Layout.
 
     Parameters
     -----------

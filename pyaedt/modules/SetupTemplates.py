@@ -12,7 +12,7 @@ muoption = [("MuNonLinearBH", True)]
 transientelectrostatic = [("SaveField", True), ("Stop", "100s"), ("InitialStep", "0.01s"), ("MaxStep", "5s")]
 transienthfss = [
     ("TimeProfile", "Broadband Pulse"),
-    ("HfssFrequency", "1GHz"),
+    ("HfssFrequency", "5GHz"),
     ("MinFreq", "100MHz"),
     ("MaxFreq", "1GHz"),
     ("NumFreqsExtracted", 401),

@@ -93,6 +93,11 @@ class TestClass:
         bb = o.bounding_box
         assert len(bb) == 6
 
+    def test_01_bounding_dimension(self):
+        o = self.create_copper_box()
+        bd = o.bounding_dimension
+        assert len(bd) == 3
+
     def test_01_delete_object(self):
         o = self.create_copper_box("DeleteBox")
         name = o.name

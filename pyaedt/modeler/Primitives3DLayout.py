@@ -1,5 +1,6 @@
 import sys
 import warnings
+import os
 
 from pyaedt.generic.general_methods import aedt_exception_handler, is_ironpython
 from pyaedt.modeler.Object3d import Padstack, Components3DLayout, Geometries3DLayout, Pins3DLayout, Nets3DLayout, _uname
@@ -14,7 +15,8 @@ try:
     from System import String
     import System
 except ImportError:
-    warnings.warn("Pythonnet has to be installed to run Pyaedt")
+    if os.name != "posix":
+        warnings.warn("Pythonnet has to be installed to run Pyaedt")
 
 
 class Primitives3DLayout(object):

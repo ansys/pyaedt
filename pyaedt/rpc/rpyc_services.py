@@ -7,12 +7,14 @@ import site
 import sys
 from pyaedt import generate_unique_name
 from pyaedt.generic.general_methods import env_path
+
 from pyaedt import is_ironpython
 
-if is_ironpython:
+if os.name == "posix" and is_ironpython:
     import subprocessdotnet as subprocess
 else:
     import subprocess
+
 import rpyc
 from rpyc import ThreadedServer
 
