@@ -2546,8 +2546,9 @@ class Design(object):
             if design_type == "HFSS" and self._aedt_version < "2021.2":
                 new_design = self._oproject.InsertDesign(design_type, unique_design_name, "DrivenModal", "")
             else:
-                new_design = self._oproject.InsertDesign(design_type, unique_design_name, self.default_solution_type,
-                                                         "")
+                new_design = self._oproject.InsertDesign(
+                    design_type, unique_design_name, self.default_solution_type, ""
+                )
         logging.getLogger().info("Added design '%s' of type %s.", unique_design_name, design_type)
         name = new_design.GetName()
         if ";" in name:
