@@ -288,7 +288,7 @@ class Edb(object):
                 clr.AddReferenceToFile("DataModel.dll")
             else:
                 clr.AddReference("EdbLib")
-                clr.AddReferenceToFile("DataModel")
+                clr.AddReference("DataModel")
             self._edblib = __import__("EdbLib")
             dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib")
             try:
