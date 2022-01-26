@@ -149,6 +149,6 @@ To bypass current IronPython limits, you can launch PyAEDT on a Linux machine:
     faces = client.convert_remote_object(box1.faces)
 
 
-.. image:: Resources/IronPython2Cpython.png
+.. image:: /Resources/IronPython2Cpython.png
   :width: 800
   :alt: Electronics Desktop Launched

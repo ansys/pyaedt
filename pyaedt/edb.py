@@ -271,10 +271,6 @@ class Edb(object):
         oaDirectory = os.path.join(self.base_path, "common", "oa")
         os.environ["ANSYS_OADIR"] = oaDirectory
         os.environ["PATH"] = "{};{}".format(os.environ["PATH"], self.base_path)
-        os.environ["LD_LIBRARY_PATH"] = "{};{}".format(
-            os.environ["LD_LIBRARY_PATH"], os.path.join(os.path.dirname(__file__), "dlls", "EDBLib")
-        )
-        os.environ["LD_LIBRARY_PATH"] = "{};{}".format(os.environ["LD_LIBRARY_PATH"], oaDirectory)
         edb = __import__("Ansys.Ansoft.Edb")
         self.edb = edb.Ansoft.Edb
         edbbuilder = __import__("Ansys.Ansoft.EdbBuilderUtils")
