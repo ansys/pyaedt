@@ -8,7 +8,7 @@ solutions_defaults = {
     "Circuit Design": "NexximLNA",
     "2D Extractor": "Open",
     "Q3D Extractor": "Q3D Extractor",
-    "HFSS": "Modal",
+    "HFSS": "DrivenModal",
     "Icepak": "SteadyState",
     "RMxprtSolution": "GRM",
     "ModelCreation": "GRM",
