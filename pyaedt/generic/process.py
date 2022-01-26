@@ -1,14 +1,11 @@
 import os
 import os.path
-import warnings
 
 from pyaedt.generic.general_methods import env_path
+from pyaedt import is_ironpython
 
-if os.name == "posix":
-    try:
-        import subprocessdotnet as subprocess
-    except:
-        warnings.warn("Pythonnet is needed to run pyaedt within Linux")
+if os.name == "posix" and is_ironpython:
+    import subprocessdotnet as subprocess
 else:
     import subprocess
 

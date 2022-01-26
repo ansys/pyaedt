@@ -260,7 +260,8 @@ class Primitives2D(Primitives, object):
         ----------
         pad_percent : float or list of float, default=300
             If float, use padding in per-cent for all dimensions
-            If list, then interpret as adding for  ``["+X", "+Y", "-X", "-Y"]``.
+            If list, then interpret as adding for  ``["+X", "+Y", "-X", "-Y"]`` or
+            ``["+R", "+Z", "-R", "-Z"]`` depending if the solution is XY or RZ.
 
         Returns
         -------
@@ -272,9 +273,17 @@ class Primitives2D(Primitives, object):
         >>> oEditor.CreateRegion
 
         """
-        # TODO handle RZ!!
         if is_number(pad_percent):
-            pad_percent = [pad_percent, pad_percent, 0, pad_percent, pad_percent, 0]
+            if self._app.xy_plane:
+                pad_percent = [pad_percent, pad_percent, 0, pad_percent, pad_percent, 0]
+            else:
+                pad_percent = [pad_percent, 0, pad_percent, pad_percent, 0, pad_percent]
+
         else:
-            pad_percent = [pad_percent[0], pad_percent[1], 0, pad_percent[2], pad_percent[3], 0]
+            if self._app.xy_plane:
+                pad_percent = [pad_percent[0], pad_percent[1], 0, pad_percent[2], pad_percent[3], 0]
+
+            else:
+                pad_percent = [pad_percent[0], 0, pad_percent[1], pad_percent[2], 0, pad_percent[3]]
+
         return Primitives.create_region(self, pad_percent)

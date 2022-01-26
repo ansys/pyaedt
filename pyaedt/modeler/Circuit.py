@@ -55,6 +55,17 @@ class ModelerCircuit(Modeler):
         return self.oeditor.GetModelBoundingBox()
 
     @aedt_exception_handler
+    def zoom_to_fit(self):
+        """Zoom To Fit.
+
+        References
+        ----------
+
+        >>> oEditor.ZoomToFit
+        """
+        self.oeditor.ZoomToFit()
+
+    @aedt_exception_handler
     def connect_schematic_components(self, firstcomponent, secondcomponent, pinnum_first=2, pinnum_second=1):
         """Connect schematic components.
 

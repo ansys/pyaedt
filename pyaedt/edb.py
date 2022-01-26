@@ -4,7 +4,6 @@ This module is implicitily loaded in HFSS 3D Layout when launched.
 
 """
 import gc
-import os
 import sys
 import time
 import traceback
@@ -14,16 +13,17 @@ import tempfile
 import datetime
 import logging
 import re
+import os
 
 try:
     import clr
     from System.Collections.Generic import List
 except ImportError:
-    warnings.warn("Pythonnet is needed to run pyaedt")
+    if os.name != "posix":
+        warnings.warn("Pythonnet is needed to run pyaedt")
 from pyaedt.application.MessageManager import AEDTMessageManager
 from pyaedt.edb_core import Components, EdbNets, EdbPadstacks, EdbLayout, EdbHfss, EdbSiwave, EdbStackup
 from pyaedt.edb_core.EDB_Data import EdbBuilder
-from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import (
     aedt_exception_handler,
     env_path,
@@ -37,11 +37,8 @@ from pyaedt.aedt_logger import AedtLogger
 from pyaedt.generic.process import SiwaveSolve
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 
-if os.name == "posix":
-    try:
-        import subprocessdotnet as subprocess
-    except:
-        warnings.warn("Pythonnet is needed to run pyaedt within Linux")
+if os.name == "posix" and is_ironpython:
+    import subprocessdotnet as subprocess
 else:
     import subprocess
 try:
@@ -50,10 +47,11 @@ try:
 
     edb_initialized = True
 except ImportError:
-    warnings.warn(
-        "The clr is missing. Install Python.NET or use an IronPython version if you want to use the EDB module."
-    )
-    edb_initialized = False
+    if os.name != "posix":
+        warnings.warn(
+            "The clr is missing. Install Python.NET or use an IronPython version if you want to use the EDB module."
+        )
+        edb_initialized = False
 
 
 class Edb(object):
@@ -221,6 +219,19 @@ class Edb(object):
         :class:`pyaedt.aedt_logger.AedtLogger`
         """
         return self._logger
+
+    @property
+    def cell_names(self):
+        """Cell name container.
+        Returns
+        -------
+        list of str
+            List of Cell names.
+        """
+        names = []
+        for cell in list(self._db.TopCircuitCells):
+            names.append(cell.GetName())
+        return names
 
     @aedt_exception_handler
     def _init_dlls(self):

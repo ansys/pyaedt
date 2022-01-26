@@ -1,8 +1,10 @@
 """This module contains the `Components` class.
 
 """
+import math
 import re
 import warnings
+import os
 
 from pyaedt import generate_unique_name, _retry_ntimes
 from pyaedt.edb_core.general import convert_py_list_to_net_list
@@ -17,7 +19,8 @@ try:
     clr.AddReference("System")
     from System import String
 except ImportError:
-    warnings.warn("This module requires PythonNet.")
+    if os.name != "posix":
+        warnings.warn("This module requires PythonNet.")
 
 
 def resistor_value_parser(RValue):
@@ -380,6 +383,99 @@ class Components(object):
         return cmp_list
 
     @aedt_exception_handler
+    def _get_edb_pin_from_pin_name(self, cmp, pin):
+        if not isinstance(cmp, self._edb.Cell.Hierarchy.Component):
+            return False
+        if not isinstance(pin, str):
+            pin = pin.GetName()
+        pins = self.get_pin_from_component(component=cmp, pinName=pin)
+        if pins:
+            return pins[0]
+        return False
+
+    @aedt_exception_handler
+    def get_component_placement_vector(
+        self,
+        mounted_component,
+        hosting_component,
+        mounted_component_pin1=None,
+        mounted_component_pin2=None,
+        hosting_component_pin1=None,
+        hosting_component_pin2=None,
+    ):
+        """Get the placement vector between 2 components.
+
+        Parameters
+        ----------
+        mounted_component : str
+            Mounted component name.
+        hosting_component : str
+            Hosting component name.
+        mounted_component_pin1 : str
+            Mounted component Pin 1 name.
+        mounted_component_pin2 : str
+            Mounted component Pin 2 name.
+        hosting_component_pin1 : str
+            Hosted component Pin 1 name.
+        hosting_component_pin2 : str
+            Hosted component Pin 2 name.
+
+        Returns
+        -------
+        tuple
+            Tuple of Vector offset, rotation and solder height.
+
+        Examples
+        --------
+        >>> edb1 = Edb(edbpath=targetfile1,  edbversion="2021.2")
+        >>> hosting_cmp = edb1.core_components.get_component_by_name("U100")
+        >>> mounted_cmp = edb2.core_components.get_component_by_name("BGA")
+        >>> vector, rotation, solder_ball_height = edb1.core_components.get_component_placement_vector(
+        ...                                             mounted_component=mounted_cmp,
+        ...                                             hosting_component=hosting_cmp,
+        ...                                             mounted_component_pin1="A12",
+        ...                                             mounted_component_pin2="A14",
+        ...                                             hosting_component_pin1="A12",
+        ...                                             hosting_component_pin2="A14")
+        """
+        m_pin1_pos = [0.0, 0.0]
+        m_pin2_pos = [0.0, 0.0]
+        h_pin1_pos = [0.0, 0.0]
+        h_pin2_pos = [0.0, 0.0]
+        if not isinstance(mounted_component, self._edb.Cell.Hierarchy.Component):
+            return False
+        if not isinstance(hosting_component, self._edb.Cell.Hierarchy.Component):
+            return False
+        if mounted_component_pin1:
+            m_pin1 = self._get_edb_pin_from_pin_name(mounted_component, mounted_component_pin1)
+            m_pin1_pos = self.get_pin_position(m_pin1)
+        if mounted_component_pin2:
+            m_pin2 = self._get_edb_pin_from_pin_name(mounted_component, mounted_component_pin2)
+            m_pin2_pos = self.get_pin_position(m_pin2)
+        if hosting_component_pin1:
+            h_pin1 = self._get_edb_pin_from_pin_name(hosting_component, hosting_component_pin1)
+            h_pin1_pos = self.get_pin_position(h_pin1)
+        if hosting_component_pin2:
+            h_pin2 = self._get_edb_pin_from_pin_name(hosting_component, hosting_component_pin2)
+            h_pin2_pos = self.get_pin_position(h_pin2)
+        vector = [h_pin1_pos[0] - m_pin1_pos[0], h_pin1_pos[1] - m_pin1_pos[1]]
+        d_m_pin1_h_pin2 = math.sqrt(
+            math.pow(h_pin2_pos[0] - m_pin1_pos[0], 2) + math.pow(h_pin2_pos[1] - m_pin1_pos[1], 2)
+        )
+        d_m_pin2_h_pin2 = math.sqrt(
+            math.pow(h_pin2_pos[0] - m_pin2_pos[0], 2) + math.pow(h_pin2_pos[1] - m_pin2_pos[1], 2)
+        )
+        rotation = math.atan(d_m_pin2_h_pin2 / d_m_pin1_h_pin2)
+        if vector:
+            solder_ball_height = self.get_solder_ball_height(mounted_component)
+            if solder_ball_height == 0.0:
+                solder_ball_height = 150e-6
+            # mounted_component_name = mounted_component.GetName()
+            self.set_solder_ball(component=mounted_component, sball_height=solder_ball_height)
+            return True, vector, rotation, solder_ball_height
+        return False
+
+    @aedt_exception_handler
     def get_solder_ball_height(self, cmp):
         """Get component solder ball height.
 
@@ -591,64 +687,6 @@ class Components(object):
             self._active_layout, pingroup.GetNet(), term_name, pingroup, isref
         )
         return pingroup_term
-
-    @aedt_exception_handler
-    def set_solder_ball(self, cmp, sball_height=100e-6, sball_diam=150e-6):
-        """Define component solder ball ready for port assignment.
-
-        Parameters
-        ----------
-        cmp : str or self._edb.Cell.Hierarchy.Component
-            Edb component or str component name..
-        sball_height : str or double
-            Solder balls height value.
-        sball_diam : str or double
-            Solder balls diameter value.
-        orientation : FlipChipOrientation
-            Gives the orientation for flip chip (only applied on IC component).
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        Examples
-        --------
-
-        >>> from pyaedt import Edb
-        >>> edbapp = Edb("myaedbfolder")
-        >>> set_solder_ball = edbapp.core_components.set_solder_ball("A1")
-
-        """
-        if cmp is not None:
-            if not (isinstance(cmp, self._edb.Cell.Hierarchy.Component)):
-                cmp = self.get_component_by_name(cmp)
-            cmp_prop = cmp.GetComponentProperty().Clone()
-            cmp_type = cmp.GetComponentType()
-            if cmp_type == self._edb.Definition.ComponentType.IC:
-                die_prop = cmp_prop.GetDieProperty().Clone()
-                if self._is_top_component(cmp):
-                    die_prop.SetOrientation(self._edb.Definition.DieOrientation.ChipDown)
-                else:
-                    die_prop.SetOrientation(self._edb.Definition.DieOrientation.ChipUp)
-                if not cmp_prop.SetDieProperty(die_prop):
-                    return False
-            solder_prop = cmp_prop.GetSolderBallProperty().Clone()
-            if not solder_prop.SetDiameter(self._edb_value(sball_diam), self._edb_value(sball_diam)):
-                return False
-            if not solder_prop.SetHeight(self._edb_value(sball_height)):
-                return False
-            if not cmp_prop.SetSolderBallProperty(solder_prop):
-                return False
-
-            port_prop = cmp_prop.GetPortProperty().Clone()
-            port_prop.SetReferenceSizeAuto(True)
-            cmp_prop.SetPortProperty(port_prop)
-            if not cmp.SetComponentProperty(cmp_prop):
-                return False
-
-            return True
-        else:
-            return False
 
     @aedt_exception_handler
     def _is_top_component(self, cmp):
@@ -955,12 +993,12 @@ class Components(object):
         return False
 
     @aedt_exception_handler
-    def set_solder_ball(self, componentname="", sball_diam="100um", sball_height="150um"):
+    def set_solder_ball(self, component="", sball_diam="100um", sball_height="150um"):
         """Set cylindrical solder balls on a given component.
 
         Parameters
         ----------
-        componentname : str
+        componentname : str or EDB component
             Name of the discret component.
 
         sball_diam  : str, float
@@ -982,7 +1020,10 @@ class Components(object):
         >>> edbapp.core_components.set_solder_ball("A1")
 
         """
-        edb_cmp = self.get_component_by_name(componentname)
+        if not isinstance(component, self._edb.Cell.Hierarchy.Component):
+            edb_cmp = self.get_component_by_name(component)
+        else:
+            edb_cmp = component
         if edb_cmp:
             cmp_type = edb_cmp.GetComponentType()
             if cmp_type == self._edb.Definition.ComponentType.IC:
@@ -1016,6 +1057,17 @@ class Components(object):
                 io_cmp_prop.SetPortProperty(io_port_prop)
                 edb_cmp.SetComponentProperty(io_cmp_prop)
                 return True
+            elif cmp_type == self._edb.Definition.ComponentType.Other:
+                other_cmp_prop = edb_cmp.GetComponentProperty().Clone()
+                other_solder_ball_prop = other_cmp_prop.GetSolderBallProperty().Clone()
+                other_solder_ball_prop.SetDiameter(self._edb_value(sball_diam), self._edb_value(sball_diam))
+                other_solder_ball_prop.SetHeight(self._edb_value(sball_height))
+                other_solder_ball_prop.SetShape(self._edb.Definition.SolderballShape.Cylinder)
+                other_cmp_prop.SetSolderBallProperty(other_solder_ball_prop)
+                other_port_prop = other_cmp_prop.GetPortProperty().Clone()
+                other_port_prop.SetReferenceSizeAuto(True)
+                other_cmp_prop.SetPortProperty(other_port_prop)
+                edb_cmp.SetComponentProperty(other_port_prop)
             else:
                 return False
         else:
@@ -1152,13 +1204,13 @@ class Components(object):
         return found
 
     @aedt_exception_handler
-    def get_pin_from_component(self, cmpName, netName=None, pinName=None):
+    def get_pin_from_component(self, component, netName=None, pinName=None):
         """Retrieve the pins of a component.
 
         Parameters
         ----------
-        cmpName : str
-            Name of the component.
+        component : str or EDB component
+            Name of the component or the EDB component object.
         netName : str, optional
             Filter on the net name as an alternative to
             ``pinName``. The default is ``None``.
@@ -1179,8 +1231,8 @@ class Components(object):
         >>> edbapp.core_components.get_pin_from_component("R1", refdes)
 
         """
-
-        cmp = self._edb.Cell.Hierarchy.Component.FindByName(self._active_layout, cmpName)
+        if not isinstance(component, self._edb.Cell.Hierarchy.Component):
+            component = self._edb.Cell.Hierarchy.Component.FindByName(self._active_layout, component)
         if netName:
             if not isinstance(netName, list):
                 netName = [netName]
@@ -1194,7 +1246,7 @@ class Components(object):
             #                pins.append(p)
             pins = [
                 p
-                for p in list(cmp.LayoutObjs)
+                for p in list(component.LayoutObjs)
                 if int(p.GetObjType()) == 1 and p.IsLayoutPin() and p.GetNet().GetName() in netName
             ]
         elif pinName:
@@ -1202,13 +1254,13 @@ class Components(object):
                 pinName = [pinName]
             pins = [
                 p
-                for p in list(cmp.LayoutObjs)
+                for p in list(component.LayoutObjs)
                 if int(p.GetObjType()) == 1
                 and p.IsLayoutPin()
                 and (self.get_aedt_pin_name(p) == str(pinName) or p.GetName() in str(pinName))
             ]
         else:
-            pins = [p for p in list(cmp.LayoutObjs) if int(p.GetObjType()) == 1 and p.IsLayoutPin()]
+            pins = [p for p in list(component.LayoutObjs) if int(p.GetObjType()) == 1 and p.IsLayoutPin()]
         return pins
 
     @aedt_exception_handler

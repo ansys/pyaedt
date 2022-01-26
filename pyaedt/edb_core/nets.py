@@ -15,11 +15,9 @@ if not is_ironpython:
         from matplotlib.path import Path
         from matplotlib.patches import PathPatch
     except ImportError:
-        if not is_ironpython:
-            mess = "The Matplotlib module is required to run some functionalities.\n"
-            mess += "Install with \npip install matplotlib"
-            warnings.warn(mess)
-        pass
+        mess = "The Matplotlib module is required to run some functionalities.\n"
+        mess += "Install with \npip install matplotlib"
+        warnings.warn(mess)
     except:
         pass
 
@@ -490,7 +488,7 @@ class EdbNets(object):
 
             comp_partname = self._pedb.core_components._cmp[refdes].partname
             el.append(comp_partname)
-            pins = self._pedb.core_components.get_pin_from_component(cmpName=refdes, netName=el[2])
+            pins = self._pedb.core_components.get_pin_from_component(component=refdes, netName=el[2])
             el.append("-".join([i.GetName() for i in pins]))
 
         component_list_columns = ["refdes", "pin_name", "net_name", "component_type", "component_partname", "pin_list"]

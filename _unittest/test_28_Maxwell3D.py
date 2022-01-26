@@ -1,5 +1,5 @@
 # Setup paths for module imports
-from _unittest.conftest import scratch_path
+from _unittest.conftest import scratch_path, local_path
 import os
 
 # Import required modules
@@ -21,6 +21,9 @@ class TestClass:
         # set a scratch directory and the environment / test data
         with Scratch(scratch_path) as self.local_scratch:
             self.aedtapp = Maxwell3d(solution_type="EddyCurrent")
+            core_loss_file = "PlanarTransformer.aedt"
+            example_project = os.path.join(local_path, "example_models", core_loss_file)
+            self.file_path = self.local_scratch.copyfile(example_project)
 
     def teardown_class(self):
         self.aedtapp._desktop.ClearMessages("", "", 3)
@@ -223,3 +226,15 @@ class TestClass:
         bound = self.aedtapp.assign_translate_motion("Outer_Box", mechanical_transient=True, velocity=1)
         assert bound
         assert bound.props["Velocity"] == "1m_per_sec"
+
+    def test_31_core_losses(self):
+
+        m3d1 = Maxwell3d(self.file_path)
+        assert m3d1.set_core_losses(["PQ_Core_Bottom", "PQ_Core_Top"])
+        assert m3d1.set_core_losses(["PQ_Core_Bottom"], False)
+        self.aedtapp.close_project(m3d1.project_name, False)
+
+    def test_32_matrix(self):
+        m3d1 = Maxwell3d(self.file_path)
+        assert m3d1.assign_matrix("pri", "mymatrix") == "mymatrix"
+        self.aedtapp.close_project(m3d1.project_name, False)

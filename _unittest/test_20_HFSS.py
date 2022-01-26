@@ -86,16 +86,19 @@ class TestClass:
         o5 = self.aedtapp.modeler.primitives.create_circle(self.aedtapp.PLANE.YZ, udp, 10, name="sheet1")
         self.aedtapp.solution_type = "Terminal"
         port = self.aedtapp.create_wave_port_from_sheet(
-            o5, 5, self.aedtapp.AxisDir.XNeg, 40, 2, "sheet1_Port", True, terminal_references=["outer"]
+            o5, 5, self.aedtapp.AxisDir.XNeg, 40, 2, "sheet1_Port", renorm=False, terminal_references=["outer"]
         )
         assert port.name == "sheet1_Port"
         assert port.name in [i.name for i in self.aedtapp.boundaries]
+        assert port.props["RenormalizeAllTerminals"] is False
+
         self.aedtapp.solution_type = "Modal"
         udp = self.aedtapp.modeler.Position(200, 0, 0)
         o6 = self.aedtapp.modeler.primitives.create_circle(self.aedtapp.PLANE.YZ, udp, 10, name="sheet2")
         port = self.aedtapp.create_wave_port_from_sheet(o6, 5, self.aedtapp.AxisDir.XPos, 40, 2, "sheet2_Port", True)
         assert port.name == "sheet2_Port"
         assert port.name in [i.name for i in self.aedtapp.boundaries]
+        assert port.props["RenormalizeAllTerminals"] is True
 
         id6 = self.aedtapp.modeler.primitives.create_box([20, 20, 20], [10, 10, 2], matname="Copper", name="My_Box")
         id7 = self.aedtapp.modeler.primitives.create_box([20, 25, 30], [10, 2, 2], matname="Copper")
@@ -258,13 +261,13 @@ class TestClass:
         assert (
             self.aedtapp.create_circuit_port_from_edges(
                 e1, e2, port_name="port10", port_impedance=50.1, renormalize=False, renorm_impedance="50"
-            )
+            ).name
             == "port10"
         )
         assert (
             self.aedtapp.create_circuit_port_from_edges(
                 e1, e2, port_name="port11", port_impedance="50+1i*55", renormalize=True, renorm_impedance=15.4
-            )
+            ).name
             == "port11"
         )
 
@@ -272,13 +275,13 @@ class TestClass:
         assert (
             self.aedtapp.create_circuit_port_from_edges(
                 e1, e2, port_name="port20", port_impedance=50.1, renormalize=False, renorm_impedance="50+1i*55"
-            )
+            ).name
             == "port20"
         )
         assert (
             self.aedtapp.create_circuit_port_from_edges(
                 e1, e2, port_name="port21", port_impedance="50.1", renormalize=True
-            )
+            ).name
             == "port21"
         )
 
@@ -325,7 +328,7 @@ class TestClass:
         assert self.aedtapp.create_lumped_port_between_objects(
             "BoxLumped1", "BoxLumped2", self.aedtapp.AxisDir.XPos, 50
         )
-        assert port == "Lump1"
+        assert port.name == "Lump1"
 
     def test_11_create_circuit_on_objects(self):
         box1 = self.aedtapp.modeler.primitives.create_box([0, 0, 80], [10, 10, 5], "BoxCircuit1", "Copper")
@@ -334,7 +337,7 @@ class TestClass:
         port = self.aedtapp.create_circuit_port_between_objects(
             "BoxCircuit1", "BoxCircuit2", self.aedtapp.AxisDir.XNeg, 50, "Circ1", True, 50, False
         )
-        assert port == "Circ1"
+        assert port.name == "Circ1"
         assert not self.aedtapp.create_circuit_port_between_objects(
             "BoxCircuit44", "BoxCircuit2", self.aedtapp.AxisDir.XNeg, 50, "Circ1", True, 50, False
         )
@@ -647,3 +650,9 @@ class TestClass:
             sheet.name, self.aedtapp.AxisDir.XNeg, 50, "Lump_sheet", True, False, reference_object_list=[box1]
         )
         assert port2.name + "_T1" in self.aedtapp.modeler.get_excitations_name()
+
+        box1 = self.aedtapp.modeler.primitives.create_box([-40, -40, -20], [80, 80, 10], name="gnd", matname="copper")
+        box2 = self.aedtapp.modeler.primitives.create_box([-40, -40, 10], [80, 80, 10], name="sig", matname="copper")
+        boundaries = len(self.aedtapp.boundaries)
+        assert self.aedtapp.create_spiral_lumped_port(box1, box2)
+        assert len(self.aedtapp.boundaries) - boundaries == 3

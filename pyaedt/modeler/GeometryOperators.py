@@ -639,6 +639,34 @@ class GeometryOperators(object):
 
     @staticmethod
     @aedt_exception_handler
+    def is_collinear(a, b, tol=1e-6):
+        """Check if two vectors are collinear (parallel or anti-parallel).
+
+        Parameters
+        ----------
+        a : list
+            List of ``[x, y, z]`` coordinates for the first vector.
+        b : list
+            List of ``[x, y, z]`` coordinates for the second vector.
+        tol : float
+            Linear tolerance. The default value is ``1e-6``.
+
+        Returns
+        -------
+        bool
+            ``True`` if vectors are collinear, ``False`` otherwise.
+
+        """
+        an = GeometryOperators.v_norm(a)
+        bn = GeometryOperators.v_norm(b)
+        var = GeometryOperators._v_dot(a, b) / (an * bn)
+        if 1.0 - abs(var) < tol * tol:
+            return True
+        else:
+            return False
+
+    @staticmethod
+    @aedt_exception_handler
     def is_projection_inside(a1, a2, b1, b2):
         """Project a segment onto another segment and check if the projected segment is inside it.
 
