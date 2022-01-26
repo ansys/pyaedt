@@ -190,10 +190,9 @@ class Edb(object):
         self._db = None
         self._edb = None
         self.builder = None
-        self.edblib = None
+        self._edblib = None
         self.edbutils = None
         self.simSetup = None
-        self.layout_methods = None
         self.simsetupdata = None
         # time.sleep(2)
         # gc.collect()
@@ -257,7 +256,6 @@ class Edb(object):
             clr.AddReferenceToFile("Ansys.Ansoft.Edb.dll")
             clr.AddReferenceToFile("Ansys.Ansoft.EdbBuilderUtils.dll")
             clr.AddReferenceToFile("EdbLib.dll")
-            clr.AddReferenceToFile("DataModel.dll")
             clr.AddReferenceToFileAndPath(os.path.join(self.base_path, "Ansys.Ansoft.SimSetupData.dll"))
         else:
             if self.student_version:
@@ -268,21 +266,32 @@ class Edb(object):
             clr.AddReference("Ansys.Ansoft.Edb")
             clr.AddReference("Ansys.Ansoft.EdbBuilderUtils")
             clr.AddReference("EdbLib")
-            clr.AddReference("DataModel")
             clr.AddReference("Ansys.Ansoft.SimSetupData")
         os.environ["ECAD_TRANSLATORS_INSTALL_DIR"] = self.base_path
         oaDirectory = os.path.join(self.base_path, "common", "oa")
         os.environ["ANSYS_OADIR"] = oaDirectory
         os.environ["PATH"] = "{};{}".format(os.environ["PATH"], self.base_path)
+        os.environ["LD_LIBRARY_PATH"] = "{};{}".format(os.environ["LD_LIBRARY_PATH"],
+                                                       os.path.join(os.path.dirname(__file__), "dlls", "EDBLib"))
+        os.environ["LD_LIBRARY_PATH"] = "{};{}".format(os.environ["LD_LIBRARY_PATH"], oaDirectory)
         edb = __import__("Ansys.Ansoft.Edb")
-
         self.edb = edb.Ansoft.Edb
         edbbuilder = __import__("Ansys.Ansoft.EdbBuilderUtils")
-        self.edblib = __import__("EdbLib")
+        self._edblib = None
         self.edbutils = edbbuilder.Ansoft.EdbBuilderUtils
         self.simSetup = __import__("Ansys.Ansoft.SimSetupData")
-        self.layout_methods = self.edblib.Layout.LayoutMethods
         self.simsetupdata = self.simSetup.Ansoft.SimSetupData.Data
+
+    @property
+    def edblib(self):
+        """EdbLib object containing advanced Edb methods not accessible directly from python."""
+        if not self._edblib:
+            if os.name == "posix":
+                clr.AddReferenceToFile("EdbLib.dll")
+            else:
+                clr.AddReference("EdbLib")
+            self._edblib = __import__("EdbLib")
+        return self._edblib
 
     @aedt_exception_handler
     def open_edb(self, init_dlls=False):
@@ -329,10 +338,6 @@ class Edb(object):
         if self._db and self._active_cell:
             dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib")
             self.logger.info(dllpath)
-            try:
-                self.layout_methods.LoadDataModel(dllpath, self.edbversion)
-            except:
-                pass
             self.builder = EdbBuilder(self.edbutils, self._db, self._active_cell)
             self._init_objects()
             self.logger.info("Builder Initialized")
@@ -376,10 +381,6 @@ class Edb(object):
                 self._active_cell = list(self._db.TopCircuitCells)[0]
             dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib")
             if self._db and self._active_cell:
-                try:
-                    self.layout_methods.LoadDataModel(dllpath, self.edbversion)
-                except:
-                    pass
                 if not os.path.exists(self.edbpath):
                     os.makedirs(self.edbpath)
                 time.sleep(3)
@@ -424,10 +425,6 @@ class Edb(object):
         self._active_cell = self.edb.Cell.Cell.Create(self._db, self.edb.Cell.CellType.CircuitCell, self.cellname)
         dllpath = os.path.join(os.path.dirname(__file__), "dlls", "EDBLib")
         if self._db and self._active_cell:
-            try:
-                self.layout_methods.LoadDataModel(dllpath, self.edbversion)
-            except:
-                pass
             self.builder = EdbBuilder(self.edbutils, self._db, self._active_cell)
             self._init_objects()
             return self.builder
@@ -521,7 +518,6 @@ class Edb(object):
         result = self.edblib.IPC8521.IPCExporter.ExportIPC2581FromLayout(
             self.active_layout, self.edbversion, ipc_path, units.lower()
         )
-        # result = self.layout_methods.ExportIPC2581FromBuilder(self.builder, ipc_path, units.lower())
         end = time.time() - start
         if result:
             self.logger.info("Export IPC 2581 completed in %s sec.", end)
@@ -973,10 +969,6 @@ class Edb(object):
                 self.edbpath = output_aedb_path
                 self._active_cell = list(self._db.TopCircuitCells)[0]
                 dllpath = os.path.join(os.path.dirname(__file__), "dlls", "EDBLib")
-                try:
-                    self.layout_methods.LoadDataModel(dllpath, self.edbversion)
-                except:
-                    pass
                 self.builder = EdbBuilder(self.edbutils, self._db, self._active_cell)
                 self._init_objects()
             else:
