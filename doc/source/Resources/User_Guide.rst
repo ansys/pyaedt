@@ -308,7 +308,7 @@ To bypass current IronPython limits, you can launch PyAEDT on a Linux machine:
 
 .. code:: python
 
-    box1 = hfss.modeler.create_box([0,0,0],[1,1,])
+    box1 = hfss.modeler.create_box([0,0,0],[1,1,1])
     # convert_remote_object method convert remote ironpython list to local cpython.
     faces = client.convert_remote_object(box1.faces)
 
