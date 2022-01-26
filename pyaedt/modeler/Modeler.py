@@ -18,6 +18,202 @@ from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.modeler.Object3d import EdgePrimitive, FacePrimitive, VertexPrimitive, Object3d
 
 
+class FaceCoordinateSystem(object):
+    """Manages face coordinate system data and execution.
+
+    Parameters
+    ----------
+    modeler :
+        Inherited parent object.
+    props : dict, optional
+        Dictionary of properties. The default is ``None``.
+    name : optional
+        The default is ``None``.
+
+    """
+
+    def __init__(self, modeler, props=None, name=None):
+        self._modeler = modeler
+        self.model_units = self._modeler.model_units
+        self.name = name
+        self.props = props
+        self.ref_cs = None
+        try:
+            if "KernelVersion" in self.props:
+                del self.props["KernelVersion"]
+        except:
+            pass
+
+    @aedt_exception_handler
+    def create(
+        self,
+        face,
+        name=None,
+        origin_type=None,
+        position=None,
+        axis=None,
+        pointing=None,
+        offset=None,
+        rotation=None,
+        reference_cs="Global",
+    ):
+        """Create a coordinate system.
+
+        Parameters
+        ----------
+        origin : list
+            List of ``[x, y, z]`` coordinates for the origin of the coordinate system.
+            The default is ``None``, in which case ``[0, 0, 0]`` is used.
+        reference_cs : str, optional
+            Name of the reference coordinate system. The default is ``"Global"``.
+        name : str
+            Name of the coordinate system. The default is ``None``.
+        mode : str, optional
+            Definition mode. Options are ``"view"``, ``"axis"``, ``"zxz"``, ``"zyz"``,
+            and ``"axisrotation"``. The default is ``"axis"``.
+
+            * If ``mode="view"``, specify ``view``.
+            * If ``mode="axis"``, specify ``x_pointing`` and ``y_pointing``.
+            * If ``mode="zxz"`` or ``mode="zyz"``, specify ``phi``, ``theta``, and ``psi``.
+            * If ``mode="axisrotation"``, specify ``theta`` and ``u``.
+
+            Parameters not needed by the specified mode are ignored.
+            For back compatibility, ``view="rotate"`` is the same as ``mode="axis"``.
+            The mode ``"axisrotation"`` is a coordinate system parallel
+            to the global coordinate system centered in the global origin.
+
+        view : str, optional
+            View for the coordinate system if ``mode="view"``. Options are
+            ``"XY"``, ``"XZ"``, ``"XY"``, ``"iso"``, ``None``, and ``"rotate"``
+            (obsolete). The default is ``"iso"``.
+
+            .. note::
+               Because the ``"rotate"`` option is obsolete, use ``mode="axis"`` instead.
+
+        x_pointing : list, optional
+            List of the ``[x, y, z]`` coordinates specifying the X axis
+            pointing in the local coordinate system if ``mode="axis"``.
+            The default is ``[1, 0, 0]``.
+        y_pointing : list, optional
+            List of the ``[x, y, z]`` coordinates specifying the Y axis
+            pointing in the local coordinate system if ``mode="axis"``.
+            The default is ``[0, 1, 0]``.
+        phi : float, optional
+            Euler angle phi in degrees if ``mode="zxz"`` or ``mode="zyz"``.
+            The default is ``0``.
+        theta : float, optional
+            Euler angle theta or rotation angle in degrees if ``mode="zxz"``,
+            ``mode="zyz"``, or ``mode="axisrotation"``. The default is ``0``.
+        psi : float, optional
+            Euler angle psi in degrees if ``mode="zxz"`` or ``mode="zyz"``.
+            The default is ``0``.
+        u : list
+            List of the ``[ux, uy, uz]`` coordinates for the rotation axis
+            if ``mode="zxz"``. The default is ``[1, 0, 0]``.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Modeler.CoordinateSystem`
+
+        """
+        if not origin:
+            origin = [0, 0, 0]
+        if not x_pointing:
+            x_pointing = [1, 0, 0]
+        if not y_pointing:
+            y_pointing = [0, 1, 0]
+        if not u:
+            u = [1, 0, 0]
+        if view == "rotate":
+            # legacy compatibility
+            mode = "axis"
+
+        if name:
+            self.name = name
+        else:
+            self.name = generate_unique_name("CS")
+
+        originX = self._dim_arg(origin[0], self.model_units)
+        originY = self._dim_arg(origin[1], self.model_units)
+        originZ = self._dim_arg(origin[2], self.model_units)
+        orientationParameters = OrderedDict({"OriginX": originX, "OriginY": originY, "OriginZ": originZ})
+        self.mode = mode
+        if mode == "view":
+            orientationParameters["Mode"] = "Axis/Position"
+            if view == "YZ":
+                orientationParameters["XAxisXvec"] = "0mm"
+                orientationParameters["XAxisYvec"] = "0mm"
+                orientationParameters["XAxisZvec"] = "-1mm"
+                orientationParameters["YAxisXvec"] = "0mm"
+                orientationParameters["YAxisYvec"] = "1mm"
+                orientationParameters["YAxisZvec"] = "0mm"
+            elif view == "XZ":
+                orientationParameters["XAxisXvec"] = "1mm"
+                orientationParameters["XAxisYvec"] = "0mm"
+                orientationParameters["XAxisZvec"] = "0mm"
+                orientationParameters["YAxisXvec"] = "0mm"
+                orientationParameters["YAxisYvec"] = "-1mm"
+                orientationParameters["YAxisZvec"] = "0mm"
+            elif view == "XY":
+                orientationParameters["XAxisXvec"] = "1mm"
+                orientationParameters["XAxisYvec"] = "0mm"
+                orientationParameters["XAxisZvec"] = "0mm"
+                orientationParameters["YAxisXvec"] = "0mm"
+                orientationParameters["YAxisYvec"] = "1mm"
+                orientationParameters["YAxisZvec"] = "0mm"
+            elif view == "iso":
+                orientationParameters["XAxisXvec"] = "1mm"
+                orientationParameters["XAxisYvec"] = "1mm"
+                orientationParameters["XAxisZvec"] = "-2mm"
+                orientationParameters["YAxisXvec"] = "-1mm"
+                orientationParameters["YAxisYvec"] = "1mm"
+                orientationParameters["YAxisZvec"] = "0mm"
+            else:
+                raise ValueError("With mode = 'view', specify view = 'XY', 'XZ', 'XY', 'iso' ")
+
+        elif mode == "axis":
+            orientationParameters["Mode"] = "Axis/Position"
+            orientationParameters["XAxisXvec"] = self._dim_arg((x_pointing[0]), self.model_units)
+            orientationParameters["XAxisYvec"] = self._dim_arg((x_pointing[1]), self.model_units)
+            orientationParameters["XAxisZvec"] = self._dim_arg((x_pointing[2]), self.model_units)
+            orientationParameters["YAxisXvec"] = self._dim_arg((y_pointing[0]), self.model_units)
+            orientationParameters["YAxisYvec"] = self._dim_arg((y_pointing[1]), self.model_units)
+            orientationParameters["YAxisZvec"] = self._dim_arg((y_pointing[2]), self.model_units)
+
+        elif mode == "zxz":
+            orientationParameters["Mode"] = "Euler Angle ZXZ"
+            orientationParameters["Phi"] = self._dim_arg(phi, "deg")
+            orientationParameters["Theta"] = self._dim_arg(theta, "deg")
+            orientationParameters["Psi"] = self._dim_arg(psi, "deg")
+
+        elif mode == "zyz":
+            orientationParameters["Mode"] = "Euler Angle ZYZ"
+            orientationParameters["Phi"] = self._dim_arg(phi, "deg")
+            orientationParameters["Theta"] = self._dim_arg(theta, "deg")
+            orientationParameters["Psi"] = self._dim_arg(psi, "deg")
+
+        elif mode == "axisrotation":
+            th = GeometryOperators.deg2rad(theta)
+            q = GeometryOperators.axis_angle_to_quaternion(u, th)
+            a, b, c = GeometryOperators.quaternion_to_euler_zyz(q)
+            phi = GeometryOperators.rad2deg(a)
+            theta = GeometryOperators.rad2deg(b)
+            psi = GeometryOperators.rad2deg(c)
+            orientationParameters["Mode"] = "Euler Angle ZYZ"
+            orientationParameters["Phi"] = self._dim_arg(phi, "deg")
+            orientationParameters["Theta"] = self._dim_arg(theta, "deg")
+            orientationParameters["Psi"] = self._dim_arg(psi, "deg")
+        else:
+            raise ValueError("Specify the mode = 'view', 'axis', 'zxz', 'zyz', 'axisrotation' ")
+
+        self.props = orientationParameters
+        self._modeler.oeditor.CreateRelativeCS(self.orientation, self.attributes)
+        self.ref_cs = reference_cs
+        self.update()
+
+        return True
+
+
 class CoordinateSystem(object):
     """Manages coordinate system data and execution.
 
