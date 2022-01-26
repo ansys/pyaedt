@@ -758,7 +758,7 @@ class Components(object):
             # new_cmp.SetTransform(cmp_transform)
             return (True, new_cmp)
         except:
-            return (False, None)
+            return False
 
     @aedt_exception_handler
     def set_component_model(self, componentname, model_type="Spice", modelpath=None, modelname=None):
