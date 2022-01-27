@@ -509,7 +509,7 @@ class EdbHfss(object):
             300-e6.
 
         digit_resolution : int, optional
-            The number of digits carried for the edges location accuracy, default value is 6.
+            The number of digits carried for the edges location accuracy. The default value is ``6``.
 
         Returns
         -------
