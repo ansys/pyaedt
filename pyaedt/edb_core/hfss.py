@@ -499,7 +499,7 @@ class EdbHfss(object):
         reference_layer : str, Edb layer.
              Name or Edb layer object.
 
-        return_points_only : bool  .
+        return_points_only : bool, optional
             Use this boolean when you want return only the points from the edges and not creating ports. Default
             value is False.
 
