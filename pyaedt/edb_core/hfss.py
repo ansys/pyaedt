@@ -500,8 +500,8 @@ class EdbHfss(object):
              Name or Edb layer object.
 
         return_points_only : bool, optional
-            Use this boolean when you want return only the points from the edges and not creating ports. Default
-            value is False.
+            Use this boolean when you want to return only the points from the edges and not creating ports. Default
+            value is ``False``.
 
         polygon_trace_threshhold : float, optional
             Used only when selected nets are routed as polygon. The value gives the algorithm the threshold
