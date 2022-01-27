@@ -491,31 +491,31 @@ class EdbHfss(object):
     ):
         """Create an edge port on traces.
 
-                Parameters
-                ----------
-                nets :
-                    List of nets, str or Edb net.
+        Parameters
+        ----------
+        nets :
+            List of nets, str or Edb net.
 
-                reference_layer : str, Edb layer.
-                     Name or Edb layer object.
+        reference_layer : str, Edb layer.
+             Name or Edb layer object.
 
-                return_points_only : bool  .
-                    Use this boolean when you want return only the points from the edges and not creating ports. Default
-                    value is False.
+        return_points_only : bool  .
+            Use this boolean when you want return only the points from the edges and not creating ports. Default
+            value is False.
 
-                polygon_trace_threshhold : float
-                    Used only when selected nets are routed as polygon. The value gives the algorithm the threshold
-                    of the polygon width at the design border for considering placing an edge port. The default value is
-                    300-e6.
+        polygon_trace_threshhold : float
+            Used only when selected nets are routed as polygon. The value gives the algorithm the threshold
+            of the polygon width at the design border for considering placing an edge port. The default value is
+            300-e6.
 
-                digit_resolution int
-                    The number of digits carried for the edges location accuracy, default value is 6.
+        digit_resolution int
+            The number of digits carried for the edges location accuracy, default value is 6.
 
-                Returns
-                -------
-                bool
-                    ``True`` when successful, ``False`` when failed.
-                """
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
         if not isinstance(nets, list):
             if isinstance(nets, str):
                 nets = [self._edb.Cell.Net.FindByName(self._active_layout, nets)]
@@ -624,7 +624,7 @@ class EdbHfss(object):
                         top_edge_length = abs(max(pt_at_top_values) - min(pt_at_top_values))
                         if polygon_trace_threshhold >= top_edge_length > 0:
                             if return_points_only:
-                                edges_pts.append(pt-pt_at_top)
+                                edges_pts.append(pt - pt_at_top)
                             else:
                                 port_name = generate_unique_name("port")
                                 if not self._hfss_terminals.CreateEdgePortOnPolygon(
