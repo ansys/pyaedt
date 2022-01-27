@@ -644,6 +644,8 @@ class EdbHfss(object):
         layout :
             Edb layout.
 
+        digit_resolution : int, optional
+            Digit Resolution. The default value is ``6``.
         Returns
         -------
         list
