@@ -506,7 +506,7 @@ class EdbHfss(object):
         polygon_trace_threshhold : float, optional
             Used only when selected nets are routed as polygon. The value gives the algorithm the threshold
             of the polygon width at the design border for considering placing an edge port. The default value is
-            300-e6.
+            ``300-e6``.
 
         digit_resolution : int, optional
             The number of digits carried for the edges location accuracy. The default value is ``6``.
