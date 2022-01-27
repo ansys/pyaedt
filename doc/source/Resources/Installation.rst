@@ -47,7 +47,7 @@ Ansys Electronics Desktop already includes a CPython 3.7 that could be used to r
 User can download the following batch file and run in local machine.
 The batch file works on Windows and executes the following steps:
 
-1. Create a python virtual environment in your ``%APPDATA%`` folder. To do that it uses CPython in your latest version of AEDT installed in your machine.
+1. Create a python virtual environment in your ``%APPDATA%`` folder. To do that, use CPython in your latest version of AEDT installed on your machine.
 2. Install ``pyaedt``.
 3. Install ``spyder``.
 4. Install ``Jupyter Lab``.
