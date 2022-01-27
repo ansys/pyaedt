@@ -508,7 +508,7 @@ class EdbHfss(object):
             of the polygon width at the design border for considering placing an edge port. The default value is
             300-e6.
 
-        digit_resolution int
+        digit_resolution : int, optional
             The number of digits carried for the edges location accuracy, default value is 6.
 
         Returns
