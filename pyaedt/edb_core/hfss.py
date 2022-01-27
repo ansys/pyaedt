@@ -503,7 +503,7 @@ class EdbHfss(object):
             Use this boolean when you want return only the points from the edges and not creating ports. Default
             value is False.
 
-        polygon_trace_threshhold : float
+        polygon_trace_threshhold : float, optional
             Used only when selected nets are routed as polygon. The value gives the algorithm the threshold
             of the polygon width at the design border for considering placing an edge port. The default value is
             300-e6.
