@@ -762,7 +762,7 @@ class CommonMaterial(object):
         self.name = name
         self.coordinate_system = ""
         if props:
-            self._props = props
+            self._props = props.copy()
         else:
             self._props = OrderedDict()
         if "CoordinateSystemType" in self._props:
@@ -891,7 +891,7 @@ class Material(CommonMaterial, object):
         else:
             self.physics_type = ["Electromagnetic", "Thermal", "Structural"]
             self._props["PhysicsTypes"] = OrderedDict({"set": ["Electromagnetic", "Thermal", "Structural"]})
-        if "AttachedData" in self._props:
+        if "AttachedData" in self._props and "MatAppearanceData" in self._props["AttachedData"]:
             self._material_appearance = []
             self._material_appearance.append(self._props["AttachedData"]["MatAppearanceData"]["Red"])
             self._material_appearance.append(self._props["AttachedData"]["MatAppearanceData"]["Green"])
