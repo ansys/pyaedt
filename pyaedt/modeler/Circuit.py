@@ -6,6 +6,7 @@ from pyaedt.modeler.Primitives3DLayout import Primitives3DLayout
 from pyaedt.modeler.PrimitivesEmit import EmitComponents
 from pyaedt.modeler.PrimitivesNexxim import NexximComponents
 from pyaedt.modeler.PrimitivesSimplorer import SimplorerComponents
+from pyaedt.modeler.PrimitivesMaxwellCircuit import MaxwellCircuitComponents
 from pyaedt.modeler.Object3d import CircuitComponent
 from pyaedt.modeler.Object3d import _dim_arg
 from pyaedt.generic.constants import AEDT_UNITS
@@ -362,3 +363,28 @@ class ModelerEmit(ModelerCircuit):
         self._app = app
         ModelerCircuit.__init__(self, app)
         self.components = EmitComponents(app, self)
+
+class ModelerMaxwellCircuit(ModelerCircuit):
+    """ModelerMaxwellCircuit class.
+
+    Parameters
+    ----------
+    app : :class:`pyaedt.application.AnalysisMaxwellCircuit`
+
+    """
+
+    def __init__(self, app):
+        self._app = app
+        ModelerCircuit.__init__(self, app)
+        self._components = MaxwellCircuitComponents(self)
+
+    @property
+    def schematic(self):
+        """Schematic Object.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.PrimitivesMaxwellCircuit.MaxwellCircuitComponents`
+
+        """
+        return self._components
