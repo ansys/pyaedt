@@ -453,7 +453,7 @@ class TestClass:
 
     def test_54_create_component_from_pins(self):
         pins = self.edbapp.core_components.get_pin_from_component("R13")
-        component = self.edbapp.core_components.create_component_from_pins(pins, "newcomp")[0]
+        component = self.edbapp.core_components.create_component_from_pins(pins, "newcomp")
         assert component[0]
         assert component[1].GetName() == "newcomp"
 
