@@ -762,7 +762,7 @@ class CommonMaterial(object):
         self.name = name
         self.coordinate_system = ""
         if props:
-            self._props = props
+            self._props = props.copy()
         else:
             self._props = OrderedDict()
         if "CoordinateSystemType" in self._props:
