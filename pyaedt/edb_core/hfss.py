@@ -493,7 +493,7 @@ class EdbHfss(object):
 
         Parameters
         ----------
-        nets :
+        nets : list, optional
             List of nets, str or Edb net.
 
         reference_layer : str, Edb layer.
