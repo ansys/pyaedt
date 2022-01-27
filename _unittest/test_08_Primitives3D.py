@@ -956,16 +956,10 @@ class TestClass(BasisTest):
         if self.aedtapp.modeler.primitives[name]:
             self.aedtapp.modeler.primitives.delete(name)
         point = self.aedtapp.modeler.primitives.create_point([30, 30, 0], name)
+        point2 = self.aedtapp.modeler.primitives.create_point([50, 30, 0], name, "(100 100 100)")
+        point.logger.info("Creation and testing of a point.")
 
-        assert point.name.startswith("mypoint")
-        assert point.object_type == "Point"
-        assert point.is3d is True
-
-    @pytest.mark.skipif(is_ironpython, reason="pytest is not supported with IronPython.")
-    @pyaedt_unittest_check_desktop_error
-    def test_71_create_point_exceptions(self):
-
-        with pytest.raises(ValueError) as excinfo:
-            self.aedtapp.modeler.primitives.create_point(
-                [30, 30])
-            assert "Position argument must be a valid 3 elements list." in str(excinfo.value)
+        assert point.name == "mypoint"
+        assert point.coordinate_system == "Global"
+        point.set_color("(143 175 158)")
+        self.aedtapp.modeler.primitives.points

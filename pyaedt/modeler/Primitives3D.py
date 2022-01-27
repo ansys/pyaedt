@@ -52,7 +52,7 @@ class Primitives3D(Primitives, object):
         Parameters
         ----------
         position : list
-            List of ``[x, y, z]`` coordinates.
+            List of ``[x, y, z]`` coordinates. Note, The list can be empty or contain lees than 3 elements.
         name : str, optional
             Name of the point. The default is ``None``, in which case the
             default name is assigned.
@@ -77,11 +77,13 @@ class Primitives3D(Primitives, object):
         >>> point_object = hfss.modeler.primivites.create_point([0,0,0], name="mypoint")
 
         """
-        assert len(position) == 3, "Position argument must be a valid 3 elements list."
         x_position, y_position, z_position = self._pos_with_arg(position)
 
         if not name:
-            name = self._uname()
+            import random
+            import string
+            unique_name = "".join(random.sample(string.ascii_uppercase + string.digits, 6))
+            name = "NewPoint_" + unique_name
 
         parameters = ["NAME:PointParameters"]
         parameters.append("PointX:="), parameters.append(x_position)
@@ -93,7 +95,7 @@ class Primitives3D(Primitives, object):
         attributes.append("Color:="), attributes.append(color)
 
         point = _retry_ntimes(10, self._oeditor.CreatePoint, parameters, attributes)
-        return self._create_object(name)
+        return self._create_point(name)
 
 
     @aedt_exception_handler

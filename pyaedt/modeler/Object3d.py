@@ -3197,3 +3197,289 @@ class Geometries3DLayout(Objec3DLayout, object):
         """
         vMaterial = ["NAME:Net", "Value:=", netname]
         return self.change_property(vMaterial)
+
+
+class Point(object):
+    """Manages poiont attributes for the AEDT 3D Modeler.
+
+    Parameters
+    ----------
+    primitives : :class:`pyaedt.modeler.Primitives3D.Primitives3D`
+        Inherited parent object.
+    name : str
+
+    Examples
+    --------
+    Basic usage demonstrated with an HFSS design:
+
+    >>> from pyaedt import Hfss
+    >>> aedtapp = Hfss()
+    >>> primitives = aedtapp.modeler.primitives
+
+    Create a part, such as box, to return an :class:`pyaedt.modeler.Object3d.Object3d`.
+
+    >>> point = primitives.create_point([30, 30, 0], "my_point", (0, 195, 255))
+    >>> my_point = primitives.points[point.name]
+    """
+
+    def __init__(self, primitives, name):
+        """
+        Parameters
+        ----------
+        primitives : :class:`pyaedt.modeler.Primitives3D.Primitives3D`
+            Inherited parent object.
+        name : str
+        """
+        self._name = name
+        self._part_coordinate_system = "Global"
+        self._color = None
+        self._position = None
+        self._primitives = primitives
+        self._all_props = None
+
+
+    @property
+    def _odesign(self):
+        """Design."""
+        return self._primitives._modeler._app._odesign
+
+    @property
+    def m_Editor(self):
+        """Pointer to the oEditor object in the AEDT API. This property is
+        intended primarily for use by FacePrimitive, EdgePrimitive, and
+        VertexPrimitive child objects.
+
+        Returns
+        -------
+        oEditor COM Object
+
+        """
+        return self._primitives._oeditor
+
+    @property
+    def logger(self):
+        """Logger."""
+        return self._primitives.logger
+
+    @property
+    def name(self):
+        """Name of the object as a string value.
+
+        Returns
+        -------
+        str
+           Name of object as a string value.
+
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        >>> oEditor.ChangeProperty
+
+        """
+        return self._name
+
+    @name.setter
+    def name(self, obj_name):
+        if obj_name not in self._primitives.object_names:
+            if obj_name != self._name:
+                vName = []
+                vName.append("NAME:Name")
+                vName.append("Value:=")
+                vName.append(obj_name)
+                vChangedProps = ["NAME:ChangedProps", vName]
+                vPropServers = ["NAME:PropServers"]
+                vPropServers.append(self._name)
+                vGeo3d = ["NAME:Geometry3DPointTab", vPropServers, vChangedProps]
+                vOut = ["NAME:AllTabs", vGeo3d]
+                _retry_ntimes(10, self._primitives._oeditor.ChangeProperty, vOut)
+                self._name = obj_name
+                self._primitives.cleanup_objects()
+        else:
+            # TODO check for name conflict
+            pass
+
+    @property
+    def valid_properties(self):
+        """Valid properties.
+
+        References
+        ----------
+
+        >>> oEditor.GetProperties
+        """
+        if not self._all_props:
+            self._all_props = _retry_ntimes(10, self.m_Editor.GetProperties, "Geometry3DPointTab", self._name)
+        return self._all_props
+
+    # @property
+    # def color(self):
+    #     """Part color as a tuple of integer values for `(Red, Green, Blue)` color values.
+
+    #     If the integer values are outside the range 0-255, then limit the values. Invalid inputs are ignored.
+
+    #     References
+    #     ----------
+
+    #     >>> oEditor.GetPropertyValue
+    #     >>> oEditor.ChangeProperty
+
+    #     Examples
+    #     --------
+    #     >>> part.color = (255,255,0)
+
+    #     """
+    #     if self._color is not None:
+    #         return self._color
+    #     if "Color" in self.valid_properties:
+    #         color = _retry_ntimes(10, self.m_Editor.GetPropertyValue, "Geometry3DPointTab", self._name, "Color")
+    #         if color:
+    #             b = (int(color) >> 16) & 255
+    #             g = (int(color) >> 8) & 255
+    #             r = int(color) & 255
+    #             self._color = (r, g, b)
+    #         else:
+    #             self._color = (0, 195, 255)
+    #         return self._color
+
+    # @property
+    # def color_string(self):
+    #     """Color tuple as a string in the format '(Red, Green, Blue)'.
+
+    #     References
+    #     ----------
+
+    #     >>> oEditor.GetPropertyValue
+    #     >>> oEditor.ChangeProperty
+    #     """
+    #     return "({} {} {})".format(self.color[0], self.color[1], self.color[2])
+
+    def set_color(self, color_value):
+        color_tuple = None
+        if isinstance(color_value, str):
+            try:
+                color_tuple = rgb_color_codes[color_value]
+            except KeyError:
+                parse_string = color_value.replace(")", "").replace("(", "").split()
+                if len(parse_string) == 3:
+                    color_tuple = tuple([int(x) for x in parse_string])
+        else:
+            try:
+                color_tuple = tuple([int(x) for x in color_value])
+            except ValueError:
+                pass
+
+        if color_tuple:
+            try:
+                R = clamp(color_tuple[0], 0, 255)
+                G = clamp(color_tuple[1], 0, 255)
+                B = clamp(color_tuple[2], 0, 255)
+                vColor = ["NAME:Color", "R:=", str(R), "G:=", str(G), "B:=", str(B)]
+                self._change_property(vColor)
+                self._color = (R, G, B)
+            except TypeError:
+                color_tuple = None
+        else:
+            msg_text = "Invalid color input {} for object {}.".format(color_value, self._name)
+            self._primitives.logger.warning(msg_text)
+
+    @property
+    def coordinate_system(self):
+        """Part coordinate system.
+
+        Returns
+        -------
+        str
+            Name of the part coordinate system.
+
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        >>> oEditor.ChangeProperty
+
+        """
+        if self._part_coordinate_system is not None:
+            return self._part_coordinate_system
+        if "Orientation" in self.valid_properties:
+            self._part_coordinate_system = _retry_ntimes(
+                10, self.m_Editor.GetPropertyValue, "Geometry3DPointTab", self._name, "Orientation"
+            )
+            return self._part_coordinate_system
+
+    @coordinate_system.setter
+    def coordinate_system(self, sCS):
+
+        pcs = ["NAME:Orientation", "Value:=", sCS]
+        self._change_property(pcs)
+        self._part_coordinate_system = sCS
+        return True
+
+    @aedt_exception_handler
+    def clone(self):
+        """Clone the object and return the new 3D object.
+
+        Returns
+        -------
+        pyaedt.modeler.Object3d.Object3d
+            3D object that was added.
+
+        References
+        ----------
+
+        >>> oEditor.Clone
+
+        """
+        new_obj_tuple = self._primitives.modeler.clone(self.id)
+        success = new_obj_tuple[0]
+        assert success, "Could not clone the object {}.".format(self.name)
+        new_name = new_obj_tuple[1][0]
+        return self._primitives[new_name]
+
+    @aedt_exception_handler
+    def delete(self):
+        """Delete the object.
+
+        References
+        ----------
+
+        >>> oEditor.Delete
+        """
+        arg = ["NAME:Selections", "Selections:=", self._name]
+        self.m_Editor.Delete(arg)
+        self._primitives.cleanup_objects()
+        self.__dict__ = {}
+
+    @aedt_exception_handler
+    def _change_property(self, vPropChange):
+        return self._primitives._change_point_property(vPropChange, self.name)
+
+    def _update(self):
+        # self._object3d._refresh_object_types()
+        self._primitives.cleanup_objects()
+
+    def __str__(self):
+        return """
+         {}
+         name: {}    id: {}    object_type: {}
+         --- read/write properties  ----
+         solve_inside: {}
+         model: {}
+         material_name: {}
+         color: {}
+         transparency: {}
+         display_wireframe {}
+         part_coordinate_system: {}
+         """.format(
+            type(self),
+            self.name,
+            self.id,
+            self.object_type,
+            self.solve_inside,
+            self.model,
+            self.material_name,
+            self.color,
+            self.transparency,
+            self.display_wireframe,
+            self.part_coordinate_system,
+        )
