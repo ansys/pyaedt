@@ -8,7 +8,7 @@ solutions_defaults = {
     "Circuit Design": "NexximLNA",
     "2D Extractor": "Open",
     "Q3D Extractor": "Q3D Extractor",
-    "HFSS": "Modal",
+    "HFSS": "HFSS Modal Network",
     "Icepak": "SteadyState",
     "RMxprtSolution": "GRM",
     "ModelCreation": "GRM",
@@ -258,14 +258,14 @@ solutions_types = {
     },
     "HFSS": {
         "Modal": {
-            "name": "DrivenModal",
+            "name": "HFSS Modal Network",
             "options": None,
             "report_type": "Modal Solution Data",
             "default_setup": 1,
             "default_adaptive": "LastAdaptive",
         },
         "Terminal": {
-            "name": "DrivenTerminal",
+            "name": "HFSS Hybrid Terminal Network",
             "options": None,
             "report_type": "Terminal Solution Data",
             "default_setup": 1,
@@ -300,7 +300,7 @@ solutions_types = {
             "default_adaptive": "Transient",
         },
         "Eigenmode": {
-            "name": None,
+            "name": "Eigenmode",
             "options": None,
             "report_type": "EigenMode Parameters",
             "default_setup": 2,
@@ -473,10 +473,6 @@ class DesignSolution(object):
         if self._odesign:
             try:
                 self._solution_type = self._odesign.GetSolutionType()
-                if "Modal" in self._solution_type:
-                    self._solution_type = "Modal"
-                elif "Terminal" in self._solution_type:
-                    self._solution_type = "Terminal"
             except:
                 self._solution_type = solutions_defaults[self._design_type]
         elif self._solution_type is None:
@@ -490,10 +486,6 @@ class DesignSolution(object):
             if self._odesign:
                 try:
                     self._solution_type = self._odesign.GetSolutionType()
-                    if "Modal" in self._solution_type:
-                        self._solution_type = "Modal"
-                    elif "Terminal" in self._solution_type:
-                        self._solution_type = "Terminal"
                 except:
                     self._solution_type = solutions_defaults[self._design_type]
             else:
@@ -543,9 +535,78 @@ class HFSSDesignSolution(DesignSolution, object):
         self._hybrid = None
 
     @property
+    def solution_type(self):
+        """Get/Set the Solution Type of the active Design."""
+        if self._odesign:
+            try:
+                self._solution_type = self._odesign.GetSolutionType()
+                if "Modal" in self._solution_type:
+                    self._solution_type = "Modal"
+                elif "Terminal" in self._solution_type:
+                    self._solution_type = "Terminal"
+            except:
+                self._solution_type = solutions_defaults[self._design_type]
+        elif self._solution_type is None:
+            self._solution_type = solutions_defaults[self._design_type]
+        return self._solution_type
+
+    @solution_type.setter
+    @aedt_exception_handler
+    def solution_type(self, value):
+        if self._aedt_version < "2021.2":
+            if not value:
+                self._solution_type = "DrivenModal"
+                self._odesign.SetSolutionType(self._solution_type)
+            elif "Modal" in value:
+                self._solution_type = "DrivenModal"
+                self._odesign.SetSolutionType(self._solution_type)
+            elif "Terminal" in value:
+                self._solution_type = "DrivenTerminal"
+                self._odesign.SetSolutionType(self._solution_type)
+            else:
+                try:
+                    self._odesign.SetSolutionType(self._solution_options[value]["name"])
+                except:
+                    self._odesign.SetSolutionType(self._solution_options[value]["name"], "")
+        elif value is None:
+            if self._odesign:
+                try:
+                    self._solution_type = self._odesign.GetSolutionType()
+                    if "Modal" in self._solution_type:
+                        self._solution_type = "Modal"
+                    elif "Terminal" in self._solution_type:
+                        self._solution_type = "Terminal"
+                except:
+                    self._solution_type = solutions_defaults[self._design_type]
+            else:
+                self._solution_type = solutions_defaults[self._design_type]
+        elif value and value in self._solution_options and self._solution_options[value]["name"]:
+            if value == "Transient":
+                value = "Transient Network"
+                self._solution_type = "Transient Network"
+            elif value == "DrivenModal":
+                value = "Modal"
+                self._solution_type = "Modal"
+            elif value == "DrivenTerminal":
+                value = "Terminal"
+                self._solution_type = "Terminal"
+            else:
+                self._solution_type = value
+            if self._solution_options[value]["options"]:
+                self._odesign.SetSolutionType(
+                    self._solution_options[value]["name"], self._solution_options[value]["options"]
+                )
+            else:
+                try:
+                    self._odesign.SetSolutionType(self._solution_options[value]["name"])
+                except:
+                    self._odesign.SetSolutionType(self._solution_options[value]["name"], "")
+
+    @property
     def hybrid(self):
         """Get/Set Hfss hybrid mode for the active solution."""
-
+        if self._aedt_version < "2021.2":
+            return False
         if self._hybrid is None and self.solution_type is not None:
             self._hybrid = "Hybrid" in self._solution_options[self.solution_type]["name"]
         return self._hybrid
@@ -553,6 +614,8 @@ class HFSSDesignSolution(DesignSolution, object):
     @hybrid.setter
     @aedt_exception_handler
     def hybrid(self, value):
+        if self._aedt_version < "2021.2":
+            return
         if value and "Hybrid" not in self._solution_options[self.solution_type]["name"]:
             self._solution_options[self.solution_type]["name"] = self._solution_options[self.solution_type][
                 "name"
@@ -567,6 +630,8 @@ class HFSSDesignSolution(DesignSolution, object):
     @property
     def composite(self):
         """Get/Set Hfss composite mode for the active solution."""
+        if self._aedt_version < "2021.2":
+            return False
         if self._composite is None and self.solution_type is not None:
             self._composite = "Composite" in self._solution_options[self.solution_type]["name"]
         return self._composite
@@ -574,6 +639,8 @@ class HFSSDesignSolution(DesignSolution, object):
     @composite.setter
     @aedt_exception_handler
     def composite(self, val):
+        if self._aedt_version < "2021.2":
+            return
         if val:
             self._solution_options[self.solution_type]["name"] = self._solution_options[self.solution_type][
                 "name"
@@ -600,6 +667,8 @@ class HFSSDesignSolution(DesignSolution, object):
         -------
         bool
         """
+        if self._aedt_version < "2021.2":
+            return False
         options = ["NAME:Options", "EnableAutoOpen:=", enable]
         if enable:
             options.append("BoundaryType:=")

@@ -23,7 +23,7 @@ pyaedtpath = os.path.join(
     "..",
 )
 
-d = Desktop("2021.2", True)
+d = Desktop(version, True)
 desktop = sys.modules["__main__"].oDesktop
 pers1 = os.path.join(desktop.GetPersonalLibDirectory(), "pyaedt")
 
