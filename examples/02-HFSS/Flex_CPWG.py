@@ -1,6 +1,6 @@
 """
 Flex Coplanar Waveguide Example
---------------------/----------
+-------------------------------
 This example shows how you can use PyAEDT to create a flex cable coplanar waveguide.
 """
 
