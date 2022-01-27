@@ -45,6 +45,9 @@ Installing Pyaedt from Bat File
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Ansys Electronics Desktop already includes a CPython 3.7 that could be used to run pyaedt.
 User can download the following batch file and run in local machine.
+
+:download:`PyAEDT Environment with IDE bat file <pyaedt_with_IDE.bat>`
+
 The batch file works on Windows and executes the following steps:
 
 1. Create a python virtual environment in your ``%APPDATA%`` folder. To do that it uses CPython in your latest version of AEDT installed in your machine.
@@ -62,4 +65,3 @@ the following option:
 
 With this approach users can have a complete IDE to write Pyaedt Scripts in Windows with a simple batch file.
 
-:download:`PyAEDT Environment with IDE <pyaedt_with_IDE.bat>`
