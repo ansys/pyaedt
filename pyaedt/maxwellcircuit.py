@@ -77,7 +77,7 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
         """Constructor."""
         AnalysisMaxwellCircuit.__init__(
             self,
-            "Twin Builder",
+            "Maxwell Circuit",
             projectname,
             designname,
             specified_version,
