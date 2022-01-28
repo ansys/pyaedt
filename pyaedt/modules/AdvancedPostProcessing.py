@@ -55,6 +55,7 @@ if not is_ironpython:
     except:
         pass
 
+
 class PostProcessor(Post):
     """Contains advanced postprocessing functionalities that require Python 3.x packages like NumPy and Matplotlib.
 
@@ -704,4 +705,3 @@ class PostProcessor(Post):
             X, Y, Z, rstride=1, cstride=1, cmap=plt.get_cmap("jet"), linewidth=0, antialiased=True, alpha=0.5
         )
         fig1.set_size_inches(10, 10)
-

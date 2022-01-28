@@ -210,7 +210,11 @@ class EdbNets(object):
 
     @aedt_exception_handler
     def get_plot_data(
-        self, nets, layers=None, color_by_net=False, outline=None,
+        self,
+        nets,
+        layers=None,
+        color_by_net=False,
+        outline=None,
     ):
         """Return List of points for Matplotlib 2D Chart.
 
@@ -237,7 +241,7 @@ class EdbNets(object):
         if outline:
             x1 = [i[0] for i in outline]
             y1 = [i[1] for i in outline]
-            objects_lists.append([x1,y1, "b", "Outline", 0.3, "fill"])
+            objects_lists.append([x1, y1, "b", "Outline", 0.3, "fill"])
         if isinstance(nets, str):
             nets = [nets]
 
@@ -367,9 +371,13 @@ class EdbNets(object):
         if is_ironpython:
             self._logger.warning("Plot functionalities are enabled only in CPython.")
             return False
-        object_lists = self.get_plot_data(nets, layers, color_by_net, outline, )
+        object_lists = self.get_plot_data(
+            nets,
+            layers,
+            color_by_net,
+            outline,
+        )
         plot_matplotlib(object_lists, size, show_legend, "X (m)", "Y (m)", self._pedb.active_cell.GetName(), save_plot)
-
 
     @aedt_exception_handler
     def is_power_gound_net(self, netname_list):
