@@ -3300,48 +3300,10 @@ class Point(object):
             self._all_props = _retry_ntimes(10, self.m_Editor.GetProperties, "Geometry3DPointTab", self._name)
         return self._all_props
 
-    # @property
-    # def color(self):
-    #     """Part color as a tuple of integer values for `(Red, Green, Blue)` color values.
-
-    #     If the integer values are outside the range 0-255, then limit the values. Invalid inputs are ignored.
-
-    #     References
-    #     ----------
-
-    #     >>> oEditor.GetPropertyValue
-    #     >>> oEditor.ChangeProperty
-
-    #     Examples
-    #     --------
-    #     >>> part.color = (255,255,0)
-
-    #     """
-    #     if self._color is not None:
-    #         return self._color
-    #     if "Color" in self.valid_properties:
-    #         color = _retry_ntimes(10, self.m_Editor.GetPropertyValue, "Geometry3DPointTab", self._name, "Color")
-    #         if color:
-    #             b = (int(color) >> 16) & 255
-    #             g = (int(color) >> 8) & 255
-    #             r = int(color) & 255
-    #             self._color = (r, g, b)
-    #         else:
-    #             self._color = (0, 195, 255)
-    #         return self._color
-
-    # @property
-    # def color_string(self):
-    #     """Color tuple as a string in the format '(Red, Green, Blue)'.
-
-    #     References
-    #     ----------
-
-    #     >>> oEditor.GetPropertyValue
-    #     >>> oEditor.ChangeProperty
-    #     """
-    #     return "({} {} {})".format(self.color[0], self.color[1], self.color[2])
-
+    # Note: We currently cannot get the color property value because
+    # when we try to access it, we only get access to the 'edit' button.
+    # Following is the line that we would use but it currently returns 'edit'.
+    # color = _retry_ntimes(10, self.m_Editor.GetPropertyValue, "Geometry3DPointTab", self._name, "Color")
     def set_color(self, color_value):
         color_tuple = None
         if isinstance(color_value, str):
