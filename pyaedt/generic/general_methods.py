@@ -134,14 +134,21 @@ def convert_remote_object(arg):
     """
     if _check_types(arg) == "list":
         if arg.__len__() > 0:
-            if isinstance(arg[0], (int, float, str, dict)):
-                return list(eval(str(arg)))
+            if isinstance(arg[0], (int, float, str)) or _check_types(arg[0]) == "list" or _check_types(
+                    arg[0]) == "dict":
+                a = list(eval(str(arg)))
+                for i, el in enumerate(a):
+                    a[i] = convert_remote_object(el)
+                return a
             else:
                 return [arg[i] for i in range(arg.__len__())]
         else:
             return []
     elif _check_types(arg) == "dict":
-        return dict(eval(str(arg)))
+        a = dict(eval(str(arg)))
+        for k, v in a.items():
+            a[k] = convert_remote_object(v)
+        return a
     return arg
 
 

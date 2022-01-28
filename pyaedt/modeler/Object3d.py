@@ -831,7 +831,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.AdvancedPostProcessing.ModelPlotter`
+        :class:`pyaedt.generic.plot.ModelPlotter`
             Model Object.
         """
         if not is_ironpython and self._primitives._app._aedt_version >= "2021.2":
