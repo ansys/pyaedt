@@ -1,5 +1,7 @@
 import os
 from math import pi, cos, sin, tan
+import random
+import string
 
 from pyaedt.generic.general_methods import aedt_exception_handler
 from pyaedt.modeler.Primitives import Primitives
@@ -52,7 +54,7 @@ class Primitives3D(Primitives, object):
         Parameters
         ----------
         position : list
-            List of ``[x, y, z]`` coordinates. Note, The list can be empty or contain lees than 3 elements.
+            List of ``[x, y, z]`` coordinates. Note, The list can be empty or contain less than 3 elements.
         name : str, optional
             Name of the point. The default is ``None``, in which case the
             default name is assigned.
@@ -80,8 +82,6 @@ class Primitives3D(Primitives, object):
         x_position, y_position, z_position = self._pos_with_arg(position)
 
         if not name:
-            import random
-            import string
             unique_name = "".join(random.sample(string.ascii_uppercase + string.digits, 6))
             name = "NewPoint_" + unique_name
 
@@ -96,7 +96,6 @@ class Primitives3D(Primitives, object):
 
         point = _retry_ntimes(10, self._oeditor.CreatePoint, parameters, attributes)
         return self._create_point(name)
-
 
     @aedt_exception_handler
     def create_box(self, position, dimensions_list, name=None, matname=None):
