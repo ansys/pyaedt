@@ -51,3 +51,33 @@ class TestClass:
         o = self.aedtapp.create_rectangle([6, 6], [5, 3], name="Rectangle1", matname="Copper")
         self.aedtapp.assign_single_conductor(target_objects=o, solve_option="SolveOnBoundary")
         assert self.aedtapp.assign_huray_finitecond_to_edges(o.edges, radius=0.5, ratio=2.9)
+
+    def test_09_reduce_matrix(self):
+        udp = self.aedtapp.modeler.Position(0, 0, 0)
+        o = self.aedtapp.modeler.primitives.create_rectangle(udp, [5, 3], name="s1")
+        self.aedtapp.assign_single_conductor(target_objects=o, solve_option="SolveOnBoundary", name="s1")
+        udp = self.aedtapp.modeler.Position(0, 0, 0)
+        o = self.aedtapp.modeler.primitives.create_rectangle(udp, [5, 3], name="s2")
+        self.aedtapp.assign_single_conductor(target_objects=o, solve_option="SolveOnBoundary", name="s2")
+        assert self.aedtapp.reduce_matrix_operation("DiffPair", ["s1", "s2"])
+
+        udp = self.aedtapp.modeler.Position(0, 0, 0)
+        o = self.aedtapp.modeler.primitives.create_rectangle(udp, [5, 3], name="s3")
+        self.aedtapp.assign_single_conductor(target_objects=o, solve_option="SolveOnBoundary", name="s3")
+        udp = self.aedtapp.modeler.Position(0, 0, 0)
+        o = self.aedtapp.modeler.primitives.create_rectangle(udp, [5, 3], name="s4")
+        self.aedtapp.assign_single_conductor(target_objects=o, solve_option="SolveOnBoundary", name="s4")
+        assert self.aedtapp.reduce_matrix_operation("Parallel", ["s1", "s2"])
+
+        o = self.aedtapp.modeler.primitives.create_rectangle(udp, [5, 3], name="s4")
+        self.aedtapp.assign_single_conductor(target_objects=o, solve_option="SolveOnBoundary", name="g1")
+        assert self.aedtapp.reduce_matrix_operation("Float", ["g1"])
+
+        o = self.aedtapp.modeler.primitives.create_rectangle(udp, [5, 3], name="s4")
+        self.aedtapp.assign_single_conductor(target_objects=o, solve_option="SolveOnBoundary", name="g2")
+        assert self.aedtapp.reduce_matrix_operation("AddGround", ["g2"])
+
+        o = self.aedtapp.modeler.primitives.create_rectangle(udp, [5, 3], name="s4")
+        self.aedtapp.assign_single_conductor(target_objects=o, solve_option="SolveOnBoundary", name="g3")
+        assert self.aedtapp.reduce_matrix_operation("SetReferenceGround", ["g3"])
+        pass

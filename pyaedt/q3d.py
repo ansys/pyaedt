@@ -640,7 +640,7 @@ class Q2d(QExtractor, object):
 
         Parameters
         ----------
-        target_objects : list
+        target_objects : list or Object3d
             List of Object3D.
         name : str
             Name of the conductor.
@@ -738,3 +738,39 @@ class Q2d(QExtractor, object):
             self.boundaries.append(bound)
             return bound
         return False
+
+    def reduce_matrix_operation(self, operation_type, selections, matrix_name=None, signal_name=None):
+        """Q2D reduce matrix operations.
+
+        Parameters
+        ----------
+        operation_type : str
+            Type of the operation. Options are ``"AddGround"``, ``"Float"``, ``"SetReferenceGround"``, ``"Parallel"``,
+            ``"DiffPair"``.
+        selections : str
+            Name of the conductor to be selected.
+        matrix_name : str ,optional
+            Name of the operation matrix.
+        signal_name : str, optional
+            Name of the new signal. Only apply to Parallel and DiffPair.
+        Returns
+        -------
+        bool
+            `True`` when successful.
+        """
+        arg = None
+        if not isinstance(selections, list):
+            selections = [selections]
+        sels = ",".join(["\'{}\'".format(i) for i in selections])
+        if not matrix_name:
+            matrix_name = operation_type
+        if not signal_name:
+            signal_name = operation_type
+        if operation_type in ["Parallel", "DiffPair"]:
+            arg = "{}(SelectionArray[{}: {}], OverrideInfo(0, \'{}\'))".format(operation_type, len(selections), sels,
+                                                                        signal_name)
+        elif operation_type in ["AddGround", "Float", "SetReferenceGround"]:
+            arg = "{}(SelectionArray[{}: {}], OverrideInfo())".format(operation_type, len(selections), sels)
+
+        self.oreduce_matrix.InsertRM(matrix_name, arg)
+        return True

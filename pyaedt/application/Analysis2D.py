@@ -84,6 +84,7 @@ class FieldAnalysis2D(Analysis):
         )
         self._osolution = self._odesign.GetModule("Solutions")
         self._oboundary = self._odesign.GetModule("BoundarySetup")
+        self._oreduce_matrix = self._odesign.GetModule("ReduceMatrix")
 
         self._modeler = Modeler2D(self)
         self._mesh = Mesh(self)
@@ -110,6 +111,17 @@ class FieldAnalysis2D(Analysis):
         >>> oModule = oDesign.GetModule("BoundarySetup")
         """
         return self._oboundary
+
+    @property
+    def oreduce_matrix(self):
+        """Reduce Matrix Module.
+
+        References
+        ----------
+
+        >>> oModule = oDesign.GetModule("ReduceMatrix")
+        """
+        return self._oreduce_matrix
 
     @property
     def modeler(self):
