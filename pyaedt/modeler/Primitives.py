@@ -256,7 +256,7 @@ class Polyline(Object3d):
         return self._primitives.get_vertex_position(end_vertex_id)
 
     @property
-    def polyline_points(self):
+    def points(self):
         """Polyline Points."""
         return self._positions
 
