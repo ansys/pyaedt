@@ -150,6 +150,7 @@ It contains all getter and setter to simplify object manipulation.
    Object3d.FacePrimitive
    Object3d.EdgePrimitive
    Object3d.VertexPrimitive
+   Object3d.Point
    Primitives.PolylineSegment
    Primitives.Polyline
 
