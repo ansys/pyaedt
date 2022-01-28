@@ -3268,20 +3268,20 @@ class Point(object):
         return self._name
 
     @name.setter
-    def name(self, obj_name):
-        if obj_name not in self._primitives.object_names:
-            if obj_name != self._name:
-                vName = []
-                vName.append("NAME:Name")
-                vName.append("Value:=")
-                vName.append(obj_name)
-                vChangedProps = ["NAME:ChangedProps", vName]
-                vPropServers = ["NAME:PropServers"]
-                vPropServers.append(self._name)
-                vGeo3d = ["NAME:Geometry3DPointTab", vPropServers, vChangedProps]
-                vOut = ["NAME:AllTabs", vGeo3d]
-                _retry_ntimes(10, self._primitives._oeditor.ChangeProperty, vOut)
-                self._name = obj_name
+    def name(self, point_name):
+        if point_name not in self._primitives.points_by_name.keys:
+            if point_name != self._name:
+                name_property = []
+                name_property.append("NAME:Name")
+                name_property.append("Value:=")
+                name_property.append(point_name)
+                changed_property = ["NAME:ChangedProps", name_property]
+                property_servers = ["NAME:PropServers"]
+                property_servers.append(self._name)
+                point_tab = ["NAME:Geometry3DPointTab", property_servers, changed_property]
+                all_tabs = ["NAME:AllTabs", point_tab]
+                _retry_ntimes(10, self._primitives._oeditor.ChangeProperty, all_tabs)
+                self._name = point_name
                 self._primitives.cleanup_objects()
         else:
             # TODO check for name conflict
@@ -3367,20 +3367,20 @@ class Point(object):
         >>> oEditor.ChangeProperty
 
         """
-        if self._part_coordinate_system is not None:
-            return self._part_coordinate_system
+        if self._point_coordinate_system is not None:
+            return self._point_coordinate_system
         if "Orientation" in self.valid_properties:
-            self._part_coordinate_system = _retry_ntimes(
+            self._point_coordinate_system = _retry_ntimes(
                 10, self.m_Editor.GetPropertyValue, "Geometry3DPointTab", self._name, "Orientation"
             )
-            return self._part_coordinate_system
+            return self._point_coordinate_system
 
     @coordinate_system.setter
-    def coordinate_system(self, sCS):
+    def coordinate_system(self, new_coordinate_system):
 
-        pcs = ["NAME:Orientation", "Value:=", sCS]
-        self._change_property(pcs)
-        self._part_coordinate_system = sCS
+        coordinate_system = ["NAME:Orientation", "Value:=", new_coordinate_system]
+        self._change_property(coordinate_system)
+        self._point_coordinate_system = new_coordinate_system
         return True
 
     @aedt_exception_handler
