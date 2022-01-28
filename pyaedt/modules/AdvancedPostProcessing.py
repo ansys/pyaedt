@@ -24,16 +24,6 @@ if not is_ironpython:
         )
 
     try:
-        import pyvista as pv
-
-        pyvista_available = True
-    except ImportError:
-        warnings.warn(
-            "The PyVista module is required to run some functionalities of PostProcess.\n"
-            "Install with \n\npip install pyvista\n\nRequires CPython."
-        )
-
-    try:
         from IPython.display import Image
 
         ipython_available = True
@@ -45,8 +35,6 @@ if not is_ironpython:
 
     try:
         import matplotlib.pyplot as plt
-        from matplotlib.path import Path
-        from matplotlib.patches import PathPatch
     except ImportError:
         warnings.warn(
             "The Matplotlib module is required to run some functionalities of PostProcess.\n"

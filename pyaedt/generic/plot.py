@@ -5,7 +5,7 @@ import warnings
 
 from pyaedt import aedt_exception_handler
 from pyaedt.generic.constants import CSS4_COLORS, AEDT_UNITS
-from pyaedt.generic.general_methods import is_ironpython, is_remote_server, convert_remote_object
+from pyaedt.generic.general_methods import is_ironpython, convert_remote_object
 
 if not is_ironpython:
     try:
@@ -24,16 +24,6 @@ if not is_ironpython:
         warnings.warn(
             "The PyVista module is required to run some functionalities of PostProcess.\n"
             "Install with \n\npip install pyvista\n\nRequires CPython."
-        )
-
-    try:
-        from IPython.display import Image
-
-        ipython_available = True
-    except ImportError:
-        warnings.warn(
-            "The Ipython module is required to run some functionalities of PostProcess.\n"
-            "Install with \n\npip install ipython\n\nRequires CPython."
         )
 
     try:
