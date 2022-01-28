@@ -3384,27 +3384,6 @@ class Point(object):
         return True
 
     @aedt_exception_handler
-    def clone(self):
-        """Clone the object and return the new 3D object.
-
-        Returns
-        -------
-        pyaedt.modeler.Object3d.Object3d
-            3D object that was added.
-
-        References
-        ----------
-
-        >>> oEditor.Clone
-
-        """
-        new_obj_tuple = self._primitives.modeler.clone(self.id)
-        success = new_obj_tuple[0]
-        assert success, "Could not clone the object {}.".format(self.name)
-        new_name = new_obj_tuple[1][0]
-        return self._primitives[new_name]
-
-    @aedt_exception_handler
     def delete(self):
         """Delete the point.
 
