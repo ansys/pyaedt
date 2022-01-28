@@ -7,12 +7,6 @@ class MaxwellCircuitComponents(CircuitComponents):
 
     This class is for managing all circuit components for MaxwellCircuit.
 
-    Parameters
-    ----------
-    parent :
-
-    modeler :
-
     Examples
     --------
     Basic usage demonstrated with a MaxwellCircuit design:
