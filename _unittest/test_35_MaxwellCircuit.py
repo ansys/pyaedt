@@ -1,5 +1,5 @@
 # Setup paths for module imports
-from _unittest.conftest import local_path, scratch_path
+from _unittest.conftest import scratch_path
 
 # Import required modules
 from pyaedt import MaxwellCircuit
@@ -37,5 +37,3 @@ class TestClass:
 
     def test_05_create_winding(self):
         assert self.aedtapp.modeler.schematic.create_winding("mywinding")
-
-

@@ -434,8 +434,8 @@ solutions_types = {
     "EMIT": {
         "EMIT": {"name": None, "options": None, "report_type": None, "default_setup": None, "default_adaptive": None}
     },
-    "Maxwell Circuit": {
     # Maxwell Circuit has no solution type
+    "Maxwell Circuit": {
     },
 }
 

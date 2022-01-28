@@ -1,4 +1,3 @@
-from pyaedt.generic.general_methods import aedt_exception_handler
 from pyaedt.modeler.Circuit import ModelerMaxwellCircuit
 from pyaedt.application.Analysis import Analysis
 
@@ -50,4 +49,3 @@ class AnalysisMaxwellCircuit(Analysis):
     def modeler(self):
         """Design oModeler."""
         return self._modeler
-

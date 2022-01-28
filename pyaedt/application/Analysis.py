@@ -103,7 +103,6 @@ class Analysis(Design, object):
             close_on_exit,
             student_version,
         )
-        
 
         self.logger.info("Design Loaded")
         self._setup = None
@@ -121,8 +120,7 @@ class Analysis(Design, object):
             self._oanalysis = self._odesign.GetModule("SimSetup")
         else:
             self._oanalysis = self._odesign.GetModule("AnalysisSetup")
-        
-        
+
         if self.design_type != "Maxwell Circuit":
             self._ooptimetrics = self._odesign.GetModule("Optimetrics")
             self._ooutput_variable = self._odesign.GetModule("OutputVariable")

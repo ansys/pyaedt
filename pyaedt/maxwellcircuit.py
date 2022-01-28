@@ -4,8 +4,7 @@ from __future__ import absolute_import
 import math
 
 from pyaedt.application.AnalysisMaxwellCircuit import AnalysisMaxwellCircuit
-from pyaedt.application.Variables import Variable
-from pyaedt.generic.general_methods import aedt_exception_handler, is_number
+from pyaedt.generic.general_methods import aedt_exception_handler
 
 
 class MaxwellCircuit(AnalysisMaxwellCircuit, object):
