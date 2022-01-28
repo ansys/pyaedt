@@ -3373,12 +3373,12 @@ class Point(object):
 
     @property
     def coordinate_system(self):
-        """Part coordinate system.
+        """Coordinate system of the point.
 
         Returns
         -------
         str
-            Name of the part coordinate system.
+            Name of the point's coordinate system.
 
         References
         ----------
