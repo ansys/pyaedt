@@ -890,18 +890,14 @@ class Primitives(object):
         self._refresh_lines()
         return [self[name] for name in self._lines]
 
-    # @property
-    # def points_objects(self):
-    #     """List of all points."""
-    #     self._refresh_points()
-    #     return [self[name] for name in self._points]
-
     @property
     def points(self):
+        """List of points."""
         return self._points
 
     @property
     def points_by_name(self):
+        """Dictionary containing all points where the keys are the name of the points."""
         return self._point_names
 
     @property
@@ -933,12 +929,6 @@ class Primitives(object):
         """List of the names of all line objects."""
         self._refresh_lines()
         return self._lines
-
-    # @property
-    # def point_names(self):
-    #     """List of the names of all point objects."""
-    #     self._refresh_points()
-    #     return self._points
 
     @property
     def unclassified_names(self):
