@@ -3231,12 +3231,6 @@ class Point(object):
         self._primitives = primitives
         self._all_props = None
 
-
-    @property
-    def _odesign(self):
-        """Design."""
-        return self._primitives._modeler._app._odesign
-
     @property
     def m_Editor(self):
         """Pointer to the oEditor object in the AEDT API. This property is
