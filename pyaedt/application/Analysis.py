@@ -103,8 +103,7 @@ class Analysis(Design, object):
             close_on_exit,
             student_version,
         )
-        self._ooptimetrics = self._odesign.GetModule("Optimetrics")
-        self._ooutput_variable = self._odesign.GetModule("OutputVariable")
+
         self.logger.info("Design Loaded")
         self._setup = None
         if setup_name:
@@ -115,13 +114,18 @@ class Analysis(Design, object):
         self._available_variations = self.AvailableVariations(self)
         if "HFSS 3D Layout Design" in self.design_type:
             self._oanalysis = self._odesign.GetModule("SolveSetups")
-        elif "EMIT" in self.design_type:
+        elif "EMIT" in self.design_type or "Maxwell Circuit" in self.design_type:
             self._oanalysis = None
         elif "Circuit Design" in self.design_type or "Twin Builder" in self.design_type:
             self._oanalysis = self._odesign.GetModule("SimSetup")
         else:
             self._oanalysis = self._odesign.GetModule("AnalysisSetup")
-        self.setups = [self.get_setup(setup_name) for setup_name in self.setup_names]
+
+        if self.design_type != "Maxwell Circuit":
+            self._ooptimetrics = self._odesign.GetModule("Optimetrics")
+            self._ooutput_variable = self._odesign.GetModule("OutputVariable")
+            self.setups = [self.get_setup(setup_name) for setup_name in self.setup_names]
+
         self.opti_parametric = ParametericsSetups(self)
         self.opti_optimization = OptimizationSetups(self)
         self.opti_doe = DOESetups(self)

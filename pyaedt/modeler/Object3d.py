@@ -2436,6 +2436,8 @@ class CircuitComponent(object):
         _parameters = {}
         if self._circuit_components._app.design_type == "Circuit Design":
             tab = "PassedParameterTab"
+        elif self._circuit_components._app.design_type == "Maxwell Circuit":
+            tab = "PassedParameterTab"
         else:
             tab = "Quantities"
         proparray = self.m_Editor.GetProperties(tab, self.composed_name)

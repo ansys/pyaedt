@@ -606,7 +606,7 @@ class Design(object):
 
         Options are ``"Circuit Design"``, ``"Emit"``, ``"HFSS"``,
         ``"HFSS 3D Layout Design"``, ``"Icepak"``, ``"Maxwell 2D"``,
-        ``"Maxwell 3D"``, ``"Mechanical"``, ``"ModelCreation"``,
+        ``"Maxwell 3D"``, ``"Maxwell Circuit"``, ``"Mechanical"``, ``"ModelCreation"``,
         ``"Q2D Extractor"``, ``"Q3D Extractor"``, ``"RMxprtSolution"``,
         and ``"Twin Builder"``.
 

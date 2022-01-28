@@ -13,6 +13,7 @@ try:
     from pyaedt.rmxprt import Rmxprt
     from pyaedt.twinbuilder import TwinBuilder
     from pyaedt.twinbuilder import TwinBuilder as Simplorer  # noqa: F401 # namespace only for backward compatibility
+    from pyaedt.maxwellcircuit import MaxwellCircuit
     from pyaedt.emit import Emit
     from pyaedt.desktop import Desktop
 except ImportError:
@@ -28,6 +29,7 @@ except ImportError:
     from pyaedt.rmxprt import Rmxprt
     from pyaedt.twinbuilder import TwinBuilder
     from pyaedt.twinbuilder import TwinBuilder as Simplorer  # noqa: F401 # namespace only for backward compatibility
+    from pyaedt.maxwellcircuit import MaxwellCircuit
     from pyaedt.emit import Emit
     from pyaedt.desktop import Desktop
 
@@ -35,6 +37,7 @@ except ImportError:
 app_map = {
     "Maxwell 2D": Maxwell2d,
     "Maxwell 3D": Maxwell3d,
+    "Maxwell Circuit": MaxwellCircuit,
     "Twin Builder": TwinBuilder,
     "Circuit Design": Circuit,
     "2D Extractor": Q2d,
