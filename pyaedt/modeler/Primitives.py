@@ -1833,7 +1833,6 @@ class Primitives(object):
         Returns
         -------
         """
-
         self._points.remove(self.points_by_name[name])
         del self.points_by_name[name]
 
