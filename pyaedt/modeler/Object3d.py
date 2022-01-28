@@ -3225,7 +3225,7 @@ class Point(object):
 
     def __init__(self, primitives, name):
         self._name = name
-        self._part_coordinate_system = "Global"
+        self._point_coordinate_system = "Global"
         self._color = None
         self._position = None
         self._primitives = primitives
