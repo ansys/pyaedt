@@ -3312,20 +3312,16 @@ class Point(object):
         color_value : string
             String exposing the new color of the point in the format of "(001 255 255)".
 
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        Example
-        -------
-        >>> point = self.aedtapp.modeler.primitives.create_point([30, 30, 0], "demo_point")
-        >>> point.set_color("(143 175 158)")
-
         References
         ----------
 
         >>> oEditor.ChangeProperty
+
+        Examples
+        --------
+        >>> point = self.aedtapp.modeler.primitives.create_point([30, 30, 0], "demo_point")
+        >>> point.set_color("(143 175 158)")
+
         """
         color_tuple = None
         if isinstance(color_value, str):
