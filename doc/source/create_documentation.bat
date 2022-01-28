@@ -1,1 +1,1 @@
-sphinx-build -b html -a . ../../../PyAEDT-docs -j auto
+sphinx-build -b html -a . ../../../PyAEDT-docs_dev -j auto
