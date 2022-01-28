@@ -5,10 +5,6 @@ from _unittest.conftest import local_path, scratch_path
 from pyaedt import MaxwellCircuit
 from pyaedt.generic.filesystem import Scratch
 import gc
-import os
-
-netlist1 = "netlist_small.cir"
-
 
 class TestClass:
     def setup_class(self):
@@ -16,8 +12,6 @@ class TestClass:
         design_name = "MaxwellCircuitDesign1"
         # set a scratch directory and the environment / test data
         with Scratch(scratch_path) as self.local_scratch:
-            netlist_file1 = os.path.join(local_path, "example_models", netlist1)
-            self.local_scratch.copyfile(netlist_file1)
             self.aedtapp = MaxwellCircuit(project_name, design_name)
 
     def teardown_class(self):
@@ -39,15 +33,9 @@ class TestClass:
         assert id.parameters["C"] == "7.5"
 
     def test_04_create_diode(self):
-        id = self.aedtapp.modeler.schematic.create_diode("Diode1")
-        assert id.parameters["VF"] == "0.8V"
+        assert self.aedtapp.modeler.schematic.create_diode("Diode1")
 
     def test_05_create_winding(self):
-        name = self.aedtapp.modeler.schematic.create_winding("mywinding")
-        # Get component info by part name
-        assert name.parameters["WindingName"] == "mywinding"
+        assert self.aedtapp.modeler.schematic.create_winding("mywinding")
 
-    def test_06_import_netlist(self):
-        self.aedtapp.insert_design("SchematicImport")
-        assert self.aedtapp.create_schematic_from_netlist(os.path.join(self.local_scratch.path, netlist1))
 

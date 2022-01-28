@@ -91,7 +91,7 @@ class MaxwellCircuitComponents(CircuitComponents):
         """
         id = self.create_component(
             compname,
-            component_library="Passive",
+            component_library="Passive Elements",
             component_name="Res",
             location=location,
             angle=angle,
