@@ -364,6 +364,7 @@ class ModelerEmit(ModelerCircuit):
         ModelerCircuit.__init__(self, app)
         self.components = EmitComponents(app, self)
 
+
 class ModelerMaxwellCircuit(ModelerCircuit):
     """ModelerMaxwellCircuit class.
 

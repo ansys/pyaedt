@@ -6,6 +6,7 @@ from pyaedt import MaxwellCircuit
 from pyaedt.generic.filesystem import Scratch
 import gc
 
+
 class TestClass:
     def setup_class(self):
         project_name = "MaxwellCircuitProject"
