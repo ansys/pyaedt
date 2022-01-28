@@ -46,7 +46,7 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
     >>> from pyaedt import MaxwellCircuit
     >>> app = MaxwellCircuit()
 
-    Create a instance of Maxwell Circuit and link to a project named
+    Create an instance of Maxwell Circuit and link to a project named
     ``"projectname"``. If this project does not exist, create one with
     this name.
 

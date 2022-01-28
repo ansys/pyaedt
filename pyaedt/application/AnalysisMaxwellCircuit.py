@@ -12,8 +12,6 @@ class AnalysisMaxwellCircuit(Analysis):
     Parameters
     ----------
 
-    Returns
-    -------
 
     """
 
