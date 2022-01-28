@@ -956,10 +956,20 @@ class TestClass(BasisTest):
         if self.aedtapp.modeler.primitives[name]:
             self.aedtapp.modeler.primitives.delete(name)
         point = self.aedtapp.modeler.primitives.create_point([30, 30, 0], name)
-        point2 = self.aedtapp.modeler.primitives.create_point([50, 30, 0], name, "(100 100 100)")
+        point.set_color("(143 175 158)")
+        point2 = self.aedtapp.modeler.primitives.create_point([50, 30, 0], "mypoint2", "(100 100 100)")
         point.logger.info("Creation and testing of a point.")
 
         assert point.name == "mypoint"
         assert point.coordinate_system == "Global"
-        point.set_color("(143 175 158)")
-        self.aedtapp.modeler.primitives.points
+        assert point2.name == "mypoint2"
+        assert point2.coordinate_system == "Global"
+
+        assert self.aedtapp.modeler.primitives.points_by_name[point.name] == point
+        assert self.aedtapp.modeler.primitives.points_by_name[point2.name] == point2
+
+        # Delete the first point
+        assert len(self.aedtapp.modeler.primitives.points) == 2
+        self.aedtapp.modeler.primitives.points_by_name[point.name].delete()
+        assert len(self.aedtapp.modeler.primitives.points) == 1
+        assert self.aedtapp.modeler.primitives.points[0].name == "mypoint2"

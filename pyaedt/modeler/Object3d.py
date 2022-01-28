@@ -3200,13 +3200,14 @@ class Geometries3DLayout(Objec3DLayout, object):
 
 
 class Point(object):
-    """Manages poiont attributes for the AEDT 3D Modeler.
+    """Manages point attributes for the AEDT 3D Modeler.
 
     Parameters
     ----------
     primitives : :class:`pyaedt.modeler.Primitives3D.Primitives3D`
         Inherited parent object.
     name : str
+        Name of the point.
 
     Examples
     --------
@@ -3216,20 +3217,13 @@ class Point(object):
     >>> aedtapp = Hfss()
     >>> primitives = aedtapp.modeler.primitives
 
-    Create a part, such as box, to return an :class:`pyaedt.modeler.Object3d.Object3d`.
+    Create a point, to return an :class:`pyaedt.modeler.Object3d.Point`.
 
     >>> point = primitives.create_point([30, 30, 0], "my_point", (0, 195, 255))
-    >>> my_point = primitives.points[point.name]
+    >>> my_point = primitives.points_by_name[point.name]
     """
 
     def __init__(self, primitives, name):
-        """
-        Parameters
-        ----------
-        primitives : :class:`pyaedt.modeler.Primitives3D.Primitives3D`
-            Inherited parent object.
-        name : str
-        """
         self._name = name
         self._part_coordinate_system = "Global"
         self._color = None
@@ -3438,7 +3432,7 @@ class Point(object):
 
     @aedt_exception_handler
     def delete(self):
-        """Delete the object.
+        """Delete the point.
 
         References
         ----------
@@ -3447,16 +3441,12 @@ class Point(object):
         """
         arg = ["NAME:Selections", "Selections:=", self._name]
         self.m_Editor.Delete(arg)
-        self._primitives.cleanup_objects()
+        self._primitives.remove_point(self.name)
         self.__dict__ = {}
 
     @aedt_exception_handler
     def _change_property(self, vPropChange):
         return self._primitives._change_point_property(vPropChange, self.name)
-
-    def _update(self):
-        # self._object3d._refresh_object_types()
-        self._primitives.cleanup_objects()
 
     def __str__(self):
         return """

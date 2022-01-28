@@ -890,11 +890,11 @@ class Primitives(object):
         self._refresh_lines()
         return [self[name] for name in self._lines]
 
-    @property
-    def points_objects(self):
-        """List of all points."""
-        self._refresh_points()
-        return [self[name] for name in self._points]
+    # @property
+    # def points_objects(self):
+    #     """List of all points."""
+    #     self._refresh_points()
+    #     return [self[name] for name in self._points]
 
     @property
     def points(self):
@@ -902,7 +902,7 @@ class Primitives(object):
 
     @property
     def points_by_name(self):
-        return self._points_names
+        return self._point_names
 
     @property
     def unclassified_objects(self):
@@ -934,11 +934,11 @@ class Primitives(object):
         self._refresh_lines()
         return self._lines
 
-    @property
-    def point_names(self):
-        """List of the names of all point objects."""
-        self._refresh_points()
-        return self._points
+    # @property
+    # def point_names(self):
+    #     """List of the names of all point objects."""
+    #     self._refresh_points()
+    #     return self._points
 
     @property
     def unclassified_names(self):
@@ -1786,7 +1786,7 @@ class Primitives(object):
         self._sheets = []
         self._lines = []
         self._points = []
-        self._points_names = {}
+        self._point_names = {}
         self._unclassified = []
         self._all_object_names = []
         self.objects = {}
@@ -1821,6 +1821,21 @@ class Primitives(object):
 
         self.objects = new_object_dict
         self.object_id_dict = new_object_id_dict
+
+    def remove_point(self, name):
+        """Remove a point.
+
+        Parameters
+        ----------
+        name : str
+            Name of the point to be removed.
+
+        Returns
+        -------
+        """
+
+        self._points.remove(self.points_by_name[name])
+        del self.points_by_name[name]
 
     def find_new_objects(self):
         """Find any new objects in the modeler that were created
@@ -3116,15 +3131,15 @@ class Primitives(object):
             self._lines = list(test)
         self._all_object_names = self._solids + self._sheets + self._lines + self._points
 
-    def _refresh_points(self):
-        test = _retry_ntimes(10, self._oeditor.GetObjectsInGroup, "Points")
-        if test is None or test is False:
-            assert False, "Get Points is failing"
-        elif test is True:
-            self._points = []  # In IronPython True is returned when no points are present
-        else:
-            self._points = list(test)
-        self._all_object_names = self._solids + self._sheets + self._lines + self._points
+    # def _refresh_points(self):
+    #     test = _retry_ntimes(10, self._oeditor.GetObjectsInGroup, "Points")
+    #     if test is None or test is False:
+    #         assert False, "Get Points is failing"
+    #     elif test is True:
+    #         self._points = []  # In IronPython True is returned when no points are present
+    #     else:
+    #         self._points = list(test)
+    #     self._all_object_names = self._solids + self._sheets + self._lines + self._points
 
     def _refresh_unclassified(self):
         test = _retry_ntimes(10, self._oeditor.GetObjectsInGroup, "Unclassified")
@@ -3151,7 +3166,7 @@ class Primitives(object):
 
     def _create_point(self, name):
         point = Point(self, name)
-        self._points_names[point.name] = point
+        self._point_names[name] = point
         self._points.append(point)
         return point
 
