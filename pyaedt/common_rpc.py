@@ -49,6 +49,8 @@ def launch_server(port=18000, ansysem_path=None, non_graphical=False):
     if os.name == "posix":
         os.environ["PYAEDT_SERVER_AEDT_PATH"] = ansysem_path
         os.environ["PYAEDT_SERVER_AEDT_NG"] = str(non_graphical)
+        os.environ["ANS_NO_MONO_CLEANUP"] = str(1)
+
     hostname = socket.gethostname()
     safe_attrs = {
         "__abs__",
@@ -219,7 +221,15 @@ def client(server_name, server_port=18000, beta_options=None):
     >>> cl2.root.run_script(script_to_run, ansysem_path = "/path/to/AnsysEMxxx/Linux64")
 
     """
-    c = rpyc.connect(server_name, server_port, config={"sync_request_timeout": None})
+    t = 20
+    while t > 0:
+        try:
+            c = rpyc.connect(server_name, server_port, config={"sync_request_timeout": None})
+            if c.root:
+                t = 0
+        except:
+            t -= 1
+            time.sleep(1)
     port = c.root.start_service(server_name, beta_options)
     if not port:
         return "Error Connecting to the Server. Check the server name and port and retry."
@@ -374,8 +384,7 @@ def launch_ironpython_server(aedt_path, non_graphical=False, port=18000, launch_
     print("Process {} started on {}".format(proc.pid, socket.getfqdn()))
     print("Warning: Remote CPython to Ironpython may have some limitations.")
     print("Known Issues are on returned list and dict. ")
-    print("For those it is recommended to use client.conver_remote_object method.")
-    time.sleep(5)
+    print("For those it is recommended to use client.convert_remote_object method.")
     if proc and launch_client:
         return client(server_name=socket.getfqdn(), server_port=port)
     return False
