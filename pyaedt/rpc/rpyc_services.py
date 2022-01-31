@@ -787,7 +787,7 @@ class GlobalService(rpyc.Service):
                 script_file = os.path.normpath(
                     os.path.join(os.path.abspath(os.path.dirname(__file__)), "pyaedt_client_linux.py")
                 )
-                dest_file = os.path.join(tempfile.gettempdir(), "pyaedt_client_linux.py")
+                dest_file = os.path.join(tempfile.gettempdir(), "pyaedt_client_linux_{}.py".format(port))
                 print(dest_file)
                 with open(dest_file, "w") as f:
                     f.write("port={}\n".format(port))

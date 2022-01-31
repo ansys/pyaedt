@@ -373,8 +373,8 @@ def launch_ironpython_server(aedt_path, non_graphical=False, port=18000, launch_
     >>> my_face_list = client.convert_remote_object(box.faces)
 
     """
-    port = check_port(port)
-    if port == 0:
+    port1 = check_port(port)
+    if port1 == 0:
         print("Erron. No Available ports.")
         return False
     if non_graphical:
@@ -387,14 +387,14 @@ def launch_ironpython_server(aedt_path, non_graphical=False, port=18000, launch_
         os.path.join(os.path.dirname(__file__), "rpc", "local_server.py"),
         aedt_path,
         str(val),
-        str(port),
+        str(port1),
     ]
     proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=non_graphical)
     print("Process {} started on {}".format(proc.pid, socket.getfqdn()))
-    print("Using Port {}".format(port))
+    print("Using Port {}".format(port1))
     print("Warning: Remote CPython to Ironpython may have some limitations.")
     print("Known Issues are on returned list and dict. ")
     print("For those it is recommended to use client.convert_remote_object method.")
     if proc and launch_client:
-        return client(server_name=socket.getfqdn(), server_port=port)
+        return client(server_name=socket.getfqdn(), server_port=port1)
     return False
