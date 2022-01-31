@@ -237,7 +237,7 @@ class EDBPrimitives(object):
         yr = []
         for i in range(n):
             i += 1
-            dth = (i/(n+1)) * th
+            dth = (float(i)/(n+1)) * th
             xi = xc + r * math.cos(alpha-dth)
             yi = yc + r * math.sin(alpha-dth)
             xr.append(xi)
