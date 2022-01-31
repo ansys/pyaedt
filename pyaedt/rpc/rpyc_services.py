@@ -42,7 +42,7 @@ def check_port(port):
     Returns
     -------
     int
-        Next Port avaiable.
+        Next Port available.
     """
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     check = False
