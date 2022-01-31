@@ -366,7 +366,7 @@ class EdbNets(object):
         outline : list, optional
             List of points of the outline to plot.
         size : tuple, optional
-            Image size in pixel (width, height).
+            Image size in pixel (width, height). Default value is ``(2000, 1000)``
         """
         if is_ironpython:
             self._logger.warning("Plot functionalities are enabled only in CPython.")
