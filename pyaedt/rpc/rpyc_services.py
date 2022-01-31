@@ -1,3 +1,4 @@
+import socket
 import os
 import random
 import tempfile
@@ -28,6 +29,33 @@ from pyaedt import Q2d
 from pyaedt import Circuit
 from pyaedt import Icepak
 from pyaedt import Mechanical
+
+
+def check_port(port):
+    """Check for an available port on the machine starting from input port.
+
+     Parameters
+    ----------
+    port : int
+        Ports to search.
+
+    Returns
+    -------
+    int
+        Next Port avaiable.
+    """
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    check = False
+    while not check:
+        try:
+            s.bind((socket.getfqdn(), port))
+            check = True
+        except socket.error as e:
+            port += 1
+            if port > 29999:
+                return 0
+    s.close()
+    return port
 
 
 class PyaedtServiceWindows(rpyc.Service):
@@ -742,7 +770,11 @@ class GlobalService(rpyc.Service):
         hostname : str
             Hostname.
         """
-        port = random.randint(18001, 20000)
+
+        port = check_port(random.randint(18500, 20000))
+        if port == 0:
+            print("Erron. No Available ports.")
+            return False
         ansysem_path = ""
         non_graphical = True
         if os.name == "posix":
