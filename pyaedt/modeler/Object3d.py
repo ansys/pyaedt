@@ -3251,7 +3251,7 @@ class Point(object):
 
     @property
     def name(self):
-        """Name of the object as a string value.
+        """Name of the point as a string value.
 
         Returns
         -------
@@ -3284,8 +3284,7 @@ class Point(object):
                 self._name = point_name
                 self._primitives.cleanup_objects()
         else:
-            # TODO check for name conflict
-            pass
+            self.logger.warning("A point named '%s' already exists.", point_name)
 
     @property
     def valid_properties(self):

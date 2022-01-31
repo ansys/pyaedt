@@ -63,8 +63,8 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
-            3D object.
+        :class:`pyaedt.modeler.Object3d.Point`
+            Point object.
 
         References
         ----------
