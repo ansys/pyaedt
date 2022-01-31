@@ -285,6 +285,7 @@ class Desktop:
         self.close_on_exit = close_on_exit
         self._main.pyaedt_version = pyaedtversion
         self._main.interpreter_ver = _pythonver
+        self._main.student_version = student_version
         if is_ironpython:
             self._main.isoutsideDesktop = False
         else:
@@ -299,13 +300,13 @@ class Desktop:
         else:
             if "oDesktop" in dir(self._main):
                 del self._main.oDesktop
-            version_student, version_key, version = self._set_version(specified_version, student_version)
+            self._main.student_version, version_key, version = self._set_version(specified_version, student_version)
             if _com == "ironpython":
                 print("Launching PyAEDT outside Electronics Desktop with IronPython")
                 self._init_ironpython(non_graphical, new_desktop_session, version)
             elif _com == "pythonnet_v3":
                 print("Launching PyAEDT outside Electronics Desktop with CPython and Pythonnet")
-                self._init_cpython(non_graphical, new_desktop_session, version, student_version, version_key)
+                self._init_cpython(non_graphical, new_desktop_session, version, self._main.student_version, version_key)
             else:
                 oAnsoftApp = win32com.client.Dispatch(version)
                 self._main.oDesktop = oAnsoftApp.GetAppDesktop()
@@ -395,7 +396,7 @@ class Desktop:
         self._main.pyaedt_initialized = True
 
     def _set_version(self, specified_version, student_version):
-        version_student = False
+        student_version_flag = False
         if specified_version:
             if float(specified_version) < 2021:
                 if float(specified_version) < 2019:
@@ -407,22 +408,22 @@ class Desktop:
                     )
             if student_version:
                 specified_version += "SV"
-                version_student = True
+                student_version_flag = True
             assert specified_version in self.version_keys, "Specified version {} not known.".format(specified_version)
             version_key = specified_version
         else:
             if student_version and self.current_version_student:
                 version_key = self.current_version_student
-                version_student = True
+                student_version_flag = True
             else:
                 version_key = self.current_version
-                version_student = False
-        if student_version and version_student:
+                student_version_flag = False
+        if student_version and student_version_flag:
             version = "Ansoft.ElectronicsDesktop." + version_key[:-2]
         else:
             version = "Ansoft.ElectronicsDesktop." + version_key
         self._main.sDesktopinstallDirectory = os.getenv(self._version_ids[version_key])
-        return version_student, version_key, version
+        return student_version_flag, version_key, version
 
     def _init_ironpython(self, non_graphical, new_aedt_session, version):
         base_path = self._main.sDesktopinstallDirectory
