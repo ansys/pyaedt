@@ -737,29 +737,32 @@ class Components(object):
         >>> edbapp.core_components.create_component_from_pins(pins, "A1New")
 
         """
-        try:
-            new_cmp = self._edb.Cell.Hierarchy.Component.Create(self._active_layout, component_name, component_name)
-            new_group = self._edb.Cell.Hierarchy.Group.Create(self._active_layout, component_name)
-            new_cmp.SetGroup(new_group)
-            for pin in pins:
-                pin.SetIsLayoutPin(True)
+        #try:
+        new_cmp = self._edb.Cell.Hierarchy.Component.Create(self._active_layout, component_name, component_name)
+        new_group = self._edb.Cell.Hierarchy.Group.Create(self._active_layout, component_name)
+        new_cmp.SetGroup(new_group)
+        for pin in pins:
+            pin.SetIsLayoutPin(True)
+            if is_ironpython:
+                test = new_group.AddMember(pin)
+            else:
                 if not self._components_methods.AddPinToGroup(new_group, pin):
                     aedt_exception_handler(
                         "Failed to add pin {} to the group {}".format(pin.GetName(), new_group.GetName())
                     )
-            if not placement_layer:
-                new_cmp_layer_name = pins[0].GetPadstackDef().GetData().GetLayerNames()[0]
-            else:
-                new_cmp_layer_name = placement_layer
-            new_cmp_placement_layer = self._edb.Cell.Layer.FindByName(
-                self._active_layout.GetLayerCollection(), new_cmp_layer_name
-            )
-            new_cmp.SetPlacementLayer(new_cmp_placement_layer)
-            # cmp_transform = System.Activator.CreateInstance(self._edb.Utility.)
-            # new_cmp.SetTransform(cmp_transform)
-            return (True, new_cmp)
-        except:
-            return (False, None)
+        if not placement_layer:
+            new_cmp_layer_name = pins[0].GetPadstackDef().GetData().GetLayerNames()[0]
+        else:
+            new_cmp_layer_name = placement_layer
+        new_cmp_placement_layer = self._edb.Cell.Layer.FindByName(
+            self._active_layout.GetLayerCollection(), new_cmp_layer_name
+        )
+        new_cmp.SetPlacementLayer(new_cmp_placement_layer)
+        # cmp_transform = System.Activator.CreateInstance(self._edb.Utility.)
+        # new_cmp.SetTransform(cmp_transform)
+        return (True, new_cmp)
+        #except:
+        #    return (False, None)
 
     @aedt_exception_handler
     def set_component_model(self, componentname, model_type="Spice", modelpath=None, modelname=None):
