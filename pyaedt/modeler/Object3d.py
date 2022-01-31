@@ -3199,3 +3199,231 @@ class Geometries3DLayout(Objec3DLayout, object):
         """
         vMaterial = ["NAME:Net", "Value:=", netname]
         return self.change_property(vMaterial)
+
+
+class Point(object):
+    """Manages point attributes for the AEDT 3D Modeler.
+
+    Parameters
+    ----------
+    primitives : :class:`pyaedt.modeler.Primitives3D.Primitives3D`
+        Inherited parent object.
+    name : str
+        Name of the point.
+
+    Examples
+    --------
+    Basic usage demonstrated with an HFSS design:
+
+    >>> from pyaedt import Hfss
+    >>> aedtapp = Hfss()
+    >>> primitives = aedtapp.modeler.primitives
+
+    Create a point, to return an :class:`pyaedt.modeler.Object3d.Point`.
+
+    >>> point = primitives.create_point([30, 30, 0], "my_point", (0, 195, 255))
+    >>> my_point = primitives.points_by_name[point.name]
+    """
+
+    def __init__(self, primitives, name):
+        self._name = name
+        self._point_coordinate_system = "Global"
+        self._color = None
+        self._position = None
+        self._primitives = primitives
+        self._all_props = None
+
+    @property
+    def m_Editor(self):
+        """Pointer to the oEditor object in the AEDT API. This property is
+        intended primarily for use by FacePrimitive, EdgePrimitive, and
+        VertexPrimitive child objects.
+
+        Returns
+        -------
+        oEditor COM Object
+
+        """
+        return self._primitives._oeditor
+
+    @property
+    def logger(self):
+        """Logger."""
+        return self._primitives.logger
+
+    @property
+    def name(self):
+        """Name of the point as a string value.
+
+        Returns
+        -------
+        str
+           Name of object as a string value.
+
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        >>> oEditor.ChangeProperty
+
+        """
+        return self._name
+
+    @name.setter
+    def name(self, point_name):
+        if point_name not in self._primitives.points_by_name.keys:
+            if point_name != self._name:
+                name_property = []
+                name_property.append("NAME:Name")
+                name_property.append("Value:=")
+                name_property.append(point_name)
+                changed_property = ["NAME:ChangedProps", name_property]
+                property_servers = ["NAME:PropServers"]
+                property_servers.append(self._name)
+                point_tab = ["NAME:Geometry3DPointTab", property_servers, changed_property]
+                all_tabs = ["NAME:AllTabs", point_tab]
+                _retry_ntimes(10, self._primitives._oeditor.ChangeProperty, all_tabs)
+                self._name = point_name
+                self._primitives.cleanup_objects()
+        else:
+            self.logger.warning("A point named '%s' already exists.", point_name)
+
+    @property
+    def valid_properties(self):
+        """Valid properties.
+
+        References
+        ----------
+
+        >>> oEditor.GetProperties
+        """
+        if not self._all_props:
+            self._all_props = _retry_ntimes(10, self.m_Editor.GetProperties, "Geometry3DPointTab", self._name)
+        return self._all_props
+
+    # Note: We currently cannot get the color property value because
+    # when we try to access it, we only get access to the 'edit' button.
+    # Following is the line that we would use but it currently returns 'edit'.
+    # color = _retry_ntimes(10, self.m_Editor.GetPropertyValue, "Geometry3DPointTab", self._name, "Color")
+    def set_color(self, color_value):
+        """Set symbol color.
+
+        Parameters
+        ----------
+        color_value : string
+            String exposing the new color of the point in the format of "(001 255 255)".
+
+        References
+        ----------
+
+        >>> oEditor.ChangeProperty
+
+        Examples
+        --------
+        >>> point = self.aedtapp.modeler.primitives.create_point([30, 30, 0], "demo_point")
+        >>> point.set_color("(143 175 158)")
+
+        """
+        color_tuple = None
+        if isinstance(color_value, str):
+            try:
+                color_tuple = rgb_color_codes[color_value]
+            except KeyError:
+                parse_string = color_value.replace(")", "").replace("(", "").split()
+                if len(parse_string) == 3:
+                    color_tuple = tuple([int(x) for x in parse_string])
+        else:
+            try:
+                color_tuple = tuple([int(x) for x in color_value])
+            except ValueError:
+                pass
+
+        if color_tuple:
+            try:
+                R = clamp(color_tuple[0], 0, 255)
+                G = clamp(color_tuple[1], 0, 255)
+                B = clamp(color_tuple[2], 0, 255)
+                vColor = ["NAME:Color", "R:=", str(R), "G:=", str(G), "B:=", str(B)]
+                self._change_property(vColor)
+                self._color = (R, G, B)
+            except TypeError:
+                color_tuple = None
+        else:
+            msg_text = "Invalid color input {} for object {}.".format(color_value, self._name)
+            self._primitives.logger.warning(msg_text)
+
+    @property
+    def coordinate_system(self):
+        """Coordinate system of the point.
+
+        Returns
+        -------
+        str
+            Name of the point's coordinate system.
+
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        >>> oEditor.ChangeProperty
+
+        """
+        if self._point_coordinate_system is not None:
+            return self._point_coordinate_system
+        if "Orientation" in self.valid_properties:
+            self._point_coordinate_system = _retry_ntimes(
+                10, self.m_Editor.GetPropertyValue, "Geometry3DPointTab", self._name, "Orientation"
+            )
+            return self._point_coordinate_system
+
+    @coordinate_system.setter
+    def coordinate_system(self, new_coordinate_system):
+
+        coordinate_system = ["NAME:Orientation", "Value:=", new_coordinate_system]
+        self._change_property(coordinate_system)
+        self._point_coordinate_system = new_coordinate_system
+        return True
+
+    @aedt_exception_handler
+    def delete(self):
+        """Delete the point.
+
+        References
+        ----------
+
+        >>> oEditor.Delete
+        """
+        arg = ["NAME:Selections", "Selections:=", self._name]
+        self.m_Editor.Delete(arg)
+        self._primitives.remove_point(self.name)
+        self.__dict__ = {}
+
+    @aedt_exception_handler
+    def _change_property(self, vPropChange):
+        return self._primitives._change_point_property(vPropChange, self.name)
+
+    def __str__(self):
+        return """
+         {}
+         name: {}    id: {}    object_type: {}
+         --- read/write properties  ----
+         solve_inside: {}
+         model: {}
+         material_name: {}
+         color: {}
+         transparency: {}
+         display_wireframe {}
+         part_coordinate_system: {}
+         """.format(
+            type(self),
+            self.name,
+            self.id,
+            self.object_type,
+            self.solve_inside,
+            self.model,
+            self.material_name,
+            self.color,
+            self.transparency,
+            self.display_wireframe,
+            self.part_coordinate_system,
+        )
