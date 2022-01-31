@@ -831,7 +831,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.AdvancedPostProcessing.ModelPlotter`
+        :class:`pyaedt.generic.plot.ModelPlotter`
             Model Object.
         """
         if not is_ironpython and self._primitives._app._aedt_version >= "2021.2":
@@ -2435,6 +2435,8 @@ class CircuitComponent(object):
             return self._parameters
         _parameters = {}
         if self._circuit_components._app.design_type == "Circuit Design":
+            tab = "PassedParameterTab"
+        elif self._circuit_components._app.design_type == "Maxwell Circuit":
             tab = "PassedParameterTab"
         else:
             tab = "Quantities"

@@ -32,6 +32,7 @@ from pyaedt.generic.design_types import (
     Edb,
     Maxwell3d,
     Maxwell2d,
+    MaxwellCircuit,
     Mechanical,
     Rmxprt,
     TwinBuilder,
