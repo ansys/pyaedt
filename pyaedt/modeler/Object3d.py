@@ -780,7 +780,7 @@ class Object3d(object):
         >>> oEditor.GetModelBoundingBox
 
         """
-        tmp_path = os.path.expandvars('%temp%')
+        tmp_path = os.path.expandvars("%temp%")
         filename = os.path.join(tmp_path, self.name + ".sat")
 
         self._primitives._app.export_3d_model(self.name, tmp_path, ".sat", [self.name])
@@ -811,7 +811,7 @@ class Object3d(object):
         try:
             os.remove(filename)
         except:
-            print("ERROR: Cannot remove temp file.")
+            self.logger.warning("ERROR: Cannot remove temp file.")
         return bb
 
     @property
