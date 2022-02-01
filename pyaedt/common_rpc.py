@@ -47,7 +47,7 @@ def launch_server(port=18000, ansysem_path=None, non_graphical=False):
     """
     port1 = check_port(port)
     if port == 0:
-        print("Erron. No Available ports.")
+        print("Error. No Available ports.")
         return False
     if port1 != port:
         print("Port {} already in use. Starting Service on {}.".format(port, port1))
@@ -375,7 +375,7 @@ def launch_ironpython_server(aedt_path, non_graphical=False, port=18000, launch_
     """
     port1 = check_port(port)
     if port1 == 0:
-        print("Erron. No Available ports.")
+        print("Error. No Available ports.")
         return False
     if non_graphical:
         val = 1

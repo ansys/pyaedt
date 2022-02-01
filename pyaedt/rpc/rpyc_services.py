@@ -773,7 +773,7 @@ class GlobalService(rpyc.Service):
 
         port = check_port(random.randint(18500, 20000))
         if port == 0:
-            print("Erron. No Available ports.")
+            print("Error. No Available ports.")
             return False
         ansysem_path = ""
         non_graphical = True
