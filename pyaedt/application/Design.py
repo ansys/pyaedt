@@ -356,6 +356,7 @@ class Design(object):
             self._logger = main_module.aedt_logger
             self.release_on_exit = False
 
+        self.student_version = main_module.student_version
         self._mttime = None
         self._design_type = design_type
         self._desktop = main_module.oDesktop

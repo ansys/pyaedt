@@ -16,6 +16,7 @@ import random
 import string
 import math
 import os
+import re
 
 from pyaedt import aedt_exception_handler, _retry_ntimes
 from pyaedt.modeler.GeometryOperators import GeometryOperators
@@ -727,12 +728,11 @@ class Object3d(object):
         self._part_coordinate_system = None
         self._model = None
 
-    @property
-    def bounding_box(self):
-        """Bounding box of a part.
+    def _bounding_box_unmodel(self):
+        """Bounding box of a part, unmodel/undo method.
 
-        This is done by creating a new empty design, copying the object there, and getting the model bounding box. A
-        list of six 3D position vectors is returned.
+        This is done by setting all other objects as unmodel and getting the model bounding box.
+        Then an undo operation restore the design.
 
         Returns
         -------
@@ -740,35 +740,7 @@ class Object3d(object):
             List of six ``[x, y, z]`` positions of the bounding box containing
             Xmin, Ymin, Zmin, Xmax, Ymax, and Zmax values.
 
-        References
-        ----------
-
-        >>> oEditor.GetModelBoundingBox
-
         """
-        if self._primitives._app._aedt_version >= "2021.2":
-            model_obj = self._primitives._app.post.export_model_obj(
-                obj_list=[self.name], export_path=None, export_as_single_objects=True, air_objects=True
-            )
-            if model_obj:
-                x = []
-                y = []
-                z = []
-                with open(model_obj[0][0], "r") as f:
-                    lines = f.read().splitlines()
-                    for line in lines:
-                        l = line.split(" ")
-                        if l[0] and l[0] == "v" and len(l) > 3:
-                            x.append(float(l[1]))
-                            y.append(float(l[2]))
-                            z.append(float(l[3]))
-                bounds = [min(x), min(y), min(z), max(x), max(y), max(z)]
-                if os.path.exists(model_obj[0][0]):
-                    try:
-                        os.remove(model_obj[0][0])
-                    except:
-                        pass
-                return bounds
         objs_to_unmodel = [
             val.name for i, val in self._primitives.objects.items() if val.model and val.name != self.name
         ]
@@ -789,6 +761,84 @@ class Object3d(object):
             self._primitives._app.project_name, self._primitives._app.design_name, 1
         )
         return bounding
+
+    def _bounding_box_sat(self):
+        """Bounding box of a part.
+
+        This is done by exporting a part as a SAT file and reading the bounding box information from the SAT file.
+        A list of six 3D position vectors is returned.
+
+        Returns
+        -------
+        list of [list of float]
+            List of six ``[x, y, z]`` positions of the bounding box containing
+            Xmin, Ymin, Zmin, Xmax, Ymax, and Zmax values.
+
+        References
+        ----------
+
+        >>> oEditor.GetModelBoundingBox
+
+        """
+        tmp_path = os.path.expandvars("%temp%")
+        filename = os.path.join(tmp_path, self.name + ".sat")
+
+        self._primitives._app.export_3d_model(self.name, tmp_path, ".sat", [self.name])
+
+        if not os.path.isfile(filename):
+            raise Exception("Cannot export the ACIS SAT file for object {}".format(self.name))
+
+        with open(filename, "r") as fh:
+            temp = fh.read().splitlines()
+        all_lines = [s for s in temp if s.startswith("body ")]
+
+        bb = []
+        if len(all_lines) == 1:
+            line = all_lines[0]
+            pattern = r".+ (.+) (.+) (.+) (.+) (.+) (.+) #$"
+            m = re.search(pattern, line)
+            if m:
+                try:
+                    for i in range(1, 7):
+                        bb.append(float(m.group(i)))
+                except:
+                    raise Exception("WARNING: Error parsing the SAT file. Object " + str(self.name))
+            else:
+                raise Exception("WARNING: Error parsing the SAT file. Object " + str(self.name))
+        else:
+            raise Exception("WARNING: Error parsing the SAT file. Object " + str(self.name))
+
+        try:
+            os.remove(filename)
+        except:
+            self.logger.warning("ERROR: Cannot remove temp file.")
+        return bb
+
+    @property
+    def bounding_box(self):
+        """Bounding box of a part.
+
+        A list of six 3D position vectors is returned.
+
+        Returns
+        -------
+        list of [list of float]
+            List of six ``[x, y, z]`` positions of the bounding box containing
+            Xmin, Ymin, Zmin, Xmax, Ymax, and Zmax values.
+
+        References
+        ----------
+
+        >>> oEditor.GetModelBoundingBox
+
+        """
+        if not self._primitives._app.student_version:
+            try:
+                return self._bounding_box_sat()
+            except:
+                return self._bounding_box_unmodel()
+        else:
+            return self._bounding_box_unmodel()
 
     @property
     def bounding_dimension(self):
