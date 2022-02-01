@@ -32,6 +32,7 @@ if sys.version_info >= (3, 9):
         "rpyc==5.0.1",
         "pyvista>=0.32.0",
         "numpy",
+        "ipython",
         "matplotlib",
     ]
     install("https://github.com/pyansys/PyAEDT/raw/release/0.3/pythonnet-2.5.2-cp39-cp39-win_amd64.whl")
@@ -43,6 +44,7 @@ elif sys.version_info >= (3, 0):
         "rpyc==5.0.1",
         "pyvista>=0.32.0",
         "numpy",
+        "ipython",
         "matplotlib",
     ]
 elif not is_ironpython and sys.version_info < (3, 0):
