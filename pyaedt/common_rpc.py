@@ -12,7 +12,7 @@ if is_ironpython:
 
 import rpyc
 from rpyc.utils.server import ThreadedServer
-from pyaedt.rpc.rpyc_services import GlobalService
+from pyaedt.rpc.rpyc_services import GlobalService, check_port
 import rpyc.core.consts
 
 # Maximum Stream message size. Set to 256MB
@@ -24,7 +24,6 @@ if os.name == "posix" and is_ironpython:
     import subprocessdotnet as subprocess
 else:
     import subprocess
-    import socket
 
 
 def launch_server(port=18000, ansysem_path=None, non_graphical=False):
@@ -46,6 +45,12 @@ def launch_server(port=18000, ansysem_path=None, non_graphical=False):
     >>> launch_server( port=18000)
 
     """
+    port1 = check_port(port)
+    if port == 0:
+        print("Error. No Available ports.")
+        return False
+    if port1 != port:
+        print("Port {} already in use. Starting Service on {}.".format(port, port1))
     if os.name == "posix":
         os.environ["PYAEDT_SERVER_AEDT_PATH"] = ansysem_path
         os.environ["PYAEDT_SERVER_AEDT_NG"] = str(non_graphical)
@@ -145,7 +150,7 @@ def launch_server(port=18000, ansysem_path=None, non_graphical=False):
     t = ThreadedServer(
         GlobalService,
         hostname=hostname,
-        port=port,
+        port=port1,
         protocol_config={
             "sync_request_timeout": None,
             "allow_public_attrs": True,
@@ -221,7 +226,7 @@ def client(server_name, server_port=18000, beta_options=None):
     >>> cl2.root.run_script(script_to_run, ansysem_path = "/path/to/AnsysEMxxx/Linux64")
 
     """
-    t = 20
+    t = 60
     while t > 0:
         try:
             c = rpyc.connect(server_name, server_port, config={"sync_request_timeout": None})
@@ -236,7 +241,7 @@ def client(server_name, server_port=18000, beta_options=None):
     print("Connecting to new session of Electronics Desktop on port {}. Please Wait.".format(port))
     if port:
         time.sleep(20)
-        timeout = 60
+        timeout = 80
         while timeout > 0:
             try:
                 c1 = rpyc.connect(server_name, port, config={"sync_request_timeout": None})
@@ -368,6 +373,10 @@ def launch_ironpython_server(aedt_path, non_graphical=False, port=18000, launch_
     >>> my_face_list = client.convert_remote_object(box.faces)
 
     """
+    port1 = check_port(port)
+    if port1 == 0:
+        print("Error. No Available ports.")
+        return False
     if non_graphical:
         val = 1
     else:
@@ -378,13 +387,14 @@ def launch_ironpython_server(aedt_path, non_graphical=False, port=18000, launch_
         os.path.join(os.path.dirname(__file__), "rpc", "local_server.py"),
         aedt_path,
         str(val),
-        str(port),
+        str(port1),
     ]
     proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=non_graphical)
     print("Process {} started on {}".format(proc.pid, socket.getfqdn()))
+    print("Using Port {}".format(port1))
     print("Warning: Remote CPython to Ironpython may have some limitations.")
     print("Known Issues are on returned list and dict. ")
     print("For those it is recommended to use client.convert_remote_object method.")
     if proc and launch_client:
-        return client(server_name=socket.getfqdn(), server_port=port)
+        return client(server_name=socket.getfqdn(), server_port=port1)
     return False
