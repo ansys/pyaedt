@@ -240,3 +240,4 @@ M3D.analyze_all()
 # The electronics desktop is released from the PyAEDT scripting
 # We can leave the 'desktop' and 'project' open after the above script has run by setting (False, False) below.
 M3D.release_desktop(False, False)
+
