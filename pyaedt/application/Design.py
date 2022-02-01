@@ -972,9 +972,12 @@ class Design(object):
                     time.sleep(0.5)
                     proj = self.odesktop.GetActiveProject()
                     self.logger.info("Archive {} has been restored to project {}".format(proj_name, proj.GetName()))
-                elif ".def" in proj_name:
+                elif ".def" in proj_name or proj_name[-5:] == ".aedb":
                     oTool = self.odesktop.GetTool("ImportExport")
-                    oTool.ImportEDB(proj_name)
+                    if ".def" in proj_name:
+                        oTool.ImportEDB(proj_name)
+                    else:
+                        oTool.ImportEDB(os.path.join(proj_name, "edb.def"))
                     proj = self.odesktop.GetActiveProject()
                     proj.Save()
                     self.logger.info("EDB folder %s has been imported to project %s", proj_name, proj.GetName())
