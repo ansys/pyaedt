@@ -200,7 +200,7 @@ class FieldAnalysis3D(Analysis, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.AdvancedPostProcessing.ModelPlotter`
+        :class:`pyaedt.generic.plot.ModelPlotter`
             Model Object.
         """
         if is_ironpython:
@@ -481,7 +481,7 @@ class FieldAnalysis3D(Analysis, object):
         else:
             allObjects = object_list[:]
 
-        self.logger.info("Exporting {} objects".format(len(allObjects)))
+        self.logger.debug("Exporting {} objects".format(len(allObjects)))
         major = -1
         minor = -1
         # actual version supported by AEDT is 29.0

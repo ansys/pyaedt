@@ -713,16 +713,11 @@ class WPFToolkit(Window):
 
     def __init__(self, toolkit_file, aedt_design=None, parent_design_name=None):
 
-        my_path = os.path.abspath(os.path.dirname(__file__))
+        self.toolkit_file = toolkit_file
+        self._aedtdesign = None
         self.aedtdesign = aedt_design
-        self.toolkit_name = os.path.basename(toolkit_file).replace(".py", "")
-        if self.aedtdesign:
-            self.settings_manager = WPFToolkitSettings(aedtdesign=self.aedtdesign, toolkit_name=self.toolkit_name)
-        else:
-            self.settings_manager = WPFToolkitSettings(working_directory=my_path, toolkit_name=self.toolkit_name)
-
+        self.parent_design_name = parent_design_name
         self.window = None
-
         self.ui = UIObjectGetter(self)
         my_path = os.path.abspath(os.path.dirname(__file__))
         self.toolkit_directory = os.path.abspath(os.path.dirname(toolkit_file))
@@ -731,19 +726,6 @@ class WPFToolkit(Window):
         sys.path.append(self.aedtlib_directory)
         self.image_path = os.path.join(self.aedtlib_directory, "misc")
 
-        if parent_design_name:
-            self.parent_design_name = parent_design_name
-            if not parent_design_name in self.aedtdesign.design_list:
-                orig_design_name = self.aedtdesign.design_name
-                if self.parent_design_name != orig_design_name:
-                    self._write_parent_link()
-                    self.aedtdesign.duplicate_design(self.parent_design_name)
-                    self.aedtdesign.save_project()
-            else:
-                self.aedtdesign.set_active_design(parent_design_name)
-        else:
-            self.parent_design_name = self.aedtdesign.design_name
-
         self.dsoconfigfile = os.path.join(self.toolkit_directory, "dso.cfg")
 
         # Read existing settings and update the library path
@@ -751,6 +733,50 @@ class WPFToolkit(Window):
         self._callbacks = []
         # LOCAL_INSTALL = self.aedtdesign.odesktop.GetExeDir()
         # self.desktopjob = os.path.join(LOCAL_INSTALL, "desktopjob.exe")
+
+    @property
+    def aedtdesign(self):
+        """Return Aedt Object."""
+        return self._aedtdesign
+
+    @aedtdesign.setter
+    def aedtdesign(self, design):
+        my_path = os.path.abspath(os.path.dirname(__file__))
+        self._aedtdesign = design
+        self.toolkit_name = os.path.basename(self.toolkit_file).replace(".py", "")
+        if self._aedtdesign:
+            self.settings_manager = WPFToolkitSettings(aedtdesign=self._aedtdesign, toolkit_name=self.toolkit_name)
+            self._parent_design_name = self._aedtdesign.design_name
+        else:
+            self.settings_manager = WPFToolkitSettings(working_directory=my_path, toolkit_name=self.toolkit_name)
+            self._parent_design_name = None
+
+    @property
+    def parent_design_name(self):
+        """Aedt Design Name."""
+
+        if self.aedtdesign:
+            self._parent_design_name = self.aedtdesign.design_name
+        else:
+            self._parent_design_name = None
+        return self._parent_design_name
+
+    @parent_design_name.setter
+    def parent_design_name(self, design_name=None):
+        if not self.aedtdesign:
+            self._parent_design_name = None
+        elif design_name:
+            self._parent_design_name = design_name
+            if not design_name in self.aedtdesign.design_list:
+                orig_design_name = self.aedtdesign.design_name
+                if self._parent_design_name != orig_design_name:
+                    self._write_parent_link()
+                    self.aedtdesign.duplicate_design(self._parent_design_name)
+                    self.aedtdesign.save_project()
+            else:
+                self.aedtdesign.set_active_design(design_name)
+        else:
+            self._parent_design_name = self.aedtdesign.design_name
 
     @property
     def results_path(self):
@@ -809,6 +835,41 @@ class WPFToolkit(Window):
                     f.write(line_to_add + "\n")
                 f.write(line)
         shutil.move(self.xaml_file[:-5] + "_tmp.xaml", self.xaml_file)
+
+    @aedt_exception_handler
+    def edit_window_size(self, width=800, height=600, title="PyAEDT WPF Application", background="#FFD1CFCF"):
+        """Edit the Wpf windows size.
+
+        Parameters
+        ----------
+        width : int, optional
+            Windows width.
+        height : int, optional
+            Windows height.
+        title : str, optional
+            Windows title.
+        background : str, optional
+            Windows color in hex mode.
+
+        Returns
+        -------
+        bool
+            `True` if succeeded.
+        """
+        with open(self.xaml_file, "r") as file:
+            file = file.readlines()
+        line_to_add = '        Title="{}" Height="{}" Width="{}" Background="{}">'.format(
+            title, height, width, background
+        )
+
+        with open(self.xaml_file[:-5] + "_tmp.xaml", "w") as f:
+            for line in file:
+                if "       Title=" in line:
+                    f.write(line_to_add + "\n")
+                else:
+                    f.write(line)
+        shutil.move(self.xaml_file[:-5] + "_tmp.xaml", self.xaml_file)
+        return True
 
     @aedt_exception_handler
     def add_label(self, name, content, x_pos, y_pos):

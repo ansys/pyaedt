@@ -2,6 +2,7 @@
 This module contains the `EdbHfss` class.
 """
 from pyaedt.edb_core.general import convert_netdict_to_pydict
+from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, is_ironpython
 
 
@@ -478,3 +479,190 @@ class EdbHfss(object):
             return True
         else:
             return False
+
+    @aedt_exception_handler
+    def create_lumped_port_on_trace(
+        self,
+        nets=None,
+        reference_layer=None,
+        return_points_only=False,
+        polygon_trace_threshhold=300e-6,
+        digit_resolution=6,
+    ):
+        """Create an edge port on traces.
+
+        Parameters
+        ----------
+        nets : list, optional
+            List of nets, str or Edb net.
+
+        reference_layer : str, Edb layer.
+             Name or Edb layer object.
+
+        return_points_only : bool, optional
+            Use this boolean when you want to return only the points from the edges and not creating ports. Default
+            value is ``False``.
+
+        polygon_trace_threshhold : float, optional
+            Used only when selected nets are routed as polygon. The value gives the algorithm the threshold
+            of the polygon width at the design border for considering placing an edge port. The default value is
+            ``300-e6``.
+
+        digit_resolution : int, optional
+            The number of digits carried for the edges location accuracy. The default value is ``6``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if not isinstance(nets, list):
+            if isinstance(nets, str):
+                nets = [self._edb.Cell.Net.FindByName(self._active_layout, nets)]
+            elif isinstance(nets, self._edb.Cell.Net):
+                nets = [nets]
+        else:
+            temp_nets = []
+            for nn in nets:
+                if isinstance(nn, str):
+                    temp_nets.append(self._edb.Cell.Net.FindByName(self._active_layout, nn))
+                elif isinstance(nn, self._edb.Cell.Net):
+                    temp_nets.append(nn)
+            nets = temp_nets
+        edges_pts = []
+        if nets:
+            if isinstance(reference_layer, str):
+                reference_layer = self._pedb.core_stackup.signal_layers[reference_layer]._layer
+            if not isinstance(reference_layer, self._edb.Cell.ILayerReadOnly):
+                return False
+            layout = nets[0].GetLayout()
+            layout_bbox = self.get_layout_bounding_box(layout, digit_resolution)
+            for net in nets:
+                net_primitives = list(net.Primitives)
+                net_paths = [
+                    pp for pp in net_primitives if pp.GetPrimitiveType() == self._edb.Cell.Primitive.PrimitiveType.Path
+                ]
+                net_poly = [
+                    pp
+                    for pp in net_primitives
+                    if pp.GetPrimitiveType() == self._edb.Cell.Primitive.PrimitiveType.Polygon
+                ]
+                for path in net_paths:
+                    trace_path_pts = list(path.GetCenterLine().Points)
+                    for pt in trace_path_pts:
+                        _pt = [round(pt.X.ToDouble(), digit_resolution), round(pt.Y.ToDouble(), digit_resolution)]
+                        if bool(set(_pt) & set(layout_bbox)):
+                            if return_points_only:
+                                edges_pts.append(_pt)
+                            else:
+                                port_name = generate_unique_name("port")
+                                if not self._hfss_terminals.CreateEdgePort(path, pt, reference_layer, port_name):
+                                    aedt_exception_handler(
+                                        "edge port creation failed on point {}, {}".format(str(pt[0]), str(_pt[1]))
+                                    )
+                for poly in net_poly:
+                    pt_list = list(poly.GetPolygonData().Points)
+                    points_at_border = [
+                        pt
+                        for pt in pt_list
+                        if round(pt.X.ToDouble(), digit_resolution) in layout_bbox
+                        or round(pt.Y.ToDouble(), digit_resolution) in layout_bbox
+                    ]
+                    pt_at_left = [
+                        pt for pt in points_at_border if round(pt.X.ToDouble(), digit_resolution) == layout_bbox[0]
+                    ]
+                    pt_at_left_values = [pt.Y.ToDouble() for pt in pt_at_left]
+                    if pt_at_left_values:
+                        left_edge_length = abs(max(pt_at_left_values) - min(pt_at_left_values))
+                        if polygon_trace_threshhold >= left_edge_length > 0:
+                            if return_points_only:
+                                edges_pts.append(pt_at_left)
+                            else:
+                                port_name = generate_unique_name("port")
+                                if not self._hfss_terminals.CreateEdgePortOnPolygon(
+                                    poly, convert_py_list_to_net_list(pt_at_left), reference_layer, port_name
+                                ):
+                                    aedt_exception_handler("Failed to create port on polygon {}".format(poly.GetName()))
+
+                    pt_at_bottom = [
+                        pt for pt in points_at_border if round(pt.Y.ToDouble(), digit_resolution) == layout_bbox[1]
+                    ]
+                    pt_at_bottom_values = [pt.X.ToDouble() for pt in pt_at_bottom]
+                    if pt_at_bottom_values:
+                        bot_edge_length = abs(max(pt_at_bottom_values) - min(pt_at_bottom_values))
+                        if polygon_trace_threshhold >= bot_edge_length > 0:
+                            if return_points_only:
+                                edges_pts.append(pt_at_bottom)
+                            else:
+                                port_name = generate_unique_name("port")
+                                if not self._hfss_terminals.CreateEdgePortOnPolygon(
+                                    poly, convert_py_list_to_net_list(pt_at_bottom), reference_layer, port_name
+                                ):
+                                    aedt_exception_handler("Failed to create port on polygon {}".format(poly.GetName()))
+
+                    pt_at_right = [
+                        pt for pt in points_at_border if round(pt.X.ToDouble(), digit_resolution) == layout_bbox[2]
+                    ]
+                    pt_at_right_values = [pt.Y.ToDouble() for pt in pt_at_right]
+                    if pt_at_right_values:
+                        right_edge_length = abs(max(pt_at_right_values) - min(pt_at_right_values))
+                        if polygon_trace_threshhold >= right_edge_length > 0:
+                            if return_points_only:
+                                edges_pts.append(pt_at_right)
+                            else:
+                                port_name = generate_unique_name("port")
+                                if not self._hfss_terminals.CreateEdgePortOnPolygon(
+                                    poly, convert_py_list_to_net_list(pt_at_right), reference_layer, port_name
+                                ):
+                                    aedt_exception_handler("Failed to create port on polygon {}".format(poly.GetName()))
+
+                    pt_at_top = [
+                        pt for pt in points_at_border if round(pt.Y.ToDouble(), digit_resolution) == layout_bbox[3]
+                    ]
+                    pt_at_top_values = [pt.X.ToDouble() for pt in pt_at_top]
+                    if pt_at_top_values:
+                        top_edge_length = abs(max(pt_at_top_values) - min(pt_at_top_values))
+                        if polygon_trace_threshhold >= top_edge_length > 0:
+                            if return_points_only:
+                                edges_pts.append(pt - pt_at_top)
+                            else:
+                                port_name = generate_unique_name("port")
+                                if not self._hfss_terminals.CreateEdgePortOnPolygon(
+                                    poly, convert_py_list_to_net_list(pt_at_top), reference_layer, port_name
+                                ):
+                                    aedt_exception_handler("Failed to create port on polygon {}".format(poly.GetName()))
+            if return_points_only:
+                return edges_pts
+        return True
+
+    @aedt_exception_handler
+    def get_layout_bounding_box(self, layout=None, digit_resolution=6):
+        """Evaluate the layout bounding box.
+
+        Parameters
+        ----------
+        layout :
+            Edb layout.
+
+        digit_resolution : int, optional
+            Digit Resolution. The default value is ``6``.
+        Returns
+        -------
+        list
+            [lower left corner X, lower left corner, upper right corner X, upper right corner Y]
+        """
+        if layout == None:
+            return False
+        layout_obj_instances = layout.GetLayoutInstance().GetAllLayoutObjInstances()
+        tuple_list = []
+        for lobj in layout_obj_instances.Items:
+            lobj_bbox = lobj.GetLayoutInstanceContext().GetBBox(False)
+            tuple_list.append(lobj_bbox)
+        _bbox = self._edb.Geometry.PolygonData.GetBBoxOfBoxes(convert_py_list_to_net_list(tuple_list))
+        layout_bbox = [
+            round(_bbox.Item1.X.ToDouble(), digit_resolution),
+            round(_bbox.Item1.Y.ToDouble(), digit_resolution),
+            round(_bbox.Item2.X.ToDouble(), digit_resolution),
+            round(_bbox.Item2.Y.ToDouble(), digit_resolution),
+        ]
+        return layout_bbox

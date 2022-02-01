@@ -165,7 +165,7 @@ class FieldAnalysis2D(Analysis):
 
         Returns
         -------
-        :class:`pyaedt.modules.AdvancedPostProcessing.ModelPlotter`
+        :class:`pyaedt.generic.plot.ModelPlotter`
             Model Object.
         """
         if is_ironpython:

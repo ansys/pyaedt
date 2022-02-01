@@ -1,3 +1,4 @@
+import socket
 import os
 import random
 import tempfile
@@ -28,6 +29,34 @@ from pyaedt import Q2d
 from pyaedt import Circuit
 from pyaedt import Icepak
 from pyaedt import Mechanical
+
+
+def check_port(port):
+    """Check for an available port on the machine starting from input port.
+
+     Parameters
+    ----------
+    port : int
+        Ports to search.
+
+    Returns
+    -------
+    int
+        Next Port available.
+    """
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    check = False
+    while not check:
+        try:
+            s.bind((socket.getfqdn(), port))
+            check = True
+        except socket.error as e:
+            port += 1
+            # stop search at port 30000 (range search 18000 30000 is more then enough for rpc)
+            if port > 29999:
+                return 0
+    s.close()
+    return port
 
 
 class PyaedtServiceWindows(rpyc.Service):
@@ -742,7 +771,11 @@ class GlobalService(rpyc.Service):
         hostname : str
             Hostname.
         """
-        port = random.randint(18001, 20000)
+
+        port = check_port(random.randint(18500, 20000))
+        if port == 0:
+            print("Error. No Available ports.")
+            return False
         ansysem_path = ""
         non_graphical = True
         if os.name == "posix":
@@ -755,7 +788,7 @@ class GlobalService(rpyc.Service):
                 script_file = os.path.normpath(
                     os.path.join(os.path.abspath(os.path.dirname(__file__)), "pyaedt_client_linux.py")
                 )
-                dest_file = os.path.join(tempfile.gettempdir(), "pyaedt_client_linux.py")
+                dest_file = os.path.join(tempfile.gettempdir(), "pyaedt_client_linux_{}.py".format(port))
                 print(dest_file)
                 with open(dest_file, "w") as f:
                     f.write("port={}\n".format(port))

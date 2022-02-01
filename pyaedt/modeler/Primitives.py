@@ -11,7 +11,7 @@ from collections import OrderedDict
 from pyaedt.application.Variables import Variable
 from pyaedt.generic.general_methods import aedt_exception_handler, is_number, _retry_ntimes
 from pyaedt.modeler.GeometryOperators import GeometryOperators
-from pyaedt.modeler.Object3d import EdgePrimitive, FacePrimitive, Object3d, _dim_arg, _uname
+from pyaedt.modeler.Object3d import EdgePrimitive, FacePrimitive, Object3d, _dim_arg, _uname, Point
 from pyaedt.generic.constants import PLANE
 
 default_materials = {
@@ -891,6 +891,16 @@ class Primitives(object):
         return [self[name] for name in self._lines]
 
     @property
+    def points(self):
+        """List of points."""
+        return self._points
+
+    @property
+    def points_by_name(self):
+        """Dictionary containing all points where the keys are the name of the points."""
+        return self._point_names
+
+    @property
     def unclassified_objects(self):
         """List of all unclassified objects."""
         self._refresh_unclassified()
@@ -1036,6 +1046,20 @@ class Primitives(object):
         for el in names:
             vPropServers.append(el)
         vGeo3d = ["NAME:Geometry3DAttributeTab", vPropServers, vChangedProps]
+        vOut = ["NAME:AllTabs", vGeo3d]
+        _retry_ntimes(10, self._oeditor.ChangeProperty, vOut)
+        if "NAME:Name" in vPropChange:
+            self.cleanup_objects()
+        return True
+
+    @aedt_exception_handler
+    def _change_point_property(self, vPropChange, names_list):
+        names = self._app.modeler.convert_to_selections(names_list, True)
+        vChangedProps = ["NAME:ChangedProps", vPropChange]
+        vPropServers = ["NAME:PropServers"]
+        for el in names:
+            vPropServers.append(el)
+        vGeo3d = ["NAME:Geometry3DPointTab", vPropServers, vChangedProps]
         vOut = ["NAME:AllTabs", vGeo3d]
         _retry_ntimes(10, self._oeditor.ChangeProperty, vOut)
         if "NAME:Name" in vPropChange:
@@ -1751,6 +1775,8 @@ class Primitives(object):
         self._solids = []
         self._sheets = []
         self._lines = []
+        self._points = []
+        self._point_names = {}
         self._unclassified = []
         self._all_object_names = []
         self.objects = {}
@@ -1785,6 +1811,20 @@ class Primitives(object):
 
         self.objects = new_object_dict
         self.object_id_dict = new_object_id_dict
+
+    def remove_point(self, name):
+        """Remove a point.
+
+        Parameters
+        ----------
+        name : str
+            Name of the point to be removed.
+
+        Returns
+        -------
+        """
+        self._points.remove(self.points_by_name[name])
+        del self.points_by_name[name]
 
     def find_new_objects(self):
         """Find any new objects in the modeler that were created
@@ -3058,7 +3098,7 @@ class Primitives(object):
             self._solids = []  # In IronPython True is returned when no sheets are present
         else:
             self._solids = list(test)
-        self._all_object_names = self._solids + self._sheets + self._lines
+        self._all_object_names = self._solids + self._sheets + self._lines + self._points
 
     def _refresh_sheets(self):
         test = _retry_ntimes(10, self._oeditor.GetObjectsInGroup, "Sheets")
@@ -3068,7 +3108,7 @@ class Primitives(object):
             self._sheets = []  # In IronPython True is returned when no sheets are present
         else:
             self._sheets = list(test)
-        self._all_object_names = self._solids + self._sheets + self._lines
+        self._all_object_names = self._solids + self._sheets + self._lines + self._points
 
     def _refresh_lines(self):
         test = _retry_ntimes(10, self._oeditor.GetObjectsInGroup, "Lines")
@@ -3078,7 +3118,17 @@ class Primitives(object):
             self._lines = []  # In IronPython True is returned when no lines are present
         else:
             self._lines = list(test)
-        self._all_object_names = self._solids + self._sheets + self._lines
+        self._all_object_names = self._solids + self._sheets + self._lines + self._points
+
+    # def _refresh_points(self):
+    #     test = _retry_ntimes(10, self._oeditor.GetObjectsInGroup, "Points")
+    #     if test is None or test is False:
+    #         assert False, "Get Points is failing"
+    #     elif test is True:
+    #         self._points = []  # In IronPython True is returned when no points are present
+    #     else:
+    #         self._points = list(test)
+    #     self._all_object_names = self._solids + self._sheets + self._lines + self._points
 
     def _refresh_unclassified(self):
         test = _retry_ntimes(10, self._oeditor.GetObjectsInGroup, "Unclassified")
@@ -3094,7 +3144,7 @@ class Primitives(object):
         self._refresh_solids()
         self._refresh_sheets()
         self._refresh_lines()
-        self._all_object_names = self._solids + self._sheets + self._lines
+        self._all_object_names = self._solids + self._sheets + self._lines + self._points
 
     def _create_object(self, name):
         o = Object3d(self, name)
@@ -3102,6 +3152,12 @@ class Primitives(object):
         self.objects[new_id] = o
         self.object_id_dict[o.name] = new_id
         return o
+
+    def _create_point(self, name):
+        point = Point(self, name)
+        self._point_names[name] = point
+        self._points.append(point)
+        return point
 
     def _refresh_all_ids_from_aedt_file(self):
         if not self._app.design_properties or "ModelSetup" not in self._app.design_properties:

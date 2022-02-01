@@ -2546,7 +2546,7 @@ class PostProcessor(PostProcessorCommon, object):
 
         >>> oModule.DeleteFieldPlot
         """
-        self.oreportsetup.DeleteFieldPlot([name])
+        self.ofieldsreporter.DeleteFieldPlot([name])
         self.field_plots.pop(name, None)
         return True
 
@@ -2726,7 +2726,7 @@ class PostProcessor(PostProcessorCommon, object):
         else:
             fname = os.path.join(export_path, "Model_AllObjs_AllMats.obj")
             self._app.modeler.oeditor.ExportModelMeshToFile(fname, obj_list)
-            return [fname, "grey", 0.6]
+            return [[fname, "grey", 0.6]]
 
     @aedt_exception_handler
     def export_mesh_obj(self, setup_name=None, intrinsic_dict={}):
