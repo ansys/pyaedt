@@ -2546,7 +2546,7 @@ class PostProcessor(PostProcessorCommon, object):
 
         >>> oModule.DeleteFieldPlot
         """
-        self.oreportsetup.DeleteFieldPlot([name])
+        self.ofieldsreporter.DeleteFieldPlot([name])
         self.field_plots.pop(name, None)
         return True
 
