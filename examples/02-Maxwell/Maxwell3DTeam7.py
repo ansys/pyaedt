@@ -23,7 +23,7 @@ DesktopVersion = "2021.2"
 M3D = Maxwell3d(
     projectname=Project_Name, designname=Design_Name, solution_type=Solver, specified_version=DesktopVersion
 )
-uom = M3D.modeler.model_units = "mm"
+M3D.modeler.model_units = "mm"
 primitives = M3D.modeler.primitives
 Plot = M3D.odesign.GetModule("ReportSetup")
 
