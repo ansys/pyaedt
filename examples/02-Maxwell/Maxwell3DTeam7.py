@@ -157,13 +157,13 @@ lines = ["Line_A1_B1", "Line_A2_B2"]
 mesh_diameter = "2mm"
 
 line_points_1 = [["0mm", "72mm", "34mm"], ["288mm", "72mm", "34mm"]]
-polyline = primitives.create_polyline(line_points_1, name=Lines[0])
-L1Mesh = primitives.create_polyline(line_points_1, name=Lines[0] + "mesh")
+polyline = primitives.create_polyline(line_points_1, name=lines[0])
+L1Mesh = primitives.create_polyline(line_points_1, name=lines[0] + "mesh")
 L1Mesh.set_crosssection_properties(type="Circle", width=mesh_diameter)
 
 line_points_2 = [["0mm", "144mm", "34mm"], ["288mm", "144mm", "34mm"]]
-polyline2 = primitives.create_polyline(line_points_2, name=Lines[1])
-polyline2_mesh= primitives.create_polyline(line_points_2, name=Lines[1] + "mesh")
+polyline2 = primitives.create_polyline(line_points_2, name=lines[1])
+polyline2_mesh= primitives.create_polyline(line_points_2, name=lines[1] + "mesh")
 polyline2_mesh.set_crosssection_properties(type="Circle", width=mesh_diameter)
 
 ###############################################################################
