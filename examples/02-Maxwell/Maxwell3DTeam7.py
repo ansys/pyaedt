@@ -357,7 +357,7 @@ for item in dataset_range:
 
         # Import test data into the correct plot and overlay it with simulation results.
         if item == 0:
-            Plot.ImportIntoReport(plotname, project_dir + "\\" + str(dataset[item]) + ".csv")
+            Plot.ImportIntoReport(plotname, os.path.join(project_dir, str(dataset[item]) + ".csv"))
         else:
             Plot.ImportIntoReport(plotname, project_dir + "\\" + str(dataset[item - 1]) + ".csv")
             Plot.ImportIntoReport(plotname, project_dir + "\\" + str(dataset[item]) + ".csv")
