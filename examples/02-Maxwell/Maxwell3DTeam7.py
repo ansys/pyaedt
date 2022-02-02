@@ -153,18 +153,18 @@ Fields.AddNamedExpression("Bz", "Fields")
 ################################################################################
 # Draw two lines along which we will plot Bz
 # A small cylinder is also added to refine mesh locally around each line.
-Lines = ["Line_A1_B1", "Line_A2_B2"]
-MeshDia = "2mm"
+lines = ["Line_A1_B1", "Line_A2_B2"]
+mesh_diameter = "2mm"
 
-Line_Points1 = [["0mm", "72mm", "34mm"], ["288mm", "72mm", "34mm"]]
-L1 = primitives.create_polyline(Line_Points1, name=Lines[0])
-L1Mesh = primitives.create_polyline(Line_Points1, name=Lines[0] + "mesh")
-L1Mesh.set_crosssection_properties(type="Circle", width=MeshDia)
+line_points_1 = [["0mm", "72mm", "34mm"], ["288mm", "72mm", "34mm"]]
+polyline = primitives.create_polyline(line_points_1, name=Lines[0])
+L1Mesh = primitives.create_polyline(line_points_1, name=Lines[0] + "mesh")
+L1Mesh.set_crosssection_properties(type="Circle", width=mesh_diameter)
 
-Line_Points1 = [["0mm", "144mm", "34mm"], ["288mm", "144mm", "34mm"]]
-L2 = primitives.create_polyline(Line_Points1, name=Lines[1])
-L2Mesh = primitives.create_polyline(Line_Points1, name=Lines[1] + "mesh")
-L2Mesh.set_crosssection_properties(type="Circle", width=MeshDia)
+line_points_2 = [["0mm", "144mm", "34mm"], ["288mm", "144mm", "34mm"]]
+polyline2 = primitives.create_polyline(line_points_2, name=Lines[1])
+polyline2_mesh= primitives.create_polyline(line_points_2, name=Lines[1] + "mesh")
+polyline2_mesh.set_crosssection_properties(type="Circle", width=mesh_diameter)
 
 ###############################################################################
 # Plot the Model
