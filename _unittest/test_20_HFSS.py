@@ -656,3 +656,7 @@ class TestClass:
         boundaries = len(self.aedtapp.boundaries)
         assert self.aedtapp.create_spiral_lumped_port(box1, box2)
         assert len(self.aedtapp.boundaries) - boundaries == 3
+
+    def test_46_mesh_settings(self):
+        assert self.aedtapp.mesh.initial_mesh_settings
+        assert self.aedtapp.mesh.initial_mesh_settings.props

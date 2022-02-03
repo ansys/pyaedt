@@ -102,3 +102,7 @@ class TestClass:
         assert q2d
         assert q2d.dim == "2D"
         pass
+
+    def test_11_mesh_settings(self):
+        assert self.aedtapp.mesh.initial_mesh_settings
+        assert self.aedtapp.mesh.initial_mesh_settings.props
