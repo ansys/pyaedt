@@ -972,6 +972,20 @@ class Object3d(object):
         return faces
 
     @property
+    def faces_on_bounding_box(self):
+        """Return only the face ids of the faces touching the bounding box.
+
+        Returns
+        -------
+        list
+        """
+        f_list = []
+        for face in self.faces:
+            if face.is_on_bounding():
+                f_list.append(face.id)
+        return f_list
+
+    @property
     def top_face_z(self):
         """Top face in the Z direction of the object.
 
