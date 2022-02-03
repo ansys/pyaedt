@@ -256,13 +256,17 @@ class Q3d(QExtractor, object):
         original_nets = [i for i in self.nets]
         self.oboundary.AutoIdentifyNets()
         new_nets = [i for i in self.nets if i not in original_nets]
-        for i in new_nets:
-            bound = BoundaryObject(self, i, OrderedDict({}), "SignalNet")
+        for net in new_nets:
+            objects = self.modeler.convert_to_selections(
+                [int(i) for i in list(self.oboundary.GetExcitationAssignment(net))], True
+            )
+            props = OrderedDict({"Objects": objects})
+            bound = BoundaryObject(self, net, props, "SignalNet")
             self.boundaries.append(bound)
         if new_nets:
             self.logger.info("{} Nets have been identified: {}".format(len(new_nets), ", ".join(new_nets)))
         else:
-            self.logger.warning("No Nets identified")
+            self.logger.info("No new nets identified")
         return True
 
     @aedt_exception_handler
