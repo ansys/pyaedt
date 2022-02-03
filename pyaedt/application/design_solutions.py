@@ -6,6 +6,7 @@ solutions_defaults = {
     "Maxwell 3D": "Magnetostatic",
     "Twin Builder": "TR",
     "Circuit Design": "NexximLNA",
+    "Maxwell Circuit": "",
     "2D Extractor": "Open",
     "Q3D Extractor": "Q3D Extractor",
     "HFSS": "HFSS Modal Network",
@@ -433,6 +434,8 @@ solutions_types = {
     "EMIT": {
         "EMIT": {"name": None, "options": None, "report_type": None, "default_setup": None, "default_adaptive": None}
     },
+    # Maxwell Circuit has no solution type
+    "Maxwell Circuit": {},
 }
 
 model_names = {
@@ -440,6 +443,7 @@ model_names = {
     "Maxwell 3D": "Maxwell3DModel",
     "Twin Builder": "SimplorerCircuit",
     "Circuit Design": "NexximCircuit",
+    "Maxwell Circuit": "MaxCirCircuit",
     "2D Extractor": "2DExtractorModel",
     "Q3D Extractor": "Q3DModel",
     "HFSS": "HFSSModel",

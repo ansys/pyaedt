@@ -356,6 +356,7 @@ class Design(object):
             self._logger = main_module.aedt_logger
             self.release_on_exit = False
 
+        self.student_version = main_module.student_version
         self._mttime = None
         self._design_type = design_type
         self._desktop = main_module.oDesktop
@@ -606,7 +607,7 @@ class Design(object):
 
         Options are ``"Circuit Design"``, ``"Emit"``, ``"HFSS"``,
         ``"HFSS 3D Layout Design"``, ``"Icepak"``, ``"Maxwell 2D"``,
-        ``"Maxwell 3D"``, ``"Mechanical"``, ``"ModelCreation"``,
+        ``"Maxwell 3D"``, ``"Maxwell Circuit"``, ``"Mechanical"``, ``"ModelCreation"``,
         ``"Q2D Extractor"``, ``"Q3D Extractor"``, ``"RMxprtSolution"``,
         and ``"Twin Builder"``.
 
@@ -972,9 +973,12 @@ class Design(object):
                     time.sleep(0.5)
                     proj = self.odesktop.GetActiveProject()
                     self.logger.info("Archive {} has been restored to project {}".format(proj_name, proj.GetName()))
-                elif ".def" in proj_name:
+                elif ".def" in proj_name or proj_name[-5:] == ".aedb":
                     oTool = self.odesktop.GetTool("ImportExport")
-                    oTool.ImportEDB(proj_name)
+                    if ".def" in proj_name:
+                        oTool.ImportEDB(proj_name)
+                    else:
+                        oTool.ImportEDB(os.path.join(proj_name, "edb.def"))
                     proj = self.odesktop.GetActiveProject()
                     proj.Save()
                     self.logger.info("EDB folder %s has been imported to project %s", proj_name, proj.GetName())

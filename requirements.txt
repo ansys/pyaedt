@@ -26,3 +26,6 @@ matplotlib
 
 numpy
 # License: BSD-3-Clause License
+
+ipython
+# License: BSD-3-Clause License

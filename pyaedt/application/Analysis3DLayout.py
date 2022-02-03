@@ -87,7 +87,7 @@ class FieldAnalysis3DLayout(Analysis):
         self._oboundary = self._odesign.GetModule("Excitations")
         self.logger.info("Analysis Loaded")
         self._modeler = Modeler3DLayout(self)
-        self._modeler.primitives.init_padstacks()
+        self._modeler.init_padstacks()
         self.logger.info("Modeler Loaded")
         self._mesh = Mesh3d(self)
         self._post = PostProcessor(self)

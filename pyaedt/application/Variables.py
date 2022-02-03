@@ -758,7 +758,7 @@ class VariableManager(object):
         desktop_object = self.aedt_object(variable_name)
         test = desktop_object.GetName()
         proj_name = self._oproject.GetName()
-        var_type = "Project" if test == proj_name else "Local"
+        var_type = "Project" if "$" in variable_name[0] else "Local"
 
         prop_type = "VariableProp"
 

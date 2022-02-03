@@ -211,6 +211,19 @@ class TestClass:
         )
         assert os.path.exists(obj.image_file)
 
+    @pytest.mark.skipif(is_ironpython, reason="Not running in ironpython")
+    def test_16_create_field_plot(self):
+        cutlist = ["Global:XY"]
+        plot = self.aedtapp.post._create_fieldplot(
+            objlist=cutlist,
+            quantityName="Mag_E",
+            setup_name=self.aedtapp.nominal_adaptive,
+            intrinsincList={"Freq": "5GHz", "Phase": "0deg"},
+            objtype="Surface",
+            listtype="CutPlane",
+        )
+        assert plot
+
     def test_51_get_efields(self):
         if is_ironpython:
 
@@ -220,7 +233,9 @@ class TestClass:
             assert app2.post.get_efields_data(ff_setup="3D")
             app2.close_project(saveproject=False)
 
-    @pytest.mark.skipif(not ipython_available, reason="Skipped because ipython not available")
+    @pytest.mark.skipif(
+        config["build_machine"] or not ipython_available, reason="Skipped because ipython not available"
+    )
     def test_52_display(self):
         img = self.aedtapp.post.nb_display(show_axis=True, show_grid=True, show_ruler=True)
         assert isinstance(img, Image)

@@ -78,14 +78,26 @@ q.plot(show=False, export_path=os.path.join(q.working_directory, "Q3D.jpg"), plo
 q.auto_identify_nets()
 
 q.assign_source_to_objectface("Bar1", axisdir=q.AxisDir.XPos, source_name="Source1")
-
 q.assign_sink_to_objectface("Bar1", axisdir=q.AxisDir.XNeg, sink_name="Sink1")
 
 q.assign_source_to_objectface("Bar2", axisdir=q.AxisDir.XPos, source_name="Source2")
 q.assign_sink_to_objectface("Bar2", axisdir=q.AxisDir.XNeg, sink_name="Sink2")
 q.assign_source_to_objectface("Bar3", axisdir=q.AxisDir.XPos, source_name="Source3")
-q.assign_sink_to_objectface("Bar3", axisdir=q.AxisDir.YPos, sink_name="Sink3")
+bar3_sink = q.assign_sink_to_objectface("Bar3", axisdir=q.AxisDir.YPos)
+bar3_sink.name = "Sink3"
+bar3_sink.update()
 
+###############################################################################
+# Print Infos
+# ~~~~~~~~~~~
+# There are different methods to print nets and terminal informations.
+print(q.nets)
+print(q.net_sinks("Bar1"))
+print(q.net_sinks("Bar2"))
+print(q.net_sinks("Bar3"))
+print(q.net_sources("Bar1"))
+print(q.net_sources("Bar2"))
+print(q.net_sources("Bar3"))
 
 ###############################################################################
 # Add a Q3D Setup
@@ -127,4 +139,4 @@ a.data_magnitude()
 # `release_desktop` method.
 # All methods provide for saving projects before exiting.
 if os.name != "posix":
-    q.release_desktop(close_projects=True, close_on_exit=True)
+    q.release_desktop(close_projects=True, close_desktop=True)

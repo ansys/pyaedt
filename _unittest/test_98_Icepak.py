@@ -201,7 +201,9 @@ class TestClass:
 
     def test_13a_assign_openings(self):
         airfaces = [self.aedtapp.modeler.primitives["Region"].top_face_x.id]
-        assert self.aedtapp.assign_openings(airfaces)
+        openings = self.aedtapp.assign_openings(airfaces)
+        openings.name = "Test_Opening"
+        assert openings.update()
 
     def test_13b_assign_grille(self):
         airfaces = [self.aedtapp.modeler.primitives["Region"].top_face_y.id]
@@ -214,6 +216,8 @@ class TestClass:
         )
         assert grille2.props["X"] == ["0", "3", "5"]
         assert grille2.props["Y"] == ["0", "2", "3"]
+        grille2.name = "Grille_test"
+        assert grille2.update()
 
     def test_14_edit_design_settings(self):
         assert self.aedtapp.edit_design_settings(gravityDir=1)

@@ -2316,6 +2316,8 @@ class PostProcessor(PostProcessorCommon, object):
         plot.objtype = objtype
         plot.listtype = listtype
         plt = plot.create()
+        if "Maxwell" in self._app.design_type and self.post_solution_type == "Transient":
+            self.ofieldsreporter.SetPlotsViewSolutionContext([plot_name], setup_name, "Time:" + intrinsincList["Time"])
         if plt:
             self.field_plots[plot_name] = plot
             return plot
@@ -2546,7 +2548,7 @@ class PostProcessor(PostProcessorCommon, object):
 
         >>> oModule.DeleteFieldPlot
         """
-        self.oreportsetup.DeleteFieldPlot([name])
+        self.ofieldsreporter.DeleteFieldPlot([name])
         self.field_plots.pop(name, None)
         return True
 
