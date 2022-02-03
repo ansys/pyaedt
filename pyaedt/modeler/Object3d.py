@@ -530,6 +530,33 @@ class FacePrimitive(object):
         return area
 
     @aedt_exception_handler
+    def is_on_bounding(self, tol=1e-9):
+        """Check if the face is on bounding box or Not.
+
+        Parameters
+        ----------
+        tolerance : float, optional
+            Tolerance of check between face center and bounding box.
+
+        Returns
+        -------
+        bool
+            `True` if the face is on bounding box. `False` otherwise.
+        """
+        b = [float(i) for i in list(self._oeditor.GetModelBoundingBox())]
+        c = self.center
+        if (
+            abs(c[0] - b[0]) < tol
+            or abs(c[1] - b[1]) < tol
+            or abs(c[2] - b[2]) < tol
+            or abs(c[0] - b[3]) < tol
+            or abs(c[1] - b[4]) < tol
+            or abs(c[2] - b[5]) < tol
+        ):
+            return True
+        return False
+
+    @aedt_exception_handler
     def move_with_offset(self, offset=1.0):
         """Move the face along the normal.
 

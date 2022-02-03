@@ -322,7 +322,8 @@ class Q3d(QExtractor, object):
 
         Parameters
         ----------
-        object_name : str
+        object_name : str, int
+            Name of the object or face id.
             Name of the object.
         axisdir : optional
             Initial axis direction. Options are ``0`` through ``5``. The default is ``0``.
@@ -341,8 +342,11 @@ class Q3d(QExtractor, object):
 
         >>> oModule.AssignSource
         """
-        a = self.modeler._get_faceid_on_axis(object_name, axisdir)
-
+        object_name = self.modeler.convert_to_selections(object_name, True)[0]
+        if isinstance(object_name, int):
+            a = object_name
+        else:
+            a = self.modeler._get_faceid_on_axis(object_name, axisdir)
         if not source_name:
             source_name = generate_unique_name("Source")
         if not net_name:
@@ -407,8 +411,8 @@ class Q3d(QExtractor, object):
 
         Parameters
         ----------
-        object_name : str
-            Name of the object.
+        object_name : str, int
+            Name of the object or face id.
         axisdir : int, optional
             Initial axis direction. Options are ``0`` through ``5``. The default is ``0``.
         sink_name : str, optional
@@ -426,8 +430,12 @@ class Q3d(QExtractor, object):
 
         >>> oModule.AssignSink
         """
-        a = self.modeler._get_faceid_on_axis(object_name, axisdir)
-
+        object_name = self.modeler.convert_to_selections(object_name, True)[0]
+        if isinstance(object_name, int):
+            a = object_name
+            object_name = self.modeler.oeditor.GetObjectNameByFaceID(a)
+        else:
+            a = self.modeler._get_faceid_on_axis(object_name, axisdir)
         if not sink_name:
             sink_name = generate_unique_name("Sink")
         if not net_name:
