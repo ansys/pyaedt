@@ -19,7 +19,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
     ----------
     projectname : str, optional
         Name of the project to select or the full path to the project
-        or AEDTZ archive to open.  The default is ``None``, in which
+        or AEDTZ archive to open or the path to aedb folder or edb.def file.
+        The default is ``None``, in which
         case an attempt is made to get an active project. If no
         projects are present, an empty project is created.
     designname : str, optional
