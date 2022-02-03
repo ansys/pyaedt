@@ -88,6 +88,9 @@ class TestClass:
         sink = self.aedtapp.assign_sink_to_sheet("Sink1", netname="GND", objectname="Cylinder1")
         assert source
         assert sink
+        sink.name = "My_new_name"
+        assert sink.update()
+        assert sink.name == "My_new_name"
         assert len(self.aedtapp.nets) > 0
         assert len(self.aedtapp.net_sources("GND")) > 0
         assert len(self.aedtapp.net_sinks("GND")) > 0
@@ -117,8 +120,9 @@ class TestClass:
         box = self.aedtapp.modeler.create_box([40, 30, 30], [10, 10, 10], name="mybox2")
         net = self.aedtapp.assign_net(box, None, "Ground")
         assert net
-        assert net.name == net_name
         box = self.aedtapp.modeler.create_box([60, 30, 30], [10, 10, 10], name="mybox3")
         net = self.aedtapp.assign_net(box, None, "Floating")
         assert net
-        assert net.name == net_name
+        net.name = "new_net_name"
+        assert net.update()
+        assert net.name == "new_net_name"
