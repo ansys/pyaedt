@@ -183,6 +183,18 @@ class Mesh(object):
 
     @property
     def initial_mesh_settings(self):
+        """Return the global mesh object.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Mesh.MeshOperation`
+            Mesh operation object.
+
+        References
+        ----------
+
+        >>> oModule.InitialMeshSettings
+        """
         if not self._globalmesh:
             self._globalmesh = self._get_design_global_mesh()
         return self._globalmesh
