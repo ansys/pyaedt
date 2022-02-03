@@ -114,3 +114,11 @@ class TestClass:
         net = self.aedtapp.assign_net(box, net_name)
         assert net
         assert net.name == net_name
+        box = self.aedtapp.modeler.create_box([40, 30, 30], [10, 10, 10], name="mybox2")
+        net = self.aedtapp.assign_net(box, None, "Ground")
+        assert net
+        assert net.name == net_name
+        box = self.aedtapp.modeler.create_box([60, 30, 30], [10, 10, 10], name="mybox3")
+        net = self.aedtapp.assign_net(box, None, "Floating")
+        assert net
+        assert net.name == net_name

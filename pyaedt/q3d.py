@@ -199,8 +199,8 @@ class Q3d(QExtractor, object):
         net_id = -1
         for i in self.boundaries:
             if i.type == "SignalNet" and i.name == net_name and i.props.get("ID", None) is not None:
-                net_id = i.props.get("ID", None)
-                break
+                net_id = i.props.get("ID", None) # pragma: no cover
+                break # pragma: no cover
         for i in self.boundaries:
             if i.type == "Source":
                 if i.props.get("Net", None) == net_name or i.props.get("Net", None) == net_id:
@@ -232,8 +232,8 @@ class Q3d(QExtractor, object):
         net_id = -1
         for i in self.boundaries:
             if i.type == "SignalNet" and i.name == net_name and i.props.get("ID", None) is not None:
-                net_id = i.props.get("ID", None)
-                break
+                net_id = i.props.get("ID", None) # pragma: no cover
+                break # pragma: no cover
         for i in self.boundaries:
             if i.type == "Sink" and i.props.get("Net", None) == net_name or i.props.get("Net", None) == net_id:
                 sinks.append(i.name)
