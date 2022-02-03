@@ -2169,14 +2169,7 @@ class GeometryModeler(Modeler, object):
 
         >>> oEditor.Section
         """
-        plane_ids = [0, 1, 2]
-        plane_str = ["XY", "YZ", "ZX"]
-        if plane in plane_ids:
-            section_plane = plane_str[plane]
-        elif plane in plane_str:
-            section_plane = plane
-        else:
-            return False
+        section_plane = GeometryOperators.cs_plane_to_plane_str(plane)
 
         selections = self.convert_to_selections(object_list)
 

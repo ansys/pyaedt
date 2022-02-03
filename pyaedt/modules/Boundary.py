@@ -520,7 +520,7 @@ class BoundaryObject(BoundaryCommon, object):
         elif self.type == "FloquetPort":
             self._app.oboundary.EditFloquetPort(self._boundary_name, self._get_args())  # pragma: no cover
         else:
-            return False
+            return False  # pragma: no cover
         self._boundary_name = self.name
         return True
 
