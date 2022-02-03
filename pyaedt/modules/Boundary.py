@@ -430,7 +430,9 @@ class BoundaryObject(BoundaryCommon, object):
         elif self.type == "Impedance":
             self._app.oboundary.EditImpedance(self._boundary_name, self._get_args())
         elif self.type == "Anisotropic Impedance":
-            self._app.oboundary.EditAssignAnisotropicImpedance(self._boundary_name, self._get_args())
+            self._app.oboundary.EditAssignAnisotropicImpedance(
+                self._boundary_name, self._get_args()
+            )  # pragma: no cover
         elif self.type == "Primary":
             self._app.oboundary.EditPrimary(self._boundary_name, self._get_args())
         elif self.type == "Secondary":
@@ -440,47 +442,49 @@ class BoundaryObject(BoundaryCommon, object):
         elif self.type == "HalfSpace":
             self._app.oboundary.EditHalfSpace(self._boundary_name, self._get_args())
         elif self.type == "Multipaction SEE":
-            self._app.oboundary.EditMultipactionSEE(self._boundary_name, self._get_args())
+            self._app.oboundary.EditMultipactionSEE(self._boundary_name, self._get_args())  # pragma: no cover
         elif self.type == "Fresnel":
-            self._app.oboundary.EditFresnel(self._boundary_name, self._get_args())
+            self._app.oboundary.EditFresnel(self._boundary_name, self._get_args())  # pragma: no cover
         elif self.type == "Symmetry":
             self._app.oboundary.EditSymmetry(self._boundary_name, self._get_args())
         elif self.type == "Zero Tangential H Field":
-            self._app.oboundary.EditZeroTangentialHField(self._boundary_name, self._get_args())
+            self._app.oboundary.EditZeroTangentialHField(self._boundary_name, self._get_args())  # pragma: no cover
         elif self.type == "Zero Integrated Tangential H Field":
-            self._app.oboundary.EditIntegratedZeroTangentialHField(self._boundary_name, self._get_args())
+            self._app.oboundary.EditIntegratedZeroTangentialHField(
+                self._boundary_name, self._get_args()
+            )  # pragma: no cover
         elif self.type == "Tangential H Field":
-            self._app.oboundary.EditTangentialHField(self._boundary_name, self._get_args())
+            self._app.oboundary.EditTangentialHField(self._boundary_name, self._get_args())  # pragma: no cover
         elif self.type == "Insulating":
-            self._app.oboundary.EditInsulating(self._boundary_name, self._get_args())
+            self._app.oboundary.EditInsulating(self._boundary_name, self._get_args())  # pragma: no cover
         elif self.type == "Independent":
-            self._app.oboundary.EditIndependent(self._boundary_name, self._get_args())
+            self._app.oboundary.EditIndependent(self._boundary_name, self._get_args())  # pragma: no cover
         elif self.type == "Dependent":
-            self._app.oboundary.EditDependent(self._boundary_name, self._get_args())
+            self._app.oboundary.EditDependent(self._boundary_name, self._get_args())  # pragma: no cover
         elif self.type == "Band":
-            self._app.omodelsetup.EditMotionSetup(self._boundary_name, self._get_args())
+            self._app.omodelsetup.EditMotionSetup(self._boundary_name, self._get_args())  # pragma: no cover
         elif self.type == "InfiniteGround":
             self._app.oboundary.EditInfiniteGround(self._boundary_name, self._get_args())
         elif self.type == "ThinConductor":
             self._app.oboundary.EditThinConductor(self._boundary_name, self._get_args())
         elif self.type == "Stationary Wall":
-            self._app.oboundary.EditStationaryWallBoundary(self._boundary_name, self._get_args())
+            self._app.oboundary.EditStationaryWallBoundary(self._boundary_name, self._get_args())  # pragma: no cover
         elif self.type == "Symmetry Wall":
-            self._app.oboundary.EditSymmetryWallBoundary(self._boundary_name, self._get_args())
+            self._app.oboundary.EditSymmetryWallBoundary(self._boundary_name, self._get_args())  # pragma: no cover
         elif self.type == "Resistance":
-            self._app.oboundary.EditResistanceBoundary(self._boundary_name, self._get_args())
+            self._app.oboundary.EditResistanceBoundary(self._boundary_name, self._get_args())  # pragma: no cover
         elif self.type == "Conducting Plate":
-            self._app.oboundary.EditConductingPlateBoundary(self._boundary_name, self._get_args())
+            self._app.oboundary.EditConductingPlateBoundary(self._boundary_name, self._get_args())  # pragma: no cover
         elif self.type == "Adiabatic Plate":
-            self._app.oboundary.EditAdiabaticPlateBoundary(self._boundary_name, self._get_args())
+            self._app.oboundary.EditAdiabaticPlateBoundary(self._boundary_name, self._get_args())  # pragma: no cover
         elif self.type == "Network":
-            self._app.oboundary.EditNetworkBoundary(self._boundary_name, self._get_args())
+            self._app.oboundary.EditNetworkBoundary(self._boundary_name, self._get_args())  # pragma: no cover
         elif self.type == "Grille":
             self._app.oboundary.EditGrilleBoundary(self._boundary_name, self._get_args())
         elif self.type == "Opening":
             self._app.oboundary.EditOpeningBoundary(self._boundary_name, self._get_args())
         elif self.type == "EMLoss":
-            self._app.oboundary.EditEMLoss(self._boundary_name, self._get_args())
+            self._app.oboundary.EditEMLoss(self._boundary_name, self._get_args())  # pragma: no cover
         elif self.type == "Block":
             self._app.oboundary.EditBlockBoundary(self._boundary_name, self._get_args())
         elif self.type == "SourceIcepak":
@@ -492,15 +496,15 @@ class BoundaryObject(BoundaryCommon, object):
         elif self.type == "Current":
             self._app.oboundary.Current(self._boundary_name, self._get_args())
         elif self.type == "Winding" or self.type == "Winding Group":
-            self._app.oboundary.EditWindingGroup(self._boundary_name, self._get_args())
+            self._app.oboundary.EditWindingGroup(self._boundary_name, self._get_args())  # pragma: no cover
         elif self.type == "VectorPotential":
-            self._app.oboundary.EditVectorPotential(self._boundary_name, self._get_args())
+            self._app.oboundary.EditVectorPotential(self._boundary_name, self._get_args())  # pragma: no cover
         elif self.type == "CoilTerminal":
             self._app.oboundary.EditCoilTerminal(self._boundary_name, self._get_args())
         elif self.type == "Coil":
             self._app.oboundary.EditCoil(self._boundary_name, self._get_args())
         elif self.type == "Source":
-            self._app.oboundary.EditTerminal(self._boundary_name, self._get_args())
+            self._app.oboundary.EditTerminal(self._boundary_name, self._get_args())  # pragma: no cover
         elif self.type == "Sink":
             self._app.oboundary.EditTerminal(self._boundary_name, self._get_args())
         elif self.type == "SignalNet" or self.type == "GroundNet" or self.type == "FloatingNet":
@@ -512,9 +516,9 @@ class BoundaryObject(BoundaryCommon, object):
         elif self.type in ["WavePort", "Wave Port"]:
             self._app.oboundary.EditWavePort(self._boundary_name, self._get_args())
         elif self.type == "SetSBRTxRxSettings":
-            self._app.oboundary.SetSBRTxRxSettings(self._get_args())
+            self._app.oboundary.SetSBRTxRxSettings(self._get_args())  # pragma: no cover
         elif self.type == "FloquetPort":
-            self._app.oboundary.EditFloquetPort(self._boundary_name, self._get_args())
+            self._app.oboundary.EditFloquetPort(self._boundary_name, self._get_args())  # pragma: no cover
         else:
             return False
         self._boundary_name = self.name
