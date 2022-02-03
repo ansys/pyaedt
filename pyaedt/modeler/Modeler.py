@@ -32,186 +32,243 @@ class FaceCoordinateSystem(object):
 
     """
 
-    def __init__(self, modeler, props=None, name=None):
+    def __init__(self, modeler, props=None, name=None, face_id=None):
         self._modeler = modeler
         self.model_units = self._modeler.model_units
         self.name = name
+        self.face_id = face_id
         self.props = props
-        self.ref_cs = None
         try:
             if "KernelVersion" in self.props:
                 del self.props["KernelVersion"]
         except:
             pass
 
+    @property
+    def part_name(self):
+        """Internally get the part name which the face belongs to"""
+        if not self.face_id:
+            # face_id has not been defined yet
+            return None
+        for obj in self._modeler.objects.values():
+            for face in obj.faces:
+                if face.id == self.face_id:
+                    return obj.name
+        return None  # part has not been found
+
+    @property
+    def face_paramenters(self):
+        """Internal named array for paramenteers of the face coordinate system."""
+        arg = ["Name:FaceCSParameters"]
+        _dict2arg(self.props, arg)
+        return arg
+
+    @property
+    def attributes(self):
+        """Internal named array for attributes of the face coordinate system."""
+        coordinateSystemAttributes = ["NAME:Attributes", "Name:=", self.name, "PartName:=", self.part_name]
+        return coordinateSystemAttributes
+
     @aedt_exception_handler
     def create(
         self,
         face,
+        origin,
+        axis_position,
+        axis="X",
         name=None,
-        origin_type=None,
-        position=None,
-        axis=None,
-        pointing=None,
         offset=None,
-        rotation=None,
-        reference_cs="Global",
+        rotation=0
     ):
-        """Create a coordinate system.
+        """Create a face coordinate system.
+        The face coordinate has always the Z axis parallel to face normal.
+        The X and Y axis lie on the face plane.
 
         Parameters
         ----------
-        origin : list
-            List of ``[x, y, z]`` coordinates for the origin of the coordinate system.
-            The default is ``None``, in which case ``[0, 0, 0]`` is used.
-        reference_cs : str, optional
-            Name of the reference coordinate system. The default is ``"Global"``.
-        name : str
+        face : int, FacePrimitive
+            Face where the coordinate system is defined.
+        origin : int, FacePrimitive, EdgePrimitive, VertexPrimitive
+            Specify the coordinate system origin. The origin must belong to the face where the
+            coordinate system is defined.
+            If a face is specified, the origin is placed on the face center. It must be the same as ``face``.
+            If an edge is specified, the origin is placed on the edge midpoint.
+            If a vertex is specified, the origin is placed on the vertex.
+        axis_position : int, FacePrimitive, EdgePrimitive, VertexPrimitive
+            Specify where the X or Y axis is pointing. The position must belong to the face where the
+            coordinate system is defined.
+            Select which axis is considered with the option ``axix``.
+            If a face is specified, the position is placed on the face center. It must be the same as ``face``.
+            If an edge is specified, the position is placed on the edce midpoint.
+            If a vertex is specified, the position is placed on the vertex.
+        axis : str, optional
+            Select which axis is considered for positioning. Possible vaules are ``"X"`` and ``"Y"``.
+            The default is ``"X"``.
+        name : str, optional
             Name of the coordinate system. The default is ``None``.
-        mode : str, optional
-            Definition mode. Options are ``"view"``, ``"axis"``, ``"zxz"``, ``"zyz"``,
-            and ``"axisrotation"``. The default is ``"axis"``.
-
-            * If ``mode="view"``, specify ``view``.
-            * If ``mode="axis"``, specify ``x_pointing`` and ``y_pointing``.
-            * If ``mode="zxz"`` or ``mode="zyz"``, specify ``phi``, ``theta``, and ``psi``.
-            * If ``mode="axisrotation"``, specify ``theta`` and ``u``.
-
-            Parameters not needed by the specified mode are ignored.
-            For back compatibility, ``view="rotate"`` is the same as ``mode="axis"``.
-            The mode ``"axisrotation"`` is a coordinate system parallel
-            to the global coordinate system centered in the global origin.
-
-        view : str, optional
-            View for the coordinate system if ``mode="view"``. Options are
-            ``"XY"``, ``"XZ"``, ``"XY"``, ``"iso"``, ``None``, and ``"rotate"``
-            (obsolete). The default is ``"iso"``.
-
-            .. note::
-               Because the ``"rotate"`` option is obsolete, use ``mode="axis"`` instead.
-
-        x_pointing : list, optional
-            List of the ``[x, y, z]`` coordinates specifying the X axis
-            pointing in the local coordinate system if ``mode="axis"``.
-            The default is ``[1, 0, 0]``.
-        y_pointing : list, optional
-            List of the ``[x, y, z]`` coordinates specifying the Y axis
-            pointing in the local coordinate system if ``mode="axis"``.
-            The default is ``[0, 1, 0]``.
-        phi : float, optional
-            Euler angle phi in degrees if ``mode="zxz"`` or ``mode="zyz"``.
+        offset : list, optional
+            List of the ``[x, y]`` coordinates specifying the offset of the coordinate system origin.
+            The offset specified in the face coordinate system reference.
+            The default is ``[0, 0]``.
+        rotation : float, optional
+            Rotation angle of the coordinate system around its Z axis. Angle is in degrees.
             The default is ``0``.
-        theta : float, optional
-            Euler angle theta or rotation angle in degrees if ``mode="zxz"``,
-            ``mode="zyz"``, or ``mode="axisrotation"``. The default is ``0``.
-        psi : float, optional
-            Euler angle psi in degrees if ``mode="zxz"`` or ``mode="zyz"``.
-            The default is ``0``.
-        u : list
-            List of the ``[ux, uy, uz]`` coordinates for the rotation axis
-            if ``mode="zxz"``. The default is ``[1, 0, 0]``.
 
         Returns
         -------
-        :class:`pyaedt.modeler.Modeler.CoordinateSystem`
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
-        if not origin:
-            origin = [0, 0, 0]
-        if not x_pointing:
-            x_pointing = [1, 0, 0]
-        if not y_pointing:
-            y_pointing = [0, 1, 0]
-        if not u:
-            u = [1, 0, 0]
-        if view == "rotate":
-            # legacy compatibility
-            mode = "axis"
+
+        face_id = self._modeler.convert_to_selections(face, True)[0]
+        if not isinstance(face_id, int):
+            raise ValueError("Unable to find reference face.")
+        else:
+            self.face_id = face_id
+
+        if isinstance(origin, int):
+            origin_id = origin
+            o_type = self._get_type_from_id(origin)
+        else:
+            origin_id = self._modeler.convert_to_selections(origin, True)[0]
+            if not isinstance(origin_id, int):
+                raise ValueError("Unable to find origin reference.")
+            o_type = self._get_type_from_object(origin)
+        if o_type == "Face":
+            origin_position_type = "FaceCenter"
+        elif o_type == "Edge":
+            origin_position_type = "EdgeCenter"
+        elif o_type == "Vertex":
+            origin_position_type = "OnVertex"
+        else:
+            raise ValueError("origin must identify either Face or Edge or Vertex.")
+
+        if isinstance(axis_position, int):
+            axis_position_id = axis_position
+            o_type = self._get_type_from_id(axis_position)
+        else:
+            axis_position_id = self._modeler.convert_to_selections(axis_position, True)[0]
+            if not isinstance(axis_position_id, int):
+                raise ValueError("Unable to find origin reference.")
+            o_type = self._get_type_from_object(axis_position)
+        if o_type == "Face":
+            axis_position_type = "FaceCenter"
+        elif o_type == "Edge":
+            axis_position_type = "EdgeCenter"
+        elif o_type == "Vertex":
+            axis_position_type = "OnVertex"
+        else:
+            raise ValueError("axis_position must identify either Face or Edge or Vertex.")
+
+        if axis != "X" and axis != "Y":
+            raise ValueError("axis must be either 'X' or 'Y'.")
 
         if name:
             self.name = name
         else:
-            self.name = generate_unique_name("CS")
+            self.name = generate_unique_name("Face_CS")
 
-        originX = self._dim_arg(origin[0], self.model_units)
-        originY = self._dim_arg(origin[1], self.model_units)
-        originZ = self._dim_arg(origin[2], self.model_units)
-        orientationParameters = OrderedDict({"OriginX": originX, "OriginY": originY, "OriginZ": originZ})
-        self.mode = mode
-        if mode == "view":
-            orientationParameters["Mode"] = "Axis/Position"
-            if view == "YZ":
-                orientationParameters["XAxisXvec"] = "0mm"
-                orientationParameters["XAxisYvec"] = "0mm"
-                orientationParameters["XAxisZvec"] = "-1mm"
-                orientationParameters["YAxisXvec"] = "0mm"
-                orientationParameters["YAxisYvec"] = "1mm"
-                orientationParameters["YAxisZvec"] = "0mm"
-            elif view == "XZ":
-                orientationParameters["XAxisXvec"] = "1mm"
-                orientationParameters["XAxisYvec"] = "0mm"
-                orientationParameters["XAxisZvec"] = "0mm"
-                orientationParameters["YAxisXvec"] = "0mm"
-                orientationParameters["YAxisYvec"] = "-1mm"
-                orientationParameters["YAxisZvec"] = "0mm"
-            elif view == "XY":
-                orientationParameters["XAxisXvec"] = "1mm"
-                orientationParameters["XAxisYvec"] = "0mm"
-                orientationParameters["XAxisZvec"] = "0mm"
-                orientationParameters["YAxisXvec"] = "0mm"
-                orientationParameters["YAxisYvec"] = "1mm"
-                orientationParameters["YAxisZvec"] = "0mm"
-            elif view == "iso":
-                orientationParameters["XAxisXvec"] = "1mm"
-                orientationParameters["XAxisYvec"] = "1mm"
-                orientationParameters["XAxisZvec"] = "-2mm"
-                orientationParameters["YAxisXvec"] = "-1mm"
-                orientationParameters["YAxisYvec"] = "1mm"
-                orientationParameters["YAxisZvec"] = "0mm"
-            else:
-                raise ValueError("With mode = 'view', specify view = 'XY', 'XZ', 'XY', 'iso' ")
+        if not offset:
+            offset = [0, 0]
 
-        elif mode == "axis":
-            orientationParameters["Mode"] = "Axis/Position"
-            orientationParameters["XAxisXvec"] = self._dim_arg((x_pointing[0]), self.model_units)
-            orientationParameters["XAxisYvec"] = self._dim_arg((x_pointing[1]), self.model_units)
-            orientationParameters["XAxisZvec"] = self._dim_arg((x_pointing[2]), self.model_units)
-            orientationParameters["YAxisXvec"] = self._dim_arg((y_pointing[0]), self.model_units)
-            orientationParameters["YAxisYvec"] = self._dim_arg((y_pointing[1]), self.model_units)
-            orientationParameters["YAxisZvec"] = self._dim_arg((y_pointing[2]), self.model_units)
+        originParameters = OrderedDict()
+        originParameters["IsAttachedToEntity"] = True
+        originParameters["EntityID"] = origin_id
+        originParameters["FacetedBodyTriangleIndex"] = -1
+        originParameters["TriangleVertexIndex"] = -1
+        originParameters["PositionType"] = origin_position_type
+        originParameters["UParam"] = 0
+        originParameters["VParam"] = 0
+        originParameters["XPosition"] = "0"
+        originParameters["YPosition"] = "0"
+        originParameters["ZPosition"] = "0"
 
-        elif mode == "zxz":
-            orientationParameters["Mode"] = "Euler Angle ZXZ"
-            orientationParameters["Phi"] = self._dim_arg(phi, "deg")
-            orientationParameters["Theta"] = self._dim_arg(theta, "deg")
-            orientationParameters["Psi"] = self._dim_arg(psi, "deg")
+        positioningParameters = OrderedDict()
+        positioningParameters["IsAttachedToEntity"] = True
+        positioningParameters["EntityID"] = axis_position_id
+        positioningParameters["FacetedBodyTriangleIndex"] = -1
+        positioningParameters["TriangleVertexIndex"] = -1
+        positioningParameters["PositionType"] = axis_position_type
+        positioningParameters["UParam"] = 0
+        positioningParameters["VParam"] = 0
+        positioningParameters["XPosition"] = "0"
+        positioningParameters["YPosition"] = "0"
+        positioningParameters["ZPosition"] = "0"
 
-        elif mode == "zyz":
-            orientationParameters["Mode"] = "Euler Angle ZYZ"
-            orientationParameters["Phi"] = self._dim_arg(phi, "deg")
-            orientationParameters["Theta"] = self._dim_arg(theta, "deg")
-            orientationParameters["Psi"] = self._dim_arg(psi, "deg")
+        parameters = OrderedDict()
+        parameters["Origin"] = originParameters
+        parameters["MoveToEnd"] = False
+        parameters["FaceID"] = face_id
+        parameters["AxisPosn"] = positioningParameters
+        parameters["WhichAxis"]	= axis
+        parameters["ZRotationAngle"] = str(rotation) + "deg"
+        parameters["XOffset"] = self._dim_arg((offset[0]), self.model_units)
+        parameters["YOffset"] = self._dim_arg((offset[0]), self.model_units)
+        parameters["AutoAxis"] = False
 
-        elif mode == "axisrotation":
-            th = GeometryOperators.deg2rad(theta)
-            q = GeometryOperators.axis_angle_to_quaternion(u, th)
-            a, b, c = GeometryOperators.quaternion_to_euler_zyz(q)
-            phi = GeometryOperators.rad2deg(a)
-            theta = GeometryOperators.rad2deg(b)
-            psi = GeometryOperators.rad2deg(c)
-            orientationParameters["Mode"] = "Euler Angle ZYZ"
-            orientationParameters["Phi"] = self._dim_arg(phi, "deg")
-            orientationParameters["Theta"] = self._dim_arg(theta, "deg")
-            orientationParameters["Psi"] = self._dim_arg(psi, "deg")
-        else:
-            raise ValueError("Specify the mode = 'view', 'axis', 'zxz', 'zyz', 'axisrotation' ")
-
-        self.props = orientationParameters
-        self._modeler.oeditor.CreateRelativeCS(self.orientation, self.attributes)
-        self.ref_cs = reference_cs
-        self.update()
+        self.props = parameters
+        self._modeler.oeditor.CreateFaceCS(self.face_paramenters, self.attributes)
 
         return True
+
+    @aedt_exception_handler
+    def _get_type_from_id(self, obj_id):
+        """Get the entity type from the id"""
+        for obj in self._modeler.objects.keys():
+            if obj.id == obj_id:
+                if type(obj) is FacePrimitive:
+                    return "Face"
+                elif type(obj) is EdgePrimitive:
+                    return "Edge"
+                elif type(obj) is VertexPrimitive:
+                    return "Vertex"
+                elif type(obj) is Object3d:
+                    return "3dObject"
+                else:
+                    raise ValueError("Cannot detect the entity type.")
+        raise ValueError("Cannot find entity id {}".format(obj_id))
+
+    @aedt_exception_handler
+    def _get_type_from_object(self, obj):
+        """Get the entity type from the object"""
+        if type(obj) is FacePrimitive:
+            return "Face"
+        elif type(obj) is EdgePrimitive:
+            return "Edge"
+        elif type(obj) is VertexPrimitive:
+            return "Vertex"
+        elif type(obj) is Object3d:
+            return "3dObject"
+        else:
+            raise ValueError("Cannot detect the entity type.")
+
+    @aedt_exception_handler
+    def _dim_arg(self, value, units=None):
+        """Dimension argument.
+
+        Parameters
+        ----------
+        value :
+
+        units : optional
+             The default is ``None``.
+
+        Returns
+        -------
+        str
+        """
+        if units is None:
+            units = self.model_units
+        if type(value) is str:
+            try:
+                float(value)
+                val = "{0}{1}".format(value, units)
+            except:
+                val = value
+        else:
+            val = "{0}{1}".format(value, units)
+        return val
 
 
 class CoordinateSystem(object):
@@ -548,7 +605,8 @@ class CoordinateSystem(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Modeler.CoordinateSystem`
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         if not origin:
@@ -1231,6 +1289,80 @@ class GeometryModeler(Modeler, object):
         return False
 
     @aedt_exception_handler
+    def create_face_coordinate_system(
+        self,
+        face,
+        origin,
+        axis_position,
+        axis="X",
+        name=None,
+        offset=None,
+        rotation=0
+    ):
+        """Create a face coordinate system.
+        The face coordinate has always the Z axis parallel to face normal.
+        The X and Y axis lie on the face plane.
+
+        Parameters
+        ----------
+        face : int, FacePrimitive
+            Face where the coordinate system is defined.
+        origin : int, FacePrimitive, EdgePrimitive, VertexPrimitive
+            Specify the coordinate system origin. The origin must belong to the face where the
+            coordinate system is defined.
+            If a face is specified, the origin is placed on the face center. It must be the same as ``face``.
+            If an edge is specified, the origin is placed on the edge midpoint.
+            If a vertex is specified, the origin is placed on the vertex.
+        axis_position : int, FacePrimitive, EdgePrimitive, VertexPrimitive
+            Specify where the X or Y axis is pointing. The position must belong to the face where the
+            coordinate system is defined.
+            Select which axis is considered with the option ``axix``.
+            If a face is specified, the position is placed on the face center. It must be the same as ``face``.
+            If an edge is specified, the position is placed on the edce midpoint.
+            If a vertex is specified, the position is placed on the vertex.
+        axis : str, optional
+            Select which axis is considered for positioning. Possible vaules are ``"X"`` and ``"Y"``.
+            The default is ``"X"``.
+        name : str, optional
+            Name of the coordinate system. The default is ``None``.
+        offset : list, optional
+            List of the ``[x, y]`` coordinates specifying the offset of the coordinate system origin.
+            The offset specified in the face coordinate system reference.
+            The default is ``[0, 0]``.
+        rotation : float, optional
+            Rotation angle of the coordinate system around its Z axis. Angle is in degrees.
+            The default is ``0``.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Modeler.FaceCoordinateSystem`
+
+        """
+
+        if name:
+            cs_names = [i.name for i in self.coordinate_systems]
+            if name in cs_names:
+                raise AttributeError("A coordinate system with the specified name already exists!")
+
+        cs = FaceCoordinateSystem(self)
+        if cs:
+            result = cs.create(
+                face=face,
+                origin=origin,
+                axis_position=axis_position,
+                axis=axis,
+                name=name,
+                offset=offset,
+                rotation=rotation
+            )
+
+            if result:
+                self.coordinate_systems.append(cs)
+                return cs
+        return False
+
+
+    @aedt_exception_handler
     def global_to_cs(self, point, ref_cs):
         """Transform a point from the global coordinate system to another coordinate system.
 
@@ -1827,7 +1959,7 @@ class GeometryModeler(Modeler, object):
                 objnames.append(el)
             elif isinstance(el, Object3d):
                 objnames.append(el.name)
-            elif isinstance(el, FacePrimitive):
+            elif isinstance(el, FacePrimitive) or isinstance(el, EdgePrimitive) or isinstance(el, VertexPrimitive):
                 objnames.append(el.id)
             elif isinstance(el, str):
                 objnames.append(el)
