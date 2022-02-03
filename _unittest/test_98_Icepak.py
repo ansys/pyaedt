@@ -202,7 +202,7 @@ class TestClass:
     def test_13a_assign_openings(self):
         airfaces = [self.aedtapp.modeler.primitives["Region"].top_face_x.id]
         openings = self.aedtapp.assign_openings(airfaces)
-        openings.name = "Opening1"
+        openings.name = "Test_Opening"
         assert openings.update()
 
     def test_13b_assign_grille(self):

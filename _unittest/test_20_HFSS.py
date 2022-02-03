@@ -78,7 +78,7 @@ class TestClass:
     def test_04_assign_coating(self, object_name, kwargs):
         id = self.aedtapp.modeler.primitives.get_obj_id(object_name)
         coat = self.aedtapp.assign_coating([id], **kwargs)
-        coat.name = "Coating1"
+        coat.name = "Coating1" + object_name
         assert coat.update()
         material = coat.props.get("Material", "")
         assert material == kwargs.get("mat", "")
@@ -280,8 +280,9 @@ class TestClass:
             ).name
             == "port20"
         )
-        bound = self.aedtapp.create_circuit_port_from_edges(e1, e2, port_name="port32", port_impedance="50.1",
-                                                            renormalize=True)
+        bound = self.aedtapp.create_circuit_port_from_edges(
+            e1, e2, port_name="port32", port_impedance="50.1", renormalize=True
+        )
         assert bound
         bound.name = "port21"
         assert bound.update()
@@ -539,7 +540,7 @@ class TestClass:
 
     def test_36_assign_radiation_to_objects(self):
         self.aedtapp.modeler.primitives.create_box([-100, -100, -100], [200, 200, 200], name="Rad_box")
-        rad =  self.aedtapp.assign_radiation_boundary_to_objects("Rad_box")
+        rad = self.aedtapp.assign_radiation_boundary_to_objects("Rad_box")
         rad.name = "Radiation1"
         assert rad.update()
 
