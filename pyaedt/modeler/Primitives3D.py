@@ -1,3 +1,4 @@
+import json
 import os
 from math import pi, cos, sin, tan
 import random
@@ -1559,3 +1560,25 @@ class Primitives3D(Primitives, object):
         environment.insert(self._app)
         self.multiparts.append(environment)
         return environment
+
+    @aedt_exception_handler
+    def create_choke(self, json_file):
+        """Create a chock from json setting file.
+
+        Parameters
+        ----------
+        json_file : str
+            Full path to json file;
+
+        Returns
+        -------
+
+        Examples
+        --------
+        Json file has to be like the following example.
+
+        >>> from pyaedt import Hfss
+        >>> hfss = Hfss()
+        >>> mychoke = hfss.modeler.create_choke("mypath.json")
+        """
+        dictio = json.load(json_file)
