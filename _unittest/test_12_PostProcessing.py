@@ -211,6 +211,19 @@ class TestClass:
         )
         assert os.path.exists(obj.image_file)
 
+    @pytest.mark.skipif(is_ironpython, reason="Not running in ironpython")
+    def test_16_create_field_plot(self):
+        cutlist = ["Global:XY"]
+        plot = self.aedtapp.post._create_fieldplot(
+            objlist=cutlist,
+            quantityName="Mag_E",
+            setup_name=self.aedtapp.nominal_adaptive,
+            intrinsincList={"Freq": "5GHz", "Phase": "0deg"},
+            objtype="Surface",
+            listtype="CutPlane",
+        )
+        assert plot
+
     def test_51_get_efields(self):
         if is_ironpython:
 
