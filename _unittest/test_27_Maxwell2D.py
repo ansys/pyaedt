@@ -108,3 +108,7 @@ class TestClass(BasisTest):
         assert self.aedtapp.change_inductance_computation()
         assert self.aedtapp.change_inductance_computation(True, False)
         assert self.aedtapp.change_inductance_computation(False, False)
+
+    def test_17_mesh_settings(self):
+        assert self.aedtapp.mesh.initial_mesh_settings
+        assert self.aedtapp.mesh.initial_mesh_settings.props

@@ -126,3 +126,7 @@ class TestClass:
         net.name = "new_net_name"
         assert net.update()
         assert net.name == "new_net_name"
+
+    def test_12_mesh_settings(self):
+        assert self.aedtapp.mesh.initial_mesh_settings
+        assert self.aedtapp.mesh.initial_mesh_settings.props
