@@ -376,6 +376,12 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.AssignSource(self._get_args())
         elif self.type == "Sink":
             self._app.oboundary.AssignSink(self._get_args())
+        elif self.type == "SignalNet":
+            self._app.oboundary.AssignSignalNet(self._get_args())
+        elif self.type == "GroundNet":
+            self._app.oboundary.AssignGroundNet(self._get_args())
+        elif self.type == "FloatingNet":
+            self._app.oboundary.AssignFloatingNet(self._get_args())
         elif self.type == "CircuitPort":
             self._app.oboundary.AssignCircuitPort(self._get_args())
         elif self.type == "LumpedPort":

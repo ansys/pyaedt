@@ -155,6 +155,90 @@ class Q3d(QExtractor, object):
             student_version,
         )
 
+    @property
+    def nets(self):
+        """Return the list of available nets in actual Q3d Project.
+
+        Returns
+        -------
+        list
+
+        References
+        ----------
+
+        >>> oModule.ListNets
+        """
+        nets_data = list(self.oboundary.ListNets())
+        net_names = []
+        for i in nets_data:
+            if isinstance(i, (list, tuple)):
+                net_names.append(i[0].split(":")[1])
+        return net_names
+
+    @aedt_exception_handler
+    def net_sources(self, net_name):
+        """Check if a net has sources and returns the list of names.
+
+        Parameters
+        ----------
+        net_name : str
+            Name of the net to search for.
+
+        Returns
+        -------
+        List
+            List of Source names.
+
+        Examples
+        --------
+        >>> from pyaedt import Q3d
+        >>> q3d = Q3d("my_project")
+        >>> net = q3d.net_sources("Net1")
+        """
+        sources = []
+        net_id = -1
+        for i in self.boundaries:
+            if i.type == "SignalNet" and i.name == net_name and i.props.get("ID", None) is not None:
+                net_id = i.props.get("ID", None)
+                break
+        for i in self.boundaries:
+            if i.type == "Source":
+                if i.props.get("Net", None) == net_name or i.props.get("Net", None) == net_id:
+                    sources.append(i.name)
+
+        return sources
+
+    @aedt_exception_handler
+    def net_sinks(self, net_name):
+        """Check if a net has sinks and returns the list of them.
+
+        Parameters
+        ----------
+        net_name : str
+            Name of the net to search for.
+
+        Returns
+        -------
+        List
+            List of Sink names.
+
+        Examples
+        --------
+        >>> from pyaedt import Q3d
+        >>> q3d = Q3d("my_project")
+        >>> net = q3d.net_sinks("Net1")
+        """
+        sinks = []
+        net_id = -1
+        for i in self.boundaries:
+            if i.type == "SignalNet" and i.name == net_name and i.props.get("ID", None) is not None:
+                net_id = i.props.get("ID", None)
+                break
+        for i in self.boundaries:
+            if i.type == "Sink" and i.props.get("Net", None) == net_name or i.props.get("Net", None) == net_id:
+                sinks.append(i.name)
+        return sinks
+
     @aedt_exception_handler
     def auto_identify_nets(self):
         """Automatically identify nets.
@@ -169,8 +253,65 @@ class Q3d(QExtractor, object):
 
         >>> oModule.AutoIdentifyNets
         """
+        original_nets = [i for i in self.nets]
         self.oboundary.AutoIdentifyNets()
+        new_nets = [i for i in self.nets if i not in original_nets]
+        for i in new_nets:
+            bound = BoundaryObject(self, i, OrderedDict({}), "SignalNet")
+            self.boundaries.append(bound)
+        if new_nets:
+            self.logger.info("{} Nets have been identified: {}".format(len(new_nets), ", ".join(new_nets)))
+        else:
+            self.logger.warning("No Nets identified")
         return True
+
+    @aedt_exception_handler
+    def assign_net(self, objects, net_name=None, net_type="Signal"):
+        """Assign a net to a list of objects.
+
+        Parameters
+        ----------
+        objects : List, str
+            List of objects to assign net. Can be a single object.
+        net_name : str, optional
+            Name of the net. If `None`, default net name will be provided.
+        net_type : str, boolean
+            Type of net to create. Can be `Signal`, `Ground` or `Floating`.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Source object.
+
+        Examples
+        --------
+        >>> from pyaedt import Q3d
+        >>> q3d = Q3d()
+        >>> box = q3d.modeler.create_box([30, 30, 30], [10, 10, 10], name="mybox")
+        >>> net_name = "my_net"
+        >>> net = q3d.assign_net(box, net_name)
+
+        References
+        ----------
+
+        >>> oModule.AssignSignalNet
+        >>> oModule.AssignGroundNet
+        >>> oModule.AssignFloatingNet
+        """
+        objects = self.modeler.convert_to_selections(objects, True)
+        if not net_name:
+            net_name = generate_unique_name("Net")
+        props = OrderedDict({"Objects": objects})
+        type_bound = "SignalNet"
+        if net_type.lower() == "ground":
+            type_bound = "GroundNet"
+        elif net_type.lower() == "floating":
+            type_bound = "FloatingNet"
+        bound = BoundaryObject(self, net_name, props, type_bound)
+        if bound.create():
+            self.boundaries.append(bound)
+            return bound
+        return False
 
     @aedt_exception_handler
     def assign_source_to_objectface(self, object_name, axisdir=0, source_name=None, net_name=None):

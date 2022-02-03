@@ -62,6 +62,10 @@ class TestClass:
         assert sweep2
         assert sweep2.props["RangeEnd"] == "4GHz"
 
+    def test_06c_autoidentify(self):
+        assert self.aedtapp.auto_identify_nets()
+        pass
+
     def test_07_create_source_sinks(self):
         source = self.aedtapp.assign_source_to_objectface("MyCylinder", axisdir=0, source_name="Source1")
         sink = self.aedtapp.assign_sink_to_objectface("MyCylinder", axisdir=3, sink_name="Sink1")
@@ -84,6 +88,11 @@ class TestClass:
         sink = self.aedtapp.assign_sink_to_sheet("Sink1", netname="GND", objectname="Cylinder1")
         assert source
         assert sink
+        assert len(self.aedtapp.nets) > 0
+        assert len(self.aedtapp.net_sources("GND")) > 0
+        assert len(self.aedtapp.net_sinks("GND")) > 0
+        assert len(self.aedtapp.net_sources("PGND")) == 0
+        assert len(self.aedtapp.net_sinks("PGND")) == 0
 
     def test_08_create_faceted_bondwire(self):
         self.aedtapp.load_project(self.test_project, close_active_proj=True)
@@ -93,12 +102,15 @@ class TestClass:
         assert test
         pass
 
-    def test_09_autoidentify(self):
-        assert self.aedtapp.auto_identify_nets()
-        pass
-
     def test_10_q2d(self):
         q2d = Q2d()
         assert q2d
         assert q2d.dim == "2D"
         pass
+
+    def test_11_assign_net(self):
+        box = self.aedtapp.modeler.create_box([30, 30, 30], [10, 10, 10], name="mybox")
+        net_name = "my_net"
+        net = self.aedtapp.assign_net(box, net_name)
+        assert net
+        assert net.name == net_name
