@@ -199,8 +199,8 @@ class Q3d(QExtractor, object):
         net_id = -1
         for i in self.boundaries:
             if i.type == "SignalNet" and i.name == net_name and i.props.get("ID", None) is not None:
-                net_id = i.props.get("ID", None) # pragma: no cover
-                break # pragma: no cover
+                net_id = i.props.get("ID", None)  # pragma: no cover
+                break  # pragma: no cover
         for i in self.boundaries:
             if i.type == "Source":
                 if i.props.get("Net", None) == net_name or i.props.get("Net", None) == net_id:
@@ -232,8 +232,8 @@ class Q3d(QExtractor, object):
         net_id = -1
         for i in self.boundaries:
             if i.type == "SignalNet" and i.name == net_name and i.props.get("ID", None) is not None:
-                net_id = i.props.get("ID", None) # pragma: no cover
-                break # pragma: no cover
+                net_id = i.props.get("ID", None)  # pragma: no cover
+                break  # pragma: no cover
         for i in self.boundaries:
             if i.type == "Sink" and i.props.get("Net", None) == net_name or i.props.get("Net", None) == net_id:
                 sinks.append(i.name)
@@ -283,6 +283,13 @@ class Q3d(QExtractor, object):
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Source object.
 
+        References
+        ----------
+
+        >>> oModule.AssignSignalNet
+        >>> oModule.AssignGroundNet
+        >>> oModule.AssignFloatingNet
+
         Examples
         --------
         >>> from pyaedt import Q3d
@@ -290,13 +297,6 @@ class Q3d(QExtractor, object):
         >>> box = q3d.modeler.create_box([30, 30, 30], [10, 10, 10], name="mybox")
         >>> net_name = "my_net"
         >>> net = q3d.assign_net(box, net_name)
-
-        References
-        ----------
-
-        >>> oModule.AssignSignalNet
-        >>> oModule.AssignGroundNet
-        >>> oModule.AssignFloatingNet
         """
         objects = self.modeler.convert_to_selections(objects, True)
         if not net_name:
