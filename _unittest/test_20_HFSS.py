@@ -78,6 +78,8 @@ class TestClass:
     def test_04_assign_coating(self, object_name, kwargs):
         id = self.aedtapp.modeler.primitives.get_obj_id(object_name)
         coat = self.aedtapp.assign_coating([id], **kwargs)
+        coat.name = "Coating1" + object_name
+        assert coat.update()
         material = coat.props.get("Material", "")
         assert material == kwargs.get("mat", "")
 
@@ -278,13 +280,12 @@ class TestClass:
             ).name
             == "port20"
         )
-        assert (
-            self.aedtapp.create_circuit_port_from_edges(
-                e1, e2, port_name="port21", port_impedance="50.1", renormalize=True
-            ).name
-            == "port21"
+        bound = self.aedtapp.create_circuit_port_from_edges(
+            e1, e2, port_name="port32", port_impedance="50.1", renormalize=True
         )
-
+        assert bound
+        bound.name = "port21"
+        assert bound.update()
         self.aedtapp.solution_type = "Modal"
 
     def test_09_create_waveport_on_objects(self):
@@ -320,7 +321,7 @@ class TestClass:
         box2 = self.aedtapp.modeler.primitives.create_box([0, 0, 60], [10, 10, 5], "BoxLumped2")
         box2.material_name = "Copper"
         port = self.aedtapp.create_lumped_port_between_objects(
-            "BoxLumped1", "BoxLumped2", self.aedtapp.AxisDir.XNeg, 50, "Lump1", True, False
+            "BoxLumped1", "BoxLumped2", self.aedtapp.AxisDir.XNeg, 50, "Lump1xx", True, False
         )
         assert not self.aedtapp.create_lumped_port_between_objects(
             "BoxLumped1111", "BoxLumped2", self.aedtapp.AxisDir.XNeg, 50, "Lump1", True, False
@@ -328,7 +329,9 @@ class TestClass:
         assert self.aedtapp.create_lumped_port_between_objects(
             "BoxLumped1", "BoxLumped2", self.aedtapp.AxisDir.XPos, 50
         )
-        assert port.name == "Lump1"
+        assert port.name == "Lump1xx"
+        port.name = "Lump1"
+        assert port.update()
 
     def test_11_create_circuit_on_objects(self):
         box1 = self.aedtapp.modeler.primitives.create_box([0, 0, 80], [10, 10, 5], "BoxCircuit1", "Copper")
@@ -537,7 +540,9 @@ class TestClass:
 
     def test_36_assign_radiation_to_objects(self):
         self.aedtapp.modeler.primitives.create_box([-100, -100, -100], [200, 200, 200], name="Rad_box")
-        assert self.aedtapp.assign_radiation_boundary_to_objects("Rad_box")
+        rad = self.aedtapp.assign_radiation_boundary_to_objects("Rad_box")
+        rad.name = "Radiation1"
+        assert rad.update()
 
     def test_37_assign_radiation_to_objects(self):
         self.aedtapp.modeler.primitives.create_box([-100, -100, -100], [200, 200, 200], name="Rad_box2")
@@ -576,7 +581,10 @@ class TestClass:
         sheet = self.aedtapp.modeler.primitives.create_rectangle(
             self.aedtapp.PLANE.XY, [-100, -100, -100], [200, 200], name="RectangleForSource", matname="Copper"
         )
-        assert self.aedtapp.create_floquet_port(sheet, deembed_dist=1, nummodes=4, reporter_filter=False)
+        bound = self.aedtapp.create_floquet_port(sheet, deembed_dist=1, nummodes=4, reporter_filter=False)
+        assert bound
+        bound.name = "Floquet1"
+        assert bound.update()
 
     def test_43_autoassign_pairs(self):
         self.aedtapp.insert_design("lattice")
@@ -587,9 +595,13 @@ class TestClass:
         assert self.aedtapp.assign_lattice_pair([box1.faces[2], box1.faces[4]])
         primary = self.aedtapp.assign_primary(box1.faces[1], [100, -100, -100], [100, 100, -100])
         assert primary
-        assert self.aedtapp.assign_secondary(
+        primary.name = "Prim1"
+        assert primary.update()
+        sec = self.aedtapp.assign_secondary(
             box1.faces[0], primary.name, [100, -100, 100], [100, 100, 100], reverse_v=True
         )
+        sec.name = "Sec1"
+        assert sec.update()
 
     def test_44_create_infinite_sphere(self):
         self.aedtapp.insert_design("InfSphere")
