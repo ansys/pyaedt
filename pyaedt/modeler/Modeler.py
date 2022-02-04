@@ -1589,9 +1589,13 @@ class GeometryModeler(Modeler, object):
         >>> oEditor.SetWCS
         """
         if isinstance(name, BaseCoordinateSystem):
-            self.oeditor.SetWCS(["NAME:SetWCS Parameter", "Working Coordinate System:=", name.name, "RegionDepCSOk:=", False])
+            self.oeditor.SetWCS(
+                ["NAME:SetWCS Parameter", "Working Coordinate System:=", name.name, "RegionDepCSOk:=", False]
+            )
         else:
-            self.oeditor.SetWCS(["NAME:SetWCS Parameter", "Working Coordinate System:=", name, "RegionDepCSOk:=", False])
+            self.oeditor.SetWCS(
+                ["NAME:SetWCS Parameter", "Working Coordinate System:=", name, "RegionDepCSOk:=", False]
+            )
         return True
 
     @aedt_exception_handler

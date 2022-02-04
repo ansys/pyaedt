@@ -298,13 +298,17 @@ class TestClass(BasisTest):
         fcs2 = self.aedtapp.modeler.create_face_coordinate_system(face, face, face.edges[1].vertices[0])
         assert fcs2
         assert fcs2.delete()
-        fcs2 = self.aedtapp.modeler.create_face_coordinate_system(face, face.edges[0].vertices[0], face.edges[1].vertices[0])
+        fcs2 = self.aedtapp.modeler.create_face_coordinate_system(
+            face, face.edges[0].vertices[0], face.edges[1].vertices[0]
+        )
         assert fcs2
         assert fcs2.delete()
-        fcs3 = self.aedtapp.modeler.create_face_coordinate_system(face, face.edges[1].vertices[1], face.edges[1].vertices[0])
+        fcs3 = self.aedtapp.modeler.create_face_coordinate_system(
+            face, face.edges[1].vertices[1], face.edges[1].vertices[0]
+        )
         assert fcs3
         assert fcs3.delete()
-        fcs4 = self.aedtapp.modeler.create_face_coordinate_system(face, face.edges[2], face.edges[3], name='test')
+        fcs4 = self.aedtapp.modeler.create_face_coordinate_system(face, face.edges[2], face.edges[3], name="test")
         assert fcs4
         assert fcs4.name == "test"
         assert fcs4.delete()
