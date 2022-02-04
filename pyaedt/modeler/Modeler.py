@@ -1059,71 +1059,108 @@ class GeometryModeler(Modeler, object):
             for ds in cs:
                 try:
                     if isinstance(cs[ds], (OrderedDict, dict)):
-                        props = cs[ds]["RelativeCSParameters"]
-                        name = cs[ds]["Attributes"]["Name"]
-                        cs_id = cs[ds]["ID"]
-                        id2name[cs_id] = name
-                        name2refid[name] = cs[ds]["ReferenceCoordSystemID"]
-                        coord.append(CoordinateSystem(self, props, name))
-                    elif type(cs[ds]) is list:
-                        for el in cs[ds]:
-                            props = el["RelativeCSParameters"]
-                            name = el["Attributes"]["Name"]
-                            cs_id = el["ID"]
+                        if cs[ds]["OperationType"] == "CreateRelativeCoordinateSystem":
+                            props = cs[ds]["RelativeCSParameters"]
+                            name = cs[ds]["Attributes"]["Name"]
+                            cs_id = cs[ds]["ID"]
                             id2name[cs_id] = name
-                            name2refid[name] = el["ReferenceCoordSystemID"]
+                            name2refid[name] = cs[ds]["ReferenceCoordSystemID"]
                             coord.append(CoordinateSystem(self, props, name))
+                        elif cs[ds]["OperationType"] == "CreateFaceCoordinateSystem":
+                            name = cs[ds]["Attributes"]["Name"]
+                            cs_id = cs[ds]["ID"]
+                            id2name[cs_id] = name
+                            op_id = cs[ds]["PlaceHolderOperationID"]
+                            op = self._app.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"][
+                                "ToplevelParts"]["GeometryPart"]["Operations"]
+                            if isinstance(op["FaceCSHolderOperation"], (OrderedDict, dict)):
+                                if op["FaceCSHolderOperation"]["ID"] == op_id:
+                                    props = op["FaceCSHolderOperation"]["FaceCSParameters"]
+                                    coord.append(FaceCoordinateSystem(self, props, name))
+                            elif isinstance(op["FaceCSHolderOperation"], list):
+                                for iop in op["FaceCSHolderOperation"]:
+                                    if iop["ID"] == op_id:
+                                        props = iop["FaceCSParameters"]
+                                        coord.append(FaceCoordinateSystem(self, props, name))
+                                        break
+                    elif isinstance(cs[ds], list):
+                        for el in cs[ds]:
+                            if el["OperationType"] == "CreateRelativeCoordinateSystem":
+                                props = el["RelativeCSParameters"]
+                                name = el["Attributes"]["Name"]
+                                cs_id = el["ID"]
+                                id2name[cs_id] = name
+                                name2refid[name] = el["ReferenceCoordSystemID"]
+                                coord.append(CoordinateSystem(self, props, name))
+                            elif el["OperationType"] == "CreateFaceCoordinateSystem":
+                                name = el["Attributes"]["Name"]
+                                cs_id = el["ID"]
+                                id2name[cs_id] = name
+                                op_id = el["PlaceHolderOperationID"]
+                                op = self._app.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"][
+                                    "ToplevelParts"]["GeometryPart"]["Operations"]
+                                if isinstance(op["FaceCSHolderOperation"], (OrderedDict, dict)):
+                                    if op["FaceCSHolderOperation"]["ID"] == op_id:
+                                        props = op["FaceCSHolderOperation"]["FaceCSParameters"]
+                                        coord.append(FaceCoordinateSystem(self, props, name))
+                                elif isinstance(op["FaceCSHolderOperation"], list):
+                                    for iop in op["FaceCSHolderOperation"]:
+                                        if iop["ID"] == op_id:
+                                            props = iop["FaceCSParameters"]
+                                            coord.append(FaceCoordinateSystem(self, props, name))
+                                            break
                 except:
                     pass
             for cs in coord:
-                try:
-                    cs.ref_cs = id2name[name2refid[cs.name]]
-                    if cs.props["Mode"] == "Axis/Position":
-                        x1 = GeometryOperators.parse_dim_arg(
-                            cs.props["XAxisXvec"], variable_manager=self._app.variable_manager
-                        )
-                        x2 = GeometryOperators.parse_dim_arg(
-                            cs.props["XAxisYvec"], variable_manager=self._app.variable_manager
-                        )
-                        x3 = GeometryOperators.parse_dim_arg(
-                            cs.props["XAxisZvec"], variable_manager=self._app.variable_manager
-                        )
-                        y1 = GeometryOperators.parse_dim_arg(
-                            cs.props["YAxisXvec"], variable_manager=self._app.variable_manager
-                        )
-                        y2 = GeometryOperators.parse_dim_arg(
-                            cs.props["YAxisYvec"], variable_manager=self._app.variable_manager
-                        )
-                        y3 = GeometryOperators.parse_dim_arg(
-                            cs.props["YAxisZvec"], variable_manager=self._app.variable_manager
-                        )
-                        x, y, z = GeometryOperators.pointing_to_axis([x1, x2, x3], [y1, y2, y3])
-                        a, b, g = GeometryOperators.axis_to_euler_zyz(x, y, z)
-                        cs.quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
-                    elif cs.props["Mode"] == "Euler Angle ZXZ":
-                        a = GeometryOperators.parse_dim_arg(
-                            cs.props["Phi"], variable_manager=self._app.variable_manager
-                        )
-                        b = GeometryOperators.parse_dim_arg(
-                            cs.props["Theta"], variable_manager=self._app.variable_manager
-                        )
-                        g = GeometryOperators.parse_dim_arg(
-                            cs.props["Psi"], variable_manager=self._app.variable_manager
-                        )
-                        cs.quaternion = GeometryOperators.euler_zxz_to_quaternion(a, b, g)
-                    elif cs.props["Mode"] == "Euler Angle ZYZ":
-                        a = GeometryOperators.parse_dim_arg(
-                            cs.props["Phi"], variable_manager=self._app.variable_manager
-                        )
-                        b = GeometryOperators.parse_dim_arg(
-                            cs.props["Theta"], variable_manager=self._app.variable_manager
-                        )
-                        g = GeometryOperators.parse_dim_arg(
-                            cs.props["Psi"], variable_manager=self._app.variable_manager
-                        )
-                        cs.quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
-                except:
-                    pass
+                if isinstance(cs, CoordinateSystem):
+                    try:
+                        cs.ref_cs = id2name[name2refid[cs.name]]
+                        if cs.props["Mode"] == "Axis/Position":
+                            x1 = GeometryOperators.parse_dim_arg(
+                                cs.props["XAxisXvec"], variable_manager=self._app.variable_manager
+                            )
+                            x2 = GeometryOperators.parse_dim_arg(
+                                cs.props["XAxisYvec"], variable_manager=self._app.variable_manager
+                            )
+                            x3 = GeometryOperators.parse_dim_arg(
+                                cs.props["XAxisZvec"], variable_manager=self._app.variable_manager
+                            )
+                            y1 = GeometryOperators.parse_dim_arg(
+                                cs.props["YAxisXvec"], variable_manager=self._app.variable_manager
+                            )
+                            y2 = GeometryOperators.parse_dim_arg(
+                                cs.props["YAxisYvec"], variable_manager=self._app.variable_manager
+                            )
+                            y3 = GeometryOperators.parse_dim_arg(
+                                cs.props["YAxisZvec"], variable_manager=self._app.variable_manager
+                            )
+                            x, y, z = GeometryOperators.pointing_to_axis([x1, x2, x3], [y1, y2, y3])
+                            a, b, g = GeometryOperators.axis_to_euler_zyz(x, y, z)
+                            cs.quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
+                        elif cs.props["Mode"] == "Euler Angle ZXZ":
+                            a = GeometryOperators.parse_dim_arg(
+                                cs.props["Phi"], variable_manager=self._app.variable_manager
+                            )
+                            b = GeometryOperators.parse_dim_arg(
+                                cs.props["Theta"], variable_manager=self._app.variable_manager
+                            )
+                            g = GeometryOperators.parse_dim_arg(
+                                cs.props["Psi"], variable_manager=self._app.variable_manager
+                            )
+                            cs.quaternion = GeometryOperators.euler_zxz_to_quaternion(a, b, g)
+                        elif cs.props["Mode"] == "Euler Angle ZYZ":
+                            a = GeometryOperators.parse_dim_arg(
+                                cs.props["Phi"], variable_manager=self._app.variable_manager
+                            )
+                            b = GeometryOperators.parse_dim_arg(
+                                cs.props["Theta"], variable_manager=self._app.variable_manager
+                            )
+                            g = GeometryOperators.parse_dim_arg(
+                                cs.props["Psi"], variable_manager=self._app.variable_manager
+                            )
+                            cs.quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
+                    except:
+                        pass
         return coord
 
     def __get__(self, instance, owner):
