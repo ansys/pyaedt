@@ -234,8 +234,61 @@ class TestClass:
         assert self.aedtapp.delete_setup(setup_name)
         assert setuptd.name not in self.aedtapp.existing_analysis_setups
 
+    def test_06f_sweep_add_subrange(self):
+        box_sweep = self.aedtapp.modeler.primitives.create_box([0, 0, 20], [10, 10, 5], "box_sweep", "Copper")
+        box_sweep2 = self.aedtapp.modeler.primitives.create_box([0, 0, 30], [10, 10, 5], "box_sweep2", "Copper")
+        port = self.aedtapp.create_wave_port_between_objects(
+            "box_sweep", "box_sweep2", self.aedtapp.AxisDir.XNeg, 50, 1, "WaveForSweep", False
+        )
+        setup = self.aedtapp.create_setup(setupname="MySetupForSweep")
+        sweep = setup.add_sweep()
+        assert sweep.add_subrange("LinearCount", 1, 3, 10, "GHz")
+        assert sweep.add_subrange("LinearCount", 2, 4, 10, "GHz")
+        assert sweep.add_subrange("LinearStep", 1.1, 2.1, 0.4, "GHz")
+        assert sweep.add_subrange("LinearCount", 1, 1.5, 5, "MHz")
+        assert sweep.add_subrange("LogScale", 1, 3, 10, "GHz")
+
+    def test_06g_sweep_clear_subrange(self):
+        box_sweep3 = self.aedtapp.modeler.primitives.create_box([0, 0, 50], [10, 10, 5], "box_sweep3", "Copper")
+        box_sweep4 = self.aedtapp.modeler.primitives.create_box([0, 0, 60], [10, 10, 5], "box_sweep4", "Copper")
+        port = self.aedtapp.create_wave_port_between_objects(
+            "box_sweep3", "box_sweep4", self.aedtapp.AxisDir.XNeg, 50, 1, "WaveForSweepWithClear", False
+        )
+        setup = self.aedtapp.create_setup(setupname="MySetupClearSweep")
+        sweep = setup.add_sweep()
+        assert sweep.add_subrange("LinearCount", 1.1, 3.6, 10, "GHz", clear=True)
+        assert sweep.props["RangeType"] == "LinearCount"
+        assert sweep.props["RangeStart"] == "1.1GHz"
+        assert sweep.props["RangeEnd"] == "3.6GHz"
+        assert sweep.props["RangeCount"] == 10
+        assert sweep.add_subrange("LinearCount", 2, 5, 10, "GHz")
+        setup.update()
+        sweep.update()
+        assert sweep.add_subrange("LinearCount", 3, 8, 10, "GHz", clear=True)
+        assert sweep.props["RangeType"] == "LinearCount"
+        assert sweep.props["RangeStart"] == "3GHz"
+        assert sweep.props["RangeEnd"] == "8GHz"
+        assert sweep.props["RangeCount"] == 10
+        assert sweep.add_subrange("LinearStep", 1.1, 2.1, 0.4, "GHz", clear=True)
+        assert sweep.props["RangeType"] == "LinearStep"
+        assert sweep.props["RangeStart"] == "1.1GHz"
+        assert sweep.props["RangeEnd"] == "2.1GHz"
+        assert sweep.props["RangeStep"] == "0.4GHz"
+        assert sweep.add_subrange("LogScale", 1, 3, 10, clear=True)
+        assert sweep.props["RangeType"] == "LogScale"
+        assert sweep.props["RangeStart"] == "1GHz"
+        assert sweep.props["RangeEnd"] == "3GHz"
+        assert sweep.props["RangeSamples"] == 10
+        sweep.props["Type"] = "Discrete"
+        sweep.update()
+        assert sweep.add_subrange("SinglePoints", 23, clear=True)
+        assert sweep.props["RangeType"] == "SinglePoints"
+        assert sweep.props["RangeStart"] == "23GHz"
+        assert sweep.props["RangeEnd"] == "23GHz"
+        assert sweep.props["SaveSingleField"] == False
+
     def test_06z_validate_setup(self):
-        list, ok = self.aedtapp.validate_full_design(ports=5)
+        list, ok = self.aedtapp.validate_full_design(ports=7)
         assert ok
 
     def test_07_set_power(self):
