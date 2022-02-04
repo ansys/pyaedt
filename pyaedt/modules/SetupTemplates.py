@@ -1261,7 +1261,7 @@ class SweepHFSS(object):
             Whether to save the fields of the single point. The default is ``False``.
             Used only for ``rangetype="SinglePoints"``.
         clear : boolean, optional
-            If set to true, all other subranges will be suppressed except the current one under creation.
+            If set to ``True``, all other subranges will be suppressed except the current one under creation.
             Default value is ``False``.
 
         Returns
