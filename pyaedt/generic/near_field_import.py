@@ -41,7 +41,8 @@ class BoxFacePointsAndFields(object):  # pragma: no cover
                 self.im[el] = zero_field_z_faces
 
 
-def convert_nearfield_data(dat_folder, frequency=6, invert_phase_for_lower_faces=True):  # pragma: no cover
+def convert_nearfield_data(dat_folder, frequency=6, invert_phase_for_lower_faces=True,
+                           output_folder=None):  # pragma: no cover
     """Convert a near field data folder to hfss `nfd` file and link it to `and` file.
 
     Parameters
@@ -53,6 +54,8 @@ def convert_nearfield_data(dat_folder, frequency=6, invert_phase_for_lower_faces
         Frequency in `GHz`.
     invert_phase_for_lower_faces : bool
         Add 180 deg for all fields at 'negative' faces (xmin, ymin, zmin).
+    output_folder : str, optional
+        Output folder where files will be saved.
 
     Returns
     -------
@@ -109,10 +112,13 @@ def convert_nearfield_data(dat_folder, frequency=6, invert_phase_for_lower_faces
     ####################################################################################################
     # .nfd file needs the following 16 columns where index starts with 1:
     # index, x, y, z, re_ex, im_ex, re_ey, im_ey, re_ez, im_ez, re_hx, im_hx, re_hy, im_hy, re_hz, im_hz
-
+    if not output_folder:
+        output_folder = os.path.dirname(dat_folder)
     directory_name = os.path.basename(dat_folder)
     nfd_name = directory_name + '.nfd'
-    nfd_full_file = os.path.join(dat_folder, nfd_name).replace('\\', '/')
+    nfd_full_file = os.path.join(output_folder, nfd_name)
+    and_full_file = os.path.join(output_folder, directory_name + '.and')
+
     commented_header_line = '#Index, X, Y, Z, Ex(real, imag), Ey(real, imag), Ez(real, imag), '
     commented_header_line += 'Hx(real, imag), Hy(real, imag), Hz(real, imag)\n'
 
@@ -133,7 +139,6 @@ def convert_nearfield_data(dat_folder, frequency=6, invert_phase_for_lower_faces
     center_y = float(components["ymin"].y[0]) + float(size_y / 2.0)
     center_z = float(components["zmin"].z[0]) + float(size_z / 2.0)
 
-    and_full_file = os.path.join(dat_folder, directory_name + '.and')
     sx_mm = size_x * 1000
     sy_mm = size_y * 1000
     sz_mm = size_z * 1000
