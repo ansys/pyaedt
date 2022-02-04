@@ -31,6 +31,7 @@ class BaseCoordinateSystem(object):
         The default is ``None``.
 
     """
+
     def __init__(self, modeler, name=None):
         self._modeler = modeler
         self.model_units = self._modeler.model_units
@@ -188,16 +189,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
         return coordinateSystemAttributes
 
     @aedt_exception_handler
-    def create(
-        self,
-        face,
-        origin,
-        axis_position,
-        axis="X",
-        name=None,
-        offset=None,
-        rotation=0
-    ):
+    def create(self, face, origin, axis_position, axis="X", name=None, offset=None, rotation=0):
         """Create a face coordinate system.
         The face coordinate has always the Z axis parallel to face normal.
         The X and Y axis lie on the face plane.
@@ -372,25 +364,30 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
 
         """
         try:
-            self._change_property(self.name, ["NAME:ChangedProps", ["NAME:Z Rotation angle",
-                                                                    "Value:=", self.props["ZRotationAngle"]]])
+            self._change_property(
+                self.name, ["NAME:ChangedProps", ["NAME:Z Rotation angle", "Value:=", self.props["ZRotationAngle"]]]
+            )
         except:
             raise ValueError("'Z Rotation angle' parameter must be a string in the format '10deg'")
 
         try:
-            self._change_property(self.name, ["NAME:ChangedProps", ["NAME:Position Offset XY",
-                                                                    "X:=", self.props["XOffset"],
-                                                                    "Y:=", self.props["YOffset"]]])
+            self._change_property(
+                self.name,
+                [
+                    "NAME:ChangedProps",
+                    ["NAME:Position Offset XY", "X:=", self.props["XOffset"], "Y:=", self.props["YOffset"]],
+                ],
+            )
         except:
             raise ValueError("'XOffset' and 'YOffset' parameters must be a string in the format '1.3mm'")
 
         try:
-            self._change_property(self.name, ["NAME:ChangedProps", ["NAME:Axis",
-                                                                    "Value:=", self.props["WhichAxis"]]])
+            self._change_property(self.name, ["NAME:ChangedProps", ["NAME:Axis", "Value:=", self.props["WhichAxis"]]])
         except:
             raise ValueError("'WhichAxis' parameter must be either 'X' or 'Y'")
 
         return True
+
 
 class CoordinateSystem(BaseCoordinateSystem, object):
     """Manages coordinate system data and execution.
@@ -1072,7 +1069,8 @@ class GeometryModeler(Modeler, object):
                             id2name[cs_id] = name
                             op_id = cs[ds]["PlaceHolderOperationID"]
                             op = self._app.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"][
-                                "ToplevelParts"]["GeometryPart"]["Operations"]
+                                "ToplevelParts"
+                            ]["GeometryPart"]["Operations"]
                             if isinstance(op["FaceCSHolderOperation"], (OrderedDict, dict)):
                                 if op["FaceCSHolderOperation"]["ID"] == op_id:
                                     props = op["FaceCSHolderOperation"]["FaceCSParameters"]
@@ -1098,7 +1096,8 @@ class GeometryModeler(Modeler, object):
                                 id2name[cs_id] = name
                                 op_id = el["PlaceHolderOperationID"]
                                 op = self._app.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"][
-                                    "ToplevelParts"]["GeometryPart"]["Operations"]
+                                    "ToplevelParts"
+                                ]["GeometryPart"]["Operations"]
                                 if isinstance(op["FaceCSHolderOperation"], (OrderedDict, dict)):
                                     if op["FaceCSHolderOperation"]["ID"] == op_id:
                                         props = op["FaceCSHolderOperation"]["FaceCSParameters"]
@@ -1449,16 +1448,7 @@ class GeometryModeler(Modeler, object):
         return False
 
     @aedt_exception_handler
-    def create_face_coordinate_system(
-        self,
-        face,
-        origin,
-        axis_position,
-        axis="X",
-        name=None,
-        offset=None,
-        rotation=0
-    ):
+    def create_face_coordinate_system(self, face, origin, axis_position, axis="X", name=None, offset=None, rotation=0):
         """Create a face coordinate system.
         The face coordinate has always the Z axis parallel to face normal.
         The X and Y axis lie on the face plane.
@@ -1513,14 +1503,13 @@ class GeometryModeler(Modeler, object):
                 axis=axis,
                 name=name,
                 offset=offset,
-                rotation=rotation
+                rotation=rotation,
             )
 
             if result:
                 self.coordinate_systems.append(cs)
                 return cs
         return False
-
 
     @aedt_exception_handler
     def global_to_cs(self, point, ref_cs):
