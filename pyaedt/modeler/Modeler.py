@@ -314,7 +314,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
         parameters["WhichAxis"] = axis
         parameters["ZRotationAngle"] = str(rotation) + "deg"
         parameters["XOffset"] = self._dim_arg((offset[0]), self.model_units)
-        parameters["YOffset"] = self._dim_arg((offset[0]), self.model_units)
+        parameters["YOffset"] = self._dim_arg((offset[1]), self.model_units)
         parameters["AutoAxis"] = False
 
         self.props = parameters
@@ -1575,7 +1575,7 @@ class GeometryModeler(Modeler, object):
 
         Parameters
         ----------
-        name : str
+        name : str, FaceCoordinateSystem, CoordinateSystem
             Name of the coordinate system to set as the working coordinate system.
 
         Returns
@@ -1588,7 +1588,10 @@ class GeometryModeler(Modeler, object):
 
         >>> oEditor.SetWCS
         """
-        self.oeditor.SetWCS(["NAME:SetWCS Parameter", "Working Coordinate System:=", name, "RegionDepCSOk:=", False])
+        if isinstance(name, BaseCoordinateSystem):
+            self.oeditor.SetWCS(["NAME:SetWCS Parameter", "Working Coordinate System:=", name.name, "RegionDepCSOk:=", False])
+        else:
+            self.oeditor.SetWCS(["NAME:SetWCS Parameter", "Working Coordinate System:=", name, "RegionDepCSOk:=", False])
         return True
 
     @aedt_exception_handler

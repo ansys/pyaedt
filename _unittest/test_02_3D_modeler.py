@@ -271,7 +271,7 @@ class TestClass(BasisTest):
         assert isinstance(coax[1].id, int)
         assert isinstance(coax[2].id, int)
 
-    def test_40_create_coordinate(self):
+    def test_40_create_coordinate_system(self):
         cs = self.aedtapp.modeler.create_coordinate_system()
         assert cs
         assert cs.update()
@@ -287,12 +287,56 @@ class TestClass(BasisTest):
         assert cs.change_cs_mode(0)
         assert cs.delete()
 
+    def test_40a_create_face_coordinate_system(self):
+        box = self.aedtapp.modeler.create_box([0, 0, 0], [2, 2, 2])
+        face = box.faces[0]
+        fcs = self.aedtapp.modeler.create_face_coordinate_system(face, face.edges[0], face.edges[1])
+        assert fcs
+        assert fcs.face_id == face.id
+        assert fcs.update()
+        assert fcs.delete()
+        fcs2 = self.aedtapp.modeler.create_face_coordinate_system(face, face, face.edges[1].vertices[0])
+        assert fcs2
+        assert fcs2.delete()
+        fcs2 = self.aedtapp.modeler.create_face_coordinate_system(face, face.edges[0].vertices[0], face.edges[1].vertices[0])
+        assert fcs2
+        assert fcs2.delete()
+        fcs3 = self.aedtapp.modeler.create_face_coordinate_system(face, face.edges[1].vertices[1], face.edges[1].vertices[0])
+        assert fcs3
+        assert fcs3.delete()
+        fcs4 = self.aedtapp.modeler.create_face_coordinate_system(face, face.edges[2], face.edges[3], name='test')
+        assert fcs4
+        assert fcs4.name == "test"
+        assert fcs4.delete()
+        fcs5 = self.aedtapp.modeler.create_face_coordinate_system(face, face.edges[2], face.edges[3], axis="Y")
+        assert fcs5
+        assert fcs5.props["WhichAxis"] == "Y"
+        assert fcs5.delete()
+        fcs6 = self.aedtapp.modeler.create_face_coordinate_system(face, face.edges[2], face.edges[3], rotation=14.3)
+        assert fcs6
+        assert fcs6.props["ZRotationAngle"] == "14.3deg"
+        assert fcs6.delete()
+        fcs7 = self.aedtapp.modeler.create_face_coordinate_system(face, face.edges[2], face.edges[3], offset=[0.2, 0.3])
+        assert fcs7
+        assert fcs7.props["XOffset"] == "0.2" + self.aedtapp.modeler.model_units
+        assert fcs7.props["YOffset"] == "0.3" + self.aedtapp.modeler.model_units
+        assert fcs7.delete()
+
     def test_41_rename_coordinate(self):
         cs = self.aedtapp.modeler.create_coordinate_system(name="oldname")
         assert cs.name == "oldname"
         assert cs.rename("newname")
         assert cs.name == "newname"
         assert cs.delete()
+
+    def test_41a_rename_face_coordinate(self):
+        box = self.aedtapp.modeler.create_box([0, 0, 0], [2, 2, 2])
+        face = box.faces[0]
+        fcs = self.aedtapp.modeler.create_face_coordinate_system(face, face.edges[0], face.edges[1], name="oldname")
+        assert fcs.name == "oldname"
+        assert fcs.rename("newname")
+        assert fcs.name == "newname"
+        assert fcs.delete()
 
     def test_42A_update_coordinate_system(self):
         for cs in self.aedtapp.modeler.coordinate_systems:
@@ -310,10 +354,32 @@ class TestClass(BasisTest):
         cs2.props["Theta"] = 30
         assert cs2.update()
         cs2.ref_cs = "Global"
-        cs2.update()
+        assert cs2.update()
         assert tuple(self.aedtapp.modeler.oeditor.GetCoordinateSystems()) == ("Global", "CS1", "CS2")
         assert len(self.aedtapp.modeler.coordinate_systems) == 2
         assert cs2.delete()
+
+    def test_42A_update_face_coordinate_system(self):
+        for cs in self.aedtapp.modeler.coordinate_systems:
+            cs.delete()
+        box = self.aedtapp.modeler.create_box([0, 0, 0], [2, 2, 2])
+        face = box.faces[0]
+        fcs = self.aedtapp.modeler.create_face_coordinate_system(face, face.edges[0], face.edges[1], name="FCS1")
+        assert fcs
+        fcs.props["XOffset"] = "0.2mm"
+        fcs.props["YOffset"] = "0.3mm"
+        assert fcs.props["XOffset"] == "0.2mm"
+        assert fcs.props["YOffset"] == "0.3mm"
+        assert fcs.update()
+        fcs.props["ZRotationAngle"] = "14.3deg"
+        assert fcs.update()
+        assert fcs.props["ZRotationAngle"] == "14.3deg"
+        fcs.props["WhichAxis"] = "Y"
+        assert fcs.update()
+        assert fcs.props["WhichAxis"] == "Y"
+        assert tuple(self.aedtapp.modeler.oeditor.GetCoordinateSystems()) == ("Global", "FCS1")
+        assert len(self.aedtapp.modeler.coordinate_systems) == 1
+        assert fcs.delete()
 
     def test_42B_set_as_working_cs(self):
         for cs in self.aedtapp.modeler.coordinate_systems:
@@ -323,10 +389,31 @@ class TestClass(BasisTest):
         assert cs1.set_as_working_cs()
         assert cs2.set_as_working_cs()
 
+    def test_42C_set_as_working_face_cs(self):
+        for cs in self.aedtapp.modeler.coordinate_systems:
+            cs.delete()
+        box = self.aedtapp.modeler.create_box([0, 0, 0], [2, 2, 2])
+        face = box.faces[0]
+        fcs1 = self.aedtapp.modeler.create_face_coordinate_system(face, face.edges[0], face.edges[1])
+        fcs2 = self.aedtapp.modeler.create_face_coordinate_system(face, face, face.edges[1])
+        assert fcs1.set_as_working_cs()
+        assert fcs2.set_as_working_cs()
+
     def test_43_set_working_coordinate_system(self):
         cs1 = self.aedtapp.modeler.create_coordinate_system(name="new1")
-        self.aedtapp.modeler.set_working_coordinate_system("Global")
-        self.aedtapp.modeler.set_working_coordinate_system("new1")
+        assert self.aedtapp.modeler.set_working_coordinate_system("Global")
+        assert self.aedtapp.modeler.set_working_coordinate_system("new1")
+        assert self.aedtapp.modeler.set_working_coordinate_system("Global")
+        assert self.aedtapp.modeler.set_working_coordinate_system(cs1)
+
+    def test_43_set_working_face_coordinate_system(self):
+        box = self.aedtapp.modeler.create_box([0, 0, 0], [2, 2, 2])
+        face = box.faces[0]
+        fcs = self.aedtapp.modeler.create_face_coordinate_system(face, face, face.edges[1], name="new2")
+        assert self.aedtapp.modeler.set_working_coordinate_system("Global")
+        assert self.aedtapp.modeler.set_working_coordinate_system("new2")
+        assert self.aedtapp.modeler.set_working_coordinate_system("Global")
+        assert self.aedtapp.modeler.set_working_coordinate_system(fcs)
 
     def test_44_sweep_around_axis(self):
         rect1 = self.aedtapp.modeler.primitives.create_rectangle(
