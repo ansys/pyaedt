@@ -819,7 +819,7 @@ class CommonMaterial(object):
         ):
             i = 1
             for val in provpavlue:
-                if not self._props.get(propname, None):
+                if self._props.get(propname, None):
                     self._props[propname] = OrderedDict({"property_type": "AnisoProperty"})
                     self._props[propname]["unit"] = ""
                 self._props[propname]["component" + str(i)] = str(val)
