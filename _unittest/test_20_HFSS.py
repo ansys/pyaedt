@@ -5,12 +5,13 @@ try:
 except ImportError:
     import _unittest_ironpython.conf_unittest as pytest
 # Setup paths for module imports
-from _unittest.conftest import scratch_path
+from _unittest.conftest import scratch_path, local_path
 import gc
 
 # Import required modules
 from pyaedt import Hfss
 from pyaedt.generic.filesystem import Scratch
+from pyaedt.generic.near_field_import import convert_nearfield_data
 
 test_project_name = "coax_HFSS"
 
@@ -672,3 +673,7 @@ class TestClass:
     def test_46_mesh_settings(self):
         assert self.aedtapp.mesh.initial_mesh_settings
         assert self.aedtapp.mesh.initial_mesh_settings.props
+
+    def test_47_convert_near_field(self):
+        example_project = os.path.join(local_path, "example_models", "nf_test")
+        assert os.path.exists(convert_nearfield_data(example_project,self.local_scratch.path))
