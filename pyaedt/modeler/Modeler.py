@@ -212,7 +212,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
             If an edge is specified, the position is placed on the edce midpoint.
             If a vertex is specified, the position is placed on the vertex.
         axis : str, optional
-            Select which axis is considered for positioning. Possible vaules are ``"X"`` and ``"Y"``.
+            Select which axis is considered for positioning. Possible values are ``"X"`` and ``"Y"``.
             The default is ``"X"``.
         name : str, optional
             Name of the coordinate system. The default is ``None``.
@@ -1471,7 +1471,7 @@ class GeometryModeler(Modeler, object):
             If an edge is specified, the position is placed on the edce midpoint.
             If a vertex is specified, the position is placed on the vertex.
         axis : str, optional
-            Select which axis is considered for positioning. Possible vaules are ``"X"`` and ``"Y"``.
+            Select which axis is considered for positioning. Possible values are ``"X"`` and ``"Y"``.
             The default is ``"X"``.
         name : str, optional
             Name of the coordinate system. The default is ``None``.
