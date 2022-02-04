@@ -76,3 +76,9 @@ class TestClass:
 
     def test_05_change_property(self):
         assert self.aedtapp.modeler.change_property("Excitations:J2B3-2", "Impedance", "49ohm", "EM Design")
+
+    def test_06_assign_spice_model(self):
+        model_path = os.path.join(self.local_scratch.path, test_project_name + ".aedb", "GRM32ER72A225KA35_25C_0V.sp")
+        assert self.aedtapp.modeler.set_spice_model(
+            component_name="C3A3", model_path=model_path, subcircuit_name="GRM32ER72A225KA35_25C_0V"
+        )

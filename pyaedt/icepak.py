@@ -18,6 +18,8 @@ from pyaedt.application.AnalysisIcepak import FieldAnalysisIcepak
 from pyaedt.generic.general_methods import generate_unique_name, aedt_exception_handler
 from pyaedt.generic.DataHandlers import _arg2dict
 from pyaedt.modules.Boundary import BoundaryObject, NativeComponentObject
+from pyaedt.generic.DataHandlers import random_string
+from pyaedt.modeler.GeometryOperators import GeometryOperators
 
 
 class Icepak(FieldAnalysisIcepak):
@@ -1880,6 +1882,133 @@ class Icepak(FieldAnalysisIcepak):
         ]
 
         return arg
+
+    @aedt_exception_handler
+    def create_fan(
+        self,
+        name=None,
+        is_2d=False,
+        shape="Circular",
+        cross_section="XY",
+        radius="0.008mm",
+        hub_radius="0mm",
+        origin=None,
+    ):
+        """ "Create a fan component in Icepak that is linked to an HFSS 3D Layout object.
+
+        Parameters
+        ----------
+        name : str
+            Fan name.
+        is_2d : bool
+            Check if the fan is modeled as 2d or 3d.
+        shape : str
+            Fan Shape. It can be Circular or Rectangular.
+        cross_section : str
+            Fan Cross Section plane.
+        radius : str, float
+            Fan radius in modeler units.
+        hub_radius : str, float
+            Fan hub radius in modeler units.
+        origin : list
+            List of [x,y,z] position of the fan in the modeler.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.NativeComponentObject`
+            NativeComponentObject object.
+
+        References
+        ----------
+
+        >>> oModule.InsertNativeComponent
+        """
+        if not name:
+            name = generate_unique_name("Fan")
+
+        basic_component = OrderedDict(
+            {
+                "ComponentName": name,
+                "Company": "",
+                "Company URL": "",
+                "Model Number": "",
+                "Help URL": "",
+                "Version": "1.0",
+                "Notes": "",
+                "IconType": "Fan",
+            }
+        )
+        if is_2d:
+            model = "2D"
+        else:
+            model = "3D"
+        cross_section = GeometryOperators.cs_plane_to_plane_str(cross_section)
+        native_component = OrderedDict(
+            {
+                "Type": "Fan",
+                "Unit": self.modeler.model_units,
+                "ModelAs": model,
+                "Shape": shape,
+                "MovePlane": cross_section,
+                "Radius": self._arg_with_units(radius),
+                "HubRadius": self._arg_with_units(hub_radius),
+                "CaseSide": True,
+                "FlowDirChoice": "NormalPositive",
+                "FlowType": "Curve",
+                "SwirlType": "Magnitude",
+                "FailedFan": False,
+                "DimUnits": ["m3_per_s", "n_per_meter_sq"],
+                "X": ["0", "0.01"],
+                "Y": ["3", "0"],
+                "Pressure Loss Curve": OrderedDict(
+                    {"DimUnits": ["m_per_sec", "n_per_meter_sq"], "X": ["", "", "", "3"], "Y": ["", "1", "10", "0"]}
+                ),
+                "IntakeTemp": "AmbientTemp",
+                "Swirl": "0",
+                "OperatingRPM": "0",
+                "Magnitude": "1",
+            }
+        )
+        native_props = OrderedDict(
+            {
+                "TargetCS": "Global",
+                "SubmodelDefinitionName": name,
+                "ComponentPriorityLists": OrderedDict({}),
+                "NextUniqueID": 0,
+                "MoveBackwards": False,
+                "DatasetType": "ComponentDatasetType",
+                "DatasetDefinitions": OrderedDict({}),
+                "BasicComponentInfo": basic_component,
+                "GeometryDefinitionParameters": OrderedDict({"VariableOrders": OrderedDict()}),
+                "DesignDefinitionParameters": OrderedDict({"VariableOrders": OrderedDict()}),
+                "MaterialDefinitionParameters": OrderedDict({"VariableOrders": OrderedDict()}),
+                "MapInstanceParameters": "DesignVariable",
+                "UniqueDefinitionIdentifier": "57c8ab4e-4db9-4881-b6bb-"
+                + random_string(12, char_set="abcdef0123456789"),
+                "OriginFilePath": "",
+                "IsLocal": False,
+                "ChecksumString": "",
+                "ChecksumHistory": [],
+                "VersionHistory": [],
+                "NativeComponentDefinitionProvider": native_component,
+                "InstanceParameters": OrderedDict(
+                    {"GeometryParameters": "", "MaterialParameters": "", "DesignParameters": ""}
+                ),
+            }
+        )
+
+        insts = list(self.modeler.oeditor.Get3DComponentInstanceNames(name))
+
+        native = NativeComponentObject(self, "Fan", name, native_props)
+        if native.create():
+            new_name = [i for i in list(self.modeler.oeditor.Get3DComponentInstanceNames(name)) if i not in insts][0]
+            self.modeler.primitives.refresh_all_ids()
+            self.materials._load_from_project()
+            self.native_components.append(native)
+            if origin:
+                self.modeler.move(new_name, origin)
+            return native
+        return False
 
     @aedt_exception_handler
     def create_ipk_3dcomponent_pcb(

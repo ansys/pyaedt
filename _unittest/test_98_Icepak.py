@@ -201,7 +201,9 @@ class TestClass:
 
     def test_13a_assign_openings(self):
         airfaces = [self.aedtapp.modeler.primitives["Region"].top_face_x.id]
-        assert self.aedtapp.assign_openings(airfaces)
+        openings = self.aedtapp.assign_openings(airfaces)
+        openings.name = "Test_Opening"
+        assert openings.update()
 
     def test_13b_assign_grille(self):
         airfaces = [self.aedtapp.modeler.primitives["Region"].top_face_y.id]
@@ -214,6 +216,8 @@ class TestClass:
         )
         assert grille2.props["X"] == ["0", "3", "5"]
         assert grille2.props["Y"] == ["0", "2", "3"]
+        grille2.name = "Grille_test"
+        assert grille2.update()
 
     def test_14_edit_design_settings(self):
         assert self.aedtapp.edit_design_settings(gravityDir=1)
@@ -360,6 +364,13 @@ class TestClass:
             internal_layer_number=5,
             internal_thick=0.05,
             high_surface_thick="0.1in",
+        )
+
+    def test_40_create_fan(self):
+        fan = self.aedtapp.create_fan(origin=[5, 21, 1])
+        assert fan
+        assert (
+            self.aedtapp.modeler.oeditor.Get3DComponentInstanceNames(fan.component_name)[0] == fan.component_name + "1"
         )
 
     def test_88_create_heat_sink(self):

@@ -150,6 +150,12 @@ class TestClass:
         assert non_planar_face.move_with_offset(1)
         assert isclose(non_planar_face.area, 314.1592653589793)
         assert not non_planar_face.normal
+        o_box2 = self.aedtapp.modeler.create_box([300, 300, 300], [10, 10, 5], "BoxBounding", "Copper")
+        for face in o_box2.faces:
+            assert isinstance(face.is_on_bounding(), bool)
+        assert len(o_box2.faces_on_bounding_box) == 3
+        assert not o_sphere.faces[0].is_planar
+        assert o_box.faces[0].is_planar
 
     def test_04_object_material_property_invalid(self):
         o_box = self.create_copper_box("Invalid1")

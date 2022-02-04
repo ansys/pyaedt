@@ -238,3 +238,7 @@ class TestClass:
         m3d1 = Maxwell3d(self.file_path)
         assert m3d1.assign_matrix("pri", "mymatrix") == "mymatrix"
         self.aedtapp.close_project(m3d1.project_name, False)
+
+    def test_33_mesh_settings(self):
+        assert self.aedtapp.mesh.initial_mesh_settings
+        assert self.aedtapp.mesh.initial_mesh_settings.props

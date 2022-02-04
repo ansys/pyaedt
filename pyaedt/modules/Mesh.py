@@ -3,10 +3,14 @@ This module contains the `Mesh` class.
 """
 
 from __future__ import absolute_import
-from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, MethodNotSupportedError
-
-from pyaedt.generic.DataHandlers import _dict2arg
+import os
+import shutil
 from collections import OrderedDict
+
+from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, MethodNotSupportedError
+from pyaedt.application.design_solutions import model_names
+from pyaedt.generic.DataHandlers import _dict2arg
+from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 
 meshers = {
     "HFSS": "MeshSetup",
@@ -125,6 +129,9 @@ class MeshOperation(object):
             self._meshicepak.omeshmodule.EditMeshOperation(self.name, self._get_args())
         elif self.type == "CurvatureExtraction":
             self._meshicepak.omeshmodule.EditSBRCurvatureExtractionOp(self.name, self._get_args())
+        elif self.type == "InitialMeshSettings":
+            self._meshicepak.omeshmodule.InitialMeshSettings(self._get_args())
+
         else:
             return False
         return True
@@ -171,8 +178,26 @@ class Mesh(object):
         self._omeshmodule = self._odesign.GetModule(meshers[design_type])
         self.id = 0
         self.meshoperations = self._get_design_mesh_operations()
-        self.globalmesh = self._get_design_global_mesh()
+        self._globalmesh = None
         pass
+
+    @property
+    def initial_mesh_settings(self):
+        """Return the global mesh object.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Mesh.MeshOperation`
+            Mesh operation object.
+
+        References
+        ----------
+
+        >>> oModule.InitialMeshSettings
+        """
+        if not self._globalmesh:
+            self._globalmesh = self._get_design_global_mesh()
+        return self._globalmesh
 
     @property
     def omeshmodule(self):
@@ -188,10 +213,31 @@ class Mesh(object):
     @aedt_exception_handler
     def _get_design_global_mesh(self):
         """ """
+        props = None
         try:
-            return self._app.design_properties["MeshSetup"]["MeshSettings"]
+            props = self._app.design_properties["MeshSetup"]["MeshSettings"]
         except:
-            return OrderedDict()
+            temp_name = generate_unique_name("temp_prj")
+            temp_proj = os.path.join(self._app.working_directory, temp_name + ".aedt")
+            oproject_target = self._app.odesktop.NewProject(temp_name)
+            des_target = oproject_target.InsertDesign(self._app.design_type, temp_name, self._app.solution_type, "")
+            oproject_target.SaveAs(temp_proj, True)
+            self._app.odesktop.CloseProject(temp_name)
+            _project_dictionary = load_entire_aedt_file(temp_proj)
+            try:
+                props = _project_dictionary["AnsoftProject"][model_names[self._app.design_type]]["MeshSetup"][
+                    "MeshSettings"
+                ]
+            except:
+                pass
+            if os.path.exists(temp_proj):
+                os.remove(temp_proj)
+            if os.path.exists(temp_proj + "results"):
+                shutil.rmtree(temp_proj + "results", True)
+        if props:
+            bound = MeshOperation(self, "MeshSettings", props, "InitialMeshSettings")
+            return bound
+        return OrderedDict()
 
     @aedt_exception_handler
     def _get_design_mesh_operations(self):

@@ -1,5 +1,6 @@
 import os
 import time
+import re
 from warnings import warn
 
 from pyaedt.generic.constants import AEDT_UNITS
@@ -10,6 +11,7 @@ from pyaedt.generic.general_methods import (
     is_ironpython,
     _pythonver,
     inside_desktop,
+    get_filename_without_extension,
 )
 from pyaedt.modules.LayerStackup import Layers
 from pyaedt.modeler.Modeler import Modeler
@@ -68,7 +70,9 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         self.logger.info("Primitives loaded.")
         self.layers.refresh_all_layers()
-
+        self.o_def_manager = self._app.odefinition_manager
+        self.o_component_manager = self.o_def_manager.GetManager("Component")
+        self.o_model_manager = self.o_def_manager.GetManager("Model")
         pass
 
     @property
@@ -669,3 +673,112 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         else:
             self.logger.info("Assigned Objects Temperature")
             return True
+
+    @aedt_exception_handler
+    def set_spice_model(self, component_name, model_path, model_name=None, subcircuit_name=None, pin_map=None):
+        """Assign a Spice model to a component.
+
+        Parameters
+        ----------
+        component_name : str
+            Name of the component.
+        model_path : str, optional
+            Full path to the model file. The default is ``None``.
+        model_name : str, optional
+            Name of the model. The default is ``None`` which means that model_name is file name without extension.
+        subcircuit_name : str, optional
+            Name of the subcircuit. The default is ``None`` which means that subcircuit name is the model_name.
+        pin_map : list, optional
+            List of [spice_pin_name, aedt_pin_name] to optional
+            customize the pin mapping between Spice Pins and AEDT Pins.
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+
+        >>> from pyaedt import Hfss3dLayout
+        >>> h3d = Hfss3dLayout("myproject")
+        >>> h3d.modeler.set_spice_model(component_name="A1",
+        ...                             modelpath="pathtospfile",
+        ...                             modelname="spicemodelname",
+        ...                             subcircuit_name="SUBCK1")
+
+        """
+        if not model_name:
+            model_name = get_filename_without_extension(model_path)
+        if model_name not in list(self.o_model_manager.GetNames()):
+            args = [
+                "NAME:" + model_name,
+                "Name:=",
+                model_name,
+                "ModTime:=",
+                1643711258,
+                "Library:=",
+                "",
+                "LibLocation:=",
+                "Project",
+                "ModelType:=",
+                "dcirspice",
+                "Description:=",
+                "",
+                "ImageFile:=",
+                "",
+                "SymbolPinConfiguration:=",
+                0,
+                ["NAME:PortInfoBlk"],
+                ["NAME:PortOrderBlk"],
+                "filename:=",
+                model_path,
+                "modelname:=",
+                model_name,
+            ]
+            self.o_model_manager.Add(args)
+        if not subcircuit_name:
+            subcircuit_name = model_name
+        with open(model_path, "r") as f:
+            for line in f:
+                if "subckt" in line.lower():
+                    pinNames = [i.strip() for i in re.split(" |\t", line) if i]
+                    pinNames.remove(pinNames[0])
+                    pinNames.remove(pinNames[0])
+                    break
+        componentPins = [i.GetName() for i in self.edb.core_components.get_pin_from_component(component_name)]
+        componentPins.reverse()
+        if not pin_map:
+            pin_map = []
+            i = 0
+            if len(componentPins) >= len(pinNames):
+                for pn in pinNames:
+                    pin_map.append(pn + ":=")
+                    pin_map.append(componentPins[i])
+                    i += 1
+        args2 = [
+            "CompPropEnabled:=",
+            True,
+            "Pid:=",
+            -1,
+            "Pmo:=",
+            "0",
+            "CompPropType:=",
+            0,
+            "PinPairRLC:=",
+            [
+                "RLCModelType:=",
+                4,
+                "SPICE_file_path:=",
+                model_path,
+                "SPICE_model_name:=",
+                model_name,
+                "SPICE_subckt:=",
+                subcircuit_name,
+                "terminal_pin_map:=",
+                pin_map,
+            ],
+        ]
+        args = ["NAME:ModelChanges", ["NAME:UpdateModel0", ["NAME:ComponentNames", component_name], "Prop:=", args2]]
+        self.oeditor.UpdateModels(args)
+        self.logger.info("Spice Model Correctly assigned to {}.".format(component_name))
+        return True

@@ -518,7 +518,7 @@ class Antenna(Part, object):
         """
         if self._do_offset:
             self.set_relative_cs(app)
-            antenna_object = self._insert(app, units=units)  # Create coordinate system, if needed.
+            antenna_object = self._insert(app, target_cs=self.cs_name, units=units)
         else:
             antenna_object = self._insert(app, target_cs=self._multiparts.cs_name, units=units)
         if self._do_rotate and antenna_object:

@@ -78,6 +78,8 @@ class TestClass:
     def test_04_assign_coating(self, object_name, kwargs):
         id = self.aedtapp.modeler.primitives.get_obj_id(object_name)
         coat = self.aedtapp.assign_coating([id], **kwargs)
+        coat.name = "Coating1" + object_name
+        assert coat.update()
         material = coat.props.get("Material", "")
         assert material == kwargs.get("mat", "")
 
@@ -232,8 +234,61 @@ class TestClass:
         assert self.aedtapp.delete_setup(setup_name)
         assert setuptd.name not in self.aedtapp.existing_analysis_setups
 
+    def test_06f_sweep_add_subrange(self):
+        box_sweep = self.aedtapp.modeler.primitives.create_box([0, 0, 20], [10, 10, 5], "box_sweep", "Copper")
+        box_sweep2 = self.aedtapp.modeler.primitives.create_box([0, 0, 30], [10, 10, 5], "box_sweep2", "Copper")
+        port = self.aedtapp.create_wave_port_between_objects(
+            "box_sweep", "box_sweep2", self.aedtapp.AxisDir.XNeg, 50, 1, "WaveForSweep", False
+        )
+        setup = self.aedtapp.create_setup(setupname="MySetupForSweep")
+        sweep = setup.add_sweep()
+        assert sweep.add_subrange("LinearCount", 1, 3, 10, "GHz")
+        assert sweep.add_subrange("LinearCount", 2, 4, 10, "GHz")
+        assert sweep.add_subrange("LinearStep", 1.1, 2.1, 0.4, "GHz")
+        assert sweep.add_subrange("LinearCount", 1, 1.5, 5, "MHz")
+        assert sweep.add_subrange("LogScale", 1, 3, 10, "GHz")
+
+    def test_06g_sweep_clear_subrange(self):
+        box_sweep3 = self.aedtapp.modeler.primitives.create_box([0, 0, 50], [10, 10, 5], "box_sweep3", "Copper")
+        box_sweep4 = self.aedtapp.modeler.primitives.create_box([0, 0, 60], [10, 10, 5], "box_sweep4", "Copper")
+        port = self.aedtapp.create_wave_port_between_objects(
+            "box_sweep3", "box_sweep4", self.aedtapp.AxisDir.XNeg, 50, 1, "WaveForSweepWithClear", False
+        )
+        setup = self.aedtapp.create_setup(setupname="MySetupClearSweep")
+        sweep = setup.add_sweep()
+        assert sweep.add_subrange("LinearCount", 1.1, 3.6, 10, "GHz", clear=True)
+        assert sweep.props["RangeType"] == "LinearCount"
+        assert sweep.props["RangeStart"] == "1.1GHz"
+        assert sweep.props["RangeEnd"] == "3.6GHz"
+        assert sweep.props["RangeCount"] == 10
+        assert sweep.add_subrange("LinearCount", 2, 5, 10, "GHz")
+        setup.update()
+        sweep.update()
+        assert sweep.add_subrange("LinearCount", 3, 8, 10, "GHz", clear=True)
+        assert sweep.props["RangeType"] == "LinearCount"
+        assert sweep.props["RangeStart"] == "3GHz"
+        assert sweep.props["RangeEnd"] == "8GHz"
+        assert sweep.props["RangeCount"] == 10
+        assert sweep.add_subrange("LinearStep", 1.1, 2.1, 0.4, "GHz", clear=True)
+        assert sweep.props["RangeType"] == "LinearStep"
+        assert sweep.props["RangeStart"] == "1.1GHz"
+        assert sweep.props["RangeEnd"] == "2.1GHz"
+        assert sweep.props["RangeStep"] == "0.4GHz"
+        assert sweep.add_subrange("LogScale", 1, 3, 10, clear=True)
+        assert sweep.props["RangeType"] == "LogScale"
+        assert sweep.props["RangeStart"] == "1GHz"
+        assert sweep.props["RangeEnd"] == "3GHz"
+        assert sweep.props["RangeSamples"] == 10
+        sweep.props["Type"] = "Discrete"
+        sweep.update()
+        assert sweep.add_subrange("SinglePoints", 23, clear=True)
+        assert sweep.props["RangeType"] == "SinglePoints"
+        assert sweep.props["RangeStart"] == "23GHz"
+        assert sweep.props["RangeEnd"] == "23GHz"
+        assert sweep.props["SaveSingleField"] == False
+
     def test_06z_validate_setup(self):
-        list, ok = self.aedtapp.validate_full_design(ports=5)
+        list, ok = self.aedtapp.validate_full_design(ports=7)
         assert ok
 
     def test_07_set_power(self):
@@ -278,13 +333,12 @@ class TestClass:
             ).name
             == "port20"
         )
-        assert (
-            self.aedtapp.create_circuit_port_from_edges(
-                e1, e2, port_name="port21", port_impedance="50.1", renormalize=True
-            ).name
-            == "port21"
+        bound = self.aedtapp.create_circuit_port_from_edges(
+            e1, e2, port_name="port32", port_impedance="50.1", renormalize=True
         )
-
+        assert bound
+        bound.name = "port21"
+        assert bound.update()
         self.aedtapp.solution_type = "Modal"
 
     def test_09_create_waveport_on_objects(self):
@@ -320,7 +374,7 @@ class TestClass:
         box2 = self.aedtapp.modeler.primitives.create_box([0, 0, 60], [10, 10, 5], "BoxLumped2")
         box2.material_name = "Copper"
         port = self.aedtapp.create_lumped_port_between_objects(
-            "BoxLumped1", "BoxLumped2", self.aedtapp.AxisDir.XNeg, 50, "Lump1", True, False
+            "BoxLumped1", "BoxLumped2", self.aedtapp.AxisDir.XNeg, 50, "Lump1xx", True, False
         )
         assert not self.aedtapp.create_lumped_port_between_objects(
             "BoxLumped1111", "BoxLumped2", self.aedtapp.AxisDir.XNeg, 50, "Lump1", True, False
@@ -328,7 +382,9 @@ class TestClass:
         assert self.aedtapp.create_lumped_port_between_objects(
             "BoxLumped1", "BoxLumped2", self.aedtapp.AxisDir.XPos, 50
         )
-        assert port.name == "Lump1"
+        assert port.name == "Lump1xx"
+        port.name = "Lump1"
+        assert port.update()
 
     def test_11_create_circuit_on_objects(self):
         box1 = self.aedtapp.modeler.primitives.create_box([0, 0, 80], [10, 10, 5], "BoxCircuit1", "Copper")
@@ -537,7 +593,9 @@ class TestClass:
 
     def test_36_assign_radiation_to_objects(self):
         self.aedtapp.modeler.primitives.create_box([-100, -100, -100], [200, 200, 200], name="Rad_box")
-        assert self.aedtapp.assign_radiation_boundary_to_objects("Rad_box")
+        rad = self.aedtapp.assign_radiation_boundary_to_objects("Rad_box")
+        rad.name = "Radiation1"
+        assert rad.update()
 
     def test_37_assign_radiation_to_objects(self):
         self.aedtapp.modeler.primitives.create_box([-100, -100, -100], [200, 200, 200], name="Rad_box2")
@@ -576,7 +634,10 @@ class TestClass:
         sheet = self.aedtapp.modeler.primitives.create_rectangle(
             self.aedtapp.PLANE.XY, [-100, -100, -100], [200, 200], name="RectangleForSource", matname="Copper"
         )
-        assert self.aedtapp.create_floquet_port(sheet, deembed_dist=1, nummodes=4, reporter_filter=False)
+        bound = self.aedtapp.create_floquet_port(sheet, deembed_dist=1, nummodes=4, reporter_filter=False)
+        assert bound
+        bound.name = "Floquet1"
+        assert bound.update()
 
     def test_43_autoassign_pairs(self):
         self.aedtapp.insert_design("lattice")
@@ -587,9 +648,13 @@ class TestClass:
         assert self.aedtapp.assign_lattice_pair([box1.faces[2], box1.faces[4]])
         primary = self.aedtapp.assign_primary(box1.faces[1], [100, -100, -100], [100, 100, -100])
         assert primary
-        assert self.aedtapp.assign_secondary(
+        primary.name = "Prim1"
+        assert primary.update()
+        sec = self.aedtapp.assign_secondary(
             box1.faces[0], primary.name, [100, -100, 100], [100, 100, 100], reverse_v=True
         )
+        sec.name = "Sec1"
+        assert sec.update()
 
     def test_44_create_infinite_sphere(self):
         self.aedtapp.insert_design("InfSphere")
@@ -656,3 +721,7 @@ class TestClass:
         boundaries = len(self.aedtapp.boundaries)
         assert self.aedtapp.create_spiral_lumped_port(box1, box2)
         assert len(self.aedtapp.boundaries) - boundaries == 3
+
+    def test_46_mesh_settings(self):
+        assert self.aedtapp.mesh.initial_mesh_settings
+        assert self.aedtapp.mesh.initial_mesh_settings.props

@@ -155,6 +155,90 @@ class Q3d(QExtractor, object):
             student_version,
         )
 
+    @property
+    def nets(self):
+        """Return the list of available nets in actual Q3d Project.
+
+        Returns
+        -------
+        list
+
+        References
+        ----------
+
+        >>> oModule.ListNets
+        """
+        nets_data = list(self.oboundary.ListNets())
+        net_names = []
+        for i in nets_data:
+            if isinstance(i, (list, tuple)):
+                net_names.append(i[0].split(":")[1])
+        return net_names
+
+    @aedt_exception_handler
+    def net_sources(self, net_name):
+        """Check if a net has sources and returns the list of names.
+
+        Parameters
+        ----------
+        net_name : str
+            Name of the net to search for.
+
+        Returns
+        -------
+        List
+            List of Source names.
+
+        Examples
+        --------
+        >>> from pyaedt import Q3d
+        >>> q3d = Q3d("my_project")
+        >>> net = q3d.net_sources("Net1")
+        """
+        sources = []
+        net_id = -1
+        for i in self.boundaries:
+            if i.type == "SignalNet" and i.name == net_name and i.props.get("ID", None) is not None:
+                net_id = i.props.get("ID", None)  # pragma: no cover
+                break  # pragma: no cover
+        for i in self.boundaries:
+            if i.type == "Source":
+                if i.props.get("Net", None) == net_name or i.props.get("Net", None) == net_id:
+                    sources.append(i.name)
+
+        return sources
+
+    @aedt_exception_handler
+    def net_sinks(self, net_name):
+        """Check if a net has sinks and returns the list of them.
+
+        Parameters
+        ----------
+        net_name : str
+            Name of the net to search for.
+
+        Returns
+        -------
+        List
+            List of Sink names.
+
+        Examples
+        --------
+        >>> from pyaedt import Q3d
+        >>> q3d = Q3d("my_project")
+        >>> net = q3d.net_sinks("Net1")
+        """
+        sinks = []
+        net_id = -1
+        for i in self.boundaries:
+            if i.type == "SignalNet" and i.name == net_name and i.props.get("ID", None) is not None:
+                net_id = i.props.get("ID", None)  # pragma: no cover
+                break  # pragma: no cover
+        for i in self.boundaries:
+            if i.type == "Sink" and i.props.get("Net", None) == net_name or i.props.get("Net", None) == net_id:
+                sinks.append(i.name)
+        return sinks
+
     @aedt_exception_handler
     def auto_identify_nets(self):
         """Automatically identify nets.
@@ -169,8 +253,69 @@ class Q3d(QExtractor, object):
 
         >>> oModule.AutoIdentifyNets
         """
+        original_nets = [i for i in self.nets]
         self.oboundary.AutoIdentifyNets()
+        new_nets = [i for i in self.nets if i not in original_nets]
+        for net in new_nets:
+            objects = self.modeler.convert_to_selections(
+                [int(i) for i in list(self.oboundary.GetExcitationAssignment(net))], True
+            )
+            props = OrderedDict({"Objects": objects})
+            bound = BoundaryObject(self, net, props, "SignalNet")
+            self.boundaries.append(bound)
+        if new_nets:
+            self.logger.info("{} Nets have been identified: {}".format(len(new_nets), ", ".join(new_nets)))
+        else:
+            self.logger.info("No new nets identified")
         return True
+
+    @aedt_exception_handler
+    def assign_net(self, objects, net_name=None, net_type="Signal"):
+        """Assign a net to a list of objects.
+
+        Parameters
+        ----------
+        objects : List, str
+            List of objects to assign net. Can be a single object.
+        net_name : str, optional
+            Name of the net. If `None`, default net name will be provided.
+        net_type : str, boolean
+            Type of net to create. Can be `Signal`, `Ground` or `Floating`.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Source object.
+
+        References
+        ----------
+
+        >>> oModule.AssignSignalNet
+        >>> oModule.AssignGroundNet
+        >>> oModule.AssignFloatingNet
+
+        Examples
+        --------
+        >>> from pyaedt import Q3d
+        >>> q3d = Q3d()
+        >>> box = q3d.modeler.create_box([30, 30, 30], [10, 10, 10], name="mybox")
+        >>> net_name = "my_net"
+        >>> net = q3d.assign_net(box, net_name)
+        """
+        objects = self.modeler.convert_to_selections(objects, True)
+        if not net_name:
+            net_name = generate_unique_name("Net")
+        props = OrderedDict({"Objects": objects})
+        type_bound = "SignalNet"
+        if net_type.lower() == "ground":
+            type_bound = "GroundNet"
+        elif net_type.lower() == "floating":
+            type_bound = "FloatingNet"
+        bound = BoundaryObject(self, net_name, props, type_bound)
+        if bound.create():
+            self.boundaries.append(bound)
+            return bound
+        return False
 
     @aedt_exception_handler
     def assign_source_to_objectface(self, object_name, axisdir=0, source_name=None, net_name=None):
@@ -181,7 +326,8 @@ class Q3d(QExtractor, object):
 
         Parameters
         ----------
-        object_name : str
+        object_name : str, int
+            Name of the object or face id.
             Name of the object.
         axisdir : optional
             Initial axis direction. Options are ``0`` through ``5``. The default is ``0``.
@@ -200,8 +346,11 @@ class Q3d(QExtractor, object):
 
         >>> oModule.AssignSource
         """
-        a = self.modeler._get_faceid_on_axis(object_name, axisdir)
-
+        object_name = self.modeler.convert_to_selections(object_name, True)[0]
+        if isinstance(object_name, int):
+            a = object_name
+        else:
+            a = self.modeler._get_faceid_on_axis(object_name, axisdir)
         if not source_name:
             source_name = generate_unique_name("Source")
         if not net_name:
@@ -266,8 +415,8 @@ class Q3d(QExtractor, object):
 
         Parameters
         ----------
-        object_name : str
-            Name of the object.
+        object_name : str, int
+            Name of the object or face id.
         axisdir : int, optional
             Initial axis direction. Options are ``0`` through ``5``. The default is ``0``.
         sink_name : str, optional
@@ -285,8 +434,12 @@ class Q3d(QExtractor, object):
 
         >>> oModule.AssignSink
         """
-        a = self.modeler._get_faceid_on_axis(object_name, axisdir)
-
+        object_name = self.modeler.convert_to_selections(object_name, True)[0]
+        if isinstance(object_name, int):
+            a = object_name
+            object_name = self.modeler.oeditor.GetObjectNameByFaceID(a)
+        else:
+            a = self.modeler._get_faceid_on_axis(object_name, axisdir)
         if not sink_name:
             sink_name = generate_unique_name("Sink")
         if not net_name:
