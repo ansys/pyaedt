@@ -485,6 +485,10 @@ class FacePrimitive(object):
     @property
     def is_planar(self):
         """Check if a face is planar or not.
+
+        Returns
+        -------
+        bool
         """
 
         try:
