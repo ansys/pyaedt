@@ -1,5 +1,5 @@
 """
-This module contains these classes: `CoordinateSystem`, `Modeler`,
+This module contains these classes: `BaseCoordinateSystem`, `FaceCoordinateSystem`, `CoordinateSystem`, `Modeler`,
 `Position`, and `SweepOptions`.
 
 This modules provides functionalities for the 3D Modeler, 2D Modeler,
@@ -18,8 +18,8 @@ from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.modeler.Object3d import EdgePrimitive, FacePrimitive, VertexPrimitive, Object3d
 
 
-class FaceCoordinateSystem(object):
-    """Manages face coordinate system data and execution.
+class BaseCoordinateSystem(object):
+    """Base methods common to FaceCoordinateSystem and CoordinateSystem.
 
     Parameters
     ----------
@@ -31,11 +31,129 @@ class FaceCoordinateSystem(object):
         The default is ``None``.
 
     """
-
-    def __init__(self, modeler, props=None, name=None, face_id=None):
+    def __init__(self, modeler, name=None):
         self._modeler = modeler
         self.model_units = self._modeler.model_units
         self.name = name
+
+    @aedt_exception_handler
+    def _dim_arg(self, value, units=None):
+        """Dimension argument.
+
+        Parameters
+        ----------
+        value :
+
+        units : optional
+             The default is ``None``.
+
+        Returns
+        -------
+        str
+        """
+        if units is None:
+            units = self.model_units
+        if type(value) is str:
+            try:
+                float(value)
+                val = "{0}{1}".format(value, units)
+            except:
+                val = value
+        else:
+            val = "{0}{1}".format(value, units)
+        return val
+
+    @aedt_exception_handler
+    def delete(self):
+        """Delete the coordinate system.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        self._modeler.oeditor.Delete(["NAME:Selections", "Selections:=", self.name])
+        self._modeler.coordinate_systems.remove(self)
+        return True
+
+    @aedt_exception_handler
+    def set_as_working_cs(self):
+        """Set the coordinate system as the working coordinate system.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        self._modeler.oeditor.SetWCS(
+            ["NAME:SetWCS Parameter", "Working Coordinate System:=", self.name, "RegionDepCSOk:=", False]
+        )
+        return True
+
+    @aedt_exception_handler
+    def _change_property(self, name, arg):
+        """Update properties of the coordinate system.
+
+        Parameters
+        ----------
+        name : str
+            Name of the coordinate system.
+        arg : list
+            List of the properties to update. For example,
+            ``["NAME:ChangedProps", ["NAME:Mode", "Value:=", "Axis/Position"]]``.
+
+        Returns
+        -------
+        list
+            List of changed properties of the coordinate system.
+
+        """
+        arguments = ["NAME:AllTabs", ["NAME:Geometry3DCSTab", ["NAME:PropServers", name], arg]]
+        _retry_ntimes(5, self._modeler.oeditor.ChangeProperty, arguments)
+
+    @aedt_exception_handler
+    def rename(self, newname):
+        """Rename the coordinate system.
+
+        Parameters
+        ----------
+        newname : str
+            New name for the coordinate system.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        self._change_property(self.name, ["NAME:ChangedProps", ["NAME:Name", "Value:=", newname]])
+        self.name = newname
+        return True
+
+
+class FaceCoordinateSystem(BaseCoordinateSystem, object):
+    """Manages face coordinate system data and execution.
+
+    Parameters
+    ----------
+    modeler :
+        Inherited parent object.
+    props : dict, optional
+        Dictionary of properties. The default is ``None``.
+    name : optional
+        The default is ``None``.
+    face_id : int
+        Id of the face where the Face Coordinate System is laying.
+
+    """
+
+    def __init__(self, modeler, props=None, name=None, face_id=None):
+        BaseCoordinateSystem.__init__(self, modeler, name)
+        # self._modeler = modeler
+        # self.model_units = self._modeler.model_units
+        # self.name = name
         self.face_id = face_id
         self.props = props
         try:
@@ -45,7 +163,7 @@ class FaceCoordinateSystem(object):
             pass
 
     @property
-    def part_name(self):
+    def _part_name(self):
         """Internally get the part name which the face belongs to"""
         if not self.face_id:
             # face_id has not been defined yet
@@ -57,16 +175,16 @@ class FaceCoordinateSystem(object):
         return None  # part has not been found
 
     @property
-    def face_paramenters(self):
+    def _face_paramenters(self):
         """Internal named array for paramenteers of the face coordinate system."""
         arg = ["Name:FaceCSParameters"]
         _dict2arg(self.props, arg)
         return arg
 
     @property
-    def attributes(self):
+    def _attributes(self):
         """Internal named array for attributes of the face coordinate system."""
-        coordinateSystemAttributes = ["NAME:Attributes", "Name:=", self.name, "PartName:=", self.part_name]
+        coordinateSystemAttributes = ["NAME:Attributes", "Name:=", self.name, "PartName:=", self._part_name]
         return coordinateSystemAttributes
 
     @aedt_exception_handler
@@ -201,14 +319,14 @@ class FaceCoordinateSystem(object):
         parameters["MoveToEnd"] = False
         parameters["FaceID"] = face_id
         parameters["AxisPosn"] = positioningParameters
-        parameters["WhichAxis"]	= axis
+        parameters["WhichAxis"] = axis
         parameters["ZRotationAngle"] = str(rotation) + "deg"
         parameters["XOffset"] = self._dim_arg((offset[0]), self.model_units)
         parameters["YOffset"] = self._dim_arg((offset[0]), self.model_units)
         parameters["AutoAxis"] = False
 
         self.props = parameters
-        self._modeler.oeditor.CreateFaceCS(self.face_paramenters, self.attributes)
+        self._modeler.oeditor.CreateFaceCS(self._face_paramenters, self._attributes)
 
         return True
 
@@ -244,34 +362,37 @@ class FaceCoordinateSystem(object):
             raise ValueError("Cannot detect the entity type.")
 
     @aedt_exception_handler
-    def _dim_arg(self, value, units=None):
-        """Dimension argument.
-
-        Parameters
-        ----------
-        value :
-
-        units : optional
-             The default is ``None``.
+    def update(self):
+        """Update the coordinate system.
 
         Returns
         -------
-        str
+        bool
+            ``True`` when successful, ``False`` when failed.
+
         """
-        if units is None:
-            units = self.model_units
-        if type(value) is str:
-            try:
-                float(value)
-                val = "{0}{1}".format(value, units)
-            except:
-                val = value
-        else:
-            val = "{0}{1}".format(value, units)
-        return val
+        try:
+            self._change_property(self.name, ["NAME:ChangedProps", ["NAME:Z Rotation angle",
+                                                                    "Value:=", self.props["ZRotationAngle"]]])
+        except:
+            raise ValueError("'Z Rotation angle' parameter must be a string in the format '10deg'")
 
+        try:
+            self._change_property(self.name, ["NAME:ChangedProps", ["NAME:Position Offset XY",
+                                                                    "X:=", self.props["XOffset"],
+                                                                    "Y:=", self.props["YOffset"]]])
+        except:
+            raise ValueError("'XOffset' and 'YOffset' parameters must be a string in the format '1.3mm'")
 
-class CoordinateSystem(object):
+        try:
+            self._change_property(self.name, ["NAME:ChangedProps", ["NAME:Axis",
+                                                                    "Value:=", self.props["WhichAxis"]]])
+        except:
+            raise ValueError("'WhichAxis' parameter must be either 'X' or 'Y'")
+
+        return True
+
+class CoordinateSystem(BaseCoordinateSystem, object):
     """Manages coordinate system data and execution.
 
     Parameters
@@ -286,9 +407,10 @@ class CoordinateSystem(object):
     """
 
     def __init__(self, modeler, props=None, name=None):
-        self._modeler = modeler
+        BaseCoordinateSystem.__init__(self, modeler, name)
+        # self._modeler = modeler
         self.model_units = self._modeler.model_units
-        self.name = name
+        # self.name = name
         self.props = props
         self.ref_cs = None
         self._quaternion = None
@@ -299,72 +421,72 @@ class CoordinateSystem(object):
         except:
             pass
 
-    @aedt_exception_handler
-    def _dim_arg(self, Value, sUnits=None):
-        """Dimension argument.
+    # @aedt_exception_handler
+    # def _dim_arg(self, Value, sUnits=None):
+    #     """Dimension argument.
+    #
+    #     Parameters
+    #     ----------
+    #     Value :
+    #
+    #     sUnits : optional
+    #          The default is ``None``.
+    #
+    #     Returns
+    #     -------
+    #
+    #     """
+    #     if sUnits is None:
+    #         sUnits = self.model_units
+    #     if type(Value) is str:
+    #         try:
+    #             float(Value)
+    #             val = "{0}{1}".format(Value, sUnits)
+    #         except:
+    #             val = Value
+    #     else:
+    #         val = "{0}{1}".format(Value, sUnits)
+    #     return val
 
-        Parameters
-        ----------
-        Value :
-
-        sUnits : optional
-             The default is ``None``.
-
-        Returns
-        -------
-
-        """
-        if sUnits is None:
-            sUnits = self.model_units
-        if type(Value) is str:
-            try:
-                float(Value)
-                val = "{0}{1}".format(Value, sUnits)
-            except:
-                val = Value
-        else:
-            val = "{0}{1}".format(Value, sUnits)
-        return val
-
-    @aedt_exception_handler
-    def _change_property(self, name, arg):
-        """Update properties of the coordinate system.
-
-        Parameters
-        ----------
-        name : str
-            Name of the coordinate system.
-        arg : list
-            List of the properties to update. For example,
-            ``["NAME:ChangedProps", ["NAME:Mode", "Value:=", "Axis/Position"]]``.
-
-        Returns
-        -------
-        list
-            List of changed properties of the coordinate system.
-
-        """
-        arguments = ["NAME:AllTabs", ["NAME:Geometry3DCSTab", ["NAME:PropServers", name], arg]]
-        _retry_ntimes(10, self._modeler.oeditor.ChangeProperty, arguments)
-
-    @aedt_exception_handler
-    def rename(self, newname):
-        """Rename the coordinate system.
-
-        Parameters
-        ----------
-        newname : str
-            New name for the coordinate system.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        """
-        self._change_property(self.name, ["NAME:ChangedProps", ["NAME:Name", "Value:=", newname]])
-        self.name = newname
-        return True
+    # @aedt_exception_handler
+    # def _change_property(self, name, arg):
+    #     """Update properties of the coordinate system.
+    #
+    #     Parameters
+    #     ----------
+    #     name : str
+    #         Name of the coordinate system.
+    #     arg : list
+    #         List of the properties to update. For example,
+    #         ``["NAME:ChangedProps", ["NAME:Mode", "Value:=", "Axis/Position"]]``.
+    #
+    #     Returns
+    #     -------
+    #     list
+    #         List of changed properties of the coordinate system.
+    #
+    #     """
+    #     arguments = ["NAME:AllTabs", ["NAME:Geometry3DCSTab", ["NAME:PropServers", name], arg]]
+    #     _retry_ntimes(10, self._modeler.oeditor.ChangeProperty, arguments)
+    #
+    # @aedt_exception_handler
+    # def rename(self, newname):
+    #     """Rename the coordinate system.
+    #
+    #     Parameters
+    #     ----------
+    #     newname : str
+    #         New name for the coordinate system.
+    #
+    #     Returns
+    #     -------
+    #     bool
+    #         ``True`` when successful, ``False`` when failed.
+    #
+    #     """
+    #     self._change_property(self.name, ["NAME:ChangedProps", ["NAME:Name", "Value:=", newname]])
+    #     self.name = newname
+    #     return True
 
     @aedt_exception_handler
     def update(self):
@@ -700,7 +822,8 @@ class CoordinateSystem(object):
             raise ValueError("Specify the mode = 'view', 'axis', 'zxz', 'zyz', 'axisrotation' ")
 
         self.props = orientationParameters
-        self._modeler.oeditor.CreateRelativeCS(self.orientation, self.attributes)
+        self._modeler.oeditor.CreateRelativeCS(self._orientation, self._attributes)
+        # this workaround is necessary because the reference CS is ignored at creation, it needs to be modified later
         self.ref_cs = reference_cs
         self.update()
 
@@ -759,46 +882,46 @@ class CoordinateSystem(object):
         return self._quaternion
 
     @property
-    def orientation(self):
+    def _orientation(self):
         """Internal named array for orientation of the coordinate system."""
         arg = ["Name:RelativeCSParameters"]
         _dict2arg(self.props, arg)
         return arg
 
     @property
-    def attributes(self):
+    def _attributes(self):
         """Internal named array for attributes of the coordinate system."""
         coordinateSystemAttributes = ["NAME:Attributes", "Name:=", self.name]
         return coordinateSystemAttributes
 
-    @aedt_exception_handler
-    def delete(self):
-        """Delete the coordinate system.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        """
-        self._modeler.oeditor.Delete(["NAME:Selections", "Selections:=", self.name])
-        self._modeler.coordinate_systems.remove(self)
-        return True
-
-    @aedt_exception_handler
-    def set_as_working_cs(self):
-        """Set the coordinate system as the working coordinate system.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        """
-        self._modeler.oeditor.SetWCS(
-            ["NAME:SetWCS Parameter", "Working Coordinate System:=", self.name, "RegionDepCSOk:=", False]
-        )
-        return True
+    # @aedt_exception_handler
+    # def delete(self):
+    #     """Delete the coordinate system.
+    #
+    #     Returns
+    #     -------
+    #     bool
+    #         ``True`` when successful, ``False`` when failed.
+    #
+    #     """
+    #     self._modeler.oeditor.Delete(["NAME:Selections", "Selections:=", self.name])
+    #     self._modeler.coordinate_systems.remove(self)
+    #     return True
+    #
+    # @aedt_exception_handler
+    # def set_as_working_cs(self):
+    #     """Set the coordinate system as the working coordinate system.
+    #
+    #     Returns
+    #     -------
+    #     bool
+    #         ``True`` when successful, ``False`` when failed.
+    #
+    #     """
+    #     self._modeler.oeditor.SetWCS(
+    #         ["NAME:SetWCS Parameter", "Working Coordinate System:=", self.name, "RegionDepCSOk:=", False]
+    #     )
+    #     return True
 
 
 class Modeler(object):
