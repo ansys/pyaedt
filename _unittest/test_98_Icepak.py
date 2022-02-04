@@ -321,6 +321,7 @@ class TestClass:
         obj = ["box2", "box3"]
         assert self.aedtapp.assign_surface_material(obj, "my_surface")
         mat = self.aedtapp.materials.add_material("test_mat1")
+        mat.thermal_conductivity = 10
         mat.thermal_conductivity = [20, 20, 10]
         assert mat.thermal_conductivity.type == "anisotropic"
 
