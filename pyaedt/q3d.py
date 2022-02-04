@@ -718,6 +718,7 @@ class Q2d(QExtractor, object):
             student_version,
         )
 
+    @aedt_exception_handler
     def create_rectangle(self, position, dimension_list, name="", matname=""):
         """
         Create a rectangle.
@@ -748,6 +749,7 @@ class Q2d(QExtractor, object):
             position, dimension_list=dimension_list, name=name, matname=matname
         )
 
+    @aedt_exception_handler
     def assign_single_signal_line(self, target_objects, name="", solve_option="SolveInside", thickness=None, unit="um"):
         """Assign conductor type to sheets.
 
@@ -779,6 +781,7 @@ class Q2d(QExtractor, object):
         )
         self.assign_single_conductor(target_objects, name, "SignalLine", solve_option, thickness, unit)
 
+    @aedt_exception_handler
     def assign_single_conductor(
         self,
         target_objects,
@@ -810,8 +813,8 @@ class Q2d(QExtractor, object):
             Thickness unit. The default is ``"um"``.
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Source object.
 
         References
         ----------
@@ -840,17 +843,13 @@ class Q2d(QExtractor, object):
 
         props = OrderedDict({"Objects": obj_names, "SolveOption": solve_option, "Thickness": str(thickness) + unit})
 
-        arg = ["NAME:" + name]
-        _dict2arg(props, arg)
-        if conductor_type == "SignalLine":
-            self.oboundary.AssignSingleSignalLine(arg)
-        elif conductor_type == "ReferenceGround":
-            self.oboundary.AssignSingleReferenceGround(arg)
-        else:
-            return False
+        bound = BoundaryObject(self, name, props, conductor_type)
+        if bound.create():
+            self.boundaries.append(bound)
+            return bound
+        return False
 
-        return True
-
+    @aedt_exception_handler
     def assign_huray_finitecond_to_edges(self, edges, radius, ratio, unit="um", name=""):
         """
         Assign Huray surface roughness model to edges.
@@ -891,3 +890,51 @@ class Q2d(QExtractor, object):
             self.boundaries.append(bound)
             return bound
         return False
+
+    @aedt_exception_handler
+    def auto_assign_conductors(self):
+        """Auto Assign Conductors to Signal Lines."""
+        original_nets = self.oboundary.GetExcitations()
+        self.oboundary.AutoAssignSignals()
+        new_nets = [i for i in self.oboundary.GetExcitations() if i not in original_nets]
+        i = 0
+        while i < len(new_nets):
+            objects = self.modeler.convert_to_selections(
+                [int(i) for i in list(self.oboundary.GetExcitationAssignment(new_nets[i]))], True
+            )
+            props = OrderedDict({"Objects": objects})
+            bound = BoundaryObject(self, new_nets[i], props, new_nets[i+1])
+            self.boundaries.append(bound)
+            i+=2
+        if new_nets:
+            self.logger.info("{} Nets have been identified: {}".format(len(new_nets), ", ".join(new_nets)))
+        else:
+            self.logger.info("No new nets identified")
+        return True
+
+    @aedt_exception_handler
+    def toggle_conductor_type(self, conductor_name, new_type):
+        """Change the conductor type.
+
+        Parameters
+        ----------
+        conductor_name : str
+            Name of the conductor to update.
+        new_type : str
+            New conductor type.
+
+        Returns
+        -------
+        bool
+        """
+        try:
+            self.oboundary.ToggleConductor(conductor_name, new_type)
+            for bound in self.boundaries:
+                if bound.name == conductor_name:
+                    bound.type = new_type
+            self.logger.info("Conductor type correctly updated")
+            return True
+        except:
+            self.logger.error("Error in updating conductor type")
+            return False
+

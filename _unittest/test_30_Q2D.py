@@ -45,7 +45,7 @@ class TestClass:
     def test_07_single_signal_line(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         o = self.aedtapp.modeler.primitives.create_rectangle(udp, [5, 3], name="Rectangle1")
-        self.aedtapp.assign_single_conductor(target_objects=o, solve_option="SolveOnBoundary")
+        assert self.aedtapp.assign_single_conductor(target_objects=o, solve_option="SolveOnBoundary")
 
     def test_08_assign_huray_finitecond_to_edges(self):
         o = self.aedtapp.create_rectangle([6, 6], [5, 3], name="Rectangle1", matname="Copper")
