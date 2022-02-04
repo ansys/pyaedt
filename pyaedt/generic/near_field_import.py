@@ -62,41 +62,44 @@ def convert_nearfield_data(dat_folder, frequency=6, invert_phase_for_lower_faces
     str
         Full path to `.and` file.
     """
+    file_keys = ["xmin", "xmax", "ymin", "ymax", "zmin", "zmax"]
     components = {"xmin": BoxFacePointsAndFields(), "ymin": BoxFacePointsAndFields(), "zmin": BoxFacePointsAndFields(),
                   "xmax": BoxFacePointsAndFields(), "ymax": BoxFacePointsAndFields(), "zmax": BoxFacePointsAndFields()}
 
     file_names = glob.glob(dat_folder+"/*.dat")
     for data_file in file_names:
-        match = re.search(r'data_(\S+)_(\S+).dat', data_file)
-
+        match = re.search(r'data_(\S+)_(\S+).dat', os.path.basename(data_file))
         field_component = match.group(1)
         face = match.group(2)
 
-        full_file = os.path.join(dat_folder, data_file).replace('\\', '/')
-        if not os.path.exists(full_file):
+        if not os.path.exists(data_file):
             continue
         # Read in all data for the current file
         x, y, z = [], [], []
         real, imag = [], []
-        with open(full_file, 'r') as f:
+        with open(data_file, 'r') as f:
             for line in f:
                 line = line.strip().split(' ')
-                x.append(line[0])
-                y.append(line[1])
-                z.append(line[2])
-                real.append(line[3])
-                imag.append(line[4])
+                if len(line) == 5:
+                    x.append(line[0])
+                    y.append(line[1])
+                    z.append(line[2])
+                    real.append(line[3])
+                    imag.append(line[4])
 
         assert face in components, "Wrong file name format. Face not found."
         if not components[face].x:
             components[face].set_xyz_points(x, y, z)
             components[face].fill_empty_data()
-        components[face].set_field_component(field_component, real, imag, invert_phase_for_lower_faces)
+        if "min" in face:
+            components[face].set_field_component(field_component, real, imag, invert_phase_for_lower_faces)
+        else:
+            components[face].set_field_component(field_component, real, imag, False)
 
     full_data = []
     index = 1
-    for el in list(components.keys()):
-        for k in range(index, len(components[el].x)+1):
+    for el in list(file_keys):
+        for k in range(index, index+len(components[el].x)):
             row = []
             row.append(k)
             row.append(components[el].x[k-index])
@@ -106,7 +109,7 @@ def convert_nearfield_data(dat_folder, frequency=6, invert_phase_for_lower_faces
                 row.append(components[el].re[field][k-index])
                 row.append(components[el].im[field][k-index])
             full_data.append(row)
-        index = len(components[el].x)+2
+        index += len(components[el].x)
 
     # WRITE .NFD FILE
     ####################################################################################################
