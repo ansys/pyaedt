@@ -483,6 +483,21 @@ class FacePrimitive(object):
         return center
 
     @property
+    def is_planar(self):
+        """Check if a face is planar or not.
+
+        Returns
+        -------
+        bool
+        """
+
+        try:
+            self._oeditor.GetFaceCenter(self.id)
+            return True
+        except:
+            return False
+
+    @property
     def center(self):
         """Face center in model units.
 

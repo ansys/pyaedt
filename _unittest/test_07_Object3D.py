@@ -154,6 +154,8 @@ class TestClass:
         for face in o_box2.faces:
             assert isinstance(face.is_on_bounding(), bool)
         assert len(o_box2.faces_on_bounding_box) == 3
+        assert not o_sphere.faces[0].is_planar
+        assert o_box.faces[0].is_planar
 
     def test_04_object_material_property_invalid(self):
         o_box = self.create_copper_box("Invalid1")
