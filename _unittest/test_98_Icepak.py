@@ -373,9 +373,7 @@ class TestClass:
     def test_40_create_fan(self):
         fan = self.aedtapp.create_fan(origin=[5, 21, 1])
         assert fan
-        assert (
-            fan.component_name in self.aedtapp.modeler.oeditor.Get3DComponentInstanceNames(fan.component_name)[0]
-        )
+        assert fan.component_name in self.aedtapp.modeler.oeditor.Get3DComponentInstanceNames(fan.component_name)[0]
 
     def test_88_create_heat_sink(self):
         self.aedtapp.insert_design("HS")
