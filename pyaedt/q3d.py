@@ -6,7 +6,6 @@ from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name
 from collections import OrderedDict
 from pyaedt.modules.Boundary import BoundaryObject
-from pyaedt.generic.DataHandlers import _dict2arg
 import os
 import warnings
 
