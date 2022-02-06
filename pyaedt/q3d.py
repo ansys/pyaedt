@@ -811,6 +811,7 @@ class Q2d(QExtractor, object):
             thickness is used.
         unit : str, optional
             Thickness unit. The default is ``"um"``.
+
         Returns
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`
@@ -893,19 +894,24 @@ class Q2d(QExtractor, object):
 
     @aedt_exception_handler
     def auto_assign_conductors(self):
-        """Auto Assign Conductors to Signal Lines."""
-        original_nets = self.oboundary.GetExcitations()
+        """Auto Assign Conductors to Signal Lines.
+
+        Returns
+        -------
+        bool
+        """
+        original_nets = list(self.oboundary.GetExcitations())
         self.oboundary.AutoAssignSignals()
-        new_nets = [i for i in self.oboundary.GetExcitations() if i not in original_nets]
+        new_nets = [i for i in list(self.oboundary.GetExcitations()) if i not in original_nets]
         i = 0
         while i < len(new_nets):
             objects = self.modeler.convert_to_selections(
                 [int(i) for i in list(self.oboundary.GetExcitationAssignment(new_nets[i]))], True
             )
             props = OrderedDict({"Objects": objects})
-            bound = BoundaryObject(self, new_nets[i], props, new_nets[i+1])
+            bound = BoundaryObject(self, new_nets[i], props, new_nets[i + 1])
             self.boundaries.append(bound)
-            i+=2
+            i += 2
         if new_nets:
             self.logger.info("{} Nets have been identified: {}".format(len(new_nets), ", ".join(new_nets)))
         else:
@@ -937,4 +943,3 @@ class Q2d(QExtractor, object):
         except:
             self.logger.error("Error in updating conductor type")
             return False
-

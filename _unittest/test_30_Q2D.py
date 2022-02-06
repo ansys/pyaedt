@@ -63,4 +63,3 @@ class TestClass:
         assert self.aedtapp.toggle_conductor_type("Rectangle1", "ReferenceGround")
         assert not self.aedtapp.toggle_conductor_type("Rectangle3", "ReferenceGround")
         assert not self.aedtapp.toggle_conductor_type("Rectangle2", "ReferenceggGround")
-
