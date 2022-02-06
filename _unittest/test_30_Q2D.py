@@ -51,3 +51,16 @@ class TestClass:
         o = self.aedtapp.create_rectangle([6, 6], [5, 3], name="Rectangle1", matname="Copper")
         self.aedtapp.assign_single_conductor(target_objects=o, solve_option="SolveOnBoundary")
         assert self.aedtapp.assign_huray_finitecond_to_edges(o.edges, radius=0.5, ratio=2.9)
+
+    def test_09_auto_assign(self):
+        self.aedtapp.insert_design("test_auto")
+        o = self.aedtapp.create_rectangle([6, 6], [5, 3], name="Rectangle1", matname="Copper")
+        o = self.aedtapp.create_rectangle([0, 0], [5, 3], name="Rectangle2", matname="Copper")
+        assert self.aedtapp.auto_assign_conductors()
+        assert len(self.aedtapp.boundaries) == 2
+
+    def test_10_toggle_condcutor(self):
+        assert self.aedtapp.toggle_conductor_type("Rectangle1", "ReferenceGround")
+        assert not self.aedtapp.toggle_conductor_type("Rectangle3", "ReferenceGround")
+        assert not self.aedtapp.toggle_conductor_type("Rectangle2", "ReferenceggGround")
+
