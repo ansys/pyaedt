@@ -905,7 +905,7 @@ class Q2d(QExtractor, object):
         i = 0
         while i < len(new_nets):
             objects = self.modeler.convert_to_selections(
-                [int(i) for i in list(self.oboundary.GetExcitationAssignment(new_nets[i]))], True
+                [int(k) for k in list(self.oboundary.GetExcitationAssignment(new_nets[i]))], True
             )
             props = OrderedDict({"Objects": objects})
             bound = BoundaryObject(self, new_nets[i], props, new_nets[i + 1])
