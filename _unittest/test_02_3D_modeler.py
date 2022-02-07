@@ -338,11 +338,19 @@ class TestClass(BasisTest):
             self.aedtapp.modeler.create_face_coordinate_system(face.id, face.edges[0], face, name=fcs2.name)
         assert fcs2.delete()
         with pytest.raises(Exception):
+            self.aedtapp.modeler.create_face_coordinate_system(face.id + 1000, face.edges[0].id, face.edges[1].id)
+        with pytest.raises(Exception):
             self.aedtapp.modeler.create_face_coordinate_system(face.id, face.edges[0].id + 100, face.edges[1].id + 100)
         with pytest.raises(Exception):
             self.aedtapp.modeler.create_face_coordinate_system("test", face.edges[0].id + 100, face.edges[1].id + 100)
         with pytest.raises(Exception):
             self.aedtapp.modeler.create_face_coordinate_system(face, face.edges[0], face.edges[1], axis="K")
+        with pytest.raises(Exception):
+            self.aedtapp.modeler.create_face_coordinate_system(box, face.edges[0], face.edges[1])
+        with pytest.raises(Exception):
+            self.aedtapp.modeler.create_face_coordinate_system(face, box, face.edges[1])
+        with pytest.raises(Exception):
+            self.aedtapp.modeler.create_face_coordinate_system(face, face.edges[0], box.id)
 
     def test_41_rename_coordinate(self):
         cs = self.aedtapp.modeler.create_coordinate_system(name="oldname")
@@ -403,6 +411,9 @@ class TestClass(BasisTest):
         fcs.props["ZRotationAngle"] = "14.3deg"
         assert fcs.update()
         assert fcs.props["ZRotationAngle"] == "14.3deg"
+        with pytest.raises(Exception):
+            fcs.props["WhichAxis"] = "K"
+            fcs.update()
         fcs.props["WhichAxis"] = "Y"
         assert fcs.update()
         assert fcs.props["WhichAxis"] == "Y"

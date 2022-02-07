@@ -84,14 +84,19 @@ class TestProjectFileWithCoordinateSystems:
         with Scratch(scratch_path) as self.local_scratch:
             aedt_file = os.path.join(local_path, "example_models", "Coordinate_System.aedt")
             self.test_project = self.local_scratch.copyfile(aedt_file)
+            aedt_file = os.path.join(local_path, "example_models", "Coordinate_System1.aedt")
+            self.test_project1 = self.local_scratch.copyfile(aedt_file)
+            aedt_file = os.path.join(local_path, "example_models", "Coordinate_System2.aedt")
+            self.test_project2 = self.local_scratch.copyfile(aedt_file)
+            aedt_file = os.path.join(local_path, "example_models", "Coordinate_System3.aedt")
+            self.test_project3 = self.local_scratch.copyfile(aedt_file)
             self.aedtapp = Hfss(
-                projectname=self.test_project,
-                specified_version=desktop_version,
+                specified_version=desktop_version
             )
 
     def teardown_class(self):
         self.aedtapp._desktop.ClearMessages("", "", 3)
-        assert self.aedtapp.close_project(self.aedtapp.project_name, False)
+        assert self.aedtapp.release_desktop
         self.local_scratch.remove()
         gc.collect()
 
@@ -101,5 +106,14 @@ class TestProjectFileWithCoordinateSystems:
 
     def test_02_check_coordinate_system_retrival(self):
         self.aedtapp.load_project(self.test_project, close_active_proj=True)
+        cs = self.aedtapp.modeler.coordinate_systems
+        assert cs
+        self.aedtapp.load_project(self.test_project1, close_active_proj=True)
+        cs = self.aedtapp.modeler.coordinate_systems
+        assert cs
+        self.aedtapp.load_project(self.test_project2, close_active_proj=True)
+        cs = self.aedtapp.modeler.coordinate_systems
+        assert cs
+        self.aedtapp.load_project(self.test_project3, close_active_proj=True)
         cs = self.aedtapp.modeler.coordinate_systems
         assert cs

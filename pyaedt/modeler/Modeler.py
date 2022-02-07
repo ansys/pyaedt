@@ -163,7 +163,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
     @property
     def _part_name(self):
         """Internally get the part name which the face belongs to"""
-        if not self.face_id:
+        if not self.face_id:  # pragma: no cover
             # face_id has not been defined yet
             return None
         for obj in self._modeler.objects.values():
@@ -239,7 +239,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
             o_type = self._get_type_from_id(origin)
         else:
             origin_id = self._modeler.convert_to_selections(origin, True)[0]
-            if not isinstance(origin_id, int):
+            if not isinstance(origin_id, int):  # pragma: no cover
                 raise ValueError("Unable to find origin reference.")
             o_type = self._get_type_from_object(origin)
         if o_type == "Face":
