@@ -1,8 +1,8 @@
 # standard imports
 import os
-from _unittest.conftest import local_path, scratch_path, config
+from _unittest.conftest import local_path, scratch_path, config, desktop_version
 
-from pyaedt import Circuit
+from pyaedt import Circuit, Q2d, Q3d
 from pyaedt.generic.filesystem import Scratch
 import gc
 
@@ -185,3 +185,8 @@ class TestClass:
         sweep_list = ["LINC", "1GHz", "2GHz", "1001"]
         LNA_setup.props["SweepDefinition"]["Data"] = " ".join(sweep_list)
         assert LNA_setup.update()
+
+    def test_10_q3d_link(self):
+        q2d = Q2d(projectname=os.path.join(self.local_scratch.path, "q2d_q3d.aedt"), specified_version=desktop_version)
+        assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(q2d)
+        assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(q2d)
