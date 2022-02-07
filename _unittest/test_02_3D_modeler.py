@@ -331,6 +331,12 @@ class TestClass(BasisTest):
         fcs9 = self.aedtapp.modeler.create_face_coordinate_system(face.id, face.edges[0].vertices[0].id, face.id)
         assert fcs9
         assert fcs9.delete()
+        fcs10 = self.aedtapp.modeler.create_face_coordinate_system(
+            face, face.edges[2], face.edges[3], always_move_to_end=False
+        )
+        assert fcs10
+        assert fcs10.props["MoveToEnd"] is False
+        assert fcs10.delete()
 
     def test_41_rename_coordinate(self):
         cs = self.aedtapp.modeler.create_coordinate_system(name="oldname")
@@ -387,6 +393,9 @@ class TestClass(BasisTest):
         fcs.props["WhichAxis"] = "Y"
         assert fcs.update()
         assert fcs.props["WhichAxis"] == "Y"
+        fcs.props["MoveToEnd"] = False
+        assert fcs.update()
+        assert fcs.props["MoveToEnd"] is False
         assert tuple(self.aedtapp.modeler.oeditor.GetCoordinateSystems()) == ("Global", "FCS1")
         assert len(self.aedtapp.modeler.coordinate_systems) == 1
         assert fcs.delete()

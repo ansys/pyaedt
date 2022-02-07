@@ -186,7 +186,9 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
         return coordinateSystemAttributes
 
     @aedt_exception_handler
-    def create(self, face, origin, axis_position, axis="X", name=None, offset=None, rotation=0):
+    def create(
+        self, face, origin, axis_position, axis="X", name=None, offset=None, rotation=0, always_move_to_end=True
+    ):
         """Create a face coordinate system.
         The face coordinate has always the Z axis parallel to face normal.
         The X and Y axis lie on the face plane.
@@ -220,6 +222,10 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
         rotation : float, optional
             Rotation angle of the coordinate system around its Z axis. Angle is in degrees.
             The default is ``0``.
+        always_move_to_end : bool, optional
+            If ``True`` the Face Coordinate System creation operation will always be moved to the end of subsequent
+            objects operation. This will guarantee that the coordinate system will remain solidal with the object
+            face. If ``False`` the option "Always Move CS to End" is set to off. The default is ``True``.
 
         Returns
         -------
@@ -305,7 +311,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
 
         parameters = OrderedDict()
         parameters["Origin"] = originParameters
-        parameters["MoveToEnd"] = False
+        parameters["MoveToEnd"] = always_move_to_end
         parameters["FaceID"] = face_id
         parameters["AxisPosn"] = positioningParameters
         parameters["WhichAxis"] = axis
@@ -1377,7 +1383,9 @@ class GeometryModeler(Modeler, object):
         return False
 
     @aedt_exception_handler
-    def create_face_coordinate_system(self, face, origin, axis_position, axis="X", name=None, offset=None, rotation=0):
+    def create_face_coordinate_system(
+        self, face, origin, axis_position, axis="X", name=None, offset=None, rotation=0, always_move_to_end=True
+    ):
         """Create a face coordinate system.
         The face coordinate has always the Z axis parallel to face normal.
         The X and Y axis lie on the face plane.
@@ -1411,6 +1419,10 @@ class GeometryModeler(Modeler, object):
         rotation : float, optional
             Rotation angle of the coordinate system around its Z axis. Angle is in degrees.
             The default is ``0``.
+        always_move_to_end : bool, optional
+            If ``True`` the Face Coordinate System creation operation will always be moved to the end of subsequent
+            objects operation. This will guarantee that the coordinate system will remain solidal with the object
+            face. If ``False`` the option "Always Move CS to End" is set to off. The default is ``True``.
 
         Returns
         -------
@@ -1433,6 +1445,7 @@ class GeometryModeler(Modeler, object):
                 name=name,
                 offset=offset,
                 rotation=rotation,
+                always_move_to_end=always_move_to_end,
             )
 
             if result:
