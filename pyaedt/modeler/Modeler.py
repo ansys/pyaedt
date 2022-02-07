@@ -154,7 +154,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
         BaseCoordinateSystem.__init__(self, modeler, name)
         self.face_id = face_id
         self.props = props
-        try:
+        try:   # pragma: no cover
             if "KernelVersion" in self.props:
                 del self.props["KernelVersion"]
         except:
@@ -229,7 +229,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
         """
 
         face_id = self._modeler.convert_to_selections(face, True)[0]
-        if not isinstance(face_id, int):
+        if not isinstance(face_id, int):  # pragma: no cover
             raise ValueError("Unable to find reference face.")
         else:
             self.face_id = face_id
@@ -248,7 +248,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
             origin_position_type = "EdgeCenter"
         elif o_type == "Vertex":
             origin_position_type = "OnVertex"
-        else:
+        else:  # pragma: no cover
             raise ValueError("origin must identify either Face or Edge or Vertex.")
 
         if isinstance(axis_position, int):
@@ -256,7 +256,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
             o_type = self._get_type_from_id(axis_position)
         else:
             axis_position_id = self._modeler.convert_to_selections(axis_position, True)[0]
-            if not isinstance(axis_position_id, int):
+            if not isinstance(axis_position_id, int):  # pragma: no cover
                 raise ValueError("Unable to find origin reference.")
             o_type = self._get_type_from_object(axis_position)
         if o_type == "Face":
@@ -265,10 +265,10 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
             axis_position_type = "EdgeCenter"
         elif o_type == "Vertex":
             axis_position_type = "OnVertex"
-        else:
+        else:  # pragma: no cover
             raise ValueError("axis_position must identify either Face or Edge or Vertex.")
 
-        if axis != "X" and axis != "Y":
+        if axis != "X" and axis != "Y":  # pragma: no cover
             raise ValueError("axis must be either 'X' or 'Y'.")
 
         if name:
@@ -334,7 +334,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
                     for vertex in edge.vertices:
                         if vertex.id == obj_id:
                             return "Vertex"
-        raise ValueError("Cannot find entity id {}".format(obj_id))
+        raise ValueError("Cannot find entity id {}".format(obj_id))  # pragma: no cover
 
     @aedt_exception_handler
     def _get_type_from_object(self, obj):
@@ -364,7 +364,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
             self._change_property(
                 self.name, ["NAME:ChangedProps", ["NAME:Z Rotation angle", "Value:=", self.props["ZRotationAngle"]]]
             )
-        except:
+        except:  # pragma: no cover
             raise ValueError("'Z Rotation angle' parameter must be a string in the format '10deg'")
 
         try:
@@ -375,12 +375,12 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
                     ["NAME:Position Offset XY", "X:=", self.props["XOffset"], "Y:=", self.props["YOffset"]],
                 ],
             )
-        except:
+        except:  # pragma: no cover
             raise ValueError("'XOffset' and 'YOffset' parameters must be a string in the format '1.3mm'")
 
         try:
             self._change_property(self.name, ["NAME:ChangedProps", ["NAME:Axis", "Value:=", self.props["WhichAxis"]]])
-        except:
+        except:  # pragma: no cover
             raise ValueError("'WhichAxis' parameter must be either 'X' or 'Y'")
 
         return True
@@ -407,7 +407,7 @@ class CoordinateSystem(BaseCoordinateSystem, object):
         self.ref_cs = None
         self._quaternion = None
         self.mode = None
-        try:
+        try:  # pragma: no cover
             if "KernelVersion" in self.props:
                 del self.props["KernelVersion"]
         except:
@@ -427,7 +427,7 @@ class CoordinateSystem(BaseCoordinateSystem, object):
 
         try:
             self._change_property(self.name, ["NAME:ChangedProps", ["NAME:Mode", "Value:=", self.props["Mode"]]])
-        except:
+        except:  # pragma: no cover
             raise ValueError(
                 "Mode must be 'Axis/Position', 'Euler Angle ZYZ' or 'Euler Angle ZXZ', not {}.".format(
                     self.props["Mode"]
@@ -577,7 +577,7 @@ class CoordinateSystem(BaseCoordinateSystem, object):
                 del self.props["YAxisZvec"]
                 self.mode = "zyz"
                 self.update()
-        else:
+        else:  # pragma: no cover
             raise ValueError('mode_type=0 for "Axis/Position", =1 for "Euler Angle ZXZ", =2 for "Euler Angle ZYZ"')
         return True
 
@@ -708,7 +708,7 @@ class CoordinateSystem(BaseCoordinateSystem, object):
                 orientationParameters["YAxisXvec"] = "-1mm"
                 orientationParameters["YAxisYvec"] = "1mm"
                 orientationParameters["YAxisZvec"] = "0mm"
-            else:
+            else:  # pragma: no cover
                 raise ValueError("With mode = 'view', specify view = 'XY', 'XZ', 'XY', 'iso' ")
 
         elif mode == "axis":
@@ -743,7 +743,7 @@ class CoordinateSystem(BaseCoordinateSystem, object):
             orientationParameters["Phi"] = self._dim_arg(phi, "deg")
             orientationParameters["Theta"] = self._dim_arg(theta, "deg")
             orientationParameters["Psi"] = self._dim_arg(psi, "deg")
-        else:
+        else:  # pragma: no cover
             raise ValueError("Specify the mode = 'view', 'axis', 'zxz', 'zyz', 'axisrotation' ")
 
         self.props = orientationParameters
