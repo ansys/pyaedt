@@ -5,7 +5,7 @@ from pyaedt.application.Analysis2D import FieldAnalysis2D
 from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name
 from collections import OrderedDict
-from pyaedt.modules.Boundary import BoundaryObject
+from pyaedt.modules.Boundary import BoundaryObject, Matrix
 import os
 import warnings
 
@@ -71,9 +71,85 @@ class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
                 close_on_exit,
                 student_version,
             )
+        self.omatrix = self.odesign.GetModule("ReducedMatrix")
+        self.matrices = []
+        for el in list(self.omatrix.ListReduceMatrix()):
+            self.matrices.append(Matrix(self, el))
 
     def __enter__(self):
         return self
+
+    @aedt_exception_handler
+    def insert_reduced_matrix(self, operation_name, source_names=None, rm_name=None):
+        """Insert a new reduced matrix.
+
+        Parameters
+        ----------
+        operation_name : str
+            Name of the Operation to create.
+        source_names : list, str, optional
+            List of sources or nets or arguments needed for specific operation.
+        rm_name : str, optional
+            Name of the reduced matrix, optional.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.Matrix`
+            Matrix object.
+        """
+        if not rm_name:
+            rm_name = generate_unique_name(operation_name)
+        if operation_name == "JoinSeries":
+            new_name = generate_unique_name(source_names[0])
+            for el in self.boundaries:
+                if el.name == source_names[0]:
+                    new_name = el.props["Net"]
+            command = "{}('{}', '{}')".format(operation_name, new_name, "', '".join(source_names))
+            self.omatrix.InsertRM(rm_name, command)
+        elif operation_name == "JoinParallel":
+            new_name = generate_unique_name(source_names[0])
+            for el in self.boundaries:
+                if el.name == source_names[0]:
+                    new_name = el.props["Net"]
+            new_source = source_names[0]
+            new_sink = generate_unique_name("Sink")
+            command = "{}('{}', '{}', '{}', '{}')".format(
+                operation_name, new_name, new_source, new_sink, "', '".join(source_names)
+            )
+            self.omatrix.InsertRM(rm_name, command)
+        elif operation_name == "JoinSelectedTerminals":
+            command = "{}('', '{}')".format(operation_name, "', '".join(source_names))
+            self.omatrix.InsertRM(rm_name, command)
+        elif operation_name == "FloatInfinity":
+            self.omatrix.InsertRM(rm_name, "FloatInfinity()")
+        elif operation_name == "AddGroundMatrix":
+            command = "{}(SelectionArray[{}: '{}'], OverrideInfo())".format(
+                operation_name, len(source_names), "', '".join(source_names)
+            )
+            self.omatrix.InsertRM(rm_name, command)
+        elif (
+            operation_name == "SetReferenceGroundMatrix"
+            or operation_name == "SetReferenceGroundMatrix"
+            or operation_name == "FloatMatrix"
+        ):
+            command = "{}(SelectionArray[{}: '{}'], OverrideInfo())".format(
+                operation_name, len(source_names), "', '".join(source_names)
+            )
+            self.omatrix.InsertRM(rm_name, command)
+        elif operation_name == "ParallelMatrix2" or operation_name == "DiffPairMatrix":
+            pair_name = generate_unique_name("Pair")
+            id = 0
+            for el in self.boundaries:
+                if el.name == source_names[0]:
+                    id = self.modeler[el.props["Objects"][0]].id
+            command = "{}(SelectionArray[{}: '{}'], OverrideInfo({}, '{}'))".format(
+                operation_name, len(source_names), "', '".join(source_names), id, pair_name
+            )
+            self.omatrix.InsertRM(rm_name, command)
+        else:
+            command = "{}('{}')".format(operation_name, "', '".join(source_names))
+            self.omatrix.InsertRM(rm_name, command)
+        return self.matrices.append(Matrix(self, rm_name))
 
 
 class Q3d(QExtractor, object):

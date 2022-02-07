@@ -1,7 +1,7 @@
 import os
 
 # Setup paths for module imports
-from _unittest.conftest import scratch_path, local_path
+from _unittest.conftest import scratch_path, local_path, desktop_version
 import gc
 
 # Import required modules
@@ -106,7 +106,7 @@ class TestClass:
         pass
 
     def test_10_q2d(self):
-        q2d = Q2d()
+        q2d = Q2d(specified_version=desktop_version)
         assert q2d
         assert q2d.dim == "2D"
         pass
@@ -130,3 +130,9 @@ class TestClass:
     def test_12_mesh_settings(self):
         assert self.aedtapp.mesh.initial_mesh_settings
         assert self.aedtapp.mesh.initial_mesh_settings.props
+
+    def test_13_matrix_reduction(self):
+        q3d = Q3d(os.path.join(self.local_scratch.path, "q2d_q3d.aedt"), specified_version="2021.2")
+        assert q3d.matrices[0].name == "Original"
+        assert len(q3d.matrices[0].sources()) > 0
+        assert len(q3d.matrices[0].sources(False)) > 0

@@ -1000,3 +1000,51 @@ class FarFieldSetup(FieldSetup, object):
         if "ElevationStep" in self.props:
             self.props["ElevationStep"] = _dim_arg(value, self.units)
             self.update()
+
+
+class Matrix(object):
+    """Manages Matrix in Q3d and Q2d Projects.
+
+    Examples
+    --------
+
+
+    """
+
+    def __init__(self, app, name):
+        self._app = app
+        self.name = name
+        self._sources = []
+        self._operations = []
+
+    @aedt_exception_handler
+    def sources(self, is_gc_sources=True):
+        """List of matrix sources.
+
+        Parameters
+        ----------
+        is_gc_sources : bool,
+            In Q3d, define if to return GC sources or RL sources. Default `True`.
+
+        Returns
+        -------
+        List
+        """
+        if self.name in list(self._app.omatrix.ListReduceMatrixes()):
+            if self._app.design_type == "Q2D Extractor":
+                self._sources = list(self._app.omatrix.ListReduceMatrixReducedSources(self.name, is_gc_sources))
+            else:
+                self._sources = list(self._app.omatrix.ListReduceMatrixReducedSources(self.name))
+        return self._sources
+
+    @property
+    def operations(self):
+        """List of matrix operations.
+
+        Returns
+        -------
+        List
+        """
+        if self.name in list(self._app.omatrix.ListReduceMatrixes()):
+            self._operations = self._app.omatrix.ListReduceMatrixOperations(self.name)
+        return self._operations
