@@ -1,13 +1,14 @@
 """This module contains these classes: `Q2d`, `Q3d`, and `QExtractor`."""
 from __future__ import absolute_import
+import os
+import warnings
 
 from pyaedt.application.Analysis2D import FieldAnalysis2D
 from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name
 from collections import OrderedDict
 from pyaedt.modules.Boundary import BoundaryObject, Matrix
-import os
-import warnings
+from pyaedt.generic.constants import MATRIXOPERATIONSQ2D, MATRIXOPERATIONSQ3D
 
 
 class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
@@ -182,6 +183,7 @@ class Q3d(QExtractor, object):
             close_on_exit,
             student_version,
         )
+        self.MATRIXOPERATIONS = MATRIXOPERATIONSQ3D()
 
     @property
     def nets(self):
@@ -745,6 +747,7 @@ class Q2d(QExtractor, object):
             close_on_exit,
             student_version,
         )
+        self.MATRIXOPERATIONS = MATRIXOPERATIONSQ2D()
 
     @aedt_exception_handler
     def create_rectangle(self, position, dimension_list, name="", matname=""):

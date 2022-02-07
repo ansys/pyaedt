@@ -7,6 +7,7 @@ from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.modeler.Object3d import EdgePrimitive, FacePrimitive, VertexPrimitive
 from pyaedt.generic.DataHandlers import random_string
 from pyaedt.modeler.Object3d import _dim_arg
+from pyaedt.generic.constants import CATEGORIESQ3D
 
 
 class BoundaryCommon(object):
@@ -1021,6 +1022,7 @@ class Matrix(object):
                 self._operations = operations
             else:
                 self._operations = [operations]
+        self.CATEGORIES = CATEGORIESQ3D()
 
     @aedt_exception_handler
     def sources(self, is_gc_sources=True):
@@ -1042,6 +1044,57 @@ class Matrix(object):
                 self._sources = list(self._app.omatrix.ListReduceMatrixReducedSources(self.name))
         return self._sources
 
+    @aedt_exception_handler
+    def get_sources_for_plot(
+        self,
+        get_self_terms=True,
+        get_mutual_terms=True,
+        first_element_filter=None,
+        second_element_filter=None,
+        category="C",
+    ):
+        """Return a list of source of specified matrix ready to be used in plot reports.
+
+        Parameters
+        ----------
+        get_self_terms : bool
+            Either if self terms have to be returned or not.
+        get_mutual_terms : bool
+            Either if mutual terms have to be returned or not.
+        first_element_filter : str, optional
+            Filter to apply to first element of equation. It accepts `*` and `?` as special characters.
+        second_element_filter : str, optional
+            Filter to apply to second element of equation. It accepts `*` and `?` as special characters.
+        category : str
+            Plot category name as in the report. Eg. "C" is category Capacitance.
+            Matrix `CATEGORIES` property can be used to map avaialble categories.
+
+        Returns
+        -------
+        list
+
+        Examples
+        --------
+        >>> from pyaedt import Q3d
+        >>> q3d = Q3d(project_path)
+        >>> q3d.matrices[0].get_sources_for_plot(first_element_filter="Bo?1",
+        ...                                      second_element_filter="GND*", category="DCL")
+        """
+        is_cg = False
+        if category in [self.CATEGORIES.Q3D.C, self.CATEGORIES.Q3D.G]:
+            is_cg = True
+        list_output = []
+        if get_self_terms:
+            for el in self.sources(is_gc_sources=is_cg):
+                list_output.append("{}({}, {})".format(category, el, el))
+        if get_mutual_terms:
+            for el1 in self.sources(is_gc_sources=is_cg):
+                for el2 in self.sources(is_gc_sources=is_cg):
+                    if el1 != el2:
+                        list_output.append("{}({}, {})".format(category, el1, el2))
+
+        return list_output
+
     @property
     def operations(self):
         """List of matrix operations.
@@ -1056,12 +1109,33 @@ class Matrix(object):
 
     @aedt_exception_handler
     def create(self, source_names=None):
+        """Create a new matrix.
+
+        Parameters
+        ----------
+        source_names : str, list
+            List or str containing the content of the matrix reduction (eg. source name).
+
+        Returns
+        -------
+        bool
+            `True` if succeeded.
+        """
+        if not isinstance(source_names, list) and source_names:
+            source_names = [source_names]
         command = self._write_command(source_names)
         self.omatrix.InsertRM(self.name, command)
         return True
 
     @aedt_exception_handler
     def delete(self):
+        """Delete current matrix.
+
+        Returns
+        -------
+        bool
+            `True` if succeeded.
+        """
         self.omatrix.DeleteRM(self.name)
         for el in self._app.matrices:
             if el.name == self.name:
@@ -1069,7 +1143,24 @@ class Matrix(object):
         return True
 
     @aedt_exception_handler
-    def add_operation(self, source_names=None):
+    def add_operation(self, operation_type, source_names=None):
+        """Add a new operation to existing matrix.
+
+        Parameters
+        ----------
+        operation_type : str
+            Operation to perform
+        source_names : str, list
+            List or str containing the content of the matrix reduction (eg. source name).
+
+        Returns
+        -------
+        bool
+            `True` if succeeded.
+        """
+        self._operations.append(operation_type)
+        if not isinstance(source_names, list) and source_names:
+            source_names = [source_names]
         command = self._write_command(source_names)
         self.omatrix.RMAddOp(self.name, command)
         return True
@@ -1077,13 +1168,13 @@ class Matrix(object):
     @aedt_exception_handler
     def _write_command(self, source_names):
         command = ""
-        if self._operations[0] == "JoinSeries":
+        if self._operations[-1] == "JoinSeries":
             new_name = generate_unique_name(source_names[0])
             for el in self._app.boundaries:
                 if el.name == source_names[0]:
                     new_name = el.props["Net"]
-            command = "{}('{}', '{}')".format(self._operations[0], new_name, "', '".join(source_names))
-        elif self._operations[0] == "JoinParallel":
+            command = "{}('{}', '{}')".format(self._operations[-1], new_name, "', '".join(source_names))
+        elif self._operations[-1] == "JoinParallel":
             new_name = generate_unique_name(source_names[0])
             for el in self._app.boundaries:
                 if el.name == source_names[0]:
@@ -1091,33 +1182,33 @@ class Matrix(object):
             new_source = source_names[0]
             new_sink = generate_unique_name("Sink")
             command = "{}('{}', '{}', '{}', '{}')".format(
-                self._operations[0], new_name, new_source, new_sink, "', '".join(source_names)
+                self._operations[-1], new_name, new_source, new_sink, "', '".join(source_names)
             )
-        elif self._operations[0] == "JoinSelectedTerminals":
-            command = "{}('', '{}')".format(self._operations[0], "', '".join(source_names))
-        elif self._operations[0] == "FloatInfinity":
-            command =  "FloatInfinity()"
-        elif self._operations[0] == "AddGroundMatrix":
+        elif self._operations[-1] == "JoinSelectedTerminals":
+            command = "{}('', '{}')".format(self._operations[-1], "', '".join(source_names))
+        elif self._operations[-1] == "FloatInfinity":
+            command = "FloatInfinity()"
+        elif self._operations[-1] == "AddGround":
             command = "{}(SelectionArray[{}: '{}'], OverrideInfo())".format(
-                self._operations[0], len(source_names), "', '".join(source_names)
+                self._operations[-1], len(source_names), "', '".join(source_names)
             )
         elif (
-                self._operations[0] == "SetReferenceGroundMatrix"
-                or self._operations[0] == "SetReferenceGroundMatrix"
-                or self._operations[0] == "FloatMatrix"
+            self._operations[-1] == "SetReferenceGround"
+            or self._operations[-1] == "SetReferenceGround"
+            or self._operations[-1] == "Float"
         ):
             command = "{}(SelectionArray[{}: '{}'], OverrideInfo())".format(
-                self._operations[0], len(source_names), "', '".join(source_names)
+                self._operations[-1], len(source_names), "', '".join(source_names)
             )
-        elif self._operations[0] == "ParallelMatrix2" or self._operations[0] == "DiffPairMatrix":
+        elif self._operations[-1] == "Parallel" or self._operations[-1] == "DiffPair":
             pair_name = generate_unique_name("Pair")
             id = 0
             for el in self._app.boundaries:
                 if el.name == source_names[0]:
                     id = self._app.modeler[el.props["Objects"][0]].id
             command = "{}(SelectionArray[{}: '{}'], OverrideInfo({}, '{}'))".format(
-                self._operations[0], len(source_names), "', '".join(source_names), id, pair_name
+                self._operations[-1], len(source_names), "', '".join(source_names), id, pair_name
             )
         else:
-            command = "{}('{}')".format(self._operations[0], "', '".join(source_names))
-        return  command
+            command = "{}('{}')".format(self._operations[-1], "', '".join(source_names))
+        return command

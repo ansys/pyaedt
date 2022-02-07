@@ -143,3 +143,18 @@ class TestClass:
         assert q3d.matrices[2].name == "JointTest2"
         assert q3d.insert_reduced_matrix("FloatInfinity", None, "JointTest3")
         assert q3d.matrices[3].name == "JointTest3"
+        assert q3d.insert_reduced_matrix(q3d.MATRIXOPERATIONS.MoveSink, "Source2", "JointTest4")
+        assert q3d.matrices[4].name == "JointTest4"
+        assert q3d.insert_reduced_matrix(q3d.MATRIXOPERATIONS.ReturnPath, "Source2", "JointTest5")
+        assert q3d.matrices[5].name == "JointTest5"
+        assert q3d.insert_reduced_matrix(q3d.MATRIXOPERATIONS.GroundNet, "Box1", "JointTest6")
+        assert q3d.matrices[6].name == "JointTest6"
+        assert q3d.insert_reduced_matrix(q3d.MATRIXOPERATIONS.FloatTerminal, "Source2", "JointTest7")
+        assert q3d.matrices[7].name == "JointTest7"
+        assert q3d.matrices[7].delete()
+        assert q3d.matrices[6].add_operation(q3d.MATRIXOPERATIONS.ReturnPath, "Source2")
+        full_list = q3d.matrices[0].get_sources_for_plot()
+        mutual_list = q3d.matrices[0].get_sources_for_plot(
+            get_self_terms=False, category=q3d.matrices[0].CATEGORIES.Q3D.ACL
+        )
+        assert len(full_list) > len(mutual_list)
