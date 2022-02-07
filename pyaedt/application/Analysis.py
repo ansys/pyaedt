@@ -592,6 +592,8 @@ class Analysis(Design, object):
         setups = self.oanalysis.GetSetups()
         if self.solution_type == "HFSS3DLayout" or self.solution_type == "HFSS 3D Layout Design":
             excitations = len(self.oexcitation.GetAllPortsList())
+        elif self.design_type == "2D Extractor":
+            excitations = self.oboundary.GetNumExcitations("SignalLine")
         else:
             excitations = self.oboundary.GetNumExcitations()
         reportnames = self.post.oreportsetup.GetAllReportNames()

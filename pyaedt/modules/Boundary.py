@@ -383,6 +383,10 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.AssignGroundNet(self._get_args())
         elif self.type == "FloatingNet":
             self._app.oboundary.AssignFloatingNet(self._get_args())
+        elif self.type == "SignalLine":
+            self._app.oboundary.AssignSingleSignalLine(self._get_args())
+        elif self.type == "ReferenceGround":
+            self._app.oboundary.AssignSingleReferenceGround(self._get_args())
         elif self.type == "CircuitPort":
             self._app.oboundary.AssignCircuitPort(self._get_args())
         elif self.type == "LumpedPort":

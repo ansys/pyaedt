@@ -320,6 +320,10 @@ class TestClass:
         self.aedtapp.materials.add_surface_material("my_surface", 0.5)
         obj = ["box2", "box3"]
         assert self.aedtapp.assign_surface_material(obj, "my_surface")
+        mat = self.aedtapp.materials.add_material("test_mat1")
+        mat.thermal_conductivity = 10
+        mat.thermal_conductivity = [20, 20, 10]
+        assert mat.thermal_conductivity.type == "anisotropic"
 
     def test_33_create_region(self):
         self.aedtapp.modeler.primitives.delete("Region")
@@ -369,9 +373,7 @@ class TestClass:
     def test_40_create_fan(self):
         fan = self.aedtapp.create_fan(origin=[5, 21, 1])
         assert fan
-        assert (
-            self.aedtapp.modeler.oeditor.Get3DComponentInstanceNames(fan.component_name)[0] == fan.component_name + "1"
-        )
+        assert fan.component_name in self.aedtapp.modeler.oeditor.Get3DComponentInstanceNames(fan.component_name)[0]
 
     def test_88_create_heat_sink(self):
         self.aedtapp.insert_design("HS")
