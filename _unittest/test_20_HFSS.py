@@ -676,4 +676,4 @@ class TestClass:
 
     def test_47_convert_near_field(self):
         example_project = os.path.join(local_path, "example_models", "nf_test")
-        assert os.path.exists(convert_nearfield_data(example_project,self.local_scratch.path))
+        assert os.path.exists(convert_nearfield_data(example_project, self.local_scratch.path))

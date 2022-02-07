@@ -6,12 +6,13 @@ import glob
 
 class BoxFacePointsAndFields(object):  # pragma: no cover
     """Data model class containing field component and coordinates."""
+
     def __init__(self):
         self.x = []
         self.y = []
         self.z = []
-        self.re = {'Ex': [], 'Ey': [], 'Ez': [], 'Hx': [], 'Hy': [], 'Hz': []}
-        self.im = {'Ex': [], 'Ey': [], 'Ez': [], 'Hx': [], 'Hy': [], 'Hz': []}
+        self.re = {"Ex": [], "Ey": [], "Ez": [], "Hx": [], "Hy": [], "Hz": []}
+        self.im = {"Ex": [], "Ey": [], "Ez": [], "Hx": [], "Hy": [], "Hz": []}
 
     def set_xyz_points(self, x, y, z):
         self.x = x
@@ -28,7 +29,7 @@ class BoxFacePointsAndFields(object):  # pragma: no cover
                 self.re[field_component] = real
                 self.im[field_component] = imag
         else:
-            print('Error in set_field_component function.')
+            print("Error in set_field_component function.")
 
     def fill_empty_data(self):
         for el, val in self.re.items():
@@ -41,8 +42,9 @@ class BoxFacePointsAndFields(object):  # pragma: no cover
                 self.im[el] = zero_field_z_faces
 
 
-def convert_nearfield_data(dat_folder, frequency=6, invert_phase_for_lower_faces=True,
-                           output_folder=None):  # pragma: no cover
+def convert_nearfield_data(
+    dat_folder, frequency=6, invert_phase_for_lower_faces=True, output_folder=None
+):  # pragma: no cover
     """Convert a near field data folder to hfss `nfd` file and link it to `and` file.
 
     Parameters
@@ -63,12 +65,18 @@ def convert_nearfield_data(dat_folder, frequency=6, invert_phase_for_lower_faces
         Full path to `.and` file.
     """
     file_keys = ["xmin", "xmax", "ymin", "ymax", "zmin", "zmax"]
-    components = {"xmin": BoxFacePointsAndFields(), "ymin": BoxFacePointsAndFields(), "zmin": BoxFacePointsAndFields(),
-                  "xmax": BoxFacePointsAndFields(), "ymax": BoxFacePointsAndFields(), "zmax": BoxFacePointsAndFields()}
+    components = {
+        "xmin": BoxFacePointsAndFields(),
+        "ymin": BoxFacePointsAndFields(),
+        "zmin": BoxFacePointsAndFields(),
+        "xmax": BoxFacePointsAndFields(),
+        "ymax": BoxFacePointsAndFields(),
+        "zmax": BoxFacePointsAndFields(),
+    }
 
-    file_names = glob.glob(dat_folder+"/*.dat")
+    file_names = glob.glob(dat_folder + "/*.dat")
     for data_file in file_names:
-        match = re.search(r'data_(\S+)_(\S+).dat', os.path.basename(data_file))
+        match = re.search(r"data_(\S+)_(\S+).dat", os.path.basename(data_file))
         field_component = match.group(1)
         face = match.group(2)
 
@@ -77,9 +85,9 @@ def convert_nearfield_data(dat_folder, frequency=6, invert_phase_for_lower_faces
         # Read in all data for the current file
         x, y, z = [], [], []
         real, imag = [], []
-        with open(data_file, 'r') as f:
+        with open(data_file, "r") as f:
             for line in f:
-                line = line.strip().split(' ')
+                line = line.strip().split(" ")
                 if len(line) == 5:
                     x.append(line[0])
                     y.append(line[1])
@@ -99,15 +107,15 @@ def convert_nearfield_data(dat_folder, frequency=6, invert_phase_for_lower_faces
     full_data = []
     index = 1
     for el in list(file_keys):
-        for k in range(index, index+len(components[el].x)):
+        for k in range(index, index + len(components[el].x)):
             row = []
             row.append(k)
-            row.append(components[el].x[k-index])
+            row.append(components[el].x[k - index])
             row.append(components[el].y[k - index])
             row.append(components[el].z[k - index])
             for field in ["Ex", "Ey", "Ez", "Hx", "Hy", "Hz"]:
-                row.append(components[el].re[field][k-index])
-                row.append(components[el].im[field][k-index])
+                row.append(components[el].re[field][k - index])
+                row.append(components[el].im[field][k - index])
             full_data.append(row)
         index += len(components[el].x)
 
@@ -118,21 +126,21 @@ def convert_nearfield_data(dat_folder, frequency=6, invert_phase_for_lower_faces
     if not output_folder:
         output_folder = os.path.dirname(dat_folder)
     directory_name = os.path.basename(dat_folder)
-    nfd_name = directory_name + '.nfd'
+    nfd_name = directory_name + ".nfd"
     nfd_full_file = os.path.join(output_folder, nfd_name)
-    and_full_file = os.path.join(output_folder, directory_name + '.and')
+    and_full_file = os.path.join(output_folder, directory_name + ".and")
 
-    commented_header_line = '#Index, X, Y, Z, Ex(real, imag), Ey(real, imag), Ez(real, imag), '
-    commented_header_line += 'Hx(real, imag), Hy(real, imag), Hz(real, imag)\n'
+    commented_header_line = "#Index, X, Y, Z, Ex(real, imag), Ey(real, imag), Ez(real, imag), "
+    commented_header_line += "Hx(real, imag), Hy(real, imag), Hz(real, imag)\n"
 
-    with open(nfd_full_file, 'w') as file:
-        writer = csv.writer(file, delimiter=',', lineterminator='\n')
+    with open(nfd_full_file, "w") as file:
+        writer = csv.writer(file, delimiter=",", lineterminator="\n")
         file.write(commented_header_line)
-        file.write('Frequencies 1\n')
-        file.write('Frequency ' + str(frequency) + 'GHz\n')
+        file.write("Frequencies 1\n")
+        file.write("Frequency " + str(frequency) + "GHz\n")
         writer.writerows(full_data)
 
-    print('.nfd file written to %s' % nfd_full_file)  # Prints if running ipy64 through external editor
+    print(".nfd file written to %s" % nfd_full_file)  # Prints if running ipy64 through external editor
 
     size_x = float(components["xmax"].x[0]) - float(components["xmin"].x[0])
     size_y = float(components["ymax"].y[0]) - float(components["ymin"].y[0])
@@ -149,11 +157,11 @@ def convert_nearfield_data(dat_folder, frequency=6, invert_phase_for_lower_faces
     cy_mm = center_y * 1000
     cz_mm = center_z * 1000
 
-    with open(and_full_file, 'w') as file:
+    with open(and_full_file, "w") as file:
         file.write("$begin 'NearFieldHeader'\n")
         file.write("	type='nfd'\n")
         file.write("	fields='EH'\n")
-        file.write("	fsweep='" + str(frequency)+ "GHz'\n")
+        file.write("	fsweep='" + str(frequency) + "GHz'\n")
         file.write("	geometry='box'\n")
         file.write("	center='" + str(cx_mm) + "mm," + str(cy_mm) + "mm," + str(cz_mm) + "mm'\n")
         file.write("	size='" + str(sx_mm) + "mm," + str(sy_mm) + "mm," + str(sz_mm) + "mm'\n")
