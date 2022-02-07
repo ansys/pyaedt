@@ -2,7 +2,7 @@
 This module contains these classes: `BoundaryCommon` and `BoundaryObject`.
 """
 from collections import OrderedDict
-from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.modeler.Object3d import EdgePrimitive, FacePrimitive, VertexPrimitive
 from pyaedt.generic.DataHandlers import random_string
@@ -1011,11 +1011,16 @@ class Matrix(object):
 
     """
 
-    def __init__(self, app, name):
+    def __init__(self, app, name, operations=None):
         self._app = app
+        self.omatrix = self._app.omatrix
         self.name = name
         self._sources = []
-        self._operations = []
+        if operations:
+            if isinstance(operations, list):
+                self._operations = operations
+            else:
+                self._operations = [operations]
 
     @aedt_exception_handler
     def sources(self, is_gc_sources=True):
@@ -1048,3 +1053,71 @@ class Matrix(object):
         if self.name in list(self._app.omatrix.ListReduceMatrixes()):
             self._operations = self._app.omatrix.ListReduceMatrixOperations(self.name)
         return self._operations
+
+    @aedt_exception_handler
+    def create(self, source_names=None):
+        command = self._write_command(source_names)
+        self.omatrix.InsertRM(self.name, command)
+        return True
+
+    @aedt_exception_handler
+    def delete(self):
+        self.omatrix.DeleteRM(self.name)
+        for el in self._app.matrices:
+            if el.name == self.name:
+                self._app.matrices.remove(el)
+        return True
+
+    @aedt_exception_handler
+    def add_operation(self, source_names=None):
+        command = self._write_command(source_names)
+        self.omatrix.RMAddOp(self.name, command)
+        return True
+
+    @aedt_exception_handler
+    def _write_command(self, source_names):
+        command = ""
+        if self._operations[0] == "JoinSeries":
+            new_name = generate_unique_name(source_names[0])
+            for el in self._app.boundaries:
+                if el.name == source_names[0]:
+                    new_name = el.props["Net"]
+            command = "{}('{}', '{}')".format(self._operations[0], new_name, "', '".join(source_names))
+        elif self._operations[0] == "JoinParallel":
+            new_name = generate_unique_name(source_names[0])
+            for el in self._app.boundaries:
+                if el.name == source_names[0]:
+                    new_name = el.props["Net"]
+            new_source = source_names[0]
+            new_sink = generate_unique_name("Sink")
+            command = "{}('{}', '{}', '{}', '{}')".format(
+                self._operations[0], new_name, new_source, new_sink, "', '".join(source_names)
+            )
+        elif self._operations[0] == "JoinSelectedTerminals":
+            command = "{}('', '{}')".format(self._operations[0], "', '".join(source_names))
+        elif self._operations[0] == "FloatInfinity":
+            command =  "FloatInfinity()"
+        elif self._operations[0] == "AddGroundMatrix":
+            command = "{}(SelectionArray[{}: '{}'], OverrideInfo())".format(
+                self._operations[0], len(source_names), "', '".join(source_names)
+            )
+        elif (
+                self._operations[0] == "SetReferenceGroundMatrix"
+                or self._operations[0] == "SetReferenceGroundMatrix"
+                or self._operations[0] == "FloatMatrix"
+        ):
+            command = "{}(SelectionArray[{}: '{}'], OverrideInfo())".format(
+                self._operations[0], len(source_names), "', '".join(source_names)
+            )
+        elif self._operations[0] == "ParallelMatrix2" or self._operations[0] == "DiffPairMatrix":
+            pair_name = generate_unique_name("Pair")
+            id = 0
+            for el in self._app.boundaries:
+                if el.name == source_names[0]:
+                    id = self._app.modeler[el.props["Objects"][0]].id
+            command = "{}(SelectionArray[{}: '{}'], OverrideInfo({}, '{}'))".format(
+                self._operations[0], len(source_names), "', '".join(source_names), id, pair_name
+            )
+        else:
+            command = "{}('{}')".format(self._operations[0], "', '".join(source_names))
+        return  command

@@ -99,58 +99,10 @@ class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
         """
         if not rm_name:
             rm_name = generate_unique_name(operation_name)
-        if operation_name == "JoinSeries":
-            new_name = generate_unique_name(source_names[0])
-            for el in self.boundaries:
-                if el.name == source_names[0]:
-                    new_name = el.props["Net"]
-            command = "{}('{}', '{}')".format(operation_name, new_name, "', '".join(source_names))
-            self.omatrix.InsertRM(rm_name, command)
-        elif operation_name == "JoinParallel":
-            new_name = generate_unique_name(source_names[0])
-            for el in self.boundaries:
-                if el.name == source_names[0]:
-                    new_name = el.props["Net"]
-            new_source = source_names[0]
-            new_sink = generate_unique_name("Sink")
-            command = "{}('{}', '{}', '{}', '{}')".format(
-                operation_name, new_name, new_source, new_sink, "', '".join(source_names)
-            )
-            self.omatrix.InsertRM(rm_name, command)
-        elif operation_name == "JoinSelectedTerminals":
-            command = "{}('', '{}')".format(operation_name, "', '".join(source_names))
-            self.omatrix.InsertRM(rm_name, command)
-        elif operation_name == "FloatInfinity":
-            self.omatrix.InsertRM(rm_name, "FloatInfinity()")
-        elif operation_name == "AddGroundMatrix":
-            command = "{}(SelectionArray[{}: '{}'], OverrideInfo())".format(
-                operation_name, len(source_names), "', '".join(source_names)
-            )
-            self.omatrix.InsertRM(rm_name, command)
-        elif (
-            operation_name == "SetReferenceGroundMatrix"
-            or operation_name == "SetReferenceGroundMatrix"
-            or operation_name == "FloatMatrix"
-        ):
-            command = "{}(SelectionArray[{}: '{}'], OverrideInfo())".format(
-                operation_name, len(source_names), "', '".join(source_names)
-            )
-            self.omatrix.InsertRM(rm_name, command)
-        elif operation_name == "ParallelMatrix2" or operation_name == "DiffPairMatrix":
-            pair_name = generate_unique_name("Pair")
-            id = 0
-            for el in self.boundaries:
-                if el.name == source_names[0]:
-                    id = self.modeler[el.props["Objects"][0]].id
-            command = "{}(SelectionArray[{}: '{}'], OverrideInfo({}, '{}'))".format(
-                operation_name, len(source_names), "', '".join(source_names), id, pair_name
-            )
-            self.omatrix.InsertRM(rm_name, command)
-        else:
-            command = "{}('{}')".format(operation_name, "', '".join(source_names))
-            self.omatrix.InsertRM(rm_name, command)
-        self.matrices.append(Matrix(self, rm_name))
-        return self.matrices[-1]
+        matrix = Matrix(self, rm_name, operation_name)
+        if matrix.create(source_names):
+            self.matrices.append(matrix)
+        return matrix
 
 
 class Q3d(QExtractor, object):
