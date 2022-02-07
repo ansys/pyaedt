@@ -1185,8 +1185,7 @@ class NexximComponents(CircuitComponents):
         pyaedt_app : :class:`pyaedt.q3d.Q3d` or :class:`pyaedt.q3d.Q2d` or :class:`pyaedt.q3d.Hfss`
             pyaedt application object to include. It could be an Hfss object, a Q3d object or a Q2d.
         solution_name : str, optional
-            Name of the solution and sweep. The
-            default is ``"Setup1 : Sweep"``.
+            Name of the solution and sweep. The default is ``"Setup1 : Sweep"``.
         extrusion_length : float, str, optional
             Extrusion length for 2D Models. Default is 10 (in model units).
         map_source_variables : bool, optional
