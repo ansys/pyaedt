@@ -158,3 +158,5 @@ class TestClass:
             get_self_terms=False, category=q3d.matrices[0].CATEGORIES.Q3D.ACL
         )
         assert len(full_list) > len(mutual_list)
+        assert q3d.matrices[0].get_sources_for_plot(first_element_filter="Box?", second_element_filter="B*2") == [
+            'C(Box1,Box1_2)']
