@@ -1067,7 +1067,7 @@ class Matrix(object):
             Filter to apply to second element of equation. It accepts `*` and `?` as special characters.
         category : str
             Plot category name as in the report. Eg. "C" is category Capacitance.
-            Matrix `CATEGORIES` property can be used to map avaialble categories.
+            Matrix `CATEGORIES` property can be used to map available categories.
 
         Returns
         -------
