@@ -154,7 +154,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
         BaseCoordinateSystem.__init__(self, modeler, name)
         self.face_id = face_id
         self.props = props
-        try:   # pragma: no cover
+        try:  # pragma: no cover
             if "KernelVersion" in self.props:
                 del self.props["KernelVersion"]
         except:
