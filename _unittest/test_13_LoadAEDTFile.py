@@ -90,9 +90,7 @@ class TestProjectFileWithCoordinateSystems:
             self.test_project2 = self.local_scratch.copyfile(aedt_file)
             aedt_file = os.path.join(local_path, "example_models", "Coordinate_System3.aedt")
             self.test_project3 = self.local_scratch.copyfile(aedt_file)
-            self.aedtapp = Hfss(
-                specified_version=desktop_version
-            )
+            self.aedtapp = Hfss(specified_version=desktop_version)
 
     def teardown_class(self):
         self.aedtapp._desktop.ClearMessages("", "", 3)
