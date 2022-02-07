@@ -71,9 +71,9 @@ class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
                 close_on_exit,
                 student_version,
             )
-        self.omatrix = self.odesign.GetModule("ReducedMatrix")
+        self.omatrix = self.odesign.GetModule("ReduceMatrix")
         self.matrices = []
-        for el in list(self.omatrix.ListReduceMatrix()):
+        for el in list(self.omatrix.ListReduceMatrixes()):
             self.matrices.append(Matrix(self, el))
 
     def __enter__(self):
@@ -149,7 +149,8 @@ class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
         else:
             command = "{}('{}')".format(operation_name, "', '".join(source_names))
             self.omatrix.InsertRM(rm_name, command)
-        return self.matrices.append(Matrix(self, rm_name))
+        self.matrices.append(Matrix(self, rm_name))
+        return self.matrices[-1]
 
 
 class Q3d(QExtractor, object):

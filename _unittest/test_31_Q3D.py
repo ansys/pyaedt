@@ -16,9 +16,10 @@ class TestClass:
     def setup_class(self):
         # set a scratch directory and the environment / test data
         with Scratch(scratch_path) as self.local_scratch:
-            self.aedtapp = Q3d()
+            self.aedtapp = Q3d(specified_version=desktop_version)
             example_project = os.path.join(local_path, "example_models", bondwire_project_name + ".aedt")
             self.test_project = self.local_scratch.copyfile(example_project)
+            self.test_matrix = self.local_scratch.copyfile(os.path.join(local_path, "example_models", "q2d_q3d.aedt"))
 
     def teardown_class(self):
         self.aedtapp._desktop.ClearMessages("", "", 3)
@@ -132,7 +133,13 @@ class TestClass:
         assert self.aedtapp.mesh.initial_mesh_settings.props
 
     def test_13_matrix_reduction(self):
-        q3d = Q3d(os.path.join(self.local_scratch.path, "q2d_q3d.aedt"), specified_version="2021.2")
+        q3d = Q3d(self.test_matrix, specified_version="2021.2")
         assert q3d.matrices[0].name == "Original"
         assert len(q3d.matrices[0].sources()) > 0
         assert len(q3d.matrices[0].sources(False)) > 0
+        assert q3d.insert_reduced_matrix("JoinSeries", ["Source1", "Sink4"], "JointTest")
+        assert q3d.matrices[1].name == "JointTest"
+        assert q3d.insert_reduced_matrix("JoinParallel", ["Source1", "Source2"], "JointTest2")
+        assert q3d.matrices[2].name == "JointTest2"
+        assert q3d.insert_reduced_matrix("FloatInfinity", None, "JointTest3")
+        assert q3d.matrices[3].name == "JointTest3"

@@ -1031,7 +1031,7 @@ class Matrix(object):
         List
         """
         if self.name in list(self._app.omatrix.ListReduceMatrixes()):
-            if self._app.design_type == "Q2D Extractor":
+            if self._app.design_type == "Q3D Extractor":
                 self._sources = list(self._app.omatrix.ListReduceMatrixReducedSources(self.name, is_gc_sources))
             else:
                 self._sources = list(self._app.omatrix.ListReduceMatrixReducedSources(self.name))
