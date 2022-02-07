@@ -325,18 +325,18 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
     @aedt_exception_handler
     def _get_type_from_id(self, obj_id):
         """Get the entity type from the id"""
-        for obj in self._modeler.objects.keys():
+        for obj in self._modeler.objects.values():
             if obj.id == obj_id:
-                if type(obj) is FacePrimitive:
+                return "3dObject"
+            for face in obj.faces:
+                if face.id == obj_id:
                     return "Face"
-                elif type(obj) is EdgePrimitive:
-                    return "Edge"
-                elif type(obj) is VertexPrimitive:
-                    return "Vertex"
-                elif type(obj) is Object3d:
-                    return "3dObject"
-                else:
-                    raise ValueError("Cannot detect the entity type.")
+                for edge in face.edges:
+                    if edge.id == obj_id:
+                        return "Edge"
+                    for vertex in edge.vertices:
+                        if vertex.id == obj_id:
+                            return "Vertex"
         raise ValueError("Cannot find entity id {}".format(obj_id))
 
     @aedt_exception_handler
@@ -350,7 +350,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
             return "Vertex"
         elif type(obj) is Object3d:
             return "3dObject"
-        else:
+        else:  # pragma: no cover
             raise ValueError("Cannot detect the entity type.")
 
     @aedt_exception_handler
@@ -1068,19 +1068,33 @@ class GeometryModeler(Modeler, object):
                             cs_id = cs[ds]["ID"]
                             id2name[cs_id] = name
                             op_id = cs[ds]["PlaceHolderOperationID"]
-                            op = self._app.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"][
-                                "ToplevelParts"
-                            ]["GeometryPart"]["Operations"]
-                            if isinstance(op["FaceCSHolderOperation"], (OrderedDict, dict)):
-                                if op["FaceCSHolderOperation"]["ID"] == op_id:
-                                    props = op["FaceCSHolderOperation"]["FaceCSParameters"]
-                                    coord.append(FaceCoordinateSystem(self, props, name))
-                            elif isinstance(op["FaceCSHolderOperation"], list):
-                                for iop in op["FaceCSHolderOperation"]:
-                                    if iop["ID"] == op_id:
-                                        props = iop["FaceCSParameters"]
+                            geometry_part = self._app.design_properties["ModelSetup"]["GeometryCore"][
+                                "GeometryOperations"]["ToplevelParts"]["GeometryPart"]
+                            if isinstance(geometry_part, (OrderedDict, dict)):
+                                op = geometry_part["Operations"]["FaceCSHolderOperation"]
+                                if isinstance(op, (OrderedDict, dict)):
+                                    if op["ID"] == op_id:
+                                        props = op["FaceCSParameters"]
                                         coord.append(FaceCoordinateSystem(self, props, name))
-                                        break
+                                elif isinstance(op, list):
+                                    for iop in op:
+                                        if iop["ID"] == op_id:
+                                            props = iop["FaceCSParameters"]
+                                            coord.append(FaceCoordinateSystem(self, props, name))
+                                            break
+                            elif isinstance(geometry_part, list):
+                                for gp in geometry_part:
+                                    op = gp["Operations"]["FaceCSHolderOperation"]
+                                    if isinstance(op, (OrderedDict, dict)):
+                                        if op["ID"] == op_id:
+                                            props = op["FaceCSParameters"]
+                                            coord.append(FaceCoordinateSystem(self, props, name))
+                                    elif isinstance(op, list):
+                                        for iop in op:
+                                            if iop["ID"] == op_id:
+                                                props = iop["FaceCSParameters"]
+                                                coord.append(FaceCoordinateSystem(self, props, name))
+                                                break
                     elif isinstance(cs[ds], list):
                         for el in cs[ds]:
                             if el["OperationType"] == "CreateRelativeCoordinateSystem":
@@ -1095,19 +1109,33 @@ class GeometryModeler(Modeler, object):
                                 cs_id = el["ID"]
                                 id2name[cs_id] = name
                                 op_id = el["PlaceHolderOperationID"]
-                                op = self._app.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"][
-                                    "ToplevelParts"
-                                ]["GeometryPart"]["Operations"]
-                                if isinstance(op["FaceCSHolderOperation"], (OrderedDict, dict)):
-                                    if op["FaceCSHolderOperation"]["ID"] == op_id:
-                                        props = op["FaceCSHolderOperation"]["FaceCSParameters"]
-                                        coord.append(FaceCoordinateSystem(self, props, name))
-                                elif isinstance(op["FaceCSHolderOperation"], list):
-                                    for iop in op["FaceCSHolderOperation"]:
-                                        if iop["ID"] == op_id:
-                                            props = iop["FaceCSParameters"]
+                                geometry_part = self._app.design_properties["ModelSetup"]["GeometryCore"][
+                                    "GeometryOperations"]["ToplevelParts"]["GeometryPart"]
+                                if isinstance(geometry_part, (OrderedDict, dict)):
+                                    op = geometry_part["Operations"]["FaceCSHolderOperation"]
+                                    if isinstance(op, (OrderedDict, dict)):
+                                        if op["ID"] == op_id:
+                                            props = op["FaceCSParameters"]
                                             coord.append(FaceCoordinateSystem(self, props, name))
-                                            break
+                                    elif isinstance(op, list):
+                                        for iop in op:
+                                            if iop["ID"] == op_id:
+                                                props = iop["FaceCSParameters"]
+                                                coord.append(FaceCoordinateSystem(self, props, name))
+                                                break
+                                elif isinstance(geometry_part, list):
+                                    for gp in geometry_part:
+                                        op = gp["Operations"]["FaceCSHolderOperation"]
+                                        if isinstance(op, (OrderedDict, dict)):
+                                            if op["ID"] == op_id:
+                                                props = op["FaceCSParameters"]
+                                                coord.append(FaceCoordinateSystem(self, props, name))
+                                        elif isinstance(op, list):
+                                            for iop in op:
+                                                if iop["ID"] == op_id:
+                                                    props = iop["FaceCSParameters"]
+                                                    coord.append(FaceCoordinateSystem(self, props, name))
+                                                    break
                 except:
                     pass
             for cs in coord:

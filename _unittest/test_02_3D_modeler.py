@@ -326,6 +326,24 @@ class TestClass(BasisTest):
         assert fcs7.props["YOffset"] == "0.3" + self.aedtapp.modeler.model_units
         assert fcs7.delete()
 
+    def test_40b_create_face_coordinate_system(self):
+        box = self.aedtapp.modeler.create_box([10, 10, 10], [2, 2, 2])
+        face = box.faces[0]
+        fcs1 = self.aedtapp.modeler.create_face_coordinate_system(face.id, face.edges[0].id, face.edges[1].id)
+        assert fcs1
+        assert fcs1.delete()
+        fcs2 = self.aedtapp.modeler.create_face_coordinate_system(face.id, face.edges[0].vertices[0].id, face.id)
+        assert fcs2
+        with pytest.raises(Exception):
+            self.aedtapp.modeler.create_face_coordinate_system(face.id, face.edges[0], face, name=fcs2.name)
+        assert fcs2.delete()
+        with pytest.raises(Exception):
+            self.aedtapp.modeler.create_face_coordinate_system(face.id, face.edges[0].id+100, face.edges[1].id+100)
+        with pytest.raises(Exception):
+            self.aedtapp.modeler.create_face_coordinate_system("test", face.edges[0].id+100, face.edges[1].id+100)
+        with pytest.raises(Exception):
+            self.aedtapp.modeler.create_face_coordinate_system(face, face.edges[0], face.edges[1], axis="K")
+
     def test_41_rename_coordinate(self):
         cs = self.aedtapp.modeler.create_coordinate_system(name="oldname")
         assert cs.name == "oldname"
@@ -370,11 +388,18 @@ class TestClass(BasisTest):
         face = box.faces[0]
         fcs = self.aedtapp.modeler.create_face_coordinate_system(face, face.edges[0], face.edges[1], name="FCS1")
         assert fcs
+        with pytest.raises(Exception):
+            fcs.props["XOffset"] = "test"
+            fcs.props["YOffset"] = "test"
+            fcs.update()
         fcs.props["XOffset"] = "0.2mm"
         fcs.props["YOffset"] = "0.3mm"
         assert fcs.props["XOffset"] == "0.2mm"
         assert fcs.props["YOffset"] == "0.3mm"
         assert fcs.update()
+        with pytest.raises(Exception):
+            fcs.props["ZRotationAngle"] = "test"
+            fcs.update()
         fcs.props["ZRotationAngle"] = "14.3deg"
         assert fcs.update()
         assert fcs.props["ZRotationAngle"] == "14.3deg"
