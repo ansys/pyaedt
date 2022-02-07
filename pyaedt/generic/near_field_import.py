@@ -4,7 +4,7 @@ import csv
 import glob
 
 
-class BoxFacePointsAndFields(object):  # pragma: no cover
+class BoxFacePointsAndFields(object):
     """Data model class containing field component and coordinates."""
 
     def __init__(self):
@@ -44,13 +44,13 @@ class BoxFacePointsAndFields(object):  # pragma: no cover
 
 def convert_nearfield_data(
     dat_folder, frequency=6, invert_phase_for_lower_faces=True, output_folder=None
-):  # pragma: no cover
+):
     """Convert a near field data folder to hfss `nfd` file and link it to `and` file.
 
     Parameters
     ----------
     dat_folder : str
-        Full path to the folder containings near fields data.
+        Full path to the folder containing near fields data.
         Folder will contain 24 files in the following format: `data_Ex_ymin.dat`. Same for H Fields.
     frequency : float, int, str
         Frequency in `GHz`.
