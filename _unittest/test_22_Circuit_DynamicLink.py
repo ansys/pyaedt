@@ -189,4 +189,5 @@ class TestClass:
     def test_10_q3d_link(self):
         q2d = Q2d(projectname=os.path.join(self.local_scratch.path, "q2d_q3d.aedt"), specified_version=desktop_version)
         assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(q2d)
-        assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(q2d)
+        q3d = Q3d(projectname=os.path.join(self.local_scratch.path, "q2d_q3d.aedt"), specified_version=desktop_version)
+        assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(q3d)
