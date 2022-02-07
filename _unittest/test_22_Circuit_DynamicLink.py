@@ -29,10 +29,12 @@ class TestClass:
                 example_project = os.path.join(local_path, "example_models", test_project_name + ".aedt")
                 source_project = os.path.join(local_path, "example_models", src_project_name + ".aedt")
                 linked_project = os.path.join(local_path, "example_models", linked_project_name + ".aedt")
-
+                q3d = (os.path.join(local_path, "example_models", "q2d_q3d.aedt"),)
                 self.test_project = self.local_scratch.copyfile(example_project)
                 self.test_src_project = self.local_scratch.copyfile(source_project)
                 self.test_lkd_project = self.local_scratch.copyfile(linked_project)
+                self.q3d = self.local_scratch.copyfile(linked_project)
+
                 self.local_scratch.copyfolder(
                     os.path.join(local_path, "example_models", test_project_name + ".aedb"),
                     os.path.join(self.local_scratch.path, test_project_name + ".aedb"),
@@ -187,11 +189,7 @@ class TestClass:
         assert LNA_setup.update()
 
     def test_10_q3d_link(self):
-        q2d = Q2d(
-            projectname=os.path.join(local_path, "example_models", "q2d_q3d.aedt"), specified_version=desktop_version
-        )
+        q2d = Q2d(projectname=self.q3d, specified_version=desktop_version)
         assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(q2d)
-        q3d = Q3d(
-            projectname=os.path.join(local_path, "example_models", "q2d_q3d.aedt"), specified_version=desktop_version
-        )
+        q3d = Q3d(specified_version=desktop_version)
         assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(q3d)

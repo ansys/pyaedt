@@ -1221,7 +1221,7 @@ class NexximComponents(CircuitComponents):
                     sinks.append(excts[i])
                 i += 2
             pin_names = sources + sinks
-            matrix = list(pyaedt_app.omatrix.ListReduceMatrixes())
+            matrix = ["NAME:Reduce Matrix Choices"] + list(pyaedt_app.omatrix.ListReduceMatrixes())
         elif pyaedt_app.design_type == "2D Extractor":
             excts = list(pyaedt_app.oboundary.GetExcitations())
             pins = []
@@ -1234,7 +1234,7 @@ class NexximComponents(CircuitComponents):
             pin_names.append("Input_ref")
             pin_names.extend([i + "_out" for i in pins])
             pin_names.append("Output_ref")
-            matrix = list(pyaedt_app.omatrix.ListReduceMatrixes())
+            matrix = ["NAME:Reduce Matrix Choices"] + list(pyaedt_app.omatrix.ListReduceMatrixes())
         variables = {}
         if map_source_variables:
             for k, v in pyaedt_app.variable_manager.variables.items():
