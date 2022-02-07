@@ -103,4 +103,3 @@ class TestProjectFileWithCoordinateSystems:
         self.aedtapp.load_project(self.test_project, close_active_proj=True)
         cs = self.aedtapp.modeler.coordinate_systems
         assert cs
-

@@ -152,9 +152,6 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
 
     def __init__(self, modeler, props=None, name=None, face_id=None):
         BaseCoordinateSystem.__init__(self, modeler, name)
-        # self._modeler = modeler
-        # self.model_units = self._modeler.model_units
-        # self.name = name
         self.face_id = face_id
         self.props = props
         try:
@@ -405,9 +402,7 @@ class CoordinateSystem(BaseCoordinateSystem, object):
 
     def __init__(self, modeler, props=None, name=None):
         BaseCoordinateSystem.__init__(self, modeler, name)
-        # self._modeler = modeler
         self.model_units = self._modeler.model_units
-        # self.name = name
         self.props = props
         self.ref_cs = None
         self._quaternion = None
@@ -417,73 +412,6 @@ class CoordinateSystem(BaseCoordinateSystem, object):
                 del self.props["KernelVersion"]
         except:
             pass
-
-    # @aedt_exception_handler
-    # def _dim_arg(self, Value, sUnits=None):
-    #     """Dimension argument.
-    #
-    #     Parameters
-    #     ----------
-    #     Value :
-    #
-    #     sUnits : optional
-    #          The default is ``None``.
-    #
-    #     Returns
-    #     -------
-    #
-    #     """
-    #     if sUnits is None:
-    #         sUnits = self.model_units
-    #     if type(Value) is str:
-    #         try:
-    #             float(Value)
-    #             val = "{0}{1}".format(Value, sUnits)
-    #         except:
-    #             val = Value
-    #     else:
-    #         val = "{0}{1}".format(Value, sUnits)
-    #     return val
-
-    # @aedt_exception_handler
-    # def _change_property(self, name, arg):
-    #     """Update properties of the coordinate system.
-    #
-    #     Parameters
-    #     ----------
-    #     name : str
-    #         Name of the coordinate system.
-    #     arg : list
-    #         List of the properties to update. For example,
-    #         ``["NAME:ChangedProps", ["NAME:Mode", "Value:=", "Axis/Position"]]``.
-    #
-    #     Returns
-    #     -------
-    #     list
-    #         List of changed properties of the coordinate system.
-    #
-    #     """
-    #     arguments = ["NAME:AllTabs", ["NAME:Geometry3DCSTab", ["NAME:PropServers", name], arg]]
-    #     _retry_ntimes(10, self._modeler.oeditor.ChangeProperty, arguments)
-    #
-    # @aedt_exception_handler
-    # def rename(self, newname):
-    #     """Rename the coordinate system.
-    #
-    #     Parameters
-    #     ----------
-    #     newname : str
-    #         New name for the coordinate system.
-    #
-    #     Returns
-    #     -------
-    #     bool
-    #         ``True`` when successful, ``False`` when failed.
-    #
-    #     """
-    #     self._change_property(self.name, ["NAME:ChangedProps", ["NAME:Name", "Value:=", newname]])
-    #     self.name = newname
-    #     return True
 
     @aedt_exception_handler
     def update(self):
@@ -891,35 +819,6 @@ class CoordinateSystem(BaseCoordinateSystem, object):
         coordinateSystemAttributes = ["NAME:Attributes", "Name:=", self.name]
         return coordinateSystemAttributes
 
-    # @aedt_exception_handler
-    # def delete(self):
-    #     """Delete the coordinate system.
-    #
-    #     Returns
-    #     -------
-    #     bool
-    #         ``True`` when successful, ``False`` when failed.
-    #
-    #     """
-    #     self._modeler.oeditor.Delete(["NAME:Selections", "Selections:=", self.name])
-    #     self._modeler.coordinate_systems.remove(self)
-    #     return True
-    #
-    # @aedt_exception_handler
-    # def set_as_working_cs(self):
-    #     """Set the coordinate system as the working coordinate system.
-    #
-    #     Returns
-    #     -------
-    #     bool
-    #         ``True`` when successful, ``False`` when failed.
-    #
-    #     """
-    #     self._modeler.oeditor.SetWCS(
-    #         ["NAME:SetWCS Parameter", "Working Coordinate System:=", self.name, "RegionDepCSOk:=", False]
-    #     )
-    #     return True
-
 
 class Modeler(object):
     """Provides the `Modeler` application class that other `Modeler` classes inherit.
@@ -1069,7 +968,8 @@ class GeometryModeler(Modeler, object):
                             id2name[cs_id] = name
                             op_id = cs[ds]["PlaceHolderOperationID"]
                             geometry_part = self._app.design_properties["ModelSetup"]["GeometryCore"][
-                                "GeometryOperations"]["ToplevelParts"]["GeometryPart"]
+                                "GeometryOperations"
+                            ]["ToplevelParts"]["GeometryPart"]
                             if isinstance(geometry_part, (OrderedDict, dict)):
                                 op = geometry_part["Operations"]["FaceCSHolderOperation"]
                                 if isinstance(op, (OrderedDict, dict)):
@@ -1110,7 +1010,8 @@ class GeometryModeler(Modeler, object):
                                 id2name[cs_id] = name
                                 op_id = el["PlaceHolderOperationID"]
                                 geometry_part = self._app.design_properties["ModelSetup"]["GeometryCore"][
-                                    "GeometryOperations"]["ToplevelParts"]["GeometryPart"]
+                                    "GeometryOperations"
+                                ]["ToplevelParts"]["GeometryPart"]
                                 if isinstance(geometry_part, (OrderedDict, dict)):
                                     op = geometry_part["Operations"]["FaceCSHolderOperation"]
                                     if isinstance(op, (OrderedDict, dict)):

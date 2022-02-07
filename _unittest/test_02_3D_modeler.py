@@ -338,9 +338,9 @@ class TestClass(BasisTest):
             self.aedtapp.modeler.create_face_coordinate_system(face.id, face.edges[0], face, name=fcs2.name)
         assert fcs2.delete()
         with pytest.raises(Exception):
-            self.aedtapp.modeler.create_face_coordinate_system(face.id, face.edges[0].id+100, face.edges[1].id+100)
+            self.aedtapp.modeler.create_face_coordinate_system(face.id, face.edges[0].id + 100, face.edges[1].id + 100)
         with pytest.raises(Exception):
-            self.aedtapp.modeler.create_face_coordinate_system("test", face.edges[0].id+100, face.edges[1].id+100)
+            self.aedtapp.modeler.create_face_coordinate_system("test", face.edges[0].id + 100, face.edges[1].id + 100)
         with pytest.raises(Exception):
             self.aedtapp.modeler.create_face_coordinate_system(face, face.edges[0], face.edges[1], axis="K")
 
