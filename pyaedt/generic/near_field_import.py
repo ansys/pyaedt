@@ -42,9 +42,7 @@ class BoxFacePointsAndFields(object):
                 self.im[el] = zero_field_z_faces
 
 
-def convert_nearfield_data(
-    dat_folder, frequency=6, invert_phase_for_lower_faces=True, output_folder=None
-):
+def convert_nearfield_data(dat_folder, frequency=6, invert_phase_for_lower_faces=True, output_folder=None):
     """Convert a near field data folder to hfss `nfd` file and link it to `and` file.
 
     Parameters
