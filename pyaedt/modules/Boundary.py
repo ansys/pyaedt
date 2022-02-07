@@ -1086,12 +1086,12 @@ class Matrix(object):
         list_output = []
         if get_self_terms:
             for el in self.sources(is_gc_sources=is_cg):
-                list_output.append("{}({}, {})".format(category, el, el))
+                list_output.append("{}({},{})".format(category, el, el))
         if get_mutual_terms:
             for el1 in self.sources(is_gc_sources=is_cg):
                 for el2 in self.sources(is_gc_sources=is_cg):
                     if el1 != el2:
-                        list_output.append("{}({}, {})".format(category, el1, el2))
+                        list_output.append("{}({},{})".format(category, el1, el2))
 
         return list_output
 
