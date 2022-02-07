@@ -147,6 +147,21 @@ $begin 'AnsoftProject'
 					TextProp('Owner', 'SRD', '', 'HFSS')
 				$end 'Properties'
 				CompExtID=6
+				$begin 'Parameters'
+					MenuProp('CoSimulator', 'D', '', 'DefaultNetlist', 0)
+					ButtonProp('CosimDefinition', 'D', '', '', 'Edit', 40501, ButtonPropClientData())
+				$end 'Parameters'
+				$begin 'CosimDefinitions'
+					$begin 'CosimDefinition'
+						CosimulatorType=4
+						CosimDefName='DefaultNetlist'
+						IsDefinition=true
+						Connect=true
+						Data()
+						GRef()
+					$end 'CosimDefinition'
+					DefaultCosim='DefaultNetlist'
+				$end 'CosimDefinitions'
 			$end 'HFSSDesign1'
 		$end 'Compdefs'
 	$end 'Definitions'
@@ -227,10 +242,10 @@ $begin 'AnsoftProject'
 				Ver=2
 			$end 'Editor3D Doc Preferences'
 			SnapMode=31
-			WorkingCS=83
+			WorkingCS=88
 			$begin 'GeometryCore'
 				BlockVersionID=3
-				DataVersion=3
+				DataVersion=4
 				NativeKernel='ACIS'
 				NativeKernelVersionID=13
 				Units='mm'
@@ -247,7 +262,7 @@ $begin 'AnsoftProject'
 							IDServerObjectTypeID=0
 							IDServerRangeMin=0
 							IDServerRangeMax=2146483647
-							NextUniqueID=87
+							NextUniqueID=92
 							MoveBackwards=false
 						$end 'AnsoftRangedIDServer'
 						$begin 'AnsoftRangedIDServer'
@@ -375,6 +390,23 @@ $begin 'AnsoftProject'
 							$end 'Operations'
 							XYPlaneID=84
 						$end 'Operation'
+						$begin 'Operation'
+							OperationType='CreateFaceCoordinateSystem'
+							ID=88
+							$begin 'FaceCSFromParameters'
+								KernelVersion=13
+							$end 'FaceCSFromParameters'
+							ParentPartID=6
+							ReferenceUDMID=-1
+							$begin 'Attributes'
+								Name='FaceCS3'
+								UDMId=-1
+							$end 'Attributes'
+							$begin 'Operations'
+							$end 'Operations'
+							XYPlaneID=89
+							PlaceHolderOperationID=87
+						$end 'Operation'
 					$end 'CoordinateSystems'
 					$begin 'OperandCSs'
 					$end 'OperandCSs'
@@ -472,6 +504,47 @@ $begin 'AnsoftProject'
 											FacetedBodyTriangleIndex=-1
 											TriangleVertexIndex=-1
 											PositionType='OnVertex'
+											UParam=0
+											VParam=0
+											XPosition='0'
+											YPosition='0'
+											ZPosition='0'
+										$end 'AxisPosn'
+										WhichAxis='X'
+										ZRotationAngle='0deg'
+										XOffset='0mm'
+										YOffset='0mm'
+										AutoAxis=false
+									$end 'FaceCSParameters'
+									ParentPartID=6
+									ReferenceUDMID=-1
+								$end 'FaceCSHolderOperation'
+								$begin 'FaceCSHolderOperation'
+									OperationType='FaceCSPlaceHolder'
+									ID=87
+									$begin 'FaceCSParameters'
+										KernelVersion=13
+										PartID=6
+										$begin 'Origin'
+											IsAttachedToEntity=true
+											EntityID=25
+											FacetedBodyTriangleIndex=-1
+											TriangleVertexIndex=-1
+											PositionType='OnVertex'
+											UParam=0
+											VParam=0
+											XPosition='0'
+											YPosition='0'
+											ZPosition='0'
+										$end 'Origin'
+										MoveToEnd=false
+										FaceID=7
+										$begin 'AxisPosn'
+											IsAttachedToEntity=true
+											EntityID=7
+											FacetedBodyTriangleIndex=-1
+											TriangleVertexIndex=-1
+											PositionType='FaceCenter'
 											UParam=0
 											VParam=0
 											XPosition='0'
@@ -608,7 +681,7 @@ $begin 'AnsoftProject'
 							box(1, 2)
 						$end 'box'
 						$begin 'facecs'
-							facecs(1, 2)
+							facecs(1, 2, 3)
 						$end 'facecs'
 						$begin 'global'
 							global(-1)
@@ -630,6 +703,11 @@ $begin 'AnsoftProject'
 					$begin 'DependencyInformation'
 						NumParents=1
 						DependencyObject('GeometryOperation', 33)
+						DependencyObject('CoordinateSystem', 1)
+					$end 'DependencyInformation'
+					$begin 'DependencyInformation'
+						NumParents=1
+						DependencyObject('GeometryOperation', 87)
 						DependencyObject('CoordinateSystem', 1)
 					$end 'DependencyInformation'
 					$begin 'DependencyInformation'
@@ -668,6 +746,12 @@ $begin 'AnsoftProject'
 						NumParents=1
 						DependencyObject('CoordinateSystem', 83)
 						DependencyObject('CoordinateSystem', 75)
+					$end 'DependencyInformation'
+					$begin 'DependencyInformation'
+						NumParents=2
+						DependencyObject('CoordinateSystem', 88)
+						DependencyObject('GeometryBodyOperation', 5)
+						DependencyObject('GeometryOperation', 87)
 					$end 'DependencyInformation'
 				$end 'GeometryDependencies'
 			$end 'GeometryCore'
@@ -903,7 +987,7 @@ $begin 'AnsoftProject'
 		Notes=$begin_cdata$ $end_cdata$
 		$begin 'AnimationSetups'
 		$end 'AnimationSetups'
-		CacheHeaderFile='HDR64F45146416442282215.tmp'
+		CacheHeaderFile='HDRA3F4369616442712826.tmp'
 	$end 'HFSSModel'
 	$begin 'DataInstances'
 		DesignEditor='TopLevel'
@@ -917,6 +1001,10 @@ $begin 'AnsoftProject'
 				$begin 'Properties'
 					TextProp('ID', 'SRID', '', '0')
 				$end 'Properties'
+				$begin 'Parameters'
+					MenuProp('CoSimulator', 'OHD', '', 'DefaultNetlist', 0)
+					ButtonProp('CosimDefinition', 'OHD', '', '', 'Edit', 40501, ButtonPropClientData())
+				$end 'Parameters'
 			$end 'Compinst'
 		$end 'CompInstances'
 		$begin 'Instance'
@@ -926,7 +1014,7 @@ $begin 'AnsoftProject'
 				DesignInstanceID=1
 				$begin 'WindowPosition'
 					$begin 'EditorWindow'
-						Circuit(Editor3d(View('View Orientation Gadget'=1, WindowPos(3, -1, -1, -8, -31, 0, 0, 1372, 375), OrientationMatrix(-0.187082871794701, -0.300000011920929, 0.474341630935669, 0, 0.561248600482941, -0.0999999865889549, 0.158113867044449, 0, 4.62877247642268e-09, 0.499999910593033, 0.31622776389122, 0, 1.19209289550781e-07, 2.38418579101562e-07, -5.7486834526062, 1, 0, -1.83573293685913, 2.10747146606445, -1.22383594512939, 1.15819716453552, -1.65823936462402, 13.1556053161621), Drawings[2: 'Box1', 'Box2'], 'View Data'('Render Mode'=1, 'Show Ruler'=1, 'Coordinate Systems View Mode'=1, 'CS Triad View Mode'=0, 'Render Facets'=1, GridVisible=1, GridAutoAdjust=1, GridAutoExtents=1, GridType='Rect', GridStyle='Line', NumPixels=30, dXForGrid=0.2, dYForGrid=0.2, dZForGrid=0.2, dRForGrid=0.2, dThetaForGrid=10), ClipPlanes(ClipPlaneOptions(DisableWhenDrawingNewPlane=true, ForceOpqaueForUnclipped=false, ShowClipped=false, Transparency=0, HandleColor=16776960)))))
+						Circuit(Editor3d(View('View Orientation Gadget'=1, WindowPos(3, -1, -1, -8, -31, 0, 0, 1372, 375), OrientationMatrix(-0.187082871794701, -0.300000011920929, 0.474341630935669, 0, 0.561248600482941, -0.0999999865889549, 0.158113867044449, 0, 4.62877247642268e-09, 0.499999910593033, 0.31622776389122, 0, 1.19209289550781e-07, 2.38418579101562e-07, -5.7486834526062, 1, 0, -2.55285024642944, 2.82458877563477, -1.22383594512939, 1.15819716453552, -0.684628486633301, 12.1819944381714), Drawings[2: 'Box1', 'Box2'], 'View Data'('Render Mode'=1, 'Show Ruler'=1, 'Coordinate Systems View Mode'=1, 'CS Triad View Mode'=0, 'Render Facets'=1, GridVisible=1, GridAutoAdjust=1, GridAutoExtents=1, GridType='Rect', GridStyle='Line', NumPixels=30, dXForGrid=0.2, dYForGrid=0.2, dZForGrid=0.2, dRForGrid=0.2, dThetaForGrid=10), ClipPlanes(ClipPlaneOptions(DisableWhenDrawingNewPlane=true, ForceOpqaueForUnclipped=false, ShowClipped=false, Transparency=0, HandleColor=16776960)))))
 					$end 'EditorWindow'
 				$end 'WindowPosition'
 				$begin 'ReportSetup'
@@ -954,6 +1042,14 @@ $begin 'AnsoftProject'
 			$end 'HfssDesignInstance'
 		$end 'Instance'
 		$begin 'SODInfo'
+			$begin 'HFSSDesign1'
+				$begin 'CosimDefinition'
+					CosimDefName='DefaultNetlist'
+					$begin 'SODInstanceMap'
+					$end 'SODInstanceMap'
+					SODComponentList()
+				$end 'CosimDefinition'
+			$end 'HFSSDesign1'
 		$end 'SODInfo'
 	$end 'DataInstances'
 	$begin 'WBSystemIDToDesignInstanceIDMap'

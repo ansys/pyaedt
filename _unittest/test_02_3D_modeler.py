@@ -1,5 +1,6 @@
 # Setup paths for module imports
 from _unittest.conftest import BasisTest, pyaedt_unittest_check_desktop_error
+from pyaedt.modeler.Modeler import FaceCoordinateSystem
 
 try:
     import pytest  # noqa: F401
@@ -337,6 +338,16 @@ class TestClass(BasisTest):
         assert fcs10
         assert fcs10.props["MoveToEnd"] is False
         assert fcs10.delete()
+        fcs = FaceCoordinateSystem(self.aedtapp.modeler)
+        assert fcs._part_name is None
+        assert fcs._get_type_from_id(box.id) == "3dObject"
+        assert fcs._get_type_from_id(face.id) == "Face"
+        assert fcs._get_type_from_id(face.edges[0].id) == "Edge"
+        assert fcs._get_type_from_id(face.edges[0].vertices[0].id) == "Vertex"
+        assert fcs._get_type_from_object(box) == "3dObject"
+        assert fcs._get_type_from_object(face) == "Face"
+        assert fcs._get_type_from_object(face.edges[0]) == "Edge"
+        assert fcs._get_type_from_object(face.edges[0].vertices[0]) == "Vertex"
 
     def test_41_rename_coordinate(self):
         cs = self.aedtapp.modeler.create_coordinate_system(name="oldname")

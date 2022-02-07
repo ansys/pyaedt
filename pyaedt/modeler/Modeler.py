@@ -163,7 +163,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
     @property
     def _part_name(self):
         """Internally get the part name which the face belongs to"""
-        if not self.face_id:  # pragma: no cover
+        if not self.face_id:
             # face_id has not been defined yet
             return None
         for obj in self._modeler.objects.values():
@@ -1432,7 +1432,7 @@ class GeometryModeler(Modeler, object):
 
         if name:
             cs_names = [i.name for i in self.coordinate_systems]
-            if name in cs_names:
+            if name in cs_names:  # pragma: no cover
                 raise AttributeError("A coordinate system with the specified name already exists!")
 
         cs = FaceCoordinateSystem(self)
