@@ -270,8 +270,8 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def _create_lumped_driven(self, objectname, int_line_start, int_line_stop, impedance, portname, renorm, deemb):
-        start = [str(i) + self.modeler.primitives.model_units for i in int_line_start]
-        stop = [str(i) + self.modeler.primitives.model_units for i in int_line_stop]
+        start = [str(i) + self.modeler.model_units for i in int_line_start]
+        stop = [str(i) + self.modeler.model_units for i in int_line_stop]
         props = OrderedDict({})
         if isinstance(objectname, str):
             props["Objects"] = [objectname]
@@ -386,8 +386,8 @@ class Hfss(FieldAnalysis3D, object):
         start = None
         stop = None
         if int_line_start and int_line_stop:
-            start = [str(i) + self.modeler.primitives.model_units for i in int_line_start]
-            stop = [str(i) + self.modeler.primitives.model_units for i in int_line_stop]
+            start = [str(i) + self.modeler.model_units for i in int_line_start]
+            stop = [str(i) + self.modeler.model_units for i in int_line_stop]
             useintline = True
         else:
             useintline = False
@@ -550,10 +550,10 @@ class Hfss(FieldAnalysis3D, object):
         Create a cylinder at the XY working plane and assign a copper coating of 0.2 mm to it.
 
         >>> origin = hfss.modeler.Position(0, 0, 0)
-        >>> inner = hfss.modeler.primitives.create_cylinder(
+        >>> inner = hfss.modeler.create_cylinder(
         ...     hfss.PLANE.XY, origin, 3, 200, 0, "inner"
         ... )
-        >>> inner_id = hfss.modeler.primitives.get_obj_id("inner")
+        >>> inner_id = hfss.modeler.get_obj_id("inner")
         >>> coat = hfss.assign_coating([inner_id], "copper", usethickness=True, thickness="0.2mm")
 
         """
@@ -1494,10 +1494,10 @@ class Hfss(FieldAnalysis3D, object):
         Create two boxes that will be used to create a circuit port
         named ``'CircuitExample'``.
 
-        >>> box1 = hfss.modeler.primitives.create_box([0, 0, 80], [10, 10, 5],
-        ...                                           "BoxCircuit1", "copper")
-        >>> box2 = hfss.modeler.primitives.create_box([0, 0, 100], [10, 10, 5],
-        ...                                           "BoxCircuit2", "copper")
+        >>> box1 = hfss.modeler.create_box([0, 0, 80], [10, 10, 5],
+        ...                                "BoxCircuit1", "copper")
+        >>> box2 = hfss.modeler.create_box([0, 0, 100], [10, 10, 5],
+        ...                                "BoxCircuit2", "copper")
         >>> hfss.create_circuit_port_between_objects("BoxCircuit1", "BoxCircuit2",
         ...                                          hfss.AxisDir.XNeg, 50,
         ...                                          "CircuitExample", True, 50, False)
@@ -1505,13 +1505,11 @@ class Hfss(FieldAnalysis3D, object):
 
         """
 
-        if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
-            endobject
-        ):
+        if not self.modeler.does_object_exists(startobj) or not self.modeler.does_object_exists(endobject):
             self.logger.error("One or both objects doesn't exists. Check and retry.")
             return False
         if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
-            out, parallel = self.modeler.primitives.find_closest_edges(startobj, endobject, axisdir)
+            out, parallel = self.modeler.find_closest_edges(startobj, endobject, axisdir)
             port_edges = []
             if not portname:
                 portname = generate_unique_name("Port")
@@ -1564,10 +1562,10 @@ class Hfss(FieldAnalysis3D, object):
         Create two boxes that will be used to create a lumped port
         named ``'LumpedPort'``.
 
-        >>> box1 = hfss.modeler.primitives.create_box([0, 0, 50], [10, 10, 5],
-        ...                                           "BoxLumped1","copper")
-        >>> box2 = hfss.modeler.primitives.create_box([0, 0, 60], [10, 10, 5],
-        ...                                           "BoxLumped2", "copper")
+        >>> box1 = hfss.modeler.create_box([0, 0, 50], [10, 10, 5],
+        ...                                "BoxLumped1","copper")
+        >>> box2 = hfss.modeler.create_box([0, 0, 60], [10, 10, 5],
+        ...                                "BoxLumped2", "copper")
         >>> hfss.create_lumped_port_between_objects("BoxLumped1", "BoxLumped2",
         ...                                         hfss.AxisDir.XNeg, 50,
         ...                                         "LumpedPort", True, False)
@@ -1577,9 +1575,7 @@ class Hfss(FieldAnalysis3D, object):
         """
         startobj = self.modeler.convert_to_selections(startobj)
         endobject = self.modeler.convert_to_selections(endobject)
-        if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
-            endobject
-        ):
+        if not self.modeler.does_object_exists(startobj) or not self.modeler.does_object_exists(endobject):
             self.logger.error("One or both objects do not exist. Check and retry.")
             return False
 
@@ -1595,7 +1591,7 @@ class Hfss(FieldAnalysis3D, object):
             if "Modal" in self.solution_type:
                 return self._create_lumped_driven(sheet_name, point0, point1, impedance, portname, renorm, deemb)
             else:
-                faces = self.modeler.primitives.get_object_faces(sheet_name)
+                faces = self.modeler.get_object_faces(sheet_name)
                 return self._create_port_terminal(faces[0], endobject, portname, renorm=renorm, iswaveport=False)
         return False
 
@@ -1838,10 +1834,10 @@ class Hfss(FieldAnalysis3D, object):
         Create two boxes that will be used to create a voltage source
         named ``'VoltageSource'``.
 
-        >>> box1 = hfss.modeler.primitives.create_box([30, 0, 0], [40, 10, 5],
-        ...                                           "BoxVolt1", "copper")
-        >>> box2 = hfss.modeler.primitives.create_box([30, 0, 10], [40, 10, 5],
-        ...                                           "BoxVolt2", "copper")
+        >>> box1 = hfss.modeler.create_box([30, 0, 0], [40, 10, 5],
+        ...                                "BoxVolt1", "copper")
+        >>> box2 = hfss.modeler.create_box([30, 0, 10], [40, 10, 5],
+        ...                                "BoxVolt2", "copper")
         >>> v1 = hfss.create_voltage_source_from_objects("BoxVolt1", "BoxVolt2",
         ...                                         hfss.AxisDir.XNeg,
         ...                                         "VoltageSource")
@@ -1849,9 +1845,7 @@ class Hfss(FieldAnalysis3D, object):
 
         """
 
-        if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
-            endobject
-        ):
+        if not self.modeler.does_object_exists(startobj) or not self.modeler.does_object_exists(endobject):
             self.logger.error("One or both objects doesn't exists. Check and retry")
             return False
         if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
@@ -1900,10 +1894,10 @@ class Hfss(FieldAnalysis3D, object):
         Create two boxes that will be used to create a current source
         named ``'CurrentSource'``.
 
-        >>> box1 = hfss.modeler.primitives.create_box([30, 0, 20], [40, 10, 5],
-        ...                                           "BoxCurrent1", "copper")
-        >>> box2 = hfss.modeler.primitives.create_box([30, 0, 30], [40, 10, 5],
-        ...                                           "BoxCurrent2", "copper")
+        >>> box1 = hfss.modeler.create_box([30, 0, 20], [40, 10, 5],
+        ...                                "BoxCurrent1", "copper")
+        >>> box2 = hfss.modeler.create_box([30, 0, 30], [40, 10, 5],
+        ...                                "BoxCurrent2", "copper")
         >>> i1 = hfss.create_current_source_from_objects("BoxCurrent1", "BoxCurrent2",
         ...                                         hfss.AxisDir.XPos,
         ...                                         "CurrentSource")
@@ -1911,9 +1905,7 @@ class Hfss(FieldAnalysis3D, object):
 
         """
 
-        if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
-            endobject
-        ):
+        if not self.modeler.does_object_exists(startobj) or not self.modeler.does_object_exists(endobject):
             self.logger.error("One or both objects do not exist. Check and retry.")
             return False
         if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
@@ -2018,9 +2010,9 @@ class Hfss(FieldAnalysis3D, object):
         Create two boxes that will be used to create a wave port
         named ``'WavePort'``.
 
-        >>> box1 = hfss.modeler.primitives.create_box([0,0,0], [10,10,5],
+        >>> box1 = hfss.modeler.create_box([0,0,0], [10,10,5],
         ...                                           "BoxWave1", "copper")
-        >>> box2 = hfss.modeler.primitives.create_box([0, 0, 10], [10, 10, 5],
+        >>> box2 = hfss.modeler.create_box([0, 0, 10], [10, 10, 5],
         ...                                           "BoxWave2", "copper")
         >>> wave_port = hfss.create_wave_port_between_objects("BoxWave1", "BoxWave2",
         ...                                                   hfss.AxisDir.XNeg, 50, 1,
@@ -2029,9 +2021,7 @@ class Hfss(FieldAnalysis3D, object):
 
         """
 
-        if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
-            endobject
-        ):
+        if not self.modeler.does_object_exists(startobj) or not self.modeler.does_object_exists(endobject):
             self.logger.error("One or both objects do not exist. Check and retry.")
             return False
         if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
@@ -2050,7 +2040,7 @@ class Hfss(FieldAnalysis3D, object):
                     sheet_name, point0, point1, impedance, portname, renorm, nummodes, deembed_dist
                 )
             else:
-                faces = self.modeler.primitives.get_object_faces(sheet_name)
+                faces = self.modeler.get_object_faces(sheet_name)
                 return self._create_port_terminal(faces[0], endobject, portname, renorm=renorm, iswaveport=True)
         return False
 
@@ -2119,7 +2109,7 @@ class Hfss(FieldAnalysis3D, object):
         props["NumModes"] = nummodes
         if deembed_dist:
             props["DoDeembed"] = True
-            props["DeembedDist"] = self.modeler.primitives._arg_with_dim(deembed_dist)
+            props["DeembedDist"] = self.modeler._arg_with_dim(deembed_dist)
         else:
             props["DoDeembed"] = False
             props["DeembedDist"] = "0mm"
@@ -2368,10 +2358,10 @@ class Hfss(FieldAnalysis3D, object):
 
     def _create_pec_cap(self, sheet_name, obj_name, pecthick):
         # TODO check method
-        obj = self.modeler.primitives[sheet_name].clone()
+        obj = self.modeler[sheet_name].clone()
         out_obj = self.modeler.thicken_sheet(obj, pecthick, False)
         bounding2 = out_obj.bounding_box
-        bounding1 = self.modeler.primitives[obj_name].bounding_box
+        bounding1 = self.modeler[obj_name].bounding_box
         tol = 1e-9
         i = 0
         internal = False
@@ -2384,7 +2374,7 @@ class Hfss(FieldAnalysis3D, object):
             i += 1
         if internal:
             self.odesign.Undo()
-            self.modeler.primitives.cleanup_objects()
+            self.modeler.cleanup_objects()
             out_obj = self.modeler.thicken_sheet(obj, -pecthick, False)
 
         out_obj.material_name = "pec"
@@ -2447,21 +2437,19 @@ class Hfss(FieldAnalysis3D, object):
 
         Create a wave port supported by a microstrip line.
 
-        >>> ms = hfss.modeler.primitives.create_box([4, 5, 0], [1, 100, 0.2],
-        ...                                         name="MS1", matname="copper")
-        >>> sub = hfss.modeler.primitives.create_box([0, 5, -2], [20, 100, 2],
-        ...                                          name="SUB1", matname="FR4_epoxy")
-        >>> gnd = hfss.modeler.primitives.create_box([0, 5, -2.2], [20, 100, 0.2],
-        ...                                          name="GND1", matname="FR4_epoxy")
+        >>> ms = hfss.modeler.create_box([4, 5, 0], [1, 100, 0.2],
+        ...                               name="MS1", matname="copper")
+        >>> sub = hfss.modeler.create_box([0, 5, -2], [20, 100, 2],
+        ...                               name="SUB1", matname="FR4_epoxy")
+        >>> gnd = hfss.modeler.create_box([0, 5, -2.2], [20, 100, 0.2],
+        ...                               name="GND1", matname="FR4_epoxy")
         >>> port = hfss.create_wave_port_microstrip_between_objects("GND1", "MS1",
         ...                                                         portname="MS1",
         ...                                                         axisdir=1)
         pyaedt info: Connection Correctly created
 
         """
-        if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
-            endobject
-        ):
+        if not self.modeler.does_object_exists(startobj) or not self.modeler.does_object_exists(endobject):
             self.logger.error("One or both objects do not exist. Check and retry.")
             return False
         if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
@@ -2479,7 +2467,7 @@ class Hfss(FieldAnalysis3D, object):
                     sheet_name, point0, point1, impedance, portname, renorm, nummodes, deembed_dist
                 )
             else:
-                faces = self.modeler.primitives.get_object_faces(sheet_name)
+                faces = self.modeler.get_object_faces(sheet_name)
                 return self._create_port_terminal(faces[0], endobject, portname, renorm=renorm, iswaveport=True)
         return False
 
@@ -2523,10 +2511,10 @@ class Hfss(FieldAnalysis3D, object):
 
         Create two boxes that will be used to create a Perfect E named ``'PerfectE'``.
 
-        >>> box1 = hfss.modeler.primitives.create_box([0,0,0], [10,10,5],
-        ...                                           "perfect1", "Copper")
-        >>> box2 = hfss.modeler.primitives.create_box([0, 0, 10], [10, 10, 5],
-        ...                                           "perfect2", "copper")
+        >>> box1 = hfss.modeler.create_box([0,0,0], [10,10,5],
+        ...                                "perfect1", "Copper")
+        >>> box2 = hfss.modeler.create_box([0, 0, 10], [10, 10, 5],
+        ...                                "perfect2", "copper")
         >>> perfect_e = hfss.create_perfecte_from_objects("perfect1", "perfect2",
         ...                                               hfss.AxisDir.ZNeg, "PerfectE")
         pyaedt info: Connection Correctly created
@@ -2535,9 +2523,7 @@ class Hfss(FieldAnalysis3D, object):
 
         """
 
-        if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
-            endobject
-        ):
+        if not self.modeler.does_object_exists(startobj) or not self.modeler.does_object_exists(endobject):
             self.logger.error("One or both objects do not exist. Check and retry.")
             return False
         if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
@@ -2586,10 +2572,10 @@ class Hfss(FieldAnalysis3D, object):
 
         Create two boxes that will be used to create a Perfect H named ``'PerfectH'``.
 
-        >>> box1 = hfss.modeler.primitives.create_box([0,0,20], [10,10,5],
-        ...                                           "perfect1", "Copper")
-        >>> box2 = hfss.modeler.primitives.create_box([0, 0, 30], [10, 10, 5],
-        ...                                           "perfect2", "copper")
+        >>> box1 = hfss.modeler.create_box([0,0,20], [10,10,5],
+        ...                                "perfect1", "Copper")
+        >>> box2 = hfss.modeler.create_box([0, 0, 30], [10, 10, 5],
+        ...                                "perfect2", "copper")
         >>> perfect_h = hfss.create_perfecth_from_objects("perfect1", "perfect2",
         ...                                               hfss.AxisDir.ZNeg, "PerfectH")
         pyaedt info: Connection Correctly created
@@ -2598,9 +2584,7 @@ class Hfss(FieldAnalysis3D, object):
 
         """
 
-        if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
-            endobject
-        ):
+        if not self.modeler.does_object_exists(startobj) or not self.modeler.does_object_exists(endobject):
             self.logger.error("One or both objects do not exist. Check and retry.")
             return False
         if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
@@ -2750,9 +2734,9 @@ class Hfss(FieldAnalysis3D, object):
         Create two boxes that will be used to create a lumped RLC named
         ``'LumpedRLC'``.
 
-        >>> box1 = hfss.modeler.primitives.create_box([0, 0, 50], [10, 10, 5],
+        >>> box1 = hfss.modeler.create_box([0, 0, 50], [10, 10, 5],
         ...                                           "rlc1", "copper")
-        >>> box2 = hfss.modeler.primitives.create_box([0, 0, 60], [10, 10, 5],
+        >>> box2 = hfss.modeler.create_box([0, 0, 60], [10, 10, 5],
         ...                                           "rlc2", "copper")
         >>> rlc = hfss.create_lumped_rlc_between_objects("rlc1", "rlc2", hfss.AxisDir.XPos,
         ...                                              "LumpedRLC", Rvalue=50,
@@ -2761,9 +2745,7 @@ class Hfss(FieldAnalysis3D, object):
 
         """
 
-        if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
-            endobject
-        ):
+        if not self.modeler.does_object_exists(startobj) or not self.modeler.does_object_exists(endobject):
             self.logger.error("One or both objects do not exist. Check and retry.")
             return False
         if self.solution_type in ["Modal", "Terminal", "Transient Network"] and (Rvalue or Lvalue or Cvalue):
@@ -2775,8 +2757,8 @@ class Hfss(FieldAnalysis3D, object):
                 sourcename = generate_unique_name("Lump")
             elif sourcename in self.modeler.get_boundaries_name():
                 sourcename = generate_unique_name(sourcename)
-            start = [str(i) + self.modeler.primitives.model_units for i in point0]
-            stop = [str(i) + self.modeler.primitives.model_units for i in point1]
+            start = [str(i) + self.modeler.model_units for i in point0]
+            stop = [str(i) + self.modeler.model_units for i in point1]
 
             props = OrderedDict()
             props["Objects"] = [sheet_name]
@@ -2849,9 +2831,9 @@ class Hfss(FieldAnalysis3D, object):
         Create two boxes that will be used to create an impedance named
         named ``'ImpedanceExample'``.
 
-        >>> box1 = hfss.modeler.primitives.create_box([0, 0, 70], [10, 10, 5],
+        >>> box1 = hfss.modeler.create_box([0, 0, 70], [10, 10, 5],
         ...                                           "box1", "copper")
-        >>> box2 = hfss.modeler.primitives.create_box([0, 0, 80], [10, 10, 5],
+        >>> box2 = hfss.modeler.create_box([0, 0, 80], [10, 10, 5],
         ...                                           "box2", "copper")
         >>> impedance = hfss.create_impedance_between_objects("box1", "box2", hfss.AxisDir.XPos,
         ...                                                   "ImpedanceExample", 100, 50)
@@ -2859,9 +2841,7 @@ class Hfss(FieldAnalysis3D, object):
 
         """
 
-        if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
-            endobject
-        ):
+        if not self.modeler.does_object_exists(startobj) or not self.modeler.does_object_exists(endobject):
             self.logger.error("One or both objects do not exist. Check and retry.")
             return False
         if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
@@ -2940,8 +2920,8 @@ class Hfss(FieldAnalysis3D, object):
             sheet = obj_name
         else:
             objID = self.modeler.oeditor.GetFaceIDs(sheet)
-        face_edges = self.modeler.primitives.get_face_edges(objID[0])
-        mid_points = [self.modeler.primitives.get_edge_midpoint(i) for i in face_edges]
+        face_edges = self.modeler.get_face_edges(objID[0])
+        mid_points = [self.modeler.get_edge_midpoint(i) for i in face_edges]
         if axisdir < 3:
             min_point = [1e6, 1e6, 1e6]
             max_point = [-1e6, -1e6, -1e6]
@@ -2959,7 +2939,7 @@ class Hfss(FieldAnalysis3D, object):
                 if el[axisdir - 3] < max_point[axisdir - 3]:
                     max_point = el
 
-        refid = self.modeler.primitives.get_bodynames_from_position(min_point)
+        refid = self.modeler.get_bodynames_from_position(min_point)
         refid.remove(sheet)
         diels = self.get_all_dielectrics_names()
         for el in refid:
@@ -3025,7 +3005,7 @@ class Hfss(FieldAnalysis3D, object):
         ``'WavePortFromSheet'``.
 
         >>> origin_position = hfss.modeler.Position(0, 0, 0)
-        >>> circle = hfss.modeler.primitives.create_circle(hfss.PLANE.YZ,
+        >>> circle = hfss.modeler.create_circle(hfss.PLANE.YZ,
         ...                                                origin_position, 10, name="WaveCircle")
         >>> hfss.solution_type = "Modal"
         >>> port = hfss.create_wave_port_from_sheet(circle, 5, hfss.AxisDir.XNeg, 40, 2,
@@ -3060,7 +3040,7 @@ class Hfss(FieldAnalysis3D, object):
             if isinstance(sheet, int):
                 faces = sheet
             else:
-                faces = self.modeler.primitives.get_object_faces(sheet)[0]
+                faces = self.modeler.get_object_faces(sheet)[0]
             if not faces:
                 self.logger.error("Wrong Input object. it has to be a face id or a sheet.")
                 return False
@@ -3115,7 +3095,7 @@ class Hfss(FieldAnalysis3D, object):
         Create a rectangle sheet that will be used to create a lumped port named
         ``'LumpedPortFromSheet'``.
 
-        >>> rectangle = hfss.modeler.primitives.create_rectangle(hfss.PLANE.XY,
+        >>> rectangle = hfss.modeler.create_rectangle(hfss.PLANE.XY,
         ...                                                      [0, 0, 0], [10, 2], name="lump_port",
         ...                                                      matname="copper")
         >>> h1 = hfss.create_lumped_port_to_sheet(rectangle.name, hfss.AxisDir.XNeg, 50,
@@ -3124,7 +3104,7 @@ class Hfss(FieldAnalysis3D, object):
         """
         sheet_name = self.modeler.convert_to_selections(sheet_name, False)
         if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
-            point0, point1 = self.modeler.primitives.get_mid_points_on_dir(sheet_name, axisdir)
+            point0, point1 = self.modeler.get_mid_points_on_dir(sheet_name, axisdir)
 
             if not portname:
                 portname = generate_unique_name("Port")
@@ -3136,7 +3116,7 @@ class Hfss(FieldAnalysis3D, object):
             else:
                 if not reference_object_list:
                     cond = self.get_all_conductors_names()
-                    touching = self.modeler.primitives.get_bodynames_from_position(point0)
+                    touching = self.modeler.get_bodynames_from_position(point0)
                     reference_object_list = []
                     for el in touching:
                         if el in cond:
@@ -3144,7 +3124,7 @@ class Hfss(FieldAnalysis3D, object):
                 if isinstance(sheet_name, int):
                     faces = sheet_name
                 else:
-                    faces = self.modeler.primitives.get_object_faces(sheet_name)[0]
+                    faces = self.modeler.get_object_faces(sheet_name)[0]
                 if not faces:
                     self.logger.error("Wrong Input object. it has to be a face id or a sheet.")
                     return False
@@ -3200,7 +3180,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Create a sheet and assign to it some voltage.
 
-        >>> sheet = hfss.modeler.primitives.create_rectangle(hfss.PLANE.XY,
+        >>> sheet = hfss.modeler.create_rectangle(hfss.PLANE.XY,
         ...                                                  [0, 0, -70], [10, 2], name="VoltageSheet",
         ...                                                  matname="copper")
         >>> v1 = hfss.assign_voltage_source_to_sheet(sheet.name, hfss.AxisDir.XNeg, "VoltageSheetExample")
@@ -3208,7 +3188,7 @@ class Hfss(FieldAnalysis3D, object):
         """
 
         if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
-            point0, point1 = self.modeler.primitives.get_mid_points_on_dir(sheet_name, axisdir)
+            point0, point1 = self.modeler.get_mid_points_on_dir(sheet_name, axisdir)
             if not sourcename:
                 sourcename = generate_unique_name("Voltage")
             elif sourcename + ":1" in self.modeler.get_excitations_name():
@@ -3246,7 +3226,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Create a sheet and assign to it some current.
 
-        >>> sheet = hfss.modeler.primitives.create_rectangle(hfss.PLANE.XY, [0, 0, -50],
+        >>> sheet = hfss.modeler.create_rectangle(hfss.PLANE.XY, [0, 0, -50],
         ...                                                  [5, 1], name="CurrentSheet", matname="copper")
         >>> hfss.assign_current_source_to_sheet(sheet.name, hfss.AxisDir.XNeg, "CurrentSheetExample")
         'CurrentSheetExample'
@@ -3254,7 +3234,7 @@ class Hfss(FieldAnalysis3D, object):
         """
 
         if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
-            point0, point1 = self.modeler.primitives.get_mid_points_on_dir(sheet_name, axisdir)
+            point0, point1 = self.modeler.get_mid_points_on_dir(sheet_name, axisdir)
             if not sourcename:
                 sourcename = generate_unique_name("Current")
             elif sourcename + ":1" in self.modeler.get_excitations_name():

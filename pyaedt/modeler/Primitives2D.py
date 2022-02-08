@@ -6,7 +6,7 @@ class Primitives2D(Primitives, object):
     """Manages primitives in 2D tools.
 
     This class is inherited in the caller application and is accessible through the primitives variable part
-    of the modeler object (for example, ``hfss.modeler.primitives`` or ``icepak.modeler.primitives``).
+    of the modeler object (for example, ``hfss.modeler`` or ``icepak.modeler``).
 
 
     Examples
@@ -15,7 +15,7 @@ class Primitives2D(Primitives, object):
 
     >>> from pyaedt import Q2d
     >>> aedtapp = Q2d()
-    >>> prim = aedtapp.modeler.primitives
+    >>> prim = aedtapp.modeler
     """
 
     @property
@@ -63,9 +63,9 @@ class Primitives2D(Primitives, object):
 
         Examples
         --------
-        >>> circle1 = aedtapp.modeler.primitives.create_circle([0, -2, -2], 3)
-        >>> circle2 = aedtapp.modeler.primitives.create_circle(position=[0, -2, -2], radius=3, num_sides=6,
-        ...                                                     name="MyCircle", matname="Copper")
+        >>> circle1 = aedtapp.modeler.create_circle([0, -2, -2], 3)
+        >>> circle2 = aedtapp.modeler.create_circle(position=[0, -2, -2], radius=3, num_sides=6,
+        ...                                         name="MyCircle", matname="Copper")
 
 
         """
@@ -119,9 +119,9 @@ class Primitives2D(Primitives, object):
 
         Examples
         --------
-        >>> ellipse1 = aedtapp.modeler.primitives.create_ellipse([0, -2, -2], 4.0, 0.2)
-        >>> ellipse2 = aedtapp.modeler.primitives.create_ellipse(position=[0, -2, -2], major_radius=4.0, ratio=0.2,
-        ...                                                     name="MyEllipse", matname="Copper")
+        >>> ellipse1 = aedtapp.modeler.create_ellipse([0, -2, -2], 4.0, 0.2)
+        >>> ellipse2 = aedtapp.modeler.create_ellipse(position=[0, -2, -2], major_radius=4.0, ratio=0.2,
+        ...                                           name="MyEllipse", matname="Copper")
         """
         szAxis = self.plane2d
         XStart, YStart, ZStart = self._pos_with_arg(position)
@@ -170,9 +170,9 @@ class Primitives2D(Primitives, object):
         Examples
         --------
 
-        >>> rect1 = aedtapp.modeler.primitives.create_rectangle([0, -2, -2], [3, 4])
-        >>> rect2 = aedtapp.modeler.primitives.create_rectangle(position=[0, -2, -2], dimension_list=[3, 4],
-        ...                                                     name="MyCircle", matname="Copper")
+        >>> rect1 = aedtapp.modeler.create_rectangle([0, -2, -2], [3, 4])
+        >>> rect2 = aedtapp.modeler.create_rectangle(position=[0, -2, -2], dimension_list=[3, 4],
+        ...                                          name="MyCircle", matname="Copper")
 
         """
         axis = self.plane2d
@@ -226,9 +226,9 @@ class Primitives2D(Primitives, object):
         Examples
         --------
 
-        >>> pg1 = aedtapp.modeler.primitives.create_regular_polygon([0, 0, 0], [0, 2, 0])
-        >>> pg2 = aedtapp.modeler.primitives.create_regular_polygon(position=[0, 0, 0], start_point=[0, 2, 0],
-        ...                                                     name="MyPolygon", matname="Copper")
+        >>> pg1 = aedtapp.modeler.create_regular_polygon([0, 0, 0], [0, 2, 0])
+        >>> pg2 = aedtapp.modeler.create_regular_polygon(position=[0, 0, 0], start_point=[0, 2, 0],
+        ...                                              name="MyPolygon", matname="Copper")
 
         """
         x_center, y_center, z_center = self._pos_with_arg(position)

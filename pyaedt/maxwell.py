@@ -961,7 +961,7 @@ class Maxwell(object):
 
         >>> oEditor.ChangeProperty
         """
-        self.modeler.primitives[name].solve_inside = activate
+        self.modeler[name].solve_inside = activate
         return True
 
     @aedt_exception_handler
@@ -1294,9 +1294,9 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
 
         solid_bodies = self.modeler.solid_bodies
         if objectfilter:
-            solid_ids = [i for i, j in self.modeler.primitives.object_id_dict.items() if j.name in objectfilter]
+            solid_ids = [i for i, j in self.modeler.object_id_dict.items() if j.name in objectfilter]
         else:
-            solid_ids = [i for i in list(self.modeler.primitives.object_id_dict.keys())]
+            solid_ids = [i for i in list(self.modeler.object_id_dict.keys())]
         self.design_data = {
             "Project Directory": self.project_path,
             "Working Directory": self.working_directory,

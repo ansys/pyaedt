@@ -194,9 +194,9 @@ class DesignCache(object):
             Snapshot object.
         """
         snapshot = {
-            "Solids:": self._app.modeler.primitives.solid_names,
-            "Lines:": self._app.modeler.primitives.line_names,
-            "Sheets": self._app.modeler.primitives.sheet_names,
+            "Solids:": self._app.modeler.solid_names,
+            "Lines:": self._app.modeler.line_names,
+            "Sheets": self._app.modeler.sheet_names,
             "DesignName": self._app.design_name,
         }
         return snapshot
@@ -2847,7 +2847,7 @@ class Design(object):
             self.oproject.Save()
         if refresh_obj_ids_after_save:
             self.modeler.refresh_all_ids()
-            self.modeler.primitives._refresh_all_ids_from_aedt_file()
+            self.modeler._refresh_all_ids_from_aedt_file()
         return True
 
     @aedt_exception_handler

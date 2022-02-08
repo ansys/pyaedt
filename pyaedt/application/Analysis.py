@@ -1314,7 +1314,7 @@ class Analysis(Design, object):
             if not isinstance(object_list, list):
                 object_list = [object_list]
         else:
-            object_list = self.modeler.primitives.object_names
+            object_list = self.modeler.object_names
 
         if prop_names:
             if not isinstance(prop_names, list):
@@ -1322,7 +1322,7 @@ class Analysis(Design, object):
 
         dict = {}
         for entry in object_list:
-            mat_name = self.modeler.primitives[entry].material_name
+            mat_name = self.modeler[entry].material_name
             mat_props = self._materials[mat_name]
             if prop_names is None:
                 dict[entry] = mat_props._props
