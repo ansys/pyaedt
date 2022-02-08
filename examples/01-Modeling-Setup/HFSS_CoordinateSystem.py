@@ -124,6 +124,71 @@ cs4 = hfss.modeler.create_coordinate_system(name="CS4", origin=[1, 0, 0], refere
 cs5 = hfss.modeler.create_coordinate_system(name="CS5", mode="axisrotation", u=[1, 0, 0], theta=123)
 
 ###############################################################################
+# Create a Face Coordinate System
+# -------------------------------------------------------------------
+# Face coordinate systems are bound to an object face.
+# Here we create first a box and then a Face Coordinate System is defined on one of its faces.
+# To create the face coordinate system a reference face, the axis starting and ending points must be specified.
+box = hfss.modeler.create_box([0, 0, 0], [2, 2, 2])
+face = box.faces[0]
+fcs1 = hfss.modeler.create_face_coordinate_system(
+    face=face, origin=face.edges[0], axis_position=face.edges[1], name="FCS1"
+)
+
+###############################################################################
+# Create a Face Coordinate System centered on the face
+# -------------------------------------------------------------------
+# Here we create a Face Coordinate System centered on the face and with the X axis pointing to the edge vertex.
+fcs2 = hfss.modeler.create_face_coordinate_system(
+    face=face, origin=face, axis_position=face.edges[0].vertices[0], name="FCS2"
+)
+
+###############################################################################
+# Swap the X and Y axis of a Face coordinate system
+# -------------------------------------------------------------------
+# As default the X axis is pointing `axis_position`. Optionally the Y axis can be selected.
+fcs3 = hfss.modeler.create_face_coordinate_system(face=face, origin=face, axis_position=face.edges[0], axis="Y")
+
+# The axis can also be changed after the coordinate system is created.
+fcs3.props["WhichAxis"] = "X"
+fcs3.update()
+
+###############################################################################
+# Apply a rotation around the Z axis.
+# -------------------------------------------------------------------
+# The Z axis of a Face Coordinate System is always orthogonal to the face.
+# A rotation can be applied at definition. The rotation is expressed in degrees.
+fcs4 = hfss.modeler.create_face_coordinate_system(face=face, origin=face, axis_position=face.edges[1], rotation=10.3)
+
+# The rotation can also be changed after the coordinate system is created.
+fcs4.props["ZRotationAngle"] = "3deg"
+fcs4.update()
+
+###############################################################################
+# Apply an offset to the X and Y axis of a Face coordinate system
+# -------------------------------------------------------------------
+# The offset is respect the Face Coordinate System itself.
+fcs5 = hfss.modeler.create_face_coordinate_system(
+    face=face, origin=face, axis_position=face.edges[2], offset=[0.5, 0.3]
+)
+
+# The offset can also be changed after the coordinate system is created.
+fcs5.props["XOffset"] = "0.2mm"
+fcs5.props["YOffset"] = "0.1mm"
+fcs5.update()
+
+###############################################################################
+# Create a coordinate system relative to a Face coordinate system
+# -------------------------------------------------------------------
+# Coordinate Systems and Face Coordinate Systems interact each other.
+face = box.faces[1]
+fcs6 = hfss.modeler.create_face_coordinate_system(face=face, origin=face, axis_position=face.edges[0])
+cs_fcs = hfss.modeler.create_coordinate_system(
+    name="CS_FCS", origin=[0, 0, 0], reference_cs=fcs6.name, mode="view", view="iso"
+)
+
+
+###############################################################################
 # Get All Coordinate Systems
 # --------------------------
 # This example gets all coordinate systems.
