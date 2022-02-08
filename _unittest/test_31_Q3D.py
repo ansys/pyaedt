@@ -161,3 +161,4 @@ class TestClass:
         assert q3d.matrices[0].get_sources_for_plot(first_element_filter="Box?", second_element_filter="B*2") == [
             "C(Box1,Box1_2)"
         ]
+        self.aedtapp.close_project(q3d.project_name, False)

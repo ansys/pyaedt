@@ -193,3 +193,4 @@ class TestClass:
         assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(q2d)
         q3d = Q3d(specified_version=desktop_version)
         assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(q3d)
+        self.aedtapp.close_project(q3d.project_name, False)

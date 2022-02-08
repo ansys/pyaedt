@@ -80,3 +80,4 @@ class TestClass:
         assert q2d.matrices[4].name == "Test4"
         assert q2d.insert_reduced_matrix(q2d.MATRIXOPERATIONS.DiffPair, ["Circle2", "Circle3"], "Test5")
         assert q2d.matrices[5].name == "Test5"
+        self.aedtapp.close_project(q2d.project_name, False)
