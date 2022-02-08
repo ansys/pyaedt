@@ -189,8 +189,8 @@ $begin 'AnsoftProject'
 				$end 'Properties'
 				CompExtID=6
 				$begin 'Parameters'
-					MenuProp('CoSimulator', 'D', '', 'DefaultNetlist', 0)
 					ButtonProp('CosimDefinition', 'D', '', '', 'Edit', 40501, ButtonPropClientData())
+					MenuProp('CoSimulator', 'D', '', 'DefaultNetlist', 0)
 				$end 'Parameters'
 				$begin 'CosimDefinitions'
 					$begin 'CosimDefinition'
@@ -216,8 +216,8 @@ $begin 'AnsoftProject'
 				$end 'Properties'
 				CompExtID=6
 				$begin 'Parameters'
-					MenuProp('CoSimulator', 'D', '', 'DefaultNetlist', 0)
 					ButtonProp('CosimDefinition', 'D', '', '', 'Edit', 40501, ButtonPropClientData())
+					MenuProp('CoSimulator', 'D', '', 'DefaultNetlist', 0)
 				$end 'Parameters'
 				$begin 'CosimDefinitions'
 					$begin 'CosimDefinition'
@@ -1061,7 +1061,7 @@ $begin 'AnsoftProject'
 		Notes=$begin_cdata$ $end_cdata$
 		$begin 'AnimationSetups'
 		$end 'AnimationSetups'
-		CacheHeaderFile='HDR550236600164422697169.tmp'
+		CacheHeaderFile='HDR3F8C6614816442353233.tmp'
 	$end '2DExtractorModel'
 	$begin 'Q3DModel'
 		RepRewriteV2=true
@@ -1532,8 +1532,6 @@ $begin 'AnsoftProject'
 			$end 'MeshOperations'
 		$end 'MeshSetup'
 		$begin 'ReduceMatrix'
-			NextUniqueID=2
-			MoveBackwards=false
 			$begin 'Original'
 				ID=0
 				$begin 'SortOrder'
@@ -1541,18 +1539,6 @@ $begin 'AnsoftProject'
 					terminal[1: -1]
 				$end 'SortOrder'
 			$end 'Original'
-			$begin 'JoinSeriesMatrix'
-				ID=1
-				$begin 'SortOrder'
-					net[1: -1]
-					terminal[1: -1]
-				$end 'SortOrder'
-				NextUniqueID=1
-				MoveBackwards=false
-				$begin 'Operations'
-					op('JoinSeries1', 0, JoinSeries('Box1', 3, 8))
-				$end 'Operations'
-			$end 'JoinSeriesMatrix'
 		$end 'ReduceMatrix'
 		$begin 'AnalysisSetup'
 			$begin 'CircuitData'
@@ -1728,7 +1714,7 @@ $begin 'AnsoftProject'
 		Notes=$begin_cdata$ $end_cdata$
 		$begin 'AnimationSetups'
 		$end 'AnimationSetups'
-		CacheHeaderFile='HDR550236600164422697168.tmp'
+		CacheHeaderFile='HDR3F8C6614816442353234.tmp'
 	$end 'Q3DModel'
 	$begin 'DataInstances'
 		DesignEditor='TopLevel'
@@ -1769,7 +1755,7 @@ $begin 'AnsoftProject'
 				DesignInstanceID=1
 				$begin 'WindowPosition'
 					$begin 'EditorWindow'
-						Circuit(Editor3d(View('View Orientation Gadget'=1, WindowPos(5, -1, -1, -9, -38, 0, 0, 1473, 335), OrientationMatrix(-0.187082901597023, -0.300000011920929, 0.474341750144958, 0, 0.561248660087585, -0.100000001490116, 0.158113896846771, 0, 4.62877292051189e-09, 0.499999970197678, 0.316227793693542, 0, -1.19209289550781e-07, 2.38418579101562e-07, -5.7486834526062, 1, 0, -3.58802819252014, 3.58802819252014, -1, 1, 1.3711838722229, 10.126184463501), Drawings[3: 'Box1', 'Box1_1', 'Box1_2'], 'View Data'('Render Mode'=1, 'Show Ruler'=1, 'Coordinate Systems View Mode'=1, 'CS Triad View Mode'=0, 'Render Facets'=1, GridVisible=1, GridAutoAdjust=1, GridAutoExtents=1, GridType='Rect', GridStyle='Line', NumPixels=30, dXForGrid=0.5, dYForGrid=0.5, dZForGrid=0.5, dRForGrid=0.5, dThetaForGrid=10), ClipPlanes(ClipPlaneOptions(DisableWhenDrawingNewPlane=true, ForceOpqaueForUnclipped=false, ShowClipped=false, Transparency=0, HandleColor=16776960)))))
+						Circuit(Editor3d(View('View Orientation Gadget'=1, WindowPos(3, -1, -1, -9, -38, 0, 0, 1473, 335), OrientationMatrix(-0.187082901597023, -0.300000011920929, 0.474341750144958, 0, 0.561248660087585, -0.100000001490116, 0.158113896846771, 0, 4.62877292051189e-09, 0.499999970197678, 0.316227793693542, 0, -1.19209289550781e-07, 2.38418579101562e-07, -5.7486834526062, 1, 0, -1.48734772205353, 1.48734772205353, -1, 1, 1.3711838722229, 10.126184463501), Drawings[3: 'Box1', 'Box1_1', 'Box1_2'], 'View Data'('Render Mode'=1, 'Show Ruler'=1, 'Coordinate Systems View Mode'=1, 'CS Triad View Mode'=0, 'Render Facets'=1, GridVisible=1, GridAutoAdjust=1, GridAutoExtents=1, GridType='Rect', GridStyle='Line', NumPixels=30, dXForGrid=0.1, dYForGrid=0.1, dZForGrid=0.1, dRForGrid=0.1, dThetaForGrid=10), ClipPlanes(ClipPlaneOptions(DisableWhenDrawingNewPlane=true, ForceOpqaueForUnclipped=false, ShowClipped=false, Transparency=0, HandleColor=16776960)))))
 					$end 'EditorWindow'
 				$end 'WindowPosition'
 				$begin 'ReportSetup'
@@ -1803,7 +1789,7 @@ $begin 'AnsoftProject'
 				DesignInstanceID=3
 				$begin 'WindowPosition'
 					$begin 'EditorWindow'
-						Circuit(Editor3d(View('View Orientation Gadget'=1, WindowPos(3, -1, -1, -9, -38, 32, 32, 1483, 371), OrientationMatrix(0.591607928276062, 1.77360472974897e-08, -7.6313835251085e-09, 0, 1.27724231191451e-08, 0.591607928276062, 0, 0, -1.15353318008715e-08, -5.96046447753906e-08, 0.591607928276062, 0, -1.19209289550781e-07, 2.38418579101562e-07, -5.7486834526062, 1, 0, -2.46868252754211, 2.46868252754211, -1, 1, 2.0897901058197, 9.4075756072998), Drawings[3: 'Circle1', 'Circle2', 'Circle3'], 'View Data'('Render Mode'=1, 'Show Ruler'=1, 'Coordinate Systems View Mode'=1, 'CS Triad View Mode'=0, 'Render Facets'=1, GridVisible=1, GridAutoAdjust=1, GridAutoExtents=1, GridType='Rect', GridStyle='Line', NumPixels=30, dXForGrid=0.2, dYForGrid=0.2, dZForGrid=0.2, dRForGrid=0.2, dThetaForGrid=10), ClipPlanes(ClipPlaneOptions(DisableWhenDrawingNewPlane=true, ForceOpqaueForUnclipped=false, ShowClipped=false, Transparency=0, HandleColor=16776960)))))
+						Circuit(Editor3d(View('View Orientation Gadget'=1, WindowPos(5, -1, -1, -9, -38, 32, 32, 1483, 371), OrientationMatrix(0.591607928276062, 1.77360472974897e-08, -7.6313835251085e-09, 0, 1.27724231191451e-08, 0.591607928276062, 0, 0, -1.15353318008715e-08, -5.96046447753906e-08, 0.591607928276062, 0, -1.19209289550781e-07, 2.38418579101562e-07, -5.7486834526062, 1, 0, -3.46180534362793, 3.46180534362793, -1, 1, 2.0897901058197, 9.4075756072998), Drawings[3: 'Circle1', 'Circle2', 'Circle3'], 'View Data'('Render Mode'=1, 'Show Ruler'=1, 'Coordinate Systems View Mode'=1, 'CS Triad View Mode'=0, 'Render Facets'=1, GridVisible=1, GridAutoAdjust=1, GridAutoExtents=1, GridType='Rect', GridStyle='Line', NumPixels=30, dXForGrid=0.5, dYForGrid=0.5, dZForGrid=0.5, dRForGrid=0.5, dThetaForGrid=10), ClipPlanes(ClipPlaneOptions(DisableWhenDrawingNewPlane=true, ForceOpqaueForUnclipped=false, ShowClipped=false, Transparency=0, HandleColor=16776960)))))
 					$end 'EditorWindow'
 				$end 'WindowPosition'
 				$begin 'ReportSetup'

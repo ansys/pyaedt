@@ -112,9 +112,13 @@ q.create_setup(props={"AdaptiveFreq": "100MHz"})
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
 # This command creates a rectangular plot and a Data Table.
 
-q.post.create_rectangular_plot(expression="C(Bar1,Bar1)", context="Original")
+data_plot_self = q.matrices[0].get_sources_for_plot(get_self_terms=True, get_mutual_terms=False)
 
-q.post.create_rectangular_plot(expression="C(Bar1,Bar1)", context="Original", plot_type="Data Table")
+q.post.create_rectangular_plot(expression=data_plot_self, context="Original")
+
+data_plot_mutual = q.matrices[0].get_sources_for_plot(get_self_terms=False, get_mutual_terms=True)
+
+q.post.create_rectangular_plot(expression=data_plot_mutual, context="Original", plot_type="Data Table")
 
 ###############################################################################
 # Solve the Setup
@@ -128,7 +132,7 @@ q.analyze_nominal()
 # ~~~~~~~~~~~~~~~
 # This command get the report data into a Data Structure that allows to manipulate them.
 
-a = q.post.get_report_data(expression="C(Bar1,Bar1)", domain=["Context:=", "Original"])
+a = q.post.get_report_data(expression=data_plot_self, domain=["Context:=", "Original"])
 a.sweeps["Freq"]
 a.data_magnitude()
 

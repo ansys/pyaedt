@@ -1,13 +1,14 @@
 """This module contains these classes: `Q2d`, `Q3d`, and `QExtractor`."""
 from __future__ import absolute_import
+import os
+import warnings
 
 from pyaedt.application.Analysis2D import FieldAnalysis2D
 from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name
 from collections import OrderedDict
-from pyaedt.modules.Boundary import BoundaryObject
-import os
-import warnings
+from pyaedt.modules.Boundary import BoundaryObject, Matrix
+from pyaedt.generic.constants import MATRIXOPERATIONSQ2D, MATRIXOPERATIONSQ3D
 
 
 class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
@@ -71,9 +72,38 @@ class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
                 close_on_exit,
                 student_version,
             )
+        self.omatrix = self.odesign.GetModule("ReduceMatrix")
+        self.matrices = []
+        for el in list(self.omatrix.ListReduceMatrixes()):
+            self.matrices.append(Matrix(self, el))
 
     def __enter__(self):
         return self
+
+    @aedt_exception_handler
+    def insert_reduced_matrix(self, operation_name, source_names=None, rm_name=None):
+        """Insert a new reduced matrix.
+
+        Parameters
+        ----------
+        operation_name : str
+            Name of the Operation to create.
+        source_names : list, str, optional
+            List of sources or nets or arguments needed for specific operation.
+        rm_name : str, optional
+            Name of the reduced matrix, optional.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.Matrix`
+            Matrix object.
+        """
+        if not rm_name:
+            rm_name = generate_unique_name(operation_name)
+        matrix = Matrix(self, rm_name, operation_name)
+        if matrix.create(source_names):
+            self.matrices.append(matrix)
+        return matrix
 
 
 class Q3d(QExtractor, object):
@@ -153,6 +183,7 @@ class Q3d(QExtractor, object):
             close_on_exit,
             student_version,
         )
+        self.MATRIXOPERATIONS = MATRIXOPERATIONSQ3D()
 
     @property
     def nets(self):
@@ -716,6 +747,7 @@ class Q2d(QExtractor, object):
             close_on_exit,
             student_version,
         )
+        self.MATRIXOPERATIONS = MATRIXOPERATIONSQ2D()
 
     @aedt_exception_handler
     def create_rectangle(self, position, dimension_list, name="", matname=""):

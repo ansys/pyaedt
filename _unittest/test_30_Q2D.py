@@ -1,7 +1,7 @@
 import os
 
 # Setup paths for module imports
-from _unittest.conftest import scratch_path
+from _unittest.conftest import scratch_path, local_path, desktop_version
 import gc
 
 # Import required modules
@@ -15,7 +15,8 @@ class TestClass:
     def setup_class(self):
         # set a scratch directory and the environment / test data
         with Scratch(scratch_path) as self.local_scratch:
-            self.aedtapp = Q2d()
+            self.aedtapp = Q2d(specified_version=desktop_version)
+            self.test_matrix = self.local_scratch.copyfile(os.path.join(local_path, "example_models", "q2d_q3d.aedt"))
 
     def teardown_class(self):
         self.aedtapp._desktop.ClearMessages("", "", 3)
@@ -63,3 +64,20 @@ class TestClass:
         assert self.aedtapp.toggle_conductor_type("Rectangle1", "ReferenceGround")
         assert not self.aedtapp.toggle_conductor_type("Rectangle3", "ReferenceGround")
         assert not self.aedtapp.toggle_conductor_type("Rectangle2", "ReferenceggGround")
+
+    def test_11_matrix_reduction(self):
+        q2d = Q2d(self.test_matrix, specified_version=desktop_version)
+        assert q2d.matrices[0].name == "Original"
+        assert len(q2d.matrices[0].sources()) > 0
+        assert len(q2d.matrices[0].sources(False)) > 0
+        assert q2d.insert_reduced_matrix(q2d.MATRIXOPERATIONS.Float, "Circle2", "Test1")
+        assert q2d.matrices[1].name == "Test1"
+        assert q2d.insert_reduced_matrix(q2d.MATRIXOPERATIONS.AddGround, "Circle2", "Test2")
+        assert q2d.matrices[2].name == "Test2"
+        assert q2d.insert_reduced_matrix(q2d.MATRIXOPERATIONS.SetReferenceGround, "Circle2", "Test3")
+        assert q2d.matrices[3].name == "Test3"
+        assert q2d.insert_reduced_matrix(q2d.MATRIXOPERATIONS.Parallel, ["Circle2", "Circle3"], "Test4")
+        assert q2d.matrices[4].name == "Test4"
+        assert q2d.insert_reduced_matrix(q2d.MATRIXOPERATIONS.DiffPair, ["Circle2", "Circle3"], "Test5")
+        assert q2d.matrices[5].name == "Test5"
+        self.aedtapp.close_project(q2d.project_name, False)
