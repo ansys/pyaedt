@@ -194,7 +194,6 @@ class TestClass:
         q2d = Q2d(projectname=self.q3d, specified_version=desktop_version)
         circuit = Circuit(projectname=q2d.project_name, specified_version=desktop_version)
         assert circuit.modeler.schematic.add_subcircuit_dynamic_link(q2d, extrusion_length=25)
-
         q3d = Q3d(projectname=q2d.project_name, specified_version=desktop_version)
         assert circuit.modeler.schematic.add_subcircuit_dynamic_link(q3d)
         hfss = Hfss(projectname=q2d.project_name, specified_version=desktop_version)
@@ -202,4 +201,3 @@ class TestClass:
         assert circuit.modeler.schematic.add_subcircuit_dynamic_link(
             hfss, solution_name="Setup2 : Sweep", tline_port="1"
         )
-        self.aedtapp.close_project(q2d.project_name, False)

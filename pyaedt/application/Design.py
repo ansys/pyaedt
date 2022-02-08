@@ -2395,7 +2395,7 @@ class Design(object):
             msg_txt = "active " + self.project_name
         self.logger.info("Closing the %s AEDT Project", msg_txt)
         oproj = self.odesktop.SetActiveProject(name)
-        proj_path = self.odesktop.GetProjectDirectory()
+        proj_path = oproj.GetPath()
         if saveproject:
             oproj.Save()
         self.odesktop.CloseProject(name)
