@@ -235,8 +235,8 @@ class BoundaryObject(BoundaryCommon, object):
     >>> from pyaedt import Hfss
     >>> hfss =Hfss()
     >>> origin = hfss.modeler.Position(0, 0, 0)
-    >>> inner = hfss.modeler.primitives.create_cylinder(hfss.PLANE.XY, origin, 3, 200, 0, "inner")
-    >>> inner_id = hfss.modeler.primitives.get_obj_id("inner")
+    >>> inner = hfss.modeler.create_cylinder(hfss.PLANE.XY, origin, 3, 200, 0, "inner")
+    >>> inner_id = hfss.modeler.get_obj_id("inner")
     >>> coat = hfss.assign_coating([inner_id], "copper", usethickness=True, thickness="0.2mm")
     """
 

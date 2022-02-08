@@ -73,14 +73,14 @@ h3d.boundaries
 # ~~~~~~~~~~~~~
 # This example hides all nets.
 
-h3d.modeler.primitives.change_net_visibility(visible=False)
+h3d.modeler.change_net_visibility(visible=False)
 
 ###############################################################################
 # Show Only Two Nets
 # ~~~~~~~~~~~~~~~~~~
 # This examples shows only the two specified nets.
 
-h3d.modeler.primitives.change_net_visibility(["A0_GPIO", "A0_MUX"], visible=True)
+h3d.modeler.change_net_visibility(["A0_GPIO", "A0_MUX"], visible=True)
 
 ###############################################################################
 # Show All Layers

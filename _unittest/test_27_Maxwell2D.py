@@ -30,18 +30,18 @@ class TestClass(BasisTest):
 
         bounds = self.aedtapp.assign_winding(current_value=20e-3, coil_terminals=["Coil"])
         assert bounds
-        o = self.aedtapp.modeler.primitives.create_rectangle([0, 0, 0], [3, 1], name="Rectangle2", matname="copper")
+        o = self.aedtapp.modeler.create_rectangle([0, 0, 0], [3, 1], name="Rectangle2", matname="copper")
         bounds = self.aedtapp.assign_winding(current_value=20e-3, coil_terminals=o.id)
         assert bounds
 
     @pyaedt_unittest_check_desktop_error
     def test_05_create_vector_potential(self):
-        region = self.aedtapp.modeler.primitives["Region"]
+        region = self.aedtapp.modeler["Region"]
         edge_object = region.edges[0]
         bounds = self.aedtapp.assign_vector_potential(edge_object.id, 3)
         assert bounds
         assert bounds.props["Value"] == "3"
-        line = self.aedtapp.modeler.primitives.create_polyline([[0, 0, 0], [1, 0, 1]], name="myline")
+        line = self.aedtapp.modeler.create_polyline([[0, 0, 0], [1, 0, 1]], name="myline")
         bound2 = self.aedtapp.assign_vector_potential(line.id, 2)
         assert bound2
         assert bound2.props["Value"] == "2"
@@ -71,7 +71,7 @@ class TestClass(BasisTest):
 
     @pyaedt_unittest_check_desktop_error
     def test_12_assign_current_source(self):
-        coil = self.aedtapp.modeler.primitives.create_circle(
+        coil = self.aedtapp.modeler.create_circle(
             position=[0, 0, 0], radius="5", num_sides="8", is_covered=True, name="Coil", matname="Copper"
         )
         assert self.aedtapp.assign_current([coil])
@@ -80,8 +80,8 @@ class TestClass(BasisTest):
     @pyaedt_unittest_check_desktop_error
     def test_13_assign_master_slave(self):
         mas, slave = self.aedtapp.assign_master_slave(
-            self.aedtapp.modeler.primitives["Rectangle2"].edges[0].id,
-            self.aedtapp.modeler.primitives["Rectangle2"].edges[2].id,
+            self.aedtapp.modeler["Rectangle2"].edges[0].id,
+            self.aedtapp.modeler["Rectangle2"].edges[2].id,
         )
         assert "Independent" in mas.name
         assert "Dependent" in slave.name
@@ -97,8 +97,8 @@ class TestClass(BasisTest):
         self.aedtapp.insert_design("Motion")
         self.aedtapp.solution_type = SOLUTIONS.Maxwell2d.TransientZ
         self.aedtapp.xy_plane = True
-        self.aedtapp.modeler.primitives.create_circle([0, 0, 0], 10, name="Circle_inner")
-        self.aedtapp.modeler.primitives.create_circle([0, 0, 0], 30, name="Circle_outer")
+        self.aedtapp.modeler.create_circle([0, 0, 0], 10, name="Circle_inner")
+        self.aedtapp.modeler.create_circle([0, 0, 0], 30, name="Circle_outer")
         bound = self.aedtapp.assign_rotate_motion("Circle_outer", positive_limit=300, mechanical_transient=True)
         assert bound
         assert bound.props["PositivePos"] == "300deg"

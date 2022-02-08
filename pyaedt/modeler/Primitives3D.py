@@ -16,7 +16,7 @@ class Primitives3D(Primitives, object):
 
     This class is inherited in the caller application and is
     accessible through the primitives variable part of modeler object(
-    e.g. ``hfss.modeler.primitives`` or ``icepak.modeler.primitives``).
+    e.g. ``hfss.modeler`` or ``icepak.modeler``).
 
     Parameters
     ----------
@@ -29,7 +29,7 @@ class Primitives3D(Primitives, object):
 
     >>> from pyaedt import Hfss
     >>> aedtapp = Hfss()
-    >>> prim = aedtapp.modeler.primitives
+    >>> prim = aedtapp.modeler
     """
 
     def __init__(self):
@@ -190,9 +190,9 @@ class Primitives3D(Primitives, object):
         --------
         >>> from pyaedt import Hfss
         >>> aedtapp = Hfss()
-        >>> cylinder_object = aedtapp.modeler.primitives.create_cylinder(cs_axis='Z', position=[0,0,0],
-        ...                                                              radius=2, height=3, name="mycyl",
-        ...                                                              matname="vacuum")
+        >>> cylinder_object = aedtapp.modeler..create_cylinder(cs_axis='Z', position=[0,0,0],
+        ...                                                   radius=2, height=3, name="mycyl",
+        ...                                                   matname="vacuum")
 
         """
         if isinstance(radius, (int, float)) and radius < 0:
@@ -265,9 +265,9 @@ class Primitives3D(Primitives, object):
         --------
         >>> from pyaedt import Hfss
         >>> aedtapp = Hfss()
-        >>> ret_obj = aedtapp.modeler.primitives.create_polyhedron(cs_axis='X', center_position=[0, 0, 0],
-        ...                                                        start_position=[0,5,0], height=0.5,
-        ...                                                        num_sides=8, name="mybox", matname="copper")
+        >>> ret_obj = aedtapp.modeler.create_polyhedron(cs_axis='X', center_position=[0, 0, 0],
+        ...                                             start_position=[0,5,0], height=0.5,
+        ...                                              num_sides=8, name="mybox", matname="copper")
 
         """
         test = cs_axis
@@ -330,9 +330,9 @@ class Primitives3D(Primitives, object):
         --------
         >>> from pyaedt import Hfss
         >>> aedtapp = Hfss()
-        >>> cone_object = aedtapp.modeler.primitives.create_cone(cs_axis='Z', position=[0, 0, 0],
-        ...                                                      bottom_radius=2, top_radius=3, height=4,
-        ...                                                      name="mybox", matname="copper")
+        >>> cone_object = aedtapp.modeler.create_cone(cs_axis='Z', position=[0, 0, 0],
+        ...                                           bottom_radius=2, top_radius=3, height=4,
+        ...                                           name="mybox", matname="copper")
 
         """
         if bottom_radius == top_radius:
@@ -394,8 +394,8 @@ class Primitives3D(Primitives, object):
         --------
         >>> from pyaedt import Hfss
         >>> aedtapp = Hfss()
-        >>> ret_object = aedtapp.modeler.primitives.create_sphere(position=[0,0,0], radius=2,
-        ...                                                      name="mysphere", matname="copper")
+        >>> ret_object = aedtapp.modeler.create_sphere(position=[0,0,0], radius=2,
+        ...                                            name="mysphere", matname="copper")
 
         """
         if len(position) != 3:
@@ -456,9 +456,9 @@ class Primitives3D(Primitives, object):
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
         >>> origin = [0, 0, 0]
-        >>> torus = hfss.modeler.primitives.create_torus(origin, major_radius=1,
-        ...                                              minor_radius=0.5, axis="Z",
-        ...                                              name="mytorus", material_name="copper")
+        >>> torus = hfss.modeler.create_torus(origin, major_radius=1,
+        ...                                   minor_radius=0.5, axis="Z",
+        ...                                    name="mytorus", material_name="copper")
 
         """
         if len(center) != 3:
@@ -1470,7 +1470,7 @@ class Primitives3D(Primitives, object):
         >>> from pyaedt import Hfss
         >>> app = Hfss()
         >>> bird_dir = "path/to/bird/directory"
-        >>> bird1 = app.modeler.primitives.add_bird(bird_dir, 1.0, [19, 4, 3], 120, -5, flapping_rate=30)
+        >>> bird1 = app.modeler.add_bird(bird_dir, 1.0, [19, 4, 3], 120, -5, flapping_rate=30)
 
         """
         self._initialize_multipart()

@@ -29,8 +29,8 @@ M3D.modeler.model_units = "mm"
 # ~~~~~~~~~~~~~~~~
 # This example creates a box that is to be used in the simulation.
 
-plate = M3D.modeler.primitives.create_box([0, 0, 0], [294, 294, 19], name="Plate", matname="aluminum")
-hole = M3D.modeler.primitives.create_box([18, 18, 0], [108, 108, 19], name="Hole")
+plate = M3D.modeler.create_box([0, 0, 0], [294, 294, 19], name="Plate", matname="aluminum")
+hole = M3D.modeler.create_box([18, 18, 0], [108, 108, 19], name="Hole")
 
 ###############################################################################
 # Perform Modeler Operations
@@ -56,10 +56,8 @@ M3D.save_project(project_name)
 
 center_hole = M3D.modeler.Position(119, 25, 49)
 center_coil = M3D.modeler.Position(94, 0, 49)
-coil_hole = M3D.modeler.primitives.create_box(
-    center_hole, [150, 150, 100], name="Coil_Hole"
-)  # All positions in model units
-coil = M3D.modeler.primitives.create_box(center_coil, [200, 200, 100], name="Coil")  # All positions in model units
+coil_hole = M3D.modeler.create_box(center_hole, [150, 150, 100], name="Coil_Hole")  # All positions in model units
+coil = M3D.modeler.create_box(center_coil, [200, 200, 100], name="Coil")  # All positions in model units
 M3D.modeler.subtract([coil], [coil_hole])
 coil.material_name = "copper"
 coil.solve_inside = True
@@ -79,7 +77,7 @@ M3D.modeler.create_coordinate_system(origin=[200, 100, 0], mode="view", view="XY
 
 M3D.modeler.section(["Coil"], M3D.PLANE.ZX)
 M3D.modeler.separate_bodies(["Coil_Section1"])
-M3D.modeler.primitives.delete("Coil_Section1_Separate1")
+M3D.modeler.delete("Coil_Section1_Separate1")
 M3D.assign_current(["Coil_Section1"], amplitude=2472)
 
 ###############################################################################

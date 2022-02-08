@@ -30,7 +30,7 @@ class TestClass:
     def test_assign_model_resolution(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 200
-        o = self.aedtapp.modeler.primitives.create_cylinder(self.aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, "inner")
+        o = self.aedtapp.modeler.create_cylinder(self.aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, "inner")
         self.aedtapp.mesh.assign_model_resolution(o, 1e-4, "ModelRes1")
         assert "ModelRes1" in [i.name for i in self.aedtapp.mesh.meshoperations]
         mr2 = self.aedtapp.mesh.assign_model_resolution(o.faces[0], 1e-4, "ModelRes2")
@@ -39,7 +39,7 @@ class TestClass:
     def test_assign_surface_mesh(self):
         udp = self.aedtapp.modeler.Position(10, 10, 0)
         coax_dimension = 200
-        o = self.aedtapp.modeler.primitives.create_cylinder(self.aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, "surface")
+        o = self.aedtapp.modeler.create_cylinder(self.aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, "surface")
         surface = self.aedtapp.mesh.assign_surface_mesh(o.id, 3, "Surface")
         assert "Surface" in [i.name for i in self.aedtapp.mesh.meshoperations]
         assert surface.props["SliderMeshSettings"] == 3
@@ -47,9 +47,7 @@ class TestClass:
     def test_assign_surface_mesh_manual(self):
         udp = self.aedtapp.modeler.Position(20, 20, 0)
         coax_dimension = 200
-        o = self.aedtapp.modeler.primitives.create_cylinder(
-            self.aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, "surface_manual"
-        )
+        o = self.aedtapp.modeler.create_cylinder(self.aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, "surface_manual")
         surface = self.aedtapp.mesh.assign_surface_mesh_manual(o.id, 1e-6, aspect_ratio=3, meshop_name="Surface_Manual")
         assert "Surface_Manual" in [i.name for i in self.aedtapp.mesh.meshoperations]
         assert surface.props["SurfDev"] == 1e-6
@@ -69,7 +67,7 @@ class TestClass:
 
     def test_maxwell_mesh(self):
         m3d = Maxwell3d()
-        o = m3d.modeler.primitives.create_box([0, 0, 0], [10, 10, 10], name="Box_Mesh")
+        o = m3d.modeler.create_box([0, 0, 0], [10, 10, 10], name="Box_Mesh")
         assert m3d.mesh.assign_rotational_layer(o.name, meshop_name="Rotational")
         assert m3d.mesh.assign_edge_cut(o.name, meshop_name="Edge")
         assert m3d.mesh.assign_density_control(o.name, maxelementlength=10000, meshop_name="Density")
