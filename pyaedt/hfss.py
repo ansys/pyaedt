@@ -2063,6 +2063,8 @@ class Hfss(FieldAnalysis3D, object):
                 faces = self.modeler.primitives.get_object_faces(sheet_name)
                 if deembed_dist == 0:
                     deembed = None
+                else:
+                    deembed = deembed_dist
                 return self._create_port_terminal(
                     faces[0], endobject, portname, renorm=renorm, deembed=deembed, iswaveport=True
                 )
@@ -3089,6 +3091,8 @@ class Hfss(FieldAnalysis3D, object):
             if terminal_references:
                 if deemb == 0:
                     deembed = None
+                else:
+                    deembed = deemb
                 return self._create_port_terminal(
                     faces, terminal_references, portname, renorm=renorm, deembed=deembed, iswaveport=True
                 )
