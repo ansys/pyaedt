@@ -57,7 +57,7 @@ class TestClass:
                             found = True
                     outf.write(line + b"\n")
                 outf.close()
-                self.aedtapp = Circuit(self.test_project)
+                self.aedtapp = Circuit(self.test_project, specified_version=desktop_version)
             except:
                 pass
 
@@ -193,9 +193,9 @@ class TestClass:
         q2d = Q2d(projectname=self.q3d, specified_version=desktop_version)
         assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(q2d, extrusion_length=25)
 
-        q3d = Q3d(projectname="q2d_q3d", specified_version=desktop_version)
+        q3d = Q3d(projectname=q2d.project_name, specified_version=desktop_version)
         assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(q3d)
-        hfss = Hfss(projectname="q2d_q3d", specified_version=desktop_version)
+        hfss = Hfss(projectname=q2d.project_name, specified_version=desktop_version)
         assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(hfss, solution_name="Setup1 : Sweep")
         assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(
             hfss, solution_name="Setup2 : Sweep", tline_port="1"
