@@ -2,7 +2,7 @@
 import os
 from _unittest.conftest import local_path, scratch_path, config, desktop_version
 
-from pyaedt import Circuit, Q2d, Q3d
+from pyaedt import Circuit, Q2d, Q3d, Hfss
 from pyaedt.generic.filesystem import Scratch
 import gc
 
@@ -29,11 +29,11 @@ class TestClass:
                 example_project = os.path.join(local_path, "example_models", test_project_name + ".aedt")
                 source_project = os.path.join(local_path, "example_models", src_project_name + ".aedt")
                 linked_project = os.path.join(local_path, "example_models", linked_project_name + ".aedt")
-                q3d = (os.path.join(local_path, "example_models", "q2d_q3d.aedt"),)
+                q3d = os.path.join(local_path, "example_models", "q2d_q3d.aedt")
                 self.test_project = self.local_scratch.copyfile(example_project)
                 self.test_src_project = self.local_scratch.copyfile(source_project)
                 self.test_lkd_project = self.local_scratch.copyfile(linked_project)
-                self.q3d = self.local_scratch.copyfile(linked_project)
+                self.q3d = self.local_scratch.copyfile(q3d)
 
                 self.local_scratch.copyfolder(
                     os.path.join(local_path, "example_models", test_project_name + ".aedb"),
@@ -190,7 +190,11 @@ class TestClass:
 
     def test_10_q3d_link(self):
         q2d = Q2d(projectname=self.q3d, specified_version=desktop_version)
-        assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(q2d)
+        assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(q2d, extrusion_length=25)
         q3d = Q3d(specified_version=desktop_version)
         assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(q3d)
+        hfss = Hfss(specified_version=desktop_version)
+        assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(hfss, solution_name="Setup1 : Sweep")
+        assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(hfss, solution_name="Setup2 : Sweep",
+                                                                          tline_port="1")
         self.aedtapp.close_project(q3d.project_name, False)
