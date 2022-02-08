@@ -921,6 +921,9 @@ class GeometryModeler(Modeler, object):
     def _convert_list_to_ids(self, input_list, convert_objects_ids_to_name=True):
         """Convert a list to IDs.
 
+        .. deprecated:: 0.5.0
+           Use :func:`pyaedt.application.modeler.convert_to_selections` instead.
+
         Parameters
         ----------
         input_list : list
@@ -935,6 +938,8 @@ class GeometryModeler(Modeler, object):
             List of object names.
 
         """
+        warnings.warn("`_convert_list_to_ids` is deprecated. Use `convert_to_selections` instead.", DeprecationWarning)
+
         output_list = []
         if type(input_list) is not list:
             input_list = [input_list]

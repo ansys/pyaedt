@@ -174,7 +174,7 @@ class Maxwell(object):
         >>> maxwell_3d.assign_matrix(["pri", "sec"])
         """
         if self.solution_type in ["EddyCurrent", "Magnetostatic"]:
-            objects = self.modeler._convert_list_to_ids(objects, True)
+            objects = self.modeler.convert_to_selections(objects, True)
             if not matrix_name:
                 matrix_name = generate_unique_name("Matrix")
             args = ["NAME:" + matrix_name, ["NAME:MatrixEntry"]]
@@ -326,7 +326,7 @@ class Maxwell(object):
         if not name:
             name = generate_unique_name("Current")
 
-        object_list = self.modeler._convert_list_to_ids(object_list)
+        object_list = self.modeler.convert_to_selections(object_list, True)
         if self.is3d:
             if type(object_list[0]) is int:
                 props = OrderedDict(
@@ -424,7 +424,7 @@ class Maxwell(object):
         assert self.solution_type == SOLUTIONS.Maxwell3d.Transient, "Motion applies only to Transient Setup"
         if not motion_name:
             motion_name = generate_unique_name("Motion")
-        object_list = self.modeler._convert_list_to_ids(band_object)
+        object_list = self.modeler.convert_to_selections(band_object, True)
         props = OrderedDict(
             {
                 "Move Type": "Translate",
@@ -518,7 +518,7 @@ class Maxwell(object):
         assert self.solution_type == SOLUTIONS.Maxwell3d.Transient, "Motion applies only to Transient Setup"
         if not motion_name:
             motion_name = generate_unique_name("Motion")
-        object_list = self.modeler._convert_list_to_ids(band_object)
+        object_list = self.modeler.convert_to_selections(band_object, True)
         props = OrderedDict(
             {
                 "Move Type": "Rotate",
@@ -572,7 +572,7 @@ class Maxwell(object):
 
         if not name:
             name = generate_unique_name("Voltage")
-        face_list = self.modeler._convert_list_to_ids(face_list)
+        face_list = self.modeler.convert_to_selections(face_list, True)
 
         # if type(face_list) is not list and type(face_list) is not tuple:
         #     face_list = [face_list]
@@ -613,7 +613,7 @@ class Maxwell(object):
 
         if not name:
             name = generate_unique_name("VoltageDrop")
-        face_list = self.modeler._convert_list_to_ids(face_list)
+        face_list = self.modeler.convert_to_selections(face_list, True)
 
         props = OrderedDict({"Faces": face_list, "Voltage Drop": amplitude, "Point out of terminal": swap_direction})
         bound = BoundaryObject(self, name, props, "VoltageDrop")
@@ -758,7 +758,7 @@ class Maxwell(object):
         else:
             point = True
 
-        input_object = self.modeler._convert_list_to_ids(input_object)
+        input_object = self.modeler.convert_to_selections(input_object, True)
 
         if not name:
             name = generate_unique_name("Coil")
@@ -814,7 +814,7 @@ class Maxwell(object):
 
         >>> oModule.AssignForce
         """
-        input_object = self.modeler._convert_list_to_ids(input_object, True)
+        input_object = self.modeler.convert_to_selections(input_object, True)
         if not force_name:
             force_name = generate_unique_name("Force")
         if self.design_type == "Maxwell 3D":
@@ -866,7 +866,7 @@ class Maxwell(object):
 
         >>> oModule.AssignTorque
         """
-        input_object = self.modeler._convert_list_to_ids(input_object, True)
+        input_object = self.modeler.convert_to_selections(input_object, True)
         if not torque_name:
             torque_name = generate_unique_name("Torque")
         if self.design_type == "Maxwell 3D":
@@ -924,7 +924,7 @@ class Maxwell(object):
 
         >>> oModule.AssignForce
         """
-        input_object = self.modeler._convert_list_to_ids(input_object, True)
+        input_object = self.modeler.convert_to_selections(input_object, True)
         if not force_name:
             force_name = generate_unique_name("Force")
         self.o_maxwell_parameters.AssignForce(
@@ -1354,7 +1354,7 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
 
         >>> oModule.AssignBalloon
         """
-        edge_list = self.modeler._convert_list_to_ids(edge_list)
+        edge_list = self.modeler.convert_to_selections(edge_list, True)
 
         if not bound_name:
             bound_name = generate_unique_name("Balloon")
@@ -1390,7 +1390,7 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
 
         >>> oModule.AssignVectorPotential
         """
-        input_edge = self.modeler._convert_list_to_ids(input_edge)
+        input_edge = self.modeler.convert_to_selections(input_edge, True)
 
         if not bound_name:
             bound_name = generate_unique_name("Vector")
@@ -1437,8 +1437,8 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
         >>> oModule.AssignIndependent
         >>> oModule.AssignDependent
         """
-        master_edge = self.modeler._convert_list_to_ids(master_edge)
-        slave_edge = self.modeler._convert_list_to_ids(slave_edge)
+        master_edge = self.modeler.convert_to_selections(master_edge, True)
+        slave_edge = self.modeler.convert_to_selections(slave_edge, True)
         if not bound_name:
             bound_name_m = generate_unique_name("Independent")
             bound_name_s = generate_unique_name("Dependent")
