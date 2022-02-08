@@ -191,16 +191,15 @@ class TestClass:
 
     def test_10_q3d_link(self):
         self.aedtapp.insert_design("test_link")
-        q2d = Q2d(projectname=self.q3d, specified_version=desktop_version)
-        assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(q2d, extrusion_length=25)
-        self.aedtapp.close_project(q2d.project_name)
-        q3d = Q3d(projectname=self.q3d, specified_version=desktop_version)
-        assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(q3d)
-        self.aedtapp.close_project(q3d.project_name)
-
-        hfss = Hfss(projectname=self.q3d, specified_version=desktop_version)
-        assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(hfss, solution_name="Setup1 : Sweep")
+        app = Q2d(projectname=self.q3d, specified_version=desktop_version)
+        assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(app, extrusion_length=25)
+        self.aedtapp.close_project(app.project_name, False)
+        app = Q3d(projectname=self.q3d, specified_version=desktop_version)
+        assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(app)
+        self.aedtapp.close_project(app.project_name, False)
+        app = Hfss(projectname=self.q3d, specified_version=desktop_version)
+        assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(app, solution_name="Setup1 : Sweep")
         assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(
-            hfss, solution_name="Setup2 : Sweep", tline_port="1"
+            app, solution_name="Setup2 : Sweep", tline_port="1"
         )
-        self.aedtapp.close_project(hfss.project_name)
+        self.aedtapp.close_project(app.project_name, False)
