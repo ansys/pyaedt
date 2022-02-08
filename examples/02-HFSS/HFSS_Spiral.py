@@ -18,7 +18,7 @@ from pyaedt import Hfss, constants
 # Change units to micron
 hfss = Hfss(specified_version="2021.2", non_graphical=False, designname="A1")
 hfss.modeler.model_units = "um"
-p = hfss.modeler.primitives
+p = hfss.modeler
 
 #############################################################
 # Input Variables. Edit it to change your inductor.

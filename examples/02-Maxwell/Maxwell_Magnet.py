@@ -31,7 +31,7 @@ m3d.solution_type = m3d.SOLUTIONS.Maxwell3d.ElectroDCConduction
 # Create Magnet
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-magnet = m3d.modeler.primitives.create_box([7, 4, 22], [10, 5, 30], name="Magnet", matname="copper")
+magnet = m3d.modeler.create_box([7, 4, 22], [10, 5, 30], name="Magnet", matname="copper")
 
 
 ###############################################################################

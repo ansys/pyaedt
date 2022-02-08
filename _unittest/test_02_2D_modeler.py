@@ -45,8 +45,8 @@ class TestClass(BasisTest):
         assert self.aedtapp.modeler._omaterial_manager
 
     def test_create_rectangle(self):
-        rect1 = self.aedtapp.modeler.primitives.create_rectangle([0, -2, -2], [3, 8])
-        rect2 = self.aedtapp.modeler.primitives.create_rectangle(
+        rect1 = self.aedtapp.modeler.create_rectangle([0, -2, -2], [3, 8])
+        rect2 = self.aedtapp.modeler.create_rectangle(
             position=[10, -2, -2], dimension_list=[3, 10], name="MyRectangle", matname="Copper"
         )
         assert rect1.solve_inside
@@ -67,8 +67,8 @@ class TestClass(BasisTest):
 
     def test_create_rectangle_rz(self):
         self.aedtapp.solution_type = "MagnetostaticZ"
-        rect1 = self.aedtapp.modeler.primitives.create_rectangle([1, 0, -2], [8, 3])
-        rect2 = self.aedtapp.modeler.primitives.create_rectangle(
+        rect1 = self.aedtapp.modeler.create_rectangle([1, 0, -2], [8, 3])
+        rect2 = self.aedtapp.modeler.create_rectangle(
             position=[10, 0, -2], dimension_list=[10, 3], name="MyRectangle", matname="Copper"
         )
         list_of_pos = [ver.position for ver in rect1.vertices]
@@ -78,8 +78,8 @@ class TestClass(BasisTest):
         assert sorted(list_of_pos) == [[10.0, 0.0, -2.0], [10.0, 0.0, 8.0], [13.0, 0.0, -2.0], [13.0, 0.0, 8.0]]
 
     def test_create_circle(self):
-        circle1 = self.aedtapp.modeler.primitives.create_circle([0, -2, 0], 3)
-        circle2 = self.aedtapp.modeler.primitives.create_circle(
+        circle1 = self.aedtapp.modeler.create_circle([0, -2, 0], 3)
+        circle2 = self.aedtapp.modeler.create_circle(
             position=[0, -2, -2], radius=3, num_sides=6, name="MyCircle", matname="Copper"
         )
         assert circle1.solve_inside
@@ -93,8 +93,8 @@ class TestClass(BasisTest):
         assert isclose(circle1.faces[0].area, math.pi * 3.0 * 3.0)
 
     def test_create_ellipse(self):
-        ellipse1 = self.aedtapp.modeler.primitives.create_ellipse([0, -2, 0], 4.0, 0.2)
-        ellipse2 = self.aedtapp.modeler.primitives.create_ellipse(
+        ellipse1 = self.aedtapp.modeler.create_ellipse([0, -2, 0], 4.0, 0.2)
+        ellipse2 = self.aedtapp.modeler.create_ellipse(
             position=[0, -2, 0], major_radius=4.0, ratio=0.2, name="MyEllipse", matname="Copper"
         )
         assert ellipse1.solve_inside
@@ -108,8 +108,8 @@ class TestClass(BasisTest):
         assert isclose(ellipse2.faces[0].area, math.pi * 4.0 * 4.0 * 0.2)
 
     def test_create_regular_polygon(self):
-        pg1 = self.aedtapp.modeler.primitives.create_regular_polygon([0, 0, 0], [0, 2, 0])
-        pg2 = self.aedtapp.modeler.primitives.create_regular_polygon(
+        pg1 = self.aedtapp.modeler.create_regular_polygon([0, 0, 0], [0, 2, 0])
+        pg2 = self.aedtapp.modeler.create_regular_polygon(
             position=[0, 0, 0], start_point=[0, 2, 0], num_sides=3, name="MyPolygon", matname="Copper"
         )
         assert pg1.solve_inside
@@ -124,14 +124,14 @@ class TestClass(BasisTest):
 
     @pytest.mark.skipif(config["build_machine"] or is_ironpython, reason="Not running in ironpython")
     def test_plot(self):
-        self.aedtapp.modeler.primitives.create_regular_polygon([0, 0, 0], [0, 2, 0])
-        self.aedtapp.modeler.primitives.create_regular_polygon(
+        self.aedtapp.modeler.create_regular_polygon([0, 0, 0], [0, 2, 0])
+        self.aedtapp.modeler.create_regular_polygon(
             position=[0, 0, 0], start_point=[0, 2, 0], num_sides=3, name="MyPolygon", matname="Copper"
         )
         obj = self.aedtapp.plot(show=False, export_path=os.path.join(self.local_scratch.path, "image.jpg"))
         assert os.path.exists(obj.image_file)
 
     def test_edit_menu_commands(self):
-        rect1 = self.aedtapp.modeler.primitives.create_rectangle([1, 0, -2], [8, 3])
+        rect1 = self.aedtapp.modeler.create_rectangle([1, 0, -2], [8, 3])
         assert self.aedtapp.modeler.mirror(rect1, [1, 0, 0], [1, 0, 0])
         assert self.aedtapp.modeler.move(rect1, [1, 1, 0])

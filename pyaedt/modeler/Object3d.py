@@ -735,7 +735,7 @@ class Object3d(object):
 
     >>> from pyaedt import Hfss
     >>> aedtapp = Hfss()
-    >>> prim = aedtapp.modeler.primitives
+    >>> prim = aedtapp.modeler
 
     Create a part, such as box, to return an :class:`pyaedt.modeler.Object3d.Object3d`.
 

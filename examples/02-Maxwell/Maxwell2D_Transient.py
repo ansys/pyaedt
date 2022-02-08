@@ -44,16 +44,16 @@ maxwell_2d.save_project(os.path.join(project_dir, "M2d.aedt"))
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This example creates a rectangle and then duplicates it.
 
-rect1 = maxwell_2d.modeler.primitives.create_rectangle([0, 0, 0], [10, 20], name="winding", matname="copper")
+rect1 = maxwell_2d.modeler.create_rectangle([0, 0, 0], [10, 20], name="winding", matname="copper")
 added = rect1.duplicate_along_line([14, 0, 0])
-rect2 = maxwell_2d.modeler.primitives[added[0]]
+rect2 = maxwell_2d.modeler[added[0]]
 
 ###############################################################################
 # Create an Air Region
 # ~~~~~~~~~~~~~~~~~~~~
 # This command creates an air region.
 
-region = maxwell_2d.modeler.primitives.create_region([100, 100, 100, 100, 100, 100])
+region = maxwell_2d.modeler.create_region([100, 100, 100, 100, 100, 100])
 
 ###############################################################################
 # Assign Windings to Sheets and a Balloon to the Air Region
