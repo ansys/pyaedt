@@ -190,19 +190,15 @@ class TestClass:
 
     def test_10_q3d_link(self):
         self.aedtapp.insert_design("test_link")
-        assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link("2DExtractorDesign1",
-                                                                          self.q3d,
-                                                                          solution_name="Setup1 : Sweep",
-                                                                          extrusion_length=25)
-        assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link("Q3DDesign1",
-                                                                          self.q3d,
-                                                                          solution_name="Setup1 : LastAdaptive")
-        assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link("Terminal",
-                                                                          self.q3d,
-                                                                          solution_name="Setup1 : Sweep")
-        assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link("Terminal",
-                                                                          self.q3d,
-                                                                          solution_name="Setup2 : Sweep",
-                                                                          tline_port="1"
+        assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(
+            "2DExtractorDesign1", self.q3d, solution_name="Setup1 : Sweep", extrusion_length=25
         )
-
+        assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(
+            "Q3DDesign1", self.q3d, solution_name="Setup1 : LastAdaptive"
+        )
+        assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(
+            "Terminal", self.q3d, solution_name="Setup1 : Sweep"
+        )
+        assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(
+            "Terminal", self.q3d, solution_name="Setup2 : Sweep", tline_port="1"
+        )
