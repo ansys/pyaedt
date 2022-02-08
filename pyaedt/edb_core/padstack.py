@@ -93,7 +93,7 @@ class EdbPadstacks(object):
 
         Returns
         -------
-        dict of :class:`pyaedt.edb_core.Edb_Data.EdbPadstackInstance`
+        dict[str, :class:`pyaedt.edb_core.EDB_Data.EDBPadstackInstance`]
             List of padstack instances.
 
         """

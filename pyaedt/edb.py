@@ -1049,7 +1049,10 @@ class Edb(object):
         point_list = [[self.arg_with_dim(i[0], units), self.arg_with_dim(i[1], units)] for i in point_list]
         plane = self.core_primitives.Shape("polygon", points=point_list)
         polygonData = self.core_primitives.shape_to_polygon_data(plane)
-
+        for viaid, via in self.core_padstack.padstack_instances.items():
+            pos = via.position
+            offset = max(self.core_padstack.padstacks[via.padstack_definition].hole_properties)
+            pass
         _ref_nets = []
         # validate references in layout
         for _ref in self.core_nets.nets:
