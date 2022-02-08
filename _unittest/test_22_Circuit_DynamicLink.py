@@ -2,7 +2,7 @@
 import os
 from _unittest.conftest import local_path, scratch_path, config, desktop_version
 
-from pyaedt import Circuit, Q2d, Q3d, Hfss
+from pyaedt import Circuit
 from pyaedt.generic.filesystem import Scratch
 import gc
 
@@ -30,11 +30,10 @@ class TestClass:
                 source_project = os.path.join(local_path, "example_models", src_project_name + ".aedt")
                 linked_project = os.path.join(local_path, "example_models", linked_project_name + ".aedt")
 
-                q3d = os.path.join(local_path, "example_models", "q2d_q3d.aedt")
+                self.q3d = os.path.join(local_path, "example_models", "q2d_q3d.aedt")
                 self.test_project = self.local_scratch.copyfile(example_project)
                 self.test_src_project = self.local_scratch.copyfile(source_project)
                 self.test_lkd_project = self.local_scratch.copyfile(linked_project)
-                self.q3d = self.local_scratch.copyfile(q3d)
 
                 self.local_scratch.copyfolder(
                     os.path.join(local_path, "example_models", test_project_name + ".aedb"),
@@ -191,15 +190,19 @@ class TestClass:
 
     def test_10_q3d_link(self):
         self.aedtapp.insert_design("test_link")
-        app = Q2d(projectname=self.q3d, specified_version=desktop_version)
-        assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(app, extrusion_length=25)
-        self.aedtapp.close_project(app.project_name, False)
-        app = Q3d(projectname=self.q3d, specified_version=desktop_version)
-        assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(app)
-        self.aedtapp.close_project(app.project_name, False)
-        app = Hfss(projectname=self.q3d, specified_version=desktop_version)
-        assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(app, solution_name="Setup1 : Sweep")
-        assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(
-            app, solution_name="Setup2 : Sweep", tline_port="1"
+        assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link("2DExtractorDesign1",
+                                                                          self.q3d,
+                                                                          solution_name="Setup1 : Sweep",
+                                                                          extrusion_length=25)
+        assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link("Q3DDesign1",
+                                                                          self.q3d,
+                                                                          solution_name="Setup1 : LastAdaptive")
+        assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link("Terminal",
+                                                                          self.q3d,
+                                                                          solution_name="Setup1 : Sweep")
+        assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link("Terminal",
+                                                                          self.q3d,
+                                                                          solution_name="Setup2 : Sweep",
+                                                                          tline_port="1"
         )
-        self.aedtapp.close_project(app.project_name, False)
+

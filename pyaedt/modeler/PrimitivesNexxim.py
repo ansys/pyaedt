@@ -1173,9 +1173,10 @@ class NexximComponents(CircuitComponents):
     @aedt_exception_handler
     def add_subcircuit_dynamic_link(
         self,
-        pyaedt_app,
-        solution_name=None,
-        extrusion_length=10,
+        source_design_name,
+        source_project_path,
+        solution_name,
+        extrusion_length=None,
         enable_cable_modeling=True,
         default_matrix="",
         tline_port="",
@@ -1184,12 +1185,14 @@ class NexximComponents(CircuitComponents):
 
         Parameters
         ----------
-        pyaedt_app : :class:`pyaedt.q3d.Q3d` or :class:`pyaedt.q3d.Q2d` or :class:`pyaedt.q3d.Hfss`
-            pyaedt application object to include. It could be an Hfss object, a Q3d object or a Q2d.
+        source_design_name : str
+            Source Project Design Name.
+        source_project_path : str
+            Source Project full path.
         solution_name : str, optional
             Name of the solution and sweep. The default is ``"Setup1 : Sweep"``.
         extrusion_length : float, str, optional
-            Extrusion length for 2D Models. Default is 10 (in model units).
+            Extrusion length for 2D Models (q2d or Hfss). Default is `None`.
         enable_cable_modeling : bool, optional
             Either if the Hfss Cable modeling has to be enabled for 2D subcircuits.
         default_matrix : str, optional
@@ -1210,16 +1213,8 @@ class NexximComponents(CircuitComponents):
         >>> oDesign.AddCompInstance
         >>> oDesign.AddDynamicLink
         """
-        comp_name = generate_unique_name(pyaedt_app.design_name)
-        source_project_path = pyaedt_app.project_file
-        source_design_name = pyaedt_app.design_name
-        if not solution_name:
-            solution_name = pyaedt_app.nominal_sweep
-        if pyaedt_app.design_type == "HFSS":
-            default_matrix = ""
-            enable_cable_modeling = False
-        else:
-            tline_port = ""
+        comp_name = generate_unique_name(source_design_name)
+
         self._app.odesign.AddDynamicLink(
             source_design_name,
             source_project_path,
@@ -1233,9 +1228,9 @@ class NexximComponents(CircuitComponents):
         self.refresh_all_ids()
         for el in self.components:
             if comp_name in self.components[el].composed_name:
-                if pyaedt_app.design_type == "2D Extractor":
+                if extrusion_length:
                     self.components[el].set_property("Length", extrusion_length)
-                elif pyaedt_app.design_type == "HFSS" and tline_port:
+                if tline_port and extrusion_length:
                     self.components[el].set_property("TLineLength", extrusion_length)
                 return self.components[el]
         return False
