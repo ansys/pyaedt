@@ -668,7 +668,7 @@ class Design(object):
 
         >>> oProject.GetPath
         """
-        return os.path.normpath(self._oproject.GetPath())
+        return os.path.normpath(self.oproject.GetPath())
 
     @property
     def project_file(self):

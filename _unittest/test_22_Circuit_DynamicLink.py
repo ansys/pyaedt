@@ -190,14 +190,16 @@ class TestClass:
         assert LNA_setup.update()
 
     def test_10_q3d_link(self):
+        self.aedtapp.insert_design("test_link")
         q2d = Q2d(projectname=self.q3d, specified_version=desktop_version)
-        assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(q2d, extrusion_length=25)
+        circuit = Circuit(projectname=q2d.project_name, specified_version=desktop_version)
+        assert circuit.modeler.schematic.add_subcircuit_dynamic_link(q2d, extrusion_length=25)
 
         q3d = Q3d(projectname=q2d.project_name, specified_version=desktop_version)
-        assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(q3d)
+        assert circuit.modeler.schematic.add_subcircuit_dynamic_link(q3d)
         hfss = Hfss(projectname=q2d.project_name, specified_version=desktop_version)
-        assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(hfss, solution_name="Setup1 : Sweep")
-        assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(
+        assert circuit.modeler.schematic.add_subcircuit_dynamic_link(hfss, solution_name="Setup1 : Sweep")
+        assert circuit.modeler.schematic.add_subcircuit_dynamic_link(
             hfss, solution_name="Setup2 : Sweep", tline_port="1"
         )
         self.aedtapp.close_project(q2d.project_name, False)
