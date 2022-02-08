@@ -23,7 +23,7 @@ M3D = Maxwell3d(
     solution_type="Transient", designname="test_polyline_3D", specified_version="2021.2", new_desktop_session=True
 )
 M3D.modeler.model_units = "mm"
-prim3D = M3D.modeler.primitives
+prim3D = M3D.modeler
 
 ###############################################################################
 # Clear Existing Objects

@@ -48,7 +48,7 @@ hfss["l_dipole"] = "13.5cm"
 compfile = hfss.components3d["Dipole_Antenna_DM"]
 geometryparams = hfss.get_components3d_vars("Dipole_Antenna_DM")
 geometryparams["dipole_length"] = "l_dipole"
-hfss.modeler.primitives.insert_3d_component(compfile, geometryparams)
+hfss.modeler.insert_3d_component(compfile, geometryparams)
 
 ###############################################################################
 # Create Boundaries

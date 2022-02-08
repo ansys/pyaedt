@@ -89,12 +89,12 @@ class TestClass:
         self.aedtapp.insert_design("Environment_test")
         self.aedtapp.solution_type = "SBR+"
         env_folder = os.path.join(local_path, "example_models", "library", "environment_library", "tunnel1")
-        road1 = self.aedtapp.modeler.primitives.add_environment(env_folder)
+        road1 = self.aedtapp.modeler.add_environment(env_folder)
         assert road1.name
 
     def test_05_add_person(self):
         person_folder = os.path.join(local_path, "example_models", "library", "actor_library", "person3")
-        person1 = self.aedtapp.modeler.primitives.add_person(person_folder, 1.0, [25, 1.5, 0], 180)
+        person1 = self.aedtapp.modeler.add_person(person_folder, 1.0, [25, 1.5, 0], 180)
         assert person1.offset == [25, 1.5, 0]
         assert person1.yaw == "180deg"
         assert person1.pitch == "0deg"
@@ -102,7 +102,7 @@ class TestClass:
 
     def test_06_add_car(self):
         car_folder = os.path.join(local_path, "example_models", "library", "actor_library", "vehicle1")
-        car1 = self.aedtapp.modeler.primitives.add_vehicle(car_folder, 1.0, [3, -2.5, 0])
+        car1 = self.aedtapp.modeler.add_vehicle(car_folder, 1.0, [3, -2.5, 0])
         assert car1.offset == [3, -2.5, 0]
         assert car1.yaw == "0deg"
         assert car1.pitch == "0deg"
@@ -110,7 +110,7 @@ class TestClass:
 
     def test_07_add_bird(self):
         bird_folder = os.path.join(local_path, "example_models", "library", "actor_library", "bird1")
-        bird1 = self.aedtapp.modeler.primitives.add_bird(bird_folder, 1.0, [19, 4, 3], 120, -5, flapping_rate=30)
+        bird1 = self.aedtapp.modeler.add_bird(bird_folder, 1.0, [19, 4, 3], 120, -5, flapping_rate=30)
         assert bird1.offset == [19, 4, 3]
         assert bird1.yaw == "120deg"
         assert bird1.pitch == "-5deg"

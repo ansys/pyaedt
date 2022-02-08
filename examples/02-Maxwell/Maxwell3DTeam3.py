@@ -30,7 +30,7 @@ M3D = Maxwell3d(
     new_desktop_session=True,
 )
 uom = M3D.modeler.model_units = "mm"
-primitives = M3D.modeler.primitives
+primitives = M3D.modeler
 
 ###############################################################################
 # Add the variable Coil Position, it will later be used to adjust position of the coil
@@ -51,9 +51,9 @@ M3D.modeler.create_air_region(x_pos=100, y_pos=100, z_pos=100, x_neg=100, y_neg=
 
 ################################################################################
 # Draw ladder plate and assign 'team3_aluminium'
-M3D.modeler.primitives.create_box([-30, -55, 0], [60, 110, -6.35], name="LadderPlate", matname="team3_aluminium")
-M3D.modeler.primitives.create_box([-20, -35, 0], [40, 30, -6.35], name="CutoutTool1")
-M3D.modeler.primitives.create_box([-20, 5, 0], [40, 30, -6.35], name="CutoutTool2")
+M3D.modeler.create_box([-30, -55, 0], [60, 110, -6.35], name="LadderPlate", matname="team3_aluminium")
+M3D.modeler.create_box([-20, -35, 0], [40, 30, -6.35], name="CutoutTool1")
+M3D.modeler.create_box([-20, 5, 0], [40, 30, -6.35], name="CutoutTool2")
 M3D.modeler.subtract("LadderPlate", ["CutoutTool1", "CutoutTool2"], keepOriginals=False)
 
 ################################################################################
@@ -63,16 +63,16 @@ M3D.mesh.assign_length_mesh("LadderPlate", maxlength=3, maxel=None, meshop_name=
 ################################################################################
 # Draw Search Coil and Assign a Stranded Current Excitation
 # The 'stranded' type forces current density to be constant in the coil
-M3D.modeler.primitives.create_cylinder(
+M3D.modeler.create_cylinder(
     cs_axis="Z", position=[0, "Coil_Position", 15], radius=40, height=20, name="SearchCoil", matname="copper"
 )
-M3D.modeler.primitives.create_cylinder(
+M3D.modeler.create_cylinder(
     cs_axis="Z", position=[0, "Coil_Position", 15], radius=20, height=20, name="Bore", matname="copper"
 )
 M3D.modeler.subtract("SearchCoil", "Bore", keepOriginals=False)
 M3D.modeler.section("SearchCoil", "YZ")
 M3D.modeler.separate_bodies("SearchCoil_Section1")
-M3D.modeler.primitives.delete("SearchCoil_Section1_Separate1")
+M3D.modeler.delete("SearchCoil_Section1_Separate1")
 M3D.assign_current(["SearchCoil_Section1"], amplitude=1260, solid=False, name="SearchCoil_Excitation")
 
 ################################################################################

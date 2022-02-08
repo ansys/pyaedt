@@ -72,7 +72,7 @@ ipk = Icepak()
 # This example remove the region and disables autosave to speed up the import.
 
 d.disable_autosave()
-ipk.modeler.primitives.delete("Region")
+ipk.modeler.delete("Region")
 component_name = "from_ODB"
 
 ###############################################################################
@@ -121,7 +121,7 @@ ipk.plot(show=False, export_path=os.path.join(temp_folder, "Sherlock_Example.jpg
 # ~~~~~~~~~~~~~~~~~~
 # This command removes the PCB objects.
 
-ipk.modeler.primitives.delete_objects_containing("pcb", False)
+ipk.modeler.delete_objects_containing("pcb", False)
 
 ###############################################################################
 # Create a Region
@@ -142,8 +142,8 @@ ipk.assignmaterial_from_sherlock_files(component_list, material_list)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This example deletes objects that have no materials assigned.
 
-no_material_objs = ipk.modeler.primitives.get_objects_by_material("")
-ipk.modeler.primitives.delete(no_material_objs)
+no_material_objs = ipk.modeler.get_objects_by_material("")
+ipk.modeler.delete(no_material_objs)
 ipk.save_project()
 
 ###############################################################################
@@ -151,7 +151,7 @@ ipk.save_project()
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This command assigns power to component blocks.
 
-all_objects = ipk.modeler.primitives.object_names
+all_objects = ipk.modeler.object_names
 
 ###############################################################################
 # Assign Power Blocks
@@ -182,7 +182,7 @@ setup1.props["Radiation Model"] = "Discrete Ordinates Model"
 setup1.props["Include Gravity"] = True
 setup1.props["Secondary Gradient"] = True
 setup1.update()
-ipk.assign_openings(ipk.modeler.primitives.get_object_faces("Region"))
+ipk.assign_openings(ipk.modeler.get_object_faces("Region"))
 
 ###############################################################################
 # Check for Intersection
