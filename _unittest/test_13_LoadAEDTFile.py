@@ -94,7 +94,6 @@ class TestProjectFileWithCoordinateSystems:
 
     def teardown_class(self):
         self.aedtapp._desktop.ClearMessages("", "", 3)
-        assert self.aedtapp.release_desktop
         self.local_scratch.remove()
         gc.collect()
 
@@ -115,3 +114,4 @@ class TestProjectFileWithCoordinateSystems:
         self.aedtapp.load_project(self.test_project3, close_active_proj=True)
         cs = self.aedtapp.modeler.coordinate_systems
         assert cs
+        self.aedtapp.close_project()
