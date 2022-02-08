@@ -1604,7 +1604,9 @@ class Hfss(FieldAnalysis3D, object):
                     deembed = 0
                 else:
                     deembed = None
-                return self._create_port_terminal(faces[0], endobject, portname, renorm=renorm, deembed=deembed, iswaveport=False)
+                return self._create_port_terminal(
+                    faces[0], endobject, portname, renorm=renorm, deembed=deembed, iswaveport=False
+                )
         return False
 
     @aedt_exception_handler
@@ -2061,7 +2063,9 @@ class Hfss(FieldAnalysis3D, object):
                 faces = self.modeler.primitives.get_object_faces(sheet_name)
                 if deembed_dist == 0:
                     deembed = None
-                return self._create_port_terminal(faces[0], endobject, portname, renorm=renorm, deembed=deembed, iswaveport=True)
+                return self._create_port_terminal(
+                    faces[0], endobject, portname, renorm=renorm, deembed=deembed, iswaveport=True
+                )
         return False
 
     @aedt_exception_handler
@@ -2492,7 +2496,9 @@ class Hfss(FieldAnalysis3D, object):
                 faces = self.modeler.primitives.get_object_faces(sheet_name)
                 if deembed_dist == 0:
                     deembed = None
-                return self._create_port_terminal(faces[0], endobject, portname, renorm=renorm, deembed=deembed, iswaveport=True)
+                return self._create_port_terminal(
+                    faces[0], endobject, portname, renorm=renorm, deembed=deembed, iswaveport=True
+                )
         return False
 
     @aedt_exception_handler
@@ -3083,7 +3089,9 @@ class Hfss(FieldAnalysis3D, object):
             if terminal_references:
                 if deemb == 0:
                     deembed = None
-                return self._create_port_terminal(faces, terminal_references, portname, renorm=renorm, deembed=deembed, iswaveport=True)
+                return self._create_port_terminal(
+                    faces, terminal_references, portname, renorm=renorm, deembed=deembed, iswaveport=True
+                )
             else:
                 self.logger.error("Reference Conductors are missed.")
                 return False
