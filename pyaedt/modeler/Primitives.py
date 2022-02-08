@@ -508,7 +508,7 @@ class Polyline(Object3d):
 
         Examples
         --------
-        >>> primitives = self.aedtapp.modeler.primitives
+        >>> primitives = self.aedtapp.modeler
         >>> P1 = primitives.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
         >>> P2 = P1.clone()
 
@@ -862,7 +862,7 @@ class Primitives(object):
 
     >>> from pyaedt import Hfss
     >>> aedtapp = Hfss()
-    >>> prim = aedtapp.modeler.primitives
+    >>> prim = aedtapp.modeler
     """
 
     def __init__(self):
@@ -1397,7 +1397,7 @@ class Primitives(object):
         >>> desktop=Desktop(specified_version="2021.2", new_desktop_session=False)
         >>> aedtapp = Maxwell3D()
         >>> aedtapp.modeler.model_units = "mm"
-        >>> primitives = aedtapp.modeler.primitives
+        >>> primitives = aedtapp.modeler
 
         Define some test data points.
 

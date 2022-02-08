@@ -1,14 +1,14 @@
 """This module contains these classes: `Q2d`, `Q3d`, and `QExtractor`."""
 from __future__ import absolute_import
+import os
+import warnings
 
 from pyaedt.application.Analysis2D import FieldAnalysis2D
 from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name
 from collections import OrderedDict
-from pyaedt.modules.Boundary import BoundaryObject
-from pyaedt.generic.DataHandlers import _dict2arg
-import os
-import warnings
+from pyaedt.modules.Boundary import BoundaryObject, Matrix
+from pyaedt.generic.constants import MATRIXOPERATIONSQ2D, MATRIXOPERATIONSQ3D
 
 
 class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
@@ -72,9 +72,38 @@ class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
                 close_on_exit,
                 student_version,
             )
+        self.omatrix = self.odesign.GetModule("ReduceMatrix")
+        self.matrices = []
+        for el in list(self.omatrix.ListReduceMatrixes()):
+            self.matrices.append(Matrix(self, el))
 
     def __enter__(self):
         return self
+
+    @aedt_exception_handler
+    def insert_reduced_matrix(self, operation_name, source_names=None, rm_name=None):
+        """Insert a new reduced matrix.
+
+        Parameters
+        ----------
+        operation_name : str
+            Name of the Operation to create.
+        source_names : list, str, optional
+            List of sources or nets or arguments needed for specific operation.
+        rm_name : str, optional
+            Name of the reduced matrix, optional.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.Matrix`
+            Matrix object.
+        """
+        if not rm_name:
+            rm_name = generate_unique_name(operation_name)
+        matrix = Matrix(self, rm_name, operation_name)
+        if matrix.create(source_names):
+            self.matrices.append(matrix)
+        return matrix
 
 
 class Q3d(QExtractor, object):
@@ -154,6 +183,7 @@ class Q3d(QExtractor, object):
             close_on_exit,
             student_version,
         )
+        self.MATRIXOPERATIONS = MATRIXOPERATIONSQ3D()
 
     @property
     def nets(self):
@@ -717,7 +747,9 @@ class Q2d(QExtractor, object):
             close_on_exit,
             student_version,
         )
+        self.MATRIXOPERATIONS = MATRIXOPERATIONSQ2D()
 
+    @aedt_exception_handler
     def create_rectangle(self, position, dimension_list, name="", matname=""):
         """
         Create a rectangle.
@@ -744,10 +776,9 @@ class Q2d(QExtractor, object):
 
         >>> oEditor.CreateRectangle
         """
-        return self.modeler.primitives.create_rectangle(
-            position, dimension_list=dimension_list, name=name, matname=matname
-        )
+        return self.modeler.create_rectangle(position, dimension_list=dimension_list, name=name, matname=matname)
 
+    @aedt_exception_handler
     def assign_single_signal_line(self, target_objects, name="", solve_option="SolveInside", thickness=None, unit="um"):
         """Assign conductor type to sheets.
 
@@ -779,6 +810,7 @@ class Q2d(QExtractor, object):
         )
         self.assign_single_conductor(target_objects, name, "SignalLine", solve_option, thickness, unit)
 
+    @aedt_exception_handler
     def assign_single_conductor(
         self,
         target_objects,
@@ -808,10 +840,11 @@ class Q2d(QExtractor, object):
             thickness is used.
         unit : str, optional
             Thickness unit. The default is ``"um"``.
+
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Source object.
 
         References
         ----------
@@ -840,17 +873,13 @@ class Q2d(QExtractor, object):
 
         props = OrderedDict({"Objects": obj_names, "SolveOption": solve_option, "Thickness": str(thickness) + unit})
 
-        arg = ["NAME:" + name]
-        _dict2arg(props, arg)
-        if conductor_type == "SignalLine":
-            self.oboundary.AssignSingleSignalLine(arg)
-        elif conductor_type == "ReferenceGround":
-            self.oboundary.AssignSingleReferenceGround(arg)
-        else:
-            return False
+        bound = BoundaryObject(self, name, props, conductor_type)
+        if bound.create():
+            self.boundaries.append(bound)
+            return bound
+        return False
 
-        return True
-
+    @aedt_exception_handler
     def assign_huray_finitecond_to_edges(self, edges, radius, ratio, unit="um", name=""):
         """
         Assign Huray surface roughness model to edges.
@@ -891,3 +920,55 @@ class Q2d(QExtractor, object):
             self.boundaries.append(bound)
             return bound
         return False
+
+    @aedt_exception_handler
+    def auto_assign_conductors(self):
+        """Auto Assign Conductors to Signal Lines.
+
+        Returns
+        -------
+        bool
+        """
+        original_nets = list(self.oboundary.GetExcitations())
+        self.oboundary.AutoAssignSignals()
+        new_nets = [i for i in list(self.oboundary.GetExcitations()) if i not in original_nets]
+        i = 0
+        while i < len(new_nets):
+            objects = self.modeler.convert_to_selections(
+                [int(k) for k in list(self.oboundary.GetExcitationAssignment(new_nets[i]))], True
+            )
+            props = OrderedDict({"Objects": objects})
+            bound = BoundaryObject(self, new_nets[i], props, new_nets[i + 1])
+            self.boundaries.append(bound)
+            i += 2
+        if new_nets:
+            self.logger.info("{} Nets have been identified: {}".format(len(new_nets), ", ".join(new_nets)))
+        else:
+            self.logger.info("No new nets identified")
+        return True
+
+    @aedt_exception_handler
+    def toggle_conductor_type(self, conductor_name, new_type):
+        """Change the conductor type.
+
+        Parameters
+        ----------
+        conductor_name : str
+            Name of the conductor to update.
+        new_type : str
+            New conductor type.
+
+        Returns
+        -------
+        bool
+        """
+        try:
+            self.oboundary.ToggleConductor(conductor_name, new_type)
+            for bound in self.boundaries:
+                if bound.name == conductor_name:
+                    bound.type = new_type
+            self.logger.info("Conductor type correctly updated")
+            return True
+        except:
+            self.logger.error("Error in updating conductor type")
+            return False

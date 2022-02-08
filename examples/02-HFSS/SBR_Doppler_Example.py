@@ -71,27 +71,25 @@ bird_folder = os.path.join(actor_lib, "bird1")
 # ~~~~~~~~~~~~~~
 # Define background environment
 
-road1 = app.modeler.primitives.add_environment(env_folder=env_folder, environment_name="Bari")
-prim = app.modeler.primitives
+road1 = app.modeler.add_environment(env_folder=env_folder, environment_name="Bari")
+prim = app.modeler
 
 ###############################################################################
 # Actors
 # ~~~~~~~~~~~~~~~~~~~~~
 # Put Actors in environment. This example has persons, birds, bikes and cars.
 
-person1 = app.modeler.primitives.add_person(
+person1 = app.modeler.add_person(
     actor_folder=person_folder, speed=1.0, global_offset=[25, 1.5, 0], yaw=180, actor_name="Massimo"
 )
-person2 = app.modeler.primitives.add_person(
+person2 = app.modeler.add_person(
     actor_folder=person_folder, speed=1.0, global_offset=[25, 2.5, 0], yaw=180, actor_name="Devin"
 )
-car1 = app.modeler.primitives.add_vehicle(
-    actor_folder=car_folder, speed=8.7, global_offset=[3, -2.5, 0], actor_name="LuxuryCar"
-)
-bike1 = app.modeler.primitives.add_vehicle(
+car1 = app.modeler.add_vehicle(actor_folder=car_folder, speed=8.7, global_offset=[3, -2.5, 0], actor_name="LuxuryCar")
+bike1 = app.modeler.add_vehicle(
     actor_folder=bike_folder, speed=2.1, global_offset=[24, 3.6, 0], yaw=180, actor_name="Alberto_in_bike"
 )
-bird1 = app.modeler.primitives.add_bird(
+bird1 = app.modeler.add_bird(
     actor_folder=bird_folder,
     speed=1.0,
     global_offset=[19, 4, 3],
@@ -100,7 +98,7 @@ bird1 = app.modeler.primitives.add_bird(
     flapping_rate=30,
     actor_name="Pigeon",
 )
-bird2 = app.modeler.primitives.add_bird(
+bird2 = app.modeler.add_bird(
     actor_folder=bird_folder, speed=1.0, global_offset=[6, 2, 3], yaw=-60, pitch=10, actor_name="Eagle"
 )
 

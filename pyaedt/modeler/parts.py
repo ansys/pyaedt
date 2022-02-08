@@ -413,11 +413,9 @@ class Part(object):
         # TODO: Why the inconsistent syntax for cs commands?
         if self._do_offset:
             self.set_relative_cs(app)  # Create coordinate system, if needed.
-            aedt_objects.append(app.modeler.primitives.insert_3d_component(self.file_name, targetCS=self.cs_name))
+            aedt_objects.append(app.modeler.insert_3d_component(self.file_name, targetCS=self.cs_name))
         else:
-            aedt_objects.append(
-                app.modeler.primitives.insert_3d_component(self.file_name, targetCS=self._multiparts.cs_name)
-            )
+            aedt_objects.append(app.modeler.insert_3d_component(self.file_name, targetCS=self._multiparts.cs_name))
         if self._do_rotate:
             self.do_rotate(app, aedt_objects[0])
 

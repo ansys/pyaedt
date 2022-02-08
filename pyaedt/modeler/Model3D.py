@@ -123,7 +123,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             "ComponentOutline:=",
             "None",
         ]
-        objs = self.primitives.object_names
+        objs = self.object_names
         for el in objs:
             if "Region" in el and exclude_region:
                 objs.remove(el)

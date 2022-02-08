@@ -36,17 +36,17 @@ class TestClass:
     def test_02_create_primitive(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 30
-        o = self.aedtapp.modeler.primitives.create_cylinder(
+        o = self.aedtapp.modeler.create_cylinder(
             self.aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, "MyCylinder", "brass"
         )
         assert isinstance(o.id, int)
 
     def test_03_assign_convection(self):
-        face = self.aedtapp.modeler.primitives["MyCylinder"].faces[0].id
+        face = self.aedtapp.modeler["MyCylinder"].faces[0].id
         assert self.aedtapp.assign_uniform_convection(face, 3)
 
     def test_04_assign_temperature(self):
-        face = self.aedtapp.modeler.primitives["MyCylinder"].faces[1].id
+        face = self.aedtapp.modeler["MyCylinder"].faces[1].id
         bound = self.aedtapp.assign_uniform_temperature(face, "35deg")
         assert bound.props["Temperature"] == "35deg"
 
@@ -54,13 +54,11 @@ class TestClass:
         hfss = Hfss()
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 30
-        id1 = hfss.modeler.primitives.create_cylinder(
-            self.aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, "MyCylinder", "brass"
-        )
+        id1 = hfss.modeler.create_cylinder(self.aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, "MyCylinder", "brass")
         setup = hfss.create_setup()
         freq = "1GHz"
         setup.props["Frequency"] = freq
-        ids_faces = [i.id for i in hfss.modeler.primitives["MyCylinder"].faces]
+        ids_faces = [i.id for i in hfss.modeler["MyCylinder"].faces]
         assert self.aedtapp.assign_em_losses(
             hfss.design_name,
             hfss.setups[0].name,
@@ -78,19 +76,19 @@ class TestClass:
         ipk = Icepak(solution_type=self.aedtapp.SOLUTIONS.Icepak.SteadyTemperatureAndFlow)
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 30
-        id1 = ipk.modeler.primitives.create_cylinder(ipk.PLANE.XY, udp, 3, coax_dimension, 0, "MyCylinder", "brass")
+        id1 = ipk.modeler.create_cylinder(ipk.PLANE.XY, udp, 3, coax_dimension, 0, "MyCylinder", "brass")
         setup = ipk.create_setup()
         mech = Mechanical(solution_type=self.aedtapp.SOLUTIONS.Mechanical.Structural)
-        mech.modeler.primitives.create_cylinder(mech.PLANE.XY, udp, 3, coax_dimension, 0, "MyCylinder", "brass")
+        mech.modeler.create_cylinder(mech.PLANE.XY, udp, 3, coax_dimension, 0, "MyCylinder", "brass")
         assert mech.assign_thermal_map("MyCylinder", ipk.design_name)
 
     def test_07_assign_mechanical_boundaries(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 30
         mech = Mechanical(solution_type=self.aedtapp.SOLUTIONS.Mechanical.Modal)
-        mech.modeler.primitives.create_cylinder(mech.PLANE.XY, udp, 3, coax_dimension, 0, "MyCylinder", "brass")
-        assert mech.assign_fixed_support(mech.modeler.primitives["MyCylinder"].faces[0].id)
-        assert mech.assign_frictionless_support(mech.modeler.primitives["MyCylinder"].faces[1].id)
+        mech.modeler.create_cylinder(mech.PLANE.XY, udp, 3, coax_dimension, 0, "MyCylinder", "brass")
+        assert mech.assign_fixed_support(mech.modeler["MyCylinder"].faces[0].id)
+        assert mech.assign_frictionless_support(mech.modeler["MyCylinder"].faces[1].id)
 
     def test_08_mesh_settings(self):
         assert self.aedtapp.mesh.initial_mesh_settings

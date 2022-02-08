@@ -48,35 +48,35 @@ class TestClass:
             [(RI + N) * math.cos(tetarad), (RI + N) * math.sin(tetarad), HT / 2],
         ]
 
-        if self.aedtapp.modeler.primitives[name]:
-            self.aedtapp.modeler.primitives.delete(name)
-        return self.aedtapp.modeler.primitives.create_polyline(position_list=pointsList1, name=name)
+        if self.aedtapp.modeler[name]:
+            self.aedtapp.modeler.delete(name)
+        return self.aedtapp.modeler.create_polyline(position_list=pointsList1, name=name)
 
     def create_copper_box(self, name=None):
         if not name:
             name = "MyBox"
-        o = self.aedtapp.modeler.primitives[name]
+        o = self.aedtapp.modeler[name]
         if not o:
-            o = self.aedtapp.modeler.primitives.create_box([0, 0, 0], [10, 10, 5], name, "Copper")
+            o = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], name, "Copper")
         return o
 
     def create_copper_box_test_performance(self):
         for o in range(10):
-            o = self.aedtapp.modeler.primitives.create_box([0, 0, 0], [10, 10, 5], "MyboxLoop", "Copper")
+            o = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "MyboxLoop", "Copper")
 
     def create_copper_sphere(self, name=None):
         if not name:
             name = "Mysphere"
-        if self.aedtapp.modeler.primitives[name]:
-            self.aedtapp.modeler.primitives.delete(name)
-        return self.aedtapp.modeler.primitives.create_sphere([0, 0, 0], radius=4, name=name, matname="Copper")
+        if self.aedtapp.modeler[name]:
+            self.aedtapp.modeler.delete(name)
+        return self.aedtapp.modeler.create_sphere([0, 0, 0], radius=4, name=name, matname="Copper")
 
     def create_copper_cylinder(self, name=None):
         if not name:
             name = "MyCyl"
-        if self.aedtapp.modeler.primitives[name]:
-            self.aedtapp.modeler.primitives.delete(name)
-        return self.aedtapp.modeler.primitives.create_cylinder(
+        if self.aedtapp.modeler[name]:
+            self.aedtapp.modeler.delete(name)
+        return self.aedtapp.modeler.create_cylinder(
             cs_axis="Y", position=[0, 0, 0], radius=1, height=20, numSides=8, name=name, matname="Copper"
         )
 
@@ -102,7 +102,7 @@ class TestClass:
         o = self.create_copper_box("DeleteBox")
         name = o.name
         o.delete()
-        assert not self.aedtapp.modeler.primitives[name]
+        assert not self.aedtapp.modeler[name]
         assert not o.__dict__
 
     def test_01_subtract_object(self):
@@ -154,6 +154,8 @@ class TestClass:
         for face in o_box2.faces:
             assert isinstance(face.is_on_bounding(), bool)
         assert len(o_box2.faces_on_bounding_box) == 3
+        assert not o_sphere.faces[0].is_planar
+        assert o_box.faces[0].is_planar
 
     def test_04_object_material_property_invalid(self):
         o_box = self.create_copper_box("Invalid1")
@@ -248,7 +250,7 @@ class TestClass:
         test = initial_object.edges[4].chamfer(chamfer_type=4)
         assert not test
 
-        self.aedtapp.modeler.primitives.delete(initial_object)
+        self.aedtapp.modeler.delete(initial_object)
 
     def test_11_fillet(self):
         initial_object = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "FilletTest", "Copper")
@@ -258,7 +260,7 @@ class TestClass:
         assert test
         test = initial_object.edges[1].fillet(radius=0.2, setback=0.1)
         assert not test
-        self.aedtapp.modeler.primitives.delete(initial_object)
+        self.aedtapp.modeler.delete(initial_object)
 
     def test_object_length(self):
         initial_object = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "FilletTest", "Copper")
@@ -271,7 +273,7 @@ class TestClass:
         for i in range(0, 3):
             sum_sq += (end_point.position[i] - start_point.position[i]) ** 2
         assert isclose(math.sqrt(sum_sq), test_edge.length)
-        self.aedtapp.modeler.primitives.delete(initial_object)
+        self.aedtapp.modeler.delete(initial_object)
 
     def test_12_set_color(self):
         initial_object = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "ColorTest")
@@ -298,7 +300,7 @@ class TestClass:
         initial_object.color = (255, "Invalid", 0)
         assert initial_object.color == (255, 0, 0)
 
-        self.aedtapp.modeler.primitives.delete("ColorTest")
+        self.aedtapp.modeler.delete("ColorTest")
 
     def test_print_object(self):
         o = self.create_copper_box()
@@ -316,9 +318,9 @@ class TestClass:
     def test_13_delete_self(self):
         o = self.create_copper_box()
         my_name = o.name
-        assert my_name in self.aedtapp.modeler.primitives.object_names
+        assert my_name in self.aedtapp.modeler.object_names
         o.delete()
-        assert my_name not in self.aedtapp.modeler.primitives.object_names
+        assert my_name not in self.aedtapp.modeler.object_names
 
     def test_14_translate_delete_self(self):
         o = self.create_copper_box()
@@ -334,17 +336,17 @@ class TestClass:
         added_objects = turn.duplicate_around_axis(cs_axis="Z", angle=8, nclones=19)
         turn.unite(added_objects)
         assert len(added_objects) == 18
-        assert "single_turn" in self.aedtapp.modeler.primitives.line_names
+        assert "single_turn" in self.aedtapp.modeler.line_names
 
     def test_16_duplicate_around_axis_and_unite(self):
         turn = self.create_example_coil("single_turn")
         added_objects = turn.duplicate_along_line([0, 0, 15], nclones=3, attachObject=False)
         assert len(added_objects) == 2
-        assert "single_turn" in self.aedtapp.modeler.primitives.line_names
+        assert "single_turn" in self.aedtapp.modeler.line_names
 
     # TODO: Finish asserts anc check the boolean inputs - they are not present in the GUI ??
     def test_17_section_object(self):
-        o = self.aedtapp.modeler.primitives.create_box([-10, 0, 0], [10, 10, 5], "SectionBox", "Copper")
+        o = self.aedtapp.modeler.create_box([-10, 0, 0], [10, 10, 5], "SectionBox", "Copper")
         o.section(plane="YZ", create_new=True, section_cross_object=False)
 
     def test_18_create_spiral(self):

@@ -45,7 +45,7 @@ pin_names = hfss.modeler.get_excitations_name()
 # Starts Circuit and add Hfss dynamic link component to it.
 
 circuit = Circuit()
-hfss_comp = circuit.modeler.schematic.add_subcircuit_hfss_link("MyHfss", pin_names, hfss.project_file, hfss.design_name)
+hfss_comp = circuit.modeler.schematic.add_subcircuit_dynamic_link(hfss)
 
 ###############################################################################
 # Dynamic Link Options
@@ -135,9 +135,7 @@ mech.assign_em_losses(
 )
 diels = ["1_pd", "2_pd", "3_pd", "4_pd", "5_pd"]
 for el in diels:
-    mech.assign_uniform_convection(
-        [mech.modeler.primitives[el].top_face_y, mech.modeler.primitives[el].bottom_face_y], 3
-    )
+    mech.assign_uniform_convection([mech.modeler[el].top_face_y, mech.modeler[el].bottom_face_y], 3)
 
 
 ###############################################################################
@@ -155,7 +153,7 @@ mech.save_project()
 mech.analyze_nominal()
 surfaces = []
 for name in mech.get_all_conductors_names():
-    surfaces.extend(mech.modeler.primitives.get_object_faces(name))
+    surfaces.extend(mech.modeler.get_object_faces(name))
 mech.post.create_fieldplot_surface(surfaces, "Temperature")
 
 

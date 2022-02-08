@@ -194,9 +194,9 @@ class DesignCache(object):
             Snapshot object.
         """
         snapshot = {
-            "Solids:": self._app.modeler.primitives.solid_names,
-            "Lines:": self._app.modeler.primitives.line_names,
-            "Sheets": self._app.modeler.primitives.sheet_names,
+            "Solids:": self._app.modeler.solid_names,
+            "Lines:": self._app.modeler.line_names,
+            "Sheets": self._app.modeler.sheet_names,
             "DesignName": self._app.design_name,
         }
         return snapshot
@@ -668,7 +668,7 @@ class Design(object):
 
         >>> oProject.GetPath
         """
-        return os.path.normpath(self._oproject.GetPath())
+        return os.path.normpath(self.oproject.GetPath())
 
     @property
     def project_file(self):
@@ -2395,7 +2395,7 @@ class Design(object):
             msg_txt = "active " + self.project_name
         self.logger.info("Closing the %s AEDT Project", msg_txt)
         oproj = self.odesktop.SetActiveProject(name)
-        proj_path = self.odesktop.GetProjectDirectory()
+        proj_path = oproj.GetPath()
         if saveproject:
             oproj.Save()
         self.odesktop.CloseProject(name)
@@ -2847,7 +2847,7 @@ class Design(object):
             self.oproject.Save()
         if refresh_obj_ids_after_save:
             self.modeler.refresh_all_ids()
-            self.modeler.primitives._refresh_all_ids_from_aedt_file()
+            self.modeler._refresh_all_ids_from_aedt_file()
         return True
 
     @aedt_exception_handler

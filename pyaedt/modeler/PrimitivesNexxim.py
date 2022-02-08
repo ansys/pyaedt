@@ -1,7 +1,7 @@
 import warnings
 import os
 
-from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name
 from pyaedt.modeler.PrimitivesCircuit import CircuitComponents
 from pyaedt.modeler.Object3d import CircuitComponent
 
@@ -1117,6 +1117,137 @@ class NexximComponents(CircuitComponents):
         source_design_name,
         solution_name="Setup1 : Sweep",
         image_subcircuit_path=None,
+        variables=None,
+    ):
+        """Add a subcircuit HFSS link.
+
+        .. deprecated:: 0.4.27
+           Use :func:`pyaedt.modeler.PrimitivesNexxim.NexximComponents.add_subcircuit_dynamic_link.` instead.
+
+        Parameters
+        ----------
+        comp_name : str
+            Name of the subcircuit HFSS link.
+        pin_names : list
+            List of the pin names.
+        source_project_path : str
+            Path to the source project.
+        source_design_name : str
+            Name of the design.
+        solution_name : str, optional
+            Name of the solution and sweep. The
+            default is ``"Setup1 : Sweep"``.
+        image_subcircuit_path : str, optional
+            Path of the Picture used in Circuit.
+            Default is an HFSS Picture exported automatically.
+        variables : dict, optional.
+            Dictionary of design variables of linked object if any. Key is name, value is default value.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+            Circuit Component Object.
+
+        References
+        ----------
+
+        >>> oModelManager.Add
+        >>> oComponentManager.Add
+        >>> oDesign.AddCompInstance
+        """
+        warnings.warn(
+            "`add_subcircuit_hfss_link` is deprecated. Use `add_subcircuit_dynamic_link` instead.",
+            DeprecationWarning,
+        )
+        return self._add_subcircuit_link(
+            comp_name=comp_name,
+            pin_names=pin_names,
+            source_project_path=source_project_path,
+            source_design_name=source_design_name,
+            solution_name=solution_name,
+            image_subcircuit_path=image_subcircuit_path,
+            model_type="Hfss",
+            variables=variables,
+        )
+
+    @aedt_exception_handler
+    def add_subcircuit_dynamic_link(
+        self,
+        source_design_name,
+        source_project_path,
+        solution_name,
+        extrusion_length=None,
+        enable_cable_modeling=True,
+        default_matrix="",
+        tline_port="",
+    ):
+        """Add a subcircuit from `HFSS`, `Q3d` or `2D Extractor` in circuit design.
+
+        Parameters
+        ----------
+        source_design_name : str
+            Source Project Design Name.
+        source_project_path : str
+            Source Project full path.
+        solution_name : str, optional
+            Name of the solution and sweep. The default is ``"Setup1 : Sweep"``.
+        extrusion_length : float, str, optional
+            Extrusion length for 2D Models (q2d or Hfss). Default is `None`.
+        enable_cable_modeling : bool, optional
+            Either if the Hfss Cable modeling has to be enabled for 2D subcircuits.
+        default_matrix : str, optional
+            Matrix to link to the subcircuit. Default to `"Original"`. It only applies to 2D Extractor and Q3D.
+        tline_port : str, optional
+            Port to be used for tramsission line. Only applies to Hfss.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+            Circuit Component Object.
+
+        References
+        ----------
+
+        >>> oModelManager.Add
+        >>> oComponentManager.Add
+        >>> oDesign.AddCompInstance
+        >>> oDesign.AddDynamicLink
+        """
+        comp_name = generate_unique_name(source_design_name)
+
+        self._app.odesign.AddDynamicLink(
+            source_design_name,
+            source_project_path,
+            comp_name,
+            solution_name,
+            tline_port,
+            default_matrix,
+            enable_cable_modeling,
+            "Pyaedt Dynamic Link",
+        )
+        self.refresh_all_ids()
+        for el in self.components:
+            if comp_name in self.components[el].composed_name:
+                if extrusion_length:
+                    self.components[el].set_property("Length", extrusion_length)
+                if tline_port and extrusion_length:
+                    self.components[el].set_property("TLineLength", extrusion_length)
+                return self.components[el]
+        return False
+
+    @aedt_exception_handler
+    def _add_subcircuit_link(
+        self,
+        comp_name,
+        pin_names,
+        source_project_path,
+        source_design_name,
+        solution_name="Setup1 : Sweep",
+        image_subcircuit_path=None,
+        model_type="hfss",
+        variables=None,
+        extrusion_length_q2d=10,
+        matrix=None,
     ):
         """Add a subcircuit HFSS link.
 
@@ -1136,6 +1267,13 @@ class NexximComponents(CircuitComponents):
         image_subcircuit_path : str, optional
             Path of the Picture used in Circuit.
             Default is an HFSS Picture exported automatically.
+        model_type : str, optional
+            Dynamick Link type. Options are `Hfss`, `Q3d`, `Q2d`.
+        variables : dict, optional
+            Dictionary of variables and default values of original design, if exists.
+        extrusion_length_q2d : str, float optional
+            Extrusion length for 2D Models. Default is 10 (in model units).
+        matrix : list, optional
 
         Returns
         -------
@@ -1149,6 +1287,18 @@ class NexximComponents(CircuitComponents):
         >>> oComponentManager.Add
         >>> oDesign.AddCompInstance
         """
+        model = "hfss"
+        owner = "HFSS"
+        icon_file = "hfss.bmp"
+        if model_type.lower() == "q3d extractor":
+            model = "q3d"
+            owner = "Q3D"
+            icon_file = "q3d.bmp"
+
+        elif model_type.lower() == "2d extractor":
+            model = "2dext"
+            owner = "2DExtractor"
+            icon_file = "2dextractor.bmp"
         designer_customization = self.get_comp_custom_settings(1, 0, 0, 1, 0, 0, "False", "", 1)
         nexxim_customization = self.get_comp_custom_settings(2, 3, 1, 3, 0, 0, "False", "", 2)
         hspice_customization = self.get_comp_custom_settings(3, 1, 2, 3, 0, 0, "False", "", 3)
@@ -1160,10 +1310,10 @@ class NexximComponents(CircuitComponents):
                 warnings.warn("Image extension is not valid. Use default image instead.")
         if not image_subcircuit_path:
             image_subcircuit_path = os.path.normpath(
-                os.path.join(self._modeler._app.desktop_install_dir, "syslib", "Bitmaps", "hfss.bmp")
+                os.path.join(self._modeler._app.desktop_install_dir, "syslib", "Bitmaps", icon_file)
             )
         filename = ""
-        comp_name_aux = source_design_name
+        comp_name_aux = generate_unique_name(source_design_name)
         WB_SystemID = source_design_name
         if not self._app.project_file == source_project_path:
             filename = source_project_path
@@ -1181,7 +1331,7 @@ class NexximComponents(CircuitComponents):
             "LibLocation:=",
             "Project",
             "ModelType:=",
-            "hfss",
+            model,
             "Description:=",
             "",
             "ImageFile:=",
@@ -1225,11 +1375,32 @@ class NexximComponents(CircuitComponents):
             "auto",
             "IgnoreDepVars:=",
             False,
-            "Renormalize:=",
-            False,
-            "RenormImpedance:=",
-            50,
         ]
+        if owner == "HFSS":
+            compInfo.extend(
+                [
+                    "Renormalize:=",
+                    False,
+                    "RenormImpedance:=",
+                    50,
+                ]
+            )
+        elif owner == "Q3D":
+            compInfo.extend(
+                [
+                    "Renormalize:=",
+                    False,
+                    "RenormImpedance:=",
+                    50,
+                ]
+            )
+            if not matrix:
+                matrix = ["NAME:Reduce Matrix Choices", "Original"]
+            compInfo.extend(["Reduce Matrix:=", "Original", matrix])
+        else:
+            if not matrix:
+                matrix = ["NAME:Reduce Matrix Choices", "Original"]
+            compInfo.extend(["Reduce Matrix:=", "Original", matrix, "EnableCableModeling:=", False])
 
         self.o_model_manager.Add(compInfo)
 
@@ -1257,7 +1428,7 @@ class NexximComponents(CircuitComponents):
             "InfoHelpFile:=",
             "",
             "IconFile:=",
-            "hfss.bmp",
+            icon_file,
             "Library:=",
             "",
             "OriginalLocation:=",
@@ -1300,20 +1471,27 @@ class NexximComponents(CircuitComponents):
             compInfo2.append([pin, pin, "A", False, id, 1, "", "Electrical", "0"])
             id += 1
 
-        compInfo2.append(["NAME:Properties", "TextProp:=", ["Owner", "RD", "", "HFSS"]])
+        compInfo2.append(["NAME:Properties", "TextProp:=", ["Owner", "RD", "", owner]])
         compInfo2.append("CompExtID:=")
         compInfo2.append(5)
-        compInfo2.append(
-            [
-                "NAME:Parameters",
-                "TextProp:=",
-                ["ModelName", "RD", "", "FieldSolver"],
-                "MenuProp:=",
-                ["CoSimulator", "SD", "", "Default", 0],
-                "ButtonProp:=",
-                ["CosimDefinition", "SD", "", "Edit", "Edit", 40501, "ButtonPropClientData:=", []],
-            ]
-        )
+        variable_args = [
+            "NAME:Parameters",
+            "TextProp:=",
+            ["ModelName", "RD", "", "FieldSolver"],
+        ]
+        if owner == "2DExtractor":
+            variable_args.append("VariableProp:=")
+            variable_args.append(["Length", "D", "", self.arg_with_dim(extrusion_length_q2d)])
+        if variables:
+            for k, v in variables.items():
+                variable_args.append("VariableProp:=")
+                variable_args.append([k, "D", "", str(v)])
+        variable_args.append("MenuProp:=")
+        variable_args.append(["CoSimulator", "SD", "", "Default", 0])
+        variable_args.append("ButtonProp:=")
+        variable_args.append(["CosimDefinition", "SD", "", "Edit", "Edit", 40501, "ButtonPropClientData:=", []])
+
+        compInfo2.append(variable_args)
         compInfo2.append(
             [
                 "NAME:CosimDefinitions",

@@ -483,6 +483,21 @@ class FacePrimitive(object):
         return center
 
     @property
+    def is_planar(self):
+        """Check if a face is planar or not.
+
+        Returns
+        -------
+        bool
+        """
+
+        try:
+            self._oeditor.GetFaceCenter(self.id)
+            return True
+        except:
+            return False
+
+    @property
     def center(self):
         """Face center in model units.
 
@@ -720,7 +735,7 @@ class Object3d(object):
 
     >>> from pyaedt import Hfss
     >>> aedtapp = Hfss()
-    >>> prim = aedtapp.modeler.primitives
+    >>> prim = aedtapp.modeler
 
     Create a part, such as box, to return an :class:`pyaedt.modeler.Object3d.Object3d`.
 

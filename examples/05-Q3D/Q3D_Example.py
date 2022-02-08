@@ -33,7 +33,7 @@ q = Q3d(specified_version="2021.2", non_graphical=NonGraphical, new_desktop_sess
 # ~~~~~~~~~~~~~~~~~
 # Create polylines for three busbars and a box for the substrate.
 
-b1 = q.modeler.primitives.create_polyline(
+b1 = q.modeler.create_polyline(
     [[0, 0, 0], [-100, 0, 0]],
     name="Bar1",
     matname="copper",
@@ -43,7 +43,7 @@ b1 = q.modeler.primitives.create_polyline(
 )
 q.modeler["Bar1"].color = (255, 0, 0)
 
-q.modeler.primitives.create_polyline(
+q.modeler.create_polyline(
     [[0, -15, 0], [-150, -15, 0]],
     name="Bar2",
     matname="aluminum",
@@ -53,7 +53,7 @@ q.modeler.primitives.create_polyline(
 )
 q.modeler["Bar2"].color = (0, 255, 0)
 
-q.modeler.primitives.create_polyline(
+q.modeler.create_polyline(
     [[0, -30, 0], [-175, -30, 0], [-175, -10, 0]],
     name="Bar3",
     matname="copper",
@@ -63,7 +63,7 @@ q.modeler.primitives.create_polyline(
 )
 q.modeler["Bar3"].color = (0, 0, 255)
 
-q.modeler.primitives.create_box([50, 30, -0.5], [-250, -100, -3], name="substrate", matname="FR4_epoxy")
+q.modeler.create_box([50, 30, -0.5], [-250, -100, -3], name="substrate", matname="FR4_epoxy")
 q.modeler["substrate"].color = (128, 128, 128)
 q.modeler["substrate"].transparency = 0.8
 
@@ -112,9 +112,13 @@ q.create_setup(props={"AdaptiveFreq": "100MHz"})
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
 # This command creates a rectangular plot and a Data Table.
 
-q.post.create_rectangular_plot(expression="C(Bar1,Bar1)", context="Original")
+data_plot_self = q.matrices[0].get_sources_for_plot(get_self_terms=True, get_mutual_terms=False)
 
-q.post.create_rectangular_plot(expression="C(Bar1,Bar1)", context="Original", plot_type="Data Table")
+q.post.create_rectangular_plot(expression=data_plot_self, context="Original")
+
+data_plot_mutual = q.matrices[0].get_sources_for_plot(get_self_terms=False, get_mutual_terms=True)
+
+q.post.create_rectangular_plot(expression=data_plot_mutual, context="Original", plot_type="Data Table")
 
 ###############################################################################
 # Solve the Setup
@@ -128,7 +132,7 @@ q.analyze_nominal()
 # ~~~~~~~~~~~~~~~
 # This command get the report data into a Data Structure that allows to manipulate them.
 
-a = q.post.get_report_data(expression="C(Bar1,Bar1)", domain=["Context:=", "Original"])
+a = q.post.get_report_data(expression=data_plot_self, domain=["Context:=", "Original"])
 a.sweeps["Freq"]
 a.data_magnitude()
 
