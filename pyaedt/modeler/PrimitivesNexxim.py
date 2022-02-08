@@ -1173,23 +1173,32 @@ class NexximComponents(CircuitComponents):
     @aedt_exception_handler
     def add_subcircuit_dynamic_link(
         self,
-        pyaedt_app,
-        solution_name=None,
-        extrusion_length=10,
-        map_source_variables=True,
+        source_design_name,
+        source_project_path,
+        solution_name,
+        extrusion_length=None,
+        enable_cable_modeling=True,
+        default_matrix="",
+        tline_port="",
     ):
-        """Add a subcircuit 2D Extractor link.
+        """Add a subcircuit from `HFSS`, `Q3d` or `2D Extractor` in circuit design.
 
         Parameters
         ----------
-        pyaedt_app : :class:`pyaedt.q3d.Q3d` or :class:`pyaedt.q3d.Q2d` or :class:`pyaedt.q3d.Hfss`
-            pyaedt application object to include. It could be an Hfss object, a Q3d object or a Q2d.
+        source_design_name : str
+            Source Project Design Name.
+        source_project_path : str
+            Source Project full path.
         solution_name : str, optional
             Name of the solution and sweep. The default is ``"Setup1 : Sweep"``.
         extrusion_length : float, str, optional
-            Extrusion length for 2D Models. Default is 10 (in model units).
-        map_source_variables : bool, optional
-            Either if the dynamic link object has to map or not the source design variables.
+            Extrusion length for 2D Models (q2d or Hfss). Default is `None`.
+        enable_cable_modeling : bool, optional
+            Either if the Hfss Cable modeling has to be enabled for 2D subcircuits.
+        default_matrix : str, optional
+            Matrix to link to the subcircuit. Default to `"Original"`. It only applies to 2D Extractor and Q3D.
+        tline_port : str, optional
+            Port to be used for tramsission line. Only applies to Hfss.
 
         Returns
         -------
@@ -1202,57 +1211,29 @@ class NexximComponents(CircuitComponents):
         >>> oModelManager.Add
         >>> oComponentManager.Add
         >>> oDesign.AddCompInstance
+        >>> oDesign.AddDynamicLink
         """
-        comp_name = generate_unique_name(pyaedt_app.design_name)
-        source_project_path = pyaedt_app.project_file
-        source_design_name = pyaedt_app.design_name
-        matrix = None
-        if pyaedt_app.design_type == "HFSS":
-            pin_names = pyaedt_app.get_excitations_name()
-        elif pyaedt_app.design_type == "Q3D Extractor":
-            excts = list(pyaedt_app.oboundary.GetExcitations())
-            i = 0
-            sources = []
-            sinks = []
-            while i < len(excts):
-                if excts[i + 1] == "Source":
-                    sources.append(excts[i])
-                elif excts[i + 1] == "Sink":
-                    sinks.append(excts[i])
-                i += 2
-            pin_names = sources + sinks
-            matrix = ["NAME:Reduce Matrix Choices"] + list(pyaedt_app.omatrix.ListReduceMatrixes())
-        elif pyaedt_app.design_type == "2D Extractor":
-            excts = list(pyaedt_app.oboundary.GetExcitations())
-            pins = []
-            i = 0
-            while i < len(excts):
-                if excts[i + 1] != "ReferenceGround":
-                    pins.append(excts[i])
-                i += 2
-            pin_names = [i + "_in" for i in pins]
-            pin_names.append("Input_ref")
-            pin_names.extend([i + "_out" for i in pins])
-            pin_names.append("Output_ref")
-            matrix = ["NAME:Reduce Matrix Choices"] + list(pyaedt_app.omatrix.ListReduceMatrixes())
-        variables = {}
-        if map_source_variables:
-            for k, v in pyaedt_app.variable_manager.variables.items():
-                variables[k] = v.string_value
-        if not solution_name:
-            solution_name = pyaedt_app.nominal_sweep
-        return self._add_subcircuit_link(
-            comp_name=comp_name,
-            pin_names=pin_names,
-            source_project_path=source_project_path,
-            source_design_name=source_design_name,
-            solution_name=solution_name,
-            image_subcircuit_path="",
-            model_type=pyaedt_app.design_type,
-            variables=variables,
-            extrusion_length_q2d=extrusion_length,
-            matrix=matrix,
+        comp_name = generate_unique_name(source_design_name)
+
+        self._app.odesign.AddDynamicLink(
+            source_design_name,
+            source_project_path,
+            comp_name,
+            solution_name,
+            tline_port,
+            default_matrix,
+            enable_cable_modeling,
+            "Pyaedt Dynamic Link",
         )
+        self.refresh_all_ids()
+        for el in self.components:
+            if comp_name in self.components[el].composed_name:
+                if extrusion_length:
+                    self.components[el].set_property("Length", extrusion_length)
+                if tline_port and extrusion_length:
+                    self.components[el].set_property("TLineLength", extrusion_length)
+                return self.components[el]
+        return False
 
     @aedt_exception_handler
     def _add_subcircuit_link(
