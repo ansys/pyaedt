@@ -195,6 +195,7 @@ class TestClass:
         assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(q3d)
         hfss = Hfss(specified_version=desktop_version)
         assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(hfss, solution_name="Setup1 : Sweep")
-        assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(hfss, solution_name="Setup2 : Sweep",
-                                                                          tline_port="1")
+        assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(
+            hfss, solution_name="Setup2 : Sweep", tline_port="1"
+        )
         self.aedtapp.close_project(q3d.project_name, False)

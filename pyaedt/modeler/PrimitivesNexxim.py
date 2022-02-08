@@ -1172,13 +1172,13 @@ class NexximComponents(CircuitComponents):
 
     @aedt_exception_handler
     def add_subcircuit_dynamic_link(
-            self,
-            pyaedt_app,
-            solution_name=None,
-            extrusion_length=10,
-            enable_cable_modeling=True,
-            default_matrix="",
-            tline_port="",
+        self,
+        pyaedt_app,
+        solution_name=None,
+        extrusion_length=10,
+        enable_cable_modeling=True,
+        default_matrix="",
+        tline_port="",
     ):
         """Add a subcircuit from `HFSS`, `Q3d` or `2D Extractor` in circuit design.
 
@@ -1220,14 +1220,16 @@ class NexximComponents(CircuitComponents):
             enable_cable_modeling = False
         else:
             tline_port = ""
-        self._app.odesign.AddDynamicLink(source_design_name,
-                                         source_project_path,
-                                         comp_name,
-                                         solution_name,
-                                         tline_port,
-                                         default_matrix,
-                                         enable_cable_modeling,
-                                         "Pyaedt Dynamic Link")
+        self._app.odesign.AddDynamicLink(
+            source_design_name,
+            source_project_path,
+            comp_name,
+            solution_name,
+            tline_port,
+            default_matrix,
+            enable_cable_modeling,
+            "Pyaedt Dynamic Link",
+        )
         self.refresh_all_ids()
         for el in self.components:
             if comp_name in self.components[el].composed_name:
