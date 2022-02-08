@@ -66,7 +66,7 @@ class TestClass:
         assert not self.aedtapp.toggle_conductor_type("Rectangle2", "ReferenceggGround")
 
     def test_11_matrix_reduction(self):
-        q2d = Q2d(self.test_matrix, specified_version="2021.2")
+        q2d = Q2d(self.test_matrix, specified_version=desktop_version)
         assert q2d.matrices[0].name == "Original"
         assert len(q2d.matrices[0].sources()) > 0
         assert len(q2d.matrices[0].sources(False)) > 0
