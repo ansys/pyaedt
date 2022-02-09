@@ -899,47 +899,47 @@ class Maxwell(object):
             )
         return True
 
-    @aedt_exception_handler
-    def assign_force(self, input_object, reference_cs="Global", is_virtual=True, force_name=None):
-        """Assign a force to the selection.
-
-        Parameters
-        ----------
-        input_object : str, list
-            One or more objects to assign a force to.
-        reference_cs : str, optional
-            Name of the reference coordinate system. The default is ``Global``.
-        is_virtual : bool, optional
-            Whether the force is virtual. The default is ``True``.
-        force_name : str, optional
-            Name of the force. The default is ``None``.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-
-        >>> oModule.AssignForce
-        """
-        input_object = self.modeler.convert_to_selections(input_object, True)
-        if not force_name:
-            force_name = generate_unique_name("Force")
-        self.o_maxwell_parameters.AssignForce(
-            [
-                "NAME:" + force_name,
-                "Reference CS:=",
-                reference_cs,
-                "Is Virtual:=",
-                is_virtual,
-                "Objects:=",
-                input_object,
-            ]
-        )
-        return True
-
+    # @aedt_exception_handler
+    # def assign_force(self, input_object, reference_cs="Global", is_virtual=True, force_name=None):
+    #     """Assign a force to the selection.
+    #
+    #     Parameters
+    #     ----------
+    #     input_object : str, list
+    #         One or more objects to assign a force to.
+    #     reference_cs : str, optional
+    #         Name of the reference coordinate system. The default is ``Global``.
+    #     is_virtual : bool, optional
+    #         Whether the force is virtual. The default is ``True``.
+    #     force_name : str, optional
+    #         Name of the force. The default is ``None``.
+    #
+    #     Returns
+    #     -------
+    #     bool
+    #         ``True`` when successful, ``False`` when failed.
+    #
+    #     References
+    #     ----------
+    #
+    #     >>> oModule.AssignForce
+    #     """
+    #     input_object = self.modeler.convert_to_selections(input_object, True)
+    #     if not force_name:
+    #         force_name = generate_unique_name("Force")
+    #     self.o_maxwell_parameters.AssignForce(
+    #         [
+    #             "NAME:" + force_name,
+    #             "Reference CS:=",
+    #             reference_cs,
+    #             "Is Virtual:=",
+    #             is_virtual,
+    #             "Objects:=",
+    #             input_object,
+    #         ]
+    #     )
+    #     return True
+    #
     @aedt_exception_handler
     def solve_inside(self, name, activate=True):
         """Solve inside.

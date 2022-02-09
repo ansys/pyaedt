@@ -238,3 +238,8 @@ class TestClass:
     def test_33_mesh_settings(self):
         assert self.aedtapp.mesh.initial_mesh_settings
         assert self.aedtapp.mesh.initial_mesh_settings.props
+
+    def test_34_assign_voltage_drop(self):
+        circle = self.aedtapp.modeler.create_circle(position=[10, 10, 0], radius=5, cs_plane='XY')
+        self.aedtapp.solution_type = 'Magnetostatic'
+        assert self.aedtapp.assign_voltage_drop([circle.faces[0]])
