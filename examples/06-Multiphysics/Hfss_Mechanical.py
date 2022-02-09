@@ -35,9 +35,8 @@ shutil.copy2(project_full_name, project_temp_name)
 # Starts Hfss and initialize the Pyaedt object.
 
 version = "2021.2"
-hfss = Hfss(project_temp_name, specified_version=version)
+hfss = Hfss(project_temp_name, specified_version=version, non_graphical=non_graphical)
 pin_names = hfss.modeler.get_excitations_name()
-
 
 ###############################################################################
 # Starts Circuit
@@ -54,7 +53,7 @@ hfss_comp = circuit.modeler.schematic.add_subcircuit_dynamic_link(hfss)
 # argument of set_sim_option_on_hfss_subcircuit can be the component name, the component id or
 # the component object.
 
-circuit.modeler.schematic.refresh_dynamic_link("MyHfss")
+circuit.modeler.schematic.refresh_dynamic_link(hfss_comp.composed_name)
 circuit.modeler.schematic.set_sim_option_on_hfss_subcircuit(hfss_comp)
 hfss_setup_name = hfss.setups[0].name + " : " + hfss.setups[0].sweeps[0].name
 circuit.modeler.schematic.set_sim_solution_on_hfss_subcircuit(hfss_comp.composed_name, hfss_setup_name)

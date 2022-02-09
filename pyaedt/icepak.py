@@ -217,7 +217,7 @@ class Icepak(FieldAnalysisIcepak):
 
         self.modeler.create_face_list(air_faces, "boundary_faces")
         props = {}
-        air_faces = self.modeler._convert_list_to_ids(air_faces)
+        air_faces = self.modeler.convert_to_selections(air_faces, True)
 
         props["Faces"] = air_faces
         if free_loss_coeff:
@@ -273,7 +273,7 @@ class Icepak(FieldAnalysisIcepak):
         boundary_name = generate_unique_name("Opening")
         self.modeler.create_face_list(air_faces, "boundary_faces")
         props = {}
-        air_faces = self.modeler._convert_list_to_ids(air_faces)
+        air_faces = self.modeler.convert_to_selections(air_faces, True)
 
         props["Faces"] = air_faces
         props["Temperature"] = "AmbientTemp"

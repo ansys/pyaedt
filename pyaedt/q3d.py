@@ -80,6 +80,19 @@ class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
     def __enter__(self):
         return self
 
+    @property
+    def excitations(self):
+        """Get all excitation names.
+
+        Returns
+        -------
+        list
+            List of excitation names. Excitations with multiple modes will return one
+            excitation for each mode.
+
+        """
+        return self.matrices[0].sources(False)
+
     @aedt_exception_handler
     def insert_reduced_matrix(self, operation_name, source_names=None, rm_name=None):
         """Insert a new reduced matrix.
@@ -422,7 +435,7 @@ class Q3d(QExtractor, object):
         """
         if not sourcename:
             sourcename = generate_unique_name("Source")
-        sheetname = self.modeler._convert_list_to_ids(sheetname)
+        sheetname = self.modeler.convert_to_selections(sheetname, True)
         props = OrderedDict({"Objects": [sheetname]})
         if objectname:
             props["ParentBndID"] = objectname
@@ -511,7 +524,7 @@ class Q3d(QExtractor, object):
         """
         if not sinkname:
             sinkname = generate_unique_name("Source")
-        sheetname = self.modeler._convert_list_to_ids(sheetname)
+        sheetname = self.modeler.convert_to_selections(sheetname, True)
         props = OrderedDict({"Objects": [sheetname]})
         if objectname:
             props["ParentBndID"] = objectname
@@ -911,7 +924,7 @@ class Q2d(QExtractor, object):
         else:
             ra = radius
 
-        a = self.modeler._convert_list_to_ids(edges, convert_objects_ids_to_name=False)
+        a = self.modeler.convert_to_selections(edges, True)
 
         props = OrderedDict({"Edges": a, "UseCoating": False, "Radius": ra, "Ratio": str(ratio)})
 

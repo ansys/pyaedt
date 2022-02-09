@@ -2,7 +2,7 @@
 import os
 from _unittest.conftest import local_path, scratch_path, config, desktop_version
 
-from pyaedt import Circuit, Q2d, Q3d
+from pyaedt import Circuit, Q2d, Q3d, Hfss
 from pyaedt.generic.filesystem import Scratch
 import gc
 
@@ -29,11 +29,11 @@ class TestClass:
                 example_project = os.path.join(local_path, "example_models", test_project_name + ".aedt")
                 source_project = os.path.join(local_path, "example_models", src_project_name + ".aedt")
                 linked_project = os.path.join(local_path, "example_models", linked_project_name + ".aedt")
-                q3d = (os.path.join(local_path, "example_models", "q2d_q3d.aedt"),)
+
+                self.q3d = self.local_scratch.copyfile(os.path.join(local_path, "example_models", "q2d_q3d.aedt"))
                 self.test_project = self.local_scratch.copyfile(example_project)
                 self.test_src_project = self.local_scratch.copyfile(source_project)
                 self.test_lkd_project = self.local_scratch.copyfile(linked_project)
-                self.q3d = self.local_scratch.copyfile(linked_project)
 
                 self.local_scratch.copyfolder(
                     os.path.join(local_path, "example_models", test_project_name + ".aedb"),
@@ -56,7 +56,7 @@ class TestClass:
                             found = True
                     outf.write(line + b"\n")
                 outf.close()
-                self.aedtapp = Circuit(self.test_project)
+                self.aedtapp = Circuit(self.test_project, specified_version=desktop_version)
             except:
                 pass
 
@@ -189,8 +189,20 @@ class TestClass:
         assert LNA_setup.update()
 
     def test_10_q3d_link(self):
-        q2d = Q2d(projectname=self.q3d, specified_version=desktop_version)
-        assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(q2d)
-        q3d = Q3d(specified_version=desktop_version)
-        assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(q3d)
-        self.aedtapp.close_project(q3d.project_name, False)
+        self.aedtapp.insert_design("test_link")
+        q2d = Q2d(self.q3d)
+        proj_path = self.q3d
+        proj_name = q2d.project_name
+        assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(q2d, extrusion_length=25)
+        if proj_name in self.aedtapp.project_list:
+            proj_path = proj_name
+        q3d = Q3d(proj_path)
+
+        assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(q3d, solution_name="Setup1 : LastAdaptive")
+        hfss = Hfss(proj_path)
+
+        assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(hfss, solution_name="Setup1 : Sweep")
+        hfss = Hfss(proj_path)
+        assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(
+            hfss, solution_name="Setup2 : Sweep", tline_port="1"
+        )

@@ -668,7 +668,7 @@ class Design(object):
 
         >>> oProject.GetPath
         """
-        return os.path.normpath(self._oproject.GetPath())
+        return os.path.normpath(self.oproject.GetPath())
 
     @property
     def project_file(self):
@@ -2395,7 +2395,7 @@ class Design(object):
             msg_txt = "active " + self.project_name
         self.logger.info("Closing the %s AEDT Project", msg_txt)
         oproj = self.odesktop.SetActiveProject(name)
-        proj_path = self.odesktop.GetProjectDirectory()
+        proj_path = oproj.GetPath()
         if saveproject:
             oproj.Save()
         self.odesktop.CloseProject(name)
