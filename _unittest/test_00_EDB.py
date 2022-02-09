@@ -589,3 +589,7 @@ class TestClass:
             padstack_name="VIA_18-10-28_SMB", layer_name="new", pad_shape="Circle", pad_params="800um"
         )
         assert self.edbapp.core_padstack.padstacks["VIA_18-10-28_SMB"].pad_by_layer["new"]
+
+    def test_75_primitives_area(self):
+        assert self.edbapp.core_primitives.primitives[0].area(False) > 0
+        assert self.edbapp.core_primitives.primitives[0].area(True) > 0

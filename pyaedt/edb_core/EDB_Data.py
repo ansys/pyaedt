@@ -165,6 +165,24 @@ class EDBPrimitives(object):
         self._core_net = core_app.core_nets
         self.primitive_object = raw_primitive
 
+    @aedt_exception_handler
+    def area(self, include_voids=True):
+        """Return the total area.
+
+        Parameters
+        ----------
+        include_voids : bool, optional
+            Either if the voids have to be included in computation.
+        Returns
+        -------
+        float
+        """
+        area = self.primitive_object.GetPolygonData().Area()
+        if include_voids:
+            for el in self.primitive_object.Voids:
+                area -= el.GetPolygonData().Area()
+        return area
+
     @property
     def is_void(self):
         """Either if the primitive is a void or not.
