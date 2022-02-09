@@ -33,11 +33,10 @@ shutil.copy2(project_full_name, project_temp_name)
 # Starts HFSS
 # ~~~~~~~~~~~
 # Starts Hfss and initialize the Pyaedt object.
-
+non_graphical = True
 version = "2021.2"
-hfss = Hfss(project_temp_name, specified_version=version)
+hfss = Hfss(project_temp_name, specified_version=version, non_graphical=non_graphical)
 pin_names = hfss.modeler.get_excitations_name()
-
 
 ###############################################################################
 # Starts Circuit
@@ -45,7 +44,7 @@ pin_names = hfss.modeler.get_excitations_name()
 # Starts Circuit and add Hfss dynamic link component to it.
 
 circuit = Circuit()
-hfss_comp = circuit.modeler.schematic.add_subcircuit_hfss_link("MyHfss", pin_names, hfss.project_file, hfss.design_name)
+hfss_comp = circuit.modeler.schematic.add_subcircuit_dynamic_link(hfss)
 
 ###############################################################################
 # Dynamic Link Options
@@ -54,7 +53,7 @@ hfss_comp = circuit.modeler.schematic.add_subcircuit_hfss_link("MyHfss", pin_nam
 # argument of set_sim_option_on_hfss_subcircuit can be the component name, the component id or
 # the component object.
 
-circuit.modeler.schematic.refresh_dynamic_link("MyHfss")
+circuit.modeler.schematic.refresh_dynamic_link(hfss_comp.composed_name)
 circuit.modeler.schematic.set_sim_option_on_hfss_subcircuit(hfss_comp)
 hfss_setup_name = hfss.setups[0].name + " : " + hfss.setups[0].sweeps[0].name
 circuit.modeler.schematic.set_sim_solution_on_hfss_subcircuit(hfss_comp.composed_name, hfss_setup_name)
@@ -135,9 +134,7 @@ mech.assign_em_losses(
 )
 diels = ["1_pd", "2_pd", "3_pd", "4_pd", "5_pd"]
 for el in diels:
-    mech.assign_uniform_convection(
-        [mech.modeler.primitives[el].top_face_y, mech.modeler.primitives[el].bottom_face_y], 3
-    )
+    mech.assign_uniform_convection([mech.modeler[el].top_face_y, mech.modeler[el].bottom_face_y], 3)
 
 
 ###############################################################################
@@ -155,7 +152,7 @@ mech.save_project()
 mech.analyze_nominal()
 surfaces = []
 for name in mech.get_all_conductors_names():
-    surfaces.extend(mech.modeler.primitives.get_object_faces(name))
+    surfaces.extend(mech.modeler.get_object_faces(name))
 mech.post.create_fieldplot_surface(surfaces, "Temperature")
 
 

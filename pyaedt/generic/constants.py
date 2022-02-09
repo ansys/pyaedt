@@ -369,6 +369,57 @@ class GLOBALCS(object):
     (XY, YZ, ZX) = ("Global:XY", "Global:YZ", "Global:XZ")
 
 
+class MATRIXOPERATIONSQ3D(object):
+    """Matrix Reduction types."""
+
+    (JoinSeries, JoinParallel, FloatNet, GroundNet, FloatTerminal, FloatInfinity, ReturnPath, AddSink, MoveSink) = (
+        "JoinSeries",
+        "JoinParallel",
+        "FloatNet",
+        "GroundNet",
+        "FloatTerminal",
+        "FloatInfinity",
+        "ReturnPath",
+        "AddSink",
+        "MoveSink",
+    )
+
+
+class MATRIXOPERATIONSQ2D(object):
+    """Matrix Reduction types."""
+
+    (AddGround, SetReferenceGround, Float, Parallel, DiffPair) = (
+        "AddGround",
+        "SetReferenceGround",
+        "Float",
+        "Parallel",
+        "DiffPair",
+    )
+
+
+class CATEGORIESQ3D(object):
+    """Plot Categories for Q2d and Q3d."""
+
+    class Q2D(object):
+        (
+            CMatrix,
+            GMatrix,
+            RMatrix,
+            LMatrix,
+            LumpedC,
+            LumpedG,
+            LumpedR,
+            LumpedL,
+            CharacteristicImpedance,
+            CrossTalkForward,
+            LumpedCrossTalkForward,
+            CrossTalkBackward,
+        ) = ("C", "G", "R", "L", "lumpC", "lumpG", "lumpR", "lumpL", "Z0", "Kf", "lumpKf", "Kb")
+
+    class Q3D(object):
+        (C, G, DCL, DCR, ACL, ACR) = ("C", "G", "DCL", "DCR", "ACL", "ACR")
+
+
 class CSMODE(object):
     """COORDINATE SYSTEM MODE Enumerator class."""
 

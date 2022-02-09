@@ -38,7 +38,7 @@ maintainer = "Massimo Capodiferro"
 
 maintainer_email = "massimo.capodiferro@ansys.com"
 
-description = "Higher-Level Pythonic Ansys Electronics Destkop Framework"
+description = "Higher-Level Pythonic Ansys Electronics Desktop Framework"
 
 # Get the long description from the README file
 with open3(os.path.join(HERE, "README.rst"), encoding="utf-8") as f:

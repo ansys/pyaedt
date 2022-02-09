@@ -57,7 +57,7 @@ class TestClass:
         assert self.edbapp.core_padstack.get_via_instance_from_net("GND")
         assert not self.edbapp.core_padstack.get_via_instance_from_net(["GND2"])
 
-    def tesCt_01_flip_layer_stackup(self):
+    def test_01_flip_layer_stackup(self):
         assert self.edbapp.core_stackup.place_in_layout()
 
     def test_02_get_properties(self):
@@ -68,6 +68,7 @@ class TestClass:
         assert len(self.edbapp.core_components.ICs) > 0
         assert len(self.edbapp.core_components.IOs) > 0
         assert len(self.edbapp.core_components.Others) > 0
+        assert len(self.edbapp.get_bounding_box()) == 2
 
     def test_03_get_primitives(self):
         assert len(self.edbapp.core_primitives.polygons) > 0
@@ -190,8 +191,8 @@ class TestClass:
         assert "R1" in list(self.edbapp.core_components.components.keys())
         assert self.edbapp.core_components.components["R1"].res_value
         assert self.edbapp.core_components.components["R1"].placement_layer
-        assert self.edbapp.core_components.components["R1"].lower_elevation
-        assert self.edbapp.core_components.components["R1"].upper_elevation
+        assert isinstance(self.edbapp.core_components.components["R1"].lower_elevation, float)
+        assert isinstance(self.edbapp.core_components.components["R1"].upper_elevation, float)
         assert self.edbapp.core_components.components["R1"].top_bottom_association == 0
         assert self.edbapp.core_components.components["R1"].pinlist
         pinname = self.edbapp.core_components.components["R1"].pinlist[0].GetName()

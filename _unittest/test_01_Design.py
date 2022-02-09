@@ -114,7 +114,7 @@ class TestClass:
 
     def test_09_set_objects_temperature(self):
         ambient_temp = 22
-        objects = [o for o in self.aedtapp.modeler.primitives.solid_names if self.aedtapp.modeler.primitives[o].model]
+        objects = [o for o in self.aedtapp.modeler.solid_names if self.aedtapp.modeler[o].model]
         assert self.aedtapp.modeler.set_objects_temperature(objects, ambient_temp=ambient_temp, create_project_var=True)
 
     def test_10_change_material_override(self):

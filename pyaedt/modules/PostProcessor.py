@@ -1556,7 +1556,7 @@ class PostProcessor(PostProcessorCommon, object):
             Primitives object.
 
         """
-        return self._app._modeler.primitives
+        return self._app._modeler
 
     @property
     def model_units(self):
@@ -2316,6 +2316,8 @@ class PostProcessor(PostProcessorCommon, object):
         plot.objtype = objtype
         plot.listtype = listtype
         plt = plot.create()
+        if "Maxwell" in self._app.design_type and self.post_solution_type == "Transient":
+            self.ofieldsreporter.SetPlotsViewSolutionContext([plot_name], setup_name, "Time:" + intrinsincList["Time"])
         if plt:
             self.field_plots[plot_name] = plot
             return plot
@@ -2546,7 +2548,7 @@ class PostProcessor(PostProcessorCommon, object):
 
         >>> oModule.DeleteFieldPlot
         """
-        self.oreportsetup.DeleteFieldPlot([name])
+        self.ofieldsreporter.DeleteFieldPlot([name])
         self.field_plots.pop(name, None)
         return True
 
@@ -2702,7 +2704,7 @@ class PostProcessor(PostProcessorCommon, object):
             export_path = self._app.working_directory
         if not obj_list:
             self._app.modeler.refresh_all_ids()
-            obj_list = self._app.modeler.primitives.object_names
+            obj_list = self._app.modeler.object_names
             if not air_objects:
                 obj_list = [
                     i
@@ -2749,14 +2751,14 @@ class PostProcessor(PostProcessorCommon, object):
         if not setup_name:
             setup_name = self._app.nominal_adaptive
         face_lists = []
-        obj_list = self._app.modeler.primitives.object_names
+        obj_list = self._app.modeler.object_names
         for el in obj_list:
-            obj_id = self._app.modeler.primitives.get_obj_id(el)
-            if not self._app.modeler.primitives.objects[obj_id].is3d or (
-                self._app.modeler.primitives.objects[obj_id].material_name != "vacuum"
-                and self._app.modeler.primitives.objects[obj_id].material_name != "air"
+            obj_id = self._app.modeler.get_obj_id(el)
+            if not self._app.modeler.objects[obj_id].is3d or (
+                self._app.modeler.objects[obj_id].material_name != "vacuum"
+                and self._app.modeler.objects[obj_id].material_name != "air"
             ):
-                face_lists += self._app.modeler.primitives.get_object_faces(obj_id)
+                face_lists += self._app.modeler.get_object_faces(obj_id)
         plot = self.create_fieldplot_surface(face_lists, "Mesh", setup_name, intrinsic_dict)
         if plot:
             file_to_add = self.export_field_plot(plot.name, project_path)

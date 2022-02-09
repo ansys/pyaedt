@@ -37,12 +37,8 @@ class TestClass:
         plate_pos = self.aedtapp.modeler.Position(0, 0, 0)
         hole_pos = self.aedtapp.modeler.Position(18, 18, 0)
         # Create plate with hole
-        plate = self.aedtapp.modeler.primitives.create_box(
-            plate_pos, [294, 294, 19], name="Plate"
-        )  # All positions in model units
-        hole = self.aedtapp.modeler.primitives.create_box(
-            hole_pos, [108, 108, 19], name="Hole"
-        )  # All positions in model units
+        plate = self.aedtapp.modeler.create_box(plate_pos, [294, 294, 19], name="Plate")  # All positions in model units
+        hole = self.aedtapp.modeler.create_box(hole_pos, [108, 108, 19], name="Hole")  # All positions in model units
         self.aedtapp.modeler.subtract([plate], [hole])
         plate.material_name = "aluminum"
         assert plate.solve_inside
@@ -51,10 +47,10 @@ class TestClass:
     def test_02_create_coil(self):
         center_hole = self.aedtapp.modeler.Position(119, 25, 49)
         center_coil = self.aedtapp.modeler.Position(94, 0, 49)
-        coil_hole = self.aedtapp.modeler.primitives.create_box(
+        coil_hole = self.aedtapp.modeler.create_box(
             center_hole, [150, 150, 100], name="Coil_Hole"
         )  # All positions in model units
-        coil = self.aedtapp.modeler.primitives.create_box(
+        coil = self.aedtapp.modeler.create_box(
             center_coil, [200, 200, 100], name="Coil"
         )  # All positions in model units
         self.aedtapp.modeler.subtract([coil], [coil_hole])
@@ -69,10 +65,10 @@ class TestClass:
     def test_04_coil_terminal(self):
         self.aedtapp.modeler.section(["Coil"], self.aedtapp.PLANE.ZX)
         self.aedtapp.modeler.separate_bodies(["Coil_Section1"])
-        self.aedtapp.modeler.primitives.delete("Coil_Section1_Separate1")
+        self.aedtapp.modeler.delete("Coil_Section1_Separate1")
         assert self.aedtapp.assign_current(["Coil_Section1"], amplitude=2472)
         self.aedtapp.solution_type = "Magnetostatic"
-        volt = self.aedtapp.assign_voltage(self.aedtapp.modeler.primitives["Coil_Section1"].faces[0].id, amplitude=1)
+        volt = self.aedtapp.assign_voltage(self.aedtapp.modeler["Coil_Section1"].faces[0].id, amplitude=1)
         cur2 = self.aedtapp.assign_current(["Coil_Section1"], amplitude=212)
         assert cur2
         assert cur2.delete()
@@ -81,7 +77,7 @@ class TestClass:
         self.aedtapp.solution_type = "EddyCurrent"
 
     def test_05_winding(self):
-        assert self.aedtapp.assign_winding(self.aedtapp.modeler.primitives["Coil_Section1"].faces[0].id)
+        assert self.aedtapp.assign_winding(self.aedtapp.modeler["Coil_Section1"].faces[0].id)
 
     def test_05_draw_region(self):
         assert self.aedtapp.modeler.create_air_region(*[300] * 6)
@@ -159,7 +155,7 @@ class TestClass:
 
         # Test udp with a custom name.
         my_udpName = "MyClawPoleCore"
-        udp = self.aedtapp.modeler.primitives.create_udp(
+        udp = self.aedtapp.modeler.create_udp(
             udp_dll_name="RMxprt/ClawPoleCore",
             udp_parameters_list=my_udpPairs,
             upd_library="syslib",
@@ -171,7 +167,7 @@ class TestClass:
         assert "MyClawPoleCore" in udp._primitives.object_names
 
         # Test udp with default name -None-.
-        second_udp = self.aedtapp.modeler.primitives.create_udp(
+        second_udp = self.aedtapp.modeler.create_udp(
             udp_dll_name="RMxprt/ClawPoleCore",
             udp_parameters_list=my_udpPairs,
             upd_library="syslib",
@@ -208,7 +204,7 @@ class TestClass:
         mypair = ["Via Thickness (VT)", "0.001mm"]
         my_udmPairs.append(mypair)
 
-        assert self.aedtapp.modeler.primitives.create_udm(
+        assert self.aedtapp.modeler.create_udm(
             udmfullname="Maxwell3D/OnDieSpiralInductor.py", udm_params_list=my_udmPairs, udm_library="syslib"
         )
 
@@ -221,8 +217,8 @@ class TestClass:
     def test_30_assign_movement(self):
         self.aedtapp.insert_design("Motion")
         self.aedtapp.solution_type = SOLUTIONS.Maxwell3d.Transient
-        self.aedtapp.modeler.primitives.create_box([0, 0, 0], [10, 10, 10], name="Inner_Box")
-        self.aedtapp.modeler.primitives.create_box([0, 0, 0], [30, 20, 20], name="Outer_Box")
+        self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 10], name="Inner_Box")
+        self.aedtapp.modeler.create_box([0, 0, 0], [30, 20, 20], name="Outer_Box")
         bound = self.aedtapp.assign_translate_motion("Outer_Box", mechanical_transient=True, velocity=1)
         assert bound
         assert bound.props["Velocity"] == "1m_per_sec"
@@ -238,3 +234,7 @@ class TestClass:
         m3d1 = Maxwell3d(self.file_path)
         assert m3d1.assign_matrix("pri", "mymatrix") == "mymatrix"
         self.aedtapp.close_project(m3d1.project_name, False)
+
+    def test_33_mesh_settings(self):
+        assert self.aedtapp.mesh.initial_mesh_settings
+        assert self.aedtapp.mesh.initial_mesh_settings.props

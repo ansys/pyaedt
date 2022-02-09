@@ -55,7 +55,7 @@ ipk.create_source_block(["MEMORY1", "MEMORY1_1"], "5W")
 # ~~~~~~~~~~~~~~~~~
 # Assign Opening and Grille
 
-region = ipk.modeler.primitives["Region"]
+region = ipk.modeler["Region"]
 ipk.assign_openings(air_faces=region.bottom_face_x.id)
 ipk.assign_grille(air_faces=region.top_face_x.id, free_area_ratio=0.8)
 
@@ -93,10 +93,10 @@ ipk.save_project(r"C:\temp\Graphic_card.aedt")
 # Solve Project and plot Temperatures
 
 quantity_name = "SurfTemperature"
-surflist = [i.id for i in ipk.modeler.primitives["CPU"].faces]
-surflist += [i.id for i in ipk.modeler.primitives["MEMORY1"].faces]
-surflist += [i.id for i in ipk.modeler.primitives["MEMORY1_1"].faces]
-surflist += [i.id for i in ipk.modeler.primitives["ALPHA_MAIN_PCB"].faces]
+surflist = [i.id for i in ipk.modeler["CPU"].faces]
+surflist += [i.id for i in ipk.modeler["MEMORY1"].faces]
+surflist += [i.id for i in ipk.modeler["MEMORY1_1"].faces]
+surflist += [i.id for i in ipk.modeler["ALPHA_MAIN_PCB"].faces]
 
 plot5 = ipk.post.create_fieldplot_surface(surflist, "SurfTemperature")
 
