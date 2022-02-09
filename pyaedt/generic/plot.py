@@ -1059,7 +1059,6 @@ class ModelPlotter(object):
                                "{}{}.{}".format(root_name, datetime.now().strftime("%Y_%M_%d_%H-%M-%S"), format))
             self.pv.screenshot(exp, return_img=False)
 
-
         self.pv.add_key_event("s", s_callback)
         if export_image_path:
             self.pv.show(screenshot=export_image_path, full_screen=True)
