@@ -30,7 +30,7 @@ class TestClass:
                 source_project = os.path.join(local_path, "example_models", src_project_name + ".aedt")
                 linked_project = os.path.join(local_path, "example_models", linked_project_name + ".aedt")
 
-                self.q3d = os.path.join(local_path, "example_models", "q2d_q3d.aedt")
+                self.q3d = self.local_scratch.copyfile(os.path.join(local_path, "example_models", "q2d_q3d.aedt"))
                 self.test_project = self.local_scratch.copyfile(example_project)
                 self.test_src_project = self.local_scratch.copyfile(source_project)
                 self.test_lkd_project = self.local_scratch.copyfile(linked_project)

@@ -1626,6 +1626,9 @@ class NexximComponents(CircuitComponents):
 
         >>> oComponentManager.UpdateDynamicLink
         """
+        if "@" in component_name:
+            component_name = component_name.split("@")[1]
+        component_name = component_name.split(";")[0]
         self.o_component_manager.UpdateDynamicLink(component_name)
         return True
 
