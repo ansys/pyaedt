@@ -1046,8 +1046,7 @@ class ModelPlotter(object):
         self.pv.camera.zoom(self.zoom)
         if export_image_path:
             path_image = os.path.dirname(export_image_path)
-            format = export_image_path.split(".")[-1]
-            root_name = os.path.splitext(os.path.basename(export_image_path))[0]
+            root_name, format = os.path.splitext(os.path.basename(export_image_path))
         else:
             path_image = tempfile.gettempdir()
             format = ".png"
