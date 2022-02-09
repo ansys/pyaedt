@@ -191,8 +191,8 @@ class TestClass:
         assert "R1" in list(self.edbapp.core_components.components.keys())
         assert self.edbapp.core_components.components["R1"].res_value
         assert self.edbapp.core_components.components["R1"].placement_layer
-        assert self.edbapp.core_components.components["R1"].lower_elevation
-        assert self.edbapp.core_components.components["R1"].upper_elevation
+        assert isinstance(self.edbapp.core_components.components["R1"].lower_elevation, float)
+        assert isinstance(self.edbapp.core_components.components["R1"].upper_elevation, float)
         assert self.edbapp.core_components.components["R1"].top_bottom_association == 0
         assert self.edbapp.core_components.components["R1"].pinlist
         pinname = self.edbapp.core_components.components["R1"].pinlist[0].GetName()
