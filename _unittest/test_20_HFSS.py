@@ -466,11 +466,11 @@ class TestClass:
         port = self.aedtapp.create_voltage_source_from_objects(
             box1.name, "BoxVolt2", self.aedtapp.AxisDir.XNeg, "Volt1"
         )
-        assert port.name in self.aedtapp.modeler.get_excitations_name()
+        assert port.name in self.aedtapp.excitations
         port = self.aedtapp.create_current_source_from_objects(
             "BoxVolt1", "BoxVolt2", self.aedtapp.AxisDir.XPos, "Curr1"
         )
-        assert port.name in self.aedtapp.modeler.get_excitations_name()
+        assert port.name in self.aedtapp.excitations
 
     def test_19_create_lumped_on_sheet(self):
         rect = self.aedtapp.modeler.create_rectangle(
@@ -479,14 +479,14 @@ class TestClass:
         port = self.aedtapp.create_lumped_port_to_sheet(
             rect.name, self.aedtapp.AxisDir.XNeg, 50, "Lump_sheet", True, False
         )
-        assert port.name + ":1" in self.aedtapp.modeler.get_excitations_name()
+        assert port.name + ":1" in self.aedtapp.excitations
 
     def test_20_create_voltage_on_sheet(self):
         rect = self.aedtapp.modeler.create_rectangle(
             self.aedtapp.PLANE.XY, [0, 0, 0], [10, 2], name="lump_volt", matname="Copper"
         )
         port = self.aedtapp.assign_voltage_source_to_sheet(rect.name, self.aedtapp.AxisDir.XNeg, "LumpVolt1")
-        assert port.name in self.aedtapp.modeler.get_excitations_name()
+        assert port.name in self.aedtapp.excitations
         assert self.aedtapp.get_property_value("BoundarySetup:LumpVolt1", "VoltageMag", "Excitation") == "1V"
 
     def test_21_create_open_region(self):
@@ -709,11 +709,11 @@ class TestClass:
         port = self.aedtapp.create_lumped_port_between_objects(
             box1, box2.name, self.aedtapp.AxisDir.XNeg, 50, "Lump1", True, False
         )
-        assert "Lump1_T1" in self.aedtapp.get_excitations_name()
+        assert "Lump1_T1" in self.aedtapp.excitations
         port2 = self.aedtapp.create_lumped_port_to_sheet(
             sheet.name, self.aedtapp.AxisDir.XNeg, 50, "Lump_sheet", True, False, reference_object_list=[box1]
         )
-        assert port2.name + "_T1" in self.aedtapp.modeler.get_excitations_name()
+        assert port2.name + "_T1" in self.aedtapp.excitations
 
         box1 = self.aedtapp.modeler.create_box([-40, -40, -20], [80, 80, 10], name="gnd", matname="copper")
         box2 = self.aedtapp.modeler.create_box([-40, -40, 10], [80, 80, 10], name="sig", matname="copper")
@@ -728,3 +728,7 @@ class TestClass:
     def test_47_convert_near_field(self):
         example_project = os.path.join(local_path, "example_models", "nf_test")
         assert os.path.exists(convert_nearfield_data(example_project, self.local_scratch.path))
+
+    def test_48_traces(self):
+        assert len(self.aedtapp.excitations) > 0
+        assert len(self.aedtapp.get_traces_for_plot()) > 0

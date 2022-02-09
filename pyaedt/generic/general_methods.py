@@ -11,6 +11,7 @@ from functools import wraps
 from collections import OrderedDict
 import inspect
 import itertools
+import re
 
 try:
     logger = logging.getLogger("Global")
@@ -541,3 +542,27 @@ def write_csv(output, list_data, delimiter=",", quotechar="|", quoting=csv.QUOTE
         writer.writerow(data)
     f.close()
     return True
+
+
+@aedt_exception_handler
+def filter_tuple(value, search_key1, search_key2):
+    """Filter a tuple of 2 elements with two search keywords"""
+    ignore_case = True
+
+    def _create_pattern(k1, k2):
+        k1a = re.sub(r"\?", r".", k1)
+        k1b = re.sub(r"\*", r".*?", k1a)
+        k2a = re.sub(r"\?", r".", k2)
+        k2b = re.sub(r"\*", r".*?", k2a)
+        pattern = r".*\({},{}\)".format(k1b, k2b)
+        return pattern
+
+    if ignore_case:
+        compiled_re = re.compile(_create_pattern(search_key1, search_key2), re.IGNORECASE)
+    else:
+        compiled_re = re.compile(_create_pattern(search_key1, search_key2))
+
+    m = compiled_re.search(value)
+    if m:
+        return True
+    return False

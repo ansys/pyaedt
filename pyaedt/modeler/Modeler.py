@@ -1898,23 +1898,6 @@ class GeometryModeler(Modeler, object):
         return sheet_name, point0, point1
 
     @aedt_exception_handler
-    def get_excitations_name(self):
-        """Get all excitation names.
-
-        Returns
-        -------
-        list
-            List of excitation names. Excitations with multiple modes will return one
-            excitation for each mode.
-
-        References
-        ----------
-
-        >>> oModule.GetExcitations
-        """
-        return self._app.get_excitations_name()
-
-    @aedt_exception_handler
     def get_boundaries_name(self):
         """Retrieve all boundary names.
 
