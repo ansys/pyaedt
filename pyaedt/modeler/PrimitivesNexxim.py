@@ -1199,6 +1199,7 @@ class NexximComponents(CircuitComponents):
             Port to be used for tramsission line. Only applies to Hfss.
         comp_name : str, optional
             Component name.
+
         Returns
         -------
         :class:`pyaedt.modeler.Object3d.CircuitComponent`
