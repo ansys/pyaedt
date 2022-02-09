@@ -401,8 +401,9 @@ class PostProcessor(Post):
         else:
             self.ofieldsreporter.UpdateQuantityFieldsPlots(plot_folder)
         models_to_add = []
-        if self._app._aedt_version >= "2021.2":
-            models_to_add = self.export_model_obj(export_as_single_objects=True, air_objects=False)
+        if meshplot:
+            if self._app._aedt_version >= "2021.2":
+                models_to_add = self.export_model_obj(export_as_single_objects=True, air_objects=False)
         fields_to_add = []
         if not project_path:
             project_path = self._app.working_directory
