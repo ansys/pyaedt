@@ -72,6 +72,7 @@ class TestClass:
         sink = self.aedtapp.assign_sink_to_objectface("MyCylinder", axisdir=3, sink_name="Sink1")
         assert source.name == "Source1"
         assert sink.name == "Sink1"
+        assert len(self.aedtapp.excitations) > 0
 
     def test_07B_create_source_tosheet(self):
         self.aedtapp.modeler.create_circle(self.aedtapp.PLANE.XY, [0, 0, 0], 4, name="Source1")

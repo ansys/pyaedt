@@ -116,7 +116,7 @@ data_plot_self = q.matrices[0].get_sources_for_plot(get_self_terms=True, get_mut
 
 q.post.create_rectangular_plot(expression=data_plot_self, context="Original")
 
-data_plot_mutual = q.matrices[0].get_sources_for_plot(get_self_terms=False, get_mutual_terms=True)
+data_plot_mutual = q.get_traces_for_plot(get_self_terms=False, get_mutual_terms=True)
 
 q.post.create_rectangular_plot(expression=data_plot_mutual, context="Original", plot_type="Data Table")
 

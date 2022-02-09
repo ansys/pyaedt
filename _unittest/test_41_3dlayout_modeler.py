@@ -184,6 +184,7 @@ class TestClass:
     def test_13a_create_edge_port(self):
         assert self.aedtapp.create_edge_port("line1", 3, False)
         assert self.aedtapp.create_edge_port("line1", 0, True)
+        assert len(self.aedtapp.excitations) > 0
 
     def test_14a_create_coaxial_port(self):
         assert self.aedtapp.create_coax_port("Via123", "Bottom", "Top", 10, 10, 10, 10)
