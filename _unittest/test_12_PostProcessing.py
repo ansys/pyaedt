@@ -30,14 +30,12 @@ class TestClass:
     def setup_class(self):
         # set a scratch directory and the environment / test data
         with Scratch(scratch_path) as self.local_scratch:
-            try:
-                example_project = os.path.join(local_path, "example_models", test_project_name + ".aedtz")
-                self.test_project = self.local_scratch.copyfile(example_project)
-                example_project2 = os.path.join(local_path, "example_models", test_field_name + ".aedtz")
-                self.test_project2 = self.local_scratch.copyfile(example_project2)
-                self.aedtapp = Hfss(self.test_project)
-            except:
-                pass
+            example_project = os.path.join(local_path, "example_models", test_project_name + ".aedtz")
+            self.test_project = self.local_scratch.copyfile(example_project)
+            example_project2 = os.path.join(local_path, "example_models", test_field_name + ".aedtz")
+            self.test_project2 = self.local_scratch.copyfile(example_project2)
+            self.aedtapp = Hfss(self.test_project)
+
 
     def teardown_class(self):
         self.aedtapp._desktop.ClearMessages("", "", 3)

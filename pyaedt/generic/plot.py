@@ -2,10 +2,12 @@ import csv
 import os
 import time
 import warnings
+from datetime import datetime
 
 from pyaedt import aedt_exception_handler
 from pyaedt.generic.constants import CSS4_COLORS, AEDT_UNITS
 from pyaedt.generic.general_methods import is_ironpython, convert_remote_object
+import tempfile
 
 if not is_ironpython:
     try:
@@ -964,7 +966,7 @@ class ModelPlotter(object):
 
     @aedt_exception_handler
     def plot(self, export_image_path=None):
-        """Plot the current available Data.
+        """Plot the current available Data. With `s` key a screenshot is saved in export_image_path or in tempdir.
 
         Parameters
         ----------
@@ -1043,11 +1045,29 @@ class ModelPlotter(object):
             self.pv.isometric_view()
         self.pv.camera.zoom(self.zoom)
         if export_image_path:
+            path_image = os.path.dirname(export_image_path)
+            format = export_image_path.split(".")[-1]
+            root_name = os.path.splitext(os.path.basename(export_image_path))[0]
+        else:
+            path_image = tempfile.gettempdir()
+            format = "png"
+            root_name = "Image"
+
+        def s_callback():
+            """save screenshots"""
+            exp = os.path.join(path_image,
+                               "{}{}.{}".format(root_name, datetime.now().strftime("%Y_%M_%d_%H-%M-%S"), format))
+            self.pv.screenshot(exp, return_img=False)
+
+
+        self.pv.add_key_event("s", s_callback)
+        if export_image_path:
             self.pv.show(screenshot=export_image_path, full_screen=True)
         elif self.is_notebook:
             self.pv.show()
         else:
             self.pv.show(full_screen=True)
+
         self.image_file = export_image_path
         return True
 
