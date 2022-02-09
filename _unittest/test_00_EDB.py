@@ -57,7 +57,7 @@ class TestClass:
         assert self.edbapp.core_padstack.get_via_instance_from_net("GND")
         assert not self.edbapp.core_padstack.get_via_instance_from_net(["GND2"])
 
-    def tesCt_01_flip_layer_stackup(self):
+    def test_01_flip_layer_stackup(self):
         assert self.edbapp.core_stackup.place_in_layout()
 
     def test_02_get_properties(self):
