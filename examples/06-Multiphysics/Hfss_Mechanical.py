@@ -44,8 +44,7 @@ pin_names = hfss.modeler.get_excitations_name()
 # Starts Circuit and add Hfss dynamic link component to it.
 
 circuit = Circuit()
-hfss_comp = circuit.modeler.schematic.add_subcircuit_dynamic_link(hfss.design_name, hfss.project_file,
-                                                                  hfss.nominal_sweep)
+hfss_comp = circuit.modeler.schematic.add_subcircuit_dynamic_link(hfss)
 
 ###############################################################################
 # Dynamic Link Options

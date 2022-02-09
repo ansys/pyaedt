@@ -1179,15 +1179,14 @@ class NexximComponents(CircuitComponents):
         enable_cable_modeling=True,
         default_matrix="Original",
         tline_port="",
+        comp_name=None,
     ):
         """Add a subcircuit from `HFSS`, `Q3d` or `2D Extractor` in circuit design.
 
         Parameters
         ----------
-        source_design_name : str
-            Source Project Design Name.
-        source_project_path : str
-            Source Project full path.
+        pyaedt_app : :class:`pyaedt.q3d.Q3d` or :class:`pyaedt.q3d.Q2d` or :class:`pyaedt.q3d.Hfss`
+            pyaedt application object to include. It could be an Hfss object, a Q3d object or a Q2d.
         solution_name : str, optional
             Name of the solution and sweep. The default is ``"Setup1 : Sweep"``.
         extrusion_length : float, str, optional
@@ -1198,7 +1197,8 @@ class NexximComponents(CircuitComponents):
             Matrix to link to the subcircuit. Default to `"Original"`. It only applies to 2D Extractor and Q3D.
         tline_port : str, optional
             Port to be used for tramsission line. Only applies to Hfss.
-
+        comp_name : str, optional
+            Component name.
         Returns
         -------
         :class:`pyaedt.modeler.Object3d.CircuitComponent`
@@ -1212,8 +1212,8 @@ class NexximComponents(CircuitComponents):
         >>> oDesign.AddCompInstance
         >>> oDesign.AddDynamicLink
         """
-
-        comp_name = generate_unique_name(pyaedt_app.design_name)
+        if not comp_name:
+            comp_name = generate_unique_name(pyaedt_app.design_name)
         source_project_path = pyaedt_app.project_file
         source_design_name = pyaedt_app.design_name
         matrix = None
