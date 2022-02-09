@@ -822,6 +822,7 @@ class WPFToolkit(Window):
     def copy_xaml_template(self):
         """Copies the xaml template to local folder and rename it to be used with current application."""
         local_path = os.path.abspath(os.path.dirname(__file__))
+        print("xaml file = {}".format(self.xaml_file))
         shutil.copy2(os.path.join(local_path, "wpf_template.xaml"), self.xaml_file)
         return True
 
@@ -1483,6 +1484,30 @@ class WPFToolkit(Window):
             control.SelectedValue = default
 
     @aedt_exception_handler
+    def get_combobox_selection(self, ui_object_name):
+        """Returns the selected value from a combobox
+        Parameters
+        ----------
+        ui_object_name : str
+            Object name.
+
+        Returns str
+            The selected value.
+        """
+        control = self.get_ui_object(ui_object_name)
+        item_selected = str(control.SelectedItem)
+        return item_selected
+
+    @aedt_exception_handler
+    def clear_combobox_items(self, ui_object_name):
+        """
+
+        """
+        control = self.get_ui_object(ui_object_name)
+        control.Items.Clear()
+
+
+    @aedt_exception_handler
     def set_text_value(self, ui_object_name, text_val):
         """Sets a text box value.
 
@@ -1495,6 +1520,17 @@ class WPFToolkit(Window):
         """
         control = self.get_ui_object(ui_object_name)
         control.Text = text_val
+
+    @aedt_exception_handler
+    def get_checkbox_status(self, ui_object_name):
+        """
+
+        """
+        control = self.get_ui_object(ui_object_name)
+        if control.IsChecked:
+            return True
+        else:
+            return False
 
     @aedt_exception_handler
     def set_chechbox_status(self, ui_object_name, flag=True):
