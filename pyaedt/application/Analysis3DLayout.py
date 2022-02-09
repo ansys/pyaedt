@@ -171,9 +171,7 @@ class FieldAnalysis3DLayout(Analysis):
 
         >>> oModule.GetAllPortsList
         """
-        warnings.warn(
-            "`get_excitations_name` is deprecated. Use `excitations` property instead.", DeprecationWarning
-        )
+        warnings.warn("`get_excitations_name` is deprecated. Use `excitations` property instead.", DeprecationWarning)
         return self.excitations
 
     @property

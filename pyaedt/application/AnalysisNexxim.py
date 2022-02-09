@@ -114,6 +114,7 @@ class FieldAnalysisCircuit(Analysis):
         """
         ports = [p.replace("IPort@", "").split(";")[0] for p in self.modeler.oeditor.GetAllPorts()]
         return ports
+
     @property
     def get_excitations_name(self):
         """Excitation names.
@@ -131,9 +132,7 @@ class FieldAnalysisCircuit(Analysis):
 
         >>> oEditor.GetAllPorts
         """
-        warnings.warn(
-            "`get_excitations_name` is deprecated. Use `excitations` property instead.", DeprecationWarning
-        )
+        warnings.warn("`get_excitations_name` is deprecated. Use `excitations` property instead.", DeprecationWarning)
         return self.excitations
 
     @property

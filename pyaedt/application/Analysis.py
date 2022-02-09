@@ -523,9 +523,7 @@ class Analysis(Design, object):
 
         >>> oModule.GetExcitations
         """
-        warnings.warn(
-            "`get_excitations_name` is deprecated. Use `excitations` property instead.", DeprecationWarning
-        )
+        warnings.warn("`get_excitations_name` is deprecated. Use `excitations` property instead.", DeprecationWarning)
         return self.excitations
 
     @aedt_exception_handler
@@ -568,7 +566,7 @@ class Analysis(Design, object):
         if not second_element_filter:
             second_element_filter = "*"
         list_output = []
-        end_str = ")" * (category.count('(') + 1)
+        end_str = ")" * (category.count("(") + 1)
         if get_self_terms:
             for el in self.excitations:
                 value = "{}({},{}{}".format(category, el, el, end_str)
