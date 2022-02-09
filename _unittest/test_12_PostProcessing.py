@@ -36,7 +36,6 @@ class TestClass:
             self.test_project2 = self.local_scratch.copyfile(example_project2)
             self.aedtapp = Hfss(self.test_project)
 
-
     def teardown_class(self):
         self.aedtapp._desktop.ClearMessages("", "", 3)
         assert self.aedtapp.close_project(self.aedtapp.project_name, False)
