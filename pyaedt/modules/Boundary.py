@@ -2,7 +2,6 @@
 This module contains these classes: `BoundaryCommon` and `BoundaryObject`.
 """
 from collections import OrderedDict
-import re
 
 from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, filter_tuple
 from pyaedt.generic.DataHandlers import _dict2arg
