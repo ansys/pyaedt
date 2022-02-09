@@ -468,7 +468,7 @@ class TestClass:
         )
         assert port.name in self.aedtapp.excitations
         port = self.aedtapp.create_current_source_from_objects(
-            "BoxVolt1", "BoxVolt2", self.aedtapp.AxisDir.XPos, "Curr1"
+            "BoxVolt1", "BoxVolt2", self.aedtapp.AxisDir.XPos
         )
         assert port.name in self.aedtapp.excitations
 

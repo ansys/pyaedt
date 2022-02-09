@@ -227,6 +227,14 @@ class Hfss(FieldAnalysis3D, object):
         return self.design_solutions.set_auto_open(enable=enable, boundary_type=boundary_type)
 
     @aedt_exception_handler
+    def _get_unique_source_name(self, source_name, root_name):
+        if not source_name:
+            source_name = generate_unique_name(root_name)
+        elif source_name in self.excitations or source_name + ":1" in self.excitations:
+            source_name = generate_unique_name(source_name)
+        return source_name
+
+    @aedt_exception_handler
     def _get_rad_fields(self):
         if not self.design_properties:
             return []
@@ -1511,10 +1519,8 @@ class Hfss(FieldAnalysis3D, object):
         if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
             out, parallel = self.modeler.find_closest_edges(startobj, endobject, axisdir)
             port_edges = []
-            if not portname:
-                portname = generate_unique_name("Port")
-            elif portname + ":1" in self.excitations:
-                portname = generate_unique_name(portname)
+            portname = self._get_unique_source_name(portname, "Port")
+
             return self._create_circuit_port(out, impedance, portname, renorm, deemb, renorm_impedance=renorm_impedance)
         return False
 
@@ -1584,10 +1590,8 @@ class Hfss(FieldAnalysis3D, object):
                 startobj, endobject, axisdir, port_on_plane
             )
 
-            if not portname:
-                portname = generate_unique_name("Port")
-            elif portname + ":1" in self.excitations:
-                portname = generate_unique_name(portname)
+            portname = self._get_unique_source_name(portname, "Port")
+
             if "Modal" in self.solution_type:
                 return self._create_lumped_driven(sheet_name, point0, point1, impedance, portname, renorm, deemb)
             else:
@@ -1852,10 +1856,7 @@ class Hfss(FieldAnalysis3D, object):
             sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(
                 startobj, endobject, axisdir, source_on_plane
             )
-            if not sourcename:
-                sourcename = generate_unique_name("Voltage")
-            elif sourcename + ":1" in self.excitations:
-                sourcename = generate_unique_name(sourcename)
+            sourcename = self._get_unique_source_name(sourcename, "Voltage")
             return self.create_source_excitation(sheet_name, point0, point1, sourcename, sourcetype="Voltage")
         return False
 
@@ -1912,10 +1913,7 @@ class Hfss(FieldAnalysis3D, object):
             sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(
                 startobj, endobject, axisdir, source_on_plane
             )
-            if not sourcename:
-                sourcename = generate_unique_name("Current")
-            elif sourcename + ":1" in self.excitations:
-                sourcename = generate_unique_name(sourcename)
+            sourcename = self._get_unique_source_name(sourcename, "Current")
             return self.create_source_excitation(sheet_name, point0, point1, sourcename, sourcetype="Current")
         return False
 
@@ -2031,10 +2029,8 @@ class Hfss(FieldAnalysis3D, object):
             if add_pec_cap:
                 dist = GeometryOperators.points_distance(point0, point1)
                 self._create_pec_cap(sheet_name, startobj, dist / 10)
-            if not portname:
-                portname = generate_unique_name("Port")
-            elif portname + ":1" in self.excitations:
-                portname = generate_unique_name(portname)
+            portname = self._get_unique_source_name(portname, "Port")
+
             if "Modal" in self.solution_type:
                 return self._create_waveport_driven(
                     sheet_name, point0, point1, impedance, portname, renorm, nummodes, deembed_dist
@@ -2458,10 +2454,8 @@ class Hfss(FieldAnalysis3D, object):
             )
             dist = GeometryOperators.points_distance(point0, point1)
             self._create_pec_cap(sheet_name, startobj, dist / 10)
-            if not portname:
-                portname = generate_unique_name("Port")
-            elif portname + ":1" in self.excitations:
-                portname = generate_unique_name(portname)
+            portname = self._get_unique_source_name(portname, "Port")
+
             if "Modal" in self.solution_type:
                 return self._create_waveport_driven(
                     sheet_name, point0, point1, impedance, portname, renorm, nummodes, deembed_dist
@@ -3029,10 +3023,8 @@ class Hfss(FieldAnalysis3D, object):
 
             refid, int_start, int_stop = self._get_reference_and_integration_points(sheet, axisdir, oname)
 
-            if not portname:
-                portname = generate_unique_name("Port")
-            elif portname + ":1" in self.excitations:
-                portname = generate_unique_name(portname)
+            portname = self._get_unique_source_name(portname, "Port")
+
             return self._create_waveport_driven(
                 sheet, int_start, int_stop, impedance, portname, renorm, nummodes, deemb
             )
@@ -3106,10 +3098,8 @@ class Hfss(FieldAnalysis3D, object):
         if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
             point0, point1 = self.modeler.get_mid_points_on_dir(sheet_name, axisdir)
 
-            if not portname:
-                portname = generate_unique_name("Port")
-            elif portname + ":1" in self.excitations:
-                portname = generate_unique_name(portname)
+            portname = self._get_unique_source_name(portname, "Port")
+
             port = False
             if "Modal" in self.solution_type:
                 port = self._create_lumped_driven(sheet_name, point0, point1, impedance, portname, renorm, deemb)
@@ -3189,10 +3179,7 @@ class Hfss(FieldAnalysis3D, object):
 
         if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
             point0, point1 = self.modeler.get_mid_points_on_dir(sheet_name, axisdir)
-            if not sourcename:
-                sourcename = generate_unique_name("Voltage")
-            elif sourcename + ":1" in self.excitations:
-                sourcename = generate_unique_name(sourcename)
+            sourcename = self._get_unique_source_name(sourcename, "Voltage")
             return self.create_source_excitation(sheet_name, point0, point1, sourcename, sourcetype="Voltage")
         return False
 
@@ -3235,10 +3222,7 @@ class Hfss(FieldAnalysis3D, object):
 
         if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
             point0, point1 = self.modeler.get_mid_points_on_dir(sheet_name, axisdir)
-            if not sourcename:
-                sourcename = generate_unique_name("Current")
-            elif sourcename + ":1" in self.excitations:
-                sourcename = generate_unique_name(sourcename)
+            sourcename = self._get_unique_source_name(sourcename, "Current")
             return self.create_source_excitation(sheet_name, point0, point1, sourcename, sourcetype="Current")
         return False
 
@@ -3538,10 +3522,7 @@ class Hfss(FieldAnalysis3D, object):
         """
 
         edge_list = [edge_signal, edge_gnd]
-        if not port_name:
-            port_name = generate_unique_name("Port")
-        elif port_name + ":1" in self.excitations:
-            port_name = generate_unique_name(port_name)
+        port_name = self._get_unique_source_name(port_name, "Port")
 
         return self._create_circuit_port(
             edge_list, port_impedance, port_name, renormalize, deembed, renorm_impedance=renorm_impedance
