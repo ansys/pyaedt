@@ -1173,7 +1173,7 @@ class NexximComponents(CircuitComponents):
     @aedt_exception_handler
     def add_subcircuit_dynamic_link(
         self,
-        pyaedt_app,
+        pyaedt_app=None,
         solution_name=None,
         extrusion_length=None,
         enable_cable_modeling=True,
@@ -1185,7 +1185,7 @@ class NexximComponents(CircuitComponents):
 
         Parameters
         ----------
-        pyaedt_app : :class:`pyaedt.q3d.Q3d` or :class:`pyaedt.q3d.Q2d` or :class:`pyaedt.q3d.Hfss`
+        pyaedt_app : :class:`pyaedt.q3d.Q3d` or :class:`pyaedt.q3d.Q2d` or :class:`pyaedt.q3d.Hfss`.
             pyaedt application object to include. It could be an Hfss object, a Q3d object or a Q2d.
         solution_name : str, optional
             Name of the solution and sweep. The default is ``"Setup1 : Sweep"``.
@@ -1301,7 +1301,7 @@ class NexximComponents(CircuitComponents):
         extrusion_length_q2d=10,
         matrix=None,
         enable_cable_modeling=False,
-        default_matrix="Original"
+        default_matrix="Original",
     ):
         """Add a subcircuit HFSS link.
 

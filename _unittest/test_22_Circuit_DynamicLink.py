@@ -194,24 +194,20 @@ class TestClass:
         q2d = Q2d(self.q3d)
         proj_path = self.q3d
         proj_name = q2d.project_name
-        assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(
-            q2d, extrusion_length=25
-        )
+        assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(q2d, extrusion_length=25)
         if proj_name in self.aedtapp.project_list:
             proj_path = proj_name
         print("Started Test 10")
         q3d = Q3d(proj_path)
-        assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(
-            q3d, solution_name="Setup1 : LastAdaptive"
-        )
+
+        assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(q3d, solution_name="Setup1 : LastAdaptive")
         print("Started Test 10")
         hfss = Hfss(proj_path)
 
-        assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(hfss, solution_name="Setup1 : Sweep"
+        assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(hfss, solution_name="Setup1 : Sweep")
+        print("Started Test 10")
+        hfss = Hfss(proj_path)
+        assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(
+            hfss, solution_name="Setup2 : Sweep", tline_port="1"
         )
         print("Started Test 10")
-
-        assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(hfss, solution_name="Setup2 : Sweep", tline_port="1"
-        )
-        print("Started Test 10")
-
