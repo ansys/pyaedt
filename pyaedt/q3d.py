@@ -435,7 +435,7 @@ class Q3d(QExtractor, object):
         """
         if not sourcename:
             sourcename = generate_unique_name("Source")
-        sheetname = self.modeler._convert_list_to_ids(sheetname)
+        sheetname = self.modeler.convert_to_selections(sheetname, True)
         props = OrderedDict({"Objects": [sheetname]})
         if objectname:
             props["ParentBndID"] = objectname
@@ -524,7 +524,7 @@ class Q3d(QExtractor, object):
         """
         if not sinkname:
             sinkname = generate_unique_name("Source")
-        sheetname = self.modeler._convert_list_to_ids(sheetname)
+        sheetname = self.modeler.convert_to_selections(sheetname, True)
         props = OrderedDict({"Objects": [sheetname]})
         if objectname:
             props["ParentBndID"] = objectname
@@ -924,7 +924,7 @@ class Q2d(QExtractor, object):
         else:
             ra = radius
 
-        a = self.modeler._convert_list_to_ids(edges, convert_objects_ids_to_name=False)
+        a = self.modeler.convert_to_selections(edges, True)
 
         props = OrderedDict({"Edges": a, "UseCoating": False, "Radius": ra, "Ratio": str(ratio)})
 

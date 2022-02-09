@@ -355,7 +355,7 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def _create_circuit_port(self, edgelist, impedance, name, renorm, deemb, renorm_impedance=""):
-        edgelist = self.modeler._convert_list_to_ids(edgelist, False)
+        edgelist = self.modeler.convert_to_selections(edgelist, True)
         props = OrderedDict(
             {
                 "Edges": edgelist,
@@ -2095,7 +2095,7 @@ class Hfss(FieldAnalysis3D, object):
 
         >>> oModule.AssignFloquetPort
         """
-        face_id = self.modeler._convert_list_to_ids(face, True)
+        face_id = self.modeler.convert_to_selections(face, True)
         props = OrderedDict({})
         if isinstance(face_id[0], int):
             props["Faces"] = face_id
@@ -2179,7 +2179,7 @@ class Hfss(FieldAnalysis3D, object):
         >>> oModule.AssignLatticePair
         """
         props = OrderedDict({})
-        face_id = self.modeler._convert_list_to_ids(face_couple, True)
+        face_id = self.modeler.convert_to_selections(face_couple, True)
         props["Faces"] = face_id
         props["ReverseV"] = reverse_v
 
@@ -2219,7 +2219,7 @@ class Hfss(FieldAnalysis3D, object):
 
         >>> oModule.AutoIdentifyLatticePair
         """
-        objectname = self.modeler._convert_list_to_ids(object_to_assign, True)
+        objectname = self.modeler.convert_to_selections(object_to_assign, True)
         boundaries = list(self.oboundary.GetBoundaries())
         self.oboundary.AutoIdentifyLatticePair("{}:{}".format(coordinate_system, coordinate_plane), objectname[0])
         boundaries = [i for i in list(self.oboundary.GetBoundaries()) if i not in boundaries]
@@ -2280,7 +2280,7 @@ class Hfss(FieldAnalysis3D, object):
         >>> oModule.AssignSecondary
         """
         props = OrderedDict({})
-        face_id = self.modeler._convert_list_to_ids(face, True)
+        face_id = self.modeler.convert_to_selections(face, True)
         if isinstance(face_id[0], str):
             props["Objects"] = face_id
 
@@ -2337,7 +2337,7 @@ class Hfss(FieldAnalysis3D, object):
         >>> oModule.AssignPrimary
         """
         props = OrderedDict({})
-        face_id = self.modeler._convert_list_to_ids(face, True)
+        face_id = self.modeler.convert_to_selections(face, True)
         if isinstance(face_id[0], str):
             props["Objects"] = face_id
 
@@ -2885,7 +2885,7 @@ class Hfss(FieldAnalysis3D, object):
         """
 
         props = {}
-        sheet_name = self.modeler._convert_list_to_ids(sheet_name)
+        sheet_name = self.modeler.convert_to_selections(sheet_name, True)
         if type(sheet_name) is list:
             if type(sheet_name[0]) is str:
                 props["Objects"] = sheet_name
