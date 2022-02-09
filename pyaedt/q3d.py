@@ -91,7 +91,7 @@ class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
             excitation for each mode.
 
         """
-        return self.matrices[0].sources
+        return self.matrices[0].sources(False)
 
     @aedt_exception_handler
     def insert_reduced_matrix(self, operation_name, source_names=None, rm_name=None):
