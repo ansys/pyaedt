@@ -467,9 +467,7 @@ class TestClass:
             box1.name, "BoxVolt2", self.aedtapp.AxisDir.XNeg, "Volt1"
         )
         assert port.name in self.aedtapp.excitations
-        port = self.aedtapp.create_current_source_from_objects(
-            "BoxVolt1", "BoxVolt2", self.aedtapp.AxisDir.XPos
-        )
+        port = self.aedtapp.create_current_source_from_objects("BoxVolt1", "BoxVolt2", self.aedtapp.AxisDir.XPos)
         assert port.name in self.aedtapp.excitations
 
     def test_19_create_lumped_on_sheet(self):
