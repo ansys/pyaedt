@@ -1048,11 +1048,11 @@ class ModelPlotter(object):
             path_image = os.path.dirname(export_image_path)
             root_name, format = os.path.splitext(os.path.basename(export_image_path))
         else:
-            path_image = tempfile.gettempdir()
-            format = ".png"
-            root_name = "Image"
+            path_image = tempfile.gettempdir()  # pragma: no cover
+            format = ".png"  # pragma: no cover
+            root_name = "Image"  # pragma: no cover
 
-        def s_callback():
+        def s_callback():  # pragma: no cover
             """save screenshots"""
             exp = os.path.join(
                 path_image, "{}{}{}".format(root_name, datetime.now().strftime("%Y_%M_%d_%H-%M-%S"), format)
@@ -1062,10 +1062,10 @@ class ModelPlotter(object):
         self.pv.add_key_event("s", s_callback)
         if export_image_path:
             self.pv.show(screenshot=export_image_path, full_screen=True)
-        elif self.is_notebook:
-            self.pv.show()
+        elif self.is_notebook:  # pragma: no cover
+            self.pv.show()  # pragma: no cover
         else:
-            self.pv.show(full_screen=True)
+            self.pv.show(full_screen=True)  # pragma: no cover
 
         self.image_file = export_image_path
         return True
