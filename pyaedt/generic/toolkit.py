@@ -1522,6 +1522,14 @@ class WPFToolkit(Window):
         control.Text = text_val
 
     @aedt_exception_handler
+    def get_text_value(self, ui_object_name):
+        """
+
+        """
+        control = self.get_ui_object(ui_object_name)
+        return control.Text
+
+    @aedt_exception_handler
     def get_checkbox_status(self, ui_object_name):
         """
 
