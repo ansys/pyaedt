@@ -2,7 +2,7 @@
 import os
 from _unittest.conftest import local_path, scratch_path, config, desktop_version
 
-from pyaedt import Circuit
+from pyaedt import Circuit, Q2d, Q3d, Hfss
 from pyaedt.generic.filesystem import Scratch
 import gc
 
@@ -191,23 +191,23 @@ class TestClass:
     def test_10_q3d_link(self):
         print("Started Test 10")
         self.aedtapp.insert_design("test_link")
+        q2d = Q2d(self.q3d)
         assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(
-            "2DExtractorDesign1", self.q3d, solution_name="Setup1 : Sweep", extrusion_length=25
+            q2d, extrusion_length=25
+        )
+        print("Started Test 10")
+        q3d = Q3d()
+        assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(
+            q3d, solution_name="Setup1 : LastAdaptive"
+        )
+        print("Started Test 10")
+        hfss = Hfss()
+
+        assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(hfss, solution_name="Setup1 : Sweep"
         )
         print("Started Test 10")
 
-        assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(
-            "Q3DDesign1", self.q3d, solution_name="Setup1 : LastAdaptive"
-        )
-        print("Started Test 10")
-
-        assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(
-            "Terminal", self.q3d, solution_name="Setup1 : Sweep"
-        )
-        print("Started Test 10")
-
-        assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(
-            "Terminal", self.q3d, solution_name="Setup2 : Sweep", tline_port="1"
+        assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(hfss, solution_name="Setup2 : Sweep", tline_port="1"
         )
         print("Started Test 10")
 

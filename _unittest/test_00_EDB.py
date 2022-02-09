@@ -68,6 +68,7 @@ class TestClass:
         assert len(self.edbapp.core_components.ICs) > 0
         assert len(self.edbapp.core_components.IOs) > 0
         assert len(self.edbapp.core_components.Others) > 0
+        assert len(self.edbapp.get_bounding_box()) == 2
 
     def test_03_get_primitives(self):
         assert len(self.edbapp.core_primitives.polygons) > 0
