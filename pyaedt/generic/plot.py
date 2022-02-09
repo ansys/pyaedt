@@ -1050,7 +1050,7 @@ class ModelPlotter(object):
             root_name = os.path.splitext(os.path.basename(export_image_path))[0]
         else:
             path_image = tempfile.gettempdir()
-            format = "png"
+            format = ".png"
             root_name = "Image"
 
         def s_callback():
