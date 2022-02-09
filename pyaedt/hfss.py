@@ -1522,7 +1522,7 @@ class Hfss(FieldAnalysis3D, object):
             portname = self._get_unique_source_name(portname, "Port")
 
             return self._create_circuit_port(out, impedance, portname, renorm, deemb, renorm_impedance=renorm_impedance)
-        return False
+        return False  # pragma: no cover
 
     @aedt_exception_handler
     def create_lumped_port_between_objects(
@@ -1597,7 +1597,7 @@ class Hfss(FieldAnalysis3D, object):
             else:
                 faces = self.modeler.get_object_faces(sheet_name)
                 return self._create_port_terminal(faces[0], endobject, portname, renorm=renorm, iswaveport=False)
-        return False
+        return False  # pragma: no cover
 
     @aedt_exception_handler
     def create_spiral_lumped_port(self, start_object, end_object, port_width=None):
@@ -1858,7 +1858,7 @@ class Hfss(FieldAnalysis3D, object):
             )
             sourcename = self._get_unique_source_name(sourcename, "Voltage")
             return self.create_source_excitation(sheet_name, point0, point1, sourcename, sourcetype="Voltage")
-        return False
+        return False  # pragma: no cover
 
     @aedt_exception_handler
     def create_current_source_from_objects(self, startobj, endobject, axisdir=0, sourcename=None, source_on_plane=True):
@@ -1915,7 +1915,7 @@ class Hfss(FieldAnalysis3D, object):
             )
             sourcename = self._get_unique_source_name(sourcename, "Current")
             return self.create_source_excitation(sheet_name, point0, point1, sourcename, sourcetype="Current")
-        return False
+        return False  # pragma: no cover
 
     @aedt_exception_handler
     def create_source_excitation(self, sheet_name, point1, point2, sourcename, sourcetype="Voltage"):
@@ -2038,7 +2038,7 @@ class Hfss(FieldAnalysis3D, object):
             else:
                 faces = self.modeler.get_object_faces(sheet_name)
                 return self._create_port_terminal(faces[0], endobject, portname, renorm=renorm, iswaveport=True)
-        return False
+        return False  # pragma: no cover
 
     @aedt_exception_handler
     def create_floquet_port(
