@@ -36,7 +36,7 @@ shutil.copy2(project_full_name, project_temp_name)
 
 version = "2021.2"
 hfss = Hfss(project_temp_name, specified_version=version, non_graphical=False)
-pin_names = hfss.modeler.get_excitations_name()
+pin_names = hfss.excitations
 
 ###############################################################################
 # Starts Circuit
