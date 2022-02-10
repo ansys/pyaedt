@@ -1499,7 +1499,7 @@ class Components(object):
         pins_to_short : list, optional
             List of pins to short. If `None`, all pins will be shorted.
         width : float, optional
-            Short Trace width. It will be used in trace computation alghoritm
+            Short Trace width. It will be used in trace computation algorithm
 
         Returns
         -------
