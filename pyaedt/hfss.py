@@ -307,7 +307,7 @@ class Hfss(FieldAnalysis3D, object):
         return self._create_boundary(portname, props, "LumpedPort")
 
     @aedt_exception_handler
-    def _create_port_terminal(self, objectname, int_line_stop, portname, renorm=True, iswaveport=False):
+    def _create_port_terminal(self, objectname, int_line_stop, portname, renorm=True, deembed=None, iswaveport=False):
         ref_conductors = self.modeler.convert_to_selections(int_line_stop, True)
         props = OrderedDict({})
         props["Faces"] = int(objectname)
@@ -343,9 +343,14 @@ class Hfss(FieldAnalysis3D, object):
             if iswaveport:
                 props["NumModes"] = 1
                 props["UseLineModeAlignment"] = 1
-            props["DoDeembed"] = True
-            if iswaveport:
-                props["DeembedDist"] = "0mm"
+            if deembed is None:
+                props["DoDeembed"] = False
+                if iswaveport:
+                    props["DeembedDist"] = self.modeler._arg_with_dim(0)
+            else:
+                props["DoDeembed"] = True
+                if iswaveport:
+                    props["DeembedDist"] = self.modeler._arg_with_dim(deembed)
             props["RenormalizeAllTerminals"] = renorm
             props["ShowReporterFilter"] = False
             props["UseAnalyticAlignment"] = False
@@ -410,8 +415,7 @@ class Hfss(FieldAnalysis3D, object):
 
         if deemb_distance != 0:
             props["DoDeembed"] = True
-            props["DeembedDist"] = str(deemb_distance) + self.modeler.model_units
-
+            props["DeembedDist"] = self.modeler._arg_with_dim(deemb_distance)
         else:
             props["DoDeembed"] = False
         props["RenormalizeAllTerminals"] = renorm
@@ -1596,7 +1600,13 @@ class Hfss(FieldAnalysis3D, object):
                 return self._create_lumped_driven(sheet_name, point0, point1, impedance, portname, renorm, deemb)
             else:
                 faces = self.modeler.get_object_faces(sheet_name)
-                return self._create_port_terminal(faces[0], endobject, portname, renorm=renorm, iswaveport=False)
+                if deemb:
+                    deembed = 0
+                else:
+                    deembed = None
+                return self._create_port_terminal(
+                    faces[0], endobject, portname, renorm=renorm, deembed=deembed, iswaveport=False
+                )
         return False  # pragma: no cover
 
     @aedt_exception_handler
@@ -2037,7 +2047,13 @@ class Hfss(FieldAnalysis3D, object):
                 )
             else:
                 faces = self.modeler.get_object_faces(sheet_name)
-                return self._create_port_terminal(faces[0], endobject, portname, renorm=renorm, iswaveport=True)
+                if deembed_dist == 0:
+                    deembed = None
+                else:
+                    deembed = deembed_dist
+                return self._create_port_terminal(
+                    faces[0], endobject, portname, renorm=renorm, deembed=deembed, iswaveport=True
+                )
         return False  # pragma: no cover
 
     @aedt_exception_handler
@@ -2462,7 +2478,13 @@ class Hfss(FieldAnalysis3D, object):
                 )
             else:
                 faces = self.modeler.get_object_faces(sheet_name)
-                return self._create_port_terminal(faces[0], endobject, portname, renorm=renorm, iswaveport=True)
+                if deembed_dist == 0:
+                    deembed = None
+                else:
+                    deembed = deembed_dist
+                return self._create_port_terminal(
+                    faces[0], endobject, portname, renorm=renorm, deembed=deembed, iswaveport=True
+                )
         return False
 
     @aedt_exception_handler
@@ -3041,7 +3063,13 @@ class Hfss(FieldAnalysis3D, object):
             elif portname in self.excitations:
                 portname = generate_unique_name(portname)
             if terminal_references:
-                return self._create_port_terminal(faces, terminal_references, portname, renorm=renorm, iswaveport=True)
+                if deemb == 0:
+                    deembed = None
+                else:
+                    deembed = deemb
+                return self._create_port_terminal(
+                    faces, terminal_references, portname, renorm=renorm, deembed=deembed, iswaveport=True
+                )
             else:
                 self.logger.error("Reference Conductors are missed.")
                 return False
@@ -3115,11 +3143,15 @@ class Hfss(FieldAnalysis3D, object):
                     faces = sheet_name
                 else:
                     faces = self.modeler.get_object_faces(sheet_name)[0]
-                if not faces:
+                if not faces:  # pragma: no cover
                     self.logger.error("Wrong Input object. it has to be a face id or a sheet.")
                     return False
+                if deemb:
+                    deembed = 0
+                else:
+                    deembed = None
                 port = self._create_port_terminal(
-                    faces, reference_object_list, portname, renorm=renorm, iswaveport=False
+                    faces, reference_object_list, portname, renorm=renorm, deembed=deembed, iswaveport=False
                 )
 
             return port

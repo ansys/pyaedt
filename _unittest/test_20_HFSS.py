@@ -95,6 +95,15 @@ class TestClass:
         assert port.name in [i.name for i in self.aedtapp.boundaries]
         assert port.props["RenormalizeAllTerminals"] is False
 
+        udp = self.aedtapp.modeler.Position(100, 0, 0)
+        o6 = self.aedtapp.modeler.create_circle(self.aedtapp.PLANE.YZ, udp, 10, name="sheet1a")
+        port = self.aedtapp.create_wave_port_from_sheet(
+            o6, 0, self.aedtapp.AxisDir.XNeg, 40, 2, "sheet1a_Port", renorm=False, terminal_references=["outer"]
+        )
+        assert port.name == "sheet1a_Port"
+        assert port.name in [i.name for i in self.aedtapp.boundaries]
+        assert port.props["DoDeembed"] is False
+
         self.aedtapp.solution_type = "Modal"
         udp = self.aedtapp.modeler.Position(200, 0, 0)
         o6 = self.aedtapp.modeler.create_circle(self.aedtapp.PLANE.YZ, udp, 10, name="sheet2")
@@ -289,7 +298,7 @@ class TestClass:
         assert sweep.props["SaveSingleField"] == False
 
     def test_06z_validate_setup(self):
-        list, ok = self.aedtapp.validate_full_design(ports=7)
+        list, ok = self.aedtapp.validate_full_design(ports=8)
         assert ok
 
     def test_07_set_power(self):
@@ -354,6 +363,14 @@ class TestClass:
             "BoxWG1", "BoxWG2", self.aedtapp.AxisDir.XPos, 25, 2, "Wave1", True, 5
         )
         assert port2.name != "Wave1" and "Wave1" in port2.name
+        self.aedtapp.solution_type = "Terminal"
+        assert self.aedtapp.create_wave_port_between_objects(
+            "BoxWG1", "BoxWG2", self.aedtapp.AxisDir.XPos, 25, 2, "Wave3", True
+        )
+        assert self.aedtapp.create_wave_port_between_objects(
+            "BoxWG1", "BoxWG2", self.aedtapp.AxisDir.XPos, 25, 2, "Wave4", True, 5
+        )
+        self.aedtapp.solution_type = "Modal"
 
     def test_09a_create_waveport_on_true_surface_objects(self):
         cs = self.aedtapp.PLANE.XY
@@ -386,6 +403,9 @@ class TestClass:
         assert port.name == "Lump1xx"
         port.name = "Lump1"
         assert port.update()
+        assert self.aedtapp.create_lumped_port_between_objects(
+            "BoxLumped1", "BoxLumped2", self.aedtapp.AxisDir.XNeg, 50, "Lump2", True, True
+        )
 
     def test_11_create_circuit_on_objects(self):
         box1 = self.aedtapp.modeler.create_box([0, 0, 80], [10, 10, 5], "BoxCircuit1", "Copper")
@@ -478,6 +498,10 @@ class TestClass:
             rect.name, self.aedtapp.AxisDir.XNeg, 50, "Lump_sheet", True, False
         )
         assert port.name + ":1" in self.aedtapp.excitations
+        port2 = self.aedtapp.create_lumped_port_to_sheet(
+            rect.name, self.aedtapp.AxisDir.XNeg, 50, "Lump_sheet2", True, True
+        )
+        assert port2.name + ":1" in self.aedtapp.excitations
 
     def test_20_create_voltage_on_sheet(self):
         rect = self.aedtapp.modeler.create_rectangle(
@@ -560,9 +584,14 @@ class TestClass:
         sub = self.aedtapp.modeler.create_box([0, 5, -2], [20, 100, 2], name="SUB1", matname="FR4_epoxy")
         gnd = self.aedtapp.modeler.create_box([0, 5, -2.2], [20, 100, 0.2], name="GND1", matname="FR4_epoxy")
         port = self.aedtapp.create_wave_port_microstrip_between_objects(gnd.name, ms.name, portname="MS1", axisdir=1)
-
         assert port.name == "MS1"
         assert port.update()
+        self.aedtapp.solution_type = "Terminal"
+        assert self.aedtapp.create_wave_port_microstrip_between_objects(gnd.name, ms.name, portname="MS2", axisdir=1)
+        assert self.aedtapp.create_wave_port_microstrip_between_objects(
+            gnd.name, ms.name, portname="MS3", axisdir=1, deembed_dist=1
+        )
+        self.aedtapp.solution_type = "Modal"
 
     def test_32_get_property_value(self):
         rect = self.aedtapp.modeler.create_rectangle(
@@ -712,6 +741,10 @@ class TestClass:
             sheet.name, self.aedtapp.AxisDir.XNeg, 50, "Lump_sheet", True, False, reference_object_list=[box1]
         )
         assert port2.name + "_T1" in self.aedtapp.excitations
+        port3 = self.aedtapp.create_lumped_port_between_objects(
+            box1, box2.name, self.aedtapp.AxisDir.XNeg, 50, "Lump3", True, True
+        )
+        assert port3.name + "_T1" in self.aedtapp.excitations
 
         box1 = self.aedtapp.modeler.create_box([-40, -40, -20], [80, 80, 10], name="gnd", matname="copper")
         box2 = self.aedtapp.modeler.create_box([-40, -40, 10], [80, 80, 10], name="sig", matname="copper")
