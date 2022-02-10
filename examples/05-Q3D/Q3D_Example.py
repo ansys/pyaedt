@@ -107,16 +107,22 @@ print(q.net_sources("Bar3"))
 
 q.create_setup(props={"AdaptiveFreq": "100MHz"})
 
+
+###############################################################################
+# Get Curves for plot
+# ~~~~~~~~~~~~~~~~~~~
+# This command simplify the way you can get curves to be plotted.
+
+data_plot_self = q.matrices[0].get_sources_for_plot(get_self_terms=True, get_mutual_terms=False)
+data_plot_mutual = q.get_traces_for_plot(get_self_terms=False, get_mutual_terms=True)
+data_plot_self
+data_plot_mutual
+
 ###############################################################################
 # Create a Rectangular Plot
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
 # This command creates a rectangular plot and a Data Table.
-
-data_plot_self = q.matrices[0].get_sources_for_plot(get_self_terms=True, get_mutual_terms=False)
-
 q.post.create_rectangular_plot(expression=data_plot_self, context="Original")
-
-data_plot_mutual = q.get_traces_for_plot(get_self_terms=False, get_mutual_terms=True)
 
 q.post.create_rectangular_plot(expression=data_plot_mutual, context="Original", plot_type="Data Table")
 
