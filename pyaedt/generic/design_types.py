@@ -1,4 +1,5 @@
 import sys
+import re
 
 try:
     from pyaedt.hfss3dlayout import Hfss3dLayout
@@ -78,7 +79,11 @@ def get_pyaedt_app(project_name=None, design_name=None):
             oProject = main.oDesktop.SetActiveProject(project_name)
         if not oProject:
             raise AttributeError("No Project Present.")
-        design_names = [i.GetName() for i in oProject.GetDesigns()]
+        design_names = []
+        deslist = list(oProject.GetTopDesignList())
+        for el in deslist:
+            m = re.search(r"[^;]+$", el)
+            design_names.append(m.group(0))
         if design_name and design_name not in design_names:
             raise AttributeError("Design  {} doesn't exists in current Project.".format(design_name))
         if not design_name:
