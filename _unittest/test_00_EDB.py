@@ -399,6 +399,7 @@ class TestClass:
             assert pad.hole_offset_y is not None or False
             assert pad.hole_type is not None or False
             assert pad.pad_by_layer[pad.via_stop_layer].parameters is not None or False
+            assert pad.pad_by_layer[pad.via_stop_layer].parameters_values is not None or False
             assert pad.pad_by_layer[pad.via_stop_layer].offset_x is not None or False
             assert pad.pad_by_layer[pad.via_stop_layer].offset_y is not None or False
             assert isinstance(pad.pad_by_layer[pad.via_stop_layer].geometry_type, int)
