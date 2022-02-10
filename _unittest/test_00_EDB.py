@@ -404,6 +404,9 @@ class TestClass:
             assert pad.pad_by_layer[pad.via_stop_layer].offset_x is not None or False
             assert pad.pad_by_layer[pad.via_stop_layer].offset_y is not None or False
             assert isinstance(pad.pad_by_layer[pad.via_stop_layer].geometry_type, int)
+            polygon = pad.pad_by_layer[pad.via_stop_layer].polygon_data
+            if polygon:
+                assert polygon.GetBBox()
 
     def test_50_set_padstack(self):
         pad = self.edbapp.core_padstack.padstacks["C10N116"]

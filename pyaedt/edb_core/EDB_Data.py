@@ -1303,6 +1303,23 @@ class EDBPadProperties(object):
         return [i.ToDouble() for i in pad_values.Item2]
 
     @property
+    def polygon_data(self):
+        """Parameters.
+
+        Returns
+        -------
+        list
+            List of parameters.
+        """
+        try:
+            pad_values = self._padstack_methods.GetPolygonalPadParameters(
+                self._edb_padstack, self.layer_name, self.pad_type
+            )
+            return pad_values.Item1
+        except:
+            return
+
+    @property
     def parameters(self):
         """Parameters.
 
@@ -2254,6 +2271,19 @@ class EDBComponent(object):
                 pair = model.GetPinPairRlc(pinpair)
                 return pair.IsParallel
         return None
+
+    @property
+    def center(self):
+        """Compute the component center.
+
+        Returns
+        -------
+        list
+        """
+        layinst = self.edbcomponent.GetLayout().GetLayoutInstance()
+        cmpinst = layinst.GetLayoutObjInstance(self.edbcomponent, None)
+        center = cmpinst.GetCenter()
+        return [center.X.ToDouble(), center.Y.ToDouble()]
 
     @property
     def pinlist(self):

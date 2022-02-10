@@ -1517,40 +1517,38 @@ class Components(object):
         component = self.components[component_name]
         pins = component.pins
         pins_list = []
-        centerx = 0
-        centery = 0
+
+        component.center
         for pin_name, pin in pins.items():
-            centerx += pin.position[0]
-            centery += pin.position[1]
             if pins_to_short:
                 if pin_name in pins_to_short:
                     pins_list.append(pin)
             else:
                 pins_list.append(pin)
         positions_to_short = []
-        c = [centerx / len(pins), centery / len(pins), 0]
-
+        center = component.center
+        c = [center[0], center[1], 0]
         delta_pins = []
         w = width
         for pin in pins_list:
             placement_layer = pin.placement_layer
             positions_to_short.append(pin.position)
-            pars = (
-                self._pedb.core_padstack.padstacks[pin.pin.GetPadstackDef().GetName()]
-                .pad_by_layer[placement_layer]
-                .parameters_values
-            )
-            geom = (
-                self._pedb.core_padstack.padstacks[pin.pin.GetPadstackDef().GetName()]
-                .pad_by_layer[placement_layer]
-                .geometry_type
-            )
+            pad = self._pedb.core_padstack.padstacks[pin.pin.GetPadstackDef().GetName()].pad_by_layer[placement_layer]
+            pars = pad.parameters_values
+            geom = pad.geometry_type
             if geom < 6 and pars:
                 delta_pins.append(max(pars) + min(pars) / 2)
                 w = min(min(pars), w)
             elif pars:
                 delta_pins.append(1.5 * pars[0])
                 w = min(pars[0], w)
+            elif pad.polygon_data:
+                bbox = pad.polygon_data.GetBBox()
+                lower = [bbox.Item1.X.ToDouble(), bbox.Item1.Y.ToDouble()]
+                upper = [bbox.Item2.X.ToDouble(), bbox.Item2.Y.ToDouble()]
+                pars = [abs(lower[0] - upper[0]), abs(lower[1] - upper[1])]
+                delta_pins.append(max(pars) + min(pars) / 2)
+                w = min(min(pars), w)
             else:
                 delta_pins.append(1.5 * width)
         i = 0
@@ -1599,7 +1597,7 @@ class Components(object):
                 path,
                 layer_name=placement_layer,
                 net_name="short",
-                width=width,
+                width=w,
                 start_cap_style="Flat",
                 end_cap_style="Flat",
             )
