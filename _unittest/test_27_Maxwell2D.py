@@ -54,6 +54,11 @@ class TestClass(BasisTest):
         assert mysetup.update()
 
     @pyaedt_unittest_check_desktop_error
+    def test_07_create_vector_potential(self):
+        region = self.aedtapp.modeler["Region"]
+        self.aedtapp.assign_balloon(region.edges)
+
+    @pyaedt_unittest_check_desktop_error
     def test_08_generate_design_data(self):
         assert self.aedtapp.generate_design_data()
 
@@ -72,7 +77,7 @@ class TestClass(BasisTest):
     @pyaedt_unittest_check_desktop_error
     def test_12_assign_current_source(self):
         coil = self.aedtapp.modeler.create_circle(
-            position=[0, 0, 0], radius="5", num_sides="8", is_covered=True, name="Coil", matname="Copper"
+            position=[0, 0, 0], radius=5, num_sides="8", is_covered=True, name="Coil", matname="Copper"
         )
         assert self.aedtapp.assign_current([coil])
         assert not self.aedtapp.assign_current([coil.faces[0].id])

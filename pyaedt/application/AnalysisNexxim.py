@@ -1,3 +1,5 @@
+import warnings
+
 from pyaedt.generic.general_methods import aedt_exception_handler
 from pyaedt.modeler.Circuit import ModelerNexxim
 from pyaedt.modules.PostProcessor import CircuitPostProcessor
@@ -96,8 +98,29 @@ class FieldAnalysisCircuit(Analysis):
         return self.oanalysis.GetAllSolutionSetups()
 
     @property
+    def excitations(self):
+        """Get all excitation names.
+
+        Returns
+        -------
+        list
+            List of excitation names. Excitations with multiple modes will return one
+            excitation for each mode.
+
+        References
+        ----------
+
+        >>> oModule.GetExcitations
+        """
+        ports = [p.replace("IPort@", "").split(";")[0] for p in self.modeler.oeditor.GetAllPorts()]
+        return ports
+
+    @property
     def get_excitations_name(self):
         """Excitation names.
+
+        .. deprecated:: 0.4.27
+           Use :func:`excitations` property instead.
 
         Returns
         -------
@@ -109,8 +132,8 @@ class FieldAnalysisCircuit(Analysis):
 
         >>> oEditor.GetAllPorts
         """
-        ports = [p.replace("IPort@", "").split(";")[0] for p in self.modeler.oeditor.GetAllPorts()]
-        return ports
+        warnings.warn("`get_excitations_name` is deprecated. Use `excitations` property instead.", DeprecationWarning)
+        return self.excitations
 
     @property
     def get_all_sparameter_list(self, excitation_names=[]):
@@ -131,7 +154,7 @@ class FieldAnalysisCircuit(Analysis):
 
         """
         if not excitation_names:
-            excitation_names = self.get_excitations_name
+            excitation_names = self.excitations
         spar = []
         k = 0
         for i in excitation_names:
@@ -166,7 +189,7 @@ class FieldAnalysisCircuit(Analysis):
         >>> oEditor.GetAllPorts
         """
         if not excitation_names:
-            excitation_names = self.get_excitations_name
+            excitation_names = self.excitations
         if excitation_name_prefix:
             excitation_names = [i for i in excitation_names if excitation_name_prefix.lower() in i.lower()]
         spar = []
@@ -203,9 +226,9 @@ class FieldAnalysisCircuit(Analysis):
         """
         spar = []
         if not trlist:
-            trlist = [i for i in self.get_excitations_name if tx_prefix in i]
+            trlist = [i for i in self.excitations if tx_prefix in i]
         if not reclist:
-            reclist = [i for i in self.get_excitations_name if rx_prefix in i]
+            reclist = [i for i in self.excitations if rx_prefix in i]
         if len(trlist) != len(reclist):
             self.logger.error("The TX and RX lists should be the same length.")
             return False
@@ -238,7 +261,7 @@ class FieldAnalysisCircuit(Analysis):
         """
         next = []
         if not trlist:
-            trlist = [i for i in self.get_excitations_name if tx_prefix in i]
+            trlist = [i for i in self.excitations if tx_prefix in i]
         for i in trlist:
             k = trlist.index(i) + 1
             while k < len(trlist):
@@ -281,9 +304,9 @@ class FieldAnalysisCircuit(Analysis):
         """
         fext = []
         if not trlist:
-            trlist = [i for i in self.get_excitations_name if tx_prefix in i]
+            trlist = [i for i in self.excitations if tx_prefix in i]
         if not reclist:
-            reclist = [i for i in self.get_excitations_name if rx_prefix in i]
+            reclist = [i for i in self.excitations if rx_prefix in i]
         for i in trlist:
             for k in reclist:
                 if not skip_same_index_couples or reclist.index(k) != trlist.index(i):

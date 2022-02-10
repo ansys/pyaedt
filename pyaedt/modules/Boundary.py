@@ -2,9 +2,8 @@
 This module contains these classes: `BoundaryCommon` and `BoundaryObject`.
 """
 from collections import OrderedDict
-import re
 
-from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name
+from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, filter_tuple
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.modeler.Object3d import EdgePrimitive, FacePrimitive, VertexPrimitive
 from pyaedt.generic.DataHandlers import random_string
@@ -162,12 +161,12 @@ class NativeComponentObject(BoundaryCommon, object):
         """
         self.name = "InsertNativeComponentData"
         try:
-            names = [i for i in self._app.modeler.get_excitations_name()]
+            names = [i for i in self._app.excitations]
         except Exception as e:
             names = []
         self.antennaname = self._app.modeler.oeditor.InsertNativeComponent(self._get_args())
         try:
-            a = [i for i in self._app.modeler.get_excitations_name() if i not in names]
+            a = [i for i in self._app.excitations if i not in names]
             self.excitation_name = a[0].split(":")[0]
         except Exception as e:
             self.excitation_name = self.antennaname
@@ -1046,28 +1045,6 @@ class Matrix(object):
                 self._sources = list(self._app.omatrix.ListReduceMatrixReducedSources(self.name))
         return self._sources
 
-    @staticmethod
-    def _filter(value, search_key1, search_key2):
-        ignore_case = True
-
-        def _create_pattern(k1, k2):
-            k1a = re.sub(r"\?", r".", k1)
-            k1b = re.sub(r"\*", r".*?", k1a)
-            k2a = re.sub(r"\?", r".", k2)
-            k2b = re.sub(r"\*", r".*?", k2a)
-            pattern = r".*\({},{}\)".format(k1b, k2b)
-            return pattern
-
-        if ignore_case:
-            compiled_re = re.compile(_create_pattern(search_key1, search_key2), re.IGNORECASE)
-        else:
-            compiled_re = re.compile(_create_pattern(search_key1, search_key2))
-
-        m = compiled_re.search(value)
-        if m:
-            return True
-        return False
-
     @aedt_exception_handler
     def get_sources_for_plot(
         self,
@@ -1115,14 +1092,14 @@ class Matrix(object):
         if get_self_terms:
             for el in self.sources(is_gc_sources=is_cg):
                 value = "{}({},{})".format(category, el, el)
-                if self._filter(value, first_element_filter, second_element_filter):
+                if filter_tuple(value, first_element_filter, second_element_filter):
                     list_output.append(value)
         if get_mutual_terms:
             for el1 in self.sources(is_gc_sources=is_cg):
                 for el2 in self.sources(is_gc_sources=is_cg):
                     if el1 != el2:
                         value = "{}({},{})".format(category, el1, el2)
-                        if self._filter(value, first_element_filter, second_element_filter):
+                        if filter_tuple(value, first_element_filter, second_element_filter):
                             list_output.append(value)
         return list_output
 

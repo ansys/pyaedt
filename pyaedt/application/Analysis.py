@@ -12,7 +12,7 @@ import threading
 import warnings
 from collections import OrderedDict
 
-from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name
+from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, filter_tuple
 from pyaedt.generic.constants import (
     AXIS,
     PLANE,
@@ -483,8 +483,8 @@ class Analysis(Design, object):
         """
         return SOLUTIONS()
 
-    @aedt_exception_handler
-    def get_excitations_name(self):
+    @property
+    def excitations(self):
         """Get all excitation names.
 
         Returns
@@ -504,6 +504,82 @@ class Analysis(Design, object):
             return list_names
         except:
             return []
+
+    @aedt_exception_handler
+    def get_excitations_name(self):
+        """Get all excitation names.
+
+        .. deprecated:: 0.4.27
+           Use :func:`excitations` property instead.
+
+        Returns
+        -------
+        list
+            List of excitation names. Excitations with multiple modes will return one
+            excitation for each mode.
+
+        References
+        ----------
+
+        >>> oModule.GetExcitations
+        """
+        warnings.warn("`get_excitations_name` is deprecated. Use `excitations` property instead.", DeprecationWarning)
+        return self.excitations
+
+    @aedt_exception_handler
+    def get_traces_for_plot(
+        self,
+        get_self_terms=True,
+        get_mutual_terms=True,
+        first_element_filter=None,
+        second_element_filter=None,
+        category="dB(S",
+    ):
+        """Return a list of traces of specified design ready to be used in plot reports.
+
+        Parameters
+        ----------
+        get_self_terms : bool
+            Either if self terms have to be returned or not.
+        get_mutual_terms : bool
+            Either if mutual terms have to be returned or not.
+        first_element_filter : str, optional
+            Filter to apply to first element of equation. It accepts `*` and `?` as special characters.
+        second_element_filter : str, optional
+            Filter to apply to second element of equation. It accepts `*` and `?` as special characters.
+        category : str
+            Plot category name as in the report (including operator). Eg. "dB(S" is category Capacitance.
+
+        Returns
+        -------
+        list
+
+        Examples
+        --------
+        >>> from pyaedt import Q3d
+        >>> hfss = hfss(project_path)
+        >>> hfss.get_traces_for_plot(first_element_filter="Bo?1",
+        ...                           second_element_filter="GND*", category="dB(S")
+        """
+        if not first_element_filter:
+            first_element_filter = "*"
+        if not second_element_filter:
+            second_element_filter = "*"
+        list_output = []
+        end_str = ")" * (category.count("(") + 1)
+        if get_self_terms:
+            for el in self.excitations:
+                value = "{}({},{}{}".format(category, el, el, end_str)
+                if filter_tuple(value, first_element_filter, second_element_filter):
+                    list_output.append(value)
+        if get_mutual_terms:
+            for el1 in self.excitations:
+                for el2 in self.excitations:
+                    if el1 != el2:
+                        value = "{}({},{}{}".format(category, el1, el2, end_str)
+                        if filter_tuple(value, first_element_filter, second_element_filter):
+                            list_output.append(value)
+        return list_output
 
     @aedt_exception_handler
     def analyze_all(self):
@@ -1125,7 +1201,7 @@ class Analysis(Design, object):
             setuptype = self.design_solutions.default_setup
         name = self.generate_unique_setup_name(setupname)
         setup = Setup(self, setuptype, name)
-        if self.design_type == "HFSS" and not self.get_excitations_name() and "MaxDeltaS" in setup.props:
+        if self.design_type == "HFSS" and not self.excitations and "MaxDeltaS" in setup.props:
             new_dict = OrderedDict()
             for k, v in setup.props.items():
                 if k == "MaxDeltaS":
