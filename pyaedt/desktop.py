@@ -707,7 +707,7 @@ class Desktop:
 
         Returns
         -------
-        str
+        list
             List of the designs.
         """
 

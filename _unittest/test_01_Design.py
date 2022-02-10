@@ -3,7 +3,7 @@ import gc
 import os
 
 # Import required modules
-from pyaedt import Hfss, Desktop
+from pyaedt import Hfss, Desktop, get_pyaedt_app
 from pyaedt.generic.filesystem import Scratch
 
 # Setup paths for module imports
@@ -242,3 +242,7 @@ class TestClass:
             assert str(type(self.aedtapp.odesktop)) == "<type 'ADesktopWrapper'>"
         else:
             assert str(type(self.aedtapp.odesktop)) == "<class 'win32com.client.CDispatch'>"
+
+    def test_28_get_pyaedt_app(self):
+        app = get_pyaedt_app(self.aedtapp.project_name, self.aedtapp.design_name)
+        assert app.design_type == "HFSS"
