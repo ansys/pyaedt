@@ -57,7 +57,7 @@ class TestClass:
         assert self.edbapp.core_padstack.get_via_instance_from_net("GND")
         assert not self.edbapp.core_padstack.get_via_instance_from_net(["GND2"])
 
-    def tesCt_01_flip_layer_stackup(self):
+    def test_01_flip_layer_stackup(self):
         assert self.edbapp.core_stackup.place_in_layout()
 
     def test_02_get_properties(self):
@@ -68,6 +68,7 @@ class TestClass:
         assert len(self.edbapp.core_components.ICs) > 0
         assert len(self.edbapp.core_components.IOs) > 0
         assert len(self.edbapp.core_components.Others) > 0
+        assert len(self.edbapp.get_bounding_box()) == 2
 
     def test_03_get_primitives(self):
         assert len(self.edbapp.core_primitives.polygons) > 0
@@ -190,8 +191,8 @@ class TestClass:
         assert "R1" in list(self.edbapp.core_components.components.keys())
         assert self.edbapp.core_components.components["R1"].res_value
         assert self.edbapp.core_components.components["R1"].placement_layer
-        assert self.edbapp.core_components.components["R1"].lower_elevation
-        assert self.edbapp.core_components.components["R1"].upper_elevation
+        assert isinstance(self.edbapp.core_components.components["R1"].lower_elevation, float)
+        assert isinstance(self.edbapp.core_components.components["R1"].upper_elevation, float)
         assert self.edbapp.core_components.components["R1"].top_bottom_association == 0
         assert self.edbapp.core_components.components["R1"].pinlist
         pinname = self.edbapp.core_components.components["R1"].pinlist[0].GetName()
@@ -399,9 +400,13 @@ class TestClass:
             assert pad.hole_offset_y is not None or False
             assert pad.hole_type is not None or False
             assert pad.pad_by_layer[pad.via_stop_layer].parameters is not None or False
+            assert pad.pad_by_layer[pad.via_stop_layer].parameters_values is not None or False
             assert pad.pad_by_layer[pad.via_stop_layer].offset_x is not None or False
             assert pad.pad_by_layer[pad.via_stop_layer].offset_y is not None or False
             assert isinstance(pad.pad_by_layer[pad.via_stop_layer].geometry_type, int)
+            polygon = pad.pad_by_layer[pad.via_stop_layer].polygon_data
+            if polygon:
+                assert polygon.GetBBox()
 
     def test_50_set_padstack(self):
         pad = self.edbapp.core_padstack.padstacks["C10N116"]
@@ -589,3 +594,14 @@ class TestClass:
             padstack_name="VIA_18-10-28_SMB", layer_name="new", pad_shape="Circle", pad_params="800um"
         )
         assert self.edbapp.core_padstack.padstacks["VIA_18-10-28_SMB"].pad_by_layer["new"]
+
+    def test_75_primitives_area(self):
+        i = 0
+        while i < 10:
+            assert self.edbapp.core_primitives.primitives[i].area(False) > 0
+            assert self.edbapp.core_primitives.primitives[i].area(True) > 0
+            i += 1
+
+    def test_76_short_component(self):
+        assert self.edbapp.core_components.short_component_pins("EU1", width=0.2e-3)
+        assert self.edbapp.core_components.short_component_pins("U10", ["2", "5"])

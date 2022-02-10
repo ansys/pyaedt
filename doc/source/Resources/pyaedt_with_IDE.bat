@@ -23,15 +23,17 @@ if  "%ANSYSEM_ROOT221%" =="" (
 
 set /p run=Python or Jupyter?(0=Spyder, 1=Jupyter, 2=Console)
 setlocal enableDelayedExpansion
-cd "%APPDATA%"
+
 if not exist "%APPDATA%\pyaedt_env_ide\" (
     echo Installing Pyaedt
+    cd "%APPDATA%"
     "%aedt_path%\commonfiles\CPython\3_7\winx64\Release\python\python.exe" -m venv "%APPDATA%\pyaedt_env_ide"
     "%APPDATA%\pyaedt_env_ide\Scripts\python.exe" -m pip install --upgrade pip
     "%APPDATA%\pyaedt_env_ide\Scripts\pip" install pyaedt
     "%APPDATA%\pyaedt_env_ide\Scripts\pip" install jupyterlab
     "%APPDATA%\pyaedt_env_ide\Scripts\pip" install spyder
     "%APPDATA%\pyaedt_env_ide\Scripts\pip" install ipython -U
+    "%APPDATA%\pyaedt_env_ide\Scripts\pip" install ipyvtklink
     call "%APPDATA%\pyaedt_env_ide\Scripts\python" "%APPDATA%\pyaedt_env_ide\Lib\site-packages\pyaedt\misc\aedtlib_personalib_install.py" %aedt_var%
 )
 if [%1%]==[-update] ( 

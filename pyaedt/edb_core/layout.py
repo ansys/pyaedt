@@ -439,8 +439,8 @@ class EdbLayout(object):
             ``"Extended",`` and ``"Flat"``. The default is
             ``"Round"``.
         corner_style : str, optional
-            Style of the corner. Options are ``"Round"`` and
-            ``"Flat"``. The default is ``"Round"``.
+            Style of the corner. Options are ``"Round"``,
+            ``"Sharp"`` and ``"Mitered"``. The default is ``"Round"``.
 
         Returns
         -------
@@ -449,21 +449,24 @@ class EdbLayout(object):
         """
         net = self._pedb.core_nets.find_or_create_net(net_name)
         if start_cap_style.lower() == "round":
-            start_cap_style = 0
+            start_cap_style = self._edb.Cell.Primitive.PathEndCapStyle.Round
         elif start_cap_style.lower() == "extended":
-            start_cap_style = 2
+            start_cap_style = self._edb.Cell.Primitive.PathEndCapStyle.Extended  # pragma: no cover
         else:
-            start_cap_style = 1
+            start_cap_style = self._edb.Cell.Primitive.PathEndCapStyle.Flat  # pragma: no cover
         if end_cap_style.lower() == "round":
-            end_cap_style = 0
+            end_cap_style = self._edb.Cell.Primitive.PathEndCapStyle.Round  # pragma: no cover
         elif end_cap_style.lower() == "extended":
-            end_cap_style = 2
+            end_cap_style = self._edb.Cell.Primitive.PathEndCapStyle.Extended  # pragma: no cover
         else:
-            end_cap_style = 1
+            end_cap_style = self._edb.Cell.Primitive.PathEndCapStyle.Flat
         if corner_style.lower() == "round":
-            corner_style = 0
+            corner_style = self._edb.Cell.Primitive.PathCornerStyle.RoundCorner
+        elif corner_style.lower() == "sharp":
+            corner_style = self._edb.Cell.Primitive.PathCornerStyle.SharpCorner  # pragma: no cover
         else:
-            corner_style = 1
+            corner_style = self._edb.Cell.Primitive.PathCornerStyle.MiterCorner  # pragma: no cover
+
         pointlists = [
             self._edb.Geometry.PointData(self._edb_value(i[0]), self._edb_value(i[1])) for i in path_list.points
         ]
