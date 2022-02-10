@@ -29,5 +29,6 @@ Example without NativeComponentObject:
    NativeComponentObject
    BoundaryObject
    FarFieldSetup
+   Matrix
 
 
