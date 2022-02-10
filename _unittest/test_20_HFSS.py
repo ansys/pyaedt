@@ -363,6 +363,14 @@ class TestClass:
             "BoxWG1", "BoxWG2", self.aedtapp.AxisDir.XPos, 25, 2, "Wave1", True, 5
         )
         assert port2.name != "Wave1" and "Wave1" in port2.name
+        self.aedtapp.solution_type = "Terminal"
+        assert self.aedtapp.create_wave_port_between_objects(
+            "BoxWG1", "BoxWG2", self.aedtapp.AxisDir.XPos, 25, 2, "Wave3", True
+        )
+        assert self.aedtapp.create_wave_port_between_objects(
+            "BoxWG1", "BoxWG2", self.aedtapp.AxisDir.XPos, 25, 2, "Wave4", True, 5
+        )
+        self.aedtapp.solution_type = "Modal"
 
     def test_09a_create_waveport_on_true_surface_objects(self):
         cs = self.aedtapp.PLANE.XY
@@ -490,6 +498,10 @@ class TestClass:
             rect.name, self.aedtapp.AxisDir.XNeg, 50, "Lump_sheet", True, False
         )
         assert port.name + ":1" in self.aedtapp.excitations
+        port2 = self.aedtapp.create_lumped_port_to_sheet(
+            rect.name, self.aedtapp.AxisDir.XNeg, 50, "Lump_sheet2", True, True
+        )
+        assert port2.name + ":1" in self.aedtapp.excitations
 
     def test_20_create_voltage_on_sheet(self):
         rect = self.aedtapp.modeler.create_rectangle(
@@ -572,9 +584,14 @@ class TestClass:
         sub = self.aedtapp.modeler.create_box([0, 5, -2], [20, 100, 2], name="SUB1", matname="FR4_epoxy")
         gnd = self.aedtapp.modeler.create_box([0, 5, -2.2], [20, 100, 0.2], name="GND1", matname="FR4_epoxy")
         port = self.aedtapp.create_wave_port_microstrip_between_objects(gnd.name, ms.name, portname="MS1", axisdir=1)
-
         assert port.name == "MS1"
         assert port.update()
+        self.aedtapp.solution_type = "Terminal"
+        assert self.aedtapp.create_wave_port_microstrip_between_objects(gnd.name, ms.name, portname="MS2", axisdir=1)
+        assert self.aedtapp.create_wave_port_microstrip_between_objects(
+            gnd.name, ms.name, portname="MS3", axisdir=1, deembed_dist=1
+        )
+        self.aedtapp.solution_type = "Modal"
 
     def test_32_get_property_value(self):
         rect = self.aedtapp.modeler.create_rectangle(

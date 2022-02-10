@@ -2480,6 +2480,8 @@ class Hfss(FieldAnalysis3D, object):
                 faces = self.modeler.get_object_faces(sheet_name)
                 if deembed_dist == 0:
                     deembed = None
+                else:
+                    deembed = deembed_dist
                 return self._create_port_terminal(
                     faces[0], endobject, portname, renorm=renorm, deembed=deembed, iswaveport=True
                 )
@@ -3141,7 +3143,7 @@ class Hfss(FieldAnalysis3D, object):
                     faces = sheet_name
                 else:
                     faces = self.modeler.get_object_faces(sheet_name)[0]
-                if not faces:
+                if not faces:  # pragma: no cover
                     self.logger.error("Wrong Input object. it has to be a face id or a sheet.")
                     return False
                 if deemb:
