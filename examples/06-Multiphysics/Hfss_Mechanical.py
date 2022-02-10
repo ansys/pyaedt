@@ -35,7 +35,7 @@ shutil.copy2(project_full_name, project_temp_name)
 # Starts Hfss and initialize the Pyaedt object.
 
 version = "2021.2"
-hfss = Hfss(project_temp_name, specified_version=version, non_graphical=non_graphical)
+hfss = Hfss(project_temp_name, specified_version=version, non_graphical=False)
 pin_names = hfss.modeler.get_excitations_name()
 
 ###############################################################################
