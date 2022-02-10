@@ -400,9 +400,13 @@ class TestClass:
             assert pad.hole_offset_y is not None or False
             assert pad.hole_type is not None or False
             assert pad.pad_by_layer[pad.via_stop_layer].parameters is not None or False
+            assert pad.pad_by_layer[pad.via_stop_layer].parameters_values is not None or False
             assert pad.pad_by_layer[pad.via_stop_layer].offset_x is not None or False
             assert pad.pad_by_layer[pad.via_stop_layer].offset_y is not None or False
             assert isinstance(pad.pad_by_layer[pad.via_stop_layer].geometry_type, int)
+            polygon = pad.pad_by_layer[pad.via_stop_layer].polygon_data
+            if polygon:
+                assert polygon.GetBBox()
 
     def test_50_set_padstack(self):
         pad = self.edbapp.core_padstack.padstacks["C10N116"]
@@ -597,3 +601,7 @@ class TestClass:
             assert self.edbapp.core_primitives.primitives[i].area(False) > 0
             assert self.edbapp.core_primitives.primitives[i].area(True) > 0
             i += 1
+
+    def test_76_short_component(self):
+        assert self.edbapp.core_components.short_component_pins("EU1", width=0.2e-3)
+        assert self.edbapp.core_components.short_component_pins("U10", ["2", "5"])
