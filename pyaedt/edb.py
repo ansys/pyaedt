@@ -1023,7 +1023,7 @@ class Edb(object):
         output_aedb_path=None,
         open_cutout_at_end=True,
     ):
-        """Create a cutout and save it to a new AEDB file.
+        """Create a cutout on a specified shape and save it to a new AEDB file.
 
         Parameters
         ----------
