@@ -162,9 +162,22 @@ class TestClass:
             name=my_udpName,
             udptye="Solid",
         )
+
         assert udp
         assert udp.name == "MyClawPoleCore"
         assert "MyClawPoleCore" in udp._primitives.object_names
+        assert int(udp.bounding_dimension[2]) == 100
+
+        # Modify one of the 'MyClawPoleCore' udp properties.
+        assert self.aedtapp.modeler.update_udp(
+            object_name="MyClawPoleCore",
+            operation_name="CreateUserDefinedPart",
+            udp_parameters_list=[["Length","110mm"]],
+            )
+
+        assert int(udp.bounding_dimension[0]) == 102
+        assert int(udp.bounding_dimension[1]) == 102
+        assert int(udp.bounding_dimension[2]) == 110
 
         # Test udp with default name -None-.
         second_udp = self.aedtapp.modeler.create_udp(
@@ -176,6 +189,18 @@ class TestClass:
         assert second_udp
         assert second_udp.name == "ClawPoleCore"
         assert "ClawPoleCore" in udp._primitives.object_names
+
+        # Modify two of the 'MyClawPoleCore' udp properties.
+        assert self.aedtapp.modeler.update_udp(
+            object_name="ClawPoleCore",
+            operation_name="CreateUserDefinedPart",
+            udp_parameters_list=[["Length","110mm"], ["DiaGap","125mm"]],
+            )
+
+        assert int(second_udp.bounding_dimension[0]) == 125
+        assert int(second_udp.bounding_dimension[1]) == 125
+        assert int(second_udp.bounding_dimension[2]) == 110
+
 
     @pytest.mark.skipif(os.name == "posix", reason="Feature not supported in Linux")
     def test_27_create_udm(self):
