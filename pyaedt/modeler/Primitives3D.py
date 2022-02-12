@@ -1,6 +1,6 @@
 import json
 import os
-from math import pi, cos, sin, tan
+from math import pi, cos, sin, tan, asin, sqrt, radians, degrees, ceil, floor
 import random
 import string
 
@@ -219,14 +219,14 @@ class Primitives3D(Primitives, object):
 
     @aedt_exception_handler
     def create_polyhedron(
-        self,
-        cs_axis=None,
-        center_position=(0.0, 0.0, 0.0),
-        start_position=(0.0, 1.0, 0.0),
-        height=1.0,
-        num_sides=12,
-        name=None,
-        matname=None,
+            self,
+            cs_axis=None,
+            center_position=(0.0, 0.0, 0.0),
+            start_position=(0.0, 1.0, 0.0),
+            height=1.0,
+            num_sides=12,
+            name=None,
+            matname=None,
     ):
         """Create a regular polyhedron.
 
@@ -487,18 +487,18 @@ class Primitives3D(Primitives, object):
 
     @aedt_exception_handler
     def create_bondwire(
-        self,
-        start_position,
-        end_position,
-        h1=0.2,
-        h2=0,
-        alpha=80,
-        beta=5,
-        bond_type=0,
-        diameter=0.025,
-        facets=6,
-        name=None,
-        matname=None,
+            self,
+            start_position,
+            end_position,
+            h1=0.2,
+            h2=0,
+            alpha=80,
+            beta=5,
+            bond_type=0,
+            diameter=0.025,
+            facets=6,
+            name=None,
+            matname=None,
     ):
         """Create a bondwire.
 
@@ -757,21 +757,21 @@ class Primitives3D(Primitives, object):
 
     @aedt_exception_handler
     def create_equationbased_curve(
-        self,
-        x_t=0,
-        y_t=0,
-        z_t=0,
-        t_start=0,
-        t_end=1,
-        num_points=0,
-        name=None,
-        xsection_type=None,
-        xsection_orient=None,
-        xsection_width=1,
-        xsection_topwidth=1,
-        xsection_height=1,
-        xsection_num_seg=0,
-        xsection_bend_type=None,
+            self,
+            x_t=0,
+            y_t=0,
+            z_t=0,
+            t_start=0,
+            t_end=1,
+            num_points=0,
+            name=None,
+            xsection_type=None,
+            xsection_orient=None,
+            xsection_width=1,
+            xsection_topwidth=1,
+            xsection_height=1,
+            xsection_num_seg=0,
+            xsection_bend_type=None,
     ):
         """Create an equation-based curve.
 
@@ -1009,16 +1009,16 @@ class Primitives3D(Primitives, object):
 
     @aedt_exception_handler
     def create_spiral(
-        self,
-        internal_radius=10,
-        spacing=1,
-        faces=8,
-        turns=10,
-        width=2,
-        thickness=1,
-        elevation=0,
-        material="copper",
-        name=None,
+            self,
+            internal_radius=10,
+            spacing=1,
+            faces=8,
+            turns=10,
+            width=2,
+            thickness=1,
+            elevation=0,
+            material="copper",
+            name=None,
     ):
         """Create a spiral inductor from a polyline.
 
@@ -1167,7 +1167,7 @@ class Primitives3D(Primitives, object):
             self.logger.error("Folder {} does not exist.".format(actor_folder))
             return False
         if not any(fname.endswith(".json") for fname in os.listdir(actor_folder)) or not any(
-            fname.endswith(".a3dcomp") for fname in os.listdir(actor_folder)
+                fname.endswith(".a3dcomp") for fname in os.listdir(actor_folder)
         ):
             self.logger.error("At least one json and one a3dcomp file is needed.")
             return False
@@ -1182,15 +1182,15 @@ class Primitives3D(Primitives, object):
 
     @aedt_exception_handler
     def add_person(
-        self,
-        actor_folder,
-        speed=0.0,
-        global_offset=[0, 0, 0],
-        yaw=0,
-        pitch=0,
-        roll=0,
-        relative_cs_name=None,
-        actor_name=None,
+            self,
+            actor_folder,
+            speed=0.0,
+            global_offset=[0, 0, 0],
+            yaw=0,
+            pitch=0,
+            roll=0,
+            relative_cs_name=None,
+            actor_name=None,
     ):
         """Add a Walking Person Multipart from 3D Components.
 
@@ -1290,15 +1290,15 @@ class Primitives3D(Primitives, object):
 
     @aedt_exception_handler
     def add_vehicle(
-        self,
-        actor_folder,
-        speed=0,
-        global_offset=[0, 0, 0],
-        yaw=0,
-        pitch=0,
-        roll=0,
-        relative_cs_name=None,
-        actor_name=None,
+            self,
+            actor_folder,
+            speed=0,
+            global_offset=[0, 0, 0],
+            yaw=0,
+            pitch=0,
+            roll=0,
+            relative_cs_name=None,
+            actor_name=None,
     ):
         """Add a Moving Vehicle Multipart from 3D Components.
 
@@ -1380,16 +1380,16 @@ class Primitives3D(Primitives, object):
 
     @aedt_exception_handler
     def add_bird(
-        self,
-        actor_folder,
-        speed=0,
-        global_offset=[0, 0, 0],
-        yaw=0,
-        pitch=0,
-        roll=0,
-        flapping_rate=50,
-        relative_cs_name=None,
-        actor_name=None,
+            self,
+            actor_folder,
+            speed=0,
+            global_offset=[0, 0, 0],
+            yaw=0,
+            pitch=0,
+            roll=0,
+            flapping_rate=50,
+            relative_cs_name=None,
+            actor_name=None,
     ):
         """Add a Bird Multipart from 3D Components.
 
@@ -1496,7 +1496,8 @@ class Primitives3D(Primitives, object):
 
     @aedt_exception_handler
     def add_environment(
-        self, env_folder, global_offset=[0, 0, 0], yaw=0, pitch=0, roll=0, relative_cs_name=None, environment_name=None
+            self, env_folder, global_offset=[0, 0, 0], yaw=0, pitch=0, roll=0, relative_cs_name=None,
+            environment_name=None
     ):
         """Add an Environment Multipart Component from Json file.
 
@@ -1568,10 +1569,21 @@ class Primitives3D(Primitives, object):
         Parameters
         ----------
         json_file : str
-            Full path to json file;
+            Full path of the json file return for the function check_choke_values.
 
         Returns
         -------
+        List of
+            bool
+                ``True`` when successful, ``False`` when failed.
+            :class:`pyaedt.modeler.Object3d.Object3d`
+                3D object core.
+            list of
+                :class:`pyaedt.modeler.Object3d.Object3d`
+                    3D object winding.
+                list
+                    list of point coordinates of the winding.
+            for each winding.
 
         Examples
         --------
@@ -1579,6 +1591,655 @@ class Primitives3D(Primitives, object):
 
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
-        >>> mychoke = hfss.modeler.create_choke("mypath.json")
+        >>> dictionary_values = hfss.modeler.check_choke_values("C:/Example/Of/Path/myJsonFile.json")
+        >>> mychoke = hfss.modeler.create_choke("C:/Example/Of/Path/myJsonFile_Corrected.json")
         """
-        dictio = json.load(json_file)
+        json_file = open(json_file, "r")
+        values = json.load(json_file)
+
+        sr = 1.1
+        n_seg = 0
+        if values["Wire Section"]["Hexagon"]:
+            n_seg = 6
+            section = "Circle"
+        elif values["Wire Section"]["Octagon"]:
+            n_seg = 8
+            section = "Circle"
+        elif values["Wire Section"]["Octagon"]:
+            section = "Circle"
+        else:
+            section = None
+        sep_layer = values["Layer Type"]["Separate"]
+
+        name_core = values["Core"]["Name"]
+        in_rad_core = values["Core"]["Inner Radius"]
+        out_rad_core = values["Core"]["Outer Radius"]
+        height_core = values["Core"]["Height"]
+        chamfer = values["Core"]["Chamfer"]
+
+        name_wind = values["Outer Winding"]["Name"]
+        in_rad_wind = values["Outer Winding"]["Inner Radius"]
+        out_rad_wind = values["Outer Winding"]["Outer Radius"]
+        height_wind = values["Outer Winding"]["Height"]
+        w_dia = values["Outer Winding"]["Wire Diameter"]
+        turns = values["Outer Winding"]["Turns"]
+        turns2 = values["Mid Winding"]["Turns"]
+        turns3 = values["Inner Winding"]["Turns"]
+        teta = values["Outer Winding"]["Coil Pit(deg)"]
+        teta2 = values["Mid Winding"]["Coil Pit(deg)"]
+        teta3 = values["Inner Winding"]["Coil Pit(deg)"]
+
+        chamf = self._make_winding_follow_chamfer(chamfer, sr, w_dia, 1)
+
+        returned_list = [True,
+                         self._make_core(name_core, "(255 0 0)", "", in_rad_core, out_rad_core, height_core, chamfer)]
+
+        if values["Layer"]["Double"]:
+            if values["Layer Type"]["Linked"]:
+                list_object = self._make_double_linked_winding(name_wind, "(255 0 0)", "", in_rad_wind, out_rad_wind,
+                                                               height_wind, w_dia, teta, teta2, turns, turns2,
+                                                               chamfer, chamf, sr)
+            else:
+                list_object = self._make_double_winding(name_wind, "(255 0 0)", "", in_rad_wind, out_rad_wind,
+                                                        height_wind, w_dia, teta, teta2, turns, turns2,
+                                                        chamfer, chamf, sr, sep_layer)
+        elif values["Layer"]["Triple"]:
+            if values["Layer Type"]["Linked"]:
+                list_object = self._make_triple_linked_winding(name_wind, "(255 0 0)", "", in_rad_wind, out_rad_wind,
+                                                               height_wind, w_dia, teta, teta2, teta3, turns, turns2,
+                                                               turns3, chamfer, chamf, sr)
+            else:
+                list_object = self._make_triple_winding(name_wind, "(255 0 0)", "", in_rad_wind, out_rad_wind,
+                                                        height_wind,
+                                                        w_dia, teta, teta2, teta3, turns, turns2, turns3, chamfer,
+                                                        chamf, sr, sep_layer)
+        else:
+            list_object = self._make_winding(name_wind, "(255 0 0)", "", in_rad_wind, out_rad_wind, height_wind,
+                                             w_dia, teta, turns, chamf, sep_layer)
+        list_duplicated_object = []
+        if type(list_object[0]) == list:
+            for i in range(len(list_object)):
+                list_object[i][0].set_crosssection_properties(type=section, width=w_dia, num_seg=n_seg)
+            returned_list = returned_list + list_object
+        else:
+            list_object[0].set_crosssection_properties(type=section, width=w_dia, num_seg=n_seg)
+            returned_list.append(list_object)
+
+        for key in values["Number of Winding"].keys():
+            if values["Number of Winding"][key]:
+                number_duplication = int(key)
+        if number_duplication >= 2:
+            if values["Mode"]["Common"] and number_duplication == 2:
+                if type(list_object[0]) == list:
+                    for i in range(len(list_object)):
+                        duplication = self.create_polyline(list_point=list_object[i][1], name=name_wind,
+                                                           xsection_type=section, xsection_width=w_dia,
+                                                           xsection_num_seg=n_seg)
+                        self.mirror(duplication, [0, 0, 0], [-1, 0, 0])
+                        duplication_points = self.get_vertices_of_line(duplication.name)
+                        list_duplicated_object.append([duplication, duplication_points])
+
+                else:
+                    duplication = self.create_polyline(list_point=list_object[1], name=name_wind,
+                                                       xsection_type=section, xsection_width=w_dia,
+                                                       xsection_num_seg=n_seg)
+                    self.mirror(duplication, [0, 0, 0], [-1, 0, 0])
+                    duplication_points = self.get_vertices_of_line(duplication.name)
+                    list_duplicated_object.append([duplication, duplication_points])
+            else:
+                if type(list_object[0]) == list:
+                    for j in range(number_duplication - 1):
+                        for i in range(len(list_object)):
+                            duplication = self.create_polyline(list_point=list_object[i][1], name=name_wind,
+                                                               xsection_type=section, xsection_width=w_dia,
+                                                               xsection_num_seg=n_seg)
+                            self.rotate(duplication, "Z", (j + 1) * 360 / number_duplication)
+                            duplication_points = self.get_vertices_of_line(duplication.name)
+                            list_duplicated_object.append([duplication, duplication_points])
+                else:
+                    for j in range(number_duplication - 1):
+                        duplication = self.create_polyline(list_point=list_object[1], name=name_wind,
+                                                           xsection_type=section, xsection_width=w_dia,
+                                                           xsection_num_seg=n_seg)
+                        self.rotate(duplication, "Z", (j + 1) * 360 / number_duplication)
+                        duplication_points = self.get_vertices_of_line(duplication.name)
+                        list_duplicated_object.append([duplication, duplication_points])
+            returned_list.append(list_duplicated_object)
+
+        return returned_list
+
+    @aedt_exception_handler
+    def _make_winding(self, name, color, mat, in_rad, out_rad, height, dia, teta, turns, chamf, sep_layer):
+
+        teta_r = radians(teta)
+        points_list1 = [[in_rad * cos(teta_r), -in_rad * sin(teta_r), height / 2 - chamf],
+                        [(in_rad + chamf) * cos(teta_r), -(in_rad + chamf) * sin(teta_r), height / 2],
+                        [out_rad - chamf, 0, height / 2], [out_rad, 0, height / 2 - chamf],
+                        [out_rad, 0, -height / 2 + chamf],
+                        [out_rad - chamf, 0, -height / 2],
+                        [(in_rad + chamf) * cos(teta_r), (in_rad + chamf) * sin(teta_r), -height / 2],
+                        [in_rad * cos(teta_r), in_rad * sin(teta_r), -height / 2 + chamf],
+                        [in_rad * cos(teta_r), in_rad * sin(teta_r), height / 2 - chamf]]
+        polyline = self.create_polyline(position_list=points_list1, name="Polyline1")
+        union_polyline1 = [polyline.name]
+        union_polyline2 = polyline.duplicate_around_axis(cs_axis="Z", angle=2 * teta, nclones=turns,
+                                                         create_new_objects=True)
+        union_polyline = union_polyline1 + union_polyline2
+        list_positions = []
+        for i in range(len(union_polyline)):
+            list_positions = list_positions + self.get_vertices_of_line(union_polyline[i])
+        self.delete(union_polyline)
+
+        if sep_layer:
+            for i in range(4):
+                list_positions.remove(list_positions[-1])
+            list_positions.insert(0, [list_positions[0][0], list_positions[0][1], -height])
+            list_positions.append([list_positions[-1][0], list_positions[-1][1], -height])
+            true_polyline = self.create_polyline(position_list=list_positions,
+                                                 name=name)
+            self.rotate(true_polyline, "Z", 180 - (turns - 1) * teta)
+            return [true_polyline, list_positions]
+
+        return list_positions
+
+    @aedt_exception_handler
+    def _make_double_linked_winding(self, name, color, mat, in_rad, out_rad, height, w_dia, teta, teta_in_wind,
+                                    turns, turns_in_wind, chamfer, chamf_in_wind, sr):
+        list_object = self._make_double_winding(name, color, mat, in_rad, out_rad, height, w_dia, teta, teta_in_wind,
+                                                turns, turns_in_wind, chamfer, chamf_in_wind, sr, False)
+        points_out_wind = list_object[0]
+        points_in_wind = list_object[1]
+        for i in range(2):
+            points_out_wind.remove(points_out_wind[0])
+            points_out_wind.remove(points_out_wind[-1])
+        points_out_wind.remove(points_out_wind[-1])
+        points_out_wind[-1] = [points_out_wind[-2][0], points_out_wind[-2][1], -height]
+        points_in_wind.insert(0, [points_in_wind[0][0], points_in_wind[0][1], -height])
+        points_in_wind[-1] = [points_in_wind[-2][0], points_in_wind[-2][1], points_out_wind[1][2]]
+        points_in_wind.append([points_in_wind[-3][0], points_in_wind[-3][1], points_out_wind[0][2]])
+
+        outer_polyline = self.create_polyline(position_list=points_out_wind, name="Winding")
+        self.rotate(outer_polyline, "Z", 180 - (turns - 1) * teta)
+        inner_polyline = self.create_polyline(position_list=points_in_wind, name="Winding2")
+        self.rotate(inner_polyline, "Z", 180 - (turns_in_wind - 1) * teta_in_wind)
+        self.mirror(outer_polyline.name, [0, 0, 0], [0, -1, 0])
+        self.rotate(outer_polyline, "Z", turns_in_wind * teta_in_wind - turns * teta)
+
+        list_polyline = [inner_polyline.name, outer_polyline.name]
+        list_positions = []
+        for i in range(len(list_polyline)):
+            list_positions = list_positions + self.get_vertices_of_line(list_polyline[i])
+        self.delete(list_polyline)
+        true_polyline = self.create_polyline(position_list=list_positions, name="Final_Winding")
+        return [true_polyline, list_positions]
+
+    @aedt_exception_handler
+    def _make_triple_linked_winding(self, name, color, mat, in_rad, out_rad, height, w_dia, teta, teta_mid_wind,
+                                    teta_in_wind, turns, turns_mid_wind, turns_in_wind, chamfer, chamf_in_wind, sr):
+        list_object = self._make_triple_winding(name, color, mat, in_rad, out_rad, height, w_dia, teta, teta_mid_wind,
+                                                teta_in_wind, turns, turns_mid_wind, turns_in_wind, chamfer,
+                                                chamf_in_wind, sr, False)
+        points_out_wind = list_object[0]
+        points_mid_wind = list_object[1]
+        points_in_wind = list_object[2]
+        for i in range(3):
+            points_out_wind.remove(points_out_wind[0])
+            points_out_wind.remove(points_out_wind[0])
+            points_out_wind.remove(points_out_wind[-1])
+        points_out_wind[-1] = [points_out_wind[-2][0], points_out_wind[-2][1], -height]
+        for i in range(2):
+            points_mid_wind.remove(points_mid_wind[0])
+            points_mid_wind.remove(points_mid_wind[-1])
+        points_mid_wind.remove(points_mid_wind[-1])
+        points_mid_wind[-1] = [points_mid_wind[-2][0], points_mid_wind[-2][1], points_out_wind[1][2]]
+        points_mid_wind.append([points_mid_wind[-4][0], points_mid_wind[-4][1], points_out_wind[0][2]])
+        points_in_wind.insert(0, [points_in_wind[0][0], points_in_wind[0][1], -height])
+        points_in_wind[-1] = [points_in_wind[-2][0], points_in_wind[-2][1], points_mid_wind[1][2]]
+        points_in_wind.append([points_in_wind[-3][0], points_in_wind[-3][1], points_mid_wind[0][2]])
+
+        outer_polyline = self.create_polyline(position_list=points_out_wind, name="Winding")
+        self.rotate(outer_polyline, "Z", 180 - (turns - 1) * teta)
+        mid_polyline = self.create_polyline(position_list=points_mid_wind, name="Winding2")
+        self.rotate(mid_polyline, "Z", 180 - (turns_mid_wind - 1) * teta_mid_wind)
+        inner_polyline = self.create_polyline(position_list=points_in_wind, name="Winding3")
+
+        self.rotate(inner_polyline, "Z", 180 - (turns_in_wind - 1) * teta_in_wind)
+        self.mirror(mid_polyline.name, [0, 0, 0], [0, -1, 0])
+        self.rotate(outer_polyline, "Z", turns * teta - turns_mid_wind * teta_mid_wind)
+        self.rotate(mid_polyline, "Z", turns_in_wind * teta_in_wind - turns_mid_wind * teta_mid_wind)
+        self.rotate(outer_polyline, "Z", turns_in_wind * teta_in_wind - turns_mid_wind * teta_mid_wind)
+
+        list_polyline = [inner_polyline.name, mid_polyline.name, outer_polyline.name]
+        list_positions = []
+        for i in range(len(list_polyline)):
+            list_positions = list_positions + self.get_vertices_of_line(list_polyline[i])
+        self.primitives.delete(list_polyline)
+        true_polyline = self.create_polyline(position_list=list_positions, name="Final_Winding")
+        return [true_polyline, list_positions]
+
+    @aedt_exception_handler
+    def _make_double_winding(self, name, color, mat, in_rad, out_rad, height, w_dia, teta, teta_in_wind, turns,
+                             turns_in_wind, chamfer, chamf_in_wind, sr, sep_layer):
+
+        chamf = self._make_winding_follow_chamfer(chamfer, sr, w_dia, 3)
+        in_rad_in_wind = in_rad + sr * w_dia
+        out_rad_in_wind = out_rad - sr * w_dia
+        height_in_wind = height - 2 * sr * w_dia
+        list_object = [self._make_winding(name, color, mat, in_rad, out_rad, height, w_dia, teta, turns, chamf,
+                                          sep_layer),
+                       self._make_winding(name, color, mat, in_rad_in_wind, out_rad_in_wind, height_in_wind, w_dia,
+                                          teta_in_wind, turns_in_wind, chamf_in_wind, sep_layer)]
+        return list_object
+
+    @aedt_exception_handler
+    def _make_triple_winding(self, name, color, mat, in_rad, out_rad, height, w_dia, teta, teta_mid_wind, teta_in_wind,
+                             turns, turns_mid_wind, turns_in_wind, chamfer, chamf_in_wind, sr, sep_layer):
+
+        chamf = self._make_winding_follow_chamfer(chamfer, sr, w_dia, 5)
+        chamf_mid_wind = self._make_winding_follow_chamfer(chamfer, sr, w_dia, 3)
+        in_rad_in_wind = in_rad + 2 * sr * w_dia
+        in_rad_mid_wind = in_rad + sr * w_dia
+        out_rad_in_wind = out_rad - 2 * sr * w_dia
+        out_rad_mid_wind = out_rad - sr * w_dia
+        height_in_wind = height - 4 * sr * w_dia
+        height_mid_wind = height - 2 * sr * w_dia
+        list_object = [self._make_winding(name, color, mat, in_rad, out_rad, height, w_dia, teta, turns, chamf,
+                                          sep_layer),
+                       self._make_winding(name, color, mat, in_rad_mid_wind, out_rad_mid_wind, height_mid_wind, w_dia,
+                                          teta_mid_wind, turns_mid_wind, chamf_mid_wind, sep_layer),
+                       self._make_winding(name, color, mat, in_rad_in_wind, out_rad_in_wind, height_in_wind, w_dia,
+                                          teta_in_wind, turns_in_wind, chamf_in_wind, sep_layer)]
+        return list_object
+
+    @aedt_exception_handler
+    def _make_core(self, name, color, mat, in_rad, out_rad, height, chamfer):
+        tool = self.create_cylinder("Z", [0, 0, -height / 2], in_rad, height, 0, "Tool")
+        core = self.create_cylinder("Z", [0, 0, -height / 2], out_rad, height, 0, name)
+        core.color = color
+        core.subtract(tool, False)
+        for n in core.edges:
+            n.chamfer(chamfer)
+        return core
+
+    @aedt_exception_handler
+    def check_choke_values(self, json_file):
+        """Verify the values in the json file and create another one with corrected values next to the first one.
+
+        Parameters
+        ----------
+        json_file : str
+            Full path to json file;
+            Specific json file containing all the parameters to design your on choke.
+
+        Returns
+        -------
+        List of
+        bool
+            ``True`` when successful, ``False`` when failed.
+        dictionary : class : 'dict'
+
+        Examples
+        --------
+        Dictionary of the Json file has to be like the following example :
+            dictionary = {
+                "Number of Windings": {"1":"False", "2":"False", "3":"True", "4":"False"},
+                "Layer": {"Simple":"False", "Double":"False", "Triple":"True"},
+                "Layer Type": {"Separate":"False", "Linked":"True"},
+                "Similar Layer":{Similar Layer":"False"}
+                "Mode": {"Differential":"True", "Common":"False"},
+                "Wire Section": {"None":"False", "Hexagon":"True", "Octagon":"False", "Circle":"False"},
+                "Core": {"Name":"Core", "Inner Radius":11, "Outer Radius":17, "Height":7, "Chamfer":0.8},
+                "Outer Winding": {"Name":"Winding", "Inner Radius":10, "Outer Radius":18, "Height":9,
+                                "Wire Diameter":1.4, "Turns":25, "Coil Pit(deg)":6.2},
+                "Mid Winding": {"Turns":30, "Coil Pit(deg)":5.3},
+                "Inner Winding": {"Turns":36, "Coil Pit(deg)":4.5}
+            }
+
+        >>> import json
+        >>> with open("C:/Example/Of/Path/myJsonFile.json", "w") as outfile:
+        >>>     json.dump(dictionary, outfile)
+        >>> from pyaedt import Hfss
+        >>> hfss = Hfss()
+        >>> dictionary_values = hfss.modeler.check_choke_values("C:/Example/Of/Path/myJsonFile.json")
+
+        """
+        security_factor = 1.1
+        are_inequations_checkable = True
+        sr = security_factor
+        read_file = open(json_file, "r")
+        values = json.load(read_file)
+
+        for f_key in values.keys():
+            count_true = False
+            for s_key in values[f_key].keys():
+                if type(values[f_key][s_key]) == bool:
+                    if count_true:
+                        values[f_key][s_key] = False
+                    if values[f_key][s_key]:
+                        count_true = True
+                else:
+                    print(f"ERROR: A character entered is invalid. "
+                          f"The values of the dictionary {f_key} must be boolean")
+                    are_inequations_checkable = False
+                    break
+            if f_key == "Wire Section":
+                break
+
+        core_name = "Core"
+        if type(values["Core"]["Name"]) == str:
+            if len(values["Core"]["Name"]) > 0:
+                core_name = values["Core"]["Name"]
+        else:
+            print("WARNING: Core Name must be a non-null string. A default name Core has been set.")
+        winding_name = "Winding"
+        if type(values["Outer Winding"]["Name"]) == str:
+            if len(values["Outer Winding"]["Name"]) > 0:
+                winding_name = values["Outer Winding"]["Name"]
+        else:
+            print("WARNING: Winding Name must be a non-null string. A default name Core has been set.")
+        try:
+            in_rad_core = float(values["Core"]["Inner Radius"])
+            if in_rad_core <= 0:
+                aedt_exception_handler("ERROR:")
+                print(
+                    "ERROR: The character entered is invalid. Inner Radius(Core) must be a strictly positive float. "
+                    "It must be changed")
+                are_inequations_checkable = False
+        except:
+            print(
+                "ERROR: The character entered is invalid. Inner Radius(Core) must be a strictly positive float. "
+                "It must be changed")
+            are_inequations_checkable = False
+        try:
+            out_rad_core = float(values["Core"]["Outer Radius"])
+            if out_rad_core <= 0:
+                print(
+                    "ERROR: The character entered is invalid. Outer Radius(Core) must be a strictly positive float. "
+                    "It must be changed")
+                are_inequations_checkable = False
+        except:
+            print(
+                "ERROR: The character entered is invalid. Outer Radius(Core) must be a strictly positive float. "
+                "It must be changed")
+            are_inequations_checkable = False
+        try:
+            height_core = float(values["Core"]["Height"])
+            if height_core <= 0:
+                print(
+                    "ERROR: The character entered is invalid. Height(Core) must be a strictly positive float. "
+                    "It must be changed")
+                are_inequations_checkable = False
+        except:
+            print(
+                "ERROR: The character entered is invalid. Height(Core) must be a strictly positive float. "
+                "It must be changed")
+            are_inequations_checkable = False
+        try:
+            core_chamfer = float(values["Core"]["Chamfer"])
+            if core_chamfer < 0:
+                print("The character entered is invalid. Chamfer must be a positive float. It must be changed")
+                are_inequations_checkable = False
+        except:
+            print("The character entered is invalid. Chamfer must be a positive float. It must be changed")
+            are_inequations_checkable = False
+        try:
+            in_rad_wind = float(values["Outer Winding"]["Inner Radius"])
+            if in_rad_wind <= 0:
+                print(
+                    "ERROR: The character entered is invalid. Inner Radius(Coil) must be a strictly positive float. "
+                    "It must be changed")
+                are_inequations_checkable = False
+        except:
+            print(
+                "ERROR: The character entered is invalid. Inner Radius(Coil) must be a strictly positive float. "
+                "It must be changed")
+            are_inequations_checkable = False
+        try:
+            out_rad_wind = float(values["Outer Winding"]["Outer Radius"])
+            if out_rad_wind <= 0:
+                print(
+                    "ERROR: The character entered is invalid. Outer Radius(Coil) must be a strictly positive float. "
+                    "It must be changed")
+                are_inequations_checkable = False
+        except:
+            print(
+                "ERROR: The character entered is invalid. Outer Radius(Coil) must be a strictly positive float. "
+                "It must be changed")
+            are_inequations_checkable = False
+        try:
+            height_wind = float(values["Outer Winding"]["Height"])
+            if height_wind <= 0:
+                print(
+                    "ERROR: The character entered is invalid. Height(Coil) must be a strictly positive float. "
+                    "It must be changed")
+                are_inequations_checkable = False
+        except:
+            print(
+                "ERROR: The character entered is invalid. Height(Coil) must be a strictly positive float. "
+                "It must be changed")
+            are_inequations_checkable = False
+        try:
+            turns = float(values["Outer Winding"]["Turns"])
+            if turns <= 0:
+                print("ERROR: The character entered is invalid. Turns must be a non-zero integer. "
+                      "It must be changed")
+                are_inequations_checkable = False
+        except:
+            print("ERROR: The character entered is invalid. Turns must be a non-zero integer. "
+                  "It must be changed")
+            are_inequations_checkable = False
+        try:
+            turns2 = float(values["Mid Winding"]["Turns"])
+            if turns2 <= 0:
+                print("ERROR: The character entered is invalid. Turns must be a non-zero integer. "
+                      "It must be changed")
+                are_inequations_checkable = False
+        except:
+            print("ERROR: The character entered is invalid. Turns must be a non-zero integer. "
+                  "It must be changed")
+            are_inequations_checkable = False
+        try:
+            turns3 = float(values["Inner Winding"]["Turns"])
+            if turns3 <= 0:
+                print("ERROR: The character entered is invalid. Turns must be a non-zero integer. "
+                      "It must be changed")
+                are_inequations_checkable = False
+        except:
+            print("ERROR: The character entered is invalid. Turns must be a non-zero integer. "
+                  "It must be changed")
+            are_inequations_checkable = False
+        try:
+            wind_pit = float(values["Outer Winding"]["Coil Pit(deg)"])
+            if wind_pit <= 0:
+                print(
+                    "ERROR: The character entered is invalid. Coil Pit must be a strictly positive float. "
+                    "It must be changed")
+                are_inequations_checkable = False
+        except:
+            print(
+                "ERROR: The character entered is invalid. Coil Pit must be a strictly positive float. "
+                "It must be changed")
+            are_inequations_checkable = False
+        try:
+            wind_pit2 = float(values["Mid Winding"]["Coil Pit(deg)"])
+            if wind_pit2 <= 0:
+                print(
+                    "ERROR: The character entered is invalid. Coil Pit must be a strictly positive float. "
+                    "It must be changed")
+                are_inequations_checkable = False
+        except:
+            print(
+                "ERROR: The character entered is invalid. Coil Pit must be a strictly positive float. "
+                "It must be changed")
+            are_inequations_checkable = False
+        try:
+            wind_pit3 = float(values["Inner Winding"]["Coil Pit(deg)"])
+            if wind_pit3 <= 0:
+                print("ERROR: The character entered is invalid. Coil Pit must be a strictly positive float. "
+                      "It must be changed")
+                are_inequations_checkable = False
+        except:
+            print("ERROR: The character entered is invalid. Coil Pit must be a strictly positive float. "
+                  "It must be changed")
+            are_inequations_checkable = False
+        try:
+            dia_wire = float(values["Outer Winding"]["Wire Diameter"])
+            if dia_wire <= 0:
+                print("ERROR: The character entered is invalid. Wire Diameter must be a strictly positive float."
+                      " It must be changed")
+                are_inequations_checkable = False
+        except:
+            print("ERROR: The character entered is invalid. Wire Diameter must be a strictly positive float. "
+                  "It must be changed")
+            are_inequations_checkable = False
+
+        if are_inequations_checkable:
+            teta = radians(wind_pit)
+            teta2 = radians(wind_pit2)
+            teta3 = radians(wind_pit3)
+            nb_wind = 1
+            if values["Number of Windings"]["2"]:
+                nb_wind = 2
+            if values["Number of Windings"]["3"]:
+                nb_wind = 3
+            if values["Number of Windings"]["4"]:
+                nb_wind = 4
+
+            nb_lay = 0
+            if values["Layer"]["Double"]:
+                nb_lay = 2
+            if values["Layer"]["Triple"]:
+                nb_lay = 4
+
+            if in_rad_wind > in_rad_core - (nb_lay + 1) * sr * dia_wire / 2:
+                in_rad_wind = in_rad_core - (nb_lay + 1) * sr * dia_wire / 2
+                values["Outer Winding"]["Inner Radius"] = in_rad_wind
+                print("WARNING: Inner Radius of the winding is too high. The maximum value has been set instead.\n")
+            if out_rad_wind < out_rad_core + (nb_lay + 1) * sr * dia_wire / 2:
+                out_rad_wind = out_rad_core + (nb_lay + 1) * sr * dia_wire / 2
+                values["Outer Winding"]["Outer Radius"] = out_rad_wind
+                print("WARNING: Outer Radius of the winding is too low. The minimum value has been set instead.\n")
+            if height_wind < height_core + (nb_lay + 1) * sr * dia_wire:
+                height_wind = height_core + (nb_lay + 1) * sr * dia_wire
+                values["Outer Winding"]["Height"] = height_wind
+                print("WARNING: Height of the winding is too low. The minimum value has been set instead.\n")
+
+            if asin((sr * dia_wire / 2) / in_rad_wind) > pi / nb_wind / turns:
+                turns = int(pi / nb_wind / asin((sr * dia_wire / 2) / in_rad_wind))
+                values["Outer Winding"]["Turns"] = turns
+                print("WARNING: Number of turns of the winding is too high. The maximum value has been set instead.\n")
+
+            if teta > pi / nb_wind / turns:
+                teta = self.degrees_floor(pi / nb_wind / turns, 3)
+                values["Outer Winding"]["Coil Pit(deg)"] = teta
+                print("WARNING: Winding Pit is too high. The maximum value has been set instead.\n")
+
+            elif teta < asin((sr * dia_wire / 2) / in_rad_wind):
+                teta = self.degrees_ceil(asin((sr * dia_wire / 2) / in_rad_wind), 3)
+                values["Outer Winding"]["Coil Pit(deg)"] = teta
+                print("WARNING: Winding Pit is too low. The minimum value has been set instead.\n")
+
+            else:
+                teta = degrees(teta)
+
+            occ = 100 * turns * teta / (180 / nb_wind)
+            values["Outer Winding"]["Occupation(%)"] = occ
+
+            if values["Similar Layer"]["Different"]:
+                if values["Layer"]["Double"] or values["Layer"]["Triple"]:
+
+                    if asin((sr * dia_wire / 2) / (in_rad_wind + sr * dia_wire)) > pi / nb_wind / turns2:
+                        turns2 = int(pi / nb_wind / asin((sr * dia_wire / 2) / (in_rad_wind + sr * dia_wire)))
+                        values["Mid Winding"]["Turns"] = turns2
+                        print("WARNING: Number of turns of the winding of the second layer is too high. "
+                              "The maximum value has been set instead.\n")
+
+                    if turns2 < turns:
+                        turns2 = turns
+                        values["Mid Winding"]["Turns"] = turns2
+                        print("WARNING: Number of turns of the winding of the second layer should be at least equal to "
+                              "those of the first layer.\n")
+
+                    if teta2 > pi / nb_wind / turns2:
+                        teta2 = self.degrees_floor(pi / nb_wind / turns2, 3)
+                        values["Mid Winding"]["Coil Pit(deg)"] = teta2
+                        print("WARNING: Winding Pit of the second layer is too high. "
+                              "The maximum value has been set instead.\n")
+
+                    elif teta2 < asin((sr * dia_wire / 2) / (in_rad_wind + sr * dia_wire)):
+                        teta2 = self.degrees_ceil(asin((sr * dia_wire / 2) / (in_rad_wind + sr * dia_wire)), 3)
+                        values["Mid Winding"]["Coil Pit(deg)"] = teta2
+                        print("WARNING: Winding Pit of the second layer is too low. "
+                              "The minimum value has been set instead.\n")
+
+                    else:
+                        teta2 = degrees(teta2)
+                        values["Mid Winding"]["Coil Pit(deg)"] = teta2
+
+                    occ2 = 100 * turns2 * teta2 / (180 / nb_wind)
+                    if occ2 < occ:
+                        teta2 = ceil(turns * teta / turns2 * 1000) / 1000
+                        occ2 = 100 * turns2 * teta2 / (180 / nb_wind)
+                        print("WARNING: Occupation of the second layer should be at least equal to "
+                              "that of the first layer.\n")
+                    values["Mid Winding"]["Occupation(%)"] = occ2
+                    # TODO RCC must not be to 100...
+
+                if values["Layer"]["Triple"]:
+
+                    if asin((sr * dia_wire / 2) / (in_rad_wind + 2 * sr * dia_wire)) > pi / nb_wind / turns3:
+                        turns3 = int(pi / nb_wind / asin((sr * dia_wire / 2) / (in_rad_wind + 2 * sr * dia_wire)))
+                        values["Inner Winding"]["Turns"] = turns3
+                        print(
+                            "WARNING: Number of turns of the winding of the third layer is too high. "
+                            "The maximum value has been set instead.\n")
+
+                    if turns3 < turns2:
+                        turns3 = turns2
+                        values["Inner Winding"]["Turns"] = turns3
+                        print("WARNING: Number of turns of the winding of the third layer should be at least equal to "
+                              "those of the second layer.\n")
+
+                    if teta3 > pi / nb_wind / turns3:
+                        teta3 = self.degrees_floor(pi / nb_wind / turns3, 3)
+                        values["Inner Winding"]["Coil Pit(deg)"] = teta3
+                        print("WARNING: Winding Pit of the third layer is too high. "
+                              "The maximum value has been set instead.\n")
+
+                    elif teta3 < asin((sr * dia_wire / 2) / (in_rad_wind + 2 * sr * dia_wire)):
+                        teta3 = self.degrees_ceil(asin((sr * dia_wire / 2) / (in_rad_wind + 2 * sr * dia_wire)), 3)
+                        values["Inner Winding"]["Coil Pit(deg)"] = teta3
+                        print("WARNING: Winding Pit of the third layer is too low. "
+                              "The minimum value has been set instead.\n")
+
+                    else:
+                        teta3 = degrees(teta3)
+                        values["Inner Winding"]["Coil Pit(deg)"] = teta3
+
+                    occ3 = 100 * turns3 * teta3 / (180 / nb_wind)
+                    if occ3 < occ2:
+                        teta3 = ceil(turns2 * teta2 / turns3 * 1000) / 1000
+                        occ3 = 100 * turns3 * teta3 / (180 / nb_wind)
+                    values["Inner Winding"]["Occupation(%)"] = occ3
+                    # TODO RCC must not be to 100...
+
+            spl_path = json_file.split(".")
+            with open(spl_path[0] + "_Corrected.json", "w") as outfile:
+                json.dump(values, outfile)
+
+        return [are_inequations_checkable, values]
+
+    @aedt_exception_handler
+    def _make_winding_follow_chamfer(self, chamfer, security_factor, wire_diameter, numb):
+        sr = security_factor
+        w_rad_inc = numb * sr * wire_diameter / 2
+        distance = sqrt(2 * w_rad_inc ** 2) - w_rad_inc + sqrt(2 * chamfer ** 2) / 2
+        return sqrt(2) * distance
+
+    @aedt_exception_handler
+    def degrees_ceil(self, numb, digits):
+        return ceil(degrees(numb) * 10 ** digits) / (10 ** digits)
+
+    @aedt_exception_handler
+    def degrees_floor(self, numb, digits):
+        return floor(degrees(numb) * 10 ** digits) / (10 ** digits)
