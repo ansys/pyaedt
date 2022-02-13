@@ -1718,6 +1718,9 @@ class Primitives3D(Primitives, object):
     def _make_winding(self, name, color, mat, in_rad, out_rad, height, dia, teta, turns, chamf, sep_layer):
 
         teta_r = radians(teta)
+        print(in_rad)
+        print(out_rad)
+        print(height)
         points_list1 = [[in_rad * cos(teta_r), -in_rad * sin(teta_r), height / 2 - chamf],
                         [(in_rad + chamf) * cos(teta_r), -(in_rad + chamf) * sin(teta_r), height / 2],
                         [out_rad - chamf, 0, height / 2], [out_rad, 0, height / 2 - chamf],
