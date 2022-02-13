@@ -1631,7 +1631,6 @@ class Primitives3D(Primitives, object):
         teta3 = values["Inner Winding"]["Coil Pit(deg)"]
 
         chamf = self._make_winding_follow_chamfer(chamfer, sr, w_dia, 1)
-        chamf = chamfer
 
         returned_list = [True,
                          self._make_core(name_core, "(255 0 0)", "", in_rad_core, out_rad_core, height_core, chamfer)]
@@ -1641,23 +1640,28 @@ class Primitives3D(Primitives, object):
                 list_object = self._make_double_linked_winding(name_wind, "(255 0 0)", "", in_rad_wind, out_rad_wind,
                                                                height_wind, w_dia, teta, teta2, turns, turns2,
                                                                chamfer, chamf, sr)
+                print("make_double_linked_winding")
             else:
                 list_object = self._make_double_winding(name_wind, "(255 0 0)", "", in_rad_wind, out_rad_wind,
                                                         height_wind, w_dia, teta, teta2, turns, turns2,
                                                         chamfer, chamf, sr, sep_layer)
+                print("make_double_winding")
         elif values["Layer"]["Triple"]:
             if values["Layer Type"]["Linked"]:
                 list_object = self._make_triple_linked_winding(name_wind, "(255 0 0)", "", in_rad_wind, out_rad_wind,
                                                                height_wind, w_dia, teta, teta2, teta3, turns, turns2,
                                                                turns3, chamfer, chamf, sr)
+                print("make_triple_linked_winding")
             else:
                 list_object = self._make_triple_winding(name_wind, "(255 0 0)", "", in_rad_wind, out_rad_wind,
                                                         height_wind,
                                                         w_dia, teta, teta2, teta3, turns, turns2, turns3, chamfer,
                                                         chamf, sr, sep_layer)
+                print("make_triple_winding")
         else:
             list_object = self._make_winding(name_wind, "(255 0 0)", "", in_rad_wind, out_rad_wind, height_wind,
                                              w_dia, teta, turns, chamf, sep_layer)
+            print("make_winding")
         list_duplicated_object = []
         if type(list_object[0]) == list:
             for i in range(len(list_object)):
