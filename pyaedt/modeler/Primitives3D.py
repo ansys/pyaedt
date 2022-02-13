@@ -1617,17 +1617,17 @@ class Primitives3D(Primitives, object):
         height_core = values["Core"]["Height"]
         chamfer = values["Core"]["Chamfer"]
 
-        name_wind = values["Outer Winding"]["Name"]
-        in_rad_wind = values["Outer Winding"]["Inner Radius"]
-        out_rad_wind = values["Outer Winding"]["Outer Radius"]
-        height_wind = values["Outer Winding"]["Height"]
-        w_dia = values["Outer Winding"]["Wire Diameter"]
-        turns = values["Outer Winding"]["Turns"]
-        turns2 = values["Mid Winding"]["Turns"]
-        turns3 = values["Inner Winding"]["Turns"]
-        teta = values["Outer Winding"]["Coil Pit(deg)"]
-        teta2 = values["Mid Winding"]["Coil Pit(deg)"]
-        teta3 = values["Inner Winding"]["Coil Pit(deg)"]
+        name_wind = values["Outer Windings"]["Name"]
+        in_rad_wind = values["Outer Windings"]["Inner Radius"]
+        out_rad_wind = values["Outer Windings"]["Outer Radius"]
+        height_wind = values["Outer Windings"]["Height"]
+        w_dia = values["Outer Windings"]["Wire Diameter"]
+        turns = values["Outer Windings"]["Turns"]
+        turns2 = values["Mid Windings"]["Turns"]
+        turns3 = values["Inner Windings"]["Turns"]
+        teta = values["Outer Windings"]["Coil Pit(deg)"]
+        teta2 = values["Mid Windings"]["Coil Pit(deg)"]
+        teta3 = values["Inner Windings"]["Coil Pit(deg)"]
 
         chamf = self._make_winding_follow_chamfer(chamfer, sr, w_dia, 1)
 
@@ -1665,8 +1665,8 @@ class Primitives3D(Primitives, object):
             list_object[0].set_crosssection_properties(type=section, width=w_dia, num_seg=n_seg)
             returned_list.append(list_object)
 
-        for key in values["Number of Winding"].keys():
-            if values["Number of Winding"][key]:
+        for key in values["Number of Windings"].keys():
+            if values["Number of Windings"][key]:
                 number_duplication = int(key)
         if number_duplication >= 2:
             if values["Mode"]["Common"] and number_duplication == 2:
