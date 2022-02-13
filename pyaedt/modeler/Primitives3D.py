@@ -1596,6 +1596,7 @@ class Primitives3D(Primitives, object):
         """
         json_file = open(json_file, "r")
         values = json.load(json_file)
+        print(values)
 
         sr = 1.1
         n_seg = 0
@@ -1630,6 +1631,7 @@ class Primitives3D(Primitives, object):
         teta3 = values["Inner Winding"]["Coil Pit(deg)"]
 
         chamf = self._make_winding_follow_chamfer(chamfer, sr, w_dia, 1)
+        chamf = chamfer
 
         returned_list = [True,
                          self._make_core(name_core, "(255 0 0)", "", in_rad_core, out_rad_core, height_core, chamfer)]
