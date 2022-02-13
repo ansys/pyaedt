@@ -1739,9 +1739,9 @@ class Primitives3D(Primitives, object):
 
         if sep_layer:
             for i in range(4):
-                list_positions.remove(list_positions[0])
-            list_positions.insert(0, [list_positions[-1][0], list_positions[-1][1], -height])
-            list_positions.append([list_positions[0][0], list_positions[0][1], -height])
+                list_positions.remove(list_positions[-1])
+            list_positions.insert(0, [list_positions[0][0], list_positions[0][1], -height])
+            list_positions.append([list_positions[-1][0], list_positions[-1][1], -height])
             true_polyline = self.create_polyline(position_list=list_positions,
                                                  name=name)
             self.rotate(true_polyline, "Z", 180 - (turns - 1) * teta)
