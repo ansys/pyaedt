@@ -1625,9 +1625,9 @@ class Primitives3D(Primitives, object):
         turns = values["Outer Windings"]["Turns"]
         turns2 = values["Mid Windings"]["Turns"]
         turns3 = values["Inner Windings"]["Turns"]
-        teta = values["Outer Windings"]["Coil Pit(deg)"]
-        teta2 = values["Mid Windings"]["Coil Pit(deg)"]
-        teta3 = values["Inner Windings"]["Coil Pit(deg)"]
+        teta = values["Outer Winding"]["Coil Pit(deg)"]
+        teta2 = values["Mid Winding"]["Coil Pit(deg)"]
+        teta3 = values["Inner Winding"]["Coil Pit(deg)"]
 
         chamf = self._make_winding_follow_chamfer(chamfer, sr, w_dia, 1)
 
