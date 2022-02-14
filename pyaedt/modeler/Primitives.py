@@ -1656,7 +1656,7 @@ class Primitives(object):
 
         cmd_tab.append(changed_props)
         vArg1.append(cmd_tab)
-        obj_name = self._oeditor.ChangeProperty(vArg1)
+        self._oeditor.ChangeProperty(vArg1)
         return True
 
     @aedt_exception_handler
