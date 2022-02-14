@@ -135,11 +135,11 @@ class EdbLayout(object):
     @property
     def rectangles(self):
         """Rectangles.
-
-        Returns
-        -------
-        list of :class:`pyaedt.edb_core.EDB_Data.EDBPrimitives`
-            List of rectangles.
+        if nets_to_include:
+                Returns
+                -------
+                list of :class:`pyaedt.edb_core.EDB_Data.EDBPrimitives`
+                    List of rectangles.
 
         """
         return [i for i in self.primitives if i.type == "Rectangle"]
