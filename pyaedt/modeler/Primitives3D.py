@@ -1678,7 +1678,7 @@ class Primitives3D(Primitives, object):
             if values["Mode"]["Common"] and number_duplication == 2:
                 if type(list_object[0]) == list:
                     for i in range(len(list_object)):
-                        duplication = self.create_polyline(list_point=list_object[i][1], name=name_wind,
+                        duplication = self.create_polyline(position_list=list_object[i][1], name=name_wind,
                                                            xsection_type=section, xsection_width=w_dia,
                                                            xsection_num_seg=n_seg)
                         self.mirror(duplication, [0, 0, 0], [-1, 0, 0])
@@ -1686,7 +1686,7 @@ class Primitives3D(Primitives, object):
                         list_duplicated_object.append([duplication, duplication_points])
 
                 else:
-                    duplication = self.create_polyline(list_point=list_object[1], name=name_wind,
+                    duplication = self.create_polyline(position_list=list_object[1], name=name_wind,
                                                        xsection_type=section, xsection_width=w_dia,
                                                        xsection_num_seg=n_seg)
                     print(duplication)
@@ -1697,7 +1697,7 @@ class Primitives3D(Primitives, object):
                 if type(list_object[0]) == list:
                     for j in range(number_duplication - 1):
                         for i in range(len(list_object)):
-                            duplication = self.create_polyline(list_point=list_object[i][1], name=name_wind,
+                            duplication = self.create_polyline(position_list=list_object[i][1], name=name_wind,
                                                                xsection_type=section, xsection_width=w_dia,
                                                                xsection_num_seg=n_seg)
                             self.rotate(duplication, "Z", (j + 1) * 360 / number_duplication)
@@ -1705,7 +1705,7 @@ class Primitives3D(Primitives, object):
                             list_duplicated_object.append([duplication, duplication_points])
                 else:
                     for j in range(number_duplication - 1):
-                        duplication = self.create_polyline(list_point=list_object[1], name=name_wind,
+                        duplication = self.create_polyline(position_list=list_object[1], name=name_wind,
                                                            xsection_type=section, xsection_width=w_dia,
                                                            xsection_num_seg=n_seg)
                         self.rotate(duplication, "Z", (j + 1) * 360 / number_duplication)
