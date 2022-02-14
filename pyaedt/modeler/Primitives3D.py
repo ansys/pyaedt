@@ -1689,6 +1689,7 @@ class Primitives3D(Primitives, object):
                     duplication = self.create_polyline(list_point=list_object[1], name=name_wind,
                                                        xsection_type=section, xsection_width=w_dia,
                                                        xsection_num_seg=n_seg)
+                    print(duplication)
                     self.mirror(duplication.name, [0, 0, 0], [-1, 0, 0])
                     duplication_points = self.get_vertices_of_line(duplication.name)
                     list_duplicated_object.append([duplication, duplication_points])
