@@ -173,7 +173,7 @@ class Primitives3DLayout(object):
             return self._pins
         self._primitivesDes = self._app.project_name + self._app.design_name
         try:
-            pins_objs = list(self.modeler.edb.pins)
+            pins_objs = list(self.modeler.edb.pins.values())
         except:
             pins_objs = []
         for el in pins_objs:
@@ -208,7 +208,7 @@ class Primitives3DLayout(object):
             return self._nets
         self._primitivesDes = self._app.project_name + self._app.design_name
         try:
-            nets_objs = list(self.modeler.edb.core_nets.nets)
+            nets_objs = list(self.modeler.edb.core_nets.nets.values())
         except:
             nets_objs = {}
         for el in nets_objs:
