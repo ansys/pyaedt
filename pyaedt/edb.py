@@ -971,7 +971,7 @@ class Edb(object):
             for c in list(self.db.TopCircuitCells):
                 if c.GetName() == _cutout.GetName():
                     c.Delete()
-            if open_cutout_at_end:
+            if open_cutout_at_end:  # pragma: no cover
                 self._db = db2
                 self.edbpath = output_aedb_path
                 self._active_cell = list(self._db.TopCircuitCells)[0]
@@ -1160,7 +1160,7 @@ class Edb(object):
             for c in list(self.db.TopCircuitCells):
                 if c.GetName() == _cutout.GetName():
                     c.Delete()
-            if open_cutout_at_end:
+            if open_cutout_at_end:  # pragma: no cover
                 _success = db2.Save()
                 self._db = db2
                 self.edbpath = output_aedb_path
