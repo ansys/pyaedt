@@ -2150,6 +2150,11 @@ class Primitives3D(Primitives, object):
                 teta = degrees(teta)
 
             occ = 100 * turns * teta / (180 / nb_wind)
+            if occ == 100:
+                teta = teta - 0.0003
+                if teta < asin((sr * dia_wire / 2) / in_rad_wind) and turns > 1:
+                    turns = turns-1
+            occ = 100 * turns * teta / (180 / nb_wind)
             values["Outer Winding"]["Occupation(%)"] = occ
 
             if values["Similar Layer"]["Different"]:
@@ -2186,11 +2191,17 @@ class Primitives3D(Primitives, object):
                     occ2 = 100 * turns2 * teta2 / (180 / nb_wind)
                     if occ2 < occ:
                         teta2 = ceil(turns * teta / turns2 * 1000) / 1000
+                        values["Mid Winding"]["Coil Pit(deg)"] = teta2
                         occ2 = 100 * turns2 * teta2 / (180 / nb_wind)
                         print("WARNING: Occupation of the second layer should be at least equal to "
                               "that of the first layer.\n")
+                    if occ2 == 100:
+                        teta2 = teta2 - 0.0002
+                        if teta2 < asin((sr * dia_wire / 2) / (in_rad_wind + sr * dia_wire)):
+                            turns2 = turns2 - 1
+                    occ2 = 100 * turns2 * teta2 / (180 / nb_wind)
                     values["Mid Winding"]["Occupation(%)"] = occ2
-                    # TODO RCC must not be to 100...
+                    # TODO if occ2 == 100: method can be improve
 
                 if values["Layer"]["Triple"]:
 
@@ -2226,9 +2237,15 @@ class Primitives3D(Primitives, object):
                     occ3 = 100 * turns3 * teta3 / (180 / nb_wind)
                     if occ3 < occ2:
                         teta3 = ceil(turns2 * teta2 / turns3 * 1000) / 1000
+                        values["Inner Winding"]["Coil Pit(deg)"] = teta3
                         occ3 = 100 * turns3 * teta3 / (180 / nb_wind)
+                    if occ3 == 100:
+                        teta3 = teta3 - 0.0001
+                        if teta3 < asin((sr * dia_wire / 2) / (in_rad_wind + 2 * sr * dia_wire)):
+                            turns3 = turns3 - 1
+                    occ3 = 100 * turns3 * teta3 / (180 / nb_wind)
                     values["Inner Winding"]["Occupation(%)"] = occ3
-                    # TODO RCC must not be to 100...
+                    # TODO if occ3 == 100: method can be improve
 
             spl_path = json_file.split(".")
             with open(spl_path[0] + "_Corrected.json", "w") as outfile:
