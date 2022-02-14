@@ -428,7 +428,7 @@ class GeometryOperators(object):
         # m = (a[0] ** 2 + a[1] ** 2 + a[2] ** 2) ** 0.5
         t = 0
         for i in a:
-            t += i**2
+            t += i ** 2
         m = t ** 0.5
         return m
 
@@ -1496,14 +1496,16 @@ class GeometryOperators(object):
         cross = GeometryOperators.v_cross(va, vb)
         if GeometryOperators.v_norm(cross) < tol:
             return math.pi
-        assert GeometryOperators.is_collinear(cross, vn), "vn must be the normal to the " \
-                                                          "plane containing va and vb."  # pragma: no cover
+        assert GeometryOperators.is_collinear(cross, vn), (
+            "vn must be the normal to the " "plane containing va and vb."
+        )  # pragma: no cover
 
         vnn = GeometryOperators.normalize_vector(vn)
         if righthanded:
             return math.atan2(GeometryOperators.v_dot(cross, vnn), GeometryOperators.v_dot(va, vb))
         else:
-            return math.atan2(GeometryOperators.v_dot(-cross, vnn), GeometryOperators.v_dot(va, vb))
+            mcross = GeometryOperators.v_cross(vb, va)
+            return math.atan2(GeometryOperators.v_dot(mcross, vnn), GeometryOperators.v_dot(va, vb))
 
     @staticmethod
     @aedt_exception_handler
