@@ -123,19 +123,19 @@ class Primitives3DLayout(object):
             prims = self.modeler.edb.core_primitives.primitives
         except:
             prims = []
-        for el in prims:
-
+        for prim in prims:
+            el = prim.primitive_object
             if is_ironpython:
                 name = clr.Reference[System.String]()
                 try:
-                    response = el.GetProductProperty(0, 1, name)
+                    response, name = el.GetProductProperty(0, 1, name)
                 except:
                     response, name = False, ""
 
             else:
-                val = String("")
+                name = String("")
                 try:
-                    response, name = el.GetProductProperty(0, 1, val)
+                    response, name = el.GetProductProperty(0, 1, name)
                 except:
                     response, name = False, ""
             if str(name):
