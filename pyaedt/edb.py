@@ -1053,6 +1053,7 @@ class Edb(object):
         point_list = [[self.arg_with_dim(i[0], units), self.arg_with_dim(i[1], units)] for i in point_list]
         plane = self.core_primitives.Shape("polygon", points=point_list)
         polygonData = self.core_primitives.shape_to_polygon_data(plane)
+
         _ref_nets = []
         if nets_to_include:
             self.logger.info("Creating cutout on {} nets".format(len(nets_to_include)))
