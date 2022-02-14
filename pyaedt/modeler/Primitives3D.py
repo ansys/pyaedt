@@ -2152,6 +2152,7 @@ class Primitives3D(Primitives, object):
             occ = 100 * turns * teta / (180 / nb_wind)
             if occ == 100:
                 teta = teta - 0.0003
+                values["Outer Winding"]["Coil Pit(deg)"] = teta
                 if teta < asin((sr * dia_wire / 2) / in_rad_wind) and turns > 1:
                     turns = turns-1
             occ = 100 * turns * teta / (180 / nb_wind)
@@ -2197,6 +2198,7 @@ class Primitives3D(Primitives, object):
                               "that of the first layer.\n")
                     if occ2 == 100:
                         teta2 = teta2 - 0.0002
+                        values["Mid Winding"]["Coil Pit(deg)"] = teta2
                         if teta2 < asin((sr * dia_wire / 2) / (in_rad_wind + sr * dia_wire)):
                             turns2 = turns2 - 1
                     occ2 = 100 * turns2 * teta2 / (180 / nb_wind)
@@ -2241,6 +2243,7 @@ class Primitives3D(Primitives, object):
                         occ3 = 100 * turns3 * teta3 / (180 / nb_wind)
                     if occ3 == 100:
                         teta3 = teta3 - 0.0001
+                        values["Inner Winding"]["Coil Pit(deg)"] = teta3
                         if teta3 < asin((sr * dia_wire / 2) / (in_rad_wind + 2 * sr * dia_wire)):
                             turns3 = turns3 - 1
                     occ3 = 100 * turns3 * teta3 / (180 / nb_wind)
