@@ -195,7 +195,7 @@ class TestClass:
             object_name="ClawPoleCore",
             operation_name="CreateUserDefinedPart",
             udp_parameters_list=[["Length", "110mm"], ["DiaGap", "125mm"]],
-            )
+        )
 
         assert int(second_udp.bounding_dimension[0]) == 125
         assert int(second_udp.bounding_dimension[1]) == 125
