@@ -379,5 +379,4 @@ class TestClass:
         va = [1, 0]
         vb = [0, 1]
         assert go.v_angle_sign_2D(va, vb, righthanded=True) == go.v_angle_sign_2D(vb, va, righthanded=False)
-        assert go.v_angle_sign_2D(va, vb, righthanded=True) == go.v_angle_sign_2D(vb, va, righthanded=True)
         assert go.v_angle_sign_2D([1, 1], [-1, -1]) == math.pi
