@@ -1729,8 +1729,11 @@ class Primitives3D(Primitives, object):
         print(len(points_list1))
         polyline = self.create_polyline(position_list=points_list1, name="Polyline1")
         union_polyline1 = [polyline.name]
-        union_polyline2 = polyline.duplicate_around_axis(cs_axis="Z", angle=2 * teta, nclones=turns,
-                                                         create_new_objects=True)
+        if turns > 1:
+            union_polyline2 = polyline.duplicate_around_axis(cs_axis="Z", angle=2 * teta, nclones=turns,
+                                                             create_new_objects=True)
+        else:
+            union_polyline2 = []
         union_polyline = union_polyline1 + union_polyline2
         list_positions = []
         for i in range(len(union_polyline)):
