@@ -177,14 +177,14 @@ class EdbStackup(object):
 
     @aedt_exception_handler
     def create_debye_material(
-        self,
-        name,
-        relative_permittivity_low,
-        relative_permittivity_high,
-        loss_tangent_low,
-        loss_tangent_high,
-        lower_freqency,
-        higher_frequency,
+            self,
+            name,
+            relative_permittivity_low,
+            relative_permittivity_high,
+            loss_tangent_low,
+            loss_tangent_high,
+            lower_freqency,
+            higher_frequency,
     ):
         """Create a dielectric with the Debye model.
 
@@ -224,14 +224,14 @@ class EdbStackup(object):
 
     @aedt_exception_handler
     def place_in_layout(
-        self,
-        edb_cell=None,
-        angle=0.0,
-        offset_x=0.0,
-        offset_y=0.0,
-        flipped_stackup=True,
-        place_on_top=True,
-        solder_height=0,
+            self,
+            edb_cell=None,
+            angle=0.0,
+            offset_x=0.0,
+            offset_y=0.0,
+            flipped_stackup=True,
+            place_on_top=True,
+            solder_height=0,
     ):
         """Place current Cell into another cell.
         Flip the current layer stackup of a layout if requested. Transform parameters currently not supported.
@@ -279,53 +279,13 @@ class EdbStackup(object):
         ...                                   offset_y=vector[1], flipped_stackup=False, place_on_top=True,
         ...                                   solder_height=solder_ball_height)
         """
-        if flipped_stackup and place_on_top or (not flipped_stackup and not place_on_top):
+        # if flipped_stackup and place_on_top or (not flipped_stackup and not place_on_top):
+        if flipped_stackup:
             model_flip = True
         else:
             model_flip = False
         if model_flip:
-            lc = self._active_layout.GetLayerCollection()
-            new_lc = self._edb.Cell.LayerCollection()
-            max_elevation = 0.0
-            for layer in lc.Layers(self._edb.Cell.LayerTypeSet.StackupLayerSet):
-                if not "RadBox" in layer.GetName():  # Ignore RadBox
-                    lower_elevation = layer.GetLowerElevation() * 1.0e6
-                    upper_elevation = layer.GetUpperElevation() * 1.0e6
-                    max_elevation = max([max_elevation, lower_elevation, upper_elevation])
-
-            non_stackup_layers = []
-            for layer in lc.Layers(self._edb.Cell.LayerTypeSet.AllLayerSet):
-                cloned_layer = layer.Clone()
-                if not cloned_layer.IsStackupLayer():
-                    non_stackup_layers.append(cloned_layer)
-                    continue
-
-                if not "RadBox" in layer.GetName():
-                    upper_elevation = layer.GetUpperElevation() * 1.0e6
-                    updated_lower_el = max_elevation - upper_elevation
-                    val = self._edb_value("{}um".format(updated_lower_el))
-                    cloned_layer.SetLowerElevation(val)
-                    new_lc.AddStackupLayerAtElevation(cloned_layer)
-
-            layer_list = convert_py_list_to_net_list(non_stackup_layers)
-            new_lc.AddLayers(layer_list)
-            if not self._active_layout.SetLayerCollection(new_lc):
-                self._logger.error("Failed to Flip Stackup.")
-                return False
-            cmp_list = [cmp for cmp in self._active_layout.Groups if cmp.GetComponent() is not None]
-            for cmp in cmp_list:
-                cmp_type = cmp.GetComponentType()
-                cmp_prop = cmp.GetComponentProperty().Clone()
-                if cmp_type == self._edb.Definition.ComponentType.IC:
-                    die_prop = cmp_prop.GetDieProperty().Clone()
-                    chip_orientation = die_prop.GetOrientation()
-                    if chip_orientation == self._edb.Definition.DieOrientation.ChipDown:
-                        die_prop.SetOrientation(self._edb.Definition.DieOrientation.ChipUp)
-                        cmp_prop.SetDieProperty(die_prop)
-                    else:
-                        die_prop.SetOrientation(self._edb.Definition.DieOrientation.ChipDown)
-                        cmp_prop.SetDieProperty(die_prop)
-                cmp.SetComponentProperty(cmp_prop)
+            self.flip_design()
 
         _angle = self._edb_value(angle * math.pi / 180.0)
         _offset_x = self._edb_value(offset_x)
@@ -348,7 +308,6 @@ class EdbStackup(object):
             cell_inst2 = self._edb.Cell.Hierarchy.CellInstance.Create(
                 edb_cell.GetLayout(), self._active_layout.GetCell().GetName(), self._active_layout
             )
-
         cell_trans = cell_inst2.GetTransform()
         cell_trans.SetRotationValue(_angle)
         cell_trans.SetXOffsetValue(_offset_x)
@@ -398,6 +357,84 @@ class EdbStackup(object):
         point_to = self._edb.Geometry.Point3DData(zero_data, one_data, zero_data)
         cell_inst2.Set3DTransformation(point_loc, point_from, point_to, _angle, point3d_t)
         return True
+
+    @aedt_exception_handler
+    def flip_design(self):
+        """
+        Flip the current design of a layout.
+        Returns
+        -------
+        bool
+            ``True`` when succeed ``False`` if not.
+
+        Examples
+        --------
+        >>> edb = Edb(edbpath=targetfile,  edbversion="2021.2")
+        >>> edb.core_stackup.flip_design()
+        >>> edb.save()
+        >>> edb.close_edb()
+        """
+        try:
+
+            lc = self._active_layout.GetLayerCollection()
+            new_lc = self._edb.Cell.LayerCollection()
+            max_elevation = 0.0
+            for layer in lc.Layers(self._edb.Cell.LayerTypeSet.StackupLayerSet):
+                if not "RadBox" in layer.GetName():  # Ignore RadBox
+                    lower_elevation = layer.GetLowerElevation() * 1.0e6
+                    upper_elevation = layer.GetUpperElevation() * 1.0e6
+                    max_elevation = max([max_elevation, lower_elevation, upper_elevation])
+
+            non_stackup_layers = []
+            for layer in lc.Layers(self._edb.Cell.LayerTypeSet.AllLayerSet):
+                cloned_layer = layer.Clone()
+                if not cloned_layer.IsStackupLayer():
+                    non_stackup_layers.append(cloned_layer)
+                    continue
+
+                if not "RadBox" in layer.GetName():
+                    upper_elevation = layer.GetUpperElevation() * 1.0e6
+                    updated_lower_el = max_elevation - upper_elevation
+                    val = self._edb_value("{}um".format(updated_lower_el))
+                    cloned_layer.SetLowerElevation(val)
+                    if cloned_layer.GetTopBottomAssociation() == self._edb.Cell.TopBottomAssociation.TopAssociated:
+                        cloned_layer.SetTopBottomAssociation(self._edb.Cell.TopBottomAssociation.BottomAssociated)
+                    else:
+                        cloned_layer.SetTopBottomAssociation(self._edb.Cell.TopBottomAssociation.TopAssociated)
+                    new_lc.AddStackupLayerAtElevation(cloned_layer)
+
+            layer_list = convert_py_list_to_net_list(non_stackup_layers)
+            new_lc.AddLayers(layer_list)
+            if not self._active_layout.SetLayerCollection(new_lc):
+                self._logger.error("Failed to Flip Stackup.")
+                return False
+            cmp_list = [cmp for cmp in self._active_layout.Groups if cmp.GetComponent() is not None]
+            for cmp in cmp_list:
+                cmp_type = cmp.GetComponentType()
+                cmp_prop = cmp.GetComponentProperty().Clone()
+                if cmp_type == self._edb.Definition.ComponentType.IC:
+                    die_prop = cmp_prop.GetDieProperty().Clone()
+                    chip_orientation = die_prop.GetOrientation()
+                    if chip_orientation == self._edb.Definition.DieOrientation.ChipDown:
+                        die_prop.SetOrientation(self._edb.Definition.DieOrientation.ChipUp)
+                        cmp_prop.SetDieProperty(die_prop)
+                    else:
+                        die_prop.SetOrientation(self._edb.Definition.DieOrientation.ChipDown)
+                        cmp_prop.SetDieProperty(die_prop)
+                cmp.SetComponentProperty(cmp_prop)
+
+            lay_list = list(new_lc.Layers(self._edb.Cell.LayerTypeSet.SignalLayerSet))
+            for padstack in list(self._pedb.core_padstack.padstack_instances.values()):
+                start_layer_id = [lay.GetLayerId() for lay in list(lay_list) if
+                                  lay.GetName() == padstack.start_layer]
+                stop_layer_id = [lay.GetLayerId() for lay in list(lay_list) if
+                                 lay.GetName() == padstack.stop_layer]
+                layer_map = padstack._edb_padstackinstance.GetLayerMap()
+                layer_map.SetMapping(stop_layer_id[0], start_layer_id[0])
+                padstack._edb_padstackinstance.SetLayerMap(layer_map)
+            return True
+        except:
+            return False
 
     @aedt_exception_handler
     def create_djordjevicsarkar_material(self, name, relative_permittivity, loss_tangent, test_frequency):
