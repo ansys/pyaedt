@@ -921,6 +921,9 @@ class GeometryModeler(Modeler, object):
     def _convert_list_to_ids(self, input_list, convert_objects_ids_to_name=True):
         """Convert a list to IDs.
 
+        .. deprecated:: 0.5.0
+           Use :func:`pyaedt.application.modeler.convert_to_selections` instead.
+
         Parameters
         ----------
         input_list : list
@@ -935,6 +938,8 @@ class GeometryModeler(Modeler, object):
             List of object names.
 
         """
+        warnings.warn("`_convert_list_to_ids` is deprecated. Use `convert_to_selections` instead.", DeprecationWarning)
+
         output_list = []
         if type(input_list) is not list:
             input_list = [input_list]
@@ -1896,23 +1901,6 @@ class GeometryModeler(Modeler, object):
             duplicate_and_unite(sheet_name, [0, len * coeff, 0], [0, -len * coeff, 0], dup_factor)
 
         return sheet_name, point0, point1
-
-    @aedt_exception_handler
-    def get_excitations_name(self):
-        """Get all excitation names.
-
-        Returns
-        -------
-        list
-            List of excitation names. Excitations with multiple modes will return one
-            excitation for each mode.
-
-        References
-        ----------
-
-        >>> oModule.GetExcitations
-        """
-        return self._app.get_excitations_name()
 
     @aedt_exception_handler
     def get_boundaries_name(self):

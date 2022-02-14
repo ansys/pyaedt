@@ -1256,6 +1256,7 @@ class Object3d(object):
             if mat:
                 self._material_name = mat.strip('"').lower()
             return self._material_name
+        return ""
 
     @material_name.setter
     def material_name(self, mat):

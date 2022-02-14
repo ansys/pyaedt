@@ -33,6 +33,7 @@ if not exist "%APPDATA%\pyaedt_env_ide\" (
     "%APPDATA%\pyaedt_env_ide\Scripts\pip" install jupyterlab
     "%APPDATA%\pyaedt_env_ide\Scripts\pip" install spyder
     "%APPDATA%\pyaedt_env_ide\Scripts\pip" install ipython -U
+    "%APPDATA%\pyaedt_env_ide\Scripts\pip" install ipyvtklink
     call "%APPDATA%\pyaedt_env_ide\Scripts\python" "%APPDATA%\pyaedt_env_ide\Lib\site-packages\pyaedt\misc\aedtlib_personalib_install.py" %aedt_var%
 )
 if [%1%]==[-update] ( 

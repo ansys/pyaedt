@@ -160,7 +160,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
                 pass
             arg2.append("MeshRegions:="), arg2.append(meshregions)
         else:
-            excitations = self.get_excitations_name()
+            excitations = self._app.excitations
             arg2.append("Excitations:="), arg2.append(excitations)
         meshops = [el.name for el in self._app.mesh.meshoperations]
         arg2.append("MeshOperations:="), arg2.append(meshops)
