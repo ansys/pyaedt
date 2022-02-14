@@ -106,6 +106,7 @@ class TestClass:
         assert go.v_dot(v1, v2) == 0.0
         assert go.v_dot(v1, v3) == 2.0
         assert go.v_dot(v1, v4) == -1.0
+        assert not go.v_dot([1, 2, 3, 4], [5, 6, 7, 8])
 
     def test_v_prod(self):
         v1 = [1, 2, 3]
@@ -348,6 +349,10 @@ class TestClass:
         assert go.are_segments_intersecting([1, 1], [10, 1], [2, -3], [2, 1])
         assert go.are_segments_intersecting([1, 1], [1, 10], [1, 3], [5, 3])
         assert go.are_segments_intersecting([1, 1], [1, 10], [-5, 3], [1, 3])
+        assert go.are_segments_intersecting([1, 1], [3, 3], [2, 2], [4, 4])
+        assert go.are_segments_intersecting([1, 1], [3, 3], [4, 4], [2, 2])
+        assert go.are_segments_intersecting([2, 2], [4, 4], [1, 1], [3, 3])
+        assert go.are_segments_intersecting([4, 4], [2, 2], [1, 1], [3, 3])
 
     def test_point_in_polygon(self):
         x = [0, 1, 1, 0]
@@ -380,3 +385,20 @@ class TestClass:
         vb = [0, 1]
         assert go.v_angle_sign_2D(va, vb, righthanded=True) == go.v_angle_sign_2D(vb, va, righthanded=False)
         assert go.v_angle_sign_2D([1, 1], [-1, -1]) == math.pi
+
+    def test_is_segment_intersecting_polygon(self):
+        x = [1, -1.5, 1, 3, 4.5, 5.5]
+        y = [4, +1.0, -2, 1, -1, 1]
+
+        # all in
+        assert not go.is_segment_intersecting_polygon([1, 1], [2, 2], [x, y])
+        # all out
+        assert not go.is_segment_intersecting_polygon([-1, -1], [-2, 1], [x, y])
+        assert not go.is_segment_intersecting_polygon([3, 3.5], [4, 4], [x, y])
+        # one in, one out
+        assert go.is_segment_intersecting_polygon([1, 1], [3, -2], [x, y])
+        assert go.is_segment_intersecting_polygon([1, 1], [-1, -1], [x, y])
+        assert go.is_segment_intersecting_polygon([1, 1], [-2, 2], [x, y])
+        # all out intersecting
+        assert go.is_segment_intersecting_polygon([1, 1], [4.5, 0], [x, y])
+        assert go.is_segment_intersecting_polygon([-1, -1], [3, -0.5], [x, y])

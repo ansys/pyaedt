@@ -1677,3 +1677,37 @@ class GeometryOperators(object):
         # If none of the cases
         return False
         # fmt: on
+
+    @staticmethod
+    @aedt_exception_handler
+    def is_segment_intersecting_polygon(a, b, polygon):
+        """
+        Determine if a segment defined by two points ``a`` and ``b`` intersects a polygon.
+
+        a : list
+            First point of the segment. List of ``[x, y]`` coordinates.
+        b : list
+            Second point of the segment. List of ``[x, y]`` coordinates.
+        polygon : list
+            [[x1, x2, ..., xn],[y1, y2, ..., yn]]
+
+        Returns
+        -------
+        float
+            ``True`` if the segment intersect the polygon. ``False`` otherwise.
+        """
+        assert len(a) == 2, "point must be a list in the form [x, y]"
+        assert len(b) == 2, "point must be a list in the form [x, y]"
+        pl = len(polygon[0])
+        assert len(polygon[1]) == pl, "Polygon x and y lists must be the same length"
+
+        a_in = GeometryOperators.is_point_in_polygon(a, polygon)
+        b_in = GeometryOperators.is_point_in_polygon(b, polygon)
+        if a_in != b_in:
+            return True  # one point is inside and one is outside, no need for further investigation.
+        for i in range(pl):
+            vj = [polygon[0][i - 1], polygon[1][i - 1]]
+            vi = [polygon[0][i], polygon[1][i]]
+            if GeometryOperators.are_segments_intersecting(a, b, vi, vj):
+                return True
+        return False
