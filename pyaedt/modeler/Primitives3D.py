@@ -1678,40 +1678,35 @@ class Primitives3D(Primitives, object):
             if values["Mode"]["Common"] and number_duplication == 2:
                 if type(list_object[0]) == list:
                     for i in range(len(list_object)):
-                        duplication = self.create_polyline(position_list=list_object[i][1], name=name_wind,
-                                                           xsection_type=section, xsection_width=w_dia,
-                                                           xsection_num_seg=n_seg)
+                        duplication = self.create_polyline(position_list=list_object[i][1], name=name_wind)
                         self.mirror(duplication, [0, 0, 0], [-1, 0, 0])
                         duplication_points = self.get_vertices_of_line(duplication.name)
+                        duplication.set_crosssection_properties(type=section, width=w_dia, num_seg=n_seg)
                         list_duplicated_object.append([duplication, duplication_points])
 
                 else:
-                    duplication = self.create_polyline(position_list=list_object[1], name=name_wind,
-                                                       xsection_type=section, xsection_width=w_dia,
-                                                       xsection_num_seg=n_seg)
-                    print(duplication)
-                    self.mirror(duplication.name, [0, 0, 0], [-1, 0, 0])
+                    duplication = self.create_polyline(position_list=list_object[1], name=name_wind)
+                    self.mirror(duplication, [0, 0, 0], [-1, 0, 0])
                     duplication_points = self.get_vertices_of_line(duplication.name)
+                    duplication.set_crosssection_properties(type=section, width=w_dia, num_seg=n_seg)
                     list_duplicated_object.append([duplication, duplication_points])
             else:
                 if type(list_object[0]) == list:
                     for j in range(number_duplication - 1):
                         for i in range(len(list_object)):
-                            duplication = self.create_polyline(position_list=list_object[i][1], name=name_wind,
-                                                               xsection_type=section, xsection_width=w_dia,
-                                                               xsection_num_seg=n_seg)
+                            duplication = self.create_polyline(position_list=list_object[i][1], name=name_wind)
                             self.rotate(duplication, "Z", (j + 1) * 360 / number_duplication)
                             duplication_points = self.get_vertices_of_line(duplication.name)
+                            duplication.set_crosssection_properties(type=section, width=w_dia, num_seg=n_seg)
                             list_duplicated_object.append([duplication, duplication_points])
                 else:
                     for j in range(number_duplication - 1):
-                        duplication = self.create_polyline(position_list=list_object[1], name=name_wind,
-                                                           xsection_type=section, xsection_width=w_dia,
-                                                           xsection_num_seg=n_seg)
+                        duplication = self.create_polyline(position_list=list_object[1], name=name_wind)
                         self.rotate(duplication, "Z", (j + 1) * 360 / number_duplication)
                         duplication_points = self.get_vertices_of_line(duplication.name)
+                        duplication.set_crosssection_properties(type=section, width=w_dia, num_seg=n_seg)
                         list_duplicated_object.append([duplication, duplication_points])
-            returned_list.append(list_duplicated_object)
+            returned_list = returned_list + list_duplicated_object
 
         return returned_list
 
@@ -1749,6 +1744,7 @@ class Primitives3D(Primitives, object):
             true_polyline = self.create_polyline(position_list=list_positions,
                                                  name=name)
             self.rotate(true_polyline, "Z", 180 - (turns - 1) * teta)
+            list_positions = self.get_vertices_of_line(true_polyline.name)
             return [true_polyline, list_positions]
 
         return list_positions
@@ -1773,7 +1769,7 @@ class Primitives3D(Primitives, object):
         self.rotate(outer_polyline, "Z", 180 - (turns - 1) * teta)
         inner_polyline = self.create_polyline(position_list=points_in_wind, name="Winding2")
         self.rotate(inner_polyline, "Z", 180 - (turns_in_wind - 1) * teta_in_wind)
-        self.mirror(outer_polyline.name, [0, 0, 0], [0, -1, 0])
+        self.mirror(outer_polyline, [0, 0, 0], [0, -1, 0])
         self.rotate(outer_polyline, "Z", turns_in_wind * teta_in_wind - turns * teta)
 
         list_polyline = [inner_polyline.name, outer_polyline.name]
@@ -1815,7 +1811,7 @@ class Primitives3D(Primitives, object):
         inner_polyline = self.create_polyline(position_list=points_in_wind, name="Winding3")
 
         self.rotate(inner_polyline, "Z", 180 - (turns_in_wind - 1) * teta_in_wind)
-        self.mirror(mid_polyline.name, [0, 0, 0], [0, -1, 0])
+        self.mirror(mid_polyline, [0, 0, 0], [0, -1, 0])
         self.rotate(outer_polyline, "Z", turns * teta - turns_mid_wind * teta_mid_wind)
         self.rotate(mid_polyline, "Z", turns_in_wind * teta_in_wind - turns_mid_wind * teta_mid_wind)
         self.rotate(outer_polyline, "Z", turns_in_wind * teta_in_wind - turns_mid_wind * teta_mid_wind)
