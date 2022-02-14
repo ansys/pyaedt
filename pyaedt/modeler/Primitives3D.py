@@ -2249,6 +2249,13 @@ class Primitives3D(Primitives, object):
                     occ3 = 100 * turns3 * teta3 / (180 / nb_wind)
                     values["Inner Winding"]["Occupation(%)"] = occ3
                     # TODO if occ3 == 100: method can be improve
+            else:
+                values["Mid Winding"]["Coil Pit(deg)"] = teta
+                values["Inner Winding"]["Coil Pit(deg)"] = teta
+                values["Mid Winding"]["Turns"] = turns
+                values["Inner Winding"]["Turns"] = turns
+                values["Mid Winding"]["Occupation(%)"] = occ
+                values["Inner Winding"]["Occupation(%)"] = occ
 
             spl_path = json_file.split(".")
             with open(spl_path[0] + "_Corrected.json", "w") as outfile:
