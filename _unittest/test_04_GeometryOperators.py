@@ -334,3 +334,52 @@ class TestClass:
         assert not go.is_collinear([1, 0, 0], [0, 1, 0])
         assert go.is_collinear([1, 1, 1], [-2, -2, -2])
         assert not go.is_collinear([1, 2, 3], [3.0, 2.0, 1.0])
+
+    def test_are_segments_intersecting(self):
+        assert not go.are_segments_intersecting([1,1], [10,1], [1,2], [10,2])
+        assert go.are_segments_intersecting([10,0], [0,10], [0,0], [10,10])
+        assert not go.are_segments_intersecting([-5.0, -5.0], [0.0,0.0], [1.0,1.0], [10,10])
+        assert go.are_segments_intersecting([1,1], [10,1], [1,1], [1,10])
+        assert go.are_segments_intersecting([1,1], [10,1], [1,1], [1,-10])
+        assert go.are_segments_intersecting([1,1], [10,1], [10,1], [10,10])
+        assert go.are_segments_intersecting([1,1], [10,1], [10,1], [10,-10])
+        assert go.are_segments_intersecting([1,1], [10,1], [10,-10], [10,1])
+        assert go.are_segments_intersecting([1,1], [10,1], [2,1], [2,10])
+        assert go.are_segments_intersecting([1,1], [10,1], [2,-3], [2,1])
+        assert go.are_segments_intersecting([1,1], [1,10], [1,3], [5,3])
+        assert go.are_segments_intersecting([1,1], [1,10], [-5,3], [1,3])
+
+    def test_point_in_polygon(self):
+        x = [0, 1, 1, 0]
+        y = [0, 0, 1, 1]
+        assert go.point_in_polygon([0.5, 0.5], [x,y]) == 1
+        assert go.point_in_polygon([0.5, -0.5], [x,y]) == -1
+        assert go.point_in_polygon([0.5, 0], [x,y]) == 0
+        assert go.is_point_in_polygon([0.5, 0.5], [x,y])
+        assert not go.is_point_in_polygon([0.5, -0.5], [x,y])
+        assert go.is_point_in_polygon([0.5, 0], [x,y])
+
+    def test_v_angle_sign(self):
+        va = [1,0,0]
+        vb = [0,1,0]
+        vn = [0,0,1]
+        vnn = [0,0,-1]
+        assert go.v_angle_sign(va,vb,vn,righthanded=True) == go.v_angle_sign(vb,va,vn,righthanded=False)
+        assert go.v_angle_sign(va,vb,vn,righthanded=True) == go.v_angle_sign(vb,va,vnn,righthanded=True)
+        assert go.v_angle_sign([1,1,0],[-1,-1,0],vn) == math.pi
+        va = [0,1,2]
+        vb = [0,-2,4]
+        vn = [1,0,0]
+        vnn = [-1,0,0]
+        assert go.v_angle_sign(va,vb,vn,righthanded=True) == go.v_angle_sign(vb,va,vn,righthanded=False)
+        assert go.v_angle_sign(va,vb,vn,righthanded=True) == go.v_angle_sign(vb,va,vnn,righthanded=True)
+        assert go.v_angle_sign([0,1,1],[0,-1,-1],vn) == math.pi
+
+
+    def test_v_angle_sign_2D(self):
+        va = [1,0]
+        vb = [0,1]
+        assert go.v_angle_sign_2D(va,vb,righthanded=True) == go.v_angle_sign_2D(vb,va,righthanded=False)
+        assert go.v_angle_sign_2D(va,vb,righthanded=True) == go.v_angle_sign_2D(vb,va,righthanded=True)
+        assert go.v_angle_sign_2D([1,1],[-1,-1]) == math.pi
+

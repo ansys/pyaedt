@@ -316,8 +316,13 @@ class GeometryOperators(object):
             Result of the dot product.
 
         """
-        c = a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
-        return c
+        if len(a) == 3:
+            c = a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
+            return c
+        elif len(a) == 2:
+            c = a[0] * b[0] + a[1] * b[1]
+            return c
+        return False
 
     @staticmethod
     @aedt_exception_handler
@@ -380,7 +385,7 @@ class GeometryOperators(object):
             List of ``[x, y, z]`` coordinates for the result vector.
 
         """
-        c = [a[0] - b[0], a[1] - b[1], a[2] - b[2]]
+        c = [i - j for i, j in zip(a, b)]
         return c
 
     @staticmethod
@@ -401,7 +406,7 @@ class GeometryOperators(object):
             List of ``[x, y, z]`` coordinates for the result vector.
 
         """
-        c = [a[0] + b[0], a[1] + b[1], a[2] + b[2]]
+        c = [i + j for i, j in zip(a, b)]
         return c
 
     @staticmethod
@@ -420,7 +425,11 @@ class GeometryOperators(object):
             Evaluated norm in the same unit as the coordinates for the input vector.
 
         """
-        m = (a[0] ** 2 + a[1] ** 2 + a[2] ** 2) ** 0.5
+        # m = (a[0] ** 2 + a[1] ** 2 + a[2] ** 2) ** 0.5
+        t = 0
+        for i in a:
+            t += i**2
+        m = t ** 0.5
         return m
 
     @staticmethod
@@ -1399,7 +1408,7 @@ class GeometryOperators(object):
 
         Returns
         -------
-        list, list
+        list of list
             Lists of oriented vertices
         """
         # select a vertex on the hull
@@ -1448,3 +1457,221 @@ class GeometryOperators(object):
             x.reverse()
             y.reverse()
         return x, y
+
+    @staticmethod
+    @aedt_exception_handler
+    def v_angle_sign(va, vb, vn, righthanded=True):
+        """Evaluate the signed angle between two geometry vectors.
+        The sign is evaluated respect to the normal to the plane containing the two vector as per the following rule.
+        In case of opposite vectors, it returns an angle equal to 180deg (always positive).
+        Assuming that the plane normal is normalized (|Vn| == 1), the signed angle is simply:
+
+        For the right-handed rotation from Va to Vb:
+
+            atan2((Va x Vb) . Vn, Va . Vb)
+
+        For the left-handed rotation from Va to Vb:
+
+            atan2((Vb x Va) . Vn, Va . Vb)
+
+        Parameters
+        ----------
+        va : list
+            List of ``[x, y, z]`` coordinates for the first vector.
+        vb : list
+            List of ``[x, y, z]`` coordinates for the second vector.
+        vn : list
+            List of ``[x, y, z]`` coordinates for the plane normal.
+        righthanded : bool
+            If ``True`` the right-handed rotation from Va to Vb is considered.
+            If ``False`` the left-handed rotation from Va to Vb is considered. The default is ``True`.
+
+        Returns
+        -------
+        float
+            Angle in radians.
+
+        """
+        tol = 1e-12
+        cross = GeometryOperators.v_cross(va, vb)
+        if GeometryOperators.v_norm(cross) < tol:
+            return math.pi
+        assert GeometryOperators.is_collinear(cross, vn), "vn must be the normal to the " \
+                                                          "plane containing va and vb."  # pragma: no cover
+
+        vnn = GeometryOperators.normalize_vector(vn)
+        if righthanded:
+            return math.atan2(GeometryOperators.v_dot(cross, vnn), GeometryOperators.v_dot(va, vb))
+        else:
+            return math.atan2(GeometryOperators.v_dot(-cross, vnn), GeometryOperators.v_dot(va, vb))
+
+    @staticmethod
+    @aedt_exception_handler
+    def v_angle_sign_2D(va, vb, righthanded=True):
+        """Evaluate the signed angle between two 2D geometry vectors.
+        Iit the 2D version of the ``GeometryOperators.v_angle_sign`` considering vn = [0,0,1].
+        In case of opposite vectors, it returns an angle equal to 180deg (always positive).
+
+        Parameters
+        ----------
+        va : list
+            List of ``[x, y]`` coordinates for the first vector.
+        vb : list
+            List of ``[x, y]`` coordinates for the second vector.
+
+        righthanded : bool
+            If ``True`` the right-handed rotation from Va to Vb is considered.
+            If ``False`` the left-handed rotation from Va to Vb is considered. The default is ``True`.
+
+        Returns
+        -------
+        float
+            Angle in radians.
+
+        """
+        tol = 1e-12
+        c = va[0] * vb[1] - va[1] * vb[0]
+        if abs(c) < tol:
+            return math.pi
+
+        if righthanded:
+            return math.atan2(c, GeometryOperators.v_dot(va, vb))
+        else:
+            return math.atan2(-c, GeometryOperators.v_dot(va, vb))
+
+    @staticmethod
+    @aedt_exception_handler
+    def point_in_polygon(point, polygon):
+        """
+        Determine if a point is inside or outside a polyogn, both located on the same plane.
+        The method implements the radial algorithm (https://es.wikipedia.org/wiki/Algoritmo_radial)
+
+        point : list
+            List of ``[x, y]`` coordinates.
+        polygon : list
+            [[x1, x2, ..., xn],[y1, y2, ..., yn]]
+
+        Returns
+        -------
+        int
+            -1 When the point is outside the polygon.
+            0 When the point is exactly on one of the sides of the polygon.
+            1 When the point is inside the polygon.
+        """
+        # fmt: off
+        tol = 1e-8
+        assert len(point) == 2, "point must be a list in the form [x, y]"  # pragma: no cover
+        pl = len(polygon[0])
+        assert len(polygon[1]) == pl, "Polygon x and y lists must be the same length"  # pragma: no cover
+        asum = 0
+        for i in range(pl):
+            vj = [polygon[0][i-1], polygon[1][i-1]]
+            vi = [polygon[0][i], polygon[1][i]]
+            vpj = GeometryOperators.v_points(point, vj)
+            vpi = GeometryOperators.v_points(point, vi)
+            a = GeometryOperators.v_angle_sign_2D(vpj, vpi)
+            if abs(a - math.pi) < tol:
+                return 0
+            asum += a
+        if abs(asum) < tol:
+            return -1
+        elif abs(asum - 2*math.pi) < tol:
+            return 1
+        else:  # pragma: no cover
+            raise Exception("Unexpected error!")
+        # fmt: on
+
+    @staticmethod
+    @aedt_exception_handler
+    def is_point_in_polygon(point, polygon):
+        """
+        Determine if a point is inside or outside a polyogn, both located on the same plane.
+        The method implements the radial algorithm (https://es.wikipedia.org/wiki/Algoritmo_radial)
+
+        point : list
+            List of ``[x, y]`` coordinates.
+        polygon : list
+            [[x1, x2, ..., xn],[y1, y2, ..., yn]]
+
+        Returns
+        -------
+        bool
+            ``True`` if the point is inside the polygon or xactly on one of its sides.
+            ``False`` otherwise.
+        """
+        r = GeometryOperators.point_in_polygon(point, polygon)
+        if r == -1:
+            return False
+        else:
+            return True
+
+    @staticmethod
+    @aedt_exception_handler
+    def are_segments_intersecting(a1, a2, b1, b2):
+        """
+        Determine if the two segments a and b are intersecting.
+
+        a1 : list
+            First point of segment a. List of ``[x, y]`` coordinates.
+        a2 : list
+            Second point of segment a. List of ``[x, y]`` coordinates.
+        b1 : list
+            First point of segment b. List of ``[x, y]`` coordinates.
+        b2 : list
+            Second point of segment b. List of ``[x, y]`` coordinates.
+
+        Returns
+        -------
+        bool
+            ``True`` if the segments are intersecting.
+            ``False`` otherwise.
+        """
+        # fmt: off
+        def on_segment(p, q, r):
+            # Given three collinear points p, q, r, the function checks if point q lies on line-segment 'pr'
+            if ((q[0] <= max(p[0], r[0])) and (q[0] >= min(p[0], r[0])) and
+               (q[1] <= max(p[1], r[1])) and (q[1] >= min(p[1], r[1]))):
+                return True
+            return False
+
+        def orientation(p, q, r):
+            # Find the orientation of an ordered triplet (p,q,r) using the slope evaluation.
+            # The function returns the following values:
+            # 0 : Collinear points
+            # 1 : Clockwise points
+            # -1 : Counterclockwise
+            val = float(q[1]-p[1]) * float(r[0]-q[0]) - float(q[0]-p[0]) * float(r[1]-q[1])
+            if val > 0:
+                return 1  # Clockwise orientation
+            elif val < 0:
+                return -1  # Counterclockwise orientation
+            else:
+                return 0   # Collinear orientation
+
+        # MAIN
+        # Find the 4 orientations
+        o1 = orientation(a1, a2, b1)
+        o2 = orientation(a1, a2, b2)
+        o3 = orientation(b1, b2, a1)
+        o4 = orientation(b1, b2, a2)
+
+        # General case
+        if (o1 != o2) and (o3 != o4):
+            return True
+
+        # Special Cases
+        # a1 , a2 and b1 are collinear and b1 lies on segment a1a2
+        if (o1 == 0) and on_segment(a1, b1, a2):
+            return True
+        # a1 , a2 and b2 are collinear and b2 lies on segment a1a2
+        if (o2 == 0) and on_segment(a1, b2, a2):
+            return True
+        # b1 , b2 and a1 are collinear and a1 lies on segment b1b2
+        if (o3 == 0) and on_segment(b1, a1, b2):
+            return True
+        # b1 , b2 and a2 are collinear and a2 lies on segment b1b2
+        if (o4 == 0) and on_segment(b1, a2, b2):
+            return True
+        # If none of the cases
+        return False
+        # fmt: on
