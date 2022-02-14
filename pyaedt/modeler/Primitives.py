@@ -1600,7 +1600,7 @@ class Primitives(object):
 
     @aedt_exception_handler
     def update_udp(self, object_name, operation_name, udp_parameters_list):
-        """Create a user-defined primitive (UDP).
+        """Update an existing geometrical object that was originally created using a user-defined primitive (UDP).
 
         Parameters
         ----------
