@@ -1563,6 +1563,14 @@ class Primitives(object):
         :class:`pyaedt.modeler.Object3d.Object3d`
             UDP object created.
 
+        Examples
+        --------
+        >>> my_udp = self.aedtapp.modeler.create_udp(udp_dll_name="RMxprt/ClawPoleCore",
+        ...                                          udp_parameters_list=my_udpPairs,
+        ...                                          upd_library="syslib",
+        ...                                          udptye="Solid")
+        <class 'pyaedt.modeler.Object3d.Object3d'>
+
         References
         ----------
 
@@ -1609,12 +1617,19 @@ class Primitives(object):
         operation_name : str
             Name of the operation used to create the object.
         udp_parameters_list : list
-            List of the UDP parameters to update.
+            List of the UDP parameters to update and their value.
 
         Returns
         -------
         bool
-            ``True`` when successful,
+            ``True`` when successful.
+
+        Examples
+        --------
+        >>> self.aedtapp.modeler.update_udp(object_name="ClawPoleCore",
+        ...                                 operation_name="CreateUserDefinedPart",
+        ...                                 udp_parameters_list=[["Length","110mm"], ["DiaGap","125mm"]])
+        True
 
         References
         ----------
