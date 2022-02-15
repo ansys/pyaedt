@@ -1563,6 +1563,11 @@ class Primitives(object):
         :class:`pyaedt.modeler.Object3d.Object3d`
             UDP object created.
 
+        References
+        ----------
+
+        >>> oEditor.CreateUserDefinedPart
+
         Examples
         --------
         >>> my_udp = self.aedtapp.modeler.create_udp(udp_dll_name="RMxprt/ClawPoleCore",
@@ -1570,11 +1575,6 @@ class Primitives(object):
         ...                                          upd_library="syslib",
         ...                                          udptye="Solid")
         <class 'pyaedt.modeler.Object3d.Object3d'>
-
-        References
-        ----------
-
-        >>> oEditor.CreateUserDefinedPart
 
         """
         if ".dll" not in udp_dll_name:
@@ -1624,17 +1624,17 @@ class Primitives(object):
         bool
             ``True`` when successful.
 
+        References
+        ----------
+
+        >>> oEditor.CreateUserDefinedPart
+
         Examples
         --------
         >>> self.aedtapp.modeler.update_udp(object_name="ClawPoleCore",
         ...                                 operation_name="CreateUserDefinedPart",
         ...                                 udp_parameters_list=[["Length","110mm"], ["DiaGap","125mm"]])
         True
-
-        References
-        ----------
-
-        >>> oEditor.CreateUserDefinedPart
 
         """
 
