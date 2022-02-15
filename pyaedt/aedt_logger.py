@@ -2,6 +2,7 @@ import logging
 import sys
 
 from pyaedt import log_handler
+from pyaedt.application.MessageManager import AEDTMessageManager
 
 ENABLE_LOGGER = True
 # if LOGGER_FILE is defined, it will be taken as output log file
@@ -64,12 +65,12 @@ class AedtLogger(object):
         Write log message into the standard output. The default is ``False``.
     """
 
-    def __init__(self, messenger, level=logging.DEBUG, filename=None, to_stdout=False):
+    def __init__(self, level=logging.DEBUG, filename=None, to_stdout=False):
         main = sys.modules["__main__"]
 
         self.level = level
         self.filename = filename
-        self._messenger = messenger
+        self._messenger = AEDTMessageManager()
         self._global = logging.getLogger("Global")
         self._file_handler = None
         self._std_out_handler = None

@@ -28,7 +28,6 @@ if os.name == "posix" and is_ironpython:
 else:
     import subprocess
 
-from pyaedt.application.MessageManager import AEDTMessageManager
 from pyaedt.misc import list_installed_ansysem
 from pyaedt import aedt_exception_handler
 from pyaedt.generic.general_methods import is_ironpython, _pythonver, inside_desktop
@@ -80,13 +79,13 @@ def exception_to_desktop(ex_value, tb_data):
         Traceback information.
 
     """
-    if "oMessenger" in dir(sys.modules["__main__"]):
-        messenger = sys.modules["__main__"].oMessenger
+    if "aedt_logger" in dir(sys.modules["__main__"]):
+        messenger = sys.modules["__main__"].aedt_logger
         tb_trace = traceback.format_tb(tb_data)
         tblist = tb_trace[0].split("\n")
-        messenger.add_error_message(str(ex_value), "Global")
+        messenger.error(str(ex_value), "Global")
         for el in tblist:
-            messenger.add_error_message(el, "Global")
+            messenger.error(el, "Global")
     else:
         tb_trace = traceback.format_tb(tb_data)
         tblist = tb_trace[0].split("\n")
@@ -101,8 +100,6 @@ def _delete_objects():
         del module.COMUtil
     if "aedt_logger" in dir(module):
         del module.aedt_logger
-    if "oMessenger" in dir(module):
-        del module.oMessenger
     if "oDesktop" in dir(module):
         del module.oDesktop
     if "pyaedt_initialized" in dir(module):
@@ -196,7 +193,7 @@ def force_close_desktop():
             del Module.oDesktop
             successfully_closed = True
         except:
-            Module.oMessenger.add_error_message("Something went wrong in Closing AEDT.")
+            Module.aedt_logger.error("Something went wrong in Closing AEDT.")
             successfully_closed = False
         finally:
             log = logging.getLogger(__name__)
@@ -388,8 +385,7 @@ class Desktop:
     def _init_desktop(self):
         self._main.AEDTVersion = self._main.oDesktop.GetVersion()[0:6]
         self._main.oDesktop.RestoreWindow()
-        self._main.oMessenger = AEDTMessageManager()
-        self._logger = aedt_logger.AedtLogger(self._main.oMessenger, filename=self.logfile, level=logging.DEBUG)
+        self._logger = aedt_logger.AedtLogger(filename=self.logfile, level=logging.DEBUG)
         self._logger.info("Logger Started on %s", self.logfile)
         self._main.aedt_logger = self._logger
         self._main.sDesktopinstallDirectory = self._main.oDesktop.GetExeDir()
@@ -548,7 +544,7 @@ class Desktop:
     @property
     def messenger(self):
         """Messenger manager for AEDT Log."""
-        return self._main.oMessenger
+        return self._main.aedt_logger
 
     @property
     def logger(self):

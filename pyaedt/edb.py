@@ -21,7 +21,6 @@ try:
 except ImportError:
     if os.name != "posix":
         warnings.warn("Pythonnet is needed to run pyaedt")
-from pyaedt.application.MessageManager import AEDTMessageManager
 from pyaedt.edb_core import Components, EdbNets, EdbPadstacks, EdbLayout, EdbHfss, EdbSiwave, EdbStackup
 from pyaedt.edb_core.EDB_Data import EdbBuilder
 from pyaedt.generic.general_methods import (
@@ -112,8 +111,7 @@ class Edb(object):
         if edb_initialized:
             self.oproject = oproject
             self._main = sys.modules["__main__"]
-            if isaedtowned and "oMessenger" in dir(sys.modules["__main__"]):
-                _messenger = self._main.oMessenger
+            if isaedtowned and "aedt_logger" in dir(sys.modules["__main__"]):
                 self._logger = self._main.aedt_logger
             else:
                 if not edbpath or not os.path.exists(os.path.dirname(edbpath)):
@@ -123,8 +121,7 @@ class Edb(object):
                 logfile = os.path.join(
                     project_dir, "pyaedt{}.log".format(datetime.datetime.now().strftime("%Y%m%d_%H%M%S"))
                 )
-                self._main.oMessenger = AEDTMessageManager()
-                self._logger = AedtLogger(self._main.oMessenger, filename=logfile, level=logging.DEBUG)
+                self._logger = AedtLogger(filename=logfile, level=logging.DEBUG)
                 self._logger.info("Logger Started on %s", logfile)
                 self._main.aedt_logger = self._logger
 
