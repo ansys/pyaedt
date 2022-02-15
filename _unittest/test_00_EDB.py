@@ -482,7 +482,7 @@ class TestClass:
         output = os.path.join(self.local_scratch.path, "cutout2.aedb")
 
         assert self.edbapp.create_cutout_on_point_list(
-            points, ["GND"], output_aedb_path=output, open_cutout_at_end=False
+            points, nets_to_include=["GND"], output_aedb_path=output, open_cutout_at_end=False
         )
         assert os.path.exists(os.path.join(output, "edb.def"))
 
