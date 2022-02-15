@@ -325,6 +325,7 @@ class TestClass:
     def test_14_translate_delete_self(self):
         o = self.create_copper_box()
         v0 = o.vertices[0].position
+        o.move([1, 0, 0])
         o.translate([1, 0, 0])
         v1 = o.vertices[0].position
         assert v1[0] == v0[0] + 1.0
@@ -344,7 +345,6 @@ class TestClass:
         assert len(added_objects) == 2
         assert "single_turn" in self.aedtapp.modeler.line_names
 
-    # TODO: Finish asserts anc check the boolean inputs - they are not present in the GUI ??
     def test_17_section_object(self):
         o = self.aedtapp.modeler.create_box([-10, 0, 0], [10, 10, 5], "SectionBox", "Copper")
         o.section(plane="YZ", create_new=True, section_cross_object=False)
@@ -354,3 +354,7 @@ class TestClass:
         assert sp1
         assert sp1.name == "ind"
         assert len(sp1.points) == 78
+
+    def test_19_rotate(self):
+        o = self.aedtapp.modeler.create_box([-10, 0, 0], [10, 10, 5], "RotateBox", "Copper")
+        assert o.rotate(cs_axis="Y", angle=180)

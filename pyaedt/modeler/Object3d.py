@@ -1707,6 +1707,30 @@ class Object3d(object):
         """
         return self._primitives.modeler.rotate(self.id, cs_axis=cs_axis, angle=angle, unit=unit)
 
+
+    @aedt_exception_handler
+    def move(self, vector):
+        """Move objects from a list.
+
+        Parameters
+        ----------
+        objid : list, Position object
+            List of object IDs.
+        vector : list
+            Vector of the direction move. It can be a list of the ``[x, y, z]``
+            coordinates or a Position object.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oEditor.Move
+        """
+        return self._primitives.modeler.move(self.id, vector=vector)
+
     def duplicate_around_axis(self, cs_axis, angle=90, nclones=2, create_new_objects=True):
         """Duplicate the object around the axis.
 
@@ -1768,6 +1792,9 @@ class Object3d(object):
     def translate(self, vector):
         """Translate the object and return the 3D object.
 
+        .. deprecated:: 0.4.0
+           Use :func:`move` instead.
+
         Returns
         -------
         pyaedt.modeler.Object3d.Object3d
@@ -1779,6 +1806,7 @@ class Object3d(object):
         >>> oEditor.Move
 
         """
+        warnings.warn("`translate` is deprecated. Use `move` instead.", DeprecationWarning)
         self._primitives.modeler.translate(self.id, vector)
         return self
 
