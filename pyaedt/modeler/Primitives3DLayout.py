@@ -173,11 +173,10 @@ class Primitives3DLayout(object):
             return self._pins
         self._primitivesDes = self._app.project_name + self._app.design_name
         try:
-            pins_objs = list(self.modeler.edb.pins.values())
+            pins_objs = list(self.modeler.edb.pins)
         except:
             pins_objs = []
-        for pin in pins_objs:
-            el = pin._pedbcomponents
+        for el in pins_objs:
             if is_ironpython:
                 name = clr.Reference[System.String]()
                 try:
