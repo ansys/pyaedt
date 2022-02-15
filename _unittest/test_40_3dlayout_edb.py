@@ -91,3 +91,8 @@ class TestClass:
         assert self.aedtapp.modeler.set_spice_model(
             component_name="C3A3", model_path=model_path, subcircuit_name="GRM32ER72A225KA35_25C_0V"
         )
+
+    def test_07_nets(self):
+        nets = self.aedtapp.modeler.nets
+        assert nets["GND"].name == "GND"
+        assert len(nets) > 0

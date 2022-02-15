@@ -101,6 +101,11 @@ class AedtLogger(object):
             self._std_out_handler.setFormatter(FORMATTER)
             self._global.addHandler(self._std_out_handler)
 
+    @property
+    def messages(self):
+        """Return the list of messages."""
+        return self._messenger.messages
+
     def add_logger(self, destination, level=logging.DEBUG):
         """Add a logger for either an active project or an active design.
 

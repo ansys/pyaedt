@@ -95,9 +95,8 @@ class Primitives3DLayout(object):
             List of components from EDB. If EDB is not present, ``None`` is returned.
 
         """
-        if self._primitivesDes == self._app.project_name + self._app.design_name and self._components:
+        if not self._app.project_timestamp_changed and self._components:
             return self._components
-        self._primitivesDes = self._app.project_name + self._app.design_name
         try:
             comps = list(self.modeler.edb.core_components.components.keys())
         except:
@@ -116,9 +115,8 @@ class Primitives3DLayout(object):
             List of geometries from EDB. If EDB is not present, ``None`` is returned.
 
         """
-        if self._primitivesDes == self._app.project_name + self._app.design_name and self._geometries:
+        if not self._app.project_timestamp_changed and self._geometries:
             return self._geometries
-        self._primitivesDes = self._app.project_name + self._app.design_name
         try:
             prims = self.modeler.edb.core_primitives.primitives
         except:
@@ -169,9 +167,8 @@ class Primitives3DLayout(object):
             List of pins from EDB. If EDB is not present, ``None`` is returned.
 
         """
-        if self._primitivesDes == self._app.project_name + self._app.design_name and self._pins:
+        if not self._app.project_timestamp_changed and self._pins:
             return self._pins
-        self._primitivesDes = self._app.project_name + self._app.design_name
         try:
             pins_objs = list(self.modeler.edb.pins)
         except:
@@ -204,16 +201,11 @@ class Primitives3DLayout(object):
             List of nets from EDB. If EDB is not present, ``None`` is returned.
 
         """
-        if self._primitivesDes == self._app.project_name + self._app.design_name and self._nets:
+        if not self._app.project_timestamp_changed and self._nets:
             return self._nets
-        self._primitivesDes = self._app.project_name + self._app.design_name
-        try:
-            nets_objs = list(self.modeler.edb.core_nets.nets.values())
-        except:
-            nets_objs = {}
-        for net in nets_objs:
-            el = net.net_object
-            self._nets[el] = Nets3DLayout(self, el)
+        self._nets = {}
+        for net, net_object in self.modeler.edb.core_nets.nets.items():
+            self._nets[net] = Nets3DLayout(self, net, net_object)
         return self._nets
 
     @property

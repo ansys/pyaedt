@@ -7,7 +7,7 @@ This section lists the core AEDT Modeler modules:
 * Primitives
 * Objects
 
-They are accessible through the ``modeler``,  ``modeler.primitives`` and ``modeler.primitives.objects`` property:
+They are accessible through the ``modeler`` and ``modeler.objects`` property:
 
 .. code:: python
 
@@ -20,7 +20,7 @@ They are accessible through the ``modeler``,  ``modeler.primitives`` and ``model
     modeler = app.modeler
 
     # this call return a Primitives3D Object
-    primitives = modeler.primitives
+    primitives = modeler
 
     # this call return a Object3d Object
     my_box = primitives.create_box([0,0,0],[10,10,10])
@@ -78,7 +78,7 @@ The ``Primitives`` module includes these classes:
 * NexximComponents for ``Circuit``
 * SimplorerComponents for ``Simplorer``
 * CircuitComponents for ``Emit``
-Primives objects are accessible through ``modeler.primitives`` property for
+Primives objects are accessible through ``modeler`` property for
 EM Solver and ``modeler.components`` for circuit solvers.
 
 .. code:: python
@@ -126,7 +126,7 @@ It contains all getter and setter to simplify object manipulation.
     modeler = app.modeler
 
     # this call return a Primitives3D Object
-    primitives = modeler.primitives
+    primitives = modeler
 
     # this call return a Object3d Object
     my_box = primitives.create_box([0,0,0],[10,10,10])
@@ -211,7 +211,7 @@ It contains all getter and setter to simplify object manipulation.
     modeler = app.modeler
 
     # this call return a Primitives3D Object
-    primitives = modeler.primitives
+    primitives = modeler
 
     # this call return a Object3d Object
     my_rect = primitives.create_rectangle([0,0,0],[10,10])

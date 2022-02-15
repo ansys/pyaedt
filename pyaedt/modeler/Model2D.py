@@ -50,7 +50,6 @@ class Modeler2D(GeometryModeler, Primitives2D):
         GeometryModeler.__init__(self, application, is3d=False)
         Primitives2D.__init__(self)
         self._primitives = self
-        self._primitivesDes = self._app.project_name + self._app.design_name
 
     def __get__(self, instance, owner):
         self._app = instance

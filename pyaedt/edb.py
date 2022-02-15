@@ -1060,7 +1060,7 @@ class Edb(object):
         if nets_to_include:
             self.logger.info("Creating cutout on {} nets".format(len(nets_to_include)))
         else:
-            self.logger.info("Creating cutout on all nets")
+            self.logger.info("Creating cutout on all nets")  # pragma: no cover
 
         # validate references in layout
         for _ref in self.core_nets.nets:
@@ -1068,7 +1068,7 @@ class Edb(object):
                 if _ref in nets_to_include:
                     _ref_nets.append(self.core_nets.nets[_ref].net_object)
             else:
-                _ref_nets.append(self.core_nets.nets[_ref].net_object)
+                _ref_nets.append(self.core_nets.nets[_ref].net_object)  # pragma: no cover
         # TODO check and insert via check on polygon intersection
         # if add_vias_on_cutout:
         #     tol = 1e-12

@@ -42,16 +42,10 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         self.logger.info("Loading Modeler.")
         Modeler.__init__(self, app)
         self.logger.info("Modeler loaded.")
-        self._primitivesDes = self._app.project_name + self._app.design_name
         edb_folder = os.path.join(self._app.project_path, self._app.project_name + ".aedb")
         edb_file = os.path.join(edb_folder, "edb.def")
         self._edb = None
         if os.path.exists(edb_file) or (inside_desktop and is_ironpython):
-            if os.path.exists(edb_file):
-                self._mttime = os.path.getmtime(edb_file)
-            else:
-                self._mttime = 0
-            time.sleep(1)
             self._edb = Edb(
                 edb_folder,
                 self._app.design_name,
@@ -60,8 +54,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
                 isaedtowned=True,
                 oproject=self._app.oproject,
             )
-        else:
-            self._mttime = 0
+
         self.logger.info("EDB loaded.")
         self.layers = Layers(self, roughnessunits="um")
         self.logger.info("Layers loaded.")
@@ -98,11 +91,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         if not (inside_desktop and is_ironpython):
             edb_folder = os.path.join(self._app.project_path, self._app.project_name + ".aedb")
             edb_file = os.path.join(edb_folder, "edb.def")
-            if os.path.exists(edb_file):
-                _mttime = os.path.getmtime(edb_file)
-            else:
-                _mttime = 0
-            if _mttime != self._mttime:
+            if self._app.project_timestamp_changed:
                 if self._edb:
                     self._edb.close_edb()
                 self._edb = Edb(
@@ -113,7 +102,6 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
                     isaedtowned=True,
                     oproject=self._app.oproject,
                 )
-                self._mttime = _mttime
         return self._edb
 
     @property

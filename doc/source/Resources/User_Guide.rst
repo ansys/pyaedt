@@ -98,8 +98,8 @@ You can create an object and change properties using getters and setters.
 
     from pyaedt.hfss import Hfss
     with Hfss as hfss:
-         box = hfss.modeler.primitives.create_box([0, 0, 0], [10, "dim", 10],
-                                                  "mybox", "aluminum")
+         box = hfss.modeler.create_box([0, 0, 0], [10, "dim", 10],
+                                       "mybox", "aluminum")
          print(box.faces)
          box.material_name = "copper"
          box.color = "Red"
@@ -118,7 +118,7 @@ Next example shows how easily user can go deeper into edges and vertices of face
 .. code:: python
 
 
-     box = hfss.modeler.primitives["mybox2"]
+     box = hfss.modeler["mybox2"]
      for face in box.faces:
         print(face.center)
         for edge in face:
@@ -135,8 +135,8 @@ All objects allow to execute any modeler operations like union or subtraction.
 .. code:: python
 
 
-     box = hfss.modeler.primitives["mybox2"]
-     cyl = hfss.modeler.primitives["mycyl"]
+     box = hfss.modeler["mybox2"]
+     cyl = hfss.modeler["mycyl"]
      box.unit(cyl)
 
 
