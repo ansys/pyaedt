@@ -1596,7 +1596,7 @@ class Primitives3D(Primitives, object):
         """
         json_file = open(json_file, "r")
         values = json.load(json_file)
-        self.logger.info(str(values))
+        self.logger.info("CHOKE INFO" + str(values))
 
         sr = 1.1
         n_seg = 0
@@ -1924,8 +1924,8 @@ class Primitives3D(Primitives, object):
                     if values[f_key][s_key]:
                         count_true = True
                 else:
-                    print(f"ERROR: A character entered is invalid. "
-                          f"The values of the dictionary {f_key} must be boolean")
+                    self.logger.error(f"A character entered is invalid. "
+                                      f"The values of the dictionary {f_key} must be boolean")
                     are_inequations_checkable = False
                     break
             if f_key == "Wire Section":
@@ -1936,167 +1936,169 @@ class Primitives3D(Primitives, object):
             if len(values["Core"]["Name"]) > 0:
                 core_name = values["Core"]["Name"]
         else:
-            print("WARNING: Core Name must be a non-null string. A default name Core has been set.")
+            self.logger.warning("Core Name must be a non-null string. A default name Core has been set.")
         winding_name = "Winding"
         if type(values["Outer Winding"]["Name"]) == str:
             if len(values["Outer Winding"]["Name"]) > 0:
                 winding_name = values["Outer Winding"]["Name"]
         else:
-            print("WARNING: Winding Name must be a non-null string. A default name Core has been set.")
+            self.logger.warning("Winding Name must be a non-null string. A default name Winding has been set.")
         try:
             in_rad_core = float(values["Core"]["Inner Radius"])
             if in_rad_core <= 0:
                 aedt_exception_handler("ERROR:")
-                print(
-                    "ERROR: The character entered is invalid. Inner Radius(Core) must be a strictly positive float. "
+                self.logger.error(
+                    "The character entered is invalid. Inner Radius(Core) must be a strictly positive float. "
                     "It must be changed")
                 are_inequations_checkable = False
         except:
-            print(
-                "ERROR: The character entered is invalid. Inner Radius(Core) must be a strictly positive float. "
+            self.logger.error(
+                "The character entered is invalid. Inner Radius(Core) must be a strictly positive float. "
                 "It must be changed")
             are_inequations_checkable = False
         try:
             out_rad_core = float(values["Core"]["Outer Radius"])
             if out_rad_core <= 0:
-                print(
-                    "ERROR: The character entered is invalid. Outer Radius(Core) must be a strictly positive float. "
+                self.logger.error(
+                    "The character entered is invalid. Outer Radius(Core) must be a strictly positive float. "
                     "It must be changed")
                 are_inequations_checkable = False
         except:
-            print(
-                "ERROR: The character entered is invalid. Outer Radius(Core) must be a strictly positive float. "
+            self.logger.error(
+                "The character entered is invalid. Outer Radius(Core) must be a strictly positive float. "
                 "It must be changed")
             are_inequations_checkable = False
         try:
             height_core = float(values["Core"]["Height"])
             if height_core <= 0:
-                print(
-                    "ERROR: The character entered is invalid. Height(Core) must be a strictly positive float. "
+                self.logger.error(
+                    "The character entered is invalid. Height(Core) must be a strictly positive float. "
                     "It must be changed")
                 are_inequations_checkable = False
         except:
-            print(
-                "ERROR: The character entered is invalid. Height(Core) must be a strictly positive float. "
+            self.logger.error(
+                "The character entered is invalid. Height(Core) must be a strictly positive float. "
                 "It must be changed")
             are_inequations_checkable = False
         try:
             core_chamfer = float(values["Core"]["Chamfer"])
             if core_chamfer < 0:
-                print("The character entered is invalid. Chamfer must be a positive float. It must be changed")
+                self.logger.error("The character entered is invalid. Chamfer must be a positive float."
+                                  " It must be changed")
                 are_inequations_checkable = False
         except:
-            print("The character entered is invalid. Chamfer must be a positive float. It must be changed")
+            self.logger.error("The character entered is invalid. Chamfer must be a positive float."
+                              " It must be changed")
             are_inequations_checkable = False
         try:
             in_rad_wind = float(values["Outer Winding"]["Inner Radius"])
             if in_rad_wind <= 0:
-                print(
-                    "ERROR: The character entered is invalid. Inner Radius(Coil) must be a strictly positive float. "
+                self.logger.error(
+                    "The character entered is invalid. Inner Radius(Coil) must be a strictly positive float. "
                     "It must be changed")
                 are_inequations_checkable = False
         except:
-            print(
-                "ERROR: The character entered is invalid. Inner Radius(Coil) must be a strictly positive float. "
+            self.logger.error(
+                "The character entered is invalid. Inner Radius(Coil) must be a strictly positive float. "
                 "It must be changed")
             are_inequations_checkable = False
         try:
             out_rad_wind = float(values["Outer Winding"]["Outer Radius"])
             if out_rad_wind <= 0:
-                print(
-                    "ERROR: The character entered is invalid. Outer Radius(Coil) must be a strictly positive float. "
+                self.logger.error(
+                    "The character entered is invalid. Outer Radius(Coil) must be a strictly positive float. "
                     "It must be changed")
                 are_inequations_checkable = False
         except:
-            print(
-                "ERROR: The character entered is invalid. Outer Radius(Coil) must be a strictly positive float. "
+            self.logger.error(
+                "The character entered is invalid. Outer Radius(Coil) must be a strictly positive float. "
                 "It must be changed")
             are_inequations_checkable = False
         try:
             height_wind = float(values["Outer Winding"]["Height"])
             if height_wind <= 0:
-                print(
-                    "ERROR: The character entered is invalid. Height(Coil) must be a strictly positive float. "
+                self.logger.error(
+                    "The character entered is invalid. Height(Coil) must be a strictly positive float. "
                     "It must be changed")
                 are_inequations_checkable = False
         except:
-            print(
-                "ERROR: The character entered is invalid. Height(Coil) must be a strictly positive float. "
+            self.logger.error(
+                "The character entered is invalid. Height(Coil) must be a strictly positive float. "
                 "It must be changed")
             are_inequations_checkable = False
         try:
             turns = float(values["Outer Winding"]["Turns"])
             if turns <= 0:
-                print("ERROR: The character entered is invalid. Turns must be a non-zero integer. "
-                      "It must be changed")
+                self.logger.error("The character entered is invalid. Turns must be a non-zero integer. "
+                                  "It must be changed")
                 are_inequations_checkable = False
         except:
-            print("ERROR: The character entered is invalid. Turns must be a non-zero integer. "
-                  "It must be changed")
+            self.logger.error("The character entered is invalid. Turns must be a non-zero integer. "
+                              "It must be changed")
             are_inequations_checkable = False
         try:
             turns2 = float(values["Mid Winding"]["Turns"])
             if turns2 <= 0:
-                print("ERROR: The character entered is invalid. Turns must be a non-zero integer. "
-                      "It must be changed")
+                self.logger.error("The character entered is invalid. Turns must be a non-zero integer. "
+                                  "It must be changed")
                 are_inequations_checkable = False
         except:
-            print("ERROR: The character entered is invalid. Turns must be a non-zero integer. "
-                  "It must be changed")
+            self.logger.error("The character entered is invalid. Turns must be a non-zero integer. "
+                              "It must be changed")
             are_inequations_checkable = False
         try:
             turns3 = float(values["Inner Winding"]["Turns"])
             if turns3 <= 0:
-                print("ERROR: The character entered is invalid. Turns must be a non-zero integer. "
-                      "It must be changed")
+                self.logger.error("The character entered is invalid. Turns must be a non-zero integer. "
+                                  "It must be changed")
                 are_inequations_checkable = False
         except:
-            print("ERROR: The character entered is invalid. Turns must be a non-zero integer. "
-                  "It must be changed")
+            self.logger.error("The character entered is invalid. Turns must be a non-zero integer. "
+                              "It must be changed")
             are_inequations_checkable = False
         try:
             wind_pit = float(values["Outer Winding"]["Coil Pit(deg)"])
             if wind_pit <= 0:
-                print(
-                    "ERROR: The character entered is invalid. Coil Pit must be a strictly positive float. "
+                self.logger.error(
+                    "The character entered is invalid. Coil Pit must be a strictly positive float. "
                     "It must be changed")
                 are_inequations_checkable = False
         except:
-            print(
-                "ERROR: The character entered is invalid. Coil Pit must be a strictly positive float. "
+            self.logger.error(
+                "The character entered is invalid. Coil Pit must be a strictly positive float. "
                 "It must be changed")
             are_inequations_checkable = False
         try:
             wind_pit2 = float(values["Mid Winding"]["Coil Pit(deg)"])
             if wind_pit2 <= 0:
-                print(
-                    "ERROR: The character entered is invalid. Coil Pit must be a strictly positive float. "
+                self.logger.error(
+                    "The character entered is invalid. Coil Pit must be a strictly positive float. "
                     "It must be changed")
                 are_inequations_checkable = False
         except:
-            print(
-                "ERROR: The character entered is invalid. Coil Pit must be a strictly positive float. "
+            self.logger.error(
+                "The character entered is invalid. Coil Pit must be a strictly positive float. "
                 "It must be changed")
             are_inequations_checkable = False
         try:
             wind_pit3 = float(values["Inner Winding"]["Coil Pit(deg)"])
             if wind_pit3 <= 0:
-                print("ERROR: The character entered is invalid. Coil Pit must be a strictly positive float. "
-                      "It must be changed")
+                self.logger.error("The character entered is invalid. Coil Pit must be a strictly positive float. "
+                                  "It must be changed")
                 are_inequations_checkable = False
         except:
-            print("ERROR: The character entered is invalid. Coil Pit must be a strictly positive float. "
-                  "It must be changed")
+            self.logger.error("The character entered is invalid. Coil Pit must be a strictly positive float. "
+                              "It must be changed")
             are_inequations_checkable = False
         try:
             dia_wire = float(values["Outer Winding"]["Wire Diameter"])
             if dia_wire <= 0:
-                print("ERROR: The character entered is invalid. Wire Diameter must be a strictly positive float."
-                      " It must be changed")
+                self.logger.error("The character entered is invalid. Wire Diameter must be a strictly positive float."
+                                  " It must be changed")
                 are_inequations_checkable = False
         except:
-            print("ERROR: The character entered is invalid. Wire Diameter must be a strictly positive float. "
-                  "It must be changed")
+            self.logger.error("The character entered is invalid. Wire Diameter must be a strictly positive float. "
+                              "It must be changed")
             are_inequations_checkable = False
 
         if are_inequations_checkable:
@@ -2120,30 +2122,36 @@ class Primitives3D(Primitives, object):
             if in_rad_wind > in_rad_core - (nb_lay + 1) * sr * dia_wire / 2:
                 in_rad_wind = in_rad_core - (nb_lay + 1) * sr * dia_wire / 2
                 values["Outer Winding"]["Inner Radius"] = in_rad_wind
-                print("WARNING: Inner Radius of the winding is too high. The maximum value has been set instead.\n")
+                self.logger.warning("Inner Radius of the winding is too high. "
+                                    "The maximum value has been set instead.")
             if out_rad_wind < out_rad_core + (nb_lay + 1) * sr * dia_wire / 2:
                 out_rad_wind = out_rad_core + (nb_lay + 1) * sr * dia_wire / 2
                 values["Outer Winding"]["Outer Radius"] = out_rad_wind
-                print("WARNING: Outer Radius of the winding is too low. The minimum value has been set instead.\n")
+                self.logger.warning("Outer Radius of the winding is too low. "
+                                    "The minimum value has been set instead.")
             if height_wind < height_core + (nb_lay + 1) * sr * dia_wire:
                 height_wind = height_core + (nb_lay + 1) * sr * dia_wire
                 values["Outer Winding"]["Height"] = height_wind
-                print("WARNING: Height of the winding is too low. The minimum value has been set instead.\n")
+                self.logger.warning("Height of the winding is too low. "
+                                    "The minimum value has been set instead.")
 
             if asin((sr * dia_wire / 2) / in_rad_wind) > pi / nb_wind / turns:
                 turns = int(pi / nb_wind / asin((sr * dia_wire / 2) / in_rad_wind))
                 values["Outer Winding"]["Turns"] = turns
-                print("WARNING: Number of turns of the winding is too high. The maximum value has been set instead.\n")
+                self.logger.warning("Number of turns of the winding is too high. "
+                                    "The maximum value has been set instead.")
 
             if teta > pi / nb_wind / turns:
                 teta = self.degrees_floor(pi / nb_wind / turns, 3)
                 values["Outer Winding"]["Coil Pit(deg)"] = teta
-                print("WARNING: Winding Pit is too high. The maximum value has been set instead.\n")
+                self.logger.warning("Winding Pit is too high. "
+                                    "The maximum value has been set instead.")
 
             elif teta < asin((sr * dia_wire / 2) / in_rad_wind):
                 teta = self.degrees_ceil(asin((sr * dia_wire / 2) / in_rad_wind), 3)
                 values["Outer Winding"]["Coil Pit(deg)"] = teta
-                print("WARNING: Winding Pit is too low. The minimum value has been set instead.\n")
+                self.logger.warning("Winding Pit is too low. "
+                                    "The minimum value has been set instead.")
 
             else:
                 teta = degrees(teta)
@@ -2163,26 +2171,26 @@ class Primitives3D(Primitives, object):
                     if asin((sr * dia_wire / 2) / (in_rad_wind + sr * dia_wire)) > pi / nb_wind / turns2:
                         turns2 = int(pi / nb_wind / asin((sr * dia_wire / 2) / (in_rad_wind + sr * dia_wire)))
                         values["Mid Winding"]["Turns"] = turns2
-                        print("WARNING: Number of turns of the winding of the second layer is too high. "
-                              "The maximum value has been set instead.\n")
+                        self.logger.warning("Number of turns of the winding of the second layer is too high. "
+                                            "The maximum value has been set instead.")
 
                     if turns2 < turns:
                         turns2 = turns
                         values["Mid Winding"]["Turns"] = turns2
-                        print("WARNING: Number of turns of the winding of the second layer should be at least equal to "
-                              "those of the first layer.\n")
+                        self.logger.warning("Number of turns of the winding of the second layer should be "
+                                            "at least equal to those of the first layer.")
 
                     if teta2 > pi / nb_wind / turns2:
                         teta2 = self.degrees_floor(pi / nb_wind / turns2, 3)
                         values["Mid Winding"]["Coil Pit(deg)"] = teta2
-                        print("WARNING: Winding Pit of the second layer is too high. "
-                              "The maximum value has been set instead.\n")
+                        self.logger.warning("Winding Pit of the second layer is too high. "
+                                            "The maximum value has been set instead.")
 
                     elif teta2 < asin((sr * dia_wire / 2) / (in_rad_wind + sr * dia_wire)):
                         teta2 = self.degrees_ceil(asin((sr * dia_wire / 2) / (in_rad_wind + sr * dia_wire)), 3)
                         values["Mid Winding"]["Coil Pit(deg)"] = teta2
-                        print("WARNING: Winding Pit of the second layer is too low. "
-                              "The minimum value has been set instead.\n")
+                        self.logger.warning("Winding Pit of the second layer is too low. "
+                                            "The minimum value has been set instead.")
 
                     else:
                         teta2 = degrees(teta2)
@@ -2193,8 +2201,8 @@ class Primitives3D(Primitives, object):
                         teta2 = ceil(turns * teta / turns2 * 1000) / 1000
                         values["Mid Winding"]["Coil Pit(deg)"] = teta2
                         occ2 = 100 * turns2 * teta2 / (180 / nb_wind)
-                        print("WARNING: Occupation of the second layer should be at least equal to "
-                              "that of the first layer.\n")
+                        self.logger.warning("Occupation of the second layer should be at least equal to "
+                                            "that of the first layer.")
                     if occ2 == 100:
                         teta2 = teta2 - 0.0002
                         values["Mid Winding"]["Coil Pit(deg)"] = teta2
@@ -2207,27 +2215,27 @@ class Primitives3D(Primitives, object):
                     if asin((sr * dia_wire / 2) / (in_rad_wind + 2 * sr * dia_wire)) > pi / nb_wind / turns3:
                         turns3 = int(pi / nb_wind / asin((sr * dia_wire / 2) / (in_rad_wind + 2 * sr * dia_wire)))
                         values["Inner Winding"]["Turns"] = turns3
-                        print(
-                            "WARNING: Number of turns of the winding of the third layer is too high. "
-                            "The maximum value has been set instead.\n")
+                        self.logger.warning(
+                            "Number of turns of the winding of the third layer is too high. "
+                            "The maximum value has been set instead.")
 
                     if turns3 < turns2:
                         turns3 = turns2
                         values["Inner Winding"]["Turns"] = turns3
-                        print("WARNING: Number of turns of the winding of the third layer should be at least equal to "
-                              "those of the second layer.\n")
+                        self.logger.warning("Number of turns of the winding of the third layer should be "
+                                            "at least equal to those of the second layer.")
 
                     if teta3 > pi / nb_wind / turns3:
                         teta3 = self.degrees_floor(pi / nb_wind / turns3, 3)
                         values["Inner Winding"]["Coil Pit(deg)"] = teta3
-                        print("WARNING: Winding Pit of the third layer is too high. "
-                              "The maximum value has been set instead.\n")
+                        self.logger.warning("Winding Pit of the third layer is too high. "
+                                            "The maximum value has been set instead.")
 
                     elif teta3 < asin((sr * dia_wire / 2) / (in_rad_wind + 2 * sr * dia_wire)):
                         teta3 = self.degrees_ceil(asin((sr * dia_wire / 2) / (in_rad_wind + 2 * sr * dia_wire)), 3)
                         values["Inner Winding"]["Coil Pit(deg)"] = teta3
-                        print("WARNING: Winding Pit of the third layer is too low. "
-                              "The minimum value has been set instead.\n")
+                        self.logger.warning("Winding Pit of the third layer is too low. "
+                                            "The minimum value has been set instead.")
 
                     else:
                         teta3 = degrees(teta3)
