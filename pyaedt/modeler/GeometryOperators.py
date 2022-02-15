@@ -1730,3 +1730,29 @@ class GeometryOperators(object):
             if GeometryOperators.are_segments_intersecting(a, b, vi, vj, include_collinear=False):
                 return True
         return False
+
+    @staticmethod
+    @aedt_exception_handler
+    def is_perpendicular(a, b, tol=1e-6):
+        """Check if two vectors are perpendicular.
+
+        Parameters
+        ----------
+        a : list
+            List of ``[x, y, z]`` coordinates for the first vector.
+        b : list
+            List of ``[x, y, z]`` coordinates for the second vector.
+        tol : float
+            Linear tolerance. The default value is ``1e-8``.
+
+        Returns
+        -------
+        bool
+            ``True`` if vectors are perpendicular, ``False`` otherwise.
+
+        """
+        var = GeometryOperators._v_dot(a, b)
+        if abs(var) < tol * tol:
+            return True
+        else:
+            return False

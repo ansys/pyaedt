@@ -424,3 +424,15 @@ class TestClass:
         # all out intersecting
         assert go.is_segment_intersecting_polygon([1, 1], [4.5, 0], [x, y])
         assert go.is_segment_intersecting_polygon([-1, -1], [3, -0.5], [x, y])
+
+    def test_is_perpendicular(self):
+        a = [1, 1, math.sqrt(2)]
+        b = [-1, -1, math.sqrt(2)]
+        assert go.is_perpendicular(a, b)
+        b = [-1, 1, 0.5]
+        assert not go.is_perpendicular(a, b)
+        a = [1, 1]
+        b = [-1, 1]
+        assert go.is_perpendicular(a, b)
+        b = [-1, 1.1]
+        assert not go.is_perpendicular(a, b)
