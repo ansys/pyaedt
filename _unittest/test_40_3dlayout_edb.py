@@ -49,6 +49,10 @@ class TestClass:
         geom = self.aedtapp.modeler.geometries
         assert len(geom) > 0
 
+    def test_02aa_get_geometries(self):
+        geom = self.aedtapp.modeler.geometries
+        assert len(geom) > 0
+
     def test_02b_geo_units(self):
         assert self.aedtapp.modeler.geometries["line_1983"].object_units == "mm"
 
