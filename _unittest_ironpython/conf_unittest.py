@@ -20,9 +20,8 @@ def test_generator(test_obj, test_function):
     def test(self):
         try:
             return getattr(test_obj, test_function)()
-        except AssertionError:
-            return self.assertTrue(False)
-
+        except AssertionError as e:
+            return self.assertTrue(False, msg=e)
     return test
 
 
