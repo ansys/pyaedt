@@ -245,10 +245,8 @@ class GeometryOperators(object):
             List of ``[x, y, z]`` coordinates for the midpoint.
 
         """
-        x = (v1[0] + v2[0]) / 2.0
-        y = (v1[1] + v2[1]) / 2.0
-        z = (v1[2] + v2[2]) / 2.0
-        return [x, y, z]
+        m = [((i + j) / 2.0) for i, j in zip(v1, v2)]
+        return m
 
     @staticmethod
     @aedt_exception_handler
@@ -581,7 +579,7 @@ class GeometryOperators(object):
         v1 = GeometryOperators.v_points(a, b)
         v2 = GeometryOperators.v_points(a, p)
         if abs(GeometryOperators.v_norm(GeometryOperators.v_cross(v1, v2))) > tol:
-            return False  # not colinear
+            return False  # not collinear
         t1 = GeometryOperators._v_dot(v1, v2)
         t2 = GeometryOperators._v_dot(v1, v1)
         if t1 < 0 or t1 > t2:
@@ -1531,10 +1529,10 @@ class GeometryOperators(object):
             Angle in radians.
 
         """
-        tol = 1e-12
+        # tol = 1e-12
         c = va[0] * vb[1] - va[1] * vb[0]
-        if abs(c) < tol:
-            return math.pi
+        # if abs(c) < tol:
+        #     return math.pi
 
         if righthanded:
             return math.atan2(c, GeometryOperators.v_dot(va, vb))
@@ -1569,10 +1567,12 @@ class GeometryOperators(object):
         for i in range(pl):
             vj = [polygon[0][i-1], polygon[1][i-1]]
             vi = [polygon[0][i], polygon[1][i]]
+            if GeometryOperators.points_distance(point, vi) < tol:
+                return 0  # point is one of polyline vertices
             vpj = GeometryOperators.v_points(point, vj)
             vpi = GeometryOperators.v_points(point, vi)
             a = GeometryOperators.v_angle_sign_2D(vpj, vpi)
-            if abs(a - math.pi) < tol:
+            if abs(abs(a) - math.pi) < tol:
                 return 0
             asum += a
         if abs(asum) < tol:
@@ -1609,7 +1609,7 @@ class GeometryOperators(object):
 
     @staticmethod
     @aedt_exception_handler
-    def are_segments_intersecting(a1, a2, b1, b2):
+    def are_segments_intersecting(a1, a2, b1, b2, include_collinear=True):
         """
         Determine if the two segments a and b are intersecting.
 
@@ -1621,6 +1621,9 @@ class GeometryOperators(object):
             First point of segment b. List of ``[x, y]`` coordinates.
         b2 : list
             Second point of segment b. List of ``[x, y]`` coordinates.
+        include_collinear : bool
+            If ``True`` two segments are considered intersecting also if just one end lies on the other segment.
+            Default is ``True``.
 
         Returns
         -------
@@ -1659,21 +1662,36 @@ class GeometryOperators(object):
 
         # General case
         if (o1 != o2) and (o3 != o4):
-            return True
+            if include_collinear:
+                return True
+            else:
+                # a1 , a2 and b1 are collinear and b1 lies on segment a1a2
+                if (o1 == 0) and on_segment(a1, b1, a2):
+                    return False
+                # a1 , a2 and b2 are collinear and b2 lies on segment a1a2
+                if (o2 == 0) and on_segment(a1, b2, a2):
+                    return False
+                # b1 , b2 and a1 are collinear and a1 lies on segment b1b2
+                if (o3 == 0) and on_segment(b1, a1, b2):
+                    return False
+                # b1 , b2 and a2 are collinear and a2 lies on segment b1b2
+                if (o4 == 0) and on_segment(b1, a2, b2):
+                    return False
+                return True
 
         # Special Cases
         # a1 , a2 and b1 are collinear and b1 lies on segment a1a2
         if (o1 == 0) and on_segment(a1, b1, a2):
-            return True
+            return include_collinear
         # a1 , a2 and b2 are collinear and b2 lies on segment a1a2
         if (o2 == 0) and on_segment(a1, b2, a2):
-            return True
+            return include_collinear
         # b1 , b2 and a1 are collinear and a1 lies on segment b1b2
         if (o3 == 0) and on_segment(b1, a1, b2):
-            return True
+            return include_collinear
         # b1 , b2 and a2 are collinear and a2 lies on segment b1b2
         if (o4 == 0) and on_segment(b1, a2, b2):
-            return True
+            return include_collinear
         # If none of the cases
         return False
         # fmt: on
@@ -1683,6 +1701,7 @@ class GeometryOperators(object):
     def is_segment_intersecting_polygon(a, b, polygon):
         """
         Determine if a segment defined by two points ``a`` and ``b`` intersects a polygon.
+        Points on the vertices and on the polygon boundaries are not considered intersecting.
 
         a : list
             First point of the segment. List of ``[x, y]`` coordinates.
@@ -1708,6 +1727,6 @@ class GeometryOperators(object):
         for i in range(pl):
             vj = [polygon[0][i - 1], polygon[1][i - 1]]
             vi = [polygon[0][i], polygon[1][i]]
-            if GeometryOperators.are_segments_intersecting(a, b, vi, vj):
+            if GeometryOperators.are_segments_intersecting(a, b, vi, vj, include_collinear=False):
                 return True
         return False
