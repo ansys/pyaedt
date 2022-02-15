@@ -1641,7 +1641,7 @@ class Primitives(object):
         vArg1 = ["NAME:AllTabs"]
 
         prop_servers = ["NAME:PropServers"]
-        prop_servers.append(f"{object_name}:{operation_name}:1")
+        prop_servers.append("{0}:{1}:1".format(object_name, operation_name))
 
         cmd_tab = ["NAME:Geometry3DCmdTab"]
         cmd_tab.append(prop_servers)
@@ -1650,7 +1650,7 @@ class Primitives(object):
 
         for pair in udp_parameters_list:
             if isinstance(pair, list):
-                changed_props.append([f"NAME:{pair[0]}", "Value:=", pair[1]])
+                changed_props.append(["NAME:{0}".format(pair[0]), "Value:=", pair[1]])
             else:
                 changed_props.append(["NAME:", pair.Name, "Value:=", pair.Value])
 

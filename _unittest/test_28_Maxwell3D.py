@@ -186,6 +186,7 @@ class TestClass:
             upd_library="syslib",
             udptye="Solid",
         )
+
         assert second_udp
         assert second_udp.name == "ClawPoleCore"
         assert "ClawPoleCore" in udp._primitives.object_names
