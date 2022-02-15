@@ -540,8 +540,17 @@ class FieldPlot:
 
     """
 
-    def __init__(self, postprocessor, objlist=[], surfacelist=[], linelist=[], cutplanelist=[], solutionName="",
-                 quantityName="", intrinsincList={}):
+    def __init__(
+        self,
+        postprocessor,
+        objlist=[],
+        surfacelist=[],
+        linelist=[],
+        cutplanelist=[],
+        solutionName="",
+        quantityName="",
+        intrinsincList={},
+    ):
         self._postprocessor = postprocessor
         self.oField = postprocessor.ofieldsreporter
         self.volume_indexes = objlist
@@ -1772,16 +1781,18 @@ class PostProcessor(PostProcessorCommon, object):
                             id = list_objs[0]
                             num_objects = list_objs[2]
                             if id == 64:
-                                plots[plot_name].volume_indexes = self._get_volume_objects(list_objs[3:num_objects+3])
+                                plots[plot_name].volume_indexes = self._get_volume_objects(
+                                    list_objs[3 : num_objects + 3]
+                                )
                             elif id == 128:
-                                out, faces = self._get_surface_objects(list_objs[3:num_objects + 3])
+                                out, faces = self._get_surface_objects(list_objs[3 : num_objects + 3])
                                 if out == "CutPlane":
                                     plots[plot_name].cutplane_indexes = faces
                                 else:
                                     plots[plot_name].surfaces_indexes = faces
                             elif id == 256:
-                                plots[plot_name].line_indexes = self._get_volume_objects(list_objs[3:num_objects+3])
-                            list_objs = list_objs[num_objects+3:]
+                                plots[plot_name].line_indexes = self._get_volume_objects(list_objs[3 : num_objects + 3])
+                            list_objs = list_objs[num_objects + 3 :]
                         plots[plot_name].name = setups_data[setup]["PlotName"]
                         plots[plot_name].plotFolder = setups_data[setup]["PlotFolder"]
                         surf_setts = setups_data[setup]["PlotOnSurfaceSettings"]
@@ -2345,17 +2356,33 @@ class PostProcessor(PostProcessorCommon, object):
         if not plot_name:
             plot_name = quantityName + "_" + "".join(random.sample(char_set, 6))
         if listtype == "CutPlane":
-            plot = FieldPlot(self, cutplanelist=objlist, solutionName=setup_name, quantityName=quantityName,
-                             intrinsincList=intrinsincList)
+            plot = FieldPlot(
+                self,
+                cutplanelist=objlist,
+                solutionName=setup_name,
+                quantityName=quantityName,
+                intrinsincList=intrinsincList,
+            )
         elif listtype == "FacesList":
-            plot = FieldPlot(self, surfacelist=objlist, solutionName=setup_name, quantityName=quantityName,
-                             intrinsincList=intrinsincList)
+            plot = FieldPlot(
+                self,
+                surfacelist=objlist,
+                solutionName=setup_name,
+                quantityName=quantityName,
+                intrinsincList=intrinsincList,
+            )
         elif listtype == "ObjList":
-            plot = FieldPlot(self, objlist=objlist, solutionName=setup_name, quantityName=quantityName,
-                             intrinsincList=intrinsincList)
+            plot = FieldPlot(
+                self, objlist=objlist, solutionName=setup_name, quantityName=quantityName, intrinsincList=intrinsincList
+            )
         elif listtype == "Line":
-            plot = FieldPlot(self, linelist=objlist, solutionName=setup_name, quantityName=quantityName,
-                             intrinsincList=intrinsincList)
+            plot = FieldPlot(
+                self,
+                linelist=objlist,
+                solutionName=setup_name,
+                quantityName=quantityName,
+                intrinsincList=intrinsincList,
+            )
         plot.name = plot_name
         plot.plotFolder = plot_name
 
