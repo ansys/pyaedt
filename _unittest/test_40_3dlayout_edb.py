@@ -46,7 +46,7 @@ class TestClass:
         assert comp["L3A1"].set_property_value("Angle", "0deg")
 
     def test_02a_get_geometries(self):
-        assert len(self.aedtapp.modeler.geometries) > 0
+        assert len(self.aedtapp.modeler.geometries.keys()) > 0
 
     def test_02b_geo_units(self):
         assert self.aedtapp.modeler.geometries["line_1983"].object_units == "mm"
