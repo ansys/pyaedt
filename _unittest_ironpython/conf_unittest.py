@@ -22,6 +22,7 @@ def test_generator(test_obj, test_function):
             return getattr(test_obj, test_function)()
         except AssertionError as e:
             return self.assertTrue(False, msg=e)
+
     return test
 
 
