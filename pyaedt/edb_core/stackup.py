@@ -261,9 +261,11 @@ class EdbStackup(object):
         relative_permittivities = [float(i) for i in relative_permittivities]
         loss_tangents = [float(i) for i in loss_tangents]
         material_def = self._edb.Definition.MultipoleDebyeModel()
-        material_def.SetParameters(convert_py_list_to_net_list(frequencies),
-                                   convert_py_list_to_net_list(relative_permittivities),
-                                   convert_py_list_to_net_list(loss_tangents))
+        material_def.SetParameters(
+            convert_py_list_to_net_list(frequencies),
+            convert_py_list_to_net_list(relative_permittivities),
+            convert_py_list_to_net_list(loss_tangents),
+        )
         return self._add_dielectric_material_model(name, material_def)
 
     @aedt_exception_handler
