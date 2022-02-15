@@ -378,6 +378,8 @@ class EdbStackup(object):
 
             lc = self._active_layout.GetLayerCollection()
             new_lc = self._edb.Cell.LayerCollection()
+            lc_mode = lc.GetMode()
+            new_lc.SetMode(lc_mode)
             max_elevation = 0.0
             for layer in lc.Layers(self._edb.Cell.LayerTypeSet.StackupLayerSet):
                 if not "RadBox" in layer.GetName():  # Ignore RadBox
@@ -391,8 +393,7 @@ class EdbStackup(object):
                 if not cloned_layer.IsStackupLayer():
                     non_stackup_layers.append(cloned_layer)
                     continue
-
-                if not "RadBox" in layer.GetName():
+                if not "RadBox" in layer.GetName() and not layer.IsViaLayer():
                     upper_elevation = layer.GetUpperElevation() * 1.0e6
                     updated_lower_el = max_elevation - upper_elevation
                     val = self._edb_value("{}um".format(updated_lower_el))
@@ -402,6 +403,25 @@ class EdbStackup(object):
                     else:
                         cloned_layer.SetTopBottomAssociation(self._edb.Cell.TopBottomAssociation.TopAssociated)
                     new_lc.AddStackupLayerAtElevation(cloned_layer)
+
+            vialayers = [lay for lay in lc.Layers(self._edb.Cell.LayerTypeSet.StackupLayerSet)
+                         if lay.IsViaLayer()]
+            for layer in vialayers:
+                cloned_via_layer = layer.Clone()
+                upper_ref_name = layer.GetRefLayerName(True)
+                lower_ref_name = layer.GetRefLayerName(False)
+                upper_ref = [lay for lay in lc.Layers(self._edb.Cell.LayerTypeSet.AllLayerSet)
+                             if lay.GetName() == upper_ref_name][0]
+                lower_ref = [lay for lay in lc.Layers(self._edb.Cell.LayerTypeSet.AllLayerSet)
+                             if lay.GetName() == lower_ref_name][0]
+                cloned_via_layer.SetRefLayer(lower_ref, True)
+                cloned_via_layer.SetRefLayer(upper_ref, False)
+                ref_layer_in_flipped_stackup = [lay for lay in new_lc.Layers(self._edb.Cell.LayerTypeSet.AllLayerSet)
+                                                if lay.GetName() == upper_ref_name][0]
+                via_layer_lower_elevation = ref_layer_in_flipped_stackup.GetLowerElevation() + \
+                                            ref_layer_in_flipped_stackup.GetThickness()
+                cloned_via_layer.SetLowerElevation(self._edb_value(via_layer_lower_elevation))
+                new_lc.AddStackupLayerAtElevation(cloned_via_layer)
 
             layer_list = convert_py_list_to_net_list(non_stackup_layers)
             new_lc.AddLayers(layer_list)
