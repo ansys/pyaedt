@@ -200,15 +200,16 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         Parameters
         ----------
         property_object : str
-            Property Obcject name. It can be the name of excitation or field reporter. Eg. ``FieldsReporter:Mag_H``,
-            ``Excitations:Port1``.
+            Property object name. It can be the name of the excitation or field reporter. For example, 
+            ``Excitations:Port1`` or ``FieldsReporter:Mag_H``.
         property_name : str
-            Property name. Eg. ``Rotation Angle``
+            Property name. For example, ``Rotation Angle``.
         property_value : str, list
-            Property value. It's a string in case of single value. and a list of 3 elements in case of [X,Y,Z]
+            Property value. It is a string for a single value and a list of three elements for ``[x,y,z]``
+            coordianates.
         property_tab : str
-            Name of the tab to update. Default ``BaseElementTab``. Other options are ``EM Design``,
-            ``FieldsPostProcessorTab``.
+            Name of the tab to update. Options are ``BaseElementTab``, ``EM Design``, and
+            ``FieldsPostProcessorTab``. The default is ``BaseElementTab``.
 
         Returns
         -------

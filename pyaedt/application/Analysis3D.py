@@ -302,7 +302,7 @@ class FieldAnalysis3D(Analysis, object):
         objectname : str
             Name of the object.
         property : str
-            Name of the property,
+            Name of the property.
         type : str, optional
             Type of the property. Options are ``"boundary"``, ``"excitation"``,
             ``"setup",`` and ``"mesh"``. The default is ``None``.
@@ -417,28 +417,7 @@ class FieldAnalysis3D(Analysis, object):
         .. deprecated:: 0.5.0
            Use :func:`pyaedt.application.Analysis3D.modeler.export_3d_model` instead.
 
-        Parameters
-        ----------
-        fileName : str
-            Name of the file.
-        filePath : str
-            Path for the file.
-        fileFormat : str, optional
-             Format of the file. The default is ``".step"``.
-        object_list : list, optional
-             List of objects to export. The default is ``[]``.
-        removed_objects : list, optional
-             The default is ``[]``.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-
-        >>> oEditor.Export
+        
         """
         warnings.warn("`export3DModel` is deprecated. Use `export_3d_model` instead.", DeprecationWarning)
         return self.export_3d_model(fileName, filePath, fileFormat, object_list, removed_objects)
@@ -515,7 +494,7 @@ class FieldAnalysis3D(Analysis, object):
         Returns
         -------
         list of str
-            List of setup sources.
+            List of all setup sources.
 
         References
         ----------

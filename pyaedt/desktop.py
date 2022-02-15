@@ -1,7 +1,7 @@
 """
-This module contains the `Desktop` class.
+This module contains the ``Desktop`` class.
 
-This module is used to initialize AEDT and Message Manager to manage AEDT.
+This module is used to initialize AEDT and the message manager for managing AEDT.
 
 You can initialize this module before launching an app or
 have the app automatically initialize it to the latest installed AEDT version.
@@ -543,17 +543,17 @@ class Desktop:
 
     @property
     def messenger(self):
-        """Messenger manager for AEDT Log."""
+        """Messenger manager for the AEDT log."""
         return self._main.aedt_logger
 
     @property
     def logger(self):
-        """Logger."""
+        """Logger for AEDT."""
         return self._logger
 
     @aedt_exception_handler
     def project_list(self):
-        """Project list.
+        """Retrieve a list of the projects.
 
         Returns
         -------
@@ -565,19 +565,21 @@ class Desktop:
 
     @aedt_exception_handler
     def analyze_all(self, project=None, design=None):
-        """Analyze all setup in a given project.
+        """Analyze all setups in a project.
 
         Parameters
         ----------
-        project : str
-            Project name. If None, the active project will be taken.
-        design : str
-            Design name. If None, all the design in active project will be solved.
+        project : str, optional
+            Project name. The default is ``None``, in which case the active project
+            is used.
+        design : str, optional
+            Design name. The default is ``None``, in which case all of the designs in
+            the project are analyzed.
 
         Returns
         -------
         bool
-            ``True`` when simulation is finished.
+            ``True`` when successful, ``False`` when failed.
         """
         if not project:
             oproject = self.odesktop.GetActiveProject()
@@ -594,31 +596,33 @@ class Desktop:
 
     @aedt_exception_handler
     def clear_messages(self):
-        """Clear all desktop messages.
+        """Clear all AEDT messages.
 
         Returns
         -------
         bool
-            ``True`` if succeeded.
+            ``True`` when successful, ``False`` when failed.
         """
         self._desktop.ClearMessages("", "", 3)
         return True
 
     @aedt_exception_handler
     def save_project(self, project_name=None, project_path=None):
-        """Save project. if Path is provided, save as is used.
+        """Save the project. 
 
         Parameters
         ----------
-        project_name : str
-            Project name. If None, the active project will be taken.
-        project_path : str
-            Full path to the aedt file name
+        project_name : str, optional
+            Project name. The default is ``None``, in which case the active project
+            is used.
+        project_path : str, optional
+            Full path to the project. The default is ``None``. If a path is
+            provided, ``save as`` is used.
 
         Returns
         -------
         bool
-            ``True`` if succeeded.
+            ``True`` when successful, ``False`` when failed.
         """
         if not project_name:
             oproject = self.odesktop.GetActiveProject()
@@ -632,20 +636,22 @@ class Desktop:
 
     @aedt_exception_handler
     def copy_design(self, project_name=None, design_name=None, target_project=None):
-        """Copy a design. Design can be pasted in existing project or new one.
+        """Copy a design. You can paste the design in an existing project or a new project.
 
         Parameters
         ----------
-        project_name :str
-            Project name.
-        design_name : str
-            Design name.
+        project_name :str, optional
+            Project name. The default is ``None``, in which case the active project
+            is used.
+        design_name : str, optional
+            Design name. The default is ``None``.
         target_project : str, optional
-            Target Project.
+            Target project. The default is ``None``.
 
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
         """
         if not project_name:
             oproject = self.odesktop.GetActiveProject()
@@ -671,17 +677,18 @@ class Desktop:
 
     @aedt_exception_handler
     def project_path(self, project_name=None):
-        """Project path.
+        """Retrieve the path to the project.
 
         Parameters
         ----------
-        project_name : str
-            Project name. If None, the active project will be taken.
+        project_name : str, optional
+            Project name. The default is ``None``, in which case the active
+            project is used.
 
         Returns
         -------
         str
-            Path to the project file.
+            Path to the project.
 
         """
         if not project_name:
@@ -694,12 +701,13 @@ class Desktop:
 
     @aedt_exception_handler
     def design_list(self, project=None):
-        """Design list.
+        """Retrieve a list of the designs.
 
         Parameters
         ----------
         project : str, optional
-            Project name.
+            Project name. The default is ``None``, in which case the active
+            project is used.
 
         Returns
         -------
@@ -721,18 +729,20 @@ class Desktop:
 
     @aedt_exception_handler
     def design_type(self, project_name=None, design_name=None):
-        """Design list.
+        """Retrieve the type of a design.
 
         Parameters
         ----------
         project_name : str, optional
-            Project name.
+            Project name. The default is ``None``, in which case the active
+            project is used.
         design_name : str, optional
-            Design name.
+            Design name. The default is ``None``.
+        
         Returns
         -------
         str
-            Design Type.
+            Design type.
         """
         if not project_name:
             oproject = self.odesktop.GetActiveProject()
@@ -914,7 +924,7 @@ class Desktop:
         return self.release_desktop(close_projects=True, close_on_exit=True)
 
     def enable_autosave(self):
-        """Enable the auto save option.
+        """Enable the autosave option.
 
         Examples
         --------
@@ -928,7 +938,7 @@ class Desktop:
         self._main.oDesktop.EnableAutoSave(True)
 
     def disable_autosave(self):
-        """Disable the auto save option.
+        """Disable the autosave option.
 
         Examples
         --------
@@ -942,20 +952,21 @@ class Desktop:
         self._main.oDesktop.EnableAutoSave(False)
 
     def change_license_type(self, license_type="Pool"):
-        """Change the License Type between ``Pack`` and ``Pool``.
-
-        .. note::
-           The command returns ``True`` even if the Key is wrong due to API limitation.
+        """Change the license type between ``"Pack"`` and ``"Pool"``.
 
         Parameters
         ----------
         license_type : str, optional
-            Set license type.  Must be either ``"Pack"`` or ``"Pool"``.
+            Type of license. The value must be either ``"Pack"`` or ``"Pool"``.
 
         Returns
         -------
         bool
-           ``True`` when successful, ``False`` when failed.
+           ``True``.
+
+             .. note::
+                Because of an API limitation, this method returns ``True`` even when the key is wrong.
+
         """
         try:
             self._main.oDesktop.SetRegistryString("Desktop/Settings/ProjectOptions/HPCLicenseType", license_type)
@@ -964,17 +975,18 @@ class Desktop:
             return False
 
     def change_registry_key(self, key_full_name, key_value):
-        """Change a specific registry key to new value.
+        """Change an AEDT registry key to a new value.
 
         Parameters
         ----------
         key_full_name : str
-            Desktop Registry Key full name.
+            Full name of the AEDT registry key.
         key_value : str, int
-            Desktop Registry Key value.
+            Value for the AEDT registry key.
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
         """
         if isinstance(key_value, str):
             try:
@@ -997,17 +1009,21 @@ class Desktop:
             return False
 
     def change_active_dso_config_name(self, product_name="HFSS", config_name="Local"):
-        """Change a specific registry key to new value.
+        """Change a specific registry key to a new value.
 
         Parameters
         ----------
-        product_name : str
-            Name of the tool to which apply the active Configuration.
-        config_name : str
-            Name of configuration to apply.
+        product_name : str, optional
+            Name of the tool to apply the active configuration to. The default is
+            ``"HFSS"``.
+        config_name : str, optional
+            Name of the configuration to apply. The default is ``"Local"``.
+        
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
+
         """
         try:
             self.change_registry_key("Desktop/ActiveDSOConfigurations/{}".format(product_name), config_name)
@@ -1018,19 +1034,21 @@ class Desktop:
             return False
 
     def change_registry_from_file(self, registry_file, make_active=True):
-        """Apply desktop Registry settings from acf file. A way to get an editable ACF file is to export a
-        configuration from Desktop UI, edit and reuse it.
+        """Apply desktop registry settings from an ACF file.
+        
+        One way to get an ACF file is to export a configuration from the AEDT UI and then edit and reuse it.
 
         Parameters
         ----------
         registry_file : str
-            Full path to acf file.
+            Full path to the ACF file.
         make_active : bool, optional
-            Set imported Configuration as active.
+            Whether to set the imported configuration as active. The default is ``True``.
 
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
         """
         try:
             self._main.oDesktop.SetRegistryFromFile(registry_file)
