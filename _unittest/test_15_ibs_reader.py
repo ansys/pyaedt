@@ -45,8 +45,10 @@ class TestClass:
 
         # Add pin
         ibis.components["MT47H32M8BP-3_25"].pins["A7_MT47H32M8BP-3_25_u26a_800_modified"].add()
-        ibis.components["MT47H32M8BP-3_25"].pins["A7_MT47H32M8BP-3_25_u26a_800_modified"].insert(0.1016, 0.05334, 0.0)
+        pin = ibis.components["MT47H32M8BP-3_25"].pins["A7_MT47H32M8BP-3_25_u26a_800_modified"].insert(0.1016, 0.05334, 0.0)
+        assert pin.name == "CompInst@A7_MT47H32M8BP-3_25_u26a_800_modified"
 
         # Add buffer
         ibis.buffers["RDQS#_u26a_800_modified"].add()
-        ibis.buffers["RDQS#_u26a_800_modified"].insert(0.1016, 0.05334, 0.0)
+        buffer = ibis.buffers["RDQS#_u26a_800_modified"].insert(0.1016, 0.05334, 0.0)
+        assert buffer.name == "CompInst@RDQS#_u26a_800_modified"
