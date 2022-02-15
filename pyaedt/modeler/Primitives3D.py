@@ -1738,7 +1738,7 @@ class Primitives3D(Primitives, object):
 
         if sep_layer:
             for i in range(4):
-                list_positions.pop(-1)
+                list_positions.pop()
             list_positions.insert(0, [list_positions[0][0], list_positions[0][1], -height])
             list_positions.append([list_positions[-1][0], list_positions[-1][1], -height])
             true_polyline = self.create_polyline(position_list=list_positions,
@@ -1758,8 +1758,8 @@ class Primitives3D(Primitives, object):
         points_in_wind = list_object[1]
         for i in range(2):
             points_out_wind.pop(0)
-            points_out_wind.pop(-1)
-        points_out_wind.pop(-1)
+            points_out_wind.pop()
+        points_out_wind.pop()
         points_out_wind[-1] = [points_out_wind[-2][0], points_out_wind[-2][1], -height]
         points_in_wind.insert(0, [points_in_wind[0][0], points_in_wind[0][1], -height])
         points_in_wind[-1] = [points_in_wind[-2][0], points_in_wind[-2][1], points_out_wind[1][2]]
@@ -1792,12 +1792,12 @@ class Primitives3D(Primitives, object):
         for i in range(3):
             points_out_wind.pop(0)
             points_out_wind.pop(0)
-            points_out_wind.pop(-1)
+            points_out_wind.pop()
         points_out_wind[-1] = [points_out_wind[-2][0], points_out_wind[-2][1], -height]
         for i in range(2):
             points_mid_wind.pop(0)
-            points_mid_wind.pop(-1)
-        points_mid_wind.pop(-1)
+            points_mid_wind.pop()
+        points_mid_wind.pop()
         points_mid_wind[-1] = [points_mid_wind[-2][0], points_mid_wind[-2][1], points_out_wind[1][2]]
         points_mid_wind.append([points_mid_wind[-4][0], points_mid_wind[-4][1], points_out_wind[0][2]])
         points_in_wind.insert(0, [points_in_wind[0][0], points_in_wind[0][1], -height])
