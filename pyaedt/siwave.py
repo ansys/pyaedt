@@ -34,7 +34,7 @@ elif os.name == "nt":
         raise Exception("Error. No win32com.client or Python.NET modules found. They need to be installed.")
 
 
-class Siwave:  # pragma: no cover
+class Siwave:
     """Initializes SIwave based on the inputs provided and manages SIwave release and closing.
 
     Parameters
@@ -72,7 +72,7 @@ class Siwave:  # pragma: no cover
         """Current version of AEDT."""
         return self.version_keys[0]
 
-    def __init__(self, specified_version=None):
+    def __init__(self, specified_version=None):  # pragma: no cover
         self._main = sys.modules["__main__"]
         print("Launching Siwave Init")
         if "oSiwave" in dir(self._main) and self._main.oSiwave is not None:
