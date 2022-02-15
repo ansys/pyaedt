@@ -51,6 +51,10 @@ class TestClass:
         plot1 = self.aedtapp.post.create_fieldplot_cutplane(cutlist, quantity_name, setup_name, intrinsic)
         plot1.IsoVal = "Tone"
         assert plot1.change_plot_scale(min_value, "30000")
+        assert self.aedtapp.post.create_fieldplot_volume("inner", "Vector_E", setup_name, intrinsic)
+        assert self.aedtapp.post.create_fieldplot_surface(
+            self.aedtapp.modeler["outer"].faces[0].id, "Mag_E", setup_name, intrinsic
+        )
 
     @pytest.mark.skipif(is_ironpython, reason="Not running in ironpython")
     def test_01_Animate_plt(self):
@@ -236,3 +240,8 @@ class TestClass:
     def test_52_display(self):
         img = self.aedtapp.post.nb_display(show_axis=True, show_grid=True, show_ruler=True)
         assert isinstance(img, Image)
+
+    def test_53_reload(self):
+        self.aedtapp.save_project()
+        app2 = Hfss(self.aedtapp.project_name)
+        assert len(app2.post.field_plots) == len(self.aedtapp.post.field_plots)
