@@ -2199,8 +2199,6 @@ class Primitives3D(Primitives, object):
                     if occ2 == 100:
                         teta2 = teta2 - 0.0002
                         values["Mid Winding"]["Coil Pit(deg)"] = teta2
-                        if teta2 < asin((sr * dia_wire / 2) / (in_rad_wind + sr * dia_wire)):
-                            turns2 = turns2 - 1
                     occ2 = 100 * turns2 * teta2 / (180 / nb_wind)
                     values["Mid Winding"]["Occupation(%)"] = occ2
                     # TODO if occ2 == 100: method can be improve
@@ -2244,8 +2242,6 @@ class Primitives3D(Primitives, object):
                     if occ3 == 100:
                         teta3 = teta3 - 0.0001
                         values["Inner Winding"]["Coil Pit(deg)"] = teta3
-                        if teta3 < asin((sr * dia_wire / 2) / (in_rad_wind + 2 * sr * dia_wire)):
-                            turns3 = turns3 - 1
                     occ3 = 100 * turns3 * teta3 / (180 / nb_wind)
                     values["Inner Winding"]["Occupation(%)"] = occ3
                     # TODO if occ3 == 100: method can be improve
