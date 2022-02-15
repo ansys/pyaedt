@@ -325,12 +325,12 @@ class TestClass:
     def test_14_translate_delete_self(self):
         o = self.create_copper_box()
         v0 = o.vertices[0].position
-        o.move([1, 0, 0])
         o.translate([1, 0, 0])
         v1 = o.vertices[0].position
         assert v1[0] == v0[0] + 1.0
         assert v1[1] == v0[1]
         assert v1[2] == v0[2]
+        assert o.move([1, 0, 0])
 
     def test_15_duplicate_around_axis_and_unite(self):
         turn = self.create_example_coil("single_turn")

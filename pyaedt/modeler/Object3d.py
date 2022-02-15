@@ -17,6 +17,7 @@ import string
 import math
 import os
 import re
+import warnings
 
 from pyaedt import aedt_exception_handler, _retry_ntimes
 from pyaedt.modeler.GeometryOperators import GeometryOperators
@@ -1707,7 +1708,6 @@ class Object3d(object):
         """
         return self._primitives.modeler.rotate(self.id, cs_axis=cs_axis, angle=angle, unit=unit)
 
-
     @aedt_exception_handler
     def move(self, vector):
         """Move objects from a list.
@@ -1807,7 +1807,7 @@ class Object3d(object):
 
         """
         warnings.warn("`translate` is deprecated. Use `move` instead.", DeprecationWarning)
-        self._primitives.modeler.translate(self.id, vector)
+        self.move(vector)
         return self
 
     @aedt_exception_handler
