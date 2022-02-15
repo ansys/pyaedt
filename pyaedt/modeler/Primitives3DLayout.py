@@ -128,14 +128,14 @@ class Primitives3DLayout(object):
             if is_ironpython:
                 name = clr.Reference[System.String]()
                 try:
-                    response, name = el.GetProductProperty(0, 1, name)
+                    response = el.GetProductProperty(0, 1, name)
                 except:
                     response, name = False, ""
 
             else:
-                name = String("")
+                val = String("")
                 try:
-                    response, name = el.GetProductProperty(0, 1, name)
+                    response, name = el.GetProductProperty(0, 1, val)
                 except:
                     response, name = False, ""
             if str(name):
@@ -176,7 +176,8 @@ class Primitives3DLayout(object):
             pins_objs = list(self.modeler.edb.pins.values())
         except:
             pins_objs = []
-        for el in pins_objs:
+        for pin in pins_objs:
+            el = pin._pedbcomponents
             if is_ironpython:
                 name = clr.Reference[System.String]()
                 try:
@@ -211,7 +212,8 @@ class Primitives3DLayout(object):
             nets_objs = list(self.modeler.edb.core_nets.nets.values())
         except:
             nets_objs = {}
-        for el in nets_objs:
+        for net in nets_objs:
+            el = net.net_object
             self._nets[el] = Nets3DLayout(self, el)
         return self._nets
 
