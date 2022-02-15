@@ -1,5 +1,4 @@
 import os
-import time
 import re
 from warnings import warn
 
