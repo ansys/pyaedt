@@ -557,7 +557,7 @@ class EdbLayout(object):
         for void_circle in self.circles:
             if not void_circle.is_void:
                 continue
-            if is_ironpython:
+            if is_ironpython:  # pragma: no cover
                 res, center_x, center_y, radius = void_circle.primitive_object.GetParameters()
             else:
                 res, center_x, center_y, radius = void_circle.primitive_object.GetParameters(0.0, 0.0, 0.0)
@@ -838,9 +838,11 @@ class EdbLayout(object):
             if lay in list(self.polygons_by_layer.keys()):
                 for poly in self.polygons_by_layer[lay]:
                     if not poly.GetNet().GetName() in list(poly_by_nets.keys()):
-                        poly_by_nets[poly.GetNet().GetName()] = [poly]
+                        if poly.GetNet().GetName():
+                            poly_by_nets[poly.GetNet().GetName()] = [poly]
                     else:
-                        poly_by_nets[poly.GetNet().GetName()].append(poly)
+                        if poly.GetNet().GetName():
+                            poly_by_nets[poly.GetNet().GetName()].append(poly)
             for net in poly_by_nets:
                 list_polygon_data = [i.GetPolygonData() for i in poly_by_nets[net]]
                 all_voids = [i.Voids for i in poly_by_nets[net]]
