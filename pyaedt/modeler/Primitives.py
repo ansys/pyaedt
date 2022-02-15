@@ -589,7 +589,7 @@ class Polyline(Object3d):
                     at_start = False
                     break
                 seg_id += 1
-        else:
+        else:  # pragma: no cover
             pos_xyz = self._primitives.value_in_object_units(position)
             for ind, vertex_pos in enumerate(self.vertex_positions):
                 # compare the specified point with the vertex data using an absolute tolerance
