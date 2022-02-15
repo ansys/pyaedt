@@ -42,3 +42,11 @@ class TestClass:
         assert ibis.components["MT47H64M4BP-3_25"].pins["A1_MT47H64M4BP-3_25_u26a_800_modified"].r_value == "44.3m"
         assert ibis.components["MT47H64M4BP-3_25"].pins["A1_MT47H64M4BP-3_25_u26a_800_modified"].l_value == "1.99nH"
         assert ibis.components["MT47H64M4BP-3_25"].pins["A1_MT47H64M4BP-3_25_u26a_800_modified"].c_value == "0.59pF"
+
+        # Add pin
+        ibis.components["MT47H32M8BP-3_25"].pins["A7_MT47H32M8BP-3_25_u26a_800_modified"].add()
+        ibis.components["MT47H32M8BP-3_25"].pins["A7_MT47H32M8BP-3_25_u26a_800_modified"].insert(0.1016, 0.05334, 0.)
+
+        # Add buffer
+        ibis.buffers["RDQS#_u26a_800_modified"].add()
+        ibis.buffers["RDQS#_u26a_800_modified"].insert(0.1016, 0.05334, 0.)
