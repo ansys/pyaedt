@@ -12,6 +12,7 @@ from pyaedt.generic.general_methods import aedt_exception_handler, get_filename_
 from pyaedt.generic.constants import SourceType
 from pyaedt.edb_core.EDB_Data import EDBComponent
 from pyaedt.edb_core.padstack import EdbPadstacks
+from pyaedt.modeler.GeometryOperators import GeometryOperators
 
 try:
     import clr
@@ -1486,3 +1487,119 @@ class Components(object):
                     through_comp_list.append(refdes)
 
         return through_comp_list
+
+    @aedt_exception_handler
+    def short_component_pins(self, component_name, pins_to_short=None, width=1e-3):
+        """Short pins of component with a trace.
+
+        Parameters
+        ----------
+        component_name : str
+            Name of the component.
+        pins_to_short : list, optional
+            List of pins to short. If `None`, all pins will be shorted.
+        width : float, optional
+            Short Trace width. It will be used in trace computation algorithm
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+
+        >>> from pyaedt import Edb
+        >>> edbapp = Edb("myaedbfolder")
+        >>> edbapp.core_components.short_component_pins("J4A2", ["G4", "9", "3"])
+
+        """
+        component = self.components[component_name]
+        pins = component.pins
+        pins_list = []
+
+        component.center
+        for pin_name, pin in pins.items():
+            if pins_to_short:
+                if pin_name in pins_to_short:
+                    pins_list.append(pin)
+            else:
+                pins_list.append(pin)
+        positions_to_short = []
+        center = component.center
+        c = [center[0], center[1], 0]
+        delta_pins = []
+        w = width
+        for pin in pins_list:
+            placement_layer = pin.placement_layer
+            positions_to_short.append(pin.position)
+            pad = self._pedb.core_padstack.padstacks[pin.pin.GetPadstackDef().GetName()].pad_by_layer[placement_layer]
+            pars = pad.parameters_values
+            geom = pad.geometry_type
+            if geom < 6 and pars:
+                delta_pins.append(max(pars) + min(pars) / 2)
+                w = min(min(pars), w)
+            elif pars:
+                delta_pins.append(1.5 * pars[0])
+                w = min(pars[0], w)
+            elif pad.polygon_data:
+                bbox = pad.polygon_data.GetBBox()
+                lower = [bbox.Item1.X.ToDouble(), bbox.Item1.Y.ToDouble()]
+                upper = [bbox.Item2.X.ToDouble(), bbox.Item2.Y.ToDouble()]
+                pars = [abs(lower[0] - upper[0]), abs(lower[1] - upper[1])]
+                delta_pins.append(max(pars) + min(pars) / 2)
+                w = min(min(pars), w)
+            else:
+                delta_pins.append(1.5 * width)
+        i = 0
+
+        while i < len(positions_to_short) - 1:
+            p0 = []
+            p0.append([positions_to_short[i][0] - delta_pins[i], positions_to_short[i][1], 0])
+            p0.append([positions_to_short[i][0] + delta_pins[i], positions_to_short[i][1], 0])
+            p0.append([positions_to_short[i][0], positions_to_short[i][1] - delta_pins[i], 0])
+            p0.append([positions_to_short[i][0], positions_to_short[i][1] + delta_pins[i], 0])
+            p0.append([positions_to_short[i][0], positions_to_short[i][1], 0])
+            l0 = [
+                GeometryOperators.points_distance(p0[0], c),
+                GeometryOperators.points_distance(p0[1], c),
+                GeometryOperators.points_distance(p0[2], c),
+                GeometryOperators.points_distance(p0[3], c),
+                GeometryOperators.points_distance(p0[4], c),
+            ]
+            l0_min = l0.index(min(l0))
+            p1 = []
+            p1.append([positions_to_short[i + 1][0] - delta_pins[i + 1], positions_to_short[i + 1][1], 0])
+            p1.append([positions_to_short[i + 1][0] + delta_pins[i + 1], positions_to_short[i + 1][1], 0])
+            p1.append([positions_to_short[i + 1][0], positions_to_short[i + 1][1] - delta_pins[i + 1], 0])
+            p1.append([positions_to_short[i + 1][0], positions_to_short[i + 1][1] + delta_pins[i + 1], 0])
+            p1.append([positions_to_short[i + 1][0], positions_to_short[i + 1][1], 0])
+
+            l1 = [
+                GeometryOperators.points_distance(p1[0], c),
+                GeometryOperators.points_distance(p1[1], c),
+                GeometryOperators.points_distance(p1[2], c),
+                GeometryOperators.points_distance(p1[3], c),
+                GeometryOperators.points_distance(p1[4], c),
+            ]
+            l1_min = l1.index(min(l1))
+
+            trace_points = [positions_to_short[i]]
+
+            trace_points.append(p0[l0_min][:2])
+            trace_points.append(c[:2])
+            trace_points.append(p1[l1_min][:2])
+
+            trace_points.append(positions_to_short[i + 1])
+
+            path = self._pedb.core_primitives.Shape("polygon", points=trace_points)
+            self._pedb.core_primitives.create_path(
+                path,
+                layer_name=placement_layer,
+                net_name="short",
+                width=w,
+                start_cap_style="Flat",
+                end_cap_style="Flat",
+            )
+            i += 1
+        return True

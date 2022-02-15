@@ -1049,10 +1049,6 @@ class Edb(object):
         point_list = [[self.arg_with_dim(i[0], units), self.arg_with_dim(i[1], units)] for i in point_list]
         plane = self.core_primitives.Shape("polygon", points=point_list)
         polygonData = self.core_primitives.shape_to_polygon_data(plane)
-        self.core_primitives.create_polygon(
-            plane, list(self.core_stackup.signal_layers.keys())[0], net_name="DUMMY_CUTOUT"
-        )
-
         _ref_nets = []
         # validate references in layout
         for _ref in self.core_nets.nets:
@@ -1061,6 +1057,11 @@ class Edb(object):
         net_signals = List[type(_ref_nets[0])]()
         # Create new cutout cell/design
         _cutout = self.active_cell.CutOut(net_signals, _netsClip, polygonData)
+        layers = self.core_stackup.stackup_layers.signal_layers
+        for layer in list(layers.keys()):
+            layer_primitves = self.core_primitives.get_primitives(layer_name=layer)
+            if len(layer_primitves) == 0:
+                self.core_primitives.create_polygon(plane, layer, net_name="DUMMY")
         self.logger.info("Cutout %s created correctly", _cutout.GetName())
         id = 1
         for _setup in self.active_cell.SimulationSetups:

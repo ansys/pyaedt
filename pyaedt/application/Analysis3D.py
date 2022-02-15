@@ -387,11 +387,11 @@ class FieldAnalysis3D(Analysis, object):
         >>> oEditor.Copy
         >>> oEditor.Paste
         """
-        body_list = design.modeler.primitives.solid_names
+        body_list = design.modeler.solid_names
         if include_sheets:
-            body_list += design.modeler.primitives.sheet_names
+            body_list += design.modeler.sheet_names
         selection_list = []
-        material_properties = design.modeler.primitives.objects
+        material_properties = design.modeler.objects
         if object_list:
             selection_list = [i for i in object_list if i in body_list]
         else:
@@ -407,7 +407,7 @@ class FieldAnalysis3D(Analysis, object):
                     selection_list.append(body)
         design.modeler.oeditor.Copy(["NAME:Selections", "Selections:=", ",".join(selection_list)])
         self.modeler.oeditor.Paste()
-        self.modeler.primitives.refresh_all_ids()
+        self.modeler.refresh_all_ids()
         return True
 
     @aedt_exception_handler
@@ -471,7 +471,7 @@ class FieldAnalysis3D(Analysis, object):
         >>> oEditor.Export
         """
         if not object_list:
-            allObjects = self.modeler.primitives.object_names
+            allObjects = self.modeler.object_names
             if removed_objects:
                 for rem in removed_objects:
                     allObjects.remove(rem)
@@ -582,10 +582,10 @@ class FieldAnalysis3D(Analysis, object):
 
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
-        >>> box1 = hfss.modeler.primitives.create_box([10, 10, 10], [4, 5, 5])
-        >>> box2 = hfss.modeler.primitives.create_box([0, 0, 0], [2, 3, 4])
-        >>> cylinder1 = hfss.modeler.primitives.create_cylinder(cs_axis="X", position=[5, 0, 0], radius=1, height=20)
-        >>> cylinder2 = hfss.modeler.primitives.create_cylinder(cs_axis="Z", position=[0, 0, 5], radius=1, height=10)
+        >>> box1 = hfss.modeler.create_box([10, 10, 10], [4, 5, 5])
+        >>> box2 = hfss.modeler.create_box([0, 0, 0], [2, 3, 4])
+        >>> cylinder1 = hfss.modeler.create_cylinder(cs_axis="X", position=[5, 0, 0], radius=1, height=20)
+        >>> cylinder2 = hfss.modeler.create_cylinder(cs_axis="Z", position=[0, 0, 5], radius=1, height=10)
 
         Assign the material ``"copper"`` to all the objects.
 
@@ -609,12 +609,12 @@ class FieldAnalysis3D(Analysis, object):
                 Mat.update()
             self.logger.info("Assign Material " + mat + " to object " + str(selections))
             for el in selections:
-                self.modeler.primitives[el].material_name = mat
-                self.modeler.primitives[el].color = self.materials.material_keys[mat].material_appearance
+                self.modeler[el].material_name = mat
+                self.modeler[el].color = self.materials.material_keys[mat].material_appearance
                 if Mat.is_dielectric():
-                    self.modeler.primitives[el].solve_inside = True
+                    self.modeler[el].solve_inside = True
                 else:
-                    self.modeler.primitives[el].solve_inside = False
+                    self.modeler[el].solve_inside = False
             return True
         else:
             self.logger.error("Material does not exist.")

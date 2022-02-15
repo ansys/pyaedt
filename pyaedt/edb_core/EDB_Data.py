@@ -165,6 +165,24 @@ class EDBPrimitives(object):
         self._core_net = core_app.core_nets
         self.primitive_object = raw_primitive
 
+    @aedt_exception_handler
+    def area(self, include_voids=True):
+        """Return the total area.
+
+        Parameters
+        ----------
+        include_voids : bool, optional
+            Either if the voids have to be included in computation.
+        Returns
+        -------
+        float
+        """
+        area = self.primitive_object.GetPolygonData().Area()
+        if include_voids:
+            for el in self.primitive_object.Voids:
+                area -= el.GetPolygonData().Area()
+        return area
+
     @property
     def is_void(self):
         """Either if the primitive is a void or not.
@@ -1273,6 +1291,35 @@ class EDBPadProperties(object):
         self._update_pad_parameters_parameters(geom_type=geom_type, params=params)
 
     @property
+    def parameters_values(self):
+        """Parameters.
+
+        Returns
+        -------
+        list
+            List of parameters.
+        """
+        pad_values = self._padstack_methods.GetPadParametersValue(self._edb_padstack, self.layer_name, self.pad_type)
+        return [i.ToDouble() for i in pad_values.Item2]
+
+    @property
+    def polygon_data(self):
+        """Parameters.
+
+        Returns
+        -------
+        list
+            List of parameters.
+        """
+        try:
+            pad_values = self._padstack_methods.GetPolygonalPadParameters(
+                self._edb_padstack, self.layer_name, self.pad_type
+            )
+            return pad_values.Item1
+        except:
+            return
+
+    @property
     def parameters(self):
         """Parameters.
 
@@ -2224,6 +2271,19 @@ class EDBComponent(object):
                 pair = model.GetPinPairRlc(pinpair)
                 return pair.IsParallel
         return None
+
+    @property
+    def center(self):
+        """Compute the component center.
+
+        Returns
+        -------
+        list
+        """
+        layinst = self.edbcomponent.GetLayout().GetLayoutInstance()
+        cmpinst = layinst.GetLayoutObjInstance(self.edbcomponent, None)
+        center = cmpinst.GetCenter()
+        return [center.X.ToDouble(), center.Y.ToDouble()]
 
     @property
     def pinlist(self):

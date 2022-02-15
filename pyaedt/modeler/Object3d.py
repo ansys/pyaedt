@@ -483,6 +483,21 @@ class FacePrimitive(object):
         return center
 
     @property
+    def is_planar(self):
+        """Check if a face is planar or not.
+
+        Returns
+        -------
+        bool
+        """
+
+        try:
+            self._oeditor.GetFaceCenter(self.id)
+            return True
+        except:
+            return False
+
+    @property
     def center(self):
         """Face center in model units.
 
@@ -528,6 +543,33 @@ class FacePrimitive(object):
         """
         area = self._oeditor.GetFaceArea(self.id)
         return area
+
+    @aedt_exception_handler
+    def is_on_bounding(self, tol=1e-9):
+        """Check if the face is on bounding box or Not.
+
+        Parameters
+        ----------
+        tolerance : float, optional
+            Tolerance of check between face center and bounding box.
+
+        Returns
+        -------
+        bool
+            `True` if the face is on bounding box. `False` otherwise.
+        """
+        b = [float(i) for i in list(self._oeditor.GetModelBoundingBox())]
+        c = self.center
+        if (
+            abs(c[0] - b[0]) < tol
+            or abs(c[1] - b[1]) < tol
+            or abs(c[2] - b[2]) < tol
+            or abs(c[0] - b[3]) < tol
+            or abs(c[1] - b[4]) < tol
+            or abs(c[2] - b[5]) < tol
+        ):
+            return True
+        return False
 
     @aedt_exception_handler
     def move_with_offset(self, offset=1.0):
@@ -693,7 +735,7 @@ class Object3d(object):
 
     >>> from pyaedt import Hfss
     >>> aedtapp = Hfss()
-    >>> prim = aedtapp.modeler.primitives
+    >>> prim = aedtapp.modeler
 
     Create a part, such as box, to return an :class:`pyaedt.modeler.Object3d.Object3d`.
 
@@ -943,6 +985,20 @@ class Object3d(object):
             face = int(face)
             faces.append(FacePrimitive(self, face))
         return faces
+
+    @property
+    def faces_on_bounding_box(self):
+        """Return only the face ids of the faces touching the bounding box.
+
+        Returns
+        -------
+        list
+        """
+        f_list = []
+        for face in self.faces:
+            if face.is_on_bounding():
+                f_list.append(face.id)
+        return f_list
 
     @property
     def top_face_z(self):
@@ -1200,6 +1256,7 @@ class Object3d(object):
             if mat:
                 self._material_name = mat.strip('"').lower()
             return self._material_name
+        return ""
 
     @material_name.setter
     def material_name(self, mat):

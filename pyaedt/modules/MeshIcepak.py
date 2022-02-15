@@ -519,14 +519,14 @@ class IcepakMesh(object):
         meshregion.Level = level
         meshregion.name = name
         if not objectlist:
-            objectlist = [i for i in self.modeler.primitives.object_names]
+            objectlist = [i for i in self.modeler.object_names]
         if is_submodel:
             meshregion.SubModels = objectlist
         else:
             meshregion.Objects = objectlist
-        all_objs = [i for i in self.modeler.primitives.object_names]
+        all_objs = [i for i in self.modeler.object_names]
         meshregion.create()
-        objectlist2 = self.modeler.primitives.object_names
+        objectlist2 = self.modeler.object_names
         added_obj = [i for i in objectlist2 if i not in all_objs]
         meshregion.Objects = added_obj
         meshregion.SubModels = None

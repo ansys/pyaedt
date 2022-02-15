@@ -35,7 +35,7 @@ class TestClass:
         gc.collect()
 
     def test_01_get_components(self):
-        comp = self.aedtapp.modeler.primitives.components
+        comp = self.aedtapp.modeler.components
         assert len(comp) > 0
         assert comp["L3A1"].object_units == "mm"
         assert comp["L3A1"].get_angle()
@@ -46,7 +46,7 @@ class TestClass:
         assert comp["L3A1"].set_property_value("Angle", "0deg")
 
     def test_02_get_geometries(self):
-        geo = self.aedtapp.modeler.primitives.geometries
+        geo = self.aedtapp.modeler.geometries
         assert len(geo) > 0
         assert geo["line_1983"].object_units == "mm"
         assert geo["line_1983"].get_placement_layer()
@@ -56,7 +56,7 @@ class TestClass:
         assert geo["line_1983"].set_net_name("VCC")
 
     def test_03_get_pins(self):
-        pins = self.aedtapp.modeler.primitives.pins
+        pins = self.aedtapp.modeler.pins
         assert len(pins) > 0
         assert pins["L3A1-1"].object_units == "mm"
         assert pins["L3A1-1"].get_angle()
@@ -76,3 +76,9 @@ class TestClass:
 
     def test_05_change_property(self):
         assert self.aedtapp.modeler.change_property("Excitations:J2B3-2", "Impedance", "49ohm", "EM Design")
+
+    def test_06_assign_spice_model(self):
+        model_path = os.path.join(self.local_scratch.path, test_project_name + ".aedb", "GRM32ER72A225KA35_25C_0V.sp")
+        assert self.aedtapp.modeler.set_spice_model(
+            component_name="C3A3", model_path=model_path, subcircuit_name="GRM32ER72A225KA35_25C_0V"
+        )

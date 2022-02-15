@@ -177,7 +177,7 @@ def pyaedt_unittest_check_desktop_error(func):
         except Exception as e:
             pytest.exit("Desktop Crashed - Aborting the test!")
         args[0].cache.update()
-        # model_report = args[0].aedtapp.modeler.primitives.model_consistency_report
+        # model_report = args[0].aedtapp.modeler.model_consistency_report
         # assert not model_report["Missing Objects"]
         # assert not model_report["Non-Existent Objects"]
         assert args[0].cache.no_new_errors

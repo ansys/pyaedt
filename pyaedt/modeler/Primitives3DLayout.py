@@ -23,7 +23,7 @@ class Primitives3DLayout(object):
     """Manages primitives in HFSS 3D Layout.
 
     This class is inherited in the caller application and is accessible through the primitives variable part
-    of modeler object( eg. ``hfss3dlayout.modeler.primitives``).
+    of modeler object( eg. ``hfss3dlayout.modeler``).
 
     Parameters
     ----------
@@ -36,7 +36,7 @@ class Primitives3DLayout(object):
 
     >>> from pyaedt import Hfss3dLayout
     >>> aedtapp = Hfss3dLayout()
-    >>> prim = aedtapp.modeler.primitives
+    >>> prim = aedtapp.modeler
     """
 
     @aedt_exception_handler

@@ -30,14 +30,11 @@ class TestClass:
     def setup_class(self):
         # set a scratch directory and the environment / test data
         with Scratch(scratch_path) as self.local_scratch:
-            try:
-                example_project = os.path.join(local_path, "example_models", test_project_name + ".aedtz")
-                self.test_project = self.local_scratch.copyfile(example_project)
-                example_project2 = os.path.join(local_path, "example_models", test_field_name + ".aedtz")
-                self.test_project2 = self.local_scratch.copyfile(example_project2)
-                self.aedtapp = Hfss(self.test_project)
-            except:
-                pass
+            example_project = os.path.join(local_path, "example_models", test_project_name + ".aedtz")
+            self.test_project = self.local_scratch.copyfile(example_project)
+            example_project2 = os.path.join(local_path, "example_models", test_field_name + ".aedtz")
+            self.test_project2 = self.local_scratch.copyfile(example_project2)
+            self.aedtapp = Hfss(self.test_project)
 
     def teardown_class(self):
         self.aedtapp._desktop.ClearMessages("", "", 3)
@@ -210,6 +207,19 @@ class TestClass:
             show=False, export_path=os.path.join(self.local_scratch.path, "image.jpg")
         )
         assert os.path.exists(obj.image_file)
+
+    @pytest.mark.skipif(is_ironpython, reason="Not running in ironpython")
+    def test_16_create_field_plot(self):
+        cutlist = ["Global:XY"]
+        plot = self.aedtapp.post._create_fieldplot(
+            objlist=cutlist,
+            quantityName="Mag_E",
+            setup_name=self.aedtapp.nominal_adaptive,
+            intrinsincList={"Freq": "5GHz", "Phase": "0deg"},
+            objtype="Surface",
+            listtype="CutPlane",
+        )
+        assert plot
 
     def test_51_get_efields(self):
         if is_ironpython:

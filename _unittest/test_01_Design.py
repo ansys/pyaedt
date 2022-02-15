@@ -3,7 +3,7 @@ import gc
 import os
 
 # Import required modules
-from pyaedt import Hfss, Desktop
+from pyaedt import Hfss, Desktop, get_pyaedt_app
 from pyaedt.generic.filesystem import Scratch
 
 # Setup paths for module imports
@@ -114,7 +114,7 @@ class TestClass:
 
     def test_09_set_objects_temperature(self):
         ambient_temp = 22
-        objects = [o for o in self.aedtapp.modeler.primitives.solid_names if self.aedtapp.modeler.primitives[o].model]
+        objects = [o for o in self.aedtapp.modeler.solid_names if self.aedtapp.modeler[o].model]
         assert self.aedtapp.modeler.set_objects_temperature(objects, ambient_temp=ambient_temp, create_project_var=True)
 
     def test_10_change_material_override(self):
@@ -242,3 +242,7 @@ class TestClass:
             assert str(type(self.aedtapp.odesktop)) == "<type 'ADesktopWrapper'>"
         else:
             assert str(type(self.aedtapp.odesktop)) == "<class 'win32com.client.CDispatch'>"
+
+    def test_28_get_pyaedt_app(self):
+        app = get_pyaedt_app(self.aedtapp.project_name, self.aedtapp.design_name)
+        assert app.design_type == "HFSS"

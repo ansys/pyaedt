@@ -1,14 +1,14 @@
 """This module contains these classes: `Q2d`, `Q3d`, and `QExtractor`."""
 from __future__ import absolute_import
+import os
+import warnings
 
 from pyaedt.application.Analysis2D import FieldAnalysis2D
 from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name
 from collections import OrderedDict
-from pyaedt.modules.Boundary import BoundaryObject
-from pyaedt.generic.DataHandlers import _dict2arg
-import os
-import warnings
+from pyaedt.modules.Boundary import BoundaryObject, Matrix
+from pyaedt.generic.constants import MATRIXOPERATIONSQ2D, MATRIXOPERATIONSQ3D
 
 
 class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
@@ -72,9 +72,51 @@ class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
                 close_on_exit,
                 student_version,
             )
+        self.omatrix = self.odesign.GetModule("ReduceMatrix")
+        self.matrices = []
+        for el in list(self.omatrix.ListReduceMatrixes()):
+            self.matrices.append(Matrix(self, el))
 
     def __enter__(self):
         return self
+
+    @property
+    def excitations(self):
+        """Get all excitation names.
+
+        Returns
+        -------
+        list
+            List of excitation names. Excitations with multiple modes will return one
+            excitation for each mode.
+
+        """
+        return self.matrices[0].sources(False)
+
+    @aedt_exception_handler
+    def insert_reduced_matrix(self, operation_name, source_names=None, rm_name=None):
+        """Insert a new reduced matrix.
+
+        Parameters
+        ----------
+        operation_name : str
+            Name of the Operation to create.
+        source_names : list, str, optional
+            List of sources or nets or arguments needed for specific operation.
+        rm_name : str, optional
+            Name of the reduced matrix, optional.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.Matrix`
+            Matrix object.
+        """
+        if not rm_name:
+            rm_name = generate_unique_name(operation_name)
+        matrix = Matrix(self, rm_name, operation_name)
+        if matrix.create(source_names):
+            self.matrices.append(matrix)
+        return matrix
 
 
 class Q3d(QExtractor, object):
@@ -154,6 +196,91 @@ class Q3d(QExtractor, object):
             close_on_exit,
             student_version,
         )
+        self.MATRIXOPERATIONS = MATRIXOPERATIONSQ3D()
+
+    @property
+    def nets(self):
+        """Return the list of available nets in actual Q3d Project.
+
+        Returns
+        -------
+        list
+
+        References
+        ----------
+
+        >>> oModule.ListNets
+        """
+        nets_data = list(self.oboundary.ListNets())
+        net_names = []
+        for i in nets_data:
+            if isinstance(i, (list, tuple)):
+                net_names.append(i[0].split(":")[1])
+        return net_names
+
+    @aedt_exception_handler
+    def net_sources(self, net_name):
+        """Check if a net has sources and returns the list of names.
+
+        Parameters
+        ----------
+        net_name : str
+            Name of the net to search for.
+
+        Returns
+        -------
+        List
+            List of Source names.
+
+        Examples
+        --------
+        >>> from pyaedt import Q3d
+        >>> q3d = Q3d("my_project")
+        >>> net = q3d.net_sources("Net1")
+        """
+        sources = []
+        net_id = -1
+        for i in self.boundaries:
+            if i.type == "SignalNet" and i.name == net_name and i.props.get("ID", None) is not None:
+                net_id = i.props.get("ID", None)  # pragma: no cover
+                break  # pragma: no cover
+        for i in self.boundaries:
+            if i.type == "Source":
+                if i.props.get("Net", None) == net_name or i.props.get("Net", None) == net_id:
+                    sources.append(i.name)
+
+        return sources
+
+    @aedt_exception_handler
+    def net_sinks(self, net_name):
+        """Check if a net has sinks and returns the list of them.
+
+        Parameters
+        ----------
+        net_name : str
+            Name of the net to search for.
+
+        Returns
+        -------
+        List
+            List of Sink names.
+
+        Examples
+        --------
+        >>> from pyaedt import Q3d
+        >>> q3d = Q3d("my_project")
+        >>> net = q3d.net_sinks("Net1")
+        """
+        sinks = []
+        net_id = -1
+        for i in self.boundaries:
+            if i.type == "SignalNet" and i.name == net_name and i.props.get("ID", None) is not None:
+                net_id = i.props.get("ID", None)  # pragma: no cover
+                break  # pragma: no cover
+        for i in self.boundaries:
+            if i.type == "Sink" and i.props.get("Net", None) == net_name or i.props.get("Net", None) == net_id:
+                sinks.append(i.name)
+        return sinks
 
     @aedt_exception_handler
     def auto_identify_nets(self):
@@ -169,8 +296,69 @@ class Q3d(QExtractor, object):
 
         >>> oModule.AutoIdentifyNets
         """
+        original_nets = [i for i in self.nets]
         self.oboundary.AutoIdentifyNets()
+        new_nets = [i for i in self.nets if i not in original_nets]
+        for net in new_nets:
+            objects = self.modeler.convert_to_selections(
+                [int(i) for i in list(self.oboundary.GetExcitationAssignment(net))], True
+            )
+            props = OrderedDict({"Objects": objects})
+            bound = BoundaryObject(self, net, props, "SignalNet")
+            self.boundaries.append(bound)
+        if new_nets:
+            self.logger.info("{} Nets have been identified: {}".format(len(new_nets), ", ".join(new_nets)))
+        else:
+            self.logger.info("No new nets identified")
         return True
+
+    @aedt_exception_handler
+    def assign_net(self, objects, net_name=None, net_type="Signal"):
+        """Assign a net to a list of objects.
+
+        Parameters
+        ----------
+        objects : List, str
+            List of objects to assign net. Can be a single object.
+        net_name : str, optional
+            Name of the net. If `None`, default net name will be provided.
+        net_type : str, boolean
+            Type of net to create. Can be `Signal`, `Ground` or `Floating`.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Source object.
+
+        References
+        ----------
+
+        >>> oModule.AssignSignalNet
+        >>> oModule.AssignGroundNet
+        >>> oModule.AssignFloatingNet
+
+        Examples
+        --------
+        >>> from pyaedt import Q3d
+        >>> q3d = Q3d()
+        >>> box = q3d.modeler.create_box([30, 30, 30], [10, 10, 10], name="mybox")
+        >>> net_name = "my_net"
+        >>> net = q3d.assign_net(box, net_name)
+        """
+        objects = self.modeler.convert_to_selections(objects, True)
+        if not net_name:
+            net_name = generate_unique_name("Net")
+        props = OrderedDict({"Objects": objects})
+        type_bound = "SignalNet"
+        if net_type.lower() == "ground":
+            type_bound = "GroundNet"
+        elif net_type.lower() == "floating":
+            type_bound = "FloatingNet"
+        bound = BoundaryObject(self, net_name, props, type_bound)
+        if bound.create():
+            self.boundaries.append(bound)
+            return bound
+        return False
 
     @aedt_exception_handler
     def assign_source_to_objectface(self, object_name, axisdir=0, source_name=None, net_name=None):
@@ -181,7 +369,8 @@ class Q3d(QExtractor, object):
 
         Parameters
         ----------
-        object_name : str
+        object_name : str, int
+            Name of the object or face id.
             Name of the object.
         axisdir : optional
             Initial axis direction. Options are ``0`` through ``5``. The default is ``0``.
@@ -200,8 +389,11 @@ class Q3d(QExtractor, object):
 
         >>> oModule.AssignSource
         """
-        a = self.modeler._get_faceid_on_axis(object_name, axisdir)
-
+        object_name = self.modeler.convert_to_selections(object_name, True)[0]
+        if isinstance(object_name, int):
+            a = object_name
+        else:
+            a = self.modeler._get_faceid_on_axis(object_name, axisdir)
         if not source_name:
             source_name = generate_unique_name("Source")
         if not net_name:
@@ -243,7 +435,7 @@ class Q3d(QExtractor, object):
         """
         if not sourcename:
             sourcename = generate_unique_name("Source")
-        sheetname = self.modeler._convert_list_to_ids(sheetname)
+        sheetname = self.modeler.convert_to_selections(sheetname, True)
         props = OrderedDict({"Objects": [sheetname]})
         if objectname:
             props["ParentBndID"] = objectname
@@ -266,8 +458,8 @@ class Q3d(QExtractor, object):
 
         Parameters
         ----------
-        object_name : str
-            Name of the object.
+        object_name : str, int
+            Name of the object or face id.
         axisdir : int, optional
             Initial axis direction. Options are ``0`` through ``5``. The default is ``0``.
         sink_name : str, optional
@@ -285,8 +477,12 @@ class Q3d(QExtractor, object):
 
         >>> oModule.AssignSink
         """
-        a = self.modeler._get_faceid_on_axis(object_name, axisdir)
-
+        object_name = self.modeler.convert_to_selections(object_name, True)[0]
+        if isinstance(object_name, int):
+            a = object_name
+            object_name = self.modeler.oeditor.GetObjectNameByFaceID(a)
+        else:
+            a = self.modeler._get_faceid_on_axis(object_name, axisdir)
         if not sink_name:
             sink_name = generate_unique_name("Sink")
         if not net_name:
@@ -328,7 +524,7 @@ class Q3d(QExtractor, object):
         """
         if not sinkname:
             sinkname = generate_unique_name("Source")
-        sheetname = self.modeler._convert_list_to_ids(sheetname)
+        sheetname = self.modeler.convert_to_selections(sheetname, True)
         props = OrderedDict({"Objects": [sheetname]})
         if objectname:
             props["ParentBndID"] = objectname
@@ -564,7 +760,9 @@ class Q2d(QExtractor, object):
             close_on_exit,
             student_version,
         )
+        self.MATRIXOPERATIONS = MATRIXOPERATIONSQ2D()
 
+    @aedt_exception_handler
     def create_rectangle(self, position, dimension_list, name="", matname=""):
         """
         Create a rectangle.
@@ -591,10 +789,9 @@ class Q2d(QExtractor, object):
 
         >>> oEditor.CreateRectangle
         """
-        return self.modeler.primitives.create_rectangle(
-            position, dimension_list=dimension_list, name=name, matname=matname
-        )
+        return self.modeler.create_rectangle(position, dimension_list=dimension_list, name=name, matname=matname)
 
+    @aedt_exception_handler
     def assign_single_signal_line(self, target_objects, name="", solve_option="SolveInside", thickness=None, unit="um"):
         """Assign conductor type to sheets.
 
@@ -626,6 +823,7 @@ class Q2d(QExtractor, object):
         )
         self.assign_single_conductor(target_objects, name, "SignalLine", solve_option, thickness, unit)
 
+    @aedt_exception_handler
     def assign_single_conductor(
         self,
         target_objects,
@@ -655,10 +853,11 @@ class Q2d(QExtractor, object):
             thickness is used.
         unit : str, optional
             Thickness unit. The default is ``"um"``.
+
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Source object.
 
         References
         ----------
@@ -687,17 +886,13 @@ class Q2d(QExtractor, object):
 
         props = OrderedDict({"Objects": obj_names, "SolveOption": solve_option, "Thickness": str(thickness) + unit})
 
-        arg = ["NAME:" + name]
-        _dict2arg(props, arg)
-        if conductor_type == "SignalLine":
-            self.oboundary.AssignSingleSignalLine(arg)
-        elif conductor_type == "ReferenceGround":
-            self.oboundary.AssignSingleReferenceGround(arg)
-        else:
-            return False
+        bound = BoundaryObject(self, name, props, conductor_type)
+        if bound.create():
+            self.boundaries.append(bound)
+            return bound
+        return False
 
-        return True
-
+    @aedt_exception_handler
     def assign_huray_finitecond_to_edges(self, edges, radius, ratio, unit="um", name=""):
         """
         Assign Huray surface roughness model to edges.
@@ -729,7 +924,7 @@ class Q2d(QExtractor, object):
         else:
             ra = radius
 
-        a = self.modeler._convert_list_to_ids(edges, convert_objects_ids_to_name=False)
+        a = self.modeler.convert_to_selections(edges, True)
 
         props = OrderedDict({"Edges": a, "UseCoating": False, "Radius": ra, "Ratio": str(ratio)})
 
@@ -738,3 +933,55 @@ class Q2d(QExtractor, object):
             self.boundaries.append(bound)
             return bound
         return False
+
+    @aedt_exception_handler
+    def auto_assign_conductors(self):
+        """Auto Assign Conductors to Signal Lines.
+
+        Returns
+        -------
+        bool
+        """
+        original_nets = list(self.oboundary.GetExcitations())
+        self.oboundary.AutoAssignSignals()
+        new_nets = [i for i in list(self.oboundary.GetExcitations()) if i not in original_nets]
+        i = 0
+        while i < len(new_nets):
+            objects = self.modeler.convert_to_selections(
+                [int(k) for k in list(self.oboundary.GetExcitationAssignment(new_nets[i]))], True
+            )
+            props = OrderedDict({"Objects": objects})
+            bound = BoundaryObject(self, new_nets[i], props, new_nets[i + 1])
+            self.boundaries.append(bound)
+            i += 2
+        if new_nets:
+            self.logger.info("{} Nets have been identified: {}".format(len(new_nets), ", ".join(new_nets)))
+        else:
+            self.logger.info("No new nets identified")
+        return True
+
+    @aedt_exception_handler
+    def toggle_conductor_type(self, conductor_name, new_type):
+        """Change the conductor type.
+
+        Parameters
+        ----------
+        conductor_name : str
+            Name of the conductor to update.
+        new_type : str
+            New conductor type.
+
+        Returns
+        -------
+        bool
+        """
+        try:
+            self.oboundary.ToggleConductor(conductor_name, new_type)
+            for bound in self.boundaries:
+                if bound.name == conductor_name:
+                    bound.type = new_type
+            self.logger.info("Conductor type correctly updated")
+            return True
+        except:
+            self.logger.error("Error in updating conductor type")
+            return False
