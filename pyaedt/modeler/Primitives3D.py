@@ -1606,7 +1606,7 @@ class Primitives3D(Primitives, object):
         elif values["Wire Section"]["Octagon"]:
             n_seg = 8
             section = "Circle"
-        elif values["Wire Section"]["Octagon"]:
+        elif values["Wire Section"]["Circle"]:
             section = "Circle"
         else:
             section = None
