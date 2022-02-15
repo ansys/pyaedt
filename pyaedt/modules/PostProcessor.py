@@ -540,15 +540,17 @@ class FieldPlot:
 
     """
 
-    def __init__(self, postprocessor, objlist=[], solutionName="", quantityName="", intrinsincList={}):
+    def __init__(self, postprocessor, objlist=[], surfacelist=[], linelist=[], cutplanelist=[], solutionName="",
+                 quantityName="", intrinsincList={}):
         self._postprocessor = postprocessor
         self.oField = postprocessor.ofieldsreporter
-        self.faceIndexes = objlist
+        self.volume_indexes = objlist
+        self.surfaces_indexes = surfacelist
+        self.line_indexes = linelist
+        self.cutplane_indexes = cutplanelist
         self.solutionName = solutionName
         self.quantityName = quantityName
         self.intrinsincList = intrinsincList
-        self.objtype = "Surface"
-        self.listtype = "FaceList"
         self.name = "Field_Plot"
         self.plotFolder = "Field_Plot"
         self.Filled = False
@@ -573,10 +575,39 @@ class FieldPlot:
     @property
     def plotGeomInfo(self):
         """Plot geometry information."""
-        info = [1, self.objtype, self.listtype, 0]
-        for index in self.faceIndexes:
-            info.append(str(index))
-            info[3] += 1
+        id = 0
+        if self.volume_indexes:
+            id += 1
+        if self.surfaces_indexes:
+            id += 1
+        if self.cutplane_indexes:
+            id += 1
+        if self.line_indexes:
+            id += 1
+        info = [id]
+        if self.volume_indexes:
+            info.append("Volume")
+            info.append("ObjList")
+            info.append(len(self.volume_indexes))
+            for index in self.volume_indexes:
+                info.append(str(index))
+        if self.surfaces_indexes:
+            info.append("Surface")
+            info.append("FacesList")
+            info.append(len(self.surfaces_indexes))
+            for index in self.surfaces_indexes:
+                info.append(str(index))
+        if self.cutplane_indexes:
+            info.append("Surface")
+            info.append("CutPlane")
+            info.append(len(self.cutplane_indexes))
+            for index in self.cutplane_indexes:
+                info.append(str(index))
+        if self.line_indexes:
+            info.append("Line")
+            info.append(len(self.line_indexes))
+            for index in self.line_indexes:
+                info.append(str(index))
         return info
 
     @property
@@ -612,7 +643,7 @@ class FieldPlot:
         list
             List of plot settings.
         """
-        if self.objtype == "Surface":
+        if self.surfaces_indexes:
             arg = [
                 "NAME:PlotOnSurfaceSettings",
                 "Filled:=",
@@ -1672,16 +1703,17 @@ class PostProcessor(PostProcessorCommon, object):
     def _get_volume_objects(self, list_objs):
         if self._app.solution_type not in ["HFSS3DLayout", "HFSS 3D Layout Design"]:
             obj_list = []
-            for obj in list_objs[4:]:
-                obj_list.append(self._app._odesign.SetActiveEditor("3D Modeler").GetObjectNameByID(int(obj)))
+            editor = self._app._odesign.SetActiveEditor("3D Modeler")
+            for obj in list_objs:
+                obj_list.append(editor.GetObjectNameByID(int(obj)))
         if obj_list:
             return obj_list
         else:
-            return list_objs[4:]
+            return list_objs
 
     @aedt_exception_handler
     def _get_surface_objects(self, list_objs):
-        faces = [int(i) for i in list_objs[4:]]
+        faces = [int(i) for i in list_objs]
         if self._app.solution_type not in ["HFSS3DLayout", "HFSS 3D Layout Design"]:
             planes = self._get_cs_plane_ids()
             objs = []
@@ -1730,23 +1762,26 @@ class PostProcessor(PostProcessorCommon, object):
                     if isinstance(setups_data[setup], (OrderedDict, dict)) and "PlotDefinition" in setup:
                         plot_name = setups_data[setup]["PlotName"]
                         plots[plot_name] = FieldPlot(self)
-                        plots[plot_name].faceIndexes = []
                         plots[plot_name].solutionName = self._get_base_name(setup)
                         plots[plot_name].quantityName = self.ofieldsreporter.GetFieldPlotQuantityName(
                             setups_data[setup]["PlotName"]
                         )
                         plots[plot_name].intrinsincList = self._get_intrinsic(setup)
-                        list_objs = setups_data[setup]["FieldPlotGeometry"]
-                        if list_objs[1] == 64:
-                            plots[plot_name].objtype = "Volume"
-                            plots[plot_name].listtype = "ObjList"
-                            plots[plot_name].faceIndexes = self._get_volume_objects(list_objs)
-
-                        else:
-                            plots[plot_name].objtype = "Surface"
-                            plots[plot_name].listtype, plots[plot_name].faceIndexes = self._get_surface_objects(
-                                list_objs
-                            )
+                        list_objs = setups_data[setup]["FieldPlotGeometry"][1:]
+                        while list_objs:
+                            id = list_objs[0]
+                            num_objects = list_objs[2]
+                            if id == 64:
+                                plots[plot_name].volume_indexes = self._get_volume_objects(list_objs[3:num_objects+3])
+                            elif id == 128:
+                                out, faces = self._get_surface_objects(list_objs[3:num_objects + 3])
+                                if out == "CutPlane":
+                                    plots[plot_name].cutplane_indexes = faces
+                                else:
+                                    plots[plot_name].surfaces_indexes = faces
+                            elif id == 256:
+                                plots[plot_name].line_indexes = self._get_volume_objects(list_objs[3:num_objects+3])
+                            list_objs = list_objs[num_objects+3:]
                         plots[plot_name].name = setups_data[setup]["PlotName"]
                         plots[plot_name].plotFolder = setups_data[setup]["PlotFolder"]
                         surf_setts = setups_data[setup]["PlotOnSurfaceSettings"]
@@ -2309,12 +2344,21 @@ class PostProcessor(PostProcessorCommon, object):
         char_set = string.ascii_uppercase + string.digits
         if not plot_name:
             plot_name = quantityName + "_" + "".join(random.sample(char_set, 6))
-        plot = FieldPlot(self, objlist, setup_name, quantityName, intrinsincList)
+        if listtype == "CutPlane":
+            plot = FieldPlot(self, cutplanelist=objlist, solutionName=setup_name, quantityName=quantityName,
+                             intrinsincList=intrinsincList)
+        elif listtype == "FacesList":
+            plot = FieldPlot(self, surfacelist=objlist, solutionName=setup_name, quantityName=quantityName,
+                             intrinsincList=intrinsincList)
+        elif listtype == "ObjList":
+            plot = FieldPlot(self, objlist=objlist, solutionName=setup_name, quantityName=quantityName,
+                             intrinsincList=intrinsincList)
+        elif listtype == "Line":
+            plot = FieldPlot(self, linelist=objlist, solutionName=setup_name, quantityName=quantityName,
+                             intrinsincList=intrinsincList)
         plot.name = plot_name
         plot.plotFolder = plot_name
 
-        plot.objtype = objtype
-        plot.listtype = listtype
         plt = plot.create()
         if "Maxwell" in self._app.design_type and self.post_solution_type == "Transient":
             self.ofieldsreporter.SetPlotsViewSolutionContext([plot_name], setup_name, "Time:" + intrinsincList["Time"])
