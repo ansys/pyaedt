@@ -1596,7 +1596,7 @@ class Primitives3D(Primitives, object):
         """
         json_file = open(json_file, "r")
         values = json.load(json_file)
-        print(values)
+        self.logger.info(str(values))
 
         sr = 1.1
         n_seg = 0
@@ -1722,7 +1722,6 @@ class Primitives3D(Primitives, object):
                         [(in_rad + chamf) * cos(teta_r), (in_rad + chamf) * sin(teta_r), -height / 2],
                         [in_rad * cos(teta_r), in_rad * sin(teta_r), -height / 2 + chamf],
                         [in_rad * cos(teta_r), in_rad * sin(teta_r), height / 2 - chamf]]
-        print(len(points_list1))
         polyline = self.create_polyline(position_list=points_list1, name="Polyline1")
         union_polyline1 = [polyline.name]
         if turns > 1:
