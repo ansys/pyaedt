@@ -79,7 +79,7 @@ class EdbStackup(object):
 
         Returns
         -------
-        dict
+        :class:`pyaedt.edb_core.EDBData.EDBLayers`
             Dictionary of stackup layers.
         """
         if not self._layer_dict:

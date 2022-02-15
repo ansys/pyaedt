@@ -170,8 +170,8 @@ Modeler
 
     from pyaedt.hfss import Hfss
     with Hfss as hfss:
-         hfss.modeler.primitives.create_box([0, 0, 0], [10, "dim", 10],
-                                            "mybox", "aluminum")
+         hfss.modeler.create_box([0, 0, 0], [10, "dim", 10],
+                                 "mybox", "aluminum")
 
 License
 -------

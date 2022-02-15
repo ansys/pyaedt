@@ -135,7 +135,6 @@ class ModelerNexxim(ModelerCircuit):
             self._odesign.SetActiveEditor("SchematicEditor")
         self.layers = Layers(self, roughnessunits="um")
         self._primitives = Primitives3DLayout(app)
-        self._primitivesDes = self._app.project_name + self._app.design_name
 
     @property
     def schematic(self):
