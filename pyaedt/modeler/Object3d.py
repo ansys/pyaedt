@@ -770,6 +770,7 @@ class Object3d(object):
         self._part_coordinate_system = None
         self._model = None
 
+    @aedt_exception_handler
     def _bounding_box_unmodel(self):
         """Bounding box of a part, unmodel/undo method.
 
@@ -804,6 +805,7 @@ class Object3d(object):
         )
         return bounding
 
+    @aedt_exception_handler
     def _bounding_box_sat(self):
         """Bounding box of a part.
 
@@ -1677,6 +1679,33 @@ class Object3d(object):
         unite_list = [self.name] + self._primitives.modeler.convert_to_selections(object_list, return_list=True)
         self._primitives.modeler.unite(unite_list)
         return self
+
+    @aedt_exception_handler
+    def rotate(self, cs_axis, angle=90.0, unit="deg"):
+        """Rotate the selection.
+
+        Parameters
+        ----------
+        cs_axis
+            Coordinate system axis or the Application.CoordinateSystemAxis object.
+        angle : float
+            Angle of rotation. The units, defined by ``unit``, can be either
+            degrees or radians. The default is ``90.0``.
+        unit : text, optional
+             Units for the angle. Options are ``"deg"`` or ``"rad"``.
+             The default is ``"deg"``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.Rotate
+        """
+        return self._primitives.modeler.rotate(self.id, cs_axis=cs_axis, angle=angle, unit=unit)
 
     def duplicate_around_axis(self, cs_axis, angle=90, nclones=2, create_new_objects=True):
         """Duplicate the object around the axis.
