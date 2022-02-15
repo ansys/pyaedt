@@ -27,6 +27,7 @@ class TestClass:
                 os.path.join(self.local_scratch.path, test_project_name + ".aedb"),
             )
         self.aedtapp = Hfss3dLayout(self.test_project)
+        self.aedtapp.modeler.geometries
 
     def teardown_class(self):
         self.aedtapp._desktop.ClearMessages("", "", 3)
@@ -46,12 +47,8 @@ class TestClass:
         assert comp["L3A1"].set_property_value("Angle", "0deg")
 
     def test_02a_get_geometries(self):
-        geom = self.aedtapp.modeler.geometries
-        assert len(geom) > 0
-
-    def test_02aa_get_geometries(self):
-        geom = self.aedtapp.modeler.geometries
-        assert len(geom) > 0
+        line = self.aedtapp.modeler.geometries["line_1983"]
+        assert len(self.aedtapp.modeler.geometries) > 0
 
     def test_02b_geo_units(self):
         assert self.aedtapp.modeler.geometries["line_1983"].object_units == "mm"
