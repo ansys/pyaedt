@@ -66,7 +66,7 @@ elif IsWindows:
         raise Exception("Error. No win32com.client or Pythonnet modules found. Please install them.")
 
 
-def exception_to_desktop(ex_value, tb_data):
+def exception_to_desktop(ex_value, tb_data):  # pragma: no cover
     """Writes the trace stack to the desktop when a Python error occurs.
 
     The message is added to the AEDT global Message Manager and to the log file (if present).

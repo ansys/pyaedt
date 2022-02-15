@@ -34,7 +34,7 @@ elif os.name == "nt":
         raise Exception("Error. No win32com.client or Python.NET modules found. They need to be installed.")
 
 
-class Siwave:
+class Siwave:  # pragma: no cover
     """Initializes SIwave based on the inputs provided and manages SIwave release and closing.
 
     Parameters
