@@ -739,17 +739,17 @@ write both to the internal AEDT message windows and the log file:
 
 .. code:: python
 
-    self.messenger.add_error_message("This is an error message.")
-    self.messenger.add_warning_message("This is a warning message.")
-    self.messenger.add_info_message("This is an info message.")
+    self.logger.error("This is an error message.")
+    self.logger.warning("This is a warning message.")
+    self.logger.info("This is an info message.")
 
 These examples demonstrate how to to write messages only to the log file:
 
 .. code:: python
 
     self.logger.error("This is an error message.")
-    self.messenger.warning("This is a warning message.")
-    self.messenger.info("This is an info message.")
+    self.logger.warning("This is a warning message.")
+    self.logger.info("This is an info message.")
 
 
 Exception Handling
