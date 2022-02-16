@@ -484,7 +484,7 @@ class Design(object):
         start = time.time()
         if not self._project_dictionary and os.path.exists(self.project_file):
             self._project_dictionary = load_entire_aedt_file(self.project_file)
-            self._logger.info("AEDT Load time {}".format(time.time() - start))
+            self._logger.info("aedt file load time {}".format(time.time() - start))
         return self._project_dictionary
 
     @property

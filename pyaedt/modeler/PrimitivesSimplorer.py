@@ -1,5 +1,5 @@
 from pyaedt.generic.general_methods import aedt_exception_handler
-from pyaedt.modeler.PrimitivesCircuit import CircuitComponents
+from pyaedt.modeler.PrimitivesCircuit import CircuitComponents, ComponentCatalog
 
 
 class SimplorerComponents(CircuitComponents):
@@ -60,7 +60,19 @@ class SimplorerComponents(CircuitComponents):
         self._app = modeler._app
         self._modeler = modeler
         self._currentId = 0
-        pass
+        self._components_catalog = None
+
+    @property
+    def components_catalog(self):
+        """Return the syslib component catalog with all info.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.PrimitivesCircuit.ComponentCatalog`
+        """
+        if not self._components_catalog:
+            self._components_catalog = ComponentCatalog(self)
+        return self._components_catalog
 
     @aedt_exception_handler
     def create_resistor(self, compname=None, value=50, location=[], angle=0, use_instance_id_netlist=False):

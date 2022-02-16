@@ -58,7 +58,7 @@ lectronics-desktop-student>`_.
 Why PyAEDT?
 -----------
 A quick and easy approach for automating a simple operation in the 
-AEDT UI is to record and reuse a scripts. However, disadvantages of 
+AEDT UI is to record and reuse a script. However, disadvantages of 
 this approach are:
 
 - Recorded code is dirty and difficult to read and understand.
@@ -117,9 +117,9 @@ Implicit Desktop Declaration and Error Management
 
 .. code:: python
 
-    Launch the latest installed version of AEDT in graphical mode
+    # Launch the latest installed version of AEDT in graphical mode
 
-    from pyaedt import Circuit    
+    from pyaedt import Circuit
     with Circuit(specified_version="2021.2",
                  non_graphical=False) as circuit:
         ...
@@ -169,7 +169,7 @@ Modeler
 
 .. code:: python
 
-    Create a box, assign variables, and assign materials.
+    # Create a box, assign variables, and assign materials.
 
     from pyaedt.hfss import Hfss
     with Hfss as hfss:
@@ -184,7 +184,7 @@ This module makes no commercial claim over Ansys whatsoever.
 PyAEDT extends the functionality of AEDT by adding
 an additional Python interface to AEDT without changing the core
 behavior or license of the original software. The use of the
-interactive APDL control of PyAEDT requires a legally licensed
+interactive control of PyAEDT requires a legally licensed
 local copy of AEDT. For more information about AEDT, 
 visit the `AEDT page <https://www.ansys.com/products/electronics>`_ 
 on the Ansys website.
