@@ -2368,12 +2368,12 @@ class Primitives3D(Primitives, object):
                 )
 
             if teta > pi / nb_wind / turns:
-                teta = self.degrees_floor(pi / nb_wind / turns, 3)
+                teta = self._degrees_floor(pi / nb_wind / turns, 3)
                 values["Outer Winding"]["Coil Pit(deg)"] = teta
                 self.logger.warning("Winding Pit is too high. " "The maximum value has been set instead.")
 
             elif teta < asin((sr * dia_wire / 2) / in_rad_wind):
-                teta = self.degrees_ceil(asin((sr * dia_wire / 2) / in_rad_wind), 3)
+                teta = self._degrees_ceil(asin((sr * dia_wire / 2) / in_rad_wind), 3)
                 values["Outer Winding"]["Coil Pit(deg)"] = teta
                 self.logger.warning("Winding Pit is too low. " "The minimum value has been set instead.")
 
@@ -2409,14 +2409,14 @@ class Primitives3D(Primitives, object):
                         )
 
                     if teta2 > pi / nb_wind / turns2:
-                        teta2 = self.degrees_floor(pi / nb_wind / turns2, 3)
+                        teta2 = self._degrees_floor(pi / nb_wind / turns2, 3)
                         values["Mid Winding"]["Coil Pit(deg)"] = teta2
                         self.logger.warning(
                             "Winding Pit of the second layer is too high. " "The maximum value has been set instead."
                         )
 
                     elif teta2 < asin((sr * dia_wire / 2) / (in_rad_wind + sr * dia_wire)):
-                        teta2 = self.degrees_ceil(asin((sr * dia_wire / 2) / (in_rad_wind + sr * dia_wire)), 3)
+                        teta2 = self._degrees_ceil(asin((sr * dia_wire / 2) / (in_rad_wind + sr * dia_wire)), 3)
                         values["Mid Winding"]["Coil Pit(deg)"] = teta2
                         self.logger.warning(
                             "Winding Pit of the second layer is too low. " "The minimum value has been set instead."
@@ -2460,14 +2460,14 @@ class Primitives3D(Primitives, object):
                         )
 
                     if teta3 > pi / nb_wind / turns3:
-                        teta3 = self.degrees_floor(pi / nb_wind / turns3, 3)
+                        teta3 = self._degrees_floor(pi / nb_wind / turns3, 3)
                         values["Inner Winding"]["Coil Pit(deg)"] = teta3
                         self.logger.warning(
                             "Winding Pit of the third layer is too high. " "The maximum value has been set instead."
                         )
 
                     elif teta3 < asin((sr * dia_wire / 2) / (in_rad_wind + 2 * sr * dia_wire)):
-                        teta3 = self.degrees_ceil(asin((sr * dia_wire / 2) / (in_rad_wind + 2 * sr * dia_wire)), 3)
+                        teta3 = self._degrees_ceil(asin((sr * dia_wire / 2) / (in_rad_wind + 2 * sr * dia_wire)), 3)
                         values["Inner Winding"]["Coil Pit(deg)"] = teta3
                         self.logger.warning(
                             "Winding Pit of the third layer is too low. " "The minimum value has been set instead."
@@ -2516,13 +2516,11 @@ class Primitives3D(Primitives, object):
         return sqrt(2) * distance
 
     @aedt_exception_handler
-    def degrees_ceil(self, numb, digits):
+    def _degrees_ceil(self, numb, digits):
         return ceil(degrees(numb) * 10 ** digits) / (10 ** digits)
 
     @aedt_exception_handler
-    def degrees_floor(self, numb, digits):
+    def _degrees_floor(self, numb, digits):
         return floor(degrees(numb) * 10 ** digits) / (10 ** digits)
 
-    @aedt_exception_handler
-    def remove_useless_duplicates(self, list_of_values):
-        list_of_values.count(list_of_values[0])
+
