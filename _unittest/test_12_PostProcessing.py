@@ -220,7 +220,6 @@ class TestClass:
             quantityName="Mag_E",
             setup_name=self.aedtapp.nominal_adaptive,
             intrinsincList={"Freq": "5GHz", "Phase": "0deg"},
-            objtype="Surface",
             listtype="CutPlane",
         )
         assert plot
@@ -241,7 +240,18 @@ class TestClass:
         img = self.aedtapp.post.nb_display(show_axis=True, show_grid=True, show_ruler=True)
         assert isinstance(img, Image)
 
-    def test_53_reload(self):
+    def test_53_line_plot(self):
+        udp1 = [0, 0, 0]
+        udp2 = [1, 0, 0]
+        setup_name = "Setup1 : LastAdaptive"
+        intrinsic = {"Freq": "5GHz", "Phase": "180deg"}
+        self.aedtapp.modeler.create_polyline([udp1, udp2], name="Poly1")
+        assert self.aedtapp.post.create_fieldplot_line(
+            "Poly1", "Mag_E", setup_name, intrinsic
+        )
+
+    def test_54_reload(self):
         self.aedtapp.save_project()
         app2 = Hfss(self.aedtapp.project_name)
         assert len(app2.post.field_plots) == len(self.aedtapp.post.field_plots)
+

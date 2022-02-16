@@ -2339,7 +2339,7 @@ class PostProcessor(PostProcessorCommon, object):
         return True
 
     @aedt_exception_handler
-    def _create_fieldplot(self, objlist, quantityName, setup_name, intrinsincList, objtype, listtype, plot_name=None):
+    def _create_fieldplot(self, objlist, quantityName, setup_name, intrinsincList, listtype, plot_name=None):
         if isinstance(objlist, (str, int)):
             objlist = [objlist]
         if not setup_name:
@@ -2396,6 +2396,42 @@ class PostProcessor(PostProcessorCommon, object):
             return False
 
     @aedt_exception_handler
+    def create_fieldplot_line(self, objlist, quantityName, setup_name=None, intrinsincDict={}, plot_name=None):
+        """Create a field plot of line.
+
+        Parameters
+        ----------
+        objlist : list
+            List of polyline to plot.
+        quantityName : str
+            Name of the quantity to plot.
+        setup_name : str, optional
+            Name of the setup in the format ``"setupName : sweepName"``. The default
+            is ``None``.
+        intrinsincDict : dict, optional
+            Dictionary containing all intrinsic variables. The default
+            is ``{}``.
+        plot_name : str, optional
+            Name of the fieldplot to create.
+
+        Returns
+        -------
+        type
+            Plot object.
+
+        References
+        ----------
+
+        >>> oModule.CreateFieldPlot
+        """
+        if plot_name and plot_name in list(self.field_plots.keys()):
+            self.logger.info("Plot {} exists. returning the object.".format(plot_name))
+            return self.field_plots[plot_name]
+        return self._create_fieldplot(
+            objlist, quantityName, setup_name, intrinsincDict, "Line", plot_name
+        )
+
+    @aedt_exception_handler
     def create_fieldplot_surface(self, objlist, quantityName, setup_name=None, intrinsincDict={}, plot_name=None):
         """Create a field plot of surfaces.
 
@@ -2428,7 +2464,7 @@ class PostProcessor(PostProcessorCommon, object):
             self.logger.info("Plot {} exists. returning the object.".format(plot_name))
             return self.field_plots[plot_name]
         return self._create_fieldplot(
-            objlist, quantityName, setup_name, intrinsincDict, "Surface", "FacesList", plot_name
+            objlist, quantityName, setup_name, intrinsincDict, "FacesList", plot_name
         )
 
     @aedt_exception_handler
@@ -2465,7 +2501,7 @@ class PostProcessor(PostProcessorCommon, object):
             self.logger.info("Plot {} exists. returning the object.".format(plot_name))
             return self.field_plots[plot_name]
         return self._create_fieldplot(
-            objlist, quantityName, setup_name, intrinsincDict, "Surface", "CutPlane", plot_name
+            objlist, quantityName, setup_name, intrinsincDict, "CutPlane", plot_name
         )
 
     @aedt_exception_handler
@@ -2501,7 +2537,7 @@ class PostProcessor(PostProcessorCommon, object):
         if plot_name and plot_name in list(self.field_plots.keys()):
             self.logger.info("Plot {} exists. returning the object.".format(plot_name))
             return self.field_plots[plot_name]
-        return self._create_fieldplot(objlist, quantityName, setup_name, intrinsincDict, "Volume", "ObjList", plot_name)
+        return self._create_fieldplot(objlist, quantityName, setup_name, intrinsincDict, "ObjList", plot_name)
 
     @aedt_exception_handler
     def export_field_jpg(
