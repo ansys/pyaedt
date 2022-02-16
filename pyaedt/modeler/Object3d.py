@@ -1682,6 +1682,31 @@ class Object3d(object):
         return self
 
     @aedt_exception_handler
+    def mirror(self, position, vector):
+        """Mirror a selection.
+
+        Parameters
+        ----------
+        position : int or float
+            List of the ``[x, y, z]`` coordinates or the
+            Application.Position object for the selection.
+        vector : float
+            List of the ``[x1, y1, z1]`` coordinates or
+            the Application.Position object for the vector.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.Mirror
+        """
+        return self._primitives.modeler.mirror(self.id, position=position, vector=vector)
+
+    @aedt_exception_handler
     def rotate(self, cs_axis, angle=90.0, unit="deg"):
         """Rotate the selection.
 

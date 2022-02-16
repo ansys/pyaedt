@@ -957,3 +957,9 @@ class TestClass(BasisTest):
         self.aedtapp.modeler.points_by_name[point.name].delete()
         assert len(self.aedtapp.modeler.points) == 1
         assert self.aedtapp.modeler.points[0].name == "mypoint2"
+
+    @pyaedt_unittest_check_desktop_error
+    def test_71_create_choke(self):
+        choke_file = os.path.join(local_path, "example_models", "choke.json")
+        resolve = self.aedtapp.modeler.create_choke(choke_file)
+        assert isinstance(resolve, list)
