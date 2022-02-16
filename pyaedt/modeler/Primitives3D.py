@@ -2522,5 +2522,3 @@ class Primitives3D(Primitives, object):
     @aedt_exception_handler
     def _degrees_floor(self, numb, digits):
         return floor(degrees(numb) * 10 ** digits) / (10 ** digits)
-
-
