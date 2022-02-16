@@ -2,7 +2,7 @@ import warnings
 import os
 
 from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name
-from pyaedt.modeler.PrimitivesCircuit import CircuitComponents
+from pyaedt.modeler.PrimitivesCircuit import CircuitComponents, ComponentCatalog
 from pyaedt.modeler.Object3d import CircuitComponent
 
 
@@ -52,12 +52,28 @@ class NexximComponents(CircuitComponents):
 
         return None
 
+    @property
+    def _logger(self):
+        return self._app.logger
+
     def __init__(self, modeler):
         CircuitComponents.__init__(self, modeler)
         self._app = modeler._app
         self._modeler = modeler
         self._currentId = 0
-        pass
+        self._components_catalog = None
+
+    @property
+    def components_catalog(self):
+        """Return the syslib component catalog with all info.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.PrimitivesCircuit.ComponentCatalog`
+        """
+        if not self._components_catalog:
+            self._components_catalog = ComponentCatalog(self)
+        return self._components_catalog
 
     @aedt_exception_handler
     def connect_components_in_series(self, components_to_connect):

@@ -330,6 +330,7 @@ class TestClass:
         assert v1[0] == v0[0] + 1.0
         assert v1[1] == v0[1]
         assert v1[2] == v0[2]
+        assert o.move([1, 0, 0])
 
     def test_15_duplicate_around_axis_and_unite(self):
         turn = self.create_example_coil("single_turn")
@@ -344,7 +345,6 @@ class TestClass:
         assert len(added_objects) == 2
         assert "single_turn" in self.aedtapp.modeler.line_names
 
-    # TODO: Finish asserts anc check the boolean inputs - they are not present in the GUI ??
     def test_17_section_object(self):
         o = self.aedtapp.modeler.create_box([-10, 0, 0], [10, 10, 5], "SectionBox", "Copper")
         o.section(plane="YZ", create_new=True, section_cross_object=False)
@@ -354,3 +354,7 @@ class TestClass:
         assert sp1
         assert sp1.name == "ind"
         assert len(sp1.points) == 78
+
+    def test_19_rotate(self):
+        o = self.aedtapp.modeler.create_box([-10, 0, 0], [10, 10, 5], "RotateBox", "Copper")
+        assert o.rotate(cs_axis="Y", angle=180)

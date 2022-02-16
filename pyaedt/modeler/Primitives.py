@@ -231,8 +231,7 @@ class Polyline(Object3d):
             object.
 
         """
-        vertex_id = self._primitives.get_object_vertices(partID=self.id)[0]
-        return self._primitives.get_vertex_position(vertex_id)
+        return self.vertices[0].position
 
     @property
     def end_point(self):
@@ -252,8 +251,7 @@ class Polyline(Object3d):
         >>> oEditor.GetVertexPosition
 
         """
-        end_vertex_id = self._primitives.get_object_vertices(partID=self.id)[-1]
-        return self._primitives.get_vertex_position(end_vertex_id)
+        return self.vertices[-1].position
 
     @property
     def points(self):
@@ -572,24 +570,42 @@ class Polyline(Object3d):
         >>> P.remove_vertex(["0mm", "1mm", "2mm"], abstol=1e-6)
         """
         found_vertex = False
-
-        # Search for position in the vertex data
-        pos_xyz = self._primitives.value_in_object_units(position)
-        for ind, vertex_pos in enumerate(self.vertex_positions):
-            # compare the specified point with the vertex data using an absolute tolerance
-            # (default of math.isclose is 1e-9 which should be ok in almost all cases)
-            found_vertex = GeometryOperators.points_distance(vertex_pos, pos_xyz) <= abstol
-            if found_vertex:
-                if ind == len(self.vertex_positions) - 1:
-                    seg_id = ind - 1
-                    at_start = False
-                else:
-                    seg_id = ind
+        if self._primitives._app._is_object_oriented_enabled():
+            obj = self._primitives._oeditor.GetChildObject(self._m_name).GetChildObject("CreatePolyline:1")
+            segments = obj.GetChildNames()
+            seg_id = 0
+            for seg in segments:
+                point = obj.GetChildObject(seg).GetPropValue("Point1")
+                p = self._primitives.value_in_object_units([point[1], point[3], point[5]])
+                pos_xyz = self._primitives.value_in_object_units(position)
+                found_vertex = GeometryOperators.points_distance(p, pos_xyz) <= abstol
+                if found_vertex:
                     at_start = True
-                break
+                    break
+                point = obj.GetChildObject(seg).GetPropValue("Point2")
+                p = self._primitives.value_in_object_units([point[1], point[3], point[5]])
+                found_vertex = GeometryOperators.points_distance(p, pos_xyz) <= abstol
+                if found_vertex:
+                    at_start = False
+                    break
+                seg_id += 1
+        else:  # pragma: no cover
+            pos_xyz = self._primitives.value_in_object_units(position)
+            for ind, vertex_pos in enumerate(self.vertex_positions):
+                # compare the specified point with the vertex data using an absolute tolerance
+                # (default of math.isclose is 1e-9 which should be ok in almost all cases)
+                found_vertex = GeometryOperators.points_distance(vertex_pos, pos_xyz) <= abstol
+                if found_vertex:
+                    if ind == len(self.vertex_positions) - 1:
+                        seg_id = ind - 1
+                        at_start = True
+                    else:
+                        seg_id = ind
+                        at_start = False
+                    break
 
         assert found_vertex, "Specified vertex {} not found in polyline {}.".format(position, self._m_name)
-        self._primitives._oeditor.DeletePolylinePoint(
+        self._primitives.oeditor.DeletePolylinePoint(
             [
                 "NAME:Delete Point",
                 "Selections:=",
