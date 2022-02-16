@@ -1618,7 +1618,7 @@ class Hfss(FieldAnalysis3D, object):
     @aedt_exception_handler
     def create_spiral_lumped_port(self, start_object, end_object, port_width=None):
         """Create a spiral lumped port between two adjacent objects.
-        
+
         The two objects must have two adjacent, parallel, and identical faces.
         The faces must be a polygon (not a circle).
 
@@ -2186,23 +2186,23 @@ class Hfss(FieldAnalysis3D, object):
             ``"UseScanAngle"``.
         phase_delay_param1 : str, optional
             Value for the first phase delay parmeter, which depends on the approach:
-            
+ 
             - Phi angle if the approach is ``"UseScanAngle"``.
             - U value if the approach is ``"UseScanUV"``.
             - Phase if the approach is ``"InputPhaseDelay"``.
-            
+    
             The default is ``0deg``.
 
         phase_delay_param2 :  str, optional
             Value for the second phase delay parameter, which depends on the approach:
-            
+
             - Theta angle if the approach is "``UseScanAngle"``.
             - V value if the approach is ``"UseScanUV"``.
-            
+
             The default is ``0deg``.
         pair_name : str, optional
             Boundary name.
-        
+
         Returns
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`
@@ -2296,7 +2296,7 @@ class Hfss(FieldAnalysis3D, object):
             ``"UseScanAngle"``.
         phase_delay_param1 : str, optional
             Value for the first phase delay parmeter, which depends on the approach:
-            
+  
             - Phi angle if the approach is ``"UseScanAngle"``.
             - U value if the approach is ``"UseScanUV"``.
             - Phase if the approach is ``"InputPhaseDelay"``.
@@ -2304,10 +2304,10 @@ class Hfss(FieldAnalysis3D, object):
             The default is ``0deg``.
         phase_delay_param2 :  str, optional
             Value for the second phase delay parameter, which depends on the approach:
-            
+
             - Theta angle if the approach is "``UseScanAngle"``.
             - V value if the approach is ``"UseScanUV"``.
-            
+
             The default is ``0deg``.
         coord_name : str, optional
             Name of the coordinate system for U coordinates.
@@ -4429,7 +4429,7 @@ class Hfss(FieldAnalysis3D, object):
         setup_name=None,
     ):
         """Create an SBR+ Chirp IQ Setup.
-        
+
         Parameters
         ----------
         time_var : str, optional

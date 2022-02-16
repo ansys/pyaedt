@@ -220,7 +220,7 @@ class Edb(object):
     @property
     def cell_names(self):
         """Cell name container.
-        
+
         Returns
         -------
         list of str
@@ -443,7 +443,7 @@ class Edb(object):
             Whether to use the PPE License. The default is ``False``.
         use_ppe : bool, optional
             Whether to use the PPE License. The default is ``False``.
-        
+
         Returns
         -------
         str
@@ -825,7 +825,7 @@ class Edb(object):
             Full path to the AnsTranslator.
         use_ppe : bool
             Whether to use the PPE License. The default is ``False``.
-        
+
         Returns
         -------
         bool
@@ -853,8 +853,7 @@ class Edb(object):
         anstranslator_full_path : str, optional
             Full path to the AnsTranslator.
         use_ppe : bool
-            Whether to use the PPE License. The default is ``False``.
-        
+
         Returns
         -------
         bool
@@ -1225,7 +1224,7 @@ class Edb(object):
         aedt_file_name : str, optional
             Name of the AEDT file (without the ``.aedt`` extension). The
             default is ``None``, in which case the default name is used.
-        
+
         Returns
         -------
         str

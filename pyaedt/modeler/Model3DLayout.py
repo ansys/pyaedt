@@ -146,8 +146,9 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         """Primitives.
 
         .. deprecated:: 0.4.15
-            There is no need to use primitives anymore. You can instantiate primitives methods directly from the modeler.
-        
+        There is no need to use primitives anymore. You can instantiate methods for
+        primitives directly from the modeler.
+
         Returns
         -------
         :class:`pyaedt.modeler.Primitives3DLayout.Primitives3DLayout`
@@ -200,8 +201,8 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         Parameters
         ----------
         property_object : str
-            Name of the property object. It can be the name of an excitation or field reporter. For example, 
-            ``Excitations:Port1`` or ``FieldsReporter:Mag_H``.
+            Name of the property object. It can be the name of an excitation or field reporter.
+            For example, ``Excitations:Port1`` or ``FieldsReporter:Mag_H``.
         property_name : str
             Name of the property. For example, ``Rotation Angle``.
         property_value : str, list
@@ -210,7 +211,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         property_tab : str
             Name of the tab to update. Options are ``BaseElementTab``, ``EM Design``, and
             ``FieldsPostProcessorTab``. The default is ``BaseElementTab``.
-        
+
         Returns
         -------
         bool
