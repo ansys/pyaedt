@@ -171,6 +171,13 @@ class TestClass:
         diel = self.edbapp.core_stackup.create_debye_material("My_Debye", 3, 2.5, 0.02, 0.04, 1e6, 1e9)
         assert diel
 
+    def test_14b_add_multipole_debye(self):
+        freq = [0, 2, 3, 4, 5, 6]
+        rel_perm = [1e9, 1.1e9, 1.2e9, 1.3e9, 1.5e9, 1.6e9]
+        loss_tan = [0.025, 0.026, 0.027, 0.028, 0.029, 0.030]
+        diel = self.edbapp.core_stackup.create_multipole_debye_material("My_MP_Debye", freq, rel_perm, loss_tan)
+        assert diel
+
     def test_15_update_layer(self):
         assert "LYR_1" in self.edbapp.core_stackup.stackup_layers.layers.keys()
         self.edbapp.core_stackup.stackup_layers["LYR_1"].name
