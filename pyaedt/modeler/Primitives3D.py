@@ -1752,7 +1752,7 @@ class Primitives3D(Primitives, object):
     def _make_double_linked_winding(self, name, color, mat, in_rad, out_rad, height, w_dia, teta, teta_in_wind,
                                     turns, turns_in_wind, chamfer, chamf_in_wind, sr):
         list_object = self._make_double_winding(name, color, mat, in_rad, out_rad, height, w_dia, teta, teta_in_wind,
-                                                turns, turns_in_wind, chamfer, chamf_in_wind, sr, False)
+                                                turns + 1, turns_in_wind, chamfer, chamf_in_wind, sr, False)
         points_out_wind = list_object[0]
         points_in_wind = list_object[1]
         for i in range(2):
@@ -1783,7 +1783,7 @@ class Primitives3D(Primitives, object):
     def _make_triple_linked_winding(self, name, color, mat, in_rad, out_rad, height, w_dia, teta, teta_mid_wind,
                                     teta_in_wind, turns, turns_mid_wind, turns_in_wind, chamfer, chamf_in_wind, sr):
         list_object = self._make_triple_winding(name, color, mat, in_rad, out_rad, height, w_dia, teta, teta_mid_wind,
-                                                teta_in_wind, turns, turns_mid_wind, turns_in_wind, chamfer,
+                                                teta_in_wind, turns + 1, turns_mid_wind + 1, turns_in_wind, chamfer,
                                                 chamf_in_wind, sr, False)
         points_out_wind = list_object[0]
         points_mid_wind = list_object[1]
@@ -2259,6 +2259,23 @@ class Primitives3D(Primitives, object):
                 values["Inner Winding"]["Turns"] = turns
                 values["Mid Winding"]["Occupation(%)"] = occ
                 values["Inner Winding"]["Occupation(%)"] = occ
+
+            if values["Layer Type"]["Linked"]:
+                """if values["Mid Winding"]["Turns"] < 1:
+                    values["Mid Winding"]["Turns"] = 2"
+                    values["Mid Winding"]["Occupation(%)"] = 100 * turns2 * teta2 / (180 / nb_wind)"""
+                if values["Layer"]["Double"] or ["Layer"]["Triple"]:
+                    values["Outer Winding"]["Turns"] = values["Outer Winding"]["Turns"] - 1
+                    if values["Outer Winding"]["Turns"] < 1:
+                        values["Outer Winding"]["Turns"] = 1
+                    values["Mid Winding"]["Turns"] = values["Mid Winding"]["Turns"] - 1
+                    if values["Mid Winding"]["Turns"] < 1:
+                        values["Mid Winding"]["Turns"] = 1
+                if values["Layer"]["Double"]:
+                    values["Outer Winding"]["Turns"] = values["Outer Winding"]["Turns"] - 1
+                    if values["Outer Winding"]["Turns"] < 1:
+                        values["Outer Winding"]["Turns"] = 1
+
 
             spl_path = json_file.split(".")
             with open(spl_path[0] + "_Corrected.json", "w") as outfile:
