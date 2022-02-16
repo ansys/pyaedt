@@ -239,7 +239,7 @@ class EdbStackup(object):
         frequencies : list
             Frequencies in GHz.
         relative_permittivities : list
-            Relative permitivites at each frequency.
+            Relative permittivities at each frequency.
         loss_tangents : list
             Loss tangents at each frequency.
 
