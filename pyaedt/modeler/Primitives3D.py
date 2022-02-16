@@ -2126,18 +2126,21 @@ class Primitives3D(Primitives, object):
             if f_key == "Wire Section":
                 break
 
-        core_name = "Core"
-        if type(values["Core"]["Name"]) == str:
-            if len(values["Core"]["Name"]) > 0:
-                core_name = values["Core"]["Name"]
-        else:
+        try:
+            core_name = str(values["Core"]["Name"])
+            if len(core_name) > 0:
+                values["Core"]["Name"] = core_name
+        except:
             self.logger.warning("Core Name must be a non-null string. A default name Core has been set.")
-        winding_name = "Winding"
-        if type(values["Outer Winding"]["Name"]) == str:
-            if len(values["Outer Winding"]["Name"]) > 0:
-                winding_name = values["Outer Winding"]["Name"]
-        else:
+            values["Core"]["Name"] = "Core"
+
+        try:
+            winding_name = str(values["Winding"]["Name"])
+            if len(winding_name) > 0:
+                values["Winding"]["Name"] = winding_name
+        except:
             self.logger.warning("Winding Name must be a non-null string. A default name Winding has been set.")
+            values["Winding"]["Name"] = "Winding"
         try:
             in_rad_core = float(values["Core"]["Inner Radius"])
             if in_rad_core <= 0:
