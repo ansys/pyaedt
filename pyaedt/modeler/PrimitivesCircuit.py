@@ -1246,6 +1246,7 @@ class ComponentInfo(object):
         self._component_manager = component_manager
         self.props = props
         self.name = name
+        self.component_library = self.props.get("ComponentLibrary", None)
 
     def place(self, inst_name, location=[], angle=0, use_instance_id_netlist=False):
         """Create a component from a library.
@@ -1274,7 +1275,7 @@ class ComponentInfo(object):
         """
         return self._component_manager.create_component(
             inst_name=inst_name,
-            component_library=self.props["ComponentLibrary"],
+            component_library=self.component_library,
             component_name=self.name,
             location=location,
             angle=angle,
