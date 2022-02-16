@@ -1,5 +1,5 @@
 """
-This module contains these classes: `Design` and `DesignCache`.
+This module contains these classes: ``Design`` and ``DesignCache``.
 
 This module provides all functionalities for basic project information and objects.
 These classes are inherited in the main tool class.
@@ -48,7 +48,7 @@ def list_difference(list1, list2):
 class DesignCache(object):
     """Analyzes the differences in the state of a design between two points in time.
 
-    The contents of the design tracked in the Message Manager currently are:
+    The contents of the design tracked in the message manager currently are:
 
         * global-level messages
         * project-level messages
@@ -88,8 +88,8 @@ class DesignCache(object):
         Returns
         --------
         bool
-            ``True`` when the design snapshot is unchanged since the
-            last update, ``False`` otherwise.
+            ``True`` if the design snapshot is unchanged since the last
+            update, ``False`` otherwise.
         """
         return self._no_change
 
@@ -139,13 +139,13 @@ class DesignCache(object):
 
     @property
     def no_new_messages(self):
-        """Check for any new messages that have appeared since the last update or since the Message Manager was cleared.
+        """Check for any new messages that have appeared since the last update or since the message manager was cleared.
 
         Returns
         -------
         bool
             ``True`` if new messages have appeared since the last
-            update or since the Message Manager was cleared, ``False``
+            update or since the message manager was cleared, ``False``
             otherwise.
         """
         return not bool(self._delta_messages)
@@ -181,7 +181,8 @@ class DesignCache(object):
         Returns
         -------
         bool
-            ``True`` if the cache elements are unchanged since the last update.
+            ``True`` if the cache elements are unchanged since the last update,
+            ``Fasle`` otherwise.
         """
         return self.no_new_messages
 
@@ -211,12 +212,12 @@ class DesignCache(object):
         """Update the current state.
 
         Retrieve the current state values from the design and perform
-        a delta calculation with the cached values.  Then replace the
+        a delta calculation with the cached values. Then replace the
         cached values with the current values.
 
         .. note::
            The update is done automatically when the property
-           ``'no_change'`` is accessed.
+           ``"no_change"`` is accessed.
         """
 
         messages = self._app._logger.messages
@@ -264,7 +265,8 @@ class DesignCache(object):
 class Design(object):
     """Contains all functions and objects connected to the active project and design.
 
-    This class is inherited in the caller application and is accessible through it ( eg. ``hfss.method_name``).
+    This class is inherited in the caller application and is accessible through it (for
+    example, ``hfss.method_name``.
 
     Parameters
     ----------
@@ -286,8 +288,8 @@ class Design(object):
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
     NG : bool, optional
-        Whether to run AEDT in the non-graphical mode. The default
-        is ``False``, in which case AEDT launches in the graphical mode.
+        Whether to run AEDT in non-graphical mode. The default
+        is ``False``, in which case AEDT launches in graphical mode.
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
@@ -431,7 +433,7 @@ class Design(object):
 
         References
         ----------
-
+        
         >>> oMaterialManager = oDefinitionManager.GetManager("Material")
         """
         return self.odefinition_manager.GetManager("Material")
@@ -470,8 +472,9 @@ class Design(object):
         """
         return self._logger
 
-    # TODO Project Properties are set at the beginning
+    # TODO Project properties are set at the beginning
     # but after they are never updated along the different project steps.
+
     @property
     def project_properies(self):
         """Project properties.
@@ -530,7 +533,7 @@ class Design(object):
 
         References
         ----------
-
+        
         >>> oDesktop.GetVersion()
         """
         version = self.odesktop.GetVersion()
@@ -1234,9 +1237,7 @@ class Design(object):
     @aedt_exception_handler
     def set_license_type(self, license_type="Pool"):
         """Change the license type between ``"Pack"`` and ``"Pool"``.
-
         
-
         Parameters
         ----------
         license_type : str, optional

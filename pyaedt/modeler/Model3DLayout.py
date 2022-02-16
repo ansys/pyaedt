@@ -21,7 +21,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
     """Manages Modeler 3D layouts.
 
     This class is inherited in the caller application and is accessible through the modeler variable
-    object( eg. ``hfss3dlayout.modeler``).
+    object (for example, ``hfss3dlayout.modeler``).
 
     Parameters
     ----------
@@ -138,7 +138,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
     @model_units.setter
     def model_units(self, units):
         assert units in AEDT_UNITS["Length"], "Invalid units string {0}.".format(units)
-        """ Set the model units as a string e.g. "mm" """
+        """Set the model units as a string (for example, "mm")."""
         self.oeditor.SetActivelUnits(["NAME:Units Parameter", "Units:=", units, "Rescale:=", False])
 
     @property
@@ -146,7 +146,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         """Primitives.
 
         .. deprecated:: 0.4.15
-            No need to use primitives anymore. You can instantiate primitives methods directly from modeler instead.
+            There is no need to use primitives anymore. You can instantiate primitives methods directly from the modeler.
 
         Returns
         -------
@@ -200,21 +200,21 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         Parameters
         ----------
         property_object : str
-            Property object name. It can be the name of the excitation or field reporter. For example, 
+            Name of the property object. It can be the name of an excitation or field reporter. For example, 
             ``Excitations:Port1`` or ``FieldsReporter:Mag_H``.
         property_name : str
-            Property name. For example, ``Rotation Angle``.
+            Name of the property. For example, ``Rotation Angle``.
         property_value : str, list
-            Property value. It is a string for a single value and a list of three elements for ``[x,y,z]``
-            coordianates.
+            Value of the property. It is a string for a single value and a list of three elements for
+            ``[x,y,z]`` coordianates.
         property_tab : str
             Name of the tab to update. Options are ``BaseElementTab``, ``EM Design``, and
             ``FieldsPostProcessorTab``. The default is ``BaseElementTab``.
-
+        
         Returns
         -------
         bool
-            ``True`` if successful.
+            ``True`` when successful, ``False`` when failed.
 
         References
         ----------
@@ -253,19 +253,19 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
     @aedt_exception_handler
     def change_clip_plane_position(self, clip_name, position):
-        """Change the Clip Plane position.
+        """Change the clip plane position.
 
         Parameters
         ----------
         clip_name : str
-            clip plane name.
+            Name of the clip plane.
         position : list
-            List of [X,Y,Z] position
+            List of ``[x,y,z]`` cordinates for the new position.
 
         Returns
         -------
         bool
-            ``True`` if successful.
+            ``True`` when successful, ``False`` when failed.
 
         References
         ----------
@@ -288,7 +288,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         Returns
         -------
         bool
-             ``True`` when successful, ``False`` when failed.
+            ``True`` when successful, ``False`` when failed.
 
 
         References
@@ -330,7 +330,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         Parameters
         ----------
         object_to_expand : str
-            Name of the object to expand.
+            Name of the object.
         size : float, optional
             Size of the expansion. The default is ``1``.
         expand_type : str, optional
@@ -381,7 +381,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
     @aedt_exception_handler
     def import_cadence_brd(self, brd_filename, edb_path=None, edb_name=None):
-        """Import a Cadence board.
+        """Import a cadence board.
 
         Parameters
         ----------
@@ -391,7 +391,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
             Path where the EDB is to be created. The default is ``None``, in which
             case the project directory is used.
         edb_name : str, optional
-            name of the EDB. The default is ``None``, in which
+            Name of the EDB. The default is ``None``, in which
             case the board name is used.
 
         Returns
@@ -439,7 +439,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         Parameters
         ----------
-        ipc_filename :
+        ipc_filename : str
             Full path and name of the IPC file.
         edb_path : str, optional
             Path where the EDB is to be created. The default is ``None``, in which
@@ -585,7 +585,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         count : int
 
         direction_vector : list
-            List of ``[x, y]`` coordinates for the direction vector.
+            List of ``[x,y]`` coordinates for the direction vector.
 
         Returns
         -------
@@ -617,9 +617,9 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         Parameters
         ----------
         include_temperature_dependence : bool, optional
-            Set the temperature setting for the design. The default is ``True``.
+            Whether to include the temperature setting for the design. The default is ``True``.
         enable_feedback : bool, optional
-            Enable the feedback. The default is ``True``.
+            Whether to enable feedback. The default is ``True``.
         ambient_temp : float, optional
             Ambient temperature. The default is ``22``.
         create_project_var : bool, optional
@@ -671,12 +671,14 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         model_path : str, optional
             Full path to the model file. The default is ``None``.
         model_name : str, optional
-            Name of the model. The default is ``None`` which means that model_name is file name without extension.
+            Name of the model. The default is ``None``, in which case the model name is the file name without an
+            extension.
         subcircuit_name : str, optional
-            Name of the subcircuit. The default is ``None`` which means that subcircuit name is the model_name.
+            Name of the subcircuit. The default is ``None``, in which case the subcircuit name is the model name.
         pin_map : list, optional
-            List of [spice_pin_name, aedt_pin_name] to optional
-            customize the pin mapping between Spice Pins and AEDT Pins.
+            List of ``[spice_pin_name, aedt_pin_name]`` to customize the pin mapping between Spice pins and
+            AEDT pins.
+
         Returns
         -------
         bool

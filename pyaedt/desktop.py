@@ -69,7 +69,7 @@ elif IsWindows:
 def exception_to_desktop(ex_value, tb_data):  # pragma: no cover
     """Writes the trace stack to the desktop when a Python error occurs.
 
-    The message is added to the AEDT global Message Manager and to the log file (if present).
+    The message is added to the AEDT global message manager and to the log file (if present).
 
     Parameters
     ----------
@@ -165,7 +165,6 @@ def force_close_desktop():
     -------
     bool
         ``True`` when successful, ``False`` when failed.
-
     """
     Module = sys.modules["__main__"]
     pid = Module.oDesktop.GetProcessID()
@@ -205,14 +204,14 @@ def force_close_desktop():
 
 
 def run_process(command, bufsize=None):
-    """Run Process with subprocess.
+    """Run process with subprocess.
 
     Parameters
     ----------
     command : str
-        Command to execute
-    bufsize : int
-        bufsize
+        Command to execute.
+    bufsize : int, optional
+        Buffer size. The default is ``None``.
 
     """
     if bufsize:
@@ -234,8 +233,8 @@ class Desktop:
         Version of AEDT to use. The default is ``None``, in which case the
         active setup or latest installed version is used.
     non_graphical : bool, optional
-        Whether to launch AEDT in the non-graphical mode. The default
-        is ``False``, in which case AEDT is launched in the graphical mode.
+        Whether to launch AEDT in non-graphical mode. The default
+        is ``False``, in which case AEDT is launched in graphical mode.
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the machine.
@@ -371,12 +370,12 @@ class Desktop:
 
     @property
     def current_version(self):
-        """Current version of AEDT."""
+        """Current AEDT version."""
         return self.version_keys[0]
 
     @property
     def current_version_student(self):
-        """Current student version of AEDT."""
+        """Current student AEDT version."""
         for version_key in self.version_keys:
             if "SV" in version_key:
                 return version_key
@@ -399,13 +398,13 @@ class Desktop:
                     raise ValueError("PyAEDT supports AEDT versions 2021 R1 and newers.")
                 else:
                     warnings.warn(
-                        """PyAEDT have limited capabilities when used with an AEDT version older than 2021 R1.
-                        PyAEDT officially supports AEDT versions 2021 R1 and newers."""
+                        """PyAEDT has limited capabilities when used with an AEDT version older than 2021 R1.
+                        PyAEDT officially supports AEDT versions 2021 R1 and newer."""
                     )
             if student_version:
                 specified_version += "SV"
                 student_version_flag = True
-            assert specified_version in self.version_keys, "Specified version {} not known.".format(specified_version)
+            assert specified_version in self.version_keys, "Specified version {} is not known.".format(specified_version)
             version_key = specified_version
         else:
             if student_version and self.current_version_student:
@@ -553,7 +552,7 @@ class Desktop:
 
     @aedt_exception_handler
     def project_list(self):
-        """Retrieve a list of the projects.
+        """Retrieve a list of projects.
 
         Returns
         -------
@@ -573,7 +572,7 @@ class Desktop:
             Project name. The default is ``None``, in which case the active project
             is used.
         design : str, optional
-            Design name. The default is ``None``, in which case all of the designs in
+            Design name. The default is ``None``, in which case all designs in
             the project are analyzed.
 
         Returns
@@ -636,7 +635,7 @@ class Desktop:
 
     @aedt_exception_handler
     def copy_design(self, project_name=None, design_name=None, target_project=None):
-        """Copy a design. You can paste the design in an existing project or a new project.
+        """Copy a design and paste it in an existing project or new project.
 
         Parameters
         ----------
@@ -737,8 +736,9 @@ class Desktop:
             Project name. The default is ``None``, in which case the active
             project is used.
         design_name : str, optional
-            Design name. The default is ``None``.
-    
+            Design name. The default is ``None``, in which case the active
+            design is used.
+        
         Returns
         -------
         str
@@ -862,7 +862,7 @@ class Desktop:
         Parameters
         ----------
         close_projects : bool, optional
-            Whether to close the AEDT projects opened in the session.
+            Whether to close the AEDT projects that are open in the session.
             The default is ``True``.
         close_on_exit : bool, optional
             Whether to close the active AEDT session on exiting AEDT.
@@ -890,7 +890,7 @@ class Desktop:
         return result
 
     def force_close_desktop(self):
-        """Forcibly close all AEDT projects and shut down AEDT.
+        """Forcibly close all projects and shut down AEDT.
 
         .. deprecated:: 0.4.0
            Use :func:`desktop.close_desktop` instead.
@@ -905,7 +905,7 @@ class Desktop:
         force_close_desktop()
 
     def close_desktop(self):
-        """Close all AEDT projects and shut down AEDT.
+        """Close all projects and shut down AEDT.
 
         Returns
         -------
@@ -957,7 +957,7 @@ class Desktop:
         Parameters
         ----------
         license_type : str, optional
-            Type of license. The value must be either ``"Pack"`` or ``"Pool"``.
+            Type of license. The options are ``"Pack"`` and ``"Pool"``.
 
         Returns
         -------
@@ -983,6 +983,7 @@ class Desktop:
             Full name of the AEDT registry key.
         key_value : str, int
             Value for the AEDT registry key.
+        
         Returns
         -------
         bool
@@ -1034,8 +1035,9 @@ class Desktop:
             return False
 
     def change_registry_from_file(self, registry_file, make_active=True):
-        """Apply desktop registry settings from an ACF file. One way to get an ACF file is to export
-        a configuration from the AEDT UI and then edit and reuse it.
+        """Apply desktop registry settings from an ACF file.
+        
+        One way to get an ACF file is to export a configuration from the AEDT UI and then edit and reuse it.
 
         Parameters
         ----------

@@ -43,18 +43,17 @@ class FieldAnalysis3D(Analysis, object):
         Version of AEDT  to use. The default is ``None``, in which case
         the active version or latest installed version is used.
     non_graphical : bool, optional
-        Whether to run AEDT in the non-graphical mode. The default
+        Whether to run AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in the graphical mode.
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
         machine. The default is ``True``.
     close_on_exit : bool, optional
-        Whether to release  AEDT on exit. The default is ``False``.
+        Whether to release AEDT on exit. The default is ``False``.
     student_version : bool, optional
         Whether to enable the student version of AEDT. The default
         is ``False``.
-
     """
 
     def __init__(
@@ -133,12 +132,12 @@ class FieldAnalysis3D(Analysis, object):
 
     @property
     def components3d(self):
-        """Components 3D.
+        """3D components.
 
         Returns
         -------
         dict
-            Dictionary of components with their absolute paths.
+            Dictionary of 3D components with their absolute paths.
 
         """
         components_dict = {}
@@ -177,26 +176,30 @@ class FieldAnalysis3D(Analysis, object):
         force_opacity_value=None,
         clean_files=False,
     ):
-        """Plot the model or a substet of objects.
+        """Plot the model or a subset of objects.
 
         Parameters
         ----------
         objects : list, optional
-            Optional list of objects to plot. If `None` all objects will be exported.
+            List of objects to plot. The default is ``None``, in which case all objects
+            are exported.
         show : bool, optional
-            Show the plot after generation or simply return the
-            generated Class for more customization before plot.
+            Whether to show the plot after generation. The default is ``True``. If
+            ``False``, the generated class is returned for more customization before
+            plot generation.
         export_path : str, optional
-            If available, an image is saved to file. If `None` no image will be saved.
+            If available, an image is saved to file. If ``None`` no image will be saved.
         plot_as_separate_objects : bool, optional
-            Plot each object separately. It may require more time to export from AEDT.
+            Whether to plot each object separately. The default is ``True``, which may
+            require more time to export from AEDT.
         plot_air_objects : bool, optional
-            Plot also air and vacuum objects.
+            Whether to also plot air and vacuum objects. The default is ``True``.
         force_opacity_value : float, optional
-            Opacity value between 0 and 1 to be applied to all model.
-            If `None` aedt opacity will be applied to each object.
+            Opacity value between 0 and 1 to applied to all of the model. The
+            default is ``None``, which means the AEDT opacity is applied to each object.
         clean_files : bool, optional
-            Clean created files after plot. Cache is mainteined into the model object returned.
+            Whether to clean created files after plot generation. The default is ``False``,
+            which means that the cache is maintained in the model object that is returned.
 
         Returns
         -------
@@ -227,18 +230,18 @@ class FieldAnalysis3D(Analysis, object):
         setup_name :str
             Setup name.
         variation_string : str, optional
-            Variation List.
+            Variation list. The default is ``""``.
         mesh_path : str, optional
-            Full path to mesh statistics file. If `None` working_directory will be used.
+            Full path to the mesh statistics file. The default is ``None``, in which
+            caswe the working directory is used.
 
         Returns
         -------
         str
-            File Path.
+            File path.
 
         References
         ----------
-
         >>> oDesign.ExportMeshStats
         """
         if not mesh_path:
@@ -383,7 +386,6 @@ class FieldAnalysis3D(Analysis, object):
 
         References
         ----------
-
         >>> oEditor.Copy
         >>> oEditor.Paste
         """
@@ -417,7 +419,7 @@ class FieldAnalysis3D(Analysis, object):
         .. deprecated:: 0.5.0
            Use :func:`pyaedt.application.Analysis3D.modeler.export_3d_model` instead.
 
-        
+   
         """
         warnings.warn("`export3DModel` is deprecated. Use `export_3d_model` instead.", DeprecationWarning)
         return self.export_3d_model(fileName, filePath, fileFormat, object_list, removed_objects)
@@ -433,11 +435,11 @@ class FieldAnalysis3D(Analysis, object):
         filePath : str
             Path for the file.
         fileFormat : str, optional
-             Format of the file. The default is ``".step"``.
+            Format of the file. The default is ``".step"``.
         object_list : list, optional
-             List of objects to export. The default is ``[]``.
+            List of objects to export. The default is ``[]``.
         removed_objects : list, optional
-             The default is ``[]``.
+            The default is ``[]``.
 
         Returns
         -------
@@ -512,7 +514,7 @@ class FieldAnalysis3D(Analysis, object):
         sources : list
             List of source names.
         number_of_modes : int, optional
-            Number of modes. The  default is ``1``.
+            Number of modes. The default is ``1``.
 
         Returns
         -------
@@ -540,7 +542,7 @@ class FieldAnalysis3D(Analysis, object):
         obj : str, list
             One or more objects to assign materials to.
         mat : str
-            Material to assign. If this material is not present, it will be
+            Material to assign. If this material is not present, it is
             created.
 
         Returns
@@ -631,7 +633,6 @@ class FieldAnalysis3D(Analysis, object):
 
         References
         ----------
-
         >>> oEditor.GetObjectsByMaterial
         """
         diel = self.materials.dielectrics

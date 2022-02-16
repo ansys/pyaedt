@@ -44,8 +44,8 @@ class Hfss(FieldAnalysis3D, object):
         the active version or latest installed version is used.
         This parameter is ignored when a script is launched within AEDT.
     non_graphical : bool, optional
-        Whether to run AEDT in the non-graphical mode. The default
-        is ``False``, in which case AEDT is launched in the graphical mode.
+        Whether to run AEDT in non-graphical mode. The default
+        is ``False``, in which case AEDT is launched in graphical mode.
         This parameter is ignored when a script is launched within AEDT.
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
@@ -61,7 +61,6 @@ class Hfss(FieldAnalysis3D, object):
 
     Examples
     --------
-
     Create an instance of HFSS and connect to an existing HFSS
     design or create a new HFSS design if one does not exist.
 
@@ -69,6 +68,7 @@ class Hfss(FieldAnalysis3D, object):
     >>> hfss = Hfss()
     pyaedt info: No project is defined...
     pyaedt info: Active design is set to...
+
 
     Create an instance of HFSS and link to a project named
     ``HfssProject``. If this project does not exist, create one with
@@ -79,11 +79,13 @@ class Hfss(FieldAnalysis3D, object):
     pyaedt info: No design is present. Inserting a new design.
     pyaedt info: Added design ...
 
+
     Create an instance of HFSS and link to a design named
     ``HfssDesign1`` in a project named ``HfssProject``.
 
     >>> hfss = Hfss("HfssProject","HfssDesign1")
     pyaedt info: Added design 'HfssDesign1' of type HFSS.
+
 
     Create an instance of HFSS and open the specified project,
     which is named ``"myfile.aedt"``.
@@ -93,6 +95,7 @@ class Hfss(FieldAnalysis3D, object):
     pyaedt info: No design is present. Inserting a new design.
     pyaedt info: Added design...
 
+
     Create an instance of HFSS using the 2021 R1 release and open
     the specified project, which is named ``"myfile2.aedt"``.
 
@@ -100,6 +103,7 @@ class Hfss(FieldAnalysis3D, object):
     pyaedt info: Project myfile2 has been created.
     pyaedt info: No design is present. Inserting a new design.
     pyaedt info: Added design...
+
 
     Create an instance of HFSS using the 2021 R2 student version and open
     the specified project, which is named ``"myfile3.aedt"``.
@@ -207,7 +211,7 @@ class Hfss(FieldAnalysis3D, object):
         Parameters
         ----------
         enable : bool, optional
-            Whther to enable HFSS auto open. The default is ``True``.
+            Whther to enable the HFSS auto open option. The default is ``True``.
         boundary_type : str, optional
             Boundary type to use with auto open. Options are ``"Radiation"``,
             ``"FEBI"``, and ``"PML"``. The default is ``"Radiation"``.
@@ -254,7 +258,7 @@ class Hfss(FieldAnalysis3D, object):
         Parameters
         ---------
         name : str
-            Name of the boundary
+            Name of the boundary.
         props : list
             List of properties for the boundary.
         boundary_type :
@@ -790,7 +794,7 @@ class Hfss(FieldAnalysis3D, object):
         save_rad_fields : bool, optional
             Whether to save the radiating fields. The default is ``False``.
         sweep_type : str, optional
-            Whether to create a ``"Discrete"``,``"Interpolating"`` or ``"Fast"`` sweep.
+            Type of the sweep. Options are ``"Discrete"``,``"Interpolating"`` and``"Fast"`` sweep.
             The default is ``"Discrete"``.
 
         Returns
@@ -819,7 +823,7 @@ class Hfss(FieldAnalysis3D, object):
 
         """
         if sweep_type not in ["Discrete", "Interpolating", "Fast"]:
-            raise AttributeError("Invalid in `sweep_type`. It has to either 'Discrete', 'Interpolating', or 'Fast'")
+            raise AttributeError("Invalid `sweep_type`. It has to be 'Discrete', 'Interpolating', or 'Fast'.")
         if sweepname is None:
             sweepname = generate_unique_name("Sweep")
 
@@ -851,7 +855,7 @@ class Hfss(FieldAnalysis3D, object):
                     sweepdata.props["InterpMinSolns"] = 0
                     sweepdata.props["InterpMinSubranges"] = 1
                 sweepdata.update()
-                self.logger.info("Linear step sweep {} has been correctly created".format(sweepname))
+                self.logger.info("Linear step sweep {} has been correctly created.".format(sweepname))
                 return sweepdata
         return False
 
@@ -882,7 +886,8 @@ class Hfss(FieldAnalysis3D, object):
             Whether to save the fields of the single point. The default is ``True``.
             If a list is specified, the length must be the same as the list of frequencies.
         save_fields : bool, optional
-            Whether to save the fields for all points and subranges defined in the sweep. The default is ``False``.
+            Whether to save the fields for all points and subranges defined in the sweep.
+            The default is ``False``.
         save_rad_fields : bool, optional
             Whether to save only the radiating fields. The default is ``False``.
 
@@ -1273,11 +1278,11 @@ class Hfss(FieldAnalysis3D, object):
             the active coodiantes system is used.
         model_units : str, optional
             Model units to apply to the object. The default is
-            ``None`` in which case the active modeler units are applied.
+            ``None``, in which case the active modeler units are applied.
         parameters_dict : dict, optional
             The default is ``None``.
         use_current_source_representation : bool, optional
-            The default is ``False``.
+            Whether to use the current source representation. The default is ``False``.
         is_array : bool, optional
             The default is ``False``.
         antenna_name : str, optional
@@ -1475,7 +1480,7 @@ class Hfss(FieldAnalysis3D, object):
         startobj :
             Starting object for the integration line.
         endobject :
-            Eending) object for the integration line.
+            Ending object for the integration line.
         axisdir : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
@@ -1613,6 +1618,7 @@ class Hfss(FieldAnalysis3D, object):
     @aedt_exception_handler
     def create_spiral_lumped_port(self, start_object, end_object, port_width=None):
         """Create a spiral lumped port between two adjacent objects.
+        
         The two objects must have two adjacent, parallel, and identical faces.
         The faces must be a polygon (not a circle).
 
@@ -2079,13 +2085,13 @@ class Hfss(FieldAnalysis3D, object):
             Face or sheet to apply the floquet port to.
         lattice_origin : list
             List of ``[x,y,z]`` coordinates for the lattice A-B origin. The default is ``None``,
-            in which case the method will try to compute the A-B automatically.
+            in which case the method tries to compute the A-B automatically.
         lattice_a_end : list
             List of ``[x,y,z]`` coordinates for the lattice A end point. The default is ``None``,
-            in which case the method will try to compute the A-B automatically.
+            in which case the method tries to compute the A-B automatically.
         lattice_b_end : list
             List of ``[x,y,z]`` coordinates for the lattice B end point. The default is ``None``,
-            in which case the method will try to compute the A-B automatically.
+            in which case the method tries to compute the A-B automatically.
         nummodes : int, optional
             Number of modes. The default is ``2``.
         portname : str, optional
@@ -2096,11 +2102,11 @@ class Hfss(FieldAnalysis3D, object):
             Deembed distance in millimeters. The default is ``0``,
             in which case deembed is disabled.
         reporter_filter : bool, list of bool
-            Whether to include mode in the report. If a single Boolean value is specified,
-            it applies to all modes. If a list of Boolean values is specified, it applies
+            Whether to include modes in the report. The default is ``True``. If a single
+            Boolean value is specified, it applies to all modes. If a list of Boolean values is specified, it applies
             to each mode in the list. A list must have ``nummodes`` elements.
         lattice_cs : str, optional
-            Coordinate system for the lattice A-B vector reference.
+            Coordinate system for the lattice A-B vector reference. The default is ``Global``.
 
         Returns
         -------
@@ -2176,14 +2182,14 @@ class Hfss(FieldAnalysis3D, object):
             Reverse V vector. The default is `False`.
         phase_delay : str, optional
             Phase delay approach. Options are ``"UseScanAngle"``,
-            ``"UseScanUV"``, and ``"InputPhaseDelay"``. The default is 
+            ``"UseScanUV"``, and ``"InputPhaseDelay"``. The default is
             ``"UseScanAngle"``.
         phase_delay_param1 : str, optional
             Value for the first phase delay parmeter, which depends on the approach:
             
             - Phi angle if the approach is ``"UseScanAngle"``.
             - U value if the approach is ``"UseScanUV"``.
-            - "Phase" if the approach is ``"InputPhaseDelay"``.
+            - Phase if the approach is ``"InputPhaseDelay"``.
             
             The default is ``0deg``.
 
@@ -2191,7 +2197,7 @@ class Hfss(FieldAnalysis3D, object):
             Value for the second phase delay parameter, which depends on the approach:
             
             - Theta angle if the approach is "``UseScanAngle"``.
-            - V value if the approach is ``"UseScanUV"``. 
+            - V value if the approach is ``"UseScanUV"``.
             
             The default is ``0deg``.
 
@@ -2288,14 +2294,14 @@ class Hfss(FieldAnalysis3D, object):
             Whether to reverse the V vector. The default is ``False``.
         phase_delay : str, optional
             Phase delay approach. Options are ``"UseScanAngle"``,
-            ``"UseScanUV"``, and ``"InputPhaseDelay"``. The default is 
+            ``"UseScanUV"``, and ``"InputPhaseDelay"``. The default is
             ``"UseScanAngle"``.
         phase_delay_param1 : str, optional
             Value for the first phase delay parmeter, which depends on the approach:
             
             - Phi angle if the approach is ``"UseScanAngle"``.
             - U value if the approach is ``"UseScanUV"``.
-            - "Phase" if the approach is ``"InputPhaseDelay"``.
+            - Phase if the approach is ``"InputPhaseDelay"``.
             
             The default is ``0deg``.
 
