@@ -211,7 +211,7 @@ class Hfss(FieldAnalysis3D, object):
         Parameters
         ----------
         enable : bool, optional
-            Whther to enable the HFSS auto open option. The default is ``True``.
+            Whether to enable the HFSS auto open option. The default is ``True``.
         boundary_type : str, optional
             Boundary type to use with auto open. Options are ``"Radiation"``,
             ``"FEBI"``, and ``"PML"``. The default is ``"Radiation"``.
@@ -2185,7 +2185,7 @@ class Hfss(FieldAnalysis3D, object):
             ``"UseScanUV"``, and ``"InputPhaseDelay"``. The default is
             ``"UseScanAngle"``.
         phase_delay_param1 : str, optional
-            Value for the first phase delay parmeter, which depends on the approach:
+            Value for the first phase delay parameter, which depends on the approach:
 
             - Phi angle if the approach is ``"UseScanAngle"``.
             - U value if the approach is ``"UseScanUV"``.
@@ -2295,7 +2295,7 @@ class Hfss(FieldAnalysis3D, object):
             ``"UseScanUV"``, and ``"InputPhaseDelay"``. The default is
             ``"UseScanAngle"``.
         phase_delay_param1 : str, optional
-            Value for the first phase delay parmeter, which depends on the approach:
+            Value for the first phase delay parameter, which depends on the approach:
 
             - Phi angle if the approach is ``"UseScanAngle"``.
             - U value if the approach is ``"UseScanUV"``.
@@ -4721,7 +4721,7 @@ class Hfss(FieldAnalysis3D, object):
             First angle start value. The default is ``0``.
         x_stop : float, str, optional
             First angle stop value. The default is ``180``.
-        x_step : float, str, optinal
+        x_step : float, str, optional
             First angle step value. The default is ``10``.
         y_start : float, str, optional
             Second angle start value. The default is ``0``.
@@ -4739,7 +4739,7 @@ class Hfss(FieldAnalysis3D, object):
         use_slant_polarization : bool, optional
             Whether to use slant polarization. The default is `False`.
         polarization_angle : float, str, optional
-            Slant angle value. The defaut is ``45``.
+            Slant angle value. The default is ``45``.
         name : str, optional
             Name of the sphere. The default is ``None``.
 
