@@ -1754,14 +1754,14 @@ class Primitives3D(Primitives, object):
                     for j in range(number_duplication - 1):
                         for i in range(len(list_object)):
                             duplication = self.create_polyline(position_list=list_object[i][1], name=name_wind)
-                            self.rotate(duplication, "Z", (j + 1) * 360 / number_duplication)
+                            duplication.rotate("Z", (j + 1) * 360 / number_duplication)
                             duplication_points = self.get_vertices_of_line(duplication.name)
                             duplication.set_crosssection_properties(type=section, width=w_dia, num_seg=n_seg)
                             list_duplicated_object.append([duplication, duplication_points])
                 else:
                     for j in range(number_duplication - 1):
                         duplication = self.create_polyline(position_list=list_object[1], name=name_wind)
-                        self.rotate(duplication, "Z", (j + 1) * 360 / number_duplication)
+                        duplication.rotate("Z", (j + 1) * 360 / number_duplication)
                         duplication_points = self.get_vertices_of_line(duplication.name)
                         duplication.set_crosssection_properties(type=section, width=w_dia, num_seg=n_seg)
                         list_duplicated_object.append([duplication, duplication_points])
