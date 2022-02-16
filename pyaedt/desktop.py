@@ -608,7 +608,7 @@ class Desktop:
 
     @aedt_exception_handler
     def save_project(self, project_name=None, project_path=None):
-        """Save the project. 
+        """Save the project.
 
         Parameters
         ----------
@@ -738,7 +738,7 @@ class Desktop:
             project is used.
         design_name : str, optional
             Design name. The default is ``None``.
-        
+    
         Returns
         -------
         str
@@ -1018,7 +1018,7 @@ class Desktop:
             ``"HFSS"``.
         config_name : str, optional
             Name of the configuration to apply. The default is ``"Local"``.
-        
+
         Returns
         -------
         bool
@@ -1034,9 +1034,8 @@ class Desktop:
             return False
 
     def change_registry_from_file(self, registry_file, make_active=True):
-        """Apply desktop registry settings from an ACF file.
-        
-        One way to get an ACF file is to export a configuration from the AEDT UI and then edit and reuse it.
+        """Apply desktop registry settings from an ACF file. One way to get an ACF file is to export
+        a configuration from the AEDT UI and then edit and reuse it.
 
         Parameters
         ----------
