@@ -246,12 +246,9 @@ class TestClass:
         setup_name = "Setup1 : LastAdaptive"
         intrinsic = {"Freq": "5GHz", "Phase": "180deg"}
         self.aedtapp.modeler.create_polyline([udp1, udp2], name="Poly1")
-        assert self.aedtapp.post.create_fieldplot_line(
-            "Poly1", "Mag_E", setup_name, intrinsic
-        )
+        assert self.aedtapp.post.create_fieldplot_line("Poly1", "Mag_E", setup_name, intrinsic)
 
     def test_54_reload(self):
         self.aedtapp.save_project()
         app2 = Hfss(self.aedtapp.project_name)
         assert len(app2.post.field_plots) == len(self.aedtapp.post.field_plots)
-

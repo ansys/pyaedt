@@ -2427,9 +2427,7 @@ class PostProcessor(PostProcessorCommon, object):
         if plot_name and plot_name in list(self.field_plots.keys()):
             self.logger.info("Plot {} exists. returning the object.".format(plot_name))
             return self.field_plots[plot_name]
-        return self._create_fieldplot(
-            objlist, quantityName, setup_name, intrinsincDict, "Line", plot_name
-        )
+        return self._create_fieldplot(objlist, quantityName, setup_name, intrinsincDict, "Line", plot_name)
 
     @aedt_exception_handler
     def create_fieldplot_surface(self, objlist, quantityName, setup_name=None, intrinsincDict={}, plot_name=None):
@@ -2463,9 +2461,7 @@ class PostProcessor(PostProcessorCommon, object):
         if plot_name and plot_name in list(self.field_plots.keys()):
             self.logger.info("Plot {} exists. returning the object.".format(plot_name))
             return self.field_plots[plot_name]
-        return self._create_fieldplot(
-            objlist, quantityName, setup_name, intrinsincDict, "FacesList", plot_name
-        )
+        return self._create_fieldplot(objlist, quantityName, setup_name, intrinsincDict, "FacesList", plot_name)
 
     @aedt_exception_handler
     def create_fieldplot_cutplane(self, objlist, quantityName, setup_name=None, intrinsincDict={}, plot_name=None):
@@ -2500,9 +2496,7 @@ class PostProcessor(PostProcessorCommon, object):
         if plot_name and plot_name in list(self.field_plots.keys()):
             self.logger.info("Plot {} exists. returning the object.".format(plot_name))
             return self.field_plots[plot_name]
-        return self._create_fieldplot(
-            objlist, quantityName, setup_name, intrinsincDict, "CutPlane", plot_name
-        )
+        return self._create_fieldplot(objlist, quantityName, setup_name, intrinsincDict, "CutPlane", plot_name)
 
     @aedt_exception_handler
     def create_fieldplot_volume(self, objlist, quantityName, setup_name=None, intrinsincDict={}, plot_name=None):
