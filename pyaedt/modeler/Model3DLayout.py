@@ -261,7 +261,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         clip_name : str
             Name of the clip plane.
         position : list
-            List of ``[x,y,z]`` cordinates for the new position.
+            List of ``[x,y,z]`` coordinates for the new position.
 
         Returns
         -------

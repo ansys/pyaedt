@@ -1120,7 +1120,7 @@ class Analysis(Design, object):
         num_tasks : int, optional
             Number of simulation tasks.
         num_gpu : int, optional
-            Number of simulation graphic processessing units to use.
+            Number of simulation graphic processing units to use.
         acf_file : str, optional
             Full path to the custom ACF file.
 
