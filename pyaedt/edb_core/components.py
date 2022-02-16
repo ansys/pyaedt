@@ -1533,7 +1533,15 @@ class Components(object):
         for pin in pins_list:
             placement_layer = pin.placement_layer
             positions_to_short.append(pin.position)
-            pad = self._pedb.core_padstack.padstacks[pin.pin.GetPadstackDef().GetName()].pad_by_layer[placement_layer]
+            if placement_layer in self._pedb.core_padstack.padstacks[pin.pin.GetPadstackDef().GetName()].pad_by_layer:
+                pad = self._pedb.core_padstack.padstacks[pin.pin.GetPadstackDef().GetName()].pad_by_layer[
+                    placement_layer
+                ]
+            else:
+                layer = list(
+                    self._pedb.core_padstack.padstacks[pin.pin.GetPadstackDef().GetName()].pad_by_layer.keys()
+                )[0]
+                pad = self._pedb.core_padstack.padstacks[pin.pin.GetPadstackDef().GetName()].pad_by_layer[layer]
             pars = pad.parameters_values
             geom = pad.geometry_type
             if geom < 6 and pars:

@@ -79,7 +79,7 @@ class EdbStackup(object):
 
         Returns
         -------
-        dict
+        :class:`pyaedt.edb_core.EDBData.EDBLayers`
             Dictionary of stackup layers.
         """
         if not self._layer_dict:
@@ -219,6 +219,52 @@ class EdbStackup(object):
         material_def.SetLossTangentAtHighLowFrequency(loss_tangent_low, loss_tangent_high)
         material_def.SetRelativePermitivityAtHighLowFrequency(
             self._edb_value(relative_permittivity_low), self._edb_value(relative_permittivity_high)
+        )
+        return self._add_dielectric_material_model(name, material_def)
+
+    @aedt_exception_handler
+    def create_multipole_debye_material(
+        self,
+        name,
+        frequencies,
+        relative_permittivities,
+        loss_tangents,
+    ):
+        """Create a dielectric with the Multipole Debye model.
+
+        Parameters
+        ----------
+        name : str
+            Name of the dielectic.
+        frequencies : list
+            Frequencies in GHz.
+        relative_permittivities : list
+            Relative permittivities at each frequency.
+        loss_tangents : list
+            Loss tangents at each frequency.
+
+        Returns
+        -------
+        type
+            Material definition.
+
+        Examples
+        --------
+        >>> from pyaedt import Edb
+        >>> edb = Edb()
+        >>> freq = [0, 2, 3, 4, 5, 6]
+        >>> rel_perm = [1e9, 1.1e9, 1.2e9, 1.3e9, 1.5e9, 1.6e9]
+        >>> loss_tan = [0.025, 0.026, 0.027, 0.028, 0.029, 0.030]
+        >>> diel = edb.core_stackup.create_multipole_debye_material("My_MP_Debye", freq, rel_perm, loss_tan)
+        """
+        frequencies = [float(i) for i in frequencies]
+        relative_permittivities = [float(i) for i in relative_permittivities]
+        loss_tangents = [float(i) for i in loss_tangents]
+        material_def = self._edb.Definition.MultipoleDebyeModel()
+        material_def.SetParameters(
+            convert_py_list_to_net_list(frequencies),
+            convert_py_list_to_net_list(relative_permittivities),
+            convert_py_list_to_net_list(loss_tangents),
         )
         return self._add_dielectric_material_model(name, material_def)
 

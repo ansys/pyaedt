@@ -48,7 +48,7 @@ PyAEDT supports AEDT versions 2021 R1 or newer.
 Student Version
 ---------------
 
-PyAEDT now supports supports also AEDT Student version 2021 R2. Visit
+PyAEDT now supports also AEDT Student version 2021 R2. Visit
 `Student Version page <https://www.ansys.com/academic/students/ansys-e
 lectronics-desktop-student>`_
 for more info.
@@ -57,7 +57,7 @@ for more info.
 Why PyAEDT?
 -----------
 A quick and easy approach for automating a simple operation in the 
-AEDT UI is to record and reuse a scripts. However, disadvantages of 
+AEDT UI is to record and reuse a script. However, disadvantages of 
 this approach are:
 
 - Recorded code is dirty and difficult to read and understand.
@@ -97,7 +97,7 @@ Explicit Desktop Declaration and Error Management
 
 .. code:: python
 
-    Launch AEDT 2021 R1 in Non-Graphical mode
+    # Launch AEDT 2021 R1 in Non-Graphical mode
 
     from pyaedt import Desktop, Circuit
     with Desktop(specified_version="2021.1",
@@ -116,9 +116,9 @@ Implicit Desktop Declaration and Error Management
 
 .. code:: python
 
-    Launch the latest installed version of AEDT in graphical mode
+    # Launch the latest installed version of AEDT in graphical mode
 
-    from pyaedt import Circuit    
+    from pyaedt import Circuit
     with Circuit(specified_version="2021.2",
                  non_graphical=False) as circuit:
         ...
@@ -141,7 +141,7 @@ On a CPython Server
     launch_server()
 
 
-On any windows client machine
+On any Windows client machine
 
 .. code:: python
 
@@ -166,12 +166,12 @@ Modeler
 
 .. code:: python
 
-    Create a box, assign variables, and assign materials.
+    # Create a box, assign variables, and assign materials.
 
     from pyaedt.hfss import Hfss
     with Hfss as hfss:
-         hfss.modeler.primitives.create_box([0, 0, 0], [10, "dim", 10],
-                                            "mybox", "aluminum")
+         hfss.modeler.create_box([0, 0, 0], [10, "dim", 10],
+                                 "mybox", "aluminum")
 
 License
 -------
@@ -181,7 +181,7 @@ This PyAEDT module makes no commercial claim over Ansys
 whatsoever. PyAEDT extends the functionality of AEDT by adding
 an additional Python interface to AEDT without changing the core
 behavior or license of the original software. The use of the
-interactive APDL control of PyAEDT requires a legally licensed
+interactive control of PyAEDT requires a legally licensed
 local copy of AEDT. For more information about AEDT, 
 visit the `AEDT page <https://www.ansys.com/products/electronics>`_ 
 on the Ansys website.

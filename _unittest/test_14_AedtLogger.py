@@ -107,7 +107,7 @@ class TestClass:
         if not os.path.exists(logging_dir):
             os.makedirs(logging_dir)
         path = os.path.join(logging_dir, "test02.txt")
-        logger = AedtLogger(self.aedtapp._messenger, filename=path)
+        logger = AedtLogger(filename=path)
         logger.info("Info for Global")
         logger.debug("Debug for Global")
         logger.warning("Warning for Global")
@@ -167,7 +167,7 @@ class TestClass:
     def test_03_stdout_with_app_filter(self):
         capture = CaptureStdOut()
         with capture:
-            logger = AedtLogger(self.aedtapp._messenger, to_stdout=True)
+            logger = AedtLogger(to_stdout=True)
             logger.info("Info for Global")
             logger.warning("Warning for Global")
             logger.error("Error for Global")
@@ -186,7 +186,7 @@ class TestClass:
         path = os.path.join(logging_dir, "test04.txt")
         if os.path.exists(path):
             os.remove(path)
-        logger = AedtLogger(self.aedtapp._messenger, filename=path)
+        logger = AedtLogger(filename=path)
         logger.info("Info for Global before disabling the log file handler.")
         project_logger = logger.add_logger("Project")
         project_logger.info("Info for Project before disabling the log file handler.")
@@ -255,7 +255,7 @@ class TestClass:
             stream.write.side_effect = fp.write
             sys.stdout = stream
 
-            logger = AedtLogger(self.aedtapp._messenger, to_stdout=True)
+            logger = AedtLogger(to_stdout=True)
             logger.info("Info for Global")
             logger.disable_stdout_log()
             logger.info("Info after disabling the stdout handler.")

@@ -72,13 +72,12 @@ class Siwave:
         """Current version of AEDT."""
         return self.version_keys[0]
 
-    def __init__(self, specified_version=None):
+    def __init__(self, specified_version=None):  # pragma: no cover
         self._main = sys.modules["__main__"]
         print("Launching Siwave Init")
         if "oSiwave" in dir(self._main) and self._main.oSiwave is not None:
             self._main.AEDTVersion = self._main.oSiwave.GetVersion()[0:6]
             self._main.oSiwave.RestoreWindow()
-            # self._main.oMessenger = AEDTMessageManager()
             specified_version = self.current_version
             assert specified_version in self.version_keys, "Specified version {} not known.".format(specified_version)
             version_key = specified_version
@@ -115,7 +114,6 @@ class Siwave:
             self._main.AEDTVersion = version_key
             self.oSiwave = self._main.oSiwave
             self._main.oSiwave.RestoreWindow()
-            # self._main.oMessenger = AEDTMessageManager()
         self._main.siwave_initialized = True
         self._oproject = self.oSiwave.GetActiveProject()
         pass

@@ -219,7 +219,7 @@ class DesignCache(object):
            ``'no_change'`` is accessed.
         """
 
-        messages = self._app._messenger.messages
+        messages = self._app._logger.messages
 
         # Check whether the design snapshot has changed since the last update
         new_snapshot = self.design_snapshot()
@@ -387,6 +387,7 @@ class Design(object):
         self._variable_manager = VariableManager(self)
         self.project_datasets = self._get_project_datasets()
         self.design_datasets = self._get_design_datasets()
+        _mtime = self.project_time_stamp
 
     @property
     def odesktop(self):
@@ -483,7 +484,7 @@ class Design(object):
         start = time.time()
         if not self._project_dictionary and os.path.exists(self.project_file):
             self._project_dictionary = load_entire_aedt_file(self.project_file)
-            self._logger.info("AEDT Load time {}".format(time.time() - start))
+            self._logger.info("aedt file load time {}".format(time.time() - start))
         return self._project_dictionary
 
     @property
@@ -669,6 +670,21 @@ class Design(object):
         >>> oProject.GetPath
         """
         return os.path.normpath(self.oproject.GetPath())
+
+    @property
+    def project_time_stamp(self):
+        """Return Project time stamp."""
+        if os.path.exists(self.project_file):
+            self._mttime = os.path.getmtime(self.project_file)
+        else:
+            self._mttime = 0
+        return self._mttime
+
+    @property
+    def project_timestamp_changed(self):
+        """Return a bool if time stamp changed or not."""
+        old_time = self._mttime
+        return old_time == self.project_time_stamp
 
     @property
     def project_file(self):

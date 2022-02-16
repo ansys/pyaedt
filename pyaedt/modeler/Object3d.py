@@ -17,6 +17,7 @@ import string
 import math
 import os
 import re
+import warnings
 
 from pyaedt import aedt_exception_handler, _retry_ntimes
 from pyaedt.modeler.GeometryOperators import GeometryOperators
@@ -770,6 +771,7 @@ class Object3d(object):
         self._part_coordinate_system = None
         self._model = None
 
+    @aedt_exception_handler
     def _bounding_box_unmodel(self):
         """Bounding box of a part, unmodel/undo method.
 
@@ -804,6 +806,7 @@ class Object3d(object):
         )
         return bounding
 
+    @aedt_exception_handler
     def _bounding_box_sat(self):
         """Bounding box of a part.
 
@@ -1678,6 +1681,56 @@ class Object3d(object):
         self._primitives.modeler.unite(unite_list)
         return self
 
+    @aedt_exception_handler
+    def rotate(self, cs_axis, angle=90.0, unit="deg"):
+        """Rotate the selection.
+
+        Parameters
+        ----------
+        cs_axis
+            Coordinate system axis or the Application.CoordinateSystemAxis object.
+        angle : float, optional
+            Angle of rotation. The units, defined by ``unit``, can be either
+            degrees or radians. The default is ``90.0``.
+        unit : text, optional
+             Units for the angle. Options are ``"deg"`` or ``"rad"``.
+             The default is ``"deg"``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.Rotate
+        """
+        return self._primitives.modeler.rotate(self.id, cs_axis=cs_axis, angle=angle, unit=unit)
+
+    @aedt_exception_handler
+    def move(self, vector):
+        """Move objects from a list.
+
+        Parameters
+        ----------
+        objid : list, Position object
+            List of object IDs.
+        vector : list
+            Vector of the direction move. It can be a list of the ``[x, y, z]``
+            coordinates or a Position object.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oEditor.Move
+        """
+        return self._primitives.modeler.move(self.id, vector=vector)
+
     def duplicate_around_axis(self, cs_axis, angle=90, nclones=2, create_new_objects=True):
         """Duplicate the object around the axis.
 
@@ -1739,6 +1792,9 @@ class Object3d(object):
     def translate(self, vector):
         """Translate the object and return the 3D object.
 
+        .. deprecated:: 0.4.0
+           Use :func:`move` instead.
+
         Returns
         -------
         pyaedt.modeler.Object3d.Object3d
@@ -1750,7 +1806,8 @@ class Object3d(object):
         >>> oEditor.Move
 
         """
-        self._primitives.modeler.translate(self.id, vector)
+        warnings.warn("`translate` is deprecated. Use `move` instead.", DeprecationWarning)
+        self.move(vector)
         return self
 
     @aedt_exception_handler
@@ -3043,9 +3100,10 @@ class Nets3DLayout(Objec3DLayout, object):
 
     """
 
-    def __init__(self, primitives, name=""):
+    def __init__(self, primitives, name="", edb_object=None):
         Objec3DLayout.__init__(self, primitives)
         self.name = name
+        self.edb_object = edb_object
 
 
 class Pins3DLayout(Objec3DLayout, object):

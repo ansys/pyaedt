@@ -12,6 +12,7 @@ from collections import OrderedDict
 import inspect
 import itertools
 import re
+import fnmatch
 
 try:
     logger = logging.getLogger("Global")
@@ -566,3 +567,41 @@ def filter_tuple(value, search_key1, search_key2):
     if m:
         return True
     return False
+
+
+@aedt_exception_handler
+def filter_string(value, search_key1):
+    """Filter a string"""
+    ignore_case = True
+
+    def _create_pattern(k1):
+        k1a = re.sub(r"\?", r".", k1)
+        k1b = re.sub(r"\*", r".*?", k1a)
+        pattern = r"^{}$".format(k1b)
+        return pattern
+
+    if ignore_case:
+        compiled_re = re.compile(_create_pattern(search_key1), re.IGNORECASE)
+    else:
+        compiled_re = re.compile(_create_pattern(search_key1))  # pragma: no cover
+
+    m = compiled_re.search(value)
+    if m:
+        return True
+    return False
+
+
+@aedt_exception_handler
+def recursive_glob(startpath, filepattern):
+    """Return a list of files matching a pattern, searching recursively from a start path.
+
+    Keyword Arguments:
+    startpath -- starting path (directory)
+    filepattern -- fnmatch-style filename pattern
+    """
+    return [
+        os.path.join(dirpath, filename)
+        for dirpath, _, filenames in os.walk(startpath)
+        for filename in filenames
+        if fnmatch.fnmatch(filename, filepattern)
+    ]

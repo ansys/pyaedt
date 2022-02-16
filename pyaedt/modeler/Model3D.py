@@ -26,7 +26,6 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         GeometryModeler.__init__(self, application, is3d=True)
         Primitives3D.__init__(self)
         self._primitives = self
-        self._primitivesDes = self._app.project_name + self._app.design_name
 
     def __get__(self, instance, owner):
         self._app = instance
