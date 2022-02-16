@@ -1568,6 +1568,14 @@ class Primitives(object):
 
         >>> oEditor.CreateUserDefinedPart
 
+        Examples
+        --------
+        >>> my_udp = self.aedtapp.modeler.create_udp(udp_dll_name="RMxprt/ClawPoleCore",
+        ...                                          udp_parameters_list=my_udpPairs,
+        ...                                          upd_library="syslib",
+        ...                                          udptye="Solid")
+        <class 'pyaedt.modeler.Object3d.Object3d'>
+
         """
         if ".dll" not in udp_dll_name:
             vArg1 = [
@@ -1597,6 +1605,59 @@ class Primitives(object):
         vArg2 = self._default_object_attributes(name=obj_name)
         obj_name = self._oeditor.CreateUserDefinedPart(vArg1, vArg2)
         return self._create_object(obj_name)
+
+    @aedt_exception_handler
+    def update_udp(self, object_name, operation_name, udp_parameters_list):
+        """Update an existing geometrical object that was originally created using a user-defined primitive (UDP).
+
+        Parameters
+        ----------
+        object_name : str
+            Name of the object to update.
+        operation_name : str
+            Name of the operation used to create the object.
+        udp_parameters_list : list
+            List of the UDP parameters to update and their value.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful.
+
+        References
+        ----------
+
+        >>> oEditor.CreateUserDefinedPart
+
+        Examples
+        --------
+        >>> self.aedtapp.modeler.update_udp(object_name="ClawPoleCore",
+        ...                                 operation_name="CreateUserDefinedPart",
+        ...                                 udp_parameters_list=[["Length","110mm"], ["DiaGap","125mm"]])
+        True
+
+        """
+
+        vArg1 = ["NAME:AllTabs"]
+
+        prop_servers = ["NAME:PropServers"]
+        prop_servers.append("{0}:{1}:1".format(object_name, operation_name))
+
+        cmd_tab = ["NAME:Geometry3DCmdTab"]
+        cmd_tab.append(prop_servers)
+
+        changed_props = ["NAME:ChangedProps"]
+
+        for pair in udp_parameters_list:
+            if isinstance(pair, list):
+                changed_props.append(["NAME:{0}".format(pair[0]), "Value:=", pair[1]])
+            else:
+                changed_props.append(["NAME:", pair.Name, "Value:=", pair.Value])
+
+        cmd_tab.append(changed_props)
+        vArg1.append(cmd_tab)
+        self._oeditor.ChangeProperty(vArg1)
+        return True
 
     @aedt_exception_handler
     def delete(self, objects=None):
