@@ -1247,7 +1247,7 @@ class Design(object):
         -------
         bool
             ``True``.
-    
+
             .. note::
                Because of an API limitation, the command returns ``True`` even when the key is wrong.
 

@@ -1036,7 +1036,7 @@ class Desktop:
 
     def change_registry_from_file(self, registry_file, make_active=True):
         """Apply desktop registry settings from an ACF file.
- 
+
         One way to get an ACF file is to export a configuration from the AEDT UI and then edit and reuse it.
 
         Parameters

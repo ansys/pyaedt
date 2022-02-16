@@ -2186,11 +2186,11 @@ class Hfss(FieldAnalysis3D, object):
             ``"UseScanAngle"``.
         phase_delay_param1 : str, optional
             Value for the first phase delay parmeter, which depends on the approach:
- 
+
             - Phi angle if the approach is ``"UseScanAngle"``.
             - U value if the approach is ``"UseScanUV"``.
             - Phase if the approach is ``"InputPhaseDelay"``.
-    
+
             The default is ``0deg``.
 
         phase_delay_param2 :  str, optional
@@ -2296,11 +2296,11 @@ class Hfss(FieldAnalysis3D, object):
             ``"UseScanAngle"``.
         phase_delay_param1 : str, optional
             Value for the first phase delay parmeter, which depends on the approach:
-  
+
             - Phi angle if the approach is ``"UseScanAngle"``.
             - U value if the approach is ``"UseScanUV"``.
             - Phase if the approach is ``"InputPhaseDelay"``.
-            
+
             The default is ``0deg``.
         phase_delay_param2 :  str, optional
             Value for the second phase delay parameter, which depends on the approach:
