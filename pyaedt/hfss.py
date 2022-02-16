@@ -2200,11 +2200,9 @@ class Hfss(FieldAnalysis3D, object):
             - V value if the approach is ``"UseScanUV"``.
             
             The default is ``0deg``.
-
-
         pair_name : str, optional
             Boundary name.
-
+        
         Returns
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`
@@ -2304,20 +2302,17 @@ class Hfss(FieldAnalysis3D, object):
             - Phase if the approach is ``"InputPhaseDelay"``.
             
             The default is ``0deg``.
-
         phase_delay_param2 :  str, optional
             Value for the second phase delay parameter, which depends on the approach:
             
             - Theta angle if the approach is "``UseScanAngle"``.
-            - V value if the approach is ``"UseScanUV"``. 
+            - V value if the approach is ``"UseScanUV"``.
             
             The default is ``0deg``.
-
         coord_name : str, optional
             Name of the coordinate system for U coordinates.
         secondary_name : str, optional
             Boundary name. The default is ``None``.
-
 
         Returns
         -------
@@ -4434,15 +4429,15 @@ class Hfss(FieldAnalysis3D, object):
         setup_name=None,
     ):
         """Create an SBR+ Chirp IQ Setup.
-
+        
         Parameters
         ----------
         time_var : str, optional
-            Name of the time variable. The default is ``None``, in which 
+            Name of the time variable. The default is ``None``, in which
             case a search is performed for the first time variable available.
         sweep_time_duration : float, optional
             Duration of the sweep time. The default is ``0``. If a value greater
-            than ``0`` is specified, a parametric sweep is created. 
+            than ``0`` is specified, a parametric sweep is created.
         center_freq : float, optional
             Center frequency in GHz. The default is ``76.5``.
         resolution : float, optional

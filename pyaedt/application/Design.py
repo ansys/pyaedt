@@ -433,7 +433,7 @@ class Design(object):
 
         References
         ----------
-        
+
         >>> oMaterialManager = oDefinitionManager.GetManager("Material")
         """
         return self.odefinition_manager.GetManager("Material")
@@ -533,7 +533,7 @@ class Design(object):
 
         References
         ----------
-        
+
         >>> oDesktop.GetVersion()
         """
         version = self.odesktop.GetVersion()
@@ -1250,8 +1250,7 @@ class Design(object):
             
             .. note::
                Because of an API limitation, the command returns ``True`` even when the key is wrong.
-
-
+        
         References
         ----------
 

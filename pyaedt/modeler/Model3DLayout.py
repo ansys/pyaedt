@@ -147,7 +147,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         .. deprecated:: 0.4.15
             There is no need to use primitives anymore. You can instantiate primitives methods directly from the modeler.
-
+        
         Returns
         -------
         :class:`pyaedt.modeler.Primitives3DLayout.Primitives3DLayout`
