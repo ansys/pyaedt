@@ -264,6 +264,16 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         return True
 
     @aedt_exception_handler
+    def merge_desin(self, hosting_design=None, merged_design=None, pos_x=0.0, pos_y=0.0, pos_z=0.0, rotation=0.0):
+        merged_design.oproject.CopyDesign(merged_design.design_name)
+        hosting_design.odesktop.SetActiveProject(hosting_design.project_name)
+        active_design = hosting_design.oproject.SetActiveDesign(hosting_design.design_name)
+        active_design.PasteDesign(1)
+        self.change_property(property_object="1", property_name="3D Placement", property_value=True)
+        self.change_property(property_object="1", property_name="Location", property_value=[pos_x, pos_y, pos_z])
+        self.change_property(property_object="1", property_name="Angle", property_value=rotation)
+
+    @aedt_exception_handler
     def change_clip_plane_position(self, clip_name, position):
         """Change the Clip Plane position.
 
