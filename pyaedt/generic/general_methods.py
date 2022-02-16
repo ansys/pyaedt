@@ -583,7 +583,7 @@ def filter_string(value, search_key1):
     if ignore_case:
         compiled_re = re.compile(_create_pattern(search_key1), re.IGNORECASE)
     else:
-        compiled_re = re.compile(_create_pattern(search_key1))
+        compiled_re = re.compile(_create_pattern(search_key1))  # pragma: no cover
 
     m = compiled_re.search(value)
     if m:
