@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import re
-from pyaedt.generic.general_methods import time_fn
 
 # --------------------------------------------------------------------
 # public interface
@@ -16,7 +15,7 @@ def load_entire_aedt_file(filename):
 
     Returns
     -------
-    type
+    dict
         dictionary containing the decoded AEDT file
 
     """
@@ -342,7 +341,7 @@ def _load_entire_aedt_file(filename):
 
     """
     global _count
-    time_fn(_read_aedt_file, filename)
+    _read_aedt_file(filename)
     main_dict = {}
     # load the aedt file
     while _count < _len_all_lines:
