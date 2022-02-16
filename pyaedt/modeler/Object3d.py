@@ -1689,7 +1689,7 @@ class Object3d(object):
         ----------
         cs_axis
             Coordinate system axis or the Application.CoordinateSystemAxis object.
-        angle : float
+        angle : float, optional
             Angle of rotation. The units, defined by ``unit``, can be either
             degrees or radians. The default is ``90.0``.
         unit : text, optional
