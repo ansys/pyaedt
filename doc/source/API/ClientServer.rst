@@ -45,10 +45,12 @@ You can launch PyAEDT on a remote machine if the following conditions are met:
 
 #. PyAEDT is installed on client and server machines. (You do not need to have AEDT
    installed on the client machine.)
-#. The same Python version is used on the client and server machines. (CPython 3.6+ or Ironpython embedded in AEDT Installation)
-4. CPython to IronPython can be used with some data type limitations and potential issues. For example, when getting
-   lists from a command, you can access every item (such as ``mylist[i]``) and len (such as ``mylist.__len__()``)
-   but not ``len(mylist)``.
+#. The same Python version is used on the client and server machines. (CPython 3.6+
+   or IronPython is embedded in the AEDT installation.)
+
+CPython to IronPython can be used with some data type limitations and potential issues.
+For example, when getting lists from a command, you can access every item (such as ``mylist[i]``)
+and len (such as ``mylist.__len__()``) but not ``len(mylist)``.
 
 Here is an usage example for a Windows server or Linux server (Ironpython):
 
@@ -63,6 +65,7 @@ Here is an usage example for a Windows server or Linux server (Ironpython):
 On Linux, you can launch the IronPython console with:
 
 .. code:: python
+
    /path/to/AnsysEM21.x/Linux64/common/mono/Linux64/bin/mono /path/to/AnsysEM21.x/Linux64/common/IronPython/ipy64.exe
 
 

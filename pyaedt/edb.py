@@ -1,4 +1,4 @@
-"""This module contains the `Edb` class.
+"""This module contains the ``Edb`` class.
 
 This module is implicitily loaded in HFSS 3D Layout when launched.
 
@@ -220,10 +220,11 @@ class Edb(object):
     @property
     def cell_names(self):
         """Cell name container.
+        
         Returns
         -------
         list of str
-            List of Cell names.
+            List of cell names.
         """
         names = []
         for cell in list(self._db.TopCircuitCells):
