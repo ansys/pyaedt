@@ -2119,7 +2119,7 @@ class Primitives3D(Primitives, object):
                         count_true = True
                 else:
                     self.logger.error(
-                        f"A character entered is invalid. " f"The values of the dictionary {f_key} must be boolean"
+                        "A character entered is invalid. The values of the dictionary %s must be boolean", f_key
                     )
                     are_inequations_checkable = False
                     break
