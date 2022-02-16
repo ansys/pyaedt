@@ -963,3 +963,8 @@ class TestClass(BasisTest):
         choke_file = os.path.join(local_path, "example_models", "choke.json")
         resolve = self.aedtapp.modeler.create_choke(choke_file)
         assert isinstance(resolve, list)
+        assert resolve[0]
+        assert isinstance(resolve[1], Object3d)
+        for i in range(2, len(resolve)):
+            assert isinstance(resolve[i][0], Object3d)
+            assert isinstance(resolve[i][1], list)
