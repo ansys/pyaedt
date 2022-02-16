@@ -15,13 +15,13 @@ import logging
 import re
 import os
 
+
 try:
     import clr
     from System.Collections.Generic import List
 except ImportError:
     if os.name != "posix":
         warnings.warn("Pythonnet is needed to run pyaedt")
-from pyaedt.application.MessageManager import AEDTMessageManager
 from pyaedt.edb_core import Components, EdbNets, EdbPadstacks, EdbLayout, EdbHfss, EdbSiwave, EdbStackup
 from pyaedt.edb_core.EDB_Data import EdbBuilder
 from pyaedt.generic.general_methods import (
@@ -112,8 +112,7 @@ class Edb(object):
         if edb_initialized:
             self.oproject = oproject
             self._main = sys.modules["__main__"]
-            if isaedtowned and "oMessenger" in dir(sys.modules["__main__"]):
-                _messenger = self._main.oMessenger
+            if isaedtowned and "aedt_logger" in dir(sys.modules["__main__"]):
                 self._logger = self._main.aedt_logger
             else:
                 if not edbpath or not os.path.exists(os.path.dirname(edbpath)):
@@ -123,8 +122,7 @@ class Edb(object):
                 logfile = os.path.join(
                     project_dir, "pyaedt{}.log".format(datetime.datetime.now().strftime("%Y%m%d_%H%M%S"))
                 )
-                self._main.oMessenger = AEDTMessageManager()
-                self._logger = AedtLogger(self._main.oMessenger, filename=logfile, level=logging.DEBUG)
+                self._logger = AedtLogger(filename=logfile, level=logging.DEBUG)
                 self._logger.info("Logger Started on %s", logfile)
                 self._main.aedt_logger = self._logger
 
@@ -757,7 +755,6 @@ class Edb(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        time.sleep(2)
         self._db.Close()
         time.sleep(2)
         start_time = time.time()
@@ -766,6 +763,7 @@ class Edb(object):
         self.logger.info("EDB file release time: {0:.2f}ms".format(elapsed_time * 1000.0))
         self._clean_variables()
         timeout = 4
+        time.sleep(2)
         while gc.collect() != 0 and timeout > 0:
             time.sleep(1)
             timeout -= 1
@@ -967,8 +965,10 @@ class Edb(object):
             _dbCells = convert_py_list_to_net_list(_dbCells)
             db2.CopyCells(_dbCells)  # Copies cutout cell/design to db2 project
             _success = db2.Save()
-
-            if open_cutout_at_end:
+            for c in list(self.db.TopCircuitCells):
+                if c.GetName() == _cutout.GetName():
+                    c.Delete()
+            if open_cutout_at_end:  # pragma: no cover
                 self._db = db2
                 self.edbpath = output_aedb_path
                 self._active_cell = list(self._db.TopCircuitCells)[0]
@@ -1022,8 +1022,9 @@ class Edb(object):
         units="mm",
         output_aedb_path=None,
         open_cutout_at_end=True,
+        nets_to_include=None,
     ):
-        """Create a cutout and save it to a new AEDB file.
+        """Create a cutout on a specified shape and save it to a new .aedb file.
 
         Parameters
         ----------
@@ -1036,6 +1037,8 @@ class Edb(object):
         open_cutout_at_end : bool, optional
             Whether to open the Cutout at the end. The default
             is ``True``.
+        nets_to_include : list, optional
+            List of nets to include in the cutout. If `None` all the nets will be included.
 
         Returns
         -------
@@ -1049,14 +1052,78 @@ class Edb(object):
         point_list = [[self.arg_with_dim(i[0], units), self.arg_with_dim(i[1], units)] for i in point_list]
         plane = self.core_primitives.Shape("polygon", points=point_list)
         polygonData = self.core_primitives.shape_to_polygon_data(plane)
+
         _ref_nets = []
+        if nets_to_include:
+            self.logger.info("Creating cutout on {} nets".format(len(nets_to_include)))
+        else:
+            self.logger.info("Creating cutout on all nets")  # pragma: no cover
+
         # validate references in layout
         for _ref in self.core_nets.nets:
-            _ref_nets.append(self.core_nets.nets[_ref].net_object)
+            if nets_to_include:
+                if _ref in nets_to_include:
+                    _ref_nets.append(self.core_nets.nets[_ref].net_object)
+            else:
+                _ref_nets.append(self.core_nets.nets[_ref].net_object)  # pragma: no cover
+        # TODO check and insert via check on polygon intersection
+        # if add_vias_on_cutout:
+        #     tol = 1e-12
+        #     via_lists = []
+        #     for via_name, via in self.core_padstack.padstack_instances.items():
+        #         posx = via.position[0]
+        #         posy = via.position[1]
+        #         point = self.edb.Geometry.PointData(self.edb_value(posx), self.edb_value(posy))
+        #         if polygonData.PointInPolygon(point):
+        #             via_lists.append(via)
+        #         else:
+        #             pdef = self.core_padstack.padstacks[via.padstack_definition]
+        #             if not pdef:
+        #                 continue
+        #             for lay, pad in pdef.pad_by_layer.items():
+        #                 if pad.parameters_values:
+        #                     point2 = self.edb.Geometry.PointData(self.edb_value(posx + 3 * pad.parameters_values[0]),
+        #                                                          self.edb_value(posy + 3 * pad.parameters_values[0]))
+        #                     point3 = self.edb.Geometry.PointData(self.edb_value(posx - 3 * pad.parameters_values[0]),
+        #                                                          self.edb_value(posy - 3 * pad.parameters_values[0]))
+        #                     if polygonData.PointInPolygon(
+        #                             point2) or polygonData.PointInPolygon(point3):
+        #                         via_lists.append(via)
+        #                         break
+        #                 elif pad.polygon_data:
+        #                     if polygonData.GetIntersectionType(pad.polygon_data) >= 1:
+        #                         via_lists.append(via)
+        #                         break
+
         _netsClip = convert_py_list_to_net_list(_ref_nets)
         net_signals = List[type(_ref_nets[0])]()
         # Create new cutout cell/design
         _cutout = self.active_cell.CutOut(net_signals, _netsClip, polygonData)
+
+        # TODO check and insert via check on polygon intersection
+        # if add_vias_on_cutout:
+        #     layout = _cutout.GetLayout()
+        #     layout_lobj_collection = layout.GetLayoutInstance().GetAllLayoutObjInstances()
+        #
+        #     vias_cutout = []
+        #     for obj in layout_lobj_collection.Items:
+        #         lobj = obj.GetLayoutObj()
+        #         if type(lobj) is self.edb.Cell.Primitive.PadstackInstance:
+        #             vias_cutout.append(lobj.GetName())
+        #     vias_to_add = [i for i in via_lists if i._edb_padstackinstance.GetName() not in vias_cutout]
+        #     self.logger.info("Adding {} vias removed by cutout.".format(len(vias_to_add)))
+        #     for via in vias_to_add:
+        #         if not nets_to_include or (nets_to_include and via.net_name in nets_to_include):
+        #             position = self.edb.Geometry.PointData(self.edb_value(via.position[0]),
+        #                                                    self.edb_value(via.position[1]))
+        #             net = self.edb.Cell.Net.FindByName(layout, via.net_name)
+        #             rotation = self.edb_value(via.rotation)
+        #             layer = self.edb.Cell.Layer("", 1)
+        #             _, start_layer, stop_layer = via._edb_padstackinstance.GetLayerRange(layer, layer)
+        #             via_name = via.name
+        #             padstack = via._edb_padstackinstance.GetPadstackDef()
+        #             self.edb.Cell.Primitive.PadstackInstance.Create(layout, net, via_name, padstack, position,
+        #                                                             rotation, start_layer, stop_layer, None, None)
         layers = self.core_stackup.stackup_layers.signal_layers
         for layer in list(layers.keys()):
             layer_primitves = self.core_primitives.get_primitives(layer_name=layer)
@@ -1090,7 +1157,7 @@ class Edb(object):
             for c in list(self.db.TopCircuitCells):
                 if c.GetName() == _cutout.GetName():
                     c.Delete()
-            if open_cutout_at_end:
+            if open_cutout_at_end:  # pragma: no cover
                 _success = db2.Save()
                 self._db = db2
                 self.edbpath = output_aedb_path

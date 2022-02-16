@@ -153,6 +153,7 @@ class TestClass:
     def test_10_add_layer(self):
         layers = self.edbapp.core_stackup.stackup_layers
         assert layers.add_layer("NewLayer", "TOP", "copper", "air", "10um", 0)
+        assert layers.add_layer("NewLayer2", None, "pec", "air", "0um", 0)
 
     def test_11_add_dielectric(self):
         diel = self.edbapp.core_stackup.create_dielectric("MyDiel", 3.3, 0.02)
@@ -464,7 +465,25 @@ class TestClass:
 
     def test_55b_create_cutout(self):
         output = os.path.join(self.local_scratch.path, "cutout.aedb")
-        assert self.edbapp.create_cutout(["A0_N", "A0_P"], ["GND"], output_aedb_path=output)
+        assert self.edbapp.create_cutout(["A0_N", "A0_P"], ["GND"], output_aedb_path=output, open_cutout_at_end=False)
+        assert os.path.exists(os.path.join(output, "edb.def"))
+        bounding = self.edbapp.get_bounding_box()
+
+        points = [[bounding[0][0], bounding[0][1]]]
+        points.append([bounding[0][0], bounding[0][1] + (bounding[1][1] - bounding[0][1]) / 10])
+        points.append(
+            [
+                bounding[0][0] + (bounding[0][1] - bounding[0][0]) / 10,
+                bounding[0][1] + (bounding[1][1] - bounding[0][1]) / 10,
+            ]
+        )
+        points.append([bounding[0][0] + (bounding[0][1] - bounding[0][0]) / 10, bounding[0][1]])
+        points.append([bounding[0][0], bounding[0][1]])
+        output = os.path.join(self.local_scratch.path, "cutout2.aedb")
+
+        assert self.edbapp.create_cutout_on_point_list(
+            points, nets_to_include=["GND"], output_aedb_path=output, open_cutout_at_end=False
+        )
         assert os.path.exists(os.path.join(output, "edb.def"))
 
     def test_56_rvalue(self):
@@ -552,7 +571,7 @@ class TestClass:
         edb.close_edb()
 
     def test_65_flatten_planes(self):
-        assert self.edbapp.core_primitives.unite_polygons_on_layer()
+        assert self.edbapp.core_primitives.unite_polygons_on_layer("TOP")
 
     def test_66_create_solder_ball_on_component(self):
         assert self.edbapp.core_components.set_solder_ball("U1A1")

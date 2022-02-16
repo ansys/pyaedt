@@ -234,9 +234,15 @@ class Pin(Component):
             Y position of the pin.
         angle : float, optional
             Angle of the pin. The default value is ``"0.0"``.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+            Circuit Component Object.
+
         """
 
-        self._circuit.modeler.schematic.create_component(
+        return self._circuit.modeler.schematic.create_component(
             component_library=None,
             component_name=self.name,
             location=[x, y],
@@ -292,8 +298,15 @@ class Buffer:
             Y position of the buffer.
         angle : float, optional
             Angle of the buffer. The default value is ``"0.0"``.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+            Circuit Component Object.
+
         """
-        self._circuit.modeler.schematic.create_component(
+
+        return self._circuit.modeler.schematic.create_component(
             component_library=None,
             component_name=self.name,
             location=[x, y],

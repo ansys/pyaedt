@@ -164,6 +164,7 @@ class AEDTMessageManager(object):
             global_message_data = self._desktop.GetMessages("", "", 0)
             message_data = MessageList(global_message_data, project_name, design_name)
             return message_data
+        return MessageList([], project_name, design_name)
 
     def add_error_message(self, message_text, level=None):
         """Add a type 2 "Error" message to the Message Manager tree.

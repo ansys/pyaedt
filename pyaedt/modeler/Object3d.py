@@ -3043,9 +3043,10 @@ class Nets3DLayout(Objec3DLayout, object):
 
     """
 
-    def __init__(self, primitives, name=""):
+    def __init__(self, primitives, name="", edb_object=None):
         Objec3DLayout.__init__(self, primitives)
         self.name = name
+        self.edb_object = edb_object
 
 
 class Pins3DLayout(Objec3DLayout, object):
