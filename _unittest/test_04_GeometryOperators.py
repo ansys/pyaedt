@@ -334,3 +334,15 @@ class TestClass:
         assert not go.is_collinear([1, 0, 0], [0, 1, 0])
         assert go.is_collinear([1, 1, 1], [-2, -2, -2])
         assert not go.is_collinear([1, 2, 3], [3.0, 2.0, 1.0])
+
+    def test_degrees_over_rounded(self):
+        assert go.degrees_over_rounded(math.pi / 10000, 2) == 0.02
+
+    def test_radians_over_rounded(self):
+        assert go.radians_over_rounded(180, 4) == 3.1416
+
+    def test_degrees_default_rounded(self):
+        assert go.degrees_default_rounded(math.pi / 10000, 2) == 0.01
+
+    def test_radians_default_rounded(self):
+        assert go.radians_default_rounded(180, 4) == 3.1415

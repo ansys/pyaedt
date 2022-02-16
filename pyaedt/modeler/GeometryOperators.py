@@ -1448,3 +1448,79 @@ class GeometryOperators(object):
             x.reverse()
             y.reverse()
         return x, y
+
+    @staticmethod
+    @aedt_exception_handler
+    def degrees_over_rounded(numb, digits):
+        """
+
+        Parameters
+        ----------
+        numb : float
+            In radians which will be converted to degrees and will over-rounded to the "digits"th decimal
+        digits : int
+            Integer number which is the number of decimals
+
+        Returns
+        -------
+        float
+
+        """
+        return math.ceil(math.degrees(numb) * 10 ** digits) / (10 ** digits)
+
+    @staticmethod
+    @aedt_exception_handler
+    def radians_over_rounded(numb, digits):
+        """
+
+        Parameters
+        ----------
+        numb : float
+            In degrees which will be converted to radians and will over-rounded to the "digits"th decimal
+        digits : int
+            Integer number which is the number of decimals
+
+        Returns
+        -------
+        float
+
+        """
+        return math.ceil(math.radians(numb) * 10 ** digits) / (10 ** digits)
+
+    @staticmethod
+    @aedt_exception_handler
+    def degrees_default_rounded(numb, digits):
+        """
+
+        Parameters
+        ----------
+        numb : float
+            In radians which will be converted to degrees and will rounded by default to the "digits"th decimal
+        digits : int
+            Integer number which is the number of decimals
+
+        Returns
+        -------
+        float
+
+        """
+        return math.floor(math.degrees(numb) * 10 ** digits) / (10 ** digits)
+
+    @staticmethod
+    @aedt_exception_handler
+    def radians_default_rounded(numb, digits):
+        """
+
+        Parameters
+        ----------
+        numb : float
+            In degrees which will be converted to radians and will rounded by default to the "digits"th decimal
+        digits : int
+            Integer number which is the number of decimals
+
+        Returns
+        -------
+        float
+
+        """
+        return math.floor(math.radians(numb) * 10 ** digits) / (10 ** digits)
