@@ -1242,12 +1242,21 @@ class CircuitComponents(object):
 class ComponentInfo(object):
     """Class that manage Circuit Catalog info."""
 
-    def __init__(self, name, component_manager, props, component_library):
+    def __init__(self, name, component_manager, file_name, component_library):
         self._component_manager = component_manager
-        self.props = props
+        self.file_name = file_name
         self.name = name
         self.component_library = component_library
+        self._props = None
 
+    @property
+    def props(self):
+        """Retrieve the component properties."""
+        if not self._props:
+            self._props = load_keyword_in_aedt_file(self.file_name, self.name)
+        return self._props
+
+    @aedt_exception_handler
     def place(self, inst_name, location=[], angle=0, use_instance_id_netlist=False):
         """Create a component from a library.
 
@@ -1338,7 +1347,7 @@ class ComponentCatalog(object):
                     id += 1
                 comp_lib = "\\".join(full_path[id:]) + ":" + compname
                 self.components[comp_lib] = ComponentInfo(
-                    compname, self._component_manager, comp_value, comp_lib.split(":")[0]
+                    compname, self._component_manager, file, comp_lib.split(":")[0]
                 )
 
     @aedt_exception_handler
