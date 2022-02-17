@@ -2553,11 +2553,6 @@ class Primitives3D(Primitives, object):
                 values["Mid Winding"]["Occupation(%)"] = occ
                 values["Inner Winding"]["Occupation(%)"] = occ
 
-            if values["Layer Type"]["Linked"]:
-                if values["Layer"]["Triple"]:
-                    values["Outer Winding"]["Turns"] = values["Outer Winding"]["Turns"] - 1
-                    if values["Outer Winding"]["Turns"] < 1:
-                        values["Outer Winding"]["Turns"] = 1
 
             if create_another_file:
                 spl_path = json_file.split(".")
