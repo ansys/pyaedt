@@ -1337,7 +1337,7 @@ class ComponentCatalog(object):
                 id = full_path.index(root) + 1
                 if self._component_manager.design_libray in full_path[id:]:
                     id += 1
-                comp_lib = "\\".join(full_path[id:])+":"+ compname
+                comp_lib = "\\".join(full_path[id:]) + ":" + compname
                 self.components[comp_lib] = ComponentInfo(
                     compname, self._component_manager, comp_value, comp_lib.split(":")[0]
                 )
