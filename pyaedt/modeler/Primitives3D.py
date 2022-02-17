@@ -2063,7 +2063,7 @@ class Primitives3D(Primitives, object):
         return core
 
     @aedt_exception_handler
-    def check_choke_values(self, json_file):
+    def check_choke_values(self, json_file, create_another_file=True):
         """Verify the values in the json file and create another one with corrected values next to the first one.
 
         Parameters
@@ -2071,6 +2071,9 @@ class Primitives3D(Primitives, object):
         json_file : str
             Full path to json file;
             Specific json file containing all the parameters to design your on choke.
+        create_another_file : bool
+            Create another file next to the first one in adding _Corrected to the file name if it is True
+            else truncate the existing file
 
         Returns
         -------
@@ -2083,17 +2086,17 @@ class Primitives3D(Primitives, object):
         --------
         Dictionary of the Json file has to be like the following example :
             dictionary = {
-                "Number of Windings": {"1":"False", "2":"False", "3":"True", "4":"False"},
-                "Layer": {"Simple":"False", "Double":"False", "Triple":"True"},
-                "Layer Type": {"Separate":"False", "Linked":"True"},
-                "Similar Layer":{Similar Layer":"False"}
-                "Mode": {"Differential":"True", "Common":"False"},
-                "Wire Section": {"None":"False", "Hexagon":"True", "Octagon":"False", "Circle":"False"},
-                "Core": {"Name":"Core", "Inner Radius":11, "Outer Radius":17, "Height":7, "Chamfer":0.8},
-                "Outer Winding": {"Name":"Winding", "Inner Radius":10, "Outer Radius":18, "Height":9,
-                                "Wire Diameter":1.4, "Turns":25, "Coil Pit(deg)":6.2},
-                "Mid Winding": {"Turns":30, "Coil Pit(deg)":5.3},
-                "Inner Winding": {"Turns":36, "Coil Pit(deg)":4.5}
+                "Number of Windings": {"1": True, "2": False, "3": False, "4": False},
+                "Layer": {"Simple": True, "Double": False, "Triple": False},
+                "Layer Type": {"Separate": True, "Linked": False},
+                "Similar Layer": {"Similar": True, "Different": False},
+                "Mode": {"Differential": True, "Common": False},
+                "Wire Section": {"None": False, "Hexagon": False, "Octagon": True, "Circle": False},
+                "Core": {"Name": "Core", "Inner Radius": 11, "Outer Radius": 17, "Height": 7, "Chamfer": 0.8},
+                "Outer Winding": {"Name": "Winding", "Inner Radius": 12, "Outer Radius": 16, "Height": 8,
+                                  "Wire Diameter": 1, "Turns": 10, "Coil Pit(deg)": 9, "Occupation(%)": 0},
+                "Mid Winding": {"Turns": 8, "Coil Pit(deg)": 0.1, "Occupation(%)": 0},
+                "Inner Winding": {"Turns": 12, "Coil Pit(deg)": 0.1, "Occupation(%)": 0}
             }
 
         >>> import json
@@ -2555,10 +2558,13 @@ class Primitives3D(Primitives, object):
                     values["Outer Winding"]["Turns"] = values["Outer Winding"]["Turns"] - 1
                     if values["Outer Winding"]["Turns"] < 1:
                         values["Outer Winding"]["Turns"] = 1
-
-            spl_path = json_file.split(".")
-            with open(spl_path[0] + "_Corrected.json", "w") as outfile:
-                json.dump(values, outfile)
+            if create_another_file:
+                spl_path = json_file.split(".")
+                with open(spl_path[0] + "_Corrected.json", "w") as outfile:
+                    json.dump(values, outfile)
+            else:
+                with open(json_file, "w") as outfile:
+                    json.dump(values, outfile)
 
         return [are_inequations_checkable, values]
 
