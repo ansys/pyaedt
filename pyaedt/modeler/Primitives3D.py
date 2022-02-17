@@ -2334,7 +2334,7 @@ class Primitives3D(Primitives, object):
                 are_inequations_checkable = False
         except:
             self.logger.error(
-                "The character entered is invalid. Coil Pit must be a strictly positive float. " "It must be changed"
+                "The character entered is invalid. Coil Pit must be a strictly positive float. It must be changed"
             )
             are_inequations_checkable = False
         try:
@@ -2400,35 +2400,35 @@ class Primitives3D(Primitives, object):
                 in_rad_wind = in_rad_core - (nb_lay + 1) * sr * dia_wire / 2
                 values["Outer Winding"]["Inner Radius"] = in_rad_wind
                 self.logger.warning(
-                    "Inner Radius of the winding is too high. " "The maximum value has been set instead."
+                    "Inner Radius of the winding is too high. The maximum value has been set instead."
                 )
             if out_rad_wind < out_rad_core + (nb_lay + 1) * sr * dia_wire / 2:
                 out_rad_wind = out_rad_core + (nb_lay + 1) * sr * dia_wire / 2
                 values["Outer Winding"]["Outer Radius"] = out_rad_wind
                 self.logger.warning(
-                    "Outer Radius of the winding is too low. " "The minimum value has been set instead."
+                    "Outer Radius of the winding is too low. The minimum value has been set instead."
                 )
             if height_wind < height_core + (nb_lay + 1) * sr * dia_wire:
                 height_wind = height_core + (nb_lay + 1) * sr * dia_wire
                 values["Outer Winding"]["Height"] = height_wind
-                self.logger.warning("Height of the winding is too low. " "The minimum value has been set instead.")
+                self.logger.warning("Height of the winding is too low. The minimum value has been set instead.")
 
             if asin((sr * dia_wire / 2) / in_rad_wind) > pi / nb_wind / turns:
                 turns = int(pi / nb_wind / asin((sr * dia_wire / 2) / in_rad_wind))
                 values["Outer Winding"]["Turns"] = turns
                 self.logger.warning(
-                    "Number of turns of the winding is too high. " "The maximum value has been set instead."
+                    "Number of turns of the winding is too high. The maximum value has been set instead."
                 )
 
             if teta > pi / nb_wind / turns:
                 teta = GeometryOperators.degrees_default_rounded(pi / nb_wind / turns, 3)
                 values["Outer Winding"]["Coil Pit(deg)"] = teta
-                self.logger.warning("Winding Pit is too high. " "The maximum value has been set instead.")
+                self.logger.warning("Winding Pit is too high. The maximum value has been set instead.")
 
             elif teta < asin((sr * dia_wire / 2) / in_rad_wind):
                 teta = GeometryOperators.degrees_over_rounded(asin((sr * dia_wire / 2) / in_rad_wind), 3)
                 values["Outer Winding"]["Coil Pit(deg)"] = teta
-                self.logger.warning("Winding Pit is too low. " "The minimum value has been set instead.")
+                self.logger.warning("Winding Pit is too low. The minimum value has been set instead.")
 
             else:
                 teta = degrees(teta)
@@ -2465,7 +2465,7 @@ class Primitives3D(Primitives, object):
                         teta2 = GeometryOperators.degrees_default_rounded(pi / nb_wind / turns2, 3)
                         values["Mid Winding"]["Coil Pit(deg)"] = teta2
                         self.logger.warning(
-                            "Winding Pit of the second layer is too high. " "The maximum value has been set instead."
+                            "Winding Pit of the second layer is too high. The maximum value has been set instead."
                         )
 
                     elif teta2 < asin((sr * dia_wire / 2) / (in_rad_wind + sr * dia_wire)):
@@ -2474,7 +2474,7 @@ class Primitives3D(Primitives, object):
                         )
                         values["Mid Winding"]["Coil Pit(deg)"] = teta2
                         self.logger.warning(
-                            "Winding Pit of the second layer is too low. " "The minimum value has been set instead."
+                            "Winding Pit of the second layer is too low. The minimum value has been set instead."
                         )
 
                     else:
@@ -2487,7 +2487,7 @@ class Primitives3D(Primitives, object):
                         values["Mid Winding"]["Coil Pit(deg)"] = teta2
                         occ2 = 100 * turns2 * teta2 / (180 / nb_wind)
                         self.logger.warning(
-                            "Occupation of the second layer should be at least equal to " "that of the first layer."
+                            "Occupation of the second layer should be at least equal to that of the first layer."
                         )
                     if occ2 == 100:
                         teta2 = teta2 - 0.0002
@@ -2518,7 +2518,7 @@ class Primitives3D(Primitives, object):
                         teta3 = GeometryOperators.degrees_default_rounded(pi / nb_wind / turns3, 3)
                         values["Inner Winding"]["Coil Pit(deg)"] = teta3
                         self.logger.warning(
-                            "Winding Pit of the third layer is too high. " "The maximum value has been set instead."
+                            "Winding Pit of the third layer is too high. The maximum value has been set instead."
                         )
 
                     elif teta3 < asin((sr * dia_wire / 2) / (in_rad_wind + 2 * sr * dia_wire)):
@@ -2527,7 +2527,7 @@ class Primitives3D(Primitives, object):
                         )
                         values["Inner Winding"]["Coil Pit(deg)"] = teta3
                         self.logger.warning(
-                            "Winding Pit of the third layer is too low. " "The minimum value has been set instead."
+                            "Winding Pit of the third layer is too low. The minimum value has been set instead."
                         )
 
                     else:
