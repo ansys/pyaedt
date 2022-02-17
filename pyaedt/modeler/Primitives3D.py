@@ -2154,7 +2154,7 @@ class Primitives3D(Primitives, object):
                                   % (list_keys_values[i], list_keys_dictionary_model[i]))
                 keys_are_correct = False
         if not keys_are_correct:
-            return return [False, values]
+            return [False, values]
 
         for f_key in values.keys():
             count_true = False
