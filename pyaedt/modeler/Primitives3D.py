@@ -1,6 +1,6 @@
 import json
 import os
-from math import pi, cos, sin, tan, asin, sqrt, radians, degrees, ceil, floor
+from math import pi, cos, sin, tan, asin, sqrt, radians, degrees, ceil
 import random
 import string
 
