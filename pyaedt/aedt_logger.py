@@ -1,16 +1,8 @@
 import logging
 import sys
 
-from pyaedt import log_handler
+from pyaedt import log_handler, SETTINGS
 from pyaedt.application.MessageManager import AEDTMessageManager
-
-ENABLE_LOGGER = True
-# if LOGGER_FILE is defined, it will be taken as output log file
-LOGGER_FILE = None
-
-FORMATTER = logging.Formatter(
-    "%(asctime)s:%(destination)s:%(extra)s%(levelname)-8s:%(message)s", datefmt="%Y/%m/%d %H.%M.%S"
-)
 
 
 class AppFilter(logging.Filter):
@@ -74,8 +66,9 @@ class AedtLogger(object):
         self._global = logging.getLogger("Global")
         self._file_handler = None
         self._std_out_handler = None
+        self.formatter = logging.Formatter(SETTINGS.logger_formatter, datefmt=SETTINGS.logger_datefmt)
 
-        if not ENABLE_LOGGER:
+        if not SETTINGS.enable_logger:
             self._global.addHandler(logging.NullHandler())
             return
 
@@ -90,16 +83,17 @@ class AedtLogger(object):
             self._global.setLevel(level)
             self._global.addFilter(AppFilter())
 
-        if LOGGER_FILE or filename:
-            self._file_handler = logging.FileHandler(LOGGER_FILE or filename)
+        if SETTINGS.logger_file_path or filename:
+            self._file_handler = logging.FileHandler(SETTINGS.logger_file_path or filename)
             self._file_handler.setLevel(level)
-            self._file_handler.setFormatter(FORMATTER)
+            self._file_handler.setFormatter(self.formatter)
             self._global.addHandler(self._file_handler)
 
         if to_stdout:
             self._std_out_handler = logging.StreamHandler()
             self._std_out_handler.setLevel(level)
-            self._std_out_handler.setFormatter(FORMATTER)
+
+            self._std_out_handler.setFormatter(self.formatter)
             self._global.addHandler(self._std_out_handler)
 
     @property
@@ -172,7 +166,7 @@ class AedtLogger(object):
         self._messenger._log_on_file = True
         self._file_handler = logging.FileHandler(self.filename)
         self._file_handler.setLevel(self.level)
-        self._file_handler.setFormatter(FORMATTER)
+        self._file_handler.setFormatter(self.formatter)
         self._global.addHandler(self._file_handler)
 
     def get_messages(self):

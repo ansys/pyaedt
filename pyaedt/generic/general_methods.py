@@ -181,34 +181,39 @@ def _remote_dict_conversion(args):
 
 
 def _log_method(func, new_args, new_kwargs):
-    if str(func.__name__)[0] != "_":
-        line_begin = "    Implicit Arguments: "
-        line_begin2 = "    Explicit Arguments: "
-        message = []
-        if new_args:
-            object_name = str([new_args[0]])[1:-1]
-            id = object_name.find(" object at ")
-            if id >= 0:
-                object_name = object_name[1:id]
-                message.append(" '{}' has been exectuted.".format(object_name + "." + str(func.__name__)))
-                if new_args[1:]:
-                    message.append(line_begin + str(new_args[1:])[1:-1])
-                if new_kwargs:
-                    message.append(line_begin2 + str(new_kwargs)[1:-1])
-
-            else:
-                message.append(" '{}' has been exectuted.".format(str(func.__name__)))
-                if new_args[1:]:
-                    message.append(line_begin + str(new_args[1:])[1:-1])
-                if new_kwargs:
-                    message.append(line_begin2 + str(new_kwargs)[1:-1])
-
-        else:
-            message.append(" '{}' has been exectuted".format(str(func.__name__)))
+    if not SETTINGS.enable_internal_methods_logger and str(func.__name__)[0] == "_":
+        return
+    if not SETTINGS.enable_geometry_operator_logger and "GeometryOperators" in str(func):
+        return
+    if not SETTINGS.enable_edb_logger and "Edb" in str(func) or "edb_core" in str(func)+str(new_args):
+        return
+    line_begin = "    Implicit Arguments: "
+    line_begin2 = "    Explicit Arguments: "
+    message = []
+    if new_args:
+        object_name = str([new_args[0]])[1:-1]
+        id = object_name.find(" object at ")
+        if id >= 0:
+            object_name = object_name[1:id]
+            message.append(" '{}' has been exectuted.".format(object_name + "." + str(func.__name__)))
+            if new_args[1:]:
+                message.append(line_begin + str(new_args[1:])[1:-1])
             if new_kwargs:
                 message.append(line_begin2 + str(new_kwargs)[1:-1])
-        for m in message:
-            logger.debug(m)
+
+        else:
+            message.append(" '{}' has been exectuted.".format(str(func.__name__)))
+            if new_args[1:]:
+                message.append(line_begin + str(new_args[1:])[1:-1])
+            if new_kwargs:
+                message.append(line_begin2 + str(new_kwargs)[1:-1])
+
+    else:
+        message.append(" '{}' has been exectuted".format(str(func.__name__)))
+        if new_kwargs:
+            message.append(line_begin2 + str(new_kwargs)[1:-1])
+    for m in message:
+        logger.debug(m)
 
 
 def aedt_exception_handler(func):
@@ -605,3 +610,130 @@ def recursive_glob(startpath, filepattern):
         for filename in filenames
         if fnmatch.fnmatch(filename, filepattern)
     ]
+
+
+class Configs(object):
+    def __init__(self):
+        self.enable_error_handler = True
+        self.enable_desktop_logs = True
+        self.enable_screen_logs = False
+        self.enable_file_logs = False
+        self.pyaedt_server_path = ""
+        self.enable_logger = True
+        self.logger_file_path = None
+        self.logger_formatter = "%(asctime)s:%(destination)s:%(extra)s%(levelname)-8s:%(message)s"
+        self.logger_datefmt = "%Y/%m/%d %H.%M.%S"
+        self.enable_edb_logger = False
+        self.enable_geometry_operator_logger = False
+        self.enable_internal_methods_logger = False
+
+    @property
+    def enable_error_handler(self):
+        """Return the Environment Variable Content."""
+        return os.getenv("PYAEDT_ERROR_HANDLER", "True").lower() in ("true", "1", "t")
+
+    @enable_error_handler.setter
+    def enable_error_handler(self, val):
+        os.environ["PYAEDT_ERROR_HANDLER"] = str(val)
+
+    @property
+    def enable_desktop_logs(self):
+        """Return the Environment Variable Content."""
+        return os.getenv("PYAEDT_DESKTOP_LOGS", "True").lower() in ("true", "1", "t")
+
+    @enable_desktop_logs.setter
+    def enable_desktop_logs(self, val):
+        os.environ["PYAEDT_DESKTOP_LOGS"] = str(val)
+
+    @property
+    def enable_screen_logs(self):
+        """Return the Environment Variable Content."""
+        return os.getenv("PYAEDT_SCREEN_LOGS", "True").lower() in ("true", "1", "t")
+
+
+    @enable_screen_logs.setter
+    def enable_screen_logs(self, val):
+        os.environ["PYAEDT_SCREEN_LOGS"] = str(val)
+
+    @property
+    def pyaedt_server_path(self):
+        """Return the Environment Variable Content."""
+        return os.getenv("PYAEDT_SERVER_AEDT_PATH", "")
+
+    @pyaedt_server_path.setter
+    def pyaedt_server_path(self, val):
+        os.environ["PYAEDT_SERVER_AEDT_PATH"] = str(val)
+
+    @property
+    def enable_file_logs(self):
+        """Return the Environment Variable Content."""
+        return os.getenv("PYAEDT_FILE_LOGS", "True").lower() in ("true", "1", "t")
+
+    @enable_file_logs.setter
+    def enable_file_logs(self, val):
+        os.environ["PYAEDT_FILE_LOGS"] = str(val)
+
+    @property
+    def enable_logger(self):
+        """Return the Environment Variable Content."""
+        return os.getenv("PYAEDT_ENABLE_LOGGER", "True").lower() in ("true", "1", "t")
+
+    @enable_logger.setter
+    def enable_logger(self, val):
+        os.environ["PYAEDT_ENABLE_LOGGER"] = str(val)
+
+    @property
+    def logger_file_path(self):
+        """Return the Environment Variable Content."""
+        return os.getenv("PYAEDT_LOGGER_FILE", "")
+
+    @logger_file_path.setter
+    def logger_file_path(self, val):
+        os.environ["PYAEDT_LOGGER_FILE"] = str(val)
+
+    @property
+    def logger_formatter(self):
+        """Return the Environment Variable Content."""
+        return os.getenv("PYAEDT_FORMATTER", "")
+
+    @logger_formatter.setter
+    def logger_formatter(self, val):
+        os.environ["PYAEDT_FORMATTER"] = str(val)
+
+    @property
+    def logger_datefmt(self):
+        """Return the Environment Variable Content."""
+        return os.getenv("PYAEDT_FORMATTER_DATETM", "")
+
+    @logger_datefmt.setter
+    def logger_datefmt(self, val):
+        os.environ["PYAEDT_FORMATTER_DATETM"] = str(val)
+    @property
+    def enable_edb_logger(self):
+        """Return the Environment Variable Content."""
+        return os.getenv("PYAEDT_EDB_LOGGER", "True").lower() in ("true", "1", "t")
+
+    @enable_edb_logger.setter
+    def enable_edb_logger(self, val):
+        os.environ["PYAEDT_EDB_LOGGER"] = str(val)
+
+    @property
+    def enable_geometry_operator_logger(self):
+        """Return the Environment Variable Content."""
+        return os.getenv("PYAEDT_GEOMETRY_OPERATOR_LOGGER", "True").lower() in ("true", "1", "t")
+
+    @enable_geometry_operator_logger.setter
+    def enable_geometry_operator_logger(self, val):
+        os.environ["PYAEDT_GEOMETRY_OPERATOR_LOGGER"] = str(val)
+
+    @property
+    def enable_internal_methods_logger(self):
+        """Return the Environment Variable Content."""
+        return os.getenv("PYAEDT_LOG_INTERNAL_METHODS", "True").lower() in ("true", "1", "t")
+
+    @enable_internal_methods_logger.setter
+    def enable_internal_methods_logger(self, val):
+        os.environ["PYAEDT_LOG_INTERNAL_METHODS"] = str(val)
+
+
+settings = Configs()
