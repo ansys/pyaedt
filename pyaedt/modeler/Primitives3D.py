@@ -2103,8 +2103,29 @@ class Primitives3D(Primitives, object):
         >>> dictionary_values = hfss.modeler.check_choke_values("C:/Example/Of/Path/myJsonFile.json")
 
         """
-        security_factor = 1.1
+        dictionary_model = {
+            "Number of Windings": {"1": True, "2": True, "3": False, "4": True},
+            "Layer": {"Simple": False, "Double": True, "Triple": True},
+            "Layer Type": {"Separate": False, "Linked": True},
+            "Similar Layer": {"Similar": False, "Different": True},
+            "Mode": {"Differential": True, "Common": False},
+            "Wire Section": {"None": True, "Hexagon": False, "Octagon": True, "Circle": False},
+            "Core": {"Name": "Core", "Inner Radius": 11, "Outer Radius": 17, "Height": 7, "Chamfer": 0.8},
+            "Outer Winding": {
+                "Name": "Winding",
+                "Inner Radius": 12,
+                "Outer Radius": 16,
+                "Height": 8,
+                "Wire Diameter": 1,
+                "Turns": 10,
+                "Coil Pit(deg)": 9,
+                "Occupation(%)": 0,
+            },
+            "Mid Winding": {"Turns": 8, "Coil Pit(deg)": 0.1, "Occupation(%)": 0},
+            "Inner Winding": {"Turns": 12, "Coil Pit(deg)": 0.1, "Occupation(%)": 0},
+        }
         are_inequations_checkable = True
+        security_factor = 1.1
         sr = security_factor
         read_file = open(json_file, "r")
         values = json.load(read_file)
