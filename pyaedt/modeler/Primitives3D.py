@@ -2185,12 +2185,12 @@ class Primitives3D(Primitives, object):
             values["Core"]["Name"] = "Core"
 
         try:
-            winding_name = str(values["Winding"]["Name"])
+            winding_name = str(values["Outer Winding"]["Name"])
             if len(winding_name) > 0:
-                values["Winding"]["Name"] = winding_name
+                values["Outer Winding"]["Name"] = winding_name
         except:
-            self.logger.warning("Winding Name must be a non-null string. A default name Winding has been set.")
-            values["Winding"]["Name"] = "Winding"
+            self.logger.warning("Outer Winding Name must be a non-null string. A default name Winding has been set.")
+            values["Outer Winding"]["Name"] = "Winding"
         try:
             in_rad_core = float(values["Core"]["Inner Radius"])
             if in_rad_core <= 0:
