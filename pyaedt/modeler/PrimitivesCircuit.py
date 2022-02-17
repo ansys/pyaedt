@@ -14,7 +14,7 @@ from pyaedt.generic.general_methods import (
 from pyaedt.modeler.Object3d import CircuitComponent
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.TouchstoneParser import _parse_ports_name
-from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
+from pyaedt.generic.LoadAEDTFile import load_keyword_in_aedt_file
 
 
 class CircuitComponents(object):
@@ -1242,12 +1242,21 @@ class CircuitComponents(object):
 class ComponentInfo(object):
     """Class that manage Circuit Catalog info."""
 
-    def __init__(self, name, component_manager, props):
+    def __init__(self, name, component_manager, file_name, component_library):
         self._component_manager = component_manager
-        self.props = props
+        self.file_name = file_name
         self.name = name
-        self.component_library = self.props.get("ComponentLibrary", None)
+        self.component_library = component_library
+        self._props = None
 
+    @property
+    def props(self):
+        """Retrieve the component properties."""
+        if not self._props:
+            self._props = load_keyword_in_aedt_file(self.file_name, self.name)
+        return self._props
+
+    @aedt_exception_handler
     def place(self, inst_name, location=[], angle=0, use_instance_id_netlist=False):
         """Create a component from a library.
 
@@ -1326,19 +1335,20 @@ class ComponentCatalog(object):
             sys_files = recursive_glob(os.path.join(self._app.syslib, self._component_manager.design_libray), "*.aclb")
             root = os.path.normpath(self._app.syslib).split(os.path.sep)[-1]
         for file in sys_files:
-            comps = load_entire_aedt_file(file)
+            comps1 = load_keyword_in_aedt_file(file, "DefInfo")
+            comps2 = load_keyword_in_aedt_file(file, "CompInfo")
+            comps = comps1.get("DefInfo", {})
+            comps.update(comps2.get("CompInfo", {}))
             for compname, comp_value in comps.items():
-                if compname not in ["$base_index$", "$index$", "DefInfo"]:
-                    root_name, ext = os.path.splitext(os.path.basename(file))
-                    full_path = os.path.normpath(file).split(os.path.sep)
-                    id = full_path.index(root) + 1
-                    if self._component_manager.design_libray in full_path[id:]:
-                        id += 1
-                    full_path[-1] = full_path[-1].replace(".aclb", "")
-                    comp_value["ComponentLibrary"] = "\\".join(full_path[id:])
-                    self.components["{}:{}".format(root_name, compname)] = ComponentInfo(
-                        compname, self._component_manager, comp_value
-                    )
+                root_name, ext = os.path.splitext(os.path.normpath(file))
+                full_path = root_name.split(os.path.sep)
+                id = full_path.index(root) + 1
+                if self._component_manager.design_libray in full_path[id:]:
+                    id += 1
+                comp_lib = "\\".join(full_path[id:]) + ":" + compname
+                self.components[comp_lib] = ComponentInfo(
+                    compname, self._component_manager, file, comp_lib.split(":")[0]
+                )
 
     @aedt_exception_handler
     def find_components(self, filter_str="*"):

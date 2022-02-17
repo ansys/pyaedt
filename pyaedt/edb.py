@@ -1084,6 +1084,7 @@ class Edb(object):
         #                 if pad.parameters_values:
         #                     point2 = self.edb.Geometry.PointData(self.edb_value(posx + 3 * pad.parameters_values[0]),
         #                                                          self.edb_value(posy + 3 * pad.parameters_values[0]))
+        #
         #                     point3 = self.edb.Geometry.PointData(self.edb_value(posx - 3 * pad.parameters_values[0]),
         #                                                          self.edb_value(posy - 3 * pad.parameters_values[0]))
         #                     if polygonData.PointInPolygon(
@@ -1094,12 +1095,11 @@ class Edb(object):
         #                     if polygonData.GetIntersectionType(pad.polygon_data) >= 1:
         #                         via_lists.append(via)
         #                         break
-
         _netsClip = convert_py_list_to_net_list(_ref_nets)
         net_signals = List[type(_ref_nets[0])]()
         # Create new cutout cell/design
         _cutout = self.active_cell.CutOut(net_signals, _netsClip, polygonData)
-
+        self._active_cell
         # TODO check and insert via check on polygon intersection
         # if add_vias_on_cutout:
         #     layout = _cutout.GetLayout()

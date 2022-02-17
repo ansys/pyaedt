@@ -34,7 +34,7 @@ def load_keyword_in_aedt_file(filename, keyword):
 
     Returns
     -------
-    type
+    dict
         dictionary containing the decoded AEDT file
 
     """
