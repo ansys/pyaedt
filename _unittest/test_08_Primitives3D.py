@@ -968,3 +968,16 @@ class TestClass(BasisTest):
         for i in range(2, len(resolve)):
             assert isinstance(resolve[i][0], Object3d)
             assert isinstance(resolve[i][1], list)
+
+    def test_72_check_choke_values(self):
+        choke_file = os.path.join(local_path, "example_models", "choke.json")
+        choke_file_corrected = choke_file.split(".")[0] + "_Corrected.json"
+        if os.path.exists(choke_file_corrected):
+            os.remove(choke_file_corrected)
+        resolve = self.aedtapp.modeler.check_choke_values(choke_file)
+        assert isinstance(resolve, list)
+        assert resolve[0]
+        assert isinstance(resolve[1], dict)
+        assert os.path.exists(choke_file_corrected)
+        os.remove(choke_file_corrected)
+
