@@ -2421,12 +2421,12 @@ class Primitives3D(Primitives, object):
                 )
 
             if teta > pi / nb_wind / turns:
-                teta = self.GeometryOperators.degrees_default_rounded(pi / nb_wind / turns, 3)
+                teta = GeometryOperators.degrees_default_rounded(pi / nb_wind / turns, 3)
                 values["Outer Winding"]["Coil Pit(deg)"] = teta
                 self.logger.warning("Winding Pit is too high. " "The maximum value has been set instead.")
 
             elif teta < asin((sr * dia_wire / 2) / in_rad_wind):
-                teta = self.GeometryOperators.degrees_over_rounded(asin((sr * dia_wire / 2) / in_rad_wind), 3)
+                teta = GeometryOperators.degrees_over_rounded(asin((sr * dia_wire / 2) / in_rad_wind), 3)
                 values["Outer Winding"]["Coil Pit(deg)"] = teta
                 self.logger.warning("Winding Pit is too low. " "The minimum value has been set instead.")
 
@@ -2462,14 +2462,14 @@ class Primitives3D(Primitives, object):
                         )
 
                     if teta2 > pi / nb_wind / turns2:
-                        teta2 = self.GeometryOperators.degrees_default_rounded(pi / nb_wind / turns2, 3)
+                        teta2 = GeometryOperators.degrees_default_rounded(pi / nb_wind / turns2, 3)
                         values["Mid Winding"]["Coil Pit(deg)"] = teta2
                         self.logger.warning(
                             "Winding Pit of the second layer is too high. " "The maximum value has been set instead."
                         )
 
                     elif teta2 < asin((sr * dia_wire / 2) / (in_rad_wind + sr * dia_wire)):
-                        teta2 = self.GeometryOperators.degrees_over_rounded(
+                        teta2 = GeometryOperators.degrees_over_rounded(
                             asin((sr * dia_wire / 2) / (in_rad_wind + sr * dia_wire)), 3
                         )
                         values["Mid Winding"]["Coil Pit(deg)"] = teta2
@@ -2515,14 +2515,14 @@ class Primitives3D(Primitives, object):
                         )
 
                     if teta3 > pi / nb_wind / turns3:
-                        teta3 = self.GeometryOperators.degrees_default_rounded(pi / nb_wind / turns3, 3)
+                        teta3 = GeometryOperators.degrees_default_rounded(pi / nb_wind / turns3, 3)
                         values["Inner Winding"]["Coil Pit(deg)"] = teta3
                         self.logger.warning(
                             "Winding Pit of the third layer is too high. " "The maximum value has been set instead."
                         )
 
                     elif teta3 < asin((sr * dia_wire / 2) / (in_rad_wind + 2 * sr * dia_wire)):
-                        teta3 = self.GeometryOperators.degrees_over_rounded(
+                        teta3 = GeometryOperators.degrees_over_rounded(
                             asin((sr * dia_wire / 2) / (in_rad_wind + 2 * sr * dia_wire)), 3
                         )
                         values["Inner Winding"]["Coil Pit(deg)"] = teta3
