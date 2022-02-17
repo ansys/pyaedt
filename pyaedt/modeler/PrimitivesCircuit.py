@@ -10,12 +10,11 @@ from pyaedt.generic.general_methods import (
     generate_unique_name,
     recursive_glob,
     filter_string,
-    time_fn,
 )
 from pyaedt.modeler.Object3d import CircuitComponent
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.TouchstoneParser import _parse_ports_name
-from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file, load_keyword_in_aedt_file
+from pyaedt.generic.LoadAEDTFile import load_keyword_in_aedt_file
 
 
 class CircuitComponents(object):
