@@ -1,7 +1,7 @@
 import logging
 import sys
 
-from pyaedt import log_handler, SETTINGS
+from pyaedt import log_handler, settings
 from pyaedt.application.MessageManager import AEDTMessageManager
 
 
@@ -66,9 +66,9 @@ class AedtLogger(object):
         self._global = logging.getLogger("Global")
         self._file_handler = None
         self._std_out_handler = None
-        self.formatter = logging.Formatter(SETTINGS.logger_formatter, datefmt=SETTINGS.logger_datefmt)
+        self.formatter = logging.Formatter(settings.logger_formatter, datefmt=settings.logger_datefmt)
 
-        if not SETTINGS.enable_logger:
+        if not settings.enable_logger:
             self._global.addHandler(logging.NullHandler())
             return
 
@@ -83,8 +83,8 @@ class AedtLogger(object):
             self._global.setLevel(level)
             self._global.addFilter(AppFilter())
 
-        if SETTINGS.logger_file_path or filename:
-            self._file_handler = logging.FileHandler(SETTINGS.logger_file_path or filename)
+        if settings.logger_file_path or filename:
+            self._file_handler = logging.FileHandler(settings.logger_file_path or filename)
             self._file_handler.setLevel(level)
             self._file_handler.setFormatter(self.formatter)
             self._global.addHandler(self._file_handler)
