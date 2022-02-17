@@ -1,4 +1,4 @@
-"""This module contains the `Edb` class.
+"""This module contains the ``Edb`` class.
 
 This module is implicitily loaded in HFSS 3D Layout when launched.
 
@@ -82,12 +82,12 @@ class Edb(object):
 
     Examples
     --------
-    Create an `Edb` object and a new EDB cell.
+    Create an ``Edb`` object and a new EDB cell.
 
     >>> from pyaedt import Edb
     >>> app = Edb()
 
-    Create an `Edb` object and open the specified project.
+    Create an ``Edb`` object and open the specified project.
 
     >>> app = Edb("myfile.aedb")
 
@@ -209,7 +209,7 @@ class Edb(object):
 
     @property
     def logger(self):
-        """Logger for the Edb.
+        """Logger for EDB.
 
         Returns
         -------
@@ -220,10 +220,11 @@ class Edb(object):
     @property
     def cell_names(self):
         """Cell name container.
+
         Returns
         -------
         list of str
-            List of Cell names.
+            List of cell names.
         """
         names = []
         for cell in list(self._db.TopCircuitCells):
@@ -279,7 +280,7 @@ class Edb(object):
 
     @property
     def edblib(self):
-        """EdbLib object containing advanced Edb methods not accessible directly from python."""
+        """EdbLib object containing advanced EDB methods not accessible directly from Python."""
         if not self._edblib:
             if os.name == "posix":
                 clr.AddReferenceToFile("EdbLib.dll")
@@ -357,10 +358,6 @@ class Edb(object):
         ----------
         init_dlls : bool, optional
             Whether to initialize DLLs. The default is ``False``.
-
-        Returns
-        -------
-
         """
         if init_dlls:
             self._init_dlls()
@@ -406,10 +403,6 @@ class Edb(object):
         ----------
         init_dlls : bool, optional
             Whether to initialize DLLs. The default is ``False``.
-
-        Returns
-        -------
-
         """
         if init_dlls:
             self._init_dlls()
@@ -444,12 +437,13 @@ class Edb(object):
         working_dir : str
             Directory in which to create the ``aedb`` folder. The AEDB file name will be the
             same as the BRD file name.
-        init_dlls : bool
+        init_dlls : bool, optional
             Whether to initialize DLLs. The default is ``False``.
         anstranslator_full_path : str, optional
-            Whether to use or not PPE License. The default is ``False``.
-        use_ppe : bool
-            Whether to use or not PPE License. The default is ``False``.
+            Whether to use the PPE License. The default is ``False``.
+        use_ppe : bool, optional
+            Whether to use the PPE License. The default is ``False``.
+
         Returns
         -------
         str
@@ -489,28 +483,26 @@ class Edb(object):
 
     @aedt_exception_handler
     def export_to_ipc2581(self, ipc_path=None, units="millimeter"):
-        """Create an XML IPC2581 File from active Edb.
+        """Create an XML IPC2581 File from the active EDB.
 
         .. note::
-           This Method is still under test and need further Debug.
-           Any feedback is welcome. Actually, backdrills and
-           custom pads are not supported yet.
+           This method is still being tested and may need further debugging.
+           Any feedback is welcome. Backdrills and custom pads are not yet supported.
 
         Parameters
         ----------
         ipc_path : str, optional
-            Path to the xml file
+            Path to the XML file
         units : str, optional
-            Units of IPC2581 file. Default ``millimeter``. It can be ``millimeter``,
-            ``inch``, ``micron``.
+            Units for the IPC2581 file. Options are ``millimeter``,
+            ``inch``, and ``micron``. The default is ``millimeter``.
         Returns
         -------
         bool
-            ``True`` if succeeded.
-
+            ``True`` when successful, ``False`` when failed.
         """
         if units.lower() not in ["millimeter", "inch", "micron"]:
-            self.logger.warning("Wrong unit entered. Setting default to millimiter")
+            self.logger.warning("Wrong unit is entered. Setting the default to millimiter.")
             units = "millimeter"
 
         if not ipc_path:
@@ -525,7 +517,7 @@ class Edb(object):
             self.logger.info("Export IPC 2581 completed in %s sec.", end)
             self.logger.info("File saved in %s", ipc_path)
             return ipc_path
-        self.logger.info("Error Exporting IPC 2581.")
+        self.logger.info("Error exporting IPC 2581.")
         return False
 
     def edb_exception(self, ex_value, tb_data):
@@ -830,9 +822,10 @@ class Edb(object):
             Directory in which to create the ``aedb`` folder. The AEDB file name will be
             the same as the BRD file name. The default value is ``None``.
         anstranslator_full_path : str, optional
-            Optional AnsTranslator full path.
+            Full path to the AnsTranslator.
         use_ppe : bool
-            Whether to use or not PPE License. The default is ``False``.
+            Whether to use the PPE License. The default is ``False``.
+
         Returns
         -------
         bool
@@ -858,9 +851,9 @@ class Edb(object):
             Directory in which to create the ``aedb`` folder. The AEDB file name will be
             the same as the GDS file name. The default value is ``None``.
         anstranslator_full_path : str, optional
-            Optional AnsTranslator full path.
+            Full path to the AnsTranslator.
         use_ppe : bool
-            Whether to use or not PPE License. The default is ``False``.
+
         Returns
         -------
         bool
@@ -1006,7 +999,7 @@ class Edb(object):
         Returns
         -------
         str
-            String containing the value or value and the units if `sUnits` is not ``None``.
+            String containing the value or value and units if ``sUnits`` is not ``None``.
         """
         if type(Value) is str:
             val = Value
@@ -1024,21 +1017,22 @@ class Edb(object):
         open_cutout_at_end=True,
         nets_to_include=None,
     ):
-        """Create a cutout on a specified shape and save it to a new .aedb file.
+        """Create a cutout on a specified shape and save it to a new AEDB file.
 
         Parameters
         ----------
         point_list : list
-            List of points defining the Cutout shape.
-        units : str
-            Units of Point list. Default ``mm``.
+            List of points defining the cutout shape.
+        units : str, optional
+            Units for the point list. The default is ``mm``.
         output_aedb_path : str, optional
             Full path and name for the new AEDB file.
         open_cutout_at_end : bool, optional
-            Whether to open the Cutout at the end. The default
+            Whether to open the cutout at the end. The default
             is ``True``.
         nets_to_include : list, optional
-            List of nets to include in the cutout. If `None` all the nets will be included.
+            List of nets to include in the cutout. The default is ``None``,
+            in which case all nets are included.
 
         Returns
         -------
@@ -1184,9 +1178,9 @@ class Edb(object):
         Parameters
         ----------
         path_to_output : str
-            Full path to the configuration file where the 3D export options are to be saved.
-
+            Full path to the configuration file in which to save the 3D export options.
         config_dictionaries : dict, optional
+            Dictionary of configuration files. The default is ``None``.
 
         """
         option_config = {
@@ -1224,11 +1218,13 @@ class Edb(object):
             Full path and name for saving the AEDT file.
         net_list : list, optional
             List of nets to export if only certain ones are to be
-            included.
+            included. The default is ``None``.
         num_cores : int, optional
-            Define number of cores to use during export
+            Number of cores to use during export. The default is ``None``.
         aedt_file_name : str, optional
-            Output  aedt file name (without .aedt extension). If `` then default naming is used
+            Name of the AEDT file (without the ``.aedt`` extension). The
+            default is ``None``, in which case the default name is used.
+
         Returns
         -------
         str
@@ -1260,11 +1256,13 @@ class Edb(object):
             Full path and name for saving the AEDT file.
         net_list : list, optional
             List of nets only if certain ones are to be
-            exported.
+            exported. The default is ``None``, in which case all
+            nets are exported.
         num_cores : int, optional
-            Define number of cores to use during export
+            Number of cores to use during export. The default is ``None``.
         aedt_file_name : str, optional
-            Output  aedt file name (without .aedt extension). If `` then default naming is used
+            Name of the AEDT file (without the ``.aedt`` extension). The default
+            is ``None``, in which case the default nameg is used.
 
         Returns
         -------
@@ -1300,11 +1298,14 @@ class Edb(object):
             Full path and name for saving the AEDT file.
         net_list : list, optional
             List of nets only if certain ones are to be
-            exported.
+            exported. The default is ``None``, in which case all
+            nets are exported.
         num_cores : int, optional
-            Define number of cores to use during export
+           Number of cores to use during export. The default is
+           ``None``.
         aedt_file_name : str, optional
-            Output  aedt file name (without .aedt extension). If `` then default naming is used
+            Name of the AEDT file (without the ``.aedt`` extension). The default
+            is ``None``, in which case the default name is used.
 
         Returns
         -------
@@ -1331,11 +1332,12 @@ class Edb(object):
 
     @aedt_exception_handler
     def solve_siwave(self):
-        """Close Edb and Solves it with Siwave.
+        """Close Edb and solve it with Siwave.
 
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
         """
         process = SiwaveSolve(self.edbpath, aedt_version=self.edbversion)
         try:
@@ -1347,19 +1349,19 @@ class Edb(object):
 
     @aedt_exception_handler
     def add_design_variable(self, variable_name, variable_value):
-        """Add a Design Variable.
+        """Add a design variable.
 
         Parameters
         ----------
         variable_name : str
-            Name of the variable
+            Name of the variable.
         variable_value : str, float
             Value of the variable with units.
 
         Returns
         -------
         tuple
-            tuple containing AddVariable Result and variableserver.
+            tuple containing the ``AddVariable`` result and variable server.
         """
         is_parameter = True
         if "$" in variable_name:
@@ -1378,12 +1380,12 @@ class Edb(object):
 
     @aedt_exception_handler
     def get_bounding_box(self):
-        """Returng the Layout bounding box.
+        """Retrieve the layout bounding box.
 
         Returns
         -------
         list of list of double
-            The bounding box as a [lower-left X, lower-left Y], [upper-right X, upper-right Y]) pair in meter.
+            Bounding box as a [lower-left X, lower-left Y], [upper-right X, upper-right Y]) pair in meters.
         """
         bbox = self.edbutils.HfssUtilities.GetBBox(self.active_layout)
         return [[bbox.Item1.X.ToDouble(), bbox.Item1.Y.ToDouble()], [bbox.Item2.X.ToDouble(), bbox.Item2.Y.ToDouble()]]

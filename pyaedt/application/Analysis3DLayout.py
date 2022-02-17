@@ -139,7 +139,7 @@ class FieldAnalysis3DLayout(Analysis):
 
     @property
     def excitations(self):
-        """Get all excitation names.
+        """Excitation names.
 
         Returns
         -------

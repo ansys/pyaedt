@@ -211,6 +211,22 @@ class TestClass:
         assert sweep.props["RangeEnd"] == str(freq_stop) + units
         assert sweep.props["Type"] == "Fast"
 
+        # Create a linear step sweep with the incorrect sweep type.
+        try:
+            sweep = self.aedtapp.create_linear_step_sweep(
+                setupname="MySetup",
+                sweepname="StepFast",
+                unit=units,
+                freqstart=freq_start,
+                freqstop=freq_stop,
+                step_size=step_size,
+                sweep_type="Incorrect",
+            )
+        except AttributeError as e:
+            exception_raised = True
+            assert e.args[0] == "Invalid `sweep_type`. It has to be 'Discrete', 'Interpolating', or 'Fast'."
+        assert exception_raised
+
     def test_06d_create_single_point_sweep(self):
         assert self.aedtapp.create_single_point_sweep(
             setupname="MySetup",
