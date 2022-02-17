@@ -980,4 +980,3 @@ class TestClass(BasisTest):
         assert isinstance(resolve[1], dict)
         assert os.path.exists(choke_file_corrected)
         os.remove(choke_file_corrected)
-
