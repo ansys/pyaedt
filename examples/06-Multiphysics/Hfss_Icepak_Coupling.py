@@ -314,10 +314,7 @@ aedtapp.save_project()
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This example use Matplotlib and Numpy to generate graphs outside of PyAEDT.
 
-trace_names = []
-for el in portnames:
-    for el2 in portnames:
-        trace_names.append("S(" + el + "," + el2 + ")")
+trace_names = aedtapp.get_traces_for_plot(category="S")
 cxt = ["Domain:=", "Sweep"]
 families = ["Freq:=", ["All"]]
 my_data = aedtapp.post.get_report_data(expression=trace_names)
