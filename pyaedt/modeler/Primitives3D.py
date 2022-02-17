@@ -2558,6 +2558,7 @@ class Primitives3D(Primitives, object):
                     values["Outer Winding"]["Turns"] = values["Outer Winding"]["Turns"] - 1
                     if values["Outer Winding"]["Turns"] < 1:
                         values["Outer Winding"]["Turns"] = 1
+
             if create_another_file:
                 spl_path = json_file.split(".")
                 with open(spl_path[0] + "_Corrected.json", "w") as outfile:
