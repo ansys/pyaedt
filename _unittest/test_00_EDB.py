@@ -42,6 +42,10 @@ class TestClass:
         self.edbapp.export_to_ipc2581(ipc_path)
         assert os.path.exists(ipc_path)
 
+        # Export should be made with units set to default -millimeter-.
+        self.edbapp.export_to_ipc2581(ipc_path, "mm")
+        assert os.path.exists(ipc_path)
+
     def test_01_find_by_name(self):
         comp = self.edbapp.core_components.get_component_by_name("J1")
         assert comp is not None
