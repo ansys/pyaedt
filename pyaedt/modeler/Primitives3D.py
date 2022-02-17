@@ -2553,7 +2553,6 @@ class Primitives3D(Primitives, object):
                 values["Mid Winding"]["Occupation(%)"] = occ
                 values["Inner Winding"]["Occupation(%)"] = occ
 
-
             if create_another_file:
                 spl_path = json_file.split(".")
                 with open(spl_path[0] + "_Corrected.json", "w") as outfile:
