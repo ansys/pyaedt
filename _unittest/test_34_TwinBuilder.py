@@ -70,5 +70,5 @@ class TestClass:
     def test_12_catalog(self):
         comp_catalog = self.aedtapp.modeler.components.components_catalog
         assert not comp_catalog["Capacitors"]
-        assert comp_catalog['Aircraft Electrical VHDLAMS\\Basic:lowpass_filter'].props
-        assert comp_catalog['Aircraft Electrical VHDLAMS\\Basic:lowpass_filter'].place("LP1")
+        assert comp_catalog["Aircraft Electrical VHDLAMS\\Basic:lowpass_filter"].props
+        assert comp_catalog["Aircraft Electrical VHDLAMS\\Basic:lowpass_filter"].place("LP1")
