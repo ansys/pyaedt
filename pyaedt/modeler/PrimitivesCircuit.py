@@ -1331,19 +1331,16 @@ class ComponentCatalog(object):
             comps2 = load_keyword_in_aedt_file(file, "CompInfo")
             comps = comps1.get("DefInfo", {})
             comps.update(comps2.get("CompInfo", {}))
-            try:
-                for compname, comp_value in comps.items():
-                    root_name, ext = os.path.splitext(os.path.normpath(file))
-                    full_path = root_name.split(os.path.sep)
-                    id = full_path.index(root) + 1
-                    if self._component_manager.design_libray in full_path[id:]:
-                        id += 1
-                    comp_lib = "\\".join(full_path[id:])+":"+ compname
-                    self.components[comp_lib] = ComponentInfo(
-                        compname, self._component_manager, comp_value, comp_lib.split(":")[0]
-                    )
-            except:
-                pass
+            for compname, comp_value in comps.items():
+                root_name, ext = os.path.splitext(os.path.normpath(file))
+                full_path = root_name.split(os.path.sep)
+                id = full_path.index(root) + 1
+                if self._component_manager.design_libray in full_path[id:]:
+                    id += 1
+                comp_lib = "\\".join(full_path[id:])+":"+ compname
+                self.components[comp_lib] = ComponentInfo(
+                    compname, self._component_manager, comp_value, comp_lib.split(":")[0]
+                )
 
     @aedt_exception_handler
     def find_components(self, filter_str="*"):
