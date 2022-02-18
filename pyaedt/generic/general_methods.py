@@ -619,7 +619,7 @@ def recursive_glob(startpath, filepattern):
 
 
 class Settings(object):
-    """Class that manages all Pyaedt Environment Variables and global settings."""
+    """Class that manages all PyAEDT Environment Variables and global settings."""
 
     def __init__(self):
         self.enable_logger = True
