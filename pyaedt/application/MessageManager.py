@@ -7,9 +7,8 @@ in both AEDT and the log file.
 """
 
 import logging
-import os
 import sys
-
+from pyaedt.generic.general_methods import settings
 
 message_levels = {"Global": 0, "Project": 1, "Design": 2}
 
@@ -105,30 +104,50 @@ class AEDTMessageManager(object):
 
     def __init__(self, app=None):
         self._app = app
-        if not app:
-            if "oDesktop" in dir(sys.modules["__main__"]):
-                self.MainModule = sys.modules["__main__"]
-                self._desktop = self.MainModule.oDesktop
-                self._log_on_desktop = os.getenv("PYAEDT_DESKTOP_LOGS", "True").lower() in (
-                    "true",
-                    "1",
-                    "t",
-                    "yes",
-                    "y",
-                )
-            else:
-                self._log_on_desktop = False
-                self._desktop = None
-        else:
-            self._desktop = self._app._desktop
-            self._log_on_desktop = os.getenv("PYAEDT_DESKTOP_LOGS", "True").lower() in ("true", "1", "t")
-        self._log_on_file = os.getenv("PYAEDT_FILE_LOGS", "True").lower() in ("true", "1", "t")
-        self._log_on_screen = os.getenv("PYAEDT_SCREEN_LOGS", "True").lower() in ("true", "1", "t")
 
-        if self._log_on_file:
-            self.logger = logging.getLogger(__name__)
+    @property
+    def _desktop(self):
+        if self._app:
+            return self._app._desktop  # pragma: no cover
+        if "oDesktop" in dir(sys.modules["__main__"]):
+            MainModule = sys.modules["__main__"]
+            return MainModule.oDesktop
+        return None  # pragma: no cover
+
+    @property
+    def _log_on_desktop(self):
+        if self._desktop and settings.enable_desktop_logs:
+            return True
         else:
-            self.logger = None
+            return False
+
+    @_log_on_desktop.setter
+    def _log_on_desktop(self, val):
+        settings.enable_desktop_logs = val
+
+    @property
+    def _log_on_file(self):
+        return settings.enable_file_logs
+
+    @_log_on_file.setter
+    def _log_on_file(self, val):
+        settings.enable_file_logs = val
+
+    @property
+    def _log_on_screen(self):
+        return settings.enable_screen_logs
+
+    @_log_on_screen.setter
+    def _log_on_screen(self, val):
+        settings.enable_screen_logs = val
+
+    @property
+    def logger(self):
+        """Aedt Logger object."""
+        if self._log_on_file:
+            return logging.getLogger(__name__)
+        else:
+            return None  # pragma: no cover
 
     @property
     def messages(self):

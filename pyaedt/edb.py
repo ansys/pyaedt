@@ -22,7 +22,7 @@ try:
 except ImportError:
     if os.name != "posix":
         warnings.warn("Pythonnet is needed to run pyaedt")
-
+from pyaedt import settings
 from pyaedt.edb_core import Components, EdbNets, EdbPadstacks, EdbLayout, EdbHfss, EdbSiwave, EdbStackup
 from pyaedt.edb_core.EDB_Data import EdbBuilder
 from pyaedt.generic.general_methods import (
@@ -120,10 +120,12 @@ class Edb(object):
                     project_dir = tempfile.gettempdir()
                 else:
                     project_dir = os.path.dirname(edbpath)
-
-                logfile = os.path.join(
-                    project_dir, "pyaedt{}.log".format(datetime.datetime.now().strftime("%Y%m%d_%H%M%S"))
-                )
+                if settings.logger_file_path:
+                    logfile = settings.logger_file_path
+                else:
+                    logfile = os.path.join(
+                        project_dir, "pyaedt{}.log".format(datetime.datetime.now().strftime("%Y%m%d_%H%M%S"))
+                    )
                 self._logger = AedtLogger(filename=logfile, level=logging.DEBUG)
                 self._logger.info("Logger Started on %s", logfile)
                 self._main.aedt_logger = self._logger
