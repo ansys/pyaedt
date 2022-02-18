@@ -974,9 +974,8 @@ class TestClass(BasisTest):
         choke_file_corrected = choke_file.split(".")[0] + "_Corrected.json"
         if os.path.exists(choke_file_corrected):
             os.remove(choke_file_corrected)
-        resolve = self.aedtapp.modeler.check_choke_values(choke_file)
+        resolve, values = self.aedtapp.modeler.check_choke_values(choke_file)
         assert os.path.exists(choke_file_corrected)
         os.remove(choke_file_corrected)
-        assert isinstance(resolve, list)
-        assert resolve[0]
-        assert isinstance(resolve[1], dict)
+        assert resolve
+        assert isinstance(values, dict)
