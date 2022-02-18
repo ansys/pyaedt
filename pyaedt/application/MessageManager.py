@@ -7,7 +7,6 @@ in both AEDT and the log file.
 """
 
 import logging
-import os
 import sys
 from pyaedt.generic.general_methods import settings
 
@@ -109,11 +108,11 @@ class AEDTMessageManager(object):
     @property
     def _desktop(self):
         if self._app:
-            return self._app._desktop
+            return self._app._desktop  # pragma: no cover
         if "oDesktop" in dir(sys.modules["__main__"]):
             MainModule = sys.modules["__main__"]
             return MainModule.oDesktop
-        return None
+        return None  # pragma: no cover
 
     @property
     def _log_on_desktop(self):
@@ -148,7 +147,7 @@ class AEDTMessageManager(object):
         if self._log_on_file:
             return logging.getLogger(__name__)
         else:
-            return None
+            return None  # pragma: no cover
 
     @property
     def messages(self):
