@@ -2559,7 +2559,7 @@ class Primitives3D(Primitives, object):
                 with open(json_file, "w") as outfile:
                     json.dump(values, outfile)
 
-        return are_inequations_checkable, values
+        return [are_inequations_checkable, values]
 
     @aedt_exception_handler
     def _make_winding_follow_chamfer(self, chamfer, security_factor, wire_diameter, numb):
