@@ -245,6 +245,7 @@ class TestClass:
                 design_logger.removeHandler(handler)
 
         os.remove(path)
+        settings.logger_file_path = ""
 
     @pytest.mark.skipif(is_ironpython, reason="stdout redirection does not work in IronPython.")
     def test_05_disable_stdout(self):

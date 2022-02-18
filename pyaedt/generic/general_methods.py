@@ -620,13 +620,13 @@ def recursive_glob(startpath, filepattern):
 
 class Settings(object):
     """Class that manages all Pyaedt Environment Variables and global settings."""
+
     def __init__(self):
-        self.enable_error_handler = True
-        self.enable_desktop_logs = True
-        self.enable_screen_logs = False
-        self.enable_file_logs = False
-        self.pyaedt_server_path = ""
         self.enable_logger = True
+        self.enable_desktop_logs = True
+        self.enable_screen_logs = True
+        self.enable_file_logs = True
+        self.pyaedt_server_path = ""
         self.logger_file_path = None
         self.logger_formatter = "%(asctime)s:%(destination)s:%(extra)s%(levelname)-8s:%(message)s"
         self.logger_datefmt = "%Y/%m/%d %H.%M.%S"
@@ -634,6 +634,7 @@ class Settings(object):
         self.enable_debug_geometry_operator_logger = False
         self.enable_debug_internal_methods_logger = False
         self.enable_debug_logger = False
+        self.enable_error_handler = True
 
     @property
     def enable_error_handler(self):
