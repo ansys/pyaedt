@@ -488,9 +488,15 @@ class GeometryOperators(object):
             Distance between the two points in the same unit as the coordinates for the points.
 
         """
-        v = GeometryOperators.v_points(p1, p2)
-        d = GeometryOperators.v_norm(v)
-        return d
+        # fmt: off
+        if len(p1) == 3:
+            d = math.sqrt((p2[0]-p1[0])**2 + (p2[1]-p1[1])**2 + (p2[2]-p1[2])**2)
+            return d
+        elif len(p1) == 2:
+            d = math.sqrt((p2[0]-p1[0])**2 + (p2[1]-p1[1])**2)
+            return d
+        return False
+        # fmt: on
 
     @staticmethod
     @aedt_exception_handler
@@ -1391,7 +1397,8 @@ class GeometryOperators(object):
     @aedt_exception_handler
     def orient_polygon(x, y, clockwise=True):
         """
-        Orient a polygon clockwise or counterclockwise.
+        Orient a polygon clockwise or counterclockwise. The vertex should be already ordered either way.
+        Use this function to change the orientation.
         The polygon is represented by its vertices coordinates.
 
         Parameters
@@ -1529,10 +1536,7 @@ class GeometryOperators(object):
             Angle in radians.
 
         """
-        # tol = 1e-12
         c = va[0] * vb[1] - va[1] * vb[0]
-        # if abs(c) < tol:
-        #     return math.pi
 
         if righthanded:
             return math.atan2(c, GeometryOperators.v_dot(va, vb))
