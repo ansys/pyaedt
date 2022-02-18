@@ -2003,7 +2003,7 @@ class EDBPadstackInstance(object):
             pin_name = self._edb_padstackinstance.GetName()
             return "-".join([comp_name, pin_name])
         else:
-            return None
+            return self._edb_padstackinstance.GetName()
 
     @aedt_exception_handler
     def delete_padstack_instance(self):

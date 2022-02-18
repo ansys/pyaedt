@@ -1069,82 +1069,33 @@ class Edb(object):
             else:
                 _ref_nets.append(self.core_nets.nets[_ref].net_object)  # pragma: no cover
         # TODO check and insert via check on polygon intersection
-        add_vias_on_cutout = True
-        if add_vias_on_cutout:
-            tol = 1e-12
-            via_lists = []
-            for via_name, via in self.core_padstack.padstack_instances.items():
-                posx = via.position[0]
-                posy = via.position[1]
-                point = self.edb.Geometry.PointData(self.edb_value(posx), self.edb_value(posy))
-                if polygonData.PointInPolygon(point):
-                    via_lists.append(via)
-                else:
-                    pdef = self.core_padstack.padstacks[via.padstack_definition]
-                    if not pdef:
-                        continue
-                    for lay, pad in pdef.pad_by_layer.items():
-                        if pad.parameters_values:
-                            point2 = self.edb.Geometry.PointData(self.edb_value(posx + 3 * pad.parameters_values[0]),
-                                                                 self.edb_value(posy + 3 * pad.parameters_values[0]))
-                            point3 = self.edb.Geometry.PointData(self.edb_value(posx - 3 * pad.parameters_values[0]),
-                                                                 self.edb_value(posy - 3 * pad.parameters_values[0]))
-                            if polygonData.PointInPolygon(
-                                    point2) or polygonData.PointInPolygon(point3):
-                                via_lists.append(via)
-                                break
-                        elif pad.polygon_data:
-                            pdata = []
-                            for point in list(pad.polygon_data.Points):
-                                pdata.append([point.X.ToDouble() + via.position[0], point.Y.ToDouble() + via.position[1]])
-                            plane1 = self.core_primitives.Shape("polygon", points=pdata)
-                            polygonData1 = self.core_primitives.shape_to_polygon_data(plane1)
-                            if polygonData.GetIntersectionType(polygonData1) >= 1:
-                                via_lists.append(via)
-                                break
-            for component_name, component in self.core_components.components.items():
-                for pinname, pin in component.pins.items():
-                    pdef = self.core_padstack.padstacks[pin.padstack_definition]
-                    for lay, pad in pdef.pad_by_layer.items():
-                        if pad.polygon_data:
-                            pdata = []
-                            for point in list(pad.polygon_data.Points):
-                                pdata.append([point.X.ToDouble() + pin.position[0], point.Y.ToDouble() + pin.position[1]])
-                            plane1 = self.core_primitives.Shape("polygon", points=pdata)
-                            polygonData1 = self.core_primitives.shape_to_polygon_data(plane1)
-                            if polygonData.GetIntersectionType(polygonData1) >= 1:
-                                via_lists.append(pin)
-                                break
+        circle_voids = [void_circle for void_circle in self.core_primitives.circles if void_circle.is_void]
+        voids_to_add = []
+        for circle in circle_voids:
+            if polygonData.GetIntersectionType(circle.primitive_object.GetPolygonData()) >= 3:
+                voids_to_add.append(circle)
 
         _netsClip = convert_py_list_to_net_list(_ref_nets)
         net_signals = List[type(_ref_nets[0])]()
         # Create new cutout cell/design
         _cutout = self.active_cell.CutOut(net_signals, _netsClip, polygonData)
 
-        # TODO check and insert via check on polygon intersection
-        if add_vias_on_cutout:
+        for void_circle in voids_to_add:
             layout = _cutout.GetLayout()
-            layout_lobj_collection = layout.GetLayoutInstance().GetAllLayoutObjInstances()
+            if is_ironpython:  # pragma: no cover
+                res, center_x, center_y, radius = void_circle.primitive_object.GetParameters()
+            else:
+                res, center_x, center_y, radius = void_circle.primitive_object.GetParameters(0.0, 0.0, 0.0)
+            cloned_circle = self.edb.Cell.Primitive.Circle.Create(
+                layout,
+                void_circle.layer_name,
+                void_circle.net,
+                self.edb_value(center_x),
+                self.edb_value(center_y),
+                self.edb_value(radius),
+            )
+            cloned_circle.SetIsNegative(True)
 
-            vias_cutout = []
-            for obj in layout_lobj_collection.Items:
-                lobj = obj.GetLayoutObj()
-                if type(lobj) is self.edb.Cell.Primitive.PadstackInstance:
-                    vias_cutout.append(lobj.GetName())
-            vias_to_add = [i for i in via_lists if i._edb_padstackinstance.GetName() not in vias_cutout]
-            self.logger.info("Adding {} vias removed by cutout.".format(len(vias_to_add)))
-            for via in vias_to_add:
-                if not nets_to_include or (nets_to_include and via.net_name in nets_to_include):
-                    position = self.edb.Geometry.PointData(self.edb_value(via.position[0]),
-                                                           self.edb_value(via.position[1]))
-                    net = self.edb.Cell.Net.FindByName(layout, via.net_name)
-                    rotation = self.edb_value(via.rotation)
-                    layer = self.edb.Cell.Layer("", 1)
-                    _, start_layer, stop_layer = via._edb_padstackinstance.GetLayerRange(layer, layer)
-                    via_name = via.name
-                    padstack = via._edb_padstackinstance.GetPadstackDef()
-                    self.edb.Cell.Primitive.PadstackInstance.Create(layout, net, via_name, padstack, position,
-                                                                    rotation, start_layer, stop_layer, None, None)
         layers = self.core_stackup.stackup_layers.signal_layers
         for layer in list(layers.keys()):
             layer_primitves = self.core_primitives.get_primitives(layer_name=layer)
