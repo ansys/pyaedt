@@ -151,13 +151,26 @@ class TestClass:
             "Mag_E",
             "Setup1 : LastAdaptive",
             self.aedtapp.available_variations.nominal_w_values,
-            os.path.join(self.local_scratch.path, "MagEfield.fld"),
-            grid_stop=[5, 5, 5],
-            grid_step=[0.5, 0.5, 0.5],
+            os.path.join(self.local_scratch.path, "MagEfieldSph.fld"),
+            gridtype="Spherical",
+            grid_stop=[5, 300, 300],
+            grid_step=[5, 50, 50],
             isvector=False,
             intrinsics="5GHz",
         )
-        assert os.path.exists(os.path.join(self.local_scratch.path, "MagEfield.fld"))
+        assert os.path.exists(os.path.join(self.local_scratch.path, "MagEfieldSph.fld"))
+        self.aedtapp.post.export_field_file_on_grid(
+            "Mag_E",
+            "Setup1 : LastAdaptive",
+            self.aedtapp.available_variations.nominal_w_values,
+            os.path.join(self.local_scratch.path, "MagEfieldCyl.fld"),
+            gridtype="Cylindrical",
+            grid_stop=[5, 300, 5],
+            grid_step=[5, 50, 5],
+            isvector=False,
+            intrinsics="5GHz",
+        )
+        assert os.path.exists(os.path.join(self.local_scratch.path, "MagEfieldCyl.fld"))
 
     @pytest.mark.skipif(
         config["build_machine"], reason="Skipped because it cannot run on build machine in non-graphical mode"
