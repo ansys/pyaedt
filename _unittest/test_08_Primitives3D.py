@@ -969,6 +969,7 @@ class TestClass(BasisTest):
             assert isinstance(resolve[i][0], Object3d)
             assert isinstance(resolve[i][1], list)
 
+    @pyaedt_unittest_check_desktop_error
     def test_72_check_choke_values(self):
         choke_file = os.path.join(local_path, "example_models", "choke.json")
         choke_file_corrected = choke_file.split(".")[0] + "_Corrected.json"
