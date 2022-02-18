@@ -696,7 +696,10 @@ class Settings(object):
 
     @logger_file_path.setter
     def logger_file_path(self, val):
-        os.environ["PYAEDT_LOGGER_FILE"] = str(val)
+        if val:
+            os.environ["PYAEDT_LOGGER_FILE"] = str(val)
+        else:
+            os.environ["PYAEDT_LOGGER_FILE"] = ""
 
     @property
     def logger_formatter(self):

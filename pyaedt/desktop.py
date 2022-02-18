@@ -29,7 +29,7 @@ else:
     import subprocess
 
 from pyaedt.misc import list_installed_ansysem
-from pyaedt import aedt_exception_handler
+from pyaedt import aedt_exception_handler, settings
 from pyaedt.generic.general_methods import is_ironpython, _pythonver, inside_desktop
 
 from pyaedt import aedt_logger, __version__
@@ -535,9 +535,12 @@ class Desktop:
             project_dir = self._main.oDesktop.GetProjectDirectory()
         else:
             project_dir = tempfile.gettempdir()
-        self.logfile = os.path.join(
-            project_dir, "pyaedt{}.log".format(datetime.datetime.now().strftime("%Y%m%d_%H%M%S"))
-        )
+        if settings.logger_file_path:
+            self.logfile = settings.logger_file_path
+        else:
+            self.logfile = os.path.join(
+                project_dir, "pyaedt{}.log".format(datetime.datetime.now().strftime("%Y%m%d_%H%M%S"))
+            )
 
         return True
 

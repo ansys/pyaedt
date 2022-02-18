@@ -61,7 +61,9 @@ class AedtLogger(object):
         main = sys.modules["__main__"]
 
         self.level = level
-        self.filename = filename
+        self.filename = filename or settings.logger_file_path
+        settings.logger_file_path = self.filename
+
         self._messenger = AEDTMessageManager()
         self._global = logging.getLogger("Global")
         self._file_handler = None
@@ -83,8 +85,8 @@ class AedtLogger(object):
             self._global.setLevel(level)
             self._global.addFilter(AppFilter())
 
-        if settings.logger_file_path or filename:
-            self._file_handler = logging.FileHandler(settings.logger_file_path or filename)
+        if self.filename:
+            self._file_handler = logging.FileHandler(self.filename)
             self._file_handler.setLevel(level)
             self._file_handler.setFormatter(self.formatter)
             self._global.addHandler(self._file_handler)
