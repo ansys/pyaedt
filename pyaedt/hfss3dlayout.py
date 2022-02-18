@@ -1,4 +1,4 @@
-"""This module contains these classes: `Hfss3dLayout`."""
+"""This module contains these classes: ``Hfss3dLayout``."""
 
 from __future__ import absolute_import
 
@@ -38,8 +38,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
     non_graphical : bool, optional
-        Whether to launch AEDT in the non-graphical mode. The default
-        is``False``, in which case AEDT is launched in the graphical mode.
+        Whether to launch AEDT in non-graphical mode. The default
+        is``False``, in which case AEDT is launched in graphical mode.
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
@@ -51,29 +51,29 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
     Examples
     --------
-    Create an `Hfss3dLayout` object and connect to an existing HFSS
+    Create an ``Hfss3dLayout`` object and connect to an existing HFSS
     design or create a new HFSS design if one does not exist.
 
     >>> from pyaedt import Hfss3dLayout
     >>> aedtapp = Hfss3dLayout()
 
-    Create an `Hfss3dLayout` object and link to a project named
+    Create an ``Hfss3dLayout`` object and link to a project named
     ``projectname``. If this project does not exist, create one with
     this name.
 
     >>> aedtapp = Hfss3dLayout(projectname)
 
-    Create an `Hfss3dLayout` object and link to a design named
+    Create an ``Hfss3dLayout`` object and link to a design named
     ``designname`` in a project named ``projectname``.
 
     >>> aedtapp = Hfss3dLayout(projectname,designame)
 
-    Create an `Hfss3dLayout` object and open the specified project.
+    Create an ``Hfss3dLayout`` object and open the specified project.
 
     >>> aedtapp = Hfss3dLayout("myfile.aedt")
 
     Create an AEDT 2021 R1 object and then create a
-    `Hfss3dLayout` object and open the specified project.
+    ``Hfss3dLayout`` object and open the specified project.
 
     >>> aedtapp = Hfss3dLayout(specified_version="2021.2", projectname="myfile.aedt")
 
@@ -157,12 +157,12 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         Parameters
         ----------
         primivitivenames : list(str)
-            List of the of the primitive name to create the wave port on.
-            The list length must be 2 e.g. for the two conductors or the command will not be executed.
+            List of the primitive names to create the wave port on.
+            The list length must be two for the two conductors or the method is not executed.
 
         edgenumbers :
             List of the edge number to create the wave port on.
-            The list length must be 2 e.g. for the two edges or the command will not be executed.
+            The list length must be two for the two edges or the method is not executed.
 
         Returns
         -------
@@ -215,7 +215,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         ystart :
             Starting position of the pin on the Y axis.
         yend :
-            Ending postiion of the pin on the Y axis.
+            Ending position of the pin on the Y axis.
         archeight : float, optional
             Arc height. The default is ``0``.
         arcrad : float, optional
@@ -390,7 +390,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             Name of the design to validate. The default is ``None``.
         outputdir : str, optional
             Output directory to save the log file to.
-            The default is ``None`` which export file in working_directory.
+            The default is ``None``, in which case the file is exported to the working directory.
 
         ports : str, optional
             Number of excitations that are expected. The default is ``None``.
@@ -491,15 +491,15 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         Parameters
         ----------
         PlotName : str, optional
-             Name of the plot. The default is ``"S Parameter Plot Nominal"``.
+            Name of the plot. The default is ``"S Parameter Plot Nominal"``.
         sweep_name : str, optional
-             Name of the sweep. The default is ``None``.
+            Name of the sweep. The default is ``None``.
         port_names : str or list, optional
-             One or more port names. The default is ``None``.
+            One or more port names. The default is ``None``.
         port_excited : optional
-             The default is ``None``.
+            The default is ``None``.
         variations : optional
-             The default is ``None``.
+            The default is ``None``.
 
         Returns
         -------
@@ -555,12 +555,12 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         sweepname : str
             Name of the sweep that has been solved.
         filename : str
-            Full path for the Touchstone file.
-            The default is ``None`` which export file in working_directory.
+            Full path for the Touchstone file. The default is ``None``, in which
+            case the file is exported to the working directory.
         variation : list
-            List of all parameter variations, such  as ``["$AmbientTemp", "$PowerIn"]``.
+            List of all parameter variations. For example, ``["$AmbientTemp", "$PowerIn"]``.
         variations_value : list
-            List of all parameter variation values, such as ``["22cel", "100"]``.
+            List of all parameter variation values. For example, ``["22cel", "100"]``.
 
         Returns
         -------
@@ -628,8 +628,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         ----------
         activate : bool
             Whether to export after the simulation.
-        eport_dir str, optional
-            Path to export the file to. The defaultis ``""``.
+        export_dir str, optional
+            Path to export the file to. The default is ``""``.
 
         Returns
         -------
@@ -727,7 +727,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         setupname : str
             Name of the setup to attach to the sweep.
         unit : str
-            Unit of the frequency, such as ``"MHz"`` or ``"GHz"``.
+            Unit of the frequency. For example, ``"MHz"`` or ``"GHz"``.
         freqstart : float
             Starting frequency of the sweep.
         freqstop : float
@@ -737,10 +737,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         sweepname : str, optional
             Name of the sweep. The default is ``None``.
         save_fields : bool, optional
-            Whether to save the fields for a discrete sweep only. The
+            Whether to save fields for a discrete sweep only. The
             default is ``True``.
         save_rad_fields_only : bool, optional
-            Whether to save only the radiated fields if
+            Whether to save only radiated fields if
             ``save_fields=True``. The default is ``False``.
         sweep_type : str, optional
             Type of the sweep. Options are ``"Fast"``,
@@ -828,7 +828,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         setupname : str
             Name of the setup to attach to the sweep.
         unit : str
-            Unit of the frequency, such as ``"MHz"`` or ``"GHz"``.
+            Unit of the frequency. For example, ``"MHz"`` or ``"GHz"``.
         freqstart : float
             Starting frequency of the sweep.
         freqstop : float
@@ -838,10 +838,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         sweepname : str, optional
             Name of the sweep. The default is ``None``.
         save_fields : bool, optional
-            Whether to save the fields for a discrete sweep only. The
+            Whether to save fields for a discrete sweep only. The
             default is ``True``.
         save_rad_fields_only : bool, optional
-            Whether to save only the radiated fields if
+            Whether to save only radiated fields if
             ``save_fields=True``. The default is ``False``.
         sweep_type : str, optional
             Type of the sweep. Options are ``"Fast"``,
@@ -867,7 +867,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         >>> oModule.AddSweep
         """
         if sweep_type not in ["Discrete", "Interpolating", "Fast"]:
-            raise AttributeError("Invalid in `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'")
+            raise AttributeError("Invalid `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'")
         if sweepname is None:
             sweepname = generate_unique_name("Sweep")
 
@@ -902,7 +902,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 sweep.props["UseQ3DForDC"] = use_q3d_for_dc
                 sweep.props["MaxSolutions"] = interpolation_max_solutions
                 sweep.update()
-                self.logger.info("Linear step sweep %s has been correctly created", sweepname)
+                self.logger.info("Linear step sweep %s has been correctly created.", sweepname)
                 return sweep
         return False
 
@@ -916,7 +916,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         save_fields=False,
         save_rad_fields_only=False,
     ):
-        """Create a Sweep with a single frequency point.
+        """Create a sweep with a single frequency point.
 
         Parameters
         ----------
@@ -929,9 +929,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         sweepname : str, optional
             Name of the sweep. The default is ``None``.
         save_fields : bool, optional
-            Whether to save the fields for all points and subranges defined in the sweep. The default is ``False``.
+            Whether to save fields for all points and subranges defined in the sweep. The default is ``False``.
         save_rad_fields_only : bool, optional
-            Whether to save only the radiating fields. The default is ``False``.
+            Whether to save only radiating fields. The default is ``False``.
 
         Returns
         -------
@@ -949,7 +949,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         add_subranges = False
         if isinstance(freq, list):
             if not freq:
-                raise AttributeError("Frequency list is empty! Specify at least one frequency point.")
+                raise AttributeError("Frequency list is empty. Specify at least one frequency point.")
             freq0 = freq.pop(0)
             if freq:
                 add_subranges = True
@@ -975,13 +975,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 if add_subranges:
                     for f in freq:
                         sweepdata.add_subrange(rangetype="SinglePoint", start=f, unit=unit)
-                self.logger.info("Single point sweep %s has been correctly created", sweepname)
+                self.logger.info("Single point sweep %s has been correctly created.", sweepname)
                 return sweepdata
         return False
 
     @aedt_exception_handler
     def import_gds(self, gds_path, aedb_path=None, xml_path=None, set_as_active=True, close_active_project=False):
-        """Import grounds into the HFSS 3D Layout and assign the stackup from an XML file if present.
+        """Import grounds into HFSS 3D Layout and assign the stackup from an XML file if present.
 
         Parameters
         ----------
@@ -1043,31 +1043,32 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         use_y_matrix=True,
         interpolation_algorithm="auto",
     ):
-        """Edit Cosimulation Options.
+        """Edit cosimulation options.
 
         Parameters
         ----------
         simulate_missing_solution : bool, optional
-            Set this to ``True`` if the the solver has to simulate missing solution or
-            ``False`` to interpolate the missing solution.
+            Whether the solver is to simulate a missing solution. The default is ``True``. If
+            ``False``, the solver interpolates a missing solution.
         align_ports : bool, optional
-            Set this to ``True`` if the the solver has to align microwave ports.
+            Whether the solver is to align microwave parts. The default is ``True``.
         renormalize_ports : bool, optional
-            Set this to ``True`` if the the port impedance has to be renormalized.
+            Whether to renormalize port impendance. The default is ``True``.
         renorm_impedance : float, optional
-            Renormalization impedance in Ohm.
+            Renormalization impedance in ohms. The default is ``50``.
         setup_override_name : str, optional
-            The setup name if there is a setup override.
+            Setup name if there is a setup override. The default is ``None``.
         sweep_override_name : str, optional
-            The sweep name if there is a sweep override.
+            Sweep name if there is a sweep override. The default is ``None``.
         use_interpolating_sweep : bool, optional
-            Set to ``True`` if the the solver has to use an interpolating sweep.
-            Set to ``False`` to use a discrete sweep.
+            Whether the solver is to use an interpolating sweep. The default is ``True``.
+            If ``False``, the solver is to use a discrete sweep.
         use_y_matrix : bool, optional
-            Set to ``True`` if the interpolation algorithm has to use YMatrix.
+            Whether the interpolation algorithm is to use the Y matrix. The default is
+            ``True``.
         interpolation_algorithm : str, optional
-                Defines which interpolation algorithm to use. Default is ``"auto"``.
-                Options are ``"auto"``, ``"lin"``, ``"shadH"``, ``"shadNH"``
+            Interpolation algorithm to use. Options are ``"auto"``, ``"lin"``, ``"shadH"``,
+            and ``"shadNH"``. The default is ``"auto"``.
 
         Returns
         -------
