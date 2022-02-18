@@ -1,1 +1,58 @@
-{"Number of Windings": {"1": false, "2": true, "3": false, "4": false}, "Layer": {"Simple": false, "Double": false, "Triple": true}, "Layer Type": {"Separate": false, "Linked": true}, "Similar Layer": {"Similar": true, "Different": false}, "Mode": {"Differential": true, "Common": false}, "Wire Section": {"None": false, "Hexagon": true, "Octagon": false, "Circle": false}, "Core": {"Name": "Core", "Inner Radius": 11, "Outer Radius": 17, "Height": 7, "Chamfer": 0.8}, "Outer Winding": {"Name": "Winding", "Inner Radius": 8.25, "Outer Radius": 19.75, "Height": 12.5, "Wire Diameter": 1, "Turns": 20, "Coil Pit(deg)": 3.8227, "Occupation(%)": 84.94888888888889}, "Mid Winding": {"Turns": 20.0, "Coil Pit(deg)": 3.8227, "Occupation(%)": 84.94888888888889}, "Inner Winding": {"Turns": 20.0, "Coil Pit(deg)": 3.8227, "Occupation(%)": 84.94888888888889}}
+{
+  "Number of Windings": {
+    "1": false,
+    "2": true,
+    "3": false,
+    "4": false
+  },
+  "Layer": {
+    "Simple": false,
+    "Double": false,
+    "Triple": true
+  },
+  "Layer Type": {
+    "Separate": false,
+    "Linked": true
+  },
+  "Similar Layer": {
+    "Similar": true,
+    "Different": false
+  },
+  "Mode": {
+    "Differential": true,
+    "Common": false
+  },
+  "Wire Section": {
+    "None": false,
+    "Hexagon": true,
+    "Octagon": false,
+    "Circle": false
+  },
+  "Core": {
+    "Name": "Core",
+    "Inner Radius": 11,
+    "Outer Radius": 17,
+    "Height": 7,
+    "Chamfer": 0.8
+  },
+  "Outer Winding": {
+    "Name": "Winding",
+    "Inner Radius": 8.25,
+    "Outer Radius": 19.75,
+    "Height": 12.5,
+    "Wire Diameter": 1,
+    "Turns": 20,
+    "Coil Pit(deg)": 3.8227,
+    "Occupation(%)": 84.94888888888889
+  },
+  "Mid Winding": {
+    "Turns": 20.0,
+    "Coil Pit(deg)": 3.8227,
+    "Occupation(%)": 84.94888888888889
+  },
+  "Inner Winding": {
+    "Turns": 20.0,
+    "Coil Pit(deg)": 3.8227,
+    "Occupation(%)": 84.94888888888889
+  }
+}
