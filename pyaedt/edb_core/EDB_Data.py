@@ -1829,7 +1829,7 @@ class EDBPadstackInstance(object):
 
     @property
     def pin(self):
-        """Return Edb object."""
+        """Return Edb padstack object."""
         return self._edb_padstackinstance
 
     @property
@@ -2255,7 +2255,7 @@ class EDBComponent(object):
         Returns
         -------
         dic[str, :class:`pyaedt.edb_core.EDB_Data.EDBPadstackInstance`]
-            Dictionary of EDBPadstackInstance of Component.
+            Dictionary of EDBPadstackInstance Components.
         """
         pins = {}
         for el in self.pinlist:

@@ -525,7 +525,7 @@ class Edb(object):
         end = time.time() - start
         if result:
             self.logger.info("Export IPC 2581 completed in %s sec.", end)
-            self.logger.info("File saved in %s", ipc_path)
+            self.logger.info("File saved as %s", ipc_path)
             return ipc_path
         self.logger.info("Error Exporting IPC 2581.")
         return False
@@ -1037,8 +1037,7 @@ class Edb(object):
         output_aedb_path : str, optional
             Full path and name for the new AEDB file.
         open_cutout_at_end : bool, optional
-            Whether to open the Cutout at the end. The default
-            is ``True``.
+            Whether to open the Cutout at the end. The default value is ``True``.
         nets_to_include : list, optional
             List of nets to include in the cutout. If `None` all the nets will be included.
 
@@ -1200,7 +1199,7 @@ class Edb(object):
         num_cores : int, optional
             Define number of cores to use during export
         aedt_file_name : str, optional
-            Output  aedt file name (without .aedt extension). If `` then default naming is used
+            Output aedt file name (without .aedt extension). If `None` then default naming is used.
         Returns
         -------
         str
@@ -1234,9 +1233,9 @@ class Edb(object):
             List of nets only if certain ones are to be
             exported.
         num_cores : int, optional
-            Define number of cores to use during export
+            Define number of cores to use during export.
         aedt_file_name : str, optional
-            Output  aedt file name (without .aedt extension). If `` then default naming is used
+            Output  aedt file name (without .aedt extension). If `None` then default naming is used.
 
         Returns
         -------
@@ -1276,7 +1275,7 @@ class Edb(object):
         num_cores : int, optional
             Define number of cores to use during export
         aedt_file_name : str, optional
-            Output  aedt file name (without .aedt extension). If `` then default naming is used
+            Output  aedt file name (without .aedt extension). If `None` then default naming is used.
 
         Returns
         -------
@@ -1350,7 +1349,7 @@ class Edb(object):
 
     @aedt_exception_handler
     def get_bounding_box(self):
-        """Returng the Layout bounding box.
+        """Return the Layout bounding box.
 
         Returns
         -------
