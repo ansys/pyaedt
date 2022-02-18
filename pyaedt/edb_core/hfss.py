@@ -437,8 +437,8 @@ class EdbHfss(object):
             net_list = [net_list]
         for ref in ref_des_list:
             for pinname, pin in self._pedb.core_components.components[ref].pins.items():
-                if pin.net in net_list and pin.pin.IsLayoutPin():
-                    port_name = "{}_{}_{}".format(ref, pin.net, pin.pin.GetName())
+                if pin.net_name in net_list and pin.pin.IsLayoutPin():
+                    port_name = "{}_{}_{}".format(ref, pin.net_name, pin.pin.GetName())
                     if is_ironpython:
                         res, fromLayer_pos, toLayer_pos = pin.pin.GetLayerRange()
                     else:

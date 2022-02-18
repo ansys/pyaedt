@@ -1828,6 +1828,11 @@ class EDBPadstackInstance(object):
         self._pedb = _pedb
 
     @property
+    def pin(self):
+        """Return Edb object."""
+        return self._edb_padstackinstance
+
+    @property
     def padstack_definition(self):
         """Padstack definition.
 
