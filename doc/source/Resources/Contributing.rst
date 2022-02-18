@@ -1,4 +1,4 @@
-.. _contributing:
+.. _contributing_aedt:
 
 ============
 Contributing

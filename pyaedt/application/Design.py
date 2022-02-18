@@ -1,5 +1,5 @@
 """
-This module contains these classes: `Design` and `DesignCache`.
+This module contains these classes: ``Design`` and ``DesignCache``.
 
 This module provides all functionalities for basic project information and objects.
 These classes are inherited in the main tool class.
@@ -48,7 +48,7 @@ def list_difference(list1, list2):
 class DesignCache(object):
     """Analyzes the differences in the state of a design between two points in time.
 
-    The contents of the design tracked in the Message Manager currently are:
+    The contents of the design tracked in the message manager currently are:
 
         * global-level messages
         * project-level messages
@@ -88,8 +88,8 @@ class DesignCache(object):
         Returns
         --------
         bool
-            ``True`` when the design snapshot is unchanged since the
-            last update, ``False`` otherwise.
+            ``True`` if the design snapshot is unchanged since the last
+            update, ``False`` otherwise.
         """
         return self._no_change
 
@@ -139,13 +139,13 @@ class DesignCache(object):
 
     @property
     def no_new_messages(self):
-        """Check for any new messages that have appeared since the last update or since the Message Manager was cleared.
+        """Check for any new messages that have appeared since the last update or since the message manager was cleared.
 
         Returns
         -------
         bool
             ``True`` if new messages have appeared since the last
-            update or since the Message Manager was cleared, ``False``
+            update or since the message manager was cleared, ``False``
             otherwise.
         """
         return not bool(self._delta_messages)
@@ -181,7 +181,8 @@ class DesignCache(object):
         Returns
         -------
         bool
-            ``True`` if the cache elements are unchanged since the last update.
+            ``True`` if the cache elements are unchanged since the last update,
+            ``Fasle`` otherwise.
         """
         return self.no_new_messages
 
@@ -211,12 +212,12 @@ class DesignCache(object):
         """Update the current state.
 
         Retrieve the current state values from the design and perform
-        a delta calculation with the cached values.  Then replace the
+        a delta calculation with the cached values. Then replace the
         cached values with the current values.
 
         .. note::
            The update is done automatically when the property
-           ``'no_change'`` is accessed.
+           ``"no_change"`` is accessed.
         """
 
         messages = self._app._logger.messages
@@ -264,7 +265,8 @@ class DesignCache(object):
 class Design(object):
     """Contains all functions and objects connected to the active project and design.
 
-    This class is inherited in the caller application and is accessible through it ( eg. ``hfss.method_name``).
+    This class is inherited in the caller application and is accessible through it (for
+    example, ``hfss.method_name``.
 
     Parameters
     ----------
@@ -286,8 +288,8 @@ class Design(object):
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
     NG : bool, optional
-        Whether to run AEDT in the non-graphical mode. The default
-        is ``False``, in which case AEDT launches in the graphical mode.
+        Whether to run AEDT in non-graphical mode. The default
+        is ``False``, in which case AEDT launches in graphical mode.
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
@@ -391,7 +393,7 @@ class Design(object):
 
     @property
     def odesktop(self):
-        """Desktop instance containing all projects and designs.
+        """AEDT instance containing all projects and designs.
 
         Examples
         --------
@@ -406,7 +408,7 @@ class Design(object):
 
     @property
     def oimport_export(self):
-        """Import Export Manager Module.
+        """Import/Export Manager Module.
 
         References
         ----------
@@ -462,7 +464,7 @@ class Design(object):
 
     @property
     def logger(self):
-        """Logger for the Design.
+        """Logger for the design.
 
         Returns
         -------
@@ -470,8 +472,9 @@ class Design(object):
         """
         return self._logger
 
-    # TODO Project Properties are set at the beginning
+    # TODO Project properties are set at the beginning
     # but after they are never updated along the different project steps.
+
     @property
     def project_properies(self):
         """Project properties.
@@ -662,7 +665,7 @@ class Design(object):
         Returns
         -------
         str
-            Path to the project file.
+            Path to the project.
 
         References
         ----------
@@ -688,12 +691,12 @@ class Design(object):
 
     @property
     def project_file(self):
-        """Project file.
+        """Project name and path.
 
         Returns
         -------
         str
-            Full absolute name and path for the project file.
+            Full absolute name and path for the project.
 
         """
         return os.path.join(self.project_path, self.project_name + ".aedt")
@@ -705,7 +708,7 @@ class Design(object):
         Returns
         -------
         str
-            Full absolute name and path for the project lock file.
+            Full absolute name and path for the project's lock file.
 
         """
         return os.path.join(self.project_path, self.project_name + ".aedt.lock")
@@ -953,7 +956,7 @@ class Design(object):
 
     @property
     def oproject(self):
-        """Property.
+        """Project property.
 
         Returns
         -------
@@ -1019,7 +1022,7 @@ class Design(object):
 
     @property
     def desktop_install_dir(self):
-        """Desktop installation directory.
+        """AEDT installation directory.
 
         Returns
         -------
@@ -1031,16 +1034,17 @@ class Design(object):
 
     @aedt_exception_handler
     def export_profile(self, setup_name, variation_string="", file_path=None):
-        """Export a solution profile to file.
+        """Export a solution profile to a PROF file.
 
         Parameters
         ----------
         setup_name : str
-            Setup name. Eg ``'Setup1'``
+            Setup name. For example, ``'Setup1'``.
         variation_string : str
-            Variation string with values. Eg ``'radius=3mm'``
+            Variation string with values. For example, ``'radius=3mm'``.
         file_path : str, optional
-            full path to .prof file. If `None`, working_directory will be used.
+            Full path to the PROF file. The default is ``None``, in which case
+            the working directory is used.
 
 
         Returns
@@ -1061,25 +1065,25 @@ class Design(object):
 
     @aedt_exception_handler
     def add_info_message(self, message_text, message_type=None):
-        """Add a type 0 "Info" message to either global, active project or active design
-        level of the Message Manager tree.
+        """Add a type 0 "Info" message to either the global, active project or the active design
+        level of the message manager tree.
 
-        Also add an info message to the logger if the handler is present.
+        Also add an "Info" message to the logger if the handler is present.
 
         Parameters
         ----------
         message_text : str
             Text to display as the info message.
         message_type : str, optional
-            Level to add the info message to. Options are ``"Global"``,
+            Level to add the "Info" message to. Options are ``"Global"``,
             ``"Project"``, and ``"Design"``. The default is ``None``,
-            in which case the info message gets added to the ``"Design"``
+            in which case the "Info" message gets added to the ``"Design"``
             level.
 
         Returns
         -------
         bool
-            ``True`` if succeeded.
+            ``True`` when successful, ``False`` when failed.
 
         Examples
         --------
@@ -1104,25 +1108,25 @@ class Design(object):
 
     @aedt_exception_handler
     def add_warning_message(self, message_text, message_type=None):
-        """Add a type 0 "Warning" message to either global, active project or active design
-        level of the Message Manager tree.
+        """Add a type 0 "Warning" message to either the global, active project or the active design
+        level of the message manager tree.
 
-        Also add an info message to the logger if the handler is present.
+        Also add an "Warning" message to the logger if the handler is present.
 
         Parameters
         ----------
         message_text : str
-            Text to display as the warning message.
+            Text to display as the "Warning" message.
         message_type : str, optional
-            Level to add the warning message to. Options are ``"Global"``,
+            Level to add the "Warning" message to. Options are ``"Global"``,
             ``"Project"``, and ``"Design"``. The default is ``None``,
-            in which case the warning message gets added to the ``"Design"``
+            in which case the "Warning" message gets added to the ``"Design"``
             level.
 
         Returns
         -------
         bool
-            ``True`` if succeeded.
+            ``True`` when successful, ``False`` when failed.
 
         Examples
         --------
@@ -1148,25 +1152,25 @@ class Design(object):
 
     @aedt_exception_handler
     def add_error_message(self, message_text, message_type=None):
-        """Add a type 0 "Error" message to either global, active project or active design
-        level of the Message Manager tree.
+        """Add a type 0 "Error" message to either the global, active project or the active design
+        level of the message mmanager tree.
 
-        Also add an error message to the logger if the handler is present.
+        Also add an "Error" message to the logger if the handler is present.
 
         Parameters
         ----------
         message_text : str
-            Text to display as the error message.
+            Text to display as the "Error" message.
         message_type : str, optional
-            Level to add the error message to. Options are ``"Global"``,
+            Level to add the "Error" message to. Options are ``"Global"``,
             ``"Project"``, and ``"Design"``. The default is ``None``,
-            in which case the error message gets added to the ``"Design"``
+            in which case the "Error" message gets added to the ``"Design"``
             level.
 
         Returns
         -------
         bool
-            ``True`` if succeeded.
+            ``True`` when successful, ``False`` when failed.
 
         Examples
         --------
@@ -1215,7 +1219,7 @@ class Design(object):
         Returns
         -------
         str
-            String concatenating value and unit.
+            String concatenating the value and unit.
 
         """
         if units is None:
@@ -1232,20 +1236,20 @@ class Design(object):
 
     @aedt_exception_handler
     def set_license_type(self, license_type="Pool"):
-        """Change the License Type between ``Pack`` and ``Pool``.
-
-        .. note::
-           The command returns ``True`` even if the Key is wrong due
-           to API limitation.
+        """Change the license type between ``"Pack"`` and ``"Pool"``.
 
         Parameters
         ----------
         license_type : str, optional
-            Set License Type between ``Pack`` and ``Pool``.
+            Type of license type, which can be either ``"Pack"`` or ``"Pool"``.
 
         Returns
         -------
         bool
+            ``True``.
+
+            .. note::
+               Because of an API limitation, the command returns ``True`` even when the key is wrong.
 
         References
         ----------
@@ -1260,17 +1264,18 @@ class Design(object):
 
     @aedt_exception_handler
     def set_registry_key(self, key_full_name, key_value):
-        """Change a specific registry key to new value.
+        """Change a specific registry key to a new value.
 
         Parameters
         ----------
         key_full_name : str
-            Desktop Registry Key full name.
+            Full name of the AEDT registry key.
         key_value : str, int
-            Desktop Registry Key value.
+            Value for the AEDT registry key.
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
 
         References
         ----------
@@ -1300,16 +1305,17 @@ class Design(object):
 
     @aedt_exception_handler
     def get_registry_key_string(self, key_full_name):
-        """Get Desktop Registry Key Value if exists, otherwise ''.
+        """Get the value for the AEDT registry key if one exists.
 
         Parameters
         ----------
         key_full_name : str
-            Desktop Registry Key full name.
+            Full name of the AEDT registry key.
 
         Returns
         -------
         str
+          Value for the AEDT registry key, otherwise ``''``.
 
         References
         ----------
@@ -1320,16 +1326,17 @@ class Design(object):
 
     @aedt_exception_handler
     def get_registry_key_int(self, key_full_name):
-        """Get Desktop Registry Key Value if exists, otherwise 0.
+        """Get the value for the AEDT registry key if one exists.
 
         Parameters
         ----------
         key_full_name : str
-            Desktop Registry Key full name.
+            Full name of the AEDT registry key.
 
         Returns
         -------
         str
+            Value for the AEDT registry key, otherwise ``0``.
 
         References
         ----------
@@ -1340,17 +1347,17 @@ class Design(object):
 
     @aedt_exception_handler
     def check_beta_option_enabled(self, beta_option_name):
-        """Check if a Beta Option is enabled.
+        """Check if a beta option is enabled.
 
         Parameters
         ----------
         beta_option_name : str
-            Name of the Beta Option to check. Example `'SF43060_HFSS_PI'`
+            Name of the beta option to check. For example, ``'SF43060_HFSS_PI'``.
 
         Returns
         -------
         bool
-            `True` if succeeded.
+            ``True`` when successful, ``False`` when failed.
 
         References
         ----------
@@ -1384,17 +1391,19 @@ class Design(object):
 
     @aedt_exception_handler
     def set_active_dso_config_name(self, product_name="HFSS", config_name="Local"):
-        """Change a specific registry key to new value.
+        """Change a specific registry key to a new value.
 
         Parameters
         ----------
-        product_name : str
-            Name of the tool to which apply the active Configuration.
-        config_name : str
-            Name of configuration to apply.
+        product_name : str, optional
+            Name of the tool to apply the active configuration to. The default is ``"HFSS"``.
+        config_name : str, optional
+            Name of the configuration to apply. The default is ``"Local"``.
+
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
 
         References
         ----------
@@ -1411,19 +1420,21 @@ class Design(object):
 
     @aedt_exception_handler
     def set_registry_from_file(self, registry_file, make_active=True):
-        """Apply desktop Registry settings from acf file. A way to get an editable ACF file is to export a
-        configuration from Desktop UI, edit and reuse it.
+        """Apply desktop registry settings from an ACT file.
+
+        One way to get an ACF file is to export a configuration from the AEDT UI and then edit and reuse it.
 
         Parameters
         ----------
         registry_file : str
-            Full path to acf file.
+            Full path to the ACF file.
         make_active : bool, optional
-            Set imported Configuration as active.
+            Whether to set the imported configuration as active. The default is ``True``.
 
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
 
         References
         ----------
@@ -1851,7 +1862,7 @@ class Design(object):
 
     @aedt_exception_handler
     def close_desktop(self):
-        """Close the desktop and release AEDT.
+        """Close AEDT and release it.
 
         Returns
         -------
@@ -1864,7 +1875,7 @@ class Design(object):
 
     @aedt_exception_handler
     def autosave_disable(self):
-        """Disable the Desktop Autosave.
+        """Disable autosave in AEDT.
 
         Returns
         -------
@@ -1881,7 +1892,7 @@ class Design(object):
 
     @aedt_exception_handler
     def autosave_enable(self):
-        """Enable the Desktop Autosave.
+        """Enable autosave in AEDT.
 
         Returns
         -------
@@ -1898,14 +1909,14 @@ class Design(object):
 
     @aedt_exception_handler
     def release_desktop(self, close_projects=True, close_desktop=True):
-        """Release the desktop.
+        """Release AEDT.
 
         Parameters
         ----------
         close_projects : bool, optional
             Whether to close all projects. The default is ``True``.
         close_desktop : bool, optional
-            Whether to close the desktop after releasing it. The default is ``True``.
+            Whether to close AEDT after releasing it. The default is ``True``.
 
         Returns
         -------
@@ -1961,12 +1972,12 @@ class Design(object):
 
     @aedt_exception_handler
     def load_project(self, project_file, design_name=None, close_active_proj=False):
-        """Open an AEDT project based on a project file and an optional design.
+        """Open an AEDT project based on a project and optional design.
 
         Parameters
         ----------
         project_file : str
-            Full path and name for the project file.
+            Full path and name for the project.
         design_name : str, optional
             Design name. The default is ``None``.
         close_active_proj : bool, optional
@@ -2354,7 +2365,7 @@ class Design(object):
 
     @aedt_exception_handler
     def create_new_project(self, proj_name):
-        """Create a project within the desktop.
+        """Create a project within AEDT.
 
         Parameters
         ----------
@@ -2531,7 +2542,7 @@ class Design(object):
             default design name is ``<Design-Type>Design<_index>``. If the
             given or default design name is in use, then an underscore and
             index is added to ensure that the design name is unique.
-            The inserted object is assigned to the `Design` object.
+            The inserted object is assigned to the ``Design`` object.
 
         Returns
         -------
@@ -2745,12 +2756,12 @@ class Design(object):
 
     @aedt_exception_handler
     def export_design_preview_to_jpg(self, filename):
-        """Export design preview image to a jpg file.
+        """Export design preview image to a JPG file.
 
         Parameters
         ----------
         filename : str
-            Full path and name for the JPG file
+            Full path and name for the JPG file.
 
         Returns
         -------
@@ -2830,12 +2841,12 @@ class Design(object):
 
     @aedt_exception_handler
     def save_project(self, project_file=None, overwrite=True, refresh_obj_ids_after_save=False):
-        """Save the AEDT project and add a message.
+        """Save the project and add a message.
 
         Parameters
         ----------
         project_file : str, optional
-            Full path and project file name. The default is ````None``.
+            Full path and project name. The default is ````None``.
         overwrite : bool, optional
             Whether to overwrite the existing project. The default is ``True``.
         refresh_obj_ids_after_save : bool, optional
@@ -2880,15 +2891,16 @@ class Design(object):
         Parameters
         ----------
         project_file : str, optional
-            Full path and project file name. The default is ``None``.
+            Full path and project name. The default is ``None``.
         include_external_files : bool, optional
-            Whether to include external files to the archive. The default is ``True``.
+            Whether to include external files in the archive. The default is ``True``.
         include_results_file : bool, optional
-            Whether to include simulation results files to the archive. The default is ``True``.
+            Whether to include simulation results files in the archive. The default is ``True``.
         additional_file_lists : list, optional
             List of additional files to add to the archive. The default is ``[]``.
         notes : str, optional
-            Simulation notes to be added to the archive. The default is ``""``.
+            Simulation notes to add to the archive. The default is ``""``.
+
         Returns
         -------
         bool
@@ -2981,7 +2993,7 @@ class Design(object):
 
     @aedt_exception_handler
     def get_evaluated_value(self, variable_name, variation=None, units=None):
-        """Retrieve the evaluated value of a design property or project variable in SI units if no Unit is provided.
+        """Retrieve the evaluated value of a design property or project variable in SI units if no unit is provided.
 
         Parameters
         ----------
@@ -2990,8 +3002,9 @@ class Design(object):
         variation : float, optional
             Variation value for the evaluation. The default is ``None``,
             in which case the nominal variation is used.
-        units : str
-            Name of the unit to rescale method. SI will be applied by default.
+        units : str, optional
+            Name of the unit to use for rescaling. The default is ``None``,
+            in which case SI units are applied by default.
 
         Returns
         -------
@@ -3070,8 +3083,8 @@ class Design(object):
         dependent (non-sweep) properties.
 
         This is needed because the standard method COM function ``GetVariationVariableValue``
-        does not work for obtaining values of dependent (non-sweep variables).
-        Using the new beta feature object-oriented scripting model could make this redundant in
+        does not work for obtaining values of dependent (non-sweep) variables.
+        Using the object-oriented scripting model, which is a beta feature, could make this redundant in
         future releases.
 
         Parameters

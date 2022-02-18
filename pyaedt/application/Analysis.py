@@ -142,7 +142,7 @@ class Analysis(Design, object):
 
     @property
     def ooptimetrics(self):
-        """Optimetrics AEDT Module.
+        """AEDT Optimetrics Module.
 
         References
         ----------
@@ -153,7 +153,7 @@ class Analysis(Design, object):
 
     @property
     def ooutput_variable(self):
-        """Output Variable AEDT Module.
+        """AEDT Output Variable Module.
 
         References
         ----------
@@ -177,7 +177,7 @@ class Analysis(Design, object):
 
     @property
     def output_variables(self):
-        """List of Output variables.
+        """List of output variables.
 
         Returns
         -------
@@ -192,12 +192,12 @@ class Analysis(Design, object):
 
     @property
     def materials(self):
-        """Manages materials in the project.
+        """Materials in the project.
 
         Returns
         -------
         :class:`pyaedt.modules.MaterialLib.Materials`
-            Manages materials in the project.
+           Materials in the project.
 
         """
         return self._materials
@@ -535,24 +535,28 @@ class Analysis(Design, object):
         second_element_filter=None,
         category="dB(S",
     ):
-        """Return a list of traces of specified design ready to be used in plot reports.
+        """Retrieve a list of traces of specified designs ready to use in plot reports.
 
         Parameters
         ----------
-        get_self_terms : bool
-            Either if self terms have to be returned or not.
-        get_mutual_terms : bool
-            Either if mutual terms have to be returned or not.
+        get_self_terms : bool, optional
+            Whether to return self terms. The default is ``True``.
+        get_mutual_terms : bool, optional
+            Whether to return mutual terms. The default is ``True``.
         first_element_filter : str, optional
-            Filter to apply to first element of equation. It accepts `*` and `?` as special characters.
+            Filter to apply to the first element of the equation. This parameter accepts ``*``
+            and ``?`` as special characters. The default is ``None``.
         second_element_filter : str, optional
-            Filter to apply to second element of equation. It accepts `*` and `?` as special characters.
+            Filter to apply to the second element of the equation. This parameter accepts ``*``
+            and ``?`` as special characters. The default is ``None``.
         category : str
-            Plot category name as in the report (including operator). Eg. "dB(S" is category Capacitance.
+            Plot category name as in the report (including operator). The default is ``"dB(S"`,
+            which is the plot category name for capacitance.
 
         Returns
         -------
         list
+            List of traces of specified designs ready to use in plot reports.
 
         Examples
         --------
@@ -595,18 +599,21 @@ class Analysis(Design, object):
 
     @aedt_exception_handler
     def list_of_variations(self, setup_name=None, sweep_name=None):
-        """Return list of active variation for input setup.
+        """Retrieve a list of active variations for input setup.
 
         Parameters
         ----------
         setup_name : str, optional
-            Setup name. If ``None`` nominal adaptive will be used.
+            Setup name. The default is ``None``, in which case the nominal adaptive
+            is used.
         sweep_name : str, optional
-            Sweep name. If ``None`` nominal adaptive will be used.
+            Sweep name. The default is``None``, in which case the nominal adaptive
+            is used.
 
         Returns
         -------
         list
+            List of active variations for input setup.
 
         References
         ----------
@@ -637,14 +644,15 @@ class Analysis(Design, object):
 
     @aedt_exception_handler
     def export_results(self, analyze=False, export_folder=None):
-        """Export all available reports to file, including sNp, profile and convergence.
+        """Export all available reports to a file, including sNp, profile, and convergence.
 
         Parameters
         ----------
         analyze : bool
-            Either to Analyze before export or not. Solutions have to be present for the design.
+            Whether to analyze before export. Solutions must be present for the design.
         export_folder : str, optional
-            Full path to project folder. If `None` working_directory will be used.
+            Full path to the project folder. The default is ``None``, in which case the
+            working directory is used.
 
         Returns
         -------
@@ -769,16 +777,17 @@ class Analysis(Design, object):
 
     @aedt_exception_handler
     def export_convergence(self, setup_name, variation_string="", file_path=None):
-        """Export a solution convergence to file.
+        """Export a solution convergence to a file.
 
         Parameters
         ----------
         setup_name : str
-            Setup name. Eg ``'Setup1'``
+            Setup name. For example, ``'Setup1'``.
         variation_string : str
-            Variation string with values. Eg ``'radius=3mm'``
+            Variation string with values. For example, ``'radius=3mm'``.
         file_path : str, optional
-            full path to .prof file. If `None` working_directory will be used.
+            Full path to the PROF file. The default is ``None``, in which
+            case the working directory is used.
 
 
         Returns
@@ -1023,7 +1032,7 @@ class Analysis(Design, object):
 
     @aedt_exception_handler
     def get_sweeps(self, name):
-        """Retrieve all sweep for a setup.
+        """Retrieve all sweeps for a setup.
 
         Parameters
         ----------
@@ -1107,13 +1116,13 @@ class Analysis(Design, object):
         Parameters
         ----------
         num_cores : int, optional
-            Number of Simulation cores.
+            Number of simulation cores.
         num_tasks : int, optional
-            Number of Simulation tasks.
+            Number of simulation tasks.
         num_gpu : int, optional
-            Number of Simulation Gpu to use.
+            Number of simulation graphic processing units to use.
         acf_file : str, optional
-            Full path to custom acf_file.
+            Full path to the custom ACF file.
 
         Returns
         -------
@@ -1164,7 +1173,7 @@ class Analysis(Design, object):
             the default type is applied.
         props : dict, optional
             Dictionary of analysis properties appropriate for the design and analysis.
-            If no values are passed, default values will be used.
+            If no values are passed, default values are used.
 
         Returns
         -------
@@ -1368,17 +1377,17 @@ class Analysis(Design, object):
 
     @aedt_exception_handler
     def get_object_material_properties(self, object_list=None, prop_names=None):
-        """Retrieve the material properties for a list of given objects and return them in a dictionary.
+        """Retrieve the material properties for a list of objects and return them in a dictionary.
 
         This high-level function ignores objects with no defined material properties.
 
         Parameters
         ----------
         object_list : list, optional
-            List of objects for which to get material_properties. The default is ``None``,
-            in which case all objects are considered.
+            List of objects to get material properties for. The default is ``None``,
+            in which case material properties are retrieved for all objects.
         prop_names : str or list
-            The property or list of properties to export.  The default is ``None``, in
+            Property or list of properties to export. The default is ``None``, in
             which case all properties are exported.
 
         Returns
@@ -1502,7 +1511,7 @@ class Analysis(Design, object):
         """Analyze a design setup in batch mode.
 
         .. note::
-           To use this function, the AEDT project must be closed.
+           To use this function, the project must be closed.
 
         Parameters
         ----------
@@ -1512,7 +1521,7 @@ class Analysis(Design, object):
         machine : str, optional
             Name of the machine if remote.  The default is ``"local"``.
         run_in_thread : bool, optional
-            Whether the batch command is to be submitted as a thread. The default is
+            Whether to submit the batch command as a thread. The default is
             ``False``.
 
         Returns

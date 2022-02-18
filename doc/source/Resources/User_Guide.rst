@@ -6,11 +6,11 @@ It automatically detects whether it is running in an IronPython or CPython
 environment and initializes AEDT accordingly. PyAEDT also provides
 advanced error management.
 
-AEDT can be started from Python in the non-graphical mode using AEDT.
+You can start AEDT in non-graphical from Python:
 
 .. code:: python
 
-    Launch AEDT 2021 R1 in Non-Graphical mode
+    Launch AEDT 2021 R1 in non-graphical mode
 
     from pyaedt import Desktop, Circuit
     with Desktop(specified_version="2021.1", non_graphical=True, new_desktop_session=True, close_on_exit=True,
@@ -23,14 +23,14 @@ AEDT can be started from Python in the non-graphical mode using AEDT.
     # Desktop is automatically closed here.
 
 
-The previous command launches AEDT and initializes a new Circuit design.
+The previous code launches AEDT and initializes a new Circuit design.
 
 .. image:: ./aedt_first_page.png
   :width: 800
   :alt: Electronics Desktop Launched
 
 
-The same result can be obtained with the following code:
+You can obtain the same result with:
 
 .. code:: python
 
@@ -64,10 +64,10 @@ for the variable name, a project-wide variable is created.
   :alt: Variable Management
 
 
-Variable Manager allows user to create advanced equations and manage them through PyAEDT.
+With Variable Manager, you can create advanced equations and manage them through PyAEDT.
 
-The Variable value can be set or get using application setter and getter but user can access
-more comprehensive set of functions by accessing directly the variable_manager object.
+While you can set or get the variable value using the application setter and getter, you can
+access the ``variable_manager`` object for a more comprehensive set of functions:
 
 .. code:: python
 
@@ -110,13 +110,13 @@ You can create an object and change properties using getters and setters.
   :width: 800
   :alt: Modeler Object
 
-Once an object is created or is present in the design (from a loaded project), user can
-simply get the related object using getters. Getter works either with object id or object name.
-Object returned has all features even if it has not been created in PyAEDT.
-Next example shows how easily user can go deeper into edges and vertices of faces or 3d objects.
+Once an object is created or is present in the design (from a loaded project), you can
+simply get the related object using getters. A getter works either with an object ID or
+object name. The object returned has all features even if it has not been created in PyAEDT.
+
+This example shows how easily you can go deeper into edges and vertices of faces or 3D objects:
 
 .. code:: python
-
 
      box = hfss.modeler["mybox2"]
      for face in box.faces:
@@ -129,8 +129,7 @@ Next example shows how easily user can go deeper into edges and vertices of face
         print(edge.position)
 
 
-All objects allow to execute any modeler operations like union or subtraction.
-
+All objects support executing any modeler operation, such as union or subtraction:
 
 .. code:: python
 
@@ -147,9 +146,9 @@ All objects allow to execute any modeler operations like union or subtraction.
 
 Mesh
 ~~~~
-Mesh operations are very important in Engineering Simulation. PyAEDT is able to read all mesh
-operations already present in a design, edit them and create new ones.
-All mesh operations are listed into mesh object.
+Mesh operations are very important in engineering simulation. PyAEDT is able to read all mesh
+operations already present in a design, edit them, and create new ones. All mesh operations
+are listed in the mesh object.
 
 .. code:: python
 
@@ -170,10 +169,9 @@ All mesh operations are listed into mesh object.
 
 Setup
 ~~~~~
-Setup, Optimetrics and Sweeps are the last operations before running analysis.
-PyAEDT is able to read all setups, sweeps and optimetrics already present in a design,
-edit them and create new ones.
-All setup operations are listed into setups list.
+Setup, optimetrics, and wweeps are the last operations before running analysis.
+PyAEDT is able to read all setups, sweeps, and optimetrics already present in a design,
+edit them, and create new ones. All setup operations are listed in the setups list.
 
 .. code:: python
 
@@ -197,8 +195,9 @@ All setup operations are listed into setups list.
 
 Optimization
 ~~~~~~~~~~~~
-Optimetrics allows user to setup parametric analysis, sensitivity analysis, optimization and DOE.
-PyAEDT is able to read all optimetrics setup already present in a design and create new ones.
+Optimetrics allow you to set up parametric analysis, sensitivity analysis, optimization,
+and Design of Experients (DOE). PyAEDT is able to read all optimetrics setups already
+present in a design and create new ones.
 
 .. code:: python
 
@@ -213,18 +212,16 @@ PyAEDT is able to read all optimetrics setup already present in a design and cre
   :alt: Optimetrics Creation
 
 
-
-
 Client/Server
 ~~~~~~~~~~~~~
+You can launh PyAEDT on a remote machine if these conditions are met:
 
-Pyaedt can also be launched on a remote machine. To do that, the following conditions are needed:
+#. PyAEDT is installed on client and server machines. (There is no need to have AEDT
+   installed on the the client machine.)
+#. The same Python version is used on the client and server. (CPython 3.6+ or 
+   IronPython is embedded in the AEDT installation.)
 
-1. Pyaedt has to be installed on Client and Server machines
-2. No need to have AEDT installed on client machine
-3. Same Python version has to be used on client and server (CPython 3.6+ or IronPython embedded in AEDT Installation)
-
-Here one example of usage on Windows Server or Linux Server (IronPython):
+Here is an usage example for a Windows server or Linux server (IronPython):
 
 .. code:: python
 
@@ -234,7 +231,7 @@ Here one example of usage on Windows Server or Linux Server (IronPython):
     # ansysem_path and non_graphical are needed only for Linux Ironpython Server
     launch_server(ansysem_path="/path/to/ansys/executable/folder", non_graphical=True)
 
-On Client Side:
+Here is an usage example for the client side:
 
 .. code:: python
 
@@ -248,7 +245,7 @@ On Client Side:
     ...
 
 
-Here one example of usage on Linux Server (CPython):
+Here is a usage example for a Linux server (CPython):
 
 .. code:: python
 
@@ -257,7 +254,7 @@ Here one example of usage on Linux Server (CPython):
     from pyaedt.common_rpc import launch_server
     launch_server()
 
-On Client Side:
+Here is a usage example for the client side:
 
 .. code:: python
 
@@ -271,7 +268,7 @@ On Client Side:
     my_client.root.run_script(example_script, aedt_version="2021.2") #if ANSYSEM_ROOTxxx env variable is present
 
 
-As an alternative, the user can upload the script to run to the server and run it.
+As an alternative, you can upload the script to the server and run it from there:
 
 .. code:: python
 
@@ -291,26 +288,26 @@ CPython on Linux with Client-Server
 
 To bypass current IronPython limits, you can launch PyAEDT on a Linux machine:
 
-1. Using pip, install PyAEDT 0.4.23 or later on a Linux machine.
-2. Launche CPython and run PyAEDT.
+#. Using ``pip``, install PyAEDT 0.4.23 or later on a Linux machine.
+#. Launch CPython and run PyAEDT.
 
-.. code:: python
+   .. code:: python
 
-    # Launch the latest installed version of PyAEDT in non-graphical mode.
+      # Launch the latest installed version of PyAEDT in non-graphical mode.
 
-    from pyaedt.common_rpc import launch_ironpython_server
-    client = launch_ironpython_server(ansysem_path="/path/to/ansys/executable/folder", non_graphical=True, port=18000)
-    hfss = client.root.hfss()
-    # put your code here
+      from pyaedt.common_rpc import launch_ironpython_server
+      client = launch_ironpython_server(ansysem_path="/path/to/ansys/executable/folder", non_graphical=True, port=18000)
+      hfss = client.root.hfss()
+      # put your code here
 
-3. If the method returns a list or dictionary, use the following method to work around an
+#. If the method returns a list or dictionary, use this method to work around an
    issue with CPython handling:
 
-.. code:: python
+   .. code:: python
 
-    box1 = hfss.modeler.create_box([0,0,0],[1,1,1])
-    # convert_remote_object method convert remote ironpython list to local cpython.
-    faces = client.convert_remote_object(box1.faces)
+      box1 = hfss.modeler.create_box([0,0,0],[1,1,1])
+      # convert_remote_object method convert remote ironpython list to local cpython.
+      faces = client.convert_remote_object(box1.faces)
 
 
 .. image:: ./IronPython2Cpython.png

@@ -586,7 +586,7 @@ def filter_string(value, search_key1):
     ignore_case = True
 
     def _create_pattern(k1):
-        k1a = re.sub(r"\?", r".", k1)
+        k1a = re.sub(r"\?", r".", k1.replace("\\", "\\\\"))
         k1b = re.sub(r"\*", r".*?", k1a)
         pattern = r"^{}$".format(k1b)
         return pattern

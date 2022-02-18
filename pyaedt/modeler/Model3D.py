@@ -10,7 +10,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
     """Provides the Modeler 3D application interface.
 
     This class is inherited in the caller application and is accessible through the modeler variable
-    object( eg. ``hfss.modeler``).
+    object. For example, ``hfss.modeler``.
 
     Parameters
     ----------
