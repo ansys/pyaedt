@@ -2050,17 +2050,15 @@ class PostProcessor(PostProcessorCommon, object):
         else:
             filename = filename.replace("//", "/").replace("\\", "/")
         self.ofieldsreporter.CalcStack("clear")
-        if isvector:
+        try:
             self.ofieldsreporter.EnterQty(quantity_name)
+        except:
+            self.ofieldsreporter.CopyNamedExprToStack(quantity_name)
+        if isvector:
             self.ofieldsreporter.CalcOp("Smooth")
             self.ofieldsreporter.EnterScalar(0)
             self.ofieldsreporter.CalcOp("AtPhase")
             self.ofieldsreporter.CalcOp("Mag")
-        else:
-            self.ofieldsreporter.EnterQty(quantity_name)
-        obj_list = "AllObjects"
-        self.ofieldsreporter.EnterVol(obj_list)
-        self.ofieldsreporter.CalcOp("Mean")
         units = self.modeler.model_units
         ang_units = "deg"
         if gridtype == "Cartesian":
@@ -2068,7 +2066,7 @@ class PostProcessor(PostProcessorCommon, object):
             grid_start_wu = [str(i) + units for i in grid_start]
             grid_stop_wu = [str(i) + units for i in grid_stop]
             grid_step_wu = [str(i) + units for i in grid_step]
-        elif gridtype == "Cylinidrical":
+        elif gridtype == "Cylindrical":
             grid_center = [str(i) + units for i in grid_center]
             grid_start_wu = [str(grid_start[0]) + units, str(grid_start[1]) + ang_units, str(grid_start[2]) + units]
             grid_stop_wu = [str(grid_stop[0]) + units, str(grid_stop[1]) + ang_units, str(grid_stop[2]) + units]
