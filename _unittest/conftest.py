@@ -24,7 +24,7 @@ import json
 import gc
 import sys
 from pyaedt.generic.general_methods import is_ironpython, inside_desktop
-
+from pyaedt import settings
 log_path = os.path.join(tempfile.gettempdir(), "test.log")
 if os.path.exists(os.path.join(tempfile.gettempdir(), "test.log")):
     os.remove(log_path)
