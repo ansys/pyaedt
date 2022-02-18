@@ -147,6 +147,7 @@ class TestClass:
             intrinsics="5GHz",
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "Efield.fld"))
+
         self.aedtapp.post.export_field_file_on_grid(
             "Mag_E",
             "Setup1 : LastAdaptive",
@@ -159,6 +160,7 @@ class TestClass:
             intrinsics="5GHz",
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "MagEfieldSph.fld"))
+
         self.aedtapp.post.export_field_file_on_grid(
             "Mag_E",
             "Setup1 : LastAdaptive",
