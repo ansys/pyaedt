@@ -972,11 +972,6 @@ class TestClass(BasisTest):
     @pyaedt_unittest_check_desktop_error
     def test_72_check_choke_values(self):
         choke_file = os.path.join(local_path, "example_models", "choke.json")
-        choke_file_corrected = choke_file.split(".")[0] + "_Corrected.json"
-        if os.path.exists(choke_file_corrected):
-            os.remove(choke_file_corrected)
         resolve, values = self.aedtapp.modeler.check_choke_values(choke_file)
-        assert os.path.exists(choke_file_corrected)
-        os.remove(choke_file_corrected)
         assert resolve
         assert isinstance(values, dict)
