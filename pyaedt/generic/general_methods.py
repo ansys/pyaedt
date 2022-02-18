@@ -45,7 +45,7 @@ def _write_mes(mes_text):
     if logger:
         for el in parts:
             logger.error(el)
-    elif os.getenv("PYAEDT_SCREEN_LOGS", "True").lower() in ("true", "1", "t"):
+    elif settings.enable_screen_logs:
         for el in parts:
             print(el)
 
@@ -239,7 +239,7 @@ def aedt_exception_handler(func):
 
     @wraps(func)
     def inner_function(*args, **kwargs):
-        if os.getenv("PYAEDT_ERROR_HANDLER", "True").lower() in ("true", "1", "t"):
+        if settings.enable_error_handler:
             try:
                 new_args = _remote_list_conversion(args)
                 new_kwargs = _remote_dict_conversion(kwargs)
@@ -274,12 +274,12 @@ def aedt_exception_handler(func):
                 return False
             except MethodNotSupportedError:
                 message = "This Method is not supported in current AEDT Design Type."
-                if os.getenv("PYAEDT_SCREEN_LOGS", "True").lower() in ("true", "1", "t"):
+                if settings.enable_screen_logs:
                     print("**************************************************************")
                     print("pyaedt error on Method {}:  {}. Please Check again".format(func.__name__, message))
                     print("**************************************************************")
                     print("")
-                if os.getenv("PYAEDT_FILE_LOGS", "True").lower() in ("true", "1", "t"):
+                if settings.enable_file_logs:
                     logger.error(message)
                 return False
             except BaseException:
@@ -622,46 +622,46 @@ class Settings(object):
     """Class that manages all PyAEDT Environment Variables and global settings."""
 
     def __init__(self):
-        self.enable_logger = True
-        self.enable_desktop_logs = True
-        self.enable_screen_logs = True
-        self.enable_file_logs = True
+        self._enable_logger = True
+        self._enable_desktop_logs = True
+        self._enable_screen_logs = True
+        self._enable_file_logs = True
         self.pyaedt_server_path = ""
-        self.logger_file_path = None
-        self.logger_formatter = "%(asctime)s:%(destination)s:%(extra)s%(levelname)-8s:%(message)s"
-        self.logger_datefmt = "%Y/%m/%d %H.%M.%S"
-        self.enable_debug_edb_logger = False
-        self.enable_debug_geometry_operator_logger = False
-        self.enable_debug_internal_methods_logger = False
-        self.enable_debug_logger = False
-        self.enable_error_handler = True
+        self._logger_file_path = None
+        self._logger_formatter = "%(asctime)s:%(destination)s:%(extra)s%(levelname)-8s:%(message)s"
+        self._logger_datefmt = "%Y/%m/%d %H.%M.%S"
+        self._enable_debug_edb_logger = False
+        self._enable_debug_geometry_operator_logger = False
+        self._enable_debug_internal_methods_logger = False
+        self._enable_debug_logger = False
+        self._enable_error_handler = True
 
     @property
     def enable_error_handler(self):
         """Return the Environment Variable Content."""
-        return os.getenv("PYAEDT_ERROR_HANDLER", "True").lower() in ("true", "1", "t")
+        return self._enable_error_handler
 
     @enable_error_handler.setter
     def enable_error_handler(self, val):
-        os.environ["PYAEDT_ERROR_HANDLER"] = str(val)
+        self._enable_error_handler = val
 
     @property
     def enable_desktop_logs(self):
         """Return the Environment Variable Content."""
-        return os.getenv("PYAEDT_DESKTOP_LOGS", "True").lower() in ("true", "1", "t")
+        return self._enable_desktop_logs
 
     @enable_desktop_logs.setter
     def enable_desktop_logs(self, val):
-        os.environ["PYAEDT_DESKTOP_LOGS"] = str(val)
+        self._enable_desktop_logs = val
 
     @property
     def enable_screen_logs(self):
         """Return the Environment Variable Content."""
-        return os.getenv("PYAEDT_SCREEN_LOGS", "True").lower() in ("true", "1", "t")
+        return self._enable_screen_logs
 
     @enable_screen_logs.setter
     def enable_screen_logs(self, val):
-        os.environ["PYAEDT_SCREEN_LOGS"] = str(val)
+        self._enable_screen_logs = val
 
     @property
     def pyaedt_server_path(self):
@@ -675,86 +675,83 @@ class Settings(object):
     @property
     def enable_file_logs(self):
         """Return the Environment Variable Content."""
-        return os.getenv("PYAEDT_FILE_LOGS", "True").lower() in ("true", "1", "t")
+        return self._enable_file_logs
 
     @enable_file_logs.setter
     def enable_file_logs(self, val):
-        os.environ["PYAEDT_FILE_LOGS"] = str(val)
+        self._enable_file_logs = val
 
     @property
     def enable_logger(self):
         """Return the Environment Variable Content."""
-        return os.getenv("PYAEDT_ENABLE_LOGGER", "True").lower() in ("true", "1", "t")
+        return self._enable_logger
 
     @enable_logger.setter
     def enable_logger(self, val):
-        os.environ["PYAEDT_ENABLE_LOGGER"] = str(val)
+        self._enable_logger = val
 
     @property
     def logger_file_path(self):
         """Return the Environment Variable Content."""
-        return os.getenv("PYAEDT_LOGGER_FILE", "")
+        return self._logger_file_path
 
     @logger_file_path.setter
     def logger_file_path(self, val):
-        if val:
-            os.environ["PYAEDT_LOGGER_FILE"] = str(val)
-        else:
-            os.environ["PYAEDT_LOGGER_FILE"] = ""
+        self._logger_file_path = val
 
     @property
     def logger_formatter(self):
         """Return the Environment Variable Content."""
-        return os.getenv("PYAEDT_FORMATTER", "")
+        return self._logger_formatter
 
     @logger_formatter.setter
     def logger_formatter(self, val):
-        os.environ["PYAEDT_FORMATTER"] = str(val)
+        self._logger_formatter = val
 
     @property
     def logger_datefmt(self):
         """Return the Environment Variable Content."""
-        return os.getenv("PYAEDT_FORMATTER_DATETM", "")
+        return self._logger_datefmt
 
     @logger_datefmt.setter
     def logger_datefmt(self, val):
-        os.environ["PYAEDT_FORMATTER_DATETM"] = str(val)
+        self._logger_datefmt = val
 
     @property
     def enable_debug_edb_logger(self):
         """Return the Environment Variable Content."""
-        return os.getenv("PYAEDT_EDB_LOGGER", "True").lower() in ("true", "1", "t")
+        return self._enable_debug_edb_logger
 
     @enable_debug_edb_logger.setter
     def enable_debug_edb_logger(self, val):
-        os.environ["PYAEDT_EDB_LOGGER"] = str(val)
+        self._enable_debug_edb_logger = val
 
     @property
     def enable_debug_geometry_operator_logger(self):
         """Return the Environment Variable Content."""
-        return os.getenv("PYAEDT_GEOMETRY_OPERATOR_LOGGER", "True").lower() in ("true", "1", "t")
+        return self._enable_debug_geometry_operator_logger
 
     @enable_debug_geometry_operator_logger.setter
     def enable_debug_geometry_operator_logger(self, val):
-        os.environ["PYAEDT_GEOMETRY_OPERATOR_LOGGER"] = str(val)
+        self._enable_debug_geometry_operator_logger = val
 
     @property
     def enable_debug_internal_methods_logger(self):
         """Return the Environment Variable Content."""
-        return os.getenv("PYAEDT_LOG_INTERNAL_METHODS", "True").lower() in ("true", "1", "t")
+        return self._enable_debug_internal_methods_logger
 
     @enable_debug_internal_methods_logger.setter
     def enable_debug_internal_methods_logger(self, val):
-        os.environ["PYAEDT_LOG_INTERNAL_METHODS"] = str(val)
+        self._enable_debug_internal_methods_logger = val
 
     @property
     def enable_debug_logger(self):
         """Return the Environment Variable Content."""
-        return os.getenv("PYAEDT_DEBUG_LOG", "True").lower() in ("true", "1", "t")
+        return self._enable_debug_logger
 
     @enable_debug_logger.setter
     def enable_debug_logger(self, val):
-        os.environ["PYAEDT_DEBUG_LOG"] = str(val)
+        self._enable_debug_logger = val
 
 
 settings = Settings()

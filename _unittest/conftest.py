@@ -30,13 +30,12 @@ log_path = os.path.join(tempfile.gettempdir(), "test.log")
 if os.path.exists(os.path.join(tempfile.gettempdir(), "test.log")):
     os.remove(log_path)
 settings.logger_file_path = log_path
-
+settings.enable_error_handler = False
 if is_ironpython:
     import _unittest_ironpython.conf_unittest as pytest
 else:
     import pytest
 
-os.environ["PYAEDT_ERROR_HANDLER"] = "False"
 
 local_path = os.path.dirname(os.path.realpath(__file__))
 
