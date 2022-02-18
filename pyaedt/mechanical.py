@@ -165,7 +165,7 @@ class Mechanical(FieldAnalysis3D, object):
         # Generate a list of model objects from the lists made previously and use to map the HFSS losses into Icepak.
         #
         if not object_list:
-            allObjects = self.modeler.primitives.object_names
+            allObjects = self.modeler.object_names
         else:
             allObjects = object_list[:]
         surfaces = surface_objects
@@ -262,7 +262,7 @@ class Mechanical(FieldAnalysis3D, object):
         #
         object_list = self.modeler.convert_to_selections(object_list, True)
         if not object_list:
-            allObjects = self.modeler.primitives.object_names
+            allObjects = self.modeler.object_names
         else:
             allObjects = object_list[:]
         argparam = OrderedDict({})

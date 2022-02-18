@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""This module contains the `Circuit` class."""
+"""This module contains the ``Circuit`` class."""
 
 from __future__ import absolute_import
 
@@ -363,7 +363,7 @@ class Circuit(FieldAnalysisCircuit, object):
 
     @aedt_exception_handler
     def read_ibis(self, path):
-        """Create an IBIS model based on the data contained into an *.ibs file.
+        """Create an IBIS model based on the data contained in an IBS file.
 
         Parameters
         ----------

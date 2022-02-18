@@ -231,8 +231,7 @@ class Polyline(Object3d):
             object.
 
         """
-        vertex_id = self._primitives.get_object_vertices(partID=self.id)[0]
-        return self._primitives.get_vertex_position(vertex_id)
+        return self.vertices[0].position
 
     @property
     def end_point(self):
@@ -252,8 +251,7 @@ class Polyline(Object3d):
         >>> oEditor.GetVertexPosition
 
         """
-        end_vertex_id = self._primitives.get_object_vertices(partID=self.id)[-1]
-        return self._primitives.get_vertex_position(end_vertex_id)
+        return self.vertices[-1].position
 
     @property
     def points(self):
@@ -572,24 +570,42 @@ class Polyline(Object3d):
         >>> P.remove_vertex(["0mm", "1mm", "2mm"], abstol=1e-6)
         """
         found_vertex = False
-
-        # Search for position in the vertex data
-        pos_xyz = self._primitives.value_in_object_units(position)
-        for ind, vertex_pos in enumerate(self.vertex_positions):
-            # compare the specified point with the vertex data using an absolute tolerance
-            # (default of math.isclose is 1e-9 which should be ok in almost all cases)
-            found_vertex = GeometryOperators.points_distance(vertex_pos, pos_xyz) <= abstol
-            if found_vertex:
-                if ind == len(self.vertex_positions) - 1:
-                    seg_id = ind - 1
-                    at_start = False
-                else:
-                    seg_id = ind
+        if self._primitives._app._is_object_oriented_enabled():
+            obj = self._primitives._oeditor.GetChildObject(self._m_name).GetChildObject("CreatePolyline:1")
+            segments = obj.GetChildNames()
+            seg_id = 0
+            for seg in segments:
+                point = obj.GetChildObject(seg).GetPropValue("Point1")
+                p = self._primitives.value_in_object_units([point[1], point[3], point[5]])
+                pos_xyz = self._primitives.value_in_object_units(position)
+                found_vertex = GeometryOperators.points_distance(p, pos_xyz) <= abstol
+                if found_vertex:
                     at_start = True
-                break
+                    break
+                point = obj.GetChildObject(seg).GetPropValue("Point2")
+                p = self._primitives.value_in_object_units([point[1], point[3], point[5]])
+                found_vertex = GeometryOperators.points_distance(p, pos_xyz) <= abstol
+                if found_vertex:
+                    at_start = False
+                    break
+                seg_id += 1
+        else:  # pragma: no cover
+            pos_xyz = self._primitives.value_in_object_units(position)
+            for ind, vertex_pos in enumerate(self.vertex_positions):
+                # compare the specified point with the vertex data using an absolute tolerance
+                # (default of math.isclose is 1e-9 which should be ok in almost all cases)
+                found_vertex = GeometryOperators.points_distance(vertex_pos, pos_xyz) <= abstol
+                if found_vertex:
+                    if ind == len(self.vertex_positions) - 1:
+                        seg_id = ind - 1
+                        at_start = True
+                    else:
+                        seg_id = ind
+                        at_start = False
+                    break
 
         assert found_vertex, "Specified vertex {} not found in polyline {}.".format(position, self._m_name)
-        self._primitives._oeditor.DeletePolylinePoint(
+        self._primitives.oeditor.DeletePolylinePoint(
             [
                 "NAME:Delete Point",
                 "Selections:=",
@@ -1568,6 +1584,14 @@ class Primitives(object):
 
         >>> oEditor.CreateUserDefinedPart
 
+        Examples
+        --------
+        >>> my_udp = self.aedtapp.modeler.create_udp(udp_dll_name="RMxprt/ClawPoleCore",
+        ...                                          udp_parameters_list=my_udpPairs,
+        ...                                          upd_library="syslib",
+        ...                                          udptye="Solid")
+        <class 'pyaedt.modeler.Object3d.Object3d'>
+
         """
         if ".dll" not in udp_dll_name:
             vArg1 = [
@@ -1597,6 +1621,59 @@ class Primitives(object):
         vArg2 = self._default_object_attributes(name=obj_name)
         obj_name = self._oeditor.CreateUserDefinedPart(vArg1, vArg2)
         return self._create_object(obj_name)
+
+    @aedt_exception_handler
+    def update_udp(self, object_name, operation_name, udp_parameters_list):
+        """Update an existing geometrical object that was originally created using a user-defined primitive (UDP).
+
+        Parameters
+        ----------
+        object_name : str
+            Name of the object to update.
+        operation_name : str
+            Name of the operation used to create the object.
+        udp_parameters_list : list
+            List of the UDP parameters to update and their value.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful.
+
+        References
+        ----------
+
+        >>> oEditor.CreateUserDefinedPart
+
+        Examples
+        --------
+        >>> self.aedtapp.modeler.update_udp(object_name="ClawPoleCore",
+        ...                                 operation_name="CreateUserDefinedPart",
+        ...                                 udp_parameters_list=[["Length","110mm"], ["DiaGap","125mm"]])
+        True
+
+        """
+
+        vArg1 = ["NAME:AllTabs"]
+
+        prop_servers = ["NAME:PropServers"]
+        prop_servers.append("{0}:{1}:1".format(object_name, operation_name))
+
+        cmd_tab = ["NAME:Geometry3DCmdTab"]
+        cmd_tab.append(prop_servers)
+
+        changed_props = ["NAME:ChangedProps"]
+
+        for pair in udp_parameters_list:
+            if isinstance(pair, list):
+                changed_props.append(["NAME:{0}".format(pair[0]), "Value:=", pair[1]])
+            else:
+                changed_props.append(["NAME:", pair.Name, "Value:=", pair.Value])
+
+        cmd_tab.append(changed_props)
+        vArg1.append(cmd_tab)
+        self._oeditor.ChangeProperty(vArg1)
+        return True
 
     @aedt_exception_handler
     def delete(self, objects=None):

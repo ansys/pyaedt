@@ -27,6 +27,7 @@ class TestClass:
                 os.path.join(self.local_scratch.path, test_project_name + ".aedb"),
             )
         self.aedtapp = Hfss3dLayout(self.test_project)
+        self.aedtapp.modeler.geometries
 
     def teardown_class(self):
         self.aedtapp._desktop.ClearMessages("", "", 3)
@@ -45,15 +46,23 @@ class TestClass:
         assert comp["L3A1"].get_part_type()
         assert comp["L3A1"].set_property_value("Angle", "0deg")
 
-    def test_02_get_geometries(self):
-        geo = self.aedtapp.modeler.geometries
-        assert len(geo) > 0
-        assert geo["line_1983"].object_units == "mm"
-        assert geo["line_1983"].get_placement_layer()
-        assert geo["line_1983"].set_lock_position(True)
-        assert geo["line_1983"].set_lock_position(False)
-        assert geo["line_1983"].set_layer("PWR")
-        assert geo["line_1983"].set_net_name("VCC")
+    def test_02a_get_geometries(self):
+        line = self.aedtapp.modeler.geometries["line_1983"]
+        assert len(self.aedtapp.modeler.geometries) > 0
+
+    def test_02b_geo_units(self):
+        assert self.aedtapp.modeler.geometries["line_1983"].object_units == "mm"
+
+    def test_02c_geo_layer(self):
+        assert self.aedtapp.modeler.geometries["line_1983"].get_placement_layer()
+
+    def test_02d_geo_lock(self):
+        assert self.aedtapp.modeler.geometries["line_1983"].set_lock_position(True)
+        assert self.aedtapp.modeler.geometries["line_1983"].set_lock_position(False)
+
+    def test_02e_geo_setter(self):
+        assert self.aedtapp.modeler.geometries["line_1983"].set_layer("PWR")
+        assert self.aedtapp.modeler.geometries["line_1983"].set_net_name("VCC")
 
     def test_03_get_pins(self):
         pins = self.aedtapp.modeler.pins
@@ -82,3 +91,8 @@ class TestClass:
         assert self.aedtapp.modeler.set_spice_model(
             component_name="C3A3", model_path=model_path, subcircuit_name="GRM32ER72A225KA35_25C_0V"
         )
+
+    def test_07_nets(self):
+        nets = self.aedtapp.modeler.nets
+        assert nets["GND"].name == "GND"
+        assert len(nets) > 0

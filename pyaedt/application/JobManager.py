@@ -67,7 +67,7 @@ def update_simulation_cores(name, nc):
     name : str
         Name of the configuration file.
     nc : int or string
-        Number of cores.
+        Number of simulation cores.
 
     """
     with open(name) as fid:
