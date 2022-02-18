@@ -1828,6 +1828,11 @@ class EDBPadstackInstance(object):
         self._pedb = _pedb
 
     @property
+    def pin(self):
+        """Return Edb padstack object."""
+        return self._edb_padstackinstance
+
+    @property
     def padstack_definition(self):
         """Padstack definition.
 
@@ -2003,7 +2008,7 @@ class EDBPadstackInstance(object):
             pin_name = self._edb_padstackinstance.GetName()
             return "-".join([comp_name, pin_name])
         else:
-            return None
+            return self._edb_padstackinstance.GetName()
 
     @aedt_exception_handler
     def delete_padstack_instance(self):
@@ -2035,38 +2040,6 @@ class EDBPadstackInstance(object):
                 voids.append(prim)
         return voids
 
-
-class EDBPinInstances(object):
-    """Manages EDB functionalities in instances.
-
-
-    Examples
-    --------
-    >>> from pyaedt import Edb
-    >>> edb = Edb(myedb, edbversion="2021.2")
-    >>> edb_pin_instance = edb.core_components.components["R1"].pins[0]
-    """
-
-    def __init__(self, edb_components, pin):
-        self._pedbcomponents = edb_components
-        self.pin = pin
-
-    @property
-    def placement_layer(self):
-        """Placement layer."""
-        return self.pin.GetGroup().GetPlacementLayer().GetName()
-
-    @property
-    def net(self):
-        """Net.
-
-        Returns
-        -------
-        str
-           Name of the net.
-        """
-        return self.pin.GetNet().GetName()
-
     @property
     def pingroups(self):
         """Pin groups that the pin belongs to.
@@ -2076,55 +2049,7 @@ class EDBPinInstances(object):
         list
             List of pin groups that the pin belongs to.
         """
-        return self.pin.GetPinGroups()
-
-    @property
-    def position(self):
-        """Pin position.
-
-        Returns
-        -------
-        list
-            List of ``[x, y]``` coordinates for the pin position.
-        """
-        self._pedbcomponents._edb.Geometry.PointData(
-            self._pedbcomponents._edb_value(0.0), self._pedbcomponents._edb_value(0.0)
-        )
-        if is_ironpython:
-            out = self.pin.GetPositionAndRotationValue()
-        else:
-            out = self.pin.GetPositionAndRotationValue(
-                self._pedbcomponents._edb.Geometry.PointData(
-                    self._pedbcomponents._edb_value(0.0), self._pedbcomponents._edb_value(0.0)
-                ),
-                self._pedbcomponents._edb_value(0.0),
-            )
-        if out[0]:
-            return [out[1].X.ToDouble(), out[1].Y.ToDouble()]
-
-    @property
-    def rotation(self):
-        """Pin rotation.
-
-        Returns
-        -------
-        float
-            Rotatation value for the pin.
-        """
-        self._pedbcomponents._edb.Geometry.PointData(
-            self._pedbcomponents._edb_value(0.0), self._pedbcomponents._edb_value(0.0)
-        )
-        if is_ironpython:
-            out = self.pin.GetPositionAndRotationValue()
-        else:
-            out = self.pin.GetPositionAndRotationValue(
-                self._pedbcomponents._edb.Geometry.PointData(
-                    self._pedbcomponents._edb_value(0.0), self._pedbcomponents._edb_value(0.0)
-                ),
-                self._pedbcomponents._edb_value(0.0),
-            )
-        if out[0]:
-            return out[2].ToDouble()
+        return self._edb_padstackinstance.GetPinGroups()
 
     @property
     def placement_layer(self):
@@ -2135,7 +2060,7 @@ class EDBPinInstances(object):
         str
             Name of the placement layer.
         """
-        return self.pin.GetGroup().GetPlacementLayer().GetName()
+        return self._edb_padstackinstance.GetGroup().GetPlacementLayer().GetName()
 
     @property
     def lower_elevation(self):
@@ -2146,7 +2071,7 @@ class EDBPinInstances(object):
         float
             Lower elavation of the placement layer.
         """
-        return self.pin.GetGroup().GetPlacementLayer().GetLowerElevation()
+        return self._edb_padstackinstance.GetGroup().GetPlacementLayer().GetLowerElevation()
 
     @property
     def upper_elevation(self):
@@ -2157,7 +2082,7 @@ class EDBPinInstances(object):
         float
            Upper elevation of the placement layer.
         """
-        return self.pin.GetGroup().GetPlacementLayer().GetUpperElevation()
+        return self._edb_padstackinstance.GetGroup().GetPlacementLayer().GetUpperElevation()
 
     @property
     def top_bottom_association(self):
@@ -2174,7 +2099,7 @@ class EDBPinInstances(object):
             * 4 Number of top/bottom association type.
             * -1 Undefined.
         """
-        return int(self.pin.GetGroup().GetPlacementLayer().GetTopBottomAssociation())
+        return int(self._edb_padstackinstance.GetGroup().GetPlacementLayer().GetTopBottomAssociation())
 
 
 class EDBComponent(object):
@@ -2325,16 +2250,16 @@ class EDBComponent(object):
 
     @property
     def pins(self):
-        """EDBPinInstances of Component.
+        """EDBPadstackInstance of Component.
 
         Returns
         -------
-        list
-            List of EDBPinInstances of Component.
+        dic[str, :class:`pyaedt.edb_core.EDB_Data.EDBPadstackInstance`]
+            Dictionary of EDBPadstackInstance Components.
         """
         pins = {}
         for el in self.pinlist:
-            pins[el.GetName()] = EDBPinInstances(self, el)
+            pins[el.GetName()] = EDBPadstackInstance(el, self._pcomponents._pedb)
         return pins
 
     @property
