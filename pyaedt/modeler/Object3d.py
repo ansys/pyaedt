@@ -847,11 +847,11 @@ class Object3d(object):
                     for i in range(1, 7):
                         bb.append(float(m.group(i)))
                 except:
-                    raise Exception("WARNING: Error parsing the SAT file. Object " + str(self.name))
+                    return False
             else:
-                raise Exception("WARNING: Error parsing the SAT file. Object " + str(self.name))
+                return False
         else:
-            raise Exception("WARNING: Error parsing the SAT file. Object " + str(self.name))
+            return False
 
         try:
             os.remove(filename)
@@ -878,10 +878,11 @@ class Object3d(object):
 
         """
         if not self._primitives._app.student_version:
-            try:
-                return self._bounding_box_sat()
-            except:
-                return self._bounding_box_unmodel()
+                bounding = self._bounding_box_sat()
+                if bounding:
+                    return bounding
+                else:
+                    return self._bounding_box_unmodel()
         else:
             return self._bounding_box_unmodel()
 
