@@ -1,20 +1,16 @@
 Initial Setup and Launching AEDT
 ================================
-
-`pyaedt` works both inside AEDT and as a standalone application.
+PyAEDT works both inside AEDT and as a standalone application.
 It automatically detects whether it is running in an IronPython or CPython
 environment and initializes AEDT accordingly.
 
-
 Initial Setup and Launching AEDT Locally
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-AEDT can be started from Python in the graphical/non-graphical mode using AEDT.
+You can start AEDT from Python in the graphical or non-graphical mode.
 
 .. code:: python
 
-    Launch AEDT 2021 R2 in Non-Graphical mode
+    Launch AEDT 2021 R2 in non-graphical mode
 
     from pyaedt import Desktop, Maxwell3d
     with Desktop(specified_version="2021.2", non_graphical=True, new_desktop_session=True, close_on_exit=True,
@@ -27,8 +23,7 @@ AEDT can be started from Python in the graphical/non-graphical mode using AEDT.
     # Desktop is automatically closed here.
 
 
-The same result can be obtained with the following code:
-
+You can obtain the same result with:
 
 .. code:: python
 
@@ -44,19 +39,20 @@ The same result can be obtained with the following code:
     # Desktop is automatically released here.
 
 
-
 Initial Setup and Launching AEDT Remotely
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+You can launch PyAEDT on a remote machine if the following conditions are met:
 
-Pyaedt can also be launched on a remote machine. To do that, the following conditions are needed:
+#. PyAEDT is installed on client and server machines. (You do not need to have AEDT
+   installed on the client machine.)
+#. The same Python version is used on the client and server machines. (CPython 3.6+
+   or IronPython is embedded in the AEDT installation.)
 
-1. Pyaedt has to be installed on Client and Server machines
-2. No need to have AEDT installed on client machine
-3. Same Python version has to be used on client and server (CPython 3.6+ or Ironpython embedded in AEDT Installation)
-4. CPython to IronPython can be used with some data type limitations and potential issues. As an example, when getting
-   lists from a command you can access every item (e.g. ``mylist[i]``) and len (e.g. ``mylist.__len__()``) but not ``len(mylist)``.
+CPython to IronPython can be used with some data type limitations and potential issues.
+For example, when getting lists from a command, you can access every item (such as ``mylist[i]``)
+and len (such as ``mylist.__len__()``) but not ``len(mylist)``.
 
-Here one example of usage on Windows Server or Linux Server (Ironpython):
+Here is an usage example for a Windows server or Linux server (Ironpython):
 
 .. code:: python
 
@@ -66,10 +62,14 @@ Here one example of usage on Windows Server or Linux Server (Ironpython):
     # ansysem_path and non_graphical are needed only for Linux Ironpython Server
     launch_server(ansysem_path="/path/to/ansys/executable/folder", non_graphical=True)
 
-On Linux, the IronPython console can be launched with the following command:
-/path/to/AnsysEM21.x/Linux64/common/mono/Linux64/bin/mono /path/to/AnsysEM21.x/Linux64/common/IronPython/ipy64.exe
+On Linux, you can launch the IronPython console with:
 
-On client side:
+.. code:: python
+
+   /path/to/AnsysEM21.x/Linux64/common/mono/Linux64/bin/mono /path/to/AnsysEM21.x/Linux64/common/IronPython/ipy64.exe
+
+
+Here is a usage example for the client side:
 
 .. code:: python
 
@@ -84,7 +84,7 @@ On client side:
 
 
 The Linux CPython server is also supported but allows you only to run PyAEDT in a script (in a non-interactive session).
-Here one example of usage on Linux Server (CPython):
+Here is an usage example for the Linux server (CPython):
 
 .. code:: python
 
@@ -93,7 +93,7 @@ Here one example of usage on Linux Server (CPython):
     from pyaedt.common_rpc import launch_server
     launch_server()
 
-On Client Side:
+Here is a usage example for the client Side:
 
 .. code:: python
 
@@ -107,7 +107,7 @@ On Client Side:
     my_client.root.run_script(example_script, aedt_version="2021.2") #if ANSYSEM_ROOTxxx env variable is present
 
 
-As an alternative, the user can upload the script to run to the server and run it.
+As an alternative, you can upload the script to the server and run it from there:
 
 .. code:: python
 
@@ -123,23 +123,24 @@ As an alternative, the user can upload the script to run to the server and run i
 
 
 CPython on Linux with Client-Server
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To bypass current IronPython limits, you can launch PyAEDT on a Linux machine:
 
-1. Using pip, install PyAEDT 0.4.23 or later on a Linux machine.
-2. Launche CPython and run PyAEDT.
+1. Using ``pip``, install PyAEDT 0.4.23 or later on a Linux machine.
+2. Launch CPython and run PyAEDT.
 
-.. code:: python
+  .. code:: python
 
-    # Launch the latest installed version of PyAEDT in graphical mode.
+      # Launch the latest installed version of PyAEDT in graphical mode.
+      
+      from pyaedt.common_rpc import launch_ironpython_server
+      client = launch_ironpython_server(ansysem_path="/path/to/ansys/executable/folder", non_graphical=True, port=18000)
+      hfss = client.root.hfss()
+      # put your code here
 
-    from pyaedt.common_rpc import launch_ironpython_server
-    client = launch_ironpython_server(ansysem_path="/path/to/ansys/executable/folder", non_graphical=True, port=18000)
-    hfss = client.root.hfss()
-    # put your code here
 
-3. If the method returns a list or dictionary, use the following method to work around an
+3. If the method returns a list or dictionary, use this method to work around an
    issue with CPython handling:
 
 .. code:: python

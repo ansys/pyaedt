@@ -5,7 +5,7 @@ try:
 except ImportError:
     import _unittest_ironpython.conf_unittest as pytest
 # Setup paths for module imports
-from _unittest.conftest import scratch_path, local_path
+from _unittest.conftest import scratch_path, local_path, settings
 import gc
 
 # Import required modules
@@ -211,6 +211,22 @@ class TestClass:
         assert sweep.props["RangeEnd"] == str(freq_stop) + units
         assert sweep.props["Type"] == "Fast"
 
+        # Create a linear step sweep with the incorrect sweep type.
+        try:
+            sweep = self.aedtapp.create_linear_step_sweep(
+                setupname="MySetup",
+                sweepname="StepFast",
+                unit=units,
+                freqstart=freq_start,
+                freqstop=freq_stop,
+                step_size=step_size,
+                sweep_type="Incorrect",
+            )
+        except AttributeError as e:
+            exception_raised = True
+            assert e.args[0] == "Invalid `sweep_type`. It has to be 'Discrete', 'Interpolating', or 'Fast'."
+        assert exception_raised
+
     def test_06d_create_single_point_sweep(self):
         assert self.aedtapp.create_single_point_sweep(
             setupname="MySetup",
@@ -231,11 +247,11 @@ class TestClass:
         assert self.aedtapp.create_single_point_sweep(
             setupname="MySetup", unit="GHz", freq=[1.1e1, 1.2e1, 1.3e1], save_single_field=[True, False, True]
         )
-        os.environ["PYAEDT_ERROR_HANDLER"] = "True"
+        settings.enable_error_handler = True
         assert not self.aedtapp.create_single_point_sweep(
             setupname="MySetup", unit="GHz", freq=[1, 2e2, 3.4], save_single_field=[True, False]
         )
-        os.environ["PYAEDT_ERROR_HANDLER"] = "False"
+        settings.enable_error_handler = False
 
     def test_06e_delete_setup(self):
         setup_name = "SetupToDelete"

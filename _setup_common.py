@@ -73,6 +73,7 @@ data_files = [
     ("dlls", recursive_glob(os.path.join("pyaedt", "dlls"), "*")),
     ("misc", recursive_glob(os.path.join("pyaedt", "misc"), "*")),
     ("License", recursive_glob(".", "*.md")),
+    ("xaml", ["pyaedt/generic/wpf_template.xaml"]),
     ("version", ["pyaedt/version.txt"]),
     ("setup-distutils", ["setup-distutils.py"]),
 ]

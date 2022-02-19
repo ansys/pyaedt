@@ -10,7 +10,7 @@ from pyaedt.generic.filesystem import Scratch
 
 test_project_name = "Galileo_edb"
 bom_example = "bom_example.csv"
-from _unittest.conftest import config, desktop_version, local_path, scratch_path, is_ironpython
+from _unittest.conftest import config, desktop_version, local_path, scratch_path, is_ironpython, settings
 
 try:
     import pytest
@@ -40,6 +40,10 @@ class TestClass:
     def test_00_export_ipc2581(self):
         ipc_path = os.path.join(self.local_scratch.path, "test.xml")
         self.edbapp.export_to_ipc2581(ipc_path)
+        assert os.path.exists(ipc_path)
+
+        # Export should be made with units set to default -millimeter-.
+        self.edbapp.export_to_ipc2581(ipc_path, "mm")
         assert os.path.exists(ipc_path)
 
     def test_01_find_by_name(self):
@@ -334,12 +338,12 @@ class TestClass:
         assert self.edbapp.core_siwave.add_siwave_ac_analysis()
 
     def test_41_create_siwave_dc_analsyis(self):
-        settings = self.edbapp.core_siwave.get_siwave_dc_setup_template()
-        settings.accuracy_level = 0
-        settings.use_dc_custom_settings = True
-        settings.name = "myDCIR_3"
-        settings.pos_term_to_ground = "I1"
-        assert self.edbapp.core_siwave.add_siwave_dc_analysis(settings)
+        settings_dc = self.edbapp.core_siwave.get_siwave_dc_setup_template()
+        settings_dc.accuracy_level = 0
+        settings_dc.use_dc_custom_settings = True
+        settings_dc.name = "myDCIR_3"
+        settings_dc.pos_term_to_ground = "I1"
+        assert self.edbapp.core_siwave.add_siwave_dc_analysis(settings_dc)
 
     def test_42_get_nets_from_pin_list(self):
         cmp_pinlist = self.edbapp.core_padstack.get_pinlist_from_component_and_net("U2A5", "GND")
@@ -500,7 +504,7 @@ class TestClass:
         assert self.edbapp.core_stackup.stackup_limits()
 
     def test_58_create_polygon(self):
-        os.environ["PYAEDT_ERROR_HANDLER"] = "True"
+        settings.enable_error_handler = True
         points = [[-0.025, -0.02], [0.025, -0.02], [0.025, 0.02], [-0.025, 0.02], [-0.025, -0.02]]
         plane = self.edbapp.core_primitives.Shape("polygon", points=points)
         points = [
@@ -526,7 +530,7 @@ class TestClass:
         points = [[0.001, -0.001, "ccn", 0.0, -0.0012]]
         plane = self.edbapp.core_primitives.Shape("polygon", points=points)
         assert not self.edbapp.core_primitives.create_polygon(plane, "TOP")
-        os.environ["PYAEDT_ERROR_HANDLER"] = "False"
+        settings.enable_error_handler = False
 
     def test_59_create_path(self):
         points = [
