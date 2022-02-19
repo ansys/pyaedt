@@ -878,11 +878,11 @@ class Object3d(object):
 
         """
         if not self._primitives._app.student_version:
-                bounding = self._bounding_box_sat()
-                if bounding:
-                    return bounding
-                else:
-                    return self._bounding_box_unmodel()
+            bounding = self._bounding_box_sat()
+            if bounding:
+                return bounding
+            else:
+                return self._bounding_box_unmodel()
         else:
             return self._bounding_box_unmodel()
 
