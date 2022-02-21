@@ -1,3 +1,26 @@
+|pypi| |PyPIact| |GH-CI| |codecov| |MIT| |black|
+
+
+.. |pypi| image:: https://img.shields.io/pypi/v/pyaedt.svg?logo=python&logoColor=white
+   :target: https://pypi.org/project/pyaedt/
+
+.. |PyPIact| image:: https://img.shields.io/pypi/dm/pyaedt.svg?label=PyPI%20downloads
+   :target: https://pypi.org/project/pyaedt/
+
+.. |GH-CI| image:: https://github.com/pyansys/pyaedt/actions/workflows/unit_tests.yml/badge.svg
+   :target: https://github.com/pyansys/pyaedt/actions/workflows/unit_tests.yml
+
+.. |codecov| image:: https://codecov.io/gh/pyansys/pyaedt/branch/main/graph/badge.svg
+   :target: https://codecov.io/gh/pyansys/pyaedt
+
+.. |MIT| image:: https://img.shields.io/badge/License-MIT-yellow.svg
+   :target: https://opensource.org/licenses/MIT
+
+.. |black| image:: https://img.shields.io/badge/code%20style-black-000000.svg?style=flat
+  :target: https://github.com/psf/black
+  :alt: black
+
+
 Introduction
 ------------
 PyAEDT is part of the larger `PyAnsys <https://docs.pyansys.com>`_
