@@ -16,7 +16,7 @@ from pyaedt.generic.general_methods import is_ironpython
 
 # Import required modules
 from pyaedt.aedt_logger import AedtLogger
-from pyaedt import Hfss
+from pyaedt import Hfss, settings
 
 
 class TestClass:
@@ -166,6 +166,7 @@ class TestClass:
     @pytest.mark.skipif(is_ironpython, reason="stdout redirection does not work in IronPython.")
     def test_03_stdout_with_app_filter(self):
         capture = CaptureStdOut()
+        settings.logger_file_path = ""
         with capture:
             logger = AedtLogger(to_stdout=True)
             logger.info("Info for Global")
@@ -244,6 +245,7 @@ class TestClass:
                 design_logger.removeHandler(handler)
 
         os.remove(path)
+        settings.logger_file_path = ""
 
     @pytest.mark.skipif(is_ironpython, reason="stdout redirection does not work in IronPython.")
     def test_05_disable_stdout(self):

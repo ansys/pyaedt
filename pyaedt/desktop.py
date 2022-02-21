@@ -29,7 +29,7 @@ else:
     import subprocess
 
 from pyaedt.misc import list_installed_ansysem
-from pyaedt import aedt_exception_handler
+from pyaedt import aedt_exception_handler, settings
 from pyaedt.generic.general_methods import is_ironpython, _pythonver, inside_desktop
 
 from pyaedt import aedt_logger, __version__
@@ -435,7 +435,7 @@ class Desktop:
         else:
             oAnsoftApp = StandalonePyScriptWrapper.CreateObject(version)
         if non_graphical:
-            os.environ["PYAEDT_DESKTOP_LOGS"] = "False"
+            settings.enable_desktop_logs = False
         self._main.oDesktop = oAnsoftApp.GetAppDesktop()
         self._main.isoutsideDesktop = True
         sys.path.append(os.path.join(base_path, "common", "commonfiles", "IronPython", "DLLs"))
@@ -498,7 +498,7 @@ class Desktop:
         else:
             StandalonePyScriptWrapper.CreateObject(version)
         if non_graphical:
-            os.environ["PYAEDT_DESKTOP_LOGS"] = "False"
+            settings.enable_desktop_logs = False
         processID2 = []
         if IsWindows:
             processID2 = self._get_tasks_list_windows(student_version)
@@ -534,9 +534,12 @@ class Desktop:
             project_dir = self._main.oDesktop.GetProjectDirectory()
         else:
             project_dir = tempfile.gettempdir()
-        self.logfile = os.path.join(
-            project_dir, "pyaedt{}.log".format(datetime.datetime.now().strftime("%Y%m%d_%H%M%S"))
-        )
+        if settings.logger_file_path:
+            self.logfile = settings.logger_file_path
+        else:
+            self.logfile = os.path.join(
+                project_dir, "pyaedt{}.log".format(datetime.datetime.now().strftime("%Y%m%d_%H%M%S"))
+            )
 
         return True
 
