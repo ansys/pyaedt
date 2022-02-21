@@ -84,7 +84,7 @@ class Maxwell(object):
             Whether to enable the inductance calculation for the transient analysis.
             The default is ``True``.
         incremental_matrix : bool, optional
-            Whether to set the inductance calculation to ``Incremental`` if 
+            Whether to set the inductance calculation to ``Incremental`` if
             ``compute_transient_inductance=True``. The default is ``False``.
 
         Returns
@@ -111,7 +111,7 @@ class Maxwell(object):
     @aedt_exception_handler
     def set_core_losses(self, objects, value=True):
         """Whether to enable core losses for a set of objects.
-        
+
         This method works only on ``EddyCurrent`` and ``Transient`` solutions.
 
         Parameters

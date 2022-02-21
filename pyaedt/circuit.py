@@ -1206,8 +1206,10 @@ class Circuit(FieldAnalysisCircuit, object):
             * 6: Delay to start of sine wave. For example, ``"16s"``. The default is ``"0s"``.
             * 7: Damping factor (1/seconds). For example, ``"2"``. The default is ``"0"``.
             * 8: Phase delay. For example, ``"18deg"``. The default is ``"0deg"``.
-            * 9: Multiplier for simulating multiple parallel current sources. For example, ``"4"``. The default is ``"1"``.
-            * 10: Frequency to use for harmonic balance analysis. For example, ``"20Hz"``. The default is ``"0Hz".``
+            * 9: Multiplier for simulating multiple parallel current sources. For example, ``"4"``.
+              The default is ``"1"``.
+            * 10: Frequency to use for harmonic balance analysis. For example, ``"20Hz"``.
+              The default is ``"0Hz".``
 
         Returns
         -------

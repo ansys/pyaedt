@@ -28,7 +28,7 @@ else:
 
 def launch_server(port=18000, ansysem_path=None, non_graphical=False):
     """Starts an rpyc server and starts listening on a specified port.
-    
+
     This method has to run on a server machine.
 
     Parameters
@@ -363,7 +363,7 @@ def launch_ironpython_server(aedt_path, non_graphical=False, port=18000, launch_
     Parameters
     ----------
     aedt_path : str
-        AEDT path on Linux 
+        AEDT path on Linux.
     non_graphical : bool, optional
         Whether to start AEDT in non-graphical mode. The default is ``False``, in which case
         AEDT is started in graphical mode.

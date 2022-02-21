@@ -326,7 +326,7 @@ class Q3d(QExtractor, object):
             default name is used.
         net_type : str, bool
             Type of net to create. Options are ``"Signal"``, ``"Ground"`` and ``"Floating"``.
-            The default is ``"Signal"``. 
+            The default is ``"Signal"``.
 
         Returns
         -------
@@ -805,12 +805,12 @@ class Q2d(QExtractor, object):
         name : str, optional
             Name of the conductor. The default is ``""``.
         solve_option : str, optional
-            Method for solving. Options are ``"SolveInside"``, ``"SolveOnBoundary"``, and ``"Automatic"``. The default is
-            ``"SolveInside"``.
+            Method for solving. Options are ``"SolveInside"``, ``"SolveOnBoundary"``, and ``"Automatic"``.
+            The default is ``"SolveInside"``.
         thickness : float, optional
-            Conductor thickness. The default is ``None``, in which case the conductor thickness is obtained by dividing
-            the conductor's area by its perimeter (A/p). If multiple conductors are selected, the average conductor
-            thickness is used.
+            Conductor thickness. The default is ``None``, in which case the conductor thickness
+            is obtained by dividing the conductor's area by its perimeter (A/p). If multiple
+            conductors are selected, the average conductor thickness is used.
         unit : str, optional
             Thickness unit. The default is ``"um"``.
 
