@@ -457,4 +457,9 @@ class TestClass:
         y = [3, 1, -1, -1, 1, -1, 0, 1, 2, 3, 3, 4, 4, 3]
         order = 9
         R = go.find_largest_rectangle_inside_polygon([x, y], order)
-        assert R == [[[0, 1], [2, -1], [3, 4], [5, 2]], [[1, 1], [1, 3], [7, 1], [7, 3]]]
+        results = [
+            [[0.0, 1.0], [2.0, -1.0], [5.0, 2.0], [3.0, 4.0]],
+            [[1.0, 1.0], [1.0, 3.0], [7.0, 3.0], [7.0, 1.0]],
+        ]
+        assert R[0] in results
+        assert R[1] in results
