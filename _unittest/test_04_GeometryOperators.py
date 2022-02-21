@@ -451,3 +451,10 @@ class TestClass:
         p1 = [3, 4]
         d = go.point_segment_distance(p1, a, b)
         assert abs(3 - d) < tol
+
+    def test_find_largest_rectangle_inside_polygon(self):
+        x = [1, -1, 1, 2, 4, 6, 7, 8, 7, 7, 5, 4, 3, 2]
+        y = [3, 1, -1, -1, 1, -1, 0, 1, 2, 3, 3, 4, 4, 3]
+        order = 9
+        R = go.find_largest_rectangle_inside_polygon([x, y], order)
+        assert R == [[[0, 1], [2, -1], [3, 4], [5, 2]], [[1, 1], [1, 3], [7, 1], [7, 3]]]

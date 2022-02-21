@@ -1813,3 +1813,92 @@ class GeometryOperators(object):
         d = abs(num)/den
         return d
         # fmt: on
+
+    @staticmethod
+    @aedt_exception_handler
+    def find_largest_rectangle_inside_polygon(polygon, partition_max_order=16):
+
+        # fmt: off
+        def evaluate_partition_size(polygon, partition_max_order):
+            x, y = polygon
+            max_size = max(max(x)-min(x), max(y)-min(y))
+            L = max_size/partition_max_order
+            return L
+
+        def build_s_ploygon_points(vertices, L):
+            x, y = vertices
+
+            # build the lattice
+            xmin = min(x)
+            r = math.ceil(float(max(x)-xmin)/L)
+            xmax = xmin + L*r
+            ymin = min(y)
+            s = math.ceil(float(max(y)-ymin)/L)
+            ymax = ymin + L*s
+
+            # get the lattice points S inside the polygon
+            Spoints = []
+            for i in range(r + 1):
+                xi = xmin + L * i
+                for j in range(s + 1):
+                    yj = ymin + L * j
+                    if GeometryOperators.is_point_in_polygon([xi, yj], [x, y]):
+                        Spoints.append([xi, yj])
+            return Spoints
+
+        def build_u_matrix(S, polygon):
+            N = len(S)
+            # preallocate the matrix
+            Umatrix = [[None for j in range(N)] for i in range(N)]
+            for i in range(N):
+                for j in range(N):
+                    if i >= j:
+                        Umatrix[i][j] = 0
+                    else:
+                        if GeometryOperators.is_segment_intersecting_polygon(S[i], S[j], polygon):
+                            Umatrix[i][j] = 0
+                        else:
+                            p = GeometryOperators.get_mid_point(S[i], S[j])
+                            if not GeometryOperators.is_point_in_polygon(p, polygon):
+                                Umatrix[i][j] = 0
+                            else:
+                                Umatrix[i][j] = GeometryOperators.v_points(S[i], S[j])
+            return Umatrix
+
+        def inside(i, j):
+            if U[i][j] == 0 and isinstance(U[i][j], int):
+                return False
+            else:
+                return True
+
+        def compute_largest_rectangle(S):
+            max_area = 0
+            rectangles = []
+            N = len(S)
+            for i in range(N-3):
+                for j in range(i+1, N-2):
+                    if inside(i, j):
+                        for k in range(j+1, N-1):
+                            if inside(i, k) and GeometryOperators.is_perpendicular(U[i][j], U[i][k]):
+                                ps = GeometryOperators.v_sum(GeometryOperators.v_sub(S[j], S[i]), S[k])
+                                try:
+                                    s = S.index(ps)
+                                except ValueError:
+                                    break
+                                if inside(k, s) and inside(j, s):
+                                    area = GeometryOperators.v_norm(U[i][j]) * GeometryOperators.v_norm(U[i][k])
+                                    if area > max_area:
+                                        max_area = area
+                                        R = [S[i], S[j], S[s], S[k]]
+                                        rectangles = [R]
+                                    elif area == max_area:
+                                        R = [S[i], S[j], S[s], S[k]]
+                                        rectangles.append(R)
+            return rectangles
+
+        L = evaluate_partition_size(polygon, partition_max_order=partition_max_order)
+        S = build_s_ploygon_points(polygon, L)
+        U = build_u_matrix(S, polygon)
+        R = compute_largest_rectangle(S)
+        return R
+        # fmt: on

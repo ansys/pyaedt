@@ -10,6 +10,7 @@ from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import aedt_exception_handler
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.edb_core.EDB_Data import EDBPrimitives
+from pyaedt.modeler.GeometryOperators import GeometryOperators
 
 try:
     from System import Tuple
@@ -26,7 +27,7 @@ class EdbLayout(object):
     --------
     >>> from pyaedt import Edb
     >>> edbapp = Edb("myaedbfolder", edbversion="2021.2")
-    >>> edb_layout = edbapp.core_layout
+    >>> edb_layout = edbapp.core_primitives
     """
 
     def __init__(self, p_edb):
@@ -479,8 +480,8 @@ class EdbLayout(object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        bool, :class:`pyaedt.edb_core.EDB_Data.EDBPrimitives`
+            Polygon when successful, ``False`` when failed.
         """
         net = self._pedb.core_nets.find_or_create_net(net_name)
         polygonData = self.shape_to_polygon_data(main_shape)
@@ -877,3 +878,155 @@ class EdbLayout(object):
                     self._pedb.core_padstack.remove_pads_from_padstack(pad)
         self.update_primitives()
         return True
+
+    @aedt_exception_handler
+    def convert_padstack_pad_to_rectangle(self, padstack_instance, layer_name):
+        """Create a rectangle inscribed inside a padstack instance pad. The rectangle is fully inscribed in the
+        pad and has the maximum area. It is necessary to specify a padstack instance and a layer to identify the
+        padstack instance pad.
+
+        Parameters
+        ----------
+        padstack_instance : :class:`pyaedt.edb_core.EDB_Data.EDBPadstackInstance`
+            Padstack instance
+        layer_name : str
+            Name of the layer on which to create the polygon.
+
+        Returns
+        -------
+        bool, :class:`pyaedt.edb_core.EDB_Data.EDBPrimitives`
+            Polygon when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from pyaedt import Edb
+        >>> edbapp = Edb("myaedbfolder", edbversion="2021.2")
+        >>> edb_layout = edbapp.core_primitives
+        >>> list_of_padstack_instances = list(edbapp.core_padstack.padstack_instances.values())
+        >>> padstack_instance = list_of_padstack_instances[0]
+        >>> edb_layout.convert_padstack_pad_to_rectangle(padstack_instance, "TOP")
+        """
+
+        padstack_name = None
+        padstack_center = None
+        for p in self._pedb.core_padstack.padstack_instances.values():
+            if p == padstack_instance:
+                padstack_name = p.padstack_definition
+                padstack_center = p.position
+        if padstack_name is None or padstack_center is None:
+            return False
+        try:
+            padstack = self._pedb.core_padstack.padstacks[padstack_name]
+        except KeyError:
+            return False
+        try:
+            padstack_pad = padstack.pad_by_layer[layer_name]
+        except KeyError:
+            return False
+
+        pad_shape = padstack_pad.geometry_type
+        params = padstack_pad.parameters_values
+        polygon_data = padstack_pad.polygon_data
+
+        rect = None
+        pcx = padstack_center[0]
+        pcy = padstack_center[1]
+
+        if pad_shape == 1:
+            # Circle
+            diameter = params[0]
+            r = diameter * 0.5
+            p1 = [pcx + r, pcy]
+            p2 = [pcx, pcy + r]
+            p3 = [pcx - r, pcy]
+            p4 = [pcx, pcy - r]
+            rect = [p1, p2, p3, p4]
+        elif pad_shape == 2:
+            # Square
+            square_size = params[0]
+            s2 = square_size * 0.5
+            p1 = [pcx + s2, pcy + s2]
+            p2 = [pcx - s2, pcy + s2]
+            p3 = [pcx - s2, pcy - s2]
+            p4 = [pcx + s2, pcy - s2]
+            rect = [p1, p2, p3, p4]
+        elif pad_shape == 3:
+            # Rectangle
+            x_size = float(params[0])
+            y_size = float(params[1])
+            sx2 = x_size * 0.5
+            sy2 = y_size * 0.5
+            p1 = [pcx + sx2, pcy + sy2]
+            p2 = [pcx - sx2, pcy + sy2]
+            p3 = [pcx - sx2, pcy - sy2]
+            p4 = [pcx + sx2, pcy - sy2]
+            rect = [p1, p2, p3, p4]
+        elif pad_shape == 4:
+            # Oval
+            x_size = params[0]
+            y_size = params[1]
+            corner_radius = float(params[2])
+            if corner_radius >= min(x_size, y_size):
+                r = min(x_size, y_size)
+            else:
+                r = corner_radius
+            sx = x_size * 0.5 - r
+            sy = y_size * 0.5 - r
+            k = r / math.sqrt(2)
+            p1 = [pcx + sx + k, pcy + sy + k]
+            p2 = [pcx - sx - k, pcy + sy + k]
+            p3 = [pcx - sx - k, pcy - sy - k]
+            p4 = [pcx + sx + k, pcy - sy - k]
+            rect = [p1, p2, p3, p4]
+        elif pad_shape == 5:
+            # Bullet
+            x_size = params[0]
+            y_size = params[1]
+            corner_radius = params[2]
+            if corner_radius >= min(x_size, y_size):
+                r = min(x_size, y_size)
+            else:
+                r = corner_radius
+            sx = x_size * 0.5 - r
+            sy = y_size * 0.5 - r
+            k = r / math.sqrt(2)
+            p1 = [pcx + sx + k, pcy + sy + k]
+            p2 = [pcx - x_size * 0.5, pcy + sy + k]
+            p3 = [pcx - x_size * 0.5, pcy - sy - k]
+            p4 = [pcx + sx + k, pcy - sy - k]
+            rect = [p1, p2, p3, p4]
+        elif pad_shape == 6:
+            # N-Sided Polygon
+            size = params[0]
+            num_sides = params[1]
+            ext_radius = size * 0.5
+            apothem = ext_radius * math.cos(math.pi/num_sides)
+            p1 = [pcx + apothem, pcy]
+            p2 = [pcx, pcy + apothem]
+            p3 = [pcx - apothem, pcy]
+            p4 = [pcx, pcy - apothem]
+            rect = [p1, p2, p3, p4]
+        elif pad_shape == 0 and polygon_data is not None:
+            # Polygon
+            points = []
+            i = 0
+            while i < polygon_data.Count:
+                point = polygon_data.GetPoint(i)
+                if point.IsArc():
+                    continue
+                else:
+                    points.append([point.X.ToDouble(), point.Y.ToDouble()])
+                i += 1
+            xpoly, ypoly = zip(*points)
+            polygon = [list(xpoly), list(ypoly)]
+            rectangles = GeometryOperators.find_largest_rectangle_inside_polygon(polygon)
+            rect = rectangles[0]
+            for i in range(4):
+                rect[i][0] = rect[i][0] + pcx
+                rect[i][1] = rect[i][1] + pcy
+
+        if rect is None or len(rect) != 4:
+            return False
+        path = self._pedb.core_primitives.Shape("polygon", points=rect)
+        created_polygon = self._pedb.core_primitives.create_polygon(path, padstack_pad.layer_name)
+        return created_polygon
