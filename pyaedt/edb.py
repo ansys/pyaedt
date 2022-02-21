@@ -448,7 +448,7 @@ class Edb(object):
         init_dlls : bool
             Whether to initialize DLLs. The default is ``False``.
         anstranslator_full_path : str, optional
-            Full path to the Ansys translater. The default is ``""``.
+            Full path to the Ansys translator. The default is ``""``.
         use_ppe : bool
             Whether to use or not PPE License. The default is ``False``.
         Returns

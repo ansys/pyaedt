@@ -907,7 +907,7 @@ class Q2d(QExtractor, object):
         radius :
         ratio :
         unit : str, optional
-            The defaut is ``"um"``.
+            The default is ``"um"``.
         name : str, optional
             The default is ``""``.
 

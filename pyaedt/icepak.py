@@ -1232,7 +1232,7 @@ class Icepak(FieldAnalysisIcepak):
         substrate_material : str, optional
             Substrate material. The default is ``"FR-4"``.
         create_board : bool, optional
-            Wheter to create the board. The default is ``True``.
+            Whether to create the board. The default is ``True``.
         model_board_as_rect : bool, optional
             Whether to create the board as a rectangle. The default is ``False``.
         model_device_as_rect : bool, optional
@@ -1912,7 +1912,7 @@ class Icepak(FieldAnalysisIcepak):
         name : str, optional
             Fan name. The default is ``None``.
         is_2d : bool, optional
-            Wehther the fan is modeled as 2D. The default is ``False``, in which
+            Whether the fan is modeled as 2D. The default is ``False``, in which
             case the fan is modeled as 3D.
         shape : str, optional
             Fan shape. Options are ``"Circular"`` and ``"Rectangular"``. The default
