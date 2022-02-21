@@ -2146,7 +2146,6 @@ class Primitives3D(Primitives, object):
                             "Missing or incorrect key {}.".format(k)
                         )
                         return [False]
-
         try:
             core_name = str(values["Core"]["Name"])
             if len(core_name) > 0:
