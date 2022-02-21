@@ -2133,50 +2133,19 @@ class Primitives3D(Primitives, object):
         read_file = open(json_file, "r")
         values = json.load(read_file)
 
-        list_keys_values = []
-        for f_key in values.keys():
-            list_keys_values.append(f_key)
-            for s_key in values[f_key].keys():
-                list_keys_values.append(s_key)
-
-        list_keys_dictionary_model = []
-        for f_key in dictionary_model.keys():
-            list_keys_dictionary_model.append(f_key)
-            for s_key in dictionary_model[f_key].keys():
-                list_keys_dictionary_model.append(s_key)
-
-        if len(list_keys_values) != len(list_keys_dictionary_model):
-            self.logger.error(
-                "Number of keys of json file is incorrect. "
-                "All the keys should be the same and at the same place as the example."
-            )
-            return [False, values]
-        keys_are_correct = True
-        for i in range(len(list_keys_values)):
-            if list_keys_values[i] != list_keys_dictionary_model[i]:
+        for key, value in dictionary_model.items():
+            if key not in values:
                 self.logger.error(
-                    "The key %s should be written like %s. " % (list_keys_values[i], list_keys_dictionary_model[i])
+                    "Missing or incorrect key {}.".format(key)
                 )
-                keys_are_correct = False
-        if not keys_are_correct:
-            return [False, values]
-
-        for f_key in values.keys():
-            count_true = False
-            for s_key in values[f_key].keys():
-                if type(values[f_key][s_key]) == bool:
-                    if count_true:
-                        values[f_key][s_key] = False
-                    if values[f_key][s_key]:
-                        count_true = True
-                else:
-                    self.logger.error(
-                        "A character entered is invalid. The values of the dictionary %s must be boolean" % f_key
-                    )
-                    are_inequations_checkable = False
-                    break
-            if f_key == "Wire Section":
-                break
+                return [False]
+            if isinstance(value, dict):
+                for k, v in value.items():
+                    if k not in values[key]:
+                        self.logger.error(
+                            "Missing or incorrect key {}.".format(k)
+                        )
+                        return [False]
 
         try:
             core_name = str(values["Core"]["Name"])
