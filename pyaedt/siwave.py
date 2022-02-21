@@ -80,7 +80,8 @@ class Siwave:
             self._main.oSiwave.RestoreWindow()
             specified_version = self.current_version
             assert specified_version in self.version_keys, "Specified version {} is not known.".format(
-                specified_version)
+                specified_version
+            )
             version_key = specified_version
             base_path = os.getenv(self._version_ids[specified_version])
             self._main.sDesktopinstallDirectory = base_path
