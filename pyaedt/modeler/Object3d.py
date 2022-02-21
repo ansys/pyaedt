@@ -1688,8 +1688,8 @@ class Object3d(object):
         Parameters
         ----------
         position : int or float
-            List of the ``[x, y, z]`` coordinates or the
-            Application.Position object for the selection.
+            List of the ``[x, y, z]`` coordinates or
+            the Application.Position object for the selection.
         vector : float
             List of the ``[x1, y1, z1]`` coordinates or
             the Application.Position object for the vector.
