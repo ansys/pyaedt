@@ -638,7 +638,11 @@ class TestClass:
 
     @pytest.mark.skipif(config["build_machine"], reason="Not running in non-graphical mode")
     def test_77_export_to_maxwell(self):
-        edb = Edb(edbpath=os.path.join(local_path, "example_models", "padstacks.aedb"), edbversion=desktop_version, isreadonly=True)
+        edb = Edb(
+            edbpath=os.path.join(local_path, "example_models", "padstacks.aedb"),
+            edbversion=desktop_version,
+            isreadonly=True,
+        )
         for i in range(7):
             padstack_instance = list(edb.core_padstack.padstack_instances.values())[i]
             result = edb.core_primitives.convert_padstack_pad_to_rectangle(edb, padstack_instance, "s")

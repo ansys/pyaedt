@@ -1000,7 +1000,7 @@ class EdbLayout(object):
             size = params[0]
             num_sides = params[1]
             ext_radius = size * 0.5
-            apothem = ext_radius * math.cos(math.pi/num_sides)
+            apothem = ext_radius * math.cos(math.pi / num_sides)
             p1 = [pcx + apothem, pcy]
             p2 = [pcx, pcy + apothem]
             p3 = [pcx - apothem, pcy]
