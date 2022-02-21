@@ -1597,13 +1597,14 @@ class Primitives3D(Primitives, object):
         values = json.load(json_file)
         self.logger.info("CHOKE INFO" + str(values))
 
-        sr = 1.1
-        n_seg = 0
+        security_factor = 1.1
+        sr = security_factor
+        segment_number = 0
         if values["Wire Section"]["Hexagon"]:
-            n_seg = 6
+            segment_number = 6
             section = "Circle"
         elif values["Wire Section"]["Octagon"]:
-            n_seg = 8
+            segment_number = 8
             section = "Circle"
         elif values["Wire Section"]["Circle"]:
             section = "Circle"
@@ -1723,10 +1724,10 @@ class Primitives3D(Primitives, object):
         list_duplicated_object = []
         if type(list_object[0]) == list:
             for i in range(len(list_object)):
-                success = list_object[i][0].set_crosssection_properties(type=section, width=w_dia, num_seg=n_seg)
+                success = list_object[i][0].set_crosssection_properties(type=section, width=w_dia, num_seg=segment_number)
             returned_list = returned_list + list_object
         else:
-            success = list_object[0].set_crosssection_properties(type=section, width=w_dia, num_seg=n_seg)
+            success = list_object[0].set_crosssection_properties(type=section, width=w_dia, num_seg=segment_number)
             returned_list.append(list_object)
 
         for key in values["Number of Windings"].keys():
@@ -1739,14 +1740,14 @@ class Primitives3D(Primitives, object):
                         duplication = self.create_polyline(position_list=list_object[i][1], name=name_wind)
                         duplication.mirror([0, 0, 0], [-1, 0, 0])
                         duplication_points = self.get_vertices_of_line(duplication.name)
-                        success = duplication.set_crosssection_properties(type=section, width=w_dia, num_seg=n_seg)
+                        success = duplication.set_crosssection_properties(type=section, width=w_dia, num_seg=segment_number)
                         list_duplicated_object.append([duplication, duplication_points])
 
                 else:
                     duplication = self.create_polyline(position_list=list_object[1], name=name_wind)
                     duplication.mirror([0, 0, 0], [-1, 0, 0])
                     duplication_points = self.get_vertices_of_line(duplication.name)
-                    success = duplication.set_crosssection_properties(type=section, width=w_dia, num_seg=n_seg)
+                    success = duplication.set_crosssection_properties(type=section, width=w_dia, num_seg=segment_number)
                     list_duplicated_object.append([duplication, duplication_points])
             else:
                 if type(list_object[0]) == list:
@@ -1755,14 +1756,14 @@ class Primitives3D(Primitives, object):
                             duplication = self.create_polyline(position_list=list_object[i][1], name=name_wind)
                             duplication.rotate("Z", (j + 1) * 360 / number_duplication)
                             duplication_points = self.get_vertices_of_line(duplication.name)
-                            success = duplication.set_crosssection_properties(type=section, width=w_dia, num_seg=n_seg)
+                            success = duplication.set_crosssection_properties(type=section, width=w_dia, num_seg=segment_number)
                             list_duplicated_object.append([duplication, duplication_points])
                 else:
                     for j in range(number_duplication - 1):
                         duplication = self.create_polyline(position_list=list_object[1], name=name_wind)
                         duplication.rotate("Z", (j + 1) * 360 / number_duplication)
                         duplication_points = self.get_vertices_of_line(duplication.name)
-                        success = duplication.set_crosssection_properties(type=section, width=w_dia, num_seg=n_seg)
+                        success = duplication.set_crosssection_properties(type=section, width=w_dia, num_seg=segment_number)
                         list_duplicated_object.append([duplication, duplication_points])
             returned_list = returned_list + list_duplicated_object
 
