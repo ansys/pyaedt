@@ -862,7 +862,7 @@ class Edb(object):
             Full path to the Ansys translator.
         use_ppe : bool
             Whether to use the PPE License. The default is ``False``.
-        
+
         Returns
         -------
         bool
