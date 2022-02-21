@@ -57,7 +57,7 @@ class Icepak(FieldAnalysisIcepak):
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
-        machine.  The default is ``True``. This parameter is ignored when Script is launched within AEDT.
+        machine.  The default is ``True``.
     close_on_exit : bool, optional
         Whether to release AEDT on exit.
     student_version : bool, optional
@@ -189,7 +189,7 @@ class Icepak(FieldAnalysisIcepak):
             List of face names.
         free_loss_coeff : bool
             Whether to enable the free loss coefficient. The default is ``True``. If ``False``,
-            free loss curve is enabled.
+            free loss coefficient is enabled.
         free_area_ratio : float, str
             Free loss coefficient value. The default is ``0.8``.
         resistance_type : int, optional
@@ -495,7 +495,7 @@ class Icepak(FieldAnalysisIcepak):
         thermal_condtion : str, optional
             Thermal condition. The default is ``"Total Power"``.
         surface_heat : str, optional
-            Surface heat.  The default is ``"0irrad_W_per_m2"``.
+            Surface heat. The default is ``"0irrad_W_per_m2"``.
         temperature : str, optional
             Type of the temperature. The default is ``"AmbientTemp"``.
         radiate : bool, optional
@@ -659,7 +659,7 @@ class Icepak(FieldAnalysisIcepak):
         Parameters
         ----------
         input_list : list
-            List of sources with inputs ``rjc``,  ``rjb``, and ``power``.
+            List of sources with inputs ``rjc``, ``rjb``, and ``power``.
             For example, ``[[Objname1, rjc, rjb, power1, power2, ...], [Objname2, rjc2, rbj2, power1, power2, ...]]``.
         gravity_dir : int
             Gravity direction from -X to +Z. Options are ``0`` to ``5``.
@@ -1202,7 +1202,7 @@ class Icepak(FieldAnalysisIcepak):
         filter_ind : bool, optional
             Whether to filter inductors from the IDF file. The default is ``False``.
         filter_res : bool, optional
-            Whether to filter resistor from the IDF file. The default is ``False``.
+            Whether to filter resistors from the IDF file. The default is ``False``.
         filter_height_under : float or str, optional
             Filter components under a given height. The default is ``None``, in which case
             no components are filtered based on height.
@@ -1913,7 +1913,7 @@ class Icepak(FieldAnalysisIcepak):
             Fan name. The default is ``None``.
         is_2d : bool, optional
             Wehther the fan is modeled as 2D. The default is ``False``, in which
-            case it is modeled as 3D.
+            case the fan is modeled as 3D.
         shape : str, optional
             Fan shape. Options are ``"Circular"`` and ``"Rectangular"``. The default
             is ``"Circular"``.
@@ -2155,7 +2155,7 @@ class Icepak(FieldAnalysisIcepak):
         Parameters
         ----------
         component_name : str
-            Name of the new PCB component to be created in Icepak.
+            Name of the new PCB component to create in Icepak.
         project_name : str
             Name of the project or the full path to the project.
         design_name : str
@@ -2264,7 +2264,7 @@ class Icepak(FieldAnalysisIcepak):
         ----------
         meshtype : int
             Type of the mesh. Options are ``1``, ``2``, and ``3``, which represent
-            respectively a coarse, standard, or very accurate mesh.
+            respectively a coarse, standard, and very accurate mesh.
         gap_min_elements : str, optional
             The default is ``"1"``.
         noOgrids : bool, optional
@@ -2527,12 +2527,12 @@ class Icepak(FieldAnalysisIcepak):
 
     @aedt_exception_handler
     def generate_fluent_mesh(self, object_lists=None):
-        """Generate a Fluent mesh for a selected objects list and assign it automatically to the objects.
+        """Generate a Fluent mesh for a list of selected objects and assign the mesh automatically to the objects.
 
         Parameters
         ----------
         object_lists : list, optional
-            List of objects on which to compute the Fluent mesh. The default is ``None``, in which case
+            List of objects to compute the Fluent mesh on. The default is ``None``, in which case
             all fluids objects are used to compute the mesh.
 
         Returns

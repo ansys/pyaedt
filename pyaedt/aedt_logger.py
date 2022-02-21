@@ -53,8 +53,7 @@ class AedtLogger(object):
         Logging level to filter the message severity allowed in the logger.
         The default is ``logging.DEBUG``.
     filename : str, optional
-        Name of the file where the messages are to be written.
-        The default is ``None``.
+        Name of the file to write messages to. The default is ``None``.
     to_stdout : bool, optional
         Whether to write log messages to stdout. The default is ``False``.
     """

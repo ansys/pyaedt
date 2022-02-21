@@ -235,6 +235,7 @@ class Desktop:
     non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
+        This parameter is ignored when a script is launched within AEDT.
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the machine.
@@ -813,7 +814,7 @@ class Desktop:
 
     @property
     def src_dir(self):
-        """Source directory for Python.
+        """Python source directory.
 
         Returns
         -------
@@ -955,12 +956,13 @@ class Desktop:
         self._main.oDesktop.EnableAutoSave(False)
 
     def change_license_type(self, license_type="Pool"):
-        """Change the license type between ``"Pack"`` and ``"Pool"``.
+        """Change the license type.
 
         Parameters
         ----------
         license_type : str, optional
             Type of the license. The options are ``"Pack"`` and ``"Pool"``.
+            The default is ``"Pool".
 
         Returns
         -------
@@ -1009,7 +1011,7 @@ class Desktop:
                 self.logger.warning("Error setting up Key %s.", key_full_name)
                 return False
         else:
-            self.logger.warning("Key Value must be an int or str.")
+            self.logger.warning("Key value must be an integer or string.")
             return False
 
     def change_active_dso_config_name(self, product_name="HFSS", config_name="Local"):

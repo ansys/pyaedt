@@ -1,4 +1,4 @@
-"""This module contains the `MaxwellCircuit` class."""
+"""This module contains the ``MaxwellCircuit`` class."""
 
 from __future__ import absolute_import
 import math
@@ -25,9 +25,10 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
         Version of AEDT to use. The default is ``None``. If ``None``,
         the active setup is used or the latest installed version is
         used.
-    NG : bool, optional
-        Whether to launch AEDT in the non-graphical mode. The default
-        is ``False``, in which case AEDT is launched in the graphical mode.
+    non-graphical : bool, optional
+        Whether to launch AEDT in non-graphical mode. The default
+        is ``False``, in which case AEDT is launched in graphical mode.
+        This parameter is ignored when a script is launched within AEDT.
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
@@ -39,9 +40,9 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
 
     Examples
     --------
-    Create an instance of Maxwell Circuit Editor and connect to an existing
-    Maxwell ckt design or create a new Maxwell ckt design if one does not
-    exist.
+    Create an instance of Maxwell Circuit and connect to an existing
+    Maxwell circuit design or create a new Maxwell circuit design if one does
+    not exist.
 
     >>> from pyaedt import MaxwellCircuit
     >>> app = MaxwellCircuit()

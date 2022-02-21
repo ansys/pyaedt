@@ -587,7 +587,7 @@ class Analysis(Design, object):
 
     @aedt_exception_handler
     def analyze_all(self):
-        """Analyze all setup in an actual design.
+        """Analyze all setups in a design.
 
         Returns
         -------
@@ -1419,20 +1419,20 @@ class Analysis(Design, object):
 
     @aedt_exception_handler
     def analyze_setup(self, name, num_cores=None, num_tasks=None, num_gpu=None, acf_file=None):
-        """Analyze a specific design setup.
+        """Analyze a design setup.
 
         Parameters
         ----------
         name : str
             Name of the setup, which can be an optimetric setup or a simple setup.
         num_cores : int, optional
-            Number of Simulation cores.
+            Number of simulation cores. The default is ``None.``
         num_tasks : int, optional
-            Number of Simulation tasks.
+            Number of simulation tasks. The default is ``None.``
         num_gpu : int, optional
-            Number of Simulation Gpu to use.
+            Number of simulation graphics processing units. The default is ``None.``
         acf_file : str, optional
-            Full path to custom acf_file.
+            Full path to custom ACF file. The default is ``None.``
 
         Returns
         -------

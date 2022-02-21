@@ -40,7 +40,7 @@ class Circuit(FieldAnalysisCircuit, object):
         This parameter is ignored when Script is launched within AEDT.
     non_graphical : bool, optional
         Whether to run AEDT in non-graphical mode. The default
-        is``False``, in which case AEDT is launched in graphical mode.
+        is ``False``, in which case AEDT is launched in graphical mode.
         This parameter is ignored when a script is launched within AEDT.
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if

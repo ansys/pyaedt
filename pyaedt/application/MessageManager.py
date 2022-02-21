@@ -1,6 +1,5 @@
 """
-This module contains these classes: `AEDTMessageManager`, `EDBMessageManager`,
-and `MessageList`.
+This module contains the ``AEDTMessageManager`` class.
 
 This module provides all functionalities for logging errors and messages
 in both AEDT and the log file.
@@ -18,7 +17,7 @@ class Msg:
 
 
 class MessageList:
-    """Collects and returns messages from the AEDT Message Manager for a specified project name and design name.
+    """Collects and returns messages from the AEDT message manager for a specified project name and design name.
 
     Parameters
     ---------
@@ -68,7 +67,7 @@ class MessageList:
 
 
 class AEDTMessageManager(object):
-    """Manages AEDT messaging to both the logger and the AEDT Message Manager window.
+    """Manages AEDT messaging to both the logger and the AEDT message manager.
 
     Parameters
     ----------
@@ -162,7 +161,7 @@ class AEDTMessageManager(object):
         return self.get_messages(self._project_name, self._design_name)
 
     def get_messages(self, project_name, design_name):
-        """Retrieve the Message Manager content for a specified project and design.
+        """Retrieve the message manager content for a specified project and design.
 
         If the specified project and design names are invalid, they are ignored.
 
@@ -186,7 +185,7 @@ class AEDTMessageManager(object):
         return MessageList([], project_name, design_name)
 
     def add_error_message(self, message_text, level=None):
-        """Add a type 2 "Error" message to the Message Manager tree.
+        """Add a type 2 "Error" message to the message manager tree.
 
         Also add an error message to the logger if the handler is present.
 
@@ -202,7 +201,7 @@ class AEDTMessageManager(object):
 
         Examples
         --------
-        Add an error message to the AEDT Message Manager.
+        Add an error message to the AEDT message manager.
 
         >>> hfss.logger.project.error("Project Error Message", "Project")
 
@@ -210,7 +209,7 @@ class AEDTMessageManager(object):
         self.add_message(2, message_text, level)
 
     def add_warning_message(self, message_text, level=None):
-        """Add a type 1 "Warning" message to the Message Manager tree.
+        """Add a type 1 "Warning" message to the message manager tree.
 
         Also add a warning message to the logger if the handler is present.
 
@@ -226,7 +225,7 @@ class AEDTMessageManager(object):
 
         Examples
         --------
-        Add a warning message to the AEDT Message Manager.
+        Add a warning message to the AEDT message manager.
 
         >>> hfss.logger.warning("Global warning message")
 
@@ -234,7 +233,7 @@ class AEDTMessageManager(object):
         self.add_message(1, message_text, level)
 
     def add_info_message(self, message_text, level=None):
-        """Add a type 0 "Info" message to the active design level of the Message Manager tree.
+        """Add a type 0 "Info" message to the active design level of the message manager tree.
 
         Also add an info message to the logger if the handler is present.
 
@@ -258,7 +257,7 @@ class AEDTMessageManager(object):
         self.add_message(0, message_text, level)
 
     def add_debug_message(self, type, message_text):
-        """Parameterized message to the Message Manager to specify the type and project or design level.
+        """Parameterized message to the message manager to specify the type and project or design level.
 
         Parameters
         ----------
@@ -287,7 +286,7 @@ class AEDTMessageManager(object):
                 self.logger.error(message_text)
 
     def add_message(self, type, message_text, level=None, proj_name=None, des_name=None):
-        """Pass a parameterized message to the Message Manager to specify the type and project or design level.
+        """Pass a parameterized message to the message manager to specify the type and project or design level.
 
         Parameters
         ----------
