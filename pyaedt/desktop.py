@@ -435,7 +435,7 @@ class Desktop:
         else:
             oAnsoftApp = StandalonePyScriptWrapper.CreateObject(version)
         if non_graphical:
-            os.environ["PYAEDT_DESKTOP_LOGS"] = "False"
+            settings.enable_desktop_logs = False
         self._main.oDesktop = oAnsoftApp.GetAppDesktop()
         self._main.isoutsideDesktop = True
         sys.path.append(os.path.join(base_path, "common", "commonfiles", "IronPython", "DLLs"))
@@ -498,7 +498,7 @@ class Desktop:
         else:
             StandalonePyScriptWrapper.CreateObject(version)
         if non_graphical:
-            os.environ["PYAEDT_DESKTOP_LOGS"] = "False"
+            settings.enable_desktop_logs = False
         processID2 = []
         if IsWindows:
             processID2 = self._get_tasks_list_windows(student_version)
