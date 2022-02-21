@@ -2145,7 +2145,7 @@ class Primitives3D(Primitives, object):
 
         for f_key in values.keys():
             count_true = False
-            if f_key == "Number of Windings" or "Layer" or "Layer Type" or "Similar Layer" or "Mode":
+            if f_key == "Number of Windings":
                 for s_key in values[f_key].keys():
                     if type(values[f_key][s_key]) == bool:
                         if count_true:
