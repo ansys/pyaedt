@@ -436,3 +436,18 @@ class TestClass:
         assert go.is_perpendicular(a, b)
         b = [-1, 1.1]
         assert not go.is_perpendicular(a, b)
+
+    def test_is_point_projection_in_segment(self):
+        a = [1, 1]
+        b = [10, 1]
+        p1 = [3, 4]
+        p2 = [0, 2]
+        assert go.is_point_projection_in_segment(p1, a, b)
+        assert not go.is_point_projection_in_segment(p2, a, b)
+
+    def test_point_segment_distance(self):
+        a = [1, 1]
+        b = [10, 1]
+        p1 = [3, 4]
+        d = go.point_segment_distance(p1, a, b)
+        assert abs(3 - d) < tol

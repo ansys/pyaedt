@@ -1760,3 +1760,56 @@ class GeometryOperators(object):
             return True
         else:
             return False
+
+    @staticmethod
+    @aedt_exception_handler
+    def is_point_projection_in_segment(p, a, b):
+        """Check if a point projection lies on the segment defined by two points.
+
+        Parameters
+        ----------
+        p : list
+            List of ``[x, y, z]`` coordinates for the reference point ``p``.
+        a : list
+            List of ``[x, y, z]`` coordinates for the first point of the segment.
+        b : list
+            List of ``[x, y, z]`` coordinates for the second point of the segment.
+
+        Returns
+        -------
+        bool
+            ``True`` when the projection point lies on the segment defined by the two points, ``False`` otherwise.
+
+        """
+        # fmt: off
+        dx = b[0]-a[0]
+        dy = b[1]-a[1]
+        inner_product = (p[0]-a[0])*dx + (p[1]-a[1])*dy
+        return 0 <= inner_product <= dx*dx + dy*dy
+        # fmt: on
+
+    @staticmethod
+    @aedt_exception_handler
+    def point_segment_distance(p, a, b):
+        """Calculate the distance between a point ``p`` and a segment defined by two points ``a`` and ``b``.
+
+        Parameters
+        ----------
+        p : list
+            List of ``[x, y, z]`` coordinates for the reference point ``p``.
+        a : list
+            List of ``[x, y, z]`` coordinates for the first point of the segment.
+        b : list
+            List of ``[x, y, z]`` coordinates for the second point of the segment.
+
+        Returns
+        -------
+        float
+            Distance between the point and the segment.
+        """
+        # fmt: off
+        den = math.sqrt((b[0] - a[0])**2 + (b[1] - a[1])**2)
+        num = (b[0] - a[0])*(a[1] - p[1]) - (a[0] - p[0])*(b[1] - a[1])
+        d = abs(num)/den
+        return d
+        # fmt: on
