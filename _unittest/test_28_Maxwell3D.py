@@ -160,7 +160,7 @@ class TestClass:
             udp_parameters_list=my_udpPairs,
             upd_library="syslib",
             name=my_udpName,
-            udptye="Solid",
+            udp_type="Solid",
         )
 
         assert udp
@@ -184,7 +184,7 @@ class TestClass:
             udp_dll_name="RMxprt/ClawPoleCore",
             udp_parameters_list=my_udpPairs,
             upd_library="syslib",
-            udptye="Solid",
+            udp_type="Solid",
         )
 
         assert second_udp
