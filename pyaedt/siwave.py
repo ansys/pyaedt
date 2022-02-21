@@ -108,7 +108,7 @@ class Siwave:
             elif _com == "pythonnet_v3":
                 # TODO check if possible to use pythonnet. at the moment the tool open AEDt
                 # but doesn't return the wrapper of oApp
-                print("Launching Siwave with Module win32com.")
+                print("Launching Siwave with module win32com.")
 
                 self._main.oSiwave = win32com.client.Dispatch("Siwave.Application.2021.2")
 
