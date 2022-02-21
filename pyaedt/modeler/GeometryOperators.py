@@ -1457,7 +1457,7 @@ class GeometryOperators(object):
         Parameters
         ----------
         numb : float
-            In radians which will be converted to degrees and will over-rounded to the "digits"th decimal
+            Angles in radians which will be converted to degrees and will be over-rounded to the next "digits" decimal.
         digits : int
             Integer number which is the number of decimals
 
