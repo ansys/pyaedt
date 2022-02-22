@@ -984,3 +984,51 @@ class TestClass(BasisTest):
         assert isinstance(winding_list, list)
         assert isinstance(winding_list[0], Object3d)
         assert isinstance(winding_list[1], list)
+
+    @pyaedt_unittest_check_desktop_error
+    def test_74_make_double_linked_winding(self):
+        chamfer = self.aedtapp.modeler._make_winding_follow_chamfer(0.8, 1.1, 2, 1)
+        winding_list = self.aedtapp.modeler._make_double_linked_winding(
+            "Double_Winding",
+            "",
+            "",
+            27.7,
+            54.3,
+            26.6,
+            2,
+            3,
+            3,
+            15,
+            16,
+            0.8,
+            chamfer,
+            1.1,
+        )
+        assert isinstance(winding_list, list)
+        assert isinstance(winding_list[0], Object3d)
+        assert isinstance(winding_list[1], list)
+
+    @pyaedt_unittest_check_desktop_error
+    def test_75_make_triple_linked_winding(self):
+        chamfer = self.aedtapp.modeler._make_winding_follow_chamfer(0.8, 1.1, 2, 1)
+        winding_list = self.aedtapp.modeler._make_triple_linked_winding(
+            "Triple_Winding",
+            "",
+            "",
+            25.5,
+            56.5,
+            31.0,
+            2,
+            2.5,
+            2.5,
+            2.5,
+            10,
+            12,
+            14,
+            0.8,
+            chamfer,
+            1.1,
+        )
+        assert isinstance(winding_list, list)
+        assert isinstance(winding_list[0], Object3d)
+        assert isinstance(winding_list[1], list)
