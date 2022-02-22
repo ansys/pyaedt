@@ -12,6 +12,7 @@ from pyaedt.generic.general_methods import generate_unique_name, aedt_exception_
 from collections import OrderedDict
 from pyaedt.modeler.actors import Radar
 from pyaedt.generic.constants import INFINITE_SPHERE_TYPE
+from pyaedt.generic.DataHandlers import _dict2arg
 
 
 class Hfss(FieldAnalysis3D, object):
@@ -4829,3 +4830,70 @@ class Hfss(FieldAnalysis3D, object):
         self.oboundary.EditGlobalCurrentSourcesOption(arg)
         self.logger.info("SBR+ current source options correctly applied.")
         return True
+
+    @aedt_exception_handler
+    def set_differential_pair(self, positive_terminal, negative_terminal, common_name=None, diff_name=None,
+                               common_ref_z=25, diff_ref_z=100, active=True, matched=False):
+        """Add a differential pair definition
+
+        Parameters
+        ----------
+        positive_terminal : str
+            Name of the terminal to use as the positive terminal.
+        negative_terminal : str
+            Name of the terminal to use as the negative terminal.
+        common_name : str, optional
+            Name for the common mode. Default is ``None`` in which case a unique name is chosed.
+        diff_name : str, optional
+            Name for the differential mode. Default is ``None`` in which case a unique name is chosed.
+        common_ref_z : float, optional
+            Reference impedance for the common mode. Units are Ohm. Default is ``25``.
+        diff_ref_z : float, optional
+            Reference impedance for the differential mode. Units are Ohm. Default is ``100``.
+        active : bool, optional
+            Set the differential pair as active. Default is ``True``.
+        matched : bool, optional
+            Set the differential pair as active. Default is ``False``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oModule.EditDiffPairs
+        """
+
+        props = OrderedDict()
+        props["PosBoundary"] = positive_terminal
+        props["NegBoundary"] = negative_terminal
+        if not common_name:
+            common_name = generate_unique_name("Comm")
+        props["CommonName"] = common_name
+        props["CommonRefZ"] = str(common_ref_z) + "ohm"
+        if not diff_name:
+            diff_name = generate_unique_name("Diff")
+        props["DiffName"] = diff_name
+        props["DiffRefZ"] = str(diff_ref_z) + "ohm"
+        props["IsActive"] = active
+        props["UseMatched"] = matched
+        arg = ["NAME:" + generate_unique_name("Pair")]
+        _dict2arg(props, arg)
+
+        arg2 = ["NAME:EditDiffPairs", arg]
+
+        existing_pairs = self.oboundary.GetDiffPairs()
+        num_old_pairs = len(existing_pairs)
+        if existing_pairs:
+            for i, p in enumerate(existing_pairs):
+                tmp_p = list(p)
+                tmp_p.insert(0, "NAME:Pair_" + str(i))
+                arg2.append(tmp_p)
+
+        self.oboundary.EditDiffPairs(arg2)
+
+        if len(self.oboundary.GetDiffPairs()) == num_old_pairs + 1:
+            return True
+        else:
+            return False
