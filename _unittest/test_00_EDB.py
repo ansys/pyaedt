@@ -637,6 +637,6 @@ class TestClass:
         assert self.edbapp.core_components.short_component_pins("U10", ["2", "5"])
 
     def test_77_edb_without_path(self):
-        self.edbapp_without_path = Edb(isaedtowned=True, edbversion=desktop_version, isreadonly=False)
-        self.edbapp_without_path.close_edb()
-        self.edbapp_without_path = None
+        edbapp_without_path = Edb(edbversion=desktop_version, isreadonly=False)
+        edbapp_without_path.close_edb()
+        edbapp_without_path = None
